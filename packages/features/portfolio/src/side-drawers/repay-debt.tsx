@@ -30,7 +30,10 @@ export const RepayDebt = () => {
   }, [collateral?.id, setCurrencyInput]);
 
   return (
-    <PortfolioSideDrawer context={context}>
+    <PortfolioSideDrawer
+      context={context}
+      requiredApprovalAmount={requiredApprovalAmount}
+    >
       <PortfolioHoldingSelect
         tightMarginTop
         context={context}
@@ -50,7 +53,6 @@ export const RepayDebt = () => {
         }
         inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabelTwo']}
         errorMsgOverride={errorMsg}
-        requiredApprovalAmount={requiredApprovalAmount}
       />
     </PortfolioSideDrawer>
   );

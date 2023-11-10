@@ -1,10 +1,11 @@
 import { ToggleSwitchProps } from '@notional-finance/mui';
-import { TransactionSidebar, LiquidationRisk } from '@notional-finance/trade';
+import { TransactionSidebar } from '@notional-finance/trade';
 import { useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { useCallback } from 'react';
 import { TradeContext } from '@notional-finance/notionable-hooks';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { Box, useTheme } from '@mui/material';
 
 interface PortfolioSideDrawerProps {
@@ -12,6 +13,8 @@ interface PortfolioSideDrawerProps {
   advancedToggle?: ToggleSwitchProps;
   context: TradeContext;
   isWithdraw?: boolean;
+  enablePrimeBorrow?: boolean;
+  requiredApprovalAmount?: TokenBalance;
 }
 
 export const PortfolioSideDrawer = ({
@@ -19,6 +22,8 @@ export const PortfolioSideDrawer = ({
   children,
   advancedToggle,
   isWithdraw,
+  enablePrimeBorrow,
+  requiredApprovalAmount,
 }: PortfolioSideDrawerProps) => {
   const theme = useTheme();
   const { category } = useParams<PortfolioParams>();
@@ -38,7 +43,8 @@ export const PortfolioSideDrawer = ({
       onReturnToForm={onCancel}
       advancedToggle={advancedToggle}
       isWithdraw={isWithdraw}
-      riskComponent={<LiquidationRisk state={context.state} />}
+      variableBorrowRequired={enablePrimeBorrow}
+      requiredApprovalAmount={requiredApprovalAmount}
     >
       <Box sx={{ marginBottom: theme.spacing(6) }}>{children}</Box>
     </TransactionSidebar>

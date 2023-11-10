@@ -671,6 +671,8 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
         isTotalRow: true,
       };
 
+  summary.push({ ...total });
+
   return { summary, total };
 }
 

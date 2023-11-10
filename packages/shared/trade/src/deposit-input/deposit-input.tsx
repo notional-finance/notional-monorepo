@@ -25,7 +25,6 @@ interface DepositInputProps {
   isWithdraw?: boolean;
   maxWithdraw?: TokenBalance;
   useZeroDefault?: boolean;
-  requiredApprovalAmount?: TokenBalance;
 }
 
 /**

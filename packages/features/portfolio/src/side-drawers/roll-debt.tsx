@@ -32,7 +32,10 @@ export const RollDebt = () => {
   return debt === undefined ? (
     <SelectConvertAsset context={context} />
   ) : (
-    <PortfolioSideDrawer context={context}>
+    <PortfolioSideDrawer
+      context={context}
+      enablePrimeBorrow={debt?.tokenType === 'PrimeDebt'}
+    >
       <SideBarSubHeader
         callback={() => updateState({ debt: undefined })}
         sx={{

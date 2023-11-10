@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Divider, styled, useTheme } from '@mui/material';
-import { Drawer } from '../drawer/drawer';
 import { ActionSidebarButtons } from '../action-sidebar-buttons/action-sidebar-buttons';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { LeverUpToggle } from '../lever-up-toggle/lever-up-toggle';
@@ -22,9 +21,9 @@ export interface ActionSidebarProps {
   helptext:
     | MessageDescriptor
     | { defaultMessage: string }
-    | { values?: Record<string, unknown> };
+    | { values?: Record<string, unknown> }
+    | undefined;
   children: React.ReactNode | React.ReactNode[];
-  showDrawer?: boolean;
   canSubmit?: boolean;
   cancelRoute?: string;
   onCancelCallback?: () => void;
@@ -66,7 +65,6 @@ export const ActionSidebar = ({
   heading,
   helptext,
   children,
-  showDrawer = true,
   canSubmit,
   cancelRoute,
   onCancelCallback,
@@ -81,7 +79,8 @@ export const ActionSidebar = ({
   leverageDisabled,
 }: ActionSidebarProps) => {
   const theme = useTheme();
-  const inner = (
+
+  return (
     <>
       <ActionSideBarContainer hideTextOnMobile={hideTextOnMobile} theme={theme}>
         <Box
@@ -165,8 +164,6 @@ export const ActionSidebar = ({
       </FormSection>
     </>
   );
-
-  return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };
 
 const ActionSideBarContainer = styled(Box, {

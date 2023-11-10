@@ -8,7 +8,7 @@ export interface ApprovalButtonProps {
   symbol: string;
   sx?: Record<string, string>;
   showSymbol?: boolean;
-  callback: any;
+  callback: () => void;
   description: MessageDescriptor;
   title: MessageDescriptor;
   buttonText: MessageDescriptor;

@@ -39,6 +39,13 @@ export const VaultSideDrawer = ({
       advancedToggle={advancedToggle}
       onCancelRouteCallback={() => history.push(`/vaults/${vaultAddress}`)}
       hideTextOnMobile={false}
+      riskComponent={
+        tradeType === 'CreateVaultPosition' ? (
+          <CreateVaultLiquidationRisk key={'vault-risk-table'} state={state} />
+        ) : (
+          <VaultDetailsTable key={'vault-risk-table'} />
+        )
+      }
       helptext={{
         ...messages[tradeType].helptext,
         values: {
@@ -48,11 +55,6 @@ export const VaultSideDrawer = ({
       }}
     >
       {children}
-      {tradeType === 'CreateVaultPosition' ? (
-        <CreateVaultLiquidationRisk key={'vault-risk-table'} state={state} />
-      ) : (
-        <VaultDetailsTable key={'vault-risk-table'} />
-      )}
     </TransactionSidebar>
   );
 };

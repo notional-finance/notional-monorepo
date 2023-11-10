@@ -4,7 +4,6 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
   DepositInput,
   MaturitySelect,
-  LiquidationRisk,
   TransactionSidebar,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
@@ -30,7 +29,6 @@ export const LendFixedSidebar = () => {
       handleLeverUpToggle={handleLeverUpToggle}
       context={context}
       showDrawer
-      riskComponent={<LiquidationRisk state={context.state} />}
     >
       <DepositInput
         ref={currencyInputRef}

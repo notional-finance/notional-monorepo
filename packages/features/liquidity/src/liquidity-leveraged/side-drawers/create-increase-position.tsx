@@ -17,7 +17,7 @@ export const CreateOrIncreasePosition = () => {
   const history = useHistory();
   const context = useContext(LiquidityContext);
   const {
-    state: { selectedDepositToken, customizeLeverage },
+    state: { selectedDepositToken, customizeLeverage, debt },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
   const { currentPosition, depositTokensWithPositions } =
@@ -33,6 +33,7 @@ export const CreateOrIncreasePosition = () => {
       handleLeverUpToggle={handleLeverUpToggle}
       leveredUp
       riskComponent={currentPosition ? <LiquidityDetailsTable /> : undefined}
+      variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}
     >
       <DepositInput
         ref={currencyInputRef}

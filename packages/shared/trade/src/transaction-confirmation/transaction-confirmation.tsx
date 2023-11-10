@@ -1,5 +1,4 @@
 import { useCallback, useEffect } from 'react';
-import { Drawer } from '@notional-finance/mui';
 import { trackEvent, RouteState } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { Divider, styled, useTheme, Box } from '@mui/material';
@@ -31,7 +30,6 @@ export interface TransactionConfirmationProps {
   context: BaseTradeContext | VaultContext;
   onCancel?: () => void;
   onReturnToForm?: () => void;
-  showDrawer?: boolean;
   isWithdraw?: boolean;
 }
 
@@ -40,7 +38,6 @@ export const TransactionConfirmation = ({
   context,
   onCancel,
   onReturnToForm,
-  showDrawer = true,
 }: TransactionConfirmationProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
@@ -70,7 +67,7 @@ export const TransactionConfirmation = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const inner = (
+  return (
     <>
       <StatusHeading
         heading={heading}
@@ -159,11 +156,9 @@ export const TransactionConfirmation = ({
       />
     </>
   );
-
-  return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };
 
-const TermsOfService = styled(HeadingSubtitle)(
+export const TermsOfService = styled(HeadingSubtitle)(
   ({ theme }) => `
     margin-top: ${theme.spacing(2)};
     margin-bottom: ${theme.spacing(3)};

@@ -23,7 +23,7 @@ export const messages = {
     },
     description: {
       defaultMessage:
-        'Your deposit is above your set spending cap of {depositAmount}. Increase to continue.',
+        'Your deposit is above your set spending cap. Increase your spending cap above {depositAmount} to continue.',
       description: 'description',
     },
     buttonText: {
