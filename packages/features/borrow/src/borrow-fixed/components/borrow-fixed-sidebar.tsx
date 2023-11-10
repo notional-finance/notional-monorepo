@@ -2,7 +2,6 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
   DepositInput,
   MaturitySelect,
-  LiquidationRisk,
   TransactionSidebar,
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
@@ -13,15 +12,9 @@ import { useContext } from 'react';
 export const BorrowFixedSidebar = () => {
   const { currencyInputRef } = useCurrencyInputRef();
   const context = useContext(BorrowFixedContext);
-  const { state } = context;
 
   return (
-    <TransactionSidebar
-      context={context}
-      showDrawer
-      isWithdraw
-      riskComponent={<LiquidationRisk state={state} />}
-    >
+    <TransactionSidebar context={context} showDrawer isWithdraw>
       <DepositInput
         isWithdraw
         ref={currencyInputRef}

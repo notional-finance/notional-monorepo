@@ -1,5 +1,5 @@
 import { ToggleSwitchProps } from '@notional-finance/mui';
-import { TransactionSidebar, LiquidationRisk } from '@notional-finance/trade';
+import { TransactionSidebar } from '@notional-finance/trade';
 import { useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';

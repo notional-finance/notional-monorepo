@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { ErrorMessage, useCurrencyInputRef } from '@notional-finance/mui';
 import {
   DepositInput,
-  LiquidationRisk,
   TransactionSidebar,
   tradeErrors,
 } from '@notional-finance/trade';
