@@ -18,6 +18,11 @@ export function Maturities({
   inputLabel,
 }: MaturitiesProps) {
   const theme = useTheme();
+
+  if (!selectedfCashId) {
+    onSelect(maturityData[maturityData.length - 1].tokenId);
+  }
+
   return (
     <Box>
       <InputLabel inputLabel={inputLabel} />
@@ -34,7 +39,7 @@ export function Maturities({
               }
               onSelect={(key) => {
                 const selected =
-                  key && key !== selectedfCashId ? key : undefined;
+                  key && key !== selectedfCashId ? key : selectedfCashId;
                 onSelect(selected);
               }}
               isFirstChild={index === 0}

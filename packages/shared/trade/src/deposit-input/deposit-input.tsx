@@ -7,7 +7,8 @@ import {
   InputLabel,
   PageLoading,
 } from '@notional-finance/mui';
-import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { MessageDescriptor } from 'react-intl';
+import { getErrorMessages } from './get-error-messages';
 import { useDepositInput } from './use-deposit-input';
 import { useHistory } from 'react-router';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
@@ -88,8 +89,14 @@ export const DepositInput = React.forwardRef<
     if (!availableDepositTokens || !selectedDepositToken)
       return <PageLoading />;
 
+    const errorMessage = getErrorMessages(
+      errorMsgOverride,
+      errorMsg,
+      calculateError
+    );
+
     return (
-      <Box sx={{ marginBottom: theme.spacing(3) }}>
+      <Box sx={{ marginBottom: `${theme.spacing(4)} !important` }}>
         <Box
           sx={{
             display: 'flex',
@@ -123,15 +130,7 @@ export const DepositInput = React.forwardRef<
           maxValue={onMaxValue ? undefined : maxBalanceString}
           onMaxValue={onMaxValue}
           onInputChange={(input) => setInputString(input)}
-          errorMsg={
-            errorMsgOverride ? (
-              <FormattedMessage {...errorMsgOverride} />
-            ) : errorMsg ? (
-              <FormattedMessage {...errorMsg} />
-            ) : (
-              calculateError
-            )
-          }
+          errorMsg={errorMessage}
           warningMsg={warningMsg}
           options={
             availableDepositTokens?.map((token) => ({
