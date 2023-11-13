@@ -14,15 +14,14 @@ export function MaturitySelect({
   category,
   inputLabel,
 }: MaturitySelectProps) {
-  const { maturityData, selectedfCashId, onSelect } = useMaturitySelect(
-    category,
-    context
-  );
+  const { maturityData, selectedfCashId, onSelect, defaultfCashId } =
+    useMaturitySelect(category, context);
 
   return (
     <Maturities
       maturityData={maturityData}
       selectedfCashId={selectedfCashId}
+      defaultfCashId={defaultfCashId || ''}
       onSelect={onSelect}
       inputLabel={inputLabel}
     />

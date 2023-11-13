@@ -3,9 +3,8 @@ import NumberFormat from 'react-number-format';
 import { Input, Box, useTheme, Divider, styled } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import CurrencySelect, { CurrencySelectProps } from './currency-select';
-import ErrorMessage from '../error-message/error-message';
 import MaxButton from '../max-button/max-button';
-import { Paragraph } from '../typography/typography';
+import { Paragraph, Caption } from '../typography/typography';
 import { useCallback, useRef } from 'react';
 
 export interface CurrencyInputStyleProps {
@@ -119,14 +118,13 @@ export const CurrencyInput = React.forwardRef<
   };
 
   const getBorderColor = () => {
-    if (errorMsg) return theme.palette.error.main;
-    if (warningMsg) return theme.palette.warning.main;
+    if (errorMsg && !hasFocus) return theme.palette.error.main;
+    if (warningMsg && !hasFocus) return theme.palette.warning.main;
     if (hasFocus) return theme.palette.info.main;
     return theme.palette.borders.paper;
   };
 
   const currentErrorMessage = errorMsg || warningMsg;
-  const errorType = errorMsg ? 'error' : 'warning';
 
   const borderColor = getBorderColor();
 
@@ -209,10 +207,20 @@ export const CurrencyInput = React.forwardRef<
           popperRef={inputContainerRef}
         />
       </InputContainer>
-      <ErrorMessage variant={errorType} message={currentErrorMessage} />
-      <Paragraph marginTop={theme.spacing(1)}>
-        {captionMsg || '\u00A0'}
-      </Paragraph>
+
+      <Caption
+        style={{
+          color: borderColor,
+          marginTop: theme.spacing(1),
+          height: theme.spacing(2),
+        }}
+      >
+        {currentErrorMessage && !hasFocus ? currentErrorMessage : ''}
+      </Caption>
+
+      {captionMsg && (
+        <Paragraph marginTop={theme.spacing(1)}>{captionMsg}</Paragraph>
+      )}
     </Container>
   );
 });

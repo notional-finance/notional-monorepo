@@ -6,6 +6,7 @@ import MaturityCard from './maturity-card';
 
 export interface MaturitiesProps {
   maturityData: MaturityData[];
+  defaultfCashId: string;
   selectedfCashId: string | undefined;
   onSelect: (selectedId: string | undefined) => void;
   inputLabel?: MessageDescriptor;
@@ -15,9 +16,15 @@ export function Maturities({
   maturityData,
   onSelect,
   selectedfCashId,
+  defaultfCashId,
   inputLabel,
 }: MaturitiesProps) {
   const theme = useTheme();
+
+  if (!selectedfCashId) {
+    onSelect(defaultfCashId);
+  }
+
   return (
     <Box>
       <InputLabel inputLabel={inputLabel} />
@@ -28,14 +35,14 @@ export function Maturities({
               key={`maturity-${index}`}
               maturityData={data}
               selected={
-                selectedfCashId && selectedfCashId === data.tokenId
+                selectedfCashId && selectedfCashId === data?.tokenId
                   ? true
                   : false
               }
               onSelect={(key) => {
-                const selected =
-                  key && key !== selectedfCashId ? key : undefined;
-                onSelect(selected);
+                if (key !== selectedfCashId) {
+                  onSelect(key);
+                }
               }}
               isFirstChild={index === 0}
               isLastChild={index === maturityData.length - 1}

@@ -6,6 +6,7 @@ import {
   Maturities,
   MaturityCard,
   tradeErrors,
+  findTradeRate,
 } from '@notional-finance/trade';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
@@ -125,6 +126,9 @@ export function LeveragedLendMaturitySelector({
     ? !!collateralMaturityData.find((m) => m.tradeRate !== undefined)
     : debtMaturityData.find((m) => m.tradeRate !== undefined);
 
+  const collateralData = collateralMaturityData.filter((m) => m.maturity > 0);
+  const debtData = debtMaturityData.filter((m) => m.maturity > 0);
+
   return (
     <Container>
       <InputLabel
@@ -138,7 +142,8 @@ export function LeveragedLendMaturitySelector({
         </H5>
         {isDebtVariable ? (
           <Maturities
-            maturityData={collateralMaturityData.filter((m) => m.maturity > 0)}
+            maturityData={collateralData}
+            defaultfCashId={findTradeRate(collateralData, 'min')?.tokenId || ''}
             selectedfCashId={selectedCollateralId}
             onSelect={onSelectCollateral}
           />
@@ -178,7 +183,8 @@ export function LeveragedLendMaturitySelector({
           <VariableMaturityCard variableRate={borrowVariableRate} />
         ) : (
           <Maturities
-            maturityData={debtMaturityData.filter((m) => m.maturity > 0)}
+            maturityData={debtData}
+            defaultfCashId={findTradeRate(debtData, 'min')?.tokenId || ''}
             selectedfCashId={selectedDebtId}
             onSelect={onSelectDebt}
           />

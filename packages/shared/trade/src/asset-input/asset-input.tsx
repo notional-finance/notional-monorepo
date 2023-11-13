@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import {
   CurrencyInput,
   CurrencyInputHandle,
@@ -64,6 +64,7 @@ export const AssetInput = React.forwardRef<
     },
     ref
   ) => {
+    const theme = useTheme();
     const history = useHistory();
     const { state, updateState } = context;
     const { calculateError } = state;
@@ -142,7 +143,7 @@ export const AssetInput = React.forwardRef<
     if (!availableTokens) return <PageLoading />;
 
     return (
-      <Box>
+      <Box sx={{ marginBottom: `${theme.spacing(4)} !important` }}>
         {label ? label : <InputLabel inputLabel={inputLabel} />}
         <CurrencyInput
           ref={ref}

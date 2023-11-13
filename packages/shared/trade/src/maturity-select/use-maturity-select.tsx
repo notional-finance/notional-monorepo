@@ -6,6 +6,27 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useCallback, useMemo } from 'react';
 
+export function findTradeRate(
+  maturityData: MaturityData[],
+  operator: 'max' | 'min'
+): MaturityData | null {
+  return maturityData.reduce((maxObj, currentObj) => {
+    if (operator === 'max') {
+      return currentObj.tradeRate &&
+        maxObj.tradeRate &&
+        currentObj.tradeRate > maxObj.tradeRate
+        ? currentObj
+        : maxObj;
+    } else {
+      return currentObj.tradeRate &&
+        maxObj.tradeRate &&
+        currentObj.tradeRate < maxObj.tradeRate
+        ? currentObj
+        : maxObj;
+    }
+  }, maturityData[0] || null);
+}
+
 export const useMaturitySelect = (
   category: 'Collateral' | 'Debt',
   context: BaseTradeContext
@@ -75,6 +96,10 @@ export const useMaturitySelect = (
   return {
     maturityData: maturityData.sort((a, b) => a.maturity - b.maturity),
     selectedfCashId: selectedToken?.id,
+    defaultfCashId:
+      category === 'Collateral'
+        ? findTradeRate(maturityData, 'max')?.tokenId
+        : findTradeRate(maturityData, 'min')?.tokenId,
     onSelect,
   };
 };
