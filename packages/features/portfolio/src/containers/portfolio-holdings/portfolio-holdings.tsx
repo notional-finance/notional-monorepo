@@ -22,7 +22,9 @@ export const PortfolioHoldings = () => {
       <DataTable
         toggleBarProps={toggleBarProps}
         data={
-          toggleBarProps.toggleOption === 0 ? groupedHoldings : detailedHoldings
+          toggleBarProps.toggleOption === 0 && toggleBarProps.showToggle
+            ? groupedHoldings
+            : detailedHoldings
         }
         pendingTokenData={pendingTokenData}
         pendingMessage={
