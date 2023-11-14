@@ -15,7 +15,7 @@ export const LendLeveragedSidebar = () => {
   const history = useHistory();
   const context = useContext(LendLeveragedContext);
   const {
-    state: { selectedDepositToken, debt, deposit },
+    state: { selectedDepositToken, deposit, debt },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
 
@@ -38,9 +38,9 @@ export const LendLeveragedSidebar = () => {
     <TransactionSidebar
       showDrawer
       handleLeverUpToggle={handleLeverUpToggle}
+      variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}
       context={context}
       leveredUp
-      enablePrimeBorrow={debt?.tokenType === 'PrimeDebt'}
     >
       <DepositInput
         ref={currencyInputRef}

@@ -11,6 +11,7 @@ import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { Maturities } from './components/maturities';
 import { useEffect, useState } from 'react';
 import { useMaturitySelect } from './use-maturity-select';
+import { findTradeRate } from './use-maturity-select';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import {
   PRIME_CASH_VAULT_MATURITY,
@@ -166,6 +167,9 @@ export function VariableFixedMaturityToggle({
             <Maturities
               maturityData={fixedMaturities}
               selectedfCashId={selectedfCashId}
+              defaultfCashId={
+                findTradeRate(fixedMaturities, 'min')?.tokenId || ''
+              }
               onSelect={onSelect}
               inputLabel={fCashInputLabel}
             />

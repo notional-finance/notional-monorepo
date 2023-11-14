@@ -5,18 +5,25 @@ import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { useCallback } from 'react';
 import { TradeContext } from '@notional-finance/notionable-hooks';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { Box, useTheme } from '@mui/material';
 
 interface PortfolioSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
   context: TradeContext;
+  isWithdraw?: boolean;
+  enablePrimeBorrow?: boolean;
+  requiredApprovalAmount?: TokenBalance;
 }
 
 export const PortfolioSideDrawer = ({
   context,
   children,
   advancedToggle,
+  isWithdraw,
+  enablePrimeBorrow,
+  requiredApprovalAmount,
 }: PortfolioSideDrawerProps) => {
   const theme = useTheme();
   const { category } = useParams<PortfolioParams>();
@@ -35,6 +42,9 @@ export const PortfolioSideDrawer = ({
       onCancelCallback={onCancel}
       onReturnToForm={onCancel}
       advancedToggle={advancedToggle}
+      isWithdraw={isWithdraw}
+      variableBorrowRequired={enablePrimeBorrow}
+      requiredApprovalAmount={requiredApprovalAmount}
     >
       <Box sx={{ marginBottom: theme.spacing(6) }}>{children}</Box>
     </TransactionSidebar>

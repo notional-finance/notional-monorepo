@@ -2,27 +2,32 @@ import {
   ActionSidebar,
   PageLoading,
   ToggleSwitchProps,
+  Drawer,
 } from '@notional-finance/mui';
 import {
+  VaultContext,
   TradeContext,
   useLeverageBlock,
 } from '@notional-finance/notionable-hooks';
-import { useCallback } from 'react';
+import { TradeState } from '@notional-finance/notionable';
+import { useCallback, useEffect, useState } from 'react';
 import {
   FormattedMessage,
   MessageDescriptor,
   defineMessages,
 } from 'react-intl';
+import { TokenBalance } from '@notional-finance/core-entities';
 import TradeActionButton from '../trade-action-button/trade-action-button';
-import Confirmation2 from '../transaction-confirmation/confirmation2';
+import TransactionConfirmation from '../transaction-confirmation/transaction-confirmation';
+import { LiquidationRisk } from './components';
 import {
   TransactionHeadings,
   CombinedTokenTypes,
 } from './components/transaction-headings';
+import { useTransactionApprovals } from '../transaction-approvals/hooks';
+import { TransactionApprovals } from '../transaction-approvals/transaction-approvals';
 import { useLocation } from 'react-router-dom';
-import { LiquidationRisk } from './components/liquidation-risk';
 import { TradeSummary } from './components/trade-summary';
-import { EnablePrimeBorrow } from '../enable-prime-borrow/enable-prime-borrow';
 import { isLeveragedTrade } from '@notional-finance/notionable';
 import { PRODUCTS } from '@notional-finance/util';
 
@@ -35,18 +40,22 @@ interface TransactionSidebarProps {
     | MessageDescriptor
     | { defaultMessage: string }
     | { values?: Record<string, unknown> };
-  context: TradeContext;
+  context: TradeContext | VaultContext;
   leveredUp?: boolean;
   children?: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;
+  requiredApprovalAmount?: TokenBalance;
   isPortfolio?: boolean;
   showDrawer?: boolean;
-  enablePrimeBorrow?: boolean;
   riskComponent?: React.ReactNode;
   handleLeverUpToggle?: () => void;
   onReturnToForm?: () => void;
   onConfirmCancel?: () => void;
   onCancelCallback?: () => void;
+  onCancelRouteCallback?: () => void;
+  isWithdraw?: boolean;
+  hideTextOnMobile?: boolean;
+  variableBorrowRequired?: boolean;
 }
 
 export const TransactionSidebar = ({
@@ -58,23 +67,48 @@ export const TransactionSidebar = ({
   leveredUp,
   advancedToggle,
   isPortfolio,
-  showDrawer,
-  enablePrimeBorrow,
+  showDrawer = false,
   riskComponent,
   onReturnToForm,
   onCancelCallback,
+  requiredApprovalAmount,
+  onCancelRouteCallback,
+  variableBorrowRequired,
+  isWithdraw = false,
+  hideTextOnMobile,
 }: TransactionSidebarProps) => {
   const { state, updateState } = context;
   const { pathname } = useLocation();
+  const [showTxnApprovals, setShowTxnApprovals] = useState(false);
   const { canSubmit, confirm, tradeType, debt, collateral } = state;
   const isBlocked = useLeverageBlock();
+  const approvalData = useTransactionApprovals(
+    context,
+    requiredApprovalAmount,
+    variableBorrowRequired
+  );
+
+  const { showApprovals } = approvalData;
+
   const handleSubmit = useCallback(() => {
-    updateState({ confirm: true });
-  }, [updateState]);
+    if (showApprovals) {
+      setShowTxnApprovals(true);
+    } else {
+      updateState({ confirm: true });
+    }
+  }, [updateState, showApprovals]);
 
   const onConfirmCancel = useCallback(() => {
     updateState({ confirm: false });
   }, [updateState]);
+
+  useEffect(() => {
+    // NOTE: Triggers confirmations once all approvals are complete.
+    if (!showApprovals && showTxnApprovals) {
+      setShowTxnApprovals(false);
+      updateState({ confirm: true });
+    }
+  }, [showApprovals, showTxnApprovals, updateState]);
 
   if (tradeType === undefined) return <PageLoading />;
 
@@ -85,6 +119,7 @@ export const TransactionSidebar = ({
       : isBlocked &&
         (isLeveragedTrade(tradeType) ||
           pathname.includes(PRODUCTS.LIQUIDITY_LEVERAGED));
+
   const errorMessage = defineMessages({
     geoErrorHeading: {
       defaultMessage:
@@ -93,51 +128,64 @@ export const TransactionSidebar = ({
   });
 
   const getTokenSpecificHelpText = () => {
-    if (debt?.tokenType && collateral?.tokenType) {
+    if (leverageDisabled) {
+      return errorMessage.geoErrorHeading;
+    } else if (helptext) {
+      return helptext;
+    } else if (debt?.tokenType && collateral?.tokenType) {
       const CombinedTokenType =
         `${debt?.tokenType}-${collateral?.tokenType}` as CombinedTokenTypes;
       return TransactionHeadings[tradeType][CombinedTokenType]
         ? TransactionHeadings[tradeType][CombinedTokenType]
-        : undefined;
+        : TransactionHeadings[tradeType].helptext;
     } else {
-      return undefined;
+      return TransactionHeadings[tradeType].helptext;
     }
   };
 
-  return confirm ? (
-    <Confirmation2
+  const handleActionSidebarCancel = () => {
+    if (onCancelCallback) {
+      onCancelCallback();
+    }
+    if (onCancelRouteCallback) {
+      onCancelRouteCallback();
+    }
+  };
+
+  const inner = showTxnApprovals ? (
+    <TransactionApprovals
+      context={context}
+      onCancel={() => setShowTxnApprovals(false)}
+      {...approvalData}
+    />
+  ) : confirm ? (
+    <TransactionConfirmation
       heading={heading && <FormattedMessage {...heading} />}
       context={context}
-      showDrawer={isPortfolio ? false : showDrawer === true}
+      isWithdraw={isWithdraw}
       onReturnToForm={onReturnToForm}
       onCancel={onConfirmCancel}
     />
   ) : (
     <ActionSidebar
       heading={heading || TransactionHeadings[tradeType].heading}
-      helptext={
-        leverageDisabled
-          ? errorMessage.geoErrorHeading
-          : helptext ||
-            getTokenSpecificHelpText() ||
-            TransactionHeadings[tradeType].helptext
-      }
+      helptext={getTokenSpecificHelpText()}
       advancedToggle={advancedToggle}
       CustomActionButton={isPortfolio ? undefined : TradeActionButton}
       handleSubmit={handleSubmit}
       canSubmit={canSubmit && !leverageDisabled}
       handleLeverUpToggle={handleLeverUpToggle}
-      onCancelCallback={onCancelCallback}
+      onCancelCallback={handleActionSidebarCancel}
       leveredUp={leveredUp || false}
       showLeverUpToggle={!pathname.includes('lend')}
       leverageDisabled={leverageDisabled}
-      showDrawer={isPortfolio ? false : showDrawer === true}
-      hideTextOnMobile={isPortfolio ? false : true}
+      hideTextOnMobile={isPortfolio || !hideTextOnMobile ? false : true}
     >
       {children}
-      {riskComponent || <LiquidationRisk state={state} />}
+      {riskComponent || <LiquidationRisk state={state as TradeState} />}
       <TradeSummary state={state} />
-      {enablePrimeBorrow && <EnablePrimeBorrow />}
     </ActionSidebar>
   );
+
+  return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };

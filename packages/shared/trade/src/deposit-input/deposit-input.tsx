@@ -7,10 +7,10 @@ import {
   InputLabel,
   PageLoading,
 } from '@notional-finance/mui';
-import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { MessageDescriptor } from 'react-intl';
+import { getErrorMessages } from './get-error-messages';
 import { useDepositInput } from './use-deposit-input';
 import { useHistory } from 'react-router';
-import TokenApprovalView from '../token-approval-view/token-approval-view';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
@@ -26,7 +26,6 @@ interface DepositInputProps {
   isWithdraw?: boolean;
   maxWithdraw?: TokenBalance;
   useZeroDefault?: boolean;
-  requiredApprovalAmount?: TokenBalance;
 }
 
 /**
@@ -50,7 +49,6 @@ export const DepositInput = React.forwardRef<
       isWithdraw,
       maxWithdraw,
       useZeroDefault,
-      requiredApprovalAmount,
     },
     ref
   ) => {
@@ -91,8 +89,14 @@ export const DepositInput = React.forwardRef<
     if (!availableDepositTokens || !selectedDepositToken)
       return <PageLoading />;
 
+    const errorMessage = getErrorMessages(
+      errorMsgOverride,
+      errorMsg,
+      calculateError
+    );
+
     return (
-      <Box sx={{ marginBottom: theme.spacing(3) }}>
+      <Box sx={{ marginBottom: `${theme.spacing(4)} !important` }}>
         <Box
           sx={{
             display: 'flex',
@@ -111,7 +115,10 @@ export const DepositInput = React.forwardRef<
                   marginRight: theme.spacing(0.5),
                 }}
               />
-              &nbsp;{((maxWithdraw || maxBalance) as TokenBalance).toDisplayStringWithSymbol(3, true)}
+              &nbsp;
+              {(
+                (maxWithdraw || maxBalance) as TokenBalance
+              ).toDisplayStringWithSymbol(3, true)}
             </Caption>
           )}
         </Box>
@@ -123,15 +130,7 @@ export const DepositInput = React.forwardRef<
           maxValue={onMaxValue ? undefined : maxBalanceString}
           onMaxValue={onMaxValue}
           onInputChange={(input) => setInputString(input)}
-          errorMsg={
-            errorMsgOverride ? (
-              <FormattedMessage {...errorMsgOverride} />
-            ) : errorMsg ? (
-              <FormattedMessage {...errorMsg} />
-            ) : (
-              calculateError
-            )
-          }
+          errorMsg={errorMessage}
           warningMsg={warningMsg}
           options={
             availableDepositTokens?.map((token) => ({
@@ -158,14 +157,6 @@ export const DepositInput = React.forwardRef<
             landingPage: false,
           }}
         />
-        {!isWithdraw && (
-          <TokenApprovalView
-            symbol={selectedDepositToken}
-            // NOTE: this override is used when maxRepay is selected since the input amount
-            // is not changed during that interaction
-            requiredAmount={requiredApprovalAmount || inputAmount}
-          />
-        )}
       </Box>
     );
   }

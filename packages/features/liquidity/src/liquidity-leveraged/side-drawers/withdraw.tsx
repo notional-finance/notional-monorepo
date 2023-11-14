@@ -18,10 +18,11 @@ export const Withdraw = () => {
         defaultMessage: 'Unwind your position and withdraw your capital.',
       })}
       riskComponent={<LiquidityDetailsTable />}
+      isWithdraw
     >
       <DepositInput
-        ref={currencyInputRef}
         isWithdraw
+        ref={currencyInputRef}
         context={context}
         inputRef={currencyInputRef}
         maxWithdraw={maxWithdraw}

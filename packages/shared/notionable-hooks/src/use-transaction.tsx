@@ -17,6 +17,7 @@ export enum TransactionStatus {
   SUBMITTED = 'submitted',
   CONFIRMED = 'confirmed',
   REVERT = 'revert',
+  APPROVAL_PENDING = 'approval-pending',
 }
 
 function useSubmitTransaction() {

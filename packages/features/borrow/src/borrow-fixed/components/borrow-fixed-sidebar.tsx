@@ -14,11 +14,11 @@ export const BorrowFixedSidebar = () => {
   const context = useContext(BorrowFixedContext);
 
   return (
-    <TransactionSidebar context={context} showDrawer>
+    <TransactionSidebar context={context} showDrawer isWithdraw>
       <DepositInput
+        isWithdraw
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        isWithdraw
         context={context}
         newRoute={(newToken) => `/${PRODUCTS.BORROW_FIXED}/${newToken}`}
         inputLabel={defineMessage({

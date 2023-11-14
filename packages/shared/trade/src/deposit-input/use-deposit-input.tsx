@@ -26,12 +26,8 @@ export function useDepositInput(
     inputAmount = TokenBalance.zero(token);
   }
 
-  const {
-    maxBalanceString,
-    maxBalance,
-    insufficientBalance,
-    insufficientAllowance,
-  } = useWalletBalanceInputCheck(token, inputAmount);
+  const { maxBalanceString, maxBalance, insufficientBalance } =
+    useWalletBalanceInputCheck(token, inputAmount);
 
   let errorMsg: MessageDescriptor | undefined;
   // Check that this is strictly true, when undefined it means the wallet data is
@@ -45,8 +41,6 @@ export function useDepositInput(
     errorMsg = tradeErrors.usdcNotUSDCeMsg;
   } else if (!isWithdraw && isAccountReady && insufficientBalance === true) {
     errorMsg = tradeErrors.insufficientBalance;
-  } else if (!isWithdraw && isAccountReady && insufficientAllowance === true) {
-    errorMsg = tradeErrors.insufficientAllowance;
   }
 
   return {

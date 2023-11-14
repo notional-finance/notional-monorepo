@@ -2,6 +2,7 @@ import { styled, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import transactionSuccessSvg from '../../icons/icon-checkmark.svg';
 import transactionErrorSvg from '../../icons/icon-alert.svg';
+import transactionWarningSvg from '../../icons/icon-warning.svg';
 import {
   ProgressIndicator,
   LargeInputTextEmphasized,
@@ -84,6 +85,24 @@ export const StatusHeading = ({
           }}
         >
           <FormattedMessage defaultMessage={'Error!'} />
+        </Box>
+      );
+      break;
+    case TransactionStatus.APPROVAL_PENDING:
+      statusIcon = (
+        <img
+          className="status-icon"
+          src={transactionWarningSvg}
+          alt="Exclamation point"
+        />
+      );
+      headingText = (
+        <Box
+          sx={{
+            color: theme.palette.typography.main,
+          }}
+        >
+          <FormattedMessage defaultMessage={'Enable to continue'} />
         </Box>
       );
       break;

@@ -54,7 +54,7 @@ export const useTokenApproval = (symbol: string) => {
 
   return {
     tokenStatus: currentTokenStatus,
-    transactionStatus,
+    tokenApprovalTxnStatus: transactionStatus,
     isSignerConnected: account && !isReadOnlyAddress,
     enableToken,
   };
