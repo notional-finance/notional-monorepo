@@ -149,5 +149,17 @@ export default {
         'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
       },
     });
+
+    await fetch(`${env.DATA_SERVICE_URL}/syncAccounts?network=arbitrum`, {
+      headers: {
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+      },
+    });
+
+    await fetch(`${env.DATA_SERVICE_URL}/syncVaultAccounts?network=arbitrum`, {
+      headers: {
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+      },
+    });
   },
 };

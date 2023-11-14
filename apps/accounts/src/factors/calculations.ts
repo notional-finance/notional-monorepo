@@ -121,8 +121,6 @@ export function calculateAccountIRR(
     })
     .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-  console.log(account.accountHistory);
-
   const msSinceFirstDeposit =
     getNowSeconds() * 1000 -
     Math.min(...allFlows.map(({ date }) => date.getTime()));

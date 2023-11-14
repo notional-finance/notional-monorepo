@@ -38,6 +38,10 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
   ];
 
   if (!onlyCurrent) {
+    // If showing updated values, but the prior account has no risk then
+    // remove the "current" column to reduce the "noisiness" of the table
+    if (priorAccountNoRisk) columns.pop();
+
     columns.push({
       Header: <FormattedMessage defaultMessage={'Updated'} />,
       Cell: ArrowIndicatorCell,
