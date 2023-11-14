@@ -3,7 +3,7 @@ import { DropdownButton } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/util';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import { BarChartIcon } from '@notional-finance/icons';
 import HighYield from '../high-yield/high-yield';
 import LowRisk from '../low-risk/low-risk';
@@ -11,6 +11,7 @@ import { messages } from '../../messages';
 
 export function InvestAndEarnDropdown() {
   const { pathname } = useLocation();
+  const history = useHistory();
   const themeVariant = useThemeVariant();
 
   const flippedTheme =
@@ -37,6 +38,7 @@ export function InvestAndEarnDropdown() {
 
   return (
     <DropdownButton
+      onClick={() => history.push('/lend-variable')}
       popupId="invest-and-earn"
       labelKey={messages[NAV_DROPDOWN.EARN_YIELD]}
       anchorPosition={{ top: 73, left: 0 }}

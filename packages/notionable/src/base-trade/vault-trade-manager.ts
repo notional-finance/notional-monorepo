@@ -31,7 +31,7 @@ export function createVaultTradeManager(
   return merge(
     simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
-    postVaultAccountRisk(state$, account$),
+    postVaultAccountRisk(state$, account$, network$),
     defaultVaultLeverageRatio(state$, network$),
     priorVaultAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),

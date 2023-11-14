@@ -4,12 +4,13 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/util';
 import { BorrowSection } from './borrow-section';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import { CoinsIcon } from '@notional-finance/icons';
 import { messages } from '../messages';
 
 export function BorrowDropDown() {
   const { pathname } = useLocation();
+  const history = useHistory();
   const themeVariant = useThemeVariant();
 
   const flippedTheme =
@@ -29,6 +30,7 @@ export function BorrowDropDown() {
     <DropdownButton
       popupId="borrow"
       labelKey={messages[NAV_DROPDOWN.BORROW]}
+      onClick={() => history.push('/borrow-variable')}
       anchorPosition={{ top: 73, left: 0 }}
       activeTab={currentTab ? true : false}
       hideOnClick={false}

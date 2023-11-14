@@ -8,13 +8,17 @@ import {
   ChevronCell,
 } from '@notional-finance/mui';
 import { TotalEarningsTooltip } from '../../components';
-import { usePendingPnLCalculation } from '@notional-finance/notionable-hooks';
+import {
+  usePendingPnLCalculation,
+  useLeverageBlock,
+} from '@notional-finance/notionable-hooks';
 import { useDetailedHoldings } from './use-detailed-holdings';
 import { useGroupedHoldings } from './use-grouped-holdings';
 import { useTheme } from '@mui/material';
 
 export function usePortfolioHoldings() {
   const theme = useTheme();
+  const isBlocked = useLeverageBlock();
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const [toggleOption, setToggleOption] = useState<number>(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
@@ -111,7 +115,7 @@ export function usePortfolioHoldings() {
       toggleOption,
       setToggleOption,
       toggleData,
-      showToggle: groupedRows.length > 0,
+      showToggle: !isBlocked && groupedRows.length > 0,
     },
     groupedHoldings: groupedHoldings.sort((a, b) => a.sortOrder - b.sortOrder),
     detailedHoldings: detailedHoldings.sort(

@@ -2,9 +2,7 @@ import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useTheme, styled } from '@mui/material';
 import { Button } from '@notional-finance/mui';
-import {
-  useAccountReady,
-} from '@notional-finance/notionable-hooks';
+import { useAccountReady } from '@notional-finance/notionable-hooks';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import {
   useSideDrawerState,
@@ -54,7 +52,7 @@ export function TradeActionButton({
   buttonVariant = 'contained',
   width,
   margin,
-  leverageDisabled
+  leverageDisabled,
 }: TradeActionButtonProps) {
   const theme = useTheme();
   const isAccountReady = useAccountReady();
@@ -95,8 +93,8 @@ export function TradeActionButton({
       width={width}
       margin={margin}
       variant={buttonVariant || 'contained'}
-      disabled={!isAccountReady ? false : !canSubmit}
-      canSubmit={!isAccountReady ? true : canSubmit}
+      disabled={!isAccountReady && !leverageDisabled ? false : !canSubmit}
+      canSubmit={!isAccountReady && !leverageDisabled ? true : canSubmit}
       onClick={isAccountReady ? _onSubmit : () => handleConnectWallet()}
     >
       {leverageDisabled ? (
