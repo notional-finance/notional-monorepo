@@ -64,6 +64,15 @@ import ncbETH from '../../assets/icons/currencies/ncbETH.svg';
 import fcbETH from '../../assets/icons/currencies/fcbETH.svg';
 import cbETH from '../../assets/icons/currencies/cbETH.svg';
 import cbeth_alt from '../../assets/icons/currencies/cbeth-alt.svg';
+import ldo from '../../assets/icons/currencies/ldo.svg';
+import ldo_alt from '../../assets/icons/currencies/ldo-alt.svg';
+import pLDO from '../../assets/icons/currencies/pLDO.svg';
+import link from '../../assets/icons/currencies/link.svg';
+import link_alt from '../../assets/icons/currencies/link-alt.svg';
+import pLINK from '../../assets/icons/currencies/pLINK.svg';
+import uni from '../../assets/icons/currencies/uni.svg';
+import uni_alt from '../../assets/icons/currencies/uni-alt.svg';
+import pUNI from '../../assets/icons/currencies/pUNI.svg';
 
 export interface TokenImg {
   name: string;
@@ -344,6 +353,39 @@ export const TokenImageList: TokenImageMap = {
     img: cbETH,
     accentBorderImg: cbeth_alt,
     alt: 'cbETH',
+  },
+  uni: {
+    name: 'uni',
+    img: uni,
+    accentBorderImg: uni_alt,
+    alt: 'uni',
+  },
+  puni: {
+    name: 'pUNI',
+    img: pUNI,
+    alt: 'pUNI',
+  },
+  link: {
+    name: 'link',
+    img: link,
+    accentBorderImg: link_alt,
+    alt: 'link',
+  },
+  plink: {
+    name: 'pLINK',
+    img: pLINK,
+    alt: 'pLINK',
+  },
+  ldo: {
+    name: 'ldo',
+    img: ldo,
+    accentBorderImg: ldo_alt,
+    alt: 'ldo',
+  },
+  pldo: {
+    name: 'pldo',
+    img: pLDO,
+    alt: 'pLDO',
   },
   unknown: {
     name: 'unknown',

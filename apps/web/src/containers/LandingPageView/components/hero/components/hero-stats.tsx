@@ -31,7 +31,8 @@ export const HeroStats = () => {
           'Content-Type': 'application/json',
         },
       });
-      const { totalAccounts, totalLoanVolume, totalValueLocked } = await response.json();
+      const { totalAccounts, totalLoanVolume, totalValueLocked } =
+        await response.json();
       const oneMillion = 1_000_000;
       setTopStats({
         totalValueLocked: `$${formatNumber(totalValueLocked / oneMillion, 0)}M`,
@@ -77,7 +78,7 @@ export const HeroStats = () => {
                 size="large"
                 variant="outlined"
                 sx={{ marginTop: theme.spacing(6) }}
-                href="https://info.notional.finance/"
+                href="https://dune.com/PierreYves_Gendron/notional-dashboard"
               >
                 <FormattedMessage defaultMessage={'Analytics Dashboard'} />
                 <ExternalLinkIcon
