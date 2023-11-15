@@ -96,20 +96,12 @@ export function postVaultAccountRisk(
                   ) as TokenBalance[]
                 )
             : undefined;
-        const s = vaultRiskSummary(
-          prior,
-          post,
-          debtOptions?.find((t) => t.token.id === debtBalance?.tokenId)
-            ?.interestRate
-        );
 
-        const vaultCapacity =
-        network && vaultAddress
-          ? Registry.getConfigurationRegistry().getVaultCapacity(
-              network,
-              vaultAddress
-            )
-          : undefined;
+        const s = vaultRiskSummary(prior, post, debtOptions?.find((t) => t.token.id === debtBalance?.tokenId) ?.interestRate);
+
+        const vaultCapacity = network && vaultAddress ? 
+        Registry.getConfigurationRegistry().getVaultCapacity(network, vaultAddress) 
+        : undefined;
 
         let underMinAccountBorrow = false;
 
@@ -138,6 +130,7 @@ export function postVaultAccountRisk(
             account !== null && 
             underMinAccountBorrow === false &&
             inputErrors === false,
+          underMinAccountBorrow: underMinAccountBorrow,
         };
       }
     ),

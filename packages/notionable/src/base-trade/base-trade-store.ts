@@ -104,6 +104,8 @@ interface TransactionState {
   calculationSuccess: boolean;
   /** True if the calculations are successful and the risk check has completed */
   canSubmit: boolean;
+  /** True if the vault amount is under the minimum borrow size */
+  underMinAccountBorrow?: boolean;
   /** Contains a unique key for each set of calculation inputs */
   calculateInputKeys?: string;
   /** True if the form is in the confirmation state */
