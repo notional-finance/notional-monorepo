@@ -22,8 +22,7 @@ export function useVaultActionErrors() {
       priorAccountRisk,
     },
   } = useContext(VaultActionContext);
-  const { overCapacityError, underMinAccountBorrow, minBorrowSize } =
-    useVaultCapacity();
+  const { overCapacityError, minBorrowSize } = useVaultCapacity();
   const priorLeverageRatio = priorAccountRisk?.leverageRatio;
   const selectedLeverageRatio = riskFactorLimit?.limit as number | undefined;
 
@@ -89,7 +88,6 @@ export function useVaultActionErrors() {
   }
 
   return {
-    underMinAccountBorrow,
     minBorrowSize,
     inputErrorMsg,
     canSubmit,

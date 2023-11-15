@@ -1,11 +1,11 @@
 import { useContext } from 'react';
 import { VaultActionContext } from '../vault';
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { Registry } from '@notional-finance/core-entities';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const useVaultCapacity = () => {
   const {
-    state: { debtBalance, vaultAddress, debt, priorVaultBalances },
+    state: { debtBalance, vaultAddress },
   } = useContext(VaultActionContext);
   const network = useSelectedNetwork();
 
@@ -22,16 +22,7 @@ export const useVaultCapacity = () => {
   let capacityUsedPercentage = 0;
   let capacityWithUserBorrowPercentage: number | undefined = undefined;
   let overCapacityError = false;
-  let underMinAccountBorrow = false;
   let minBorrowSize: string | undefined = undefined;
-
-  const totalAccountDebt =
-    debt && debtBalance && debt.id === debtBalance.tokenId
-      ? (
-          priorVaultBalances?.find((t) => t.tokenId === debtBalance?.tokenId) ||
-          TokenBalance.zero(debt)
-        ).add(debtBalance)
-      : undefined;
 
   if (vaultCapacity) {
     const {
@@ -41,10 +32,6 @@ export const useVaultCapacity = () => {
     } = vaultCapacity;
 
     minBorrowSize = minAccountBorrowSize.toDisplayStringWithSymbol(0);
-    underMinAccountBorrow = totalAccountDebt?.isNegative()
-      ? totalAccountDebt.abs().toUnderlying().lt(minAccountBorrowSize)
-      : false;
-
     overCapacityError = debtBalance
       ? totalUsedPrimaryBorrowCapacity
           .add(debtBalance.toUnderlying())
@@ -69,7 +56,6 @@ export const useVaultCapacity = () => {
 
   return {
     minBorrowSize,
-    underMinAccountBorrow,
     overCapacityError,
     totalCapacityRemaining,
     maxVaultCapacity,
