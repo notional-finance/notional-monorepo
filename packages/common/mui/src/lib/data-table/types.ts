@@ -37,6 +37,7 @@ export type DataTableColumn = Column & {
   showLinkIcon?: boolean;
   defaultCanSort?: boolean;
   sortType?: string;
+  sortDescFirst?: boolean;
   displayFormatter?: any;
   marginRight?: any;
   className?: string;

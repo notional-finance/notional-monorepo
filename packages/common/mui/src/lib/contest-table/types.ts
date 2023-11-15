@@ -12,6 +12,7 @@ export type ContestTableColumn = Column & {
   showLinkIcon?: boolean;
   defaultCanSort?: boolean;
   sortType?: string;
+  sortDescFirst?: boolean;
   displayFormatter?: any; 
   marginRight?: any; 
   isIDCell?: boolean;
