@@ -40,6 +40,8 @@ export interface TransactionConfig {
 interface VaultState {
   vaultAddress?: string;
   vaultConfig?: ReturnType<ConfigurationClient['getVaultConfig']>;
+  /** True if the vault amount is under the minimum borrow size */
+  underMinAccountBorrow?: boolean;
 }
 
 export interface TokenOption {
