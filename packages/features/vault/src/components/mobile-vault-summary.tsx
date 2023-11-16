@@ -6,7 +6,6 @@ import {
   CountUp,
   SliderBasic,
 } from '@notional-finance/mui';
-import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { TokenIcon } from '@notional-finance/icons';
 import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
@@ -15,12 +14,11 @@ import { FormattedMessage } from 'react-intl';
 export const MobileVaultSummary = () => {
   const theme = useTheme();
   const {
-    state: { deposit, vaultConfig },
+    state: { deposit, vaultConfig, maxVaultCapacity, capacityUsedPercentage },
   } = useContext(VaultActionContext);
   const vaultName = vaultConfig?.name;
   // TODO: refactor this to get it from the trade action summary
   const headlineApy = undefined;
-  const { maxVaultCapacity, capacityUsedPercentage } = useVaultCapacity();
 
   return (
     <Box
@@ -81,7 +79,7 @@ export const MobileVaultSummary = () => {
           min={0}
           max={100}
           step={0.01}
-          value={capacityUsedPercentage}
+          value={capacityUsedPercentage || 0}
           disabled={true}
           hideThumb={true}
           sx={{

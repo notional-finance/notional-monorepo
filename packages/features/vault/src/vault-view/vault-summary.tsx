@@ -21,7 +21,6 @@ import {
   useVaultPriceExposure,
   useVaultExistingFactors,
   useReturnDrivers,
-  useVaultCapacity,
   useVaultFaq,
 } from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
@@ -29,20 +28,21 @@ import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress, deposit, selectedDepositToken } = state;
-  const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
-  const { data, columns } = useVaultPriceExposure(state);
-  const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
-    useVaultExistingFactors();
-  const { faqHeaderLinks, faqs } = useVaultFaq();
-
   const {
+    vaultAddress,
+    deposit,
+    selectedDepositToken,
     overCapacityError,
     totalCapacityRemaining,
     maxVaultCapacity,
     capacityUsedPercentage,
     capacityWithUserBorrowPercentage,
-  } = useVaultCapacity();
+  } = state;
+  const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
+  const { data, columns } = useVaultPriceExposure(state);
+  const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
+    useVaultExistingFactors();
+  const { faqHeaderLinks, faqs } = useVaultFaq();
 
   const userCapacityMark = capacityWithUserBorrowPercentage
     ? [
@@ -101,7 +101,7 @@ export const VaultSummary = () => {
               <SliderDisplay
                 min={0}
                 max={100}
-                value={capacityUsedPercentage}
+                value={capacityUsedPercentage || 0}
                 captionLeft={{
                   title: messages.summary.capacityRemaining,
                   value: totalCapacityRemaining,

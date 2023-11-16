@@ -41,7 +41,14 @@ interface VaultState {
   vaultAddress?: string;
   vaultConfig?: ReturnType<ConfigurationClient['getVaultConfig']>;
   /** True if the vault amount is under the minimum borrow size */
+  vaultCapacityError?: boolean;
   underMinAccountBorrow?: boolean;
+  minBorrowSize?: string;
+  overCapacityError?: boolean;
+  totalCapacityRemaining?: string;
+  maxVaultCapacity?: string;
+  capacityUsedPercentage?: number;
+  capacityWithUserBorrowPercentage?: number;
 }
 
 export interface TokenOption {
@@ -173,6 +180,7 @@ export const initialBaseTradeState: BaseTradeState = {
 export const initialVaultTradeState: VaultTradeState = {
   ...initialBaseTradeState,
   customizeLeverage: true,
+  underMinAccountBorrow: false,
 };
 
 export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {
