@@ -7,7 +7,6 @@ import {
   VaultContext,
   useVaultProperties,
 } from '@notional-finance/notionable-hooks';
-import { useVaultCapacity } from '../hooks';
 import { VaultTradeType } from '@notional-finance/notionable';
 import { CreateVaultLiquidationRisk } from './create-vault-liquidation-risk';
 
@@ -24,9 +23,8 @@ export const VaultSideDrawer = ({
 }: VaultSideDrawerProps) => {
   const history = useHistory();
   const { state } = context;
-  const { vaultAddress, tradeType: _tradeType } = state;
+  const { minBorrowSize, vaultAddress, tradeType: _tradeType } = state;
   const { minDepositRequired } = useVaultProperties(vaultAddress);
-  const { minBorrowSize } = useVaultCapacity();
   const tradeType = _tradeType as VaultTradeType;
 
   if (!tradeType) return null;

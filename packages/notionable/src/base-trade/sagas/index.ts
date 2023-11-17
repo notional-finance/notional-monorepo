@@ -5,3 +5,4 @@ export * from './pools';
 export * from './tokens';
 export * from './transaction';
 export * from './vault-risk';
+export * from './vault-capacity';

@@ -18,7 +18,6 @@ import {
   map,
 } from 'rxjs';
 import { VaultTradeState } from '../base-trade-store';
-import { selectedNetwork } from '../../global';
 import { comparePortfolio, mergeLiquidationPrices } from './account-risk';
 
 export type VaultAccountRiskSummary = ReturnType<typeof vaultRiskSummary>;
@@ -48,9 +47,8 @@ export function priorVaultAccountRisk(
 export function postVaultAccountRisk(
   state$: Observable<VaultTradeState>,
   account$: Observable<AccountDefinition | null>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
-  return combineLatest([account$, state$, selectedNetwork$]).pipe(
+  return combineLatest([account$, state$]).pipe(
     distinctUntilChanged(
       ([, p], [, c]) =>
         p.tradeType === c.tradeType &&
@@ -64,8 +62,7 @@ export function postVaultAccountRisk(
       ([
         account,
         {
-          priorVaultBalances,
-          debt,
+          vaultCapacityError,
           calculationSuccess,
           collateralBalance,
           debtOptions,
@@ -74,9 +71,8 @@ export function postVaultAccountRisk(
           tradeType,
           inputErrors,
         },
-        network
       ]) => {
-        if (!vaultAddress || !collateralBalance) return undefined;
+        if (!vaultAddress) return undefined;
         const prior = account
           ? VaultAccountRiskProfile.fromAccount(vaultAddress, account)
           : undefined;
@@ -98,27 +94,7 @@ export function postVaultAccountRisk(
             : undefined;
 
         const s = vaultRiskSummary(prior, post, debtOptions?.find((t) => t.token.id === debtBalance?.tokenId) ?.interestRate);
-
-        const vaultCapacity = network && vaultAddress ? 
-        Registry.getConfigurationRegistry().getVaultCapacity(network, vaultAddress) 
-        : undefined;
-
-        let underMinAccountBorrow = false;
-
-        if(vaultCapacity) {
-          const { minAccountBorrowSize } = vaultCapacity;
-          const totalAccountDebt =
-          debt && debtBalance && debt.id === debtBalance.tokenId
-          ? (
-              priorVaultBalances?.find((t) => t.tokenId === debtBalance?.tokenId) ||
-              TokenBalance.zero(debt)
-            ).add(debtBalance)
-          : undefined;
-
-          underMinAccountBorrow = totalAccountDebt?.isNegative()
-          ? totalAccountDebt.abs().toUnderlying().lt(minAccountBorrowSize)
-          : false;
-        }
+        
 
         return {
           ...s,
@@ -128,9 +104,8 @@ export function postVaultAccountRisk(
                 !!s?.postAccountRisk?.leverageRatio &&
                 s.postAccountRisk.leverageRatio < post.maxLeverageRatio)) &&
             account !== null && 
-            underMinAccountBorrow === false &&
+            vaultCapacityError === false &&
             inputErrors === false,
-          underMinAccountBorrow: underMinAccountBorrow,
         };
       }
     ),

@@ -27,9 +27,10 @@ export const VaultLeverageSlider = ({
       netRealizedDebtBalance,
       tradeType,
       underMinAccountBorrow,
+      minBorrowSize,
     },
   } = context;
-  const { leverageRatioError, minBorrowSize } = useVaultActionErrors();
+  const { leverageRatioError } = useVaultActionErrors();
   const transactionCosts = deposit
     ? (debtFee?.toToken(deposit) || TokenBalance.zero(deposit)).add(
         collateralFee?.toToken(deposit) || TokenBalance.zero(deposit)

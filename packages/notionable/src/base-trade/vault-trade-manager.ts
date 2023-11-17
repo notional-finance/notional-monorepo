@@ -13,6 +13,7 @@ import {
   selectedPool,
   selectedVaultAdapter,
   defaultVaultLeverageRatio,
+  vaultCapacity,
 } from './sagas';
 import { selectedAccount, selectedNetwork } from '../global';
 import { calculate } from './trade-calculation';
@@ -31,7 +32,8 @@ export function createVaultTradeManager(
   return merge(
     simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
-    postVaultAccountRisk(state$, account$, network$),
+    vaultCapacity(state$, account$, network$),
+    postVaultAccountRisk(state$, account$),
     defaultVaultLeverageRatio(state$, network$),
     priorVaultAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),

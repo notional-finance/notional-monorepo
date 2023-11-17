@@ -1,6 +1,5 @@
 import { LabelValue } from '@notional-finance/mui';
 import { formatLeverageRatio } from '@notional-finance/helpers';
-import { useVaultCapacity } from './use-vault-capacity';
 import { useContext } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { VaultActionContext } from '../vault';
@@ -20,9 +19,10 @@ export function useVaultActionErrors() {
       riskFactorLimit,
       debtBalance,
       priorAccountRisk,
+      minBorrowSize,
+      overCapacityError,
     },
   } = useContext(VaultActionContext);
-  const { overCapacityError, minBorrowSize } = useVaultCapacity();
   const priorLeverageRatio = priorAccountRisk?.leverageRatio;
   const selectedLeverageRatio = riskFactorLimit?.limit as number | undefined;
 
