@@ -17,7 +17,7 @@ export function vaultCapacity(
               p.calculationSuccess === c.calculationSuccess &&
               p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
               p.inputErrors === c.inputErrors &&
-              c.debtBalance === c.debtBalance &&
+              c.debtBalance?.hashKey === c.debtBalance?.hashKey &&
               c.vaultAddress === c.vaultAddress
           ),  
       map(

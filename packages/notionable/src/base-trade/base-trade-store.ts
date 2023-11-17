@@ -181,6 +181,7 @@ export const initialVaultTradeState: VaultTradeState = {
   ...initialBaseTradeState,
   customizeLeverage: true,
   underMinAccountBorrow: false,
+  overCapacityError: false,
 };
 
 export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {
