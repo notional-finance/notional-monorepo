@@ -2040,7 +2040,10 @@ export type OracleType =
   | 'PrimeDebtToMoneyMarketExchangeRate'
   | 'MoneyMarketToUnderlyingExchangeRate'
   | 'VaultShareOracleRate'
-  | 'nTokenToUnderlyingExchangeRate';
+  | 'nTokenToUnderlyingExchangeRate'
+  | 'nTokenBlendedInterestRate'
+  | 'nTokenFeeRate'
+  | 'nTokenIncentiveRate';
 
 export type Oracle_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -3106,6 +3109,8 @@ export type Query = {
   transactions: Array<Transaction>;
   account?: Maybe<Account>;
   accounts: Array<Account>;
+  nTokenFeeBuffer?: Maybe<nTokenFeeBuffer>;
+  nTokenFeeBuffers: Array<nTokenFeeBuffer>;
   oracleRegistry?: Maybe<OracleRegistry>;
   oracleRegistries: Array<OracleRegistry>;
   oracle?: Maybe<Oracle>;
@@ -3248,6 +3253,24 @@ export type QueryaccountsArgs = {
   orderBy?: InputMaybe<Account_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Account_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerynTokenFeeBufferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerynTokenFeeBuffersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<nTokenFeeBuffer_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<nTokenFeeBuffer_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -3738,6 +3761,8 @@ export type Subscription = {
   transactions: Array<Transaction>;
   account?: Maybe<Account>;
   accounts: Array<Account>;
+  nTokenFeeBuffer?: Maybe<nTokenFeeBuffer>;
+  nTokenFeeBuffers: Array<nTokenFeeBuffer>;
   oracleRegistry?: Maybe<OracleRegistry>;
   oracleRegistries: Array<OracleRegistry>;
   oracle?: Maybe<Oracle>;
@@ -3880,6 +3905,24 @@ export type SubscriptionaccountsArgs = {
   orderBy?: InputMaybe<Account_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Account_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionnTokenFeeBufferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionnTokenFeeBuffersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<nTokenFeeBuffer_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<nTokenFeeBuffer_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -6284,6 +6327,87 @@ export type fCashMarket_orderBy =
   | 'current__totalfCashDebtOutstandingPresentValue'
   | 'snapshots';
 
+export type nTokenFeeBuffer = {
+  /** Currency ID */
+  id: Scalars['ID'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
+  lastUpdateTimestamp: Scalars['Int'];
+  /** Circular buffer of transfers over the last 30 days, used for nToken fee APY calculation */
+  feeTransfers: Array<Transfer>;
+  feeTransferAmount: Array<Scalars['BigInt']>;
+  /** Current sum of the nToken fees over the last 30 days */
+  last30DayNTokenFees: Scalars['BigInt'];
+};
+
+
+export type nTokenFeeBufferfeeTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Transfer_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Transfer_filter>;
+};
+
+export type nTokenFeeBuffer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_lt?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_gte?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_lte?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateTimestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  feeTransfers?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_not?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_contains?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_?: InputMaybe<Transfer_filter>;
+  feeTransferAmount?: InputMaybe<Array<Scalars['BigInt']>>;
+  feeTransferAmount_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  feeTransferAmount_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  feeTransferAmount_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  feeTransferAmount_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  feeTransferAmount_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  last30DayNTokenFees?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_not?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_gt?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_lt?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_gte?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_lte?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  last30DayNTokenFees_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<nTokenFeeBuffer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<nTokenFeeBuffer_filter>>>;
+};
+
+export type nTokenFeeBuffer_orderBy =
+  | 'id'
+  | 'lastUpdateBlockNumber'
+  | 'lastUpdateTimestamp'
+  | 'feeTransfers'
+  | 'feeTransferAmount'
+  | 'last30DayNTokenFees';
+
   export type QuerySdk = {
       /** null **/
   token: InContextSdkMethod<Query['token'], QuerytokenArgs, MeshContext>,
@@ -6309,6 +6433,10 @@ export type fCashMarket_orderBy =
   account: InContextSdkMethod<Query['account'], QueryaccountArgs, MeshContext>,
   /** null **/
   accounts: InContextSdkMethod<Query['accounts'], QueryaccountsArgs, MeshContext>,
+  /** null **/
+  nTokenFeeBuffer: InContextSdkMethod<Query['nTokenFeeBuffer'], QuerynTokenFeeBufferArgs, MeshContext>,
+  /** null **/
+  nTokenFeeBuffers: InContextSdkMethod<Query['nTokenFeeBuffers'], QuerynTokenFeeBuffersArgs, MeshContext>,
   /** null **/
   oracleRegistry: InContextSdkMethod<Query['oracleRegistry'], QueryoracleRegistryArgs, MeshContext>,
   /** null **/
@@ -6410,6 +6538,10 @@ export type fCashMarket_orderBy =
   account: InContextSdkMethod<Subscription['account'], SubscriptionaccountArgs, MeshContext>,
   /** null **/
   accounts: InContextSdkMethod<Subscription['accounts'], SubscriptionaccountsArgs, MeshContext>,
+  /** null **/
+  nTokenFeeBuffer: InContextSdkMethod<Subscription['nTokenFeeBuffer'], SubscriptionnTokenFeeBufferArgs, MeshContext>,
+  /** null **/
+  nTokenFeeBuffers: InContextSdkMethod<Subscription['nTokenFeeBuffers'], SubscriptionnTokenFeeBuffersArgs, MeshContext>,
   /** null **/
   oracleRegistry: InContextSdkMethod<Subscription['oracleRegistry'], SubscriptionoracleRegistryArgs, MeshContext>,
   /** null **/

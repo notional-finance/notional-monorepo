@@ -2062,7 +2062,10 @@ export type OracleType =
   | 'PrimeDebtToMoneyMarketExchangeRate'
   | 'MoneyMarketToUnderlyingExchangeRate'
   | 'VaultShareOracleRate'
-  | 'nTokenToUnderlyingExchangeRate';
+  | 'nTokenToUnderlyingExchangeRate'
+  | 'nTokenBlendedInterestRate'
+  | 'nTokenFeeRate'
+  | 'nTokenIncentiveRate';
 
 export type Oracle_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -3128,6 +3131,8 @@ export type Query = {
   transactions: Array<Transaction>;
   account?: Maybe<Account>;
   accounts: Array<Account>;
+  nTokenFeeBuffer?: Maybe<nTokenFeeBuffer>;
+  nTokenFeeBuffers: Array<nTokenFeeBuffer>;
   oracleRegistry?: Maybe<OracleRegistry>;
   oracleRegistries: Array<OracleRegistry>;
   oracle?: Maybe<Oracle>;
@@ -3270,6 +3275,24 @@ export type QueryaccountsArgs = {
   orderBy?: InputMaybe<Account_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Account_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerynTokenFeeBufferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerynTokenFeeBuffersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<nTokenFeeBuffer_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<nTokenFeeBuffer_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -3760,6 +3783,8 @@ export type Subscription = {
   transactions: Array<Transaction>;
   account?: Maybe<Account>;
   accounts: Array<Account>;
+  nTokenFeeBuffer?: Maybe<nTokenFeeBuffer>;
+  nTokenFeeBuffers: Array<nTokenFeeBuffer>;
   oracleRegistry?: Maybe<OracleRegistry>;
   oracleRegistries: Array<OracleRegistry>;
   oracle?: Maybe<Oracle>;
@@ -3902,6 +3927,24 @@ export type SubscriptionaccountsArgs = {
   orderBy?: InputMaybe<Account_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Account_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionnTokenFeeBufferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionnTokenFeeBuffersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<nTokenFeeBuffer_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<nTokenFeeBuffer_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -6306,6 +6349,87 @@ export type fCashMarket_orderBy =
   | 'current__totalfCashDebtOutstandingPresentValue'
   | 'snapshots';
 
+export type nTokenFeeBuffer = {
+  /** Currency ID */
+  id: Scalars['ID'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
+  lastUpdateTimestamp: Scalars['Int'];
+  /** Circular buffer of transfers over the last 30 days, used for nToken fee APY calculation */
+  feeTransfers: Array<Transfer>;
+  feeTransferAmount: Array<Scalars['BigInt']>;
+  /** Current sum of the nToken fees over the last 30 days */
+  last30DayNTokenFees: Scalars['BigInt'];
+};
+
+
+export type nTokenFeeBufferfeeTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Transfer_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Transfer_filter>;
+};
+
+export type nTokenFeeBuffer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_lt?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_gte?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_lte?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateTimestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  feeTransfers?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_not?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_contains?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  feeTransfers_?: InputMaybe<Transfer_filter>;
+  feeTransferAmount?: InputMaybe<Array<Scalars['BigInt']>>;
+  feeTransferAmount_not?: InputMaybe<Array<Scalars['BigInt']>>;
+  feeTransferAmount_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  feeTransferAmount_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  feeTransferAmount_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  feeTransferAmount_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  last30DayNTokenFees?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_not?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_gt?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_lt?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_gte?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_lte?: InputMaybe<Scalars['BigInt']>;
+  last30DayNTokenFees_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  last30DayNTokenFees_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<nTokenFeeBuffer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<nTokenFeeBuffer_filter>>>;
+};
+
+export type nTokenFeeBuffer_orderBy =
+  | 'id'
+  | 'lastUpdateBlockNumber'
+  | 'lastUpdateTimestamp'
+  | 'feeTransfers'
+  | 'feeTransferAmount'
+  | 'last30DayNTokenFees';
+
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 
@@ -6486,6 +6610,9 @@ export type ResolversTypes = ResolversObject<{
   fCashMarketSnapshot_orderBy: fCashMarketSnapshot_orderBy;
   fCashMarket_filter: fCashMarket_filter;
   fCashMarket_orderBy: fCashMarket_orderBy;
+  nTokenFeeBuffer: ResolverTypeWrapper<nTokenFeeBuffer>;
+  nTokenFeeBuffer_filter: nTokenFeeBuffer_filter;
+  nTokenFeeBuffer_orderBy: nTokenFeeBuffer_orderBy;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -6551,6 +6678,8 @@ export type ResolversParentTypes = ResolversObject<{
   fCashMarketSnapshot: fCashMarketSnapshot;
   fCashMarketSnapshot_filter: fCashMarketSnapshot_filter;
   fCashMarket_filter: fCashMarket_filter;
+  nTokenFeeBuffer: nTokenFeeBuffer;
+  nTokenFeeBuffer_filter: nTokenFeeBuffer_filter;
 }>;
 
 export type entityDirectiveArgs = { };
@@ -6840,6 +6969,8 @@ export type QueryResolvers<ContextType = MeshContext & { chainName: string }, Pa
   transactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType, RequireFields<QuerytransactionsArgs, 'skip' | 'first' | 'subgraphError'>>;
   account?: Resolver<Maybe<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountArgs, 'id' | 'subgraphError'>>;
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  nTokenFeeBuffer?: Resolver<Maybe<ResolversTypes['nTokenFeeBuffer']>, ParentType, ContextType, RequireFields<QuerynTokenFeeBufferArgs, 'id' | 'subgraphError'>>;
+  nTokenFeeBuffers?: Resolver<Array<ResolversTypes['nTokenFeeBuffer']>, ParentType, ContextType, RequireFields<QuerynTokenFeeBuffersArgs, 'skip' | 'first' | 'subgraphError'>>;
   oracleRegistry?: Resolver<Maybe<ResolversTypes['OracleRegistry']>, ParentType, ContextType, RequireFields<QueryoracleRegistryArgs, 'id' | 'subgraphError'>>;
   oracleRegistries?: Resolver<Array<ResolversTypes['OracleRegistry']>, ParentType, ContextType, RequireFields<QueryoracleRegistriesArgs, 'skip' | 'first' | 'subgraphError'>>;
   oracle?: Resolver<Maybe<ResolversTypes['Oracle']>, ParentType, ContextType, RequireFields<QueryoracleArgs, 'id' | 'subgraphError'>>;
@@ -6904,6 +7035,8 @@ export type SubscriptionResolvers<ContextType = MeshContext & { chainName: strin
   transactions?: SubscriptionResolver<Array<ResolversTypes['Transaction']>, "transactions", ParentType, ContextType, RequireFields<SubscriptiontransactionsArgs, 'skip' | 'first' | 'subgraphError'>>;
   account?: SubscriptionResolver<Maybe<ResolversTypes['Account']>, "account", ParentType, ContextType, RequireFields<SubscriptionaccountArgs, 'id' | 'subgraphError'>>;
   accounts?: SubscriptionResolver<Array<ResolversTypes['Account']>, "accounts", ParentType, ContextType, RequireFields<SubscriptionaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  nTokenFeeBuffer?: SubscriptionResolver<Maybe<ResolversTypes['nTokenFeeBuffer']>, "nTokenFeeBuffer", ParentType, ContextType, RequireFields<SubscriptionnTokenFeeBufferArgs, 'id' | 'subgraphError'>>;
+  nTokenFeeBuffers?: SubscriptionResolver<Array<ResolversTypes['nTokenFeeBuffer']>, "nTokenFeeBuffers", ParentType, ContextType, RequireFields<SubscriptionnTokenFeeBuffersArgs, 'skip' | 'first' | 'subgraphError'>>;
   oracleRegistry?: SubscriptionResolver<Maybe<ResolversTypes['OracleRegistry']>, "oracleRegistry", ParentType, ContextType, RequireFields<SubscriptionoracleRegistryArgs, 'id' | 'subgraphError'>>;
   oracleRegistries?: SubscriptionResolver<Array<ResolversTypes['OracleRegistry']>, "oracleRegistries", ParentType, ContextType, RequireFields<SubscriptionoracleRegistriesArgs, 'skip' | 'first' | 'subgraphError'>>;
   oracle?: SubscriptionResolver<Maybe<ResolversTypes['Oracle']>, "oracle", ParentType, ContextType, RequireFields<SubscriptionoracleArgs, 'id' | 'subgraphError'>>;
@@ -7126,6 +7259,16 @@ export type fCashMarketSnapshotResolvers<ContextType = MeshContext & { chainName
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type nTokenFeeBufferResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['nTokenFeeBuffer'] = ResolversParentTypes['nTokenFeeBuffer']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  feeTransfers?: Resolver<Array<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<nTokenFeeBufferfeeTransfersArgs, 'skip' | 'first'>>;
+  feeTransferAmount?: Resolver<Array<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  last30DayNTokenFees?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = MeshContext & { chainName: string }> = ResolversObject<{
   Account?: AccountResolvers<ContextType>;
   ActiveMarket?: ActiveMarketResolvers<ContextType>;
@@ -7158,6 +7301,7 @@ export type Resolvers<ContextType = MeshContext & { chainName: string }> = Resol
   _Meta_?: _Meta_Resolvers<ContextType>;
   fCashMarket?: fCashMarketResolvers<ContextType>;
   fCashMarketSnapshot?: fCashMarketSnapshotResolvers<ContextType>;
+  nTokenFeeBuffer?: nTokenFeeBufferResolvers<ContextType>;
 }>;
 
 export type DirectiveResolvers<ContextType = MeshContext & { chainName: string }> = ResolversObject<{
@@ -7211,7 +7355,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.1.14"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.1.19"},
               baseDir,
               cache,
               pubsub,

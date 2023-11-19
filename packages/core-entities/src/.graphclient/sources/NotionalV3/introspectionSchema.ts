@@ -27907,6 +27907,30 @@ const schemaAST = {
             "value": "nTokenToUnderlyingExchangeRate"
           },
           "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "nTokenBlendedInterestRate"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "nTokenFeeRate"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "nTokenIncentiveRate"
+          },
+          "directives": []
         }
       ],
       "directives": []
@@ -43251,6 +43275,244 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "name": {
             "kind": "Name",
+            "value": "nTokenFeeBuffer"
+          },
+          "arguments": [
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "id"
+              },
+              "type": {
+                "kind": "NonNullType",
+                "type": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "ID"
+                  }
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "description": {
+                "kind": "StringValue",
+                "value": "The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.",
+                "block": true
+              },
+              "name": {
+                "kind": "Name",
+                "value": "block"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Block_height"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "description": {
+                "kind": "StringValue",
+                "value": "Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.",
+                "block": true
+              },
+              "name": {
+                "kind": "Name",
+                "value": "subgraphError"
+              },
+              "type": {
+                "kind": "NonNullType",
+                "type": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "_SubgraphErrorPolicy_"
+                  }
+                }
+              },
+              "defaultValue": {
+                "kind": "EnumValue",
+                "value": "deny"
+              },
+              "directives": []
+            }
+          ],
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "nTokenFeeBuffer"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "nTokenFeeBuffers"
+          },
+          "arguments": [
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "skip"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Int"
+                }
+              },
+              "defaultValue": {
+                "kind": "IntValue",
+                "value": "0"
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "first"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Int"
+                }
+              },
+              "defaultValue": {
+                "kind": "IntValue",
+                "value": "100"
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "orderBy"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "nTokenFeeBuffer_orderBy"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "orderDirection"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "OrderDirection"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "where"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "nTokenFeeBuffer_filter"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "description": {
+                "kind": "StringValue",
+                "value": "The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.",
+                "block": true
+              },
+              "name": {
+                "kind": "Name",
+                "value": "block"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Block_height"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "description": {
+                "kind": "StringValue",
+                "value": "Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.",
+                "block": true
+              },
+              "name": {
+                "kind": "Name",
+                "value": "subgraphError"
+              },
+              "type": {
+                "kind": "NonNullType",
+                "type": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "_SubgraphErrorPolicy_"
+                  }
+                }
+              },
+              "defaultValue": {
+                "kind": "EnumValue",
+                "value": "deny"
+              },
+              "directives": []
+            }
+          ],
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "ListType",
+              "type": {
+                "kind": "NonNullType",
+                "type": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "nTokenFeeBuffer"
+                  }
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "name": {
+            "kind": "Name",
             "value": "oracleRegistry"
           },
           "arguments": [
@@ -50937,6 +51199,244 @@ const schemaAST = {
                   "name": {
                     "kind": "Name",
                     "value": "Account"
+                  }
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "nTokenFeeBuffer"
+          },
+          "arguments": [
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "id"
+              },
+              "type": {
+                "kind": "NonNullType",
+                "type": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "ID"
+                  }
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "description": {
+                "kind": "StringValue",
+                "value": "The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.",
+                "block": true
+              },
+              "name": {
+                "kind": "Name",
+                "value": "block"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Block_height"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "description": {
+                "kind": "StringValue",
+                "value": "Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.",
+                "block": true
+              },
+              "name": {
+                "kind": "Name",
+                "value": "subgraphError"
+              },
+              "type": {
+                "kind": "NonNullType",
+                "type": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "_SubgraphErrorPolicy_"
+                  }
+                }
+              },
+              "defaultValue": {
+                "kind": "EnumValue",
+                "value": "deny"
+              },
+              "directives": []
+            }
+          ],
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "nTokenFeeBuffer"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "nTokenFeeBuffers"
+          },
+          "arguments": [
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "skip"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Int"
+                }
+              },
+              "defaultValue": {
+                "kind": "IntValue",
+                "value": "0"
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "first"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Int"
+                }
+              },
+              "defaultValue": {
+                "kind": "IntValue",
+                "value": "100"
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "orderBy"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "nTokenFeeBuffer_orderBy"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "orderDirection"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "OrderDirection"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "where"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "nTokenFeeBuffer_filter"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "description": {
+                "kind": "StringValue",
+                "value": "The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.",
+                "block": true
+              },
+              "name": {
+                "kind": "Name",
+                "value": "block"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Block_height"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "description": {
+                "kind": "StringValue",
+                "value": "Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.",
+                "block": true
+              },
+              "name": {
+                "kind": "Name",
+                "value": "subgraphError"
+              },
+              "type": {
+                "kind": "NonNullType",
+                "type": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "_SubgraphErrorPolicy_"
+                  }
+                }
+              },
+              "defaultValue": {
+                "kind": "EnumValue",
+                "value": "deny"
+              },
+              "directives": []
+            }
+          ],
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "ListType",
+              "type": {
+                "kind": "NonNullType",
+                "type": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "nTokenFeeBuffer"
                   }
                 }
               }
@@ -83388,6 +83888,1161 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "snapshots"
+          },
+          "directives": []
+        }
+      ],
+      "directives": []
+    },
+    {
+      "kind": "ObjectTypeDefinition",
+      "name": {
+        "kind": "Name",
+        "value": "nTokenFeeBuffer"
+      },
+      "fields": [
+        {
+          "kind": "FieldDefinition",
+          "description": {
+            "kind": "StringValue",
+            "value": "Currency ID",
+            "block": true
+          },
+          "name": {
+            "kind": "Name",
+            "value": "id"
+          },
+          "arguments": [],
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "NamedType",
+              "name": {
+                "kind": "Name",
+                "value": "ID"
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateBlockNumber"
+          },
+          "arguments": [],
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "NamedType",
+              "name": {
+                "kind": "Name",
+                "value": "BigInt"
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateTimestamp"
+          },
+          "arguments": [],
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "NamedType",
+              "name": {
+                "kind": "Name",
+                "value": "Int"
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "description": {
+            "kind": "StringValue",
+            "value": "Circular buffer of transfers over the last 30 days, used for nToken fee APY calculation",
+            "block": true
+          },
+          "name": {
+            "kind": "Name",
+            "value": "feeTransfers"
+          },
+          "arguments": [
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "skip"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Int"
+                }
+              },
+              "defaultValue": {
+                "kind": "IntValue",
+                "value": "0"
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "first"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Int"
+                }
+              },
+              "defaultValue": {
+                "kind": "IntValue",
+                "value": "100"
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "orderBy"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Transfer_orderBy"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "orderDirection"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "OrderDirection"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "where"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Transfer_filter"
+                }
+              },
+              "directives": []
+            }
+          ],
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "ListType",
+              "type": {
+                "kind": "NonNullType",
+                "type": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "Transfer"
+                  }
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransferAmount"
+          },
+          "arguments": [],
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "ListType",
+              "type": {
+                "kind": "NonNullType",
+                "type": {
+                  "kind": "NamedType",
+                  "name": {
+                    "kind": "Name",
+                    "value": "BigInt"
+                  }
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "description": {
+            "kind": "StringValue",
+            "value": "Current sum of the nToken fees over the last 30 days",
+            "block": true
+          },
+          "name": {
+            "kind": "Name",
+            "value": "last30DayNTokenFees"
+          },
+          "arguments": [],
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "NamedType",
+              "name": {
+                "kind": "Name",
+                "value": "BigInt"
+              }
+            }
+          },
+          "directives": []
+        }
+      ],
+      "interfaces": [],
+      "directives": []
+    },
+    {
+      "kind": "InputObjectTypeDefinition",
+      "name": {
+        "kind": "Name",
+        "value": "nTokenFeeBuffer_filter"
+      },
+      "fields": [
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "id"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "ID"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "id_not"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "ID"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "id_gt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "ID"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "id_lt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "ID"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "id_gte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "ID"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "id_lte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "ID"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "id_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "ID"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "id_not_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "ID"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateBlockNumber"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateBlockNumber_not"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateBlockNumber_gt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateBlockNumber_lt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateBlockNumber_gte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateBlockNumber_lte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateBlockNumber_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateBlockNumber_not_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateTimestamp"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Int"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateTimestamp_not"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Int"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateTimestamp_gt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Int"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateTimestamp_lt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Int"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateTimestamp_gte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Int"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateTimestamp_lte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Int"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateTimestamp_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Int"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateTimestamp_not_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Int"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransfers"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransfers_not"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransfers_contains"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransfers_contains_nocase"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransfers_not_contains"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransfers_not_contains_nocase"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransfers_"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Transfer_filter"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransferAmount"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransferAmount_not"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransferAmount_contains"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransferAmount_contains_nocase"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransferAmount_not_contains"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransferAmount_not_contains_nocase"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "last30DayNTokenFees"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "last30DayNTokenFees_not"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "last30DayNTokenFees_gt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "last30DayNTokenFees_lt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "last30DayNTokenFees_gte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "last30DayNTokenFees_lte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "last30DayNTokenFees_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "last30DayNTokenFees_not_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "description": {
+            "kind": "StringValue",
+            "value": "Filter for the block changed event.",
+            "block": true
+          },
+          "name": {
+            "kind": "Name",
+            "value": "_change_block"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BlockChangedFilter"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "and"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NamedType",
+              "name": {
+                "kind": "Name",
+                "value": "nTokenFeeBuffer_filter"
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "or"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NamedType",
+              "name": {
+                "kind": "Name",
+                "value": "nTokenFeeBuffer_filter"
+              }
+            }
+          },
+          "directives": []
+        }
+      ],
+      "directives": []
+    },
+    {
+      "kind": "EnumTypeDefinition",
+      "name": {
+        "kind": "Name",
+        "value": "nTokenFeeBuffer_orderBy"
+      },
+      "values": [
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "id"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateBlockNumber"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "lastUpdateTimestamp"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransfers"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "feeTransferAmount"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "last30DayNTokenFees"
           },
           "directives": []
         }
