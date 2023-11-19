@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e
+
 yarn nx publish-wrangler-manual accounts --env dev
 yarn nx publish-wrangler-manual api --env dev
 yarn nx publish-wrangler-manual data --env dev

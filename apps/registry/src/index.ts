@@ -1,8 +1,4 @@
-import {
-  DurableObjectNamespace,
-  Request,
-  Response,
-} from '@cloudflare/workers-types';
+import { DurableObjectNamespace, Request } from '@cloudflare/workers-types';
 import { RegistryDOEnv } from '@notional-finance/durable-objects';
 import { Routes } from '@notional-finance/core-entities/src/server';
 

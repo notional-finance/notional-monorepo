@@ -5,7 +5,7 @@ workers_dev = true
 node_compat = true
 minify = true
 logpush = true
-usage_model = "bundled"
+
 
 [env.dev]
 name = "rewards-dev"
