@@ -5,7 +5,7 @@ workers_dev = true
 node_compat = true
 logpush = true
 minify = true
-usage_model = "unbound"
+
 
 [env.dev]
 name = "vault-liquidator-dev"

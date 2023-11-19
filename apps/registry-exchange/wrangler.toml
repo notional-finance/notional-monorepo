@@ -6,7 +6,7 @@ logpush = true
 workers_dev = true
 node_compat = true
 minify = true
-usage_model = "unbound"
+
 
 [[migrations]]
 tag = "v1"

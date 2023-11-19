@@ -1,8 +1,4 @@
-import {
-  DurableObjectNamespace,
-  Request,
-  Response,
-} from '@cloudflare/workers-types';
+import { DurableObjectNamespace, Request } from '@cloudflare/workers-types';
 import { RegistryDOEnv } from '@notional-finance/durable-objects';
 import { Routes } from '@notional-finance/core-entities/src/server';
 
@@ -38,7 +34,9 @@ export default {
     }
 
     const stub = ns.get(ns.idFromName(env.VERSION));
-    return stub.fetch(request);
+
+    // Not sure why we are getting a type error here from workers-types
+    return stub.fetch(request) as unknown as Promise<Response>;
   },
   async scheduled(_: ScheduledController, env: RegistryDOEnv): Promise<void> {
     // Run a healthcheck against all of the durable objects.
