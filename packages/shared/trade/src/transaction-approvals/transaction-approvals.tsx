@@ -48,7 +48,7 @@ export const TransactionApprovals = ({
         {
           <FormattedMessage
             defaultMessage={
-              'Enable your account to proceed with your transaction. You will only need to make approvals once.'
+              'Enable your account to proceed with your transaction.'
             }
           />
         }
