@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useContext } from 'react';
 import { defineMessage } from 'react-intl';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
@@ -6,41 +6,22 @@ import {
   LeverageSlider,
   TransactionSidebar,
 } from '@notional-finance/trade';
-import { useHistory } from 'react-router-dom';
 import { PRODUCTS } from '@notional-finance/util';
 import { LendLeveragedContext } from '../../lend-leveraged/lend-leveraged';
 import { LeveragedLendMaturitySelector } from './leveraged-lend-maturity-selector';
 
 export const LendLeveragedSidebar = () => {
-  const history = useHistory();
   const context = useContext(LendLeveragedContext);
   const {
-    state: { selectedDepositToken, deposit, debt },
+    state: { deposit, debt },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
-
-  const handleLeverUpToggle = useCallback(() => {
-    // The two lending pages will pass a state object into this page to
-    // remember where the toggle will go back to
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const state: any = history.location.state || {};
-
-    // Use this if condition check because this toggle gets executed twice
-    // on a second page load
-    if (history.location.pathname.includes(PRODUCTS.LEND_LEVERAGED)) {
-      history.push(
-        `/${state['from'] || PRODUCTS.LEND_FIXED}/${selectedDepositToken}`
-      );
-    }
-  }, [history, selectedDepositToken]);
 
   return (
     <TransactionSidebar
       showDrawer
-      handleLeverUpToggle={handleLeverUpToggle}
       variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}
       context={context}
-      leveredUp
     >
       <DepositInput
         ref={currencyInputRef}

@@ -242,7 +242,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     );
 
     return nTokenYields.flatMap((nToken) => {
-      const { nTokenHaircut, nTokenMaxDrawdown } =
+      const { nTokenHaircut } =
         config.getNTokenLeverageFactors(nToken.token);
 
       return debtYields
@@ -254,17 +254,20 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
                   .toUnderlying()
                   .scaleTo(RATE_DECIMALS)
               : RATE_PRECISION;
+              
           // defaultLeverageRatio = [(1 - (pvFactor * nTokenHaircut * nTokenMaxDrawdown)) ^ -1] - 1
-          const factor = BigNumber.from(RATE_PRECISION)
-            .pow(3)
-            .sub(
-              BigNumber.from(pvFactor).mul(nTokenHaircut).mul(nTokenMaxDrawdown)
-            );
-          const inverted = BigNumber.from(RATE_PRECISION)
-            .pow(4)
-            .div(factor)
-            .toNumber();
-          const leverageRatio = inverted / RATE_PRECISION - 1;
+          // const factor = BigNumber.from(RATE_PRECISION)
+          //   .pow(3)
+          //   .sub(
+          //     BigNumber.from(pvFactor).mul(nTokenHaircut).mul(nTokenMaxDrawdown)
+          //   );
+          // const inverted = BigNumber.from(RATE_PRECISION)
+          //   .pow(4)
+          //   .div(factor)
+          //   .toNumber();
+          // const leverageRatio = inverted / RATE_PRECISION - 1;
+
+          const leverageRatio = 3.5;
 
           // maxLeverageRatio = [(1 - (pvFactor * nTokenHaircut)) ^ -1] - 1
           const maxFactor = BigNumber.from(RATE_PRECISION)

@@ -4,8 +4,11 @@ import {
   LeveragePlus,
   LeverageTimes,
 } from '@notional-finance/icons';
+import { TRACKING_EVENTS } from '@notional-finance/util';
+import { trackEvent } from '@notional-finance/helpers';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
-import { CountUp, Label, LabelValue } from '@notional-finance/mui';
+import { CountUp, Label, LabelValue, InfoTooltip } from '@notional-finance/mui';
+import { useLocation } from 'react-router-dom';
 
 interface LeverageInforRowProps {
   assetSymbol: string;
@@ -18,12 +21,15 @@ const LeverageInfoBox = ({
   msg,
   value,
   suffix,
+  toolTipText,
 }: {
   msg: MessageDescriptor;
   value?: number;
   suffix: string;
+  toolTipText?: MessageDescriptor;
 }) => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   return (
     <LabelBox
       sx={{
@@ -34,6 +40,22 @@ const LeverageInfoBox = ({
       }}
     >
       <FormattedMessage {...msg} />
+      {toolTipText && (
+        <InfoTooltip
+          onMouseEnter={() =>
+            trackEvent(TRACKING_EVENTS.TOOL_TIP, {
+              path: pathname,
+              type: TRACKING_EVENTS.HOVER_TOOL_TIP,
+              title: 'APY Spread',
+            })
+          }
+          iconColor={theme.palette.typography.accent}
+          iconSize={theme.spacing(2)}
+          sx={{ marginLeft: theme.spacing(1), marginRight: theme.spacing(1) }}
+          toolTipText={toolTipText}
+        />
+      )}
+
       <LabelValue
         sx={{
           marginLeft: theme.spacing(1),
@@ -63,7 +85,9 @@ export const LeverageInfoRow = ({
   return (
     <Row>
       <LabelBox
-        marginLeft={theme.spacing(0)}
+        sx={{
+          marginLeft: theme.spacing(0),
+        }}
         msg={defineMessage({ defaultMessage: 'Total APY' })}
       />
       <LeverageEquals />
@@ -80,6 +104,10 @@ export const LeverageInfoRow = ({
         msg={defineMessage({ defaultMessage: 'APY Spread' })}
         value={apySpread}
         suffix="%"
+        toolTipText={defineMessage({
+          defaultMessage: 'APY Spread = {symbol} APY - Borrow rate',
+          values: { symbol: assetSymbol },
+        })}
       />
       <LeverageTimes />
       <LeverageInfoBox

@@ -58,10 +58,6 @@ export const PerformanceChart = ({
     },
   ];
 
-  if (apyChartData) {
-    chartComponents.push(apyChartData);
-  }
-
   return (
     <Box marginBottom={theme.spacing(5)}>
       <MultiDisplayChart chartComponents={chartComponents} />
