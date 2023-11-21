@@ -86,9 +86,7 @@ export const VaultTradeConfiguration = {
       'riskFactorLimit',
     ],
     collateralFilter: (t, _, s: VaultTradeState) =>
-      t.tokenType === 'VaultShare' &&
-      t.vaultAddress === s.vaultAddress &&
-      matchingVaultShare(t, s.debt),
+      t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
     debtFilter: (t, _, s: VaultTradeState) =>
       eligibleDebtToken(t, s.vaultConfig),
     depositFilter: (t, _, s: VaultTradeState) =>

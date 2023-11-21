@@ -46,7 +46,7 @@ export function priorVaultAccountRisk(
 
 export function postVaultAccountRisk(
   state$: Observable<VaultTradeState>,
-  account$: Observable<AccountDefinition | null>,
+  account$: Observable<AccountDefinition | null>
 ) {
   return combineLatest([account$, state$]).pipe(
     distinctUntilChanged(
@@ -57,7 +57,7 @@ export function postVaultAccountRisk(
         p.debtBalance?.hashKey === c.debtBalance?.hashKey &&
         p.inputErrors === c.inputErrors
     ),
-    
+
     map(
       ([
         account,
@@ -93,8 +93,12 @@ export function postVaultAccountRisk(
                 )
             : undefined;
 
-        const s = vaultRiskSummary(prior, post, debtOptions?.find((t) => t.token.id === debtBalance?.tokenId) ?.interestRate);
-        
+        const s = vaultRiskSummary(
+          prior,
+          post,
+          debtOptions?.find((t) => t.token.id === debtBalance?.tokenId)
+            ?.interestRate
+        );
 
         return {
           ...s,
@@ -103,7 +107,7 @@ export function postVaultAccountRisk(
               (!!post?.maxLeverageRatio &&
                 !!s?.postAccountRisk?.leverageRatio &&
                 s.postAccountRisk.leverageRatio < post.maxLeverageRatio)) &&
-            account !== null && 
+            account !== null &&
             vaultCapacityError === false &&
             inputErrors === false,
         };
@@ -147,7 +151,7 @@ function vaultRiskSummary(
     ? Registry.getYieldRegistry().getAllYields(network)
     : [];
 
-  const priorBorrowRate = prior?.borrowAPY
+  const priorBorrowRate = prior?.borrowAPY;
   const priorAPY = prior?.totalAPY;
   const postBorrowRate =
     post?.maturity === PRIME_CASH_VAULT_MATURITY
@@ -194,7 +198,8 @@ function vaultRiskSummary(
       priorAccountRisk?.liquidationPrice || [],
       postAccountRisk?.liquidationPrice || []
     ),
-    comparePortfolio:
-      prior && post ? comparePortfolio(prior.balances, post.balances) : [],
+    comparePortfolio: post
+      ? comparePortfolio(prior?.balances || [], post.balances)
+      : [],
   };
 }
