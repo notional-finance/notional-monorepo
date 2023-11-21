@@ -54,9 +54,9 @@ export const useLiquidityDetails = () => {
         RATE_PRECISION;
   }
 
-  const currentNTokenAPY = liquidity.find(
+  const currentNToken = liquidity.find(
     ({ underlying }) => underlying.symbol === selectedDepositToken
-  )?.totalAPY;
+  );
   const netNTokens =
     collateralBalance?.tokenType === 'nToken'
       ? collateralBalance
@@ -65,10 +65,10 @@ export const useLiquidityDetails = () => {
       : undefined;
   const newNTokenAPY = netNTokens
     ? Registry.getYieldRegistry().getSimulatedNTokenYield(netNTokens)?.totalAPY
-    : currentNTokenAPY;
+    : currentNToken?.totalAPY;
 
   const currentAPY = leveragedYield(
-    currentNTokenAPY,
+    currentNToken?.totalAPY,
     currentHoldings?.borrowAPY,
     currentHoldings?.leverageRatio
   );
@@ -112,7 +112,6 @@ export const useLiquidityDetails = () => {
 
   const newAPY = leveragedYield(newNTokenAPY, newBorrowRate, newLeverageRatio);
   const maturity = currentHoldings?.debt.marketYield?.token.maturity;
-  const [healthFactorRow] = tableData;
   const table = [
     {
       label: 'Total APY',
@@ -162,18 +161,24 @@ export const useLiquidityDetails = () => {
         greenOnArrowUp: false,
       },
     },
-    {
-      label: healthFactorRow.label,
-      current: healthFactorRow.current,
-      updated: {
-        value: healthFactorRow.updated,
-        arrowUp: healthFactorRow.changeType === 'increase',
-        checkmark: healthFactorRow.changeType === 'cleared',
-        greenOnCheckmark: true,
-        greenOnArrowUp: true,
-      },
-    },
   ];
+
+  const liquidationPrice = tableData.find(
+    ({ asset }) => asset?.id === currentNToken?.token.id
+  );
+  if (liquidationPrice) {
+    table.push({
+      label: liquidationPrice.label,
+      current: liquidationPrice.current,
+      updated: {
+        value: liquidationPrice.updated,
+        arrowUp: liquidationPrice.changeType === 'increase',
+        checkmark: liquidationPrice.changeType === 'cleared',
+        greenOnCheckmark: true,
+        greenOnArrowUp: false,
+      },
+    });
+  }
 
   if (currentHoldings?.debt.marketYield?.token.tokenType === 'fCash') {
     table.push({

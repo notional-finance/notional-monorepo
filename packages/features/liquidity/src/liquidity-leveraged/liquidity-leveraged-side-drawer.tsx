@@ -82,6 +82,7 @@ export const LiquidityLeveragedSideDrawer = () => {
             tradeType: 'IncreaseLeveragedNToken',
             selectedDepositToken,
             ...currentPositionState,
+            customizeLeverage: true,
           },
         },
         {
@@ -99,6 +100,7 @@ export const LiquidityLeveragedSideDrawer = () => {
                   collateralBalance: currentPosition?.debt.neg(),
                 }),
             selectedDepositToken,
+            customizeLeverage: true,
           },
         },
         {
@@ -109,6 +111,7 @@ export const LiquidityLeveragedSideDrawer = () => {
             // Always roll the entire debt when doing roll debt from this
             // screen. Partial rolls will break up the grouping.
             maxWithdraw: true,
+            customizeLeverage: true,
           },
         },
         {
@@ -122,6 +125,7 @@ export const LiquidityLeveragedSideDrawer = () => {
             riskFactorLimit: riskFactorLimit
               ? undefined
               : currentPositionState?.riskFactorLimit,
+            customizeLeverage: true,
           },
         },
         {
@@ -137,6 +141,7 @@ export const LiquidityLeveragedSideDrawer = () => {
             debt: currentPosition?.asset.token,
             riskFactorLimit: currentPositionState?.riskFactorLimit,
             selectedDepositToken,
+            customizeLeverage: true,
           },
         },
       ]}

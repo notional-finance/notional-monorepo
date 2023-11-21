@@ -746,6 +746,7 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   const baseCurrency = useFiat();
   const healthFactor = {
     ..._h,
+    asset: undefined,
     label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
     current: _h?.current?.toFixed(2) || 'No Risk',
     updated: _h?.updated?.toFixed(2) || 'No Risk',
