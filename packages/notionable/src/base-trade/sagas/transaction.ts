@@ -5,6 +5,7 @@ import {
   IS_TEST_ENV,
   zipByKeyToArray,
   getNowSeconds,
+  FLOATING_POINT_DUST,
 } from '@notional-finance/util';
 import {
   Observable,
@@ -143,7 +144,9 @@ export function simulateTransaction(
                 };
               })
               .filter(({ rel, abs }) => {
-                return Math.abs(rel) > 5e-2 && Math.abs(abs) > 5e-5;
+                return (
+                  Math.abs(rel) > 5e-2 && Math.abs(abs) > FLOATING_POINT_DUST
+                );
               });
 
             if (mismatchedBalances.length > 0) {

@@ -8,11 +8,11 @@ export const messages = {
     },
     description: {
       defaultMessage:
-        'Enabling a currency is required for Notional to access funds in your wallet.',
+        'Approving a currency is required for Notional to access funds in your wallet.',
       description: 'description',
     },
     buttonText: {
-      defaultMessage: 'Enable',
+      defaultMessage: 'Approve',
       description: 'input label',
     },
   }),
@@ -35,7 +35,7 @@ export const messages = {
     title: { defaultMessage: 'Variable Borrow Disabled', description: 'title' },
     description: { defaultMessage: 'Borrowing variable must be enabled for this account on Notional.', description: 'description' },
     buttonText: {
-      defaultMessage: 'Enable',
+      defaultMessage: 'Approve',
       description: '',
     },
   }),

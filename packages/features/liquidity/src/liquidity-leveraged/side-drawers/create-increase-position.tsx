@@ -1,9 +1,8 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { TransactionSidebar, DepositInput } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
-import { useContext, useCallback } from 'react';
+import { useContext } from 'react';
 import { defineMessage } from 'react-intl';
-import { useHistory } from 'react-router';
 import {
   CustomLiquidityTerms,
   DefaultLiquidityTerms,
@@ -14,7 +13,6 @@ import { useLeveragedNTokenPositions } from '../hooks/use-leveraged-ntoken-posit
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 
 export const CreateOrIncreasePosition = () => {
-  const history = useHistory();
   const context = useContext(LiquidityContext);
   const {
     state: { selectedDepositToken, customizeLeverage, debt },
@@ -23,15 +21,9 @@ export const CreateOrIncreasePosition = () => {
   const { currentPosition, depositTokensWithPositions } =
     useLeveragedNTokenPositions(selectedDepositToken);
 
-  const handleLeverUpToggle = useCallback(() => {
-    history.push(`/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedDepositToken}`);
-  }, [history, selectedDepositToken]);
-
   return (
     <TransactionSidebar
       context={context}
-      handleLeverUpToggle={handleLeverUpToggle}
-      leveredUp
       riskComponent={currentPosition ? <LiquidityDetailsTable /> : undefined}
       variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}
     >

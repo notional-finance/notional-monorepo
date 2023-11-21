@@ -17,6 +17,7 @@ export const LiquidationChart = ({
   const theme = useTheme();
   const {
     areaChartData,
+    areaChartStyles,
     areaChartHeaderData,
     chartToolTipData,
     yAxisDomain,
@@ -45,6 +46,7 @@ export const LiquidationChart = ({
                 chartToolTipData={chartToolTipData}
                 areaChartData={areaChartData}
                 areaLineType="linear"
+                areaChartStyles={areaChartStyles}
               />
             ),
             chartHeaderData: areaChartHeaderData,

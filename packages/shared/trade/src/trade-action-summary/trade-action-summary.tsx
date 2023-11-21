@@ -127,6 +127,9 @@ export function TradeActionSummary({
           }
         />
         <TradeActionTitle value={totalAPY} title={apySuffix} valueSuffix="%" />
+        {liquidityYieldData && (
+          <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
+        )}
         {isLeveraged && customizeLeverage && (
           <LeverageInfoRow
             assetSymbol={title}
@@ -134,9 +137,6 @@ export function TradeActionSummary({
             apySpread={apySpread}
             leverage={leverageRatio}
           />
-        )}
-        {liquidityYieldData && (
-          <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}
       </Box>
       {children}

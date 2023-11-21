@@ -41,14 +41,12 @@ interface TransactionSidebarProps {
     | { defaultMessage: string }
     | { values?: Record<string, unknown> };
   context: TradeContext | VaultContext;
-  leveredUp?: boolean;
   children?: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;
   requiredApprovalAmount?: TokenBalance;
   isPortfolio?: boolean;
   showDrawer?: boolean;
   riskComponent?: React.ReactNode;
-  handleLeverUpToggle?: () => void;
   onReturnToForm?: () => void;
   onConfirmCancel?: () => void;
   onCancelCallback?: () => void;
@@ -62,9 +60,7 @@ export const TransactionSidebar = ({
   context,
   heading,
   helptext,
-  handleLeverUpToggle,
   children,
-  leveredUp,
   advancedToggle,
   isPortfolio,
   showDrawer = false,
@@ -174,10 +170,7 @@ export const TransactionSidebar = ({
       CustomActionButton={isPortfolio ? undefined : TradeActionButton}
       handleSubmit={handleSubmit}
       canSubmit={canSubmit && !leverageDisabled}
-      handleLeverUpToggle={handleLeverUpToggle}
       onCancelCallback={handleActionSidebarCancel}
-      leveredUp={leveredUp || false}
-      showLeverUpToggle={!pathname.includes('lend')}
       leverageDisabled={leverageDisabled}
       hideTextOnMobile={isPortfolio || !hideTextOnMobile ? false : true}
     >

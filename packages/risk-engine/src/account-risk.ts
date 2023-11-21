@@ -4,13 +4,13 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import {
+  FLOATING_POINT_DUST,
   Network,
   PERCENTAGE_BASIS,
   RATE_PRECISION,
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
-
 
 export class AccountRiskProfile extends BaseRiskProfile {
   static simulate(from: TokenBalance[], apply: TokenBalance[]) {
@@ -206,7 +206,10 @@ export class AccountRiskProfile extends BaseRiskProfile {
     if (riskAdjustedValue.isZero()) return null;
     const { haircut, buffer } =
       Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(asset);
-    let assetDenominatedFC: TokenBalance;
+
+    let currencyFC: TokenBalance;
+    let threshold: TokenBalance;
+    const unitOfAsset = TokenBalance.unit(asset);
 
     if (asset.tokenType === 'Underlying') {
       if (riskAdjustedValue.isPositive() && haircut === 0) {
@@ -218,34 +221,27 @@ export class AccountRiskProfile extends BaseRiskProfile {
           riskAdjustedValue.isPositive() ? haircut : buffer,
           PERCENTAGE_BASIS
         );
-        assetDenominatedFC = this.freeCollateral().toToken(asset);
+        currencyFC = this.freeCollateral().toToken(asset);
       }
     } else {
       // In this case we're determining asset price risk and the "FC" figure is the
       // total asset's contribution to the free collateral (i.e. the net collateral
       // available of the asset's underlying.
       if (!asset.underlying) throw Error('No underlying found');
-      assetDenominatedFC = this.netCollateralAvailable(asset.underlying);
-      assetDenominatedFC = assetDenominatedFC.scale(
-        assetDenominatedFC.isPositive() ? haircut : buffer,
-        PERCENTAGE_BASIS
-      );
+      currencyFC = this.netCollateralAvailable(asset.underlying);
+    }
 
-      riskAdjustedValue = riskAdjustedValue.scale(
-        riskAdjustedValue.isPositive() ? haircut : buffer,
-        PERCENTAGE_BASIS
+    if (riskAdjustedValue.isZero()) {
+      return null;
+    } else {
+      // 1 - collateralDenominatedFC / netCollateralAvailable
+      // If netCollateralAvailable < 0 then the exchange rate change will be positive
+      threshold = unitOfAsset.sub(
+        unitOfAsset.scale(currencyFC, riskAdjustedValue)
       );
     }
 
-    if (riskAdjustedValue.isZero()) return null;
-    const unitOfAsset = TokenBalance.unit(asset);
-
-    // 1 - collateralDenominatedFC / netCollateralAvailable
-    // If netCollateralAvailable < 0 then the exchange rate change will be positive
-    const threshold = unitOfAsset.sub(
-      unitOfAsset.scale(assetDenominatedFC, riskAdjustedValue)
-    );
-
+    // Apply lower bounds for nToken and fCash
     if (asset.tokenType === 'nToken') {
       const { nTokenMaxDrawdown } =
         Registry.getConfigurationRegistry().getNTokenLeverageFactors(asset);
@@ -270,8 +266,10 @@ export class AccountRiskProfile extends BaseRiskProfile {
     }
 
     if (
-      (threshold.isNegative() || threshold.isZero()) &&
-      (assetDenominatedFC.isPositive() || asset.tokenType !== 'Underlying')
+      (threshold.isNegative() ||
+        threshold.isZero() ||
+        threshold.toFloat() < FLOATING_POINT_DUST) &&
+      (currencyFC.isPositive() || asset.tokenType !== 'Underlying')
     ) {
       // If the max exchange rate decrease is negative then there is no possible liquidation price, this can
       // happen if aggregateFC > netUnderlying.

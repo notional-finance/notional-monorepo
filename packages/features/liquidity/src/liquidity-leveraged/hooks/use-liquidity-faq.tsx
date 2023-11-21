@@ -3,6 +3,7 @@ import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { Body, ExternalLink } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { HowItWorksFaq } from '../components';
 import { LiquidityContext } from '../../liquidity';
 import {
   getEtherscanAddressLink,
@@ -51,6 +52,21 @@ export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
     },
   ];
   const faqs = [
+    {
+      questionString: 'How it Works',
+      question: (
+        <FormattedMessage
+          defaultMessage={'How it Works'}
+          description={'faq question'}
+        />
+      ),
+      componentAnswer: <HowItWorksFaq tokenSymbol={tokenSymbol} />,
+      questionDescription: (
+        <FormattedMessage
+          defaultMessage={'Learn how leveraged liquidity works.'}
+        />
+      ),
+    },
     {
       questionString: 'What is nTokenSymbol?',
       question: (

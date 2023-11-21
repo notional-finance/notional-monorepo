@@ -10,6 +10,7 @@ import {
   CountUp,
   ChartHeaderDataProps,
   LEGEND_LINE_TYPES,
+  AreaChartStylesProps,
 } from '@notional-finance/mui';
 import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
@@ -38,13 +39,15 @@ export function useLiquidationChart(
       ? debt
       : collateral || vaultCollateral;
 
-  const liquidationPrice = postAccountRisk
-    ? postAccountRisk.liquidationPrice.find(
-        ({ asset }) => asset.id === token?.id
-      )?.threshold
-    : priorAccountRisk?.liquidationPrice.find(
-        ({ asset }) => asset.id === token?.id
-      )?.threshold || vaultLiquidationPrice;
+  const liquidationPrice = (
+    postAccountRisk
+      ? postAccountRisk.liquidationPrice.find(
+          ({ asset }) => asset.id === token?.id
+        )?.threshold
+      : priorAccountRisk?.liquidationPrice.find(
+          ({ asset }) => asset.id === token?.id
+        )?.threshold || vaultLiquidationPrice
+  )?.toUnderlying();
   const deposit = state.deposit || liquidationPrice?.underlying;
 
   const areaChartData = useAssetPriceHistory(token).map(
@@ -147,8 +150,20 @@ export function useLiquidationChart(
     ],
   };
 
+  const areaChartStyles: AreaChartStylesProps = {
+    area: {
+      lineColor: theme.palette.charts.main,
+      lineType: LEGEND_LINE_TYPES.SOLID,
+    },
+    line: {
+      lineColor: theme.palette.error.main,
+      lineType: LEGEND_LINE_TYPES.DASHED,
+    },
+  };
+
   return {
-    areaChartData,
+    areaChartData: areaChartData.slice(1, areaChartData.length),
+    areaChartStyles,
     areaChartHeaderData,
     chartToolTipData,
     yAxisDomain,

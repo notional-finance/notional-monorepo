@@ -746,6 +746,7 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   const baseCurrency = useFiat();
   const healthFactor = {
     ..._h,
+    asset: undefined,
     label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
     current: _h?.current?.toFixed(2) || 'No Risk',
     updated: _h?.updated?.toFixed(2) || 'No Risk',
@@ -761,8 +762,12 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
     onlyCurrent,
     tooRisky: postAccountRisk?.freeCollateral.isNegative() || false,
     priorAccountNoRisk:
-      priorAccountRisk === undefined || priorAccountRisk?.healthFactor === null,
-    postAccountNoRisk: postAccountRisk?.healthFactor === null,
+      priorAccountRisk === undefined ||
+      (priorAccountRisk?.healthFactor === null &&
+        priorAccountRisk?.liquidationPrice.length === 0),
+    postAccountNoRisk:
+      postAccountRisk?.healthFactor === null &&
+      postAccountRisk?.liquidationPrice.length === 0,
     tableData: [healthFactor, ...liquidationPrices],
   };
 }
