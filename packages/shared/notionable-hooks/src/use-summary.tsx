@@ -761,8 +761,12 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
     onlyCurrent,
     tooRisky: postAccountRisk?.freeCollateral.isNegative() || false,
     priorAccountNoRisk:
-      priorAccountRisk === undefined || priorAccountRisk?.healthFactor === null,
-    postAccountNoRisk: postAccountRisk?.healthFactor === null,
+      priorAccountRisk === undefined ||
+      (priorAccountRisk?.healthFactor === null &&
+        priorAccountRisk?.liquidationPrice.length === 0),
+    postAccountNoRisk:
+      postAccountRisk?.healthFactor === null &&
+      postAccountRisk?.liquidationPrice.length === 0,
     tableData: [healthFactor, ...liquidationPrices],
   };
 }

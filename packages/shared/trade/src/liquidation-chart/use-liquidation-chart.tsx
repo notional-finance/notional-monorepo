@@ -39,13 +39,15 @@ export function useLiquidationChart(
       ? debt
       : collateral || vaultCollateral;
 
-  const liquidationPrice = postAccountRisk
-    ? postAccountRisk.liquidationPrice.find(
-        ({ asset }) => asset.id === token?.id
-      )?.threshold
-    : priorAccountRisk?.liquidationPrice.find(
-        ({ asset }) => asset.id === token?.id
-      )?.threshold || vaultLiquidationPrice;
+  const liquidationPrice = (
+    postAccountRisk
+      ? postAccountRisk.liquidationPrice.find(
+          ({ asset }) => asset.id === token?.id
+        )?.threshold
+      : priorAccountRisk?.liquidationPrice.find(
+          ({ asset }) => asset.id === token?.id
+        )?.threshold || vaultLiquidationPrice
+  )?.toUnderlying();
   const deposit = state.deposit || liquidationPrice?.underlying;
 
   const areaChartData = useAssetPriceHistory(token).map(
