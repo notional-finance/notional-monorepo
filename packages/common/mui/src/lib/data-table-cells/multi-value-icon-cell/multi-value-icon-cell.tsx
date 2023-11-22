@@ -65,6 +65,9 @@ export const MultiValueIconCell = (props): JSX.Element => {
 
       <Box sx={{ marginLeft: theme.spacing(1), marginRight: theme.spacing(1) }}>
         <FirstValue gutter="default" sx={{ marginBottom: '0px' }}>
+          {values.symbol && values.symbolBottom ? (
+            <LightningIcon sx={{ height: '13px', marginLeft: '-6px' }} />
+          ) : null}
           {values.label}
         </FirstValue>
         <SecondValue
@@ -73,7 +76,6 @@ export const MultiValueIconCell = (props): JSX.Element => {
           {values.caption || ''}
         </SecondValue>
       </Box>
-      {values.symbol && values.symbolBottom ? <LightningIcon /> : null}
     </Box>
   );
 };

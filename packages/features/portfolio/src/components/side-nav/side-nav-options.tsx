@@ -91,7 +91,7 @@ const Dot = styled(Box)(
     display: none;
     margin-left: -3px;
     margin-top: -2px;
-    ${theme.breakpoints.down('lg')} {
+    @media (max-width: 1490px) {
       display: inline-block;
     }
   `

@@ -1,5 +1,5 @@
 import { usePortfolioHoldings } from './use-portfolio-holdings';
-import { DataTable } from '@notional-finance/mui';
+import { DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TableActionRow } from '../../components';
 import { Box } from '@mui/material';
@@ -44,6 +44,7 @@ export const PortfolioHoldings = () => {
         }
         initialState={initialState}
         setExpandedRows={setExpandedRows}
+        tableVariant={TABLE_VARIANTS.TOTAL_ROW}
       />
     </Box>
   );
