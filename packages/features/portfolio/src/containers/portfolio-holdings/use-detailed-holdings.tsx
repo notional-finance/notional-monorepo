@@ -204,8 +204,6 @@ export function useDetailedHoldings() {
       }
     );
 
-    console.log({ totals });
-
     detailedHoldings.push({
       asset: {
         symbol: '',

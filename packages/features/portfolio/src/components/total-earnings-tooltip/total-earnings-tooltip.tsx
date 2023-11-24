@@ -47,7 +47,7 @@ export const TotalEarningsTooltip = ({
               sx={{ display: 'flex' }}
             >
               <Box sx={{ marginRight: theme.spacing(1) }}>NOTE</Box>
-              <Box>{noteEarnings}</Box>
+              {noteEarnings}
             </FirstValue>
             <ValueContainer
               sx={{
@@ -66,7 +66,7 @@ export const TotalEarningsTooltip = ({
             </ValueContainer>
           </Box>
         ) : (
-          <>
+          <Box>
             <ValueContainer sx={{ marginBottom: theme.spacing(1) }}>
               <FirstValue theme={theme} isNegative={underlying?.includes('-')}>
                 {underlying}
@@ -79,7 +79,7 @@ export const TotalEarningsTooltip = ({
               </FirstValue>
               <H5>({noteBaseCurrency})</H5>
             </ValueContainer>
-          </>
+          </Box>
         )}
       </div>
     );
