@@ -11,9 +11,18 @@ import { useHistory, useLocation } from 'react-router';
 const PROXY_HOST =
   process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 
-export const analytics = AnalyticsBrowser.load({
-  writeKey: process.env['NX_SEGMENT_KEY'] as string,
-});
+export const analytics = AnalyticsBrowser.load(
+  {
+    writeKey: process.env['NX_SEGMENT_KEY'] as string,
+  },
+  {
+    integrations: {
+      'Segment.io': {
+        apiHost: 'analytics.notional.finance',
+      },
+    },
+  }
+);
 
 export type RouteState = { routeType: RouteType } | undefined;
 type Route = Location<RouteState>;
