@@ -533,10 +533,10 @@ export class RegistryClientDO extends BaseDO<Env> {
     const analytics = Registry.getAnalyticsRegistry();
     const monitoringViews = [
       'monitoring_chainlink_price_updates',
-      'monitoring_fCash_rates',
-      'monitoring_nToken_value',
-      'monitoring_pCash_and_pDebt_exchange_rate_monotonicity',
-      'monitoring_pCash_balances',
+      'monitoring_fcash_rates',
+      'monitoring_ntoken_value',
+      'monitoring_pcash_and_pdebt_exchange_rate_monotonicity',
+      'monitoring_pcash_balances',
       'monitoring_tvl',
       'monitoring_vault_share_value',
       'monitoring_vault_reinvestments',
@@ -558,6 +558,24 @@ export class RegistryClientDO extends BaseDO<Env> {
         tags: [networkTag, `monitor:${m}`],
         type: MetricType.Gauge,
       });
+
+      const isLagging = !data.every(
+        (d) =>
+          (d['timestamp'] || d['current_timestamp']) >
+          getNowSeconds() - 3 * 3600
+      );
+
+      if (isLagging) {
+        await this.logger.submitEvent({
+          host: this.serviceName,
+          network,
+          aggregation_key: 'MonitoringCheckLagging',
+          alert_type: 'error',
+          title: `Monitor ${m} Lagging`,
+          tags: [networkTag, `monitor:${m}`],
+          text: `Monitor ${m} is lagging by more than 3 hours`,
+        });
+      }
 
       for (const d of data) {
         const checkPassed = Object.keys(d)

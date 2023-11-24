@@ -194,7 +194,7 @@
     "url-loader": "^4.1.1",
     "webpack": "^5.75.0",
     "webpack-merge": "^5.8.0",
-    "wrangler": "^3.16.0"
+    "wrangler": "^3.17.1"
   },
   "workspaces": [
     "packages/**",

@@ -47,7 +47,8 @@ type DDEventKey =
   | 'TotalSupplyMismatch'
   | 'TotalSupplyMissing'
   | 'TotalBorrowCapacityMismatch'
-  | 'MonitoringCheckFailed';
+  | 'MonitoringCheckFailed'
+  | 'MonitoringCheckLagging';
 
 type DDEventAlertType = 'error' | 'warning' | 'info';
 
