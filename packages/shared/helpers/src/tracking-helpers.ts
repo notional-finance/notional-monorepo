@@ -18,7 +18,8 @@ export const analytics = AnalyticsBrowser.load(
   {
     integrations: {
       'Segment.io': {
-        apiHost: 'analytics.notional.finance',
+        apiHost: 'analytics.notional.finance/v1',
+        protocol: 'https',
       },
     },
   }
