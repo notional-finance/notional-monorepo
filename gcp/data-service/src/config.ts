@@ -35,7 +35,7 @@ export const defaultConfigDefs: ConfigDefinition[] = [
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   [ProtocolName.NotionalV3]: {
     [Network.ArbitrumOne]:
-      'https://api.studio.thegraph.com/proxy/33671/notional-finance-v3-arbitrum/v0.1.19',
+      'https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest',
   },
   [ProtocolName.BalancerV2]: {
     [Network.Mainnet]:
