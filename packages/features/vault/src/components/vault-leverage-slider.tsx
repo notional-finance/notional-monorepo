@@ -61,6 +61,7 @@ export const VaultLeverageSlider = ({
       context={context}
       infoMsg={sliderInfo}
       errorMsg={errorMsg}
+      showMinMax
       isDeleverage={tradeType === 'WithdrawAndRepayVault'}
       cashBorrowed={netRealizedDebtBalance}
       bottomCaption={

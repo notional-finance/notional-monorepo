@@ -78,6 +78,7 @@ export const AdjustLeverage = () => {
         context={context}
         leverageCurrencyId={deposit?.currencyId}
         isDeleverage={isDeleverage}
+        showMinMax
         inputLabel={defineMessage({
           defaultMessage: 'Specify Leverage',
         })}

@@ -20,6 +20,7 @@ interface LeverageSliderProps {
   bottomCaption?: JSX.Element;
   leverageCurrencyId?: number;
   isDeleverage?: boolean;
+  showMinMax?: boolean;
   onChange?: (leverageRatio: number) => void;
 }
 
@@ -32,6 +33,7 @@ export const LeverageSlider = ({
   context,
   leverageCurrencyId,
   isDeleverage,
+  showMinMax,
   onChange,
 }: LeverageSliderProps) => {
   const {
@@ -41,6 +43,7 @@ export const LeverageSlider = ({
       collateralBalance,
       deposit,
       maxLeverageRatio,
+      minLeverageRatio,
       defaultLeverageRatio,
       collateral,
       debtOptions,
@@ -101,11 +104,12 @@ export const LeverageSlider = ({
   return defaultLeverageRatio && maxLeverageRatio ? (
     <SliderInput
       ref={sliderInputRef}
-      min={0}
+      min={minLeverageRatio || 0}
       max={maxLeverageRatio}
       onChangeCommitted={onChange || onChangeCommitted}
       infoMsg={infoMsg}
       errorMsg={errorMsg}
+      showMinMax={showMinMax}
       topRightCaption={topRightCaption}
       bottomCaption={bottomCaption}
       inputLabel={inputLabel}
