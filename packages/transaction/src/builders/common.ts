@@ -3,6 +3,7 @@ import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import {
   BASIS_POINT,
   getProviderFromNetwork,
+  INTERNAL_PRECISION_DUST,
   IS_TEST_ENV,
   Network,
   NotionalAddress,
@@ -58,8 +59,10 @@ export function hasExistingCashBalance(
       !b.isZero()
   );
 
-  // If a cash balance exists, do not withdraw it
-  const withdrawEntireCashBalance = cashBalance ? false : true;
+  // If a cash balance exists, only withdraw it if it is less than dust or zero
+  const withdrawEntireCashBalance =
+    (cashBalance?.isPositive() && cashBalance.n.lte(INTERNAL_PRECISION_DUST)) ||
+    false;
   const withdrawAmountInternalPrecision = withdrawEntireCashBalance
     ? undefined
     : tokenBalance.tokenType === 'PrimeCash' ||

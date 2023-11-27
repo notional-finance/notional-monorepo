@@ -1,11 +1,13 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
   BaseTradeContext,
+  useFCashMarket,
   usePortfolioRiskProfile,
   useWalletBalanceInputCheck,
 } from '@notional-finance/notionable-hooks';
 import {
   BASIS_POINT,
+  FLOATING_POINT_DUST,
   INTERNAL_TOKEN_DECIMALS,
   INTERNAL_TOKEN_PRECISION,
   RATE_PRECISION,
@@ -20,6 +22,7 @@ export function useMaxRepay(context: BaseTradeContext) {
     updateState,
     state: { collateral, maxWithdraw },
   } = context;
+  const fCashMarket = useFCashMarket(collateral?.currencyId);
   const profile = usePortfolioRiskProfile();
 
   // Find the matching debt balance in the risk profile. For prime debt repayment,
@@ -37,12 +40,19 @@ export function useMaxRepay(context: BaseTradeContext) {
       .toUnderlying()
       .mulInRatePrecision(RATE_PRECISION + 5 * BASIS_POINT);
 
-    if (maxRepayAmount.scaleTo(INTERNAL_TOKEN_DECIMALS).lte(500)) {
+    if (maxRepayAmount.abs().toFloat() <= FLOATING_POINT_DUST) {
       // If this is a dust amount just double the repayment to make sure it clears the dust
       maxRepayAmount = maxRepayAmount.mulInRatePrecision(2 * RATE_PRECISION);
     }
   } else {
-    maxRepayAmount = maxRepay?.toUnderlying();
+    const tokensOut =
+      fCashMarket && maxRepay
+        ? fCashMarket.calculateTokenTrade(maxRepay, 0)?.tokensOut
+        : undefined;
+    // Buffer this payment a little bit to avoid prime borrows
+    maxRepayAmount = tokensOut
+      ?.toUnderlying()
+      .mulInRatePrecision(RATE_PRECISION + BASIS_POINT);
   }
 
   const { insufficientBalance, insufficientAllowance } =
