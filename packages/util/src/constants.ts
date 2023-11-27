@@ -9,6 +9,7 @@ export const SCALAR_DECIMALS = 18;
 export const ZERO_ADDRESS = ethers.constants.AddressZero;
 export const BASIS_POINT = 1e5;
 export const PERCENTAGE_BASIS = 100;
+export const INTERNAL_PRECISION_DUST = 5000;
 export const FLOATING_POINT_DUST = 5e-5;
 
 export const ONE_SECOND_MS = 1_000;
