@@ -7,6 +7,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import {
   BASIS_POINT,
+  FLOATING_POINT_DUST,
   INTERNAL_TOKEN_DECIMALS,
   INTERNAL_TOKEN_PRECISION,
   RATE_PRECISION,
@@ -39,7 +40,7 @@ export function useMaxRepay(context: BaseTradeContext) {
       .toUnderlying()
       .mulInRatePrecision(RATE_PRECISION + 5 * BASIS_POINT);
 
-    if (maxRepayAmount.scaleTo(INTERNAL_TOKEN_DECIMALS).lte(500)) {
+    if (maxRepayAmount.abs().toFloat() <= FLOATING_POINT_DUST) {
       // If this is a dust amount just double the repayment to make sure it clears the dust
       maxRepayAmount = maxRepayAmount.mulInRatePrecision(2 * RATE_PRECISION);
     }
