@@ -642,7 +642,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
           return Object.assign(o, { [a.id]: acct });
         }, {} as Record<string, AccountDefinition>);
-      }
+      },
+      { skip: 0 },
+      'accounts'
     );
 
     const provider = getProviderFromNetwork(network, !USE_CROSS_FETCH);
