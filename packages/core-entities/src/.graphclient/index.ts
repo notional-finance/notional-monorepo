@@ -7524,7 +7524,9 @@ export type AccountTransactionHistoryQuery = { account?: Maybe<(
     )>> }
   )> };
 
-export type AllAccountsQueryVariables = Exact<{ [key: string]: never; }>;
+export type AllAccountsQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+}>;
 
 
 export type AllAccountsQuery = { accounts: Array<(
@@ -7691,9 +7693,10 @@ export const AccountTransactionHistoryDocument = gql`
 }
     ` as unknown as DocumentNode<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>;
 export const AllAccountsDocument = gql`
-    query AllAccounts {
+    query AllAccounts($skip: Int) {
   accounts(
     first: 1000
+    skip: $skip
     where: {systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve]}
   ) {
     id

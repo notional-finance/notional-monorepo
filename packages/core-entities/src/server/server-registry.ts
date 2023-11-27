@@ -71,33 +71,58 @@ export async function fetchUsingMulticall<T>(
   };
 }
 
-export async function fetchGraph<T, R, V>(
+export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
   network: Network,
   query: TypedDocumentNode<R, V>,
   transform: (r: R) => Record<string, T>,
-  variables?: V
+  variables?: V,
+  rootVariable?: string
 ): Promise<{ finalResults: Record<string, T>; blockNumber: number }> {
   // NOTE: in order for this to deploy with cloudflare workers, the import statement
   // has to be deferred until here.
   const { execute } = await loadGraphClientDeferred();
-  const data = await execute(query, variables, { chainName: network });
-  const finalResults = transform(data['data']);
-  const blockNumber = data['data']._meta?.block.number || 0;
 
-  return { finalResults, blockNumber };
+  if (variables && variables['skip'] !== undefined && rootVariable) {
+    let finalResults = {} as Record<string, T>;
+    let blockNumber = 0;
+    do {
+      const data = await execute(query, variables, { chainName: network });
+      finalResults = Object.assign(finalResults, transform(data['data']));
+      if (data['data'][rootVariable].length < 1000) {
+        blockNumber = data['data']._meta?.block.number || 0;
+        break;
+      } else {
+        (variables as unknown as { skip: number })['skip'] += 1000;
+      }
+      // eslint-disable-next-line no-constant-condition
+    } while (true);
+
+    return { finalResults, blockNumber };
+  } else {
+    const data = await execute(query, variables, { chainName: network });
+    const finalResults = transform(data['data']);
+    const blockNumber = data['data']._meta?.block.number || 0;
+    return { finalResults, blockNumber };
+  }
 }
 
-export async function fetchUsingGraph<T, R, V>(
+export async function fetchUsingGraph<
+  T,
+  R,
+  V extends { [key: string]: unknown }
+>(
   network: Network,
   query: TypedDocumentNode<R, V>,
   transform: (r: R) => Record<string, T>,
-  variables?: V
+  variables?: V,
+  rootVariable?: string
 ): Promise<CacheSchema<T>> {
   const { finalResults, blockNumber } = await fetchGraph(
     network,
     query,
     transform,
-    variables
+    variables,
+    rootVariable
   );
 
   return {
