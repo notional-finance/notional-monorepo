@@ -142,7 +142,7 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     return fetchUsingMulticall<T>(network, calls, transforms);
   }
 
-  protected async _fetchUsingGraph<R, V>(
+  protected async _fetchUsingGraph<R, V extends { [key: string]: unknown }>(
     network: Network,
     query: TypedDocumentNode<R, V>,
     transform: (r: R) => Record<string, T>,
