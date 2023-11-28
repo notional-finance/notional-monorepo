@@ -100,7 +100,16 @@ const run = async (env: Env) => {
     logger
   );
 
-  const riskyAccounts = await liq.getRiskyAccounts(addrs);
+  const chunkSize = 750;
+  const batchedAccounts = Array.from(
+    { length: Math.ceil(addrs.length / chunkSize) },
+    (_, index) => addrs.slice(index * chunkSize, index * chunkSize + chunkSize)
+  );
+  const riskyAccounts =
+    // Batch up the accounts so that we don't get errors from the RPC
+    (
+      await Promise.all(batchedAccounts.map((a) => liq.getRiskyAccounts(a)))
+    ).flatMap((_) => _);
 
   const ddSeries: DDSeries = {
     series: [],
