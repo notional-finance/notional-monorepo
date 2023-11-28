@@ -30,15 +30,28 @@ export function useDetailedHoldings() {
 
   return useMemo(() => {
     const totals = holdings.reduce(
-      (t, { balance, statement }) => {
+      (t, { balance, statement, totalNOTEEarnings }) => {
+        const totalEarningsWithNOTE = statement?.totalProfitAndLoss
+          .toFiat(baseCurrency)
+          .add(
+            totalNOTEEarnings?.toFiat(baseCurrency) ||
+              TokenBalance.fromSymbol(0, baseCurrency, Network.All)
+          );
+
         if (statement) {
           t.amountPaid = t.amountPaid.add(
             statement.accumulatedCostRealized.toFiat(baseCurrency)
           );
           t.presentValue = t.presentValue.add(balance.toFiat(baseCurrency));
-          t.earnings = t.earnings.add(
+          t.earnings = totalEarningsWithNOTE
+            ? t.earnings.add(totalEarningsWithNOTE.toFiat(baseCurrency))
+            : t.earnings.add(statement.totalProfitAndLoss.toFiat(baseCurrency));
+          t.nonNoteEarnings = t.nonNoteEarnings.add(
             statement.totalProfitAndLoss.toFiat(baseCurrency)
           );
+          t.noteEarnings = totalNOTEEarnings
+            ? t?.noteEarnings?.add(totalNOTEEarnings)
+            : t.noteEarnings;
         }
         return t;
       },
@@ -46,6 +59,8 @@ export function useDetailedHoldings() {
         amountPaid: TokenBalance.zero(fiatToken),
         presentValue: TokenBalance.zero(fiatToken),
         earnings: TokenBalance.zero(fiatToken),
+        nonNoteEarnings: TokenBalance.zero(fiatToken),
+        noteEarnings: NOTE ? TokenBalance.zero(NOTE) : undefined,
       }
     );
 
@@ -207,6 +222,16 @@ export function useDetailedHoldings() {
       amountPaid: totals.amountPaid.toDisplayStringWithSymbol(),
       presentValue: totals.presentValue.toDisplayStringWithSymbol(),
       earnings: totals.earnings.toDisplayStringWithSymbol(),
+      toolTipData: totals.noteEarnings
+        ? {
+            nonNoteEarnings: totals.nonNoteEarnings
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(),
+            noteEarnings: totals.noteEarnings
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(),
+          }
+        : undefined,
       actionRow: undefined,
       tokenId: ' ',
       isTotalRow: true,

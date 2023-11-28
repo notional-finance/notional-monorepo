@@ -62,9 +62,11 @@ const StyledTableRow = styled(TableRow, {
     .MuiTableRow-root, &:last-of-type {
       ${
         tableVariant === TABLE_VARIANTS.TOTAL_ROW
-          ? `background: ${theme.palette.background.default};`
+          ? `
+            border-top: ${theme.shape.borderStandard};
+          `
           : ''
-      }   
+      } 
     }
     cursor: ${expandableTableActive ? 'pointer' : ''};
     background: ${rowSelected ? theme.palette.info.light : 'transparent'};
