@@ -44,6 +44,7 @@ export const CustomLiquidityTerms = () => {
         <VariableFixedMaturityToggle context={context} />
         <Box height={theme.spacing(6)} />
         <LeverageSlider
+          showMinMax
           context={context}
           leverageCurrencyId={deposit?.currencyId}
           inputLabel={defineMessage({

@@ -20,6 +20,7 @@ export interface SliderInputProps {
   inputLabel?: MessageDescriptor;
   topRightCaption?: JSX.Element;
   bottomCaption?: JSX.Element;
+  showMinMax?: boolean;
   sliderLeverageInfo?: {
     debtHeading: MessageDescriptor;
     assetHeading: MessageDescriptor;
@@ -39,7 +40,7 @@ const Container = styled(Box)(
   ({ theme }) => `
   border-radius: ${theme.shape.borderRadius()};
   display: flex;
-  height: ${theme.spacing(7)};
+  height: ${theme.spacing(8)};
 `
 );
 
@@ -122,6 +123,7 @@ export const SliderInput = React.forwardRef<
       topRightCaption,
       bottomCaption,
       sliderLeverageInfo,
+      showMinMax,
     },
     ref
   ) => {
@@ -217,6 +219,7 @@ export const SliderInput = React.forwardRef<
               max={max}
               step={sliderStep}
               value={value}
+              showMinMax={showMinMax}
               disabled={false}
               onChange={(v) => {
                 setValue(v);

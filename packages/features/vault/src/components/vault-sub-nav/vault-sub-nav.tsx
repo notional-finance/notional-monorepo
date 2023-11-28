@@ -133,7 +133,7 @@ export const VaultSubNav = () => {
 
 const HiddenSidebar = styled(Box)(
   ({ theme }) => `
-  width: 558px;
+  width: ${theme.spacing(68)};
   background: transparent;
   ${theme.breakpoints.down('md')} {
     display: none;
