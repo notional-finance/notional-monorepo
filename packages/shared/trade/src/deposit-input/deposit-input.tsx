@@ -11,7 +11,10 @@ import { MessageDescriptor } from 'react-intl';
 import { getErrorMessages } from './get-error-messages';
 import { useDepositInput } from './use-deposit-input';
 import { useHistory } from 'react-router';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import {
+  BaseTradeContext,
+  useWalletBalances,
+} from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
 
@@ -26,6 +29,7 @@ interface DepositInputProps {
   isWithdraw?: boolean;
   maxWithdraw?: TokenBalance;
   useZeroDefault?: boolean;
+  showScrollPopper?: boolean;
 }
 
 /**
@@ -49,6 +53,7 @@ export const DepositInput = React.forwardRef<
       isWithdraw,
       maxWithdraw,
       useZeroDefault,
+      showScrollPopper,
     },
     ref
   ) => {
@@ -60,6 +65,7 @@ export const DepositInput = React.forwardRef<
         selectedDepositToken,
         availableDepositTokens,
         calculateError,
+        tradeType,
       },
       updateState,
     } = context;
@@ -85,6 +91,11 @@ export const DepositInput = React.forwardRef<
         inputErrors: !!errorMsg || !!errorMsgOverride,
       });
     }, [updateState, errorMsg, errorMsgOverride]);
+
+    const balanceAndApyData = useWalletBalances(
+      availableDepositTokens,
+      tradeType
+    );
 
     if (!availableDepositTokens || !selectedDepositToken)
       return <PageLoading />;
@@ -132,9 +143,11 @@ export const DepositInput = React.forwardRef<
           onInputChange={(input) => setInputString(input)}
           errorMsg={errorMessage}
           warningMsg={warningMsg}
+          showScrollPopper={showScrollPopper}
           options={
-            availableDepositTokens?.map((token) => ({
+            balanceAndApyData?.map(({ token, content }) => ({
               token,
+              content,
             })) || []
           }
           defaultValue={deposit?.id || null}

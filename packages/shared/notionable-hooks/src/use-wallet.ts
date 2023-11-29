@@ -1,5 +1,8 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
+import { groupArrayToMap } from '@notional-finance/util';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { useAllMarkets } from './use-market';
 
 export function useWalletAllowances() {
   const { account } = useAccountDefinition();
@@ -41,6 +44,91 @@ export function useWalletBalanceInputCheck(
     insufficientBalance,
     insufficientAllowance,
   };
+}
+
+function useApyValues(tradeType: string | undefined) {
+  // create a apyData object with a type of a Record with key of string and value of string
+  const apyData: Record<string, string> = {};
+  const {
+    yields: { fCashLend, variableLend, liquidity, fCashBorrow, variableBorrow, leveragedLiquidity },
+    getMax,
+    getMin,
+  } = useAllMarkets();
+
+  if(tradeType === 'LendFixed') {
+    const cardData = [
+      ...groupArrayToMap(fCashLend, (t) => t.underlying.symbol).entries(),
+    ];
+    cardData.map(([symbol, yields]) => {
+      const maxRate = getMax(yields)?.totalAPY || 0;
+      apyData[symbol] = `${maxRate.toPrecision(2)}% APY`;
+      return apyData;
+    });
+  } else if(tradeType === 'LendVariable') {
+    variableLend.map(({underlying, totalAPY}) => {
+      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+      return apyData;
+    });
+  } else if(tradeType === 'MintNToken') {
+    liquidity.map(({underlying, totalAPY}) => {
+      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+      return apyData;
+    });
+  } else if(tradeType === 'BorrowFixed') {
+    const cardData = [
+      ...groupArrayToMap(fCashBorrow, (t) => t.underlying.symbol).entries(),
+    ];
+    cardData.map(([symbol, yields]) => {
+      const minRate = getMin(yields)?.totalAPY || 0;
+      apyData[symbol] = `${minRate.toPrecision(2)}% APY`;
+      return apyData;
+    });
+  } else if(tradeType === 'BorrowVariable') {
+    variableBorrow.map(({underlying, totalAPY}) => {
+      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+      return apyData;
+    });
+  } else if(tradeType === 'LeveragedNToken') {
+    leveragedLiquidity.filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt').map(({underlying, totalAPY}) => {
+      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+      return apyData;
+    })
+  } else {
+    return apyData  
+  }
+
+  return apyData
+}
+
+export function useWalletBalances(
+  tokens: TokenDefinition[] | undefined,
+  tradeType: string | undefined,
+) {
+  const { account } = useAccountDefinition();
+  const apyData = useApyValues(tradeType)
+
+  return tokens?.map((token) => {
+    const maxBalance =
+      token && account
+        ? account.balances.find((t) => t.token.id === token?.id) ||
+          TokenBalance.zero(token)
+        : undefined;
+        
+    return {
+      token,
+      content: { 
+        balance: maxBalance?.isPositive() ? maxBalance?.toDisplayStringWithSymbol(3, true) : undefined, 
+        apy: apyData[token.symbol] || undefined },
+    };
+  }).sort((a, b) => {
+    if (a.content.balance && !b.content.balance) {
+        return -1;
+    }
+    if (!a.content.balance && b.content.balance) {
+        return 1; 
+    }
+    return 0;
+})
 }
 
 export function useMaxAssetBalance(token: TokenDefinition | undefined) {

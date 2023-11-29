@@ -28,6 +28,7 @@ export const CreateOrIncreasePosition = () => {
       variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}
     >
       <DepositInput
+        showScrollPopper
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}

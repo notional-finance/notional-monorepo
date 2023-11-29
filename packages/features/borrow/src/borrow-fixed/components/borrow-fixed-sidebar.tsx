@@ -17,6 +17,7 @@ export const BorrowFixedSidebar = () => {
     <TransactionSidebar context={context} showDrawer isWithdraw>
       <DepositInput
         isWithdraw
+        showScrollPopper
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}
