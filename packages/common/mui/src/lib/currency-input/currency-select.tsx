@@ -151,7 +151,7 @@ export const formatOption = (
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
-        height: '40px',
+        height: theme.spacing(5),
       }}
     >
       <Box sx={{ display: 'flex' }}>
