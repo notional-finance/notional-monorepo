@@ -1,5 +1,6 @@
 import {
   Network,
+  batchArray,
   getNowSeconds,
   getProviderFromNetwork,
 } from '@notional-finance/util';
@@ -58,8 +59,8 @@ const run = async (env: Env) => {
         'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
       },
     })
-  ).json()) as any;
-  const addrs = accounts.map((a) => a.account_id);
+  ).json()) as { account_id: string }[];
+  const addresses: string[] = accounts.map((a) => a.account_id);
 
   const provider = getProviderFromNetwork(env.NETWORK, true);
   const liq = new NotionalV3Liquidator(
@@ -100,11 +101,7 @@ const run = async (env: Env) => {
     logger
   );
 
-  const chunkSize = 750;
-  const batchedAccounts = Array.from(
-    { length: Math.ceil(addrs.length / chunkSize) },
-    (_, index) => addrs.slice(index * chunkSize, index * chunkSize + chunkSize)
-  );
+  const batchedAccounts = batchArray(addresses, 750);
   const riskyAccounts =
     // Batch up the accounts so that we don't get errors from the RPC
     (
