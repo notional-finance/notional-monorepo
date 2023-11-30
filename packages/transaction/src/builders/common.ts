@@ -59,8 +59,10 @@ export function hasExistingCashBalance(
       !b.isZero()
   );
 
-  // If a cash balance exists, only withdraw it if it is less than dust or zero
   const withdrawEntireCashBalance =
+    // If a cash balance is not defined, withdraw entire balance
+    cashBalance === undefined ||
+    // If a cash balance exists, only withdraw it if it is less than dust or zero
     (cashBalance?.isPositive() && cashBalance.n.lte(INTERNAL_PRECISION_DUST)) ||
     false;
   const withdrawAmountInternalPrecision = withdrawEntireCashBalance
