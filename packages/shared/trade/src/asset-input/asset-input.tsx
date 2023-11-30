@@ -81,23 +81,6 @@ export const AssetInput = React.forwardRef<
       setInputString,
     } = useAssetInput(state, debtOrCollateral);
 
-    // const {
-    //   hasUserTouched,
-    //   options,
-    //   updateBalances,
-    //   setHasUserTouched,
-    //   updateDeleverageToken,
-    // } = useDeleverage(
-    //   availableTokens,
-    //   deleverage,
-    //   inputRef,
-    //   computedBalance,
-    //   debt,
-    //   collateral,
-    //   debtOrCollateral,
-    //   updateState
-    // );
-
     useEffect(() => {
       if (
         prefillMax &&

@@ -194,7 +194,10 @@ export function DeleverageNToken({
     accountBalances
   );
 
-  if (
+  if (depositBalance === undefined) {
+    withdrawEntireCashBalance = false;
+    withdrawAmountInternalPrecision = undefined;
+  } else if (
     maxWithdraw &&
     cashBalance?.isNegative() &&
     collateralBalance.tokenType === 'PrimeCash'
