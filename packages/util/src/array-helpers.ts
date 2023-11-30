@@ -2,6 +2,13 @@ export function unique<T>(arr: T[]): T[] {
   return arr.filter((el, index, source) => source.indexOf(el) === index);
 }
 
+// Returns an array of the original array batched into arrays of chunkSize
+export function batchArray<T>(arr: T[], chunkSize: number): T[][] {
+  return Array.from({ length: Math.ceil(arr.length / chunkSize) }, (_, index) =>
+    arr.slice(index * chunkSize, index * chunkSize + chunkSize)
+  );
+}
+
 export function zipByKey<T>(
   a: T[],
   b: T[],
