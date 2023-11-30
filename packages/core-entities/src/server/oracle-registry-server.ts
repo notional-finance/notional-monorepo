@@ -170,10 +170,10 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
           const override = vaultOverrides[oracle.oracleAddress];
           if (override) {
             const entry = override.find((o) => {
-              if (o.fromBlock && blockNumber! < o.fromBlock) {
+              if (o.fromBlock && blockNumber && blockNumber < o.fromBlock) {
                 return false;
               }
-              if (o.toBlock && blockNumber! > o.toBlock) {
+              if (o.toBlock && blockNumber && blockNumber > o.toBlock) {
                 return false;
               }
               return true;
