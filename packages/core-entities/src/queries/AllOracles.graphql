@@ -10,7 +10,6 @@ query AllOracles {
     # NOT used in exchange rate path finding algorithm
     PrimeCashPremiumInterestRate,
     PrimeDebtPremiumInterestRate,
-    PrimeCashExternalLendingInterestRate,
     fCashSpotRate,
     PrimeCashToUnderlyingOracleInterestRate,
     fCashToUnderlyingExchangeRate
