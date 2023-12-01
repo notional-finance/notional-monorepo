@@ -29,6 +29,7 @@ export const BorrowVariableSidebar = () => {
       variableBorrowRequired
     >
       <DepositInput
+        showScrollPopper
         isWithdraw
         ref={currencyInputRef}
         inputRef={currencyInputRef}

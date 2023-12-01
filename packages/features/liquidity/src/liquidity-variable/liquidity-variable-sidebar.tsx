@@ -12,6 +12,7 @@ export const LiquidityVariableSidebar = () => {
   return (
     <TransactionSidebar context={context} showDrawer>
       <DepositInput
+        showScrollPopper
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}

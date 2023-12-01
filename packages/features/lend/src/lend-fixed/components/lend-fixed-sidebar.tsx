@@ -20,6 +20,7 @@ export const LendFixedSidebar = () => {
         inputRef={currencyInputRef}
         context={context}
         newRoute={(newToken) => `/${PRODUCTS.LEND_FIXED}/${newToken}`}
+        showScrollPopper
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to lend?',
           description: 'input label',

@@ -22,6 +22,7 @@ export const Withdraw = () => {
     >
       <DepositInput
         isWithdraw
+        showScrollPopper
         ref={currencyInputRef}
         context={context}
         inputRef={currencyInputRef}

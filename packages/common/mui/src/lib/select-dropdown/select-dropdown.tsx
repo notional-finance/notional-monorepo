@@ -1,4 +1,10 @@
-import { MenuList, PopperPlacementType, styled, useTheme } from '@mui/material';
+import {
+  MenuList,
+  PopperPlacementType,
+  SxProps,
+  styled,
+  useTheme,
+} from '@mui/material';
 import SelectUnstyled, { SelectOption } from '@mui/base/SelectUnstyled';
 import PopperUnstyled from '@mui/base/PopperUnstyled';
 import { ArrowIcon } from '@notional-finance/icons';
@@ -12,7 +18,11 @@ interface SelectDropdownProps {
   buttonComponent: ElementType;
   onChange: (value: string | null) => void;
   onListboxOpen?: (isOpen: boolean) => void;
-  renderValue?: (option: SelectOption<string> | null) => React.ReactNode | undefined;
+  renderValue?: (
+    option: SelectOption<string> | null
+  ) => React.ReactNode | undefined;
+  sx?: SxProps;
+  showScrollPopper?: boolean;
 }
 
 const StyledMenu = styled(MenuList)(
@@ -26,9 +36,19 @@ const StyledMenu = styled(MenuList)(
   background-color: ${theme.palette.common.white};
   `
 );
-const StyledPopper = styled(PopperUnstyled)`
+
+const StyledPopper = styled(PopperUnstyled)(`
   z-index: 99;
-`;
+`);
+
+const ScrollPopper = styled(PopperUnstyled)(
+  ({ theme }) => `
+  z-index: 99;
+  height: ${theme.spacing(41)};
+  overflow-y: scroll;
+  overflow-x: hidden;
+`
+);
 
 export const SelectDropdown = ({
   children,
@@ -39,6 +59,7 @@ export const SelectDropdown = ({
   onChange,
   renderValue,
   value,
+  showScrollPopper = false,
 }: SelectDropdownProps) => {
   const theme = useTheme();
   const [isListboxOpen, setListboxOpen] = useState(false);
@@ -47,8 +68,10 @@ export const SelectDropdown = ({
   const components = {
     root: buttonComponent,
     listbox: StyledMenu,
-    popper: StyledPopper,
+    popper: showScrollPopper ? ScrollPopper : StyledPopper,
   };
+
+  // MuiSelect-popper
 
   const popperPlacement =
     window.innerWidth <= theme.breakpoints.values.sm

@@ -22,6 +22,7 @@ export interface CurrencyInputProps extends CurrencySelectProps {
   style?: CurrencyInputStyleProps;
   onMaxValue?: () => void;
   ref: React.RefObject<HTMLDivElement>;
+  showScrollPopper?: boolean;
 }
 
 export interface CurrencyInputHandle {
@@ -90,6 +91,7 @@ export const CurrencyInput = React.forwardRef<
     onInputChange,
     onMaxValue,
     style,
+    showScrollPopper,
   } = props;
   const theme = useTheme() as NotionalTheme;
   const [hasFocus, setHasFocus] = React.useState(false);
@@ -205,6 +207,7 @@ export const CurrencyInput = React.forwardRef<
           defaultValue={props.defaultValue}
           onSelectChange={props.onSelectChange}
           popperRef={inputContainerRef}
+          showScrollPopper={showScrollPopper}
         />
       </InputContainer>
 
