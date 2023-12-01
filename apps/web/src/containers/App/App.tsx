@@ -10,9 +10,8 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { Switch } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
 import { ServerError } from '../ServerError/server-error';
-import RouteContainer from './components/RouteContainer';
-import AppLayoutRoute from './layouts/AppLayoutRoute';
-import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';
+import RouteContainer from './RouteContainer';
+import AppLayoutRoute from './AppLayoutRoute';
 import { OnboardContext } from '@notional-finance/wallet';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -203,7 +202,8 @@ const AllRoutes = () => {
             component={PrivacyView}
             routeType="Landing"
           />
-          <LandingPageLayoutRoute
+          <AppLayoutRoute
+            landingLayout
             path="/about"
             component={AboutUsView}
             routeType="Landing"
@@ -213,7 +213,8 @@ const AllRoutes = () => {
           <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
           <AppLayoutRoute path="/unstake" component={StakeView} />
           <AppLayoutRoute path="/treasury" component={TreasuryView} /> */}
-          <LandingPageLayoutRoute
+          <AppLayoutRoute
+            landingLayout
             path="/"
             component={LandingPageView}
             routeType="Landing"

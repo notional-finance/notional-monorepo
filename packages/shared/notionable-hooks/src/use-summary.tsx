@@ -501,7 +501,14 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
 
       if (netAssetBalance?.isZero() === false)
         // This only exists if the new debt maturity has fCash in it
-        summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));
+        summary.push(
+          getTradeDetail(
+            netAssetBalance,
+            'Asset',
+            netAssetBalance.isNegative() ? 'withdraw' : 'none',
+            intl
+          )
+        );
       // New borrow balance
       if (netDebtBalance?.isZero() === false)
         summary.push(getTradeDetail(netDebtBalance, 'Debt', 'none', intl));
@@ -520,7 +527,14 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
 
       if (netDebtBalance?.isZero() === false)
         // This only exists if the debt is being repaid in the new maturity
-        summary.push(getTradeDetail(netDebtBalance, 'Debt', 'none', intl));
+        summary.push(
+          getTradeDetail(
+            netDebtBalance,
+            'Debt',
+            netDebtBalance.isPositive() ? 'repay' : 'none',
+            intl
+          )
+        );
       if (netAssetBalance?.isZero() === false)
         // This is the new asset balance
         summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));

@@ -74,12 +74,19 @@ export function DeleverageLend({
   network,
   collateralBalance,
   debtBalance,
-  maxWithdraw,
-  depositBalance,
+  accountBalances,
 }: PopulateTransactionInputs) {
-  if (!(collateralBalance?.isNegative() && debtBalance?.isPositive())) {
-    throw Error('Collateral and Debt must be defined');
+  if (
+    !(collateralBalance?.isPositive() && debtBalance?.isNegative()) ||
+    collateralBalance?.currencyId !== debtBalance?.currencyId
+  ) {
+    throw Error('All balances must be defined');
   }
+
+  const { withdrawEntireCashBalance } = hasExistingCashBalance(
+    collateralBalance,
+    accountBalances
+  );
 
   return populateNotionalTxnAndGas(
     network,
@@ -91,8 +98,12 @@ export function DeleverageLend({
         getBalanceAndTradeAction(
           DepositActionType.None,
           TokenBalance.zero(collateralBalance.underlying), // no deposits
-          maxWithdraw,
-          maxWithdraw ? undefined : depositBalance?.neg().toPrimeCash(),
+          // If collateralBalance is prime cash, then this is repaying prime debt and we
+          // want to make sure that we do not end up with dust. Any positive amount will be
+          // withdrawn.
+          withdrawEntireCashBalance ||
+            collateralBalance.tokenType === 'PrimeCash',
+          undefined,
           false,
           [collateralBalance, debtBalance].filter(
             (t) => t.tokenType === 'fCash'
@@ -177,12 +188,18 @@ export function DeleverageNToken({
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('All balances must be defined');
+  const nTokenBalance = accountBalances.find(
+    (t) => t.tokenId == debtBalance.tokenId
+  );
 
   // Adjust the debt balance up slightly to reduce the chance of dust balances
   // causing fCash to fail.
-  const adjustedDebtBalance = maxWithdraw
-    ? debtBalance.neg()
-    : debtBalance.mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT).neg();
+  const adjustedDebtBalance =
+    maxWithdraw || nTokenBalance?.eq(debtBalance.abs())
+      ? debtBalance.neg()
+      : debtBalance
+          .mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT)
+          .neg();
 
   let {
     // eslint-disable-next-line prefer-const
@@ -231,8 +248,6 @@ export function DeleverageNToken({
 export async function Deleverage(i: PopulateTransactionInputs) {
   if (i.debtBalance?.tokenType === 'nToken') {
     return DeleverageNToken(i);
-  } else if (i.collateralBalance?.isPositive() && i.debtBalance?.isNegative()) {
-    return LeveragedLend(i);
   } else {
     return DeleverageLend(i);
   }

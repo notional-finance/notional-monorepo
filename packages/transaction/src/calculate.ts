@@ -495,7 +495,14 @@ export function calculateDeleverage({
       debt,
       debtPool,
       collateralPool,
-      collateralBalance,
+      collateralBalance:
+        // If repaying prime debt (when collateralBalance == prime cash), then adjust
+        // the value up a bit to reduce the chance of having dust balances at the max
+        collateralBalance.tokenType === 'PrimeCash'
+          ? collateralBalance.mulInRatePrecision(
+              RATE_PRECISION + 5 * BASIS_POINT
+            )
+          : collateralBalance,
     });
   } else if (!debtBalance.isZero() && collateralBalance.isZero()) {
     return calculateCollateral({

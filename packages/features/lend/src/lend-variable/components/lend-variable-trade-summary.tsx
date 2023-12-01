@@ -35,7 +35,7 @@ export const LendVariableTradeSummary = () => {
     areaChartStyles,
     chartHeaderData,
     borrowUtilization,
-  } = useInterestRateUtilizationChart(deposit?.currencyId, 'lend');
+  } = useInterestRateUtilizationChart(deposit?.currencyId, 'lend', selectedDepositToken);
 
   return (
     <TradeActionSummary state={state}>
