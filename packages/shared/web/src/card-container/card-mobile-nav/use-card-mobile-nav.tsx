@@ -2,6 +2,8 @@ import { CARD_CATEGORIES } from '@notional-finance/util';
 import {
   PieChartIcon,
   CoinsIcon,
+  CoinsCircleIcon,
+  BarChartIcon,
   BarChartLateralIcon,
   VaultIcon,
 } from '@notional-finance/icons';
@@ -12,38 +14,35 @@ import { FormattedMessage } from 'react-intl';
 export enum NAV_OPTIONS {
   SET_ONE = 'set_one',
   SET_TWO = 'set_two',
+  SET_THREE = 'set_three',
 }
 
-enum OPTION_SET_ONE {
-  LEND_FIXED = 'lend',
-  LEVERAGED_VAULTS = 'vaults',
-  PROVIDE_LIQUIDITY = 'provide',
-}
-
-enum OPTION_SET_TWO {
-  BORROW_FIXED = 'borrow',
-}
+const OPTION_SET_ONE = ['lend-fixed', 'lend-variable', 'provide'];
+const OPTION_SET_TWO = ['vaults', 'liquidity-leveraged'];
+const OPTION_SET_THREE = ['borrow-fixed', 'borrow-variable'];
 
 export const useCardMobileNav = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const category = pathname.slice(1);
 
-  const defaultOptionSet = Object.values(OPTION_SET_ONE).includes(
-    category as unknown as OPTION_SET_ONE
-  )
-    ? NAV_OPTIONS.SET_ONE
-    : Object.values(OPTION_SET_TWO).includes(
-        category as unknown as OPTION_SET_TWO
-      )
-    ? NAV_OPTIONS.SET_TWO
-    : null;
+  let defaultOptionSet = NAV_OPTIONS.SET_ONE;
+
+  if (OPTION_SET_ONE.includes(category)) {
+    defaultOptionSet = NAV_OPTIONS.SET_ONE;
+  } else if (OPTION_SET_TWO.includes(category)) {
+    defaultOptionSet = NAV_OPTIONS.SET_TWO;
+  } else if (OPTION_SET_THREE.includes(category)) {
+    defaultOptionSet = NAV_OPTIONS.SET_THREE;
+  } else {
+    defaultOptionSet = NAV_OPTIONS.SET_ONE;
+  }
 
   const optionSetOne = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Lending'} />,
       id: CARD_CATEGORIES.LEND_FIXED,
-      to: `/lend`,
+      to: `/lend-fixed`,
       Icon: (
         <BarChartLateralIcon
           sx={{
@@ -55,6 +54,40 @@ export const useCardMobileNav = () => {
         />
       ),
     },
+    {
+      title: <FormattedMessage defaultMessage={'Lend Variable'} />,
+      id: CARD_CATEGORIES.LEND_VARIABLE,
+      to: `/lend-variable`,
+      Icon: (
+        <BarChartIcon
+          sx={{
+            width: theme.spacing(2),
+            fill: CARD_CATEGORIES.LEND_VARIABLE.includes(category)
+              ? theme.palette.typography.main
+              : theme.palette.typography.light,
+          }}
+        />
+      ),
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
+      id: CARD_CATEGORIES.PROVIDE_LIQUIDITY,
+      to: `/liquidity-variable`,
+      Icon: (
+        <PieChartIcon
+          sx={{
+            width: theme.spacing(2),
+            fill: CARD_CATEGORIES.PROVIDE_LIQUIDITY.includes(category)
+              ? theme.palette.typography.main
+              : theme.palette.typography.light,
+            stroke: 'transparent',
+          }}
+        />
+      ),
+    },
+  ];
+
+  const optionSetTwo = [
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
       id: CARD_CATEGORIES.LEVERAGED_VAULTS,
@@ -71,14 +104,14 @@ export const useCardMobileNav = () => {
       ),
     },
     {
-      title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      id: CARD_CATEGORIES.PROVIDE_LIQUIDITY,
-      to: `/provide`,
+      title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
+      id: CARD_CATEGORIES.LIQUIDITY_LEVERAGED,
+      to: `/liquidity-leveraged`,
       Icon: (
         <PieChartIcon
           sx={{
             width: theme.spacing(2),
-            fill: CARD_CATEGORIES.PROVIDE_LIQUIDITY.includes(category)
+            fill: CARD_CATEGORIES.LIQUIDITY_LEVERAGED.includes(category)
               ? theme.palette.typography.main
               : theme.palette.typography.light,
             stroke: 'transparent',
@@ -87,11 +120,12 @@ export const useCardMobileNav = () => {
       ),
     },
   ];
-  const optionSetTwo = [
+
+  const optionSetThree = [
     {
-      title: <FormattedMessage defaultMessage={'Fixed Borrow'} />,
+      title: <FormattedMessage defaultMessage={'Borrow Fixed'} />,
       id: CARD_CATEGORIES.BORROW_FIXED,
-      to: `/borrow`,
+      to: `/borrow-fixed`,
       Icon: (
         <CoinsIcon
           sx={{
@@ -104,9 +138,25 @@ export const useCardMobileNav = () => {
         />
       ),
     },
+    {
+      title: <FormattedMessage defaultMessage={'Borrow Variable'} />,
+      id: CARD_CATEGORIES.BORROW_VARIABLE,
+      to: `/borrow-variable`,
+      Icon: (
+        <CoinsCircleIcon
+          sx={{
+            width: theme.spacing(2),
+            fill: CARD_CATEGORIES.BORROW_VARIABLE.includes(category)
+              ? theme.palette.typography.main
+              : theme.palette.typography.light,
+            stroke: 'transparent',
+          }}
+        />
+      ),
+    },
   ];
 
-  return { optionSetOne, optionSetTwo, defaultOptionSet };
+  return { optionSetOne, optionSetTwo, optionSetThree, defaultOptionSet };
 };
 
 export default useCardMobileNav;

@@ -49,17 +49,25 @@ export function CardContainer({
               }}
             >
               <CardSubNav />
-              <Title gutter="default">
-                {leveraged && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                }}
+              >
+                {leveraged ? (
                   <LightningIcon
                     sx={{
                       fontSize: '40px',
                       marginRight: theme.spacing(1),
                     }}
                   />
-                )}
-                <FormattedMessage {...heading} />
-              </Title>
+                ) : null}
+                <Title gutter="default">
+                  <FormattedMessage {...heading} />
+                </Title>
+              </Box>
+
               <Box
                 sx={{
                   width: {

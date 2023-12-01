@@ -7,6 +7,7 @@ import {
   NotionalPlainIcon,
   ResourcesIcon,
   BarChartIcon,
+  CoinsIcon,
   GearIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
@@ -64,6 +65,17 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
         <BarChartIcon
           className="color-stroke"
           sx={{ fontSize: '1.125rem', stroke: '', fill: textColor }}
+        />
+      ),
+    },
+    {
+      key: MOBILE_SUB_NAV_ACTIONS.BORROW,
+      label: <FormattedMessage defaultMessage={'Borrow'} />,
+      link: '',
+      iconImg: (
+        <CoinsIcon
+          className="color-stroke"
+          sx={{ fontSize: '1.125rem', fill: 'transparent', stroke: textColor }}
         />
       ),
     },

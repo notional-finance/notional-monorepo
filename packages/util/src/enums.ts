@@ -31,7 +31,7 @@ export enum MOBILE_SUB_NAV_ACTIONS {
   SETTINGS = 'settings',
   NOTIFICATIONS = 'notifications',
   VAULTS = 'vaults',
-  BORROW = 'provide-liquidity',
+  BORROW = 'borrow',
   PROVIDE_LIQUIDITY = 'provide-liquidity',
   STAKE = 'stake',
   RESOURCES = 'resources',
@@ -73,9 +73,12 @@ export enum PORTFOLIO_CATEGORIES {
 }
 
 export enum CARD_CATEGORIES {
-  LEND_FIXED = 'lend',
-  BORROW_FIXED = 'borrow',
+  LEND_FIXED = 'lend-fixed',
+  LEND_VARIABLE = 'lend-variable',
+  BORROW_FIXED = 'borrow-fixed',
+  BORROW_VARIABLE = 'borrow-variable',
   LEVERAGED_VAULTS = 'vaults',
+  LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
   PROVIDE_LIQUIDITY = 'provide',
 }
 
