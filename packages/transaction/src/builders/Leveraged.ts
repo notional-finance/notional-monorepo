@@ -177,12 +177,18 @@ export function DeleverageNToken({
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('All balances must be defined');
+  const nTokenBalance = accountBalances.find(
+    (t) => t.tokenId == debtBalance.tokenId
+  );
 
   // Adjust the debt balance up slightly to reduce the chance of dust balances
   // causing fCash to fail.
-  const adjustedDebtBalance = maxWithdraw
-    ? debtBalance.neg()
-    : debtBalance.mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT).neg();
+  const adjustedDebtBalance =
+    maxWithdraw || nTokenBalance?.eq(debtBalance.abs())
+      ? debtBalance.neg()
+      : debtBalance
+          .mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT)
+          .neg();
 
   let {
     // eslint-disable-next-line prefer-const

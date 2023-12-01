@@ -1,11 +1,17 @@
 import { Box } from '@mui/material';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
-import { HeadingSubtitle, Label, InputLabel } from '@notional-finance/mui';
+import {
+  HeadingSubtitle,
+  Label,
+  InputLabel,
+  useCurrencyInputRef,
+} from '@notional-finance/mui';
 import {
   BaseTradeContext,
   useMaxAssetBalance,
 } from '@notional-finance/notionable-hooks';
+import { useCallback } from 'react';
 import { MessageDescriptor, defineMessage } from 'react-intl';
 
 const ValueString = (inputLabel: MessageDescriptor, b?: TokenBalance) => {
@@ -34,24 +40,26 @@ const ValueString = (inputLabel: MessageDescriptor, b?: TokenBalance) => {
 };
 
 export function useDeleverageLabels(context: BaseTradeContext) {
+  const { currencyInputRef: debtInputRef } = useCurrencyInputRef();
+  const { currencyInputRef: collateralInputRef } = useCurrencyInputRef();
   const {
     state: { debt, collateral },
   } = context;
   // NOTE: debt and collateral inputs are reversed in this method on purpose
-  const debtBalance = useMaxAssetBalance(collateral);
-  const collateralBalance = useMaxAssetBalance(debt);
-  // TODO: these labels are wrong on prime cash / prime debt....
+  const maxDebtBalance = useMaxAssetBalance(collateral);
+  const maxCollateralBalance = useMaxAssetBalance(debt);
+
   const debtValue = ValueString(
     defineMessage({
       defaultMessage: 'Selected Debt:',
     }),
-    debtBalance
+    maxDebtBalance
   );
   const collateralValue = ValueString(
     defineMessage({
       defaultMessage: 'Selected Collateral:',
     }),
-    collateralBalance
+    maxCollateralBalance
   );
 
   const debtStateZero = (
@@ -65,8 +73,31 @@ export function useDeleverageLabels(context: BaseTradeContext) {
     />
   );
 
+  const onMaxValue = useCallback(() => {
+    if (maxCollateralBalance && maxDebtBalance) {
+      const useMaxCollateral = maxCollateralBalance
+        .abs()
+        .toUnderlying()
+        .lt(maxDebtBalance.abs().toUnderlying());
+      if (useMaxCollateral) {
+        collateralInputRef.current?.setInputOverride(
+          maxCollateralBalance.neg().toExactString(),
+          true
+        );
+      } else {
+        debtInputRef.current?.setInputOverride(
+          maxDebtBalance.neg().toExactString(),
+          true
+        );
+      }
+    }
+  }, [debtInputRef, collateralInputRef, maxCollateralBalance, maxDebtBalance]);
+
   return {
     debtInputLabel: debtValue || debtStateZero,
     collateralInputLabel: collateralValue || collateralStateZero,
+    debtInputRef,
+    collateralInputRef,
+    onMaxValue,
   };
 }

@@ -1,4 +1,4 @@
-import { useCurrencyInputRef, HeadingSubtitle } from '@notional-finance/mui';
+import { HeadingSubtitle } from '@notional-finance/mui';
 import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { DeleverageInput } from '@notional-finance/trade';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
@@ -14,9 +14,13 @@ export const Deleverage = () => {
   const [primaryInput, setPrimaryInput] = useState<'Debt' | 'Collateral'>(
     'Collateral'
   );
-  const { currencyInputRef: debtInputRef } = useCurrencyInputRef();
-  const { currencyInputRef: collateralInputRef } = useCurrencyInputRef();
-  const { debtInputLabel, collateralInputLabel } = useDeleverageLabels(context);
+  const {
+    debtInputLabel,
+    collateralInputLabel,
+    debtInputRef,
+    collateralInputRef,
+    onMaxValue,
+  } = useDeleverageLabels(context);
 
   return (
     <PortfolioSideDrawer context={context}>
@@ -44,6 +48,7 @@ export const Deleverage = () => {
             // it is referred to as collateral since it will be decreasing
             debtOrCollateral="Collateral"
             label={debtInputLabel}
+            onMaxValue={onMaxValue}
           />
           <DeleverageInput
             ref={collateralInputRef}
@@ -54,6 +59,7 @@ export const Deleverage = () => {
             // NOTE: this actually refers to collateral
             debtOrCollateral="Debt"
             label={collateralInputLabel}
+            onMaxValue={onMaxValue}
           />
         </Box>
       </Box>

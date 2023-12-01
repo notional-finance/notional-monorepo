@@ -9,6 +9,7 @@ interface DeleverageInputProps {
   context: BaseTradeContext;
   prefillMax?: boolean;
   isPrimaryInput: boolean;
+  onMaxValue: () => void;
   setPrimaryInput: (input: 'Debt' | 'Collateral') => void;
   debtOrCollateral: 'Debt' | 'Collateral';
   newRoute?: (newToken: string | null) => string;
@@ -28,6 +29,7 @@ export const DeleverageInput = React.forwardRef<
       debtOrCollateral,
       isPrimaryInput,
       setPrimaryInput,
+      onMaxValue,
       label,
       inputRef,
       warningMsg,
@@ -53,7 +55,7 @@ export const DeleverageInput = React.forwardRef<
         warningMsg={warningMsg}
         errorMsgOverride={errorMsgOverride}
         options={options}
-        // onMaxValue
+        onMaxValue={onMaxValue}
         afterInputChange={() => setPrimaryInput(debtOrCollateral)}
         afterTokenChange={updateDeleverageToken}
       />
