@@ -9,10 +9,7 @@ import { EMPTY } from 'rxjs';
 import { PRODUCTS } from '@notional-finance/util';
 import { useSelectedNetwork } from './use-notional';
 import { useCallback, useMemo } from 'react';
-import {
-  getNowSeconds,
-  isIdiosyncratic,
-} from '@notional-finance/util';
+import { getNowSeconds, isIdiosyncratic } from '@notional-finance/util';
 
 export interface MaturityData {
   token: TokenDefinition;
@@ -202,6 +199,16 @@ export const useAllMarkets = () => {
     borrowYields: borrowYields,
     nonLeveragedYields,
   };
+};
+
+export const useNotionalMarket = (currencyId?: number) => {
+  const selectedNetwork = useSelectedNetwork();
+  return selectedNetwork && currencyId
+    ? Registry.getExchangeRegistry().getNotionalMarket(
+        selectedNetwork,
+        currencyId
+      )
+    : undefined;
 };
 
 export const useFCashMarket = (currencyId?: number) => {

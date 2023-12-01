@@ -8,45 +8,48 @@ import {
   CountUp,
 } from '@notional-finance/mui';
 import { RATE_PRECISION } from '@notional-finance/util';
-import { useFCashMarket } from '@notional-finance/notionable-hooks';
+import { useNotionalMarket } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const useInterestRateUtilizationChart = (
   currencyId: number | undefined,
-  actionType: string
+  actionType: string,
+  selectedDepositToken: string | undefined
 ) => {
   const theme = useTheme();
-  const fCashMarket = useFCashMarket(currencyId);
+  const market = useNotionalMarket(currencyId);
 
-  const areaChartData = fCashMarket
+  const areaChartData = market
     ? Array(101)
         .fill(0)
         .map((_, i) => ({
           timestamp: i,
           area:
             actionType === 'borrow'
-              ? (fCashMarket.getPrimeDebtRate((i / 100) * RATE_PRECISION) *
+              ? (market.getPrimeDebtRate((i / 100) * RATE_PRECISION) *
                   100) /
                 RATE_PRECISION
-              : (fCashMarket.getPrimeSupplyRate((i / 100) * RATE_PRECISION) *
+              : (market.getPrimeSupplyRate((i / 100) * RATE_PRECISION) *
                   100) /
                 RATE_PRECISION,
         }))
     : [];
-  const borrowUtilization = fCashMarket
-    ? (fCashMarket.getPrimeCashUtilization() * 100) / RATE_PRECISION
+  const borrowUtilization = market
+    ? (market.getPrimeCashUtilization() * 100) / RATE_PRECISION
     : 0;
 
   const chartHeaderData: ChartHeaderDataProps = {
     textHeader:
       actionType === 'borrow' ? (
         <FormattedMessage
-          defaultMessage={'Variable Borrow Rate | Utilization'}
+          defaultMessage={'{selectedDepositToken} Variable Borrow Rate | Utilization'}
+          values={{selectedDepositToken}}
         />
       ) : (
         <FormattedMessage
-          defaultMessage={'Variable Lending Rate | Utilization'}
+          defaultMessage={'{selectedDepositToken} Variable Lending Rate | Utilization'}
+          values={{selectedDepositToken}}
         />
       ),
     legendData: [
