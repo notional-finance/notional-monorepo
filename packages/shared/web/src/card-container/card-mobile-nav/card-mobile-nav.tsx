@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { THEME_VARIANTS, PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { Box, styled, useTheme } from '@mui/material';
 import { MobileNav } from '@notional-finance/mui';
 import { useSwipeable } from 'react-swipeable';
@@ -8,10 +7,6 @@ import { useCardMobileNav, NAV_OPTIONS } from './use-card-mobile-nav';
 import { ArrowIcon } from '@notional-finance/icons';
 import { NotionalTheme } from '@notional-finance/styles';
 
-interface NavSliderProps {
-  navoptions?: NAV_OPTIONS | null;
-}
-
 interface CustomLinkProps {
   active: boolean;
   theme: NotionalTheme;
@@ -19,41 +14,81 @@ interface CustomLinkProps {
 
 export function CardMobileNav() {
   const theme = useTheme();
-  const { optionSetOne, optionSetTwo, defaultOptionSet } = useCardMobileNav();
+  const {
+    earnYieldOptions,
+    leveragedYieldOptions,
+    borrowOptions,
+    defaultOptionSet,
+  } = useCardMobileNav();
   const { pathname } = useLocation();
 
-  const [navOptions, setNavOptions] = useState<NAV_OPTIONS | null>(
-    defaultOptionSet
-  );
+  const [currentScreen, setCurrentScreen] =
+    useState<NAV_OPTIONS>(defaultOptionSet);
 
-  const handleSwipe = (currentOptions: NAV_OPTIONS) => {
-    if (currentOptions !== navOptions) {
-      setNavOptions(currentOptions);
+  const screens = {
+    [NAV_OPTIONS.EARN_YIELD]: earnYieldOptions,
+    [NAV_OPTIONS.LEVERAGED_YIELD]: leveragedYieldOptions,
+    [NAV_OPTIONS.BORROW]: borrowOptions,
+  };
+
+  const screenOrder = [
+    NAV_OPTIONS.EARN_YIELD,
+    NAV_OPTIONS.LEVERAGED_YIELD,
+    NAV_OPTIONS.BORROW,
+  ];
+
+  const getNextScreen = (direction: 'left' | 'right') => {
+    const currentIndex = screenOrder.indexOf(currentScreen);
+    if (direction === 'left' && currentIndex < screenOrder.length - 1) {
+      return screenOrder[currentIndex + 1];
+    } else if (direction === 'right' && currentIndex > 0) {
+      return screenOrder[currentIndex - 1];
     }
+    return currentScreen;
   };
 
   const handlers = useSwipeable({
-    onSwipedLeft: () => handleSwipe(NAV_OPTIONS.SET_TWO),
-    onSwipedRight: () => handleSwipe(NAV_OPTIONS.SET_ONE),
+    onSwipedLeft: () => setCurrentScreen(getNextScreen('left')),
+    onSwipedRight: () => setCurrentScreen(getNextScreen('right')),
     preventScrollOnSwipe: true,
     trackMouse: true,
   });
 
   return (
     <MobileNavContainer {...handlers}>
-      <NavSlider navoptions={navOptions}>
-        <Box sx={{ display: 'flex', width: '100vw' }}>
-          {optionSetOne.map(({ title, Icon, to, id }) => (
-            <NavOption key={id}>
-              <CustomLink to={to} theme={theme} active={pathname === to}>
-                <Box sx={{ height: theme.spacing(3) }}>{Icon}</Box>
-                <Title theme={theme} active={pathname === to}>
-                  {title}
-                </Title>
-              </CustomLink>
-            </NavOption>
-          ))}
-          <ArrowContainer onClick={() => handleSwipe(NAV_OPTIONS.SET_TWO)}>
+      <Box
+        sx={{
+          display: 'flex',
+          width: '100vw',
+        }}
+      >
+        {currentScreen !== NAV_OPTIONS.EARN_YIELD && (
+          <ArrowContainer
+            onClick={() => setCurrentScreen(getNextScreen('right'))}
+          >
+            <ArrowIcon
+              sx={{
+                transform: 'rotate(-90deg)',
+                fill: theme.palette.typography.contrastText,
+                marginLeft: '2px',
+              }}
+            />
+          </ArrowContainer>
+        )}
+        {screens[currentScreen].map(({ title, Icon, to, id }) => (
+          <NavOption key={id}>
+            <CustomLink to={to} theme={theme} active={pathname === to}>
+              <Box sx={{ height: theme.spacing(3) }}>{Icon}</Box>
+              <Title theme={theme} active={pathname === to}>
+                {title}
+              </Title>
+            </CustomLink>
+          </NavOption>
+        ))}
+        {currentScreen !== NAV_OPTIONS.BORROW && (
+          <ArrowContainer
+            onClick={() => setCurrentScreen(getNextScreen('left'))}
+          >
             <ArrowIcon
               sx={{
                 transform: 'rotate(90deg)',
@@ -62,49 +97,11 @@ export function CardMobileNav() {
               }}
             />
           </ArrowContainer>
-        </Box>
-        <Box sx={{ display: 'flex', width: '100vw' }}>
-          <ArrowContainer onClick={() => handleSwipe(NAV_OPTIONS.SET_ONE)}>
-            <ArrowIcon
-              sx={{
-                transform: 'rotate(-90deg)',
-                fill: theme.palette.typography.contrastText,
-                marginRight: '2px',
-              }}
-            />
-          </ArrowContainer>
-          {optionSetTwo.map(({ title, Icon, to, id }) => (
-            <NavOption key={id} sx={{ justifyContent: 'flex-start' }}>
-              <CustomLink
-                to={to}
-                theme={theme}
-                active={pathname === to}
-                sx={{ width: theme.spacing(11) }}
-              >
-                <Box sx={{ height: theme.spacing(3) }}>{Icon}</Box>
-                <Title theme={theme} active={pathname === to}>
-                  {title}
-                </Title>
-              </CustomLink>
-            </NavOption>
-          ))}
-        </Box>
-      </NavSlider>
+        )}
+      </Box>
     </MobileNavContainer>
   );
 }
-
-export const NavSlider = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'option',
-})(
-  ({ navoptions }: NavSliderProps) => `
-  display: flex;
-  transition: transform .5s ease;
-  transform: ${
-    navoptions === NAV_OPTIONS.SET_TWO ? 'translateX(-50%)' : 'translateX(0%)'
-  };
-`
-);
 
 const MobileNavContainer = styled(Box)(
   ({ theme }) => `
@@ -129,6 +126,7 @@ const NavOption = styled(Box)(
   text-align: center;
   display: flex;
   align-items: center;
+  width: 60px;
 `
 );
 
@@ -164,6 +162,7 @@ const Title = styled(MobileNav, {
   shouldForwardProp: (prop: string) => prop !== 'active',
 })(
   ({ active, theme }: CustomLinkProps) => `
+  width: 60px;
   font-weight: ${
     active
       ? theme.typography.fontWeightMedium
@@ -174,5 +173,4 @@ const Title = styled(MobileNav, {
   };
 `
 );
-
 export default CardMobileNav;

@@ -14,6 +14,9 @@ import {
   ForumIcon,
   DiscordPlainIcon,
   ResourcesIcon,
+  BarChartLateralIcon,
+  CoinsCircleIcon,
+  CoinsIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import {
@@ -168,13 +171,41 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
   const mobileSubNavData = {
     [MOBILE_SUB_NAV_ACTIONS.EARN_YIELD]: [
       {
-        key: 'lend',
+        key: 'lend-fixed',
         label: <FormattedMessage defaultMessage={'Lend Fixed'} />,
         link: '/lend-fixed',
         iconImg: (
-          <BarChartIcon
+          <BarChartLateralIcon
             className="color-stroke"
             sx={{ fontSize: '1.125rem', fill: theme.palette.common.black }}
+          />
+        ),
+      },
+      {
+        key: 'lend-variable',
+        label: <FormattedMessage defaultMessage={'Lend Variable'} />,
+        link: '/lend-variable',
+        iconImg: (
+          <BarChartIcon
+            sx={{
+              fontSize: '1.125rem',
+              fill: theme.palette.common.black,
+            }}
+          />
+        ),
+      },
+      {
+        key: 'liquidity-variable',
+        label: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
+        link: '/liquidity-variable',
+        iconImg: (
+          <PieChartIcon
+            className="color-stroke"
+            sx={{
+              fontSize: '1.125rem',
+              stroke: 'transparent',
+              fill: theme.palette.common.black,
+            }}
           />
         ),
       },
@@ -190,9 +221,9 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
         ),
       },
       {
-        key: 'provide-liquidity',
-        label: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-        link: '/liquidity-variable',
+        key: 'liquidity-leveraged',
+        label: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
+        link: '/liquidity-leveraged',
         iconImg: (
           <PieChartIcon
             className="color-stroke"
@@ -219,6 +250,32 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       //     />
       //   ),
       // },
+    ],
+    [MOBILE_SUB_NAV_ACTIONS.BORROW]: [
+      {
+        key: 'borrow-fixed',
+        label: <FormattedMessage defaultMessage={'Borrow Fixed'} />,
+        link: '/borrow-fixed',
+        iconImg: (
+          <CoinsIcon
+            sx={{
+              fontSize: '1.125rem',
+              fill: 'transparent',
+              stroke: theme.palette.common.black,
+            }}
+          />
+        ),
+      },
+      {
+        key: 'borrow-variable',
+        label: <FormattedMessage defaultMessage={'Borrow Variable'} />,
+        link: 'borrow-variable',
+        iconImg: (
+          <CoinsCircleIcon
+            sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
+          />
+        ),
+      },
     ],
     [MOBILE_SUB_NAV_ACTIONS.COMPANY]: [
       {
