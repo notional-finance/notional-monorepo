@@ -44,7 +44,7 @@ const StyledPopper = styled(PopperUnstyled)(`
 const ScrollPopper = styled(PopperUnstyled)(
   ({ theme }) => `
   z-index: 99;
-  height: ${theme.spacing(30)};
+  height: ${theme.spacing(41)};
   overflow-y: scroll;
   overflow-x: hidden;
 `
