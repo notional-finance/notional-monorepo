@@ -12,33 +12,33 @@ import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 
 export enum NAV_OPTIONS {
-  SET_ONE = 'set_one',
-  SET_TWO = 'set_two',
-  SET_THREE = 'set_three',
+  EARN_YIELD = 'earn_yield',
+  LEVERAGED_YIELD = 'leveraged_yield',
+  BORROW = 'borrow',
 }
 
-const OPTION_SET_ONE = ['lend-fixed', 'lend-variable', 'provide'];
-const OPTION_SET_TWO = ['vaults', 'liquidity-leveraged'];
-const OPTION_SET_THREE = ['borrow-fixed', 'borrow-variable'];
+const earnYield = ['lend-fixed', 'lend-variable', 'provide'];
+const leveragedYield = ['vaults', 'liquidity-leveraged'];
+const borrow = ['borrow-fixed', 'borrow-variable'];
 
 export const useCardMobileNav = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const category = pathname.slice(1);
 
-  let defaultOptionSet = NAV_OPTIONS.SET_ONE;
+  let defaultOptionSet = NAV_OPTIONS.EARN_YIELD;
 
-  if (OPTION_SET_ONE.includes(category)) {
-    defaultOptionSet = NAV_OPTIONS.SET_ONE;
-  } else if (OPTION_SET_TWO.includes(category)) {
-    defaultOptionSet = NAV_OPTIONS.SET_TWO;
-  } else if (OPTION_SET_THREE.includes(category)) {
-    defaultOptionSet = NAV_OPTIONS.SET_THREE;
+  if (earnYield.includes(category)) {
+    defaultOptionSet = NAV_OPTIONS.EARN_YIELD;
+  } else if (leveragedYield.includes(category)) {
+    defaultOptionSet = NAV_OPTIONS.LEVERAGED_YIELD;
+  } else if (borrow.includes(category)) {
+    defaultOptionSet = NAV_OPTIONS.BORROW;
   } else {
-    defaultOptionSet = NAV_OPTIONS.SET_ONE;
+    defaultOptionSet = NAV_OPTIONS.EARN_YIELD;
   }
 
-  const optionSetOne = [
+  const earnYieldOptions = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Lending'} />,
       id: CARD_CATEGORIES.LEND_FIXED,
@@ -87,7 +87,7 @@ export const useCardMobileNav = () => {
     },
   ];
 
-  const optionSetTwo = [
+  const leveragedYieldOptions = [
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
       id: CARD_CATEGORIES.LEVERAGED_VAULTS,
@@ -121,7 +121,7 @@ export const useCardMobileNav = () => {
     },
   ];
 
-  const optionSetThree = [
+  const borrowOptions = [
     {
       title: <FormattedMessage defaultMessage={'Borrow Fixed'} />,
       id: CARD_CATEGORIES.BORROW_FIXED,
@@ -156,7 +156,12 @@ export const useCardMobileNav = () => {
     },
   ];
 
-  return { optionSetOne, optionSetTwo, optionSetThree, defaultOptionSet };
+  return {
+    earnYieldOptions,
+    leveragedYieldOptions,
+    borrowOptions,
+    defaultOptionSet,
+  };
 };
 
 export default useCardMobileNav;

@@ -14,23 +14,27 @@ interface CustomLinkProps {
 
 export function CardMobileNav() {
   const theme = useTheme();
-  const { optionSetOne, optionSetTwo, optionSetThree, defaultOptionSet } =
-    useCardMobileNav();
+  const {
+    earnYieldOptions,
+    leveragedYieldOptions,
+    borrowOptions,
+    defaultOptionSet,
+  } = useCardMobileNav();
   const { pathname } = useLocation();
 
   const [currentScreen, setCurrentScreen] =
     useState<NAV_OPTIONS>(defaultOptionSet);
 
   const screens = {
-    [NAV_OPTIONS.SET_ONE]: optionSetOne,
-    [NAV_OPTIONS.SET_TWO]: optionSetTwo,
-    [NAV_OPTIONS.SET_THREE]: optionSetThree,
+    [NAV_OPTIONS.EARN_YIELD]: earnYieldOptions,
+    [NAV_OPTIONS.LEVERAGED_YIELD]: leveragedYieldOptions,
+    [NAV_OPTIONS.BORROW]: borrowOptions,
   };
 
   const screenOrder = [
-    NAV_OPTIONS.SET_ONE,
-    NAV_OPTIONS.SET_TWO,
-    NAV_OPTIONS.SET_THREE,
+    NAV_OPTIONS.EARN_YIELD,
+    NAV_OPTIONS.LEVERAGED_YIELD,
+    NAV_OPTIONS.BORROW,
   ];
 
   const getNextScreen = (direction: 'left' | 'right') => {
@@ -58,7 +62,7 @@ export function CardMobileNav() {
           width: '100vw',
         }}
       >
-        {currentScreen !== NAV_OPTIONS.SET_ONE && (
+        {currentScreen !== NAV_OPTIONS.EARN_YIELD && (
           <ArrowContainer
             onClick={() => setCurrentScreen(getNextScreen('right'))}
           >
@@ -81,7 +85,7 @@ export function CardMobileNav() {
             </CustomLink>
           </NavOption>
         ))}
-        {currentScreen !== NAV_OPTIONS.SET_THREE && (
+        {currentScreen !== NAV_OPTIONS.BORROW && (
           <ArrowContainer
             onClick={() => setCurrentScreen(getNextScreen('left'))}
           >
