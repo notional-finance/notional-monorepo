@@ -1,4 +1,3 @@
-import MetaStablePool from './BalancerV2/meta-stable-pool';
 import WeightedPool from './BalancerV2/weighted-pool';
 import BaseLiquidityPool from './base-liquidity-pool';
 import {
@@ -27,7 +26,6 @@ const PoolClasses: Record<
   string,
   typeof BaseLiquidityPool<unknown> & PoolConstructor
 > = {
-  MetaStablePool: MetaStablePool,
   WeightedPool: WeightedPool,
   fCashMarket: fCashMarket,
   ComposableStablePool: ComposableStablePool,
@@ -39,7 +37,6 @@ const PoolClasses: Record<
 };
 
 export {
-  MetaStablePool,
   WeightedPool,
   BaseLiquidityPool,
   ComposableStablePool,
