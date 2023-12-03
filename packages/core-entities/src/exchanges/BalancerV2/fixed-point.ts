@@ -84,7 +84,7 @@ export default class FixedPoint {
     return b.isZero() ? this : this.mul(FixedPoint.ONE).div(b);
   }
 
-  divNoScale(b: FixedPoint, roundUp: boolean) {
+  divNoScale(b: FixedPoint, roundUp = false) {
     if (roundUp) {
       if (this.isZero()) return this;
       return FixedPoint._1.add(this.sub(FixedPoint._1).div(b));

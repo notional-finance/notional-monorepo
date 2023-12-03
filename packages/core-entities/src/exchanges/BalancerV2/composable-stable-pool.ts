@@ -26,7 +26,6 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     protected override _totalSupply: TokenBalance,
     public override poolParams: ComposableStablePoolParams
   ) {
-    console.log('pool params', poolParams);
     super(_network, _balances, _totalSupply, poolParams);
   }
 
@@ -182,24 +181,26 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     const ampTimesTotal = ampParam.mul(numTokens);
 
     for (let i = 0; i < 255; i += 1) {
-      let D_P = invariant;
+      let D_P = FixedPoint.from(invariant.n);
 
       for (let j = 0; j < balances.length; j += 1) {
         // (D_P * invariant) / (balances[j] * numTokens)
-        D_P = D_P.mul(invariant).divDown(balances[j].mul(numTokens));
+        D_P = D_P.mul(invariant).divNoScale(balances[j].mul(numTokens));
       }
 
-      prevInvariant = invariant;
-      // (ampTimesTotal * sum) / AMP_PRECISION + D_P * numTokens
+      prevInvariant = FixedPoint.from(invariant.n);
+      // invariant * [(ampTimesTotal * sum) / AMP_PRECISION + D_P * numTokens]
       // prettier-ignore
-      const invariantNum = ampTimesTotal.mul(sum).divDown(this._AMP_PRECISION).add(D_P.mul(numTokens))
+      const invariantNum = invariant.mul(
+        ampTimesTotal.mul(sum).divNoScale(this._AMP_PRECISION).add(D_P.mul(numTokens))
+      )
 
       // ((ampTimesTotal - _AMP_PRECISION) * invariant) / _AMP_PRECISION + (numTokens + 1) * D_P
       // prettier-ignore
       const invariantDenom = (ampTimesTotal.sub(this._AMP_PRECISION)).mul(invariant)
-        .divDown(this._AMP_PRECISION).add(numTokens.add(FixedPoint._1).mul(D_P))
+        .divNoScale(this._AMP_PRECISION).add(numTokens.add(FixedPoint._1).mul(D_P))
 
-      invariant = invariantNum.divDown(invariantDenom);
+      invariant = invariantNum.divNoScale(invariantDenom);
 
       if (invariant.gt(prevInvariant)) {
         if (invariant.sub(prevInvariant).lte(FixedPoint._1)) {
