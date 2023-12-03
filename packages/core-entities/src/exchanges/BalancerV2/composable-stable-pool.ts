@@ -13,21 +13,20 @@ import FixedPoint from './fixed-point';
 
 export interface ComposableStablePoolParams {
   bptIndex: number;
-  amplificationParameter: FixedPoint;
+  ampParam: FixedPoint;
   swapFeePercentage: FixedPoint;
   scalingFactors: FixedPoint[];
   poolId: string;
 }
 
 export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePoolParams> {
-  protected static NUM_LINEAR_POOL_TOKENS: number;
-
   constructor(
     protected override _network: Network,
     protected override _balances: TokenBalance[],
     protected override _totalSupply: TokenBalance,
     public override poolParams: ComposableStablePoolParams
   ) {
+    console.log('pool params', poolParams);
     super(_network, _balances, _totalSupply, poolParams);
   }
 
@@ -42,15 +41,14 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
   public getLPTokensGivenTokens(tokensIn: TokenBalance[]) {
     const balances = this.getScaledBalances();
     const invariant = this.calculateInvariant(
-      this.poolParams.amplificationParameter,
-      balances,
-      true
+      this.poolParams.ampParam,
+      balances
     );
 
     const amountsIn = this.getScaledBalances(tokensIn);
 
     const feesPaid = this.getDueProtocolFeeAmounts(
-      this.poolParams.amplificationParameter,
+      this.poolParams.ampParam,
       invariant,
       balances,
       this.poolParams.swapFeePercentage
@@ -58,7 +56,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     const balancesWithoutFees = balances.map((b, i) => b.sub(feesPaid[i]));
 
     const lpTokens = this.calcBptOutGivenExactTokensIn(
-      this.poolParams.amplificationParameter,
+      this.poolParams.ampParam,
       balancesWithoutFees,
       amountsIn,
       FixedPoint.convert(this.totalSupply),
@@ -89,13 +87,12 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     if (singleSidedExitTokenIndex !== undefined) {
       const balances = this.getScaledBalances();
       const invariant = this.calculateInvariant(
-        this.poolParams.amplificationParameter,
-        balances,
-        true
+        this.poolParams.ampParam,
+        balances
       );
 
       const { amountOut, feePaid } = this.calcTokenOutGivenExactBptIn(
-        this.poolParams.amplificationParameter,
+        this.poolParams.ampParam,
         balances,
         singleSidedExitTokenIndex,
         FixedPoint.convert(lpTokens),
@@ -138,9 +135,8 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     const balances = this.getScaledBalances(balanceOverrides);
 
     const invariant = this.calculateInvariant(
-      this.poolParams.amplificationParameter,
-      balances,
-      true
+      this.poolParams.ampParam,
+      balances
     );
 
     const scaledTokensIn = FixedPoint.convert(tokensIn).mulUp(
@@ -148,7 +144,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     );
 
     let tokensOut = this.calcOutGivenIn(
-      this.poolParams.amplificationParameter,
+      this.poolParams.ampParam,
       balances,
       tokenIndexIn,
       tokenIndexOut,
@@ -176,37 +172,34 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
   /*********************************************************************/
   private _AMP_PRECISION = FixedPoint.from(1e3);
 
-  private calculateInvariant(
-    amplificationParameter: FixedPoint,
-    balances: FixedPoint[],
-    roundUp: boolean
-  ) {
+  private calculateInvariant(ampParam: FixedPoint, balances: FixedPoint[]) {
     const numTokens = FixedPoint.from(balances.length);
     const sum = balances.reduce((s, b) => s.add(b), FixedPoint.from(0));
     if (sum.isZero()) return sum;
 
     let prevInvariant = FixedPoint.from(0);
     let invariant = sum;
-    const ampTimesTotal = amplificationParameter.mul(numTokens);
+    const ampTimesTotal = ampParam.mul(numTokens);
 
     for (let i = 0; i < 255; i += 1) {
-      let P_D = balances[0].mul(numTokens);
-      for (let j = 1; j < balances.length; j += 1) {
-        P_D = P_D.mul(balances[j])
-          .mul(numTokens)
-          .divNoScale(invariant, roundUp);
+      let D_P = invariant;
+
+      for (let j = 0; j < balances.length; j += 1) {
+        // (D_P * invariant) / (balances[j] * numTokens)
+        D_P = D_P.mul(invariant).divDown(balances[j].mul(numTokens));
       }
 
       prevInvariant = invariant;
+      // (ampTimesTotal * sum) / AMP_PRECISION + D_P * numTokens
       // prettier-ignore
-      const invariantNum = numTokens.mul(invariant).mul(invariant).add(
-          ampTimesTotal.mul(sum).mul(P_D).divNoScale(this._AMP_PRECISION, roundUp)
-      )
+      const invariantNum = ampTimesTotal.mul(sum).divDown(this._AMP_PRECISION).add(D_P.mul(numTokens))
+
+      // ((ampTimesTotal - _AMP_PRECISION) * invariant) / _AMP_PRECISION + (numTokens + 1) * D_P
       // prettier-ignore
-      const invariantDenom = numTokens.add(FixedPoint._1).mul(invariant).add(
-          ampTimesTotal.sub(this._AMP_PRECISION).mul(P_D).divNoScale(this._AMP_PRECISION, !roundUp)
-      )
-      invariant = invariantNum.divNoScale(invariantDenom, roundUp);
+      const invariantDenom = (ampTimesTotal.sub(this._AMP_PRECISION)).mul(invariant)
+        .divDown(this._AMP_PRECISION).add(numTokens.add(FixedPoint._1).mul(D_P))
+
+      invariant = invariantNum.divDown(invariantDenom);
 
       if (invariant.gt(prevInvariant)) {
         if (invariant.sub(prevInvariant).lte(FixedPoint._1)) {
@@ -221,13 +214,13 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
   }
 
   private _getTokenBalanceGivenInvariantAndAllOtherBalances(
-    amplificationParameter: FixedPoint,
+    ampParam: FixedPoint,
     balances: FixedPoint[],
     invariant: FixedPoint,
     tokenIndex: number
   ) {
     const balancesLength = FixedPoint.from(balances.length);
-    const ampTimesTotal = amplificationParameter.mul(balancesLength);
+    const ampTimesTotal = ampParam.mul(balancesLength);
     let sum = balances.reduce((s, b) => s.add(b), FixedPoint.from(0));
 
     let P_D = balances[0].mul(balancesLength);
@@ -347,7 +340,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     });
 
     // Get current and new invariants given swap fees
-    const newInvariant = this.calculateInvariant(amp, newBalances, false);
+    const newInvariant = this.calculateInvariant(amp, newBalances);
     const invariantRatio = newInvariant.divDown(currentInvariant);
     // Invariant must increase or we don't mint BPT
     if (invariantRatio.gt(FixedPoint.ONE)) {
@@ -357,7 +350,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
   }
 
   private calcOutGivenIn(
-    amplificationParameter: FixedPoint,
+    ampParam: FixedPoint,
     balances: FixedPoint[],
     tokenIndexIn: number,
     tokenIndexOut: number,
@@ -368,7 +361,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     _balances[tokenIndexIn] = _balances[tokenIndexIn].add(tokenAmountIn);
     const finalBalanceOut =
       this._getTokenBalanceGivenInvariantAndAllOtherBalances(
-        amplificationParameter,
+        ampParam,
         _balances,
         invariant,
         tokenIndexOut
@@ -428,7 +421,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
    * balances.
    */
   private getDueProtocolFeeAmounts(
-    amplificationParameter: FixedPoint,
+    ampParam: FixedPoint,
     invariant: FixedPoint,
     balances: FixedPoint[],
     protocolSwapFeePercentage: FixedPoint
@@ -462,7 +455,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     // Set the fee amount to pay in the selected token
     dueProtocolFeeAmounts[chosenTokenIndex] =
       this.calcDueTokenProtocolSwapFeeAmount(
-        amplificationParameter,
+        ampParam,
         balances,
         invariant,
         chosenTokenIndex,
@@ -519,7 +512,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
         stage: 0,
         target: pool,
         method: 'getAmplificationParameter',
-        key: 'amplificationParameter',
+        key: 'ampParam',
         transform: (
           r: Awaited<
             ReturnType<
@@ -537,6 +530,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
           r: Awaited<
             ReturnType<BalancerBoostedPool['functions']['getScalingFactors']>
           >[0],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           aggregateResults: any
         ) =>
           r
@@ -558,7 +552,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           aggregateResults: any
         ) => {
-          const balances: any[] = [];
+          const balances: unknown[] = [];
           for (let i = 0; i < r.balances.length; i++) {
             if (i != aggregateResults[`${poolAddress}.bptIndex`]) {
               balances.push(

@@ -45,6 +45,8 @@ export {
   PoolConstructor,
   Curve2TokenPoolV1,
   Curve2TokenPoolV2,
+  Curve2TokenPoolV1_SelfLPTokenNoAdmin,
+  Curve2TokenPoolV1_SelfLPToken,
   BaseNotionalMarket,
   pCashMarket,
 };

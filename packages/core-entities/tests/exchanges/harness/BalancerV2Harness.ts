@@ -9,13 +9,13 @@ import {
 } from '@notional-finance/contracts';
 import { getNowSeconds, Network } from '@notional-finance/util';
 import { PoolTestHarness } from './PoolTestHarness';
-import { MetaStablePool, ComposableStablePool } from '../../../src/exchanges';
+import {
+  ComposableStablePool,
+  ComposableStablePoolParams,
+} from '../../../src/exchanges/BalancerV2/composable-stable-pool';
 import { TokenBalance } from '../../../src/token-balance';
-import { ComposableStablePoolParams } from 'packages/core-entities/src/exchanges/BalancerV2/composable-stable-pool';
 
-export class BalancerV2Harness extends PoolTestHarness<
-  MetaStablePool | ComposableStablePool
-> {
+export class BalancerV2Harness extends PoolTestHarness<ComposableStablePool> {
   public JoinKind = {
     EXACT_TOKENS_IN_FOR_BPT_OUT: {
       kind: 1,
