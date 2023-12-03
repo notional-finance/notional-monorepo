@@ -35,17 +35,24 @@ export class Registry {
   static initialize(
     cacheHostname: string,
     fetchMode: AccountFetchMode,
-    startFiatRefresh = true
+    startFiatRefresh = true,
+    useAnalytics = true
   ) {
     if (Registry._self) return;
 
-    Registry._self = new Registry(cacheHostname, fetchMode, startFiatRefresh);
+    Registry._self = new Registry(
+      cacheHostname,
+      fetchMode,
+      startFiatRefresh,
+      useAnalytics
+    );
   }
 
   protected constructor(
     protected _cacheHostname: string,
     fetchMode: AccountFetchMode,
-    startFiatRefresh: boolean
+    startFiatRefresh: boolean,
+    public useAnalytics: boolean
   ) {
     Registry._tokens = new TokenRegistryClient(_cacheHostname);
     Registry._oracles = new OracleRegistryClient(_cacheHostname);
@@ -66,10 +73,12 @@ export class Registry {
         Network.All,
         Registry.DEFAULT_ORACLE_REFRESH
       );
-      Registry._analytics.startRefreshInterval(
-        Network.All,
-        Registry.DEFAULT_ANALYTICS_REFRESH
-      );
+      if (useAnalytics) {
+        Registry._analytics.startRefreshInterval(
+          Network.All,
+          Registry.DEFAULT_ANALYTICS_REFRESH
+        );
+      }
     }
   }
 
@@ -125,19 +134,21 @@ export class Registry {
     );
 
     // Only start the yield registry refresh after all the other refreshes begin
-    Registry.onNetworkReady(network, () => {
-      Registry.getAnalyticsRegistry().startRefreshInterval(
-        network,
-        Registry.DEFAULT_ANALYTICS_REFRESH
-      );
-
-      Registry.getAnalyticsRegistry().onNetworkRegistered(network, () => {
-        Registry.getYieldRegistry().startRefreshInterval(
+    if (this._self?.useAnalytics) {
+      Registry.onNetworkReady(network, () => {
+        Registry.getAnalyticsRegistry().startRefreshInterval(
           network,
-          Registry.DEFAULT_YIELD_REFRESH
+          Registry.DEFAULT_ANALYTICS_REFRESH
         );
+
+        Registry.getAnalyticsRegistry().onNetworkRegistered(network, () => {
+          Registry.getYieldRegistry().startRefreshInterval(
+            network,
+            Registry.DEFAULT_YIELD_REFRESH
+          );
+        });
       });
-    });
+    }
   }
 
   public static stopRefresh(network: Network) {

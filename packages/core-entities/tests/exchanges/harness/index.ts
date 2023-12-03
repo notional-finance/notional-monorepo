@@ -5,10 +5,7 @@ import { CurveV1Harness } from './CurveV1Harness';
 import { CurveV2Harness } from './CurveV2Harness';
 import { PoolTestHarness } from './PoolTestHarness';
 import { ethers } from 'ethers';
-import {
-  Curve2TokenPoolV1,
-  Curve2TokenPoolV1_SelfLPTokenNoAdmin,
-} from 'packages/core-entities/src/exchanges/Curve/Curve2TokenPoolV1';
+import { Curve2TokenPoolV1_SelfLPTokenNoAdmin } from '../../../src/exchanges/index';
 
 export { PoolTestHarness } from './PoolTestHarness';
 
@@ -26,7 +23,7 @@ export const TestConfig: Record<
   ],
   [Network.ArbitrumOne]: [
     {
-      // cbETH/wstETH/rETH Balancer Composable Pool
+      // wstETH/WETH Balancer Composable Pool
       address: '0x9791d590788598535278552EEcD4b211bFc790CB',
       Harness: BalancerV2Harness,
     },
@@ -35,10 +32,10 @@ export const TestConfig: Record<
       address: '0x0F13fb925eDC3E1FE947209010d9c0E072986ADc',
       Harness: NotionalV3Harness,
     },
-    {
-      address: '0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80',
-      Harness: CurveV1Harness<Curve2TokenPoolV1>,
-    },
+    // {
+    //   address: '0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80',
+    //   Harness: CurveV1Harness<Curve2TokenPoolV1>,
+    // },
     {
       address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
       Harness: CurveV1Harness<Curve2TokenPoolV1_SelfLPTokenNoAdmin>,

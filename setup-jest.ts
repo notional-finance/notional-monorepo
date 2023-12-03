@@ -237,7 +237,11 @@ async function setupWhales(
     snapshotPath = `${__dirname}/packages/core-entities/tests/clients/__snapshots__`,
     network,
     fetchMode,
-  }: { snapshotPath: string; network: Network; fetchMode: AccountFetchMode },
+  }: {
+    snapshotPath: string;
+    network: Network;
+    fetchMode: AccountFetchMode;
+  },
   name: string,
   fn: (blockNumber: number, blockTime: number) => void
 ) => {
@@ -253,7 +257,8 @@ async function setupWhales(
         root: snapshotPath,
       });
 
-      Registry.initialize('http://localhost:9999', fetchMode);
+      // start fiat refresh, disable analytics
+      Registry.initialize('http://localhost:9999', fetchMode, true, false);
       await new Promise<void>((resolve) => {
         server.listen(9999, () => {
           resolve();
