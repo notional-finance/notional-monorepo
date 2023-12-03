@@ -9,7 +9,7 @@
       "options": {
         "commands": [
           {
-            "command": "wrangler dev --local --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+            "command": "wrangler dev  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
         "cwd": "apps/api"
