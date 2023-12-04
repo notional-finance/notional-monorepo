@@ -68,6 +68,36 @@ const WHALES: Record<Network, string[][]> = {
       '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
       '0x35218a1cbac5bbc3e57fd9bd38219d37571b3537',
     ],
+    // Balancer.fi 4POOL
+    [
+      '0x9791d590788598535278552EEcD4b211bFc790CB',
+      '0xba12222222228d8ba445958a75a0704d566bf2c8',
+    ],
+    // rETH
+    [
+      '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
+      '0xc0cf4b266be5b3229c49590b59e67a09c15b22f4',
+    ],
+    // USDT
+    [
+      '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      '0xf977814e90da44bfa03b6295a0616a897441acec',
+    ],
+    // USDC
+    [
+      '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
+      '0x489ee077994b6658eafa855c308275ead8097c4a',
+    ],
+    // RDNT
+    [
+      '0x3082CC23568eA640225c2467653dB90e9250AaA0',
+      '0x9d9e4a95765154a575555039e9e2a321256b5704',
+    ],
+    // Balancer.fi RDNT-WETH
+    [
+      '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
+      '0x76ba3ec5f5adbf1c58c91e86502232317eea72de',
+    ],
   ],
   [Network.Mainnet]: [
     // WETH

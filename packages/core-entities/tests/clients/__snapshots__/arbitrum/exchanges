@@ -827,7 +827,7 @@
             "coins_1": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
             "balances_0": {
               "type": "BigNumber",
-              "hex": "0x04843af6c5b5"
+              "hex": "0x04761766a4f2"
             },
             "fee": {
               "type": "BigNumber",
@@ -843,7 +843,7 @@
             },
             "adminBalance_1": {
               "type": "BigNumber",
-              "hex": "0x03047baa"
+              "hex": "0x02d62a7e"
             },
             "adminFee": {
               "type": "BigNumber",
@@ -862,13 +862,13 @@
           "balances": [
             {
               "_isTokenBalance": true,
-              "hex": "0x04843af6c5b5",
+              "hex": "0x04761766a4f2",
               "tokenId": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
               "network": "arbitrum"
             },
             {
               "_isTokenBalance": true,
-              "hex": "0x02a7a0d21a61",
+              "hex": "0x02b5c329f4ca",
               "tokenId": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
               "network": "arbitrum"
             }
@@ -1029,9 +1029,309 @@
           ]
         }
       }
+    ],
+    [
+      "0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81",
+      {
+        "address": "0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81",
+        "PoolClass": "ComposableStablePool",
+        "registerTokens": [
+          {
+            "id": "0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81",
+            "address": "0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81",
+            "network": "arbitrum",
+            "symbol": "rETH-WETH-BPT",
+            "name": "Balancer rETH-WETH Stable Pool",
+            "decimals": 18,
+            "tokenInterface": "ERC20",
+            "tokenType": "Underlying"
+          }
+        ],
+        "latestPoolData": {
+          "poolParams": {
+            "swapFeePercentage": {
+              "_isFixedPoint": true,
+              "_hex": "0xb5e620f48000"
+            },
+            "poolId": "0xade4a71bb62bec25154cfc7e6ff49a513b491e81000000000000000000000497",
+            "vaultAddress": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+            "bptIndex": {
+              "type": "BigNumber",
+              "hex": "0x01"
+            },
+            "ampParam": {
+              "_isFixedPoint": true,
+              "_hex": "0x07a120"
+            },
+            "scalingFactors": [
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x0de0b6b3a7640000"
+              },
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x0f14fe9785dba0db"
+              }
+            ]
+          },
+          "totalSupply": {
+            "_isTokenBalance": true,
+            "hex": "0xefa588ff0db0e8b16d",
+            "tokenId": "0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81",
+            "network": "arbitrum"
+          },
+          "balances": [
+            {
+              "_isTokenBalance": true,
+              "hex": "0x885b3668c0665af3c0",
+              "tokenId": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+              "network": "arbitrum"
+            },
+            {
+              "_isTokenBalance": true,
+              "hex": "0x5f6d76e1b49c62e184",
+              "tokenId": "0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8",
+              "network": "arbitrum"
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "0x4a2f6ae7f3e5d715689530873ec35593dc28951b",
+      {
+        "address": "0x4a2f6ae7f3e5d715689530873ec35593dc28951b",
+        "PoolClass": "ComposableStablePool",
+        "registerTokens": [
+          {
+            "id": "0x4a2f6ae7f3e5d715689530873ec35593dc28951b",
+            "address": "0x4a2f6ae7f3e5d715689530873ec35593dc28951b",
+            "network": "arbitrum",
+            "symbol": "wstETH/rETH/cbETH",
+            "name": "Balancer wstETH/rETH/cbETH CSP",
+            "decimals": 18,
+            "tokenInterface": "ERC20",
+            "tokenType": "Underlying"
+          }
+        ],
+        "latestPoolData": {
+          "poolParams": {
+            "swapFeePercentage": {
+              "_isFixedPoint": true,
+              "_hex": "0x016bcc41e90000"
+            },
+            "poolId": "0x4a2f6ae7f3e5d715689530873ec35593dc28951b000000000000000000000481",
+            "vaultAddress": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+            "bptIndex": {
+              "type": "BigNumber",
+              "hex": "0x01"
+            },
+            "ampParam": {
+              "_isFixedPoint": true,
+              "_hex": "0x16e360"
+            },
+            "scalingFactors": [
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x0e9bb5addba31cc7"
+              },
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x0fde014d75ba9c06"
+              },
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x0f153f2f9db6ee2c"
+              }
+            ]
+          },
+          "totalSupply": {
+            "_isTokenBalance": true,
+            "hex": "0x012a877cf64d6aab0c61",
+            "tokenId": "0x4a2f6ae7f3e5d715689530873ec35593dc28951b",
+            "network": "arbitrum"
+          },
+          "balances": [
+            {
+              "_isTokenBalance": true,
+              "hex": "0xa1717769a98fbcebb7",
+              "tokenId": "0x1DEBd73E752bEaF79865Fd6446b0c970EaE7732f",
+              "network": "arbitrum"
+            },
+            {
+              "_isTokenBalance": true,
+              "hex": "0x484dcd42e347ce39b5",
+              "tokenId": "0x5979D7b546E38E414F7E9822514be443A4800529",
+              "network": "arbitrum"
+            },
+            {
+              "_isTokenBalance": true,
+              "hex": "0x2bed8094ba2e0f23a1",
+              "tokenId": "0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8",
+              "network": "arbitrum"
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "0x423A1323c871aBC9d89EB06855bF5347048Fc4A5",
+      {
+        "address": "0x423A1323c871aBC9d89EB06855bF5347048Fc4A5",
+        "PoolClass": "ComposableStablePool",
+        "registerTokens": [
+          {
+            "id": "0x423A1323c871aBC9d89EB06855bF5347048Fc4A5",
+            "address": "0x423A1323c871aBC9d89EB06855bF5347048Fc4A5",
+            "network": "arbitrum",
+            "symbol": "4POOL-BPT",
+            "name": "Balancer Stable 4pool",
+            "decimals": 18,
+            "tokenInterface": "ERC20",
+            "tokenType": "Underlying"
+          },
+          {
+            "id": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+            "address": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+            "network": "arbitrum",
+            "symbol": "USDC.e",
+            "name": "USD Coin (Arb1)",
+            "decimals": 6,
+            "tokenInterface": "ERC20",
+            "tokenType": "Underlying"
+          }
+        ],
+        "latestPoolData": {
+          "poolParams": {
+            "swapFeePercentage": {
+              "_isFixedPoint": true,
+              "_hex": "0x5af3107a4000"
+            },
+            "poolId": "0x423a1323c871abc9d89eb06855bf5347048fc4a5000000000000000000000496",
+            "vaultAddress": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+            "bptIndex": {
+              "type": "BigNumber",
+              "hex": "0x00"
+            },
+            "ampParam": {
+              "_isFixedPoint": true,
+              "_hex": "0x4c4b40"
+            },
+            "scalingFactors": [
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x0c9f2c9cd04674edea40000000"
+              },
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x0de0b6b3a7640000"
+              },
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x0c9f2c9cd04674edea40000000"
+              },
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x0c9f2c9cd04674edea40000000"
+              }
+            ]
+          },
+          "totalSupply": {
+            "_isTokenBalance": true,
+            "hex": "0x03c2489ac0714d9defa987",
+            "tokenId": "0x423A1323c871aBC9d89EB06855bF5347048Fc4A5",
+            "network": "arbitrum"
+          },
+          "balances": [
+            {
+              "_isTokenBalance": true,
+              "hex": "0x0105a197c7ee",
+              "tokenId": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+              "network": "arbitrum"
+            },
+            {
+              "_isTokenBalance": true,
+              "hex": "0x0134cd9eb1e9df552eed39",
+              "tokenId": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+              "network": "arbitrum"
+            },
+            {
+              "_isTokenBalance": true,
+              "hex": "0x7a862f92c5",
+              "tokenId": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+              "network": "arbitrum"
+            },
+            {
+              "_isTokenBalance": true,
+              "hex": "0x014f6540e878",
+              "tokenId": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+              "network": "arbitrum"
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "0x32dF62dc3aEd2cD6224193052Ce665DC18165841",
+      {
+        "address": "0x32dF62dc3aEd2cD6224193052Ce665DC18165841",
+        "PoolClass": "WeightedPool",
+        "registerTokens": [
+          {
+            "id": "0x32dF62dc3aEd2cD6224193052Ce665DC18165841",
+            "address": "0x32dF62dc3aEd2cD6224193052Ce665DC18165841",
+            "network": "arbitrum",
+            "symbol": "RDNT-WETH ",
+            "name": "RDNT-WETH",
+            "decimals": 18,
+            "tokenInterface": "ERC20",
+            "tokenType": "Underlying"
+          }
+        ],
+        "latestPoolData": {
+          "poolParams": {
+            "swapFeePercentage": {
+              "_isFixedPoint": true,
+              "_hex": "0x11c37937e08000"
+            },
+            "poolId": "0x32df62dc3aed2cd6224193052ce665dc181658410002000000000000000003bd",
+            "vaultAddress": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+            "normalizedWeights": [
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x0b1a2bc2ec500000"
+              },
+              {
+                "_isFixedPoint": true,
+                "_hex": "0x02c68af0bb140000"
+              }
+            ]
+          },
+          "totalSupply": {
+            "_isTokenBalance": true,
+            "hex": "0x22517c25163d8c22c189b2",
+            "tokenId": "0x32dF62dc3aEd2cD6224193052Ce665DC18165841",
+            "network": "arbitrum"
+          },
+          "balances": [
+            {
+              "_isTokenBalance": true,
+              "hex": "0x8ae7ab29985e0ba61c260c",
+              "tokenId": "0x3082CC23568eA640225c2467653dB90e9250AaA0",
+              "network": "arbitrum"
+            },
+            {
+              "_isTokenBalance": true,
+              "hex": "0x012159a0114a6f5da548",
+              "tokenId": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+              "network": "arbitrum"
+            }
+          ]
+        }
+      }
     ]
   ],
   "network": "arbitrum",
-  "lastUpdateTimestamp": 1697755625,
-  "lastUpdateBlock": 142127994
+  "lastUpdateTimestamp": 1697755527,
+  "lastUpdateBlock": 142127726
 }

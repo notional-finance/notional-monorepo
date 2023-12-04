@@ -28,6 +28,16 @@ export const TestConfig: Record<
       Harness: BalancerV2Harness,
     },
     {
+      // 4POOL Balancer Composable Pool
+      address: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
+      Harness: BalancerV2Harness,
+    },
+    // {
+    //   // RDNT/WETH Composable Pool
+    //   address: '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
+    //   Harness: BalancerV2Harness,
+    // },
+    {
       // nUSDC
       address: '0x0F13fb925eDC3E1FE947209010d9c0E072986ADc',
       Harness: NotionalV3Harness,

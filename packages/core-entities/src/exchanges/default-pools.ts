@@ -172,13 +172,87 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       address: '0x9791d590788598535278552EEcD4b211bFc790CB',
       PoolClass: 'ComposableStablePool',
       registerTokens: [
-        // wstETH / WETH Pool
         {
           id: '0x9791d590788598535278552EEcD4b211bFc790CB',
           address: '0x9791d590788598535278552EEcD4b211bFc790CB',
           network: Network.ArbitrumOne,
           symbol: 'B-wstETH-WETH-Stable',
           name: 'Balancer wstETH-WETH-Stable Pool',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81',
+          address: '0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81',
+          network: Network.ArbitrumOne,
+          symbol: 'rETH-WETH-BPT',
+          name: 'Balancer rETH-WETH Stable Pool',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0x4a2f6ae7f3e5d715689530873ec35593dc28951b',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0x4a2f6ae7f3e5d715689530873ec35593dc28951b',
+          address: '0x4a2f6ae7f3e5d715689530873ec35593dc28951b',
+          network: Network.ArbitrumOne,
+          symbol: 'wstETH/rETH/cbETH',
+          name: 'Balancer wstETH/rETH/cbETH CSP',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
+          address: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
+          network: Network.ArbitrumOne,
+          symbol: '4POOL-BPT',
+          name: 'Balancer Stable 4pool',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        // Register USDC.e
+        {
+          id: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+          address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+          network: Network.ArbitrumOne,
+          symbol: 'USDC.e',
+          name: 'USD Coin (Arb1)',
+          decimals: 6,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
+      PoolClass: 'WeightedPool',
+      registerTokens: [
+        {
+          id: '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
+          address: '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
+          network: Network.ArbitrumOne,
+          symbol: 'RDNT-WETH ',
+          name: 'RDNT-WETH',
           decimals: 18,
           tokenInterface: 'ERC20',
           tokenType: 'Underlying',
