@@ -44,7 +44,7 @@ export enum Strategy {
   Eth_Balancer_OHM_LUSD = 9,
   Arb_Balancer_WETH_wstETH = 10,
   Arb_Balancer_Aave_V3Boosted = 11,
-  Arb_Balancer_rETHb_baWETH = 12,
+  Arb_Balancer_rETH_WETH = 12,
   Arb_Balancer_wstETH_bb_a_WETH = 13,
   Arb_Convex_USDC_FRAX = 14,
 }

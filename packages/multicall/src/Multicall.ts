@@ -1,6 +1,7 @@
 import { Contract, providers } from 'ethers';
 import { Multicall3, Multicall3ABI } from '@notional-finance/contracts';
 import { AggregateCall, NO_OP } from './types';
+import { batchArray } from '@notional-finance/util';
 
 const MULTICALL3 = '0xcA11bde05977b3631167028862bE2a173976CA11';
 
@@ -47,14 +48,20 @@ ${e}`);
 
   let callResults: Multicall3.ResultStructOutput[];
   try {
-    callResults = await multicall.callStatic.aggregate3(
-      aggregateCall.filter(
-        (c) => c.target !== NO_OP
-      ) as Multicall3.Call3Struct[],
-      {
-        blockTag: blockNumber || 'latest',
-      }
-    );
+    // Batch up calls so that we don't overload multicall
+    const batchedCalls = batchArray(aggregateCall, 750);
+    callResults = (
+      await Promise.all(
+        batchedCalls.map((batch) =>
+          multicall.callStatic.aggregate3(
+            batch.filter((c) => c.target !== NO_OP) as Multicall3.Call3Struct[],
+            {
+              blockTag: blockNumber || 'latest',
+            }
+          )
+        )
+      )
+    ).flatMap((_) => _);
   } catch (e) {
     throw new Error(`
 Error executing Multicall: ${aggregateCall.map((c) =>
