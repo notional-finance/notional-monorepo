@@ -55,13 +55,13 @@ export function useMaxRepay(context: BaseTradeContext) {
       .mulInRatePrecision(RATE_PRECISION + BASIS_POINT);
   }
 
-  const { insufficientBalance, insufficientAllowance } =
-    useWalletBalanceInputCheck(maxRepayAmount?.token, maxRepayAmount?.abs());
+  const { insufficientBalance } = useWalletBalanceInputCheck(
+    maxRepayAmount?.token,
+    maxRepayAmount?.abs()
+  );
   let errorMsg: MessageDescriptor | undefined = undefined;
   if (maxWithdraw && insufficientBalance) {
     errorMsg = tradeErrors.insufficientBalance;
-  } else if (maxWithdraw && insufficientAllowance) {
-    errorMsg = tradeErrors.insufficientAllowance;
   }
 
   const onMaxValue = useCallback(() => {
