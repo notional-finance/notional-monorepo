@@ -61,22 +61,22 @@ export function getComposablePoolConfig(
       },
       network,
     },
-    // {
-    //   sourceType: SourceType.Multicall,
-    //   sourceConfig: {
-    //     contractAddress: AuraGaugeAddress,
-    //     contractABI: BalancerGaugeABI,
-    //     method: 'balanceOf',
-    //     args: [poolAddress],
-    //   },
-    //   tableName: TableName.GenericData,
-    //   dataConfig: {
-    //     strategyId,
-    //     variable: 'Aura BPT balance in Gauge',
-    //     decimals: 18,
-    //   },
-    //   network,
-    // },
+    {
+      sourceType: SourceType.Multicall,
+      sourceConfig: {
+        contractAddress: AuraGaugeAddress,
+        contractABI: BalancerGaugeABI,
+        method: network === Network.ArbitrumOne ? 'balanceOfPool' : 'balanceOf',
+        args: [poolAddress],
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId,
+        variable: 'Aura BPT balance in Gauge',
+        decimals: 18,
+      },
+      network,
+    },
     {
       sourceType: SourceType.Multicall,
       sourceConfig: {

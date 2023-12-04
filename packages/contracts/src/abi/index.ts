@@ -5,7 +5,6 @@ export { default as BalancerLinearPoolABI } from './BalancerLinearPool.json';
 export { default as BalancerPoolABI } from './BalancerPool.json';
 export { default as BalancerStablePoolABI } from './BalancerStablePool.json';
 export { default as BalancerVaultABI } from './BalancerVault.json';
-export { default as Boosted3TokenAuraVaultABI } from './Boosted3TokenAuraVault.json';
 export { default as CurvePoolV1ABI } from './CurvePoolV1.json';
 export { default as CurvePoolV1WithOracleABI } from './CurvePoolV1WithOracle.json';
 export { default as CurvePoolV2ABI } from './CurvePoolV2.json';

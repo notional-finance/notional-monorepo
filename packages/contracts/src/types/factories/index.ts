@@ -10,7 +10,6 @@ export { BalancerLinearPool__factory } from "./BalancerLinearPool__factory";
 export { BalancerPool__factory } from "./BalancerPool__factory";
 export { BalancerStablePool__factory } from "./BalancerStablePool__factory";
 export { BalancerVault__factory } from "./BalancerVault__factory";
-export { Boosted3TokenAuraVault__factory } from "./Boosted3TokenAuraVault__factory";
 export { Curve2TokenConvexVault__factory } from "./Curve2TokenConvexVault__factory";
 export { CurveGauge__factory } from "./CurveGauge__factory";
 export { CurveGaugeController__factory } from "./CurveGaugeController__factory";

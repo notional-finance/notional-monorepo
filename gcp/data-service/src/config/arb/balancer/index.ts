@@ -2,6 +2,7 @@ import { getComposablePoolConfig } from './ComposablePoolConfig';
 import { Network } from '@notional-finance/util';
 import { SourceType, Strategy, TableName } from '../../../types';
 import { IAggregatorABI } from '@notional-finance/contracts';
+import { ArbTokenConfig } from '..';
 
 export const Arb_Balancer_Config = [
   getComposablePoolConfig(
@@ -11,19 +12,7 @@ export const Arb_Balancer_Config = [
     '0x00b9bcd17cB049739D25FD7f826caA2E23b05620',
     Network.ArbitrumOne,
     Strategy.Arb_Balancer_rETH_WETH,
-    // TODO: create constants for tokens
-    [
-      {
-        address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
-        symbol: 'WETH',
-        decimals: 18,
-      },
-      {
-        address: '0xec70dcb4a1efa46b8f2d97c310c9c4790ba5ffa8',
-        symbol: 'rETH',
-        decimals: 18,
-      },
-    ],
+    [ArbTokenConfig['WETH'], ArbTokenConfig['rETH']],
     [
       {
         sourceType: SourceType.Multicall,
@@ -41,6 +30,20 @@ export const Arb_Balancer_Config = [
         // NOTE: this is always on mainnet
         network: Network.Mainnet,
       },
+    ]
+  ),
+  getComposablePoolConfig(
+    '0x423a1323c871abc9d89eb06855bf5347048fc4a5000000000000000000000496',
+    '0x423a1323c871abc9d89eb06855bf5347048fc4a5',
+    '0xa14453084318277b11d38fbe05d857a4f647442b',
+    '0xbb1a15dfd849bc5a6f33c002999c8953afa626ad',
+    Network.ArbitrumOne,
+    Strategy.Arb_Balancer_USDC_USDC_e_DAI_USDT,
+    [
+      ArbTokenConfig['USDC'],
+      ArbTokenConfig['USDC_e'],
+      ArbTokenConfig['DAI'],
+      ArbTokenConfig['USDT'],
     ]
   ),
 ].flatMap((_) => _);

@@ -62,6 +62,7 @@ export interface BalancerGaugeInterface extends utils.Interface {
     "allowance(address,address)": FunctionFragment;
     "initialize(address)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "balanceOfPool(address)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "name()": FunctionFragment;
     "symbol()": FunctionFragment;
@@ -119,6 +120,7 @@ export interface BalancerGaugeInterface extends utils.Interface {
       | "allowance"
       | "initialize"
       | "balanceOf"
+      | "balanceOfPool"
       | "totalSupply"
       | "name"
       | "symbol"
@@ -278,6 +280,10 @@ export interface BalancerGaugeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "balanceOf",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "balanceOfPool",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -445,6 +451,10 @@ export interface BalancerGaugeInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "balanceOfPool",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
@@ -792,6 +802,11 @@ export interface BalancerGauge extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    balanceOfPool(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     name(overrides?: CallOverrides): Promise<[string]>;
@@ -1048,6 +1063,11 @@ export interface BalancerGauge extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  balanceOfPool(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   name(overrides?: CallOverrides): Promise<string>;
@@ -1292,6 +1312,11 @@ export interface BalancerGauge extends BaseContract {
     ): Promise<void>;
 
     balanceOf(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    balanceOfPool(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1617,6 +1642,11 @@ export interface BalancerGauge extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    balanceOfPool(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1861,6 +1891,11 @@ export interface BalancerGauge extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     balanceOf(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    balanceOfPool(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
