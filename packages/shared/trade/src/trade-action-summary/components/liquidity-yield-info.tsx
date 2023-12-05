@@ -1,8 +1,8 @@
 import { Box, useTheme } from '@mui/material';
 import { YieldData } from '@notional-finance/core-entities';
-import { TRACKING_EVENTS } from '@notional-finance/util';
 import { trackEvent } from '@notional-finance/helpers';
-import { H4, Subtitle, CountUp, InfoTooltip } from '@notional-finance/mui';
+import { CountUp, H4, InfoTooltip, Subtitle } from '@notional-finance/mui';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { useLocation } from 'react-router-dom';
 
@@ -63,9 +63,9 @@ export const LiquidityYieldInfo = ({
       </H4>
       <Subtitle sx={{ color: theme.palette.typography.light }}>
         {liquidityYieldData?.incentives &&
-        (liquidityYieldData?.incentives?.length || 0) > 0 ? (
+        (liquidityYieldData?.incentives?.incentiveAPY || 0) > 0 ? (
           <CountUp
-            value={liquidityYieldData?.incentives[0].incentiveAPY}
+            value={liquidityYieldData?.incentives.incentiveAPY}
             suffix="%"
             delay={0.3}
           />

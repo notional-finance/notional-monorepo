@@ -7,12 +7,12 @@ import {
   getNowSeconds,
   isIdiosyncratic,
 } from '@notional-finance/util';
+import { BigNumber } from 'ethers';
+import { TokenType, YieldData } from '../Definitions';
 import { Registry } from '../Registry';
 import { Routes } from '../server';
-import { ClientRegistry } from './client-registry';
-import { TokenType, YieldData } from '../Definitions';
 import { TokenBalance } from '../token-balance';
-import { BigNumber } from 'ethers';
+import { ClientRegistry } from './client-registry';
 
 export class YieldRegistryClient extends ClientRegistry<YieldData> {
   protected cachePath() {
@@ -171,12 +171,14 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       totalAPY: incentiveAPY + feeAPY + interestAPY,
       interestAPY,
       feeAPY,
-      incentives: [
-        {
-          tokenId: annualizedNOTEIncentives.tokenId,
-          incentiveAPY,
-        },
-      ],
+      incentives: {
+        symbol: 'NOTE',
+        incentiveAPY,
+      },
+      secondaryIncentives: netNTokens?.symbol === 'nFRAX' ? {
+        symbol: 'ARB',
+        incentiveAPY: 2.5,
+      } : undefined
     };
   }
 
@@ -223,14 +225,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         leverageRatio,
         maxLeverageRatio,
       },
-      incentives: yieldData.incentives?.map(({ tokenId, incentiveAPY }) => ({
-        tokenId,
-        incentiveAPY: this.calculateLeveragedAPY(
-          incentiveAPY,
-          0, // Debt rates do not apply to incentive APY calculation
-          leverageRatio
-        ),
-      })),
+      incentives: yieldData.incentives,
+      secondaryIncentives: yieldData.secondaryIncentives,
     };
   }
 
@@ -242,8 +238,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     );
 
     return nTokenYields.flatMap((nToken) => {
-      const { nTokenHaircut } =
-        config.getNTokenLeverageFactors(nToken.token);
+      const { nTokenHaircut } = config.getNTokenLeverageFactors(nToken.token);
 
       return debtYields
         .filter((d) => d.token.currencyId === nToken.token.currencyId)
@@ -254,7 +249,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
                   .toUnderlying()
                   .scaleTo(RATE_DECIMALS)
               : RATE_PRECISION;
-              
+
           // defaultLeverageRatio = [(1 - (pvFactor * nTokenHaircut * nTokenMaxDrawdown)) ^ -1] - 1
           // const factor = BigNumber.from(RATE_PRECISION)
           //   .pow(3)
