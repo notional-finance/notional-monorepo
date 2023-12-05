@@ -92,8 +92,8 @@ export default class FixedPoint {
     return this.div(b);
   }
 
-  convertTo(t: TokenBalance) {
-    return t.copy(this.n.mul(t.precision).div(ethers.constants.WeiPerEther));
+  convertTo(t: TokenBalance, scalingFactor: FixedPoint) {
+    return t.copy(this.divDown(scalingFactor).n);
   }
 
   // Adapted from: https://github.com/balancer-labs/balancer-v2-monorepo/blob/a62e10f948c5de65ddfd6d07f54818bf82379eea/pkg/solidity-utils/contracts/math/FixedPoint.sol#L107

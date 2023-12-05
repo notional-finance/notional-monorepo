@@ -61,17 +61,21 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
       FixedPoint.convert(this.totalSupply),
       this.poolParams.swapFeePercentage,
       invariant
-    ).convertTo(this.totalSupply);
+    ).convertTo(this.totalSupply, FixedPoint.ONE);
 
     const lpClaims = this.getLPTokenClaims(
       lpTokens,
-      balancesWithoutFees.map((b, i) => b.convertTo(this.balances[i])),
+      balancesWithoutFees.map((b, i) =>
+        b.convertTo(this.balances[i], this.poolParams.scalingFactors[i])
+      ),
       this.totalSupply.add(lpTokens)
     );
 
     return {
       lpTokens,
-      feesPaid: feesPaid.map((f, i) => f.convertTo(this.balances[i])),
+      feesPaid: feesPaid.map((f, i) =>
+        f.convertTo(this.balances[i], this.poolParams.scalingFactors[i])
+      ),
       lpClaims,
     };
   }
@@ -103,12 +107,14 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
       const tokensOut = this.zeroTokenArray();
       const feesPaid = this.zeroTokenArray();
 
-      tokensOut[singleSidedExitTokenIndex] = amountOut
-        .divDown(this.poolParams.scalingFactors[singleSidedExitTokenIndex])
-        .convertTo(tokensOut[singleSidedExitTokenIndex]);
-      feesPaid[singleSidedExitTokenIndex] = feePaid
-        .divDown(this.poolParams.scalingFactors[singleSidedExitTokenIndex])
-        .convertTo(feesPaid[singleSidedExitTokenIndex]);
+      tokensOut[singleSidedExitTokenIndex] = amountOut.convertTo(
+        tokensOut[singleSidedExitTokenIndex],
+        this.poolParams.scalingFactors[singleSidedExitTokenIndex]
+      );
+      feesPaid[singleSidedExitTokenIndex] = feePaid.convertTo(
+        feesPaid[singleSidedExitTokenIndex],
+        this.poolParams.scalingFactors[singleSidedExitTokenIndex]
+      );
 
       return {
         tokensOut,
@@ -154,14 +160,16 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     const feesPaid = this.zeroTokenArray();
     const tokenOutFeePaid = tokensOut.mulUp(this.poolParams.swapFeePercentage);
     feesPaid[tokenIndexOut] = tokenOutFeePaid.convertTo(
-      this.balances[tokenIndexOut]
+      this.balances[tokenIndexOut],
+      this.poolParams.scalingFactors[tokenIndexOut]
     );
     tokensOut = tokensOut.sub(tokenOutFeePaid);
 
     return {
-      tokensOut: tokensOut
-        .divDown(this.poolParams.scalingFactors[tokenIndexOut])
-        .convertTo(this.balances[tokenIndexOut]),
+      tokensOut: tokensOut.convertTo(
+        this.balances[tokenIndexOut],
+        this.poolParams.scalingFactors[tokenIndexOut]
+      ),
       feesPaid,
     };
   }
