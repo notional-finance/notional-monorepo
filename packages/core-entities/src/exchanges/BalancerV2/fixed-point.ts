@@ -55,6 +55,10 @@ export default class FixedPoint {
     return this.n.gt(b.n);
   }
 
+  gte(b: FixedPoint) {
+    return this.n.gte(b.n);
+  }
+
   eq(b: FixedPoint) {
     return this.n.eq(b.n);
   }

@@ -11,6 +11,7 @@ interface PoolParams {
   normalizedWeights: FixedPoint[];
   scalingFactors: FixedPoint[];
   swapFeePercentage: FixedPoint;
+  lastPostJoinExitInvariant: FixedPoint;
 }
 
 // Adapted From: https://github.com/balancer-labs/balancer-v2-monorepo/blob/master/pkg/pool-weighted/contracts/WeightedMath.sol
@@ -40,6 +41,13 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
         method: 'getScalingFactors',
         key: 'scalingFactors',
         transform: (r: BigNumber[]) => r.map(FixedPoint.from),
+      },
+      {
+        stage: 0,
+        target: pool,
+        method: 'getLastPostJoinExitInvariant',
+        key: 'lastPostJoinExitInvariant',
+        transform: (r: BigNumber) => FixedPoint.from(r),
       }
     );
   }
@@ -120,15 +128,22 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
     lpTokens: TokenBalance,
     singleSidedExitTokenIndex?: number
   ) {
-    if (singleSidedExitTokenIndex) {
+    if (singleSidedExitTokenIndex !== undefined) {
+      // NOTE: this is only on newer weighted pools that pay fees this way
+      const bptProtocolFees = this._getPreJoinExitProtocolFees();
+
       const exitBalance = this.balances[singleSidedExitTokenIndex];
       const scaledBalance = FixedPoint.from(exitBalance.scaleTo(18));
       const normalizedWeight =
         this.poolParams.normalizedWeights[singleSidedExitTokenIndex];
 
-      const totalSupply = FixedPoint.from(this.totalSupply.n);
+      const totalSupplyWithFees = FixedPoint.from(
+        this.totalSupply.add(bptProtocolFees).n
+      );
       const bptAmountIn = FixedPoint.from(lpTokens.n);
-      const invariantRatio = totalSupply.sub(bptAmountIn).divUp(totalSupply);
+      const invariantRatio = totalSupplyWithFees
+        .sub(bptAmountIn)
+        .divUp(totalSupplyWithFees);
 
       const balanceRatio = invariantRatio.powUp(
         FixedPoint.ONE.divDown(normalizedWeight)
@@ -165,6 +180,8 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
           this.poolParams.scalingFactors[singleSidedExitTokenIndex]
         );
 
+      // NOTE: there is another fee paid on _afterJoinExit which mints more BPT but does not affect
+      // our calculation here
       return { tokensOut, feesPaid };
     } else {
       return {
@@ -187,18 +204,25 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
     const balanceOut = FixedPoint.from(
       (balanceOverrides || this.balances)[tokenIndexOut].scaleTo(18)
     );
-    const amountIn = FixedPoint.from(tokensIn.scaleTo(18));
+
+    // Swap fees are subtracted prior to scaling
+    const { tokensInMinusFees, feePaid } =
+      this._subtractSwapFeeAmount(tokensIn);
     const normalizedWeightIn = this.poolParams.normalizedWeights[tokenIndexIn];
     const normalizedWeightOut =
       this.poolParams.normalizedWeights[tokenIndexOut];
 
-    const denominator = balanceIn.add(amountIn);
+    const denominator = balanceIn.add(
+      FixedPoint.convert(tokensInMinusFees).mulDown(
+        this.poolParams.scalingFactors[tokenIndexIn]
+      )
+    );
     const base = balanceIn.divUp(denominator);
     const exponent = normalizedWeightIn.divDown(normalizedWeightOut);
     const power = base.powUp(exponent);
 
-    // TODO: how do you calculate the fees paid?
     const feesPaid = this.zeroTokenArray();
+    feesPaid[tokenIndexIn] = feePaid;
     const tokensOut = balanceOut
       .mulDown(power.complement())
       .convertTo(
@@ -207,5 +231,48 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
       );
 
     return { tokensOut, feesPaid };
+  }
+
+  private _subtractSwapFeeAmount(tokensIn: TokenBalance) {
+    const feePaid = tokensIn.scale(
+      this.poolParams.swapFeePercentage.n,
+      FixedPoint.ONE.n
+    );
+
+    return { tokensInMinusFees: tokensIn.sub(feePaid), feePaid };
+  }
+
+  private _getPreJoinExitProtocolFees() {
+    const invariant = this.balances.reduce((inv, b, i) => {
+      return inv.mulDown(
+        FixedPoint.from(b.scaleTo(18)).powDown(
+          this.poolParams.normalizedWeights[i]
+        )
+      );
+    }, FixedPoint.from(FixedPoint.ONE.n));
+    const invariantGrowthRatio = invariant.divDown(
+      this.poolParams.lastPostJoinExitInvariant
+    );
+    const supplyGrowthRatio = FixedPoint.ONE;
+
+    if (
+      supplyGrowthRatio.gte(invariantGrowthRatio) ||
+      this.poolParams.swapFeePercentage.isZero()
+    ) {
+      return this.totalSupply.copy(0);
+    }
+
+    const swapFeePercentage = FixedPoint.ONE.sub(
+      supplyGrowthRatio.divDown(invariantGrowthRatio)
+    );
+    const poolOwnershipPercentage = swapFeePercentage.mulDown(
+      this.poolParams.swapFeePercentage
+    );
+
+    // This is the amount to increase the total supply by
+    return FixedPoint.from(this.totalSupply.n)
+      .mul(poolOwnershipPercentage)
+      .div(poolOwnershipPercentage.complement())
+      .convertTo(this.totalSupply, FixedPoint.ONE);
   }
 }
