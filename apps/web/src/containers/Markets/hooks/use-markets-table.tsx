@@ -119,13 +119,12 @@ export const useMarketsTable = (
     {
       Header: (
         <FormattedMessage
-          defaultMessage="Note APY"
-          description={'Note APY header'}
+          defaultMessage="INCENTIVE APY"
+          description={'INCENTIVE APY header'}
         />
       ),
-      Cell: DisplayCell,
-      displayFormatter: formatNumberAsPercent,
-      accessor: 'noteAPY',
+      Cell: MultiValueIconCell,
+      accessor: 'incentiveAPY',
       textAlign: 'right',
       sortType: 'basic',
       sortDescFirst: true,
@@ -143,6 +142,37 @@ export const useMarketsTable = (
   ];
 
   const formatMarketData = (allMarketsData: typeof borrowYields) => {
+    const getIncentiveApy = (incentives, secondaryIncentives) => {
+      if (secondaryIncentives && incentives) {
+        return incentives.incentiveAPY + secondaryIncentives.incentiveAPY;
+      } else if (incentives && !secondaryIncentives) {
+        return incentives.incentiveAPY;
+      } else {
+        return 0;
+      }
+    };
+    const getIncentiveData = (incentives, secondaryIncentives) => {
+      if (secondaryIncentives && incentives) {
+        return {
+          inlineIcons: true,
+          label: formatNumberAsPercent(incentives.incentiveAPY),
+          symbol: incentives.symbol,
+          caption: formatNumberAsPercent(secondaryIncentives.incentiveAPY),
+          captionSymbol: secondaryIncentives.symbol,
+        };
+      } else if (incentives && !secondaryIncentives) {
+        return {
+          inlineIcons: true,
+          label: formatNumberAsPercent(incentives.incentiveAPY),
+          symbol: incentives.symbol,
+        };
+      } else {
+        return {
+          label: '',
+          symbol: '',
+        };
+      }
+    };
     return allMarketsData
       .map((data) => {
         const {
@@ -151,6 +181,7 @@ export const useMarketsTable = (
           totalAPY,
           product,
           incentives,
+          secondaryIncentives,
           leveraged,
           tvl,
           link,
@@ -167,10 +198,7 @@ export const useMarketsTable = (
           leverage:
             leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
           totalTVL: tvl?.toFiat(baseCurrency).toFloat() || 0,
-          noteAPY:
-            incentives && incentives?.incentiveAPY > 0
-              ? incentives?.incentiveAPY
-              : 0,
+          incentiveAPY: getIncentiveApy(incentives, secondaryIncentives),
           view: link,
           multiValueCellData: {
             currency: {
@@ -178,6 +206,7 @@ export const useMarketsTable = (
               label: underlying.symbol,
               caption: formatYieldCaption(data),
             },
+            incentiveAPY: getIncentiveData(incentives, secondaryIncentives),
           },
         };
       })
@@ -228,7 +257,15 @@ export const useMarketsTable = (
 
   const marketDataCSVFormatter = useCallback((data: any[]) => {
     return data.map(
-      ({ currency, product, totalAPY, totalTVL, leverage, maturity }) => {
+      ({
+        currency,
+        product,
+        totalAPY,
+        totalTVL,
+        leverage,
+        maturity,
+        incentiveAPY,
+      }) => {
         return {
           Currency: currency,
           Product: product,
@@ -236,6 +273,8 @@ export const useMarketsTable = (
           'Total TVL': totalTVL === 0 ? '' : formatNumberAsAbbr(totalTVL),
           Leverage: leverage === 0 ? '' : formatLeverageRatio(leverage),
           Maturity: maturity === 0 ? '' : getDateString(maturity),
+          IncentiveAPY:
+            incentiveAPY === 0 ? '' : formatNumberAsPercent(incentiveAPY),
         };
       }
     );

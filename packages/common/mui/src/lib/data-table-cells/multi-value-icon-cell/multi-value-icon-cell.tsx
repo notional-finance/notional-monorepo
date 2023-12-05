@@ -16,10 +16,11 @@ export interface MultiValueIconCellProps {
       symbol: string;
       label: string;
       caption?: string;
+      inlineIcons?: boolean;
     };
   };
   row: { original };
-  column: { id };
+  column: { id; textAlign };
 }
 
 // NOTE*
@@ -50,30 +51,69 @@ export const MultiValueIconCell = (props): JSX.Element => {
     ? original.multiValueCellData[column.id]
     : value;
 
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {!original.isTotalRow &&
-        (values.symbol && values.symbolBottom ? (
-          <DoubleTokenIcon
-            size="medium"
-            symbolTop={values.symbol}
-            symbolBottom={values.symbolBottom}
-          />
-        ) : (
-          <TokenIcon symbol={values.symbol} size="medium" />
-        ))}
+  // NOTE* Displays a token icon on the same line as the caption or label values. Based on the values.symbol and the captionSymbol.
+  // Currently used in the Markets table
+  const inlineIcons = values?.inlineIcons;
 
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: column.textAlign,
+      }}
+    >
+      {!original.isTotalRow && !inlineIcons ? (
+        <div>
+          {values?.symbol && values.symbolBottom && (
+            <DoubleTokenIcon
+              size="medium"
+              symbolTop={values?.symbol}
+              symbolBottom={values?.symbolBottom}
+            />
+          )}
+          {values?.symbol && !values.symbolBottom && (
+            <TokenIcon symbol={values?.symbol} size="medium" />
+          )}
+        </div>
+      ) : null}
       <Box sx={{ marginLeft: theme.spacing(1), marginRight: theme.spacing(1) }}>
-        <FirstValue gutter="default" sx={{ marginBottom: '0px' }}>
-          {values.symbol && values.symbolBottom ? (
+        <FirstValue
+          gutter="default"
+          sx={{
+            marginBottom: inlineIcons ? '4px' : '0px',
+            display: 'flex',
+            alignItems: 'flex-start',
+          }}
+        >
+          {values?.symbol && values.symbolBottom && (
             <LightningIcon sx={{ height: '13px', marginLeft: '-6px' }} />
-          ) : null}
-          {values.label}
+          )}
+          {inlineIcons && (
+            <TokenIcon
+              symbol={values.symbol}
+              size="small"
+              style={{ marginRight: theme.spacing(0.5) }}
+            />
+          )}
+          {values?.label}
         </FirstValue>
         <SecondValue
-          sx={{ marginBottom: '0px', color: theme.palette.typography.light }}
+          sx={{
+            marginBottom: '0px',
+            color: theme.palette.typography.light,
+            display: 'flex',
+            alignItems: 'flex-start',
+          }}
         >
-          {values.caption || ''}
+          {inlineIcons && values?.captionSymbol && (
+            <TokenIcon
+              symbol={values.captionSymbol}
+              size="small"
+              style={{ marginRight: theme.spacing(0.5) }}
+            />
+          )}
+          {values?.caption || ''}
         </SecondValue>
       </Box>
     </Box>

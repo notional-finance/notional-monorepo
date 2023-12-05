@@ -1,6 +1,6 @@
+import { useState } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { formatNumberAsAPY } from '@notional-finance/helpers';
-import { LightningIcon, PlusIcon, TokenIcon } from '@notional-finance/icons';
+import { LightningIcon, TokenIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
 import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -8,49 +8,71 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../button/button';
 import { Card } from '../../card/card';
 import {
-  CardInput,
-  CurrencyTitle,
-  H4,
-  SectionTitle,
-} from '../../typography/typography';
+  CardValue,
+  ContentWrapper,
+} from '../incentive-leveraged/incentive-leveraged';
+import { CurrencyTitle, H4, SectionTitle } from '../../typography/typography';
+import { useIncentiveData } from '../use-incentive-data';
 
 export interface IncentiveVariantProps {
   symbol: string;
   rate: number;
-  incentiveRate: number;
   route: string;
   buttonText: ReactNode;
   titleOne?: ReactNode;
   leveraged?: boolean;
+  incentiveData?: {
+    symbol: string;
+    incentiveAPY: number;
+  };
+  secondaryIncentiveData?: {
+    symbol: string;
+    incentiveAPY: number;
+  };
 }
 
 export const Incentive = ({
   symbol,
   rate,
-  incentiveRate,
+  incentiveData,
+  secondaryIncentiveData,
   route,
   buttonText,
   titleOne,
   leveraged,
 }: IncentiveVariantProps) => {
   const theme = useTheme();
-  const formattedTotalRate = formatNumberAsAPY(rate);
-  const formattedRate = formatNumberAsAPY(rate - incentiveRate);
-  const formattedIncentiveRate = formatNumberAsAPY(incentiveRate);
+  const [hovered, setHovered] = useState(false);
+  const {
+    formattedTotalRate,
+    formattedRate,
+    incentiveApy,
+    secondaryIncentiveApy,
+    totalIncentivesApy,
+  } = useIncentiveData(rate, 0, incentiveData, secondaryIncentiveData);
 
   return (
     <Link to={route}>
-      <Card height={'auto'}>
+      <Card
+        height={'auto'}
+        onMouseOver={() => setHovered(true)}
+        onMouseOut={() => setHovered(false)}
+      >
         {symbol && (
           <StyledIcon top={theme.spacing(-9)}>
             <TokenIcon symbol={symbol} size="extraLarge" />
           </StyledIcon>
         )}
-        <>
+        <Box
+          sx={{
+            overflow: 'hidden',
+            marginBottom: theme.spacing(2),
+          }}
+        >
           <CurrencyTitle
             accent
             textAlign="left"
-            marginBottom={theme.spacing(1)}
+            sx={{ marginBottom: theme.spacing(1) }}
           >
             {symbol}
           </CurrencyTitle>
@@ -67,37 +89,84 @@ export const Incentive = ({
             )}
             <H4
               textAlign="left"
-              marginBottom={theme.spacing(4)}
-              sx={{ color: formattedTotalRate.includes('-') ? colors.red : '' }}
+              sx={{
+                marginTop: theme.spacing(2),
+                color: formattedTotalRate.includes('-') ? colors.red : '',
+              }}
             >
               {formattedTotalRate}
             </H4>
           </Box>
-
-          <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-            <FormattedMessage defaultMessage={'ORGANIC'} />
-          </SectionTitle>
-          <CardInput
-            textAlign="left"
-            marginBottom={theme.spacing(3)}
-            sx={{ color: formattedRate.includes('-') ? colors.red : '' }}
+          <ContentWrapper
+            hovered={hovered && secondaryIncentiveData ? true : false}
+            theme={theme}
           >
-            {formattedRate}
-          </CardInput>
-          <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-            <PlusIcon width={'9px'} />
-            <FormattedMessage defaultMessage="NOTE INCENTIVE" />
-          </SectionTitle>
-          <CardInput
-            textAlign="left"
-            marginBottom={theme.spacing(3)}
-            sx={{
-              color: formattedIncentiveRate.includes('-') ? colors.red : '',
-            }}
-          >
-            {formattedIncentiveRate}
-          </CardInput>
-        </>
+            <Box>
+              {incentiveData && (
+                <CardValue
+                  title={
+                    <FormattedMessage
+                      defaultMessage="{symbol} INCENTIVE"
+                      values={{
+                        symbol: incentiveData.symbol,
+                      }}
+                    />
+                  }
+                  rate={incentiveApy}
+                  symbol={incentiveData.symbol}
+                  isIncentive
+                />
+              )}
+              {secondaryIncentiveData && (
+                <CardValue
+                  title={
+                    <FormattedMessage
+                      defaultMessage="{symbol} INCENTIVE"
+                      values={{
+                        symbol: secondaryIncentiveData.symbol,
+                      }}
+                    />
+                  }
+                  rate={secondaryIncentiveApy}
+                  symbol={secondaryIncentiveData.symbol}
+                  isIncentive
+                />
+              )}
+            </Box>
+            <Box sx={{ minWidth: theme.spacing(27) }}>
+              <CardValue
+                rate={formattedRate}
+                symbol={symbol}
+                title={<FormattedMessage defaultMessage={'ORGANIC'} />}
+              />
+              {incentiveData && !secondaryIncentiveData && (
+                <CardValue
+                  title={
+                    <FormattedMessage
+                      defaultMessage="{symbol} INCENTIVE"
+                      values={{
+                        symbol: incentiveData.symbol,
+                      }}
+                    />
+                  }
+                  rate={incentiveApy}
+                  symbol={incentiveData.symbol}
+                  isIncentive
+                />
+              )}
+              {incentiveData && secondaryIncentiveData && (
+                <CardValue
+                  title={<FormattedMessage defaultMessage="INCENTIVES" />}
+                  rate={totalIncentivesApy}
+                  symbol={incentiveData.symbol}
+                  incentiveData={incentiveData}
+                  secondaryIncentiveData={secondaryIncentiveData}
+                  isIncentive
+                />
+              )}
+            </Box>
+          </ContentWrapper>
+        </Box>
         <Button
           fullWidth
           size="large"
