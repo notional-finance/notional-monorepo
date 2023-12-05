@@ -1,28 +1,28 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import {
-  useFiat,
-  useThemeVariant,
-  useAllMarkets,
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
-import { useEffect, useState } from 'react';
-import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
-import { PRODUCTS } from '@notional-finance/util';
-import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
-import { useNotionalTheme } from '@notional-finance/styles';
-import {
-  useWindowDimensions,
-  Incentive,
-  IncentiveLeveraged,
-  HeadingSubtitle,
-} from '@notional-finance/mui';
-import { Link } from 'react-router-dom';
-import {
   Registry,
   TokenBalance,
   YieldData,
 } from '@notional-finance/core-entities';
 import { formatLeverageRatio } from '@notional-finance/helpers';
+import {
+  HeadingSubtitle,
+  Incentive,
+  IncentiveLeveraged,
+  useWindowDimensions,
+} from '@notional-finance/mui';
+import {
+  useAllMarkets,
+  useFiat,
+  useSelectedNetwork,
+  useThemeVariant,
+} from '@notional-finance/notionable-hooks';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { useNotionalTheme } from '@notional-finance/styles';
+import { PRODUCTS } from '@notional-finance/util';
+import { useEffect, useState } from 'react';
+import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
+import { Link } from 'react-router-dom';
 import { useLeveragedNTokenPositions } from './liquidity-leveraged/hooks/use-leveraged-ntoken-positions';
 import { useMaxYield } from './liquidity-leveraged/hooks/use-max-yield';
 
@@ -98,6 +98,7 @@ const LiquidityCardView = ({
                   underlying,
                   totalAPY,
                   incentives,
+                  secondaryIncentives,
                   leveraged,
                   maxAPY,
                   hasPosition,
@@ -111,15 +112,14 @@ const LiquidityCardView = ({
                         : 'CreateLeveragedNToken'
                     }/${underlying.symbol}`
                   : `/${routePath}/${underlying.symbol}`;
-                const noteApy =
-                  incentives?.find(({ tokenId }) => tokenId !== undefined)
-                    ?.incentiveAPY || 0;
+                const noteApy = incentives?.incentiveAPY || 0;
                 return isLeveraged ? (
                   <IncentiveLeveraged
                     key={`incentive-${i}`}
                     symbol={underlying.symbol}
                     rate={totalAPY}
-                    incentiveRate={noteApy}
+                    incentiveRate={incentives?.incentiveAPY}
+                    secondaryIncentiveRate={secondaryIncentives?.incentiveAPY}
                     customRate={maxAPY}
                     route={route}
                     buttonText={
@@ -222,6 +222,8 @@ export const LiquidityLeveragedCardView = () => {
   } = useAllMarkets();
   const { depositTokensWithPositions } = useLeveragedNTokenPositions();
   const allMaxAPYs = useMaxYield();
+
+  console.log({ leveragedLiquidity });
 
   // These are the default yields using prime debt
   const cardData = leveragedLiquidity

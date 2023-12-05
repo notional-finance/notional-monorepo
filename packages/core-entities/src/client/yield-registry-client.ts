@@ -7,13 +7,13 @@ import {
   getNowSeconds,
   isIdiosyncratic,
 } from '@notional-finance/util';
+import { BigNumber } from 'ethers';
+import { TokenType, YieldData } from '../Definitions';
 import { Registry } from '../Registry';
 import { Routes } from '../server';
-import { ClientRegistry } from './client-registry';
-import { TokenType, YieldData } from '../Definitions';
 import { TokenBalance } from '../token-balance';
-import { BigNumber } from 'ethers';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
+import { ClientRegistry } from './client-registry';
 
 export class YieldRegistryClient extends ClientRegistry<YieldData> {
   protected cachePath() {
@@ -172,12 +172,17 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       totalAPY: incentiveAPY + feeAPY + interestAPY,
       interestAPY,
       feeAPY,
-      incentives: [
-        {
-          tokenId: annualizedNOTEIncentives.tokenId,
-          incentiveAPY,
-        },
-      ],
+      incentives: {
+        symbol: 'NOTE',
+        incentiveAPY,
+      },
+      secondaryIncentives:
+        netNTokens?.symbol === 'nFRAX'
+          ? {
+              symbol: 'ARB',
+              incentiveAPY: 2.5,
+            }
+          : undefined,
     };
   }
 
@@ -225,14 +230,26 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         maxLeverageRatio,
       },
       vaultName: yieldData?.vaultName,
-      incentives: yieldData.incentives?.map(({ tokenId, incentiveAPY }) => ({
-        tokenId,
-        incentiveAPY: this.calculateLeveragedAPY(
-          incentiveAPY,
-          0, // Debt rates do not apply to incentive APY calculation
-          leverageRatio
-        ),
-      })),
+      incentives: yieldData.incentives?.symbol
+        ? {
+            symbol: yieldData.incentives.symbol,
+            incentiveAPY: this.calculateLeveragedAPY(
+              yieldData.incentives?.incentiveAPY || 0,
+              0,
+              leverageRatio
+            ),
+          }
+        : undefined,
+      secondaryIncentives: yieldData.secondaryIncentives?.symbol
+        ? {
+            symbol: yieldData.secondaryIncentives.symbol,
+            incentiveAPY: this.calculateLeveragedAPY(
+              yieldData.secondaryIncentives?.incentiveAPY || 0,
+              0,
+              leverageRatio
+            ),
+          }
+        : undefined,
     };
   }
 

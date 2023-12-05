@@ -1,23 +1,23 @@
+import { Network } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
+import { BehaviorSubject } from 'rxjs';
 import { PoolClasses } from './exchanges';
 import { SerializedTokenBalance, TokenBalance } from './token-balance';
-import { Network } from '@notional-finance/util';
-import { BehaviorSubject } from 'rxjs';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import {
+  OracleType,
+  SystemAccount,
   TokenInterface,
   TokenType,
-  OracleType,
   TransferType,
-  SystemAccount,
 } from './.graphclient';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 export type {
+  OracleType,
+  SystemAccount,
   TokenInterface,
   TokenType,
-  OracleType,
   TransferType,
-  SystemAccount,
 } from './.graphclient';
 
 export interface TokenDefinition {
@@ -270,7 +270,11 @@ export interface YieldData {
   feeAPY?: number;
   strategyAPY?: number;
   incentives?: {
-    tokenId: string;
+    symbol: string;
     incentiveAPY: number;
-  }[];
+  };
+  secondaryIncentives?: {
+    symbol: string;
+    incentiveAPY: number;
+  };
 }

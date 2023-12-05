@@ -1,12 +1,9 @@
-import { useMemo } from 'react';
-import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router';
 import { TokenBalance } from '@notional-finance/core-entities';
 import {
-  formatTokenType,
-  formatNumberAsPercent,
   formatCryptoWithFiat,
+  formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
+  formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
 import {
@@ -20,6 +17,9 @@ import {
   PORTFOLIO_ACTIONS,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
+import { useMemo } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useHistory } from 'react-router';
 
 export function useDetailedHoldings() {
   const holdings = useHoldings();
@@ -79,9 +79,7 @@ export function useDetailedHoldings() {
         const { icon, formattedTitle, titleWithMaturity, title } =
           formatTokenType(b.token, isDebt);
         const marketApy = marketYield?.totalAPY;
-        const noteIncentives = marketYield?.incentives?.find(
-          ({ tokenId }) => tokenId === NOTE?.id
-        );
+        const noteIncentives = marketYield?.incentives?.incentiveAPY;
         const totalEarningsWithNOTE = s?.totalProfitAndLoss
           .toFiat(baseCurrency)
           .add(
@@ -111,9 +109,7 @@ export function useDetailedHoldings() {
               },
               {
                 displayValue: noteIncentives
-                  ? `${formatNumberAsPercent(
-                      noteIncentives?.incentiveAPY
-                    )} NOTE`
+                  ? `${formatNumberAsPercent(noteIncentives)} NOTE`
                   : b.token.tokenType === 'fCash' &&
                     s?.impliedFixedRate !== undefined
                   ? `${formatNumberAsPercent(
