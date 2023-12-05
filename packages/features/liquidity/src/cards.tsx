@@ -112,14 +112,13 @@ const LiquidityCardView = ({
                         : 'CreateLeveragedNToken'
                     }/${underlying.symbol}`
                   : `/${routePath}/${underlying.symbol}`;
-                const noteApy = incentives?.incentiveAPY || 0;
                 return isLeveraged ? (
                   <IncentiveLeveraged
                     key={`incentive-${i}`}
                     symbol={underlying.symbol}
                     rate={totalAPY}
-                    incentiveRate={incentives?.incentiveAPY}
-                    secondaryIncentiveRate={secondaryIncentives?.incentiveAPY}
+                    incentiveData={incentives}
+                    secondaryIncentiveData={secondaryIncentives}
                     customRate={maxAPY}
                     route={route}
                     buttonText={
@@ -136,7 +135,8 @@ const LiquidityCardView = ({
                     key={`incentive-${i}`}
                     symbol={underlying.symbol}
                     rate={totalAPY}
-                    incentiveRate={noteApy}
+                    incentiveData={incentives}
+                    secondaryIncentiveData={secondaryIncentives}
                     titleOne={
                       leveraged && (
                         <FormattedMessage
