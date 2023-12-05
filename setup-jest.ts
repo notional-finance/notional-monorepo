@@ -70,8 +70,8 @@ const WHALES: Record<Network, string[][]> = {
     ],
     // Balancer.fi 4POOL
     [
-      '0x9791d590788598535278552EEcD4b211bFc790CB',
-      '0xba12222222228d8ba445958a75a0704d566bf2c8',
+      '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
+      '0xa14453084318277b11d38fbe05d857a4f647442b',
     ],
     // rETH
     [

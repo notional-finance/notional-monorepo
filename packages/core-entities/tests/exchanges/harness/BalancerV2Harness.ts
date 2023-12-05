@@ -125,9 +125,13 @@ export class BalancerV2Harness extends PoolTestHarness<ComposableStablePool> {
     const assets: string[] = [];
     const poolParams = this.poolInstance
       .poolParams as ComposableStablePoolParams;
+    const numTokens =
+      poolParams['bptIndex'] !== undefined
+        ? this.tokens().length + 1
+        : this.tokens().length;
 
     let tokenIndex = 0;
-    for (let i = 0; i < this.tokens().length + 1; i++) {
+    for (let i = 0; i < numTokens; i++) {
       if (i == poolParams.bptIndex) {
         assets.push(this.poolInstance.oneLPToken().token.address);
       } else {
@@ -143,7 +147,7 @@ export class BalancerV2Harness extends PoolTestHarness<ComposableStablePool> {
       .connect(signer)
       .exitPool(this.poolInstance.poolParams.poolId, address, address, {
         assets: assets,
-        minAmountsOut: Array(this.poolInstance.balances.length + 1).fill(0),
+        minAmountsOut: Array(numTokens).fill(0),
         userData,
         toInternalBalance: false,
       });
@@ -182,8 +186,12 @@ export class BalancerV2Harness extends PoolTestHarness<ComposableStablePool> {
 
     // Add BPT to maxAmountsIn
     let tokenIndex = 0;
-    for (let i = 0; i < tokensIn.length + 1; i++) {
-      if (i == poolParams.bptIndex) {
+    const numTokens =
+      poolParams['bptIndex'] !== undefined
+        ? tokensIn.length + 1
+        : tokensIn.length;
+    for (let i = 0; i < numTokens; i++) {
+      if (i == poolParams['bptIndex']) {
         maxAmountsIn.push(BigNumber.from(0));
         assets.push(this.poolInstance.oneLPToken().token.address);
       } else {
@@ -225,9 +233,13 @@ export class BalancerV2Harness extends PoolTestHarness<ComposableStablePool> {
     const poolParams = this.poolInstance
       .poolParams as ComposableStablePoolParams;
 
+    const numTokens =
+      poolParams['bptIndex'] !== undefined
+        ? this.tokens().length + 1
+        : this.tokens().length;
     let tokenIndex = 0;
-    for (let i = 0; i < this.tokens().length + 1; i++) {
-      if (i == poolParams.bptIndex) {
+    for (let i = 0; i < numTokens; i++) {
+      if (i == poolParams['bptIndex']) {
         assets.push(this.poolInstance.oneLPToken().token.address);
       } else {
         assets.push(this.tokens()[tokenIndex].address);
@@ -242,7 +254,7 @@ export class BalancerV2Harness extends PoolTestHarness<ComposableStablePool> {
       .connect(signer)
       .exitPool(this.poolInstance.poolParams.poolId, address, address, {
         assets: assets,
-        minAmountsOut: minTokensOut || Array(this.tokens().length + 1).fill(0),
+        minAmountsOut: minTokensOut || Array(numTokens).fill(0),
         userData,
         toInternalBalance: false,
       });
