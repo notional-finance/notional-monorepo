@@ -1,23 +1,22 @@
-import { useCallback } from 'react';
+import { useTheme } from '@mui/material';
 import {
-  MultiValueIconCell,
-  LinkCell,
-  DisplayCell,
-  DataTableColumn,
-  SelectedOptions,
-} from '@notional-finance/mui';
-import { MARKET_TYPE } from '@notional-finance/util';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
-import {
-  formatNumberAsPercent,
-  getDateString,
   formatLeverageRatio,
   formatNumberAsAbbr,
+  formatNumberAsPercent,
   formatYieldCaption,
+  getDateString,
 } from '@notional-finance/helpers';
+import {
+  DataTableColumn,
+  DisplayCell,
+  LinkCell,
+  MultiValueIconCell,
+  SelectedOptions,
+} from '@notional-finance/mui';
 import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
+import { MARKET_TYPE, PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import { useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useTheme } from '@mui/material';
 
 export const useMarketsTable = (
   marketType: MARKET_TYPE,
@@ -169,10 +168,8 @@ export const useMarketsTable = (
             leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
           totalTVL: tvl?.toFiat(baseCurrency).toFloat() || 0,
           noteAPY:
-            incentives &&
-            incentives.length > 0 &&
-            incentives[0]?.incentiveAPY > 0
-              ? incentives[0]?.incentiveAPY
+            incentives && incentives?.incentiveAPY > 0
+              ? incentives?.incentiveAPY
               : 0,
           view: link,
           multiValueCellData: {

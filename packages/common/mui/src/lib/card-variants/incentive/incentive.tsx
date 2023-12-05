@@ -1,19 +1,18 @@
+import { Box, styled, useTheme } from '@mui/material';
+import { formatNumberAsAPY } from '@notional-finance/helpers';
+import { LightningIcon, PlusIcon, TokenIcon } from '@notional-finance/icons';
+import { colors } from '@notional-finance/styles';
 import { ReactNode } from 'react';
-import { useTheme, styled, Box } from '@mui/material';
-import { TokenIcon, LightningIcon } from '@notional-finance/icons';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router-dom';
 import { Button } from '../../button/button';
 import { Card } from '../../card/card';
-import { Link } from 'react-router-dom';
 import {
-  H4,
-  CurrencyTitle,
   CardInput,
+  CurrencyTitle,
+  H4,
   SectionTitle,
 } from '../../typography/typography';
-import { PlusIcon } from '@notional-finance/icons';
-import { colors } from '@notional-finance/styles';
-import { FormattedMessage } from 'react-intl';
-import { formatNumberAsAPY } from '@notional-finance/helpers';
 
 export interface IncentiveVariantProps {
   symbol: string;
@@ -35,7 +34,6 @@ export const Incentive = ({
   leveraged,
 }: IncentiveVariantProps) => {
   const theme = useTheme();
-
   const formattedTotalRate = formatNumberAsAPY(rate);
   const formattedRate = formatNumberAsAPY(rate - incentiveRate);
   const formattedIncentiveRate = formatNumberAsAPY(incentiveRate);
