@@ -10,8 +10,8 @@ import { Card } from '../../card/card';
 import { Link } from 'react-router-dom';
 import {
   H4,
-  // Label,
-  // LargeInputTextEmphasized,
+  Label,
+  LargeInputTextEmphasized,
   CurrencyTitle,
   CardInput,
   SectionTitle,
@@ -142,24 +142,6 @@ export const IncentiveLeveraged = ({
           >
             {symbol}
           </CurrencyTitle>
-          <Box>
-            <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-              <FormattedMessage defaultMessage="Default Terms" />
-            </SectionTitle>
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-              <LightningIcon
-                sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
-              />
-              <H4
-                textAlign="left"
-                sx={{
-                  color: formattedTotalRate.includes('-') ? colors.red : '',
-                }}
-              >
-                {formattedTotalRate}
-              </H4>
-            </Box>
-          </Box>
           <ContentWrapper hovered={hovered} theme={theme}>
             <Box>
               <CardValue
