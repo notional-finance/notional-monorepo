@@ -11,7 +11,6 @@ export default class FixedPoint {
   constructor(public n: BigNumber) {}
 
   static convert(t: TokenBalance) {
-    // All Balancer internal calculations are in 18 decimals
     return FixedPoint.from(t.n);
   }
 

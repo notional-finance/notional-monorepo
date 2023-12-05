@@ -137,10 +137,10 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
       const normalizedWeight =
         this.poolParams.normalizedWeights[singleSidedExitTokenIndex];
 
-      const totalSupplyWithFees = FixedPoint.from(
-        this.totalSupply.add(bptProtocolFees).n
+      const totalSupplyWithFees = FixedPoint.convert(
+        this.totalSupply.add(bptProtocolFees)
       );
-      const bptAmountIn = FixedPoint.from(lpTokens.n);
+      const bptAmountIn = FixedPoint.convert(lpTokens);
       const invariantRatio = totalSupplyWithFees
         .sub(bptAmountIn)
         .divUp(totalSupplyWithFees);
