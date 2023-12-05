@@ -30,7 +30,7 @@ export const RollDebt = () => {
   };
 
   return (
-    <>
+    <Box>
       <Box sx={{ display: debt === undefined ? 'block' : 'none' }}>
         <SelectConvertAsset context={context} />
       </Box>
@@ -59,6 +59,6 @@ export const RollDebt = () => {
           />
         </PortfolioSideDrawer>
       )}
-    </>
+    </Box>
   );
 };

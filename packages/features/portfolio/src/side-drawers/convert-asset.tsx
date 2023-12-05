@@ -30,7 +30,7 @@ export const ConvertAsset = () => {
   };
 
   return (
-    <>
+    <Box>
       <Box sx={{ display: collateral === undefined ? 'block' : 'none' }}>
         <SelectConvertAsset context={context} />
       </Box>
@@ -56,6 +56,6 @@ export const ConvertAsset = () => {
           />
         </PortfolioSideDrawer>
       )}
-    </>
+    </Box>
   );
 };
