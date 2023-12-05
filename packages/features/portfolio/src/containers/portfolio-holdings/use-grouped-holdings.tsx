@@ -8,11 +8,7 @@ import {
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
-import {
-  useFiat,
-  useNOTE,
-  useGroupedTokens,
-} from '@notional-finance/notionable-hooks';
+import { useFiat, useGroupedTokens } from '@notional-finance/notionable-hooks';
 import {
   Network,
   TXN_HISTORY_TYPE,
@@ -41,7 +37,6 @@ function formatCaption(asset: TokenBalance, debt: TokenBalance) {
 
 export function useGroupedHoldings() {
   const baseCurrency = useFiat();
-  const NOTE = useNOTE();
   const groupedTokens = useGroupedTokens();
   const history = useHistory();
 
@@ -69,9 +64,7 @@ export function useGroupedHoldings() {
         borrowAPY,
         leverageRatio
       );
-      const noteAPY = assetYield?.incentives?.find(
-        (i) => i.tokenId === NOTE?.id
-      )?.incentiveAPY;
+      const noteAPY = assetYield?.incentives?.incentiveAPY;
       const noteIncentives =
         noteAPY !== undefined
           ? leveragedYield(noteAPY, 0, leverageRatio)

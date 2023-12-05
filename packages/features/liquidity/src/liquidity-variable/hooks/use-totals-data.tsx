@@ -1,12 +1,12 @@
-import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
-import { SparklesIcon } from '@notional-finance/icons';
-import { FormattedMessage } from 'react-intl';
 import {
   FiatSymbols,
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
+import { SparklesIcon } from '@notional-finance/icons';
+import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { leveragedYield } from '@notional-finance/util';
+import { FormattedMessage } from 'react-intl';
 
 export const useTotalsData = (
   tokenSymbol: string,
@@ -37,13 +37,13 @@ export const useTotalsData = (
   }
 
   if (leverageRatio && !!liquidityYieldData?.incentives) {
-    liquidityYieldData.incentives = liquidityYieldData.incentives.map(
-      ({ tokenId, incentiveAPY }) => ({
-        tokenId,
-        incentiveAPY:
-          leveragedYield(incentiveAPY, 0, leverageRatio) || incentiveAPY,
-      })
-    );
+    // If using leverage apply the
+    liquidityYieldData.incentives.incentiveAPY =
+      leveragedYield(
+        liquidityYieldData.incentives.incentiveAPY,
+        0,
+        leverageRatio
+      ) || liquidityYieldData.incentives.incentiveAPY;
   }
 
   return {
@@ -57,13 +57,13 @@ export const useTotalsData = (
         title: <FormattedMessage defaultMessage={'Incentive APY'} />,
         value:
           liquidityYieldData?.incentives &&
-          liquidityYieldData?.incentives[0]?.incentiveAPY
-            ? liquidityYieldData?.incentives[0]?.incentiveAPY
+          liquidityYieldData?.incentives?.incentiveAPY
+            ? liquidityYieldData?.incentives?.incentiveAPY
             : '-',
         Icon: SparklesIcon,
         suffix:
           liquidityYieldData?.incentives &&
-          liquidityYieldData?.incentives[0]?.incentiveAPY
+          liquidityYieldData?.incentives?.incentiveAPY
             ? '%'
             : '',
       },

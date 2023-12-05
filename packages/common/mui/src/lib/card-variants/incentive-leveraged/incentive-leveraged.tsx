@@ -6,8 +6,8 @@ import { Card } from '../../card/card';
 import { Link } from 'react-router-dom';
 import {
   H4,
-  Label,
-  LargeInputTextEmphasized,
+  // Label,
+  // LargeInputTextEmphasized,
   CurrencyTitle,
   CardInput,
   SectionTitle,
@@ -21,7 +21,8 @@ import { NotionalTheme, colors } from '@notional-finance/styles';
 export interface IncentiveLeveragedProps {
   symbol: string;
   rate: number;
-  incentiveRate: number;
+  incentiveRate?: number;
+  secondaryIncentiveRate?: number;
   route: string;
   buttonText: ReactNode;
   customRate?: number;
@@ -35,8 +36,9 @@ interface ContentWrapperProps {
 export const IncentiveLeveraged = ({
   symbol,
   rate,
-  incentiveRate,
-  customRate = 0,
+  incentiveRate = 0,
+  secondaryIncentiveRate = 0,
+  // customRate = 0,
   route,
   buttonText,
 }: IncentiveLeveragedProps) => {
@@ -44,8 +46,12 @@ export const IncentiveLeveraged = ({
   const [hovered, setHovered] = useState(false);
   const formattedTotalRate = formatNumberAsAPY(rate);
   const formattedRate = formatNumberAsAPY(rate - incentiveRate);
-  const formattedIncentiveRate = formatNumberAsAPY(incentiveRate);
-  const formattedCustomRate = formatNumberAsAPY(customRate);
+  const incentiveApy = formatNumberAsAPY(incentiveRate);
+  const secondaryIncentiveApy = formatNumberAsAPY(secondaryIncentiveRate);
+  // const formattedCustomRate = formatNumberAsAPY(customRate);
+  const totalIncentivesApy = formatNumberAsAPY(
+    incentiveRate + secondaryIncentiveRate
+  );
 
   return (
     <Link to={route}>
@@ -63,12 +69,67 @@ export const IncentiveLeveraged = ({
           <CurrencyTitle
             accent
             textAlign="left"
-            marginBottom={theme.spacing(1)}
+            marginBottom={theme.spacing(4)}
           >
             {symbol}
           </CurrencyTitle>
+          <Box>
+            <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
+              <FormattedMessage defaultMessage="Default Terms" />
+            </SectionTitle>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+              <LightningIcon
+                sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
+              />
+              <H4
+                textAlign="left"
+                sx={{
+                  color: formattedTotalRate.includes('-') ? colors.red : '',
+                }}
+              >
+                {formattedTotalRate}
+              </H4>
+            </Box>
+          </Box>
           <ContentWrapper hovered={hovered} theme={theme}>
             <Box>
+              <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
+                <PlusIcon width={'9px'} />
+                <FormattedMessage defaultMessage="NOTE INCENTIVE" />
+              </SectionTitle>
+              <CardInput
+                textAlign="left"
+                marginBottom={theme.spacing(3)}
+                sx={{
+                  color: incentiveApy.includes('-') ? colors.red : '',
+                }}
+              >
+                {incentiveApy}
+              </CardInput>
+              {secondaryIncentiveRate > 0 && (
+                <>
+                  <SectionTitle
+                    textAlign="left"
+                    marginBottom={theme.spacing(1)}
+                  >
+                    <PlusIcon width={'9px'} />
+                    <FormattedMessage defaultMessage="ARB INCENTIVE" />
+                  </SectionTitle>
+                  <CardInput
+                    textAlign="left"
+                    marginBottom={theme.spacing(3)}
+                    sx={{
+                      color: secondaryIncentiveApy.includes('-')
+                        ? colors.red
+                        : '',
+                    }}
+                  >
+                    {secondaryIncentiveApy}
+                  </CardInput>
+                </>
+              )}
+            </Box>
+            <Box sx={{ minWidth: theme.spacing(27) }}>
               <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
                 <FormattedMessage defaultMessage={'ORGANIC'} />
               </SectionTitle>
@@ -81,62 +142,17 @@ export const IncentiveLeveraged = ({
               </CardInput>
               <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
                 <PlusIcon width={'9px'} />
-                <FormattedMessage defaultMessage="NOTE INCENTIVE" />
+                <FormattedMessage defaultMessage="INCENTIVES" />
               </SectionTitle>
               <CardInput
                 textAlign="left"
                 marginBottom={theme.spacing(3)}
                 sx={{
-                  color: formattedIncentiveRate.includes('-') ? colors.red : '',
+                  color: totalIncentivesApy.includes('-') ? colors.red : '',
                 }}
               >
-                {formattedIncentiveRate}
+                {totalIncentivesApy}
               </CardInput>
-            </Box>
-            <Box sx={{ minWidth: theme.spacing(27) }}>
-              <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-                <FormattedMessage defaultMessage="Default Terms" />
-              </SectionTitle>
-              <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <LightningIcon
-                  sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
-                />
-                <H4
-                  textAlign="left"
-                  marginBottom={theme.spacing(4)}
-                  sx={{
-                    color: formattedTotalRate.includes('-') ? colors.red : '',
-                  }}
-                >
-                  {formattedTotalRate}
-                </H4>
-              </Box>
-              <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-                <FormattedMessage defaultMessage="Custom Terms" />
-              </SectionTitle>
-              <Box
-                marginBottom={theme.spacing(4)}
-                sx={{
-                  color: formattedCustomRate.includes('-')
-                    ? colors.red
-                    : theme.palette.typography.main,
-                  display: 'flex',
-                  alignItems: 'baseline',
-                }}
-              >
-                <Label
-                  sx={{
-                    fontWeight: theme.typography.fontWeightRegular,
-                    marginRight: theme.spacing(1),
-                    color: theme.palette.typography.main,
-                  }}
-                >
-                  <FormattedMessage defaultMessage="Up to " />
-                </Label>
-                <LargeInputTextEmphasized>
-                  {formattedCustomRate}
-                </LargeInputTextEmphasized>
-              </Box>
             </Box>
           </ContentWrapper>
         </Box>
