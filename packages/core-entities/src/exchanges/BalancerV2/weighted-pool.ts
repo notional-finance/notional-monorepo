@@ -9,6 +9,7 @@ import FixedPoint from './fixed-point';
 
 interface PoolParams {
   normalizedWeights: FixedPoint[];
+  scalingFactors: FixedPoint[];
   swapFeePercentage: FixedPoint;
 }
 
@@ -25,13 +26,22 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
       pool
     );
 
-    return commonCalls.concat({
-      stage: 0,
-      target: pool,
-      method: 'getNormalizedWeights',
-      key: 'normalizedWeights',
-      transform: (r: BigNumber[]) => r.map(FixedPoint.from),
-    });
+    return commonCalls.concat(
+      {
+        stage: 0,
+        target: pool,
+        method: 'getNormalizedWeights',
+        key: 'normalizedWeights',
+        transform: (r: BigNumber[]) => r.map(FixedPoint.from),
+      },
+      {
+        stage: 0,
+        target: pool,
+        method: 'getScalingFactors',
+        key: 'scalingFactors',
+        transform: (r: BigNumber[]) => r.map(FixedPoint.from),
+      }
+    );
   }
 
   public getLPTokensGivenTokens(tokensIn: TokenBalance[]) {
@@ -86,7 +96,7 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
       const feesPaid = tokensIn.map((t, i) =>
         t.sub(
           // Convert to token decimals and subtract to get the fee paid
-          amountInMinusFee[i].mulDown(FixedPoint.from(t.precision)).convertTo(t)
+          amountInMinusFee[i].convertTo(t, this.poolParams.scalingFactors[i])
         )
       );
       const lpTokens = this.totalSupply.scale(
@@ -141,17 +151,19 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
       const tokensOut = this.zeroTokenArray();
       const feesPaid = this.zeroTokenArray();
 
-      const tokensOutScaled = nonTaxableAmount
-        .add(taxableAmountMinusFees)
-        .mulDown(FixedPoint.from(exitBalance.precision));
+      const tokensOutScaled = nonTaxableAmount.add(taxableAmountMinusFees);
 
-      tokensOut[singleSidedExitTokenIndex] =
-        tokensOutScaled.convertTo(exitBalance);
+      tokensOut[singleSidedExitTokenIndex] = tokensOutScaled.convertTo(
+        exitBalance,
+        this.poolParams.scalingFactors[singleSidedExitTokenIndex]
+      );
 
       feesPaid[singleSidedExitTokenIndex] = amountOutWithoutFee
         .sub(tokensOutScaled)
-        .mulDown(FixedPoint.from(exitBalance.precision))
-        .convertTo(exitBalance);
+        .convertTo(
+          exitBalance,
+          this.poolParams.scalingFactors[singleSidedExitTokenIndex]
+        );
 
       return { tokensOut, feesPaid };
     } else {
@@ -162,6 +174,7 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
     }
   }
 
+  // https://github.com/balancer/balancer-v2-monorepo/blob/c7d4abbea39834e7778f9ff7999aaceb4e8aa048/pkg/pool-weighted/contracts/WeightedMath.sol#L76-L109
   public calculateTokenTrade(
     tokensIn: TokenBalance,
     tokenIndexOut: number,
@@ -184,11 +197,14 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
     const exponent = normalizedWeightIn.divDown(normalizedWeightOut);
     const power = base.powUp(exponent);
 
+    // TODO: how do you calculate the fees paid?
     const feesPaid = this.zeroTokenArray();
     const tokensOut = balanceOut
       .mulDown(power.complement())
-      .mulDown(FixedPoint.from(this.balances[tokenIndexOut].precision))
-      .convertTo(this.balances[tokenIndexOut]);
+      .convertTo(
+        this.balances[tokenIndexOut],
+        this.poolParams.scalingFactors[tokenIndexOut]
+      );
 
     return { tokensOut, feesPaid };
   }

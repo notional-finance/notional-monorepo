@@ -1,9 +1,9 @@
 const crossFetch = require('cross-fetch');
 const fs = require('fs');
 
-const blockNumber = 142127726;
+const blockNumber = 157125800;
 // This always refers to a mainnet block
-const allBlock = 18387452;
+const allBlock = 18720490;
 
 async function main() {
   // Serve the data worker in order to run the requests
