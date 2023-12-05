@@ -3,81 +3,23 @@ import {
   BalancerBoostedPoolABI,
   BalancerVault,
   BalancerVaultABI,
-  BalancerLinearPoolABI,
 } from '@notional-finance/contracts';
 import { AggregateCall } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import {
-  Registry,
-  SerializedTokenBalance,
-  TokenBalance,
-  TokenDefinition,
-} from '../..';
+import { TokenBalance } from '../..';
 import BaseLiquidityPool from '../base-liquidity-pool';
 import FixedPoint from './fixed-point';
-import MetaStablePool, { MetaStablePoolParams } from './meta-stable-pool';
 
-interface LinearPoolBalances {
-  tokens: string[];
-  balances: BigNumber[];
-}
-interface TwoTokenMultiCallResults extends MetaStablePoolParams {
-  linearPoolTokens: string[];
-  linearPoolId_0: number;
-  linearPoolMainIndex_0: number;
-  linearPoolWrappedIndex_0: number;
-  linearPoolScalingFactors_0: FixedPoint[];
-  linearPoolTotalSupplies_0: BigNumber;
-  linearPoolFeePercentages_0: FixedPoint;
-  linearPoolTargets_0: [FixedPoint, FixedPoint];
-  linearPoolBalances_0: LinearPoolBalances;
-  linearPoolId_1: number;
-  linearPoolMainIndex_1: number;
-  linearPoolWrappedIndex_1: number;
-  linearPoolScalingFactors_1: FixedPoint[];
-  linearPoolTotalSupplies_1: BigNumber;
-  linearPoolFeePercentages_1: FixedPoint;
-  linearPoolTargets_1: [FixedPoint, FixedPoint];
-  linearPoolBalances_1: LinearPoolBalances;
+export interface ComposableStablePoolParams {
+  bptIndex: number;
+  ampParam: FixedPoint;
+  swapFeePercentage: FixedPoint;
+  scalingFactors: FixedPoint[];
+  poolId: string;
 }
 
-interface ThreeTokenMultiCallResults extends TwoTokenMultiCallResults {
-  linearPoolId_2: number;
-  linearPoolMainIndex_2: number;
-  linearPoolWrappedIndex_2: number;
-  linearPoolScalingFactors_2: FixedPoint[];
-  linearPoolTotalSupplies_2: BigNumber;
-  linearPoolFeePercentages_2: FixedPoint;
-  linearPoolTargets_2: [FixedPoint, FixedPoint];
-  linearPoolBalances_2: LinearPoolBalances;
-}
-
-interface ComposableStablePoolParams extends MetaStablePoolParams {
-  linearPoolMainBalances: TokenBalance[];
-  linearPoolMainScalingFactors: FixedPoint[];
-  linearPoolWrappedBalances: TokenBalance[];
-  linearPoolWrappedScalingFactors: FixedPoint[];
-  linearPoolTotalSupplies: TokenBalance[];
-
-  linearPoolFeePercentages: FixedPoint[];
-  linearPoolTargets: [FixedPoint, FixedPoint][];
-}
-
-/**
- * The design for the ComposableStablePool is distinct from most other liquidity pools. The ComposableStablePool
- * is a MetaStablePool that holds LinearPoolBPT tokens as its balances. User interaction will generally go via the
- * LinearPoolBPT first and then use those BPTs to join the MetaStablePool. Because BaseLiquidityPool exposes "balances"
- * and "totalSupply" publicly, these should make sense to the code calling the ComposableStablePool. (i.e. show the
- * underlying balances rather than BPT tokens).
- *
- * Therefore, in this design, the inputs and outputs will be denominated in underlying tokens (i.e. linearPoolMainToken),
- * and the code will do all the necessary conversion to underlying tokens.
- */
-abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePoolParams> {
-  protected static NUM_LINEAR_POOL_TOKENS: number;
-  private baseMetaStablePool: MetaStablePool;
-
+export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePoolParams> {
   constructor(
     protected override _network: Network,
     protected override _balances: TokenBalance[],
@@ -85,376 +27,451 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
     public override poolParams: ComposableStablePoolParams
   ) {
     super(_network, _balances, _totalSupply, poolParams);
-
-    this.baseMetaStablePool = new MetaStablePool(
-      _network,
-      _balances,
-      _totalSupply,
-      poolParams
-    );
   }
 
-  public override get balances() {
-    // This converts all of the linear BPTs to underlying based on their scaled claims
-    return this._balances.map((lp, i) =>
-      this.convertLinearBPTToUnderlying(lp, i)
-    );
+  protected getScaledBalances(
+    amounts: TokenBalance[] = this.balances
+  ): FixedPoint[] {
+    return amounts
+      .map(FixedPoint.convert)
+      .map((b, i) => b.mulDown(this.poolParams.scalingFactors[i]));
   }
 
-  public override getLPTokenClaims(
-    lpTokens: TokenBalance,
-    _balancesOverrides?: TokenBalance[]
-  ): TokenBalance[] {
-    const balancesOverrides = _balancesOverrides?.map((b, i) =>
-      this.convertUnderlyingToLinearBPT(b, i)
+  public getLPTokensGivenTokens(tokensIn: TokenBalance[]) {
+    const balances = this.getScaledBalances();
+    const invariant = this.calculateInvariant(
+      this.poolParams.ampParam,
+      balances
     );
 
-    return super
-      .getLPTokenClaims(lpTokens, balancesOverrides || this._balances)
-      .map((lp, i) => this.convertLinearBPTToUnderlying(lp, i));
-  }
+    const amountsIn = this.getScaledBalances(tokensIn);
 
-  protected getScaledLinearBalances(linearPoolIndex: number) {
-    return {
-      scaledMainBalance: FixedPoint.from(
-        this.poolParams.linearPoolMainBalances[linearPoolIndex].n
-      ).mulDown(this.poolParams.linearPoolMainScalingFactors[linearPoolIndex]),
-      scaledWrappedBalance: FixedPoint.from(
-        this.poolParams.linearPoolWrappedBalances[linearPoolIndex].n
-      ).mulDown(
-        this.poolParams.linearPoolWrappedScalingFactors[linearPoolIndex]
-      ),
-    };
-  }
-
-  protected convertLinearBPTToUnderlying(
-    linearBPT: TokenBalance,
-    linearPoolIndex: number
-  ): TokenBalance {
-    const { scaledMainBalance, scaledWrappedBalance } =
-      this.getScaledLinearBalances(linearPoolIndex);
-    const totalSupply =
-      this.poolParams.linearPoolTotalSupplies[linearPoolIndex];
-
-    const mainTokenClaim = scaledMainBalance
-      .convertTo(this.poolParams.linearPoolMainBalances[linearPoolIndex])
-      .scale(linearBPT, totalSupply);
-    const wrappedTokenClaim = scaledWrappedBalance
-      .convertTo(this.poolParams.linearPoolMainBalances[linearPoolIndex])
-      .scale(linearBPT, totalSupply);
-
-    return mainTokenClaim.add(wrappedTokenClaim);
-  }
-
-  protected convertUnderlyingToLinearBPT(
-    underlying: TokenBalance,
-    linearPoolIndex: number
-  ): TokenBalance {
-    const { scaledMainBalance, scaledWrappedBalance } =
-      this.getScaledLinearBalances(linearPoolIndex);
-    const scaledAmountIn = FixedPoint.from(underlying.n).mulDown(
-      this.poolParams.linearPoolMainScalingFactors[linearPoolIndex]
+    const feesPaid = this.getDueProtocolFeeAmounts(
+      this.poolParams.ampParam,
+      invariant,
+      balances,
+      this.poolParams.swapFeePercentage
     );
+    const balancesWithoutFees = balances.map((b, i) => b.sub(feesPaid[i]));
 
-    return this.calcBptOutPerMainIn(
-      scaledAmountIn,
-      scaledMainBalance,
-      scaledWrappedBalance,
-      FixedPoint.from(
-        this.poolParams.linearPoolTotalSupplies[linearPoolIndex].n
-      ),
-      this.poolParams.linearPoolFeePercentages[linearPoolIndex],
-      this.poolParams.linearPoolTargets[linearPoolIndex]
-    ).convertTo(this.baseMetaStablePool.balances[linearPoolIndex]);
-  }
+    const lpTokens = this.calcBptOutGivenExactTokensIn(
+      this.poolParams.ampParam,
+      balancesWithoutFees,
+      amountsIn,
+      FixedPoint.convert(this.totalSupply),
+      this.poolParams.swapFeePercentage,
+      invariant
+    ).convertTo(this.totalSupply, FixedPoint.ONE);
 
-  /**
-   * @param tokensIn tokens in should be denominated in "main" or underlying tokens
-   */
-  public override getLPTokensGivenTokens(tokensIn: TokenBalance[]) {
-    const linearBPTTokensIn = tokensIn.map((t, i) => {
-      // Short circuit zero tokens in
-      if (t.isZero())
-        return {
-          linearBPT: this.baseMetaStablePool.balances[i].copy(0),
-          linearBPTWithoutFees: this.baseMetaStablePool.balances[i].copy(0),
-        };
-
-      // First calculate how many linear BPTs received given tokens in. Scale amounts to 18
-      // decimals and multiply by linear pool scaling factors
-      const scaledAmountIn = FixedPoint.from(t.n).mulDown(
-        this.poolParams.linearPoolMainScalingFactors[i]
-      );
-      const { scaledMainBalance, scaledWrappedBalance } =
-        this.getScaledLinearBalances(i);
-
-      const linearBPT = this.calcBptOutPerMainIn(
-        scaledAmountIn,
-        scaledMainBalance,
-        scaledWrappedBalance,
-        FixedPoint.from(this.poolParams.linearPoolTotalSupplies[i].n),
-        this.poolParams.linearPoolFeePercentages[i],
-        this.poolParams.linearPoolTargets[i]
-      ).convertTo(this.baseMetaStablePool.balances[i]);
-
-      const linearBPTWithoutFees = this.calcBptOutPerMainIn(
-        scaledAmountIn,
-        scaledMainBalance,
-        scaledWrappedBalance,
-        FixedPoint.from(this.poolParams.linearPoolTotalSupplies[i].n),
-        FixedPoint.from(0),
-        this.poolParams.linearPoolTargets[i]
-      ).convertTo(this.baseMetaStablePool.balances[i]);
-
-      return { linearBPT, linearBPTWithoutFees };
-    });
-
-    // LP tokens returned here match the totalSupply denomination on ComposableStablePool, the
-    // feesPaid are denominated in linear BPT tokens in
-    const { lpTokens, feesPaid: linearBPTFees } =
-      this.baseMetaStablePool.getLPTokensGivenTokens(
-        linearBPTTokensIn.map(({ linearBPT }) => linearBPT)
-      );
-
-    // These are fees paid in linear bpt, need to convert to corresponding main balance by simulating
-    // a bpt exit without fes
-    const feesPaid = linearBPTTokensIn.map(
-      ({ linearBPT, linearBPTWithoutFees }, i) => {
-        const totalLinearBPTFee = linearBPTWithoutFees
-          .sub(linearBPT)
-          .add(linearBPTFees[i]);
-
-        return this.convertLinearBPTToUnderlying(totalLinearBPTFee, i);
-      }
-    );
-
-    const lpClaims = super.getLPTokenClaims(
+    const lpClaims = this.getLPTokenClaims(
       lpTokens,
-      this.balances.map((b, i) =>
-        b.add(
-          this.convertLinearBPTToUnderlying(linearBPTTokensIn[i].linearBPT, i)
-        )
+      balancesWithoutFees.map((b, i) =>
+        b.convertTo(this.balances[i], this.poolParams.scalingFactors[i])
       ),
       this.totalSupply.add(lpTokens)
     );
 
-    return { lpTokens, feesPaid, lpClaims };
-  }
-
-  /**
-   * @param lpTokens LP tokens are denominated in baseMetaStablePool bpt
-   * @param singleSidedExitTokenIndex
-   */
-  public getTokensOutGivenLPTokens(
-    lpTokens: TokenBalance,
-    singleSidedExitTokenIndex?: number
-  ) {
-    // LP tokens returned here match the totalSupply denomination on ComposableStablePool, both values
-    // returned represent linear BPT tokens
-    const { tokensOut: linearBPTOut, feesPaid: linearBPTFees } =
-      this.baseMetaStablePool.getTokensOutGivenLPTokens(
-        lpTokens,
-        singleSidedExitTokenIndex
-      );
-
-    const tokensOut = linearBPTOut.map((bptOut, i) => {
-      if (bptOut.isZero()) return this.balances[i].copy(0);
-
-      const { scaledMainBalance, scaledWrappedBalance } =
-        this.getScaledLinearBalances(i);
-
-      return this.calcMainOutPerBptIn(
-        FixedPoint.from(bptOut.n),
-        scaledMainBalance,
-        scaledWrappedBalance,
-        FixedPoint.from(this.poolParams.linearPoolTotalSupplies[i].n),
-        this.poolParams.linearPoolFeePercentages[i],
-        this.poolParams.linearPoolTargets[i]
-      ).convertTo(this.balances[i]);
-    });
-
-    const feesPaid = linearBPTOut.map((bptOut, i) => {
-      // Calculates difference in value of the linear bpt out based on claims and actual
-      // tokens out. Adds in any fees accrued on the meta stable pool
-      return this.convertLinearBPTToUnderlying(bptOut, i)
-        .sub(tokensOut[i])
-        .add(this.convertLinearBPTToUnderlying(linearBPTFees[i], i));
-    });
-
-    return { tokensOut, feesPaid };
-  }
-
-  /**
-   * @param tokensIn represents underlying balances
-   * @param tokenIndexOut  index of token out
-   * @param balanceOverrides represents overrides in underlying balance terms
-   */
-  public calculateTokenTrade(
-    tokensIn: TokenBalance,
-    tokenIndexOut: number,
-    _balanceOverrides?: TokenBalance[]
-  ) {
-    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
-    const scaledAmountIn = FixedPoint.from(tokensIn.n).mulDown(
-      this.poolParams.linearPoolMainScalingFactors[tokenIndexIn]
-    );
-    const balanceOverrides = _balanceOverrides?.map((b, i) =>
-      this.convertUnderlyingToLinearBPT(b, i)
-    );
-    const {
-      scaledMainBalance: scaledMainBalanceIn,
-      scaledWrappedBalance: scaledWrappedBalanceIn,
-    } = this.getScaledLinearBalances(tokenIndexIn);
-
-    // Calculate the amount of linear BPT minted by the tokens in
-    const linearBPTIn = this.calcBptOutPerMainIn(
-      scaledAmountIn,
-      scaledMainBalanceIn,
-      scaledWrappedBalanceIn,
-      FixedPoint.from(this.poolParams.linearPoolTotalSupplies[tokenIndexIn].n),
-      this.poolParams.linearPoolFeePercentages[tokenIndexIn],
-      this.poolParams.linearPoolTargets[tokenIndexIn]
-    ).convertTo(this.baseMetaStablePool.balances[tokenIndexIn]);
-
-    const { tokensOut: linearBPTOut, feesPaid: linearBPTFees } =
-      this.baseMetaStablePool.calculateTokenTrade(
-        linearBPTIn,
-        tokenIndexOut,
-        balanceOverrides
-      );
-
-    const {
-      scaledMainBalance: scaledMainBalanceOut,
-      scaledWrappedBalance: scaledWrappedBalanceOut,
-    } = this.getScaledLinearBalances(tokenIndexOut);
-
-    const tokensOut = this.calcMainOutPerBptIn(
-      FixedPoint.from(linearBPTOut.n),
-      scaledMainBalanceOut,
-      scaledWrappedBalanceOut,
-      FixedPoint.from(this.poolParams.linearPoolTotalSupplies[tokenIndexOut].n),
-      this.poolParams.linearPoolFeePercentages[tokenIndexOut],
-      this.poolParams.linearPoolTargets[tokenIndexOut]
-    ).convertTo(this.balances[tokenIndexOut]);
-
     return {
-      tokensOut,
-      feesPaid: linearBPTFees.map((lp, i) =>
-        this.convertLinearBPTToUnderlying(lp, i)
+      lpTokens,
+      feesPaid: feesPaid.map((f, i) =>
+        f.convertTo(this.balances[i], this.poolParams.scalingFactors[i])
       ),
+      lpClaims,
     };
   }
 
-  /**********************************************************
-   * Balancer Linear Math
-   **********************************************************/
+  public getTokensOutGivenLPTokens(
+    lpTokens: TokenBalance,
+    singleSidedExitTokenIndex?: number
+  ): {
+    tokensOut: TokenBalance[];
+    feesPaid: TokenBalance[];
+  } {
+    if (singleSidedExitTokenIndex !== undefined) {
+      const balances = this.getScaledBalances();
+      const invariant = this.calculateInvariant(
+        this.poolParams.ampParam,
+        balances
+      );
 
-  private calcInvariant(
-    nominalMainBalance: FixedPoint,
-    wrappedBalance: FixedPoint
-  ) {
-    return nominalMainBalance.add(wrappedBalance);
+      const { amountOut, feePaid } = this.calcTokenOutGivenExactBptIn(
+        this.poolParams.ampParam,
+        balances,
+        singleSidedExitTokenIndex,
+        FixedPoint.convert(lpTokens),
+        FixedPoint.convert(this.totalSupply),
+        this.poolParams.swapFeePercentage,
+        invariant
+      );
+
+      const tokensOut = this.zeroTokenArray();
+      const feesPaid = this.zeroTokenArray();
+
+      tokensOut[singleSidedExitTokenIndex] = amountOut.convertTo(
+        tokensOut[singleSidedExitTokenIndex],
+        this.poolParams.scalingFactors[singleSidedExitTokenIndex]
+      );
+      feesPaid[singleSidedExitTokenIndex] = feePaid.convertTo(
+        feesPaid[singleSidedExitTokenIndex],
+        this.poolParams.scalingFactors[singleSidedExitTokenIndex]
+      );
+
+      return {
+        tokensOut,
+        feesPaid,
+      };
+    } else {
+      return {
+        tokensOut: this.getLPTokenClaims(lpTokens),
+        feesPaid: this.zeroTokenArray(),
+      };
+    }
   }
 
-  private calcBptOutPerMainIn(
-    mainIn: FixedPoint,
-    mainBalance: FixedPoint,
-    wrappedBalance: FixedPoint,
-    linearPoolTotalSupply: FixedPoint,
-    feePercentage: FixedPoint,
-    targets: [FixedPoint, FixedPoint]
-  ) {
-    // Amount out, so we round down overall.
+  public calculateTokenTrade(
+    tokensIn: TokenBalance,
+    tokenIndexOut: number,
+    balanceOverrides?: TokenBalance[]
+  ): {
+    tokensOut: TokenBalance;
+    feesPaid: TokenBalance[];
+  } {
+    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
+    const balances = this.getScaledBalances(balanceOverrides);
 
-    if (linearPoolTotalSupply.isZero()) {
-      // BPT typically grows in the same ratio the invariant does. The first time liquidity is added however, the
-      // BPT supply is initialized to equal the invariant (which in this case is just the nominal main balance as
-      // there is no wrapped balance).
-      return this._toNominal(mainIn, feePercentage, targets);
-    }
+    const invariant = this.calculateInvariant(
+      this.poolParams.ampParam,
+      balances
+    );
 
-    const previousNominalMain = this._toNominal(
-      mainBalance,
-      feePercentage,
-      targets
+    const scaledTokensIn = FixedPoint.convert(tokensIn).mulUp(
+      this.poolParams.scalingFactors[tokenIndexIn]
     );
-    const afterNominalMain = this._toNominal(
-      mainBalance.add(mainIn),
-      feePercentage,
-      targets
+
+    let tokensOut = this.calcOutGivenIn(
+      this.poolParams.ampParam,
+      balances,
+      tokenIndexIn,
+      tokenIndexOut,
+      scaledTokensIn,
+      invariant
     );
-    const deltaNominalMain = afterNominalMain.sub(previousNominalMain);
-    const invariant = this.calcInvariant(previousNominalMain, wrappedBalance);
-    return linearPoolTotalSupply
-      .mul(deltaNominalMain)
-      .divNoScale(invariant, false);
+
+    const feesPaid = this.zeroTokenArray();
+    const tokenOutFeePaid = tokensOut.mulUp(this.poolParams.swapFeePercentage);
+    feesPaid[tokenIndexOut] = tokenOutFeePaid.convertTo(
+      this.balances[tokenIndexOut],
+      this.poolParams.scalingFactors[tokenIndexOut]
+    );
+    tokensOut = tokensOut.sub(tokenOutFeePaid);
+
+    return {
+      tokensOut: tokensOut.convertTo(
+        this.balances[tokenIndexOut],
+        this.poolParams.scalingFactors[tokenIndexOut]
+      ),
+      feesPaid,
+    };
   }
 
-  private calcMainOutPerBptIn(
-    bptIn: FixedPoint,
-    mainBalance: FixedPoint,
-    wrappedBalance: FixedPoint,
-    bptSupply: FixedPoint,
-    feePercentage: FixedPoint,
-    targets: [FixedPoint, FixedPoint]
-  ) {
-    // Amount out, so we round down overall.
+  /*********************************************************************/
+  /*                      Balancer Stable Math                         */
+  /*********************************************************************/
+  private _AMP_PRECISION = FixedPoint.from(1e3);
 
-    const previousNominalMain = this._toNominal(
-      mainBalance,
-      feePercentage,
-      targets
-    );
-    const invariant = this.calcInvariant(previousNominalMain, wrappedBalance);
-    const deltaNominalMain = invariant.mul(bptIn).divNoScale(bptSupply, false);
-    const afterNominalMain = previousNominalMain.sub(deltaNominalMain);
-    const newMainBalance = this._fromNominal(
-      afterNominalMain,
-      feePercentage,
-      targets
-    );
-    return mainBalance.sub(newMainBalance);
+  private calculateInvariant(ampParam: FixedPoint, balances: FixedPoint[]) {
+    const numTokens = FixedPoint.from(balances.length);
+    const sum = balances.reduce((s, b) => s.add(b), FixedPoint.from(0));
+    if (sum.isZero()) return sum;
+
+    let prevInvariant = FixedPoint.from(0);
+    let invariant = sum;
+    const ampTimesTotal = ampParam.mul(numTokens);
+
+    for (let i = 0; i < 255; i += 1) {
+      let D_P = FixedPoint.from(invariant.n);
+
+      for (let j = 0; j < balances.length; j += 1) {
+        // (D_P * invariant) / (balances[j] * numTokens)
+        D_P = D_P.mul(invariant).divNoScale(balances[j].mul(numTokens));
+      }
+
+      prevInvariant = FixedPoint.from(invariant.n);
+      // invariant * [(ampTimesTotal * sum) / AMP_PRECISION + D_P * numTokens]
+      // prettier-ignore
+      const invariantNum = invariant.mul(
+        ampTimesTotal.mul(sum).divNoScale(this._AMP_PRECISION).add(D_P.mul(numTokens))
+      )
+
+      // ((ampTimesTotal - _AMP_PRECISION) * invariant) / _AMP_PRECISION + (numTokens + 1) * D_P
+      // prettier-ignore
+      const invariantDenom = (ampTimesTotal.sub(this._AMP_PRECISION)).mul(invariant)
+        .divNoScale(this._AMP_PRECISION).add(numTokens.add(FixedPoint._1).mul(D_P))
+
+      invariant = invariantNum.divNoScale(invariantDenom);
+
+      if (invariant.gt(prevInvariant)) {
+        if (invariant.sub(prevInvariant).lte(FixedPoint._1)) {
+          return invariant;
+        }
+      } else if (prevInvariant.sub(invariant).lte(FixedPoint._1)) {
+        return invariant;
+      }
+    }
+
+    throw Error('Did not converge');
   }
 
-  private _toNominal(
-    real: FixedPoint,
-    feePercentage: FixedPoint,
-    [lowerTarget, upperTarget]: [FixedPoint, FixedPoint]
+  private _getTokenBalanceGivenInvariantAndAllOtherBalances(
+    ampParam: FixedPoint,
+    balances: FixedPoint[],
+    invariant: FixedPoint,
+    tokenIndex: number
   ) {
-    // Fees are always rounded down: either direction would work but we need to be consistent, and rounding down
-    // uses less gas.
+    const balancesLength = FixedPoint.from(balances.length);
+    const ampTimesTotal = ampParam.mul(balancesLength);
+    let sum = balances.reduce((s, b) => s.add(b), FixedPoint.from(0));
 
-    if (real.lt(lowerTarget)) {
-      const fees = lowerTarget.sub(real).mulDown(feePercentage);
-      return real.sub(fees);
+    let P_D = balances[0].mul(balancesLength);
+    for (let j = 1; j < balances.length; j += 1) {
+      P_D = P_D.mul(balances[j])
+        .mul(balancesLength)
+        .divNoScale(invariant, false);
     }
 
-    if (real.lte(upperTarget)) {
-      return real;
+    sum = sum.sub(balances[tokenIndex]);
+
+    const inv2 = invariant.mul(invariant);
+    const c = inv2
+      .divNoScale(ampTimesTotal.mul(P_D), true)
+      .mul(this._AMP_PRECISION)
+      .mul(balances[tokenIndex]);
+    const b = sum.add(
+      invariant.divNoScale(ampTimesTotal, false).mul(this._AMP_PRECISION)
+    );
+
+    let prevTokenBalance = FixedPoint.from(0);
+    let tokenBalance = inv2.add(c).divNoScale(invariant.add(b), true);
+
+    for (let i = 0; i < 255; i += 1) {
+      prevTokenBalance = tokenBalance;
+      // prettier-ignore
+      tokenBalance = tokenBalance.mul(tokenBalance).add(c).divNoScale(
+        tokenBalance.mul(FixedPoint.from(2)).add(b).sub(invariant),
+        true
+      )
+
+      if (tokenBalance.gt(prevTokenBalance)) {
+        if (tokenBalance.sub(prevTokenBalance).lte(FixedPoint.from(1))) {
+          return tokenBalance;
+        }
+      } else if (prevTokenBalance.sub(tokenBalance).lte(FixedPoint.from(1))) {
+        return tokenBalance;
+      }
     }
 
-    const fees = real.sub(upperTarget).mulDown(feePercentage);
-    return real.sub(fees);
+    throw Error('Did not converge');
   }
 
-  private _fromNominal(
-    nominal: FixedPoint,
-    feePercentage: FixedPoint,
-    [lowerTarget, upperTarget]: [FixedPoint, FixedPoint]
+  private calcTokenOutGivenExactBptIn(
+    amp: FixedPoint,
+    balances: FixedPoint[],
+    tokenIndex: number,
+    bptAmountIn: FixedPoint,
+    bptTotalSupply: FixedPoint,
+    swapFeePercentage: FixedPoint,
+    currentInvariant: FixedPoint
   ) {
-    // Since real = nominal + fees, rounding down fees is equivalent to rounding down real.
+    const newInvariant = bptTotalSupply
+      .sub(bptAmountIn)
+      .divUp(bptTotalSupply)
+      .mulUp(currentInvariant);
+    const newBalanceTokenIndex =
+      this._getTokenBalanceGivenInvariantAndAllOtherBalances(
+        amp,
+        balances,
+        newInvariant,
+        tokenIndex
+      );
+    const amountOutWithoutFee = balances[tokenIndex].sub(newBalanceTokenIndex);
+    const sumBalances = balances.reduce((s, b) => s.add(b), FixedPoint.from(0));
 
-    if (nominal.lt(lowerTarget)) {
-      return nominal
-        .add(feePercentage.mulDown(lowerTarget))
-        .divDown(FixedPoint.ONE.add(feePercentage));
+    // Excess balance being withdrawn as a result of virtual swaps, requires swap fees
+    const currentWeight = balances[tokenIndex].divDown(sumBalances);
+    const taxablePercentage = currentWeight.complement();
+
+    // Fees rounded up and applied to token out
+    const taxableAmount = amountOutWithoutFee.mulUp(taxablePercentage);
+    const nonTaxableAmount = amountOutWithoutFee.sub(taxableAmount);
+    const amountOut = nonTaxableAmount.add(
+      taxableAmount.mulDown(FixedPoint.ONE.sub(swapFeePercentage))
+    );
+    const feePaid = amountOutWithoutFee.sub(amountOut);
+
+    return { amountOut, feePaid };
+  }
+
+  private calcBptOutGivenExactTokensIn(
+    amp: FixedPoint,
+    balances: FixedPoint[],
+    amountsIn: FixedPoint[],
+    bptTotalSupply: FixedPoint,
+    swapFeePercentage: FixedPoint,
+    currentInvariant: FixedPoint
+  ) {
+    const sumBalances = balances.reduce((s, b) => s.add(b), FixedPoint.from(0));
+
+    let invariantRatioWithFees = FixedPoint.from(0);
+    const balanceRatiosWithFee = balances.map((b, i) => {
+      const currentWeight = b.divDown(sumBalances);
+      const balanceRatioWithFee = b.add(amountsIn[i]).divDown(b);
+      invariantRatioWithFees = invariantRatioWithFees.add(
+        balanceRatioWithFee.mulDown(currentWeight)
+      );
+      return balanceRatioWithFee;
+    });
+
+    const newBalances = balances.map((b, i) => {
+      let amountInWithoutFee: FixedPoint;
+      if (balanceRatiosWithFee[i].gt(invariantRatioWithFees)) {
+        const nonTaxableAmount = b.mulDown(
+          invariantRatioWithFees.sub(FixedPoint.ONE)
+        );
+        const taxableAmount = amountsIn[i].sub(nonTaxableAmount);
+        amountInWithoutFee = nonTaxableAmount.add(
+          taxableAmount.mulDown(FixedPoint.ONE.sub(swapFeePercentage))
+        );
+      } else {
+        amountInWithoutFee = amountsIn[i];
+      }
+
+      return b.add(amountInWithoutFee);
+    });
+
+    // Get current and new invariants given swap fees
+    const newInvariant = this.calculateInvariant(amp, newBalances);
+    const invariantRatio = newInvariant.divDown(currentInvariant);
+    // Invariant must increase or we don't mint BPT
+    if (invariantRatio.gt(FixedPoint.ONE)) {
+      return bptTotalSupply.mulDown(invariantRatio.sub(FixedPoint.ONE));
     }
-    if (nominal.lte(upperTarget)) {
-      return nominal;
+    return FixedPoint.from(0);
+  }
+
+  private calcOutGivenIn(
+    ampParam: FixedPoint,
+    balances: FixedPoint[],
+    tokenIndexIn: number,
+    tokenIndexOut: number,
+    tokenAmountIn: FixedPoint,
+    invariant: FixedPoint
+  ) {
+    const _balances = Array.from(balances);
+    _balances[tokenIndexIn] = _balances[tokenIndexIn].add(tokenAmountIn);
+    const finalBalanceOut =
+      this._getTokenBalanceGivenInvariantAndAllOtherBalances(
+        ampParam,
+        _balances,
+        invariant,
+        tokenIndexOut
+      );
+    _balances[tokenIndexIn] = _balances[tokenIndexIn].sub(tokenAmountIn);
+    return _balances[tokenIndexOut]
+      .sub(finalBalanceOut)
+      .sub(FixedPoint.from(1));
+  }
+
+  // The amplification parameter equals: A n^(n-1)
+  private calcDueTokenProtocolSwapFeeAmount(
+    amplificationParameter: FixedPoint,
+    balances: FixedPoint[],
+    lastInvariant: FixedPoint,
+    tokenIndex: number,
+    protocolSwapFeePercentage: FixedPoint
+  ) {
+    /** ************************************************************************************************************
+      // oneTokenSwapFee - polynomial equation to solve                                                            //
+      // af = fee amount to calculate in one token                                                                 //
+      // bf = balance of fee token                                                                                 //
+      // f = bf - af (finalBalanceFeeToken)                                                                        //
+      // D = old invariant                                            D                     D^(n+1)                //
+      // A = amplification coefficient               f^2 + ( S - ----------  - D) * f -  ------------- = 0         //
+      // n = number of tokens                                    (A * n^n)               A * n^2n * P              //
+      // S = sum of final balances but f                                                                           //
+      // P = product of final balances but f                                                                       //
+      ************************************************************************************************************* */
+
+    // Protocol swap fee amount, so we round down overall.
+
+    const finalBalanceFeeToken =
+      this._getTokenBalanceGivenInvariantAndAllOtherBalances(
+        amplificationParameter,
+        balances,
+        lastInvariant,
+        tokenIndex
+      );
+
+    if (balances[tokenIndex].lte(finalBalanceFeeToken)) {
+      // This shouldn't happen outside of rounding errors, but have this safeguard nonetheless to prevent the Pool
+      // from entering a locked state in which joins and exits revert while computing accumulated swap fees.
+      return FixedPoint.from(0);
     }
-    return nominal
-      .sub(feePercentage.mulDown(upperTarget))
-      .divDown(FixedPoint.ONE.sub(feePercentage));
+
+    // Result is rounded down
+    const accumulatedTokenSwapFees =
+      balances[tokenIndex].sub(finalBalanceFeeToken);
+    return accumulatedTokenSwapFees
+      .mulDown(protocolSwapFeePercentage)
+      .divDown(FixedPoint.ONE);
+  }
+
+  /**
+   * @dev Returns the amount of protocol fees to pay, given the value of the last stored invariant and the current
+   * balances.
+   */
+  private getDueProtocolFeeAmounts(
+    ampParam: FixedPoint,
+    invariant: FixedPoint,
+    balances: FixedPoint[],
+    protocolSwapFeePercentage: FixedPoint
+  ) {
+    // Initialize with zeros
+    const numTokens = balances.length;
+    const dueProtocolFeeAmounts = new Array<FixedPoint>(numTokens).fill(
+      FixedPoint.from(0)
+    );
+
+    // Early return if the protocol swap fee percentage is zero, saving gas.
+    if (protocolSwapFeePercentage.isZero()) {
+      return dueProtocolFeeAmounts;
+    }
+
+    // Instead of paying the protocol swap fee in all tokens proportionally, we will pay it in a single one. This
+    // will reduce gas costs for single asset joins and exits, as at most only two Pool balances will change (the
+    // token joined/exited, and the token in which fees will be paid).
+
+    // The protocol fee is charged using the token with the highest balance in the pool.
+    let chosenTokenIndex = 0;
+    let maxBalance = balances[0];
+    for (let i = 1; i < numTokens; i += 1) {
+      const currentBalance = balances[i];
+      if (currentBalance.gt(maxBalance)) {
+        chosenTokenIndex = i;
+        maxBalance = currentBalance;
+      }
+    }
+
+    // Set the fee amount to pay in the selected token
+    dueProtocolFeeAmounts[chosenTokenIndex] =
+      this.calcDueTokenProtocolSwapFeeAmount(
+        ampParam,
+        balances,
+        invariant,
+        chosenTokenIndex,
+        protocolSwapFeePercentage
+      );
+
+    return dueProtocolFeeAmounts;
   }
 
   public static override getInitData(
@@ -504,7 +521,7 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
         stage: 0,
         target: pool,
         method: 'getAmplificationParameter',
-        key: 'amplificationParameter',
+        key: 'ampParam',
         transform: (
           r: Awaited<
             ReturnType<
@@ -514,17 +531,21 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
         ) => FixedPoint.from(r.value),
       },
       {
-        stage: 0,
+        stage: 1,
         target: pool,
         method: 'getScalingFactors',
         key: 'scalingFactors',
         transform: (
           r: Awaited<
             ReturnType<BalancerBoostedPool['functions']['getScalingFactors']>
-          >[0]
-        ) => r.map(FixedPoint.from),
+          >[0],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          aggregateResults: any
+        ) =>
+          r
+            .filter((_, i) => i != aggregateResults[`${poolAddress}.bptIndex`])
+            .map(FixedPoint.from),
       },
-      // This returns the linear bpt held in the main boosted pool
       {
         stage: 1,
         target: (r) =>
@@ -539,330 +560,18 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
           r: Awaited<ReturnType<BalancerVault['functions']['getPoolTokens']>>,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           aggregateResults: any
-        ) =>
-          r.balances
-            // Skip the BPT index on the boosted pool, it is not in calculations
-            .filter((_, i) => i === aggregateResults[`${poolAddress}.bptIndex`])
-            .map((b, i) => {
-              // These tokens are linear BPT token
-              return TokenBalance.toJSON(b, r.tokens[i], network);
-            }),
+        ) => {
+          const balances: unknown[] = [];
+          for (let i = 0; i < r.balances.length; i++) {
+            if (i != aggregateResults[`${poolAddress}.bptIndex`]) {
+              balances.push(
+                TokenBalance.toJSON(r.balances[i], r.tokens[i], network)
+              );
+            }
+          }
+          return balances;
+        },
       },
-      ...Array(this.NUM_LINEAR_POOL_TOKENS).flatMap((_, i) => {
-        return [
-          // This stage returns all relevant information for the each of the linear pool tokens
-          {
-            stage: 2,
-            target: (r) =>
-              new Contract(
-                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
-                  i
-                ].tokenId,
-                BalancerLinearPoolABI
-              ),
-            method: 'getPoolId',
-            key: `linearPoolId_${i}`,
-          },
-          {
-            stage: 2,
-            target: (r) =>
-              new Contract(
-                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
-                  i
-                ].tokenId,
-                BalancerLinearPoolABI
-              ),
-            method: 'getScalingFactors',
-            key: `linearPoolScalingFactors_${i}`,
-            transform: (r: BigNumber[]) => r.map(FixedPoint.from),
-          },
-          {
-            stage: 2,
-            target: (r) =>
-              new Contract(
-                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
-                  i
-                ].tokenId,
-                BalancerLinearPoolABI
-              ),
-            method: 'getVirtualSupply',
-            key: `linearPoolTotalSupplies_${i}`,
-          },
-          {
-            stage: 2,
-            target: (r) =>
-              new Contract(
-                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
-                  i
-                ].tokenId,
-                BalancerLinearPoolABI
-              ),
-            method: 'getMainIndex',
-            key: `linearPoolMainIndex_${i}`,
-          },
-          {
-            stage: 2,
-            target: (r) =>
-              new Contract(
-                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
-                  i
-                ].tokenId,
-                BalancerLinearPoolABI
-              ),
-            method: 'getWrappedIndex',
-            key: `linearPoolWrappedIndex_${i}`,
-          },
-          {
-            stage: 2,
-            target: (r) =>
-              new Contract(
-                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
-                  i
-                ].tokenId,
-                BalancerLinearPoolABI
-              ),
-            method: 'getSwapFeePercentage',
-            key: `linearPoolFeePercentages_${i}`,
-          },
-          {
-            stage: 2,
-            target: (r) =>
-              new Contract(
-                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
-                  i
-                ].tokenId,
-                BalancerLinearPoolABI
-              ),
-            method: 'getTargets',
-            key: `linearPoolTargets_${i}`,
-          },
-          {
-            stage: 3,
-            target: (r) =>
-              new Contract(
-                r[`${poolAddress}.vaultAddress`] as string,
-                BalancerVaultABI
-              ),
-            method: 'getPoolTokens',
-            args: (r) => [r[`${poolAddress}.linearPoolId_${i}`]],
-            key: `linearPoolBalances_${i}`,
-            transform: (
-              r: Awaited<
-                ReturnType<BalancerVault['functions']['getPoolTokens']>
-              >
-            ) => {
-              return { tokens: r.tokens, balances: r.balances };
-            },
-          },
-        ] as AggregateCall[];
-      }),
     ];
-  }
-}
-
-export class ThreeTokenComposableStablePool extends ComposableStablePool {
-  protected static override NUM_LINEAR_POOL_TOKENS = 3;
-
-  /**
-   * @param _balances these are boosted pool BPT balances
-   * @param _totalSupply these are boosted pool total supply figures
-   * @param poolParams this matches the composable stable pool params above
-   */
-  constructor(
-    protected override _network: Network,
-    protected override _balances: TokenBalance[],
-    protected override _totalSupply: TokenBalance,
-    inputs: ThreeTokenMultiCallResults
-  ) {
-    const tokenRegistry = Registry.getTokenRegistry();
-    // Multicall Inputs need to be remapped into ComposableStablePoolParams due to how Linear pools do not
-    // mesh well Multicall input structure
-    const mainTokenDefinitions = [
-      tokenRegistry.getTokenByAddress(
-        _network,
-        inputs.linearPoolBalances_0.tokens[inputs.linearPoolMainIndex_0]
-      ),
-      tokenRegistry.getTokenByAddress(
-        _network,
-        inputs.linearPoolBalances_1.tokens[inputs.linearPoolMainIndex_1]
-      ),
-      tokenRegistry.getTokenByAddress(
-        _network,
-        inputs.linearPoolBalances_2.tokens[inputs.linearPoolMainIndex_2]
-      ),
-    ] as TokenDefinition[];
-
-    const wrappedTokenDefinitions = [
-      tokenRegistry.getTokenByAddress(
-        _network,
-        inputs.linearPoolBalances_0.tokens[inputs.linearPoolWrappedIndex_0]
-      ),
-      tokenRegistry.getTokenByAddress(
-        _network,
-        inputs.linearPoolBalances_1.tokens[inputs.linearPoolWrappedIndex_1]
-      ),
-      tokenRegistry.getTokenByAddress(
-        _network,
-        inputs.linearPoolBalances_2.tokens[inputs.linearPoolWrappedIndex_2]
-      ),
-    ] as TokenDefinition[];
-
-    if (
-      !mainTokenDefinitions.every((d) => !!d) ||
-      !wrappedTokenDefinitions.every((d) => !!d)
-    ) {
-      throw Error('Undefined token definitions');
-    }
-
-    const poolParams = {
-      linearPoolMainBalances: [
-        TokenBalance.from(
-          inputs.linearPoolBalances_0.balances[inputs.linearPoolMainIndex_0],
-          mainTokenDefinitions[0]
-        ),
-        TokenBalance.from(
-          inputs.linearPoolBalances_1.balances[inputs.linearPoolMainIndex_1],
-          mainTokenDefinitions[1]
-        ),
-        TokenBalance.from(
-          inputs.linearPoolBalances_0.balances[inputs.linearPoolMainIndex_2],
-          mainTokenDefinitions[2]
-        ),
-      ],
-      linearPoolWrappedBalances: [
-        TokenBalance.from(
-          inputs.linearPoolBalances_0.balances[inputs.linearPoolWrappedIndex_0],
-          wrappedTokenDefinitions[0]
-        ),
-        TokenBalance.from(
-          inputs.linearPoolBalances_1.balances[inputs.linearPoolWrappedIndex_1],
-          wrappedTokenDefinitions[1]
-        ),
-        TokenBalance.from(
-          inputs.linearPoolBalances_0.balances[inputs.linearPoolWrappedIndex_2],
-          wrappedTokenDefinitions[2]
-        ),
-      ],
-      linearPoolMainScalingFactors: [
-        inputs.linearPoolScalingFactors_0[inputs.linearPoolMainIndex_0],
-        inputs.linearPoolScalingFactors_1[inputs.linearPoolMainIndex_1],
-        inputs.linearPoolScalingFactors_2[inputs.linearPoolMainIndex_2],
-      ],
-      linearPoolWrappedScalingFactors: [
-        inputs.linearPoolScalingFactors_0[inputs.linearPoolWrappedIndex_0],
-        inputs.linearPoolScalingFactors_1[inputs.linearPoolWrappedIndex_1],
-        inputs.linearPoolScalingFactors_2[inputs.linearPoolWrappedIndex_2],
-      ],
-      linearPoolTotalSupplies: [
-        _balances[0].copy(inputs.linearPoolTotalSupplies_0),
-        _balances[1].copy(inputs.linearPoolTotalSupplies_1),
-        _balances[2].copy(inputs.linearPoolTotalSupplies_2),
-      ],
-      linearPoolFeePercentages: [
-        inputs.linearPoolFeePercentages_0,
-        inputs.linearPoolFeePercentages_1,
-        inputs.linearPoolFeePercentages_2,
-      ],
-      linearPoolTargets: [
-        inputs.linearPoolTargets_0,
-        inputs.linearPoolTargets_1,
-        inputs.linearPoolTargets_2,
-      ],
-    } as ComposableStablePoolParams;
-
-    super(_network, _balances, _totalSupply, poolParams);
-  }
-}
-
-export class TwoTokenComposableStablePool extends ComposableStablePool {
-  protected static override NUM_LINEAR_POOL_TOKENS = 2;
-
-  /**
-   * @param _balances these are boosted pool BPT balances
-   * @param _totalSupply these are boosted pool total supply figures
-   * @param poolParams this matches the composable stable pool params above
-   */
-  constructor(
-    protected override _network: Network,
-    protected override _balances: TokenBalance[],
-    protected override _totalSupply: TokenBalance,
-    inputs: TwoTokenMultiCallResults
-  ) {
-    const tokenRegistry = Registry.getTokenRegistry();
-    // Multicall Inputs need to be remapped into ComposableStablePoolParams due to how Linear pools do not
-    // mesh well Multicall input structure
-    const mainTokenDefinitions = [
-      tokenRegistry.getTokenByAddress(
-        _network,
-        inputs.linearPoolBalances_0.tokens[inputs.linearPoolMainIndex_0]
-      ),
-      tokenRegistry.getTokenByAddress(
-        _network,
-        inputs.linearPoolBalances_1.tokens[inputs.linearPoolMainIndex_1]
-      ),
-    ] as TokenDefinition[];
-
-    const wrappedTokenDefinitions = [
-      tokenRegistry.getTokenByAddress(
-        _network,
-        inputs.linearPoolBalances_0.tokens[inputs.linearPoolWrappedIndex_0]
-      ),
-      tokenRegistry.getTokenByAddress(
-        _network,
-        inputs.linearPoolBalances_1.tokens[inputs.linearPoolWrappedIndex_1]
-      ),
-    ] as TokenDefinition[];
-
-    if (
-      !mainTokenDefinitions.every((d) => !!d) ||
-      !wrappedTokenDefinitions.every((d) => !!d)
-    ) {
-      throw Error('Undefined token definitions');
-    }
-
-    const poolParams = {
-      linearPoolMainBalances: [
-        TokenBalance.from(
-          inputs.linearPoolBalances_0.balances[inputs.linearPoolMainIndex_0],
-          mainTokenDefinitions[0]
-        ),
-        TokenBalance.from(
-          inputs.linearPoolBalances_1.balances[inputs.linearPoolMainIndex_1],
-          mainTokenDefinitions[1]
-        ),
-      ],
-      linearPoolWrappedBalances: [
-        TokenBalance.from(
-          inputs.linearPoolBalances_0.balances[inputs.linearPoolWrappedIndex_0],
-          wrappedTokenDefinitions[0]
-        ),
-        TokenBalance.from(
-          inputs.linearPoolBalances_1.balances[inputs.linearPoolWrappedIndex_1],
-          wrappedTokenDefinitions[1]
-        ),
-      ],
-      linearPoolMainScalingFactors: [
-        inputs.linearPoolScalingFactors_0[inputs.linearPoolMainIndex_0],
-        inputs.linearPoolScalingFactors_1[inputs.linearPoolMainIndex_1],
-      ],
-      linearPoolWrappedScalingFactors: [
-        inputs.linearPoolScalingFactors_0[inputs.linearPoolWrappedIndex_0],
-        inputs.linearPoolScalingFactors_1[inputs.linearPoolWrappedIndex_1],
-      ],
-      linearPoolTotalSupplies: [
-        _balances[0].copy(inputs.linearPoolTotalSupplies_0),
-        _balances[1].copy(inputs.linearPoolTotalSupplies_1),
-      ],
-      linearPoolFeePercentages: [
-        inputs.linearPoolFeePercentages_0,
-        inputs.linearPoolFeePercentages_1,
-      ],
-      linearPoolTargets: [
-        inputs.linearPoolTargets_0,
-        inputs.linearPoolTargets_1,
-      ],
-    } as ComposableStablePoolParams;
-
-    super(_network, _balances, _totalSupply, poolParams);
   }
 }

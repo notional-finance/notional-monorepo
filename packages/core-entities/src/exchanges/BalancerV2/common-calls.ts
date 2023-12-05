@@ -22,7 +22,7 @@ export function getCommonBalancerAggregateCall(
     {
       stage: 0,
       target: pool,
-      method: 'totalSupply',
+      method: 'getActualSupply',
       key: 'totalSupply',
       args: [],
       transform: (r: BigNumber) => {

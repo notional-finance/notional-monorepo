@@ -11,8 +11,7 @@ export default class FixedPoint {
   constructor(public n: BigNumber) {}
 
   static convert(t: TokenBalance) {
-    // All Balancer internal calculations are in 18 decimals
-    return FixedPoint.from(t.scaleTo(18));
+    return FixedPoint.from(t.n);
   }
 
   static from(v: BigNumberish) {
@@ -55,6 +54,10 @@ export default class FixedPoint {
     return this.n.gt(b.n);
   }
 
+  gte(b: FixedPoint) {
+    return this.n.gte(b.n);
+  }
+
   eq(b: FixedPoint) {
     return this.n.eq(b.n);
   }
@@ -84,7 +87,7 @@ export default class FixedPoint {
     return b.isZero() ? this : this.mul(FixedPoint.ONE).div(b);
   }
 
-  divNoScale(b: FixedPoint, roundUp: boolean) {
+  divNoScale(b: FixedPoint, roundUp = false) {
     if (roundUp) {
       if (this.isZero()) return this;
       return FixedPoint._1.add(this.sub(FixedPoint._1).div(b));
@@ -92,8 +95,8 @@ export default class FixedPoint {
     return this.div(b);
   }
 
-  convertTo(t: TokenBalance) {
-    return t.copy(this.n.mul(t.precision).div(ethers.constants.WeiPerEther));
+  convertTo(t: TokenBalance, scalingFactor: FixedPoint) {
+    return t.copy(this.divDown(scalingFactor).n);
   }
 
   // Adapted from: https://github.com/balancer-labs/balancer-v2-monorepo/blob/a62e10f948c5de65ddfd6d07f54818bf82379eea/pkg/solidity-utils/contracts/math/FixedPoint.sol#L107

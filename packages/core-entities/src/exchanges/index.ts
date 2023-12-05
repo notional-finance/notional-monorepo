@@ -1,4 +1,3 @@
-import MetaStablePool from './BalancerV2/meta-stable-pool';
 import WeightedPool from './BalancerV2/weighted-pool';
 import BaseLiquidityPool from './base-liquidity-pool';
 import {
@@ -8,10 +7,7 @@ import {
   Curve2TokenPoolV1_SelfLPTokenNoAdmin,
 } from './Curve/Curve2TokenPoolV1';
 import Curve2TokenPoolV2 from './Curve/Curve2TokenPoolV2';
-import {
-  TwoTokenComposableStablePool,
-  ThreeTokenComposableStablePool,
-} from './BalancerV2/composable-stable-pool';
+import { ComposableStablePool } from './BalancerV2/composable-stable-pool';
 import { TokenBalance } from '../token-balance';
 import { Network } from '@notional-finance/util';
 import { fCashMarket } from './NotionalV3/fCash-market';
@@ -30,11 +26,9 @@ const PoolClasses: Record<
   string,
   typeof BaseLiquidityPool<unknown> & PoolConstructor
 > = {
-  MetaStablePool: MetaStablePool,
   WeightedPool: WeightedPool,
   fCashMarket: fCashMarket,
-  TwoTokenComposableStablePool: TwoTokenComposableStablePool,
-  ThreeTokenComposableStablePool: ThreeTokenComposableStablePool,
+  ComposableStablePool: ComposableStablePool,
   Curve2TokenPoolV1: Curve2TokenPoolV1,
   Curve2TokenPoolV1_SelfLPToken: Curve2TokenPoolV1_SelfLPToken,
   Curve2TokenPoolV1_SelfLPTokenNoAdmin: Curve2TokenPoolV1_SelfLPTokenNoAdmin,
@@ -43,16 +37,16 @@ const PoolClasses: Record<
 };
 
 export {
-  MetaStablePool,
   WeightedPool,
   BaseLiquidityPool,
-  TwoTokenComposableStablePool,
-  ThreeTokenComposableStablePool,
+  ComposableStablePool,
   fCashMarket,
   PoolClasses,
   PoolConstructor,
   Curve2TokenPoolV1,
   Curve2TokenPoolV2,
+  Curve2TokenPoolV1_SelfLPTokenNoAdmin,
+  Curve2TokenPoolV1_SelfLPToken,
   BaseNotionalMarket,
   pCashMarket,
 };

@@ -10,7 +10,6 @@ export type { BalancerLinearPool } from "./BalancerLinearPool";
 export type { BalancerPool } from "./BalancerPool";
 export type { BalancerStablePool } from "./BalancerStablePool";
 export type { BalancerVault } from "./BalancerVault";
-export type { Boosted3TokenAuraVault } from "./Boosted3TokenAuraVault";
 export type { Curve2TokenConvexVault } from "./Curve2TokenConvexVault";
 export type { CurveGauge } from "./CurveGauge";
 export type { CurveGaugeController } from "./CurveGaugeController";
@@ -51,7 +50,6 @@ export { BalancerLinearPool__factory } from "./factories/BalancerLinearPool__fac
 export { BalancerPool__factory } from "./factories/BalancerPool__factory";
 export { BalancerStablePool__factory } from "./factories/BalancerStablePool__factory";
 export { BalancerVault__factory } from "./factories/BalancerVault__factory";
-export { Boosted3TokenAuraVault__factory } from "./factories/Boosted3TokenAuraVault__factory";
 export { Curve2TokenConvexVault__factory } from "./factories/Curve2TokenConvexVault__factory";
 export { CurveGauge__factory } from "./factories/CurveGauge__factory";
 export { CurveGaugeController__factory } from "./factories/CurveGaugeController__factory";

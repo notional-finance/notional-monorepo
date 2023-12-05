@@ -194,7 +194,7 @@ const acceptanceSuite = ({
   it.todo('calculates balanced entry');
   it.todo('calculates unbalanced entry and exit');
 
-  it.skip('calculates a price risk table', () => {
+  /*it.skip('calculates a price risk table', () => {
     console.log(harness.poolAddress);
     console.log(
       harness.poolInstance
@@ -207,7 +207,7 @@ const acceptanceSuite = ({
           ];
         })
     );
-  });
+  });*/
 };
 
 describe.withForkAndRegistry(
