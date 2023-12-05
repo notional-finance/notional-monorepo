@@ -7,12 +7,26 @@ import { DiscordIcon } from '@notional-finance/icons';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useLocation } from 'react-router';
 
-const ButtonContainer = styled(Box)`
-  margin-top: 40px;
+const ButtonContainer = styled(Box)(
+  ({ theme }) => `
+  margin-top: ${theme.spacing(4)};
   display: inline-flex;
   justify-content: space-between;
   width: 100%;
-`;
+  ${theme.breakpoints.up('md')} {
+    @media(max-height: 970px) {
+      position: fixed;
+      bottom: 0;
+      width: ${theme.spacing(56)};
+      padding-top: ${theme.spacing(2.5)};
+      padding-bottom: ${theme.spacing(6)};
+      background: ${theme.palette.background.paper};
+      box-shadow: 0 -50px 50px -20px ${theme.palette.background.paper};
+    }
+}
+  
+`
+);
 
 export interface TransactionButtonsProps {
   transactionStatus: TransactionStatus;
@@ -42,39 +56,39 @@ export const TransactionButtons = ({
     case TransactionStatus.SUBMITTED:
     case TransactionStatus.CONFIRMED:
       return (
-        <Box sx={{ marginTop: theme.spacing(6) }}>
+        <ButtonContainer>
           <Button
             to={portfolioLink}
             size="large"
             variant="outlined"
-            sx={{ width: '100%' }}
+            sx={{ width: theme.spacing(56) }}
             onClick={() => clearSideDrawer()}
           >
             <FormattedMessage defaultMessage={'View In Portfolio'} />
           </Button>
-        </Box>
+        </ButtonContainer>
       );
     case TransactionStatus.ERROR_BUILDING:
     case TransactionStatus.REVERT:
       return (
-        <Box>
+        <ButtonContainer sx={{ display: 'flex', flexDirection: 'column' }}>
           <Button
             startIcon={<DiscordIcon />}
             variant="outlined"
             size="large"
             href={'https://discord.notional.finance'}
-            sx={{ width: '100%' }}
+            sx={{ width: theme.spacing(56) }}
           >
             <FormattedMessage defaultMessage={'Get Help in Discord'} />
           </Button>
           <Button
             onClick={onReturnToForm || onCancel}
             size="large"
-            sx={{ marginTop: theme.spacing(3), width: '100%' }}
+            sx={{ marginTop: theme.spacing(3), width: theme.spacing(56) }}
           >
             <FormattedMessage defaultMessage={'Return to Form'} />
           </Button>
-        </Box>
+        </ButtonContainer>
       );
     case TransactionStatus.WAIT_USER_CONFIRM:
       return <Box></Box>;
