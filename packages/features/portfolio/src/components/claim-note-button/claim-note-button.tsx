@@ -25,6 +25,10 @@ const useIncentiveCountUp = (i?: {
 }) => {
   const [c, setCountUp] = useState<number>(0);
 
+  // TODO replace with real arb count
+  const arbCountUp = 10;
+  const showArbButton = true;
+
   useEffect(() => {
     const currentFloat = i?.current.toFloat();
     const in100SecFloat = i?.in100Sec.toFloat();
