@@ -10,10 +10,12 @@ export interface TotalEarningsTooltipProps {
   toolTipData: {
     nonNoteEarnings?: string;
     noteEarnings?: string;
-    underlyingBaseCurrency?: string;
-    underlying?: string;
-    noteBaseCurrency?: string;
-    note?: string;
+    organicBaseCurrency?: string;
+    organic?: string;
+    incentiveBaseCurrency?: string;
+    incentive?: string;
+    secondaryIncentiveBaseCurrency?: string;
+    secondaryIncentive?: string;
   };
 }
 
@@ -28,12 +30,14 @@ export const TotalEarningsTooltip = ({
   const theme = useTheme();
   const { pathname } = useLocation();
   const {
-    underlyingBaseCurrency,
-    underlying,
-    noteBaseCurrency,
-    note,
+    organicBaseCurrency,
+    organic,
+    incentiveBaseCurrency,
+    incentive,
     noteEarnings,
     nonNoteEarnings,
+    secondaryIncentiveBaseCurrency,
+    secondaryIncentive,
   } = toolTipData;
 
   const HoverComponent = () => {
@@ -68,17 +72,28 @@ export const TotalEarningsTooltip = ({
         ) : (
           <Box>
             <ValueContainer sx={{ marginBottom: theme.spacing(1) }}>
-              <FirstValue theme={theme} isNegative={underlying?.includes('-')}>
-                {underlying}
+              <FirstValue theme={theme} isNegative={organic?.includes('-')}>
+                {organic}
               </FirstValue>
-              <H5>({underlyingBaseCurrency})</H5>
+              <H5>({organicBaseCurrency})</H5>
             </ValueContainer>
             <ValueContainer>
-              <FirstValue theme={theme} isNegative={note?.includes('-')}>
-                {note}
+              <FirstValue theme={theme} isNegative={incentive?.includes('-')}>
+                {incentive}
               </FirstValue>
-              <H5>({noteBaseCurrency})</H5>
+              <H5>({incentiveBaseCurrency})</H5>
             </ValueContainer>
+            {secondaryIncentiveBaseCurrency && secondaryIncentive && (
+              <ValueContainer sx={{ marginTop: theme.spacing(1) }}>
+                <FirstValue
+                  theme={theme}
+                  isNegative={secondaryIncentive?.includes('-')}
+                >
+                  {secondaryIncentive}
+                </FirstValue>
+                <H5>({secondaryIncentiveBaseCurrency})</H5>
+              </ValueContainer>
+            )}
           </Box>
         )}
       </div>

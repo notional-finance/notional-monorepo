@@ -87,6 +87,11 @@ export function useDetailedHoldings() {
               TokenBalance.fromSymbol(0, baseCurrency, Network.All)
           );
 
+        // TODO: Replace these values with the real ones once available
+        const showARBIncentive = icon === 'FRAX';
+        const arbIncentive = icon === 'FRAX' ? '10 ARB' : '';
+        const arbIncentiveBaseCurrency = icon === 'FRAX' ? '$11.00' : '';
+
         return {
           sortOrder: getHoldingsSortOrder(b.token),
           tokenId: b.tokenId,
@@ -108,14 +113,17 @@ export function useDetailedHoldings() {
                 isNegative: marketApy !== undefined && marketApy < 0,
               },
               {
-                displayValue: noteIncentives
-                  ? `${formatNumberAsPercent(noteIncentives)} NOTE`
-                  : b.token.tokenType === 'fCash' &&
-                    s?.impliedFixedRate !== undefined
-                  ? `${formatNumberAsPercent(
-                      s.impliedFixedRate
-                    )} APY at Maturity`
-                  : '',
+                displayValue:
+                  noteIncentives && showARBIncentive
+                    ? `${formatNumberAsPercent(noteIncentives)} NOTE, 3.5% ARB`
+                    : noteIncentives
+                    ? `${formatNumberAsPercent(noteIncentives)} NOTE`
+                    : b.token.tokenType === 'fCash' &&
+                      s?.impliedFixedRate !== undefined
+                    ? `${formatNumberAsPercent(
+                        s.impliedFixedRate
+                      )} APY at Maturity`
+                    : '',
                 isNegative: false,
               },
             ],
@@ -128,14 +136,16 @@ export function useDetailedHoldings() {
             totalEarningsWithNOTE?.toDisplayStringWithSymbol(3, true) || '-',
           toolTipData: totalNOTEEarnings?.isPositive()
             ? {
-                underlyingBaseCurrency: s?.totalProfitAndLoss
+                organicBaseCurrency: s?.totalProfitAndLoss
                   .toFiat(baseCurrency)
                   .toDisplayStringWithSymbol(),
-                underlying: s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
-                noteBaseCurrency: totalNOTEEarnings
+                organic: s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
+                incentiveBaseCurrency: totalNOTEEarnings
                   .toFiat(baseCurrency)
                   .toDisplayStringWithSymbol(),
-                note: totalNOTEEarnings.toDisplayStringWithSymbol(),
+                incentive: totalNOTEEarnings.toDisplayStringWithSymbol(),
+                secondaryIncentive: arbIncentive,
+                secondaryIncentiveBaseCurrency: arbIncentiveBaseCurrency,
               }
             : undefined,
           actionRow: {
