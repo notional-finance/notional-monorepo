@@ -58,10 +58,19 @@ export const LiquidityYieldInfo = ({
         )}
       </Subtitle>
       <H4>
-        <FormattedMessage defaultMessage={'NOTE APY:'} />
+        <FormattedMessage
+          defaultMessage={'{symbol} APY:'}
+          values={{ symbol: liquidityYieldData?.incentives?.symbol }}
+        />
         &nbsp;
       </H4>
-      <Subtitle sx={{ color: theme.palette.typography.light }}>
+        {liquidityYieldData?.noteIncentives &&
+      <Subtitle
+        sx={{
+          color: theme.palette.typography.light,
+          marginRight: theme.spacing(2),
+        }}
+      >
         {liquidityYieldData?.noteIncentives &&
         (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) > 0 ? (
           <CountUp
@@ -73,6 +82,31 @@ export const LiquidityYieldInfo = ({
           '-'
         )}
       </Subtitle>
+      {liquidityYieldData?.secondaryIncentives && (
+        <>
+          <H4>
+            <FormattedMessage
+              defaultMessage={'{symbol} APY:'}
+              values={{
+                symbol: liquidityYieldData?.secondaryIncentives?.symbol,
+              }}
+            />
+            &nbsp;
+          </H4>
+          <Subtitle sx={{ color: theme.palette.typography.light }}>
+            {liquidityYieldData?.secondaryIncentives &&
+            (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0) > 0 ? (
+              <CountUp
+                value={liquidityYieldData?.secondaryIncentives.incentiveAPY}
+                suffix="%"
+                delay={0.3}
+              />
+            ) : (
+              '-'
+            )}
+          </Subtitle>
+        </>
+      )}
     </Box>
   );
 };

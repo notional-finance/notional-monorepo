@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
 import { CountUp, ButtonText } from '@notional-finance/mui';
-import { NoteWithShadow } from '@notional-finance/icons';
+import { NoteWithShadow, ArbitrumIcon } from '@notional-finance/icons';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -15,6 +15,7 @@ import { ClaimNOTE } from '@notional-finance/transaction';
 interface ClaimNoteType {
   theme: NotionalTheme;
   hover?: boolean;
+  showArbButton?: boolean;
 }
 
 export const ClaimNoteButton = () => {
@@ -28,6 +29,10 @@ export const ClaimNoteButton = () => {
   const noteClaim = account?.noteClaim;
   const currentNOTEFloat = account?.noteClaim?.currentNOTE.toFloat();
   const notePerSecondFloat = account?.noteClaim?.noteAccruedPerSecond.toFloat();
+
+  // TODO replace with real arb count
+  const arbCountUp = 10;
+  const showArbButton = true;
 
   useEffect(() => {
     if (currentNOTEFloat) setNoteCountUp(currentNOTEFloat);
@@ -73,9 +78,9 @@ export const ClaimNoteButton = () => {
           onClick={handleClick}
         >
           <ClaimNoteWrapper hover={hover} theme={theme}>
-            <FormattedMessage defaultMessage={'Claim NOTE'} />{' '}
+            <FormattedMessage defaultMessage={'Claim'} />{' '}
           </ClaimNoteWrapper>
-          <NoteWrapper theme={theme}>
+          <NoteWrapper theme={theme} showArbButton={showArbButton}>
             <NoteIcon />
             <Box sx={{ paddingLeft: theme.spacing(1) }}>
               {noteCountUp > 0 ? (
@@ -85,6 +90,18 @@ export const ClaimNoteButton = () => {
               )}
             </Box>
           </NoteWrapper>
+          {showArbButton && (
+            <ArbWrapper theme={theme}>
+              <ArbitrumIcon />
+              <Box sx={{ paddingLeft: theme.spacing(1) }}>
+                {arbCountUp > 0 ? (
+                  <CountUp value={arbCountUp} duration={0.1} decimals={3} />
+                ) : (
+                  ''
+                )}
+              </Box>
+            </ArbWrapper>
+          )}
         </Wrapper>
       )}
     </Box>
@@ -117,7 +134,24 @@ const ClaimNoteWrapper = styled(ButtonText, {
 `
 );
 
-const NoteWrapper = styled(ButtonText)(
+const NoteWrapper = styled(ButtonText, {
+  shouldForwardProp: (prop: string) => prop !== 'showArbButton',
+})(
+  ({ showArbButton, theme }: ClaimNoteType) => `
+  display: flex;
+  height: 100%;
+  align-items: center;
+  border: 1px solid ${theme.palette.primary.light};
+  padding: ${theme.spacing(0, 2, 0, 1)};
+  border-radius: ${showArbButton ? '0px 0px 0px 0px' : '0px 6px 6px 0px'};
+  border-right: ${
+    showArbButton ? `1px solid ${theme.palette.common.white}` : 'none'
+  };
+  color: ${theme.palette.common.white};
+  background: ${theme.palette.primary.light};
+`
+);
+const ArbWrapper = styled(ButtonText)(
   ({ theme }) => `
   display: flex;
   height: 100%;
