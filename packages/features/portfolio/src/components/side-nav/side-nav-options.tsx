@@ -9,8 +9,7 @@ import { navLabels } from './messages';
 
 interface SideNavItemProps extends LinkProps {
   theme: NotionalTheme;
-  selected: boolean;
-  firstItem?: boolean;
+  selected?: boolean;
   open?: boolean;
 }
 interface SideNavOptonsProps {
@@ -19,24 +18,22 @@ interface SideNavOptonsProps {
 
 export const SideNavOptons = ({ open }: SideNavOptonsProps) => {
   const theme = useTheme();
-  const { useOptions } = useSideNav();
-  const sideNav = useOptions();
+  const { sideNavOptions } = useSideNav();
   const { category } = useParams<PortfolioParams>();
 
   return (
     <Box>
-      {sideNav.map(({ id, Icon, notifications, to }, index) => {
+      {sideNavOptions.map(({ id, Icon, notifications, to }) => {
         return (
           <SideNavItem
             key={id}
             selected={
               category ? category === id : id === PORTFOLIO_CATEGORIES.OVERVIEW
             }
-            firstItem={index === 0}
             theme={theme}
             to={to}
           >
-            <Box sx={{ paddingRight: theme.spacing(3), display: 'flex' }}>
+            <Box sx={{ paddingRight: theme.spacing(4), display: 'flex' }}>
               {Icon}
               {notifications > 0 && open === false && <Dot></Dot>}
             </Box>
@@ -91,24 +88,22 @@ const Dot = styled(Box)(
     display: none;
     margin-left: -3px;
     margin-top: -2px;
-    @media (max-width: 1490px) {
+    ${theme.breakpoints.down('xxl')} {
       display: inline-block;
     }
   `
 );
 
 const SideNavItem = styled(Link, {
-  shouldForwardProp: (prop: string) =>
-    prop !== 'selected' && prop !== 'firstItem',
+  shouldForwardProp: (prop: string) => prop !== 'selected',
 })(
-  ({ theme, selected, firstItem }: SideNavItemProps) => `
-    height: ${theme.spacing(5)};
+  ({ theme, selected }: SideNavItemProps) => `
+    height: ${theme.spacing(8)};
     width: 100%;
     background: ${selected ? theme.palette.primary.dark : 'transparent'};
-    border-radius: ${selected ? '60px' : '0px'};
-    padding: ${theme.spacing(1.5, 3)};
-    padding-right: 12px;
-    margin-top: ${!firstItem ? theme.spacing(1.5) : '0px'};
+    border-radius: 0px;
+    padding-left: 28px;
+    padding-right: 28px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -120,15 +115,12 @@ const SideNavItem = styled(Link, {
       ${
         !selected
           ? `transition: .5s ease;
-      background: ${theme.palette.borders.paper};
-      border-radius: 60px;`
+          background: ${theme.palette.borders.paper};
+          `
           : ''
       }
       cursor: pointer;
     }
-    ${theme.breakpoints.down('lg')} {
-        width: ${theme.spacing(33)};
-      }
     `
 );
 

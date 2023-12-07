@@ -2,15 +2,22 @@ import { useState } from 'react';
 import { Box, styled, useTheme, Collapse } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import { SideNavOptons } from './side-nav-options';
+import { useThemeVariant } from '@notional-finance/notionable-hooks';
 
 interface CollapsibleProps {
   theme: NotionalTheme;
   open: boolean;
+  sideBoxShadow: string;
 }
 
 export const SideNav = () => {
   const theme = useTheme();
+  const themeVariant = useThemeVariant();
   const [open, setOpen] = useState(false);
+  const sideBoxShadow =
+    themeVariant === 'dark'
+      ? '0px 34px 50px -15px rgba(51, 248, 255, 0.40)'
+      : '0px 34px 50px -15px rgba(20, 42, 74, 0.40)';
 
   return (
     <>
@@ -22,8 +29,9 @@ export const SideNav = () => {
         onMouseLeave={() => setOpen(false)}
         theme={theme}
         open={open}
+        sideBoxShadow={sideBoxShadow}
       >
-        <Collapse orientation="horizontal" in={open} collapsedSize={64}>
+        <Collapse orientation="horizontal" in={open} collapsedSize={80}>
           <SideNavOptons open={open} />
         </Collapse>
       </Collapsible>
@@ -35,7 +43,8 @@ const NonCollapsible = styled(Box)(
   ({ theme }) => `
   position: fixed;
   width: inherit;
-  ${theme.breakpoints.down('xl')} {
+  padding-top: ${theme.spacing(13.5)};
+  ${theme.breakpoints.down('xxl')} {
     display: none;
   }
 `
@@ -43,18 +52,17 @@ const NonCollapsible = styled(Box)(
 
 // NOTE* this unique padding-top is necessary to align with the button bar
 const Collapsible = styled(Box)(
-  ({ theme, open }: CollapsibleProps) => `  
+  ({ theme, open, sideBoxShadow }: CollapsibleProps) => `  
   height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
-  padding-top: 154px;
-  padding-left: ${theme.spacing(3)};
-  background: ${theme.palette.background.default};
+  padding-top: ${theme.spacing(22.375)};
+  background: ${theme.palette.background.paper};
+  border-right: ${theme.shape.borderStandard};
   z-index: 4;
-  padding-right: ${theme.spacing(3)};  
-  box-shadow: ${open ? '34px 0 50px -2px rgba(20, 42, 74, 0.3)' : 'none'};
-  ${theme.breakpoints.up('xl')} {
+  box-shadow: ${open ? sideBoxShadow : 'none'};
+  ${theme.breakpoints.up('xxl')} {
     display: none;
   }
 `

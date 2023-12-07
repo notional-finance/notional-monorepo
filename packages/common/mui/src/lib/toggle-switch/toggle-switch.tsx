@@ -5,7 +5,7 @@ import { Label } from '../typography/typography';
 
 export interface ToggleSwitchProps {
   isChecked: boolean;
-  onToggle: (isChecked: boolean) => void;
+  onToggle?: (isChecked: boolean) => void;
   label?: React.ReactNode;
   sx?: SxProps;
 }
@@ -19,7 +19,7 @@ export const ToggleSwitch = ({
   const handleToggle = ({
     target: { checked },
   }: ChangeEvent<HTMLInputElement>) => {
-    onToggle(checked);
+    if (onToggle) onToggle(checked);
   };
 
   return (

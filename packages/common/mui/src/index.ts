@@ -36,6 +36,7 @@ export * from './lib/input/input';
 export * from './lib/input-label/input-label';
 export * from './lib/interactive-area-chart/interactive-area-chart';
 export * from './lib/lever-up-toggle/lever-up-toggle';
+export * from './lib/light-dark-switch/light-dark-switch';
 export * from './lib/hooks/use-window-dimensions/use-window-dimensions';
 export * from './lib/labeled-text/labeled-text';
 export * from './lib/mini-button/mini-button';

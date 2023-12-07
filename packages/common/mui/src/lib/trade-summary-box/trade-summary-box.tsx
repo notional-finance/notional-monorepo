@@ -7,7 +7,6 @@ export const TradeSummaryBox = styled(Box)(
   border: ${theme.shape.borderStandard};
   border-radius: ${theme.shape.borderRadius()};
   background: ${theme.palette.common.white};
-  margin-top: 16px;
   padding: ${theme.spacing(2)};
   padding-top: ${theme.spacing(3)};
   width: 100%;
