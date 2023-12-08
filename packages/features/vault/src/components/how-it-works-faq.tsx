@@ -17,13 +17,11 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
   if (!vaultStrategyData) return null;
 
   const {
+    docsLink,
     baseProtocol,
     boosterProtocol,
     primaryBorrowCurrency,
-    secondaryCurrency,
-    incentiveToken1,
-    incentiveToken2,
-    vaultStrategyId,
+    poolName,
   } = vaultStrategyData;
 
   return (
@@ -52,10 +50,10 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
               />
             </BodyText>
             <ImageWrapper>
-              {'0x05f1ce9c' === vaultStrategyId && (
+              {boosterProtocol === 'Convex' && (
                 <CurveVaultImg tokenSymbol={tokenSymbol} />
               )}
-              {'0x77721081' === vaultStrategyId && (
+              {boosterProtocol === 'Aura' && (
                 <BalancerVaultImg tokenSymbol={tokenSymbol} />
               )}
             </ImageWrapper>
@@ -69,30 +67,19 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
             </H5>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`1. Take {primaryBorrowCurrency} and provide liquidity to the {primaryBorrowCurrency}/{secondaryCurrency} pool on {baseProtocol}.`}
-                values={{
-                  primaryBorrowCurrency: primaryBorrowCurrency,
-                  secondaryCurrency: secondaryCurrency,
-                  baseProtocol: baseProtocol,
-                }}
+                defaultMessage={`1. Take {primaryBorrowCurrency} and provide liquidity to the {poolName} pool on {baseProtocol}.`}
+                values={{ primaryBorrowCurrency, poolName, baseProtocol }}
               />
             </BodyText>
             <BodyText>
               <FormattedMessage
                 defaultMessage={`2. Stake the {baseProtocol} LP tokens on {boosterProtocol}.`}
-                values={{
-                  baseProtocol: baseProtocol,
-                  boosterProtocol: boosterProtocol,
-                }}
+                values={{ baseProtocol, boosterProtocol }}
               />
             </BodyText>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`3. Harvest and reinvest {incentiveToken2} and {incentiveToken1} incentives back into the pool on a weekly basis.`}
-                values={{
-                  incentiveToken1: incentiveToken1,
-                  incentiveToken2: incentiveToken2,
-                }}
+                defaultMessage={`3. Harvest and reinvest incentives back into the pool on a daily basis.`}
               />
             </BodyText>
             <H5
@@ -121,7 +108,7 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
             </H5>
           </Box>
           <ExternalLink
-            href="https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults"
+            href={docsLink}
             textDecoration
             accent
             style={{

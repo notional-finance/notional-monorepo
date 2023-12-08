@@ -10,12 +10,14 @@ import { Registry } from '../Registry';
 
 export interface BaseVaultParams {
   enabled: boolean;
+  name: string;
 }
 
 export abstract class VaultAdapter {
   abstract get hashKey(): string;
+  abstract get strategy(): string;
 
-  constructor(public enabled: boolean) {
+  constructor(public enabled: boolean, public name: string) {
     // NO-OP
   }
 

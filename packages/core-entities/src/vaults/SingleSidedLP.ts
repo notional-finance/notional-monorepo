@@ -31,8 +31,12 @@ export class SingleSidedLP extends VaultAdapter {
   public totalVaultShares: BigNumber;
   public secondaryTradeParams: string;
 
+  get strategy() {
+    return 'SingleSidedLP';
+  }
+
   constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
-    super(p.enabled);
+    super(p.enabled, p.name);
 
     this.pool = Registry.getExchangeRegistry().getPoolInstance(network, p.pool);
     this.singleSidedTokenIndex = p.singleSidedTokenIndex;
@@ -167,6 +171,7 @@ export class SingleSidedLP extends VaultAdapter {
       RATE_PRECISION - slippageFactor
     );
 
+    // TODO: check the deposit params
     return defaultAbiCoder.encode(
       ['tuple(uint256 minLPTokens, bytes tradeData) d'],
       [
@@ -197,6 +202,7 @@ export class SingleSidedLP extends VaultAdapter {
       1 - this.singleSidedTokenIndex
     ].mulInRatePrecision(RATE_PRECISION - slippageFactor);
 
+    // TODO: check the redeem params
     return defaultAbiCoder.encode(
       [
         'tuple( uint256 minPrimary, uint256 minSecondary, bytes secondaryTradeParams) r',
