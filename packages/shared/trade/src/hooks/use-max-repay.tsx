@@ -8,8 +8,6 @@ import {
 import {
   BASIS_POINT,
   FLOATING_POINT_DUST,
-  INTERNAL_TOKEN_DECIMALS,
-  INTERNAL_TOKEN_PRECISION,
   RATE_PRECISION,
 } from '@notional-finance/util';
 import { useCallback } from 'react';
@@ -55,7 +53,7 @@ export function useMaxRepay(context: BaseTradeContext) {
       .mulInRatePrecision(RATE_PRECISION + BASIS_POINT);
   }
 
-  const { insufficientBalance } = useWalletBalanceInputCheck(
+  const { insufficientBalance, maxBalance } = useWalletBalanceInputCheck(
     maxRepayAmount?.token,
     maxRepayAmount?.abs()
   );
@@ -65,7 +63,9 @@ export function useMaxRepay(context: BaseTradeContext) {
   }
 
   const onMaxValue = useCallback(() => {
-    if (maxRepayAmount && maxRepay) {
+    if (maxRepayAmount && maxBalance && maxBalance?.lt(maxRepayAmount.abs())) {
+      setCurrencyInput(maxBalance?.abs().toExactString());
+    } else if (maxRepayAmount && maxRepay) {
       setCurrencyInput(maxRepayAmount.abs().toExactString(), false);
 
       updateState({
@@ -75,7 +75,7 @@ export function useMaxRepay(context: BaseTradeContext) {
         collateralBalance: maxRepay.neg(),
       });
     }
-  }, [maxRepay, updateState, setCurrencyInput, maxRepayAmount]);
+  }, [maxRepay, updateState, setCurrencyInput, maxRepayAmount, maxBalance]);
 
   return {
     onMaxValue,
