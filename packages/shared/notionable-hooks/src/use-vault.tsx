@@ -1,6 +1,8 @@
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalError, useSelectedNetwork } from './use-notional';
 
+const whitelistedVaults = ['0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf'];
+
 export function useVaultProperties(vaultAddress?: string) {
   let minAccountBorrowSize: TokenBalance | undefined = undefined;
   let minDepositRequired: string | undefined = undefined;
@@ -48,30 +50,33 @@ export function useAllVaults() {
   if (!network) return [];
 
   const config = Registry.getConfigurationRegistry();
-  const listedVaults = config.getAllListedVaults(network)?.map((v) => {
-    const {
-      minAccountBorrowSize,
-      totalUsedPrimaryBorrowCapacity,
-      maxPrimaryBorrowCapacity,
-    } = config.getVaultCapacity(network, v.vaultAddress);
-    const primaryToken = Registry.getTokenRegistry().getTokenByID(
-      network,
-      v.primaryBorrowCurrency.id
-    );
-
-    return {
-      ...v,
-      minAccountBorrowSize,
-      totalUsedPrimaryBorrowCapacity,
-      maxPrimaryBorrowCapacity,
-      minDepositRequired: getMinDepositRequiredString(
+  const listedVaults = config
+    .getAllListedVaults(network)
+    ?.filter((v) => whitelistedVaults.includes(v.vaultAddress))
+    .map((v) => {
+      const {
         minAccountBorrowSize,
-        v.maxDeleverageCollateralRatioBasisPoints,
-        v.maxRequiredAccountCollateralRatioBasisPoints as number
-      ),
-      primaryToken,
-    };
-  });
+        totalUsedPrimaryBorrowCapacity,
+        maxPrimaryBorrowCapacity,
+      } = config.getVaultCapacity(network, v.vaultAddress);
+      const primaryToken = Registry.getTokenRegistry().getTokenByID(
+        network,
+        v.primaryBorrowCurrency.id
+      );
+
+      return {
+        ...v,
+        minAccountBorrowSize,
+        totalUsedPrimaryBorrowCapacity,
+        maxPrimaryBorrowCapacity,
+        minDepositRequired: getMinDepositRequiredString(
+          minAccountBorrowSize,
+          v.maxDeleverageCollateralRatioBasisPoints,
+          v.maxRequiredAccountCollateralRatioBasisPoints as number
+        ),
+        primaryToken,
+      };
+    });
 
   return listedVaults || [];
 }
