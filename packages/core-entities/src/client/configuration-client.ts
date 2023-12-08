@@ -71,11 +71,40 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     this._updateSubjectKeyDirect(network, network, newConfig, true);
   }
 
+  static getBaseProtocol = (boosterProtocol: string) => {
+    switch (boosterProtocol) {
+      case 'Convex':
+        return 'Curve';
+      case 'Aura':
+        return 'Balancer';
+      default:
+        return 'unknown';
+    }
+  };
+
+  static parseVaultName(name: string) {
+    if (name === 'Curve FRAX/USDC LP (FRAX Leverage)') {
+      name = 'SingleSidedLP:Convex:[FRAX]/USDC.e';
+    }
+    const [_, boosterProtocol, pool] = name.split(':');
+    const poolName = pool.replace('[', '').replace(']', '');
+
+    return {
+      technicalName: name,
+      boosterProtocol,
+      poolName,
+      baseProtocol: ConfigurationClient.getBaseProtocol(boosterProtocol),
+      name: `${boosterProtocol}: ${poolName}`,
+    };
+  }
+
   getAllListedVaults(network: Network) {
-    return this.getLatestFromSubject(
-      network,
-      network
-    )?.vaultConfigurations.filter((v) => v.enabled);
+    return this.getLatestFromSubject(network, network)
+      ?.vaultConfigurations.filter((v) => v.enabled)
+      .map((v) => ({
+        ...v,
+        ...ConfigurationClient.parseVaultName(v.name),
+      }));
   }
 
   getVaultConfig(network: Network, vaultAddress: string) {
@@ -85,7 +114,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     )?.vaultConfigurations.find((v) => v.id == vaultAddress);
     if (!vaultConfig) throw Error(`Vault Config ${vaultAddress} not found`);
 
-    return vaultConfig;
+    return {
+      ...vaultConfig,
+      ...ConfigurationClient.parseVaultName(vaultConfig.name),
+    };
   }
 
   getVaultName(network: Network, vaultAddress: string) {
