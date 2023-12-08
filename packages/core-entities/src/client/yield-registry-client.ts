@@ -230,7 +230,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
          incentiveAPY: this.calculateLeveragedAPY(yieldData?.noteIncentives?.incentiveAPY || 0, 0, leverageRatio)
        },
       secondaryIncentives: {
-        symbol: 'NOTE',
+        symbol: 'ARB',
         incentiveAPY: this.calculateLeveragedAPY(yieldData?.secondaryIncentives?.incentiveAPY || 0, 0, leverageRatio)
       },
     };
