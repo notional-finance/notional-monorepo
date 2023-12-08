@@ -36,14 +36,14 @@ export const useTotalsData = (
     );
   }
 
-  if (leverageRatio && !!liquidityYieldData?.incentives) {
+  if (leverageRatio && !!liquidityYieldData?.noteIncentives) {
     // If using leverage apply the
-    liquidityYieldData.incentives.incentiveAPY =
+    liquidityYieldData.noteIncentives.incentiveAPY =
       leveragedYield(
-        liquidityYieldData.incentives.incentiveAPY,
+        liquidityYieldData.noteIncentives.incentiveAPY,
         0,
         leverageRatio
-      ) || liquidityYieldData.incentives.incentiveAPY;
+      ) || liquidityYieldData.noteIncentives.incentiveAPY;
   }
 
   return {
@@ -56,14 +56,14 @@ export const useTotalsData = (
       {
         title: <FormattedMessage defaultMessage={'Incentive APY'} />,
         value:
-          liquidityYieldData?.incentives &&
-          liquidityYieldData?.incentives?.incentiveAPY
-            ? liquidityYieldData?.incentives?.incentiveAPY
+          liquidityYieldData?.noteIncentives &&
+          liquidityYieldData?.noteIncentives?.incentiveAPY
+            ? liquidityYieldData?.noteIncentives?.incentiveAPY
             : '-',
         Icon: SparklesIcon,
         suffix:
-          liquidityYieldData?.incentives &&
-          liquidityYieldData?.incentives?.incentiveAPY
+          liquidityYieldData?.noteIncentives &&
+          liquidityYieldData?.noteIncentives?.incentiveAPY
             ? '%'
             : '',
       },
