@@ -142,7 +142,7 @@ export const useMarketsTable = (
   ];
 
   const formatMarketData = (allMarketsData: typeof borrowYields) => {
-    const getIncentiveApy = (incentives, secondaryIncentives) => {
+    const getTotalIncentiveApy = (incentives, secondaryIncentives) => {
       if (secondaryIncentives && incentives) {
         return incentives.incentiveAPY + secondaryIncentives.incentiveAPY;
       } else if (incentives && !secondaryIncentives) {
@@ -180,7 +180,7 @@ export const useMarketsTable = (
           token,
           totalAPY,
           product,
-          incentives,
+          noteIncentives,
           secondaryIncentives,
           leveraged,
           tvl,
@@ -198,7 +198,10 @@ export const useMarketsTable = (
           leverage:
             leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
           totalTVL: tvl?.toFiat(baseCurrency).toFloat() || 0,
-          incentiveAPY: getIncentiveApy(incentives, secondaryIncentives),
+          incentiveAPY: getTotalIncentiveApy(
+            noteIncentives,
+            secondaryIncentives
+          ),
           view: link,
           multiValueCellData: {
             currency: {
@@ -206,7 +209,7 @@ export const useMarketsTable = (
               label: underlying.symbol,
               caption: formatYieldCaption(data),
             },
-            incentiveAPY: getIncentiveData(incentives, secondaryIncentives),
+            incentiveAPY: getIncentiveData(noteIncentives, secondaryIncentives),
           },
         };
       })

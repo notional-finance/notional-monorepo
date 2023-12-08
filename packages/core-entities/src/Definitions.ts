@@ -269,7 +269,7 @@ export interface YieldData {
   interestAPY?: number;
   feeAPY?: number;
   strategyAPY?: number;
-  incentives?: {
+  noteIncentives?: {
     symbol: string;
     incentiveAPY: number;
   };
