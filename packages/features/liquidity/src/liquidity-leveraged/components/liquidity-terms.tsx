@@ -1,3 +1,4 @@
+// import { useCallback } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { LiquidityContext } from '../../liquidity';
 import {
@@ -6,12 +7,13 @@ import {
   InputLabel,
   LabelValue,
   ToggleSwitch,
+  // AssetSelectDropdown,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import React, { useContext } from 'react';
 import {
   LeverageSlider,
-  VariableFixedMaturityToggle,
+  // VariableFixedMaturityToggle,
 } from '@notional-finance/trade';
 import {
   formatLeverageRatio,
@@ -26,8 +28,59 @@ export const CustomLiquidityTerms = () => {
   const theme = useTheme();
   const context = useContext(LiquidityContext);
   const {
+    // updateState,
     state: { deposit },
   } = context;
+
+  // const mockOptions = [
+  //   {
+  //     token: {
+  //       id: '0x1',
+  //       currencyId: '0x1',
+  //       symbol: 'ETH',
+  //       decimals: 18,
+  //       tokenType: 'PrimeCash',
+  //       underlying: {
+  //         id: '0x1',
+  //         currencyId: '0x1',
+  //         symbol: 'ETH',
+  //         decimals: 18,
+  //         tokenType: 'PrimeCash',
+  //       },
+  //     },
+  //     largeFigure: 100,
+  //     largeFigureSuffix: 'ETH',
+  //     caption: '100 ETH',
+  //   },
+  //   {
+  //     token: {
+  //       id: '0x2',
+  //       currencyId: '0x2',
+  //       symbol: 'BTC',
+  //       decimals: 18,
+  //       tokenType: 'PrimeCash',
+  //       underlying: {
+  //         id: '0x2',
+  //         currencyId: '0x2',
+  //         symbol: 'BTC',
+  //         decimals: 18,
+  //         tokenType: 'PrimeCash',
+  //       },
+  //     },
+  //     largeFigure: 100,
+  //     largeFigureSuffix: 'BTC',
+  //     caption: '100 BTC',
+  //   },
+  // ];
+
+  // const onSelect = useCallback(
+  //   (id: string | null) => {
+  //     const c = mockOptions?.find((t) => t.token.id === id);
+  //     console.log({ c });
+  //     // updateState(isWithdraw ? { debt: c?.token } : { collateral: c?.token });
+  //   },
+  //   [updateState, mockOptions]
+  // );
 
   return (
     <LiquidityTerms
@@ -41,7 +94,13 @@ export const CustomLiquidityTerms = () => {
           padding: theme.spacing(2),
         }}
       >
-        <VariableFixedMaturityToggle context={context} />
+        {/* <AssetSelectDropdown
+          tightMarginTop={tightMarginTop}
+          selectedTokenId={selectedTokenId}
+          inputLabel={defineMessage({ defaultMessage: 'COOL LABEL' })}
+          onSelect={onSelect}
+          options={mockOptions}
+        /> */}
         <Box height={theme.spacing(6)} />
         <LeverageSlider
           showMinMax
@@ -221,7 +280,7 @@ const TermsBox = ({
             : `1px solid ${theme.palette.primary.light}`,
         }}
       >
-        <Box sx={{ marginRight: theme.spacing(6) }}>
+        <Box sx={{ marginRight: theme.spacing(3) }}>
           <Body
             uppercase
             gutter="default"
@@ -229,7 +288,7 @@ const TermsBox = ({
           />
           <LabelValue>{formatLeverageRatio(leverageRatio, 2)}</LabelValue>
         </Box>
-        <Box sx={{ width: '50%' }}>
+        <Box sx={{ marginRight: theme.spacing(3) }}>
           <Body
             uppercase
             gutter="default"
@@ -241,6 +300,16 @@ const TermsBox = ({
             ) : (
               <FormattedMessage defaultMessage={'Fixed'} />
             )}
+          </LabelValue>
+        </Box>
+        <Box>
+          <Body
+            uppercase
+            gutter="default"
+            msg={defineMessage({ defaultMessage: 'Risk' })}
+          />
+          <LabelValue>
+            <FormattedMessage defaultMessage={'Low'} />
           </LabelValue>
         </Box>
       </BoundedBox>
