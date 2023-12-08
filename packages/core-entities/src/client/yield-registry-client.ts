@@ -223,6 +223,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         leverageRatio,
         maxLeverageRatio,
       },
+      vaultName: yieldData?.vaultName,
       incentives: yieldData.incentives?.map(({ tokenId, incentiveAPY }) => ({
         tokenId,
         incentiveAPY: this.calculateLeveragedAPY(
@@ -242,8 +243,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     );
 
     return nTokenYields.flatMap((nToken) => {
-      const { nTokenHaircut } =
-        config.getNTokenLeverageFactors(nToken.token);
+      const { nTokenHaircut } = config.getNTokenLeverageFactors(nToken.token);
 
       return debtYields
         .filter((d) => d.token.currencyId === nToken.token.currencyId)
@@ -254,7 +254,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
                   .toUnderlying()
                   .scaleTo(RATE_DECIMALS)
               : RATE_PRECISION;
-              
+
           // defaultLeverageRatio = [(1 - (pvFactor * nTokenHaircut * nTokenMaxDrawdown)) ^ -1] - 1
           // const factor = BigNumber.from(RATE_PRECISION)
           //   .pow(3)
@@ -400,7 +400,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         if (!v.underlying) throw Error('underlying is not defined');
         // Ensures that the oracle registry side effect happens here so that we
         // can properly get the TVL value.
-        vaults.getVaultAdapter(network, v.vaultAddress);
+        const adapter = vaults.getVaultAdapter(network, v.vaultAddress);
         const underlying = tokens.getTokenByID(network, v.underlying);
         const { defaultLeverageRatio, maxLeverageRatio } =
           config.getVaultLeverageFactors(network, v.vaultAddress);
@@ -421,6 +421,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           underlying,
           totalAPY,
           tvl: v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          vaultName: adapter.name,
         };
 
         return [
