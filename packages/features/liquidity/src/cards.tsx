@@ -97,7 +97,7 @@ const LiquidityCardView = ({
                 {
                   underlying,
                   totalAPY,
-                  incentives,
+                  noteIncentives,
                   secondaryIncentives,
                   leveraged,
                   maxAPY,
@@ -117,7 +117,7 @@ const LiquidityCardView = ({
                     key={`incentive-${i}`}
                     symbol={underlying.symbol}
                     rate={totalAPY}
-                    incentiveData={incentives}
+                    incentiveData={noteIncentives}
                     secondaryIncentiveData={secondaryIncentives}
                     customRate={maxAPY}
                     route={route}
@@ -135,7 +135,7 @@ const LiquidityCardView = ({
                     key={`incentive-${i}`}
                     symbol={underlying.symbol}
                     rate={totalAPY}
-                    incentiveData={incentives}
+                    incentiveData={noteIncentives}
                     secondaryIncentiveData={secondaryIncentives}
                     titleOne={
                       leveraged && (
@@ -222,8 +222,6 @@ export const LiquidityLeveragedCardView = () => {
   } = useAllMarkets();
   const { depositTokensWithPositions } = useLeveragedNTokenPositions();
   const allMaxAPYs = useMaxYield();
-
-  console.log({ leveragedLiquidity });
 
   // These are the default yields using prime debt
   const cardData = leveragedLiquidity

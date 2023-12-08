@@ -171,7 +171,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       totalAPY: incentiveAPY + feeAPY + interestAPY,
       interestAPY,
       feeAPY,
-      incentives: {
+      noteIncentives: {
         symbol: 'NOTE',
         incentiveAPY,
       },
@@ -225,8 +225,14 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         leverageRatio,
         maxLeverageRatio,
       },
-      incentives: yieldData.incentives,
-      secondaryIncentives: yieldData.secondaryIncentives,
+       noteIncentives: {
+         symbol: 'NOTE',
+         incentiveAPY: this.calculateLeveragedAPY(yieldData?.noteIncentives?.incentiveAPY || 0, 0, leverageRatio)
+       },
+      secondaryIncentives: {
+        symbol: 'NOTE',
+        incentiveAPY: this.calculateLeveragedAPY(yieldData?.secondaryIncentives?.incentiveAPY || 0, 0, leverageRatio)
+      },
     };
   }
 

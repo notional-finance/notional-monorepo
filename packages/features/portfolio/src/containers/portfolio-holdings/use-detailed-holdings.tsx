@@ -79,7 +79,7 @@ export function useDetailedHoldings() {
         const { icon, formattedTitle, titleWithMaturity, title } =
           formatTokenType(b.token, isDebt);
         const marketApy = marketYield?.totalAPY;
-        const noteIncentives = marketYield?.incentives?.incentiveAPY;
+        const noteIncentives = marketYield?.noteIncentives?.incentiveAPY;
         const totalEarningsWithNOTE = s?.totalProfitAndLoss
           .toFiat(baseCurrency)
           .add(

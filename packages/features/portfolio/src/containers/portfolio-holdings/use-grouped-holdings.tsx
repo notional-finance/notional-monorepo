@@ -64,7 +64,7 @@ export function useGroupedHoldings() {
         borrowAPY,
         leverageRatio
       );
-      const noteAPY = assetYield?.incentives?.incentiveAPY;
+      const noteAPY = assetYield?.noteIncentives?.incentiveAPY;
       const noteIncentives =
         noteAPY !== undefined
           ? leveragedYield(noteAPY, 0, leverageRatio)
