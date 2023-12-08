@@ -86,16 +86,26 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     if (name === 'Curve FRAX/USDC LP (FRAX Leverage)') {
       name = 'SingleSidedLP:Convex:[FRAX]/USDC.e';
     }
-    const [_, boosterProtocol, pool] = name.split(':');
-    const poolName = pool.replace('[', '').replace(']', '');
 
-    return {
-      technicalName: name,
-      boosterProtocol,
-      poolName,
-      baseProtocol: ConfigurationClient.getBaseProtocol(boosterProtocol),
-      name: `${boosterProtocol}: ${poolName}`,
-    };
+    try {
+      const [_, boosterProtocol, pool] = name.split(':');
+      const poolName = pool.replace('[', '').replace(']', '');
+      return {
+        technicalName: name,
+        boosterProtocol,
+        poolName,
+        baseProtocol: ConfigurationClient.getBaseProtocol(boosterProtocol),
+        name: `${boosterProtocol}: ${poolName}`,
+      };
+    } catch {
+      return {
+        technicalName: name,
+        boosterProtocol: 'unknown',
+        poolName: 'unknown',
+        baseProtocol: 'unknown',
+        name,
+      };
+    }
   }
 
   getAllListedVaults(network: Network) {
