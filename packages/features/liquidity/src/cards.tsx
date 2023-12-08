@@ -232,8 +232,6 @@ export const LiquidityLeveragedCardView = () => {
   const { depositTokensWithPositions } = useLeveragedNTokenPositions(network);
   const allMaxAPYs = useMaxYield(network);
 
-  console.log({ leveragedLiquidity });
-
   // These are the default yields using prime debt
   const cardData = leveragedLiquidity
     .filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt')
