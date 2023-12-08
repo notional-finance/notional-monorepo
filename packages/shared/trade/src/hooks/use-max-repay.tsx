@@ -2,7 +2,6 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
   BaseTradeContext,
   useFCashMarket,
-  useAccountDefinition,
   usePortfolioRiskProfile,
   useWalletBalanceInputCheck,
 } from '@notional-finance/notionable-hooks';
@@ -19,16 +18,9 @@ import { TokenBalance } from '@notional-finance/core-entities';
 export function useMaxRepay(context: BaseTradeContext) {
   const {
     updateState,
-    state: { collateral, maxWithdraw, deposit },
+    state: { collateral, maxWithdraw },
   } = context;
   const fCashMarket = useFCashMarket(collateral?.currencyId);
-  const { account } = useAccountDefinition();
-  const maxBalance =
-    account && deposit
-      ? account.balances.find((t) => t.token.id === deposit?.id) ||
-        TokenBalance.zero(deposit)
-      : undefined;
-
   const profile = usePortfolioRiskProfile();
 
   // Find the matching debt balance in the risk profile. For prime debt repayment,
@@ -61,7 +53,7 @@ export function useMaxRepay(context: BaseTradeContext) {
       .mulInRatePrecision(RATE_PRECISION + BASIS_POINT);
   }
 
-  const { insufficientBalance } = useWalletBalanceInputCheck(
+  const { insufficientBalance, maxBalance } = useWalletBalanceInputCheck(
     maxRepayAmount?.token,
     maxRepayAmount?.abs()
   );
