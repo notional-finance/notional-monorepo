@@ -37,7 +37,6 @@ export const useTotalsData = (
   }
 
   if (leverageRatio && !!liquidityYieldData?.incentives) {
-    // If using leverage apply the
     liquidityYieldData.incentives = liquidityYieldData.incentives.map(
       ({ tokenId, incentiveAPY }) => ({
         tokenId,

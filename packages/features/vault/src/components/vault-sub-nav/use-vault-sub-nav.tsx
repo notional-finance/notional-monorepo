@@ -1,8 +1,10 @@
 import { animateScroll as scroll } from 'react-scroll';
 import { FormattedMessage } from 'react-intl';
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
+import { useVaultStrategyData } from '../../hooks';
 
 export const useVaultSubNav = () => {
+  const data = useVaultStrategyData();
   const subNavData = [
     {
       label: <FormattedMessage defaultMessage={'Overview'} />,
@@ -28,8 +30,7 @@ export const useVaultSubNav = () => {
     {
       label: <FormattedMessage defaultMessage={'Docs'} />,
       key: VAULT_SUB_NAV_ACTIONS.FULL_DOCUMENTATION,
-      // TODO: we need to have a registry for this
-      href: 'https://docs.notional.finance/leveraged-vaults/leveraged-vaults/balancer-aura-wsteth-weth-strategy',
+      href: data?.docsLink,
     },
   ];
   return subNavData;
