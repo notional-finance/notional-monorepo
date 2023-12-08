@@ -24,9 +24,11 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
       ({
         vaultAddress,
         enabled,
+        name,
       }: {
         vaultAddress: string;
         enabled: boolean;
+        name: string;
       }) => {
         const override = vaultOverrides[vaultAddress];
         if (override) {
@@ -74,6 +76,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
               totalVaultShares,
               secondaryTradeParams: '0x',
               enabled,
+              name,
             };
           },
         };
