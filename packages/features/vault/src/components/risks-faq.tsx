@@ -10,7 +10,7 @@ export const RiskFaq = () => {
 
   if (!vaultStrategyData) return null;
 
-  const { primaryBorrowCurrency, secondaryCurrency } = vaultStrategyData;
+  const { primaryBorrowCurrency, poolName } = vaultStrategyData;
 
   return (
     <Box>
@@ -70,11 +70,11 @@ export const RiskFaq = () => {
       <Body sx={{ marginBottom: theme.spacing(2) }}>
         <FormattedMessage
           defaultMessage={
-            'If the price of {secondaryCurrency}/{primaryBorrowCurrency} changes, you could make or lose money. If it moves past your liquidation price, you could get liquidated.'
+            'If the price of {primaryBorrowCurrency} changes relative to the other tokens in the {poolName} pool, you could make or lose money. If it moves past your liquidation price, you could get liquidated.'
           }
           values={{
             primaryBorrowCurrency,
-            secondaryCurrency,
+            poolName,
           }}
         />
       </Body>
