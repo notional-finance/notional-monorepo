@@ -49,8 +49,17 @@ export const AssetSelectDropdown = ({
   options,
   caption,
 }: AssetSelectDropdownProps) => {
+  console.log({
+    inputLabel,
+    tightMarginTop,
+    selectedTokenId,
+    onSelect,
+    options,
+    caption,
+  });
   const theme = useTheme();
   const emptyOption = EmptyCurrencySelectOption(theme);
+
   const selectOptions = options?.map(
     ({ token, largeFigure, largeFigureSuffix, caption, disabled }) => {
       return formatOption(
