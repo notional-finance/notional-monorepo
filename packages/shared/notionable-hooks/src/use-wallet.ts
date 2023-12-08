@@ -107,12 +107,18 @@ export function useWalletBalances(
 ) {
   const { account } = useAccountDefinition();
   const apyData = useApyValues(tradeType)
-
   return useMemo(() => {
-    if (!tokens || !account) {
-      return [];
+    if (!account) {
+      return tokens?.map((token) => {
+        return {
+          token,
+          content: { 
+            balance:  undefined, 
+            apy: undefined },
+        };
+      });
     }
-    return tokens.map((token) => {
+    return tokens?.map((token) => {
       const maxBalance =
         token && account
           ? account.balances.find((t) => t.token.id === token?.id) ||

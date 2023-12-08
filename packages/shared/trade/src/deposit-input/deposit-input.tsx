@@ -97,6 +97,8 @@ export const DepositInput = React.forwardRef<
       tradeType
     );
 
+    console.log({ balanceAndApyData });
+
     if (!availableDepositTokens || !selectedDepositToken)
       return <PageLoading />;
 
