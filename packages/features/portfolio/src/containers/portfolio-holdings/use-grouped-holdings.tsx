@@ -141,16 +141,24 @@ export function useGroupedHoldings() {
           : '-',
         toolTipData: totalNOTEEarnings?.isPositive()
           ? {
-              organicBaseCurrency: earnings
-                ?.toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
-              organic: earnings?.toDisplayStringWithSymbol(),
-              incentiveBaseCurrency: totalNOTEEarnings
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
-              incentive: totalNOTEEarnings.toDisplayStringWithSymbol(),
-              secondaryIncentive: arbIncentive,
-              secondaryIncentiveBaseCurrency: arbIncentiveBaseCurrency,
+              perAssetEarnings: [
+                {
+                  underlying: earnings?.toDisplayStringWithSymbol(),
+                  baseCurrency: earnings
+                    ?.toFiat(baseCurrency)
+                    .toDisplayStringWithSymbol(),
+                },
+                {
+                  underlying: totalNOTEEarnings.toDisplayStringWithSymbol(),
+                  baseCurrency: totalNOTEEarnings
+                    .toFiat(baseCurrency)
+                    .toDisplayStringWithSymbol(),
+                },
+                {
+                  underlying: arbIncentive,
+                  baseCurrency: arbIncentiveBaseCurrency,
+                },
+              ],
             }
           : undefined,
         actionRow: {

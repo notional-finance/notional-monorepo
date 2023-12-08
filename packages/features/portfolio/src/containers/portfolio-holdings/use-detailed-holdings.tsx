@@ -136,16 +136,25 @@ export function useDetailedHoldings() {
             totalEarningsWithNOTE?.toDisplayStringWithSymbol(3, true) || '-',
           toolTipData: totalNOTEEarnings?.isPositive()
             ? {
-                organicBaseCurrency: s?.totalProfitAndLoss
-                  .toFiat(baseCurrency)
-                  .toDisplayStringWithSymbol(),
-                organic: s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
-                incentiveBaseCurrency: totalNOTEEarnings
-                  .toFiat(baseCurrency)
-                  .toDisplayStringWithSymbol(),
-                incentive: totalNOTEEarnings.toDisplayStringWithSymbol(),
-                secondaryIncentive: arbIncentive,
-                secondaryIncentiveBaseCurrency: arbIncentiveBaseCurrency,
+                perAssetEarnings: [
+                  {
+                    underlying:
+                      s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
+                    baseCurrency: s?.totalProfitAndLoss
+                      .toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(),
+                  },
+                  {
+                    underlying: totalNOTEEarnings.toDisplayStringWithSymbol(),
+                    baseCurrency: totalNOTEEarnings
+                      .toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(),
+                  },
+                  {
+                    underlying: arbIncentive,
+                    baseCurrency: arbIncentiveBaseCurrency,
+                  },
+                ],
               }
             : undefined,
           actionRow: {
@@ -230,12 +239,14 @@ export function useDetailedHoldings() {
       earnings: totals.earnings.toDisplayStringWithSymbol(),
       toolTipData: totals.noteEarnings
         ? {
-            nonNoteEarnings: totals.nonNoteEarnings
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(),
-            noteEarnings: totals.noteEarnings
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(),
+            totalEarnings: {
+              totalBaseEarnings: totals.nonNoteEarnings
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(),
+              totalIncentiveEarningsInBase: totals.noteEarnings
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(),
+            },
           }
         : undefined,
       actionRow: undefined,

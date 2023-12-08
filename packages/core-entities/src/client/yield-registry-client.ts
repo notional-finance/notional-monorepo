@@ -238,7 +238,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         ),
       },
       secondaryIncentives: {
-        symbol: 'NOTE', // TODO: this should be arb?
+        symbol: 'ARB',
         incentiveAPY: this.calculateLeveragedAPY(
           yieldData?.secondaryIncentives?.incentiveAPY || 0,
           0,
