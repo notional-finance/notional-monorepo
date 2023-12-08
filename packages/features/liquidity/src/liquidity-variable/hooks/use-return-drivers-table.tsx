@@ -83,7 +83,7 @@ export const useReturnDriversTable = () => {
       {
         asset: { symbol: 'note', label: 'NOTE Incentives' },
         value: '-',
-        apy: liquidityData?.incentives?.incentiveAPY || 0,
+        apy: liquidityData?.noteIncentives?.incentiveAPY || 0,
       },
       {
         asset: { label: 'Total' },
