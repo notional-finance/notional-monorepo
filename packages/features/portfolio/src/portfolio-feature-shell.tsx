@@ -129,45 +129,31 @@ const Portfolio = () => {
   );
 };
 
-const ActionButtonRow = styled(Box)`
+const ActionButtonRow = styled(Box)(
+  ({ theme }) => `
   display: flex;
   justify-content: flex-end;
   align-items: center;
-`;
+  margin-bottom: ${theme.spacing(3)};
+`
+);
 
 const PortfolioContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
-  gap: ${theme.spacing(3)};
-  margin: ${theme.spacing(3)};
-  margin-top: ${theme.spacing(10)};
   min-height: 100vh;
-  @media (max-width: 768px) {
+  ${theme.breakpoints.down('sm')} {
     flex-flow: column;
-  };
-  @media (max-width: 1330px) {
-    margin: ${theme.spacing(10, 3)};
-    gap: ${theme.spacing(3)};
-  };
-
-  ${theme.breakpoints.up('lg')} {
-    margin: ${theme.spacing(10)} auto;
-    max-width: 95vw;
-  };
-
-  ${theme.breakpoints.up('xl')} {
-    margin: ${theme.spacing(10)} auto;
-    gap: ${theme.spacing(8)};
-    max-width: ${theme.spacing(196)};
-  };
-`
+  };`
 );
 
 const PortfolioSidebar = styled(Box)(
   ({ theme }) => `
   width: ${theme.spacing(39)};
-  ${theme.breakpoints.down('xl')} {
-    width: ${theme.spacing(8)};
+  background: ${theme.palette.background.paper};
+  border-right: ${theme.shape.borderStandard};
+  ${theme.breakpoints.down('xxl')} {
+    width: ${theme.spacing(10)};
     height: 100vh;
   }
   ${theme.breakpoints.down('sm')} {
@@ -184,15 +170,16 @@ const PortfolioMainContent = styled(Box)(
   flex: 1;
   display: flex;
   flex-flow: column;
-  gap: ${theme.spacing(3)};
-  width: 65vw;
+  margin: ${theme.spacing(14, 8)};
   overflow: hidden;
-  ${theme.breakpoints.down('lg')} {
-    width: 100%;
+  ${theme.breakpoints.up('xxl')} {
+    max-width: ${theme.spacing(161)};
+    margin: ${theme.spacing(14)} auto;
   }
   ${theme.breakpoints.down('sm')} {
     min-width: 100%;
     max-width: 70vw;
+    margin: ${theme.spacing(10)} auto;
   };
 `
 );

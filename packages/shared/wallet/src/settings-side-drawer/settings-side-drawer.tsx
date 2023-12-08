@@ -80,7 +80,9 @@ export const SettingsSideDrawer = ({
         </Title>
         {accountData.map((data) => (
           <SideDrawerButton
-            onClick={() => handleClick(data)}
+            onClick={() =>
+              data.callback ? data.callback() : handleClick(data)
+            }
             key={data.key}
             sx={{
               cursor:
@@ -116,7 +118,9 @@ export const SettingsSideDrawer = ({
         </Title>
         {transactionData.map((data) => (
           <SideDrawerButton
-            onClick={() => handleClick(data)}
+            onClick={() =>
+              data.callback ? data.callback() : handleClick(data)
+            }
             key={data.key}
             sx={{
               cursor: data.ViewComponent ? 'pointer' : 'normal',

@@ -97,7 +97,10 @@ export const VaultSummary = () => {
               leverageRatio,
             }}
           >
-            <Box id={VAULT_SUB_NAV_ACTIONS.OVERVIEW}>
+            <Box
+              id={VAULT_SUB_NAV_ACTIONS.OVERVIEW}
+              sx={{ marginBottom: theme.spacing(2) }}
+            >
               <SliderDisplay
                 min={0}
                 max={100}
@@ -130,7 +133,7 @@ export const VaultSummary = () => {
             />
             {selectedDepositToken && (
               <Faq
-                sx={{ boxShadow: 'none' }}
+                sx={{ boxShadow: 'none', marginBottom: theme.spacing(5) }}
                 question={<FormattedMessage defaultMessage={'How it Works'} />}
                 componentAnswer={
                   <HowItWorksFaq tokenSymbol={selectedDepositToken} />

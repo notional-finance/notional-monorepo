@@ -66,6 +66,7 @@ declare module '@mui/material/styles' {
     md: true;
     lg: true;
     xl: true;
+    xxl: true;
     smLanding: true;
     mdLanding: true;
   }
@@ -600,6 +601,7 @@ const getThemeData = (
         md: 1152,
         lg: 1440,
         xl: 1536,
+        xxl: 1655,
         smLanding: 1000,
         mdLanding: 1220,
       },

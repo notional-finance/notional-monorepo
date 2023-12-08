@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Box } from '@mui/material';
 import { ToggleSwitch } from '@notional-finance/mui';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
@@ -7,14 +8,14 @@ import {
   getFromLocalStorage,
 } from '@notional-finance/helpers';
 
-export const DarkModeToggle = () => {
+export const useDarkModeToggle = () => {
   const { updateNotional } = useNotionalContext();
   const userSettings = getFromLocalStorage('userSettings');
   const isChecked =
     userSettings?.themeVariant &&
     userSettings?.themeVariant === THEME_VARIANTS.DARK;
 
-  const handleChange = () => {
+  const toggleDarkMode = useCallback(() => {
     if (
       userSettings?.themeVariant &&
       userSettings?.themeVariant === THEME_VARIANTS.DARK
@@ -42,13 +43,19 @@ export const DarkModeToggle = () => {
         themeVariant: THEME_VARIANTS.DARK,
       });
     }
-  };
+  }, [updateNotional, userSettings]);
+
+  return { toggleDarkMode, isChecked };
+};
+
+export const DarkModeToggle = () => {
+  const { isChecked } = useDarkModeToggle();
 
   return (
     <Box
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
-      <ToggleSwitch isChecked={isChecked} onToggle={() => handleChange()} />
+      <ToggleSwitch isChecked={isChecked} />
     </Box>
   );
 };

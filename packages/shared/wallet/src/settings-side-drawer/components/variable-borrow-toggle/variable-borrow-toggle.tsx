@@ -4,14 +4,13 @@ import { useAccountReady } from '@notional-finance/notionable-hooks';
 import { useEnablePrimeBorrow } from '@notional-finance/trade';
 import { useCallback } from 'react';
 
-export const PrimeBorrowToggle = () => {
+export const useVariableBorrowToggle = () => {
   const isAccountReady = useAccountReady();
   const { isPrimeBorrowAllowed, enablePrimeBorrow, disablePrimeBorrow } =
     useEnablePrimeBorrow();
-
   const isChecked = isAccountReady ? isPrimeBorrowAllowed : false;
 
-  const onToggle = useCallback(() => {
+  const variableBorrowToggle = useCallback(() => {
     // Only active when account is connected
     if (!isAccountReady) return;
     if (isPrimeBorrowAllowed) {
@@ -26,13 +25,19 @@ export const PrimeBorrowToggle = () => {
     disablePrimeBorrow,
   ]);
 
+  return { variableBorrowToggle, isChecked };
+};
+
+export const VariableBorrowToggle = () => {
+  const { isChecked } = useVariableBorrowToggle();
+
   return (
     <Box
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
-      <ToggleSwitch isChecked={isChecked} onToggle={onToggle} />
+      <ToggleSwitch isChecked={isChecked} />
     </Box>
   );
 };
 
-export default PrimeBorrowToggle;
+export default VariableBorrowToggle;

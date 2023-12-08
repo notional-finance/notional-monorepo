@@ -11,10 +11,12 @@ import {
   BaseCurrency,
   BaseCurrencyButton,
   DarkModeToggle,
+  useDarkModeToggle,
+  useVariableBorrowToggle,
+  VariableBorrowToggle,
 } from './components';
 import { FormattedMessage } from 'react-intl';
 import { ReactNode } from 'react';
-import PrimeBorrowToggle from './prime-borrow-toggle/prime-borrow-toggle';
 import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
 
 export interface SettingsItem {
@@ -22,12 +24,15 @@ export interface SettingsItem {
   active: boolean;
   label: ReactNode;
   CustomButton?: React.ElementType;
+  callback?: () => void;
   ViewComponent?: React.ElementType;
   buttonText?: string;
 }
 
 export const useSettingsSideDrawer = () => {
   const truncatedAddress = useTruncatedAddress();
+  const { toggleDarkMode } = useDarkModeToggle();
+  const { variableBorrowToggle } = useVariableBorrowToggle();
   const walletAction = truncatedAddress
     ? {
         key: 'reset-wallets',
@@ -111,6 +116,7 @@ export const useSettingsSideDrawer = () => {
         />
       ),
       CustomButton: DarkModeToggle,
+      callback: toggleDarkMode,
       buttonText: '',
     },
   ];
@@ -165,7 +171,8 @@ export const useSettingsSideDrawer = () => {
           description={'Dark Mode option title'}
         />
       ),
-      CustomButton: PrimeBorrowToggle,
+      CustomButton: VariableBorrowToggle,
+      callback: variableBorrowToggle,
       buttonText: '',
     },
   ];
