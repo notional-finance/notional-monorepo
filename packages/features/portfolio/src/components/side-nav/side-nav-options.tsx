@@ -102,8 +102,8 @@ const SideNavItem = styled(Link, {
     width: 100%;
     background: ${selected ? theme.palette.primary.dark : 'transparent'};
     border-radius: 0px;
-    padding-left: 28px;
-    padding-right: 28px;
+    padding-left: ${theme.spacing(3.5)};
+    padding-right: ${theme.spacing(3.5)};
     display: flex;
     align-items: center;
     justify-content: flex-start;
