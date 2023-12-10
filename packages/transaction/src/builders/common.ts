@@ -205,7 +205,10 @@ export function encodeTrades(
       // 0 == LEND, 1 == BORROW
       const tradeActionType = fCash.isPositive() ? 0 : 1;
       const marketIndex = pool.getMarketIndex(fCash.token.maturity);
-      const slippage = pool.getSlippageRate(fCash, slippageFactor);
+      // Slippage will fail when trying to sell off dust amounts
+      const slippage = fCash.abs().n.lt(INTERNAL_PRECISION_DUST)
+        ? 0
+        : pool.getSlippageRate(fCash, slippageFactor);
 
       return ethers.utils.solidityPack(
         ['uint8', 'uint8', 'uint88', 'uint32', 'uint120'],
