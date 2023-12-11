@@ -67,7 +67,7 @@ export function getComposablePoolConfig(
         contractAddress: AuraGaugeAddress,
         contractABI: BalancerGaugeABI,
         method: network === Network.ArbitrumOne ? 'balanceOfPool' : 'balanceOf',
-        args: [poolAddress],
+        args: [balancerGaugeAddress],
       },
       tableName: TableName.GenericData,
       dataConfig: {
