@@ -110,6 +110,9 @@ export interface BalancerPoolInterface extends utils.Interface {
     "setSwapFeePercentage(uint256)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
+    "getActualSupply()": FunctionFragment;
+    "getLastPostJoinExitInvariant()": FunctionFragment;
+    "getScalingFactors()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
   };
@@ -147,6 +150,9 @@ export interface BalancerPoolInterface extends utils.Interface {
       | "setSwapFeePercentage"
       | "symbol"
       | "totalSupply"
+      | "getActualSupply"
+      | "getLastPostJoinExitInvariant"
+      | "getScalingFactors"
       | "transfer"
       | "transferFrom"
   ): FunctionFragment;
@@ -299,6 +305,18 @@ export interface BalancerPoolInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getActualSupply",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLastPostJoinExitInvariant",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getScalingFactors",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "transfer",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -379,6 +397,18 @@ export interface BalancerPoolInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getActualSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLastPostJoinExitInvariant",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getScalingFactors",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
@@ -627,6 +657,14 @@ export interface BalancerPool extends BaseContract {
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    getActualSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getLastPostJoinExitInvariant(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getScalingFactors(overrides?: CallOverrides): Promise<[BigNumber[]]>;
+
     transfer(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -794,6 +832,12 @@ export interface BalancerPool extends BaseContract {
   symbol(overrides?: CallOverrides): Promise<string>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getActualSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getLastPostJoinExitInvariant(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getScalingFactors(overrides?: CallOverrides): Promise<BigNumber[]>;
 
   transfer(
     recipient: PromiseOrValue<string>,
@@ -966,6 +1010,12 @@ export interface BalancerPool extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<string>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getActualSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getLastPostJoinExitInvariant(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getScalingFactors(overrides?: CallOverrides): Promise<BigNumber[]>;
 
     transfer(
       recipient: PromiseOrValue<string>,
@@ -1162,6 +1212,12 @@ export interface BalancerPool extends BaseContract {
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getActualSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getLastPostJoinExitInvariant(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getScalingFactors(overrides?: CallOverrides): Promise<BigNumber>;
+
     transfer(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1326,6 +1382,14 @@ export interface BalancerPool extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getActualSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getLastPostJoinExitInvariant(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getScalingFactors(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transfer(
       recipient: PromiseOrValue<string>,
