@@ -1,4 +1,3 @@
-// import { useCallback } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { LiquidityContext } from '../../liquidity';
 import { BorrowTermsDropdown } from '@notional-finance/trade';
@@ -8,14 +7,10 @@ import {
   InputLabel,
   LabelValue,
   ToggleSwitch,
-  // AssetSelectDropdown,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import React, { useContext } from 'react';
-import {
-  LeverageSlider,
-  // VariableFixedMaturityToggle,
-} from '@notional-finance/trade';
+import { LeverageSlider } from '@notional-finance/trade';
 import {
   formatLeverageRatio,
   formatNumberAsPercent,
@@ -29,7 +24,6 @@ export const CustomLiquidityTerms = () => {
   const theme = useTheme();
   const context = useContext(LiquidityContext);
   const {
-    // updateState,
     state: { deposit },
   } = context;
 

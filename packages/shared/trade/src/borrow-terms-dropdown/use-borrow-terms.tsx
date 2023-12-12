@@ -33,19 +33,14 @@ export const useBorrowTerms = (
     },
     updateState,
   } = context;
-
-  // Need to check if deposit is set to resolve some race conditions here
   const spotMaturityData = useSpotMaturityData(
     deposit ? availableDebtTokens : []
   );
-
   const isVault = isVaultTrade(tradeType);
-
   const assetAPY =
     collateralOptions?.find((c) => c.token.id === collateral?.id)
       ?.interestRate ||
     nonLeveragedYields.find((y) => y.token.id === collateral?.id)?.totalAPY;
-
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)

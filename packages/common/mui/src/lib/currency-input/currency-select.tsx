@@ -205,8 +205,8 @@ export const formatOption = (
 
   return wrapInOption ? (
     <StyledItem
-      value={option?.token?.id}
-      key={option?.token?.id}
+      value={option.token.id}
+      key={option.token.id}
       label={icon}
       theme={theme}
       disabled={option.disabled}
