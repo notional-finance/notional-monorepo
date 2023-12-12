@@ -4,7 +4,7 @@ import { Box, Button, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { SelectDropdown } from '../select-dropdown/select-dropdown';
-import { Caption, H4 } from '../typography/typography';
+import { Caption, H4, H5 } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
 import CountUp from '../count-up/count-up';
 import { TokenDefinition } from '@notional-finance/core-entities';
@@ -21,7 +21,10 @@ export interface CurrencySelectOption {
     shouldCountUp?: boolean;
     caption?: React.ReactNode;
     largeCaption?: number;
+    largeCaptionSuffix?: string;
+    optionTitle?: React.ReactNode;
     balance?: string | undefined;
+    error?: React.ReactNode | undefined;
     apy?: string | undefined;
   };
   disabled?: boolean;
@@ -91,19 +94,46 @@ export const formatOption = (
     option.displayToken || option.token
   );
   let rightContent: ReactNode | undefined;
+  let leftContent: ReactNode | undefined;
+
   if (option.content) {
     const c = option.content;
+
+    leftContent = (
+      <Box sx={{ display: 'flex' }}>
+        {c?.error && <H4 marginLeft={theme.spacing(1)}>{c?.error}</H4>}
+        {c?.largeCaption && !c?.error && (
+          <H4 marginLeft={theme.spacing(1)}>
+            {c.shouldCountUp ? (
+              <CountUp
+                value={c?.largeCaption}
+                suffix={c?.largeCaptionSuffix}
+                decimals={2}
+              />
+            ) : (
+              `${c?.largeCaption.toFixed(2)}${c?.largeCaptionSuffix}`
+            )}
+          </H4>
+        )}
+        {titleWithMaturity && !c?.largeCaptionSuffix && (
+          <>
+            <TokenIcon symbol={icon} size="medium" />
+            <H4 marginLeft={theme.spacing(1)}>{titleWithMaturity}</H4>
+          </>
+        )}
+      </Box>
+    );
 
     const largeFigureNode =
       c.shouldCountUp && c.largeFigure ? (
         <CountUp
           value={c.largeFigure}
-          suffix={` ${c.largeFigureSuffix}`}
+          suffix={c.largeFigureSuffix}
           decimals={3}
         />
       ) : (
         <span>
-          {c.largeFigure && c.largeFigure.toFixed(3)}&nbsp;
+          {c.largeFigure && c.largeFigure.toFixed(3)}
           {c.largeFigureSuffix}
         </span>
       );
@@ -136,9 +166,15 @@ export const formatOption = (
 
     rightContent = (
       <Box textAlign={'right'}>
-        {largeFigureNode && c.largeFigure && (
-          <H4 error={c.largeFigure < 0}>{largeFigureNode}</H4>
+        {largeFigureNode && c.largeFigure && !c?.error && (
+          <H4
+            sx={{ fontSize: c.caption ? '14px' : '16px' }}
+            error={c.largeFigure < 0}
+          >
+            {largeFigureNode}
+          </H4>
         )}
+        {c?.error && <H4>--</H4>}
         {apyNode && apyNode}
         {c.caption ? <Caption>{c.caption}</Caption> : null}
       </Box>
@@ -146,43 +182,31 @@ export const formatOption = (
   }
 
   const child = (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        height: theme.spacing(5),
-      }}
-    >
-      <Box sx={{ display: 'flex' }}>
-        {option.content?.largeCaption ? (
-          <H4 marginLeft={theme.spacing(1)}>
-            {option.content.shouldCountUp ? (
-              <CountUp
-                value={option.content?.largeCaption}
-                suffix={`% Total APY`}
-                decimals={2}
-              />
-            ) : (
-              `${option.content?.largeCaption.toFixed(2)}% Total APY`
-            )}
-          </H4>
-        ) : (
-          <>
-            <TokenIcon symbol={icon} size="medium" />
-            <H4 marginLeft={theme.spacing(1)}>{titleWithMaturity}</H4>
-          </>
-        )}
+    <Box sx={{ width: '100%' }}>
+      {option.content?.optionTitle && (
+        <H5 sx={{ padding: theme.spacing(1) }}>
+          {option.content?.optionTitle}
+        </H5>
+      )}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%',
+          height: theme.spacing(5),
+        }}
+      >
+        {leftContent && <Box>{leftContent}</Box>}
+        {rightContent && <Box textAlign="right">{rightContent}</Box>}
       </Box>
-      {rightContent && <Box textAlign="right">{rightContent}</Box>}
     </Box>
   );
 
   return wrapInOption ? (
     <StyledItem
-      value={option.token.id}
-      key={option.token.id}
+      value={option?.token?.id}
+      key={option?.token?.id}
       label={icon}
       theme={theme}
       disabled={option.disabled}

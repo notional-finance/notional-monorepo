@@ -57,7 +57,7 @@ export const PortfolioHoldingSelect = ({
         return {
           token: b.token,
           largeFigure: maxWithdraw?.toUnderlying().toFloat() || 0,
-          largeFigureSuffix: b.underlying.symbol,
+          largeFigureSuffix: ' ' + b.underlying.symbol,
         };
       } else {
         // isRepay
@@ -65,7 +65,7 @@ export const PortfolioHoldingSelect = ({
         return {
           token: b.tokenType === 'PrimeCash' ? b.toPrimeDebt().token : b.token,
           largeFigure: underlying.toFloat() || 0,
-          largeFigureSuffix: b.underlying.symbol,
+          largeFigureSuffix: ' ' + b.underlying.symbol,
           caption: underlying.toFiat(baseCurrency).toDisplayStringWithSymbol(),
         };
       }
