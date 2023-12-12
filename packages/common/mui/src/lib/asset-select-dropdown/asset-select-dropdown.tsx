@@ -10,7 +10,7 @@ import { SelectDropdown } from '../select-dropdown/select-dropdown';
 import { InputLabel } from '../input-label/input-label';
 
 interface AssetSelectDropdownProps {
-  inputLabel: MessageDescriptor;
+  inputLabel?: MessageDescriptor;
   errorMsg?: MessageDescriptor;
   tightMarginTop?: boolean;
   selectedTokenId?: string;
@@ -20,6 +20,7 @@ interface AssetSelectDropdownProps {
     largeFigure: number;
     largeFigureSuffix: string;
     caption?: React.ReactNode;
+    largeCaption?: number;
     disabled?: boolean;
   }[];
   caption?: React.ReactNode;
@@ -49,24 +50,24 @@ export const AssetSelectDropdown = ({
   options,
   caption,
 }: AssetSelectDropdownProps) => {
-  console.log({
-    inputLabel,
-    tightMarginTop,
-    selectedTokenId,
-    onSelect,
-    options,
-    caption,
-  });
   const theme = useTheme();
   const emptyOption = EmptyCurrencySelectOption(theme);
 
   const selectOptions = options?.map(
-    ({ token, largeFigure, largeFigureSuffix, caption, disabled }) => {
+    ({
+      token,
+      largeFigure,
+      largeFigureSuffix,
+      caption,
+      disabled,
+      largeCaption,
+    }) => {
       return formatOption(
         {
           token: token,
           content: {
             largeFigure,
+            largeCaption,
             largeFigureSuffix,
             shouldCountUp: false,
             caption,
@@ -92,6 +93,7 @@ export const AssetSelectDropdown = ({
                 {
                   token: o.token,
                   content: {
+                    largeCaption: o.largeCaption,
                     largeFigure: o.largeFigure,
                     largeFigureSuffix: o.largeFigureSuffix,
                     shouldCountUp: true,

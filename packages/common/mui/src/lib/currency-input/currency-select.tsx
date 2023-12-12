@@ -20,6 +20,7 @@ export interface CurrencySelectOption {
     largeFigureSuffix?: string;
     shouldCountUp?: boolean;
     caption?: React.ReactNode;
+    largeCaption?: number;
     balance?: string | undefined;
     apy?: string | undefined;
   };
@@ -155,8 +156,24 @@ export const formatOption = (
       }}
     >
       <Box sx={{ display: 'flex' }}>
-        <TokenIcon symbol={icon} size="medium" />
-        <H4 marginLeft={theme.spacing(1)}>{titleWithMaturity}</H4>
+        {option.content?.largeCaption ? (
+          <H4 marginLeft={theme.spacing(1)}>
+            {option.content.shouldCountUp ? (
+              <CountUp
+                value={option.content?.largeCaption}
+                suffix={`% Total APY`}
+                decimals={2}
+              />
+            ) : (
+              `${option.content?.largeCaption.toFixed(2)}% Total APY`
+            )}
+          </H4>
+        ) : (
+          <>
+            <TokenIcon symbol={icon} size="medium" />
+            <H4 marginLeft={theme.spacing(1)}>{titleWithMaturity}</H4>
+          </>
+        )}
       </Box>
       {rightContent && <Box textAlign="right">{rightContent}</Box>}
     </Box>
