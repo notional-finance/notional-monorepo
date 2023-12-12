@@ -824,7 +824,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         network,
         underlyingId
       ),
-      bundleName: p.bundle.bundleName,
+      bundleName: p.bundle?.bundleName,
       transactionHash: p.transactionHash.id,
       tokenAmount,
       underlyingAmountRealized,

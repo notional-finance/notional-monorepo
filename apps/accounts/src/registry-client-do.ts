@@ -69,7 +69,7 @@ export class RegistryClientDO extends BaseDO<Env> {
         await this.checkDataFreshness(network);
         await this.checkAccountList(network);
         await this.checkTotalSupply(network);
-        await this.saveAccountFactors(network);
+        // await this.saveAccountFactors(network);
         await this.saveYieldData(network);
         await this.checkDBMonitors(network);
       }
