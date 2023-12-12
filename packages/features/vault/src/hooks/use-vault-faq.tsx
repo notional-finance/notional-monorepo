@@ -19,7 +19,7 @@ export const useVaultFaq = () => {
   const selectedNetwork = useSelectedNetwork();
   const faqHeaderLinks = [
     {
-      href: 'https://docs.notional.finance/leveraged-vaults/leveraged-vaults/balancer-aura-wsteth-weth-strategy',
+      href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',
       text: (
         <FormattedMessage defaultMessage={'Leveraged Vault Documentation'} />
       ),
