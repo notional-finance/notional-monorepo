@@ -7536,7 +7536,7 @@ export type AllAccountsQuery = { accounts: Array<(
         & { underlying?: Maybe<Pick<Token, 'id'>> }
       ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate' | 'adjustedNOTEClaimed' | 'totalNOTEClaimed'> }>>, profitLossLineItems?: Maybe<Array<(
       Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
-      & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
+      & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'> }
     )>> }
   )> };
 
@@ -7737,9 +7737,6 @@ export const AllAccountsDocument = gql`
         id
       }
       tokenAmount
-      bundle {
-        bundleName
-      }
       underlyingAmountRealized
       underlyingAmountSpot
       realizedPrice
