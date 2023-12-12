@@ -1,4 +1,3 @@
-// import { useCallback } from 'react';
 import { AssetSelectDropdown } from '@notional-finance/mui';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useBorrowTerms } from './use-borrow-terms';
