@@ -14,7 +14,7 @@ export const getErrorMessages = (
       return (
         <FormattedMessage
           defaultMessage={
-            'Insufficient Liquidity. Lower deposit amount to continue.'
+            'Insufficient Liquidity. Lower deposit amount, lower leverage, or switch to variable borrow rate to continue.'
           }
         />
       );

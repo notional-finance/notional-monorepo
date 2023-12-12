@@ -102,7 +102,6 @@ export function TradeActionSummary({
     totalAPY = assetAPY !== undefined ? assetAPY : debtAPY;
   }
 
-  console.log({ totalAPY });
   const { title } = collateral
     ? formatTokenType(collateral)
     : isVault

@@ -21,7 +21,10 @@ interface AssetSelectDropdownProps {
     largeFigureSuffix: string;
     caption?: React.ReactNode;
     largeCaption?: number;
+    largeCaptionSuffix?: string;
     disabled?: boolean;
+    optionTitle?: React.ReactNode;
+    error?: React.ReactNode;
   }[];
   caption?: React.ReactNode;
 }
@@ -61,13 +64,19 @@ export const AssetSelectDropdown = ({
       caption,
       disabled,
       largeCaption,
+      largeCaptionSuffix,
+      optionTitle,
+      error,
     }) => {
       return formatOption(
         {
           token: token,
           content: {
+            optionTitle,
+            error,
             largeFigure,
             largeCaption,
+            largeCaptionSuffix,
             largeFigureSuffix,
             shouldCountUp: false,
             caption,
@@ -87,13 +96,15 @@ export const AssetSelectDropdown = ({
         value={selectedTokenId || null}
         onChange={onSelect}
         renderValue={(opt) => {
-          const o = options?.find(({ token }) => token.id === opt?.value);
+          const o = options?.find(({ token }) => token?.id === opt?.value);
           return o
             ? formatOption(
                 {
                   token: o.token,
                   content: {
+                    error: o.error,
                     largeCaption: o.largeCaption,
+                    largeCaptionSuffix: o.largeCaptionSuffix,
                     largeFigure: o.largeFigure,
                     largeFigureSuffix: o.largeFigureSuffix,
                     shouldCountUp: true,
@@ -108,7 +119,11 @@ export const AssetSelectDropdown = ({
       >
         {selectOptions}
       </SelectDropdown>
-      <Paragraph marginTop={theme.spacing(1)}>{caption || '\u00A0'}</Paragraph>
+      {caption && (
+        <Paragraph marginTop={theme.spacing(1)}>
+          {caption || '\u00A0'}
+        </Paragraph>
+      )}
     </Box>
   );
 };

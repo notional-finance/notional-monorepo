@@ -52,14 +52,27 @@ export const useBorrowTerms = (
       : priorVaultFactors?.leverageRatio;
 
   const borrowOptions = useMemo(() => {
+    // Note this is a any[] because there were conflicts when attempting to combine the debtOptions and spotMaturityData types
     const options = (debtOptions || spotMaturityData) as any[];
-    return options?.map((o) => {
+    return options.reverse().map((o, index) => {
       const borrowAmount = o?.interestRate || o?.tradeRate;
       const totalAPY = leveragedYield(assetAPY, borrowAmount, leverageRatio);
-
       return {
+        error:
+          o.error === 'Error: Insufficient Liquidity' ? (
+            <FormattedMessage defaultMessage={'Insufficient Liquidity'} />
+          ) : o.error ? (
+            <FormattedMessage defaultMessage={'Error'} />
+          ) : undefined,
+        optionTitle:
+          index === 0 ? (
+            <FormattedMessage defaultMessage={'Variable Rate'} />
+          ) : o.token.maturity && index === 1 ? (
+            <FormattedMessage defaultMessage={'Fixed Rate'} />
+          ) : undefined,
         token: o.token,
         largeCaption: totalAPY ? totalAPY : undefined,
+        largeCaptionSuffix: '% Total APY',
         largeFigure: borrowAmount,
         largeFigureSuffix: `% Borrow APY`,
         caption: o.token.maturity ? (
@@ -77,7 +90,6 @@ export const useBorrowTerms = (
   const onSelect = useCallback(
     (selectedId: string | null) => {
       if (isVault) {
-        // Selects the matching vault collateral asset when the debt asset is selected
         const debt = availableDebtTokens?.find((t) => t.id === selectedId);
         const collateral = availableCollateralTokens?.find(
           (t) => t.maturity === debt?.maturity
