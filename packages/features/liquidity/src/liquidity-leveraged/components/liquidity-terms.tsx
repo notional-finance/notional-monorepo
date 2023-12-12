@@ -1,6 +1,7 @@
 // import { useCallback } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { LiquidityContext } from '../../liquidity';
+import { BorrowTermsDropdown } from '@notional-finance/trade';
 import {
   Body,
   ButtonText,
@@ -32,86 +33,22 @@ export const CustomLiquidityTerms = () => {
     state: { deposit },
   } = context;
 
-  // const mockOptions = [
-  //   {
-  //     token: {
-  //       id: '0x1',
-  //       currencyId: '0x1',
-  //       symbol: 'ETH',
-  //       decimals: 18,
-  //       tokenType: 'PrimeCash',
-  //       underlying: {
-  //         id: '0x1',
-  //         currencyId: '0x1',
-  //         symbol: 'ETH',
-  //         decimals: 18,
-  //         tokenType: 'PrimeCash',
-  //       },
-  //     },
-  //     largeFigure: 100,
-  //     largeFigureSuffix: 'ETH',
-  //     caption: '100 ETH',
-  //   },
-  //   {
-  //     token: {
-  //       id: '0x2',
-  //       currencyId: '0x2',
-  //       symbol: 'BTC',
-  //       decimals: 18,
-  //       tokenType: 'PrimeCash',
-  //       underlying: {
-  //         id: '0x2',
-  //         currencyId: '0x2',
-  //         symbol: 'BTC',
-  //         decimals: 18,
-  //         tokenType: 'PrimeCash',
-  //       },
-  //     },
-  //     largeFigure: 100,
-  //     largeFigureSuffix: 'BTC',
-  //     caption: '100 BTC',
-  //   },
-  // ];
-
-  // const onSelect = useCallback(
-  //   (id: string | null) => {
-  //     const c = mockOptions?.find((t) => t.token.id === id);
-  //     console.log({ c });
-  //     // updateState(isWithdraw ? { debt: c?.token } : { collateral: c?.token });
-  //   },
-  //   [updateState, mockOptions]
-  // );
-
   return (
     <LiquidityTerms
-      inputLabel={defineMessage({ defaultMessage: '2. Customize your terms' })}
+      inputLabel={defineMessage({ defaultMessage: '2. Select Borrow Terms' })}
       hasPosition={false}
     >
-      <Box
-        sx={{
-          borderRadius: theme.shape.borderRadius(),
-          border: theme.shape.borderStandard,
-          padding: theme.spacing(2),
-        }}
-      >
-        {/* <AssetSelectDropdown
-          tightMarginTop={tightMarginTop}
-          selectedTokenId={selectedTokenId}
-          inputLabel={defineMessage({ defaultMessage: 'COOL LABEL' })}
-          onSelect={onSelect}
-          options={mockOptions}
-        /> */}
-        <Box height={theme.spacing(6)} />
-        <LeverageSlider
-          showMinMax
-          context={context}
-          leverageCurrencyId={deposit?.currencyId}
-          inputLabel={defineMessage({
-            defaultMessage: 'Specify your leverage',
-            description: 'input label',
-          })}
-        />
-      </Box>
+      <BorrowTermsDropdown context={context} />
+      <Box height={theme.spacing(6)} />
+      <LeverageSlider
+        showMinMax
+        context={context}
+        leverageCurrencyId={deposit?.currencyId}
+        inputLabel={defineMessage({
+          defaultMessage: '3. Specify leverage',
+          description: 'input label',
+        })}
+      />
     </LiquidityTerms>
   );
 };
