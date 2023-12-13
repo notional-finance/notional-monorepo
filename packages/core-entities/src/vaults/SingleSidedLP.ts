@@ -39,7 +39,20 @@ export class SingleSidedLP extends VaultAdapter {
     super(p.enabled, p.name);
 
     this.pool = Registry.getExchangeRegistry().getPoolInstance(network, p.pool);
-    this.singleSidedTokenIndex = p.singleSidedTokenIndex;
+
+    // NOTE: make a correction for BPT index to exclude it from ComposableStablePools
+    const bptIndex = (this.pool.poolParams as Record<string, unknown>)[
+      'bptIndex'
+    ] as number | undefined;
+    if (bptIndex !== undefined) {
+      this.singleSidedTokenIndex =
+        p.singleSidedTokenIndex < bptIndex
+          ? p.singleSidedTokenIndex
+          : p.singleSidedTokenIndex - 1;
+    } else {
+      this.singleSidedTokenIndex = p.singleSidedTokenIndex;
+    }
+
     this.totalLPTokens = p.totalLPTokens;
     this.totalVaultShares = p.totalVaultShares;
     this.secondaryTradeParams = p.secondaryTradeParams;
@@ -64,6 +77,9 @@ export class SingleSidedLP extends VaultAdapter {
     lpTokens: TokenBalance,
     vaultShare: TokenDefinition
   ) {
+    if (this.totalLPTokens.isZero())
+      return TokenBalance.from(lpTokens.scaleTo(8), vaultShare);
+
     return TokenBalance.from(
       this.totalVaultShares.mul(lpTokens.n).div(this.totalLPTokens.n),
       vaultShare
@@ -218,6 +234,7 @@ export class SingleSidedLP extends VaultAdapter {
   }
 
   getPriceExposure() {
+    // TODO: this only works on two token pools
     return (
       this.pool
         // This is trading towards the single sided token [profit]

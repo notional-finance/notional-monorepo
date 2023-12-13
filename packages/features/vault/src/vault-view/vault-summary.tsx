@@ -18,7 +18,6 @@ import {
   TradeActionSummary,
 } from '@notional-finance/trade';
 import {
-  useVaultPriceExposure,
   useVaultExistingFactors,
   useReturnDrivers,
   useVaultFaq,
@@ -30,7 +29,6 @@ export const VaultSummary = () => {
   const { state } = useContext(VaultActionContext);
   const {
     vaultAddress,
-    deposit,
     selectedDepositToken,
     overCapacityError,
     totalCapacityRemaining,
@@ -39,7 +37,7 @@ export const VaultSummary = () => {
     capacityWithUserBorrowPercentage,
   } = state;
   const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
-  const { data, columns } = useVaultPriceExposure(state);
+  // const { data, columns } = useVaultPriceExposure(state);
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
   const { faqHeaderLinks, faqs } = useVaultFaq();
@@ -150,7 +148,7 @@ export const VaultSummary = () => {
               vaultCollateral={vaultShare}
               vaultLiquidationPrice={assetLiquidationPrice}
             />
-            <Box marginBottom={theme.spacing(5)}>
+            {/* <Box marginBottom={theme.spacing(5)}>
               <DataTable
                 tableTitle={
                   <FormattedMessage
@@ -167,7 +165,7 @@ export const VaultSummary = () => {
                 maxHeight={theme.spacing(40)}
                 columns={columns}
               />
-            </Box>
+            </Box> */}
             <Box id={VAULT_SUB_NAV_ACTIONS.RETURN_DRIVERS}>
               <DataTable
                 data={returnDrivers}
