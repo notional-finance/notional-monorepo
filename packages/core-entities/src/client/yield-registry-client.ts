@@ -13,6 +13,7 @@ import { ClientRegistry } from './client-registry';
 import { TokenType, YieldData } from '../Definitions';
 import { TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
+import { whitelistedVaults } from '../config/whitelisted-vaults';
 
 export class YieldRegistryClient extends ClientRegistry<YieldData> {
   protected cachePath() {
@@ -384,7 +385,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           v.tokenType === 'VaultShare' &&
           (v.maturity ? v.maturity > getNowSeconds() : true) &&
           !!v.vaultAddress &&
-          vaults.isVaultEnabled(v.network, v.vaultAddress)
+          vaults.isVaultEnabled(v.network, v.vaultAddress) &&
+          whitelistedVaults.includes(v.vaultAddress)
       )
       .flatMap((v) => {
         const debt = debtYields.find(
