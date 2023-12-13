@@ -9,4 +9,9 @@ export { ConfigurationClient } from './client';
 export * from './config/fiat-config';
 export * from './server';
 export { ClientRegistry } from './client/client-registry';
-export { ServerRegistry, fetchGraph, loadGraphClientDeferred } from './server/server-registry';
+export {
+  ServerRegistry,
+  fetchGraph,
+  loadGraphClientDeferred,
+} from './server/server-registry';
+export * from './config/whitelisted-vaults';
