@@ -273,6 +273,7 @@ export const TradeConfiguration = {
       'depositBalance',
       'riskFactorLimit',
     ],
+    depositFilter: (t, _, __, l) => hasNToken(t, l),
     collateralFilter: (t, _, s) =>
       t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),
     debtFilter: (t, _, s) =>
@@ -294,6 +295,7 @@ export const TradeConfiguration = {
       'riskFactorLimit',
       'balances',
     ],
+    depositFilter: (t, _, __, l) => hasNToken(t, l),
     collateralFilter: (t, _, s) =>
       t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),
     debtFilter: (t, _, s) =>
@@ -316,6 +318,7 @@ export const TradeConfiguration = {
       'balances',
     ],
     // NOTE: collateral and debt can switch based on the risk factor limit
+    depositFilter: (t, _, __, l) => hasNToken(t, l),
     collateralFilter: (t, a, s) =>
       onlySameCurrency(t, s.deposit) &&
       (s.debt?.tokenType === 'nToken'
