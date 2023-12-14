@@ -841,4 +841,11 @@ export default class DataService {
       .from(DataService.ACCOUNTS_TABLE_NAME)
       .where('network_id', this.networkToId(this.settings.network));
   }
+
+  public async vaultAccounts() {
+    return this.db
+      .select(['account_id', 'vault_id'])
+      .from(DataService.VAULT_ACCOUNTS_TABLE_NAME)
+      .where('network_id', this.networkToId(this.settings.network));
+  }
 }
