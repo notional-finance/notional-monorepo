@@ -3,12 +3,12 @@ import { OnboardAPI } from '@web3-onboard/core';
 import injectedModule from '@web3-onboard/injected-wallets';
 import walletConnectModule from '@web3-onboard/walletconnect';
 import gnosisModule from '@web3-onboard/gnosis';
-import ledgerModule from '@web3-onboard/ledger';
+// import ledgerModule from '@web3-onboard/ledger';
 import trezorModule from '@web3-onboard/trezor';
 import coinbaseModule from '@web3-onboard/coinbase';
 import MetaMask from './images/meta-mask.svg';
 import WalletConnect from './images/wallet-connect.svg';
-import Ledger from './images/ledger.svg';
+// import Ledger from './images/ledger.svg';
 import Trezor from './images/trezor.svg';
 import Rabby from './images/rabby.svg';
 import CoinbaseWallet from './images/coinbase-wallet.svg';
@@ -46,10 +46,10 @@ export const modules = [
     label: 'WalletConnect',
     icon: WalletConnect,
   },
-  {
-    label: 'Ledger',
-    icon: Ledger,
-  },
+  // {
+  //   label: 'Ledger',
+  //   icon: Ledger,
+  // },
   {
     label: 'Trezor',
     icon: Trezor,
@@ -73,7 +73,7 @@ const wallets = [
   injectedModule(),
   walletConnectModule(wcV2InitOptions),
   gnosisModule(),
-  ledgerModule(),
+  // ledgerModule(),
   trezorModule({
     email,
     appUrl,
