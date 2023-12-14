@@ -50,6 +50,7 @@ export * from './lib/bug-bounty-icon/bug-bounty-icon';
 export * from './lib/cal-add-icon/cal-add-icon';
 export * from './lib/developer-docs-icon/developer-docs-icon';
 export * from './lib/defi-Llama-icon/defi-Llama-icon';
+export * from './lib/degen-score-icon/degen-score-icon';
 export * from './lib/dune-icon/dune-icon';
 export * from './lib/forum-icon/forum-icon';
 export * from './lib/equals-icon/equals-icon';

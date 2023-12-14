@@ -1,10 +1,11 @@
 import { formatLeverageRatio } from '@notional-finance/helpers';
-import { VaultCardOverlay, VaultCardIcon } from '../components';
+// import { VaultCardOverlay } from '../components';
 import {
   useAllMarkets,
   useAllVaults,
   useVaultRiskProfiles,
 } from '@notional-finance/notionable-hooks';
+// import { DegenScoreIcon } from '@notional-finance/icons';
 
 interface AllVaultsProps {
   capacityRemaining: string;
@@ -67,27 +68,11 @@ export const useVaultCards = () => {
         vaultName: name,
         capacityUsedPercentage,
         capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
-        VaultCardOverlay,
-        VaultCardIcon,
+        // VaultCardOverlay,
+        // VaultCardIcon: DegenScoreIcon,
       };
     }
   );
-
-  // const test = {
-  //   capacityRemaining: '3000 FRAX',
-  //   capacityUsedPercentage: 90,
-  //   hasPosition: false,
-  //   headlineRate: 72.28363884109214,
-  //   leverage: '6.7x',
-  //   minDepositRequired: '150.00 FUCK to 2,000.00 FUCK',
-  //   netWorth: undefined,
-  //   underlyingSymbol: 'FRAX',
-  //   vaultAddress: '0xdb08f663e5d765949054785f2ed1b2aa1e9c23234rf',
-  //   vaultName: 'Curve FUCK/USDC LP (FUCK Leverage)',
-  //   VaultCardOverlay: VaultCardOverlay,
-  // };
-
-  // allVaults.push(test);
 
   return allVaults as AllVaultsProps[];
 };

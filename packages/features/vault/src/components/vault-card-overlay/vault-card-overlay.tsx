@@ -8,6 +8,7 @@ import {
   useAccountReady,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
+import { DegenScoreIcon } from '@notional-finance/icons';
 import { Player } from '@lottiefiles/react-lottie-player';
 import { colors } from '@notional-finance/styles';
 import vaultLock from './vault-lock.json';
@@ -42,6 +43,17 @@ export const VaultCardOverlay = () => {
 
   return (
     <OverlayContainer sx={{ display: hideImg ? 'none' : 'block' }}>
+      <Box
+        sx={{
+          position: 'absolute',
+          zIndex: 5,
+          marginLeft: '240px',
+          marginTop: '25px',
+        }}
+      >
+        <DegenScoreIcon />
+      </Box>
+
       <Player
         autoplay={false}
         onEvent={(event) => {
