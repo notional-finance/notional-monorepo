@@ -6,6 +6,7 @@ import {
   VaultLiquidatorABI,
   NotionalV3ABI,
   VaultLiquidator__factory,
+  NotionalV3,
 } from '@notional-finance/contracts';
 import { Logger } from '@notional-finance/durable-objects';
 import { Network } from '@notional-finance/util';
@@ -52,82 +53,96 @@ export default class VaultV3Liquidator {
     );
   }
 
-  private getAccountHealthCalls(addrs: string[]): AggregateCall[] {
-    const calls = [];
-    this.settings.vaultAddrs.forEach((vault) => {
-      calls.push({
-        stage: 0,
-        target: this.notionalContract,
-        method: 'getVaultConfig',
-        args: [vault],
-        key: `${vault}:vaultConfig`,
-        transform: (r) => ({
-          borrowCurrencyId: r[2],
-          minCollateralRatio: r[5],
-        }),
-      });
+  private getVaultConfigs(): AggregateCall[] {
+    return this.settings.vaultAddrs.flatMap((vault) => ({
+      stage: 0,
+      target: this.notionalContract,
+      method: 'getVaultConfig',
+      args: [vault],
+      key: `${vault.toLowerCase()}:vaultConfig`,
+      // transform: (
+      //   r: Awaited<ReturnType<NotionalV3['getVaultAccountHealthFactors']>>
+      // ) => ({
+      //   borrowCurrencyId: r[2],
+      //   minCollateralRatio: r[5],
+      // }),
+    }));
+  }
 
-      addrs.forEach((addr) => {
-        calls.push({
+  private getAccountHealthCalls(
+    accounts: { account_id: string; vault_id: string }[]
+  ): AggregateCall[] {
+    return accounts.flatMap(({ account_id, vault_id }) => {
+      return [
+        {
           stage: 0,
           target: this.notionalContract,
           method: 'getVaultAccountHealthFactors',
-          args: [addr, vault],
-          key: `${addr}:${vault}:health`,
-          transform: (r) => ({
-            collateralRatio: r[0][0],
-            maxLiquidatorDepositUnderlying: r[1],
-            vaultSharesToLiquidator: r[2],
+          args: [account_id, vault_id],
+          key: `${account_id.toLowerCase()}:${vault_id.toLowerCase()}:health`,
+          transform: (
+            r: Awaited<ReturnType<NotionalV3['getVaultAccountHealthFactors']>>
+          ) => ({
+            collateralRatio: r[0].collateralRatio,
+            maxLiquidatorDepositUnderlying: r.maxLiquidatorDepositUnderlying,
+            vaultSharesToLiquidator: r.vaultSharesToLiquidator,
           }),
-        });
-
-        calls.push({
+        },
+        {
           stage: 0,
           target: this.notionalContract,
           method: 'getVaultAccount',
-          args: [addr, vault],
-          key: `${addr}:${vault}:maturity`,
-          transform: (r) => r[1],
-        });
-      });
+          args: [account_id, vault_id],
+          key: `${account_id}:${vault_id}:maturity`,
+          transform: (r: Awaited<ReturnType<NotionalV3['getVaultAccount']>>) =>
+            r.maturity,
+        },
+      ];
     });
-
-    return calls;
   }
 
-  public async getRiskyAccounts(addrs: string[]): Promise<RiskyAccount[]> {
+  public async getRiskyAccounts(
+    accounts: { account_id: string; vault_id: string }[]
+  ): Promise<RiskyAccount[]> {
     const { results } = await aggregate(
-      this.getAccountHealthCalls(addrs),
+      this.getAccountHealthCalls(accounts),
+      this.provider
+    );
+    const { results: vaultConfigs } = await aggregate(
+      this.getVaultConfigs(),
       this.provider
     );
 
     const riskyAccounts = [];
 
-    this.settings.vaultAddrs.forEach((vault) => {
-      const vaultConfig = results[`${vault}:vaultConfig`] as any;
+    accounts.forEach(({ account_id, vault_id }) => {
+      const { borrowCurrencyId, minCollateralRatio } = vaultConfigs[
+        `${vault_id.toLowerCase()}:vaultConfig`
+      ] as Awaited<ReturnType<NotionalV3['getVaultConfig']>>;
+      const accountHealth = results[
+        `${account_id}:${vault_id}:health`.toLowerCase()
+      ] as any;
+      const maturity = results[
+        `${account_id}:${vault_id}:maturity`.toLowerCase()
+      ] as BigNumber;
 
-      addrs.forEach((addr) => {
-        const accountHealth = results[`${addr}:${vault}:health`] as any;
-        const maturity = results[`${addr}:${vault}:maturity`] as any;
-
-        if (
-          accountHealth.collateralRatio
-            .sub(vaultConfig.minCollateralRatio)
-            .lt(this.settings.dustThreshold)
-        ) {
-          riskyAccounts.push({
-            id: addr,
-            maturity: maturity,
-            vault: vault,
-            collateralRatio: accountHealth.collateralRatio,
-            maxLiquidatorDepositUnderlying:
-              accountHealth.maxLiquidatorDepositUnderlying,
-            vaultSharesToLiquidator: accountHealth.vaultSharesToLiquidator,
-            borrowCurrencyId: vaultConfig.borrowCurrencyId,
-            minCollateralRatio: vaultConfig.minCollateralRatio,
-          });
-        }
-      });
+      if (
+        accountHealth.collateralRatio
+          .sub(minCollateralRatio)
+          .lt(this.settings.dustThreshold)
+      ) {
+        riskyAccounts.push({
+          id: account_id,
+          maturity: maturity,
+          vault: vault_id,
+          collateralRatio: accountHealth.collateralRatio,
+          maxLiquidatorDepositUnderlying:
+            accountHealth.maxLiquidatorDepositUnderlying,
+          vaultSharesToLiquidator: accountHealth.vaultSharesToLiquidator,
+          borrowCurrencyId,
+          minCollateralRatio,
+        });
+      }
     });
 
     return riskyAccounts;
