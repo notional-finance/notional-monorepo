@@ -1,11 +1,12 @@
 import { useContext } from 'react';
-import { useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { LiquidityContext } from '../../liquidity';
 import { FormattedMessage } from 'react-intl';
 import { PRODUCTS, leveragedYield } from '@notional-finance/util';
 import {
   ButtonData,
   ButtonText,
+  H5,
   ManageSideDrawer,
   SideDrawerButton,
 } from '@notional-finance/mui';
@@ -36,10 +37,12 @@ export const ManageLeveragedLiquidity = () => {
     .map((o) => {
       const label =
         o.token.tokenType === 'fCash' ? (
-          <FormattedMessage
-            defaultMessage={'Roll to {date}'}
-            values={{ date: formatMaturity(o.token.maturity || 0) }}
-          />
+          <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
+            <FormattedMessage defaultMessage={'Roll to Fixed'} />
+            <H5 sx={{ marginLeft: theme.spacing(1) }}>
+              {formatMaturity(o.token.maturity || 0)}
+            </H5>
+          </Box>
         ) : (
           <FormattedMessage defaultMessage={'Convert to Variable'} />
         );
@@ -74,7 +77,7 @@ export const ManageLeveragedLiquidity = () => {
                 background: theme.palette.info.light,
                 border: 'unset',
               }}
-            >{`${formatNumberAsPercent(totalAPY)} APY`}</ButtonData>
+            >{`${formatNumberAsPercent(totalAPY)} Total APY`}</ButtonData>
           )}
         </SideDrawerButton>
       );

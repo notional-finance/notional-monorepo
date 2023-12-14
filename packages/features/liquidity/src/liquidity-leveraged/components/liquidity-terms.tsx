@@ -1,5 +1,6 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { LiquidityContext } from '../../liquidity';
+import { BorrowTermsDropdown } from '@notional-finance/trade';
 import {
   Body,
   ButtonText,
@@ -9,10 +10,7 @@ import {
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import React, { useContext } from 'react';
-import {
-  LeverageSlider,
-  VariableFixedMaturityToggle,
-} from '@notional-finance/trade';
+import { LeverageSlider } from '@notional-finance/trade';
 import {
   formatLeverageRatio,
   formatNumberAsPercent,
@@ -31,28 +29,20 @@ export const CustomLiquidityTerms = () => {
 
   return (
     <LiquidityTerms
-      inputLabel={defineMessage({ defaultMessage: '2. Customize your terms' })}
+      inputLabel={defineMessage({ defaultMessage: '2. Select Borrow Terms' })}
       hasPosition={false}
     >
-      <Box
-        sx={{
-          borderRadius: theme.shape.borderRadius(),
-          border: theme.shape.borderStandard,
-          padding: theme.spacing(2),
-        }}
-      >
-        <VariableFixedMaturityToggle context={context} />
-        <Box height={theme.spacing(6)} />
-        <LeverageSlider
-          showMinMax
-          context={context}
-          leverageCurrencyId={deposit?.currencyId}
-          inputLabel={defineMessage({
-            defaultMessage: 'Specify your leverage',
-            description: 'input label',
-          })}
-        />
-      </Box>
+      <BorrowTermsDropdown context={context} />
+      <Box height={theme.spacing(6)} />
+      <LeverageSlider
+        showMinMax
+        context={context}
+        leverageCurrencyId={deposit?.currencyId}
+        inputLabel={defineMessage({
+          defaultMessage: '3. Specify leverage',
+          description: 'input label',
+        })}
+      />
     </LiquidityTerms>
   );
 };
@@ -221,7 +211,7 @@ const TermsBox = ({
             : `1px solid ${theme.palette.primary.light}`,
         }}
       >
-        <Box sx={{ marginRight: theme.spacing(6) }}>
+        <Box sx={{ marginRight: theme.spacing(3) }}>
           <Body
             uppercase
             gutter="default"
@@ -229,7 +219,7 @@ const TermsBox = ({
           />
           <LabelValue>{formatLeverageRatio(leverageRatio, 2)}</LabelValue>
         </Box>
-        <Box sx={{ width: '50%' }}>
+        <Box sx={{ marginRight: theme.spacing(3) }}>
           <Body
             uppercase
             gutter="default"
@@ -241,6 +231,16 @@ const TermsBox = ({
             ) : (
               <FormattedMessage defaultMessage={'Fixed'} />
             )}
+          </LabelValue>
+        </Box>
+        <Box>
+          <Body
+            uppercase
+            gutter="default"
+            msg={defineMessage({ defaultMessage: 'Risk' })}
+          />
+          <LabelValue>
+            <FormattedMessage defaultMessage={'Low'} />
           </LabelValue>
         </Box>
       </BoundedBox>

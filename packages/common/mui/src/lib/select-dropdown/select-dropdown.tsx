@@ -111,7 +111,7 @@ export const SelectDropdown = ({
         '&:hover': {
           backgroundColor: landingPage
             ? 'rgba(248, 250, 250, 0.05)'
-            : theme.palette.background.default,
+            : theme.palette.info.light,
         },
       },
     },

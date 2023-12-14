@@ -121,7 +121,7 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
             </H5>
           </Box>
           <ExternalLink
-            href="https://docs.notional.finance/leveraged-vaults/leveraged-vaults/balancer-aura-wsteth-weth-strategy"
+            href="https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults"
             textDecoration
             accent
             style={{
