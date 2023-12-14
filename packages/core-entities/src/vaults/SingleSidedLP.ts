@@ -218,7 +218,6 @@ export class SingleSidedLP extends VaultAdapter {
       RATE_PRECISION - slippageFactor
     );
 
-    // TODO: check the deposit params
     return defaultAbiCoder.encode(
       ['tuple(uint256 minPoolClaim, bytes tradeData) d'],
       [
