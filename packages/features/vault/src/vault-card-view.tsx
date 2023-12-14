@@ -50,9 +50,13 @@ export const VaultCardView = () => {
               capacityUsedPercentage,
               capacityRemaining,
               leverage,
+              VaultCardOverlay,
+              VaultCardIcon,
             } = v;
             return (
               <Vault
+                VaultCardOverlay={VaultCardOverlay}
+                VaultCardIcon={VaultCardIcon}
                 key={vaultAddress}
                 hasVaultPosition={hasPosition}
                 vaultName={vaultName}

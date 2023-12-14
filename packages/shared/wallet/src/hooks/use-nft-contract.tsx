@@ -4,32 +4,32 @@ import {
   useSelectedNetwork,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
-import { useHistory, useLocation } from 'react-router-dom';
+// import { useHistory, useLocation } from 'react-router-dom';
 import { BETA_ACCESS } from '@notional-finance/notionable';
 
 const NFT = '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e';
 
 export const useNftContract = (selectedAddress?: string) => {
   const selectedNetwork = useSelectedNetwork();
-  const history = useHistory();
-  const { pathname } = useLocation();
+  // const history = useHistory();
+  // const { pathname } = useLocation();
   const [pending, setPending] = useState(false);
   const {
     updateNotional,
     globalState: { hasContestNFT, isAccountReady },
   } = useNotionalContext();
 
-  useEffect(() => {
-    if (!hasContestNFT) {
-      if (pathname.includes('error')) return;
+  // useEffect(() => {
+  //   if (!hasContestNFT) {
+  //     if (pathname.includes('error')) return;
 
-      if (pathname.includes('contest')) {
-        history.push(pathname);
-      } else {
-        history.push('/contest');
-      }
-    }
-  }, [history, hasContestNFT, pathname]);
+  //     if (pathname.includes('contest')) {
+  //       history.push(pathname);
+  //     } else {
+  //       history.push('/contest');
+  //     }
+  //   }
+  // }, [history, hasContestNFT, pathname]);
 
   useEffect(() => {
     if (
