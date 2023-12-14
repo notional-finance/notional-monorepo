@@ -9,6 +9,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { useParams } from 'react-router';
+import { Box, useTheme } from '@mui/material';
 
 interface PortfolioHoldingSelectProps {
   context: BaseTradeContext;
@@ -31,6 +32,7 @@ export const PortfolioHoldingSelect = ({
   isWithdraw,
 }: PortfolioHoldingSelectProps) => {
   const baseCurrency = useFiat();
+  const theme = useTheme();
   const {
     updateState,
     state: { collateral, debt },
@@ -112,12 +114,14 @@ export const PortfolioHoldingSelect = ({
   ]);
 
   return (
-    <AssetSelectDropdown
-      tightMarginTop={tightMarginTop}
-      selectedTokenId={selectedTokenId}
-      inputLabel={inputLabel}
-      onSelect={onSelect}
-      options={options}
-    />
+    <Box sx={{ marginBottom: theme.spacing(6) }}>
+      <AssetSelectDropdown
+        tightMarginTop={tightMarginTop}
+        selectedTokenId={selectedTokenId}
+        inputLabel={inputLabel}
+        onSelect={onSelect}
+        options={options}
+      />
+    </Box>
   );
 };
