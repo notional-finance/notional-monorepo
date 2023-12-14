@@ -184,17 +184,18 @@ export const formatOption = (
   const child = (
     <Box sx={{ width: '100%' }}>
       {option.content?.optionTitle && (
-        <H5 sx={{ padding: theme.spacing(1) }}>
+        <H5 sx={{ padding: theme.spacing(2, 3) }} id="option-title">
           {option.content?.optionTitle}
         </H5>
       )}
       <Box
+        id="main-option-content"
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           width: '100%',
-          height: theme.spacing(5),
+          height: theme.spacing(7),
         }}
       >
         {leftContent && <Box>{leftContent}</Box>}
@@ -239,15 +240,30 @@ export const EmptyCurrencySelectOption = (theme: NotionalTheme) => (
 const StyledItem = styled(OptionUnstyled)(
   ({ theme }) => `
   font-family: ${theme.typography.fontFamily};
-  padding: ${theme.spacing(1, 2)};
   display: flex;
   line-height: 1.4;
   align-items: center;
   border-bottom: 1px solid ${theme.palette.borders.paper};
-  &:hover {
-    background-color: ${theme.palette.background.default};
-    cursor: pointer;
+  :first-child {
+    margin-top: ${theme.spacing(-1)};  
   }
+  :last-child {
+    border-bottom: none;
+    margin-bottom: ${theme.spacing(-1)};
+  }
+  #main-option-content {
+    padding: ${theme.spacing(3, 2)};
+  }
+  &:hover {
+    #option-title {
+      background: transparent;
+    }
+    #main-option-content {
+      background-color: ${theme.palette.info.light};
+      cursor: pointer;
+    } 
+  }
+  
   `
 );
 

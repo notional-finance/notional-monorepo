@@ -35,7 +35,6 @@ export const RepayDebt = () => {
       requiredApprovalAmount={requiredApprovalAmount}
     >
       <PortfolioHoldingSelect
-        tightMarginTop
         context={context}
         inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabel']}
         filterBalances={(b) =>

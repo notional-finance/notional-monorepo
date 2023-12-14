@@ -32,7 +32,6 @@ export const Withdraw = () => {
   return (
     <PortfolioSideDrawer context={context} isWithdraw>
       <PortfolioHoldingSelect
-        tightMarginTop
         isWithdraw
         context={context}
         inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW]['inputLabelTwo']}

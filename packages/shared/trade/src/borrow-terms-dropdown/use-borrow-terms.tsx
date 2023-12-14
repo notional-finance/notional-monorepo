@@ -50,8 +50,8 @@ export const useBorrowTerms = (
     // Note this is a any[] because there were conflicts when attempting to combine the debtOptions and spotMaturityData types
     const options = (debtOptions || spotMaturityData) as any[];
     return options.reverse().map((o, index) => {
-      const borrowAmount = o?.interestRate || o?.tradeRate;
-      const totalAPY = leveragedYield(assetAPY, borrowAmount, leverageRatio);
+      const borrowRate = o?.interestRate || o?.tradeRate;
+      const totalAPY = leveragedYield(assetAPY, borrowRate, leverageRatio);
       return {
         error:
           o.error === 'Error: Insufficient Liquidity' ? (
@@ -68,7 +68,7 @@ export const useBorrowTerms = (
         token: o.token,
         largeCaption: totalAPY ? totalAPY : undefined,
         largeCaptionSuffix: '% Total APY',
-        largeFigure: borrowAmount,
+        largeFigure: borrowRate,
         largeFigureSuffix: `% Borrow APY`,
         caption: o.token.maturity ? (
           <Box>
