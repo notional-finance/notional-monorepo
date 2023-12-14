@@ -308,6 +308,14 @@ async function main() {
     }
   });
 
+  app.get('/vaultAccounts', async (_, res) => {
+    try {
+      res.send(JSON.stringify(await dataService.vaultAccounts()));
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
   app.get('/views', async (req, res) => {
     try {
       const params = parseQueryParams(req.query);
