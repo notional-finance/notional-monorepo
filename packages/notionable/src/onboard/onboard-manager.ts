@@ -2,7 +2,7 @@ import Onboard, { OnboardAPI, WalletState } from '@web3-onboard/core';
 import injectedModule from '@web3-onboard/injected-wallets';
 import walletConnectModule from '@web3-onboard/walletconnect';
 import gnosisModule from '@web3-onboard/gnosis';
-import ledgerModule from '@web3-onboard/ledger';
+// import ledgerModule from '@web3-onboard/ledger';
 import trezorModule from '@web3-onboard/trezor';
 import coinbaseModule from '@web3-onboard/coinbase';
 import {
@@ -41,7 +41,7 @@ const appUrl = process.env['NX_APP_URL'] as string;
 const injected = injectedModule();
 const walletConnect = walletConnectModule();
 const gnosis = gnosisModule();
-const ledger = ledgerModule();
+// const ledger = ledgerModule();
 const trezor = trezorModule({
   email,
   appUrl,
@@ -52,7 +52,7 @@ let onboard: OnboardAPI;
 export const supportedWallets = [
   'MetaMask',
   'WalletConnect',
-  'Ledger',
+  // 'Ledger',
   'Trezor',
   'Coinbase Wallet',
 ];
@@ -179,7 +179,7 @@ function getOnboardOptions({
         { name: 'MetaMask', url: 'https://metamask.io' },
       ],
     },
-    wallets: [injected, walletConnect, gnosis, ledger, trezor, coinbase],
+    wallets: [injected, walletConnect, gnosis, trezor, coinbase],
     chains: supportedChains,
   };
 }
