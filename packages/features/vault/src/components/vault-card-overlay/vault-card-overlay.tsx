@@ -47,8 +47,8 @@ export const VaultCardOverlay = () => {
         sx={{
           position: 'absolute',
           zIndex: 5,
-          marginLeft: '240px',
-          marginTop: '25px',
+          marginLeft: theme.spacing(29.875),
+          marginTop: theme.spacing(3.125),
         }}
       >
         <DegenScoreIcon />
@@ -133,8 +133,6 @@ const OverlayContainer = styled(Box)(
     position: absolute;
     z-index: 4;
     margin-top: ${theme.spacing(6)};
-    width: ${theme.spacing(38)};
-    height: ${theme.spacing(62)};
     display: none;
     align-items: center;
     justify-content: center;

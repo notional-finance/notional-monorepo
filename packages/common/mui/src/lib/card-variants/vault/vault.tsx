@@ -51,7 +51,7 @@ export const Vault = ({
       {VaultCardOverlay && <VaultCardOverlay />}
       <Link to={route}>
         <Card height={'auto'}>
-          {symbol && !VaultCardOverlay && (
+          {symbol && !VaultCardIcon && (
             <StyledIcon top={theme.spacing(-9)}>
               <TokenIcon symbol={symbol} size="extraLarge" />
             </StyledIcon>
@@ -60,7 +60,7 @@ export const Vault = ({
             <CurrencyTitle
               accent
               textAlign="left"
-              marginBottom={theme.spacing(1)}
+              marginBottom={theme.spacing(2)}
               sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -68,7 +68,11 @@ export const Vault = ({
               }}
             >
               {symbol}
-              {VaultCardIcon && <VaultCardIcon iconName="degenscore" />}
+              {VaultCardIcon ? (
+                <VaultCardIcon />
+              ) : (
+                <Box sx={{ height: theme.spacing(5) }}></Box>
+              )}
             </CurrencyTitle>
             <SmallInput textAlign="left" marginBottom={theme.spacing(4)}>
               {vaultName}
@@ -97,7 +101,7 @@ export const Vault = ({
               </H4>
             </Box>
 
-            <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
+            <SectionTitle textAlign="left" marginBottom={theme.spacing(2)}>
               {hasVaultPosition ? (
                 <FormattedMessage defaultMessage="CURRENT NET WORTH" />
               ) : (
