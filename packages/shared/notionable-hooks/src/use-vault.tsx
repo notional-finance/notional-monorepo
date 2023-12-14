@@ -1,7 +1,9 @@
-import { Registry, TokenBalance, whitelistedVaults } from '@notional-finance/core-entities';
+import {
+  Registry,
+  TokenBalance,
+  whitelistedVaults,
+} from '@notional-finance/core-entities';
 import { useNotionalError, useSelectedNetwork } from './use-notional';
-
-const whitelistedVaults = ['0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf'];
 
 export function useVaultProperties(vaultAddress?: string) {
   let minAccountBorrowSize: TokenBalance | undefined = undefined;
