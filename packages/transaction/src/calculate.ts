@@ -578,6 +578,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
         debtBalance,
       });
     },
+    // TODO: fix this parameter
     depositBalance?.abs().scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
   );
 
@@ -642,15 +643,38 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     vaultLastUpdateTime || 0
   );
 
-  if (depositBalance?.isNegative()) {
-    // Apply the withdraw amount to the profile
-    const { netVaultSharesForUnderlying } =
-      vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral);
-    profile = profile.simulate([netVaultSharesForUnderlying]);
+  let initialDebtUnitsEstimateInRP = RATE_PRECISION;
+  let netVaultSharesForWithdraw: TokenBalance | undefined;
+  if (depositBalance?.isPositive()) {
+    // Initial estimate if deposit is positive is the deposit * leverageRatio
+    const limitInRP = profile.getRiskFactorInRP(
+      riskFactorLimit.riskFactor,
+      riskFactorLimit.limit
+    );
+    initialDebtUnitsEstimateInRP = depositBalance
+      .mulInRatePrecision(limitInRP)
+      .scaleTo(RATE_DECIMALS)
+      .toNumber();
+  } else if (depositBalance?.isNegative()) {
+    // Estimate of the debt to repay is:
+    // withdrawalPortion = withdrawAmount / netWorth
+    // repayAmount = withdrawalPortion * debts
+    const withdrawPortion = depositBalance.neg().ratioWith(profile.netWorth());
+    initialDebtUnitsEstimateInRP = profile
+      .totalDebtRiskAdjusted()
+      .mulInRatePrecision(withdrawPortion)
+      .scaleTo(RATE_DECIMALS)
+      .toNumber();
+
+    ({ netVaultSharesForUnderlying: netVaultSharesForWithdraw } = vaultAdapter.getNetVaultSharesMinted(
+      depositBalance,
+      collateral
+    ));
+    profile = profile.simulate([netVaultSharesForWithdraw]);
   }
   const accruedVaultFees = profile.accruedVaultFees;
 
-  return profile.getDebtAndCollateralMaintainRiskFactor(
+  const results = profile.getDebtAndCollateralMaintainRiskFactor(
     debt,
     riskFactorLimit,
     (debtBalance: TokenBalance) => {
@@ -667,8 +691,20 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
         depositBalance,
       });
     },
-    depositBalance?.scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
+    initialDebtUnitsEstimateInRP
   );
+
+  return {
+    ...results,
+    // Add the withdraw amount for net vault shares
+    ...(netVaultSharesForWithdraw
+      ? {
+          collateralBalance: results.collateralBalance.add(
+            netVaultSharesForWithdraw
+          ),
+        }
+      : {}),
+  };
 }
 
 export function calculateVaultRoll({

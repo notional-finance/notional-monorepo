@@ -256,7 +256,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     }
   }
 
-  protected _getRiskFactorInRP<
+  public getRiskFactorInRP<
     T extends keyof RiskFactors,
     R = ReturnType<RiskFactors[T]>
   >(riskFactor: T, limit: R): number {
@@ -286,7 +286,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     estimateScalarInRP: number
   ): number {
     const value = this.getRiskFactor(riskFactor, args);
-    const riskFactorInRP = this._getRiskFactorInRP(riskFactor, limit);
+    const riskFactorInRP = this.getRiskFactorInRP(riskFactor, limit);
     const netLocal = this.netCollateralAvailable(localUnderlyingId);
     const totalAssets =
       args && riskFactor === 'leverageRatio' && typeof args[0] === 'number'
@@ -438,7 +438,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       localUnderlyingId,
       RATE_PRECISION // This is not necessary in deposit / withdraw searches...
     );
-    const targetLimitInRP = this._getRiskFactorInRP(
+    const targetLimitInRP = this.getRiskFactorInRP(
       riskFactorLimit.riskFactor,
       riskFactorLimit.limit
     );
@@ -453,7 +453,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
         riskFactorLimit.riskFactor,
         riskFactorLimit.args
       );
-      const limitInRP = this._getRiskFactorInRP(
+      const limitInRP = this.getRiskFactorInRP(
         riskFactorLimit.riskFactor,
         limit
       );
@@ -516,7 +516,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       netRealizedCollateralBalance: TokenBalance;
       netRealizedDebtBalance: TokenBalance;
     },
-    estimateScalarInRP: number
+    initialDebtUnitsEstimateInRP: number
   ) {
     // Uses the debt as the local currency
     const localUnderlyingId =
@@ -524,13 +524,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     if (localUnderlyingId === undefined)
       throw Error('undefined local underlying');
 
-    const initialEstimateInRP = this._getInitialEstimate(
-      riskFactorLimit,
-      localUnderlyingId,
-      estimateScalarInRP // this is used to set the scale for the debtUnits
-    );
-
-    const targetLimitInRP = this._getRiskFactorInRP(
+    const targetLimitInRP = this.getRiskFactorInRP(
       riskFactorLimit.riskFactor,
       riskFactorLimit.limit
     );
@@ -561,7 +555,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
         riskFactorLimit.riskFactor,
         riskFactorLimit.args
       );
-      const limitInRP = this._getRiskFactorInRP(
+      const limitInRP = this.getRiskFactorInRP(
         riskFactorLimit.riskFactor,
         limit
       );
@@ -574,8 +568,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
     // set the required precision based on the riskLimitType
     return doSecantSearch(
-      initialEstimateInRP,
-      initialEstimateInRP * 2,
+      initialDebtUnitsEstimateInRP,
+      initialDebtUnitsEstimateInRP * 2,
       calculationFunction
     );
   }
