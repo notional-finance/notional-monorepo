@@ -6,7 +6,6 @@ import {
 import {
   AggregateCall,
   NO_OP,
-  aggregate,
   getMulticall,
 } from '@notional-finance/multicall';
 import {
@@ -647,40 +646,41 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       'accounts'
     );
 
-    const provider = getProviderFromNetwork(network, !USE_CROSS_FETCH);
-    const nowSeconds = getNowSeconds();
-    const notional = new Contract(
-      NotionalAddress[network],
-      NotionalV3ABI,
-      provider
-    ) as NotionalV3;
+    // NOTE claims are turned off while not running the contest
+    // const provider = getProviderFromNetwork(network, !USE_CROSS_FETCH);
+    // const nowSeconds = getNowSeconds();
+    // const notional = new Contract(
+    //   NotionalAddress[network],
+    //   NotionalV3ABI,
+    //   provider
+    // ) as NotionalV3;
 
-    const { results: noteClaims } = await aggregate<TokenBalance>(
-      accounts.values.map(([a]) => {
-        return {
-          target: notional,
-          method: 'nTokenGetClaimableIncentives',
-          args: [a, nowSeconds + 100],
-          key: a,
-          transform: (
-            r: Awaited<ReturnType<NotionalV3['nTokenGetClaimableIncentives']>>
-          ) => {
-            return TokenBalance.fromID(r, 'NOTE', Network.All);
-          },
-        };
-      }),
-      provider
-    );
+    // const { results: noteClaims } = await aggregate<TokenBalance>(
+    //   accounts.values.map(([a]) => {
+    //     return {
+    //       target: notional,
+    //       method: 'nTokenGetClaimableIncentives',
+    //       args: [a, nowSeconds + 100],
+    //       key: a,
+    //       transform: (
+    //         r: Awaited<ReturnType<NotionalV3['nTokenGetClaimableIncentives']>>
+    //       ) => {
+    //         return TokenBalance.fromID(r, 'NOTE', Network.All);
+    //       },
+    //     };
+    //   }),
+    //   provider
+    // );
 
-    Object.entries(noteClaims).forEach(([acct, currentNOTE]) => {
-      const definition = accounts.values.find(([a]) => a === acct);
-      if (definition && definition[1]) {
-        definition[1].noteClaim = {
-          currentNOTE,
-          noteAccruedPerSecond: currentNOTE.copy(0),
-        };
-      }
-    });
+    // Object.entries(noteClaims).forEach(([acct, currentNOTE]) => {
+    //   const definition = accounts.values.find(([a]) => a === acct);
+    //   if (definition && definition[1]) {
+    //     definition[1].noteClaim = {
+    //       currentNOTE,
+    //       noteAccruedPerSecond: currentNOTE.copy(0),
+    //     };
+    //   }
+    // });
 
     return accounts;
   }
