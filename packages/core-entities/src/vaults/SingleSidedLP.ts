@@ -218,13 +218,12 @@ export class SingleSidedLP extends VaultAdapter {
       RATE_PRECISION - slippageFactor
     );
 
-    // TODO: check the deposit params
     return defaultAbiCoder.encode(
       ['tuple(uint256 minPoolClaim, bytes tradeData) d'],
       [
         {
           // Floor min lp tokens at zero
-          minLPTokens:
+          minPoolClaim:
             minLPTokens.toFloat() > 0.0001 ? minLPTokens.n : BigNumber.from(0),
           // Deposit trades are not implemented
           tradeData: '0x',
@@ -255,7 +254,6 @@ export class SingleSidedLP extends VaultAdapter {
       minAmounts.splice(this.bptIndex, 0, BigNumber.from(0));
     }
 
-    // TODO: check the redeem params
     return defaultAbiCoder.encode(
       ['tuple(uint256[] minAmounts, bytes secondaryTradeParams) r'],
       [
