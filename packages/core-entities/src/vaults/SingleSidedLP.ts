@@ -223,7 +223,7 @@ export class SingleSidedLP extends VaultAdapter {
       [
         {
           // Floor min lp tokens at zero
-          minLPTokens:
+          minPoolClaim:
             minLPTokens.toFloat() > 0.0001 ? minLPTokens.n : BigNumber.from(0),
           // Deposit trades are not implemented
           tradeData: '0x',
