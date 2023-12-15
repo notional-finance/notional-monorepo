@@ -3,6 +3,7 @@ import {
   useGlobalContext,
   useSanctionsBlock,
 } from '@notional-finance/notionable-hooks';
+import { GATED_VAULTS, BETA_ACCESS } from '@notional-finance/notionable';
 import { TrackingConsent } from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
 import { useEffect } from 'react';
@@ -231,17 +232,23 @@ export const App = () => {
 
   const {
     updateState,
-    state: { themeVariant },
+    state: { themeVariant, hasContestNFT },
   } = globalState;
   const notionalTheme = useNotionalTheme(themeVariant);
   const history = useHistory();
   const { pathname } = useLocation();
 
+  const vaultAddress = pathname.split('/')[2];
+
   useEffect(() => {
-    if (pathname.includes('contest')) {
-      history.push('/');
+    if (
+      vaultAddress &&
+      GATED_VAULTS.includes(vaultAddress) &&
+      hasContestNFT !== BETA_ACCESS.CONFIRMED
+    ) {
+      history.push('/vaults');
     }
-  }, [pathname, history]);
+  }, [hasContestNFT, history, vaultAddress]);
 
   // Run as a useEffect here so that the observable "sees" the initial change
   useEffect(() => {
