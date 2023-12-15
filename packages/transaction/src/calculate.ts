@@ -551,21 +551,41 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   balances?: TokenBalance[];
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
 }) {
-  const debtDeposit = depositBalance?.isNegative()
-    ? calculateDebt({ debt, debtPool, depositBalance })
-    : undefined;
-  const collateralDeposit = depositBalance?.isPositive()
-    ? calculateCollateral({ collateral, collateralPool, depositBalance })
-    : undefined;
+  let initialDebtUnitsEstimateInRP = RATE_PRECISION;
+  let debtDeposit: ReturnType<typeof calculateDebt> | undefined;
+  let collateralDeposit: ReturnType<typeof calculateCollateral> | undefined;
+  let profile = new AccountRiskProfile(balances || [], collateral.network);
 
-  const profile = new AccountRiskProfile(
-    (balances ? balances : []).concat(
-      [debtDeposit?.debtBalance, collateralDeposit?.collateralBalance].filter(
-        (t) => !!t
-      ) as TokenBalance[]
-    ),
-    collateral.network
-  );
+  if (depositBalance?.isPositive()) {
+    collateralDeposit = calculateCollateral({
+      collateral,
+      collateralPool,
+      depositBalance,
+    });
+    const limitInRP = profile.getRiskFactorInRP(
+      riskFactorLimit.riskFactor,
+      riskFactorLimit.limit
+    );
+    initialDebtUnitsEstimateInRP = depositBalance
+      .mulInRatePrecision(limitInRP)
+      .scaleTo(RATE_DECIMALS)
+      .toNumber();
+
+    profile = profile.simulate([collateralDeposit.collateralBalance]);
+  } else if (depositBalance?.isNegative()) {
+    debtDeposit = calculateDebt({ debt, debtPool, depositBalance });
+    const withdrawPortion = depositBalance
+      .neg()
+      .ratioWith(profile.netCollateralAvailable(depositBalance.currencyId));
+    initialDebtUnitsEstimateInRP = profile
+      .totalDebtRiskAdjusted(depositBalance.currencyId)
+      .neg()
+      .mulInRatePrecision(withdrawPortion)
+      .scaleTo(RATE_DECIMALS)
+      .toNumber();
+
+    profile = profile.simulate([debtDeposit.debtBalance]);
+  }
 
   const results = profile.getDebtAndCollateralMaintainRiskFactor(
     debt,
@@ -578,8 +598,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
         debtBalance,
       });
     },
-    // TODO: fix this parameter
-    depositBalance?.abs().scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
+    initialDebtUnitsEstimateInRP
   );
 
   return {
@@ -666,10 +685,8 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
       .scaleTo(RATE_DECIMALS)
       .toNumber();
 
-    ({ netVaultSharesForUnderlying: netVaultSharesForWithdraw } = vaultAdapter.getNetVaultSharesMinted(
-      depositBalance,
-      collateral
-    ));
+    ({ netVaultSharesForUnderlying: netVaultSharesForWithdraw } =
+      vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral));
     profile = profile.simulate([netVaultSharesForWithdraw]);
   }
   const accruedVaultFees = profile.accruedVaultFees;
