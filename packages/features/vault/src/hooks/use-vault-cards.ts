@@ -5,6 +5,7 @@ import {
   useAllVaults,
   useVaultRiskProfiles,
 } from '@notional-finance/notionable-hooks';
+import { GATED_VAULTS } from '@notional-finance/notionable';
 import { DegenScoreIcon } from '@notional-finance/icons';
 
 interface AllVaultsProps {
@@ -58,7 +59,6 @@ export const useVaultCards = () => {
         1
       );
 
-      const gatedVaults = ["0x3df035433cface65b6d68b77cc916085d020c8b8", "0x8ae7a8789a81a43566d0ee70264252c0db826940"]
 
       return {
         vaultAddress: vaultAddress,
@@ -71,8 +71,8 @@ export const useVaultCards = () => {
         vaultName: name,
         capacityUsedPercentage,
         capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
-        VaultCardOverlay: gatedVaults.includes(id) ? VaultCardOverlay : undefined,
-        VaultCardIcon: gatedVaults.includes(id) ? DegenScoreIcon : undefined,
+        VaultCardOverlay: GATED_VAULTS.includes(id) ? VaultCardOverlay : undefined,
+        VaultCardIcon: GATED_VAULTS.includes(id) ? DegenScoreIcon : undefined,
       };
     }
   );
