@@ -50,6 +50,7 @@ export const WithdrawVault = () => {
       setCurrencyInput(maxWithdrawUnderlying.toExactString(), false);
 
       updateState({
+        inputsSatisfied: true,
         maxWithdraw: true,
         calculationSuccess: true,
         depositBalance: maxWithdrawUnderlying.neg(),

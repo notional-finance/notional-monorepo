@@ -57,6 +57,7 @@ export const VaultActionSideDrawer = () => {
           requiredState: {
             tradeType: 'CreateVaultPosition',
             riskFactorLimit: defaultRiskLimit,
+            maxWithdraw: false,
           },
         },
         {
@@ -66,6 +67,7 @@ export const VaultActionSideDrawer = () => {
           requiredState: {
             tradeType: 'RollVaultPosition',
             depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
+            maxWithdraw: false,
           },
         },
         {
