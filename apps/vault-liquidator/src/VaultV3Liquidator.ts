@@ -351,7 +351,7 @@ export default class VaultV3Liquidator {
       data: encodedTransaction,
     });
 
-    await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
+    const resp = await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -360,17 +360,22 @@ export default class VaultV3Liquidator {
       body: payload,
     });
 
-    await this.logger.submitEvent({
-      aggregation_key: 'AccountLiquidated',
-      alert_type: 'info',
-      host: 'cloudflare',
-      network: this.settings.network,
-      title: `Account liquidated`,
-      tags: [
-        `account:${accountLiq.account.id}`,
-        `event:vault_account_liquidated`,
-      ],
-      text: `Liquidated account ${accountLiq.account.id}`,
-    });
+    if (resp.status === 200) {
+      const respInfo = await resp.json();
+      await this.logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'info',
+        host: 'cloudflare',
+        network: this.settings.network,
+        title: `Account liquidated`,
+        tags: [
+          `account:${accountLiq.account.id}`,
+          `event:vault_account_liquidated`,
+        ],
+        text: `Liquidated account ${accountLiq.account.id}, ${respInfo['hash']}`,
+      });
+    } else {
+      console.log('Failed liquidation', await resp.text());
+    }
   }
 }
