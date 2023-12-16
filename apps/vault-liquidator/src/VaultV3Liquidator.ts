@@ -2,11 +2,11 @@ import { ethers, BigNumber, Contract } from 'ethers';
 import { RiskyAccount, IGasOracle } from './types';
 import { AggregateCall, aggregate } from '@notional-finance/multicall';
 import {
-  IStrategyVaultABI,
   VaultLiquidatorABI,
   NotionalV3ABI,
   VaultLiquidator__factory,
   NotionalV3,
+  ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
 import { Logger } from '@notional-finance/durable-objects';
 import { Network } from '@notional-finance/util';
@@ -154,7 +154,7 @@ export default class VaultV3Liquidator {
   ): AggregateCall[] {
     const vaultContract = new ethers.Contract(
       ra.vault,
-      IStrategyVaultABI,
+      ISingleSidedLPStrategyVaultABI,
       this.provider
     );
 
@@ -184,6 +184,20 @@ export default class VaultV3Liquidator {
         method: 'convertStrategyToUnderlying',
         args: [ra.id, ra.vaultSharesToLiquidator[currencyIndex], ra.maturity],
         key: 'primaryAmount',
+      },
+      {
+        stage: 0,
+        target: vaultContract,
+        method: 'getStrategyVaultInfo',
+        args: [],
+        key: 'strategyVaultInfo',
+      },
+      {
+        stage: 0,
+        target: vaultContract,
+        method: 'TOKENS',
+        args: [],
+        key: 'TOKENS',
       },
     ];
   }
@@ -248,6 +262,11 @@ export default class VaultV3Liquidator {
     const minPrimary = (results['primaryAmount'] as BigNumber)
       .mul(this.settings.slippageLimit)
       .div(1000);
+    const minAmount = new Array(results['TOKENS'][0].length).fill(
+      BigNumber.from(0)
+    );
+    minAmount[results['strategyVaultInfo']['singleSidedTokenIndex'] as number] =
+      minPrimary;
 
     const callParams = {
       liquidationType: 1,
@@ -259,10 +278,10 @@ export default class VaultV3Liquidator {
         ['tuple(bool,bytes)'],
         [
           [
-            false,
+            true, // use vault deleverage
             ethers.utils.defaultAbiCoder.encode(
-              ['tuple(uint256,uint256,bytes)'],
-              [[minPrimary, 0, []]]
+              ['tuple(uint256[],bytes)'],
+              [[minAmount, []]]
             ),
           ],
         ]
