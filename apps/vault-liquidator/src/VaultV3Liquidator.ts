@@ -60,12 +60,6 @@ export default class VaultV3Liquidator {
       method: 'getVaultConfig',
       args: [vault],
       key: `${vault.toLowerCase()}:vaultConfig`,
-      // transform: (
-      //   r: Awaited<ReturnType<NotionalV3['getVaultAccountHealthFactors']>>
-      // ) => ({
-      //   borrowCurrencyId: r[2],
-      //   minCollateralRatio: r[5],
-      // }),
     }));
   }
 
