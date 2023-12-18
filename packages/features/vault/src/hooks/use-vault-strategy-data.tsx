@@ -20,6 +20,7 @@ export const useVaultStrategyData = () => {
     boosterProtocol: vaultConfig.boosterProtocol,
     primaryBorrowCurrency: selectedDepositToken,
     poolName: vaultConfig.poolName,
-    docsLink: `https://docs.notional.finance/leveraged-vaults/leveraged-vaults/${vaultConfig.technicalName}`,
+    docsLink:
+      'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',
   };
 };
