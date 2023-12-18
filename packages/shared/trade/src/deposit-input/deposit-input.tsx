@@ -119,6 +119,7 @@ export const DepositInput = React.forwardRef<
           {(maxWithdraw || maxBalance) && (
             <Caption sx={{ color: theme.palette.typography.main }}>
               <WalletIcon
+                fill={theme.palette.typography.light}
                 sx={{
                   fontSize: '12px',
                   position: 'relative',

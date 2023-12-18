@@ -45,12 +45,9 @@ export function WalletSelector() {
   } = useNotionalContext();
   const truncatedAddress = useTruncatedAddress();
   const notifications = getFromLocalStorage('notifications');
-
   const [showAlert, setShowAlert] = useState<boolean>(false);
-
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { openDrawer } = useWalletSideDrawer();
-  console.log({ notifications });
 
   useEffect(() => {
     getNotificationsData();

@@ -128,16 +128,22 @@ export function useWalletBalances(
         token,
         content: { 
           balance: maxBalance?.isPositive() ? maxBalance?.toDisplayStringWithSymbol(3, true) : undefined, 
+          usdBalance: maxBalance?.isPositive() ? maxBalance?.toFiat('USD').toDisplayString() : undefined,
           apy: apyData[token.symbol] || undefined },
       };
     }).sort((a, b) => {
-      if (a.content.balance && !b.content.balance) {
+      const balanceA = a.content.usdBalance;
+      const balanceB = b.content.usdBalance;
+      if (balanceA === undefined && balanceB === undefined) {
+          return 0;
+      }
+      if (balanceA === undefined) {
+          return 1;
+      }
+      if (balanceB === undefined) {
           return -1;
       }
-      if (!a.content.balance && b.content.balance) {
-          return 1; 
-      }
-      return 0;
+      return parseFloat(balanceB) - parseFloat(balanceA);
   })}, [tokens, account, apyData]);
 }
 
