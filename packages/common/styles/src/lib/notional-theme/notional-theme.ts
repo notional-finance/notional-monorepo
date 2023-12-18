@@ -30,7 +30,7 @@ export const colors = {
   purpleGrey: '#E7E8F2',
   lightGrey: '#E6EAEB',
   secondaryGrey: '#8F9BB3',
-  greenGrey: '#95B2BA',
+  greenGrey: '#BCD4DB',
   blueGreen: '#3B7A8B',
   // accents
   red: '#FF3D71',

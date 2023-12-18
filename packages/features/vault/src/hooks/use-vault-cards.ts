@@ -1,9 +1,28 @@
 import { formatLeverageRatio } from '@notional-finance/helpers';
+import { VaultCardOverlay } from '../components';
 import {
   useAllMarkets,
   useAllVaults,
   useVaultRiskProfiles,
 } from '@notional-finance/notionable-hooks';
+import { GATED_VAULTS } from '@notional-finance/notionable';
+import { DegenScoreIcon } from '@notional-finance/icons';
+
+interface AllVaultsProps {
+  capacityRemaining: string;
+  capacityUsedPercentage: number;
+  hasPosition: boolean;
+  headlineRate: number;
+  leverage: string;
+  minDepositRequired: string;
+  netWorth?: string;
+  underlyingSymbol: string;
+  vaultAddress: string;
+  vaultName: string;
+  VaultCardOverlay?: any;
+  VaultCardIcon?: any;
+  accessGroup?: string;
+}
 
 export const useVaultCards = () => {
   const listedVaults = useAllVaults();
@@ -21,6 +40,7 @@ export const useVaultCards = () => {
       maxPrimaryBorrowCapacity,
       totalUsedPrimaryBorrowCapacity,
       primaryToken,
+      id,
     }) => {
       const y = getMax(
         leveragedVaults.filter((y) => y.token.vaultAddress === vaultAddress)
@@ -39,6 +59,7 @@ export const useVaultCards = () => {
         1
       );
 
+
       return {
         vaultAddress: vaultAddress,
         minDepositRequired,
@@ -50,9 +71,13 @@ export const useVaultCards = () => {
         vaultName: name,
         capacityUsedPercentage,
         capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
+        VaultCardOverlay: GATED_VAULTS.includes(id) ? VaultCardOverlay : undefined,
+        VaultCardIcon: GATED_VAULTS.includes(id) ? DegenScoreIcon : undefined,
       };
     }
   );
 
-  return allVaults;
+
+
+  return allVaults as AllVaultsProps[];
 };
