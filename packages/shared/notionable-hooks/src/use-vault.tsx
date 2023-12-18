@@ -1,9 +1,28 @@
+import { useEffect } from 'react';
+import { GATED_VAULTS, BETA_ACCESS } from '@notional-finance/notionable';
+import { useHistory, useLocation } from 'react-router-dom';
 import {
   Registry,
   TokenBalance,
   whitelistedVaults,
 } from '@notional-finance/core-entities';
 import { useNotionalError, useSelectedNetwork } from './use-notional';
+
+export function useVaultNftCheck(hasContestNFT?: BETA_ACCESS) {
+  const history = useHistory();
+  const { pathname } = useLocation();
+  const vaultAddress = pathname.split('/')[2];
+
+  useEffect(() => {
+    if (
+      vaultAddress &&
+      GATED_VAULTS.includes(vaultAddress) &&
+      hasContestNFT !== BETA_ACCESS.CONFIRMED
+    ) {
+      history.push('/vaults');
+    }
+  }, [hasContestNFT, history, vaultAddress]);
+}
 
 export function useVaultProperties(vaultAddress?: string) {
   let minAccountBorrowSize: TokenBalance | undefined = undefined;
