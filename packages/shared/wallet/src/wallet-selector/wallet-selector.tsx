@@ -11,6 +11,7 @@ import {
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
+import { getFromLocalStorage } from '@notional-finance/helpers';
 import {
   ProgressIndicator,
   ButtonText,
@@ -38,23 +39,21 @@ export interface PortfolioParams {
 export function WalletSelector() {
   const theme = useTheme();
   const { pathname } = useLocation();
-
   const { isReadOnlyAddress, icon, currentLabel } = useConnect();
   const {
     globalState: { selectedAccount, isAccountPending },
   } = useNotionalContext();
   const truncatedAddress = useTruncatedAddress();
-  const [notificationsActive, setNotificationsActive] =
-    useState<boolean>(false);
+  const notifications = getFromLocalStorage('notifications');
+
   const [showAlert, setShowAlert] = useState<boolean>(false);
 
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { openDrawer } = useWalletSideDrawer();
+  console.log({ notifications });
 
   useEffect(() => {
-    getNotificationsData().then((activeResult) => {
-      return activeResult ? setNotificationsActive(activeResult) : null;
-    });
+    getNotificationsData();
   }, []);
 
   const handleClick = (key: SETTINGS_SIDE_DRAWERS) => {
@@ -124,7 +123,7 @@ export function WalletSelector() {
                       handleClick(SETTINGS_SIDE_DRAWERS.NOTIFICATIONS)
                     }
                   >
-                    {notificationsActive ? <ActiveBellIcon /> : <BellIcon />}
+                    {notifications.active ? <ActiveBellIcon /> : <BellIcon />}
                   </Box>
                 )}
               </Box>

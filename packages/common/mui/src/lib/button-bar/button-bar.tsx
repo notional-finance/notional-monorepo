@@ -16,6 +16,7 @@ interface ButtonBarPropType {
   buttonVariant?: 'outlined' | 'contained';
   customButtonColor?: string;
   customButtonBGColor?: string;
+  barPosition?: 'absolute' | 'relative';
   sx?: SxProps;
 }
 
@@ -24,6 +25,7 @@ export const ButtonBar = ({
   buttonVariant = 'contained',
   customButtonColor,
   customButtonBGColor,
+  barPosition,
   sx,
 }: ButtonBarPropType) => {
   const theme = useTheme();
@@ -31,7 +33,12 @@ export const ButtonBar = ({
     ? customButtonBGColor
     : theme.palette.primary.light;
   return (
-    <div>
+    <div
+      style={{
+        position: barPosition,
+        marginBottom: barPosition === 'absolute' ? theme.spacing(6) : '0px',
+      }}
+    >
       {buttonOptions.length > 0 ? (
         <ButtonGroup
           aria-label="button group"

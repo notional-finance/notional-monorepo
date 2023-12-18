@@ -29,6 +29,7 @@ export const NotificationsSideDrawer = ({
   const theme = useTheme();
 
   const handleMarkAsRead = () => {
+    console.log('handleMarkAsRead');
     setInLocalStorage('notifications', {
       active: false,
       blogData: notifications.blogData,
@@ -47,7 +48,7 @@ export const NotificationsSideDrawer = ({
       <Title>
         <FormattedMessage defaultMessage="Notifications" />
         {notifications.active && (
-          <TextLink onClick={handleMarkAsRead}>
+          <TextLink onClick={() => handleMarkAsRead()}>
             <FormattedMessage defaultMessage="Mark All as Read" />
           </TextLink>
         )}
