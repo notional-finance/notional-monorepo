@@ -28,15 +28,13 @@ export const VaultCardOverlay = () => {
   } = useNotionalContext();
 
   useEffect(() => {
-    if (lottieInstance !== undefined) {
-      if (hasContestNFT === BETA_ACCESS.CONFIRMED) {
-        lottieInstance.play();
-      }
-      if (hasContestNFT === BETA_ACCESS.REJECTED) {
-        setHideImg(false);
-        if (lottieInstance.isLoaded) {
-          lottieInstance.stop();
-        }
+    if (hasContestNFT === BETA_ACCESS.CONFIRMED) {
+      lottieInstance?.play();
+    }
+    if (hasContestNFT === BETA_ACCESS.REJECTED) {
+      setHideImg(false);
+      if (lottieInstance?.isLoaded) {
+        lottieInstance?.stop();
       }
     }
   }, [lottieInstance, hasContestNFT]);

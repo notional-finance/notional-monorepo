@@ -2,12 +2,11 @@ import {
   NotionalContext,
   useGlobalContext,
   useSanctionsBlock,
+  useVaultNftCheck,
 } from '@notional-finance/notionable-hooks';
-import { GATED_VAULTS, BETA_ACCESS } from '@notional-finance/notionable';
 import { TrackingConsent } from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
 import { useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
 import { Switch } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
 import { ServerError } from '../ServerError/server-error';
@@ -235,20 +234,7 @@ export const App = () => {
     state: { themeVariant, hasContestNFT },
   } = globalState;
   const notionalTheme = useNotionalTheme(themeVariant);
-  const history = useHistory();
-  const { pathname } = useLocation();
-
-  const vaultAddress = pathname.split('/')[2];
-
-  useEffect(() => {
-    if (
-      vaultAddress &&
-      GATED_VAULTS.includes(vaultAddress) &&
-      hasContestNFT !== BETA_ACCESS.CONFIRMED
-    ) {
-      history.push('/vaults');
-    }
-  }, [hasContestNFT, history, vaultAddress]);
+  useVaultNftCheck(hasContestNFT);
 
   // Run as a useEffect here so that the observable "sees" the initial change
   useEffect(() => {

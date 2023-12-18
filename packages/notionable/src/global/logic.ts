@@ -1,5 +1,5 @@
 import { Network, getProviderURLFromNetwork } from '@notional-finance/util';
-import { BETA_ACCESS } from './global-state';
+import { BETA_ACCESS, ACCESS_NFTS } from './global-state';
 import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 
 export function onSelectedNetworkChange(
@@ -60,9 +60,9 @@ export async function onAccountPending(
   let hasContestNFT;
   let contestTokenId;
 
-  const NFT = '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e';
-  const providerURL = getProviderURLFromNetwork(selectedNetwork, true);
-  const url = `${providerURL}/getNFTs?owner=${selectedAccount}&contractAddresses[]=${NFT}&withMetadata=false`;
+  const nftData = ACCESS_NFTS['DEGEN_SCORE'];
+  const providerURL = getProviderURLFromNetwork(nftData.network, true);
+  const url = `${providerURL}/getNFTs?owner=${selectedAccount}&contractAddresses[]=${nftData.address}&withMetadata=false`;
 
   try {
     const response = await fetch(url);
