@@ -68,7 +68,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
         PRIME_CASH_VAULT_MATURITY
       );
       return TokenBalance.from(
-        b.unwrapVaultToken().toPrimeCash().n,
+        b.unwrapVaultToken().toPrimeDebt().n,
         primeVaultDebt
       );
     } else if (b.tokenType === 'VaultCash') {
