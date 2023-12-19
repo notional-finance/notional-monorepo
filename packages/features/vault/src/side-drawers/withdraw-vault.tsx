@@ -24,6 +24,7 @@ export const WithdrawVault = () => {
       depositBalance,
       vaultAddress,
       calculateError,
+      maxWithdraw,
     },
     updateState,
   } = context;
@@ -76,6 +77,7 @@ export const WithdrawVault = () => {
           }}
           onMaxValue={maxWithdrawUnderlying && onMaxValue}
           errorMsg={
+            !maxWithdraw &&
             depositBalance &&
             maxWithdrawUnderlying &&
             depositBalance.abs().gt(maxWithdrawUnderlying) ? (
