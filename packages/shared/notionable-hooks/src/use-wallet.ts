@@ -128,7 +128,7 @@ export function useWalletBalances(
         token,
         content: { 
           balance: maxBalance?.isPositive() ? maxBalance?.toDisplayStringWithSymbol(3, true) : undefined, 
-          usdBalance: maxBalance?.isPositive() ? maxBalance?.toFiat('USD').toDisplayString() : undefined,
+          usdBalance: maxBalance?.isPositive() ? maxBalance?.toFiat('USD').toFloat() : undefined,
           apy: apyData[token.symbol] || undefined },
       };
     }).sort((a, b) => {
@@ -143,7 +143,7 @@ export function useWalletBalances(
       if (balanceB === undefined) {
           return -1;
       }
-      return parseFloat(balanceB) - parseFloat(balanceA);
+      return balanceB - balanceA;
   })}, [tokens, account, apyData]);
 }
 
