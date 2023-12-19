@@ -25,6 +25,8 @@ export interface VaultProps {
   route: string;
   hasVaultPosition: boolean;
   netWorth?: string;
+  VaultCardOverlay?: any;
+  VaultCardIcon?: any;
 }
 
 export const Vault = ({
@@ -38,112 +40,138 @@ export const Vault = ({
   capacityRemaining,
   route,
   hasVaultPosition,
+  VaultCardOverlay,
+  VaultCardIcon,
 }: VaultProps) => {
   const theme = useTheme();
   const formattedRate = `${formatNumberAsPercent(rate, 2)} APY`;
 
   return (
-    <Link to={route}>
-      <Card height={'auto'}>
-        {symbol && (
-          <StyledIcon top={theme.spacing(-9)}>
-            <TokenIcon symbol={symbol} size="extraLarge" />
-          </StyledIcon>
-        )}
-        <>
-          <CurrencyTitle
-            accent
-            textAlign="left"
-            marginBottom={theme.spacing(1)}
-          >
-            {symbol}
-          </CurrencyTitle>
-          <SmallInput textAlign="left" marginBottom={theme.spacing(4)}>
-            {vaultName}
-          </SmallInput>
-          <SectionTitle textAlign="left" gutter="default">
-            {hasVaultPosition ? (
-              <FormattedMessage defaultMessage="current APY" />
-            ) : (
-              <FormattedMessage
-                defaultMessage="{leverage} LEVERAGE"
-                values={{ leverage }}
-              />
-            )}
-          </SectionTitle>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-            <LightningIcon
-              sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
-            />
-            <H4
-              textAlign="left"
-              marginBottom={theme.spacing(3)}
-              fontWeight="bold"
-              sx={{ color: rate < 0 ? colors.red : '' }}
-            >
-              {formattedRate}
-            </H4>
-          </Box>
-
-          <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-            {hasVaultPosition ? (
-              <FormattedMessage defaultMessage="CURRENT NET WORTH" />
-            ) : (
-              <FormattedMessage defaultMessage="MINIMUM DEPOSIT" />
-            )}
-          </SectionTitle>
-          <SmallInput textAlign="left" marginBottom={theme.spacing(5)}>
-            {hasVaultPosition ? netWorth : minDepositRequired}
-          </SmallInput>
-
-          <SectionTitle textAlign="left">
-            <FormattedMessage defaultMessage="VAULT BORROW CAPACITY" />
-          </SectionTitle>
-          <SliderBasic
-            min={0}
-            max={100}
-            value={capacityUsedPercentage}
-            step={1}
-            disabled={true}
-            hideThumb
-            sx={{
-              marginBottom: theme.spacing(0),
-            }}
-          />
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: theme.spacing(3),
-            }}
-          >
-            <SectionTitle inline textAlign="left">
-              <FormattedMessage defaultMessage="CAPACITY REMAINING" />
-            </SectionTitle>
-            <SmallInput inline textAlign="right">
-              {capacityRemaining}
-            </SmallInput>
-          </Box>
-        </>
-        <Button
-          fullWidth
-          size="large"
-          variant={hasVaultPosition ? 'outlined' : 'contained'}
-          sx={{
-            textTransform: 'uppercase',
-          }}
-        >
-          {hasVaultPosition ? (
-            <FormattedMessage defaultMessage="Manage Vault" />
-          ) : (
-            <FormattedMessage defaultMessage="Enter Vault" />
+    <Container>
+      {VaultCardOverlay && <VaultCardOverlay />}
+      <Link to={route}>
+        <Card height={'auto'}>
+          {symbol && !VaultCardIcon && (
+            <StyledIcon top={theme.spacing(-9)}>
+              <TokenIcon symbol={symbol} size="extraLarge" />
+            </StyledIcon>
           )}
-        </Button>
-      </Card>
-    </Link>
+          <>
+            <CurrencyTitle
+              accent
+              textAlign="left"
+              marginBottom={theme.spacing(2)}
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              {symbol}
+              {VaultCardIcon ? (
+                <VaultCardIcon />
+              ) : (
+                <Box sx={{ height: theme.spacing(5) }}></Box>
+              )}
+            </CurrencyTitle>
+            <SmallInput textAlign="left" marginBottom={theme.spacing(4)}>
+              {vaultName}
+            </SmallInput>
+            <SectionTitle textAlign="left" gutter="default">
+              {hasVaultPosition ? (
+                <FormattedMessage defaultMessage="current APY" />
+              ) : (
+                <FormattedMessage
+                  defaultMessage="{leverage} LEVERAGE"
+                  values={{ leverage }}
+                />
+              )}
+            </SectionTitle>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+              <LightningIcon
+                sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
+              />
+              <H4
+                textAlign="left"
+                marginBottom={theme.spacing(3)}
+                fontWeight="bold"
+                sx={{ color: rate < 0 ? colors.red : '' }}
+              >
+                {formattedRate}
+              </H4>
+            </Box>
+
+            <SectionTitle textAlign="left" marginBottom={theme.spacing(2)}>
+              {hasVaultPosition ? (
+                <FormattedMessage defaultMessage="CURRENT NET WORTH" />
+              ) : (
+                <FormattedMessage defaultMessage="MINIMUM DEPOSIT" />
+              )}
+            </SectionTitle>
+            <SmallInput textAlign="left" marginBottom={theme.spacing(5)}>
+              {hasVaultPosition ? netWorth : minDepositRequired}
+            </SmallInput>
+
+            <SectionTitle textAlign="left">
+              <FormattedMessage defaultMessage="VAULT BORROW CAPACITY" />
+            </SectionTitle>
+            <SliderBasic
+              min={0}
+              max={100}
+              value={capacityUsedPercentage}
+              step={1}
+              disabled={true}
+              hideThumb
+              sx={{
+                marginBottom: theme.spacing(0),
+              }}
+            />
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: theme.spacing(3),
+              }}
+            >
+              <SectionTitle inline textAlign="left">
+                <FormattedMessage defaultMessage="CAPACITY REMAINING" />
+              </SectionTitle>
+              <SmallInput inline textAlign="right">
+                {capacityRemaining}
+              </SmallInput>
+            </Box>
+          </>
+          <Button
+            fullWidth
+            size="large"
+            variant={hasVaultPosition ? 'outlined' : 'contained'}
+            sx={{
+              textTransform: 'uppercase',
+            }}
+          >
+            {hasVaultPosition ? (
+              <FormattedMessage defaultMessage="Manage Vault" />
+            ) : (
+              <FormattedMessage defaultMessage="Enter Vault" />
+            )}
+          </Button>
+        </Card>
+      </Link>
+    </Container>
   );
 };
+
+const Container = styled(Box)(
+  ({ theme }) => `
+    min-width: 275px;
+    min-height: 550px;
+    ${theme.breakpoints.down('md')} {
+      display: flex;
+      justify-content: center;
+    }
+      `
+);
 
 const StyledIcon = styled(Box)(
   ({ theme }) => `

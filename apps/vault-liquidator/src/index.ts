@@ -64,17 +64,18 @@ const run = async (env: Env) => {
         'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
       },
     })
-  ).json()) as { account_id: string }[];
-  const addresses: string[] = accounts.map((a) => a.account_id);
+  ).json()) as { account_id: string; vault_id: string }[];
+
+  const activeVaults: string[] = allVaults['values']
+    .filter(([, v]) => v['enabled'] === true)
+    .map(([v]) => v as string);
 
   const provider = getProviderFromNetwork(env.NETWORK, true);
   const liq = new VaultV3Liquidator(
     provider,
     {
       network: env.NETWORK,
-      vaultAddrs: allVaults['values']
-        .filter(([, v]) => v['enabled'] === true)
-        .map(([v]) => v),
+      vaultAddrs: activeVaults,
       flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
       flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
       flashLenderAddress: env.FLASH_LENDER_ADDRESS,
@@ -94,7 +95,11 @@ const run = async (env: Env) => {
     logger
   );
 
-  const batchedAccounts = batchArray(addresses, 750);
+  const batchedAccounts = batchArray(
+    accounts.filter(({ vault_id }) => activeVaults.includes(vault_id)),
+    250
+  );
+
   const riskyAccounts =
     // Batch up the accounts so that we don't get errors from the RPC
     (

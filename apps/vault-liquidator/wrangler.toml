@@ -12,7 +12,7 @@ name = "vault-liquidator-dev"
 
 [env.dev.vars]
 NX_DATA_URL = 'https://data-dev.notional.finance'
-ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
+ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultAccounts'
 ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
 NETWORK = 'arbitrum'
 FLASH_LIQUIDATOR_CONTRACT = '0xeF8E3aa5c4FcAdE988396F3A4660667255ae836A'

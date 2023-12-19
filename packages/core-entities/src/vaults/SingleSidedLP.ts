@@ -22,6 +22,31 @@ export interface SingleSidedLPParams extends BaseVaultParams {
   secondaryTradeParams: string;
 }
 
+export interface TradeParams {
+  // TODO: make an enum
+  dexId: number;
+  // TODO: make an enum
+  tradeType: number;
+  oracleSlippagePercentOrLimit: number;
+  exchangeData: string;
+}
+
+export interface DepositTradeParams {
+  tradeAmount: TokenBalance;
+  tradeParams: TradeParams;
+}
+
+export interface RedeemParams {
+  minAmounts: TokenBalance[];
+  redemptionTrades: TradeParams[];
+}
+
+/// @notice Deposit parameters
+export interface DepositParams {
+  minPoolClaim: TokenBalance;
+  depositTrades: DepositTradeParams[];
+}
+
 export class SingleSidedLP extends VaultAdapter {
   // We should make a method that just returns all of these...
   public pool: BaseLiquidityPool<unknown>; // hardcoded probably?
@@ -31,11 +56,34 @@ export class SingleSidedLP extends VaultAdapter {
   public totalVaultShares: BigNumber;
   public secondaryTradeParams: string;
 
+  get strategy() {
+    return 'SingleSidedLP';
+  }
+
+  get bptIndex() {
+    return (
+      (this.pool.poolParams as Record<string, unknown>)['bptIndex'] as
+        | BigNumber
+        | undefined
+    )?.toNumber();
+  }
+
   constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
-    super(p.enabled);
+    super(p.enabled, p.name);
 
     this.pool = Registry.getExchangeRegistry().getPoolInstance(network, p.pool);
-    this.singleSidedTokenIndex = p.singleSidedTokenIndex;
+
+    // NOTE: make a correction for BPT index to exclude it from ComposableStablePools
+    const bptIndex = this.bptIndex;
+    if (bptIndex !== undefined) {
+      this.singleSidedTokenIndex =
+        p.singleSidedTokenIndex < bptIndex
+          ? p.singleSidedTokenIndex
+          : p.singleSidedTokenIndex - 1;
+    } else {
+      this.singleSidedTokenIndex = p.singleSidedTokenIndex;
+    }
+
     this.totalLPTokens = p.totalLPTokens;
     this.totalVaultShares = p.totalVaultShares;
     this.secondaryTradeParams = p.secondaryTradeParams;
@@ -60,6 +108,9 @@ export class SingleSidedLP extends VaultAdapter {
     lpTokens: TokenBalance,
     vaultShare: TokenDefinition
   ) {
+    if (this.totalLPTokens.isZero())
+      return TokenBalance.from(lpTokens.scaleTo(8), vaultShare);
+
     return TokenBalance.from(
       this.totalVaultShares.mul(lpTokens.n).div(this.totalLPTokens.n),
       vaultShare
@@ -168,12 +219,13 @@ export class SingleSidedLP extends VaultAdapter {
     );
 
     return defaultAbiCoder.encode(
-      ['tuple(uint256 minLPTokens, bytes tradeData) d'],
+      ['tuple(uint256 minPoolClaim, bytes tradeData) d'],
       [
         {
           // Floor min lp tokens at zero
-          minLPTokens:
+          minPoolClaim:
             minLPTokens.toFloat() > 0.0001 ? minLPTokens.n : BigNumber.from(0),
+          // Deposit trades are not implemented
           tradeData: '0x',
         },
       ]
@@ -187,31 +239,34 @@ export class SingleSidedLP extends VaultAdapter {
     _underlyingToRepayDebt: TokenBalance,
     slippageFactor = 5 * BASIS_POINT
   ) {
+    // Since this is single sided then everything is back to one side.
     const { tokensOut } = this.pool.getTokensOutGivenLPTokens(
-      this.getVaultSharesToLPTokens(vaultSharesToRedeem)
+      this.getVaultSharesToLPTokens(vaultSharesToRedeem),
+      this.singleSidedTokenIndex
     );
-    const minPrimary = tokensOut[this.singleSidedTokenIndex].mulInRatePrecision(
-      RATE_PRECISION - slippageFactor
+
+    const minAmounts = tokensOut.map(
+      (t) => t.mulInRatePrecision(RATE_PRECISION - slippageFactor).n
     );
-    const minSecondary = tokensOut[
-      1 - this.singleSidedTokenIndex
-    ].mulInRatePrecision(RATE_PRECISION - slippageFactor);
+
+    if (this.bptIndex !== undefined) {
+      // Insert a zero for the bpt index
+      minAmounts.splice(this.bptIndex, 0, BigNumber.from(0));
+    }
 
     return defaultAbiCoder.encode(
-      [
-        'tuple( uint256 minPrimary, uint256 minSecondary, bytes secondaryTradeParams) r',
-      ],
+      ['tuple(uint256[] minAmounts, bytes secondaryTradeParams) r'],
       [
         {
-          minPrimary: minPrimary.n,
-          minSecondary: minSecondary.n,
-          secondaryTradeParams: this.secondaryTradeParams,
+          minAmounts,
+          secondaryTradeParams: '0x',
         },
       ]
     );
   }
 
   getPriceExposure() {
+    // TODO: this only works on two token pools
     return (
       this.pool
         // This is trading towards the single sided token [profit]

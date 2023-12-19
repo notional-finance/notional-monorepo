@@ -224,6 +224,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         leverageRatio,
         maxLeverageRatio,
       },
+      vaultName: yieldData?.vaultName,
       incentives: yieldData.incentives?.map(({ tokenId, incentiveAPY }) => ({
         tokenId,
         incentiveAPY: this.calculateLeveragedAPY(
@@ -243,8 +244,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     );
 
     return nTokenYields.flatMap((nToken) => {
-      const { nTokenHaircut } =
-        config.getNTokenLeverageFactors(nToken.token);
+      const { nTokenHaircut } = config.getNTokenLeverageFactors(nToken.token);
 
       return debtYields
         .filter((d) => d.token.currencyId === nToken.token.currencyId)
@@ -255,7 +255,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
                   .toUnderlying()
                   .scaleTo(RATE_DECIMALS)
               : RATE_PRECISION;
-              
+
           // defaultLeverageRatio = [(1 - (pvFactor * nTokenHaircut * nTokenMaxDrawdown)) ^ -1] - 1
           // const factor = BigNumber.from(RATE_PRECISION)
           //   .pow(3)
@@ -423,6 +423,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           underlying,
           totalAPY,
           tvl: v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          vaultName: config.getVaultName(network, v.vaultAddress),
         };
 
         return [

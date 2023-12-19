@@ -296,6 +296,10 @@ export class RegistryClientDO extends BaseDO<Env> {
           });
         }
       }
+
+      // TODO: check that the account does not have any vault positions
+      // that we do not know about...so call directly on chain for every
+      // listed vault
     }
 
     if (accountSet.size > 0) {

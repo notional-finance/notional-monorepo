@@ -264,6 +264,7 @@ export interface YieldData {
     debtRate: number;
     maxLeverageRatio: number;
   };
+  vaultName?: string;
   nativeTokenAPY?: number;
   interestAPY?: number;
   feeAPY?: number;

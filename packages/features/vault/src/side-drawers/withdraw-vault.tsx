@@ -19,10 +19,8 @@ export const WithdrawVault = () => {
   const context = useContext(VaultActionContext);
   const {
     state: {
-      priorAccountRisk,
       postAccountRisk,
       deposit,
-      riskFactorLimit,
       depositBalance,
       vaultAddress,
       calculateError,
@@ -32,7 +30,6 @@ export const WithdrawVault = () => {
   const [inputString, setInputString] = useState('');
   const primaryBorrowSymbol = deposit?.symbol;
   const isFullRepayment = postAccountRisk?.leverageRatio === null;
-  const priorLeverageRatio = priorAccountRisk?.leverageRatio || null;
   const profile = useVaultRiskProfile(vaultAddress);
 
   const { inputAmount } = useInputAmount(inputString, primaryBorrowSymbol);
@@ -53,6 +50,7 @@ export const WithdrawVault = () => {
       setCurrencyInput(maxWithdrawUnderlying.toExactString(), false);
 
       updateState({
+        inputsSatisfied: true,
         maxWithdraw: true,
         calculationSuccess: true,
         depositBalance: maxWithdrawUnderlying.neg(),
@@ -63,20 +61,7 @@ export const WithdrawVault = () => {
     }
   }, [profile, setCurrencyInput, maxWithdrawUnderlying, updateState]);
 
-  useEffect(() => {
-    // Set the default leverage ratio to the prior account leverage ratio
-    if (!riskFactorLimit && priorLeverageRatio !== null) {
-      updateState({
-        riskFactorLimit: {
-          riskFactor: 'leverageRatio',
-          limit: priorLeverageRatio,
-        },
-      });
-    }
-  }, [riskFactorLimit, priorLeverageRatio, updateState]);
-
-  if (!deposit || !primaryBorrowSymbol || priorLeverageRatio === null)
-    return <PageLoading />;
+  if (!deposit || !primaryBorrowSymbol) return <PageLoading />;
 
   return (
     <VaultSideDrawer context={context}>

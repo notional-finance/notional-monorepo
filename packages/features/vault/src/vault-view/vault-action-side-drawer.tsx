@@ -31,6 +31,16 @@ export const VaultActionSideDrawer = () => {
           limit: defaultLeverageRatio,
         }
       : undefined;
+  const currentPositionState = {
+    collateral: priorAccountRisk?.assets.token,
+    debt: priorAccountRisk?.debts.token,
+    riskFactorLimit: priorAccountRisk?.leverageRatio
+      ? ({
+          riskFactor: 'leverageRatio',
+          limit: priorAccountRisk?.leverageRatio,
+        } as RiskFactorLimit<'leverageRatio'>)
+      : undefined,
+  };
 
   return (
     <SideDrawerRouter
@@ -47,6 +57,7 @@ export const VaultActionSideDrawer = () => {
           requiredState: {
             tradeType: 'CreateVaultPosition',
             riskFactorLimit: defaultRiskLimit,
+            maxWithdraw: false,
           },
         },
         {
@@ -56,6 +67,7 @@ export const VaultActionSideDrawer = () => {
           requiredState: {
             tradeType: 'RollVaultPosition',
             depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
+            maxWithdraw: false,
           },
         },
         {
@@ -94,6 +106,7 @@ export const VaultActionSideDrawer = () => {
           Component: WithdrawVault,
           requiredState: {
             tradeType: 'WithdrawVault',
+            riskFactorLimit: currentPositionState.riskFactorLimit,
           },
         },
       ]}
