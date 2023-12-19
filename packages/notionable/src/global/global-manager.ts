@@ -111,14 +111,16 @@ export const loadGlobalManager = (
         selectedAccount,
         selectedNetwork,
         isNetworkReady,
+        wallet,
       }) =>
         isAccountPending && isNetworkReady && selectedAccount && selectedNetwork
-          ? { selectedAccount, selectedNetwork }
+          ? { selectedAccount, selectedNetwork, wallet }
           : undefined
     ),
     filterEmpty(),
-    switchMap(({ selectedAccount, selectedNetwork }) =>
-      onAccountPending(selectedAccount, selectedNetwork)
+    distinctUntilChanged((p, c) => p.selectedAccount === c.selectedAccount),
+    switchMap(({ selectedAccount, selectedNetwork, wallet }) =>
+      onAccountPending(selectedAccount, selectedNetwork, wallet?.label || 'unknown')
     )
   );
 

@@ -46,7 +46,8 @@ export async function onNetworkPending(selectedNetwork: Network) {
 
 export async function onAccountPending(
   selectedAccount: string,
-  selectedNetwork: Network
+  selectedNetwork: Network,
+  walletLabel: string
 ) {
   const isAccountReady = await new Promise<boolean>((resolve) => {
     Registry.getAccountRegistry().onAccountReady(
@@ -58,7 +59,7 @@ export async function onAccountPending(
             [data.token.symbol]: data.toFloat(),
           }
         })
-        identify(a.address, selectedNetwork, 'unknown', JSON.stringify(tokenBalances));
+        identify(a.address, selectedNetwork, walletLabel, JSON.stringify(tokenBalances));
         resolve(true);
       }
     );
