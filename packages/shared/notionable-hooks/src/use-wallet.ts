@@ -136,14 +136,14 @@ export function useWalletBalances(
       const balanceB = b.content.usdBalance;
       if (balanceA === undefined && balanceB === undefined) {
           return 0;
-      }
-      if (balanceA === undefined) {
+      } else if (balanceA === undefined) {
           return 1;
-      }
-      if (balanceB === undefined) {
+      } else if (balanceB === undefined) {
           return -1;
+      } else {
+        return balanceB - balanceA;
       }
-      return balanceB - balanceA;
+      
   })}, [tokens, account, apyData]);
 }
 
