@@ -52,7 +52,11 @@ export const PortfolioTransactionHistory = () => {
   return (
     <>
       {buttonData.length > 0 && (
-        <ButtonBar buttonOptions={buttonData} buttonVariant="outlined" />
+        <ButtonBar
+          buttonOptions={buttonData}
+          buttonVariant="outlined"
+          barPosition="absolute"
+        />
       )}
 
       <DataTable
