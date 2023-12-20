@@ -4,7 +4,6 @@ import { TokenIcon } from '@notional-finance/icons';
 import { Button } from '../../button/button';
 import { Card } from '../../card/card';
 import { Link } from 'react-router-dom';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
 import {
   CurrencyTitle,
   H4,
@@ -39,7 +38,8 @@ export const CurrencyFixed = (props: CurrencyFixedProps) => {
   const [hovered, setHovered] = useState(false);
   // NOTE: limits digits to 2 decimal places because of the longer APY suffix, higher
   // apy rates will get cut off.
-  const formattedRate = formatNumberAsPercent(rate, 2);
+  const formattedRate =
+    rate < 1 ? `${rate.toPrecision(2)}%` : `${rate.toPrecision(3)}%`;
 
   return (
     <Link to={route}>
