@@ -1,7 +1,7 @@
 import { TreasuryManager__factory, ERC20__factory } from '@notional-finance/contracts';
 import { DEX_ID, Network, TRADE_TYPE, getProviderFromNetwork, } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
-import { ARB_WETH, vaults } from './vaults';
+import { vaults } from './vaults';
 
 export interface Env {
   NETWORK: string;
@@ -15,6 +15,7 @@ export interface Env {
 
 }
 const HOUR_IN_SECONDS = 60 * 60;
+const SLIPPAGE_PERCENT = 1;
 const wait = (ms: number) => new Promise((f) => setTimeout(f, ms));
 
 interface ReinvestmentData {
@@ -156,13 +157,13 @@ const getTrades = async (
       } while (tradeData.buyAmount == undefined && retryCount++ < 5);
 
       oracleSlippagePercentOrLimit =
-        BigNumber.from(tradeData.buyAmount).mul(95).div(100).toString();
+        BigNumber.from(tradeData.buyAmount).mul(100 - SLIPPAGE_PERCENT).div(100).toString();
       exchangeData = tradeData.data;
     }
 
     return [
       sellToken,
-      token == ARB_WETH ? "0x0000000000000000000000000000000000000000" : token,
+      token,
       amount.toString(),
       [
         DEX_ID.ZERO_EX,
@@ -245,8 +246,7 @@ const reinvestRewards = async (env: Env, provider: any) => {
 
 export default {
   async fetch(request: Request, env: Env, _: ExecutionContext): Promise<Response> {
-    const { searchParams } = new URL(request.url)
-    const authKey = searchParams.get('authKey')
+    const authKey = request.headers.get('x-auth-key');
     if (authKey !== env.AUTH_KEY) {
       return new Response(null, { status: 401 });
     }
