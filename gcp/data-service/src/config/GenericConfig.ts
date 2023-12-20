@@ -661,6 +661,42 @@ export const configDefs: ConfigDefinition[] = [
     network: Network.ArbitrumOne,
   },
   {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: graphQueries.NotionalV3VaultReinvestments,
+      args: {
+        vault: '0x3Df035433cFACE65b6D68b77CC916085d020C8B8',
+      },
+      transform: (r) => r.reinvestments[0].timestamp,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'ETH/RETH Balancer Reinvestment Timestamp',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: graphQueries.NotionalV3VaultReinvestments,
+      args: {
+        vault: '0x8Ae7A8789A81A43566d0ee70264252c0DB826940',
+      },
+      transform: (r) => r.reinvestments[0].timestamp,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: '4POOL Balancer Reinvestment Timestamp',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xcA11bde05977b3631167028862bE2a173976CA11',
