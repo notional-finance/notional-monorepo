@@ -23,4 +23,5 @@ name = "rewards-beta"
 name = "rewards"
 
 [triggers]
-crons = ["0 0 * * *"]
+# Run two times, once to claim tokens and then again to reinvest
+crons = ["0 0 * * *", "0 15 * * *"]
