@@ -54,11 +54,15 @@ export async function onAccountPending(
       selectedNetwork,
       selectedAccount,
       (a) => {
-        const tokenBalances = a.balances.filter((b) => b.tokenType === 'Underlying').map((data) => {
-          return {
-            [data.token.symbol]: data.toFloat(),
+        const tokenBalances = a.balances.reduce((acc, data) => {
+          if (data.tokenType === 'Underlying') {
+            return {
+              ...acc,
+              [data.token.symbol]: data.toFloat(),
+            };
           }
-        })
+          return acc;
+        }, {})
         identify(a.address, selectedNetwork, walletLabel, JSON.stringify(tokenBalances));
         resolve(true);
       }
