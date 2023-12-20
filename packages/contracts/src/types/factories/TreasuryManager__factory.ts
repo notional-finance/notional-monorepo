@@ -23,51 +23,22 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "contract IVault",
-        name: "_balancerVault",
-        type: "address",
-      },
-      {
-        internalType: "bytes32",
-        name: "_noteETHPoolId",
-        type: "bytes32",
-      },
-      {
         internalType: "contract IERC20",
         name: "_note",
         type: "address",
-      },
-      {
-        internalType: "contract IStakedNote",
-        name: "_sNOTE",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_assetProxy",
-        type: "address",
-      },
-      {
-        internalType: "contract IExchangeV3",
-        name: "_exchange",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_wethIndex",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_noteIndex",
-        type: "uint256",
       },
       {
         internalType: "contract ITradingModule",
         name: "_tradingModule",
         type: "address",
       },
+      {
+        internalType: "contract IVault",
+        name: "_balancerVault",
+        type: "address",
+      },
     ],
+    name: "constructor",
     stateMutability: "nonpayable",
     type: "constructor",
   },
@@ -375,7 +346,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "soldAmount",
+        name: "amountSold",
         type: "uint256",
       },
       {
@@ -728,18 +699,7 @@ const _abi = [
       },
     ],
     name: "claimVaultRewardTokens",
-    outputs: [
-      {
-        internalType: "contract IERC20[]",
-        name: "rewardTokens",
-        type: "address[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "claimedBalances",
-        type: "uint256[]",
-      },
-    ],
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -1038,19 +998,56 @@ const _abi = [
       {
         components: [
           {
-            internalType: "bytes",
-            name: "tradeData",
-            type: "bytes",
+            internalType: "address",
+            name: "sellToken",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "buyToken",
+            type: "address",
           },
           {
             internalType: "uint256",
-            name: "minPoolClaim",
+            name: "amount",
             type: "uint256",
           },
+          {
+            components: [
+              {
+                internalType: "uint16",
+                name: "dexId",
+                type: "uint16",
+              },
+              {
+                internalType: "enum TradeType",
+                name: "tradeType",
+                type: "uint8",
+              },
+              {
+                internalType: "uint256",
+                name: "oracleSlippagePercentOrLimit",
+                type: "uint256",
+              },
+              {
+                internalType: "bytes",
+                name: "exchangeData",
+                type: "bytes",
+              },
+            ],
+            internalType: "struct IStrategyVault.TradeParams",
+            name: "tradeParams",
+            type: "tuple",
+          },
         ],
-        internalType: "struct IStrategyVault.ReinvestRewardParams",
-        name: "params",
-        type: "tuple",
+        internalType: "struct IStrategyVault.SingleSidedRewardTradeParams[]",
+        name: "trades",
+        type: "tuple[]",
+      },
+      {
+        internalType: "uint256",
+        name: "minPoolClaim",
+        type: "uint256",
       },
     ],
     name: "reinvestVaultReward",
@@ -1062,17 +1059,12 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "soldAmount",
+        name: "amountSold",
         type: "uint256",
       },
       {
         internalType: "uint256",
         name: "poolClaimAmount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "strategyTokenAmount",
         type: "uint256",
       },
     ],
