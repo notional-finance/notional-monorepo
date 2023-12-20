@@ -137,9 +137,13 @@ export const Vault = ({
               <SectionTitle inline textAlign="left">
                 <FormattedMessage defaultMessage="CAPACITY REMAINING" />
               </SectionTitle>
-              <SmallInput inline textAlign="right">
+              <SectionTitle
+                inline
+                textAlign="right"
+                sx={{ color: theme.palette.typography.main }}
+              >
                 {capacityRemaining}
-              </SmallInput>
+              </SectionTitle>
             </Box>
           </>
           <Button
