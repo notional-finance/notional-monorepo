@@ -666,14 +666,14 @@ export const configDefs: ConfigDefinition[] = [
       protocol: ProtocolName.NotionalV3,
       query: graphQueries.NotionalV3VaultReinvestments,
       args: {
-        vault: '0x3Df035433cFACE65b6D68b77CC916085d020C8B8',
+        vault: '0x3df035433cface65b6d68b77cc916085d020c8b8',
       },
       transform: (r) => r.reinvestments[0].timestamp,
     },
     tableName: TableName.GenericData,
     dataConfig: {
       strategyId: Strategy.Generic,
-      variable: 'ETH/RETH Balancer Reinvestment Timestamp',
+      variable: 'ETH/[RETH] Balancer Reinvestment Timestamp',
       decimals: 0,
     },
     network: Network.ArbitrumOne,
@@ -684,14 +684,14 @@ export const configDefs: ConfigDefinition[] = [
       protocol: ProtocolName.NotionalV3,
       query: graphQueries.NotionalV3VaultReinvestments,
       args: {
-        vault: '0x8Ae7A8789A81A43566d0ee70264252c0DB826940',
+        vault: '0x8ae7a8789a81a43566d0ee70264252c0db826940',
       },
       transform: (r) => r.reinvestments[0].timestamp,
     },
     tableName: TableName.GenericData,
     dataConfig: {
       strategyId: Strategy.Generic,
-      variable: '4POOL Balancer Reinvestment Timestamp',
+      variable: '[USDC]/4POOL Balancer Reinvestment Timestamp',
       decimals: 0,
     },
     network: Network.ArbitrumOne,
