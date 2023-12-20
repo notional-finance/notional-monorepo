@@ -43,11 +43,13 @@ export function trackOutboundLink(href: string) {
 export function identify(
   account: string,
   selectedNetwork: Network | undefined,
-  walletLabel: string
+  walletLabel: string,
+  tokenBalances?: string,
 ) {
   analytics.identify(account, {
     selectedNetwork,
     walletLabel,
+    tokenBalances,
   });
 }
 

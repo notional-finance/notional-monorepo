@@ -27,7 +27,7 @@ import {
   onNetworkPending,
   onSelectedNetworkChange,
 } from './logic';
-import { identify, trackEvent } from '@notional-finance/helpers';
+import { trackEvent } from '@notional-finance/helpers';
 import { Contract } from 'ethers';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { selectedAccount } from './selectors';
@@ -111,24 +111,25 @@ export const loadGlobalManager = (
         selectedAccount,
         selectedNetwork,
         isNetworkReady,
+        wallet,
       }) =>
         isAccountPending && isNetworkReady && selectedAccount && selectedNetwork
-          ? { selectedAccount, selectedNetwork }
+          ? { selectedAccount, selectedNetwork, wallet }
           : undefined
     ),
     filterEmpty(),
-    switchMap(({ selectedAccount, selectedNetwork }) =>
-      onAccountPending(selectedAccount, selectedNetwork)
+    distinctUntilChanged((p, c) => p.selectedAccount === c.selectedAccount),
+    switchMap(({ selectedAccount, selectedNetwork, wallet }) =>
+      onAccountPending(
+        selectedAccount,
+        selectedNetwork,
+        wallet?.label || 'unknown'
+      )
     )
   );
 
   const onAccountConnect$ = state$.pipe(
     distinctUntilChanged((p, c) => p.selectedAccount === c.selectedAccount),
-    tap(({ selectedAccount, wallet, selectedNetwork }) => {
-      if (selectedAccount) {
-        identify(selectedAccount, selectedNetwork, wallet?.label || 'unknown');
-      }
-    }),
     filter(({ selectedAccount }) => selectedAccount !== undefined),
     switchMap(({ selectedAccount }) => {
       // Chain Analysis Sanctioned Address Oracle

@@ -1,5 +1,6 @@
 import { Network, getProviderURLFromNetwork } from '@notional-finance/util';
 import { BETA_ACCESS, ACCESS_NFTS } from './global-state';
+import { identify } from '@notional-finance/helpers';
 import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 
 export function onSelectedNetworkChange(
@@ -45,13 +46,24 @@ export async function onNetworkPending(selectedNetwork: Network) {
 
 export async function onAccountPending(
   selectedAccount: string,
-  selectedNetwork: Network
+  selectedNetwork: Network,
+  walletLabel: string
 ) {
   const isAccountReady = await new Promise<boolean>((resolve) => {
     Registry.getAccountRegistry().onAccountReady(
       selectedNetwork,
       selectedAccount,
-      () => {
+      (a) => {
+        const tokenBalances = a.balances.reduce((acc, data) => {
+          if (data.tokenType === 'Underlying') {
+            return {
+              ...acc,
+              [data.token.symbol]: data.toFloat(),
+            };
+          }
+          return acc;
+        }, {})
+        identify(a.address, selectedNetwork, walletLabel, JSON.stringify(tokenBalances));
         resolve(true);
       }
     );
@@ -60,7 +72,7 @@ export async function onAccountPending(
   let hasContestNFT;
   let contestTokenId;
 
-  const nftData = ACCESS_NFTS['DEGEN_SCORE'];
+  const nftData = ACCESS_NFTS['DEGEN_SCORE']; 
   const providerURL = getProviderURLFromNetwork(nftData.network, true);
   const url = `${providerURL}/getNFTs?owner=${selectedAccount}&contractAddresses[]=${nftData.address}&withMetadata=false`;
 
