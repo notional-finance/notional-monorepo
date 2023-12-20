@@ -7,8 +7,12 @@ import { VaultLeverageSlider, MobileVaultSummary } from '../components';
 import { useVaultActionErrors } from '../hooks';
 import {
   DepositInput,
-  VariableFixedMaturityToggle,
+  // VariableFixedMaturityToggle,
 } from '@notional-finance/trade';
+import // CustomLiquidityTerms,
+// DefaultLiquidityTerms,
+// ManageLiquidityTerms,
+'../components';
 import { messages } from '../messages';
 
 export const CreateVaultPosition = () => {
@@ -39,10 +43,14 @@ export const CreateVaultPosition = () => {
             errorMsgOverride={inputErrorMsg}
             inputLabel={messages['CreateVaultPosition'].depositAmount}
           />
-          <VariableFixedMaturityToggle
+          {/* <CustomLiquidityTerms /> */}
+          {/* <DefaultLiquidityTerms /> */}
+          {/* <ManageLiquidityTerms /> */}
+
+          {/* <VariableFixedMaturityToggle
             context={context}
             fCashInputLabel={messages['CreateVaultPosition'].maturity}
-          />
+          /> */}
           <VaultLeverageSlider
             context={context}
             inputLabel={messages['CreateVaultPosition'].leverage}

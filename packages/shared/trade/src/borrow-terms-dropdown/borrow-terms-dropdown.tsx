@@ -12,6 +12,8 @@ export const BorrowTermsDropdown = ({ context }: BorrowTermsDropdownProps) => {
   } = context;
   const { borrowOptions, onSelect, defaultDebtOption } =
     useBorrowTerms(context);
+
+  console.log({ borrowOptions });
   return (
     <div>
       <AssetSelectDropdown
