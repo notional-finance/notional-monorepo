@@ -41,7 +41,6 @@ async function getLastReinvestment(vault: string): Promise<{ timestamp: number }
             where:{vault: "${vault.toLowerCase()}" }
           ) {
             timestamp
-            rewardTokenSold
           }
       }`
     })
@@ -49,27 +48,37 @@ async function getLastReinvestment(vault: string): Promise<{ timestamp: number }
     .then((r: ReinvestmentData) => r.data.reinvestments[0]);
 }
 
-async function shouldSkipReinvest(env: Env, vaultAddress: string) {
+async function didTimeWindowPassed(vaultAddress: string, timeWindow: number) {
   const lastReinvestment = await getLastReinvestment(vaultAddress);
-
   if (lastReinvestment) {
-    const reinvestTimeWindow =
-      Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS;
     const currentTimeInSeconds = Date.now() / 1000;
 
-    // allow reinvestment to happen only once in reinvest time window
-    if (currentTimeInSeconds < (lastReinvestment.timestamp + reinvestTimeWindow)) {
-      return true;
+    if (currentTimeInSeconds < (lastReinvestment.timestamp + timeWindow)) {
+      return false;
     }
   }
 
-  return false;
+  // case when vault is new and there is no previous reinvestment event
+  return true;
+}
+
+async function shouldSkipReinvest(env: Env, vaultAddress: string) {
+  const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS;
+  return !(await didTimeWindowPassed(vaultAddress, reinvestTimeWindow));
+}
+
+async function shouldSkipClaim(env: Env, vaultAddress: string) {
+  // claim time window is slightly less than reinvest time window so claiming
+  // can happen each day at same time otherwise it would be postponed each day
+  // by some time(depending on how often do we run bot)
+  const claimTimeWindow = (Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24)) * HOUR_IN_SECONDS - 0.5 * HOUR_IN_SECONDS;
+  return !(await didTimeWindowPassed(vaultAddress, claimTimeWindow));
 }
 
 const claimRewards = async (env: Env, provider: any) => {
   return Promise.all(
     vaults.map(async (v) => {
-      if (await shouldSkipReinvest(env, v.address)) {
+      if (await shouldSkipClaim(env, v.address)) {
         console.log(`Skipping claim rewards for ${v.address}, already claimed`);
         return null;
       }
@@ -263,7 +272,13 @@ export default {
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
     const provider = getProviderFromNetwork(Network[env.NETWORK], true);
 
-    await claimRewards(env, provider);
-    await reinvestRewards(env, provider);
+    // cron job will run twice, once on full hour and second time 10 minutes later
+    // first time it will claim rewards and second time reinvest it
+    const currentMinuteInHour = (new Date()).getMinutes();
+    if (currentMinuteInHour < 10) {
+      await claimRewards(env, provider);
+    } else {
+      await reinvestRewards(env, provider);
+    }
   },
 };
