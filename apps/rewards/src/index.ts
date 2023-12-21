@@ -1,7 +1,7 @@
 import { TreasuryManager__factory, ERC20__factory } from '@notional-finance/contracts';
 import { DEX_ID, Network, TRADE_TYPE, getProviderFromNetwork, } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
-import { vaults } from './vaults';
+import { vaults, ARB_ETH, ARB_WETH } from './vaults';
 
 export interface Env {
   NETWORK: string;
@@ -155,7 +155,7 @@ const getTrades = async (
       do {
         tradeData = await getZeroExTradeData(env,
           sellToken,
-          token,
+          token == ARB_ETH ? ARB_WETH : token,
           amount
         );
         if (tradeData.buyAmount == undefined) {
@@ -231,10 +231,13 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
   await executePromisesSequentially(vault.rewardTokens.map((t) => async () => {
     const amount = await ERC20__factory.connect(t, provider).balanceOf(vault.address);
 
-    if (amount.isZero()) return null;
+    if (amount.isZero()) {
+      console.log(`Skipping reinvestment for ${vault.address}: ${t}, 0 reward token`);
+      return null;
+    }
 
     if (await shouldSkipReinvest(env, vault.address)) {
-      console.log(`Skipping reinvestment for ${vault.address}, already invested`);
+      console.log(`Skipping reinvestment for ${vault.address}: ${t}, already invested`);
       return null;
     }
 
