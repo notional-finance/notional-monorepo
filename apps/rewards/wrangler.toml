@@ -15,7 +15,7 @@ NETWORK = 'ArbitrumOne'
 TREASURY_MANAGER_ADDRESS = '0x53144559c0d4a3304e2dd9dafbd685247429216d'
 TX_RELAY_URL = 'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com'
 ZERO_EX_PRICE_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
-REINVEST_TIME_WINDOW_IN_HOURS=23
+REINVEST_TIME_WINDOW_IN_HOURS=24
 
 [env.beta]
 name = "rewards-beta"
@@ -24,5 +24,7 @@ name = "rewards-beta"
 name = "rewards"
 
 [triggers]
-# Run two times, once to claim tokens and then again to reinvest
-crons = ["0 0 * * *", "0 15 * * *"]
+# Run two times every other hour, once to claim tokens and then again to reinvest
+# reinvestment and claim will only happen once in specified REINVEST_TIME_WINDOW_IN_HOURS
+# it is tightly coupled to how we are triggering claiming and reinvestment
+crons = ["0 */2 * * *", "10 */2 * * *"]
