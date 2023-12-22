@@ -63,7 +63,8 @@ async function didTimeWindowPassed(vaultAddress: string, timeWindow: number) {
 }
 
 async function shouldSkipReinvest(env: Env, vaultAddress: string) {
-  const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS;
+  // subtract 5min from time indow so reinvestment can happen each day on same time
+  const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS - 5 * 60;
   return !(await didTimeWindowPassed(vaultAddress, reinvestTimeWindow));
 }
 
