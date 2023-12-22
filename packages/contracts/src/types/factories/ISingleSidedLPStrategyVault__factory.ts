@@ -11,6 +11,97 @@ import type {
 
 const _abi = [
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "poolClaimExit",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256[]",
+        name: "exitBalances",
+        type: "uint256[]",
+      },
+    ],
+    name: "EmergencyExit",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "deprecated_emergencySettlementSlippageLimitPercent",
+            type: "uint32",
+          },
+          {
+            internalType: "uint16",
+            name: "maxPoolShare",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "oraclePriceDeviationLimitPercent",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "deprecated_poolSlippageLimitPercent",
+            type: "uint16",
+          },
+        ],
+        indexed: false,
+        internalType: "struct StrategyVaultSettings",
+        name: "settings",
+        type: "tuple",
+      },
+    ],
+    name: "StrategyVaultSettingsUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [],
+    name: "VaultLocked",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [],
+    name: "VaultUnlocked",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "TOKENS",
+    outputs: [
+      {
+        internalType: "contract IERC20[]",
+        name: "",
+        type: "address[]",
+      },
+      {
+        internalType: "uint8[]",
+        name: "decimals",
+        type: "uint8[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "claimRewardTokens",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -37,6 +128,35 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "vaultShares",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maturity",
+        type: "uint256",
+      },
+    ],
+    name: "convertVaultSharesToPrimeMaturity",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "primeVaultShares",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -134,6 +254,24 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
+        name: "claimToExit",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+    ],
+    name: "emergencyExit",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "maturity",
         type: "uint256",
       },
@@ -175,11 +313,86 @@ const _abi = [
             name: "totalVaultShares",
             type: "uint256",
           },
+          {
+            internalType: "uint256",
+            name: "maxPoolShare",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "oraclePriceDeviationLimitPercent",
+            type: "uint256",
+          },
         ],
         internalType:
           "struct ISingleSidedLPStrategyVault.SingleSidedLPStrategyVaultInfo",
         name: "",
         type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
+          {
+            internalType: "uint16",
+            name: "borrowCurrencyId",
+            type: "uint16",
+          },
+          {
+            components: [
+              {
+                internalType: "uint32",
+                name: "deprecated_emergencySettlementSlippageLimitPercent",
+                type: "uint32",
+              },
+              {
+                internalType: "uint16",
+                name: "maxPoolShare",
+                type: "uint16",
+              },
+              {
+                internalType: "uint16",
+                name: "oraclePriceDeviationLimitPercent",
+                type: "uint16",
+              },
+              {
+                internalType: "uint16",
+                name: "deprecated_poolSlippageLimitPercent",
+                type: "uint16",
+              },
+            ],
+            internalType: "struct StrategyVaultSettings",
+            name: "settings",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct InitParams",
+        name: "params",
+        type: "tuple",
+      },
+    ],
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "isLocked",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -245,13 +458,86 @@ const _abi = [
   {
     inputs: [
       {
+        components: [
+          {
+            internalType: "address",
+            name: "sellToken",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "buyToken",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            components: [
+              {
+                internalType: "uint16",
+                name: "dexId",
+                type: "uint16",
+              },
+              {
+                internalType: "enum TradeType",
+                name: "tradeType",
+                type: "uint8",
+              },
+              {
+                internalType: "uint256",
+                name: "oracleSlippagePercentOrLimit",
+                type: "uint256",
+              },
+              {
+                internalType: "bytes",
+                name: "exchangeData",
+                type: "bytes",
+              },
+            ],
+            internalType: "struct TradeParams",
+            name: "tradeParams",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct SingleSidedRewardTradeParams[]",
+        name: "trades",
+        type: "tuple[]",
+      },
+      {
+        internalType: "uint256",
+        name: "minPoolClaim",
+        type: "uint256",
+      },
+    ],
+    name: "reinvestReward",
+    outputs: [
+      {
         internalType: "address",
-        name: "token",
+        name: "rewardToken",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "underlyingRequired",
+        name: "amountSold",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "poolClaimAmount",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "minPoolClaim",
         type: "uint256",
       },
       {
@@ -260,14 +546,8 @@ const _abi = [
         type: "bytes",
       },
     ],
-    name: "repaySecondaryBorrowCallback",
-    outputs: [
-      {
-        internalType: "bytes",
-        name: "returnData",
-        type: "bytes",
-      },
-    ],
+    name: "restoreVault",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -282,6 +562,63 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "sellToken",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "buyToken",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            components: [
+              {
+                internalType: "uint16",
+                name: "dexId",
+                type: "uint16",
+              },
+              {
+                internalType: "enum TradeType",
+                name: "tradeType",
+                type: "uint8",
+              },
+              {
+                internalType: "uint256",
+                name: "oracleSlippagePercentOrLimit",
+                type: "uint256",
+              },
+              {
+                internalType: "bytes",
+                name: "exchangeData",
+                type: "bytes",
+              },
+            ],
+            internalType: "struct TradeParams",
+            name: "tradeParams",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct SingleSidedRewardTradeParams[]",
+        name: "trades",
+        type: "tuple[]",
+      },
+    ],
+    name: "tradeTokensBeforeRestore",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
 ];
