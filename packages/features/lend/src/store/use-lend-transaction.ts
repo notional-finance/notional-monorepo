@@ -38,7 +38,7 @@ export function useLendTransaction() {
     !confirmRoute ||
     !notional ||
     !address ||
-    hasError === false ||
+    hasError === true ||
     !assetSymbol ||
     !selectedMarket ||
     !isUnderlying ||
