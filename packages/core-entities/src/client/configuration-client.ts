@@ -656,6 +656,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       : undefined;
 
     return {
+      rewardToken,
       incentiveEmissionRate,
       accumulatedRewardPerNToken,
       lastAccumulatedTime: config.incentives?.lastAccumulatedTime as

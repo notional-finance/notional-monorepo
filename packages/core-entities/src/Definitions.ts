@@ -165,6 +165,8 @@ export interface AccountDefinition {
   vaultLastUpdateTime?: Record<string, number>;
   /** Account incentive debt for nToken incentives */
   accountIncentiveDebt?: AccountIncentiveDebt[];
+  /** Account incentive debt for nToken incentives */
+  secondaryIncentiveDebt?: AccountIncentiveDebt[];
   /** Current profit and loss on every given balance */
   balanceStatement?: BalanceStatement[];
   /** Any transactions that have included transfers to this account */

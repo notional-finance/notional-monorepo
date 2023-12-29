@@ -19,6 +19,7 @@ import {
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
+  SCALAR_PRECISION,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
@@ -238,6 +239,39 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       }
     );
 
+    const secondaryIncentiveCalls = tokens
+      .getAllTokens(network)
+      .filter(
+        (t) =>
+          t.currencyId !== undefined &&
+          t.tokenType === 'nToken' &&
+          config.getSecondaryRewarder(t)
+      )
+      .flatMap((t) => {
+        const rewarder = config.getSecondaryRewarder(t);
+        const secondary = config.getAnnualizedSecondaryIncentives(t);
+        if (!rewarder || !secondary) return [];
+        const { rewardToken } = secondary;
+        const rewardPrecision = BigNumber.from(10).pow(rewardToken.decimals);
+        return [
+          {
+            stage: 0,
+            target: notional,
+            method: 'rewardDebtPerAccount',
+            args: [this.activeAccount],
+            key: `${t.currencyId}.secondaryIncentiveDebt`,
+            transform: (r: BigNumber) => ({
+              // Secondary rewarder always returns this in 18 decimals
+              value: TokenBalance.from(r, rewardToken).scale(
+                rewardPrecision,
+                SCALAR_PRECISION
+              ),
+              currencyId: t.currencyId,
+            }),
+          },
+        ];
+      });
+
     const vaultCalls =
       config.getAllListedVaults(network)?.flatMap<AggregateCall>((v) => {
         return [
@@ -382,6 +416,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     const calls = [
       ...walletCalls,
       ...vaultCalls,
+      ...secondaryIncentiveCalls,
       {
         target: notional,
         method: 'getAccount',
@@ -494,6 +529,12 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 (k.includes('account')
                   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (results[k] as any)['accountIncentiveDebt']
+                  : []) as AccountIncentiveDebt[]
+            ),
+            secondaryIncentiveDebt: Object.keys(results).flatMap(
+              (k) =>
+                (k.includes('secondaryIncentiveDebt')
+                  ? results[k]
                   : []) as AccountIncentiveDebt[]
             ),
             vaultLastUpdateTime: Object.keys(results).reduce(
