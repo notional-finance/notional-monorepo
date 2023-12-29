@@ -701,7 +701,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       current as BalanceSnapshot,
       network
     );
-    const NOTE = Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE');
 
     const currentProfitAndLoss = currentStatement.balance
       .toUnderlying()
@@ -714,11 +713,19 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     const totalInterestAccrual = currentProfitAndLoss.sub(
       currentStatement.totalILAndFees
     );
-    const adjustedNOTEClaimed = TokenBalance.from(
-      current.adjustedNOTEClaimed,
-      NOTE
-    );
-    const totalNOTEClaimed = TokenBalance.from(current.totalNOTEClaimed, NOTE);
+    const incentives =
+      current.incentives?.map((i) => ({
+        adjustedClaimed: TokenBalance.fromSymbol(
+          i.adjustedClaimed,
+          i.rewardToken.symbol,
+          network
+        ),
+        totalClaimed: TokenBalance.fromSymbol(
+          i.totalClaimed,
+          i.rewardToken.symbol,
+          network
+        ),
+      })) || [];
 
     return {
       token: tokens.getTokenByID(network, tokenId),
@@ -731,8 +738,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       totalProfitAndLoss: currentProfitAndLoss,
       totalInterestAccrual,
       accumulatedCostRealized: currentStatement.accumulatedCostRealized,
-      adjustedNOTEClaimed,
-      totalNOTEClaimed,
+      incentives,
     };
   }
 

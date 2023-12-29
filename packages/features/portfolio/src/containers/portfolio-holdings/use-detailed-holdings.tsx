@@ -30,12 +30,14 @@ export function useDetailedHoldings() {
 
   return useMemo(() => {
     const totals = holdings.reduce(
-      (t, { balance, statement, totalNOTEEarnings }) => {
+      (t, { balance, statement, totalIncentiveEarnings }) => {
         const totalEarningsWithNOTE = statement?.totalProfitAndLoss
           .toFiat(baseCurrency)
           .add(
-            totalNOTEEarnings?.toFiat(baseCurrency) ||
+            totalIncentiveEarnings.reduce(
+              (s, i) => s.add(i.toFiat(baseCurrency)),
               TokenBalance.fromSymbol(0, baseCurrency, Network.All)
+            )
           );
 
         if (statement) {
@@ -48,6 +50,11 @@ export function useDetailedHoldings() {
             : t.earnings.add(statement.totalProfitAndLoss.toFiat(baseCurrency));
           t.nonNoteEarnings = t.nonNoteEarnings.add(
             statement.totalProfitAndLoss.toFiat(baseCurrency)
+          );
+
+          // TODO: need to update this return value
+          const totalNOTEEarnings = totalIncentiveEarnings.find(
+            (t) => t.symbol === 'NOTE'
           );
           t.noteEarnings = totalNOTEEarnings
             ? t?.noteEarnings?.add(totalNOTEEarnings)
@@ -72,7 +79,7 @@ export function useDetailedHoldings() {
         isPending,
         maturedTokenId,
         manageTokenId,
-        totalNOTEEarnings,
+        totalIncentiveEarnings,
         hasMatured,
       }) => {
         const isDebt = b.isNegative();
@@ -80,17 +87,18 @@ export function useDetailedHoldings() {
           formatTokenType(b.token, isDebt);
         const marketApy = marketYield?.totalAPY;
         const noteIncentives = marketYield?.noteIncentives?.incentiveAPY;
+        const secondaryIncentives =
+          marketYield?.secondaryIncentives?.incentiveAPY;
+        const secondarySymbol = marketYield?.secondaryIncentives?.symbol;
+
         const totalEarningsWithNOTE = s?.totalProfitAndLoss
           .toFiat(baseCurrency)
           .add(
-            totalNOTEEarnings?.toFiat(baseCurrency) ||
+            totalIncentiveEarnings.reduce(
+              (s, i) => s.add(i.toFiat(baseCurrency)),
               TokenBalance.fromSymbol(0, baseCurrency, Network.All)
+            )
           );
-
-        // TODO: Replace these values with the real ones once available
-        const showARBIncentive = icon === 'FRAX';
-        const arbIncentive = icon === 'FRAX' ? '10 ARB' : '';
-        const arbIncentiveBaseCurrency = icon === 'FRAX' ? '$11.00' : '';
 
         return {
           sortOrder: getHoldingsSortOrder(b.token),
@@ -114,8 +122,12 @@ export function useDetailedHoldings() {
               },
               {
                 displayValue:
-                  noteIncentives && showARBIncentive
-                    ? `${formatNumberAsPercent(noteIncentives)} NOTE, 3.5% ARB`
+                  noteIncentives && secondaryIncentives
+                    ? `${formatNumberAsPercent(
+                        noteIncentives
+                      )} NOTE, ${formatNumberAsPercent(
+                        secondaryIncentives
+                      )} ${secondarySymbol}`
                     : noteIncentives
                     ? `${formatNumberAsPercent(noteIncentives)} NOTE`
                     : b.token.tokenType === 'fCash' &&
@@ -134,29 +146,26 @@ export function useDetailedHoldings() {
           presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
           earnings:
             totalEarningsWithNOTE?.toDisplayStringWithSymbol(3, true) || '-',
-          toolTipData: totalNOTEEarnings?.isPositive()
-            ? {
-                perAssetEarnings: [
-                  {
-                    underlying:
-                      s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
-                    baseCurrency: s?.totalProfitAndLoss
-                      .toFiat(baseCurrency)
-                      .toDisplayStringWithSymbol(),
-                  },
-                  {
-                    underlying: totalNOTEEarnings.toDisplayStringWithSymbol(),
-                    baseCurrency: totalNOTEEarnings
-                      .toFiat(baseCurrency)
-                      .toDisplayStringWithSymbol(),
-                  },
-                  {
-                    underlying: arbIncentive,
-                    baseCurrency: arbIncentiveBaseCurrency,
-                  },
-                ],
-              }
-            : undefined,
+          toolTipData:
+            totalIncentiveEarnings.length > 0
+              ? {
+                  perAssetEarnings: [
+                    {
+                      underlying:
+                        s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
+                      baseCurrency: s?.totalProfitAndLoss
+                        .toFiat(baseCurrency)
+                        .toDisplayStringWithSymbol(),
+                    },
+                    ...totalIncentiveEarnings.map((i) => ({
+                      underlying: i.toDisplayStringWithSymbol(),
+                      baseCurrency: i
+                        .toFiat(baseCurrency)
+                        .toDisplayStringWithSymbol(),
+                    })),
+                  ],
+                }
+              : undefined,
           actionRow: {
             subRowData: [
               {

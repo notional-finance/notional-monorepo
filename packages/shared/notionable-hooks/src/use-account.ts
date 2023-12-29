@@ -12,7 +12,6 @@ import { useAllMarkets } from './use-market';
 import { usePendingPnLCalculation } from './use-transaction';
 import { useMemo } from 'react';
 import { useFiat, useFiatToken } from './use-user-settings';
-import { calculateNTokenIncentives } from '@notional-finance/transaction';
 import { useMaxAssetBalance } from './use-wallet';
 
 export function useAccountDefinition() {
@@ -135,6 +134,9 @@ export function useHoldings() {
   const balanceStatements = useBalanceStatements();
   const { nonLeveragedYields } = useAllMarkets();
   const { pendingTokens } = usePendingPnLCalculation();
+  const {
+    globalState: { accruedIncentives },
+  } = useNotionalContext();
 
   return useMemo(
     () =>
@@ -171,18 +173,26 @@ export function useHoldings() {
 
           const isPending = pendingTokens.find((t) => t.id === balance.tokenId);
 
-          let totalNOTEEarnings: TokenBalance | undefined;
-          if (balance.tokenType === 'nToken' && statement) {
-            const accountIncentiveDebt = account?.accountIncentiveDebt?.find(
-              ({ currencyId }) => currencyId === balance.currencyId
-            );
-            const additionalNOTE = accountIncentiveDebt
-              ? calculateNTokenIncentives(balance, accountIncentiveDebt.value)
-              : statement.adjustedNOTEClaimed.copy(0);
+          const totalIncentiveEarnings: TokenBalance[] =
+            balance.tokenType === 'nToken' && statement
+              ? statement.incentives
+                  .map(({ adjustedClaimed }) => {
+                    const currentClaimable = accruedIncentives
+                      ?.find(
+                        ({ currencyId }) => balance.currencyId === currencyId
+                      )
+                      ?.incentives.find(
+                        (t) => t.tokenId === adjustedClaimed.tokenId
+                      );
 
-            totalNOTEEarnings =
-              statement.adjustedNOTEClaimed.add(additionalNOTE);
-          }
+                    // Add the current claimable to the total earned
+                    return currentClaimable
+                      ? adjustedClaimed.add(currentClaimable)
+                      : adjustedClaimed;
+                  })
+                  .filter((v) => v.isPositive())
+              : [];
+
           const hasMatured = balance.hasMatured;
 
           return {
@@ -192,7 +202,7 @@ export function useHoldings() {
             manageTokenId,
             maturedTokenId,
             isPending,
-            totalNOTEEarnings,
+            totalIncentiveEarnings,
             hasMatured,
           };
         }) || [],
@@ -219,7 +229,8 @@ export function useGroupedTokens() {
       return {
         asset: assetHoldings,
         debt: debtHoldings as typeof holdings[number],
-        isPending: assetHoldings?.isPending || debtHoldings?.isPending ? true : false,
+        isPending:
+          assetHoldings?.isPending || debtHoldings?.isPending ? true : false,
         leverageRatio,
         presentValue,
         hasMatured: asset?.hasMatured || debt?.hasMatured ? true : false,
