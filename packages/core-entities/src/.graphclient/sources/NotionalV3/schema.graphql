@@ -861,9 +861,6 @@ type CurrencyConfiguration {
   """Market proportions used during market initialization"""
   proportions: [Int!]
   deprecated_anchorRates: [Int!]
-  """Annual incentive emission rate"""
-  incentiveEmissionRate: BigInt
-  secondaryIncentiveRewarder: Bytes
   """Residual purchase incentive in basis points"""
   residualPurchaseIncentiveBasisPoints: Int
   """
@@ -1190,24 +1187,6 @@ input CurrencyConfiguration_filter {
   deprecated_anchorRates_contains_nocase: [Int!]
   deprecated_anchorRates_not_contains: [Int!]
   deprecated_anchorRates_not_contains_nocase: [Int!]
-  incentiveEmissionRate: BigInt
-  incentiveEmissionRate_not: BigInt
-  incentiveEmissionRate_gt: BigInt
-  incentiveEmissionRate_lt: BigInt
-  incentiveEmissionRate_gte: BigInt
-  incentiveEmissionRate_lte: BigInt
-  incentiveEmissionRate_in: [BigInt!]
-  incentiveEmissionRate_not_in: [BigInt!]
-  secondaryIncentiveRewarder: Bytes
-  secondaryIncentiveRewarder_not: Bytes
-  secondaryIncentiveRewarder_gt: Bytes
-  secondaryIncentiveRewarder_lt: Bytes
-  secondaryIncentiveRewarder_gte: Bytes
-  secondaryIncentiveRewarder_lte: Bytes
-  secondaryIncentiveRewarder_in: [Bytes!]
-  secondaryIncentiveRewarder_not_in: [Bytes!]
-  secondaryIncentiveRewarder_contains: Bytes
-  secondaryIncentiveRewarder_not_contains: Bytes
   residualPurchaseIncentiveBasisPoints: Int
   residualPurchaseIncentiveBasisPoints_not: Int
   residualPurchaseIncentiveBasisPoints_gt: Int
@@ -1362,8 +1341,6 @@ enum CurrencyConfiguration_orderBy {
   leverageThresholds
   proportions
   deprecated_anchorRates
-  incentiveEmissionRate
-  secondaryIncentiveRewarder
   residualPurchaseIncentiveBasisPoints
   residualPurchaseTimeBufferSeconds
   cashWithholdingBufferBasisPoints
@@ -1374,6 +1351,8 @@ enum CurrencyConfiguration_orderBy {
   incentives__lastUpdateBlockNumber
   incentives__lastUpdateTimestamp
   incentives__lastUpdateTransactionHash
+  incentives__secondaryIncentiveRewarder
+  incentives__incentiveEmissionRate
   incentives__accumulatedNOTEPerNToken
   incentives__lastAccumulatedTime
   incentives__deprecated_lastSupplyChangeTime
@@ -1383,6 +1362,7 @@ enum CurrencyConfiguration_orderBy {
   incentives__migrationTime
   incentives__accumulatedSecondaryRewardPerNToken
   incentives__lastSecondaryAccumulatedTime
+  incentives__secondaryEmissionRate
   incentives__secondaryRewardEndTime
 }
 
@@ -1518,6 +1498,10 @@ type Incentive {
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   currencyConfiguration: CurrencyConfiguration!
+  """If set, a secondary incentive rewarder is set"""
+  secondaryIncentiveRewarder: Bytes
+  """Annual incentive emission rate for NOTE"""
+  incentiveEmissionRate: BigInt
   """Current accumulated NOTE per nToken"""
   accumulatedNOTEPerNToken: BigInt
   """Last accumulation time"""
@@ -1538,6 +1522,8 @@ type Incentive {
   accumulatedSecondaryRewardPerNToken: BigInt
   """Last accumulated time for the current rewarder"""
   lastSecondaryAccumulatedTime: BigInt
+  """Secondary incentive emission rate in INTERNAL_TOKEN_PRECISION"""
+  secondaryEmissionRate: BigInt
   """End time for the current secondary rewarder"""
   secondaryRewardEndTime: BigInt
 }
@@ -1796,6 +1782,24 @@ input Incentive_filter {
   currencyConfiguration_not_ends_with: String
   currencyConfiguration_not_ends_with_nocase: String
   currencyConfiguration_: CurrencyConfiguration_filter
+  secondaryIncentiveRewarder: Bytes
+  secondaryIncentiveRewarder_not: Bytes
+  secondaryIncentiveRewarder_gt: Bytes
+  secondaryIncentiveRewarder_lt: Bytes
+  secondaryIncentiveRewarder_gte: Bytes
+  secondaryIncentiveRewarder_lte: Bytes
+  secondaryIncentiveRewarder_in: [Bytes!]
+  secondaryIncentiveRewarder_not_in: [Bytes!]
+  secondaryIncentiveRewarder_contains: Bytes
+  secondaryIncentiveRewarder_not_contains: Bytes
+  incentiveEmissionRate: BigInt
+  incentiveEmissionRate_not: BigInt
+  incentiveEmissionRate_gt: BigInt
+  incentiveEmissionRate_lt: BigInt
+  incentiveEmissionRate_gte: BigInt
+  incentiveEmissionRate_lte: BigInt
+  incentiveEmissionRate_in: [BigInt!]
+  incentiveEmissionRate_not_in: [BigInt!]
   accumulatedNOTEPerNToken: BigInt
   accumulatedNOTEPerNToken_not: BigInt
   accumulatedNOTEPerNToken_gt: BigInt
@@ -1889,6 +1893,14 @@ input Incentive_filter {
   lastSecondaryAccumulatedTime_lte: BigInt
   lastSecondaryAccumulatedTime_in: [BigInt!]
   lastSecondaryAccumulatedTime_not_in: [BigInt!]
+  secondaryEmissionRate: BigInt
+  secondaryEmissionRate_not: BigInt
+  secondaryEmissionRate_gt: BigInt
+  secondaryEmissionRate_lt: BigInt
+  secondaryEmissionRate_gte: BigInt
+  secondaryEmissionRate_lte: BigInt
+  secondaryEmissionRate_in: [BigInt!]
+  secondaryEmissionRate_not_in: [BigInt!]
   secondaryRewardEndTime: BigInt
   secondaryRewardEndTime_not: BigInt
   secondaryRewardEndTime_gt: BigInt
@@ -1931,13 +1943,13 @@ enum Incentive_orderBy {
   currencyConfiguration__fCashLiquidationDebtBufferBasisPoints
   currencyConfiguration__treasuryReserveBuffer
   currencyConfiguration__rebalancingCooldown
-  currencyConfiguration__incentiveEmissionRate
-  currencyConfiguration__secondaryIncentiveRewarder
   currencyConfiguration__residualPurchaseIncentiveBasisPoints
   currencyConfiguration__residualPurchaseTimeBufferSeconds
   currencyConfiguration__cashWithholdingBufferBasisPoints
   currencyConfiguration__pvHaircutPercentage
   currencyConfiguration__liquidationHaircutPercentage
+  secondaryIncentiveRewarder
+  incentiveEmissionRate
   accumulatedNOTEPerNToken
   lastAccumulatedTime
   deprecated_lastSupplyChangeTime
@@ -1968,6 +1980,7 @@ enum Incentive_orderBy {
   currentSecondaryReward__tokenAddress
   accumulatedSecondaryRewardPerNToken
   lastSecondaryAccumulatedTime
+  secondaryEmissionRate
   secondaryRewardEndTime
 }
 
@@ -2226,6 +2239,7 @@ enum OracleType {
   nTokenBlendedInterestRate
   nTokenFeeRate
   nTokenIncentiveRate
+  nTokenSecondaryIncentiveRate
 }
 
 input Oracle_filter {
@@ -6369,8 +6383,6 @@ enum WhitelistedContract_orderBy {
   currency__fCashLiquidationDebtBufferBasisPoints
   currency__treasuryReserveBuffer
   currency__rebalancingCooldown
-  currency__incentiveEmissionRate
-  currency__secondaryIncentiveRewarder
   currency__residualPurchaseIncentiveBasisPoints
   currency__residualPurchaseTimeBufferSeconds
   currency__cashWithholdingBufferBasisPoints

@@ -953,9 +953,6 @@ export type CurrencyConfiguration = {
   /** Market proportions used during market initialization */
   proportions?: Maybe<Array<Scalars['Int']>>;
   deprecated_anchorRates?: Maybe<Array<Scalars['Int']>>;
-  /** Annual incentive emission rate */
-  incentiveEmissionRate?: Maybe<Scalars['BigInt']>;
-  secondaryIncentiveRewarder?: Maybe<Scalars['Bytes']>;
   /** Residual purchase incentive in basis points */
   residualPurchaseIncentiveBasisPoints?: Maybe<Scalars['Int']>;
   /** Seconds until residuals become available to purchase after market initialization */
@@ -1298,24 +1295,6 @@ export type CurrencyConfiguration_filter = {
   deprecated_anchorRates_contains_nocase?: InputMaybe<Array<Scalars['Int']>>;
   deprecated_anchorRates_not_contains?: InputMaybe<Array<Scalars['Int']>>;
   deprecated_anchorRates_not_contains_nocase?: InputMaybe<Array<Scalars['Int']>>;
-  incentiveEmissionRate?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_not?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_gt?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_lt?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_gte?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_lte?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  incentiveEmissionRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  secondaryIncentiveRewarder?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_not?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_gt?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_lt?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_gte?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_lte?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  secondaryIncentiveRewarder_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  secondaryIncentiveRewarder_contains?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_not_contains?: InputMaybe<Scalars['Bytes']>;
   residualPurchaseIncentiveBasisPoints?: InputMaybe<Scalars['Int']>;
   residualPurchaseIncentiveBasisPoints_not?: InputMaybe<Scalars['Int']>;
   residualPurchaseIncentiveBasisPoints_gt?: InputMaybe<Scalars['Int']>;
@@ -1470,8 +1449,6 @@ export type CurrencyConfiguration_orderBy =
   | 'leverageThresholds'
   | 'proportions'
   | 'deprecated_anchorRates'
-  | 'incentiveEmissionRate'
-  | 'secondaryIncentiveRewarder'
   | 'residualPurchaseIncentiveBasisPoints'
   | 'residualPurchaseTimeBufferSeconds'
   | 'cashWithholdingBufferBasisPoints'
@@ -1482,6 +1459,8 @@ export type CurrencyConfiguration_orderBy =
   | 'incentives__lastUpdateBlockNumber'
   | 'incentives__lastUpdateTimestamp'
   | 'incentives__lastUpdateTransactionHash'
+  | 'incentives__secondaryIncentiveRewarder'
+  | 'incentives__incentiveEmissionRate'
   | 'incentives__accumulatedNOTEPerNToken'
   | 'incentives__lastAccumulatedTime'
   | 'incentives__deprecated_lastSupplyChangeTime'
@@ -1491,6 +1470,7 @@ export type CurrencyConfiguration_orderBy =
   | 'incentives__migrationTime'
   | 'incentives__accumulatedSecondaryRewardPerNToken'
   | 'incentives__lastSecondaryAccumulatedTime'
+  | 'incentives__secondaryEmissionRate'
   | 'incentives__secondaryRewardEndTime';
 
 export type DEX =
@@ -1623,6 +1603,10 @@ export type Incentive = {
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   currencyConfiguration: CurrencyConfiguration;
+  /** If set, a secondary incentive rewarder is set */
+  secondaryIncentiveRewarder?: Maybe<Scalars['Bytes']>;
+  /** Annual incentive emission rate for NOTE */
+  incentiveEmissionRate?: Maybe<Scalars['BigInt']>;
   /** Current accumulated NOTE per nToken */
   accumulatedNOTEPerNToken?: Maybe<Scalars['BigInt']>;
   /** Last accumulation time */
@@ -1643,6 +1627,8 @@ export type Incentive = {
   accumulatedSecondaryRewardPerNToken?: Maybe<Scalars['BigInt']>;
   /** Last accumulated time for the current rewarder */
   lastSecondaryAccumulatedTime?: Maybe<Scalars['BigInt']>;
+  /** Secondary incentive emission rate in INTERNAL_TOKEN_PRECISION */
+  secondaryEmissionRate?: Maybe<Scalars['BigInt']>;
   /** End time for the current secondary rewarder */
   secondaryRewardEndTime?: Maybe<Scalars['BigInt']>;
 };
@@ -1900,6 +1886,24 @@ export type Incentive_filter = {
   currencyConfiguration_not_ends_with?: InputMaybe<Scalars['String']>;
   currencyConfiguration_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   currencyConfiguration_?: InputMaybe<CurrencyConfiguration_filter>;
+  secondaryIncentiveRewarder?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_not?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_gt?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_lt?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_gte?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_lte?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  secondaryIncentiveRewarder_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  secondaryIncentiveRewarder_contains?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_not_contains?: InputMaybe<Scalars['Bytes']>;
+  incentiveEmissionRate?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_not?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_gt?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_lt?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_gte?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_lte?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  incentiveEmissionRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   accumulatedNOTEPerNToken?: InputMaybe<Scalars['BigInt']>;
   accumulatedNOTEPerNToken_not?: InputMaybe<Scalars['BigInt']>;
   accumulatedNOTEPerNToken_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1993,6 +1997,14 @@ export type Incentive_filter = {
   lastSecondaryAccumulatedTime_lte?: InputMaybe<Scalars['BigInt']>;
   lastSecondaryAccumulatedTime_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastSecondaryAccumulatedTime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  secondaryEmissionRate?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_not?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_gt?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_lt?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_gte?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_lte?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  secondaryEmissionRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   secondaryRewardEndTime?: InputMaybe<Scalars['BigInt']>;
   secondaryRewardEndTime_not?: InputMaybe<Scalars['BigInt']>;
   secondaryRewardEndTime_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2035,13 +2047,13 @@ export type Incentive_orderBy =
   | 'currencyConfiguration__fCashLiquidationDebtBufferBasisPoints'
   | 'currencyConfiguration__treasuryReserveBuffer'
   | 'currencyConfiguration__rebalancingCooldown'
-  | 'currencyConfiguration__incentiveEmissionRate'
-  | 'currencyConfiguration__secondaryIncentiveRewarder'
   | 'currencyConfiguration__residualPurchaseIncentiveBasisPoints'
   | 'currencyConfiguration__residualPurchaseTimeBufferSeconds'
   | 'currencyConfiguration__cashWithholdingBufferBasisPoints'
   | 'currencyConfiguration__pvHaircutPercentage'
   | 'currencyConfiguration__liquidationHaircutPercentage'
+  | 'secondaryIncentiveRewarder'
+  | 'incentiveEmissionRate'
   | 'accumulatedNOTEPerNToken'
   | 'lastAccumulatedTime'
   | 'deprecated_lastSupplyChangeTime'
@@ -2072,6 +2084,7 @@ export type Incentive_orderBy =
   | 'currentSecondaryReward__tokenAddress'
   | 'accumulatedSecondaryRewardPerNToken'
   | 'lastSecondaryAccumulatedTime'
+  | 'secondaryEmissionRate'
   | 'secondaryRewardEndTime';
 
 export type InterestRateCurve = {
@@ -2345,7 +2358,8 @@ export type OracleType =
   | 'nTokenToUnderlyingExchangeRate'
   | 'nTokenBlendedInterestRate'
   | 'nTokenFeeRate'
-  | 'nTokenIncentiveRate';
+  | 'nTokenIncentiveRate'
+  | 'nTokenSecondaryIncentiveRate';
 
 export type Oracle_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -6275,8 +6289,6 @@ export type WhitelistedContract_orderBy =
   | 'currency__fCashLiquidationDebtBufferBasisPoints'
   | 'currency__treasuryReserveBuffer'
   | 'currency__rebalancingCooldown'
-  | 'currency__incentiveEmissionRate'
-  | 'currency__secondaryIncentiveRewarder'
   | 'currency__residualPurchaseIncentiveBasisPoints'
   | 'currency__residualPurchaseTimeBufferSeconds'
   | 'currency__cashWithholdingBufferBasisPoints'
@@ -7247,8 +7259,6 @@ export type CurrencyConfigurationResolvers<ContextType = MeshContext & { chainNa
   leverageThresholds?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
   proportions?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
   deprecated_anchorRates?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
-  incentiveEmissionRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  secondaryIncentiveRewarder?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   residualPurchaseIncentiveBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   residualPurchaseTimeBufferSeconds?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   cashWithholdingBufferBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -7274,6 +7284,8 @@ export type IncentiveResolvers<ContextType = MeshContext & { chainName: string }
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   currencyConfiguration?: Resolver<ResolversTypes['CurrencyConfiguration'], ParentType, ContextType>;
+  secondaryIncentiveRewarder?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
+  incentiveEmissionRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   accumulatedNOTEPerNToken?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   lastAccumulatedTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   deprecated_lastSupplyChangeTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
@@ -7284,6 +7296,7 @@ export type IncentiveResolvers<ContextType = MeshContext & { chainName: string }
   currentSecondaryReward?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
   accumulatedSecondaryRewardPerNToken?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   lastSecondaryAccumulatedTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  secondaryEmissionRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   secondaryRewardEndTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -7812,7 +7825,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-finance-v3-arbitrum/v0.1.28"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-finance-v3-arbitrum/v0.1.29"},
               baseDir,
               cache,
               pubsub,
@@ -8013,9 +8026,9 @@ export type AllConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllConfigurationQuery = { currencyConfigurations: Array<(
-    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'incentiveEmissionRate' | 'secondaryIncentiveRewarder' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
     & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, incentives?: Maybe<(
-      Pick<Incentive, 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime' | 'accumulatedSecondaryRewardPerNToken' | 'lastSecondaryAccumulatedTime' | 'secondaryRewardEndTime'>
+      Pick<Incentive, 'incentiveEmissionRate' | 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime' | 'secondaryIncentiveRewarder' | 'secondaryEmissionRate' | 'accumulatedSecondaryRewardPerNToken' | 'lastSecondaryAccumulatedTime' | 'secondaryRewardEndTime'>
       & { currentSecondaryReward?: Maybe<Pick<Token, 'id' | 'symbol'>> }
     )> }
   )>, vaultConfigurations: Array<(
@@ -8029,8 +8042,11 @@ export type AllConfigurationByBlockQueryVariables = Exact<{
 
 
 export type AllConfigurationByBlockQuery = { currencyConfigurations: Array<(
-    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'incentiveEmissionRate' | 'secondaryIncentiveRewarder' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
-    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>> }
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, incentives?: Maybe<(
+      Pick<Incentive, 'incentiveEmissionRate' | 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime' | 'secondaryIncentiveRewarder' | 'secondaryEmissionRate' | 'accumulatedSecondaryRewardPerNToken' | 'lastSecondaryAccumulatedTime' | 'secondaryRewardEndTime'>
+      & { currentSecondaryReward?: Maybe<Pick<Token, 'id' | 'symbol'>> }
+    )> }
   )>, vaultConfigurations: Array<(
     Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'minAccountBorrowSize' | 'minCollateralRatioBasisPoints' | 'maxDeleverageCollateralRatioBasisPoints' | 'feeRateBasisPoints' | 'reserveFeeSharePercent' | 'liquidationRatePercent' | 'maxBorrowMarketIndex' | 'maxRequiredAccountCollateralRatioBasisPoints' | 'enabled' | 'allowRollPosition' | 'onlyVaultEntry' | 'onlyVaultExit' | 'onlyVaultRoll' | 'onlyVaultDeleverage' | 'onlyVaultSettle' | 'discountfCash' | 'allowsReentrancy' | 'deleverageDisabled' | 'maxPrimaryBorrowCapacity' | 'totalUsedPrimaryBorrowCapacity' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'minAccountSecondaryBorrow'>
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
@@ -8300,20 +8316,21 @@ export const AllConfigurationDocument = gql`
     depositShares
     leverageThresholds
     proportions
-    incentiveEmissionRate
-    secondaryIncentiveRewarder
     residualPurchaseIncentiveBasisPoints
     residualPurchaseTimeBufferSeconds
     cashWithholdingBufferBasisPoints
     pvHaircutPercentage
     liquidationHaircutPercentage
     incentives {
+      incentiveEmissionRate
       accumulatedNOTEPerNToken
       lastAccumulatedTime
       currentSecondaryReward {
         id
         symbol
       }
+      secondaryIncentiveRewarder
+      secondaryEmissionRate
       accumulatedSecondaryRewardPerNToken
       lastSecondaryAccumulatedTime
       secondaryRewardEndTime
@@ -8431,13 +8448,25 @@ export const AllConfigurationByBlockDocument = gql`
     depositShares
     leverageThresholds
     proportions
-    incentiveEmissionRate
-    secondaryIncentiveRewarder
     residualPurchaseIncentiveBasisPoints
     residualPurchaseTimeBufferSeconds
     cashWithholdingBufferBasisPoints
     pvHaircutPercentage
     liquidationHaircutPercentage
+    incentives {
+      incentiveEmissionRate
+      accumulatedNOTEPerNToken
+      lastAccumulatedTime
+      currentSecondaryReward {
+        id
+        symbol
+      }
+      secondaryIncentiveRewarder
+      secondaryEmissionRate
+      accumulatedSecondaryRewardPerNToken
+      lastSecondaryAccumulatedTime
+      secondaryRewardEndTime
+    }
   }
   vaultConfigurations(where: {enabled: true}, block: {number: $blockNumber}) {
     id

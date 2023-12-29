@@ -931,9 +931,6 @@ export type CurrencyConfiguration = {
   /** Market proportions used during market initialization */
   proportions?: Maybe<Array<Scalars['Int']>>;
   deprecated_anchorRates?: Maybe<Array<Scalars['Int']>>;
-  /** Annual incentive emission rate */
-  incentiveEmissionRate?: Maybe<Scalars['BigInt']>;
-  secondaryIncentiveRewarder?: Maybe<Scalars['Bytes']>;
   /** Residual purchase incentive in basis points */
   residualPurchaseIncentiveBasisPoints?: Maybe<Scalars['Int']>;
   /** Seconds until residuals become available to purchase after market initialization */
@@ -1276,24 +1273,6 @@ export type CurrencyConfiguration_filter = {
   deprecated_anchorRates_contains_nocase?: InputMaybe<Array<Scalars['Int']>>;
   deprecated_anchorRates_not_contains?: InputMaybe<Array<Scalars['Int']>>;
   deprecated_anchorRates_not_contains_nocase?: InputMaybe<Array<Scalars['Int']>>;
-  incentiveEmissionRate?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_not?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_gt?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_lt?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_gte?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_lte?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  incentiveEmissionRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  secondaryIncentiveRewarder?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_not?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_gt?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_lt?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_gte?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_lte?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  secondaryIncentiveRewarder_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  secondaryIncentiveRewarder_contains?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_not_contains?: InputMaybe<Scalars['Bytes']>;
   residualPurchaseIncentiveBasisPoints?: InputMaybe<Scalars['Int']>;
   residualPurchaseIncentiveBasisPoints_not?: InputMaybe<Scalars['Int']>;
   residualPurchaseIncentiveBasisPoints_gt?: InputMaybe<Scalars['Int']>;
@@ -1448,8 +1427,6 @@ export type CurrencyConfiguration_orderBy =
   | 'leverageThresholds'
   | 'proportions'
   | 'deprecated_anchorRates'
-  | 'incentiveEmissionRate'
-  | 'secondaryIncentiveRewarder'
   | 'residualPurchaseIncentiveBasisPoints'
   | 'residualPurchaseTimeBufferSeconds'
   | 'cashWithholdingBufferBasisPoints'
@@ -1460,6 +1437,8 @@ export type CurrencyConfiguration_orderBy =
   | 'incentives__lastUpdateBlockNumber'
   | 'incentives__lastUpdateTimestamp'
   | 'incentives__lastUpdateTransactionHash'
+  | 'incentives__secondaryIncentiveRewarder'
+  | 'incentives__incentiveEmissionRate'
   | 'incentives__accumulatedNOTEPerNToken'
   | 'incentives__lastAccumulatedTime'
   | 'incentives__deprecated_lastSupplyChangeTime'
@@ -1469,6 +1448,7 @@ export type CurrencyConfiguration_orderBy =
   | 'incentives__migrationTime'
   | 'incentives__accumulatedSecondaryRewardPerNToken'
   | 'incentives__lastSecondaryAccumulatedTime'
+  | 'incentives__secondaryEmissionRate'
   | 'incentives__secondaryRewardEndTime';
 
 export type DEX =
@@ -1601,6 +1581,10 @@ export type Incentive = {
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   currencyConfiguration: CurrencyConfiguration;
+  /** If set, a secondary incentive rewarder is set */
+  secondaryIncentiveRewarder?: Maybe<Scalars['Bytes']>;
+  /** Annual incentive emission rate for NOTE */
+  incentiveEmissionRate?: Maybe<Scalars['BigInt']>;
   /** Current accumulated NOTE per nToken */
   accumulatedNOTEPerNToken?: Maybe<Scalars['BigInt']>;
   /** Last accumulation time */
@@ -1621,6 +1605,8 @@ export type Incentive = {
   accumulatedSecondaryRewardPerNToken?: Maybe<Scalars['BigInt']>;
   /** Last accumulated time for the current rewarder */
   lastSecondaryAccumulatedTime?: Maybe<Scalars['BigInt']>;
+  /** Secondary incentive emission rate in INTERNAL_TOKEN_PRECISION */
+  secondaryEmissionRate?: Maybe<Scalars['BigInt']>;
   /** End time for the current secondary rewarder */
   secondaryRewardEndTime?: Maybe<Scalars['BigInt']>;
 };
@@ -1878,6 +1864,24 @@ export type Incentive_filter = {
   currencyConfiguration_not_ends_with?: InputMaybe<Scalars['String']>;
   currencyConfiguration_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   currencyConfiguration_?: InputMaybe<CurrencyConfiguration_filter>;
+  secondaryIncentiveRewarder?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_not?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_gt?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_lt?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_gte?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_lte?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  secondaryIncentiveRewarder_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  secondaryIncentiveRewarder_contains?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_not_contains?: InputMaybe<Scalars['Bytes']>;
+  incentiveEmissionRate?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_not?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_gt?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_lt?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_gte?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_lte?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  incentiveEmissionRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   accumulatedNOTEPerNToken?: InputMaybe<Scalars['BigInt']>;
   accumulatedNOTEPerNToken_not?: InputMaybe<Scalars['BigInt']>;
   accumulatedNOTEPerNToken_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1971,6 +1975,14 @@ export type Incentive_filter = {
   lastSecondaryAccumulatedTime_lte?: InputMaybe<Scalars['BigInt']>;
   lastSecondaryAccumulatedTime_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastSecondaryAccumulatedTime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  secondaryEmissionRate?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_not?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_gt?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_lt?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_gte?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_lte?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  secondaryEmissionRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   secondaryRewardEndTime?: InputMaybe<Scalars['BigInt']>;
   secondaryRewardEndTime_not?: InputMaybe<Scalars['BigInt']>;
   secondaryRewardEndTime_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2013,13 +2025,13 @@ export type Incentive_orderBy =
   | 'currencyConfiguration__fCashLiquidationDebtBufferBasisPoints'
   | 'currencyConfiguration__treasuryReserveBuffer'
   | 'currencyConfiguration__rebalancingCooldown'
-  | 'currencyConfiguration__incentiveEmissionRate'
-  | 'currencyConfiguration__secondaryIncentiveRewarder'
   | 'currencyConfiguration__residualPurchaseIncentiveBasisPoints'
   | 'currencyConfiguration__residualPurchaseTimeBufferSeconds'
   | 'currencyConfiguration__cashWithholdingBufferBasisPoints'
   | 'currencyConfiguration__pvHaircutPercentage'
   | 'currencyConfiguration__liquidationHaircutPercentage'
+  | 'secondaryIncentiveRewarder'
+  | 'incentiveEmissionRate'
   | 'accumulatedNOTEPerNToken'
   | 'lastAccumulatedTime'
   | 'deprecated_lastSupplyChangeTime'
@@ -2050,6 +2062,7 @@ export type Incentive_orderBy =
   | 'currentSecondaryReward__tokenAddress'
   | 'accumulatedSecondaryRewardPerNToken'
   | 'lastSecondaryAccumulatedTime'
+  | 'secondaryEmissionRate'
   | 'secondaryRewardEndTime';
 
 export type InterestRateCurve = {
@@ -2323,7 +2336,8 @@ export type OracleType =
   | 'nTokenToUnderlyingExchangeRate'
   | 'nTokenBlendedInterestRate'
   | 'nTokenFeeRate'
-  | 'nTokenIncentiveRate';
+  | 'nTokenIncentiveRate'
+  | 'nTokenSecondaryIncentiveRate';
 
 export type Oracle_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -6253,8 +6267,6 @@ export type WhitelistedContract_orderBy =
   | 'currency__fCashLiquidationDebtBufferBasisPoints'
   | 'currency__treasuryReserveBuffer'
   | 'currency__rebalancingCooldown'
-  | 'currency__incentiveEmissionRate'
-  | 'currency__secondaryIncentiveRewarder'
   | 'currency__residualPurchaseIncentiveBasisPoints'
   | 'currency__residualPurchaseTimeBufferSeconds'
   | 'currency__cashWithholdingBufferBasisPoints'
