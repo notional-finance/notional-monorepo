@@ -15,12 +15,6 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
   const [showHiddenRows, setShowHiddenRows] = useState(false);
   const { orderDetails, filteredOrderDetails } = useOrderDetails(state);
   const tableData = showHiddenRows ? orderDetails : filteredOrderDetails;
-  const noteClaimed = state.postTradeBalances?.find(
-    (t) => t.tokenType === 'NOTE'
-  );
-
-  // TODO: Replace this with real arb check
-  const arbClaimed = state.selectedDepositToken === 'FRAX' ? true : false;
 
   return (
     <Box sx={{ marginBottom: theme.spacing(6) }}>
@@ -47,7 +41,7 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
           },
         ]}
       />
-      {noteClaimed && (
+      {state.postTradeIncentives?.map((i) => (
         <Body
           sx={{
             display: 'inline-flex',
@@ -61,31 +55,11 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
           }}
         >
           <FormattedMessage
-            defaultMessage={'+{note} Claimed'}
-            values={{ note: noteClaimed.toDisplayStringWithSymbol(3) }}
+            defaultMessage={'+{i} Claimed'}
+            values={{ i: i.toDisplayStringWithSymbol(3) }}
           />
         </Body>
-      )}
-      {arbClaimed && (
-        <Body
-          sx={{
-            display: 'inline-flex',
-            marginTop: theme.spacing(2),
-            marginRight: theme.spacing(2),
-            marginBottom: theme.spacing(6),
-            padding: theme.spacing(0.5, 1.75),
-            color: theme.palette.primary.light,
-            float: 'right',
-            borderRadius: theme.shape.borderRadius(),
-            background: theme.palette.info.light,
-          }}
-        >
-          <FormattedMessage
-            defaultMessage={'+{arb} Claimed'}
-            values={{ arb: '10' }}
-          />
-        </Body>
-      )}
+      ))}
     </Box>
   );
 };

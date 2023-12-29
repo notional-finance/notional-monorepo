@@ -7,10 +7,12 @@ import { FormattedMessage } from 'react-intl';
 import {
   useAccountDefinition,
   useAccountReady,
+  useAccruedIncentives,
   useSelectedNetwork,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import { ClaimNOTE } from '@notional-finance/transaction';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 interface ClaimNoteType {
   theme: NotionalTheme;
@@ -18,38 +20,46 @@ interface ClaimNoteType {
   showArbButton?: boolean;
 }
 
+const useIncentiveCountUp = (i?: {
+  current: TokenBalance;
+  in100Sec: TokenBalance;
+}) => {
+  const [c, setCountUp] = useState<number>(0);
+
+  useEffect(() => {
+    const currentFloat = i?.current.toFloat();
+    const in100SecFloat = i?.in100Sec.toFloat();
+
+    if (currentFloat) setCountUp(currentFloat);
+
+    if (in100SecFloat && currentFloat) {
+      const perSecondFloat = (in100SecFloat - currentFloat) / 100;
+      const interval = setInterval(() => {
+        if (perSecondFloat > 0) {
+          setCountUp((c) => c + 0.1 * perSecondFloat);
+        }
+      }, 100);
+
+      return () => clearInterval(interval);
+    } else {
+      return undefined;
+    }
+  }, [i]);
+
+  return c;
+};
+
 export const ClaimNoteButton = () => {
   const theme = useTheme();
   const isAccountReady = useAccountReady();
   const { account } = useAccountDefinition();
   const network = useSelectedNetwork();
-  const [noteCountUp, setNoteCountUp] = useState<number>(0);
   const { isReadOnlyAddress, onSubmit } = useTransactionStatus();
   const [hover, setHover] = useState(false);
-  const noteClaim = account?.noteClaim;
-  const currentNOTEFloat = account?.noteClaim?.currentNOTE.toFloat();
-  const notePerSecondFloat = account?.noteClaim?.noteAccruedPerSecond.toFloat();
+  const accruedIncentives = useAccruedIncentives();
 
-  // TODO replace with real arb count
-  const arbCountUp = 10;
-  const showArbButton = true;
-
-  useEffect(() => {
-    if (currentNOTEFloat) setNoteCountUp(currentNOTEFloat);
-
-    if (notePerSecondFloat) {
-      const interval = setInterval(() => {
-        if (notePerSecondFloat > 0) {
-          setNoteCountUp(
-            (noteCountUp) => noteCountUp + 0.1 * notePerSecondFloat
-          );
-        }
-      }, 100);
-      return () => clearInterval(interval);
-    }
-
-    return undefined;
-  }, [currentNOTEFloat, notePerSecondFloat]);
+  const noteCountUp = useIncentiveCountUp(accruedIncentives['NOTE']);
+  const arbCountUp = useIncentiveCountUp(accruedIncentives['ARB']);
 
   const handleClick = useCallback(async () => {
     if (isReadOnlyAddress || !account || !network) return;
@@ -71,7 +81,7 @@ export const ClaimNoteButton = () => {
         justifyContent: 'end',
       }}
     >
-      {!!noteClaim && isAccountReady && (
+      {noteCountUp > 0 && isAccountReady && (
         <Wrapper
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
@@ -80,7 +90,7 @@ export const ClaimNoteButton = () => {
           <ClaimNoteWrapper hover={hover} theme={theme}>
             <FormattedMessage defaultMessage={'Claim'} />{' '}
           </ClaimNoteWrapper>
-          <NoteWrapper theme={theme} showArbButton={showArbButton}>
+          <NoteWrapper theme={theme} showArbButton={arbCountUp > 0}>
             <NoteIcon />
             <Box sx={{ paddingLeft: theme.spacing(1) }}>
               {noteCountUp > 0 ? (
@@ -90,7 +100,7 @@ export const ClaimNoteButton = () => {
               )}
             </Box>
           </NoteWrapper>
-          {showArbButton && (
+          {arbCountUp > 0 && (
             <ArbWrapper theme={theme}>
               <ArbitrumIcon />
               <Box sx={{ paddingLeft: theme.spacing(1) }}>

@@ -60,8 +60,6 @@ query AllConfiguration {
         depositShares
         leverageThresholds
         proportions
-        incentiveEmissionRate
-        secondaryIncentiveRewarder
         residualPurchaseIncentiveBasisPoints
         residualPurchaseTimeBufferSeconds
         cashWithholdingBufferBasisPoints
@@ -69,8 +67,18 @@ query AllConfiguration {
         liquidationHaircutPercentage
 
         incentives {
+            incentiveEmissionRate
             accumulatedNOTEPerNToken
             lastAccumulatedTime
+            currentSecondaryReward { 
+                id
+                symbol
+            }
+            secondaryIncentiveRewarder
+            secondaryEmissionRate
+            accumulatedSecondaryRewardPerNToken
+            lastSecondaryAccumulatedTime
+            secondaryRewardEndTime
         }
     }
 

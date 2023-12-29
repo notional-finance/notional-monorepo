@@ -133,6 +133,18 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       nTokenTVL
     );
 
+    const secondary = config.getAnnualizedSecondaryIncentives(netNTokens.token);
+    let secondaryIncentives: YieldData['secondaryIncentives'];
+    if (secondary) {
+      secondaryIncentives = {
+        symbol: secondary.incentiveEmissionRate.symbol,
+        incentiveAPY: this._convertRatioToYield(
+          secondary.incentiveEmissionRate,
+          nTokenTVL
+        ),
+      };
+    }
+
     const { numerator, denominator } = fCashMarket.balances
       .map((b) => {
         const underlying = b.toUnderlying();
@@ -176,13 +188,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         symbol: 'NOTE',
         incentiveAPY,
       },
-      secondaryIncentives:
-        netNTokens?.symbol === 'nFRAX'
-          ? {
-              symbol: 'ARB',
-              incentiveAPY: 2.5,
-            }
-          : undefined,
+      secondaryIncentives,
     };
   }
 
@@ -237,14 +243,16 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           leverageRatio
         ),
       },
-      secondaryIncentives: {
-        symbol: 'ARB',
-        incentiveAPY: this.calculateLeveragedAPY(
-          yieldData?.secondaryIncentives?.incentiveAPY || 0,
-          0,
-          leverageRatio
-        ),
-      },
+      secondaryIncentives: yieldData.secondaryIncentives?.symbol
+        ? {
+            symbol: yieldData.secondaryIncentives.symbol,
+            incentiveAPY: this.calculateLeveragedAPY(
+              yieldData?.secondaryIncentives?.incentiveAPY || 0,
+              0,
+              leverageRatio
+            ),
+          }
+        : undefined,
     };
   }
 

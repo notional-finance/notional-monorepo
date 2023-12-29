@@ -36,7 +36,7 @@ export function createTradeManager(
     simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
     tradeSummary(state$, account$),
-    postAccountRisk(state$, account$),
+    postAccountRisk(state$, account$, global$),
     calculateMaxWithdraw(
       state$,
       debtPool$,

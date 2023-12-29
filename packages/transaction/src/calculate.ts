@@ -13,12 +13,9 @@ import {
 } from '@notional-finance/risk-engine';
 import {
   BASIS_POINT,
-  getNowSeconds,
-  INTERNAL_TOKEN_PRECISION,
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
-  SECONDS_IN_YEAR,
 } from '@notional-finance/util';
 
 /**
@@ -957,43 +954,4 @@ export function calculateVaultCollateral({
     netRealizedCollateralBalance,
     netRealizedDebtBalance: cashBorrowed.neg().toUnderlying(),
   };
-}
-
-export function calculateNTokenIncentives(
-  nTokenBalance: TokenBalance,
-  accountIncentiveDebt: TokenBalance,
-  blockTime = getNowSeconds()
-) {
-  const {
-    lastAccumulatedTime,
-    accumulatedNOTEPerNToken,
-    incentiveEmissionRate,
-  } = Registry.getConfigurationRegistry().getAnnualizedNOTEIncentives(
-    nTokenBalance.token
-  );
-
-  if (
-    lastAccumulatedTime === undefined ||
-    accumulatedNOTEPerNToken === undefined ||
-    incentiveEmissionRate.isZero()
-  ) {
-    return incentiveEmissionRate.copy(0);
-  }
-
-  // Update the stored accumulatedNOTEPerNToken to present time
-  const timeSinceLastAccumulation = blockTime - lastAccumulatedTime;
-  if (timeSinceLastAccumulation < 0) throw Error('Invalid accumulation time');
-  if (!nTokenBalance.token.totalSupply)
-    throw Error('Missing nToken Total Supply');
-
-  const updatedAccumulatedNOTE = accumulatedNOTEPerNToken.add(
-    incentiveEmissionRate
-      .scale(timeSinceLastAccumulation, SECONDS_IN_YEAR)
-      .scale(INTERNAL_TOKEN_PRECISION, nTokenBalance.token.totalSupply)
-  );
-
-  // This is the post migration incentive calculation
-  return updatedAccumulatedNOTE
-    .scale(nTokenBalance, nTokenBalance.precision)
-    .sub(accountIncentiveDebt);
 }

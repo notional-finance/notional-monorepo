@@ -37,3 +37,4 @@ export { default as CurveGaugeControllerABI } from './CurveGaugeController.json'
 export { default as CurvePoolTokenABI } from './CurvePoolToken.json';
 export { default as ISingleSidedLPStrategyVaultABI } from './ISingleSidedLPStrategyVault.json';
 export { default as LeveragedNTokenAdapterABI } from './LeveragedNTokenAdapter.json';
+export { default as SecondaryRewarderABI } from './SecondaryRewarder.json';

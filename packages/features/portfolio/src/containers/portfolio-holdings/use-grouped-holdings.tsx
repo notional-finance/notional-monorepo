@@ -46,7 +46,7 @@ export function useGroupedHoldings() {
         balance: asset,
         marketYield: assetYield,
         statement: assetStatement,
-        totalNOTEEarnings,
+        totalIncentiveEarnings,
       },
       debt: { balance: debt, statement: debtStatement },
       hasMatured,
@@ -69,6 +69,12 @@ export function useGroupedHoldings() {
         noteAPY !== undefined
           ? leveragedYield(noteAPY, 0, leverageRatio)
           : undefined;
+      const secondaryAPY = assetYield?.secondaryIncentives?.incentiveAPY;
+      const secondarySymbol = assetYield?.secondaryIncentives?.symbol;
+      const secondaryIncentives =
+        secondaryAPY !== undefined && secondarySymbol
+          ? leveragedYield(secondaryAPY, 0, leverageRatio)
+          : undefined;
 
       const amountPaid =
         assetStatement && debtStatement
@@ -86,15 +92,11 @@ export function useGroupedHoldings() {
       const totalEarningsWithNOTE = earnings
         ?.toFiat(baseCurrency)
         .add(
-          totalNOTEEarnings?.toFiat(baseCurrency) ||
+          totalIncentiveEarnings.reduce(
+            (s, i) => s.add(i.toFiat(baseCurrency)),
             TokenBalance.fromSymbol(0, baseCurrency, Network.All)
+          )
         );
-
-      // TODO: Replace these values with the real ones once available
-      const showARBIncentive = underlying.symbol === 'FRAX';
-      const arbIncentive = underlying.symbol === 'FRAX' ? '10 ARB' : '';
-      const arbIncentiveBaseCurrency =
-        underlying.symbol === 'FRAX' ? '$11.00' : '';
 
       return {
         sortOrder: getHoldingsSortOrder(asset.token),
@@ -121,8 +123,12 @@ export function useGroupedHoldings() {
             },
             {
               displayValue:
-                noteIncentives && showARBIncentive
-                  ? `${formatNumberAsPercent(noteIncentives)} NOTE, 3.5% ARB`
+                noteIncentives && secondaryIncentives
+                  ? `${formatNumberAsPercent(
+                      noteIncentives
+                    )} NOTE, ${formatNumberAsPercent(
+                      secondaryIncentives
+                    )} ${secondarySymbol}`
                   : noteIncentives
                   ? `${formatNumberAsPercent(noteIncentives)} NOTE`
                   : '',
@@ -139,28 +145,25 @@ export function useGroupedHoldings() {
               .toFiat(baseCurrency)
               .toDisplayStringWithSymbol(3, true)
           : '-',
-        toolTipData: totalNOTEEarnings?.isPositive()
-          ? {
-              perAssetEarnings: [
-                {
-                  underlying: earnings?.toDisplayStringWithSymbol(),
-                  baseCurrency: earnings
-                    ?.toFiat(baseCurrency)
-                    .toDisplayStringWithSymbol(),
-                },
-                {
-                  underlying: totalNOTEEarnings.toDisplayStringWithSymbol(),
-                  baseCurrency: totalNOTEEarnings
-                    .toFiat(baseCurrency)
-                    .toDisplayStringWithSymbol(),
-                },
-                {
-                  underlying: arbIncentive,
-                  baseCurrency: arbIncentiveBaseCurrency,
-                },
-              ],
-            }
-          : undefined,
+        toolTipData:
+          totalIncentiveEarnings.length > 0
+            ? {
+                perAssetEarnings: [
+                  {
+                    underlying: earnings?.toDisplayStringWithSymbol(),
+                    baseCurrency: earnings
+                      ?.toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(),
+                  },
+                  ...totalIncentiveEarnings.map((i) => ({
+                    underlying: i.toDisplayStringWithSymbol(),
+                    baseCurrency: i
+                      .toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(),
+                  })),
+                ],
+              }
+            : undefined,
         actionRow: {
           subRowData: [
             {

@@ -31,6 +31,7 @@ import { trackEvent } from '@notional-finance/helpers';
 import { Contract } from 'ethers';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { selectedAccount } from './selectors';
+import { calculateAccruedIncentives } from '@notional-finance/transaction';
 
 const vpnCheck = 'https://detect.notional.finance/';
 const dataURL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
@@ -310,8 +311,16 @@ export const loadGlobalManager = (
     )
   );
 
+  const calculateIncentives$ = selectedAccount(state$).pipe(
+    filterEmpty(),
+    map((a) => {
+      return { accruedIncentives: calculateAccruedIncentives(a) };
+    })
+  );
+
   return merge(
     calculateHoldingGroups$,
+    calculateIncentives$,
     onSelectedNetworkChange$,
     onNetworkPending$,
     onWalletConnect$,
