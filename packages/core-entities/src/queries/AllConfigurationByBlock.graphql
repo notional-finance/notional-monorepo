@@ -60,13 +60,26 @@ query AllConfigurationByBlock($blockNumber: Int) {
         depositShares
         leverageThresholds
         proportions
-        incentiveEmissionRate
-        secondaryIncentiveRewarder
         residualPurchaseIncentiveBasisPoints
         residualPurchaseTimeBufferSeconds
         cashWithholdingBufferBasisPoints
         pvHaircutPercentage
         liquidationHaircutPercentage
+
+        incentives {
+            incentiveEmissionRate
+            accumulatedNOTEPerNToken
+            lastAccumulatedTime
+            currentSecondaryReward { 
+                id
+                symbol
+            }
+            secondaryIncentiveRewarder
+            secondaryEmissionRate
+            accumulatedSecondaryRewardPerNToken
+            lastSecondaryAccumulatedTime
+            secondaryRewardEndTime
+        }
     }
 
     vaultConfigurations(where: { enabled: true }, block: { number: $blockNumber }) {

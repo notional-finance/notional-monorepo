@@ -17,8 +17,11 @@ query AccountBalanceStatement($accountId: ID!) {
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
         impliedFixedRate
-        adjustedNOTEClaimed
-        totalNOTEClaimed
+        incentives {
+          rewardToken { id symbol }
+          totalClaimed
+          adjustedClaimed
+        }
       }
       snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
         timestamp

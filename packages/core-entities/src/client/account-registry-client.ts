@@ -11,7 +11,6 @@ import {
 import {
   encodefCashId,
   filterEmpty,
-  getNowSeconds,
   getProviderFromNetwork,
   INTERNAL_TOKEN_PRECISION,
   MAX_APPROVAL,
@@ -19,6 +18,7 @@ import {
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
+  SCALAR_PRECISION,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
@@ -42,10 +42,6 @@ import {
 import { ClientRegistry } from './client-registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { BalanceSnapshot, ProfitLossLineItem, Token } from '../.graphclient';
-
-const USE_CROSS_FETCH =
-  process.env['NX_USE_CROSS_FETCH'] === 'true' ||
-  process.env['NODE_ENV'] === 'test';
 
 export enum AccountFetchMode {
   // Used for the frontend UI, will fetch data for a single account direct from
@@ -238,6 +234,39 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       }
     );
 
+    const secondaryIncentiveCalls = tokens
+      .getAllTokens(network)
+      .filter(
+        (t) =>
+          t.currencyId !== undefined &&
+          t.tokenType === 'nToken' &&
+          config.getSecondaryRewarder(t)
+      )
+      .flatMap((t) => {
+        const rewarder = config.getSecondaryRewarder(t);
+        const secondary = config.getAnnualizedSecondaryIncentives(t);
+        if (!rewarder || !secondary) return [];
+        const { rewardToken } = secondary;
+        const rewardPrecision = BigNumber.from(10).pow(rewardToken.decimals);
+        return [
+          {
+            stage: 0,
+            target: notional,
+            method: 'rewardDebtPerAccount',
+            args: [this.activeAccount],
+            key: `${t.currencyId}.secondaryIncentiveDebt`,
+            transform: (r: BigNumber) => ({
+              // Secondary rewarder always returns this in 18 decimals
+              value: TokenBalance.from(r, rewardToken).scale(
+                rewardPrecision,
+                SCALAR_PRECISION
+              ),
+              currencyId: t.currencyId,
+            }),
+          },
+        ];
+      });
+
     const vaultCalls =
       config.getAllListedVaults(network)?.flatMap<AggregateCall>((v) => {
         return [
@@ -377,11 +406,11 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         ];
       }) || [];
 
-    const nowSeconds = getNowSeconds();
     const NOTE = Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE');
     const calls = [
       ...walletCalls,
       ...vaultCalls,
+      ...secondaryIncentiveCalls,
       {
         target: notional,
         method: 'getAccount',
@@ -429,28 +458,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           };
         },
       },
-      {
-        target: notional,
-        method: 'nTokenGetClaimableIncentives',
-        args: [this.activeAccount, nowSeconds],
-        key: `${notional.address}.NOTE`,
-        transform: (
-          r: Awaited<ReturnType<NotionalV3['nTokenGetClaimableIncentives']>>
-        ) => {
-          return TokenBalance.fromID(r, 'NOTE', Network.All);
-        },
-      },
-      {
-        target: notional,
-        method: 'nTokenGetClaimableIncentives',
-        args: [this.activeAccount, getNowSeconds() + 100],
-        key: `${notional.address}.NOTE_plus100`,
-        transform: (
-          r: Awaited<ReturnType<NotionalV3['nTokenGetClaimableIncentives']>>
-        ) => {
-          return TokenBalance.fromID(r, 'NOTE', Network.All);
-        },
-      },
     ];
 
     const { finalResults: balanceStatement } =
@@ -461,17 +468,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     );
     return fetchUsingMulticall<AccountDefinition>(network, calls, [
       (results: Record<string, unknown>) => {
-        const currentNOTE = results[`${notional.address}.NOTE`] as TokenBalance;
-        const notePlus100s = results[
-          `${notional.address}.NOTE_plus100`
-        ] as TokenBalance;
-        const noteClaim = currentNOTE.isPositive()
-          ? {
-              currentNOTE,
-              noteAccruedPerSecond: notePlus100s.sub(currentNOTE).scale(1, 100),
-            }
-          : undefined;
-
         return {
           [activeAccount]: {
             address: activeAccount,
@@ -495,6 +491,12 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                     (results[k] as any)['accountIncentiveDebt']
                   : []) as AccountIncentiveDebt[]
             ),
+            secondaryIncentiveDebt: Object.keys(results).flatMap(
+              (k) =>
+                (k.includes('secondaryIncentiveDebt')
+                  ? results[k]
+                  : []) as AccountIncentiveDebt[]
+            ),
             vaultLastUpdateTime: Object.keys(results).reduce(
               (agg, k) =>
                 Object.assign(
@@ -515,7 +517,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   amount: results[k] as TokenBalance,
                 };
               }),
-            noteClaim,
           },
         };
       },
@@ -700,7 +701,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       current as BalanceSnapshot,
       network
     );
-    const NOTE = Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE');
 
     const currentProfitAndLoss = currentStatement.balance
       .toUnderlying()
@@ -713,11 +713,19 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     const totalInterestAccrual = currentProfitAndLoss.sub(
       currentStatement.totalILAndFees
     );
-    const adjustedNOTEClaimed = TokenBalance.from(
-      current.adjustedNOTEClaimed,
-      NOTE
-    );
-    const totalNOTEClaimed = TokenBalance.from(current.totalNOTEClaimed, NOTE);
+    const incentives =
+      current.incentives?.map((i) => ({
+        adjustedClaimed: TokenBalance.fromSymbol(
+          i.adjustedClaimed,
+          i.rewardToken.symbol,
+          network
+        ),
+        totalClaimed: TokenBalance.fromSymbol(
+          i.totalClaimed,
+          i.rewardToken.symbol,
+          network
+        ),
+      })) || [];
 
     return {
       token: tokens.getTokenByID(network, tokenId),
@@ -730,8 +738,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       totalProfitAndLoss: currentProfitAndLoss,
       totalInterestAccrual,
       accumulatedCostRealized: currentStatement.accumulatedCostRealized,
-      adjustedNOTEClaimed,
-      totalNOTEClaimed,
+      incentives,
     };
   }
 
