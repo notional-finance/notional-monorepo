@@ -11,7 +11,6 @@ import {
 import {
   encodefCashId,
   filterEmpty,
-  getNowSeconds,
   getProviderFromNetwork,
   INTERNAL_TOKEN_PRECISION,
   MAX_APPROVAL,
@@ -407,7 +406,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         ];
       }) || [];
 
-    const nowSeconds = getNowSeconds();
     const NOTE = Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE');
     const calls = [
       ...walletCalls,
@@ -460,29 +458,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           };
         },
       },
-      {
-        target: notional,
-        method: 'nTokenGetClaimableIncentives',
-        args: [this.activeAccount, nowSeconds],
-        key: `${notional.address}.NOTE`,
-        transform: (
-          r: Awaited<ReturnType<NotionalV3['nTokenGetClaimableIncentives']>>
-        ) => {
-          return TokenBalance.fromID(r, 'NOTE', Network.All);
-        },
-      },
-      {
-        target: notional,
-        method: 'nTokenGetClaimableIncentives',
-        args: [this.activeAccount, getNowSeconds() + 100],
-        key: `${notional.address}.NOTE_plus100`,
-        transform: (
-          r: Awaited<ReturnType<NotionalV3['nTokenGetClaimableIncentives']>>
-        ) => {
-          return TokenBalance.fromID(r, 'NOTE', Network.All);
-        },
-      },
-      // TODO: add secondary claim here too
     ];
 
     const { finalResults: balanceStatement } =
@@ -493,17 +468,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     );
     return fetchUsingMulticall<AccountDefinition>(network, calls, [
       (results: Record<string, unknown>) => {
-        const currentNOTE = results[`${notional.address}.NOTE`] as TokenBalance;
-        const notePlus100s = results[
-          `${notional.address}.NOTE_plus100`
-        ] as TokenBalance;
-        const noteClaim = currentNOTE.isPositive()
-          ? {
-              currentNOTE,
-              noteAccruedPerSecond: notePlus100s.sub(currentNOTE).scale(1, 100),
-            }
-          : undefined;
-
         return {
           [activeAccount]: {
             address: activeAccount,
@@ -553,7 +517,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   amount: results[k] as TokenBalance,
                 };
               }),
-            noteClaim,
           },
         };
       },

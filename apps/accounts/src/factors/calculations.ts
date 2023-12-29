@@ -47,9 +47,12 @@ export function calculateAccountIRR(
     .toToken(ETH, 'None', snapshotTimestamp);
 
   const allVaultRisk = VaultAccountRiskProfile.getAllRiskProfiles(account);
-  const unclaimedNOTE = (
-    account.noteClaim?.currentNOTE ||
-    TokenBalance.fromSymbol(0, 'NOTE', account.network)
+
+  // TODO: this does not work
+  const unclaimedNOTE = TokenBalance.fromSymbol(
+    0,
+    'NOTE',
+    account.network
   ).toFiat('ETH');
   const claimedNOTE = account.balanceStatement
     .reduce((note, s) => {

@@ -133,6 +133,8 @@ interface TransactionState {
 
   /** Calculated updates to the account balances post trade */
   postTradeBalances?: TokenBalance[];
+  /** Calculated incentives to the account balances post trade */
+  postTradeIncentives?: TokenBalance[];
 }
 
 interface InitState {

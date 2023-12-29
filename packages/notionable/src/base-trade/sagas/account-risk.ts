@@ -72,9 +72,9 @@ export function postAccountRisk(
             : undefined;
 
         const s = accountRiskSummary(prior, post);
-        s.postTradeBalances?.concat(
-          // Push onto the post trade balances any accrued incentives of nToken
-          // balances that are changing
+        // Accrued incentives of nToken balances that are changing, these are updated at the
+        // global state level
+        const postTradeIncentives =
           accruedIncentives
             ?.filter(({ currencyId }) => [
               (collateralBalance?.tokenType === 'nToken' &&
@@ -83,8 +83,9 @@ export function postAccountRisk(
                   debtBalance.currencyId === currencyId),
             ])
             .flatMap(({ incentives }) => incentives)
-            .filter((i) => i.isPositive()) || []
-        );
+            .filter((i) => i.isPositive()) || [];
+
+        s.postTradeBalances?.concat(postTradeIncentives);
 
         return {
           ...s,
@@ -93,6 +94,7 @@ export function postAccountRisk(
             (s.postAccountRisk?.freeCollateral.isPositive() ||
               s.postAccountRisk?.freeCollateral.isZero()) &&
             inputErrors === false,
+          postTradeIncentives,
         };
       }
     ),

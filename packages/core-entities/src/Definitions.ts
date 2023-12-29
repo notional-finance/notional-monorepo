@@ -173,16 +173,6 @@ export interface AccountDefinition {
   accountHistory?: AccountHistory[];
   /** Specific allowances tracked for user interface purposes */
   allowances?: Allowance[];
-  /** Claimable NOTE information */
-  noteClaim?: {
-    currentNOTE: TokenBalance;
-    noteAccruedPerSecond: TokenBalance;
-  };
-  secondaryClaim?: {
-    symbol: string;
-    currentReward: TokenBalance;
-    rewardAccruedPerSecond: TokenBalance;
-  };
   systemAccountType?: SystemAccount;
 }
 

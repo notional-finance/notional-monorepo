@@ -35,6 +35,29 @@ export function useAccountDefinition() {
   };
 }
 
+export function useAccruedIncentives() {
+  const {
+    globalState: { accruedIncentives },
+  } = useNotionalContext();
+  return (
+    accruedIncentives?.reduce((acc, { incentives, incentivesIn100Seconds }) => {
+      incentives.forEach((i, j) => {
+        const s = i.symbol;
+        if (acc[s]) {
+          acc[s].current = acc[s].current.add(i);
+          acc[s].in100Sec = acc[s].in100Sec.add(incentivesIn100Seconds[j]);
+        } else {
+          acc[s].current = i;
+          acc[s].in100Sec = incentivesIn100Seconds[j];
+        }
+      });
+
+      return acc;
+    }, {} as Record<string, { current: TokenBalance; in100Sec: TokenBalance }>) ||
+    {}
+  );
+}
+
 export function useBalanceStatements() {
   const { account } = useAccountDefinition();
   return (

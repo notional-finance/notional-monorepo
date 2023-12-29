@@ -14,6 +14,7 @@ export function calculateAccruedIncentives(account: AccountDefinition) {
     .filter((t) => t.tokenType === 'nToken')
     .map((b) => {
       const incentives: TokenBalance[] = [];
+      const incentivesIn100Seconds: TokenBalance[] = [];
 
       const noteDebt = account.accountIncentiveDebt?.find(
         ({ currencyId }) => currencyId === b.currencyId
@@ -36,6 +37,17 @@ export function calculateAccruedIncentives(account: AccountDefinition) {
             undefined
           )
         );
+        incentivesIn100Seconds.push(
+          calculateIncentive(
+            b,
+            noteDebt.value,
+            incentiveEmissionRate,
+            accumulatedNOTEPerNToken,
+            lastAccumulatedTime,
+            undefined,
+            getNowSeconds() + 100
+          )
+        );
       }
 
       const secondaryDebt = account.secondaryIncentiveDebt?.find(
@@ -56,11 +68,23 @@ export function calculateAccruedIncentives(account: AccountDefinition) {
             secondary.rewardEndTime
           )
         );
+        incentivesIn100Seconds.push(
+          calculateIncentive(
+            b,
+            secondaryDebt.value,
+            secondary.incentiveEmissionRate,
+            secondary.accumulatedRewardPerNToken,
+            secondary.lastAccumulatedTime,
+            secondary.rewardEndTime,
+            getNowSeconds() + 100
+          )
+        );
       }
 
       return {
         currencyId: b.currencyId,
         incentives,
+        incentivesIn100Seconds,
       };
     });
 }

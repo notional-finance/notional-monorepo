@@ -81,6 +81,7 @@ interface AccountState {
   accruedIncentives?: {
     currencyId: number;
     incentives: TokenBalance[];
+    incentivesIn100Seconds: TokenBalance[];
   }[];
 }
 interface UserSettingsState {
