@@ -16,9 +16,6 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
   const { orderDetails, filteredOrderDetails } = useOrderDetails(state);
   const tableData = showHiddenRows ? orderDetails : filteredOrderDetails;
 
-  // TODO: Replace this with real arb check
-  const arbClaimed = state.selectedDepositToken === 'FRAX' ? true : false;
-
   return (
     <Box sx={{ marginBottom: theme.spacing(6) }}>
       <DataTable
