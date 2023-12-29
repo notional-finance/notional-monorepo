@@ -451,6 +451,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           return TokenBalance.fromID(r, 'NOTE', Network.All);
         },
       },
+      // TODO: add secondary claim here too
     ];
 
     const { finalResults: balanceStatement } =
