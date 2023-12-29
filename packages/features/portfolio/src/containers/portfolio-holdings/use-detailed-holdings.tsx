@@ -116,11 +116,6 @@ export function useDetailedHoldingsTable() {
             )
           );
 
-        // TODO: Replace these values with the real ones once available
-        const showARBIncentive = icon === 'FRAX';
-        const arbIncentive = icon === 'FRAX' ? '10 ARB' : '';
-        const arbIncentiveBaseCurrency = icon === 'FRAX' ? '$11.00' : '';
-
         return {
           sortOrder: getHoldingsSortOrder(b.token),
           tokenId: b.tokenId,

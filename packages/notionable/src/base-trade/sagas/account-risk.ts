@@ -43,9 +43,10 @@ export function priorAccountRisk(
 
 export function postAccountRisk(
   state$: Observable<BaseTradeState>,
-  account$: Observable<AccountDefinition | null>
+  account$: Observable<AccountDefinition | null>,
+  global$: Observable<GlobalState>
 ) {
-  return combineLatest([account$, state$]).pipe(
+  return combineLatest([account$, state$, global$]).pipe(
     distinctUntilChanged(
       ([, p], [, c]) =>
         p.calculationSuccess === c.calculationSuccess &&
@@ -57,6 +58,7 @@ export function postAccountRisk(
       ([
         account,
         { calculationSuccess, collateralBalance, debtBalance, inputErrors },
+        { accruedIncentives },
       ]) => {
         const prior = account
           ? new AccountRiskProfile(account.balances, account.network)
