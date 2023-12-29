@@ -615,6 +615,41 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     };
   }
 
+  getAnnualizedSecondaryIncentives(nToken: TokenDefinition) {
+    if (!nToken.currencyId) throw Error('Invalid nToken');
+    const config = this.getConfig(nToken.network, nToken.currencyId);
+    if (!config.incentives?.currentSecondaryReward) return undefined;
+
+    const rewardToken = Registry.getTokenRegistry().getTokenByID(
+      nToken.network,
+      config.incentives.currentSecondaryReward.id
+    );
+    const incentiveEmissionRate = TokenBalance.from(
+      BigNumber.from(
+        (config.incentives.secondaryEmissionRate as string | undefined) || 0
+      ).mul(INTERNAL_TOKEN_PRECISION),
+      rewardToken
+    );
+    const accumulatedRewardPerNToken = config.incentives
+      ?.accumulatedSecondaryRewardPerNToken
+      ? // NOTE: this value is stored in 18 decimals natively, but downscale it here
+        // for calculations
+        TokenBalance.from(
+          config.incentives.accumulatedSecondaryRewardPerNToken,
+          rewardToken
+        ).scale(INTERNAL_TOKEN_PRECISION, SCALAR_PRECISION)
+      : undefined;
+
+    return {
+      incentiveEmissionRate,
+      accumulatedRewardPerNToken,
+      lastAccumulatedTime: config.incentives?.lastAccumulatedTime as
+        | number
+        | undefined,
+      rewardEndTime: config.incentives.secondaryRewardEndTime,
+    };
+  }
+
   getAnnualizedNOTEIncentives(nToken: TokenDefinition) {
     if (!nToken.currencyId) throw Error('Invalid nToken');
     const config = this.getConfig(nToken.network, nToken.currencyId);
@@ -625,7 +660,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     const incentiveEmissionRate = TokenBalance.from(
       BigNumber.from(
-        (config.incentiveEmissionRate as string | undefined) || 0
+        (config.incentives?.incentiveEmissionRate as string | undefined) || 0
       ).mul(INTERNAL_TOKEN_PRECISION),
       NOTE
     );
