@@ -1,4 +1,5 @@
 import { useTheme } from '@mui/material';
+import { YieldData } from '@notional-finance/core-entities';
 import {
   formatLeverageRatio,
   formatNumberAsAbbr,
@@ -142,7 +143,10 @@ export const useMarketsTable = (
   ];
 
   const formatMarketData = (allMarketsData: typeof borrowYields) => {
-    const getTotalIncentiveApy = (incentives, secondaryIncentives) => {
+    const getTotalIncentiveApy = (
+      incentives: YieldData['noteIncentives'],
+      secondaryIncentives: YieldData['secondaryIncentives']
+    ) => {
       if (secondaryIncentives && incentives) {
         return incentives.incentiveAPY + secondaryIncentives.incentiveAPY;
       } else if (incentives && !secondaryIncentives) {
@@ -151,7 +155,11 @@ export const useMarketsTable = (
         return 0;
       }
     };
-    const getIncentiveData = (incentives, secondaryIncentives) => {
+
+    const getIncentiveData = (
+      incentives: YieldData['noteIncentives'],
+      secondaryIncentives: YieldData['secondaryIncentives']
+    ) => {
       if (secondaryIncentives && incentives) {
         return {
           inlineIcons: true,

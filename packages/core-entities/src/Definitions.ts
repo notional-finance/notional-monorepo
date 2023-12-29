@@ -176,6 +176,11 @@ export interface AccountDefinition {
     currentNOTE: TokenBalance;
     noteAccruedPerSecond: TokenBalance;
   };
+  secondaryClaim?: {
+    symbol: string;
+    currentReward: TokenBalance;
+    rewardAccruedPerSecond: TokenBalance;
+  };
   systemAccountType?: SystemAccount;
 }
 
