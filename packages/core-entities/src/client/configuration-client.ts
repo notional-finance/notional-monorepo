@@ -31,6 +31,8 @@ import { OracleRegistryClient } from './oracle-registry-client';
 import {
   LeveragedNTokenAdapter,
   LeveragedNTokenAdapterABI,
+  SecondaryRewarder,
+  SecondaryRewarderABI,
 } from '@notional-finance/contracts';
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
@@ -613,6 +615,19 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       lowestDiscountFactor,
       maxDiscountFactor: this._assertDefined(config.fCashMaxDiscountFactor),
     };
+  }
+
+  getSecondaryRewarder(nToken: TokenDefinition) {
+    if (!nToken.currencyId) throw Error('Invalid nToken');
+    const config = this.getConfig(nToken.network, nToken.currencyId);
+
+    return config.incentives?.secondaryIncentiveRewarder
+      ? (new Contract(
+          config.incentives?.secondaryIncentiveRewarder,
+          SecondaryRewarderABI,
+          getProviderFromNetwork(nToken.network)
+        ) as SecondaryRewarder)
+      : undefined;
   }
 
   getAnnualizedSecondaryIncentives(nToken: TokenDefinition) {
