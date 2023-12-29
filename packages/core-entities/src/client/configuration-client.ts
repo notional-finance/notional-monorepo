@@ -662,7 +662,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       lastAccumulatedTime: config.incentives?.lastAccumulatedTime as
         | number
         | undefined,
-      rewardEndTime: config.incentives.secondaryRewardEndTime,
+      rewardEndTime: config.incentives.secondaryRewardEndTime as number,
     };
   }
 

@@ -44,10 +44,6 @@ import { ClientRegistry } from './client-registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { BalanceSnapshot, ProfitLossLineItem, Token } from '../.graphclient';
 
-const USE_CROSS_FETCH =
-  process.env['NX_USE_CROSS_FETCH'] === 'true' ||
-  process.env['NODE_ENV'] === 'test';
-
 export enum AccountFetchMode {
   // Used for the frontend UI, will fetch data for a single account direct from
   // a blockchain provider.

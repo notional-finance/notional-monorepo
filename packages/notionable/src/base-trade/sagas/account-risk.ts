@@ -18,7 +18,7 @@ import {
 } from 'rxjs';
 import { TradeState, BaseTradeState } from '../base-trade-store';
 import { formatTokenType } from '@notional-finance/helpers';
-import { calculateNTokenIncentives } from '@notional-finance/transaction';
+import { GlobalState } from '../../global/global-state';
 
 export type AccountRiskSummary = ReturnType<typeof accountRiskSummary>;
 
@@ -43,9 +43,10 @@ export function priorAccountRisk(
 
 export function postAccountRisk(
   state$: Observable<BaseTradeState>,
-  account$: Observable<AccountDefinition | null>
+  account$: Observable<AccountDefinition | null>,
+  global$: Observable<GlobalState>
 ) {
-  return combineLatest([account$, state$]).pipe(
+  return combineLatest([account$, state$, global$]).pipe(
     distinctUntilChanged(
       ([, p], [, c]) =>
         p.calculationSuccess === c.calculationSuccess &&
@@ -57,6 +58,7 @@ export function postAccountRisk(
       ([
         account,
         { calculationSuccess, collateralBalance, debtBalance, inputErrors },
+        { accruedIncentives },
       ]) => {
         const prior = account
           ? new AccountRiskProfile(account.balances, account.network)
@@ -70,36 +72,19 @@ export function postAccountRisk(
             : undefined;
 
         const s = accountRiskSummary(prior, post);
-        const noteIncentivesClaimed = post
-          ? newBalances.reduce((note, b) => {
-              if (b?.tokenType === 'nToken') {
-                const balanceBefore = account?.balances.find(
-                  (t) => t.tokenId === b.tokenId
-                );
-                const accountIncentiveDebt =
-                  account?.accountIncentiveDebt?.find(
-                    ({ currencyId }) => currencyId === b.currencyId
-                  );
-
-                if (balanceBefore) {
-                  if (!accountIncentiveDebt) {
-                    return note;
-                  } else {
-                    const additionalNOTE = calculateNTokenIncentives(
-                      balanceBefore,
-                      accountIncentiveDebt.value
-                    );
-                    return note.add(additionalNOTE);
-                  }
-                }
-              }
-
-              return note;
-            }, TokenBalance.fromSymbol(0, 'NOTE', post.network))
-          : undefined;
-
-        if (noteIncentivesClaimed?.isPositive())
-          s.postTradeBalances?.push(noteIncentivesClaimed);
+        s.postTradeBalances?.concat(
+          // Push onto the post trade balances any accrued incentives of nToken
+          // balances that are changing
+          accruedIncentives
+            ?.filter(({ currencyId }) => [
+              (collateralBalance?.tokenType === 'nToken' &&
+                collateralBalance.currencyId === currencyId) ||
+                (debtBalance?.tokenType === 'nToken' &&
+                  debtBalance.currencyId === currencyId),
+            ])
+            .flatMap(({ incentives }) => incentives)
+            .filter((i) => i.isPositive()) || []
+        );
 
         return {
           ...s,
