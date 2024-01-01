@@ -15,23 +15,12 @@
         "cwd": "apps/actions"
       }
     },
-    "publish-wrangler-manual": {
+    "publish": {
       "executor": "nx:run-commands",
       "options": {
         "commands": [
           {
-            "command": "wrangler deploy --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
-          }
-        ],
-        "cwd": "apps/actions"
-      }
-    },
-    "publish-wrangler": {
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          {
-            "command": "wrangler deploy"
+            "command": "tenderly actions publish"
           }
         ],
         "cwd": "apps/actions"
