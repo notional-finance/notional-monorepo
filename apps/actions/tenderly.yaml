@@ -1,0 +1,17 @@
+account_id: "notional-finance"
+actions:
+  notional-finance/notionalv2:
+    runtime: v2
+    sources: .
+    specs:
+      example:
+        description: This is just an example, but you can publish this action.
+        function: src/index:blockHelloWorldFn
+        trigger:
+          type: block
+        block:
+          network:
+            - 1
+          blocks: 10
+        execution_type: sequential
+project_slug: "notional-finance/notionalv2"
