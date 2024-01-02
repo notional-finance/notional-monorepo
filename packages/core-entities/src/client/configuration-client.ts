@@ -5,7 +5,6 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '..';
-import { Routes } from '../server';
 import { AllConfigurationQuery } from '../server/configuration-server';
 import {
   AssetType,
@@ -37,7 +36,7 @@ import {
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   protected cachePath() {
-    return Routes.Configuration;
+    return 'configuration-reward-test';
   }
 
   constructor(cacheHostname: string) {
