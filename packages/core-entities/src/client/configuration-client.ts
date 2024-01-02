@@ -37,7 +37,7 @@ import {
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   protected cachePath() {
-    return Routes.Configuration;
+    return 'configuration-reward-test';
   }
 
   constructor(cacheHostname: string) {
