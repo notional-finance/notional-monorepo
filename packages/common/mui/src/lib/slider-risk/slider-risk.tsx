@@ -25,7 +25,7 @@ export const SliderRisk = ({ healthFactor }: SliderRiskProps) => {
   return (
     <SliderContainer>
       <SliderBasic
-        min={0}
+        min={1}
         // NOTE: set this a half step above the max value we actually set so that
         // the button does not overflow into the container padding
         max={5.05}
@@ -36,11 +36,11 @@ export const SliderRisk = ({ healthFactor }: SliderRiskProps) => {
         railGradients={[
           {
             color: [255, 61, 113], // Red
-            value: 10,
+            value: 6,
           },
           {
             color: [249, 223, 61], // Yellow
-            value: 20,
+            value: 38,
           },
           {
             color: [52, 223, 58], // Green
@@ -50,7 +50,11 @@ export const SliderRisk = ({ healthFactor }: SliderRiskProps) => {
       />
       <LabelValue sx={{ marginLeft: theme.spacing(3), textWrap: 'nowrap' }}>
         {healthFactor ? (
-          healthFactor.toFixed(2)
+          healthFactor > 5 ? (
+            '5+'
+          ) : (
+            healthFactor.toFixed(2)
+          )
         ) : (
           <FormattedMessage defaultMessage={'No Risk'} />
         )}
