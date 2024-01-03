@@ -21,11 +21,17 @@ export enum BETA_ACCESS {
 }
 
 export const ACCESS_NFTS = {
-  DEGEN_SCORE: { "address": '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa', network: Network.Mainnet },
-  BETA_CONTEST: {"address": "0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e", network: Network.ArbitrumOne}
-  }
+  DEGEN_SCORE: {
+    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
+    network: Network.Mainnet,
+  },
+  BETA_CONTEST: {
+    address: '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e',
+    network: Network.ArbitrumOne,
+  },
+};
 
-export const GATED_VAULTS = ["0x3df035433cface65b6d68b77cc916085d020c8b8", "0x8ae7a8789a81a43566d0ee70264252c0db826940"]
+export const GATED_VAULTS: string[] = [];
 
 // Set this as the runtime default
 const CACHE_HOSTNAME =
