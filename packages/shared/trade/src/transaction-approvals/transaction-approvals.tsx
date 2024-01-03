@@ -1,6 +1,6 @@
 import { useTheme, Divider } from '@mui/material';
 import { StatusHeading } from '../transaction-confirmation/components/status-heading';
-import { Button } from '@notional-finance/mui';
+import { Button, ScrollToTop } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import {
   TransactionStatus,
@@ -40,6 +40,7 @@ export const TransactionApprovals = ({
 
   return (
     <>
+      <ScrollToTop />
       <StatusHeading
         heading={<FormattedMessage defaultMessage={'APPROVAL PENDING '} />}
         transactionStatus={TransactionStatus.APPROVAL_PENDING}

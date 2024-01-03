@@ -7,6 +7,7 @@ import {
   ExternalLink,
   HeadingSubtitle,
   ErrorMessage,
+  ScrollToTop,
 } from '@notional-finance/mui';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import {
@@ -69,6 +70,7 @@ export const TransactionConfirmation = ({
 
   return (
     <>
+      <ScrollToTop />
       <StatusHeading
         heading={heading}
         transactionStatus={
