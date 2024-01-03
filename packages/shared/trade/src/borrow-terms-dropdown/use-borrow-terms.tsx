@@ -92,15 +92,14 @@ export const useBorrowTerms = (
   const onSelect = useCallback(
     (selectedId: string | null) => {
       if (isVault) {
-        // Selects the matching vault collateral asset when the debt asset is selected
         const debt = availableDebtTokens?.find((t) => t.id === selectedId);
         const collateral = availableCollateralTokens?.find(
           (t) => t.maturity === debt?.maturity
         );
         console.log('MOTHER FUCKER');
         console.log({ selectedId });
-        console.log('debt?.maturity: ', debt?.maturity);
         console.log({ debt, collateral });
+
         updateState({ debt, collateral });
       } else {
         const debt = availableDebtTokens?.find((t) => t.id === selectedId);

@@ -23,9 +23,13 @@ export const VaultActionSideDrawer = () => {
       deposit,
       defaultLeverageRatio,
       availableDebtTokens,
+      availableCollateralTokens,
+      selectedDepositToken,
       riskFactorLimit,
+      customizeLeverage,
     },
   } = context;
+  const loaded = deposit && deposit?.symbol === selectedDepositToken;
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
     defaultLeverageRatio && !riskFactorLimit
       ? {
@@ -60,9 +64,19 @@ export const VaultActionSideDrawer = () => {
             tradeType: 'CreateVaultPosition',
             riskFactorLimit: defaultRiskLimit,
             maxWithdraw: false,
-            debt: availableDebtTokens?.find(
-              (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
-            ),
+            // TODO set debt and collateral here
+            debt:
+              loaded && !customizeLeverage
+                ? availableDebtTokens?.find(
+                    (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
+                  )
+                : undefined,
+            collateral:
+              loaded && !customizeLeverage
+                ? availableCollateralTokens?.find(
+                    (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
+                  )
+                : undefined,
           },
         },
         {
