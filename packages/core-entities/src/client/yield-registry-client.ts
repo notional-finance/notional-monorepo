@@ -152,14 +152,14 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         return {
           numerator: underlying
             .mulInRatePrecision(Math.floor(apy * RATE_PRECISION))
-            .scaleTo(RATE_DECIMALS),
-          denominator: underlying.scaleTo(RATE_DECIMALS),
+            .toFloat(),
+          denominator: underlying.toFloat(),
         };
       })
       .reduce(
         (r, { numerator, denominator }) => ({
-          numerator: r.numerator + numerator.toNumber(),
-          denominator: r.denominator + denominator.toNumber(),
+          numerator: r.numerator + numerator,
+          denominator: r.denominator + denominator,
         }),
         { numerator: 0, denominator: 0 }
       );
