@@ -49,7 +49,9 @@ export const useBorrowTerms = (
   const borrowOptions = useMemo(() => {
     // Note this is a any[] because there were conflicts when attempting to combine the debtOptions and spotMaturityData types
     const options = (debtOptions || spotMaturityData) as any[];
-    return options.reverse().map((o, index) => {
+    const variableDebt = options.pop();
+    options.unshift(variableDebt);
+    return options.map((o, index) => {
       const borrowRate = o?.interestRate || o?.tradeRate;
       const totalAPY = leveragedYield(assetAPY, borrowRate, leverageRatio);
       return {
