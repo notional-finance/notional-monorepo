@@ -181,7 +181,7 @@ export const PortfolioRisk = () => {
           />
         </H4>
         <Box sx={{ display: 'flex' }}>
-          <Box sx={{ width: '50%' }}>
+          <Box sx={{ width: theme.spacing(54) }}>
             <SliderRisk healthFactor={healthFactor} />
           </Box>
           <Box
