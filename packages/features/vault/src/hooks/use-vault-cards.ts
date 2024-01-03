@@ -27,6 +27,7 @@ interface AllVaultsProps {
 export const useVaultCards = () => {
   const listedVaults = useAllVaults();
   const accountVaults = useVaultRiskProfiles();
+  
   const {
     yields: { leveragedVaults },
     getMax,

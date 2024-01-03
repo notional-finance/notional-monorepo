@@ -2,6 +2,8 @@ import { Box, styled, useTheme } from '@mui/material';
 // import { VaultActionContext } from '../../liquidity';
 import { BorrowTermsDropdown } from '@notional-finance/trade';
 import { VaultActionContext } from '../vault';
+import { VaultLeverageSlider } from './vault-leverage-slider';
+import { messages } from '../messages';
 import {
   Body,
   ButtonText,
@@ -10,8 +12,7 @@ import {
   ToggleSwitch,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
-import React, { useContext } from 'react';
-import { LeverageSlider } from '@notional-finance/trade';
+import React, { useContext, useEffect } from 'react';
 import {
   formatLeverageRatio,
   //   formatNumberAsPercent,
@@ -21,38 +22,48 @@ import { useHistory } from 'react-router';
 // import { useLeveragedNTokenPositions } from '../hooks';
 import { PRODUCTS } from '@notional-finance/util';
 
-export const CustomLiquidityTerms = () => {
+export const CustomTerms = () => {
   const theme = useTheme();
   const context = useContext(VaultActionContext);
-  const {
-    state: { deposit },
-  } = context;
 
   return (
-    <LiquidityTerms
+    <Terms
       inputLabel={defineMessage({ defaultMessage: '2. Select Borrow Terms' })}
       hasPosition={false}
     >
       <BorrowTermsDropdown context={context} />
       <Box height={theme.spacing(6)} />
-      <LeverageSlider
-        showMinMax
+      <VaultLeverageSlider
         context={context}
-        leverageCurrencyId={deposit?.currencyId}
-        inputLabel={defineMessage({
-          defaultMessage: '3. Specify leverage',
-          description: 'input label',
-        })}
+        inputLabel={messages['CreateVaultPosition'].leverage}
       />
-    </LiquidityTerms>
+    </Terms>
   );
 };
 
-export const DefaultLiquidityTerms = () => {
+export const DefaultTerms = () => {
   const {
-    state: { customizeLeverage, riskFactorLimit }, // deposit
+    state: {
+      customizeLeverage,
+      riskFactorLimit,
+      availableCollateralTokens,
+      availableDebtTokens,
+    },
     updateState,
   } = useContext(VaultActionContext);
+
+  useEffect(() => {
+    const debt = availableDebtTokens?.find((data) =>
+      data?.symbol?.includes('open')
+    );
+    const collateral = availableCollateralTokens?.find(
+      (t) => t.maturity === debt?.maturity
+    );
+    updateState({
+      debt,
+      collateral: collateral,
+    });
+  }, []);
 
   const toggleLeverage = () =>
     updateState({ customizeLeverage: !customizeLeverage });
@@ -65,7 +76,7 @@ export const DefaultLiquidityTerms = () => {
       : 0;
 
   return (
-    <LiquidityTerms
+    <Terms
       inputLabel={defineMessage({
         defaultMessage: 'Default Terms are Selected',
       })}
@@ -95,11 +106,11 @@ export const DefaultLiquidityTerms = () => {
           </Box>
         }
       />
-    </LiquidityTerms>
+    </Terms>
   );
 };
 
-export const ManageLiquidityTerms = () => {
+export const ManageTerms = () => {
   const history = useHistory();
   const {
     state: { riskFactorLimit, deposit },
@@ -112,7 +123,7 @@ export const ManageLiquidityTerms = () => {
       : 0;
 
   return (
-    <LiquidityTerms
+    <Terms
       inputLabel={defineMessage({
         defaultMessage: 'Current Terms',
       })}
@@ -138,11 +149,11 @@ export const ManageLiquidityTerms = () => {
           </Box>
         }
       />
-    </LiquidityTerms>
+    </Terms>
   );
 };
 
-const LiquidityTerms = ({
+const Terms = ({
   inputLabel,
   hasPosition,
   children,

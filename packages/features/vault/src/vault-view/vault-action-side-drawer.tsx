@@ -9,6 +9,7 @@ import {
   WithdrawAndRepayDebt,
   RollMaturity,
 } from '../side-drawers';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { SideDrawerRouter } from '@notional-finance/trade';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
@@ -21,6 +22,7 @@ export const VaultActionSideDrawer = () => {
       priorAccountRisk,
       deposit,
       defaultLeverageRatio,
+      availableDebtTokens,
       riskFactorLimit,
     },
   } = context;
@@ -47,7 +49,7 @@ export const VaultActionSideDrawer = () => {
       context={context}
       hasPosition={!!priorAccountRisk}
       routeMatch={`/vaults/${vaultAddress}/:path`}
-      defaultHasPosition={'Manage'}
+      defaultHasPosition={'CreateVaultPosition'}
       defaultNoPosition={'CreateVaultPosition'}
       routes={[
         {
@@ -58,10 +60,12 @@ export const VaultActionSideDrawer = () => {
             tradeType: 'CreateVaultPosition',
             riskFactorLimit: defaultRiskLimit,
             maxWithdraw: false,
+            debt: availableDebtTokens?.find(
+              (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
+            ),
           },
         },
         {
-          isRootDrawer: true,
           slug: 'Manage',
           Component: ManageVault,
           requiredState: {

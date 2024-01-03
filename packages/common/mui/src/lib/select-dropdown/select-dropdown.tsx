@@ -156,6 +156,8 @@ export const SelectDropdown = ({
         if (onListboxOpen) onListboxOpen(isOpen);
       }}
       onChange={(_, value) => {
+        console.log({ value });
+        console.log('TESTINGGGGGGGGGGGGG');
         onChange(value);
       }}
     >
