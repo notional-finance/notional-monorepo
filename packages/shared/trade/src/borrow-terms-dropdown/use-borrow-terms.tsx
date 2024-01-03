@@ -76,14 +76,15 @@ export const useBorrowTerms = (
         largeCaptionSuffix: '% Total APY',
         largeFigure: borrowRate,
         largeFigureSuffix: `% Borrow APY`,
-        caption: o.token.maturity ? (
-          <Box>
-            <FormattedMessage defaultMessage={'Fixed:'} />{' '}
-            {formatMaturity(o.token.maturity)}
-          </Box>
-        ) : (
-          <FormattedMessage defaultMessage={'Variable'} />
-        ),
+        caption:
+          o.token.maturity && !o.token.symbol.includes('open') ? (
+            <Box>
+              <FormattedMessage defaultMessage={'Fixed:'} />{' '}
+              {formatMaturity(o.token.maturity)}
+            </Box>
+          ) : (
+            <FormattedMessage defaultMessage={'Variable'} />
+          ),
       };
     });
   }, [debtOptions, spotMaturityData, leverageRatio, assetAPY]);
@@ -96,13 +97,13 @@ export const useBorrowTerms = (
         const collateral = availableCollateralTokens?.find(
           (t) => t.maturity === debt?.maturity
         );
-        console.log('MOTHER FUCKERS');
+        console.log('MOTHER FUCKER');
         console.log({ selectedId });
+        console.log('debt?.maturity: ', debt?.maturity);
         console.log({ debt, collateral });
         updateState({ debt, collateral });
       } else {
         const debt = availableDebtTokens?.find((t) => t.id === selectedId);
-        console.log(availableDebtTokens);
         updateState({ debt });
       }
     },
@@ -110,7 +111,7 @@ export const useBorrowTerms = (
   );
 
   const defaultDebtOption = isVault
-    ? undefined
+    ? borrowOptions.find((data) => data.token.symbol.includes('open'))
     : borrowOptions.find((data) => data.token.tokenType === 'PrimeDebt');
 
   return { borrowOptions, onSelect, defaultDebtOption };

@@ -61,7 +61,7 @@ export const DefaultTerms = () => {
     );
     updateState({
       debt,
-      collateral: collateral,
+      collateral,
     });
   }, []);
 
