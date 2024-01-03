@@ -49,6 +49,7 @@ export const useBorrowTerms = (
   const borrowOptions = useMemo(() => {
     // Note this is a any[] because there were conflicts when attempting to combine the debtOptions and spotMaturityData types
     const options = (debtOptions || spotMaturityData) as any[];
+    // Move variable debt to the beginning of the list
     const variableDebt = options.pop();
     options.unshift(variableDebt);
     return options.map((o, index) => {
