@@ -46,8 +46,10 @@ export function useAccruedIncentives() {
           acc[s].current = acc[s].current.add(i);
           acc[s].in100Sec = acc[s].in100Sec.add(incentivesIn100Seconds[j]);
         } else {
-          acc[s].current = i;
-          acc[s].in100Sec = incentivesIn100Seconds[j];
+          acc[s] = {
+            current: i,
+            in100Sec: incentivesIn100Seconds[j],
+          };
         }
       });
 
