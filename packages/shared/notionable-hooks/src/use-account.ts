@@ -175,25 +175,32 @@ export function useHoldings() {
 
           const isPending = pendingTokens.find((t) => t.id === balance.tokenId);
 
-          const totalIncentiveEarnings: TokenBalance[] =
-            balance.tokenType === 'nToken' && statement
-              ? statement.incentives
-                  .map(({ adjustedClaimed }) => {
-                    const currentClaimable = accruedIncentives
-                      ?.find(
-                        ({ currencyId }) => balance.currencyId === currencyId
-                      )
-                      ?.incentives.find(
-                        (t) => t.tokenId === adjustedClaimed.tokenId
-                      );
-
-                    // Add the current claimable to the total earned
-                    return currentClaimable
-                      ? adjustedClaimed.add(currentClaimable)
-                      : adjustedClaimed;
-                  })
-                  .filter((v) => v.isPositive())
+          // Returns accrued incentives and adjusted claimed incentives as an array
+          const _incentiveEarnings: TokenBalance[] =
+            balance.tokenType === 'nToken'
+              ? statement?.incentives
+                  .map(({ adjustedClaimed }) => adjustedClaimed)
+                  .concat(
+                    accruedIncentives?.find(
+                      ({ currencyId }) => balance.currencyId === currencyId
+                    )?.incentives || []
+                  ) || []
               : [];
+
+          // Reduces the array above to one entry per incentive token
+          const totalIncentiveEarnings = Array.from(
+            _incentiveEarnings
+              .reduce((m, b) => {
+                const match = m.get(b.tokenId);
+                if (match) {
+                  m.set(match.tokenId, match.add(b));
+                } else {
+                  m.set(b.tokenId, b);
+                }
+                return m;
+              }, new Map<string, TokenBalance>())
+              .values()
+          );
 
           const hasMatured = balance.hasMatured;
 

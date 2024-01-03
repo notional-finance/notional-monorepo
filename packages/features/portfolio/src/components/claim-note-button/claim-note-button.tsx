@@ -30,7 +30,7 @@ const useIncentiveCountUp = (i?: {
     const currentFloat = i?.current.toFloat();
     const in100SecFloat = i?.in100Sec.toFloat();
 
-    if (currentFloat) setCountUp(currentFloat);
+    if (c == 0 && currentFloat) setCountUp(currentFloat);
 
     if (in100SecFloat && currentFloat) {
       const perSecondFloat = (in100SecFloat - currentFloat) / 100;
