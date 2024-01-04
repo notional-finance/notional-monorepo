@@ -9,12 +9,7 @@ import { map, take, Observable } from 'rxjs';
 import { Registry } from '../Registry';
 import { TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
-import { OracleDefinition } from '../Definitions';
-
-interface DataPoint {
-  [key: string]: number | string | null;
-}
-type AnalyticsData = DataPoint[];
+import { OracleDefinition, AnalyticsData } from '../Definitions';
 
 const VIEWS = [
   'historical_oracle_values',

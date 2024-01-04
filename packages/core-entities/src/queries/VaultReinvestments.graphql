@@ -1,0 +1,18 @@
+query VaultReinvestments($vault: String) {
+    reinvestments(
+      orderBy: timestamp,
+      orderDirection:desc,
+      first: 30,
+      where: { vault: $vault }
+    ) {
+      timestamp
+      blockNumber
+      transactionHash
+      vault { id }
+      rewardTokenSold
+      rewardAmountSold
+      tokensReinvested
+      tokensPerVaultShare
+      underlyingAmountRealized
+    }
+  }

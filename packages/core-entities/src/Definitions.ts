@@ -277,3 +277,8 @@ export interface YieldData {
     incentiveAPY: number;
   };
 }
+
+export interface DataPoint {
+  [key: string]: number | string | null;
+}
+export type AnalyticsData = DataPoint[];

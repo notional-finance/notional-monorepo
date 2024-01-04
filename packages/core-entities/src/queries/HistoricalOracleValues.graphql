@@ -1,0 +1,37 @@
+query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
+  oracles(where:{ oracleType_in:[
+    Chainlink
+    fCashSettlementRate
+    nTokenToUnderlyingExchangeRate
+    PrimeCashToUnderlyingExchangeRate
+    VaultShareOracleRate # Can use this to calculate a realized vault APY
+    # Below here are APYs
+    fCashOracleRate
+    PrimeCashPremiumInterestRate
+    PrimeDebtPremiumInterestRate
+    nTokenBlendedInterestRate,
+  	nTokenFeeRate,
+  	nTokenIncentiveRate
+  ], matured: false}, first: 1000, skip: $skip) {
+    id
+    base { id }
+    quote { id }
+    lastUpdateTimestamp
+    lastUpdateBlockNumber
+    decimals
+    ratePrecision
+    oracleType
+    # TODO: latestRate must be put into historical rates for fCashSettlementRate
+    latestRate
+    historicalRates(
+      where: {timestamp_gt: $minTimestamp},
+      orderBy: timestamp,
+      orderDirection: asc
+  	) {
+      # TODO: put the totalSupply here to get TVL
+      blockNumber
+      timestamp
+      rate
+    }
+  }
+}
