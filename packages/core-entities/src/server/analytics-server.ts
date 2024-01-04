@@ -8,6 +8,7 @@ import {
 import {
   convertArrayToObject,
   getNowSeconds,
+  groupArrayToMap,
   Network,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
@@ -35,30 +36,33 @@ export class AnalyticsServer extends ServerRegistry<Record<string, unknown>> {
       HistoricalTradingActivityDocument,
       (r) => {
         // Key = currencyId
-        return convertArrayToObject(
-          r.tradingActivity.map((t) => {
-            // Simplify the trading activity information into a single line item
-            const fCashValue: string = t.transfers[2].value;
-            const fCashId: string = t.transfers[2].token.id;
-            const pCash: string = t.transfers[0].value;
-            const pCashInUnderlying: string = t.transfers[0].valueInUnderlying;
+        return Object.fromEntries(
+          groupArrayToMap(
+            r.tradingActivity.map((t) => {
+              // Simplify the trading activity information into a single line item
+              const fCashValue: string = t.transfers[2].value;
+              const fCashId: string = t.transfers[2].token.id;
+              const pCash: string = t.transfers[0].value;
+              const pCashInUnderlying: string =
+                t.transfers[0].valueInUnderlying;
 
-            return {
-              bundleName: t.bundleName,
-              currencyId: t.transfers[0].token.currencyId as number,
-              fCashId,
-              fCashValue,
-              pCash,
-              pCashInUnderlying,
-              timestamp: t.timestamp,
-              blockNumber: t.blockNumber as number,
-              transactionHash: t.transactionHash.id,
-            };
-          }),
-          'currencyId'
+              return {
+                bundleName: t.bundleName,
+                currencyId: t.transfers[0].token.currencyId as number,
+                fCashId,
+                fCashValue,
+                pCash,
+                pCashInUnderlying,
+                timestamp: t.timestamp,
+                blockNumber: t.blockNumber as number,
+                transactionHash: t.transactionHash.id,
+              };
+            }),
+            (t) => t.currencyId
+          )
         );
       },
-      { minTimestamp },
+      { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY },
       'tradingActivity'
     );
 
@@ -67,9 +71,11 @@ export class AnalyticsServer extends ServerRegistry<Record<string, unknown>> {
       VaultReinvestmentDocument,
       // Key = vault id
       (r) =>
-        convertArrayToObject(
-          r.reinvestments.map((i) => ({ ...i, vault: i.vault.id })),
-          'vault'
+        Object.fromEntries(
+          groupArrayToMap(
+            r.reinvestments.map((i) => ({ ...i, vault: i.vault.id })),
+            (t) => t.vault
+          )
         ),
       { minTimestamp },
       'reinvestments'
