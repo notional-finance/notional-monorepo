@@ -64,7 +64,6 @@ export const VaultActionSideDrawer = () => {
             tradeType: 'CreateVaultPosition',
             riskFactorLimit: defaultRiskLimit,
             maxWithdraw: false,
-            // TODO set debt and collateral here
             debt:
               loaded && !customizeLeverage
                 ? availableDebtTokens?.find(

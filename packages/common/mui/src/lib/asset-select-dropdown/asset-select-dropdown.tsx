@@ -56,9 +56,6 @@ export const AssetSelectDropdown = ({
   const theme = useTheme();
   const emptyOption = EmptyCurrencySelectOption(theme);
 
-  console.log({ selectedTokenId });
-  console.log({ options });
-
   const selectOptions = options?.map(
     ({
       token,
@@ -90,8 +87,6 @@ export const AssetSelectDropdown = ({
       );
     }
   ) || [emptyOption];
-
-  console.log({ selectOptions });
 
   return (
     <Box marginTop={tightMarginTop ? theme.spacing(-3) : undefined}>
