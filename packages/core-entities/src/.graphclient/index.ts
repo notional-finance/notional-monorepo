@@ -8147,6 +8147,7 @@ export type HistoricalOracleValuesQuery = { oracles: Array<(
 
 export type HistoricalTradingActivityQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
+  minTimestamp?: InputMaybe<Scalars['Int']>;
 }>;
 
 
@@ -8785,9 +8786,9 @@ export const HistoricalOracleValuesDocument = gql`
 }
     ` as unknown as DocumentNode<HistoricalOracleValuesQuery, HistoricalOracleValuesQueryVariables>;
 export const HistoricalTradingActivityDocument = gql`
-    query HistoricalTradingActivity($skip: Int) {
+    query HistoricalTradingActivity($skip: Int, $minTimestamp: Int) {
   tradingActivity: transferBundles(
-    where: {bundleName_in: ["Buy fCash", "Buy fCash Vault", "Sell fCash", "Sell fCash Vault"]}
+    where: {bundleName_in: ["Buy fCash", "Buy fCash Vault", "Sell fCash", "Sell fCash Vault"], timestamp_gt: $minTimestamp}
     orderBy: timestamp
     orderDirection: desc
     first: 1000

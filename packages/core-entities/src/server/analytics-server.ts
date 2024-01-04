@@ -45,7 +45,7 @@ export class AnalyticsServer extends ServerRegistry<Record<string, unknown>> {
 
             return {
               bundleName: t.bundleName,
-              currencyId: t.transfers[0].token.currencyId,
+              currencyId: t.transfers[0].token.currencyId as number,
               fCashId,
               fCashValue,
               pCash,
@@ -58,7 +58,7 @@ export class AnalyticsServer extends ServerRegistry<Record<string, unknown>> {
           'currencyId'
         );
       },
-      {},
+      { minTimestamp },
       'tradingActivity'
     );
 

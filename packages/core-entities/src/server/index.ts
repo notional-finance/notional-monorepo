@@ -4,6 +4,7 @@ import { OracleRegistryServer } from './oracle-registry-server';
 import { ServerRegistry } from './server-registry';
 import { TokenRegistryServer } from './token-registry-server';
 import { VaultRegistryServer } from './vault-registry-server';
+export { AnalyticsServer } from './analytics-server';
 
 export const Servers = {
   ConfigurationServer: ConfigurationServer,
