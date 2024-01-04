@@ -1,9 +1,12 @@
 import { useCallback, useContext, useState } from 'react';
 import { LiquidityContext } from '../../liquidity';
-import { LeverageSlider, TransactionSidebar } from '@notional-finance/trade';
+import {
+  LeverageSlider,
+  TransactionSidebar,
+  useLeveragedNTokenPositions,
+} from '@notional-finance/trade';
 import { defineMessage } from 'react-intl';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
-import { useLeveragedNTokenPositions } from '../hooks';
 import { useCurrency } from '@notional-finance/notionable-hooks';
 import { ErrorMessage } from '@notional-finance/mui';
 

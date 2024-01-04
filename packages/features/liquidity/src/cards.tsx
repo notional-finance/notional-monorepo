@@ -23,8 +23,10 @@ import {
   YieldData,
 } from '@notional-finance/core-entities';
 import { formatLeverageRatio } from '@notional-finance/helpers';
-import { useLeveragedNTokenPositions } from './liquidity-leveraged/hooks/use-leveraged-ntoken-positions';
-import { useMaxYield } from './liquidity-leveraged/hooks/use-max-yield';
+import {
+  useMaxYield,
+  useLeveragedNTokenPositions,
+} from '@notional-finance/trade';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `

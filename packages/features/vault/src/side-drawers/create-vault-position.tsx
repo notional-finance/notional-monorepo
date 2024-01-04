@@ -4,14 +4,14 @@ import { Box, styled, useTheme } from '@mui/material';
 import { VaultActionContext } from '../vault';
 import { useVaultRiskProfiles } from '@notional-finance/notionable-hooks';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
+import { MobileVaultSummary, VaultLeverageSlider } from '../components';
+import { useVaultActionErrors } from '../hooks';
 import {
-  MobileVaultSummary,
+  DepositInput,
   CustomTerms,
   DefaultTerms,
   ManageTerms,
-} from '../components';
-import { useVaultActionErrors } from '../hooks';
-import { DepositInput } from '@notional-finance/trade';
+} from '@notional-finance/trade';
 import { messages } from '../messages';
 
 export const CreateVaultPosition = () => {
@@ -51,11 +51,17 @@ export const CreateVaultPosition = () => {
             inputLabel={messages['CreateVaultPosition'].depositAmount}
           />
           {hasVaultPosition ? (
-            <ManageTerms />
+            <ManageTerms
+              context={context}
+              linkString={`/vaults/${vaultAddress}/Manage`}
+            />
           ) : customizeLeverage ? (
-            <CustomTerms />
+            <CustomTerms
+              context={context}
+              CustomLeverageSlider={VaultLeverageSlider}
+            />
           ) : (
-            <DefaultTerms />
+            <DefaultTerms context={context} />
           )}
         </VaultSideDrawer>
       </Box>

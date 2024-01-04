@@ -1,6 +1,6 @@
 import { LiquidityContext } from '../../liquidity';
 import { useContext } from 'react';
-import { useLeveragedNTokenPositions } from './use-leveraged-ntoken-positions';
+import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import { BaseTradeState } from '@notional-finance/notionable';
 
 /**

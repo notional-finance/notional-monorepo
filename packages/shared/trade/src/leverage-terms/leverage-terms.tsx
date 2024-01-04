@@ -1,9 +1,5 @@
 import { Box, styled, useTheme } from '@mui/material';
-// import { VaultActionContext } from '../../liquidity';
-import { BorrowTermsDropdown } from '@notional-finance/trade';
-import { VaultActionContext } from '../vault';
-import { VaultLeverageSlider } from './vault-leverage-slider';
-import { messages } from '../messages';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import {
   Body,
   ButtonText,
@@ -12,64 +8,74 @@ import {
   ToggleSwitch,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import {
   formatLeverageRatio,
-  //   formatNumberAsPercent,
+  formatNumberAsPercent,
 } from '@notional-finance/helpers';
-// import { useMaxYield } from '../hooks/use-max-yield';
+import { BorrowTermsDropdown } from '../borrow-terms-dropdown/borrow-terms-dropdown';
+import { LeverageSlider } from '../leverage-slider/leverage-slider';
+import { useMaxYield, useLeveragedNTokenPositions } from '../hooks';
 import { useHistory } from 'react-router';
-// import { useLeveragedNTokenPositions } from '../hooks';
-import { PRODUCTS } from '@notional-finance/util';
 
-export const CustomTerms = () => {
+interface TermsProps {
+  context: BaseTradeContext;
+  CustomLeverageSlider?: any;
+}
+
+interface ManageTermsProps extends TermsProps {
+  linkString: string;
+}
+
+export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
   const theme = useTheme();
-  const context = useContext(VaultActionContext);
+  const {
+    state: { deposit },
+  } = context;
 
   return (
     <Terms
       inputLabel={defineMessage({ defaultMessage: '2. Select Borrow Terms' })}
       hasPosition={false}
+      context={context}
     >
       <BorrowTermsDropdown context={context} />
       <Box height={theme.spacing(6)} />
-      <VaultLeverageSlider
-        context={context}
-        inputLabel={messages['CreateVaultPosition'].leverage}
-      />
+      {CustomLeverageSlider ? (
+        <CustomLeverageSlider
+          context={context}
+          inputLabel={defineMessage({
+            defaultMessage: '3. Specify leverage',
+            description: 'input label',
+          })}
+        />
+      ) : (
+        <LeverageSlider
+          showMinMax
+          context={context}
+          leverageCurrencyId={deposit?.currencyId}
+          inputLabel={defineMessage({
+            defaultMessage: '3. Specify leverage',
+            description: 'input label',
+          })}
+        />
+      )}
     </Terms>
   );
 };
 
-export const DefaultTerms = () => {
+export const DefaultTerms = ({ context }: TermsProps) => {
   const {
-    state: {
-      customizeLeverage,
-      riskFactorLimit,
-      availableCollateralTokens,
-      availableDebtTokens,
-    },
+    state: { customizeLeverage, riskFactorLimit, deposit },
     updateState,
-  } = useContext(VaultActionContext);
-
-  useEffect(() => {
-    const debt = availableDebtTokens?.find((data) =>
-      data?.symbol?.includes('open')
-    );
-    const collateral = availableCollateralTokens?.find(
-      (t) => t.maturity === debt?.maturity
-    );
-    updateState({
-      debt,
-      collateral,
-    });
-  }, []);
+  } = context;
 
   const toggleLeverage = () =>
     updateState({ customizeLeverage: !customizeLeverage });
-  //   const maxYield = useMaxYield().find(
-  //     (y) => y.token.currencyId === deposit?.currencyId
-  //   )?.totalAPY;
+  const maxYield = useMaxYield().find(
+    (y) => y.token.currencyId === deposit?.currencyId
+  )?.totalAPY;
+
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)
@@ -81,6 +87,7 @@ export const DefaultTerms = () => {
         defaultMessage: 'Default Terms are Selected',
       })}
       hasPosition={false}
+      context={context}
     >
       <TermsBox
         hasPosition={false}
@@ -98,8 +105,7 @@ export const DefaultTerms = () => {
               <FormattedMessage
                 defaultMessage={'Up to {max} APY'}
                 values={{
-                  //   max: maxYield ? formatNumberAsPercent(maxYield) : '',
-                  max: '',
+                  max: maxYield ? formatNumberAsPercent(maxYield) : '',
                 }}
               />
             </Body>
@@ -110,12 +116,12 @@ export const DefaultTerms = () => {
   );
 };
 
-export const ManageTerms = () => {
+export const ManageTerms = ({ context, linkString }: ManageTermsProps) => {
   const history = useHistory();
   const {
     state: { riskFactorLimit, deposit },
-  } = useContext(VaultActionContext);
-  //   const { currentPosition } = useLeveragedNTokenPositions(deposit?.symbol);
+  } = context;
+  const { currentPosition } = useLeveragedNTokenPositions(deposit?.symbol);
 
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
@@ -128,19 +134,15 @@ export const ManageTerms = () => {
         defaultMessage: 'Current Terms',
       })}
       hasPosition={true}
+      context={context}
     >
       <TermsBox
         hasPosition={true}
         leverageRatio={leverageRatio}
         borrowType={
-          //   currentPosition?.debt.tokenType === 'fCash' ? 'Fixed' : 'Variable'
-          'Variable'
+          currentPosition?.debt.tokenType === 'fCash' ? 'Fixed' : 'Variable'
         }
-        actionClick={() =>
-          history.push(
-            `/${PRODUCTS.LIQUIDITY_LEVERAGED}/Manage/${deposit?.symbol}`
-          )
-        }
+        actionClick={() => history.push(linkString)}
         actionBody={
           <Box sx={{ alignItems: 'center', display: 'flex' }}>
             <ButtonText accent>
@@ -157,12 +159,13 @@ const Terms = ({
   inputLabel,
   hasPosition,
   children,
+  context,
 }: {
   inputLabel: MessageDescriptor;
   hasPosition: boolean;
   children: React.ReactNode | React.ReactNode[];
+  context: BaseTradeContext;
 }) => {
-  const context = useContext(VaultActionContext);
   const { state, updateState } = context;
   const { customizeLeverage } = state;
 

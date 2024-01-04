@@ -10,7 +10,7 @@ import {
   ManageSideDrawer,
   SideDrawerButton,
 } from '@notional-finance/mui';
-import { useLeveragedNTokenPositions } from '../hooks';
+import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import {
   formatMaturity,
   formatNumberAsPercent,
