@@ -1,15 +1,13 @@
 query HistoricalTradingActivity($skip: Int) {
-	transferBundles(where: {bundleName_in: [
-    "Buy fCash",
-    "Buy fCash Vault",
-    "Sell fCash",
-    "Sell fCash Vault"
-  ]},
-  orderBy:timestamp
-  orderDirection: asc,
-  first: 1000,
-  skip:$skip
-) {
+  tradingActivity: transferBundles(
+    where: {bundleName_in: [
+      "Buy fCash", "Buy fCash Vault", "Sell fCash", "Sell fCash Vault"
+    ]},
+    orderBy: timestamp
+    orderDirection: desc,
+    first: 1000,
+    skip: $skip
+  ) {
     id
     bundleName
     blockNumber
@@ -22,7 +20,12 @@ query HistoricalTradingActivity($skip: Int) {
       fromSystemAccount
       value
       valueInUnderlying
-      token { id }
+      token { id currencyId }
     }
-  }  
+  }
+  _meta {
+    block {
+        number
+    }
+  }
 }

@@ -27,11 +27,17 @@ query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
       where: {timestamp_gt: $minTimestamp},
       orderBy: timestamp,
       orderDirection: asc
-  	) {
+    ) {
       # TODO: put the totalSupply here to get TVL
       blockNumber
       timestamp
       rate
+    }
+  }
+
+  _meta {
+    block {
+        number
     }
   }
 }

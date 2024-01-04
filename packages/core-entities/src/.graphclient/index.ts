@@ -7871,6 +7871,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AccountTransactionHistoryDocument.graphql'
       },{
+        document: ActiveAccountsDocument,
+        get rawSDL() {
+          return printWithCache(ActiveAccountsDocument);
+        },
+        location: 'ActiveAccountsDocument.graphql'
+      },{
         document: AllAccountsDocument,
         get rawSDL() {
           return printWithCache(AllAccountsDocument);
@@ -7943,11 +7949,11 @@ const merger = new(BareMerger as any)({
         },
         location: 'MetaDocument.graphql'
       },{
-        document: VaultReinvestmentsDocument,
+        document: VaultReinvestmentDocument,
         get rawSDL() {
-          return printWithCache(VaultReinvestmentsDocument);
+          return printWithCache(VaultReinvestmentDocument);
         },
-        location: 'VaultReinvestmentsDocument.graphql'
+        location: 'VaultReinvestmentDocument.graphql'
       }
     ];
     },
@@ -8016,6 +8022,16 @@ export type AccountTransactionHistoryQuery = { account?: Maybe<(
       Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
       & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
+  )> };
+
+export type ActiveAccountsQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type ActiveAccountsQuery = { accounts: Array<(
+    Pick<Account, 'id' | 'systemAccountType'>
+    & { balances?: Maybe<Array<{ token: Pick<Token, 'id' | 'tokenType' | 'currencyId' | 'isfCashDebt'>, current: Pick<BalanceSnapshot, 'currentBalance'> }>> }
   )> };
 
 export type AllAccountsQueryVariables = Exact<{
@@ -8127,20 +8143,20 @@ export type HistoricalOracleValuesQueryVariables = Exact<{
 export type HistoricalOracleValuesQuery = { oracles: Array<(
     Pick<Oracle, 'id' | 'lastUpdateTimestamp' | 'lastUpdateBlockNumber' | 'decimals' | 'ratePrecision' | 'oracleType' | 'latestRate'>
     & { base: Pick<Token, 'id'>, quote: Pick<Token, 'id'>, historicalRates?: Maybe<Array<Pick<ExchangeRate, 'blockNumber' | 'timestamp' | 'rate'>>> }
-  )> };
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type HistoricalTradingActivityQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type HistoricalTradingActivityQuery = { transferBundles: Array<(
+export type HistoricalTradingActivityQuery = { tradingActivity: Array<(
     Pick<TransferBundle, 'id' | 'bundleName' | 'blockNumber' | 'timestamp'>
     & { transactionHash: Pick<Transaction, 'id'>, transfers: Array<(
       Pick<Transfer, 'toSystemAccount' | 'fromSystemAccount' | 'value' | 'valueInUnderlying'>
-      & { to: Pick<Account, 'id'>, from: Pick<Account, 'id'>, token: Pick<Token, 'id'> }
+      & { to: Pick<Account, 'id'>, from: Pick<Account, 'id'>, token: Pick<Token, 'id' | 'currencyId'> }
     )> }
-  )> };
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type MetaQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -8150,15 +8166,16 @@ export type MetaQuery = { _meta?: Maybe<(
     & { block: Pick<_Block_, 'number' | 'hash' | 'timestamp'> }
   )> };
 
-export type VaultReinvestmentsQueryVariables = Exact<{
-  vault?: InputMaybe<Scalars['String']>;
+export type VaultReinvestmentQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+  minTimestamp?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type VaultReinvestmentsQuery = { reinvestments: Array<(
+export type VaultReinvestmentQuery = { reinvestments: Array<(
     Pick<Reinvestment, 'timestamp' | 'blockNumber' | 'transactionHash' | 'rewardTokenSold' | 'rewardAmountSold' | 'tokensReinvested' | 'tokensPerVaultShare' | 'underlyingAmountRealized'>
     & { vault: Pick<VaultConfiguration, 'id'> }
-  )> };
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 
 export const AccountBalanceStatementDocument = gql`
@@ -8238,6 +8255,25 @@ export const AccountTransactionHistoryDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>;
+export const ActiveAccountsDocument = gql`
+    query ActiveAccounts($skip: Int) {
+  accounts(first: 1000, skip: $skip, where: {systemAccountType_in: [None]}) {
+    id
+    systemAccountType
+    balances {
+      token {
+        id
+        tokenType
+        currencyId
+        isfCashDebt
+      }
+      current {
+        currentBalance
+      }
+    }
+  }
+}
+    ` as unknown as DocumentNode<ActiveAccountsQuery, ActiveAccountsQueryVariables>;
 export const AllAccountsDocument = gql`
     query AllAccounts($skip: Int) {
   accounts(
@@ -8741,14 +8777,19 @@ export const HistoricalOracleValuesDocument = gql`
       rate
     }
   }
+  _meta {
+    block {
+      number
+    }
+  }
 }
     ` as unknown as DocumentNode<HistoricalOracleValuesQuery, HistoricalOracleValuesQueryVariables>;
 export const HistoricalTradingActivityDocument = gql`
     query HistoricalTradingActivity($skip: Int) {
-  transferBundles(
+  tradingActivity: transferBundles(
     where: {bundleName_in: ["Buy fCash", "Buy fCash Vault", "Sell fCash", "Sell fCash Vault"]}
     orderBy: timestamp
-    orderDirection: asc
+    orderDirection: desc
     first: 1000
     skip: $skip
   ) {
@@ -8772,7 +8813,13 @@ export const HistoricalTradingActivityDocument = gql`
       valueInUnderlying
       token {
         id
+        currencyId
       }
+    }
+  }
+  _meta {
+    block {
+      number
     }
   }
 }
@@ -8790,13 +8837,14 @@ export const MetaDocument = gql`
   }
 }
     ` as unknown as DocumentNode<MetaQuery, MetaQueryVariables>;
-export const VaultReinvestmentsDocument = gql`
-    query VaultReinvestments($vault: String) {
+export const VaultReinvestmentDocument = gql`
+    query VaultReinvestment($skip: Int, $minTimestamp: Int) {
   reinvestments(
     orderBy: timestamp
     orderDirection: desc
-    first: 30
-    where: {vault: $vault}
+    first: 1000
+    skip: $skip
+    where: {timestamp_gt: $minTimestamp}
   ) {
     timestamp
     blockNumber
@@ -8810,8 +8858,14 @@ export const VaultReinvestmentsDocument = gql`
     tokensPerVaultShare
     underlyingAmountRealized
   }
+  _meta {
+    block {
+      number
+    }
+  }
 }
-    ` as unknown as DocumentNode<VaultReinvestmentsQuery, VaultReinvestmentsQueryVariables>;
+    ` as unknown as DocumentNode<VaultReinvestmentQuery, VaultReinvestmentQueryVariables>;
+
 
 
 
@@ -8836,6 +8890,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AccountTransactionHistory(variables: AccountTransactionHistoryQueryVariables, options?: C): Promise<AccountTransactionHistoryQuery> {
       return requester<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>(AccountTransactionHistoryDocument, variables, options) as Promise<AccountTransactionHistoryQuery>;
+    },
+    ActiveAccounts(variables?: ActiveAccountsQueryVariables, options?: C): Promise<ActiveAccountsQuery> {
+      return requester<ActiveAccountsQuery, ActiveAccountsQueryVariables>(ActiveAccountsDocument, variables, options) as Promise<ActiveAccountsQuery>;
     },
     AllAccounts(variables?: AllAccountsQueryVariables, options?: C): Promise<AllAccountsQuery> {
       return requester<AllAccountsQuery, AllAccountsQueryVariables>(AllAccountsDocument, variables, options) as Promise<AllAccountsQuery>;
@@ -8873,8 +8930,8 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     Meta(variables?: MetaQueryVariables, options?: C): Promise<MetaQuery> {
       return requester<MetaQuery, MetaQueryVariables>(MetaDocument, variables, options) as Promise<MetaQuery>;
     },
-    VaultReinvestments(variables?: VaultReinvestmentsQueryVariables, options?: C): Promise<VaultReinvestmentsQuery> {
-      return requester<VaultReinvestmentsQuery, VaultReinvestmentsQueryVariables>(VaultReinvestmentsDocument, variables, options) as Promise<VaultReinvestmentsQuery>;
+    VaultReinvestment(variables?: VaultReinvestmentQueryVariables, options?: C): Promise<VaultReinvestmentQuery> {
+      return requester<VaultReinvestmentQuery, VaultReinvestmentQueryVariables>(VaultReinvestmentDocument, variables, options) as Promise<VaultReinvestmentQuery>;
     }
   };
 }

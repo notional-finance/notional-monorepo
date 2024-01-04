@@ -1,0 +1,24 @@
+query VaultReinvestment($skip: Int, $minTimestamp: Int) {
+  reinvestments(
+    orderBy: timestamp,
+    orderDirection:desc,
+    first: 1000,
+    skip: $skip,
+    where: { timestamp_gt: $minTimestamp }
+  ) {
+    timestamp
+    blockNumber
+    transactionHash
+    vault { id }
+    rewardTokenSold
+    rewardAmountSold
+    tokensReinvested
+    tokensPerVaultShare
+    underlyingAmountRealized
+  }
+  _meta {
+    block {
+        number
+    }
+  }
+}
