@@ -73,7 +73,7 @@ export function useAllVaults() {
   const config = Registry.getConfigurationRegistry();
   const listedVaults = config
     .getAllListedVaults(network)
-    ?.filter((v) => whitelistedVaults.includes(v.vaultAddress))
+    ?.filter((v) => whitelistedVaults(network).includes(v.vaultAddress))
     .map((v) => {
       const {
         minAccountBorrowSize,

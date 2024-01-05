@@ -1,25 +1,34 @@
 import {
   ExtractObservableReturn,
   Network,
-  getNowSeconds,
+  RATE_PRECISION,
 } from '@notional-finance/util';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
 import { map, take, Observable } from 'rxjs';
 import { Registry } from '../Registry';
-import { TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
-import { OracleDefinition, AnalyticsData } from '../Definitions';
+import { OracleDefinition } from '../Definitions';
+import { HistoricalOracles, VaultData } from '../server/analytics-server';
+import { PRICE_ORACLES } from './oracle-registry-client';
+import { TokenBalance } from '../token-balance';
+import { whitelistedVaults } from '../config/whitelisted-vaults';
 
-const VIEWS = [
-  'historical_oracle_values',
-  'notional_assets_apys_and_tvls',
-  'ntoken_trading_fees_apys',
-] as const;
+const APY_ORACLES = [
+  'fCashOracleRate',
+  'PrimeCashPremiumInterestRate',
+  'PrimeDebtPremiumInterestRate',
+  'nTokenBlendedInterestRate',
+  'nTokenFeeRate',
+  'nTokenIncentiveRate',
+];
+const ASSET_PRICE_ORACLES = [
+  'nTokenToUnderlyingExchangeRate',
+  'PrimeCashToUnderlyingExchangeRate',
+  'VaultShareOracleRate',
+];
 
-type AnalyticsViews = typeof VIEWS[number];
-
-export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
+export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   protected cachePath() {
     return Routes.Analytics;
   }
@@ -32,10 +41,6 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     return Registry.getTokenRegistry().getTokenBySymbol(Network.All, 'ETH');
   }
 
-  subscribeDataSet(network: Network, view: AnalyticsViews) {
-    return this.subscribeSubject(network, view);
-  }
-
   private _getLatest<T>(o: Observable<T> | undefined) {
     let data: ExtractObservableReturn<typeof o> | undefined;
 
@@ -43,154 +48,117 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     return data;
   }
 
-  private _convertOrNull<T>(v: string | number | null, fn: (d: number) => T) {
-    if (v === null) return null;
-    else if (typeof v === 'string') return fn(parseFloat(v));
-    else return fn(v);
-  }
-
-  subscribeNTokenTradingFees(network: Network) {
-    return this.subscribeDataSet(network, 'ntoken_trading_fees_apys')?.pipe(
-      map((d) => {
-        const tokens = Registry.getTokenRegistry();
-        return (
-          d?.map((p) => {
-            const token = tokens.getTokenByID(network, p['token_id'] as string);
-            return {
-              token,
-              timestamp: p['timestamp'] as number,
-              apy: this._convertOrNull(
-                p['ntoken_trading_fees_apy'],
-                (d) => d * 100
-              ),
-            };
-          }) || []
-        );
-      })
-    );
-  }
-
-  subscribeAssetHistory(network: Network) {
-    return this.subscribeDataSet(
-      network,
-      'notional_assets_apys_and_tvls'
-    )?.pipe(
-      map((d) => {
-        const tokens = Registry.getTokenRegistry();
-        const vaults = Registry.getVaultRegistry();
-        return (
-          d?.map((p) => {
-            const token = tokens.getTokenByID(network, p['token_id'] as string);
-            const underlying = tokens.getTokenByID(
-              network,
-              p['underlying_token_id'] as string
-            );
-
-            let totalAPY = this._convertOrNull(p['total_apy'], (d) => d);
-            const timestamp = p['timestamp'] as number;
-
-            // Vault APYs need to be rewritten via their specific view
-            if (
-              token.tokenType === 'VaultShare' &&
-              token.vaultAddress &&
-              vaults.isVaultEnabled(network, token.vaultAddress)
-            ) {
-              const vaultData = this.getVault(network, token.vaultAddress);
-              totalAPY =
-                vaultData?.find((d) => d.timestamp === timestamp)?.totalAPY ||
-                null;
-            }
-
-            return {
-              token,
-              timestamp,
-              totalAPY,
-              tvlUnderlying: this._convertOrNull(p['tvl_underlying'], (d) =>
-                TokenBalance.fromFloat(d.toFixed(6), underlying)
-              ),
-              tvlUSD: this._convertOrNull(p['tvl_usd'], (d) =>
-                TokenBalance.fromFloat(d.toFixed(6), this.USD)
-              ),
-              assetToUnderlyingExchangeRate: this._convertOrNull(
-                p['asset_to_underlying_exchange_rate'],
-                (d) => TokenBalance.fromFloat(d.toFixed(6), underlying)
-              ),
-              assetToUSDExchangeRate: this._convertOrNull(
-                p['asset_to_usd_exchange_rate'],
-                (d) => TokenBalance.fromFloat(d.toFixed(6), this.USD)
-              ),
-            };
-          }) || []
-        );
-      })
-    );
-  }
-
-  subscribeVault(network: Network, vaultAddress: string) {
-    return this.subscribeSubject(network, vaultAddress.toLowerCase())?.pipe(
-      map((d) => {
-        return (
-          d?.map((p) => {
-            return {
-              vaultAddress,
-              timestamp: p['Timestamp'] as number,
-              totalAPY: this._convertOrNull(
-                p['Total Strategy APY'],
-                (d) => d * 100
-              ),
-              returnDrivers: Object.keys(p)
-                .filter((k) => k !== 'Timestamp' && k !== 'Day')
-                .reduce(
-                  (o, k) =>
-                    Object.assign(o, {
-                      [k]: this._convertOrNull(p[k], (d) => d * 100),
-                    }),
-                  {} as Record<string, number | null>
-                ),
-            };
-          }) || []
-        );
-      })
-    );
+  override subscribeSubject<T>(network: Network, key: string) {
+    return super.subscribeSubject(network, key) as Observable<T> | undefined;
   }
 
   subscribeHistoricalOracles(network: Network, timestamp: number) {
-    return this.subscribeDataSet(network, 'historical_oracle_values')?.pipe(
+    return this.subscribeSubject<HistoricalOracles>(
+      network,
+      'historicalOracles'
+    )?.pipe(
       map((d) => {
         return (
           d
-            ?.filter((p) => p['timestamp'] === timestamp)
-            .map((p) => {
-              return {
-                id: `${p['base']}:${p['quote']}:${p['oracle_type']}`,
-                oracleAddress: p['oracle_address'],
-                network,
-                oracleType: p['oracle_type'],
-                base: p['base'],
-                quote: p['quote'],
-                decimals: p['decimals'],
+            .filter((o) => PRICE_ORACLES.includes(o.oracleType))
+            .map((o) => {
+              const { historicalRates, ..._o } = Object.assign({}, o);
+              const latestRate = historicalRates.find(
+                (r) => r.timestamp === timestamp
+              );
+              if (!latestRate) throw Error(`latest rate not found for ${o.id}`);
+
+              return Object.assign(_o, {
                 latestRate: {
-                  rate: BigNumber.from(p['latest_rate']),
-                  timestamp,
-                  blockNumber: 0,
+                  rate: BigNumber.from(latestRate.rate),
+                  blockNumber: latestRate.blockNumber,
+                  timestamp: latestRate.timestamp,
                 },
-              } as OracleDefinition;
+              }) as OracleDefinition;
             }) || []
         );
       })
     );
   }
 
+  subscribeHistoricalPrice(network: Network) {
+    return this.subscribeSubject<HistoricalOracles>(
+      network,
+      'historicalOracles'
+    )?.pipe(
+      map((d) => {
+        const tokens = Registry.getTokenRegistry();
+        return d
+          .filter((o) => ASSET_PRICE_ORACLES.includes(o.oracleType))
+          .map((o) => {
+            const token = tokens.getTokenByID(network, o.base);
+            return {
+              token,
+              data: o.historicalRates.map(({ timestamp, rate }) => ({
+                timestamp,
+                rate: TokenBalance.from(BigNumber.from(rate), token),
+              })),
+            };
+          });
+      })
+    );
+  }
+
+  subscribeHistoricalAPY(network: Network) {
+    this.subscribeSubject<HistoricalOracles>(
+      network,
+      'historicalOracles'
+    )?.pipe(
+      map((oracles) => {
+        const tokens = Registry.getTokenRegistry();
+        const config = Registry.getConfigurationRegistry();
+        const v = whitelistedVaults(network).flatMap((vaultAddress) => {
+          const vaultData = this.getLatestFromSubject(network, vaultAddress) as
+            | VaultData
+            | undefined;
+          return config
+            .getVaultActiveMaturities(network, vaultAddress)
+            .map((maturity) => {
+              const vaultShare = tokens.getVaultShare(
+                network,
+                vaultAddress,
+                maturity
+              );
+
+              return {
+                token: vaultShare,
+                data: vaultData?.map(({ timestamp, totalAPY }) => ({
+                  timestamp,
+                  rate: totalAPY || 0,
+                })),
+              };
+            });
+        });
+
+        const o = oracles
+          ?.filter((o) => APY_ORACLES.includes(o.oracleType))
+          .map((o) => ({
+            token: tokens.getTokenByID(network, o.base),
+            data: o.historicalRates.map(({ timestamp, rate }) => ({
+              timestamp,
+              rate: (parseFloat(rate) / RATE_PRECISION) * 100,
+            })),
+          }));
+
+        return v.concat(o);
+      })
+    );
+  }
+
+  subscribeVault(network: Network, vaultAddress: string) {
+    return this.subscribeSubject<VaultData>(
+      network,
+      vaultAddress.toLowerCase()
+    );
+  }
+
   getHistoricalOracles(network: Network, timestamp: number) {
     return this._getLatest(this.subscribeHistoricalOracles(network, timestamp));
-  }
-
-  getNTokenTradingFees(network: Network) {
-    return this._getLatest(this.subscribeNTokenTradingFees(network));
-  }
-
-  getAssetHistory(network: Network) {
-    return this._getLatest(this.subscribeAssetHistory(network));
   }
 
   getVault(network: Network, vaultAddress: string) {
@@ -199,38 +167,5 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
 
   async getView<T>(network: Network, viewName: string) {
     return this._fetch<T[]>(network, viewName);
-  }
-
-  protected override async _refresh(network: Network) {
-    let views: string[];
-    if (network === Network.All) {
-      views = ['historical_oracle_values'];
-    } else {
-      const vaultViews =
-        Registry.getConfigurationRegistry()
-          .getAllListedVaults(network)
-          ?.map((c) => c.vaultAddress.toLowerCase()) || [];
-
-      views = [...VIEWS, ...vaultViews];
-    }
-
-    const values = await Promise.all(
-      views.map((v) =>
-        this._fetch<AnalyticsData>(network, v).then(
-          (d) =>
-            (Array.isArray(d) ? [v, d] : [v, null]) as [
-              string,
-              AnalyticsData | null
-            ]
-        )
-      )
-    );
-
-    return {
-      values,
-      network,
-      lastUpdateTimestamp: getNowSeconds(),
-      lastUpdateBlock: 0,
-    };
   }
 }

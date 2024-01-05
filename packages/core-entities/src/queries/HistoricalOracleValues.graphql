@@ -10,14 +10,15 @@ query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
     PrimeCashPremiumInterestRate
     PrimeDebtPremiumInterestRate
     nTokenBlendedInterestRate,
-  	nTokenFeeRate,
-  	nTokenIncentiveRate
+    nTokenFeeRate,
+    nTokenIncentiveRate
   ], matured: false}, first: 1000, skip: $skip) {
     id
     base { id }
     quote { id }
     lastUpdateTimestamp
     lastUpdateBlockNumber
+    oracleAddress
     decimals
     ratePrecision
     oracleType
