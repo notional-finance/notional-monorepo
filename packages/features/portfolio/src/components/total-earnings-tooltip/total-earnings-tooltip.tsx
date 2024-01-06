@@ -34,7 +34,7 @@ export const TotalEarningsTooltip = ({
                 theme={theme}
                 sx={{ display: 'flex', marginBottom: theme.spacing(1) }}
               >
-                {symbol}
+                {symbol}:
                 <FirstValue
                   sx={{ marginLeft: theme.spacing(1) }}
                   theme={theme}

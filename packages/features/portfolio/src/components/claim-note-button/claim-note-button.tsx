@@ -105,7 +105,7 @@ export const ClaimNoteButton = () => {
               <ArbitrumIcon />
               <Box sx={{ paddingLeft: theme.spacing(1) }}>
                 {arbCountUp > 0 ? (
-                  <CountUp value={arbCountUp} duration={0.1} decimals={3} />
+                  <CountUp value={arbCountUp} duration={0.1} decimals={8} />
                 ) : (
                   ''
                 )}
