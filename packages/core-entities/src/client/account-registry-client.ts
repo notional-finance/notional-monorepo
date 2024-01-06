@@ -251,7 +251,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         return [
           {
             stage: 0,
-            target: notional,
+            target: rewarder,
             method: 'rewardDebtPerAccount',
             args: [this.activeAccount],
             key: `${t.currencyId}.secondaryIncentiveDebt`,
