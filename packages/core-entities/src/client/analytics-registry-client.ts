@@ -91,12 +91,15 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
         return d
           .filter((o) => ASSET_PRICE_ORACLES.includes(o.oracleType))
           .map((o) => {
-            const token = tokens.getTokenByID(network, o.base);
             return {
-              token,
+              token: tokens.getTokenByID(network, o.quote),
               data: o.historicalRates.map(({ timestamp, rate }) => ({
                 timestamp,
-                rate: TokenBalance.from(BigNumber.from(rate), token),
+                priceInUnderlying: TokenBalance.from(
+                  BigNumber.from(rate),
+                  // Rate will be quoted in underlying terms
+                  tokens.getTokenByID(network, o.base)
+                ),
               })),
             };
           });
@@ -129,7 +132,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
                 token: vaultShare,
                 data: vaultData?.map(({ timestamp, totalAPY }) => ({
                   timestamp,
-                  rate: totalAPY || 0,
+                  totalAPY: totalAPY || 0,
                 })),
               };
             });
@@ -138,10 +141,11 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
         const o = oracles
           ?.filter((o) => APY_ORACLES.includes(o.oracleType))
           .map((o) => ({
-            token: tokens.getTokenByID(network, o.base),
+            // Quote token will the the nToken, pCash, etc.
+            token: tokens.getTokenByID(network, o.quote),
             data: o.historicalRates.map(({ timestamp, rate }) => ({
               timestamp,
-              rate: (parseFloat(rate) / RATE_PRECISION) * 100,
+              totalAPY: (parseFloat(rate) / RATE_PRECISION) * 100,
             })),
           }));
 

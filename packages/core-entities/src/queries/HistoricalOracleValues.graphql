@@ -22,14 +22,13 @@ query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
     decimals
     ratePrecision
     oracleType
-    # TODO: latestRate must be put into historical rates for fCashSettlementRate
     latestRate
     historicalRates(
       where: {timestamp_gt: $minTimestamp},
       orderBy: timestamp,
       orderDirection: asc
     ) {
-      # TODO: put the totalSupply here to get TVL
+      totalSupply
       blockNumber
       timestamp
       rate

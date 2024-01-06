@@ -941,6 +941,8 @@ export type CurrencyConfiguration = {
   pvHaircutPercentage?: Maybe<Scalars['Int']>;
   /** Discount on nToken PV given to liquidators */
   liquidationHaircutPercentage?: Maybe<Scalars['Int']>;
+  /** Maximum valuation deviation percentage for nToken minting */
+  maxMintDeviationPercentage?: Maybe<Scalars['Int']>;
   incentives?: Maybe<Incentive>;
 };
 
@@ -1313,6 +1315,14 @@ export type CurrencyConfiguration_filter = {
   liquidationHaircutPercentage_lte?: InputMaybe<Scalars['Int']>;
   liquidationHaircutPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
   liquidationHaircutPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  maxMintDeviationPercentage?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_not?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_gt?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_lt?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_gte?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_lte?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
+  maxMintDeviationPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
   incentives_?: InputMaybe<Incentive_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
@@ -1432,6 +1442,7 @@ export type CurrencyConfiguration_orderBy =
   | 'cashWithholdingBufferBasisPoints'
   | 'pvHaircutPercentage'
   | 'liquidationHaircutPercentage'
+  | 'maxMintDeviationPercentage'
   | 'incentives'
   | 'incentives__id'
   | 'incentives__lastUpdateBlockNumber'
@@ -1468,6 +1479,7 @@ export type ExchangeRate = {
   transaction?: Maybe<Transaction>;
   oracle: Oracle;
   rate: Scalars['BigInt'];
+  totalSupply?: Maybe<Scalars['BigInt']>;
 };
 
 export type ExchangeRate_filter = {
@@ -1545,6 +1557,14 @@ export type ExchangeRate_filter = {
   rate_lte?: InputMaybe<Scalars['BigInt']>;
   rate_in?: InputMaybe<Array<Scalars['BigInt']>>;
   rate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalSupply?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_not?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_gt?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_lt?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_gte?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_lte?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<ExchangeRate_filter>>>;
@@ -1572,7 +1592,8 @@ export type ExchangeRate_orderBy =
   | 'oracle__mustInvert'
   | 'oracle__latestRate'
   | 'oracle__matured'
-  | 'rate';
+  | 'rate'
+  | 'totalSupply';
 
 export type Incentive = {
   /** ID is the currency id */
