@@ -26,6 +26,8 @@ query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
     historicalRates(
       where: {timestamp_gt: $minTimestamp},
       orderBy: timestamp,
+      # Sorting ascending here is required for the server logic to
+      # enforce one value per day
       orderDirection: asc
     ) {
       totalSupply

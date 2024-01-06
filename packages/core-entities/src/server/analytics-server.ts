@@ -14,6 +14,7 @@ import {
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
+import { floorToMidnight } from '@notional-finance/helpers';
 
 const USE_CROSS_FETCH =
   process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
@@ -29,6 +30,12 @@ export type VaultData = {
   returnDrivers: Record<string, number | null>;
 }[];
 
+type HistoricalRate = {
+  blockNumber: number;
+  timestamp: number;
+  rate: string;
+};
+
 export type HistoricalOracles = {
   id: string;
   oracleAddress: string;
@@ -37,11 +44,7 @@ export type HistoricalOracles = {
   base: string;
   quote: string;
   decimals: number;
-  historicalRates: {
-    blockNumber: number;
-    timestamp: number;
-    rate: string;
-  }[];
+  historicalRates: HistoricalRate[];
 }[];
 
 export type HistoricalTrading = Record<
@@ -104,12 +107,26 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
             quote: o.quote.id,
             decimals: o.decimals,
             historicalRates:
-              // TODO: filter and snap this to midnight....
-              o.historicalRates?.map((r) => ({
-                blockNumber: parseInt(r.blockNumber),
-                timestamp: r.timestamp,
-                rate: r.rate,
-              })) || [],
+              // This is sorted ascending in the query so we always take the first value closest
+              // to midnight
+              o.historicalRates?.reduce((acc, r) => {
+                const timestamp = floorToMidnight(r.timestamp);
+                // If floored timestamp is equal then skip it, we only return one value
+                // per day at midnight UTC
+                if (
+                  acc.length > 0 &&
+                  acc[acc.length - 1].timestamp === timestamp
+                ) {
+                  return acc;
+                } else {
+                  acc.push({
+                    blockNumber: parseInt(r.blockNumber),
+                    rate: r.rate,
+                    timestamp,
+                  });
+                  return acc;
+                }
+              }, [] as HistoricalRate[]) || [],
           })),
           'id'
         ),

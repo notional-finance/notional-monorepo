@@ -45,7 +45,6 @@ export const formatMaturity = (ts: number) => {
   }
 };
 
-export const floorToMidnight = (ts: number, offset = 2 * SECONDS_IN_HOUR) => {
-  // Offset puts a 2 hour delay on the tick over to midnight
+export const floorToMidnight = (ts: number, offset = 0) => {
   return ts - offset - ((ts - offset) % SECONDS_IN_DAY);
 };
