@@ -646,12 +646,13 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     );
     const accumulatedRewardPerNToken = config.incentives
       ?.accumulatedSecondaryRewardPerNToken
-      ? // NOTE: this value is stored in 18 decimals natively, but downscale it here
-        // for calculations
-        TokenBalance.from(
-          config.incentives.accumulatedSecondaryRewardPerNToken,
+      ? TokenBalance.from(
+          // This value is stored in 18 decimals but we want to scale it to reward token precision
+          BigNumber.from(config.incentives.accumulatedSecondaryRewardPerNToken)
+            .mul(TokenBalance.unit(rewardToken).precision)
+            .div(SCALAR_PRECISION),
           rewardToken
-        ).scale(INTERNAL_TOKEN_PRECISION, SCALAR_PRECISION)
+        )
       : undefined;
 
     return {

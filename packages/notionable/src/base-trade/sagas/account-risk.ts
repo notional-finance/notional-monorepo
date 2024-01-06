@@ -76,16 +76,15 @@ export function postAccountRisk(
         // global state level
         const postTradeIncentives =
           accruedIncentives
-            ?.filter(({ currencyId }) => [
-              (collateralBalance?.tokenType === 'nToken' &&
-                collateralBalance.currencyId === currencyId) ||
+            ?.filter(
+              ({ currencyId }) =>
+                (collateralBalance?.tokenType === 'nToken' &&
+                  collateralBalance.currencyId === currencyId) ||
                 (debtBalance?.tokenType === 'nToken' &&
-                  debtBalance.currencyId === currencyId),
-            ])
+                  debtBalance.currencyId === currencyId)
+            )
             .flatMap(({ incentives }) => incentives)
             .filter((i) => i.isPositive()) || [];
-
-        s.postTradeBalances?.concat(postTradeIncentives);
 
         return {
           ...s,
@@ -94,6 +93,7 @@ export function postAccountRisk(
             (s.postAccountRisk?.freeCollateral.isPositive() ||
               s.postAccountRisk?.freeCollateral.isZero()) &&
             inputErrors === false,
+          postTradeBalances: s.postTradeBalances?.concat(postTradeIncentives),
           postTradeIncentives,
         };
       }
