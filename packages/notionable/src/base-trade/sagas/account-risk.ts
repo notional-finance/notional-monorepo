@@ -18,7 +18,7 @@ import {
 } from 'rxjs';
 import { TradeState, BaseTradeState } from '../base-trade-store';
 import { formatTokenType } from '@notional-finance/helpers';
-import { GlobalState } from '../../global/global-state';
+import { calculateAccruedIncentives } from '@notional-finance/transaction';
 
 export type AccountRiskSummary = ReturnType<typeof accountRiskSummary>;
 
@@ -43,10 +43,9 @@ export function priorAccountRisk(
 
 export function postAccountRisk(
   state$: Observable<BaseTradeState>,
-  account$: Observable<AccountDefinition | null>,
-  global$: Observable<GlobalState>
+  account$: Observable<AccountDefinition | null>
 ) {
-  return combineLatest([account$, state$, global$]).pipe(
+  return combineLatest([account$, state$]).pipe(
     distinctUntilChanged(
       ([, p], [, c]) =>
         p.calculationSuccess === c.calculationSuccess &&
@@ -58,7 +57,6 @@ export function postAccountRisk(
       ([
         account,
         { calculationSuccess, collateralBalance, debtBalance, inputErrors },
-        { accruedIncentives },
       ]) => {
         const prior = account
           ? new AccountRiskProfile(account.balances, account.network)
@@ -72,8 +70,12 @@ export function postAccountRisk(
             : undefined;
 
         const s = accountRiskSummary(prior, post);
-        // Accrued incentives of nToken balances that are changing, these are updated at the
-        // global state level
+
+        // FIXME: recalculates accrued incentives at this level because the global state is not
+        // updating reliably into this observable
+        const accruedIncentives = account
+          ? calculateAccruedIncentives(account)
+          : undefined;
         const postTradeIncentives =
           accruedIncentives
             ?.filter(
