@@ -96,7 +96,8 @@ export const LiquidityYieldInfo = ({
           </H4>
           <Subtitle sx={{ color: theme.palette.typography.light }}>
             {liquidityYieldData?.secondaryIncentives &&
-            (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0) > 0 ? (
+            (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0) >=
+              0 ? (
               <CountUp
                 value={liquidityYieldData?.secondaryIncentives.incentiveAPY}
                 suffix="%"
