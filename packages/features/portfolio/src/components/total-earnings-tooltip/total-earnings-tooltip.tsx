@@ -4,15 +4,11 @@ import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import { Box, styled, useTheme } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
 
 export interface TotalEarningsTooltipProps {
   toolTipData: {
     perAssetEarnings?: { underlying: string; baseCurrency: string }[];
-    totalEarnings?: {
-      totalBaseEarnings: string;
-      totalIncentiveEarningsInBase: string;
-    };
+    totalEarnings?: { value: string; symbol: string }[];
   };
 }
 
@@ -32,34 +28,22 @@ export const TotalEarningsTooltip = ({
       <div>
         {toolTipData?.totalEarnings ? (
           <Box>
-            <FirstValue
-              theme={theme}
-              sx={{ display: 'flex', marginBottom: theme.spacing(1) }}
-            >
-              <FormattedMessage defaultMessage={'ORGANIC '} />
+            {toolTipData?.totalEarnings?.map(({ symbol, value }, index) => (
               <FirstValue
-                sx={{ marginLeft: theme.spacing(1) }}
+                key={index}
                 theme={theme}
-                isNegative={toolTipData?.totalEarnings.totalBaseEarnings?.includes(
-                  '-'
-                )}
+                sx={{ display: 'flex', marginBottom: theme.spacing(1) }}
               >
-                {toolTipData?.totalEarnings.totalBaseEarnings}
+                {symbol}
+                <FirstValue
+                  sx={{ marginLeft: theme.spacing(1) }}
+                  theme={theme}
+                  isNegative={value?.includes('-')}
+                >
+                  {value}
+                </FirstValue>
               </FirstValue>
-            </FirstValue>
-
-            <FirstValue
-              theme={theme}
-              isNegative={toolTipData?.totalEarnings.totalIncentiveEarningsInBase?.includes(
-                '-'
-              )}
-              sx={{ display: 'flex' }}
-            >
-              <Box sx={{ marginRight: theme.spacing(1) }}>
-                <FormattedMessage defaultMessage={'INCENTIVE '} />
-              </Box>
-              {toolTipData?.totalEarnings.totalIncentiveEarningsInBase}
-            </FirstValue>
+            ))}
           </Box>
         ) : (
           <Box>

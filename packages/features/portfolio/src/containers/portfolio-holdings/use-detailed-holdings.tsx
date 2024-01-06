@@ -51,14 +51,24 @@ export function useDetailedHoldings() {
           t.nonNoteEarnings = t.nonNoteEarnings.add(
             statement.totalProfitAndLoss.toFiat(baseCurrency)
           );
-
-          // TODO: need to update this return value
           const totalNOTEEarnings = totalIncentiveEarnings.find(
             (t) => t.symbol === 'NOTE'
           );
           t.noteEarnings = totalNOTEEarnings
             ? t?.noteEarnings?.add(totalNOTEEarnings)
             : t.noteEarnings;
+
+          totalIncentiveEarnings.forEach((data) => {
+            const currentTokenBalance = t.totalIncentiveEarnings.findIndex(
+              (t) => t.symbol === data.symbol
+            );
+            if (currentTokenBalance > -1) {
+              t.totalIncentiveEarnings[currentTokenBalance] =
+                t.totalIncentiveEarnings[currentTokenBalance].add(data);
+            } else {
+              t.totalIncentiveEarnings.push(data);
+            }
+          });
         }
         return t;
       },
@@ -67,6 +77,7 @@ export function useDetailedHoldings() {
         presentValue: TokenBalance.zero(fiatToken),
         earnings: TokenBalance.zero(fiatToken),
         nonNoteEarnings: TokenBalance.zero(fiatToken),
+        totalIncentiveEarnings: [] as TokenBalance[],
         noteEarnings: NOTE ? TokenBalance.zero(NOTE) : undefined,
       }
     );
@@ -246,18 +257,27 @@ export function useDetailedHoldings() {
       amountPaid: totals.amountPaid.toDisplayStringWithSymbol(),
       presentValue: totals.presentValue.toDisplayStringWithSymbol(),
       earnings: totals.earnings.toDisplayStringWithSymbol(),
-      toolTipData: totals.noteEarnings
-        ? {
-            totalEarnings: {
-              totalBaseEarnings: totals.nonNoteEarnings
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
-              totalIncentiveEarningsInBase: totals.noteEarnings
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
-            },
-          }
-        : undefined,
+      toolTipData:
+        totals.totalIncentiveEarnings.length > 0
+          ? {
+              totalEarnings: [
+                {
+                  value: totals.nonNoteEarnings
+                    .toFiat(baseCurrency)
+                    .toDisplayStringWithSymbol(),
+                  symbol: 'ORGANIC',
+                },
+                ...totals.totalIncentiveEarnings.map((data) => {
+                  return {
+                    value: data
+                      .toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(),
+                    symbol: data.symbol,
+                  };
+                }),
+              ],
+            }
+          : undefined,
       actionRow: undefined,
       tokenId: ' ',
       isTotalRow: true,
