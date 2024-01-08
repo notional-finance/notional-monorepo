@@ -59,7 +59,7 @@ export interface OracleDefinition {
   /** Network the address refers to */
   network: Network;
   /** Type of oracle interface */
-  oracleType: OracleType | 'sNOTE';
+  oracleType: OracleType | 'sNOTE' | 'VaultShareAPY' | 'nTokenTotalAPY';
   /** Base ID for the oracle, rate is quoted as 1 unit of this token.  */
   base: string;
   /** Quote ID for the oracle, rate is how many tokens 1 unit of base will purchase.  */

@@ -42,23 +42,25 @@ function fillChartDaily<T extends { timestamp: number }>(
 export function useTokenHistory(token?: TokenDefinition) {
   const network = useSelectedNetwork();
 
-  const data =
+  const apyData =
     network && token
-      ? Registry.getAnalyticsRegistry()
-          .getAssetHistory(network)
-          ?.filter(({ token: t }) => t.id === token.id)
+      ? Registry.getAnalyticsRegistry().getHistoricalAPY(network, token)
+      : undefined;
+  const tvlData =
+    network && token
+      ? Registry.getAnalyticsRegistry().getPriceHistory(network, token)
       : undefined;
 
   return {
     apyData: fillChartDaily(
-      data?.map(({ timestamp, totalAPY }) => ({
+      apyData?.data?.map(({ timestamp, totalAPY }) => ({
         timestamp,
         area: totalAPY || 0,
       })) || [],
       { area: 0 }
     ),
     tvlData: fillChartDaily(
-      data?.map(({ timestamp, tvlUSD }) => ({
+      tvlData?.data?.map(({ timestamp, tvlUSD }) => ({
         timestamp,
         area: tvlUSD?.toFloat() || 0,
       })) || [],
@@ -76,12 +78,15 @@ export function useLeveragedPerformance(
 ) {
   const network = useSelectedNetwork();
   if (!network || !token) return [];
-  const data = Registry.getAnalyticsRegistry().getAssetHistory(network);
-  const primeBorrow = data?.filter(
-    ({ token: t }) =>
-      t.currencyId === token.currencyId && t.tokenType === 'PrimeDebt'
+  const analytics = Registry.getAnalyticsRegistry();
+  const primeDebt = Registry.getTokenRegistry().getPrimeDebt(
+    network,
+    token.currencyId
   );
-  const tokenData = data?.filter(({ token: t }) => t.id === token.id) || [];
+  const tokenData = analytics.getHistoricalAPY(network, token)?.data || [];
+  const primeBorrow = isPrimeBorrow
+    ? analytics?.getHistoricalAPY(network, primeDebt)?.data
+    : undefined;
 
   return fillChartDaily(
     tokenData.map((d) => {
@@ -104,13 +109,13 @@ export function useLeveragedPerformance(
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {
   const network = useSelectedNetwork();
   if (!network || !token) return [];
-  const data = Registry.getAnalyticsRegistry().getAssetHistory(network);
-  const tokenData = data?.filter(({ token: t }) => t.id === token.id) || [];
+  const data =
+    Registry.getAnalyticsRegistry().getPriceHistory(network, token)?.data || [];
 
   return fillChartDaily(
-    tokenData.map((d) => ({
+    data.map((d) => ({
       timestamp: d.timestamp,
-      assetPrice: d.assetToUnderlyingExchangeRate?.toFloat() || 0,
+      assetPrice: d.priceInUnderlying?.toFloat() || 0,
     })),
     { assetPrice: 0 }
   );

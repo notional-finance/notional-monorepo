@@ -36,6 +36,7 @@ type AdjList = Map<string, Map<string, Node>>;
 const UNIT_RATE = 'UNIT_RATE';
 
 export const PRICE_ORACLES = [
+  'sNOTE',
   'Chainlink',
   'fCashOracleRate',
   'fCashSettlementRate',

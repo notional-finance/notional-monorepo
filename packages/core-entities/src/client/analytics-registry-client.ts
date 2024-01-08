@@ -8,7 +8,7 @@ import { ClientRegistry } from './client-registry';
 import { map, take, Observable } from 'rxjs';
 import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
-import { OracleDefinition } from '../Definitions';
+import { OracleDefinition, TokenDefinition } from '../Definitions';
 import { HistoricalOracles, VaultData } from '../server/analytics-server';
 import { PRICE_ORACLES } from './oracle-registry-client';
 import { TokenBalance } from '../token-balance';
@@ -30,7 +30,7 @@ const ASSET_PRICE_ORACLES = [
 
 export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   protected cachePath() {
-    return Routes.Analytics;
+    return `${Routes.Analytics}/analytics`;
   }
 
   get USD() {
@@ -93,14 +93,31 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
           .map((o) => {
             return {
               token: tokens.getTokenByID(network, o.quote),
-              data: o.historicalRates.map(({ timestamp, rate }) => ({
-                timestamp,
-                priceInUnderlying: TokenBalance.from(
-                  BigNumber.from(rate),
-                  // Rate will be quoted in underlying terms
-                  tokens.getTokenByID(network, o.base)
-                ),
-              })),
+              data: o.historicalRates.map(
+                ({ timestamp, rate, totalSupply }) => {
+                  const underlying = tokens.getTokenByID(network, o.base);
+                  const token = tokens.getTokenByID(network, o.quote);
+                  return {
+                    timestamp,
+                    // Rate will be quoted in underlying terms
+                    priceInUnderlying: TokenBalance.from(
+                      BigNumber.from(rate),
+                      underlying
+                    ),
+                    tvlUnderlying: totalSupply
+                      ? TokenBalance.from(totalSupply, token).toUnderlying(
+                          timestamp
+                        )
+                      : undefined,
+                    tvlUSD: totalSupply
+                      ? TokenBalance.from(totalSupply, token).toFiat(
+                          'USD',
+                          timestamp
+                        )
+                      : undefined,
+                  };
+                }
+              ),
             };
           });
       })
@@ -108,7 +125,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   }
 
   subscribeHistoricalAPY(network: Network) {
-    this.subscribeSubject<HistoricalOracles>(
+    return this.subscribeSubject<HistoricalOracles>(
       network,
       'historicalOracles'
     )?.pipe(
@@ -130,6 +147,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
 
               return {
                 token: vaultShare,
+                oracleType: 'VaultShareAPY' as OracleDefinition['oracleType'],
                 data: vaultData?.map(({ timestamp, totalAPY }) => ({
                   timestamp,
                   totalAPY: totalAPY || 0,
@@ -138,18 +156,61 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
             });
         });
 
-        const o = oracles
-          ?.filter((o) => APY_ORACLES.includes(o.oracleType))
-          .map((o) => ({
-            // Quote token will the the nToken, pCash, etc.
-            token: tokens.getTokenByID(network, o.quote),
-            data: o.historicalRates.map(({ timestamp, rate }) => ({
-              timestamp,
-              totalAPY: (parseFloat(rate) / RATE_PRECISION) * 100,
-            })),
-          }));
+        const nTokenTotalAPY = new Map<string, Map<number, number>>();
 
-        return v.concat(o);
+        const o = oracles
+          .filter((o) => APY_ORACLES.includes(o.oracleType))
+          .map((o) => {
+            const token = tokens.getTokenByID(network, o.quote);
+            return {
+              // Quote token will the the nToken, pCash, etc.
+              token,
+              oracleType: o.oracleType as OracleDefinition['oracleType'],
+              data: o.historicalRates.map(({ timestamp, rate }) => {
+                let totalAPY = (parseFloat(rate) / RATE_PRECISION) * 100;
+                try {
+                  if (o.oracleType === 'nTokenIncentiveRate') {
+                    totalAPY =
+                      TokenBalance.fromFloat(
+                        totalAPY * 100,
+                        tokens.getTokenBySymbol(Network.All, 'NOTE')
+                      )
+                        .toToken(tokens.getTokenByID(network, o.base))
+                        .toFloat() * 100;
+                  }
+                } catch {
+                  totalAPY = 0;
+                }
+
+                // Accumulate the sum for the total nToken APY
+                if (token.tokenType === 'nToken') {
+                  if (!nTokenTotalAPY.has(token.id))
+                    nTokenTotalAPY.set(token.id, new Map<number, number>());
+                  const map = nTokenTotalAPY.get(token.id)!;
+                  map.set(timestamp, (map.get(timestamp) || 0) + totalAPY);
+                }
+
+                return {
+                  timestamp,
+                  totalAPY,
+                };
+              }),
+            };
+          });
+
+        const t = Array.from(nTokenTotalAPY.entries()).map(([id, t]) => {
+          const token = tokens.getTokenByID(network, id);
+          return {
+            token,
+            oracleType: 'nTokenTotalAPY' as OracleDefinition['oracleType'],
+            data: Array.from(t.entries()).map(([timestamp, totalAPY]) => ({
+              timestamp,
+              totalAPY,
+            })),
+          };
+        });
+
+        return v.concat(o).concat(t);
       })
     );
   }
@@ -163,6 +224,42 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
 
   getHistoricalOracles(network: Network, timestamp: number) {
     return this._getLatest(this.subscribeHistoricalOracles(network, timestamp));
+  }
+
+  getNTokenFeeRate(network: Network, token: TokenDefinition) {
+    const apyData = this._getLatest(this.subscribeHistoricalAPY(network));
+    return apyData?.find(({ token: t, oracleType }) => {
+      return oracleType === 'nTokenFeeRate' && t.id === token.id;
+    });
+  }
+
+  getPriceHistory(network: Network, token: TokenDefinition) {
+    const priceData = this._getLatest(this.subscribeHistoricalPrice(network));
+    return priceData?.find(({ token: t }) => t.id === token.id);
+  }
+
+  getHistoricalAPY(network: Network, token: TokenDefinition) {
+    const apyData = this._getLatest(this.subscribeHistoricalAPY(network));
+    return apyData?.find(({ token: t, oracleType }) => {
+      switch (t.tokenType) {
+        case 'nToken':
+          return t.id === token.id && oracleType === 'nTokenTotalAPY';
+        case 'PrimeCash':
+          return (
+            t.id === token.id && oracleType === 'PrimeCashPremiumInterestRate'
+          );
+        case 'PrimeDebt':
+          return (
+            t.id === token.id && oracleType === 'PrimeDebtPremiumInterestRate'
+          );
+        case 'VaultShare':
+          return t.id === token.id && oracleType === 'VaultShareAPY';
+        case 'fCash':
+          return t.id === token.id && oracleType === 'fCashOracleRate';
+        default:
+          return false;
+      }
+    });
   }
 
   getVault(network: Network, vaultAddress: string) {

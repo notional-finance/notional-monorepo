@@ -9,7 +9,10 @@ export class ViewsDO extends BaseDO<APIEnv> {
 
   constructor(state: DurableObjectState, env: APIEnv) {
     super(state, env, 'views', ONE_MINUTE_MS * 60);
-    this.analytics = new AnalyticsServer();
+    this.analytics = new AnalyticsServer(
+      env.DATA_SERVICE_URL,
+      env.DATA_SERVICE_AUTH_TOKEN
+    );
   }
 
   getStorageKey(url: URL): string {
@@ -66,20 +69,21 @@ export class ViewsDO extends BaseDO<APIEnv> {
   async onRefresh() {
     await Promise.all(
       this.env.SUPPORTED_NETWORKS.flatMap((network) => {
-        const p = [this.fetchAllViews(network)];
-        if (network !== Network.All) {
-          p.push(
-            this.analytics.refresh(network).then(() => {
+        return [
+          this.fetchAllViews(network),
+          this.analytics
+            .refresh(network)
+            .then(() => {
               console.log('Wrote analytics data for ', network);
               this.putStorageKey(
                 `${this.serviceName}/${network}/analytics`,
                 this.analytics.serializeToJSON(network)
               );
             })
-          );
-        }
-
-        return p;
+            .catch((e) => {
+              console.log('error', e);
+            }),
+        ];
       })
     );
   }

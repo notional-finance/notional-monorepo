@@ -18,10 +18,6 @@ import { floorToMidnight } from '@notional-finance/helpers';
 
 const USE_CROSS_FETCH =
   process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
-const DATA_SERVICE_URL = process.env['DATA_SERVICE_URL'];
-const DATA_SERVICE_AUTH_TOKEN = process.env[
-  'DATA_SERVICE_AUTH_TOKEN'
-] as string;
 
 export type VaultData = {
   vaultAddress: string;
@@ -34,6 +30,7 @@ type HistoricalRate = {
   blockNumber: number;
   timestamp: number;
   rate: string;
+  totalSupply: string | null;
 };
 
 export type HistoricalOracles = {
@@ -80,6 +77,17 @@ export type VaultReinvestment = Record<
 export type ActiveAccounts = Record<string, number>;
 
 export class AnalyticsServer extends ServerRegistry<unknown> {
+  constructor(
+    private dataServiceURL: string,
+    private dataServiceAuthToken: string
+  ) {
+    super();
+  }
+
+  public override hasAllNetwork() {
+    return true;
+  }
+
   protected async _refresh(network: Network) {
     if (network === Network.All) {
       return this._refreshAllNetwork();
@@ -123,6 +131,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
                     blockNumber: parseInt(r.blockNumber),
                     rate: r.rate,
                     timestamp,
+                    totalSupply: r.totalSupply,
                   });
                   return acc;
                 }
@@ -287,6 +296,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         timestamp: p['timestamp'] as number,
         blockNumber: 0,
         rate: p['latest_rate'] as string,
+        totalSupply: null,
       });
 
       return acc;
@@ -308,10 +318,10 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     view: string
   ): Promise<AnalyticsData> {
     const _fetch = USE_CROSS_FETCH ? crossFetch : fetch;
-    const cacheUrl = `${DATA_SERVICE_URL}/query?network=${network}&view=${view}`;
+    const cacheUrl = `${this.dataServiceURL}/query?network=${network}&view=${view}`;
     const result = await _fetch(cacheUrl, {
       headers: {
-        'x-auth-token': DATA_SERVICE_AUTH_TOKEN,
+        'x-auth-token': this.dataServiceAuthToken,
       },
     });
     const body = await result.text();
