@@ -2,6 +2,7 @@ import {
   ExtractObservableReturn,
   Network,
   RATE_PRECISION,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
@@ -63,10 +64,41 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
             .filter((o) => PRICE_ORACLES.includes(o.oracleType))
             .map((o) => {
               const { historicalRates, ..._o } = Object.assign({}, o);
-              const latestRate = historicalRates.find(
+              let latestRate = historicalRates.find(
                 (r) => r.timestamp === timestamp
               );
-              if (!latestRate) throw Error(`latest rate not found for ${o.id}`);
+              if (!latestRate) {
+                if (o.oracleType === 'fCashSettlementRate') {
+                  // If there is an fCash settlement rate, it only ever has a single
+                  // rate. The historical rate will not show up sometimes due to the
+                  // minTimestamp filter.
+                  latestRate = {
+                    rate: o.latestRate as string,
+                    blockNumber: 0,
+                    timestamp: timestamp,
+                    totalSupply: null,
+                  };
+                } else if (
+                  o.oracleType === 'Chainlink' &&
+                  o.base === ZERO_ADDRESS &&
+                  o.quote === ZERO_ADDRESS
+                ) {
+                  // Fill in the base ETH rate
+                  latestRate = {
+                    rate: '1000000000000000000' as string,
+                    blockNumber: 0,
+                    timestamp: timestamp,
+                    totalSupply: null,
+                  };
+                } else {
+                  latestRate = {
+                    rate: '0' as string,
+                    blockNumber: 0,
+                    timestamp: timestamp,
+                    totalSupply: null,
+                  };
+                }
+              }
 
               return Object.assign(_o, {
                 latestRate: {
@@ -97,6 +129,24 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
                 ({ timestamp, rate, totalSupply }) => {
                   const underlying = tokens.getTokenByID(network, o.base);
                   const token = tokens.getTokenByID(network, o.quote);
+                  let tvlUnderlying: TokenBalance | undefined;
+                  let tvlUSD: TokenBalance | undefined;
+
+                  try {
+                    tvlUnderlying = totalSupply
+                      ? TokenBalance.from(totalSupply, token).toUnderlying(
+                          timestamp
+                        )
+                      : undefined;
+                    tvlUSD = totalSupply
+                      ? TokenBalance.from(totalSupply, token).toFiat(
+                          'USD',
+                          timestamp
+                        )
+                      : undefined;
+                  } catch (e) {
+                    console.log(e);
+                  }
                   return {
                     timestamp,
                     // Rate will be quoted in underlying terms
@@ -104,17 +154,8 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
                       BigNumber.from(rate),
                       underlying
                     ),
-                    tvlUnderlying: totalSupply
-                      ? TokenBalance.from(totalSupply, token).toUnderlying(
-                          timestamp
-                        )
-                      : undefined,
-                    tvlUSD: totalSupply
-                      ? TokenBalance.from(totalSupply, token).toFiat(
-                          'USD',
-                          timestamp
-                        )
-                      : undefined,
+                    tvlUSD,
+                    tvlUnderlying,
                   };
                 }
               ),
@@ -170,13 +211,12 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
                 let totalAPY = (parseFloat(rate) / RATE_PRECISION) * 100;
                 try {
                   if (o.oracleType === 'nTokenIncentiveRate') {
-                    totalAPY =
-                      TokenBalance.fromFloat(
-                        totalAPY * 100,
-                        tokens.getTokenBySymbol(Network.All, 'NOTE')
-                      )
-                        .toToken(tokens.getTokenByID(network, o.base))
-                        .toFloat() * 100;
+                    totalAPY = TokenBalance.fromFloat(
+                      totalAPY.toFixed(8),
+                      tokens.getTokenBySymbol(network, 'NOTE')
+                    )
+                      .toToken(tokens.getTokenByID(network, o.base))
+                      .toFloat();
                   }
                 } catch {
                   totalAPY = 0;

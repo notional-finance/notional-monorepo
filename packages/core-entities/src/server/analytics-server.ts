@@ -40,6 +40,7 @@ export type HistoricalOracles = {
   oracleType: OracleType;
   base: string;
   quote: string;
+  latestRate: string;
   decimals: number;
   historicalRates: HistoricalRate[];
 }[];
@@ -106,37 +107,40 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       // Key = oracleId
       (r) =>
         convertArrayToObject(
-          r.oracles.map((o) => ({
-            id: o.id,
-            oracleAddress: o.oracleAddress,
-            network,
-            oracleType: o.oracleType,
-            base: o.base.id,
-            quote: o.quote.id,
-            decimals: o.decimals,
-            historicalRates:
-              // This is sorted ascending in the query so we always take the first value closest
-              // to midnight
-              o.historicalRates?.reduce((acc, r) => {
-                const timestamp = floorToMidnight(r.timestamp);
-                // If floored timestamp is equal then skip it, we only return one value
-                // per day at midnight UTC
-                if (
-                  acc.length > 0 &&
-                  acc[acc.length - 1].timestamp === timestamp
-                ) {
-                  return acc;
-                } else {
-                  acc.push({
-                    blockNumber: parseInt(r.blockNumber),
-                    rate: r.rate,
-                    timestamp,
-                    totalSupply: r.totalSupply,
-                  });
-                  return acc;
-                }
-              }, [] as HistoricalRate[]) || [],
-          })),
+          r.oracles.map((o) => {
+            return {
+              id: o.id,
+              oracleAddress: o.oracleAddress,
+              network,
+              oracleType: o.oracleType,
+              base: o.base.id,
+              quote: o.quote.id,
+              latestRate: o.latestRate,
+              decimals: o.decimals,
+              historicalRates:
+                // This is sorted descending in the query so we always take the first value closest to
+                // midnight after reversing the array
+                o.historicalRates?.reverse()?.reduce((acc, r) => {
+                  const timestamp = floorToMidnight(r.timestamp);
+                  // If floored timestamp is equal then skip it, we only return one value
+                  // per day at midnight UTC
+                  if (
+                    acc.length > 0 &&
+                    acc[acc.length - 1].timestamp === timestamp
+                  ) {
+                    return acc;
+                  } else {
+                    acc.push({
+                      blockNumber: parseInt(r.blockNumber),
+                      rate: r.rate,
+                      timestamp,
+                      totalSupply: r.totalSupply,
+                    });
+                    return acc;
+                  }
+                }, [] as HistoricalRate[]) || [],
+            };
+          }),
           'id'
         ),
       { minTimestamp },
@@ -288,6 +292,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           base: p['base'] as string,
           quote: p['quote'] as string,
           decimals: p['decimals'] as number,
+          latestRate: '0',
           historicalRates: [],
         };
       }
@@ -303,10 +308,10 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     }, {} as Record<string, HistoricalOracles[number]>);
 
     return {
-      values: ['historicalOracles', Object.values(historicalOracles)] as [
+      values: [['historicalOracles', Object.values(historicalOracles)]] as [
         string,
         unknown
-      ],
+      ][],
       network: Network.All,
       lastUpdateTimestamp: getNowSeconds(),
       lastUpdateBlock: 0,

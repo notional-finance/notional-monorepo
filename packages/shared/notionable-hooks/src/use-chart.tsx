@@ -13,6 +13,7 @@ import {
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
 import { useFiat } from './use-user-settings';
+import { useMemo } from 'react';
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -42,14 +43,18 @@ function fillChartDaily<T extends { timestamp: number }>(
 export function useTokenHistory(token?: TokenDefinition) {
   const network = useSelectedNetwork();
 
-  const apyData =
-    network && token
-      ? Registry.getAnalyticsRegistry().getHistoricalAPY(network, token)
-      : undefined;
-  const tvlData =
-    network && token
-      ? Registry.getAnalyticsRegistry().getPriceHistory(network, token)
-      : undefined;
+  const { apyData, tvlData } = useMemo(() => {
+    const apyData =
+      network && token
+        ? Registry.getAnalyticsRegistry().getHistoricalAPY(network, token)
+        : undefined;
+    const tvlData =
+      network && token
+        ? Registry.getAnalyticsRegistry().getPriceHistory(network, token)
+        : undefined;
+
+    return { apyData, tvlData };
+  }, [token]);
 
   return {
     apyData: fillChartDaily(
