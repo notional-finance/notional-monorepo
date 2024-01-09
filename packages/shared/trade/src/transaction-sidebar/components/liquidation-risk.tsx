@@ -58,11 +58,6 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     });
   }
 
-  console.log({ tradeType });
-  console.log({ priorAccountNoRisk });
-  console.log({ isAccountReady });
-  console.log({ isAccountReady });
-
   if (
     (priorAccountNoRisk || !isAccountReady) &&
     (tradeType === 'Deposit' ||
