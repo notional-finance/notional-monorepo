@@ -15,6 +15,7 @@ import {
 } from '@notional-finance/util';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { floorToMidnight } from '@notional-finance/helpers';
+import { BigNumber } from 'ethers';
 
 const USE_CROSS_FETCH =
   process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
@@ -31,6 +32,7 @@ type HistoricalRate = {
   timestamp: number;
   rate: string;
   totalSupply: string | null;
+  tvlUnderlying: string | null;
 };
 
 export type HistoricalOracles = {
@@ -77,6 +79,13 @@ export type VaultReinvestment = Record<
 
 export type ActiveAccounts = Record<string, number>;
 
+export const ASSET_PRICE_ORACLES = [
+  'nTokenToUnderlyingExchangeRate',
+  'PrimeCashToUnderlyingExchangeRate',
+  'PrimeDebtToUnderlyingExchangeRate',
+  'VaultShareOracleRate',
+];
+
 export class AnalyticsServer extends ServerRegistry<unknown> {
   constructor(
     private dataServiceURL: string,
@@ -121,6 +130,18 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
                 // This is sorted descending in the query so we always take the first value closest to
                 // midnight after reversing the array
                 o.historicalRates?.reverse()?.reduce((acc, r) => {
+                  // TVL underlying is calculated on the current price
+                  let tvlUnderlying: string | null = null;
+                  if (
+                    ASSET_PRICE_ORACLES.includes(o.oracleType) &&
+                    r.totalSupply
+                  ) {
+                    tvlUnderlying = BigNumber.from(r.totalSupply)
+                      .mul(BigNumber.from(r.rate))
+                      .div(BigNumber.from(o.ratePrecision))
+                      .toString();
+                  }
+
                   const timestamp = floorToMidnight(r.timestamp);
                   // If floored timestamp is equal then skip it, we only return one value
                   // per day at midnight UTC
@@ -135,6 +156,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
                       rate: r.rate,
                       timestamp,
                       totalSupply: r.totalSupply,
+                      tvlUnderlying,
                     });
                     return acc;
                   }
@@ -302,6 +324,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         blockNumber: 0,
         rate: p['latest_rate'] as string,
         totalSupply: null,
+        tvlUnderlying: null,
       });
 
       return acc;

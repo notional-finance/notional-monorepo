@@ -109,10 +109,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
     const exchanges = Registry.getExchangeRegistry();
     const config = Registry.getConfigurationRegistry();
-    const nTokenFees = Registry.getAnalyticsRegistry().getNTokenFeeRate(
-      network,
-      netNTokens.token
-    )?.data;
     const fCashMarket = exchanges.getfCashMarket(
       network,
       netNTokens.currencyId
@@ -128,9 +124,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       .add(netNTokens.toPrimeCash());
 
     // Total fees over the last week divided by the total value locked
-    const feeAPY = nTokenFees?.length
-      ? nTokenFees[nTokenFees.length - 1].totalAPY
-      : 0;
+    const feeAPY = Registry.getAnalyticsRegistry().getNTokenFeeRate(
+      netNTokens.token
+    );
     const incentiveAPY = this._convertRatioToYield(
       annualizedNOTEIncentives,
       nTokenTVL

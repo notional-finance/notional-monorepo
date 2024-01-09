@@ -4,6 +4,7 @@ query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
     fCashSettlementRate
     nTokenToUnderlyingExchangeRate
     PrimeCashToUnderlyingExchangeRate
+    PrimeDebtToUnderlyingExchangeRate
     VaultShareOracleRate # Can use this to calculate a realized vault APY
     # Below here are APYs
     fCashOracleRate

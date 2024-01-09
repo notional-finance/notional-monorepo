@@ -46,11 +46,11 @@ export function useTokenHistory(token?: TokenDefinition) {
   const { apyData, tvlData } = useMemo(() => {
     const apyData =
       network && token
-        ? Registry.getAnalyticsRegistry().getHistoricalAPY(network, token)
+        ? Registry.getAnalyticsRegistry().getHistoricalAPY(token)
         : undefined;
     const tvlData =
       network && token
-        ? Registry.getAnalyticsRegistry().getPriceHistory(network, token)
+        ? Registry.getAnalyticsRegistry().getPriceHistory(token)
         : undefined;
 
     return { apyData, tvlData };
@@ -58,14 +58,14 @@ export function useTokenHistory(token?: TokenDefinition) {
 
   return {
     apyData: fillChartDaily(
-      apyData?.data?.map(({ timestamp, totalAPY }) => ({
+      apyData?.map(({ timestamp, totalAPY }) => ({
         timestamp,
-        area: totalAPY || 0,
+        area: totalAPY,
       })) || [],
       { area: 0 }
     ),
     tvlData: fillChartDaily(
-      tvlData?.data?.map(({ timestamp, tvlUSD }) => ({
+      tvlData?.map(({ timestamp, tvlUSD }) => ({
         timestamp,
         area: tvlUSD?.toFloat() || 0,
       })) || [],
@@ -88,9 +88,9 @@ export function useLeveragedPerformance(
     network,
     token.currencyId
   );
-  const tokenData = analytics.getHistoricalAPY(network, token)?.data || [];
+  const tokenData = analytics.getHistoricalAPY(token);
   const primeBorrow = isPrimeBorrow
-    ? analytics?.getHistoricalAPY(network, primeDebt)?.data
+    ? analytics.getHistoricalAPY(primeDebt)
     : undefined;
 
   return fillChartDaily(
@@ -114,8 +114,7 @@ export function useLeveragedPerformance(
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {
   const network = useSelectedNetwork();
   if (!network || !token) return [];
-  const data =
-    Registry.getAnalyticsRegistry().getPriceHistory(network, token)?.data || [];
+  const data = Registry.getAnalyticsRegistry().getPriceHistory(token);
 
   return fillChartDaily(
     data.map((d) => ({
