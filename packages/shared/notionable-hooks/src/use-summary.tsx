@@ -15,7 +15,11 @@ import {
   TradeState,
   VaultTradeState,
 } from '@notional-finance/notionable';
-import { RATE_DECIMALS, RATE_PRECISION } from '@notional-finance/util';
+import {
+  RATE_DECIMALS,
+  RATE_PRECISION,
+  HEALTH_FACTOR_RISK_LEVELS,
+} from '@notional-finance/util';
 import {
   IntlShape,
   MessageDescriptor,
@@ -24,6 +28,8 @@ import {
 } from 'react-intl';
 import { useAllMarkets } from './use-market';
 import { useFiat } from './use-user-settings';
+import { colors } from '@notional-finance/styles';
+import { useTheme } from '@mui/material';
 
 interface DetailItem {
   label: React.ReactNode;
@@ -715,7 +721,8 @@ export function usePortfolioComparison(
 function formatLiquidationPrices(
   liquidationPrice: TradeState['liquidationPrice'],
   baseCurrency: FiatKeys,
-  intl: IntlShape
+  intl: IntlShape,
+  hideArrow?: boolean
 ) {
   return (
     (liquidationPrice || []).map((p) => {
@@ -743,6 +750,8 @@ function formatLiquidationPrices(
           ? p.updated?.toFiat(baseCurrency).toDisplayStringWithSymbol(3) ||
             'No Risk'
           : p.updated?.toUnderlying().toDisplayStringWithSymbol(3) || 'No Risk',
+        textColor: '',
+        hideArrow: hideArrow || false,
       };
     }) || []
   );
@@ -757,28 +766,59 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   } = state;
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
+  const theme = useTheme();
   const baseCurrency = useFiat();
+
+  const priorAccountNoRisk =
+    priorAccountRisk === undefined ||
+    (priorAccountRisk?.healthFactor === null &&
+      priorAccountRisk?.liquidationPrice.length === 0);
+
+  const hideArrow = !onlyCurrent && priorAccountNoRisk ? true : false;
+
+  const updatedValue =
+    _h?.updated && _h?.updated > 5
+      ? '5+ / 5.0'
+      : !_h?.updated
+      ? 'No Risk'
+      : ` ${_h?.updated?.toFixed(2)} / 5.0`;
+
+  const textColor =
+    _h?.updated && _h?.updated <= HEALTH_FACTOR_RISK_LEVELS.HIGH_RISK
+      ? colors.red
+      : _h?.updated && _h?.updated <= HEALTH_FACTOR_RISK_LEVELS.MEDIUM_RISK
+      ? colors.orange
+      : _h?.updated && _h?.updated <= HEALTH_FACTOR_RISK_LEVELS.LOW_RISK
+      ? theme.palette.secondary.light
+      : theme.palette.secondary.light;
+
   const healthFactor = {
     ..._h,
     asset: undefined,
-    label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-    current: _h?.current?.toFixed(2) || 'No Risk',
-    updated: _h?.updated?.toFixed(2) || 'No Risk',
+    label: defineMessages({
+      content: { defaultMessage: 'Health Factor' },
+      toolTipContent: {
+        defaultMessage:
+          'Your health factor shows your risk. A lower health factor means you have more risk. If your health factor drops below 1, you can be liquidated.',
+      },
+    }),
+    current: onlyCurrent ? updatedValue : _h?.current?.toFixed(2) || 'No Risk',
+    updated: updatedValue,
+    textColor: textColor,
+    hideArrow: !onlyCurrent && priorAccountNoRisk ? true : false,
   };
 
   const liquidationPrices = formatLiquidationPrices(
     liquidationPrice,
     baseCurrency,
-    intl
+    intl,
+    hideArrow
   );
 
   return {
     onlyCurrent,
     tooRisky: postAccountRisk?.freeCollateral.isNegative() || false,
-    priorAccountNoRisk:
-      priorAccountRisk === undefined ||
-      (priorAccountRisk?.healthFactor === null &&
-        priorAccountRisk?.liquidationPrice.length === 0),
+    priorAccountNoRisk,
     postAccountNoRisk:
       postAccountRisk?.healthFactor === null &&
       postAccountRisk?.liquidationPrice.length === 0,

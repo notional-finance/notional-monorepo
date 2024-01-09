@@ -1,6 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import {
   ArrowIndicatorCell,
+  ToolTipCell,
   DataTable,
   ErrorMessage,
   TABLE_VARIANTS,
@@ -24,14 +25,20 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     tableData,
     tooRisky,
   } = usePortfolioLiquidationRisk(state);
+
   const columns: any[] = [
     {
       Header: <FormattedMessage defaultMessage={'Detail'} />,
       accessor: 'label',
+      Cell: ToolTipCell,
       textAlign: 'left',
     },
     {
-      Header: <FormattedMessage defaultMessage={'Current'} />,
+      Header: !onlyCurrent ? (
+        <FormattedMessage defaultMessage={'Current'} />
+      ) : (
+        <FormattedMessage defaultMessage={'Value'} />
+      ),
       accessor: 'current',
       textAlign: 'right',
     },
@@ -50,6 +57,11 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
       textAlign: 'right',
     });
   }
+
+  console.log({ tradeType });
+  console.log({ priorAccountNoRisk });
+  console.log({ isAccountReady });
+  console.log({ isAccountReady });
 
   if (
     (priorAccountNoRisk || !isAccountReady) &&
@@ -119,7 +131,15 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
           onlyCurrent
             ? tableData
             : tableData.map(
-                ({ label, current, updated, changeType, greenOnArrowUp }) => {
+                ({
+                  label,
+                  current,
+                  updated,
+                  changeType,
+                  greenOnArrowUp,
+                  textColor,
+                  hideArrow,
+                }) => {
                   return {
                     label,
                     current,
@@ -130,6 +150,8 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
                       greenOnCheckmark: true,
                       greenOnArrowUp,
                     },
+                    textColor,
+                    hideArrow,
                   };
                 }
               )

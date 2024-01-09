@@ -3,25 +3,7 @@ import { Box, useTheme } from '@mui/material';
 import { SmallTableCell } from '../../typography/typography';
 import { colors } from '@notional-finance/styles';
 
-export interface ArrowIndicatorCellData {
-  value: string;
-  arrowUp: boolean | null;
-  checkmark: boolean;
-  greenOnArrowUp: boolean;
-  greenOnCheckmark: boolean;
-  isNegative?: boolean;
-}
-
-interface ArrowIndicatorCellProps {
-  cell: {
-    column: any;
-    value: ArrowIndicatorCellData;
-  };
-}
-
-export const ArrowIndicatorCell = ({
-  cell,
-}: ArrowIndicatorCellProps): JSX.Element => {
+export const ArrowIndicatorCell = ({ cell }): JSX.Element => {
   const {
     column: { textAlign, tooRisky },
     value: {
@@ -34,12 +16,18 @@ export const ArrowIndicatorCell = ({
     },
   } = cell;
   const { palette, shape, spacing } = useTheme();
-
+  const isHealthFactor = value.includes(' / 5.0');
   const colorOnUp = greenOnArrowUp ? palette.primary.light : colors.orange;
   const colorOnDown = greenOnArrowUp ? colors.orange : palette.primary.light;
 
   const valueTextColor =
     tooRisky || isNegative ? palette.error.main : palette.typography.main;
+
+  const valueArrowColor = tooRisky
+    ? palette.error.main
+    : arrowUp
+    ? colorOnUp
+    : colorOnDown;
 
   return (
     <Box
@@ -62,26 +50,36 @@ export const ArrowIndicatorCell = ({
       >
         {arrowUp !== null ? (
           <>
-            <SmallTableCell sx={{ color: valueTextColor }}>
+            <SmallTableCell
+              sx={{
+                color: isHealthFactor
+                  ? cell?.row?.original?.textColor
+                  : valueTextColor,
+              }}
+            >
               {value}
             </SmallTableCell>
-            <AngledArrowIcon
-              sx={{
-                marginLeft: spacing(0.5),
-                marginRight: spacing(-0.25),
-                color: tooRisky
-                  ? palette.error.main
-                  : arrowUp
-                  ? colorOnUp
-                  : colorOnDown,
-                width: spacing(1.5),
-                transform: arrowUp ? 'rotate(180deg)' : 'rotate(270deg)',
-              }}
-            />
+            {!cell.row.original.hideArrow && (
+              <AngledArrowIcon
+                sx={{
+                  marginLeft: spacing(0.5),
+                  marginRight: spacing(-0.25),
+                  color: valueArrowColor,
+                  width: spacing(1.5),
+                  transform: arrowUp ? 'rotate(180deg)' : 'rotate(270deg)',
+                }}
+              />
+            )}
           </>
         ) : (
           <>
-            <SmallTableCell sx={{ color: valueTextColor }}>
+            <SmallTableCell
+              sx={{
+                color: isHealthFactor
+                  ? cell?.row?.original?.textColor
+                  : valueTextColor,
+              }}
+            >
               {value}
             </SmallTableCell>
             {checkmark && (
