@@ -41,6 +41,7 @@ type DDEventKey =
   | 'GeoIPLog'
   | 'NewsletterSubmitFailure'
   | 'AccountLiquidated'
+  | 'RiskyAccount'
   | 'AccountListMismatch'
   | 'VaultAccountListMismatch'
   | 'SettlementReserveMismatch'
