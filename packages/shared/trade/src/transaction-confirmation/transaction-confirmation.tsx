@@ -25,6 +25,7 @@ import {
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
+import { clearTradeState } from '@notional-finance/notionable';
 
 export interface TransactionConfirmationProps {
   heading: React.ReactNode;
@@ -54,7 +55,7 @@ export const TransactionConfirmation = ({
   const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
     useTransactionStatus();
   const onTxnCancel = useCallback(() => {
-    updateState({ confirm: false });
+    updateState({ ...clearTradeState });
   }, [updateState]);
 
   useEffect(() => {
@@ -151,8 +152,14 @@ export const TransactionConfirmation = ({
             ) as TokenDefinition[]
           )
         }
-        onCancel={onCancel || onTxnCancel}
-        onReturnToForm={onReturnToForm}
+        onCancel={() => {
+          onTxnCancel();
+          if (onCancel) onCancel();
+        }}
+        onReturnToForm={() => {
+          onTxnCancel();
+          if (onReturnToForm) onReturnToForm();
+        }}
         isDisabled={isReadOnlyAddress || !!transactionError}
         isLoaded={populatedTransaction !== undefined}
       />

@@ -138,6 +138,17 @@ const run = async (env: Env) => {
   );
 
   if (riskyAccounts.length > 0) {
+    for (const account of riskyAccounts) {
+      await logger.submitEvent({
+        aggregation_key: 'RiskyAccount',
+        alert_type: 'info',
+        host: 'cloudflare',
+        network: env.NETWORK,
+        title: `Risky Account: ${account.id}`,
+        tags: [`account:${account.id}`, `event:risky_account`],
+        text: `Risky account ${account.id}, failed liquidation`,
+      });
+    }
     const riskyAccount = riskyAccounts[0];
 
     const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);

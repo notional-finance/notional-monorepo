@@ -208,3 +208,18 @@ export function isDeleverageWithSwappedTokens(s?: BaseTradeState) {
       s?.collateral?.tokenType !== 'nToken')
   );
 }
+
+export const clearTradeState: TransactionState = {
+  confirm: false,
+  inputsSatisfied: false,
+  calculationSuccess: false,
+  canSubmit: false,
+  calculateInputKeys: undefined,
+  populatedTransaction: undefined,
+  transactionError: undefined,
+  netAssetBalance: undefined,
+  netDebtBalance: undefined,
+  netRealizedCollateralBalance: undefined,
+  netRealizedDebtBalance: undefined,
+  postTradeBalances: undefined,
+};

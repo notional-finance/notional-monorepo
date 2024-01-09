@@ -46,6 +46,7 @@ export interface PopulateTransactionInputs {
   accountBalances: TokenBalance[];
   maxWithdraw: boolean;
   vaultLastUpdateTime?: Record<string, number>;
+  tradeType?: string;
 }
 
 export function hasExistingCashBalance(
