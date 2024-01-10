@@ -16,7 +16,6 @@ export const ArrowIndicatorCell = ({ cell }): JSX.Element => {
     },
   } = cell;
   const { palette, shape, spacing } = useTheme();
-  const isHealthFactor = value.includes(' / 5.0');
   const colorOnUp = greenOnArrowUp ? palette.primary.light : colors.orange;
   const colorOnDown = greenOnArrowUp ? colors.orange : palette.primary.light;
 
@@ -52,9 +51,7 @@ export const ArrowIndicatorCell = ({ cell }): JSX.Element => {
           <>
             <SmallTableCell
               sx={{
-                color: isHealthFactor
-                  ? cell?.row?.original?.textColor
-                  : valueTextColor,
+                color: cell?.row?.original?.textColor || valueTextColor,
               }}
             >
               {value}
@@ -75,9 +72,7 @@ export const ArrowIndicatorCell = ({ cell }): JSX.Element => {
           <>
             <SmallTableCell
               sx={{
-                color: isHealthFactor
-                  ? cell?.row?.original?.textColor
-                  : valueTextColor,
+                color: cell?.row?.original?.textColor || valueTextColor,
               }}
             >
               {value}

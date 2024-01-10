@@ -766,31 +766,40 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   } = state;
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
-  const theme = useTheme();
   const baseCurrency = useFiat();
-
+  const theme = useTheme();
   const priorAccountNoRisk =
     priorAccountRisk === undefined ||
     (priorAccountRisk?.healthFactor === null &&
       priorAccountRisk?.liquidationPrice.length === 0);
-
   const hideArrow = !onlyCurrent && priorAccountNoRisk ? true : false;
 
-  const updatedValue =
-    _h?.updated && _h?.updated > 5
-      ? '5+ / 5.0'
-      : !_h?.updated
-      ? 'No Risk'
-      : ` ${_h?.updated?.toFixed(2)} / 5.0`;
+  const formatHealthFactorValues = (
+    healthFactorValue: null | number | undefined
+  ) => {
+    const textColor =
+      healthFactorValue &&
+      healthFactorValue <= HEALTH_FACTOR_RISK_LEVELS.HIGH_RISK
+        ? colors.red
+        : healthFactorValue &&
+          healthFactorValue <= HEALTH_FACTOR_RISK_LEVELS.MEDIUM_RISK
+        ? colors.orange
+        : healthFactorValue &&
+          healthFactorValue <= HEALTH_FACTOR_RISK_LEVELS.LOW_RISK
+        ? theme.palette.secondary.light
+        : theme.palette.secondary.light;
 
-  const textColor =
-    _h?.updated && _h?.updated <= HEALTH_FACTOR_RISK_LEVELS.HIGH_RISK
-      ? colors.red
-      : _h?.updated && _h?.updated <= HEALTH_FACTOR_RISK_LEVELS.MEDIUM_RISK
-      ? colors.orange
-      : _h?.updated && _h?.updated <= HEALTH_FACTOR_RISK_LEVELS.LOW_RISK
-      ? theme.palette.secondary.light
-      : theme.palette.secondary.light;
+    const value =
+      healthFactorValue && healthFactorValue > 5
+        ? '5+ / 5.0'
+        : !healthFactorValue
+        ? 'No Risk'
+        : ` ${healthFactorValue?.toFixed(2)} / 5.0`;
+    return { value, textColor };
+  };
+
+  const currentHFData = formatHealthFactorValues(_h?.current);
+  const updatedHFData = formatHealthFactorValues(_h?.updated);
 
   const healthFactor = {
     ..._h,
@@ -802,10 +811,13 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
           'Your health factor shows your risk. A lower health factor means you have more risk. If your health factor drops below 1, you can be liquidated.',
       },
     }),
-    current: onlyCurrent ? updatedValue : _h?.current?.toFixed(2) || 'No Risk',
-    updated: updatedValue,
-    textColor: textColor,
-    hideArrow: !onlyCurrent && priorAccountNoRisk ? true : false,
+    current:
+      onlyCurrent && _h?.current
+        ? currentHFData?.value
+        : _h?.current?.toFixed(2) || '',
+    updated: updatedHFData?.value,
+    textColor: updatedHFData?.textColor,
+    hideArrow,
   };
 
   const liquidationPrices = formatLiquidationPrices(
