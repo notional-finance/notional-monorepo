@@ -20,17 +20,6 @@ export enum BETA_ACCESS {
   REJECTED = 'rejected',
 }
 
-export const ACCESS_NFTS = {
-  DEGEN_SCORE: {
-    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
-    network: Network.Mainnet,
-  },
-  BETA_CONTEST: {
-    address: '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e',
-    network: Network.ArbitrumOne,
-  },
-};
-
 export const GATED_VAULTS: string[] = [];
 
 // Set this as the runtime default
