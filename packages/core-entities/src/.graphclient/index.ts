@@ -963,6 +963,8 @@ export type CurrencyConfiguration = {
   pvHaircutPercentage?: Maybe<Scalars['Int']>;
   /** Discount on nToken PV given to liquidators */
   liquidationHaircutPercentage?: Maybe<Scalars['Int']>;
+  /** Maximum valuation deviation percentage for nToken minting */
+  maxMintDeviationPercentage?: Maybe<Scalars['Int']>;
   incentives?: Maybe<Incentive>;
 };
 
@@ -1335,6 +1337,14 @@ export type CurrencyConfiguration_filter = {
   liquidationHaircutPercentage_lte?: InputMaybe<Scalars['Int']>;
   liquidationHaircutPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
   liquidationHaircutPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  maxMintDeviationPercentage?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_not?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_gt?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_lt?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_gte?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_lte?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
+  maxMintDeviationPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
   incentives_?: InputMaybe<Incentive_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
@@ -1454,6 +1464,7 @@ export type CurrencyConfiguration_orderBy =
   | 'cashWithholdingBufferBasisPoints'
   | 'pvHaircutPercentage'
   | 'liquidationHaircutPercentage'
+  | 'maxMintDeviationPercentage'
   | 'incentives'
   | 'incentives__id'
   | 'incentives__lastUpdateBlockNumber'
@@ -1490,6 +1501,7 @@ export type ExchangeRate = {
   transaction?: Maybe<Transaction>;
   oracle: Oracle;
   rate: Scalars['BigInt'];
+  totalSupply?: Maybe<Scalars['BigInt']>;
 };
 
 export type ExchangeRate_filter = {
@@ -1567,6 +1579,14 @@ export type ExchangeRate_filter = {
   rate_lte?: InputMaybe<Scalars['BigInt']>;
   rate_in?: InputMaybe<Array<Scalars['BigInt']>>;
   rate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalSupply?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_not?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_gt?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_lt?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_gte?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_lte?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<ExchangeRate_filter>>>;
@@ -1594,7 +1614,8 @@ export type ExchangeRate_orderBy =
   | 'oracle__mustInvert'
   | 'oracle__latestRate'
   | 'oracle__matured'
-  | 'rate';
+  | 'rate'
+  | 'totalSupply';
 
 export type Incentive = {
   /** ID is the currency id */
@@ -2052,6 +2073,7 @@ export type Incentive_orderBy =
   | 'currencyConfiguration__cashWithholdingBufferBasisPoints'
   | 'currencyConfiguration__pvHaircutPercentage'
   | 'currencyConfiguration__liquidationHaircutPercentage'
+  | 'currencyConfiguration__maxMintDeviationPercentage'
   | 'secondaryIncentiveRewarder'
   | 'incentiveEmissionRate'
   | 'accumulatedNOTEPerNToken'
@@ -6293,7 +6315,8 @@ export type WhitelistedContract_orderBy =
   | 'currency__residualPurchaseTimeBufferSeconds'
   | 'currency__cashWithholdingBufferBasisPoints'
   | 'currency__pvHaircutPercentage'
-  | 'currency__liquidationHaircutPercentage';
+  | 'currency__liquidationHaircutPercentage'
+  | 'currency__maxMintDeviationPercentage';
 
 export type _Block_ = {
   /** The hash of the block */
@@ -7264,6 +7287,7 @@ export type CurrencyConfigurationResolvers<ContextType = MeshContext & { chainNa
   cashWithholdingBufferBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   pvHaircutPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   liquidationHaircutPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  maxMintDeviationPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   incentives?: Resolver<Maybe<ResolversTypes['Incentive']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -7275,6 +7299,7 @@ export type ExchangeRateResolvers<ContextType = MeshContext & { chainName: strin
   transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   oracle?: Resolver<ResolversTypes['Oracle'], ParentType, ContextType>;
   rate?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  totalSupply?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7825,7 +7850,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-finance-v3-arbitrum/v0.1.34"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-finance-v3-arbitrum/v0.1.35"},
               baseDir,
               cache,
               pubsub,

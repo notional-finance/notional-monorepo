@@ -873,6 +873,8 @@ type CurrencyConfiguration {
   pvHaircutPercentage: Int
   """Discount on nToken PV given to liquidators"""
   liquidationHaircutPercentage: Int
+  """Maximum valuation deviation percentage for nToken minting"""
+  maxMintDeviationPercentage: Int
   incentives: Incentive
 }
 
@@ -1227,6 +1229,14 @@ input CurrencyConfiguration_filter {
   liquidationHaircutPercentage_lte: Int
   liquidationHaircutPercentage_in: [Int!]
   liquidationHaircutPercentage_not_in: [Int!]
+  maxMintDeviationPercentage: Int
+  maxMintDeviationPercentage_not: Int
+  maxMintDeviationPercentage_gt: Int
+  maxMintDeviationPercentage_lt: Int
+  maxMintDeviationPercentage_gte: Int
+  maxMintDeviationPercentage_lte: Int
+  maxMintDeviationPercentage_in: [Int!]
+  maxMintDeviationPercentage_not_in: [Int!]
   incentives_: Incentive_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
@@ -1346,6 +1356,7 @@ enum CurrencyConfiguration_orderBy {
   cashWithholdingBufferBasisPoints
   pvHaircutPercentage
   liquidationHaircutPercentage
+  maxMintDeviationPercentage
   incentives
   incentives__id
   incentives__lastUpdateBlockNumber
@@ -1384,6 +1395,7 @@ type ExchangeRate {
   transaction: Transaction
   oracle: Oracle!
   rate: BigInt!
+  totalSupply: BigInt
 }
 
 input ExchangeRate_filter {
@@ -1461,6 +1473,14 @@ input ExchangeRate_filter {
   rate_lte: BigInt
   rate_in: [BigInt!]
   rate_not_in: [BigInt!]
+  totalSupply: BigInt
+  totalSupply_not: BigInt
+  totalSupply_gt: BigInt
+  totalSupply_lt: BigInt
+  totalSupply_gte: BigInt
+  totalSupply_lte: BigInt
+  totalSupply_in: [BigInt!]
+  totalSupply_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [ExchangeRate_filter]
@@ -1489,6 +1509,7 @@ enum ExchangeRate_orderBy {
   oracle__latestRate
   oracle__matured
   rate
+  totalSupply
 }
 
 type Incentive {
@@ -1948,6 +1969,7 @@ enum Incentive_orderBy {
   currencyConfiguration__cashWithholdingBufferBasisPoints
   currencyConfiguration__pvHaircutPercentage
   currencyConfiguration__liquidationHaircutPercentage
+  currencyConfiguration__maxMintDeviationPercentage
   secondaryIncentiveRewarder
   incentiveEmissionRate
   accumulatedNOTEPerNToken
@@ -6388,6 +6410,7 @@ enum WhitelistedContract_orderBy {
   currency__cashWithholdingBufferBasisPoints
   currency__pvHaircutPercentage
   currency__liquidationHaircutPercentage
+  currency__maxMintDeviationPercentage
 }
 
 type _Block_ {
