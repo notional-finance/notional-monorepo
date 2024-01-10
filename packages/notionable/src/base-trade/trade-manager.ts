@@ -23,8 +23,8 @@ export function createTradeManager(
   global$: Observable<GlobalState>
 ): Observable<Partial<TradeState>> {
   // Shared Observables
-  const network$ = selectedNetwork(global$);
-  const account$ = selectedAccount(global$);
+  const network$ = selectedNetwork(state$);
+  const account$ = selectedAccount(network$);
   const debtPool$ = selectedPool('Debt', state$, network$);
   const collateralPool$ = selectedPool('Collateral', state$, network$);
 
@@ -51,7 +51,7 @@ export function createTradeManager(
     priorAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
     initState(state$, network$, global$),
-    resetOnNetworkChange(global$, state$),
+    resetOnNetworkChange(state$),
     resetOnTradeTypeChange(state$)
   );
 }

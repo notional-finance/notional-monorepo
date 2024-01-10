@@ -55,11 +55,14 @@ interface OnboardState {
 }
 
 interface NetworkState {
-  selectedNetwork?: Network;
-  isNetworkPending: boolean;
-  isNetworkReady: boolean;
+  /** Which network is the porfolio currently showing */
+  selectedPortfolioNetwork?: Network;
+  /** If waiting for the site to load initially */
+  isRegistryPending: boolean;
+  /** If the registry is ready and loaded */
+  isRegistryReady: boolean;
+  /** URL of the cache hostname */
   cacheHostname: string;
-  hasSelectedChainError: boolean;
 }
 
 interface AccountState {

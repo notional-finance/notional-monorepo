@@ -1,48 +1,24 @@
 import { Registry } from '@notional-finance/core-entities';
 import { filterEmpty } from '@notional-finance/util';
-import {
-  Observable,
-  map,
-  distinctUntilChanged,
-  switchMap,
-  startWith,
-} from 'rxjs';
-import { GlobalState } from './global-state';
+import { Observable, combineLatest, map, of, switchMap } from 'rxjs';
+import { BaseTradeState } from '../base-trade/base-trade-store';
 
-export function selectedNetwork(global$: Observable<GlobalState>) {
-  return global$.pipe(
-    map((g) =>
-      g.isNetworkReady && g.selectedNetwork ? g.selectedNetwork : undefined
-    ),
+export function selectedNetwork(state$: Observable<BaseTradeState>) {
+  return state$.pipe(
+    map((s) => s.selectedNetwork),
     filterEmpty()
   );
 }
 
-export function selectedAccount(global$: Observable<GlobalState>) {
-  return global$.pipe(
-    map((g) =>
-      g.isAccountReady &&
-      g.selectedAccount &&
-      g.isNetworkReady &&
-      g.selectedNetwork
-        ? {
-            selectedNetwork: g.selectedNetwork,
-            selectedAccount: g.selectedAccount,
-          }
-        : undefined
-    ),
-    filterEmpty(),
-    distinctUntilChanged(
-      (prev, cur) =>
-        prev.selectedNetwork === cur.selectedNetwork &&
-        prev.selectedAccount === cur.selectedAccount
-    ),
-    switchMap(({ selectedNetwork, selectedAccount }) =>
-      Registry.getAccountRegistry().subscribeAccount(
-        selectedNetwork,
-        selectedAccount
-      )
-    ),
-    startWith(null)
+export function selectedAccount(network$: ReturnType<typeof selectedNetwork>) {
+  return combineLatest([
+    Registry.getAccountRegistry().activeAccount$,
+    network$,
+  ]).pipe(
+    switchMap(([account, network]) =>
+      account && network
+        ? Registry.getAccountRegistry().subscribeAccount(network, account)
+        : of(null)
+    )
   );
 }

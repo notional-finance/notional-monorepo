@@ -4,24 +4,18 @@ import { filterEmpty } from '@notional-finance/util';
 import {
   Observable,
   pairwise,
-  withLatestFrom,
   map,
   combineLatest,
   filter,
 } from 'rxjs';
 import { BaseTradeState, VaultTradeState } from '../base-trade-store';
 
-export function resetOnNetworkChange(
-  global$: Observable<GlobalState>,
-  state$: Observable<BaseTradeState>
-) {
-  return global$.pipe(
-    filterEmpty(),
+export function resetOnNetworkChange(state$: Observable<BaseTradeState>) {
+  return state$.pipe(
     pairwise(),
-    withLatestFrom(state$),
-    map(([[prev, cur], s]) => {
+    map(([prev, cur]) => {
       if (prev.selectedNetwork !== cur.selectedNetwork) {
-        return { reset: true, tradeType: s.tradeType };
+        return { reset: true, tradeType: cur.tradeType };
       } else {
         return undefined;
       }
