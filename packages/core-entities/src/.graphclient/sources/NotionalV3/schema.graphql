@@ -1969,6 +1969,7 @@ enum Incentive_orderBy {
   currencyConfiguration__cashWithholdingBufferBasisPoints
   currencyConfiguration__pvHaircutPercentage
   currencyConfiguration__liquidationHaircutPercentage
+  currencyConfiguration__maxMintDeviationPercentage
   secondaryIncentiveRewarder
   incentiveEmissionRate
   accumulatedNOTEPerNToken
@@ -6409,6 +6410,7 @@ enum WhitelistedContract_orderBy {
   currency__cashWithholdingBufferBasisPoints
   currency__pvHaircutPercentage
   currency__liquidationHaircutPercentage
+  currency__maxMintDeviationPercentage
 }
 
 type _Block_ {

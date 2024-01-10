@@ -2051,6 +2051,7 @@ export type Incentive_orderBy =
   | 'currencyConfiguration__cashWithholdingBufferBasisPoints'
   | 'currencyConfiguration__pvHaircutPercentage'
   | 'currencyConfiguration__liquidationHaircutPercentage'
+  | 'currencyConfiguration__maxMintDeviationPercentage'
   | 'secondaryIncentiveRewarder'
   | 'incentiveEmissionRate'
   | 'accumulatedNOTEPerNToken'
@@ -6292,7 +6293,8 @@ export type WhitelistedContract_orderBy =
   | 'currency__residualPurchaseTimeBufferSeconds'
   | 'currency__cashWithholdingBufferBasisPoints'
   | 'currency__pvHaircutPercentage'
-  | 'currency__liquidationHaircutPercentage';
+  | 'currency__liquidationHaircutPercentage'
+  | 'currency__maxMintDeviationPercentage';
 
 export type _Block_ = {
   /** The hash of the block */

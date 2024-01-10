@@ -27874,6 +27874,14 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
+            "value": "currencyConfiguration__maxMintDeviationPercentage"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
             "value": "secondaryIncentiveRewarder"
           },
           "directives": []
@@ -83389,6 +83397,14 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "currency__liquidationHaircutPercentage"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "currency__maxMintDeviationPercentage"
           },
           "directives": []
         }
