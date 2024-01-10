@@ -464,6 +464,10 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     );
   }
 
+  getNonLeveragedYields(network: Network) {
+    return this.getAllYields(network).filter((y) => y.leveraged === undefined);
+  }
+
   protected override async _refresh(network: Network) {
     const allYields = this.getPrimeCashYield(network)
       .concat(this.getPrimeDebtYield(network))
