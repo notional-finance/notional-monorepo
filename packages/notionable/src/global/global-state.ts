@@ -37,6 +37,8 @@ export const GATED_VAULTS: string[] = [];
 const CACHE_HOSTNAME =
   process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
 
+type NetworkLoadingState = 'Pending' | 'Loaded' | undefined;
+
 export interface NotionalError {
   code: number;
   msg: string;
@@ -55,12 +57,8 @@ interface OnboardState {
 }
 
 interface NetworkState {
-  /** Which network is the porfolio currently showing */
-  selectedPortfolioNetwork?: Network;
   /** If waiting for the site to load initially */
-  isRegistryPending: boolean;
-  /** If the registry is ready and loaded */
-  isRegistryReady: boolean;
+  networkState?: Record<Network, NetworkLoadingState>;
   /** URL of the cache hostname */
   cacheHostname: string;
 }
@@ -69,8 +67,10 @@ interface AccountState {
   isAccountPending: boolean;
   isAccountReady: boolean;
   selectedAccount?: string;
+  // TODO: convert these to community NFTs
   hasContestNFT?: BETA_ACCESS;
   contestTokenId?: string;
+
   // Groupings of 1 asset and 1 debt in the same currency
   holdingsGroups?: {
     asset: TokenBalance;
@@ -83,7 +83,12 @@ interface AccountState {
     incentives: TokenBalance[];
     incentivesIn100Seconds: TokenBalance[];
   }[];
+  /** Which network is the porfolio currently showing */
+  selectedPortfolioNetwork?: Network;
+  /** Which networks does the account have a portfolio on */
+  accountNetworks?: Network[];
 }
+
 interface UserSettingsState {
   themeVariant: THEME_VARIANTS;
   baseCurrency: FiatKeys;
@@ -94,6 +99,7 @@ interface ExportControlsState {
   isSanctionedAddress: boolean;
 }
 
+// TODO: this needs to be on a per network basis
 interface TransactionState {
   sentTransactions: Record<string, TransactionResponse>;
   awaitingBalanceChanges: Record<string, TokenDefinition[] | undefined>;
