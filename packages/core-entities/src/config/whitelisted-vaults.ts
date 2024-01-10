@@ -12,5 +12,7 @@ export const whitelistedVaults = (network: Network) => {
         '0x3df035433cface65b6d68b77cc916085d020c8b8',
         '0x8ae7a8789a81a43566d0ee70264252c0db826940',
       ];
+    case Network.Goerli:
+      return [];
   }
 };

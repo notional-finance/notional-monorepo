@@ -8,13 +8,13 @@ import {
 } from './server-registry';
 import {
   convertArrayToObject,
+  floorToMidnight,
   getNowSeconds,
   groupArrayToMap,
   Network,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
-import { floorToMidnight } from '@notional-finance/helpers';
 import { BigNumber } from 'ethers';
 
 const USE_CROSS_FETCH =
