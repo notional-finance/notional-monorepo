@@ -1,10 +1,21 @@
-import { RATE_PRECISION, convertToSignedfCashId } from '@notional-finance/util';
-import { AccountDefinition } from '../../Definitions';
-import { TokenBalance } from '../../token-balance';
-import { Registry } from '../../Registry';
+import {
+  RATE_PRECISION,
+  convertToSignedfCashId,
+  leveragedYield,
+} from '@notional-finance/util';
 import { calculateAccruedIncentives } from './incentives';
+import {
+  AccountDefinition,
+  Registry,
+  TokenBalance,
+} from '@notional-finance/core-entities';
+import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 
-type PortfolioHolding = ReturnType<typeof calculateHoldings>[number];
+export type PortfolioHolding = ReturnType<typeof calculateHoldings>[number];
+export type GroupedHolding = ReturnType<
+  typeof calculateGroupedHoldings
+>[number];
+export type VaultHolding = ReturnType<typeof calculateVaultHoldings>[number];
 
 /**
  * Exposes all the relevant information for account holdings in the normal portfolio,
@@ -96,7 +107,7 @@ export function calculateHoldings(account: AccountDefinition) {
 /**
  * Calculates grouped tokens which are paired asset / debt portfolio holdings in the same currency
  */
-export function calculateGroupedTokens(
+export function calculateGroupedHoldings(
   account: AccountDefinition,
   holdings: PortfolioHolding[]
 ) {
@@ -167,4 +178,56 @@ export function calculateGroupedTokens(
       borrowAPY: number | undefined;
     }[]
   );
+}
+
+/**
+ * Calculates data to display for each vault holding
+ */
+export function calculateVaultHoldings(account: AccountDefinition) {
+  const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(account);
+  const balanceStatements = account.balanceStatement || [];
+  const allYields = Registry.getYieldRegistry().getNonLeveragedYields(
+    account.network
+  );
+
+  return vaultProfiles.map((v) => {
+    const debtPnL = balanceStatements.find(
+      (b) => b.token.id === v.vaultDebt.tokenId
+    );
+    const assetPnL = balanceStatements?.find(
+      (b) => b.token.id === v.vaultShares.tokenId
+    );
+    const cashPnL = balanceStatements?.find(
+      (b) => b.token.id === v.vaultCash.tokenId
+    );
+
+    const denom = v.denom(v.defaultSymbol);
+    const profit = (assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
+      .sub(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
+      .add(cashPnL?.totalProfitAndLoss || TokenBalance.zero(denom));
+    const strategyAPY =
+      allYields.find((y) => v.vaultShares.tokenId === y.token.id)?.totalAPY ||
+      0;
+    const borrowAPY =
+      debtPnL?.impliedFixedRate !== undefined
+        ? debtPnL.impliedFixedRate
+        : allYields.find(
+            (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
+          )?.totalAPY || 0;
+
+    const totalAPY = leveragedYield(
+      strategyAPY,
+      borrowAPY,
+      v.leverageRatio() || 0
+    );
+
+    return {
+      vault: v,
+      totalAPY,
+      borrowAPY,
+      strategyAPY,
+      profit,
+      denom,
+    };
+  });
 }

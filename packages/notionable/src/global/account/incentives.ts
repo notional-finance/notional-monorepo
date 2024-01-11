@@ -1,11 +1,17 @@
 import {
+  AccountDefinition,
+  Registry,
+  TokenBalance,
+} from '@notional-finance/core-entities';
+import {
   INTERNAL_TOKEN_PRECISION,
   SECONDS_IN_YEAR,
   getNowSeconds,
 } from '@notional-finance/util';
-import { AccountDefinition } from '../../Definitions';
-import { TokenBalance } from '../../token-balance';
-import { Registry } from '../../Registry';
+
+export type AccruedIncentives = ReturnType<
+  typeof calculateAccruedIncentives
+>[number];
 
 export function calculateAccruedIncentives(account: AccountDefinition) {
   return account.balances

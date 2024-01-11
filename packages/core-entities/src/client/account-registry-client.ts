@@ -4,7 +4,7 @@ import {
   Network,
 } from '@notional-finance/util';
 import { providers } from 'ethers';
-import { BehaviorSubject, filter, lastValueFrom, take, takeUntil } from 'rxjs';
+import { BehaviorSubject, filter, lastValueFrom, of, take, takeUntil } from 'rxjs';
 import {
   AccountDefinition,
   BalanceStatement,
@@ -78,6 +78,14 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       throw Error('Can only fetch active account');
 
     return this.getLatestFromSubject(network, account);
+  }
+
+  public subscribeActiveAccount(network: Network) {
+    if (this.activeAccount) {
+      return this.subscribeAccount(network, this.activeAccount);
+    } else {
+      return of(null);
+    }
   }
 
   public subscribeAccount(network: Network, account: string) {

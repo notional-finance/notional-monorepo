@@ -1,94 +1,116 @@
-/*
-  const onWalletConnect$ = state$.pipe(
+import {
+  Observable,
+  combineLatest,
+  filter,
+  map,
+  merge,
+  pairwise,
+  switchMap,
+} from 'rxjs';
+import { AccountState, GlobalState, TransactionState } from '../global-state';
+import {
+  Network,
+  SupportedNetworks,
+  filterEmpty,
+} from '@notional-finance/util';
+import { Registry } from '@notional-finance/core-entities';
+import {
+  calculateGroupedHoldings,
+  calculateHoldings,
+  calculateVaultHoldings,
+} from '../account/holdings';
+import { calculateAccruedIncentives } from '../account/incentives';
+import {
+  checkCommunityMembership,
+  checkSanctionedAddress,
+} from '../account/communities';
+
+export function onWalletConnect(global$: Observable<GlobalState>) {
+  return merge(onWalletChange$(global$), onAccountUpdates$());
+}
+
+function onWalletChange$(global$: Observable<GlobalState>) {
+  return global$.pipe(
     pairwise(),
     filter(([prev, cur]) => {
       const didConnect = prev.wallet === undefined && cur.wallet !== undefined;
       const didChange =
         prev.wallet &&
         cur.wallet &&
-        prev.wallet?.selectedAddress !== cur.wallet.selectedAddress;
+        prev.wallet.selectedAddress !== cur.wallet.selectedAddress;
       return didChange || didConnect;
     }),
-    map(([_, cur]) => {
-      return {
-        isAccountPending: true,
-        isAccountReady: false,
-        holdingsGroups: undefined,
-        // Selected address must always be defined here
-        selectedAccount: cur.wallet?.selectedAddress,
-      };
-    })
-  );
+    switchMap(async ([_, cur]) => {
+      const selectedAddress = cur.wallet?.selectedAddress;
+      if (selectedAddress === undefined) return undefined;
 
-  const onWalletDisconnect$ = state$.pipe(
-    pairwise(),
-    filter(
-      ([prev, cur]) => prev.wallet !== undefined && cur.wallet === undefined
-    ),
-    map(([_, cur]) => {
-      if (cur.selectedNetwork) disconnectAccount(cur.selectedNetwork);
+      // check community membership
+      const communityMembership = await checkCommunityMembership(
+        selectedAddress
+      );
+      // check sanctioned address
+      const isSanctionedAddress = await checkSanctionedAddress(selectedAddress);
 
       return {
-        isAccountPending: false,
-        isAccountReady: false,
-        holdingsGroups: [],
-        selectedAccount: undefined,
+        communityMembership,
+        isSanctionedAddress,
+        hasTrackedIdentify: false,
+        networkAccounts: undefined,
+        // Initialize network transactions to an empty record set
+        networkTransactions: SupportedNetworks.reduce((acc, n) => {
+          acc[n] = {
+            sentTransactions: {},
+            awaitingBalanceChanges: {},
+            completedTransactions: {},
+            pendingTokens: [],
+            pendingTxns: [],
+          };
+          return acc;
+        }, {} as Record<Network, TransactionState>),
       };
-    })
+    }),
+    filterEmpty()
   );
+}
 
-  // Sets the account when the data is ready and fetched
-  const onAccountPending$ = state$.pipe(
-    map(
-      ({
-        isAccountPending,
-        selectedAccount,
-        selectedNetwork,
-        isNetworkReady,
-        wallet,
-      }) =>
-        isAccountPending && isNetworkReady && selectedAccount && selectedNetwork
-          ? { selectedAccount, selectedNetwork, wallet }
-          : undefined
-    ),
-    filterEmpty(),
-    distinctUntilChanged((p, c) => p.selectedAccount === c.selectedAccount),
-    switchMap(({ selectedAccount, selectedNetwork, wallet }) =>
-      onAccountPending(
-        selectedAccount,
-        selectedNetwork,
-        wallet?.label || 'unknown'
-      )
+function onAccountUpdates$() {
+  return combineLatest(
+    SupportedNetworks.map((n) =>
+      Registry.getAccountRegistry().subscribeActiveAccount(n)
     )
-  );
+  ).pipe(
+    // Ensure that at least one of the accounts is defined
+    filter((accts) => !accts.every((a) => a === null)),
+    map((accts) => {
+      const networkAccounts = accts.reduce((n, a) => {
+        if (a !== null) {
+          const portfolioHoldings = calculateHoldings(a);
+          n[a.network] = {
+            isAccountReady: true,
+            accountDefinition: a,
+            portfolioHoldings,
+            groupedHoldings: calculateGroupedHoldings(a, portfolioHoldings),
+            vaultHoldings: calculateVaultHoldings(a),
+            accruedIncentives: calculateAccruedIncentives(a),
+          };
+        }
 
-  const onAccountConnect$ = state$.pipe(
-    distinctUntilChanged((p, c) => p.selectedAccount === c.selectedAccount),
-    filter(({ selectedAccount }) => selectedAccount !== undefined),
-    switchMap(({ selectedAccount }) => {
-      // Chain Analysis Sanctioned Address Oracle
-      const sanctionList = new Contract(
-        '0x40c57923924b5c5c5455c48d93317139addac8fb',
-        ['function isSanctioned(address) view returns (bool)'],
-        getProviderFromNetwork(Network.Mainnet)
-      );
-      return from(
-        (
-          sanctionList['isSanctioned'](selectedAccount) as Promise<boolean>
-        ).then((isSanctionedAddress) => ({ isSanctionedAddress }))
-      );
+        return n;
+      }, {} as Record<Network, AccountState>);
+
+      return { networkAccounts };
     })
   );
+}
 
-  const onNFTUnlock$ = state$.pipe(
-    distinctUntilChanged((p, c) => p.hasContestNFT === c.hasContestNFT),
-    tap(({ hasContestNFT, selectedAccount, contestTokenId }) => {
-      if (selectedAccount && hasContestNFT === BETA_ACCESS.CONFIRMED) {
-        trackEvent(TRACKING_EVENTS.NFT_UNLOCK, {
-          selectedAccount,
-          contestTokenId: contestTokenId || 'unknown',
-        });
-      }
-    })
-  );
-*/
+// function onTrackIdentify$(global$: Observable<GlobalState>) {
+//   return global$.pipe(
+//     filter(
+//       ({ hasTrackedIdentify, networkAccounts }) =>
+//         hasTrackedIdentify === false && !!networkAccounts
+//     ),
+//     tap(({ networkAccounts }) => {
+
+//     })
+//   );
+// }
