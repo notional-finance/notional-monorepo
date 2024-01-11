@@ -6,7 +6,6 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { TrackingConsent } from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
-import { useEffect } from 'react';
 import { Switch } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
 import { ServerError } from '../ServerError/server-error';
@@ -16,7 +15,6 @@ import { OnboardContext } from '@notional-finance/wallet';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ScrollToTop } from '@notional-finance/mui';
-import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { useConnect } from '@notional-finance/wallet/hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 // Feature shell views
@@ -230,18 +228,10 @@ export const App = () => {
   const globalState = useGlobalContext();
 
   const {
-    updateState,
-    state: { themeVariant, hasContestNFT },
+    state: { themeVariant },
   } = globalState;
   const notionalTheme = useNotionalTheme(themeVariant);
-  useVaultNftCheck(hasContestNFT);
-
-  // Run as a useEffect here so that the observable "sees" the initial change
-  useEffect(() => {
-    updateState({
-      selectedNetwork: getDefaultNetworkFromHostname(window.location.hostname),
-    });
-  }, [updateState]);
+  useVaultNftCheck();
 
   return (
     <ThemeProvider theme={notionalTheme}>

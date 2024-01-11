@@ -23,8 +23,16 @@ export const VaultSideDrawer = ({
 }: VaultSideDrawerProps) => {
   const history = useHistory();
   const { state } = context;
-  const { minBorrowSize, vaultAddress, tradeType: _tradeType } = state;
-  const { minDepositRequired } = useVaultProperties(vaultAddress);
+  const {
+    minBorrowSize,
+    vaultAddress,
+    tradeType: _tradeType,
+    selectedNetwork,
+  } = state;
+  const { minDepositRequired } = useVaultProperties(
+    selectedNetwork,
+    vaultAddress
+  );
   const tradeType = _tradeType as VaultTradeType;
 
   if (!tradeType) return null;

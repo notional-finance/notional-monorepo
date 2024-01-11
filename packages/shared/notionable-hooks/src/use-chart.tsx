@@ -3,13 +3,12 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { useSelectedNetwork } from './use-notional';
-import { floorToMidnight } from '@notional-finance/helpers';
 import {
   Network,
   SECONDS_IN_DAY,
   getNowSeconds,
   leveragedYield,
+  floorToMidnight,
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
 import { useFiat } from './use-user-settings';
@@ -41,17 +40,13 @@ function fillChartDaily<T extends { timestamp: number }>(
 }
 
 export function useTokenHistory(token?: TokenDefinition) {
-  const network = useSelectedNetwork();
-
   const { apyData, tvlData } = useMemo(() => {
-    const apyData =
-      network && token
-        ? Registry.getAnalyticsRegistry().getHistoricalAPY(token)
-        : undefined;
-    const tvlData =
-      network && token
-        ? Registry.getAnalyticsRegistry().getPriceHistory(token)
-        : undefined;
+    const apyData = token
+      ? Registry.getAnalyticsRegistry().getHistoricalAPY(token)
+      : undefined;
+    const tvlData = token
+      ? Registry.getAnalyticsRegistry().getPriceHistory(token)
+      : undefined;
 
     return { apyData, tvlData };
   }, [token]);
@@ -81,11 +76,10 @@ export function useLeveragedPerformance(
   leverageRatio: number | null | undefined,
   leveragedLendFixedRate: number | undefined
 ) {
-  const network = useSelectedNetwork();
-  if (!network || !token) return [];
+  if (!token) return [];
   const analytics = Registry.getAnalyticsRegistry();
   const primeDebt = Registry.getTokenRegistry().getPrimeDebt(
-    network,
+    token.network,
     token.currencyId
   );
   const tokenData = analytics.getHistoricalAPY(token);
@@ -112,8 +106,7 @@ export function useLeveragedPerformance(
 }
 
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {
-  const network = useSelectedNetwork();
-  if (!network || !token) return [];
+  if (!token) return [];
   const data = Registry.getAnalyticsRegistry().getPriceHistory(token);
 
   return fillChartDaily(
@@ -126,11 +119,12 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
 }
 
 export function useAccountHistoryChart(
+  network: Network | undefined,
   startTime: number,
   endTime: number,
   tickSizeInSeconds: number
 ) {
-  const { account } = useAccountDefinition();
+  const account = useAccountDefinition(network);
   const baseCurrency = useFiat();
   if (!account) return undefined;
 

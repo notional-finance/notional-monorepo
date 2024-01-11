@@ -55,6 +55,7 @@ function onWalletChange$(global$: Observable<GlobalState>) {
       return {
         communityMembership,
         isSanctionedAddress,
+        selectedPortfolioNetwork: cur.wallet?.selectedChain,
         hasTrackedIdentify: false,
         networkAccounts: undefined,
         // Initialize network transactions to an empty record set

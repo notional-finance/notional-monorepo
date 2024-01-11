@@ -18,6 +18,7 @@ import {
 } from './account/holdings';
 import { AccruedIncentives, TotalIncentives } from './account/incentives';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import { CommunityName } from './account/communities';
 
 const userSettings = getFromLocalStorage('userSettings');
 
@@ -27,7 +28,7 @@ export enum BETA_ACCESS {
   REJECTED = 'rejected',
 }
 
-export const GATED_VAULTS: string[] = [];
+export const GATED_VAULTS: Record<string, CommunityName[]> = {};
 
 // Set this as the runtime default
 const CACHE_HOSTNAME =
@@ -73,7 +74,7 @@ interface AddressState {
   };
   hasTrackedIdentify: boolean;
   /** These are checked on wallet connection and associated with the wallet */
-  communityMembership?: string[];
+  communityMembership?: CommunityName[];
   /** Checks if the address is sanctioned on wallet connection */
   isSanctionedAddress: boolean;
 

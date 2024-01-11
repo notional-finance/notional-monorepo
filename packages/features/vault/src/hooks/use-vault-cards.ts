@@ -26,7 +26,7 @@ interface AllVaultsProps {
 }
 
 export const useVaultCards = (network: Network) => {
-  const listedVaults = useAllVaults();
+  const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
   const {
     yields: { leveragedVaults },
@@ -71,10 +71,9 @@ export const useVaultCards = (network: Network) => {
         vaultName: name,
         capacityUsedPercentage,
         capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
-        VaultCardOverlay: GATED_VAULTS.includes(id)
-          ? VaultCardOverlay
-          : undefined,
-        VaultCardIcon: GATED_VAULTS.includes(id) ? DegenScoreIcon : undefined,
+        VaultCardOverlay:
+          GATED_VAULTS[id].length > 0 ? VaultCardOverlay : undefined,
+        VaultCardIcon: GATED_VAULTS[id].length > 0 ? DegenScoreIcon : undefined,
       };
     }
   );

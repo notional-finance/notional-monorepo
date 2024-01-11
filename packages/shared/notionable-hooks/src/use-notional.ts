@@ -4,6 +4,7 @@ import { useCallback, useContext } from 'react';
 import { NotionalContext } from './context/NotionalContext';
 import { switchMap, take, concat } from 'rxjs';
 import { Registry } from '@notional-finance/core-entities';
+import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 export function useLastUpdateBlockNumber() {
   const network = useSelectedPortfolioNetwork();
@@ -30,7 +31,10 @@ export function useSelectedPortfolioNetwork() {
     globalState: { selectedPortfolioNetwork, isNetworkReady },
   } = useNotionalContext();
 
-  return isNetworkReady ? selectedPortfolioNetwork : undefined;
+  return isNetworkReady
+    ? selectedPortfolioNetwork ||
+        getDefaultNetworkFromHostname(window.location.hostname)
+    : undefined;
 }
 
 export function useNOTE() {

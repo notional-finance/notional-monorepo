@@ -38,6 +38,7 @@ export const useTotalsChart = () => {
   }
 
   const historyData = useAccountHistoryChart(
+    network,
     getNowSeconds() - SECONDS_IN_MONTH * secondsMultiple,
     getNowSeconds(),
     SECONDS_IN_DAY * 3

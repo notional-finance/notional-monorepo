@@ -5,7 +5,15 @@ import {
 } from '@notional-finance/util';
 import { Contract } from 'ethers';
 
-export const CommunityNFTs = [
+export type CommunityName = 'DEGEN_SCORE' | 'V3_BETA_CONTEST';
+
+interface Community {
+  name: CommunityName;
+  address: string;
+  network: Network;
+}
+
+export const CommunityNFTs: Community[] = [
   {
     name: 'DEGEN_SCORE',
     address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',

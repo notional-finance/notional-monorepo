@@ -15,11 +15,11 @@ import { useManageVault } from '../hooks/use-manage-vault';
 
 export const ManageVault = () => {
   const {
-    state: { vaultAddress },
+    state: { vaultAddress, selectedNetwork },
   } = useContext(VaultActionContext);
   const { reduceLeverageOptions, manageVaultOptions, rollMaturityOptions } =
     useManageVault();
-  const { vaultName } = useVaultProperties(vaultAddress);
+  const { vaultName } = useVaultProperties(selectedNetwork, vaultAddress);
 
   useEffect(() => {
     window.scrollTo(0, 0);
