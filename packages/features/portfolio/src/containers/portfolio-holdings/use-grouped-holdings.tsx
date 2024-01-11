@@ -2,17 +2,21 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
-  formatMaturity,
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
-import { useFiat, useGroupedTokens } from '@notional-finance/notionable-hooks';
+import {
+  useFiat,
+  useGroupedHoldings,
+  useSelectedPortfolioNetwork,
+} from '@notional-finance/notionable-hooks';
 import {
   Network,
   TXN_HISTORY_TYPE,
   leveragedYield,
+  formatMaturity
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -35,9 +39,10 @@ function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   }
 }
 
-export function useGroupedHoldings() {
+export function useGroupedHoldingsTable() {
   const baseCurrency = useFiat();
-  const groupedTokens = useGroupedTokens();
+  const network = useSelectedPortfolioNetwork();
+  const groupedTokens = useGroupedHoldings(network);
   const history = useHistory();
 
   const groupedRows = groupedTokens.map(

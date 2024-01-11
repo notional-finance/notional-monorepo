@@ -12,8 +12,8 @@ import {
   usePendingPnLCalculation,
   useLeverageBlock,
 } from '@notional-finance/notionable-hooks';
-import { useDetailedHoldings } from './use-detailed-holdings';
-import { useGroupedHoldings } from './use-grouped-holdings';
+import { useDetailedHoldingsTable } from './use-detailed-holdings';
+import { useGroupedHoldingsTable } from './use-grouped-holdings';
 import { useTheme } from '@mui/material';
 
 export function usePortfolioHoldings() {
@@ -23,8 +23,8 @@ export function usePortfolioHoldings() {
   const [toggleOption, setToggleOption] = useState<number>(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const pendingTokenData = usePendingPnLCalculation();
-  const { detailedHoldings } = useDetailedHoldings();
-  const { groupedRows, groupedTokens } = useGroupedHoldings();
+  const { detailedHoldings } = useDetailedHoldingsTable();
+  const { groupedRows, groupedTokens } = useGroupedHoldingsTable();
 
   const filteredHoldings = detailedHoldings.filter(
     ({ tokenId }) => !groupedTokens.includes(tokenId)

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import {
   useTransactionHistory,
-  useSelectedNetwork,
+  useSelectedPortfolioNetwork,
   usePendingPnLCalculation,
 } from '@notional-finance/notionable-hooks';
 import { TokenIcon } from '@notional-finance/icons';
@@ -20,8 +20,8 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
   let currencyData: SelectedOptions[] = [];
 
   const pendingTokenData = usePendingPnLCalculation();
-  const accountHistory = useTransactionHistory();
-  const selectedNetwork = useSelectedNetwork();
+  const network = useSelectedPortfolioNetwork();
+  const accountHistory = useTransactionHistory(network);
 
   const allAccountHistoryData = accountHistory
     .sort((x, y) => y.timestamp - x.timestamp)
@@ -64,7 +64,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
           time: timestamp,
           txLink: {
             hash: transactionHash,
-            href: getEtherscanTransactionLink(transactionHash, selectedNetwork),
+            href: getEtherscanTransactionLink(transactionHash, network),
           },
           currency: underlying.symbol,
           token: token,

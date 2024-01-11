@@ -16,7 +16,7 @@ import {
   PortfolioHolding,
   VaultHolding,
 } from './account/holdings';
-import { AccruedIncentives } from './account/incentives';
+import { AccruedIncentives, TotalIncentives } from './account/incentives';
 
 const userSettings = getFromLocalStorage('userSettings');
 
@@ -47,6 +47,7 @@ export interface AccountState {
   groupedHoldings?: GroupedHolding[];
   vaultHoldings?: VaultHolding[];
   accruedIncentives?: AccruedIncentives[];
+  totalIncentives?: TotalIncentives;
 }
 
 export interface TransactionState {

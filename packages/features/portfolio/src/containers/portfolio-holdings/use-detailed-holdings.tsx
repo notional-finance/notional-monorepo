@@ -9,8 +9,9 @@ import {
 import {
   useFiat,
   useFiatToken,
-  useHoldings,
   useNOTE,
+  usePortfolioHoldings,
+  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
   Network,
@@ -21,8 +22,9 @@ import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
-export function useDetailedHoldings() {
-  const holdings = useHoldings();
+export function useDetailedHoldingsTable() {
+  const network = useSelectedPortfolioNetwork();
+  const holdings = usePortfolioHoldings(network);
   const history = useHistory();
   const baseCurrency = useFiat();
   const fiatToken = useFiatToken();

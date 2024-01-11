@@ -6,9 +6,8 @@ import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import {
   useAccountDefinition,
-  useAccountReady,
-  useAccruedIncentives,
-  useSelectedNetwork,
+  useSelectedPortfolioNetwork,
+  useTotalIncentives,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import { ClaimNOTE } from '@notional-finance/transaction';
@@ -30,7 +29,7 @@ const useIncentiveCountUp = (i?: {
     const currentFloat = i?.current.toFloat();
     const in100SecFloat = i?.in100Sec.toFloat();
 
-    if (c == 0 && currentFloat) setCountUp(currentFloat);
+    if (c === 0 && currentFloat) setCountUp(currentFloat);
 
     if (in100SecFloat && currentFloat) {
       const perSecondFloat = (in100SecFloat - currentFloat) / 100;
@@ -51,15 +50,14 @@ const useIncentiveCountUp = (i?: {
 
 export const ClaimNoteButton = () => {
   const theme = useTheme();
-  const isAccountReady = useAccountReady();
-  const { account } = useAccountDefinition();
-  const network = useSelectedNetwork();
+  const network = useSelectedPortfolioNetwork();
+  const account = useAccountDefinition(network);
   const { isReadOnlyAddress, onSubmit } = useTransactionStatus();
   const [hover, setHover] = useState(false);
-  const accruedIncentives = useAccruedIncentives();
+  const totalIncentives = useTotalIncentives(network);
 
-  const noteCountUp = useIncentiveCountUp(accruedIncentives['NOTE']);
-  const arbCountUp = useIncentiveCountUp(accruedIncentives['ARB']);
+  const noteCountUp = useIncentiveCountUp(totalIncentives['NOTE']);
+  const arbCountUp = useIncentiveCountUp(totalIncentives['ARB']);
 
   const handleClick = useCallback(async () => {
     if (isReadOnlyAddress || !account || !network) return;
@@ -81,7 +79,7 @@ export const ClaimNoteButton = () => {
         justifyContent: 'end',
       }}
     >
-      {noteCountUp > 0 && isAccountReady && (
+      {noteCountUp > 0 && account && (
         <Wrapper
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}

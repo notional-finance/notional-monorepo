@@ -85,13 +85,17 @@ function onAccountUpdates$() {
       const networkAccounts = accts.reduce((n, a) => {
         if (a !== null) {
           const portfolioHoldings = calculateHoldings(a);
+          const { accruedIncentives, totalIncentives } =
+            calculateAccruedIncentives(a);
+
           n[a.network] = {
             isAccountReady: true,
             accountDefinition: a,
             portfolioHoldings,
             groupedHoldings: calculateGroupedHoldings(a, portfolioHoldings),
             vaultHoldings: calculateVaultHoldings(a),
-            accruedIncentives: calculateAccruedIncentives(a),
+            accruedIncentives,
+            totalIncentives,
           };
         }
 

@@ -9,12 +9,21 @@ import {
   getNowSeconds,
 } from '@notional-finance/util';
 
-export type AccruedIncentives = ReturnType<
-  typeof calculateAccruedIncentives
->[number];
+export interface AccruedIncentives {
+  currencyId: number;
+  incentives: TokenBalance[];
+  incentivesIn100Seconds: TokenBalance[];
+}
+export type TotalIncentives = Record<
+  string,
+  { current: TokenBalance; in100Sec: TokenBalance }
+>;
 
-export function calculateAccruedIncentives(account: AccountDefinition) {
-  return account.balances
+export function calculateAccruedIncentives(account: AccountDefinition): {
+  accruedIncentives: AccruedIncentives[];
+  totalIncentives: TotalIncentives;
+} {
+  const accruedIncentives = account.balances
     .filter((t) => t.tokenType === 'nToken')
     .map((b) => {
       const incentives: TokenBalance[] = [];
@@ -91,6 +100,28 @@ export function calculateAccruedIncentives(account: AccountDefinition) {
         incentivesIn100Seconds,
       };
     });
+
+  const totalIncentives = accruedIncentives.reduce(
+    (acc, { incentives, incentivesIn100Seconds }) => {
+      incentives.forEach((i, j) => {
+        const s = i.symbol;
+        if (acc[s]) {
+          acc[s].current = acc[s].current.add(i);
+          acc[s].in100Sec = acc[s].in100Sec.add(incentivesIn100Seconds[j]);
+        } else {
+          acc[s] = {
+            current: i,
+            in100Sec: incentivesIn100Seconds[j],
+          };
+        }
+      });
+
+      return acc;
+    },
+    {} as Record<string, { current: TokenBalance; in100Sec: TokenBalance }>
+  );
+
+  return { accruedIncentives, totalIncentives };
 }
 
 function calculateIncentive(
