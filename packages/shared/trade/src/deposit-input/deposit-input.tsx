@@ -66,6 +66,7 @@ export const DepositInput = React.forwardRef<
         availableDepositTokens,
         calculateError,
         tradeType,
+        selectedNetwork,
       },
       updateState,
     } = context;
@@ -93,6 +94,7 @@ export const DepositInput = React.forwardRef<
     }, [updateState, errorMsg, errorMsgOverride]);
 
     const balanceAndApyData = useWalletBalances(
+      selectedNetwork,
       availableDepositTokens,
       tradeType
     );

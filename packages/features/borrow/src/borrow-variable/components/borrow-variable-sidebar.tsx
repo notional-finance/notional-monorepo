@@ -13,10 +13,13 @@ import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';
 export const BorrowVariableSidebar = () => {
   const context = useContext(BorrowVariableContext);
   const {
-    state: { selectedDepositToken, debtOptions },
+    state: { selectedDepositToken, debtOptions, selectedNetwork },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
-  const cashBalance = usePrimeCashBalance(selectedDepositToken);
+  const cashBalance = usePrimeCashBalance(
+    selectedDepositToken,
+    selectedNetwork
+  );
   const insufficientLiquidity = debtOptions?.find((_) => !!_)?.error
     ? tradeErrors.insufficientLiquidity
     : undefined;

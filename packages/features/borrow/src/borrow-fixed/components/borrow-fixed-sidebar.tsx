@@ -14,9 +14,12 @@ export const BorrowFixedSidebar = () => {
   const { currencyInputRef } = useCurrencyInputRef();
   const context = useContext(BorrowFixedContext);
   const {
-    state: { selectedDepositToken },
+    state: { selectedDepositToken, selectedNetwork },
   } = context;
-  const cashBalance = usePrimeCashBalance(selectedDepositToken);
+  const cashBalance = usePrimeCashBalance(
+    selectedDepositToken,
+    selectedNetwork
+  );
 
   return (
     <TransactionSidebar
