@@ -7,8 +7,8 @@ import { useCallback } from 'react';
 
 export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
   const { updateState, state } = context;
-  const { debt: nToken, collateral } = state;
-  const profile = usePortfolioRiskProfile();
+  const { debt: nToken, collateral, selectedNetwork } = state;
+  const profile = usePortfolioRiskProfile(selectedNetwork);
   const maxRepayBalance = profile.balances.find(
     (t) => t.tokenId === collateral?.id
   );

@@ -8,8 +8,8 @@ import { useCallback } from 'react';
 
 export function useMaxWithdraw(context: BaseTradeContext) {
   const { updateState, state } = context;
-  const { debt } = state;
-  const profile = usePortfolioRiskProfile();
+  const { debt, selectedNetwork } = state;
+  const profile = usePortfolioRiskProfile(selectedNetwork);
   const { primeCash } = useCurrency();
   const withdrawToken =
     debt?.tokenType === 'PrimeDebt'

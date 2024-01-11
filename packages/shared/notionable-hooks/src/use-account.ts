@@ -1,12 +1,9 @@
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
-import {
-  AccountRiskProfile,
-  VaultAccountRiskProfile,
-} from '@notional-finance/risk-engine';
 import { truncateAddress } from '@notional-finance/helpers';
 import { Network } from '@notional-finance/util';
 import { useFiat, useFiatToken } from './use-user-settings';
+import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 /** Contains selectors for account holdings information */
 
@@ -77,33 +74,15 @@ export function useTruncatedAddress() {
     : '';
 }
 
-export function useVaultRiskProfile(vaultAddress?: string) {
-  const { account } = useAccountDefinition();
-  if (vaultAddress && account) {
-    return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
-  }
-
-  return undefined;
-}
-
-export function useVaultRiskProfiles() {
-  const { account } = useAccountDefinition();
-  return account ? VaultAccountRiskProfile.getAllRiskProfiles(account) : [];
-}
-
-export function usePortfolioRiskProfile() {
-  const { account } = useAccountDefinition();
-  const network = useSelectedNetwork();
-
-  return new AccountRiskProfile(
-    account?.balances.filter(
-      (b) =>
-        !b.isVaultToken &&
-        b.tokenType !== 'Underlying' &&
-        b.tokenType !== 'NOTE'
-    ) || [],
-    network
-  );
+export function usePortfolioRiskProfile(network: Network | undefined) {
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+  const profile =
+    networkAccounts && network
+      ? networkAccounts[network].riskProfile
+      : undefined;
+  return profile || new AccountRiskProfile([], network);
 }
 
 export function useAccountCurrentFactors(network: Network | undefined) {

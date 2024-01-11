@@ -41,7 +41,6 @@ export function useVaultProperties(vaultAddress?: string) {
         vaultAddress
       ));
       const vaultConfig = config.getVaultConfig(network, vaultAddress);
-      // TODO: move these to vault registry
       vaultName = config.getVaultName(network, vaultAddress);
       strategyName = 'SingleSidedLP';
 

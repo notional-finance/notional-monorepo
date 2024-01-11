@@ -17,6 +17,7 @@ import {
   VaultHolding,
 } from './account/holdings';
 import { AccruedIncentives, TotalIncentives } from './account/incentives';
+import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 const userSettings = getFromLocalStorage('userSettings');
 
@@ -42,6 +43,7 @@ export interface NotionalError {
 /** Account state is written on a per network basis */
 export interface AccountState {
   isAccountReady: boolean;
+  riskProfile?: AccountRiskProfile;
   accountDefinition?: AccountDefinition;
   portfolioHoldings?: PortfolioHolding[];
   groupedHoldings?: GroupedHolding[];

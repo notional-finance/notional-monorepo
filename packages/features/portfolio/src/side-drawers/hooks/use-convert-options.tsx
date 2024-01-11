@@ -6,8 +6,8 @@ import {
 import { useParams } from 'react-router';
 
 export function useConvertOptions(state: BaseTradeState) {
-  const { tradeType, collateralOptions, debtOptions } = state;
-  const portfolio = usePortfolioRiskProfile();
+  const { tradeType, collateralOptions, debtOptions, selectedNetwork } = state;
+  const portfolio = usePortfolioRiskProfile(selectedNetwork);
   const { primeDebt, primeCash } = useCurrency();
   const { selectedToken: selectedParamToken } = useParams<{
     selectedToken: string;

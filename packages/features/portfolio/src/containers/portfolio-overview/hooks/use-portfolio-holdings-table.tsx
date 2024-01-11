@@ -7,17 +7,17 @@ import { formatCryptoWithFiat } from '@notional-finance/helpers';
 import {
   useAccountReady,
   usePortfolioRiskProfile,
-  useSelectedNetwork,
   useFiat,
+  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { Registry } from '@notional-finance/core-entities';
 
 export const useTotalHoldingsTable = () => {
   const baseCurrency = useFiat();
-  const portfolio = usePortfolioRiskProfile();
-  const network = useSelectedNetwork();
-  const isAccountReady = useAccountReady();
+  const network = useSelectedPortfolioNetwork();
+  const portfolio = usePortfolioRiskProfile(network);
+  const isAccountReady = useAccountReady(network);
 
   const totalHoldingsColumns: DataTableColumn[] = [
     {

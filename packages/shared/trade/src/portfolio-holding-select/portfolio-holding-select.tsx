@@ -35,10 +35,10 @@ export const PortfolioHoldingSelect = ({
   const theme = useTheme();
   const {
     updateState,
-    state: { collateral, debt },
+    state: { collateral, debt, selectedNetwork },
   } = context;
   const { primeCash, primeDebt } = useCurrency();
-  const profile = usePortfolioRiskProfile();
+  const profile = usePortfolioRiskProfile(selectedNetwork);
   const selectedToken = isWithdraw ? debt : collateral;
   const { selectedToken: selectedParamToken } = useParams<{
     selectedToken: string;

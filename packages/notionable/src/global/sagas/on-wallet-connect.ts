@@ -24,6 +24,7 @@ import {
   checkCommunityMembership,
   checkSanctionedAddress,
 } from '../account/communities';
+import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 export function onWalletConnect(global$: Observable<GlobalState>) {
   return merge(onWalletChange$(global$), onAccountUpdates$());
@@ -87,9 +88,19 @@ function onAccountUpdates$() {
           const portfolioHoldings = calculateHoldings(a);
           const { accruedIncentives, totalIncentives } =
             calculateAccruedIncentives(a);
+          const riskProfile = new AccountRiskProfile(
+            a?.balances.filter(
+              (b) =>
+                !b.isVaultToken &&
+                b.tokenType !== 'Underlying' &&
+                b.tokenType !== 'NOTE'
+            ) || [],
+            a.network
+          );
 
           n[a.network] = {
             isAccountReady: true,
+            riskProfile,
             accountDefinition: a,
             portfolioHoldings,
             groupedHoldings: calculateGroupedHoldings(a, portfolioHoldings),

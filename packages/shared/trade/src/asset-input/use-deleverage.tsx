@@ -22,6 +22,7 @@ export const useDeleverage = (
       availableDebtTokens,
       debtBalance,
       collateralBalance,
+      selectedNetwork
     },
     updateState,
   } = context;
@@ -31,7 +32,7 @@ export const useDeleverage = (
     debtOrCollateral === 'Debt'
       ? availableDebtTokens
       : availableCollateralTokens;
-  const profile = usePortfolioRiskProfile();
+  const profile = usePortfolioRiskProfile(selectedNetwork);
   const { primeCash, primeDebt } = useCurrency();
 
   useEffect(() => {

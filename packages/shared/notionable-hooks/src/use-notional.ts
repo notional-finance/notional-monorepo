@@ -6,7 +6,7 @@ import { switchMap, take, concat } from 'rxjs';
 import { Registry } from '@notional-finance/core-entities';
 
 export function useLastUpdateBlockNumber() {
-  const network = useSelectedNetwork();
+  const network = useSelectedPortfolioNetwork();
   return network
     ? Registry.getOracleRegistry().getLastUpdateBlock(network)
     : undefined;
@@ -25,16 +25,16 @@ export function useNotionalContext() {
   return { globalState: state, updateNotional: updateState, globalState$ };
 }
 
-export function useSelectedNetwork() {
+export function useSelectedPortfolioNetwork() {
   const {
-    globalState: { selectedNetwork, isNetworkReady },
+    globalState: { selectedPortfolioNetwork, isNetworkReady },
   } = useNotionalContext();
 
-  return isNetworkReady ? selectedNetwork : undefined;
+  return isNetworkReady ? selectedPortfolioNetwork : undefined;
 }
 
 export function useNOTE() {
-  const network = useSelectedNetwork();
+  const network = useSelectedPortfolioNetwork();
   return network
     ? Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE')
     : undefined;
