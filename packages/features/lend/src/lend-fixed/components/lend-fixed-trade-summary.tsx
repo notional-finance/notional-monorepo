@@ -29,10 +29,7 @@ export const LendFixedTradeSummary = () => {
   const context = useContext(LendFixedContext);
   const { state } = context;
   const { selectedDepositToken, deposit } = state;
-  const { tableColumns, tableData } = useFixedLiquidityPoolsTable(
-    selectedDepositToken,
-    deposit?.currencyId
-  );
+  const { tableColumns, tableData } = useFixedLiquidityPoolsTable(deposit);
   const { faqHeaderLinks, faqs } = useLendFixedFaq();
   const totalsData = useTotalsData(selectedDepositToken);
   const multiChartData = useLendFixedMultiChart();

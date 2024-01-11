@@ -27,7 +27,7 @@ export const useReturnDriversTable = () => {
   } = useContext(LiquidityContext);
   const { yields } = useAllMarkets();
   const baseCurrency = useFiat();
-  const fCashData = useFCashMarket(deposit?.currencyId);
+  const fCashData = useFCashMarket(deposit);
 
   const liquidityData = yields.liquidity.find(
     ({ underlying }) => underlying.symbol === selectedDepositToken

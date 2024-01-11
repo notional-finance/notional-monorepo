@@ -1,14 +1,14 @@
 import { BaseTradeState } from '@notional-finance/notionable';
 import {
-  useCurrency,
   usePortfolioRiskProfile,
+  usePrimeTokens,
 } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router';
 
 export function useConvertOptions(state: BaseTradeState) {
   const { tradeType, collateralOptions, debtOptions, selectedNetwork } = state;
   const portfolio = usePortfolioRiskProfile(selectedNetwork);
-  const { primeDebt, primeCash } = useCurrency();
+  const { primeDebt, primeCash } = usePrimeTokens(selectedNetwork);
   const { selectedToken: selectedParamToken } = useParams<{
     selectedToken: string;
   }>();

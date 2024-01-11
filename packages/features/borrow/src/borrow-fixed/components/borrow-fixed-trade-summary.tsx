@@ -26,10 +26,7 @@ export const BorrowFixedTradeSummary = () => {
   const context = useContext(BorrowFixedContext);
   const { state } = context;
   const { selectedDepositToken, deposit } = state;
-  const { tableColumns, tableData } = useFixedLiquidityPoolsTable(
-    selectedDepositToken,
-    deposit?.currencyId
-  );
+  const { tableColumns, tableData } = useFixedLiquidityPoolsTable(deposit);
   const multiChartData = useBorrowFixedMultiChart();
   const { faqs, faqHeaderLinks } = useBorrowFixedFaq();
   const totalsData = useTotalsData(selectedDepositToken);

@@ -4,7 +4,7 @@ import { LeverageSlider, TransactionSidebar } from '@notional-finance/trade';
 import { defineMessage } from 'react-intl';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 import { useLeveragedNTokenPositions } from '../hooks';
-import { useCurrency } from '@notional-finance/notionable-hooks';
+import { usePrimeCash } from '@notional-finance/notionable-hooks';
 import { ErrorMessage } from '@notional-finance/mui';
 
 export const AdjustLeverage = () => {
@@ -14,7 +14,7 @@ export const AdjustLeverage = () => {
     updateState,
   } = context;
   const { currentPosition } = useLeveragedNTokenPositions(selectedDepositToken);
-  const { primeCash } = useCurrency();
+  const primeCash = usePrimeCash(debt?.network, debt?.currencyId);
   const [isDeleverage, setIsDeleverage] = useState(false);
 
   // NOTE: when the leverage slider goes below the account's default position
@@ -47,9 +47,7 @@ export const AdjustLeverage = () => {
           updateState({
             collateral:
               currentPosition.debt.tokenType === 'PrimeDebt'
-                ? primeCash.find(
-                    (t) => t.currencyId === currentPosition.debt.currencyId
-                  )
+                ? primeCash
                 : currentPosition.debt.token,
             debt: currentPosition.asset.token,
             collateralBalance: undefined,

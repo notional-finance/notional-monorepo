@@ -3,8 +3,8 @@ import { formatTokenType } from '@notional-finance/helpers';
 import { CurrencyInputHandle } from '@notional-finance/mui';
 import {
   BaseTradeContext,
-  useCurrency,
   usePortfolioRiskProfile,
+  usePrimeTokens,
 } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
 
@@ -22,7 +22,7 @@ export const useDeleverage = (
       availableDebtTokens,
       debtBalance,
       collateralBalance,
-      selectedNetwork
+      selectedNetwork,
     },
     updateState,
   } = context;
@@ -33,7 +33,7 @@ export const useDeleverage = (
       ? availableDebtTokens
       : availableCollateralTokens;
   const profile = usePortfolioRiskProfile(selectedNetwork);
-  const { primeCash, primeDebt } = useCurrency();
+  const { primeCash, primeDebt } = usePrimeTokens(selectedNetwork);
 
   useEffect(() => {
     // If the input control is no longer the primary, it will just mirror

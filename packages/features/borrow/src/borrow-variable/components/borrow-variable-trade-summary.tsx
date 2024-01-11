@@ -29,7 +29,7 @@ export const BorrowVariableTradeSummary = () => {
     areaChartStyles,
     chartHeaderData,
     borrowUtilization,
-  } = useInterestRateUtilizationChart(deposit?.currencyId, 'borrow', selectedDepositToken);
+  } = useInterestRateUtilizationChart(deposit, 'borrow');
   const { faqs, faqHeaderLinks } = useBorrowVariableFaq(selectedDepositToken);
   const totalsData = useVariableTotals(state);
   const { apyData, tvlData } = useTokenHistory(debt);

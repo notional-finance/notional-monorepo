@@ -1,8 +1,8 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
   BaseTradeContext,
-  useCurrency,
   usePortfolioRiskProfile,
+  usePrimeCash,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
 
@@ -10,11 +10,8 @@ export function useMaxWithdraw(context: BaseTradeContext) {
   const { updateState, state } = context;
   const { debt, selectedNetwork } = state;
   const profile = usePortfolioRiskProfile(selectedNetwork);
-  const { primeCash } = useCurrency();
-  const withdrawToken =
-    debt?.tokenType === 'PrimeDebt'
-      ? primeCash.find((t) => t.currencyId === debt?.currencyId)
-      : debt;
+  const primeCash = usePrimeCash(debt?.network, debt?.currencyId);
+  const withdrawToken = debt?.tokenType === 'PrimeDebt' ? primeCash : debt;
   const maxWithdraw = withdrawToken
     ? profile.maxWithdraw(withdrawToken)
     : undefined;

@@ -20,7 +20,7 @@ export function useMaxRepay(context: BaseTradeContext) {
     updateState,
     state: { collateral, maxWithdraw, selectedNetwork },
   } = context;
-  const fCashMarket = useFCashMarket(collateral?.currencyId);
+  const fCashMarket = useFCashMarket(collateral);
   const profile = usePortfolioRiskProfile(selectedNetwork);
 
   // Find the matching debt balance in the risk profile. For prime debt repayment,
