@@ -85,6 +85,15 @@ export function usePortfolioRiskProfile(network: Network | undefined) {
   return profile || new AccountRiskProfile([], network);
 }
 
+export function usePortfolioLiquidationPrices(network: Network | undefined) {
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+  return networkAccounts && network
+    ? networkAccounts[network].portfolioLiquidationPrices || []
+    : [];
+}
+
 export function useAccountCurrentFactors(network: Network | undefined) {
   const baseCurrency = useFiat();
   const fiatToken = useFiatToken();

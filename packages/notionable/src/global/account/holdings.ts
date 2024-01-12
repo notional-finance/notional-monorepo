@@ -3,7 +3,7 @@ import {
   convertToSignedfCashId,
   leveragedYield,
 } from '@notional-finance/util';
-import { calculateAccruedIncentives } from './incentives';
+import { AccruedIncentives } from './incentives';
 import {
   AccountDefinition,
   Registry,
@@ -21,7 +21,10 @@ export type VaultHolding = ReturnType<typeof calculateVaultHoldings>[number];
  * Exposes all the relevant information for account holdings in the normal portfolio,
  * excludes Vault, Underlying and NOTE balances
  */
-export function calculateHoldings(account: AccountDefinition) {
+export function calculateHoldings(
+  account: AccountDefinition,
+  accruedIncentives: AccruedIncentives[]
+) {
   const balances = account.balances
     .filter(
       (b) =>
@@ -35,7 +38,6 @@ export function calculateHoldings(account: AccountDefinition) {
   const nonLeveragedYields = Registry.getYieldRegistry().getNonLeveragedYields(
     account.network
   );
-  const accruedIncentives = calculateAccruedIncentives(account);
 
   const holdings = balances.map((balance) => {
     const statement = account.balanceStatement?.find(
@@ -223,6 +225,7 @@ export function calculateVaultHoldings(account: AccountDefinition) {
 
     return {
       vault: v,
+      liquidationPrices: v.getAllLiquidationPrices(),
       totalAPY,
       borrowAPY,
       strategyAPY,

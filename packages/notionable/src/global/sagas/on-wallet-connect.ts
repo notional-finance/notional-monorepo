@@ -86,9 +86,9 @@ function onAccountUpdates$() {
     map((accts) => {
       const networkAccounts = accts.reduce((n, a) => {
         if (a !== null) {
-          const portfolioHoldings = calculateHoldings(a);
           const { accruedIncentives, totalIncentives } =
             calculateAccruedIncentives(a);
+          const portfolioHoldings = calculateHoldings(a, accruedIncentives);
           const riskProfile = new AccountRiskProfile(
             a?.balances.filter(
               (b) =>
