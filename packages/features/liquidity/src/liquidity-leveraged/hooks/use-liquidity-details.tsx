@@ -168,7 +168,7 @@ export const useLiquidityDetails = () => {
   );
   if (liquidationPrice) {
     table.push({
-      label: liquidationPrice.label,
+      label: liquidationPrice.label as string,
       current: liquidationPrice.current,
       updated: {
         value: liquidationPrice.updated,

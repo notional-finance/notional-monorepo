@@ -19,7 +19,7 @@ interface SliderBasicProps {
   value: number;
   disabled: boolean;
   trackColor?: string;
-  hideThumb?: boolean;
+  showThumb?: boolean;
   showMinMax?: boolean;
   onChange?: (value: number) => void;
   onChangeCommitted?: (value: number) => void;
@@ -42,7 +42,7 @@ export const SliderBasic = ({
   onFocus,
   onBlur,
   railGradients,
-  hideThumb,
+  showThumb = false,
   showMinMax,
   sx,
 }: SliderBasicProps) => {
@@ -107,8 +107,10 @@ export const SliderBasic = ({
   const formattedGradientBg = `linear-gradient(90deg, ${railGradients
     ?.map(({ color, value }) => `rgb(${color.join(',')}) ${value.toFixed(0)}%`)
     .join(',')})`;
-  const currentGradient =
-    railGradients && `rgba(${getMarkColor(railGradients, value).join(',')})`;
+
+  // NOTE: Leaving this incase we ever want to have a gradient colored thumb again
+  // const currentGradient =
+  //   railGradients && `rgba(${getMarkColor(railGradients, value).join(',')})`;
 
   return (
     <SliderContainer
@@ -143,27 +145,28 @@ export const SliderBasic = ({
         onFocus={onFocus}
         onBlur={onBlur}
         sx={{
-          '.rail': {
+          '& .MuiSlider-track': {
+            border: 'none',
+            height: '8px',
             background: railGradients?.length
               ? formattedGradientBg
-              : theme.palette.borders.default,
-            opacity: 1,
-            height: '8px',
+              : trackColor
+              ? trackColor
+              : theme.palette.secondary.light,
           },
-          '.track': {
-            display: railGradients?.length ? 'none' : '',
-            background: trackColor || theme.palette.primary.light,
+          '& .MuiSlider-rail': {
+            opacity: 0.5,
             height: '8px',
             border: 'none',
+            background: theme.palette.borders.default,
+            boxShadow: 'inset 0px 0px 4px -2px #000',
           },
           '.MuiSlider-thumb': {
-            height: railGradients?.length ? '20px' : '16px',
-            width: railGradients?.length ? '20px' : '16px',
+            height: '16px',
+            width: '16px',
             background: theme.palette.common.black,
-            visibility: hideThumb ? 'hidden' : 'visible',
-            border: railGradients?.length
-              ? `4px solid ${currentGradient}`
-              : `3px solid ${trackColor || theme.palette.primary.light}`,
+            visibility: showThumb ? 'visible' : 'hidden',
+            border: `3px solid ${theme.palette.secondary.light}`,
           },
         }}
       />

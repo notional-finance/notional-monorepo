@@ -12,7 +12,7 @@ interface SliderCellProps {
       railGradients?: RailGradient[];
       min?: number;
       max?: number;
-      hideThumb?: boolean;
+      showThumb?: boolean;
       stepSize?: number;
     };
   };
@@ -31,7 +31,7 @@ export const SliderCell = ({ cell }: SliderCellProps): JSX.Element => {
     max,
     stepSize,
     railGradients,
-    hideThumb,
+    showThumb,
   } = cell.value;
   const hasCaption = captionRight || captionLeft;
 
@@ -55,7 +55,7 @@ export const SliderCell = ({ cell }: SliderCellProps): JSX.Element => {
         step={stepSize || 0.01}
         trackColor={trackColor}
         sx={margins}
-        hideThumb={hideThumb}
+        showThumb={showThumb}
         railGradients={railGradients}
       />
       {hasCaption && (
