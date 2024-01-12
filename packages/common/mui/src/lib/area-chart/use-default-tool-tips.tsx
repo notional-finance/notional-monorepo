@@ -1,4 +1,4 @@
-import { getDateString } from '@notional-finance/helpers';
+import { getDateString } from '@notional-finance/util';
 import { useTheme } from '@mui/material';
 import { ChartToolTipDataProps } from '../chart-tool-tip/chart-tool-tip';
 import { FormattedMessage } from 'react-intl';

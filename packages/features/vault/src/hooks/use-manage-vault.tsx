@@ -5,9 +5,9 @@ import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import {
   PRIME_CASH_VAULT_MATURITY,
   leveragedYield,
+  formatMaturity,
 } from '@notional-finance/util';
 import {
-  formatMaturity,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
 

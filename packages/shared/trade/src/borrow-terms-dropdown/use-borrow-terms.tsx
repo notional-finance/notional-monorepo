@@ -4,7 +4,7 @@ import {
   useAllMarkets,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
-import { formatMaturity } from '@notional-finance/helpers';
+import { formatMaturity } from '@notional-finance/util';
 import { isVaultTrade } from '@notional-finance/notionable';
 import { leveragedYield } from '@notional-finance/util';
 import { TokenDefinition } from '@notional-finance/core-entities';

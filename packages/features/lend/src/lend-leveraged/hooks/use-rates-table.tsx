@@ -1,8 +1,6 @@
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
-import {
-  formatMaturity,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatMaturity } from '@notional-finance/util';
 import { YieldData } from '@notional-finance/core-entities';
 import {
   DataTableColumn,

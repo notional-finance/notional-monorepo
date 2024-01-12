@@ -11,10 +11,8 @@ import {
   SideDrawerButton,
 } from '@notional-finance/mui';
 import { useLeveragedNTokenPositions } from '../hooks';
-import {
-  formatMaturity,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatMaturity } from '@notional-finance/util';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 

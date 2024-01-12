@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { formatMaturity } from '@notional-finance/helpers';
+import { formatMaturity } from '@notional-finance/util';
 import { VaultActionContext } from '../vault';
 import { useVaultLiquidationRisk } from '@notional-finance/notionable-hooks';
 

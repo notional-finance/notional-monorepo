@@ -9,10 +9,8 @@ import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { groupArrayToMap } from '@notional-finance/util';
-import {
-  formatMaturity,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatMaturity } from '@notional-finance/util';
 
 export function LendCardView() {
   const themeVariant = useThemeVariant();

@@ -7,10 +7,10 @@ import {
 import { useLeveragedNTokenPositions } from './use-leveraged-ntoken-positions';
 import {
   formatLeverageRatio,
-  formatMaturity,
   formatNumberAsPercentWithUndefined,
 } from '@notional-finance/helpers';
 import {
+  formatMaturity,
   RATE_PRECISION,
   getChangeType,
   leveragedYield,
