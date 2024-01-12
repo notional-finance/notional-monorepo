@@ -10,6 +10,7 @@ import {
   useFiat,
   useFiatToken,
   useNOTE,
+  usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
@@ -25,6 +26,9 @@ import { useHistory } from 'react-router';
 export function useDetailedHoldingsTable() {
   const network = useSelectedPortfolioNetwork();
   const holdings = usePortfolioHoldings(network);
+  const pendingTokens = usePendingPnLCalculation(network).flatMap(
+    ({ tokens }) => tokens
+  );
   const history = useHistory();
   const baseCurrency = useFiat();
   const fiatToken = useFiatToken();
@@ -89,7 +93,6 @@ export function useDetailedHoldingsTable() {
         balance: b,
         statement: s,
         marketYield,
-        isPending,
         maturedTokenId,
         manageTokenId,
         totalIncentiveEarnings,
@@ -116,7 +119,7 @@ export function useDetailedHoldingsTable() {
         return {
           sortOrder: getHoldingsSortOrder(b.token),
           tokenId: b.tokenId,
-          isPending,
+          isPending: !!pendingTokens.find((t) => t.id === b.tokenId),
           asset: {
             symbol: icon,
             symbolBottom: '',
@@ -286,5 +289,5 @@ export function useDetailedHoldingsTable() {
     } as unknown as typeof detailedHoldings[number]);
 
     return { detailedHoldings, totals };
-  }, [holdings, baseCurrency, history, fiatToken, NOTE]);
+  }, [holdings, baseCurrency, history, fiatToken, NOTE, pendingTokens]);
 }

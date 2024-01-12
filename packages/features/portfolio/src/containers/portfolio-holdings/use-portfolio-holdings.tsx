@@ -24,7 +24,7 @@ export function usePortfolioHoldings() {
   const [toggleOption, setToggleOption] = useState<number>(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const network = useSelectedPortfolioNetwork();
-  const pendingTokenData = usePendingPnLCalculation(network);
+  const pendingTokenData = usePendingPnLCalculation(network)
   const { detailedHoldings } = useDetailedHoldingsTable();
   const { groupedRows, groupedTokens } = useGroupedHoldingsTable();
 

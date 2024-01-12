@@ -10,13 +10,14 @@ import {
 import {
   useFiat,
   useGroupedHoldings,
+  usePendingPnLCalculation,
   useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
   Network,
   TXN_HISTORY_TYPE,
   leveragedYield,
-  formatMaturity
+  formatMaturity,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -43,6 +44,9 @@ export function useGroupedHoldingsTable() {
   const baseCurrency = useFiat();
   const network = useSelectedPortfolioNetwork();
   const groupedTokens = useGroupedHoldings(network) || [];
+  const pendingTokens = usePendingPnLCalculation(network).flatMap(
+    ({ tokens }) => tokens
+  );
   const history = useHistory();
 
   const groupedRows = groupedTokens.map(
@@ -55,7 +59,6 @@ export function useGroupedHoldingsTable() {
       },
       debt: { balance: debt, statement: debtStatement },
       hasMatured,
-      isPending,
       leverageRatio,
       presentValue,
       borrowAPY,
@@ -115,7 +118,9 @@ export function useGroupedHoldingsTable() {
               : `Leveraged ${underlying.symbol} Lend`,
           caption: formatCaption(asset, debt),
         },
-        isPending,
+        isPending: !!pendingTokens.find(
+          (t) => t.id === asset.tokenId || t.id === debt.tokenId
+        ),
         marketApy: {
           data: [
             {
