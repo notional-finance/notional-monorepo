@@ -34,12 +34,12 @@ export const useTransactionApprovals = (
   const tokenApprovalRequired =
     !!isSignerConnected &&
     insufficientAllowance === true &&
-    tokenStatus.amount.isZero();
+    tokenStatus?.amount.isZero() === true;
 
   const allowanceIncreaseRequired =
     !!isSignerConnected &&
     insufficientAllowance === true &&
-    tokenStatus.amount.isPositive();
+    tokenStatus?.amount.isPositive() === true;
 
   return {
     enableToken,
