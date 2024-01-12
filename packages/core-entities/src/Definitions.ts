@@ -282,3 +282,14 @@ export interface DataPoint {
   [key: string]: number | string | null;
 }
 export type AnalyticsData = DataPoint[];
+
+export interface PriceChange {
+  asset: TokenDefinition;
+  pastDate: number;
+  currentUnderlying: TokenBalance;
+  currentFiat: TokenBalance;
+  pastUnderlying?: TokenBalance;
+  pastFiat?: TokenBalance;
+  fiatChange?: number;
+  underlyingChange?: number;
+}

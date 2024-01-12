@@ -7,7 +7,9 @@ import { THEME_VARIANTS } from '@notional-finance/util';
 import {
   AccountDefinition,
   FiatKeys,
+  PriceChange,
   TokenDefinition,
+  YieldData,
 } from '@notional-finance/core-entities';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer, ethers } from 'ethers';
@@ -101,6 +103,13 @@ interface ApplicationState {
   networkState?: Record<Network, NetworkLoadingState>;
   /** URL of the cache hostname */
   cacheHostname: string;
+  /** All yields calculated from the yield registry */
+  allYields?: Record<Network, YieldData[]>;
+  /** All price changes calculated from the yield registry */
+  priceChanges?: Record<
+    Network,
+    { oneDay: PriceChange[]; sevenDay: PriceChange[] }
+  >;
 }
 
 /** These settings are associated with the user directly */

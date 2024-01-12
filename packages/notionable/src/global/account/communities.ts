@@ -42,7 +42,7 @@ export async function checkCommunityMembership(account: string) {
         }
       })
     )
-  ).filter((m) => m !== undefined) as string[];
+  ).filter((m) => m !== undefined) as CommunityName[];
 }
 
 export function checkSanctionedAddress(account: string) {

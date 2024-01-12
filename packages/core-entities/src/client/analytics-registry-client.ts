@@ -1,9 +1,15 @@
-import { Network, RATE_PRECISION, ZERO_ADDRESS } from '@notional-finance/util';
+import {
+  Network,
+  RATE_PRECISION,
+  ZERO_ADDRESS,
+  getMidnightUTC,
+  percentChange,
+} from '@notional-finance/util';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
 import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
-import { OracleDefinition, TokenDefinition } from '../Definitions';
+import { OracleDefinition, PriceChange, TokenDefinition } from '../Definitions';
 import {
   ASSET_PRICE_ORACLES,
   HistoricalOracles,
@@ -11,6 +17,7 @@ import {
 } from '../server/analytics-server';
 import { PRICE_ORACLES } from './oracle-registry-client';
 import { TokenBalance } from '../token-balance';
+import { FiatKeys } from '../config/fiat-config';
 
 const APY_ORACLES = [
   'fCashOracleRate',
@@ -211,6 +218,45 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   getVault(network: Network, vaultAddress: string) {
     return (super.getLatestFromSubject(network, vaultAddress) ||
       []) as VaultData;
+  }
+
+  getPriceChanges(
+    base: FiatKeys,
+    network: Network,
+    timeRange: number
+  ): PriceChange[] {
+    return Registry.getTokenRegistry()
+      .getAllTokens(network)
+      .map((t) => {
+        const unit = TokenBalance.unit(t);
+        const midnight = getMidnightUTC();
+        const pastDate = midnight - timeRange;
+        const currentUnderlying = unit.toUnderlying();
+        const currentFiat = unit.toFiat(base);
+        let pastUnderlying: TokenBalance | undefined;
+        let pastFiat: TokenBalance | undefined;
+        try {
+          pastUnderlying = unit.toUnderlying(pastDate);
+          pastFiat = unit.toFiat(base, pastDate);
+        } catch {
+          pastUnderlying = undefined;
+          pastFiat = undefined;
+        }
+
+        return {
+          asset: t,
+          pastDate: pastDate,
+          currentUnderlying,
+          currentFiat,
+          pastUnderlying,
+          pastFiat,
+          fiatChange: percentChange(currentFiat.toFloat(), pastFiat?.toFloat()),
+          underlyingChange: percentChange(
+            currentUnderlying.toFloat(),
+            pastUnderlying?.toFloat()
+          ),
+        };
+      });
   }
 
   async getView<T>(network: Network, viewName: string) {

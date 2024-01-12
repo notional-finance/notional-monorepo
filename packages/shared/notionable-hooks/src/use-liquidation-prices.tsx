@@ -1,79 +1,36 @@
-import { useMemo } from 'react';
 import {
   TokenDefinition,
   FiatKeys,
   TokenBalance,
+  PriceChange,
 } from '@notional-finance/core-entities';
-import {
-  getMidnightUTC,
-  percentChange,
-  SECONDS_IN_DAY,
-} from '@notional-finance/util';
-import { usePortfolioRiskProfile, useVaultRiskProfiles } from './use-account';
+import { usePortfolioLiquidationPrices, useVaultHoldings } from './use-account';
 import { useFiat } from './use-user-settings';
-import { useCurrency } from './use-market';
 import {
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
 import { useTheme } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
+import { Network } from '@notional-finance/util';
+import { useNotionalContext } from './use-notional';
 
-function usePriceChanges(baseCurrency: FiatKeys) {
-  const { allTokens } = useCurrency();
+function usePriceChanges(network: Network | undefined) {
+  const {
+    globalState: { priceChanges },
+  } = useNotionalContext();
 
-  return useMemo(() => {
-    return allTokens.map((asset) => {
-      const unit = TokenBalance.unit(asset);
-      const midnight = getMidnightUTC();
-      const oneDay = midnight - SECONDS_IN_DAY;
-      const sevenDay = midnight - 7 * SECONDS_IN_DAY;
-      const currentUnderlying = unit.toUnderlying();
-      const currentFiat = unit.toFiat(baseCurrency);
-
-      let oneDayUnderlying: TokenBalance | undefined;
-      let oneDayFiat: TokenBalance | undefined;
-      let sevenDayUnderlying: TokenBalance | undefined;
-      let sevenDayFiat: TokenBalance | undefined;
-      try {
-        oneDayUnderlying = unit.toUnderlying(oneDay);
-        oneDayFiat = unit.toFiat(baseCurrency, oneDay);
-        sevenDayUnderlying = unit.toUnderlying(sevenDay);
-        sevenDayFiat = unit.toFiat(baseCurrency, sevenDay);
-      } catch (e) {
-        // these will be set to undefined
-      }
-
-      return {
-        asset,
-        currentFiat,
-        oneDayFiatChange: percentChange(
-          currentFiat.toFloat(),
-          oneDayFiat?.toFloat()
-        ),
-        sevenDayFiatChange: percentChange(
-          currentFiat.toFloat(),
-          sevenDayFiat?.toFloat()
-        ),
-        currentUnderlying,
-        oneDayUnderlyingChange: percentChange(
-          currentUnderlying.toFloat(),
-          oneDayUnderlying?.toFloat()
-        ),
-        sevenDayUnderlyingChange: percentChange(
-          currentUnderlying.toFloat(),
-          sevenDayUnderlying?.toFloat()
-        ),
-      };
-    });
-  }, [allTokens, baseCurrency]);
+  return priceChanges && network
+    ? priceChanges[network]
+    : { oneDay: [], sevenDay: [] };
 }
 
 function parseFiatLiquidationPrice(
   asset: TokenDefinition,
   baseCurrency: FiatKeys,
   threshold: TokenBalance | null,
-  c: ReturnType<typeof usePriceChanges>[number] | undefined,
+  oneDay: PriceChange | undefined,
+  sevenDay: PriceChange | undefined,
   secondary: string
 ) {
   return {
@@ -112,12 +69,12 @@ function parseFiatLiquidationPrice(
         },
       ],
     },
-    currentPrice: c?.currentFiat.toDisplayStringWithSymbol(3) || '',
-    oneDayChange: c?.oneDayFiatChange
-      ? formatNumberAsPercent(c?.oneDayFiatChange)
+    currentPrice: oneDay?.currentFiat.toDisplayStringWithSymbol(3) || '',
+    oneDayChange: oneDay?.fiatChange
+      ? formatNumberAsPercent(oneDay.fiatChange)
       : '',
-    sevenDayChange: c?.sevenDayFiatChange
-      ? formatNumberAsPercent(c?.sevenDayFiatChange)
+    sevenDayChange: sevenDay?.fiatChange
+      ? formatNumberAsPercent(sevenDay?.fiatChange)
       : '',
     liquidationPrice: threshold
       ?.toFiat(baseCurrency)
@@ -128,7 +85,8 @@ function parseFiatLiquidationPrice(
 function parseUnderlyingLiquidationPrice(
   asset: TokenDefinition,
   threshold: TokenBalance | null,
-  c: ReturnType<typeof usePriceChanges>[number] | undefined,
+  oneDay: PriceChange | undefined,
+  sevenDay: PriceChange | undefined,
   secondary: string
 ) {
   const { icon, titleWithMaturity } = formatTokenType(asset);
@@ -151,76 +109,76 @@ function parseUnderlyingLiquidationPrice(
         </span>
       ),
     },
-    currentPrice: c?.currentUnderlying.toDisplayStringWithSymbol(3) || '',
-    oneDayChange: c?.oneDayUnderlyingChange
-      ? formatNumberAsPercent(c?.oneDayUnderlyingChange)
+    currentPrice: oneDay?.currentUnderlying.toDisplayStringWithSymbol(3) || '',
+    oneDayChange: oneDay?.underlyingChange
+      ? formatNumberAsPercent(oneDay.underlyingChange)
       : '',
-    sevenDayChange: c?.sevenDayUnderlyingChange
-      ? formatNumberAsPercent(c?.sevenDayUnderlyingChange)
+    sevenDayChange: sevenDay?.underlyingChange
+      ? formatNumberAsPercent(sevenDay?.underlyingChange)
       : '',
     liquidationPrice,
   };
 }
 
 export function useCurrentETHPrice() {
-  const baseCurrency = useFiat();
-  const priceChange = usePriceChanges(baseCurrency);
-  const ethChange = priceChange.find(({ asset }) => asset.symbol === 'ETH');
+  const { oneDay } = usePriceChanges(Network.ArbitrumOne);
+  const ethChange = oneDay.find(({ asset }) => asset.symbol === 'ETH');
 
   return {
     ethPrice: ethChange?.currentFiat,
-    oneDayChange: ethChange?.oneDayFiatChange || 0,
+    oneDayChange: ethChange?.fiatChange || 0,
   };
 }
 
-export function useCurrentLiquidationPrices() {
-  const portfolio = usePortfolioRiskProfile();
-  const vaults = useVaultRiskProfiles();
+export function useCurrentLiquidationPrices(network: Network | undefined) {
+  const portfolio = usePortfolioLiquidationPrices(network);
+  const vaults = useVaultHoldings(network);
   const baseCurrency = useFiat();
-  const priceChanges = usePriceChanges(baseCurrency);
-  const portfolioRisk = portfolio.getAllLiquidationPrices();
+  const { oneDay, sevenDay } = usePriceChanges(network);
   const theme = useTheme();
   const secondary = (theme as NotionalTheme).palette.typography.light;
 
-  const exchangeRateRisk = portfolioRisk
+  const exchangeRateRisk = portfolio
     .filter((p) => p.asset.tokenType === 'Underlying')
     .map(({ asset, threshold }) => {
       return parseFiatLiquidationPrice(
         asset,
         baseCurrency,
         threshold,
-        priceChanges.find((t) => t.asset.id === asset.id),
+        oneDay.find((t) => t.asset.id === asset.id),
+        sevenDay.find((t) => t.asset.id === asset.id),
         secondary
       );
     });
 
-  const assetPriceRisk = portfolioRisk
+  const assetPriceRisk = portfolio
     .filter((p) => p.asset.tokenType !== 'Underlying')
     .map(({ asset, threshold }) => {
       return parseUnderlyingLiquidationPrice(
         asset,
         threshold,
-        priceChanges.find((t) => t.asset.id === asset.id),
+        oneDay.find((t) => t.asset.id === asset.id),
+        sevenDay.find((t) => t.asset.id === asset.id),
         secondary
       );
     });
 
-  const vaultLiquidation = vaults.map((v) => {
+  const vaultLiquidation = vaults.map(({ vault, liquidationPrices }) => {
     return {
-      vaultAddress: v.vaultAddress,
-      liquidationPrices: v
-        .getAllLiquidationPrices()
+      vaultAddress: vault.vaultAddress,
+      liquidationPrices: liquidationPrices
         .filter(({ asset }) => asset.tokenType === 'VaultShare')
         .map(({ asset, threshold }) => ({
           ...parseUnderlyingLiquidationPrice(
             asset,
             threshold,
-            priceChanges.find((t) => t.asset.id === asset.id),
+            oneDay.find((t) => t.asset.id === asset.id),
+            sevenDay.find((t) => t.asset.id === asset.id),
             secondary
           ),
           collateral: {
             symbol: threshold?.underlying.symbol || '',
-            label: v.vaultConfig.name,
+            label: vault.vaultConfig.name,
             caption: 'Leveraged Vault',
           },
           riskFactor: {
