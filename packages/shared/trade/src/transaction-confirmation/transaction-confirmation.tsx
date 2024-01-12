@@ -22,7 +22,6 @@ import {
   VaultContext,
   TransactionStatus,
   useTransactionStatus,
-  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
@@ -43,16 +42,16 @@ export const TransactionConfirmation = ({
   const theme = useTheme();
   const { state, updateState } = context;
   const location = useLocation<RouteState>();
-  const selectedNetwork = useSelectedNetwork();
   const {
     populatedTransaction,
     transactionError,
     debt,
     collateral,
     tradeType,
+    selectedNetwork,
   } = state;
   const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
-    useTransactionStatus();
+    useTransactionStatus(selectedNetwork);
   const onTxnCancel = useCallback(() => {
     updateState({ confirm: false });
   }, [updateState]);

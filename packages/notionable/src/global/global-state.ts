@@ -44,7 +44,9 @@ export interface NotionalError {
 /** Account state is written on a per network basis */
 export interface AccountState {
   isAccountReady: boolean;
-  portfolioLiquidationPrices?: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>;
+  portfolioLiquidationPrices?: ReturnType<
+    AccountRiskProfile['getAllLiquidationPrices']
+  >;
   riskProfile?: AccountRiskProfile;
   accountDefinition?: AccountDefinition;
   portfolioHoldings?: PortfolioHolding[];
@@ -55,11 +57,21 @@ export interface AccountState {
 }
 
 export interface TransactionState {
-  sentTransactions: Record<string, TransactionResponse>;
-  awaitingBalanceChanges: Record<string, TokenDefinition[] | undefined>;
+  sentTransactions: {
+    hash: string;
+    network: Network;
+    response: TransactionResponse;
+    tokens: TokenDefinition[] | undefined;
+  }[];
   completedTransactions: Record<string, TransactionReceipt>;
-  pendingTokens: TokenDefinition[];
-  pendingTxns: string[];
+  pendingPnL: Record<
+    Network,
+    {
+      hash: string;
+      blockNumber: number;
+      tokens: TokenDefinition[];
+    }[]
+  >;
 }
 
 /** This is associated with an address */
@@ -81,8 +93,6 @@ interface AddressState {
 
   /** Every supported network has an account object written to the state */
   networkAccounts?: Record<Network, AccountState>;
-  /** Every supported network has a set of transactions associated with it */
-  networkTransactions?: Record<Network, TransactionState>;
 }
 
 /** This is associated with the overall application state */
@@ -112,6 +122,7 @@ export interface GlobalState
     ApplicationState,
     AddressState,
     UserSettingsState,
+    TransactionState,
     ErrorState {}
 
 export const initialGlobalState: GlobalState = {
@@ -122,4 +133,12 @@ export const initialGlobalState: GlobalState = {
   baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
   isSanctionedAddress: false,
   hasTrackedIdentify: false,
+  sentTransactions: [],
+  completedTransactions: {},
+  pendingPnL: {
+    [Network.All]: [],
+    [Network.Mainnet]: [],
+    [Network.ArbitrumOne]: [],
+    [Network.Goerli]: [],
+  },
 };

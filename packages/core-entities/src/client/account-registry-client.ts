@@ -4,7 +4,14 @@ import {
   Network,
 } from '@notional-finance/util';
 import { providers } from 'ethers';
-import { BehaviorSubject, filter, lastValueFrom, of, take, takeUntil } from 'rxjs';
+import {
+  BehaviorSubject,
+  filter,
+  lastValueFrom,
+  of,
+  take,
+  takeUntil,
+} from 'rxjs';
 import {
   AccountDefinition,
   BalanceStatement,
@@ -106,6 +113,25 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     return sub;
   }
 
+  public async refreshBalanceHistory(network: Network) {
+    if (this.activeAccount === null) return undefined;
+    const subject = this._getNetworkSubjects(network).get(this.activeAccount);
+    const currentAccount = subject?.value;
+
+    if (currentAccount) {
+      const newAccount = await this._refreshBalanceHistory(
+        network,
+        this.activeAccount,
+        Object.assign(currentAccount)
+      );
+      subject.next(newAccount);
+
+      return newAccount;
+    }
+
+    return undefined;
+  }
+
   /** Triggers a manual refresh of the active account and provides an optional callback on refresh complete */
   public refreshActiveAccount(network: Network) {
     if (this.activeAccount === null) throw Error('No active account');
@@ -160,6 +186,23 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     throw Error('Unknown fetch mode');
   }
 
+  private async _refreshBalanceHistory(
+    network: Network,
+    address: string,
+    account: AccountDefinition
+  ) {
+    const [txnHistory, balanceStatements] = await Promise.all([
+      this.fetchTransactionHistory(network, address),
+      this.fetchBalanceStatements(network, address),
+    ]);
+
+    // Set the balance statement and txn history
+    account.balanceStatement = balanceStatements.finalResults[address];
+    account.accountHistory = txnHistory.finalResults[address];
+
+    return account;
+  }
+
   private async _fetchSingleAccount(
     network: Network,
     provider: providers.Web3Provider
@@ -172,19 +215,17 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         lastUpdateBlock: this.getLastUpdateBlock(network),
       };
     }
-    const [txnHistory, balanceStatements, account] = await Promise.all([
-      this.fetchTransactionHistory(network, this.activeAccount),
-      this.fetchBalanceStatements(network, this.activeAccount),
-      fetchCurrentAccount(network, this.activeAccount, provider),
-    ]);
+    const account = await fetchCurrentAccount(
+      network,
+      this.activeAccount,
+      provider
+    );
 
-    if (account.values[0][1]) {
-      // Set the balance statement and txn history
-      account.values[0][1].balanceStatement =
-        balanceStatements.finalResults[this.activeAccount];
-      account.values[0][1].accountHistory =
-        txnHistory.finalResults[this.activeAccount];
-    }
+    account.values[0][1] = await this._refreshBalanceHistory(
+      network,
+      this.activeAccount,
+      account.values[0][1] as AccountDefinition
+    );
 
     return account;
   }

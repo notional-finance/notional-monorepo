@@ -1,21 +1,20 @@
 import {
   useAccountDefinition,
-  useSelectedNetwork,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import {
   DisablePrimeBorrow,
   EnablePrimeBorrow,
 } from '@notional-finance/transaction';
+import { Network } from '@notional-finance/util';
 import { useCallback } from 'react';
 
-export function useEnablePrimeBorrow() {
-  const { account } = useAccountDefinition();
-  const network = useSelectedNetwork();
+export function useEnablePrimeBorrow(network: Network) {
+  const account = useAccountDefinition(network);
   // Set the default to true so that this does not show up for non-connected wallets
   const isPrimeBorrowAllowed = account ? account.allowPrimeBorrow : true;
   const { isReadOnlyAddress, transactionStatus, onSubmit } =
-    useTransactionStatus();
+    useTransactionStatus(network);
 
   const enablePrimeBorrow = useCallback(async () => {
     if (network && account?.address) {
@@ -24,7 +23,7 @@ export function useEnablePrimeBorrow() {
         network,
         redeemToWETH: false,
         accountBalances: [],
-        maxWithdraw: false
+        maxWithdraw: false,
       });
       onSubmit('EnablePrimeBorrow', await txn);
     }
@@ -37,7 +36,7 @@ export function useEnablePrimeBorrow() {
         network,
         redeemToWETH: false,
         accountBalances: [],
-        maxWithdraw: false
+        maxWithdraw: false,
       });
       onSubmit('DisablePrimeBorrow', await txn);
     }

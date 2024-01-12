@@ -7,7 +7,7 @@ import {
   pairwise,
   switchMap,
 } from 'rxjs';
-import { AccountState, GlobalState, TransactionState } from '../global-state';
+import { AccountState, GlobalState } from '../global-state';
 import {
   Network,
   SupportedNetworks,
@@ -58,17 +58,6 @@ function onWalletChange$(global$: Observable<GlobalState>) {
         selectedPortfolioNetwork: cur.wallet?.selectedChain,
         hasTrackedIdentify: false,
         networkAccounts: undefined,
-        // Initialize network transactions to an empty record set
-        networkTransactions: SupportedNetworks.reduce((acc, n) => {
-          acc[n] = {
-            sentTransactions: {},
-            awaitingBalanceChanges: {},
-            completedTransactions: {},
-            pendingTokens: [],
-            pendingTxns: [],
-          };
-          return acc;
-        }, {} as Record<Network, TransactionState>),
       };
     }),
     filterEmpty()

@@ -43,6 +43,7 @@ const useIncentiveCountUp = (i?: {
     } else {
       return undefined;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i]);
 
   return c;
@@ -52,7 +53,7 @@ export const ClaimNoteButton = () => {
   const theme = useTheme();
   const network = useSelectedPortfolioNetwork();
   const account = useAccountDefinition(network);
-  const { isReadOnlyAddress, onSubmit } = useTransactionStatus();
+  const { isReadOnlyAddress, onSubmit } = useTransactionStatus(network);
   const [hover, setHover] = useState(false);
   const totalIncentives = useTotalIncentives(network);
 
