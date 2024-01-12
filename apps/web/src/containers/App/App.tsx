@@ -48,11 +48,11 @@ import {
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
-// import {
-//   ContestHome,
-//   ContestRules,
-//   ContestLeaderBoard,
-// } from '../../containers/TradingContest';
+import {
+  ContestHome,
+  ContestRules,
+  ContestLeaderBoard,
+} from '../../containers/TradingContest';
 import { Markets } from '../Markets';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
@@ -206,7 +206,7 @@ const AllRoutes = () => {
             component={ServerError}
             routeType="Error"
           />
-          {/* <AppLayoutRoute
+          <AppLayoutRoute
             path="/contest"
             component={ContestHome}
             routeType="Landing"
@@ -220,7 +220,7 @@ const AllRoutes = () => {
             path="/contest-leaderboard"
             component={ContestLeaderBoard}
             routeType="Landing"
-          /> */}
+          />
           <AppLayoutRoute
             path="/terms"
             component={TermsView}

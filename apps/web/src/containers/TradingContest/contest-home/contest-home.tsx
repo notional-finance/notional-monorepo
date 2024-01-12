@@ -1,12 +1,7 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import {
-  ContestHeader,
-  ContestHero,
-  ContestMultiTable,
-  ContestNfts,
-} from '../components';
+import { ContestHero, ContestPrizes, ContestNfts } from '../components';
 import { colors, useNotionalTheme } from '@notional-finance/styles';
 import backgroundColors from '../assets/color-blobs.png';
 
@@ -15,29 +10,17 @@ export const ContestHome = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <FeatureLoader
-        backgroundColor={'#041D2E'}
-        sx={{
-          marginTop: {
-            xs: '-107px',
-            sm: '-107px',
-            md: '-107px',
-            lg: '-125px',
-            xl: '-125px',
-          },
-        }}
-      >
+      <FeatureLoader backgroundColor={'#041D2E'}>
         <OuterContainer>
           <BgImgContainer>
             <img src={backgroundColors} alt="bg img" />
           </BgImgContainer>
           <MainContainer>
-            <ContestHeader />
             <ContestHero />
           </MainContainer>
           <OpacityBG>
             <MainContainer>
-              <ContestMultiTable />
+              <ContestPrizes />
               <ContestNfts />
             </MainContainer>
           </OpacityBG>
@@ -49,6 +32,7 @@ export const ContestHome = () => {
 
 const BgImgContainer = styled(Box)(
   `
+  margin-top: -170px;
   overflow: hidden;
   position: absolute;
   width: 100vw;
@@ -72,13 +56,9 @@ const MainContainer = styled(Box)(
 );
 
 const OuterContainer = styled(Box)(
-  ({ theme }) => `
-  margin-top: -123px;
+  () => `
   background: #041D2E; 
   height: 100%;
-  ${theme.breakpoints.down('md')} {
-    margin-top: -107px; 
-  }
     `
 );
 
@@ -87,7 +67,7 @@ const OpacityBG = styled(Box)(
   background: rgba(4, 29, 46, 0.7);
   border-top: 1px solid ${colors.greenGrey};
   position: relative;
-  margin-top: ${theme.spacing(11)};
+  margin-top: ${theme.spacing(15)};
   z-index: 3;
     `
 );

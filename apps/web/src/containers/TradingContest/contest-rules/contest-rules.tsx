@@ -2,8 +2,7 @@ import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import {
-  ContestHeader,
-  ContestNfts,
+  // ContestNfts,
   ContestRulesInfo,
   ContestBackButton,
 } from '../components';
@@ -15,27 +14,15 @@ export const ContestRules = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <FeatureLoader
-        backgroundColor={'#041D2E'}
-        sx={{
-          marginTop: {
-            xs: '-107px',
-            sm: '-107px',
-            md: '-107px',
-            lg: '-125px',
-            xl: '-125px',
-          },
-        }}
-      >
+      <FeatureLoader backgroundColor={'#041D2E'}>
         <OuterContainer>
           <BgImgContainer>
             <img src={test} alt="bg img" />
           </BgImgContainer>
           <OpacityBG>
             <MainContainer>
-              <ContestHeader />
               <ContestBackButton />
-              <ContestNfts hideButton />
+              {/* <ContestNfts hideButton /> */}
               <ContestRulesInfo />
             </MainContainer>
           </OpacityBG>

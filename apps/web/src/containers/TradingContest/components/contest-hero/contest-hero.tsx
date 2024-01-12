@@ -1,114 +1,39 @@
-import { useTheme, Box, styled } from '@mui/material';
+import { Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import { ProgressIndicator } from '@notional-finance/mui';
-import {
-  useNotionalContext,
-  useTruncatedAddress,
-  useWalletConnected,
-} from '@notional-finance/notionable-hooks';
 import { ContestButtonStack } from '../contest-button-stack/contest-button-stack';
-import { useConnect } from '@notional-finance/wallet/hooks';
-import { ContestNftPass } from '../contest-nft-pass/contest-nft-pass';
-import { BETA_ACCESS } from '@notional-finance/notionable';
+import { ContestCountDown } from '../contest-countdown/contest-countdown';
+import { BodySecondary } from '@notional-finance/mui';
 
 export const ContestHero = () => {
-  const theme = useTheme();
-  const {
-    globalState: { hasContestNFT, hasSelectedChainError },
-  } = useNotionalContext();
-  const { icon, currentLabel } = useConnect();
-  const truncatedAddress = useTruncatedAddress();
-  const connected = useWalletConnected();
-
   return (
     <Container>
       <ContentContainer>
-        <ContestNftPass />
         <TextAndButtonWrapper>
-          {hasSelectedChainError && (
+          <>
             <TitleText>
-              <FormattedMessage
-                defaultMessage={'Switch your wallet to the Arbitrum network'}
-              />
+              <FormattedMessage defaultMessage={'Notional V3 STIP Blitz'} />
             </TitleText>
-          )}
-          {!icon && !connected && (
-            <>
-              <TitleText>
-                <FormattedMessage
-                  defaultMessage={
-                    'Connect a Wallet with a Beta Access NFT to Enter '
-                  }
-                />
-              </TitleText>
-              <ContestButtonStack
-                buttonText={
-                  <FormattedMessage defaultMessage={'Connect Wallet'} />
-                }
-              />
-            </>
-          )}
-
-          {icon && !connected && !hasSelectedChainError ? (
-            <Box
+            <BodySecondary
               sx={{
-                width: '358px',
-                textAlign: 'center',
-                marginTop: theme.spacing(5),
+                color: colors.greenGrey,
+                fontWeight: 400,
+                marginTop: '32px',
               }}
             >
-              <ProgressIndicator type="notional" />
-            </Box>
-          ) : (
-            <>
-              <TitleText>
-                {connected && hasContestNFT === BETA_ACCESS.CONFIRMED && (
-                  <FormattedMessage
-                    defaultMessage={'Welcome to the V3 Closed Beta on Arbitrum'}
-                  />
-                )}
-                {connected && hasContestNFT === BETA_ACCESS.REJECTED && (
-                  <FormattedMessage
-                    defaultMessage={'Beta Access NFT Not Found'}
-                  />
-                )}
-              </TitleText>
-              {connected && hasContestNFT === BETA_ACCESS.CONFIRMED && (
-                <ContestButtonStack
-                  to="/portfolio/overview"
-                  buttonText={
-                    <FormattedMessage defaultMessage={'Launch App'} />
-                  }
-                />
-              )}
-              {icon &&
-                icon.length > 0 &&
-                connected &&
-                hasContestNFT === BETA_ACCESS.REJECTED && (
-                  <AddressContainer>
-                    <IconContainer>
-                      <img
-                        src={`data:image/svg+xml;utf8,${encodeURIComponent(
-                          icon
-                        )}`}
-                        alt={`${currentLabel} wallet icon`}
-                        height="24px"
-                        width="24px"
-                      />
-                    </IconContainer>
-                    <Address>{truncatedAddress}</Address>
-                  </AddressContainer>
-                )}
-              {connected && hasContestNFT === BETA_ACCESS.REJECTED && (
-                <ContestButtonStack
-                  buttonText={
-                    <FormattedMessage defaultMessage={'Switch Wallets'} />
-                  }
-                />
-              )}
-            </>
-          )}
+              <FormattedMessage
+                defaultMessage={
+                  'Contest runs Feb. 1st to Mar. 1st. Open to everyone and free to join. Click below to enter and compete for 27k $NOTE in prizes!'
+                }
+              />
+            </BodySecondary>
+            <ContestCountDown title={'Contest Begins:'} />
+            <ContestButtonStack
+              buttonText={
+                <FormattedMessage defaultMessage={'Join The Contest'} />
+              }
+            />
+          </>
         </TextAndButtonWrapper>
       </ContentContainer>
     </Container>
@@ -133,53 +58,17 @@ const ContentContainer = styled(Box)(
       `
 );
 
-const AddressContainer = styled(Box)(
-  ({ theme }) => `
-    display: flex;
-    align-items: center;
-    margin-top: ${theme.spacing(3)};
-    ${theme.breakpoints.down('md')} {
-      margin-left: ${theme.spacing(2)};
-    }
-      `
-);
-
-const IconContainer = styled(Box)(
-  ({ theme }) => `
-  display: flex;
-  align-items: center;
-  width: 40px;
-  height: 40px;
-  padding: ${theme.spacing(1)};
-  background: ${theme.gradient.aqua};
-  border-radius: 4px;
-  `
-);
-
 const TextAndButtonWrapper = styled(Box)(
   ({ theme }) => `
   margin-top: ${theme.spacing(5)}; 
-  width: ${theme.spacing(75)};
+  width: 650px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
   ${theme.breakpoints.down('md')} {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
   }
-  `
-);
-
-const Address = styled(Box)(
-  ({ theme }) => `
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  font-family: Kunst;
-  line-height: 22px;
-  letter-spacing: 8px;
-  color: #3CC9D4;
-  margin-left: ${theme.spacing(2)};
   `
 );
 

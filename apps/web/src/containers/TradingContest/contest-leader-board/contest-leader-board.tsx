@@ -1,7 +1,7 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import { ContestHeader, ContestBackButton } from '../components';
+import { ContestBackButton } from '../components';
 import { ContestTable, LinkText } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
@@ -40,7 +40,6 @@ export const ContestLeaderBoard = () => {
           </BgImgContainer>
           <OpacityBG>
             <MainContainer>
-              <ContestHeader />
               <ContestBackButton />
               {currentUserData.length > 0 && (
                 <UserTableContainer>

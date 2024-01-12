@@ -40,101 +40,97 @@ export function Header({ children }: HeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      {!pathname.includes('contest') ? (
-        <AppBar position="fixed" elevation={0} showBorder={pathname !== '/'}>
-          <Toolbar
+      <AppBar position="fixed" elevation={0} showBorder={pathname !== '/'}>
+        <Toolbar
+          sx={{
+            '&.MuiToolbar-root': {
+              minHeight: '100%',
+              maxWidth: { xs: '100vw', sm: '100vw', md: '100%' },
+              transition: 'background 0.3s ease-in-out',
+              background: isTop
+                ? 'transparent'
+                : theme.palette.background.default,
+            },
+          }}
+        >
+          <H4 to="/">
+            <NotionalLogo />
+          </H4>
+          <Box
             sx={{
-              '&.MuiToolbar-root': {
-                minHeight: '100%',
-                maxWidth: { xs: '100vw', sm: '100vw', md: '100%' },
-                transition: 'background 0.3s ease-in-out',
-                background: isTop
-                  ? 'transparent'
-                  : theme.palette.background.default,
+              marginLeft: '60px',
+              flexGrow: 1,
+              height: '100%',
+              display: {
+                xs: 'none',
+                md: 'flex',
               },
             }}
           >
-            <H4 to="/">
-              <NotionalLogo />
-            </H4>
-            <Box
-              sx={{
-                marginLeft: '60px',
-                flexGrow: 1,
-                height: '100%',
-                display: {
-                  xs: 'none',
-                  md: 'flex',
-                },
-              }}
-            >
-              <Navigation navLinks={navLinks} />
+            <Navigation navLinks={navLinks} />
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 0,
+              height: '72px',
+              display: {
+                xs: 'none',
+                lg: 'flex',
+              },
+              alignItems: 'center',
+            }}
+          >
+            {pathname === '/' && (
+              <>
+                <AnalyticsDropdown />
+                <ResourcesDropdown />
+              </>
+            )}
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: 'flex', md: 'none', lg: 'none' },
+              flexDirection: 'row-reverse',
+            }}
+          >
+            <MobileNavigation />
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 0,
+              display: {
+                xs: 'none',
+                md: 'flex',
+                lg: 'flex',
+              },
+            }}
+          >
+            {children}
+          </Box>
+        </Toolbar>
+        {hasSelectedChainError && (
+          <Box
+            sx={{
+              minWidth: '100%',
+              minHeight: theme.spacing(5),
+              background: colors.orange,
+              display: 'flex',
+              alignItems: 'center',
+              color: colors.black,
+            }}
+          >
+            <Box sx={{ paddingLeft: theme.spacing(3) }}>
+              <FormattedMessage
+                defaultMessage={
+                  'Please switch your wallet to the Arbitrum network.'
+                }
+              />
             </Box>
-            <Box
-              sx={{
-                flexGrow: 0,
-                height: '72px',
-                display: {
-                  xs: 'none',
-                  lg: 'flex',
-                },
-                alignItems: 'center',
-              }}
-            >
-              {pathname === '/' && (
-                <>
-                  <AnalyticsDropdown />
-                  <ResourcesDropdown />
-                </>
-              )}
-            </Box>
-            <Box
-              sx={{
-                flexGrow: 1,
-                display: { xs: 'flex', md: 'none', lg: 'none' },
-                flexDirection: 'row-reverse',
-              }}
-            >
-              <MobileNavigation />
-            </Box>
-            <Box
-              sx={{
-                flexGrow: 0,
-                display: {
-                  xs: 'none',
-                  md: 'flex',
-                  lg: 'flex',
-                },
-              }}
-            >
-              {children}
-            </Box>
-          </Toolbar>
-          {hasSelectedChainError && (
-            <Box
-              sx={{
-                minWidth: '100%',
-                minHeight: theme.spacing(5),
-                background: colors.orange,
-                display: 'flex',
-                alignItems: 'center',
-                color: colors.black,
-              }}
-            >
-              <Box sx={{ paddingLeft: theme.spacing(3) }}>
-                <FormattedMessage
-                  defaultMessage={
-                    'Please switch your wallet to the Arbitrum network.'
-                  }
-                />
-              </Box>
-            </Box>
-          )}
-          {pathname === '/' && <ScrollIndicator />}
-        </AppBar>
-      ) : (
-        <Box>{children}</Box>
-      )}
+          </Box>
+        )}
+        {pathname === '/' && <ScrollIndicator />}
+      </AppBar>
     </ThemeProvider>
   );
 }

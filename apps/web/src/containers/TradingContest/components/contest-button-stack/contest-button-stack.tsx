@@ -56,7 +56,7 @@ export const ContestButtonStack = ({
             fontFamily: 'Avenir Next',
           }}
         >
-          <FormattedMessage defaultMessage={'Join Waitlist'} />
+          <FormattedMessage defaultMessage={'Back To App'} />
         </Button>
       )}
     </ButtonContainer>
@@ -65,7 +65,6 @@ export const ContestButtonStack = ({
 
 const ButtonContainer = styled(Box)(
   ({ theme }) => `
-  margin-top: ${theme.spacing(5)};
   display: flex;
   flex-direction: column;
   ${theme.breakpoints.down('md')} {
