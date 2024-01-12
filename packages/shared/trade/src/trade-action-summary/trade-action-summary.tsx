@@ -44,9 +44,10 @@ export function TradeActionSummary({
     riskFactorLimit,
     vaultAddress,
     customizeLeverage,
+    selectedNetwork
   } = state;
   const isVault = !!vaultAddress;
-  const { nonLeveragedYields } = useAllMarkets();
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
 
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
   const headerText =

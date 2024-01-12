@@ -10,27 +10,18 @@ import {
   HistoryIcon,
 } from '@notional-finance/icons';
 import { PortfolioParams } from '../portfolio-feature-shell';
-import { useAccountDefinition } from '@notional-finance/notionable-hooks';
-import { unique } from '@notional-finance/util';
+import {
+  usePortfolioHoldings,
+  useSelectedPortfolioNetwork,
+  useVaultHoldings,
+} from '@notional-finance/notionable-hooks';
 
 export const useSideNav = () => {
   const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
-  const { account } = useAccountDefinition();
-  const numHoldings =
-    account?.balances.filter(
-      (t) =>
-        t.tokenType === 'nToken' ||
-        t.tokenType === 'fCash' ||
-        t.tokenType === 'PrimeCash' ||
-        t.tokenType === 'PrimeDebt'
-    ).length || 0;
-  const numVaults =
-    unique(
-      account?.balances
-        .filter((t) => t.isVaultToken)
-        .map((t) => t.vaultAddress) || []
-    ).length || 0;
+  const network = useSelectedPortfolioNetwork();
+  const numHoldings = usePortfolioHoldings(network).length;
+  const numVaults = useVaultHoldings(network).length;
 
   const sideNavOptions = useMemo(() => {
     return [

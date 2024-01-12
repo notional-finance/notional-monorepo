@@ -4,7 +4,7 @@ import { WalletSelector } from '@notional-finance/wallet';
 import { Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { RouteType } from '@notional-finance/util';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { usePageTrack } from '@notional-finance/helpers';
 import { useLocation } from 'react-router';
 
@@ -20,7 +20,7 @@ const AppLayoutRoute = ({
   landingLayout?: boolean;
 }) => {
   const location = useLocation();
-  const selectedNetwork = useSelectedNetwork();
+  const selectedNetwork = useWalletConnectedNetwork();
   usePageTrack(routeType, selectedNetwork);
 
   return landingLayout ? (

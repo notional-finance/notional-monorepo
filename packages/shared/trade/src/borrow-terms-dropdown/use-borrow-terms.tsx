@@ -19,7 +19,6 @@ export const useBorrowTerms = (
     leverageRatio?: number;
   }
 ) => {
-  const { nonLeveragedYields } = useAllMarkets();
   const {
     state: {
       debtOptions,
@@ -30,11 +29,13 @@ export const useBorrowTerms = (
       collateralOptions,
       riskFactorLimit,
       deposit,
+      selectedNetwork
     },
     updateState,
   } = context;
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const spotMaturityData = useSpotMaturityData(
-    deposit ? availableDebtTokens : []
+    deposit ? availableDebtTokens : [], selectedNetwork
   );
   const isVault = isVaultTrade(tradeType);
   const assetAPY =

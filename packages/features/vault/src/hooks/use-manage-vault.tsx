@@ -13,12 +13,12 @@ import {
 
 export function useManageVault() {
   const {
-    state: { vaultAddress, priorAccountRisk, debtOptions },
+    state: { vaultAddress, priorAccountRisk, debtOptions, selectedNetwork },
     updateState,
   } = useContext(VaultActionContext);
   const {
     yields: { vaultShares },
-  } = useAllMarkets();
+  } = useAllMarkets(selectedNetwork);
   const vaultSharesAPY = vaultShares.find(
     (y) => y.token.vaultAddress === vaultAddress
   )?.totalAPY;

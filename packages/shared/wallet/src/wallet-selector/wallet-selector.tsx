@@ -27,8 +27,9 @@ import {
 } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import {
-  useNotionalContext,
+  useAccountLoading,
   useTruncatedAddress,
+  useWalletAddress,
 } from '@notional-finance/notionable-hooks';
 
 export interface PortfolioParams {
@@ -40,9 +41,8 @@ export function WalletSelector() {
   const theme = useTheme();
   const { pathname } = useLocation();
   const { isReadOnlyAddress, icon, currentLabel } = useConnect();
-  const {
-    globalState: { selectedAccount, isAccountPending },
-  } = useNotionalContext();
+  const isAccountPending = useAccountLoading();
+  const selectedAccount = useWalletAddress();
   const truncatedAddress = useTruncatedAddress();
   const notifications = getFromLocalStorage('notifications');
   const [showAlert, setShowAlert] = useState<boolean>(false);

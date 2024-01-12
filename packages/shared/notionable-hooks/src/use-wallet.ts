@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/core-entities';
 import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
 import { Network, groupArrayToMap } from '@notional-finance/util';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatNumberAsPercent, truncateAddress } from '@notional-finance/helpers';
 import { useAllMarkets } from './use-market';
 import { useNotionalContext } from './use-notional';
 
@@ -25,6 +25,28 @@ export function usePrimeCashBalance(
       : undefined;
 
   return useMaxAssetBalance(primeCash);
+}
+
+export function useWalletConnected() {
+  return !!useWalletConnectedNetwork();
+}
+
+export function useWalletAddress() {
+  const {
+    globalState: { wallet },
+  } = useNotionalContext();
+
+  return wallet?.selectedAddress;
+}
+
+export function useTruncatedAddress() {
+  const {
+    globalState: { wallet },
+  } = useNotionalContext();
+
+  return wallet?.selectedAddress
+    ? truncateAddress(wallet?.selectedAddress)
+    : '';
 }
 
 export function useWalletConnectedNetwork() {
@@ -76,7 +98,10 @@ export function useWalletBalanceInputCheck(
   };
 }
 
-function useApyValues(tradeType: string | undefined) {
+function useApyValues(
+  tradeType: string | undefined,
+  network: Network | undefined
+) {
   // create a apyData object with a type of a Record with key of string and value of string
   const apyData: Record<string, string> = {};
   const {
@@ -90,7 +115,7 @@ function useApyValues(tradeType: string | undefined) {
     },
     getMax,
     getMin,
-  } = useAllMarkets();
+  } = useAllMarkets(network);
 
   if (tradeType === 'LendFixed') {
     const cardData = [
@@ -148,7 +173,7 @@ export function useWalletBalances(
   tradeType: string | undefined
 ) {
   const account = useAccountDefinition(network);
-  const apyData = useApyValues(tradeType);
+  const apyData = useApyValues(tradeType, network);
   return useMemo(() => {
     return tokens
       ?.map((token) => {

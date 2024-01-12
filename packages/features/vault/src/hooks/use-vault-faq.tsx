@@ -2,10 +2,10 @@ import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Box } from '@mui/material';
 import { Body } from '@notional-finance/mui';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { RiskFaq } from '../components';
 import {
   getEtherscanAddressLink,
+  Network,
   NotionalAddress,
 } from '@notional-finance/util';
 
@@ -15,8 +15,7 @@ interface FaqProps {
   componentAnswer?: ReactNode;
 }
 
-export const useVaultFaq = () => {
-  const selectedNetwork = useSelectedNetwork();
+export const useVaultFaq = (selectedNetwork: Network | undefined) => {
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',

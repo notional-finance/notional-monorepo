@@ -3,9 +3,9 @@ import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { ProgressIndicator } from '@notional-finance/mui';
 import {
-  useAccountReady,
   useNotionalContext,
   useTruncatedAddress,
+  useWalletConnected,
 } from '@notional-finance/notionable-hooks';
 import { ContestButtonStack } from '../contest-button-stack/contest-button-stack';
 import { useConnect } from '@notional-finance/wallet/hooks';
@@ -19,7 +19,7 @@ export const ContestHero = () => {
   } = useNotionalContext();
   const { icon, currentLabel } = useConnect();
   const truncatedAddress = useTruncatedAddress();
-  const connected = useAccountReady();
+  const connected = useWalletConnected();
 
   return (
     <Container>

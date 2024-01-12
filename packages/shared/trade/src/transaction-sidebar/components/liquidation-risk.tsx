@@ -15,8 +15,9 @@ import { FormattedMessage } from 'react-intl';
 
 export const LiquidationRisk = ({ state }: { state: TradeState }) => {
   const theme = useTheme();
-  const isAccountReady = useAccountReady();
-  const { tradeType, inputsSatisfied, calculationSuccess } = state;
+  const { tradeType, inputsSatisfied, calculationSuccess, selectedNetwork } =
+    state;
+  const isAccountReady = useAccountReady(selectedNetwork);
   const {
     onlyCurrent,
     priorAccountNoRisk,

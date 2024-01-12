@@ -14,7 +14,7 @@ export const useTotalsData = (
   debtAPY?: number,
   leverageRatio?: number
 ) => {
-  const { yields } = useAllMarkets();
+  const { yields } = useAllMarkets(nTokenAmount?.network);
   const baseCurrency = useFiat();
 
   const liquidityYieldData = nTokenAmount

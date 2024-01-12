@@ -11,7 +11,7 @@ import {
 import { useCallback } from 'react';
 import { ERC20, ERC20ABI } from '@notional-finance/contracts';
 
-export const useTokenApproval = (symbol: string, network: Network) => {
+export const useTokenApproval = (symbol: string, network: Network | undefined) => {
   const account = useAccountDefinition(network);
   const currentTokenStatus = account?.allowances?.find(
     (t) => t.amount.symbol === symbol

@@ -2,7 +2,6 @@ import { useContext, ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material';
 import { Body } from '@notional-finance/mui';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { BorrowVariableContext } from '../borrow-variable';
 import {
   getEtherscanAddressLink,
@@ -16,13 +15,12 @@ interface FaqProps {
   componentAnswer?: ReactNode;
 }
 
-export const useBorrowVariableFaq = (tokenSymbol?: string) => {
+export const useBorrowVariableFaq = () => {
   const theme = useTheme();
   const context = useContext(BorrowVariableContext);
   const {
-    state: { debt },
+    state: { debt, selectedNetwork, selectedDepositToken },
   } = context;
-  const selectedNetwork = useSelectedNetwork();
 
   const faqHeaderLinks = [
     {
@@ -40,7 +38,7 @@ export const useBorrowVariableFaq = (tokenSymbol?: string) => {
         <FormattedMessage
           defaultMessage={'Prime {tokenSymbol} Contract'}
           values={{
-            tokenSymbol,
+            tokenSymbol: selectedDepositToken,
           }}
         />
       ),

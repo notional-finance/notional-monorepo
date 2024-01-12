@@ -11,6 +11,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { Network } from '@notional-finance/util';
 
 export const useInvestEarnLinks = () => {
   const theme = useTheme();
@@ -23,7 +24,7 @@ export const useInvestEarnLinks = () => {
       // leveragedLend,
       leveragedLiquidity,
     },
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
 
   const lowRiskLinks: SectionLinkProps[] = [
     {

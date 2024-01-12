@@ -14,12 +14,11 @@ import {
 import {
   useAllMarkets,
   useFiat,
-  useSelectedNetwork,
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { PRODUCTS } from '@notional-finance/util';
+import { Network, PRODUCTS } from '@notional-finance/util';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
@@ -55,7 +54,8 @@ const LiquidityCardView = ({
   const baseCurrency = useFiat();
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const network = useSelectedNetwork();
+  // TODO: replace this with a selector
+  const network = Network.ArbitrumOne;
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
 
@@ -190,7 +190,7 @@ const LiquidityCardView = ({
 export const LiquidityVariableCardView = () => {
   const {
     yields: { liquidity },
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
 
   return (
     <LiquidityCardView
@@ -219,9 +219,9 @@ export const LiquidityVariableCardView = () => {
 export const LiquidityLeveragedCardView = () => {
   const {
     yields: { leveragedLiquidity },
-  } = useAllMarkets();
-  const { depositTokensWithPositions } = useLeveragedNTokenPositions();
-  const allMaxAPYs = useMaxYield();
+  } = useAllMarkets(Network.ArbitrumOne);
+  const { depositTokensWithPositions } = useLeveragedNTokenPositions(Network.ArbitrumOne);
+  const allMaxAPYs = useMaxYield(Network.ArbitrumOne);
 
   // These are the default yields using prime debt
   const cardData = leveragedLiquidity

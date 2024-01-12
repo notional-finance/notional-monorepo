@@ -1,4 +1,4 @@
-import { PRODUCTS } from '@notional-finance/util';
+import { Network, PRODUCTS } from '@notional-finance/util';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { CurrencyFixed } from '@notional-finance/mui';
 import {
@@ -18,7 +18,7 @@ export const BorrowFixedCardView = () => {
   const {
     yields: { fCashBorrow },
     getMin,
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
 
   const cardData = [
     ...groupArrayToMap(fCashBorrow, (t) => t.underlying.symbol).entries(),

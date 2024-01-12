@@ -22,7 +22,7 @@ export const BorrowVariableTradeSummary = () => {
   const { pathname } = useLocation();
   const context = useContext(BorrowVariableContext);
   const { state } = context;
-  const { deposit, debt, selectedDepositToken } = state;
+  const { deposit, debt } = state;
   const {
     areaChartData,
     chartToolTipData,
@@ -30,7 +30,7 @@ export const BorrowVariableTradeSummary = () => {
     chartHeaderData,
     borrowUtilization,
   } = useInterestRateUtilizationChart(deposit, 'borrow');
-  const { faqs, faqHeaderLinks } = useBorrowVariableFaq(selectedDepositToken);
+  const { faqs, faqHeaderLinks } = useBorrowVariableFaq();
   const totalsData = useVariableTotals(state);
   const { apyData, tvlData } = useTokenHistory(debt);
 

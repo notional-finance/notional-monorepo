@@ -19,19 +19,24 @@ import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 export const ManageLeveragedLiquidity = () => {
   const theme = useTheme();
   const {
-    state: { debtOptions, selectedDepositToken },
+    state: { debtOptions, selectedDepositToken, selectedNetwork },
     updateState,
   } = useContext(LiquidityContext);
   const {
     yields: { liquidity },
-  } = useAllMarkets();
-  const { currentPosition } = useLeveragedNTokenPositions(selectedDepositToken);
+  } = useAllMarkets(selectedNetwork);
+  const { currentPosition } = useLeveragedNTokenPositions(
+    selectedNetwork,
+    selectedDepositToken
+  );
   const nTokenAPY = liquidity.find(
-    (y) => y.token.id === currentPosition?.asset?.tokenId
+    (y) => y.token.id === currentPosition?.asset?.balance.tokenId
   )?.totalAPY;
 
   const rollMaturityOptions = (debtOptions || [])
-    .filter((o) => o.token.currencyId === currentPosition?.asset.currencyId)
+    .filter(
+      (o) => o.token.currencyId === currentPosition?.asset.balance.currencyId
+    )
     .map((o) => {
       const label =
         o.token.tokenType === 'fCash' ? (

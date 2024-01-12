@@ -189,9 +189,10 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
     netRealizedCollateralBalance,
     depositBalance,
     tradeType,
+    selectedNetwork
   } = state;
   const intl = useIntl();
-  const { nonLeveragedYields } = useAllMarkets();
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const orderDetails: DetailItem[] = [];
   // Only show positive values if one of the values is defined
   const isLeverageOrRoll = !!debtBalance && !!collateralBalance;

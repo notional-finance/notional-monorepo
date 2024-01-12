@@ -1,6 +1,6 @@
 import { Box, SxProps } from '@mui/material';
 import { PageLoading } from '@notional-finance/mui';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useAppReady } from '@notional-finance/notionable-hooks';
 
 interface FeatureLoaderProps {
   children: React.ReactNode[] | React.ReactNode;
@@ -15,10 +15,10 @@ export const FeatureLoader = ({
   backgroundColor,
   sx,
 }: FeatureLoaderProps) => {
-  const selectedNetwork = useSelectedNetwork();
+  const isReady = useAppReady();
   return (
     <Box>
-      {!!selectedNetwork && featureLoaded ? (
+      {isReady && featureLoaded ? (
         children
       ) : (
         <PageLoading

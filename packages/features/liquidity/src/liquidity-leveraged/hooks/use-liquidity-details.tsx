@@ -26,13 +26,14 @@ export const useLiquidityDetails = () => {
     debtBalance,
     debtOptions,
     collateralOptions,
+    selectedNetwork
   } = state;
   const { tableData, tooRisky, onlyCurrent } =
     usePortfolioLiquidationRisk(state);
   const {
     yields: { liquidity },
-  } = useAllMarkets();
-  const { currentHoldings } = useLeveragedNTokenPositions(selectedDepositToken);
+  } = useAllMarkets(selectedNetwork);
+  const { currentHoldings } = useLeveragedNTokenPositions(selectedNetwork, selectedDepositToken);
   const newDebt = comparePortfolio?.find(
     ({ updated }) =>
       updated.underlying.symbol === selectedDepositToken &&

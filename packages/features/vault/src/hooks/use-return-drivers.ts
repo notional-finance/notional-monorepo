@@ -1,14 +1,15 @@
 import { BorderCell } from '@notional-finance/mui';
 import { useIntl } from 'react-intl';
 import { messages } from '../messages';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { Registry } from '@notional-finance/core-entities';
-import { SECONDS_IN_DAY, getNowSeconds } from '@notional-finance/util';
+import { Network, SECONDS_IN_DAY, getNowSeconds } from '@notional-finance/util';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 
-export const useReturnDrivers = (vaultAddress: string | undefined) => {
+export const useReturnDrivers = (
+  vaultAddress: string | undefined,
+  network: Network | undefined
+) => {
   const intl = useIntl();
-  const network = useSelectedNetwork();
   const data =
     network && vaultAddress
       ? Registry.getAnalyticsRegistry().getVault(network, vaultAddress)

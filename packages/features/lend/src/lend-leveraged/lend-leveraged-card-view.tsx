@@ -2,7 +2,7 @@ import {
   useAllMarkets,
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
-import { PRODUCTS } from '@notional-finance/util';
+import { Network, PRODUCTS } from '@notional-finance/util';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { Currency } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
@@ -17,7 +17,7 @@ export function LendLeveragedCardView() {
   const {
     yields: { leveragedLend },
     getMax,
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
   const heading = defineMessage({
     defaultMessage: 'Leveraged Lending',
     description: 'page heading',

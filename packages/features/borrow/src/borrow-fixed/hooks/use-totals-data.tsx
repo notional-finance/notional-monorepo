@@ -1,32 +1,27 @@
 import { FormattedMessage } from 'react-intl';
-import { TokenBalance, FiatSymbols } from '@notional-finance/core-entities';
 import {
-  useFiat,
-  useAllMarkets,
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
+  TokenBalance,
+  FiatSymbols,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
+import { useFiat, useAllMarkets } from '@notional-finance/notionable-hooks';
 
-export const useTotalsData = (selectedDepositToken: string | undefined) => {
-  const network = useSelectedNetwork();
-  const data = useAllMarkets();
+export const useTotalsData = (deposit: TokenDefinition | undefined) => {
+  const data = useAllMarkets(deposit?.network);
   const baseCurrency = useFiat();
   const {
     yields: { fCashBorrow, liquidity },
   } = data;
 
   const tvlData = liquidity?.find(
-    (data) => data.underlying?.symbol === selectedDepositToken
+    (data) => data.underlying?.id === deposit?.id
   )?.tvl;
 
   let totalFixedRateDebt;
-  if (selectedDepositToken && network) {
-    const zeroUnderlying = TokenBalance.fromSymbol(
-      0,
-      selectedDepositToken,
-      network
-    );
+  if (deposit) {
+    const zeroUnderlying = TokenBalance.fromFloat(0, deposit);
     totalFixedRateDebt = fCashBorrow
-      .filter(({ underlying }) => underlying?.symbol === selectedDepositToken)
+      .filter(({ underlying }) => underlying?.id === deposit.id)
       .map(({ token }) => token.totalSupply?.toUnderlying())
       .reduce((sum, balance) => {
         return balance && sum ? sum?.add(balance) : sum;

@@ -2,7 +2,7 @@ import {
   useAllMarkets,
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
-import { PRODUCTS } from '@notional-finance/util';
+import { Network, PRODUCTS } from '@notional-finance/util';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { CurrencyFixed } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
@@ -18,7 +18,7 @@ export function LendCardView() {
   const {
     yields: { fCashLend },
     getMax,
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
 
   const cardData = [
     ...groupArrayToMap(fCashLend, (t) => t.underlying.symbol).entries(),

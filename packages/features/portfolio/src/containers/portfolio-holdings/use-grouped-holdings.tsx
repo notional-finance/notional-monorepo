@@ -42,7 +42,7 @@ function formatCaption(asset: TokenBalance, debt: TokenBalance) {
 export function useGroupedHoldingsTable() {
   const baseCurrency = useFiat();
   const network = useSelectedPortfolioNetwork();
-  const groupedTokens = useGroupedHoldings(network);
+  const groupedTokens = useGroupedHoldings(network) || [];
   const history = useHistory();
 
   const groupedRows = groupedTokens.map(

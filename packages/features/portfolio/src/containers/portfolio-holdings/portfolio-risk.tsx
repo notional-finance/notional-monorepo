@@ -144,7 +144,7 @@ export const PortfolioRisk = () => {
   const baseCurrency = useFiat();
   const loanToValue = profile.loanToValue();
   const healthFactor = profile.healthFactor();
-  const { exchangeRateRisk, assetPriceRisk } = useCurrentLiquidationPrices();
+  const { exchangeRateRisk, assetPriceRisk } = useCurrentLiquidationPrices(network);
 
   const hasLiquidationPrices =
     exchangeRateRisk.length > 0 || assetPriceRisk.length > 0;

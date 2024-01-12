@@ -8,11 +8,16 @@ import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
 export function useVaultExistingFactors() {
   const { state } = useContext(VaultActionContext);
-  const { account } = useAccountDefinition();
+  const {
+    priorVaultBalances,
+    priorAccountRisk,
+    postAccountRisk,
+    selectedNetwork,
+  } = state;
+  const account = useAccountDefinition(selectedNetwork);
   const {
     yields: { variableBorrow },
-  } = useAllMarkets();
-  const { priorVaultBalances, priorAccountRisk, postAccountRisk } = state;
+  } = useAllMarkets(selectedNetwork);
 
   const vaultShare = priorVaultBalances?.find(
     (t) => t.tokenType === 'VaultShare'

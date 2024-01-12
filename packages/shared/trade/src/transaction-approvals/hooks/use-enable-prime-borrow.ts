@@ -9,7 +9,7 @@ import {
 import { Network } from '@notional-finance/util';
 import { useCallback } from 'react';
 
-export function useEnablePrimeBorrow(network: Network) {
+export function useEnablePrimeBorrow(network: Network | undefined) {
   const account = useAccountDefinition(network);
   // Set the default to true so that this does not show up for non-connected wallets
   const isPrimeBorrowAllowed = account ? account.allowPrimeBorrow : true;

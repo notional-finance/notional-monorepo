@@ -6,6 +6,13 @@ import { switchMap, take, concat } from 'rxjs';
 import { Registry } from '@notional-finance/core-entities';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
+export function useAppReady() {
+  const {
+    globalState: { networkState },
+  } = useNotionalContext();
+  return !!networkState;
+}
+
 export function useLastUpdateBlockNumber() {
   const network = useSelectedPortfolioNetwork();
   return network
@@ -28,10 +35,11 @@ export function useNotionalContext() {
 
 export function useSelectedPortfolioNetwork() {
   const {
-    globalState: { selectedPortfolioNetwork, isNetworkReady },
+    globalState: { selectedPortfolioNetwork },
   } = useNotionalContext();
+  const isAppReady = useAppReady();
 
-  return isNetworkReady
+  return isAppReady
     ? selectedPortfolioNetwork ||
         getDefaultNetworkFromHostname(window.location.hostname)
     : undefined;

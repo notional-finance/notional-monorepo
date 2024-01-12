@@ -4,13 +4,14 @@ import { CoinsIcon, CoinsCircleIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { Network } from '@notional-finance/util';
 
 export const useBorrowDropDown = () => {
   const theme = useTheme();
 
   const {
     headlineRates: { fCashBorrow, variableBorrow },
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
 
   const links: SectionLinkProps[] = [
     {

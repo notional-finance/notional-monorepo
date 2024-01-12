@@ -14,7 +14,7 @@ import {
   SelectedOptions,
 } from '@notional-finance/mui';
 import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
-import { MARKET_TYPE, PRIME_CASH_VAULT_MATURITY, getDateString } from '@notional-finance/util';
+import { MARKET_TYPE, Network, PRIME_CASH_VAULT_MATURITY, getDateString } from '@notional-finance/util';
 import { useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
 
@@ -25,7 +25,7 @@ export const useMarketsTable = (
 ) => {
   const theme = useTheme();
   const baseCurrency = useFiat();
-  const { earnYields, borrowYields } = useAllMarkets();
+  const { earnYields, borrowYields } = useAllMarkets(Network.ArbitrumOne);
 
   const tableColumns: DataTableColumn[] = [
     {

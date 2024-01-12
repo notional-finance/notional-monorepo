@@ -36,7 +36,7 @@ export const WithdrawVault = () => {
     ({ vault }) => vault.vaultAddress === vaultAddress
   )?.vault;
 
-  const { inputAmount } = useInputAmount(inputString, primaryBorrowSymbol);
+  const { inputAmount } = useInputAmount(selectedNetwork, inputString, primaryBorrowSymbol);
   useEffect(() => {
     updateState({
       depositBalance: inputAmount?.neg(),

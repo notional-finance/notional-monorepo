@@ -1,6 +1,5 @@
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
-import { truncateAddress } from '@notional-finance/helpers';
 import { Network } from '@notional-finance/util';
 import { useFiat, useFiatToken } from './use-user-settings';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
@@ -32,6 +31,13 @@ export function useAccountReady(network: Network | undefined) {
   return useAccountDefinition(network) !== undefined;
 }
 
+export function useAccountLoading() {
+  const {
+    globalState: { networkAccounts, wallet },
+  } = useNotionalContext();
+  return !!wallet?.selectedAddress && networkAccounts === undefined
+}
+
 export function useTransactionHistory(network: Network | undefined) {
   const account = useAccountDefinition(network);
   return account?.accountHistory?.filter((h) => !h.isTransientLineItem) || [];
@@ -61,17 +67,7 @@ export function useGroupedHoldings(network: Network | undefined) {
   } = useNotionalContext();
   return networkAccounts && network
     ? networkAccounts[network].groupedHoldings || []
-    : [];
-}
-
-export function useTruncatedAddress() {
-  const {
-    globalState: { wallet },
-  } = useNotionalContext();
-
-  return wallet?.selectedAddress
-    ? truncateAddress(wallet?.selectedAddress)
-    : '';
+    : undefined;
 }
 
 export function usePortfolioRiskProfile(network: Network | undefined) {

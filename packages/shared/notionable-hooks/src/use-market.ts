@@ -5,6 +5,7 @@ import {
 } from '@notional-finance/core-entities';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useCallback, useMemo } from 'react';
+import { useNotionalContext } from './use-notional';
 
 export interface MaturityData {
   token: TokenDefinition;
@@ -72,11 +73,11 @@ export function usePrimeTokens(network: Network | undefined) {
 }
 
 // TODO: this needs more refactoring....
-export const useAllMarkets = () => {
-  const network = useSelectedNetwork();
-  const allYields = network
-    ? Registry.getYieldRegistry().getAllYields(network)
-    : [];
+export const useAllMarkets = (network: Network | undefined) => {
+  const {
+    globalState: { allYields: _allYields },
+  } = useNotionalContext();
+  const allYields = _allYields && network ? _allYields[network] : [];
 
   const getMax = useCallback((y: YieldData[]) => {
     return y.reduce(
@@ -230,9 +231,10 @@ export const useFCashMarket = (token?: TokenDefinition | undefined) => {
 };
 
 export const useSpotMaturityData = (
-  tokens?: TokenDefinition[]
+  tokens: TokenDefinition[] | undefined,
+  selectedNetwork: Network | undefined
 ): MaturityData[] => {
-  const { nonLeveragedYields } = useAllMarkets();
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
 
   return useMemo(() => {
     return (

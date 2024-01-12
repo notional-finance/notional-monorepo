@@ -1,7 +1,7 @@
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { formatMaturity } from '@notional-finance/util';
-import { YieldData } from '@notional-finance/core-entities';
+import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
 import {
   DataTableColumn,
   MultiValueIconCell,
@@ -9,15 +9,13 @@ import {
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 
-export const useRatesTable = (selectedDepositToken: string | undefined) => {
+export const useRatesTable = (deposit: TokenDefinition | undefined) => {
   const {
     yields: { variableLend, fCashLend, fCashBorrow, variableBorrow },
-  } = useAllMarkets();
+  } = useAllMarkets(deposit?.network);
 
   const getTokenData = (dataSet: YieldData[]) => {
-    return dataSet.filter(
-      (token) => token?.underlying?.symbol === selectedDepositToken
-    );
+    return dataSet.filter((token) => token?.underlying?.id === deposit?.id);
   };
 
   const variableLendData = getTokenData(variableLend);

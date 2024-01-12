@@ -109,8 +109,8 @@ export const useVaultHoldingsTable = () => {
   const theme = useTheme();
   const baseCurrency = useFiat();
   const history = useHistory();
-  const { vaultLiquidation } = useCurrentLiquidationPrices();
   const network = useSelectedPortfolioNetwork();
+  const { vaultLiquidation } = useCurrentLiquidationPrices(network);
   const vaults = useVaultHoldings(network);
 
   const vaultHoldingsColumns: DataTableColumn[] = useMemo(() => {

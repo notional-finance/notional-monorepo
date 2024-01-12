@@ -32,8 +32,8 @@ interface SelectConvertAssetProps {
 export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
-  const { tradeType, debt, collateral, debtBalance, collateralBalance } = state;
-  const { nonLeveragedYields } = useAllMarkets();
+  const { tradeType, debt, collateral, debtBalance, collateralBalance, selectedNetwork } = state;
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const { options, initialConvertFromBalance: balance } =
     useConvertOptions(state);
   const convertFromToken = tradeType === 'ConvertAsset' ? debt : collateral;

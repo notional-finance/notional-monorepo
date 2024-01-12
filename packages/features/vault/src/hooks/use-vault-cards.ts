@@ -31,7 +31,7 @@ export const useVaultCards = (network: Network) => {
   const {
     yields: { leveragedVaults },
     getMax,
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
 
   const allVaults = listedVaults.map(
     ({

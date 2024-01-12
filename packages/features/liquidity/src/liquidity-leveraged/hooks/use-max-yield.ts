@@ -1,12 +1,12 @@
 import { YieldData } from '@notional-finance/core-entities';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
-import { groupArrayToMap, leveragedYield } from '@notional-finance/util';
+import { Network, groupArrayToMap, leveragedYield } from '@notional-finance/util';
 
-export const useMaxYield = () => {
+export const useMaxYield = (network: Network | undefined) => {
   const {
     yields: { leveragedLiquidity },
     getMax,
-  } = useAllMarkets();
+  } = useAllMarkets(network);
 
   return [
     ...groupArrayToMap(

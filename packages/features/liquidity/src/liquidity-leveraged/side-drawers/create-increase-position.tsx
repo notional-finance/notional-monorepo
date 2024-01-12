@@ -15,11 +15,11 @@ import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 export const CreateOrIncreasePosition = () => {
   const context = useContext(LiquidityContext);
   const {
-    state: { selectedDepositToken, customizeLeverage, debt },
+    state: { selectedDepositToken, customizeLeverage, debt, selectedNetwork },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
   const { currentPosition, depositTokensWithPositions } =
-    useLeveragedNTokenPositions(selectedDepositToken);
+    useLeveragedNTokenPositions(selectedNetwork, selectedDepositToken);
 
   return (
     <TransactionSidebar

@@ -7,17 +7,20 @@ import { MessageDescriptor } from 'react-intl';
 import { useInputAmount } from '../common';
 import { tradeErrors } from '../tradeErrors';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { Network } from '@notional-finance/util';
 
 export function useDepositInput(
+  selectedNetwork: Network | undefined,
   selectedDepositToken?: string,
   isWithdraw?: boolean,
   useZeroDefault?: boolean
 ) {
   const [inputString, setInputString] = useState<string>('');
-  const isAccountReady = useAccountReady();
+  const isAccountReady = useAccountReady(selectedNetwork);
 
   // eslint-disable-next-line prefer-const
   let { token, inputAmount } = useInputAmount(
+    selectedNetwork,
     inputString,
     selectedDepositToken
   );

@@ -18,7 +18,7 @@ import {
 import { useMaxYield } from '../hooks/use-max-yield';
 import { useHistory } from 'react-router';
 import { useLeveragedNTokenPositions } from '../hooks';
-import { PRODUCTS } from '@notional-finance/util';
+import { Network, PRODUCTS } from '@notional-finance/util';
 
 export const CustomLiquidityTerms = () => {
   const theme = useTheme();
@@ -55,7 +55,7 @@ export const DefaultLiquidityTerms = () => {
 
   const toggleLeverage = () =>
     updateState({ customizeLeverage: !customizeLeverage });
-  const maxYield = useMaxYield().find(
+  const maxYield = useMaxYield(Network.ArbitrumOne).find(
     (y) => y.token.currencyId === deposit?.currencyId
   )?.totalAPY;
   const leverageRatio =
@@ -100,9 +100,12 @@ export const DefaultLiquidityTerms = () => {
 export const ManageLiquidityTerms = () => {
   const history = useHistory();
   const {
-    state: { riskFactorLimit, deposit },
+    state: { riskFactorLimit, deposit, selectedNetwork },
   } = useContext(LiquidityContext);
-  const { currentPosition } = useLeveragedNTokenPositions(deposit?.symbol);
+  const { currentPosition } = useLeveragedNTokenPositions(
+    selectedNetwork,
+    deposit?.symbol
+  );
 
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
@@ -120,7 +123,7 @@ export const ManageLiquidityTerms = () => {
         hasPosition={true}
         leverageRatio={leverageRatio}
         borrowType={
-          currentPosition?.debt.tokenType === 'fCash' ? 'Fixed' : 'Variable'
+          currentPosition?.debt.balance.tokenType === 'fCash' ? 'Fixed' : 'Variable'
         }
         actionClick={() =>
           history.push(

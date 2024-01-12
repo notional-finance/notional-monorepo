@@ -1,4 +1,4 @@
-import { PRODUCTS } from '@notional-finance/util';
+import { Network, PRODUCTS } from '@notional-finance/util';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import {
   useThemeVariant,
@@ -14,7 +14,7 @@ export const BorrowVariableCardView = () => {
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const {
     yields: { variableBorrow },
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
 
   return (
     <ThemeProvider theme={themeLanding}>

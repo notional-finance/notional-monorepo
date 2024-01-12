@@ -115,6 +115,7 @@ export const TransactionConfirmation = ({
         <PendingTransaction
           hash={transactionHash}
           transactionStatus={transactionStatus}
+          selectedNetwork={selectedNetwork}
         />
       )}
       {(transactionStatus === TransactionStatus.REVERT || transactionError) && (
