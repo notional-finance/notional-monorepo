@@ -4,13 +4,16 @@ import { useCallback, useContext } from 'react';
 import { NotionalContext } from './context/NotionalContext';
 import { switchMap, take, concat } from 'rxjs';
 import { Registry } from '@notional-finance/core-entities';
-import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+import { Network, getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 export function useAppReady() {
   const {
     globalState: { networkState },
   } = useNotionalContext();
-  return !!networkState;
+  return (
+    !!networkState &&
+    Object.keys(networkState).every((n) => networkState[n as Network] === 'Loaded')
+  );
 }
 
 export function useLastUpdateBlockNumber() {

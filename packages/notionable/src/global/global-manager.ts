@@ -9,9 +9,9 @@ export const loadGlobalManager = (
   global$: Observable<GlobalState>
 ): Observable<Partial<GlobalState>> => {
   return merge(
-    onAppLoad(global$),
-    onWalletConnect(global$),
     onTransact(global$),
-    onDataUpdate(global$)
+    onWalletConnect(global$),
+    onDataUpdate(global$),
+    onAppLoad(global$)
   );
 };

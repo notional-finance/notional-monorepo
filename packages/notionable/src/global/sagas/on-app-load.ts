@@ -86,9 +86,11 @@ function onNetworkLoaded$(global$: Observable<GlobalState>) {
     ),
     withLatestFrom(global$),
     map(([n, { networkState }]) => {
-      return networkState
-        ? Object.assign(networkState, { [n]: 'Loaded' })
-        : undefined;
+      return {
+        networkState: networkState
+          ? Object.assign(networkState, { [n]: 'Loaded' })
+          : undefined,
+      };
     }),
     filterEmpty()
   );

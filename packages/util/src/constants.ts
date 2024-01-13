@@ -39,7 +39,7 @@ export enum Network {
   All = 'all',
   Mainnet = 'mainnet',
   ArbitrumOne = 'arbitrum',
-  Goerli = 'goerli'
+  Goerli = 'goerli',
 }
 
 export const NetworkId: Record<Network, number> = {
@@ -49,7 +49,7 @@ export const NetworkId: Record<Network, number> = {
   [Network.ArbitrumOne]: 42161,
 };
 
-export const SupportedNetworks = [ Network.ArbitrumOne, Network.Goerli ]
+export const SupportedNetworks = [Network.ArbitrumOne];
 
 export const AlchemyUrl: Record<Network, string> = {
   [Network.All]: 'https://eth-mainnet.g.alchemy.com/v2',

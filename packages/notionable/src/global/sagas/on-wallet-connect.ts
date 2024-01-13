@@ -27,7 +27,7 @@ import {
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 export function onWalletConnect(global$: Observable<GlobalState>) {
-  return merge(onWalletChange$(global$), onAccountUpdates$());
+  return merge(onWalletChange$(global$), onAccountUpdates$(global$));
 }
 
 function onWalletChange$(global$: Observable<GlobalState>) {
@@ -64,12 +64,16 @@ function onWalletChange$(global$: Observable<GlobalState>) {
   );
 }
 
-function onAccountUpdates$() {
-  return combineLatest(
-    SupportedNetworks.map((n) =>
-      Registry.getAccountRegistry().subscribeActiveAccount(n)
-    )
-  ).pipe(
+function onAccountUpdates$(global$: Observable<GlobalState>) {
+  return global$.pipe(
+    filter((g) => !!g.networkState),
+    switchMap(() =>
+      combineLatest(
+        SupportedNetworks.map((n) =>
+          Registry.getAccountRegistry().subscribeActiveAccount(n)
+        )
+      )
+    ),
     // Ensure that at least one of the accounts is defined
     filter((accts) => !accts.every((a) => a === null)),
     map((accts) => {
