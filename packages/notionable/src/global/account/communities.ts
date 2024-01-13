@@ -7,6 +7,8 @@ import { Contract } from 'ethers';
 
 export type CommunityName = 'DEGEN_SCORE' | 'V3_BETA_CONTEST';
 
+export const GATED_VAULTS: Record<string, CommunityName[]> = {};
+
 interface Community {
   name: CommunityName;
   address: string;

@@ -30,13 +30,11 @@ export enum BETA_ACCESS {
   REJECTED = 'rejected',
 }
 
-export const GATED_VAULTS: Record<string, CommunityName[]> = {};
-
 // Set this as the runtime default
 const CACHE_HOSTNAME =
   process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
 
-type NetworkLoadingState = 'Pending' | 'Loaded' | undefined;
+export type NetworkLoadingState = 'Pending' | 'Loaded' | undefined;
 
 export interface NotionalError {
   code: number;

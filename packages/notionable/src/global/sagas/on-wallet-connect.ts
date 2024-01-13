@@ -25,6 +25,7 @@ import {
   checkSanctionedAddress,
 } from '../account/communities';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import { isAppReady } from '../../utils';
 
 export function onWalletConnect(global$: Observable<GlobalState>) {
   return merge(onWalletChange$(global$), onAccountUpdates$(global$));
@@ -66,7 +67,7 @@ function onWalletChange$(global$: Observable<GlobalState>) {
 
 function onAccountUpdates$(global$: Observable<GlobalState>) {
   return global$.pipe(
-    filter((g) => !!g.networkState),
+    filter((g) => isAppReady(g.networkState)),
     switchMap(() =>
       combineLatest(
         SupportedNetworks.map((n) =>

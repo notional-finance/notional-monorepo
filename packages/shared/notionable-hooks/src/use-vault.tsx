@@ -19,7 +19,7 @@ export function useVaultNftCheck() {
 
   useEffect(() => {
     if (vaultAddress) {
-      const gatedTo = GATED_VAULTS[vaultAddress];
+      const gatedTo = GATED_VAULTS[vaultAddress] || [];
       if (gatedTo.length) {
         const hasMembership = communityMembership?.find((c) =>
           gatedTo.includes(c)
