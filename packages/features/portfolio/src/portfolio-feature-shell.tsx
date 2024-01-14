@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Box, styled } from '@mui/material';
 import {
+  useAccountLoading,
   useAccountReady,
   useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
@@ -35,10 +36,10 @@ export interface PortfolioParams {
 
 export const PortfolioFeatureShell = () => {
   const network = useSelectedPortfolioNetwork();
-  const isAccountReady = useAccountReady(network);
+  const isAccountLoading = useAccountLoading();
 
   return (
-    <FeatureLoader featureLoaded={network && isAccountReady}>
+    <FeatureLoader featureLoaded={network && !isAccountLoading}>
       <Portfolio />
     </FeatureLoader>
   );

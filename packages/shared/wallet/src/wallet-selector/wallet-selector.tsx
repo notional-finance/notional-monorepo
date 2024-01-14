@@ -10,7 +10,6 @@ import {
 } from '@notional-finance/icons';
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
-import NetworkSelector from '../network-selector/network-selector';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import {
   ProgressIndicator,
@@ -25,7 +24,6 @@ import {
   PORTFOLIO_CATEGORIES,
   SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/util';
-import { useLocation } from 'react-router-dom';
 import {
   useAccountLoading,
   useTruncatedAddress,
@@ -39,7 +37,6 @@ export interface PortfolioParams {
 
 export function WalletSelector() {
   const theme = useTheme();
-  const { pathname } = useLocation();
   const { isReadOnlyAddress, icon, currentLabel } = useConnect();
   const isAccountPending = useAccountLoading();
   const selectedAccount = useWalletAddress();
@@ -81,7 +78,7 @@ export function WalletSelector() {
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <OuterContainer>
         <Container>
-          {truncatedAddress && (
+          {truncatedAddress && !isAccountPending && (
             <>
               {icon && icon.length > 0 && !isReadOnlyAddress && (
                 <IconContainer>
@@ -149,7 +146,6 @@ export function WalletSelector() {
         </Container>
       </OuterContainer>
       <WalletSideDrawer />
-      {!pathname.includes('contest') && <NetworkSelector />}
     </Box>
   );
 }
