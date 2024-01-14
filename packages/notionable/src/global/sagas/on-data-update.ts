@@ -10,57 +10,69 @@ import {
 } from '@notional-finance/util';
 import {
   Observable,
-  combineLatest,
   distinctUntilChanged,
-  interval,
+  filter,
   map,
   merge,
+  switchMap,
+  timer,
 } from 'rxjs';
 import { GlobalState } from '../global-state';
+import { isAppReady } from '../../utils';
+import { globalWhenAppReady$ } from './on-app-load';
 
 export function onDataUpdate(global$: Observable<GlobalState>) {
-  return merge(onYieldsUpdate$(), onPriceChangeUpdate$(global$));
+  return merge(onYieldsUpdate$(global$), onPriceChangeUpdate$(global$));
 }
 
-function onYieldsUpdate$() {
-  return interval(5_000).pipe(
-    map(() => {
-      return {
-        allYields: SupportedNetworks.reduce((acc, n) => {
-          acc[n] = Registry.getYieldRegistry().getAllYields(n);
-          return acc;
-        }, {} as Record<Network, YieldData[]>),
-      };
+function onYieldsUpdate$(global$: Observable<GlobalState>) {
+  return globalWhenAppReady$(global$).pipe(
+    switchMap(() => {
+      return timer(500, 10_000).pipe(
+        map(() => {
+          return {
+            allYields: SupportedNetworks.reduce((acc, n) => {
+              acc[n] = Registry.getYieldRegistry().getAllYields(n);
+              return acc;
+            }, {} as Record<Network, YieldData[]>),
+          };
+        })
+      );
     })
   );
 }
 
 function onPriceChangeUpdate$(global$: Observable<GlobalState>) {
-  return combineLatest([global$, interval(60_000)]).pipe(
+  return global$.pipe(
     distinctUntilChanged(
-      (p, c) => c[1] === p[1] && c[0].baseCurrency === p[0].baseCurrency
+      (p, c) =>
+        isAppReady(p.networkState) === isAppReady(c.networkState) &&
+        c.baseCurrency === p.baseCurrency
     ),
-    map(([global, _]) => {
-      return {
-        priceChanges: SupportedNetworks.reduce((acc, n) => {
-          const oneDay = Registry.getAnalyticsRegistry().getPriceChanges(
-            global.baseCurrency,
-            n,
-            SECONDS_IN_DAY
-          );
-          const sevenDay = Registry.getAnalyticsRegistry().getPriceChanges(
-            global.baseCurrency,
-            n,
-            SECONDS_IN_DAY * 7
-          );
-          acc[n] = {
-            oneDay,
-            sevenDay,
-          };
+    filter((g) => isAppReady(g.networkState)),
+    switchMap((global) => {
+      return timer(500, 60_000).pipe(
+        map(() => ({
+          priceChanges: SupportedNetworks.reduce((acc, n) => {
+            const oneDay = Registry.getAnalyticsRegistry().getPriceChanges(
+              global.baseCurrency,
+              n,
+              SECONDS_IN_DAY
+            );
+            const sevenDay = Registry.getAnalyticsRegistry().getPriceChanges(
+              global.baseCurrency,
+              n,
+              SECONDS_IN_DAY * 7
+            );
+            acc[n] = {
+              oneDay,
+              sevenDay,
+            };
 
-          return acc;
-        }, {} as Record<Network, { oneDay: PriceChange[]; sevenDay: PriceChange[] }>),
-      };
+            return acc;
+          }, {} as Record<Network, { oneDay: PriceChange[]; sevenDay: PriceChange[] }>),
+        }))
+      );
     })
   );
 }

@@ -33,9 +33,9 @@ export function useAccountReady(network: Network | undefined) {
 
 export function useAccountLoading() {
   const {
-    globalState: { networkAccounts, wallet },
+    globalState: { isAccountPending },
   } = useNotionalContext();
-  return !!wallet?.selectedAddress && networkAccounts === undefined
+  return isAccountPending;
 }
 
 export function useTransactionHistory(network: Network | undefined) {

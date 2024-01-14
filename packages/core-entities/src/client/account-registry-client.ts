@@ -47,13 +47,13 @@ export enum AccountFetchMode {
 export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
   protected _activeAccount = new BehaviorSubject<string | null>(null);
 
-  protected _walletProvider?: providers.Web3Provider;
+  protected _walletProvider?: providers.Provider;
 
   constructor(cacheHostname: string, public fetchMode: AccountFetchMode) {
     super(cacheHostname);
   }
 
-  set walletProvider(p: providers.Web3Provider) {
+  set walletProvider(p: providers.Provider) {
     this._walletProvider = p;
   }
 
@@ -146,14 +146,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     return p;
   }
 
-  /** Switches the actively listened account to the newly registered one on the specified network*/
-  public onAccountReady(
-    network: Network,
-    account: string,
-    fn: (a: AccountDefinition) => void
-  ) {
-    this.onSubjectKeyReady(network, account, fn);
-
+  /** Switches the actively listened account to the newly registered one */
+  public setAccount(network: Network, account: string) {
     if (
       this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT &&
       this.activeAccount !== account
@@ -167,7 +161,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
       // Kick off a refresh of the accounts if in single account mode and we are
       // changing the account
-      this.triggerRefresh(network);
+      return this.triggerRefreshPromise(network);
+    } else {
+      return;
     }
   }
 

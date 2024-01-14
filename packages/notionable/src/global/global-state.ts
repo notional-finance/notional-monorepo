@@ -85,11 +85,16 @@ interface AddressState {
     label?: string;
     provider?: ethers.providers.Provider;
   };
-  hasTrackedIdentify: boolean;
   /** These are checked on wallet connection and associated with the wallet */
   communityMembership?: CommunityName[];
   /** Checks if the address is sanctioned on wallet connection */
   isSanctionedAddress: boolean;
+
+  /**
+   * Set to true when addresses are switched and set to false when all networks
+   * have loaded the account.
+   */
+  isAccountPending: boolean;
 
   /** Every supported network has an account object written to the state */
   networkAccounts?: Record<Network, AccountState>;
@@ -139,7 +144,7 @@ export const initialGlobalState: GlobalState = {
     : THEME_VARIANTS.LIGHT,
   baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
   isSanctionedAddress: false,
-  hasTrackedIdentify: false,
+  isAccountPending: false,
   sentTransactions: [],
   completedTransactions: {},
   pendingPnL: {

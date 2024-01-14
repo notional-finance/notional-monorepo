@@ -1,5 +1,6 @@
 import {
   Observable,
+  distinctUntilChanged,
   filter,
   from,
   map,
@@ -15,6 +16,7 @@ import {
   filterEmpty,
 } from '@notional-finance/util';
 import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
+import { isAppReady } from '../../utils';
 
 const vpnCheck = 'https://detect.notional.finance/';
 const dataURL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
@@ -25,6 +27,15 @@ export function onAppLoad(global$: Observable<GlobalState>) {
     initNetworkRegistry$(global$),
     onNetworkLoaded$(global$)
   );
+}
+
+export function globalWhenAppReady$(global$: Observable<GlobalState>) {
+  return global$.pipe(
+    distinctUntilChanged(
+      (p, c) => isAppReady(p.networkState) === isAppReady(c.networkState)
+    ),
+    filter((g) => isAppReady(g.networkState)),
+  )
 }
 
 function exportControlState$(global$: Observable<GlobalState>) {
@@ -86,11 +97,15 @@ function onNetworkLoaded$(global$: Observable<GlobalState>) {
     ),
     withLatestFrom(global$),
     map(([n, { networkState }]) => {
-      return {
-        networkState: networkState
-          ? Object.assign(networkState, { [n]: 'Loaded' })
-          : undefined,
-      };
+      if (networkState && networkState[n] === 'Loaded') {
+        return undefined;
+      } else {
+        return {
+          networkState: networkState
+            ? Object.assign(networkState, { [n]: 'Loaded' })
+            : undefined,
+        };
+      }
     }),
     filterEmpty()
   );

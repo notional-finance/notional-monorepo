@@ -1,6 +1,7 @@
 import {
   Observable,
   combineLatest,
+  distinctUntilChanged,
   filter,
   map,
   merge,
@@ -28,23 +29,64 @@ import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { isAppReady } from '../../utils';
 
 export function onWalletConnect(global$: Observable<GlobalState>) {
-  return merge(onWalletChange$(global$), onAccountUpdates$(global$));
+  return merge(
+    onWalletChange$(global$),
+    onSyncAccountInfo$(global$),
+    onAccountUpdates$(global$)
+  );
 }
 
-function onWalletChange$(global$: Observable<GlobalState>) {
+function globalWhenWalletChanges$(global$: Observable<GlobalState>) {
   return global$.pipe(
     pairwise(),
     filter(([prev, cur]) => {
       const didConnect = prev.wallet === undefined && cur.wallet !== undefined;
       const didChange =
-        prev.wallet &&
-        cur.wallet &&
+        !!prev.wallet &&
+        !!cur.wallet &&
         prev.wallet.selectedAddress !== cur.wallet.selectedAddress;
       return didChange || didConnect;
     }),
-    switchMap(async ([_, cur]) => {
+    map(([_, c]) => c)
+  );
+}
+
+/** This observable emits immediately when the wallet changes */
+function onWalletChange$(global$: Observable<GlobalState>) {
+  return globalWhenWalletChanges$(global$).pipe(
+    map((cur) => {
       const selectedAddress = cur.wallet?.selectedAddress;
       if (selectedAddress === undefined) return undefined;
+
+      return {
+        selectedPortfolioNetwork: cur.wallet?.selectedChain,
+        networkAccounts: undefined,
+        isAccountPending: true,
+      };
+    }),
+    filterEmpty()
+  );
+}
+
+/** This observable emits async when the wallet info changes */
+function onSyncAccountInfo$(global$: Observable<GlobalState>) {
+  return globalWhenWalletChanges$(global$).pipe(
+    switchMap(async (g) => {
+      const selectedAddress = g.wallet?.selectedAddress;
+      if (selectedAddress === undefined) return undefined;
+      const accounts = Registry.getAccountRegistry();
+      if (g.wallet?.provider) {
+        accounts.walletProvider = g.wallet?.provider;
+      }
+
+      // Set up account refresh on all supported networks
+      await Promise.all(
+        SupportedNetworks.map(async (n) => {
+          await accounts.setAccount(n, selectedAddress);
+          // TODO: add tracking here...
+          console.log('Account Ready', accounts.getAccount(n, selectedAddress));
+        })
+      );
 
       // check community membership
       const communityMembership = await checkCommunityMembership(
@@ -56,9 +98,7 @@ function onWalletChange$(global$: Observable<GlobalState>) {
       return {
         communityMembership,
         isSanctionedAddress,
-        selectedPortfolioNetwork: cur.wallet?.selectedChain,
-        hasTrackedIdentify: false,
-        networkAccounts: undefined,
+        isAccountPending: false,
       };
     }),
     filterEmpty()
@@ -67,60 +107,51 @@ function onWalletChange$(global$: Observable<GlobalState>) {
 
 function onAccountUpdates$(global$: Observable<GlobalState>) {
   return global$.pipe(
-    filter((g) => isAppReady(g.networkState)),
-    switchMap(() =>
-      combineLatest(
+    distinctUntilChanged((p, c) => p.isAccountPending === c.isAccountPending),
+    filter((g) => !g.isAccountPending && isAppReady(g.networkState)),
+    switchMap(() => {
+      return combineLatest(
         SupportedNetworks.map((n) =>
           Registry.getAccountRegistry().subscribeActiveAccount(n)
         )
-      )
-    ),
-    // Ensure that at least one of the accounts is defined
-    filter((accts) => !accts.every((a) => a === null)),
-    map((accts) => {
-      const networkAccounts = accts.reduce((n, a) => {
-        if (a !== null) {
-          const { accruedIncentives, totalIncentives } =
-            calculateAccruedIncentives(a);
-          const portfolioHoldings = calculateHoldings(a, accruedIncentives);
-          const riskProfile = new AccountRiskProfile(
-            a?.balances.filter(
-              (b) =>
-                !b.isVaultToken &&
-                b.tokenType !== 'Underlying' &&
-                b.tokenType !== 'NOTE'
-            ) || [],
-            a.network
-          );
+      ).pipe(
+        // Ensure that at least one of the accounts is defined
+        filter((accts) => !accts.every((a) => a === null)),
+        map((accts) => {
+          const networkAccounts = accts.reduce((n, a) => {
+            if (a !== null) {
+              const { accruedIncentives, totalIncentives } =
+                calculateAccruedIncentives(a);
+              const portfolioHoldings = calculateHoldings(a, accruedIncentives);
+              const riskProfile = new AccountRiskProfile(
+                a?.balances.filter(
+                  (b) =>
+                    !b.isVaultToken &&
+                    b.tokenType !== 'Underlying' &&
+                    b.tokenType !== 'NOTE'
+                ) || [],
+                a.network
+              );
 
-          n[a.network] = {
-            isAccountReady: true,
-            riskProfile,
-            accountDefinition: a,
-            portfolioHoldings,
-            groupedHoldings: calculateGroupedHoldings(a, portfolioHoldings),
-            vaultHoldings: calculateVaultHoldings(a),
-            accruedIncentives,
-            totalIncentives,
-          };
-        }
+              n[a.network] = {
+                isAccountReady: true,
+                riskProfile,
+                accountDefinition: a,
+                portfolioHoldings,
+                groupedHoldings: calculateGroupedHoldings(a, portfolioHoldings),
+                vaultHoldings: calculateVaultHoldings(a),
+                accruedIncentives,
+                totalIncentives,
+              };
+            }
 
-        return n;
-      }, {} as Record<Network, AccountState>);
+            return n;
+          }, {} as Record<Network, AccountState>);
 
-      return { networkAccounts };
-    })
+          return { networkAccounts };
+        })
+      );
+    }),
+    filterEmpty()
   );
 }
-
-// function onTrackIdentify$(global$: Observable<GlobalState>) {
-//   return global$.pipe(
-//     filter(
-//       ({ hasTrackedIdentify, networkAccounts }) =>
-//         hasTrackedIdentify === false && !!networkAccounts
-//     ),
-//     tap(({ networkAccounts }) => {
-
-//     })
-//   );
-// }

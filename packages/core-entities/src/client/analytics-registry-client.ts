@@ -227,6 +227,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   ): PriceChange[] {
     return Registry.getTokenRegistry()
       .getAllTokens(network)
+      .filter((t) => t.currencyId !== undefined)
       .map((t) => {
         const unit = TokenBalance.unit(t);
         const midnight = getMidnightUTC();
