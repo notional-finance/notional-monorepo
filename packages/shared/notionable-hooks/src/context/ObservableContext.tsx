@@ -2,8 +2,8 @@ import { GlobalState } from '@notional-finance/notionable';
 import { useObservable, useSubscription } from 'observable-hooks';
 import React, { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
-import { EMPTY, Observable, switchMap, tap } from 'rxjs';
-import { useNotionalContext } from '../use-notional';
+import { EMPTY, Observable, switchMap, tap, of } from 'rxjs';
+import { useAppReady, useNotionalContext } from '../use-notional';
 import { useObservableReducer } from './use-observable-reducer';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
@@ -45,10 +45,8 @@ export function useObservableContext<T extends ContextState>(
 ) {
   const params = useParams<Record<string, string>>();
   const { pathname } = useLocation();
-  const {
-    globalState$,
-    globalState: { isNetworkReady },
-  } = useNotionalContext();
+  const { globalState$ } = useNotionalContext();
+  const isAppReady = useAppReady();
   const { updateState, state$, state } = useObservableReducer(
     initialState,
     '[STATE]'
@@ -60,13 +58,15 @@ export function useObservableContext<T extends ContextState>(
     useObservable(
       (o$) => {
         return o$.pipe(
-          switchMap(([s, g, load]) => load(s, g)),
+          switchMap(([s, g, load, appReady]) =>
+            appReady ? load(s, g) : of({})
+          ),
           tap((s) => {
             if (DEBUG) console.log('CALCULATED UPDATE', s);
           })
         );
       },
-      [state$, globalState$, loadManagers]
+      [state$, globalState$, loadManagers, isAppReady]
     ),
     updateState
   );
@@ -75,12 +75,12 @@ export function useObservableContext<T extends ContextState>(
     // If any of the route params change then we will update state to initial and set the params,
     // this prevents any "residual" state from going between paths. Use isNetworkReady here to
     // prevent race conditions based on when dependencies update.
-    if (isNetworkReady) {
+    if (isAppReady) {
       if (DEBUG) console.log('URL UPDATE', params);
       updateState(params as T);
     }
     // NOTE: only run updates on pathname changes, since params is an object
-  }, [pathname, isNetworkReady, updateState, params]);
+  }, [pathname, isAppReady, updateState, params]);
 
   return { updateState, state$, state };
 }

@@ -72,8 +72,9 @@ export const useVaultCards = (network: Network) => {
         capacityUsedPercentage,
         capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
         VaultCardOverlay:
-          GATED_VAULTS[id].length > 0 ? VaultCardOverlay : undefined,
-        VaultCardIcon: GATED_VAULTS[id].length > 0 ? DegenScoreIcon : undefined,
+          (GATED_VAULTS[id] || []).length > 0 ? VaultCardOverlay : undefined,
+        VaultCardIcon:
+          (GATED_VAULTS[id] || []).length > 0 ? DegenScoreIcon : undefined,
       };
     }
   );

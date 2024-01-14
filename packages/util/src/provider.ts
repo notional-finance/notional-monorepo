@@ -1,5 +1,11 @@
 import { ethers } from 'ethers';
-import { AlchemyNFTUrl, AlchemyUrl, IS_TEST_ENV, Network, NetworkId } from './constants';
+import {
+  AlchemyNFTUrl,
+  AlchemyUrl,
+  IS_TEST_ENV,
+  Network,
+  NetworkId,
+} from './constants';
 
 class AlchemyBatchProvider extends ethers.providers.AlchemyProvider {
   // _pendingBatchAggregator?: NodeJS.Timer;
@@ -76,5 +82,14 @@ export function getDefaultNetworkFromHostname(hostname: string) {
   switch (hostname) {
     default:
       return Network.ArbitrumOne;
+  }
+}
+
+export function getNetworkSymbol(network: Network | undefined) {
+  switch (network) {
+    case Network.ArbitrumOne:
+      return 'arb';
+    default:
+      return 'eth';
   }
 }

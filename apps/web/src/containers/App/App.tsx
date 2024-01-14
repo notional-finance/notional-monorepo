@@ -4,7 +4,7 @@ import {
   useSanctionsBlock,
   useVaultNftCheck,
 } from '@notional-finance/notionable-hooks';
-import { TrackingConsent } from '@notional-finance/shared-web';
+import { FeatureLoader, TrackingConsent } from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
 import { Switch } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
@@ -237,10 +237,12 @@ export const App = () => {
     <ThemeProvider theme={notionalTheme}>
       <CssBaseline />
       <NotionalContext.Provider value={globalState}>
-        <Web3OnboardProvider web3Onboard={OnboardContext}>
-          <ScrollToTop />
-          <AllRoutes />
-        </Web3OnboardProvider>
+        <FeatureLoader>
+          <Web3OnboardProvider web3Onboard={OnboardContext}>
+            <ScrollToTop />
+            <AllRoutes />
+          </Web3OnboardProvider>
+        </FeatureLoader>
       </NotionalContext.Provider>
     </ThemeProvider>
   );

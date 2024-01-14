@@ -7,6 +7,7 @@ import {
   ActiveBellIcon,
   BellIcon,
   EyeIcon,
+  TokenIcon,
 } from '@notional-finance/icons';
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
@@ -23,11 +24,13 @@ import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
   SETTINGS_SIDE_DRAWERS,
+  getNetworkSymbol,
 } from '@notional-finance/util';
 import {
   useAccountLoading,
   useTruncatedAddress,
   useWalletAddress,
+  useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 
 export interface PortfolioParams {
@@ -37,9 +40,10 @@ export interface PortfolioParams {
 
 export function WalletSelector() {
   const theme = useTheme();
-  const { isReadOnlyAddress, icon, currentLabel } = useConnect();
+  const { isReadOnlyAddress, icon } = useConnect();
   const isAccountPending = useAccountLoading();
   const selectedAccount = useWalletAddress();
+  const walletNetwork = useWalletConnectedNetwork();
   const truncatedAddress = useTruncatedAddress();
   const notifications = getFromLocalStorage('notifications');
   const [showAlert, setShowAlert] = useState<boolean>(false);
@@ -82,11 +86,9 @@ export function WalletSelector() {
             <>
               {icon && icon.length > 0 && !isReadOnlyAddress && (
                 <IconContainer>
-                  <img
-                    src={`data:image/svg+xml;utf8,${encodeURIComponent(icon)}`}
-                    alt={`${currentLabel} wallet icon`}
-                    height="24px"
-                    width="24px"
+                  <TokenIcon
+                    symbol={getNetworkSymbol(walletNetwork)}
+                    size="medium"
                   />
                 </IconContainer>
               )}
