@@ -17,34 +17,55 @@ export const useTotalsData = (
   const { yields } = useAllMarkets();
   const baseCurrency = useFiat();
 
-  const liquidityYieldData = nTokenAmount
+  let liquidityYieldData = nTokenAmount
     ? Registry.getYieldRegistry().getSimulatedNTokenYield(nTokenAmount)
     : yields.liquidity.find(
         ({ underlying }) => underlying.symbol === tokenSymbol
       );
 
-  if (
-    leverageRatio &&
-    debtAPY &&
-    liquidityYieldData?.interestAPY !== undefined
-  ) {
-    // If using leverage apply the debt APY to the interest apy
-    liquidityYieldData.interestAPY = leveragedYield(
-      liquidityYieldData.interestAPY,
-      debtAPY,
-      leverageRatio
-    );
+  if (leverageRatio) {
+    // Need to do a copy here otherwise we end up updating the parent
+    // object and get weird memory reference issues.
+    liquidityYieldData = Object.assign({}, liquidityYieldData);
+
+    if (debtAPY) {
+      // If using leverage apply the debt APY to the interest apy
+      liquidityYieldData.interestAPY = leveragedYield(
+        liquidityYieldData?.interestAPY || 0,
+        debtAPY,
+        leverageRatio
+      );
+    }
+
+    // If using leverage apply the leverage ratio to the incentive APY directly
+    if (liquidityYieldData?.noteIncentives) {
+      liquidityYieldData.noteIncentives = {
+        symbol: 'NOTE',
+        incentiveAPY:
+          leveragedYield(
+            liquidityYieldData.noteIncentives.incentiveAPY,
+            0,
+            leverageRatio
+          ) || liquidityYieldData.noteIncentives.incentiveAPY,
+      };
+    }
+
+    if (liquidityYieldData?.secondaryIncentives) {
+      liquidityYieldData.secondaryIncentives = {
+        symbol: liquidityYieldData.secondaryIncentives.symbol,
+        incentiveAPY:
+          leveragedYield(
+            liquidityYieldData.secondaryIncentives.incentiveAPY,
+            0,
+            leverageRatio
+          ) || liquidityYieldData.secondaryIncentives.incentiveAPY,
+      };
+    }
   }
 
-  if (leverageRatio && !!liquidityYieldData?.noteIncentives) {
-    // If using leverage apply the
-    liquidityYieldData.noteIncentives.incentiveAPY =
-      leveragedYield(
-        liquidityYieldData.noteIncentives.incentiveAPY,
-        0,
-        leverageRatio
-      ) || liquidityYieldData.noteIncentives.incentiveAPY;
-  }
+  const totalIncentives =
+    (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) +
+    (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0);
 
   return {
     totalsData: [
@@ -55,17 +76,9 @@ export const useTotalsData = (
       },
       {
         title: <FormattedMessage defaultMessage={'Incentive APY'} />,
-        value:
-          liquidityYieldData?.noteIncentives &&
-          liquidityYieldData?.noteIncentives?.incentiveAPY
-            ? liquidityYieldData?.noteIncentives?.incentiveAPY
-            : '-',
+        value: totalIncentives ? totalIncentives : '-',
         Icon: SparklesIcon,
-        suffix:
-          liquidityYieldData?.noteIncentives &&
-          liquidityYieldData?.noteIncentives?.incentiveAPY
-            ? '%'
-            : '',
+        suffix: totalIncentives ? '%' : '',
       },
       {
         title: <FormattedMessage defaultMessage={'Liquidity Providers'} />,
