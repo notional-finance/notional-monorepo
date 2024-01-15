@@ -56,6 +56,7 @@ export interface TokenOption {
   balance?: TokenBalance;
   interestRate?: number;
   error?: string;
+  utilization?: number;
 }
 
 /** Inputs set by the user interface, all of these are denominated in primitive values */

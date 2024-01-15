@@ -439,7 +439,7 @@ function computeCollateralOptions(
       return {
         token: c,
         balance: collateralBalance,
-        interestRate: _getTradedInterestRate(
+        ..._getTradedInterestRate(
           netRealizedCollateralBalance,
           collateralBalance,
           fCashMarket
@@ -487,7 +487,7 @@ function computeDebtOptions(
       return {
         token: d,
         balance: debtBalance,
-        interestRate: _getTradedInterestRate(
+        ..._getTradedInterestRate(
           netRealizedDebtBalance,
           debtBalance.unwrapVaultToken(),
           fCashMarket,
@@ -512,18 +512,19 @@ function _getTradedInterestRate(
   tradeType?: TradeType | VaultTradeType
 ) {
   let interestRate: number | undefined;
+  let utilization: number | undefined;
   if (amount.tokenType === 'fCash') {
     interestRate = fCashMarket.getImpliedInterestRate(realized, amount);
   } else if (amount.tokenType === 'PrimeCash') {
     // Increases or decreases the prime supply accordingly
-    const utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);
+    utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);
     interestRate = fCashMarket.getPrimeSupplyRate(utilization);
   } else if (
     amount.tokenType === 'PrimeDebt' &&
     (tradeType === 'LeveragedLend' || tradeType === 'LeveragedNToken')
   ) {
     // If borrowing for leverage it is prime supply + prime debt
-    const utilization = fCashMarket.getPrimeCashUtilization(
+    utilization = fCashMarket.getPrimeCashUtilization(
       amount.toPrimeCash().neg(),
       amount.neg()
     );
@@ -531,17 +532,21 @@ function _getTradedInterestRate(
   } else if (amount.tokenType === 'PrimeDebt') {
     // If borrowing and withdrawing then it is just prime debt increase. This
     // includes vault debt
-    const utilization = fCashMarket.getPrimeCashUtilization(
-      undefined,
-      amount.neg()
-    );
+    utilization = fCashMarket.getPrimeCashUtilization(undefined, amount.neg());
     interestRate = fCashMarket.getPrimeDebtRate(utilization);
   } else if (amount.tokenType === 'nToken') {
-    return Registry.getYieldRegistry().getSimulatedNTokenYield(amount)
-      ?.totalAPY;
+    return {
+      interestRate:
+        Registry.getYieldRegistry().getSimulatedNTokenYield(amount)?.totalAPY,
+      utilization: undefined,
+    };
   }
 
-  return interestRate !== undefined
-    ? (interestRate * 100) / RATE_PRECISION
-    : undefined;
+  return {
+    interestRate:
+      interestRate !== undefined
+        ? (interestRate * 100) / RATE_PRECISION
+        : undefined,
+    utilization,
+  };
 }

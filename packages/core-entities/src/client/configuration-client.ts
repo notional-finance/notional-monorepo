@@ -703,8 +703,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     const address = this.getLatestFromSubject(
       network,
       network
-      // TODO: change this to use name later
-    )?.whitelistedContracts.find((_) => _)?.id;
+    )?.whitelistedContracts.find(
+      ({ name }) => name === 'Leveraged NToken Adapter'
+    )?.id;
     if (!address) throw Error('Leveraged NToken Adapter not found');
 
     return new Contract(
