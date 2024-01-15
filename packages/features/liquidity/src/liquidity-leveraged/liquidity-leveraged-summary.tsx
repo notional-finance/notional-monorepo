@@ -10,22 +10,15 @@ import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import { useLeveragedLiquidityFaq, useSummaryState } from './hooks';
 import { FormattedMessage } from 'react-intl';
-import { useDebtAPY } from '@notional-finance/notionable-hooks';
-import { useTotalsData } from '../liquidity-variable/hooks/use-totals-data';
+import { useLeveragedNTokenAPY } from './hooks/use-leveraged-ntoken-apy';
 
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();
   const state = useSummaryState();
   const { pathname } = useLocation();
-  const { selectedDepositToken, collateralBalance, riskFactorLimit } = state;
+  const { selectedDepositToken } = state;
   const tokenSymbol = selectedDepositToken || '';
-  const debtAPY = useDebtAPY(state);
-  const { liquidityYieldData } = useTotalsData(
-    tokenSymbol,
-    collateralBalance?.tokenType === 'nToken' ? collateralBalance : undefined,
-    debtAPY,
-    riskFactorLimit?.limit as number | undefined
-  );
+  const liquidityYieldData = useLeveragedNTokenAPY(state)
   const { faqs, faqHeaderLinks } = useLeveragedLiquidityFaq(tokenSymbol);
 
   return (

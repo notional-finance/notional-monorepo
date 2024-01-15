@@ -5,63 +5,20 @@ import {
 } from '@notional-finance/core-entities';
 import { SparklesIcon } from '@notional-finance/icons';
 import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
-import { leveragedYield } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
 export const useTotalsData = (
   tokenSymbol: string,
-  nTokenAmount?: TokenBalance,
-  debtAPY?: number,
-  leverageRatio?: number
+  nTokenAmount?: TokenBalance
 ) => {
   const { yields } = useAllMarkets();
   const baseCurrency = useFiat();
 
-  let liquidityYieldData = nTokenAmount
+  const liquidityYieldData = nTokenAmount
     ? Registry.getYieldRegistry().getSimulatedNTokenYield(nTokenAmount)
     : yields.liquidity.find(
         ({ underlying }) => underlying.symbol === tokenSymbol
       );
-
-  if (leverageRatio) {
-    // Need to do a copy here otherwise we end up updating the parent
-    // object and get weird memory reference issues.
-    liquidityYieldData = Object.assign({}, liquidityYieldData);
-
-    if (debtAPY) {
-      // If using leverage apply the debt APY to the interest apy
-      liquidityYieldData.interestAPY = leveragedYield(
-        liquidityYieldData?.interestAPY || 0,
-        debtAPY,
-        leverageRatio
-      );
-    }
-
-    // If using leverage apply the leverage ratio to the incentive APY directly
-    if (liquidityYieldData?.noteIncentives) {
-      liquidityYieldData.noteIncentives = {
-        symbol: 'NOTE',
-        incentiveAPY:
-          leveragedYield(
-            liquidityYieldData.noteIncentives.incentiveAPY,
-            0,
-            leverageRatio
-          ) || liquidityYieldData.noteIncentives.incentiveAPY,
-      };
-    }
-
-    if (liquidityYieldData?.secondaryIncentives) {
-      liquidityYieldData.secondaryIncentives = {
-        symbol: liquidityYieldData.secondaryIncentives.symbol,
-        incentiveAPY:
-          leveragedYield(
-            liquidityYieldData.secondaryIncentives.incentiveAPY,
-            0,
-            leverageRatio
-          ) || liquidityYieldData.secondaryIncentives.incentiveAPY,
-      };
-    }
-  }
 
   const totalIncentives =
     (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) +

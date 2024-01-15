@@ -104,7 +104,10 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       });
   }
 
-  getSimulatedNTokenYield(netNTokens: TokenBalance): YieldData {
+  getSimulatedNTokenYield(
+    netNTokens: TokenBalance,
+    adjustedPrimeUtilization?: number
+  ): YieldData {
     const network = netNTokens.network;
 
     const exchanges = Registry.getExchangeRegistry();
@@ -151,7 +154,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         const apy =
           b.tokenType === 'PrimeCash'
             ? (fCashMarket.getPrimeSupplyRate(
-                fCashMarket.getPrimeCashUtilization(netNTokens.toPrimeCash())
+                adjustedPrimeUtilization ||
+                  fCashMarket.getPrimeCashUtilization(netNTokens.toPrimeCash())
               ) *
                 100) /
               RATE_PRECISION
