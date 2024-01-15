@@ -5,14 +5,11 @@ import {
 } from '@notional-finance/core-entities';
 import { SparklesIcon } from '@notional-finance/icons';
 import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
-import { leveragedYield } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
 export const useTotalsData = (
   tokenSymbol: string,
-  nTokenAmount?: TokenBalance,
-  debtAPY?: number,
-  leverageRatio?: number
+  nTokenAmount?: TokenBalance
 ) => {
   const { yields } = useAllMarkets();
   const baseCurrency = useFiat();
@@ -23,28 +20,9 @@ export const useTotalsData = (
         ({ underlying }) => underlying.symbol === tokenSymbol
       );
 
-  if (
-    leverageRatio &&
-    debtAPY &&
-    liquidityYieldData?.interestAPY !== undefined
-  ) {
-    // If using leverage apply the debt APY to the interest apy
-    liquidityYieldData.interestAPY = leveragedYield(
-      liquidityYieldData.interestAPY,
-      debtAPY,
-      leverageRatio
-    );
-  }
-
-  if (leverageRatio && !!liquidityYieldData?.noteIncentives) {
-    // If using leverage apply the
-    liquidityYieldData.noteIncentives.incentiveAPY =
-      leveragedYield(
-        liquidityYieldData.noteIncentives.incentiveAPY,
-        0,
-        leverageRatio
-      ) || liquidityYieldData.noteIncentives.incentiveAPY;
-  }
+  const totalIncentives =
+    (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) +
+    (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0);
 
   return {
     totalsData: [
@@ -55,17 +33,9 @@ export const useTotalsData = (
       },
       {
         title: <FormattedMessage defaultMessage={'Incentive APY'} />,
-        value:
-          liquidityYieldData?.noteIncentives &&
-          liquidityYieldData?.noteIncentives?.incentiveAPY
-            ? liquidityYieldData?.noteIncentives?.incentiveAPY
-            : '-',
+        value: totalIncentives ? totalIncentives : '-',
         Icon: SparklesIcon,
-        suffix:
-          liquidityYieldData?.noteIncentives &&
-          liquidityYieldData?.noteIncentives?.incentiveAPY
-            ? '%'
-            : '',
+        suffix: totalIncentives ? '%' : '',
       },
       {
         title: <FormattedMessage defaultMessage={'Liquidity Providers'} />,

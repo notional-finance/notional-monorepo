@@ -116,6 +116,7 @@ query AllConfiguration {
 
     whitelistedContracts {
         id
+        name
         capability
     }
 
