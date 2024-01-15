@@ -516,7 +516,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
       netRealizedCollateralBalance: TokenBalance;
       netRealizedDebtBalance: TokenBalance;
     },
-    initialDebtUnitsEstimateInRP: number
+    initialDebtUnitsEstimateInRP: number,
+    initialGuessMultiple = 2
   ) {
     // Uses the debt as the local currency
     const localUnderlyingId =
@@ -569,7 +570,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     // set the required precision based on the riskLimitType
     return doSecantSearch(
       initialDebtUnitsEstimateInRP,
-      initialDebtUnitsEstimateInRP * 2,
+      initialDebtUnitsEstimateInRP * initialGuessMultiple,
       calculationFunction
     );
   }
