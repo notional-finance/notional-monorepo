@@ -7,6 +7,7 @@ import {
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
+import { useFiat, useGroupedTokens } from '@notional-finance/notionable-hooks';
 import {
   useFiat,
   useGroupedHoldings,
