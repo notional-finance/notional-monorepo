@@ -243,6 +243,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         leverageRatio,
         maxLeverageRatio,
       },
+      vaultName: yieldData?.vaultName,
       noteIncentives: {
         symbol: 'NOTE',
         incentiveAPY: this.calculateLeveragedAPY(
