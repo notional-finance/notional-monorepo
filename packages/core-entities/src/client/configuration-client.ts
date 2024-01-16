@@ -2,6 +2,7 @@ import { ClientRegistry } from './client-registry';
 import {
   OracleDefinition,
   RiskAdjustment,
+  Routes,
   TokenBalance,
   TokenDefinition,
 } from '..';
@@ -36,7 +37,7 @@ import {
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   protected cachePath() {
-    return 'configuration-reward-test';
+    return Routes.Configuration;
   }
 
   constructor(cacheHostname: string) {
