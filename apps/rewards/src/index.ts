@@ -16,6 +16,7 @@ export interface Env {
 }
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 1;
+const DUST_AMOUNT = 100;
 const wait = (ms: number) => new Promise((f) => setTimeout(f, ms));
 
 interface ReinvestmentData {
@@ -185,16 +186,15 @@ const getTrades = async (
 }
 
 const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) => {
-    if (await shouldSkipReinvest(env, vault.address)) {
-      console.log(`Skipping reinvestment for ${vault.address}, already invested`);
-      return null;
-    }
+  if (await shouldSkipReinvest(env, vault.address)) {
+    console.log(`Skipping reinvestment for ${vault.address}, already invested`);
+    return null;
+  }
 
   const tradesPerRewardToken = [];
   for (const sellToken of vault.rewardTokens) {
     const amount = await ERC20__factory.connect(sellToken, provider).balanceOf(vault.address);
-    console.log("amout is: ", amount);
-    if (amount.lt(100)) {
+    if (amount.lt(DUST_AMOUNT)) {
       console.log(`Skipping reinvestment for ${vault.address}: ${sellToken}, 0 reward token`);
       continue;
     }
@@ -215,13 +215,21 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
     return null;
   }
 
-  const data = TreasuryManager__factory.connect(
+  const treasuryManger = TreasuryManager__factory.connect(
     env.TREASURY_MANAGER_ADDRESS,
     provider
-  ).interface.encodeFunctionData('reinvestVaultReward', [
+  );
+
+  const { poolClaimAmounts } = await treasuryManger.callStatic.reinvestVaultReward(
     vault.address,
     tradesPerRewardToken,
-    tradesPerRewardToken.map(() => BigNumber.from(0)), // minPoolClaims
+    tradesPerRewardToken.map(() => BigNumber.from(0)),
+  );
+
+  const data = treasuryManger.interface.encodeFunctionData('reinvestVaultReward', [
+    vault.address,
+    tradesPerRewardToken,
+    poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
   ]);
 
 
