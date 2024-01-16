@@ -56,6 +56,7 @@ export interface TokenOption {
   balance?: TokenBalance;
   interestRate?: number;
   error?: string;
+  utilization?: number;
 }
 
 /** Inputs set by the user interface, all of these are denominated in primitive values */
@@ -133,6 +134,8 @@ interface TransactionState {
 
   /** Calculated updates to the account balances post trade */
   postTradeBalances?: TokenBalance[];
+  /** Calculated incentives to the account balances post trade */
+  postTradeIncentives?: TokenBalance[];
 }
 
 interface InitState {

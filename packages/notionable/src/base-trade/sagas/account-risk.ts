@@ -18,7 +18,7 @@ import {
 } from 'rxjs';
 import { TradeState, BaseTradeState } from '../base-trade-store';
 import { formatTokenType } from '@notional-finance/helpers';
-import { calculateNTokenIncentives } from '@notional-finance/transaction';
+import { calculateAccruedIncentives } from '@notional-finance/transaction';
 
 export type AccountRiskSummary = ReturnType<typeof accountRiskSummary>;
 
@@ -70,36 +70,23 @@ export function postAccountRisk(
             : undefined;
 
         const s = accountRiskSummary(prior, post);
-        const noteIncentivesClaimed = post
-          ? newBalances.reduce((note, b) => {
-              if (b?.tokenType === 'nToken') {
-                const balanceBefore = account?.balances.find(
-                  (t) => t.tokenId === b.tokenId
-                );
-                const accountIncentiveDebt =
-                  account?.accountIncentiveDebt?.find(
-                    ({ currencyId }) => currencyId === b.currencyId
-                  );
 
-                if (balanceBefore) {
-                  if (!accountIncentiveDebt) {
-                    return note;
-                  } else {
-                    const additionalNOTE = calculateNTokenIncentives(
-                      balanceBefore,
-                      accountIncentiveDebt.value
-                    );
-                    return note.add(additionalNOTE);
-                  }
-                }
-              }
-
-              return note;
-            }, TokenBalance.fromSymbol(0, 'NOTE', post.network))
+        // FIXME: recalculates accrued incentives at this level because the global state is not
+        // updating reliably into this observable
+        const accruedIncentives = account
+          ? calculateAccruedIncentives(account)
           : undefined;
-
-        if (noteIncentivesClaimed?.isPositive())
-          s.postTradeBalances?.push(noteIncentivesClaimed);
+        const postTradeIncentives =
+          accruedIncentives
+            ?.filter(
+              ({ currencyId }) =>
+                (collateralBalance?.tokenType === 'nToken' &&
+                  collateralBalance.currencyId === currencyId) ||
+                (debtBalance?.tokenType === 'nToken' &&
+                  debtBalance.currencyId === currencyId)
+            )
+            .flatMap(({ incentives }) => incentives)
+            .filter((i) => i.isPositive()) || [];
 
         return {
           ...s,
@@ -108,6 +95,8 @@ export function postAccountRisk(
             (s.postAccountRisk?.freeCollateral.isPositive() ||
               s.postAccountRisk?.freeCollateral.isZero()) &&
             inputErrors === false,
+          postTradeBalances: s.postTradeBalances?.concat(postTradeIncentives),
+          postTradeIncentives,
         };
       }
     ),

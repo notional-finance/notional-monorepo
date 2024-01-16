@@ -221,6 +221,8 @@ const DropdownOptions = styled('ul', {
     box-sizing: border-box;
     left: 0;
     width: 100%;
+    height: ${theme.spacing(38)};
+    overflow: auto;
     list-style: none;
     padding: 0px;
     border: 1px solid ${theme.palette.borders.paper};

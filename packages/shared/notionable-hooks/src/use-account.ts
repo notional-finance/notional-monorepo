@@ -12,7 +12,6 @@ import { useAllMarkets } from './use-market';
 import { usePendingPnLCalculation } from './use-transaction';
 import { useMemo } from 'react';
 import { useFiat, useFiatToken } from './use-user-settings';
-import { calculateNTokenIncentives } from '@notional-finance/transaction';
 import { useMaxAssetBalance } from './use-wallet';
 
 export function useAccountDefinition() {
@@ -33,6 +32,31 @@ export function useAccountDefinition() {
     account,
     account$,
   };
+}
+
+export function useAccruedIncentives() {
+  const {
+    globalState: { accruedIncentives },
+  } = useNotionalContext();
+  return (
+    accruedIncentives?.reduce((acc, { incentives, incentivesIn100Seconds }) => {
+      incentives.forEach((i, j) => {
+        const s = i.symbol;
+        if (acc[s]) {
+          acc[s].current = acc[s].current.add(i);
+          acc[s].in100Sec = acc[s].in100Sec.add(incentivesIn100Seconds[j]);
+        } else {
+          acc[s] = {
+            current: i,
+            in100Sec: incentivesIn100Seconds[j],
+          };
+        }
+      });
+
+      return acc;
+    }, {} as Record<string, { current: TokenBalance; in100Sec: TokenBalance }>) ||
+    {}
+  );
 }
 
 export function useBalanceStatements() {
@@ -112,6 +136,9 @@ export function useHoldings() {
   const balanceStatements = useBalanceStatements();
   const { nonLeveragedYields } = useAllMarkets();
   const { pendingTokens } = usePendingPnLCalculation();
+  const {
+    globalState: { accruedIncentives },
+  } = useNotionalContext();
 
   return useMemo(
     () =>
@@ -148,18 +175,33 @@ export function useHoldings() {
 
           const isPending = pendingTokens.find((t) => t.id === balance.tokenId);
 
-          let totalNOTEEarnings: TokenBalance | undefined;
-          if (balance.tokenType === 'nToken' && statement) {
-            const accountIncentiveDebt = account?.accountIncentiveDebt?.find(
-              ({ currencyId }) => currencyId === balance.currencyId
-            );
-            const additionalNOTE = accountIncentiveDebt
-              ? calculateNTokenIncentives(balance, accountIncentiveDebt.value)
-              : statement.adjustedNOTEClaimed.copy(0);
+          // Returns accrued incentives and adjusted claimed incentives as an array
+          const _incentiveEarnings: TokenBalance[] =
+            balance.tokenType === 'nToken'
+              ? statement?.incentives
+                  .map(({ adjustedClaimed }) => adjustedClaimed)
+                  .concat(
+                    accruedIncentives?.find(
+                      ({ currencyId }) => balance.currencyId === currencyId
+                    )?.incentives || []
+                  ) || []
+              : [];
 
-            totalNOTEEarnings =
-              statement.adjustedNOTEClaimed.add(additionalNOTE);
-          }
+          // Reduces the array above to one entry per incentive token
+          const totalIncentiveEarnings = Array.from(
+            _incentiveEarnings
+              .reduce((m, b) => {
+                const match = m.get(b.tokenId);
+                if (match) {
+                  m.set(match.tokenId, match.add(b));
+                } else {
+                  m.set(b.tokenId, b);
+                }
+                return m;
+              }, new Map<string, TokenBalance>())
+              .values()
+          );
+
           const hasMatured = balance.hasMatured;
 
           return {
@@ -169,7 +211,7 @@ export function useHoldings() {
             manageTokenId,
             maturedTokenId,
             isPending,
-            totalNOTEEarnings,
+            totalIncentiveEarnings,
             hasMatured,
           };
         }) || [],
@@ -196,7 +238,8 @@ export function useGroupedTokens() {
       return {
         asset: assetHoldings,
         debt: debtHoldings as typeof holdings[number],
-        isPending: assetHoldings?.isPending || debtHoldings?.isPending ? true : false,
+        isPending:
+          assetHoldings?.isPending || debtHoldings?.isPending ? true : false,
         leverageRatio,
         presentValue,
         hasMatured: asset?.hasMatured || debt?.hasMatured ? true : false,

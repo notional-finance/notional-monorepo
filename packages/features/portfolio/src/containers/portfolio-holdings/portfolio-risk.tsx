@@ -14,7 +14,7 @@ import {
   DataTableColumn,
   InfoTooltip,
   H4,
-  Label,
+  H5,
   LabelValue,
   LinkText,
   MultiValueIconCell,
@@ -77,7 +77,7 @@ const LabelAndValue = ({
 }) => {
   return (
     <Box>
-      <Label msg={label} />
+      <H5 msg={label} />
       <LabelValue>{value}</LabelValue>
     </Box>
   );
@@ -88,7 +88,7 @@ const LiquidationPriceColumns: DataTableColumn[] = [
     Header: (
       <FormattedMessage
         defaultMessage="Exchange Rate"
-        description={'column header'}
+        description={'Exchange Rate column header'}
       />
     ),
     Cell: MultiValueIconCell,
@@ -181,7 +181,7 @@ export const PortfolioRisk = () => {
           />
         </H4>
         <Box sx={{ display: 'flex' }}>
-          <Box sx={{ width: '50%' }}>
+          <Box sx={{ width: theme.spacing(54) }}>
             <SliderRisk healthFactor={healthFactor} />
           </Box>
           <Box

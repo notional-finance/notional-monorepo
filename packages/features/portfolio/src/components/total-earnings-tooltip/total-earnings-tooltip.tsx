@@ -4,16 +4,11 @@ import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import { Box, styled, useTheme } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
 
 export interface TotalEarningsTooltipProps {
   toolTipData: {
-    nonNoteEarnings?: string;
-    noteEarnings?: string;
-    underlyingBaseCurrency?: string;
-    underlying?: string;
-    noteBaseCurrency?: string;
-    note?: string;
+    perAssetEarnings?: { underlying: string; baseCurrency: string }[];
+    totalEarnings?: { value: string; symbol: string }[];
   };
 }
 
@@ -27,58 +22,49 @@ export const TotalEarningsTooltip = ({
 }: TotalEarningsTooltipProps) => {
   const theme = useTheme();
   const { pathname } = useLocation();
-  const {
-    underlyingBaseCurrency,
-    underlying,
-    noteBaseCurrency,
-    note,
-    noteEarnings,
-    nonNoteEarnings,
-  } = toolTipData;
 
   const HoverComponent = () => {
     return (
       <div>
-        {noteEarnings && nonNoteEarnings ? (
+        {toolTipData?.totalEarnings ? (
           <Box>
-            <FirstValue
-              theme={theme}
-              isNegative={noteEarnings?.includes('-')}
-              sx={{ display: 'flex' }}
-            >
-              <Box sx={{ marginRight: theme.spacing(1) }}>NOTE</Box>
-              {noteEarnings}
-            </FirstValue>
-            <ValueContainer
-              sx={{
-                marginTop: theme.spacing(1),
-              }}
-            >
-              <FirstValue theme={theme} sx={{ marginRight: theme.spacing(1) }}>
-                <FormattedMessage defaultMessage={'ORGANIC '} />
-              </FirstValue>
+            {toolTipData?.totalEarnings?.map(({ symbol, value }, index) => (
               <FirstValue
+                key={index}
                 theme={theme}
-                isNegative={nonNoteEarnings?.includes('-')}
+                sx={{ display: 'flex', marginBottom: theme.spacing(1) }}
               >
-                {nonNoteEarnings}
+                {symbol}:
+                <FirstValue
+                  sx={{ marginLeft: theme.spacing(1) }}
+                  theme={theme}
+                  isNegative={value?.includes('-')}
+                >
+                  {value}
+                </FirstValue>
               </FirstValue>
-            </ValueContainer>
+            ))}
           </Box>
         ) : (
           <Box>
-            <ValueContainer sx={{ marginBottom: theme.spacing(1) }}>
-              <FirstValue theme={theme} isNegative={underlying?.includes('-')}>
-                {underlying}
-              </FirstValue>
-              <H5>({underlyingBaseCurrency})</H5>
-            </ValueContainer>
-            <ValueContainer>
-              <FirstValue theme={theme} isNegative={note?.includes('-')}>
-                {note}
-              </FirstValue>
-              <H5>({noteBaseCurrency})</H5>
-            </ValueContainer>
+            {toolTipData?.perAssetEarnings?.map((asset, index) =>
+              asset.underlying ? (
+                <ValueContainer
+                  key={index}
+                  sx={{ marginTop: index === 0 ? 0 : theme.spacing(1) }}
+                >
+                  <>
+                    <FirstValue
+                      theme={theme}
+                      isNegative={asset.underlying?.includes('-')}
+                    >
+                      {asset.underlying}
+                    </FirstValue>
+                    <H5>({asset.baseCurrency})</H5>
+                  </>
+                </ValueContainer>
+              ) : null
+            )}
           </Box>
         )}
       </div>

@@ -13,12 +13,9 @@ import {
 } from '@notional-finance/risk-engine';
 import {
   BASIS_POINT,
-  getNowSeconds,
-  INTERNAL_TOKEN_PRECISION,
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
-  SECONDS_IN_YEAR,
 } from '@notional-finance/util';
 
 /**
@@ -555,6 +552,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   let debtDeposit: ReturnType<typeof calculateDebt> | undefined;
   let collateralDeposit: ReturnType<typeof calculateCollateral> | undefined;
   let profile = new AccountRiskProfile(balances || [], collateral.network);
+  let initialGuessMultiple: number | undefined = undefined;
 
   if (depositBalance?.isPositive()) {
     collateralDeposit = calculateCollateral({
@@ -576,15 +574,23 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
     debtDeposit = calculateDebt({ debt, debtPool, depositBalance });
     const withdrawPortion = depositBalance
       .neg()
-      .ratioWith(profile.netCollateralAvailable(depositBalance.currencyId));
+      .ratioWith(
+        profile
+          .totalCurrencyAssets(depositBalance.currencyId)
+          .add(profile.totalCurrencyDebts(depositBalance.currencyId))
+      );
     initialDebtUnitsEstimateInRP = profile
-      .totalDebtRiskAdjusted(depositBalance.currencyId)
+      .totalDebt(depositBalance.currencyId)
       .neg()
       .mulInRatePrecision(withdrawPortion)
       .scaleTo(RATE_DECIMALS)
       .toNumber();
 
     profile = profile.simulate([debtDeposit.debtBalance]);
+    // Reduces the chance that the withdraw exceeds the total balance, however,
+    // above a certain threshold this may try to withdraw above the absolute balance
+    // of the collateral token.
+    initialGuessMultiple = 1 - withdrawPortion.toNumber() / RATE_PRECISION + 1;
   }
 
   const results = profile.getDebtAndCollateralMaintainRiskFactor(
@@ -598,7 +604,8 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
         debtBalance,
       });
     },
-    initialDebtUnitsEstimateInRP
+    initialDebtUnitsEstimateInRP,
+    initialGuessMultiple
   );
 
   return {
@@ -957,43 +964,4 @@ export function calculateVaultCollateral({
     netRealizedCollateralBalance,
     netRealizedDebtBalance: cashBorrowed.neg().toUnderlying(),
   };
-}
-
-export function calculateNTokenIncentives(
-  nTokenBalance: TokenBalance,
-  accountIncentiveDebt: TokenBalance,
-  blockTime = getNowSeconds()
-) {
-  const {
-    lastAccumulatedTime,
-    accumulatedNOTEPerNToken,
-    incentiveEmissionRate,
-  } = Registry.getConfigurationRegistry().getAnnualizedNOTEIncentives(
-    nTokenBalance.token
-  );
-
-  if (
-    lastAccumulatedTime === undefined ||
-    accumulatedNOTEPerNToken === undefined ||
-    incentiveEmissionRate.isZero()
-  ) {
-    return incentiveEmissionRate.copy(0);
-  }
-
-  // Update the stored accumulatedNOTEPerNToken to present time
-  const timeSinceLastAccumulation = blockTime - lastAccumulatedTime;
-  if (timeSinceLastAccumulation < 0) throw Error('Invalid accumulation time');
-  if (!nTokenBalance.token.totalSupply)
-    throw Error('Missing nToken Total Supply');
-
-  const updatedAccumulatedNOTE = accumulatedNOTEPerNToken.add(
-    incentiveEmissionRate
-      .scale(timeSinceLastAccumulation, SECONDS_IN_YEAR)
-      .scale(INTERNAL_TOKEN_PRECISION, nTokenBalance.token.totalSupply)
-  );
-
-  // This is the post migration incentive calculation
-  return updatedAccumulatedNOTE
-    .scale(nTokenBalance, nTokenBalance.precision)
-    .sub(accountIncentiveDebt);
 }

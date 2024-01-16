@@ -75,6 +75,11 @@ interface AccountState {
     presentValue: TokenBalance;
     leverageRatio: number;
   }[];
+  accruedIncentives?: {
+    currencyId: number;
+    incentives: TokenBalance[];
+    incentivesIn100Seconds: TokenBalance[];
+  }[];
 }
 interface UserSettingsState {
   themeVariant: THEME_VARIANTS;

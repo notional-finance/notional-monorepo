@@ -121,7 +121,6 @@ export const Vault = ({
               value={capacityUsedPercentage}
               step={1}
               disabled={true}
-              hideThumb
               sx={{
                 marginBottom: theme.spacing(0),
               }}

@@ -11,6 +11,11 @@ export const BASIS_POINT = 1e5;
 export const PERCENTAGE_BASIS = 100;
 export const INTERNAL_PRECISION_DUST = 5000;
 export const FLOATING_POINT_DUST = 5e-5;
+export enum HEALTH_FACTOR_RISK_LEVELS {
+  HIGH_RISK = 1.25,
+  MEDIUM_RISK = 2.5,
+  LOW_RISK = 5,
+}
 
 export const ONE_SECOND_MS = 1_000;
 export const ONE_MINUTE_MS = 60 * ONE_SECOND_MS;

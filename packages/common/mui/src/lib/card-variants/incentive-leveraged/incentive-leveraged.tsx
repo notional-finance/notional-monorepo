@@ -1,6 +1,10 @@
 import { useState, ReactNode } from 'react';
 import { useTheme, styled, Box } from '@mui/material';
-import { TokenIcon, LightningIcon } from '@notional-finance/icons';
+import {
+  TokenIcon,
+  LightningIcon,
+  DoubleTokenIcon,
+} from '@notional-finance/icons';
 import { Button } from '../../button/button';
 import { Card } from '../../card/card';
 import { Link } from 'react-router-dom';
@@ -15,13 +19,20 @@ import {
 import { PlusIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { StyledIcon } from '../currency-fixed/currency-fixed';
-import { formatNumberAsAPY } from '@notional-finance/helpers';
 import { NotionalTheme, colors } from '@notional-finance/styles';
+import { useIncentiveData } from '../use-incentive-data';
 
 export interface IncentiveLeveragedProps {
   symbol: string;
   rate: number;
-  incentiveRate: number;
+  incentiveData?: {
+    symbol: string;
+    incentiveAPY: number;
+  };
+  secondaryIncentiveData?: {
+    symbol: string;
+    incentiveAPY: number;
+  };
   route: string;
   buttonText: ReactNode;
   customRate?: number;
@@ -31,21 +42,85 @@ interface ContentWrapperProps {
   hovered: boolean;
   theme: NotionalTheme;
 }
+interface CardValueProps {
+  title: ReactNode;
+  rate: string;
+  symbol: string;
+  incentiveData?: {
+    symbol: string;
+    incentiveAPY: number;
+  };
+  secondaryIncentiveData?: {
+    symbol: string;
+    incentiveAPY: number;
+  };
+  isIncentive?: boolean;
+}
+
+export const CardValue = ({
+  title,
+  rate,
+  symbol,
+  incentiveData,
+  secondaryIncentiveData,
+  isIncentive = false,
+}: CardValueProps) => {
+  const theme = useTheme();
+  return (
+    <Box>
+      <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
+        {isIncentive && <PlusIcon width={'9px'} />}
+        {title}
+      </SectionTitle>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: theme.spacing(2),
+        }}
+      >
+        {incentiveData && secondaryIncentiveData ? (
+          <DoubleTokenIcon
+            size="medium"
+            symbolTop={incentiveData?.symbol}
+            symbolBottom={secondaryIncentiveData?.symbol}
+          />
+        ) : (
+          <TokenIcon symbol={incentiveData?.symbol || symbol} size="medium" />
+        )}
+        <CardInput
+          textAlign="left"
+          sx={{
+            marginLeft: theme.spacing(0.5),
+            color: rate.includes('-') ? colors.red : '',
+          }}
+        >
+          {rate}
+        </CardInput>
+      </Box>
+    </Box>
+  );
+};
 
 export const IncentiveLeveraged = ({
   symbol,
   rate,
-  incentiveRate,
+  incentiveData,
+  secondaryIncentiveData,
   customRate = 0,
   route,
   buttonText,
 }: IncentiveLeveragedProps) => {
   const theme = useTheme();
   const [hovered, setHovered] = useState(false);
-  const formattedTotalRate = formatNumberAsAPY(rate);
-  const formattedRate = formatNumberAsAPY(rate - incentiveRate);
-  const formattedIncentiveRate = formatNumberAsAPY(incentiveRate);
-  const formattedCustomRate = formatNumberAsAPY(customRate);
+  const {
+    formattedTotalRate,
+    secondaryIncentiveRate,
+    formattedRate,
+    incentiveApy,
+    secondaryIncentiveApy,
+    formattedCustomRate,
+  } = useIncentiveData(rate, customRate, incentiveData, secondaryIncentiveData);
 
   return (
     <Link to={route}>
@@ -63,53 +138,66 @@ export const IncentiveLeveraged = ({
           <CurrencyTitle
             accent
             textAlign="left"
-            marginBottom={theme.spacing(1)}
+            marginBottom={theme.spacing(4)}
           >
             {symbol}
           </CurrencyTitle>
           <ContentWrapper hovered={hovered} theme={theme}>
             <Box>
-              <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-                <FormattedMessage defaultMessage={'ORGANIC'} />
-              </SectionTitle>
-              <CardInput
-                textAlign="left"
-                marginBottom={theme.spacing(3)}
-                sx={{ color: formattedRate.includes('-') ? colors.red : '' }}
-              >
-                {formattedRate}
-              </CardInput>
-              <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-                <PlusIcon width={'9px'} />
-                <FormattedMessage defaultMessage="NOTE INCENTIVE" />
-              </SectionTitle>
-              <CardInput
-                textAlign="left"
-                marginBottom={theme.spacing(3)}
-                sx={{
-                  color: formattedIncentiveRate.includes('-') ? colors.red : '',
-                }}
-              >
-                {formattedIncentiveRate}
-              </CardInput>
+              <CardValue
+                title={<FormattedMessage defaultMessage={'ORGANIC'} />}
+                rate={formattedRate}
+                symbol={symbol}
+              />
+              {incentiveData && (
+                <CardValue
+                  title={
+                    <FormattedMessage
+                      defaultMessage="{symbol} INCENTIVE"
+                      values={{
+                        symbol: incentiveData.symbol,
+                      }}
+                    />
+                  }
+                  rate={incentiveApy}
+                  symbol={incentiveData.symbol}
+                  isIncentive
+                />
+              )}
+              {secondaryIncentiveData && secondaryIncentiveRate > 0 && (
+                <CardValue
+                  title={
+                    <FormattedMessage
+                      defaultMessage="{symbol} INCENTIVE"
+                      values={{
+                        symbol: secondaryIncentiveData.symbol,
+                      }}
+                    />
+                  }
+                  rate={secondaryIncentiveApy}
+                  symbol={secondaryIncentiveData.symbol}
+                  isIncentive
+                />
+              )}
             </Box>
             <Box sx={{ minWidth: theme.spacing(27) }}>
-              <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-                <FormattedMessage defaultMessage="Default Terms" />
-              </SectionTitle>
-              <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <LightningIcon
-                  sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
-                />
-                <H4
-                  textAlign="left"
-                  marginBottom={theme.spacing(4)}
-                  sx={{
-                    color: formattedTotalRate.includes('-') ? colors.red : '',
-                  }}
-                >
-                  {formattedTotalRate}
-                </H4>
+              <Box sx={{ marginBottom: theme.spacing(6.5) }}>
+                <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
+                  <FormattedMessage defaultMessage="Default Terms" />
+                </SectionTitle>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <LightningIcon
+                    sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
+                  />
+                  <H4
+                    textAlign="left"
+                    sx={{
+                      color: formattedTotalRate.includes('-') ? colors.red : '',
+                    }}
+                  >
+                    {formattedTotalRate}
+                  </H4>
+                </Box>
               </Box>
               <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
                 <FormattedMessage defaultMessage="Custom Terms" />
@@ -155,7 +243,7 @@ export const IncentiveLeveraged = ({
   );
 };
 
-const ContentWrapper = styled(Box, {
+export const ContentWrapper = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'hovered',
 })(
   ({ hovered, theme }: ContentWrapperProps) => `

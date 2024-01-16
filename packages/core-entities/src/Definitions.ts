@@ -1,23 +1,23 @@
+import { Network } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
+import { BehaviorSubject } from 'rxjs';
 import { PoolClasses } from './exchanges';
 import { SerializedTokenBalance, TokenBalance } from './token-balance';
-import { Network } from '@notional-finance/util';
-import { BehaviorSubject } from 'rxjs';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import {
+  OracleType,
+  SystemAccount,
   TokenInterface,
   TokenType,
-  OracleType,
   TransferType,
-  SystemAccount,
 } from './.graphclient';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 export type {
+  OracleType,
+  SystemAccount,
   TokenInterface,
   TokenType,
-  OracleType,
   TransferType,
-  SystemAccount,
 } from './.graphclient';
 
 export interface TokenDefinition {
@@ -114,8 +114,10 @@ export interface BalanceStatement {
   totalProfitAndLoss: TokenBalance;
   totalInterestAccrual: TokenBalance;
   accumulatedCostRealized: TokenBalance;
-  adjustedNOTEClaimed: TokenBalance;
-  totalNOTEClaimed: TokenBalance;
+  incentives: {
+    totalClaimed: TokenBalance;
+    adjustedClaimed: TokenBalance;
+  }[];
   impliedFixedRate?: number;
 
   historicalSnapshots: {
@@ -165,17 +167,14 @@ export interface AccountDefinition {
   vaultLastUpdateTime?: Record<string, number>;
   /** Account incentive debt for nToken incentives */
   accountIncentiveDebt?: AccountIncentiveDebt[];
+  /** Account incentive debt for nToken incentives */
+  secondaryIncentiveDebt?: AccountIncentiveDebt[];
   /** Current profit and loss on every given balance */
   balanceStatement?: BalanceStatement[];
   /** Any transactions that have included transfers to this account */
   accountHistory?: AccountHistory[];
   /** Specific allowances tracked for user interface purposes */
   allowances?: Allowance[];
-  /** Claimable NOTE information */
-  noteClaim?: {
-    currentNOTE: TokenBalance;
-    noteAccruedPerSecond: TokenBalance;
-  };
   systemAccountType?: SystemAccount;
 }
 
@@ -269,8 +268,12 @@ export interface YieldData {
   interestAPY?: number;
   feeAPY?: number;
   strategyAPY?: number;
-  incentives?: {
-    tokenId: string;
+  noteIncentives?: {
+    symbol: string;
     incentiveAPY: number;
-  }[];
+  };
+  secondaryIncentives?: {
+    symbol: string;
+    incentiveAPY: number;
+  };
 }

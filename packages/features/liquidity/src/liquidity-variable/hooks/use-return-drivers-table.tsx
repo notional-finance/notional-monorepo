@@ -1,24 +1,24 @@
-import { useContext } from 'react';
+import { Box, useTheme } from '@mui/material';
 import {
-  useFCashMarket,
-  useAllMarkets,
-  useFiat,
-} from '@notional-finance/notionable-hooks';
-import { LiquidityContext } from '../../liquidity';
-import {
-  formatTokenType,
   formatNumberAsPercent,
+  formatTokenType,
 } from '@notional-finance/helpers';
-import { useTheme, Box } from '@mui/material';
 import {
+  Body,
   DataTableColumn,
+  DisplayCell,
+  H5,
   MultiValueCell,
   MultiValueIconCell,
-  DisplayCell,
-  Body,
-  H5,
 } from '@notional-finance/mui';
+import {
+  useAllMarkets,
+  useFCashMarket,
+  useFiat,
+} from '@notional-finance/notionable-hooks';
+import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { LiquidityContext } from '../../liquidity';
 
 export const useReturnDriversTable = () => {
   const theme = useTheme();
@@ -83,12 +83,7 @@ export const useReturnDriversTable = () => {
       {
         asset: { symbol: 'note', label: 'NOTE Incentives' },
         value: '-',
-        apy:
-          liquidityData &&
-          liquidityData?.incentives &&
-          liquidityData?.incentives.length > 0
-            ? liquidityData?.incentives[0].incentiveAPY
-            : 0,
+        apy: liquidityData?.noteIncentives?.incentiveAPY || 0,
       },
       {
         asset: { label: 'Total' },
