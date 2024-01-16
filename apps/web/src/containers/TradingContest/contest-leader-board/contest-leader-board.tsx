@@ -1,8 +1,8 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import { ContestBackButton } from '../components';
-import { ContestTable, LinkText } from '@notional-finance/mui';
+import { ContestCountDown, ContestPrizes } from '../components';
+import { ContestTable, LinkText, Button } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
@@ -17,7 +17,6 @@ export const ContestLeaderBoard = () => {
     currentUserColumns,
     highRollerData,
     fatCatData,
-    sadSackData,
   } = useLeaderBoardTables();
 
   return (
@@ -40,7 +39,34 @@ export const ContestLeaderBoard = () => {
           </BgImgContainer>
           <OpacityBG>
             <MainContainer>
-              <ContestBackButton />
+              <TitleText sx={{ marginBottom: theme.spacing(4) }}>
+                <FormattedMessage defaultMessage={'Leaderboard'} />
+              </TitleText>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <ContestCountDown sx={{ marginBottom: '0px' }} />
+                <Button
+                  size="large"
+                  variant="outlined"
+                  to="/contest-rules"
+                  sx={{
+                    width: '358px',
+                    border: `1px solid ${colors.neonTurquoise}`,
+                    ':hover': {
+                      background: colors.matteGreen,
+                    },
+                    fontFamily: 'Avenir Next',
+                  }}
+                >
+                  <FormattedMessage defaultMessage={'Rules & Prizes'} />
+                </Button>
+              </Box>
+
               {currentUserData.length > 0 && (
                 <UserTableContainer>
                   <TitleText>
@@ -110,21 +136,7 @@ export const ContestLeaderBoard = () => {
                   tableLoading={fatCatData.length === 0}
                 />
               </TableContainer>
-              <TableContainer
-                sx={{
-                  marginBottom: `${theme.spacing(11)} !important`,
-                }}
-              >
-                <ContestTable
-                  maxHeight={'620px'}
-                  tableTitle={<FormattedMessage defaultMessage={'SAD SACK'} />}
-                  tableTitleSubText={
-                    <FormattedMessage defaultMessage={'Lowest realized APY'} />
-                  }
-                  columns={leaderBoardColumns}
-                  data={sadSackData}
-                />
-              </TableContainer>
+              <ContestPrizes />
             </MainContainer>
           </OpacityBG>
         </OuterContainer>
@@ -146,7 +158,9 @@ const BgImgContainer = styled(Box)(
 );
 
 const MainContainer = styled(Box)(
-  `
+  ({ theme }) => `
+  padding-top: ${theme.spacing(15)};
+  margin-top: ${theme.spacing(15)};
   background: transparent;
   height: 100%;
   overflow: hidden;

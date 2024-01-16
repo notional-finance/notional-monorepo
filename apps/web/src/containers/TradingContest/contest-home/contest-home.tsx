@@ -1,7 +1,7 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import { ContestHero, ContestPrizes, ContestNfts } from '../components';
+import { ContestHero, ContestPrizes, ContestPartners } from '../components';
 import { colors, useNotionalTheme } from '@notional-finance/styles';
 import backgroundColors from '../assets/color-blobs.png';
 
@@ -21,7 +21,7 @@ export const ContestHome = () => {
           <OpacityBG>
             <MainContainer>
               <ContestPrizes />
-              <ContestNfts />
+              <ContestPartners />
             </MainContainer>
           </OpacityBG>
         </OuterContainer>

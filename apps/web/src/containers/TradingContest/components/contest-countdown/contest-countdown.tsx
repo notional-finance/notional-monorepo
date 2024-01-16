@@ -1,20 +1,21 @@
-import { Box, styled } from '@mui/material';
+import { Box, SxProps, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import Countdown from 'react-countdown';
 import { SectionTitle } from '@notional-finance/mui';
 import { ReactNode } from 'react';
 
 interface ContestCountDownProps {
-  title: ReactNode;
+  title?: ReactNode;
+  sx?: SxProps;
 }
 
-export const ContestCountDown = ({ title }: ContestCountDownProps) => {
+export const ContestCountDown = ({ title, sx }: ContestCountDownProps) => {
   // This is a millisecond timestamp for 12 AM on 02/01/2024
-  const futureDate = 1643702400000;
+  const futureDate = 1706832000000;
 
   return (
-    <ContentContainer>
-      <SectionTitle>{title}</SectionTitle>
+    <ContentContainer sx={{ ...sx }}>
+      {title && <SectionTitle>{title}</SectionTitle>}
       <Countdown
         date={futureDate}
         renderer={({ days, hours, minutes, seconds }) => {
@@ -37,7 +38,6 @@ export const ContestCountDown = ({ title }: ContestCountDownProps) => {
 
 const ContentContainer = styled(Box)(
   ({ theme }) => `
-      margin-top: ${theme.spacing(6)};
       margin-bottom: ${theme.spacing(8)};
       display: flex;
       flex-direction: column;

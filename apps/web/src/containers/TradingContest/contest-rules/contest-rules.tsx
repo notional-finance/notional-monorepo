@@ -2,7 +2,7 @@ import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import {
-  // ContestNfts,
+  ContestPrizes,
   ContestRulesInfo,
   ContestBackButton,
 } from '../components';
@@ -22,7 +22,7 @@ export const ContestRules = () => {
           <OpacityBG>
             <MainContainer>
               <ContestBackButton />
-              {/* <ContestNfts hideButton /> */}
+              <ContestPrizes />
               <ContestRulesInfo />
             </MainContainer>
           </OpacityBG>
@@ -49,8 +49,9 @@ const MainContainer = styled(Box)(
   background: transparent;
   height: 100%;
   overflow: hidden;
-  max-width: 1230px;
+  max-width: 1100px;
   margin: auto;
+  margin-top: 100px;
   position: relative;
   z-index: 3;
     `

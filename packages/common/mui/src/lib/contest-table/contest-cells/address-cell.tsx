@@ -8,7 +8,6 @@ export const addressCell = ({ cell }) => {
   return (
     <Box
       component={'a'}
-      // TODO: add value from data
       href={''}
       sx={{
         color: colors.neonTurquoise,

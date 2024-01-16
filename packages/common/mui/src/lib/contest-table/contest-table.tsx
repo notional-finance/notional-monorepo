@@ -50,7 +50,6 @@ export const ContestTable = ({
   );
   const tableReady = !tableLoading && columns?.length && data?.length;
   tableVariant = tableVariant || CONTEST_TABLE_VARIANTS.DEFAULT;
-
   return (
     <TableContainer
       id="data-table-container"
@@ -84,7 +83,7 @@ export const ContestTable = ({
           {!maxHeight && (
             <Table {...getTableProps()}>
               {tableVariant === CONTEST_TABLE_VARIANTS.DEFAULT && (
-                <ContestTableHead headerGroups={headerGroups} />
+                <ContestTableHead headerGroups={headerGroups} hideOnMobile />
               )}
               <ContestTableBody
                 rows={rows}

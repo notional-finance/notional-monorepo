@@ -1,4 +1,4 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { ContestButtonStack } from '../contest-button-stack/contest-button-stack';
@@ -6,6 +6,7 @@ import { ContestCountDown } from '../contest-countdown/contest-countdown';
 import { BodySecondary } from '@notional-finance/mui';
 
 export const ContestHero = () => {
+  const theme = useTheme();
   return (
     <Container>
       <ContentContainer>
@@ -18,7 +19,8 @@ export const ContestHero = () => {
               sx={{
                 color: colors.greenGrey,
                 fontWeight: 400,
-                marginTop: '32px',
+                marginTop: theme.spacing(2),
+                marginBottom: theme.spacing(6),
               }}
             >
               <FormattedMessage
@@ -30,7 +32,7 @@ export const ContestHero = () => {
             <ContestCountDown title={'Contest Begins:'} />
             <ContestButtonStack
               buttonText={
-                <FormattedMessage defaultMessage={'Join The Contest'} />
+                <FormattedMessage defaultMessage={'Join the Yield Contest'} />
               }
             />
           </>

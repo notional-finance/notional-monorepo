@@ -4,17 +4,26 @@ import { FormattedMessage } from 'react-intl';
 import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { Button, HeadingSubtitle, CardInput } from '@notional-finance/mui';
 import fatCat from '../../assets/fat-cat.svg';
+import crown from '../../assets/crown.svg';
 
 interface PrizeInfoPropsProps {
   prizeType: string;
 }
 
 const PrizePlaces = () => {
+  const theme = useTheme();
   return (
     <PrizePlaceContainer>
       <Place>
         <FormattedMessage defaultMessage={'1st Place'} />
-        <CardInput>10,000 NOTE</CardInput>
+        <CardInput>
+          <img
+            src={crown}
+            alt="icon"
+            style={{ height: '16px', marginRight: theme.spacing(1) }}
+          />
+          10,000 NOTE
+        </CardInput>
       </Place>
       <Place>
         <FormattedMessage defaultMessage={'2nd Place'} />

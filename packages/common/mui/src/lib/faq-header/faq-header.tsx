@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Box, useTheme } from '@mui/material';
+import { Box, SxProps, useTheme } from '@mui/material';
 import { H2 } from '../typography/typography';
 import { ExternalLink } from '../external-link/external-link';
 import { ExternalLinkIcon } from '@notional-finance/icons';
@@ -7,16 +7,17 @@ import { ExternalLinkIcon } from '@notional-finance/icons';
 /* eslint-disable-next-line */
 export interface FaqHeaderProps {
   title: ReactNode;
+  sx?: SxProps;
   links?: {
     href: string;
     text: ReactNode;
   }[];
 }
 
-export function FaqHeader({ title, links }: FaqHeaderProps) {
+export function FaqHeader({ title, sx, links }: FaqHeaderProps) {
   const theme = useTheme();
   return (
-    <Box sx={{ marginTop: theme.spacing(5) }}>
+    <Box sx={{ marginTop: theme.spacing(5), ...sx }}>
       <H2 sx={{ marginBottom: theme.spacing(2) }}>{title}</H2>
       <Box
         sx={{

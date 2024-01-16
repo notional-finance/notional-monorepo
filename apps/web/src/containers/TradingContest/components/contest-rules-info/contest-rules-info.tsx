@@ -1,13 +1,14 @@
-import { Box, styled } from '@mui/material';
+import { useTheme, Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
-import { Button } from '@notional-finance/mui';
+import { Button, Faq, FaqHeader } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useContestRulesInfo } from '../../hooks';
 import { BETA_ACCESS } from '@notional-finance/notionable';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 
 export const ContestRulesInfo = () => {
-  const { dataSetOne, dataSetTwo } = useContestRulesInfo();
+  const theme = useTheme();
+  const { dataSetOne, faqData } = useContestRulesInfo();
   const {
     globalState: { hasContestNFT },
   } = useNotionalContext();
@@ -20,10 +21,12 @@ export const ContestRulesInfo = () => {
         </TitleText>
         <Text>
           <FormattedMessage
-            defaultMessage={`The prize category you're competing in depends on the actions you've taken in your account. If you've used leverage, you're competing in the HIGH ROLLER category. 
-                            If you haven't used leverage, you'll compete in the FAT CAT category. If you have lost money, you're competing to be the SAD SACK. 
-                            Actions you take can cause you to switch which prize category you're in. For example, if you haven't used leverage but then choose to use leverage, you will be competing for the 
-                            HIGH ROLLER instead of the FAT CAT from that point on.`}
+            defaultMessage={`The prize category you compete in depends on the actions you’ve taken in your account. If you’ve used leverage you will compete for the high roller prize. If you have not used leverage, you will compete for the fat cat prize.`}
+          />
+        </Text>
+        <Text>
+          <FormattedMessage
+            defaultMessage={`Actions you take during the contest can cause you to switch categories. If you have not used leverage and then do use leverage, you will switch from the fat cat category to the high roller category.`}
           />
         </Text>
         {dataSetOne.map(({ text }, index) => (
@@ -34,36 +37,49 @@ export const ContestRulesInfo = () => {
         ))}
       </Container>
       <Container>
-        <TitleText>
-          <FormattedMessage defaultMessage={'What is Realized APY?'} />
-        </TitleText>
-        <Text>
-          <FormattedMessage
-            defaultMessage={`Realized APY is calculated using the <a>IRR calculation.</a> The realized APY measures how much money you made relative to the money you started with and in what amount of time.`}
-            values={{
-              a: (chunk: React.ReactNode) => (
-                <Box
-                  sx={{ color: colors.neonTurquoise }}
-                  href="https://www.investopedia.com/terms/i/irr.asp"
-                  component={'a'}
-                  target="_blank"
-                >
-                  {chunk}
-                </Box>
-              ),
+        <FaqHeader
+          sx={{ h2: { fontWeight: 600 } }}
+          title={<FormattedMessage defaultMessage={'FAQ'} />}
+        />
+        {faqData.map(({ question, answer, componentAnswer }, index) => (
+          <Faq
+            key={index}
+            question={question}
+            answer={answer}
+            componentAnswer={componentAnswer}
+            sx={{
+              marginBottom: theme.spacing(2),
+              boxShadow: theme.shape.shadowStandard,
+              h4: {
+                fontSize: '16px',
+                fontWeight: 600,
+              },
+              '#faq-body': {
+                fontSize: '14px',
+                fontWeight: 500,
+              },
             }}
           />
-        </Text>
-        {dataSetTwo.map(({ text }, index) => (
-          <Box sx={{ display: 'flex' }} key={index}>
-            <span>● </span>
-            <LineItem>{text}</LineItem>
-          </Box>
         ))}
-
         <ButtonContainer>
           {hasContestNFT !== BETA_ACCESS.CONFIRMED && (
             <>
+              <Button
+                size="large"
+                variant="outlined"
+                to="/contest-leaderboard"
+                sx={{
+                  width: '358px',
+                  border: `1px solid ${colors.neonTurquoise}`,
+                  cursor: 'pointer',
+                  ':hover': {
+                    background: colors.matteGreen,
+                  },
+                  fontFamily: 'Avenir Next',
+                }}
+              >
+                <FormattedMessage defaultMessage={'View Full Leaderboard'} />
+              </Button>
               <Button
                 size="large"
                 sx={{
@@ -73,16 +89,6 @@ export const ContestRulesInfo = () => {
                 to="/contest"
               >
                 <FormattedMessage defaultMessage={'Contest Home'} />
-              </Button>
-              <Button
-                size="large"
-                to="/contest-leaderboard"
-                sx={{
-                  width: '300px',
-                  fontFamily: 'Avenir Next',
-                }}
-              >
-                <FormattedMessage defaultMessage={'View Full Leaderboard'} />
               </Button>
             </>
           )}
@@ -94,7 +100,9 @@ export const ContestRulesInfo = () => {
 
 const Container = styled(Box)(
   ({ theme }) => `
+      margin: auto;
       margin-top: ${theme.spacing(11)};
+      max-width: 850px;      
       ${theme.breakpoints.down('md')} {
         max-width: 90%;
         margin: auto;
