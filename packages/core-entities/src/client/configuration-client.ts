@@ -639,13 +639,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       nToken.network,
       config.incentives.currentSecondaryReward.id
     );
-    const incentiveEmissionRate = TokenBalance.from(
+    const incentiveEmissionRate = TokenBalance.fromFloat(
       BigNumber.from(
         (config.incentives.secondaryEmissionRate as string | undefined) || 0
-      )
-        .mul(INTERNAL_TOKEN_PRECISION)
-        // FIXME: fix this hack
-        .mul(100),
+      ).toNumber() / INTERNAL_TOKEN_PRECISION,
       rewardToken
     );
     const accumulatedRewardPerNToken = config.incentives
