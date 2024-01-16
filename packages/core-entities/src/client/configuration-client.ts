@@ -642,7 +642,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     const incentiveEmissionRate = TokenBalance.from(
       BigNumber.from(
         (config.incentives.secondaryEmissionRate as string | undefined) || 0
-      ).mul(INTERNAL_TOKEN_PRECISION),
+      )
+        .mul(INTERNAL_TOKEN_PRECISION)
+        // FIXME: fix this hack
+        .mul(100),
       rewardToken
     );
     const accumulatedRewardPerNToken = config.incentives
