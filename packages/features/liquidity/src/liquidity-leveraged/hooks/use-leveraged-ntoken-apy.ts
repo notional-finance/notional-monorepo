@@ -6,6 +6,7 @@ import { leveragedYield } from '@notional-finance/util';
 export const useLeveragedNTokenAPY = (state: TradeState) => {
   const {
     yields: { liquidity },
+    nonLeveragedYields,
   } = useAllMarkets();
 
   const {
@@ -36,7 +37,10 @@ export const useLeveragedNTokenAPY = (state: TradeState) => {
     // Need to do a copy here otherwise we end up updating the parent
     // object and get weird memory reference issues.
     liquidityYieldData = Object.assign({}, liquidityYieldData);
-    const debtAPY = selectedDebtOption?.interestRate;
+    const debtAPY =
+      selectedDebtOption?.interestRate ||
+      // This catches the case when the selected debt option is not defined
+      nonLeveragedYields.find(({ token }) => token.id === debt?.id)?.totalAPY;
 
     if (debtAPY) {
       // If using leverage apply the debt APY to the interest apy
