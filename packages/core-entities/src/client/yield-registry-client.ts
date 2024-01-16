@@ -185,7 +185,11 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       token: netNTokens.token,
       tvl: netNTokens.token.totalSupply?.toUnderlying(),
       underlying,
-      totalAPY: incentiveAPY + feeAPY + interestAPY,
+      totalAPY:
+        incentiveAPY +
+        feeAPY +
+        interestAPY +
+        (secondaryIncentives?.incentiveAPY || 0),
       interestAPY,
       feeAPY,
       noteIncentives: {
