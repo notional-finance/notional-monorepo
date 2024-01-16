@@ -70,7 +70,7 @@ export const TransactionConfirmation = ({
   }, []);
 
   return (
-    <>
+    <Box sx={{ minHeight: theme.spacing(132) }}>
       <ScrollToTop />
       <StatusHeading
         heading={heading}
@@ -163,7 +163,7 @@ export const TransactionConfirmation = ({
         isDisabled={isReadOnlyAddress || !!transactionError}
         isLoaded={populatedTransaction !== undefined}
       />
-    </>
+    </Box>
   );
 };
 
