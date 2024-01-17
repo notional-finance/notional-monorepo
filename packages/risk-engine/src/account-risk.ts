@@ -176,9 +176,22 @@ export class AccountRiskProfile extends BaseRiskProfile {
       TokenBalance.zero(denom)
     );
 
-    const health = totalNegativeFC.isZero()
-      ? null
-      : totalPositiveFC.toFloat() / totalNegativeFC.abs().toFloat();
+    let health: number;
+    if (!totalNegativeFC.isZero()) {
+      health = totalPositiveFC.toFloat() / totalNegativeFC.abs().toFloat();
+    } else if (totalNegativeFC.isZero() && hasDebt) {
+      const totalPositiveFC = factors.reduce(
+        (t, { totalAssetsLocal }) => t.add(totalAssetsLocal.toToken(denom)),
+        TokenBalance.zero(denom)
+      );
+      const totalNegativeFC = factors.reduce(
+        (t, { totalDebtsLocal }) => t.add(totalDebtsLocal.toToken(denom)),
+        TokenBalance.zero(denom)
+      );
+      health = totalPositiveFC.toFloat() / totalNegativeFC.abs().toFloat();
+    } else {
+      return null;
+    }
 
     if (health && hasDebt && allNetFCPositive) {
       // Apply a multiple to the health factor in the case of only local currency risk
