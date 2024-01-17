@@ -1,9 +1,11 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
+import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { ContestButtonStack } from '../contest-button-stack/contest-button-stack';
 import { ContestCountDown } from '../contest-countdown/contest-countdown';
 import { BodySecondary } from '@notional-finance/mui';
+import { TitleText } from '../contest-typography/contest-typography';
 
 export const ContestHero = () => {
   const theme = useTheme();
@@ -31,6 +33,7 @@ export const ContestHero = () => {
             </BodySecondary>
             <ContestCountDown title={'Contest Begins:'} />
             <ContestButtonStack
+              to={`/contest-sign-up/${CONTEST_SIGN_UP_STEPS.CONNECT_WALLET}`}
               buttonText={
                 <FormattedMessage defaultMessage={'Join the Yield Contest'} />
               }
@@ -72,21 +75,6 @@ const TextAndButtonWrapper = styled(Box)(
     width: 100%;
   }
   `
-);
-
-const TitleText = styled(Box)(
-  ({ theme }) => `
-  color: ${colors.white};
-  font-family: Avenir Next;
-  font-size: 48px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 67.2px;
-  ${theme.breakpoints.down('md')} {
-    font-size: 32px;
-    margin: ${theme.spacing(0, 2)};
-  }
-      `
 );
 
 export default ContestHero;

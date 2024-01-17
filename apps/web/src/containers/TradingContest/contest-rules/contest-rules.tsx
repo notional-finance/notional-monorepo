@@ -1,6 +1,5 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { FeatureLoader } from '@notional-finance/shared-web';
 import {
   ContestPrizes,
   ContestRulesInfo,
@@ -14,20 +13,18 @@ export const ContestRules = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <FeatureLoader backgroundColor={'#041D2E'}>
-        <OuterContainer>
-          <BgImgContainer>
-            <img src={test} alt="bg img" />
-          </BgImgContainer>
-          <OpacityBG>
-            <MainContainer>
-              <ContestBackButton />
-              <ContestPrizes />
-              <ContestRulesInfo />
-            </MainContainer>
-          </OpacityBG>
-        </OuterContainer>
-      </FeatureLoader>
+      <OuterContainer>
+        <BgImgContainer>
+          <img src={test} alt="bg img" />
+        </BgImgContainer>
+        <OpacityBG>
+          <MainContainer>
+            <ContestBackButton />
+            <ContestPrizes />
+            <ContestRulesInfo />
+          </MainContainer>
+        </OpacityBG>
+      </OuterContainer>
     </ThemeProvider>
   );
 };

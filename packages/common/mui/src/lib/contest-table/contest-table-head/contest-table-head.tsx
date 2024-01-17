@@ -13,8 +13,7 @@ export const ContestTableHead = ({
   hideOnMobile,
 }: ContestTableHeadProps) => {
   const theme = useTheme();
-  console.log({ headerGroups });
-  console.log({ hideOnMobile });
+
   return (
     <TableHead
       sx={{

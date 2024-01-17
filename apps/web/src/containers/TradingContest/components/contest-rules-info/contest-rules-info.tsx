@@ -4,6 +4,7 @@ import { Button, Faq, FaqHeader } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useContestRulesInfo } from '../../hooks';
 import { BETA_ACCESS } from '@notional-finance/notionable';
+import { SectionTitle } from '../contest-typography/contest-typography';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 
 export const ContestRulesInfo = () => {
@@ -16,9 +17,9 @@ export const ContestRulesInfo = () => {
   return (
     <>
       <Container>
-        <TitleText>
+        <SectionTitle>
           <FormattedMessage defaultMessage={'Contest rules'} />
-        </TitleText>
+        </SectionTitle>
         <Text>
           <FormattedMessage
             defaultMessage={`The prize category you compete in depends on the actions you’ve taken in your account. If you’ve used leverage you will compete for the high roller prize. If you have not used leverage, you will compete for the fat cat prize.`}
@@ -111,26 +112,6 @@ const Container = styled(Box)(
   `
 );
 
-const TitleText = styled(Box)(
-  ({ theme }) => `
-  color: ${colors.white};
-  text-align: left;
-  font-family: Avenir Next;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: 10px;
-  text-transform: uppercase;
-  margin-bottom: ${theme.spacing(4)};
-  ${theme.breakpoints.down('md')} {
-    text-align: center;
-    text-wrap: nowrap;
-    letter-spacing: 5px;
-  }
-
-      `
-);
 const ButtonContainer = styled(Box)(
   ({ theme }) => `
   width: 100%;

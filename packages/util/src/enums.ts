@@ -72,6 +72,13 @@ export enum PORTFOLIO_CATEGORIES {
   TRANSACTION_HISTORY = 'transaction-history',
 }
 
+export enum CONTEST_SIGN_UP_STEPS {
+  CONNECT_WALLET = 'connect-wallet',
+  COMMUNITY_PARTNERS = 'community-partners',
+  MINT_PASS = 'mint-pass',
+  CONTEST_CONFIRMATION = 'contest-confirmation',
+}
+
 export enum CARD_CATEGORIES {
   LEND_FIXED = 'lend-fixed',
   LEND_VARIABLE = 'lend-variable',

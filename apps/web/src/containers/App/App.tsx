@@ -223,12 +223,12 @@ const AllRoutes = () => {
             routeType="Landing"
           />
           <AppLayoutRoute
-            path="/contest-signup/:step"
+            path="/contest-sign-up/:step"
             component={ContestSignUp}
             routeType="Landing"
           />
           <AppLayoutRoute
-            path="/contest-signup/"
+            path="/contest-sign-up/"
             component={ContestSignUp}
             routeType="Landing"
           />

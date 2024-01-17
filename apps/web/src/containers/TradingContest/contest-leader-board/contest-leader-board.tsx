@@ -1,7 +1,7 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import { ContestCountDown, ContestPrizes } from '../components';
+import { ContestCountDown, ContestPrizes, SectionTitle } from '../components';
 import { ContestTable, LinkText, Button } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
@@ -39,9 +39,15 @@ export const ContestLeaderBoard = () => {
           </BgImgContainer>
           <OpacityBG>
             <MainContainer>
-              <TitleText sx={{ marginBottom: theme.spacing(4) }}>
+              <SectionTitle
+                sx={{
+                  marginBottom: theme.spacing(4),
+                  marginTop: theme.spacing(13),
+                  display: 'flex',
+                }}
+              >
                 <FormattedMessage defaultMessage={'Leaderboard'} />
-              </TitleText>
+              </SectionTitle>
               <Box
                 sx={{
                   display: 'flex',
@@ -69,7 +75,13 @@ export const ContestLeaderBoard = () => {
 
               {currentUserData.length > 0 && (
                 <UserTableContainer>
-                  <TitleText>
+                  <SectionTitle
+                    sx={{
+                      marginBottom: theme.spacing(4),
+                      marginTop: theme.spacing(13),
+                      display: 'flex',
+                    }}
+                  >
                     <FormattedMessage
                       defaultMessage={'Your {position} Position'}
                       values={{
@@ -91,7 +103,7 @@ export const ContestLeaderBoard = () => {
                         ),
                       }}
                     />
-                  </TitleText>
+                  </SectionTitle>
                   <ContestTable
                     maxHeight={'620px'}
                     columns={currentUserColumns}
@@ -214,30 +226,6 @@ const OpacityBG = styled(Box)(
   position: relative;
   z-index: 3;
     `
-);
-
-const TitleText = styled(Box)(
-  ({ theme }) => `
-  color: ${colors.white};
-  text-align: left;
-  font-family: Avenir Next;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: 10px;
-  text-transform: uppercase;
-  margin-bottom: ${theme.spacing(4)};
-  margin-top: ${theme.spacing(13)};
-  display: flex;
-  ${theme.breakpoints.down('md')} {
-    text-align: center;
-    text-wrap: nowrap;
-    letter-spacing: 5px;
-    justify-content: center;
-  }
-
-      `
 );
 
 export default ContestLeaderBoard;

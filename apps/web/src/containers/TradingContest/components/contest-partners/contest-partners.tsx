@@ -7,6 +7,7 @@ import {
   ContestTable,
   IconCell,
 } from '@notional-finance/mui';
+import { SectionTitle } from '../contest-typography/contest-typography';
 
 interface ContestPartnersProps {
   hideButton?: boolean;
@@ -56,9 +57,9 @@ export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
   const theme = useTheme();
   return (
     <Container>
-      <TitleText>
+      <SectionTitle>
         <FormattedMessage defaultMessage={'Community partner prizes'} />
-      </TitleText>
+      </SectionTitle>
       <Box
         sx={{
           display: 'flex',
@@ -107,26 +108,6 @@ const Container = styled(Box)(
       margin-top: ${theme.spacing(6)};
       margin-bottom: 120px;
   `
-);
-
-const TitleText = styled(Box)(
-  ({ theme }) => `
-  color: ${colors.white};
-  text-align: left;
-  font-family: Avenir Next;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: 10px;
-  text-transform: uppercase;
-  margin-bottom: ${theme.spacing(4)};
-  ${theme.breakpoints.down('md')} {
-    text-align: center;
-    text-wrap: nowrap;
-    letter-spacing: 5px;
-  }
-`
 );
 
 export default ContestPartners;

@@ -3,6 +3,7 @@ import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { Button, HeadingSubtitle, CardInput } from '@notional-finance/mui';
+import { SectionTitle } from '../contest-typography/contest-typography';
 import fatCat from '../../assets/fat-cat.svg';
 import crown from '../../assets/crown.svg';
 
@@ -50,22 +51,22 @@ const PrizeInfo = ({ prizeType }: PrizeInfoPropsProps) => {
       >
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           {prizeType === 'HR' ? (
-            <TitleText>
+            <SectionTitle sx={{ letterSpacing: '2.4px' }}>
               <LightningIcon
                 fill={colors.neonTurquoise}
                 style={{ marginRight: theme.spacing(1) }}
               />
               <FormattedMessage defaultMessage={'High Roller'} />
-            </TitleText>
+            </SectionTitle>
           ) : (
-            <TitleText>
+            <SectionTitle sx={{ letterSpacing: '2.4px' }}>
               <img
                 src={fatCat}
                 alt="icon"
                 style={{ height: '24px', marginRight: theme.spacing(1) }}
               />
               <FormattedMessage defaultMessage={'Fat Cat'} />
-            </TitleText>
+            </SectionTitle>
           )}
 
           <HeadingSubtitle sx={{ color: colors.greenGrey, fontWeight: 400 }}>
@@ -91,13 +92,12 @@ export const ContestPrizes = () => {
   const theme = useTheme();
   return (
     <Container>
-      <TitleText
+      <SectionTitle
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: theme.spacing(4),
-          letterSpacing: '10px',
         }}
       >
         <FormattedMessage defaultMessage={'Prizes'} />
@@ -116,7 +116,7 @@ export const ContestPrizes = () => {
         >
           <FormattedMessage defaultMessage={'Rules & Prizes'} />
         </Button>
-      </TitleText>
+      </SectionTitle>
       <InfoContainer>
         <PrizeInfo prizeType="HR" />
         <PrizeInfo prizeType="FC" />
@@ -171,21 +171,5 @@ const Place = styled(HeadingSubtitle)(`
   font-weight: 600;
   text-transform: uppercase;
 `);
-
-const TitleText = styled(Box)(
-  ({ theme }) => `
-  color: ${colors.white};
-  text-align: left;
-  font-family: Avenir Next;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: 2.4px;
-  text-transform: uppercase;
-  text-wrap: nowrap;
-  margin-bottom: ${theme.spacing(1)};
-      `
-);
 
 export default ContestPrizes;

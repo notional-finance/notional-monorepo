@@ -68,24 +68,4 @@ const CountDownContainer = styled(Box)(
       `
 );
 
-// const TitleText = styled(Box)(
-//   ({ theme }) => `
-//   color: ${colors.white};
-//   text-align: left;
-//   font-family: Avenir Next;
-//   font-size: 24px;
-//   font-style: normal;
-//   font-weight: 600;
-//   line-height: normal;
-//   letter-spacing: 10px;
-//   text-transform: uppercase;
-//   margin-bottom: ${theme.spacing(4)};
-//   ${theme.breakpoints.down('md')} {
-//     text-align: center;
-//     text-wrap: nowrap;
-//     letter-spacing: 10px;
-//   }
-//       `
-// );
-
 export default ContestCountDown;
