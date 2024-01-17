@@ -51,6 +51,7 @@ import { LandingPageView } from '../../containers/LandingPageView';
 import {
   ContestHome,
   ContestRules,
+  ContestSignUp,
   ContestLeaderBoard,
 } from '../../containers/TradingContest';
 import { Markets } from '../Markets';
@@ -219,6 +220,16 @@ const AllRoutes = () => {
           <AppLayoutRoute
             path="/contest-leaderboard"
             component={ContestLeaderBoard}
+            routeType="Landing"
+          />
+          <AppLayoutRoute
+            path="/contest-signup/:step"
+            component={ContestSignUp}
+            routeType="Landing"
+          />
+          <AppLayoutRoute
+            path="/contest-signup/"
+            component={ContestSignUp}
             routeType="Landing"
           />
           <AppLayoutRoute

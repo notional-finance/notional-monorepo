@@ -107,7 +107,7 @@ export const ContestTable = ({
               </Box>
               <div style={{ maxHeight: maxHeight, overflow: 'auto' }}>
                 <Table {...getTableProps()}>
-                  <ContestTableHead headerGroups={headerGroups} />
+                  {/* <ContestTableHead headerGroups={headerGroups} /> */}
                   <ContestTableBody
                     rows={rows}
                     prepareRow={prepareRow}

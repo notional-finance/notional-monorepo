@@ -30,7 +30,7 @@ export const ContestHome = () => {
   );
 };
 
-const BgImgContainer = styled(Box)(
+export const BgImgContainer = styled(Box)(
   `
   margin-top: -170px;
   overflow: hidden;
@@ -43,7 +43,7 @@ const BgImgContainer = styled(Box)(
     `
 );
 
-const MainContainer = styled(Box)(
+export const MainContainer = styled(Box)(
   `
   background: transparent;
   height: 100%;
@@ -55,14 +55,14 @@ const MainContainer = styled(Box)(
     `
 );
 
-const OuterContainer = styled(Box)(
+export const OuterContainer = styled(Box)(
   () => `
   background: #041D2E; 
   height: 100%;
     `
 );
 
-const OpacityBG = styled(Box)(
+export const OpacityBG = styled(Box)(
   ({ theme }) => `
   background: rgba(4, 29, 46, 0.7);
   border-top: 1px solid ${colors.greenGrey};
