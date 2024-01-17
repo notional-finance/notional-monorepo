@@ -12,7 +12,8 @@ export const ToolTipCell = ({ cell }): JSX.Element => {
       <TableCell
         style={{
           lineHeight: 'normal',
-          fontWeight: 600,
+          fontWeight: 500,
+          fontSize: '.750rem',
         }}
       >
         {value.content ? <FormattedMessage {...value.content} /> : value}

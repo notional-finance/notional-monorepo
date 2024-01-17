@@ -27,6 +27,7 @@ interface SliderBasicProps {
   onBlur?: () => void;
   railGradients?: RailGradient[];
   sx?: SxProps;
+  showHFColors?: boolean;
 }
 
 export const SliderBasic = ({
@@ -45,6 +46,7 @@ export const SliderBasic = ({
   showThumb = false,
   showMinMax,
   sx,
+  showHFColors,
 }: SliderBasicProps) => {
   const theme = useTheme();
   const getBoundedValue = (inputValue: number) => {
@@ -104,6 +106,21 @@ export const SliderBasic = ({
     };
   });
 
+  const getHealthFactorGradients = () => {
+    let healthFactorGradient = '';
+    if (value <= 1.25) {
+      healthFactorGradient = `rgb(255,61,113)`;
+    } else if (value > 1.25 && value <= 2.5) {
+      healthFactorGradient =
+        'linear-gradient(90deg, rgb(255,61,113) 25%, rgb(249, 223, 61) 50%)';
+    } else if (value > 2.5 && value <= 5) {
+      healthFactorGradient =
+        'linear-gradient(90deg, rgb(255,61,113) 25%, rgb(249, 233, 61) 50%, rgb(52,223,58) 100%)';
+    }
+    return healthFactorGradient;
+  };
+  const healthFactorGradient = getHealthFactorGradients();
+
   const formattedGradientBg = `linear-gradient(90deg, ${railGradients
     ?.map(({ color, value }) => `rgb(${color.join(',')}) ${value.toFixed(0)}%`)
     .join(',')})`;
@@ -148,7 +165,9 @@ export const SliderBasic = ({
           '& .MuiSlider-track': {
             border: 'none',
             height: '8px',
-            background: railGradients?.length
+            background: showHFColors
+              ? healthFactorGradient
+              : railGradients?.length
               ? formattedGradientBg
               : trackColor
               ? trackColor
