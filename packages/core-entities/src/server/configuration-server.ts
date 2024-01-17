@@ -5,7 +5,7 @@ import {
   ServerRegistry,
   TypedDocumentReturnType,
 } from './server-registry';
-import { getProviderFromNetwork, Network } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { SecondaryRewarderABI } from '@notional-finance/contracts';
 import { aggregate } from '@notional-finance/multicall';
@@ -36,7 +36,7 @@ export class ConfigurationServer extends ServerRegistry<AllConfigurationQuery> {
       }
     );
 
-    const provider = getProviderFromNetwork(network, true);
+    const provider = this.getProvider(network);
     const secondaryRewarderCalls = (
       data.values[0][1]?.whitelistedContracts || []
     )
