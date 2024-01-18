@@ -28,13 +28,13 @@ export const useSideNav = () => {
       {
         Icon: <FourSquareIcon sx={{ width: theme.spacing(3) }} />,
         id: PORTFOLIO_CATEGORIES.OVERVIEW,
-        to: `/portfolio/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
+        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
         notifications: 0,
       },
       {
         Icon: <BarChartIcon sx={{ width: theme.spacing(3) }} />,
         id: PORTFOLIO_CATEGORIES.HOLDINGS,
-        to: `/portfolio/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
+        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
         notifications: numHoldings,
       },
       {
@@ -50,17 +50,17 @@ export const useSideNav = () => {
           />
         ),
         id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
-        to: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
+        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
         notifications: numVaults,
       },
       {
         Icon: <HistoryIcon sx={{ width: theme.spacing(3) }} />,
         id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
-        to: `/portfolio/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
+        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
         notifications: 0,
       },
     ];
-  }, [numHoldings, numVaults, category, theme]);
+  }, [numHoldings, numVaults, category, theme, network]);
 
   return { sideNavOptions };
 };

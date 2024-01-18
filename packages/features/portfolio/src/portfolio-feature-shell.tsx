@@ -59,7 +59,9 @@ const Portfolio = () => {
 
   useEffect(() => {
     clearSideDrawer(
-      `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`
+      `/portfolio/${network}/${
+        params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
+      }`
     );
     // NOTE: this must only run once on component mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,7 +69,9 @@ const Portfolio = () => {
 
   const handleDrawer = () => {
     clearSideDrawer(
-      `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`
+      `/portfolio/${network}/${
+        params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
+      }`
     );
   };
 
