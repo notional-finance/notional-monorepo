@@ -61,7 +61,7 @@ export const PortfolioHoldingSelect = ({
       : selectedToken?.id;
 
   const options = useMemo(() => {
-    return profile.balances.filter(filterBalances)?.map((b) => {
+    return profile?.balances.filter(filterBalances)?.map((b) => {
       if (isWithdraw) {
         const maxWithdraw = profile.maxWithdraw(b.token);
         return {

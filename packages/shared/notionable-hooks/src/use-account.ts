@@ -2,7 +2,6 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
 import { Network } from '@notional-finance/util';
 import { useFiat, useFiatToken } from './use-user-settings';
-import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 /** Contains selectors for account holdings information */
 
@@ -74,11 +73,9 @@ export function usePortfolioRiskProfile(network: Network | undefined) {
   const {
     globalState: { networkAccounts },
   } = useNotionalContext();
-  const profile =
-    networkAccounts && network
+  return networkAccounts && network
       ? networkAccounts[network].riskProfile
       : undefined;
-  return profile || new AccountRiskProfile([], network);
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {

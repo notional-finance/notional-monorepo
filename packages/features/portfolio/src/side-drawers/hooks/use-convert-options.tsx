@@ -18,7 +18,7 @@ export function useConvertOptions(state: BaseTradeState) {
     ? primeCash.find((t) => t.currencyId === isPrimeDebt.currencyId)?.id
     : selectedParamToken;
 
-  let initialConvertFromBalance = portfolio.balances.find(
+  let initialConvertFromBalance = portfolio?.balances.find(
     (t) => t.tokenId === selectedToken
   );
 

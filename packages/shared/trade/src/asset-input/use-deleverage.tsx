@@ -108,13 +108,13 @@ export const useDeleverage = (
       availableTokens?.map((t) => {
         const balance =
           t?.tokenType === 'PrimeDebt'
-            ? profile.balances
+            ? profile?.balances
                 .find(
                   (b) =>
                     b.tokenType === 'PrimeCash' && b.currencyId === t.currencyId
                 )
                 ?.toToken(t)
-            : profile.balances.find((b) => b.tokenId === t?.id);
+            : profile?.balances.find((b) => b.tokenId === t?.id);
         let displayToken: TokenDefinition | undefined;
         // Flip the titles since this is inverted inside the calculation
         if (t.tokenType === 'PrimeDebt' && debtOrCollateral === 'Debt') {

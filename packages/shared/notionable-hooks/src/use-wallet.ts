@@ -207,11 +207,11 @@ export function useWalletBalances(
 export function useMaxAssetBalance(token: TokenDefinition | undefined) {
   const profile = usePortfolioRiskProfile(token?.network);
   return token?.tokenType === 'PrimeDebt'
-    ? profile.balances
+    ? profile?.balances
         .find(
           (b) =>
             b.tokenType === 'PrimeCash' && b.currencyId === token.currencyId
         )
         ?.toToken(token)
-    : profile.balances.find((b) => b.tokenId === token?.id);
+    : profile?.balances.find((b) => b.tokenId === token?.id);
 }

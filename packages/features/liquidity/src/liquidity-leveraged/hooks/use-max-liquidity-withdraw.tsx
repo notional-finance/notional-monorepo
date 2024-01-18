@@ -9,10 +9,10 @@ export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
   const { updateState, state } = context;
   const { debt: nToken, collateral, selectedNetwork } = state;
   const profile = usePortfolioRiskProfile(selectedNetwork);
-  const maxRepayBalance = profile.balances.find(
+  const maxRepayBalance = profile?.balances.find(
     (t) => t.tokenId === collateral?.id
   );
-  const nTokenBalance = profile.balances.find((t) => t.tokenId === nToken?.id);
+  const nTokenBalance = profile?.balances.find((t) => t.tokenId === nToken?.id);
 
   // NOTE: this will show a liquidation risk error if the PNL on the liquidity
   // is being used to collateralize some other debt.

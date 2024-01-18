@@ -13,7 +13,7 @@ export function useMaxWithdraw(context: BaseTradeContext) {
   const primeCash = usePrimeCash(debt?.network, debt?.currencyId);
   const withdrawToken = debt?.tokenType === 'PrimeDebt' ? primeCash : debt;
   const maxWithdraw = withdrawToken
-    ? profile.maxWithdraw(withdrawToken)
+    ? profile?.maxWithdraw(withdrawToken)
     : undefined;
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
 
