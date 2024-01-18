@@ -1,7 +1,6 @@
 import { of, merge, Observable } from 'rxjs';
 import { TradeState } from './base-trade-store';
 import {
-  resetOnNetworkChange,
   initState,
   priorAccountRisk,
   postAccountRisk,
@@ -49,7 +48,6 @@ export function createTradeManager(
     priorAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
     initState(state$),
-    resetOnNetworkChange(state$),
     resetOnTradeTypeChange(state$)
   );
 }

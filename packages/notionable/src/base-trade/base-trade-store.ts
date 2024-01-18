@@ -75,6 +75,9 @@ interface UserInputs {
 
   /** Set to true if the user is inputting custom leverage amounts */
   customizeLeverage: boolean;
+
+  /** Used as a flag to reset the state on path changes */
+  reset?: boolean;
 }
 
 /** Calculated values based on token inputs */

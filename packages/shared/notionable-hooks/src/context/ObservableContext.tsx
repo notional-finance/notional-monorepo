@@ -1,7 +1,16 @@
 import { useObservable, useSubscription } from 'observable-hooks';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocation, useParams } from 'react-router';
-import { EMPTY, Observable, switchMap, tap, of } from 'rxjs';
+import {
+  EMPTY,
+  Observable,
+  switchMap,
+  tap,
+  of,
+  map,
+  filter,
+  distinctUntilChanged,
+} from 'rxjs';
 import { useAppReady } from '../use-notional';
 import { useObservableReducer } from './use-observable-reducer';
 
@@ -65,16 +74,29 @@ export function useObservableContext<T extends ContextState>(
     updateState
   );
 
-  useEffect(() => {
-    // If any of the route params change then we will update state to initial and set the params,
-    // this prevents any "residual" state from going between paths. Use isNetworkReady here to
-    // prevent race conditions based on when dependencies update.
-    if (isAppReady) {
-      if (DEBUG) console.log('URL UPDATE', params);
-      updateState(params as T);
-    }
-    // NOTE: only run updates on pathname changes, since params is an object
-  }, [pathname, isAppReady, updateState, params]);
+  // Listens to route changes and updates the state on path changes
+  useSubscription(
+    useObservable(
+      (o$) => {
+        return o$.pipe(
+          filter(([ready]) => ready),
+          distinctUntilChanged(
+            ([, oldPath], [, newPath]) => oldPath === newPath
+          ),
+          map(
+            ([, , params]) =>
+              // On path change we reset the trade state
+              ({ reset: true, ...params } as unknown as Partial<T>)
+          ),
+          tap((p) => {
+            if (DEBUG) console.log('URL UPDATE', p);
+          })
+        );
+      },
+      [isAppReady, pathname, params]
+    ),
+    updateState
+  );
 
   return { updateState, state$, state };
 }

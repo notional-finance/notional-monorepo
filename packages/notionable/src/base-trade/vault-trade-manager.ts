@@ -1,7 +1,6 @@
 import { merge, Observable, of } from 'rxjs';
 import { VaultTradeState } from './base-trade-store';
 import {
-  resetOnNetworkChange,
   initVaultState,
   priorVaultAccountRisk,
   postVaultAccountRisk,
@@ -37,7 +36,6 @@ export function createVaultTradeManager(
     calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),
     availableTokens(state$, network$, account$),
     initVaultState(state$),
-    resetOnNetworkChange(state$),
     resetOnTradeTypeChange(state$, true)
   );
 }
