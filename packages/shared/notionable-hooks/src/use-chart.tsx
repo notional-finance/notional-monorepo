@@ -13,6 +13,7 @@ import {
 import { useAccountDefinition } from './use-account';
 import { useFiat } from './use-user-settings';
 import { useMemo } from 'react';
+import { useAnalyticsReady } from './use-notional';
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -40,16 +41,19 @@ function fillChartDaily<T extends { timestamp: number }>(
 }
 
 export function useTokenHistory(token?: TokenDefinition) {
+  const isReady = useAnalyticsReady();
   const { apyData, tvlData } = useMemo(() => {
-    const apyData = token
-      ? Registry.getAnalyticsRegistry().getHistoricalAPY(token)
-      : undefined;
-    const tvlData = token
-      ? Registry.getAnalyticsRegistry().getPriceHistory(token)
-      : undefined;
+    const apyData =
+      token && isReady
+        ? Registry.getAnalyticsRegistry().getHistoricalAPY(token)
+        : undefined;
+    const tvlData =
+      token && isReady
+        ? Registry.getAnalyticsRegistry().getPriceHistory(token)
+        : undefined;
 
     return { apyData, tvlData };
-  }, [token]);
+  }, [token, isReady]);
 
   return {
     apyData: fillChartDaily(
@@ -76,7 +80,8 @@ export function useLeveragedPerformance(
   leverageRatio: number | null | undefined,
   leveragedLendFixedRate: number | undefined
 ) {
-  if (!token) return [];
+  const isReady = useAnalyticsReady();
+  if (!token || !isReady) return [];
   const analytics = Registry.getAnalyticsRegistry();
   const primeDebt = Registry.getTokenRegistry().getPrimeDebt(
     token.network,
@@ -106,7 +111,8 @@ export function useLeveragedPerformance(
 }
 
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {
-  if (!token) return [];
+  const isReady = useAnalyticsReady();
+  if (!token || !isReady) return [];
   const data = Registry.getAnalyticsRegistry().getPriceHistory(token);
 
   return fillChartDaily(

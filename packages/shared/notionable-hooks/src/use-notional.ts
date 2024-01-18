@@ -14,6 +14,13 @@ export function useAppReady() {
   return isAppReady(networkState);
 }
 
+export function useAnalyticsReady() {
+  const {
+    globalState: { allYields },
+  } = useNotionalContext();
+  return !!allYields;
+}
+
 export function useLastUpdateBlockNumber() {
   const network = useSelectedPortfolioNetwork();
   return network

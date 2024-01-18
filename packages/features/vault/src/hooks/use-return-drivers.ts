@@ -4,14 +4,16 @@ import { messages } from '../messages';
 import { Registry } from '@notional-finance/core-entities';
 import { Network, SECONDS_IN_DAY, getNowSeconds } from '@notional-finance/util';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { useAnalyticsReady } from '@notional-finance/notionable-hooks';
 
 export const useReturnDrivers = (
   vaultAddress: string | undefined,
   network: Network | undefined
 ) => {
   const intl = useIntl();
+  const isReady = useAnalyticsReady()
   const data =
-    network && vaultAddress
+    network && vaultAddress && isReady
       ? Registry.getAnalyticsRegistry().getVault(network, vaultAddress)
       : undefined;
 
