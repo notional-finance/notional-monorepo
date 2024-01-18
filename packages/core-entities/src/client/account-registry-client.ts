@@ -4,14 +4,7 @@ import {
   Network,
 } from '@notional-finance/util';
 import { providers } from 'ethers';
-import {
-  BehaviorSubject,
-  filter,
-  lastValueFrom,
-  of,
-  take,
-  takeUntil,
-} from 'rxjs';
+import { BehaviorSubject, from, of, switchMap } from 'rxjs';
 import {
   AccountDefinition,
   BalanceStatement,
@@ -88,29 +81,21 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
   }
 
   public subscribeActiveAccount(network: Network) {
-    if (this.activeAccount) {
-      return this.subscribeAccount(network, this.activeAccount);
-    } else {
-      return of(null);
-    }
-  }
-
-  public subscribeAccount(network: Network, account: string) {
-    const sub = this.subscribeSubject(network, account);
-    if (!sub) throw Error(`Account ${account} on ${network} not found`);
-
-    if (this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT) {
-      if (account !== this.activeAccount)
-        throw Error('Can only fetch active account');
-
-      // Take the values from the subscription until the active account changes
-      return sub.pipe(
-        takeUntil(this.activeAccount$.pipe(filter((a) => a !== account))),
-        filterEmpty()
-      );
-    }
-
-    return sub;
+    return this.activeAccount$.pipe(
+      switchMap((a) =>
+        a
+          ? from(
+              new Promise<ReturnType<typeof this.subscribeSubject>>((resolve) =>
+                this.onSubjectKeyRegistered(network, a, () =>
+                  resolve(this.subscribeSubject(network, a))
+                )
+              )
+            )
+          : of(undefined)
+      ),
+      filterEmpty(),
+      switchMap((o) => o)
+    );
   }
 
   public async refreshBalanceHistory(network: Network) {
@@ -135,15 +120,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
   /** Triggers a manual refresh of the active account and provides an optional callback on refresh complete */
   public refreshActiveAccount(network: Network) {
     if (this.activeAccount === null) throw Error('No active account');
-
-    // Returns a promise for the  value from the manual refresh
-    const p = lastValueFrom(
-      this.subscribeAccount(network, this.activeAccount).pipe(take(1))
-    );
-
     this.triggerRefresh(network);
-
-    return p;
   }
 
   /** Switches the actively listened account to the newly registered one */
