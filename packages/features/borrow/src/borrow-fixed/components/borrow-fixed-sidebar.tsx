@@ -37,7 +37,7 @@ export const BorrowFixedSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}
-        newRoute={(newToken) => `/${PRODUCTS.BORROW_FIXED}/${newToken}`}
+        newRoute={(newToken) => `/${PRODUCTS.BORROW_FIXED}/${selectedNetwork}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to borrow?',
           description: 'input label',

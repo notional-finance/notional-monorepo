@@ -121,6 +121,7 @@ function parseUnderlyingLiquidationPrice(
 }
 
 export function useCurrentETHPrice() {
+  // NOTE: the hardcoded network here doesn't really matter
   const { oneDay } = usePriceChanges(Network.ArbitrumOne);
   const ethChange = oneDay.find(({ asset }) => asset.symbol === 'ETH');
 

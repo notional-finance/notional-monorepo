@@ -2,8 +2,12 @@ import {
   useAllMarkets,
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
-import { Network, PRODUCTS } from '@notional-finance/util';
-import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { PRODUCTS } from '@notional-finance/util';
+import {
+  CardContainer,
+  FeatureLoader,
+  useSelectedCardNetwork,
+} from '@notional-finance/shared-web';
 import { Currency } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -14,10 +18,11 @@ import { formatLeverageRatio } from '@notional-finance/helpers';
 export function LendLeveragedCardView() {
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
+  const network = useSelectedCardNetwork();
   const {
     yields: { leveragedLend },
     getMax,
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(network);
   const heading = defineMessage({
     defaultMessage: 'Leveraged Lending',
     description: 'page heading',
@@ -51,7 +56,7 @@ export function LendLeveragedCardView() {
           docsLink="https://docs.notional.finance/notional-v3/product-guides/leveraged-lending"
         >
           {cardData.map(([symbol, yields], index) => {
-            const route = `/${PRODUCTS.LEND_LEVERAGED}/${symbol}`;
+            const route = `/${PRODUCTS.LEND_LEVERAGED}/${network}/${symbol}`;
             const maxYield = getMax(yields);
 
             return (

@@ -1,5 +1,9 @@
-import { Network, PRODUCTS } from '@notional-finance/util';
-import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { PRODUCTS } from '@notional-finance/util';
+import {
+  CardContainer,
+  FeatureLoader,
+  useSelectedCardNetwork,
+} from '@notional-finance/shared-web';
 import { CurrencyFixed } from '@notional-finance/mui';
 import {
   useAllMarkets,
@@ -15,10 +19,11 @@ import { formatMaturity } from '@notional-finance/util';
 export const BorrowFixedCardView = () => {
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
+  const network = useSelectedCardNetwork();
   const {
     yields: { fCashBorrow },
     getMin,
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(network);
 
   const cardData = [
     ...groupArrayToMap(fCashBorrow, (t) => t.underlying.symbol).entries(),
@@ -59,7 +64,7 @@ export const BorrowFixedCardView = () => {
                 symbol={symbol}
                 rate={minRate}
                 allRates={allRates}
-                route={`/${PRODUCTS.BORROW_FIXED}/${symbol}`}
+                route={`/${PRODUCTS.BORROW_FIXED}/${network}/${symbol}`}
                 apyTagline={<FormattedMessage defaultMessage={'AS LOW AS'} />}
                 buttonText={
                   <FormattedMessage

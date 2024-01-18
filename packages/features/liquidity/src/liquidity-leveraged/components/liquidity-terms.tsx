@@ -18,7 +18,7 @@ import {
 import { useMaxYield } from '../hooks/use-max-yield';
 import { useHistory } from 'react-router';
 import { useLeveragedNTokenPositions } from '../hooks';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import { PRODUCTS } from '@notional-finance/util';
 
 export const CustomLiquidityTerms = () => {
   const theme = useTheme();
@@ -49,13 +49,13 @@ export const CustomLiquidityTerms = () => {
 
 export const DefaultLiquidityTerms = () => {
   const {
-    state: { customizeLeverage, riskFactorLimit, deposit },
+    state: { customizeLeverage, riskFactorLimit, deposit, selectedNetwork },
     updateState,
   } = useContext(LiquidityContext);
 
   const toggleLeverage = () =>
     updateState({ customizeLeverage: !customizeLeverage });
-  const maxYield = useMaxYield(Network.ArbitrumOne).find(
+  const maxYield = useMaxYield(selectedNetwork).find(
     (y) => y.token.currencyId === deposit?.currencyId
   )?.totalAPY;
   const leverageRatio =

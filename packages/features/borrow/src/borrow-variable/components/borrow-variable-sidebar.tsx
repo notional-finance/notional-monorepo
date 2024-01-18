@@ -37,7 +37,9 @@ export const BorrowVariableSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}
-        newRoute={(newToken) => `/${PRODUCTS.BORROW_VARIABLE}/${newToken}`}
+        newRoute={(newToken) =>
+          `/${PRODUCTS.BORROW_VARIABLE}/${selectedNetwork}/${newToken}`
+        }
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to borrow?',
           description: 'input label',

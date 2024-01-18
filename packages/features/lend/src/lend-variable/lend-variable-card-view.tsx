@@ -2,8 +2,8 @@ import {
   useThemeVariant,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
-import { Network, PRODUCTS } from '@notional-finance/util';
-import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { PRODUCTS } from '@notional-finance/util';
+import { CardContainer, FeatureLoader, useSelectedCardNetwork } from '@notional-finance/shared-web';
 import { Currency } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -12,9 +12,10 @@ import { defineMessage, FormattedMessage } from 'react-intl';
 export function LendVariableCardView() {
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
+  const network = useSelectedCardNetwork()
   const {
     yields: { variableLend },
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(network);
 
   const heading = defineMessage({
     defaultMessage: 'Variable Rate Lending',
@@ -43,7 +44,7 @@ export function LendVariableCardView() {
           docsLink="https://docs.notional.finance/notional-v3/product-guides/variable-rate-lending"
         >
           {variableLend.map(({ underlying, totalAPY }, index) => {
-            const route = `/${PRODUCTS.LEND_VARIABLE}/${underlying.symbol}`;
+            const route = `/${PRODUCTS.LEND_VARIABLE}/${network}/${underlying.symbol}`;
             return (
               <Currency
                 key={index}
