@@ -1,5 +1,4 @@
 import { of, merge, Observable } from 'rxjs';
-import { GlobalState } from '../global/global-state';
 import { TradeState } from './base-trade-store';
 import {
   resetOnNetworkChange,
@@ -19,8 +18,7 @@ import { calculate, calculateMaxWithdraw } from './trade-calculation';
 import { tradeSummary } from './metadata/account-summary';
 
 export function createTradeManager(
-  state$: Observable<TradeState>,
-  global$: Observable<GlobalState>
+  state$: Observable<TradeState>
 ): Observable<Partial<TradeState>> {
   // Shared Observables
   const network$ = selectedNetwork(state$);
@@ -50,7 +48,7 @@ export function createTradeManager(
     selectedToken(state$, network$),
     priorAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
-    initState(state$, network$, global$),
+    initState(state$),
     resetOnNetworkChange(state$),
     resetOnTradeTypeChange(state$)
   );

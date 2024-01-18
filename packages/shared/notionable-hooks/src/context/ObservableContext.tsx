@@ -1,9 +1,8 @@
-import { GlobalState } from '@notional-finance/notionable';
 import { useObservable, useSubscription } from 'observable-hooks';
 import React, { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
 import { EMPTY, Observable, switchMap, tap, of } from 'rxjs';
-import { useAppReady, useNotionalContext } from '../use-notional';
+import { useAppReady } from '../use-notional';
 import { useObservableReducer } from './use-observable-reducer';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
@@ -38,14 +37,11 @@ interface ContextState extends Record<string, unknown> {
 
 export function useObservableContext<T extends ContextState>(
   initialState: T,
-  loadManagers: (
-    state$: Observable<T>,
-    global$: Observable<GlobalState>
-  ) => Observable<Partial<T>> = () => EMPTY as Observable<Partial<T>>
+  loadManagers: (state$: Observable<T>) => Observable<Partial<T>> = () =>
+    EMPTY as Observable<Partial<T>>
 ) {
   const params = useParams<Record<string, string>>();
   const { pathname } = useLocation();
-  const { globalState$ } = useNotionalContext();
   const isAppReady = useAppReady();
   const { updateState, state$, state } = useObservableReducer(
     initialState,
@@ -58,15 +54,13 @@ export function useObservableContext<T extends ContextState>(
     useObservable(
       (o$) => {
         return o$.pipe(
-          switchMap(([s, g, load, appReady]) =>
-            appReady ? load(s, g) : of({})
-          ),
+          switchMap(([s, load, appReady]) => (appReady ? load(s) : of({}))),
           tap((s) => {
             if (DEBUG) console.log('CALCULATED UPDATE', s);
           })
         );
       },
-      [state$, globalState$, loadManagers, isAppReady]
+      [state$, loadManagers, isAppReady]
     ),
     updateState
   );
