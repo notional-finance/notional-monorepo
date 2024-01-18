@@ -7,7 +7,7 @@ import {
   ContestTable,
   IconCell,
 } from '@notional-finance/mui';
-import { SectionTitle } from '../contest-typography/contest-typography';
+import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
 
 interface ContestPartnersProps {
   hideButton?: boolean;

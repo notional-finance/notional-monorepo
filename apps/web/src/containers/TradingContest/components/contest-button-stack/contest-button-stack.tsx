@@ -1,4 +1,4 @@
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, SxProps, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
@@ -11,11 +11,13 @@ import { BETA_ACCESS } from '@notional-finance/notionable';
 interface ContestButtonStackProps {
   to?: string;
   buttonText: ReactNode;
+  sx?: SxProps;
 }
 
 export const ContestButtonStack = ({
   to,
   buttonText,
+  sx,
 }: ContestButtonStackProps) => {
   const theme = useTheme();
   const {
@@ -25,7 +27,7 @@ export const ContestButtonStack = ({
   const { setWalletSideDrawer } = useSideDrawerManager();
 
   return (
-    <ButtonContainer>
+    <ButtonContainer sx={{ ...sx }}>
       <Button
         size="large"
         sx={{

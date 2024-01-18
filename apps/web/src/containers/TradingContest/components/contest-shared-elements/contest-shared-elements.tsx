@@ -45,3 +45,20 @@ export const SectionTitle = styled(Box)(
     }
   `
 );
+
+export const OuterContainer = styled(Box)(
+  ({ theme }) => `
+  background: #041D2E; 
+  height: 100%;
+  padding-top: ${theme.spacing(16)}
+    `
+);
+
+export const StepContainer = styled(Box)(
+  `
+    height: 92%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  `
+);

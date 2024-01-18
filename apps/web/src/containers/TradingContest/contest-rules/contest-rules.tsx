@@ -2,6 +2,7 @@ import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import {
   ContestPrizes,
+  OuterContainer,
   ContestRulesInfo,
   ContestBackButton,
 } from '../components';
@@ -48,20 +49,8 @@ const MainContainer = styled(Box)(
   overflow: hidden;
   max-width: 1100px;
   margin: auto;
-  margin-top: 100px;
   position: relative;
   z-index: 3;
-    `
-);
-
-const OuterContainer = styled(Box)(
-  ({ theme }) => `
-  margin-top: -123px;
-  background: #041D2E; 
-  height: 100%;
-  ${theme.breakpoints.down('md')} {
-    margin-top: -107px; 
-  }
     `
 );
 

@@ -1,6 +1,11 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { ContestHero, ContestPrizes, ContestPartners } from '../components';
+import {
+  ContestHero,
+  ContestPrizes,
+  ContestPartners,
+  OuterContainer,
+} from '../components';
 import { colors, useNotionalTheme } from '@notional-finance/styles';
 import backgroundColors from '../assets/color-blobs.png';
 
@@ -49,13 +54,6 @@ export const MainContainer = styled(Box)(
   margin: auto;
   position: relative;
   z-index: 3;
-    `
-);
-
-export const OuterContainer = styled(Box)(
-  () => `
-  background: #041D2E; 
-  height: 100%;
     `
 );
 

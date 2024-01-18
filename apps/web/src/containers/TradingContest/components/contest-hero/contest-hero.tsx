@@ -5,12 +5,12 @@ import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { ContestButtonStack } from '../contest-button-stack/contest-button-stack';
 import { ContestCountDown } from '../contest-countdown/contest-countdown';
 import { BodySecondary } from '@notional-finance/mui';
-import { TitleText } from '../contest-typography/contest-typography';
+import { TitleText } from '../contest-shared-elements/contest-shared-elements';
 
 export const ContestHero = () => {
   const theme = useTheme();
   return (
-    <Container>
+    <Box>
       <ContentContainer>
         <TextAndButtonWrapper>
           <>
@@ -41,19 +41,12 @@ export const ContestHero = () => {
           </>
         </TextAndButtonWrapper>
       </ContentContainer>
-    </Container>
+    </Box>
   );
 };
 
-const Container = styled(Box)(
-  ({ theme }) => `
-      margin-top: ${theme.spacing(5)};
-      `
-);
-
 const ContentContainer = styled(Box)(
   ({ theme }) => `
-    margin-top: ${theme.spacing(15)};
     display: flex;
     justify-content: space-around;
     ${theme.breakpoints.down('md')} {
@@ -65,7 +58,6 @@ const ContentContainer = styled(Box)(
 
 const TextAndButtonWrapper = styled(Box)(
   ({ theme }) => `
-  margin-top: ${theme.spacing(5)}; 
   width: 650px;
   display: flex;
   flex-direction: column;

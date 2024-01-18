@@ -4,7 +4,7 @@ import { Button, Faq, FaqHeader } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useContestRulesInfo } from '../../hooks';
 import { BETA_ACCESS } from '@notional-finance/notionable';
-import { SectionTitle } from '../contest-typography/contest-typography';
+import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 
 export const ContestRulesInfo = () => {

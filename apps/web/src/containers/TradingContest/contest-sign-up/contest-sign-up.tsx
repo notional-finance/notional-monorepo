@@ -8,7 +8,7 @@ import {
 } from '@notional-finance/styles';
 import { Caption } from '@notional-finance/mui';
 import backgroundColors from '../assets/color-blobs.png';
-import { OuterContainer } from '../contest-home/contest-home';
+import { OuterContainer } from '../components';
 import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { useParams } from 'react-router-dom';
 import {

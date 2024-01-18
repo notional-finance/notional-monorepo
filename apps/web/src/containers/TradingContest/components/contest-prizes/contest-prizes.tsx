@@ -3,7 +3,7 @@ import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { Button, HeadingSubtitle, CardInput } from '@notional-finance/mui';
-import { SectionTitle } from '../contest-typography/contest-typography';
+import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
 import fatCat from '../../assets/fat-cat.svg';
 import crown from '../../assets/crown.svg';
 
