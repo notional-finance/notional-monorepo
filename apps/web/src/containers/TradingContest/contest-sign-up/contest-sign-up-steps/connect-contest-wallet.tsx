@@ -2,10 +2,13 @@ import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { Button } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
+import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { TitleText, ContestBodyText, StepContainer } from '../../components';
 
 export const ConnectContestWallet = () => {
   const theme = useTheme();
+  const { setWalletSideDrawer } = useSideDrawerManager();
   return (
     <StepContainer>
       <TitleText
@@ -42,6 +45,9 @@ export const ConnectContestWallet = () => {
             fontFamily: 'Avenir Next',
             cursor: 'pointer',
           }}
+          onClick={() =>
+            setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)
+          }
         >
           <FormattedMessage defaultMessage={'Connect Wallet'} />
         </Button>
