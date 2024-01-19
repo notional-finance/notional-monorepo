@@ -1,0 +1,64 @@
+{
+  "name": "reward-manager",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/reward-manager/src",
+  "projectType": "application",
+  "targets": {
+    "typechain": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn typechain --target=ethers-v5 --out-dir=apps/reward-manager/src/typechain apps/reward-manager/src/abi/*.json"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler dev --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/reward-manager"
+      }
+    },
+    "publish-wrangler-manual": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler deploy --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/reward-manager"
+      }
+    },
+    "publish-wrangler": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler deploy"
+          }
+        ],
+        "cwd": "apps/reward-manager"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/reward-manager/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/reward-manager"],
+      "options": {
+        "jestConfig": "apps/reward-manager/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "dependsOn": ["build"]
+    }
+  },
+  "tags": []
+}
