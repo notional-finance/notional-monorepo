@@ -780,7 +780,7 @@ export default class TransactionBuilder {
         repayNotionalAmount,
         currentMarketIndex,
         minLendSlippage,
-        TypedBigNumber.fromBalance(0, 'cETH', true),
+        TypedBigNumber.fromBalance(0, 'nwETH', true),
         // On repayment we don't withdraw residuals just in case
         false, // withdraw entire cash balance
         false // redeem to underlying
