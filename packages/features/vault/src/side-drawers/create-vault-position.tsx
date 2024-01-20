@@ -2,12 +2,15 @@ import { useContext } from 'react';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { Box, styled, useTheme } from '@mui/material';
 import { VaultActionContext } from '../vault';
+import { useVaultRiskProfiles } from '@notional-finance/notionable-hooks';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { VaultLeverageSlider, MobileVaultSummary } from '../components';
+import { MobileVaultSummary, VaultLeverageSlider } from '../components';
 import { useVaultActionErrors } from '../hooks';
 import {
   DepositInput,
-  VariableFixedMaturityToggle,
+  CustomTerms,
+  DefaultTerms,
+  ManageTerms,
 } from '@notional-finance/trade';
 import { messages } from '../messages';
 
@@ -15,7 +18,15 @@ export const CreateVaultPosition = () => {
   const theme = useTheme();
   const context = useContext(VaultActionContext);
   const { currencyInputRef } = useCurrencyInputRef();
+  const accountVaults = useVaultRiskProfiles();
   const { inputErrorMsg } = useVaultActionErrors();
+  const {
+    state: { vaultAddress, customizeLeverage },
+  } = context;
+
+  const hasVaultPosition = accountVaults.find(
+    (p) => p.vaultAddress === vaultAddress
+  );
 
   return (
     <>
@@ -39,14 +50,19 @@ export const CreateVaultPosition = () => {
             errorMsgOverride={inputErrorMsg}
             inputLabel={messages['CreateVaultPosition'].depositAmount}
           />
-          <VariableFixedMaturityToggle
-            context={context}
-            fCashInputLabel={messages['CreateVaultPosition'].maturity}
-          />
-          <VaultLeverageSlider
-            context={context}
-            inputLabel={messages['CreateVaultPosition'].leverage}
-          />
+          {hasVaultPosition ? (
+            <ManageTerms
+              context={context}
+              linkString={`/vaults/${vaultAddress}/Manage`}
+            />
+          ) : customizeLeverage ? (
+            <CustomTerms
+              context={context}
+              CustomLeverageSlider={VaultLeverageSlider}
+            />
+          ) : (
+            <DefaultTerms context={context} />
+          )}
         </VaultSideDrawer>
       </Box>
     </>

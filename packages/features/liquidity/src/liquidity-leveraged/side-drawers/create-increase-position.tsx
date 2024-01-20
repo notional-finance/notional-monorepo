@@ -1,21 +1,28 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import { TransactionSidebar, DepositInput } from '@notional-finance/trade';
+import {
+  TransactionSidebar,
+  DepositInput,
+  CustomTerms,
+  DefaultTerms,
+  ManageTerms,
+  useLeveragedNTokenPositions,
+} from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
 import { useContext } from 'react';
 import { defineMessage } from 'react-intl';
-import {
-  CustomLiquidityTerms,
-  DefaultLiquidityTerms,
-  ManageLiquidityTerms,
-} from '../components/liquidity-terms';
 import { LiquidityContext } from '../../liquidity';
-import { useLeveragedNTokenPositions } from '../hooks/use-leveraged-ntoken-positions';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 
 export const CreateOrIncreasePosition = () => {
   const context = useContext(LiquidityContext);
   const {
-    state: { selectedDepositToken, customizeLeverage, debt, selectedNetwork },
+    state: {
+      selectedDepositToken,
+      customizeLeverage,
+      debt,
+      selectedNetwork,
+      deposit,
+    },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
   const { currentPosition, depositTokensWithPositions } =
@@ -45,11 +52,14 @@ export const CreateOrIncreasePosition = () => {
         })}
       />
       {currentPosition ? (
-        <ManageLiquidityTerms />
+        <ManageTerms
+          context={context}
+          linkString={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/Manage/${deposit?.symbol}`}
+        />
       ) : customizeLeverage ? (
-        <CustomLiquidityTerms />
+        <CustomTerms context={context} />
       ) : (
-        <DefaultLiquidityTerms />
+        <DefaultTerms context={context} />
       )}
     </TransactionSidebar>
   );

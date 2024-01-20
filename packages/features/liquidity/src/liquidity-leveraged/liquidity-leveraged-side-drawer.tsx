@@ -1,5 +1,8 @@
 import { useContext } from 'react';
-import { SideDrawerRouter } from '@notional-finance/trade';
+import {
+  SideDrawerRouter,
+  useLeveragedNTokenPositions,
+} from '@notional-finance/trade';
 import { LiquidityContext } from '../liquidity';
 import { PRODUCTS } from '@notional-finance/util';
 import {
@@ -9,7 +12,6 @@ import {
   RollMaturity,
   Withdraw,
 } from './side-drawers';
-import { useLeveragedNTokenPositions } from './hooks/use-leveraged-ntoken-positions';
 import { useParams } from 'react-router';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';

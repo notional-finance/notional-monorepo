@@ -4,11 +4,11 @@ import {
   useAllMarkets,
   usePortfolioLiquidationRisk,
 } from '@notional-finance/notionable-hooks';
-import { useLeveragedNTokenPositions } from './use-leveraged-ntoken-positions';
 import {
   formatLeverageRatio,
   formatNumberAsPercentWithUndefined,
 } from '@notional-finance/helpers';
+import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import {
   formatMaturity,
   RATE_PRECISION,

@@ -10,11 +10,11 @@ import {
   ManageSideDrawer,
   SideDrawerButton,
 } from '@notional-finance/mui';
-import { useLeveragedNTokenPositions } from '../hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { formatMaturity } from '@notional-finance/util';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
+import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 
 export const ManageLeveragedLiquidity = () => {
   const theme = useTheme();

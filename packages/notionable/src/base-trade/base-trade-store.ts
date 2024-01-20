@@ -192,7 +192,7 @@ export const initialBaseTradeState: BaseTradeState = {
 
 export const initialVaultTradeState: VaultTradeState = {
   ...initialBaseTradeState,
-  customizeLeverage: true,
+  customizeLeverage: false,
   underMinAccountBorrow: false,
   overCapacityError: false,
 };

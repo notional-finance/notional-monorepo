@@ -9,6 +9,7 @@ import {
   WithdrawAndRepayDebt,
   RollMaturity,
 } from '../side-drawers';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { SideDrawerRouter } from '@notional-finance/trade';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
@@ -21,10 +22,15 @@ export const VaultActionSideDrawer = () => {
       vaultAddress,
       deposit,
       defaultLeverageRatio,
+      availableDebtTokens,
+      availableCollateralTokens,
+      selectedDepositToken,
       riskFactorLimit,
+      customizeLeverage,
       selectedNetwork,
     },
   } = context;
+  const loaded = deposit && deposit?.symbol === selectedDepositToken;
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
     defaultLeverageRatio && !riskFactorLimit
       ? {
@@ -50,7 +56,7 @@ export const VaultActionSideDrawer = () => {
       context={context}
       hasPosition={!!vaultPosition}
       routeMatch={`/vaults/${selectedNetwork}/${vaultAddress}/:path`}
-      defaultHasPosition={'Manage'}
+      defaultHasPosition={'CreateVaultPosition'}
       defaultNoPosition={'CreateVaultPosition'}
       routes={[
         {
@@ -61,10 +67,21 @@ export const VaultActionSideDrawer = () => {
             tradeType: 'CreateVaultPosition',
             riskFactorLimit: defaultRiskLimit,
             maxWithdraw: false,
+            debt:
+              loaded && !customizeLeverage
+                ? availableDebtTokens?.find(
+                    (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
+                  )
+                : undefined,
+            collateral:
+              loaded && !customizeLeverage
+                ? availableCollateralTokens?.find(
+                    (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
+                  )
+                : undefined,
           },
         },
         {
-          isRootDrawer: true,
           slug: 'Manage',
           Component: ManageVault,
           requiredState: {

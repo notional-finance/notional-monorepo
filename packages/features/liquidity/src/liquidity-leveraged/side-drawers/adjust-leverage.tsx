@@ -1,19 +1,32 @@
 import { useCallback, useContext, useState } from 'react';
 import { LiquidityContext } from '../../liquidity';
-import { LeverageSlider, TransactionSidebar } from '@notional-finance/trade';
+import {
+  LeverageSlider,
+  TransactionSidebar,
+  useLeveragedNTokenPositions,
+} from '@notional-finance/trade';
 import { defineMessage } from 'react-intl';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
-import { useLeveragedNTokenPositions } from '../hooks';
 import { usePrimeCash } from '@notional-finance/notionable-hooks';
 import { ErrorMessage } from '@notional-finance/mui';
 
 export const AdjustLeverage = () => {
   const context = useContext(LiquidityContext);
   const {
-    state: { selectedDepositToken, debt, collateral, deposit, calculateError, selectedNetwork },
+    state: {
+      selectedDepositToken,
+      debt,
+      collateral,
+      deposit,
+      calculateError,
+      selectedNetwork,
+    },
     updateState,
   } = context;
-  const { currentPosition } = useLeveragedNTokenPositions(selectedNetwork, selectedDepositToken);
+  const { currentPosition } = useLeveragedNTokenPositions(
+    selectedNetwork,
+    selectedDepositToken
+  );
   const primeCash = usePrimeCash(debt?.network, debt?.currencyId);
   const [isDeleverage, setIsDeleverage] = useState(false);
 
