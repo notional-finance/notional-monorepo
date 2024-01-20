@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import {
   getEtherscanAddressLink,
+  Network,
   NotionalAddress,
 } from '@notional-finance/util';
 import { RiskFaq, FCashExample } from '../components';
@@ -15,9 +15,11 @@ interface FaqProps {
   componentAnswer?: ReactNode;
 }
 
-export const useLendLeveragedFaq = (tokenSymbol?: string) => {
+export const useLendLeveragedFaq = (
+  tokenSymbol: string | undefined,
+  selectedNetwork: Network | undefined
+) => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork();
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-lending',

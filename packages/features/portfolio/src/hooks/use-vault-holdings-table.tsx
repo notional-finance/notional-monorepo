@@ -12,7 +12,6 @@ import {
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
-  formatMaturity,
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
@@ -20,10 +19,14 @@ import { FormattedMessage } from 'react-intl';
 import {
   useCurrentLiquidationPrices,
   useFiat,
+  useSelectedPortfolioNetwork,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
-import { TXN_HISTORY_TYPE } from '@notional-finance/util';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import {
+  TXN_HISTORY_TYPE,
+  formatMaturity,
+  PRIME_CASH_VAULT_MATURITY,
+} from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
 
@@ -106,8 +109,9 @@ export const useVaultHoldingsTable = () => {
   const theme = useTheme();
   const baseCurrency = useFiat();
   const history = useHistory();
-  const { vaultLiquidation } = useCurrentLiquidationPrices();
-  const vaults = useVaultHoldings();
+  const network = useSelectedPortfolioNetwork();
+  const { vaultLiquidation } = useCurrentLiquidationPrices(network);
+  const vaults = useVaultHoldings(network);
 
   const vaultHoldingsColumns: DataTableColumn[] = useMemo(() => {
     return [

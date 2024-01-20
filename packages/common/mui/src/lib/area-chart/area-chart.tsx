@@ -2,12 +2,11 @@ import { SetStateAction, Dispatch, ReactNode } from 'react';
 import { alpha, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import {
-  getDateString,
   formatNumberAsPercent,
   formatNumberToDigits,
   formatNumber,
 } from '@notional-finance/helpers';
-import { ONE_WEEK } from '@notional-finance/util';
+import { ONE_WEEK, getDateString } from '@notional-finance/util';
 import {
   Area,
   XAxis,

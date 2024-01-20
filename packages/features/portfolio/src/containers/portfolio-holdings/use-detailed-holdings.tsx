@@ -1,28 +1,34 @@
-import { useMemo } from 'react';
-import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router';
 import { TokenBalance } from '@notional-finance/core-entities';
 import {
-  formatTokenType,
-  formatNumberAsPercent,
   formatCryptoWithFiat,
+  formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
+  formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
 import {
   useFiat,
   useFiatToken,
-  useHoldings,
   useNOTE,
+  usePendingPnLCalculation,
+  usePortfolioHoldings,
+  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
   Network,
   PORTFOLIO_ACTIONS,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
+import { useMemo } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { useHistory } from 'react-router';
 
-export function useDetailedHoldings() {
-  const holdings = useHoldings();
+export function useDetailedHoldingsTable() {
+  const network = useSelectedPortfolioNetwork();
+  const holdings = usePortfolioHoldings(network);
+  const pendingTokens = usePendingPnLCalculation(network).flatMap(
+    ({ tokens }) => tokens
+  );
   const history = useHistory();
   const baseCurrency = useFiat();
   const fiatToken = useFiatToken();
@@ -30,12 +36,14 @@ export function useDetailedHoldings() {
 
   return useMemo(() => {
     const totals = holdings.reduce(
-      (t, { balance, statement, totalNOTEEarnings }) => {
+      (t, { balance, statement, totalIncentiveEarnings }) => {
         const totalEarningsWithNOTE = statement?.totalProfitAndLoss
           .toFiat(baseCurrency)
           .add(
-            totalNOTEEarnings?.toFiat(baseCurrency) ||
+            totalIncentiveEarnings.reduce(
+              (s, i) => s.add(i.toFiat(baseCurrency)),
               TokenBalance.fromSymbol(0, baseCurrency, Network.All)
+            )
           );
 
         if (statement) {
@@ -49,9 +57,24 @@ export function useDetailedHoldings() {
           t.nonNoteEarnings = t.nonNoteEarnings.add(
             statement.totalProfitAndLoss.toFiat(baseCurrency)
           );
+          const totalNOTEEarnings = totalIncentiveEarnings.find(
+            (t) => t.symbol === 'NOTE'
+          );
           t.noteEarnings = totalNOTEEarnings
             ? t?.noteEarnings?.add(totalNOTEEarnings)
             : t.noteEarnings;
+
+          totalIncentiveEarnings.forEach((data) => {
+            const currentTokenBalance = t.totalIncentiveEarnings.findIndex(
+              (t) => t.symbol === data.symbol
+            );
+            if (currentTokenBalance > -1) {
+              t.totalIncentiveEarnings[currentTokenBalance] =
+                t.totalIncentiveEarnings[currentTokenBalance].add(data);
+            } else {
+              t.totalIncentiveEarnings.push(data);
+            }
+          });
         }
         return t;
       },
@@ -60,6 +83,7 @@ export function useDetailedHoldings() {
         presentValue: TokenBalance.zero(fiatToken),
         earnings: TokenBalance.zero(fiatToken),
         nonNoteEarnings: TokenBalance.zero(fiatToken),
+        totalIncentiveEarnings: [] as TokenBalance[],
         noteEarnings: NOTE ? TokenBalance.zero(NOTE) : undefined,
       }
     );
@@ -69,30 +93,33 @@ export function useDetailedHoldings() {
         balance: b,
         statement: s,
         marketYield,
-        isPending,
         maturedTokenId,
         manageTokenId,
-        totalNOTEEarnings,
+        totalIncentiveEarnings,
         hasMatured,
       }) => {
         const isDebt = b.isNegative();
         const { icon, formattedTitle, titleWithMaturity, title } =
           formatTokenType(b.token, isDebt);
         const marketApy = marketYield?.totalAPY;
-        const noteIncentives = marketYield?.incentives?.find(
-          ({ tokenId }) => tokenId === NOTE?.id
-        );
+        const noteIncentives = marketYield?.noteIncentives?.incentiveAPY;
+        const secondaryIncentives =
+          marketYield?.secondaryIncentives?.incentiveAPY;
+        const secondarySymbol = marketYield?.secondaryIncentives?.symbol;
+
         const totalEarningsWithNOTE = s?.totalProfitAndLoss
           .toFiat(baseCurrency)
           .add(
-            totalNOTEEarnings?.toFiat(baseCurrency) ||
+            totalIncentiveEarnings.reduce(
+              (s, i) => s.add(i.toFiat(baseCurrency)),
               TokenBalance.fromSymbol(0, baseCurrency, Network.All)
+            )
           );
 
         return {
           sortOrder: getHoldingsSortOrder(b.token),
           tokenId: b.tokenId,
-          isPending,
+          isPending: !!pendingTokens.find((t) => t.id === b.tokenId),
           asset: {
             symbol: icon,
             symbolBottom: '',
@@ -110,16 +137,21 @@ export function useDetailedHoldings() {
                 isNegative: marketApy !== undefined && marketApy < 0,
               },
               {
-                displayValue: noteIncentives
-                  ? `${formatNumberAsPercent(
-                      noteIncentives?.incentiveAPY
-                    )} NOTE`
-                  : b.token.tokenType === 'fCash' &&
-                    s?.impliedFixedRate !== undefined
-                  ? `${formatNumberAsPercent(
-                      s.impliedFixedRate
-                    )} APY at Maturity`
-                  : '',
+                displayValue:
+                  noteIncentives && secondaryIncentives
+                    ? `${formatNumberAsPercent(
+                        noteIncentives
+                      )} NOTE, ${formatNumberAsPercent(
+                        secondaryIncentives
+                      )} ${secondarySymbol}`
+                    : noteIncentives
+                    ? `${formatNumberAsPercent(noteIncentives)} NOTE`
+                    : b.token.tokenType === 'fCash' &&
+                      s?.impliedFixedRate !== undefined
+                    ? `${formatNumberAsPercent(
+                        s.impliedFixedRate
+                      )} APY at Maturity`
+                    : '',
                 isNegative: false,
               },
             ],
@@ -130,18 +162,26 @@ export function useDetailedHoldings() {
           presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
           earnings:
             totalEarningsWithNOTE?.toDisplayStringWithSymbol(3, true) || '-',
-          toolTipData: totalNOTEEarnings?.isPositive()
-            ? {
-                underlyingBaseCurrency: s?.totalProfitAndLoss
-                  .toFiat(baseCurrency)
-                  .toDisplayStringWithSymbol(),
-                underlying: s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
-                noteBaseCurrency: totalNOTEEarnings
-                  .toFiat(baseCurrency)
-                  .toDisplayStringWithSymbol(),
-                note: totalNOTEEarnings.toDisplayStringWithSymbol(),
-              }
-            : undefined,
+          toolTipData:
+            totalIncentiveEarnings.length > 0
+              ? {
+                  perAssetEarnings: [
+                    {
+                      underlying:
+                        s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
+                      baseCurrency: s?.totalProfitAndLoss
+                        .toFiat(baseCurrency)
+                        .toDisplayStringWithSymbol(),
+                    },
+                    ...totalIncentiveEarnings.map((i) => ({
+                      underlying: i.toDisplayStringWithSymbol(),
+                      baseCurrency: i
+                        .toFiat(baseCurrency)
+                        .toDisplayStringWithSymbol(),
+                    })),
+                  ],
+                }
+              : undefined,
           actionRow: {
             subRowData: [
               {
@@ -222,21 +262,32 @@ export function useDetailedHoldings() {
       amountPaid: totals.amountPaid.toDisplayStringWithSymbol(),
       presentValue: totals.presentValue.toDisplayStringWithSymbol(),
       earnings: totals.earnings.toDisplayStringWithSymbol(),
-      toolTipData: totals.noteEarnings
-        ? {
-            nonNoteEarnings: totals.nonNoteEarnings
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(),
-            noteEarnings: totals.noteEarnings
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(),
-          }
-        : undefined,
+      toolTipData:
+        totals.totalIncentiveEarnings.length > 0
+          ? {
+              totalEarnings: [
+                {
+                  value: totals.nonNoteEarnings
+                    .toFiat(baseCurrency)
+                    .toDisplayStringWithSymbol(),
+                  symbol: 'ORGANIC',
+                },
+                ...totals.totalIncentiveEarnings.map((data) => {
+                  return {
+                    value: data
+                      .toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(),
+                    symbol: data.symbol,
+                  };
+                }),
+              ],
+            }
+          : undefined,
       actionRow: undefined,
       tokenId: ' ',
       isTotalRow: true,
     } as unknown as typeof detailedHoldings[number]);
 
     return { detailedHoldings, totals };
-  }, [holdings, baseCurrency, history, fiatToken, NOTE]);
+  }, [holdings, baseCurrency, history, fiatToken, NOTE, pendingTokens]);
 }

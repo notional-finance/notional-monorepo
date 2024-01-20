@@ -16,6 +16,7 @@ export interface Env {
 }
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 1;
+const DUST_AMOUNT = 100;
 const wait = (ms: number) => new Promise((f) => setTimeout(f, ms));
 
 interface ReinvestmentData {
@@ -84,14 +85,14 @@ const claimRewards = async (env: Env, provider: any) => {
         return null;
       }
 
-      const encoded = TreasuryManager__factory.connect(
+      const data = TreasuryManager__factory.connect(
         env.TREASURY_MANAGER_ADDRESS,
         provider
       ).interface.encodeFunctionData('claimVaultRewardTokens', [v.address]);
 
       const payload = JSON.stringify({
         to: env.TREASURY_MANAGER_ADDRESS,
-        data: encoded,
+        data: data,
       });
       // cspell:disable-next-line
       return fetch(env.TX_RELAY_URL + '/v1/txes/0', {
@@ -185,38 +186,58 @@ const getTrades = async (
   }));
 }
 
-const reinvestToken = async (
-  env: Env,
-  provider: any,
-  vault: typeof vaults[0],
-  sellToken: string,
-  amount: BigNumber
-) => {
-  const sellAmountsPerToken = vault.tokenWeights.map((weight: number) => {
-    return amount.mul(weight).div(100);
-  });
+const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) => {
+  if (await shouldSkipReinvest(env, vault.address)) {
+    console.log(`Skipping reinvestment for ${vault.address}, already invested`);
+    return null;
+  }
 
-  const trades = await getTrades(
-    env,
-    sellToken,
-    vault.poolTokens,
-    sellAmountsPerToken,
-  );
+  const tradesPerRewardToken = [];
+  for (const sellToken of vault.rewardTokens) {
+    const amount = await ERC20__factory.connect(sellToken, provider).balanceOf(vault.address);
+    if (amount.lt(DUST_AMOUNT)) {
+      console.log(`Skipping reinvestment for ${vault.address}: ${sellToken}, 0 reward token`);
+      continue;
+    }
+    const sellAmountsPerToken = vault.tokenWeights.map((weight: number) => {
+      return amount.mul(weight).div(100);
+    });
 
-  const data = TreasuryManager__factory.connect(
+    const trades = await getTrades(
+      env,
+      sellToken,
+      vault.poolTokens,
+      sellAmountsPerToken,
+    );
+    tradesPerRewardToken.push(trades);
+  }
+  if (tradesPerRewardToken.length == 0) {
+    console.log(`Found no reward tokens on vault ${vault.address}, skipping.`);
+    return null;
+  }
+
+  const treasuryManger = TreasuryManager__factory.connect(
     env.TREASURY_MANAGER_ADDRESS,
     provider
-  ).interface.encodeFunctionData('reinvestVaultReward', [
+  );
+
+  const { poolClaimAmounts } = await treasuryManger.callStatic.reinvestVaultReward(
     vault.address,
-    trades,
-    BigNumber.from(0), // minPoolClaim
+    tradesPerRewardToken,
+    tradesPerRewardToken.map(() => BigNumber.from(0)),
+  );
+
+  const data = treasuryManger.interface.encodeFunctionData('reinvestVaultReward', [
+    vault.address,
+    tradesPerRewardToken,
+    poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
   ]);
+
 
   const payload = JSON.stringify({
     to: env.TREASURY_MANAGER_ADDRESS,
     data,
   });
-
   // cspell:disable-next-line
   return fetch(env.TX_RELAY_URL + '/v1/txes/0', {
     method: 'POST',
@@ -227,31 +248,6 @@ const reinvestToken = async (
     body: payload,
   });
 };
-
-const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) => {
-  await executePromisesSequentially(vault.rewardTokens.map((t) => async () => {
-    const amount = await ERC20__factory.connect(t, provider).balanceOf(vault.address);
-
-    if (amount.isZero()) {
-      console.log(`Skipping reinvestment for ${vault.address}: ${t}, 0 reward token`);
-      return null;
-    }
-
-    if (await shouldSkipReinvest(env, vault.address)) {
-      console.log(`Skipping reinvestment for ${vault.address}: ${t}, already invested`);
-      return null;
-    }
-
-    return reinvestToken(
-      env,
-      provider,
-      vault,
-      t,
-      amount
-    );
-  })
-  );
-}
 
 const reinvestRewards = async (env: Env, provider: any) => {
   return executePromisesSequentially(vaults.map((v) => () => reinvestVault(env, provider, v)));

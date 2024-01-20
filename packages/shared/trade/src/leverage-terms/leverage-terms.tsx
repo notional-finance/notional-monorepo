@@ -66,13 +66,13 @@ export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
 
 export const DefaultTerms = ({ context }: TermsProps) => {
   const {
-    state: { customizeLeverage, riskFactorLimit, deposit },
+    state: { customizeLeverage, riskFactorLimit, deposit, selectedNetwork },
     updateState,
   } = context;
 
   const toggleLeverage = () =>
     updateState({ customizeLeverage: !customizeLeverage });
-  const maxYield = useMaxYield().find(
+  const maxYield = useMaxYield(selectedNetwork).find(
     (y) => y.token.currencyId === deposit?.currencyId
   )?.totalAPY;
 
@@ -140,7 +140,9 @@ export const ManageTerms = ({ context, linkString }: ManageTermsProps) => {
         hasPosition={true}
         leverageRatio={leverageRatio}
         borrowType={
-          currentPosition?.debt.tokenType === 'fCash' ? 'Fixed' : 'Variable'
+          currentPosition?.debt.balance.tokenType === 'fCash'
+            ? 'Fixed'
+            : 'Variable'
         }
         actionClick={() => history.push(linkString)}
         actionBody={

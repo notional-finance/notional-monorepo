@@ -10,7 +10,7 @@ export function useFCashPriceExposure(state: BaseTradeState) {
     netRealizedCollateralBalance,
     netRealizedDebtBalance,
   } = state;
-  const fCashMarket = useFCashMarket(deposit?.currencyId);
+  const fCashMarket = useFCashMarket(deposit);
   if (!fCashMarket) return [];
 
   if (

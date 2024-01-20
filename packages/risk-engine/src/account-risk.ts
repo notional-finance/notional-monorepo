@@ -123,12 +123,11 @@ export class AccountRiskProfile extends BaseRiskProfile {
       let totalAssetsDenom: TokenBalance;
       let totalDebtsDenom: TokenBalance;
 
+      const { haircut, buffer } =
+        Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(denom);
+
       if (netLocal.currencyId === denom.currencyId) {
         // Handle special case when netLocal is in the denom currency
-        const { haircut, buffer } =
-          Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(
-            denom
-          );
         const adjustment = netLocal.isPositive() ? haircut : buffer;
         netFC = netLocal.toUnderlying().scale(adjustment, PERCENTAGE_BASIS);
         totalAssetsDenom = totalAssetsLocal
@@ -144,7 +143,15 @@ export class AccountRiskProfile extends BaseRiskProfile {
         totalDebtsDenom = totalDebtsLocal.toToken(denom, adjustment);
       }
 
-      return { currencyId, netFC, totalAssetsDenom, totalDebtsDenom };
+      return {
+        currencyId,
+        netFC,
+        totalAssetsDenom,
+        totalDebtsDenom,
+        hasZeroHaircut: haircut === 0,
+        totalAssetsLocal,
+        totalDebtsLocal,
+      };
     });
   }
 
@@ -152,6 +159,13 @@ export class AccountRiskProfile extends BaseRiskProfile {
     // As defined here: https://docs.notional.finance/notional-v2/borrower-resources/health-factor
     const denom = this.denom(this.defaultSymbol);
     const factors = this.freeCollateralFactors();
+    const hasDebt = !factors.every(({ totalDebtsLocal }) =>
+      totalDebtsLocal.isZero()
+    );
+    const allNetFCPositive = factors.every(
+      ({ totalDebtsLocal, totalAssetsLocal }) =>
+        totalAssetsLocal.add(totalDebtsLocal).isPositive()
+    );
 
     const totalPositiveFC = factors.reduce(
       (t, { totalAssetsDenom }) => t.add(totalAssetsDenom),
@@ -162,9 +176,30 @@ export class AccountRiskProfile extends BaseRiskProfile {
       TokenBalance.zero(denom)
     );
 
-    return totalNegativeFC.isZero()
-      ? null
-      : totalPositiveFC.toFloat() / totalNegativeFC.abs().toFloat();
+    let health: number;
+    if (!totalNegativeFC.isZero()) {
+      health = totalPositiveFC.toFloat() / totalNegativeFC.abs().toFloat();
+    } else if (totalNegativeFC.isZero() && hasDebt) {
+      const totalPositiveFC = factors.reduce(
+        (t, { totalAssetsLocal }) => t.add(totalAssetsLocal.toToken(denom)),
+        TokenBalance.zero(denom)
+      );
+      const totalNegativeFC = factors.reduce(
+        (t, { totalDebtsLocal }) => t.add(totalDebtsLocal.toToken(denom)),
+        TokenBalance.zero(denom)
+      );
+      health = totalPositiveFC.toFloat() / totalNegativeFC.abs().toFloat();
+    } else {
+      return null;
+    }
+
+    if (health && hasDebt && allNetFCPositive) {
+      // Apply a multiple to the health factor in the case of only local currency risk
+      const a = healthFactorAdjustment.find(({ health: h }) => health <= h);
+      return health * (a?.adjustment || MAX_ADJUSTMENT);
+    }
+
+    return health;
   }
 
   freeCollateral() {
@@ -366,3 +401,32 @@ export class AccountRiskProfile extends BaseRiskProfile {
     }
   }
 }
+
+const healthFactorAdjustment = [
+  { health: 1.01, adjustment: 1 },
+  { health: 1.02, adjustment: 1.25 },
+  { health: 1.03, adjustment: 1.5 },
+  { health: 1.04, adjustment: 1.75 },
+  { health: 1.05, adjustment: 2 },
+  { health: 1.06, adjustment: 2.25 },
+  { health: 1.07, adjustment: 2.5 },
+  { health: 1.08, adjustment: 2.75 },
+  { health: 1.09, adjustment: 3 },
+  { health: 1.1, adjustment: 3.25 },
+  { health: 1.11, adjustment: 3.3 },
+  { health: 1.12, adjustment: 3.35 },
+  { health: 1.13, adjustment: 3.4 },
+  { health: 1.14, adjustment: 3.45 },
+  { health: 1.15, adjustment: 3.5 },
+  { health: 1.16, adjustment: 3.55 },
+  { health: 1.17, adjustment: 3.6 },
+  { health: 1.18, adjustment: 3.65 },
+  { health: 1.19, adjustment: 3.7 },
+  { health: 1.2, adjustment: 3.75 },
+  { health: 1.21, adjustment: 3.8 },
+  { health: 1.22, adjustment: 3.85 },
+  { health: 1.23, adjustment: 3.9 },
+  { health: 1.24, adjustment: 3.95 },
+  { health: 1.25, adjustment: 4 },
+];
+const MAX_ADJUSTMENT = 4;

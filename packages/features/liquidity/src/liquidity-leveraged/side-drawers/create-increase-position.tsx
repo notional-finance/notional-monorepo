@@ -16,11 +16,17 @@ import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 export const CreateOrIncreasePosition = () => {
   const context = useContext(LiquidityContext);
   const {
-    state: { selectedDepositToken, customizeLeverage, debt, deposit },
+    state: {
+      selectedDepositToken,
+      customizeLeverage,
+      debt,
+      selectedNetwork,
+      deposit,
+    },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
   const { currentPosition, depositTokensWithPositions } =
-    useLeveragedNTokenPositions(selectedDepositToken);
+    useLeveragedNTokenPositions(selectedNetwork, selectedDepositToken);
 
   return (
     <TransactionSidebar
@@ -34,7 +40,7 @@ export const CreateOrIncreasePosition = () => {
         inputRef={currencyInputRef}
         context={context}
         newRoute={(newToken) => {
-          return `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${
+          return `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/${
             depositTokensWithPositions.includes(newToken || '')
               ? 'IncreaseLeveragedNToken'
               : 'CreateLeveragedNToken'
@@ -48,7 +54,7 @@ export const CreateOrIncreasePosition = () => {
       {currentPosition ? (
         <ManageTerms
           context={context}
-          linkString={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/Manage/${deposit?.symbol}`}
+          linkString={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/Manage/${deposit?.symbol}`}
         />
       ) : customizeLeverage ? (
         <CustomTerms context={context} />

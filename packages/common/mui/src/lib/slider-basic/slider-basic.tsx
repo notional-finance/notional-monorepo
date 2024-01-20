@@ -19,7 +19,7 @@ interface SliderBasicProps {
   value: number;
   disabled: boolean;
   trackColor?: string;
-  hideThumb?: boolean;
+  showThumb?: boolean;
   showMinMax?: boolean;
   onChange?: (value: number) => void;
   onChangeCommitted?: (value: number) => void;
@@ -27,6 +27,7 @@ interface SliderBasicProps {
   onBlur?: () => void;
   railGradients?: RailGradient[];
   sx?: SxProps;
+  showHFColors?: boolean;
 }
 
 export const SliderBasic = ({
@@ -42,9 +43,10 @@ export const SliderBasic = ({
   onFocus,
   onBlur,
   railGradients,
-  hideThumb,
+  showThumb = false,
   showMinMax,
   sx,
+  showHFColors,
 }: SliderBasicProps) => {
   const theme = useTheme();
   const getBoundedValue = (inputValue: number) => {
@@ -104,11 +106,28 @@ export const SliderBasic = ({
     };
   });
 
+  const getHealthFactorGradients = () => {
+    let healthFactorGradient = '';
+    if (value <= 1.25) {
+      healthFactorGradient = `rgb(255,61,113)`;
+    } else if (value > 1.25 && value <= 2.5) {
+      healthFactorGradient =
+        'linear-gradient(90deg, rgb(255,61,113) 25%, rgb(249, 223, 61) 50%)';
+    } else if (value > 2.5 && value <= 5) {
+      healthFactorGradient =
+        'linear-gradient(90deg, rgb(255,61,113) 25%, rgb(249, 233, 61) 50%, rgb(52,223,58) 100%)';
+    }
+    return healthFactorGradient;
+  };
+  const healthFactorGradient = getHealthFactorGradients();
+
   const formattedGradientBg = `linear-gradient(90deg, ${railGradients
     ?.map(({ color, value }) => `rgb(${color.join(',')}) ${value.toFixed(0)}%`)
     .join(',')})`;
-  const currentGradient =
-    railGradients && `rgba(${getMarkColor(railGradients, value).join(',')})`;
+
+  // NOTE: Leaving this incase we ever want to have a gradient colored thumb again
+  // const currentGradient =
+  //   railGradients && `rgba(${getMarkColor(railGradients, value).join(',')})`;
 
   return (
     <SliderContainer
@@ -143,27 +162,30 @@ export const SliderBasic = ({
         onFocus={onFocus}
         onBlur={onBlur}
         sx={{
-          '.rail': {
-            background: railGradients?.length
-              ? formattedGradientBg
-              : theme.palette.borders.default,
-            opacity: 1,
+          '& .MuiSlider-track': {
+            border: 'none',
             height: '8px',
+            background: showHFColors
+              ? healthFactorGradient
+              : railGradients?.length
+              ? formattedGradientBg
+              : trackColor
+              ? trackColor
+              : theme.palette.secondary.light,
           },
-          '.track': {
-            display: railGradients?.length ? 'none' : '',
-            background: trackColor || theme.palette.primary.light,
+          '& .MuiSlider-rail': {
+            opacity: 0.5,
             height: '8px',
             border: 'none',
+            background: theme.palette.borders.default,
+            boxShadow: 'inset 0px 0px 4px -2px #000',
           },
           '.MuiSlider-thumb': {
-            height: railGradients?.length ? '20px' : '16px',
-            width: railGradients?.length ? '20px' : '16px',
+            height: '16px',
+            width: '16px',
             background: theme.palette.common.black,
-            visibility: hideThumb ? 'hidden' : 'visible',
-            border: railGradients?.length
-              ? `4px solid ${currentGradient}`
-              : `3px solid ${trackColor || theme.palette.primary.light}`,
+            visibility: showThumb ? 'visible' : 'hidden',
+            border: `3px solid ${theme.palette.secondary.light}`,
           },
         }}
       />

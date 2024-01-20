@@ -179,7 +179,7 @@ export interface TreasuryManagerInterface extends utils.Interface {
     "priceOracleWindowInSeconds()": FunctionFragment;
     "priceOracles(address)": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
-    "reinvestVaultReward(address,(address,address,uint256,(uint16,uint8,uint256,bytes))[],uint256)": FunctionFragment;
+    "reinvestVaultReward(address,tuple[][],uint256[])": FunctionFragment;
     "sNOTE()": FunctionFragment;
     "setCoolDownTime(uint32)": FunctionFragment;
     "setManager(address)": FunctionFragment;
@@ -379,8 +379,8 @@ export interface TreasuryManagerInterface extends utils.Interface {
     functionFragment: "reinvestVaultReward",
     values: [
       PromiseOrValue<string>,
-      IStrategyVault.SingleSidedRewardTradeParamsStruct[],
-      PromiseOrValue<BigNumberish>
+      IStrategyVault.SingleSidedRewardTradeParamsStruct[][],
+      PromiseOrValue<BigNumberish>[]
     ]
   ): string;
   encodeFunctionData(functionFragment: "sNOTE", values?: undefined): string;
@@ -975,8 +975,8 @@ export interface TreasuryManager extends BaseContract {
 
     reinvestVaultReward(
       vault: PromiseOrValue<string>,
-      trades: IStrategyVault.SingleSidedRewardTradeParamsStruct[],
-      minPoolClaim: PromiseOrValue<BigNumberish>,
+      tradesPerRewardToken: IStrategyVault.SingleSidedRewardTradeParamsStruct[][],
+      minPoolClaims: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1163,8 +1163,8 @@ export interface TreasuryManager extends BaseContract {
 
   reinvestVaultReward(
     vault: PromiseOrValue<string>,
-    trades: IStrategyVault.SingleSidedRewardTradeParamsStruct[],
-    minPoolClaim: PromiseOrValue<BigNumberish>,
+    tradesPerRewardToken: IStrategyVault.SingleSidedRewardTradeParamsStruct[][],
+    minPoolClaims: PromiseOrValue<BigNumberish>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1352,14 +1352,14 @@ export interface TreasuryManager extends BaseContract {
 
     reinvestVaultReward(
       vault: PromiseOrValue<string>,
-      trades: IStrategyVault.SingleSidedRewardTradeParamsStruct[],
-      minPoolClaim: PromiseOrValue<BigNumberish>,
+      tradesPerRewardToken: IStrategyVault.SingleSidedRewardTradeParamsStruct[][],
+      minPoolClaims: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, BigNumber] & {
-        rewardToken: string;
-        amountSold: BigNumber;
-        poolClaimAmount: BigNumber;
+      [string[], BigNumber[], BigNumber[]] & {
+        rewardTokens: string[];
+        amountsSold: BigNumber[];
+        poolClaimAmounts: BigNumber[];
       }
     >;
 
@@ -1704,8 +1704,8 @@ export interface TreasuryManager extends BaseContract {
 
     reinvestVaultReward(
       vault: PromiseOrValue<string>,
-      trades: IStrategyVault.SingleSidedRewardTradeParamsStruct[],
-      minPoolClaim: PromiseOrValue<BigNumberish>,
+      tradesPerRewardToken: IStrategyVault.SingleSidedRewardTradeParamsStruct[][],
+      minPoolClaims: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1905,8 +1905,8 @@ export interface TreasuryManager extends BaseContract {
 
     reinvestVaultReward(
       vault: PromiseOrValue<string>,
-      trades: IStrategyVault.SingleSidedRewardTradeParamsStruct[],
-      minPoolClaim: PromiseOrValue<BigNumberish>,
+      tradesPerRewardToken: IStrategyVault.SingleSidedRewardTradeParamsStruct[][],
+      minPoolClaims: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

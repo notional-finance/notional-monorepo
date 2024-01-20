@@ -331,6 +331,8 @@ type BalanceSnapshot {
   blockNumber: BigInt!
   timestamp: Int!
   transaction: Transaction!
+  """Link to previous snapshot, if it exists"""
+  previousSnapshot: BalanceSnapshot
   """Link to the balance entity for this token"""
   balance: Balance!
   """Current balance of the token at this block"""
@@ -357,15 +359,9 @@ type BalanceSnapshot {
   Cumulative realized cost using adjusted cost basis for internal PnL calculations
   """
   _accumulatedCostAdjustedBasis: BigInt!
-  """Current account incentive debt for NOTE"""
-  currentNOTEIncentiveDebt: BigInt!
-  """Previous account incentive debt for NOTE"""
-  previousNOTEIncentiveDebt: BigInt!
-  """Total NOTE accrued over the lifetime of this balance"""
-  totalNOTEClaimed: BigInt!
-  """NOTE Earnings adjusted for balance changes"""
-  adjustedNOTEClaimed: BigInt!
   profitLossLineItems(skip: Int = 0, first: Int = 100, orderBy: ProfitLossLineItem_orderBy, orderDirection: OrderDirection, where: ProfitLossLineItem_filter): [ProfitLossLineItem!]
+  """Snapshots of the secondary incentives"""
+  incentives(skip: Int = 0, first: Int = 100, orderBy: IncentiveSnapshot_orderBy, orderDirection: OrderDirection, where: IncentiveSnapshot_filter): [IncentiveSnapshot!]
 }
 
 input BalanceSnapshot_filter {
@@ -414,6 +410,27 @@ input BalanceSnapshot_filter {
   transaction_not_ends_with: String
   transaction_not_ends_with_nocase: String
   transaction_: Transaction_filter
+  previousSnapshot: String
+  previousSnapshot_not: String
+  previousSnapshot_gt: String
+  previousSnapshot_lt: String
+  previousSnapshot_gte: String
+  previousSnapshot_lte: String
+  previousSnapshot_in: [String!]
+  previousSnapshot_not_in: [String!]
+  previousSnapshot_contains: String
+  previousSnapshot_contains_nocase: String
+  previousSnapshot_not_contains: String
+  previousSnapshot_not_contains_nocase: String
+  previousSnapshot_starts_with: String
+  previousSnapshot_starts_with_nocase: String
+  previousSnapshot_not_starts_with: String
+  previousSnapshot_not_starts_with_nocase: String
+  previousSnapshot_ends_with: String
+  previousSnapshot_ends_with_nocase: String
+  previousSnapshot_not_ends_with: String
+  previousSnapshot_not_ends_with_nocase: String
+  previousSnapshot_: BalanceSnapshot_filter
   balance: String
   balance_not: String
   balance_gt: String
@@ -523,39 +540,8 @@ input BalanceSnapshot_filter {
   _accumulatedCostAdjustedBasis_lte: BigInt
   _accumulatedCostAdjustedBasis_in: [BigInt!]
   _accumulatedCostAdjustedBasis_not_in: [BigInt!]
-  currentNOTEIncentiveDebt: BigInt
-  currentNOTEIncentiveDebt_not: BigInt
-  currentNOTEIncentiveDebt_gt: BigInt
-  currentNOTEIncentiveDebt_lt: BigInt
-  currentNOTEIncentiveDebt_gte: BigInt
-  currentNOTEIncentiveDebt_lte: BigInt
-  currentNOTEIncentiveDebt_in: [BigInt!]
-  currentNOTEIncentiveDebt_not_in: [BigInt!]
-  previousNOTEIncentiveDebt: BigInt
-  previousNOTEIncentiveDebt_not: BigInt
-  previousNOTEIncentiveDebt_gt: BigInt
-  previousNOTEIncentiveDebt_lt: BigInt
-  previousNOTEIncentiveDebt_gte: BigInt
-  previousNOTEIncentiveDebt_lte: BigInt
-  previousNOTEIncentiveDebt_in: [BigInt!]
-  previousNOTEIncentiveDebt_not_in: [BigInt!]
-  totalNOTEClaimed: BigInt
-  totalNOTEClaimed_not: BigInt
-  totalNOTEClaimed_gt: BigInt
-  totalNOTEClaimed_lt: BigInt
-  totalNOTEClaimed_gte: BigInt
-  totalNOTEClaimed_lte: BigInt
-  totalNOTEClaimed_in: [BigInt!]
-  totalNOTEClaimed_not_in: [BigInt!]
-  adjustedNOTEClaimed: BigInt
-  adjustedNOTEClaimed_not: BigInt
-  adjustedNOTEClaimed_gt: BigInt
-  adjustedNOTEClaimed_lt: BigInt
-  adjustedNOTEClaimed_gte: BigInt
-  adjustedNOTEClaimed_lte: BigInt
-  adjustedNOTEClaimed_in: [BigInt!]
-  adjustedNOTEClaimed_not_in: [BigInt!]
   profitLossLineItems_: ProfitLossLineItem_filter
+  incentives_: IncentiveSnapshot_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [BalanceSnapshot_filter]
@@ -572,6 +558,21 @@ enum BalanceSnapshot_orderBy {
   transaction__timestamp
   transaction__transactionHash
   transaction___nextStartIndex
+  previousSnapshot
+  previousSnapshot__id
+  previousSnapshot__blockNumber
+  previousSnapshot__timestamp
+  previousSnapshot__currentBalance
+  previousSnapshot__previousBalance
+  previousSnapshot__adjustedCostBasis
+  previousSnapshot__currentProfitAndLossAtSnapshot
+  previousSnapshot__totalProfitAndLossAtSnapshot
+  previousSnapshot__totalILAndFeesAtSnapshot
+  previousSnapshot__totalInterestAccrualAtSnapshot
+  previousSnapshot__impliedFixedRate
+  previousSnapshot___accumulatedBalance
+  previousSnapshot___accumulatedCostRealized
+  previousSnapshot___accumulatedCostAdjustedBasis
   balance
   balance__id
   balance__firstUpdateBlockNumber
@@ -591,11 +592,8 @@ enum BalanceSnapshot_orderBy {
   _accumulatedBalance
   _accumulatedCostRealized
   _accumulatedCostAdjustedBasis
-  currentNOTEIncentiveDebt
-  previousNOTEIncentiveDebt
-  totalNOTEClaimed
-  adjustedNOTEClaimed
   profitLossLineItems
+  incentives
 }
 
 input Balance_filter {
@@ -787,10 +785,6 @@ enum Balance_orderBy {
   current___accumulatedBalance
   current___accumulatedCostRealized
   current___accumulatedCostAdjustedBasis
-  current__currentNOTEIncentiveDebt
-  current__previousNOTEIncentiveDebt
-  current__totalNOTEClaimed
-  current__adjustedNOTEClaimed
   snapshots
 }
 
@@ -867,9 +861,6 @@ type CurrencyConfiguration {
   """Market proportions used during market initialization"""
   proportions: [Int!]
   deprecated_anchorRates: [Int!]
-  """Annual incentive emission rate"""
-  incentiveEmissionRate: BigInt
-  secondaryIncentiveRewarder: Bytes
   """Residual purchase incentive in basis points"""
   residualPurchaseIncentiveBasisPoints: Int
   """
@@ -882,6 +873,8 @@ type CurrencyConfiguration {
   pvHaircutPercentage: Int
   """Discount on nToken PV given to liquidators"""
   liquidationHaircutPercentage: Int
+  """Maximum valuation deviation percentage for nToken minting"""
+  maxMintDeviationPercentage: Int
   incentives: Incentive
 }
 
@@ -1196,24 +1189,6 @@ input CurrencyConfiguration_filter {
   deprecated_anchorRates_contains_nocase: [Int!]
   deprecated_anchorRates_not_contains: [Int!]
   deprecated_anchorRates_not_contains_nocase: [Int!]
-  incentiveEmissionRate: BigInt
-  incentiveEmissionRate_not: BigInt
-  incentiveEmissionRate_gt: BigInt
-  incentiveEmissionRate_lt: BigInt
-  incentiveEmissionRate_gte: BigInt
-  incentiveEmissionRate_lte: BigInt
-  incentiveEmissionRate_in: [BigInt!]
-  incentiveEmissionRate_not_in: [BigInt!]
-  secondaryIncentiveRewarder: Bytes
-  secondaryIncentiveRewarder_not: Bytes
-  secondaryIncentiveRewarder_gt: Bytes
-  secondaryIncentiveRewarder_lt: Bytes
-  secondaryIncentiveRewarder_gte: Bytes
-  secondaryIncentiveRewarder_lte: Bytes
-  secondaryIncentiveRewarder_in: [Bytes!]
-  secondaryIncentiveRewarder_not_in: [Bytes!]
-  secondaryIncentiveRewarder_contains: Bytes
-  secondaryIncentiveRewarder_not_contains: Bytes
   residualPurchaseIncentiveBasisPoints: Int
   residualPurchaseIncentiveBasisPoints_not: Int
   residualPurchaseIncentiveBasisPoints_gt: Int
@@ -1254,6 +1229,14 @@ input CurrencyConfiguration_filter {
   liquidationHaircutPercentage_lte: Int
   liquidationHaircutPercentage_in: [Int!]
   liquidationHaircutPercentage_not_in: [Int!]
+  maxMintDeviationPercentage: Int
+  maxMintDeviationPercentage_not: Int
+  maxMintDeviationPercentage_gt: Int
+  maxMintDeviationPercentage_lt: Int
+  maxMintDeviationPercentage_gte: Int
+  maxMintDeviationPercentage_lte: Int
+  maxMintDeviationPercentage_in: [Int!]
+  maxMintDeviationPercentage_not_in: [Int!]
   incentives_: Incentive_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
@@ -1368,18 +1351,19 @@ enum CurrencyConfiguration_orderBy {
   leverageThresholds
   proportions
   deprecated_anchorRates
-  incentiveEmissionRate
-  secondaryIncentiveRewarder
   residualPurchaseIncentiveBasisPoints
   residualPurchaseTimeBufferSeconds
   cashWithholdingBufferBasisPoints
   pvHaircutPercentage
   liquidationHaircutPercentage
+  maxMintDeviationPercentage
   incentives
   incentives__id
   incentives__lastUpdateBlockNumber
   incentives__lastUpdateTimestamp
   incentives__lastUpdateTransactionHash
+  incentives__secondaryIncentiveRewarder
+  incentives__incentiveEmissionRate
   incentives__accumulatedNOTEPerNToken
   incentives__lastAccumulatedTime
   incentives__deprecated_lastSupplyChangeTime
@@ -1387,6 +1371,10 @@ enum CurrencyConfiguration_orderBy {
   incentives__migrationEmissionRate
   incentives__finalIntegralTotalSupply
   incentives__migrationTime
+  incentives__accumulatedSecondaryRewardPerNToken
+  incentives__lastSecondaryAccumulatedTime
+  incentives__secondaryEmissionRate
+  incentives__secondaryRewardEndTime
 }
 
 enum DEX {
@@ -1407,6 +1395,7 @@ type ExchangeRate {
   transaction: Transaction
   oracle: Oracle!
   rate: BigInt!
+  totalSupply: BigInt
 }
 
 input ExchangeRate_filter {
@@ -1484,6 +1473,14 @@ input ExchangeRate_filter {
   rate_lte: BigInt
   rate_in: [BigInt!]
   rate_not_in: [BigInt!]
+  totalSupply: BigInt
+  totalSupply_not: BigInt
+  totalSupply_gt: BigInt
+  totalSupply_lt: BigInt
+  totalSupply_gte: BigInt
+  totalSupply_lte: BigInt
+  totalSupply_in: [BigInt!]
+  totalSupply_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [ExchangeRate_filter]
@@ -1512,6 +1509,7 @@ enum ExchangeRate_orderBy {
   oracle__latestRate
   oracle__matured
   rate
+  totalSupply
 }
 
 type Incentive {
@@ -1521,6 +1519,10 @@ type Incentive {
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   currencyConfiguration: CurrencyConfiguration!
+  """If set, a secondary incentive rewarder is set"""
+  secondaryIncentiveRewarder: Bytes
+  """Annual incentive emission rate for NOTE"""
+  incentiveEmissionRate: BigInt
   """Current accumulated NOTE per nToken"""
   accumulatedNOTEPerNToken: BigInt
   """Last accumulation time"""
@@ -1535,6 +1537,214 @@ type Incentive {
   finalIntegralTotalSupply: BigInt
   """Time when the currency was migrated"""
   migrationTime: BigInt
+  """Current secondary reward token set for this currency"""
+  currentSecondaryReward: Token
+  """Total accumulated secondary reward per nToken for the current rewarder"""
+  accumulatedSecondaryRewardPerNToken: BigInt
+  """Last accumulated time for the current rewarder"""
+  lastSecondaryAccumulatedTime: BigInt
+  """Secondary incentive emission rate in INTERNAL_TOKEN_PRECISION"""
+  secondaryEmissionRate: BigInt
+  """End time for the current secondary rewarder"""
+  secondaryRewardEndTime: BigInt
+}
+
+type IncentiveSnapshot {
+  """Balance Snapshot ID:Reward Token"""
+  id: ID!
+  blockNumber: BigInt!
+  timestamp: Int!
+  transaction: Transaction!
+  """Link back to the balance snapshot for this secondary incentive"""
+  balanceSnapshot: BalanceSnapshot!
+  """Reward token associated with this snapshot"""
+  rewardToken: Token!
+  """Current account incentive debt for reward"""
+  currentIncentiveDebt: BigInt!
+  """Previous account incentive debt for reward"""
+  previousIncentiveDebt: BigInt!
+  """Total reward accrued over the lifetime of this balance"""
+  totalClaimed: BigInt!
+  """Reward earnings adjusted for balance changes"""
+  adjustedClaimed: BigInt!
+}
+
+input IncentiveSnapshot_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
+  timestamp_in: [Int!]
+  timestamp_not_in: [Int!]
+  transaction: String
+  transaction_not: String
+  transaction_gt: String
+  transaction_lt: String
+  transaction_gte: String
+  transaction_lte: String
+  transaction_in: [String!]
+  transaction_not_in: [String!]
+  transaction_contains: String
+  transaction_contains_nocase: String
+  transaction_not_contains: String
+  transaction_not_contains_nocase: String
+  transaction_starts_with: String
+  transaction_starts_with_nocase: String
+  transaction_not_starts_with: String
+  transaction_not_starts_with_nocase: String
+  transaction_ends_with: String
+  transaction_ends_with_nocase: String
+  transaction_not_ends_with: String
+  transaction_not_ends_with_nocase: String
+  transaction_: Transaction_filter
+  balanceSnapshot: String
+  balanceSnapshot_not: String
+  balanceSnapshot_gt: String
+  balanceSnapshot_lt: String
+  balanceSnapshot_gte: String
+  balanceSnapshot_lte: String
+  balanceSnapshot_in: [String!]
+  balanceSnapshot_not_in: [String!]
+  balanceSnapshot_contains: String
+  balanceSnapshot_contains_nocase: String
+  balanceSnapshot_not_contains: String
+  balanceSnapshot_not_contains_nocase: String
+  balanceSnapshot_starts_with: String
+  balanceSnapshot_starts_with_nocase: String
+  balanceSnapshot_not_starts_with: String
+  balanceSnapshot_not_starts_with_nocase: String
+  balanceSnapshot_ends_with: String
+  balanceSnapshot_ends_with_nocase: String
+  balanceSnapshot_not_ends_with: String
+  balanceSnapshot_not_ends_with_nocase: String
+  balanceSnapshot_: BalanceSnapshot_filter
+  rewardToken: String
+  rewardToken_not: String
+  rewardToken_gt: String
+  rewardToken_lt: String
+  rewardToken_gte: String
+  rewardToken_lte: String
+  rewardToken_in: [String!]
+  rewardToken_not_in: [String!]
+  rewardToken_contains: String
+  rewardToken_contains_nocase: String
+  rewardToken_not_contains: String
+  rewardToken_not_contains_nocase: String
+  rewardToken_starts_with: String
+  rewardToken_starts_with_nocase: String
+  rewardToken_not_starts_with: String
+  rewardToken_not_starts_with_nocase: String
+  rewardToken_ends_with: String
+  rewardToken_ends_with_nocase: String
+  rewardToken_not_ends_with: String
+  rewardToken_not_ends_with_nocase: String
+  rewardToken_: Token_filter
+  currentIncentiveDebt: BigInt
+  currentIncentiveDebt_not: BigInt
+  currentIncentiveDebt_gt: BigInt
+  currentIncentiveDebt_lt: BigInt
+  currentIncentiveDebt_gte: BigInt
+  currentIncentiveDebt_lte: BigInt
+  currentIncentiveDebt_in: [BigInt!]
+  currentIncentiveDebt_not_in: [BigInt!]
+  previousIncentiveDebt: BigInt
+  previousIncentiveDebt_not: BigInt
+  previousIncentiveDebt_gt: BigInt
+  previousIncentiveDebt_lt: BigInt
+  previousIncentiveDebt_gte: BigInt
+  previousIncentiveDebt_lte: BigInt
+  previousIncentiveDebt_in: [BigInt!]
+  previousIncentiveDebt_not_in: [BigInt!]
+  totalClaimed: BigInt
+  totalClaimed_not: BigInt
+  totalClaimed_gt: BigInt
+  totalClaimed_lt: BigInt
+  totalClaimed_gte: BigInt
+  totalClaimed_lte: BigInt
+  totalClaimed_in: [BigInt!]
+  totalClaimed_not_in: [BigInt!]
+  adjustedClaimed: BigInt
+  adjustedClaimed_not: BigInt
+  adjustedClaimed_gt: BigInt
+  adjustedClaimed_lt: BigInt
+  adjustedClaimed_gte: BigInt
+  adjustedClaimed_lte: BigInt
+  adjustedClaimed_in: [BigInt!]
+  adjustedClaimed_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [IncentiveSnapshot_filter]
+  or: [IncentiveSnapshot_filter]
+}
+
+enum IncentiveSnapshot_orderBy {
+  id
+  blockNumber
+  timestamp
+  transaction
+  transaction__id
+  transaction__blockNumber
+  transaction__timestamp
+  transaction__transactionHash
+  transaction___nextStartIndex
+  balanceSnapshot
+  balanceSnapshot__id
+  balanceSnapshot__blockNumber
+  balanceSnapshot__timestamp
+  balanceSnapshot__currentBalance
+  balanceSnapshot__previousBalance
+  balanceSnapshot__adjustedCostBasis
+  balanceSnapshot__currentProfitAndLossAtSnapshot
+  balanceSnapshot__totalProfitAndLossAtSnapshot
+  balanceSnapshot__totalILAndFeesAtSnapshot
+  balanceSnapshot__totalInterestAccrualAtSnapshot
+  balanceSnapshot__impliedFixedRate
+  balanceSnapshot___accumulatedBalance
+  balanceSnapshot___accumulatedCostRealized
+  balanceSnapshot___accumulatedCostAdjustedBasis
+  rewardToken
+  rewardToken__id
+  rewardToken__firstUpdateBlockNumber
+  rewardToken__firstUpdateTimestamp
+  rewardToken__firstUpdateTransactionHash
+  rewardToken__lastUpdateBlockNumber
+  rewardToken__lastUpdateTimestamp
+  rewardToken__lastUpdateTransactionHash
+  rewardToken__tokenType
+  rewardToken__tokenInterface
+  rewardToken__currencyId
+  rewardToken__name
+  rewardToken__symbol
+  rewardToken__decimals
+  rewardToken__precision
+  rewardToken__totalSupply
+  rewardToken__hasTransferFee
+  rewardToken__isfCashDebt
+  rewardToken__maturity
+  rewardToken__vaultAddress
+  rewardToken__tokenAddress
+  currentIncentiveDebt
+  previousIncentiveDebt
+  totalClaimed
+  adjustedClaimed
 }
 
 input Incentive_filter {
@@ -1593,6 +1803,24 @@ input Incentive_filter {
   currencyConfiguration_not_ends_with: String
   currencyConfiguration_not_ends_with_nocase: String
   currencyConfiguration_: CurrencyConfiguration_filter
+  secondaryIncentiveRewarder: Bytes
+  secondaryIncentiveRewarder_not: Bytes
+  secondaryIncentiveRewarder_gt: Bytes
+  secondaryIncentiveRewarder_lt: Bytes
+  secondaryIncentiveRewarder_gte: Bytes
+  secondaryIncentiveRewarder_lte: Bytes
+  secondaryIncentiveRewarder_in: [Bytes!]
+  secondaryIncentiveRewarder_not_in: [Bytes!]
+  secondaryIncentiveRewarder_contains: Bytes
+  secondaryIncentiveRewarder_not_contains: Bytes
+  incentiveEmissionRate: BigInt
+  incentiveEmissionRate_not: BigInt
+  incentiveEmissionRate_gt: BigInt
+  incentiveEmissionRate_lt: BigInt
+  incentiveEmissionRate_gte: BigInt
+  incentiveEmissionRate_lte: BigInt
+  incentiveEmissionRate_in: [BigInt!]
+  incentiveEmissionRate_not_in: [BigInt!]
   accumulatedNOTEPerNToken: BigInt
   accumulatedNOTEPerNToken_not: BigInt
   accumulatedNOTEPerNToken_gt: BigInt
@@ -1649,6 +1877,59 @@ input Incentive_filter {
   migrationTime_lte: BigInt
   migrationTime_in: [BigInt!]
   migrationTime_not_in: [BigInt!]
+  currentSecondaryReward: String
+  currentSecondaryReward_not: String
+  currentSecondaryReward_gt: String
+  currentSecondaryReward_lt: String
+  currentSecondaryReward_gte: String
+  currentSecondaryReward_lte: String
+  currentSecondaryReward_in: [String!]
+  currentSecondaryReward_not_in: [String!]
+  currentSecondaryReward_contains: String
+  currentSecondaryReward_contains_nocase: String
+  currentSecondaryReward_not_contains: String
+  currentSecondaryReward_not_contains_nocase: String
+  currentSecondaryReward_starts_with: String
+  currentSecondaryReward_starts_with_nocase: String
+  currentSecondaryReward_not_starts_with: String
+  currentSecondaryReward_not_starts_with_nocase: String
+  currentSecondaryReward_ends_with: String
+  currentSecondaryReward_ends_with_nocase: String
+  currentSecondaryReward_not_ends_with: String
+  currentSecondaryReward_not_ends_with_nocase: String
+  currentSecondaryReward_: Token_filter
+  accumulatedSecondaryRewardPerNToken: BigInt
+  accumulatedSecondaryRewardPerNToken_not: BigInt
+  accumulatedSecondaryRewardPerNToken_gt: BigInt
+  accumulatedSecondaryRewardPerNToken_lt: BigInt
+  accumulatedSecondaryRewardPerNToken_gte: BigInt
+  accumulatedSecondaryRewardPerNToken_lte: BigInt
+  accumulatedSecondaryRewardPerNToken_in: [BigInt!]
+  accumulatedSecondaryRewardPerNToken_not_in: [BigInt!]
+  lastSecondaryAccumulatedTime: BigInt
+  lastSecondaryAccumulatedTime_not: BigInt
+  lastSecondaryAccumulatedTime_gt: BigInt
+  lastSecondaryAccumulatedTime_lt: BigInt
+  lastSecondaryAccumulatedTime_gte: BigInt
+  lastSecondaryAccumulatedTime_lte: BigInt
+  lastSecondaryAccumulatedTime_in: [BigInt!]
+  lastSecondaryAccumulatedTime_not_in: [BigInt!]
+  secondaryEmissionRate: BigInt
+  secondaryEmissionRate_not: BigInt
+  secondaryEmissionRate_gt: BigInt
+  secondaryEmissionRate_lt: BigInt
+  secondaryEmissionRate_gte: BigInt
+  secondaryEmissionRate_lte: BigInt
+  secondaryEmissionRate_in: [BigInt!]
+  secondaryEmissionRate_not_in: [BigInt!]
+  secondaryRewardEndTime: BigInt
+  secondaryRewardEndTime_not: BigInt
+  secondaryRewardEndTime_gt: BigInt
+  secondaryRewardEndTime_lt: BigInt
+  secondaryRewardEndTime_gte: BigInt
+  secondaryRewardEndTime_lte: BigInt
+  secondaryRewardEndTime_in: [BigInt!]
+  secondaryRewardEndTime_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [Incentive_filter]
@@ -1683,13 +1964,14 @@ enum Incentive_orderBy {
   currencyConfiguration__fCashLiquidationDebtBufferBasisPoints
   currencyConfiguration__treasuryReserveBuffer
   currencyConfiguration__rebalancingCooldown
-  currencyConfiguration__incentiveEmissionRate
-  currencyConfiguration__secondaryIncentiveRewarder
   currencyConfiguration__residualPurchaseIncentiveBasisPoints
   currencyConfiguration__residualPurchaseTimeBufferSeconds
   currencyConfiguration__cashWithholdingBufferBasisPoints
   currencyConfiguration__pvHaircutPercentage
   currencyConfiguration__liquidationHaircutPercentage
+  currencyConfiguration__maxMintDeviationPercentage
+  secondaryIncentiveRewarder
+  incentiveEmissionRate
   accumulatedNOTEPerNToken
   lastAccumulatedTime
   deprecated_lastSupplyChangeTime
@@ -1697,6 +1979,31 @@ enum Incentive_orderBy {
   migrationEmissionRate
   finalIntegralTotalSupply
   migrationTime
+  currentSecondaryReward
+  currentSecondaryReward__id
+  currentSecondaryReward__firstUpdateBlockNumber
+  currentSecondaryReward__firstUpdateTimestamp
+  currentSecondaryReward__firstUpdateTransactionHash
+  currentSecondaryReward__lastUpdateBlockNumber
+  currentSecondaryReward__lastUpdateTimestamp
+  currentSecondaryReward__lastUpdateTransactionHash
+  currentSecondaryReward__tokenType
+  currentSecondaryReward__tokenInterface
+  currentSecondaryReward__currencyId
+  currentSecondaryReward__name
+  currentSecondaryReward__symbol
+  currentSecondaryReward__decimals
+  currentSecondaryReward__precision
+  currentSecondaryReward__totalSupply
+  currentSecondaryReward__hasTransferFee
+  currentSecondaryReward__isfCashDebt
+  currentSecondaryReward__maturity
+  currentSecondaryReward__vaultAddress
+  currentSecondaryReward__tokenAddress
+  accumulatedSecondaryRewardPerNToken
+  lastSecondaryAccumulatedTime
+  secondaryEmissionRate
+  secondaryRewardEndTime
 }
 
 """
@@ -1954,6 +2261,7 @@ enum OracleType {
   nTokenBlendedInterestRate
   nTokenFeeRate
   nTokenIncentiveRate
+  nTokenSecondaryIncentiveRate
 }
 
 input Oracle_filter {
@@ -2917,10 +3225,6 @@ enum ProfitLossLineItem_orderBy {
   balanceSnapshot___accumulatedBalance
   balanceSnapshot___accumulatedCostRealized
   balanceSnapshot___accumulatedCostAdjustedBasis
-  balanceSnapshot__currentNOTEIncentiveDebt
-  balanceSnapshot__previousNOTEIncentiveDebt
-  balanceSnapshot__totalNOTEClaimed
-  balanceSnapshot__adjustedNOTEClaimed
   account
   account__id
   account__firstUpdateBlockNumber
@@ -3424,6 +3728,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [BalanceSnapshot!]!
+  incentiveSnapshot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): IncentiveSnapshot
+  incentiveSnapshots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: IncentiveSnapshot_orderBy
+    orderDirection: OrderDirection
+    where: IncentiveSnapshot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [IncentiveSnapshot!]!
   activeMarket(
     id: ID!
     """
@@ -4216,6 +4546,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [BalanceSnapshot!]!
+  incentiveSnapshot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): IncentiveSnapshot
+  incentiveSnapshots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: IncentiveSnapshot_orderBy
+    orderDirection: OrderDirection
+    where: IncentiveSnapshot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [IncentiveSnapshot!]!
   activeMarket(
     id: ID!
     """
@@ -4439,6 +4795,7 @@ enum SystemAccount {
   PrimeDebt
   Notional
   NOTE
+  SecondaryIncentiveRewarder
 }
 
 type Token {
@@ -4775,7 +5132,10 @@ type TradingModulePermission {
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   sender: Account!
-  token: Token!
+  token: Token
+  tokenAddress: Bytes!
+  name: String!
+  symbol: String!
   allowedDexes: [DEX!]!
   allowSell: Boolean!
   allowedTradeTypes: [TradeType!]!
@@ -4858,6 +5218,56 @@ input TradingModulePermission_filter {
   token_not_ends_with: String
   token_not_ends_with_nocase: String
   token_: Token_filter
+  tokenAddress: Bytes
+  tokenAddress_not: Bytes
+  tokenAddress_gt: Bytes
+  tokenAddress_lt: Bytes
+  tokenAddress_gte: Bytes
+  tokenAddress_lte: Bytes
+  tokenAddress_in: [Bytes!]
+  tokenAddress_not_in: [Bytes!]
+  tokenAddress_contains: Bytes
+  tokenAddress_not_contains: Bytes
+  name: String
+  name_not: String
+  name_gt: String
+  name_lt: String
+  name_gte: String
+  name_lte: String
+  name_in: [String!]
+  name_not_in: [String!]
+  name_contains: String
+  name_contains_nocase: String
+  name_not_contains: String
+  name_not_contains_nocase: String
+  name_starts_with: String
+  name_starts_with_nocase: String
+  name_not_starts_with: String
+  name_not_starts_with_nocase: String
+  name_ends_with: String
+  name_ends_with_nocase: String
+  name_not_ends_with: String
+  name_not_ends_with_nocase: String
+  symbol: String
+  symbol_not: String
+  symbol_gt: String
+  symbol_lt: String
+  symbol_gte: String
+  symbol_lte: String
+  symbol_in: [String!]
+  symbol_not_in: [String!]
+  symbol_contains: String
+  symbol_contains_nocase: String
+  symbol_not_contains: String
+  symbol_not_contains_nocase: String
+  symbol_starts_with: String
+  symbol_starts_with_nocase: String
+  symbol_not_starts_with: String
+  symbol_not_starts_with_nocase: String
+  symbol_ends_with: String
+  symbol_ends_with_nocase: String
+  symbol_not_ends_with: String
+  symbol_not_ends_with_nocase: String
   allowedDexes: [DEX!]
   allowedDexes_not: [DEX!]
   allowedDexes_contains: [DEX!]
@@ -4920,6 +5330,9 @@ enum TradingModulePermission_orderBy {
   token__maturity
   token__vaultAddress
   token__tokenAddress
+  tokenAddress
+  name
+  symbol
   allowedDexes
   allowSell
   allowedTradeTypes
@@ -5860,6 +6273,8 @@ enum VaultConfiguration_orderBy {
 enum WhitelistedCapability {
   GlobalTransferOperator
   AuthorizedCallbackContract
+  SecondaryIncentiveRewarder
+  DetachedSecondaryIncentiveRewarder
 }
 
 type WhitelistedContract {
@@ -5869,6 +6284,7 @@ type WhitelistedContract {
   lastUpdateTransactionHash: Bytes!
   capability: [WhitelistedCapability!]!
   name: String!
+  currency: CurrencyConfiguration
 }
 
 input WhitelistedContract_filter {
@@ -5932,6 +6348,27 @@ input WhitelistedContract_filter {
   name_ends_with_nocase: String
   name_not_ends_with: String
   name_not_ends_with_nocase: String
+  currency: String
+  currency_not: String
+  currency_gt: String
+  currency_lt: String
+  currency_gte: String
+  currency_lte: String
+  currency_in: [String!]
+  currency_not_in: [String!]
+  currency_contains: String
+  currency_contains_nocase: String
+  currency_not_contains: String
+  currency_not_contains_nocase: String
+  currency_starts_with: String
+  currency_starts_with_nocase: String
+  currency_not_starts_with: String
+  currency_not_starts_with_nocase: String
+  currency_ends_with: String
+  currency_ends_with_nocase: String
+  currency_not_ends_with: String
+  currency_not_ends_with_nocase: String
+  currency_: CurrencyConfiguration_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [WhitelistedContract_filter]
@@ -5945,6 +6382,35 @@ enum WhitelistedContract_orderBy {
   lastUpdateTransactionHash
   capability
   name
+  currency
+  currency__id
+  currency__lastUpdateBlockNumber
+  currency__lastUpdateTimestamp
+  currency__lastUpdateTransactionHash
+  currency__maxUnderlyingSupply
+  currency__collateralHaircut
+  currency__debtBuffer
+  currency__liquidationDiscount
+  currency__primeCashRateOracleTimeWindowSeconds
+  currency__primeCashHoldingsOracle
+  currency__primeDebtAllowed
+  currency__fCashRateOracleTimeWindowSeconds
+  currency__fCashReserveFeeSharePercent
+  currency__fCashDebtBufferBasisPoints
+  currency__fCashHaircutBasisPoints
+  currency__fCashMinOracleRate
+  currency__fCashMaxOracleRate
+  currency__fCashMaxDiscountFactor
+  currency__fCashLiquidationHaircutBasisPoints
+  currency__fCashLiquidationDebtBufferBasisPoints
+  currency__treasuryReserveBuffer
+  currency__rebalancingCooldown
+  currency__residualPurchaseIncentiveBasisPoints
+  currency__residualPurchaseTimeBufferSeconds
+  currency__cashWithholdingBufferBasisPoints
+  currency__pvHaircutPercentage
+  currency__liquidationHaircutPercentage
+  currency__maxMintDeviationPercentage
 }
 
 type _Block_ {

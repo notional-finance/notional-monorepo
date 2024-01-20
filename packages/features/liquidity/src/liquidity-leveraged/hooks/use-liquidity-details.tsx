@@ -6,11 +6,11 @@ import {
 } from '@notional-finance/notionable-hooks';
 import {
   formatLeverageRatio,
-  formatMaturity,
   formatNumberAsPercentWithUndefined,
 } from '@notional-finance/helpers';
 import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import {
+  formatMaturity,
   RATE_PRECISION,
   getChangeType,
   leveragedYield,
@@ -26,13 +26,14 @@ export const useLiquidityDetails = () => {
     debtBalance,
     debtOptions,
     collateralOptions,
+    selectedNetwork
   } = state;
   const { tableData, tooRisky, onlyCurrent } =
     usePortfolioLiquidationRisk(state);
   const {
     yields: { liquidity },
-  } = useAllMarkets();
-  const { currentHoldings } = useLeveragedNTokenPositions(selectedDepositToken);
+  } = useAllMarkets(selectedNetwork);
+  const { currentHoldings } = useLeveragedNTokenPositions(selectedNetwork, selectedDepositToken);
   const newDebt = comparePortfolio?.find(
     ({ updated }) =>
       updated.underlying.symbol === selectedDepositToken &&
@@ -63,9 +64,6 @@ export const useLiquidityDetails = () => {
       : debtBalance?.tokenType === 'nToken'
       ? debtBalance
       : undefined;
-  const newNTokenAPY = netNTokens
-    ? Registry.getYieldRegistry().getSimulatedNTokenYield(netNTokens)?.totalAPY
-    : currentNToken?.totalAPY;
 
   const currentAPY = leveragedYield(
     currentNToken?.totalAPY,
@@ -73,13 +71,13 @@ export const useLiquidityDetails = () => {
     currentHoldings?.leverageRatio
   );
 
-  const newBorrowRate =
+  const newBorrowOption =
     debtOptions?.find(
       (t) =>
         t.token.id === newDebt?.tokenId ||
         (t.token.tokenType === 'PrimeDebt' &&
           newDebt?.tokenType === 'PrimeCash')
-    )?.interestRate ||
+    ) ||
     // NOTE: the borrow rate will be "collateral" when reducing the position, however,
     // the "newDebt" variable here always refers to the proper debt token
     collateralOptions?.find(
@@ -87,7 +85,17 @@ export const useLiquidityDetails = () => {
         t.token.id === newDebt?.tokenId ||
         (t.token.tokenType === 'PrimeCash' &&
           newDebt?.tokenType === 'PrimeCash')
-    )?.interestRate;
+    );
+  const newBorrowRate = newBorrowOption?.interestRate;
+  const newNTokenAPY = netNTokens
+    ? Registry.getYieldRegistry().getSimulatedNTokenYield(
+        netNTokens,
+        newBorrowOption?.token.tokenType === 'PrimeCash' ||
+          newBorrowOption?.token.tokenType === 'PrimeDebt'
+          ? newBorrowOption.utilization
+          : undefined
+      )?.totalAPY
+    : currentNToken?.totalAPY;
 
   let newFixedRate;
   if (
@@ -168,7 +176,7 @@ export const useLiquidityDetails = () => {
   );
   if (liquidationPrice) {
     table.push({
-      label: liquidationPrice.label,
+      label: liquidationPrice.label as string,
       current: liquidationPrice.current,
       updated: {
         value: liquidationPrice.updated,

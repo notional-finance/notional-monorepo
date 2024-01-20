@@ -3,11 +3,16 @@ import {
   MultiValueCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
-import { useCurrentLiquidationPrices } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentLiquidationPrices,
+  useSelectedPortfolioNetwork,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useRiskOverviewTable = () => {
-  const { exchangeRateRisk, vaultLiquidation } = useCurrentLiquidationPrices();
+  const network = useSelectedPortfolioNetwork();
+  const { exchangeRateRisk, vaultLiquidation } =
+    useCurrentLiquidationPrices(network);
 
   const riskOverviewColumns: DataTableColumn[] = [
     {

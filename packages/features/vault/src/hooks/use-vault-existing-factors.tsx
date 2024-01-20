@@ -1,47 +1,29 @@
 import { useContext } from 'react';
 import { VaultActionContext } from '../vault';
-import {
-  useAccountDefinition,
-  useAllMarkets,
-} from '@notional-finance/notionable-hooks';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import { useVaultPosition } from '@notional-finance/notionable-hooks';
 
 export function useVaultExistingFactors() {
   const { state } = useContext(VaultActionContext);
-  const { account } = useAccountDefinition();
-  const {
-    yields: { variableBorrow },
-  } = useAllMarkets();
-  const { priorVaultBalances, priorAccountRisk, postAccountRisk } = state;
+  const { vaultAddress, selectedNetwork, postAccountRisk } = state;
+  const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
-  const vaultShare = priorVaultBalances?.find(
-    (t) => t.tokenType === 'VaultShare'
-  );
-  const vaultDebt = priorVaultBalances?.find(
-    (t) => t.tokenType === 'VaultDebt'
-  );
+  const vaultShare = vaultPosition?.vault.vaultShares.token;
+
   const assetLiquidationPrice =
-    priorAccountRisk?.liquidationPrice?.find(
-      (t) => t.asset.id === vaultShare?.tokenId
-    )?.threshold || undefined;
-  const priorBorrowRate =
-    vaultDebt?.maturity === PRIME_CASH_VAULT_MATURITY
-      ? variableBorrow.find((d) => vaultDebt.currencyId === d.token.currencyId)
-          ?.totalAPY
-      : // Find the most recent implied fixed rate, requires that this is sorted in reverse chronological
-        // order
-        account?.accountHistory?.find((a) => a.token.id === vaultDebt?.tokenId)
-          ?.impliedFixedRate;
+    vaultPosition?.liquidationPrices?.find(
+      (t) => t.asset.tokenType === 'VaultShare'
+    )?.threshold ||
+    postAccountRisk?.liquidationPrice?.find(
+      (t) => t.asset.tokenType === 'VaultShare'
+    )?.threshold;
 
   const leverageRatio =
-    postAccountRisk?.leverageRatio ||
-    priorAccountRisk?.leverageRatio ||
-    undefined;
+    postAccountRisk?.leverageRatio || vaultPosition?.leverageRatio || undefined;
 
   return {
-    vaultShare: vaultShare?.token,
+    vaultShare,
     assetLiquidationPrice,
-    priorBorrowRate,
+    priorBorrowRate: vaultPosition?.borrowAPY,
     leverageRatio,
   };
 }

@@ -16,11 +16,10 @@ import {
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
 import {
-  formatMaturity,
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
+import { PORTFOLIO_ACTIONS, formatMaturity } from '@notional-finance/util';
 import { TokenOption } from '@notional-finance/notionable';
 import { useParams } from 'react-router';
 import { TransactionHeadings } from '@notional-finance/trade';
@@ -33,8 +32,8 @@ interface SelectConvertAssetProps {
 export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
-  const { tradeType, debt, collateral, debtBalance, collateralBalance } = state;
-  const { nonLeveragedYields } = useAllMarkets();
+  const { tradeType, debt, collateral, debtBalance, collateralBalance, selectedNetwork } = state;
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const { options, initialConvertFromBalance: balance } =
     useConvertOptions(state);
   const convertFromToken = tradeType === 'ConvertAsset' ? debt : collateral;

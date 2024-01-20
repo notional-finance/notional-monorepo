@@ -1,6 +1,6 @@
 import {
   useAccountDefinition,
-  useAccountReady,
+  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -8,9 +8,10 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { TableTitleButtonsType } from '@notional-finance/mui';
 
 export const usePortfolioButtonBar = () => {
-  const accountReady = useAccountReady();
+  const network = useSelectedPortfolioNetwork();
+  const account = useAccountDefinition(network);
+  const accountReady = !!account;
   const { pathname: currentPath } = useLocation();
-  const { account } = useAccountDefinition();
   const hasWithdrawableTokens = !!account?.balances.find(
     (t) => t.isPositive() && !t.isVaultToken
   );

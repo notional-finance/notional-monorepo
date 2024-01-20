@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { Box, styled } from '@mui/material';
 import {
+  useAccountLoading,
   useAccountReady,
-  useNotionalContext,
+  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
 import { ButtonBar, SideDrawer, TypeForm } from '@notional-finance/mui';
@@ -34,12 +35,11 @@ export interface PortfolioParams {
 }
 
 export const PortfolioFeatureShell = () => {
-  const {
-    globalState: { isNetworkReady, isAccountPending },
-  } = useNotionalContext();
+  const network = useSelectedPortfolioNetwork();
+  const isAccountLoading = useAccountLoading();
 
   return (
-    <FeatureLoader featureLoaded={isNetworkReady && !isAccountPending}>
+    <FeatureLoader featureLoaded={network && !isAccountLoading}>
       <Portfolio />
     </FeatureLoader>
   );
@@ -49,7 +49,8 @@ const Portfolio = () => {
   const params = useParams<PortfolioParams>();
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
-  const isAccountReady = useAccountReady();
+  const network = useSelectedPortfolioNetwork();
+  const isAccountReady = useAccountReady(network);
   const buttonData = usePortfolioButtonBar();
 
   useEffect(() => {
@@ -58,7 +59,9 @@ const Portfolio = () => {
 
   useEffect(() => {
     clearSideDrawer(
-      `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`
+      `/portfolio/${network}/${
+        params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
+      }`
     );
     // NOTE: this must only run once on component mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,7 +69,9 @@ const Portfolio = () => {
 
   const handleDrawer = () => {
     clearSideDrawer(
-      `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`
+      `/portfolio/${network}/${
+        params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
+      }`
     );
   };
 

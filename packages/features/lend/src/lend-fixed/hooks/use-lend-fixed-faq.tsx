@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ExitEarlyFaq, RiskFaq } from '../components';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import {
   getEtherscanAddressLink,
+  Network,
   NotionalAddress,
 } from '@notional-finance/util';
 
@@ -14,8 +14,7 @@ interface FaqProps {
   componentAnswer?: ReactNode;
 }
 
-export const useLendFixedFaq = () => {
-  const selectedNetwork = useSelectedNetwork();
+export const useLendFixedFaq = (selectedNetwork: Network | undefined) => {
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/fixed-rate-lending',

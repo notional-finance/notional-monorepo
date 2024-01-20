@@ -5,7 +5,8 @@ import {
   useFiat,
   BaseTradeContext,
   usePortfolioRiskProfile,
-  useCurrency,
+  usePrimeDebt,
+  usePrimeCash,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { useParams } from 'react-router';
@@ -35,25 +36,32 @@ export const PortfolioHoldingSelect = ({
   const theme = useTheme();
   const {
     updateState,
-    state: { collateral, debt },
+    state: { collateral, debt, selectedNetwork },
   } = context;
-  const { primeCash, primeDebt } = useCurrency();
-  const profile = usePortfolioRiskProfile();
+  const profile = usePortfolioRiskProfile(selectedNetwork);
   const selectedToken = isWithdraw ? debt : collateral;
   const { selectedToken: selectedParamToken } = useParams<{
     selectedToken: string;
   }>();
+  const primeDebt = usePrimeDebt(
+    selectedToken?.network,
+    selectedToken?.currencyId
+  );
+  const primeCash = usePrimeCash(
+    selectedToken?.network,
+    selectedToken?.currencyId
+  );
 
   // NOTE: need to flip prime cash and prime debt for the select box
   const selectedTokenId =
     !isWithdraw && selectedToken?.tokenType === 'PrimeCash'
-      ? primeDebt.find((t) => t.currencyId === selectedToken.currencyId)?.id
+      ? primeDebt?.id
       : isWithdraw && selectedToken?.tokenType === 'PrimeDebt'
-      ? primeCash.find((t) => t.currencyId === selectedToken.currencyId)?.id
+      ? primeCash?.id
       : selectedToken?.id;
 
   const options = useMemo(() => {
-    return profile.balances.filter(filterBalances)?.map((b) => {
+    return profile?.balances.filter(filterBalances)?.map((b) => {
       if (isWithdraw) {
         const maxWithdraw = profile.maxWithdraw(b.token);
         return {
@@ -91,13 +99,9 @@ export const PortfolioHoldingSelect = ({
     let selected: TokenDefinition | undefined;
     // NOTE: need to flip prime cash and prime debt for the computation
     if (option?.token.tokenType === 'PrimeDebt' && !isWithdraw) {
-      selected = primeCash.find(
-        (t) => t.currencyId === option.token.currencyId
-      );
+      selected = primeCash;
     } else if (option?.token.tokenType === 'PrimeCash' && isWithdraw) {
-      selected = primeDebt.find(
-        (t) => t.currencyId === option.token.currencyId
-      );
+      selected = primeDebt;
     } else {
       selected = option?.token;
     }

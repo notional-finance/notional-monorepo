@@ -22,9 +22,9 @@ import {
   VaultContext,
   TransactionStatus,
   useTransactionStatus,
-  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
+import { clearTradeState } from '@notional-finance/notionable';
 
 export interface TransactionConfirmationProps {
   heading: React.ReactNode;
@@ -43,18 +43,18 @@ export const TransactionConfirmation = ({
   const theme = useTheme();
   const { state, updateState } = context;
   const location = useLocation<RouteState>();
-  const selectedNetwork = useSelectedNetwork();
   const {
     populatedTransaction,
     transactionError,
     debt,
     collateral,
     tradeType,
+    selectedNetwork,
   } = state;
   const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
-    useTransactionStatus();
+    useTransactionStatus(selectedNetwork);
   const onTxnCancel = useCallback(() => {
-    updateState({ confirm: false });
+    updateState({ ...clearTradeState });
   }, [updateState]);
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export const TransactionConfirmation = ({
   }, []);
 
   return (
-    <>
+    <Box sx={{ minHeight: theme.spacing(132) }}>
       <ScrollToTop />
       <StatusHeading
         heading={heading}
@@ -116,6 +116,7 @@ export const TransactionConfirmation = ({
         <PendingTransaction
           hash={transactionHash}
           transactionStatus={transactionStatus}
+          selectedNetwork={selectedNetwork}
         />
       )}
       {(transactionStatus === TransactionStatus.REVERT || transactionError) && (
@@ -151,12 +152,18 @@ export const TransactionConfirmation = ({
             ) as TokenDefinition[]
           )
         }
-        onCancel={onCancel || onTxnCancel}
-        onReturnToForm={onReturnToForm}
+        onCancel={() => {
+          onTxnCancel();
+          if (onCancel) onCancel();
+        }}
+        onReturnToForm={() => {
+          onTxnCancel();
+          if (onReturnToForm) onReturnToForm();
+        }}
         isDisabled={isReadOnlyAddress || !!transactionError}
         isLoaded={populatedTransaction !== undefined}
       />
-    </>
+    </Box>
   );
 };
 

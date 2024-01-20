@@ -5,7 +5,7 @@ import { getEtherscanTransactionLink } from '@notional-finance/util';
 import { ExternalLink } from '../../external-link/external-link';
 import { truncateAddress } from '@notional-finance/helpers';
 import { LaunchIcon } from '@notional-finance/icons';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useSelectedPortfolioNetwork } from '@notional-finance/notionable-hooks';
 
 interface DataTablePendingProps {
   pendingTxns: string[];
@@ -17,7 +17,7 @@ export const DataTablePending = ({
   pendingMessage,
 }: DataTablePendingProps) => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork();
+  const selectedNetwork = useSelectedPortfolioNetwork();
 
   return (
     <Box sx={{ marginBottom: theme.spacing(3) }}>

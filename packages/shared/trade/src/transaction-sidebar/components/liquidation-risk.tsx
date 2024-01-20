@@ -1,6 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import {
   ArrowIndicatorCell,
+  ToolTipCell,
   DataTable,
   ErrorMessage,
   TABLE_VARIANTS,
@@ -15,8 +16,9 @@ import { FormattedMessage } from 'react-intl';
 
 export const LiquidationRisk = ({ state }: { state: TradeState }) => {
   const theme = useTheme();
-  const isAccountReady = useAccountReady();
-  const { tradeType, inputsSatisfied, calculationSuccess } = state;
+  const { tradeType, inputsSatisfied, calculationSuccess, selectedNetwork } =
+    state;
+  const isAccountReady = useAccountReady(selectedNetwork);
   const {
     onlyCurrent,
     priorAccountNoRisk,
@@ -24,14 +26,20 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     tableData,
     tooRisky,
   } = usePortfolioLiquidationRisk(state);
+
   const columns: any[] = [
     {
       Header: <FormattedMessage defaultMessage={'Detail'} />,
       accessor: 'label',
+      Cell: ToolTipCell,
       textAlign: 'left',
     },
     {
-      Header: <FormattedMessage defaultMessage={'Current'} />,
+      Header: !onlyCurrent ? (
+        <FormattedMessage defaultMessage={'Current'} />
+      ) : (
+        <FormattedMessage defaultMessage={'Value'} />
+      ),
       accessor: 'current',
       textAlign: 'right',
     },
@@ -119,7 +127,15 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
           onlyCurrent
             ? tableData
             : tableData.map(
-                ({ label, current, updated, changeType, greenOnArrowUp }) => {
+                ({
+                  label,
+                  current,
+                  updated,
+                  changeType,
+                  greenOnArrowUp,
+                  textColor,
+                  hideArrow,
+                }) => {
                   return {
                     label,
                     current,
@@ -130,6 +146,8 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
                       greenOnCheckmark: true,
                       greenOnArrowUp,
                     },
+                    textColor,
+                    hideArrow,
                   };
                 }
               )

@@ -41,6 +41,7 @@ export const useMaturitySelect = (
       debtOptions,
       tradeType,
       deposit,
+      selectedNetwork
     },
     updateState,
   } = context;
@@ -50,7 +51,7 @@ export const useMaturitySelect = (
     category === 'Collateral' ? availableCollateralTokens : availableDebtTokens;
   const isVault = isVaultTrade(tradeType);
   // Need to check if deposit is set to resolve some race conditions here
-  const spotMaturityData = useSpotMaturityData(deposit ? tokens : []);
+  const spotMaturityData = useSpotMaturityData(deposit ? tokens : [], selectedNetwork);
 
   const maturityData: MaturityData[] = useMemo(() => {
     return (

@@ -14,9 +14,12 @@ export const BorrowFixedSidebar = () => {
   const { currencyInputRef } = useCurrencyInputRef();
   const context = useContext(BorrowFixedContext);
   const {
-    state: { selectedDepositToken },
+    state: { selectedDepositToken, selectedNetwork },
   } = context;
-  const cashBalance = usePrimeCashBalance(selectedDepositToken);
+  const cashBalance = usePrimeCashBalance(
+    selectedDepositToken,
+    selectedNetwork
+  );
 
   return (
     <TransactionSidebar
@@ -34,7 +37,9 @@ export const BorrowFixedSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}
-        newRoute={(newToken) => `/${PRODUCTS.BORROW_FIXED}/${newToken}`}
+        newRoute={(newToken) =>
+          `/${PRODUCTS.BORROW_FIXED}/${selectedNetwork}/${newToken}`
+        }
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to borrow?',
           description: 'input label',

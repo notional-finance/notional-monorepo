@@ -1,32 +1,36 @@
 import {
-  ExtractObservableReturn,
   Network,
-  getNowSeconds,
+  RATE_PRECISION,
+  ZERO_ADDRESS,
+  getMidnightUTC,
+  percentChange,
 } from '@notional-finance/util';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
-import { map, take, Observable } from 'rxjs';
 import { Registry } from '../Registry';
-import { TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
-import { OracleDefinition } from '../Definitions';
+import { OracleDefinition, PriceChange, TokenDefinition } from '../Definitions';
+import {
+  ASSET_PRICE_ORACLES,
+  HistoricalOracles,
+  VaultData,
+} from '../server/analytics-server';
+import { PRICE_ORACLES } from './oracle-registry-client';
+import { TokenBalance } from '../token-balance';
+import { FiatKeys } from '../config/fiat-config';
 
-interface DataPoint {
-  [key: string]: number | string | null;
-}
-type AnalyticsData = DataPoint[];
+const APY_ORACLES = [
+  'fCashOracleRate',
+  'PrimeCashPremiumInterestRate',
+  'PrimeDebtPremiumInterestRate',
+  'nTokenBlendedInterestRate',
+  'nTokenFeeRate',
+  'nTokenIncentiveRate',
+];
 
-const VIEWS = [
-  'historical_oracle_values',
-  'notional_assets_apys_and_tvls',
-  'ntoken_trading_fees_apys',
-] as const;
-
-type AnalyticsViews = typeof VIEWS[number];
-
-export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
+export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   protected cachePath() {
-    return Routes.Analytics;
+    return `${Routes.Analytics}/analytics`;
   }
 
   get USD() {
@@ -37,205 +41,226 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     return Registry.getTokenRegistry().getTokenBySymbol(Network.All, 'ETH');
   }
 
-  subscribeDataSet(network: Network, view: AnalyticsViews) {
-    return this.subscribeSubject(network, view);
+  protected _getHistoricalOracles(network: Network) {
+    return (super.getLatestFromSubject(network, 'historicalOracles') ||
+      []) as HistoricalOracles;
   }
 
-  private _getLatest<T>(o: Observable<T> | undefined) {
-    let data: ExtractObservableReturn<typeof o> | undefined;
-
-    o?.pipe(take(1)).forEach((d) => (data = d));
-    return data;
-  }
-
-  private _convertOrNull<T>(v: string | number | null, fn: (d: number) => T) {
-    if (v === null) return null;
-    else if (typeof v === 'string') return fn(parseFloat(v));
-    else return fn(v);
-  }
-
-  subscribeNTokenTradingFees(network: Network) {
-    return this.subscribeDataSet(network, 'ntoken_trading_fees_apys')?.pipe(
-      map((d) => {
-        const tokens = Registry.getTokenRegistry();
-        return (
-          d?.map((p) => {
-            const token = tokens.getTokenByID(network, p['token_id'] as string);
-            return {
-              token,
-              timestamp: p['timestamp'] as number,
-              apy: this._convertOrNull(
-                p['ntoken_trading_fees_apy'],
-                (d) => d * 100
-              ),
-            };
-          }) || []
-        );
-      })
-    );
-  }
-
-  subscribeAssetHistory(network: Network) {
-    return this.subscribeDataSet(
-      network,
-      'notional_assets_apys_and_tvls'
-    )?.pipe(
-      map((d) => {
-        const tokens = Registry.getTokenRegistry();
-        const vaults = Registry.getVaultRegistry();
-        return (
-          d?.map((p) => {
-            const token = tokens.getTokenByID(network, p['token_id'] as string);
-            const underlying = tokens.getTokenByID(
-              network,
-              p['underlying_token_id'] as string
-            );
-
-            let totalAPY = this._convertOrNull(p['total_apy'], (d) => d);
-            const timestamp = p['timestamp'] as number;
-
-            // Vault APYs need to be rewritten via their specific view
-            if (
-              token.tokenType === 'VaultShare' &&
-              token.vaultAddress &&
-              vaults.isVaultEnabled(network, token.vaultAddress)
-            ) {
-              const vaultData = this.getVault(network, token.vaultAddress);
-              totalAPY =
-                vaultData?.find((d) => d.timestamp === timestamp)?.totalAPY ||
-                null;
-            }
-
-            return {
-              token,
-              timestamp,
-              totalAPY,
-              tvlUnderlying: this._convertOrNull(p['tvl_underlying'], (d) =>
-                TokenBalance.fromFloat(d.toFixed(6), underlying)
-              ),
-              tvlUSD: this._convertOrNull(p['tvl_usd'], (d) =>
-                TokenBalance.fromFloat(d.toFixed(6), this.USD)
-              ),
-              assetToUnderlyingExchangeRate: this._convertOrNull(
-                p['asset_to_underlying_exchange_rate'],
-                (d) => TokenBalance.fromFloat(d.toFixed(6), underlying)
-              ),
-              assetToUSDExchangeRate: this._convertOrNull(
-                p['asset_to_usd_exchange_rate'],
-                (d) => TokenBalance.fromFloat(d.toFixed(6), this.USD)
-              ),
-            };
-          }) || []
-        );
-      })
-    );
-  }
-
-  subscribeVault(network: Network, vaultAddress: string) {
-    return this.subscribeSubject(network, vaultAddress.toLowerCase())?.pipe(
-      map((d) => {
-        return (
-          d?.map((p) => {
-            return {
-              vaultAddress,
-              timestamp: p['Timestamp'] as number,
-              totalAPY: this._convertOrNull(
-                p['Total Strategy APY'],
-                (d) => d * 100
-              ),
-              returnDrivers: Object.keys(p)
-                .filter((k) => k !== 'Timestamp' && k !== 'Day')
-                .reduce(
-                  (o, k) =>
-                    Object.assign(o, {
-                      [k]: this._convertOrNull(p[k], (d) => d * 100),
-                    }),
-                  {} as Record<string, number | null>
-                ),
-            };
-          }) || []
-        );
-      })
-    );
-  }
-
-  subscribeHistoricalOracles(network: Network, timestamp: number) {
-    return this.subscribeDataSet(network, 'historical_oracle_values')?.pipe(
-      map((d) => {
-        return (
-          d
-            ?.filter((p) => p['timestamp'] === timestamp)
-            .map((p) => {
-              return {
-                id: `${p['base']}:${p['quote']}:${p['oracle_type']}`,
-                oracleAddress: p['oracle_address'],
-                network,
-                oracleType: p['oracle_type'],
-                base: p['base'],
-                quote: p['quote'],
-                decimals: p['decimals'],
-                latestRate: {
-                  rate: BigNumber.from(p['latest_rate']),
-                  timestamp,
-                  blockNumber: 0,
-                },
-              } as OracleDefinition;
-            }) || []
-        );
-      })
-    );
-  }
-
+  /**
+   * Returns a snapshot of PRICE_ORACLE data at a given timestamp in the past.
+   * @param network for the given network
+   * @param timestamp at this given timestamp, expected to be at midnight UTC
+   * @returns OracleDefinition[] for use in the oracle-registry
+   */
   getHistoricalOracles(network: Network, timestamp: number) {
-    return this._getLatest(this.subscribeHistoricalOracles(network, timestamp));
+    return this._getHistoricalOracles(network)
+      .filter((o) => PRICE_ORACLES.includes(o.oracleType))
+      .map((o) => {
+        const { historicalRates, ..._o } = Object.assign({}, o);
+        let latestRate = historicalRates.find((r) => r.timestamp === timestamp);
+        if (!latestRate) {
+          if (o.oracleType === 'fCashSettlementRate') {
+            // If there is an fCash settlement rate, it only ever has a single
+            // rate. The historical rate will not show up sometimes due to the
+            // minTimestamp filter.
+            latestRate = {
+              rate: o.latestRate as string,
+              blockNumber: 0,
+              timestamp: timestamp,
+              totalSupply: null,
+              tvlUnderlying: null,
+            };
+          } else if (
+            o.oracleType === 'Chainlink' &&
+            o.base === ZERO_ADDRESS &&
+            o.quote === ZERO_ADDRESS
+          ) {
+            // Fill in the base ETH rate
+            latestRate = {
+              rate: '1000000000000000000' as string,
+              blockNumber: 0,
+              timestamp: timestamp,
+              totalSupply: null,
+              tvlUnderlying: null,
+            };
+          } else {
+            latestRate = {
+              rate: '0' as string,
+              blockNumber: 0,
+              timestamp: timestamp,
+              totalSupply: null,
+              tvlUnderlying: null,
+            };
+          }
+        }
+
+        return Object.assign(_o, {
+          latestRate: {
+            rate: BigNumber.from(latestRate.rate),
+            blockNumber: latestRate.blockNumber,
+            timestamp: latestRate.timestamp,
+          },
+        }) as OracleDefinition;
+      });
   }
 
-  getNTokenTradingFees(network: Network) {
-    return this._getLatest(this.subscribeNTokenTradingFees(network));
+  /**
+   * Finds the matching token and returns the price history and TVL for the token
+   * @param token a given asset token on Notional
+   * @returns an array of the historical price and TVL in both underlying and USD
+   */
+  getPriceHistory(token: TokenDefinition) {
+    const tokens = Registry.getTokenRegistry();
+    const o = this._getHistoricalOracles(token.network).find(
+      (o) => ASSET_PRICE_ORACLES.includes(o.oracleType) && o.quote === token.id
+    );
+
+    return (
+      o?.historicalRates.map(({ timestamp, rate, tvlUnderlying: tvl }) => {
+        const underlying = tokens.getTokenByID(token.network, o.base);
+        const tvlUnderlying = tvl
+          ? TokenBalance.from(BigNumber.from(tvl), token)
+          : undefined;
+        let tvlUSD: TokenBalance | undefined;
+
+        try {
+          tvlUSD = tvlUnderlying
+            ? tvlUnderlying.toFiat('USD', timestamp)
+            : undefined;
+        } catch (e) {
+          console.log(e);
+        }
+        return {
+          timestamp,
+          // Rate will be quoted in underlying terms
+          priceInUnderlying: TokenBalance.from(
+            BigNumber.from(rate),
+            underlying
+          ),
+          tvlUSD,
+          tvlUnderlying,
+        };
+      }) || []
+    );
   }
 
-  getAssetHistory(network: Network) {
-    return this._getLatest(this.subscribeAssetHistory(network));
+  getHistoricalAPY(
+    token: TokenDefinition
+  ): { timestamp: number; totalAPY: number; [key: string]: number }[] {
+    if (token.tokenType === 'VaultShare' && token.vaultAddress) {
+      return this.getVault(token.network, token.vaultAddress).map(
+        ({ timestamp, totalAPY }) => ({
+          timestamp,
+          totalAPY: totalAPY || 0,
+        })
+      );
+    }
+
+    const oracles = this._getHistoricalOracles(token.network).filter(
+      (o) => o.quote === token.id && APY_ORACLES.includes(o.oracleType)
+    );
+
+    if (oracles.length === 1) {
+      return oracles[0].historicalRates.map(({ timestamp, rate }) => {
+        return {
+          timestamp,
+          totalAPY: (parseFloat(rate) / RATE_PRECISION) * 100,
+        };
+      });
+    } else if (oracles.length > 1) {
+      // Reduce across the multiple oracles and the given time frame and output all the
+      // APY components
+      const allTimestamps = oracles[0].historicalRates.map((h) => h.timestamp);
+      const tokens = Registry.getTokenRegistry();
+
+      return allTimestamps.map((t) => {
+        const apyComponents = oracles.reduce(
+          (acc, o) => {
+            const r = o.historicalRates.find((h) => h.timestamp === t);
+            let apy = 0;
+            if (r) {
+              apy = (parseFloat(r.rate) / RATE_PRECISION) * 100;
+
+              if (o.oracleType === 'nTokenIncentiveRate') {
+                apy = TokenBalance.fromFloat(
+                  apy.toFixed(8),
+                  tokens.getTokenBySymbol(token.network, 'NOTE')
+                )
+                  .toToken(tokens.getTokenByID(token.network, o.base))
+                  .toFloat();
+              }
+
+              acc[o.oracleType] = apy;
+            }
+            acc['totalAPY'] += apy;
+            return acc;
+          },
+          { totalAPY: 0 } as { totalAPY: number; [key: string]: number }
+        );
+
+        return {
+          timestamp: t,
+          ...apyComponents,
+        };
+      });
+    } else {
+      return [];
+    }
+  }
+
+  getNTokenFeeRate(token: TokenDefinition) {
+    const apyData = this.getHistoricalAPY(token);
+
+    if (apyData.length === 0) return 0;
+    else return apyData[apyData.length - 1]['nTokenFeeRate'] || 0;
   }
 
   getVault(network: Network, vaultAddress: string) {
-    return this._getLatest(this.subscribeVault(network, vaultAddress));
+    return (super.getLatestFromSubject(network, vaultAddress) ||
+      []) as VaultData;
+  }
+
+  getPriceChanges(
+    base: FiatKeys,
+    network: Network,
+    timeRange: number
+  ): PriceChange[] {
+    return Registry.getTokenRegistry()
+      .getAllTokens(network)
+      .filter((t) => t.currencyId !== undefined)
+      .map((t) => {
+        const unit = TokenBalance.unit(t);
+        const midnight = getMidnightUTC();
+        const pastDate = midnight - timeRange;
+        const currentUnderlying = unit.toUnderlying();
+        const currentFiat = unit.toFiat(base);
+        let pastUnderlying: TokenBalance | undefined;
+        let pastFiat: TokenBalance | undefined;
+        try {
+          pastUnderlying = unit.toUnderlying(pastDate);
+          pastFiat = unit.toFiat(base, pastDate);
+        } catch {
+          pastUnderlying = undefined;
+          pastFiat = undefined;
+        }
+
+        return {
+          asset: t,
+          pastDate: pastDate,
+          currentUnderlying,
+          currentFiat,
+          pastUnderlying,
+          pastFiat,
+          fiatChange: percentChange(currentFiat.toFloat(), pastFiat?.toFloat()),
+          underlyingChange: percentChange(
+            currentUnderlying.toFloat(),
+            pastUnderlying?.toFloat()
+          ),
+        };
+      });
   }
 
   async getView<T>(network: Network, viewName: string) {
     return this._fetch<T[]>(network, viewName);
-  }
-
-  protected override async _refresh(network: Network) {
-    let views: string[];
-    if (network === Network.All) {
-      views = ['historical_oracle_values'];
-    } else {
-      const vaultViews =
-        Registry.getConfigurationRegistry()
-          .getAllListedVaults(network)
-          ?.map((c) => c.vaultAddress.toLowerCase()) || [];
-
-      views = [...VIEWS, ...vaultViews];
-    }
-
-    const values = await Promise.all(
-      views.map((v) =>
-        this._fetch<AnalyticsData>(network, v).then(
-          (d) =>
-            (Array.isArray(d) ? [v, d] : [v, null]) as [
-              string,
-              AnalyticsData | null
-            ]
-        )
-      )
-    );
-
-    return {
-      values,
-      network,
-      lastUpdateTimestamp: getNowSeconds(),
-      lastUpdateBlock: 0,
-    };
   }
 }

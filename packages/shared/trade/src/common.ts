@@ -1,12 +1,12 @@
 import { Registry } from '@notional-finance/core-entities';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { Network } from '@notional-finance/util';
 
 export function useInputAmount(
+  selectedNetwork: Network | undefined,
   inputString: string,
   selectedToken?: string,
   suppressZero = true
 ) {
-  const selectedNetwork = useSelectedNetwork();
   if (!selectedNetwork || !selectedToken)
     return { inputAmount: undefined, token: undefined };
 

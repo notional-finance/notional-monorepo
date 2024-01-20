@@ -11,14 +11,14 @@ import { RATE_PRECISION } from '@notional-finance/util';
 import { useNotionalMarket } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { TokenDefinition } from '@notional-finance/core-entities';
 
 export const useInterestRateUtilizationChart = (
-  currencyId: number | undefined,
-  actionType: string,
-  selectedDepositToken: string | undefined
+  deposit: TokenDefinition | undefined,
+  actionType: string
 ) => {
   const theme = useTheme();
-  const market = useNotionalMarket(currencyId);
+  const market = useNotionalMarket(deposit);
 
   const areaChartData = market
     ? Array(101)
@@ -27,11 +27,9 @@ export const useInterestRateUtilizationChart = (
           timestamp: i,
           area:
             actionType === 'borrow'
-              ? (market.getPrimeDebtRate((i / 100) * RATE_PRECISION) *
-                  100) /
+              ? (market.getPrimeDebtRate((i / 100) * RATE_PRECISION) * 100) /
                 RATE_PRECISION
-              : (market.getPrimeSupplyRate((i / 100) * RATE_PRECISION) *
-                  100) /
+              : (market.getPrimeSupplyRate((i / 100) * RATE_PRECISION) * 100) /
                 RATE_PRECISION,
         }))
     : [];
@@ -43,13 +41,13 @@ export const useInterestRateUtilizationChart = (
     textHeader:
       actionType === 'borrow' ? (
         <FormattedMessage
-          defaultMessage={'{selectedDepositToken} Variable Borrow Rate | Utilization'}
-          values={{selectedDepositToken}}
+          defaultMessage={'{symbol} Variable Borrow Rate | Utilization'}
+          values={{ symbol: deposit?.symbol }}
         />
       ) : (
         <FormattedMessage
-          defaultMessage={'{selectedDepositToken} Variable Lending Rate | Utilization'}
-          values={{selectedDepositToken}}
+          defaultMessage={'{symbol} Variable Lending Rate | Utilization'}
+          values={{ symbol: deposit?.symbol }}
         />
       ),
     legendData: [

@@ -1,7 +1,6 @@
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Body } from '@notional-finance/mui';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { LiquidityContext } from '../../liquidity';
 import {
   getEtherscanAddressLink,
@@ -10,10 +9,9 @@ import {
 import { RiskFaq } from '../components';
 
 export const useLiquidityFaq = (tokenSymbol: string) => {
-  const selectedNetwork = useSelectedNetwork();
   const context = useContext(LiquidityContext);
   const {
-    state: { collateral },
+    state: { collateral, selectedNetwork },
   } = context;
   const faqHeaderLinks = [
     {

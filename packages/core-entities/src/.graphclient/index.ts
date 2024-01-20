@@ -415,6 +415,8 @@ export type BalanceSnapshot = {
   blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transaction: Transaction;
+  /** Link to previous snapshot, if it exists */
+  previousSnapshot?: Maybe<BalanceSnapshot>;
   /** Link to the balance entity for this token */
   balance: Balance;
   /** Current balance of the token at this block */
@@ -439,15 +441,9 @@ export type BalanceSnapshot = {
   _accumulatedCostRealized: Scalars['BigInt'];
   /** Cumulative realized cost using adjusted cost basis for internal PnL calculations */
   _accumulatedCostAdjustedBasis: Scalars['BigInt'];
-  /** Current account incentive debt for NOTE */
-  currentNOTEIncentiveDebt: Scalars['BigInt'];
-  /** Previous account incentive debt for NOTE */
-  previousNOTEIncentiveDebt: Scalars['BigInt'];
-  /** Total NOTE accrued over the lifetime of this balance */
-  totalNOTEClaimed: Scalars['BigInt'];
-  /** NOTE Earnings adjusted for balance changes */
-  adjustedNOTEClaimed: Scalars['BigInt'];
   profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
+  /** Snapshots of the secondary incentives */
+  incentives?: Maybe<Array<IncentiveSnapshot>>;
 };
 
 
@@ -457,6 +453,15 @@ export type BalanceSnapshotprofitLossLineItemsArgs = {
   orderBy?: InputMaybe<ProfitLossLineItem_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<ProfitLossLineItem_filter>;
+};
+
+
+export type BalanceSnapshotincentivesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<IncentiveSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<IncentiveSnapshot_filter>;
 };
 
 export type BalanceSnapshot_filter = {
@@ -505,6 +510,27 @@ export type BalanceSnapshot_filter = {
   transaction_not_ends_with?: InputMaybe<Scalars['String']>;
   transaction_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transaction_?: InputMaybe<Transaction_filter>;
+  previousSnapshot?: InputMaybe<Scalars['String']>;
+  previousSnapshot_not?: InputMaybe<Scalars['String']>;
+  previousSnapshot_gt?: InputMaybe<Scalars['String']>;
+  previousSnapshot_lt?: InputMaybe<Scalars['String']>;
+  previousSnapshot_gte?: InputMaybe<Scalars['String']>;
+  previousSnapshot_lte?: InputMaybe<Scalars['String']>;
+  previousSnapshot_in?: InputMaybe<Array<Scalars['String']>>;
+  previousSnapshot_not_in?: InputMaybe<Array<Scalars['String']>>;
+  previousSnapshot_contains?: InputMaybe<Scalars['String']>;
+  previousSnapshot_contains_nocase?: InputMaybe<Scalars['String']>;
+  previousSnapshot_not_contains?: InputMaybe<Scalars['String']>;
+  previousSnapshot_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  previousSnapshot_starts_with?: InputMaybe<Scalars['String']>;
+  previousSnapshot_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  previousSnapshot_not_starts_with?: InputMaybe<Scalars['String']>;
+  previousSnapshot_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  previousSnapshot_ends_with?: InputMaybe<Scalars['String']>;
+  previousSnapshot_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  previousSnapshot_not_ends_with?: InputMaybe<Scalars['String']>;
+  previousSnapshot_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  previousSnapshot_?: InputMaybe<BalanceSnapshot_filter>;
   balance?: InputMaybe<Scalars['String']>;
   balance_not?: InputMaybe<Scalars['String']>;
   balance_gt?: InputMaybe<Scalars['String']>;
@@ -614,39 +640,8 @@ export type BalanceSnapshot_filter = {
   _accumulatedCostAdjustedBasis_lte?: InputMaybe<Scalars['BigInt']>;
   _accumulatedCostAdjustedBasis_in?: InputMaybe<Array<Scalars['BigInt']>>;
   _accumulatedCostAdjustedBasis_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  currentNOTEIncentiveDebt?: InputMaybe<Scalars['BigInt']>;
-  currentNOTEIncentiveDebt_not?: InputMaybe<Scalars['BigInt']>;
-  currentNOTEIncentiveDebt_gt?: InputMaybe<Scalars['BigInt']>;
-  currentNOTEIncentiveDebt_lt?: InputMaybe<Scalars['BigInt']>;
-  currentNOTEIncentiveDebt_gte?: InputMaybe<Scalars['BigInt']>;
-  currentNOTEIncentiveDebt_lte?: InputMaybe<Scalars['BigInt']>;
-  currentNOTEIncentiveDebt_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  currentNOTEIncentiveDebt_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  previousNOTEIncentiveDebt?: InputMaybe<Scalars['BigInt']>;
-  previousNOTEIncentiveDebt_not?: InputMaybe<Scalars['BigInt']>;
-  previousNOTEIncentiveDebt_gt?: InputMaybe<Scalars['BigInt']>;
-  previousNOTEIncentiveDebt_lt?: InputMaybe<Scalars['BigInt']>;
-  previousNOTEIncentiveDebt_gte?: InputMaybe<Scalars['BigInt']>;
-  previousNOTEIncentiveDebt_lte?: InputMaybe<Scalars['BigInt']>;
-  previousNOTEIncentiveDebt_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  previousNOTEIncentiveDebt_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  totalNOTEClaimed?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEClaimed_not?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEClaimed_gt?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEClaimed_lt?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEClaimed_gte?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEClaimed_lte?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEClaimed_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  totalNOTEClaimed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adjustedNOTEClaimed?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEClaimed_not?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEClaimed_gt?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEClaimed_lt?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEClaimed_gte?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEClaimed_lte?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEClaimed_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adjustedNOTEClaimed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
+  incentives_?: InputMaybe<IncentiveSnapshot_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<BalanceSnapshot_filter>>>;
@@ -663,6 +658,21 @@ export type BalanceSnapshot_orderBy =
   | 'transaction__timestamp'
   | 'transaction__transactionHash'
   | 'transaction___nextStartIndex'
+  | 'previousSnapshot'
+  | 'previousSnapshot__id'
+  | 'previousSnapshot__blockNumber'
+  | 'previousSnapshot__timestamp'
+  | 'previousSnapshot__currentBalance'
+  | 'previousSnapshot__previousBalance'
+  | 'previousSnapshot__adjustedCostBasis'
+  | 'previousSnapshot__currentProfitAndLossAtSnapshot'
+  | 'previousSnapshot__totalProfitAndLossAtSnapshot'
+  | 'previousSnapshot__totalILAndFeesAtSnapshot'
+  | 'previousSnapshot__totalInterestAccrualAtSnapshot'
+  | 'previousSnapshot__impliedFixedRate'
+  | 'previousSnapshot___accumulatedBalance'
+  | 'previousSnapshot___accumulatedCostRealized'
+  | 'previousSnapshot___accumulatedCostAdjustedBasis'
   | 'balance'
   | 'balance__id'
   | 'balance__firstUpdateBlockNumber'
@@ -682,11 +692,8 @@ export type BalanceSnapshot_orderBy =
   | '_accumulatedBalance'
   | '_accumulatedCostRealized'
   | '_accumulatedCostAdjustedBasis'
-  | 'currentNOTEIncentiveDebt'
-  | 'previousNOTEIncentiveDebt'
-  | 'totalNOTEClaimed'
-  | 'adjustedNOTEClaimed'
-  | 'profitLossLineItems';
+  | 'profitLossLineItems'
+  | 'incentives';
 
 export type Balance_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -877,10 +884,6 @@ export type Balance_orderBy =
   | 'current___accumulatedBalance'
   | 'current___accumulatedCostRealized'
   | 'current___accumulatedCostAdjustedBasis'
-  | 'current__currentNOTEIncentiveDebt'
-  | 'current__previousNOTEIncentiveDebt'
-  | 'current__totalNOTEClaimed'
-  | 'current__adjustedNOTEClaimed'
   | 'snapshots';
 
 export type BlockChangedFilter = {
@@ -950,9 +953,6 @@ export type CurrencyConfiguration = {
   /** Market proportions used during market initialization */
   proportions?: Maybe<Array<Scalars['Int']>>;
   deprecated_anchorRates?: Maybe<Array<Scalars['Int']>>;
-  /** Annual incentive emission rate */
-  incentiveEmissionRate?: Maybe<Scalars['BigInt']>;
-  secondaryIncentiveRewarder?: Maybe<Scalars['Bytes']>;
   /** Residual purchase incentive in basis points */
   residualPurchaseIncentiveBasisPoints?: Maybe<Scalars['Int']>;
   /** Seconds until residuals become available to purchase after market initialization */
@@ -963,6 +963,8 @@ export type CurrencyConfiguration = {
   pvHaircutPercentage?: Maybe<Scalars['Int']>;
   /** Discount on nToken PV given to liquidators */
   liquidationHaircutPercentage?: Maybe<Scalars['Int']>;
+  /** Maximum valuation deviation percentage for nToken minting */
+  maxMintDeviationPercentage?: Maybe<Scalars['Int']>;
   incentives?: Maybe<Incentive>;
 };
 
@@ -1295,24 +1297,6 @@ export type CurrencyConfiguration_filter = {
   deprecated_anchorRates_contains_nocase?: InputMaybe<Array<Scalars['Int']>>;
   deprecated_anchorRates_not_contains?: InputMaybe<Array<Scalars['Int']>>;
   deprecated_anchorRates_not_contains_nocase?: InputMaybe<Array<Scalars['Int']>>;
-  incentiveEmissionRate?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_not?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_gt?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_lt?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_gte?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_lte?: InputMaybe<Scalars['BigInt']>;
-  incentiveEmissionRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  incentiveEmissionRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  secondaryIncentiveRewarder?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_not?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_gt?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_lt?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_gte?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_lte?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  secondaryIncentiveRewarder_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  secondaryIncentiveRewarder_contains?: InputMaybe<Scalars['Bytes']>;
-  secondaryIncentiveRewarder_not_contains?: InputMaybe<Scalars['Bytes']>;
   residualPurchaseIncentiveBasisPoints?: InputMaybe<Scalars['Int']>;
   residualPurchaseIncentiveBasisPoints_not?: InputMaybe<Scalars['Int']>;
   residualPurchaseIncentiveBasisPoints_gt?: InputMaybe<Scalars['Int']>;
@@ -1353,6 +1337,14 @@ export type CurrencyConfiguration_filter = {
   liquidationHaircutPercentage_lte?: InputMaybe<Scalars['Int']>;
   liquidationHaircutPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
   liquidationHaircutPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  maxMintDeviationPercentage?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_not?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_gt?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_lt?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_gte?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_lte?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
+  maxMintDeviationPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
   incentives_?: InputMaybe<Incentive_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
@@ -1467,25 +1459,30 @@ export type CurrencyConfiguration_orderBy =
   | 'leverageThresholds'
   | 'proportions'
   | 'deprecated_anchorRates'
-  | 'incentiveEmissionRate'
-  | 'secondaryIncentiveRewarder'
   | 'residualPurchaseIncentiveBasisPoints'
   | 'residualPurchaseTimeBufferSeconds'
   | 'cashWithholdingBufferBasisPoints'
   | 'pvHaircutPercentage'
   | 'liquidationHaircutPercentage'
+  | 'maxMintDeviationPercentage'
   | 'incentives'
   | 'incentives__id'
   | 'incentives__lastUpdateBlockNumber'
   | 'incentives__lastUpdateTimestamp'
   | 'incentives__lastUpdateTransactionHash'
+  | 'incentives__secondaryIncentiveRewarder'
+  | 'incentives__incentiveEmissionRate'
   | 'incentives__accumulatedNOTEPerNToken'
   | 'incentives__lastAccumulatedTime'
   | 'incentives__deprecated_lastSupplyChangeTime'
   | 'incentives__deprecated_integralTotalSupply'
   | 'incentives__migrationEmissionRate'
   | 'incentives__finalIntegralTotalSupply'
-  | 'incentives__migrationTime';
+  | 'incentives__migrationTime'
+  | 'incentives__accumulatedSecondaryRewardPerNToken'
+  | 'incentives__lastSecondaryAccumulatedTime'
+  | 'incentives__secondaryEmissionRate'
+  | 'incentives__secondaryRewardEndTime';
 
 export type DEX =
   | '_UNUSED'
@@ -1504,6 +1501,7 @@ export type ExchangeRate = {
   transaction?: Maybe<Transaction>;
   oracle: Oracle;
   rate: Scalars['BigInt'];
+  totalSupply?: Maybe<Scalars['BigInt']>;
 };
 
 export type ExchangeRate_filter = {
@@ -1581,6 +1579,14 @@ export type ExchangeRate_filter = {
   rate_lte?: InputMaybe<Scalars['BigInt']>;
   rate_in?: InputMaybe<Array<Scalars['BigInt']>>;
   rate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalSupply?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_not?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_gt?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_lt?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_gte?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_lte?: InputMaybe<Scalars['BigInt']>;
+  totalSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<ExchangeRate_filter>>>;
@@ -1608,7 +1614,8 @@ export type ExchangeRate_orderBy =
   | 'oracle__mustInvert'
   | 'oracle__latestRate'
   | 'oracle__matured'
-  | 'rate';
+  | 'rate'
+  | 'totalSupply';
 
 export type Incentive = {
   /** ID is the currency id */
@@ -1617,6 +1624,10 @@ export type Incentive = {
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   currencyConfiguration: CurrencyConfiguration;
+  /** If set, a secondary incentive rewarder is set */
+  secondaryIncentiveRewarder?: Maybe<Scalars['Bytes']>;
+  /** Annual incentive emission rate for NOTE */
+  incentiveEmissionRate?: Maybe<Scalars['BigInt']>;
   /** Current accumulated NOTE per nToken */
   accumulatedNOTEPerNToken?: Maybe<Scalars['BigInt']>;
   /** Last accumulation time */
@@ -1631,7 +1642,214 @@ export type Incentive = {
   finalIntegralTotalSupply?: Maybe<Scalars['BigInt']>;
   /** Time when the currency was migrated */
   migrationTime?: Maybe<Scalars['BigInt']>;
+  /** Current secondary reward token set for this currency */
+  currentSecondaryReward?: Maybe<Token>;
+  /** Total accumulated secondary reward per nToken for the current rewarder */
+  accumulatedSecondaryRewardPerNToken?: Maybe<Scalars['BigInt']>;
+  /** Last accumulated time for the current rewarder */
+  lastSecondaryAccumulatedTime?: Maybe<Scalars['BigInt']>;
+  /** Secondary incentive emission rate in INTERNAL_TOKEN_PRECISION */
+  secondaryEmissionRate?: Maybe<Scalars['BigInt']>;
+  /** End time for the current secondary rewarder */
+  secondaryRewardEndTime?: Maybe<Scalars['BigInt']>;
 };
+
+export type IncentiveSnapshot = {
+  /** Balance Snapshot ID:Reward Token */
+  id: Scalars['ID'];
+  blockNumber: Scalars['BigInt'];
+  timestamp: Scalars['Int'];
+  transaction: Transaction;
+  /** Link back to the balance snapshot for this secondary incentive */
+  balanceSnapshot: BalanceSnapshot;
+  /** Reward token associated with this snapshot */
+  rewardToken: Token;
+  /** Current account incentive debt for reward */
+  currentIncentiveDebt: Scalars['BigInt'];
+  /** Previous account incentive debt for reward */
+  previousIncentiveDebt: Scalars['BigInt'];
+  /** Total reward accrued over the lifetime of this balance */
+  totalClaimed: Scalars['BigInt'];
+  /** Reward earnings adjusted for balance changes */
+  adjustedClaimed: Scalars['BigInt'];
+};
+
+export type IncentiveSnapshot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['Int']>;
+  timestamp_not?: InputMaybe<Scalars['Int']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']>;
+  timestamp_lt?: InputMaybe<Scalars['Int']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']>;
+  timestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  transaction?: InputMaybe<Scalars['String']>;
+  transaction_not?: InputMaybe<Scalars['String']>;
+  transaction_gt?: InputMaybe<Scalars['String']>;
+  transaction_lt?: InputMaybe<Scalars['String']>;
+  transaction_gte?: InputMaybe<Scalars['String']>;
+  transaction_lte?: InputMaybe<Scalars['String']>;
+  transaction_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_contains?: InputMaybe<Scalars['String']>;
+  transaction_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_contains?: InputMaybe<Scalars['String']>;
+  transaction_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_?: InputMaybe<Transaction_filter>;
+  balanceSnapshot?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_gt?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_lt?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_gte?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_lte?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_in?: InputMaybe<Array<Scalars['String']>>;
+  balanceSnapshot_not_in?: InputMaybe<Array<Scalars['String']>>;
+  balanceSnapshot_contains?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_contains_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_contains?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_starts_with?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_starts_with?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_ends_with?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_ends_with?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_?: InputMaybe<BalanceSnapshot_filter>;
+  rewardToken?: InputMaybe<Scalars['String']>;
+  rewardToken_not?: InputMaybe<Scalars['String']>;
+  rewardToken_gt?: InputMaybe<Scalars['String']>;
+  rewardToken_lt?: InputMaybe<Scalars['String']>;
+  rewardToken_gte?: InputMaybe<Scalars['String']>;
+  rewardToken_lte?: InputMaybe<Scalars['String']>;
+  rewardToken_in?: InputMaybe<Array<Scalars['String']>>;
+  rewardToken_not_in?: InputMaybe<Array<Scalars['String']>>;
+  rewardToken_contains?: InputMaybe<Scalars['String']>;
+  rewardToken_contains_nocase?: InputMaybe<Scalars['String']>;
+  rewardToken_not_contains?: InputMaybe<Scalars['String']>;
+  rewardToken_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  rewardToken_starts_with?: InputMaybe<Scalars['String']>;
+  rewardToken_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardToken_not_starts_with?: InputMaybe<Scalars['String']>;
+  rewardToken_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardToken_ends_with?: InputMaybe<Scalars['String']>;
+  rewardToken_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardToken_not_ends_with?: InputMaybe<Scalars['String']>;
+  rewardToken_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardToken_?: InputMaybe<Token_filter>;
+  currentIncentiveDebt?: InputMaybe<Scalars['BigInt']>;
+  currentIncentiveDebt_not?: InputMaybe<Scalars['BigInt']>;
+  currentIncentiveDebt_gt?: InputMaybe<Scalars['BigInt']>;
+  currentIncentiveDebt_lt?: InputMaybe<Scalars['BigInt']>;
+  currentIncentiveDebt_gte?: InputMaybe<Scalars['BigInt']>;
+  currentIncentiveDebt_lte?: InputMaybe<Scalars['BigInt']>;
+  currentIncentiveDebt_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  currentIncentiveDebt_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  previousIncentiveDebt?: InputMaybe<Scalars['BigInt']>;
+  previousIncentiveDebt_not?: InputMaybe<Scalars['BigInt']>;
+  previousIncentiveDebt_gt?: InputMaybe<Scalars['BigInt']>;
+  previousIncentiveDebt_lt?: InputMaybe<Scalars['BigInt']>;
+  previousIncentiveDebt_gte?: InputMaybe<Scalars['BigInt']>;
+  previousIncentiveDebt_lte?: InputMaybe<Scalars['BigInt']>;
+  previousIncentiveDebt_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  previousIncentiveDebt_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalClaimed?: InputMaybe<Scalars['BigInt']>;
+  totalClaimed_not?: InputMaybe<Scalars['BigInt']>;
+  totalClaimed_gt?: InputMaybe<Scalars['BigInt']>;
+  totalClaimed_lt?: InputMaybe<Scalars['BigInt']>;
+  totalClaimed_gte?: InputMaybe<Scalars['BigInt']>;
+  totalClaimed_lte?: InputMaybe<Scalars['BigInt']>;
+  totalClaimed_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalClaimed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adjustedClaimed?: InputMaybe<Scalars['BigInt']>;
+  adjustedClaimed_not?: InputMaybe<Scalars['BigInt']>;
+  adjustedClaimed_gt?: InputMaybe<Scalars['BigInt']>;
+  adjustedClaimed_lt?: InputMaybe<Scalars['BigInt']>;
+  adjustedClaimed_gte?: InputMaybe<Scalars['BigInt']>;
+  adjustedClaimed_lte?: InputMaybe<Scalars['BigInt']>;
+  adjustedClaimed_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adjustedClaimed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<IncentiveSnapshot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<IncentiveSnapshot_filter>>>;
+};
+
+export type IncentiveSnapshot_orderBy =
+  | 'id'
+  | 'blockNumber'
+  | 'timestamp'
+  | 'transaction'
+  | 'transaction__id'
+  | 'transaction__blockNumber'
+  | 'transaction__timestamp'
+  | 'transaction__transactionHash'
+  | 'transaction___nextStartIndex'
+  | 'balanceSnapshot'
+  | 'balanceSnapshot__id'
+  | 'balanceSnapshot__blockNumber'
+  | 'balanceSnapshot__timestamp'
+  | 'balanceSnapshot__currentBalance'
+  | 'balanceSnapshot__previousBalance'
+  | 'balanceSnapshot__adjustedCostBasis'
+  | 'balanceSnapshot__currentProfitAndLossAtSnapshot'
+  | 'balanceSnapshot__totalProfitAndLossAtSnapshot'
+  | 'balanceSnapshot__totalILAndFeesAtSnapshot'
+  | 'balanceSnapshot__totalInterestAccrualAtSnapshot'
+  | 'balanceSnapshot__impliedFixedRate'
+  | 'balanceSnapshot___accumulatedBalance'
+  | 'balanceSnapshot___accumulatedCostRealized'
+  | 'balanceSnapshot___accumulatedCostAdjustedBasis'
+  | 'rewardToken'
+  | 'rewardToken__id'
+  | 'rewardToken__firstUpdateBlockNumber'
+  | 'rewardToken__firstUpdateTimestamp'
+  | 'rewardToken__firstUpdateTransactionHash'
+  | 'rewardToken__lastUpdateBlockNumber'
+  | 'rewardToken__lastUpdateTimestamp'
+  | 'rewardToken__lastUpdateTransactionHash'
+  | 'rewardToken__tokenType'
+  | 'rewardToken__tokenInterface'
+  | 'rewardToken__currencyId'
+  | 'rewardToken__name'
+  | 'rewardToken__symbol'
+  | 'rewardToken__decimals'
+  | 'rewardToken__precision'
+  | 'rewardToken__totalSupply'
+  | 'rewardToken__hasTransferFee'
+  | 'rewardToken__isfCashDebt'
+  | 'rewardToken__maturity'
+  | 'rewardToken__vaultAddress'
+  | 'rewardToken__tokenAddress'
+  | 'currentIncentiveDebt'
+  | 'previousIncentiveDebt'
+  | 'totalClaimed'
+  | 'adjustedClaimed';
 
 export type Incentive_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1689,6 +1907,24 @@ export type Incentive_filter = {
   currencyConfiguration_not_ends_with?: InputMaybe<Scalars['String']>;
   currencyConfiguration_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   currencyConfiguration_?: InputMaybe<CurrencyConfiguration_filter>;
+  secondaryIncentiveRewarder?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_not?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_gt?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_lt?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_gte?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_lte?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  secondaryIncentiveRewarder_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  secondaryIncentiveRewarder_contains?: InputMaybe<Scalars['Bytes']>;
+  secondaryIncentiveRewarder_not_contains?: InputMaybe<Scalars['Bytes']>;
+  incentiveEmissionRate?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_not?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_gt?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_lt?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_gte?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_lte?: InputMaybe<Scalars['BigInt']>;
+  incentiveEmissionRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  incentiveEmissionRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   accumulatedNOTEPerNToken?: InputMaybe<Scalars['BigInt']>;
   accumulatedNOTEPerNToken_not?: InputMaybe<Scalars['BigInt']>;
   accumulatedNOTEPerNToken_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1745,6 +1981,59 @@ export type Incentive_filter = {
   migrationTime_lte?: InputMaybe<Scalars['BigInt']>;
   migrationTime_in?: InputMaybe<Array<Scalars['BigInt']>>;
   migrationTime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  currentSecondaryReward?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_not?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_gt?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_lt?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_gte?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_lte?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_in?: InputMaybe<Array<Scalars['String']>>;
+  currentSecondaryReward_not_in?: InputMaybe<Array<Scalars['String']>>;
+  currentSecondaryReward_contains?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_contains_nocase?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_not_contains?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_starts_with?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_not_starts_with?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_ends_with?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_not_ends_with?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currentSecondaryReward_?: InputMaybe<Token_filter>;
+  accumulatedSecondaryRewardPerNToken?: InputMaybe<Scalars['BigInt']>;
+  accumulatedSecondaryRewardPerNToken_not?: InputMaybe<Scalars['BigInt']>;
+  accumulatedSecondaryRewardPerNToken_gt?: InputMaybe<Scalars['BigInt']>;
+  accumulatedSecondaryRewardPerNToken_lt?: InputMaybe<Scalars['BigInt']>;
+  accumulatedSecondaryRewardPerNToken_gte?: InputMaybe<Scalars['BigInt']>;
+  accumulatedSecondaryRewardPerNToken_lte?: InputMaybe<Scalars['BigInt']>;
+  accumulatedSecondaryRewardPerNToken_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  accumulatedSecondaryRewardPerNToken_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastSecondaryAccumulatedTime?: InputMaybe<Scalars['BigInt']>;
+  lastSecondaryAccumulatedTime_not?: InputMaybe<Scalars['BigInt']>;
+  lastSecondaryAccumulatedTime_gt?: InputMaybe<Scalars['BigInt']>;
+  lastSecondaryAccumulatedTime_lt?: InputMaybe<Scalars['BigInt']>;
+  lastSecondaryAccumulatedTime_gte?: InputMaybe<Scalars['BigInt']>;
+  lastSecondaryAccumulatedTime_lte?: InputMaybe<Scalars['BigInt']>;
+  lastSecondaryAccumulatedTime_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastSecondaryAccumulatedTime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  secondaryEmissionRate?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_not?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_gt?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_lt?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_gte?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_lte?: InputMaybe<Scalars['BigInt']>;
+  secondaryEmissionRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  secondaryEmissionRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  secondaryRewardEndTime?: InputMaybe<Scalars['BigInt']>;
+  secondaryRewardEndTime_not?: InputMaybe<Scalars['BigInt']>;
+  secondaryRewardEndTime_gt?: InputMaybe<Scalars['BigInt']>;
+  secondaryRewardEndTime_lt?: InputMaybe<Scalars['BigInt']>;
+  secondaryRewardEndTime_gte?: InputMaybe<Scalars['BigInt']>;
+  secondaryRewardEndTime_lte?: InputMaybe<Scalars['BigInt']>;
+  secondaryRewardEndTime_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  secondaryRewardEndTime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Incentive_filter>>>;
@@ -1779,20 +2068,46 @@ export type Incentive_orderBy =
   | 'currencyConfiguration__fCashLiquidationDebtBufferBasisPoints'
   | 'currencyConfiguration__treasuryReserveBuffer'
   | 'currencyConfiguration__rebalancingCooldown'
-  | 'currencyConfiguration__incentiveEmissionRate'
-  | 'currencyConfiguration__secondaryIncentiveRewarder'
   | 'currencyConfiguration__residualPurchaseIncentiveBasisPoints'
   | 'currencyConfiguration__residualPurchaseTimeBufferSeconds'
   | 'currencyConfiguration__cashWithholdingBufferBasisPoints'
   | 'currencyConfiguration__pvHaircutPercentage'
   | 'currencyConfiguration__liquidationHaircutPercentage'
+  | 'currencyConfiguration__maxMintDeviationPercentage'
+  | 'secondaryIncentiveRewarder'
+  | 'incentiveEmissionRate'
   | 'accumulatedNOTEPerNToken'
   | 'lastAccumulatedTime'
   | 'deprecated_lastSupplyChangeTime'
   | 'deprecated_integralTotalSupply'
   | 'migrationEmissionRate'
   | 'finalIntegralTotalSupply'
-  | 'migrationTime';
+  | 'migrationTime'
+  | 'currentSecondaryReward'
+  | 'currentSecondaryReward__id'
+  | 'currentSecondaryReward__firstUpdateBlockNumber'
+  | 'currentSecondaryReward__firstUpdateTimestamp'
+  | 'currentSecondaryReward__firstUpdateTransactionHash'
+  | 'currentSecondaryReward__lastUpdateBlockNumber'
+  | 'currentSecondaryReward__lastUpdateTimestamp'
+  | 'currentSecondaryReward__lastUpdateTransactionHash'
+  | 'currentSecondaryReward__tokenType'
+  | 'currentSecondaryReward__tokenInterface'
+  | 'currentSecondaryReward__currencyId'
+  | 'currentSecondaryReward__name'
+  | 'currentSecondaryReward__symbol'
+  | 'currentSecondaryReward__decimals'
+  | 'currentSecondaryReward__precision'
+  | 'currentSecondaryReward__totalSupply'
+  | 'currentSecondaryReward__hasTransferFee'
+  | 'currentSecondaryReward__isfCashDebt'
+  | 'currentSecondaryReward__maturity'
+  | 'currentSecondaryReward__vaultAddress'
+  | 'currentSecondaryReward__tokenAddress'
+  | 'accumulatedSecondaryRewardPerNToken'
+  | 'lastSecondaryAccumulatedTime'
+  | 'secondaryEmissionRate'
+  | 'secondaryRewardEndTime';
 
 export type InterestRateCurve = {
   /** ID is the currency id:market index:true if current */
@@ -2065,7 +2380,8 @@ export type OracleType =
   | 'nTokenToUnderlyingExchangeRate'
   | 'nTokenBlendedInterestRate'
   | 'nTokenFeeRate'
-  | 'nTokenIncentiveRate';
+  | 'nTokenIncentiveRate'
+  | 'nTokenSecondaryIncentiveRate';
 
 export type Oracle_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -3029,10 +3345,6 @@ export type ProfitLossLineItem_orderBy =
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
   | 'balanceSnapshot___accumulatedCostAdjustedBasis'
-  | 'balanceSnapshot__currentNOTEIncentiveDebt'
-  | 'balanceSnapshot__previousNOTEIncentiveDebt'
-  | 'balanceSnapshot__totalNOTEClaimed'
-  | 'balanceSnapshot__adjustedNOTEClaimed'
   | 'account'
   | 'account__id'
   | 'account__firstUpdateBlockNumber'
@@ -3151,6 +3463,8 @@ export type Query = {
   balances: Array<Balance>;
   balanceSnapshot?: Maybe<BalanceSnapshot>;
   balanceSnapshots: Array<BalanceSnapshot>;
+  incentiveSnapshot?: Maybe<IncentiveSnapshot>;
+  incentiveSnapshots: Array<IncentiveSnapshot>;
   activeMarket?: Maybe<ActiveMarket>;
   activeMarkets: Array<ActiveMarket>;
   primeCashMarket?: Maybe<PrimeCashMarket>;
@@ -3455,6 +3769,24 @@ export type QuerybalanceSnapshotsArgs = {
   orderBy?: InputMaybe<BalanceSnapshot_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<BalanceSnapshot_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryincentiveSnapshotArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryincentiveSnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<IncentiveSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<IncentiveSnapshot_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -3803,6 +4135,8 @@ export type Subscription = {
   balances: Array<Balance>;
   balanceSnapshot?: Maybe<BalanceSnapshot>;
   balanceSnapshots: Array<BalanceSnapshot>;
+  incentiveSnapshot?: Maybe<IncentiveSnapshot>;
+  incentiveSnapshots: Array<IncentiveSnapshot>;
   activeMarket?: Maybe<ActiveMarket>;
   activeMarkets: Array<ActiveMarket>;
   primeCashMarket?: Maybe<PrimeCashMarket>;
@@ -4112,6 +4446,24 @@ export type SubscriptionbalanceSnapshotsArgs = {
 };
 
 
+export type SubscriptionincentiveSnapshotArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionincentiveSnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<IncentiveSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<IncentiveSnapshot_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type SubscriptionactiveMarketArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
@@ -4270,7 +4622,8 @@ export type SystemAccount =
   | 'PrimeCash'
   | 'PrimeDebt'
   | 'Notional'
-  | 'NOTE';
+  | 'NOTE'
+  | 'SecondaryIncentiveRewarder';
 
 export type Token = {
   /**
@@ -4629,7 +4982,10 @@ export type TradingModulePermission = {
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   sender: Account;
-  token: Token;
+  token?: Maybe<Token>;
+  tokenAddress: Scalars['Bytes'];
+  name: Scalars['String'];
+  symbol: Scalars['String'];
   allowedDexes: Array<DEX>;
   allowSell: Scalars['Boolean'];
   allowedTradeTypes: Array<TradeType>;
@@ -4712,6 +5068,56 @@ export type TradingModulePermission_filter = {
   token_not_ends_with?: InputMaybe<Scalars['String']>;
   token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   token_?: InputMaybe<Token_filter>;
+  tokenAddress?: InputMaybe<Scalars['Bytes']>;
+  tokenAddress_not?: InputMaybe<Scalars['Bytes']>;
+  tokenAddress_gt?: InputMaybe<Scalars['Bytes']>;
+  tokenAddress_lt?: InputMaybe<Scalars['Bytes']>;
+  tokenAddress_gte?: InputMaybe<Scalars['Bytes']>;
+  tokenAddress_lte?: InputMaybe<Scalars['Bytes']>;
+  tokenAddress_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  tokenAddress_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  tokenAddress_contains?: InputMaybe<Scalars['Bytes']>;
+  tokenAddress_not_contains?: InputMaybe<Scalars['Bytes']>;
+  name?: InputMaybe<Scalars['String']>;
+  name_not?: InputMaybe<Scalars['String']>;
+  name_gt?: InputMaybe<Scalars['String']>;
+  name_lt?: InputMaybe<Scalars['String']>;
+  name_gte?: InputMaybe<Scalars['String']>;
+  name_lte?: InputMaybe<Scalars['String']>;
+  name_in?: InputMaybe<Array<Scalars['String']>>;
+  name_not_in?: InputMaybe<Array<Scalars['String']>>;
+  name_contains?: InputMaybe<Scalars['String']>;
+  name_contains_nocase?: InputMaybe<Scalars['String']>;
+  name_not_contains?: InputMaybe<Scalars['String']>;
+  name_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  name_starts_with?: InputMaybe<Scalars['String']>;
+  name_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  name_not_starts_with?: InputMaybe<Scalars['String']>;
+  name_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  name_ends_with?: InputMaybe<Scalars['String']>;
+  name_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']>;
+  name_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol?: InputMaybe<Scalars['String']>;
+  symbol_not?: InputMaybe<Scalars['String']>;
+  symbol_gt?: InputMaybe<Scalars['String']>;
+  symbol_lt?: InputMaybe<Scalars['String']>;
+  symbol_gte?: InputMaybe<Scalars['String']>;
+  symbol_lte?: InputMaybe<Scalars['String']>;
+  symbol_in?: InputMaybe<Array<Scalars['String']>>;
+  symbol_not_in?: InputMaybe<Array<Scalars['String']>>;
+  symbol_contains?: InputMaybe<Scalars['String']>;
+  symbol_contains_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_contains?: InputMaybe<Scalars['String']>;
+  symbol_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  symbol_starts_with?: InputMaybe<Scalars['String']>;
+  symbol_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_starts_with?: InputMaybe<Scalars['String']>;
+  symbol_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_ends_with?: InputMaybe<Scalars['String']>;
+  symbol_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_ends_with?: InputMaybe<Scalars['String']>;
+  symbol_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   allowedDexes?: InputMaybe<Array<DEX>>;
   allowedDexes_not?: InputMaybe<Array<DEX>>;
   allowedDexes_contains?: InputMaybe<Array<DEX>>;
@@ -4774,6 +5180,9 @@ export type TradingModulePermission_orderBy =
   | 'token__maturity'
   | 'token__vaultAddress'
   | 'token__tokenAddress'
+  | 'tokenAddress'
+  | 'name'
+  | 'symbol'
   | 'allowedDexes'
   | 'allowSell'
   | 'allowedTradeTypes';
@@ -5770,7 +6179,9 @@ export type VaultConfiguration_orderBy =
 /** All maturities of this strategy vault */
 export type WhitelistedCapability =
   | 'GlobalTransferOperator'
-  | 'AuthorizedCallbackContract';
+  | 'AuthorizedCallbackContract'
+  | 'SecondaryIncentiveRewarder'
+  | 'DetachedSecondaryIncentiveRewarder';
 
 export type WhitelistedContract = {
   id: Scalars['ID'];
@@ -5779,6 +6190,7 @@ export type WhitelistedContract = {
   lastUpdateTransactionHash: Scalars['Bytes'];
   capability: Array<WhitelistedCapability>;
   name: Scalars['String'];
+  currency?: Maybe<CurrencyConfiguration>;
 };
 
 export type WhitelistedContract_filter = {
@@ -5842,6 +6254,27 @@ export type WhitelistedContract_filter = {
   name_ends_with_nocase?: InputMaybe<Scalars['String']>;
   name_not_ends_with?: InputMaybe<Scalars['String']>;
   name_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currency?: InputMaybe<Scalars['String']>;
+  currency_not?: InputMaybe<Scalars['String']>;
+  currency_gt?: InputMaybe<Scalars['String']>;
+  currency_lt?: InputMaybe<Scalars['String']>;
+  currency_gte?: InputMaybe<Scalars['String']>;
+  currency_lte?: InputMaybe<Scalars['String']>;
+  currency_in?: InputMaybe<Array<Scalars['String']>>;
+  currency_not_in?: InputMaybe<Array<Scalars['String']>>;
+  currency_contains?: InputMaybe<Scalars['String']>;
+  currency_contains_nocase?: InputMaybe<Scalars['String']>;
+  currency_not_contains?: InputMaybe<Scalars['String']>;
+  currency_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  currency_starts_with?: InputMaybe<Scalars['String']>;
+  currency_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currency_not_starts_with?: InputMaybe<Scalars['String']>;
+  currency_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currency_ends_with?: InputMaybe<Scalars['String']>;
+  currency_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currency_not_ends_with?: InputMaybe<Scalars['String']>;
+  currency_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currency_?: InputMaybe<CurrencyConfiguration_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<WhitelistedContract_filter>>>;
@@ -5854,7 +6287,36 @@ export type WhitelistedContract_orderBy =
   | 'lastUpdateTimestamp'
   | 'lastUpdateTransactionHash'
   | 'capability'
-  | 'name';
+  | 'name'
+  | 'currency'
+  | 'currency__id'
+  | 'currency__lastUpdateBlockNumber'
+  | 'currency__lastUpdateTimestamp'
+  | 'currency__lastUpdateTransactionHash'
+  | 'currency__maxUnderlyingSupply'
+  | 'currency__collateralHaircut'
+  | 'currency__debtBuffer'
+  | 'currency__liquidationDiscount'
+  | 'currency__primeCashRateOracleTimeWindowSeconds'
+  | 'currency__primeCashHoldingsOracle'
+  | 'currency__primeDebtAllowed'
+  | 'currency__fCashRateOracleTimeWindowSeconds'
+  | 'currency__fCashReserveFeeSharePercent'
+  | 'currency__fCashDebtBufferBasisPoints'
+  | 'currency__fCashHaircutBasisPoints'
+  | 'currency__fCashMinOracleRate'
+  | 'currency__fCashMaxOracleRate'
+  | 'currency__fCashMaxDiscountFactor'
+  | 'currency__fCashLiquidationHaircutBasisPoints'
+  | 'currency__fCashLiquidationDebtBufferBasisPoints'
+  | 'currency__treasuryReserveBuffer'
+  | 'currency__rebalancingCooldown'
+  | 'currency__residualPurchaseIncentiveBasisPoints'
+  | 'currency__residualPurchaseTimeBufferSeconds'
+  | 'currency__cashWithholdingBufferBasisPoints'
+  | 'currency__pvHaircutPercentage'
+  | 'currency__liquidationHaircutPercentage'
+  | 'currency__maxMintDeviationPercentage';
 
 export type _Block_ = {
   /** The hash of the block */
@@ -6544,6 +7006,9 @@ export type ResolversTypes = ResolversObject<{
   Float: ResolverTypeWrapper<Scalars['Float']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Incentive: ResolverTypeWrapper<Incentive>;
+  IncentiveSnapshot: ResolverTypeWrapper<IncentiveSnapshot>;
+  IncentiveSnapshot_filter: IncentiveSnapshot_filter;
+  IncentiveSnapshot_orderBy: IncentiveSnapshot_orderBy;
   Incentive_filter: Incentive_filter;
   Incentive_orderBy: Incentive_orderBy;
   Int: ResolverTypeWrapper<Scalars['Int']>;
@@ -6638,6 +7103,8 @@ export type ResolversParentTypes = ResolversObject<{
   Float: Scalars['Float'];
   ID: Scalars['ID'];
   Incentive: Incentive;
+  IncentiveSnapshot: IncentiveSnapshot;
+  IncentiveSnapshot_filter: IncentiveSnapshot_filter;
   Incentive_filter: Incentive_filter;
   Int: Scalars['Int'];
   Int8: Scalars['Int8'];
@@ -6750,6 +7217,7 @@ export type BalanceSnapshotResolvers<ContextType = MeshContext & { chainName: st
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
+  previousSnapshot?: Resolver<Maybe<ResolversTypes['BalanceSnapshot']>, ParentType, ContextType>;
   balance?: Resolver<ResolversTypes['Balance'], ParentType, ContextType>;
   currentBalance?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   previousBalance?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -6762,11 +7230,8 @@ export type BalanceSnapshotResolvers<ContextType = MeshContext & { chainName: st
   _accumulatedBalance?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   _accumulatedCostRealized?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   _accumulatedCostAdjustedBasis?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  currentNOTEIncentiveDebt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  previousNOTEIncentiveDebt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  totalNOTEClaimed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  adjustedNOTEClaimed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   profitLossLineItems?: Resolver<Maybe<Array<ResolversTypes['ProfitLossLineItem']>>, ParentType, ContextType, RequireFields<BalanceSnapshotprofitLossLineItemsArgs, 'skip' | 'first'>>;
+  incentives?: Resolver<Maybe<Array<ResolversTypes['IncentiveSnapshot']>>, ParentType, ContextType, RequireFields<BalanceSnapshotincentivesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6817,13 +7282,12 @@ export type CurrencyConfigurationResolvers<ContextType = MeshContext & { chainNa
   leverageThresholds?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
   proportions?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
   deprecated_anchorRates?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
-  incentiveEmissionRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  secondaryIncentiveRewarder?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   residualPurchaseIncentiveBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   residualPurchaseTimeBufferSeconds?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   cashWithholdingBufferBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   pvHaircutPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   liquidationHaircutPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  maxMintDeviationPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   incentives?: Resolver<Maybe<ResolversTypes['Incentive']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -6835,6 +7299,7 @@ export type ExchangeRateResolvers<ContextType = MeshContext & { chainName: strin
   transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   oracle?: Resolver<ResolversTypes['Oracle'], ParentType, ContextType>;
   rate?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  totalSupply?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6844,6 +7309,8 @@ export type IncentiveResolvers<ContextType = MeshContext & { chainName: string }
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   currencyConfiguration?: Resolver<ResolversTypes['CurrencyConfiguration'], ParentType, ContextType>;
+  secondaryIncentiveRewarder?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
+  incentiveEmissionRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   accumulatedNOTEPerNToken?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   lastAccumulatedTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   deprecated_lastSupplyChangeTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
@@ -6851,6 +7318,25 @@ export type IncentiveResolvers<ContextType = MeshContext & { chainName: string }
   migrationEmissionRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   finalIntegralTotalSupply?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   migrationTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  currentSecondaryReward?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
+  accumulatedSecondaryRewardPerNToken?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  lastSecondaryAccumulatedTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  secondaryEmissionRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  secondaryRewardEndTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type IncentiveSnapshotResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['IncentiveSnapshot'] = ResolversParentTypes['IncentiveSnapshot']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  transaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
+  balanceSnapshot?: Resolver<ResolversTypes['BalanceSnapshot'], ParentType, ContextType>;
+  rewardToken?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
+  currentIncentiveDebt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  previousIncentiveDebt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  totalClaimed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  adjustedClaimed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6989,6 +7475,8 @@ export type QueryResolvers<ContextType = MeshContext & { chainName: string }, Pa
   balances?: Resolver<Array<ResolversTypes['Balance']>, ParentType, ContextType, RequireFields<QuerybalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
   balanceSnapshot?: Resolver<Maybe<ResolversTypes['BalanceSnapshot']>, ParentType, ContextType, RequireFields<QuerybalanceSnapshotArgs, 'id' | 'subgraphError'>>;
   balanceSnapshots?: Resolver<Array<ResolversTypes['BalanceSnapshot']>, ParentType, ContextType, RequireFields<QuerybalanceSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  incentiveSnapshot?: Resolver<Maybe<ResolversTypes['IncentiveSnapshot']>, ParentType, ContextType, RequireFields<QueryincentiveSnapshotArgs, 'id' | 'subgraphError'>>;
+  incentiveSnapshots?: Resolver<Array<ResolversTypes['IncentiveSnapshot']>, ParentType, ContextType, RequireFields<QueryincentiveSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
   activeMarket?: Resolver<Maybe<ResolversTypes['ActiveMarket']>, ParentType, ContextType, RequireFields<QueryactiveMarketArgs, 'id' | 'subgraphError'>>;
   activeMarkets?: Resolver<Array<ResolversTypes['ActiveMarket']>, ParentType, ContextType, RequireFields<QueryactiveMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
   primeCashMarket?: Resolver<Maybe<ResolversTypes['PrimeCashMarket']>, ParentType, ContextType, RequireFields<QueryprimeCashMarketArgs, 'id' | 'subgraphError'>>;
@@ -7055,6 +7543,8 @@ export type SubscriptionResolvers<ContextType = MeshContext & { chainName: strin
   balances?: SubscriptionResolver<Array<ResolversTypes['Balance']>, "balances", ParentType, ContextType, RequireFields<SubscriptionbalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
   balanceSnapshot?: SubscriptionResolver<Maybe<ResolversTypes['BalanceSnapshot']>, "balanceSnapshot", ParentType, ContextType, RequireFields<SubscriptionbalanceSnapshotArgs, 'id' | 'subgraphError'>>;
   balanceSnapshots?: SubscriptionResolver<Array<ResolversTypes['BalanceSnapshot']>, "balanceSnapshots", ParentType, ContextType, RequireFields<SubscriptionbalanceSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  incentiveSnapshot?: SubscriptionResolver<Maybe<ResolversTypes['IncentiveSnapshot']>, "incentiveSnapshot", ParentType, ContextType, RequireFields<SubscriptionincentiveSnapshotArgs, 'id' | 'subgraphError'>>;
+  incentiveSnapshots?: SubscriptionResolver<Array<ResolversTypes['IncentiveSnapshot']>, "incentiveSnapshots", ParentType, ContextType, RequireFields<SubscriptionincentiveSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
   activeMarket?: SubscriptionResolver<Maybe<ResolversTypes['ActiveMarket']>, "activeMarket", ParentType, ContextType, RequireFields<SubscriptionactiveMarketArgs, 'id' | 'subgraphError'>>;
   activeMarkets?: SubscriptionResolver<Array<ResolversTypes['ActiveMarket']>, "activeMarkets", ParentType, ContextType, RequireFields<SubscriptionactiveMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
   primeCashMarket?: SubscriptionResolver<Maybe<ResolversTypes['PrimeCashMarket']>, "primeCashMarket", ParentType, ContextType, RequireFields<SubscriptionprimeCashMarketArgs, 'id' | 'subgraphError'>>;
@@ -7109,7 +7599,10 @@ export type TradingModulePermissionResolvers<ContextType = MeshContext & { chain
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   sender?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
-  token?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
+  token?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
+  tokenAddress?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  symbol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   allowedDexes?: Resolver<Array<ResolversTypes['DEX']>, ParentType, ContextType>;
   allowSell?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   allowedTradeTypes?: Resolver<Array<ResolversTypes['TradeType']>, ParentType, ContextType>;
@@ -7207,6 +7700,7 @@ export type WhitelistedContractResolvers<ContextType = MeshContext & { chainName
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   capability?: Resolver<Array<ResolversTypes['WhitelistedCapability']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  currency?: Resolver<Maybe<ResolversTypes['CurrencyConfiguration']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7280,6 +7774,7 @@ export type Resolvers<ContextType = MeshContext & { chainName: string }> = Resol
   CurrencyConfiguration?: CurrencyConfigurationResolvers<ContextType>;
   ExchangeRate?: ExchangeRateResolvers<ContextType>;
   Incentive?: IncentiveResolvers<ContextType>;
+  IncentiveSnapshot?: IncentiveSnapshotResolvers<ContextType>;
   Int8?: GraphQLScalarType;
   InterestRateCurve?: InterestRateCurveResolvers<ContextType>;
   Oracle?: OracleResolvers<ContextType>;
@@ -7401,6 +7896,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AccountTransactionHistoryDocument.graphql'
       },{
+        document: ActiveAccountsDocument,
+        get rawSDL() {
+          return printWithCache(ActiveAccountsDocument);
+        },
+        location: 'ActiveAccountsDocument.graphql'
+      },{
         document: AllAccountsDocument,
         get rawSDL() {
           return printWithCache(AllAccountsDocument);
@@ -7455,11 +7956,29 @@ const merger = new(BareMerger as any)({
         },
         location: 'AllVaultsByBlockDocument.graphql'
       },{
+        document: HistoricalOracleValuesDocument,
+        get rawSDL() {
+          return printWithCache(HistoricalOracleValuesDocument);
+        },
+        location: 'HistoricalOracleValuesDocument.graphql'
+      },{
+        document: HistoricalTradingActivityDocument,
+        get rawSDL() {
+          return printWithCache(HistoricalTradingActivityDocument);
+        },
+        location: 'HistoricalTradingActivityDocument.graphql'
+      },{
         document: MetaDocument,
         get rawSDL() {
           return printWithCache(MetaDocument);
         },
         location: 'MetaDocument.graphql'
+      },{
+        document: VaultReinvestmentDocument,
+        get rawSDL() {
+          return printWithCache(VaultReinvestmentDocument);
+        },
+        location: 'VaultReinvestmentDocument.graphql'
       }
     ];
     },
@@ -7508,7 +8027,13 @@ export type AccountBalanceStatementQuery = { account?: Maybe<(
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
-      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate' | 'adjustedNOTEClaimed' | 'totalNOTEClaimed'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>> }
+      ), current: (
+        Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>
+        & { incentives?: Maybe<Array<(
+          Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed'>
+          & { rewardToken: Pick<Token, 'id' | 'symbol'> }
+        )>> }
+      ), snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>> }
   )> };
 
 export type AccountTransactionHistoryQueryVariables = Exact<{
@@ -7524,6 +8049,16 @@ export type AccountTransactionHistoryQuery = { account?: Maybe<(
     )>> }
   )> };
 
+export type ActiveAccountsQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type ActiveAccountsQuery = { accounts: Array<(
+    Pick<Account, 'id' | 'systemAccountType'>
+    & { balances?: Maybe<Array<{ token: Pick<Token, 'id' | 'tokenType' | 'currencyId' | 'isfCashDebt'>, current: Pick<BalanceSnapshot, 'currentBalance'> }>> }
+  )> };
+
 export type AllAccountsQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
 }>;
@@ -7534,7 +8069,13 @@ export type AllAccountsQuery = { accounts: Array<(
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
-      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate' | 'adjustedNOTEClaimed' | 'totalNOTEClaimed'> }>>, profitLossLineItems?: Maybe<Array<(
+      ), current: (
+        Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>
+        & { incentives?: Maybe<Array<(
+          Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed'>
+          & { rewardToken: Pick<Token, 'id' | 'symbol'> }
+        )>> }
+      ) }>>, profitLossLineItems?: Maybe<Array<(
       Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
       & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
@@ -7544,12 +8085,15 @@ export type AllConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllConfigurationQuery = { currencyConfigurations: Array<(
-    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'incentiveEmissionRate' | 'secondaryIncentiveRewarder' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
-    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, incentives?: Maybe<Pick<Incentive, 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime'>> }
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, incentives?: Maybe<(
+      Pick<Incentive, 'incentiveEmissionRate' | 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime' | 'secondaryIncentiveRewarder' | 'secondaryEmissionRate' | 'accumulatedSecondaryRewardPerNToken' | 'lastSecondaryAccumulatedTime' | 'secondaryRewardEndTime'>
+      & { currentSecondaryReward?: Maybe<Pick<Token, 'id' | 'symbol'>> }
+    )> }
   )>, vaultConfigurations: Array<(
     Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'minAccountBorrowSize' | 'minCollateralRatioBasisPoints' | 'maxDeleverageCollateralRatioBasisPoints' | 'feeRateBasisPoints' | 'reserveFeeSharePercent' | 'liquidationRatePercent' | 'maxBorrowMarketIndex' | 'maxRequiredAccountCollateralRatioBasisPoints' | 'enabled' | 'allowRollPosition' | 'onlyVaultEntry' | 'onlyVaultExit' | 'onlyVaultRoll' | 'onlyVaultDeleverage' | 'onlyVaultSettle' | 'discountfCash' | 'allowsReentrancy' | 'deleverageDisabled' | 'maxPrimaryBorrowCapacity' | 'totalUsedPrimaryBorrowCapacity' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'minAccountSecondaryBorrow'>
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
-  )>, whitelistedContracts: Array<Pick<WhitelistedContract, 'id' | 'capability'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+  )>, whitelistedContracts: Array<Pick<WhitelistedContract, 'id' | 'name' | 'capability'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllConfigurationByBlockQueryVariables = Exact<{
   blockNumber?: InputMaybe<Scalars['Int']>;
@@ -7557,8 +8101,11 @@ export type AllConfigurationByBlockQueryVariables = Exact<{
 
 
 export type AllConfigurationByBlockQuery = { currencyConfigurations: Array<(
-    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'incentiveEmissionRate' | 'secondaryIncentiveRewarder' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
-    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>> }
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, incentives?: Maybe<(
+      Pick<Incentive, 'incentiveEmissionRate' | 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime' | 'secondaryIncentiveRewarder' | 'secondaryEmissionRate' | 'accumulatedSecondaryRewardPerNToken' | 'lastSecondaryAccumulatedTime' | 'secondaryRewardEndTime'>
+      & { currentSecondaryReward?: Maybe<Pick<Token, 'id' | 'symbol'>> }
+    )> }
   )>, vaultConfigurations: Array<(
     Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'minAccountBorrowSize' | 'minCollateralRatioBasisPoints' | 'maxDeleverageCollateralRatioBasisPoints' | 'feeRateBasisPoints' | 'reserveFeeSharePercent' | 'liquidationRatePercent' | 'maxBorrowMarketIndex' | 'maxRequiredAccountCollateralRatioBasisPoints' | 'enabled' | 'allowRollPosition' | 'onlyVaultEntry' | 'onlyVaultExit' | 'onlyVaultRoll' | 'onlyVaultDeleverage' | 'onlyVaultSettle' | 'discountfCash' | 'allowsReentrancy' | 'deleverageDisabled' | 'maxPrimaryBorrowCapacity' | 'totalUsedPrimaryBorrowCapacity' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'minAccountSecondaryBorrow'>
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
@@ -7612,6 +8159,31 @@ export type AllVaultsByBlockQueryVariables = Exact<{
 
 export type AllVaultsByBlockQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'enabled'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
+export type HistoricalOracleValuesQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+  minTimestamp?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type HistoricalOracleValuesQuery = { oracles: Array<(
+    Pick<Oracle, 'id' | 'lastUpdateTimestamp' | 'lastUpdateBlockNumber' | 'oracleAddress' | 'decimals' | 'ratePrecision' | 'oracleType' | 'latestRate'>
+    & { base: Pick<Token, 'id'>, quote: Pick<Token, 'id'>, historicalRates?: Maybe<Array<Pick<ExchangeRate, 'totalSupply' | 'blockNumber' | 'timestamp' | 'rate'>>> }
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type HistoricalTradingActivityQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+  minTimestamp?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type HistoricalTradingActivityQuery = { tradingActivity: Array<(
+    Pick<TransferBundle, 'id' | 'bundleName' | 'blockNumber' | 'timestamp'>
+    & { transactionHash: Pick<Transaction, 'id'>, transfers: Array<(
+      Pick<Transfer, 'toSystemAccount' | 'fromSystemAccount' | 'value' | 'valueInUnderlying'>
+      & { to: Pick<Account, 'id'>, from: Pick<Account, 'id'>, token: Pick<Token, 'id' | 'currencyId'> }
+    )> }
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
 export type MetaQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -7619,6 +8191,17 @@ export type MetaQuery = { _meta?: Maybe<(
     Pick<_Meta_, 'deployment' | 'hasIndexingErrors'>
     & { block: Pick<_Block_, 'number' | 'hash' | 'timestamp'> }
   )> };
+
+export type VaultReinvestmentQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+  minTimestamp?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type VaultReinvestmentQuery = { reinvestments: Array<(
+    Pick<Reinvestment, 'timestamp' | 'blockNumber' | 'transactionHash' | 'rewardTokenSold' | 'rewardAmountSold' | 'tokensReinvested' | 'tokensPerVaultShare' | 'underlyingAmountRealized'>
+    & { vault: Pick<VaultConfiguration, 'id'> }
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 
 export const AccountBalanceStatementDocument = gql`
@@ -7643,8 +8226,14 @@ export const AccountBalanceStatementDocument = gql`
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
         impliedFixedRate
-        adjustedNOTEClaimed
-        totalNOTEClaimed
+        incentives {
+          rewardToken {
+            id
+            symbol
+          }
+          totalClaimed
+          adjustedClaimed
+        }
       }
       snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
         timestamp
@@ -7692,6 +8281,25 @@ export const AccountTransactionHistoryDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>;
+export const ActiveAccountsDocument = gql`
+    query ActiveAccounts($skip: Int) {
+  accounts(first: 1000, skip: $skip, where: {systemAccountType_in: [None]}) {
+    id
+    systemAccountType
+    balances {
+      token {
+        id
+        tokenType
+        currencyId
+        isfCashDebt
+      }
+      current {
+        currentBalance
+      }
+    }
+  }
+}
+    ` as unknown as DocumentNode<ActiveAccountsQuery, ActiveAccountsQueryVariables>;
 export const AllAccountsDocument = gql`
     query AllAccounts($skip: Int) {
   accounts(
@@ -7719,8 +8327,14 @@ export const AllAccountsDocument = gql`
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
         impliedFixedRate
-        adjustedNOTEClaimed
-        totalNOTEClaimed
+        incentives {
+          rewardToken {
+            id
+            symbol
+          }
+          totalClaimed
+          adjustedClaimed
+        }
       }
     }
     profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
@@ -7816,16 +8430,24 @@ export const AllConfigurationDocument = gql`
     depositShares
     leverageThresholds
     proportions
-    incentiveEmissionRate
-    secondaryIncentiveRewarder
     residualPurchaseIncentiveBasisPoints
     residualPurchaseTimeBufferSeconds
     cashWithholdingBufferBasisPoints
     pvHaircutPercentage
     liquidationHaircutPercentage
     incentives {
+      incentiveEmissionRate
       accumulatedNOTEPerNToken
       lastAccumulatedTime
+      currentSecondaryReward {
+        id
+        symbol
+      }
+      secondaryIncentiveRewarder
+      secondaryEmissionRate
+      accumulatedSecondaryRewardPerNToken
+      lastSecondaryAccumulatedTime
+      secondaryRewardEndTime
     }
   }
   vaultConfigurations {
@@ -7865,6 +8487,7 @@ export const AllConfigurationDocument = gql`
   }
   whitelistedContracts {
     id
+    name
     capability
   }
   _meta {
@@ -7940,13 +8563,25 @@ export const AllConfigurationByBlockDocument = gql`
     depositShares
     leverageThresholds
     proportions
-    incentiveEmissionRate
-    secondaryIncentiveRewarder
     residualPurchaseIncentiveBasisPoints
     residualPurchaseTimeBufferSeconds
     cashWithholdingBufferBasisPoints
     pvHaircutPercentage
     liquidationHaircutPercentage
+    incentives {
+      incentiveEmissionRate
+      accumulatedNOTEPerNToken
+      lastAccumulatedTime
+      currentSecondaryReward {
+        id
+        symbol
+      }
+      secondaryIncentiveRewarder
+      secondaryEmissionRate
+      accumulatedSecondaryRewardPerNToken
+      lastSecondaryAccumulatedTime
+      secondaryRewardEndTime
+    }
   }
   vaultConfigurations(where: {enabled: true}, block: {number: $blockNumber}) {
     id
@@ -8139,6 +8774,86 @@ export const AllVaultsByBlockDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AllVaultsByBlockQuery, AllVaultsByBlockQueryVariables>;
+export const HistoricalOracleValuesDocument = gql`
+    query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
+  oracles(
+    where: {oracleType_in: [Chainlink, fCashSettlementRate, nTokenToUnderlyingExchangeRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, fCashOracleRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, nTokenBlendedInterestRate, nTokenFeeRate, nTokenIncentiveRate], matured: false}
+    first: 1000
+    skip: $skip
+  ) {
+    id
+    base {
+      id
+    }
+    quote {
+      id
+    }
+    lastUpdateTimestamp
+    lastUpdateBlockNumber
+    oracleAddress
+    decimals
+    ratePrecision
+    oracleType
+    latestRate
+    historicalRates(
+      where: {timestamp_gt: $minTimestamp}
+      orderBy: timestamp
+      orderDirection: desc
+      first: 200
+    ) {
+      totalSupply
+      blockNumber
+      timestamp
+      rate
+    }
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<HistoricalOracleValuesQuery, HistoricalOracleValuesQueryVariables>;
+export const HistoricalTradingActivityDocument = gql`
+    query HistoricalTradingActivity($skip: Int, $minTimestamp: Int) {
+  tradingActivity: transferBundles(
+    where: {bundleName_in: ["Buy fCash", "Buy fCash Vault", "Sell fCash", "Sell fCash Vault"], timestamp_gt: $minTimestamp}
+    orderBy: timestamp
+    orderDirection: desc
+    first: 1000
+    skip: $skip
+  ) {
+    id
+    bundleName
+    blockNumber
+    timestamp
+    transactionHash {
+      id
+    }
+    transfers {
+      to {
+        id
+      }
+      toSystemAccount
+      from {
+        id
+      }
+      fromSystemAccount
+      value
+      valueInUnderlying
+      token {
+        id
+        currencyId
+      }
+    }
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<HistoricalTradingActivityQuery, HistoricalTradingActivityQueryVariables>;
 export const MetaDocument = gql`
     query Meta {
   _meta {
@@ -8152,6 +8867,38 @@ export const MetaDocument = gql`
   }
 }
     ` as unknown as DocumentNode<MetaQuery, MetaQueryVariables>;
+export const VaultReinvestmentDocument = gql`
+    query VaultReinvestment($skip: Int, $minTimestamp: Int) {
+  reinvestments(
+    orderBy: timestamp
+    orderDirection: desc
+    first: 1000
+    skip: $skip
+    where: {timestamp_gt: $minTimestamp}
+  ) {
+    timestamp
+    blockNumber
+    transactionHash
+    vault {
+      id
+    }
+    rewardTokenSold
+    rewardAmountSold
+    tokensReinvested
+    tokensPerVaultShare
+    underlyingAmountRealized
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<VaultReinvestmentQuery, VaultReinvestmentQueryVariables>;
+
+
+
+
 
 
 
@@ -8173,6 +8920,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AccountTransactionHistory(variables: AccountTransactionHistoryQueryVariables, options?: C): Promise<AccountTransactionHistoryQuery> {
       return requester<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>(AccountTransactionHistoryDocument, variables, options) as Promise<AccountTransactionHistoryQuery>;
+    },
+    ActiveAccounts(variables?: ActiveAccountsQueryVariables, options?: C): Promise<ActiveAccountsQuery> {
+      return requester<ActiveAccountsQuery, ActiveAccountsQueryVariables>(ActiveAccountsDocument, variables, options) as Promise<ActiveAccountsQuery>;
     },
     AllAccounts(variables?: AllAccountsQueryVariables, options?: C): Promise<AllAccountsQuery> {
       return requester<AllAccountsQuery, AllAccountsQueryVariables>(AllAccountsDocument, variables, options) as Promise<AllAccountsQuery>;
@@ -8201,8 +8951,17 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     AllVaultsByBlock(variables?: AllVaultsByBlockQueryVariables, options?: C): Promise<AllVaultsByBlockQuery> {
       return requester<AllVaultsByBlockQuery, AllVaultsByBlockQueryVariables>(AllVaultsByBlockDocument, variables, options) as Promise<AllVaultsByBlockQuery>;
     },
+    HistoricalOracleValues(variables?: HistoricalOracleValuesQueryVariables, options?: C): Promise<HistoricalOracleValuesQuery> {
+      return requester<HistoricalOracleValuesQuery, HistoricalOracleValuesQueryVariables>(HistoricalOracleValuesDocument, variables, options) as Promise<HistoricalOracleValuesQuery>;
+    },
+    HistoricalTradingActivity(variables?: HistoricalTradingActivityQueryVariables, options?: C): Promise<HistoricalTradingActivityQuery> {
+      return requester<HistoricalTradingActivityQuery, HistoricalTradingActivityQueryVariables>(HistoricalTradingActivityDocument, variables, options) as Promise<HistoricalTradingActivityQuery>;
+    },
     Meta(variables?: MetaQueryVariables, options?: C): Promise<MetaQuery> {
       return requester<MetaQuery, MetaQueryVariables>(MetaDocument, variables, options) as Promise<MetaQuery>;
+    },
+    VaultReinvestment(variables?: VaultReinvestmentQueryVariables, options?: C): Promise<VaultReinvestmentQuery> {
+      return requester<VaultReinvestmentQuery, VaultReinvestmentQueryVariables>(VaultReinvestmentDocument, variables, options) as Promise<VaultReinvestmentQuery>;
     }
   };
 }

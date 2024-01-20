@@ -11,8 +11,9 @@ import { BaseTradeState } from '@notional-finance/notionable';
  */
 export const useSummaryState = (): BaseTradeState => {
   const { state: internalState } = useContext(LiquidityContext);
-  const { selectedDepositToken } = internalState;
+  const { selectedDepositToken, selectedNetwork } = internalState;
   const { currentHoldings } = useLeveragedNTokenPositions(
+    selectedNetwork,
     selectedDepositToken || ''
   );
 

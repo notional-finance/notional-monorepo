@@ -13,10 +13,13 @@ import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';
 export const BorrowVariableSidebar = () => {
   const context = useContext(BorrowVariableContext);
   const {
-    state: { selectedDepositToken, debtOptions },
+    state: { selectedDepositToken, debtOptions, selectedNetwork },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
-  const cashBalance = usePrimeCashBalance(selectedDepositToken);
+  const cashBalance = usePrimeCashBalance(
+    selectedDepositToken,
+    selectedNetwork
+  );
   const insufficientLiquidity = debtOptions?.find((_) => !!_)?.error
     ? tradeErrors.insufficientLiquidity
     : undefined;
@@ -34,7 +37,9 @@ export const BorrowVariableSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}
-        newRoute={(newToken) => `/${PRODUCTS.BORROW_VARIABLE}/${newToken}`}
+        newRoute={(newToken) =>
+          `/${PRODUCTS.BORROW_VARIABLE}/${selectedNetwork}/${newToken}`
+        }
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to borrow?',
           description: 'input label',

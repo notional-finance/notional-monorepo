@@ -1,12 +1,14 @@
 import { Registry } from '@notional-finance/core-entities';
 import { selectedNetwork } from '../../global';
-import { filterEmpty } from '@notional-finance/util';
+import { Network, filterEmpty } from '@notional-finance/util';
 import {
   Observable,
   filter,
   distinctUntilChanged,
   withLatestFrom,
   map,
+  switchMap,
+  from,
 } from 'rxjs';
 import {
   TradeState,
@@ -30,6 +32,18 @@ export function defaultLeverageRatio(
       );
     }),
     withLatestFrom(selectedNetwork$),
+    // Ensures that the yield registry is ready before proceeding
+    switchMap(([s, network]) => {
+      return from(
+        new Promise<[TradeState, NonNullable<Network | undefined>]>(
+          (resolve) => {
+            Registry.getYieldRegistry().onNetworkRegistered(network, () => {
+              resolve([s, network]);
+            });
+          }
+        )
+      );
+    }),
     map(([s, network]) => {
       if (s.deposit === undefined) return undefined;
       const { debt, collateral } = isDeleverageWithSwappedTokens(s)

@@ -5,8 +5,8 @@ import { BETA_ACCESS } from '@notional-finance/notionable';
 import { AnimationItem } from 'lottie-web';
 import { FormattedMessage } from 'react-intl';
 import {
-  useAccountReady,
   useNotionalContext,
+  useWalletConnected,
 } from '@notional-finance/notionable-hooks';
 import { DegenScoreIcon } from '@notional-finance/icons';
 import { Player } from '@lottiefiles/react-lottie-player';
@@ -18,7 +18,7 @@ export const VaultCardOverlay = () => {
   const theme = useTheme();
   // NOTE: the name can be dynamic in the future
   const accessGroup = 'degenscore';
-  const isAccountReady = useAccountReady();
+  const isWalletConnected = useWalletConnected();
   const [lottieInstance, setLottieInstance] = useState<
     AnimationItem | undefined
   >();
@@ -75,7 +75,7 @@ export const VaultCardOverlay = () => {
           display: hasContestNFT !== BETA_ACCESS.CONFIRMED ? 'block' : 'none',
         }}
       >
-        {!isAccountReady && (
+        {!isWalletConnected && (
           <MessageContainer>
             <LargeInputTextEmphasized
               sx={{ color: colors.neonTurquoise, fontWeight: 500 }}
@@ -93,7 +93,7 @@ export const VaultCardOverlay = () => {
             </Caption>
           </MessageContainer>
         )}
-        {isAccountReady && hasContestNFT !== BETA_ACCESS.CONFIRMED && (
+        {isWalletConnected && hasContestNFT !== BETA_ACCESS.CONFIRMED && (
           <MessageContainer>
             <LargeInputTextEmphasized
               sx={{ color: colors.neonTurquoise, fontWeight: 500 }}

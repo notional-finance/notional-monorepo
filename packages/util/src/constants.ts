@@ -11,6 +11,11 @@ export const BASIS_POINT = 1e5;
 export const PERCENTAGE_BASIS = 100;
 export const INTERNAL_PRECISION_DUST = 5000;
 export const FLOATING_POINT_DUST = 5e-5;
+export enum HEALTH_FACTOR_RISK_LEVELS {
+  HIGH_RISK = 1.25,
+  MEDIUM_RISK = 2.5,
+  LOW_RISK = 5,
+}
 
 export const ONE_SECOND_MS = 1_000;
 export const ONE_MINUTE_MS = 60 * ONE_SECOND_MS;
@@ -39,30 +44,37 @@ export enum Network {
   All = 'all',
   Mainnet = 'mainnet',
   ArbitrumOne = 'arbitrum',
+  Goerli = 'goerli',
 }
 
 export const NetworkId: Record<Network, number> = {
   [Network.All]: 1,
   [Network.Mainnet]: 1,
+  [Network.Goerli]: 5,
   [Network.ArbitrumOne]: 42161,
 };
+
+export const SupportedNetworks = [Network.ArbitrumOne];
 
 export const AlchemyUrl: Record<Network, string> = {
   [Network.All]: 'https://eth-mainnet.g.alchemy.com/v2',
   [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/v2',
   [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/v2',
+  [Network.Goerli]: 'https://eth-goerli.g.alchemy.com/v2',
 };
 
 export const AlchemyNFTUrl: Record<Network, string> = {
   [Network.All]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
   [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
   [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/nft/v2',
+  [Network.Goerli]: 'https://arb-goerli.g.alchemy.com/nft/v2',
 };
 
 export const NotionalAddress: Record<Network, string> = {
   [Network.All]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   [Network.Mainnet]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   [Network.ArbitrumOne]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  [Network.Goerli]: '0xD8229B55bD73c61D840d339491219ec6Fa667B0a',
 };
 
 export const StakedNoteAddress = '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2';

@@ -2,13 +2,20 @@ import { FormattedMessage } from 'react-intl';
 import { useLocation, useHistory } from 'react-router-dom';
 import { ButtonOptionsType } from '@notional-finance/mui';
 import { TXN_HISTORY_TYPE } from '@notional-finance/util';
-import { useTransactionHistory } from '@notional-finance/notionable-hooks';
+import {
+  useSelectedPortfolioNetwork,
+  useVaultHoldings,
+} from '@notional-finance/notionable-hooks';
 
-export const useTxnHistoryButtonBar = (setTxnHistoryType, txnHistoryType) => {
+export const useTxnHistoryButtonBar = (
+  setTxnHistoryType: (type: TXN_HISTORY_TYPE) => void,
+  txnHistoryType: TXN_HISTORY_TYPE
+) => {
   const { search, pathname } = useLocation();
   const history = useHistory();
   const queryParams = new URLSearchParams(search);
-  const accountHistory = useTransactionHistory();
+  const network = useSelectedPortfolioNetwork();
+  const hasVaultHoldings = useVaultHoldings(network).length > 0;
 
   const handleButtonBarClick = (type: TXN_HISTORY_TYPE) => {
     if (queryParams && queryParams.get('txnHistoryType')) {
@@ -32,7 +39,7 @@ export const useTxnHistoryButtonBar = (setTxnHistoryType, txnHistoryType) => {
     },
   ];
 
-  return accountHistory.find(({ vaultName }) => vaultName) ? buttonData : [];
+  return hasVaultHoldings ? buttonData : [];
 };
 
 export default useTxnHistoryButtonBar;

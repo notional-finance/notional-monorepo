@@ -3,24 +3,23 @@ import {
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { PRODUCTS } from '@notional-finance/util';
-import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { CardContainer, FeatureLoader, useSelectedCardNetwork } from '@notional-finance/shared-web';
 import { CurrencyFixed } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { groupArrayToMap } from '@notional-finance/util';
-import {
-  formatMaturity,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatMaturity } from '@notional-finance/util';
 
 export function LendCardView() {
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
+  const network = useSelectedCardNetwork()
   const {
     yields: { fCashLend },
     getMax,
-  } = useAllMarkets();
+  } = useAllMarkets(network);
 
   const cardData = [
     ...groupArrayToMap(fCashLend, (t) => t.underlying.symbol).entries(),
@@ -47,7 +46,7 @@ export function LendCardView() {
           docsLink="https://docs.notional.finance/notional-v3/product-guides/fixed-rate-lending"
         >
           {cardData.map(([symbol, yields], index) => {
-            const route = `/${PRODUCTS.LEND_FIXED}/${symbol}`;
+            const route = `/${PRODUCTS.LEND_FIXED}/${network}/${symbol}`;
 
             const maxRate = getMax(yields)?.totalAPY || 0;
             const allRates = yields

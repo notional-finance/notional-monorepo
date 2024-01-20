@@ -1,9 +1,6 @@
 import { useContext } from 'react';
 import { InteractiveAreaChart, AreaChart } from '@notional-finance/mui';
-import {
-  useTokenHistory,
-  useCurrency,
-} from '@notional-finance/notionable-hooks';
+import { useTokenHistory, useNToken } from '@notional-finance/notionable-hooks';
 import {
   useMaturitySelect,
   useInteractiveMaturityChart,
@@ -15,18 +12,14 @@ export const useBorrowFixedMultiChart = () => {
   const {
     state: { deposit },
   } = context;
-  const { areaChartData, apyToolTipData } = useInteractiveMaturityChart(
-    deposit?.currencyId
-  );
+  const { areaChartData, apyToolTipData } =
+    useInteractiveMaturityChart(deposit);
   const { selectedfCashId, onSelect } = useMaturitySelect(
     'Collateral',
     context
   );
-  const { nTokens } = useCurrency();
-  const nTokenData = nTokens.find(
-    ({ currencyId }) => currencyId === deposit?.currencyId
-  );
-  const { tvlData } = useTokenHistory(nTokenData);
+  const nToken = useNToken(deposit?.network, deposit?.currencyId);
+  const { tvlData } = useTokenHistory(nToken);
 
   return [
     {

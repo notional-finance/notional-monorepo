@@ -20,7 +20,6 @@ export * from './use-summary';
 export * from './use-chart';
 export * from './use-liquidation-prices';
 export * from './use-geoip-block';
-export * from './use-debt-apy';
 
 export type BaseTradeContext = ObservableContext<BaseTradeState>;
 export type TradeContext = ObservableContext<TradeState>;

@@ -2,10 +2,17 @@ import { DurableObjectState } from '@cloudflare/workers-types';
 import { APIEnv } from '.';
 import { BaseDO } from './abstract';
 import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
+import { AnalyticsServer } from '@notional-finance/core-entities/src/server';
 
 export class ViewsDO extends BaseDO<APIEnv> {
+  protected analytics: AnalyticsServer;
+
   constructor(state: DurableObjectState, env: APIEnv) {
     super(state, env, 'views', ONE_MINUTE_MS * 60);
+    this.analytics = new AnalyticsServer(
+      env.DATA_SERVICE_URL,
+      env.DATA_SERVICE_AUTH_TOKEN
+    );
   }
 
   getStorageKey(url: URL): string {
@@ -41,7 +48,7 @@ export class ViewsDO extends BaseDO<APIEnv> {
     return this.putStorageKey(key, data);
   }
 
-  async listViews(network: Network) {
+  async fetchAllViews(network: Network) {
     const resp = await fetch(
       `${this.env.DATA_SERVICE_URL}/views?network=${network}`,
       {
@@ -61,8 +68,22 @@ export class ViewsDO extends BaseDO<APIEnv> {
 
   async onRefresh() {
     await Promise.all(
-      this.env.SUPPORTED_NETWORKS.map((network) => {
-        return this.listViews(network);
+      this.env.SUPPORTED_NETWORKS.flatMap((network) => {
+        return [
+          this.fetchAllViews(network),
+          this.analytics
+            .refresh(network)
+            .then(() => {
+              console.log('Wrote analytics data for ', network);
+              this.putStorageKey(
+                `${this.serviceName}/${network}/analytics`,
+                this.analytics.serializeToJSON(network)
+              );
+            })
+            .catch((e) => {
+              console.log('error', e);
+            }),
+        ];
       })
     );
   }

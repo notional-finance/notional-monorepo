@@ -1,20 +1,17 @@
-import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
-import { SparklesIcon } from '@notional-finance/icons';
-import { FormattedMessage } from 'react-intl';
 import {
   FiatSymbols,
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { leveragedYield } from '@notional-finance/util';
+import { SparklesIcon } from '@notional-finance/icons';
+import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
+import { FormattedMessage } from 'react-intl';
 
 export const useTotalsData = (
   tokenSymbol: string,
-  nTokenAmount?: TokenBalance,
-  debtAPY?: number,
-  leverageRatio?: number
+  nTokenAmount?: TokenBalance
 ) => {
-  const { yields } = useAllMarkets();
+  const { yields } = useAllMarkets(nTokenAmount?.network);
   const baseCurrency = useFiat();
 
   const liquidityYieldData = nTokenAmount
@@ -23,28 +20,9 @@ export const useTotalsData = (
         ({ underlying }) => underlying.symbol === tokenSymbol
       );
 
-  if (
-    leverageRatio &&
-    debtAPY &&
-    liquidityYieldData?.interestAPY !== undefined
-  ) {
-    // If using leverage apply the debt APY to the interest apy
-    liquidityYieldData.interestAPY = leveragedYield(
-      liquidityYieldData.interestAPY,
-      debtAPY,
-      leverageRatio
-    );
-  }
-
-  if (leverageRatio && !!liquidityYieldData?.incentives) {
-    liquidityYieldData.incentives = liquidityYieldData.incentives.map(
-      ({ tokenId, incentiveAPY }) => ({
-        tokenId,
-        incentiveAPY:
-          leveragedYield(incentiveAPY, 0, leverageRatio) || incentiveAPY,
-      })
-    );
-  }
+  const totalIncentives =
+    (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) +
+    (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0);
 
   return {
     totalsData: [
@@ -55,17 +33,9 @@ export const useTotalsData = (
       },
       {
         title: <FormattedMessage defaultMessage={'Incentive APY'} />,
-        value:
-          liquidityYieldData?.incentives &&
-          liquidityYieldData?.incentives[0]?.incentiveAPY
-            ? liquidityYieldData?.incentives[0]?.incentiveAPY
-            : '-',
+        value: totalIncentives ? totalIncentives : '-',
         Icon: SparklesIcon,
-        suffix:
-          liquidityYieldData?.incentives &&
-          liquidityYieldData?.incentives[0]?.incentiveAPY
-            ? '%'
-            : '',
+        suffix: totalIncentives ? '%' : '',
       },
       {
         title: <FormattedMessage defaultMessage={'Liquidity Providers'} />,

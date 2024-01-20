@@ -2,7 +2,6 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
-  formatMaturity,
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
@@ -10,13 +9,15 @@ import {
 } from '@notional-finance/helpers';
 import {
   useFiat,
-  useNOTE,
-  useGroupedTokens,
+  useGroupedHoldings,
+  usePendingPnLCalculation,
+  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
   Network,
   TXN_HISTORY_TYPE,
   leveragedYield,
+  formatMaturity,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -39,10 +40,13 @@ function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   }
 }
 
-export function useGroupedHoldings() {
+export function useGroupedHoldingsTable() {
   const baseCurrency = useFiat();
-  const NOTE = useNOTE();
-  const groupedTokens = useGroupedTokens();
+  const network = useSelectedPortfolioNetwork();
+  const groupedTokens = useGroupedHoldings(network) || [];
+  const pendingTokens = usePendingPnLCalculation(network).flatMap(
+    ({ tokens }) => tokens
+  );
   const history = useHistory();
 
   const groupedRows = groupedTokens.map(
@@ -51,11 +55,10 @@ export function useGroupedHoldings() {
         balance: asset,
         marketYield: assetYield,
         statement: assetStatement,
-        totalNOTEEarnings,
+        totalIncentiveEarnings,
       },
       debt: { balance: debt, statement: debtStatement },
       hasMatured,
-      isPending,
       leverageRatio,
       presentValue,
       borrowAPY,
@@ -69,12 +72,16 @@ export function useGroupedHoldings() {
         borrowAPY,
         leverageRatio
       );
-      const noteAPY = assetYield?.incentives?.find(
-        (i) => i.tokenId === NOTE?.id
-      )?.incentiveAPY;
+      const noteAPY = assetYield?.noteIncentives?.incentiveAPY;
       const noteIncentives =
         noteAPY !== undefined
           ? leveragedYield(noteAPY, 0, leverageRatio)
+          : undefined;
+      const secondaryAPY = assetYield?.secondaryIncentives?.incentiveAPY;
+      const secondarySymbol = assetYield?.secondaryIncentives?.symbol;
+      const secondaryIncentives =
+        secondaryAPY !== undefined && secondarySymbol
+          ? leveragedYield(secondaryAPY, 0, leverageRatio)
           : undefined;
 
       const amountPaid =
@@ -89,12 +96,16 @@ export function useGroupedHoldings() {
               debtStatement?.totalProfitAndLoss
             )
           : undefined;
+
       const totalEarningsWithNOTE = earnings
         ?.toFiat(baseCurrency)
         .add(
-          totalNOTEEarnings?.toFiat(baseCurrency) ||
+          totalIncentiveEarnings.reduce(
+            (s, i) => s.add(i.toFiat(baseCurrency)),
             TokenBalance.fromSymbol(0, baseCurrency, Network.All)
+          )
         );
+
       return {
         sortOrder: getHoldingsSortOrder(asset.token),
         tokenId: asset.tokenId,
@@ -107,7 +118,9 @@ export function useGroupedHoldings() {
               : `Leveraged ${underlying.symbol} Lend`,
           caption: formatCaption(asset, debt),
         },
-        isPending,
+        isPending: !!pendingTokens.find(
+          (t) => t.id === asset.tokenId || t.id === debt.tokenId
+        ),
         marketApy: {
           data: [
             {
@@ -119,9 +132,16 @@ export function useGroupedHoldings() {
               isNegative: marketApy !== undefined && marketApy < 0,
             },
             {
-              displayValue: noteIncentives
-                ? `${formatNumberAsPercent(noteIncentives)} NOTE`
-                : '',
+              displayValue:
+                noteIncentives && secondaryIncentives
+                  ? `${formatNumberAsPercent(
+                      noteIncentives
+                    )} NOTE, ${formatNumberAsPercent(
+                      secondaryIncentives
+                    )} ${secondarySymbol}`
+                  : noteIncentives
+                  ? `${formatNumberAsPercent(noteIncentives)} NOTE`
+                  : '',
               isNegative: false,
             },
           ],
@@ -135,18 +155,25 @@ export function useGroupedHoldings() {
               .toFiat(baseCurrency)
               .toDisplayStringWithSymbol(3, true)
           : '-',
-        toolTipData: totalNOTEEarnings?.isPositive()
-          ? {
-              underlyingBaseCurrency: earnings
-                ?.toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
-              underlying: earnings?.toDisplayStringWithSymbol(),
-              noteBaseCurrency: totalNOTEEarnings
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
-              note: totalNOTEEarnings.toDisplayStringWithSymbol(),
-            }
-          : undefined,
+        toolTipData:
+          totalIncentiveEarnings.length > 0
+            ? {
+                perAssetEarnings: [
+                  {
+                    underlying: earnings?.toDisplayStringWithSymbol(),
+                    baseCurrency: earnings
+                      ?.toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(),
+                  },
+                  ...totalIncentiveEarnings.map((i) => ({
+                    underlying: i.toDisplayStringWithSymbol(),
+                    baseCurrency: i
+                      .toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(),
+                  })),
+                ],
+              }
+            : undefined,
         actionRow: {
           subRowData: [
             {

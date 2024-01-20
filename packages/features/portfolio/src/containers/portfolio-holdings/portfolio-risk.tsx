@@ -14,7 +14,7 @@ import {
   DataTableColumn,
   InfoTooltip,
   H4,
-  Label,
+  H5,
   LabelValue,
   LinkText,
   MultiValueIconCell,
@@ -28,6 +28,7 @@ import {
   useCurrentLiquidationPrices,
   useFiat,
   usePortfolioRiskProfile,
+  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useState } from 'react';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
@@ -77,7 +78,7 @@ const LabelAndValue = ({
 }) => {
   return (
     <Box>
-      <Label msg={label} />
+      <H5 msg={label} />
       <LabelValue>{value}</LabelValue>
     </Box>
   );
@@ -88,7 +89,7 @@ const LiquidationPriceColumns: DataTableColumn[] = [
     Header: (
       <FormattedMessage
         defaultMessage="Exchange Rate"
-        description={'column header'}
+        description={'Exchange Rate column header'}
       />
     ),
     Cell: MultiValueIconCell,
@@ -137,12 +138,14 @@ export const PortfolioRisk = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const [isExpanded, setExpanded] = useState(false);
-  const isAccountReady = useAccountReady();
-  const profile = usePortfolioRiskProfile();
+  const network = useSelectedPortfolioNetwork();
+  const isAccountReady = useAccountReady(network);
+  const profile = usePortfolioRiskProfile(network);
   const baseCurrency = useFiat();
-  const loanToValue = profile.loanToValue();
-  const healthFactor = profile.healthFactor();
-  const { exchangeRateRisk, assetPriceRisk } = useCurrentLiquidationPrices();
+  const loanToValue = profile?.loanToValue();
+  const healthFactor = profile ? profile.healthFactor() : null;
+  const { exchangeRateRisk, assetPriceRisk } =
+    useCurrentLiquidationPrices(network);
 
   const hasLiquidationPrices =
     exchangeRateRisk.length > 0 || assetPriceRisk.length > 0;
@@ -181,7 +184,7 @@ export const PortfolioRisk = () => {
           />
         </H4>
         <Box sx={{ display: 'flex' }}>
-          <Box sx={{ width: '50%' }}>
+          <Box sx={{ width: theme.spacing(54) }}>
             <SliderRisk healthFactor={healthFactor} />
           </Box>
           <Box
@@ -193,18 +196,22 @@ export const PortfolioRisk = () => {
           >
             <LabelAndValue
               label={defineMessage({ defaultMessage: 'Total Collateral' })}
-              value={profile
-                .totalAssets()
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(3, true)}
+              value={
+                profile
+                  ?.totalAssets()
+                  .toFiat(baseCurrency)
+                  .toDisplayStringWithSymbol(3, true) || '-'
+              }
             />
             <LabelAndValue
               label={defineMessage({ defaultMessage: 'Total Debt' })}
-              value={profile
-                .totalDebt()
-                .abs()
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(3, true)}
+              value={
+                profile
+                  ?.totalDebt()
+                  .abs()
+                  .toFiat(baseCurrency)
+                  .toDisplayStringWithSymbol(3, true) || '-'
+              }
             />
             <LabelAndValue
               label={defineMessage({ defaultMessage: 'Loan to Value' })}

@@ -7,13 +7,13 @@ import {
   getNowSeconds,
   isIdiosyncratic,
 } from '@notional-finance/util';
+import { BigNumber } from 'ethers';
+import { TokenType, YieldData } from '../Definitions';
 import { Registry } from '../Registry';
 import { Routes } from '../server';
-import { ClientRegistry } from './client-registry';
-import { TokenType, YieldData } from '../Definitions';
 import { TokenBalance } from '../token-balance';
-import { BigNumber } from 'ethers';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
+import { ClientRegistry } from './client-registry';
 
 export class YieldRegistryClient extends ClientRegistry<YieldData> {
   protected cachePath() {
@@ -104,13 +104,14 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       });
   }
 
-  getSimulatedNTokenYield(netNTokens: TokenBalance): YieldData {
+  getSimulatedNTokenYield(
+    netNTokens: TokenBalance,
+    adjustedPrimeUtilization?: number
+  ): YieldData {
     const network = netNTokens.network;
 
     const exchanges = Registry.getExchangeRegistry();
     const config = Registry.getConfigurationRegistry();
-    const nTokenFees =
-      Registry.getAnalyticsRegistry().getNTokenTradingFees(network);
     const fCashMarket = exchanges.getfCashMarket(
       network,
       netNTokens.currencyId
@@ -126,12 +127,25 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       .add(netNTokens.toPrimeCash());
 
     // Total fees over the last week divided by the total value locked
-    const feeAPY =
-      nTokenFees?.find((f) => f.token.id === netNTokens.tokenId)?.apy || 0;
+    const feeAPY = Registry.getAnalyticsRegistry().getNTokenFeeRate(
+      netNTokens.token
+    );
     const incentiveAPY = this._convertRatioToYield(
       annualizedNOTEIncentives,
       nTokenTVL
     );
+
+    const secondary = config.getAnnualizedSecondaryIncentives(netNTokens.token);
+    let secondaryIncentives: YieldData['secondaryIncentives'];
+    if (secondary) {
+      secondaryIncentives = {
+        symbol: secondary.incentiveEmissionRate.symbol,
+        incentiveAPY: this._convertRatioToYield(
+          secondary.incentiveEmissionRate,
+          nTokenTVL
+        ),
+      };
+    }
 
     const { numerator, denominator } = fCashMarket.balances
       .map((b) => {
@@ -139,7 +153,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         const apy =
           b.tokenType === 'PrimeCash'
             ? (fCashMarket.getPrimeSupplyRate(
-                fCashMarket.getPrimeCashUtilization(netNTokens.toPrimeCash())
+                adjustedPrimeUtilization ||
+                  fCashMarket.getPrimeCashUtilization(netNTokens.toPrimeCash())
               ) *
                 100) /
               RATE_PRECISION
@@ -169,15 +184,18 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       token: netNTokens.token,
       tvl: netNTokens.token.totalSupply?.toUnderlying(),
       underlying,
-      totalAPY: incentiveAPY + feeAPY + interestAPY,
+      totalAPY:
+        incentiveAPY +
+        feeAPY +
+        interestAPY +
+        (secondaryIncentives?.incentiveAPY || 0),
       interestAPY,
       feeAPY,
-      incentives: [
-        {
-          tokenId: annualizedNOTEIncentives.tokenId,
-          incentiveAPY,
-        },
-      ],
+      noteIncentives: {
+        symbol: 'NOTE',
+        incentiveAPY,
+      },
+      secondaryIncentives,
     };
   }
 
@@ -225,14 +243,24 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         maxLeverageRatio,
       },
       vaultName: yieldData?.vaultName,
-      incentives: yieldData.incentives?.map(({ tokenId, incentiveAPY }) => ({
-        tokenId,
+      noteIncentives: {
+        symbol: 'NOTE',
         incentiveAPY: this.calculateLeveragedAPY(
-          incentiveAPY,
-          0, // Debt rates do not apply to incentive APY calculation
+          yieldData?.noteIncentives?.incentiveAPY || 0,
+          0,
           leverageRatio
         ),
-      })),
+      },
+      secondaryIncentives: yieldData.secondaryIncentives?.symbol
+        ? {
+            symbol: yieldData.secondaryIncentives.symbol,
+            incentiveAPY: this.calculateLeveragedAPY(
+              yieldData?.secondaryIncentives?.incentiveAPY || 0,
+              0,
+              leverageRatio
+            ),
+          }
+        : undefined,
     };
   }
 
@@ -386,7 +414,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           (v.maturity ? v.maturity > getNowSeconds() : true) &&
           !!v.vaultAddress &&
           vaults.isVaultEnabled(v.network, v.vaultAddress) &&
-          whitelistedVaults.includes(v.vaultAddress)
+          whitelistedVaults(network).includes(v.vaultAddress)
       )
       .flatMap((v) => {
         const debt = debtYields.find(
@@ -443,6 +471,10 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     return Array.from(this.getLatestFromAllSubjects(network, 0).values()).sort(
       (a, b) => (a.token.currencyId || 0) - (b.token.currencyId || 0)
     );
+  }
+
+  getNonLeveragedYields(network: Network) {
+    return this.getAllYields(network).filter((y) => y.leveraged === undefined);
   }
 
   protected override async _refresh(network: Network) {

@@ -13,13 +13,13 @@ import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { SideDrawerRouter } from '@notional-finance/trade';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
+import { useVaultPosition } from '@notional-finance/notionable-hooks';
 
 export const VaultActionSideDrawer = () => {
   const context = useContext(VaultActionContext);
   const {
     state: {
       vaultAddress,
-      priorAccountRisk,
       deposit,
       defaultLeverageRatio,
       availableDebtTokens,
@@ -27,6 +27,7 @@ export const VaultActionSideDrawer = () => {
       selectedDepositToken,
       riskFactorLimit,
       customizeLeverage,
+      selectedNetwork,
     },
   } = context;
   const loaded = deposit && deposit?.symbol === selectedDepositToken;
@@ -37,13 +38,15 @@ export const VaultActionSideDrawer = () => {
           limit: defaultLeverageRatio,
         }
       : undefined;
+  const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
+
   const currentPositionState = {
-    collateral: priorAccountRisk?.assets.token,
-    debt: priorAccountRisk?.debts.token,
-    riskFactorLimit: priorAccountRisk?.leverageRatio
+    collateral: vaultPosition?.vault?.vaultShares?.token,
+    debt: vaultPosition?.vault?.vaultDebt.token,
+    riskFactorLimit: vaultPosition?.leverageRatio
       ? ({
           riskFactor: 'leverageRatio',
-          limit: priorAccountRisk?.leverageRatio,
+          limit: vaultPosition?.leverageRatio,
         } as RiskFactorLimit<'leverageRatio'>)
       : undefined,
   };
@@ -51,8 +54,8 @@ export const VaultActionSideDrawer = () => {
   return (
     <SideDrawerRouter
       context={context}
-      hasPosition={!!priorAccountRisk}
-      routeMatch={`/vaults/${vaultAddress}/:path`}
+      hasPosition={!!vaultPosition}
+      routeMatch={`/vaults/${selectedNetwork}/${vaultAddress}/:path`}
       defaultHasPosition={'CreateVaultPosition'}
       defaultNoPosition={'CreateVaultPosition'}
       routes={[
