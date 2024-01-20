@@ -5,17 +5,18 @@ import { leveragedYield } from '@notional-finance/util';
 
 export const useLeveragedNTokenAPY = (state: TradeState) => {
   const {
-    yields: { liquidity },
-    nonLeveragedYields,
-  } = useAllMarkets();
-
-  const {
     collateralBalance,
     riskFactorLimit,
     debtOptions,
     debt,
     selectedDepositToken,
+    selectedNetwork,
   } = state;
+  const {
+    yields: { liquidity },
+    nonLeveragedYields,
+  } = useAllMarkets(selectedNetwork);
+
   const nTokenAmount =
     collateralBalance?.tokenType === 'nToken' ? collateralBalance : undefined;
   const leverageRatio = riskFactorLimit?.limit as number | undefined;

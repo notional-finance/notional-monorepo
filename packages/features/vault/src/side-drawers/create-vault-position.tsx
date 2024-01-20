@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { Box, styled, useTheme } from '@mui/material';
 import { VaultActionContext } from '../vault';
-import { useVaultRiskProfiles } from '@notional-finance/notionable-hooks';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { MobileVaultSummary, VaultLeverageSlider } from '../components';
 import { useVaultActionErrors } from '../hooks';
@@ -13,20 +12,17 @@ import {
   ManageTerms,
 } from '@notional-finance/trade';
 import { messages } from '../messages';
+import { useVaultPosition } from '@notional-finance/notionable-hooks';
 
 export const CreateVaultPosition = () => {
   const theme = useTheme();
   const context = useContext(VaultActionContext);
   const { currencyInputRef } = useCurrencyInputRef();
-  const accountVaults = useVaultRiskProfiles();
   const { inputErrorMsg } = useVaultActionErrors();
   const {
-    state: { vaultAddress, customizeLeverage },
+    state: { vaultAddress, customizeLeverage, selectedNetwork },
   } = context;
-
-  const hasVaultPosition = accountVaults.find(
-    (p) => p.vaultAddress === vaultAddress
-  );
+  const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
   return (
     <>
@@ -50,10 +46,10 @@ export const CreateVaultPosition = () => {
             errorMsgOverride={inputErrorMsg}
             inputLabel={messages['CreateVaultPosition'].depositAmount}
           />
-          {hasVaultPosition ? (
+          {vaultPosition ? (
             <ManageTerms
               context={context}
-              linkString={`/vaults/${vaultAddress}/Manage`}
+              linkString={`/vaults/${selectedNetwork}/${vaultAddress}/Manage`}
             />
           ) : customizeLeverage ? (
             <CustomTerms

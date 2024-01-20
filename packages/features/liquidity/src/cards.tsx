@@ -23,12 +23,14 @@ import {
   useSelectedCardNetwork,
 } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
+import {
+  useLeveragedNTokenPositions,
+  useMaxYield,
+} from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
-import { useLeveragedNTokenPositions } from './liquidity-leveraged/hooks/use-leveraged-ntoken-positions';
-import { useMaxYield } from './liquidity-leveraged/hooks/use-max-yield';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `

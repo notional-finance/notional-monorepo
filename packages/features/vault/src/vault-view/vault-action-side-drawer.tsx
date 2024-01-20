@@ -56,7 +56,7 @@ export const VaultActionSideDrawer = () => {
       context={context}
       hasPosition={!!vaultPosition}
       routeMatch={`/vaults/${selectedNetwork}/${vaultAddress}/:path`}
-      defaultHasPosition={'CreateVaultPosition'}
+      defaultHasPosition={'IncreaseVaultPosition'}
       defaultNoPosition={'CreateVaultPosition'}
       routes={[
         {

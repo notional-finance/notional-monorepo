@@ -15,12 +15,13 @@ import {
 } from '@notional-finance/helpers';
 import { BorrowTermsDropdown } from '../borrow-terms-dropdown/borrow-terms-dropdown';
 import { LeverageSlider } from '../leverage-slider/leverage-slider';
-import { useMaxYield, useLeveragedNTokenPositions } from '../hooks';
+import { useMaxYield } from '../hooks';
 import { useHistory } from 'react-router';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
 interface TermsProps {
   context: BaseTradeContext;
-  CustomLeverageSlider?: any;
+  CustomLeverageSlider?: typeof LeverageSlider;
 }
 
 interface ManageTermsProps extends TermsProps {
@@ -119,9 +120,13 @@ export const DefaultTerms = ({ context }: TermsProps) => {
 export const ManageTerms = ({ context, linkString }: ManageTermsProps) => {
   const history = useHistory();
   const {
-    state: { riskFactorLimit, deposit },
+    state: { riskFactorLimit, debt },
   } = context;
-  const { currentPosition } = useLeveragedNTokenPositions(deposit?.symbol);
+
+  const borrowType =
+    debt?.maturity === undefined || debt?.maturity === PRIME_CASH_VAULT_MATURITY
+      ? 'Variable'
+      : 'Fixed';
 
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
@@ -139,11 +144,7 @@ export const ManageTerms = ({ context, linkString }: ManageTermsProps) => {
       <TermsBox
         hasPosition={true}
         leverageRatio={leverageRatio}
-        borrowType={
-          currentPosition?.debt.balance.tokenType === 'fCash'
-            ? 'Fixed'
-            : 'Variable'
-        }
+        borrowType={borrowType}
         actionClick={() => history.push(linkString)}
         actionBody={
           <Box sx={{ alignItems: 'center', display: 'flex' }}>
