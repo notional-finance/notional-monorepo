@@ -1,29 +1,22 @@
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { VaultActionContext } from '../vault';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useVaultPosition } from '@notional-finance/notionable-hooks';
 import {
   PRIME_CASH_VAULT_MATURITY,
   leveragedYield,
   formatMaturity,
 } from '@notional-finance/util';
-import {
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export function useManageVault() {
   const {
-    state: { vaultAddress, priorAccountRisk, debtOptions, selectedNetwork },
+    state: { vaultAddress, debtOptions, selectedNetwork },
     updateState,
   } = useContext(VaultActionContext);
-  const {
-    yields: { vaultShares },
-  } = useAllMarkets(selectedNetwork);
-  const vaultSharesAPY = vaultShares.find(
-    (y) => y.token.vaultAddress === vaultAddress
-  )?.totalAPY;
+  const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
-  if (!priorAccountRisk || !vaultAddress) {
+  if (!vaultPosition) {
     return {
       reduceLeverageOptions: [],
       manageVaultOptions: [],
@@ -33,12 +26,12 @@ export function useManageVault() {
     const manageVaultOptions = [
       {
         label: <FormattedMessage defaultMessage={'Increase Vault Position'} />,
-        link: `/vaults/${vaultAddress}/IncreaseVaultPosition`,
+        link: `/vaults/${selectedNetwork}/${vaultAddress}/IncreaseVaultPosition`,
         key: 'IncreaseVaultPosition',
       },
       {
         label: <FormattedMessage defaultMessage={'Withdraw'} />,
-        link: `/vaults/${vaultAddress}/WithdrawVault`,
+        link: `/vaults/${selectedNetwork}/${vaultAddress}/WithdrawVault`,
         key: 'WithdrawVault',
       },
     ];
@@ -47,9 +40,9 @@ export function useManageVault() {
       debtOptions
         ?.map((o) => {
           const totalAPY = leveragedYield(
-            vaultSharesAPY,
+            vaultPosition.strategyAPY,
             o.interestRate,
-            priorAccountRisk.leverageRatio || 0
+            vaultPosition.leverageRatio || 0
           );
           const label =
             o.token.maturity &&
@@ -64,7 +57,7 @@ export function useManageVault() {
 
           return {
             label,
-            link: `/vaults/${vaultAddress}/RollVaultPosition/${o.token.id}`,
+            link: `/vaults/${selectedNetwork}/${vaultAddress}/RollVaultPosition/${o.token.id}`,
             key: 'RollVaultPosition',
             onClick: () => {
               updateState({ debt: o.token });
@@ -80,14 +73,14 @@ export function useManageVault() {
       reduceLeverageOptions: [
         {
           label: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
-          link: `/vaults/${vaultAddress}/DepositVaultCollateral`,
+          link: `/vaults/${selectedNetwork}/${vaultAddress}/DepositVaultCollateral`,
           key: 'DepositCollateral',
         },
         {
           label: (
             <FormattedMessage defaultMessage={'Repay Debt with Vault Assets'} />
           ),
-          link: `/vaults/${vaultAddress}/WithdrawAndRepayVault`,
+          link: `/vaults/${selectedNetwork}/${vaultAddress}/WithdrawAndRepayVault`,
           key: 'WithdrawAndRepayVault',
         },
       ],

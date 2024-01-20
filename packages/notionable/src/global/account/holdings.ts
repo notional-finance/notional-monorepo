@@ -217,11 +217,8 @@ export function calculateVaultHoldings(account: AccountDefinition) {
             (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
           )?.totalAPY || 0;
 
-    const totalAPY = leveragedYield(
-      strategyAPY,
-      borrowAPY,
-      v.leverageRatio() || 0
-    );
+    const leverageRatio = v.leverageRatio() || 0;
+    const totalAPY = leveragedYield(strategyAPY, borrowAPY, leverageRatio);
 
     return {
       vault: v,
@@ -231,6 +228,7 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       strategyAPY,
       profit,
       denom,
+      leverageRatio,
     };
   });
 }

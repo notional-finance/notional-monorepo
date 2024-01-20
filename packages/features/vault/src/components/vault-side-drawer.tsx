@@ -43,7 +43,7 @@ export const VaultSideDrawer = ({
       showDrawer={false}
       heading={messages[tradeType].heading}
       advancedToggle={advancedToggle}
-      onCancelRouteCallback={() => history.push(`/vaults/${vaultAddress}`)}
+      onCancelRouteCallback={() => history.push(`/vaults/${selectedNetwork}/${vaultAddress}`)}
       hideTextOnMobile={false}
       riskComponent={
         tradeType === 'CreateVaultPosition' ? (

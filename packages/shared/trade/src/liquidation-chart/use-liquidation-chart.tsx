@@ -21,7 +21,7 @@ import { AxisDomain } from 'recharts/types/util/types';
 export function useLiquidationChart(
   state: TradeState | VaultTradeState,
   vaultCollateral?: TokenDefinition,
-  vaultLiquidationPrice?: TokenBalance
+  vaultLiquidationPrice?: TokenBalance | null
 ) {
   const theme = useTheme();
   const {

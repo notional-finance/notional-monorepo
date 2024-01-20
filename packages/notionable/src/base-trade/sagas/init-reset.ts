@@ -52,7 +52,7 @@ export function resetOnTradeTypeChange(
 export function initVaultState(state$: Observable<VaultTradeState>) {
   return state$.pipe(
     map(({ vaultAddress, selectedNetwork, isReady }) => {
-      if (!vaultAddress || !selectedNetwork || !isReady) return undefined;
+      if (!vaultAddress || !selectedNetwork || isReady) return undefined;
       try {
         const vaultConfig = Registry.getConfigurationRegistry().getVaultConfig(
           selectedNetwork,

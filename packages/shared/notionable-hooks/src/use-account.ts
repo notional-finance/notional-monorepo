@@ -51,6 +51,15 @@ export function useVaultHoldings(network: Network | undefined) {
     : [];
 }
 
+export function useVaultPosition(
+  network: Network | undefined,
+  vaultAddress: string | undefined
+) {
+  return useVaultHoldings(network).find(
+    ({ vault }) => vault.vaultAddress === vaultAddress
+  );
+}
+
 export function usePortfolioHoldings(network: Network | undefined) {
   const {
     globalState: { networkAccounts },
@@ -74,8 +83,8 @@ export function usePortfolioRiskProfile(network: Network | undefined) {
     globalState: { networkAccounts },
   } = useNotionalContext();
   return networkAccounts && network
-      ? networkAccounts[network].riskProfile
-      : undefined;
+    ? networkAccounts[network].riskProfile
+    : undefined;
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {
