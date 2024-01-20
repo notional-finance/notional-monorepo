@@ -33,7 +33,7 @@ export const CreateOrIncreasePosition = () => {
         inputRef={currencyInputRef}
         context={context}
         newRoute={(newToken) => {
-          return `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${
+          return `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/${
             depositTokensWithPositions.includes(newToken || '')
               ? 'IncreaseLeveragedNToken'
               : 'CreateLeveragedNToken'

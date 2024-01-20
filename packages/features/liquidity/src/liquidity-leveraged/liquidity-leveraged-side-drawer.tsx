@@ -28,12 +28,15 @@ export const LiquidityLeveragedSideDrawer = () => {
       defaultLeverageRatio,
       deposit,
       riskFactorLimit,
-      selectedNetwork
+      selectedNetwork,
     },
   } = context;
   const loaded = deposit && deposit?.symbol === selectedDepositToken;
 
-  const { currentPosition } = useLeveragedNTokenPositions(selectedNetwork, selectedDepositToken);
+  const { currentPosition } = useLeveragedNTokenPositions(
+    selectedNetwork,
+    selectedDepositToken
+  );
   const currentPositionState = {
     collateral: currentPosition?.asset.balance.token,
     debt: currentPosition?.debt.balance.token,
@@ -50,7 +53,7 @@ export const LiquidityLeveragedSideDrawer = () => {
     <SideDrawerRouter
       context={context}
       hasPosition={!!currentPosition}
-      routeMatch={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/:path/${selectedDepositToken}`}
+      routeMatch={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/:path/${selectedDepositToken}`}
       defaultHasPosition={`IncreaseLeveragedNToken`}
       defaultNoPosition={`CreateLeveragedNToken`}
       routes={[
@@ -94,7 +97,9 @@ export const LiquidityLeveragedSideDrawer = () => {
             ...(currentPosition?.debt.balance.tokenType === 'PrimeDebt'
               ? {
                   collateral: currentPosition?.debt.balance.toPrimeCash().token,
-                  collateralBalance: currentPosition?.debt.balance.toPrimeCash().neg(),
+                  collateralBalance: currentPosition?.debt.balance
+                    .toPrimeCash()
+                    .neg(),
                 }
               : {
                   collateral: currentPosition?.debt.balance.token,

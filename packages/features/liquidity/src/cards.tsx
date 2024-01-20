@@ -13,10 +13,15 @@ import {
 } from '@notional-finance/mui';
 import {
   useAllMarkets,
+  useAppReady,
   useFiat,
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
-import { CardContainer, FeatureLoader, useSelectedCardNetwork } from '@notional-finance/shared-web';
+import {
+  CardContainer,
+  FeatureLoader,
+  useSelectedCardNetwork,
+} from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { PRODUCTS } from '@notional-finance/util';
 import { useEffect, useState } from 'react';
@@ -54,12 +59,13 @@ const LiquidityCardView = ({
   const baseCurrency = useFiat();
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const network = useSelectedCardNetwork()
+  const isAppReady = useAppReady();
+  const network = useSelectedCardNetwork();
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
 
   useEffect(() => {
-    if (network) {
+    if (network && isAppReady) {
       const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
         network,
         'NOTE'
@@ -67,7 +73,7 @@ const LiquidityCardView = ({
       const oneNoteUSD = TokenBalance.unit(NOTE).toFiat(baseCurrency);
       setNotePriceString(`$${oneNoteUSD.toDisplayString()}`);
     }
-  }, [network, baseCurrency]);
+  }, [network, baseCurrency, isAppReady]);
 
   return (
     <ThemeProvider theme={themeLanding}>
@@ -187,7 +193,7 @@ const LiquidityCardView = ({
 };
 
 export const LiquidityVariableCardView = () => {
-  const network = useSelectedCardNetwork()
+  const network = useSelectedCardNetwork();
   const {
     yields: { liquidity },
   } = useAllMarkets(network);
@@ -217,7 +223,7 @@ export const LiquidityVariableCardView = () => {
 };
 
 export const LiquidityLeveragedCardView = () => {
-  const network = useSelectedCardNetwork()
+  const network = useSelectedCardNetwork();
   const {
     yields: { leveragedLiquidity },
   } = useAllMarkets(network);

@@ -59,7 +59,7 @@ export const ManageLeveragedLiquidity = () => {
         <SideDrawerButton
           key={o.token.id}
           onClick={() => updateState({ debt: o.token })}
-          to={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/RollMaturity/${selectedDepositToken}`}
+          to={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/RollMaturity/${selectedDepositToken}`}
           variant="outlined"
           sx={{
             border: `1px solid ${theme.palette.primary.light}`,
@@ -91,15 +91,15 @@ export const ManageLeveragedLiquidity = () => {
       buttons: [
         {
           label: <FormattedMessage defaultMessage={'Deposit'} />,
-          link: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/IncreaseLeveragedNToken/${selectedDepositToken}`,
+          link: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/IncreaseLeveragedNToken/${selectedDepositToken}`,
         },
         {
           label: <FormattedMessage defaultMessage={'Withdraw'} />,
-          link: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/Withdraw/${selectedDepositToken}`,
+          link: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/Withdraw/${selectedDepositToken}`,
         },
         {
           label: <FormattedMessage defaultMessage={'Adjust Leverage'} />,
-          link: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/AdjustLeverage/${selectedDepositToken}`,
+          link: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/AdjustLeverage/${selectedDepositToken}`,
         },
       ].map(({ label, link }, index) => (
         <SideDrawerButton key={index} to={link}>

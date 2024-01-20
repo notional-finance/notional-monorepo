@@ -123,11 +123,13 @@ export const ManageLiquidityTerms = () => {
         hasPosition={true}
         leverageRatio={leverageRatio}
         borrowType={
-          currentPosition?.debt.balance.tokenType === 'fCash' ? 'Fixed' : 'Variable'
+          currentPosition?.debt.balance.tokenType === 'fCash'
+            ? 'Fixed'
+            : 'Variable'
         }
         actionClick={() =>
           history.push(
-            `/${PRODUCTS.LIQUIDITY_LEVERAGED}/Manage/${deposit?.symbol}`
+            `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/Manage/${deposit?.symbol}`
           )
         }
         actionBody={

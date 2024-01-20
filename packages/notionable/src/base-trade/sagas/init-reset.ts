@@ -18,6 +18,7 @@ export function resetOnTradeTypeChange(
       ) {
         return {
           reset: true,
+          selectedNetwork: cur.selectedNetwork,
           tradeType: cur.tradeType,
           vaultAddress: cur.vaultAddress,
         };
@@ -28,6 +29,7 @@ export function resetOnTradeTypeChange(
       ) {
         return {
           reset: true,
+          selectedNetwork: cur.selectedNetwork,
           vaultAddress: cur.vaultAddress,
           tradeType: cur.tradeType,
         };
