@@ -5,6 +5,7 @@ import {
   IS_TEST_ENV,
   Network,
   NetworkId,
+  SupportedNetworks,
 } from './constants';
 
 class AlchemyBatchProvider extends ethers.providers.AlchemyProvider {
@@ -74,8 +75,9 @@ export function getProviderFromNetwork(
 }
 
 export function getNetworkFromId(id: number) {
-  const keys = Object.keys(NetworkId) as Network[];
-  return keys.find((k: keyof typeof NetworkId) => NetworkId[k] === id);
+  return SupportedNetworks.find(
+    (k: keyof typeof NetworkId) => NetworkId[k] === id
+  );
 }
 
 export function getDefaultNetworkFromHostname(hostname: string) {
