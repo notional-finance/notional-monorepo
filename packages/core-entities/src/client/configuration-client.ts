@@ -642,7 +642,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     const incentiveEmissionRate = TokenBalance.from(
       BigNumber.from(
         (config.incentives.secondaryEmissionRate as string | undefined) || 0
-      ).mul(INTERNAL_TOKEN_PRECISION),
+      )
+        .mul(INTERNAL_TOKEN_PRECISION)
+        // FIXME: fix this hack
+        .mul(100),
       rewardToken
     );
     const accumulatedRewardPerNToken = config.incentives
@@ -704,8 +707,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     const address = this.getLatestFromSubject(
       network,
       network
-      // TODO: change this to use name later
-    )?.whitelistedContracts.find((_) => _)?.id;
+    )?.whitelistedContracts.find(
+      ({ name }) => name === 'Leveraged NToken Adapter'
+    )?.id;
     if (!address) throw Error('Leveraged NToken Adapter not found');
 
     return new Contract(

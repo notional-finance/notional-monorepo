@@ -104,7 +104,10 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       });
   }
 
-  getSimulatedNTokenYield(netNTokens: TokenBalance): YieldData {
+  getSimulatedNTokenYield(
+    netNTokens: TokenBalance,
+    adjustedPrimeUtilization?: number
+  ): YieldData {
     const network = netNTokens.network;
 
     const exchanges = Registry.getExchangeRegistry();
@@ -150,7 +153,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         const apy =
           b.tokenType === 'PrimeCash'
             ? (fCashMarket.getPrimeSupplyRate(
-                fCashMarket.getPrimeCashUtilization(netNTokens.toPrimeCash())
+                adjustedPrimeUtilization ||
+                  fCashMarket.getPrimeCashUtilization(netNTokens.toPrimeCash())
               ) *
                 100) /
               RATE_PRECISION
@@ -180,7 +184,11 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       token: netNTokens.token,
       tvl: netNTokens.token.totalSupply?.toUnderlying(),
       underlying,
-      totalAPY: incentiveAPY + feeAPY + interestAPY,
+      totalAPY:
+        incentiveAPY +
+        feeAPY +
+        interestAPY +
+        (secondaryIncentives?.incentiveAPY || 0),
       interestAPY,
       feeAPY,
       noteIncentives: {
@@ -234,6 +242,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         leverageRatio,
         maxLeverageRatio,
       },
+      vaultName: yieldData?.vaultName,
       noteIncentives: {
         symbol: 'NOTE',
         incentiveAPY: this.calculateLeveragedAPY(

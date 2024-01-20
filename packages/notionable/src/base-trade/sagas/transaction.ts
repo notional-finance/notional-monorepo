@@ -113,7 +113,13 @@ export function simulateTransaction(
               .map(([simulated, calculated]) => {
                 let rel = 0;
                 let abs = 0;
-                if (simulated && calculated) {
+                if (
+                  simulated?.symbol === 'ARB' ||
+                  calculated?.symbol === 'ARB'
+                ) {
+                  rel = 0;
+                  abs = 0;
+                } else if (simulated && calculated) {
                   rel = calculated.isZero()
                     ? simulated.toFloat()
                     : (simulated.toFloat() - calculated.toFloat()) /

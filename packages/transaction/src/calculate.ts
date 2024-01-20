@@ -552,6 +552,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   let debtDeposit: ReturnType<typeof calculateDebt> | undefined;
   let collateralDeposit: ReturnType<typeof calculateCollateral> | undefined;
   let profile = new AccountRiskProfile(balances || [], collateral.network);
+  let initialGuessMultiple: number | undefined = undefined;
 
   if (depositBalance?.isPositive()) {
     collateralDeposit = calculateCollateral({
@@ -573,15 +574,23 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
     debtDeposit = calculateDebt({ debt, debtPool, depositBalance });
     const withdrawPortion = depositBalance
       .neg()
-      .ratioWith(profile.netCollateralAvailable(depositBalance.currencyId));
+      .ratioWith(
+        profile
+          .totalCurrencyAssets(depositBalance.currencyId)
+          .add(profile.totalCurrencyDebts(depositBalance.currencyId))
+      );
     initialDebtUnitsEstimateInRP = profile
-      .totalDebtRiskAdjusted(depositBalance.currencyId)
+      .totalDebt(depositBalance.currencyId)
       .neg()
       .mulInRatePrecision(withdrawPortion)
       .scaleTo(RATE_DECIMALS)
       .toNumber();
 
     profile = profile.simulate([debtDeposit.debtBalance]);
+    // Reduces the chance that the withdraw exceeds the total balance, however,
+    // above a certain threshold this may try to withdraw above the absolute balance
+    // of the collateral token.
+    initialGuessMultiple = 1 - withdrawPortion.toNumber() / RATE_PRECISION + 1;
   }
 
   const results = profile.getDebtAndCollateralMaintainRiskFactor(
@@ -595,7 +604,8 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
         debtBalance,
       });
     },
-    initialDebtUnitsEstimateInRP
+    initialDebtUnitsEstimateInRP,
+    initialGuessMultiple
   );
 
   return {

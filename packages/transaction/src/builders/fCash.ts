@@ -19,6 +19,8 @@ import {
   BASIS_POINT,
   RATE_PRECISION,
   MAX_UINT88,
+  INTERNAL_TOKEN_DECIMALS,
+  INTERNAL_PRECISION_DUST,
 } from '@notional-finance/util';
 import { DeleverageNToken } from './Leveraged';
 import { TokenBalance } from '@notional-finance/core-entities';
@@ -31,6 +33,7 @@ export function LendFixed({
   redeemToWETH,
   accountBalances,
   maxWithdraw,
+  tradeType,
 }: PopulateTransactionInputs) {
   if (!collateralBalance) throw Error('Collateral balance undefined');
   if (!depositBalance) throw Error('Deposit balance undefined');
@@ -83,6 +86,19 @@ export function LendFixed({
       ]
     );
   } else {
+    if (
+      depositBalance.decimals < INTERNAL_TOKEN_DECIMALS &&
+      tradeType === 'LendFixed'
+    ) {
+      // If decimals on the deposit balance is less than 8 then decrease the fCash balance
+      // to mitigate dust deposit issues. This is an absolute value so it will not change
+      // based on how much lending occurs. This is only done on the LendFixed page so that
+      // RepayFixed does not result in dust fCash balances.
+      collateralBalance = collateralBalance.sub(
+        collateralBalance.copy(INTERNAL_PRECISION_DUST)
+      );
+    }
+
     // If there is no cash balance then can use a batchLend
     return populateNotionalTxnAndGas(network, address, 'batchLend', [
       address,

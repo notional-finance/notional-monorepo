@@ -57,6 +57,7 @@ export interface TokenOption {
   balance?: TokenBalance;
   interestRate?: number;
   error?: string;
+  utilization?: number;
 }
 
 /** Inputs set by the user interface, all of these are denominated in primitive values */
@@ -220,3 +221,18 @@ export function isDeleverageWithSwappedTokens(s?: BaseTradeState) {
       s?.collateral?.tokenType !== 'nToken')
   );
 }
+
+export const clearTradeState: TransactionState = {
+  confirm: false,
+  inputsSatisfied: false,
+  calculationSuccess: false,
+  canSubmit: false,
+  calculateInputKeys: undefined,
+  populatedTransaction: undefined,
+  transactionError: undefined,
+  netAssetBalance: undefined,
+  netDebtBalance: undefined,
+  netRealizedCollateralBalance: undefined,
+  netRealizedDebtBalance: undefined,
+  postTradeBalances: undefined,
+};
