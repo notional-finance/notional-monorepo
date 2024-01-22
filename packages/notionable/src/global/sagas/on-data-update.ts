@@ -31,13 +31,15 @@ export function onDataUpdate(global$: Observable<GlobalState>) {
 
 function onYieldsUpdate$(global$: Observable<GlobalState>) {
   return globalWhenAppReady$(global$).pipe(
-    // TODO: need hard waits on yield and analytics registry ready...
     switchMap(() => {
       return timer(500, 10_000).pipe(
         map(() => {
           return {
             allYields: SupportedNetworks.reduce((acc, n) => {
-              acc[n] = Registry.getYieldRegistry().getAllYields(n);
+              // Skips yield registries that are not registered
+              if (Registry.getYieldRegistry().isNetworkRegistered(n)) {
+                acc[n] = Registry.getYieldRegistry().getAllYields(n);
+              }
               return acc;
             }, {} as Record<Network, YieldData[]>),
           };
@@ -59,21 +61,22 @@ function onPriceChangeUpdate$(global$: Observable<GlobalState>) {
       return timer(500, 60_000).pipe(
         map(() => ({
           priceChanges: SupportedNetworks.reduce((acc, n) => {
-            const oneDay = Registry.getAnalyticsRegistry().getPriceChanges(
-              global.baseCurrency,
-              n,
-              SECONDS_IN_DAY
-            );
-            const sevenDay = Registry.getAnalyticsRegistry().getPriceChanges(
-              global.baseCurrency,
-              n,
-              SECONDS_IN_DAY * 7
-            );
-            acc[n] = {
-              oneDay,
-              sevenDay,
-            };
-
+            if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
+              const oneDay = Registry.getAnalyticsRegistry().getPriceChanges(
+                global.baseCurrency,
+                n,
+                SECONDS_IN_DAY
+              );
+              const sevenDay = Registry.getAnalyticsRegistry().getPriceChanges(
+                global.baseCurrency,
+                n,
+                SECONDS_IN_DAY * 7
+              );
+              acc[n] = {
+                oneDay,
+                sevenDay,
+              };
+            }
             return acc;
           }, {} as Record<Network, { oneDay: PriceChange[]; sevenDay: PriceChange[] }>),
         }))
@@ -94,7 +97,9 @@ function onActiveAccounts$(global$: Observable<GlobalState>) {
       return timer(500, 60_000).pipe(
         map(() => ({
           activeAccounts: SupportedNetworks.reduce((acc, n) => {
-            acc[n] = Registry.getAnalyticsRegistry().getActiveAccounts(n);
+            if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
+              acc[n] = Registry.getAnalyticsRegistry().getActiveAccounts(n);
+            }
             return acc;
           }, {} as Record<Network, Record<string, number>>),
         }))

@@ -25,11 +25,11 @@ export const BorrowFixedTradeSummary = () => {
   const { pathname } = useLocation();
   const context = useContext(BorrowFixedContext);
   const { state } = context;
-  const { selectedDepositToken, deposit, selectedNetwork } = state;
+  const { selectedDepositToken, deposit, selectedNetwork, debt } = state;
   const { tableColumns, tableData } = useFixedLiquidityPoolsTable(deposit);
   const multiChartData = useBorrowFixedMultiChart();
   const { faqs, faqHeaderLinks } = useBorrowFixedFaq(selectedNetwork);
-  const totalsData = useTotalsData(deposit);
+  const totalsData = useTotalsData(deposit, debt);
 
   return (
     <TradeActionSummary state={state}>

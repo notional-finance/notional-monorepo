@@ -4,14 +4,22 @@ import {
   FiatSymbols,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { useFiat, useAllMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useFiat,
+  useAllMarkets,
+  useTotalHolders,
+} from '@notional-finance/notionable-hooks';
 
-export const useTotalsData = (deposit: TokenDefinition | undefined) => {
+export const useTotalsData = (
+  deposit: TokenDefinition | undefined,
+  debt: TokenDefinition | undefined
+) => {
   const data = useAllMarkets(deposit?.network);
   const baseCurrency = useFiat();
   const {
     yields: { fCashBorrow, liquidity },
   } = data;
+  const totalBorrowers = useTotalHolders(debt);
 
   const tvlData = liquidity?.find(
     (data) => data.underlying?.id === deposit?.id
@@ -41,7 +49,7 @@ export const useTotalsData = (deposit: TokenDefinition | undefined) => {
     },
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Borrowers'} />,
-      value: '-',
+      value: totalBorrowers ? `${totalBorrowers}` : '-',
     },
   ];
 };
