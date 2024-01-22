@@ -2,7 +2,6 @@ import {
   NotionalContext,
   useGlobalContext,
   useSanctionsBlock,
-  useVaultNftCheck,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FeatureLoader, TrackingConsent } from '@notional-finance/shared-web';
@@ -278,7 +277,7 @@ export const App = () => {
     state: { themeVariant },
   } = globalState;
   const notionalTheme = useNotionalTheme(themeVariant);
-  useVaultNftCheck();
+  //  useVaultNftCheck(hasContestNFT);
 
   return (
     <ThemeProvider theme={notionalTheme}>

@@ -1,4 +1,4 @@
-import { Box, SxProps, styled } from '@mui/material';
+import { Box, SxProps, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import Countdown from 'react-countdown';
 import { SectionTitle } from '@notional-finance/mui';
@@ -10,11 +10,20 @@ interface ContestCountDownProps {
 }
 
 export const ContestCountDown = ({ title, sx }: ContestCountDownProps) => {
+  const theme = useTheme();
   // This is a millisecond timestamp for 12 AM on 02/01/2024
   const futureDate = 1706832000000;
 
   return (
-    <ContentContainer sx={{ ...sx }}>
+    <Box
+      sx={{
+        marginBottom: theme.spacing(8),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'baseline',
+        ...sx,
+      }}
+    >
       {title && <SectionTitle>{title}</SectionTitle>}
       <Countdown
         date={futureDate}
@@ -32,18 +41,9 @@ export const ContestCountDown = ({ title, sx }: ContestCountDownProps) => {
           );
         }}
       />
-    </ContentContainer>
+    </Box>
   );
 };
-
-const ContentContainer = styled(Box)(
-  ({ theme }) => `
-      margin-bottom: ${theme.spacing(8)};
-      display: flex;
-      flex-direction: column;
-      align-items: baseline;
-      `
-);
 
 const CountDownContainer = styled(Box)(
   ({ theme }) => `
@@ -60,11 +60,8 @@ const CountDownContainer = styled(Box)(
     border: 1px solid ${colors.neonTurquoise};
     padding: 0px ${theme.spacing(3)};
     background: rgba(51, 248, 255, 0.10);
-    width: 358px;
+    width: 330px;
     height: 51px;
-    ${theme.breakpoints.down('md')} {
-     margin-bottom: ${theme.spacing(3)};
-    }
       `
 );
 

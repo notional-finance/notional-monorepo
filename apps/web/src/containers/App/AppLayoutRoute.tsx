@@ -6,7 +6,8 @@ import { colors } from '@notional-finance/styles';
 import { RouteType } from '@notional-finance/util';
 import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { usePageTrack } from '@notional-finance/helpers';
-import { useLocation } from 'react-router';
+import blitz from '@notional-finance/mui/src/assets/icons/blitz.svg';
+import { useHistory, useLocation } from 'react-router';
 
 const AppLayoutRoute = ({
   component: Component,
@@ -22,6 +23,11 @@ const AppLayoutRoute = ({
   const location = useLocation();
   const selectedNetwork = useWalletConnectedNetwork();
   usePageTrack(routeType, selectedNetwork);
+
+  const handleContestClick = () => {
+    // TODO: if they have a contest* pass minted default to /contest-leaderboard
+    history.push('/contest');
+  };
 
   return landingLayout ? (
     <CompatRoute
@@ -41,6 +47,31 @@ const AppLayoutRoute = ({
         <Box>
           <AppShell>
             <Header>
+              <Box
+                sx={{
+                  marginRight: '40px',
+                  marginTop: '15px',
+                  cursor: 'pointer',
+                }}
+                onClick={handleContestClick}
+              >
+                <img
+                  src={blitz}
+                  alt="blitz badge"
+                  style={{ width: '76px', height: '46px' }}
+                />
+                <Box
+                  sx={{
+                    height: '5px',
+                    marginTop: '3px',
+                    background: location.pathname.includes('contest')
+                      ? colors.neonTurquoise
+                      : 'transparent',
+                    width: '100%',
+                  }}
+                ></Box>
+              </Box>
+
               <WalletSelector />
             </Header>
 

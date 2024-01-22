@@ -11,23 +11,7 @@ import backgroundColors from '../assets/color-blobs.png';
 import { OuterContainer } from '../components';
 import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { useParams } from 'react-router-dom';
-import {
-  ConnectContestWallet,
-  ContestConfirmation,
-  CommunityPartners,
-  MintPass,
-} from './contest-sign-up-steps';
-
-export interface ContestSignUpParams {
-  step?: CONTEST_SIGN_UP_STEPS;
-}
-
-const ContestSteps = {
-  [CONTEST_SIGN_UP_STEPS.CONNECT_WALLET]: ConnectContestWallet,
-  [CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS]: CommunityPartners,
-  [CONTEST_SIGN_UP_STEPS.MINT_PASS]: MintPass,
-  [CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION]: ContestConfirmation,
-};
+import { ContestSignUpParams, useSignUpStep } from '../hooks';
 
 interface BreadCrumbProps {
   stepActive: boolean;
@@ -37,22 +21,15 @@ interface BreadCrumbProps {
 const ContestBreadCrumb = ({ step }: ContestSignUpParams) => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        width: '530px',
-        margin: 'auto',
-      }}
-    >
-      <Box sx={{ width: '150px' }}>
-        <BreadCrumb stepActive={true} theme={theme}>
-          <FormattedMessage defaultMessage={'Contest Wallet'} />
-        </BreadCrumb>
+    <BreadCrumbContainer>
+      <BreadCrumb>
+        <BreadCrumbText stepActive={true} theme={theme}>
+          <FormattedMessage defaultMessage={'Connect Wallet'} />
+        </BreadCrumbText>
         <BreadCrumbBlock stepActive={true} theme={theme} />
-      </Box>
-      <Box sx={{ width: '150px' }}>
-        <BreadCrumb
+      </BreadCrumb>
+      <BreadCrumb>
+        <BreadCrumbText
           stepActive={
             step === CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS ||
             step === CONTEST_SIGN_UP_STEPS.MINT_PASS
@@ -60,7 +37,7 @@ const ContestBreadCrumb = ({ step }: ContestSignUpParams) => {
           theme={theme}
         >
           <FormattedMessage defaultMessage={'Community Partners'} />
-        </BreadCrumb>
+        </BreadCrumbText>
         <BreadCrumbBlock
           stepActive={
             step === CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS ||
@@ -68,47 +45,55 @@ const ContestBreadCrumb = ({ step }: ContestSignUpParams) => {
           }
           theme={theme}
         />
-      </Box>
-      <Box sx={{ width: '150px' }}>
-        <BreadCrumb
+      </BreadCrumb>
+      <BreadCrumb>
+        <BreadCrumbText
           stepActive={step === CONTEST_SIGN_UP_STEPS.MINT_PASS}
           theme={theme}
         >
           <FormattedMessage defaultMessage={'Mint Pass'} />
-        </BreadCrumb>
+        </BreadCrumbText>
         <BreadCrumbBlock
           stepActive={step === CONTEST_SIGN_UP_STEPS.MINT_PASS}
           theme={theme}
         />
-      </Box>
-    </Box>
+      </BreadCrumb>
+    </BreadCrumbContainer>
   );
 };
 
 export const ContestSignUp = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const params = useParams<ContestSignUpParams>();
-  const CurrentStep =
-    params.step && ContestSteps[params.step]
-      ? ContestSteps[params.step]
-      : () => <div>loading...</div>;
+  const CurrentStep = useSignUpStep();
 
   return (
     <ThemeProvider theme={theme}>
-      <OuterContainer>
+      <SignUpContainer>
         <BgImgContainer>
           <img src={backgroundColors} alt="bg img" />
         </BgImgContainer>
         <OpacityBG>
-          <ContestBreadCrumb
-            step={params.step || CONTEST_SIGN_UP_STEPS.CONNECT_WALLET}
-          />
+          {params.step !== CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION && (
+            <ContestBreadCrumb
+              step={params.step || CONTEST_SIGN_UP_STEPS.CONNECT_WALLET}
+            />
+          )}
           <CurrentStep />
         </OpacityBG>
-      </OuterContainer>
+      </SignUpContainer>
     </ThemeProvider>
   );
 };
+
+export const SignUpContainer = styled(OuterContainer)(
+  ({ theme }) => `
+      height: 100vh;
+      ${theme.breakpoints.down('sm')} {
+        height: 100%;
+      }
+      `
+);
 
 const BgImgContainer = styled(Box)(
   `
@@ -116,6 +101,7 @@ const BgImgContainer = styled(Box)(
     position: absolute;
     width: 100vw;
     z-index: 1;
+    margin-top: -250px;
     img {
       width: 100%;
       height: 100vh;
@@ -130,17 +116,38 @@ export const OpacityBG = styled(Box)(
     border-radius: 20px;
     position: relative;
     margin: auto;
-    margin-top: ${theme.spacing(20)};
     margin-bottom: ${theme.spacing(23)};
     padding: ${theme.spacing(8)};
     z-index: 3;
-    width: 1022px;
-    height: 677px;
+    width: 1000px;
+    height: ${theme.spacing(74)};;
     text-align: center;
+    ${theme.breakpoints.down('md')} {
+      width: 90%;
+      height: 100%;
+      margin: auto;
+    }
+    ${theme.breakpoints.down('sm')} {
+      max-height: 100%;
+      min-height: 100%;
+      height: 100vh;
+      width: 100vw;
+      border: none;
+      padding: ${theme.spacing(2)};
+    }
       `
 );
 
-export const BreadCrumb = styled(Caption, {
+export const BreadCrumb = styled(Box)(
+  ({ theme }) => `
+      width: 150px;
+      ${theme.breakpoints.down('sm')} {
+        width: auto;
+      }
+      `
+);
+
+export const BreadCrumbText = styled(Caption, {
   shouldForwardProp: (prop: string) => prop !== 'stepActive',
 })(
   ({ theme, stepActive }: BreadCrumbProps) => `
@@ -158,6 +165,18 @@ export const BreadCrumbBlock = styled(Box, {
     height: ${theme.spacing(1)};
     background: ${stepActive ? colors.neonTurquoise : colors.matteGreen};
       `
+);
+export const BreadCrumbContainer = styled(Box)(
+  ({ theme }) => `
+    display: flex;
+    justify-content: space-between;
+    width: 530px;
+    margin: auto;
+    ${theme.breakpoints.down('sm')} {
+      width: 100%;
+      justify-content: space-around;
+    }
+    `
 );
 
 export default ContestSignUp;

@@ -2,9 +2,8 @@ import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
-import { ContestButtonStack } from '../contest-button-stack/contest-button-stack';
 import { ContestCountDown } from '../contest-countdown/contest-countdown';
-import { BodySecondary } from '@notional-finance/mui';
+import { BodySecondary, Button } from '@notional-finance/mui';
 import { TitleText } from '../contest-shared-elements/contest-shared-elements';
 
 export const ContestHero = () => {
@@ -17,27 +16,45 @@ export const ContestHero = () => {
             <TitleText>
               <FormattedMessage defaultMessage={'Notional V3 STIP Blitz'} />
             </TitleText>
-            <BodySecondary
-              sx={{
-                color: colors.greenGrey,
-                fontWeight: 400,
-                marginTop: theme.spacing(2),
-                marginBottom: theme.spacing(6),
-              }}
-            >
+            <BodyText>
               <FormattedMessage
                 defaultMessage={
                   'Contest runs Feb. 1st to Mar. 1st. Open to everyone and free to join. Click below to enter and compete for 27k $NOTE in prizes!'
                 }
               />
-            </BodySecondary>
+            </BodyText>
             <ContestCountDown title={'Contest Begins:'} />
-            <ContestButtonStack
-              to={`/contest-sign-up/${CONTEST_SIGN_UP_STEPS.CONNECT_WALLET}`}
-              buttonText={
-                <FormattedMessage defaultMessage={'Join the Yield Contest'} />
-              }
-            />
+            <ButtonContainer>
+              <Button
+                size="large"
+                sx={{
+                  marginBottom: theme.spacing(3),
+                  width: '330px',
+                  fontFamily: 'Avenir Next',
+                  cursor: 'pointer',
+                }}
+                to={`/contest-sign-up/${CONTEST_SIGN_UP_STEPS.CONNECT_WALLET}`}
+              >
+                {<FormattedMessage defaultMessage={'Join the Yield Contest'} />}
+              </Button>
+
+              <Button
+                size="large"
+                variant="outlined"
+                to="/portfolio/overview"
+                sx={{
+                  width: '330px',
+                  border: `1px solid ${colors.neonTurquoise}`,
+                  cursor: 'pointer',
+                  ':hover': {
+                    background: colors.matteGreen,
+                  },
+                  fontFamily: 'Avenir Next',
+                }}
+              >
+                <FormattedMessage defaultMessage={'Back To App'} />
+              </Button>
+            </ButtonContainer>
           </>
         </TextAndButtonWrapper>
       </ContentContainer>
@@ -63,9 +80,32 @@ const TextAndButtonWrapper = styled(Box)(
   flex-direction: column;
   align-items: center;
   text-align: center;
-  ${theme.breakpoints.down('md')} {
-    width: 100%;
+  margin: auto;
+  ${theme.breakpoints.down('sm')} {
+    width: 90%;
   }
+  `
+);
+
+const ButtonContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  flex-direction: column;
+  ${theme.breakpoints.down('md')} {
+    align-items: center;
+  }
+  `
+);
+
+const BodyText = styled(BodySecondary)(
+  ({ theme }) => `
+    color: ${colors.greenGrey};
+    font-weight: 400,
+    margin-top: ${theme.spacing(2)};
+    margin-bottom: ${theme.spacing(6)};
+    ${theme.breakpoints.down('md')} {
+      align-items: center;
+    }
   `
 );
 

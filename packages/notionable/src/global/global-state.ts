@@ -30,6 +30,48 @@ export enum BETA_ACCESS {
   REJECTED = 'rejected',
 }
 
+export enum PARTNERS {
+  DEGEN_SCORE = 'degen-score',
+  CRYPTO_TESTERS = 'crypto-testers',
+  L2DAO = 'l2dao',
+  LLAMAS = 'llamas',
+}
+
+
+export const ACCESS_NFTS = {
+  [PARTNERS.DEGEN_SCORE]: {
+    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
+    network: Network.Mainnet,
+    name: 'DEGEN SCORE',
+    id: PARTNERS.DEGEN_SCORE,
+  },
+  [PARTNERS.CRYPTO_TESTERS]: {
+    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
+    network: Network.Mainnet,
+    name: 'Cryptotesters',
+    id: PARTNERS.CRYPTO_TESTERS,
+  },
+  [PARTNERS.L2DAO]: {
+    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
+    network: Network.Mainnet,
+    name: 'L2DAO',
+    id: PARTNERS.L2DAO
+  },
+  [PARTNERS.LLAMAS]: {
+    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
+    network: Network.Mainnet,
+    name: 'Llama',
+    id: PARTNERS.LLAMAS,
+  },
+  // BETA_CONTEST: {
+  //   address: '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e',
+  //   network: Network.ArbitrumOne,
+  //   name: 'Notional Beta Contest',
+  // },
+};
+
+export const GATED_VAULTS: string[] = [];
+
 // Set this as the runtime default
 const CACHE_HOSTNAME =
   process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';

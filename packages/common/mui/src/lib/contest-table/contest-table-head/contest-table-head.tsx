@@ -29,10 +29,6 @@ export const ContestTableHead = ({
       {headerGroups.map((headerGroup: HeaderGroup) => (
         <TableRow {...headerGroup['getHeaderGroupProps']()}>
           {headerGroup.headers.map((column: ContestTableColumn) => {
-            console.log(
-              "column['render']('Header'): ",
-              column['render']('Header')
-            );
             return (
               <TableCell
                 sx={{

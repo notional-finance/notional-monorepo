@@ -51,22 +51,22 @@ const PrizeInfo = ({ prizeType }: PrizeInfoPropsProps) => {
       >
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           {prizeType === 'HR' ? (
-            <SectionTitle sx={{ letterSpacing: '2.4px' }}>
+            <PrizeHeaderContainer>
               <LightningIcon
                 fill={colors.neonTurquoise}
                 style={{ marginRight: theme.spacing(1) }}
               />
               <FormattedMessage defaultMessage={'High Roller'} />
-            </SectionTitle>
+            </PrizeHeaderContainer>
           ) : (
-            <SectionTitle sx={{ letterSpacing: '2.4px' }}>
+            <PrizeHeaderContainer>
               <img
                 src={fatCat}
                 alt="icon"
                 style={{ height: '24px', marginRight: theme.spacing(1) }}
               />
               <FormattedMessage defaultMessage={'Fat Cat'} />
-            </SectionTitle>
+            </PrizeHeaderContainer>
           )}
 
           <HeadingSubtitle sx={{ color: colors.greenGrey, fontWeight: 400 }}>
@@ -90,6 +90,7 @@ const PrizeInfo = ({ prizeType }: PrizeInfoPropsProps) => {
 
 export const ContestPrizes = () => {
   const theme = useTheme();
+  const pathname = window.location.pathname;
   return (
     <Container>
       <SectionTitle
@@ -97,25 +98,30 @@ export const ContestPrizes = () => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: theme.spacing(4),
         }}
       >
-        <FormattedMessage defaultMessage={'Prizes'} />
-        <Button
-          size="large"
-          variant="outlined"
-          to="/contest-rules"
-          sx={{
-            width: '358px',
-            border: `1px solid ${colors.neonTurquoise}`,
-            ':hover': {
-              background: colors.matteGreen,
-            },
-            fontFamily: 'Avenir Next',
-          }}
-        >
-          <FormattedMessage defaultMessage={'Rules & Prizes'} />
-        </Button>
+        <Box id="prizes-header">
+          <FormattedMessage defaultMessage={'Prizes'} />
+        </Box>
+        {/* TODO: Show this if the user has minted a contest pass */}
+        {pathname === '/contest' && (
+          <Button
+            size="large"
+            variant="outlined"
+            to="/contest-rules"
+            sx={{
+              width: '330px',
+              border: `1px solid ${colors.neonTurquoise}`,
+              ':hover': {
+                background: colors.matteGreen,
+              },
+              fontFamily: 'Avenir Next',
+              marginTop: theme.spacing(3),
+            }}
+          >
+            <FormattedMessage defaultMessage={'Rules & Prizes'} />
+          </Button>
+        )}
       </SectionTitle>
       <InfoContainer>
         <PrizeInfo prizeType="HR" />
@@ -133,11 +139,10 @@ const Container = styled(Box)(
     margin-bottom: ${theme.spacing(22)};
     justify-content: space-between;
     ${theme.breakpoints.down('md')} {
-      flex-direction: column;
-      align-items: center;
       gap: ${theme.spacing(10)};
+      margin: ${theme.spacing(10)} auto;
     }
-      `
+    `
 );
 
 const PrizeInfoContainer = styled(Box)(
@@ -148,14 +153,22 @@ const PrizeInfoContainer = styled(Box)(
     border: 1px solid var(--Accent-Neon, #33F8FF);
     background: rgba(51, 248, 255, 0.10);
     padding: ${theme.spacing(4)};
+    ${theme.breakpoints.down('sm')} {
+      padding: ${theme.spacing(2)};
+    }
       `
 );
 
 const PrizePlaceContainer = styled(Box)(
-  () => `
+  ({ theme }) => `
     display: flex;
     justify-content: space-between;
     width: 100%;
+    ${theme.breakpoints.down('sm')} {
+      h6, span {
+        font-size: 14px;
+      }
+    }
       `
 );
 
@@ -163,6 +176,17 @@ const InfoContainer = styled(Box)(
   ({ theme }) => `
     display: flex;
     gap: ${theme.spacing(6)};
+    ${theme.breakpoints.down('sm')} {
+      flex-direction: column;
+    }
+      `
+);
+const PrizeHeaderContainer = styled(SectionTitle)(
+  ({ theme }) => `
+      ${theme.breakpoints.down('md')} {
+        text-align: left;
+        letter-spacing: 2.4px;
+      }
       `
 );
 

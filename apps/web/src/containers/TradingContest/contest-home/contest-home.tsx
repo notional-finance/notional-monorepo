@@ -5,6 +5,8 @@ import {
   ContestPrizes,
   ContestPartners,
   OuterContainer,
+  BgImgContainer,
+  MainContainer,
 } from '../components';
 import { colors, useNotionalTheme } from '@notional-finance/styles';
 import backgroundColors from '../assets/color-blobs.png';
@@ -14,7 +16,7 @@ export const ContestHome = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <OuterContainer>
+      <OuterContainer sx={{ paddingBottom: '0px' }}>
         <BgImgContainer>
           <img src={backgroundColors} alt="bg img" />
         </BgImgContainer>
@@ -31,31 +33,6 @@ export const ContestHome = () => {
     </ThemeProvider>
   );
 };
-
-export const BgImgContainer = styled(Box)(
-  `
-  margin-top: -170px;
-  overflow: hidden;
-  position: absolute;
-  width: 100vw;
-  z-index: 1;
-  img {
-    width: 100%;
-  }
-    `
-);
-
-export const MainContainer = styled(Box)(
-  `
-  background: transparent;
-  height: 100%;
-  overflow: hidden;
-  max-width: 1230px;
-  margin: auto;
-  position: relative;
-  z-index: 3;
-    `
-);
 
 export const OpacityBG = styled(Box)(
   ({ theme }) => `

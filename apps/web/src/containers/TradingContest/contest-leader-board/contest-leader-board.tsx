@@ -5,6 +5,9 @@ import {
   ContestPrizes,
   SectionTitle,
   OuterContainer,
+  BgImgContainer,
+  MainContainer,
+  ContestButtonBar,
 } from '../components';
 import { ContestTable, LinkText, Button } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -39,20 +42,14 @@ export const ContestLeaderBoard = () => {
             >
               <FormattedMessage defaultMessage={'Leaderboard'} />
             </SectionTitle>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
+            <CountDownContainer>
               <ContestCountDown sx={{ marginBottom: '0px' }} />
               <Button
                 size="large"
                 variant="outlined"
                 to="/contest-rules"
                 sx={{
-                  width: '358px',
+                  width: '330px',
                   border: `1px solid ${colors.neonTurquoise}`,
                   ':hover': {
                     background: colors.matteGreen,
@@ -62,8 +59,7 @@ export const ContestLeaderBoard = () => {
               >
                 <FormattedMessage defaultMessage={'Rules & Prizes'} />
               </Button>
-            </Box>
-
+            </CountDownContainer>
             {currentUserData.length > 0 && (
               <UserTableContainer>
                 <SectionTitle
@@ -136,6 +132,19 @@ export const ContestLeaderBoard = () => {
               />
             </TableContainer>
             <ContestPrizes />
+            {/* TODO: Hide this if the user has minted a contest pass */}
+            <Box sx={{ display: 'flex', marginTop: '100px' }}>
+              <ContestButtonBar
+                buttonOneText={
+                  <FormattedMessage defaultMessage={'Rules & Prizes'} />
+                }
+                buttonOnePathTo="/contest-rules"
+                buttonTwoText={
+                  <FormattedMessage defaultMessage={'Contest Home'} />
+                }
+                buttonTwoPathTo="/contest"
+              />
+            </Box>
           </MainContainer>
         </OpacityBG>
       </OuterContainer>
@@ -143,38 +152,12 @@ export const ContestLeaderBoard = () => {
   );
 };
 
-const BgImgContainer = styled(Box)(
-  `
-  overflow: hidden;
-  position: absolute;
-  width: 100vw;
-  z-index: 1;
-  img {
-    width: 100%;
-  }
-    `
-);
-
-const MainContainer = styled(Box)(
-  `
-  background: transparent;
-  height: 100%;
-  overflow: hidden;
-  max-width: 1230px;
-  margin: auto;
-  position: relative;
-  z-index: 3;
-    `
-);
-
 const TableContainer = styled(Box)(
   ({ theme }) => `
   margin-top: ${theme.spacing(11)};
   ${theme.breakpoints.down('md')} {
     display: flex;
     justify-content: center;
-    max-width: 90%;
-    margin: auto;
     margin-top: ${theme.spacing(11)};
   }
     `
@@ -182,13 +165,25 @@ const TableContainer = styled(Box)(
 
 const UserTableContainer = styled(Box)(
   ({ theme }) => `
-  ${theme.breakpoints.down('md')} {
     display: flex;
     align-items: center;
+  ${theme.breakpoints.down('md')} {
     justify-content: center;
     flex-direction: column;
-    max-width: 90%;
-    margin: auto;
+  }
+    `
+);
+
+const CountDownContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  ${theme.breakpoints.down('sm')} {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    a { margin-top: ${theme.spacing(4)}; }
   }
     `
 );

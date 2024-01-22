@@ -1,18 +1,14 @@
 import { useTheme, Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
-import { Button, Faq, FaqHeader } from '@notional-finance/mui';
+import { Faq, FaqHeader } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useContestRulesInfo } from '../../hooks';
-import { BETA_ACCESS } from '@notional-finance/notionable';
+import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
 
 export const ContestRulesInfo = () => {
   const theme = useTheme();
   const { dataSetOne, faqData } = useContestRulesInfo();
-  const {
-    globalState: { hasContestNFT },
-  } = useNotionalContext();
 
   return (
     <>
@@ -62,38 +58,29 @@ export const ContestRulesInfo = () => {
             }}
           />
         ))}
-        <ButtonContainer>
-          {hasContestNFT !== BETA_ACCESS.CONFIRMED && (
-            <>
-              <Button
-                size="large"
-                variant="outlined"
-                to="/contest-leaderboard"
-                sx={{
-                  width: '358px',
-                  border: `1px solid ${colors.neonTurquoise}`,
-                  cursor: 'pointer',
-                  ':hover': {
-                    background: colors.matteGreen,
-                  },
-                  fontFamily: 'Avenir Next',
-                }}
-              >
-                <FormattedMessage defaultMessage={'View Full Leaderboard'} />
-              </Button>
-              <Button
-                size="large"
-                sx={{
-                  width: '300px',
-                  fontFamily: 'Avenir Next',
-                }}
-                to="/contest"
-              >
-                <FormattedMessage defaultMessage={'Contest Home'} />
-              </Button>
-            </>
-          )}
-        </ButtonContainer>
+        {/* TODO: Show only this button this if the user has minted a contest pass */}
+        {/* <Button
+          size="large"
+          sx={{
+            width: '300px',
+            fontFamily: 'Avenir Next',
+          }}
+          to="/contest"
+        >
+          <FormattedMessage defaultMessage={'Contest Home'} />
+        </Button> */}
+
+        {/* TODO: Hide this if the user has minted a contest pass */}
+        <Box sx={{ display: 'flex', marginTop: '100px' }}>
+          <ContestButtonBar
+            buttonOneText={
+              <FormattedMessage defaultMessage={'View Full Leaderboard'} />
+            }
+            buttonOnePathTo="/contest-leaderboard"
+            buttonTwoText={<FormattedMessage defaultMessage={'Contest Home'} />}
+            buttonTwoPathTo="/contest"
+          />
+        </Box>
       </Container>
     </>
   );
@@ -105,34 +92,10 @@ const Container = styled(Box)(
       margin-top: ${theme.spacing(11)};
       max-width: 850px;      
       ${theme.breakpoints.down('md')} {
-        max-width: 90%;
         margin: auto;
         margin-top: ${theme.spacing(11)};
       }
   `
-);
-
-const ButtonContainer = styled(Box)(
-  ({ theme }) => `
-  width: 100%;
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  margin: ${theme.spacing(10, 0)};
-  ${theme.breakpoints.down('md')} {
-    flex-direction: column;
-    gap: ${theme.spacing(5)};
-  }
-  ${theme.breakpoints.down('sm')} {
-    a, button {
-      width: 100%;
-    }
-    a {
-      width: 100% !important;
-    }
-  }
-
-      `
 );
 
 const Text = styled(Box)(

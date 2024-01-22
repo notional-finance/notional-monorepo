@@ -21,9 +21,15 @@ export interface HeaderProps extends AppBarProps {}
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
   const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
+  const contestTheme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
   const appTheme = useTheme();
   const { pathname } = useLocation();
-  const theme = pathname === '/' ? landingTheme : appTheme;
+  const theme =
+    pathname === '/'
+      ? landingTheme
+      : pathname.includes('contest')
+      ? contestTheme
+      : appTheme;
   const { navLinks } = useNavLinks(false, theme);
   const {
     globalState: { hasSelectedChainError },
