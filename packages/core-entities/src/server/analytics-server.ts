@@ -1,3 +1,4 @@
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ActiveAccountsDocument, OracleType } from '../.graphclient';
 import { AnalyticsData, CacheSchema } from '../Definitions';
 import crossFetch from 'cross-fetch';

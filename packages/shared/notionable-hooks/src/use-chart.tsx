@@ -13,7 +13,7 @@ import {
 import { useAccountDefinition } from './use-account';
 import { useFiat } from './use-user-settings';
 import { useMemo } from 'react';
-import { useAnalyticsReady } from './use-notional';
+import { useAnalyticsReady, useNotionalContext } from './use-notional';
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -122,6 +122,18 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
     })),
     { assetPrice: 0 }
   );
+}
+
+export function useTotalHolders(token: TokenDefinition | undefined) {
+  const isReady = useAnalyticsReady();
+  const {
+    globalState: { activeAccounts },
+  } = useNotionalContext();
+
+  return isReady && token && activeAccounts
+    ? activeAccounts[token.network][`${token.tokenType}:${token.currencyId}`] ||
+        0
+    : undefined;
 }
 
 export function useAccountHistoryChart(

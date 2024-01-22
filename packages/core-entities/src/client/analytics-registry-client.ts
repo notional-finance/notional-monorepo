@@ -12,6 +12,7 @@ import { BigNumber } from 'ethers';
 import { OracleDefinition, PriceChange, TokenDefinition } from '../Definitions';
 import {
   ASSET_PRICE_ORACLES,
+  ActiveAccounts,
   HistoricalOracles,
   VaultData,
 } from '../server/analytics-server';
@@ -218,6 +219,11 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   getVault(network: Network, vaultAddress: string) {
     return (super.getLatestFromSubject(network, vaultAddress) ||
       []) as VaultData;
+  }
+
+  getActiveAccounts(network: Network) {
+    return (super.getLatestFromSubject(network, 'activeAccounts') ||
+      {}) as ActiveAccounts;
   }
 
   getPriceChanges(

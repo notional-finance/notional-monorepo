@@ -2,23 +2,28 @@ import {
   FiatSymbols,
   Registry,
   TokenBalance,
+  TokenDefinition,
 } from '@notional-finance/core-entities';
 import { SparklesIcon } from '@notional-finance/icons';
-import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useFiat,
+  useTotalHolders,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useTotalsData = (
-  tokenSymbol: string,
+  deposit: TokenDefinition | undefined,
+  nToken: TokenDefinition | undefined,
   nTokenAmount?: TokenBalance
 ) => {
-  const { yields } = useAllMarkets(nTokenAmount?.network);
+  const { yields } = useAllMarkets(deposit?.network);
   const baseCurrency = useFiat();
+  const totalLPs = useTotalHolders(nToken);
 
   const liquidityYieldData = nTokenAmount
     ? Registry.getYieldRegistry().getSimulatedNTokenYield(nTokenAmount)
-    : yields.liquidity.find(
-        ({ underlying }) => underlying.symbol === tokenSymbol
-      );
+    : yields.liquidity.find(({ underlying }) => underlying.id === deposit?.id);
 
   const totalIncentives =
     (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) +
@@ -39,7 +44,7 @@ export const useTotalsData = (
       },
       {
         title: <FormattedMessage defaultMessage={'Liquidity Providers'} />,
-        value: '-',
+        value: totalLPs ? `${totalLPs}` : '-',
       },
     ],
     liquidityYieldData,

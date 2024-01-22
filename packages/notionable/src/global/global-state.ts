@@ -113,6 +113,8 @@ interface ApplicationState {
     Network,
     { oneDay: PriceChange[]; sevenDay: PriceChange[] }
   >;
+  /** All active accounts from the analytics registry */
+  activeAccounts?: Record<Network, Record<string, number>>;
 }
 
 /** These settings are associated with the user directly */
