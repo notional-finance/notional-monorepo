@@ -1,5 +1,4 @@
 import { Provider } from "@ethersproject/abstract-provider";
-import { RATE_PRECISION } from "@notional-finance/sdk-v2/src/config/constants";
 import { sendTxThroughRelayer, get0xData } from "./util";
 import {
   TreasuryManager as TreasuryManagerProxy,
@@ -86,7 +85,7 @@ export default class TreasuryManager {
           0,
           trade
         );
-        const minBPT = receivedBPT.mul((1 - 0.005) * RATE_PRECISION).div(RATE_PRECISION);
+        const minBPT = receivedBPT.mul((1 - 0.005) * 1000).div(1000);
         const data = this.proxy.interface.encodeFunctionData(
           'investWETHAndNOTE',
           [wethBalanace, BigNumber.from(0), minBPT, trade]
