@@ -89,9 +89,9 @@ export const useLiquidityDetails = () => {
   const newNTokenAPY = netNTokens
     ? Registry.getYieldRegistry().getSimulatedNTokenYield(
         netNTokens,
-        newBorrowOption?.token.tokenType === 'PrimeCash' ||
-          newBorrowOption?.token.tokenType === 'PrimeDebt'
-          ? newBorrowOption.utilization
+        newDebt?.token.tokenType === 'PrimeCash' ||
+          newDebt?.token.tokenType === 'PrimeDebt'
+          ? newDebt.toPrimeDebt()
           : undefined
       )?.totalAPY
     : currentNToken?.totalAPY;

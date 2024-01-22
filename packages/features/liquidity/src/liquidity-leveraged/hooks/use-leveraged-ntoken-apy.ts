@@ -14,6 +14,7 @@ export const useLeveragedNTokenAPY = (state: TradeState) => {
     riskFactorLimit,
     debtOptions,
     debt,
+    debtBalance,
     selectedDepositToken,
   } = state;
   const nTokenAmount =
@@ -26,7 +27,7 @@ export const useLeveragedNTokenAPY = (state: TradeState) => {
         nTokenAmount,
         // Adjust the prime cash utilization if doing variable rate leverage
         debt?.tokenType === 'PrimeDebt'
-          ? selectedDebtOption?.utilization
+          ? debtBalance
           : undefined
       )
     : liquidity.find(

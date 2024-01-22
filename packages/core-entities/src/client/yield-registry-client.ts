@@ -106,7 +106,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
   getSimulatedNTokenYield(
     netNTokens: TokenBalance,
-    adjustedPrimeUtilization?: number
+    primeDebt?: TokenBalance
   ): YieldData {
     const network = netNTokens.network;
 
@@ -151,26 +151,46 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     const { numerator, denominator } = fCashMarket.balances
       .map((b) => {
         const underlying = b.toUnderlying();
-        const apy =
-          b.tokenType === 'PrimeCash'
-            ? (fCashMarket.getPrimeSupplyRate(
-                adjustedPrimeUtilization ||
-                  fCashMarket.getPrimeCashUtilization(netNTokens.toPrimeCash())
-              ) *
-                100) /
-              RATE_PRECISION
-            : fCashMarket.getSpotInterestRate(b.token);
-        if (apy === undefined) {
-          throw Error(`${b.symbol} yield not found`);
-        }
+        try {
+          const apy =
+            b.tokenType === 'PrimeCash'
+              ? (fCashMarket.getPrimeSupplyRate(
+                  fCashMarket.getPrimeCashUtilization(
+                    netNTokens.toPrimeCash(),
+                    primeDebt
+                  )
+                ) *
+                  100) /
+                RATE_PRECISION
+              : fCashMarket.getSpotInterestRate(b.token);
+          if (apy === undefined) {
+            throw Error(`${b.symbol} yield not found`);
+          }
 
-        // Blended yield is the weighted average of the APYs
-        return {
-          numerator: underlying
-            .mulInRatePrecision(Math.floor(apy * RATE_PRECISION))
-            .toFloat(),
-          denominator: underlying.toFloat(),
-        };
+          // Blended yield is the weighted average of the APYs
+          return {
+            numerator: underlying
+              .mulInRatePrecision(Math.floor(apy * RATE_PRECISION))
+              .toFloat(),
+            denominator: underlying.toFloat(),
+          };
+        } catch (e) {
+          console.log(e);
+          console.log(
+            'utilization',
+            primeDebt?.toString(),
+            netNTokens.toString(),
+            netNTokens.toPrimeCash().toString(),
+            fCashMarket.getPrimeCashUtilization(netNTokens.toPrimeCash()) /
+              RATE_PRECISION
+          );
+          return {
+            numerator: underlying
+              .mulInRatePrecision(Math.floor(0 * RATE_PRECISION))
+              .toFloat(),
+            denominator: underlying.toFloat(),
+          };
+        }
       })
       .reduce(
         (r, { numerator, denominator }) => ({
