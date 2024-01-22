@@ -132,8 +132,6 @@ export default {
     return stub.fetch(request);
   },
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
-    // const stub = env.VIEWS_DO.get(env.VIEWS_DO.idFromName(env.VERSION))
-    // await stub.fetch('http://hostname/healthcheck');
     await fetch(`${env.DATA_SERVICE_URL}/syncGenericData`, {
       headers: {
         'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
