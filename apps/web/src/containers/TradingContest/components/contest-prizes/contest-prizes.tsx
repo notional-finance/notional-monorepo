@@ -21,7 +21,7 @@ const PrizePlaces = () => {
           <img
             src={crown}
             alt="icon"
-            style={{ height: '16px', marginRight: theme.spacing(1) }}
+            style={{ height: theme.spacing(2), marginRight: theme.spacing(1) }}
           />
           10,000 NOTE
         </CardInput>
@@ -63,7 +63,10 @@ const PrizeInfo = ({ prizeType }: PrizeInfoPropsProps) => {
               <img
                 src={fatCat}
                 alt="icon"
-                style={{ height: '24px', marginRight: theme.spacing(1) }}
+                style={{
+                  height: theme.spacing(3),
+                  marginRight: theme.spacing(1),
+                }}
               />
               <FormattedMessage defaultMessage={'Fat Cat'} />
             </PrizeHeaderContainer>
@@ -110,7 +113,7 @@ export const ContestPrizes = () => {
             variant="outlined"
             to="/contest-rules"
             sx={{
-              width: '330px',
+              width: theme.spacing(41.25),
               border: `1px solid ${colors.neonTurquoise}`,
               ':hover': {
                 background: colors.matteGreen,

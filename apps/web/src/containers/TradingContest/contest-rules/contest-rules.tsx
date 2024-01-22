@@ -21,7 +21,7 @@ export const ContestRules = () => {
           <img src={test} alt="bg img" />
         </BgImgContainer>
         <OpacityBG>
-          <MainContainer sx={{ maxWidth: '1100px' }}>
+          <MainContainer sx={{ maxWidth: theme.spacing(137.5) }}>
             <ContestBackButton />
             <ContestPrizes />
             <ContestRulesInfo />

@@ -100,7 +100,7 @@ const ButtonContainer = styled(Box)(
 const BodyText = styled(BodySecondary)(
   ({ theme }) => `
     color: ${colors.greenGrey};
-    font-weight: 400,
+    font-weight: 400;
     margin-top: ${theme.spacing(2)};
     margin-bottom: ${theme.spacing(6)};
     ${theme.breakpoints.down('md')} {

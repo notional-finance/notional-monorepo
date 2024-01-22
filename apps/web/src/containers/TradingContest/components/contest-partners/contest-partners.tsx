@@ -1,4 +1,4 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -54,6 +54,7 @@ const data = [
 ];
 
 export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
+  const theme = useTheme();
   return (
     <Container>
       <SectionTitle>
@@ -74,7 +75,13 @@ export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
           />
         </Paragraph>
         <TableContainer>
-          <ContestTable columns={columns} data={data} tableLoading={false} />
+          <ContestTable
+            maxHeight={theme.spacing(16.25)}
+            columns={columns}
+            data={data}
+            tableLoading={false}
+            hideOnMobile={false}
+          />
         </TableContainer>
       </ContentContainer>
       {/* TODO: Shoe this if the user has minted a contest pass */}
@@ -85,7 +92,7 @@ export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
             variant="outlined"
             to="/contest-leaderboard"
             sx={{
-              width: '330px',
+              width: theme.spacing(41.25),
               border: `1px solid ${colors.neonTurquoise}`,
               ':hover': {
                 background: colors.matteGreen,
@@ -104,13 +111,13 @@ export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
 const Container = styled(Box)(
   ({ theme }) => `
       margin-top: ${theme.spacing(6)};
-      margin-bottom: 120px;
+      margin-bottom: ${theme.spacing(15)};
   `
 );
 
 const TableContainer = styled(Box)(
   ({ theme }) => `
-    width: 580px;
+    width: ${theme.spacing(72.5)};
     ${theme.breakpoints.down('md')} {
       width: 100%;
       margin-bottom: ${theme.spacing(8)};
@@ -122,7 +129,7 @@ const ContentContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
   justify-content: space-between;
-  gap: 95px;
+  gap: ${theme.spacing(12)};
   align-items: center;
   margin-bottom: ${theme.spacing(11)};
   ${theme.breakpoints.down('md')} {

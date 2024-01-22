@@ -40,7 +40,14 @@ export const ContestLeaderBoard = () => {
                 display: 'flex',
               }}
             >
-              <FormattedMessage defaultMessage={'Leaderboard'} />
+              <Box
+                component="span"
+                sx={{
+                  marginTop: theme.spacing(10),
+                }}
+              >
+                <FormattedMessage defaultMessage={'Leaderboard'} />
+              </Box>
             </SectionTitle>
             <CountDownContainer>
               <ContestCountDown sx={{ marginBottom: '0px' }} />
@@ -49,7 +56,7 @@ export const ContestLeaderBoard = () => {
                 variant="outlined"
                 to="/contest-rules"
                 sx={{
-                  width: '330px',
+                  width: theme.spacing(41.25),
                   border: `1px solid ${colors.neonTurquoise}`,
                   ':hover': {
                     background: colors.matteGreen,
@@ -90,7 +97,7 @@ export const ContestLeaderBoard = () => {
                   />
                 </SectionTitle>
                 <ContestTable
-                  maxHeight={'620px'}
+                  maxHeight={theme.spacing(77.5)}
                   columns={currentUserColumns}
                   data={currentUserData}
                   isCurrentUser
@@ -105,7 +112,7 @@ export const ContestLeaderBoard = () => {
             )}
             <TableContainer>
               <ContestTable
-                maxHeight={'620px'}
+                maxHeight={theme.spacing(77.5)}
                 tableTitle={<FormattedMessage defaultMessage={'HIGH ROLLER'} />}
                 tableTitleSubText={
                   <FormattedMessage
@@ -119,7 +126,7 @@ export const ContestLeaderBoard = () => {
             </TableContainer>
             <TableContainer>
               <ContestTable
-                maxHeight={'620px'}
+                maxHeight={theme.spacing(77.5)}
                 tableTitle={<FormattedMessage defaultMessage={'FAT CAT'} />}
                 tableTitleSubText={
                   <FormattedMessage

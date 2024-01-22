@@ -1,4 +1,4 @@
-import { useTheme, Box } from '@mui/material';
+import { styled, useTheme, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { ExternalLink, Button } from '@notional-finance/mui';
 import { ContestCountDown } from '../contest-countdown/contest-countdown';
@@ -14,23 +14,20 @@ export const ContestConfirmation = () => {
   const theme = useTheme();
   const truncatedAddress = useTruncatedAddress();
   return (
-    <StepContainer sx={{ height: '100% !important' }}>
+    <StepContainer sx={{ marginTop: '0px !important' }}>
       <TitleText>
         <FormattedMessage defaultMessage="You are in!" />
       </TitleText>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
+      <ContentContainer>
         <Box>
           <ContestCountDown
             title={'Contest Begins:'}
             sx={{ marginBottom: theme.spacing(4) }}
           />
-          <Box sx={{ textAlign: 'left', width: '437px' }}>
-            <ContestBodyText sx={{ display: 'list-item', lineHeight: '40px' }}>
+          <TextContainer>
+            <ContestBodyText
+              sx={{ display: 'list-item', lineHeight: theme.spacing(5) }}
+            >
               <FormattedMessage
                 defaultMessage={
                   'You are entered with the address: {truncatedAddress}'
@@ -40,13 +37,17 @@ export const ContestConfirmation = () => {
                 }}
               />
             </ContestBodyText>
-            <ContestBodyText sx={{ display: 'list-item', lineHeight: '40px' }}>
+            <ContestBodyText
+              sx={{ display: 'list-item', lineHeight: theme.spacing(5) }}
+            >
               <FormattedMessage
                 defaultMessage={`
               The contest runs Feb 5th 12:00 am PST through Mar 5th 12:00 am PST.`}
               />
             </ContestBodyText>
-            <ContestBodyText sx={{ display: 'list-item', lineHeight: '40px' }}>
+            <ContestBodyText
+              sx={{ display: 'list-item', lineHeight: theme.spacing(5) }}
+            >
               <FormattedMessage
                 defaultMessage={`Stay up to date, follow us <a1>twitter</a1> or join us on <a2>discord</a2>`}
                 values={{
@@ -71,14 +72,10 @@ export const ContestConfirmation = () => {
                 }}
               />
             </ContestBodyText>
-          </Box>
+          </TextContainer>
         </Box>
-        <img
-          src={blitzPass}
-          alt="blitz pass"
-          style={{ height: '287px', marginLeft: theme.spacing(9) }}
-        />
-      </Box>
+        <BlitzPass src={blitzPass} alt="blitz pass" />
+      </ContentContainer>
       <Button
         size="large"
         sx={{
@@ -93,5 +90,40 @@ export const ContestConfirmation = () => {
     </StepContainer>
   );
 };
+
+const ContentContainer = styled(Box)(
+  ({ theme }) => `
+    display: flex;
+    justify-content: center;
+    margin: ${theme.spacing(3)};
+      ${theme.breakpoints.down('sm')} {
+        flex-direction: column;
+        width: 90%;
+        margin: ${theme.spacing(4)} auto;
+        margin-bottom: ${theme.spacing(4)};
+      }
+      `
+);
+
+const TextContainer = styled(Box)(
+  ({ theme }) => `
+      text-align: left;
+      width: ${theme.spacing(54)};
+      ${theme.breakpoints.down('sm')} {
+        width: 100%;
+      }
+      `
+);
+
+const BlitzPass = styled('img')(
+  ({ theme }) => `
+    height: ${theme.spacing(35)};
+    margin-left: ${theme.spacing(9)};
+      ${theme.breakpoints.down('sm')} {
+        margin: 0px;
+        transform: rotate(-90deg);
+      }
+      `
+);
 
 export default ContestConfirmation;

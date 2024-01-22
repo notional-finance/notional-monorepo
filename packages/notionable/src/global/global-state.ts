@@ -39,6 +39,7 @@ export enum PARTNERS {
 
 
 export const ACCESS_NFTS = {
+  // TODO: Update these addresses to the correct ones
   [PARTNERS.DEGEN_SCORE]: {
     address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
     network: Network.Mainnet,

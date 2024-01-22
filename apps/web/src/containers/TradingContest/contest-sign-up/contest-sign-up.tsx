@@ -134,6 +134,7 @@ export const OpacityBG = styled(Box)(
       width: 100vw;
       border: none;
       padding: ${theme.spacing(2)};
+      padding-top: ${theme.spacing(8)};
     }
       `
 );

@@ -81,6 +81,7 @@ const CommunityFound = () => {
 
 const ImageCluster = () => {
   const theme = useTheme();
+  // NOTE* these margins attempt to match the design spec
   return (
     <ImageClusterContainer>
       <img
@@ -166,15 +167,15 @@ export const ImageClusterContainer = styled(Box)(
     position: absolute;
     right: 0;
     margin-right: ${theme.spacing(22)};
-    margin-top: -55px;
+    margin-top: -${theme.spacing(6.875)};
     ${theme.breakpoints.down('md')} {
       margin-right: ${theme.spacing(13)};
     }
     ${theme.breakpoints.down('sm')} {
       position: relative;
-      margin-top: 72px;
-      height: 50px;
-      margin-bottom: 50px;
+      margin-top: ${theme.spacing(9)};
+      height: ${theme.spacing(6.25)};
+      margin-bottom: ${theme.spacing(6.25)};
       margin-right: 0px;
     }
     `

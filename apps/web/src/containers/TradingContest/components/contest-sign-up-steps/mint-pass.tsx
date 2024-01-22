@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, useTheme } from '@mui/material';
+import { Box, useTheme, styled } from '@mui/material';
 import { ethers } from 'ethers';
 import { Input } from '@notional-finance/mui';
 import {
@@ -24,6 +24,7 @@ export const MintPass = () => {
 
   const handleMint = () => {
     if (address && ethers.utils.isAddress(address)) {
+      // TODO: Add mint pass api call here
       console.log('DO MINT STUFF');
       history.push('contest-confirmation');
     } else {
@@ -71,7 +72,7 @@ export const MintPass = () => {
             sx={{
               color: error ? theme.palette.error.main : 'transparent',
               fontSize: '12px',
-              minHeight: '15px',
+              minHeight: theme.spacing(2),
             }}
           >
             {error && (
@@ -79,7 +80,7 @@ export const MintPass = () => {
             )}
           </Box>
 
-          <Input
+          <MintInput
             placeholder={selectedAccount}
             handleChange={handleChange}
             inputValue={address || ''}
@@ -90,9 +91,9 @@ export const MintPass = () => {
               paddingRight: theme.spacing(1),
               borderColor: error ? theme.palette.error.main : '',
               backgroundColor: colors.black,
-              borderRadius: '6px',
-              width: '432px',
-              height: '56px',
+              borderRadius: theme.shape.borderRadius(),
+              width: theme.spacing(54),
+              height: theme.spacing(7),
             }}
           />
         </Box>
@@ -107,5 +108,13 @@ export const MintPass = () => {
     </StepContainer>
   );
 };
+
+const MintInput = styled(Input)(
+  ({ theme }) => `
+      ${theme.breakpoints.down('sm')} {
+        width: ${theme.spacing(41.25)};
+      }
+      `
+);
 
 export default MintPass;

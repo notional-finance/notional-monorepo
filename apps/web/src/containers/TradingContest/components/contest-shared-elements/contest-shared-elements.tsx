@@ -9,10 +9,10 @@ export const TitleText = styled(Box)(
       font-size: 48px;
       font-style: normal;
       font-weight: 600;
-      line-height: 67.2px;
+      line-height: ${theme.spacing(8)};
       ${theme.breakpoints.down('sm')} {
         font-size: 32px;
-        line-height: 42px;
+        line-height: ${theme.spacing(5)};
         margin: 0px;
         margin-bottom: ${theme.spacing(4)};
       }
@@ -46,8 +46,6 @@ export const SectionTitle = styled(Box)(
     ${theme.breakpoints.down('sm')} {
       flex-direction: column;
       text-wrap: wrap;
-      margin-bottom: 0px;
-
     }
   `
 );
@@ -59,7 +57,7 @@ export const OuterContainer = styled(Box)(
   padding-top: ${theme.spacing(16)};
   padding-bottom: ${theme.spacing(16)};
   ${theme.breakpoints.down('sm')} {
-    padding-top: ${theme.spacing(5)};
+    padding-top: 0px;
   }
     `
 );
@@ -73,7 +71,8 @@ export const StepContainer = styled(Box)(
     ${theme.breakpoints.down('sm')} {
       margin-top: ${theme.spacing(8)};
       justify-content: normal;
-      min-height: 400px;
+      min-height: ${theme.spacing(50)};
+      height: auto;
     }
   `
 );
@@ -99,7 +98,7 @@ export const MainContainer = styled(Box)(
   position: relative;
   z-index: 3;
   @media (max-width: 1280px) {
-    max-width: 1100px;
+    max-width: ${theme.spacing(137.5)};
   }
   ${theme.breakpoints.down('md')} {
     max-width: 90%;
