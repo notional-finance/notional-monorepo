@@ -106,7 +106,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
   getSimulatedNTokenYield(
     netNTokens: TokenBalance,
-    adjustedPrimeUtilization?: number
+    primeDebt?: TokenBalance
   ): YieldData {
     const network = netNTokens.network;
 
@@ -153,8 +153,10 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         const apy =
           b.tokenType === 'PrimeCash'
             ? (fCashMarket.getPrimeSupplyRate(
-                adjustedPrimeUtilization ||
-                  fCashMarket.getPrimeCashUtilization(netNTokens.toPrimeCash())
+                fCashMarket.getPrimeCashUtilization(
+                  netNTokens.toPrimeCash(),
+                  primeDebt
+                )
               ) *
                 100) /
               RATE_PRECISION
