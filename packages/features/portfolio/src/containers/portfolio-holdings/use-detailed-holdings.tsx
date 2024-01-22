@@ -209,8 +209,8 @@ export function useDetailedHoldingsTable() {
                 callback: () => {
                   history.push(
                     b.isPositive()
-                      ? `/portfolio/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}`
-                      : `/portfolio/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}`
+                      ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}`
+                      : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}`
                   );
                 },
               },
@@ -221,7 +221,7 @@ export function useDetailedHoldingsTable() {
                     ),
                     callback: () => {
                       history.push(
-                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}`
+                        `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}`
                       );
                     },
                   }
@@ -229,13 +229,13 @@ export function useDetailedHoldingsTable() {
                     buttonText: <FormattedMessage defaultMessage={'Repay'} />,
                     callback: () => {
                       history.push(
-                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
+                        `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
                       );
                     },
                   },
             ],
             hasMatured: hasMatured,
-            txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
+            txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams({
               txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
               assetOrVaultId: b.token.id,
             })}`,

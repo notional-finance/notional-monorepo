@@ -24,7 +24,9 @@ export const usePortfolioButtonBar = () => {
     {
       buttonText: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
       callback: () => {
-        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DEPOSIT}/ETH`);
+        history.push(
+          `${currentPath}/${network}/${PORTFOLIO_ACTIONS.DEPOSIT}/ETH`
+        );
       },
     },
   ];
@@ -33,7 +35,7 @@ export const usePortfolioButtonBar = () => {
     buttonData.push({
       buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
       callback: () => {
-        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.WITHDRAW}`);
+        history.push(`${currentPath}/${network}/${PORTFOLIO_ACTIONS.WITHDRAW}`);
       },
     });
   }
@@ -42,7 +44,9 @@ export const usePortfolioButtonBar = () => {
     buttonData.push({
       buttonText: <FormattedMessage defaultMessage={'Deleverage'} />,
       callback: () => {
-        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DELEVERAGE}`);
+        history.push(
+          `${currentPath}/${network}/${PORTFOLIO_ACTIONS.DELEVERAGE}`
+        );
       },
     });
   }

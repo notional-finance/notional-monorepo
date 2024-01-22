@@ -249,17 +249,17 @@ export const useVaultHoldingsTable = () => {
             {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               callback: () => {
-                history.push(`/vaults/${v.vaultAddress}`);
+                history.push(`/vaults/${network}/${v.vaultAddress}`);
               },
             },
             {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
-                history.push(`/vaults/${v.vaultAddress}/WithdrawVault`);
+                history.push(`/vaults/${network}/${v.vaultAddress}/WithdrawVault`);
               },
             },
           ],
-          txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
+          txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams({
             txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
             assetOrVaultId: config.vaultAddress,
           })}`,

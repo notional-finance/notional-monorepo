@@ -199,7 +199,7 @@ export function useGroupedHoldingsTable() {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               callback: () => {
                 history.push(
-                  `/liquidity-leveraged/Manage/${underlying.symbol}`
+                  `/liquidity-leveraged/${network}/Manage/${underlying.symbol}`
                 );
               },
             },
@@ -207,17 +207,19 @@ export function useGroupedHoldingsTable() {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
                 history.push(
-                  `/liquidity-leveraged/Withdraw/${underlying.symbol}`
+                  `/liquidity-leveraged/${network}/Withdraw/${underlying.symbol}`
                 );
               },
             },
           ],
           hasMatured: hasMatured,
-          txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
-            txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
-            assetOrVaultId: asset.token.id,
-            debtId: debtStatement?.token.id || '',
-          })}`,
+          txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
+            {
+              txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
+              assetOrVaultId: asset.token.id,
+              debtId: debtStatement?.token.id || '',
+            }
+          )}`,
         },
       };
     }
