@@ -5,6 +5,7 @@ import {
   TABLE_VARIANTS,
   DataTableColumn,
   ErrorMessage,
+  ToolTipCell,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { tradeErrors } from '../tradeErrors';
@@ -47,6 +48,7 @@ export const PositionDetailsTable = ({
           description={'Detail header'}
         />
       ),
+      Cell: ToolTipCell,
       accessor: 'label',
       textAlign: 'left',
     },
