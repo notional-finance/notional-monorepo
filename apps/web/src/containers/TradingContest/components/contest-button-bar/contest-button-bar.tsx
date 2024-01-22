@@ -1,4 +1,4 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { Button } from '@notional-finance/mui';
 import { ReactNode } from 'react';
@@ -20,13 +20,14 @@ export const ContestButtonBar = ({
   buttonOneText,
   buttonTwoText,
 }: ContestButtonBarProps) => {
+  const theme = useTheme();
   return (
     <ButtonContainer>
       <Button
         size="large"
         variant="outlined"
         sx={{
-          width: '330px',
+          width: theme.spacing(41.25),
           border: `1px solid ${colors.neonTurquoise}`,
           cursor: 'pointer',
           ':hover': {
@@ -44,7 +45,7 @@ export const ContestButtonBar = ({
       <Button
         size="large"
         sx={{
-          width: '330px',
+          width: theme.spacing(41.25),
           fontFamily: 'Avenir Next',
           cursor: 'pointer',
         }}

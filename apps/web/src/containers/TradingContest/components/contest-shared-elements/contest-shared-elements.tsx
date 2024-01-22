@@ -50,6 +50,7 @@ export const SectionTitle = styled(Box)(
   `
 );
 
+// NOTE* this background color is needed just for the contest
 export const OuterContainer = styled(Box)(
   ({ theme }) => `
   background: #041D2E; 

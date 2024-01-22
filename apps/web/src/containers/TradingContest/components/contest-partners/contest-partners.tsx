@@ -84,7 +84,7 @@ export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
           />
         </TableContainer>
       </ContentContainer>
-      {/* TODO: Shoe this if the user has minted a contest pass */}
+      {/* TODO: Show this if the user has minted a contest pass */}
       {!hideButton && (
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <Button
