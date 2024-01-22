@@ -11,7 +11,7 @@ import { Network } from '@notional-finance/util';
 
 export function useDepositInput(
   selectedNetwork: Network | undefined,
-  selectedDepositToken?: string,
+  depositSymbol?: string,
   isWithdraw?: boolean,
   useZeroDefault?: boolean
 ) {
@@ -22,7 +22,7 @@ export function useDepositInput(
   let { token, inputAmount } = useInputAmount(
     selectedNetwork,
     inputString,
-    selectedDepositToken
+    depositSymbol
   );
 
   if (useZeroDefault && token && inputAmount === undefined) {
@@ -38,7 +38,7 @@ export function useDepositInput(
   if (
     !isWithdraw &&
     isAccountReady &&
-    selectedDepositToken === 'USDC' &&
+    depositSymbol === 'USDC' &&
     insufficientBalance === true
   ) {
     errorMsg = tradeErrors.usdcNotUSDCeMsg;

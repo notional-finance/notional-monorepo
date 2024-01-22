@@ -64,6 +64,11 @@ export interface TokenOption {
 interface UserInputs {
   /** Symbol of the selected deposit token, if any */
   selectedDepositToken?: string;
+  /**
+   * Symbol of the selected token on portfolio transaction screens such as withdraw,
+   * repay debt, and roll maturity
+   */
+  selectedToken?: string;
   /** NOTE: this is currently unused throughout the site */
   redeemToWETH: boolean;
   /** Signals that the input is a max withdraw or max repayment */

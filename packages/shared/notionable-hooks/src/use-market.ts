@@ -40,6 +40,19 @@ export function usePrimeCash(
   }
 }
 
+export function useToken(
+  network: Network | undefined,
+  tokenId: string | undefined
+) {
+  try {
+    return network && tokenId
+      ? Registry.getTokenRegistry().getTokenByID(network, tokenId)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function usePrimeDebt(
   network: Network | undefined,
   currencyId: number | undefined

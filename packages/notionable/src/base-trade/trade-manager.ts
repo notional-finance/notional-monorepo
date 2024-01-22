@@ -10,7 +10,8 @@ import {
   defaultLeverageRatio,
   simulateTransaction,
   selectedPool,
-  selectedToken,
+  selectedDepositToken,
+  selectedPortfolioToken,
 } from './sagas';
 import { selectedAccount, selectedNetwork } from '../global';
 import { calculate, calculateMaxWithdraw } from './trade-calculation';
@@ -44,9 +45,10 @@ export function createTradeManager(
     calculate(state$, debtPool$, collateralPool$, of(undefined), account$),
     defaultLeverageRatio(state$, network$),
     // NOTE: this is required to read URL based inputs for deposits
-    selectedToken(state$, network$),
+    selectedDepositToken(state$),
     priorAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
+    selectedPortfolioToken(state$),
     initState(state$),
     resetOnTradeTypeChange(state$)
   );

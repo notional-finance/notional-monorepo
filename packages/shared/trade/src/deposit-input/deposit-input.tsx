@@ -62,7 +62,6 @@ export const DepositInput = React.forwardRef<
     const {
       state: {
         deposit,
-        selectedDepositToken,
         availableDepositTokens,
         calculateError,
         tradeType,
@@ -79,7 +78,7 @@ export const DepositInput = React.forwardRef<
       setInputString,
     } = useDepositInput(
       selectedNetwork,
-      selectedDepositToken,
+      deposit?.symbol,
       isWithdraw,
       useZeroDefault
     );
@@ -104,8 +103,7 @@ export const DepositInput = React.forwardRef<
       tradeType
     );
 
-    if (!availableDepositTokens || !selectedDepositToken)
-      return <PageLoading />;
+    if (!availableDepositTokens || !deposit) return <PageLoading />;
 
     const errorMessage = getErrorMessages(
       errorMsgOverride,
@@ -168,7 +166,7 @@ export const DepositInput = React.forwardRef<
 
             if (
               newTokenSymbol &&
-              newTokenSymbol !== selectedDepositToken &&
+              newTokenSymbol !== deposit.symbol &&
               newRoute
             ) {
               history.push(newRoute(newTokenSymbol));
