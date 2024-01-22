@@ -25,9 +25,12 @@ export const useLeveragedNTokenAPY = (state: TradeState) => {
   let liquidityYieldData = nTokenAmount
     ? Registry.getYieldRegistry().getSimulatedNTokenYield(
         nTokenAmount,
-        // Adjust the prime cash utilization if doing variable rate leverage
-        debt?.tokenType === 'PrimeDebt'
-          ? debtBalance
+        // NOTE: inside here the debt balance and collateral balance do not "flip"
+        // when withdrawing
+        debtBalance?.token.tokenType === 'PrimeDebt'
+          ? debtBalance.toPrimeDebt()
+          : debtBalance?.token.tokenType === 'PrimeCash'
+          ? debtBalance.toPrimeDebt().neg()
           : undefined
       )
     : liquidity.find(

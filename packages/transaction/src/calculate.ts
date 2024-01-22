@@ -576,8 +576,16 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
       .neg()
       .ratioWith(
         profile
-          .totalCurrencyAssets(depositBalance.currencyId)
-          .add(profile.totalCurrencyDebts(depositBalance.currencyId))
+          .totalCurrencyAssets(
+            depositBalance.currencyId,
+            depositBalance.currencyId
+          )
+          .add(
+            profile.totalCurrencyDebts(
+              depositBalance.currencyId,
+              depositBalance.currencyId
+            )
+          )
       );
     initialDebtUnitsEstimateInRP = profile
       .totalDebt(depositBalance.currencyId)

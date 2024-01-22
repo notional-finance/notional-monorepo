@@ -29,6 +29,12 @@ export const useSummaryState = (): BaseTradeState => {
           internalState.debtBalance?.tokenType === 'nToken'
           ? internalState.debtBalance
           : undefined,
+      debtBalance:
+        internalState.collateralBalance?.tokenType === 'nToken'
+          ? internalState.debtBalance
+          : internalState.debtBalance?.tokenType === 'nToken'
+          ? internalState.collateralBalance
+          : undefined,
       riskFactorLimit: internalState.riskFactorLimit || {
         riskFactor: 'leverageRatio',
         limit: currentHoldings.leverageRatio,
