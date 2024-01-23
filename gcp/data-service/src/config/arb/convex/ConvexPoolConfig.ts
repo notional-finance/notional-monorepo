@@ -168,7 +168,7 @@ export function getCurveV1PoolConfig(
         protocol: ProtocolName.Curve,
         query: graphQueries.CurveSwapFee,
         args: {
-          poolId: poolAddress,
+          poolId: poolAddress.toLowerCase(),
         },
         transform: (r) =>
           r.liquidityPoolDailySnapshots[0].dailyProtocolSideRevenueUSD,

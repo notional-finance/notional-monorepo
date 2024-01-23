@@ -141,7 +141,7 @@ export function getComposablePoolConfig(
       sourceConfig: {
         protocol: ProtocolName.BalancerV2,
         query: graphQueries.BalancerV2SwapFee,
-        args: { poolId },
+        args: { poolId: poolId.toLowerCase() },
         transform: (r) =>
           r.poolSnapshots[0].swapFees - r.poolSnapshots[1].swapFees,
       },
