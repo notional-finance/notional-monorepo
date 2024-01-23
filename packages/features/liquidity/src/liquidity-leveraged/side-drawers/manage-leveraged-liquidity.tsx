@@ -124,7 +124,7 @@ export const ManageLeveragedLiquidity = () => {
         />
       }
       detailsTable={<LiquidityDetailsTable hideUpdatedColumn />}
-      portfolioLink="/portfolio/holdings"
+      portfolioLink={`/portfolio/${selectedNetwork}/holdings`}
       optionSections={optionSections}
     />
   );

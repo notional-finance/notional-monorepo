@@ -18,14 +18,13 @@ export function useManageVault() {
 
   if (!vaultPosition) {
     return {
-      reduceLeverageOptions: [],
       manageVaultOptions: [],
       rollMaturityOptions: [],
     };
   } else {
     const manageVaultOptions = [
       {
-        label: <FormattedMessage defaultMessage={'Increase Vault Position'} />,
+        label: <FormattedMessage defaultMessage={'Deposit'} />,
         link: `/vaults/${selectedNetwork}/${vaultAddress}/IncreaseVaultPosition`,
         key: 'IncreaseVaultPosition',
       },
@@ -33,6 +32,11 @@ export function useManageVault() {
         label: <FormattedMessage defaultMessage={'Withdraw'} />,
         link: `/vaults/${selectedNetwork}/${vaultAddress}/WithdrawVault`,
         key: 'WithdrawVault',
+      },
+      {
+        label: <FormattedMessage defaultMessage={'Adjust Leverage'} />,
+        link: `/vaults/${selectedNetwork}/${vaultAddress}/AdjustLeverage`,
+        key: 'AdjustLeverage',
       },
     ];
 
@@ -70,20 +74,6 @@ export function useManageVault() {
         .filter((_) => !!_.totalAPY) || [];
 
     return {
-      reduceLeverageOptions: [
-        {
-          label: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
-          link: `/vaults/${selectedNetwork}/${vaultAddress}/DepositVaultCollateral`,
-          key: 'DepositCollateral',
-        },
-        {
-          label: (
-            <FormattedMessage defaultMessage={'Repay Debt with Vault Assets'} />
-          ),
-          link: `/vaults/${selectedNetwork}/${vaultAddress}/WithdrawAndRepayVault`,
-          key: 'WithdrawAndRepayVault',
-        },
-      ],
       manageVaultOptions,
       rollMaturityOptions,
     };

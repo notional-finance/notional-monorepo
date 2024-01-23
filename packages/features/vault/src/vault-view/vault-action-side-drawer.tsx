@@ -3,10 +3,7 @@ import { VaultActionContext } from '../vault';
 import {
   ManageVault,
   CreateVaultPosition,
-  DepositCollateral,
-  IncreaseVaultPosition,
   WithdrawVault,
-  WithdrawAndRepayDebt,
   RollMaturity,
 } from '../side-drawers';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
@@ -82,6 +79,15 @@ export const VaultActionSideDrawer = () => {
           },
         },
         {
+          isRootDrawer: true,
+          slug: 'IncreaseVaultPosition',
+          Component: CreateVaultPosition,
+          requiredState: {
+            tradeType: 'IncreaseVaultPosition',
+            riskFactorLimit: defaultRiskLimit,
+          },
+        },
+        {
           slug: 'Manage',
           Component: ManageVault,
           requiredState: {
@@ -91,34 +97,10 @@ export const VaultActionSideDrawer = () => {
           },
         },
         {
-          slug: 'DepositVaultCollateral',
-          Component: DepositCollateral,
-          requiredState: {
-            tradeType: 'DepositVaultCollateral',
-          },
-        },
-        {
-          slug: 'IncreaseVaultPosition',
-          Component: IncreaseVaultPosition,
-          requiredState: {
-            tradeType: 'IncreaseVaultPosition',
-            riskFactorLimit: defaultRiskLimit,
-          },
-        },
-        {
           slug: 'RollVaultPosition',
           Component: RollMaturity,
           requiredState: {
             tradeType: 'RollVaultPosition',
-          },
-        },
-        {
-          slug: 'WithdrawAndRepayVault',
-          Component: WithdrawAndRepayDebt,
-          requiredState: {
-            tradeType: 'WithdrawAndRepayVault',
-            depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
-            riskFactorLimit: defaultRiskLimit,
           },
         },
         {

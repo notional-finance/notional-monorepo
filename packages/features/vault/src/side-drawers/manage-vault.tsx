@@ -17,8 +17,7 @@ export const ManageVault = () => {
   const {
     state: { vaultAddress, selectedNetwork },
   } = useContext(VaultActionContext);
-  const { reduceLeverageOptions, manageVaultOptions, rollMaturityOptions } =
-    useManageVault();
+  const { manageVaultOptions, rollMaturityOptions } = useManageVault();
   const { vaultName } = useVaultProperties(selectedNetwork, vaultAddress);
 
   useEffect(() => {
@@ -34,15 +33,7 @@ export const ManageVault = () => {
       )),
     },
     {
-      title: <FormattedMessage defaultMessage={'Reduce Leverage'} />,
-      buttons: reduceLeverageOptions.map(({ label, link }, index) => (
-        <SideDrawerButton key={index} to={link}>
-          <ButtonText>{label}</ButtonText>
-        </SideDrawerButton>
-      )),
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Convert Maturity'} />,
+      title: <FormattedMessage defaultMessage={'Adjust Borrow Maturity'} />,
       buttons: rollMaturityOptions.map(
         ({ label, link, totalAPY, onClick }, index) => (
           <SideDrawerButton key={index} to={link} onClick={onClick}>
@@ -67,7 +58,7 @@ export const ManageVault = () => {
       detailsTable={
         <VaultDetailsTable key={'vault-risk-table'} hideUpdatedColumn={true} />
       }
-      portfolioLink="/portfolio/vaults"
+      portfolioLink={`/portfolio/${selectedNetwork}/vaults`}
       optionSections={optionSections}
     />
   );
