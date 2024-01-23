@@ -41,9 +41,10 @@ export function groupArrayToMap<K, T>(arr: T[], key: (t: T) => K) {
   }, new Map<K, T[]>());
 }
 
-export function convertArrayToObject<
-  T extends { key: string; [key: string]: unknown }
->(array: T[], key: string): Record<string, T> {
+export function convertArrayToObject<T extends { [key: string]: unknown }>(
+  array: T[],
+  key: string
+): Record<string, T> {
   const initialValue = {} as Record<string, T>;
   return array.reduce((obj, data) => {
     return {
