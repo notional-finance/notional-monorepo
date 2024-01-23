@@ -1,10 +1,9 @@
 import {
-  BalancerVaultABI,
-  BalancerGaugeABI,
-  BalancerGaugeControllerABI,
-  BalancerBoostedPoolABI,
+  CurvePoolV1ABI,
+  CurvePoolTokenABI,
+  CurveGaugeABI,
+  CurveGaugeControllerABI,
 } from '@notional-finance/contracts';
-import { Network } from '@notional-finance/util';
 import { graphQueries } from '../../../graphQueries';
 import {
   ConfigDefinition,
@@ -13,29 +12,25 @@ import {
   Strategy,
   TableName,
 } from '../../../types';
+import { Network } from '@notional-finance/util';
 
-const BalancerVault = '0xBA12222222228d8Ba445958a75a0704d566BF2C8';
-// NOTE: this controller is always called on mainnet
 const MainnetGaugeControllerAddress =
-  '0xC128468b7Ce63eA702C1f104D55A2566b13D3ABD';
-const AuraLPHolderAddress = '0xC181Edc719480bd089b94647c2Dc504e2700a2B0';
+  '0x2F50D538606Fa9EDD2B11E2446BEb18C9D5846bB';
+const ConvexLPHolderAddress = '0x989AEb4d175e16225E39E87d0D97A3360524AD80';
 
 /**
- * @param poolId balancer id of the pool
- * @param poolAddress address of the pool
- * @param balancerGaugeAddress where LP deposits go for curve rewards
+ * @param poolAddress address of the curve pool, assumes it is also the LP token
+ * @param curveGaugeAddress where LP deposits go for curve rewards
  * @param gaugeWeightAddress the mainnet address where voting is applied
  * @param network network of the pool address
  * @param strategyId id of the strategy
- * @param tokens tokens in the pool
+ * @param tokens tokens in the pool, in the same order as they appear for balances
  * @param additionalConfigs arbitrary additional configuration
  * @returns ConfigDefinition
  */
-export function getComposablePoolConfig(
-  poolId: string,
+export function getCurveV1PoolConfig(
   poolAddress: string,
-  balancerGaugeAddress: string,
-  gaugeWeightAddress: string,
+  curveGaugeAddress: string,
   network: Network,
   strategyId: Strategy,
   tokens: { address: string; symbol: string; decimals: number }[],
@@ -46,121 +41,24 @@ export function getComposablePoolConfig(
       sourceType: SourceType.Multicall,
       sourceConfig: {
         contractAddress: poolAddress,
-        contractABI: BalancerBoostedPoolABI,
-        method: 'getActualSupply',
+        contractABI: CurvePoolV1ABI,
+        method: 'get_virtual_price',
       },
       tableName: TableName.GenericData,
       dataConfig: {
         strategyId,
-        variable: 'BPT Supply',
+        variable: 'Exchange rate',
         decimals: 18,
       },
       network,
     },
-    {
+    ...tokens.map(({ symbol, decimals }, i) => ({
       sourceType: SourceType.Multicall,
       sourceConfig: {
-        contractAddress: balancerGaugeAddress,
-        contractABI: BalancerGaugeABI,
-        method: 'totalSupply',
-      },
-      tableName: TableName.GenericData,
-      dataConfig: {
-        strategyId,
-        variable: 'BPT Supply in Gauge',
-        decimals: 18,
-      },
-      network,
-    },
-    {
-      sourceType: SourceType.Multicall,
-      sourceConfig: {
-        contractAddress: AuraLPHolderAddress,
-        contractABI: BalancerGaugeABI,
-        method: network === Network.ArbitrumOne ? 'balanceOfPool' : 'balanceOf',
-        args: [balancerGaugeAddress],
-      },
-      tableName: TableName.GenericData,
-      dataConfig: {
-        strategyId,
-        variable: 'Aura BPT balance in Gauge',
-        decimals: 18,
-      },
-      network,
-    },
-    {
-      sourceType: SourceType.Multicall,
-      sourceConfig: {
-        contractAddress: balancerGaugeAddress,
-        contractABI: BalancerGaugeABI,
-        method: 'working_supply',
-      },
-      tableName: TableName.GenericData,
-      dataConfig: {
-        strategyId,
-        variable: 'Working Supply',
-        decimals: 18,
-      },
-      network,
-    },
-    {
-      sourceType: SourceType.Multicall,
-      sourceConfig: {
-        contractAddress: balancerGaugeAddress,
-        contractABI: BalancerGaugeABI,
-        method: 'working_balances',
-        args: [AuraLPHolderAddress],
-      },
-      tableName: TableName.GenericData,
-      dataConfig: {
-        strategyId,
-        variable: 'Working Balance',
-        decimals: 18,
-      },
-      network,
-    },
-    {
-      sourceType: SourceType.Multicall,
-      sourceConfig: {
-        contractAddress: MainnetGaugeControllerAddress,
-        contractABI: BalancerGaugeControllerABI,
-        method: 'gauge_relative_weight(address)',
-        args: [gaugeWeightAddress],
-      },
-      tableName: TableName.GenericData,
-      dataConfig: {
-        strategyId,
-        variable: 'Gauge vote weight',
-        decimals: 18,
-      },
-      // NOTE: this is always on mainnet
-      network: Network.Mainnet,
-    },
-    {
-      sourceType: SourceType.Subgraph,
-      sourceConfig: {
-        protocol: ProtocolName.BalancerV2,
-        query: graphQueries.BalancerV2SwapFee,
-        args: { poolId },
-        transform: (r) =>
-          r.poolSnapshots[0].swapFees - r.poolSnapshots[1].swapFees,
-      },
-      tableName: TableName.GenericData,
-      dataConfig: {
-        strategyId,
-        variable: 'Swap fees',
-        decimals: 0,
-      },
-      network,
-    },
-    ...tokens.map(({ address, symbol, decimals }) => ({
-      sourceType: SourceType.Multicall,
-      sourceConfig: {
-        contractAddress: BalancerVault,
-        contractABI: BalancerVaultABI,
-        method: 'getPoolTokenInfo',
-        args: [poolId, address],
-        outputIndices: [0],
+        contractAddress: poolAddress,
+        contractABI: CurvePoolV1ABI,
+        method: 'balances',
+        args: [i],
       },
       tableName: TableName.GenericData,
       dataConfig: {
@@ -170,6 +68,119 @@ export function getComposablePoolConfig(
       },
       network,
     })),
+    {
+      sourceType: SourceType.Multicall,
+      sourceConfig: {
+        contractAddress: poolAddress,
+        contractABI: CurvePoolTokenABI,
+        method: 'totalSupply',
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId,
+        variable: 'LP token Supply',
+        decimals: 18,
+      },
+      network,
+    },
+    {
+      sourceType: SourceType.Multicall,
+      sourceConfig: {
+        contractAddress: curveGaugeAddress,
+        contractABI: CurveGaugeABI,
+        method: 'totalSupply',
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId,
+        variable: 'LP token Supply in Gauge',
+        decimals: 18,
+      },
+      network,
+    },
+    {
+      sourceType: SourceType.Multicall,
+      sourceConfig: {
+        contractAddress: curveGaugeAddress,
+        contractABI: CurveGaugeABI,
+        method: 'balanceOf',
+        args: [ConvexLPHolderAddress],
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId: Strategy.Arb_Convex_USDC_FRAX,
+        variable: 'Convex LP token balance in Gauge',
+        decimals: 18,
+      },
+      network: Network.ArbitrumOne,
+    },
+    {
+      sourceType: SourceType.Multicall,
+      sourceConfig: {
+        contractAddress: curveGaugeAddress,
+        contractABI: CurveGaugeABI,
+        method: 'working_supply',
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId: Strategy.Arb_Convex_USDC_FRAX,
+        variable: 'Working Supply',
+        decimals: 18,
+      },
+      network: Network.ArbitrumOne,
+    },
+    {
+      sourceType: SourceType.Multicall,
+      sourceConfig: {
+        contractAddress: curveGaugeAddress,
+        contractABI: CurveGaugeABI,
+        method: 'working_balances',
+        args: [ConvexLPHolderAddress],
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId: Strategy.Arb_Convex_USDC_FRAX,
+        variable: 'Working Balance',
+        decimals: 18,
+      },
+      network: Network.ArbitrumOne,
+    },
+    {
+      sourceType: SourceType.Multicall,
+      sourceConfig: {
+        contractAddress: MainnetGaugeControllerAddress,
+        contractABI: CurveGaugeControllerABI,
+        method: 'gauge_relative_weight(address)',
+        args: [curveGaugeAddress],
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId,
+        variable: 'Gauge vote weight',
+        decimals: 18,
+      },
+      // This is always on mainnet
+      network: Network.Mainnet,
+    },
+    {
+      sourceType: SourceType.Subgraph,
+      sourceConfig: {
+        protocol: ProtocolName.Curve,
+        query: graphQueries.CurveSwapFee,
+        args: {
+          poolId: poolAddress,
+        },
+        transform: (r) =>
+          r.liquidityPoolDailySnapshots[0].dailyProtocolSideRevenueUSD,
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId,
+        variable: 'Swap fees',
+        decimals: 0,
+      },
+      network,
+    },
     ...additionalConfigs,
   ];
 }

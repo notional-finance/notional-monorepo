@@ -44,4 +44,4 @@ export const ArbTokenConfig = {
     symbol: 'RDNT',
     decimals: 18,
   },
-};
+} as const;
