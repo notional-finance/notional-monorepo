@@ -1,9 +1,17 @@
-import { GlobalState } from '@notional-finance/notionable';
 import { useObservable, useSubscription } from 'observable-hooks';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocation, useParams } from 'react-router';
-import { EMPTY, Observable, switchMap, tap } from 'rxjs';
-import { useNotionalContext } from '../use-notional';
+import {
+  EMPTY,
+  Observable,
+  switchMap,
+  tap,
+  of,
+  map,
+  filter,
+  distinctUntilChanged,
+} from 'rxjs';
+import { useAppReady } from '../use-notional';
 import { useObservableReducer } from './use-observable-reducer';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
@@ -38,17 +46,12 @@ interface ContextState extends Record<string, unknown> {
 
 export function useObservableContext<T extends ContextState>(
   initialState: T,
-  loadManagers: (
-    state$: Observable<T>,
-    global$: Observable<GlobalState>
-  ) => Observable<Partial<T>> = () => EMPTY as Observable<Partial<T>>
+  loadManagers: (state$: Observable<T>) => Observable<Partial<T>> = () =>
+    EMPTY as Observable<Partial<T>>
 ) {
   const params = useParams<Record<string, string>>();
   const { pathname } = useLocation();
-  const {
-    globalState$,
-    globalState: { isNetworkReady },
-  } = useNotionalContext();
+  const isAppReady = useAppReady();
   const { updateState, state$, state } = useObservableReducer(
     initialState,
     '[STATE]'
@@ -60,27 +63,40 @@ export function useObservableContext<T extends ContextState>(
     useObservable(
       (o$) => {
         return o$.pipe(
-          switchMap(([s, g, load]) => load(s, g)),
+          switchMap(([s, load, appReady]) => (appReady ? load(s) : of({}))),
           tap((s) => {
             if (DEBUG) console.log('CALCULATED UPDATE', s);
           })
         );
       },
-      [state$, globalState$, loadManagers]
+      [state$, loadManagers, isAppReady]
     ),
     updateState
   );
 
-  useEffect(() => {
-    // If any of the route params change then we will update state to initial and set the params,
-    // this prevents any "residual" state from going between paths. Use isNetworkReady here to
-    // prevent race conditions based on when dependencies update.
-    if (isNetworkReady) {
-      if (DEBUG) console.log('URL UPDATE', params);
-      updateState(params as T);
-    }
-    // NOTE: only run updates on pathname changes, since params is an object
-  }, [pathname, isNetworkReady, updateState, params]);
+  // Listens to route changes and updates the state on path changes
+  useSubscription(
+    useObservable(
+      (o$) => {
+        return o$.pipe(
+          filter(([ready]) => ready),
+          distinctUntilChanged(
+            ([, oldPath], [, newPath]) => oldPath === newPath
+          ),
+          map(
+            ([, , params]) =>
+              // On path change we reset the trade state
+              ({ reset: true, ...params } as unknown as Partial<T>)
+          ),
+          tap((p) => {
+            if (DEBUG) console.log('URL UPDATE', p);
+          })
+        );
+      },
+      [isAppReady, pathname, params]
+    ),
+    updateState
+  );
 
   return { updateState, state$, state };
 }
