@@ -6,6 +6,7 @@ import { vaults, ARB_ETH, ARB_WETH } from './vaults';
 export interface Env {
   NETWORK: string;
   TREASURY_MANAGER_ADDRESS: string;
+  MANAGER_BOT_ADDRESS: string;
   TX_RELAY_URL: string;
   TX_RELAY_AUTH_TOKEN: string;
   ZERO_EX_PRICE_URL: string;
@@ -15,7 +16,7 @@ export interface Env {
 
 }
 const HOUR_IN_SECONDS = 60 * 60;
-const SLIPPAGE_PERCENT = 1;
+const SLIPPAGE_PERCENT = 3;
 const DUST_AMOUNT = 100;
 const wait = (ms: number) => new Promise((f) => setTimeout(f, ms));
 
@@ -117,7 +118,7 @@ const getZeroExTradeData = async (
   buyToken: string,
   amount: BigNumber
 ): Promise<ZeroXData> => {
-  const params = `?sellToken=${sellToken}&buyToken=${buyToken}&sellAmount=${amount.toString()}&slippagePercentage=0.05`;
+  const params = `?sellToken=${sellToken}&buyToken=${buyToken}&sellAmount=${amount.toString()}&slippagePercentage=${SLIPPAGE_PERCENT / 100}`;
   console.log("params", params);
   const resp = await fetch(env.ZERO_EX_PRICE_URL + params, {
     headers: {
@@ -225,12 +226,13 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
     vault.address,
     tradesPerRewardToken,
     tradesPerRewardToken.map(() => BigNumber.from(0)),
+    { from: env.MANAGER_BOT_ADDRESS }
   );
 
   const data = treasuryManger.interface.encodeFunctionData('reinvestVaultReward', [
     vault.address,
     tradesPerRewardToken,
-    poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
+    poolClaimAmounts.map((amount) => amount.mul(100 - SLIPPAGE_PERCENT).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
   ]);
 
 

@@ -1,3 +1,4 @@
+account_id = '274f86c6dcfbb77c09e49e86d101c753'
 main = "./src/index.ts"
 compatibility_date = "2022-11-11"
 
@@ -13,6 +14,7 @@ name = "rewards-dev"
 [env.dev.vars]
 NETWORK = 'ArbitrumOne'
 TREASURY_MANAGER_ADDRESS = '0x53144559c0d4a3304e2dd9dafbd685247429216d'
+MANAGER_BOT_ADDRESS = '0xa28a0bA9633342793218D9bd8d92CBC52231361C'
 TX_RELAY_URL = 'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com'
 ZERO_EX_PRICE_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
 REINVEST_TIME_WINDOW_IN_HOURS=24
