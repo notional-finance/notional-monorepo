@@ -263,6 +263,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
   ],
+  [Network.Optimism]: [],
   [Network.All]: [],
 };
 

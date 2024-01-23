@@ -78,14 +78,15 @@ export async function onAccountPending(
     const currentPartnerData = ACCESS_NFTS[key];
     const providerURL = getProviderURLFromNetwork(currentPartnerData.network, true);
     const url = `${providerURL}/getNFTs?owner=${selectedAccount}&contractAddresses[]=${currentPartnerData.address}&withMetadata=false`;  
+    
     try {
       const response = await fetch(url);
       const data = await response.json();
-  
       if (data.totalCount > 0) {
         hasContestNFT = BETA_ACCESS.CONFIRMED;
         contestTokenId = data.ownedNfts[0].id.tokenId;
         partnerData = currentPartnerData;
+        break;
       } else {
         hasContestNFT = BETA_ACCESS.REJECTED;
       }

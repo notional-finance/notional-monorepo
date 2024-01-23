@@ -40,26 +40,26 @@ export enum PARTNERS {
 
 export const ACCESS_NFTS = {
   // TODO: Update these addresses to the correct ones
-  [PARTNERS.DEGEN_SCORE]: {
-    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
-    network: Network.Mainnet,
-    name: 'DEGEN SCORE',
-    id: PARTNERS.DEGEN_SCORE,
-  },
+  // [PARTNERS.DEGEN_SCORE]: {
+  //   address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
+  //   network: Network.Mainnet,
+  //   name: 'DEGEN SCORE',
+  //   id: PARTNERS.DEGEN_SCORE,
+  // },
   [PARTNERS.CRYPTO_TESTERS]: {
-    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
-    network: Network.Mainnet,
+    address: '0x18a1bc18cefdc952121f319039502fdd5f48b6ff',
+    network: Network.Optimism,
     name: 'Cryptotesters',
     id: PARTNERS.CRYPTO_TESTERS,
   },
   [PARTNERS.L2DAO]: {
-    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
-    network: Network.Mainnet,
+    address: '0x66deb6cc4d65dc9cb02875dc5e8751d71fa5d50e',
+    network: Network.Optimism,
     name: 'L2DAO',
     id: PARTNERS.L2DAO
   },
   [PARTNERS.LLAMAS]: {
-    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
+    address: '0xe127ce638293fa123be79c25782a5652581db234',
     network: Network.Mainnet,
     name: 'Llama',
     id: PARTNERS.LLAMAS,
