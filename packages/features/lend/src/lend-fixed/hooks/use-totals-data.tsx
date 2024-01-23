@@ -1,32 +1,35 @@
 import { FormattedMessage } from 'react-intl';
-import { TokenBalance, FiatSymbols } from '@notional-finance/core-entities';
+import {
+  TokenBalance,
+  FiatSymbols,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import {
   useFiat,
   useAllMarkets,
-  useSelectedNetwork,
+  useTotalHolders,
 } from '@notional-finance/notionable-hooks';
 
-export const useTotalsData = (selectedDepositToken: string | undefined) => {
+export const useTotalsData = (
+  deposit: TokenDefinition | undefined,
+  collateral: TokenDefinition | undefined
+) => {
   const baseCurrency = useFiat();
-  const network = useSelectedNetwork();
   const {
     yields: { fCashLend, liquidity },
-  } = useAllMarkets();
+  } = useAllMarkets(deposit?.network);
   const tvlData = liquidity?.find(
-    (data) => data.underlying?.symbol === selectedDepositToken
+    (data) => data.underlying?.id === deposit?.id
   );
+  const lenders = useTotalHolders(collateral);
 
   const filteredFCash = fCashLend
-    .filter(({ underlying }) => underlying?.symbol === selectedDepositToken)
+    .filter(({ underlying }) => underlying?.id === deposit?.id)
     .map(({ token }) => token.totalSupply?.toUnderlying());
 
   let totalFixedRateDebt;
-  if (filteredFCash && selectedDepositToken && network) {
-    const zeroUnderlying = TokenBalance.fromSymbol(
-      0,
-      selectedDepositToken,
-      network
-    );
+  if (filteredFCash && deposit) {
+    const zeroUnderlying = TokenBalance.fromFloat(0, deposit);
 
     totalFixedRateDebt = filteredFCash?.reduce((sum, balance) => {
       return balance && sum ? sum?.add(balance) : sum;
@@ -46,7 +49,7 @@ export const useTotalsData = (selectedDepositToken: string | undefined) => {
     },
     {
       title: <FormattedMessage defaultMessage={'Total Fixed Rate Lenders'} />,
-      value: '-',
+      value: lenders ? `${lenders}` : '-',
     },
   ];
 };

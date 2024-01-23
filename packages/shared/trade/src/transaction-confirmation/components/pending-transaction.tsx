@@ -7,16 +7,14 @@ import { colors } from '@notional-finance/styles';
 import { truncateAddress } from '@notional-finance/helpers';
 import { CopyCaption } from '@notional-finance/mui';
 import { Network } from '@notional-finance/util';
-import {
-  TransactionStatus,
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { TransactionStatus } from '@notional-finance/notionable-hooks';
 import { NotionalTheme } from '@notional-finance/styles';
 import { trackOutboundLink } from '@notional-finance/helpers';
 
 interface PendingTransactionProps {
   hash: string;
   transactionStatus: string;
+  selectedNetwork: Network | undefined;
 }
 interface ContainerProps {
   transactionStatus: string;
@@ -26,9 +24,9 @@ interface ContainerProps {
 export const PendingTransaction = ({
   hash,
   transactionStatus,
+  selectedNetwork,
 }: PendingTransactionProps) => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork();
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const txnLink = getEtherscanTransactionLink(hash, selectedNetwork);
 

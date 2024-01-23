@@ -3,6 +3,7 @@ import {
   PageLoading,
   ToggleSwitchProps,
   Drawer,
+  ScrollToTop,
 } from '@notional-finance/mui';
 import {
   VaultContext,
@@ -174,6 +175,7 @@ export const TransactionSidebar = ({
       leverageDisabled={leverageDisabled}
       hideTextOnMobile={isPortfolio || !hideTextOnMobile ? false : true}
     >
+      <ScrollToTop />
       {children}
       {riskComponent || <LiquidationRisk state={state as TradeState} />}
       <TradeSummary state={state} />

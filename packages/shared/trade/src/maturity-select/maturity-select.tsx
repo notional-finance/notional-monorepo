@@ -2,6 +2,7 @@ import { Maturities } from './components/maturities';
 import { MessageDescriptor } from 'react-intl';
 import { useMaturitySelect } from './use-maturity-select';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { useEffect } from 'react';
 
 interface MaturitySelectProps {
   context: BaseTradeContext;
@@ -16,6 +17,13 @@ export function MaturitySelect({
 }: MaturitySelectProps) {
   const { maturityData, selectedfCashId, onSelect, defaultfCashId } =
     useMaturitySelect(category, context);
+
+  // FIXME: this has an initialization issue where it gets cleared...
+  useEffect(() => {
+    if (!selectedfCashId) {
+      onSelect(defaultfCashId);
+    }
+  }, [selectedfCashId, onSelect, defaultfCashId]);
 
   return (
     <Maturities

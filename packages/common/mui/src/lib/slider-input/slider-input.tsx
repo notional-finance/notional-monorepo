@@ -220,6 +220,7 @@ export const SliderInput = React.forwardRef<
               step={sliderStep}
               value={value}
               showMinMax={showMinMax}
+              showThumb
               disabled={false}
               onChange={(v) => {
                 setValue(v);

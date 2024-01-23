@@ -62,10 +62,10 @@ export const DepositInput = React.forwardRef<
     const {
       state: {
         deposit,
-        selectedDepositToken,
         availableDepositTokens,
         calculateError,
         tradeType,
+        selectedNetwork,
       },
       updateState,
     } = context;
@@ -76,7 +76,12 @@ export const DepositInput = React.forwardRef<
       errorMsg,
       decimalPlaces,
       setInputString,
-    } = useDepositInput(selectedDepositToken, isWithdraw, useZeroDefault);
+    } = useDepositInput(
+      selectedNetwork,
+      deposit?.symbol,
+      isWithdraw,
+      useZeroDefault
+    );
 
     useEffect(() => {
       updateState({
@@ -93,12 +98,12 @@ export const DepositInput = React.forwardRef<
     }, [updateState, errorMsg, errorMsgOverride]);
 
     const balanceAndApyData = useWalletBalances(
+      selectedNetwork,
       availableDepositTokens,
       tradeType
     );
 
-    if (!availableDepositTokens || !selectedDepositToken)
-      return <PageLoading />;
+    if (!availableDepositTokens || !deposit) return <PageLoading />;
 
     const errorMessage = getErrorMessages(
       errorMsgOverride,
@@ -161,7 +166,7 @@ export const DepositInput = React.forwardRef<
 
             if (
               newTokenSymbol &&
-              newTokenSymbol !== selectedDepositToken &&
+              newTokenSymbol !== deposit.symbol &&
               newRoute
             ) {
               history.push(newRoute(newTokenSymbol));

@@ -1,23 +1,19 @@
 import { FormattedMessage } from 'react-intl';
 import { useFCashMarket } from '@notional-finance/notionable-hooks';
 import { DisplayCell, DataTableColumn } from '@notional-finance/mui';
-import { getNowSeconds } from '@notional-finance/util';
+import { getNowSeconds, getDateString } from '@notional-finance/util';
 import { RATE_PRECISION } from '@notional-finance/util';
-import {
-  getDateString,
-  formatNumber,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
+import { formatNumber, formatNumberAsPercent } from '@notional-finance/helpers';
+import { TokenDefinition } from '@notional-finance/core-entities';
 
 export const useFixedLiquidityPoolsTable = (
-  selectedDepositToken: string | undefined,
-  currencyId: number | undefined
+  token: TokenDefinition | undefined
 ) => {
-  const fCashMarket = useFCashMarket(currencyId);
+  const fCashMarket = useFCashMarket(token);
   let tableData: any[] = [];
   let tableColumns: DataTableColumn[] | [] = [];
   const areaChartData: any[] = [];
-  if (selectedDepositToken) {
+  if (token) {
     tableColumns = [
       {
         Header: (
@@ -31,13 +27,13 @@ export const useFixedLiquidityPoolsTable = (
         textAlign: 'left',
       },
       {
-        Header: `${selectedDepositToken}`,
+        Header: `${token.symbol}`,
         Cell: DisplayCell,
         accessor: 'valueOfCash',
         textAlign: 'left',
       },
       {
-        Header: `F${selectedDepositToken}`,
+        Header: `f${token.symbol}`,
         Cell: DisplayCell,
         accessor: 'valueOfFCash',
         textAlign: 'left',
@@ -45,9 +41,9 @@ export const useFixedLiquidityPoolsTable = (
       {
         Header: (
           <FormattedMessage
-            defaultMessage={'F{selectedDepositToken} PRICE'}
+            defaultMessage={'f{symbol} PRICE'}
             values={{
-              selectedDepositToken,
+              symbol: token.symbol,
             }}
           />
         ),
@@ -92,7 +88,7 @@ export const useFixedLiquidityPoolsTable = (
           .toUnderlying()
           .toDisplayString(3, true),
         valueOfFCash: data.toUnderlying().toDisplayString(3, true),
-        price: `${formatNumber(currentPrice)} ${selectedDepositToken}`,
+        price: `${formatNumber(currentPrice)} ${token?.symbol}`,
         interestRate: interestRate,
       };
     });

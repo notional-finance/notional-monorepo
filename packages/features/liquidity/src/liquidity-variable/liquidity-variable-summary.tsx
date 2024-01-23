@@ -24,11 +24,13 @@ export const LiquidityVariableSummary = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const { state } = useContext(LiquidityContext);
-  const { selectedDepositToken, collateral, collateralBalance } = state;
+  const { selectedDepositToken, collateral, collateralBalance, deposit } =
+    state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const { totalsData, liquidityYieldData } = useTotalsData(
-    tokenSymbol,
+    deposit,
+    collateral,
     collateralBalance
   );
   const { returnDriversColumns, returnDriversData, infoBoxData } =

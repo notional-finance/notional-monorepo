@@ -12,7 +12,7 @@ export const LiquidationChart = ({
 }: {
   state: TradeState | VaultTradeState;
   vaultCollateral?: TokenDefinition;
-  vaultLiquidationPrice?: TokenBalance;
+  vaultLiquidationPrice?: TokenBalance | null;
 }) => {
   const theme = useTheme();
   const {

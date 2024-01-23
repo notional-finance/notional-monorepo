@@ -23,11 +23,11 @@ import { LiquidityContext } from '../../liquidity';
 export const useReturnDriversTable = () => {
   const theme = useTheme();
   const {
-    state: { deposit, selectedDepositToken },
+    state: { deposit, selectedDepositToken, selectedNetwork },
   } = useContext(LiquidityContext);
-  const { yields } = useAllMarkets();
+  const { yields } = useAllMarkets(selectedNetwork);
   const baseCurrency = useFiat();
-  const fCashData = useFCashMarket(deposit?.currencyId);
+  const fCashData = useFCashMarket(deposit);
 
   const liquidityData = yields.liquidity.find(
     ({ underlying }) => underlying.symbol === selectedDepositToken
@@ -83,7 +83,7 @@ export const useReturnDriversTable = () => {
       {
         asset: { symbol: 'note', label: 'NOTE Incentives' },
         value: '-',
-        apy: liquidityData?.incentives?.incentiveAPY || 0,
+        apy: liquidityData?.noteIncentives?.incentiveAPY || 0,
       },
       {
         asset: { label: 'Total' },

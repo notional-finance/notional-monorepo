@@ -9,11 +9,15 @@ import {
   CoinsCircleIcon,
 } from '@notional-finance/icons';
 import { useTheme } from '@mui/material';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useSelectedPortfolioNetwork,
+} from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const useEmptyPortfolioOverview = () => {
   const theme = useTheme();
+  const network = useSelectedPortfolioNetwork();
   const {
     headlineRates: {
       fCashLend,
@@ -25,7 +29,7 @@ export const useEmptyPortfolioOverview = () => {
       // leveragedLend,
       leveragedLiquidity,
     },
-  } = useAllMarkets();
+  } = useAllMarkets(network);
 
   const earnYieldData = [
     {

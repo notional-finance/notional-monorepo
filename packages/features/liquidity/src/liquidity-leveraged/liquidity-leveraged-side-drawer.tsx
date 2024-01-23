@@ -1,5 +1,8 @@
 import { useContext } from 'react';
-import { SideDrawerRouter } from '@notional-finance/trade';
+import {
+  SideDrawerRouter,
+  useLeveragedNTokenPositions,
+} from '@notional-finance/trade';
 import { LiquidityContext } from '../liquidity';
 import { PRODUCTS } from '@notional-finance/util';
 import {
@@ -9,7 +12,6 @@ import {
   RollMaturity,
   Withdraw,
 } from './side-drawers';
-import { useLeveragedNTokenPositions } from './hooks/use-leveraged-ntoken-positions';
 import { useParams } from 'react-router';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';
@@ -28,19 +30,23 @@ export const LiquidityLeveragedSideDrawer = () => {
       defaultLeverageRatio,
       deposit,
       riskFactorLimit,
+      selectedNetwork,
     },
   } = context;
   const loaded = deposit && deposit?.symbol === selectedDepositToken;
 
-  const { currentPosition } = useLeveragedNTokenPositions(selectedDepositToken);
+  const { currentPosition } = useLeveragedNTokenPositions(
+    selectedNetwork,
+    selectedDepositToken
+  );
   const currentPositionState = {
-    collateral: currentPosition?.asset.token,
-    debt: currentPosition?.debt.token,
+    collateral: currentPosition?.asset.balance.token,
+    debt: currentPosition?.debt.balance.token,
     riskFactorLimit: currentPosition?.leverageRatio
       ? ({
           riskFactor: 'leverageRatio',
           limit: currentPosition?.leverageRatio,
-          args: [currentPosition?.asset.currencyId],
+          args: [currentPosition?.asset.balance.currencyId],
         } as RiskFactorLimit<'leverageRatio'>)
       : undefined,
   };
@@ -49,7 +55,7 @@ export const LiquidityLeveragedSideDrawer = () => {
     <SideDrawerRouter
       context={context}
       hasPosition={!!currentPosition}
-      routeMatch={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/:path/${selectedDepositToken}`}
+      routeMatch={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/:path/${selectedDepositToken}`}
       defaultHasPosition={`IncreaseLeveragedNToken`}
       defaultNoPosition={`CreateLeveragedNToken`}
       routes={[
@@ -90,14 +96,16 @@ export const LiquidityLeveragedSideDrawer = () => {
           Component: ManageLeveragedLiquidity,
           requiredState: {
             tradeType: 'RollDebt',
-            ...(currentPosition?.debt.tokenType === 'PrimeDebt'
+            ...(currentPosition?.debt.balance.tokenType === 'PrimeDebt'
               ? {
-                  collateral: currentPosition?.debt.toPrimeCash().token,
-                  collateralBalance: currentPosition?.debt.toPrimeCash().neg(),
+                  collateral: currentPosition?.debt.balance.toPrimeCash().token,
+                  collateralBalance: currentPosition?.debt.balance
+                    .toPrimeCash()
+                    .neg(),
                 }
               : {
-                  collateral: currentPosition?.debt.token,
-                  collateralBalance: currentPosition?.debt.neg(),
+                  collateral: currentPosition?.debt.balance.token,
+                  collateralBalance: currentPosition?.debt.balance.neg(),
                 }),
             selectedDepositToken,
             customizeLeverage: true,
@@ -135,10 +143,10 @@ export const LiquidityLeveragedSideDrawer = () => {
             tradeType: 'DeleverageWithdraw',
             // NOTE: during withdraw the debt and asset are flipped
             collateral:
-              currentPosition?.debt.tokenType === 'PrimeDebt'
-                ? currentPosition?.debt.toPrimeCash().token
-                : currentPosition?.debt.token,
-            debt: currentPosition?.asset.token,
+              currentPosition?.debt.balance.tokenType === 'PrimeDebt'
+                ? currentPosition?.debt.balance.toPrimeCash().token
+                : currentPosition?.debt.balance.token,
+            debt: currentPosition?.asset.balance.token,
             riskFactorLimit: currentPositionState?.riskFactorLimit,
             selectedDepositToken,
             customizeLeverage: true,

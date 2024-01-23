@@ -1,10 +1,10 @@
 import { useTheme } from '@mui/material';
+import { YieldData } from '@notional-finance/core-entities';
 import {
   formatLeverageRatio,
   formatNumberAsAbbr,
   formatNumberAsPercent,
   formatYieldCaption,
-  getDateString,
 } from '@notional-finance/helpers';
 import {
   DataTableColumn,
@@ -14,7 +14,7 @@ import {
   SelectedOptions,
 } from '@notional-finance/mui';
 import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
-import { MARKET_TYPE, PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import { MARKET_TYPE, Network, PRIME_CASH_VAULT_MATURITY, getDateString } from '@notional-finance/util';
 import { useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
 
@@ -25,7 +25,7 @@ export const useMarketsTable = (
 ) => {
   const theme = useTheme();
   const baseCurrency = useFiat();
-  const { earnYields, borrowYields } = useAllMarkets();
+  const { earnYields, borrowYields } = useAllMarkets(Network.ArbitrumOne);
 
   const tableColumns: DataTableColumn[] = [
     {
@@ -119,13 +119,12 @@ export const useMarketsTable = (
     {
       Header: (
         <FormattedMessage
-          defaultMessage="Note APY"
-          description={'Note APY header'}
+          defaultMessage="INCENTIVE APY"
+          description={'INCENTIVE APY header'}
         />
       ),
-      Cell: DisplayCell,
-      displayFormatter: formatNumberAsPercent,
-      accessor: 'noteAPY',
+      Cell: MultiValueIconCell,
+      accessor: 'incentiveAPY',
       textAlign: 'right',
       sortType: 'basic',
       sortDescFirst: true,
@@ -143,6 +142,44 @@ export const useMarketsTable = (
   ];
 
   const formatMarketData = (allMarketsData: typeof borrowYields) => {
+    const getTotalIncentiveApy = (
+      incentives: YieldData['noteIncentives'],
+      secondaryIncentives: YieldData['secondaryIncentives']
+    ) => {
+      if (secondaryIncentives && incentives) {
+        return incentives.incentiveAPY + secondaryIncentives.incentiveAPY;
+      } else if (incentives && !secondaryIncentives) {
+        return incentives.incentiveAPY;
+      } else {
+        return 0;
+      }
+    };
+
+    const getIncentiveData = (
+      incentives: YieldData['noteIncentives'],
+      secondaryIncentives: YieldData['secondaryIncentives']
+    ) => {
+      if (secondaryIncentives && incentives) {
+        return {
+          inlineIcons: true,
+          label: formatNumberAsPercent(incentives.incentiveAPY),
+          symbol: incentives.symbol,
+          caption: formatNumberAsPercent(secondaryIncentives.incentiveAPY),
+          captionSymbol: secondaryIncentives.symbol,
+        };
+      } else if (incentives && !secondaryIncentives) {
+        return {
+          inlineIcons: true,
+          label: formatNumberAsPercent(incentives.incentiveAPY),
+          symbol: incentives.symbol,
+        };
+      } else {
+        return {
+          label: '',
+          symbol: '',
+        };
+      }
+    };
     return allMarketsData
       .map((data) => {
         const {
@@ -150,7 +187,8 @@ export const useMarketsTable = (
           token,
           totalAPY,
           product,
-          incentives,
+          noteIncentives,
+          secondaryIncentives,
           leveraged,
           tvl,
           link,
@@ -167,10 +205,10 @@ export const useMarketsTable = (
           leverage:
             leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
           totalTVL: tvl?.toFiat(baseCurrency).toFloat() || 0,
-          noteAPY:
-            incentives && incentives?.incentiveAPY > 0
-              ? incentives?.incentiveAPY
-              : 0,
+          incentiveAPY: getTotalIncentiveApy(
+            noteIncentives,
+            secondaryIncentives
+          ),
           view: link,
           multiValueCellData: {
             currency: {
@@ -178,6 +216,7 @@ export const useMarketsTable = (
               label: underlying.symbol,
               caption: formatYieldCaption(data),
             },
+            incentiveAPY: getIncentiveData(noteIncentives, secondaryIncentives),
           },
         };
       })
@@ -228,7 +267,15 @@ export const useMarketsTable = (
 
   const marketDataCSVFormatter = useCallback((data: any[]) => {
     return data.map(
-      ({ currency, product, totalAPY, totalTVL, leverage, maturity }) => {
+      ({
+        currency,
+        product,
+        totalAPY,
+        totalTVL,
+        leverage,
+        maturity,
+        incentiveAPY,
+      }) => {
         return {
           Currency: currency,
           Product: product,
@@ -236,6 +283,8 @@ export const useMarketsTable = (
           'Total TVL': totalTVL === 0 ? '' : formatNumberAsAbbr(totalTVL),
           Leverage: leverage === 0 ? '' : formatLeverageRatio(leverage),
           Maturity: maturity === 0 ? '' : getDateString(maturity),
+          IncentiveAPY:
+            incentiveAPY === 0 ? '' : formatNumberAsPercent(incentiveAPY),
         };
       }
     );

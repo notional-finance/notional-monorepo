@@ -2,49 +2,32 @@ import {
   FiatSymbols,
   Registry,
   TokenBalance,
+  TokenDefinition,
 } from '@notional-finance/core-entities';
 import { SparklesIcon } from '@notional-finance/icons';
-import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
-import { leveragedYield } from '@notional-finance/util';
+import {
+  useAllMarkets,
+  useFiat,
+  useTotalHolders,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useTotalsData = (
-  tokenSymbol: string,
-  nTokenAmount?: TokenBalance,
-  debtAPY?: number,
-  leverageRatio?: number
+  deposit: TokenDefinition | undefined,
+  nToken: TokenDefinition | undefined,
+  nTokenAmount?: TokenBalance
 ) => {
-  const { yields } = useAllMarkets();
+  const { yields } = useAllMarkets(deposit?.network);
   const baseCurrency = useFiat();
+  const totalLPs = useTotalHolders(nToken);
 
   const liquidityYieldData = nTokenAmount
     ? Registry.getYieldRegistry().getSimulatedNTokenYield(nTokenAmount)
-    : yields.liquidity.find(
-        ({ underlying }) => underlying.symbol === tokenSymbol
-      );
+    : yields.liquidity.find(({ underlying }) => underlying.id === deposit?.id);
 
-  if (
-    leverageRatio &&
-    debtAPY &&
-    liquidityYieldData?.interestAPY !== undefined
-  ) {
-    // If using leverage apply the debt APY to the interest apy
-    liquidityYieldData.interestAPY = leveragedYield(
-      liquidityYieldData.interestAPY,
-      debtAPY,
-      leverageRatio
-    );
-  }
-
-  if (leverageRatio && !!liquidityYieldData?.incentives) {
-    // If using leverage apply the
-    liquidityYieldData.incentives.incentiveAPY =
-      leveragedYield(
-        liquidityYieldData.incentives.incentiveAPY,
-        0,
-        leverageRatio
-      ) || liquidityYieldData.incentives.incentiveAPY;
-  }
+  const totalIncentives =
+    (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) +
+    (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0);
 
   return {
     totalsData: [
@@ -55,21 +38,13 @@ export const useTotalsData = (
       },
       {
         title: <FormattedMessage defaultMessage={'Incentive APY'} />,
-        value:
-          liquidityYieldData?.incentives &&
-          liquidityYieldData?.incentives?.incentiveAPY
-            ? liquidityYieldData?.incentives?.incentiveAPY
-            : '-',
+        value: totalIncentives ? totalIncentives : '-',
         Icon: SparklesIcon,
-        suffix:
-          liquidityYieldData?.incentives &&
-          liquidityYieldData?.incentives?.incentiveAPY
-            ? '%'
-            : '',
+        suffix: totalIncentives ? '%' : '',
       },
       {
         title: <FormattedMessage defaultMessage={'Liquidity Providers'} />,
-        value: '-',
+        value: totalLPs ? `${totalLPs}` : '-',
       },
     ],
     liquidityYieldData,

@@ -5,14 +5,13 @@ import {
   LEGEND_LINE_TYPES,
 } from '@notional-finance/mui';
 import { useFCashMarket } from '@notional-finance/notionable-hooks';
-import {
-  getDateString,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { getDateString } from '@notional-finance/util';
+import { TokenDefinition } from '@notional-finance/core-entities';
 
-export const useInteractiveMaturityChart = (currencyId: number | undefined) => {
+export const useInteractiveMaturityChart = (token: TokenDefinition | undefined) => {
   const theme = useTheme();
-  const fCashMarket = useFCashMarket(currencyId);
+  const fCashMarket = useFCashMarket(token);
   let areaChartData: any[] = [];
 
   if (fCashMarket) {

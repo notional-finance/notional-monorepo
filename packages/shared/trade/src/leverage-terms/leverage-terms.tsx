@@ -1,6 +1,5 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { LiquidityContext } from '../../liquidity';
-import { BorrowTermsDropdown } from '@notional-finance/trade';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import {
   Body,
   ButtonText,
@@ -9,66 +8,87 @@ import {
   ToggleSwitch,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
-import React, { useContext } from 'react';
-import { LeverageSlider } from '@notional-finance/trade';
+import React from 'react';
 import {
   formatLeverageRatio,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
-import { useMaxYield } from '../hooks/use-max-yield';
+import { BorrowTermsDropdown } from '../borrow-terms-dropdown/borrow-terms-dropdown';
+import { LeverageSlider } from '../leverage-slider/leverage-slider';
+import { useMaxYield } from '../hooks';
 import { useHistory } from 'react-router';
-import { useLeveragedNTokenPositions } from '../hooks';
-import { PRODUCTS } from '@notional-finance/util';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
-export const CustomLiquidityTerms = () => {
+interface TermsProps {
+  context: BaseTradeContext;
+  CustomLeverageSlider?: typeof LeverageSlider;
+}
+
+interface ManageTermsProps extends TermsProps {
+  linkString: string;
+}
+
+export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
   const theme = useTheme();
-  const context = useContext(LiquidityContext);
   const {
     state: { deposit },
   } = context;
 
   return (
-    <LiquidityTerms
+    <Terms
       inputLabel={defineMessage({ defaultMessage: '2. Select Borrow Terms' })}
       hasPosition={false}
+      context={context}
     >
       <BorrowTermsDropdown context={context} />
       <Box height={theme.spacing(6)} />
-      <LeverageSlider
-        showMinMax
-        context={context}
-        leverageCurrencyId={deposit?.currencyId}
-        inputLabel={defineMessage({
-          defaultMessage: '3. Specify leverage',
-          description: 'input label',
-        })}
-      />
-    </LiquidityTerms>
+      {CustomLeverageSlider ? (
+        <CustomLeverageSlider
+          context={context}
+          inputLabel={defineMessage({
+            defaultMessage: '3. Specify leverage',
+            description: 'input label',
+          })}
+        />
+      ) : (
+        <LeverageSlider
+          showMinMax
+          context={context}
+          leverageCurrencyId={deposit?.currencyId}
+          inputLabel={defineMessage({
+            defaultMessage: '3. Specify leverage',
+            description: 'input label',
+          })}
+        />
+      )}
+    </Terms>
   );
 };
 
-export const DefaultLiquidityTerms = () => {
+export const DefaultTerms = ({ context }: TermsProps) => {
   const {
-    state: { customizeLeverage, riskFactorLimit, deposit },
+    state: { customizeLeverage, riskFactorLimit, deposit, selectedNetwork },
     updateState,
-  } = useContext(LiquidityContext);
+  } = context;
 
   const toggleLeverage = () =>
     updateState({ customizeLeverage: !customizeLeverage });
-  const maxYield = useMaxYield().find(
+  const maxYield = useMaxYield(selectedNetwork).find(
     (y) => y.token.currencyId === deposit?.currencyId
   )?.totalAPY;
+
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)
       : 0;
 
   return (
-    <LiquidityTerms
+    <Terms
       inputLabel={defineMessage({
         defaultMessage: 'Default Terms are Selected',
       })}
       hasPosition={false}
+      context={context}
     >
       <TermsBox
         hasPosition={false}
@@ -93,16 +113,20 @@ export const DefaultLiquidityTerms = () => {
           </Box>
         }
       />
-    </LiquidityTerms>
+    </Terms>
   );
 };
 
-export const ManageLiquidityTerms = () => {
+export const ManageTerms = ({ context, linkString }: ManageTermsProps) => {
   const history = useHistory();
   const {
-    state: { riskFactorLimit, deposit },
-  } = useContext(LiquidityContext);
-  const { currentPosition } = useLeveragedNTokenPositions(deposit?.symbol);
+    state: { riskFactorLimit, debt },
+  } = context;
+
+  const borrowType =
+    debt?.maturity === undefined || debt?.maturity === PRIME_CASH_VAULT_MATURITY
+      ? 'Variable'
+      : 'Fixed';
 
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
@@ -110,23 +134,18 @@ export const ManageLiquidityTerms = () => {
       : 0;
 
   return (
-    <LiquidityTerms
+    <Terms
       inputLabel={defineMessage({
         defaultMessage: 'Current Terms',
       })}
       hasPosition={true}
+      context={context}
     >
       <TermsBox
         hasPosition={true}
         leverageRatio={leverageRatio}
-        borrowType={
-          currentPosition?.debt.tokenType === 'fCash' ? 'Fixed' : 'Variable'
-        }
-        actionClick={() =>
-          history.push(
-            `/${PRODUCTS.LIQUIDITY_LEVERAGED}/Manage/${deposit?.symbol}`
-          )
-        }
+        borrowType={borrowType}
+        actionClick={() => history.push(linkString)}
         actionBody={
           <Box sx={{ alignItems: 'center', display: 'flex' }}>
             <ButtonText accent>
@@ -135,20 +154,21 @@ export const ManageLiquidityTerms = () => {
           </Box>
         }
       />
-    </LiquidityTerms>
+    </Terms>
   );
 };
 
-const LiquidityTerms = ({
+const Terms = ({
   inputLabel,
   hasPosition,
   children,
+  context,
 }: {
   inputLabel: MessageDescriptor;
   hasPosition: boolean;
   children: React.ReactNode | React.ReactNode[];
+  context: BaseTradeContext;
 }) => {
-  const context = useContext(LiquidityContext);
   const { state, updateState } = context;
   const { customizeLeverage } = state;
 

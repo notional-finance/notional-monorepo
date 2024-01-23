@@ -9,14 +9,17 @@ import {
   CoinsIcon,
   CoinsCircleIcon,
 } from '@notional-finance/icons';
-import { MARKET_TYPE } from '@notional-finance/util';
+import { MARKET_TYPE, Network } from '@notional-finance/util';
 import { TokenIcon } from '@notional-finance/icons';
-import { useCurrency } from '@notional-finance/notionable-hooks';
+import { useUnderlyingTokens } from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
 
-export const useMarketTableDropdowns = (marketType) => {
+export const useMarketTableDropdowns = (
+  marketType: MARKET_TYPE,
+  network: Network
+) => {
   const theme = useTheme();
-  const { depositTokens } = useCurrency();
+  const depositTokens = useUnderlyingTokens(network);
   const [currencyOptions, setCurrencyOptions] = useState([]);
   const [productOptions, setProductOptions] = useState([]);
 
@@ -132,7 +135,7 @@ export const useMarketTableDropdowns = (marketType) => {
     ],
   };
 
-  const dataSetOne = depositTokens.map(({ symbol }) => ({
+  const underlyingTokens = depositTokens.map(({ symbol }) => ({
     id: symbol,
     title: symbol,
     icon: <TokenIcon size="medium" symbol={symbol.toLocaleLowerCase()} />,
@@ -143,7 +146,7 @@ export const useMarketTableDropdowns = (marketType) => {
       selectedOptions: currencyOptions,
       setSelectedOptions: setCurrencyOptions,
       placeHolderText: <FormattedMessage defaultMessage={'Currency'} />,
-      data: dataSetOne,
+      data: underlyingTokens,
     },
     {
       selectedOptions: productOptions,

@@ -3,19 +3,26 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import { Box, styled, useTheme } from '@mui/material';
 import { VaultActionContext } from '../vault';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { VaultLeverageSlider, MobileVaultSummary } from '../components';
+import { MobileVaultSummary, VaultLeverageSlider } from '../components';
 import { useVaultActionErrors } from '../hooks';
 import {
   DepositInput,
-  VariableFixedMaturityToggle,
+  CustomTerms,
+  DefaultTerms,
+  ManageTerms,
 } from '@notional-finance/trade';
 import { messages } from '../messages';
+import { useVaultPosition } from '@notional-finance/notionable-hooks';
 
 export const CreateVaultPosition = () => {
   const theme = useTheme();
   const context = useContext(VaultActionContext);
   const { currencyInputRef } = useCurrencyInputRef();
   const { inputErrorMsg } = useVaultActionErrors();
+  const {
+    state: { vaultAddress, customizeLeverage, selectedNetwork },
+  } = context;
+  const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
   return (
     <>
@@ -39,14 +46,19 @@ export const CreateVaultPosition = () => {
             errorMsgOverride={inputErrorMsg}
             inputLabel={messages['CreateVaultPosition'].depositAmount}
           />
-          <VariableFixedMaturityToggle
-            context={context}
-            fCashInputLabel={messages['CreateVaultPosition'].maturity}
-          />
-          <VaultLeverageSlider
-            context={context}
-            inputLabel={messages['CreateVaultPosition'].leverage}
-          />
+          {vaultPosition ? (
+            <ManageTerms
+              context={context}
+              linkString={`/vaults/${selectedNetwork}/${vaultAddress}/Manage`}
+            />
+          ) : customizeLeverage ? (
+            <CustomTerms
+              context={context}
+              CustomLeverageSlider={VaultLeverageSlider}
+            />
+          ) : (
+            <DefaultTerms context={context} />
+          )}
         </VaultSideDrawer>
       </Box>
     </>

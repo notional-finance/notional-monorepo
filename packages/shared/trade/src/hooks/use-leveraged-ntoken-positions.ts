@@ -1,13 +1,11 @@
-import {
-  useGroupedTokens,
-  useNotionalContext,
-} from '@notional-finance/notionable-hooks';
+import { useGroupedHoldings } from '@notional-finance/notionable-hooks';
+import { Network } from '@notional-finance/util';
 
-export const useLeveragedNTokenPositions = (selectedDepositToken?: string) => {
-  const {
-    globalState: { holdingsGroups },
-  } = useNotionalContext();
-  const holdings = useGroupedTokens();
+export const useLeveragedNTokenPositions = (
+  network: Network | undefined,
+  selectedDepositToken?: string
+) => {
+  const holdingsGroups = useGroupedHoldings(network);
   if (holdingsGroups === undefined) {
     return {
       isLoading: true,
@@ -17,17 +15,17 @@ export const useLeveragedNTokenPositions = (selectedDepositToken?: string) => {
   }
 
   const nTokenPositions = holdingsGroups.filter(
-    ({ asset }) => asset.tokenType === 'nToken'
+    ({ asset }) => asset.balance.tokenType === 'nToken'
   );
   const currentPosition = nTokenPositions.find(
-    ({ asset }) => asset.underlying.symbol === selectedDepositToken
+    ({ asset }) => asset.balance.underlying.symbol === selectedDepositToken
   );
   const depositTokensWithPositions = nTokenPositions.map(
-    ({ asset }) => asset.underlying.symbol
+    ({ asset }) => asset.balance.underlying.symbol
   );
   // The difference between currentPosition and currentHoldings is that current holdings
   // has more metadata but it arrives a little later
-  const currentHoldings = holdings.find(
+  const currentHoldings = holdingsGroups.find(
     ({ asset }) => asset.balance.underlying.symbol === selectedDepositToken
   );
 

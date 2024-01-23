@@ -3,8 +3,8 @@ import { formatTokenType } from '@notional-finance/helpers';
 import { CurrencyInputHandle } from '@notional-finance/mui';
 import {
   BaseTradeContext,
-  useCurrency,
   usePortfolioRiskProfile,
+  usePrimeTokens,
 } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
 
@@ -22,6 +22,7 @@ export const useDeleverage = (
       availableDebtTokens,
       debtBalance,
       collateralBalance,
+      selectedNetwork,
     },
     updateState,
   } = context;
@@ -31,8 +32,8 @@ export const useDeleverage = (
     debtOrCollateral === 'Debt'
       ? availableDebtTokens
       : availableCollateralTokens;
-  const profile = usePortfolioRiskProfile();
-  const { primeCash, primeDebt } = useCurrency();
+  const profile = usePortfolioRiskProfile(selectedNetwork);
+  const { primeCash, primeDebt } = usePrimeTokens(selectedNetwork);
 
   useEffect(() => {
     // If the input control is no longer the primary, it will just mirror
@@ -107,13 +108,13 @@ export const useDeleverage = (
       availableTokens?.map((t) => {
         const balance =
           t?.tokenType === 'PrimeDebt'
-            ? profile.balances
+            ? profile?.balances
                 .find(
                   (b) =>
                     b.tokenType === 'PrimeCash' && b.currencyId === t.currencyId
                 )
                 ?.toToken(t)
-            : profile.balances.find((b) => b.tokenId === t?.id);
+            : profile?.balances.find((b) => b.tokenId === t?.id);
         let displayToken: TokenDefinition | undefined;
         // Flip the titles since this is inverted inside the calculation
         if (t.tokenType === 'PrimeDebt' && debtOrCollateral === 'Debt') {

@@ -81,7 +81,6 @@ export const MobileVaultSummary = () => {
           step={0.01}
           value={capacityUsedPercentage || 0}
           disabled={true}
-          hideThumb={true}
           sx={{
             height: theme.spacing(5),
             padding: '0px',

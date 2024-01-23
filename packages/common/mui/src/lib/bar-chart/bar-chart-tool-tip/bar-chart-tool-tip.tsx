@@ -2,7 +2,7 @@ import { Box, styled } from '@mui/material';
 import { H5 } from '../../typography/typography';
 import { TooltipProps } from 'recharts';
 import { BarConfigProps } from '../bar-chart';
-import { getDateString } from '@notional-finance/helpers';
+import { getDateString } from '@notional-finance/util';
 import { formatNumberToDigits } from '@notional-finance/helpers';
 
 export interface BarChartToolTipProps extends TooltipProps<number, string> {

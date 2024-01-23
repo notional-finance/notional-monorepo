@@ -1,6 +1,7 @@
 import { FormattedMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { Network } from '@notional-finance/util';
 
 export const useProductCards = () => {
   const {
@@ -14,7 +15,7 @@ export const useProductCards = () => {
       fCashBorrow,
       variableBorrow,
     },
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
 
   const earnYieldData = [
     {

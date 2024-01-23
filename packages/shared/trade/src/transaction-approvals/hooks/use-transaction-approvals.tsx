@@ -1,10 +1,7 @@
 import { useTokenApproval } from './use-token-approval';
 import { useEnablePrimeBorrow } from './use-enable-prime-borrow';
 import { TokenBalance } from '@notional-finance/core-entities';
-import {
-  useAccountReady,
-  BaseTradeContext,
-} from '@notional-finance/notionable-hooks';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 
 export const useTransactionApprovals = (
   context: BaseTradeContext,
@@ -12,18 +9,17 @@ export const useTransactionApprovals = (
   variableBorrowRequired?: boolean
 ) => {
   const {
-    state: { depositBalance, selectedDepositToken },
+    state: { depositBalance, selectedDepositToken, selectedNetwork },
   } = context;
-  const isAccountReady = useAccountReady();
   const {
     tokenStatus,
     isSignerConnected,
     enableToken,
     tokenApprovalTxnStatus,
-  } = useTokenApproval(selectedDepositToken || '');
+  } = useTokenApproval(selectedDepositToken || '', selectedNetwork);
 
   const { isPrimeBorrowAllowed, enablePrimeBorrow, variableBorrowTxnStatus } =
-    useEnablePrimeBorrow();
+    useEnablePrimeBorrow(selectedNetwork);
 
   const variableBorrowApprovalRequired =
     !isPrimeBorrowAllowed && variableBorrowRequired;
@@ -36,14 +32,14 @@ export const useTransactionApprovals = (
     approvalRequired && tokenStatus && tokenStatus.amount.lt(approvalRequired);
 
   const tokenApprovalRequired =
-    isAccountReady &&
-    isSignerConnected &&
-    insufficientAllowance &&
-    tokenStatus &&
-    tokenStatus.amount.isZero();
+    !!isSignerConnected &&
+    insufficientAllowance === true &&
+    tokenStatus?.amount.isZero() === true;
 
   const allowanceIncreaseRequired =
-    insufficientAllowance && tokenStatus && tokenStatus.amount.isPositive();
+    !!isSignerConnected &&
+    insufficientAllowance === true &&
+    tokenStatus?.amount.isPositive() === true;
 
   return {
     enableToken,
