@@ -3,6 +3,7 @@
 /* eslint-disable */
 export type { AaveFlashLender } from "./AaveFlashLender";
 export type { AssetRateAggregator } from "./AssetRateAggregator";
+export type { AuraRewardPool } from "./AuraRewardPool";
 export type { BalancerBoostedPool } from "./BalancerBoostedPool";
 export type { BalancerGauge } from "./BalancerGauge";
 export type { BalancerGaugeController } from "./BalancerGaugeController";
@@ -44,6 +45,7 @@ export type { WstETH } from "./WstETH";
 export * as factories from "./factories";
 export { AaveFlashLender__factory } from "./factories/AaveFlashLender__factory";
 export { AssetRateAggregator__factory } from "./factories/AssetRateAggregator__factory";
+export { AuraRewardPool__factory } from "./factories/AuraRewardPool__factory";
 export { BalancerBoostedPool__factory } from "./factories/BalancerBoostedPool__factory";
 export { BalancerGauge__factory } from "./factories/BalancerGauge__factory";
 export { BalancerGaugeController__factory } from "./factories/BalancerGaugeController__factory";
