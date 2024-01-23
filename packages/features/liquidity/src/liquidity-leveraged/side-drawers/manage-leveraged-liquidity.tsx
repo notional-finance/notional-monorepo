@@ -20,7 +20,6 @@ export const ManageLeveragedLiquidity = () => {
   const theme = useTheme();
   const {
     state: { debtOptions, selectedDepositToken, selectedNetwork },
-    updateState,
   } = useContext(LiquidityContext);
   const {
     yields: { liquidity },
@@ -58,8 +57,7 @@ export const ManageLeveragedLiquidity = () => {
       return (
         <SideDrawerButton
           key={o.token.id}
-          onClick={() => updateState({ debt: o.token })}
-          to={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/RollMaturity/${selectedDepositToken}`}
+          to={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/RollMaturity/${selectedDepositToken}/${o.token.id}`}
           variant="outlined"
           sx={{
             border: `1px solid ${theme.palette.primary.light}`,
