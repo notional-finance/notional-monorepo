@@ -8,7 +8,7 @@ import {
   DataTable,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
-import { MARKET_TYPE, Network } from '@notional-finance/util';
+import { MARKET_TYPE } from '@notional-finance/util';
 import {
   useButtonBar,
   useMarketsTable,
