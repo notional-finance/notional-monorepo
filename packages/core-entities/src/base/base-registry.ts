@@ -264,7 +264,7 @@ export abstract class BaseRegistry<T> {
    */
   public subscribeSubject(network: Network, key: string) {
     if (!this.isKeyRegistered(network, key))
-      throw Error('Subject key not registered');
+      throw Error(`Subject key not registered: ${network} ${key}`);
 
     return this._getNetworkSubjects(network).get(key)?.asObservable();
   }

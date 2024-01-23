@@ -20,68 +20,70 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
       { chainName: network }
     );
 
-    const calls = data['data'].vaultConfigurations.map(
-      ({
-        vaultAddress,
-        enabled,
-        name,
-      }: {
-        vaultAddress: string;
-        enabled: boolean;
-        name: string;
-      }) => {
-        const override = vaultOverrides[vaultAddress];
-        if (override) {
-          const bn = data['data']._meta.block.number as number;
-          const func = override.find((o) => {
-            if (o.fromBlock && (blockNumber || bn) < o.fromBlock) {
-              return false;
-            }
-            if (o.toBlock && (blockNumber || bn) > o.toBlock) {
-              return false;
-            }
-            return true;
-          });
+    const calls = data['data'].vaultConfigurations
+      .filter((v: { enabled: boolean }) => !!v.enabled)
+      .map(
+        ({
+          vaultAddress,
+          enabled,
+          name,
+        }: {
+          vaultAddress: string;
+          enabled: boolean;
+          name: string;
+        }) => {
+          const override = vaultOverrides[vaultAddress];
+          if (override) {
+            const bn = data['data']._meta.block.number as number;
+            const func = override.find((o) => {
+              if (o.fromBlock && (blockNumber || bn) < o.fromBlock) {
+                return false;
+              }
+              if (o.toBlock && (blockNumber || bn) > o.toBlock) {
+                return false;
+              }
+              return true;
+            });
 
-          if (func) {
-            return func.getVaultInfo(network, vaultAddress);
+            if (func) {
+              return func.getVaultInfo(network, vaultAddress);
+            }
           }
+
+          return {
+            target: new Contract(
+              vaultAddress,
+              ISingleSidedLPStrategyVaultABI,
+              getProviderFromNetwork(network)
+            ),
+            method: 'getStrategyVaultInfo',
+            key: vaultAddress,
+            transform: (
+              r: Awaited<
+                ReturnType<ISingleSidedLPStrategyVault['getStrategyVaultInfo']>
+              >
+            ) => {
+              const totalLPTokens = TokenBalance.toJSON(
+                r.totalLPTokens,
+                r.pool,
+                network
+              );
+
+              const totalVaultShares = r.totalVaultShares;
+
+              return {
+                pool: r.pool,
+                singleSidedTokenIndex: r.singleSidedTokenIndex,
+                totalLPTokens,
+                totalVaultShares,
+                secondaryTradeParams: '0x',
+                enabled,
+                name,
+              };
+            },
+          };
         }
-
-        return {
-          target: new Contract(
-            vaultAddress,
-            ISingleSidedLPStrategyVaultABI,
-            getProviderFromNetwork(network)
-          ),
-          method: 'getStrategyVaultInfo',
-          key: vaultAddress,
-          transform: (
-            r: Awaited<
-              ReturnType<ISingleSidedLPStrategyVault['getStrategyVaultInfo']>
-            >
-          ) => {
-            const totalLPTokens = TokenBalance.toJSON(
-              r.totalLPTokens,
-              r.pool,
-              network
-            );
-
-            const totalVaultShares = r.totalVaultShares;
-
-            return {
-              pool: r.pool,
-              singleSidedTokenIndex: r.singleSidedTokenIndex,
-              totalLPTokens,
-              totalVaultShares,
-              secondaryTradeParams: '0x',
-              enabled,
-              name,
-            };
-          },
-        };
-      }
-    );
+      );
 
     const { block, results } = await aggregate(
       calls || [],
