@@ -1,34 +1,7 @@
 import { Registry } from '@notional-finance/core-entities';
-import { GlobalState, selectedNetwork } from '../../global';
 import { filterEmpty } from '@notional-finance/util';
-import {
-  Observable,
-  pairwise,
-  withLatestFrom,
-  map,
-  combineLatest,
-  filter,
-} from 'rxjs';
+import { Observable, pairwise, map, filter } from 'rxjs';
 import { BaseTradeState, VaultTradeState } from '../base-trade-store';
-
-export function resetOnNetworkChange(
-  global$: Observable<GlobalState>,
-  state$: Observable<BaseTradeState>
-) {
-  return global$.pipe(
-    filterEmpty(),
-    pairwise(),
-    withLatestFrom(state$),
-    map(([[prev, cur], s]) => {
-      if (prev.selectedNetwork !== cur.selectedNetwork) {
-        return { reset: true, tradeType: s.tradeType };
-      } else {
-        return undefined;
-      }
-    }),
-    filterEmpty()
-  );
-}
 
 export function resetOnTradeTypeChange(
   state$: Observable<BaseTradeState>,
@@ -45,6 +18,7 @@ export function resetOnTradeTypeChange(
       ) {
         return {
           reset: true,
+          selectedNetwork: cur.selectedNetwork,
           tradeType: cur.tradeType,
           vaultAddress: cur.vaultAddress,
         };
@@ -55,6 +29,7 @@ export function resetOnTradeTypeChange(
       ) {
         return {
           reset: true,
+          selectedNetwork: cur.selectedNetwork,
           vaultAddress: cur.vaultAddress,
           tradeType: cur.tradeType,
         };
@@ -74,55 +49,29 @@ export function resetOnTradeTypeChange(
   );
 }
 
-export function initVaultState(
-  state$: Observable<VaultTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>,
-  global$: Observable<GlobalState>
-) {
-  return combineLatest([state$, selectedNetwork$, global$]).pipe(
-    filter(
-      ([{ isReady, vaultAddress }, selectedNetwork, { isAccountPending }]) =>
-        !isReady && !!selectedNetwork && !!vaultAddress && !isAccountPending
-    ),
-    map(([{ vaultAddress }, selectedNetwork]) => {
-      if (!vaultAddress) return undefined;
-      else {
-        try {
-          const vaultConfig =
-            Registry.getConfigurationRegistry().getVaultConfig(
-              selectedNetwork,
-              vaultAddress
-            );
-          return { isReady: true, vaultConfig };
-        } catch {
-          return undefined;
-        }
+export function initVaultState(state$: Observable<VaultTradeState>) {
+  return state$.pipe(
+    map(({ vaultAddress, selectedNetwork, isReady }) => {
+      if (!vaultAddress || !selectedNetwork || isReady) return undefined;
+      try {
+        const vaultConfig = Registry.getConfigurationRegistry().getVaultConfig(
+          selectedNetwork,
+          vaultAddress
+        );
+        return { isReady: true, vaultConfig };
+      } catch {
+        return undefined;
       }
     }),
     filterEmpty()
   );
 }
 
-export function initState(
-  state$: Observable<BaseTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>,
-  global$: Observable<GlobalState>
-) {
-  return combineLatest([state$, selectedNetwork$, global$]).pipe(
+export function initState(state$: Observable<BaseTradeState>) {
+  return state$.pipe(
     filter(
-      ([
-        { isReady, tradeType },
-        selectedNetwork,
-        { isAccountPending, holdingsGroups },
-      ]) => {
-        return (
-          !isReady &&
-          !!selectedNetwork &&
-          !!tradeType &&
-          !isAccountPending &&
-          !!holdingsGroups
-        );
-      }
+      ({ isReady, tradeType, selectedNetwork }) =>
+        !isReady && !!selectedNetwork && !!tradeType
     ),
     map(() => ({ isReady: true }))
   );

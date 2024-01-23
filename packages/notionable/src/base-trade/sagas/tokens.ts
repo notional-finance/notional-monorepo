@@ -2,7 +2,6 @@ import { TokenDefinition, Registry } from '@notional-finance/core-entities';
 import {
   Observable,
   combineLatest,
-  pairwise,
   map,
   filter,
   distinctUntilChanged,
@@ -27,43 +26,60 @@ function getSelectedToken(
 
 export type Category = 'Collateral' | 'Debt' | 'Deposit';
 
-export function selectedToken(
-  state$: Observable<BaseTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>
-) {
-  return combineLatest([state$, selectedNetwork$]).pipe(
-    // NOTE: distinct until changed does not work with this for some reason
-    pairwise(),
-    map(([[prevS, prevN], [curS, selectedNetwork]]) => {
-      const selectedToken = curS.selectedDepositToken;
-      const token = curS.deposit;
+export function selectedDepositToken(state$: Observable<BaseTradeState>) {
+  return state$.pipe(
+    distinctUntilChanged(
+      (p, c) =>
+        p.selectedDepositToken === c.selectedDepositToken &&
+        p.selectedNetwork === c.selectedNetwork
+    ),
+    map(({ selectedDepositToken, selectedNetwork }) => {
+      if (!selectedDepositToken || !selectedNetwork) return undefined;
       return {
-        hasChanged:
-          prevS.selectedDepositToken !== selectedToken ||
-          prevN !== selectedNetwork ||
-          (!!selectedToken && token === undefined),
-        selectedToken,
-        selectedNetwork,
+        deposit: Registry.getTokenRegistry().getTokenBySymbol(
+          selectedNetwork,
+          selectedDepositToken
+        ),
       };
     }),
-    filter(({ hasChanged }) => hasChanged),
-    map(({ selectedToken, selectedNetwork }) => {
-      let deposit: TokenDefinition | undefined;
-      if (selectedToken && selectedNetwork) {
-        try {
-          const tokens = Registry.getTokenRegistry();
-          deposit = tokens.getTokenBySymbol(selectedNetwork, selectedToken);
-        } catch {
-          // NOTE: some tokens may not have nTokens listed, if so then this will
-          // remain undefined
-          console.error(
-            `Token ${selectedToken} not found on network ${selectedNetwork}`
-          );
-        }
-      }
+    filterEmpty()
+  );
+}
 
-      return { deposit };
-    })
+export function selectedPortfolioToken(state$: Observable<BaseTradeState>) {
+  return state$.pipe(
+    distinctUntilChanged(
+      (p, c) =>
+        p.selectedToken === c.selectedToken &&
+        p.selectedNetwork === c.selectedNetwork &&
+        p.tradeType === c.tradeType
+    ),
+    filter(
+      ({ tradeType }) => tradeType === 'RepayDebt' || tradeType === 'Withdraw'
+    ),
+    map(({ selectedToken, selectedNetwork, tradeType }) => {
+      if (!selectedToken || !selectedNetwork || !tradeType) return undefined;
+      const tokens = Registry.getTokenRegistry();
+      const selected = tokens.getTokenByID(selectedNetwork, selectedToken);
+      if (tradeType === 'RepayDebt') {
+        return {
+          collateral:
+            selected.tokenType === 'PrimeDebt'
+              ? tokens.getPrimeCash(selected.network, selected.currencyId)
+              : selected,
+        };
+      } else if (tradeType === 'Withdraw') {
+        return {
+          debt:
+            selected.tokenType === 'PrimeCash'
+              ? tokens.getPrimeDebt(selected.network, selected.currencyId)
+              : selected,
+        };
+      } else {
+        return undefined;
+      }
+    }),
+    filterEmpty()
   );
 }
 
@@ -80,7 +96,6 @@ export function availableTokens(
         p.deposit?.id === c.deposit?.id &&
         p.collateral?.id === c.collateral?.id &&
         p.debt?.id === c.debt?.id &&
-        p.selectedDepositToken === c.selectedDepositToken &&
         p.tradeType === c.tradeType
       );
     }),
@@ -167,7 +182,6 @@ export function availableTokens(
             deposit,
             debt,
             collateral,
-            selectedDepositToken: deposit?.symbol,
           }
         : undefined;
     }),
