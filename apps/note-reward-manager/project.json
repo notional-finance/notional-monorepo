@@ -1,13 +1,13 @@
 {
-  "name": "reward-manager",
+  "name": "note-reward-manager",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/reward-manager/src",
+  "sourceRoot": "apps/note-reward-manager/src",
   "projectType": "application",
   "targets": {
     "typechain": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "yarn typechain --target=ethers-v5 --out-dir=apps/reward-manager/src/typechain apps/reward-manager/src/abi/*.json"
+        "command": "yarn typechain --target=ethers-v5 --out-dir=apps/note-reward-manager/src/typechain apps/reward-manager/src/abi/*.json"
       }
     },
     "serve": {
@@ -18,7 +18,7 @@
             "command": "wrangler dev --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/reward-manager"
+        "cwd": "apps/note-reward-manager"
       }
     },
     "publish-wrangler-manual": {
@@ -29,7 +29,7 @@
             "command": "wrangler deploy --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/reward-manager"
+        "cwd": "apps/note-reward-manager"
       }
     },
     "publish-wrangler": {
@@ -40,21 +40,21 @@
             "command": "wrangler deploy"
           }
         ],
-        "cwd": "apps/reward-manager"
+        "cwd": "apps/note-reward-manager"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/reward-manager/**/*.ts"]
+        "lintFilePatterns": ["apps/note-reward-manager/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/reward-manager"],
+      "outputs": ["{workspaceRoot}/coverage/apps/note-reward-manager"],
       "options": {
-        "jestConfig": "apps/reward-manager/jest.config.ts",
+        "jestConfig": "apps/note-reward-manager/jest.config.ts",
         "passWithNoTests": true
       },
       "dependsOn": ["build"]

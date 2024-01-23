@@ -11,4 +11,22 @@ export interface Env {
   NETWORK: string
 }
 
+export enum DexId {
+  UNKNOWN,
+  UNISWAP_V2,
+  UNISWAP_V3,
+  ZERO_EX,
+  BALANCER_V2,
+  CURVE,
+  NOTIONAL_VAULT
+}
+
+export enum TradeType {
+  EXACT_IN_SINGLE,
+  EXACT_OUT_SINGLE,
+  EXACT_IN_BATCH,
+  EXACT_OUT_BATCH
+}
+
+
 

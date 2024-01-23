@@ -1,5 +1,5 @@
 import { Provider } from "@ethersproject/abstract-provider";
-import { sendTxThroughRelayer, get0xData } from "./util";
+import { get0xData, sendTxThroughRelayer } from "@notional-finance/util";
 import {
   TreasuryManager as TreasuryManagerProxy,
   TreasuryManager__factory,
@@ -7,9 +7,8 @@ import {
 } from "@notional-finance/contracts";
 import { TradeStruct as Trade } from "@notional-finance/contracts/types/TradingModule";
 import Config from "./config";
-import { TradeType, DexId } from "./config";
 import { BigNumber } from "ethers";
-import { Env } from "./types";
+import { Env, TradeType, DexId } from "./types";
 
 const TWO_HOURS_SEC = 1200;
 const nowInSec = () => Math.floor(Date.now() / 1000);

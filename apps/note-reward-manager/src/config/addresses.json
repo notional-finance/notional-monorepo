@@ -1,0 +1,15 @@
+{
+  "mainnet": {
+    "treasury": {
+      "address": "0x53144559c0d4a3304e2dd9dafbd685247429216d"
+    },
+    "tokens": {
+      "USDC": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "WETH": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "AURA": "0xc0c293ce456ff0ed870add98a0828dd4d2903dbf",
+      "BAL": "0xba100000625a3754423978a60c9317c58a424e3D",
+      "COMP": "0xc00e94cb662c3520282e6f5717214004a7f26888",
+      "NOTE": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5"
+    }
+  }
+}
