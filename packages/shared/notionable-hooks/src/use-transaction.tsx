@@ -20,9 +20,10 @@ export enum TransactionStatus {
 
 function useSubmitTransaction() {
   const {
-    globalState: { wallet, sentTransactions, selectedNetwork },
+    globalState: { wallet, sentTransactions },
     updateNotional,
   } = useNotionalContext();
+  const selectedNetwork = useWalletConnectedNetwork();
   const signer = wallet?.signer;
   const { pathname } = useLocation();
 
@@ -32,7 +33,7 @@ function useSubmitTransaction() {
       populatedTransaction: PopulatedTransaction,
       tokens?: TokenDefinition[]
     ) => {
-      if (!signer) throw Error('Signer undefined');
+      if (!signer || !selectedNetwork) throw Error('Signer undefined');
       const tx = await signer.sendTransaction(populatedTransaction);
       const { hash } = tx;
       trackEvent(TRACKING_EVENTS.SUBMIT_TXN, {
@@ -43,9 +44,10 @@ function useSubmitTransaction() {
       });
 
       updateNotional({
-        sentTransactions: Object.assign(sentTransactions, {
-          [hash]: { network: selectedNetwork, response: tx, tokens },
-        }),
+        sentTransactions: [
+          ...sentTransactions,
+          { network: selectedNetwork, response: tx, tokens, hash },
+        ],
       });
 
       return hash;
