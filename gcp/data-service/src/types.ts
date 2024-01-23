@@ -47,6 +47,9 @@ export enum Strategy {
   Arb_Balancer_rETH_WETH = 12,
   Arb_Balancer_wstETH_bb_a_WETH = 13,
   Arb_Convex_USDC_FRAX = 14,
+  Arb_Balancer_wstETH_rETH_cbETH = 15,
+  Arb_Balancer_wstETH_WETH = 16,
+  Arb_Balancer_RDNT_WETH = 17,
 }
 
 export interface MulticallConfig {
