@@ -114,7 +114,7 @@ export const useAllMarkets = (network: Network | undefined) => {
         return {
           ...y,
           product: 'Provide Liquidity',
-          link: `${PRODUCTS.LIQUIDITY_VARIABLE}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LIQUIDITY_VARIABLE}/${network}/${y.underlying.symbol}`,
         };
       }),
     fCashLend: nonLeveragedYields
@@ -123,7 +123,7 @@ export const useAllMarkets = (network: Network | undefined) => {
         return {
           ...y,
           product: 'Fixed Lend',
-          link: `${PRODUCTS.LEND_FIXED}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LEND_FIXED}/${network}/${y.underlying.symbol}`,
         };
       }),
     fCashBorrow: nonLeveragedYields
@@ -132,7 +132,7 @@ export const useAllMarkets = (network: Network | undefined) => {
         return {
           ...y,
           product: 'Fixed Borrow',
-          link: `${PRODUCTS.BORROW_FIXED}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.BORROW_FIXED}/${network}/${y.underlying.symbol}`,
         };
       }),
     variableLend: nonLeveragedYields
@@ -141,7 +141,7 @@ export const useAllMarkets = (network: Network | undefined) => {
         return {
           ...y,
           product: 'Variable Lend',
-          link: `${PRODUCTS.LEND_VARIABLE}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LEND_VARIABLE}/${network}/${y.underlying.symbol}`,
         };
       }),
     variableBorrow: nonLeveragedYields
@@ -150,7 +150,7 @@ export const useAllMarkets = (network: Network | undefined) => {
         return {
           ...y,
           product: 'Variable Borrow',
-          link: `${PRODUCTS.BORROW_VARIABLE}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.BORROW_VARIABLE}/${network}/${y.underlying.symbol}`,
         };
       }),
     vaultShares: nonLeveragedYields.filter(
@@ -162,7 +162,7 @@ export const useAllMarkets = (network: Network | undefined) => {
         return {
           ...y,
           product: 'Leveraged Vault',
-          link: `${PRODUCTS.LEVERAGED_VAULT}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LEVERAGED_VAULT}/${network}/${y.underlying.symbol}`,
         };
       }),
     leveragedLend: allYields
@@ -176,7 +176,7 @@ export const useAllMarkets = (network: Network | undefined) => {
         return {
           ...y,
           product: 'Leveraged Lend',
-          link: `${PRODUCTS.LEND_LEVERAGED}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LEND_LEVERAGED}/${network}/${y.underlying.symbol}`,
         };
       }),
     leveragedLiquidity: allYields
@@ -185,7 +185,7 @@ export const useAllMarkets = (network: Network | undefined) => {
         return {
           ...y,
           product: 'Leveraged Liquidity',
-          link: `${PRODUCTS.LIQUIDITY_LEVERAGED}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/${y.underlying.symbol}`,
         };
       }),
   };

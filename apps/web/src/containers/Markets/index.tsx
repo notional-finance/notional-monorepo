@@ -15,16 +15,17 @@ import {
   useMarketTableDropdowns,
 } from './hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
+import { useSelectedPortfolioNetwork } from '@notional-finance/notionable-hooks';
 import { MarketsMobileNav, MobileFilterOptions } from './components';
 
 export const Markets = () => {
   const theme = useTheme();
+  const network = useSelectedPortfolioNetwork();
   const [marketType, setMarketType] = useState<MARKET_TYPE>(MARKET_TYPE.EARN);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const buttonData = useButtonBar(setMarketType, marketType);
-  // TODO: replace this network here with a selector
   const { dropdownsData, currencyOptions, productOptions } =
-    useMarketTableDropdowns(marketType, Network.ArbitrumOne);
+    useMarketTableDropdowns(marketType, network || Network.ArbitrumOne);
 
   const { marketTableColumns, marketTableData, marketDataCSVFormatter } =
     useMarketsTable(marketType, currencyOptions, productOptions);
