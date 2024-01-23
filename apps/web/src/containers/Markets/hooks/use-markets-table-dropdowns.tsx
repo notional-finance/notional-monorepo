@@ -16,7 +16,7 @@ import { useTheme } from '@mui/material';
 
 export const useMarketTableDropdowns = (
   marketType: MARKET_TYPE,
-  network: Network
+  network: Network | undefined
 ) => {
   const theme = useTheme();
   const depositTokens = useUnderlyingTokens(network);

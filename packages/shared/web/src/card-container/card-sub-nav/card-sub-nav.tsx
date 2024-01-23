@@ -1,7 +1,7 @@
 import { styled, Box, useTheme, ThemeProvider } from '@mui/material';
 import { useLocation, useHistory } from 'react-router-dom';
 import { colors, NotionalTheme } from '@notional-finance/styles';
-import { useSelectedPortfolioNetwork } from '@notional-finance/notionable-hooks';
+import { useSelectedCardNetwork } from '../card-container';
 import { Button, LeverUpToggle } from '@notional-finance/mui';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -16,7 +16,7 @@ export const CardSubNav = () => {
   const theme = useTheme();
   const location = useLocation();
   const { pathname } = location;
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedCardNetwork();
   const themeLanding = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const history = useHistory();
   const leveredUp =

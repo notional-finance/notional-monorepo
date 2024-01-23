@@ -8,7 +8,7 @@ import {
   DataTable,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
-import { MARKET_TYPE, Network } from '@notional-finance/util';
+import { MARKET_TYPE } from '@notional-finance/util';
 import {
   useButtonBar,
   useMarketsTable,
@@ -25,7 +25,7 @@ export const Markets = () => {
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const buttonData = useButtonBar(setMarketType, marketType);
   const { dropdownsData, currencyOptions, productOptions } =
-    useMarketTableDropdowns(marketType, network || Network.ArbitrumOne);
+    useMarketTableDropdowns(marketType, network);
 
   const { marketTableColumns, marketTableData, marketDataCSVFormatter } =
     useMarketsTable(marketType, currencyOptions, productOptions);
