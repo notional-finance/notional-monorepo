@@ -34,14 +34,12 @@ export const ManageVault = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Adjust Borrow Maturity'} />,
-      buttons: rollMaturityOptions.map(
-        ({ label, link, totalAPY, onClick }, index) => (
-          <SideDrawerButton key={index} to={link} onClick={onClick}>
-            <ButtonText sx={{ display: 'flex', flex: 1 }}>{label}</ButtonText>
-            <ButtonData>{totalAPY}</ButtonData>
-          </SideDrawerButton>
-        )
-      ),
+      buttons: rollMaturityOptions.map(({ label, link, totalAPY }, index) => (
+        <SideDrawerButton key={index} to={link}>
+          <ButtonText sx={{ display: 'flex', flex: 1 }}>{label}</ButtonText>
+          <ButtonData>{totalAPY}</ButtonData>
+        </SideDrawerButton>
+      )),
     },
   ];
 

@@ -12,7 +12,6 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 export function useManageVault() {
   const {
     state: { vaultAddress, debtOptions, selectedNetwork },
-    updateState,
   } = useContext(VaultActionContext);
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
@@ -63,9 +62,6 @@ export function useManageVault() {
             label,
             link: `/vaults/${selectedNetwork}/${vaultAddress}/RollVaultPosition/${o.token.id}`,
             key: 'RollVaultPosition',
-            onClick: () => {
-              updateState({ debt: o.token });
-            },
             totalAPY: totalAPY
               ? `${formatNumberAsPercent(totalAPY)} Total APY`
               : undefined,

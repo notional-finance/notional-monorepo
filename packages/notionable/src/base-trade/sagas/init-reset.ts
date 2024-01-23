@@ -1,6 +1,6 @@
 import { Registry } from '@notional-finance/core-entities';
 import { filterEmpty } from '@notional-finance/util';
-import { Observable, pairwise, map, filter } from 'rxjs';
+import { Observable, pairwise, map, filter, distinctUntilChanged } from 'rxjs';
 import { BaseTradeState, VaultTradeState } from '../base-trade-store';
 
 export function resetOnTradeTypeChange(
@@ -51,6 +51,11 @@ export function resetOnTradeTypeChange(
 
 export function initVaultState(state$: Observable<VaultTradeState>) {
   return state$.pipe(
+    distinctUntilChanged(
+      (p, c) =>
+        p.vaultAddress === c.vaultAddress &&
+        p.selectedNetwork === c.selectedDepositToken
+    ),
     map(({ vaultAddress, selectedNetwork, isReady }) => {
       if (!vaultAddress || !selectedNetwork || isReady) return undefined;
       try {

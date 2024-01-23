@@ -152,6 +152,16 @@ const AllRoutes = () => {
             routeType="Card"
           />
           <AppLayoutRoute
+            path="/vaults/:selectedNetwork/:vaultAddress/:action/:selectedToken"
+            component={VaultView}
+            routeType="Transaction"
+          />
+          <AppLayoutRoute
+            path="/vaults/:selectedNetwork/:vaultAddress/:action"
+            component={VaultView}
+            routeType="Transaction"
+          />
+          <AppLayoutRoute
             path="/vaults/:selectedNetwork/:vaultAddress"
             component={VaultView}
             routeType="Transaction"

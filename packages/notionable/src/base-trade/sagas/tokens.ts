@@ -55,7 +55,10 @@ export function selectedPortfolioToken(state$: Observable<BaseTradeState>) {
         p.tradeType === c.tradeType
     ),
     filter(
-      ({ tradeType }) => tradeType === 'RepayDebt' || tradeType === 'Withdraw'
+      ({ tradeType }) =>
+        tradeType === 'RepayDebt' ||
+        tradeType === 'Withdraw' ||
+        tradeType === 'RollVaultPosition'
     ),
     map(({ selectedToken, selectedNetwork, tradeType }) => {
       if (!selectedToken || !selectedNetwork || !tradeType) return undefined;
@@ -75,6 +78,8 @@ export function selectedPortfolioToken(state$: Observable<BaseTradeState>) {
               ? tokens.getPrimeDebt(selected.network, selected.currencyId)
               : selected,
         };
+      } else if (tradeType === 'RollVaultPosition') {
+        return { debt: selected };
       } else {
         return undefined;
       }

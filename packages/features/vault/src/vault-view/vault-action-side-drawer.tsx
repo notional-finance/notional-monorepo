@@ -11,9 +11,13 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import { SideDrawerRouter } from '@notional-finance/trade';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
 import { useVaultPosition } from '@notional-finance/notionable-hooks';
+import { useParams } from 'react-router';
 
 export const VaultActionSideDrawer = () => {
   const context = useContext(VaultActionContext);
+  const { vaultAddress: vaultAddressParam } = useParams<{
+    vaultAddress?: string;
+  }>();
   const {
     state: {
       vaultAddress,
@@ -21,13 +25,12 @@ export const VaultActionSideDrawer = () => {
       defaultLeverageRatio,
       availableDebtTokens,
       availableCollateralTokens,
-      selectedDepositToken,
       riskFactorLimit,
       customizeLeverage,
       selectedNetwork,
     },
   } = context;
-  const loaded = deposit && deposit?.symbol === selectedDepositToken;
+  const loaded = vaultAddress && vaultAddressParam === vaultAddress;
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
     defaultLeverageRatio && !riskFactorLimit
       ? {
@@ -37,7 +40,7 @@ export const VaultActionSideDrawer = () => {
       : undefined;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
-  const currentPositionState = {
+  const currentPosition = {
     collateral: vaultPosition?.vault?.vaultShares?.token,
     debt: vaultPosition?.vault?.vaultDebt.token,
     riskFactorLimit: vaultPosition?.leverageRatio
@@ -101,6 +104,8 @@ export const VaultActionSideDrawer = () => {
           Component: RollMaturity,
           requiredState: {
             tradeType: 'RollVaultPosition',
+            depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
+            maxWithdraw: false,
           },
         },
         {
@@ -108,7 +113,7 @@ export const VaultActionSideDrawer = () => {
           Component: WithdrawVault,
           requiredState: {
             tradeType: 'WithdrawVault',
-            riskFactorLimit: currentPositionState.riskFactorLimit,
+            riskFactorLimit: currentPosition.riskFactorLimit,
           },
         },
       ]}

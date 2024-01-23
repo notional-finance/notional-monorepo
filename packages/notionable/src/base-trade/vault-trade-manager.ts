@@ -12,6 +12,7 @@ import {
   selectedVaultAdapter,
   defaultVaultLeverageRatio,
   vaultCapacity,
+  selectedPortfolioToken,
 } from './sagas';
 import { selectedAccount, selectedNetwork } from '../global';
 import { calculate } from './trade-calculation';
@@ -35,6 +36,7 @@ export function createVaultTradeManager(
     priorVaultAccountRisk(state$, account$),
     calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),
     availableTokens(state$, network$, account$),
+    selectedPortfolioToken(state$),
     initVaultState(state$),
     resetOnTradeTypeChange(state$, true)
   );
