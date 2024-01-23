@@ -7,6 +7,7 @@ import {
   RollMaturity,
   AdjustLeverage,
 } from '../side-drawers';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { SideDrawerRouter } from '@notional-finance/trade';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
@@ -23,6 +24,9 @@ export const VaultActionSideDrawer = () => {
       vaultAddress,
       deposit,
       defaultLeverageRatio,
+      availableDebtTokens,
+      availableCollateralTokens,
+      selectedDepositToken,
       riskFactorLimit,
       debt,
       collateral,

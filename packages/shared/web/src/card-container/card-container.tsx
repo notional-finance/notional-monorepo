@@ -7,6 +7,8 @@ import { CardSubNav } from './card-sub-nav/card-sub-nav';
 import { CardTable } from './card-table/card-table';
 import { CardMobileNav } from './card-mobile-nav/card-mobile-nav';
 import { LightningIcon } from '@notional-finance/icons';
+import { Network } from '@notional-finance/util';
+import { useParams } from 'react-router';
 
 export interface CardContainerProps {
   heading: MessageDescriptor;
@@ -16,6 +18,11 @@ export interface CardContainerProps {
   children?: React.ReactNode;
   leveraged?: boolean;
   sx?: SxProps;
+}
+
+export function useSelectedCardNetwork() {
+  const { selectedNetwork } = useParams<{ selectedNetwork: Network }>();
+  return selectedNetwork;
 }
 
 export function CardContainer({

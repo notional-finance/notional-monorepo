@@ -15,7 +15,6 @@ import {
   useAllMarkets,
   useAppReady,
   useFiat,
-  useSelectedNetwork,
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
@@ -229,8 +228,6 @@ export const LiquidityLeveragedCardView = () => {
   } = useAllMarkets(network);
   const { depositTokensWithPositions } = useLeveragedNTokenPositions(network);
   const allMaxAPYs = useMaxYield(network);
-
-  console.log({ leveragedLiquidity });
 
   // These are the default yields using prime debt
   const cardData = leveragedLiquidity

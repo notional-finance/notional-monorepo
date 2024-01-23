@@ -2,6 +2,11 @@ import { PRODUCTS } from '@notional-finance/util';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { useSelectedNetwork } from '@notional-finance/wallet';
 import {
+  CardContainer,
+  FeatureLoader,
+  useSelectedCardNetwork,
+} from '@notional-finance/shared-web';
+import {
   useThemeVariant,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
