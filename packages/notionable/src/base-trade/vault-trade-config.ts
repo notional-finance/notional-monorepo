@@ -2,6 +2,7 @@ import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { TransactionConfig, VaultTradeState } from './base-trade-store';
 import { ConfigurationClient } from '@notional-finance/core-entities';
 import {
+  AdjustLeverage,
   DepositVault,
   EnterVault,
   ExitVault,
@@ -154,8 +155,7 @@ export const VaultTradeConfiguration = {
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     calculateDebtOptions: true,
-    // TODO: change this txn builder...
-    transactionBuilder: EnterVault,
+    transactionBuilder: AdjustLeverage,
   } as TransactionConfig,
 
   /**

@@ -43,10 +43,6 @@ export const messages = {
       defaultMessage: '1. You will borrow at this maturity and fixed rate.',
       description: 'input label',
     },
-    leverage: {
-      defaultMessage: '2. Adjust Leverage (Optional)',
-      description: 'input label',
-    },
     confirm: {
       defaultMessage: 'Increase Vault Position',
       description: 'heading',
@@ -64,8 +60,7 @@ export const messages = {
       description: '',
     },
     helptext: {
-      defaultMessage:
-        'Withdraw from your vault position.',
+      defaultMessage: 'Withdraw from your vault position.',
       description: 'helptext',
     },
     inputLabel: {
@@ -126,8 +121,7 @@ export const messages = {
       description: 'heading',
     },
     helptext: {
-      defaultMessage:
-        'Roll your borrow position to a new maturity',
+      defaultMessage: 'Roll your borrow position to a new maturity',
       description: 'helptext',
     },
     maturity: {
@@ -136,10 +130,6 @@ export const messages = {
     },
     inputLabel: {
       defaultMessage: '2. Deposit to maintain your leverage ratio (Optional)',
-      description: 'input label',
-    },
-    leverage: {
-      defaultMessage: '3. Adjust Leverage (Optional)',
       description: 'input label',
     },
     confirm: {
@@ -154,7 +144,7 @@ export const messages = {
   AdjustVaultLeverage: defineMessages({
     heading: { defaultMessage: 'Adjust Leverage', description: '' },
     leverage: {
-      defaultMessage: '1. Adjust Leverage',
+      defaultMessage: 'Adjust Your Leverage',
       description: '',
     },
     helptext: {
@@ -324,7 +314,8 @@ export const messages = {
       description: 'error message',
     },
     blockedGeoActionHelptext: {
-      defaultMessage: 'Leveraged products are not available in the US or to VPN users. Non-Leveraged products are available to all users globally.',
+      defaultMessage:
+        'Leveraged products are not available in the US or to VPN users. Non-Leveraged products are available to all users globally.',
       description: 'error message',
     },
   }),
