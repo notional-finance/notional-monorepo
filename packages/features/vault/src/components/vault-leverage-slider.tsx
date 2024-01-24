@@ -1,4 +1,3 @@
-import { CountUp, LabelValue } from '@notional-finance/mui';
 import { MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
 import { TransactionCostCaption } from './transaction-cost-caption';
@@ -17,39 +16,17 @@ export const VaultLeverageSlider = ({
   context: VaultContext;
 }) => {
   const {
-    state: {
-      deposit,
-      debtFee,
-      collateralFee,
-      netRealizedDebtBalance,
-      underMinAccountBorrow,
-      minBorrowSize,
-    },
+    state: { deposit, debtFee, collateralFee, netRealizedDebtBalance },
   } = context;
-  const { leverageRatioError, isDeleverage } = useVaultActionErrors();
+  const { leverageRatioError, isDeleverage, underMinAccountBorrowError } =
+    useVaultActionErrors();
   const transactionCosts = deposit
     ? (debtFee?.toToken(deposit) || TokenBalance.zero(deposit)).add(
         collateralFee?.toToken(deposit) || TokenBalance.zero(deposit)
       )
     : undefined;
 
-  const borrowAmount = (
-    <LabelValue inline error={underMinAccountBorrow}>
-      <CountUp
-        value={netRealizedDebtBalance?.abs().toFloat() || 0}
-        suffix={` ${netRealizedDebtBalance?.symbol || ''}`}
-        decimals={3}
-      />
-    </LabelValue>
-  );
-
-  const errorMsg =
-    leverageRatioError ||
-    (underMinAccountBorrow
-      ? Object.assign(messages.error.underMinBorrow, {
-          values: { minBorrowSize, borrowAmount },
-        })
-      : undefined);
+  const errorMsg = leverageRatioError || underMinAccountBorrowError;
 
   return (
     <LeverageSlider
