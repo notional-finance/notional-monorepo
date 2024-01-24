@@ -124,10 +124,10 @@ const DrawerRoute = ({
         const r = getComparisonKey(k, requiredState);
         return s === r;
       });
-    if (allStateMatches) return;
+    if (allStateMatches || state['pathname'] !== path) return;
 
     updateState(requiredState);
-  }, [updateState, requiredState, state]);
+  }, [updateState, requiredState, state, path]);
 
   return (
     <Route path={path} exact={false}>
