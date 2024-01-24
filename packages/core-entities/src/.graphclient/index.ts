@@ -8799,7 +8799,7 @@ export const HistoricalOracleValuesDocument = gql`
       where: {timestamp_gt: $minTimestamp}
       orderBy: timestamp
       orderDirection: desc
-      first: 200
+      first: 500
     ) {
       totalSupply
       blockNumber

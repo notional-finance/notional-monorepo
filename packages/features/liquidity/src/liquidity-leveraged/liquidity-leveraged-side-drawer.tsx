@@ -118,7 +118,17 @@ export const LiquidityLeveragedSideDrawer = () => {
             tradeType: 'RollDebt',
             // Always roll the entire debt when doing roll debt from this
             // screen. Partial rolls will break up the grouping.
-            maxWithdraw: true,
+            ...(currentPosition?.debt.balance.tokenType === 'PrimeDebt'
+              ? {
+                  collateral: currentPosition?.debt.balance.toPrimeCash().token,
+                  collateralBalance: currentPosition?.debt.balance
+                    .toPrimeCash()
+                    .neg(),
+                }
+              : {
+                  collateral: currentPosition?.debt.balance.token,
+                  collateralBalance: currentPosition?.debt.balance.neg(),
+                }),
             customizeLeverage: true,
           },
         },

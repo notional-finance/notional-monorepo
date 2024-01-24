@@ -3,20 +3,22 @@ import { VaultActionContext } from '../vault';
 import {
   ManageVault,
   CreateVaultPosition,
-  DepositCollateral,
-  IncreaseVaultPosition,
   WithdrawVault,
-  WithdrawAndRepayDebt,
   RollMaturity,
+  AdjustLeverage,
 } from '../side-drawers';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { SideDrawerRouter } from '@notional-finance/trade';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
 import { useVaultPosition } from '@notional-finance/notionable-hooks';
+import { useParams } from 'react-router';
 
 export const VaultActionSideDrawer = () => {
   const context = useContext(VaultActionContext);
+  const { vaultAddress: vaultAddressParam } = useParams<{
+    vaultAddress?: string;
+  }>();
   const {
     state: {
       vaultAddress,
@@ -24,13 +26,12 @@ export const VaultActionSideDrawer = () => {
       defaultLeverageRatio,
       availableDebtTokens,
       availableCollateralTokens,
-      selectedDepositToken,
       riskFactorLimit,
       customizeLeverage,
       selectedNetwork,
     },
   } = context;
-  const loaded = deposit && deposit?.symbol === selectedDepositToken;
+  const loaded = vaultAddress && vaultAddressParam === vaultAddress;
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
     defaultLeverageRatio && !riskFactorLimit
       ? {
@@ -40,7 +41,7 @@ export const VaultActionSideDrawer = () => {
       : undefined;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
-  const currentPositionState = {
+  const currentPosition = {
     collateral: vaultPosition?.vault?.vaultShares?.token,
     debt: vaultPosition?.vault?.vaultDebt.token,
     riskFactorLimit: vaultPosition?.leverageRatio
@@ -82,6 +83,15 @@ export const VaultActionSideDrawer = () => {
           },
         },
         {
+          isRootDrawer: true,
+          slug: 'IncreaseVaultPosition',
+          Component: CreateVaultPosition,
+          requiredState: {
+            tradeType: 'IncreaseVaultPosition',
+            riskFactorLimit: defaultRiskLimit,
+          },
+        },
+        {
           slug: 'Manage',
           Component: ManageVault,
           requiredState: {
@@ -91,18 +101,12 @@ export const VaultActionSideDrawer = () => {
           },
         },
         {
-          slug: 'DepositVaultCollateral',
-          Component: DepositCollateral,
+          slug: 'AdjustLeverage',
+          Component: AdjustLeverage,
           requiredState: {
-            tradeType: 'DepositVaultCollateral',
-          },
-        },
-        {
-          slug: 'IncreaseVaultPosition',
-          Component: IncreaseVaultPosition,
-          requiredState: {
-            tradeType: 'IncreaseVaultPosition',
-            riskFactorLimit: defaultRiskLimit,
+            tradeType: 'AdjustVaultLeverage',
+            depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
+            riskFactorLimit: currentPosition.riskFactorLimit,
           },
         },
         {
@@ -110,15 +114,8 @@ export const VaultActionSideDrawer = () => {
           Component: RollMaturity,
           requiredState: {
             tradeType: 'RollVaultPosition',
-          },
-        },
-        {
-          slug: 'WithdrawAndRepayVault',
-          Component: WithdrawAndRepayDebt,
-          requiredState: {
-            tradeType: 'WithdrawAndRepayVault',
             depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
-            riskFactorLimit: defaultRiskLimit,
+            maxWithdraw: false,
           },
         },
         {
@@ -126,7 +123,7 @@ export const VaultActionSideDrawer = () => {
           Component: WithdrawVault,
           requiredState: {
             tradeType: 'WithdrawVault',
-            riskFactorLimit: currentPositionState.riskFactorLimit,
+            riskFactorLimit: currentPosition.riskFactorLimit,
           },
         },
       ]}

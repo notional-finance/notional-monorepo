@@ -1,4 +1,5 @@
 import {
+  INTERNAL_TOKEN_PRECISION,
   Network,
   RATE_PRECISION,
   ZERO_ADDRESS,
@@ -119,10 +120,15 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     return (
       o?.historicalRates.map(({ timestamp, rate, tvlUnderlying: tvl }) => {
         const underlying = tokens.getTokenByID(token.network, o.base);
-        const tvlUnderlying = tvl
-          ? TokenBalance.from(BigNumber.from(tvl), token)
-          : undefined;
         let tvlUSD: TokenBalance | undefined;
+        const precision = BigNumber.from(10).pow(underlying.decimals);
+        const rateDecimals = BigNumber.from(10).pow(o.decimals);
+        const tvlUnderlying = tvl
+          ? TokenBalance.from(
+              BigNumber.from(tvl).mul(precision).div(INTERNAL_TOKEN_PRECISION),
+              underlying
+            )
+          : undefined;
 
         try {
           tvlUSD = tvlUnderlying
@@ -135,7 +141,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
           timestamp,
           // Rate will be quoted in underlying terms
           priceInUnderlying: TokenBalance.from(
-            BigNumber.from(rate),
+            BigNumber.from(rate).mul(precision).div(rateDecimals),
             underlying
           ),
           tvlUSD,

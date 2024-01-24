@@ -9,14 +9,11 @@ import { TokenBalance } from '@notional-finance/core-entities';
 
 export const VaultLeverageSlider = ({
   inputLabel,
-  sliderError,
   sliderInfo,
   context,
 }: {
   inputLabel: MessageDescriptor;
-  sliderError?: MessageDescriptor;
   sliderInfo?: MessageDescriptor;
-  repayDebt?: boolean;
   context: VaultContext;
 }) => {
   const {
@@ -25,12 +22,11 @@ export const VaultLeverageSlider = ({
       debtFee,
       collateralFee,
       netRealizedDebtBalance,
-      tradeType,
       underMinAccountBorrow,
       minBorrowSize,
     },
   } = context;
-  const { leverageRatioError } = useVaultActionErrors();
+  const { leverageRatioError, isDeleverage } = useVaultActionErrors();
   const transactionCosts = deposit
     ? (debtFee?.toToken(deposit) || TokenBalance.zero(deposit)).add(
         collateralFee?.toToken(deposit) || TokenBalance.zero(deposit)
@@ -48,7 +44,6 @@ export const VaultLeverageSlider = ({
   );
 
   const errorMsg =
-    sliderError ||
     leverageRatioError ||
     (underMinAccountBorrow
       ? Object.assign(messages.error.underMinBorrow, {
@@ -62,7 +57,7 @@ export const VaultLeverageSlider = ({
       infoMsg={sliderInfo}
       errorMsg={errorMsg}
       showMinMax
-      isDeleverage={tradeType === 'WithdrawAndRepayVault'}
+      isDeleverage={isDeleverage}
       cashBorrowed={netRealizedDebtBalance}
       bottomCaption={
         <TransactionCostCaption

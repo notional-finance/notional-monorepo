@@ -151,6 +151,22 @@ export const messages = {
       description: 'tab label',
     },
   }),
+  AdjustVaultLeverage: defineMessages({
+    heading: { defaultMessage: 'Adjust Leverage', description: '' },
+    leverage: {
+      defaultMessage: '1. Adjust Leverage',
+      description: '',
+    },
+    helptext: {
+      defaultMessage:
+        'Increase or decrease the leverage for your current position.',
+      description: '',
+    },
+    belowMinLeverageError: {
+      defaultMessage: 'Below Minimum Leverage for Vault',
+      description: 'error message',
+    },
+  }),
   DepositVaultCollateral: defineMessages({
     heading: { defaultMessage: 'Deposit Collateral', description: '' },
     inputLabel: {

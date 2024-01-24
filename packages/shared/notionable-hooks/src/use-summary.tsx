@@ -30,6 +30,7 @@ import { useAllMarkets } from './use-market';
 import { useFiat } from './use-user-settings';
 import { colors } from '@notional-finance/styles';
 import { useTheme } from '@mui/material';
+import { useVaultPosition } from './use-account';
 
 interface DetailItem {
   label: React.ReactNode;
@@ -195,7 +196,7 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
     netRealizedCollateralBalance,
     depositBalance,
     tradeType,
-    selectedNetwork
+    selectedNetwork,
   } = state;
   const intl = useIntl();
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
@@ -841,13 +842,15 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 
 export function useVaultLiquidationRisk(state: VaultTradeState) {
   const {
-    priorAccountRisk,
     postAccountRisk,
     netWorth,
     liquidationPrice,
     borrowAPY,
     totalAPY,
+    vaultAddress,
+    selectedNetwork,
   } = state;
+  const currentPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
   const baseCurrency = useFiat();
@@ -856,14 +859,17 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
     {
       ...totalAPY,
       label: intl.formatMessage({ defaultMessage: 'Total APY' }),
-      current: formatNumberAsPercentWithUndefined(totalAPY?.current, '-'),
+      current: formatNumberAsPercentWithUndefined(
+        currentPosition?.totalAPY,
+        '-'
+      ),
       updated: formatNumberAsPercentWithUndefined(totalAPY?.updated, '-'),
     },
     {
       ...netWorth,
       label: intl.formatMessage({ defaultMessage: 'Net Worth' }),
       current:
-        netWorth?.current
+        currentPosition?.netWorth
           ?.toFiat(baseCurrency)
           .toDisplayStringWithSymbol(3, true) || '-',
       updated:
@@ -874,7 +880,7 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
     {
       ...borrowAPY,
       label: intl.formatMessage({ defaultMessage: 'Borrow APY' }),
-      current: formatNumberAsPercentWithUndefined(borrowAPY?.current, '-'),
+      current: formatNumberAsPercentWithUndefined(currentPosition?.borrowAPY, '-'),
       updated: formatNumberAsPercentWithUndefined(borrowAPY?.updated, '-'),
     },
   ];
@@ -889,8 +895,7 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
     onlyCurrent,
     tooRisky: postAccountRisk?.aboveMaxLeverageRatio || false,
     priorAccountNoRisk:
-      priorAccountRisk === undefined ||
-      priorAccountRisk?.leverageRatio === null,
+      currentPosition === undefined || currentPosition?.leverageRatio === null,
     postAccountNoRisk:
       postAccountRisk === undefined || postAccountRisk?.leverageRatio === null,
     tableData: [...factors, ...liquidationPrices],

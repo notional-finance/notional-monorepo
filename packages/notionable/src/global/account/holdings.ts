@@ -223,6 +223,7 @@ export function calculateVaultHoldings(account: AccountDefinition) {
     return {
       vault: v,
       liquidationPrices: v.getAllLiquidationPrices(),
+      netWorth: v.netWorth(),
       totalAPY,
       borrowAPY,
       strategyAPY,

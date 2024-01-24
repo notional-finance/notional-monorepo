@@ -142,6 +142,11 @@ const AllRoutes = () => {
             routeType="Card"
           />
           <AppLayoutRoute
+            path="/liquidity-leveraged/:selectedNetwork/:action/:selectedDepositToken/:selectedToken"
+            component={LiquidityLeveraged}
+            routeType="Transaction"
+          />
+          <AppLayoutRoute
             path="/liquidity-leveraged/:selectedNetwork/:action/:selectedDepositToken"
             component={LiquidityLeveraged}
             routeType="Transaction"
@@ -150,6 +155,16 @@ const AllRoutes = () => {
             path="/liquidity-leveraged/:selectedNetwork"
             component={LiquidityLeveragedCardView}
             routeType="Card"
+          />
+          <AppLayoutRoute
+            path="/vaults/:selectedNetwork/:vaultAddress/:action/:selectedToken"
+            component={VaultView}
+            routeType="Transaction"
+          />
+          <AppLayoutRoute
+            path="/vaults/:selectedNetwork/:vaultAddress/:action"
+            component={VaultView}
+            routeType="Transaction"
           />
           <AppLayoutRoute
             path="/vaults/:selectedNetwork/:vaultAddress"
