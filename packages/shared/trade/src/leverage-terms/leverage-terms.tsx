@@ -18,7 +18,6 @@ import { BorrowTermsDropdown } from '../borrow-terms-dropdown/borrow-terms-dropd
 import { LeverageSlider } from '../leverage-slider/leverage-slider';
 import { useMaxYield } from '../hooks';
 import { useHistory } from 'react-router';
-import { useSelectedCardNetwork } from '@notional-finance/shared-web';
 
 interface TermsProps {
   context: BaseTradeContext;
@@ -130,12 +129,11 @@ export const ManageTerms = ({
   isVault,
 }: ManageTermsProps) => {
   const history = useHistory();
-  const network = useSelectedCardNetwork();
   const {
-    state: { riskFactorLimit, deposit, debt },
+    state: { riskFactorLimit, deposit, debt, selectedNetwork },
   } = context;
   const { currentPosition } = useLeveragedNTokenPositions(
-    network,
+    selectedNetwork,
     deposit?.symbol
   );
 
@@ -267,16 +265,6 @@ const TermsBox = ({
             ) : (
               <FormattedMessage defaultMessage={'Fixed'} />
             )}
-          </LabelValue>
-        </Box>
-        <Box>
-          <Body
-            uppercase
-            gutter="default"
-            msg={defineMessage({ defaultMessage: 'Risk' })}
-          />
-          <LabelValue>
-            <FormattedMessage defaultMessage={'Low'} />
           </LabelValue>
         </Box>
       </BoundedBox>

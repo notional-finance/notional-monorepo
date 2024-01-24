@@ -25,13 +25,13 @@ function getDefaultTokens(
   tradeType?: TradeType | VaultTradeType | undefined
   ) {  
   if(tradeType === 'LendFixed' && category === 'Collateral') {
-    return availableTokens[0]?.symbol
+    return availableTokens[0]
   } else if(tradeType === 'BorrowFixed' && category === 'Debt') {
-    return availableTokens[0]?.symbol
+    return availableTokens[0]
   } else if(tradeType === 'LeveragedNToken' && category === 'Debt') {
-    return availableTokens.find((t) => t.tokenType === 'PrimeDebt')?.symbol
+    return availableTokens.find((t) => t.tokenType === 'PrimeDebt')
   } else if(tradeType === 'CreateVaultPosition') {
-    return availableTokens.find((t) => t.maturity === PRIME_CASH_VAULT_MATURITY)?.symbol
+    return availableTokens.find((t) => t.maturity === PRIME_CASH_VAULT_MATURITY)
   } else {
     return undefined
   }
@@ -47,8 +47,7 @@ function getDefaultTokens(
     if (availableTokens.length === 1){
       return availableTokens[0]
     } else if(selectedToken === undefined) {
-      const defaultToken = getDefaultTokens(availableTokens, category, tradeType)
-      return availableTokens.find((t) => t.symbol === defaultToken);
+      return getDefaultTokens(availableTokens, category, tradeType)
     } else {
       return availableTokens.find((t) => t.symbol === selectedToken);
     }
