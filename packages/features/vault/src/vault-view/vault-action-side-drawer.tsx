@@ -118,32 +118,6 @@ export const VaultActionSideDrawer = () => {
             riskFactorLimit: currentPosition.riskFactorLimit,
           },
         },
-
-        // REMOVED ===================================================
-        // {
-        //   slug: 'DepositVaultCollateral',
-        //   Component: DepositCollateral,
-        //   requiredState: {
-        //     tradeType: 'DepositVaultCollateral',
-        //   },
-        // },
-        // {
-        //   slug: 'IncreaseVaultPosition',
-        //   Component: IncreaseVaultPosition,
-        //   requiredState: {
-        //     tradeType: 'IncreaseVaultPosition',
-        //     riskFactorLimit: defaultRiskLimit,
-        //   },
-        // },
-        // {
-        //   slug: 'WithdrawAndRepayVault',
-        //   Component: WithdrawAndRepayDebt,
-        //   requiredState: {
-        //     tradeType: 'WithdrawAndRepayVault',
-        //     depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
-        //     riskFactorLimit: defaultRiskLimit,
-        //   },
-        // },
       ]}
     />
   );
