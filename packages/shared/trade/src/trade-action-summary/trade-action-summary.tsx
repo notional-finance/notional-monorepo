@@ -43,8 +43,7 @@ export function TradeActionSummary({
     vaultConfig,
     riskFactorLimit,
     vaultAddress,
-    customizeLeverage,
-    selectedNetwork
+    selectedNetwork,
   } = state;
   const isVault = !!vaultAddress;
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
@@ -131,7 +130,7 @@ export function TradeActionSummary({
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}
-        {isLeveraged && customizeLeverage && (
+        {isLeveraged && (
           <LeverageInfoRow
             assetSymbol={title}
             assetAPY={assetAPY}

@@ -48,11 +48,13 @@ export const CreateVaultPosition = () => {
           {vaultPosition ? (
             <ManageTerms
               context={context}
+              isVault={true}
               linkString={`/vaults/${selectedNetwork}/${vaultAddress}/Manage`}
             />
           ) : (
             <CustomTerms
               context={context}
+              hideToggle
               CustomLeverageSlider={VaultLeverageSlider}
             />
           )}

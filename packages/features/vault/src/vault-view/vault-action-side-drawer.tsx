@@ -27,7 +27,6 @@ export const VaultActionSideDrawer = () => {
       availableDebtTokens,
       availableCollateralTokens,
       riskFactorLimit,
-      customizeLeverage,
       selectedNetwork,
     },
   } = context;
@@ -68,17 +67,27 @@ export const VaultActionSideDrawer = () => {
             tradeType: 'CreateVaultPosition',
             riskFactorLimit: defaultRiskLimit,
             maxWithdraw: false,
-            debt:
-              loaded && !customizeLeverage
-                ? availableDebtTokens?.find(
-                    (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
-                  )
-                : undefined,
-            collateral:
-              loaded && !customizeLeverage
-                ? availableCollateralTokens?.find(
-                    (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
-                  )
+            debt: loaded
+              ? availableDebtTokens?.find(
+                  (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
+                )
+              : undefined,
+            collateral: loaded
+              ? availableCollateralTokens?.find(
+                  (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
+                )
+              : undefined,
+          },
+        },
+        {
+          isRootDrawer: true,
+          slug: 'IncreaseVaultPosition',
+          Component: CreateVaultPosition,
+          requiredState: {
+            tradeType: 'IncreaseVaultPosition',
+            riskFactorLimit:
+              loaded && vaultPosition && currentPositionState.riskFactorLimit
+                ? currentPositionState.riskFactorLimit
                 : undefined,
           },
         },
@@ -127,6 +136,32 @@ export const VaultActionSideDrawer = () => {
             riskFactorLimit: currentPosition.riskFactorLimit,
           },
         },
+
+        // REMOVED ===================================================
+        // {
+        //   slug: 'DepositVaultCollateral',
+        //   Component: DepositCollateral,
+        //   requiredState: {
+        //     tradeType: 'DepositVaultCollateral',
+        //   },
+        // },
+        // {
+        //   slug: 'IncreaseVaultPosition',
+        //   Component: IncreaseVaultPosition,
+        //   requiredState: {
+        //     tradeType: 'IncreaseVaultPosition',
+        //     riskFactorLimit: defaultRiskLimit,
+        //   },
+        // },
+        // {
+        //   slug: 'WithdrawAndRepayVault',
+        //   Component: WithdrawAndRepayDebt,
+        //   requiredState: {
+        //     tradeType: 'WithdrawAndRepayVault',
+        //     depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
+        //     riskFactorLimit: defaultRiskLimit,
+        //   },
+        // },
       ]}
     />
   );
