@@ -128,7 +128,7 @@ export const AreaChart = ({
       >
         <ComposedChart
           data={areaChartData}
-          margin={{ right: 30, left: 20, bottom: 30 }}
+          margin={{ right: 10, left: 30, bottom: 30 }}
         >
           {showCartesianGrid && (
             <CartesianGrid

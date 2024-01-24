@@ -9,20 +9,50 @@ import {
 import {
   BaseTradeState,
   TradeState,
+  TradeType,
   VaultTradeState,
+  VaultTradeType,
 } from '../base-trade-store';
 import { selectedAccount, selectedNetwork } from '../../global';
-import { getNowSeconds, filterEmpty } from '@notional-finance/util';
+import { getNowSeconds, filterEmpty, PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { getTradeConfig } from '../trade-calculation';
 
-/** Ensures that tokens are automatically selected or cleared when they change */
-function getSelectedToken(
+
+
+function getDefaultTokens(    
   availableTokens: TokenDefinition[],
-  selectedToken: string | undefined
-) {
-  if (availableTokens.length === 1) return availableTokens[0];
-  return availableTokens.find((t) => t.symbol === selectedToken);
+  category: Category,
+  tradeType?: TradeType | VaultTradeType | undefined
+  ) {  
+  if(tradeType === 'LendFixed' && category === 'Collateral') {
+    return availableTokens[0]
+  } else if(tradeType === 'BorrowFixed' && category === 'Debt') {
+    return availableTokens[0]
+  } else if(tradeType === 'LeveragedNToken' && category === 'Debt') {
+    return availableTokens.find((t) => t.tokenType === 'PrimeDebt')
+  } else if(tradeType === 'CreateVaultPosition') {
+    return availableTokens.find((t) => t.maturity === PRIME_CASH_VAULT_MATURITY)
+  } else {
+    return undefined
+  }
 }
+
+/** Ensures that tokens are automatically selected or cleared when they change */
+  function getSelectedToken(
+    availableTokens: TokenDefinition[],
+    selectedToken: string | undefined,
+    category: Category,
+    tradeType?: TradeType | VaultTradeType | undefined,
+  ) {  
+    if (availableTokens.length === 1){
+      return availableTokens[0]
+    } else if(selectedToken === undefined) {
+      return getDefaultTokens(availableTokens, category, tradeType)
+    } else {
+      return availableTokens.find((t) => t.symbol === selectedToken);
+    }
+  }
+
 
 export type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -125,9 +155,11 @@ export function availableTokens(
             ? depositFilter(t, account, s, listedTokens)
             : !!t.currencyId
         );
+
       const deposit = getSelectedToken(
         availableDepositTokens,
-        s.selectedDepositToken || s.deposit?.symbol
+        s.selectedDepositToken || s.deposit?.symbol,
+        'Deposit'
       );
       const newState = Object.assign(s, { deposit });
 
@@ -171,11 +203,12 @@ export function availableTokens(
           s.availableDebtTokens?.map((t) => t.id).join(':') ||
         availableDepositTokens.map((t) => t.id).join(':') !==
           s.availableDepositTokens?.map((t) => t.id).join(':');
-
-      const debt = getSelectedToken(availableDebtTokens, s.debt?.symbol);
+      const debt = getSelectedToken(availableDebtTokens, s.debt?.symbol, 'Debt', s.tradeType);
       const collateral = getSelectedToken(
         availableCollateralTokens,
-        s.collateral?.symbol
+        s.collateral?.symbol,
+        'Collateral',
+        s.tradeType
       );
 
       return hasChanged

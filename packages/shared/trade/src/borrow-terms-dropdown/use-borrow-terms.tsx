@@ -29,13 +29,14 @@ export const useBorrowTerms = (
       collateralOptions,
       riskFactorLimit,
       deposit,
-      selectedNetwork
+      selectedNetwork,
     },
     updateState,
   } = context;
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const spotMaturityData = useSpotMaturityData(
-    deposit ? availableDebtTokens : [], selectedNetwork
+    deposit ? availableDebtTokens : [],
+    selectedNetwork
   );
   const isVault = isVaultTrade(tradeType);
 
@@ -130,9 +131,5 @@ export const useBorrowTerms = (
     [availableCollateralTokens, availableDebtTokens, updateState, isVault]
   );
 
-  const defaultDebtOption = isVault
-    ? borrowOptions.find((data) => data?.token?.symbol.includes('open'))
-    : borrowOptions.find((data) => data?.token?.tokenType === 'PrimeDebt');
-
-  return { borrowOptions, onSelect, defaultDebtOption };
+  return { borrowOptions, onSelect };
 };

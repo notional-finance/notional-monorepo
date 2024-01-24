@@ -13,22 +13,28 @@ import {
   formatLeverageRatio,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
+import { useLeveragedNTokenPositions } from '../hooks';
 import { BorrowTermsDropdown } from '../borrow-terms-dropdown/borrow-terms-dropdown';
 import { LeverageSlider } from '../leverage-slider/leverage-slider';
 import { useMaxYield } from '../hooks';
 import { useHistory } from 'react-router';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
 interface TermsProps {
   context: BaseTradeContext;
   CustomLeverageSlider?: typeof LeverageSlider;
+  hideToggle?: boolean;
 }
 
 interface ManageTermsProps extends TermsProps {
   linkString: string;
+  isVault?: boolean;
 }
 
-export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
+export const CustomTerms = ({
+  context,
+  CustomLeverageSlider,
+  hideToggle = false,
+}: TermsProps) => {
   const theme = useTheme();
   const {
     state: { deposit },
@@ -37,7 +43,7 @@ export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
   return (
     <Terms
       inputLabel={defineMessage({ defaultMessage: '2. Select Borrow Terms' })}
-      hasPosition={false}
+      hasPosition={hideToggle}
       context={context}
     >
       <BorrowTermsDropdown context={context} />
@@ -102,7 +108,7 @@ export const DefaultTerms = ({ context }: TermsProps) => {
               main
               msg={defineMessage({ defaultMessage: 'Customize' })}
             />
-            <Body>
+            <Body sx={{ textWrap: 'nowrap' }}>
               <FormattedMessage
                 defaultMessage={'Up to {max} APY'}
                 values={{
@@ -117,21 +123,29 @@ export const DefaultTerms = ({ context }: TermsProps) => {
   );
 };
 
-export const ManageTerms = ({ context, linkString }: ManageTermsProps) => {
+export const ManageTerms = ({
+  context,
+  linkString,
+  isVault,
+}: ManageTermsProps) => {
   const history = useHistory();
   const {
-    state: { riskFactorLimit, debt },
+    state: { riskFactorLimit, deposit, debt, selectedNetwork },
   } = context;
-
-  const borrowType =
-    debt?.maturity === undefined || debt?.maturity === PRIME_CASH_VAULT_MATURITY
-      ? 'Variable'
-      : 'Fixed';
+  const { currentPosition } = useLeveragedNTokenPositions(
+    selectedNetwork,
+    deposit?.symbol
+  );
 
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)
       : 0;
+  const borrowTypeVaults = debt?.symbol.includes('fixed')
+    ? 'Fixed'
+    : 'Variable';
+  const borrowTypeLeveragedLiquidity =
+    currentPosition?.debt?.tokenType === 'fCash' ? 'Fixed' : 'Variable';
 
   return (
     <Terms
@@ -144,7 +158,7 @@ export const ManageTerms = ({ context, linkString }: ManageTermsProps) => {
       <TermsBox
         hasPosition={true}
         leverageRatio={leverageRatio}
-        borrowType={borrowType}
+        borrowType={isVault ? borrowTypeVaults : borrowTypeLeveragedLiquidity}
         actionClick={() => history.push(linkString)}
         actionBody={
           <Box sx={{ alignItems: 'center', display: 'flex' }}>
@@ -251,16 +265,6 @@ const TermsBox = ({
             ) : (
               <FormattedMessage defaultMessage={'Fixed'} />
             )}
-          </LabelValue>
-        </Box>
-        <Box>
-          <Body
-            uppercase
-            gutter="default"
-            msg={defineMessage({ defaultMessage: 'Risk' })}
-          />
-          <LabelValue>
-            <FormattedMessage defaultMessage={'Low'} />
           </LabelValue>
         </Box>
       </BoundedBox>

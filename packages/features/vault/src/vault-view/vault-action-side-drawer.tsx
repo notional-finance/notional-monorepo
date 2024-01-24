@@ -7,7 +7,6 @@ import {
   RollMaturity,
   AdjustLeverage,
 } from '../side-drawers';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { SideDrawerRouter } from '@notional-finance/trade';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
@@ -24,10 +23,9 @@ export const VaultActionSideDrawer = () => {
       vaultAddress,
       deposit,
       defaultLeverageRatio,
-      availableDebtTokens,
-      availableCollateralTokens,
       riskFactorLimit,
-      customizeLeverage,
+      debt,
+      collateral,
       selectedNetwork,
     },
   } = context;
@@ -68,18 +66,8 @@ export const VaultActionSideDrawer = () => {
             tradeType: 'CreateVaultPosition',
             riskFactorLimit: defaultRiskLimit,
             maxWithdraw: false,
-            debt:
-              loaded && !customizeLeverage
-                ? availableDebtTokens?.find(
-                    (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
-                  )
-                : undefined,
-            collateral:
-              loaded && !customizeLeverage
-                ? availableCollateralTokens?.find(
-                    (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
-                  )
-                : undefined,
+            debt: loaded ? debt : undefined,
+            collateral: loaded ? collateral : undefined,
           },
         },
         {

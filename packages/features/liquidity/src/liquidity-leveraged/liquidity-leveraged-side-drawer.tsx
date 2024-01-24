@@ -26,7 +26,6 @@ export const LiquidityLeveragedSideDrawer = () => {
     state: {
       customizeLeverage,
       debt,
-      availableDebtTokens,
       defaultLeverageRatio,
       deposit,
       riskFactorLimit,
@@ -65,11 +64,7 @@ export const LiquidityLeveragedSideDrawer = () => {
           Component: CreateOrIncreasePosition,
           requiredState: {
             tradeType: 'LeveragedNToken',
-            debt: loaded
-              ? customizeLeverage
-                ? debt
-                : availableDebtTokens?.find((t) => t.tokenType === 'PrimeDebt')
-              : undefined,
+            debt: loaded ? debt : undefined,
             riskFactorLimit:
               loaded && deposit && defaultLeverageRatio && !customizeLeverage
                 ? {

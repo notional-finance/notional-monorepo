@@ -8,7 +8,6 @@ import { useVaultActionErrors } from '../hooks';
 import {
   DepositInput,
   CustomTerms,
-  DefaultTerms,
   ManageTerms,
 } from '@notional-finance/trade';
 import { messages } from '../messages';
@@ -20,7 +19,7 @@ export const CreateVaultPosition = () => {
   const { currencyInputRef } = useCurrencyInputRef();
   const { inputErrorMsg } = useVaultActionErrors();
   const {
-    state: { vaultAddress, customizeLeverage, selectedNetwork },
+    state: { vaultAddress, selectedNetwork },
   } = context;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
@@ -49,15 +48,15 @@ export const CreateVaultPosition = () => {
           {vaultPosition ? (
             <ManageTerms
               context={context}
+              isVault={true}
               linkString={`/vaults/${selectedNetwork}/${vaultAddress}/Manage`}
             />
-          ) : customizeLeverage ? (
+          ) : (
             <CustomTerms
               context={context}
+              hideToggle
               CustomLeverageSlider={VaultLeverageSlider}
             />
-          ) : (
-            <DefaultTerms context={context} />
           )}
         </VaultSideDrawer>
       </Box>

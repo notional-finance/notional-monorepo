@@ -3,12 +3,10 @@ import { TransactionConfig, VaultTradeState } from './base-trade-store';
 import { ConfigurationClient } from '@notional-finance/core-entities';
 import {
   AdjustLeverage,
-  DepositVault,
   EnterVault,
   ExitVault,
   RollVault,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
-  calculateVaultDeposit,
   calculateVaultRoll,
 } from '@notional-finance/transaction';
 import {
@@ -93,6 +91,7 @@ export const VaultTradeConfiguration = {
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     calculateDebtOptions: true,
+    calculateCollateralOptions: true,
     transactionBuilder: EnterVault,
   } as TransactionConfig,
   /**
@@ -161,36 +160,6 @@ export const VaultTradeConfiguration = {
   /**
    * Input:
    * depositBalance
-   *
-   * Output:
-   * collateralBalance (vault shares)
-   */
-  DepositVaultCollateral: {
-    calculationFn: calculateVaultDeposit,
-    requiredArgs: [
-      'collateral',
-      'depositBalance',
-      'vaultAdapter',
-      // NOTE: these args below are not strictly required by the calculation
-      // but are added here to manage race conditions when switching tradeTypes
-      'debtPool',
-      'balances',
-      'vaultLastUpdateTime',
-    ],
-    collateralFilter: (t, a, s: VaultTradeState) =>
-      t.tokenType === 'VaultShare' &&
-      t.vaultAddress === s.vaultAddress &&
-      sameVaultMaturity(t, a?.balances, s.vaultAddress),
-    debtFilter: () => false,
-    depositFilter: (t, _, s: VaultTradeState) =>
-      isPrimaryCurrency(t, s.vaultConfig),
-    transactionBuilder: DepositVault,
-    calculateDebtOptions: true,
-  } as TransactionConfig,
-
-  /**
-   * Input:
-   * depositBalance
    * selectedRiskLimit (i.e. leverageRatio)
    * selectedDebtToken (i.e. new debt to hold, fCash or Prime Debt)
    *
@@ -231,40 +200,6 @@ export const VaultTradeConfiguration = {
    * debtBalance (debt repaid)
    */
   WithdrawVault: {
-    calculationFn: calculateVaultDebtCollateralGivenDepositRiskLimit,
-    requiredArgs: [
-      'collateral',
-      'debt',
-      'vaultAdapter',
-      'debtPool',
-      'depositBalance',
-      'balances',
-      'riskFactorLimit',
-      'vaultLastUpdateTime',
-    ],
-    collateralFilter: (t, _, s: VaultTradeState) =>
-      t.tokenType === 'VaultShare' &&
-      t.vaultAddress === s.vaultAddress &&
-      matchingVaultShare(t, s.debt),
-    debtFilter: (t, a, s: VaultTradeState) =>
-      eligibleDebtToken(t, s.vaultConfig) &&
-      sameVaultMaturity(t, a?.balances, s.vaultAddress),
-    depositFilter: (t, _, s: VaultTradeState) =>
-      isPrimaryCurrency(t, s.vaultConfig),
-    transactionBuilder: ExitVault,
-    calculateDebtOptions: true,
-  } as TransactionConfig,
-
-  /**
-   * Input:
-   * depositBalance (i.e. withdraw amount)
-   * selectedRiskLimit (i.e. new leverage ratio)
-   *
-   * Output:
-   * collateralBalance (vault shares sold)
-   * debtBalance (debt repaid)
-   */
-  WithdrawAndRepayVault: {
     calculationFn: calculateVaultDebtCollateralGivenDepositRiskLimit,
     requiredArgs: [
       'collateral',

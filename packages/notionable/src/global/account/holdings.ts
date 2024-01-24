@@ -100,6 +100,7 @@ export function calculateHoldings(
       maturedTokenId,
       totalIncentiveEarnings,
       hasMatured: balance.hasMatured,
+      tokenType: undefined,
     };
   });
 

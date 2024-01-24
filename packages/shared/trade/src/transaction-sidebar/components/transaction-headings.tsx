@@ -186,10 +186,6 @@ export const TransactionHeadings: Record<
     heading: { defaultMessage: 'x' },
     helptext: { defaultMessage: 'x' },
   }),
-  DepositVaultCollateral: defineMessages({
-    heading: { defaultMessage: 'x' },
-    helptext: { defaultMessage: 'x' },
-  }),
   AdjustVaultLeverage: defineMessages({
     heading: { defaultMessage: 'x' },
     helptext: { defaultMessage: 'x' },
@@ -199,10 +195,6 @@ export const TransactionHeadings: Record<
     helptext: { defaultMessage: 'x' },
   }),
   WithdrawVault: defineMessages({
-    heading: { defaultMessage: 'x' },
-    helptext: { defaultMessage: 'x' },
-  }),
-  WithdrawAndRepayVault: defineMessages({
     heading: { defaultMessage: 'x' },
     helptext: { defaultMessage: 'x' },
   }),
