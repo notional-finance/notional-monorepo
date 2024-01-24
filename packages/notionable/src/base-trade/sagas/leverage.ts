@@ -82,55 +82,22 @@ export function defaultLeverageRatio(
   );
 }
 
-export function defaultVaultLeverageRatio(
-  state$: Observable<VaultTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>
-) {
+export function defaultVaultLeverageRatio(state$: Observable<VaultTradeState>) {
   return state$.pipe(
     distinctUntilChanged((p, c) => {
       return (
         p.vaultAddress === c.vaultAddress &&
-        p.deposit?.id === c.deposit?.id &&
-        p.debt?.id === c.debt?.id &&
-        p.collateral?.id === c.collateral?.id &&
+        p.selectedNetwork === c.selectedNetwork &&
         p.tradeType === c.tradeType
       );
     }),
-    withLatestFrom(selectedNetwork$),
-    map(([s, network]) => {
-      if (s.vaultAddress) {
-        const leverageFactors =
-          Registry.getConfigurationRegistry().getVaultLeverageFactors(
-            network,
-            s.vaultAddress
-          );
-        if (s.tradeType === 'CreateVaultPosition') {
-          // Return from the configuration registry directly
-          return leverageFactors;
-        } else if (s.tradeType === 'IncreaseVaultPosition') {
-          // Inside these two trade types, the default leverage ratio is defined
-          // by the prior account risk
-          return {
-            minLeverageRatio: leverageFactors.minLeverageRatio,
-            defaultLeverageRatio:
-              s.priorAccountRisk?.leverageRatio || undefined,
-            maxLeverageRatio: leverageFactors.maxLeverageRatio,
-          };
-        } else if (s.tradeType === 'WithdrawAndRepayVault') {
-          const leverageRatio =
-            s.priorAccountRisk?.leverageRatio &&
-            s.priorAccountRisk.leverageRatio > 0.01
-              ? s.priorAccountRisk?.leverageRatio - 0.01
-              : undefined;
-          return {
-            minLeverageRatio: leverageFactors.minLeverageRatio,
-            defaultLeverageRatio: leverageRatio,
-            maxLeverageRatio: leverageFactors.maxLeverageRatio,
-          };
-        }
-      }
-
-      return undefined;
+    map(({ selectedNetwork, vaultAddress }) => {
+      return vaultAddress && selectedNetwork
+        ? Registry.getConfigurationRegistry().getVaultLeverageFactors(
+            selectedNetwork,
+            vaultAddress
+          )
+        : undefined;
     }),
     filterEmpty()
   );
