@@ -74,7 +74,7 @@ export function SideBarLayout({
           '&>div': {
             height: '100%',
           },
-          zIndex: showTransactionConfirmation ? 5 : 1,
+          zIndex: showTransactionConfirmation ? 5 : 2,
         }}
       >
         {sideBar}
