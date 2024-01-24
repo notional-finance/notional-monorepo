@@ -67,8 +67,7 @@ function getSelectedToken(
     if (availableTokens.length === 1){
       return availableTokens[0]
     } else if(selectedToken === undefined) {
-      const defaultToken = getDefaultTokens(availableTokens, category, tradeType)
-      return availableTokens.find((t) => t.symbol === defaultToken);
+      return getDefaultTokens(availableTokens, category, tradeType)
     } else {
       return availableTokens.find((t) => t.symbol === selectedToken);
     }

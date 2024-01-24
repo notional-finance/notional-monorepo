@@ -11,19 +11,6 @@ export function resetOnTradeTypeChange(
     filterEmpty(),
     pairwise(),
     map(([prev, cur]) => {
-      // if (
-      //   !isVault &&
-      //   prev.tradeType !== undefined &&
-      //   prev.tradeType !== cur.tradeType
-      // ) {
-      //   return {
-      //     reset: true,
-      //     selectedNetwork: cur.selectedNetwork,
-      //     tradeType: cur.tradeType,
-      //     vaultAddress: cur.vaultAddress,
-      //   };
-      // } else 
-      
       if (
         isVault &&
         prev.vaultAddress !== undefined &&
