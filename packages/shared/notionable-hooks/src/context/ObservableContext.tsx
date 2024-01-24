@@ -84,9 +84,9 @@ export function useObservableContext<T extends ContextState>(
             ([, oldPath], [, newPath]) => oldPath === newPath
           ),
           map(
-            ([, , params]) =>
+            ([, pathname, params]) =>
               // On path change we reset the trade state
-              ({ reset: true, ...params } as unknown as Partial<T>)
+              ({ reset: true, pathname, ...params } as unknown as Partial<T>)
           ),
           tap((p) => {
             if (DEBUG) console.log('URL UPDATE', p);

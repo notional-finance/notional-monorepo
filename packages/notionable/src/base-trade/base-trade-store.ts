@@ -84,6 +84,9 @@ interface UserInputs {
 
   /** Used as a flag to reset the state on path changes */
   reset?: boolean;
+
+  /** The current URL path for tracking URL route updates */
+  pathname?: string;
 }
 
 /** Calculated values based on token inputs */
