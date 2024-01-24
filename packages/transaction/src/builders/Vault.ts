@@ -289,3 +289,15 @@ export function RollVault({
     getETHValue(depositBalance),
   ]);
 }
+
+export function AdjustLeverage(
+  i: PopulateTransactionInputs
+): Promise<PopulatedTransaction> {
+  if (i.debtBalance?.isNegative()) {
+    return EnterVault(i);
+  } else if (i.debtBalance?.isPositive()) {
+    return ExitVault(i);
+  } else {
+    throw Error('Unknown Vault Transaction');
+  }
+}
