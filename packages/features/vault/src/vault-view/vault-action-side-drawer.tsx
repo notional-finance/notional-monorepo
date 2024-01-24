@@ -85,18 +85,6 @@ export const VaultActionSideDrawer = () => {
           Component: CreateVaultPosition,
           requiredState: {
             tradeType: 'IncreaseVaultPosition',
-            riskFactorLimit:
-              loaded && vaultPosition && currentPositionState.riskFactorLimit
-                ? currentPositionState.riskFactorLimit
-                : undefined,
-          },
-        },
-        {
-          isRootDrawer: true,
-          slug: 'IncreaseVaultPosition',
-          Component: CreateVaultPosition,
-          requiredState: {
-            tradeType: 'IncreaseVaultPosition',
             riskFactorLimit: defaultRiskLimit,
           },
         },
@@ -136,32 +124,6 @@ export const VaultActionSideDrawer = () => {
             riskFactorLimit: currentPosition.riskFactorLimit,
           },
         },
-
-        // REMOVED ===================================================
-        // {
-        //   slug: 'DepositVaultCollateral',
-        //   Component: DepositCollateral,
-        //   requiredState: {
-        //     tradeType: 'DepositVaultCollateral',
-        //   },
-        // },
-        // {
-        //   slug: 'IncreaseVaultPosition',
-        //   Component: IncreaseVaultPosition,
-        //   requiredState: {
-        //     tradeType: 'IncreaseVaultPosition',
-        //     riskFactorLimit: defaultRiskLimit,
-        //   },
-        // },
-        // {
-        //   slug: 'WithdrawAndRepayVault',
-        //   Component: WithdrawAndRepayDebt,
-        //   requiredState: {
-        //     tradeType: 'WithdrawAndRepayVault',
-        //     depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
-        //     riskFactorLimit: defaultRiskLimit,
-        //   },
-        // },
       ]}
     />
   );

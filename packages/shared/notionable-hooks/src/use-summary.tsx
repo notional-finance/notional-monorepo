@@ -486,10 +486,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
           collateralBalance.token
         )
       );
-    } else if (
-      tradeType === 'WithdrawVault' ||
-      tradeType === 'WithdrawAndRepayVault'
-    ) {
+    } else if (tradeType === 'WithdrawVault') {
       // Sell assets
       summary.push(
         getTradeDetail(collateralBalance.neg(), 'Asset', 'withdraw', intl)
@@ -547,9 +544,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
         // This is the new asset balance
         summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));
     }
-  } else if (tradeType === 'DepositVaultCollateral') {
-    if (collateralBalance)
-      summary.push(getTradeDetail(collateralBalance, 'Asset', 'deposit', intl));
   } else if (depositBalance?.isPositive()) {
     if (netDebtBalance?.isZero() === false)
       summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
@@ -880,7 +874,10 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
     {
       ...borrowAPY,
       label: intl.formatMessage({ defaultMessage: 'Borrow APY' }),
-      current: formatNumberAsPercentWithUndefined(currentPosition?.borrowAPY, '-'),
+      current: formatNumberAsPercentWithUndefined(
+        currentPosition?.borrowAPY,
+        '-'
+      ),
       updated: formatNumberAsPercentWithUndefined(borrowAPY?.updated, '-'),
     },
   ];
