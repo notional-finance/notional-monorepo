@@ -129,6 +129,7 @@ export const ManageTerms = ({
   isVault,
 }: ManageTermsProps) => {
   const history = useHistory();
+  const network = useSelectedCardNetwork();
   const {
     state: { riskFactorLimit, deposit, debt, selectedNetwork },
   } = context;
