@@ -26,7 +26,6 @@ export const VaultActionSideDrawer = () => {
       defaultLeverageRatio,
       availableDebtTokens,
       availableCollateralTokens,
-      selectedDepositToken,
       riskFactorLimit,
       debt,
       collateral,

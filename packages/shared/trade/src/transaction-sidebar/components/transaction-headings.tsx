@@ -190,6 +190,10 @@ export const TransactionHeadings: Record<
     heading: { defaultMessage: 'x' },
     helptext: { defaultMessage: 'x' },
   }),
+  AdjustVaultLeverage: defineMessages({
+    heading: { defaultMessage: 'x' },
+    helptext: { defaultMessage: 'x' },
+  }),
   RollVaultPosition: defineMessages({
     heading: { defaultMessage: 'x' },
     helptext: { defaultMessage: 'x' },

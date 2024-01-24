@@ -104,7 +104,7 @@ export function selectedPortfolioToken(state$: Observable<BaseTradeState>) {
               ? tokens.getPrimeCash(selected.network, selected.currencyId)
               : selected,
         };
-      } else if (tradeType === 'Withdraw') {
+      } else if (tradeType === 'Withdraw' || tradeType === 'RollDebt') {
         return {
           debt:
             selected.tokenType === 'PrimeCash'
