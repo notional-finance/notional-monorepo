@@ -42,7 +42,10 @@ export const useConnect = () => {
   const disconnectWallet = useCallback(() => {
     if (currentLabel) {
       disconnect({ label: currentLabel });
-      trackEvent(TRACKING_EVENTS.DISCONNECT_WALLET, { wallet: currentLabel, selectedNetwork });
+      trackEvent(TRACKING_EVENTS.DISCONNECT_WALLET, {
+        wallet: currentLabel,
+        selectedNetwork,
+      });
     }
     updateNotional({ wallet: undefined });
   }, [disconnect, currentLabel, updateNotional, selectedNetwork]);
@@ -73,6 +76,7 @@ export const useConnect = () => {
             selectedAddress,
             isReadOnlyAddress: false,
             label: wallet.label,
+            provider,
           },
         });
       }
