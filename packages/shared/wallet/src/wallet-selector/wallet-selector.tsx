@@ -2,16 +2,9 @@ import { useState, useEffect } from 'react';
 import { Box, styled } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { FormattedMessage } from 'react-intl';
-import {
-  GearIcon,
-  ActiveBellIcon,
-  BellIcon,
-  EyeIcon,
-  TokenIcon,
-} from '@notional-finance/icons';
+import { GearIcon, EyeIcon, TokenIcon } from '@notional-finance/icons';
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
-import { getFromLocalStorage } from '@notional-finance/helpers';
 import {
   ProgressIndicator,
   ButtonText,
@@ -45,7 +38,6 @@ export function WalletSelector() {
   const selectedAccount = useWalletAddress();
   const walletNetwork = useWalletConnectedNetwork();
   const truncatedAddress = useTruncatedAddress();
-  const notifications = getFromLocalStorage('notifications');
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { openDrawer } = useWalletSideDrawer();
@@ -112,16 +104,6 @@ export function WalletSelector() {
                 <Box onClick={handleCopy}>
                   <ButtonText>{truncatedAddress}</ButtonText>
                 </Box>
-                {!isReadOnlyAddress && (
-                  <Box
-                    sx={{ marginLeft: '10px', display: 'flex' }}
-                    onClick={() =>
-                      handleClick(SETTINGS_SIDE_DRAWERS.NOTIFICATIONS)
-                    }
-                  >
-                    {notifications.active ? <ActiveBellIcon /> : <BellIcon />}
-                  </Box>
-                )}
               </Box>
             </>
           )}

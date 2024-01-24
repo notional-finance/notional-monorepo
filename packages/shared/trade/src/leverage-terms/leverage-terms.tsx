@@ -102,7 +102,7 @@ export const DefaultTerms = ({ context }: TermsProps) => {
               main
               msg={defineMessage({ defaultMessage: 'Customize' })}
             />
-            <Body>
+            <Body sx={{ textWrap: 'nowrap' }}>
               <FormattedMessage
                 defaultMessage={'Up to {max} APY'}
                 values={{
