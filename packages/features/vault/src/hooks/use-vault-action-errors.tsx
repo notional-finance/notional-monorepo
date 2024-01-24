@@ -1,4 +1,4 @@
-import { LabelValue } from '@notional-finance/mui';
+import { CountUp, LabelValue } from '@notional-finance/mui';
 import { formatLeverageRatio } from '@notional-finance/helpers';
 import { useContext } from 'react';
 import { MessageDescriptor } from 'react-intl';
@@ -21,6 +21,8 @@ export function useVaultActionErrors() {
       overCapacityError,
       selectedNetwork,
       vaultAddress,
+      underMinAccountBorrow,
+      netRealizedDebtBalance
     },
   } = useContext(VaultActionContext);
   const currentPosition = useVaultPosition(selectedNetwork, vaultAddress);
@@ -66,11 +68,29 @@ export function useVaultActionErrors() {
     }
   }
 
+  let underMinAccountBorrowError: MessageDescriptor | undefined;
+  if (underMinAccountBorrow) {
+    const borrowAmount = (
+      <LabelValue inline error={underMinAccountBorrow}>
+        <CountUp
+          value={netRealizedDebtBalance?.abs().toFloat() || 0}
+          suffix={` ${netRealizedDebtBalance?.symbol || ''}`}
+          decimals={3}
+        />
+      </LabelValue>
+    );
+
+    underMinAccountBorrowError = Object.assign(messages.error.underMinBorrow, {
+      values: { minBorrowSize, borrowAmount },
+    });
+  }
+
   return {
     minBorrowSize,
     inputErrorMsg,
     canSubmit,
     leverageRatioError,
+    underMinAccountBorrowError,
     isDeleverage:
       !!selectedLeverageRatio &&
       selectedLeverageRatio < (currentPosition?.leverageRatio || -1),

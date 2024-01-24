@@ -65,7 +65,10 @@ export function vaultCapacity(
             ? totalAccountDebt.abs().toUnderlying().lt(minAccountBorrowSize)
             : false;
 
-          minBorrowSize = minAccountBorrowSize.toDisplayStringWithSymbol(0);
+          minBorrowSize =
+            minAccountBorrowSize.toFloat() < 10
+              ? minAccountBorrowSize.toDisplayStringWithSymbol(1)
+              : minAccountBorrowSize.toDisplayStringWithSymbol(0);
           overCapacityError = debtBalance
             ? totalUsedPrimaryBorrowCapacity
                 .add(debtBalance.neg().toUnderlying())
