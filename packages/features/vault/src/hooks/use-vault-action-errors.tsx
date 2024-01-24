@@ -5,6 +5,7 @@ import { MessageDescriptor } from 'react-intl';
 import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import { tradeErrors } from '@notional-finance/trade';
+import { useVaultPosition } from '@notional-finance/notionable-hooks';
 
 export function useVaultActionErrors() {
   const {
@@ -15,15 +16,14 @@ export function useVaultActionErrors() {
       calculateError,
       minLeverageRatio,
       maxLeverageRatio,
-      tradeType,
       riskFactorLimit,
-      debtBalance,
-      priorAccountRisk,
       minBorrowSize,
       overCapacityError,
+      selectedNetwork,
+      vaultAddress,
     },
   } = useContext(VaultActionContext);
-  const priorLeverageRatio = priorAccountRisk?.leverageRatio;
+  const currentPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const selectedLeverageRatio = riskFactorLimit?.limit as number | undefined;
 
   let inputErrorMsg: MessageDescriptor | undefined;
@@ -41,28 +41,7 @@ export function useVaultActionErrors() {
     maxLeverageRatio !== undefined &&
     selectedLeverageRatio !== undefined
   ) {
-    if (
-      tradeType === 'WithdrawAndRepayVault' &&
-      priorLeverageRatio !== undefined &&
-      priorLeverageRatio !== null &&
-      priorLeverageRatio < selectedLeverageRatio
-    ) {
-      leverageRatioError = {
-        ...messages.error.withdrawAndRepayLeverageDecrease,
-        values: {
-          priorLeverageRatio: (
-            <LabelValue error inline>
-              {formatLeverageRatio(priorLeverageRatio)}
-            </LabelValue>
-          ),
-        },
-      } as MessageDescriptor;
-    } else if (
-      tradeType === 'IncreaseVaultPosition' &&
-      debtBalance?.isPositive()
-    ) {
-      leverageRatioError = messages.error.increasePositionDebtsMustIncrease;
-    } else if (selectedLeverageRatio < minLeverageRatio) {
+    if (selectedLeverageRatio < minLeverageRatio) {
       leverageRatioError = {
         ...messages.error.belowMinimumLeverage,
         values: {
@@ -92,5 +71,8 @@ export function useVaultActionErrors() {
     inputErrorMsg,
     canSubmit,
     leverageRatioError,
+    isDeleverage:
+      !!selectedLeverageRatio &&
+      selectedLeverageRatio < (currentPosition?.leverageRatio || -1),
   };
 }

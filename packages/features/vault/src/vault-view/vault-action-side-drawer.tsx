@@ -5,6 +5,7 @@ import {
   CreateVaultPosition,
   WithdrawVault,
   RollMaturity,
+  AdjustLeverage,
 } from '../side-drawers';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
@@ -97,6 +98,15 @@ export const VaultActionSideDrawer = () => {
             tradeType: 'RollVaultPosition',
             depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
             maxWithdraw: false,
+          },
+        },
+        {
+          slug: 'AdjustLeverage',
+          Component: AdjustLeverage,
+          requiredState: {
+            tradeType: 'AdjustVaultLeverage',
+            depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
+            riskFactorLimit: currentPosition.riskFactorLimit,
           },
         },
         {

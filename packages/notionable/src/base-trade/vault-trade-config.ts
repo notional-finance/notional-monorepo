@@ -129,6 +129,36 @@ export const VaultTradeConfiguration = {
   } as TransactionConfig,
 
   /**
+   * Similar to IncreaseVaultPosition but the transaction builder can switch
+   * between enter vault and exit vault.
+   */
+  AdjustVaultLeverage: {
+    calculationFn: calculateVaultDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'vaultAdapter',
+      'debtPool',
+      'depositBalance',
+      'balances',
+      'riskFactorLimit',
+      'vaultLastUpdateTime',
+    ],
+    collateralFilter: (t, _, s: VaultTradeState) =>
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
+    debtFilter: (t, a, s: VaultTradeState) =>
+      eligibleDebtToken(t, s.vaultConfig) &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
+    depositFilter: (t, _, s: VaultTradeState) =>
+      isPrimaryCurrency(t, s.vaultConfig),
+    calculateDebtOptions: true,
+    // TODO: change this txn builder...
+    transactionBuilder: EnterVault,
+  } as TransactionConfig,
+
+  /**
    * Input:
    * depositBalance
    *
