@@ -8,6 +8,7 @@ import { floorToMidnight } from '@notional-finance/helpers';
 import {
   Network,
   SECONDS_IN_DAY,
+  ZERO_ADDRESS,
   getNowSeconds,
   leveragedYield,
 } from '@notional-finance/util';
@@ -81,7 +82,15 @@ export function useLeveragedPerformance(
     ({ token: t }) =>
       t.currencyId === token.currencyId && t.tokenType === 'PrimeDebt'
   );
-  const tokenData = data?.filter(({ token: t }) => t.id === token.id) || [];
+  let tokenData: { timestamp: number; totalAPY: number | null }[];
+  if (token.vaultAddress && token.vaultAddress !== ZERO_ADDRESS) {
+    tokenData = Registry.getAnalyticsRegistry().getVault(
+      token.network,
+      token.vaultAddress
+    ) || [];
+  } else {
+    tokenData = data?.filter(({ token: t }) => t.id === token.id) || [];
+  }
 
   return fillChartDaily(
     tokenData.map((d) => {

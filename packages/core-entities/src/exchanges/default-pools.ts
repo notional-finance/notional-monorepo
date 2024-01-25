@@ -201,12 +201,12 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: '0x4a2f6ae7f3e5d715689530873ec35593dc28951b',
+      address: '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B',
       PoolClass: 'ComposableStablePool',
       registerTokens: [
         {
-          id: '0x4a2f6ae7f3e5d715689530873ec35593dc28951b',
-          address: '0x4a2f6ae7f3e5d715689530873ec35593dc28951b',
+          id: '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B',
+          address: '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B',
           network: Network.ArbitrumOne,
           symbol: 'wstETH/rETH/cbETH',
           name: 'Balancer wstETH/rETH/cbETH CSP',
