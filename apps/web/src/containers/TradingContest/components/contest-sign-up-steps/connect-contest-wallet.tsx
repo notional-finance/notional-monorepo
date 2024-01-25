@@ -24,7 +24,7 @@ export const ConnectContestWallet = () => {
       </TitleText>
       <ContestButtonBar
         buttonOneText={<FormattedMessage defaultMessage={'Back'} />}
-        buttonOnePathTo="/contest"
+        buttonOnePathTo={`/contest`}
         buttonTwoText={<FormattedMessage defaultMessage={'Connect Wallet'} />}
         buttonTwoCallBack={() =>
           setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)

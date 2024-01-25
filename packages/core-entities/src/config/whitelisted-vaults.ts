@@ -14,6 +14,8 @@ export const whitelistedVaults = (network: Network) => {
         '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
         '0x37dd23ab1885982f789a2d6400b583b8ae09223d',
       ];
+    case Network.Optimism:
+      return [];
     case Network.Goerli:
       return [];
   }

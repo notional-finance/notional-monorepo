@@ -3,10 +3,10 @@ import {
   formatNumberAsPercent,
   truncateAddress,
 } from '@notional-finance/helpers';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import {
-  useWalletAddress,
-  useWalletConnectedNetwork,
-} from '@notional-finance/notionable-hooks';
+  useSelectedNetwork,
+} from '@notional-finance/wallet';
 import { useCallback, useEffect, useState } from 'react';
 
 const DATA_URL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
@@ -38,7 +38,7 @@ export function useLeaderboardData() {
   const [fatCatData, setFatCatData] = useState<ContestData[]>([]);
   const network = useSelectedNetwork();
   const {
-    globalState: { selectedAccount },
+    globalState: { wallet },
   } = useNotionalContext();
 
   const fetchContestData = useCallback(async () => {
@@ -121,8 +121,8 @@ export function useLeaderboardData() {
   }, [fetchContestData]);
 
   const currentUserData =
-    highRollerData.find((c) => c.address === selectedAccount) ||
-    fatCatData.find((c) => c.address === selectedAccount);
+    highRollerData.find((c) => c.address === wallet?.selectedAddress) ||
+    fatCatData.find((c) => c.address === wallet?.selectedAddress);
 
   return {
     highRollerData,

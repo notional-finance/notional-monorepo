@@ -5,9 +5,11 @@ import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { ContestCountDown } from '../contest-countdown/contest-countdown';
 import { BodySecondary, Button } from '@notional-finance/mui';
 import { TitleText } from '../contest-shared-elements/contest-shared-elements';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 
 export const ContestHero = () => {
   const theme = useTheme();
+  const network = useSelectedNetwork();
   return (
     <Box>
       <ContentContainer>
@@ -33,7 +35,7 @@ export const ContestHero = () => {
                   fontFamily: 'Avenir Next',
                   cursor: 'pointer',
                 }}
-                to={`/contest-sign-up/${CONTEST_SIGN_UP_STEPS.CONNECT_WALLET}`}
+                to={`/contest-sign-up/${network}/${CONTEST_SIGN_UP_STEPS.CONNECT_WALLET}`}
               >
                 {<FormattedMessage defaultMessage={'Join the Yield Contest'} />}
               </Button>
@@ -41,7 +43,7 @@ export const ContestHero = () => {
               <Button
                 size="large"
                 variant="outlined"
-                to="/portfolio/overview"
+                to={`/portfolio${network}//overview`}
                 sx={{
                   width: '330px',
                   border: `1px solid ${colors.neonTurquoise}`,

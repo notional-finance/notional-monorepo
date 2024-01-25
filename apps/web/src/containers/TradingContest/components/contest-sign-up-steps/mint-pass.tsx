@@ -17,9 +17,11 @@ export const MintPass = () => {
   const theme = useTheme();
   const history = useHistory();
   const {
-    globalState: { selectedAccount },
+    globalState: { wallet },
   } = useNotionalContext();
-  const [address, setAddress] = useState<string | undefined>(selectedAccount);
+  const [address, setAddress] = useState<string | undefined>(
+    wallet?.selectedAddress
+  );
   const [error, setError] = useState<boolean>(false);
 
   const handleMint = () => {
@@ -81,7 +83,7 @@ export const MintPass = () => {
           </Box>
 
           <MintInput
-            placeholder={selectedAccount}
+            placeholder={wallet?.selectedAddress || ''}
             handleChange={handleChange}
             inputValue={address || ''}
             onKeyDown={(event) => (event.key === 'Enter' ? handleMint() : null)}

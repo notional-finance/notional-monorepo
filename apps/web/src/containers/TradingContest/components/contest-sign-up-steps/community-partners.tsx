@@ -1,7 +1,7 @@
 import { styled, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
+import { Network, SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import { PARTNERS } from '@notional-finance/notionable';
 import {
   TitleText,
@@ -13,6 +13,13 @@ import Llama from './assets/Llama.svg';
 import Cryptotesters from './assets/Cryptotesters.svg';
 import L2DAO from './assets/L2DAO.svg';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
+
+interface PartnerData {
+  name: string;
+  address: string;
+  network: Network;
+  id: PARTNERS;
+}
 
 const imgData = {
   [PARTNERS.LLAMAS]: {
@@ -31,6 +38,7 @@ const CommunityFound = () => {
   const {
     globalState: { partnerData },
   } = useNotionalContext();
+  const currentPartnerData = partnerData as PartnerData;
 
   return (
     <StepContainer>
@@ -45,7 +53,9 @@ const CommunityFound = () => {
           }}
         >
           <img
-            src={partnerData?.id && imgData[partnerData?.id]?.icon}
+            src={
+              currentPartnerData?.id && imgData[currentPartnerData?.id]?.icon
+            }
             alt="community icon"
             style={{
               height: theme.spacing(7),
@@ -56,7 +66,7 @@ const CommunityFound = () => {
           <FormattedMessage
             defaultMessage="{community} NFT Found"
             values={{
-              community: partnerData?.name,
+              community: currentPartnerData?.name,
             }}
           />
         </TitleText>
@@ -64,14 +74,14 @@ const CommunityFound = () => {
           <FormattedMessage
             defaultMessage="You are set to compete for the special {community} prizes! Confirm to move on."
             values={{
-              community: partnerData?.name,
+              community: currentPartnerData?.name,
             }}
           />
         </ContestBodyText>
       </Box>
       <ContestButtonBar
         buttonOneText={<FormattedMessage defaultMessage={'Cancel'} />}
-        buttonOnePathTo="/contest"
+        buttonOnePathTo={`/contest`}
         buttonTwoText={<FormattedMessage defaultMessage={'Confirm'} />}
         buttonTwoPathTo="mint-pass"
       />
@@ -154,7 +164,7 @@ export const CommunityPartners = () => {
   const {
     globalState: { hasContestNFT },
   } = useNotionalContext();
-
+  console.log({ hasContestNFT });
   return hasContestNFT === 'confirmed' ? (
     <CommunityFound />
   ) : (

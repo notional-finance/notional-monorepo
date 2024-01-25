@@ -20,6 +20,7 @@ const AppLayoutRoute = ({
   routeType: RouteType;
   landingLayout?: boolean;
 }) => {
+  const history = useHistory();
   const location = useLocation();
   const selectedNetwork = useWalletConnectedNetwork();
   usePageTrack(routeType, selectedNetwork);

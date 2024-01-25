@@ -15,9 +15,11 @@ import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import test from '../assets/color-blobs.png';
 import { useLeaderBoardTables } from '../hooks';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 
 export const ContestLeaderBoard = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
+  const network = useSelectedNetwork();
   const {
     leaderBoardColumns,
     currentUserData,
@@ -54,7 +56,7 @@ export const ContestLeaderBoard = () => {
               <Button
                 size="large"
                 variant="outlined"
-                to="/contest-rules"
+                to={`/contest-rules/${network}`}
                 sx={{
                   width: theme.spacing(41.25),
                   border: `1px solid ${colors.neonTurquoise}`,
@@ -145,11 +147,11 @@ export const ContestLeaderBoard = () => {
                 buttonOneText={
                   <FormattedMessage defaultMessage={'Rules & Prizes'} />
                 }
-                buttonOnePathTo="/contest-rules"
+                buttonOnePathTo={`/contest-rules/${network}`}
                 buttonTwoText={
                   <FormattedMessage defaultMessage={'Contest Home'} />
                 }
-                buttonTwoPathTo="/contest"
+                buttonTwoPathTo={`/contest/${network}`}
               />
             </Box>
           </MainContainer>

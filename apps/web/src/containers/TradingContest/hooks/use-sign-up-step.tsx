@@ -6,6 +6,7 @@ import {
   MintPass,
 } from '../components/contest-sign-up-steps';
 import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import {
   useAccountReady,
   useNotionalContext,
@@ -26,23 +27,27 @@ const ContestSteps = {
 
 export const useSignUpStep = () => {
   const params = useParams<ContestSignUpParams>();
-  const connected = useAccountReady();
+  const network = useSelectedNetwork();
   const history = useHistory();
   const {
     globalState: { isAccountPending },
   } = useNotionalContext();
+  const connected = useAccountReady(network);
   let CurrentStep = () => <StepLoading />;
 
   useEffect(() => {
     if (
       connected &&
       !isAccountPending &&
+      params.step !== CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS &&
       params.step !== CONTEST_SIGN_UP_STEPS.MINT_PASS &&
       params.step !== CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION
     ) {
       history.push(CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS);
+    } else if (!connected && !isAccountPending) {
+      history.push(CONTEST_SIGN_UP_STEPS.CONNECT_WALLET);
     }
-  }, [connected, isAccountPending, history]);
+  }, [connected, isAccountPending, history, params]);
 
   if (isAccountPending) {
     <StepLoading />;

@@ -6,6 +6,7 @@ import { Button, HeadingSubtitle, CardInput } from '@notional-finance/mui';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
 import fatCat from '../../assets/fat-cat.svg';
 import crown from '../../assets/crown.svg';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 
 interface PrizeInfoPropsProps {
   prizeType: string;
@@ -93,6 +94,7 @@ const PrizeInfo = ({ prizeType }: PrizeInfoPropsProps) => {
 
 export const ContestPrizes = () => {
   const theme = useTheme();
+  const network = useSelectedNetwork();
   const pathname = window.location.pathname;
   return (
     <Container>
@@ -111,7 +113,7 @@ export const ContestPrizes = () => {
           <Button
             size="large"
             variant="outlined"
-            to="/contest-rules"
+            to={`/contest-rules/${network}`}
             sx={{
               width: theme.spacing(41.25),
               border: `1px solid ${colors.neonTurquoise}`,

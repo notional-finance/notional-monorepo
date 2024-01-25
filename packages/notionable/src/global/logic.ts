@@ -73,6 +73,8 @@ export async function onAccountPending(
   let partnerData;
   let contestTokenId;
 
+  console.log("=====================LOGIC=====================")
+
   for (const data in ACCESS_NFTS) {
     const key = data as keyof typeof ACCESS_NFTS; 
     const currentPartnerData = ACCESS_NFTS[key];

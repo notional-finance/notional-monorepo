@@ -1,9 +1,6 @@
 import { PRODUCTS } from '@notional-finance/util';
-import {
-  CardContainer,
-  FeatureLoader,
-  useSelectedCardNetwork,
-} from '@notional-finance/shared-web';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import {
   useThemeVariant,
   useAllMarkets,
@@ -16,7 +13,7 @@ import { Currency } from '@notional-finance/mui';
 export const BorrowVariableCardView = () => {
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const network = useSelectedCardNetwork();
+  const network = useSelectedNetwork();
   const {
     yields: { variableBorrow },
   } = useAllMarkets(network);

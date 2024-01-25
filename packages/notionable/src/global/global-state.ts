@@ -196,6 +196,7 @@ export const initialGlobalState: GlobalState = {
     [Network.All]: [],
     [Network.Mainnet]: [],
     [Network.ArbitrumOne]: [],
+    [Network.Optimism]: [],
     [Network.Goerli]: [],
   },
 };

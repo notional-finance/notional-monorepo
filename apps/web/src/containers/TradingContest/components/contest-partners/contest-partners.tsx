@@ -8,6 +8,7 @@ import {
   IconCell,
 } from '@notional-finance/mui';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 
 interface ContestPartnersProps {
   hideButton?: boolean;
@@ -55,6 +56,7 @@ const data = [
 
 export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
   const theme = useTheme();
+  const network = useSelectedNetwork();
   return (
     <Container>
       <SectionTitle>
@@ -90,7 +92,7 @@ export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
           <Button
             size="large"
             variant="outlined"
-            to="/contest-leaderboard"
+            to={`/contest-leaderboard/${network}`}
             sx={{
               width: theme.spacing(41.25),
               border: `1px solid ${colors.neonTurquoise}`,

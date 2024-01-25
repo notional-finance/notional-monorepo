@@ -9,10 +9,12 @@ import {
   ContestBodyText,
   StepContainer,
 } from '../contest-shared-elements/contest-shared-elements';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 
 export const ContestConfirmation = () => {
   const theme = useTheme();
   const truncatedAddress = useTruncatedAddress();
+  const network = useSelectedNetwork();
   return (
     <StepContainer sx={{ marginTop: '0px !important' }}>
       <TitleText>
@@ -83,7 +85,7 @@ export const ContestConfirmation = () => {
           fontFamily: 'Avenir Next',
           cursor: 'pointer',
         }}
-        to={'/portfolio'}
+        to={`/portfolio/${network}`}
       >
         <FormattedMessage defaultMessage={'See Yield Opportunities'} />
       </Button>

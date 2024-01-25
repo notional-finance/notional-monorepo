@@ -197,7 +197,7 @@ const AllRoutes = () => {
             routeType="Portfolio"
           />
           <AppLayoutRoute
-            path="/markets"
+            path="/markets/:selectedNetwork"
             component={Markets}
             routeType="Markets"
           />
@@ -207,27 +207,27 @@ const AllRoutes = () => {
             routeType="Error"
           />
           <AppLayoutRoute
-            path="/contest"
+            path="/contest/:selectedNetwork"
             component={ContestHome}
             routeType="Landing"
           />
           <AppLayoutRoute
-            path="/contest-rules"
+            path="/contest-rules/:selectedNetwork"
             component={ContestRules}
             routeType="Landing"
           />
           <AppLayoutRoute
-            path="/contest-leaderboard"
+            path="/contest-leaderboard/:selectedNetwork"
             component={ContestLeaderBoard}
             routeType="Landing"
           />
           <AppLayoutRoute
-            path="/contest-sign-up/:step"
+            path="/contest-sign-up/:selectedNetwork/:step/"
             component={ContestSignUp}
             routeType="Landing"
           />
           <AppLayoutRoute
-            path="/contest-sign-up/"
+            path="/contest-sign-up/:selectedNetwork"
             component={ContestSignUp}
             routeType="Landing"
           />

@@ -1,4 +1,5 @@
-import { CardContainer, FeatureLoader, useSelectedCardNetwork } from '@notional-finance/shared-web';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import { Vault } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useThemeVariant } from '@notional-finance/notionable-hooks';
@@ -9,7 +10,7 @@ import { useVaultCards } from './hooks';
 export const VaultCardView = () => {
   const themeVariant = useThemeVariant();
   // TODO: this needs to be linked up to the selector
-  const network = useSelectedCardNetwork();
+  const network = useSelectedNetwork();
   const allVaults = useVaultCards(network);
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
 

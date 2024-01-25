@@ -5,9 +5,11 @@ import { FormattedMessage } from 'react-intl';
 import { useContestRulesInfo } from '../../hooks';
 import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 
 export const ContestRulesInfo = () => {
   const theme = useTheme();
+  const network = useSelectedNetwork();
   const { dataSetOne, faqData } = useContestRulesInfo();
 
   return (
@@ -76,7 +78,7 @@ export const ContestRulesInfo = () => {
             buttonOneText={
               <FormattedMessage defaultMessage={'View Full Leaderboard'} />
             }
-            buttonOnePathTo="/contest-leaderboard"
+            buttonOnePathTo={`/contest-leaderboard${network}`}
             buttonTwoText={<FormattedMessage defaultMessage={'Contest Home'} />}
             buttonTwoPathTo="/contest"
           />
