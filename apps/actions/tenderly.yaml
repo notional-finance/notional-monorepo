@@ -9,9 +9,9 @@ actions:
         function: src/index:blockHelloWorldFn
         trigger:
           type: block
-        block:
-          network:
-            - 1
-          blocks: 10
+          block:
+            network:
+              - 1
+            blocks: 10
         execution_type: sequential
 project_slug: notionalv2"
