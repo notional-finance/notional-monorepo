@@ -20,7 +20,7 @@ import {
 } from './account/holdings';
 import { AccruedIncentives, TotalIncentives } from './account/incentives';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
-import { CommunityName } from './account/communities';
+import { Community } from './account/communities';
 
 const userSettings = getFromLocalStorage('userSettings');
 
@@ -36,40 +36,6 @@ export enum PARTNERS {
   L2DAO = 'l2dao',
   LLAMAS = 'llamas',
 }
-
-
-export const ACCESS_NFTS = {
-  // TODO: Update these addresses to the correct ones
-  // [PARTNERS.DEGEN_SCORE]: {
-  //   address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
-  //   network: Network.Mainnet,
-  //   name: 'DEGEN SCORE',
-  //   id: PARTNERS.DEGEN_SCORE,
-  // },
-  [PARTNERS.CRYPTO_TESTERS]: {
-    address: '0x18a1bc18cefdc952121f319039502fdd5f48b6ff',
-    network: Network.Optimism,
-    name: 'Cryptotesters',
-    id: PARTNERS.CRYPTO_TESTERS,
-  },
-  [PARTNERS.L2DAO]: {
-    address: '0x66deb6cc4d65dc9cb02875dc5e8751d71fa5d50e',
-    network: Network.Optimism,
-    name: 'L2DAO',
-    id: PARTNERS.L2DAO
-  },
-  [PARTNERS.LLAMAS]: {
-    address: '0xe127ce638293fa123be79c25782a5652581db234',
-    network: Network.Mainnet,
-    name: 'Llama',
-    id: PARTNERS.LLAMAS,
-  },
-  // BETA_CONTEST: {
-  //   address: '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e',
-  //   network: Network.ArbitrumOne,
-  //   name: 'Notional Beta Contest',
-  // },
-};
 
 export const GATED_VAULTS: string[] = [];
 
@@ -129,7 +95,7 @@ interface AddressState {
     provider?: ethers.providers.Provider;
   };
   /** These are checked on wallet connection and associated with the wallet */
-  communityMembership?: CommunityName[];
+  communityMembership?: Community[];
   /** Checks if the address is sanctioned on wallet connection */
   isSanctionedAddress: boolean;
 

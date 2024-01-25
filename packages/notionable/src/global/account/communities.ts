@@ -5,46 +5,67 @@ import {
 } from '@notional-finance/util';
 import { Contract } from 'ethers';
 
-export type CommunityName = 'DEGEN_SCORE' | 'V3_BETA_CONTEST';
+export type CommunityName = 'DEGEN_SCORE' | 'V3_BETA_CONTEST' | 'L2DAO' | 'CRYPTO_TESTERS' | 'LLAMAS';
 
 export const GATED_VAULTS: Record<string, CommunityName[]> = {};
 
-interface Community {
+export interface Community {
   name: CommunityName;
+  displayName: string;
   address: string;
   network: Network;
 }
 
 export const CommunityNFTs: Community[] = [
+  // {
+  //   name: 'DEGEN_SCORE',
+  //   displayName: 'Degen Score',
+  //   address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
+  //   network: Network.Mainnet,
+  // },
   {
-    name: 'DEGEN_SCORE',
-    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
+    name: 'L2DAO',
+    displayName: 'L2DAO',
+    address: '0x66deb6cc4d65dc9cb02875dc5e8751d71fa5d50e',
+    network: Network.Optimism,
+  },
+  {
+    name: 'CRYPTO_TESTERS',
+    displayName: 'Cryptotesters',
+    address: '0x18a1bc18cefdc952121f319039502fdd5f48b6ff',
+    network: Network.Optimism,
+  },
+  {
+    name: 'LLAMAS',
+    displayName: 'Llama',
+    address: '0xe127ce638293fa123be79c25782a5652581db234',
     network: Network.Mainnet,
   },
-  {
-    name: 'V3_BETA_CONTEST',
-    address: '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e',
-    network: Network.ArbitrumOne,
-  },
+  // {
+  //   name: 'V3_BETA_CONTEST',
+  //   displayName: 'Notional Beta Contest',
+  //   address: '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e',
+  //   network: Network.ArbitrumOne,
+  // },
 ];
 
 export async function checkCommunityMembership(account: string) {
   return (
     await Promise.all(
-      CommunityNFTs.map(async ({ network, name, address }) => {
+      CommunityNFTs.map(async ({ network, name, address, displayName }) => {
+        console.log("TESSTING")
         const providerURL = getProviderURLFromNetwork(network, true);
         const url = `${providerURL}/getNFTs?owner=${account}&contractAddresses[]=${address}&withMetadata=false`;
-
         try {
           const response = await fetch(url);
           const data = await response.json();
-          return data.totalCount > 0 ? name : undefined;
+          return data.totalCount > 0 ? { network, name, address, displayName } : undefined;
         } catch (error) {
           return undefined;
         }
       })
     )
-  ).filter((m) => m !== undefined) as CommunityName[];
+  ).filter((m) => m !== undefined) as Community[];
 }
 
 export function checkSanctionedAddress(account: string) {

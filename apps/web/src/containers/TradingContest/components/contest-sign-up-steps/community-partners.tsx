@@ -1,8 +1,7 @@
 import { styled, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { Network, SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
-import { PARTNERS } from '@notional-finance/notionable';
+import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import {
   TitleText,
   ContestBodyText,
@@ -14,21 +13,14 @@ import Cryptotesters from './assets/Cryptotesters.svg';
 import L2DAO from './assets/L2DAO.svg';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 
-interface PartnerData {
-  name: string;
-  address: string;
-  network: Network;
-  id: PARTNERS;
-}
-
 const imgData = {
-  [PARTNERS.LLAMAS]: {
+  LLAMAS: {
     icon: Llama,
   },
-  [PARTNERS.CRYPTO_TESTERS]: {
+  CRYPTO_TESTERS: {
     icon: Cryptotesters,
   },
-  [PARTNERS.L2DAO]: {
+  L2DAO: {
     icon: L2DAO,
   },
 };
@@ -36,9 +28,11 @@ const imgData = {
 const CommunityFound = () => {
   const theme = useTheme();
   const {
-    globalState: { partnerData },
+    globalState: { communityMembership },
   } = useNotionalContext();
-  const currentPartnerData = partnerData as PartnerData;
+  const communityData = communityMembership
+    ? communityMembership[0]
+    : undefined;
 
   return (
     <StepContainer>
@@ -53,9 +47,7 @@ const CommunityFound = () => {
           }}
         >
           <img
-            src={
-              currentPartnerData?.id && imgData[currentPartnerData?.id]?.icon
-            }
+            src={communityData?.name && imgData[communityData?.name]?.icon}
             alt="community icon"
             style={{
               height: theme.spacing(7),
@@ -66,7 +58,7 @@ const CommunityFound = () => {
           <FormattedMessage
             defaultMessage="{community} NFT Found"
             values={{
-              community: currentPartnerData?.name,
+              community: communityData?.displayName,
             }}
           />
         </TitleText>
@@ -74,7 +66,7 @@ const CommunityFound = () => {
           <FormattedMessage
             defaultMessage="You are set to compete for the special {community} prizes! Confirm to move on."
             values={{
-              community: currentPartnerData?.name,
+              community: communityData?.displayName,
             }}
           />
         </ContestBodyText>
@@ -162,10 +154,10 @@ const CommunityNotFound = () => {
 
 export const CommunityPartners = () => {
   const {
-    globalState: { hasContestNFT },
+    globalState: { communityMembership },
   } = useNotionalContext();
-  console.log({ hasContestNFT });
-  return hasContestNFT === 'confirmed' ? (
+  console.log({ communityMembership });
+  return communityMembership && communityMembership?.length > 0 ? (
     <CommunityFound />
   ) : (
     <CommunityNotFound />

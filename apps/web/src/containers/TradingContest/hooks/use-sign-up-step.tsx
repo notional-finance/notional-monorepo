@@ -44,7 +44,11 @@ export const useSignUpStep = () => {
       params.step !== CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION
     ) {
       history.push(CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS);
-    } else if (!connected && !isAccountPending) {
+    } else if (
+      !connected &&
+      !isAccountPending &&
+      params.step !== CONTEST_SIGN_UP_STEPS.CONNECT_WALLET
+    ) {
       history.push(CONTEST_SIGN_UP_STEPS.CONNECT_WALLET);
     }
   }, [connected, isAccountPending, history, params]);
