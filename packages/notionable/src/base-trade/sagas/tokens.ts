@@ -157,6 +157,7 @@ export function availableTokens(
       const { collateralFilter, depositFilter, debtFilter } = getTradeConfig(
         s.tradeType
       );
+      console.log({selectedNetwork})
       const listedTokens =
         Registry.getTokenRegistry().getAllTokens(selectedNetwork);
 
@@ -164,6 +165,7 @@ export function availableTokens(
       // first selected here and then we simulate the newState with this deposit token set before
       // we apply collateral and debt filters. This reduces race conditions and improves front end
       // performance.
+      console.log({listedTokens})
       const availableDepositTokens = listedTokens
         .filter((t) => t.tokenType === 'Underlying' && !!t.currencyId)
         // By default we only allow tokens with a currency id specified (i.e. they are listed

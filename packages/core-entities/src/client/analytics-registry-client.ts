@@ -15,6 +15,7 @@ import {
   ASSET_PRICE_ORACLES,
   ActiveAccounts,
   HistoricalOracles,
+  HistoricalTrading,
   VaultData,
 } from '../server/analytics-server';
 import { PRICE_ORACLES } from './oracle-registry-client';
@@ -230,6 +231,11 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   getActiveAccounts(network: Network) {
     return (super.getLatestFromSubject(network, 'activeAccounts') ||
       {}) as ActiveAccounts;
+  }
+
+  getHistoricalTrading(network: Network) {
+    return (super.getLatestFromSubject(network, 'historicalTrading') ||
+      {}) as HistoricalTrading;
   }
 
   getPriceChanges(

@@ -20,12 +20,14 @@ import {
 import { GlobalState } from '../global-state';
 import { isAppReady } from '../../utils';
 import { globalWhenAppReady$ } from './on-app-load';
+import { HistoricalTrading } from 'packages/core-entities/src/server/analytics-server';
 
 export function onDataUpdate(global$: Observable<GlobalState>) {
   return merge(
     onYieldsUpdate$(global$),
     onPriceChangeUpdate$(global$),
-    onActiveAccounts$(global$)
+    onActiveAccounts$(global$),
+    onHistoricalTrading$(global$)
   );
 }
 
@@ -102,6 +104,29 @@ function onActiveAccounts$(global$: Observable<GlobalState>) {
             }
             return acc;
           }, {} as Record<Network, Record<string, number>>),
+        }))
+      );
+    })
+  );
+}
+
+function onHistoricalTrading$(global$: Observable<GlobalState>) {
+  return global$.pipe(
+    distinctUntilChanged(
+      (p, c) =>
+        isAppReady(p.networkState) === isAppReady(c.networkState) &&
+        c.baseCurrency === p.baseCurrency
+    ),
+    filter((g) => isAppReady(g.networkState)),
+    switchMap(() => {
+      return timer(500, 60_000).pipe(
+        map(() => ({
+          historicalTrading: SupportedNetworks.reduce((acc, n) => {
+            if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
+              acc[n] = Registry.getAnalyticsRegistry().getHistoricalTrading(n);
+            }
+            return acc;
+          }, {} as Record<Network, HistoricalTrading>),
         }))
       );
     })
