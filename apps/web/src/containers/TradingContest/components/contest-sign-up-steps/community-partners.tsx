@@ -14,6 +14,13 @@ import L2DAO from './assets/L2DAO.svg';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { COMMUNITY_NAMES } from '@notional-finance/notionable';
 
+interface PartnerData {
+  name: string;
+  address: string;
+  network: Network;
+  id: PARTNERS;
+}
+
 const imgData = {
   [COMMUNITY_NAMES.LLAMAS]: {
     icon: Llama,
