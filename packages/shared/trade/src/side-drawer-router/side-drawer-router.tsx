@@ -124,7 +124,14 @@ const DrawerRoute = ({
         const r = getComparisonKey(k, requiredState);
         return s === r;
       });
-    if (allStateMatches || state['pathname'] !== path) return;
+
+    if (
+      allStateMatches ||
+      // Use a "startsWith" here to support potential suffix to the path
+      // such as in roll debt
+      (state['pathname'] && !state['pathname'].startsWith(path))
+    )
+      return;
 
     updateState(requiredState);
   }, [updateState, requiredState, state, path]);

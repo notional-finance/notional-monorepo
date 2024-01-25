@@ -102,7 +102,7 @@ export const LiquidityLeveragedSideDrawer = () => {
                   collateral: currentPosition?.debt.balance.token,
                   collateralBalance: currentPosition?.debt.balance.neg(),
                 }),
-            selectedDepositToken,
+            maxWithdraw: false,
             customizeLeverage: true,
           },
         },
