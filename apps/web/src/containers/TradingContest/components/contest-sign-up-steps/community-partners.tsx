@@ -156,7 +156,6 @@ export const CommunityPartners = () => {
   const {
     globalState: { communityMembership },
   } = useNotionalContext();
-  console.log({ communityMembership });
   return communityMembership && communityMembership?.length > 0 ? (
     <CommunityFound />
   ) : (
