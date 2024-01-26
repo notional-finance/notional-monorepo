@@ -39,17 +39,9 @@ export const useSignUpStep = () => {
     if (
       connected &&
       !isAccountPending &&
-      params.step !== CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS &&
-      params.step !== CONTEST_SIGN_UP_STEPS.MINT_PASS &&
-      params.step !== CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION
+      params.step === CONTEST_SIGN_UP_STEPS.CONNECT_WALLET
     ) {
       history.push(CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS);
-    } else if (
-      !connected &&
-      !isAccountPending &&
-      params.step !== CONTEST_SIGN_UP_STEPS.CONNECT_WALLET
-    ) {
-      history.push(CONTEST_SIGN_UP_STEPS.CONNECT_WALLET);
     }
   }, [connected, isAccountPending, history, params]);
 
