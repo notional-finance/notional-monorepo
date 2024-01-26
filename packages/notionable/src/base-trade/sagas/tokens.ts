@@ -150,7 +150,7 @@ export function availableTokens(
       // we apply collateral and debt filters. This reduces race conditions and improves front end
       // performance.
       const availableDepositTokens = listedTokens
-        .filter((t) => t.tokenType === 'Underlying')
+        .filter((t) => t.tokenType === 'Underlying' && !!t.currencyId)
         // By default we only allow tokens with a currency id specified (i.e. they are listed
         // on Notional)
         .filter((t) =>

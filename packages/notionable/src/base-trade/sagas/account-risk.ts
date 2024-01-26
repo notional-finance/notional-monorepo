@@ -95,7 +95,7 @@ export function postAccountRisk(
             (s.postAccountRisk?.freeCollateral.isPositive() ||
               s.postAccountRisk?.freeCollateral.isZero()) &&
             inputErrors === false,
-          postTradeBalances: s.postTradeBalances?.concat(postTradeIncentives),
+          postTradeBalances: s.postTradeBalances,
           postTradeIncentives,
         };
       }
