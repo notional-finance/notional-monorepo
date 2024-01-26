@@ -883,7 +883,9 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
   ];
 
   const liquidationPrices = formatLiquidationPrices(
-    (liquidationPrice || []).filter((p) => p.isPriceRisk),
+    (liquidationPrice || []).filter(
+      (p) => p.isAssetRisk && p.asset.tokenType === 'VaultShare'
+    ),
     baseCurrency,
     intl
   );
