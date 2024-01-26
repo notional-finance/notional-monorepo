@@ -108,8 +108,11 @@ export function simulateTransaction(
                 } else if (
                   postTradeIncentives?.find((i) => i.tokenId === t.tokenId)
                 ) {
-                  // Include incentive tokens in the check
-                  return true;
+                  // Do not include incentive tokens in the check, this causes issues
+                  // with the simulation for a token like ARB which is both listed and
+                  // given out as an incentive. Prior balances are added which causes the
+                  // check to break.
+                  return false;
                 } else {
                   return t.tokenType !== 'Underlying' && !t.isVaultToken;
                 }
