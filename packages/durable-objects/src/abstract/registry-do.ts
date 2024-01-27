@@ -27,13 +27,25 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
   }
 
   async onRefresh() {
+    const timeoutDuration = 5000;
+
     try {
       await Promise.all(
         this.env.SUPPORTED_NETWORKS.map(async (network) => {
           if (network === Network.All && !this.registry.hasAllNetwork()) return;
 
-          // Call refresh on the registry for each network on its specified interval cadence
-          await this.registry.refresh(network);
+          // Wrap each promise with a timeout
+          const refreshPromise = this.registry.refresh(network);
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(
+              () => reject(new Error(`Timeout for ${network}`)),
+              timeoutDuration
+            )
+          );
+
+          // Will reject after 5 seconds....
+          await Promise.race([refreshPromise, timeoutPromise]);
+
           // put the serialized data into the correct network storage key
           const data = this.registry.serializeToJSON(network);
           const key = `${this.serviceName}/${network}`;
