@@ -13,7 +13,12 @@ import { useLocation } from 'react-router-dom';
 import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { TradeActionSummary } from '@notional-finance/trade';
-import { useLiquidityFaq, useTotalsData, useReturnDriversTable } from './hooks';
+import {
+  useLiquidityFaq,
+  useTotalsData,
+  useReturnDriversTable,
+  useLiquidityPoolsTable,
+} from './hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { LiquidityContext } from '../liquidity';
@@ -35,6 +40,7 @@ export const LiquidityVariableSummary = () => {
   );
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable();
+  useLiquidityPoolsTable();
   const { apyData, tvlData } = useTokenHistory(collateral);
 
   return (

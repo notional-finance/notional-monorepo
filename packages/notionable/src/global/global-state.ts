@@ -56,6 +56,21 @@ const CACHE_HOSTNAME =
 
 export type NetworkLoadingState = 'Pending' | 'Loaded' | undefined;
 
+export type HistoricalTrading = Record<
+  string,
+  {
+    bundleName: string;
+    currencyId: number;
+    fCashId: string;
+    fCashValue: string;
+    pCash: string;
+    pCashInUnderlying: string;
+    timestamp: number;
+    blockNumber: number;
+    transactionHash: string;
+  }[]
+>;
+
 export interface NotionalError {
   code: number;
   msg: string;
@@ -135,6 +150,7 @@ interface ApplicationState {
   >;
   /** All active accounts from the analytics registry */
   activeAccounts?: Record<Network, Record<string, number>>;
+  historicalTrading?: Record<Network, HistoricalTrading>;
 }
 
 /** These settings are associated with the user directly */
