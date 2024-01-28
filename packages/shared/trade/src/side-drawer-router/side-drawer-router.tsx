@@ -66,7 +66,8 @@ export const SideDrawerRouter = ({
         ':path',
         hasPosition ? defaultHasPosition : defaultNoPosition
       );
-      history.push(defaultPath);
+      // Use replace here to avoid breaking the back button
+      history.replace(defaultPath);
     }
   }, [
     routeMatch,
