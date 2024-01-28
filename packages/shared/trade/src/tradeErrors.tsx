@@ -60,4 +60,9 @@ export const tradeErrors = defineMessages({
       'Insufficient balance. Notional accepts native USDC, not USDC.e on Arbitrum.',
     description: 'warning message',
   },
+  exceedSupplyCap: {
+    defaultMessage:
+      'Supply Cap Exceeded. Max Deposit: {maxDeposit}',
+    description: 'warning message',
+  },
 });

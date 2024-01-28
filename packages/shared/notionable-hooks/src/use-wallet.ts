@@ -6,7 +6,10 @@ import {
 } from '@notional-finance/core-entities';
 import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
 import { Network, groupArrayToMap } from '@notional-finance/util';
-import { formatNumberAsPercent, truncateAddress } from '@notional-finance/helpers';
+import {
+  formatNumberAsPercent,
+  truncateAddress,
+} from '@notional-finance/helpers';
 import { useAllMarkets } from './use-market';
 import { useNotionalContext } from './use-notional';
 
@@ -214,4 +217,27 @@ export function useMaxAssetBalance(token: TokenDefinition | undefined) {
         )
         ?.toToken(token)
     : profile?.balances.find((b) => b.tokenId === token?.id);
+}
+
+export function useExceedsSupplyCap(deposit: TokenBalance | undefined) {
+  if (deposit) {
+    const { maxUnderlyingSupply, currentUnderlyingSupply } =
+      Registry.getConfigurationRegistry().getMaxSupply(
+        deposit?.network,
+        deposit?.currencyId
+      );
+
+    return {
+      currentUnderlyingSupply,
+      maxUnderlyingSupply,
+      maxDeposit: maxUnderlyingSupply.gt(currentUnderlyingSupply)
+        ? maxUnderlyingSupply.sub(currentUnderlyingSupply)
+        : currentUnderlyingSupply.copy(0),
+      willExceedCap: currentUnderlyingSupply
+        .add(deposit)
+        .gt(maxUnderlyingSupply),
+    };
+  }
+
+  return undefined;
 }
