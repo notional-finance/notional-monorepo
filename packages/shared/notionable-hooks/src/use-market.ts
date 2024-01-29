@@ -249,10 +249,20 @@ export const useFCashMarketHighUtilization = (
   const {
     globalState: { isFCashHighUtilization },
   } = useNotionalContext();
+  if (!isFCashHighUtilization || token?.currencyId === undefined) return false;
 
-  return isFCashHighUtilization && !!token?.currencyId
-    ? isFCashHighUtilization[token.network][token.currencyId] === true
-    : false;
+  if (token.tokenType === 'nToken') {
+    // If any one of the values is true then we mark this as high utilization
+    return !Object.values(
+      isFCashHighUtilization[token.network][token.currencyId]
+    ).every((_) => _ === false);
+  } else if (token.tokenType === 'fCash') {
+    return (
+      isFCashHighUtilization[token.network][token.currencyId][token.id] === true
+    );
+  } else {
+    return false;
+  }
 };
 
 export const useSpotMaturityData = (

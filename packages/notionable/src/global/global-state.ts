@@ -115,8 +115,8 @@ interface ApplicationState {
   >;
   /** All active accounts from the analytics registry */
   activeAccounts?: Record<Network, Record<string, number>>;
-  /** Current market utilization */
-  isFCashHighUtilization?: Record<Network, Record<number, boolean>>;
+  /** Current market utilization: indexes are currencyId => fCashId */
+  isFCashHighUtilization?: Record<Network, Record<number, Record<string, boolean>>>;
 }
 
 /** These settings are associated with the user directly */

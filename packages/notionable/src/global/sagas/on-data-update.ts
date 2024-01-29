@@ -36,7 +36,7 @@ function onHighUtilization$(global$: Observable<GlobalState>) {
       return timer(500, 10_000).pipe(
         map(() => {
           return {
-            marketUtilization: SupportedNetworks.reduce((acc, n) => {
+            isFCashHighUtilization: SupportedNetworks.reduce((acc, n) => {
               acc[n] = Registry.getTokenRegistry()
                 .getAllTokens(n)
                 .filter((t) => t.tokenType === 'nToken')
@@ -46,13 +46,12 @@ function onHighUtilization$(global$: Observable<GlobalState>) {
                     n,
                     nToken.currencyId
                   );
-                  a[nToken.currencyId] =
-                    market.getMarketUtilization().isHighUtilization;
+                  a[nToken.currencyId] = market.getMarketUtilization();
 
                   return a;
-                }, {} as Record<number, boolean>);
+                }, {} as Record<number, Record<string, boolean>>);
               return acc;
-            }, {} as Record<Network, Record<number, boolean>>),
+            }, {} as Record<Network, Record<number, Record<string, boolean>>>),
           };
         })
       );
