@@ -24,6 +24,14 @@ import { Community } from './account/communities';
 
 const userSettings = getFromLocalStorage('userSettings');
 
+export enum COMMUNITY_NAMES {
+  DEGEN_SCORE = 'DEGEN_SCORE',
+  V3_BETA_CONTEST = 'V3_BETA_CONTEST',
+  L2DAO = 'L2DAO',
+  CRYPTO_TESTERS = 'CRYPTO_TESTERS',
+  LLAMAS = 'LLAMAS',
+}
+
 export enum BETA_ACCESS {
   PENDING = 'pending',
   CONFIRMED = 'confirmed',

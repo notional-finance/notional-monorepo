@@ -4,13 +4,13 @@ import {
   getProviderURLFromNetwork,
 } from '@notional-finance/util';
 import { Contract } from 'ethers';
+import { COMMUNITY_NAMES } from '../global-state';
 
-export type CommunityName = 'DEGEN_SCORE' | 'V3_BETA_CONTEST' | 'L2DAO' | 'CRYPTO_TESTERS' | 'LLAMAS';
 
-export const GATED_VAULTS: Record<string, CommunityName[]> = {};
+export const GATED_VAULTS: Record<string, COMMUNITY_NAMES[]> = {};
 
 export interface Community {
-  name: CommunityName;
+  name: COMMUNITY_NAMES;
   displayName: string;
   address: string;
   network: Network;
@@ -18,31 +18,31 @@ export interface Community {
 
 export const CommunityNFTs: Community[] = [
   // {
-  //   name: 'DEGEN_SCORE',
+  //   name: COMMUNITY_NAMES.DEGEN_SCORE,
   //   displayName: 'Degen Score',
   //   address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
   //   network: Network.Mainnet,
   // },
   {
-    name: 'L2DAO',
+    name: COMMUNITY_NAMES.L2DAO,
     displayName: 'L2DAO',
     address: '0x66deb6cc4d65dc9cb02875dc5e8751d71fa5d50e',
     network: Network.Optimism,
   },
   {
-    name: 'CRYPTO_TESTERS',
+    name: COMMUNITY_NAMES.CRYPTO_TESTERS,
     displayName: 'Cryptotesters',
     address: '0x18a1bc18cefdc952121f319039502fdd5f48b6ff',
     network: Network.Optimism,
   },
   {
-    name: 'LLAMAS',
+    name: COMMUNITY_NAMES.LLAMAS,
     displayName: 'Llama',
     address: '0xe127ce638293fa123be79c25782a5652581db234',
     network: Network.Mainnet,
   },
   // {
-  //   name: 'V3_BETA_CONTEST',
+  //   name: COMMUNITY_NAMES.V3_BETA_CONTEST,
   //   displayName: 'Notional Beta Contest',
   //   address: '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e',
   //   network: Network.ArbitrumOne,

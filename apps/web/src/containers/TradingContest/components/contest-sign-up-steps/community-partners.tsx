@@ -12,15 +12,16 @@ import Llama from './assets/Llama.svg';
 import Cryptotesters from './assets/Cryptotesters.svg';
 import L2DAO from './assets/L2DAO.svg';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { COMMUNITY_NAMES } from '@notional-finance/notionable';
 
 const imgData = {
-  LLAMAS: {
+  [COMMUNITY_NAMES.LLAMAS]: {
     icon: Llama,
   },
-  CRYPTO_TESTERS: {
+  [COMMUNITY_NAMES.CRYPTO_TESTERS]: {
     icon: Cryptotesters,
   },
-  L2DAO: {
+  [COMMUNITY_NAMES.L2DAO]: {
     icon: L2DAO,
   },
 };
