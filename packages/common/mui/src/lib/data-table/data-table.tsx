@@ -30,7 +30,7 @@ import {
 interface DataTableProps {
   columns: Array<DataTableColumn>;
   data: Array<any>;
-  pendingTokenData?: Record<any, any>;
+  pendingTokenData?: { hash: string}[];
   pendingMessage?: ReactNode;
   CustomRowComponent?: ({ row }: { row: any }) => JSX.Element;
   CustomTabComponent?: React.FunctionComponent;
@@ -209,9 +209,9 @@ export const DataTable = ({
       )}
 
       {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
-      {pendingTokenData && pendingTokenData.pendingTxns.length > 0 && (
+      {pendingTokenData && pendingTokenData?.length > 0 && (
         <DataTablePending
-          pendingTxns={pendingTokenData.pendingTxns}
+          pendingTxns={pendingTokenData.map((p) => p.hash)}
           pendingMessage={pendingMessage}
         />
       )}

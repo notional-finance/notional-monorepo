@@ -1,5 +1,6 @@
 import { PRODUCTS } from '@notional-finance/util';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import {
   useThemeVariant,
   useAllMarkets,
@@ -12,9 +13,10 @@ import { Currency } from '@notional-finance/mui';
 export const BorrowVariableCardView = () => {
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
+  const network = useSelectedNetwork();
   const {
     yields: { variableBorrow },
-  } = useAllMarkets();
+  } = useAllMarkets(network);
 
   return (
     <ThemeProvider theme={themeLanding}>
@@ -44,7 +46,7 @@ export const BorrowVariableCardView = () => {
                 key={index}
                 symbol={underlying.symbol}
                 rate={totalAPY}
-                route={`/${PRODUCTS.BORROW_VARIABLE}/${underlying.symbol}`}
+                route={`/${PRODUCTS.BORROW_VARIABLE}/${network}/${underlying.symbol}`}
                 returnTitle={<FormattedMessage defaultMessage="VARIABLE APY" />}
                 buttonText={
                   <FormattedMessage

@@ -23,8 +23,16 @@ export const VaultSideDrawer = ({
 }: VaultSideDrawerProps) => {
   const history = useHistory();
   const { state } = context;
-  const { minBorrowSize, vaultAddress, tradeType: _tradeType } = state;
-  const { minDepositRequired } = useVaultProperties(vaultAddress);
+  const {
+    minBorrowSize,
+    vaultAddress,
+    tradeType: _tradeType,
+    selectedNetwork,
+  } = state;
+  const { minDepositRequired } = useVaultProperties(
+    selectedNetwork,
+    vaultAddress
+  );
   const tradeType = _tradeType as VaultTradeType;
 
   if (!tradeType) return null;
@@ -35,7 +43,7 @@ export const VaultSideDrawer = ({
       showDrawer={false}
       heading={messages[tradeType].heading}
       advancedToggle={advancedToggle}
-      onCancelRouteCallback={() => history.push(`/vaults/${vaultAddress}`)}
+      onCancelRouteCallback={() => history.push(`/vaults/${selectedNetwork}/${vaultAddress}`)}
       hideTextOnMobile={false}
       riskComponent={
         tradeType === 'CreateVaultPosition' ? (

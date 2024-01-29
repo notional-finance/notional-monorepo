@@ -6,20 +6,22 @@ import {
   ManageSideDrawer,
   SideDrawerButton,
 } from '@notional-finance/mui';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useVaultProperties } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import { VaultDetailsTable } from '../components';
 import { useManageVault } from '../hooks/use-manage-vault';
+import { useTheme } from '@mui/material';
 
 export const ManageVault = () => {
+  const theme = useTheme();
   const {
-    state: { vaultAddress },
+    state: { vaultAddress, selectedNetwork },
   } = useContext(VaultActionContext);
-  const { reduceLeverageOptions, manageVaultOptions, rollMaturityOptions } =
-    useManageVault();
-  const { vaultName } = useVaultProperties(vaultAddress);
+  const { manageVaultOptions, rollMaturityOptions } = useManageVault();
+  const { vaultName } = useVaultProperties(selectedNetwork, vaultAddress);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -34,23 +36,35 @@ export const ManageVault = () => {
       )),
     },
     {
-      title: <FormattedMessage defaultMessage={'Reduce Leverage'} />,
-      buttons: reduceLeverageOptions.map(({ label, link }, index) => (
-        <SideDrawerButton key={index} to={link}>
-          <ButtonText>{label}</ButtonText>
+      title: <FormattedMessage defaultMessage={'Adjust Borrow Maturity'} />,
+      buttons: rollMaturityOptions.map(({ label, link, totalAPY }, index) => (
+        <SideDrawerButton
+          key={index}
+          to={link}
+          variant="outlined"
+          sx={{
+            border: `1px solid ${theme.palette.primary.light}`,
+            background: 'unset',
+            ':hover': {
+              background: theme.palette.info.light,
+              '.button-data': {
+                background: theme.palette.background.default,
+              },
+            },
+          }}
+        >
+          <ButtonText sx={{ display: 'flex', flex: 1 }}>{label}</ButtonText>
+          {totalAPY !== undefined && (
+            <ButtonData
+              className={`button-data`}
+              sx={{
+                background: theme.palette.info.light,
+                border: 'unset',
+              }}
+            >{`${formatNumberAsPercent(totalAPY)} Total APY`}</ButtonData>
+          )}
         </SideDrawerButton>
       )),
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Convert Maturity'} />,
-      buttons: rollMaturityOptions.map(
-        ({ label, link, totalAPY, onClick }, index) => (
-          <SideDrawerButton key={index} to={link} onClick={onClick}>
-            <ButtonText sx={{ display: 'flex', flex: 1 }}>{label}</ButtonText>
-            <ButtonData>{totalAPY}</ButtonData>
-          </SideDrawerButton>
-        )
-      ),
     },
   ];
 
@@ -67,7 +81,7 @@ export const ManageVault = () => {
       detailsTable={
         <VaultDetailsTable key={'vault-risk-table'} hideUpdatedColumn={true} />
       }
-      portfolioLink="/portfolio/vaults"
+      portfolioLink={`/portfolio/${selectedNetwork}/vaults`}
       optionSections={optionSections}
     />
   );

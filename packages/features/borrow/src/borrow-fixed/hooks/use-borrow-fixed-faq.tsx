@@ -4,9 +4,9 @@ import { Box, useTheme } from '@mui/material';
 import { ExternalLink, Body } from '@notional-finance/mui';
 import { ExitEarlyFaq } from '../components';
 import { BorrowFixedContext } from '../borrow-fixed';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import {
   getEtherscanAddressLink,
+  Network,
   NotionalAddress,
 } from '@notional-finance/util';
 
@@ -17,9 +17,8 @@ interface FaqProps {
   componentAnswer?: ReactNode;
 }
 
-export const useBorrowFixedFaq = () => {
+export const useBorrowFixedFaq = (selectedNetwork: Network | undefined) => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork();
   const {
     state: { selectedDepositToken },
   } = useContext(BorrowFixedContext);

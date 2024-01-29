@@ -33,11 +33,15 @@ export const LendLeveraged = () => {
   const { pathname } = useLocation();
   const context = useTradeContext('LeveragedLend');
   const { state } = context;
-  const { isReady, confirm, selectedDepositToken, deposit } = state;
+  const { isReady, confirm, selectedDepositToken, deposit, selectedNetwork } =
+    state;
   const { fCashPriceExposureColumns, fCashPriceExposureData } =
     useFCashPriceExposureTable(state);
-  const { faqs, faqHeaderLinks } = useLendLeveragedFaq(selectedDepositToken);
-  const { ratesColumns, ratesData } = useRatesTable(selectedDepositToken);
+  const { faqs, faqHeaderLinks } = useLendLeveragedFaq(
+    selectedDepositToken,
+    selectedNetwork
+  );
+  const { ratesColumns, ratesData } = useRatesTable(deposit);
 
   return (
     <LendLeveragedContext.Provider value={context}>

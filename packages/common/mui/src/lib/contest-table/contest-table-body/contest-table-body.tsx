@@ -94,7 +94,7 @@ export const ContestTableBody = ({
                 return (
                   <TableCell
                     sx={{
-                      padding: cell['column'].padding || '8px 12px',
+                      padding: cell['column'].padding || '8px 16px',
                       textAlign: cell['column'].textAlign || 'center',
                       whiteSpace: 'nowrap',
                       width: cell['column']['width'] || 'auto',
@@ -106,7 +106,7 @@ export const ContestTableBody = ({
                         : 'none',
                       borderBottom: `1px solid ${colors.neonTurquoise}`,
 
-                      fontSize: '14px',
+                      fontSize: cell['column']['fontSize'] || '14px',
                     }}
                     {...cell['getCellProps']()}
                   >

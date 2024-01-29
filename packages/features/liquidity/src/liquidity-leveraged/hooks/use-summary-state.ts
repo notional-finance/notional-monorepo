@@ -1,6 +1,6 @@
 import { LiquidityContext } from '../../liquidity';
 import { useContext } from 'react';
-import { useLeveragedNTokenPositions } from './use-leveraged-ntoken-positions';
+import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import { BaseTradeState } from '@notional-finance/notionable';
 
 /**
@@ -11,8 +11,9 @@ import { BaseTradeState } from '@notional-finance/notionable';
  */
 export const useSummaryState = (): BaseTradeState => {
   const { state: internalState } = useContext(LiquidityContext);
-  const { selectedDepositToken } = internalState;
+  const { selectedDepositToken, selectedNetwork } = internalState;
   const { currentHoldings } = useLeveragedNTokenPositions(
+    selectedNetwork,
     selectedDepositToken || ''
   );
 

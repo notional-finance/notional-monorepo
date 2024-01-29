@@ -2,12 +2,11 @@ import {
   NotionalContext,
   useGlobalContext,
   useSanctionsBlock,
-  useVaultNftCheck,
+  useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { TrackingConsent } from '@notional-finance/shared-web';
+import { FeatureLoader, TrackingConsent } from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
-import { useEffect } from 'react';
-import { Switch } from 'react-router';
+import { Redirect, Route, Switch, useParams } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
 import { ServerError } from '../ServerError/server-error';
 import RouteContainer from './RouteContainer';
@@ -16,7 +15,6 @@ import { OnboardContext } from '@notional-finance/wallet';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ScrollToTop } from '@notional-finance/mui';
-import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { useConnect } from '@notional-finance/wallet/hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 // Feature shell views
@@ -49,12 +47,28 @@ import {
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
-// import {
-//   ContestHome,
-//   ContestRules,
-//   ContestLeaderBoard,
-// } from '../../containers/TradingContest';
+import {
+  ContestHome,
+  ContestRules,
+  ContestSignUp,
+  ContestLeaderBoard,
+} from '../../containers/TradingContest';
 import { Markets } from '../Markets';
+import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+
+const RedirectToDefaultNetwork = () => {
+  const walletNetwork = useWalletConnectedNetwork();
+  const { basePath } = useParams<{ basePath: string }>();
+  return (
+    <Redirect
+      path={basePath}
+      from={basePath}
+      to={`${basePath}/${
+        walletNetwork || getDefaultNetworkFromHostname(window.location.hostname)
+      }`}
+    />
+  );
+};
 
 const AllRoutes = () => {
   useSanctionsBlock();
@@ -68,27 +82,27 @@ const AllRoutes = () => {
       <RouteContainer>
         <Switch>
           <AppLayoutRoute
-            path="/borrow-fixed/:selectedDepositToken"
+            path="/borrow-fixed/:selectedNetwork/:selectedDepositToken"
             component={BorrowFixed}
             routeType="Transaction"
           />
           <AppLayoutRoute
-            path="/borrow-fixed"
+            path="/borrow-fixed/:selectedNetwork"
             component={BorrowFixedCardView}
             routeType="Card"
           />
           <AppLayoutRoute
-            path="/borrow-variable/:selectedDepositToken"
+            path="/borrow-variable/:selectedNetwork/:selectedDepositToken"
             component={BorrowVariable}
             routeType="Transaction"
           />
           <AppLayoutRoute
-            path="/borrow-variable"
+            path="/borrow-variable/:selectedNetwork"
             component={BorrowVariableCardView}
             routeType="Card"
           />
           <AppLayoutRoute
-            path="/lend-fixed/:selectedDepositToken"
+            path="/lend-fixed/:selectedNetwork/:selectedDepositToken"
             component={LendFixed}
             routeType="Transaction"
           />
@@ -98,17 +112,17 @@ const AllRoutes = () => {
             routeType="Transaction"
           /> */}
           <AppLayoutRoute
-            path="/lend-fixed"
+            path="/lend-fixed/:selectedNetwork"
             component={LendCardView}
             routeType="Card"
           />
           <AppLayoutRoute
-            path="/lend-variable/:selectedDepositToken"
+            path="/lend-variable/:selectedNetwork/:selectedDepositToken"
             component={LendVariable}
             routeType="Transaction"
           />
           <AppLayoutRoute
-            path="/lend-variable"
+            path="/lend-variable/:selectedNetwork"
             component={LendVariableCardView}
             routeType="Card"
           />
@@ -118,57 +132,72 @@ const AllRoutes = () => {
             routeType="Card"
           /> */}
           <AppLayoutRoute
-            path="/liquidity-variable/:selectedDepositToken"
+            path="/liquidity-variable/:selectedNetwork/:selectedDepositToken"
             component={LiquidityVariable}
             routeType="Transaction"
           />
           <AppLayoutRoute
-            path="/liquidity-variable"
+            path="/liquidity-variable/:selectedNetwork"
             component={LiquidityVariableCardView}
             routeType="Card"
           />
           <AppLayoutRoute
-            path="/liquidity-leveraged/:action/:selectedDepositToken"
+            path="/liquidity-leveraged/:selectedNetwork/:action/:selectedDepositToken/:selectedToken"
             component={LiquidityLeveraged}
             routeType="Transaction"
           />
           <AppLayoutRoute
-            path="/liquidity-leveraged"
+            path="/liquidity-leveraged/:selectedNetwork/:action/:selectedDepositToken"
+            component={LiquidityLeveraged}
+            routeType="Transaction"
+          />
+          <AppLayoutRoute
+            path="/liquidity-leveraged/:selectedNetwork"
             component={LiquidityLeveragedCardView}
             routeType="Card"
           />
           <AppLayoutRoute
-            path="/vaults/:vaultAddress"
+            path="/vaults/:selectedNetwork/:vaultAddress/:action/:selectedToken"
             component={VaultView}
             routeType="Transaction"
           />
           <AppLayoutRoute
-            path="/vaults"
+            path="/vaults/:selectedNetwork/:vaultAddress/:action"
+            component={VaultView}
+            routeType="Transaction"
+          />
+          <AppLayoutRoute
+            path="/vaults/:selectedNetwork/:vaultAddress"
+            component={VaultView}
+            routeType="Transaction"
+          />
+          <AppLayoutRoute
+            path="/vaults/:selectedNetwork"
             component={VaultCardView}
             routeType="Card"
           />
           <AppLayoutRoute
-            path={`/portfolio/:category/:sideDrawerKey/:selectedToken`}
+            path={`/portfolio/:selectedNetwork/:category/:sideDrawerKey/:selectedToken`}
             component={PortfolioFeatureShell}
             routeType="PortfolioTransaction"
           />
           <AppLayoutRoute
-            path="/portfolio/:category/:sideDrawerKey"
+            path="/portfolio/:selectedNetwork/:category/:sideDrawerKey"
             component={PortfolioFeatureShell}
             routeType="PortfolioTransaction"
           />
           <AppLayoutRoute
-            path="/portfolio/:category/"
+            path="/portfolio/:selectedNetwork/:category/"
             component={PortfolioFeatureShell}
             routeType="Portfolio"
           />
           <AppLayoutRoute
-            path="/portfolio"
+            path="/portfolio/:selectedNetwork"
             component={PortfolioFeatureShell}
             routeType="Portfolio"
           />
           <AppLayoutRoute
-            path="/markets"
+            path="/markets/:selectedNetwork"
             component={Markets}
             routeType="Markets"
           />
@@ -178,20 +207,35 @@ const AllRoutes = () => {
             routeType="Error"
           />
           {/* <AppLayoutRoute
-            path="/contest"
+            path="/contest/"
+            component={ContestHome}
+            routeType="Landing"
+          /> */}
+          <AppLayoutRoute
+            path="/contest/:selectedNetwork"
             component={ContestHome}
             routeType="Landing"
           />
           <AppLayoutRoute
-            path="/contest-rules"
+            path="/contest-rules/:selectedNetwork"
             component={ContestRules}
             routeType="Landing"
           />
           <AppLayoutRoute
-            path="/contest-leaderboard"
+            path="/contest-leaderboard/:selectedNetwork"
             component={ContestLeaderBoard}
             routeType="Landing"
-          /> */}
+          />
+          <AppLayoutRoute
+            path="/contest-sign-up/:selectedNetwork/:step/"
+            component={ContestSignUp}
+            routeType="Landing"
+          />
+          <AppLayoutRoute
+            path="/contest-sign-up/:selectedNetwork"
+            component={ContestSignUp}
+            routeType="Landing"
+          />
           <AppLayoutRoute
             path="/terms"
             component={TermsView}
@@ -213,6 +257,11 @@ const AllRoutes = () => {
           <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
           <AppLayoutRoute path="/unstake" component={StakeView} />
           <AppLayoutRoute path="/treasury" component={TreasuryView} /> */}
+
+          {/* Catches all the card pages that should be redirected to the default network */}
+          <Route path="/:basePath">
+            <RedirectToDefaultNetwork />
+          </Route>
           <AppLayoutRoute
             landingLayout
             path="/"
@@ -230,27 +279,21 @@ export const App = () => {
   const globalState = useGlobalContext();
 
   const {
-    updateState,
-    state: { themeVariant, hasContestNFT },
+    state: { themeVariant },
   } = globalState;
   const notionalTheme = useNotionalTheme(themeVariant);
-  useVaultNftCheck(hasContestNFT);
-
-  // Run as a useEffect here so that the observable "sees" the initial change
-  useEffect(() => {
-    updateState({
-      selectedNetwork: getDefaultNetworkFromHostname(window.location.hostname),
-    });
-  }, [updateState]);
+  //  useVaultNftCheck(hasContestNFT);
 
   return (
     <ThemeProvider theme={notionalTheme}>
       <CssBaseline />
       <NotionalContext.Provider value={globalState}>
-        <Web3OnboardProvider web3Onboard={OnboardContext}>
-          <ScrollToTop />
-          <AllRoutes />
-        </Web3OnboardProvider>
+        <FeatureLoader>
+          <Web3OnboardProvider web3Onboard={OnboardContext}>
+            <ScrollToTop />
+            <AllRoutes />
+          </Web3OnboardProvider>
+        </FeatureLoader>
       </NotionalContext.Provider>
     </ThemeProvider>
   );
