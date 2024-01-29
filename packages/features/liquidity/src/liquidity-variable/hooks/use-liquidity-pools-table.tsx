@@ -3,7 +3,12 @@ import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../../liquidity';
-// import { HistoricalTrading } from '@notional-finance/notionable';
+import { RATE_PRECISION } from '@notional-finance/util';
+import {
+  Registry,
+  TokenBalance,
+  fCashMarket,
+} from '@notional-finance/core-entities';
 
 export const useLiquidityPoolsTable = () => {
   const {
@@ -39,6 +44,27 @@ export const useLiquidityPoolsTable = () => {
             blockNumber,
             transactionHash,
           });
+          // get maturity off of this
+          const fCashTokenBalance = TokenBalance.fromID(
+            fCashValue,
+            fCashId,
+            selectedNetwork
+          );
+          const token = Registry.getTokenRegistry().getUnderlying(
+            selectedNetwork,
+            currencyId
+          );
+          const undelyingTokenBalance = TokenBalance.from(
+            pCashInUnderlying,
+            token
+          );
+
+          const interestRate = fCashMarket.getImpliedInterestRate(
+            undelyingTokenBalance,
+            fCashTokenBalance,
+            timestamp
+          );
+
           let action = '';
           if (bundleName.includes('Buy')) {
             action = bundleName.includes('Vault') ? 'Lend (Vault)' : 'Lend';
@@ -48,8 +74,10 @@ export const useLiquidityPoolsTable = () => {
 
           return {
             action: action,
-            details: fCashValue,
-            interestRate: pCashInUnderlying,
+            details: undelyingTokenBalance.toDisplayString(),
+            interestRate: interestRate
+              ? (interestRate * 100) / RATE_PRECISION
+              : 0,
             time: timestamp,
           };
         }

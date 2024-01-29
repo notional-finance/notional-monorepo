@@ -17,10 +17,9 @@ import {
   switchMap,
   timer,
 } from 'rxjs';
-import { GlobalState } from '../global-state';
+import { GlobalState, HistoricalTrading } from '../global-state';
 import { isAppReady } from '../../utils';
 import { globalWhenAppReady$ } from './on-app-load';
-import { HistoricalTrading } from 'packages/core-entities/src/server/analytics-server';
 
 export function onDataUpdate(global$: Observable<GlobalState>) {
   return merge(
