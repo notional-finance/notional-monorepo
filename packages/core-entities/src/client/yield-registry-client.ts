@@ -417,7 +417,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           (v.maturity ? v.maturity > getNowSeconds() : true) &&
           !!v.vaultAddress &&
           vaults.isVaultEnabled(v.network, v.vaultAddress) &&
-          whitelistedVaults.includes(v.vaultAddress)
+          whitelistedVaults(network).includes(v.vaultAddress)
       )
       .flatMap((v) => {
         const debt = debtYields.find(
