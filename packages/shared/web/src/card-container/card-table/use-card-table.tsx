@@ -6,9 +6,10 @@ import { RiskScoreIndicator } from './risk-score-indicator/risk-score-indicator'
 
 export const useCardTable = () => {
   const { pathname } = useLocation();
+  const [_, routeKey] = pathname.split('/');
 
-  switch (pathname) {
-    case '/lend-fixed':
+  switch (routeKey) {
+    case 'lend-fixed':
       return [
         {
           key: (
@@ -63,7 +64,7 @@ export const useCardTable = () => {
           value: <RiskScoreIndicator riskLevel="veryLow" />,
         },
       ];
-    case '/lend-variable':
+    case 'lend-variable':
       return [
         {
           key: (
@@ -118,7 +119,7 @@ export const useCardTable = () => {
           value: <RiskScoreIndicator riskLevel="veryLow" />,
         },
       ];
-    case '/lend-leveraged':
+    case 'lend-leveraged':
       return [
         {
           key: (
@@ -161,7 +162,7 @@ export const useCardTable = () => {
           value: <RiskScoreIndicator riskLevel="high" />,
         },
       ];
-    case '/vaults':
+    case 'vaults':
       return [
         {
           key: (
@@ -204,7 +205,7 @@ export const useCardTable = () => {
           value: <RiskScoreIndicator riskLevel="high" />,
         },
       ];
-    case '/liquidity-variable':
+    case 'liquidity-variable':
       return [
         {
           key: (
@@ -259,7 +260,7 @@ export const useCardTable = () => {
           value: <RiskScoreIndicator riskLevel="low" />,
         },
       ];
-    case '/liquidity-leveraged':
+    case 'liquidity-leveraged':
       return [
         {
           key: (
@@ -302,7 +303,7 @@ export const useCardTable = () => {
           value: <RiskScoreIndicator riskLevel="high" />,
         },
       ];
-    case '/borrow-fixed':
+    case 'borrow-fixed':
       return [
         {
           key: (

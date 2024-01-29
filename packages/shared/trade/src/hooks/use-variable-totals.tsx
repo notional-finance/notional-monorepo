@@ -3,23 +3,21 @@ import { TradeState } from '@notional-finance/notionable';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import {
   useFiat,
-  useCurrency,
   useTokenHistory,
+  usePrimeCash,
+  usePrimeDebt,
+  useTotalHolders,
 } from '@notional-finance/notionable-hooks';
 
 export const useVariableTotals = (state: TradeState) => {
+  const { deposit, collateral } = state;
   const isBorrow = state.tradeType === 'BorrowVariable';
   const baseCurrency = useFiat();
-  const { primeCash, primeDebt } = useCurrency();
   const { apyData } = useTokenHistory(state.debt);
+  const lenders = useTotalHolders(collateral);
 
-  const totalLentData = primeCash.find(
-    ({ underlying }) => underlying === state.deposit?.id
-  );
-
-  const totalBorrowedData = primeDebt.find(
-    ({ underlying }) => underlying === state.deposit?.id
-  );
+  const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
+  const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
 
   const getSevenDayAvgApy = () => {
     const seventhToLastNum = apyData.length - 8;
@@ -37,13 +35,12 @@ export const useVariableTotals = (state: TradeState) => {
   return [
     {
       title: <FormattedMessage defaultMessage={'Total Lent'} />,
-      value: totalLentData?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
+      value: primeCash?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
       title: <FormattedMessage defaultMessage={'Total Borrowed'} />,
-      value:
-        totalBorrowedData?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
+      value: primeDebt?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
@@ -52,7 +49,7 @@ export const useVariableTotals = (state: TradeState) => {
       ) : (
         <FormattedMessage defaultMessage={'Total Lenders'} />
       ),
-      value: isBorrow ? getSevenDayAvgApy() : '-',
+      value: isBorrow ? getSevenDayAvgApy() : `${lenders || '-'}`,
       suffix: isBorrow ? '%' : '',
     },
   ];

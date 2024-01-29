@@ -5,20 +5,14 @@ import { SETTINGS_SIDE_DRAWERS, THEME_VARIANTS } from '@notional-finance/util';
 import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useWalletSideDrawer } from '../hooks';
-import { useLocation } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 
 interface SettingsButtonProps {
   theme: NotionalTheme;
   currentSidebar: string;
 }
-interface ConnectWalletContainerProps {
-  theme: NotionalTheme;
-  isContestPage: boolean;
-}
 
 export function WalletSideDrawer() {
-  const { pathname } = useLocation();
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const defaultTheme = useTheme();
   const { clearWalletSideDrawer, setWalletSideDrawer } = useSideDrawerManager();
@@ -27,7 +21,6 @@ export function WalletSideDrawer() {
   const showSettingsHeader =
     currentSideDrawerKey === SETTINGS_SIDE_DRAWERS.SETTINGS ||
     currentSideDrawerKey === SETTINGS_SIDE_DRAWERS.NOTIFICATIONS;
-  const isContestPage = pathname.includes('contest');
 
   const handleClick = (key: string) => {
     setWalletSideDrawer(key, true);
@@ -72,10 +65,7 @@ export function WalletSideDrawer() {
 
   const ConnectWalletHeader = () => {
     return (
-      <ConnectWalletContainer
-        theme={defaultTheme}
-        isContestPage={isContestPage}
-      >
+      <ConnectWalletContainer theme={defaultTheme}>
         <CloseButton theme={defaultTheme}>
           <CloseX
             onClick={() => handleDrawer()}
@@ -114,11 +104,9 @@ const HeaderContainer = styled(Box)(
 `
 );
 
-const ConnectWalletContainer = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'isContestPage',
-})(
-  ({ theme, isContestPage }: ConnectWalletContainerProps) => `
-  margin-top: ${isContestPage ? theme.spacing(2) : theme.spacing(9.25)};
+const ConnectWalletContainer = styled(Box)(
+  ({ theme }) => `
+  margin-top: ${theme.spacing(9.25)};
   font-size: 20px;
   display: flex;
   font-weight: 500;

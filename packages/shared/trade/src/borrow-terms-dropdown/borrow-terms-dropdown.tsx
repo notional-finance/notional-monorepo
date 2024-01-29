@@ -10,12 +10,12 @@ export const BorrowTermsDropdown = ({ context }: BorrowTermsDropdownProps) => {
   const {
     state: { debt },
   } = context;
-  const { borrowOptions, onSelect, defaultDebtOption } =
-    useBorrowTerms(context);
+  const { borrowOptions, onSelect } = useBorrowTerms(context);
+
   return (
     <div>
       <AssetSelectDropdown
-        selectedTokenId={debt?.id || defaultDebtOption?.token.id}
+        selectedTokenId={debt?.id}
         onSelect={onSelect}
         options={borrowOptions}
       />

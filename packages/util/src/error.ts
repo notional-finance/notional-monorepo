@@ -13,7 +13,8 @@ export function logError(
   error: Error | NonLoggedError,
   module: string,
   method: string,
-  context: Record<string, unknown> = {}
+  context: Record<string, unknown> = {},
+  logToConsole = false
 ) {
   if (IS_LOCAL_ENV) {
     // Don't log to datadog from local
@@ -24,6 +25,8 @@ export function logError(
     /* eslint-enable no-console */
   } else {
     if (error instanceof NonLoggedError) return;
+    if (logToConsole) console.error(error);
+
     datadogRum.addError(
       {
         source: `${module}#${method}`,

@@ -4,6 +4,7 @@ export * from './trade-action-summary/mobile-trade-action-summary';
 export * from './transaction-confirmation/transaction-confirmation';
 export * from './transaction-approvals/hooks';
 export * from './leverage-slider/leverage-slider';
+export * from './leverage-terms/leverage-terms';
 export * from './deposit-input/deposit-input';
 export * from './maturity-select/maturity-select';
 export * from './maturity-select/variable-fixed-maturity-toggle';

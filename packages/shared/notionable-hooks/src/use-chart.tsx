@@ -3,17 +3,18 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { useSelectedNetwork } from './use-notional';
-import { floorToMidnight } from '@notional-finance/helpers';
 import {
   Network,
   SECONDS_IN_DAY,
   ZERO_ADDRESS,
   getNowSeconds,
   leveragedYield,
+  floorToMidnight,
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
 import { useFiat } from './use-user-settings';
+import { useMemo } from 'react';
+import { useAnalyticsReady, useNotionalContext } from './use-notional';
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -41,25 +42,30 @@ function fillChartDaily<T extends { timestamp: number }>(
 }
 
 export function useTokenHistory(token?: TokenDefinition) {
-  const network = useSelectedNetwork();
+  const isReady = useAnalyticsReady();
+  const { apyData, tvlData } = useMemo(() => {
+    const apyData =
+      token && isReady
+        ? Registry.getAnalyticsRegistry().getHistoricalAPY(token)
+        : undefined;
+    const tvlData =
+      token && isReady
+        ? Registry.getAnalyticsRegistry().getPriceHistory(token)
+        : undefined;
 
-  const data =
-    network && token
-      ? Registry.getAnalyticsRegistry()
-          .getAssetHistory(network)
-          ?.filter(({ token: t }) => t.id === token.id)
-      : undefined;
+    return { apyData, tvlData };
+  }, [token, isReady]);
 
   return {
     apyData: fillChartDaily(
-      data?.map(({ timestamp, totalAPY }) => ({
+      apyData?.map(({ timestamp, totalAPY }) => ({
         timestamp,
-        area: totalAPY || 0,
+        area: totalAPY,
       })) || [],
       { area: 0 }
     ),
     tvlData: fillChartDaily(
-      data?.map(({ timestamp, tvlUSD }) => ({
+      tvlData?.map(({ timestamp, tvlUSD }) => ({
         timestamp,
         area: tvlUSD?.toFloat() || 0,
       })) || [],
@@ -75,22 +81,17 @@ export function useLeveragedPerformance(
   leverageRatio: number | null | undefined,
   leveragedLendFixedRate: number | undefined
 ) {
-  const network = useSelectedNetwork();
-  if (!network || !token) return [];
-  const data = Registry.getAnalyticsRegistry().getAssetHistory(network);
-  const primeBorrow = data?.filter(
-    ({ token: t }) =>
-      t.currencyId === token.currencyId && t.tokenType === 'PrimeDebt'
+  const isReady = useAnalyticsReady();
+  if (!token || !isReady) return [];
+  const analytics = Registry.getAnalyticsRegistry();
+  const primeDebt = Registry.getTokenRegistry().getPrimeDebt(
+    token.network,
+    token.currencyId
   );
-  let tokenData: { timestamp: number; totalAPY: number | null }[];
-  if (token.vaultAddress && token.vaultAddress !== ZERO_ADDRESS) {
-    tokenData = Registry.getAnalyticsRegistry().getVault(
-      token.network,
-      token.vaultAddress
-    ) || [];
-  } else {
-    tokenData = data?.filter(({ token: t }) => t.id === token.id) || [];
-  }
+  const tokenData = analytics.getHistoricalAPY(token);
+  const primeBorrow = isPrimeBorrow
+    ? analytics.getHistoricalAPY(primeDebt)
+    : undefined;
 
   return fillChartDaily(
     tokenData.map((d) => {
@@ -111,26 +112,38 @@ export function useLeveragedPerformance(
 }
 
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {
-  const network = useSelectedNetwork();
-  if (!network || !token) return [];
-  const data = Registry.getAnalyticsRegistry().getAssetHistory(network);
-  const tokenData = data?.filter(({ token: t }) => t.id === token.id) || [];
+  const isReady = useAnalyticsReady();
+  if (!token || !isReady) return [];
+  const data = Registry.getAnalyticsRegistry().getPriceHistory(token);
 
   return fillChartDaily(
-    tokenData.map((d) => ({
+    data.map((d) => ({
       timestamp: d.timestamp,
-      assetPrice: d.assetToUnderlyingExchangeRate?.toFloat() || 0,
+      assetPrice: d.priceInUnderlying?.toFloat() || 0,
     })),
     { assetPrice: 0 }
   );
 }
 
+export function useTotalHolders(token: TokenDefinition | undefined) {
+  const isReady = useAnalyticsReady();
+  const {
+    globalState: { activeAccounts },
+  } = useNotionalContext();
+
+  return isReady && token && activeAccounts
+    ? activeAccounts[token.network][`${token.tokenType}:${token.currencyId}`] ||
+        0
+    : undefined;
+}
+
 export function useAccountHistoryChart(
+  network: Network | undefined,
   startTime: number,
   endTime: number,
   tickSizeInSeconds: number
 ) {
-  const { account } = useAccountDefinition();
+  const account = useAccountDefinition(network);
   const baseCurrency = useFiat();
   if (!account) return undefined;
 

@@ -1,12 +1,66 @@
 import { useMemo } from 'react';
-import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
+import {
+  Registry,
+  TokenBalance,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
-import { groupArrayToMap } from '@notional-finance/util';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { Network, groupArrayToMap } from '@notional-finance/util';
+import {
+  formatNumberAsPercent,
+  truncateAddress,
+} from '@notional-finance/helpers';
 import { useAllMarkets } from './use-market';
+import { useNotionalContext } from './use-notional';
 
-export function useWalletAllowances() {
-  const { account } = useAccountDefinition();
+export function usePrimeCashBalance(
+  selectedToken: string | undefined | null,
+  selectedNetwork: Network | undefined
+) {
+  const tokens = Registry.getTokenRegistry();
+  const token =
+    selectedToken && selectedNetwork
+      ? tokens.getTokenBySymbol(selectedNetwork, selectedToken)
+      : undefined;
+  const primeCash =
+    selectedNetwork && token?.currencyId
+      ? tokens.getPrimeCash(selectedNetwork, token.currencyId)
+      : undefined;
+
+  return useMaxAssetBalance(primeCash);
+}
+
+export function useWalletConnected() {
+  return !!useWalletConnectedNetwork();
+}
+
+export function useWalletAddress() {
+  const {
+    globalState: { wallet },
+  } = useNotionalContext();
+
+  return wallet?.selectedAddress;
+}
+
+export function useTruncatedAddress() {
+  const {
+    globalState: { wallet },
+  } = useNotionalContext();
+
+  return wallet?.selectedAddress
+    ? truncateAddress(wallet?.selectedAddress)
+    : '';
+}
+
+export function useWalletConnectedNetwork() {
+  const {
+    globalState: { wallet },
+  } = useNotionalContext();
+  return wallet?.selectedChain;
+}
+
+export function useWalletAllowances(network: Network | undefined) {
+  const account = useAccountDefinition(network);
 
   const enabledTokens =
     account?.allowances
@@ -20,7 +74,7 @@ export function useWalletBalanceInputCheck(
   token: TokenDefinition | undefined,
   inputAmount: TokenBalance | undefined
 ) {
-  const { account } = useAccountDefinition();
+  const account = useAccountDefinition(token?.network);
   const maxBalance =
     token && account
       ? account.balances.find((t) => t.token.id === token?.id) ||
@@ -47,16 +101,26 @@ export function useWalletBalanceInputCheck(
   };
 }
 
-function useApyValues(tradeType: string | undefined) {
+function useApyValues(
+  tradeType: string | undefined,
+  network: Network | undefined
+) {
   // create a apyData object with a type of a Record with key of string and value of string
   const apyData: Record<string, string> = {};
   const {
-    yields: { fCashLend, variableLend, liquidity, fCashBorrow, variableBorrow, leveragedLiquidity },
+    yields: {
+      fCashLend,
+      variableLend,
+      liquidity,
+      fCashBorrow,
+      variableBorrow,
+      leveragedLiquidity,
+    },
     getMax,
     getMin,
-  } = useAllMarkets();
+  } = useAllMarkets(network);
 
-  if(tradeType === 'LendFixed') {
+  if (tradeType === 'LendFixed') {
     const cardData = [
       ...groupArrayToMap(fCashLend, (t) => t.underlying.symbol).entries(),
     ];
@@ -65,17 +129,17 @@ function useApyValues(tradeType: string | undefined) {
       apyData[symbol] = `${formatNumberAsPercent(maxRate, 3)} APY`;
       return apyData;
     });
-  } else if(tradeType === 'LendVariable') {
-    variableLend.map(({underlying, totalAPY}) => {
+  } else if (tradeType === 'LendVariable') {
+    variableLend.map(({ underlying, totalAPY }) => {
       apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 3)} APY`;
       return apyData;
     });
-  } else if(tradeType === 'MintNToken') {
-    liquidity.map(({underlying, totalAPY}) => {
+  } else if (tradeType === 'MintNToken') {
+    liquidity.map(({ underlying, totalAPY }) => {
       apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 3)} APY`;
       return apyData;
     });
-  } else if(tradeType === 'BorrowFixed') {
+  } else if (tradeType === 'BorrowFixed') {
     const cardData = [
       ...groupArrayToMap(fCashBorrow, (t) => t.underlying.symbol).entries(),
     ];
@@ -84,77 +148,96 @@ function useApyValues(tradeType: string | undefined) {
       apyData[symbol] = `${formatNumberAsPercent(minRate, 3)} APY`;
       return apyData;
     });
-  } else if(tradeType === 'BorrowVariable') {
-    variableBorrow.map(({underlying, totalAPY}) => {
+  } else if (tradeType === 'BorrowVariable') {
+    variableBorrow.map(({ underlying, totalAPY }) => {
       apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 3)} APY`;
       return apyData;
     });
-  } else if(tradeType === 'LeveragedNToken') {
-    leveragedLiquidity.filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt').map(({underlying, totalAPY}) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 3)} APY`;
-      return apyData;
-    })
+  } else if (tradeType === 'LeveragedNToken') {
+    leveragedLiquidity
+      .filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt')
+      .map(({ underlying, totalAPY }) => {
+        apyData[underlying.symbol] = `${formatNumberAsPercent(
+          totalAPY,
+          3
+        )} APY`;
+        return apyData;
+      });
   } else {
-    return apyData  
+    return apyData;
   }
 
-  return apyData
+  return apyData;
 }
 
 export function useWalletBalances(
+  network: Network | undefined,
   tokens: TokenDefinition[] | undefined,
-  tradeType: string | undefined,
+  tradeType: string | undefined
 ) {
-  const { account } = useAccountDefinition();
-  const apyData = useApyValues(tradeType)
+  const account = useAccountDefinition(network);
+  const apyData = useApyValues(tradeType, network);
   return useMemo(() => {
-    if (!account) {
-      return tokens?.map((token) => {
+    return tokens
+      ?.map((token) => {
+        const maxBalance =
+          token && account
+            ? account.balances.find((t) => t.token.id === token?.id) ||
+              TokenBalance.zero(token)
+            : undefined;
         return {
           token,
-          content: { 
-            balance:  undefined, 
-            apy: undefined },
+          content: {
+            balance: maxBalance?.isPositive()
+              ? maxBalance?.toDisplayStringWithSymbol(3, true)
+              : undefined,
+            usdBalance: maxBalance?.isPositive()
+              ? maxBalance?.toFiat('USD').toFloat()
+              : undefined,
+            apy: apyData[token.symbol] || undefined,
+          },
         };
-      });
-    }
-    return tokens?.map((token) => {
-      const maxBalance =
-        token && account
-          ? account.balances.find((t) => t.token.id === token?.id) ||
-            TokenBalance.zero(token)
-          : undefined;
-      return {
-        token,
-        content: { 
-          balance: maxBalance?.isPositive() ? maxBalance?.toDisplayStringWithSymbol(3, true) : undefined, 
-          usdBalance: maxBalance?.isPositive() ? maxBalance?.toFiat('USD').toFloat() : undefined,
-          apy: apyData[token.symbol] || undefined },
-      };
-    }).sort((a, b) => {
-      const balanceA = a.content.usdBalance;
-      const balanceB = b.content.usdBalance;
-      if (balanceA === undefined && balanceB === undefined) {
-          return 0;
-      } else if (balanceA === undefined) {
-          return 1;
-      } else if (balanceB === undefined) {
-          return -1;
-      } else {
+      })
+      .sort((a, b) => {
+        // Sorts descending
+        const balanceA = a.content.usdBalance || 0;
+        const balanceB = b.content.usdBalance || 0;
         return balanceB - balanceA;
-      }
-      
-  })}, [tokens, account, apyData]);
+      });
+  }, [tokens, account, apyData]);
 }
 
 export function useMaxAssetBalance(token: TokenDefinition | undefined) {
-  const profile = usePortfolioRiskProfile();
+  const profile = usePortfolioRiskProfile(token?.network);
   return token?.tokenType === 'PrimeDebt'
-    ? profile.balances
+    ? profile?.balances
         .find(
           (b) =>
             b.tokenType === 'PrimeCash' && b.currencyId === token.currencyId
         )
         ?.toToken(token)
-    : profile.balances.find((b) => b.tokenId === token?.id);
+    : profile?.balances.find((b) => b.tokenId === token?.id);
+}
+
+export function useExceedsSupplyCap(deposit: TokenBalance | undefined) {
+  if (deposit) {
+    const { maxUnderlyingSupply, currentUnderlyingSupply } =
+      Registry.getConfigurationRegistry().getMaxSupply(
+        deposit?.network,
+        deposit?.currencyId
+      );
+
+    return {
+      currentUnderlyingSupply,
+      maxUnderlyingSupply,
+      maxDeposit: maxUnderlyingSupply.gt(currentUnderlyingSupply)
+        ? maxUnderlyingSupply.sub(currentUnderlyingSupply)
+        : currentUnderlyingSupply.copy(0),
+      willExceedCap: currentUnderlyingSupply
+        .add(deposit)
+        .gt(maxUnderlyingSupply),
+    };
+  }
+
+  return undefined;
 }

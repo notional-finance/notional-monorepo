@@ -8,7 +8,7 @@ import {
   PageLoading,
 } from '@notional-finance/mui';
 import { MessageDescriptor } from 'react-intl';
-import { getErrorMessages } from './get-error-messages';
+import { getDepositErrorMessage } from './get-deposit-error-messages';
 import { useDepositInput } from './use-deposit-input';
 import { useHistory } from 'react-router';
 import {
@@ -62,10 +62,10 @@ export const DepositInput = React.forwardRef<
     const {
       state: {
         deposit,
-        selectedDepositToken,
         availableDepositTokens,
         calculateError,
         tradeType,
+        selectedNetwork,
       },
       updateState,
     } = context;
@@ -76,7 +76,12 @@ export const DepositInput = React.forwardRef<
       errorMsg,
       decimalPlaces,
       setInputString,
-    } = useDepositInput(selectedDepositToken, isWithdraw, useZeroDefault);
+    } = useDepositInput(
+      selectedNetwork,
+      deposit?.symbol,
+      isWithdraw,
+      useZeroDefault
+    );
 
     useEffect(() => {
       updateState({
@@ -90,21 +95,24 @@ export const DepositInput = React.forwardRef<
       updateState({
         inputErrors: !!errorMsg || !!errorMsgOverride,
       });
-    }, [updateState, errorMsg, errorMsgOverride]);
+      // Use message descriptor ids here for the comparison. If there is a values object
+      // included then will get into an infinite loop here due to object reference comparison
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [updateState, errorMsg?.id, errorMsgOverride?.id]);
 
     const balanceAndApyData = useWalletBalances(
+      selectedNetwork,
       availableDepositTokens,
       tradeType
     );
 
-    if (!availableDepositTokens || !selectedDepositToken)
-      return <PageLoading />;
-
-    const errorMessage = getErrorMessages(
+    const errorMessage = getDepositErrorMessage(
       errorMsgOverride,
       errorMsg,
       calculateError
     );
+
+    if (!availableDepositTokens || !deposit) return <PageLoading />;
 
     return (
       <Box sx={{ marginBottom: `${theme.spacing(4)} !important` }}>
@@ -161,7 +169,7 @@ export const DepositInput = React.forwardRef<
 
             if (
               newTokenSymbol &&
-              newTokenSymbol !== selectedDepositToken &&
+              newTokenSymbol !== deposit.symbol &&
               newRoute
             ) {
               history.push(newRoute(newTokenSymbol));
