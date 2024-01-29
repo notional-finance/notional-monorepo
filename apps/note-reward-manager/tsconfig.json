@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["esnext"],
+    "types": ["node", "@cloudflare/workers-types"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+, "src/relay/tsconfig.json.bak", "src/base/tsconfig.json.bak"  ],
+  "exclude": [
+    "node_modules",
+    "test/**",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}

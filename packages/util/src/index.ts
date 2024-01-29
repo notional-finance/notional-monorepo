@@ -12,3 +12,5 @@ export * from './format';
 export * from './types';
 export * from './enums';
 export * from './compare-helpers';
+export * from './zero-x-exchange';
+export * from './tx-relayer';

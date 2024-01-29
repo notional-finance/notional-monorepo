@@ -3,6 +3,7 @@
 /* eslint-disable */
 export { AaveFlashLender__factory } from "./AaveFlashLender__factory";
 export { AssetRateAggregator__factory } from "./AssetRateAggregator__factory";
+export { AuraRewardPool__factory } from "./AuraRewardPool__factory";
 export { BalancerBoostedPool__factory } from "./BalancerBoostedPool__factory";
 export { BalancerGauge__factory } from "./BalancerGauge__factory";
 export { BalancerGaugeController__factory } from "./BalancerGaugeController__factory";

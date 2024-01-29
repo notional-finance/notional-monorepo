@@ -1,2 +1,2 @@
 packages/**/.graphclient
-apps/**/.wrangler/**
+apps/**/.wrangler

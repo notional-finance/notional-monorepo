@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { Provider } from '@ethersproject/abstract-provider';
 import { AlchemyNFTUrl, AlchemyUrl, IS_TEST_ENV, Network, NetworkId } from './constants';
 
 class AlchemyBatchProvider extends ethers.providers.AlchemyProvider {
@@ -50,7 +51,7 @@ export function getProviderURLFromNetwork(network: Network, useNFT = false) {
 export function getProviderFromNetwork(
   network: Network,
   skipFetchSetup = false
-) {
+): Provider {
   if (IS_TEST_ENV) return (global as any).provider;
 
   if (skipFetchSetup) {

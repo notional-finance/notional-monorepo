@@ -29,4 +29,19 @@ export const ArbTokenConfig = {
     symbol: 'DAI',
     decimals: 18,
   },
-};
+  wstETH: {
+    address: '0x5979d7b546e38e414f7e9822514be443a4800529',
+    symbol: 'wstETH',
+    decimals: 18,
+  },
+  cbETH: {
+    address: '0x1debd73e752beaf79865fd6446b0c970eae7732f',
+    symbol: 'cbETH',
+    decimals: 18,
+  },
+  RDNT: {
+    address: '0x3082cc23568ea640225c2467653db90e9250aaa0',
+    symbol: 'RDNT',
+    decimals: 18,
+  },
+} as const;
