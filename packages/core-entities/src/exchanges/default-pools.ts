@@ -2,6 +2,9 @@ import { ALT_ETH, Network } from '@notional-finance/util';
 import { PoolDefinition } from '..';
 
 const defaultPools: Record<Network, PoolDefinition[]> = {
+  [Network.Goerli]: [
+    // TODO: add nTokens
+  ],
   [Network.Mainnet]: [
     {
       address: '0x32296969ef14eb0c6d29669c550d4a0449130230',
@@ -260,6 +263,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
   ],
+  [Network.Optimism]: [],
   [Network.All]: [],
 };
 
