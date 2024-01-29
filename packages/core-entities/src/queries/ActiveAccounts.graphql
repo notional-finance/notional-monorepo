@@ -1,0 +1,19 @@
+query ActiveAccounts($skip: Int) {
+    accounts(
+        first: 1000,
+        skip: $skip,
+        where: { systemAccountType_in: [None] }
+    ) {
+        id
+        systemAccountType
+        balances {
+            token {
+                id
+                tokenType
+                currencyId
+                isfCashDebt
+            }
+            current { currentBalance }
+        }
+    }
+}

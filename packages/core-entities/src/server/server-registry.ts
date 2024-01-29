@@ -7,6 +7,7 @@ import {
 import { CacheSchema } from '..';
 import { BaseRegistry } from '../base';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
+import { providers } from 'ethers';
 
 export type TypedDocumentReturnType<T> = T extends TypedDocumentNode<
   infer U,
@@ -30,6 +31,10 @@ export async function loadGraphClientDeferred() {
     AllVaultsByBlockDocument,
     AccountTransactionHistoryDocument,
     AccountBalanceStatementDocument,
+    HistoricalOracleValuesDocument,
+    HistoricalTradingActivityDocument,
+    VaultReinvestmentDocument,
+    ActiveAccountsDocument,
     MetaDocument,
     // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
   } = await import('../.graphclient/index');
@@ -47,6 +52,10 @@ export async function loadGraphClientDeferred() {
     AllVaultsByBlockDocument,
     AccountTransactionHistoryDocument,
     AccountBalanceStatementDocument,
+    HistoricalOracleValuesDocument,
+    HistoricalTradingActivityDocument,
+    VaultReinvestmentDocument,
+    ActiveAccountsDocument,
     MetaDocument,
   };
 }
@@ -55,11 +64,12 @@ export async function fetchUsingMulticall<T>(
   network: Network,
   calls: AggregateCall<T>[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  transforms: ((r: Record<string, any>) => Record<string, T>)[]
+  transforms: ((r: Record<string, any>) => Record<string, T>)[],
+  provider?: providers.Web3Provider
 ): Promise<CacheSchema<T>> {
   const { block, results } = await aggregate<T>(
     calls,
-    getProviderFromNetwork(network)
+    provider || getProviderFromNetwork(network)
   );
   const finalResults = transforms.reduce((r, t) => t(r), results);
 
