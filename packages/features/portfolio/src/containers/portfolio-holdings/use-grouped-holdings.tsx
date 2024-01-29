@@ -2,17 +2,22 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
-  formatMaturity,
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
-import { useFiat, useGroupedTokens } from '@notional-finance/notionable-hooks';
+import {
+  useFiat,
+  useGroupedHoldings,
+  usePendingPnLCalculation,
+  useSelectedPortfolioNetwork,
+} from '@notional-finance/notionable-hooks';
 import {
   Network,
   TXN_HISTORY_TYPE,
   leveragedYield,
+  formatMaturity,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -35,9 +40,13 @@ function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   }
 }
 
-export function useGroupedHoldings() {
+export function useGroupedHoldingsTable() {
   const baseCurrency = useFiat();
-  const groupedTokens = useGroupedTokens();
+  const network = useSelectedPortfolioNetwork();
+  const groupedTokens = useGroupedHoldings(network) || [];
+  const pendingTokens = usePendingPnLCalculation(network).flatMap(
+    ({ tokens }) => tokens
+  );
   const history = useHistory();
 
   const groupedRows = groupedTokens.map(
@@ -50,7 +59,6 @@ export function useGroupedHoldings() {
       },
       debt: { balance: debt, statement: debtStatement },
       hasMatured,
-      isPending,
       leverageRatio,
       presentValue,
       borrowAPY,
@@ -110,7 +118,9 @@ export function useGroupedHoldings() {
               : `Leveraged ${underlying.symbol} Lend`,
           caption: formatCaption(asset, debt),
         },
-        isPending,
+        isPending: !!pendingTokens.find(
+          (t) => t.id === asset.tokenId || t.id === debt.tokenId
+        ),
         marketApy: {
           data: [
             {
@@ -189,7 +199,7 @@ export function useGroupedHoldings() {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               callback: () => {
                 history.push(
-                  `/liquidity-leveraged/Manage/${underlying.symbol}`
+                  `/liquidity-leveraged/${network}/Manage/${underlying.symbol}`
                 );
               },
             },
@@ -197,17 +207,19 @@ export function useGroupedHoldings() {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
                 history.push(
-                  `/liquidity-leveraged/Withdraw/${underlying.symbol}`
+                  `/liquidity-leveraged/${network}/Withdraw/${underlying.symbol}`
                 );
               },
             },
           ],
           hasMatured: hasMatured,
-          txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
-            txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
-            assetOrVaultId: asset.token.id,
-            debtId: debtStatement?.token.id || '',
-          })}`,
+          txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
+            {
+              txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
+              assetOrVaultId: asset.token.id,
+              debtId: debtStatement?.token.id || '',
+            }
+          )}`,
         },
       };
     }

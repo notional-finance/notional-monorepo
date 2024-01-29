@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
   MultiValueIconCell,
@@ -11,9 +11,10 @@ import { TotalEarningsTooltip } from '../../components';
 import {
   usePendingPnLCalculation,
   useLeverageBlock,
+  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
-import { useDetailedHoldings } from './use-detailed-holdings';
-import { useGroupedHoldings } from './use-grouped-holdings';
+import { useDetailedHoldingsTable } from './use-detailed-holdings';
+import { useGroupedHoldingsTable } from './use-grouped-holdings';
 import { useTheme } from '@mui/material';
 
 export function usePortfolioHoldings() {
@@ -22,15 +23,80 @@ export function usePortfolioHoldings() {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const [toggleOption, setToggleOption] = useState<number>(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
-  const pendingTokenData = usePendingPnLCalculation();
-  const { detailedHoldings } = useDetailedHoldings();
-  const { groupedRows, groupedTokens } = useGroupedHoldings();
+  const network = useSelectedPortfolioNetwork();
+  const pendingTokenData = usePendingPnLCalculation(network)
+  const { detailedHoldings } = useDetailedHoldingsTable();
+  const { groupedRows, groupedTokens } = useGroupedHoldingsTable();
 
   const filteredHoldings = detailedHoldings.filter(
     ({ tokenId }) => !groupedTokens.includes(tokenId)
   );
 
   const groupedHoldings = [...groupedRows, ...filteredHoldings];
+
+  const toggleData = [
+    {
+      id: 0,
+      label: <FormattedMessage defaultMessage="Default" />,
+    },
+    {
+      id: 1,
+      label: <FormattedMessage defaultMessage="Detailed" />,
+    },
+  ];
+
+  const Columns = useMemo(
+    () => [
+      {
+        Header: <FormattedMessage defaultMessage="Asset" />,
+        Cell: MultiValueIconCell,
+        accessor: 'asset',
+        textAlign: 'left',
+        expandableTable: true,
+        width: theme.spacing(37.5),
+      },
+      {
+        Header: <FormattedMessage defaultMessage="Market APY" />,
+        Cell: MultiValueCell,
+        accessor: 'marketApy',
+        textAlign: 'right',
+        expandableTable: true,
+        width: theme.spacing(25),
+      },
+      {
+        Header: <FormattedMessage defaultMessage="Amount Paid" />,
+        Cell: MultiValueCell,
+        accessor: 'amountPaid',
+        textAlign: 'right',
+        expandableTable: true,
+        showLoadingSpinner: true,
+      },
+      {
+        Header: <FormattedMessage defaultMessage="Present Value" />,
+        Cell: MultiValueCell,
+        accessor: 'presentValue',
+        textAlign: 'right',
+        expandableTable: true,
+      },
+      {
+        Header: <FormattedMessage defaultMessage="Total Earnings" />,
+        Cell: DisplayCell,
+        ToolTip: TotalEarningsTooltip,
+        accessor: 'earnings',
+        textAlign: 'right',
+        expandableTable: true,
+        showLoadingSpinner: true,
+      },
+      {
+        Header: '',
+        Cell: ChevronCell,
+        accessor: 'chevron',
+        textAlign: 'left',
+        expandableTable: true,
+      },
+    ],
+    [theme]
+  );
 
   useEffect(() => {
     const formattedExpandedRows = Columns.reduce(
@@ -46,68 +112,7 @@ export function usePortfolioHoldings() {
     ) {
       setExpandedRows(formattedExpandedRows);
     }
-  }, [expandedRows, setExpandedRows]);
-
-  const toggleData = [
-    {
-      id: 0,
-      label: <FormattedMessage defaultMessage="Default" />,
-    },
-    {
-      id: 1,
-      label: <FormattedMessage defaultMessage="Detailed" />,
-    },
-  ];
-
-  const Columns = [
-    {
-      Header: <FormattedMessage defaultMessage="Asset" />,
-      Cell: MultiValueIconCell,
-      accessor: 'asset',
-      textAlign: 'left',
-      expandableTable: true,
-      width: theme.spacing(37.5),
-    },
-    {
-      Header: <FormattedMessage defaultMessage="Market APY" />,
-      Cell: MultiValueCell,
-      accessor: 'marketApy',
-      textAlign: 'right',
-      expandableTable: true,
-      width: theme.spacing(25),
-    },
-    {
-      Header: <FormattedMessage defaultMessage="Amount Paid" />,
-      Cell: MultiValueCell,
-      accessor: 'amountPaid',
-      textAlign: 'right',
-      expandableTable: true,
-      showLoadingSpinner: true,
-    },
-    {
-      Header: <FormattedMessage defaultMessage="Present Value" />,
-      Cell: MultiValueCell,
-      accessor: 'presentValue',
-      textAlign: 'right',
-      expandableTable: true,
-    },
-    {
-      Header: <FormattedMessage defaultMessage="Total Earnings" />,
-      Cell: DisplayCell,
-      ToolTip: TotalEarningsTooltip,
-      accessor: 'earnings',
-      textAlign: 'right',
-      expandableTable: true,
-      showLoadingSpinner: true,
-    },
-    {
-      Header: '',
-      Cell: ChevronCell,
-      accessor: 'chevron',
-      textAlign: 'left',
-      expandableTable: true,
-    },
-  ];
+  }, [expandedRows, setExpandedRows, Columns]);
 
   return {
     portfolioHoldingsColumns: Columns,

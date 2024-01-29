@@ -1,8 +1,8 @@
 import { Box, styled } from '@mui/material';
 import iconPersonSVG from '@notional-finance/assets/icons/icon-person.svg';
 import { colors } from '@notional-finance/styles';
-import { getDateString } from '@notional-finance/helpers';
 import { Caption } from '@notional-finance/mui';
+import { getDateString } from '@notional-finance/util';
 
 export const BlogCardFooter = ({ author, createdAt }) => {
   const createdAtTimestampInSeconds = new Date(createdAt).getTime() / 1000;

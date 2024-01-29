@@ -8,6 +8,7 @@ import { LendVariableContext } from '../../lend-variable/lend-variable';
 export const LendVariableSidebar = () => {
   const context = useContext(LendVariableContext);
   const { currencyInputRef } = useCurrencyInputRef();
+  const { selectedNetwork } = context.state;
 
   return (
     <TransactionSidebar context={context} showDrawer>
@@ -16,7 +17,9 @@ export const LendVariableSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}
-        newRoute={(newToken) => `/${PRODUCTS.LEND_VARIABLE}/${newToken}`}
+        newRoute={(newToken) =>
+          `/${PRODUCTS.LEND_VARIABLE}/${selectedNetwork}/${newToken}`
+        }
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to lend?',
           description: 'input label',

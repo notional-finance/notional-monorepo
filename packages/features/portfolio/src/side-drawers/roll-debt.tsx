@@ -8,6 +8,7 @@ import { defineMessage } from 'react-intl';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { SelectConvertAsset } from './components/select-convert-asset';
 import { messages } from './messages';
+import { useState } from 'react';
 
 export const RollDebt = () => {
   const theme = useTheme();
@@ -17,12 +18,14 @@ export const RollDebt = () => {
     state: { debt },
     updateState,
   } = context;
+  const [hasUserTouched, setHasUserTouched] = useState<boolean>(false);
 
   const onBalanceChange = (
     inputAmount: TokenBalance | undefined,
     _: TokenBalance | undefined,
     maxBalance: TokenBalance | undefined
   ) => {
+    if (inputAmount) setHasUserTouched(true);
     updateState({
       collateralBalance: inputAmount,
       maxWithdraw: maxBalance && inputAmount?.eq(maxBalance),
@@ -32,7 +35,7 @@ export const RollDebt = () => {
   return (
     <Box>
       <Box sx={{ display: debt === undefined ? 'block' : 'none' }}>
-        <SelectConvertAsset context={context} />
+        <SelectConvertAsset context={context} hasUserTouched={hasUserTouched} />
       </Box>
       {debt && (
         <PortfolioSideDrawer

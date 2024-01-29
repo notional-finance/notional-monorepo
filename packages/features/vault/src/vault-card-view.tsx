@@ -1,18 +1,17 @@
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import { Vault } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
-import {
-  useSelectedNetwork,
-  useThemeVariant,
-} from '@notional-finance/notionable-hooks';
+import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { defineMessage } from 'react-intl';
 import { ThemeProvider } from '@mui/material';
 import { useVaultCards } from './hooks';
 
 export const VaultCardView = () => {
   const themeVariant = useThemeVariant();
-  const allVaults = useVaultCards();
+  // TODO: this needs to be linked up to the selector
   const network = useSelectedNetwork();
+  const allVaults = useVaultCards(network);
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
 
   return (
@@ -65,7 +64,7 @@ export const VaultCardView = () => {
                 leverage={leverage}
                 netWorth={netWorth}
                 minDepositRequired={minDepositRequired}
-                route={`/vaults/${vaultAddress}`}
+                route={`/vaults/${network}/${vaultAddress}`}
                 capacityUsedPercentage={capacityUsedPercentage}
                 capacityRemaining={capacityRemaining}
               />

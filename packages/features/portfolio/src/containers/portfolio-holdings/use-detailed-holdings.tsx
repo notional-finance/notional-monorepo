@@ -9,8 +9,10 @@ import {
 import {
   useFiat,
   useFiatToken,
-  useHoldings,
   useNOTE,
+  usePendingPnLCalculation,
+  usePortfolioHoldings,
+  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
   Network,
@@ -21,8 +23,12 @@ import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
-export function useDetailedHoldings() {
-  const holdings = useHoldings();
+export function useDetailedHoldingsTable() {
+  const network = useSelectedPortfolioNetwork();
+  const holdings = usePortfolioHoldings(network);
+  const pendingTokens = usePendingPnLCalculation(network).flatMap(
+    ({ tokens }) => tokens
+  );
   const history = useHistory();
   const baseCurrency = useFiat();
   const fiatToken = useFiatToken();
@@ -87,7 +93,6 @@ export function useDetailedHoldings() {
         balance: b,
         statement: s,
         marketYield,
-        isPending,
         maturedTokenId,
         manageTokenId,
         totalIncentiveEarnings,
@@ -114,7 +119,7 @@ export function useDetailedHoldings() {
         return {
           sortOrder: getHoldingsSortOrder(b.token),
           tokenId: b.tokenId,
-          isPending,
+          isPending: !!pendingTokens.find((t) => t.id === b.tokenId),
           asset: {
             symbol: icon,
             symbolBottom: '',
@@ -204,8 +209,8 @@ export function useDetailedHoldings() {
                 callback: () => {
                   history.push(
                     b.isPositive()
-                      ? `/portfolio/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}`
-                      : `/portfolio/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}`
+                      ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}`
+                      : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}`
                   );
                 },
               },
@@ -216,7 +221,7 @@ export function useDetailedHoldings() {
                     ),
                     callback: () => {
                       history.push(
-                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}`
+                        `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}`
                       );
                     },
                   }
@@ -224,13 +229,13 @@ export function useDetailedHoldings() {
                     buttonText: <FormattedMessage defaultMessage={'Repay'} />,
                     callback: () => {
                       history.push(
-                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
+                        `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
                       );
                     },
                   },
             ],
             hasMatured: hasMatured,
-            txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
+            txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams({
               txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
               assetOrVaultId: b.token.id,
             })}`,
@@ -284,5 +289,5 @@ export function useDetailedHoldings() {
     } as unknown as typeof detailedHoldings[number]);
 
     return { detailedHoldings, totals };
-  }, [holdings, baseCurrency, history, fiatToken, NOTE]);
+  }, [holdings, baseCurrency, history, fiatToken, NOTE, pendingTokens]);
 }

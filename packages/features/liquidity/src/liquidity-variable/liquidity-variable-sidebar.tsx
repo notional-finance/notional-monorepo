@@ -8,6 +8,7 @@ import { PRODUCTS } from '@notional-finance/util';
 export const LiquidityVariableSidebar = () => {
   const context = useContext(LiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
+  const { selectedNetwork } = context.state
 
   return (
     <TransactionSidebar context={context} showDrawer>
@@ -16,7 +17,7 @@ export const LiquidityVariableSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}
-        newRoute={(newToken) => `/${PRODUCTS.LIQUIDITY_VARIABLE}/${newToken}`}
+        newRoute={(newToken) => `/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedNetwork}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much liquidity do you want to provide?',
           description: 'input label',

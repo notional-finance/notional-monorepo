@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import {
   useTransactionHistory,
-  useSelectedNetwork,
+  useSelectedPortfolioNetwork,
   usePendingPnLCalculation,
 } from '@notional-finance/notionable-hooks';
 import { TokenIcon } from '@notional-finance/icons';
@@ -15,13 +15,12 @@ import { getEtherscanTransactionLink } from '@notional-finance/util';
 import { SelectedOptions } from '@notional-finance/mui';
 
 export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
-  let accountHistoryData: any[] = [];
   let assetOrVaultData: SelectedOptions[] = [];
   let currencyData: SelectedOptions[] = [];
 
-  const pendingTokenData = usePendingPnLCalculation();
-  const accountHistory = useTransactionHistory();
-  const selectedNetwork = useSelectedNetwork();
+  const network = useSelectedPortfolioNetwork();
+  const pendingTokenData = usePendingPnLCalculation(network);
+  const accountHistory = useTransactionHistory(network);
 
   const allAccountHistoryData = accountHistory
     .sort((x, y) => y.timestamp - x.timestamp)
@@ -64,7 +63,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
           time: timestamp,
           txLink: {
             hash: transactionHash,
-            href: getEtherscanTransactionLink(transactionHash, selectedNetwork),
+            href: getEtherscanTransactionLink(transactionHash, network),
           },
           currency: underlying.symbol,
           token: token,
@@ -72,6 +71,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
       }
     );
 
+  let accountHistoryData: typeof allAccountHistoryData = [];
   const removeDuplicateObjects = useCallback((data) => {
     const uniqueObjects = {};
     const filteredArray = data.filter(({ id }) => {
@@ -115,8 +115,8 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
       icon: <TokenIcon size="medium" symbol={currency.toLowerCase()} />,
     }));
     assetOrVaultData = accountHistoryData.map(({ vaultName, token }) => ({
-      id: token.vaultAddress,
-      title: vaultName,
+      id: token.vaultAddress || '',
+      title: vaultName || '',
     }));
   }
 

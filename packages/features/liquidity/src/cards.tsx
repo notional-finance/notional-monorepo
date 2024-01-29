@@ -13,18 +13,21 @@ import {
 } from '@notional-finance/mui';
 import {
   useAllMarkets,
+  useAppReady,
   useFiat,
-  useSelectedNetwork,
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import { useNotionalTheme } from '@notional-finance/styles';
+import {
+  useLeveragedNTokenPositions,
+  useMaxYield,
+} from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
-import { useLeveragedNTokenPositions } from './liquidity-leveraged/hooks/use-leveraged-ntoken-positions';
-import { useMaxYield } from './liquidity-leveraged/hooks/use-max-yield';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `
@@ -55,12 +58,13 @@ const LiquidityCardView = ({
   const baseCurrency = useFiat();
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
+  const isAppReady = useAppReady();
   const network = useSelectedNetwork();
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
 
   useEffect(() => {
-    if (network) {
+    if (network && isAppReady) {
       const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
         network,
         'NOTE'
@@ -68,7 +72,7 @@ const LiquidityCardView = ({
       const oneNoteUSD = TokenBalance.unit(NOTE).toFiat(baseCurrency);
       setNotePriceString(`$${oneNoteUSD.toDisplayString()}`);
     }
-  }, [network, baseCurrency]);
+  }, [network, baseCurrency, isAppReady]);
 
   return (
     <ThemeProvider theme={themeLanding}>
@@ -188,9 +192,10 @@ const LiquidityCardView = ({
 };
 
 export const LiquidityVariableCardView = () => {
+  const network = useSelectedNetwork();
   const {
     yields: { liquidity },
-  } = useAllMarkets();
+  } = useAllMarkets(network);
 
   return (
     <LiquidityCardView
@@ -211,17 +216,18 @@ export const LiquidityVariableCardView = () => {
         docsLink:
           'https://docs.notional.finance/notional-v3/product-guides/providing-liquidity',
       }}
-      routePath={PRODUCTS.LIQUIDITY_VARIABLE}
+      routePath={`${PRODUCTS.LIQUIDITY_VARIABLE}/${network}`}
     />
   );
 };
 
 export const LiquidityLeveragedCardView = () => {
+  const network = useSelectedNetwork();
   const {
     yields: { leveragedLiquidity },
-  } = useAllMarkets();
-  const { depositTokensWithPositions } = useLeveragedNTokenPositions();
-  const allMaxAPYs = useMaxYield();
+  } = useAllMarkets(network);
+  const { depositTokensWithPositions } = useLeveragedNTokenPositions(network);
+  const allMaxAPYs = useMaxYield(network);
 
   // These are the default yields using prime debt
   const cardData = leveragedLiquidity
@@ -256,7 +262,7 @@ export const LiquidityLeveragedCardView = () => {
         docsLink:
           'https://docs.notional.finance/notional-v3/product-guides/leveraged-liquidity',
       }}
-      routePath={PRODUCTS.LIQUIDITY_LEVERAGED}
+      routePath={`${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}`}
       isLeveraged
     />
   );

@@ -3,10 +3,11 @@ import { VaultCardOverlay } from '../components';
 import {
   useAllMarkets,
   useAllVaults,
-  useVaultRiskProfiles,
+  useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import { GATED_VAULTS } from '@notional-finance/notionable';
 import { DegenScoreIcon } from '@notional-finance/icons';
+import { Network } from '@notional-finance/util';
 
 interface AllVaultsProps {
   capacityRemaining: string;
@@ -24,13 +25,13 @@ interface AllVaultsProps {
   accessGroup?: string;
 }
 
-export const useVaultCards = () => {
-  const listedVaults = useAllVaults();
-  const accountVaults = useVaultRiskProfiles();
+export const useVaultCards = (network: Network) => {
+  const listedVaults = useAllVaults(network);
+  const vaultHoldings = useVaultHoldings(network);
   const {
     yields: { leveragedVaults },
     getMax,
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
 
   const allVaults = listedVaults.map(
     ({
@@ -51,33 +52,32 @@ export const useVaultCards = () => {
       const capacityUsedPercentage = totalUsedPrimaryBorrowCapacity
         .scale(100, maxPrimaryBorrowCapacity)
         .toNumber();
-      const vaultPosition = accountVaults.find(
-        (p) => p.vaultAddress === vaultAddress
-      );
+      const profile = vaultHoldings.find(
+        (p) => p.vault.vaultAddress === vaultAddress
+      )?.vault;
       const leverage = formatLeverageRatio(
-        vaultPosition?.leverageRatio() || y?.leveraged?.leverageRatio || 0,
+        profile?.leverageRatio() || y?.leveraged?.leverageRatio || 0,
         1
       );
-
 
       return {
         vaultAddress: vaultAddress,
         minDepositRequired,
         underlyingSymbol: primaryToken.symbol,
-        hasPosition: !!vaultPosition,
-        headlineRate: vaultPosition?.totalAPY || y?.totalAPY,
-        netWorth: vaultPosition?.netWorth().toDisplayStringWithSymbol(3, true),
+        hasPosition: !!profile,
+        headlineRate: profile?.totalAPY || y?.totalAPY,
+        netWorth: profile?.netWorth().toDisplayStringWithSymbol(3, true),
         leverage,
         vaultName: name,
         capacityUsedPercentage,
         capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
-        VaultCardOverlay: GATED_VAULTS.includes(id) ? VaultCardOverlay : undefined,
-        VaultCardIcon: GATED_VAULTS.includes(id) ? DegenScoreIcon : undefined,
+        VaultCardOverlay:
+          (GATED_VAULTS[id] || []).length > 0 ? VaultCardOverlay : undefined,
+        VaultCardIcon:
+          (GATED_VAULTS[id] || []).length > 0 ? DegenScoreIcon : undefined,
       };
     }
   );
-
-
 
   return allVaults as AllVaultsProps[];
 };

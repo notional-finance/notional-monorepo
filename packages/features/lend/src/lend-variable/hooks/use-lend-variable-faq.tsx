@@ -1,9 +1,9 @@
 import { useContext, ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { LendVariableContext } from '../../lend-variable/lend-variable';
 import {
   getEtherscanAddressLink,
+  Network,
   NotionalAddress,
 } from '@notional-finance/util';
 import { RiskFaq } from '../components';
@@ -15,8 +15,10 @@ interface FaqProps {
   componentAnswer?: ReactNode;
 }
 
-export const useLendVariableFaq = (tokenSymbol?: string) => {
-  const selectedNetwork = useSelectedNetwork();
+export const useLendVariableFaq = (
+  tokenSymbol: string | undefined,
+  selectedNetwork: Network | undefined
+) => {
   const context = useContext(LendVariableContext);
   const {
     state: { collateral },

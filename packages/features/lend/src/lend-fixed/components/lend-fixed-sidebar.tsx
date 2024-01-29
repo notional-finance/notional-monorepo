@@ -12,6 +12,7 @@ import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 export const LendFixedSidebar = () => {
   const context = useContext(LendFixedContext);
   const { currencyInputRef } = useCurrencyInputRef();
+  const { selectedNetwork } = context.state;
 
   return (
     <TransactionSidebar context={context} showDrawer>
@@ -19,7 +20,9 @@ export const LendFixedSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}
-        newRoute={(newToken) => `/${PRODUCTS.LEND_FIXED}/${newToken}`}
+        newRoute={(newToken) =>
+          `/${PRODUCTS.LEND_FIXED}/${selectedNetwork}/${newToken}`
+        }
         showScrollPopper
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to lend?',

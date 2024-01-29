@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { Body, ExternalLink } from '@notional-finance/mui';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { HowItWorksFaq } from '../components';
 import { LiquidityContext } from '../../liquidity';
 import {
@@ -13,10 +12,9 @@ import { RiskFaq } from '../components';
 
 export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork();
   const context = useContext(LiquidityContext);
   const {
-    state: { collateral },
+    state: { collateral, selectedNetwork },
   } = context;
   const faqHeaderLinks = [
     {
