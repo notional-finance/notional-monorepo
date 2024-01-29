@@ -3,10 +3,7 @@ import { RegistryDOEnv } from '@notional-finance/durable-objects';
 import { Routes } from '@notional-finance/core-entities/src/server';
 
 // Exports durable objects so migrations can be run
-export {
-  ExchangeRegistryDO,
-  OracleRegistryDO,
-} from '@notional-finance/durable-objects';
+export { ExchangeRegistryDO } from '@notional-finance/durable-objects';
 
 async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
   const stub = ns.get(ns.idFromName(version));
