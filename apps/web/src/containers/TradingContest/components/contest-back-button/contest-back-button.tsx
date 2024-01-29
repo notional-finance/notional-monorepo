@@ -33,10 +33,9 @@ const Button = styled(Box)(
   letter-spacing: 2.4px;
   width: fit-content;
   margin-bottom: ${theme.spacing(5)};
-  margin-top: ${theme.spacing(6)};
   cursor: pointer;
-  ${theme.breakpoints.down('md')} {
-      margin-left: ${theme.spacing(5)};
+  ${theme.breakpoints.down('sm')} {
+      display: none;
   }
 `
 );

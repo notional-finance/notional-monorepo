@@ -1,173 +1,165 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { FeatureLoader } from '@notional-finance/shared-web';
-import { ContestHeader, ContestBackButton } from '../components';
-import { ContestTable, LinkText } from '@notional-finance/mui';
+import {
+  ContestCountDown,
+  ContestPrizes,
+  SectionTitle,
+  OuterContainer,
+  BgImgContainer,
+  MainContainer,
+  ContestButtonBar,
+} from '../components';
+import { ContestTable, LinkText, Button } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import test from '../assets/color-blobs.png';
 import { useLeaderBoardTables } from '../hooks';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 
 export const ContestLeaderBoard = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
+  const network = useSelectedNetwork();
   const {
     leaderBoardColumns,
     currentUserData,
     currentUserColumns,
     highRollerData,
     fatCatData,
-    sadSackData,
   } = useLeaderBoardTables();
 
   return (
     <ThemeProvider theme={theme}>
-      <FeatureLoader
-        backgroundColor={'#041D2E'}
-        sx={{
-          marginTop: {
-            xs: '-107px',
-            sm: '-107px',
-            md: '-107px',
-            lg: '-125px',
-            xl: '-125px',
-          },
-        }}
-      >
-        <OuterContainer>
-          <BgImgContainer>
-            <img src={test} alt="bg img" />
-          </BgImgContainer>
-          <OpacityBG>
-            <MainContainer>
-              <ContestHeader />
-              <ContestBackButton />
-              {currentUserData.length > 0 && (
-                <UserTableContainer>
-                  <TitleText>
-                    <FormattedMessage
-                      defaultMessage={'Your {position} Position'}
-                      values={{
-                        position: (
-                          <Box
-                            sx={{
-                              color: colors.neonTurquoise,
-                              margin: theme.spacing(0, 1),
-                            }}
-                          >
-                            {currentUserData[0].username?.dataSet ===
-                            'highRoller'
-                              ? 'HIGH ROLLER'
-                              : currentUserData[0].username?.dataSet ===
-                                'fatCat'
-                              ? 'FAT CAT'
-                              : 'SAD SACK'}
-                          </Box>
-                        ),
-                      }}
-                    />
-                  </TitleText>
-                  <ContestTable
-                    maxHeight={'620px'}
-                    columns={currentUserColumns}
-                    data={currentUserData}
-                    isCurrentUser
-                  />
-                  <LinkText
-                    to="/portfolio/overview"
-                    sx={{ marginTop: theme.spacing(2) }}
-                  >
-                    <FormattedMessage defaultMessage={'View in Portfolio'} />
-                  </LinkText>
-                </UserTableContainer>
-              )}
-              <TableContainer>
-                <ContestTable
-                  maxHeight={'620px'}
-                  tableTitle={
-                    <FormattedMessage defaultMessage={'HIGH ROLLER'} />
-                  }
-                  tableTitleSubText={
-                    <FormattedMessage
-                      defaultMessage={'Highest realized APY with leverage'}
-                    />
-                  }
-                  columns={leaderBoardColumns}
-                  data={highRollerData}
-                  tableLoading={highRollerData.length === 0}
-                />
-              </TableContainer>
-              <TableContainer>
-                <ContestTable
-                  maxHeight={'620px'}
-                  tableTitle={<FormattedMessage defaultMessage={'FAT CAT'} />}
-                  tableTitleSubText={
-                    <FormattedMessage
-                      defaultMessage={'Highest realized APY without leverage'}
-                    />
-                  }
-                  columns={leaderBoardColumns}
-                  data={fatCatData}
-                  tableLoading={fatCatData.length === 0}
-                />
-              </TableContainer>
-              <TableContainer
+      <OuterContainer>
+        <BgImgContainer>
+          <img src={test} alt="bg img" />
+        </BgImgContainer>
+        <OpacityBG>
+          <MainContainer>
+            <SectionTitle
+              sx={{
+                marginBottom: theme.spacing(4),
+                display: 'flex',
+              }}
+            >
+              <Box
+                component="span"
                 sx={{
-                  marginBottom: `${theme.spacing(11)} !important`,
+                  marginTop: theme.spacing(10),
                 }}
               >
+                <FormattedMessage defaultMessage={'Leaderboard'} />
+              </Box>
+            </SectionTitle>
+            <CountDownContainer>
+              <ContestCountDown sx={{ marginBottom: '0px' }} />
+              <Button
+                size="large"
+                variant="outlined"
+                to={`/contest-rules/${network}`}
+                sx={{
+                  width: theme.spacing(41.25),
+                  border: `1px solid ${colors.neonTurquoise}`,
+                  ':hover': {
+                    background: colors.matteGreen,
+                  },
+                  fontFamily: 'Avenir Next',
+                }}
+              >
+                <FormattedMessage defaultMessage={'Rules & Prizes'} />
+              </Button>
+            </CountDownContainer>
+            {currentUserData.length > 0 && (
+              <UserTableContainer>
+                <SectionTitle
+                  sx={{
+                    marginBottom: theme.spacing(4),
+                    marginTop: theme.spacing(13),
+                    display: 'flex',
+                  }}
+                >
+                  <FormattedMessage
+                    defaultMessage={'Your {position} Position'}
+                    values={{
+                      position: (
+                        <Box
+                          sx={{
+                            color: colors.neonTurquoise,
+                            margin: theme.spacing(0, 1),
+                          }}
+                        >
+                          {currentUserData[0].username?.dataSet === 'highRoller'
+                            ? 'HIGH ROLLER'
+                            : currentUserData[0].username?.dataSet === 'fatCat'
+                            ? 'FAT CAT'
+                            : 'SAD SACK'}
+                        </Box>
+                      ),
+                    }}
+                  />
+                </SectionTitle>
                 <ContestTable
-                  maxHeight={'620px'}
-                  tableTitle={<FormattedMessage defaultMessage={'SAD SACK'} />}
-                  tableTitleSubText={
-                    <FormattedMessage defaultMessage={'Lowest realized APY'} />
-                  }
-                  columns={leaderBoardColumns}
-                  data={sadSackData}
+                  maxHeight={theme.spacing(77.5)}
+                  columns={currentUserColumns}
+                  data={currentUserData}
+                  isCurrentUser
                 />
-              </TableContainer>
-            </MainContainer>
-          </OpacityBG>
-        </OuterContainer>
-      </FeatureLoader>
+                <LinkText
+                  to="/portfolio/overview"
+                  sx={{ marginTop: theme.spacing(2) }}
+                >
+                  <FormattedMessage defaultMessage={'View in Portfolio'} />
+                </LinkText>
+              </UserTableContainer>
+            )}
+            <TableContainer>
+              <ContestTable
+                maxHeight={theme.spacing(77.5)}
+                tableTitle={<FormattedMessage defaultMessage={'HIGH ROLLER'} />}
+                tableTitleSubText={
+                  <FormattedMessage
+                    defaultMessage={'Highest realized APY with leverage'}
+                  />
+                }
+                columns={leaderBoardColumns}
+                data={highRollerData}
+                tableLoading={highRollerData.length === 0}
+              />
+            </TableContainer>
+            <TableContainer>
+              <ContestTable
+                maxHeight={theme.spacing(77.5)}
+                tableTitle={<FormattedMessage defaultMessage={'FAT CAT'} />}
+                tableTitleSubText={
+                  <FormattedMessage
+                    defaultMessage={'Highest realized APY without leverage'}
+                  />
+                }
+                columns={leaderBoardColumns}
+                data={fatCatData}
+                tableLoading={fatCatData.length === 0}
+              />
+            </TableContainer>
+            <ContestPrizes />
+            {/* TODO: Hide this if the user has minted a contest pass */}
+            <Box sx={{ display: 'flex', marginTop: '100px' }}>
+              <ContestButtonBar
+                buttonOneText={
+                  <FormattedMessage defaultMessage={'Rules & Prizes'} />
+                }
+                buttonOnePathTo={`/contest-rules/${network}`}
+                buttonTwoText={
+                  <FormattedMessage defaultMessage={'Contest Home'} />
+                }
+                buttonTwoPathTo={`/contest/${network}`}
+              />
+            </Box>
+          </MainContainer>
+        </OpacityBG>
+      </OuterContainer>
     </ThemeProvider>
   );
 };
-
-const BgImgContainer = styled(Box)(
-  `
-  overflow: hidden;
-  position: absolute;
-  width: 100vw;
-  z-index: 1;
-  img {
-    width: 100%;
-  }
-    `
-);
-
-const MainContainer = styled(Box)(
-  `
-  background: transparent;
-  height: 100%;
-  overflow: hidden;
-  max-width: 1230px;
-  margin: auto;
-  position: relative;
-  z-index: 3;
-    `
-);
-
-const OuterContainer = styled(Box)(
-  ({ theme }) => `
-  margin-top: -123px;
-  background: #041D2E; 
-  height: 100%;
-  ${theme.breakpoints.down('md')} {
-    margin-top: -107px; 
-  }
-    `
-);
 
 const TableContainer = styled(Box)(
   ({ theme }) => `
@@ -175,8 +167,6 @@ const TableContainer = styled(Box)(
   ${theme.breakpoints.down('md')} {
     display: flex;
     justify-content: center;
-    max-width: 90%;
-    margin: auto;
     margin-top: ${theme.spacing(11)};
   }
     `
@@ -184,13 +174,25 @@ const TableContainer = styled(Box)(
 
 const UserTableContainer = styled(Box)(
   ({ theme }) => `
-  ${theme.breakpoints.down('md')} {
     display: flex;
     align-items: center;
+  ${theme.breakpoints.down('md')} {
     justify-content: center;
     flex-direction: column;
-    max-width: 90%;
-    margin: auto;
+  }
+    `
+);
+
+const CountDownContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  ${theme.breakpoints.down('sm')} {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    a { margin-top: ${theme.spacing(4)}; }
   }
     `
 );
@@ -201,30 +203,6 @@ const OpacityBG = styled(Box)(
   position: relative;
   z-index: 3;
     `
-);
-
-const TitleText = styled(Box)(
-  ({ theme }) => `
-  color: ${colors.white};
-  text-align: left;
-  font-family: Avenir Next;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: 10px;
-  text-transform: uppercase;
-  margin-bottom: ${theme.spacing(4)};
-  margin-top: ${theme.spacing(13)};
-  display: flex;
-  ${theme.breakpoints.down('md')} {
-    text-align: center;
-    text-wrap: nowrap;
-    letter-spacing: 5px;
-    justify-content: center;
-  }
-
-      `
 );
 
 export default ContestLeaderBoard;
