@@ -3,7 +3,8 @@ import {
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { PRODUCTS } from '@notional-finance/util';
-import { CardContainer, FeatureLoader, useSelectedCardNetwork } from '@notional-finance/shared-web';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import { CurrencyFixed } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -15,7 +16,7 @@ import { formatMaturity } from '@notional-finance/util';
 export function LendCardView() {
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const network = useSelectedCardNetwork()
+  const network = useSelectedNetwork();
   const {
     yields: { fCashLend },
     getMax,

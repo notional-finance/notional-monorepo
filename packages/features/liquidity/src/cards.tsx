@@ -17,11 +17,8 @@ import {
   useFiat,
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
-import {
-  CardContainer,
-  FeatureLoader,
-  useSelectedCardNetwork,
-} from '@notional-finance/shared-web';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import { useNotionalTheme } from '@notional-finance/styles';
 import {
   useLeveragedNTokenPositions,
@@ -62,7 +59,7 @@ const LiquidityCardView = ({
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const isAppReady = useAppReady();
-  const network = useSelectedCardNetwork();
+  const network = useSelectedNetwork();
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
 
@@ -195,7 +192,7 @@ const LiquidityCardView = ({
 };
 
 export const LiquidityVariableCardView = () => {
-  const network = useSelectedCardNetwork();
+  const network = useSelectedNetwork();
   const {
     yields: { liquidity },
   } = useAllMarkets(network);
@@ -225,7 +222,7 @@ export const LiquidityVariableCardView = () => {
 };
 
 export const LiquidityLeveragedCardView = () => {
-  const network = useSelectedCardNetwork();
+  const network = useSelectedNetwork();
   const {
     yields: { leveragedLiquidity },
   } = useAllMarkets(network);

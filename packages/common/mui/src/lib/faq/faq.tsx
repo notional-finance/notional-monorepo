@@ -133,7 +133,7 @@ export function Faq({
         >
           <H4>{question}</H4>
           {questionDescription && !expanded && (
-            <Body sx={{ marginTop: theme.spacing(2) }}>
+            <Body sx={{ marginTop: theme.spacing(2) }} id="faq-body">
               {questionDescription}
             </Body>
           )}
@@ -145,7 +145,7 @@ export function Faq({
         }}
       >
         {componentAnswer && componentAnswer}
-        {answer && <Body>{answer}</Body>}
+        {answer && <Body id="faq-body">{answer}</Body>}
       </AccordionDetails>
     </Accordion>
   );

@@ -21,8 +21,8 @@ export function useVaultNftCheck() {
     if (vaultAddress) {
       const gatedTo = GATED_VAULTS[vaultAddress] || [];
       if (gatedTo.length) {
-        const hasMembership = communityMembership?.find((c) =>
-          gatedTo.includes(c)
+        const hasMembership = communityMembership?.find(({ name }) =>
+          gatedTo.includes(name)
         );
 
         if (!hasMembership) history.push('/vaults');

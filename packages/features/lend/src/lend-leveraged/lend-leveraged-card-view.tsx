@@ -3,11 +3,8 @@ import {
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { PRODUCTS } from '@notional-finance/util';
-import {
-  CardContainer,
-  FeatureLoader,
-  useSelectedCardNetwork,
-} from '@notional-finance/shared-web';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import { Currency } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -18,7 +15,7 @@ import { formatLeverageRatio } from '@notional-finance/helpers';
 export function LendLeveragedCardView() {
   const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const network = useSelectedCardNetwork();
+  const network = useSelectedNetwork();
   const {
     yields: { leveragedLend },
     getMax,

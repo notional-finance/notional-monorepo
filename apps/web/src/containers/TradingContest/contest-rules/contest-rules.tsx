@@ -1,11 +1,12 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { FeatureLoader } from '@notional-finance/shared-web';
 import {
-  ContestHeader,
-  ContestNfts,
+  ContestPrizes,
+  OuterContainer,
   ContestRulesInfo,
   ContestBackButton,
+  BgImgContainer,
+  MainContainer,
 } from '../components';
 import { useNotionalTheme } from '@notional-finance/styles';
 import test from '../assets/color-blobs.png';
@@ -15,70 +16,21 @@ export const ContestRules = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <FeatureLoader
-        backgroundColor={'#041D2E'}
-        sx={{
-          marginTop: {
-            xs: '-107px',
-            sm: '-107px',
-            md: '-107px',
-            lg: '-125px',
-            xl: '-125px',
-          },
-        }}
-      >
-        <OuterContainer>
-          <BgImgContainer>
-            <img src={test} alt="bg img" />
-          </BgImgContainer>
-          <OpacityBG>
-            <MainContainer>
-              <ContestHeader />
-              <ContestBackButton />
-              <ContestNfts hideButton />
-              <ContestRulesInfo />
-            </MainContainer>
-          </OpacityBG>
-        </OuterContainer>
-      </FeatureLoader>
+      <OuterContainer>
+        <BgImgContainer>
+          <img src={test} alt="bg img" />
+        </BgImgContainer>
+        <OpacityBG>
+          <MainContainer sx={{ maxWidth: theme.spacing(137.5) }}>
+            <ContestBackButton />
+            <ContestPrizes />
+            <ContestRulesInfo />
+          </MainContainer>
+        </OpacityBG>
+      </OuterContainer>
     </ThemeProvider>
   );
 };
-
-const BgImgContainer = styled(Box)(
-  `
-  overflow: hidden;
-  position: absolute;
-  width: 100vw;
-  z-index: 1;
-  img {
-    width: 100%;
-  }
-    `
-);
-
-const MainContainer = styled(Box)(
-  `
-  background: transparent;
-  height: 100%;
-  overflow: hidden;
-  max-width: 1230px;
-  margin: auto;
-  position: relative;
-  z-index: 3;
-    `
-);
-
-const OuterContainer = styled(Box)(
-  ({ theme }) => `
-  margin-top: -123px;
-  background: #041D2E; 
-  height: 100%;
-  ${theme.breakpoints.down('md')} {
-    margin-top: -107px; 
-  }
-    `
-);
 
 const OpacityBG = styled(Box)(
   `

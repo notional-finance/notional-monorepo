@@ -15,12 +15,12 @@ import {
   useMarketTableDropdowns,
 } from './hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import { useSelectedPortfolioNetwork } from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import { MarketsMobileNav, MobileFilterOptions } from './components';
 
 export const Markets = () => {
   const theme = useTheme();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const [marketType, setMarketType] = useState<MARKET_TYPE>(MARKET_TYPE.EARN);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const buttonData = useButtonBar(setMarketType, marketType);

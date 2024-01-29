@@ -2,7 +2,6 @@ import {
   NotionalContext,
   useGlobalContext,
   useSanctionsBlock,
-  useVaultNftCheck,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FeatureLoader, TrackingConsent } from '@notional-finance/shared-web';
@@ -48,11 +47,12 @@ import {
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
-// import {
-//   ContestHome,
-//   ContestRules,
-//   ContestLeaderBoard,
-// } from '../../containers/TradingContest';
+import {
+  ContestHome,
+  ContestRules,
+  ContestSignUp,
+  ContestLeaderBoard,
+} from '../../containers/TradingContest';
 import { Markets } from '../Markets';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
@@ -197,7 +197,7 @@ const AllRoutes = () => {
             routeType="Portfolio"
           />
           <AppLayoutRoute
-            path="/markets"
+            path="/markets/:selectedNetwork"
             component={Markets}
             routeType="Markets"
           />
@@ -207,20 +207,35 @@ const AllRoutes = () => {
             routeType="Error"
           />
           {/* <AppLayoutRoute
-            path="/contest"
+            path="/contest/"
+            component={ContestHome}
+            routeType="Landing"
+          /> */}
+          <AppLayoutRoute
+            path="/contest/:selectedNetwork"
             component={ContestHome}
             routeType="Landing"
           />
           <AppLayoutRoute
-            path="/contest-rules"
+            path="/contest-rules/:selectedNetwork"
             component={ContestRules}
             routeType="Landing"
           />
           <AppLayoutRoute
-            path="/contest-leaderboard"
+            path="/contest-leaderboard/:selectedNetwork"
             component={ContestLeaderBoard}
             routeType="Landing"
-          /> */}
+          />
+          <AppLayoutRoute
+            path="/contest-sign-up/:selectedNetwork/:step/"
+            component={ContestSignUp}
+            routeType="Landing"
+          />
+          <AppLayoutRoute
+            path="/contest-sign-up/:selectedNetwork"
+            component={ContestSignUp}
+            routeType="Landing"
+          />
           <AppLayoutRoute
             path="/terms"
             component={TermsView}
@@ -267,7 +282,7 @@ export const App = () => {
     state: { themeVariant },
   } = globalState;
   const notionalTheme = useNotionalTheme(themeVariant);
-  useVaultNftCheck();
+  //  useVaultNftCheck(hasContestNFT);
 
   return (
     <ThemeProvider theme={notionalTheme}>

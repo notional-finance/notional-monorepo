@@ -44,6 +44,7 @@ export enum Network {
   All = 'all',
   Mainnet = 'mainnet',
   ArbitrumOne = 'arbitrum',
+  Optimism = 'optimism',
   Goerli = 'goerli',
 }
 
@@ -52,6 +53,7 @@ export const NetworkId: Record<Network, number> = {
   [Network.Mainnet]: 1,
   [Network.Goerli]: 5,
   [Network.ArbitrumOne]: 42161,
+  [Network.Optimism]: 10,
 };
 
 export const SupportedNetworks = [Network.ArbitrumOne];
@@ -60,6 +62,7 @@ export const AlchemyUrl: Record<Network, string> = {
   [Network.All]: 'https://eth-mainnet.g.alchemy.com/v2',
   [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/v2',
   [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/v2',
+  [Network.Optimism]: 'https://opt-mainnet.g.alchemy.com/v2',
   [Network.Goerli]: 'https://eth-goerli.g.alchemy.com/v2',
 };
 
@@ -67,6 +70,7 @@ export const AlchemyNFTUrl: Record<Network, string> = {
   [Network.All]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
   [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
   [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/nft/v2',
+  [Network.Optimism]: 'https://opt-mainnet.g.alchemy.com/nft/v2',
   [Network.Goerli]: 'https://arb-goerli.g.alchemy.com/nft/v2',
 };
 
@@ -74,6 +78,7 @@ export const NotionalAddress: Record<Network, string> = {
   [Network.All]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   [Network.Mainnet]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   [Network.ArbitrumOne]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  [Network.Optimism]: '',
   [Network.Goerli]: '0xD8229B55bD73c61D840d339491219ec6Fa667B0a',
 };
 

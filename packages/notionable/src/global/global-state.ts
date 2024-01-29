@@ -20,15 +20,32 @@ import {
 } from './account/holdings';
 import { AccruedIncentives, TotalIncentives } from './account/incentives';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
-import { CommunityName } from './account/communities';
+import { Community } from './account/communities';
 
 const userSettings = getFromLocalStorage('userSettings');
+
+export enum COMMUNITY_NAMES {
+  DEGEN_SCORE = 'DEGEN_SCORE',
+  V3_BETA_CONTEST = 'V3_BETA_CONTEST',
+  L2DAO = 'L2DAO',
+  CRYPTO_TESTERS = 'CRYPTO_TESTERS',
+  LLAMAS = 'LLAMAS',
+}
 
 export enum BETA_ACCESS {
   PENDING = 'pending',
   CONFIRMED = 'confirmed',
   REJECTED = 'rejected',
 }
+
+export enum PARTNERS {
+  DEGEN_SCORE = 'degen-score',
+  CRYPTO_TESTERS = 'crypto-testers',
+  L2DAO = 'l2dao',
+  LLAMAS = 'llamas',
+}
+
+export const GATED_VAULTS: string[] = [];
 
 // Set this as the runtime default
 const CACHE_HOSTNAME =
@@ -86,7 +103,7 @@ interface AddressState {
     provider?: ethers.providers.Provider;
   };
   /** These are checked on wallet connection and associated with the wallet */
-  communityMembership?: CommunityName[];
+  communityMembership?: Community[];
   /** Checks if the address is sanctioned on wallet connection */
   isSanctionedAddress: boolean;
 
@@ -153,6 +170,7 @@ export const initialGlobalState: GlobalState = {
     [Network.All]: [],
     [Network.Mainnet]: [],
     [Network.ArbitrumOne]: [],
+    [Network.Optimism]: [],
     [Network.Goerli]: [],
   },
 };
