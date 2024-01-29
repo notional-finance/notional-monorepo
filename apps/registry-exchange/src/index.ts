@@ -22,13 +22,9 @@ export default {
       case Routes.Exchanges:
         ns = env.EXCHANGE_REGISTRY_DO;
         break;
-      case Routes.Oracles:
-        ns = env.ORACLE_REGISTRY_DO;
-        break;
       case 'healthcheck':
         await Promise.all([
           runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
-          runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
         ]);
         return new Response(JSON.stringify({ status: 'OK' }));
     }
@@ -40,9 +36,6 @@ export default {
   },
   async scheduled(_: ScheduledController, env: RegistryDOEnv): Promise<void> {
     // Run a healthcheck against all of the durable objects.
-    await Promise.all([
-      runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
-      runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
-    ]);
+    await Promise.all([runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION)]);
   },
 };

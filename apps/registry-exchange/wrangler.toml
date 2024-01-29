@@ -20,6 +20,12 @@ new_classes = [
     "OracleRegistryDO",
 ]
 
+[[migrations]]
+tag = "v3"
+deleted_classes = [
+    "OracleRegistryDO",
+]
+
 [env.dev]
 name = "registry-exchange-dev"
 
@@ -33,8 +39,7 @@ SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
 [env.dev.durable_objects]
 bindings = [
-  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
-  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
+  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" }
 ]
 
 
