@@ -1,5 +1,9 @@
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
-import { PopulateTransactionInputs, populateNotionalTxnAndGas } from './common';
+import {
+  PopulateTransactionInputs,
+  getETHValue,
+  populateNotionalTxnAndGas,
+} from './common';
 import {
   BASIS_POINT,
   INTERNAL_TOKEN_DECIMALS,
@@ -146,6 +150,7 @@ export function EnterVault({
     debtBalanceNum,
     maxBorrowRate,
     vaultData,
+    getETHValue(depositBalance),
   ]);
 }
 
@@ -281,5 +286,6 @@ export function RollVault({
     minLendRate,
     maxBorrowRate,
     vaultData,
+    getETHValue(depositBalance),
   ]);
 }

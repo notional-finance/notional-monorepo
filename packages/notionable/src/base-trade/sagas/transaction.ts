@@ -90,18 +90,33 @@ export function simulateTransaction(
     filter(([state]) => !!state.populatedTransaction && !IS_TEST_ENV),
     withLatestFrom(selectedNetwork$),
     switchMap(([[s, a], network]) => {
-      const { populatedTransaction, postTradeBalances, vaultAddress } = s;
+      const {
+        populatedTransaction,
+        postTradeBalances,
+        vaultAddress,
+        postTradeIncentives,
+      } = s;
       if (populatedTransaction && a) {
         return from(
           applySimulationToAccount(network, populatedTransaction, a)
         ).pipe(
           map(({ balancesAfter }) => {
             const zippedBalances = zipByKeyToArray(
-              balancesAfter.filter((t) =>
-                vaultAddress
-                  ? t.isVaultToken && t.vaultAddress === vaultAddress
-                  : t.tokenType !== 'Underlying' && !t.isVaultToken
-              ),
+              balancesAfter.filter((t) => {
+                if (vaultAddress) {
+                  return t.isVaultToken && t.vaultAddress === vaultAddress;
+                } else if (
+                  postTradeIncentives?.find((i) => i.tokenId === t.tokenId)
+                ) {
+                  // Do not include incentive tokens in the check, this causes issues
+                  // with the simulation for a token like ARB which is both listed and
+                  // given out as an incentive. Prior balances are added which causes the
+                  // check to break.
+                  return false;
+                } else {
+                  return t.tokenType !== 'Underlying' && !t.isVaultToken;
+                }
+              }),
               // Exclude vault cash from the balances check since it should always
               // be cleared anyway
               postTradeBalances?.filter((t) => t.tokenType !== 'VaultCash') ||
@@ -113,13 +128,7 @@ export function simulateTransaction(
               .map(([simulated, calculated]) => {
                 let rel = 0;
                 let abs = 0;
-                if (
-                  simulated?.symbol === 'ARB' ||
-                  calculated?.symbol === 'ARB'
-                ) {
-                  rel = 0;
-                  abs = 0;
-                } else if (simulated && calculated) {
+                if (simulated && calculated) {
                   rel = calculated.isZero()
                     ? simulated.toFloat()
                     : (simulated.toFloat() - calculated.toFloat()) /

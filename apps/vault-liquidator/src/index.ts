@@ -1,5 +1,6 @@
 import {
   Network,
+  ZERO_ADDRESS,
   batchArray,
   getNowSeconds,
   getProviderFromNetwork,
@@ -45,6 +46,12 @@ class ArbitrumGasOracle implements IGasOracle {
     return ethers.utils.parseUnits('1', 8);
   }
 }
+
+export const overrides = {
+  [Network.ArbitrumOne]: {
+    [ZERO_ADDRESS]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+  },
+};
 
 const run = async (env: Env) => {
   const allVaults = await (
@@ -135,17 +142,19 @@ const run = async (env: Env) => {
     }
   );
 
-  if (riskyAccounts.length > 0) {
-    const riskyAccount = riskyAccounts[0];
+  await logger.submitMetrics(ddSeries);
 
-    const accountLiq = await liq.getAccountLiquidation(riskyAccount);
+  for (const riskyAccount of riskyAccounts) {
+    try {
+      const accountLiq = await liq.getAccountLiquidation(riskyAccount);
 
-    if (accountLiq) {
-      await liq.liquidateAccount(accountLiq);
+      if (accountLiq) {
+        await liq.liquidateAccount(accountLiq);
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
-
-  await logger.submitMetrics(ddSeries);
 };
 
 export default {

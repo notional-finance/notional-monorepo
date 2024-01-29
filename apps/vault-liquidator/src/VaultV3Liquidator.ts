@@ -10,6 +10,7 @@ import {
 } from '@notional-finance/contracts';
 import { Logger } from '@notional-finance/durable-objects';
 import { Network } from '@notional-finance/util';
+import { overrides } from '.';
 
 export type LiquidatorSettings = {
   network: Network;
@@ -249,7 +250,9 @@ export default class VaultV3Liquidator {
       this.provider
     );
 
-    const assetAddress = results['assetAddress'] as string;
+    let assetAddress = results['assetAddress'] as string;
+    assetAddress =
+      overrides[this.settings.network][assetAddress] || assetAddress;
     const flashLoanAmount = (results['depositAmount'] as BigNumber)
       .mul(this.settings.flashLoanBuffer)
       .div(1000);

@@ -656,6 +656,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   balances,
   riskFactorLimit,
   vaultLastUpdateTime,
+  maxCollateralSlippage,
 }: {
   collateral: TokenDefinition;
   debt: TokenDefinition;
@@ -726,16 +727,27 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     initialDebtUnitsEstimateInRP
   );
 
+  let collateralBalance = (
+    netVaultSharesForWithdraw
+      ? results.collateralBalance.add(netVaultSharesForWithdraw)
+      : results.collateralBalance
+  )
+    // Buffer the collateral balance to account for slippage or precision loss
+    .mulInRatePrecision(
+      RATE_PRECISION + (maxCollateralSlippage || BASIS_POINT)
+    );
+
+  // Do not allow the collateral balance withdrawn to exceed the actual account balance
+  if (
+    collateralBalance.isNegative() &&
+    collateralBalance.abs().gt(profile.vaultShares)
+  ) {
+    collateralBalance = profile.vaultShares;
+  }
+
   return {
     ...results,
-    // Add the withdraw amount for net vault shares
-    ...(netVaultSharesForWithdraw
-      ? {
-          collateralBalance: results.collateralBalance.add(
-            netVaultSharesForWithdraw
-          ),
-        }
-      : {}),
+    collateralBalance,
   };
 }
 
