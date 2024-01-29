@@ -65,7 +65,8 @@ export function calculateMaxWithdraw(
         s.isReady && !!s.tradeType && s.maxWithdraw && !p.maxWithdraw
     ),
     map(([_, [s, debtPool, collateralPool, a, vaultAdapter]]) => {
-      const { requiredArgs } = getTradeConfig(s.tradeType);
+      const { requiredArgs, calculateCollateralOptions, calculateDebtOptions } =
+        getTradeConfig(s.tradeType);
 
       const { inputsSatisfied, inputs } = getRequiredArgs(
         requiredArgs,
@@ -73,7 +74,9 @@ export function calculateMaxWithdraw(
         a,
         collateralPool,
         debtPool,
-        vaultAdapter
+        vaultAdapter,
+        calculateCollateralOptions,
+        calculateDebtOptions
       );
 
       const {
@@ -151,7 +154,9 @@ export function calculate(
           _a,
           _collateralPool,
           _debtPool,
-          _vaultAdapter
+          _vaultAdapter,
+          calculateCollateralOptions,
+          calculateDebtOptions
         );
 
         return {
@@ -163,9 +168,6 @@ export function calculate(
           collateralPool,
           a,
           vaultAdapter,
-          requiredArgs,
-          calculateCollateralOptions,
-          calculateDebtOptions,
         };
       }
     ),
@@ -179,11 +181,13 @@ export function calculate(
         collateralPool,
         a,
         vaultAdapter,
-        requiredArgs,
-        calculateCollateralOptions,
-        calculateDebtOptions,
       }) => {
         if (s.maxWithdraw) return undefined;
+        const {
+          requiredArgs,
+          calculateCollateralOptions,
+          calculateDebtOptions,
+        } = getTradeConfig(s.tradeType);
 
         const { inputsSatisfied, inputs, keys } = getRequiredArgs(
           requiredArgs,
@@ -191,7 +195,9 @@ export function calculate(
           a,
           collateralPool,
           debtPool,
-          vaultAdapter
+          vaultAdapter,
+          calculateCollateralOptions,
+          calculateDebtOptions
         );
 
         const calculateInputKeys = keys.join('|');
@@ -279,7 +285,9 @@ function getRequiredArgs(
   a: AccountDefinition | null,
   collateralPool: BaseLiquidityPool<unknown> | undefined,
   debtPool: BaseLiquidityPool<unknown> | undefined,
-  vaultAdapter: VaultAdapter | undefined
+  vaultAdapter: VaultAdapter | undefined,
+  calculateCollateralOptions: boolean | undefined,
+  calculateDebtOptions: boolean | undefined
 ) {
   const { vaultAddress } = s;
   const [inputs, keys] = requiredArgs.reduce(
@@ -369,6 +377,13 @@ function getRequiredArgs(
   );
 
   const inputsSatisfied = requiredArgs.every((r) => inputs[r] !== undefined);
+
+  if (calculateCollateralOptions) {
+    keys.push(s.availableCollateralTokens?.map((t) => t.id).join('|') || '');
+  }
+  if (calculateDebtOptions) {
+    keys.push(s.availableDebtTokens?.map((t) => t.id).join('|') || '');
+  }
 
   return {
     inputsSatisfied,

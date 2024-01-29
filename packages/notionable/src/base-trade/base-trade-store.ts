@@ -14,6 +14,7 @@ import { PopulatedTransaction } from 'ethers';
 import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
 import { TradeType } from './trade-config';
 import { AccountRiskSummary, VaultAccountRiskSummary } from './sagas';
+import { Network } from '@notional-finance/util';
 export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
 export type { TradeType } from './trade-config';
@@ -63,12 +64,29 @@ export interface TokenOption {
 interface UserInputs {
   /** Symbol of the selected deposit token, if any */
   selectedDepositToken?: string;
+  /**
+   * Symbol of the selected token on portfolio transaction screens such as withdraw,
+   * repay debt, and roll maturity
+   */
+  selectedToken?: string;
+  /** NOTE: this is currently unused throughout the site */
   redeemToWETH: boolean;
+  /** Signals that the input is a max withdraw or max repayment */
   maxWithdraw: boolean;
+  /** True if there are any input validation errors */
   inputErrors: boolean;
+
+  /** Selected network for the current trade, the user can change this */
+  selectedNetwork?: Network;
 
   /** Set to true if the user is inputting custom leverage amounts */
   customizeLeverage: boolean;
+
+  /** Used as a flag to reset the state on path changes */
+  reset?: boolean;
+
+  /** The current URL path for tracking URL route updates */
+  pathname?: string;
 }
 
 /** Calculated values based on token inputs */
@@ -182,7 +200,7 @@ export const initialBaseTradeState: BaseTradeState = {
 
 export const initialVaultTradeState: VaultTradeState = {
   ...initialBaseTradeState,
-  customizeLeverage: true,
+  customizeLeverage: false,
   underMinAccountBorrow: false,
   overCapacityError: false,
 };

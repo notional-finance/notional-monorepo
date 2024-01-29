@@ -57,9 +57,16 @@ export function buildTransaction(
               transactionError: undefined as string | undefined,
             }))
             .catch((e) => {
-              logError(e, 'base-trade#logic', 'buildTransaction', s);
+              // Log these errors in full to the console
+              logError(e, 'base-trade#logic', 'buildTransaction', s, true);
+              const _reason = e['reason'];
+              const parsedReason = _reason.replace(/execution\sreverted:?/, '');
+              const transactionError = parsedReason
+                ? `Transaction will revert: ${parsedReason}`
+                : 'Transaction will revert based on inputs.';
+
               return {
-                transactionError: 'Transaction will revert based on inputs.',
+                transactionError,
               };
             })
         );
@@ -128,7 +135,13 @@ export function simulateTransaction(
               .map(([simulated, calculated]) => {
                 let rel = 0;
                 let abs = 0;
-                if (simulated && calculated) {
+                if (
+                  simulated?.symbol === 'ARB' ||
+                  calculated?.symbol === 'ARB'
+                ) {
+                  rel = 0;
+                  abs = 0;
+                } else if (simulated && calculated) {
                   rel = calculated.isZero()
                     ? simulated.toFloat()
                     : (simulated.toFloat() - calculated.toFloat()) /
