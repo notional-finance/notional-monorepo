@@ -1,8 +1,15 @@
+import {Network} from './constants';
 import { BigNumber } from "ethers";
 
 interface Env {
+  NETWORK: keyof typeof Network;
   ZERO_EX_API_KEY: string,
-  ZERO_EX_API_URL: string,
+}
+
+const urls: Record<Network,string> = {
+  all: '',
+  mainnet: 'https://api.0x.org/swap/v1/quote',
+  arbitrum: 'https://arbitrum.api.0x.org/swap/v1/quote',
 }
 
 const DEFAULT_SLIPPAGE_PERCENT = 5;
@@ -37,7 +44,7 @@ export async function get0xData(
 
   console.log(searchParams);
 
-  const response = await fetch(`${env.ZERO_EX_API_URL}?${searchParams}`, {
+  const response = await fetch(`${urls[Network[env.NETWORK]]}?${searchParams}`, {
     headers: {
       "0x-api-key": env.ZERO_EX_API_KEY
     },

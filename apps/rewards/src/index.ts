@@ -5,16 +5,14 @@ import { vaults, ARB_ETH, ARB_WETH } from './vaults';
 import { get0xData, sendTxThroughRelayer } from "@notional-finance/util";
 
 export interface Env {
-  NETWORK: string;
+  NETWORK: keyof typeof Network;
   TREASURY_MANAGER_ADDRESS: string;
   MANAGER_BOT_ADDRESS: string;
-  TX_RELAY_SEND_URL: string,
   TX_RELAY_AUTH_TOKEN: string;
   ZERO_EX_API_KEY: string;
-  ZERO_EX_API_URL: string,
   AUTH_KEY: string;
   REINVEST_TIME_WINDOW_IN_HOURS: string;
-
+  REWARDS_KV: KVNamespace;
 }
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 2;
@@ -65,39 +63,59 @@ async function didTimeWindowPassed(vaultAddress: string, timeWindow: number) {
 }
 
 async function shouldSkipReinvest(env: Env, vaultAddress: string) {
-  // subtract 5min from time indow so reinvestment can happen each day on same time
+  // subtract 5min from time window so reinvestment can happen each day on same time
   const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS - 5 * 60;
   return !(await didTimeWindowPassed(vaultAddress, reinvestTimeWindow));
 }
 
+async function setLastClaimTimestamp(env: Env, vaultAddress: string) {
+  const claimTimestampKey = `${vaultAddress}:claimTimestamp`;
+
+  return env.REWARDS_KV.put(claimTimestampKey, String(Date.now() / 1000));
+}
+
 async function shouldSkipClaim(env: Env, vaultAddress: string) {
-  // claim time window is slightly less than reinvest time window so claiming
-  // can happen each day at same time otherwise it would be postponed each day
-  // by some time(depending on how often do we run bot)
-  const claimTimeWindow = (Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24)) * HOUR_IN_SECONDS - 0.5 * HOUR_IN_SECONDS;
-  return !(await didTimeWindowPassed(vaultAddress, claimTimeWindow));
+  const claimTimestampKey = `${vaultAddress}:claimTimestamp`;
+  const lastClaimTimestamp = Number(await env.REWARDS_KV.get(claimTimestampKey));
+
+  // subtract 5min from time window so reinvestment can happen each day on same time
+  const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS - 5 * 60;
+  return  Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
 }
 
 const claimRewards = async (env: Env, provider: any) => {
+  const treasuryManger = TreasuryManager__factory.connect(
+    env.TREASURY_MANAGER_ADDRESS,
+    provider
+  );
+
   return Promise.all(
-    vaults.map(async (v) => {
-      if (await shouldSkipClaim(env, v.address)) {
-        console.log(`Skipping claim rewards for ${v.address}, already claimed`);
+    vaults.map(async (vault) => {
+      if (await shouldSkipClaim(env, vault.address)) {
+        console.log(`Skipping claim rewards for ${vault.address}, already claimed`);
         return null;
       }
 
-      const data = TreasuryManager__factory.connect(
-        env.TREASURY_MANAGER_ADDRESS,
-        provider
-      ).interface.encodeFunctionData('claimVaultRewardTokens', [v.address]);
+      // make sure call will be successful
+      await treasuryManger.callStatic.claimVaultRewardTokens(
+        vault.address,
+        { from: env.MANAGER_BOT_ADDRESS }
+      );
 
-      console.log(`Claiming rewards for ${v.address}`);
+      const data = treasuryManger.interface.encodeFunctionData(
+        'claimVaultRewardTokens',
+        [vault.address]
+      );
 
-      return sendTxThroughRelayer({
+      console.log(`Claiming rewards for ${vault.address}`);
+
+      await sendTxThroughRelayer({
         to: env.TREASURY_MANAGER_ADDRESS,
         data,
         env,
-      })
+      });
+
+      await setLastClaimTimestamp(env, vault.address);
     })
   );
 };
