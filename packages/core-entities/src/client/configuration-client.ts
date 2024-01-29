@@ -465,6 +465,24 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return this.getLatestFromSubject(network, network)?.currencyConfigurations;
   }
 
+  getMaxSupply(network: Network, currencyId: number) {
+    const underlying = Registry.getTokenRegistry().getUnderlying(
+      network,
+      currencyId
+    );
+    const pCash = Registry.getTokenRegistry().getPrimeCash(network, currencyId);
+    const maxUnderlyingSupply = TokenBalance.from(
+      this._assertDefined(
+        this.getConfig(network, currencyId).maxUnderlyingSupply
+      ),
+      underlying
+    ).scaleFromInternal();
+    if (!pCash.totalSupply) throw Error('pCash total supply not found');
+    const currentUnderlyingSupply = pCash.totalSupply.toUnderlying();
+
+    return { maxUnderlyingSupply, currentUnderlyingSupply };
+  }
+
   getConfig(network: Network, currencyId: number) {
     const config = this.getLatestFromSubject(
       network,

@@ -8,6 +8,7 @@ import {
   AccountDefinition,
   Registry,
   TokenBalance,
+  TokenDefinition,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 
@@ -16,6 +17,20 @@ export type GroupedHolding = ReturnType<
   typeof calculateGroupedHoldings
 >[number];
 export type VaultHolding = ReturnType<typeof calculateVaultHoldings>[number];
+
+function isHighUtilization(token: TokenDefinition) {
+  if (!token.currencyId) return false;
+  const market = Registry.getExchangeRegistry().getfCashMarket(
+    token.network,
+    token.currencyId
+  );
+  const utilization = market.getMarketUtilization();
+
+  if (token.tokenType === 'fCash') return utilization[token.id] === true;
+  else if (token.tokenType === 'nToken')
+    return !Object.values(utilization).every((_) => _ === false);
+  else return false;
+}
 
 /**
  * Exposes all the relevant information for account holdings in the normal portfolio,
@@ -101,6 +116,7 @@ export function calculateHoldings(
       totalIncentiveEarnings,
       hasMatured: balance.hasMatured,
       tokenType: undefined,
+      isHighUtilization: isHighUtilization(balance.token),
     };
   });
 

@@ -91,7 +91,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 )
               )
             )
-          : of(undefined)
+          : of(of(null))
       ),
       filterEmpty(),
       switchMap((o) => o)
