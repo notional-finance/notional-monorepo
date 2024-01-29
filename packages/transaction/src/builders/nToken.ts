@@ -103,12 +103,17 @@ export function RedeemToPortfolioNToken({
   if (debtBalance.isPositive() || debtBalance.tokenType !== 'nToken')
     throw Error('Invalid debtBalance');
 
-  return populateNotionalTxnAndGas(network, address, 'nTokenRedeem', [
+  return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
     address,
-    debtBalance.currencyId,
-    debtBalance.n.abs(),
-    true, // sell assets
-    true, // accept residuals
+    [
+      getBalanceAction(
+        DepositActionType.RedeemNToken,
+        debtBalance.neg(),
+        false,
+        undefined,
+        false
+      ),
+    ],
   ]);
 }
 
