@@ -58,21 +58,20 @@ function getSelectedToken(
 }
 
 /** Ensures that tokens are automatically selected or cleared when they change */
-  function getSelectedToken(
-    availableTokens: TokenDefinition[],
-    selectedToken: string | undefined,
-    category: Category,
-    tradeType?: TradeType | VaultTradeType | undefined,
-  ) {  
-    if (availableTokens.length === 1){
-      return availableTokens[0]
-    } else if(selectedToken === undefined) {
-      return getDefaultTokens(availableTokens, category, tradeType)
-    } else {
-      return availableTokens.find((t) => t.symbol === selectedToken);
-    }
+function getSelectedToken(
+  availableTokens: TokenDefinition[],
+  selectedToken: string | undefined,
+  category: Category,
+  tradeType?: TradeType | VaultTradeType | undefined
+) {
+  if (availableTokens.length === 1) {
+    return availableTokens[0];
+  } else if (selectedToken === undefined) {
+    return getDefaultTokens(availableTokens, category, tradeType);
+  } else {
+    return availableTokens.find((t) => t.symbol === selectedToken);
   }
-
+}
 
 export type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -121,7 +120,7 @@ export function selectedPortfolioToken(state$: Observable<BaseTradeState>) {
               ? tokens.getPrimeCash(selected.network, selected.currencyId)
               : selected,
         };
-      } else if (tradeType === 'Withdraw' || tradeType === 'RollDebt') {
+      } else if (tradeType === 'Withdraw') {
         return {
           debt:
             selected.tokenType === 'PrimeCash'
