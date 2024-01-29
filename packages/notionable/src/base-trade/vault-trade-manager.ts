@@ -1,8 +1,6 @@
 import { merge, Observable, of } from 'rxjs';
-import { GlobalState } from '../global/global-state';
 import { VaultTradeState } from './base-trade-store';
 import {
-  resetOnNetworkChange,
   initVaultState,
   priorVaultAccountRisk,
   postVaultAccountRisk,
@@ -14,17 +12,17 @@ import {
   selectedVaultAdapter,
   defaultVaultLeverageRatio,
   vaultCapacity,
+  selectedPortfolioToken,
 } from './sagas';
 import { selectedAccount, selectedNetwork } from '../global';
 import { calculate } from './trade-calculation';
 
 export function createVaultTradeManager(
-  state$: Observable<VaultTradeState>,
-  global$: Observable<GlobalState>
+  state$: Observable<VaultTradeState>
 ): Observable<Partial<VaultTradeState>> {
   // Shared Observables
-  const network$ = selectedNetwork(global$);
-  const account$ = selectedAccount(global$);
+  const network$ = selectedNetwork(state$);
+  const account$ = selectedAccount(network$);
   const debtPool$ = selectedPool('Debt', state$, network$);
   const vaultAdapter$ = selectedVaultAdapter(state$, network$);
 
@@ -34,12 +32,12 @@ export function createVaultTradeManager(
     buildTransaction(state$, account$),
     vaultCapacity(state$, account$, network$),
     postVaultAccountRisk(state$, account$),
-    defaultVaultLeverageRatio(state$, network$),
+    defaultVaultLeverageRatio(state$),
     priorVaultAccountRisk(state$, account$),
     calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),
     availableTokens(state$, network$, account$),
-    initVaultState(state$, network$, global$),
-    resetOnNetworkChange(global$, state$),
+    selectedPortfolioToken(state$),
+    initVaultState(state$),
     resetOnTradeTypeChange(state$, true)
   );
 }

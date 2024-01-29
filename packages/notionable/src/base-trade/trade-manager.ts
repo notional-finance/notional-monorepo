@@ -1,8 +1,6 @@
 import { of, merge, Observable } from 'rxjs';
-import { GlobalState } from '../global/global-state';
 import { TradeState } from './base-trade-store';
 import {
-  resetOnNetworkChange,
   initState,
   priorAccountRisk,
   postAccountRisk,
@@ -12,19 +10,19 @@ import {
   defaultLeverageRatio,
   simulateTransaction,
   selectedPool,
-  selectedToken,
+  selectedDepositToken,
+  selectedPortfolioToken,
 } from './sagas';
 import { selectedAccount, selectedNetwork } from '../global';
 import { calculate, calculateMaxWithdraw } from './trade-calculation';
 import { tradeSummary } from './metadata/account-summary';
 
 export function createTradeManager(
-  state$: Observable<TradeState>,
-  global$: Observable<GlobalState>
+  state$: Observable<TradeState>
 ): Observable<Partial<TradeState>> {
   // Shared Observables
-  const network$ = selectedNetwork(global$);
-  const account$ = selectedAccount(global$);
+  const network$ = selectedNetwork(state$);
+  const account$ = selectedAccount(network$);
   const debtPool$ = selectedPool('Debt', state$, network$);
   const collateralPool$ = selectedPool('Collateral', state$, network$);
 
@@ -47,11 +45,11 @@ export function createTradeManager(
     calculate(state$, debtPool$, collateralPool$, of(undefined), account$),
     defaultLeverageRatio(state$, network$),
     // NOTE: this is required to read URL based inputs for deposits
-    selectedToken(state$, network$),
+    selectedDepositToken(state$),
     priorAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
-    initState(state$, network$, global$),
-    resetOnNetworkChange(global$, state$),
+    selectedPortfolioToken(state$),
+    initState(state$),
     resetOnTradeTypeChange(state$)
   );
 }
