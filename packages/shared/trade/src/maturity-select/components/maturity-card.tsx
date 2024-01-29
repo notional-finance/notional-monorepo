@@ -1,7 +1,7 @@
 import { FormattedMessage } from 'react-intl';
 import { Box, useTheme } from '@mui/material';
 import { LabelValue, BodySecondary, CountUp } from '@notional-finance/mui';
-import { formatMaturity } from '@notional-finance/helpers';
+import { formatMaturity } from '@notional-finance/util';
 import { MaturityData } from '@notional-finance/notionable-hooks';
 
 /* eslint-disable-next-line */

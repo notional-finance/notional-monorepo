@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
-import { useNetworkSelector } from '../hooks/use-network-selector';
+import { useNetworkSelector } from '../hooks/use-network';
 
 export interface NetworkButtonProps {
   active?: boolean;

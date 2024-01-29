@@ -122,7 +122,7 @@ export function ContestDropdown() {
                 size="large"
                 sx={{
                   marginBottom: theme.spacing(3),
-                  width: '358px',
+                  width: '330px',
                   fontFamily: 'Avenir Next',
                   cursor: 'pointer',
                   background: colors.neonTurquoise,
@@ -140,7 +140,7 @@ export function ContestDropdown() {
                 variant="outlined"
                 to="/contest-leaderboard"
                 sx={{
-                  width: '358px',
+                  width: '330px',
                   border: `1px solid ${colors.neonTurquoise}`,
                   cursor: 'pointer',
                   color: colors.neonTurquoise,

@@ -18,14 +18,14 @@ import { TokenBalance } from '@notional-finance/core-entities';
 export function useMaxRepay(context: BaseTradeContext) {
   const {
     updateState,
-    state: { collateral, maxWithdraw },
+    state: { collateral, maxWithdraw, selectedNetwork },
   } = context;
-  const fCashMarket = useFCashMarket(collateral?.currencyId);
-  const profile = usePortfolioRiskProfile();
+  const fCashMarket = useFCashMarket(collateral);
+  const profile = usePortfolioRiskProfile(selectedNetwork);
 
   // Find the matching debt balance in the risk profile. For prime debt repayment,
   // this will already be in prime cash denomination.
-  const maxRepay = profile.debts.find((d) => d.tokenId === collateral?.id);
+  const maxRepay = profile?.debts.find((d) => d.tokenId === collateral?.id);
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
   let maxRepayAmount: TokenBalance | undefined;
   if (maxRepay?.tokenType === 'PrimeCash') {

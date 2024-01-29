@@ -1,6 +1,6 @@
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 
-export const getErrorMessages = (
+export const getDepositErrorMessage = (
   errorMsgOverride: MessageDescriptor | undefined,
   errorMsg: MessageDescriptor | undefined,
   calculateError: string | undefined
@@ -41,5 +41,3 @@ export const getErrorMessages = (
     return '';
   }
 };
-
-export default getErrorMessages;

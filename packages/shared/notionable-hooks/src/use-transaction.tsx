@@ -1,13 +1,11 @@
-import { TransactionReceipt } from '@ethersproject/providers';
 import { trackEvent } from '@notional-finance/helpers';
-import { filterEmpty, logError, TRACKING_EVENTS } from '@notional-finance/util';
+import { logError, TRACKING_EVENTS, Network } from '@notional-finance/util';
 import { PopulatedTransaction } from 'ethers';
-import { useObservable, useSubscription } from 'observable-hooks';
 import { useCallback, useEffect, useState } from 'react';
-import { map, switchMap } from 'rxjs';
-import { useNotionalContext, useSelectedNetwork } from './use-notional';
+import { useNotionalContext } from './use-notional';
 import { useLocation } from 'react-router';
 import { Registry, TokenDefinition } from '@notional-finance/core-entities';
+import { useWalletConnectedNetwork } from './use-wallet';
 
 export enum TransactionStatus {
   NONE = 'none',
@@ -22,14 +20,10 @@ export enum TransactionStatus {
 
 function useSubmitTransaction() {
   const {
-    globalState: {
-      wallet,
-      sentTransactions,
-      awaitingBalanceChanges,
-      selectedNetwork,
-    },
+    globalState: { wallet, sentTransactions },
     updateNotional,
   } = useNotionalContext();
+  const selectedNetwork = useWalletConnectedNetwork();
   const signer = wallet?.signer;
   const { pathname } = useLocation();
 
@@ -39,7 +33,7 @@ function useSubmitTransaction() {
       populatedTransaction: PopulatedTransaction,
       tokens?: TokenDefinition[]
     ) => {
-      if (!signer) throw Error('Signer undefined');
+      if (!signer || !selectedNetwork) throw Error('Signer undefined');
       const tx = await signer.sendTransaction(populatedTransaction);
       const { hash } = tx;
       trackEvent(TRACKING_EVENTS.SUBMIT_TXN, {
@@ -50,24 +44,15 @@ function useSubmitTransaction() {
       });
 
       updateNotional({
-        sentTransactions: Object.assign(sentTransactions, {
-          [hash]: tx,
-        }),
-        awaitingBalanceChanges: Object.assign(awaitingBalanceChanges, {
-          [hash]: tokens,
-        }),
+        sentTransactions: [
+          ...sentTransactions,
+          { network: selectedNetwork, response: tx, tokens, hash },
+        ],
       });
 
       return hash;
     },
-    [
-      updateNotional,
-      signer,
-      sentTransactions,
-      pathname,
-      awaitingBalanceChanges,
-      selectedNetwork,
-    ]
+    [updateNotional, signer, sentTransactions, pathname, selectedNetwork]
   );
 
   return {
@@ -78,55 +63,8 @@ function useSubmitTransaction() {
 
 function usePendingTransaction(hash?: string) {
   const {
-    globalState: { sentTransactions, completedTransactions },
-    updateNotional,
+    globalState: { completedTransactions },
   } = useNotionalContext();
-
-  // Creates an observable that waits for the transaction recept
-  const wait$ = useObservable(
-    (i$) =>
-      i$.pipe(
-        map(([sent, h]) => (h ? sent[h] : undefined)),
-        filterEmpty(),
-        switchMap((r) => r.wait())
-      ),
-    [sentTransactions, hash]
-  );
-
-  const updateTxn = useCallback(
-    (r: TransactionReceipt) => {
-      // Removes the completed transaction hash
-      const { [r.transactionHash]: _, ...newSentTransactions } =
-        sentTransactions;
-      const newCompletedTransactions = Object.assign(completedTransactions, {
-        [r.transactionHash]: r,
-      });
-
-      // Updates the global state with the new transaction hash
-      updateNotional({
-        sentTransactions: newSentTransactions,
-        completedTransactions: newCompletedTransactions,
-      });
-    },
-    [updateNotional, completedTransactions, sentTransactions]
-  );
-
-  // Updates the global state when the receipt completes
-  useSubscription(
-    wait$,
-    (r) => {
-      updateTxn(r);
-    },
-    // Handles an error if there is one
-    ({ receipt, replacement }) => {
-      if (replacement) {
-        // TODO: need to handle replaced transactions
-        console.log('REPLACED', replacement);
-      } else {
-        updateTxn(receipt);
-      }
-    }
-  );
 
   // Returns the completed transaction receipt
   const transactionReceipt = hash ? completedTransactions[hash] : undefined;
@@ -134,15 +72,16 @@ function usePendingTransaction(hash?: string) {
   return { transactionReceipt, reverted: transactionReceipt?.status === 0 };
 }
 
-export function usePendingPnLCalculation() {
+export function usePendingPnLCalculation(network: Network | undefined) {
   const {
-    globalState: { pendingTokens, pendingTxns },
+    globalState: { pendingPnL },
   } = useNotionalContext();
-  return { pendingTokens, pendingTxns };
+
+  return network ? pendingPnL[network] : [];
 }
 
-export function useTransactionStatus() {
-  const network = useSelectedNetwork();
+export function useTransactionStatus(network: Network | undefined) {
+  const walletNetwork = useWalletConnectedNetwork();
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(
     TransactionStatus.NONE
   );
@@ -151,6 +90,8 @@ export function useTransactionStatus() {
     usePendingTransaction(transactionHash);
   const { isReadOnlyAddress, submitTransaction } = useSubmitTransaction();
   const { pathname } = useLocation();
+  const isWalletConnectedToNetwork =
+    !!network || !!walletNetwork || network === walletNetwork;
 
   useEffect(() => {
     if (reverted) setTransactionHash(TransactionStatus.REVERT);
@@ -164,11 +105,20 @@ export function useTransactionStatus() {
     (
       transactionLabel: string,
       populatedTransaction?: PopulatedTransaction,
-      tokens?: TokenDefinition[]
+      expectedTokenChanges?: TokenDefinition[]
     ) => {
+      if (!isWalletConnectedToNetwork) {
+        console.error('Wallet does not match expected network');
+        return;
+      }
+
       if (populatedTransaction) {
         setTransactionStatus(TransactionStatus.WAIT_USER_CONFIRM);
-        submitTransaction(transactionLabel, populatedTransaction, tokens)
+        submitTransaction(
+          transactionLabel,
+          populatedTransaction,
+          expectedTokenChanges
+        )
           .then((hash) => {
             setTransactionStatus(TransactionStatus.SUBMITTED);
             setTransactionHash(hash);
@@ -185,10 +135,11 @@ export function useTransactionStatus() {
           });
       }
     },
-    [submitTransaction, pathname, network]
+    [submitTransaction, pathname, network, isWalletConnectedToNetwork]
   );
 
   return {
+    isWalletConnectedToNetwork,
     isReadOnlyAddress,
     transactionStatus,
     transactionHash,

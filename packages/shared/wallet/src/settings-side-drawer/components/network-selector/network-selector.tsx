@@ -1,17 +1,14 @@
 import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { Chain } from '@web3-onboard/common';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useTheme, Box, styled } from '@mui/material';
-import { Network } from '@notional-finance/util';
+import { Network, getNetworkSymbol } from '@notional-finance/util';
 import { chains } from '../../../onboard-context';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import {
+  useNotionalContext,
+  useWalletConnectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
-
-/* eslint-disable-next-line */
-export interface NetworkSelectorProps {
-  networkData?: Chain;
-}
 
 export interface NetworkButtonProps {
   active?: boolean;
@@ -20,6 +17,8 @@ export interface NetworkButtonProps {
 
 export const NetworkSettingsButton = () => {
   const theme = useTheme();
+  const walletNetwork = useWalletConnectedNetwork();
+  const chain = chains.find(({ id }) => id === walletNetwork);
 
   return (
     <Box
@@ -29,8 +28,10 @@ export const NetworkSettingsButton = () => {
         justifyContent: 'center',
       }}
     >
-      <TokenIcon symbol={'arb'} size="medium" />
-      <Box sx={{ marginLeft: theme.spacing(1) }}>{chains[0].label}</Box>
+      <TokenIcon symbol={getNetworkSymbol(walletNetwork) || 'unknown'} size="medium" />
+      <Box sx={{ marginLeft: theme.spacing(1), textDecoration: 'capitalize' }}>
+        {chain?.label || walletNetwork}
+      </Box>
     </Box>
   );
 };
@@ -38,9 +39,8 @@ export const NetworkSettingsButton = () => {
 export function NetworkSelector() {
   const { updateNotional } = useNotionalContext();
 
-  const handleClick = async (label) => {
-    const currentChain = label as Network;
-    updateNotional({ selectedNetwork: currentChain });
+  const handleClick = async (label: Network) => {
+    updateNotional({ selectedNetwork: label });
   };
 
   return (
@@ -48,13 +48,8 @@ export function NetworkSelector() {
       <Title>
         <FormattedMessage defaultMessage={'NETWORK'} />
       </Title>
-      {chains.map(({ label, id }: Chain) => {
-        const Icon = (
-          <TokenIcon
-            symbol={id === chains[0].id ? 'arb' : 'eth'}
-            size="large"
-          />
-        );
+      {chains.map(({ label, id }) => {
+        const Icon = <TokenIcon symbol={getNetworkSymbol(id as Network)} size="large" />;
         return (
           <SideDrawerActiveButton
             label={label}

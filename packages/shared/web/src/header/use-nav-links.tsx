@@ -15,9 +15,11 @@ import { getFromLocalStorage } from '@notional-finance/helpers';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
+import { useSelectedPortfolioNetwork } from '@notional-finance/notionable-hooks';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   const notifications = getFromLocalStorage('notifications');
+  const network = useSelectedPortfolioNetwork();
 
   const textColor = mobileNav
     ? theme.palette.common.black
@@ -27,7 +29,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: 'portfolio',
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
-      link: '/portfolio/overview',
+      link: `/portfolio/${network}/overview`,
       iconImg: (
         <PortfolioIcon
           className="color-fill"
