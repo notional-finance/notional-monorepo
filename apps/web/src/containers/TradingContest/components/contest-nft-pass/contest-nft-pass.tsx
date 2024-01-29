@@ -8,6 +8,7 @@ import betaPassOverlay from '../../assets/beta-pass-overlay.json';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { BETA_ACCESS } from '@notional-finance/notionable';
 
+// NOTE* Keeping this component incase we want to bring back the beta pass transition at some point
 export const ContestNftPass = () => {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [lottieInstance, setLottieInstance] = useState<
