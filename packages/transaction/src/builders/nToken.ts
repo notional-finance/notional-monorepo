@@ -103,12 +103,17 @@ export function RedeemToPortfolioNToken({
   if (debtBalance.isPositive() || debtBalance.tokenType !== 'nToken')
     throw Error('Invalid debtBalance');
 
-  return populateNotionalTxnAndGas(network, address, 'nTokenRedeem', [
+  return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
     address,
-    debtBalance.currencyId,
-    debtBalance.n.abs(),
-    true, // sell assets
-    true, // accept residuals
+    [
+      getBalanceAction(
+        DepositActionType.RedeemNToken,
+        debtBalance.neg(),
+        false,
+        undefined,
+        false
+      ),
+    ],
   ]);
 }
 
@@ -117,12 +122,18 @@ export function ConvertfCashToNToken({
   network,
   debtBalance,
   collateralBalance,
+  accountBalances,
 }: PopulateTransactionInputs) {
   if (!debtBalance) throw Error('debtBalance required');
   if (!collateralBalance || collateralBalance.tokenType !== 'nToken')
     throw Error('collateral balance required');
   if (debtBalance.isPositive() || debtBalance.tokenType !== 'fCash')
     throw Error('Invalid debtBalance');
+
+  const { withdrawEntireCashBalance } = hasExistingCashBalance(
+    debtBalance,
+    accountBalances
+  );
 
   return populateNotionalTxnAndGas(
     network,
@@ -134,8 +145,7 @@ export function ConvertfCashToNToken({
         getBalanceAndTradeAction(
           DepositActionType.ConvertCashToNToken,
           collateralBalance.toPrimeCash(),
-          // no deposits or redeems here
-          false,
+          withdrawEntireCashBalance, // Clear pCash balance for dust
           undefined,
           false,
           [debtBalance]
