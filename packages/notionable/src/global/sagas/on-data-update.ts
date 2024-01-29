@@ -25,7 +25,38 @@ export function onDataUpdate(global$: Observable<GlobalState>) {
   return merge(
     onYieldsUpdate$(global$),
     onPriceChangeUpdate$(global$),
-    onActiveAccounts$(global$)
+    onActiveAccounts$(global$),
+    onHighUtilization$(global$)
+  );
+}
+
+function onHighUtilization$(global$: Observable<GlobalState>) {
+  return globalWhenAppReady$(global$).pipe(
+    switchMap(() => {
+      return timer(500, 10_000).pipe(
+        map(() => {
+          return {
+            marketUtilization: SupportedNetworks.reduce((acc, n) => {
+              acc[n] = Registry.getTokenRegistry()
+                .getAllTokens(n)
+                .filter((t) => t.tokenType === 'nToken')
+                .reduce((a, nToken) => {
+                  if (!nToken.currencyId) return a;
+                  const market = Registry.getExchangeRegistry().getfCashMarket(
+                    n,
+                    nToken.currencyId
+                  );
+                  a[nToken.currencyId] =
+                    market.getMarketUtilization().isHighUtilization;
+
+                  return a;
+                }, {} as Record<number, boolean>);
+              return acc;
+            }, {} as Record<Network, Record<number, boolean>>),
+          };
+        })
+      );
+    })
   );
 }
 

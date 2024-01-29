@@ -243,6 +243,18 @@ export const useFCashMarket = (token?: TokenDefinition | undefined) => {
     : undefined;
 };
 
+export const useFCashMarketHighUtilization = (
+  token?: TokenDefinition | undefined
+) => {
+  const {
+    globalState: { isFCashHighUtilization },
+  } = useNotionalContext();
+
+  return isFCashHighUtilization && !!token?.currencyId
+    ? isFCashHighUtilization[token.network][token.currencyId] === true
+    : false;
+};
+
 export const useSpotMaturityData = (
   tokens: TokenDefinition[] | undefined,
   selectedNetwork: Network | undefined
