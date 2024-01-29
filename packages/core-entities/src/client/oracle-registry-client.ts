@@ -35,6 +35,17 @@ interface Node {
 type AdjList = Map<string, Map<string, Node>>;
 const UNIT_RATE = 'UNIT_RATE';
 
+export const PRICE_ORACLES = [
+  'sNOTE',
+  'Chainlink',
+  'fCashOracleRate',
+  'fCashSettlementRate',
+  'PrimeCashToUnderlyingExchangeRate',
+  'PrimeDebtToUnderlyingExchangeRate',
+  'VaultShareOracleRate',
+  'nTokenToUnderlyingExchangeRate',
+];
+
 export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   protected cachePath() {
     return Routes.Oracles;
@@ -79,15 +90,8 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           const oracle = this.getLatestFromSubject(network, key, 0);
           if (!oracle) throw Error('Oracle undefined');
 
-          // Don't add these rates to the adj list
-          if (
-            oracle.oracleType === 'fCashSpotRate' ||
-            oracle.oracleType === 'fCashToUnderlyingExchangeRate' ||
-            oracle.oracleType === 'PrimeCashToUnderlyingOracleInterestRate' ||
-            oracle.oracleType === 'PrimeCashPremiumInterestRate' ||
-            oracle.oracleType === 'PrimeDebtPremiumInterestRate'
-          )
-            return;
+          // Only add whitelisted oracles to the adj list
+          if (!PRICE_ORACLES.includes(oracle.oracleType)) return;
 
           if (oracle.oracleType === 'fCashOracleRate') {
             // Suppress historical oracle rates
@@ -208,7 +212,9 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           }
 
           if (!o)
-            throw Error(`Update Subject for ${node.id} not found at ${timestamp}`);
+            throw Error(
+              `Update Subject for ${node.id} not found at ${timestamp}`
+            );
         }
         observable = o;
       }
