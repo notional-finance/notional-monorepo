@@ -1,58 +1,18 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import {
-  Button,
-  Paragraph,
-  ContestTable,
-  IconCell,
-} from '@notional-finance/mui';
+import { Button, Paragraph, ContestTable } from '@notional-finance/mui';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
 import { useSelectedNetwork } from '@notional-finance/wallet';
+import {
+  partnersTableColumns,
+  partnersTableData,
+  messages,
+} from '../../contest-config';
 
 interface ContestPartnersProps {
   hideButton?: boolean;
 }
-
-const columns = [
-  {
-    Header: 'Community',
-    Cell: IconCell,
-    accessor: 'community',
-    textAlign: 'left',
-    fontSize: '20px',
-  },
-  {
-    Header: 'High roller prize',
-    accessor: 'hrPrize',
-    textAlign: 'right',
-    fontSize: '16px',
-  },
-  {
-    Header: 'Fat cat prize',
-    accessor: 'fcPrize',
-    textAlign: 'right',
-    fontSize: '16px',
-  },
-];
-
-const data = [
-  {
-    community: 'Layer2DAO',
-    hrPrize: '4,000 NOTE',
-    fcPrize: '4,000 NOTE',
-  },
-  {
-    community: 'Llamas',
-    hrPrize: '4,000 NOTE',
-    fcPrize: '4,000 NOTE',
-  },
-  {
-    community: 'Cryptotesters',
-    hrPrize: '4,000 NOTE',
-    fcPrize: '4,000 NOTE',
-  },
-];
 
 export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
   const theme = useTheme();
@@ -70,17 +30,13 @@ export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
             flex: 1,
           }}
         >
-          <FormattedMessage
-            defaultMessage={
-              'The following 3 communities have the chance to earn special prizes in addition to the grand prizes open to everyone. The top high roller and fat cat from each community will each win 4,000 $NOTE!'
-            }
-          />
+          <FormattedMessage {...messages.ContestPartners.bodyText} />
         </Paragraph>
         <TableContainer>
           <ContestTable
             maxHeight={theme.spacing(16.25)}
-            columns={columns}
-            data={data}
+            columns={partnersTableColumns}
+            data={partnersTableData}
             tableLoading={false}
             hideOnMobile={false}
           />

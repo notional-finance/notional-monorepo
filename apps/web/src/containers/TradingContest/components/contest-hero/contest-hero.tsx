@@ -6,6 +6,7 @@ import { ContestCountDown } from '../contest-countdown/contest-countdown';
 import { BodySecondary, Button } from '@notional-finance/mui';
 import { TitleText } from '../contest-shared-elements/contest-shared-elements';
 import { useSelectedNetwork } from '@notional-finance/wallet';
+import { messages } from '../../contest-config';
 
 export const ContestHero = () => {
   const theme = useTheme();
@@ -19,11 +20,7 @@ export const ContestHero = () => {
               <FormattedMessage defaultMessage={'Notional V3 STIP Blitz'} />
             </TitleText>
             <BodyText>
-              <FormattedMessage
-                defaultMessage={
-                  'Contest runs Feb. 1st to Mar. 1st. Open to everyone and free to join. Click below to enter and compete for 27k $NOTE in prizes!'
-                }
-              />
+              <FormattedMessage {...messages.ContestHero.bodyText} />
             </BodyText>
             <ContestCountDown title={'Contest Begins:'} />
             <ButtonContainer>
@@ -43,7 +40,7 @@ export const ContestHero = () => {
               <Button
                 size="large"
                 variant="outlined"
-                to={`/portfolio${network}//overview`}
+                to={`/portfolio/${network}/overview`}
                 sx={{
                   width: '330px',
                   border: `1px solid ${colors.neonTurquoise}`,

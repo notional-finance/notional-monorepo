@@ -7,8 +7,6 @@ import {
 } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
 import { APIEnv } from '@notional-finance/durable-objects';
-import { ConfigurationServer } from 'packages/core-entities/src/server/configuration-server';
-import { Network } from '@notional-finance/util';
 
 function _handler(request: IRequest, ns: DurableObjectNamespace, name: string) {
   const stub = ns.get(ns.idFromName(name));
@@ -40,15 +38,6 @@ const handleAccounts = (request: IRequest, env: APIEnv) => {
 
 const handleConfigurations = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.CONFIGURATION_REGISTRY_DO, env.VERSION);
-};
-
-const handleConfigurationsRewardTest = async (
-  _request: IRequest,
-  _env: APIEnv
-) => {
-  const config = new ConfigurationServer();
-  await config.refresh(Network.ArbitrumOne);
-  return new Response(config.serializeToJSON(Network.ArbitrumOne));
 };
 
 const handleOracles = (request: IRequest, env: APIEnv) => {
@@ -111,5 +100,4 @@ export {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
-  handleConfigurationsRewardTest,
 };

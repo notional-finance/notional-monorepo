@@ -10,6 +10,7 @@ import {
   StepContainer,
 } from '../contest-shared-elements/contest-shared-elements';
 import { useSelectedNetwork } from '@notional-finance/wallet';
+import { startDate, endDate } from '../../contest-config';
 
 export const ContestConfirmation = () => {
   const theme = useTheme();
@@ -44,7 +45,11 @@ export const ContestConfirmation = () => {
             >
               <FormattedMessage
                 defaultMessage={`
-              The contest runs Feb 5th 12:00 am PST through Mar 5th 12:00 am PST.`}
+              The contest runs {startDate} through {endDate}`}
+                values={{
+                  startDate: startDate,
+                  endDate: endDate,
+                }}
               />
             </ContestBodyText>
             <ContestBodyText

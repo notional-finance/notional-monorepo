@@ -206,6 +206,11 @@ const AllRoutes = () => {
             component={ServerError}
             routeType="Error"
           />
+          {/* <AppLayoutRoute
+            path="/contest/"
+            component={ContestHome}
+            routeType="Landing"
+          /> */}
           <AppLayoutRoute
             path="/contest/:selectedNetwork"
             component={ContestHome}

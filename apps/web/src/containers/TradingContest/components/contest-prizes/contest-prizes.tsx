@@ -7,6 +7,7 @@ import { SectionTitle } from '../contest-shared-elements/contest-shared-elements
 import fatCat from '../../assets/fat-cat.svg';
 import crown from '../../assets/crown.svg';
 import { useSelectedNetwork } from '@notional-finance/wallet';
+import { prizeData } from '../../contest-config';
 
 interface PrizeInfoPropsProps {
   prizeType: string;
@@ -16,25 +17,22 @@ const PrizePlaces = () => {
   const theme = useTheme();
   return (
     <PrizePlaceContainer>
-      <Place>
-        <FormattedMessage defaultMessage={'1st Place'} />
-        <CardInput>
-          <img
-            src={crown}
-            alt="icon"
-            style={{ height: theme.spacing(2), marginRight: theme.spacing(1) }}
-          />
-          10,000 NOTE
-        </CardInput>
-      </Place>
-      <Place>
-        <FormattedMessage defaultMessage={'2nd Place'} />
-        <CardInput>2,500 NOTE</CardInput>
-      </Place>
-      <Place>
-        <FormattedMessage defaultMessage={'3rd Place'} />
-        <CardInput>1,000 NOTE</CardInput>
-      </Place>
+      {prizeData.map(({ title, value }, index) => (
+        <Place key={index}>
+          {title}
+          {index === 0 && (
+            <img
+              src={crown}
+              alt="icon"
+              style={{
+                height: theme.spacing(2),
+                marginRight: theme.spacing(1),
+              }}
+            />
+          )}
+          <CardInput>{value}</CardInput>
+        </Place>
+      ))}
     </PrizePlaceContainer>
   );
 };

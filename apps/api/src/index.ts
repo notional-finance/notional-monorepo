@@ -3,7 +3,6 @@ import { Router, IRequest } from 'itty-router';
 import { APIEnv } from '@notional-finance/durable-objects';
 import {
   handleConfigurations,
-  handleConfigurationsRewardTest,
   handleExchanges,
   handleGeoIP,
   handleNewsletter,
@@ -70,10 +69,6 @@ router.get('/:network/views/:view', handleViews);
 router.get('/:network/yields', handleYields);
 router.get('/:network/tokens', handleTokens);
 router.get('/:network/configuration', handleConfigurations);
-router.get(
-  '/:network/configuration-reward-test',
-  handleConfigurationsRewardTest
-);
 router.get('/:network/oracles', handleOracles);
 router.get('/:network/exchanges', handleExchanges);
 router.get('/:network/accounts', handleAccounts);
