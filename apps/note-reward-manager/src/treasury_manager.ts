@@ -54,12 +54,12 @@ export default class TreasuryManager {
     const duration = Date.now() / 1000 - lastNoteInvestmentTimestamp;
     if (duration > Config.TREASURY_REINVESTMENT_INTERVAL) {
       const wethToken = ERC20__factory.connect(this.WETH, this.provider);
-      const wethBalanace = await wethToken.balanceOf(this.proxy.address);
+      const wethBalance = await wethToken.balanceOf(this.proxy.address);
 
-      if (wethBalanace.gt(0)) {
+      if (wethBalance.gt(0)) {
         console.log("WETH balance detected, calling investWETHAndNOTE");
         const noteBurnPercent = await this.proxy.noteBurnPercent();
-        const wethForBurn = wethBalanace.mul(noteBurnPercent).div(100);
+        const wethForBurn = wethBalance.mul(noteBurnPercent).div(100);
 
         const zeroXData = await get0xData({
           sellToken: this.WETH,
@@ -79,7 +79,7 @@ export default class TreasuryManager {
         };
 
         const { receivedBPT } = await this.proxy.callStatic.investWETHAndNOTE(
-          wethBalanace,
+          wethBalance,
           BigNumber.from(0),
           0,
           trade
@@ -87,7 +87,7 @@ export default class TreasuryManager {
         const minBPT = receivedBPT.mul((1 - 0.005) * 1000).div(1000);
         const data = this.proxy.interface.encodeFunctionData(
           'investWETHAndNOTE',
-          [wethBalanace, BigNumber.from(0), minBPT, trade]
+          [wethBalance, BigNumber.from(0), minBPT, trade]
         );
 
         return sendTxThroughRelayer({

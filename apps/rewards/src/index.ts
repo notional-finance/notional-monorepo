@@ -2,23 +2,21 @@ import { TreasuryManager__factory, ERC20__factory } from '@notional-finance/cont
 import { DEX_ID, Network, TRADE_TYPE, getProviderFromNetwork, } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { vaults, ARB_ETH, ARB_WETH } from './vaults';
+import { get0xData, sendTxThroughRelayer } from "@notional-finance/util";
 
 export interface Env {
-  NETWORK: string;
+  NETWORK: keyof typeof Network;
   TREASURY_MANAGER_ADDRESS: string;
   MANAGER_BOT_ADDRESS: string;
-  TX_RELAY_URL: string;
   TX_RELAY_AUTH_TOKEN: string;
-  ZERO_EX_PRICE_URL: string;
   ZERO_EX_API_KEY: string;
   AUTH_KEY: string;
   REINVEST_TIME_WINDOW_IN_HOURS: string;
-
+  REWARDS_KV: KVNamespace;
 }
 const HOUR_IN_SECONDS = 60 * 60;
-const SLIPPAGE_PERCENT = 3;
+const SLIPPAGE_PERCENT = 2;
 const DUST_AMOUNT = 100;
-const wait = (ms: number) => new Promise((f) => setTimeout(f, ms));
 
 interface ReinvestmentData {
   data: {
@@ -65,71 +63,61 @@ async function didTimeWindowPassed(vaultAddress: string, timeWindow: number) {
 }
 
 async function shouldSkipReinvest(env: Env, vaultAddress: string) {
-  // subtract 5min from time indow so reinvestment can happen each day on same time
+  // subtract 5min from time window so reinvestment can happen each day on same time
   const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS - 5 * 60;
   return !(await didTimeWindowPassed(vaultAddress, reinvestTimeWindow));
 }
 
+async function setLastClaimTimestamp(env: Env, vaultAddress: string) {
+  const claimTimestampKey = `${vaultAddress}:claimTimestamp`;
+
+  return env.REWARDS_KV.put(claimTimestampKey, String(Date.now() / 1000));
+}
+
 async function shouldSkipClaim(env: Env, vaultAddress: string) {
-  // claim time window is slightly less than reinvest time window so claiming
-  // can happen each day at same time otherwise it would be postponed each day
-  // by some time(depending on how often do we run bot)
-  const claimTimeWindow = (Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24)) * HOUR_IN_SECONDS - 0.5 * HOUR_IN_SECONDS;
-  return !(await didTimeWindowPassed(vaultAddress, claimTimeWindow));
+  const claimTimestampKey = `${vaultAddress}:claimTimestamp`;
+  const lastClaimTimestamp = Number(await env.REWARDS_KV.get(claimTimestampKey));
+
+  // subtract 5min from time window so reinvestment can happen each day on same time
+  const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS - 5 * 60;
+  return  Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
 }
 
 const claimRewards = async (env: Env, provider: any) => {
+  const treasuryManger = TreasuryManager__factory.connect(
+    env.TREASURY_MANAGER_ADDRESS,
+    provider
+  );
+
   return Promise.all(
-    vaults.map(async (v) => {
-      if (await shouldSkipClaim(env, v.address)) {
-        console.log(`Skipping claim rewards for ${v.address}, already claimed`);
+    vaults.map(async (vault) => {
+      if (await shouldSkipClaim(env, vault.address)) {
+        console.log(`Skipping claim rewards for ${vault.address}, already claimed`);
         return null;
       }
 
-      const data = TreasuryManager__factory.connect(
-        env.TREASURY_MANAGER_ADDRESS,
-        provider
-      ).interface.encodeFunctionData('claimVaultRewardTokens', [v.address]);
+      // make sure call will be successful
+      await treasuryManger.callStatic.claimVaultRewardTokens(
+        vault.address,
+        { from: env.MANAGER_BOT_ADDRESS }
+      );
 
-      const payload = JSON.stringify({
+      const data = treasuryManger.interface.encodeFunctionData(
+        'claimVaultRewardTokens',
+        [vault.address]
+      );
+
+      console.log(`Claiming rewards for ${vault.address}`);
+
+      await sendTxThroughRelayer({
         to: env.TREASURY_MANAGER_ADDRESS,
-        data: data,
+        data,
+        env,
       });
-      // cspell:disable-next-line
-      return fetch(env.TX_RELAY_URL + '/v1/txes/0', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Auth-Token': env.TX_RELAY_AUTH_TOKEN,
-        },
-        body: payload,
-      });
+
+      await setLastClaimTimestamp(env, vault.address);
     })
   );
-};
-
-interface ZeroXData {
-  buyAmount: string;
-  data: string;
-}
-const getZeroExTradeData = async (
-  env: Env,
-  sellToken: string,
-  buyToken: string,
-  amount: BigNumber
-): Promise<ZeroXData> => {
-  const params = `?sellToken=${sellToken}&buyToken=${buyToken}&sellAmount=${amount.toString()}&slippagePercentage=${SLIPPAGE_PERCENT / 100}`;
-  console.log("params", params);
-  const resp = await fetch(env.ZERO_EX_PRICE_URL + params, {
-    headers: {
-      '0x-api-key': env.ZERO_EX_API_KEY,
-    },
-  });
-
-  // Delay to prevent rate limiting
-  await wait(2000);
-
-  return resp.json();
 };
 
 type FunRetProm = () => Promise<any>;
@@ -146,6 +134,7 @@ const getTrades = async (
   tokens: string[],
   sellAmounts: BigNumber[]
 ) => {
+  let slippageMultiplier = 1;
   // we need to execute them sequentially due to rate limit on 0x api
   return executePromisesSequentially(tokens.map((token, i) => async () => {
     const amount = sellAmounts[i];
@@ -153,23 +142,15 @@ const getTrades = async (
     let exchangeData = '0x00';
 
     if (!amount.eq(0)) {
-      let retryCount = 0;
-      let tradeData: any;
-      do {
-        tradeData = await getZeroExTradeData(env,
-          sellToken,
-          token == ARB_ETH ? ARB_WETH : token,
-          amount
-        );
-        if (tradeData.buyAmount == undefined) {
-          console.log('Request to 0x failed: ', retryCount);
-        }
-        // 0x API sometimes returns  insufficient  liquidity error
-        // so we retry here
-      } while (tradeData.buyAmount == undefined && retryCount++ < 5);
+      const tradeData = await get0xData({
+        sellToken,
+        buyToken: token == ARB_ETH ? ARB_WETH : token,
+        sellAmount: amount,
+        slippagePercentage: SLIPPAGE_PERCENT * (slippageMultiplier++),
+        env,
+      });
 
-      oracleSlippagePercentOrLimit =
-        BigNumber.from(tradeData.buyAmount).mul(100 - SLIPPAGE_PERCENT).div(100).toString();
+      oracleSlippagePercentOrLimit = tradeData.limit.toString();
       exchangeData = tradeData.data;
     }
 
@@ -229,30 +210,32 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
     { from: env.MANAGER_BOT_ADDRESS }
   );
 
+  await treasuryManger.callStatic.reinvestVaultReward(
+      vault.address,
+      tradesPerRewardToken,
+      poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
+      { from: env.MANAGER_BOT_ADDRESS }
+    );
+
+
   const data = treasuryManger.interface.encodeFunctionData('reinvestVaultReward', [
     vault.address,
     tradesPerRewardToken,
-    poolClaimAmounts.map((amount) => amount.mul(100 - SLIPPAGE_PERCENT).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
+    poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
   ]);
 
-
-  const payload = JSON.stringify({
-    to: env.TREASURY_MANAGER_ADDRESS,
+  return sendTxThroughRelayer({
+    to: treasuryManger.address,
     data,
-  });
-  // cspell:disable-next-line
-  return fetch(env.TX_RELAY_URL + '/v1/txes/0', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Auth-Token': env.TX_RELAY_AUTH_TOKEN,
-    },
-    body: payload,
-  });
+    env,
+  })
 };
 
 const reinvestRewards = async (env: Env, provider: any) => {
-  return executePromisesSequentially(vaults.map((v) => () => reinvestVault(env, provider, v)));
+  return executePromisesSequentially(vaults.map((v) => () => reinvestVault(env, provider, v).catch(err => {
+    console.error(`Reinvestment for vault: ${v.address} failed`);
+    console.error(err);
+  })));
 };
 
 export default {

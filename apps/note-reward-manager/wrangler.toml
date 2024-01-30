@@ -11,10 +11,6 @@ name = "note-reward-manager-dev"
 
 [env.dev.vars]
 NETWORK = "mainnet"
-ZERO_EX_API_URL = "https://api.0x.org/swap/v1/quote"
-# it has 'arbitrum' in url but it is also endpoint for mainet relayers,
-# endpoint format is "/v1/txes/:relayerId", relayerId 0 is for arbitrum an 1 for mainent
-TX_RELAY_SEND_URL = "https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/1"
 
 [env.beta]
 name = "note-reward-manager-beta"
