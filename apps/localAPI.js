@@ -9,28 +9,37 @@ const port = 4000; // Port for the Express server
 app.use(cors());
 
 // Define a proxy for /*/tokens to localhost:8787
-// const tokensProxy = createProxyMiddleware(
-//   ['/*/tokens', '/*/configuration', '/*/vaults'],
-//   {
-//     target: 'http://localhost:8888',
-//     changeOrigin: true,
-//   }
-// );
-
-// // Define a proxy for /*/oracles to localhost:8888
-// const oraclesProxy = createProxyMiddleware(['/*/oracles', '/*/exchanges'], {
-//   target: 'http://localhost:8889',
-//   changeOrigin: true,
-// });
-
+const configProxy = createProxyMiddleware(['/*/configuration'], {
+  target: 'https://registry-configuration-dev.notional-finance.workers.dev',
+  changeOrigin: true,
+});
+const tokensProxy = createProxyMiddleware(['/*/tokens'], {
+  target: 'https://registry-tokens-dev.notional-finance.workers.dev',
+  changeOrigin: true,
+});
+const vaultsProxy = createProxyMiddleware(['/*/vaults'], {
+  target: 'https://registry-vaults-dev.notional-finance.workers.dev',
+  changeOrigin: true,
+});
+const oraclesProxy = createProxyMiddleware(['/*/oracles'], {
+  target: 'https://registry-oracles-dev.notional-finance.workers.dev',
+  changeOrigin: true,
+});
+const exchangesProxy = createProxyMiddleware(['/*/exchanges'], {
+  target: 'https://registry-exchanges-dev.notional-finance.workers.dev',
+  changeOrigin: true,
+});
 const dataProxy = createProxyMiddleware(['/*/views/*'], {
   target: 'http://localhost:8890',
   changeOrigin: true,
 });
 
 // Use the proxies for the specified paths
-// app.use(tokensProxy);
-// app.use(oraclesProxy);
+app.use(tokensProxy);
+app.use(configProxy);
+app.use(oraclesProxy);
+app.use(vaultsProxy);
+app.use(exchangesProxy);
 app.use(dataProxy);
 
 // Define a catch-all proxy to forward any other requests to the specified URL

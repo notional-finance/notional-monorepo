@@ -1,7 +1,7 @@
 {
-  "name": "api",
+  "name": "registry-oracles",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/api/src",
+  "sourceRoot": "apps/registry-oracles/src",
   "projectType": "application",
   "targets": {
     "serve": {
@@ -12,7 +12,7 @@
             "command": "wrangler dev -e dev --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/api"
+        "cwd": "apps/registry-oracles"
       }
     },
     "publish-wrangler-manual": {
@@ -23,7 +23,7 @@
             "command": "wrangler deploy --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/api"
+        "cwd": "apps/registry-oracles"
       }
     },
     "publish-wrangler": {
@@ -34,21 +34,21 @@
             "command": "wrangler deploy"
           }
         ],
-        "cwd": "apps/api"
+        "cwd": "apps/registry-oracles"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/api/**/*.ts"]
+        "lintFilePatterns": ["apps/registry-oracles/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/api"],
+      "outputs": ["{workspaceRoot}/coverage/apps/registry-oracles"],
       "options": {
-        "jestConfig": "apps/api/jest.config.ts",
+        "jestConfig": "apps/registry-oracles/jest.config.ts",
         "passWithNoTests": true
       },
       "dependsOn": ["build"]

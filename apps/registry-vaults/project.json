@@ -1,7 +1,7 @@
 {
-  "name": "api",
+  "name": "registry-vaults",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/api/src",
+  "sourceRoot": "apps/registry-vaults/src",
   "projectType": "application",
   "targets": {
     "serve": {
@@ -12,7 +12,7 @@
             "command": "wrangler dev -e dev --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/api"
+        "cwd": "apps/registry-vaults"
       }
     },
     "publish-wrangler-manual": {
@@ -23,7 +23,7 @@
             "command": "wrangler deploy --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/api"
+        "cwd": "apps/registry-vaults"
       }
     },
     "publish-wrangler": {
@@ -34,21 +34,21 @@
             "command": "wrangler deploy"
           }
         ],
-        "cwd": "apps/api"
+        "cwd": "apps/registry-vaults"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/api/**/*.ts"]
+        "lintFilePatterns": ["apps/registry-vaults/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/api"],
+      "outputs": ["{workspaceRoot}/coverage/apps/registry-vaults"],
       "options": {
-        "jestConfig": "apps/api/jest.config.ts",
+        "jestConfig": "apps/registry-vaults/jest.config.ts",
         "passWithNoTests": true
       },
       "dependsOn": ["build"]

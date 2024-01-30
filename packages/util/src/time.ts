@@ -60,3 +60,7 @@ export function getMaturityForMarketIndex(
   const tRef = getTimeReference(blockTime);
   return tRef + getMarketMaturityLengthSeconds(marketIndex);
 }
+
+export const floorToMidnight = (ts: number, offset = 0) => {
+  return ts - offset - ((ts - offset) % SECONDS_IN_DAY);
+};
