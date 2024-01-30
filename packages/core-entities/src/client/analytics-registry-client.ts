@@ -10,12 +10,17 @@ import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
 import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
-import { OracleDefinition, PriceChange, TokenDefinition } from '../Definitions';
+import {
+  OracleDefinition, 
+  PriceChange, 
+  TokenDefinition, 
+  HistoricalOracles,
+  HistoricalTrading,
+  VaultData,
+} from '../Definitions';
 import {
   ASSET_PRICE_ORACLES,
   ActiveAccounts,
-  HistoricalOracles,
-  VaultData,
 } from '../server/analytics-server';
 import { PRICE_ORACLES } from './oracle-registry-client';
 import { TokenBalance } from '../token-balance';
@@ -230,6 +235,11 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   getActiveAccounts(network: Network) {
     return (super.getLatestFromSubject(network, 'activeAccounts') ||
       {}) as ActiveAccounts;
+  }
+
+  getHistoricalTrading(network: Network) {
+    return (super.getLatestFromSubject(network, 'historicalTrading') ||
+      {}) as HistoricalTrading;
   }
 
   getPriceChanges(

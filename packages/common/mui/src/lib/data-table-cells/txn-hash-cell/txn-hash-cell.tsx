@@ -9,30 +9,35 @@ export interface TxnHashCellProps {
       hash: string;
       href: string;
     };
-    column: { showLinkIcon?: boolean };
+    column: { showLinkIcon?: boolean; textAlign?: string };
   };
 }
 
 export const TxnHashCell = ({
   cell: {
     value: { href, hash },
-    column: { showLinkIcon },
+    column: { showLinkIcon, textAlign },
   },
 }: TxnHashCellProps): JSX.Element => {
   const theme = useTheme() as NotionalTheme;
-
   return (
     <TableCell
       href={href}
       sx={{
+        cursor: 'pointer',
         color: theme.palette.typography.accent,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'flex-end',
+        justifyContent: textAlign || 'flex-end',
       }}
     >
-      {hash.slice(0, 6)}
-      ...{hash.slice(hash.length - 4)}
+      {hash && hash.length > 0 && (
+        <div>
+          {hash.slice(0, 6)}
+          ...{hash.slice(hash.length - 4)}
+        </div>
+      )}
+
       {showLinkIcon ? (
         <LaunchIcon
           sx={{
