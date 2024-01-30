@@ -131,7 +131,7 @@ export const DataTableBody = ({
   const theme = useTheme() as NotionalTheme;
   const history = useHistory();
   return (
-    <TableBody>
+    <TableBody className="body">
       {rows.map((row, i) => {
         prepareRow(row);
         const rowSelected = row['original'].rowSelected;
@@ -212,6 +212,7 @@ export const DataTableBody = ({
                   <TableCell
                     className={cell['column'].className}
                     sx={{
+                      margin: 'auto',
                       padding:
                         tableVariant === TABLE_VARIANTS.MINI
                           ? theme.spacing(1)

@@ -29,6 +29,7 @@ export const DataTableTitleBar = ({
 
   return (
     <Box
+      className="title-bar"
       sx={{
         display: 'flex',
         alignItems: 'center',

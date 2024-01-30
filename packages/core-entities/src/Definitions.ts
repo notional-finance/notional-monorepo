@@ -293,3 +293,63 @@ export interface PriceChange {
   fiatChange?: number;
   underlyingChange?: number;
 }
+
+export type VaultData = {
+  vaultAddress: string;
+  timestamp: number;
+  totalAPY: number | null;
+  returnDrivers: Record<string, number | null>;
+}[];
+
+export type HistoricalRate = {
+  blockNumber: number;
+  timestamp: number;
+  rate: string;
+  totalSupply: string | null;
+  tvlUnderlying: string | null;
+};
+
+export type HistoricalOracles = {
+  id: string;
+  oracleAddress: string;
+  network: Network;
+  oracleType: OracleType;
+  base: string;
+  quote: string;
+  latestRate: string;
+  decimals: number;
+  historicalRates: HistoricalRate[];
+}[];
+
+export type HistoricalTrading = Record<
+  string,
+  {
+    bundleName: string;
+    currencyId: number;
+    fCashId: string;
+    fCashValue: string;
+    pCash: string;
+    pCashInUnderlying: string;
+    timestamp: number;
+    blockNumber: number;
+    transactionHash: string;
+    underlyingTokenBalance?: TokenBalance;
+    interestRate?: string;
+    fCashMaturity?: number;
+  }[]
+>;
+
+export type VaultReinvestment = Record<
+  string,
+  {
+    vault: string;
+    blockNumber: any;
+    timestamp: number;
+    transactionHash: any;
+    rewardTokenSold: any;
+    rewardAmountSold: any;
+    tokensReinvested: any;
+    tokensPerVaultShare?: any;
+    underlyingAmountRealized?: any;
+  }[]
+>;

@@ -1,12 +1,17 @@
 import {
   PriceChange,
-  Registry,
   YieldData,
+  Registry,
+  TokenBalance,
+  fCashMarket,
+  HistoricalTrading,
 } from '@notional-finance/core-entities';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 import {
   Network,
   SECONDS_IN_DAY,
   SupportedNetworks,
+  RATE_PRECISION,
 } from '@notional-finance/util';
 import {
   Observable,
@@ -25,7 +30,8 @@ export function onDataUpdate(global$: Observable<GlobalState>) {
   return merge(
     onYieldsUpdate$(global$),
     onPriceChangeUpdate$(global$),
-    onActiveAccounts$(global$)
+    onActiveAccounts$(global$),
+    onHistoricalTrading$(global$)
   );
 }
 
@@ -102,6 +108,62 @@ function onActiveAccounts$(global$: Observable<GlobalState>) {
             }
             return acc;
           }, {} as Record<Network, Record<string, number>>),
+        }))
+      );
+    })
+  );
+}
+
+function onHistoricalTrading$(global$: Observable<GlobalState>) {
+  return global$.pipe(
+    distinctUntilChanged(
+      (p, c) =>
+        isAppReady(p.networkState) === isAppReady(c.networkState) &&
+        c.baseCurrency === p.baseCurrency
+    ),
+    filter((g) => isAppReady(g.networkState)),
+    switchMap(() => {
+      return timer(500, 60_000).pipe(
+        map(() => ({
+          historicalTrading: SupportedNetworks.reduce((acc, n) => {
+            if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
+              const historicalData = Registry.getAnalyticsRegistry().getHistoricalTrading(n);
+              for (const key in historicalData) {
+                const updatedData = historicalData[key].map(
+                    (data) => {
+                      const fCashTokenBalance = TokenBalance.fromID(
+                        data?.fCashValue,
+                        data?.fCashId,
+                        n
+                      );
+                      const token = Registry.getTokenRegistry().getUnderlying(
+                        n,
+                        data.currencyId
+                      );
+                      const underlyingTokenBalance = TokenBalance.from(
+                        data.pCashInUnderlying,
+                        token
+                      );
+                      const interestRate = fCashMarket.getImpliedInterestRate(
+                        underlyingTokenBalance,
+                        fCashTokenBalance,
+                        data.timestamp
+                      )
+                      return {...data, 
+                        interestRate: interestRate
+                        ? formatNumberAsPercent((interestRate * 100) / RATE_PRECISION)
+                        : formatNumberAsPercent(0),
+                       underlyingTokenBalance, 
+                       fCashMaturity: fCashTokenBalance.maturity
+                      }
+                    });
+                    historicalData[key] = updatedData;
+              }
+                
+              acc[n] = historicalData;
+            }
+            return acc;
+          }, {} as Record<Network, HistoricalTrading>),
         }))
       );
     })

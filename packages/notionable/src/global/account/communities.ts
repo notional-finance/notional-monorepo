@@ -53,7 +53,6 @@ export async function checkCommunityMembership(account: string) {
   return (
     await Promise.all(
       CommunityNFTs.map(async ({ network, name, address, displayName }) => {
-        console.log("TESSTING")
         const providerURL = getProviderURLFromNetwork(network, true);
         const url = `${providerURL}/getNFTs?owner=${account}&contractAddresses[]=${address}&withMetadata=false`;
         try {
