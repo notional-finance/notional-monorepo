@@ -14,12 +14,6 @@ import {
   useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
-  useFiat,
-  useGroupedHoldings,
-  usePendingPnLCalculation,
-  useSelectedPortfolioNetwork,
-} from '@notional-finance/notionable-hooks';
-import {
   Network,
   TXN_HISTORY_TYPE,
   leveragedYield,
