@@ -178,7 +178,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
   private async _fetchSingleAccount(
     network: Network,
-    provider: providers.Web3Provider
+    provider: providers.Provider
   ) {
     if (this.activeAccount === null) {
       return {

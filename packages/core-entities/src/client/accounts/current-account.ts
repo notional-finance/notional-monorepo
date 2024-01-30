@@ -26,7 +26,7 @@ import { fetchUsingMulticall } from '../../server/server-registry';
 export function fetchCurrentAccount(
   network: Network,
   account: string,
-  provider: providers.Web3Provider
+  provider: providers.Provider
 ) {
   const notional = new Contract(
     NotionalAddress[network],
