@@ -40,7 +40,7 @@ export const LiquidityVariableSummary = () => {
   );
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable();
-  useLiquidityPoolsTable();
+  const { poolTableColumns, poolTableData } = useLiquidityPoolsTable();
   const { apyData, tvlData } = useTokenHistory(collateral);
 
   return (
@@ -137,6 +137,13 @@ export const LiquidityVariableSummary = () => {
         columns={returnDriversColumns}
         data={returnDriversData}
         tableVariant={TABLE_VARIANTS.TOTAL_ROW}
+      />
+      <DataTable
+        tableTitle={<FormattedMessage defaultMessage={'Pool Activity'} />}
+        columns={poolTableColumns}
+        data={poolTableData}
+        maxHeight={theme.spacing(54)}
+        sx={{ marginTop: theme.spacing(5) }}
       />
       <Box sx={{ marginTop: theme.spacing(5) }}>
         <FaqHeader

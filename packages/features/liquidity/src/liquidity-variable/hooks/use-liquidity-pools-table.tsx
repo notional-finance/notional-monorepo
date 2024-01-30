@@ -1,9 +1,20 @@
-import { DataTableColumn } from '@notional-finance/mui';
+import {
+  DataTableColumn,
+  MultiValueCell,
+  MultiValueIconCell,
+  TxnHashCell,
+} from '@notional-finance/mui';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../../liquidity';
-import { RATE_PRECISION } from '@notional-finance/util';
+import {
+  RATE_PRECISION,
+  formatMaturity,
+  getEtherscanTransactionLink,
+} from '@notional-finance/util';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
+import moment from 'moment';
 import {
   Registry,
   TokenBalance,
@@ -28,23 +39,10 @@ export const useLiquidityPoolsTable = () => {
           currencyId,
           fCashId,
           fCashValue,
-          pCash,
           pCashInUnderlying,
           timestamp,
-          blockNumber,
           transactionHash,
         }) => {
-          console.log({
-            currencyId,
-            fCashId,
-            fCashValue,
-            pCash,
-            pCashInUnderlying,
-            timestamp,
-            blockNumber,
-            transactionHash,
-          });
-          // get maturity off of this
           const fCashTokenBalance = TokenBalance.fromID(
             fCashValue,
             fCashId,
@@ -54,39 +52,53 @@ export const useLiquidityPoolsTable = () => {
             selectedNetwork,
             currencyId
           );
-          const undelyingTokenBalance = TokenBalance.from(
+          const underlyingTokenBalance = TokenBalance.from(
             pCashInUnderlying,
             token
           );
-
           const interestRate = fCashMarket.getImpliedInterestRate(
-            undelyingTokenBalance,
+            underlyingTokenBalance,
             fCashTokenBalance,
             timestamp
           );
-
           let action = '';
           if (bundleName.includes('Buy')) {
             action = bundleName.includes('Vault') ? 'Lend (Vault)' : 'Lend';
           } else {
             action = bundleName.includes('Vault') ? 'Borrow (Vault)' : 'Borrow';
           }
+          const date = new Date(timestamp * 1000);
 
           return {
-            action: action,
-            details: undelyingTokenBalance.toDisplayString(),
+            action: {
+              data: [
+                { displayValue: action, isNegtive: false },
+                {
+                  displayValue: formatMaturity(fCashTokenBalance.maturity),
+                  isNegtive: false,
+                },
+              ],
+            },
+            details: {
+              symbol: underlyingTokenBalance.symbol,
+              label: underlyingTokenBalance.toDisplayString(),
+            },
             interestRate: interestRate
-              ? (interestRate * 100) / RATE_PRECISION
-              : 0,
-            time: timestamp,
+              ? formatNumberAsPercent((interestRate * 100) / RATE_PRECISION)
+              : formatNumberAsPercent(0),
+            time: moment(date).fromNow(),
+            txn: {
+              href: getEtherscanTransactionLink(
+                transactionHash,
+                selectedNetwork
+              ),
+            },
           };
         }
       );
   }
 
-  console.log({ poolTableData });
-
-  const columns: DataTableColumn[] = [
+  const poolTableColumns: DataTableColumn[] = [
     {
       Header: (
         <FormattedMessage
@@ -94,6 +106,7 @@ export const useLiquidityPoolsTable = () => {
           description={'action header'}
         />
       ),
+      Cell: MultiValueCell,
       accessor: 'action',
       textAlign: 'left',
     },
@@ -104,8 +117,9 @@ export const useLiquidityPoolsTable = () => {
           description={'details header'}
         />
       ),
+      Cell: MultiValueIconCell,
       accessor: 'details',
-      textAlign: 'right',
+      textAlign: 'left',
     },
     {
       Header: (
@@ -121,10 +135,19 @@ export const useLiquidityPoolsTable = () => {
       Header: (
         <FormattedMessage defaultMessage="Time" description={'time header'} />
       ),
+      width: '250px',
       accessor: 'time',
+      textAlign: 'right',
+    },
+    {
+      Header: '',
+      accessor: 'txn',
+      Cell: TxnHashCell,
+      width: '50px',
+      showLinkIcon: true,
       textAlign: 'right',
     },
   ];
 
-  return { columns };
+  return { poolTableColumns, poolTableData };
 };
