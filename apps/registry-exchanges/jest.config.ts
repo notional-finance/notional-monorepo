@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'registry-exchange',
+  displayName: 'registry-exchanges',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -10,15 +10,15 @@ export default {
   },
   testEnvironment: 'miniflare',
   testEnvironmentOptions: {
-    scriptPath: 'apps/registry-exchange/dist/index.js',
+    scriptPath: 'apps/registry-exchanges/dist/index.js',
     modules: true,
-    wranglerConfigPath: 'apps/registry-exchange/wrangler.toml',
-    wranglerConfigEnv: 'apps/registry-exchange/.dev.vars',
+    wranglerConfigPath: 'apps/registry-exchanges/wrangler.toml',
+    wranglerConfigEnv: 'apps/registry-exchanges/.dev.vars',
   },
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js'],
-  coverageDirectory: '../../coverage/apps/registry-exchange',
+  coverageDirectory: '../../coverage/apps/registry-exchanges',
   testTimeout: 50000,
 };

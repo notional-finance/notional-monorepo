@@ -23,7 +23,7 @@
     "note-reward-manager": "apps/note-reward-manager",
     "notionable": "packages/notionable",
     "registry-configuration": "apps/registry-configuration",
-    "registry-exchange": "apps/registry-exchange",
+    "registry-exchanges": "apps/registry-exchanges",
     "registry-oracles": "apps/registry-oracles",
     "registry-tokens": "apps/registry-tokens",
     "registry-vaults": "apps/registry-vaults",
