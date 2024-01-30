@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, providers } from 'ethers';
 import {
   AlchemyNFTUrl,
   AlchemyUrl,
@@ -7,7 +7,6 @@ import {
   NetworkId,
   SupportedNetworks,
 } from './constants';
-import { Provider } from '@ethersproject/providers';
 
 class AlchemyBatchProvider extends ethers.providers.AlchemyProvider {
   // _pendingBatchAggregator?: NodeJS.Timer;
@@ -58,7 +57,7 @@ export function getProviderURLFromNetwork(network: Network, useNFT = false) {
 export function getProviderFromNetwork(
   network: Network,
   skipFetchSetup = false
-): Provider {
+): providers.Provider {
   if (IS_TEST_ENV) return (global as any).provider;
 
   if (skipFetchSetup) {

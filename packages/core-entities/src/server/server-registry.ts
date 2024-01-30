@@ -65,7 +65,7 @@ export async function fetchUsingMulticall<T>(
   calls: AggregateCall<T>[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transforms: ((r: Record<string, any>) => Record<string, T>)[],
-  provider?: providers.Web3Provider
+  provider?: providers.Provider
 ): Promise<CacheSchema<T>> {
   const { block, results } = await aggregate<T>(
     calls,
