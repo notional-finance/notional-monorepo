@@ -23,7 +23,13 @@ export const useLiquidityPoolsTable = () => {
   } = useNotionalContext();
   let poolTableData: Record<string, any>[] = [];
 
-  if (deposit && deposit?.currencyId && selectedNetwork && historicalTrading) {
+  if (
+    deposit &&
+    deposit?.currencyId &&
+    selectedNetwork &&
+    historicalTrading &&
+    historicalTrading[selectedNetwork]
+  ) {
     poolTableData = historicalTrading[selectedNetwork][deposit?.currencyId]
       .slice(0, 25)
       .map(

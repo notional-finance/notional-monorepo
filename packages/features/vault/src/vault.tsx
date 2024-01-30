@@ -5,6 +5,7 @@ import { VaultSummary } from './vault-view/vault-summary';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import {
   createVaultContext,
+  useFeatureReady,
   useVaultContext,
 } from '@notional-finance/notionable-hooks';
 
@@ -15,14 +16,14 @@ export const VaultView = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
   const {
-    state: { isReady, confirm },
+    state: { isReady, confirm, selectedNetwork },
   } = context;
+  const featureReady = useFeatureReady(selectedNetwork, isReady);
 
   return (
     <VaultActionContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady}>
+      <FeatureLoader featureLoaded={featureReady}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={<VaultActionSideDrawer />}

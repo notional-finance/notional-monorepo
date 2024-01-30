@@ -90,8 +90,9 @@ export const useAllMarkets = (network: Network | undefined) => {
   const {
     globalState: { allYields: _allYields },
   } = useNotionalContext();
-  const allYields = _allYields && network ? _allYields[network] : [];
-
+  
+  const allYields = _allYields && network && _allYields[network] ? _allYields[network] : [];
+  
   const getMax = useCallback((y: YieldData[]) => {
     return y.reduce(
       (m, t) => (m === null || t.totalAPY > m.totalAPY ? t : m),

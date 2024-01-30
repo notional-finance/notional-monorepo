@@ -4,7 +4,7 @@ import { useCallback, useContext } from 'react';
 import { NotionalContext } from './context/NotionalContext';
 import { switchMap, take, concat } from 'rxjs';
 import { Registry } from '@notional-finance/core-entities';
-import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+import { Network, getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { isAppReady } from '@notional-finance/notionable';
 
 export function useAppReady() {
@@ -12,6 +12,18 @@ export function useAppReady() {
     globalState: { networkState },
   } = useNotionalContext();
   return isAppReady(networkState);
+}
+
+export function useFeatureReady(selectedNetwork: Network | undefined, isReady: boolean ) {
+  const {
+    globalState: { allYields },
+  } = useNotionalContext();
+
+  return isReady &&
+    allYields &&
+    selectedNetwork &&
+    allYields[selectedNetwork] &&
+    allYields[selectedNetwork].length > 0 ? true : false
 }
 
 export function useAnalyticsReady() {

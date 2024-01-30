@@ -2,10 +2,11 @@ import {
   BorrowVariableSidebar,
   BorrowVariableTradeSummary,
 } from './components';
-import { SideBarLayout} from '@notional-finance/mui';
+import { SideBarLayout } from '@notional-finance/mui';
 import {
   createTradeContext,
   useTradeContext,
+  useFeatureReady,
 } from '@notional-finance/notionable-hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
 
@@ -13,12 +14,14 @@ export const BorrowVariableContext = createTradeContext('BorrowVariable');
 
 export const BorrowVariable = () => {
   const context = useTradeContext('BorrowVariable');
-  const { state } = context;
-  const { isReady, confirm } = state;
+  const {
+    state: { isReady, confirm, selectedNetwork },
+  } = context;
+  const featureReady = useFeatureReady(selectedNetwork, isReady);
 
   return (
     <BorrowVariableContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady}>
+      <FeatureLoader featureLoaded={featureReady}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={<BorrowVariableSidebar />}

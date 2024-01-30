@@ -2,6 +2,7 @@ import { SideBarLayout } from '@notional-finance/mui';
 import { TradeType } from '@notional-finance/notionable';
 import {
   createTradeContext,
+  useFeatureReady,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
@@ -28,14 +29,14 @@ const LiquidityView = ({
   mainContent: React.ReactElement;
 }) => {
   const context = useTradeContext(tradeType);
-
   const {
-    state: { isReady, confirm },
+    state: { isReady, confirm, selectedNetwork },
   } = context;
+  const featureReady = useFeatureReady(selectedNetwork, isReady);
 
   return (
     <LiquidityContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady}>
+      <FeatureLoader featureLoaded={featureReady}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={sidebar}

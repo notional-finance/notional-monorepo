@@ -38,7 +38,7 @@ export function onDataUpdate(global$: Observable<GlobalState>) {
 function onYieldsUpdate$(global$: Observable<GlobalState>) {
   return globalWhenAppReady$(global$).pipe(
     switchMap(() => {
-      return timer(500, 10_000).pipe(
+      return timer(100, 5_000).pipe(
         map(() => {
           return {
             allYields: SupportedNetworks.reduce((acc, n) => {
