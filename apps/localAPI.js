@@ -10,23 +10,23 @@ app.use(cors());
 
 // Define a proxy for /*/tokens to localhost:8787
 const configProxy = createProxyMiddleware(['/*/configuration'], {
-  target: 'http://localhost:8885',
+  target: 'https://registry-configuration-dev.notional-finance.workers.dev',
   changeOrigin: true,
 });
 const tokensProxy = createProxyMiddleware(['/*/tokens'], {
-  target: 'http://localhost:8886',
+  target: 'https://registry-tokens-dev.notional-finance.workers.dev',
   changeOrigin: true,
 });
 const vaultsProxy = createProxyMiddleware(['/*/vaults'], {
-  target: 'http://localhost:8887',
+  target: 'https://registry-vaults-dev.notional-finance.workers.dev',
   changeOrigin: true,
 });
 const oraclesProxy = createProxyMiddleware(['/*/oracles'], {
-  target: 'http://localhost:8888',
+  target: 'https://registry-oracles-dev.notional-finance.workers.dev',
   changeOrigin: true,
 });
 const exchangesProxy = createProxyMiddleware(['/*/exchanges'], {
-  target: 'http://localhost:8889',
+  target: 'https://registry-exchanges-dev.notional-finance.workers.dev',
   changeOrigin: true,
 });
 const dataProxy = createProxyMiddleware(['/*/views/*'], {
