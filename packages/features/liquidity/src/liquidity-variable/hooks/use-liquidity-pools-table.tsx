@@ -4,7 +4,10 @@ import {
   MultiValueIconCell,
   TxnHashCell,
 } from '@notional-finance/mui';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import {
+  useAnalyticsReady,
+  useNotionalContext,
+} from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../../liquidity';
@@ -18,12 +21,19 @@ export const useLiquidityPoolsTable = () => {
   const {
     state: { deposit, selectedNetwork },
   } = useContext(LiquidityContext);
+  const isReady = useAnalyticsReady(selectedNetwork);
   const {
     globalState: { historicalTrading },
   } = useNotionalContext();
   let poolTableData: Record<string, any>[] = [];
 
-  if (deposit && deposit?.currencyId && selectedNetwork && historicalTrading) {
+  if (
+    isReady &&
+    deposit?.currencyId &&
+    selectedNetwork &&
+    historicalTrading &&
+    historicalTrading[selectedNetwork][deposit.currencyId]
+  ) {
     poolTableData = historicalTrading[selectedNetwork][deposit?.currencyId]
       .slice(0, 25)
       .map(

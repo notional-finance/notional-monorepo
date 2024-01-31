@@ -20,7 +20,7 @@ function usePriceChanges(network: Network | undefined) {
     globalState: { priceChanges },
   } = useNotionalContext();
 
-  return priceChanges && network
+  return priceChanges && network && priceChanges[network]
     ? priceChanges[network]
     : { oneDay: [], sevenDay: [] };
 }

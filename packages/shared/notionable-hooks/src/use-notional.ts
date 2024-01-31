@@ -4,7 +4,7 @@ import { useCallback, useContext } from 'react';
 import { NotionalContext } from './context/NotionalContext';
 import { switchMap, take, concat } from 'rxjs';
 import { Registry } from '@notional-finance/core-entities';
-import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+import { Network, getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { isAppReady } from '@notional-finance/notionable';
 
 export function useAppReady() {
@@ -14,11 +14,12 @@ export function useAppReady() {
   return isAppReady(networkState);
 }
 
-export function useAnalyticsReady() {
+export function useAnalyticsReady(network: Network | undefined) {
   const {
-    globalState: { allYields },
+    // Active accounts is emitted when analytics are ready
+    globalState: { activeAccounts },
   } = useNotionalContext();
-  return !!allYields;
+  return !!activeAccounts && !!network && !!activeAccounts[network];
 }
 
 export function useLastUpdateBlockNumber() {

@@ -42,7 +42,7 @@ function fillChartDaily<T extends { timestamp: number }>(
 }
 
 export function useTokenHistory(token?: TokenDefinition) {
-  const isReady = useAnalyticsReady();
+  const isReady = useAnalyticsReady(token?.network);
   const { apyData, tvlData } = useMemo(() => {
     const apyData =
       token && isReady
@@ -81,7 +81,7 @@ export function useLeveragedPerformance(
   leverageRatio: number | null | undefined,
   leveragedLendFixedRate: number | undefined
 ) {
-  const isReady = useAnalyticsReady();
+  const isReady = useAnalyticsReady(token?.network);
   if (!token || !isReady) return [];
   const analytics = Registry.getAnalyticsRegistry();
   const primeDebt = Registry.getTokenRegistry().getPrimeDebt(
@@ -112,7 +112,7 @@ export function useLeveragedPerformance(
 }
 
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {
-  const isReady = useAnalyticsReady();
+  const isReady = useAnalyticsReady(token?.network);
   if (!token || !isReady) return [];
   const data = Registry.getAnalyticsRegistry().getPriceHistory(token);
 
@@ -126,7 +126,7 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
 }
 
 export function useTotalHolders(token: TokenDefinition | undefined) {
-  const isReady = useAnalyticsReady();
+  const isReady = useAnalyticsReady(token?.network);
   const {
     globalState: { activeAccounts },
   } = useNotionalContext();

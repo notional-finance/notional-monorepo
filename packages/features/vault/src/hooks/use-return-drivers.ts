@@ -11,7 +11,7 @@ export const useReturnDrivers = (
   network: Network | undefined
 ) => {
   const intl = useIntl();
-  const isReady = useAnalyticsReady()
+  const isReady = useAnalyticsReady(network);
   const data =
     network && vaultAddress && isReady
       ? Registry.getAnalyticsRegistry().getVault(network, vaultAddress)
