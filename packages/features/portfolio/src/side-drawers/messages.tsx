@@ -1,9 +1,12 @@
-import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
+import { PORTFOLIO_ACTIONS, TABLE_WARNINGS } from '@notional-finance/util';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 
 type PortfolioMessages = Record<string, MessageDescriptor>;
 
-export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
+export const messages: Record<
+  PORTFOLIO_ACTIONS | TABLE_WARNINGS,
+  PortfolioMessages
+> = {
   [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: defineMessages({
     heading: { defaultMessage: 'Add to Calendar', description: '' },
     helptext: {
@@ -126,6 +129,14 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
     },
     helptext: {
       defaultMessage: 'Manage your positions.',
+      description: '',
+    },
+  }),
+  [TABLE_WARNINGS.HIGH_UTILIZATION]: defineMessages({
+    title: { defaultMessage: 'Impermanent Loss', description: '' },
+    message: {
+      defaultMessage:
+        'Fixed rate volatility has caused temporary IL. Withdrawing locks in IL.',
       description: '',
     },
   }),

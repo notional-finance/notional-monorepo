@@ -64,6 +64,10 @@ export enum PORTFOLIO_ACTIONS {
   MANAGE_LEND = 'manage-lend',
 }
 
+export enum TABLE_WARNINGS {
+  HIGH_UTILIZATION = 'HIGH_UTILIZATION',
+}
+
 export enum PORTFOLIO_CATEGORIES {
   OVERVIEW = 'overview',
   HOLDINGS = 'holdings',

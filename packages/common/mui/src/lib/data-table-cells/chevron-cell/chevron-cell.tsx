@@ -1,10 +1,10 @@
 import { Box, useTheme } from '@mui/material';
-import { ArrowIcon } from '@notional-finance/icons';
+import { ArrowIcon, AlertIcon } from '@notional-finance/icons';
 import IconButton from '@mui/material/IconButton';
 
 export const ChevronCell = ({ row }): JSX.Element => {
   const theme = useTheme();
-
+  const warning = row?.original?.actionRow?.warning;
   return (
     <Box
       sx={{
@@ -30,16 +30,26 @@ export const ChevronCell = ({ row }): JSX.Element => {
             paddingRight: '0px',
           }}
         >
-          {
-            <ArrowIcon
-              className="dropdown-arrow"
+          <ArrowIcon
+            className="dropdown-arrow"
+            sx={{
+              color: theme.palette.primary.light,
+              transform: `rotate(${row.isExpanded ? '0' : '180'}deg)`,
+              transition: 'transform .5s ease-in-out',
+            }}
+          />
+          {warning && (
+            <AlertIcon
               sx={{
-                color: theme.palette.primary.light,
-                transform: `rotate(${row.isExpanded ? '0' : '180'}deg)`,
-                transition: 'transform .5s ease-in-out',
+                position: 'absolute',
+                marginRight: `-${theme.spacing(4)}`,
+                marginBottom: theme.spacing(2.5),
+                fill: theme.palette['warning'].dark,
+                height: theme.spacing(1.5),
+                width: theme.spacing(1.5),
               }}
             />
-          }
+          )}
         </IconButton>
       )}
     </Box>
