@@ -106,7 +106,7 @@ function onAnalyticsReady$(global$: Observable<GlobalState>) {
             }
             return acc;
           }, {} as Record<Network, Record<string, number>>),
-          historicalTrading: SupportedNetworks.reduce((acc, n) => {
+          historicalTrading: networks.reduce((acc, n) => {
             if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
               const historicalData =
                 Registry.getAnalyticsRegistry().getHistoricalTrading(n);
