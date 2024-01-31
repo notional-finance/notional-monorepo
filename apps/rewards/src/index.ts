@@ -1,7 +1,7 @@
 import { TreasuryManager__factory, ERC20__factory } from '@notional-finance/contracts';
 import { DEX_ID, Network, TRADE_TYPE, getProviderFromNetwork, } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
-import { vaults, ARB_ETH, ARB_WETH } from './vaults';
+import { vaults, minTokenAmount, ARB_ETH, ARB_WETH } from './vaults';
 import { get0xData, sendTxThroughRelayer } from "@notional-finance/util";
 
 export interface Env {
@@ -107,7 +107,7 @@ const claimRewards = async (env: Env, provider: any) => {
         [vault.address]
       );
 
-      console.log(`Claiming rewards for ${vault.address}`);
+      console.log(`Sending claim tx for ${vault.address}`);
 
       await sendTxThroughRelayer({
         to: env.TREASURY_MANAGER_ADDRESS,
@@ -177,8 +177,8 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
   const tradesPerRewardToken = [];
   for (const sellToken of vault.rewardTokens) {
     const amount = await ERC20__factory.connect(sellToken, provider).balanceOf(vault.address);
-    if (amount.lt(DUST_AMOUNT)) {
-      console.log(`Skipping reinvestment for ${vault.address}: ${sellToken}, 0 reward token`);
+    if (amount.lt(BigNumber.from(minTokenAmount[sellToken]))) {
+      console.log(`Skipping reinvestment for ${vault.address}: ${sellToken}, ${amount} is less than minimum`);
       continue;
     }
     const sellAmountsPerToken = vault.tokenWeights.map((weight: number) => {
@@ -224,6 +224,8 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
     poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
   ]);
 
+  console.log(`sending reinvestment tx to relayer from vault: ${vault.address}`);
+
   return sendTxThroughRelayer({
     to: treasuryManger.address,
     data,
@@ -242,6 +244,8 @@ export default {
   async fetch(request: Request, env: Env, _: ExecutionContext): Promise<Response> {
     const authKey = request.headers.get('x-auth-key');
     if (authKey !== env.AUTH_KEY) {
+      console.log("Headers: ", new Map(request.headers));
+      console.log("Cf: ", request.cf);
       return new Response(null, { status: 401 });
     }
 
