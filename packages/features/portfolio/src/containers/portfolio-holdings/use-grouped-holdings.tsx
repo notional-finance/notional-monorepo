@@ -16,6 +16,7 @@ import {
 import {
   Network,
   TXN_HISTORY_TYPE,
+  TABLE_WARNINGS,
   leveragedYield,
   formatMaturity,
 } from '@notional-finance/util';
@@ -56,6 +57,7 @@ export function useGroupedHoldingsTable() {
         marketYield: assetYield,
         statement: assetStatement,
         totalIncentiveEarnings,
+        isHighUtilization,
       },
       debt: { balance: debt, statement: debtStatement },
       hasMatured,
@@ -175,6 +177,9 @@ export function useGroupedHoldingsTable() {
               }
             : undefined,
         actionRow: {
+          warning: isHighUtilization
+            ? TABLE_WARNINGS.HIGH_UTILIZATION
+            : undefined,
           subRowData: [
             {
               label: <FormattedMessage defaultMessage={'Borrow APY'} />,
@@ -207,7 +212,13 @@ export function useGroupedHoldingsTable() {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
                 history.push(
-                  `/liquidity-leveraged/${network}/Withdraw/${underlying.symbol}`
+                  `/liquidity-leveraged/${network}/Withdraw/${
+                    underlying.symbol
+                  }${
+                    isHighUtilization
+                      ? `?warning=${TABLE_WARNINGS.HIGH_UTILIZATION}`
+                      : ''
+                  }`
                 );
               },
             },

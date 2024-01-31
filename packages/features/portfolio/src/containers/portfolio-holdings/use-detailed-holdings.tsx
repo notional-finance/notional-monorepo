@@ -17,6 +17,7 @@ import {
 import {
   Network,
   PORTFOLIO_ACTIONS,
+  TABLE_WARNINGS,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
 import { useMemo } from 'react';
@@ -97,6 +98,7 @@ export function useDetailedHoldingsTable() {
         manageTokenId,
         totalIncentiveEarnings,
         hasMatured,
+        isHighUtilization,
       }) => {
         const isDebt = b.isNegative();
         const { icon, formattedTitle, titleWithMaturity, title } =
@@ -183,6 +185,9 @@ export function useDetailedHoldingsTable() {
                 }
               : undefined,
           actionRow: {
+            warning: isHighUtilization
+              ? TABLE_WARNINGS.HIGH_UTILIZATION
+              : undefined,
             subRowData: [
               {
                 label: <FormattedMessage defaultMessage={'Amount'} />,
@@ -221,7 +226,13 @@ export function useDetailedHoldingsTable() {
                     ),
                     callback: () => {
                       history.push(
-                        `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}`
+                        `/portfolio/${network}/holdings/${
+                          PORTFOLIO_ACTIONS.WITHDRAW
+                        }/${maturedTokenId}${
+                          isHighUtilization
+                            ? `?warning=${TABLE_WARNINGS.HIGH_UTILIZATION}`
+                            : ''
+                        }`
                       );
                     },
                   }
@@ -235,10 +246,12 @@ export function useDetailedHoldingsTable() {
                   },
             ],
             hasMatured: hasMatured,
-            txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams({
-              txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
-              assetOrVaultId: b.token.id,
-            })}`,
+            txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
+              {
+                txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
+                assetOrVaultId: b.token.id,
+              }
+            )}`,
           },
         };
       }

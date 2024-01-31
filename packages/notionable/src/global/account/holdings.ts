@@ -26,8 +26,7 @@ function isHighUtilization(token: TokenDefinition) {
   );
   const utilization = market.getMarketUtilization();
 
-  if (token.tokenType === 'fCash') return utilization[token.id] === true;
-  else if (token.tokenType === 'nToken')
+  if (token.tokenType === 'nToken')
     return !Object.values(utilization).every((_) => _ === false);
   else return false;
 }
