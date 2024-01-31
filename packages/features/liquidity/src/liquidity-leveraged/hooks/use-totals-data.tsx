@@ -1,32 +1,29 @@
-import {
-  FiatSymbols,
-  Registry,
-  TokenBalance,
-  TokenDefinition,
-} from '@notional-finance/core-entities';
+import { YieldData, FiatSymbols } from '@notional-finance/core-entities';
+import { TradeState } from '@notional-finance/notionable';
 import { SparklesIcon } from '@notional-finance/icons';
-import {
-  useAllMarkets,
-  useFiat,
-  useMaxSupply,
-} from '@notional-finance/notionable-hooks';
+import { useMaxSupply, useFiat } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useTotalsData = (
-  deposit: TokenDefinition | undefined,
-  nToken: TokenDefinition | undefined,
-  nTokenAmount?: TokenBalance
+  state: TradeState,
+  liquidityYieldData: YieldData | undefined
 ) => {
-  const { yields } = useAllMarkets(deposit?.network);
+  const { deposit } = state;
   const baseCurrency = useFiat();
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
-  const liquidityYieldData = nTokenAmount
-    ? Registry.getYieldRegistry().getSimulatedNTokenYield(nTokenAmount)
-    : yields.liquidity.find(({ underlying }) => underlying.id === deposit?.id);
+  let totalIncentives = 0;
 
-  const totalIncentives =
-    (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) +
-    (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0);
+  if (
+    liquidityYieldData &&
+    liquidityYieldData?.noteIncentives &&
+    liquidityYieldData?.secondaryIncentives
+  ) {
+    totalIncentives =
+      liquidityYieldData?.noteIncentives?.incentiveAPY +
+      liquidityYieldData?.secondaryIncentives?.incentiveAPY;
+  } else if (liquidityYieldData && liquidityYieldData?.noteIncentives) {
+    totalIncentives = liquidityYieldData?.noteIncentives?.incentiveAPY;
+  }
 
   return {
     totalsData: [
@@ -36,8 +33,8 @@ export const useTotalsData = (
         prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
       },
       {
-        title: <FormattedMessage defaultMessage={'Incentive APY'} />,
-        value: totalIncentives ? totalIncentives : '-',
+        title: <FormattedMessage defaultMessage={'Total Incentive APY'} />,
+        value: totalIncentives > 0 ? totalIncentives : '-',
         Icon: SparklesIcon,
         suffix: totalIncentives ? '%' : '',
       },

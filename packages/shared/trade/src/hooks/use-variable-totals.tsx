@@ -6,15 +6,15 @@ import {
   useTokenHistory,
   usePrimeCash,
   usePrimeDebt,
-  useTotalHolders,
+  useMaxSupply,
 } from '@notional-finance/notionable-hooks';
 
 export const useVariableTotals = (state: TradeState) => {
-  const { deposit, collateral } = state;
+  const { deposit } = state;
   const isBorrow = state.tradeType === 'BorrowVariable';
   const baseCurrency = useFiat();
+  const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
   const { apyData } = useTokenHistory(state.debt);
-  const lenders = useTotalHolders(collateral);
 
   const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
   const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
@@ -47,10 +47,14 @@ export const useVariableTotals = (state: TradeState) => {
       title: isBorrow ? (
         <FormattedMessage defaultMessage={'(7d) Average APY'} />
       ) : (
-        <FormattedMessage defaultMessage={'Total Lenders'} />
+        <FormattedMessage defaultMessage={'Capacity Remaining'} />
       ),
-      value: isBorrow ? getSevenDayAvgApy() : `${lenders || '-'}`,
-      suffix: isBorrow ? '%' : '',
+      value: isBorrow
+        ? getSevenDayAvgApy()
+        : maxSupplyData?.capacityRemaining
+        ? maxSupplyData?.capacityRemaining.toFloat()
+        : '-',
+      suffix: isBorrow ? '%' : deposit?.symbol ? ' ' + deposit?.symbol : '',
     },
   ];
 };

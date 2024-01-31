@@ -85,6 +85,15 @@ export function usePrimeTokens(network: Network | undefined) {
   };
 }
 
+export function useMaxSupply(network: Network | undefined, currencyId: number | undefined) {
+  if(!network || !currencyId) return undefined;
+  const { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining } = Registry.getConfigurationRegistry().getMaxSupply(
+    network,
+    currencyId
+  );
+  return { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining };
+}
+
 // TODO: this needs more refactoring....
 export const useAllMarkets = (network: Network | undefined) => {
   const {
