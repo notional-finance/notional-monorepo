@@ -431,6 +431,10 @@ function executeCalculation(
     calculationSuccess: false,
     calculateError,
     ...clearCalculatedInputs,
+    netRealizedDebtBalance: undefined,
+    netRealizedCollateralBalance: undefined,
+    debtFee: undefined,
+    collateralFee: undefined,
   };
 }
 
