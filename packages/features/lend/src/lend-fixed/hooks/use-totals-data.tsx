@@ -7,21 +7,19 @@ import {
 import {
   useFiat,
   useAllMarkets,
-  useTotalHolders,
+  useMaxSupply,
 } from '@notional-finance/notionable-hooks';
 
-export const useTotalsData = (
-  deposit: TokenDefinition | undefined,
-  collateral: TokenDefinition | undefined
-) => {
+export const useTotalsData = (deposit: TokenDefinition | undefined) => {
   const baseCurrency = useFiat();
   const {
     yields: { fCashLend, liquidity },
   } = useAllMarkets(deposit?.network);
+  const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
+
   const tvlData = liquidity?.find(
     (data) => data.underlying?.id === deposit?.id
   );
-  const lenders = useTotalHolders(collateral);
 
   const filteredFCash = fCashLend
     .filter(({ underlying }) => underlying?.id === deposit?.id)
@@ -48,8 +46,11 @@ export const useTotalsData = (
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
-      title: <FormattedMessage defaultMessage={'Total Fixed Rate Lenders'} />,
-      value: lenders ? `${lenders}` : '-',
+      title: <FormattedMessage defaultMessage={'Capacity Remaining'} />,
+      value: maxSupplyData?.capacityRemaining
+        ? maxSupplyData?.capacityRemaining.toFloat()
+        : '-',
+      suffix: deposit?.symbol ? ' ' + deposit?.symbol : '',
     },
   ];
 };

@@ -1,5 +1,5 @@
 import { Box, useTheme } from '@mui/material';
-import { FaqHeader, Faq } from '@notional-finance/mui';
+import { FaqHeader, Faq, TotalRow } from '@notional-finance/mui';
 import {
   LiquidationChart,
   PerformanceChart,
@@ -8,7 +8,11 @@ import {
 import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
-import { useLeveragedLiquidityFaq, useSummaryState } from './hooks';
+import {
+  useLeveragedLiquidityFaq,
+  useSummaryState,
+  useTotalsData,
+} from './hooks';
 import { FormattedMessage } from 'react-intl';
 import { useLeveragedNTokenAPY } from './hooks/use-leveraged-ntoken-apy';
 
@@ -18,12 +22,14 @@ export const LiquidityLeveragedSummary = () => {
   const { pathname } = useLocation();
   const { selectedDepositToken } = state;
   const tokenSymbol = selectedDepositToken || '';
-  const liquidityYieldData = useLeveragedNTokenAPY(state)
+  const liquidityYieldData = useLeveragedNTokenAPY(state);
+  const { totalsData } = useTotalsData(state, liquidityYieldData);
   const { faqs, faqHeaderLinks } = useLeveragedLiquidityFaq(tokenSymbol);
 
   return (
     <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
       <PerformanceChart state={state} />
+      <TotalRow totalsData={totalsData} />
       <LiquidationChart state={state} />
       <Box sx={{ marginTop: theme.spacing(5) }}>
         <FaqHeader
