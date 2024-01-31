@@ -20,6 +20,7 @@ import {
   map,
   merge,
   switchMap,
+  take,
   timer,
 } from 'rxjs';
 import { GlobalState } from '../global-state';
@@ -37,11 +38,13 @@ export function onDataUpdate(global$: Observable<GlobalState>) {
 
 function onYieldsUpdate$(global$: Observable<GlobalState>) {
   return globalWhenAppReady$(global$).pipe(
-    switchMap(() => {
-      return timer(500, 10_000).pipe(
+    take(1),
+    switchMap(() => Registry.getYieldRegistry().subscribeNetworks()),
+    switchMap((networks) => {
+      return timer(0, 10_000).pipe(
         map(() => {
           return {
-            allYields: SupportedNetworks.reduce((acc, n) => {
+            allYields: networks.reduce((acc, n) => {
               // Skips yield registries that are not registered
               if (Registry.getYieldRegistry().isNetworkRegistered(n)) {
                 acc[n] = Registry.getYieldRegistry().getAllYields(n);
@@ -127,39 +130,42 @@ function onHistoricalTrading$(global$: Observable<GlobalState>) {
         map(() => ({
           historicalTrading: SupportedNetworks.reduce((acc, n) => {
             if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
-              const historicalData = Registry.getAnalyticsRegistry().getHistoricalTrading(n);
+              const historicalData =
+                Registry.getAnalyticsRegistry().getHistoricalTrading(n);
               for (const key in historicalData) {
-                const updatedData = historicalData[key].map(
-                    (data) => {
-                      const fCashTokenBalance = TokenBalance.fromID(
-                        data?.fCashValue,
-                        data?.fCashId,
-                        n
-                      );
-                      const token = Registry.getTokenRegistry().getUnderlying(
-                        n,
-                        data.currencyId
-                      );
-                      const underlyingTokenBalance = TokenBalance.from(
-                        data.pCashInUnderlying,
-                        token
-                      );
-                      const interestRate = fCashMarket.getImpliedInterestRate(
-                        underlyingTokenBalance,
-                        fCashTokenBalance,
-                        data.timestamp
-                      )
-                      return {...data, 
-                        interestRate: interestRate
-                        ? formatNumberAsPercent((interestRate * 100) / RATE_PRECISION)
-                        : formatNumberAsPercent(0),
-                       underlyingTokenBalance, 
-                       fCashMaturity: fCashTokenBalance.maturity
-                      }
-                    });
-                    historicalData[key] = updatedData;
+                const updatedData = historicalData[key].map((data) => {
+                  const fCashTokenBalance = TokenBalance.fromID(
+                    data?.fCashValue,
+                    data?.fCashId,
+                    n
+                  );
+                  const token = Registry.getTokenRegistry().getUnderlying(
+                    n,
+                    data.currencyId
+                  );
+                  const underlyingTokenBalance = TokenBalance.from(
+                    data.pCashInUnderlying,
+                    token
+                  );
+                  const interestRate = fCashMarket.getImpliedInterestRate(
+                    underlyingTokenBalance,
+                    fCashTokenBalance,
+                    data.timestamp
+                  );
+                  return {
+                    ...data,
+                    interestRate: interestRate
+                      ? formatNumberAsPercent(
+                          (interestRate * 100) / RATE_PRECISION
+                        )
+                      : formatNumberAsPercent(0),
+                    underlyingTokenBalance,
+                    fCashMaturity: fCashTokenBalance.maturity,
+                  };
+                });
+                historicalData[key] = updatedData;
               }
-                
+
               acc[n] = historicalData;
             }
             return acc;
