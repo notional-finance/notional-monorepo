@@ -6,7 +6,6 @@ import {
 import {
   Network,
   SECONDS_IN_DAY,
-  ZERO_ADDRESS,
   getNowSeconds,
   leveragedYield,
   floorToMidnight,
@@ -131,7 +130,7 @@ export function useTotalHolders(token: TokenDefinition | undefined) {
     globalState: { activeAccounts },
   } = useNotionalContext();
 
-  return isReady && token && activeAccounts
+  return isReady && token && activeAccounts && activeAccounts[token.network]
     ? activeAccounts[token.network][`${token.tokenType}:${token.currencyId}`] ||
         0
     : undefined;
