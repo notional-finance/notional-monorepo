@@ -16,7 +16,6 @@ export interface Env {
 }
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 2;
-const DUST_AMOUNT = 100;
 
 interface ReinvestmentData {
   data: {
