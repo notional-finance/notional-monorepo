@@ -29,7 +29,7 @@ export const useLeveragedNTokenAPY = (state: TradeState) => {
         // NOTE: inside here the debt balance and collateral balance do not "flip"
         // when withdrawing
         debtBalance?.token.tokenType === 'PrimeDebt'
-          ? debtBalance.toPrimeDebt()
+          ? debtBalance.toPrimeDebt().neg()
           : debtBalance?.token.tokenType === 'PrimeCash'
           ? debtBalance.toPrimeDebt().neg()
           : undefined
