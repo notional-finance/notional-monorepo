@@ -31,8 +31,7 @@ export function onDataUpdate(global$: Observable<GlobalState>) {
   return merge(
     onYieldsUpdate$(global$),
     onPriceChangeUpdate$(global$),
-    onActiveAccounts$(global$),
-    onHistoricalTrading$(global$)
+    onAnalyticsReady$(global$)
   );
 }
 
@@ -94,40 +93,19 @@ function onPriceChangeUpdate$(global$: Observable<GlobalState>) {
   );
 }
 
-function onActiveAccounts$(global$: Observable<GlobalState>) {
-  return global$.pipe(
-    distinctUntilChanged(
-      (p, c) =>
-        isAppReady(p.networkState) === isAppReady(c.networkState) &&
-        c.baseCurrency === p.baseCurrency
-    ),
-    filter((g) => isAppReady(g.networkState)),
-    switchMap(() => {
-      return timer(500, 60_000).pipe(
+function onAnalyticsReady$(global$: Observable<GlobalState>) {
+  return globalWhenAppReady$(global$).pipe(
+    take(1),
+    switchMap(() => Registry.getAnalyticsRegistry().subscribeNetworks()),
+    switchMap((networks) => {
+      return timer(0, 60_000).pipe(
         map(() => ({
-          activeAccounts: SupportedNetworks.reduce((acc, n) => {
+          activeAccounts: networks.reduce((acc, n) => {
             if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
               acc[n] = Registry.getAnalyticsRegistry().getActiveAccounts(n);
             }
             return acc;
           }, {} as Record<Network, Record<string, number>>),
-        }))
-      );
-    })
-  );
-}
-
-function onHistoricalTrading$(global$: Observable<GlobalState>) {
-  return global$.pipe(
-    distinctUntilChanged(
-      (p, c) =>
-        isAppReady(p.networkState) === isAppReady(c.networkState) &&
-        c.baseCurrency === p.baseCurrency
-    ),
-    filter((g) => isAppReady(g.networkState)),
-    switchMap(() => {
-      return timer(500, 60_000).pipe(
-        map(() => ({
           historicalTrading: SupportedNetworks.reduce((acc, n) => {
             if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
               const historicalData =
