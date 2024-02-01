@@ -12,21 +12,20 @@ export const usePortfolioButtonBar = () => {
   const account = useAccountDefinition(network);
   const accountReady = !!account;
   const { pathname: currentPath } = useLocation();
-  const hasWithdrawableTokens = !!account?.balances.find(
+  const hasWithdrawableTokens = account?.balances.find(
     (t) => t.isPositive() && !t.isVaultToken
   );
   const hasDebts = !!account?.balances.find(
     (t) => t.isNegative() && !t.isVaultToken
   );
+
   const history = useHistory();
 
   const buttonData: TableTitleButtonsType[] = [
     {
       buttonText: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
       callback: () => {
-        history.push(
-          `${currentPath}/${network}/${PORTFOLIO_ACTIONS.DEPOSIT}/ETH`
-        );
+        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DEPOSIT}/ETH`);
       },
     },
   ];
@@ -35,7 +34,9 @@ export const usePortfolioButtonBar = () => {
     buttonData.push({
       buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
       callback: () => {
-        history.push(`${currentPath}/${network}/${PORTFOLIO_ACTIONS.WITHDRAW}`);
+        history.push(
+          `${currentPath}/${PORTFOLIO_ACTIONS.WITHDRAW}/${hasWithdrawableTokens?.token.id}`
+        );
       },
     });
   }
@@ -44,9 +45,7 @@ export const usePortfolioButtonBar = () => {
     buttonData.push({
       buttonText: <FormattedMessage defaultMessage={'Deleverage'} />,
       callback: () => {
-        history.push(
-          `${currentPath}/${network}/${PORTFOLIO_ACTIONS.DELEVERAGE}`
-        );
+        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DELEVERAGE}`);
       },
     });
   }

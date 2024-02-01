@@ -29,7 +29,7 @@ export const Withdraw = () => {
     maxWithdrawUnderlying,
   } = useMaxWithdraw(context);
   const {
-    state: { debt },
+    state: { debt, selectedNetwork },
   } = context;
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export const Withdraw = () => {
         maxWithdraw={maxWithdrawUnderlying}
         onMaxValue={onMaxValue}
         newRoute={(newToken) =>
-          `/portfolio/${category}/${sideDrawerKey}/${newToken}`
+          `/portfolio/${selectedNetwork}/${category}/${sideDrawerKey}/${newToken}`
         }
         inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW]['inputLabel']}
       />
