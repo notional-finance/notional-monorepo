@@ -3,6 +3,7 @@ import {
   Network,
   RATE_PRECISION,
   ZERO_ADDRESS,
+  floorToMidnight,
   getMidnightUTC,
   percentChange,
 } from '@notional-finance/util';
@@ -11,9 +12,9 @@ import { ClientRegistry } from './client-registry';
 import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
 import {
-  OracleDefinition, 
-  PriceChange, 
-  TokenDefinition, 
+  OracleDefinition,
+  PriceChange,
+  TokenDefinition,
   HistoricalOracles,
   HistoricalTrading,
   VaultData,
@@ -33,6 +34,7 @@ const APY_ORACLES = [
   'nTokenBlendedInterestRate',
   'nTokenFeeRate',
   'nTokenIncentiveRate',
+  'nTokenSecondaryIncentiveRate',
 ];
 
 export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
@@ -198,7 +200,24 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
                   apy.toFixed(8),
                   tokens.getTokenBySymbol(token.network, 'NOTE')
                 )
-                  .toToken(tokens.getTokenByID(token.network, o.base))
+                  .toToken(
+                    tokens.getTokenByID(token.network, o.base),
+                    'None',
+                    floorToMidnight(r.timestamp)
+                  )
+                  .toFloat();
+              } else if (o.oracleType === 'nTokenSecondaryIncentiveRate') {
+                // NOTE: this token is currently hardcoded but we will need to make it configurable
+                // at some point in the future.
+                apy = TokenBalance.fromFloat(
+                  (apy / INTERNAL_TOKEN_PRECISION).toFixed(8),
+                  tokens.getTokenBySymbol(token.network, 'ARB')
+                )
+                  .toToken(
+                    tokens.getTokenByID(token.network, o.base),
+                    'None',
+                    floorToMidnight(r.timestamp)
+                  )
                   .toFloat();
               }
 
