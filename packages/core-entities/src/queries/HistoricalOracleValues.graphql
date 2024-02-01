@@ -12,7 +12,8 @@ query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
     PrimeDebtPremiumInterestRate
     nTokenBlendedInterestRate,
     nTokenFeeRate,
-    nTokenIncentiveRate
+    nTokenIncentiveRate,
+    nTokenSecondaryIncentiveRate
   ], matured: false}, first: 1000, skip: $skip) {
     id
     base { id }
