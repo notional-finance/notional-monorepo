@@ -152,7 +152,7 @@ export const DataTableBody = ({
             setExpandedRows(newState);
           }
           if (row.original.view) {
-            history.push(row.original.view);
+            history.push(`/${row.original.view}`);
           }
           if (row.original?.txLink?.href) {
             window.open(row.original.txLink.href, '_blank');
