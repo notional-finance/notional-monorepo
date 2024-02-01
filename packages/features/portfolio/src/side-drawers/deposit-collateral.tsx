@@ -15,7 +15,7 @@ export const DepositCollateral = () => {
     useParams<PortfolioParams>();
   const {
     updateState,
-    state: { selectedDepositToken },
+    state: { selectedDepositToken, selectedNetwork },
   } = context;
 
   useEffect(() => {
@@ -30,10 +30,11 @@ export const DepositCollateral = () => {
   return (
     <PortfolioSideDrawer context={context}>
       <DepositInput
+        showScrollPopper
         context={context}
         inputRef={currencyInputRef}
         newRoute={(newToken) =>
-          `/portfolio/${category}/${sideDrawerKey}/${newToken}`
+          `/portfolio/${selectedNetwork}/${category}/${sideDrawerKey}/${newToken}`
         }
         inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabel']}
       />
