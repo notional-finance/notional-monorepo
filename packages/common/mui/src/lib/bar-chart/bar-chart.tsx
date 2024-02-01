@@ -59,6 +59,8 @@ export const BarChart = ({
     return getDateString(date, { hideYear: true });
   };
 
+  console.log({ barChartData });
+
   return (
     <Box>
       {barChartData.length === 0 ? (
@@ -74,6 +76,35 @@ export const BarChart = ({
             data={barChartData}
             margin={{ top: 30, right: 10, left: 10, bottom: 0 }}
           >
+            {/* <Bar
+              dataKey="Arm1.val"
+              stackId="1"
+              stroke="#8884d8"
+              fill="#8884d8"
+              id="aarea"
+              name="Arm1"
+            />
+            <Bar
+              dataKey="Arm2.val"
+              stackId="1"
+              stroke="#82ca9d"
+              fill="#82ca9d"
+              id="barea"
+              name="Arm2"
+              cursor={'pointer'}
+              onClick={(data: any, i: number) => alert('Arm2 clicked ' + i)}
+            />
+            <Bar
+              cursor={'pointer'}
+              dataKey="Arm3.val"
+              stackId="1"
+              stroke="#ffc658"
+              fill="#ffc658"
+              id="carea"
+              name="Arm3"
+              onClick={(data: any, i: number) => alert('Arm3 clicked ' + i)}
+              // onMouseOver={() => alert()}
+            /> */}
             <CartesianGrid
               vertical={false}
               stroke={theme.palette.borders.paper}

@@ -51,7 +51,7 @@ export function useTokenHistory(token?: TokenDefinition) {
       token && isReady
         ? Registry.getAnalyticsRegistry().getPriceHistory(token)
         : undefined;
-
+    console.log({ apyData });
     return { apyData, tvlData };
   }, [token, isReady]);
 
