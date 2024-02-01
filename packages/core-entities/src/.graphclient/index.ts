@@ -8777,7 +8777,7 @@ export const AllVaultsByBlockDocument = gql`
 export const HistoricalOracleValuesDocument = gql`
     query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
   oracles(
-    where: {oracleType_in: [Chainlink, fCashSettlementRate, nTokenToUnderlyingExchangeRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, fCashOracleRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, nTokenBlendedInterestRate, nTokenFeeRate, nTokenIncentiveRate], matured: false}
+    where: {oracleType_in: [Chainlink, fCashSettlementRate, nTokenToUnderlyingExchangeRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, fCashOracleRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, nTokenBlendedInterestRate, nTokenFeeRate, nTokenIncentiveRate, nTokenSecondaryIncentiveRate], matured: false}
     first: 1000
     skip: $skip
   ) {
