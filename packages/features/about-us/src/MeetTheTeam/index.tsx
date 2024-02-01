@@ -117,7 +117,7 @@ const MeetTheTeam = () => {
         backgroundImage: theme.gradient.landing,
         width: '100%',
         paddingTop: theme.spacing(18),
-        paddingBottom: theme.spacing(8),
+        paddingBottom: theme.spacing(18),
       }}
     >
       <H1 align="center" contrast>
