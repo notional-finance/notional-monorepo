@@ -21,7 +21,7 @@ export const SliderRisk = ({ healthFactor }: SliderRiskProps) => {
         min={1}
         // NOTE: set this a half step above the max value we actually set so that
         // the button does not overflow into the container padding
-        max={5.05}
+        max={5.0}
         value={healthFactor === null || healthFactor > 5 ? 5 : healthFactor}
         step={0.1}
         disabled={true}
