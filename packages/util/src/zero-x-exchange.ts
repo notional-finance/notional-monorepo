@@ -42,8 +42,6 @@ export async function get0xData(
     slippagePercentage: String(slippagePercentage / 100)
   }).toString();
 
-  console.log(searchParams);
-
   const response = await fetch(`${urls[Network[env.NETWORK]]}?${searchParams}`, {
     headers: {
       "0x-api-key": env.ZERO_EX_API_KEY

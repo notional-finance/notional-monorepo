@@ -21,7 +21,6 @@ export function sendTxThroughRelayer(arg: { env: Env, to: string, data: string }
     data,
   });
 
-  console.log("sending tx to relayer");
   return fetch(urls[Network[env.NETWORK]], {
     method: 'POST',
     headers: {
