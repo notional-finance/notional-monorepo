@@ -5,7 +5,7 @@ import {
   useQueryParams,
 } from '@notional-finance/notionable-hooks';
 import { PortfolioParams } from '../portfolio-feature-shell';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import { ErrorMessage } from '@notional-finance/mui';
 import {
   DepositInput,
@@ -19,6 +19,7 @@ import { useEffect } from 'react';
 export const Withdraw = () => {
   const context = useTradeContext('Withdraw');
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
+  const { pathname } = useLocation();
   const search = useQueryParams();
   const warning = search.get('warning') as TABLE_WARNINGS | undefined;
 
@@ -29,12 +30,15 @@ export const Withdraw = () => {
     maxWithdrawUnderlying,
   } = useMaxWithdraw(context);
   const {
-    state: { debt, selectedNetwork },
+    state: { selectedNetwork },
   } = context;
 
   useEffect(() => {
     setCurrencyInput('');
-  }, [debt?.id, setCurrencyInput]);
+    // Ignore the setCurrencyInput dependency here, causes race conditions
+    // as the callback is recreated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   return (
     <PortfolioSideDrawer context={context} isWithdraw>
