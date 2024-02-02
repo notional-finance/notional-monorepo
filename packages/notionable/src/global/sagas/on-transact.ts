@@ -24,10 +24,10 @@ export function onTransact(global$: Observable<GlobalState>) {
  */
 function onSentTransaction$(global$: Observable<GlobalState>) {
   return global$.pipe(
-    filter((c) => c.sentTransactions.length > 0),
     distinctUntilChanged((p, c) => {
       return p.sentTransactions.length === c.sentTransactions.length;
     }),
+    filter((c) => c.sentTransactions.length > 0),
     switchMap(({ sentTransactions, completedTransactions, pendingPnL }) => {
       const listeners = sentTransactions.map(
         async ({ response, network, tokens }) => {
