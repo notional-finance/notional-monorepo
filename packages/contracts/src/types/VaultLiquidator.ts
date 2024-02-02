@@ -34,6 +34,7 @@ export declare namespace FlashLiquidatorBase {
     currencyIndex: PromiseOrValue<BigNumberish>;
     account: PromiseOrValue<string>;
     vault: PromiseOrValue<string>;
+    useVaultDeleverage: PromiseOrValue<boolean>;
     actionData: PromiseOrValue<BytesLike>;
   };
 
@@ -43,6 +44,7 @@ export declare namespace FlashLiquidatorBase {
     number,
     string,
     string,
+    boolean,
     string
   ] & {
     liquidationType: number;
@@ -50,6 +52,7 @@ export declare namespace FlashLiquidatorBase {
     currencyIndex: number;
     account: string;
     vault: string;
+    useVaultDeleverage: boolean;
     actionData: string;
   };
 }
@@ -60,9 +63,9 @@ export interface VaultLiquidatorInterface extends utils.Interface {
     "NOTIONAL()": FunctionFragment;
     "claimOwnership()": FunctionFragment;
     "enableCurrencies(uint16[])": FunctionFragment;
-    "estimateProfit(address,uint256,(uint8,uint16,uint16,address,address,bytes))": FunctionFragment;
+    "estimateProfit(address,uint256,(uint8,uint16,uint16,address,address,bool,bytes))": FunctionFragment;
     "executeOperation(address[],uint256[],uint256[],address,bytes)": FunctionFragment;
-    "flashLiquidate(address,uint256,(uint8,uint16,uint16,address,address,bytes))": FunctionFragment;
+    "flashLiquidate(address,uint256,(uint8,uint16,uint16,address,address,bool,bytes))": FunctionFragment;
     "getOptimalDeleveragingParams(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "pendingOwner()": FunctionFragment;
@@ -261,10 +264,10 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<ContractTransaction>;
 
     executeOperation(
-      assets: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
+      arg0: PromiseOrValue<string>[],
+      arg1: PromiseOrValue<BigNumberish>[],
       premiums: PromiseOrValue<BigNumberish>[],
-      initiator: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
       params: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -325,10 +328,10 @@ export interface VaultLiquidator extends BaseContract {
   ): Promise<ContractTransaction>;
 
   executeOperation(
-    assets: PromiseOrValue<string>[],
-    amounts: PromiseOrValue<BigNumberish>[],
+    arg0: PromiseOrValue<string>[],
+    arg1: PromiseOrValue<BigNumberish>[],
     premiums: PromiseOrValue<BigNumberish>[],
-    initiator: PromiseOrValue<string>,
+    arg3: PromiseOrValue<string>,
     params: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -387,10 +390,10 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<BigNumber>;
 
     executeOperation(
-      assets: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
+      arg0: PromiseOrValue<string>[],
+      arg1: PromiseOrValue<BigNumberish>[],
       premiums: PromiseOrValue<BigNumberish>[],
-      initiator: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
       params: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -407,7 +410,7 @@ export interface VaultLiquidator extends BaseContract {
       vault: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [number, BigNumber] & { currencyIndex: number; maxUnderying: BigNumber }
+      [number, BigNumber] & { currencyIndex: number; maxUnderlying: BigNumber }
     >;
 
     owner(overrides?: CallOverrides): Promise<string>;
@@ -463,10 +466,10 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<BigNumber>;
 
     executeOperation(
-      assets: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
+      arg0: PromiseOrValue<string>[],
+      arg1: PromiseOrValue<BigNumberish>[],
       premiums: PromiseOrValue<BigNumberish>[],
-      initiator: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
       params: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -528,10 +531,10 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     executeOperation(
-      assets: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
+      arg0: PromiseOrValue<string>[],
+      arg1: PromiseOrValue<BigNumberish>[],
       premiums: PromiseOrValue<BigNumberish>[],
-      initiator: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
       params: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
