@@ -185,9 +185,7 @@ export function useDetailedHoldingsTable() {
                 }
               : undefined,
           actionRow: {
-            warning: isHighUtilization
-              ? TABLE_WARNINGS.HIGH_UTILIZATION
-              : undefined,
+            warning: isHighUtilization,
             subRowData: [
               {
                 label: <FormattedMessage defaultMessage={'Amount'} />,
@@ -230,7 +228,7 @@ export function useDetailedHoldingsTable() {
                           PORTFOLIO_ACTIONS.WITHDRAW
                         }/${maturedTokenId}${
                           isHighUtilization
-                            ? `?warning=${TABLE_WARNINGS.HIGH_UTILIZATION}`
+                            ? `?warning=${isHighUtilization}`
                             : ''
                         }`
                       );

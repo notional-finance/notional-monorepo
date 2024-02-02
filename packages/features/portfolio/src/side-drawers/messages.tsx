@@ -132,11 +132,19 @@ export const messages: Record<
       description: '',
     },
   }),
-  [TABLE_WARNINGS.HIGH_UTILIZATION]: defineMessages({
+  [TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN]: defineMessages({
     title: { defaultMessage: 'Impermanent Loss', description: '' },
     message: {
       defaultMessage:
         'Fixed rate volatility has caused temporary IL. Withdrawing locks in IL.',
+      description: '',
+    },
+  }),
+  [TABLE_WARNINGS.HIGH_UTILIZATION_FCASH]: defineMessages({
+    title: { defaultMessage: 'Impermanent Loss', description: '' },
+    message: {
+      defaultMessage:
+        'Fixed rate volatility has caused temporary fCash price declines. Your fixed rate is guaranteed if you hold until maturity. Withdrawing locks in losses.',
       description: '',
     },
   }),

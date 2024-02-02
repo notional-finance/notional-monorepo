@@ -53,6 +53,11 @@ const CACHE_HOSTNAME =
   process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
 
 export type NetworkLoadingState = 'Pending' | 'Loaded' | undefined;
+export type CalculatedPriceChanges = {
+  oneDay: PriceChange[];
+  threeDay: PriceChange[];
+  sevenDay: PriceChange[];
+};
 
 export interface NotionalError {
   code: number;
@@ -127,10 +132,7 @@ interface ApplicationState {
   /** All yields calculated from the yield registry */
   allYields?: Record<Network, YieldData[]>;
   /** All price changes calculated from the yield registry */
-  priceChanges?: Record<
-    Network,
-    { oneDay: PriceChange[]; sevenDay: PriceChange[] }
-  >;
+  priceChanges?: Record<Network, CalculatedPriceChanges>;
   /** All active accounts from the analytics registry */
   activeAccounts?: Record<Network, Record<string, number>>;
   historicalTrading?: Record<Network, HistoricalTrading>;

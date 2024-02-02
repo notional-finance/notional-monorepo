@@ -177,9 +177,7 @@ export function useGroupedHoldingsTable() {
               }
             : undefined,
         actionRow: {
-          warning: isHighUtilization
-            ? TABLE_WARNINGS.HIGH_UTILIZATION
-            : undefined,
+          warning: isHighUtilization,
           subRowData: [
             {
               label: <FormattedMessage defaultMessage={'Borrow APY'} />,
@@ -214,11 +212,7 @@ export function useGroupedHoldingsTable() {
                 history.push(
                   `/liquidity-leveraged/${network}/Withdraw/${
                     underlying.symbol
-                  }${
-                    isHighUtilization
-                      ? `?warning=${TABLE_WARNINGS.HIGH_UTILIZATION}`
-                      : ''
-                  }`
+                  }${isHighUtilization ? `?warning=${isHighUtilization}` : ''}`
                 );
               },
             },
