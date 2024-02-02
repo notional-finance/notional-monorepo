@@ -32,6 +32,12 @@ export type LiquidatorSettings = {
   gasOracle: IGasOracle;
 };
 
+enum LiquidationType {
+  UNKNOWN = 0,
+  DELEVERAGE_VAULT_ACCOUNT = 1,
+  LIQUIDATE_CASH_BALANCE = 2,
+  DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH = 3
+}
 export default class VaultV3Liquidator {
   private liquidatorContract: Contract;
   private notionalContract: Contract;
@@ -266,22 +272,16 @@ export default class VaultV3Liquidator {
       minPrimary;
 
     const callParams = {
-      liquidationType: 1,
+      // Use this as the default type, will account for variable rate debt
+      liquidationType: LiquidationType.DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH,
       currencyId: ra.borrowCurrencyId,
       currencyIndex: liqParams.currencyIndex,
       account: ra.id,
       vault: ra.vault,
+      useVaultDeleverage: true,
       actionData: ethers.utils.defaultAbiCoder.encode(
-        ['tuple(bool,bytes)'],
-        [
-          [
-            true, // use vault deleverage
-            ethers.utils.defaultAbiCoder.encode(
-              ['tuple(uint256[],bytes)'],
-              [[minAmount, []]]
-            ),
-          ],
-        ]
+        ['tuple(uint256[],bytes)'],
+        [[minAmount, []]]
       ),
     };
 

@@ -23,6 +23,7 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "constructor",
     stateMutability: "nonpayable",
     type: "constructor",
   },
@@ -147,6 +148,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "bool",
+            name: "useVaultDeleverage",
+            type: "bool",
+          },
+          {
             internalType: "bytes",
             name: "actionData",
             type: "bytes",
@@ -172,12 +178,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address[]",
-        name: "assets",
+        name: "",
         type: "address[]",
       },
       {
         internalType: "uint256[]",
-        name: "amounts",
+        name: "",
         type: "uint256[]",
       },
       {
@@ -187,7 +193,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "initiator",
+        name: "",
         type: "address",
       },
       {
@@ -247,6 +253,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "bool",
+            name: "useVaultDeleverage",
+            type: "bool",
+          },
+          {
             internalType: "bytes",
             name: "actionData",
             type: "bytes",
@@ -284,7 +295,7 @@ const _abi = [
       },
       {
         internalType: "int256",
-        name: "maxUnderying",
+        name: "maxUnderlying",
         type: "int256",
       },
     ],
