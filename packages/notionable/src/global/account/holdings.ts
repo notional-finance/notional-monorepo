@@ -1,5 +1,6 @@
 import {
   RATE_PRECISION,
+  TABLE_WARNINGS,
   convertToSignedfCashId,
   leveragedYield,
 } from '@notional-finance/util';
@@ -8,9 +9,9 @@ import {
   AccountDefinition,
   Registry,
   TokenBalance,
-  TokenDefinition,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
+import { CalculatedPriceChanges } from '../global-state';
 
 export type PortfolioHolding = ReturnType<typeof calculateHoldings>[number];
 export type GroupedHolding = ReturnType<
@@ -18,17 +19,34 @@ export type GroupedHolding = ReturnType<
 >[number];
 export type VaultHolding = ReturnType<typeof calculateVaultHoldings>[number];
 
-function isHighUtilization(token: TokenDefinition) {
-  if (!token.currencyId) return false;
-  const market = Registry.getExchangeRegistry().getfCashMarket(
-    token.network,
-    token.currencyId
-  );
-  const utilization = market.getMarketUtilization();
+function isHighUtilization(
+  balance: TokenBalance,
+  priceChanges: CalculatedPriceChanges | undefined,
+  threshold = -0.005
+) {
+  const token = balance.token;
+  if (
+    token.tokenType === 'nToken' ||
+    // Only show this for positive fCash
+    (token.tokenType === 'fCash' && balance.isPositive())
+  ) {
+    const oneDay = priceChanges?.oneDay.find((p) => p.asset.id === token.id);
+    const threeDay = priceChanges?.threeDay.find(
+      (p) => p.asset.id === token.id
+    );
+    if (
+      (oneDay?.underlyingChange !== undefined &&
+        oneDay.underlyingChange < threshold) ||
+      (threeDay?.underlyingChange !== undefined &&
+        threeDay.underlyingChange < threshold)
+    ) {
+      return token.tokenType === 'fCash'
+        ? TABLE_WARNINGS.HIGH_UTILIZATION_FCASH
+        : TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN;
+    }
+  }
 
-  if (token.tokenType === 'nToken')
-    return !Object.values(utilization).every((_) => _ === false);
-  else return false;
+  return undefined;
 }
 
 /**
@@ -37,7 +55,8 @@ function isHighUtilization(token: TokenDefinition) {
  */
 export function calculateHoldings(
   account: AccountDefinition,
-  accruedIncentives: AccruedIncentives[]
+  accruedIncentives: AccruedIncentives[],
+  priceChanges: CalculatedPriceChanges | undefined
 ) {
   const balances = account.balances
     .filter(
@@ -115,7 +134,7 @@ export function calculateHoldings(
       totalIncentiveEarnings,
       hasMatured: balance.hasMatured,
       tokenType: undefined,
-      isHighUtilization: isHighUtilization(balance.token),
+      isHighUtilization: isHighUtilization(balance, priceChanges),
     };
   });
 

@@ -89,6 +89,8 @@ export function selectedPortfolioToken(state$: Observable<BaseTradeState>) {
     ),
     filter(
       ({ tradeType }) =>
+        // Roll Debt here is used to trigger the selected token for LeveragedNTokn
+        tradeType === 'RollDebt' ||
         tradeType === 'RepayDebt' ||
         tradeType === 'Withdraw' ||
         tradeType === 'RollVaultPosition'
@@ -104,7 +106,7 @@ export function selectedPortfolioToken(state$: Observable<BaseTradeState>) {
               ? tokens.getPrimeCash(selected.network, selected.currencyId)
               : selected,
         };
-      } else if (tradeType === 'Withdraw') {
+      } else if (tradeType === 'Withdraw' || tradeType === 'RollDebt') {
         return {
           debt:
             selected.tokenType === 'PrimeCash'
