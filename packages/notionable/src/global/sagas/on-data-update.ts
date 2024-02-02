@@ -1,5 +1,4 @@
 import {
-  PriceChange,
   YieldData,
   Registry,
   TokenBalance,
@@ -10,21 +9,18 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 import {
   Network,
   SECONDS_IN_DAY,
-  SupportedNetworks,
   RATE_PRECISION,
 } from '@notional-finance/util';
 import {
   Observable,
-  distinctUntilChanged,
-  filter,
   map,
   merge,
   switchMap,
   take,
   timer,
+  withLatestFrom,
 } from 'rxjs';
-import { GlobalState } from '../global-state';
-import { isAppReady } from '../../utils';
+import { CalculatedPriceChanges, GlobalState } from '../global-state';
 import { globalWhenAppReady$ } from './on-app-load';
 
 export function onDataUpdate(global$: Observable<GlobalState>) {
@@ -58,35 +54,35 @@ function onYieldsUpdate$(global$: Observable<GlobalState>) {
 }
 
 function onPriceChangeUpdate$(global$: Observable<GlobalState>) {
-  return global$.pipe(
-    distinctUntilChanged(
-      (p, c) =>
-        isAppReady(p.networkState) === isAppReady(c.networkState) &&
-        c.baseCurrency === p.baseCurrency
-    ),
-    filter((g) => isAppReady(g.networkState)),
-    switchMap((global) => {
-      return timer(500, 60_000).pipe(
-        map(() => ({
-          priceChanges: SupportedNetworks.reduce((acc, n) => {
+  return globalWhenAppReady$(global$).pipe(
+    take(1),
+    switchMap(() => Registry.getAnalyticsRegistry().subscribeNetworks()),
+    switchMap((networks) => {
+      return timer(0, 60_000).pipe(
+        withLatestFrom(global$),
+        map(([_, global]) => ({
+          priceChanges: networks.reduce((acc, n) => {
             if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
-              const oneDay = Registry.getAnalyticsRegistry().getPriceChanges(
-                global.baseCurrency,
-                n,
-                SECONDS_IN_DAY
-              );
-              const sevenDay = Registry.getAnalyticsRegistry().getPriceChanges(
-                global.baseCurrency,
-                n,
-                SECONDS_IN_DAY * 7
-              );
               acc[n] = {
-                oneDay,
-                sevenDay,
+                oneDay: Registry.getAnalyticsRegistry().getPriceChanges(
+                  global.baseCurrency,
+                  n,
+                  SECONDS_IN_DAY
+                ),
+                threeDay: Registry.getAnalyticsRegistry().getPriceChanges(
+                  global.baseCurrency,
+                  n,
+                  SECONDS_IN_DAY * 3
+                ),
+                sevenDay: Registry.getAnalyticsRegistry().getPriceChanges(
+                  global.baseCurrency,
+                  n,
+                  SECONDS_IN_DAY * 7
+                ),
               };
             }
             return acc;
-          }, {} as Record<Network, { oneDay: PriceChange[]; sevenDay: PriceChange[] }>),
+          }, {} as Record<Network, CalculatedPriceChanges>),
         }))
       );
     })

@@ -65,7 +65,8 @@ export enum PORTFOLIO_ACTIONS {
 }
 
 export enum TABLE_WARNINGS {
-  HIGH_UTILIZATION = 'HIGH_UTILIZATION',
+  HIGH_UTILIZATION_NTOKEN = 'HIGH_UTILIZATION_NTOKEN',
+  HIGH_UTILIZATION_FCASH = 'HIGH_UTILIZATION_FCASH',
 }
 
 export enum PORTFOLIO_CATEGORIES {
@@ -127,8 +128,8 @@ export enum TRACKING_EVENTS {
   HOW_IT_WORKS = 'HowItWorks',
   FAQ = 'FAQ',
   HOVER_TOOL_TIP = 'HoverTooltip',
-  TOOL_TIP= "ToolTip",
-  NFT_UNLOCK= "NFTUnlock",
+  TOOL_TIP = 'ToolTip',
+  NFT_UNLOCK = 'NFTUnlock',
   SUBMIT_TXN = 'SubmitTxn',
   REJECT_TXN = 'RejectTxn',
   CONFIRMATION = 'Confirmation',

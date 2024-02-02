@@ -109,7 +109,7 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
   return global$.pipe(
     distinctUntilChanged((p, c) => p.isAccountPending === c.isAccountPending),
     filter((g) => !g.isAccountPending && isAppReady(g.networkState)),
-    switchMap(() => {
+    switchMap((g) => {
       return combineLatest(
         SupportedNetworks.map((n) =>
           Registry.getAccountRegistry().subscribeActiveAccount(n)
@@ -120,9 +120,18 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
         map((accts) => {
           const networkAccounts = accts.reduce((n, a) => {
             if (a !== null) {
+              const priceChanges =
+                g.priceChanges && g.priceChanges[a.network]
+                  ? g.priceChanges[a.network]
+                  : undefined;
               const { accruedIncentives, totalIncentives } =
                 calculateAccruedIncentives(a);
-              const portfolioHoldings = calculateHoldings(a, accruedIncentives);
+
+              const portfolioHoldings = calculateHoldings(
+                a,
+                accruedIncentives,
+                priceChanges
+              );
               const riskProfile = new AccountRiskProfile(
                 a?.balances.filter(
                   (b) =>
