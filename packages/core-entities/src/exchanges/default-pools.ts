@@ -140,6 +140,33 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
+      address: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
+      registerTokens: [
+        {
+          id: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
+          address: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
+          network: Network.ArbitrumOne,
+          symbol: '2CRV',
+          name: 'Curve.fi USDC/USDT',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        // Register USDC.e
+        {
+          id: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+          address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+          network: Network.ArbitrumOne,
+          symbol: 'USDC.e',
+          name: 'USD Coin (Arb1)',
+          decimals: 6,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
       // NOTE: the pool address here is different from the lp token address
       address: '0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80',
       PoolClass: 'Curve2TokenPoolV1_HasOracle',
