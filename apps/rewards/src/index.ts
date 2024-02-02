@@ -88,7 +88,7 @@ const claimRewards = async (env: Env, provider: any) => {
     provider
   );
 
-  return Promise.all(
+  const results = await Promise.allSettled(
     vaults.map(async (vault) => {
       if (await shouldSkipClaim(env, vault.address)) {
         console.log(`Skipping claim rewards for ${vault.address}, already claimed`);
@@ -117,6 +117,13 @@ const claimRewards = async (env: Env, provider: any) => {
       await setLastClaimTimestamp(env, vault.address);
     })
   );
+
+  const failedClaims = results.filter(r => r.status == 'rejected') as PromiseRejectedResult[];
+  // if any of the claims failed throw error so worker execution can be properly
+  // marked as failed and alarms can be triggered
+  if (failedClaims.length) {
+    throw new Error(failedClaims[0].reason);
+  }
 };
 
 type FunRetProm = () => Promise<any>;
@@ -233,10 +240,21 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
 };
 
 const reinvestRewards = async (env: Env, provider: any) => {
-  return executePromisesSequentially(vaults.map((v) => () => reinvestVault(env, provider, v).catch(err => {
-    console.error(`Reinvestment for vault: ${v.address} failed`);
-    console.error(err);
-  })));
+  const errors: any = [];
+  for (const vault of vaults) {
+    try {
+      await reinvestVault(env, provider, vault);
+    } catch (err) {
+      console.error(`Reinvestment for vault: ${vault.address} failed`);
+      console.error(err);
+      errors.push(err);
+    }
+  }
+  // if any of the reinvestments failed throw error so worker execution can be properly
+  // marked as failed and alarms can be triggered
+  if (errors.length) {
+    throw errors[0];
+  }
 };
 
 export default {

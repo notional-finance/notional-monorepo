@@ -18,7 +18,8 @@ export const ARB_WETH = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1';
 export const minTokenAmount = {
   [ARB]: "3000000000000000000", // 3e18
   [ARB_BAL]: "1500000000000000000", // 1.5e18
-  [ARB_AURA]: "7000000000000000000" // 7e18
+  [ARB_AURA]: "7000000000000000000", // 7e18
+  [ARB_CRV]: "10000000000000000000", // 10e18
 };
 
 // tokens in the pool need to be in the same order as they are stored in the vault
