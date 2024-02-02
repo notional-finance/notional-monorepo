@@ -31,10 +31,7 @@ export const ACCESS_NFTS = {
   },
 };
 
-export const GATED_VAULTS: string[] = [
-  '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
-  '0x37dd23ab1885982f789a2d6400b583b8ae09223d',
-];
+export const GATED_VAULTS: string[] = [];
 
 // Set this as the runtime default
 const CACHE_HOSTNAME =
