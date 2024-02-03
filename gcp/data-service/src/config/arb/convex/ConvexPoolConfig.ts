@@ -108,7 +108,7 @@ export function getCurveV1PoolConfig(
       },
       tableName: TableName.GenericData,
       dataConfig: {
-        strategyId: Strategy.Arb_Convex_USDC_FRAX,
+        strategyId,
         variable: 'Convex LP token balance in Gauge',
         decimals: 18,
       },
@@ -123,7 +123,7 @@ export function getCurveV1PoolConfig(
       },
       tableName: TableName.GenericData,
       dataConfig: {
-        strategyId: Strategy.Arb_Convex_USDC_FRAX,
+        strategyId,
         variable: 'Working Supply',
         decimals: 18,
       },
@@ -139,7 +139,7 @@ export function getCurveV1PoolConfig(
       },
       tableName: TableName.GenericData,
       dataConfig: {
-        strategyId: Strategy.Arb_Convex_USDC_FRAX,
+        strategyId,
         variable: 'Working Balance',
         decimals: 18,
       },
