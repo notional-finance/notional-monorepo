@@ -1,5 +1,5 @@
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { ActiveAccountsDocument, OracleType } from '../.graphclient';
+import { OracleType } from '../.graphclient';
 import { AnalyticsData, CacheSchema } from '../Definitions';
 import crossFetch from 'cross-fetch';
 import {
@@ -108,6 +108,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       HistoricalOracleValuesDocument,
       HistoricalTradingActivityDocument,
       VaultReinvestmentDocument,
+      ActiveAccountsDocument,
     } = await loadGraphClientDeferred();
     const minTimestamp = getNowSeconds() - 90 * SECONDS_IN_DAY;
 
