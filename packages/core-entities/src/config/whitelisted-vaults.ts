@@ -4,4 +4,5 @@ export const whitelistedVaults = [
   '0x8ae7a8789a81a43566d0ee70264252c0db826940',
   '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
   '0x37dd23ab1885982f789a2d6400b583b8ae09223d',
+  '0x431dbfe3050ea39abbff3e0d86109fb5bafa28fd',
 ];
