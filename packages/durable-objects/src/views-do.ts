@@ -2,14 +2,17 @@ import { DurableObjectState } from '@cloudflare/workers-types';
 import { APIEnv } from '.';
 import { BaseDO } from './abstract';
 import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
-import { AnalyticsServer } from '@notional-finance/core-entities/src/server';
+import {
+  ServerRegistryConstructor,
+  Servers,
+} from '@notional-finance/core-entities';
 
 export class ViewsDO extends BaseDO<APIEnv> {
-  protected analytics: AnalyticsServer;
+  protected analytics: InstanceType<ServerRegistryConstructor<unknown>>;
 
   constructor(state: DurableObjectState, env: APIEnv) {
     super(state, env, 'views', ONE_MINUTE_MS * 60);
-    this.analytics = new AnalyticsServer(
+    this.analytics = new Servers.AnalyticsServer(
       env.DATA_SERVICE_URL,
       env.DATA_SERVICE_AUTH_TOKEN
     );
