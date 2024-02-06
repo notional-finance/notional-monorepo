@@ -6,7 +6,7 @@ import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { Contract } from 'ethers';
 import { ContestPartners, contestId } from '../contest-config';
 import { CommunityId } from '@notional-finance/notionable';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   useNotionalContext,
   useTransactionStatus,
@@ -36,8 +36,12 @@ export function useMintPass() {
     wallet?.selectedAddress
   );
 
+  useEffect(() => {
+    if (wallet?.selectedAddress) setMintedAddress(wallet?.selectedAddress);
+  }, [wallet?.selectedAddress]);
+
   const onMintPass = useCallback(async () => {
-    if (!isWalletConnectedToNetwork || !isReadOnlyAddress || !mintedAddress)
+    if (!isWalletConnectedToNetwork || isReadOnlyAddress || !mintedAddress)
       return;
 
     const communityId = community ? CommunityId[community] : 0;

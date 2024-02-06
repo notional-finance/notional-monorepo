@@ -1,10 +1,3 @@
-import {
-  ConnectContestWallet,
-  ContestConfirmation,
-  CommunityPartners,
-  StepLoading,
-  MintPass,
-} from '../components/contest-sign-up-steps';
 import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { useSelectedNetwork } from '@notional-finance/wallet';
 import {
@@ -19,13 +12,6 @@ import { useMintPass } from './use-mint-pass';
 export interface ContestSignUpParams {
   step?: CONTEST_SIGN_UP_STEPS;
 }
-
-const ContestSteps = {
-  [CONTEST_SIGN_UP_STEPS.CONNECT_WALLET]: ConnectContestWallet,
-  [CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS]: CommunityPartners,
-  [CONTEST_SIGN_UP_STEPS.MINT_PASS]: MintPass,
-  [CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION]: ContestConfirmation,
-};
 
 export const useSignUpStep = () => {
   const params = useParams<ContestSignUpParams>();
@@ -44,16 +30,25 @@ export const useSignUpStep = () => {
       params.step === CONTEST_SIGN_UP_STEPS.CONNECT_WALLET
     ) {
       history.push(CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS);
+    } else if (
+      mintPass.transactionStatus === TransactionStatus.CONFIRMED &&
+      params.step !== CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION
+    ) {
+      history.push(CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION);
     }
-  }, [connected, isAccountPending, history, params]);
+  }, [
+    connected,
+    isAccountPending,
+    history,
+    params,
+    mintPass.transactionStatus,
+  ]);
 
+  let currentStep: CONTEST_SIGN_UP_STEPS =
+    params.step || CONTEST_SIGN_UP_STEPS.LOADING;
   if (isAccountPending) {
-    return () => <StepLoading />;
-  } else if (mintPass.transactionStatus === TransactionStatus.CONFIRMED) {
-    return ContestSteps[CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION](mintPass);
-  } else if (params.step && ContestSteps[params.step]) {
-    return ContestSteps[params.step](mintPass);
-  } else {
-    return () => <StepLoading />;
+    currentStep = CONTEST_SIGN_UP_STEPS.LOADING;
   }
+
+  return { currentStep, mintPass };
 };
