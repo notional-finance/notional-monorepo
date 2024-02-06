@@ -76,7 +76,11 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
       const selectedAddress = g.wallet?.selectedAddress;
       if (selectedAddress === undefined) return undefined;
       const accounts = Registry.getAccountRegistry();
-      if (g.wallet?.provider) {
+      if (
+        g.wallet?.provider &&
+        g.wallet.selectedChain &&
+        SupportedNetworks.includes(g.wallet.selectedChain)
+      ) {
         accounts.walletProvider = g.wallet?.provider;
       }
 
