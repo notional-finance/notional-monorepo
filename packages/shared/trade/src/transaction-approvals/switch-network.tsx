@@ -1,0 +1,76 @@
+import { useTheme, Divider } from '@mui/material';
+import { StatusHeading } from '../transaction-confirmation/components/status-heading';
+import { Button, ScrollToTop } from '@notional-finance/mui';
+import { FormattedMessage } from 'react-intl';
+import {
+  TransactionStatus,
+  BaseTradeContext,
+} from '@notional-finance/notionable-hooks';
+import { TermsOfService } from '../transaction-confirmation/transaction-confirmation';
+import { ApprovalButton } from './components/approval-button';
+import { messages } from './messages';
+import { useSetChain } from '@web3-onboard/react';
+import { getNetworkSymbol, getNetworkTitle } from '@notional-finance/util';
+
+export interface SwitchNetworkProps {
+  context: BaseTradeContext;
+  onCancel?: () => void;
+}
+
+export const SwitchNetwork = ({ context, onCancel }: SwitchNetworkProps) => {
+  const theme = useTheme();
+  const {
+    state: { selectedNetwork },
+  } = context;
+  const [chains, setChain] = useSetChain();
+
+  return (
+    <>
+      <ScrollToTop />
+      <StatusHeading
+        heading={<FormattedMessage defaultMessage={'SWITCH NETWORK'} />}
+        transactionStatus={TransactionStatus.APPROVAL_PENDING}
+      />
+      <TermsOfService theme={theme}>
+        {
+          <FormattedMessage
+            defaultMessage={
+              'This transaction requires your wallet to be connected to {selectedNetwork}.'
+            }
+            values={{ selectedNetwork }}
+          />
+        }
+      </TermsOfService>
+      <Divider
+        variant="fullWidth"
+        sx={{ background: 'white', marginBottom: theme.spacing(6) }}
+      />
+      <ApprovalButton
+        symbol={getNetworkSymbol(selectedNetwork)}
+        showIconOnly
+        showSymbol={false}
+        callback={() => {
+          console.log('click');
+        }}
+        description={messages.switchNetwork.description}
+        title={messages.switchNetwork.title}
+        buttonText={messages.switchNetwork.buttonText}
+        pending={false}
+        descriptionValues={{ network: getNetworkTitle(selectedNetwork) }}
+      />
+      <Button
+        variant="outlined"
+        size="large"
+        sx={{
+          bottom: 0,
+          position: 'fixed',
+          width: '447px',
+          marginBottom: theme.spacing(4),
+        }}
+        onClick={onCancel}
+      >
+        <FormattedMessage defaultMessage={'Back'} />
+      </Button>
+    </>
+  );
+};
