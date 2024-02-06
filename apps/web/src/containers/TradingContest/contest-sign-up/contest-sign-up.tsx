@@ -89,7 +89,7 @@ export const ContestSignUp = () => {
           {currentStep === CONTEST_SIGN_UP_STEPS.CONNECT_WALLET ? (
             <ConnectContestWallet />
           ) : currentStep === CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS ? (
-            <CommunityPartners />
+            <CommunityPartners {...mintPass} />
           ) : currentStep === CONTEST_SIGN_UP_STEPS.MINT_PASS ? (
             <MintPass {...mintPass} />
           ) : currentStep === CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION ? (

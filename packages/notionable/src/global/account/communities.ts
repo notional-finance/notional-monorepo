@@ -48,7 +48,7 @@ export const CommunityNFTs: Community[] = [
   //   network: Network.ArbitrumOne,
   // },
   {
-    name: COMMUNITY_NAMES.V3_BETA_CONTEST,
+    name: COMMUNITY_NAMES.CONTEST_PASS,
     displayName: 'Notional Contest Pass',
     address: '0xbBEF91111E9Db19E688B495972418D8ebC11F008',
     network: Network.ArbitrumOne,
@@ -66,9 +66,9 @@ export const CommunityId: Record<COMMUNITY_NAMES, number> = {
 };
 
 interface NFTResponse {
-  ownedNFTs: {
+  ownedNfts: {
     contractAddress: string;
-    tokenId: string;
+    id: { tokenId: string };
     balance: string;
   }[];
   totalCount: number;
@@ -87,8 +87,8 @@ export async function checkCommunityMembership(account: string) {
 
           // Always returns the highest valued token id. This works for the contest NFT where the highest order
           // byte corresponds to the contest id which should be incrementing
-          const tokenId = data.ownedNFTs
-            .map(({ tokenId }) => BigNumber.from(tokenId))
+          const tokenId = data.ownedNfts
+            .map(({ id }) => BigNumber.from(id.tokenId))
             .sort((a, b) => (a.lt(b) ? -1 : 1))
             .pop();
 

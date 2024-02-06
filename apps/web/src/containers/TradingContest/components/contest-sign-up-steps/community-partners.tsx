@@ -11,9 +11,8 @@ import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
 import Llama from './assets/Llama.svg';
 import Cryptotesters from './assets/cryptotesters.svg';
 import L2DAO from './assets/L2DAO.svg';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { COMMUNITY_NAMES } from '@notional-finance/notionable';
-import { ContestPartners } from '../../contest-config';
+import { useMintPass } from '../../hooks/use-mint-pass';
 
 const imgData = {
   [COMMUNITY_NAMES.LLAMAS]: {
@@ -27,14 +26,12 @@ const imgData = {
   },
 };
 
-const CommunityFound = () => {
+const CommunityFound = ({
+  community,
+}: {
+  community: ReturnType<typeof useMintPass>['community'];
+}) => {
   const theme = useTheme();
-  const {
-    globalState: { communityMembership },
-  } = useNotionalContext();
-  const communityData = communityMembership?.find((c) =>
-    ContestPartners.includes(c.name)
-  );
 
   return (
     <StepContainer>
@@ -49,7 +46,7 @@ const CommunityFound = () => {
           }}
         >
           <img
-            src={communityData?.name && imgData[communityData?.name]?.icon}
+            src={community?.name && imgData[community?.name]?.icon}
             alt="community icon"
             style={{
               height: theme.spacing(7),
@@ -60,7 +57,7 @@ const CommunityFound = () => {
           <FormattedMessage
             defaultMessage="{community} NFT Found"
             values={{
-              community: communityData?.displayName,
+              community: community?.displayName,
             }}
           />
         </TitleText>
@@ -68,7 +65,7 @@ const CommunityFound = () => {
           <FormattedMessage
             defaultMessage="You are set to compete for the special {community} prizes! Confirm to move on."
             values={{
-              community: communityData?.displayName,
+              community: community?.displayName,
             }}
           />
         </ContestBodyText>
@@ -154,12 +151,11 @@ const CommunityNotFound = () => {
   );
 };
 
-export const CommunityPartners = () => {
-  const {
-    globalState: { communityMembership },
-  } = useNotionalContext();
-  return communityMembership && communityMembership?.length > 0 ? (
-    <CommunityFound />
+export const CommunityPartners = ({
+  community,
+}: ReturnType<typeof useMintPass>) => {
+  return community ? (
+    <CommunityFound community={community} />
   ) : (
     <CommunityNotFound />
   );

@@ -4,7 +4,7 @@ import {
 } from '@notional-finance/contracts';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { Contract } from 'ethers';
-import { ContestPartners, contestId } from '../contest-config';
+import { ContestPartners, CURRENT_CONTEST_ID } from '../contest-config';
 import { CommunityId } from '@notional-finance/notionable';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -12,7 +12,7 @@ import {
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 
-const NotionalPass = new Contract(
+export const NotionalPass = new Contract(
   '0xbBEF91111E9Db19E688B495972418D8ebC11F008',
   NotionalContestPassABI,
   getProviderFromNetwork(Network.ArbitrumOne)
@@ -31,7 +31,7 @@ export function useMintPass() {
   } = useNotionalContext();
   const community = communityMembership?.find((c) =>
     ContestPartners.includes(c.name)
-  )?.name;
+  );
   const [mintedAddress, setMintedAddress] = useState<string | undefined>(
     wallet?.selectedAddress
   );
@@ -44,10 +44,10 @@ export function useMintPass() {
     if (!isWalletConnectedToNetwork || isReadOnlyAddress || !mintedAddress)
       return;
 
-    const communityId = community ? CommunityId[community] : 0;
+    const communityId = community?.name ? CommunityId[community.name] : 0;
     const txn = await NotionalPass.populateTransaction.safeMint(
       mintedAddress,
-      contestId,
+      CURRENT_CONTEST_ID,
       communityId
     );
 
@@ -56,7 +56,7 @@ export function useMintPass() {
     onSubmit,
     isWalletConnectedToNetwork,
     isReadOnlyAddress,
-    community,
+    community?.name,
     mintedAddress,
   ]);
 
@@ -68,5 +68,6 @@ export function useMintPass() {
     transactionStatus,
     mintedAddress,
     setMintedAddress,
+    community
   };
 }
