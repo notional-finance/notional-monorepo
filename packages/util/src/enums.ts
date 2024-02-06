@@ -78,6 +78,7 @@ export enum PORTFOLIO_CATEGORIES {
 }
 
 export enum CONTEST_SIGN_UP_STEPS {
+  LOADING = 'loading',
   CONNECT_WALLET = 'connect-wallet',
   COMMUNITY_PARTNERS = 'community-partners',
   MINT_PASS = 'mint-pass',

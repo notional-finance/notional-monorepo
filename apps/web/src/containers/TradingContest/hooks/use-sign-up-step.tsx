@@ -1,29 +1,17 @@
-import {
-  ConnectContestWallet,
-  ContestConfirmation,
-  CommunityPartners,
-  StepLoading,
-  MintPass,
-} from '../components/contest-sign-up-steps';
 import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { useSelectedNetwork } from '@notional-finance/wallet';
 import {
+  TransactionStatus,
   useAccountReady,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { useHistory, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useMintPass } from './use-mint-pass';
 
 export interface ContestSignUpParams {
   step?: CONTEST_SIGN_UP_STEPS;
 }
-
-const ContestSteps = {
-  [CONTEST_SIGN_UP_STEPS.CONNECT_WALLET]: ConnectContestWallet,
-  [CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS]: CommunityPartners,
-  [CONTEST_SIGN_UP_STEPS.MINT_PASS]: MintPass,
-  [CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION]: ContestConfirmation,
-};
 
 export const useSignUpStep = () => {
   const params = useParams<ContestSignUpParams>();
@@ -33,7 +21,7 @@ export const useSignUpStep = () => {
     globalState: { isAccountPending },
   } = useNotionalContext();
   const connected = useAccountReady(network);
-  let CurrentStep = () => <StepLoading />;
+  const mintPass = useMintPass();
 
   useEffect(() => {
     if (
@@ -42,16 +30,25 @@ export const useSignUpStep = () => {
       params.step === CONTEST_SIGN_UP_STEPS.CONNECT_WALLET
     ) {
       history.push(CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS);
+    } else if (
+      mintPass.transactionStatus === TransactionStatus.CONFIRMED &&
+      params.step !== CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION
+    ) {
+      history.push(CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION);
     }
-  }, [connected, isAccountPending, history, params]);
+  }, [
+    connected,
+    isAccountPending,
+    history,
+    params,
+    mintPass.transactionStatus,
+  ]);
 
+  let currentStep: CONTEST_SIGN_UP_STEPS =
+    params.step || CONTEST_SIGN_UP_STEPS.LOADING;
   if (isAccountPending) {
-    <StepLoading />;
-  } else if (params.step && ContestSteps[params.step]) {
-    CurrentStep = ContestSteps[params.step];
-  } else {
-    <StepLoading />;
+    currentStep = CONTEST_SIGN_UP_STEPS.LOADING;
   }
 
-  return CurrentStep;
+  return { currentStep, mintPass };
 };

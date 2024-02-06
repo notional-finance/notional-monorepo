@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
-import { ethers } from 'ethers';
 import { Input } from '@notional-finance/mui';
 import {
   TitleText,
@@ -11,34 +10,35 @@ import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
-import { useHistory } from 'react-router';
+import { useMintPass } from '../../hooks/use-mint-pass';
 
-export const MintPass = () => {
+export const MintPass = ({
+  isReadOnlyAddress,
+  isWalletConnectedToNetwork,
+  onMintPass,
+  mintedAddress,
+  setMintedAddress,
+}: ReturnType<typeof useMintPass>) => {
   const theme = useTheme();
-  const history = useHistory();
   const {
     globalState: { wallet },
   } = useNotionalContext();
-  const [address, setAddress] = useState<string | undefined>(
-    wallet?.selectedAddress
-  );
   const [error, setError] = useState<boolean>(false);
 
   const handleMint = () => {
-    if (address && ethers.utils.isAddress(address)) {
-      // TODO: Add mint pass api call here
-      console.log('DO MINT STUFF');
-      history.push('contest-confirmation');
-    } else {
+    if (isReadOnlyAddress || !isWalletConnectedToNetwork || !mintedAddress) {
       setError(true);
+      return;
     }
+
+    onMintPass();
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
     const value = e?.target?.value;
-    setAddress(value);
+    setMintedAddress(value);
     if (error === true) {
       setError(false);
     }
@@ -85,7 +85,7 @@ export const MintPass = () => {
           <MintInput
             placeholder={wallet?.selectedAddress || ''}
             handleChange={handleChange}
-            inputValue={address || ''}
+            inputValue={mintedAddress || ''}
             onKeyDown={(event) => (event.key === 'Enter' ? handleMint() : null)}
             sx={{
               marginTop: theme.spacing(1),

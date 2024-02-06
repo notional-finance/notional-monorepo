@@ -6,16 +6,15 @@ import {
 } from '@notional-finance/core-entities';
 import { useHistory, useLocation } from 'react-router-dom';
 import { GATED_VAULTS } from '@notional-finance/notionable';
-import { useNotionalContext, useNotionalError } from './use-notional';
+import { useNotionalError } from './use-notional';
 import { Network } from '@notional-finance/util';
+import { useWalletCommunities } from './use-wallet';
 
 export function useVaultNftCheck() {
   const history = useHistory();
   const { pathname } = useLocation();
   const vaultAddress = pathname.split('/')[2];
-  const {
-    globalState: { communityMembership },
-  } = useNotionalContext();
+  const communityMembership = useWalletCommunities()
 
   useEffect(() => {
     if (vaultAddress) {

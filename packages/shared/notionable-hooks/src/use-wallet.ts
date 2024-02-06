@@ -30,6 +30,14 @@ export function usePrimeCashBalance(
   return useMaxAssetBalance(primeCash);
 }
 
+export function useWalletCommunities() {
+  const {
+    globalState: { communityMembership },
+  } = useNotionalContext();
+
+  return communityMembership;
+}
+
 export function useWalletConnected() {
   return !!useWalletAddress();
 }
