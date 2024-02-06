@@ -8,7 +8,6 @@ import {
   SupportedNetworks,
 } from './constants';
 
-
 class AlchemyBatchProvider extends ethers.providers.AlchemyProvider {
   // _pendingBatchAggregator?: NodeJS.Timer;
   // _pendingBatch?: Array<{
@@ -88,11 +87,25 @@ export function getDefaultNetworkFromHostname(hostname: string) {
   }
 }
 
+/** Returns the token symbol associated with a given network */
 export function getNetworkSymbol(network: Network | undefined) {
   switch (network) {
     case Network.ArbitrumOne:
       return 'arb';
     default:
       return 'eth';
+  }
+}
+
+export function getNetworkTitle(network: Network | undefined) {
+  switch (network) {
+    case Network.ArbitrumOne:
+      return 'Arbitrum';
+    case Network.Mainnet:
+      return 'Mainnet';
+    case Network.Goerli:
+      return 'Goerli Test';
+    default:
+      return 'Unknown';
   }
 }
