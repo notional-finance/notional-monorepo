@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
-import { ethers } from 'ethers';
 import { Input } from '@notional-finance/mui';
 import {
   TitleText,
@@ -11,11 +10,10 @@ import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
-import { useHistory } from 'react-router';
+import { useMintPass } from '../../hooks/use-mint-pass';
 
 export const MintPass = () => {
   const theme = useTheme();
-  const history = useHistory();
   const {
     globalState: { wallet },
   } = useNotionalContext();
@@ -23,15 +21,16 @@ export const MintPass = () => {
     wallet?.selectedAddress
   );
   const [error, setError] = useState<boolean>(false);
+  const { onMintPass, isReadOnlyAddress, isWalletConnectedToNetwork } =
+    useMintPass();
 
   const handleMint = () => {
-    if (address && ethers.utils.isAddress(address)) {
-      // TODO: Add mint pass api call here
-      console.log('DO MINT STUFF');
-      history.push('contest-confirmation');
-    } else {
+    if (isReadOnlyAddress || !isWalletConnectedToNetwork || !address) {
       setError(true);
+      return;
     }
+
+    onMintPass(address);
   };
 
   const handleChange = (

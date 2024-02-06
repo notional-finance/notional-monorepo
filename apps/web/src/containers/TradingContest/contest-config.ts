@@ -4,6 +4,8 @@ import { COMMUNITY_NAMES } from '@notional-finance/notionable';
 
 // This is a millisecond timestamp for 12 AM on 02/01/2024
 export const contestStartDate = 1706832000000;
+// This is used to identify the contest pass
+export const contestId = 1;
 
 export const startDate = 'Feb 5th 12:00 am PST';
 export const endDate = 'Mar 5th 12:00 am PST';

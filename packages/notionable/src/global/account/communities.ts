@@ -3,9 +3,8 @@ import {
   getProviderFromNetwork,
   getProviderURLFromNetwork,
 } from '@notional-finance/util';
-import { Contract } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { COMMUNITY_NAMES } from '../global-state';
-
 
 export const GATED_VAULTS: Record<string, COMMUNITY_NAMES[]> = {};
 
@@ -14,6 +13,7 @@ export interface Community {
   displayName: string;
   address: string;
   network: Network;
+  tokenId?: string;
 }
 
 export const CommunityNFTs: Community[] = [
@@ -47,7 +47,32 @@ export const CommunityNFTs: Community[] = [
   //   address: '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e',
   //   network: Network.ArbitrumOne,
   // },
+  {
+    name: COMMUNITY_NAMES.V3_BETA_CONTEST,
+    displayName: 'Notional Contest Pass',
+    address: '0xbBEF91111E9Db19E688B495972418D8ebC11F008',
+    network: Network.ArbitrumOne,
+  },
 ];
+
+// Assign a new id number to each community, used for minting contest passes
+export const CommunityId: Record<COMMUNITY_NAMES, number> = {
+  [COMMUNITY_NAMES.CRYPTO_TESTERS]: 1,
+  [COMMUNITY_NAMES.L2DAO]: 2,
+  [COMMUNITY_NAMES.LLAMAS]: 3,
+  [COMMUNITY_NAMES.DEGEN_SCORE]: 4,
+  [COMMUNITY_NAMES.V3_BETA_CONTEST]: 5,
+  [COMMUNITY_NAMES.CONTEST_PASS]: 6,
+};
+
+interface NFTResponse {
+  ownedNFTs: {
+    contractAddress: string;
+    tokenId: string;
+    balance: string;
+  }[];
+  totalCount: number;
+}
 
 export async function checkCommunityMembership(account: string) {
   return (
@@ -57,8 +82,17 @@ export async function checkCommunityMembership(account: string) {
         const url = `${providerURL}/getNFTs?owner=${account}&contractAddresses[]=${address}&withMetadata=false`;
         try {
           const response = await fetch(url);
-          const data = await response.json();
-          return data.totalCount > 0 ? { network, name, address, displayName } : undefined;
+          const data: NFTResponse = await response.json();
+          if (data.totalCount === 0) return undefined;
+
+          // Always returns the highest valued token id. This works for the contest NFT where the highest order
+          // byte corresponds to the contest id which should be incrementing
+          const tokenId = data.ownedNFTs
+            .map(({ tokenId }) => BigNumber.from(tokenId))
+            .sort((a, b) => (a.lt(b) ? -1 : 1))
+            .pop();
+
+          return { network, name, address, displayName, tokenId };
         } catch (error) {
           return undefined;
         }
