@@ -8,7 +8,14 @@ import {
 } from '@notional-finance/styles';
 import { Caption } from '@notional-finance/mui';
 import backgroundColors from '../assets/color-blobs.png';
-import { OuterContainer } from '../components';
+import {
+  CommunityPartners,
+  ConnectContestWallet,
+  ContestConfirmation,
+  MintPass,
+  OuterContainer,
+  StepLoading,
+} from '../components';
 import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { useParams } from 'react-router-dom';
 import { ContestSignUpParams, useSignUpStep } from '../hooks';
@@ -65,7 +72,7 @@ const ContestBreadCrumb = ({ step }: ContestSignUpParams) => {
 export const ContestSignUp = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const params = useParams<ContestSignUpParams>();
-  const CurrentStep = useSignUpStep();
+  const { currentStep, mintPass } = useSignUpStep();
 
   return (
     <ThemeProvider theme={theme}>
@@ -79,7 +86,17 @@ export const ContestSignUp = () => {
               step={params.step || CONTEST_SIGN_UP_STEPS.CONNECT_WALLET}
             />
           )}
-          <CurrentStep />
+          {currentStep === CONTEST_SIGN_UP_STEPS.CONNECT_WALLET ? (
+            <ConnectContestWallet />
+          ) : currentStep === CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS ? (
+            <CommunityPartners {...mintPass} />
+          ) : currentStep === CONTEST_SIGN_UP_STEPS.MINT_PASS ? (
+            <MintPass {...mintPass} />
+          ) : currentStep === CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION ? (
+            <ContestConfirmation {...mintPass} />
+          ) : (
+            <StepLoading />
+          )}
         </OpacityBG>
       </SignUpContainer>
     </ThemeProvider>
