@@ -82,7 +82,9 @@ export const TransactionApprovals = ({
           title={messages.insufficientAllowance.title}
           description={messages.insufficientAllowance.description}
           buttonText={messages.insufficientAllowance.buttonText}
-          depositAmount={depositBalance?.toDisplayStringWithSymbol()}
+          descriptionValues={{
+            depositAmount: depositBalance?.toDisplayStringWithSymbol()
+          }}
         />
       )}
       {variableBorrowApprovalRequired && (
@@ -106,7 +108,7 @@ export const TransactionApprovals = ({
           bottom: 0,
           position: 'fixed',
           width: '447px',
-          marginBottom: '32px',
+          marginBottom: theme.spacing(4),
         }}
         onClick={onCancel}
       >

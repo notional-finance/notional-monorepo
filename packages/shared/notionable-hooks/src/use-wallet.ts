@@ -31,7 +31,7 @@ export function usePrimeCashBalance(
 }
 
 export function useWalletConnected() {
-  return !!useWalletConnectedNetwork();
+  return !!useWalletAddress();
 }
 
 export function useWalletAddress() {
