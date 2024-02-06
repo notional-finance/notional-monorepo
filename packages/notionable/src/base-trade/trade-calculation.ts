@@ -13,13 +13,7 @@ import {
   CalculationFnParams,
 } from '@notional-finance/transaction';
 import { filterEmpty, RATE_PRECISION } from '@notional-finance/util';
-import {
-  Observable,
-  combineLatest,
-  filter,
-  bufferCount,
-  map,
-} from 'rxjs';
+import { Observable, combineLatest, filter, bufferCount, map } from 'rxjs';
 import { isHashable } from '../utils';
 import {
   BaseTradeState,
@@ -444,13 +438,15 @@ function computeCollateralOptions(
   return options.map((c) => {
     const i = { ...inputs, collateral: c };
     try {
-      const { collateralBalance, netRealizedCollateralBalance } = calculationFn(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        i as any
-      ) as {
-        collateralBalance: TokenBalance;
-        netRealizedCollateralBalance: TokenBalance;
-      };
+      const { collateralBalance, netRealizedCollateralBalance, collateralFee } =
+        calculationFn(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          i as any
+        ) as {
+          collateralFee: TokenBalance;
+          collateralBalance: TokenBalance;
+          netRealizedCollateralBalance: TokenBalance;
+        };
 
       return {
         token: c,
@@ -458,7 +454,8 @@ function computeCollateralOptions(
         ..._getTradedInterestRate(
           netRealizedCollateralBalance,
           collateralBalance,
-          fCashMarket
+          fCashMarket,
+          collateralFee
         ),
       };
     } catch (e) {
@@ -492,10 +489,11 @@ function computeDebtOptions(
         );
       }
 
-      const { debtBalance, netRealizedDebtBalance } = calculationFn(
+      const { debtBalance, netRealizedDebtBalance, debtFee } = calculationFn(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         i as any
       ) as {
+        debtFee: TokenBalance;
         debtBalance: TokenBalance;
         netRealizedDebtBalance: TokenBalance;
       };
@@ -507,6 +505,7 @@ function computeDebtOptions(
           netRealizedDebtBalance,
           debtBalance.unwrapVaultToken(),
           fCashMarket,
+          debtFee,
           tradeType
         ),
       };
@@ -525,12 +524,18 @@ function _getTradedInterestRate(
   realized: TokenBalance,
   amount: TokenBalance,
   fCashMarket: fCashMarket,
+  fee?: TokenBalance,
   tradeType?: TradeType | VaultTradeType
 ) {
   let interestRate: number | undefined;
   let utilization: number | undefined;
   if (amount.tokenType === 'fCash') {
-    interestRate = fCashMarket.getImpliedInterestRate(realized, amount);
+    // We net off the fee for fcash so that we show it as an up-front
+    // trading fee rather than part of the implied yield
+    interestRate = fCashMarket.getImpliedInterestRate(
+      realized.sub(fee?.toUnderlying() || realized.copy(0)),
+      amount
+    );
   } else if (amount.tokenType === 'PrimeCash') {
     // Increases or decreases the prime supply accordingly
     utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);
