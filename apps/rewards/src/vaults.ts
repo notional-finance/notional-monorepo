@@ -33,6 +33,12 @@ export const vaults = [
     tokenWeights: [50, 50],
   },
   {
+    address: '0x431dbfE3050eA39abBfF3E0d86109FB5BafA28fD',
+    rewardTokens: [ARB_CRV, ARB],
+    poolTokens: [ARB_USDCe, ARB_USDT],
+    tokenWeights: [50, 50],
+  },
+  {
     address: '0x3Df035433cFACE65b6D68b77CC916085d020C8B8',
     rewardTokens: [ARB, ARB_BAL, ARB_AURA],
     poolTokens: [ARB_ETH, '0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81', ARB_RETH],
