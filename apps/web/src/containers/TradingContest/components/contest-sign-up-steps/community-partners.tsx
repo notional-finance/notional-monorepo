@@ -13,6 +13,7 @@ import Cryptotesters from './assets/cryptotesters.svg';
 import L2DAO from './assets/L2DAO.svg';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { COMMUNITY_NAMES } from '@notional-finance/notionable';
+import { ContestPartners } from '../../contest-config';
 
 const imgData = {
   [COMMUNITY_NAMES.LLAMAS]: {
@@ -31,9 +32,9 @@ const CommunityFound = () => {
   const {
     globalState: { communityMembership },
   } = useNotionalContext();
-  const communityData = communityMembership
-    ? communityMembership[0]
-    : undefined;
+  const communityData = communityMembership?.find((c) =>
+    ContestPartners.includes(c.name)
+  );
 
   return (
     <StepContainer>
