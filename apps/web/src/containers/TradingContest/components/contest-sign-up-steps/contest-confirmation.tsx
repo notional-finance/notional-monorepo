@@ -2,20 +2,23 @@ import { styled, useTheme, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { ExternalLink, Button } from '@notional-finance/mui';
 import { ContestCountDown } from '../contest-countdown/contest-countdown';
-import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
 import blitzPass from './assets/blitzPass.svg';
 import {
   TitleText,
   ContestBodyText,
   StepContainer,
 } from '../contest-shared-elements/contest-shared-elements';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { startDate, endDate } from '../../contest-config';
+import { useMintPass } from '../../hooks/use-mint-pass';
+import { truncateAddress } from '@notional-finance/helpers';
+import { Network } from '@notional-finance/util';
 
-export const ContestConfirmation = () => {
+export const ContestConfirmation = ({
+  mintedAddress,
+}: ReturnType<typeof useMintPass>) => {
   const theme = useTheme();
-  const truncatedAddress = useTruncatedAddress();
-  const network = useSelectedNetwork();
+  const truncatedAddress = mintedAddress ? truncateAddress(mintedAddress) : '';
+
   return (
     <StepContainer sx={{ marginTop: '0px !important' }}>
       <TitleText>
@@ -90,7 +93,7 @@ export const ContestConfirmation = () => {
           fontFamily: 'Avenir Next',
           cursor: 'pointer',
         }}
-        to={`/portfolio/${network}`}
+        to={`/portfolio/${Network.ArbitrumOne}`}
       >
         <FormattedMessage defaultMessage={'See Yield Opportunities'} />
       </Button>

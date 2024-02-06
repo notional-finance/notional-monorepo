@@ -12,32 +12,33 @@ import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
 import { useMintPass } from '../../hooks/use-mint-pass';
 
-export const MintPass = () => {
+export const MintPass = ({
+  isReadOnlyAddress,
+  isWalletConnectedToNetwork,
+  onMintPass,
+  mintedAddress,
+  setMintedAddress,
+}: ReturnType<typeof useMintPass>) => {
   const theme = useTheme();
   const {
     globalState: { wallet },
   } = useNotionalContext();
-  const [address, setAddress] = useState<string | undefined>(
-    wallet?.selectedAddress
-  );
   const [error, setError] = useState<boolean>(false);
-  const { onMintPass, isReadOnlyAddress, isWalletConnectedToNetwork } =
-    useMintPass();
 
   const handleMint = () => {
-    if (isReadOnlyAddress || !isWalletConnectedToNetwork || !address) {
+    if (isReadOnlyAddress || !isWalletConnectedToNetwork || !mintedAddress) {
       setError(true);
       return;
     }
 
-    onMintPass(address);
+    onMintPass();
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
     const value = e?.target?.value;
-    setAddress(value);
+    setMintedAddress(value);
     if (error === true) {
       setError(false);
     }
@@ -84,7 +85,7 @@ export const MintPass = () => {
           <MintInput
             placeholder={wallet?.selectedAddress || ''}
             handleChange={handleChange}
-            inputValue={address || ''}
+            inputValue={mintedAddress || ''}
             onKeyDown={(event) => (event.key === 'Enter' ? handleMint() : null)}
             sx={{
               marginTop: theme.spacing(1),

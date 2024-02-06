@@ -6,7 +6,7 @@ import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { Contract } from 'ethers';
 import { ContestPartners, contestId } from '../contest-config';
 import { CommunityId } from '@notional-finance/notionable';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   useNotionalContext,
   useTransactionStatus,
@@ -27,27 +27,34 @@ export function useMintPass() {
     transactionStatus,
   } = useTransactionStatus(Network.ArbitrumOne);
   const {
-    globalState: { communityMembership },
+    globalState: { communityMembership, wallet },
   } = useNotionalContext();
   const community = communityMembership?.find((c) =>
     ContestPartners.includes(c.name)
   )?.name;
-
-  const onMintPass = useCallback(
-    async (address: string) => {
-      if (!isWalletConnectedToNetwork || !isReadOnlyAddress) return;
-
-      const communityId = community ? CommunityId[community] : 0;
-      const txn = await NotionalPass.populateTransaction.safeMint(
-        address,
-        contestId,
-        communityId
-      );
-
-      onSubmit('Mint Contest Pass', txn);
-    },
-    [onSubmit, isWalletConnectedToNetwork, isReadOnlyAddress, community]
+  const [mintedAddress, setMintedAddress] = useState<string | undefined>(
+    wallet?.selectedAddress
   );
+
+  const onMintPass = useCallback(async () => {
+    if (!isWalletConnectedToNetwork || !isReadOnlyAddress || !mintedAddress)
+      return;
+
+    const communityId = community ? CommunityId[community] : 0;
+    const txn = await NotionalPass.populateTransaction.safeMint(
+      mintedAddress,
+      contestId,
+      communityId
+    );
+
+    onSubmit('Mint Contest Pass', txn);
+  }, [
+    onSubmit,
+    isWalletConnectedToNetwork,
+    isReadOnlyAddress,
+    community,
+    mintedAddress,
+  ]);
 
   return {
     onMintPass,
@@ -55,5 +62,7 @@ export function useMintPass() {
     isReadOnlyAddress,
     transactionHash,
     transactionStatus,
+    mintedAddress,
+    setMintedAddress,
   };
 }
