@@ -9,8 +9,9 @@ import {
 import { TermsOfService } from '../transaction-confirmation/transaction-confirmation';
 import { ApprovalButton } from './components/approval-button';
 import { messages } from './messages';
-import { useSetChain } from '@web3-onboard/react';
 import { getNetworkSymbol, getNetworkTitle } from '@notional-finance/util';
+import { useChangeNetwork } from './hooks/use-change-network';
+import { useState } from 'react';
 
 export interface SwitchNetworkProps {
   context: BaseTradeContext;
@@ -22,7 +23,8 @@ export const SwitchNetwork = ({ context, onCancel }: SwitchNetworkProps) => {
   const {
     state: { selectedNetwork },
   } = context;
-  const [chains, setChain] = useSetChain();
+  const [isPending, setPending] = useState(false);
+  const onSwitch = useChangeNetwork();
 
   return (
     <>
@@ -50,12 +52,15 @@ export const SwitchNetwork = ({ context, onCancel }: SwitchNetworkProps) => {
         showIconOnly
         showSymbol={false}
         callback={() => {
-          console.log('click');
+          if (selectedNetwork) {
+            setPending(true);
+            onSwitch(selectedNetwork, () => setPending(false));
+          }
         }}
         description={messages.switchNetwork.description}
         title={messages.switchNetwork.title}
         buttonText={messages.switchNetwork.buttonText}
-        pending={false}
+        pending={isPending}
         descriptionValues={{ network: getNetworkTitle(selectedNetwork) }}
       />
       <Button
