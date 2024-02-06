@@ -8,9 +8,6 @@ import { Location } from 'history';
 import { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
 
-const PROXY_HOST =
-  process.env['NX_DATA_URL'] || 'https://data.notional.finance';
-
 export const analytics = AnalyticsBrowser.load(
   {
     writeKey: process.env['NX_SEGMENT_KEY'] as string,
@@ -44,7 +41,7 @@ export function identify(
   account: string,
   selectedNetwork: Network | undefined,
   walletLabel: string,
-  tokenBalances?: string,
+  tokenBalances?: string
 ) {
   analytics.identify(account, {
     selectedNetwork,

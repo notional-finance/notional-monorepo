@@ -27,6 +27,7 @@ import {
 } from '../account/communities';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { isAppReady } from '../../utils';
+import { identify } from '@notional-finance/helpers';
 
 export function onWalletConnect(global$: Observable<GlobalState>) {
   return merge(
@@ -80,13 +81,29 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
       }
 
       // Set up account refresh on all supported networks
-      await Promise.all(
-        SupportedNetworks.map(async (n) => {
-          await accounts.setAccount(n, selectedAddress);
-          // TODO: add tracking here...
-          console.log('Account Ready', accounts.getAccount(n, selectedAddress));
-        })
+      const tokenBalances = Object.fromEntries(
+        await Promise.all(
+          SupportedNetworks.map(async (n) => {
+            await accounts.setAccount(n, selectedAddress);
+            return [
+              n,
+              accounts
+                .getAccount(n, selectedAddress)
+                ?.balances.filter((t) => t.tokenType === 'Underlying')
+                .map((t) => t.toDisplayStringWithSymbol(6)) || [],
+            ];
+          })
+        )
       );
+
+      if (g.wallet?.isReadOnlyAddress === false) {
+        identify(
+          selectedAddress,
+          g.wallet.selectedChain,
+          g.wallet.label || 'unknown',
+          JSON.stringify(tokenBalances)
+        );
+      }
 
       // check community membership
       const communityMembership = await checkCommunityMembership(
