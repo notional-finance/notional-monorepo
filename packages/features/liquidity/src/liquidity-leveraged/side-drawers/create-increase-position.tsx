@@ -22,25 +22,11 @@ export const CreateOrIncreasePosition = () => {
       debt,
       selectedNetwork,
       deposit,
-      isReady,
-      availableDebtTokens,
     },
-    updateState,
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
   const { currentPosition, depositTokensWithPositions } =
     useLeveragedNTokenPositions(selectedNetwork, selectedDepositToken);
-
-  if (
-    !debt &&
-    availableDebtTokens &&
-    !currentPosition &&
-    customizeLeverage &&
-    isReady
-  ) {
-    const debt = availableDebtTokens?.find((t) => t.tokenType === 'PrimeDebt');
-    updateState({ debt });
-  }
 
   return (
     <TransactionSidebar
