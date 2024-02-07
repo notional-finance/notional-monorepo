@@ -14,7 +14,8 @@ export function useDepositInput(
   selectedNetwork: Network | undefined,
   depositSymbol?: string,
   isWithdraw?: boolean,
-  useZeroDefault?: boolean
+  useZeroDefault?: boolean,
+  excludeSupplyCap = false
 ) {
   const [inputString, setInputString] = useState<string>('');
   const isAccountReady = useAccountReady(selectedNetwork);
@@ -46,7 +47,7 @@ export function useDepositInput(
     errorMsg = tradeErrors.usdcNotUSDCeMsg;
   } else if (!isWithdraw && isAccountReady && insufficientBalance === true) {
     errorMsg = tradeErrors.insufficientBalance;
-  } else if (supply?.willExceedCap) {
+  } else if (!excludeSupplyCap && supply?.willExceedCap) {
     errorMsg = {
       ...tradeErrors.exceedSupplyCap,
       values: { maxDeposit: supply.maxDeposit.toDisplayStringWithSymbol(2) },

@@ -91,7 +91,7 @@ export function useTransactionStatus(network: Network | undefined) {
   const { isReadOnlyAddress, submitTransaction } = useSubmitTransaction();
   const { pathname } = useLocation();
   const isWalletConnectedToNetwork =
-    !!network || !!walletNetwork || network === walletNetwork;
+    !!network && !!walletNetwork && network === walletNetwork;
 
   useEffect(() => {
     if (reverted) setTransactionHash(TransactionStatus.REVERT);

@@ -6,7 +6,12 @@ export function useChangeNetwork() {
   const [{ chains, connectedChain }, setChain] = useSetChain();
 
   return useCallback(
-    (network: Network, onSwitched: () => void) => {
+    (
+      network: Network,
+      onSwitched: () => void = () => {
+        /* No-Op */
+      }
+    ) => {
       const chainId = chains.find((c) => c.label === network)?.id;
 
       if (chainId && connectedChain?.id !== chainId) {

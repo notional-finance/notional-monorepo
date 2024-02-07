@@ -30,6 +30,7 @@ interface DepositInputProps {
   maxWithdraw?: TokenBalance;
   useZeroDefault?: boolean;
   showScrollPopper?: boolean;
+  excludeSupplyCap?: boolean
 }
 
 /**
@@ -54,6 +55,7 @@ export const DepositInput = React.forwardRef<
       maxWithdraw,
       useZeroDefault,
       showScrollPopper,
+      excludeSupplyCap
     },
     ref
   ) => {
@@ -80,7 +82,8 @@ export const DepositInput = React.forwardRef<
       selectedNetwork,
       deposit?.symbol,
       isWithdraw,
-      useZeroDefault
+      useZeroDefault,
+      excludeSupplyCap
     );
 
     useEffect(() => {
