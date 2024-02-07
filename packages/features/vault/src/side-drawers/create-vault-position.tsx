@@ -44,6 +44,7 @@ export const CreateVaultPosition = () => {
             context={context}
             errorMsgOverride={inputErrorMsg}
             inputLabel={messages['CreateVaultPosition'].depositAmount}
+            excludeSupplyCap
           />
           {vaultPosition ? (
             <ManageTerms
