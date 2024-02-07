@@ -13,6 +13,22 @@ import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { Network } from '@notional-finance/util';
 
+export const usePendingValues = (value: number | undefined) => {
+  const theme = useTheme();
+  return value !== undefined ? (
+    formatNumberAsPercent(value)
+  ) : (
+    <ProgressIndicator
+      type="linear"
+      sx={{
+        width: theme.spacing(5),
+        margin: 'auto 5px',
+        color: theme.palette.typography.light,
+      }}
+    />
+  );
+};
+
 export const useInvestEarnLinks = () => {
   const theme = useTheme();
   const {
@@ -42,18 +58,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage="Earn up to {rate} APY"
           values={{
-            rate: fCashLend?.totalAPY ? (
-              formatNumberAsPercent(fCashLend?.totalAPY)
-            ) : (
-              <ProgressIndicator
-                type="linear"
-                sx={{
-                  width: theme.spacing(5),
-                  margin: 'auto 5px',
-                  color: theme.palette.typography.light,
-                }}
-              />
-            ),
+            rate: usePendingValues(fCashLend?.totalAPY),
           }}
         />
       ),
@@ -75,18 +80,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage="Earn up to {rate} variable APY"
           values={{
-            rate: variableLend?.totalAPY ? (
-              formatNumberAsPercent(variableLend?.totalAPY)
-            ) : (
-              <ProgressIndicator
-                type="linear"
-                sx={{
-                  width: theme.spacing(5),
-                  margin: 'auto 5px',
-                  color: theme.palette.typography.light,
-                }}
-              />
-            ),
+            rate: usePendingValues(variableLend?.totalAPY),
           }}
         />
       ),
@@ -108,18 +102,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Earn up to {rate} variable APY'}
           values={{
-            rate: liquidity?.totalAPY ? (
-              formatNumberAsPercent(liquidity?.totalAPY)
-            ) : (
-              <ProgressIndicator
-                type="linear"
-                sx={{
-                  width: theme.spacing(5),
-                  margin: 'auto 5px',
-                  color: theme.palette.typography.light,
-                }}
-              />
-            ),
+            rate: usePendingValues(liquidity?.totalAPY),
           }}
         />
       ),
@@ -162,18 +145,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Leverage DeFi yields and earn up to {rate} APY'}
           values={{
-            rate: leveragedVaults?.totalAPY ? (
-              formatNumberAsPercent(leveragedVaults?.totalAPY)
-            ) : (
-              <ProgressIndicator
-                type="linear"
-                sx={{
-                  width: theme.spacing(5),
-                  margin: 'auto 5px',
-                  color: theme.palette.typography.light,
-                }}
-              />
-            ),
+            rate: usePendingValues(leveragedVaults?.totalAPY),
           }}
         />
       ),
@@ -216,18 +188,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Leverage liquidity and earn up to {rate} APY'}
           values={{
-            rate: leveragedLiquidity?.totalAPY ? (
-              formatNumberAsPercent(leveragedLiquidity?.totalAPY)
-            ) : (
-              <ProgressIndicator
-                type="linear"
-                sx={{
-                  width: theme.spacing(5),
-                  margin: 'auto 5px',
-                  color: theme.palette.typography.light,
-                }}
-              />
-            ),
+            rate: usePendingValues(leveragedLiquidity?.totalAPY),
           }}
         />
       ),

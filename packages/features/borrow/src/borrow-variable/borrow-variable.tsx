@@ -6,7 +6,7 @@ import { SideBarLayout } from '@notional-finance/mui';
 import {
   createTradeContext,
   useTradeContext,
-  useAllMarkets,
+  useYieldsReady,
 } from '@notional-finance/notionable-hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
 
@@ -16,8 +16,8 @@ export const BorrowVariable = () => {
   const context = useTradeContext('BorrowVariable');
   const { state } = context;
   const { isReady, confirm, selectedNetwork } = state;
-  const { allYields } = useAllMarkets(selectedNetwork);
-  const featureReady = isReady && allYields.length > 0;
+  const yieldsReady = useYieldsReady(selectedNetwork);
+  const featureReady = isReady && yieldsReady;
 
   return (
     <BorrowVariableContext.Provider value={context}>

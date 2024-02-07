@@ -6,7 +6,7 @@ import { FeatureLoader } from '@notional-finance/shared-web';
 import {
   createVaultContext,
   useVaultContext,
-  useAllMarkets,
+  useYieldsReady,
 } from '@notional-finance/notionable-hooks';
 
 export const VaultActionContext = createVaultContext();
@@ -19,8 +19,8 @@ export const VaultView = () => {
   const {
     state: { isReady, confirm, selectedNetwork },
   } = context;
-  const { allYields } = useAllMarkets(selectedNetwork);
-  const featureReady = isReady && allYields.length > 0;
+  const yieldsReady = useYieldsReady(selectedNetwork);
+  const featureReady = isReady && yieldsReady;
 
   return (
     <VaultActionContext.Provider value={context}>
