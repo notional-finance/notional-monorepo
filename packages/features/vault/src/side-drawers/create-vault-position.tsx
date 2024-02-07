@@ -19,9 +19,34 @@ export const CreateVaultPosition = () => {
   const { currencyInputRef } = useCurrencyInputRef();
   const { inputErrorMsg } = useVaultActionErrors();
   const {
-    state: { vaultAddress, selectedNetwork },
+    updateState,
+    state: {
+      vaultAddress,
+      selectedNetwork,
+      collateral,
+      debt,
+      availableCollateralTokens,
+      availableDebtTokens,
+      isReady,
+    },
   } = context;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
+
+  if (
+    !collateral &&
+    !debt &&
+    availableDebtTokens &&
+    availableCollateralTokens &&
+    isReady
+  ) {
+    const debtDefault = availableDebtTokens?.find((t) =>
+      t.symbol.includes('open')
+    );
+    const collateralDefault = availableCollateralTokens?.find((t) =>
+      t.symbol.includes('open')
+    );
+    updateState({ debt: debtDefault, collateral: collateralDefault });
+  }
 
   return (
     <>
