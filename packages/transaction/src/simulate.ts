@@ -1,6 +1,6 @@
 import {
   getNowSeconds,
-  getProviderFromNetwork,
+  getProviderURLFromNetwork,
   Network,
   padToHex256,
   stripHexLeadingZero,
@@ -131,13 +131,13 @@ export async function simulatePopulatedTxn(
   network: Network,
   populateTxn: PopulatedTransaction
 ) {
-  const provider = getProviderFromNetwork(network);
+  const provider = new ethers.providers.JsonRpcProvider({
+    url: getProviderURLFromNetwork(network),
+    skipFetchSetup: true,
+  });
 
-  const { calls, logs: _logs } =
-    // Must use the non-batched send method here
-    (await ethers.providers.JsonRpcProvider.prototype.send.call(
-      provider,
-      'alchemy_simulateExecution',
+  const { calls, logs: _logs } = (await provider.send(
+    'alchemy_simulateExecution',
       [
         {
           from: populateTxn.from,
