@@ -11,6 +11,8 @@ import { FormattedMessage } from 'react-intl';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
 import { useMintPass } from '../../hooks/use-mint-pass';
+import { useChangeNetwork } from '@notional-finance/trade';
+import { Network } from '@notional-finance/util';
 
 export const MintPass = ({
   isReadOnlyAddress,
@@ -24,14 +26,14 @@ export const MintPass = ({
     globalState: { wallet },
   } = useNotionalContext();
   const [error, setError] = useState<boolean>(false);
+  const onSwitchNetwork = useChangeNetwork();
 
   const handleMint = () => {
-    if (isReadOnlyAddress || !isWalletConnectedToNetwork || !mintedAddress) {
+    if (isReadOnlyAddress || !mintedAddress) {
       setError(true);
-      return;
+    } else {
+      onMintPass();
     }
-
-    onMintPass();
   };
 
   const handleChange = (
@@ -104,8 +106,18 @@ export const MintPass = ({
       <ContestButtonBar
         buttonOneText={<FormattedMessage defaultMessage={'Back'} />}
         buttonOnePathTo="community-partners"
-        buttonTwoText={<FormattedMessage defaultMessage={'Mint Entry Pass'} />}
-        buttonTwoCallBack={() => handleMint()}
+        buttonTwoText={
+          isWalletConnectedToNetwork ? (
+            <FormattedMessage defaultMessage={'Mint Entry Pass'} />
+          ) : (
+            <FormattedMessage defaultMessage={'Switch to Arbitrum'} />
+          )
+        }
+        buttonTwoCallBack={() =>
+          isWalletConnectedToNetwork
+            ? handleMint()
+            : onSwitchNetwork(Network.ArbitrumOne)
+        }
       />
     </StepContainer>
   );
