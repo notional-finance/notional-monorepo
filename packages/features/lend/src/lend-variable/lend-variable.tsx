@@ -2,7 +2,7 @@ import { SideBarLayout } from '@notional-finance/mui';
 import {
   createTradeContext,
   useTradeContext,
-  useAllMarkets,
+  useYieldsReady,
 } from '@notional-finance/notionable-hooks';
 import { LendVariableSidebar, LendVariableTradeSummary } from './components';
 import { FeatureLoader } from '@notional-finance/shared-web';
@@ -13,8 +13,8 @@ export const LendVariable = () => {
   const context = useTradeContext('LendVariable');
   const { state } = context;
   const { isReady, confirm, selectedNetwork } = state;
-  const { allYields } = useAllMarkets(selectedNetwork);
-  const featureReady = isReady && allYields.length > 0;
+  const yieldsReady = useYieldsReady(selectedNetwork);
+  const featureReady = isReady && yieldsReady;
 
   return (
     <LendVariableContext.Provider value={context}>
