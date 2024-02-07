@@ -1,4 +1,4 @@
-import { SectionLinkProps } from '@notional-finance/mui';
+import { SectionLinkProps, ProgressIndicator } from '@notional-finance/mui';
 import { useTheme } from '@mui/material';
 import {
   PieChartIcon,
@@ -42,10 +42,22 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage="Earn up to {rate} APY"
           values={{
-            rate: formatNumberAsPercent(fCashLend?.totalAPY || 0),
+            rate: fCashLend?.totalAPY ? (
+              formatNumberAsPercent(fCashLend?.totalAPY)
+            ) : (
+              <ProgressIndicator
+                type="linear"
+                sx={{
+                  width: theme.spacing(5),
+                  margin: 'auto 5px',
+                  color: theme.palette.typography.light,
+                }}
+              />
+            ),
           }}
         />
       ),
+
       external: false,
     },
     {
@@ -63,7 +75,18 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage="Earn up to {rate} variable APY"
           values={{
-            rate: formatNumberAsPercent(variableLend?.totalAPY || 0),
+            rate: variableLend?.totalAPY ? (
+              formatNumberAsPercent(variableLend?.totalAPY)
+            ) : (
+              <ProgressIndicator
+                type="linear"
+                sx={{
+                  width: theme.spacing(5),
+                  margin: 'auto 5px',
+                  color: theme.palette.typography.light,
+                }}
+              />
+            ),
           }}
         />
       ),
@@ -85,7 +108,18 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Earn up to {rate} variable APY'}
           values={{
-            rate: formatNumberAsPercent(liquidity?.totalAPY || 0),
+            rate: liquidity?.totalAPY ? (
+              formatNumberAsPercent(liquidity?.totalAPY)
+            ) : (
+              <ProgressIndicator
+                type="linear"
+                sx={{
+                  width: theme.spacing(5),
+                  margin: 'auto 5px',
+                  color: theme.palette.typography.light,
+                }}
+              />
+            ),
           }}
         />
       ),
@@ -128,7 +162,18 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Leverage DeFi yields and earn up to {rate} APY'}
           values={{
-            rate: formatNumberAsPercent(leveragedVaults?.totalAPY || 0),
+            rate: leveragedVaults?.totalAPY ? (
+              formatNumberAsPercent(leveragedVaults?.totalAPY)
+            ) : (
+              <ProgressIndicator
+                type="linear"
+                sx={{
+                  width: theme.spacing(5),
+                  margin: 'auto 5px',
+                  color: theme.palette.typography.light,
+                }}
+              />
+            ),
           }}
         />
       ),
@@ -171,7 +216,18 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Leverage liquidity and earn up to {rate} APY'}
           values={{
-            rate: formatNumberAsPercent(leveragedLiquidity?.totalAPY || 0),
+            rate: leveragedLiquidity?.totalAPY ? (
+              formatNumberAsPercent(leveragedLiquidity?.totalAPY)
+            ) : (
+              <ProgressIndicator
+                type="linear"
+                sx={{
+                  width: theme.spacing(5),
+                  margin: 'auto 5px',
+                  color: theme.palette.typography.light,
+                }}
+              />
+            ),
           }}
         />
       ),
