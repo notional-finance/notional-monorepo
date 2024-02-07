@@ -77,7 +77,11 @@ const LiquidityCardView = ({
   return (
     <ThemeProvider theme={themeLanding}>
       <FeatureLoader
-        featureLoaded={network !== undefined && themeVariant ? true : false}
+        featureLoaded={
+          network !== undefined && themeVariant && cardData.length > 0
+            ? true
+            : false
+        }
       >
         <Box
           sx={{

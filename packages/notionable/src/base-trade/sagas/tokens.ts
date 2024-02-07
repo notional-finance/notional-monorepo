@@ -200,13 +200,6 @@ export function availableTokens(
           debtFilter ? debtFilter(t, account, newState, listedTokens) : true
         );
 
-      const hasChanged =
-        availableCollateralTokens.map((t) => t.id).join(':') !==
-          s.availableCollateralTokens?.map((t) => t.id).join(':') ||
-        availableDebtTokens.map((t) => t.id).join(':') !==
-          s.availableDebtTokens?.map((t) => t.id).join(':') ||
-        availableDepositTokens.map((t) => t.id).join(':') !==
-          s.availableDepositTokens?.map((t) => t.id).join(':');
       const debt = getSelectedToken(
         availableDebtTokens,
         s.debt?.symbol,
@@ -219,6 +212,15 @@ export function availableTokens(
         'Collateral',
         s.tradeType
       );
+
+      const hasChanged =
+        availableCollateralTokens.map((t) => t.id).join(':') !==
+          s.availableCollateralTokens?.map((t) => t.id).join(':') ||
+        availableDebtTokens.map((t) => t.id).join(':') !==
+          s.availableDebtTokens?.map((t) => t.id).join(':') ||
+        availableDepositTokens.map((t) => t.id).join(':') !==
+          s.availableDepositTokens?.map((t) => t.id).join(':') || 
+        s.debt?.id !== debt?.id || s.collateral?.id !== collateral?.id
 
       return hasChanged
         ? {

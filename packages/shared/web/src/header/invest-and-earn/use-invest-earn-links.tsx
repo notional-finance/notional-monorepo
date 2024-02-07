@@ -1,4 +1,4 @@
-import { SectionLinkProps } from '@notional-finance/mui';
+import { SectionLinkProps, ProgressIndicator } from '@notional-finance/mui';
 import { useTheme } from '@mui/material';
 import {
   PieChartIcon,
@@ -12,6 +12,22 @@ import { FormattedMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { Network } from '@notional-finance/util';
+
+export const usePendingValues = (value: number | undefined) => {
+  const theme = useTheme();
+  return value !== undefined ? (
+    formatNumberAsPercent(value)
+  ) : (
+    <ProgressIndicator
+      type="linear"
+      sx={{
+        width: theme.spacing(5),
+        margin: 'auto 5px',
+        color: theme.palette.typography.light,
+      }}
+    />
+  );
+};
 
 export const useInvestEarnLinks = () => {
   const theme = useTheme();
@@ -42,10 +58,11 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage="Earn up to {rate} APY"
           values={{
-            rate: formatNumberAsPercent(fCashLend?.totalAPY || 0),
+            rate: usePendingValues(fCashLend?.totalAPY),
           }}
         />
       ),
+
       external: false,
     },
     {
@@ -63,7 +80,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage="Earn up to {rate} variable APY"
           values={{
-            rate: formatNumberAsPercent(variableLend?.totalAPY || 0),
+            rate: usePendingValues(variableLend?.totalAPY),
           }}
         />
       ),
@@ -85,7 +102,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Earn up to {rate} variable APY'}
           values={{
-            rate: formatNumberAsPercent(liquidity?.totalAPY || 0),
+            rate: usePendingValues(liquidity?.totalAPY),
           }}
         />
       ),
@@ -128,7 +145,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Leverage DeFi yields and earn up to {rate} APY'}
           values={{
-            rate: formatNumberAsPercent(leveragedVaults?.totalAPY || 0),
+            rate: usePendingValues(leveragedVaults?.totalAPY),
           }}
         />
       ),
@@ -171,7 +188,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Leverage liquidity and earn up to {rate} APY'}
           values={{
-            rate: formatNumberAsPercent(leveragedLiquidity?.totalAPY || 0),
+            rate: usePendingValues(leveragedLiquidity?.totalAPY),
           }}
         />
       ),

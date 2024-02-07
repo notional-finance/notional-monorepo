@@ -94,6 +94,13 @@ export function useMaxSupply(network: Network | undefined, currencyId: number | 
   return { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining };
 }
 
+export function useYieldsReady(network: Network | undefined) {
+  const {
+    globalState: { allYields: _allYields },
+  } = useNotionalContext();
+  return _allYields && network && _allYields[network] && _allYields[network].length > 0 ?  true : false;
+}
+
 // TODO: this needs more refactoring....
 export const useAllMarkets = (network: Network | undefined) => {
   const {
