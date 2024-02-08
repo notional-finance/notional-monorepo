@@ -100,7 +100,7 @@ const Title = styled(LabelValue)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2.5)};
   font-weight: 700;
-  color: ${theme.palette.borders.accentDefault};
+  color: ${theme.palette.typography.light};
   text-transform: uppercase;
   `
 );

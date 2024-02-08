@@ -67,7 +67,7 @@ const Title = styled(LabelValue)(
   margin-bottom: ${theme.spacing(2.5)};
   margin-top: ${theme.spacing(3)};
   font-weight: 700;
-  color: ${theme.palette.borders.accentDefault};
+  color: ${theme.palette.typography.light};
   display: flex;
   text-transform: uppercase;
   `
