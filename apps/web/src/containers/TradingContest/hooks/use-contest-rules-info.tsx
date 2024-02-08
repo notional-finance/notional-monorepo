@@ -1,5 +1,9 @@
 import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
+import {
+  startDateDisplayString,
+  endDateDisplayString,
+} from '@notional-finance/notionable-hooks';
 import { RealizedApyFaq } from '../components';
 interface FaqProps {
   questionString: string;
@@ -13,7 +17,11 @@ export const useContestRulesInfo = () => {
     {
       text: (
         <FormattedMessage
-          defaultMessage={`The yield competition will take place from [start time] to [end time].`}
+          defaultMessage={`The yield competition will take place from {startDate} to {endDate}.`}
+          values={{
+            startDate: startDateDisplayString,
+            endDate: endDateDisplayString,
+          }}
         />
       ),
     },
