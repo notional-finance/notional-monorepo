@@ -7,9 +7,13 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
 import MobileNavigation from './mobile-navigation/mobile-navigation';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router';
 import ResourcesDropdown from './resources/resources-dropdown/resources-dropdown';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import blitz from '@notional-finance/mui/src/assets/icons/blitz.svg';
+import {
+  useNotionalContext,
+  showContestNavLink,
+} from '@notional-finance/notionable-hooks';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
 import { colors } from '@notional-finance/styles';
@@ -20,6 +24,7 @@ export interface HeaderProps extends AppBarProps {}
 
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
+  const history = useHistory();
   const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
   const contestTheme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
   const appTheme = useTheme();
@@ -34,6 +39,10 @@ export function Header({ children }: HeaderProps) {
   const {
     globalState: { hasSelectedChainError },
   } = useNotionalContext();
+
+  const handleContestClick = () => {
+    history.push('/contest');
+  };
 
   window.addEventListener('scroll', () => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -112,6 +121,32 @@ export function Header({ children }: HeaderProps) {
               },
             }}
           >
+            {showContestNavLink && (
+              <Box
+                sx={{
+                  marginRight: '40px',
+                  marginTop: '15px',
+                  cursor: 'pointer',
+                }}
+                onClick={handleContestClick}
+              >
+                <img
+                  src={blitz}
+                  alt="blitz badge"
+                  style={{ width: '76px', height: '46px' }}
+                />
+                <Box
+                  sx={{
+                    height: '5px',
+                    marginTop: '3px',
+                    background: pathname.includes('contest')
+                      ? colors.neonTurquoise
+                      : 'transparent',
+                    width: '100%',
+                  }}
+                ></Box>
+              </Box>
+            )}
             {children}
           </Box>
         </Toolbar>

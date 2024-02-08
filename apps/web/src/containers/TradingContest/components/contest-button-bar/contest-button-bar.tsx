@@ -23,39 +23,43 @@ export const ContestButtonBar = ({
   const theme = useTheme();
   return (
     <ButtonContainer>
-      <Button
-        size="large"
-        variant="outlined"
-        sx={{
-          width: theme.spacing(41.25),
-          border: `1px solid ${colors.neonTurquoise}`,
-          cursor: 'pointer',
-          ':hover': {
-            background: colors.matteGreen,
-          },
-          fontFamily: 'Avenir Next',
-        }}
-        to={buttonOnePathTo ? buttonOnePathTo : undefined}
-        onClick={() =>
-          !buttonOnePathTo && buttonOneCallBack ? buttonOneCallBack() : null
-        }
-      >
-        {buttonOneText}
-      </Button>
-      <Button
-        size="large"
-        sx={{
-          width: theme.spacing(41.25),
-          fontFamily: 'Avenir Next',
-          cursor: 'pointer',
-        }}
-        to={buttonTwoPathTo ? buttonTwoPathTo : undefined}
-        onClick={() =>
-          !buttonTwoPathTo && buttonTwoCallBack ? buttonTwoCallBack() : null
-        }
-      >
-        {buttonTwoText}
-      </Button>
+      {buttonOneText && (
+        <Button
+          size="large"
+          variant="outlined"
+          sx={{
+            width: theme.spacing(41.25),
+            border: `1px solid ${colors.neonTurquoise}`,
+            cursor: 'pointer',
+            ':hover': {
+              background: colors.matteGreen,
+            },
+            fontFamily: 'Avenir Next',
+          }}
+          to={buttonOnePathTo ? buttonOnePathTo : undefined}
+          onClick={() =>
+            !buttonOnePathTo && buttonOneCallBack ? buttonOneCallBack() : null
+          }
+        >
+          {buttonOneText}
+        </Button>
+      )}
+      {buttonTwoText && (
+        <Button
+          size="large"
+          sx={{
+            width: theme.spacing(41.25),
+            fontFamily: 'Avenir Next',
+            cursor: 'pointer',
+          }}
+          to={buttonTwoPathTo ? buttonTwoPathTo : undefined}
+          onClick={() =>
+            !buttonTwoPathTo && buttonTwoCallBack ? buttonTwoCallBack() : null
+          }
+        >
+          {buttonTwoText}
+        </Button>
+      )}
     </ButtonContainer>
   );
 };

@@ -3,7 +3,7 @@ import { colors } from '@notional-finance/styles';
 import Countdown from 'react-countdown';
 import { SectionTitle } from '@notional-finance/mui';
 import { ReactNode } from 'react';
-import { contestStartDate } from '../../contest-config';
+import { contestCountDownDate } from '@notional-finance/notionable-hooks';
 
 interface ContestCountDownProps {
   title?: ReactNode;
@@ -25,7 +25,7 @@ export const ContestCountDown = ({ title, sx }: ContestCountDownProps) => {
     >
       {title && <SectionTitle>{title}</SectionTitle>}
       <Countdown
-        date={contestStartDate}
+        date={contestCountDownDate}
         renderer={({ days, hours, minutes, seconds }) => {
           return (
             <CountDownContainer>
