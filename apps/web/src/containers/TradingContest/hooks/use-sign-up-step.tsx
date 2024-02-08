@@ -4,10 +4,10 @@ import {
   TransactionStatus,
   useAccountReady,
   useNotionalContext,
+  useMintPass,
 } from '@notional-finance/notionable-hooks';
 import { useHistory, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useMintPass } from './use-mint-pass';
 
 export interface ContestSignUpParams {
   step?: CONTEST_SIGN_UP_STEPS;

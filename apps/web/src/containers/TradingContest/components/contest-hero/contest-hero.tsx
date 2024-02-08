@@ -6,53 +6,105 @@ import { ContestCountDown } from '../contest-countdown/contest-countdown';
 import { BodySecondary, Button } from '@notional-finance/mui';
 import { TitleText } from '../contest-shared-elements/contest-shared-elements';
 import { useSelectedNetwork } from '@notional-finance/wallet';
-import { messages } from '../../contest-config';
+import { messages } from '../../contest-data';
+import {
+  contestActive,
+  useContestPass,
+} from '@notional-finance/notionable-hooks';
 
 export const ContestHero = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
+  const { hasContestPass } = useContestPass();
   return (
     <Box>
       <ContentContainer>
         <TextAndButtonWrapper>
           <>
             <TitleText>
-              <FormattedMessage defaultMessage={'Notional V3 STIP Blitz'} />
+              {hasContestPass ? (
+                <FormattedMessage defaultMessage={'You are Entered!'} />
+              ) : (
+                <FormattedMessage defaultMessage={'Notional V3 STIP Blitz'} />
+              )}
             </TitleText>
             <BodyText>
               <FormattedMessage {...messages.ContestHero.bodyText} />
             </BodyText>
-            <ContestCountDown title={'Contest Begins:'} />
+            <ContestCountDown
+              title={contestActive ? 'Contest Ends:' : 'Contest Begins:'}
+            />
             <ButtonContainer>
-              <Button
-                size="large"
-                sx={{
-                  marginBottom: theme.spacing(3),
-                  width: '330px',
-                  fontFamily: 'Avenir Next',
-                  cursor: 'pointer',
-                }}
-                to={`/contest-sign-up/${network}/${CONTEST_SIGN_UP_STEPS.CONNECT_WALLET}`}
-              >
-                {<FormattedMessage defaultMessage={'Join the Yield Contest'} />}
-              </Button>
-
-              <Button
-                size="large"
-                variant="outlined"
-                to={`/portfolio/${network}/overview`}
-                sx={{
-                  width: '330px',
-                  border: `1px solid ${colors.neonTurquoise}`,
-                  cursor: 'pointer',
-                  ':hover': {
-                    background: colors.matteGreen,
-                  },
-                  fontFamily: 'Avenir Next',
-                }}
-              >
-                <FormattedMessage defaultMessage={'Back To App'} />
-              </Button>
+              {hasContestPass ? (
+                <Button
+                  size="large"
+                  sx={{
+                    marginBottom: theme.spacing(3),
+                    width: '330px',
+                    fontFamily: 'Avenir Next',
+                    cursor: 'pointer',
+                  }}
+                  to={`/portfolio/${network}`}
+                >
+                  <FormattedMessage
+                    defaultMessage={'See Yield Opportunities'}
+                  />
+                </Button>
+              ) : (
+                <Button
+                  size="large"
+                  sx={{
+                    marginBottom: theme.spacing(3),
+                    width: '330px',
+                    fontFamily: 'Avenir Next',
+                    cursor: 'pointer',
+                  }}
+                  to={`/contest-sign-up/${network}/${CONTEST_SIGN_UP_STEPS.CONNECT_WALLET}`}
+                >
+                  {
+                    <FormattedMessage
+                      defaultMessage={'Join the Yield Contest'}
+                    />
+                  }
+                </Button>
+              )}
+              {contestActive ? (
+                <Button
+                  size="large"
+                  variant="outlined"
+                  to={`/portfolio/${network}/overview`}
+                  sx={{
+                    width: '330px',
+                    border: `1px solid ${colors.neonTurquoise}`,
+                    cursor: 'pointer',
+                    ':hover': {
+                      background: colors.matteGreen,
+                    },
+                    fontFamily: 'Avenir Next',
+                  }}
+                >
+                  <FormattedMessage defaultMessage={'Back To App'} />
+                </Button>
+              ) : (
+                <Button
+                  size="large"
+                  variant="outlined"
+                  to={`/contest-rules`}
+                  sx={{
+                    width: '330px',
+                    border: `1px solid ${colors.neonTurquoise}`,
+                    cursor: 'pointer',
+                    ':hover': {
+                      background: colors.matteGreen,
+                    },
+                    fontFamily: 'Avenir Next',
+                  }}
+                >
+                  <FormattedMessage
+                    defaultMessage={'Contest Rules And Prizes'}
+                  />
+                </Button>
+              )}
             </ButtonContainer>
           </>
         </TextAndButtonWrapper>

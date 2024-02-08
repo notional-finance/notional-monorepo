@@ -2,25 +2,12 @@ import { defineMessages } from 'react-intl';
 import { IconCell } from '@notional-finance/mui';
 import { COMMUNITY_NAMES } from '@notional-finance/notionable';
 
-// This is a millisecond timestamp for 12 AM on 02/01/2024
-export const contestStartDate = 1706832000000;
-// This is used to identify the contest pass
-export const CURRENT_CONTEST_ID = 1;
-
-export const startDate = 'Feb 5th 12:00 am PST';
-export const endDate = 'Mar 5th 12:00 am PST';
-
-export const ContestPartners = [
-  COMMUNITY_NAMES.L2DAO,
-  COMMUNITY_NAMES.LLAMAS,
-  COMMUNITY_NAMES.CRYPTO_TESTERS,
-];
 
 export const messages = {
   ContestHero: defineMessages({
     bodyText: {
       defaultMessage:
-        'Contest runs Feb. 1st to Mar. 1st. Open to everyone and free to join. Click below to enter and compete for 27k $NOTE in prizes!',
+        'Contest runs Feb. 21st to Mar. 21st. Open to everyone and free to join. Click below to enter and compete for 2,700 ARB in prizes',
       description: 'body text',
     },
   }),
@@ -73,17 +60,18 @@ export const partnersTableData = [
   },
 ];
 
+
 export const prizeData = [
   {
     title: '1st Place',
-    value: '10,000 NOTE',
+    value: '1,000 ARB',
   },
   {
     title: '2nd Place',
-    value: '2,500 NOTE',
+    value: '250 ARB',
   },
   {
     title: '3rd Place',
-    value: '1,000 NOTE',
+    value: '100 ARB',
   },
 ];

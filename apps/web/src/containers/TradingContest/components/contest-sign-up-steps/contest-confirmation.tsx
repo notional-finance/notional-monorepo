@@ -8,8 +8,11 @@ import {
   ContestBodyText,
   StepContainer,
 } from '../contest-shared-elements/contest-shared-elements';
-import { startDate, endDate } from '../../contest-config';
-import { useMintPass } from '../../hooks/use-mint-pass';
+import {
+  useMintPass,
+  startDateDisplayString,
+  endDateDisplayString,
+} from '@notional-finance/notionable-hooks';
 import { truncateAddress } from '@notional-finance/helpers';
 import { Network } from '@notional-finance/util';
 
@@ -50,8 +53,8 @@ export const ContestConfirmation = ({
                 defaultMessage={`
               The contest runs {startDate} through {endDate}`}
                 values={{
-                  startDate: startDate,
-                  endDate: endDate,
+                  startDate: startDateDisplayString,
+                  endDate: endDateDisplayString,
                 }}
               />
             </ContestBodyText>

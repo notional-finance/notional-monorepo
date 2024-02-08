@@ -9,6 +9,7 @@ import {
   MainContainer,
   ContestButtonBar,
 } from '../components';
+import { useContestPass } from '@notional-finance/notionable-hooks';
 import { ContestTable, LinkText, Button } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
@@ -20,6 +21,7 @@ import { useSelectedNetwork } from '@notional-finance/wallet';
 export const ContestLeaderBoard = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const network = useSelectedNetwork();
+  const { hasContestPass } = useContestPass();
   const {
     leaderBoardColumns,
     currentUserData,
@@ -141,19 +143,20 @@ export const ContestLeaderBoard = () => {
               />
             </TableContainer>
             <ContestPrizes />
-            {/* TODO: Hide this if the user has minted a contest pass */}
-            <Box sx={{ display: 'flex', marginTop: '100px' }}>
-              <ContestButtonBar
-                buttonOneText={
-                  <FormattedMessage defaultMessage={'Rules & Prizes'} />
-                }
-                buttonOnePathTo={`/contest-rules/${network}`}
-                buttonTwoText={
-                  <FormattedMessage defaultMessage={'Contest Home'} />
-                }
-                buttonTwoPathTo={`/contest/${network}`}
-              />
-            </Box>
+            {!hasContestPass && (
+              <Box sx={{ display: 'flex', marginTop: '100px' }}>
+                <ContestButtonBar
+                  buttonOneText={
+                    <FormattedMessage defaultMessage={'Rules & Prizes'} />
+                  }
+                  buttonOnePathTo={`/contest-rules/${network}`}
+                  buttonTwoText={
+                    <FormattedMessage defaultMessage={'Contest Home'} />
+                  }
+                  buttonTwoPathTo={`/contest/${network}`}
+                />
+              </Box>
+            )}
           </MainContainer>
         </OpacityBG>
       </OuterContainer>

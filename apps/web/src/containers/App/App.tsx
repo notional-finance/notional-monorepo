@@ -207,34 +207,34 @@ const AllRoutes = () => {
             routeType="Error"
           />
           {/* <AppLayoutRoute
-            path="/contest/"
+            path="/contest"
             component={ContestHome}
-            routeType="Landing"
+            routeType="Contest"
           /> */}
           <AppLayoutRoute
             path="/contest/:selectedNetwork"
             component={ContestHome}
-            routeType="Landing"
+            routeType="Contest"
           />
           <AppLayoutRoute
             path="/contest-rules/:selectedNetwork"
             component={ContestRules}
-            routeType="Landing"
+            routeType="Contest"
           />
           <AppLayoutRoute
             path="/contest-leaderboard/:selectedNetwork"
             component={ContestLeaderBoard}
-            routeType="Landing"
+            routeType="Contest"
           />
           <AppLayoutRoute
             path="/contest-sign-up/:selectedNetwork/:step/"
             component={ContestSignUp}
-            routeType="Landing"
+            routeType="Contest"
           />
           <AppLayoutRoute
             path="/contest-sign-up/:selectedNetwork"
             component={ContestSignUp}
-            routeType="Landing"
+            routeType="Contest"
           />
           <AppLayoutRoute
             path="/terms"
@@ -282,7 +282,6 @@ export const App = () => {
     state: { themeVariant },
   } = globalState;
   const notionalTheme = useNotionalTheme(themeVariant);
-  //  useVaultNftCheck(hasContestNFT);
 
   return (
     <ThemeProvider theme={notionalTheme}>

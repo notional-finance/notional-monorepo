@@ -211,7 +211,7 @@ const Title = styled(LabelValue)(
   margin: 30px auto;
   width: 380px;
   font-weight: 700;
-  color: ${theme.palette.borders.accentDefault};
+  color: ${theme.palette.typography.light};
   ${theme.breakpoints.down('sm')} {
     width: auto;
   }

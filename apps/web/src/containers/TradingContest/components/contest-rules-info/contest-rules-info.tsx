@@ -5,6 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { useContestRulesInfo } from '../../hooks';
 import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
+import { contestActive } from '@notional-finance/notionable-hooks';
 import { useSelectedNetwork } from '@notional-finance/wallet';
 
 export const ContestRulesInfo = () => {
@@ -60,25 +61,16 @@ export const ContestRulesInfo = () => {
             }}
           />
         ))}
-        {/* TODO: Show only this button this if the user has minted a contest pass */}
-        {/* <Button
-          size="large"
-          sx={{
-            width: '300px',
-            fontFamily: 'Avenir Next',
-          }}
-          to="/contest"
-        >
-          <FormattedMessage defaultMessage={'Contest Home'} />
-        </Button> */}
-
-        {/* TODO: Hide this if the user has minted a contest pass */}
         <Box sx={{ display: 'flex', marginTop: '100px' }}>
           <ContestButtonBar
             buttonOneText={
-              <FormattedMessage defaultMessage={'View Full Leaderboard'} />
+              contestActive ? (
+                <FormattedMessage defaultMessage={'View Full Leaderboard'} />
+              ) : undefined
             }
-            buttonOnePathTo={`/contest-leaderboard${network}`}
+            buttonOnePathTo={
+              contestActive ? `/contest-leaderboard${network}` : undefined
+            }
             buttonTwoText={<FormattedMessage defaultMessage={'Contest Home'} />}
             buttonTwoPathTo="/contest"
           />

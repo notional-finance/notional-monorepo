@@ -12,7 +12,7 @@ import Llama from './assets/Llama.svg';
 import Cryptotesters from './assets/cryptotesters.svg';
 import L2DAO from './assets/L2DAO.svg';
 import { COMMUNITY_NAMES } from '@notional-finance/notionable';
-import { useMintPass } from '../../hooks/use-mint-pass';
+import { useMintPass } from '@notional-finance/notionable-hooks';
 
 const imgData = {
   [COMMUNITY_NAMES.LLAMAS]: {
