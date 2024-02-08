@@ -20,7 +20,6 @@ export const ContestConfirmation = ({
   mintedAddress,
 }: ReturnType<typeof useMintPass>) => {
   const theme = useTheme();
-  console.log({ mintedAddress });
   const truncatedAddress = mintedAddress ? truncateAddress(mintedAddress) : '';
 
   return (
