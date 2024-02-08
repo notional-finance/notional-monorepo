@@ -31,7 +31,6 @@ export const ContestPartners = () => {
         </Paragraph>
         <TableContainer>
           <ContestTable
-            maxHeight={theme.spacing(16.25)}
             columns={partnersTableColumns}
             data={partnersTableData}
             tableLoading={false}
