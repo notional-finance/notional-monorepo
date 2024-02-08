@@ -8,7 +8,8 @@ import {
   useNotionalContext,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
+import { Title } from '../../settings-side-drawer';
+import { SideDrawerActiveButton } from '@notional-finance/mui';
 
 export interface NetworkButtonProps {
   active?: boolean;
@@ -28,7 +29,10 @@ export const NetworkSettingsButton = () => {
         justifyContent: 'center',
       }}
     >
-      <TokenIcon symbol={getNetworkSymbol(walletNetwork) || 'unknown'} size="medium" />
+      <TokenIcon
+        symbol={getNetworkSymbol(walletNetwork) || 'unknown'}
+        size="medium"
+      />
       <Box sx={{ marginLeft: theme.spacing(1), textDecoration: 'capitalize' }}>
         {chain?.label || walletNetwork}
       </Box>
@@ -49,7 +53,9 @@ export function NetworkSelector() {
         <FormattedMessage defaultMessage={'NETWORK'} />
       </Title>
       {chains.map(({ label, id }) => {
-        const Icon = <TokenIcon symbol={getNetworkSymbol(id as Network)} size="large" />;
+        const Icon = (
+          <TokenIcon symbol={getNetworkSymbol(id as Network)} size="large" />
+        );
         return (
           <SideDrawerActiveButton
             label={label}
@@ -73,15 +79,6 @@ const NetworkWrapper = styled(Box)(
       width: 100%;
       padding: ${theme.spacing(1)};
     }
-  `
-);
-
-const Title = styled(LabelValue)(
-  ({ theme }) => `
-  margin-bottom: ${theme.spacing(2.5)};
-  font-weight: 700;
-  color: ${theme.palette.borders.accentDefault};
-  text-transform: uppercase;
   `
 );
 
