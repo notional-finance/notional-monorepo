@@ -93,11 +93,27 @@ export function selectedPortfolioToken(state$: Observable<BaseTradeState>) {
         tradeType === 'RollDebt' ||
         tradeType === 'RepayDebt' ||
         tradeType === 'Withdraw' ||
-        tradeType === 'RollVaultPosition'
+        tradeType === 'RollVaultPosition' ||
+        tradeType === 'Deposit'
     ),
     map(({ selectedToken, selectedNetwork, tradeType }) => {
       if (!selectedToken || !selectedNetwork || !tradeType) return undefined;
       const tokens = Registry.getTokenRegistry();
+      if (tradeType === 'Deposit') {
+        // In deposit collateral, the selectedToken is the underlying symbol
+        const underlying = tokens.getTokenBySymbol(
+          selectedNetwork,
+          selectedToken
+        );
+        return {
+          deposit: underlying,
+          collateral: tokens.getPrimeCash(
+            selectedNetwork,
+            underlying.currencyId
+          ),
+        };
+      }
+
       const selected = tokens.getTokenByID(selectedNetwork, selectedToken);
       if (tradeType === 'RepayDebt') {
         return {
@@ -219,8 +235,10 @@ export function availableTokens(
         availableDebtTokens.map((t) => t.id).join(':') !==
           s.availableDebtTokens?.map((t) => t.id).join(':') ||
         availableDepositTokens.map((t) => t.id).join(':') !==
-          s.availableDepositTokens?.map((t) => t.id).join(':') || 
-        s.debt?.id !== debt?.id || s.collateral?.id !== collateral?.id
+          s.availableDepositTokens?.map((t) => t.id).join(':') ||
+        s.debt?.id !== debt?.id ||
+        s.collateral?.id !== collateral?.id ||
+        s.deposit?.id !== deposit?.id;
 
       return hasChanged
         ? {
