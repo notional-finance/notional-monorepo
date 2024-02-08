@@ -121,7 +121,7 @@ export function Header({ children }: HeaderProps) {
               },
             }}
           >
-            {showContestNavLink && (
+            {showContestNavLink && pathname !== '/' && (
               <Box
                 sx={{
                   marginRight: '40px',
