@@ -147,7 +147,8 @@ export type RouteType =
   | 'Error'
   | 'Portfolio'
   | 'PortfolioTransaction'
-  | 'Confirmation';
+  | 'Confirmation'
+  | 'Contest';
 
 export enum DEX_ID {
   UNKNOWN,

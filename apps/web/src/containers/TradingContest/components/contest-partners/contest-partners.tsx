@@ -8,13 +8,10 @@ import {
   partnersTableColumns,
   partnersTableData,
   messages,
-} from '../../contest-config';
+} from '../../contest-data';
+import { contestActive } from '@notional-finance/notionable-hooks';
 
-interface ContestPartnersProps {
-  hideButton?: boolean;
-}
-
-export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
+export const ContestPartners = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
   return (
@@ -42,9 +39,8 @@ export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
           />
         </TableContainer>
       </ContentContainer>
-      {/* TODO: Show this if the user has minted a contest pass */}
-      {!hideButton && (
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        {contestActive && (
           <Button
             size="large"
             variant="outlined"
@@ -60,8 +56,8 @@ export const ContestPartners = ({ hideButton }: ContestPartnersProps) => {
           >
             <FormattedMessage defaultMessage={'View Leader Board'} />
           </Button>
-        </Box>
-      )}
+        )}
+      </Box>
     </Container>
   );
 };

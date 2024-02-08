@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
-import { Input } from '@notional-finance/mui';
+import { Input, ProgressIndicator } from '@notional-finance/mui';
 import {
   TitleText,
   ContestBodyText,
@@ -8,9 +8,12 @@ import {
 } from '../contest-shared-elements/contest-shared-elements';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { ethers } from 'ethers';
+import {
+  useNotionalContext,
+  useMintPass,
+} from '@notional-finance/notionable-hooks';
 import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
-import { useMintPass } from '../../hooks/use-mint-pass';
 import { useChangeNetwork } from '@notional-finance/trade';
 import { Network } from '@notional-finance/util';
 
@@ -20,17 +23,29 @@ export const MintPass = ({
   onMintPass,
   mintedAddress,
   setMintedAddress,
+  transactionStatus,
+  errorMessage,
 }: ReturnType<typeof useMintPass>) => {
   const theme = useTheme();
   const {
     globalState: { wallet },
   } = useNotionalContext();
-  const [error, setError] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
   const onSwitchNetwork = useChangeNetwork();
 
+  useEffect(() => {
+    if (errorMessage) {
+      setError(errorMessage);
+    }
+  }, [errorMessage]);
+
   const handleMint = () => {
-    if (isReadOnlyAddress || !mintedAddress) {
-      setError(true);
+    if (
+      isReadOnlyAddress ||
+      !mintedAddress ||
+      !ethers.utils.isAddress(mintedAddress)
+    ) {
+      setError('Invalid address');
     } else {
       onMintPass();
     }
@@ -41,8 +56,8 @@ export const MintPass = ({
   ) => {
     const value = e?.target?.value;
     setMintedAddress(value);
-    if (error === true) {
-      setError(false);
+    if (error.length > 0) {
+      setError('');
     }
   };
 
@@ -53,72 +68,84 @@ export const MintPass = ({
       >
         <FormattedMessage defaultMessage="Mint Pass" />
         <ContestBodyText sx={{ marginTop: theme.spacing(3) }}>
-          <FormattedMessage defaultMessage="Confirm the address you want to compete with and mint your entry pass. This can be a different address than the wallet you have connected." />
+          {transactionStatus === 'wait-user-confirm' ||
+          transactionStatus === 'submitted' ? (
+            <FormattedMessage defaultMessage="Confirm transaction in wallet" />
+          ) : (
+            <FormattedMessage defaultMessage="Confirm the address you want to compete with and mint your entry pass. This can be a different address than the wallet you have connected." />
+          )}
         </ContestBodyText>
       </TitleText>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginBottom: theme.spacing(7),
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'baseline',
-            justifyContent: 'center',
-          }}
-        >
+      {transactionStatus === 'wait-user-confirm' ||
+      transactionStatus === 'submitted' ? (
+        <ProgressIndicator type="notional" />
+      ) : (
+        <>
           <Box
-            component="span"
             sx={{
-              color: error ? theme.palette.error.main : 'transparent',
-              fontSize: '12px',
-              minHeight: theme.spacing(2),
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: theme.spacing(7),
             }}
           >
-            {error && (
-              <FormattedMessage defaultMessage="Not a valid wallet address" />
-            )}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'baseline',
+                justifyContent: 'center',
+              }}
+            >
+              <Box
+                component="span"
+                sx={{
+                  color: error ? theme.palette.error.main : 'transparent',
+                  fontSize: '12px',
+                  minHeight: theme.spacing(2),
+                }}
+              >
+                {error}
+              </Box>
+
+              <MintInput
+                placeholder={wallet?.selectedAddress || ''}
+                handleChange={handleChange}
+                inputValue={mintedAddress || ''}
+                onKeyDown={(event) =>
+                  event.key === 'Enter' ? handleMint() : null
+                }
+                sx={{
+                  marginTop: theme.spacing(1),
+                  paddingLeft: theme.spacing(1),
+                  paddingRight: theme.spacing(1),
+                  borderColor: error ? theme.palette.error.main : '',
+                  backgroundColor: colors.black,
+                  borderRadius: theme.shape.borderRadius(),
+                  width: theme.spacing(54),
+                  height: theme.spacing(7),
+                }}
+              />
+            </Box>
           </Box>
 
-          <MintInput
-            placeholder={wallet?.selectedAddress || ''}
-            handleChange={handleChange}
-            inputValue={mintedAddress || ''}
-            onKeyDown={(event) => (event.key === 'Enter' ? handleMint() : null)}
-            sx={{
-              marginTop: theme.spacing(1),
-              paddingLeft: theme.spacing(1),
-              paddingRight: theme.spacing(1),
-              borderColor: error ? theme.palette.error.main : '',
-              backgroundColor: colors.black,
-              borderRadius: theme.shape.borderRadius(),
-              width: theme.spacing(54),
-              height: theme.spacing(7),
-            }}
+          <ContestButtonBar
+            buttonOneText={<FormattedMessage defaultMessage={'Back'} />}
+            buttonOnePathTo="community-partners"
+            buttonTwoText={
+              isWalletConnectedToNetwork ? (
+                <FormattedMessage defaultMessage={'Mint Entry Pass'} />
+              ) : (
+                <FormattedMessage defaultMessage={'Switch to Arbitrum'} />
+              )
+            }
+            buttonTwoCallBack={() =>
+              isWalletConnectedToNetwork
+                ? handleMint()
+                : onSwitchNetwork(Network.ArbitrumOne)
+            }
           />
-        </Box>
-      </Box>
-
-      <ContestButtonBar
-        buttonOneText={<FormattedMessage defaultMessage={'Back'} />}
-        buttonOnePathTo="community-partners"
-        buttonTwoText={
-          isWalletConnectedToNetwork ? (
-            <FormattedMessage defaultMessage={'Mint Entry Pass'} />
-          ) : (
-            <FormattedMessage defaultMessage={'Switch to Arbitrum'} />
-          )
-        }
-        buttonTwoCallBack={() =>
-          isWalletConnectedToNetwork
-            ? handleMint()
-            : onSwitchNetwork(Network.ArbitrumOne)
-        }
-      />
+        </>
+      )}
     </StepContainer>
   );
 };

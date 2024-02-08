@@ -4,10 +4,11 @@ import { FormattedMessage } from 'react-intl';
 import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { Button, HeadingSubtitle, CardInput } from '@notional-finance/mui';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
+import { contestActive } from '@notional-finance/notionable-hooks';
 import fatCat from '../../assets/fat-cat.svg';
 import crown from '../../assets/crown.svg';
 import { useSelectedNetwork } from '@notional-finance/wallet';
-import { prizeData } from '../../contest-config';
+import { prizeData } from '../../contest-data';
 
 interface PrizeInfoPropsProps {
   prizeType: string;
@@ -26,7 +27,7 @@ const PrizePlaces = () => {
               alt="icon"
               style={{
                 height: theme.spacing(2),
-                marginRight: theme.spacing(1),
+                marginLeft: theme.spacing(1),
               }}
             />
           )}
@@ -83,7 +84,7 @@ const PrizeInfo = ({ prizeType }: PrizeInfoPropsProps) => {
             )}
           </HeadingSubtitle>
         </Box>
-        <TokenIcon symbol="NOTE" size="large" />
+        <TokenIcon symbol="ARB" size="large" />
       </Box>
       <PrizePlaces />
     </PrizeInfoContainer>
@@ -93,7 +94,6 @@ const PrizeInfo = ({ prizeType }: PrizeInfoPropsProps) => {
 export const ContestPrizes = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
-  const pathname = window.location.pathname;
   return (
     <Container>
       <SectionTitle
@@ -106,8 +106,7 @@ export const ContestPrizes = () => {
         <Box id="prizes-header">
           <FormattedMessage defaultMessage={'Prizes'} />
         </Box>
-        {/* TODO: Show this if the user has minted a contest pass */}
-        {pathname === '/contest' && (
+        {contestActive && (
           <Button
             size="large"
             variant="outlined"
