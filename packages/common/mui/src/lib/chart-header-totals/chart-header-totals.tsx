@@ -22,7 +22,7 @@ export interface ChartHeaderTotalsDataProps {
 }
 
 export interface ChartHeaderTotalsProps {
-  chartHeaderTotalsData: ChartHeaderTotalsDataProps[];
+  chartHeaderTotalsData: any[];
 }
 
 export const ChartHeaderTotals = ({

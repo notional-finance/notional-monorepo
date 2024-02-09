@@ -8,6 +8,7 @@ import {
   useAccountCurrentFactors,
   useFiat,
 } from '@notional-finance/notionable-hooks';
+import { BarConfigProps } from '@notional-finance/mui';
 import {
   useWindowDimensions,
   formatNumberAsPercent,
@@ -56,7 +57,7 @@ export const useTotalsChart = () => {
     }
   );
 
-  const barConfig = [
+  const barConfig: BarConfigProps[] = [
     {
       dataKey: 'totalNetWorth',
       title: <FormattedMessage defaultMessage="Total Net Worth" />,

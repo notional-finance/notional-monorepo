@@ -3,7 +3,7 @@ import { H5 } from '../../typography/typography';
 import { TooltipProps } from 'recharts';
 import { BarConfigProps } from '../bar-chart';
 import { getDateString } from '@notional-finance/util';
-import { formatNumberToDigits } from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export interface BarChartToolTipProps extends TooltipProps<number, string> {
   barConfig: BarConfigProps[];
@@ -11,6 +11,8 @@ export interface BarChartToolTipProps extends TooltipProps<number, string> {
 
 export const BarChartToolTip = (props: BarChartToolTipProps) => {
   const { payload, barConfig } = props;
+
+  console.log({ payload });
 
   return (
     <ToolTipBox>
@@ -33,11 +35,13 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
               component={'span'}
               sx={{ marginLeft: '8px', marginRight: '8px' }}
             >
-              {item.value
+              {/* {item.value && barConfig[index]?.currencySymbol !== undefined
                 ? `${barConfig[index]?.currencySymbol}${formatNumberToDigits(
                     item.value
                   )}`
-                : `${barConfig[index]?.currencySymbol}0`}
+                : `${barConfig[index]?.currencySymbol}0`} */}
+
+              {item.value ? `${formatNumberAsPercent(item.value)}` : `0 %`}
             </Box>
             {barConfig[index]?.toolTipTitle}
           </Box>

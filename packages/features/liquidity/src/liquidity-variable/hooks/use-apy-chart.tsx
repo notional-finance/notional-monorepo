@@ -1,37 +1,31 @@
-// import { useState } from 'react';
-// import {
-//   useAccountHistoryChart,
-//   useSelectedPortfolioNetwork,
-// } from '@notional-finance/notionable-hooks';
-import { FiatSymbols, TokenDefinition } from '@notional-finance/core-entities';
-// import {
-//   useAccountCurrentFactors,
-//   useFiat,
-// } from '@notional-finance/notionable-hooks';
-// import {
-//   useWindowDimensions,
-//   formatNumberAsPercent,
-// } from '@notional-finance/helpers';
-import {
-  THEME_VARIANTS,
-  //   SECONDS_IN_MONTH,
-  //   SECONDS_IN_DAY,
-  //   getNowSeconds,
-} from '@notional-finance/util';
+import { TokenDefinition } from '@notional-finance/core-entities';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import { colors } from '@notional-finance/styles';
 import {
-  useFiat,
   useTokenHistory,
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
+import { useTheme } from '@mui/material';
+import { BarConfigProps } from '@notional-finance/mui';
 
 export const useApyChart = (token?: TokenDefinition) => {
-  const baseCurrency = useFiat();
-  const { apyData } = useTokenHistory(token);
+  const { apyIncentiveData } = useTokenHistory(token);
   const themeVariant = useThemeVariant();
+  const theme = useTheme();
 
-  console.log({ apyData });
+  console.log({ apyIncentiveData });
+
+  const barChartData = apyIncentiveData?.map(
+    ({ arbApy, noteApy, organicApy, timestamp }) => {
+      return {
+        arbApy: arbApy,
+        noteApy: noteApy,
+        organicApy: organicApy,
+        timestamp,
+      };
+    }
+  );
 
   //   const barChartData = historyData?.map(
   //     ({ assets, debts, netWorth, timestamp }) => {
@@ -44,31 +38,50 @@ export const useApyChart = (token?: TokenDefinition) => {
   //     }
   //   );
 
-  // nTokenBlendedInterestRate;
-  // nTokenFeeRate;
-  // nTokenIncentiveRate;
-  // nTokenSecondaryIncentiveRate;
-  // timestamp;
-  // totalAPY;
+  // NOTE APY: nTokenIncentiveRate;
+  // ARB APY: nTokenSecondaryIncentiveRate;
+  // ORGANIC APY: nTokenBlendedInterestRate + nTokenFeeRate
+  // TOTAL APY: totalAPY
 
-  const barConfig = [
+  const barConfig: BarConfigProps[] = [
     {
-      dataKey: 'totalNetWorth',
-      title: <FormattedMessage defaultMessage="Total Net Worth" />,
-      toolTipTitle: <FormattedMessage defaultMessage="Net Worth" />,
+      dataKey: 'organicApy',
+      title: <FormattedMessage defaultMessage="ORGANIC APY" />,
+      toolTipTitle: <FormattedMessage defaultMessage="ORGANIC APY" />,
+      fill: theme.palette.background.accentDefault,
+      value: '0',
+    },
+    {
+      dataKey: 'arbApy',
+      title: <FormattedMessage defaultMessage="ARB APY" />,
+      toolTipTitle: <FormattedMessage defaultMessage="ARB APY" />,
+      fill:
+        themeVariant === THEME_VARIANTS.LIGHT
+          ? colors.greenGrey
+          : colors.darkGrey,
+      value: '0',
+    },
+    {
+      dataKey: 'noteApy',
+      title: <FormattedMessage defaultMessage="NOTE APY" />,
+      toolTipTitle: <FormattedMessage defaultMessage="NOTE APY" />,
+      fill: theme.palette.primary.light,
+      radius: [8, 8, 0, 0],
+      value: '0',
+    },
+    {
+      dataKey: 'totalAPY',
+      title: <FormattedMessage defaultMessage="TOTAL APY" />,
+      toolTipTitle: <FormattedMessage defaultMessage="TOTAL APY" />,
       fill:
         themeVariant === THEME_VARIANTS.LIGHT
           ? colors.turquoise
           : colors.neonTurquoise,
-      radius: [8, 8, 0, 0],
-      currencySymbol: FiatSymbols[baseCurrency]
-        ? FiatSymbols[baseCurrency]
-        : '$',
-      value: 0,
+      value: '0',
     },
   ];
 
-  return { barConfig };
+  return { barConfig, barChartData };
 };
 
 export default useApyChart;

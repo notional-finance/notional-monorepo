@@ -54,8 +54,6 @@ export function useTokenHistory(token?: TokenDefinition) {
     return { apyData, tvlData };
   }, [token, isReady]);
 
-  console.log({ apyData });
-
   // nTokenBlendedInterestRate;
   // nTokenFeeRate;
   // nTokenIncentiveRate;
@@ -65,20 +63,30 @@ export function useTokenHistory(token?: TokenDefinition) {
 
   return {
     apyData: fillChartDaily(
+      apyData?.map(({ timestamp, totalAPY }) => ({
+        timestamp,
+        area: totalAPY,
+      })) || [],
+      { area: 0 }
+    ),
+    apyIncentiveData: fillChartDaily(
       apyData?.map(
         ({
           timestamp,
           totalAPY,
+          nTokenFeeRate,
           nTokenIncentiveRate,
+          nTokenBlendedInterestRate,
           nTokenSecondaryIncentiveRate,
         }) => ({
           timestamp,
-          area: totalAPY,
-          nTokenIncentiveRate,
-          nTokenSecondaryIncentiveRate,
+          totalAPY,
+          noteApy: nTokenIncentiveRate,
+          arbApy: nTokenSecondaryIncentiveRate,
+          organicApy: nTokenBlendedInterestRate + nTokenFeeRate,
         })
       ) || [],
-      { area: 0, nTokenIncentiveRate: 0, nTokenSecondaryIncentiveRate: 0 }
+      { totalAPY: 0, noteApy: 0, arbApy: 0, organicApy: 0 }
     ),
     tvlData: fillChartDaily(
       tvlData?.map(({ timestamp, tvlUSD }) => ({

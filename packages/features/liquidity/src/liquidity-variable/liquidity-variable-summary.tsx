@@ -43,10 +43,10 @@ export const LiquidityVariableSummary = () => {
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable();
   const { poolTableColumns, poolTableData } = useLiquidityPoolsTable();
-  const { apyData, tvlData } = useTokenHistory(collateral);
-  useApyChart(collateral);
+  const { tvlData } = useTokenHistory(collateral);
+  const { barConfig, barChartData } = useApyChart(collateral);
 
-  console.log({ apyData });
+  console.log({ tvlData });
 
   return (
     <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
@@ -60,7 +60,9 @@ export const LiquidityVariableSummary = () => {
               <BarChart
                 title="APY"
                 xAxisTickFormat="date"
-                barChartData={apyData}
+                isStacked
+                barConfig={barConfig}
+                barChartData={barChartData}
                 yAxisTickFormat="currency"
               />
             ),

@@ -14,7 +14,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ReactNode } from 'react';
-import { getDateString } from '@notional-finance/util';
+import { getDateString, ONE_WEEK } from '@notional-finance/util';
 import { useTheme, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 
@@ -22,7 +22,7 @@ export interface BarConfigProps {
   dataKey: string;
   fill: string;
   value?: string;
-  radius?: number[];
+  radius?: number | [number, number, number, number] | undefined;
   title?: ReactNode;
   toolTipTitle?: ReactNode;
   currencySymbol?: string;
@@ -33,16 +33,35 @@ export interface BarChartProps {
   barConfig: BarConfigProps[];
   xAxisTickFormat?: 'date' | 'percent';
   yAxisTickFormat?: 'percent' | 'number' | 'currency';
+  isStacked?: boolean;
   title?: string;
 }
 
 export const BarChart = ({
   yAxisTickFormat = 'percent',
+  // xAxisTickFormat = 'date',
   barChartData,
   barConfig,
+  isStacked = false,
   title,
 }: BarChartProps) => {
   const theme = useTheme();
+
+  // const xAxisTickHandler = (v: number, i: number) => {
+  //   let result = '';
+  //   if (xAxisTickFormat === 'date') {
+  //     if (typeof v === 'number') {
+  //       const showTick = i % 15 === 0;
+  //       const date = getDateString(v);
+  //       result = showTick ? date.toUpperCase() : '';
+  //     }
+  //   }
+  //   if (xAxisTickFormat === 'percent') {
+  //     result = formatNumberAsPercent(v);
+  //   }
+  //   console.log({ result });
+  //   return result;
+  // };
 
   const yAxisTickHandler = (v: number) => {
     if (yAxisTickFormat === 'percent' && typeof v === 'number') {
@@ -62,6 +81,8 @@ export const BarChart = ({
   };
 
   console.log({ barChartData });
+  console.log({ barConfig });
+  console.log({ title });
   console.log({ title });
 
   return (
@@ -90,6 +111,26 @@ export const BarChart = ({
               axisLine={{ stroke: theme.palette.borders.paper }}
               interval={0}
             />
+            {/* <XAxis
+              dataKey="timestamp"
+              type={xAxisTickFormat === 'date' ? 'category' : 'number'}
+              tickCount={0}
+              tickSize={0}
+              tickMargin={38}
+              axisLine={{ stroke: theme.palette.borders.paper }}
+              domain={[
+                (dataMin: number) => dataMin - ONE_WEEK,
+                (dataMax: number) => dataMax + ONE_WEEK,
+              ]}
+              style={{
+                fill: 'red',
+                fontSize: '12px',
+              }}
+              interval={0}
+              tickFormatter={xAxisTickHandler}
+              tick={undefined}
+              tickLine={false}
+            /> */}
             <YAxis
               tickLine={false}
               axisLine={false}
@@ -102,15 +143,13 @@ export const BarChart = ({
               position={{ y: 0 }}
             />
 
-            {barConfig.map(({ dataKey, fill }, index) => (
+            {barConfig.map(({ dataKey, fill, radius }, index) => (
               <Bar
                 key={index}
                 dataKey={dataKey}
-                stackId="1"
+                stackId={isStacked ? '1' : undefined}
                 fill={fill}
-                radius={
-                  index === barConfig.length - 1 ? [8, 8, 0, 0] : [0, 0, 0, 0]
-                }
+                radius={radius ? radius : [0, 0, 0, 0]}
               />
             ))}
           </RechartsBarChart>
