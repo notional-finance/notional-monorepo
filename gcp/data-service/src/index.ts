@@ -90,7 +90,7 @@ async function main() {
 
   app.use(express.json());
   app.use(function (req, res, next) {
-    if (req.url.endsWith('/events') || req.url.endsWith('/')) {
+    if (req.url.endsWith('/events') || req.url === '/') {
       next();
       return;
     }
