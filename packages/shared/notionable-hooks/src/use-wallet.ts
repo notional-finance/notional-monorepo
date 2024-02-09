@@ -67,6 +67,13 @@ export function useWalletConnectedNetwork() {
   return wallet?.selectedChain;
 }
 
+export function useReadOnlyAddress() {
+  const {
+    globalState: { wallet },
+  } = useNotionalContext();
+  return wallet?.isReadOnlyAddress === true;
+}
+
 export function useWalletAllowances(network: Network | undefined) {
   const account = useAccountDefinition(network);
 
