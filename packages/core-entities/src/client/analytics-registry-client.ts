@@ -183,8 +183,12 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       });
     } else if (oracles.length > 1) {
       // Reduce across the multiple oracles and the given time frame and output all the
-      // APY components
-      const allTimestamps = oracles[0].historicalRates.map((h) => h.timestamp);
+      // APY components, slice off the first timestamp to eliminate some race / timing
+      // conditions
+      const allTimestamps = oracles[0].historicalRates
+        .map((h) => h.timestamp)
+        .sort()
+        .slice(1);
       const tokens = Registry.getTokenRegistry();
 
       return allTimestamps.map((t) => {
