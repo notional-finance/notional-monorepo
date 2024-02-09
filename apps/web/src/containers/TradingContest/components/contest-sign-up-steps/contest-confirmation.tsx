@@ -62,7 +62,7 @@ export const ContestConfirmation = ({
               sx={{ display: 'list-item', lineHeight: theme.spacing(5) }}
             >
               <FormattedMessage
-                defaultMessage={`Stay up to date, follow us <a1>Twitter</a1> or join us on <a2>Discord</a2>`}
+                defaultMessage={`Follow us on <a1>Twitter</a1> or join us on <a2>Discord</a2>`}
                 values={{
                   a1: (msg: React.ReactNode) => (
                     <ExternalLink
