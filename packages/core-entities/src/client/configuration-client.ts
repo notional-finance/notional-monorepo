@@ -480,10 +480,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     if (!pCash.totalSupply) throw Error('pCash total supply not found');
     const currentUnderlyingSupply = pCash.totalSupply.toUnderlying();
 
-    return { 
-      maxUnderlyingSupply, 
-      currentUnderlyingSupply, 
-      capacityRemaining: maxUnderlyingSupply.sub(currentUnderlyingSupply) 
+    return {
+      maxUnderlyingSupply,
+      currentUnderlyingSupply,
+      capacityRemaining: maxUnderlyingSupply.sub(currentUnderlyingSupply),
     };
   }
 

@@ -85,12 +85,13 @@ export function usePrimeTokens(network: Network | undefined) {
   };
 }
 
-export function useMaxSupply(network: Network | undefined, currencyId: number | undefined) {
-  if(!network || !currencyId) return undefined;
-  const { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining } = Registry.getConfigurationRegistry().getMaxSupply(
-    network,
-    currencyId
-  );
+export function useMaxSupply(
+  network: Network | undefined,
+  currencyId: number | undefined
+) {
+  if (!network || !currencyId) return undefined;
+  const { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining } =
+    Registry.getConfigurationRegistry().getMaxSupply(network, currencyId);
   return { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining };
 }
 
@@ -98,7 +99,12 @@ export function useYieldsReady(network: Network | undefined) {
   const {
     globalState: { allYields: _allYields },
   } = useNotionalContext();
-  return _allYields && network && _allYields[network] && _allYields[network].length > 0 ?  true : false;
+  return _allYields &&
+    network &&
+    _allYields[network] &&
+    _allYields[network].length > 0
+    ? true
+    : false;
 }
 
 // TODO: this needs more refactoring....

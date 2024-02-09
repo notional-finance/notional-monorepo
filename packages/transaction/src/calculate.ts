@@ -488,19 +488,23 @@ export function calculateDeleverage({
   debtBalance: TokenBalance;
 }) {
   if (!collateralBalance.isZero() && debtBalance.isZero()) {
-    return calculateDebt({
-      debt,
-      debtPool,
-      collateralPool,
-      collateralBalance:
-        // If repaying prime debt (when collateralBalance == prime cash), then adjust
-        // the value up a bit to reduce the chance of having dust balances at the max
-        collateralBalance.tokenType === 'PrimeCash'
-          ? collateralBalance.mulInRatePrecision(
-              RATE_PRECISION + 5 * BASIS_POINT
-            )
-          : collateralBalance,
-    });
+    // If repaying prime debt (when collateralBalance == prime cash), then adjust
+    // the value up a bit to reduce the chance of having dust balances at the max
+    if (collateralBalance.tokenType === 'PrimeCash') {
+      collateralBalance = collateralBalance.mulInRatePrecision(
+        RATE_PRECISION + 5 * BASIS_POINT
+      );
+    }
+
+    return {
+      collateralBalance,
+      ...calculateDebt({
+        debt,
+        debtPool,
+        collateralPool,
+        collateralBalance,
+      }),
+    };
   } else if (!debtBalance.isZero() && collateralBalance.isZero()) {
     return calculateCollateral({
       collateral,
