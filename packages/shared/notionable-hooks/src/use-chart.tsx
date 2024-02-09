@@ -51,17 +51,34 @@ export function useTokenHistory(token?: TokenDefinition) {
       token && isReady
         ? Registry.getAnalyticsRegistry().getPriceHistory(token)
         : undefined;
-    console.log({ apyData });
     return { apyData, tvlData };
   }, [token, isReady]);
 
+  console.log({ apyData });
+
+  // nTokenBlendedInterestRate;
+  // nTokenFeeRate;
+  // nTokenIncentiveRate;
+  // nTokenSecondaryIncentiveRate;
+  // timestamp;
+  // totalAPY;
+
   return {
     apyData: fillChartDaily(
-      apyData?.map(({ timestamp, totalAPY }) => ({
-        timestamp,
-        area: totalAPY,
-      })) || [],
-      { area: 0 }
+      apyData?.map(
+        ({
+          timestamp,
+          totalAPY,
+          nTokenIncentiveRate,
+          nTokenSecondaryIncentiveRate,
+        }) => ({
+          timestamp,
+          area: totalAPY,
+          nTokenIncentiveRate,
+          nTokenSecondaryIncentiveRate,
+        })
+      ) || [],
+      { area: 0, nTokenIncentiveRate: 0, nTokenSecondaryIncentiveRate: 0 }
     ),
     tvlData: fillChartDaily(
       tvlData?.map(({ timestamp, tvlUSD }) => ({

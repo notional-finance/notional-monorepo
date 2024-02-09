@@ -33,12 +33,14 @@ export interface BarChartProps {
   barConfig: BarConfigProps[];
   xAxisTickFormat?: 'date' | 'percent';
   yAxisTickFormat?: 'percent' | 'number' | 'currency';
+  title?: string;
 }
 
 export const BarChart = ({
   yAxisTickFormat = 'percent',
   barChartData,
   barConfig,
+  title,
 }: BarChartProps) => {
   const theme = useTheme();
 
@@ -60,6 +62,7 @@ export const BarChart = ({
   };
 
   console.log({ barChartData });
+  console.log({ title });
 
   return (
     <Box>
