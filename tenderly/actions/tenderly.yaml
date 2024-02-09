@@ -1,0 +1,25 @@
+actions:
+  notional-finance/notionalv2:
+    runtime: v2
+    sources: .
+    specs:
+      accounts:
+        description: Process new Notional accounts
+        function: src/index:accountsFn
+        trigger:
+          type: transaction
+          transaction:
+            status:
+              - mined
+            filters:
+              - network: 42161
+                eventEmitted:
+                  contract:
+                    address: 0x1344A36A1B56144C3Bc62E7757377D288fDE0369
+                  name: AccountContextUpdate
+              - network: 42161
+                eventEmitted:
+                  contract:
+                    address: 0x1344A36A1B56144C3Bc62E7757377D288fDE0369
+                  name: TransferSingle
+        execution_type: sequential

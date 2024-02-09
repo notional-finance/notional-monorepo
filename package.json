@@ -21,7 +21,6 @@
     "@mui/material": "^5.8.3",
     "@segment/analytics-next": "^1.58.0",
     "@swc/helpers": "~0.4.11",
-    "@tenderly/actions": "^0.2.13",
     "@tryghost/content-api": "^1.5.13",
     "@typeform/embed-react": "^1.16.0",
     "@types/recharts": "^1.8.24",
