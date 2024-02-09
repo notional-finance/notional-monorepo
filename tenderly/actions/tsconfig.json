@@ -12,12 +12,12 @@
     "sourceMap": true,
     "strict": true,
     "types": [ "@types/node", "@types/jest"],
-    "target": "esnext"
+    "target": "es2020"
   },
   "exclude": [
     "**/*.spec.ts"
   ],
   "include": [
-    "**/*"
+    "src/*"
   ]
 }

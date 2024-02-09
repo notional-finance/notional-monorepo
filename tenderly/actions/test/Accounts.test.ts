@@ -1,11 +1,9 @@
 
 import { TestRuntime, TestTransactionEvent, TestLog } from '@tenderly/actions-test';
 import { accountsFn } from '../src/index';
+import fetch from 'node-fetch';
 
-//@ts-ignore
-global.fetch = jest.fn(() => Promise.resolve({
-  json: () => Promise.resolve('Ok')
-}));
+jest.mock('node-fetch');
 
 
 test("parse accounts events", async () => {

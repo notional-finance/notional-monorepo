@@ -1,6 +1,7 @@
 import { ActionFn, Context, Event, TransactionEvent } from '@tenderly/actions';
 import { BigNumber, ethers } from 'ethers';
-import { NotionalV3ABI } from '@notional-finance/contracts';
+import NotionalV3ABI from '@notional-finance/contracts/src/abi/NotionalV3.json';
+import fetch from 'node-fetch';
 
 const url = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/events';
 
