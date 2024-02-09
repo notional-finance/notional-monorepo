@@ -12,7 +12,7 @@ import { useNotionalContext } from './use-notional';
 import { useTransactionStatus } from './use-transaction';
 import moment from 'moment';
 
-export const showContestNavLink = true;
+export const showContestNavLink = false;
 // Millisecond time stamp for Feb 21st 10:00 AM EST
 export const contestStartDate = 1708509600000;
 // Millisecond time stamp for Mar 21st 10:00 AM EST'
