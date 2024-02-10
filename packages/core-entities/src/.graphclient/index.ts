@@ -3948,7 +3948,7 @@ export type Reinvestment = {
   transactionHash: Scalars['Bytes'];
   vault: VaultConfiguration;
   /** Address of the token sold */
-  rewardTokenSold: Scalars['Bytes'];
+  rewardTokenSold: Token;
   /** Amount of reward tokens sold */
   rewardAmountSold: Scalars['BigInt'];
   /** Amount of LP tokens reinvested */
@@ -3956,6 +3956,8 @@ export type Reinvestment = {
   tokensPerVaultShare?: Maybe<Scalars['BigInt']>;
   /** Value of the tokens reinvested */
   underlyingAmountRealized?: Maybe<Scalars['BigInt']>;
+  /** Vault Share Price after Reinvestment */
+  vaultSharePrice?: Maybe<Scalars['BigInt']>;
 };
 
 export type Reinvestment_filter = {
@@ -4014,16 +4016,27 @@ export type Reinvestment_filter = {
   vault_not_ends_with?: InputMaybe<Scalars['String']>;
   vault_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   vault_?: InputMaybe<VaultConfiguration_filter>;
-  rewardTokenSold?: InputMaybe<Scalars['Bytes']>;
-  rewardTokenSold_not?: InputMaybe<Scalars['Bytes']>;
-  rewardTokenSold_gt?: InputMaybe<Scalars['Bytes']>;
-  rewardTokenSold_lt?: InputMaybe<Scalars['Bytes']>;
-  rewardTokenSold_gte?: InputMaybe<Scalars['Bytes']>;
-  rewardTokenSold_lte?: InputMaybe<Scalars['Bytes']>;
-  rewardTokenSold_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  rewardTokenSold_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  rewardTokenSold_contains?: InputMaybe<Scalars['Bytes']>;
-  rewardTokenSold_not_contains?: InputMaybe<Scalars['Bytes']>;
+  rewardTokenSold?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_not?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_gt?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_lt?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_gte?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_lte?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_in?: InputMaybe<Array<Scalars['String']>>;
+  rewardTokenSold_not_in?: InputMaybe<Array<Scalars['String']>>;
+  rewardTokenSold_contains?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_contains_nocase?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_not_contains?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_starts_with?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_not_starts_with?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_ends_with?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_not_ends_with?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  rewardTokenSold_?: InputMaybe<Token_filter>;
   rewardAmountSold?: InputMaybe<Scalars['BigInt']>;
   rewardAmountSold_not?: InputMaybe<Scalars['BigInt']>;
   rewardAmountSold_gt?: InputMaybe<Scalars['BigInt']>;
@@ -4056,6 +4069,14 @@ export type Reinvestment_filter = {
   underlyingAmountRealized_lte?: InputMaybe<Scalars['BigInt']>;
   underlyingAmountRealized_in?: InputMaybe<Array<Scalars['BigInt']>>;
   underlyingAmountRealized_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  vaultSharePrice?: InputMaybe<Scalars['BigInt']>;
+  vaultSharePrice_not?: InputMaybe<Scalars['BigInt']>;
+  vaultSharePrice_gt?: InputMaybe<Scalars['BigInt']>;
+  vaultSharePrice_lt?: InputMaybe<Scalars['BigInt']>;
+  vaultSharePrice_gte?: InputMaybe<Scalars['BigInt']>;
+  vaultSharePrice_lte?: InputMaybe<Scalars['BigInt']>;
+  vaultSharePrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  vaultSharePrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Reinvestment_filter>>>;
@@ -4097,10 +4118,31 @@ export type Reinvestment_orderBy =
   | 'vault__maxPrimaryBorrowCapacity'
   | 'vault__totalUsedPrimaryBorrowCapacity'
   | 'rewardTokenSold'
+  | 'rewardTokenSold__id'
+  | 'rewardTokenSold__firstUpdateBlockNumber'
+  | 'rewardTokenSold__firstUpdateTimestamp'
+  | 'rewardTokenSold__firstUpdateTransactionHash'
+  | 'rewardTokenSold__lastUpdateBlockNumber'
+  | 'rewardTokenSold__lastUpdateTimestamp'
+  | 'rewardTokenSold__lastUpdateTransactionHash'
+  | 'rewardTokenSold__tokenType'
+  | 'rewardTokenSold__tokenInterface'
+  | 'rewardTokenSold__currencyId'
+  | 'rewardTokenSold__name'
+  | 'rewardTokenSold__symbol'
+  | 'rewardTokenSold__decimals'
+  | 'rewardTokenSold__precision'
+  | 'rewardTokenSold__totalSupply'
+  | 'rewardTokenSold__hasTransferFee'
+  | 'rewardTokenSold__isfCashDebt'
+  | 'rewardTokenSold__maturity'
+  | 'rewardTokenSold__vaultAddress'
+  | 'rewardTokenSold__tokenAddress'
   | 'rewardAmountSold'
   | 'tokensReinvested'
   | 'tokensPerVaultShare'
-  | 'underlyingAmountRealized';
+  | 'underlyingAmountRealized'
+  | 'vaultSharePrice';
 
 export type Subscription = {
   token?: Maybe<Token>;
@@ -7502,11 +7544,12 @@ export type ReinvestmentResolvers<ContextType = MeshContext & { chainName: strin
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   vault?: Resolver<ResolversTypes['VaultConfiguration'], ParentType, ContextType>;
-  rewardTokenSold?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  rewardTokenSold?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   rewardAmountSold?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   tokensReinvested?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   tokensPerVaultShare?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   underlyingAmountRealized?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  vaultSharePrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7850,7 +7893,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-v3-{context.chainName:arbitrum}/version/latest"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-finance-v3-{context.chainName:arbitrum}/version/latest"},
               baseDir,
               cache,
               pubsub,
@@ -8199,8 +8242,8 @@ export type VaultReinvestmentQueryVariables = Exact<{
 
 
 export type VaultReinvestmentQuery = { reinvestments: Array<(
-    Pick<Reinvestment, 'timestamp' | 'blockNumber' | 'transactionHash' | 'rewardTokenSold' | 'rewardAmountSold' | 'tokensReinvested' | 'tokensPerVaultShare' | 'underlyingAmountRealized'>
-    & { vault: Pick<VaultConfiguration, 'id'> }
+    Pick<Reinvestment, 'timestamp' | 'blockNumber' | 'transactionHash' | 'rewardAmountSold' | 'tokensReinvested' | 'tokensPerVaultShare' | 'underlyingAmountRealized'>
+    & { vault: Pick<VaultConfiguration, 'id'>, rewardTokenSold: Pick<Token, 'id'> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 
@@ -8882,7 +8925,9 @@ export const VaultReinvestmentDocument = gql`
     vault {
       id
     }
-    rewardTokenSold
+    rewardTokenSold {
+      id
+    }
     rewardAmountSold
     tokensReinvested
     tokensPerVaultShare

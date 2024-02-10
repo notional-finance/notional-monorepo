@@ -3974,7 +3974,7 @@ type Reinvestment {
   transactionHash: Bytes!
   vault: VaultConfiguration!
   """Address of the token sold"""
-  rewardTokenSold: Bytes!
+  rewardTokenSold: Token!
   """Amount of reward tokens sold"""
   rewardAmountSold: BigInt!
   """Amount of LP tokens reinvested"""
@@ -3982,6 +3982,8 @@ type Reinvestment {
   tokensPerVaultShare: BigInt
   """Value of the tokens reinvested"""
   underlyingAmountRealized: BigInt
+  """Vault Share Price after Reinvestment"""
+  vaultSharePrice: BigInt
 }
 
 input Reinvestment_filter {
@@ -4040,16 +4042,27 @@ input Reinvestment_filter {
   vault_not_ends_with: String
   vault_not_ends_with_nocase: String
   vault_: VaultConfiguration_filter
-  rewardTokenSold: Bytes
-  rewardTokenSold_not: Bytes
-  rewardTokenSold_gt: Bytes
-  rewardTokenSold_lt: Bytes
-  rewardTokenSold_gte: Bytes
-  rewardTokenSold_lte: Bytes
-  rewardTokenSold_in: [Bytes!]
-  rewardTokenSold_not_in: [Bytes!]
-  rewardTokenSold_contains: Bytes
-  rewardTokenSold_not_contains: Bytes
+  rewardTokenSold: String
+  rewardTokenSold_not: String
+  rewardTokenSold_gt: String
+  rewardTokenSold_lt: String
+  rewardTokenSold_gte: String
+  rewardTokenSold_lte: String
+  rewardTokenSold_in: [String!]
+  rewardTokenSold_not_in: [String!]
+  rewardTokenSold_contains: String
+  rewardTokenSold_contains_nocase: String
+  rewardTokenSold_not_contains: String
+  rewardTokenSold_not_contains_nocase: String
+  rewardTokenSold_starts_with: String
+  rewardTokenSold_starts_with_nocase: String
+  rewardTokenSold_not_starts_with: String
+  rewardTokenSold_not_starts_with_nocase: String
+  rewardTokenSold_ends_with: String
+  rewardTokenSold_ends_with_nocase: String
+  rewardTokenSold_not_ends_with: String
+  rewardTokenSold_not_ends_with_nocase: String
+  rewardTokenSold_: Token_filter
   rewardAmountSold: BigInt
   rewardAmountSold_not: BigInt
   rewardAmountSold_gt: BigInt
@@ -4082,6 +4095,14 @@ input Reinvestment_filter {
   underlyingAmountRealized_lte: BigInt
   underlyingAmountRealized_in: [BigInt!]
   underlyingAmountRealized_not_in: [BigInt!]
+  vaultSharePrice: BigInt
+  vaultSharePrice_not: BigInt
+  vaultSharePrice_gt: BigInt
+  vaultSharePrice_lt: BigInt
+  vaultSharePrice_gte: BigInt
+  vaultSharePrice_lte: BigInt
+  vaultSharePrice_in: [BigInt!]
+  vaultSharePrice_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [Reinvestment_filter]
@@ -4123,10 +4144,31 @@ enum Reinvestment_orderBy {
   vault__maxPrimaryBorrowCapacity
   vault__totalUsedPrimaryBorrowCapacity
   rewardTokenSold
+  rewardTokenSold__id
+  rewardTokenSold__firstUpdateBlockNumber
+  rewardTokenSold__firstUpdateTimestamp
+  rewardTokenSold__firstUpdateTransactionHash
+  rewardTokenSold__lastUpdateBlockNumber
+  rewardTokenSold__lastUpdateTimestamp
+  rewardTokenSold__lastUpdateTransactionHash
+  rewardTokenSold__tokenType
+  rewardTokenSold__tokenInterface
+  rewardTokenSold__currencyId
+  rewardTokenSold__name
+  rewardTokenSold__symbol
+  rewardTokenSold__decimals
+  rewardTokenSold__precision
+  rewardTokenSold__totalSupply
+  rewardTokenSold__hasTransferFee
+  rewardTokenSold__isfCashDebt
+  rewardTokenSold__maturity
+  rewardTokenSold__vaultAddress
+  rewardTokenSold__tokenAddress
   rewardAmountSold
   tokensReinvested
   tokensPerVaultShare
   underlyingAmountRealized
+  vaultSharePrice
 }
 
 type Subscription {

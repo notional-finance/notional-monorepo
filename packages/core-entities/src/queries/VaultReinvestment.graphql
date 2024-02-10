@@ -10,7 +10,7 @@ query VaultReinvestment($skip: Int, $minTimestamp: Int) {
     blockNumber
     transactionHash
     vault { id }
-    rewardTokenSold
+    rewardTokenSold { id }
     rewardAmountSold
     tokensReinvested
     tokensPerVaultShare
