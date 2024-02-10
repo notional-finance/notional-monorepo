@@ -2,7 +2,7 @@ sources:
   - name: NotionalV3
     handler:
       graphql:
-        endpoint: https://api.studio.thegraph.com/query/36749/notional-v3-{context.chainName:arbitrum}/version/latest
+        endpoint: https://api.studio.thegraph.com/query/36749/notional-finance-v3-{context.chainName:arbitrum}/version/latest
 
 documents:
   - ./queries/*.graphql
