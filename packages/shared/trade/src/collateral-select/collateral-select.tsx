@@ -27,10 +27,11 @@ export const CollateralSelect = ({
       depositBalance,
       collateralOptions,
       availableCollateralTokens,
+      selectedNetwork
     },
   } = context;
   const spotRates = useSpotMaturityData(
-    deposit ? availableCollateralTokens : []
+    deposit ? availableCollateralTokens : [], selectedNetwork
   );
 
   const options = availableCollateralTokens

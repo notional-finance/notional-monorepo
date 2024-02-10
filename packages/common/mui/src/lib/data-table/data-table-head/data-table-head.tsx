@@ -9,12 +9,14 @@ import {
 } from '@mui/material';
 import { UpAndDownIcon } from '@notional-finance/icons';
 import { TableColumnHeading } from '../../typography/typography';
+import { DataTableTitleBar } from '../data-table-title-bar/data-table-title-bar';
 import { NotionalTheme } from '@notional-finance/styles';
 
 interface DataTableHeadProps {
   headerGroups: Array<HeaderGroup>;
   expandableTable: boolean;
   tableVariant?: TABLE_VARIANTS;
+  tableTitle?: JSX.Element;
 }
 interface TableHeadContainerProps {
   expandableTable: boolean;
@@ -24,8 +26,9 @@ interface TableHeadContainerProps {
 
 export const DataTableHead = ({
   headerGroups,
-  expandableTable,
+  expandableTable = false,
   tableVariant,
+  tableTitle,
 }: DataTableHeadProps) => {
   const theme = useTheme();
   return (
@@ -33,7 +36,14 @@ export const DataTableHead = ({
       expandableTable={expandableTable}
       tableVariant={tableVariant}
       theme={theme}
+      className="header"
     >
+      {tableTitle && (
+        <DataTableTitleBar
+          tableTitle={tableTitle}
+          tableVariant={tableVariant}
+        />
+      )}
       {headerGroups.map((headerGroup: HeaderGroup) => (
         <TableRow
           {...headerGroup['getHeaderGroupProps']()}

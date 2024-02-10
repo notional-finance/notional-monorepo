@@ -16,15 +16,9 @@ export function Maturities({
   maturityData,
   onSelect,
   selectedfCashId,
-  defaultfCashId,
   inputLabel,
 }: MaturitiesProps) {
   const theme = useTheme();
-
-  if (!selectedfCashId) {
-    onSelect(defaultfCashId);
-  }
-
   return (
     <Box>
       <InputLabel inputLabel={inputLabel} />

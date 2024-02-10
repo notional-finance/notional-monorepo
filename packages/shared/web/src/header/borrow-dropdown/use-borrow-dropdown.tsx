@@ -3,14 +3,15 @@ import { useTheme } from '@mui/material';
 import { CoinsIcon, CoinsCircleIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { usePendingValues } from '../invest-and-earn/use-invest-earn-links';
+import { Network } from '@notional-finance/util';
 
 export const useBorrowDropDown = () => {
   const theme = useTheme();
 
   const {
     headlineRates: { fCashBorrow, variableBorrow },
-  } = useAllMarkets();
+  } = useAllMarkets(Network.ArbitrumOne);
 
   const links: SectionLinkProps[] = [
     {
@@ -29,7 +30,7 @@ export const useBorrowDropDown = () => {
         <FormattedMessage
           defaultMessage="Borrow with interest as low as {rate} APY"
           values={{
-            rate: formatNumberAsPercent(fCashBorrow?.totalAPY || 0),
+            rate: usePendingValues(fCashBorrow?.totalAPY),
           }}
         />
       ),
@@ -51,7 +52,7 @@ export const useBorrowDropDown = () => {
         <FormattedMessage
           defaultMessage="Borrow with interest as low as {rate} variable APY"
           values={{
-            rate: formatNumberAsPercent(variableBorrow?.totalAPY || 0),
+            rate: usePendingValues(variableBorrow?.totalAPY),
           }}
         />
       ),

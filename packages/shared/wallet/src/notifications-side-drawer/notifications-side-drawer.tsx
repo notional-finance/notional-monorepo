@@ -118,7 +118,7 @@ const Title = styled(Box)(
   margin-bottom: 20px;
   margin-top: 40px;
   font-weight: 700;
-  color: ${theme.palette.borders.accentDefault};
+  color: ${theme.palette.typography.light};
   display: flex;
   text-transform: uppercase;
   `

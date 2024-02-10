@@ -2,7 +2,6 @@ import { TokenDefinition, Registry } from '@notional-finance/core-entities';
 import {
   Observable,
   combineLatest,
-  pairwise,
   map,
   filter,
   distinctUntilChanged,
@@ -10,60 +9,133 @@ import {
 import {
   BaseTradeState,
   TradeState,
+  TradeType,
   VaultTradeState,
+  VaultTradeType,
 } from '../base-trade-store';
 import { selectedAccount, selectedNetwork } from '../../global';
-import { getNowSeconds, filterEmpty } from '@notional-finance/util';
+import {
+  getNowSeconds,
+  filterEmpty,
+  PRIME_CASH_VAULT_MATURITY,
+} from '@notional-finance/util';
 import { getTradeConfig } from '../trade-calculation';
+
+function getDefaultTokens(
+  availableTokens: TokenDefinition[],
+  category: Category,
+  tradeType?: TradeType | VaultTradeType | undefined
+) {
+  if (tradeType === 'LendFixed' && category === 'Collateral') {
+    return availableTokens[0];
+  } else if (tradeType === 'BorrowFixed' && category === 'Debt') {
+    return availableTokens[0];
+  } else if (tradeType === 'LeveragedNToken' && category === 'Debt') {
+    return availableTokens.find((t) => t.tokenType === 'PrimeDebt');
+  } else if (tradeType === 'CreateVaultPosition') {
+    return availableTokens.find(
+      (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
+    );
+  } else {
+    return undefined;
+  }
+}
 
 /** Ensures that tokens are automatically selected or cleared when they change */
 function getSelectedToken(
   availableTokens: TokenDefinition[],
-  selectedToken: string | undefined
+  selectedToken: string | undefined,
+  category: Category,
+  tradeType?: TradeType | VaultTradeType | undefined
 ) {
-  if (availableTokens.length === 1) return availableTokens[0];
-  return availableTokens.find((t) => t.symbol === selectedToken);
+  if (availableTokens.length === 1) {
+    return availableTokens[0];
+  } else if (selectedToken === undefined) {
+    return getDefaultTokens(availableTokens, category, tradeType);
+  } else {
+    return availableTokens.find((t) => t.symbol === selectedToken);
+  }
 }
 
 export type Category = 'Collateral' | 'Debt' | 'Deposit';
 
-export function selectedToken(
-  state$: Observable<BaseTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>
-) {
-  return combineLatest([state$, selectedNetwork$]).pipe(
-    // NOTE: distinct until changed does not work with this for some reason
-    pairwise(),
-    map(([[prevS, prevN], [curS, selectedNetwork]]) => {
-      const selectedToken = curS.selectedDepositToken;
-      const token = curS.deposit;
+export function selectedDepositToken(state$: Observable<BaseTradeState>) {
+  return state$.pipe(
+    distinctUntilChanged(
+      (p, c) =>
+        p.selectedDepositToken === c.selectedDepositToken &&
+        p.selectedNetwork === c.selectedNetwork
+    ),
+    map(({ selectedDepositToken, selectedNetwork }) => {
+      if (!selectedDepositToken || !selectedNetwork) return undefined;
       return {
-        hasChanged:
-          prevS.selectedDepositToken !== selectedToken ||
-          prevN !== selectedNetwork ||
-          (!!selectedToken && token === undefined),
-        selectedToken,
-        selectedNetwork,
+        deposit: Registry.getTokenRegistry().getTokenBySymbol(
+          selectedNetwork,
+          selectedDepositToken
+        ),
       };
     }),
-    filter(({ hasChanged }) => hasChanged),
-    map(({ selectedToken, selectedNetwork }) => {
-      let deposit: TokenDefinition | undefined;
-      if (selectedToken && selectedNetwork) {
-        try {
-          const tokens = Registry.getTokenRegistry();
-          deposit = tokens.getTokenBySymbol(selectedNetwork, selectedToken);
-        } catch {
-          // NOTE: some tokens may not have nTokens listed, if so then this will
-          // remain undefined
-          console.error(
-            `Token ${selectedToken} not found on network ${selectedNetwork}`
-          );
-        }
+    filterEmpty()
+  );
+}
+
+export function selectedPortfolioToken(state$: Observable<BaseTradeState>) {
+  return state$.pipe(
+    distinctUntilChanged(
+      (p, c) =>
+        p.selectedToken === c.selectedToken &&
+        p.selectedNetwork === c.selectedNetwork &&
+        p.tradeType === c.tradeType
+    ),
+    filter(
+      ({ tradeType }) =>
+        // Roll Debt here is used to trigger the selected token for LeveragedNTokn
+        tradeType === 'RollDebt' ||
+        tradeType === 'RepayDebt' ||
+        tradeType === 'Withdraw' ||
+        tradeType === 'RollVaultPosition' ||
+        tradeType === 'Deposit'
+    ),
+    map(({ selectedToken, selectedNetwork, tradeType }) => {
+      if (!selectedToken || !selectedNetwork || !tradeType) return undefined;
+      const tokens = Registry.getTokenRegistry();
+      if (tradeType === 'Deposit') {
+        // In deposit collateral, the selectedToken is the underlying symbol
+        const underlying = tokens.getTokenBySymbol(
+          selectedNetwork,
+          selectedToken
+        );
+        return {
+          deposit: underlying,
+          collateral: tokens.getPrimeCash(
+            selectedNetwork,
+            underlying.currencyId
+          ),
+        };
       }
 
-      return { deposit };
-    })
+      const selected = tokens.getTokenByID(selectedNetwork, selectedToken);
+      if (tradeType === 'RepayDebt') {
+        return {
+          collateral:
+            selected.tokenType === 'PrimeDebt'
+              ? tokens.getPrimeCash(selected.network, selected.currencyId)
+              : selected,
+        };
+      } else if (tradeType === 'Withdraw' || tradeType === 'RollDebt') {
+        return {
+          debt:
+            selected.tokenType === 'PrimeCash'
+              ? tokens.getPrimeDebt(selected.network, selected.currencyId)
+              : selected,
+        };
+      } else if (tradeType === 'RollVaultPosition') {
+        return { debt: selected };
+      } else {
+        return undefined;
+      }
+    }),
+    filterEmpty()
   );
 }
 
@@ -80,7 +152,6 @@ export function availableTokens(
         p.deposit?.id === c.deposit?.id &&
         p.collateral?.id === c.collateral?.id &&
         p.debt?.id === c.debt?.id &&
-        p.selectedDepositToken === c.selectedDepositToken &&
         p.tradeType === c.tradeType
       );
     }),
@@ -96,7 +167,7 @@ export function availableTokens(
       // we apply collateral and debt filters. This reduces race conditions and improves front end
       // performance.
       const availableDepositTokens = listedTokens
-        .filter((t) => t.tokenType === 'Underlying')
+        .filter((t) => t.tokenType === 'Underlying' && !!t.currencyId)
         // By default we only allow tokens with a currency id specified (i.e. they are listed
         // on Notional)
         .filter((t) =>
@@ -104,9 +175,11 @@ export function availableTokens(
             ? depositFilter(t, account, s, listedTokens)
             : !!t.currencyId
         );
+
       const deposit = getSelectedToken(
         availableDepositTokens,
-        s.selectedDepositToken || s.deposit?.symbol
+        s.selectedDepositToken || s.deposit?.symbol,
+        'Deposit'
       );
       const newState = Object.assign(s, { deposit });
 
@@ -143,19 +216,29 @@ export function availableTokens(
           debtFilter ? debtFilter(t, account, newState, listedTokens) : true
         );
 
+      const debt = getSelectedToken(
+        availableDebtTokens,
+        s.debt?.symbol,
+        'Debt',
+        s.tradeType
+      );
+      const collateral = getSelectedToken(
+        availableCollateralTokens,
+        s.collateral?.symbol,
+        'Collateral',
+        s.tradeType
+      );
+
       const hasChanged =
         availableCollateralTokens.map((t) => t.id).join(':') !==
           s.availableCollateralTokens?.map((t) => t.id).join(':') ||
         availableDebtTokens.map((t) => t.id).join(':') !==
           s.availableDebtTokens?.map((t) => t.id).join(':') ||
         availableDepositTokens.map((t) => t.id).join(':') !==
-          s.availableDepositTokens?.map((t) => t.id).join(':');
-
-      const debt = getSelectedToken(availableDebtTokens, s.debt?.symbol);
-      const collateral = getSelectedToken(
-        availableCollateralTokens,
-        s.collateral?.symbol
-      );
+          s.availableDepositTokens?.map((t) => t.id).join(':') ||
+        s.debt?.id !== debt?.id ||
+        s.collateral?.id !== collateral?.id ||
+        s.deposit?.id !== deposit?.id;
 
       return hasChanged
         ? {
@@ -167,7 +250,6 @@ export function availableTokens(
             deposit,
             debt,
             collateral,
-            selectedDepositToken: deposit?.symbol,
           }
         : undefined;
     }),

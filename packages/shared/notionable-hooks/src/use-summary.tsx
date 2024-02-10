@@ -30,6 +30,7 @@ import { useAllMarkets } from './use-market';
 import { useFiat } from './use-user-settings';
 import { colors } from '@notional-finance/styles';
 import { useTheme } from '@mui/material';
+import { useVaultPosition } from './use-account';
 
 interface DetailItem {
   label: React.ReactNode;
@@ -195,9 +196,10 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
     netRealizedCollateralBalance,
     depositBalance,
     tradeType,
+    selectedNetwork,
   } = state;
   const intl = useIntl();
-  const { nonLeveragedYields } = useAllMarkets();
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const orderDetails: DetailItem[] = [];
   // Only show positive values if one of the values is defined
   const isLeverageOrRoll = !!debtBalance && !!collateralBalance;
@@ -484,10 +486,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
           collateralBalance.token
         )
       );
-    } else if (
-      tradeType === 'WithdrawVault' ||
-      tradeType === 'WithdrawAndRepayVault'
-    ) {
+    } else if (tradeType === 'WithdrawVault') {
       // Sell assets
       summary.push(
         getTradeDetail(collateralBalance.neg(), 'Asset', 'withdraw', intl)
@@ -545,9 +544,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
         // This is the new asset balance
         summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));
     }
-  } else if (tradeType === 'DepositVaultCollateral') {
-    if (collateralBalance)
-      summary.push(getTradeDetail(collateralBalance, 'Asset', 'deposit', intl));
   } else if (depositBalance?.isPositive()) {
     if (netDebtBalance?.isZero() === false)
       summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
@@ -840,13 +836,15 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 
 export function useVaultLiquidationRisk(state: VaultTradeState) {
   const {
-    priorAccountRisk,
     postAccountRisk,
     netWorth,
     liquidationPrice,
     borrowAPY,
     totalAPY,
+    vaultAddress,
+    selectedNetwork,
   } = state;
+  const currentPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
   const baseCurrency = useFiat();
@@ -855,14 +853,17 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
     {
       ...totalAPY,
       label: intl.formatMessage({ defaultMessage: 'Total APY' }),
-      current: formatNumberAsPercentWithUndefined(totalAPY?.current, '-'),
+      current: formatNumberAsPercentWithUndefined(
+        currentPosition?.totalAPY,
+        '-'
+      ),
       updated: formatNumberAsPercentWithUndefined(totalAPY?.updated, '-'),
     },
     {
       ...netWorth,
       label: intl.formatMessage({ defaultMessage: 'Net Worth' }),
       current:
-        netWorth?.current
+        currentPosition?.netWorth
           ?.toFiat(baseCurrency)
           .toDisplayStringWithSymbol(3, true) || '-',
       updated:
@@ -873,7 +874,10 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
     {
       ...borrowAPY,
       label: intl.formatMessage({ defaultMessage: 'Borrow APY' }),
-      current: formatNumberAsPercentWithUndefined(borrowAPY?.current, '-'),
+      current: formatNumberAsPercentWithUndefined(
+        currentPosition?.borrowAPY,
+        '-'
+      ),
       updated: formatNumberAsPercentWithUndefined(borrowAPY?.updated, '-'),
     },
   ];
@@ -890,8 +894,7 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
     onlyCurrent,
     tooRisky: postAccountRisk?.aboveMaxLeverageRatio || false,
     priorAccountNoRisk:
-      priorAccountRisk === undefined ||
-      priorAccountRisk?.leverageRatio === null,
+      currentPosition === undefined || currentPosition?.leverageRatio === null,
     postAccountNoRisk:
       postAccountRisk === undefined || postAccountRisk?.leverageRatio === null,
     tableData: [...factors, ...liquidationPrices],

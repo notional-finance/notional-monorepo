@@ -42,8 +42,7 @@ export const useLeaderBoardTables = () => {
       textAlign: 'right',
     },
   ];
-  const { highRollerData, sadSackData, fatCatData, currentUserData } =
-    useLeaderboardData();
+  const { highRollerData, fatCatData, currentUserData } = useLeaderboardData();
 
   const currentUserColumns = leaderBoardColumns.filter(
     ({ accessor }) => accessor !== 'address'
@@ -55,6 +54,5 @@ export const useLeaderBoardTables = () => {
     currentUserColumns,
     highRollerData,
     fatCatData,
-    sadSackData,
   };
 };

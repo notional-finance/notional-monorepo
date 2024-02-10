@@ -9,6 +9,8 @@ import {
   VaultContext,
   TradeContext,
   useLeverageBlock,
+  useWalletConnectedNetwork,
+  useReadOnlyAddress,
 } from '@notional-finance/notionable-hooks';
 import { TradeState } from '@notional-finance/notionable';
 import { useCallback, useEffect, useState } from 'react';
@@ -31,6 +33,7 @@ import { useLocation } from 'react-router-dom';
 import { TradeSummary } from './components/trade-summary';
 import { isLeveragedTrade } from '@notional-finance/notionable';
 import { PRODUCTS } from '@notional-finance/util';
+import { SwitchNetwork } from '../transaction-approvals/switch-network';
 
 interface TransactionSidebarProps {
   heading?:
@@ -77,23 +80,30 @@ export const TransactionSidebar = ({
   const { state, updateState } = context;
   const { pathname } = useLocation();
   const [showTxnApprovals, setShowTxnApprovals] = useState(false);
-  const { canSubmit, confirm, tradeType, debt, collateral } = state;
+  const [showSwitchNetwork, setShowSwitchNetwork] = useState(false);
+  const { canSubmit, confirm, tradeType, debt, collateral, selectedNetwork } =
+    state;
+  const walletConnectedNetwork = useWalletConnectedNetwork();
+  const isReadyOnlyWallet = useReadOnlyAddress();
   const isBlocked = useLeverageBlock();
   const approvalData = useTransactionApprovals(
     context,
     requiredApprovalAmount,
     variableBorrowRequired
   );
+  const mustSwitchNetwork = selectedNetwork !== walletConnectedNetwork;
 
   const { showApprovals } = approvalData;
 
   const handleSubmit = useCallback(() => {
-    if (showApprovals) {
+    if (mustSwitchNetwork && !isReadyOnlyWallet) {
+      setShowSwitchNetwork(true);
+    } else if (showApprovals && !isReadyOnlyWallet) {
       setShowTxnApprovals(true);
     } else {
       updateState({ confirm: true });
     }
-  }, [updateState, showApprovals]);
+  }, [updateState, showApprovals, mustSwitchNetwork, isReadyOnlyWallet]);
 
   const onConfirmCancel = useCallback(() => {
     updateState({ confirm: false });
@@ -101,11 +111,28 @@ export const TransactionSidebar = ({
 
   useEffect(() => {
     // NOTE: Triggers confirmations once all approvals are complete.
+    if (!mustSwitchNetwork && showSwitchNetwork) {
+      setShowSwitchNetwork(false);
+
+      // If approvals are still required proceed to that stage
+      if (showApprovals) {
+        setShowTxnApprovals(true);
+      } else {
+        updateState({ confirm: true });
+      }
+    }
+
     if (!showApprovals && showTxnApprovals) {
       setShowTxnApprovals(false);
       updateState({ confirm: true });
     }
-  }, [showApprovals, showTxnApprovals, updateState]);
+  }, [
+    showApprovals,
+    showTxnApprovals,
+    mustSwitchNetwork,
+    showSwitchNetwork,
+    updateState,
+  ]);
 
   if (tradeType === undefined) return <PageLoading />;
 
@@ -149,7 +176,12 @@ export const TransactionSidebar = ({
     }
   };
 
-  const inner = showTxnApprovals ? (
+  const inner = showSwitchNetwork ? (
+    <SwitchNetwork
+      context={context}
+      onCancel={() => setShowSwitchNetwork(false)}
+    />
+  ) : showTxnApprovals ? (
     <TransactionApprovals
       context={context}
       onCancel={() => setShowTxnApprovals(false)}

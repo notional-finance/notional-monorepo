@@ -4,7 +4,7 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { formatTokenType, getDateString } from '@notional-finance/helpers';
+import { formatTokenType } from '@notional-finance/helpers';
 import {
   ChartToolTipDataProps,
   CountUp,
@@ -14,14 +14,14 @@ import {
 } from '@notional-finance/mui';
 import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
-import { RATE_PRECISION } from '@notional-finance/util';
+import { RATE_PRECISION, getDateString } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { AxisDomain } from 'recharts/types/util/types';
 
 export function useLiquidationChart(
   state: TradeState | VaultTradeState,
   vaultCollateral?: TokenDefinition,
-  vaultLiquidationPrice?: TokenBalance
+  vaultLiquidationPrice?: TokenBalance | null
 ) {
   const theme = useTheme();
   const {

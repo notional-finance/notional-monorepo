@@ -8,12 +8,13 @@ export interface ApprovalButtonProps {
   symbol: string;
   sx?: Record<string, string>;
   showSymbol?: boolean;
+  showIconOnly?: boolean;
   callback: () => void;
   description: MessageDescriptor;
   title: MessageDescriptor;
   buttonText: MessageDescriptor;
   pending: boolean;
-  depositAmount?: string;
+  descriptionValues?: Record<string, string | undefined>;
 }
 
 export const ApprovalButton = ({
@@ -24,8 +25,9 @@ export const ApprovalButton = ({
   buttonText,
   pending,
   showSymbol = true,
+  showIconOnly,
   sx = {},
-  depositAmount,
+  descriptionValues,
 }: ApprovalButtonProps) => {
   const theme = useTheme();
 
@@ -34,6 +36,7 @@ export const ApprovalButton = ({
       onClick={() => callback()}
       sx={{
         display: 'flex',
+        justifyContent: 'space-between',
         backgroundColor: theme.palette.background.paper,
         padding: theme.spacing(2),
         border: theme.shape.borderStandard,
@@ -57,6 +60,11 @@ export const ApprovalButton = ({
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {showIconOnly && (
+            <Box sx={{ marginRight: theme.spacing(1) }}>
+              <TokenIcon symbol={symbol} size="medium" />
+            </Box>
+          )}
           {showSymbol && (
             <>
               <TokenIcon symbol={symbol} size="medium" />
@@ -87,18 +95,14 @@ export const ApprovalButton = ({
             color: theme.palette.typography.light,
           }}
         >
-          <FormattedMessage
-            {...description}
-            values={{
-              depositAmount,
-            }}
-          />
+          <FormattedMessage {...description} values={descriptionValues} />
         </Label>
       </Box>
       <Box
         sx={{
           alignItems: 'center',
           display: 'flex',
+          marginRight: theme.spacing(1),
           minWidth: theme.spacing(10.5),
         }}
       >

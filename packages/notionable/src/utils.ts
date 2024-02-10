@@ -10,6 +10,19 @@ import {
 import { BaseTradeState } from './base-trade/base-trade-store';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { RiskFactorKeys, RiskFactorLimit } from '@notional-finance/risk-engine';
+import { NetworkLoadingState } from './global';
+import { Network } from '@notional-finance/util';
+
+export function isAppReady(
+  networkState: Record<Network, NetworkLoadingState> | undefined
+) {
+  return (
+    !!networkState &&
+    Object.keys(networkState).every(
+      (n) => networkState[n as Network] === 'Loaded'
+    )
+  );
+}
 
 export function makeStore<StateType>(initialState: StateType) {
   const _store = new BehaviorSubject(initialState);

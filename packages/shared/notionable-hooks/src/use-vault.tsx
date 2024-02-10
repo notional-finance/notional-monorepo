@@ -5,32 +5,39 @@ import {
   whitelistedVaults,
 } from '@notional-finance/core-entities';
 import { useHistory, useLocation } from 'react-router-dom';
-import { GATED_VAULTS, BETA_ACCESS } from '@notional-finance/notionable';
-import { useNotionalError, useSelectedNetwork } from './use-notional';
+import { GATED_VAULTS } from '@notional-finance/notionable';
+import { useNotionalError } from './use-notional';
+import { Network } from '@notional-finance/util';
+import { useWalletCommunities } from './use-wallet';
 
-export function useVaultNftCheck(hasContestNFT?: BETA_ACCESS) {
+export function useVaultNftCheck() {
   const history = useHistory();
   const { pathname } = useLocation();
   const vaultAddress = pathname.split('/')[2];
+  const communityMembership = useWalletCommunities()
 
   useEffect(() => {
-    if (
-      vaultAddress &&
-      GATED_VAULTS.includes(vaultAddress) &&
-      hasContestNFT !== BETA_ACCESS.CONFIRMED
-    ) {
-      history.push('/vaults');
+    if (vaultAddress) {
+      const gatedTo = GATED_VAULTS[vaultAddress] || [];
+      if (gatedTo.length) {
+        const hasMembership = communityMembership?.find(({ name }) =>
+          gatedTo.includes(name)
+        );
+
+        if (!hasMembership) history.push('/vaults');
+      }
     }
-  }, [hasContestNFT, history, vaultAddress]);
+  }, [communityMembership, history, vaultAddress]);
 }
 
-export function useVaultProperties(vaultAddress?: string) {
+export function useVaultProperties(
+  network: Network | undefined,
+  vaultAddress?: string
+) {
   let minAccountBorrowSize: TokenBalance | undefined = undefined;
   let minDepositRequired: string | undefined = undefined;
-  let strategyName = '';
   let vaultName: string | undefined = undefined;
 
-  const network = useSelectedNetwork();
   const { reportError } = useNotionalError();
 
   if (vaultAddress && network) {
@@ -41,9 +48,7 @@ export function useVaultProperties(vaultAddress?: string) {
         vaultAddress
       ));
       const vaultConfig = config.getVaultConfig(network, vaultAddress);
-      // TODO: move these to vault registry
       vaultName = config.getVaultName(network, vaultAddress);
-      strategyName = 'SingleSidedLP';
 
       if (vaultConfig) {
         minDepositRequired = getMinDepositRequiredString(
@@ -61,19 +66,17 @@ export function useVaultProperties(vaultAddress?: string) {
   return {
     vaultName,
     minAccountBorrowSize,
-    strategyName,
     minDepositRequired,
   };
 }
 
-export function useAllVaults() {
-  const network = useSelectedNetwork();
+export function useAllVaults(network: Network | undefined) {
   if (!network) return [];
 
   const config = Registry.getConfigurationRegistry();
   const listedVaults = config
     .getAllListedVaults(network)
-    ?.filter((v) => whitelistedVaults.includes(v.vaultAddress))
+    ?.filter((v) => whitelistedVaults(network).includes(v.vaultAddress))
     .map((v) => {
       const {
         minAccountBorrowSize,

@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
+import { SideDrawerActiveButton } from '@notional-finance/mui';
 import {
   setInLocalStorage,
   getFromLocalStorage,
 } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
+import { Title } from '../../settings-side-drawer';
 import { useLanguageOptions } from './use-language-options';
 import { messages } from './messages';
 
@@ -67,15 +68,6 @@ export const Language = () => {
     </WalletSelectorContainer>
   );
 };
-
-const Title = styled(LabelValue)(
-  ({ theme }) => `
-  margin-bottom: ${theme.spacing(2.5)};
-  font-weight: 700;
-  color: ${theme.palette.borders.accentDefault};
-  text-transform: uppercase;
-  `
-);
 
 const WalletSelectorContainer = styled(Box)(
   ({ theme }) => `

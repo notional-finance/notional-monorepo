@@ -1,29 +1,32 @@
-import { Box, styled } from '@mui/material';
+import { useTheme, Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
-import { Button } from '@notional-finance/mui';
+import { Faq, FaqHeader } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useContestRulesInfo } from '../../hooks';
-import { BETA_ACCESS } from '@notional-finance/notionable';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
+import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
+import { contestActive } from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 
 export const ContestRulesInfo = () => {
-  const { dataSetOne, dataSetTwo } = useContestRulesInfo();
-  const {
-    globalState: { hasContestNFT },
-  } = useNotionalContext();
+  const theme = useTheme();
+  const network = useSelectedNetwork();
+  const { dataSetOne, faqData } = useContestRulesInfo();
 
   return (
     <>
       <Container>
-        <TitleText>
+        <SectionTitle>
           <FormattedMessage defaultMessage={'Contest rules'} />
-        </TitleText>
+        </SectionTitle>
         <Text>
           <FormattedMessage
-            defaultMessage={`The prize category you're competing in depends on the actions you've taken in your account. If you've used leverage, you're competing in the HIGH ROLLER category. 
-                            If you haven't used leverage, you'll compete in the FAT CAT category. If you have lost money, you're competing to be the SAD SACK. 
-                            Actions you take can cause you to switch which prize category you're in. For example, if you haven't used leverage but then choose to use leverage, you will be competing for the 
-                            HIGH ROLLER instead of the FAT CAT from that point on.`}
+            defaultMessage={`The prize category you compete in depends on the actions you’ve taken in your account. If you’ve used leverage you will compete for the high roller prize. If you have not used leverage, you will compete for the fat cat prize.`}
+          />
+        </Text>
+        <Text>
+          <FormattedMessage
+            defaultMessage={`Actions you take during the contest can cause you to switch categories. If you have not used leverage and then do use leverage, you will switch from the fat cat category to the high roller category.`}
           />
         </Text>
         {dataSetOne.map(({ text }, index) => (
@@ -34,59 +37,44 @@ export const ContestRulesInfo = () => {
         ))}
       </Container>
       <Container>
-        <TitleText>
-          <FormattedMessage defaultMessage={'What is Realized APY?'} />
-        </TitleText>
-        <Text>
-          <FormattedMessage
-            defaultMessage={`Realized APY is calculated using the <a>IRR calculation.</a> The realized APY measures how much money you made relative to the money you started with and in what amount of time.`}
-            values={{
-              a: (chunk: React.ReactNode) => (
-                <Box
-                  sx={{ color: colors.neonTurquoise }}
-                  href="https://www.investopedia.com/terms/i/irr.asp"
-                  component={'a'}
-                  target="_blank"
-                >
-                  {chunk}
-                </Box>
-              ),
+        <FaqHeader
+          sx={{ h2: { fontWeight: 600 } }}
+          title={<FormattedMessage defaultMessage={'FAQ'} />}
+        />
+        {faqData.map(({ question, answer, componentAnswer }, index) => (
+          <Faq
+            key={index}
+            question={question}
+            answer={answer}
+            componentAnswer={componentAnswer}
+            sx={{
+              marginBottom: theme.spacing(2),
+              boxShadow: theme.shape.shadowStandard,
+              h4: {
+                fontSize: '16px',
+                fontWeight: 600,
+              },
+              '#faq-body': {
+                fontSize: '14px',
+                fontWeight: 500,
+              },
             }}
           />
-        </Text>
-        {dataSetTwo.map(({ text }, index) => (
-          <Box sx={{ display: 'flex' }} key={index}>
-            <span>● </span>
-            <LineItem>{text}</LineItem>
-          </Box>
         ))}
-
-        <ButtonContainer>
-          {hasContestNFT !== BETA_ACCESS.CONFIRMED && (
-            <>
-              <Button
-                size="large"
-                sx={{
-                  width: '300px',
-                  fontFamily: 'Avenir Next',
-                }}
-                to="/contest"
-              >
-                <FormattedMessage defaultMessage={'Contest Home'} />
-              </Button>
-              <Button
-                size="large"
-                to="/contest-leaderboard"
-                sx={{
-                  width: '300px',
-                  fontFamily: 'Avenir Next',
-                }}
-              >
+        <Box sx={{ display: 'flex', marginTop: '100px' }}>
+          <ContestButtonBar
+            buttonOneText={
+              contestActive ? (
                 <FormattedMessage defaultMessage={'View Full Leaderboard'} />
-              </Button>
-            </>
-          )}
-        </ButtonContainer>
+              ) : undefined
+            }
+            buttonOnePathTo={
+              contestActive ? `/contest-leaderboard${network}` : undefined
+            }
+            buttonTwoText={<FormattedMessage defaultMessage={'Contest Home'} />}
+            buttonTwoPathTo="/contest"
+          />
+        </Box>
       </Container>
     </>
   );
@@ -94,56 +82,14 @@ export const ContestRulesInfo = () => {
 
 const Container = styled(Box)(
   ({ theme }) => `
+      margin: auto;
       margin-top: ${theme.spacing(11)};
+      max-width: 850px;      
       ${theme.breakpoints.down('md')} {
-        max-width: 90%;
         margin: auto;
         margin-top: ${theme.spacing(11)};
       }
   `
-);
-
-const TitleText = styled(Box)(
-  ({ theme }) => `
-  color: ${colors.white};
-  text-align: left;
-  font-family: Avenir Next;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  letter-spacing: 10px;
-  text-transform: uppercase;
-  margin-bottom: ${theme.spacing(4)};
-  ${theme.breakpoints.down('md')} {
-    text-align: center;
-    text-wrap: nowrap;
-    letter-spacing: 5px;
-  }
-
-      `
-);
-const ButtonContainer = styled(Box)(
-  ({ theme }) => `
-  width: 100%;
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  margin: ${theme.spacing(10, 0)};
-  ${theme.breakpoints.down('md')} {
-    flex-direction: column;
-    gap: ${theme.spacing(5)};
-  }
-  ${theme.breakpoints.down('sm')} {
-    a, button {
-      width: 100%;
-    }
-    a {
-      width: 100% !important;
-    }
-  }
-
-      `
 );
 
 const Text = styled(Box)(

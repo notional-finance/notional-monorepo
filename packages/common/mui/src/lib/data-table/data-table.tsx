@@ -8,6 +8,7 @@ import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
 import { DataTableToggle } from './data-table-toggle/data-table-toggle';
 import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
+import { DataTableScroll } from './data-table-scroll/data-table-scroll';
 import { DataTablePending } from './data-table-pending/data-table-pending';
 import {
   DataTableInfoBox,
@@ -30,7 +31,7 @@ import {
 interface DataTableProps {
   columns: Array<DataTableColumn>;
   data: Array<any>;
-  pendingTokenData?: Record<any, any>;
+  pendingTokenData?: { hash: string }[];
   pendingMessage?: ReactNode;
   CustomRowComponent?: ({ row }: { row: any }) => JSX.Element;
   CustomTabComponent?: React.FunctionComponent;
@@ -109,7 +110,7 @@ export const DataTable = ({
     <FormattedMessage defaultMessage={'View all transactions'} />
   );
 
-  const tableReady = !tableLoading && columns?.length && data?.length;
+  const tableReady = !tableLoading && columns?.length > 0 && data?.length > 0;
   const expandableTable = CustomRowComponent ? true : false;
 
   /**
@@ -151,105 +152,95 @@ export const DataTable = ({
   const width = ref.current?.clientWidth;
 
   return (
-    <TableContainer
-      ref={ref}
-      id="data-table-container"
-      sx={
-        {
-          overflow: 'scroll',
-          '&.MuiPaper-root': {
-            width: '100%',
-            boxShadow: 'none',
-            border: theme.shape.borderStandard,
-            borderRadius: theme.shape.borderRadius(),
-            overflow: !tableReady
-              ? 'hidden'
-              : filterBarData && filterBarData.length > 0
-              ? 'visible'
-              : 'auto',
-            backgroundColor:
-              tableVariant === TABLE_VARIANTS.MINI
-                ? theme.palette.background.default
-                : theme.palette.background.paper,
-            padding:
-              tableVariant === TABLE_VARIANTS.MINI ? theme.spacing(2) : '1px',
-            ...sx,
-          },
-        } as SxProps
-      }
-      component={Paper}
-    >
-      {tableTitle && !toggleBarProps && (
-        <DataTableTitleBar
-          tableTitle={tableTitle}
-          tableTitleSubText={tableTitleSubText}
-          setInfoBoxActive={setInfoBoxActive}
-          infoBoxActive={infoBoxActive}
-          tableTitleButtons={tableTitleButtons}
+    <div>
+      {maxHeight ? (
+        <DataTableScroll
+          columns={columns}
+          data={data}
           tableVariant={tableVariant}
-          expandableTable={expandableTable}
-          showInfoIcon={infoBoxData && infoBoxData.length > 0}
-        />
-      )}
-      {filterBarData && filterBarData.length > 0 && (
-        <DataTableFilterBar
-          filterBarData={filterBarData}
-          tableData={data}
-          clearQueryAndFilters={clearQueryAndFilters}
-          downloadCSVFormatter={marketDataCSVFormatter}
-        />
-      )}
-
-      {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
-      {toggleBarProps && tableTitle && (
-        <DataTableToggle
-          toggleBarProps={toggleBarProps}
+          initialState={initialState}
           tableTitle={tableTitle}
+          maxHeight={maxHeight}
+          tableReady={tableReady}
+          tableLoading={tableLoading}
+          sx={sx}
         />
-      )}
-
-      {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
-      {pendingTokenData && pendingTokenData.pendingTxns.length > 0 && (
-        <DataTablePending
-          pendingTxns={pendingTokenData.pendingTxns}
-          pendingMessage={pendingMessage}
-        />
-      )}
-
-      {tableReady ? (
-        <>
-          {!maxHeight && (
-            <div style={{ overflow: filterBarData ? 'auto' : '' }}>
-              <Table {...getTableProps()}>
-                <DataTableHead
-                  headerGroups={headerGroups}
-                  tableVariant={tableVariant}
-                  expandableTable={expandableTable}
-                />
-                <DataTableBody
-                  rows={displayedRows}
-                  prepareRow={prepareRow}
-                  tableVariant={tableVariant}
-                  CustomRowComponent={CustomRowComponent}
-                  setExpandedRows={setExpandedRows}
-                  initialState={initialState}
-                />
-              </Table>
-            </div>
+      ) : (
+        <TableContainer
+          ref={ref}
+          id="data-table-container"
+          sx={
+            {
+              '&.MuiPaper-root': {
+                width: '100%',
+                boxShadow: 'none',
+                border: theme.shape.borderStandard,
+                borderRadius: theme.shape.borderRadius(),
+                overflow: !tableReady
+                  ? 'hidden'
+                  : filterBarData && filterBarData.length > 0
+                  ? 'visible'
+                  : 'auto',
+                backgroundColor:
+                  tableVariant === TABLE_VARIANTS.MINI
+                    ? theme.palette.background.default
+                    : theme.palette.background.paper,
+                padding:
+                  tableVariant === TABLE_VARIANTS.MINI
+                    ? theme.spacing(2)
+                    : '1px',
+                ...sx,
+              },
+            } as SxProps
+          }
+          component={Paper}
+        >
+          {tableTitle && !toggleBarProps && (
+            <DataTableTitleBar
+              tableTitle={tableTitle}
+              tableTitleSubText={tableTitleSubText}
+              setInfoBoxActive={setInfoBoxActive}
+              infoBoxActive={infoBoxActive}
+              tableTitleButtons={tableTitleButtons}
+              tableVariant={tableVariant}
+              expandableTable={expandableTable}
+              showInfoIcon={infoBoxData && infoBoxData.length > 0}
+            />
           )}
-          {maxHeight && (
+          {filterBarData && filterBarData.length > 0 && (
+            <DataTableFilterBar
+              filterBarData={filterBarData}
+              tableData={data}
+              clearQueryAndFilters={clearQueryAndFilters}
+              downloadCSVFormatter={marketDataCSVFormatter}
+            />
+          )}
+
+          {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
+          {toggleBarProps && tableTitle && (
+            <DataTableToggle
+              toggleBarProps={toggleBarProps}
+              tableTitle={tableTitle}
+            />
+          )}
+
+          {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
+          {pendingTokenData && pendingTokenData?.length > 0 && (
+            <DataTablePending
+              pendingTxns={pendingTokenData.map((p) => p.hash)}
+              pendingMessage={pendingMessage}
+            />
+          )}
+
+          {tableReady ? (
             <>
-              <div style={{ position: 'sticky', top: 0 }}>
+              <div style={{ overflow: filterBarData ? 'auto' : '' }}>
                 <Table {...getTableProps()}>
                   <DataTableHead
                     headerGroups={headerGroups}
                     tableVariant={tableVariant}
                     expandableTable={expandableTable}
                   />
-                </Table>
-              </div>
-              <div style={{ maxHeight: maxHeight, overflow: 'auto' }}>
-                <Table {...getTableProps()}>
                   <DataTableBody
                     rows={displayedRows}
                     prepareRow={prepareRow}
@@ -260,80 +251,80 @@ export const DataTable = ({
                   />
                 </Table>
               </div>
+              {rows.length > 4 && hideExcessRows && (
+                <Box
+                  sx={{
+                    color: theme.palette.primary.main,
+                    padding: '10px',
+                    fontSize: '0.875rem',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setViewAllRows(!viewAllRows)}
+                >
+                  {viewAllText}
+                </Box>
+              )}
+              {infoBoxActive && infoBoxData && (
+                <DataTableInfoBox
+                  infoBoxData={infoBoxData}
+                  height={height}
+                  width={width}
+                  setInfoBoxActive={setInfoBoxActive}
+                  infoBoxActive={infoBoxActive}
+                />
+              )}
             </>
-          )}
-          {rows.length > 4 && hideExcessRows && (
-            <Box
-              sx={{
-                color: theme.palette.primary.main,
-                padding: '10px',
-                fontSize: '0.875rem',
-                textAlign: 'center',
-                cursor: 'pointer',
-              }}
-              onClick={() => setViewAllRows(!viewAllRows)}
-            >
-              {viewAllText}
+          ) : (
+            <Box sx={{ display: TabComponentVisible ? 'none' : '' }}>
+              {tableLoading ? (
+                <PageLoading type="notional" />
+              ) : (
+                <TableCell
+                  sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
+                >
+                  {stateZeroMessage ? (
+                    stateZeroMessage
+                  ) : (
+                    <FormattedMessage defaultMessage={'No Data Available'} />
+                  )}
+                </TableCell>
+              )}
             </Box>
           )}
-          {infoBoxActive && infoBoxData && (
-            <DataTableInfoBox
-              infoBoxData={infoBoxData}
-              height={height}
-              width={width}
-              setInfoBoxActive={setInfoBoxActive}
-              infoBoxActive={infoBoxActive}
-            />
-          )}
-        </>
-      ) : (
-        <Box sx={{ display: TabComponentVisible ? 'none' : '' }}>
-          {tableLoading ? (
-            <PageLoading type="notional" />
-          ) : (
+          {setShowHiddenRows && hiddenRowMessage && (
             <TableCell
-              sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
+              sx={{
+                textAlign: 'center',
+                background: theme.palette.background.paper,
+                color: theme.palette.primary.light,
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                marginRight: `-${theme.spacing(2)}`,
+                marginLeft: `-${theme.spacing(2)}`,
+                marginTop: theme.spacing(2),
+                marginBottom: `-${theme.spacing(2)}`,
+                padding: theme.spacing(2),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onClick={() => setShowHiddenRows(!showHiddenRows)}
             >
-              {stateZeroMessage ? (
-                stateZeroMessage
-              ) : (
-                <FormattedMessage defaultMessage={'No Data Available'} />
-              )}
+              <span>{hiddenRowMessage}</span>
+              <ArrowIcon
+                sx={{
+                  color: theme.palette.primary.light,
+                  transform: `rotate(${showHiddenRows ? '0' : '180'}deg)`,
+                  transition: 'transform .5s ease-in-out',
+                  height: theme.spacing(2),
+                }}
+              />
             </TableCell>
           )}
-        </Box>
+        </TableContainer>
       )}
-      {setShowHiddenRows && hiddenRowMessage && (
-        <TableCell
-          sx={{
-            textAlign: 'center',
-            background: theme.palette.background.paper,
-            color: theme.palette.primary.light,
-            textDecoration: 'underline',
-            cursor: 'pointer',
-            marginRight: `-${theme.spacing(2)}`,
-            marginLeft: `-${theme.spacing(2)}`,
-            marginTop: theme.spacing(2),
-            marginBottom: `-${theme.spacing(2)}`,
-            padding: theme.spacing(2),
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onClick={() => setShowHiddenRows(!showHiddenRows)}
-        >
-          <span>{hiddenRowMessage}</span>
-          <ArrowIcon
-            sx={{
-              color: theme.palette.primary.light,
-              transform: `rotate(${showHiddenRows ? '0' : '180'}deg)`,
-              transition: 'transform .5s ease-in-out',
-              height: theme.spacing(2),
-            }}
-          />
-        </TableCell>
-      )}
-    </TableContainer>
+    </div>
   );
 };
 

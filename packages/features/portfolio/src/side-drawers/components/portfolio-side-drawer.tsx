@@ -4,7 +4,10 @@ import { useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { useCallback } from 'react';
-import { TradeContext } from '@notional-finance/notionable-hooks';
+import {
+  TradeContext,
+  useSelectedPortfolioNetwork,
+} from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { Box, useTheme } from '@mui/material';
 
@@ -27,8 +30,9 @@ export const PortfolioSideDrawer = ({
 }: PortfolioSideDrawerProps) => {
   const theme = useTheme();
   const { category } = useParams<PortfolioParams>();
+  const network = useSelectedPortfolioNetwork();
 
-  const returnToPortfolio = `/portfolio/${category}`;
+  const returnToPortfolio = `/portfolio/${network}/${category}`;
   const { clearSideDrawer } = useSideDrawerManager();
 
   const onCancel = useCallback(() => {

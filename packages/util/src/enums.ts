@@ -64,12 +64,25 @@ export enum PORTFOLIO_ACTIONS {
   MANAGE_LEND = 'manage-lend',
 }
 
+export enum TABLE_WARNINGS {
+  HIGH_UTILIZATION_NTOKEN = 'HIGH_UTILIZATION_NTOKEN',
+  HIGH_UTILIZATION_FCASH = 'HIGH_UTILIZATION_FCASH',
+}
+
 export enum PORTFOLIO_CATEGORIES {
   OVERVIEW = 'overview',
   HOLDINGS = 'holdings',
   LEVERAGED_VAULTS = 'vaults',
   STAKED_NOTE = 'staked-note',
   TRANSACTION_HISTORY = 'transaction-history',
+}
+
+export enum CONTEST_SIGN_UP_STEPS {
+  LOADING = 'loading',
+  CONNECT_WALLET = 'connect-wallet',
+  COMMUNITY_PARTNERS = 'community-partners',
+  MINT_PASS = 'mint-pass',
+  CONTEST_CONFIRMATION = 'contest-confirmation',
 }
 
 export enum CARD_CATEGORIES {
@@ -116,8 +129,8 @@ export enum TRACKING_EVENTS {
   HOW_IT_WORKS = 'HowItWorks',
   FAQ = 'FAQ',
   HOVER_TOOL_TIP = 'HoverTooltip',
-  TOOL_TIP= "ToolTip",
-  NFT_UNLOCK= "NFTUnlock",
+  TOOL_TIP = 'ToolTip',
+  NFT_UNLOCK = 'NFTUnlock',
   SUBMIT_TXN = 'SubmitTxn',
   REJECT_TXN = 'RejectTxn',
   CONFIRMATION = 'Confirmation',
@@ -134,7 +147,8 @@ export type RouteType =
   | 'Error'
   | 'Portfolio'
   | 'PortfolioTransaction'
-  | 'Confirmation';
+  | 'Confirmation'
+  | 'Contest';
 
 export enum DEX_ID {
   UNKNOWN,

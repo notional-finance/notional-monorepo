@@ -1,5 +1,5 @@
 import { Box, useTheme } from '@mui/material';
-import { getDateString } from '@notional-finance/helpers';
+import { getDateString } from '@notional-finance/util';
 import { FormattedTime } from 'react-intl';
 import { DataTableColumn } from '../../data-table/types';
 import {

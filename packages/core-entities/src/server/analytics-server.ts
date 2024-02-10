@@ -1,6 +1,14 @@
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { OracleType } from '../.graphclient';
-import { AnalyticsData, CacheSchema } from '../Definitions';
+import {
+  AnalyticsData,
+  CacheSchema,
+  HistoricalOracles,
+  HistoricalTrading,
+  VaultReinvestment,
+  HistoricalRate,
+  VaultData,
+} from '../Definitions';
 import crossFetch from 'cross-fetch';
 import {
   fetchGraph,
@@ -20,63 +28,6 @@ import { BigNumber } from 'ethers';
 
 const USE_CROSS_FETCH =
   process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
-
-export type VaultData = {
-  vaultAddress: string;
-  timestamp: number;
-  totalAPY: number | null;
-  returnDrivers: Record<string, number | null>;
-}[];
-
-type HistoricalRate = {
-  blockNumber: number;
-  timestamp: number;
-  rate: string;
-  totalSupply: string | null;
-  tvlUnderlying: string | null;
-};
-
-export type HistoricalOracles = {
-  id: string;
-  oracleAddress: string;
-  network: Network;
-  oracleType: OracleType;
-  base: string;
-  quote: string;
-  latestRate: string;
-  decimals: number;
-  historicalRates: HistoricalRate[];
-}[];
-
-export type HistoricalTrading = Record<
-  string,
-  {
-    bundleName: string;
-    currencyId: number;
-    fCashId: string;
-    fCashValue: string;
-    pCash: string;
-    pCashInUnderlying: string;
-    timestamp: number;
-    blockNumber: number;
-    transactionHash: string;
-  }[]
->;
-
-export type VaultReinvestment = Record<
-  string,
-  {
-    vault: string;
-    blockNumber: any;
-    timestamp: number;
-    transactionHash: any;
-    rewardTokenSold: any;
-    rewardAmountSold: any;
-    tokensReinvested: any;
-    tokensPerVaultShare?: any;
-    underlyingAmountRealized?: any;
-  }[]
->;
 
 export type ActiveAccounts = Record<string, number>;
 
@@ -257,7 +208,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     );
 
     const vaults = await Promise.all(
-      whitelistedVaults.map(async (vaultAddress) => {
+      whitelistedVaults(network).map(async (vaultAddress) => {
         const r = await this._fetchView(network, vaultAddress);
         const data = r.map((p) => {
           return {

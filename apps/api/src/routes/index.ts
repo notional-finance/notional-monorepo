@@ -100,5 +100,4 @@ export {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
-  handleConfigurationsRewardTest,
 };

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Box, styled } from '@mui/material';
-import { H4, ToggleSwitch, LabelValue } from '@notional-finance/mui';
+import { H4, ToggleSwitch } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
 import {
   getFromLocalStorage,
   setInLocalStorage,
 } from '@notional-finance/helpers';
+import { Title } from '../../settings-side-drawer';
 import { FormattedMessage } from 'react-intl';
 
 export const Privacy = () => {
@@ -74,15 +75,6 @@ const CustomLink = styled(H4)(
   ({ theme }) => `
   color: ${theme.palette.typography.accent};
   text-decoration: underline;
-  `
-);
-
-const Title = styled(LabelValue)(
-  ({ theme }) => `
-  margin-bottom: ${theme.spacing(2.5)};
-  font-weight: 700;
-  color: ${theme.palette.borders.accentDefault};
-  text-transform: uppercase;
   `
 );
 

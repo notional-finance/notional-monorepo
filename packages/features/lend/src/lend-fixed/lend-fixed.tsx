@@ -1,6 +1,7 @@
 import { SideBarLayout } from '@notional-finance/mui';
 import {
   createTradeContext,
+  useYieldsReady,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { LendFixedSidebar, LendFixedTradeSummary } from './components';
@@ -9,14 +10,15 @@ import { FeatureLoader } from '@notional-finance/shared-web';
 export const LendFixedContext = createTradeContext('LendFixed');
 export const LendFixed = () => {
   const context = useTradeContext('LendFixed');
-
   const {
-    state: { isReady, confirm },
+    state: { isReady, confirm, selectedNetwork },
   } = context;
+  const yieldsReady = useYieldsReady(selectedNetwork);
+  const featureReady = isReady && yieldsReady;
 
   return (
     <LendFixedContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady}>
+      <FeatureLoader featureLoaded={featureReady}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={<LendFixedSidebar />}

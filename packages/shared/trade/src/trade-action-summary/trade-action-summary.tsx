@@ -43,10 +43,10 @@ export function TradeActionSummary({
     vaultConfig,
     riskFactorLimit,
     vaultAddress,
-    customizeLeverage,
+    selectedNetwork,
   } = state;
   const isVault = !!vaultAddress;
-  const { nonLeveragedYields } = useAllMarkets();
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
 
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
   const headerText =
@@ -130,7 +130,7 @@ export function TradeActionSummary({
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}
-        {isLeveraged && customizeLeverage && (
+        {isLeveraged && (
           <LeverageInfoRow
             assetSymbol={title}
             assetAPY={assetAPY}

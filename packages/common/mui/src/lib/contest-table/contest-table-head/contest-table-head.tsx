@@ -13,6 +13,7 @@ export const ContestTableHead = ({
   hideOnMobile,
 }: ContestTableHeadProps) => {
   const theme = useTheme();
+
   return (
     <TableHead
       sx={{
@@ -20,7 +21,6 @@ export const ContestTableHead = ({
         boxShadow: '',
         borderBottom: '',
         marginRight: '20px',
-        display: !hideOnMobile ? 'none' : 'table-header-group',
         '@media (max-width: 1152px)': {
           display: hideOnMobile ? 'none' : 'table-header-group',
         },
@@ -28,31 +28,33 @@ export const ContestTableHead = ({
     >
       {headerGroups.map((headerGroup: HeaderGroup) => (
         <TableRow {...headerGroup['getHeaderGroupProps']()}>
-          {headerGroup.headers.map((column: ContestTableColumn) => (
-            <TableCell
-              sx={{
-                color: theme.palette.borders.accentPaper,
-                padding: theme.spacing(2),
-                textAlign: column['textAlign'] || 'center',
-                borderTop: 'none',
-                borderBottom: 'none',
-                whiteSpace: 'nowrap',
-                width: column['width'] || 'auto',
-                h5: {
-                  fontSize: '12px',
-                  fontFamily: 'Avenir Next',
-                  fontWeight: '500',
-                },
-              }}
-              {...column['getHeaderProps']()}
-            >
-              <TableColumnHeading
-                sx={{ marginRight: column['marginRight'] || '0px' }}
+          {headerGroup.headers.map((column: ContestTableColumn) => {
+            return (
+              <TableCell
+                sx={{
+                  color: theme.palette.borders.accentPaper,
+                  padding: theme.spacing(2),
+                  textAlign: column['textAlign'] || 'center',
+                  borderTop: 'none',
+                  borderBottom: 'none',
+                  whiteSpace: 'nowrap',
+                  width: column['width'] || 'auto',
+                  h5: {
+                    fontSize: '12px',
+                    fontFamily: 'Avenir Next',
+                    fontWeight: '500',
+                  },
+                }}
+                {...column['getHeaderProps']()}
               >
-                {column['render']('Header')}
-              </TableColumnHeading>
-            </TableCell>
-          ))}
+                <TableColumnHeading
+                  sx={{ marginRight: column['marginRight'] || '0px' }}
+                >
+                  {column['render']('Header')}
+                </TableColumnHeading>
+              </TableCell>
+            );
+          })}
         </TableRow>
       ))}
     </TableHead>

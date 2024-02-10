@@ -1,11 +1,10 @@
 import { Box, useTheme } from '@mui/material';
 import { ArrowIcon } from '@notional-finance/icons';
 import MobileNavTab from '../mobile-nav-tab/mobile-nav-tab';
-import { useAccountDefinition } from '@notional-finance/notionable-hooks';
+import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { useNavLinks } from '../../use-nav-links';
 import { H4 } from '@notional-finance/mui';
-import { truncateAddress } from '@notional-finance/helpers';
 export interface MobileSubNavProps {
   handleSideDrawer: (event: any) => void;
 }
@@ -13,10 +12,7 @@ export interface MobileSubNavProps {
 const MobileSubNav = ({ handleSideDrawer }: MobileSubNavProps) => {
   const theme = useTheme();
   const { mobileSubNavLinks } = useNavLinks(true, theme);
-  const { account } = useAccountDefinition();
-  const truncatedAddress = account?.address
-    ? truncateAddress(account.address)
-    : '';
+  const truncatedAddress = useTruncatedAddress();
 
   return (
     <>

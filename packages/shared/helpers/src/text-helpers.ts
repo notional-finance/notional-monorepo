@@ -3,8 +3,7 @@ import {
   TokenDefinition,
   YieldData,
 } from '@notional-finance/core-entities';
-import { formatMaturity } from './time-helpers';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import { PRIME_CASH_VAULT_MATURITY, formatMaturity } from '@notional-finance/util';
 
 export function truncateAddress(
   address: string,
