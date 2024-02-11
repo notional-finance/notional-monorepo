@@ -1,3 +1,4 @@
+// all addresses must be properly checksummed
 const ARB_BAL = '0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8';
 const ARB_AURA = '0x1509706a6c66CA549ff0cB464de88231DDBe213B';
 const ARB_CRV = '0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978';
