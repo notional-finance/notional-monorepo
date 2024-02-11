@@ -188,7 +188,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       const allTimestamps = oracles[0].historicalRates
         .map((h) => h.timestamp)
         .sort()
-        .slice(1);
+        .slice(2);
       const tokens = Registry.getTokenRegistry();
 
       return allTimestamps.map((t) => {
