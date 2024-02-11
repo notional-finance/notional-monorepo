@@ -90,7 +90,7 @@ async function main() {
 
   app.use(express.json());
   app.use(function (req, res, next) {
-    if (req.url.endsWith('/events') || req.url.endsWith('/')) {
+    if (req.url.endsWith('/events') || req.url === '/') {
       next();
       return;
     }
@@ -235,53 +235,23 @@ async function main() {
     try {
       const accountIds: string[] = [];
       const vaultAccounts: VaultAccount[] = [];
-      req.body.events.forEach((event) => {
-        const contextUpdated = event.matchReasons.find(
-          (reason) => reason.signature === 'AccountContextUpdate(address)'
-        );
-        if (contextUpdated) {
-          accountIds.push(contextUpdated.args[0]);
-          return;
-        }
-        const transferSingle = event.matchReasons.find(
-          (reason) =>
-            reason.signature ===
-            'TransferSingle(address,address,address,uint256,uint256)'
-        );
-        if (transferSingle) {
-          const id = BigNumber.from(transferSingle.params.id);
+
+      req.body.events.forEach((event: any) => {
+        if (event.name === 'AccountContextUpdate') {
+          accountIds.push(event.params.account);
+        } else if (event.name === 'TransferSingle') {
+          const id = BigNumber.from(event.params.id);
           const params = decodeERC1155Id(padToHex256(id));
           if (
             params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE &&
             params.vaultAddress
           ) {
-            accountIds.push(transferSingle.params.to);
+            accountIds.push(event.params.to);
             vaultAccounts.push({
-              accountId: transferSingle.params.to,
+              accountId: event.params.to,
               vaultId: params.vaultAddress,
             });
           }
-        }
-
-        const transferBatch = event.matchReasons.find(
-          (reason) =>
-            reason.signature ===
-            'TransferBatch(address,address,address,uint256[],uint256[])'
-        );
-        if (transferBatch) {
-          transferBatch.params.ids.forEach((id) => {
-            const params = decodeERC1155Id(padToHex256(BigNumber.from(id)));
-            if (
-              params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE &&
-              params.vaultAddress
-            ) {
-              accountIds.push(transferBatch.params.to);
-              vaultAccounts.push({
-                accountId: transferBatch.params.to,
-                vaultId: params.vaultAddress,
-              });
-            }
-          });
         }
       });
 

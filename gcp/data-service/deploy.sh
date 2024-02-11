@@ -9,4 +9,4 @@ rm -rf ./dist
 rm -rf ./node_modules
 cp -r ../../dist .
 yarn
-gcloud app deploy
+gcloud --project monitoring-agents app deploy
