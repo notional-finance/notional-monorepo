@@ -14,7 +14,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ReactNode } from 'react';
-import { getDateString } from '@notional-finance/helpers';
+import { getDateString } from '@notional-finance/util';
 import { useTheme, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 

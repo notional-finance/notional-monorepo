@@ -1,4 +1,3 @@
-import { CountUp, LabelValue } from '@notional-finance/mui';
 import { MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
 import { TransactionCostCaption } from './transaction-cost-caption';
@@ -9,52 +8,25 @@ import { TokenBalance } from '@notional-finance/core-entities';
 
 export const VaultLeverageSlider = ({
   inputLabel,
-  sliderError,
   sliderInfo,
   context,
 }: {
   inputLabel: MessageDescriptor;
-  sliderError?: MessageDescriptor;
   sliderInfo?: MessageDescriptor;
-  repayDebt?: boolean;
   context: VaultContext;
 }) => {
   const {
-    state: {
-      deposit,
-      debtFee,
-      collateralFee,
-      netRealizedDebtBalance,
-      tradeType,
-      underMinAccountBorrow,
-      minBorrowSize,
-    },
+    state: { deposit, debtFee, collateralFee, netRealizedDebtBalance },
   } = context;
-  const { leverageRatioError } = useVaultActionErrors();
+  const { leverageRatioError, isDeleverage, underMinAccountBorrowError } =
+    useVaultActionErrors();
   const transactionCosts = deposit
     ? (debtFee?.toToken(deposit) || TokenBalance.zero(deposit)).add(
         collateralFee?.toToken(deposit) || TokenBalance.zero(deposit)
       )
     : undefined;
 
-  const borrowAmount = (
-    <LabelValue inline error={underMinAccountBorrow}>
-      <CountUp
-        value={netRealizedDebtBalance?.abs().toFloat() || 0}
-        suffix={` ${netRealizedDebtBalance?.symbol || ''}`}
-        decimals={3}
-      />
-    </LabelValue>
-  );
-
-  const errorMsg =
-    sliderError ||
-    leverageRatioError ||
-    (underMinAccountBorrow
-      ? Object.assign(messages.error.underMinBorrow, {
-          values: { minBorrowSize, borrowAmount },
-        })
-      : undefined);
+  const errorMsg = leverageRatioError || underMinAccountBorrowError;
 
   return (
     <LeverageSlider
@@ -62,7 +34,7 @@ export const VaultLeverageSlider = ({
       infoMsg={sliderInfo}
       errorMsg={errorMsg}
       showMinMax
-      isDeleverage={tradeType === 'WithdrawAndRepayVault'}
+      isDeleverage={isDeleverage}
       cashBorrowed={netRealizedDebtBalance}
       bottomCaption={
         <TransactionCostCaption

@@ -18,7 +18,7 @@ import {
 } from 'rxjs';
 import { TradeState, BaseTradeState } from '../base-trade-store';
 import { formatTokenType } from '@notional-finance/helpers';
-import { calculateAccruedIncentives } from '@notional-finance/transaction';
+import { calculateAccruedIncentives } from '../../global/account/incentives';
 
 export type AccountRiskSummary = ReturnType<typeof accountRiskSummary>;
 
@@ -74,7 +74,7 @@ export function postAccountRisk(
         // FIXME: recalculates accrued incentives at this level because the global state is not
         // updating reliably into this observable
         const accruedIncentives = account
-          ? calculateAccruedIncentives(account)
+          ? calculateAccruedIncentives(account).accruedIncentives
           : undefined;
         const postTradeIncentives =
           accruedIncentives

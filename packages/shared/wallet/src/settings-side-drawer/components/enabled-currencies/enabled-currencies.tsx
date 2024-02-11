@@ -3,14 +3,16 @@ import { LabelValue } from '@notional-finance/mui';
 import {
   useAccountReady,
   useWalletAllowances,
+  useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { CurrencyIcon } from '../currency-icon/currency-icon';
 import { FormattedMessage } from 'react-intl';
 
 export const EnabledCurrenciesButton = () => {
   const theme = useTheme();
-  const walletConnected = useAccountReady();
-  const { enabledTokens } = useWalletAllowances();
+  const network = useWalletConnectedNetwork();
+  const walletConnected = useAccountReady(network);
+  const { enabledTokens } = useWalletAllowances(network);
 
   return (
     <Box
@@ -30,8 +32,9 @@ export const EnabledCurrenciesButton = () => {
 
 export const EnabledCurrencies = () => {
   const theme = useTheme();
-  const walletConnected = useAccountReady();
-  const { enabledTokens, supportedTokens } = useWalletAllowances();
+  const network = useWalletConnectedNetwork();
+  const walletConnected = useAccountReady(network);
+  const { enabledTokens, supportedTokens } = useWalletAllowances(network);
   const systemTokenSymbols = supportedTokens.map((t) => t.symbol);
 
   return (
@@ -99,7 +102,7 @@ const Title = styled(LabelValue)(
   width: 100%;
   margin-bottom: ${theme.spacing(2.5)};
   font-weight: 700;
-  color: ${theme.palette.borders.accentDefault};
+  color: ${theme.palette.typography.light};
   text-transform: uppercase;
   `
 );

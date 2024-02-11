@@ -33,10 +33,26 @@ export const messages = {
   }),
   variableBorrow: defineMessages({
     title: { defaultMessage: 'Variable Borrow Disabled', description: 'title' },
-    description: { defaultMessage: 'Borrowing variable must be enabled for this account on Notional.', description: 'description' },
+    description: {
+      defaultMessage:
+        'Borrowing variable must be enabled for this account on Notional.',
+      description: 'description',
+    },
     buttonText: {
       defaultMessage: 'Approve',
       description: '',
     },
   }),
- };
+  switchNetwork: defineMessages({
+    title: { defaultMessage: 'Switch Network', description: 'title' },
+    description: {
+      defaultMessage:
+        'This transaction is on the {network} network. Switch your wallet to continue.',
+      description: 'description',
+    },
+    buttonText: {
+      defaultMessage: 'Switch',
+      description: '',
+    },
+  }),
+};

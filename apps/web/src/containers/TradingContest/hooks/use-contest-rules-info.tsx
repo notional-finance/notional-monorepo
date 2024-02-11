@@ -1,72 +1,112 @@
+import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
+import {
+  startDateDisplayString,
+  endDateDisplayString,
+} from '@notional-finance/notionable-hooks';
+import { RealizedApyFaq } from '../components';
+interface FaqProps {
+  questionString: string;
+  question: ReactNode;
+  answer?: ReactNode;
+  componentAnswer?: ReactNode;
+}
 
 export const useContestRulesInfo = () => {
   const dataSetOne = [
     {
       text: (
         <FormattedMessage
-          defaultMessage={`The yield competition will take place from 12 AM Eastern Time on Monday September 25 to 12 AM Eastern Time Monday October 25.`}
+          defaultMessage={`The yield competition will take place from {startDate} to {endDate}.`}
+          values={{
+            startDate: startDateDisplayString,
+            endDate: endDateDisplayString,
+          }}
         />
       ),
     },
     {
       text: (
         <FormattedMessage
-          defaultMessage={`Eligibility for prizes is based on the participant’s realized APY (details below).`}
+          defaultMessage={`Rankings are based on the participant’s realized APY (details below).`}
         />
       ),
     },
     {
       text: (
         <FormattedMessage
-          defaultMessage={`Users can enter and exit at any time during the contest. Participants do not need to have deposits in Notional at the start time and can exit before the end time.`}
+          defaultMessage={`Participants can use any product on Notional to earn yield.`}
         />
       ),
     },
     {
       text: (
         <FormattedMessage
-          defaultMessage={`Users can use any supported currency and instrument.`}
+          defaultMessage={`Profits or losses due to changing exchange rates will be ignored. This contest rewards earning yield, not speculating on changes in token prices.`}
         />
       ),
     },
     {
       text: (
         <FormattedMessage
-          defaultMessage={`NOTE incentives are counted as earnings and will be converted to USD as of the average NOTE price over the course of the contest.`}
+          defaultMessage={`Prize winners must submit KYC to claim their prizes.`}
         />
       ),
     },
   ];
-  const dataSetTwo = [
+  const faqData: FaqProps[] = [
     {
-      text: (
+      questionString: 'What is realized APY?',
+      question: (
         <FormattedMessage
-          defaultMessage={`Realized APY ignores the starting size of your account. $100 profit on $1,000 is the same realized APY as $1,000 profit on $10,000`}
+          defaultMessage={'What is realized APY?'}
+          description={'faq question'}
+        />
+      ),
+      answer: <RealizedApyFaq />,
+    },
+    {
+      questionString: 'What are the minimum requirements?',
+      question: (
+        <FormattedMessage
+          defaultMessage={'What are the minimum requirements?'}
+          description={'faq question'}
+        />
+      ),
+      answer: (
+        <FormattedMessage
+          defaultMessage={`Participants must hold a minimum account value of $100 in Notional for at least 24 hours to be eligible for prizes.`}
         />
       ),
     },
     {
-      text: (
+      questionString: 'Can I enter the contest late?',
+      question: (
         <FormattedMessage
-          defaultMessage={`Realized APY rewards you for making money quickly. The realized APY for a user that makes $100 on $1,000 in one week is roughly twice as high as the user who makes $100 on $1,000 in two weeks.`}
+          defaultMessage={'Can I enter the contest late?'}
+          description={'faq question'}
+        />
+      ),
+      answer: (
+        <FormattedMessage
+          defaultMessage={`Yes. Participants can enter and exit at any time during the contest. Participants can have assets in their account before the start of the contest but they do not need to.`}
         />
       ),
     },
     {
-      text: (
+      questionString: 'Do token incentives count as yield?',
+      question: (
         <FormattedMessage
-          defaultMessage={`Realized APY can not be gamed or affected by making deposits or withdrawals. Users are free to deposit and withdraw in any currency as frequently as they want.`}
+          defaultMessage={'Do token incentives count as yield?'}
+          description={'faq question'}
         />
       ),
-    },
-    {
-      text: (
+      answer: (
         <FormattedMessage
-          defaultMessage={`Exchange-rate fluctuations do not affect the realized APY - users will not be rewarded for going long ETH and the ETH price going up or penalized if the price goes down. Our realized APY calculation snaps all exchange rates at the start of the contest and holds them constant throughout the contest.`}
+          defaultMessage={`Yes. NOTE and ARB incentives are counted as earnings and will be converted to USD using their average prices over the course of the contest.`}
         />
       ),
     },
   ];
-  return { dataSetOne, dataSetTwo };
+  return { dataSetOne, faqData };
 };

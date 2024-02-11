@@ -25,8 +25,11 @@ export const LendVariableTradeSummary = () => {
   const { pathname } = useLocation();
   const context = useContext(LendVariableContext);
   const { state } = context;
-  const { collateral, deposit, selectedDepositToken } = state;
-  const { faqs, faqHeaderLinks } = useLendVariableFaq(selectedDepositToken);
+  const { collateral, deposit, selectedDepositToken, selectedNetwork } = state;
+  const { faqs, faqHeaderLinks } = useLendVariableFaq(
+    selectedDepositToken,
+    selectedNetwork
+  );
   const totalsData = useVariableTotals(state);
   const { apyData, tvlData } = useTokenHistory(collateral);
   const {
@@ -35,7 +38,7 @@ export const LendVariableTradeSummary = () => {
     areaChartStyles,
     chartHeaderData,
     borrowUtilization,
-  } = useInterestRateUtilizationChart(deposit?.currencyId, 'lend', selectedDepositToken);
+  } = useInterestRateUtilizationChart(deposit, 'lend');
 
   return (
     <TradeActionSummary state={state}>

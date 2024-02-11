@@ -277,8 +277,8 @@ export function getBalanceAction(
   };
 }
 
-export function getETHValue(balance: TokenBalance): PayableOverrides {
+export function getETHValue(balance?: TokenBalance): PayableOverrides {
   return {
-    value: balance.token.symbol === 'ETH' ? balance.n : BigNumber.from(0),
+    value: balance?.token.symbol === 'ETH' ? balance.n : BigNumber.from(0),
   };
 }

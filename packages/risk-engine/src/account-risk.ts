@@ -5,6 +5,8 @@ import {
 } from '@notional-finance/core-entities';
 import {
   FLOATING_POINT_DUST,
+  INTERNAL_PRECISION_DUST,
+  INTERNAL_TOKEN_DECIMALS,
   Network,
   PERCENTAGE_BASIS,
   RATE_PRECISION,
@@ -239,6 +241,23 @@ export class AccountRiskProfile extends BaseRiskProfile {
     // If there is no collateral available, then the liquidation price is null
     if (this.totalDebt().isZero()) return null;
     if (riskAdjustedValue.isZero()) return null;
+
+    // Don't show liquidation prices when the position value is dust
+    if (
+      this.totalDebt()
+        .abs()
+        .scaleTo(INTERNAL_TOKEN_DECIMALS)
+        .lt(INTERNAL_PRECISION_DUST)
+    )
+      return null;
+    if (
+      riskAdjustedValue
+        .abs()
+        .scaleTo(INTERNAL_TOKEN_DECIMALS)
+        .lt(INTERNAL_PRECISION_DUST)
+    )
+      return null;
+
     const { haircut, buffer } =
       Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(asset);
 

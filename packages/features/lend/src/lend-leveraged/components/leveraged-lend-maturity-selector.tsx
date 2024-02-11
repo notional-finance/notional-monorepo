@@ -8,12 +8,13 @@ import {
   tradeErrors,
   findTradeRate,
 } from '@notional-finance/trade';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   BaseTradeContext,
   MaturityData,
-  useCurrency,
+  usePrimeCash,
+  usePrimeDebt,
 } from '@notional-finance/notionable-hooks';
 
 const Container = styled(Box)``;
@@ -41,19 +42,8 @@ export function LeveragedLendMaturitySelector({
     updateState,
     state: { debt, collateral, deposit },
   } = context;
-  const { primeCash: allPrimeCash, primeDebt: allPrimeDebt } = useCurrency();
-  const { primeDebt, primeCash } = useMemo(() => {
-    const primeDebt = allPrimeDebt.find(
-      (t) => t.currencyId === deposit?.currencyId
-    );
-    const primeCash = allPrimeCash.find(
-      (t) => t.currencyId === deposit?.currencyId
-    );
-    return {
-      primeCash,
-      primeDebt,
-    };
-  }, [allPrimeDebt, allPrimeCash, deposit]);
+  const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
+  const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
 
   const swapDebtOptions = useCallback(
     (isDebtVariable: boolean) => {

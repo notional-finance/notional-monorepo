@@ -13,14 +13,7 @@ import {
   CalculationFnParams,
 } from '@notional-finance/transaction';
 import { filterEmpty, RATE_PRECISION } from '@notional-finance/util';
-import {
-  Observable,
-  combineLatest,
-  filter,
-  bufferCount,
-  auditTime,
-  map,
-} from 'rxjs';
+import { Observable, combineLatest, filter, bufferCount, map } from 'rxjs';
 import { isHashable } from '../utils';
 import {
   BaseTradeState,
@@ -58,14 +51,13 @@ export function calculateMaxWithdraw(
     vaultAdapter$,
   ]).pipe(
     bufferCount(2, 1),
-    // Add this here to throttle calculations for the UI a bit.
-    auditTime(100),
     filter(
       ([[p], [s]]) =>
         s.isReady && !!s.tradeType && s.maxWithdraw && !p.maxWithdraw
     ),
     map(([_, [s, debtPool, collateralPool, a, vaultAdapter]]) => {
-      const { requiredArgs } = getTradeConfig(s.tradeType);
+      const { requiredArgs, calculateCollateralOptions, calculateDebtOptions } =
+        getTradeConfig(s.tradeType);
 
       const { inputsSatisfied, inputs } = getRequiredArgs(
         requiredArgs,
@@ -73,7 +65,9 @@ export function calculateMaxWithdraw(
         a,
         collateralPool,
         debtPool,
-        vaultAdapter
+        vaultAdapter,
+        calculateCollateralOptions,
+        calculateDebtOptions
       );
 
       const {
@@ -151,7 +145,9 @@ export function calculate(
           _a,
           _collateralPool,
           _debtPool,
-          _vaultAdapter
+          _vaultAdapter,
+          calculateCollateralOptions,
+          calculateDebtOptions
         );
 
         return {
@@ -163,9 +159,6 @@ export function calculate(
           collateralPool,
           a,
           vaultAdapter,
-          requiredArgs,
-          calculateCollateralOptions,
-          calculateDebtOptions,
         };
       }
     ),
@@ -179,11 +172,13 @@ export function calculate(
         collateralPool,
         a,
         vaultAdapter,
-        requiredArgs,
-        calculateCollateralOptions,
-        calculateDebtOptions,
       }) => {
         if (s.maxWithdraw) return undefined;
+        const {
+          requiredArgs,
+          calculateCollateralOptions,
+          calculateDebtOptions,
+        } = getTradeConfig(s.tradeType);
 
         const { inputsSatisfied, inputs, keys } = getRequiredArgs(
           requiredArgs,
@@ -191,7 +186,9 @@ export function calculate(
           a,
           collateralPool,
           debtPool,
-          vaultAdapter
+          vaultAdapter,
+          calculateCollateralOptions,
+          calculateDebtOptions
         );
 
         const calculateInputKeys = keys.join('|');
@@ -279,7 +276,9 @@ function getRequiredArgs(
   a: AccountDefinition | null,
   collateralPool: BaseLiquidityPool<unknown> | undefined,
   debtPool: BaseLiquidityPool<unknown> | undefined,
-  vaultAdapter: VaultAdapter | undefined
+  vaultAdapter: VaultAdapter | undefined,
+  calculateCollateralOptions: boolean | undefined,
+  calculateDebtOptions: boolean | undefined
 ) {
   const { vaultAddress } = s;
   const [inputs, keys] = requiredArgs.reduce(
@@ -370,6 +369,13 @@ function getRequiredArgs(
 
   const inputsSatisfied = requiredArgs.every((r) => inputs[r] !== undefined);
 
+  if (calculateCollateralOptions) {
+    keys.push(s.availableCollateralTokens?.map((t) => t.id).join('|') || '');
+  }
+  if (calculateDebtOptions) {
+    keys.push(s.availableDebtTokens?.map((t) => t.id).join('|') || '');
+  }
+
   return {
     inputsSatisfied,
     inputs,
@@ -416,6 +422,10 @@ function executeCalculation(
     calculationSuccess: false,
     calculateError,
     ...clearCalculatedInputs,
+    netRealizedDebtBalance: undefined,
+    netRealizedCollateralBalance: undefined,
+    debtFee: undefined,
+    collateralFee: undefined,
   };
 }
 
@@ -428,13 +438,15 @@ function computeCollateralOptions(
   return options.map((c) => {
     const i = { ...inputs, collateral: c };
     try {
-      const { collateralBalance, netRealizedCollateralBalance } = calculationFn(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        i as any
-      ) as {
-        collateralBalance: TokenBalance;
-        netRealizedCollateralBalance: TokenBalance;
-      };
+      const { collateralBalance, netRealizedCollateralBalance, collateralFee } =
+        calculationFn(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          i as any
+        ) as {
+          collateralFee: TokenBalance;
+          collateralBalance: TokenBalance;
+          netRealizedCollateralBalance: TokenBalance;
+        };
 
       return {
         token: c,
@@ -442,7 +454,8 @@ function computeCollateralOptions(
         ..._getTradedInterestRate(
           netRealizedCollateralBalance,
           collateralBalance,
-          fCashMarket
+          fCashMarket,
+          collateralFee
         ),
       };
     } catch (e) {
@@ -476,10 +489,11 @@ function computeDebtOptions(
         );
       }
 
-      const { debtBalance, netRealizedDebtBalance } = calculationFn(
+      const { debtBalance, netRealizedDebtBalance, debtFee } = calculationFn(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         i as any
       ) as {
+        debtFee: TokenBalance;
         debtBalance: TokenBalance;
         netRealizedDebtBalance: TokenBalance;
       };
@@ -491,6 +505,7 @@ function computeDebtOptions(
           netRealizedDebtBalance,
           debtBalance.unwrapVaultToken(),
           fCashMarket,
+          debtFee,
           tradeType
         ),
       };
@@ -509,12 +524,18 @@ function _getTradedInterestRate(
   realized: TokenBalance,
   amount: TokenBalance,
   fCashMarket: fCashMarket,
+  fee?: TokenBalance,
   tradeType?: TradeType | VaultTradeType
 ) {
   let interestRate: number | undefined;
   let utilization: number | undefined;
   if (amount.tokenType === 'fCash') {
-    interestRate = fCashMarket.getImpliedInterestRate(realized, amount);
+    // We net off the fee for fcash so that we show it as an up-front
+    // trading fee rather than part of the implied yield
+    interestRate = fCashMarket.getImpliedInterestRate(
+      realized.sub(fee?.toUnderlying() || realized.copy(0)),
+      amount
+    );
   } else if (amount.tokenType === 'PrimeCash') {
     // Increases or decreases the prime supply accordingly
     utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);

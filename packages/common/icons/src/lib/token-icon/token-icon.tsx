@@ -73,6 +73,9 @@ import pLINK from '../../assets/icons/currencies/pLINK.svg';
 import uni from '../../assets/icons/currencies/uni.svg';
 import uni_alt from '../../assets/icons/currencies/uni-alt.svg';
 import pUNI from '../../assets/icons/currencies/pUNI.svg';
+import cryptotesters from '../../assets/icons/community-icons/cryptotesters.svg';
+import L2DAO from '../../assets/icons/community-icons/L2DAO.svg';
+import Llamas from '../../assets/icons/community-icons/Llama.svg';
 
 export interface TokenImg {
   name: string;
@@ -386,6 +389,21 @@ export const TokenImageList: TokenImageMap = {
     name: 'pldo',
     img: pLDO,
     alt: 'pLDO',
+  },
+  cryptotesters: {
+    name: 'cryptotesters',
+    img: cryptotesters,
+    alt: 'cryptotesters',
+  },
+  layer2dao: {
+    name: 'L2DAO',
+    img: L2DAO,
+    alt: 'L2DAO',
+  },
+  llamas: {
+    name: 'Llamas',
+    img: Llamas,
+    alt: 'Llamas',
   },
   unknown: {
     name: 'unknown',

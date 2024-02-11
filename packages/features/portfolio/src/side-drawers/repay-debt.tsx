@@ -7,13 +7,14 @@ import {
 } from '@notional-finance/trade';
 import { messages } from './messages';
 import { useTradeContext } from '@notional-finance/notionable-hooks';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import { PortfolioParams } from '@notional-finance/side-drawer';
 import { useEffect } from 'react';
 
 export const RepayDebt = () => {
   const context = useTradeContext('RepayDebt');
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
+  const { pathname } = useLocation();
   const {
     currencyInputRef,
     setCurrencyInput,
@@ -22,12 +23,15 @@ export const RepayDebt = () => {
     requiredApprovalAmount,
   } = useMaxRepay(context);
   const {
-    state: { collateral },
+    state: { selectedNetwork },
   } = context;
 
   useEffect(() => {
     setCurrencyInput('');
-  }, [collateral?.id, setCurrencyInput]);
+    // Ignore the setCurrencyInput dependency here, causes race conditions
+    // as the callback is recreated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   return (
     <PortfolioSideDrawer
@@ -48,7 +52,7 @@ export const RepayDebt = () => {
         inputRef={currencyInputRef}
         onMaxValue={onMaxValue}
         newRoute={(newToken) =>
-          `/portfolio/${category}/${sideDrawerKey}/${newToken}`
+          `/portfolio/${selectedNetwork}/${category}/${sideDrawerKey}/${newToken}`
         }
         inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabelTwo']}
         errorMsgOverride={errorMsg}

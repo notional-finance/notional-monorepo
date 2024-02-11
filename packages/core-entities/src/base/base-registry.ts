@@ -3,6 +3,7 @@ import {
   BehaviorSubject,
   filter,
   from,
+  map,
   Observable,
   of,
   Subscription,
@@ -205,6 +206,12 @@ export abstract class BaseRegistry<T> {
     return this.networkSubjects.has(network);
   }
 
+  public subscribeNetworks() {
+    return this.networkRegistered
+      .asObservable()
+      .pipe(map(() => Array.from(this.networkSubjects.keys())));
+  }
+
   public onNetworkRegistered(network: Network, fn: () => void) {
     if (this.isNetworkRegistered(network)) {
       fn();
@@ -264,7 +271,7 @@ export abstract class BaseRegistry<T> {
    */
   public subscribeSubject(network: Network, key: string) {
     if (!this.isKeyRegistered(network, key))
-      throw Error('Subject key not registered');
+      throw Error(`Subject key not registered: ${network} ${key}`);
 
     return this._getNetworkSubjects(network).get(key)?.asObservable();
   }

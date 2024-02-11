@@ -13,7 +13,6 @@ export function useAssetInput(
   debtOrCollateral: 'Debt' | 'Collateral'
 ) {
   const [inputString, setInputString] = useState<string>('');
-  const isAccountReady = useAccountReady();
   const {
     debt,
     collateral,
@@ -22,6 +21,7 @@ export function useAssetInput(
     availableCollateralTokens,
     availableDebtTokens,
     tradeType,
+    selectedNetwork
   } = state;
 
   const selectedToken = debtOrCollateral === 'Debt' ? debt : collateral;
@@ -40,7 +40,8 @@ export function useAssetInput(
     availableTokens = [selectedToken];
 
   const maxBalance = useMaxAssetBalance(selectedToken);
-  const { inputAmount } = useInputAmount(inputString, selectedToken?.symbol);
+  const { inputAmount } = useInputAmount(selectedNetwork, inputString, selectedToken?.symbol);
+  const isAccountReady = useAccountReady(selectedNetwork);
 
   const insufficientBalance =
     inputAmount && maxBalance ? maxBalance.abs().lt(inputAmount) : false;

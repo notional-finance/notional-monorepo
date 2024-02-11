@@ -35,7 +35,7 @@ export const TransactionApprovals = ({
 }: TransactionApprovalsProps) => {
   const theme = useTheme();
   const {
-    state: { selectedDepositToken, depositBalance },
+    state: { depositBalance },
   } = context;
 
   return (
@@ -64,7 +64,7 @@ export const TransactionApprovals = ({
             tokenApprovalTxnStatus !== TransactionStatus.NONE &&
             tokenApprovalTxnStatus !== TransactionStatus.REVERT
           }
-          symbol={selectedDepositToken ? selectedDepositToken : ''}
+          symbol={depositBalance ? depositBalance.symbol : ''}
           callback={() => enableToken(true)}
           title={messages.tokenApproval.title}
           description={messages.tokenApproval.description}
@@ -77,12 +77,14 @@ export const TransactionApprovals = ({
             tokenApprovalTxnStatus !== TransactionStatus.NONE &&
             tokenApprovalTxnStatus !== TransactionStatus.REVERT
           }
-          symbol={selectedDepositToken ? selectedDepositToken : ''}
+          symbol={depositBalance ? depositBalance.symbol : ''}
           callback={() => enableToken(true)}
           title={messages.insufficientAllowance.title}
           description={messages.insufficientAllowance.description}
           buttonText={messages.insufficientAllowance.buttonText}
-          depositAmount={depositBalance?.toDisplayStringWithSymbol()}
+          descriptionValues={{
+            depositAmount: depositBalance?.toDisplayStringWithSymbol(),
+          }}
         />
       )}
       {variableBorrowApprovalRequired && (
@@ -92,7 +94,7 @@ export const TransactionApprovals = ({
             variableBorrowTxnStatus !== TransactionStatus.NONE &&
             variableBorrowTxnStatus !== TransactionStatus.REVERT
           }
-          symbol={selectedDepositToken ? selectedDepositToken : ''}
+          symbol={''}
           callback={enablePrimeBorrow}
           title={messages.variableBorrow.title}
           description={messages.variableBorrow.description}
@@ -106,7 +108,7 @@ export const TransactionApprovals = ({
           bottom: 0,
           position: 'fixed',
           width: '447px',
-          marginBottom: '32px',
+          marginBottom: theme.spacing(4),
         }}
         onClick={onCancel}
       >

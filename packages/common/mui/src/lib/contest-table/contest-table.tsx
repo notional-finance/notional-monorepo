@@ -23,6 +23,7 @@ interface ContestTableProps {
   sx?: SxProps;
   maxHeight?: any;
   isCurrentUser?: boolean;
+  hideOnMobile?: boolean;
 }
 
 export const ContestTable = ({
@@ -36,6 +37,7 @@ export const ContestTable = ({
   tableVariant,
   maxHeight,
   isCurrentUser = false,
+  hideOnMobile = true,
   sx,
 }: ContestTableProps) => {
   const theme = useTheme();
@@ -50,7 +52,6 @@ export const ContestTable = ({
   );
   const tableReady = !tableLoading && columns?.length && data?.length;
   tableVariant = tableVariant || CONTEST_TABLE_VARIANTS.DEFAULT;
-
   return (
     <TableContainer
       id="data-table-container"
@@ -84,7 +85,10 @@ export const ContestTable = ({
           {!maxHeight && (
             <Table {...getTableProps()}>
               {tableVariant === CONTEST_TABLE_VARIANTS.DEFAULT && (
-                <ContestTableHead headerGroups={headerGroups} />
+                <ContestTableHead
+                  headerGroups={headerGroups}
+                  hideOnMobile={hideOnMobile}
+                />
               )}
               <ContestTableBody
                 rows={rows}
@@ -103,12 +107,15 @@ export const ContestTable = ({
                 }}
               >
                 <Table {...getTableProps()}>
-                  <ContestTableHead headerGroups={headerGroups} hideOnMobile />
+                  <ContestTableHead
+                    headerGroups={headerGroups}
+                    hideOnMobile={hideOnMobile}
+                  />
                 </Table>
               </Box>
               <div style={{ maxHeight: maxHeight, overflow: 'auto' }}>
                 <Table {...getTableProps()}>
-                  <ContestTableHead headerGroups={headerGroups} />
+                  {/* <ContestTableHead headerGroups={headerGroups} /> */}
                   <ContestTableBody
                     rows={rows}
                     prepareRow={prepareRow}

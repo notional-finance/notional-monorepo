@@ -1,8 +1,9 @@
-import { TreasuryManager__factory, ERC20__factory } from '@notional-finance/contracts';
+import { TreasuryManager__factory, ERC20__factory, NotionalV3ABI } from '@notional-finance/contracts';
 import { DEX_ID, Network, TRADE_TYPE, getProviderFromNetwork, } from '@notional-finance/util';
-import { BigNumber } from 'ethers';
+import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
 import { vaults, minTokenAmount, ARB_ETH, ARB_WETH } from './vaults';
 import { get0xData, sendTxThroughRelayer } from "@notional-finance/util";
+import { simulatePopulatedTxn } from "@notional-finance/transaction";
 
 export interface Env {
   NETWORK: keyof typeof Network;
@@ -16,6 +17,35 @@ export interface Env {
 }
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 2;
+
+const NotionalV3Interface = new ethers.utils.Interface(NotionalV3ABI);
+
+async function isClaimRewardsProfitable(env: Env, vault: typeof vaults[0], tx: PopulatedTransaction) {
+  const { rawLogs } = await simulatePopulatedTxn(Network[env.NETWORK], tx);
+  let isProfitable = false;
+  for (const log of rawLogs) {
+    try {
+      const { name, args } = NotionalV3Interface.parseLog(log);
+      const rewardToken = vault.rewardTokens.find(
+        // log.address is not checksummed
+        t => t.toLowerCase() === log.address.toLowerCase()
+      );
+      if (
+        rewardToken &&
+        name === 'Transfer' &&
+        args.to == vault.address &&
+        args.amount.gt(minTokenAmount[rewardToken])
+      ) {
+        isProfitable = true;
+        break;
+      }
+    } catch {
+      console.debug(`Skipping unknown event`)
+    }
+  }
+  return isProfitable;
+}
+
 
 interface ReinvestmentData {
   data: {
@@ -79,7 +109,7 @@ async function shouldSkipClaim(env: Env, vaultAddress: string) {
 
   // subtract 5min from time window so reinvestment can happen each day on same time
   const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS - 5 * 60;
-  return  Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
+  return Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
 }
 
 const claimRewards = async (env: Env, provider: any) => {
@@ -105,6 +135,16 @@ const claimRewards = async (env: Env, provider: any) => {
         'claimVaultRewardTokens',
         [vault.address]
       );
+
+      const tx: PopulatedTransaction = {
+        from: env.MANAGER_BOT_ADDRESS,
+        to: env.TREASURY_MANAGER_ADDRESS,
+        data
+      }
+      if (!(await isClaimRewardsProfitable(env, vault, tx))) {
+        console.log(`Skipping claim rewards for ${vault.address}, not profitable`);
+        return null;
+      }
 
       console.log(`Sending claim tx for ${vault.address}`);
 
@@ -217,11 +257,11 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
   );
 
   await treasuryManger.callStatic.reinvestVaultReward(
-      vault.address,
-      tradesPerRewardToken,
-      poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
-      { from: env.MANAGER_BOT_ADDRESS }
-    );
+    vault.address,
+    tradesPerRewardToken,
+    poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
+    { from: env.MANAGER_BOT_ADDRESS }
+  );
 
 
   const data = treasuryManger.interface.encodeFunctionData('reinvestVaultReward', [

@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
-import { useNetworkSelector } from '../hooks/use-network-selector';
+import { useNetworkSelector } from '../hooks/use-network';
 
 export interface NetworkButtonProps {
   active?: boolean;
@@ -211,7 +211,7 @@ const Title = styled(LabelValue)(
   margin: 30px auto;
   width: 380px;
   font-weight: 700;
-  color: ${theme.palette.borders.accentDefault};
+  color: ${theme.palette.typography.light};
   ${theme.breakpoints.down('sm')} {
     width: auto;
   }

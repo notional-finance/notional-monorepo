@@ -4,13 +4,13 @@ import {
   useAllMarkets,
   usePortfolioLiquidationRisk,
 } from '@notional-finance/notionable-hooks';
-import { useLeveragedNTokenPositions } from './use-leveraged-ntoken-positions';
 import {
   formatLeverageRatio,
-  formatMaturity,
   formatNumberAsPercentWithUndefined,
 } from '@notional-finance/helpers';
+import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import {
+  formatMaturity,
   RATE_PRECISION,
   getChangeType,
   leveragedYield,
@@ -26,13 +26,14 @@ export const useLiquidityDetails = () => {
     debtBalance,
     debtOptions,
     collateralOptions,
+    selectedNetwork
   } = state;
   const { tableData, tooRisky, onlyCurrent } =
     usePortfolioLiquidationRisk(state);
   const {
     yields: { liquidity },
-  } = useAllMarkets();
-  const { currentHoldings } = useLeveragedNTokenPositions(selectedDepositToken);
+  } = useAllMarkets(selectedNetwork);
+  const { currentHoldings } = useLeveragedNTokenPositions(selectedNetwork, selectedDepositToken);
   const newDebt = comparePortfolio?.find(
     ({ updated }) =>
       updated.underlying.symbol === selectedDepositToken &&

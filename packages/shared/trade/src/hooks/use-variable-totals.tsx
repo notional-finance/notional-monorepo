@@ -3,23 +3,21 @@ import { TradeState } from '@notional-finance/notionable';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import {
   useFiat,
-  useCurrency,
   useTokenHistory,
+  usePrimeCash,
+  usePrimeDebt,
+  useMaxSupply,
 } from '@notional-finance/notionable-hooks';
 
 export const useVariableTotals = (state: TradeState) => {
+  const { deposit } = state;
   const isBorrow = state.tradeType === 'BorrowVariable';
   const baseCurrency = useFiat();
-  const { primeCash, primeDebt } = useCurrency();
+  const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
   const { apyData } = useTokenHistory(state.debt);
 
-  const totalLentData = primeCash.find(
-    ({ underlying }) => underlying === state.deposit?.id
-  );
-
-  const totalBorrowedData = primeDebt.find(
-    ({ underlying }) => underlying === state.deposit?.id
-  );
+  const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
+  const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
 
   const getSevenDayAvgApy = () => {
     const seventhToLastNum = apyData.length - 8;
@@ -37,23 +35,26 @@ export const useVariableTotals = (state: TradeState) => {
   return [
     {
       title: <FormattedMessage defaultMessage={'Total Lent'} />,
-      value: totalLentData?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
+      value: primeCash?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
       title: <FormattedMessage defaultMessage={'Total Borrowed'} />,
-      value:
-        totalBorrowedData?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
+      value: primeDebt?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
       title: isBorrow ? (
         <FormattedMessage defaultMessage={'(7d) Average APY'} />
       ) : (
-        <FormattedMessage defaultMessage={'Total Lenders'} />
+        <FormattedMessage defaultMessage={'Capacity Remaining'} />
       ),
-      value: isBorrow ? getSevenDayAvgApy() : '-',
-      suffix: isBorrow ? '%' : '',
+      value: isBorrow
+        ? getSevenDayAvgApy()
+        : maxSupplyData?.capacityRemaining
+        ? maxSupplyData?.capacityRemaining.toFloat()
+        : '-',
+      suffix: isBorrow ? '%' : deposit?.symbol ? ' ' + deposit?.symbol : '',
     },
   ];
 };

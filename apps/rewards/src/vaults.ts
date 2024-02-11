@@ -1,3 +1,4 @@
+// all addresses must be properly checksummed
 const ARB_BAL = '0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8';
 const ARB_AURA = '0x1509706a6c66CA549ff0cB464de88231DDBe213B';
 const ARB_CRV = '0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978';
@@ -30,6 +31,12 @@ export const vaults = [
     address: '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf',
     rewardTokens: [ARB_CRV, ARB],
     poolTokens: [ARB_FRAX, ARB_USDCe],
+    tokenWeights: [50, 50],
+  },
+  {
+    address: '0x431dbfE3050eA39abBfF3E0d86109FB5BafA28fD',
+    rewardTokens: [ARB_CRV, ARB],
+    poolTokens: [ARB_USDCe, ARB_USDT],
     tokenWeights: [50, 50],
   },
   {

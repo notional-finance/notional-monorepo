@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useTheme, Box, styled } from '@mui/material';
-import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
+import { SideDrawerActiveButton } from '@notional-finance/mui';
 import {
   useFiat,
   useNotionalContext,
@@ -11,6 +11,7 @@ import {
   getFromLocalStorage,
 } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
+import { Title } from '../../settings-side-drawer';
 import { useBaseCurrency } from './use-base-currency';
 import { FiatKeys } from '@notional-finance/core-entities';
 
@@ -78,15 +79,6 @@ export const BaseCurrency = () => {
     </WalletSelectorContainer>
   );
 };
-
-const Title = styled(LabelValue)(
-  ({ theme }) => `
-  margin-bottom: ${theme.spacing(2.5)};
-  font-weight: 700;
-  color: ${theme.palette.borders.accentDefault};
-  text-transform: uppercase;
-  `
-);
 
 const WalletSelectorContainer = styled(Box)(
   ({ theme }) => `

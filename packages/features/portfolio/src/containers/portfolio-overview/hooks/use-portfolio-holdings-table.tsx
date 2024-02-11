@@ -7,17 +7,17 @@ import { formatCryptoWithFiat } from '@notional-finance/helpers';
 import {
   useAccountReady,
   usePortfolioRiskProfile,
-  useSelectedNetwork,
   useFiat,
+  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { Registry } from '@notional-finance/core-entities';
 
 export const useTotalHoldingsTable = () => {
   const baseCurrency = useFiat();
-  const portfolio = usePortfolioRiskProfile();
-  const network = useSelectedNetwork();
-  const isAccountReady = useAccountReady();
+  const network = useSelectedPortfolioNetwork();
+  const portfolio = usePortfolioRiskProfile(network);
+  const isAccountReady = useAccountReady(network);
 
   const totalHoldingsColumns: DataTableColumn[] = [
     {
@@ -66,7 +66,7 @@ export const useTotalHoldingsTable = () => {
   const tokens = Registry.getTokenRegistry();
   const isReady = network && isAccountReady;
   const totalHoldingsData = isReady
-    ? portfolio.allCurrencyIds.map((currencyId) => {
+    ? portfolio?.allCurrencyIds.map((currencyId) => {
         const underlying = tokens.getUnderlying(network, currencyId);
         const totalAssets = portfolio.totalCurrencyAssets(
           currencyId,
@@ -86,10 +86,10 @@ export const useTotalHoldingsTable = () => {
           assets: formatCryptoWithFiat(baseCurrency, totalAssets),
           debts: formatCryptoWithFiat(baseCurrency, totalDebts),
         };
-      })
+      }) || []
     : [];
 
-  if (isReady && portfolio.balances.length > 0) {
+  if (isReady && portfolio && portfolio.balances.length > 0) {
     const netWorth = portfolio.netWorth();
     const totalAssets = portfolio.totalAssets();
     const totalDebt = portfolio.totalDebt();

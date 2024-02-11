@@ -1,15 +1,11 @@
-import { useObservableState } from 'observable-hooks';
 import {
-  fCashMarket,
   Registry,
   TokenDefinition,
   YieldData,
 } from '@notional-finance/core-entities';
-import { EMPTY } from 'rxjs';
-import { PRODUCTS } from '@notional-finance/util';
-import { useSelectedNetwork } from './use-notional';
+import { Network, PRODUCTS } from '@notional-finance/util';
 import { useCallback, useMemo } from 'react';
-import { getNowSeconds, isIdiosyncratic } from '@notional-finance/util';
+import { useNotionalContext } from './use-notional';
 
 export interface MaturityData {
   token: TokenDefinition;
@@ -18,56 +14,105 @@ export interface MaturityData {
   maturity: number;
 }
 
-export function useCurrency() {
-  const network = useSelectedNetwork();
-  return useMemo(() => {
-    const allTokens = network
-      ? Registry.getTokenRegistry().getAllTokens(network)
-      : [];
-    const depositTokens = allTokens.filter(
-      (t) => t.tokenType === 'Underlying' && t.currencyId !== undefined
-    );
-    const primeCash = allTokens.filter((t) => t.tokenType === 'PrimeCash');
-    const primeDebt = allTokens.filter((t) => t.tokenType === 'PrimeDebt');
-    const fCash = allTokens.filter(
-      (t) =>
-        t.tokenType === 'fCash' &&
-        t.maturity &&
-        t.isFCashDebt === false &&
-        t.maturity > getNowSeconds() &&
-        !isIdiosyncratic(t.maturity)
-    );
-    const nTokens = allTokens.filter((t) => t.tokenType === 'nToken');
-    const vaultShares = allTokens.filter(
-      (t) =>
-        t.tokenType === 'VaultShare' &&
-        t.maturity &&
-        t.maturity > getNowSeconds() &&
-        !isIdiosyncratic(t.maturity)
-    );
-
-    return {
-      depositTokens,
-      primeCash,
-      primeDebt,
-      fCash,
-      nTokens,
-      vaultShares,
-      allTokens: depositTokens
-        .concat(primeCash)
-        .concat(primeDebt)
-        .concat(fCash)
-        .concat(nTokens)
-        .concat(vaultShares),
-    };
-  }, [network]);
+export function useNToken(
+  network: Network | undefined,
+  currencyId: number | undefined
+) {
+  try {
+    return network
+      ? Registry.getTokenRegistry().getNToken(network, currencyId)
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
-export const useAllMarkets = () => {
-  const network = useSelectedNetwork();
-  const allYields = network
-    ? Registry.getYieldRegistry().getAllYields(network)
+export function usePrimeCash(
+  network: Network | undefined,
+  currencyId: number | undefined
+) {
+  try {
+    return network
+      ? Registry.getTokenRegistry().getPrimeCash(network, currencyId)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function useToken(
+  network: Network | undefined,
+  tokenId: string | undefined
+) {
+  try {
+    return network && tokenId
+      ? Registry.getTokenRegistry().getTokenByID(network, tokenId)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function usePrimeDebt(
+  network: Network | undefined,
+  currencyId: number | undefined
+) {
+  try {
+    return network
+      ? Registry.getTokenRegistry().getPrimeDebt(network, currencyId)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function useUnderlyingTokens(network: Network | undefined) {
+  const allTokens = network
+    ? Registry.getTokenRegistry().getAllTokens(network)
     : [];
+  return allTokens.filter(
+    (t) => t.tokenType === 'Underlying' && t.currencyId !== undefined
+  );
+}
+
+export function usePrimeTokens(network: Network | undefined) {
+  const allTokens = network
+    ? Registry.getTokenRegistry().getAllTokens(network)
+    : [];
+  return {
+    primeCash: allTokens.filter((t) => t.tokenType === 'PrimeCash'),
+    primeDebt: allTokens.filter((t) => t.tokenType === 'PrimeDebt'),
+  };
+}
+
+export function useMaxSupply(
+  network: Network | undefined,
+  currencyId: number | undefined
+) {
+  if (!network || !currencyId) return undefined;
+  const { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining } =
+    Registry.getConfigurationRegistry().getMaxSupply(network, currencyId);
+  return { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining };
+}
+
+export function useYieldsReady(network: Network | undefined) {
+  const {
+    globalState: { allYields: _allYields },
+  } = useNotionalContext();
+  return _allYields &&
+    network &&
+    _allYields[network] &&
+    _allYields[network].length > 0
+    ? true
+    : false;
+}
+
+// TODO: this needs more refactoring....
+export const useAllMarkets = (network: Network | undefined) => {
+  const {
+    globalState: { allYields: _allYields },
+  } = useNotionalContext();
+  const allYields = _allYields && network ? _allYields[network] || [] : [];
 
   const getMax = useCallback((y: YieldData[]) => {
     return y.reduce(
@@ -91,7 +136,7 @@ export const useAllMarkets = () => {
         return {
           ...y,
           product: 'Provide Liquidity',
-          link: `${PRODUCTS.LIQUIDITY_VARIABLE}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LIQUIDITY_VARIABLE}/${network}/${y.underlying.symbol}`,
         };
       }),
     fCashLend: nonLeveragedYields
@@ -100,7 +145,7 @@ export const useAllMarkets = () => {
         return {
           ...y,
           product: 'Fixed Lend',
-          link: `${PRODUCTS.LEND_FIXED}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LEND_FIXED}/${network}/${y.underlying.symbol}`,
         };
       }),
     fCashBorrow: nonLeveragedYields
@@ -109,7 +154,7 @@ export const useAllMarkets = () => {
         return {
           ...y,
           product: 'Fixed Borrow',
-          link: `${PRODUCTS.BORROW_FIXED}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.BORROW_FIXED}/${network}/${y.underlying.symbol}`,
         };
       }),
     variableLend: nonLeveragedYields
@@ -118,7 +163,7 @@ export const useAllMarkets = () => {
         return {
           ...y,
           product: 'Variable Lend',
-          link: `${PRODUCTS.LEND_VARIABLE}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LEND_VARIABLE}/${network}/${y.underlying.symbol}`,
         };
       }),
     variableBorrow: nonLeveragedYields
@@ -127,7 +172,7 @@ export const useAllMarkets = () => {
         return {
           ...y,
           product: 'Variable Borrow',
-          link: `${PRODUCTS.BORROW_VARIABLE}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.BORROW_VARIABLE}/${network}/${y.underlying.symbol}`,
         };
       }),
     vaultShares: nonLeveragedYields.filter(
@@ -139,7 +184,7 @@ export const useAllMarkets = () => {
         return {
           ...y,
           product: 'Leveraged Vault',
-          link: `${PRODUCTS.LEVERAGED_VAULT}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LEVERAGED_VAULT}/${network}/${y.underlying.symbol}`,
         };
       }),
     leveragedLend: allYields
@@ -153,7 +198,7 @@ export const useAllMarkets = () => {
         return {
           ...y,
           product: 'Leveraged Lend',
-          link: `${PRODUCTS.LEND_LEVERAGED}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LEND_LEVERAGED}/${network}/${y.underlying.symbol}`,
         };
       }),
     leveragedLiquidity: allYields
@@ -162,7 +207,7 @@ export const useAllMarkets = () => {
         return {
           ...y,
           product: 'Leveraged Liquidity',
-          link: `${PRODUCTS.LIQUIDITY_LEVERAGED}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/${y.underlying.symbol}`,
         };
       }),
   };
@@ -201,45 +246,30 @@ export const useAllMarkets = () => {
   };
 };
 
-export const useNotionalMarket = (currencyId?: number) => {
-  const selectedNetwork = useSelectedNetwork();
-  return selectedNetwork && currencyId
+/** This is used to generate the utilization charts */
+export const useNotionalMarket = (token: TokenDefinition | undefined) => {
+  return token && token.currencyId
     ? Registry.getExchangeRegistry().getNotionalMarket(
-        selectedNetwork,
-        currencyId
+        token.network,
+        token.currencyId
       )
     : undefined;
 };
 
-export const useFCashMarket = (currencyId?: number) => {
-  const selectedNetwork = useSelectedNetwork();
-
-  const nToken = useMemo(() => {
-    try {
-      return selectedNetwork
-        ? Registry.getTokenRegistry().getNToken(selectedNetwork, currencyId)
-        : undefined;
-    } catch {
-      return undefined;
-    }
-  }, [selectedNetwork, currencyId]);
-
-  const fCashMarket$ = useMemo(() => {
-    return selectedNetwork && nToken
-      ? Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
-          selectedNetwork,
-          nToken.address
-        )
-      : undefined;
-  }, [selectedNetwork, nToken]);
-
-  return useObservableState<fCashMarket>(fCashMarket$ || EMPTY);
+export const useFCashMarket = (token?: TokenDefinition | undefined) => {
+  return token && token.currencyId
+    ? Registry.getExchangeRegistry().getfCashMarket(
+        token.network,
+        token.currencyId
+      )
+    : undefined;
 };
 
 export const useSpotMaturityData = (
-  tokens?: TokenDefinition[]
+  tokens: TokenDefinition[] | undefined,
+  selectedNetwork: Network | undefined
 ): MaturityData[] => {
-  const { nonLeveragedYields } = useAllMarkets();
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
 
   return useMemo(() => {
     return (

@@ -1,10 +1,11 @@
-import { LabelValue } from '@notional-finance/mui';
+import { CountUp, LabelValue } from '@notional-finance/mui';
 import { formatLeverageRatio } from '@notional-finance/helpers';
 import { useContext } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import { tradeErrors } from '@notional-finance/trade';
+import { useVaultPosition } from '@notional-finance/notionable-hooks';
 
 export function useVaultActionErrors() {
   const {
@@ -15,15 +16,16 @@ export function useVaultActionErrors() {
       calculateError,
       minLeverageRatio,
       maxLeverageRatio,
-      tradeType,
       riskFactorLimit,
-      debtBalance,
-      priorAccountRisk,
       minBorrowSize,
       overCapacityError,
+      selectedNetwork,
+      vaultAddress,
+      underMinAccountBorrow,
+      netRealizedDebtBalance
     },
   } = useContext(VaultActionContext);
-  const priorLeverageRatio = priorAccountRisk?.leverageRatio;
+  const currentPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const selectedLeverageRatio = riskFactorLimit?.limit as number | undefined;
 
   let inputErrorMsg: MessageDescriptor | undefined;
@@ -41,28 +43,7 @@ export function useVaultActionErrors() {
     maxLeverageRatio !== undefined &&
     selectedLeverageRatio !== undefined
   ) {
-    if (
-      tradeType === 'WithdrawAndRepayVault' &&
-      priorLeverageRatio !== undefined &&
-      priorLeverageRatio !== null &&
-      priorLeverageRatio < selectedLeverageRatio
-    ) {
-      leverageRatioError = {
-        ...messages.error.withdrawAndRepayLeverageDecrease,
-        values: {
-          priorLeverageRatio: (
-            <LabelValue error inline>
-              {formatLeverageRatio(priorLeverageRatio)}
-            </LabelValue>
-          ),
-        },
-      } as MessageDescriptor;
-    } else if (
-      tradeType === 'IncreaseVaultPosition' &&
-      debtBalance?.isPositive()
-    ) {
-      leverageRatioError = messages.error.increasePositionDebtsMustIncrease;
-    } else if (selectedLeverageRatio < minLeverageRatio) {
+    if (selectedLeverageRatio < minLeverageRatio) {
       leverageRatioError = {
         ...messages.error.belowMinimumLeverage,
         values: {
@@ -87,10 +68,31 @@ export function useVaultActionErrors() {
     }
   }
 
+  let underMinAccountBorrowError: MessageDescriptor | undefined;
+  if (underMinAccountBorrow) {
+    const borrowAmount = (
+      <LabelValue inline error={underMinAccountBorrow}>
+        <CountUp
+          value={netRealizedDebtBalance?.abs().toFloat() || 0}
+          suffix={` ${netRealizedDebtBalance?.symbol || ''}`}
+          decimals={3}
+        />
+      </LabelValue>
+    );
+
+    underMinAccountBorrowError = Object.assign(messages.error.underMinBorrow, {
+      values: { minBorrowSize, borrowAmount },
+    });
+  }
+
   return {
     minBorrowSize,
     inputErrorMsg,
     canSubmit,
     leverageRatioError,
+    underMinAccountBorrowError,
+    isDeleverage:
+      !!selectedLeverageRatio &&
+      selectedLeverageRatio < (currentPosition?.leverageRatio || -1),
   };
 }

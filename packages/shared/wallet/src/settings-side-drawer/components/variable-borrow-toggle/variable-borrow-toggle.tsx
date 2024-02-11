@@ -1,13 +1,14 @@
 import { Box } from '@mui/material';
 import { ToggleSwitch } from '@notional-finance/mui';
-import { useAccountReady } from '@notional-finance/notionable-hooks';
+import { useAccountReady, useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { useEnablePrimeBorrow } from '@notional-finance/trade';
 import { useCallback } from 'react';
 
 export const useVariableBorrowToggle = () => {
-  const isAccountReady = useAccountReady();
+  const network = useWalletConnectedNetwork()
+  const isAccountReady = useAccountReady(network);
   const { isPrimeBorrowAllowed, enablePrimeBorrow, disablePrimeBorrow } =
-    useEnablePrimeBorrow();
+    useEnablePrimeBorrow(network);
   const isChecked = isAccountReady ? isPrimeBorrowAllowed : false;
 
   const variableBorrowToggle = useCallback(() => {

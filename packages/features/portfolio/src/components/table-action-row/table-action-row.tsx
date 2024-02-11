@@ -14,6 +14,26 @@ import {
 } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { defineMessages } from 'react-intl';
+import { TABLE_WARNINGS } from '@notional-finance/util';
+
+const messages = {
+  [TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN]: defineMessages({
+    title: { defaultMessage: 'Impermanent Loss', description: '' },
+    message: {
+      defaultMessage:
+        'Fixed rate volatility has caused IL. IL will go away when fixed rates return to normal range.',
+      description: '',
+    },
+  }),
+  [TABLE_WARNINGS.HIGH_UTILIZATION_FCASH]: defineMessages({
+    title: { defaultMessage: 'Impermanent Loss', description: '' },
+    message: {
+      defaultMessage:
+        'Fixed rate volatility has caused temporary fCash price declines. Your fixed rate is guaranteed if you hold until maturity.',
+      description: '',
+    },
+  }),
+};
 
 interface TableActionRowProps {
   row: {
@@ -22,6 +42,7 @@ interface TableActionRowProps {
       entryPrice: any;
       currentPrice: any;
       actionRow: {
+        warning: TABLE_WARNINGS | undefined;
         txnHistory: string;
         buttonBarData: ButtonOptionsType[];
         riskTableData: any[];
@@ -49,6 +70,7 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
       riskTableData,
       riskTableColumns,
       hasMatured,
+      warning,
     },
     asset,
     isPending,
@@ -112,7 +134,9 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
         </ButtonContainer>
       </Container>
       {hasMatured && (
-        <Box sx={{ margin: theme.spacing(0, 7) }}>
+        <Box
+          sx={{ margin: theme.spacing(0, 7), paddingBottom: theme.spacing(5) }}
+        >
           <ErrorMessage
             variant="pending"
             title={<FormattedMessage defaultMessage={'Asset Matured'} />}
@@ -126,6 +150,19 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
                 }}
               />
             }
+            maxWidth={'100%'}
+            sx={{ marginTop: '0px' }}
+          />
+        </Box>
+      )}
+      {warning && (
+        <Box
+          sx={{ margin: theme.spacing(0, 7), paddingBottom: theme.spacing(5) }}
+        >
+          <ErrorMessage
+            variant="warning"
+            title={<FormattedMessage {...messages[warning].title} />}
+            message={<FormattedMessage {...messages[warning].message} />}
             maxWidth={'100%'}
             sx={{ marginTop: '0px' }}
           />

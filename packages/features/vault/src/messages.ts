@@ -43,10 +43,6 @@ export const messages = {
       defaultMessage: '1. You will borrow at this maturity and fixed rate.',
       description: 'input label',
     },
-    leverage: {
-      defaultMessage: '2. Adjust Leverage (Optional)',
-      description: 'input label',
-    },
     confirm: {
       defaultMessage: 'Increase Vault Position',
       description: 'heading',
@@ -64,8 +60,7 @@ export const messages = {
       description: '',
     },
     helptext: {
-      defaultMessage:
-        'Withdraw from your vault position.',
+      defaultMessage: 'Withdraw from your vault position.',
       description: 'helptext',
     },
     inputLabel: {
@@ -126,8 +121,7 @@ export const messages = {
       description: 'heading',
     },
     helptext: {
-      defaultMessage:
-        'Roll your borrow position to a new maturity',
+      defaultMessage: 'Roll your borrow position to a new maturity',
       description: 'helptext',
     },
     maturity: {
@@ -138,10 +132,6 @@ export const messages = {
       defaultMessage: '2. Deposit to maintain your leverage ratio (Optional)',
       description: 'input label',
     },
-    leverage: {
-      defaultMessage: '3. Adjust Leverage (Optional)',
-      description: 'input label',
-    },
     confirm: {
       defaultMessage: 'Roll Vault Position',
       description: 'heading',
@@ -149,6 +139,22 @@ export const messages = {
     tabLabel: {
       defaultMessage: 'Roll Position',
       description: 'tab label',
+    },
+  }),
+  AdjustVaultLeverage: defineMessages({
+    heading: { defaultMessage: 'Adjust Leverage', description: '' },
+    leverage: {
+      defaultMessage: 'Adjust Your Leverage',
+      description: '',
+    },
+    helptext: {
+      defaultMessage:
+        'Increase or decrease the leverage for your current position.',
+      description: '',
+    },
+    belowMinLeverageError: {
+      defaultMessage: 'Below Minimum Leverage for Vault',
+      description: 'error message',
     },
   }),
   DepositVaultCollateral: defineMessages({
@@ -308,7 +314,8 @@ export const messages = {
       description: 'error message',
     },
     blockedGeoActionHelptext: {
-      defaultMessage: 'Leveraged products are not available in the US or to VPN users. Non-Leveraged products are available to all users globally.',
+      defaultMessage:
+        'Leveraged products are not available in the US or to VPN users. Non-Leveraged products are available to all users globally.',
       description: 'error message',
     },
   }),

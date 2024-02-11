@@ -5,14 +5,34 @@ import {
 import { Network } from '@notional-finance/util';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import {
+  AccountDefinition,
   FiatKeys,
-  TokenBalance,
+  PriceChange,
   TokenDefinition,
+  HistoricalTrading,
+  YieldData,
 } from '@notional-finance/core-entities';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer, ethers } from 'ethers';
+import {
+  GroupedHolding,
+  PortfolioHolding,
+  VaultHolding,
+} from './account/holdings';
+import { AccruedIncentives, TotalIncentives } from './account/incentives';
+import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import { Community } from './account/communities';
 
 const userSettings = getFromLocalStorage('userSettings');
+
+export enum COMMUNITY_NAMES {
+  DEGEN_SCORE = 'DEGEN_SCORE',
+  V3_BETA_CONTEST = 'V3_BETA_CONTEST',
+  L2DAO = 'L2DAO',
+  CRYPTO_TESTERS = 'CRYPTO_TESTERS',
+  LLAMAS = 'LLAMAS',
+  CONTEST_PASS = 'CONTEST_PASS',
+}
 
 export enum BETA_ACCESS {
   PENDING = 'pending',
@@ -20,16 +40,12 @@ export enum BETA_ACCESS {
   REJECTED = 'rejected',
 }
 
-export const ACCESS_NFTS = {
-  DEGEN_SCORE: {
-    address: '0x0521FA0bf785AE9759C7cB3CBE7512EbF20Fbdaa',
-    network: Network.Mainnet,
-  },
-  BETA_CONTEST: {
-    address: '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e',
-    network: Network.ArbitrumOne,
-  },
-};
+export enum PARTNERS {
+  DEGEN_SCORE = 'degen-score',
+  CRYPTO_TESTERS = 'crypto-testers',
+  L2DAO = 'l2dao',
+  LLAMAS = 'llamas',
+}
 
 export const GATED_VAULTS: string[] = [];
 
@@ -37,13 +53,54 @@ export const GATED_VAULTS: string[] = [];
 const CACHE_HOSTNAME =
   process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
 
+export type NetworkLoadingState = 'Pending' | 'Loaded' | undefined;
+export type CalculatedPriceChanges = {
+  oneDay: PriceChange[];
+  threeDay: PriceChange[];
+  sevenDay: PriceChange[];
+};
+
 export interface NotionalError {
   code: number;
   msg: string;
 }
 
-interface OnboardState {
-  // These properties are only used to store the onboard state
+/** Account state is written on a per network basis */
+export interface AccountState {
+  isAccountReady: boolean;
+  portfolioLiquidationPrices?: ReturnType<
+    AccountRiskProfile['getAllLiquidationPrices']
+  >;
+  riskProfile?: AccountRiskProfile;
+  accountDefinition?: AccountDefinition;
+  portfolioHoldings?: PortfolioHolding[];
+  groupedHoldings?: GroupedHolding[];
+  vaultHoldings?: VaultHolding[];
+  accruedIncentives?: AccruedIncentives[];
+  totalIncentives?: TotalIncentives;
+}
+
+export interface TransactionState {
+  sentTransactions: {
+    hash: string;
+    network: Network;
+    response: TransactionResponse;
+    tokens: TokenDefinition[] | undefined;
+  }[];
+  completedTransactions: Record<string, TransactionReceipt>;
+  pendingPnL: Record<
+    Network,
+    {
+      hash: string;
+      blockNumber: number;
+      tokens: TokenDefinition[];
+    }[]
+  >;
+}
+
+/** This is associated with an address */
+interface AddressState {
+  /** These properties are written from the onboard or wallet manager */
   wallet?: {
     signer?: Signer;
     selectedChain?: Network;
@@ -52,51 +109,44 @@ interface OnboardState {
     label?: string;
     provider?: ethers.providers.Provider;
   };
-}
+  /** These are checked on wallet connection and associated with the wallet */
+  communityMembership?: Community[];
+  /** Checks if the address is sanctioned on wallet connection */
+  isSanctionedAddress: boolean;
 
-interface NetworkState {
-  selectedNetwork?: Network;
-  isNetworkPending: boolean;
-  isNetworkReady: boolean;
-  cacheHostname: string;
-  hasSelectedChainError: boolean;
-}
-
-interface AccountState {
+  /**
+   * Set to true when addresses are switched and set to false when all networks
+   * have loaded the account.
+   */
   isAccountPending: boolean;
-  isAccountReady: boolean;
-  selectedAccount?: string;
-  hasContestNFT?: BETA_ACCESS;
-  contestTokenId?: string;
-  // Groupings of 1 asset and 1 debt in the same currency
-  holdingsGroups?: {
-    asset: TokenBalance;
-    debt: TokenBalance;
-    presentValue: TokenBalance;
-    leverageRatio: number;
-  }[];
-  accruedIncentives?: {
-    currencyId: number;
-    incentives: TokenBalance[];
-    incentivesIn100Seconds: TokenBalance[];
-  }[];
+
+  /** Every supported network has an account object written to the state */
+  networkAccounts?: Record<Network, AccountState>;
 }
+
+/** This is associated with the overall application state */
+interface ApplicationState {
+  /** If waiting for the site to load initially */
+  networkState?: Record<Network, NetworkLoadingState>;
+  /** URL of the cache hostname */
+  cacheHostname: string;
+  /** All yields calculated from the yield registry */
+  allYields?: Record<Network, YieldData[]>;
+  /** All price changes calculated from the yield registry */
+  priceChanges?: Record<Network, CalculatedPriceChanges>;
+  /** All active accounts from the analytics registry */
+  activeAccounts?: Record<Network, Record<string, number>>;
+  historicalTrading?: Record<Network, HistoricalTrading>;
+}
+
+/** These settings are associated with the user directly */
 interface UserSettingsState {
   themeVariant: THEME_VARIANTS;
   baseCurrency: FiatKeys;
-}
-
-interface ExportControlsState {
+  /** Which network is the porfolio currently showing */
+  selectedPortfolioNetwork?: Network;
+  /** Which country is the user located in */
   country?: string;
-  isSanctionedAddress: boolean;
-}
-
-interface TransactionState {
-  sentTransactions: Record<string, TransactionResponse>;
-  awaitingBalanceChanges: Record<string, TokenDefinition[] | undefined>;
-  completedTransactions: Record<string, TransactionReceipt>;
-  pendingTokens: TokenDefinition[];
-  pendingTxns: string[];
 }
 
 interface ErrorState {
@@ -105,30 +155,27 @@ interface ErrorState {
 
 export interface GlobalState
   extends Record<string, unknown>,
-    NetworkState,
-    AccountState,
-    OnboardState,
-    TransactionState,
+    ApplicationState,
+    AddressState,
     UserSettingsState,
-    ExportControlsState,
+    TransactionState,
     ErrorState {}
 
 export const initialGlobalState: GlobalState = {
-  hasSelectedChainError: false,
-  isNetworkReady: false,
-  isNetworkPending: false,
   cacheHostname: CACHE_HOSTNAME,
-  isAccountPending: false,
-  isAccountReady: false,
-  holdingsGroups: [],
-  sentTransactions: {},
-  completedTransactions: {},
-  awaitingBalanceChanges: {},
-  pendingTokens: [],
-  pendingTxns: [],
   themeVariant: userSettings?.themeVariant
     ? userSettings?.themeVariant
     : THEME_VARIANTS.LIGHT,
   baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
   isSanctionedAddress: false,
+  isAccountPending: false,
+  sentTransactions: [],
+  completedTransactions: {},
+  pendingPnL: {
+    [Network.All]: [],
+    [Network.Mainnet]: [],
+    [Network.ArbitrumOne]: [],
+    [Network.Optimism]: [],
+    [Network.Goerli]: [],
+  },
 };

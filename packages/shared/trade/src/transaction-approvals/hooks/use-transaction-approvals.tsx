@@ -9,17 +9,17 @@ export const useTransactionApprovals = (
   variableBorrowRequired?: boolean
 ) => {
   const {
-    state: { depositBalance, selectedDepositToken },
+    state: { depositBalance, deposit, selectedNetwork },
   } = context;
   const {
     tokenStatus,
     isSignerConnected,
     enableToken,
     tokenApprovalTxnStatus,
-  } = useTokenApproval(selectedDepositToken || '');
+  } = useTokenApproval(deposit?.symbol || '', selectedNetwork);
 
   const { isPrimeBorrowAllowed, enablePrimeBorrow, variableBorrowTxnStatus } =
-    useEnablePrimeBorrow();
+    useEnablePrimeBorrow(selectedNetwork);
 
   const variableBorrowApprovalRequired =
     !isPrimeBorrowAllowed && variableBorrowRequired;

@@ -1,6 +1,4 @@
-import jwei from '@notional-finance/assets/images/team/jwei.png';
 import jwu from '@notional-finance/assets/images/team/jwu.png';
-import mburkett from '@notional-finance/assets/images/team/mburkett.png';
 import pgendron from '@notional-finance/assets/images/team/pgendron.png';
 import twoodward from '@notional-finance/assets/images/team/twoodward.png';
 import ipetsch from '@notional-finance/assets/images/team/ipetsch.png';
@@ -67,35 +65,6 @@ export const TeamData = [
     profpic: jwu,
   },
   {
-    name: 'mburkett',
-    ...defineMessages({
-      displayName: {
-        description: 'team member name',
-        defaultMessage: 'Michael Burkett',
-      },
-      title: {
-        description: 'team member title',
-        defaultMessage: 'Head of Design',
-      },
-      description: {
-        description: 'team member title',
-        defaultMessage:
-          'Co-founder Accomplice Design, a product design studio in San Francisco specializing in blockchain and fintech.',
-      },
-    }),
-    social: [
-      {
-        name: 'twitter',
-        link: 'https://twitter.com/accomplice',
-      },
-      {
-        name: 'linkedin',
-        link: 'https://www.linkedin.com/in/designforgrowth/',
-      },
-    ],
-    profpic: mburkett,
-  },
-  {
     name: 'pgendron',
     ...defineMessages({
       displayName: {
@@ -123,31 +92,6 @@ export const TeamData = [
       },
     ],
     profpic: pgendron,
-  },
-  {
-    name: 'jwei',
-    ...defineMessages({
-      displayName: {
-        description: 'team member name',
-        defaultMessage: 'James Wei',
-      },
-      title: {
-        description: 'team member title',
-        defaultMessage: 'Senior Engineer',
-      },
-      description: {
-        description: 'team member title',
-        defaultMessage:
-          'Senior Backend Engineer at PicMonkey, Ethereum miner and early DeFi user.',
-      },
-    }),
-    social: [
-      {
-        name: 'linkedin',
-        link: 'https://www.linkedin.com/in/tianjie-wei-1a48611b/',
-      },
-    ],
-    profpic: jwei,
   },
   {
     name: 'ipetsch',

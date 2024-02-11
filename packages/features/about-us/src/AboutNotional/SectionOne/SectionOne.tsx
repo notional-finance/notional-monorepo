@@ -41,7 +41,11 @@ export const SectionOne = () => {
   return (
     <Box
       sx={{
-        marginTop: { xs: '52px', md: '61px', lg: '72px' },
+        marginTop: {
+          xs: theme.spacing(19),
+          md: theme.spacing(19),
+          lg: theme.spacing(9),
+        },
       }}
     >
       <VideoPlayerHero

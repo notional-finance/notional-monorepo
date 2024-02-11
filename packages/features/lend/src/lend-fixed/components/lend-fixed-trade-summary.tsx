@@ -28,13 +28,10 @@ export const LendFixedTradeSummary = () => {
   const { pathname } = useLocation();
   const context = useContext(LendFixedContext);
   const { state } = context;
-  const { selectedDepositToken, deposit } = state;
-  const { tableColumns, tableData } = useFixedLiquidityPoolsTable(
-    selectedDepositToken,
-    deposit?.currencyId
-  );
-  const { faqHeaderLinks, faqs } = useLendFixedFaq();
-  const totalsData = useTotalsData(selectedDepositToken);
+  const { selectedDepositToken, deposit, selectedNetwork } = state;
+  const { tableColumns, tableData } = useFixedLiquidityPoolsTable(deposit);
+  const { faqHeaderLinks, faqs } = useLendFixedFaq(selectedNetwork);
+  const totalsData = useTotalsData(deposit);
   const multiChartData = useLendFixedMultiChart();
 
   return (
@@ -48,8 +45,14 @@ export const LendFixedTradeSummary = () => {
           marginTop: theme.spacing(3),
         }}
       >
-        {totalsData.map(({ title, value, prefix }, index) => (
-          <TotalBox title={title} value={value} key={index} prefix={prefix} />
+        {totalsData.map(({ title, value, prefix, suffix }, index) => (
+          <TotalBox
+            title={title}
+            value={value}
+            key={index}
+            prefix={prefix}
+            suffix={suffix}
+          />
         ))}
       </Box>
 

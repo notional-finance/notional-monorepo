@@ -32,6 +32,7 @@ export { Multicall3__factory } from "./Multicall3__factory";
 export { NftContract__factory } from "./NftContract__factory";
 export { NoteERC20__factory } from "./NoteERC20__factory";
 export { Notional__factory } from "./Notional__factory";
+export { NotionalContestPass__factory } from "./NotionalContestPass__factory";
 export { NotionalV3__factory } from "./NotionalV3__factory";
 export { SecondaryRewarder__factory } from "./SecondaryRewarder__factory";
 export { TradingModule__factory } from "./TradingModule__factory";

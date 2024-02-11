@@ -66,7 +66,8 @@ export const SideDrawerRouter = ({
         ':path',
         hasPosition ? defaultHasPosition : defaultNoPosition
       );
-      history.push(defaultPath);
+      // Use replace here to avoid breaking the back button
+      history.replace(defaultPath);
     }
   }, [
     routeMatch,
@@ -124,10 +125,17 @@ const DrawerRoute = ({
         const r = getComparisonKey(k, requiredState);
         return s === r;
       });
-    if (allStateMatches) return;
+
+    if (
+      allStateMatches ||
+      // Use a "startsWith" here to support potential suffix to the path
+      // such as in roll debt
+      (state['pathname'] && !state['pathname'].startsWith(path))
+    )
+      return;
 
     updateState(requiredState);
-  }, [updateState, requiredState, state]);
+  }, [updateState, requiredState, state, path]);
 
   return (
     <Route path={path} exact={false}>

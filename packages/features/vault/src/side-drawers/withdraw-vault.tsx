@@ -4,6 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import {
   CurrencyInput,
+  ErrorMessage,
   InputLabel,
   PageLoading,
   useCurrencyInputRef,
@@ -11,8 +12,9 @@ import {
 import { VaultActionContext } from '../vault';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { messages } from '../messages';
-import { useVaultRiskProfile } from '@notional-finance/notionable-hooks';
+import { useVaultPosition } from '@notional-finance/notionable-hooks';
 import { useInputAmount } from '@notional-finance/trade/common';
+import { useVaultActionErrors } from '../hooks';
 
 export const WithdrawVault = () => {
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
@@ -25,15 +27,21 @@ export const WithdrawVault = () => {
       vaultAddress,
       calculateError,
       maxWithdraw,
+      selectedNetwork,
     },
     updateState,
   } = context;
   const [inputString, setInputString] = useState('');
+  const { underMinAccountBorrowError } = useVaultActionErrors();
   const primaryBorrowSymbol = deposit?.symbol;
   const isFullRepayment = postAccountRisk?.leverageRatio === null;
-  const profile = useVaultRiskProfile(vaultAddress);
+  const profile = useVaultPosition(selectedNetwork, vaultAddress)?.vault;
 
-  const { inputAmount } = useInputAmount(inputString, primaryBorrowSymbol);
+  const { inputAmount } = useInputAmount(
+    selectedNetwork,
+    inputString,
+    primaryBorrowSymbol
+  );
   useEffect(() => {
     updateState({
       depositBalance: inputAmount?.neg(),
@@ -102,6 +110,12 @@ export const WithdrawVault = () => {
           options={deposit ? [{ token: deposit }] : []}
           defaultValue={deposit?.id || null}
         />
+        {underMinAccountBorrowError && (
+          <ErrorMessage
+            variant={'error'}
+            message={<FormattedMessage {...underMinAccountBorrowError} />}
+          />
+        )}
       </Box>
     </VaultSideDrawer>
   );

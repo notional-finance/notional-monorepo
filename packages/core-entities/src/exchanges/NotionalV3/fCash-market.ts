@@ -685,6 +685,26 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     }
   }
 
+  public getMarketUtilization() {
+    const currentUtilization = this.poolParams.perMarketfCash.map((_, i) => {
+      return this.getfCashUtilization(
+        this.poolParams.perMarketfCash[i].copy(0),
+        this.poolParams.perMarketfCash[i],
+        this.poolParams.perMarketCash[i].toUnderlying()
+      );
+    });
+    const isHighUtilization = this.poolParams.interestRateCurve.reduce(
+      (acc, { kinkUtilization2 }, i) => {
+        acc[this.poolParams.perMarketfCash[i].tokenId] =
+          currentUtilization[i] > kinkUtilization2;
+        return acc;
+      },
+      {} as Record<string, boolean>
+    );
+
+    return isHighUtilization;
+  }
+
   public isIdiosyncratic(fCash: TokenBalance) {
     return this.balances.findIndex((t) => t.typeKey === fCash.typeKey) === -1;
   }

@@ -65,12 +65,27 @@ export async function fetchUsingMulticall<T>(
   calls: AggregateCall<T>[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transforms: ((r: Record<string, any>) => Record<string, T>)[],
-  provider?: providers.Web3Provider
+  provider?: providers.Provider
 ): Promise<CacheSchema<T>> {
-  const { block, results } = await aggregate<T>(
-    calls,
-    provider || getProviderFromNetwork(network)
-  );
+  let block: providers.Block;
+  let results: Record<string, T>;
+  try {
+    ({ block, results } = await aggregate<T>(
+      calls,
+      provider || getProviderFromNetwork(network)
+    ));
+  } catch (e) {
+    if (provider) {
+      // Occasionally the supplied provider may fail, if so then we use the default
+      // provider instead
+      ({ block, results } = await aggregate<T>(
+        calls,
+        getProviderFromNetwork(network)
+      ));
+    } else {
+      throw e;
+    }
+  }
   const finalResults = transforms.reduce((r, t) => t(r), results);
 
   return {

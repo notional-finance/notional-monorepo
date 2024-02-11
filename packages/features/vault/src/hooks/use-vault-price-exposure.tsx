@@ -2,27 +2,25 @@ import { useTheme } from '@mui/material';
 import { Registry } from '@notional-finance/core-entities';
 import { DataTableColumn, NegativeValueCell } from '@notional-finance/mui';
 import { VaultTradeState } from '@notional-finance/notionable';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 export const useVaultPriceExposure = (state: VaultTradeState) => {
   const theme = useTheme();
-  const network = useSelectedNetwork();
-  const { priorVaultBalances, postTradeBalances } = state;
+  const { priorVaultBalances, postTradeBalances, selectedNetwork } = state;
   const accountVaultShares =
     priorVaultBalances?.find((t) => t.tokenType === 'VaultShare') ||
     postTradeBalances?.find((t) => t.tokenType === 'VaultShare');
   const priceExposure = useMemo(() => {
     const vaultAdapter =
-      network && state.vaultAddress
+      selectedNetwork && state.vaultAddress
         ? Registry.getVaultRegistry().getVaultAdapter(
-            network,
+            selectedNetwork,
             state.vaultAddress
           )
         : undefined;
     return vaultAdapter?.getPriceExposure() || [];
-  }, [network, state.vaultAddress]);
+  }, [selectedNetwork, state.vaultAddress]);
 
   const columns: DataTableColumn[] = [
     {

@@ -35,12 +35,13 @@ export const VaultSummary = () => {
     maxVaultCapacity,
     capacityUsedPercentage,
     capacityWithUserBorrowPercentage,
+    selectedNetwork
   } = state;
-  const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
+  const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress, selectedNetwork);
   // const { data, columns } = useVaultPriceExposure(state);
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
-  const { faqHeaderLinks, faqs } = useVaultFaq();
+  const { faqHeaderLinks, faqs } = useVaultFaq(selectedNetwork);
 
   const userCapacityMark = capacityWithUserBorrowPercentage
     ? [

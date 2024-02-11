@@ -19,7 +19,7 @@ import {
 import { useConnect } from '../hooks/use-connect';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { useAccountReady } from '@notional-finance/notionable-hooks';
+import { useWalletConnected } from '@notional-finance/notionable-hooks';
 
 /* eslint-disable-next-line */
 export interface SettingsSideDrawerProps {
@@ -36,7 +36,7 @@ export const SettingsSideDrawer = ({
   const { accountData, transactionData } = useSettingsSideDrawer();
   const { clearWalletSideDrawer } = useSideDrawerManager();
   const { disconnectWallet } = useConnect();
-  const connected = useAccountReady();
+  const connected = useWalletConnected();
   const [settingsItem, setSettingsItem] = useState<SettingsItem | null>(null);
   const userSettings = getFromLocalStorage('userSettings');
 
@@ -75,7 +75,7 @@ export const SettingsSideDrawer = ({
         ref={containerRef}
         sx={{ visibility: settingsItem === null ? 'visible' : 'hidden' }}
       >
-        <Title>
+        <Title sx={{ marginTop: theme.spacing(5) }}>
           <FormattedMessage defaultMessage="Account" />
         </Title>
         {accountData.map((data) => (
@@ -113,7 +113,7 @@ export const SettingsSideDrawer = ({
         ))}
       </Box>
       <Box sx={{ marginBottom: '48px' }}>
-        <Title>
+        <Title sx={{ marginTop: theme.spacing(5) }}>
           <FormattedMessage defaultMessage="Transactions" />
         </Title>
         {transactionData.map((data) => (
@@ -198,11 +198,10 @@ const SettingsContainer = styled(Box)(
   `
 );
 
-const Title = styled(LabelValue)(
+export const Title = styled(LabelValue)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2.5)};
-  margin-top: ${theme.spacing(5)};
-  color: ${theme.palette.borders.accentDefault};
+  color: ${theme.palette.typography.light};
   font-weight: 700; 
   text-transform: uppercase;
   `

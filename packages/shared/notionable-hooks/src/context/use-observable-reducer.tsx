@@ -38,7 +38,7 @@ export function useObservableReducer<T extends Resettable>(
             (state, [update, init]) =>
               // If the flag "reset" is seen then reset the state to the initial state
               update.reset === true
-                ? { ...init, ...update }
+                ? { ...init, tradeType: state['tradeType'], ...update }
                 : { ...init, ...state, ...update },
             {} as T
           )

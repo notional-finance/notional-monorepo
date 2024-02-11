@@ -3,7 +3,7 @@ import { LiquidityContext } from '../../liquidity';
 import { TransactionSidebar } from '@notional-finance/trade';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 import { MessageDescriptor, defineMessage } from 'react-intl';
-import { formatMaturity } from '@notional-finance/helpers';
+import { formatMaturity } from '@notional-finance/util';
 
 export const RollMaturity = () => {
   const context = useContext(LiquidityContext);

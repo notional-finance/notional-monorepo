@@ -112,8 +112,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
     const exchanges = Registry.getExchangeRegistry();
     const config = Registry.getConfigurationRegistry();
-    const nTokenFees =
-      Registry.getAnalyticsRegistry().getNTokenTradingFees(network);
     const fCashMarket = exchanges.getfCashMarket(
       network,
       netNTokens.currencyId
@@ -129,8 +127,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       .add(netNTokens.toPrimeCash());
 
     // Total fees over the last week divided by the total value locked
-    const feeAPY =
-      nTokenFees?.find((f) => f.token.id === netNTokens.tokenId)?.apy || 0;
+    const feeAPY = Registry.getAnalyticsRegistry().getNTokenFeeRate(
+      netNTokens.token
+    );
     const incentiveAPY = this._convertRatioToYield(
       annualizedNOTEIncentives,
       nTokenTVL
@@ -417,7 +416,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           (v.maturity ? v.maturity > getNowSeconds() : true) &&
           !!v.vaultAddress &&
           vaults.isVaultEnabled(v.network, v.vaultAddress) &&
-          whitelistedVaults.includes(v.vaultAddress)
+          whitelistedVaults(network).includes(v.vaultAddress)
       )
       .flatMap((v) => {
         const debt = debtYields.find(
@@ -474,6 +473,10 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     return Array.from(this.getLatestFromAllSubjects(network, 0).values()).sort(
       (a, b) => (a.token.currencyId || 0) - (b.token.currencyId || 0)
     );
+  }
+
+  getNonLeveragedYields(network: Network) {
+    return this.getAllYields(network).filter((y) => y.leveraged === undefined);
   }
 
   protected override async _refresh(network: Network) {
