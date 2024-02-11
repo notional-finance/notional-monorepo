@@ -110,8 +110,6 @@ export const AreaChart = ({
     return result;
   };
 
-  console.log({ xAxisTickFormat });
-
   return (
     <Box
       sx={{

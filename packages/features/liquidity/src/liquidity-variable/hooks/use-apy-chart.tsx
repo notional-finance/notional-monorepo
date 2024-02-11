@@ -16,7 +16,7 @@ export const useApyChart = (token?: TokenDefinition) => {
 
   console.log({ apyIncentiveData });
 
-  const barChartData = apyIncentiveData?.map(
+  let barChartData = apyIncentiveData?.map(
     ({ arbApy, noteApy, organicApy, timestamp }) => {
       return {
         arbApy: arbApy,
@@ -26,6 +26,10 @@ export const useApyChart = (token?: TokenDefinition) => {
       };
     }
   );
+
+  if (barChartData.length > 50) {
+    barChartData = barChartData.slice(barChartData.length - 50);
+  }
 
   //   const barChartData = historyData?.map(
   //     ({ assets, debts, netWorth, timestamp }) => {

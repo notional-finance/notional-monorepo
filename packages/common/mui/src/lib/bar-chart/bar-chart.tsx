@@ -21,7 +21,7 @@ import { FormattedMessage } from 'react-intl';
 export interface BarConfigProps {
   dataKey: string;
   fill: string;
-  value?: string;
+  value?: string | number;
   radius?: number | [number, number, number, number] | undefined;
   title?: ReactNode;
   toolTipTitle?: ReactNode;
@@ -39,29 +39,28 @@ export interface BarChartProps {
 
 export const BarChart = ({
   yAxisTickFormat = 'percent',
-  // xAxisTickFormat = 'date',
+  xAxisTickFormat = 'date',
   barChartData,
   barConfig,
   isStacked = false,
-  title,
-}: BarChartProps) => {
+}: // title,
+BarChartProps) => {
   const theme = useTheme();
 
-  // const xAxisTickHandler = (v: number, i: number) => {
-  //   let result = '';
-  //   if (xAxisTickFormat === 'date') {
-  //     if (typeof v === 'number') {
-  //       const showTick = i % 15 === 0;
-  //       const date = getDateString(v);
-  //       result = showTick ? date.toUpperCase() : '';
-  //     }
-  //   }
-  //   if (xAxisTickFormat === 'percent') {
-  //     result = formatNumberAsPercent(v);
-  //   }
-  //   console.log({ result });
-  //   return result;
-  // };
+  const xAxisTickHandler = (v: number, i: number) => {
+    let result = '';
+    if (xAxisTickFormat === 'date') {
+      if (typeof v === 'number') {
+        const showTick = i % 15 === 0;
+        const date = getDateString(v);
+        result = showTick ? date.toUpperCase() : '';
+      }
+    }
+    if (xAxisTickFormat === 'percent') {
+      result = formatNumberAsPercent(v);
+    }
+    return result;
+  };
 
   const yAxisTickHandler = (v: number) => {
     if (yAxisTickFormat === 'percent' && typeof v === 'number') {
@@ -76,14 +75,9 @@ export const BarChart = ({
     return `${v}`;
   };
 
-  const formatDate = (date) => {
-    return getDateString(date, { hideYear: true });
-  };
-
-  console.log({ barChartData });
-  console.log({ barConfig });
-  console.log({ title });
-  console.log({ title });
+  // const formatDate = (date) => {
+  //   return getDateString(date, { hideYear: true });
+  // };
 
   return (
     <Box>
@@ -96,7 +90,7 @@ export const BarChart = ({
       ) : (
         <ResponsiveContainer width="100%" height={300}>
           <RechartsBarChart
-            barSize={7}
+            barSize={4}
             data={barChartData}
             margin={{ top: 30, right: 10, left: 10, bottom: 0 }}
           >
@@ -104,36 +98,39 @@ export const BarChart = ({
               vertical={false}
               stroke={theme.palette.borders.paper}
             />
-            <XAxis
+            {/* <XAxis
               dataKey="timestamp"
               tickLine={false}
               tickFormatter={formatDate}
               axisLine={{ stroke: theme.palette.borders.paper }}
               interval={0}
-            />
-            {/* <XAxis
+            /> */}
+            <XAxis
               dataKey="timestamp"
               type={xAxisTickFormat === 'date' ? 'category' : 'number'}
               tickCount={0}
               tickSize={0}
-              tickMargin={38}
+              tickMargin={20}
               axisLine={{ stroke: theme.palette.borders.paper }}
               domain={[
                 (dataMin: number) => dataMin - ONE_WEEK,
                 (dataMax: number) => dataMax + ONE_WEEK,
               ]}
               style={{
-                fill: 'red',
+                fill: theme.palette.typography.light,
                 fontSize: '12px',
               }}
               interval={0}
               tickFormatter={xAxisTickHandler}
-              tick={undefined}
               tickLine={false}
-            /> */}
+            />
             <YAxis
               tickLine={false}
               axisLine={false}
+              style={{
+                fill: theme.palette.typography.light,
+                fontSize: '12px',
+              }}
               tickFormatter={(v: number) => yAxisTickHandler(v)}
             />
             <Tooltip

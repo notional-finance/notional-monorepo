@@ -46,7 +46,7 @@ export const LiquidityVariableSummary = () => {
   const { tvlData } = useTokenHistory(collateral);
   const { barConfig, barChartData } = useApyChart(collateral);
 
-  console.log({ tvlData });
+  console.log({ barChartData });
 
   return (
     <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
@@ -63,7 +63,7 @@ export const LiquidityVariableSummary = () => {
                 isStacked
                 barConfig={barConfig}
                 barChartData={barChartData}
-                yAxisTickFormat="currency"
+                yAxisTickFormat="percent"
               />
             ),
           },

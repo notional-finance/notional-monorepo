@@ -11,11 +11,22 @@ export interface BarChartToolTipProps extends TooltipProps<number, string> {
 
 export const BarChartToolTip = (props: BarChartToolTipProps) => {
   const { payload, barConfig } = props;
+  let totalApy = 0;
 
-  console.log({ payload });
+  if (payload) {
+    totalApy =
+      payload[0]?.payload.noteApy +
+      payload[0]?.payload.arbApy +
+      payload[0]?.payload.organicApy;
+  }
 
   return (
     <ToolTipBox>
+      <Item>
+        <Box component={'span'}>
+          {payload && payload.length > 0 ? formatNumberAsPercent(totalApy) : ''}
+        </Box>
+      </Item>
       <Item>
         <Box component={'span'}>
           {payload && payload.length > 0
