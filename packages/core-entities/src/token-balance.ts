@@ -425,8 +425,11 @@ export class TokenBalance {
         this.network,
         'ETH'
       );
-      const ethInCurrentNetwork = TokenBalance.fromFloat(
-        noteInETH.toFloat(),
+      const ethInCurrentNetwork = TokenBalance.from(
+        noteInETH.scale(
+          BigNumber.from(10).pow(eth.decimals),
+          noteInETH.precision
+        ).n,
         eth
       );
       return token.id === eth.id
