@@ -14,8 +14,6 @@ export const useApyChart = (token?: TokenDefinition) => {
   const themeVariant = useThemeVariant();
   const theme = useTheme();
 
-  console.log({ apyIncentiveData });
-
   let barChartData = apyIncentiveData?.map(
     ({ arbApy, noteApy, organicApy, timestamp }) => {
       return {
@@ -30,22 +28,6 @@ export const useApyChart = (token?: TokenDefinition) => {
   if (barChartData.length > 50) {
     barChartData = barChartData.slice(barChartData.length - 50);
   }
-
-  //   const barChartData = historyData?.map(
-  //     ({ assets, debts, netWorth, timestamp }) => {
-  //       return {
-  //         totalAssets: assets.toFloat(),
-  //         totalDebts: debts.toFloat(),
-  //         totalNetWorth: netWorth.toFloat(),
-  //         timestamp,
-  //       };
-  //     }
-  //   );
-
-  // NOTE APY: nTokenIncentiveRate;
-  // ARB APY: nTokenSecondaryIncentiveRate;
-  // ORGANIC APY: nTokenBlendedInterestRate + nTokenFeeRate
-  // TOTAL APY: totalAPY
 
   const barConfig: BarConfigProps[] = [
     {
@@ -71,16 +53,6 @@ export const useApyChart = (token?: TokenDefinition) => {
       toolTipTitle: <FormattedMessage defaultMessage="NOTE APY" />,
       fill: theme.palette.primary.light,
       radius: [8, 8, 0, 0],
-      value: '0',
-    },
-    {
-      dataKey: 'totalAPY',
-      title: <FormattedMessage defaultMessage="TOTAL APY" />,
-      toolTipTitle: <FormattedMessage defaultMessage="TOTAL APY" />,
-      fill:
-        themeVariant === THEME_VARIANTS.LIGHT
-          ? colors.turquoise
-          : colors.neonTurquoise,
       value: '0',
     },
   ];

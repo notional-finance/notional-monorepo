@@ -8,7 +8,10 @@ import {
   useAccountCurrentFactors,
   useFiat,
 } from '@notional-finance/notionable-hooks';
-import { BarConfigProps } from '@notional-finance/mui';
+import {
+  BarConfigProps,
+  ChartHeaderTotalsDataProps,
+} from '@notional-finance/mui';
 import {
   useWindowDimensions,
   formatNumberAsPercent,
@@ -123,9 +126,18 @@ export const useTotalsChart = () => {
 
   const hasData = historyData?.find(({ netWorth }) => netWorth.toFloat() > 0);
 
+  const totalsData = barConfig.map((data) => {
+    return {
+      title: data.title,
+      fill: data.fill,
+      value: data.value,
+    };
+  }) as ChartHeaderTotalsDataProps[];
+
   return {
     barChartData: hasData ? barChartData : [],
     barConfig,
+    totalsData,
   };
 };
 

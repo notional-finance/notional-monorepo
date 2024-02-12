@@ -3,7 +3,7 @@ import { H5, LargeNumber } from '../typography/typography';
 import { Box, styled, useTheme } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 
-export enum LEGEND_LINE_TYPES {
+enum LEGEND_LINE_TYPES {
   SOLID = 'solid',
   DASHED = 'dashed',
   DOTTED = 'dotted',
@@ -22,7 +22,7 @@ export interface ChartHeaderTotalsDataProps {
 }
 
 export interface ChartHeaderTotalsProps {
-  chartHeaderTotalsData: any[];
+  chartHeaderTotalsData: ChartHeaderTotalsDataProps[];
 }
 
 export const ChartHeaderTotals = ({

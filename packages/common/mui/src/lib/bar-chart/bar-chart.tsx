@@ -43,8 +43,7 @@ export const BarChart = ({
   barChartData,
   barConfig,
   isStacked = false,
-}: // title,
-BarChartProps) => {
+}: BarChartProps) => {
   const theme = useTheme();
 
   const xAxisTickHandler = (v: number, i: number) => {
@@ -75,14 +74,22 @@ BarChartProps) => {
     return `${v}`;
   };
 
-  // const formatDate = (date) => {
-  //   return getDateString(date, { hideYear: true });
-  // };
+  const formatDate = (date) => {
+    return getDateString(date, { hideYear: true });
+  };
 
   return (
     <Box>
       {barChartData.length === 0 ? (
-        <Box sx={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(6) }}>
+        <Box
+          sx={{
+            margin: 'auto',
+            height: theme.spacing(37.5),
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
           <FormattedMessage
             defaultMessage={'You have no active orders or historical data.'}
           />
@@ -90,7 +97,7 @@ BarChartProps) => {
       ) : (
         <ResponsiveContainer width="100%" height={300}>
           <RechartsBarChart
-            barSize={4}
+            barSize={isStacked ? 4 : 8}
             data={barChartData}
             margin={{ top: 30, right: 10, left: 10, bottom: 0 }}
           >
@@ -98,32 +105,36 @@ BarChartProps) => {
               vertical={false}
               stroke={theme.palette.borders.paper}
             />
-            {/* <XAxis
-              dataKey="timestamp"
-              tickLine={false}
-              tickFormatter={formatDate}
-              axisLine={{ stroke: theme.palette.borders.paper }}
-              interval={0}
-            /> */}
-            <XAxis
-              dataKey="timestamp"
-              type={xAxisTickFormat === 'date' ? 'category' : 'number'}
-              tickCount={0}
-              tickSize={0}
-              tickMargin={20}
-              axisLine={{ stroke: theme.palette.borders.paper }}
-              domain={[
-                (dataMin: number) => dataMin - ONE_WEEK,
-                (dataMax: number) => dataMax + ONE_WEEK,
-              ]}
-              style={{
-                fill: theme.palette.typography.light,
-                fontSize: '12px',
-              }}
-              interval={0}
-              tickFormatter={xAxisTickHandler}
-              tickLine={false}
-            />
+
+            {isStacked ? (
+              <XAxis
+                dataKey="timestamp"
+                type={xAxisTickFormat === 'date' ? 'category' : 'number'}
+                tickCount={0}
+                tickSize={0}
+                tickMargin={20}
+                axisLine={{ stroke: theme.palette.borders.paper }}
+                domain={[
+                  (dataMin: number) => dataMin - ONE_WEEK,
+                  (dataMax: number) => dataMax + ONE_WEEK,
+                ]}
+                style={{
+                  fill: theme.palette.typography.light,
+                  fontSize: '12px',
+                }}
+                interval={0}
+                tickFormatter={xAxisTickHandler}
+                tickLine={false}
+              />
+            ) : (
+              <XAxis
+                dataKey="timestamp"
+                tickLine={false}
+                tickFormatter={formatDate}
+                axisLine={{ stroke: theme.palette.borders.paper }}
+                interval={0}
+              />
+            )}
             <YAxis
               tickLine={false}
               axisLine={false}
@@ -135,7 +146,9 @@ BarChartProps) => {
             />
             <Tooltip
               wrapperStyle={{ outline: 'none' }}
-              content={<BarChartToolTip barConfig={barConfig} />}
+              content={
+                <BarChartToolTip barConfig={barConfig} isStacked={isStacked} />
+              }
               cursor={{ fill: 'transparent' }}
               position={{ y: 0 }}
             />
