@@ -54,13 +54,6 @@ export function useTokenHistory(token?: TokenDefinition) {
     return { apyData, tvlData };
   }, [token, isReady]);
 
-  // nTokenBlendedInterestRate;
-  // nTokenFeeRate;
-  // nTokenIncentiveRate;
-  // nTokenSecondaryIncentiveRate;
-  // timestamp;
-  // totalAPY;
-
   return {
     apyData: fillChartDaily(
       apyData?.map(({ timestamp, totalAPY }) => ({

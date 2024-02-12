@@ -33,7 +33,7 @@ export interface BarChartProps {
   barConfig: BarConfigProps[];
   xAxisTickFormat?: 'date' | 'percent';
   yAxisTickFormat?: 'percent' | 'number' | 'currency';
-  isStacked?: boolean;
+  isStackedBar?: boolean;
   title?: string;
 }
 
@@ -42,7 +42,7 @@ export const BarChart = ({
   xAxisTickFormat = 'date',
   barChartData,
   barConfig,
-  isStacked = false,
+  isStackedBar = false,
 }: BarChartProps) => {
   const theme = useTheme();
 
@@ -97,7 +97,7 @@ export const BarChart = ({
       ) : (
         <ResponsiveContainer width="100%" height={300}>
           <RechartsBarChart
-            barSize={isStacked ? 4 : 8}
+            barSize={isStackedBar ? 4 : 8}
             data={barChartData}
             margin={{ top: 30, right: 10, left: 10, bottom: 0 }}
           >
@@ -106,7 +106,7 @@ export const BarChart = ({
               stroke={theme.palette.borders.paper}
             />
 
-            {isStacked ? (
+            {isStackedBar ? (
               <XAxis
                 dataKey="timestamp"
                 type={xAxisTickFormat === 'date' ? 'category' : 'number'}
@@ -147,7 +147,10 @@ export const BarChart = ({
             <Tooltip
               wrapperStyle={{ outline: 'none' }}
               content={
-                <BarChartToolTip barConfig={barConfig} isStacked={isStacked} />
+                <BarChartToolTip
+                  barConfig={barConfig}
+                  isStackedBar={isStackedBar}
+                />
               }
               cursor={{ fill: 'transparent' }}
               position={{ y: 0 }}
@@ -157,7 +160,7 @@ export const BarChart = ({
               <Bar
                 key={index}
                 dataKey={dataKey}
-                stackId={isStacked ? '1' : undefined}
+                stackId={isStackedBar ? '1' : undefined}
                 fill={fill}
                 radius={radius ? radius : [0, 0, 0, 0]}
               />

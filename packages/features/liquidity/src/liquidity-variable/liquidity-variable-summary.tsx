@@ -46,8 +46,6 @@ export const LiquidityVariableSummary = () => {
   const { tvlData } = useTokenHistory(collateral);
   const { barConfig, barChartData } = useApyChart(collateral);
 
-  console.log({ barChartData });
-
   return (
     <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
       <MultiDisplayChart
@@ -60,7 +58,7 @@ export const LiquidityVariableSummary = () => {
               <BarChart
                 title="APY"
                 xAxisTickFormat="date"
-                isStacked
+                isStackedBar
                 barConfig={barConfig}
                 barChartData={barChartData}
                 yAxisTickFormat="percent"

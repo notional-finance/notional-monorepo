@@ -11,11 +11,11 @@ import {
 
 export interface BarChartToolTipProps extends TooltipProps<number, string> {
   barConfig: BarConfigProps[];
-  isStacked?: boolean;
+  isStackedBar?: boolean;
 }
 
 export const BarChartToolTip = (props: BarChartToolTipProps) => {
-  const { payload, barConfig, isStacked } = props;
+  const { payload, barConfig, isStackedBar } = props;
   let totalApy = 0;
 
   if (payload) {
@@ -39,7 +39,7 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
             : ''}
         </Box>
       </Item>
-      {isStacked && (
+      {isStackedBar && (
         <Item>
           <Box
             sx={{
@@ -76,9 +76,9 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
                 component={'span'}
                 sx={{ marginLeft: '8px', marginRight: '4px', width: '60px' }}
               >
-                {isStacked &&
+                {isStackedBar &&
                   (item.value ? `${formatNumberAsPercent(item.value)}` : `0 %`)}
-                {!isStacked &&
+                {!isStackedBar &&
                   (item.value && barConfig[index]?.currencySymbol !== undefined
                     ? `${
                         barConfig[index]?.currencySymbol
