@@ -22,4 +22,9 @@ actions:
                   contract:
                     address: 0x1344A36A1B56144C3Bc62E7757377D288fDE0369
                   name: TransferSingle
+              - network: 42161
+                eventEmitted:
+                  contract:
+                    address: 0x1344A36A1B56144C3Bc62E7757377D288fDE0369
+                  name: TransferBatch
         execution_type: sequential
