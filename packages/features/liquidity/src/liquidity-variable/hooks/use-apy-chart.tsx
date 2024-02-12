@@ -9,7 +9,7 @@ import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material';
 import { BarConfigProps } from '@notional-finance/mui';
 
-export const useApyChart = (token?: TokenDefinition) => {
+export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
   const { apyIncentiveData } = useTokenHistory(token);
   const themeVariant = useThemeVariant();
   const theme = useTheme();
@@ -25,8 +25,8 @@ export const useApyChart = (token?: TokenDefinition) => {
     }
   );
 
-  if (barChartData.length > 50) {
-    barChartData = barChartData.slice(barChartData.length - 50);
+  if (barChartData.length > defaultDataLimit) {
+    barChartData = barChartData.slice(barChartData.length - defaultDataLimit);
   }
 
   const barConfig: BarConfigProps[] = [

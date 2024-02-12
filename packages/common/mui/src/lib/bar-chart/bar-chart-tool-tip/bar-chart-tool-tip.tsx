@@ -1,4 +1,4 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { H5 } from '../../typography/typography';
 import { TooltipProps } from 'recharts';
 import { BarConfigProps } from '../bar-chart';
@@ -15,6 +15,7 @@ export interface BarChartToolTipProps extends TooltipProps<number, string> {
 }
 
 export const BarChartToolTip = (props: BarChartToolTipProps) => {
+  const theme = useTheme();
   const { payload, barConfig, isStackedBar } = props;
   let totalApy = 0;
 
@@ -43,15 +44,19 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
         <Item>
           <Box
             sx={{
-              height: '16px',
-              width: '6px',
+              height: theme.spacing(2),
+              width: theme.spacing(0.75),
               borderRadius: '4px',
               background: totalBackgroundColor,
             }}
           />
           <Box
             component={'span'}
-            sx={{ marginLeft: '8px', marginRight: '4px', width: '60px' }}
+            sx={{
+              marginLeft: theme.spacing(1),
+              marginRight: theme.spacing(0.5),
+              width: theme.spacing(7.5),
+            }}
           >
             {payload && payload.length > 0
               ? formatNumberAsPercent(totalApy)
@@ -66,15 +71,19 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
             <Item key={index}>
               <Box
                 sx={{
-                  height: '14px',
-                  width: '6px',
+                  height: theme.spacing(2),
+                  width: theme.spacing(0.75),
                   borderRadius: '4px',
                   backgroundColor: `${barConfig[index].fill}`,
                 }}
               />
               <Box
                 component={'span'}
-                sx={{ marginLeft: '8px', marginRight: '4px', width: '60px' }}
+                sx={{
+                  marginLeft: theme.spacing(1),
+                  marginRight: theme.spacing(0.5),
+                  width: theme.spacing(7.5),
+                }}
               >
                 {isStackedBar &&
                   (item.value ? `${formatNumberAsPercent(item.value)}` : `0 %`)}
@@ -103,7 +112,7 @@ const Item = styled(H5)(
   border-right: 0px;
   border-bottom: 0px;
   margin: ${theme.spacing(1)};
-  padding-left: 8px;
+  padding-left: ${theme.spacing(1)};
   whitespace: nowrap;
   span {
     color: ${theme.palette.typography.main};

@@ -84,7 +84,7 @@ export const BarChart = ({
         <Box
           sx={{
             margin: 'auto',
-            height: theme.spacing(37.5),
+            height: isStackedBar ? theme.spacing(37.5) : '',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
