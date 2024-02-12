@@ -199,30 +199,36 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
             if (r) {
               apy = (parseFloat(r.rate) / RATE_PRECISION) * 100;
 
-              if (o.oracleType === 'nTokenIncentiveRate') {
-                apy = TokenBalance.fromFloat(
-                  apy.toFixed(8),
-                  tokens.getTokenBySymbol(token.network, 'NOTE')
-                )
-                  .toToken(
-                    tokens.getTokenByID(token.network, o.base),
-                    'None',
-                    floorToMidnight(r.timestamp)
+              try {
+                if (o.oracleType === 'nTokenIncentiveRate') {
+                  apy = TokenBalance.fromFloat(
+                    apy.toFixed(8),
+                    tokens.getTokenBySymbol(token.network, 'NOTE')
                   )
-                  .toFloat();
-              } else if (o.oracleType === 'nTokenSecondaryIncentiveRate') {
-                // NOTE: this token is currently hardcoded but we will need to make it configurable
-                // at some point in the future.
-                apy = TokenBalance.fromFloat(
-                  (apy / INTERNAL_TOKEN_PRECISION).toFixed(8),
-                  tokens.getTokenBySymbol(token.network, 'ARB')
-                )
-                  .toToken(
-                    tokens.getTokenByID(token.network, o.base),
-                    'None',
-                    floorToMidnight(r.timestamp)
+                    .toToken(
+                      tokens.getTokenByID(token.network, o.base),
+                      'None',
+                      floorToMidnight(r.timestamp)
+                    )
+                    .toFloat();
+                } else if (o.oracleType === 'nTokenSecondaryIncentiveRate') {
+                  // NOTE: this token is currently hardcoded but we will need to make it configurable
+                  // at some point in the future.
+                  apy = TokenBalance.fromFloat(
+                    (apy / INTERNAL_TOKEN_PRECISION).toFixed(8),
+                    tokens.getTokenBySymbol(token.network, 'ARB')
                   )
-                  .toFloat();
+                    .toToken(
+                      tokens.getTokenByID(token.network, o.base),
+                      'None',
+                      floorToMidnight(r.timestamp)
+                    )
+                    .toFloat();
+                }
+              } catch (e) {
+                // Errors may occur around UTC midnight when not all the oracles have fully
+                // updated.
+                console.error(e);
               }
 
               acc[o.oracleType] = apy;
