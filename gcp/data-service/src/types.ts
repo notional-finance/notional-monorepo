@@ -136,3 +136,33 @@ export interface VaultAccount {
   accountId: string;
   vaultId: string;
 }
+
+type DataServiceAccountContextUpdate = {
+  name: 'AccountContextUpdate',
+  params: {
+    account: string,
+  }
+};
+
+type DataServiceTransferBatch = {
+  name: 'TransferBatch',
+  params: {
+    operator: string,
+    from: string,
+    to: string,
+    ids: string[],
+    values: string[],
+  }
+};
+type DataServiceTransferSingle = {
+  name: 'TransferSingle',
+  params: {
+    operator: string,
+    from: string,
+    to: string,
+    id: string,
+    value: string,
+  }
+};
+
+export type DataServiceEvent = DataServiceTransferSingle | DataServiceTransferBatch | DataServiceAccountContextUpdate;

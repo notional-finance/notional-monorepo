@@ -12,7 +12,7 @@ import {
   padToHex256,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
-import { VaultAccount, BackfillType } from './types';
+import { VaultAccount, BackfillType, DataServiceEvent } from './types';
 
 const port = parseInt(process.env.SERVICE_PORT || '8080');
 const app = express();
@@ -89,7 +89,7 @@ async function main() {
   });
 
   app.use(express.json());
-  app.use(function (req, res, next) {
+  app.use(function(req, res, next) {
     if (req.url === '/') {
       next();
       return;
@@ -236,7 +236,7 @@ async function main() {
       const accountIds: string[] = [];
       const vaultAccounts: VaultAccount[] = [];
 
-      req.body.events.forEach((event: any) => {
+      req.body.events.forEach((event: DataServiceEvent) => {
         if (event.name === 'AccountContextUpdate') {
           accountIds.push(event.params.account);
         } else if (event.name === 'TransferSingle') {
@@ -251,6 +251,22 @@ async function main() {
               accountId: event.params.to,
               vaultId: params.vaultAddress,
             });
+          }
+        } else if (event.name === 'TransferBatch') {
+          const ids = event.params.ids.map(BigNumber.from);
+          const paramsArray = ids.map(id => decodeERC1155Id(padToHex256(id)));
+
+          for (const params of paramsArray) {
+            if (
+              params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE &&
+              params.vaultAddress
+            ) {
+              accountIds.push(event.params.to);
+              vaultAccounts.push({
+                accountId: event.params.to,
+                vaultId: params.vaultAddress,
+              });
+            }
           }
         }
       });

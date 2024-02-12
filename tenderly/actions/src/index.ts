@@ -1,23 +1,41 @@
 import { ActionFn, Context, Event, TransactionEvent } from '@tenderly/actions';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import NotionalV3ABI from '@notional-finance/contracts/src/abi/NotionalV3.json';
+import { TransferSingleEventObject, TransferBatchEventObject, AccountContextUpdateEventObject, }
+  from '@notional-finance/contracts/src/types/NotionalV3';
 import fetch from 'node-fetch';
 
 const url = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/events';
 
-interface AccountContextUpdateInputs {
-  account: string
-}
+type DataServiceAccountContextUpdate = {
+  name: 'AccountContextUpdate',
+  params: {
+    account: string,
+  }
+};
 
-interface TransferSingleInputs {
-  operator: string,
-  from: string,
-  to: string,
-  id: BigNumber,
-  value: BigNumber
-}
+type DataServiceTransferBatch = {
+  name: 'TransferBatch',
+  params: {
+    operator: string,
+    from: string,
+    to: string,
+    ids: string[],
+    values: string[],
+  }
+};
+type DataServiceTransferSingle = {
+  name: 'TransferSingle',
+  params: {
+    operator: string,
+    from: string,
+    to: string,
+    id: string,
+    value: string,
+  }
+};
 
-type DataServiceEvent = { name: string, params: { [key: string]: string } };
+type DataServiceEvent = DataServiceTransferSingle | DataServiceTransferBatch | DataServiceAccountContextUpdate;
 
 const parseEventsOfInterest = async (txEvent: TransactionEvent) => {
   const events: DataServiceEvent[] = [];
@@ -33,7 +51,7 @@ const parseEventsOfInterest = async (txEvent: TransactionEvent) => {
       'AccountContextUpdate',
       accountContextUpdateLog.data,
       accountContextUpdateLog.topics,
-    ) as unknown as AccountContextUpdateInputs;
+    ) as unknown as AccountContextUpdateEventObject;
 
     events.push({
       name: 'AccountContextUpdate',
@@ -53,7 +71,7 @@ const parseEventsOfInterest = async (txEvent: TransactionEvent) => {
       'TransferSingle',
       transferSingleLog.data,
       transferSingleLog.topics,
-    ) as unknown as TransferSingleInputs;
+    ) as unknown as TransferSingleEventObject;
     events.push({
       name: 'TransferSingle',
       params: {
@@ -62,6 +80,34 @@ const parseEventsOfInterest = async (txEvent: TransactionEvent) => {
         to: transferSingleInputs.to,
         id: transferSingleInputs.id.toString(),
         value: transferSingleInputs.value.toString()
+      }
+    })
+  }
+
+  const transferBatchTopic = INotional.getEventTopic('TransferBatch');
+  const transferBatchLog = txEvent.logs.find(log => {
+    return log.topics.find(topic => topic == transferBatchTopic) !== undefined
+  });
+
+
+  if (transferBatchLog) {
+    const transferBatchInputs = INotional.decodeEventLog(
+      'TransferBatch',
+      transferBatchLog.data,
+      transferBatchLog.topics,
+    ) as unknown as TransferBatchEventObject;
+    events.push({
+      name: 'TransferBatch',
+      params: {
+        operator: transferBatchInputs.operator,
+        from: transferBatchInputs.from,
+        to: transferBatchInputs.to,
+        ids: transferBatchInputs.ids.map(String),
+        // strange issue with returned event object, if "values"
+        // is accessed as property, function is returned instead of array
+        // so we need to access it here as array element
+        // @ts-ignore
+        values: transferBatchInputs[4].map(String)
       }
     })
   }
