@@ -5,6 +5,7 @@ import { TransferSingleEventObject, TransferBatchEventObject, AccountContextUpda
   from '@notional-finance/contracts/src/types/NotionalV3';
 import fetch from 'node-fetch';
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const url = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/events';
 
 type DataServiceAccountContextUpdate = {
@@ -72,16 +73,18 @@ const parseEventsOfInterest = async (txEvent: TransactionEvent) => {
       transferSingleLog.data,
       transferSingleLog.topics,
     ) as unknown as TransferSingleEventObject;
-    events.push({
-      name: 'TransferSingle',
-      params: {
-        operator: transferSingleInputs.operator,
-        from: transferSingleInputs.from,
-        to: transferSingleInputs.to,
-        id: transferSingleInputs.id.toString(),
-        value: transferSingleInputs.value.toString()
-      }
-    })
+    if (transferSingleInputs.to !== ZERO_ADDRESS) {
+      events.push({
+        name: 'TransferSingle',
+        params: {
+          operator: transferSingleInputs.operator,
+          from: transferSingleInputs.from,
+          to: transferSingleInputs.to,
+          id: transferSingleInputs.id.toString(),
+          value: transferSingleInputs.value.toString()
+        }
+      })
+    }
   }
 
   const transferBatchTopic = INotional.getEventTopic('TransferBatch');
@@ -96,20 +99,22 @@ const parseEventsOfInterest = async (txEvent: TransactionEvent) => {
       transferBatchLog.data,
       transferBatchLog.topics,
     ) as unknown as TransferBatchEventObject;
-    events.push({
-      name: 'TransferBatch',
-      params: {
-        operator: transferBatchInputs.operator,
-        from: transferBatchInputs.from,
-        to: transferBatchInputs.to,
-        ids: transferBatchInputs.ids.map(String),
-        // strange issue with returned event object, if "values"
-        // is accessed as property, function is returned instead of array
-        // so we need to access it here as array element
-        // @ts-ignore
-        values: transferBatchInputs[4].map(String)
-      }
-    })
+    if (transferBatchInputs.to !== ZERO_ADDRESS) {
+      events.push({
+        name: 'TransferBatch',
+        params: {
+          operator: transferBatchInputs.operator,
+          from: transferBatchInputs.from,
+          to: transferBatchInputs.to,
+          ids: transferBatchInputs.ids.map(String),
+          // strange issue with returned event object, if "values"
+          // is accessed as property, function is returned instead of array
+          // so we need to access it here as array element
+          // @ts-ignore
+          values: transferBatchInputs[4].map(String)
+        }
+      })
+    }
   }
 
   return events;
