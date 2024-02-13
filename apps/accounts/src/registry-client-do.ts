@@ -63,8 +63,8 @@ export class RegistryClientDO extends BaseDO<Env> {
       for (const network of this.env.SUPPORTED_NETWORKS) {
         if (network === Network.All) continue;
         // await this.checkAccountList(network);
-        // await this.checkTotalSupply(network);
-        await this.saveAccountFactors(network);
+        await this.checkTotalSupply(network);
+        // await this.saveAccountFactors(network);
         // await this.saveYieldData(network);
         // await this.checkDBMonitors(network);
       }
@@ -292,8 +292,11 @@ export class RegistryClientDO extends BaseDO<Env> {
         // All these balances are positive
         const computedSupply =
           totalBalances.get(id) || TokenBalance.zero(token);
+        // Use a smaller lower bound for 6 decimal tokens like USDC and USDT since
+        // they succumb to more rounding errors than other tokens.
+        const lowerBound = totalSupply.underlying.decimals < 8 ? 1e-2 : 1e-4;
 
-        if (computedSupply.sub(totalSupply).abs().toFloat() > 1e-4) {
+        if (computedSupply.sub(totalSupply).abs().toFloat() > lowerBound) {
           await this.logger.submitEvent({
             host: this.serviceName,
             network,
