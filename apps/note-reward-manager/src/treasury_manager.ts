@@ -61,28 +61,36 @@ export default class TreasuryManager {
         const noteBurnPercent = await this.proxy.noteBurnPercent();
         const wethForBurn = wethBalance.mul(noteBurnPercent).div(100);
 
-        const zeroXData = await get0xData({
-          sellToken: this.WETH,
-          buyToken: this.NOTE,
-          sellAmount: wethForBurn,
-          env: this.env
-        });
-
+        // empty trade
         const trade: Trade = {
           tradeType: TradeType.EXACT_IN_SINGLE,
           buyToken: this.NOTE,
           sellToken: this.WETH,
-          amount: wethForBurn,
-          limit: zeroXData.limit,
+          amount: BigNumber.from(0),
+          limit: BigNumber.from(0),
           deadline: nowInSec() + TWO_HOURS_SEC,
-          exchangeData: zeroXData.data
+          exchangeData: '0x'
         };
+
+        if (wethForBurn.gt(0)) {
+          const zeroXData = await get0xData({
+            sellToken: this.WETH,
+            buyToken: this.NOTE,
+            sellAmount: wethForBurn,
+            env: this.env
+          });
+
+          trade.amount = wethForBurn;
+          trade.limit = zeroXData.limit;
+          trade.exchangeData = zeroXData.data;
+        }
 
         const { receivedBPT } = await this.proxy.callStatic.investWETHAndNOTE(
           wethBalance,
           BigNumber.from(0),
           0,
-          trade
+          trade,
+          { from: this.env.MANAGER_BOT_ADDRESS }
         );
         const minBPT = receivedBPT.mul((1 - 0.005) * 1000).div(1000);
         const data = this.proxy.interface.encodeFunctionData(
@@ -96,6 +104,7 @@ export default class TreasuryManager {
           env: this.env
         });
       } else {
+        console.log('No WETH on contract, selling COMP');
         const compToken = ERC20__factory.connect(this.COMP, this.provider);
         const compBal = await compToken.balanceOf(this.proxy.address);
         if (compBal.gt(0)) {

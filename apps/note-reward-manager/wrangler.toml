@@ -10,7 +10,8 @@ minify = true
 name = "note-reward-manager-dev"
 
 [env.dev.vars]
-NETWORK = "mainnet"
+NETWORK = "Mainnet"
+MANAGER_BOT_ADDRESS = "0x3164400d0c849996efCb390ec1D4705f2cD5E98C"
 
 [env.beta]
 name = "note-reward-manager-beta"

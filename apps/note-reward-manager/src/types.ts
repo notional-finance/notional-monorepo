@@ -10,6 +10,7 @@ export interface Env {
   ZERO_EX_API_KEY: string,
   ZERO_EX_API_URL: string,
   MANAGERS: string,
+  MANAGER_BOT_ADDRESS: string,
 }
 
 export enum DexId {
