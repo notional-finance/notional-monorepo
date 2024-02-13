@@ -63,7 +63,7 @@ export class RegistryClientDO extends BaseDO<Env> {
       for (const network of this.env.SUPPORTED_NETWORKS) {
         if (network === Network.All) continue;
         // await this.checkAccountList(network);
-        await this.checkTotalSupply(network);
+        // await this.checkTotalSupply(network);
         // await this.saveAccountFactors(network);
         // await this.saveYieldData(network);
         // await this.checkDBMonitors(network);
