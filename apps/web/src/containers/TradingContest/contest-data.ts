@@ -7,7 +7,7 @@ export const messages = {
   ContestHero: defineMessages({
     bodyText: {
       defaultMessage:
-        'Contest runs Feb. 21st to Mar. 21st. Open to everyone and free to join. Click below to enter and compete for 2,700 ARB in prizes',
+        'Contest runs Feb. 26st to Mar. 25st. Open to everyone and free to join. Click below to enter and compete for 2,700 ARB in prizes',
       description: 'body text',
     },
   }),

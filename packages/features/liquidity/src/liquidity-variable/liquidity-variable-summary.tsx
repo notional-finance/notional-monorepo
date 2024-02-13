@@ -6,6 +6,7 @@ import {
   DataTable,
   Body,
   AreaChart,
+  BarChart,
   MultiDisplayChart,
   TotalRow,
 } from '@notional-finance/mui';
@@ -16,6 +17,7 @@ import { TradeActionSummary } from '@notional-finance/trade';
 import {
   useLiquidityFaq,
   useTotalsData,
+  useApyChart,
   useReturnDriversTable,
   useLiquidityPoolsTable,
 } from './hooks';
@@ -41,7 +43,8 @@ export const LiquidityVariableSummary = () => {
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable();
   const { poolTableColumns, poolTableData } = useLiquidityPoolsTable();
-  const { apyData, tvlData } = useTokenHistory(collateral);
+  const { tvlData } = useTokenHistory(collateral);
+  const { barConfig, barChartData } = useApyChart(collateral);
 
   return (
     <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
@@ -52,12 +55,13 @@ export const LiquidityVariableSummary = () => {
             title: 'APY',
             hideTopGridLine: true,
             Component: (
-              <AreaChart
+              <BarChart
                 title="APY"
-                showCartesianGrid
                 xAxisTickFormat="date"
-                areaChartData={apyData}
-                areaLineType="linear"
+                isStackedBar
+                barConfig={barConfig}
+                barChartData={barChartData}
+                yAxisTickFormat="percent"
               />
             ),
           },
