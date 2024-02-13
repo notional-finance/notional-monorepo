@@ -183,7 +183,7 @@ export class RegistryClientDO extends BaseDO<Env> {
         (acct) =>
           excludeAccounts.find(
             (a) => a.toLowerCase() === acct.address.toLowerCase()
-          ) === undefined
+          ) !== undefined
       )
       .map((account) => ({
         address: account.address,

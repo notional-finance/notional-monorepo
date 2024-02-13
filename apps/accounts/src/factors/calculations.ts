@@ -14,27 +14,13 @@ import {
   getNowSeconds,
   groupArrayToMap,
 } from '@notional-finance/util';
+import { calculateAccruedIncentives } from '@notional-finance/notionable/global/account/incentives';
 
-const contestStart = 1695625200;
+const contestStart = 0;
+// const contestStart = 1704096000;
 // const contestEnd = 1698044400;
 
-export const excludeAccounts = [
-  '0x4e8014ff5bace498dab1a9e2b5c3f4240bc059b6',
-  '0x7f6f138c955e5b1017a12e4567d90c62abb00074',
-  '0x424da3eFC0dC677be66aFE1967Fb631fAbb86799',
-  '0x7d7935edd4b6cdb5f34b0e1cceaf85a3c4a11254',
-  '0xcece1920d4dbb96baf88705ce0a6eb3203ed2eb1',
-  '0x46a6f15b5a5cd0f1c93f87c4af0a0586fc9d07e8',
-  '0xdf5a26554ecb1a11614dbb34fc156d0adfc95c07',
-  '0xbc58c8ffbe953d3b539b6f61185c2c8575cccde6',
-  '0xbc8a4df7cee98f390827990afef987e486f9699f',
-  '0x25f45c5bf1e703667b1b2319c770d96fdc9b9cd8',
-  '0xe710f634a11e5ab17a193d5d7652c6f7d4b257f6',
-  '0xe6fb62c2218fd9e3c948f0549a2959b509a293c8',
-  '0x650f94282ee5e8fffe7336eb6a5e30dcfa61201c',
-  '0xd74e7325dFab7D7D1ecbf22e6E6874061C50f243',
-  '0xbf778fc19d0b55575711b6339a3680d07352b221',
-];
+export const excludeAccounts = ['0xaa322681ada630b045bbeb2980f56c8440959e36'];
 
 export function calculateAccountIRR(
   account: AccountDefinition,
@@ -47,24 +33,31 @@ export function calculateAccountIRR(
     .toToken(ETH, 'None', snapshotTimestamp);
 
   const allVaultRisk = VaultAccountRiskProfile.getAllRiskProfiles(account);
-
-  // TODO: this does not work
-  const unclaimedNOTE = TokenBalance.fromSymbol(
-    0,
-    'NOTE',
-    account.network
-  ).toFiat('ETH');
-  const claimedNOTE = account.balanceStatement
-    .reduce((note, s) => {
-      return s.totalNOTEClaimed ? note.add(s.totalNOTEClaimed) : note;
-    }, TokenBalance.fromSymbol(0, 'NOTE', account.network))
-    .toFiat('ETH');
+  const { totalIncentives } = calculateAccruedIncentives(account);
+  const valueOfUnclaimedIncentives = Object.keys(totalIncentives).reduce(
+    (acc, k) => {
+      return acc.add(totalIncentives[k].current.toToken(ETH));
+    },
+    TokenBalance.from(0, ETH)
+  );
+  const valueOfClaimedIncentives = (account.accountHistory || [])
+    .filter((a) => contestStart < a.timestamp)
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .filter(
+      (h) =>
+        h.bundleName === 'Transfer Incentive' ||
+        h.bundleName === 'Transfer Secondary Incentive'
+    )
+    .reduce(
+      (acc, h) => acc.add(h.tokenAmount.toToken(ETH)),
+      TokenBalance.from(0, ETH)
+    );
 
   const totalNetWorth = allVaultRisk
     .map((v) => v.netWorth().toToken(ETH, 'None', snapshotTimestamp))
     .reduce((p, c) => p.add(c), portfolioNetWorth)
-    .add(TokenBalance.from(unclaimedNOTE.n, ETH))
-    .add(TokenBalance.from(claimedNOTE.n, ETH));
+    .add(valueOfUnclaimedIncentives)
+    .add(valueOfClaimedIncentives);
 
   const cashFlows: CashFlow[] = (account.accountHistory || [])
     .filter((a) => contestStart < a.timestamp)
@@ -146,6 +139,15 @@ export function calculateAccountIRR(
       );
     }
   }
+
+  console.log(
+    'Factors',
+    account.address,
+    irr,
+    totalNetWorth.toString(),
+    netDeposits.toString(),
+    totalNetWorth.sub(netDeposits).toString()
+  );
 
   return {
     irr,
