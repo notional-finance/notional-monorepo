@@ -14,6 +14,7 @@ import {
 import { BigNumber } from 'ethers';
 import { VaultAccount, BackfillType, DataServiceEvent } from './types';
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const port = parseInt(process.env.SERVICE_PORT || '8080');
 const app = express();
 
@@ -233,8 +234,8 @@ async function main() {
 
   app.post('/events', async (req, res) => {
     try {
-      const accountIds: string[] = [];
-      const vaultAccounts: VaultAccount[] = [];
+      let accountIds: string[] = [];
+      let vaultAccounts: VaultAccount[] = [];
 
       req.body.events.forEach((event: DataServiceEvent) => {
         if (event.name === 'AccountContextUpdate') {
@@ -271,9 +272,12 @@ async function main() {
         }
       });
 
+      accountIds = accountIds.filter(a => a !== ZERO_ADDRESS);
       if (accountIds.length > 0) {
         await dataService.insertAccounts(Network.ArbitrumOne, accountIds);
       }
+
+      vaultAccounts = vaultAccounts.filter(va => va.accountId !== ZERO_ADDRESS);
       if (vaultAccounts.length > 0) {
         await dataService.insertVaultAccounts(
           Network.ArbitrumOne,
