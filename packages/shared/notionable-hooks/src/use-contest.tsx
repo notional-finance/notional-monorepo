@@ -27,8 +27,8 @@ export const contestCountDownDate = contestActive
   ? contestEndDate
   : contestStartDate;
 
-export const startDateDisplayString = 'Feb 26st 10:00 AM EST';
-export const endDateDisplayString = 'Mar 25st 10:00 AM EST';
+export const startDateDisplayString = 'Feb 26th 10:00 AM EST';
+export const endDateDisplayString = 'Mar 25th 10:00 AM EST';
 export const CURRENT_CONTEST_ID = 1;
 
 export const ContestPartners = [
