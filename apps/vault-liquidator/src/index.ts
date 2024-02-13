@@ -65,13 +65,15 @@ const run = async (env: Env) => {
     service: 'vault-liquidator',
   });
 
-  const accounts = (await (
-    await fetch(env.ACCOUNT_SERVICE_URL, {
-      headers: {
-        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
-      },
-    })
-  ).json()) as { account_id: string; vault_id: string }[];
+  const accounts = (
+    (await (
+      await fetch(env.ACCOUNT_SERVICE_URL, {
+        headers: {
+          'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+        },
+      })
+    ).json()) as { account_id: string; vault_id: string }[]
+  ).filter(({ account_id }) => account_id !== ZERO_ADDRESS);
 
   const activeVaults: string[] = allVaults['values']
     .filter(([, v]) => v['enabled'] === true)
