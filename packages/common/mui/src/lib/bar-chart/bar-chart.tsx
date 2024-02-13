@@ -14,15 +14,15 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ReactNode } from 'react';
-import { getDateString } from '@notional-finance/util';
+import { getDateString, ONE_WEEK } from '@notional-finance/util';
 import { useTheme, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 
 export interface BarConfigProps {
   dataKey: string;
   fill: string;
-  value?: string;
-  radius?: number[];
+  value?: string | number;
+  radius?: number | [number, number, number, number] | undefined;
   title?: ReactNode;
   toolTipTitle?: ReactNode;
   currencySymbol?: string;
@@ -33,14 +33,33 @@ export interface BarChartProps {
   barConfig: BarConfigProps[];
   xAxisTickFormat?: 'date' | 'percent';
   yAxisTickFormat?: 'percent' | 'number' | 'currency';
+  isStackedBar?: boolean;
+  title?: string;
 }
 
 export const BarChart = ({
   yAxisTickFormat = 'percent',
+  xAxisTickFormat = 'date',
   barChartData,
   barConfig,
+  isStackedBar = false,
 }: BarChartProps) => {
   const theme = useTheme();
+
+  const xAxisTickHandler = (v: number, i: number) => {
+    let result = '';
+    if (xAxisTickFormat === 'date') {
+      if (typeof v === 'number') {
+        const showTick = i % 15 === 0;
+        const date = getDateString(v);
+        result = showTick ? date.toUpperCase() : '';
+      }
+    }
+    if (xAxisTickFormat === 'percent') {
+      result = formatNumberAsPercent(v);
+    }
+    return result;
+  };
 
   const yAxisTickHandler = (v: number) => {
     if (yAxisTickFormat === 'percent' && typeof v === 'number') {
@@ -62,7 +81,15 @@ export const BarChart = ({
   return (
     <Box>
       {barChartData.length === 0 ? (
-        <Box sx={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(6) }}>
+        <Box
+          sx={{
+            margin: 'auto',
+            height: isStackedBar ? theme.spacing(37.5) : '',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
           <FormattedMessage
             defaultMessage={'You have no active orders or historical data.'}
           />
@@ -70,7 +97,7 @@ export const BarChart = ({
       ) : (
         <ResponsiveContainer width="100%" height={300}>
           <RechartsBarChart
-            barSize={7}
+            barSize={isStackedBar ? 4 : 8}
             data={barChartData}
             margin={{ top: 30, right: 10, left: 10, bottom: 0 }}
           >
@@ -78,31 +105,64 @@ export const BarChart = ({
               vertical={false}
               stroke={theme.palette.borders.paper}
             />
-            <XAxis
-              dataKey="timestamp"
-              tickLine={false}
-              tickFormatter={formatDate}
-              axisLine={{ stroke: theme.palette.borders.paper }}
-              interval={0}
-            />
+
+            {isStackedBar ? (
+              <XAxis
+                dataKey="timestamp"
+                type={xAxisTickFormat === 'date' ? 'category' : 'number'}
+                tickCount={0}
+                tickSize={0}
+                tickMargin={20}
+                axisLine={{ stroke: theme.palette.borders.paper }}
+                domain={[
+                  (dataMin: number) => dataMin - ONE_WEEK,
+                  (dataMax: number) => dataMax + ONE_WEEK,
+                ]}
+                style={{
+                  fill: theme.palette.typography.light,
+                  fontSize: '12px',
+                }}
+                interval={0}
+                tickFormatter={xAxisTickHandler}
+                tickLine={false}
+              />
+            ) : (
+              <XAxis
+                dataKey="timestamp"
+                tickLine={false}
+                tickFormatter={formatDate}
+                axisLine={{ stroke: theme.palette.borders.paper }}
+                interval={0}
+              />
+            )}
             <YAxis
               tickLine={false}
               axisLine={false}
+              style={{
+                fill: theme.palette.typography.light,
+                fontSize: '12px',
+              }}
               tickFormatter={(v: number) => yAxisTickHandler(v)}
             />
             <Tooltip
               wrapperStyle={{ outline: 'none' }}
-              content={<BarChartToolTip barConfig={barConfig} />}
+              content={
+                <BarChartToolTip
+                  barConfig={barConfig}
+                  isStackedBar={isStackedBar}
+                />
+              }
               cursor={{ fill: 'transparent' }}
               position={{ y: 0 }}
             />
 
-            {barConfig.map(({ dataKey, fill }, index) => (
+            {barConfig.map(({ dataKey, fill, radius }, index) => (
               <Bar
                 key={index}
                 dataKey={dataKey}
+                stackId={isStackedBar ? '1' : undefined}
                 fill={fill}
-                radius={[8, 8, 0, 0]}
+                radius={radius ? radius : [0, 0, 0, 0]}
               />
             ))}
           </RechartsBarChart>
@@ -111,8 +171,5 @@ export const BarChart = ({
     </Box>
   );
 };
-
-// NOTE*
-// stackId is used to stack bars on top of each other
 
 export default BarChart;

@@ -11,6 +11,7 @@ export * from './lib/card/card';
 export * from './lib/card-variants';
 export * from './lib/chart-tool-tip/chart-tool-tip';
 export * from './lib/chart-header/chart-header';
+export * from './lib/chart-header-totals/chart-header-totals';
 export * from './lib/chart-info-box/chart-info-box';
 export * from './lib/copy-caption/copy-caption';
 export * from './lib/count-up/count-up';

@@ -13,10 +13,10 @@ import { useTransactionStatus } from './use-transaction';
 import moment from 'moment';
 
 export const showContestNavLink = false;
-// Millisecond time stamp for Feb 21st 10:00 AM EST
-export const contestStartDate = 1708509600000;
-// Millisecond time stamp for Mar 21st 10:00 AM EST'
-export const contestEndDate = 1711015200000;
+// Millisecond time stamp for Feb 26th 10:00 AM EST
+export const contestStartDate = 1708959600000;
+// Millisecond time stamp for Mar 25th 10:00 AM EST
+export const contestEndDate = 1711375200000;
 
 const date = new Date();
 const currentDate = moment(date);
@@ -27,8 +27,8 @@ export const contestCountDownDate = contestActive
   ? contestEndDate
   : contestStartDate;
 
-export const startDateDisplayString = 'Feb 21st 10:00 AM EST';
-export const endDateDisplayString = 'Mar 21st 10:00 AM EST';
+export const startDateDisplayString = 'Feb 26th 10:00 AM EST';
+export const endDateDisplayString = 'Mar 25th 10:00 AM EST';
 export const CURRENT_CONTEST_ID = 1;
 
 export const ContestPartners = [
