@@ -15,9 +15,9 @@ import {
   groupArrayToMap,
 } from '@notional-finance/util';
 import { calculateAccruedIncentives } from '@notional-finance/notionable/global/account/incentives';
+import initialValue from './initialValue.json';
 
-const contestStart = 0;
-// const contestStart = 1704096000;
+const contestStart = 1704096000;
 // const contestEnd = 1698044400;
 
 export const excludeAccounts = ['0xaa322681ada630b045bbeb2980f56c8440959e36'];
@@ -27,18 +27,18 @@ export function calculateAccountIRR(
   snapshotTimestamp: number | undefined
 ) {
   const riskProfile = new AccountRiskProfile(account.balances, account.network);
-  const ETH = riskProfile.denom(riskProfile.defaultSymbol);
+  const USD = Registry.getTokenRegistry().getTokenBySymbol(Network.All, 'USD');
   const portfolioNetWorth = riskProfile
     .netWorth()
-    .toToken(ETH, 'None', snapshotTimestamp);
+    .toFiat('USD', snapshotTimestamp);
 
   const allVaultRisk = VaultAccountRiskProfile.getAllRiskProfiles(account);
   const { totalIncentives } = calculateAccruedIncentives(account);
   const valueOfUnclaimedIncentives = Object.keys(totalIncentives).reduce(
     (acc, k) => {
-      return acc.add(totalIncentives[k].current.toToken(ETH));
+      return acc.add(totalIncentives[k].current.toFiat('USD'));
     },
-    TokenBalance.from(0, ETH)
+    TokenBalance.from(0, USD)
   );
   const valueOfClaimedIncentives = (account.accountHistory || [])
     .filter((a) => contestStart < a.timestamp)
@@ -49,12 +49,17 @@ export function calculateAccountIRR(
         h.bundleName === 'Transfer Secondary Incentive'
     )
     .reduce(
-      (acc, h) => acc.add(h.tokenAmount.toToken(ETH)),
-      TokenBalance.from(0, ETH)
+      (acc, h) => acc.add(h.tokenAmount.toFiat('USD', snapshotTimestamp)),
+      TokenBalance.from(0, USD)
     );
 
+  const initialAccountValue = TokenBalance.fromFloat(
+    ((initialValue[account.address.toLowerCase()] || 0) as number).toFixed(6),
+    USD
+  );
+
   const totalNetWorth = allVaultRisk
-    .map((v) => v.netWorth().toToken(ETH, 'None', snapshotTimestamp))
+    .map((v) => v.netWorth().toFiat('USD', snapshotTimestamp))
     .reduce((p, c) => p.add(c), portfolioNetWorth)
     .add(valueOfUnclaimedIncentives)
     .add(valueOfClaimedIncentives);
@@ -72,7 +77,7 @@ export function calculateAccountIRR(
     .map((h) => {
       const balance = h.underlyingAmountRealized
         .toUnderlying()
-        .toToken(ETH, 'None', snapshotTimestamp);
+        .toFiat('USD', snapshotTimestamp);
 
       return {
         date: new Date(h.timestamp * 1000),
@@ -83,17 +88,25 @@ export function calculateAccountIRR(
     });
 
   const netDeposits = cashFlows
-    .reduce((s, { balance }) => s.add(balance), TokenBalance.from(0, ETH))
+    .reduce((s, { balance }) => s.add(balance), TokenBalance.from(0, USD))
     .neg();
 
   // NOTE: groups up the cash flow to sum up flows that occur at the same time
   const allFlows = Array.from(
     groupArrayToMap(
-      cashFlows.concat({
-        date: new Date(getNowSeconds() * 1000),
-        amount: totalNetWorth.toFloat(),
-        balance: totalNetWorth,
-      }),
+      [
+        {
+          date: new Date(contestStart * 1000),
+          amount: initialAccountValue.toFloat(),
+          balance: initialAccountValue,
+        },
+      ]
+        .concat(cashFlows)
+        .concat({
+          date: new Date(getNowSeconds() * 1000),
+          amount: totalNetWorth.toFloat(),
+          balance: totalNetWorth,
+        }),
       (t) => t.date.getTime() / 1000
     ).entries()
   )
@@ -146,7 +159,8 @@ export function calculateAccountIRR(
     irr,
     totalNetWorth.toString(),
     netDeposits.toString(),
-    totalNetWorth.sub(netDeposits).toString()
+    totalNetWorth.sub(netDeposits).toString(),
+    allFlows
   );
 
   return {
