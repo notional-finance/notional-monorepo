@@ -5421,30 +5421,6 @@ const schemaAST = {
         },
         {
           "kind": "FieldDefinition",
-          "description": {
-            "kind": "StringValue",
-            "value": "Cumulative realized cost using adjusted cost basis for internal PnL calculations",
-            "block": true
-          },
-          "name": {
-            "kind": "Name",
-            "value": "_accumulatedCostAdjustedBasis"
-          },
-          "arguments": [],
-          "type": {
-            "kind": "NonNullType",
-            "type": {
-              "kind": "NamedType",
-              "name": {
-                "kind": "Name",
-                "value": "BigInt"
-              }
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "FieldDefinition",
           "name": {
             "kind": "Name",
             "value": "profitLossLineItems"
@@ -8372,138 +8348,6 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "_accumulatedCostAdjustedBasis"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_accumulatedCostAdjustedBasis_not"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_accumulatedCostAdjustedBasis_gt"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_accumulatedCostAdjustedBasis_lt"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_accumulatedCostAdjustedBasis_gte"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_accumulatedCostAdjustedBasis_lte"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_accumulatedCostAdjustedBasis_in"
-          },
-          "type": {
-            "kind": "ListType",
-            "type": {
-              "kind": "NonNullType",
-              "type": {
-                "kind": "NamedType",
-                "name": {
-                  "kind": "Name",
-                  "value": "BigInt"
-                }
-              }
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_accumulatedCostAdjustedBasis_not_in"
-          },
-          "type": {
-            "kind": "ListType",
-            "type": {
-              "kind": "NonNullType",
-              "type": {
-                "kind": "NamedType",
-                "name": {
-                  "kind": "Name",
-                  "value": "BigInt"
-                }
-              }
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
             "value": "profitLossLineItems_"
           },
           "type": {
@@ -8784,14 +8628,6 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "previousSnapshot___accumulatedCostAdjustedBasis"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
             "value": "balance"
           },
           "directives": []
@@ -8929,14 +8765,6 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "_accumulatedCostRealized"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_accumulatedCostAdjustedBasis"
           },
           "directives": []
         },
@@ -11457,14 +11285,6 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "current___accumulatedCostRealized"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "current___accumulatedCostAdjustedBasis"
           },
           "directives": []
         },
@@ -24369,14 +24189,6 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "balanceSnapshot___accumulatedCostRealized"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "balanceSnapshot___accumulatedCostAdjustedBasis"
           },
           "directives": []
         },
@@ -45171,14 +44983,6 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "balanceSnapshot___accumulatedCostRealized"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "balanceSnapshot___accumulatedCostAdjustedBasis"
           },
           "directives": []
         },

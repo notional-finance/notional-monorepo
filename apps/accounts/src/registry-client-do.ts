@@ -48,7 +48,8 @@ export class RegistryClientDO extends BaseDO<Env> {
       Registry.initialize(
         this.env.NX_DATA_URL,
         AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
-        false
+        true,
+        true
       );
 
       // First trigger a refresh for all supported networks
@@ -189,6 +190,19 @@ export class RegistryClientDO extends BaseDO<Env> {
         address: account.address,
         ...calculateAccountIRR(account, undefined),
       }));
+    console.log(
+      allFactors
+        .map((a) =>
+          [
+            a.address,
+            a.irr.toFixed(4),
+            a.totalNetWorth.toFloat().toFixed(4),
+            a.netDeposits.toFloat().toFixed(4),
+            a.earnings.toFloat().toFixed(4),
+          ].join(',')
+        )
+        .join('\n')
+    );
 
     // TODO: split the IRR factors against the risk factors
     // risk factors should be stored in a KV store
