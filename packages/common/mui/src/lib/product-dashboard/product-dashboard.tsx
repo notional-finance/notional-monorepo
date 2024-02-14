@@ -7,6 +7,7 @@ export interface DashboardDataProps {
   tvl: string;
   symbol: string;
   incentiveValue?: string;
+  incentiveSymbol?: string;
   organicApyOnly?: boolean;
 }
 
@@ -20,7 +21,15 @@ export const ProductDashboard = ({ productData }: ProductDashboardProps) => {
       <GridCardContainer>
         {productData.map(
           (
-            { title, apy, tvl, symbol, incentiveValue, organicApyOnly },
+            {
+              title,
+              apy,
+              tvl,
+              symbol,
+              incentiveValue,
+              organicApyOnly,
+              incentiveSymbol,
+            },
             index
           ) => (
             <VaultCard
@@ -30,6 +39,7 @@ export const ProductDashboard = ({ productData }: ProductDashboardProps) => {
               tvl={tvl}
               symbol={symbol}
               incentiveValue={incentiveValue}
+              incentiveSymbol={incentiveSymbol}
               organicApyOnly={organicApyOnly}
             />
           )

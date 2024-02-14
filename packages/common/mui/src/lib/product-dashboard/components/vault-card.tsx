@@ -13,6 +13,7 @@ export const VaultCard = ({
   tvl,
   symbol,
   incentiveValue,
+  incentiveSymbol,
   organicApyOnly,
 }) => {
   const theme = useTheme();
@@ -43,9 +44,25 @@ export const VaultCard = ({
         </GridCardApy>
       </Box>
       <IncentiveContainer id="incentive">
-        {incentiveValue && !organicApyOnly && (
-          <SectionTitle>
-            <Box sx={{ color: theme.palette.typography.main }}>
+        {incentiveValue && incentiveSymbol && !organicApyOnly && (
+          <SectionTitle
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <TokenIcon
+              symbol={incentiveSymbol}
+              size="small"
+              style={{ marginRight: theme.spacing(1) }}
+            />
+            <Box
+              sx={{
+                color: theme.palette.typography.main,
+                marginRight: theme.spacing(0.5),
+              }}
+            >
               {incentiveValue}
             </Box>
             Incentive APY

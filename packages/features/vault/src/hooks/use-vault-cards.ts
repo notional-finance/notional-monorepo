@@ -15,10 +15,7 @@ export const useVaultCards = (network: Network) => {
     getMax,
   } = useAllMarkets(Network.ArbitrumOne);
 
-  console.log({leveragedVaults})
 
-
-  // update this to use useMemo
   const vaultDashBoardData = listedVaults.map(
     ({
       vaultAddress,
@@ -41,7 +38,9 @@ export const useVaultCards = (network: Network) => {
         tvl: 'TVL: $100K',
         apy: apy ? formatNumberAsPercent(apy) : undefined,
         title: name,
-        organicApyOnly: true,
+        incentiveSymbol: 'ARB',
+        incentiveValue: '12.40%',
+        organicApyOnly: false,
       };
     }
   )
