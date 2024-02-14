@@ -2,7 +2,7 @@ account_id = '274f86c6dcfbb77c09e49e86d101c753'
 main = "./src/index.ts"
 compatibility_date = "2022-11-11"
 workers_dev = true
-# logpush = true
+logpush = true
 # node_compat = true
 minify = true
 
