@@ -20,7 +20,10 @@ import initialValue from './initialValue.json';
 const contestStart = 1704096000;
 // const contestEnd = 1698044400;
 
-export const excludeAccounts = ['0xaa322681ada630b045bbeb2980f56c8440959e36'];
+export const excludeAccounts = [
+  '0xaa322681ada630b045bbeb2980f56c8440959e36',
+  '0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243',
+];
 
 export function calculateAccountIRR(
   account: AccountDefinition,
@@ -72,12 +75,24 @@ export function calculateAccountIRR(
         h.bundleName === 'Deposit' ||
         h.bundleName === 'Deposit and Transfer' ||
         h.bundleName === 'Withdraw' ||
-        h.bundleName === 'Transfer Asset'
+        h.bundleName === 'Transfer Asset' ||
+        h.bundleName === 'Vault Entry' ||
+        h.bundleName === 'Vault Exit' ||
+        h.bundleName === 'Vault Roll'
     )
     .map((h) => {
-      const balance = h.underlyingAmountRealized
-        .toUnderlying()
-        .toFiat('USD', snapshotTimestamp);
+      let realized: TokenBalance;
+      if (
+        (h.bundleName === 'Vault Entry' || h.bundleName === 'Vault Exit') &&
+        h.token.tokenType === 'VaultDebt'
+      ) {
+        // TODO: fix this in the subgraph
+        realized = h.underlyingAmountRealized.neg();
+      } else {
+        realized = h.underlyingAmountRealized;
+      }
+
+      const balance = realized.toUnderlying().toFiat('USD', snapshotTimestamp);
 
       return {
         date: new Date(h.timestamp * 1000),
