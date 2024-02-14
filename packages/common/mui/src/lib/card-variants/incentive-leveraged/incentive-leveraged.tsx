@@ -131,7 +131,7 @@ export const IncentiveLeveraged = ({
       >
         {symbol && (
           <StyledIcon top={theme.spacing(-9)}>
-            <TokenIcon symbol={symbol} size="extraLarge" />
+            <TokenIcon symbol={symbol} size="xxl" />
           </StyledIcon>
         )}
         <Box sx={{ overflow: 'hidden' }}>

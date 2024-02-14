@@ -4,7 +4,7 @@ import TokenIcon from '../token-icon/token-icon';
 export interface DoubleTokenIconProps {
   symbolTop: string;
   symbolBottom: string;
-  size: 'small' | 'medium' | 'large' | 'extraLarge';
+  size: 'small' | 'medium' | 'large' | 'xl' | 'xxl';
 }
 
 export function DoubleTokenIcon({
@@ -16,7 +16,8 @@ export function DoubleTokenIcon({
     small: 10,
     medium: 14,
     large: 20,
-    extraLarge: 40,
+    xl: 30,
+    xxl: 40,
   };
 
   return (

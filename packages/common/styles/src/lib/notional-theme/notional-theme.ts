@@ -596,7 +596,7 @@ const getThemeData = (
     },
     breakpoints: {
       values: {
-        xs: 0,
+        xs: 470,
         sm: 768,
         md: 1152,
         lg: 1440,

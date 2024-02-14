@@ -414,7 +414,7 @@ export const TokenImageList: TokenImageMap = {
 
 export interface TokenIconProps {
   symbol: string;
-  size: 'small' | 'medium' | 'large' | 'extraLarge';
+  size: 'small' | 'medium' | 'large' | 'xl' | 'xxl';
   style?: React.CSSProperties;
   useAccentBorderImg?: boolean;
 }
@@ -434,7 +434,8 @@ export function TokenIcon({
     small: '16px',
     medium: '24px',
     large: '32px',
-    extraLarge: '72px',
+    xl: '48px',
+    xxl: '72px',
   };
 
   // Allow the image to load a custom sized PNG if it matches the width
