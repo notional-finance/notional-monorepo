@@ -154,7 +154,7 @@ const ContentContainer = styled(Box)(
 const StyledTopContent = styled(Box)(
   ({ theme }) => `
   width: 100%;
-  max-width: 1335px;
+  max-width: 1280px;
   min-height: ${theme.spacing(33)};
   display: flex;
   flex-direction: column;
