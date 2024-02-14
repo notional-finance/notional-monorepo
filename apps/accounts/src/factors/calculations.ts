@@ -137,6 +137,7 @@ export function calculateAccountIRR(
 
   const netDeposits = cashFlows
     .reduce((s, { balance }) => s.add(balance), TokenBalance.from(0, USD))
+    .add(initialAccountValue)
     .neg();
 
   // NOTE: groups up the cash flow to sum up flows that occur at the same time
