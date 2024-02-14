@@ -196,9 +196,9 @@ export class RegistryClientDO extends BaseDO<Env> {
           [
             a.address,
             a.irr.toFixed(4),
-            a.totalNetWorth.toFloat().toFixed(4),
-            a.netDeposits.toFloat().toFixed(4),
-            a.earnings.toFloat().toFixed(4),
+            a.totalNetWorth.toFixed(4),
+            a.netDeposits.toFixed(4),
+            a.earnings.toFixed(4),
           ].join(',')
         )
         .join('\n')

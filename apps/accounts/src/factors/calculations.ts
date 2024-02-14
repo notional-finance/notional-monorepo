@@ -22,7 +22,7 @@ const contestEnd = 1707935655;
 
 export const excludeAccounts = [
   // '0x82e8936b187d83fd6eb2b7dab5b19556e9deff1c',
-  '0x057868a49c46a3dafc8a30f232f84d29afabc263',
+  // '0x057868a49c46a3dafc8a30f232f84d29afabc263',
   // '0xbf778fc19d0b55575711b6339a3680d07352b221',
   // '0xcece1920d4dbb96baf88705ce0a6eb3203ed2eb1',
   // '0xbaf40247e54584b109557bcfb71d7f3f2deeb26d',
@@ -42,30 +42,47 @@ export const excludeAccounts = [
   // '0xffec59f34e4d37ffad30e0d02f75725085970bfb',
   // '0xfe821641646058b410a21790fe8cc14a221f646b',
   // '0xf059b59bdbec91d83c558b4a3cd3c1c6e275f2f1',
-  // '0x222222222222cf64a76ae3d36859958c864fda2c',
+  '0x222222222222cf64a76ae3d36859958c864fda2c',
   // '0x1f32f3c8b28b7b94f0160da9fb7ba86470bd0f07',
   // '0x0566d52171036546de97d797da1ee35088ea182e',
 ];
+const exchangeRates = {
+  ETH: 2500,
+  DAI: 1,
+  USDC: 1,
+  WBTC: 50_000,
+  wstETH: 2_700,
+  FRAX: 1,
+  rETH: 2_600,
+  USDT: 1,
+  cbETH: 2_600,
+  GMX: 42,
+  ARB: 2,
+  UNI: 7,
+  LDO: 3,
+  LINK: 20,
+  NOTE: 0.1,
+  RDNT: 0.3,
+};
 
-export function calculateAccountIRR(
-  account: AccountDefinition,
-  snapshotTimestamp: number | undefined
-) {
+function convertToUSD(b: TokenBalance): number {
+  const exRate = exchangeRates[b.symbol];
+  if (!exRate) throw Error(`Ex Rate not found: ${b.symbol}`);
+  return b.toFloat() * exRate;
+}
+
+export function calculateAccountIRR(account: AccountDefinition) {
   const riskProfile = new AccountRiskProfile(account.balances, account.network);
   const USD = Registry.getTokenRegistry().getTokenBySymbol(Network.All, 'USD');
-  const portfolioNetWorth = riskProfile
-    .netWorth()
-    .toFiat('USD', snapshotTimestamp);
+  const portfolioNetWorth = convertToUSD(riskProfile.netWorth());
 
   const allVaultRisk = VaultAccountRiskProfile.getAllRiskProfiles(account);
   const { totalIncentives } = calculateAccruedIncentives(account);
   const valueOfUnclaimedIncentives = Object.keys(totalIncentives).reduce(
     (acc, k) => {
-      return acc.add(
-        totalIncentives[k].current.toFiat('USD', snapshotTimestamp)
-      );
+      return acc + convertToUSD(totalIncentives[k].current);
     },
-    TokenBalance.from(0, USD)
+    0
   );
   // const valueOfClaimedIncentives = (account.accountHistory || [])
   //   .filter((a) => contestStart < a.timestamp)
@@ -86,9 +103,8 @@ export function calculateAccountIRR(
   );
 
   const totalNetWorth = allVaultRisk
-    .map((v) => v.netWorth().toFiat('USD', snapshotTimestamp))
-    .reduce((p, c) => p.add(c), portfolioNetWorth)
-    .add(valueOfUnclaimedIncentives);
+    .map((v) => convertToUSD(v.netWorth()))
+    .reduce((p, c) => p + c, portfolioNetWorth + valueOfUnclaimedIncentives);
   // .add(valueOfClaimedIncentives);
 
   const cashFlows: CashFlow[] = (account.accountHistory || [])
@@ -123,22 +139,19 @@ export function calculateAccountIRR(
         realized = h.underlyingAmountRealized;
       }
 
-      const balance = realized.toFiat('USD', snapshotTimestamp);
+      const balance = convertToUSD(realized);
 
       return {
         date: new Date(h.timestamp * 1000),
         // This should be a positive cash flow
-        amount: balance.toFloat(),
+        amount: balance,
         balance,
         bundleName: h.bundleName,
         hash: h.transactionHash,
       };
     });
 
-  const netDeposits = cashFlows
-    .reduce((s, { balance }) => s.add(balance), TokenBalance.from(0, USD))
-    .add(initialAccountValue)
-    .neg();
+  const netDeposits = cashFlows.reduce((s, { balance }) => s + balance, 0) * -1;
 
   // NOTE: groups up the cash flow to sum up flows that occur at the same time
   const allFlows = Array.from(
@@ -147,13 +160,13 @@ export function calculateAccountIRR(
         {
           date: new Date(contestStart * 1000),
           amount: initialAccountValue.toFloat(),
-          balance: initialAccountValue,
+          balance: initialAccountValue.toFloat(),
         },
       ]
         .concat(cashFlows)
         .concat({
           date: new Date(getNowSeconds() * 1000),
-          amount: totalNetWorth.toFloat(),
+          amount: totalNetWorth,
           balance: totalNetWorth,
         }),
       (t) => t.date.getTime() / 1000
@@ -166,7 +179,7 @@ export function calculateAccountIRR(
             ? {
                 ...f,
                 amount: f.amount + c.amount,
-                balance: f.balance.add(c.balance),
+                balance: f.balance + c.balance,
               }
             : f;
         },
@@ -182,45 +195,38 @@ export function calculateAccountIRR(
   const msSinceFirstDeposit =
     getNowSeconds() * 1000 -
     Math.min(...allFlows.map(({ date }) => date.getTime()));
-  const minDeposit = TokenBalance.unit(
-    Registry.getTokenRegistry().getTokenBySymbol(Network.All, 'USD')
-  );
 
   let irr = 0;
-  if (
-    totalNetWorth.gt(minDeposit) &&
-    msSinceFirstDeposit > 15 * ONE_MINUTE_MS
-  ) {
+  if (msSinceFirstDeposit > 15 * ONE_MINUTE_MS) {
     try {
       irr = xirr(allFlows);
     } catch (e) {
       console.log(
         'IRR Failed',
         account.address,
-        allFlows.map(({ amount, date }) => [amount, date.getTime() / 1000])
+        allFlows.map(({ amount, date }) => [
+          amount,
+          date.getTime() / 1000,
+          valueOfUnclaimedIncentives,
+          portfolioNetWorth,
+        ])
       );
     }
   }
 
-  console.log(
-    cashFlows
-      .map((c) =>
-        [
-          c['bundleName'],
-          c.amount.toFixed(6),
-          c.balance.toFloat().toFixed(6),
-          c.balance.symbol,
-          c.date.toString(),
-        ].join(',')
-      )
-      .join('\n')
-  );
+  // console.log(
+  //   cashFlows
+  //     .map((c) =>
+  //       [c['bundleName'], c.amount.toFixed(6), c.date.toString()].join(',')
+  //     )
+  //     .join('\n')
+  // );
 
   return {
     irr,
     totalNetWorth,
     netDeposits,
-    earnings: totalNetWorth.sub(netDeposits),
+    earnings: totalNetWorth - netDeposits,
     portfolioRisk: riskProfile.getAllRiskFactors(),
     vaultRisk: allVaultRisk.reduce(
       (a, v) => Object.assign(a, { [v.vaultAddress]: v.getAllRiskFactors() }),
