@@ -134,6 +134,13 @@ export default class TreasuryManager {
             exchangeData: zeroXdata.data
           };
 
+          // check will trade execute successfully
+          await this.proxy.callStatic.executeTrade(
+            trade,
+            DexId.ZERO_EX,
+          { from: this.env.MANAGER_BOT_ADDRESS }
+          );
+
           const data = this.proxy.interface.encodeFunctionData(
             'executeTrade',
             [trade, DexId.ZERO_EX]

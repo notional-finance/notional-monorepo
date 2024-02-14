@@ -1,3 +1,4 @@
+account_id = '274f86c6dcfbb77c09e49e86d101c753'
 main = "./src/index.ts"
 compatibility_date = "2022-11-11"
 workers_dev = true
@@ -19,5 +20,5 @@ name = "note-reward-manager-beta"
 [env.prod]
 name = "note-reward-manager"
 
-# [triggers]
-# crons = ["0/10 * * * *"]
+[triggers]
+crons = ["0 * * * *"]

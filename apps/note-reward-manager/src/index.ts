@@ -13,7 +13,11 @@ export async function handler(env: Env) {
 }
 
 export default {
-  async fetch(_request: Request, env: Env, _: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, _: ExecutionContext): Promise<Response> {
+    const authKey = request.headers.get('x-auth-key');
+    if (authKey !== env.AUTH_KEY) {
+      return new Response(null, { status: 401 });
+    }
     await handler(env);
     return new Response('OK');
   },
