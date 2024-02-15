@@ -90,7 +90,7 @@ async function main() {
   });
 
   app.use(express.json());
-  app.use(function(req, res, next) {
+  app.use(function (req, res, next) {
     if (req.url === '/') {
       next();
       return;
@@ -182,20 +182,6 @@ async function main() {
     }
   });
 
-  app.get('/syncYieldData', async (_, res) => {
-    try {
-      res.send(
-        JSON.stringify(
-          await dataService.syncYieldData(
-            dataService.latestTimestamp() - ONE_HOUR_MS / 1000
-          )
-        )
-      );
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
-  });
-
   app.get('/syncGenericData', async (_, res) => {
     try {
       res.send(
@@ -255,7 +241,7 @@ async function main() {
           }
         } else if (event.name === 'TransferBatch') {
           const ids = event.params.ids.map(BigNumber.from);
-          const paramsArray = ids.map(id => decodeERC1155Id(padToHex256(id)));
+          const paramsArray = ids.map((id) => decodeERC1155Id(padToHex256(id)));
 
           for (const params of paramsArray) {
             if (
@@ -272,12 +258,14 @@ async function main() {
         }
       });
 
-      accountIds = accountIds.filter(a => a !== ZERO_ADDRESS);
+      accountIds = accountIds.filter((a) => a !== ZERO_ADDRESS);
       if (accountIds.length > 0) {
         await dataService.insertAccounts(Network.ArbitrumOne, accountIds);
       }
 
-      vaultAccounts = vaultAccounts.filter(va => va.accountId !== ZERO_ADDRESS);
+      vaultAccounts = vaultAccounts.filter(
+        (va) => va.accountId !== ZERO_ADDRESS
+      );
       if (vaultAccounts.length > 0) {
         await dataService.insertVaultAccounts(
           Network.ArbitrumOne,
