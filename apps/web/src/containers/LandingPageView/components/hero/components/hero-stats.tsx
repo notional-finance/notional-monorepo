@@ -23,7 +23,7 @@ export const HeroStats = () => {
     <StatsContainer>
       <ImgContainer>
         <StatsContent>
-          {heroStats ? (
+          {heroStats?.totalAccounts ? (
             <div>
               <LargeInputText>
                 {`$${formatNumber(

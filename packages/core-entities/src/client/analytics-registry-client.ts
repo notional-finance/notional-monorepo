@@ -301,18 +301,32 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
           .getAllTokens(n)
           .filter(
             (t) =>
-              t.tokenType === 'VaultDebt' ||
               t.tokenType === 'PrimeDebt' ||
               // Non-Matured fCash (TODO: need to exclude fCash leverage)
               (t.tokenType === 'fCash' &&
+                t.isFCashDebt === false &&
                 t.maturity &&
                 getNowSeconds() < t.maturity)
           )
-          .reduce(
-            (acc, token) =>
-              acc + (token.totalSupply?.toFiat('USD').toFloat() || 0),
-            0
-          )
+          .reduce((acc, token) => {
+            let value = token.totalSupply?.toFiat('USD').toFloat() || 0;
+            if (token.tokenType === 'fCash' && token.currencyId) {
+              const m = Registry.getExchangeRegistry().getfCashMarket(
+                token.network,
+                token.currencyId
+              );
+
+              // Take the net of the total debt outstanding and the debt held by the nToken
+              value =
+                value +
+                (m.poolParams.nTokenFCash
+                  .find((t) => t.tokenId === token.id)
+                  ?.toFiat('USD')
+                  .toFloat() || 0);
+            }
+
+            return acc + value;
+          }, 0)
       );
     }, 0);
 
