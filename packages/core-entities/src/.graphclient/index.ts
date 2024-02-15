@@ -7877,7 +7877,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-v3-{context.chainName:arbitrum}/version/latest"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-finance-v3-arbitrum/version/latest"},
               baseDir,
               cache,
               pubsub,
@@ -8112,7 +8112,7 @@ export type AllConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllConfigurationQuery = { currencyConfigurations: Array<(
-    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
     & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, incentives?: Maybe<(
       Pick<Incentive, 'incentiveEmissionRate' | 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime' | 'secondaryIncentiveRewarder' | 'secondaryEmissionRate' | 'accumulatedSecondaryRewardPerNToken' | 'lastSecondaryAccumulatedTime' | 'secondaryRewardEndTime'>
       & { currentSecondaryReward?: Maybe<Pick<Token, 'id' | 'symbol'>> }
@@ -8128,7 +8128,7 @@ export type AllConfigurationByBlockQueryVariables = Exact<{
 
 
 export type AllConfigurationByBlockQuery = { currencyConfigurations: Array<(
-    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
     & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, incentives?: Maybe<(
       Pick<Incentive, 'incentiveEmissionRate' | 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime' | 'secondaryIncentiveRewarder' | 'secondaryEmissionRate' | 'accumulatedSecondaryRewardPerNToken' | 'lastSecondaryAccumulatedTime' | 'secondaryRewardEndTime'>
       & { currentSecondaryReward?: Maybe<Pick<Token, 'id' | 'symbol'>> }
@@ -8454,8 +8454,6 @@ export const AllConfigurationDocument = gql`
     }
     treasuryReserveBuffer
     primeCashHoldings
-    rebalancingTargets
-    rebalancingCooldown
     depositShares
     leverageThresholds
     proportions
@@ -8587,8 +8585,6 @@ export const AllConfigurationByBlockDocument = gql`
     }
     treasuryReserveBuffer
     primeCashHoldings
-    rebalancingTargets
-    rebalancingCooldown
     depositShares
     leverageThresholds
     proportions
