@@ -7,6 +7,7 @@ import {
   convertToSignedfCashId,
   decodeERC1155Id,
   getNowSeconds,
+  getProviderURLFromNetwork,
   isERC1155Id,
   unique,
 } from '@notional-finance/util';
@@ -16,7 +17,11 @@ import {
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { BaseDO, MetricType } from '@notional-finance/durable-objects';
-import { calculateAccountIRR, excludeAccounts } from './factors/calculations';
+import {
+  calculateAccountIRR,
+  currentContestId,
+  excludeAccounts,
+} from './factors/calculations';
 import { Env } from '.';
 
 export class RegistryClientDO extends BaseDO<Env> {
@@ -65,7 +70,7 @@ export class RegistryClientDO extends BaseDO<Env> {
         if (network === Network.All) continue;
         // await this.checkAccountList(network);
         // await this.checkTotalSupply(network);
-        await this.saveAccountFactors(network);
+        await this.saveContestIRR(network, currentContestId);
         // await this.saveYieldData(network);
         // await this.checkDBMonitors(network);
       }
@@ -174,7 +179,48 @@ export class RegistryClientDO extends BaseDO<Env> {
     }
   }
 
-  private async saveAccountFactors(network: Network) {
+  private async getContestParticipants(contestId: number) {
+    const providerURL = getProviderURLFromNetwork(Network.ArbitrumOne, true);
+    const participants = new Array<{
+      address: string;
+      communityId: number;
+      contestId: number;
+    }>();
+    let nextToken: string | null = '0';
+    do {
+      const url = `${providerURL}/getNFTsForCollection?contractAddress=0xbBEF91111E9Db19E688B495972418D8ebC11F008&withMetadata=false&limit=100&startToken=${nextToken}`;
+      let nfts: { id: { tokenId: string } }[];
+      try {
+        const response = await fetch(url);
+
+        const data = await response.json<{
+          nextToken: string | null;
+          nfts: { id: { tokenId: string } }[];
+        }>();
+        ({ nfts, nextToken } = data);
+
+        nfts.forEach(({ id: { tokenId } }) => {
+          // Generate the hex without the 0x prefix
+          const id = parseInt(tokenId.slice(18, 22), 16);
+          if (id === contestId) {
+            participants.push({
+              address: `0x${tokenId.slice(26)}`,
+              communityId: parseInt(tokenId.slice(22, 26), 16),
+              contestId,
+            });
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    } while (nextToken);
+
+    return participants;
+  }
+
+  private async saveContestIRR(network: Network, contestId: number) {
+    const participants = await this.getContestParticipants(contestId);
     const accounts = Registry.getAccountRegistry();
     const allAccounts = accounts.getAllSubjectKeys(network);
     const allFactors = allAccounts
