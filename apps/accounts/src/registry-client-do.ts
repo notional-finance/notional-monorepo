@@ -188,7 +188,7 @@ export class RegistryClientDO extends BaseDO<Env> {
       )
       .map((account) => ({
         address: account.address,
-        ...calculateAccountIRR(account, undefined),
+        ...calculateAccountIRR(account),
       }));
     console.log(
       allFactors

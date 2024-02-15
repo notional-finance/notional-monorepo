@@ -96,7 +96,7 @@ export function calculateAccountIRR(account: AccountDefinition) {
     .map(
       (v) =>
         convertToUSD(v.vaultShares.toUnderlying()) +
-        convertToUSD(v.vaultCash.toUnderlying()) +
+        convertToUSD(v.vaultCash.toUnderlying()) -
         convertToUSD(v.vaultDebt.toUnderlying())
     )
     .reduce((p, c) => p + c, portfolioNetWorth + valueOfUnclaimedIncentives);
