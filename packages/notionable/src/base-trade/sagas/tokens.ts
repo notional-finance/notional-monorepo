@@ -88,9 +88,10 @@ export function selectedPortfolioToken(state$: Observable<BaseTradeState>) {
         p.tradeType === c.tradeType
     ),
     filter(
-      ({ tradeType }) =>
-        // Roll Debt here is used to trigger the selected token for LeveragedNTokn
-        tradeType === 'RollDebt' ||
+      ({ tradeType, sideDrawerKey }) =>
+        // Roll Debt here is used to trigger the selected token for LeveragedNToken, this
+        // does not apply on the portfolio RollDebt where sideDrawerKey is defined
+        (tradeType === 'RollDebt' && sideDrawerKey === undefined) ||
         tradeType === 'RepayDebt' ||
         tradeType === 'Withdraw' ||
         tradeType === 'RollVaultPosition' ||
