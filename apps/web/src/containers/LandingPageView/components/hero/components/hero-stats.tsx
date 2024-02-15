@@ -1,5 +1,4 @@
 import { styled, Box, useTheme } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
 import {
   LargeInputText,
   BodySecondary,
@@ -10,64 +9,39 @@ import { ExternalLinkIcon } from '@notional-finance/icons';
 import statsImg from '../images/stats_overlay.svg';
 import { FormattedMessage } from 'react-intl';
 import { formatNumber } from '@notional-finance/helpers';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
 
-const KPIUrl = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
+const oneMillion = 1_000_000;
 
 export const HeroStats = () => {
   const theme = useTheme();
-  const [topStats, setTopStats] = useState<{
-    totalValueLocked: string;
-    totalLoanVolume: string;
-    totalAccounts: string;
-  } | null>();
-
-  const fetchKPIs = useCallback(async () => {
-    try {
-      const response = await fetch(`${KPIUrl}/all/kpis`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const { totalAccounts, totalLoanVolume, totalValueLocked } =
-        await response.json();
-      const oneMillion = 1_000_000;
-      setTopStats({
-        totalValueLocked: `$${formatNumber(totalValueLocked / oneMillion, 0)}M`,
-        totalLoanVolume: `$${formatNumber(totalLoanVolume / oneMillion, 0)}M`,
-        totalAccounts: formatNumber(totalAccounts, 0),
-      });
-    } catch (e) {
-      console.warn(e);
-      // If this query fails then the top stats bar won't show
-      setTopStats(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchKPIs();
-  }, [fetchKPIs]);
+  const {
+    globalState: { heroStats },
+  } = useNotionalContext();
 
   return (
     <StatsContainer>
       <ImgContainer>
         <StatsContent>
-          {topStats ? (
+          {heroStats ? (
             <div>
               <LargeInputText>
-                {topStats?.totalValueLocked}
+                {`$${formatNumber(
+                  heroStats.totalValueLocked / oneMillion,
+                  0
+                )}M`}
                 <BodySecondary>
                   <FormattedMessage defaultMessage={'Total Value Locked'} />
                 </BodySecondary>
               </LargeInputText>
               <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
-                {topStats?.totalLoanVolume}
+                {`$${formatNumber(heroStats.totalOpenDebt / oneMillion, 0)}M`}
                 <BodySecondary>
-                  <FormattedMessage defaultMessage={'Total Loan Volume'} />
+                  <FormattedMessage defaultMessage={'Total Open Debt'} />
                 </BodySecondary>
               </LargeInputText>
               <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
-                {topStats?.totalAccounts}
+                {heroStats?.totalAccounts}
                 <BodySecondary>
                   <FormattedMessage defaultMessage={'Active Accounts'} />
                 </BodySecondary>

@@ -96,6 +96,7 @@ function onAnalyticsReady$(global$: Observable<GlobalState>) {
     switchMap((networks) => {
       return timer(0, 60_000).pipe(
         map(() => ({
+          heroStats: Registry.getAnalyticsRegistry().getKPIs(),
           activeAccounts: networks.reduce((acc, n) => {
             if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
               acc[n] = Registry.getAnalyticsRegistry().getActiveAccounts(n);

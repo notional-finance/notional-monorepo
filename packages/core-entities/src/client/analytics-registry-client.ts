@@ -6,6 +6,8 @@ import {
   floorToMidnight,
   getMidnightUTC,
   percentChange,
+  SupportedNetworks,
+  getNowSeconds,
 } from '@notional-finance/util';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
@@ -270,6 +272,64 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   getHistoricalTrading(network: Network) {
     return (super.getLatestFromSubject(network, 'historicalTrading') ||
       {}) as HistoricalTrading;
+  }
+
+  getKPIs() {
+    const totalValueLocked = SupportedNetworks.reduce((t, n) => {
+      return (
+        t +
+        Registry.getTokenRegistry()
+          .getAllTokens(n)
+          .filter(
+            (t) => t.tokenType === 'PrimeDebt' || t.tokenType === 'PrimeCash'
+          )
+          .reduce(
+            (acc, token) =>
+              acc +
+              (token.tokenType === 'PrimeDebt'
+                ? token.totalSupply?.toFiat('USD').neg().toFloat() || 0
+                : token.totalSupply?.toFiat('USD').toFloat() || 0),
+            0
+          )
+      );
+    }, 0);
+
+    const totalOpenDebt = SupportedNetworks.reduce((t, n) => {
+      return (
+        t +
+        Registry.getTokenRegistry()
+          .getAllTokens(n)
+          .filter(
+            (t) =>
+              t.tokenType === 'VaultDebt' ||
+              t.tokenType === 'PrimeDebt' ||
+              // Non-Matured fCash (TODO: need to exclude fCash leverage)
+              (t.tokenType === 'fCash' &&
+                t.maturity &&
+                getNowSeconds() < t.maturity)
+          )
+          .reduce(
+            (acc, token) =>
+              acc + (token.totalSupply?.toFiat('USD').toFloat() || 0),
+            0
+          )
+      );
+    }, 0);
+
+    const totalAccounts = SupportedNetworks.reduce(
+      (t, n) =>
+        t +
+        (this.isNetworkRegistered(n)
+          ? this.getActiveAccounts(n)['totalActive'] || 0
+          : 0),
+      0
+    );
+
+    return {
+      totalValueLocked,
+      totalOpenDebt,
+      totalAccounts,
+    };
   }
 
   getPriceChanges(
