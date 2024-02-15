@@ -125,6 +125,9 @@ export const LiquidityLeveragedSideDrawer = () => {
                   collateralBalance: currentPosition?.debt.balance.neg(),
                 }),
             customizeLeverage: true,
+            // Set this to true since the entire debt is being rolled to
+            // prevent cash dust from accruing
+            maxWithdraw: true,
           },
         },
         {
