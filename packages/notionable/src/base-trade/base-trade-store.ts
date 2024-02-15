@@ -167,6 +167,8 @@ interface InitState {
   availableDebtTokens?: TokenDefinition[];
   /** A key into the trade configuration object */
   tradeType?: TradeType | VaultTradeType;
+  /** A parameter key set by the url params */
+  sideDrawerKey?: string;
 }
 
 export interface BaseTradeState
