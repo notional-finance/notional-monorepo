@@ -3,7 +3,7 @@ compatibility_date = "2022-11-11"
 
 workers_dev = true
 node_compat = true
-minify = false
+minify = true
 logpush = true
 
 
