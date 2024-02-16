@@ -1,4 +1,4 @@
-import { useTheme, Divider } from '@mui/material';
+import { useTheme, Divider, Box } from '@mui/material';
 import { StatusHeading } from '../transaction-confirmation/components/status-heading';
 import { Button, ScrollToTop } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
@@ -27,7 +27,7 @@ export const SwitchNetwork = ({ context, onCancel }: SwitchNetworkProps) => {
   const onSwitch = useChangeNetwork();
 
   return (
-    <>
+    <Box sx={{ minHeight: '80vh' }}>
       <ScrollToTop />
       <StatusHeading
         heading={<FormattedMessage defaultMessage={'SWITCH NETWORK'} />}
@@ -76,6 +76,6 @@ export const SwitchNetwork = ({ context, onCancel }: SwitchNetworkProps) => {
       >
         <FormattedMessage defaultMessage={'Back'} />
       </Button>
-    </>
+    </Box>
   );
 };

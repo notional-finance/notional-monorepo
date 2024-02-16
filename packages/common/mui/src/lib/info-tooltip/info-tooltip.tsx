@@ -32,7 +32,6 @@ export function InfoTooltip({
 }: InfoTooltipProps) {
   const theme = useTheme();
   const iconSizes = iconSize ? iconSize : theme.typography.caption.fontSize;
-
   return (
     <StyledToolTip
       onMouseEnter={onMouseEnter}

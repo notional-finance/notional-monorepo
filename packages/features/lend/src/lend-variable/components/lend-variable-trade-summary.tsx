@@ -60,11 +60,11 @@ export const LendVariableTradeSummary = () => {
           },
           {
             id: 'tvl-area-chart',
-            title: 'TVL',
+            title: 'Total lent',
             hideTopGridLine: true,
             Component: (
               <AreaChart
-                title="TVL"
+                title="Total lent"
                 showCartesianGrid
                 xAxisTickFormat="date"
                 areaChartData={tvlData}
@@ -83,13 +83,14 @@ export const LendVariableTradeSummary = () => {
           marginTop: theme.spacing(3),
         }}
       >
-        {totalsData.map(({ title, value, prefix, suffix }, index) => (
+        {totalsData.map(({ title, value, prefix, suffix, Icon }, index) => (
           <TotalBox
             title={title}
             value={value}
             key={index}
             prefix={prefix}
             suffix={suffix}
+            Icon={Icon}
           />
         ))}
       </Box>

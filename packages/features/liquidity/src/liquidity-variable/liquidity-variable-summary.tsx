@@ -67,11 +67,11 @@ export const LiquidityVariableSummary = () => {
           },
           {
             id: 'tvl-area-chart',
-            title: 'TVL',
+            title: 'Market liquidity',
             hideTopGridLine: true,
             Component: (
               <AreaChart
-                title="TVL"
+                title="Market liquidity"
                 showCartesianGrid
                 xAxisTickFormat="date"
                 yAxisTickFormat="usd"
