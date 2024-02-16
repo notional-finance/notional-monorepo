@@ -20,11 +20,11 @@ export const FCashExample = ({ tokenSymbol }: FCashExampleProps) => {
         />
       </BodyText>
       <ImageWrapper>
-        <TokenIcon symbol={`f${tokenSymbol}`} size="extraLarge" />
+        <TokenIcon symbol={`f${tokenSymbol}`} size="xxl" />
         <Box sx={{ width: '50px' }}>
           <EqualsIcon />
         </Box>
-        <TokenIcon symbol={tokenSymbol} size="extraLarge" />
+        <TokenIcon symbol={tokenSymbol} size="xxl" />
       </ImageWrapper>
       <H5
         sx={{

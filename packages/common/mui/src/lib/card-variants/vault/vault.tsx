@@ -53,7 +53,7 @@ export const Vault = ({
         <Card height={'auto'}>
           {symbol && !VaultCardIcon && (
             <StyledIcon top={theme.spacing(-9)}>
-              <TokenIcon symbol={symbol} size="extraLarge" />
+              <TokenIcon symbol={symbol} size="xxl" />
             </StyledIcon>
           )}
           <>
