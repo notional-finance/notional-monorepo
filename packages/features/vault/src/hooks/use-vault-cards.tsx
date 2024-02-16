@@ -134,10 +134,11 @@ export const useVaultCards = (network: Network): ProductDashboardProps => {
     ),
   };
 
-  const test = leveragedVaults && leveragedVaults.length > 0 ? productData : [];
+  const vaultData =
+    leveragedVaults && leveragedVaults.length > 0 ? productData : [];
 
   return {
-    productData: test,
+    productData: vaultData,
     headerData,
   };
 };
