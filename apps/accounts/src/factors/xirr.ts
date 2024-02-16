@@ -1,12 +1,10 @@
 // Taken from: https://github.com/webcarrot/xirr
 
-import { TokenBalance } from '@notional-finance/core-entities';
-
 /* eslint-disable */
 export type CashFlow = {
   readonly amount: number;
   readonly date: Date;
-  readonly balance: TokenBalance;
+  readonly balance: number;
 };
 
 export type CashFlowNormalized = {

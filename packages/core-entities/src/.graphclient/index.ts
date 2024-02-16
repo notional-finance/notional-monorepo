@@ -439,8 +439,6 @@ export type BalanceSnapshot = {
   _accumulatedBalance: Scalars['BigInt'];
   /** Cumulative realized cost for internal PnL calculations */
   _accumulatedCostRealized: Scalars['BigInt'];
-  /** Cumulative realized cost using adjusted cost basis for internal PnL calculations */
-  _accumulatedCostAdjustedBasis: Scalars['BigInt'];
   profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
   /** Snapshots of the secondary incentives */
   incentives?: Maybe<Array<IncentiveSnapshot>>;
@@ -632,14 +630,6 @@ export type BalanceSnapshot_filter = {
   _accumulatedCostRealized_lte?: InputMaybe<Scalars['BigInt']>;
   _accumulatedCostRealized_in?: InputMaybe<Array<Scalars['BigInt']>>;
   _accumulatedCostRealized_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  _accumulatedCostAdjustedBasis?: InputMaybe<Scalars['BigInt']>;
-  _accumulatedCostAdjustedBasis_not?: InputMaybe<Scalars['BigInt']>;
-  _accumulatedCostAdjustedBasis_gt?: InputMaybe<Scalars['BigInt']>;
-  _accumulatedCostAdjustedBasis_lt?: InputMaybe<Scalars['BigInt']>;
-  _accumulatedCostAdjustedBasis_gte?: InputMaybe<Scalars['BigInt']>;
-  _accumulatedCostAdjustedBasis_lte?: InputMaybe<Scalars['BigInt']>;
-  _accumulatedCostAdjustedBasis_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  _accumulatedCostAdjustedBasis_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
   incentives_?: InputMaybe<IncentiveSnapshot_filter>;
   /** Filter for the block changed event. */
@@ -672,7 +662,6 @@ export type BalanceSnapshot_orderBy =
   | 'previousSnapshot__impliedFixedRate'
   | 'previousSnapshot___accumulatedBalance'
   | 'previousSnapshot___accumulatedCostRealized'
-  | 'previousSnapshot___accumulatedCostAdjustedBasis'
   | 'balance'
   | 'balance__id'
   | 'balance__firstUpdateBlockNumber'
@@ -691,7 +680,6 @@ export type BalanceSnapshot_orderBy =
   | 'impliedFixedRate'
   | '_accumulatedBalance'
   | '_accumulatedCostRealized'
-  | '_accumulatedCostAdjustedBasis'
   | 'profitLossLineItems'
   | 'incentives';
 
@@ -883,7 +871,6 @@ export type Balance_orderBy =
   | 'current__impliedFixedRate'
   | 'current___accumulatedBalance'
   | 'current___accumulatedCostRealized'
-  | 'current___accumulatedCostAdjustedBasis'
   | 'snapshots';
 
 export type BlockChangedFilter = {
@@ -1824,7 +1811,6 @@ export type IncentiveSnapshot_orderBy =
   | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
-  | 'balanceSnapshot___accumulatedCostAdjustedBasis'
   | 'rewardToken'
   | 'rewardToken__id'
   | 'rewardToken__firstUpdateBlockNumber'
@@ -3344,7 +3330,6 @@ export type ProfitLossLineItem_orderBy =
   | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
-  | 'balanceSnapshot___accumulatedCostAdjustedBasis'
   | 'account'
   | 'account__id'
   | 'account__firstUpdateBlockNumber'
@@ -7271,7 +7256,6 @@ export type BalanceSnapshotResolvers<ContextType = MeshContext & { chainName: st
   impliedFixedRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   _accumulatedBalance?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   _accumulatedCostRealized?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  _accumulatedCostAdjustedBasis?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   profitLossLineItems?: Resolver<Maybe<Array<ResolversTypes['ProfitLossLineItem']>>, ParentType, ContextType, RequireFields<BalanceSnapshotprofitLossLineItemsArgs, 'skip' | 'first'>>;
   incentives?: Resolver<Maybe<Array<ResolversTypes['IncentiveSnapshot']>>, ParentType, ContextType, RequireFields<BalanceSnapshotincentivesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -7893,7 +7877,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-v3-{context.chainName:arbitrum}/version/latest"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-finance-v3-arbitrum/version/latest"},
               baseDir,
               cache,
               pubsub,
@@ -8110,12 +8094,12 @@ export type AllAccountsQueryVariables = Exact<{
 export type AllAccountsQuery = { accounts: Array<(
     Pick<Account, 'id' | 'systemAccountType'>
     & { balances?: Maybe<Array<{ token: (
-        Pick<Token, 'id'>
+        Pick<Token, 'id' | 'currencyId'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
       ), current: (
         Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>
         & { incentives?: Maybe<Array<(
-          Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed'>
+          Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed' | 'currentIncentiveDebt'>
           & { rewardToken: Pick<Token, 'id' | 'symbol'> }
         )>> }
       ) }>>, profitLossLineItems?: Maybe<Array<(
@@ -8128,7 +8112,7 @@ export type AllConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllConfigurationQuery = { currencyConfigurations: Array<(
-    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
     & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, incentives?: Maybe<(
       Pick<Incentive, 'incentiveEmissionRate' | 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime' | 'secondaryIncentiveRewarder' | 'secondaryEmissionRate' | 'accumulatedSecondaryRewardPerNToken' | 'lastSecondaryAccumulatedTime' | 'secondaryRewardEndTime'>
       & { currentSecondaryReward?: Maybe<Pick<Token, 'id' | 'symbol'>> }
@@ -8144,7 +8128,7 @@ export type AllConfigurationByBlockQueryVariables = Exact<{
 
 
 export type AllConfigurationByBlockQuery = { currencyConfigurations: Array<(
-    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
     & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, incentives?: Maybe<(
       Pick<Incentive, 'incentiveEmissionRate' | 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime' | 'secondaryIncentiveRewarder' | 'secondaryEmissionRate' | 'accumulatedSecondaryRewardPerNToken' | 'lastSecondaryAccumulatedTime' | 'secondaryRewardEndTime'>
       & { currentSecondaryReward?: Maybe<Pick<Token, 'id' | 'symbol'>> }
@@ -8355,6 +8339,7 @@ export const AllAccountsDocument = gql`
     balances {
       token {
         id
+        currencyId
         underlying {
           id
         }
@@ -8377,6 +8362,7 @@ export const AllAccountsDocument = gql`
           }
           totalClaimed
           adjustedClaimed
+          currentIncentiveDebt
         }
       }
     }
@@ -8468,8 +8454,6 @@ export const AllConfigurationDocument = gql`
     }
     treasuryReserveBuffer
     primeCashHoldings
-    rebalancingTargets
-    rebalancingCooldown
     depositShares
     leverageThresholds
     proportions
@@ -8601,8 +8585,6 @@ export const AllConfigurationByBlockDocument = gql`
     }
     treasuryReserveBuffer
     primeCashHoldings
-    rebalancingTargets
-    rebalancingCooldown
     depositShares
     leverageThresholds
     proportions

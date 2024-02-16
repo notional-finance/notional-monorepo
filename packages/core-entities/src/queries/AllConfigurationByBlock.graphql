@@ -54,8 +54,6 @@ query AllConfigurationByBlock($blockNumber: Int) {
 
         treasuryReserveBuffer
         primeCashHoldings
-        rebalancingTargets
-        rebalancingCooldown
 
         depositShares
         leverageThresholds

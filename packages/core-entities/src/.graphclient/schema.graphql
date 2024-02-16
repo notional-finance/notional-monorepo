@@ -355,10 +355,6 @@ type BalanceSnapshot {
   _accumulatedBalance: BigInt!
   """Cumulative realized cost for internal PnL calculations"""
   _accumulatedCostRealized: BigInt!
-  """
-  Cumulative realized cost using adjusted cost basis for internal PnL calculations
-  """
-  _accumulatedCostAdjustedBasis: BigInt!
   profitLossLineItems(skip: Int = 0, first: Int = 100, orderBy: ProfitLossLineItem_orderBy, orderDirection: OrderDirection, where: ProfitLossLineItem_filter): [ProfitLossLineItem!]
   """Snapshots of the secondary incentives"""
   incentives(skip: Int = 0, first: Int = 100, orderBy: IncentiveSnapshot_orderBy, orderDirection: OrderDirection, where: IncentiveSnapshot_filter): [IncentiveSnapshot!]
@@ -532,14 +528,6 @@ input BalanceSnapshot_filter {
   _accumulatedCostRealized_lte: BigInt
   _accumulatedCostRealized_in: [BigInt!]
   _accumulatedCostRealized_not_in: [BigInt!]
-  _accumulatedCostAdjustedBasis: BigInt
-  _accumulatedCostAdjustedBasis_not: BigInt
-  _accumulatedCostAdjustedBasis_gt: BigInt
-  _accumulatedCostAdjustedBasis_lt: BigInt
-  _accumulatedCostAdjustedBasis_gte: BigInt
-  _accumulatedCostAdjustedBasis_lte: BigInt
-  _accumulatedCostAdjustedBasis_in: [BigInt!]
-  _accumulatedCostAdjustedBasis_not_in: [BigInt!]
   profitLossLineItems_: ProfitLossLineItem_filter
   incentives_: IncentiveSnapshot_filter
   """Filter for the block changed event."""
@@ -572,7 +560,6 @@ enum BalanceSnapshot_orderBy {
   previousSnapshot__impliedFixedRate
   previousSnapshot___accumulatedBalance
   previousSnapshot___accumulatedCostRealized
-  previousSnapshot___accumulatedCostAdjustedBasis
   balance
   balance__id
   balance__firstUpdateBlockNumber
@@ -591,7 +578,6 @@ enum BalanceSnapshot_orderBy {
   impliedFixedRate
   _accumulatedBalance
   _accumulatedCostRealized
-  _accumulatedCostAdjustedBasis
   profitLossLineItems
   incentives
 }
@@ -784,7 +770,6 @@ enum Balance_orderBy {
   current__impliedFixedRate
   current___accumulatedBalance
   current___accumulatedCostRealized
-  current___accumulatedCostAdjustedBasis
   snapshots
 }
 
@@ -1719,7 +1704,6 @@ enum IncentiveSnapshot_orderBy {
   balanceSnapshot__impliedFixedRate
   balanceSnapshot___accumulatedBalance
   balanceSnapshot___accumulatedCostRealized
-  balanceSnapshot___accumulatedCostAdjustedBasis
   rewardToken
   rewardToken__id
   rewardToken__firstUpdateBlockNumber
@@ -3224,7 +3208,6 @@ enum ProfitLossLineItem_orderBy {
   balanceSnapshot__impliedFixedRate
   balanceSnapshot___accumulatedBalance
   balanceSnapshot___accumulatedCostRealized
-  balanceSnapshot___accumulatedCostAdjustedBasis
   account
   account__id
   account__firstUpdateBlockNumber

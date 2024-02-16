@@ -4,11 +4,10 @@ import {
   Network,
   PRIME_CASH_VAULT_MATURITY,
   SETTLEMENT_RESERVE,
-  ZERO_ADDRESS,
   convertToSignedfCashId,
   decodeERC1155Id,
   getNowSeconds,
-  groupArrayToMap,
+  getProviderURLFromNetwork,
   isERC1155Id,
   unique,
 } from '@notional-finance/util';
@@ -16,11 +15,9 @@ import {
   AccountFetchMode,
   Registry,
   TokenBalance,
-  fetchGraph,
-  loadGraphClientDeferred,
 } from '@notional-finance/core-entities';
 import { BaseDO, MetricType } from '@notional-finance/durable-objects';
-import { calculateAccountIRR, excludeAccounts } from './factors/calculations';
+import { calculateAccountIRR, currentContestId } from './factors/calculations';
 import { Env } from '.';
 
 export class RegistryClientDO extends BaseDO<Env> {
@@ -66,10 +63,9 @@ export class RegistryClientDO extends BaseDO<Env> {
       // Now run all metrics jobs
       for (const network of this.env.SUPPORTED_NETWORKS) {
         if (network === Network.All) continue;
-        await this.checkDataFreshness(network);
         await this.checkAccountList(network);
         await this.checkTotalSupply(network);
-        // await this.saveAccountFactors(network);
+        await this.saveContestIRR(network, currentContestId);
         await this.saveYieldData(network);
         await this.checkDBMonitors(network);
       }
@@ -83,159 +79,6 @@ export class RegistryClientDO extends BaseDO<Env> {
       });
       return new Response('500', { status: 500 });
     }
-  }
-
-  private async checkDataFreshness(network: Network) {
-    const networkTag = `network:${network}`;
-    const timestamp = getNowSeconds();
-    const tableKey = {
-      notional_assets_apys_and_tvls: 'token_id',
-      historical_oracle_values: 'id',
-    };
-
-    const { MetaDocument } = await loadGraphClientDeferred();
-    const { finalResults } = await fetchGraph(network, MetaDocument, (r) => r);
-    const subgraph = [
-      {
-        metric: 'registry.lastUpdateTimestamp',
-        points: [
-          {
-            value: timestamp - finalResults._meta.block.timestamp,
-            timestamp,
-          },
-        ],
-        tags: [networkTag, `registry:subgraph`],
-        type: MetricType.Gauge,
-      },
-    ];
-
-    const analyticsData = Registry.getAnalyticsRegistry()
-      .getAllSubjectKeys(network)
-      .flatMap((k) => {
-        const groupingKey = tableKey[k];
-        const latestData =
-          Registry.getAnalyticsRegistry().getLatestFromSubject(network, k, 0) ||
-          [];
-
-        const grouped = groupArrayToMap(
-          latestData,
-          (t) => t[groupingKey] || 'all'
-        );
-
-        return Array.from(grouped.keys())
-          .filter((tokenId) => {
-            if (
-              k === 'notional_assets_apys_and_tvls' &&
-              isERC1155Id(tokenId.toString())
-            ) {
-              const { maturity, vaultAddress } = decodeERC1155Id(
-                tokenId.toString()
-              );
-              if (maturity < getNowSeconds()) return false;
-              if (vaultAddress !== undefined && vaultAddress !== ZERO_ADDRESS) {
-                return Registry.getVaultRegistry().isVaultEnabled(
-                  network,
-                  vaultAddress
-                );
-              }
-            }
-
-            return true;
-          })
-          .map((g) => {
-            const latestTimestamp = Math.max(
-              ...grouped
-                .get(g)
-                .map((d) => (d['timestamp'] || d['Timestamp'] || 0) as number)
-            );
-
-            return {
-              metric: `registry.lastUpdateTimestamp`,
-              points: [
-                {
-                  value: timestamp - latestTimestamp,
-                  timestamp,
-                },
-              ],
-              tags: [networkTag, `registry:analytics`, `view:${k}:${g}`],
-              type: MetricType.Gauge,
-            };
-          });
-      });
-
-    await this.logger.submitMetrics({
-      series: [
-        {
-          metric: 'registry.lastUpdateTimestamp',
-          points: [
-            {
-              value:
-                timestamp -
-                Registry.getTokenRegistry().getLastUpdateTimestamp(network),
-              timestamp,
-            },
-          ],
-          tags: [networkTag, 'registry:tokens'],
-          type: MetricType.Gauge,
-        },
-        {
-          metric: 'registry.lastUpdateTimestamp',
-          points: [
-            {
-              value:
-                timestamp -
-                Registry.getOracleRegistry().getLastUpdateTimestamp(network),
-              timestamp,
-            },
-          ],
-          tags: [networkTag, 'registry:oracles'],
-          type: MetricType.Gauge,
-        },
-        {
-          metric: 'registry.lastUpdateTimestamp',
-          points: [
-            {
-              value:
-                timestamp -
-                Registry.getVaultRegistry().getLastUpdateTimestamp(network),
-              timestamp,
-            },
-          ],
-          tags: [networkTag, 'registry:vaults'],
-          type: MetricType.Gauge,
-        },
-        {
-          metric: 'registry.lastUpdateTimestamp',
-          points: [
-            {
-              value:
-                timestamp -
-                Registry.getExchangeRegistry().getLastUpdateTimestamp(network),
-              timestamp,
-            },
-          ],
-          tags: [networkTag, 'registry:exchanges'],
-          type: MetricType.Gauge,
-        },
-        {
-          metric: 'registry.lastUpdateTimestamp.configuration',
-          points: [
-            {
-              value:
-                timestamp -
-                Registry.getConfigurationRegistry().getLastUpdateTimestamp(
-                  network
-                ),
-              timestamp,
-            },
-          ],
-          tags: [networkTag, 'registry:configuration'],
-          type: MetricType.Gauge,
-        },
-      ]
-        .concat(analyticsData)
-        .concat(subgraph),
-    });
   }
 
   private async checkAccountList(network: Network) {
@@ -331,26 +174,67 @@ export class RegistryClientDO extends BaseDO<Env> {
     }
   }
 
-  private async saveAccountFactors(network: Network) {
-    const accounts = Registry.getAccountRegistry();
-    const allAccounts = accounts.getAllSubjectKeys(network);
-    const allFactors = allAccounts
-      .map((a) => accounts.getLatestFromSubject(network, a))
-      .filter((acct) => acct.systemAccountType === 'None')
-      .filter(
-        (acct) =>
-          excludeAccounts.find(
-            (a) => a.toLowerCase() === acct.address.toLowerCase()
-          ) === undefined
-      )
-      .map((account) => ({
-        address: account.address,
-        ...calculateAccountIRR(account, undefined),
-      }));
+  private async getContestParticipants(contestId: number) {
+    const providerURL = getProviderURLFromNetwork(Network.ArbitrumOne, true);
+    const participants = new Array<{
+      address: string;
+      communityId: number;
+      contestId: number;
+    }>();
+    let nextToken: string | null = '0';
+    do {
+      const url = `${providerURL}/getNFTsForCollection?contractAddress=0xbBEF91111E9Db19E688B495972418D8ebC11F008&withMetadata=false&limit=100&startToken=${nextToken}`;
+      let nfts: { id: { tokenId: string } }[];
+      try {
+        const response = await fetch(url);
 
-    // TODO: split the IRR factors against the risk factors
-    // risk factors should be stored in a KV store
-    await this.putStorageKey(`${network}/accounts`, JSON.stringify(allFactors));
+        const data = await response.json<{
+          nextToken: string | null;
+          nfts: { id: { tokenId: string } }[];
+        }>();
+        ({ nfts, nextToken } = data);
+
+        nfts.forEach(({ id: { tokenId } }) => {
+          // Generate the hex without the 0x prefix
+          const id = parseInt(tokenId.slice(18, 22), 16);
+          if (id === contestId) {
+            participants.push({
+              address: `0x${tokenId.slice(26)}`,
+              communityId: parseInt(tokenId.slice(22, 26), 16),
+              contestId,
+            });
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    } while (nextToken);
+
+    return participants;
+  }
+
+  private async saveContestIRR(network: Network, contestId: number) {
+    const participants = await this.getContestParticipants(contestId);
+    const accounts = Registry.getAccountRegistry();
+    const allContestants = participants
+      .map((p) => {
+        try {
+          const account = accounts.getLatestFromSubject(network, p.address);
+          return {
+            ...p,
+            ...calculateAccountIRR(account),
+          };
+        } catch {
+          return undefined;
+        }
+      })
+      .filter((_) => !!_);
+
+    await this.putStorageKey(
+      `${network}/accounts`,
+      JSON.stringify(allContestants)
+    );
   }
 
   private async checkTotalSupply(network: Network) {
@@ -450,8 +334,11 @@ export class RegistryClientDO extends BaseDO<Env> {
         // All these balances are positive
         const computedSupply =
           totalBalances.get(id) || TokenBalance.zero(token);
+        // Use a smaller lower bound for 6 decimal tokens like USDC and USDT since
+        // they succumb to more rounding errors than other tokens.
+        const lowerBound = totalSupply.underlying.decimals < 8 ? 1e-2 : 1e-4;
 
-        if (computedSupply.sub(totalSupply).abs().toFloat() > 1e-4) {
+        if (computedSupply.sub(totalSupply).abs().toFloat() > lowerBound) {
           await this.logger.submitEvent({
             host: this.serviceName,
             network,

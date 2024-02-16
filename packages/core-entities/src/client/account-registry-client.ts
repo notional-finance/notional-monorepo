@@ -295,6 +295,40 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   network
                 )
               ),
+            accountIncentiveDebt: a.balances
+              ?.map((b) => {
+                const i = b.current.incentives?.find(
+                  ({ rewardToken }) => rewardToken.symbol === 'NOTE'
+                );
+                return i?.currentIncentiveDebt
+                  ? {
+                      value: TokenBalance.fromSymbol(
+                        i?.currentIncentiveDebt,
+                        'NOTE',
+                        network
+                      ),
+                      currencyId: b.token.currencyId as number,
+                    }
+                  : undefined;
+              })
+              .filter((_) => !!_),
+            secondaryIncentiveDebt: a.balances
+              ?.map((b) => {
+                const i = b.current.incentives?.find(
+                  ({ rewardToken }) => rewardToken.symbol !== 'NOTE'
+                );
+                return i?.currentIncentiveDebt
+                  ? {
+                      value: TokenBalance.fromSymbol(
+                        i?.currentIncentiveDebt,
+                        i.rewardToken.symbol,
+                        network
+                      ),
+                      currencyId: b.token.currencyId as number,
+                    }
+                  : undefined;
+              })
+              .filter((_) => !!_),
             accountHistory:
               a.profitLossLineItems?.map((p) =>
                 parseTransactionHistory(p as ProfitLossLineItem, network)

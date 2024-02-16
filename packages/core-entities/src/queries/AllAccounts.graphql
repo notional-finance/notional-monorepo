@@ -9,6 +9,7 @@ query AllAccounts($skip: Int) {
         balances {
             token { 
                 id
+                currencyId
                 underlying { id }
             }
             current {
@@ -26,6 +27,7 @@ query AllAccounts($skip: Int) {
                     rewardToken { id symbol }
                     totalClaimed
                     adjustedClaimed
+                    currentIncentiveDebt
                 }
             }
         }

@@ -54,8 +54,6 @@ query AllConfiguration {
 
         treasuryReserveBuffer
         primeCashHoldings
-        rebalancingTargets
-        rebalancingCooldown
 
         depositShares
         leverageThresholds
