@@ -8,7 +8,10 @@ import { TokenIcon } from '@notional-finance/icons';
 import { Box, useTheme } from '@mui/material';
 import { ProductDashboardProps, InfoTooltip } from '@notional-finance/mui';
 import { Network } from '@notional-finance/util';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import {
+  formatNumberAsPercent,
+  formatNumberAsAbbr,
+} from '@notional-finance/helpers';
 
 export const useVaultCards = (network: Network): ProductDashboardProps => {
   const theme = useTheme();
@@ -20,7 +23,7 @@ export const useVaultCards = (network: Network): ProductDashboardProps => {
   } = useAllMarkets(Network.ArbitrumOne);
 
   const vaultDashBoardData = listedVaults.map(
-    ({ vaultAddress, name, primaryToken }) => {
+    ({ vaultAddress, name, primaryToken, vaultTVL }) => {
       const y = getMax(
         leveragedVaults.filter((y) => y.token.vaultAddress === vaultAddress)
       );
@@ -34,7 +37,7 @@ export const useVaultCards = (network: Network): ProductDashboardProps => {
       return {
         symbol: primaryToken.symbol,
         hasPosition: profile ? true : false,
-        tvl: 'TVL: $100K',
+        tvl: `TVL: ${vaultTVL ? formatNumberAsAbbr(vaultTVL.toFloat(), 0) : 0}`,
         apy: apy ? formatNumberAsPercent(apy) : '',
         title: name,
         incentiveSymbol: 'ARB',
