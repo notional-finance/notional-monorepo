@@ -1,72 +1,66 @@
-import { Box, styled } from '@mui/material';
-import { VaultCard } from './components';
+import { Box, styled, useTheme } from '@mui/material';
+import { LeveragedDashboard, DashboardHeader } from './components';
 
 export interface DashboardDataProps {
   title: string;
-  apy: string;
+  apy?: string;
   tvl: string;
   symbol: string;
+  hasPosition?: boolean;
   incentiveValue?: string;
   incentiveSymbol?: string;
   organicApyOnly?: boolean;
 }
 
-interface ProductDashboardProps {
-  productData: DashboardDataProps[];
+export interface LeveragedDashboardProps {
+  productData: {
+    sectionTitle?: string;
+    data: DashboardDataProps[];
+    hasLeveragedPosition?: boolean;
+    hasNegativePosition?: boolean;
+  }[];
+  isLoading?: boolean;
 }
 
-export const ProductDashboard = ({ productData }: ProductDashboardProps) => {
+export interface ProductDashboardProps {
+  productData: {
+    sectionTitle?: string;
+    data: DashboardDataProps[];
+    hasLeveragedPosition?: boolean;
+    hasNegativePosition?: boolean;
+  }[];
+  headerData: {
+    toggleOptions: React.ReactNode[];
+    messageBoxText: any;
+  };
+  isLoading?: boolean;
+}
+
+export const ProductDashboard = ({
+  productData,
+  headerData,
+}: ProductDashboardProps) => {
+  const theme = useTheme();
+  const isLoading = productData.length === 0;
   return (
-    <MainContainer>
-      <GridCardContainer>
-        {productData.map(
-          (
-            {
-              title,
-              apy,
-              tvl,
-              symbol,
-              incentiveValue,
-              organicApyOnly,
-              incentiveSymbol,
-            },
-            index
-          ) => (
-            <VaultCard
-              key={index}
-              title={title}
-              apy={apy}
-              tvl={tvl}
-              symbol={symbol}
-              incentiveValue={incentiveValue}
-              incentiveSymbol={incentiveSymbol}
-              organicApyOnly={organicApyOnly}
-            />
-          )
-        )}
-      </GridCardContainer>
+    <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
+      <DashboardHeader headerData={headerData} />
+      <LeveragedDashboard productData={productData} isLoading={isLoading} />
     </MainContainer>
   );
 };
 
 const MainContainer = styled(Box)(
   ({ theme }) => `
-    max-width: 1280px;
+    max-width: ${theme.spacing(160)};
     width: 100%;
     background: ${theme.palette.background.paper};
-    padding: ${theme.spacing(3)};
     border-radius: 12px;
+    border: ${theme.shape.borderStandard};
     box-shadow: 0px 30px 54px -15px rgba(20, 42, 74, 0.30);
-      `
-);
-
-const GridCardContainer = styled(Box)(
-  ({ theme }) => `
-    display: grid;
-    gap: ${theme.spacing(3)};
-    grid-template-columns: repeat(2, 1fr);
+    margin: ${theme.spacing(6)};
     ${theme.breakpoints.down('sm')} {
-        grid-template-columns: repeat(1, 1fr);
+      margin: 0px;
     }
       `
 );

@@ -1,21 +1,24 @@
 import { Box, useTheme, styled } from '@mui/material';
 import { TokenIcon, LeafIcon } from '@notional-finance/icons';
+import { DashboardDataProps } from '../product-dashboard';
 import {
   SmallInput,
   CurrencyTitle,
   SectionTitle,
 } from '../../typography/typography';
 import ProgressIndicator from '../../progress-indicator/progress-indicator';
+import { FormattedMessage } from 'react-intl';
 
 export const VaultCard = ({
   title,
   apy,
   tvl,
   symbol,
+  hasPosition,
   incentiveValue,
   incentiveSymbol,
   organicApyOnly,
-}) => {
+}: DashboardDataProps) => {
   const theme = useTheme();
   return (
     <GridCard>
@@ -39,7 +42,13 @@ export const VaultCard = ({
         </Box>
 
         <GridCardApy>
-          <SectionTitle>AS HIGH AS</SectionTitle>
+          <SectionTitle>
+            {hasPosition ? (
+              <FormattedMessage defaultMessage={'Current APY'} />
+            ) : (
+              <FormattedMessage defaultMessage={'AS HIGH AS'} />
+            )}
+          </SectionTitle>
           {apy ? apy : <ProgressIndicator type="circular" circleSize={18} />}
         </GridCardApy>
       </Box>
@@ -49,7 +58,6 @@ export const VaultCard = ({
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center',
             }}
           >
             <TokenIcon
@@ -65,7 +73,7 @@ export const VaultCard = ({
             >
               {incentiveValue}
             </Box>
-            Incentive APY
+            <FormattedMessage defaultMessage={'Incentive APY'} />
           </SectionTitle>
         )}
         {organicApyOnly && (
@@ -76,8 +84,14 @@ export const VaultCard = ({
               alignItems: 'center',
             }}
           >
-            <LeafIcon style={{ height: theme.spacing(2) }} />
-            Organic Value
+            <LeafIcon
+              style={{
+                height: theme.spacing(2),
+                marginRight: theme.spacing(0.5),
+              }}
+              fill={theme.palette.common.black}
+            />
+            <FormattedMessage defaultMessage={'Organic APY'} />
           </SectionTitle>
         )}
       </IncentiveContainer>
@@ -101,16 +115,14 @@ const GridCard = styled(Box)(
       border: ${theme.shape.borderStandard};
       display: flex;
       flex-direction: column;
-      box-shadow: 0px 4px 10px 0px rgba(20, 42, 74, 0.07);
-
+      box-shadow: ${theme.shape.shadowStandard};
       ${theme.gradient.hoverTransition(
         theme.palette.background.paper,
         theme.palette.info.light
-      )}
-  
+      )};
       &:hover {
         cursor: pointer;
-        border: 1px solid ${theme.palette.secondary.accent};
+        border: 1px solid ${theme.palette.primary.light};
         transition: 0.3s ease;
         transform: scale(1.02);
         #incentive {

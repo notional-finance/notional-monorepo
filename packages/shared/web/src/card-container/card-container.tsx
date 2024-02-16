@@ -176,7 +176,7 @@ const StyledCardList = styled('ul')(
   flex-wrap: wrap;
   justify-content: center;
   overflow: visible;
-  margin-top: -${theme.spacing(24.5)};
+  margin-top: -${theme.spacing(12.5)};
   margin-bottom: ${theme.spacing(22)};
   width: 100%;
   max-width: ${theme.spacing(187.5)};
