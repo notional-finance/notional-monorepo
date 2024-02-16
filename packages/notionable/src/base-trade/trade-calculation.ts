@@ -90,6 +90,13 @@ export function calculateMaxWithdraw(
         debtBalance: TokenBalance | undefined;
       };
 
+      const options = computeOptions(
+        s.tradeType,
+        s.availableCollateralTokens,
+        s.availableDebtTokens,
+        inputs
+      );
+
       return {
         inputsSatisfied,
         calculationSuccess,
@@ -100,6 +107,7 @@ export function calculateMaxWithdraw(
         collateralFee,
         ...(s.tradeType === 'RollDebt' ? { debtBalance } : {}),
         ...(s.tradeType === 'ConvertAsset' ? { collateralBalance } : {}),
+        ...options,
       };
     }),
     filterEmpty()
@@ -221,51 +229,10 @@ export function calculate(
       };
     }),
     map(({ inputs, collateralTokens, debtTokens, tradeType, ...u }) => {
-      const {
-        calculationFn,
-        requiredArgs,
-        calculateCollateralOptions,
-        calculateDebtOptions,
-      } = getTradeConfig(tradeType);
-
-      let collateralOptions: TokenOption[] | undefined;
-      let debtOptions: TokenOption[] | undefined;
-
-      if (
-        calculateCollateralOptions &&
-        collateralTokens &&
-        requiredArgs
-          .filter((c) => c !== 'collateral')
-          .every((r) => inputs[r] !== undefined) &&
-        inputs['collateralPool'] !== undefined
-      ) {
-        collateralOptions = computeCollateralOptions(
-          inputs,
-          calculationFn,
-          collateralTokens,
-          inputs['collateralPool'] as fCashMarket
-        );
-      }
-
-      if (
-        calculateDebtOptions &&
-        debtTokens &&
-        requiredArgs
-          .filter((c) => c !== 'debt')
-          .filter((c) => (isVaultTrade(tradeType) ? c !== 'collateral' : true))
-          .every((r) => inputs[r] !== undefined) &&
-        inputs['debtPool'] !== undefined
-      ) {
-        debtOptions = computeDebtOptions(
-          inputs,
-          calculationFn,
-          debtTokens,
-          inputs['debtPool'] as fCashMarket,
-          tradeType
-        );
-      }
-
-      return { ...u, collateralOptions, debtOptions };
+      return {
+        ...u,
+        ...computeOptions(tradeType, collateralTokens, debtTokens, inputs),
+      };
     })
   );
 }
@@ -427,6 +394,60 @@ function executeCalculation(
     debtFee: undefined,
     collateralFee: undefined,
   };
+}
+
+function computeOptions(
+  tradeType: TradeType | VaultTradeType | undefined,
+  collateralTokens: TokenDefinition[] | undefined,
+  debtTokens: TokenDefinition[] | undefined,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  inputs: any
+) {
+  const {
+    calculationFn,
+    requiredArgs,
+    calculateCollateralOptions,
+    calculateDebtOptions,
+  } = getTradeConfig(tradeType);
+
+  let collateralOptions: TokenOption[] | undefined;
+  let debtOptions: TokenOption[] | undefined;
+
+  if (
+    calculateCollateralOptions &&
+    collateralTokens &&
+    requiredArgs
+      .filter((c) => c !== 'collateral')
+      .every((r) => inputs[r] !== undefined) &&
+    inputs['collateralPool'] !== undefined
+  ) {
+    collateralOptions = computeCollateralOptions(
+      inputs,
+      calculationFn,
+      collateralTokens,
+      inputs['collateralPool'] as fCashMarket
+    );
+  }
+
+  if (
+    calculateDebtOptions &&
+    debtTokens &&
+    requiredArgs
+      .filter((c) => c !== 'debt')
+      .filter((c) => (isVaultTrade(tradeType) ? c !== 'collateral' : true))
+      .every((r) => inputs[r] !== undefined) &&
+    inputs['debtPool'] !== undefined
+  ) {
+    debtOptions = computeDebtOptions(
+      inputs,
+      calculationFn,
+      debtTokens,
+      inputs['debtPool'] as fCashMarket,
+      tradeType
+    );
+  }
+
+  return { debtOptions, collateralOptions };
 }
 
 function computeCollateralOptions(

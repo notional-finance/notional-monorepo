@@ -110,8 +110,13 @@ export abstract class BaseDO<E extends BaseDOEnv> {
   }
 
   async alarm() {
-    if (!this.alarmCadenceMS) return;
-    await this.onRefresh();
-    await this.state.storage.setAlarm(Date.now() + this.alarmCadenceMS);
+    try {
+      if (!this.alarmCadenceMS) return;
+      await this.onRefresh();
+      await this.state.storage.setAlarm(Date.now() + this.alarmCadenceMS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 }

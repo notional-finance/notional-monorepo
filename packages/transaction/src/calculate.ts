@@ -576,24 +576,31 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
     profile = profile.simulate([collateralDeposit.collateralBalance]);
   } else if (depositBalance?.isNegative()) {
     debtDeposit = calculateDebt({ debt, debtPool, depositBalance });
+    /**
+     * Initial leverage ratio:
+     *  totalDebt / (totalAssets - totalDebt)
+     *
+     * Post Withdraw Leverage ratio:
+     *  totalDebt / ((totalAssets - withdraw) - totalDebt)
+     *
+     * Required debt repayment for withdraw:
+     *  totalDebt / (totalAssets - totalDebt)
+     *    = (totalDebt - x) / ((totalAssets - withdraw - f(x)) - (totalDebt - x))
+     * Solve for x assuming x ~ f(x)
+     *
+     * x = (totalDebt * withdraw) / (totalAssets - totalDebt)
+     */
+    const totalDebts = profile
+      .totalCurrencyDebts(depositBalance.currencyId, depositBalance.currencyId)
+      .neg();
+    const totalAssets = profile.totalCurrencyAssets(
+      depositBalance.currencyId,
+      depositBalance.currencyId
+    );
     const withdrawPortion = depositBalance
       .neg()
-      .ratioWith(
-        profile
-          .totalCurrencyAssets(
-            depositBalance.currencyId,
-            depositBalance.currencyId
-          )
-          .add(
-            profile.totalCurrencyDebts(
-              depositBalance.currencyId,
-              depositBalance.currencyId
-            )
-          )
-      );
-    initialDebtUnitsEstimateInRP = profile
-      .totalDebt(depositBalance.currencyId)
-      .neg()
+      .ratioWith(totalAssets.sub(totalDebts));
+    initialDebtUnitsEstimateInRP = totalDebts
       .mulInRatePrecision(withdrawPortion)
       .scaleTo(RATE_DECIMALS)
       .toNumber();
