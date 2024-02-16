@@ -20,7 +20,6 @@ export function TotalBox({
   prefix,
 }: TotalBoxProps) {
   const theme = useTheme();
-  console.log({ Icon });
   return (
     <Box
       sx={{
