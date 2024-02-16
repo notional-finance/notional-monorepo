@@ -104,7 +104,11 @@ const run = async (env: Env) => {
     logger
   );
 
-  const batchedAccounts = batchArray(addresses, 500);
+  // Currently the worker cannot process more than 2000 accounts per batch
+  const batchedAccounts = batchArray(
+    addresses.sort(() => Math.random() - 0.5).slice(2000),
+    500
+  );
   const riskyAccounts =
     // Batch up the accounts so that we don't get errors from the RPC
     (
