@@ -2,12 +2,15 @@ import { YieldData, FiatSymbols } from '@notional-finance/core-entities';
 import { TradeState } from '@notional-finance/notionable';
 import { SparklesIcon } from '@notional-finance/icons';
 import { useMaxSupply, useFiat } from '@notional-finance/notionable-hooks';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, defineMessage } from 'react-intl';
+import { InfoTooltip } from '@notional-finance/mui';
+import { SxProps, useTheme } from '@mui/material';
 
 export const useTotalsData = (
   state: TradeState,
   liquidityYieldData: YieldData | undefined
 ) => {
+  const theme = useTheme();
   const { deposit } = state;
   const baseCurrency = useFiat();
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
@@ -25,6 +28,24 @@ export const useTotalsData = (
     totalIncentives = liquidityYieldData?.noteIncentives?.incentiveAPY;
   }
 
+  interface ToolTipProps {
+    sx: SxProps;
+  }
+
+  const ToolTip = ({ sx }: ToolTipProps) => {
+    return (
+      <InfoTooltip
+        sx={{ ...sx }}
+        iconSize={theme.spacing(2)}
+        iconColor={theme.palette.typography.accent}
+        toolTipText={defineMessage({
+          defaultMessage:
+            'The additional amount that can be deposited before hitting the supply cap.',
+        })}
+      />
+    );
+  };
+
   return {
     totalsData: [
       {
@@ -40,6 +61,7 @@ export const useTotalsData = (
       },
       {
         title: <FormattedMessage defaultMessage={'Capacity Remaining'} />,
+        Icon: ToolTip,
         value: maxSupplyData?.capacityRemaining
           ? maxSupplyData?.capacityRemaining.toFloat()
           : '-',

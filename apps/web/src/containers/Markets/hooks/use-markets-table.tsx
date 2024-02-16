@@ -78,8 +78,8 @@ export const useMarketsTable = (
     {
       Header: (
         <FormattedMessage
-          defaultMessage="Total TVL"
-          description={'Total TVL header'}
+          defaultMessage="Liquidity"
+          description={'Liquidity header'}
         />
       ),
       Cell: DisplayCell,

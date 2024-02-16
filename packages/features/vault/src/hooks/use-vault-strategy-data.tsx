@@ -12,13 +12,13 @@ export interface VaultsDataProps {
 
 export const useVaultStrategyData = () => {
   const { state } = useContext(VaultActionContext);
-  const { vaultConfig, selectedDepositToken } = state;
+  const { vaultConfig, deposit } = state;
   if (!vaultConfig) return undefined;
 
   return {
     baseProtocol: vaultConfig.baseProtocol,
     boosterProtocol: vaultConfig.boosterProtocol,
-    primaryBorrowCurrency: selectedDepositToken,
+    primaryBorrowCurrency: deposit?.symbol,
     poolName: vaultConfig.poolName,
     docsLink:
       'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',

@@ -4,19 +4,22 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
+import { InfoTooltip } from '@notional-finance/mui';
 import { SparklesIcon } from '@notional-finance/icons';
 import {
   useAllMarkets,
   useFiat,
   useMaxSupply,
 } from '@notional-finance/notionable-hooks';
-import { FormattedMessage } from 'react-intl';
+import { SxProps, useTheme } from '@mui/material';
+import { FormattedMessage, defineMessage } from 'react-intl';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,
   nToken: TokenDefinition | undefined,
   nTokenAmount?: TokenBalance
 ) => {
+  const theme = useTheme();
   const { yields } = useAllMarkets(deposit?.network);
   const baseCurrency = useFiat();
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
@@ -27,6 +30,24 @@ export const useTotalsData = (
   const totalIncentives =
     (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) +
     (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0);
+
+  interface ToolTipProps {
+    sx: SxProps;
+  }
+
+  const ToolTip = ({ sx }: ToolTipProps) => {
+    return (
+      <InfoTooltip
+        sx={{ ...sx }}
+        iconSize={theme.spacing(2)}
+        iconColor={theme.palette.typography.accent}
+        toolTipText={defineMessage({
+          defaultMessage:
+            'The additional amount that can be deposited before hitting the supply cap.',
+        })}
+      />
+    );
+  };
 
   return {
     totalsData: [
@@ -43,6 +64,7 @@ export const useTotalsData = (
       },
       {
         title: <FormattedMessage defaultMessage={'Capacity Remaining'} />,
+        Icon: ToolTip,
         value: maxSupplyData?.capacityRemaining
           ? maxSupplyData?.capacityRemaining.toFloat()
           : '-',

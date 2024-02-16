@@ -54,11 +54,11 @@ export const BorrowVariableTradeSummary = () => {
           },
           {
             id: 'tvl-area-chart',
-            title: 'TVL',
+            title: 'Total Lent',
             hideTopGridLine: true,
             Component: (
               <AreaChart
-                title={'TVL'}
+                title={'Total Lent'}
                 showCartesianGrid
                 xAxisTickFormat="date"
                 areaChartData={tvlData}

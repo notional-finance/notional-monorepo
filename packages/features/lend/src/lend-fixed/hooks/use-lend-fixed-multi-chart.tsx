@@ -38,12 +38,12 @@ export const useLendFixedMultiChart = () => {
     },
     {
       id: 'area-chart',
-      title: 'TVL',
+      title: 'Market Liquidity',
       hideTopGridLine: true,
       Component: (
         <AreaChart
           showCartesianGrid
-          title="TVL"
+          title="Market Liquidity"
           xAxisTickFormat="date"
           areaChartData={tvlData}
           areaLineType="linear"

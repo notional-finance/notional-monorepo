@@ -1,6 +1,7 @@
-import { FormattedMessage } from 'react-intl';
 import { TradeState } from '@notional-finance/notionable';
 import { FiatSymbols } from '@notional-finance/core-entities';
+import { InfoTooltip } from '@notional-finance/mui';
+import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   useFiat,
   useTokenHistory,
@@ -8,8 +9,10 @@ import {
   usePrimeDebt,
   useMaxSupply,
 } from '@notional-finance/notionable-hooks';
+import { SxProps, useTheme } from '@mui/material';
 
 export const useVariableTotals = (state: TradeState) => {
+  const theme = useTheme();
   const { deposit } = state;
   const isBorrow = state.tradeType === 'BorrowVariable';
   const baseCurrency = useFiat();
@@ -32,6 +35,24 @@ export const useVariableTotals = (state: TradeState) => {
     return averageApy;
   };
 
+  interface ToolTipProps {
+    sx: SxProps;
+  }
+
+  const ToolTip = ({ sx }: ToolTipProps) => {
+    return (
+      <InfoTooltip
+        sx={{ ...sx }}
+        iconSize={theme.spacing(2)}
+        iconColor={theme.palette.typography.accent}
+        toolTipText={defineMessage({
+          defaultMessage:
+            'The additional amount that can be deposited before hitting the supply cap.',
+        })}
+      />
+    );
+  };
+
   return [
     {
       title: <FormattedMessage defaultMessage={'Total Lent'} />,
@@ -49,6 +70,7 @@ export const useVariableTotals = (state: TradeState) => {
       ) : (
         <FormattedMessage defaultMessage={'Capacity Remaining'} />
       ),
+      Icon: ToolTip,
       value: isBorrow
         ? getSevenDayAvgApy()
         : maxSupplyData?.capacityRemaining

@@ -38,11 +38,11 @@ export const useBorrowFixedMultiChart = () => {
     },
     {
       id: 'area-chart',
-      title: 'TVL',
+      title: 'Market Liquidity',
       hideTopGridLine: true,
       Component: (
         <AreaChart
-          title="TVL"
+          title="Market Liquidity"
           showCartesianGrid
           xAxisTickFormat="date"
           areaChartData={tvlData}
