@@ -21,7 +21,7 @@ export const LeveragedDashboard = ({
   const [showNegativeYields, setShowNegativeYields] = useState(false);
 
   return (
-    <Box sx={{ marginTop: isLoading ? '60px' : '0px' }}>
+    <Box sx={{ marginTop: isLoading ? theme.spacing(7.5) : '0px' }}>
       {!isLoading ? (
         productData.map(
           (
@@ -105,7 +105,7 @@ export const LeveragedDashboard = ({
           )
         )
       ) : (
-        <ProgressIndicator type="notional" sx={{ height: '460px' }} />
+        <ProgressIndicator type="notional" sx={{ height: theme.spacing(57.5) }} />
       )}
     </Box>
   );
