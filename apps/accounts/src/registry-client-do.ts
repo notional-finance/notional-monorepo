@@ -17,11 +17,7 @@ import {
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { BaseDO, MetricType } from '@notional-finance/durable-objects';
-import {
-  calculateAccountIRR,
-  currentContestId,
-  excludeAccounts,
-} from './factors/calculations';
+import { calculateAccountIRR, currentContestId } from './factors/calculations';
 import { Env } from '.';
 
 export class RegistryClientDO extends BaseDO<Env> {
@@ -53,8 +49,7 @@ export class RegistryClientDO extends BaseDO<Env> {
       Registry.initialize(
         this.env.NX_DATA_URL,
         AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
-        true,
-        true
+        false
       );
 
       // First trigger a refresh for all supported networks
@@ -68,11 +63,11 @@ export class RegistryClientDO extends BaseDO<Env> {
       // Now run all metrics jobs
       for (const network of this.env.SUPPORTED_NETWORKS) {
         if (network === Network.All) continue;
-        // await this.checkAccountList(network);
-        // await this.checkTotalSupply(network);
+        await this.checkAccountList(network);
+        await this.checkTotalSupply(network);
         await this.saveContestIRR(network, currentContestId);
-        // await this.saveYieldData(network);
-        // await this.checkDBMonitors(network);
+        await this.saveYieldData(network);
+        await this.checkDBMonitors(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -222,37 +217,24 @@ export class RegistryClientDO extends BaseDO<Env> {
   private async saveContestIRR(network: Network, contestId: number) {
     const participants = await this.getContestParticipants(contestId);
     const accounts = Registry.getAccountRegistry();
-    const allAccounts = accounts.getAllSubjectKeys(network);
-    const allFactors = allAccounts
-      .map((a) => accounts.getLatestFromSubject(network, a))
-      .filter((acct) => acct.systemAccountType === 'None')
-      .filter(
-        (acct) =>
-          excludeAccounts.find(
-            (a) => a.toLowerCase() === acct.address.toLowerCase()
-          ) !== undefined
-      )
-      .map((account) => ({
-        address: account.address,
-        ...calculateAccountIRR(account),
-      }));
-    console.log(
-      allFactors
-        .map((a) =>
-          [
-            a.address,
-            a.irr.toFixed(4),
-            a.totalNetWorth.toFixed(4),
-            a.netDeposits.toFixed(4),
-            a.earnings.toFixed(4),
-          ].join(',')
-        )
-        .join('\n')
-    );
+    const allContestants = participants
+      .map((p) => {
+        try {
+          const account = accounts.getLatestFromSubject(network, p.address);
+          return {
+            ...p,
+            ...calculateAccountIRR(account),
+          };
+        } catch {
+          return undefined;
+        }
+      })
+      .filter((_) => !!_);
 
-    // TODO: split the IRR factors against the risk factors
-    // risk factors should be stored in a KV store
-    await this.putStorageKey(`${network}/accounts`, JSON.stringify(allFactors));
+    await this.putStorageKey(
+      `${network}/accounts`,
+      JSON.stringify(allContestants)
+    );
   }
 
   private async checkTotalSupply(network: Network) {

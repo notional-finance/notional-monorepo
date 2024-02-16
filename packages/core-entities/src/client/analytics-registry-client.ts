@@ -18,6 +18,7 @@ import {
   HistoricalOracles,
   HistoricalTrading,
   VaultData,
+  CacheSchema,
 } from '../Definitions';
 import {
   ASSET_PRICE_ORACLES,
@@ -39,7 +40,7 @@ const APY_ORACLES = [
 
 export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   protected cachePath() {
-    return `${Routes.Analytics}/analytics`;
+    return `${Routes.Analytics}`;
   }
 
   get USD() {
@@ -309,6 +310,12 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
           ),
         };
       });
+  }
+
+  protected override async _refresh(
+    network: Network
+  ): Promise<CacheSchema<unknown>> {
+    return this._fetch(network, 'analytics');
   }
 
   async getView<T>(network: Network, viewName: string) {
