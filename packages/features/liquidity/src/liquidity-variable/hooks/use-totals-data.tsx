@@ -31,11 +31,7 @@ export const useTotalsData = (
     (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) +
     (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0);
 
-  interface ToolTipProps {
-    sx: SxProps;
-  }
-
-  const ToolTip = ({ sx }: ToolTipProps) => {
+  const ToolTip = ({ sx }: { sx: SxProps }) => {
     return (
       <InfoTooltip
         sx={{ ...sx }}
