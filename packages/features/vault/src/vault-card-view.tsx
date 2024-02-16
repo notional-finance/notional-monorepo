@@ -11,10 +11,8 @@ export const VaultCardView = () => {
   const themeVariant = useThemeVariant();
   // TODO: this needs to be linked up to the selector
   const network = useSelectedNetwork();
-  const vaultDashBoardData = useVaultCards(network);
+  const { productData, headerData } = useVaultCards(network);
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-
-  console.log({ vaultDashBoardData });
 
   return (
     <ThemeProvider theme={themeLanding}>
@@ -35,7 +33,7 @@ export const VaultCardView = () => {
           docsLink="https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults"
           leveraged={true}
         >
-          <ProductDashboard productData={vaultDashBoardData} />
+          <ProductDashboard productData={productData} headerData={headerData} />
         </CardContainer>
       </FeatureLoader>
     </ThemeProvider>
