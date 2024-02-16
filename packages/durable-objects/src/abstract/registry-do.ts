@@ -58,11 +58,7 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
         })
       );
     } catch (error) {
-      console.log(this.serviceName, error);
-      this.logger.log({
-        level: 'error',
-        message: (error as Error).toString(),
-      });
+      console.error(this.serviceName, error);
     }
   }
 }
