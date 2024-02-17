@@ -17,7 +17,7 @@ import {
 import { calculateAccruedIncentives } from '@notional-finance/notionable/global/account/incentives';
 import initialValue from './initialValue.json';
 
-const contestStart = 1704096000;
+const contestStart = 1704096000; // Jan 1
 const contestEnd = 1711350000; // March 25, Midnight
 export const currentContestId = 1;
 
@@ -168,7 +168,7 @@ export function calculateAccountIRR(account: AccountDefinition) {
     Math.min(...allFlows.map(({ date }) => date.getTime()));
 
   let irr = 0;
-  if (msSinceFirstDeposit > 15 * ONE_MINUTE_MS && Math.abs(netDeposits) < 10) {
+  if (msSinceFirstDeposit > 15 * ONE_MINUTE_MS && Math.abs(netDeposits) > 10) {
     try {
       irr = xirr(allFlows);
     } catch (e) {
@@ -180,10 +180,13 @@ export function calculateAccountIRR(account: AccountDefinition) {
     }
   }
 
+  // console.log(cashFlows);
+  // console.log(allFlows);
+
   return {
     irr,
     totalNetWorth,
     netDeposits,
-    earnings: totalNetWorth + netDeposits,
+    earnings: totalNetWorth - netDeposits,
   };
 }
