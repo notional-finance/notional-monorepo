@@ -167,7 +167,8 @@ export function calculateAccountIRR(account: AccountDefinition) {
     getNowSeconds() * 1000 -
     Math.min(...allFlows.map(({ date }) => date.getTime()));
 
-  let irr = 0;
+  let irr = null;
+  // Enforce a $10 minimum deposit, otherwise the IRR will be null
   if (msSinceFirstDeposit > 15 * ONE_MINUTE_MS && Math.abs(netDeposits) > 10) {
     try {
       irr = xirr(allFlows);
@@ -182,6 +183,8 @@ export function calculateAccountIRR(account: AccountDefinition) {
 
   // console.log(cashFlows);
   // console.log(allFlows);
+  // console.log(irr);
+  // console.log("NET DEPOSITS", irr, netDeposits);
 
   return {
     irr,

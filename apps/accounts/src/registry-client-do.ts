@@ -218,6 +218,7 @@ export class RegistryClientDO extends BaseDO<Env> {
     const participants = await this.getContestParticipants(contestId);
     const accounts = Registry.getAccountRegistry();
     const allContestants = participants
+      // .filter((a) => a.address === '0xdd83eaa1a66369ab09b2642a1a130287c4ad8e40')
       .map((p) => {
         try {
           const account = accounts.getLatestFromSubject(network, p.address);
@@ -230,6 +231,7 @@ export class RegistryClientDO extends BaseDO<Env> {
         }
       })
       .filter((_) => !!_);
+    // console.log(allContestants.filter(({ irr }) => !!irr && irr > 100));
 
     await this.putStorageKey(
       `${network}/accounts`,
