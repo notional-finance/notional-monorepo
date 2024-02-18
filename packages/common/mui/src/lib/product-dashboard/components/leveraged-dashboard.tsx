@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { VaultCard } from './vault-card';
 import { Caption, LinkText } from '../../typography/typography';
@@ -9,52 +8,38 @@ import { FormattedMessage } from 'react-intl';
 
 interface ContainerProps {
   hasLeveragedPosition?: boolean;
-  hasNegativePosition?: boolean;
   theme: NotionalTheme;
 }
 
 export const LeveragedDashboard = ({
   productData,
+  setShowNegativeYields,
+  showNegativeYields,
   isLoading,
 }: LeveragedDashboardProps) => {
   const theme = useTheme();
-  const [showNegativeYields, setShowNegativeYields] = useState(false);
 
   return (
     <Box sx={{ marginTop: isLoading ? theme.spacing(7.5) : '0px' }}>
       {!isLoading ? (
         productData.map(
-          (
-            { sectionTitle, data, hasLeveragedPosition, hasNegativePosition },
-            index
-          ) => (
+          ({ sectionTitle, data, hasLeveragedPosition }, index) => (
             <Container
               key={index}
               hasLeveragedPosition={hasLeveragedPosition}
-              hasNegativePosition={hasNegativePosition}
               theme={theme}
             >
-              {!showNegativeYields && hasNegativePosition && (
-                <LinkText
-                  onClick={() => setShowNegativeYields(true)}
-                  sx={{ cursor: 'pointer', textAlign: 'left' }}
-                >
-                  <FormattedMessage defaultMessage={'See negative yields'} />
-                </LinkText>
-              )}
-              {!hasNegativePosition && (
-                <Caption
-                  sx={{
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    textAlign: 'left',
-                    marginBottom: theme.spacing(2),
-                    letterSpacing: '1.4px',
-                  }}
-                >
-                  {sectionTitle}
-                </Caption>
-              )}
+              <Caption
+                sx={{
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  textAlign: 'left',
+                  marginBottom: theme.spacing(2),
+                  letterSpacing: '1.4px',
+                }}
+              >
+                {sectionTitle}
+              </Caption>
               <GridCardContainer>
                 {data.map(
                   (
@@ -62,6 +47,7 @@ export const LeveragedDashboard = ({
                       title,
                       apy,
                       tvl,
+                      routeCallback,
                       symbol,
                       hasPosition,
                       incentiveValue,
@@ -70,54 +56,58 @@ export const LeveragedDashboard = ({
                     },
                     index
                   ) => (
-                    <div>
-                      {showNegativeYields && apy?.includes('-') && (
-                        <VaultCard
-                          key={index}
-                          title={title}
-                          apy={apy}
-                          tvl={tvl}
-                          symbol={symbol}
-                          hasPosition={hasPosition}
-                          incentiveValue={incentiveValue}
-                          incentiveSymbol={incentiveSymbol}
-                          organicApyOnly={organicApyOnly}
-                        />
-                      )}
-                      {!apy?.includes('-') && (
-                        <VaultCard
-                          key={index}
-                          title={title}
-                          apy={apy}
-                          tvl={tvl}
-                          symbol={symbol}
-                          hasPosition={hasPosition}
-                          incentiveValue={incentiveValue}
-                          incentiveSymbol={incentiveSymbol}
-                          organicApyOnly={organicApyOnly}
-                        />
-                      )}
+                    <div key={index}>
+                      <VaultCard
+                        key={index}
+                        title={title}
+                        routeCallback={routeCallback}
+                        apy={apy}
+                        tvl={tvl}
+                        symbol={symbol}
+                        hasPosition={hasPosition}
+                        incentiveValue={incentiveValue}
+                        incentiveSymbol={incentiveSymbol}
+                        organicApyOnly={organicApyOnly}
+                      />
                     </div>
                   )
                 )}
               </GridCardContainer>
+              {!hasLeveragedPosition && setShowNegativeYields && (
+                <LinkText
+                  onClick={() => setShowNegativeYields(!showNegativeYields)}
+                  sx={{
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    paddingTop: theme.spacing(4),
+                  }}
+                >
+                  {showNegativeYields ? (
+                    <FormattedMessage defaultMessage={'Hide negative yields'} />
+                  ) : (
+                    <FormattedMessage defaultMessage={'See negative yields'} />
+                  )}
+                </LinkText>
+              )}
             </Container>
           )
         )
       ) : (
-        <ProgressIndicator type="notional" sx={{ height: theme.spacing(57.5) }} />
+        <ProgressIndicator
+          type="notional"
+          sx={{ height: theme.spacing(57.5) }}
+        />
       )}
     </Box>
   );
 };
 
 const Container = styled(Box, {
-  shouldForwardProp: (prop: string) =>
-    prop !== 'hasLeveragedPosition' && prop !== 'hasNegativePosition',
+  shouldForwardProp: (prop: string) => prop !== 'hasLeveragedPosition',
 })(
-  ({ hasLeveragedPosition, hasNegativePosition, theme }: ContainerProps) => `
+  ({ hasLeveragedPosition, theme }: ContainerProps) => `
       padding-bottom: ${theme.spacing(4)};
-      padding-top: ${hasNegativePosition ? '0px' : theme.spacing(4)};
+      padding-top: ${theme.spacing(4)};
       padding-left: ${theme.spacing(3)};
       padding-right: ${theme.spacing(3)};
       ${
