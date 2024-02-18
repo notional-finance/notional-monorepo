@@ -11,7 +11,8 @@ export const VaultCardView = () => {
   const themeVariant = useThemeVariant();
   // TODO: this needs to be linked up to the selector
   const network = useSelectedNetwork();
-  const { productData, headerData } = useVaultCards(network);
+  const { productData, headerData, setShowNegativeYields, showNegativeYields } =
+    useVaultCards(network);
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
 
   return (
@@ -33,7 +34,12 @@ export const VaultCardView = () => {
           docsLink="https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults"
           leveraged={true}
         >
-          <ProductDashboard productData={productData} headerData={headerData} />
+          <ProductDashboard
+            productData={productData}
+            headerData={headerData}
+            setShowNegativeYields={setShowNegativeYields}
+            showNegativeYields={showNegativeYields}
+          />
         </CardContainer>
       </FeatureLoader>
     </ThemeProvider>

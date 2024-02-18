@@ -6,22 +6,25 @@ import {
   CurrencyTitle,
   SectionTitle,
 } from '../../typography/typography';
-import ProgressIndicator from '../../progress-indicator/progress-indicator';
 import { FormattedMessage } from 'react-intl';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { colors } from '@notional-finance/styles';
 
 export const VaultCard = ({
   title,
   apy,
   tvl,
   symbol,
+  routeCallback,
   hasPosition,
   incentiveValue,
   incentiveSymbol,
   organicApyOnly,
 }: DashboardDataProps) => {
   const theme = useTheme();
+
   return (
-    <GridCard>
+    <GridCard onClick={() => routeCallback()}>
       <Box
         sx={{
           display: 'flex',
@@ -41,7 +44,9 @@ export const VaultCard = ({
           </Box>
         </Box>
 
-        <GridCardApy>
+        <GridCardApy
+          sx={{ color: apy < 0 ? colors.red : theme.palette.typography.main }}
+        >
           <SectionTitle>
             {hasPosition ? (
               <FormattedMessage defaultMessage={'Current APY'} />
@@ -49,7 +54,7 @@ export const VaultCard = ({
               <FormattedMessage defaultMessage={'AS HIGH AS'} />
             )}
           </SectionTitle>
-          {apy ? apy : <ProgressIndicator type="circular" circleSize={18} />}
+          {formatNumberAsPercent(apy)}
         </GridCardApy>
       </Box>
       <IncentiveContainer id="incentive">
@@ -148,7 +153,6 @@ const GridCardTitle = styled(SmallInput)(
 
 const GridCardApy = styled(CurrencyTitle)(
   ({ theme }) => `
-      color: ${theme.palette.typography.main};
       padding-left: ${theme.spacing(1)};
         `
 );
