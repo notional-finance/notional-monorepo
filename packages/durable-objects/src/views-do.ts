@@ -62,6 +62,8 @@ export class ViewsDO extends BaseDO<APIEnv> {
   }
 
   async fetchAllGraphViews(network: Network) {
+    if (network === Network.All) return;
+
     const documents = ['ExternalLendingHistoryDocument'] as GraphDocument[];
     await Promise.all(
       documents.map((d) => this.fetchGraphDocument(network, d))
