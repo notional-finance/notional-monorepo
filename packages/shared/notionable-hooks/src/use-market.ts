@@ -257,12 +257,16 @@ export const useNotionalMarket = (token: TokenDefinition | undefined) => {
 };
 
 export const useFCashMarket = (token?: TokenDefinition | undefined) => {
-  return token && token.currencyId
-    ? Registry.getExchangeRegistry().getfCashMarket(
-        token.network,
-        token.currencyId
-      )
-    : undefined;
+  try {
+    return token && token.currencyId
+      ? Registry.getExchangeRegistry().getfCashMarket(
+          token.network,
+          token.currencyId
+        )
+      : undefined;
+  } catch {
+    return undefined;
+  }
 };
 
 export const useSpotMaturityData = (
