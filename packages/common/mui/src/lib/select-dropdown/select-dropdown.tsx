@@ -109,6 +109,10 @@ export const SelectDropdown = ({
             : theme.palette.common.black,
         },
         '&:hover': {
+          borderTopLeftRadius: '0px',
+          borderBottomLeftRadius: '0px',
+          borderTopRightRadius: theme.shape.borderRadius(),
+          borderBottomRightRadius: theme.shape.borderRadius(),
           backgroundColor: landingPage
             ? 'rgba(248, 250, 250, 0.05)'
             : theme.palette.info.light,
