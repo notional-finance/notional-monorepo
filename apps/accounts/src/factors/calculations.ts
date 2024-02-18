@@ -21,6 +21,8 @@ const contestStart = 1704096000; // Jan 1
 const contestEnd = 1711350000; // March 25, Midnight
 export const currentContestId = 1;
 
+export const excludedAccounts = ['0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243'];
+
 const exchangeRates = {
   ETH: 2500,
   DAI: 1,
@@ -76,6 +78,9 @@ export function calculateAccountIRR(account: AccountDefinition) {
     )
     .reduce((p, c) => p + c, portfolioNetWorth + valueOfUnclaimedIncentives);
 
+  const hasLeverage = !!account.balances.find(
+    (t) => t.tokenType === 'VaultDebt' || t.isNegative()
+  );
   const cashFlows: CashFlow[] = (account.accountHistory || [])
     .filter((a) => contestStart < a.timestamp && a.timestamp < contestEnd)
     .sort((a, b) => a.timestamp - b.timestamp)
@@ -181,15 +186,18 @@ export function calculateAccountIRR(account: AccountDefinition) {
     }
   }
 
-  // console.log(cashFlows);
-  // console.log(allFlows);
-  // console.log(irr);
-  // console.log("NET DEPOSITS", irr, netDeposits);
+  // console.log(
+  //   allFlows
+  //     .map(({ date, amount }) => `${date.toISOString()},${amount}`)
+  //     .join('\n')
+  // );
+  // console.log('NET DEPOSITS', irr, netDeposits);
 
   return {
     irr,
     totalNetWorth,
     netDeposits,
     earnings: totalNetWorth - netDeposits,
+    hasLeverage,
   };
 }

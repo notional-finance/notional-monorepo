@@ -17,7 +17,11 @@ import {
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { BaseDO, MetricType } from '@notional-finance/durable-objects';
-import { calculateAccountIRR, currentContestId } from './factors/calculations';
+import {
+  calculateAccountIRR,
+  currentContestId,
+  excludedAccounts,
+} from './factors/calculations';
 import { Env } from '.';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
@@ -67,9 +71,9 @@ export class RegistryClientDO extends BaseDO<Env> {
         if (network === Network.All) continue;
         await this.checkAccountList(network);
         await this.checkTotalSupply(network);
-        await this.saveContestIRR(network, currentContestId);
         await this.saveYieldData(network);
         await this.checkDBMonitors(network);
+        await this.saveContestIRR(network, currentContestId);
       }
 
       return new Response('Ok', { status: 200 });
@@ -220,7 +224,8 @@ export class RegistryClientDO extends BaseDO<Env> {
     const participants = await this.getContestParticipants(contestId);
     const accounts = Registry.getAccountRegistry();
     const allContestants = participants
-      // .filter((a) => a.address === '0xdd83eaa1a66369ab09b2642a1a130287c4ad8e40')
+      // .filter((a) => a.address === '0x7c88b0345983c709426b3b0648bb10ba1a5fd8da')
+      .filter((a) => !excludedAccounts.includes(a.address))
       .map((p) => {
         try {
           const account = accounts.getLatestFromSubject(network, p.address);
@@ -233,7 +238,6 @@ export class RegistryClientDO extends BaseDO<Env> {
         }
       })
       .filter((_) => !!_);
-    // console.log(allContestants.filter(({ irr }) => !!irr && irr > 100));
 
     await this.putStorageKey(
       `${network}/accounts`,

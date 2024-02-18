@@ -9146,7 +9146,12 @@ export const AllAccountsDocument = gql`
         }
       }
     }
-    profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
+    profitLossLineItems(
+      where: {bundle_: {bundleName_in: ["Deposit", "Deposit and Transfer", "Withdraw", "Transfer Asset", "Transfer Incentive", "Transfer Secondary Incentive", "Vault Entry", "Vault Exit", "Vault Roll"]}}
+      first: 1000
+      orderBy: blockNumber
+      orderDirection: desc
+    ) {
       timestamp
       blockNumber
       transactionHash {
