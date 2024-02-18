@@ -3,9 +3,10 @@ import { LeveragedDashboard, DashboardHeader } from './components';
 
 export interface DashboardDataProps {
   title: string;
-  apy?: string;
+  apy: number;
   tvl: string;
   symbol: string;
+  routeCallback: () => void;
   hasPosition?: boolean;
   incentiveValue?: string;
   incentiveSymbol?: string;
@@ -19,6 +20,8 @@ export interface LeveragedDashboardProps {
     hasLeveragedPosition?: boolean;
     hasNegativePosition?: boolean;
   }[];
+  showNegativeYields?: boolean;
+  setShowNegativeYields?: (value: boolean) => void;
   isLoading?: boolean;
 }
 
@@ -34,18 +37,27 @@ export interface ProductDashboardProps {
     messageBoxText: any;
   };
   isLoading?: boolean;
+  showNegativeYields?: boolean;
+  setShowNegativeYields?: (value: boolean) => void;
 }
 
 export const ProductDashboard = ({
   productData,
   headerData,
+  showNegativeYields,
+  setShowNegativeYields,
 }: ProductDashboardProps) => {
   const theme = useTheme();
   const isLoading = productData.length === 0;
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
       <DashboardHeader headerData={headerData} />
-      <LeveragedDashboard productData={productData} isLoading={isLoading} />
+      <LeveragedDashboard
+        productData={productData}
+        isLoading={isLoading}
+        showNegativeYields={showNegativeYields}
+        setShowNegativeYields={setShowNegativeYields}
+      />
     </MainContainer>
   );
 };

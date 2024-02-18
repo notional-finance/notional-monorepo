@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   useAllVaults,
   useVaultHoldings,
@@ -6,63 +7,75 @@ import {
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { TokenIcon } from '@notional-finance/icons';
 import { Box, useTheme } from '@mui/material';
-import { ProductDashboardProps, InfoTooltip } from '@notional-finance/mui';
-import { Network } from '@notional-finance/util';
+import { useHistory } from 'react-router';
 import {
-  formatNumberAsPercent,
-  formatNumberAsAbbr,
-} from '@notional-finance/helpers';
+  ProductDashboardProps,
+  InfoTooltip,
+  DashboardDataProps,
+} from '@notional-finance/mui';
+import { Network } from '@notional-finance/util';
+import { formatNumberAsAbbr } from '@notional-finance/helpers';
 
 export const useVaultCards = (network: Network): ProductDashboardProps => {
   const theme = useTheme();
+  const history = useHistory();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
+  const [showNegativeYields, setShowNegativeYields] = useState(false);
+  const [hasNegativeApy, setHasNegativeApy] = useState(false);
   const {
     yields: { leveragedVaults },
     getMax,
   } = useAllMarkets(Network.ArbitrumOne);
 
-  const vaultDashBoardData = listedVaults.map(
-    ({ vaultAddress, name, primaryToken, vaultTVL }) => {
+  const allVaultData = listedVaults
+    .map(({ vaultAddress, name, primaryToken, vaultTVL }) => {
       const y = getMax(
         leveragedVaults.filter((y) => y.token.vaultAddress === vaultAddress)
       );
-
       const profile = vaultHoldings.find(
         (p) => p.vault.vaultAddress === vaultAddress
       )?.vault;
-
       const apy = profile?.totalAPY || y?.totalAPY || undefined;
 
       return {
         symbol: primaryToken.symbol,
         hasPosition: profile ? true : false,
         tvl: `TVL: ${vaultTVL ? formatNumberAsAbbr(vaultTVL.toFloat(), 0) : 0}`,
-        apy: apy ? formatNumberAsPercent(apy) : '',
+        apy: apy || 0,
         title: name,
-        incentiveSymbol: 'ARB',
-        incentiveValue: '12.40%',
         organicApyOnly: true,
+        routeCallback: () => history.push(`/vaults/${network}/${vaultAddress}`),
       };
-    }
+    })
+    .sort((a, b) => b.apy - a.apy);
+
+  const defaultVaultData = allVaultData.filter(
+    ({ hasPosition }) => !hasPosition
   );
 
-  const vaultPositions = vaultDashBoardData.filter(
-    ({ hasPosition, apy }) => !hasPosition && !apy.includes('-')
-  );
-  const userVaultPositions = vaultDashBoardData.filter(
+  const userVaultPositions = allVaultData.filter(
     ({ hasPosition }) => hasPosition
   );
-  const negativeVaultPositions = vaultDashBoardData.filter(({ apy }) =>
-    apy.includes('-')
-  );
+
+  const negativeApyCheck = (data: DashboardDataProps[]) => {
+    if (!showNegativeYields) {
+      return data.filter(({ apy }) => {
+        if (apy < 0 && !hasNegativeApy) {
+          setHasNegativeApy(true);
+        }
+        return apy > 0;
+      });
+    } else {
+      return data;
+    }
+  };
 
   const productData = [
     {
       sectionTitle: 'Recommended',
-      data: vaultPositions,
+      data: negativeApyCheck(defaultVaultData),
       hasLeveragedPosition: false,
-      hasNegativePosition: false,
     },
   ];
 
@@ -71,16 +84,6 @@ export const useVaultCards = (network: Network): ProductDashboardProps => {
       sectionTitle: 'Your position(s)',
       data: userVaultPositions,
       hasLeveragedPosition: true,
-      hasNegativePosition: false,
-    });
-  }
-
-  if (negativeVaultPositions.length > 0) {
-    productData.push({
-      sectionTitle: '',
-      data: negativeVaultPositions,
-      hasLeveragedPosition: false,
-      hasNegativePosition: true,
     });
   }
 
@@ -139,6 +142,8 @@ export const useVaultCards = (network: Network): ProductDashboardProps => {
 
   return {
     productData: vaultData,
+    setShowNegativeYields: hasNegativeApy ? setShowNegativeYields : undefined,
+    showNegativeYields: hasNegativeApy ? showNegativeYields : undefined,
     headerData,
   };
 };
