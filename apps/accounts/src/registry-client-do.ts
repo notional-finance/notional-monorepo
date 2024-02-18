@@ -19,6 +19,8 @@ import {
 import { BaseDO, MetricType } from '@notional-finance/durable-objects';
 import { calculateAccountIRR, currentContestId } from './factors/calculations';
 import { Env } from '.';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
 
 export class RegistryClientDO extends BaseDO<Env> {
   constructor(state: DurableObjectState, env: Env) {
@@ -63,11 +65,11 @@ export class RegistryClientDO extends BaseDO<Env> {
       // Now run all metrics jobs
       for (const network of this.env.SUPPORTED_NETWORKS) {
         if (network === Network.All) continue;
-        // await this.checkAccountList(network);
-        // await this.checkTotalSupply(network);
+        await this.checkAccountList(network);
+        await this.checkTotalSupply(network);
         await this.saveContestIRR(network, currentContestId);
-        // await this.saveYieldData(network);
-        // await this.checkDBMonitors(network);
+        await this.saveYieldData(network);
+        await this.checkDBMonitors(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -420,8 +422,56 @@ export class RegistryClientDO extends BaseDO<Env> {
         });
       }
     }
+    const data = (await Registry.getAnalyticsRegistry().getView(
+      network,
+      'ExternalLendingHistory'
+    )) as unknown as ExternalLendingHistoryQuery;
 
-    // TODO: Check the total supply of pCash minus pDebt equals the total underlying
+    for (const e of data.externalLendings) {
+      const underlyingHeld = TokenBalance.fromID(
+        e.underlyingSnapshot?.pop()?.storedBalanceOf || 0,
+        e.underlying.id,
+        network
+      );
+      const pCash = Registry.getTokenRegistry().getPrimeCash(
+        network,
+        underlyingHeld.currencyId
+      );
+      const pDebt = Registry.getTokenRegistry().getPrimeDebt(
+        network,
+        underlyingHeld.currencyId
+      );
+      if (!pCash.totalSupply || !pDebt.totalSupply)
+        throw Error(`Total Supply for ${underlyingHeld.symbol} not found`);
+
+      const expectedUnderlying = pCash.totalSupply
+        ?.toUnderlying()
+        .sub(pDebt.totalSupply?.toUnderlying());
+      if (expectedUnderlying.gt(underlyingHeld)) {
+        console.log(`
+            Prime Cash Invariant mismatch detected in ${underlyingHeld.symbol}
+            Total Prime Supply: ${pCash.totalSupply?.toString()}
+            Total Prime Debt: ${pDebt.totalSupply?.toString()}
+            Total Underlying Held: ${underlyingHeld.toString()}
+            Expected Underlying Held: ${expectedUnderlying.toString()}
+            `);
+        // await this.logger.submitEvent({
+        //   host: this.serviceName,
+        //   network,
+        //   aggregation_key: 'PrimeCashInvariant',
+        //   alert_type: 'error',
+        //   title: `Prime Cash Invariant: ${underlyingHeld.symbol}`,
+        //   tags: [network],
+        //   text: `
+        //     Prime Cash Invariant mismatch detected in ${underlyingHeld.symbol}
+        //     Total Prime Supply: ${pCash.totalSupply?.toString()}
+        //     Total Prime Debt: ${pDebt.totalSupply?.toString()}
+        //     Total Underlying Held: ${underlyingHeld.toString()}
+        //     Expected Underlying Held: ${expectedUnderlying.toString()}
+        //     `,
+        // });
+      }
+    }
   }
 
   private async checkDBMonitors(network: Network) {

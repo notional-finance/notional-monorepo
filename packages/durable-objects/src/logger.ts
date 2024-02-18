@@ -48,6 +48,7 @@ type DDEventKey =
   | 'TotalSupplyMismatch'
   | 'TotalSupplyMissing'
   | 'TotalBorrowCapacityMismatch'
+  | 'PrimeCashInvariant'
   | 'MonitoringCheckFailed'
   | 'MonitoringCheckLagging';
 

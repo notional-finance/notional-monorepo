@@ -54,11 +54,9 @@ export class ViewsDO extends BaseDO<APIEnv> {
   }
 
   async fetchGraphDocument(network: Network, doc: GraphDocument) {
-    const data = JSON.stringify(
-      await this.analytics.fetchGraphDocument(network, doc, {})
-    );
+    const { data } = await this.analytics.fetchGraphDocument(network, doc, {});
     const key = `${this.serviceName}/${network}/${doc.replace('Document', '')}`;
-    return this.putStorageKey(key, data);
+    if (data) return this.putStorageKey(key, JSON.stringify(data));
   }
 
   async fetchAllGraphViews(network: Network) {
