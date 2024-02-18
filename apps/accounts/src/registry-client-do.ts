@@ -63,11 +63,11 @@ export class RegistryClientDO extends BaseDO<Env> {
       // Now run all metrics jobs
       for (const network of this.env.SUPPORTED_NETWORKS) {
         if (network === Network.All) continue;
-        await this.checkAccountList(network);
-        await this.checkTotalSupply(network);
+        // await this.checkAccountList(network);
+        // await this.checkTotalSupply(network);
         await this.saveContestIRR(network, currentContestId);
-        await this.saveYieldData(network);
-        await this.checkDBMonitors(network);
+        // await this.saveYieldData(network);
+        // await this.checkDBMonitors(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -420,6 +420,8 @@ export class RegistryClientDO extends BaseDO<Env> {
         });
       }
     }
+
+    // TODO: Check the total supply of pCash minus pDebt equals the total underlying
   }
 
   private async checkDBMonitors(network: Network) {

@@ -1,0 +1,11 @@
+query ExternalLendingHistory {
+  externalLendings {
+    id
+    underlying { id }
+    underlyingSnapshot (orderBy: timestamp, orderDirection:desc, first: 300) {
+      timestamp
+      balanceOf
+      storedBalanceOf
+    }
+  }
+}
