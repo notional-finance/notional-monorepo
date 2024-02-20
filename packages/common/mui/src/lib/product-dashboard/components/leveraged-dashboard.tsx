@@ -1,5 +1,5 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { VaultCard } from './vault-card';
+import { LeveragedCard } from './leveraged-card';
 import { Caption, LinkText } from '../../typography/typography';
 import ProgressIndicator from '../../progress-indicator/progress-indicator';
 import { LeveragedDashboardProps } from '../product-dashboard';
@@ -51,13 +51,12 @@ export const LeveragedDashboard = ({
                       symbol,
                       hasPosition,
                       incentiveValue,
-                      organicApyOnly,
                       incentiveSymbol,
                     },
                     index
                   ) => (
                     <div key={index}>
-                      <VaultCard
+                      <LeveragedCard
                         key={index}
                         title={title}
                         routeCallback={routeCallback}
@@ -67,7 +66,6 @@ export const LeveragedDashboard = ({
                         hasPosition={hasPosition}
                         incentiveValue={incentiveValue}
                         incentiveSymbol={incentiveSymbol}
-                        organicApyOnly={organicApyOnly}
                       />
                     </div>
                   )
