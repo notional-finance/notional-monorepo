@@ -8,3 +8,4 @@ export * from './footer/footer';
 export * from './header/header';
 export * from './header/launch-app-button/launch-app-button';
 export * from './feature-loader/feature-loader';
+export * from './dashboard-view/dashboard-view';

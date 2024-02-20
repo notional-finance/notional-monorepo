@@ -44,7 +44,7 @@ const MessageBox = styled(Box)(
   padding: ${theme.spacing(1.5, 2)};
   border-radius: ${theme.shape.borderRadius()};
   ${theme.breakpoints.down('sm')} {
-    margin-top: ${theme.spacing(2)};
+    margin-top
   }
           `
 );

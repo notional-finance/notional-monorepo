@@ -4,7 +4,11 @@ import {
   useSanctionsBlock,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { FeatureLoader, TrackingConsent } from '@notional-finance/shared-web';
+import {
+  FeatureLoader,
+  TrackingConsent,
+  DashboardView,
+} from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
 import { Redirect, Route, Switch, useParams } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
@@ -38,12 +42,8 @@ import {
   LiquidityVariable,
   LiquidityVariableCardView,
   LiquidityLeveraged,
-  LiquidityLeveragedCardView,
 } from '@notional-finance/liquidity-feature-shell';
-import {
-  VaultView,
-  VaultCardView,
-} from '@notional-finance/vault-feature-shell';
+import { VaultView } from '@notional-finance/vault-feature-shell';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
@@ -153,7 +153,7 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/liquidity-leveraged/:selectedNetwork"
-            component={LiquidityLeveragedCardView}
+            component={DashboardView}
             routeType="Card"
           />
           <AppLayoutRoute
@@ -173,7 +173,7 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/vaults/:selectedNetwork"
-            component={VaultCardView}
+            component={DashboardView}
             routeType="Card"
           />
           <AppLayoutRoute
