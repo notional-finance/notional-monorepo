@@ -4,20 +4,17 @@ import {
   useVaultHoldings,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
-import { FormattedMessage, defineMessage } from 'react-intl';
-import { TokenIcon } from '@notional-finance/icons';
-import { Box, useTheme } from '@mui/material';
 import { useHistory } from 'react-router';
 import {
-  ProductDashboardProps,
-  InfoTooltip,
+  LeveragedDashboardProps,
   DashboardDataProps,
 } from '@notional-finance/mui';
 import { Network } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 
-export const useVaultCards = (network: Network): ProductDashboardProps => {
-  const theme = useTheme();
+export const useVaultDashboard = (
+  network: Network
+): LeveragedDashboardProps => {
   const history = useHistory();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
@@ -87,56 +84,6 @@ export const useVaultCards = (network: Network): ProductDashboardProps => {
     });
   }
 
-  // TODO: refactor this to use actual chain data when the mainnet is ready
-  const InfoComponent = () => {
-    return (
-      <Box
-        sx={{
-          fontSize: '14px',
-          display: 'flex',
-        }}
-      >
-        <Box
-          sx={{
-            background: theme.palette.background.paper,
-            position: 'absolute',
-            opacity: 0.5,
-            height: '20px',
-            width: '100px',
-          }}
-        ></Box>
-        <TokenIcon
-          symbol="eth"
-          size="small"
-          style={{ marginRight: theme.spacing(1) }}
-        />
-        Mainnet
-      </Box>
-    );
-  };
-
-  const headerData = {
-    toggleOptions: [
-      <Box sx={{ fontSize: '14px', display: 'flex' }}>
-        <TokenIcon
-          symbol="arb"
-          size="small"
-          style={{ marginRight: theme.spacing(1) }}
-        />
-        Arbitrum
-      </Box>,
-      <InfoTooltip
-        toolTipText={defineMessage({
-          defaultMessage: 'Mainnet coming soon',
-        })}
-        InfoComponent={InfoComponent}
-      />,
-    ],
-    messageBoxText: (
-      <FormattedMessage defaultMessage={'Native Token Yield not shown.'} />
-    ),
-  };
-
   const vaultData =
     leveragedVaults && leveragedVaults.length > 0 ? productData : [];
 
@@ -144,6 +91,5 @@ export const useVaultCards = (network: Network): ProductDashboardProps => {
     productData: vaultData,
     setShowNegativeYields: hasNegativeApy ? setShowNegativeYields : undefined,
     showNegativeYields: hasNegativeApy ? showNegativeYields : undefined,
-    headerData,
   };
 };
