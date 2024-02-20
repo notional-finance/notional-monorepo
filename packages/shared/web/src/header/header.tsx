@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Toolbar, Box, useTheme, ThemeProvider } from '@mui/material';
+import { Toolbar, Box, useTheme, ThemeProvider, styled } from '@mui/material';
 import { AppBar, AppBarProps, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
@@ -71,37 +71,17 @@ export function Header({ children }: HeaderProps) {
           <H4 to="/">
             <NotionalLogo />
           </H4>
-          <Box
-            sx={{
-              marginLeft: '60px',
-              flexGrow: 1,
-              height: '100%',
-              display: {
-                xs: 'none',
-                md: 'flex',
-              },
-            }}
-          >
+          <NavContainer>
             <Navigation navLinks={navLinks} />
-          </Box>
-          <Box
-            sx={{
-              flexGrow: 0,
-              height: '72px',
-              display: {
-                xs: 'none',
-                lg: 'flex',
-              },
-              alignItems: 'center',
-            }}
-          >
+          </NavContainer>
+          <AnalyticsContainer>
             {pathname === '/' && (
               <>
                 <AnalyticsDropdown />
                 <ResourcesDropdown />
               </>
             )}
-          </Box>
+          </AnalyticsContainer>
           <Box
             sx={{
               flexGrow: 1,
@@ -111,16 +91,7 @@ export function Header({ children }: HeaderProps) {
           >
             <MobileNavigation />
           </Box>
-          <Box
-            sx={{
-              flexGrow: 0,
-              display: {
-                xs: 'none',
-                md: 'flex',
-                lg: 'flex',
-              },
-            }}
-          >
+          <WalletContainer>
             {showContestNavLink && pathname !== '/' && (
               <Box
                 sx={{
@@ -148,7 +119,7 @@ export function Header({ children }: HeaderProps) {
               </Box>
             )}
             {children}
-          </Box>
+          </WalletContainer>
         </Toolbar>
         {hasSelectedChainError && (
           <Box
@@ -175,5 +146,39 @@ export function Header({ children }: HeaderProps) {
     </ThemeProvider>
   );
 }
+
+const NavContainer = styled(Box)(
+  ({ theme }) => `
+    margin-left: ${theme.spacing(7.5)};
+    flex-grow: 1;
+    height: 100%;
+    display: flex;
+    ${theme.breakpoints.down('sm')} {
+        display: none;
+    }
+      `
+);
+
+const WalletContainer = styled(Box)(
+  ({ theme }) => `
+    flex-grow: 0;
+    display: flex;
+    ${theme.breakpoints.down('sm')} {
+      display: none;
+    }
+      `
+);
+
+const AnalyticsContainer = styled(Box)(
+  ({ theme }) => `
+    flex-grow: 0;
+    height: ${theme.spacing(9)};
+    display: flex;
+    align-Items: center;
+    ${theme.breakpoints.down('sm')} {
+      display: none;
+    }
+      `
+);
 
 export default Header;

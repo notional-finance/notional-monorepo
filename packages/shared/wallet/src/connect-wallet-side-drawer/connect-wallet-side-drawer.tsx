@@ -28,7 +28,7 @@ export const ConnectWalletSideDrawer = () => {
   );
 
   return (
-    <>
+    <Container>
       <Box>
         <Title>
           {connected ? (
@@ -58,7 +58,7 @@ export const ConnectWalletSideDrawer = () => {
         })}
       </Box>
       {!pathname.includes('contest') && <ViewAsAccount />}
-    </>
+    </Container>
   );
 };
 
@@ -70,6 +70,15 @@ const Title = styled(LabelValue)(
   color: ${theme.palette.typography.light};
   display: flex;
   text-transform: uppercase;
+  `
+);
+
+const Container = styled(Box)(
+  ({ theme }) => `
+    padding: ${theme.spacing(2)};
+    ${theme.breakpoints.down('sm')} {
+      width: 100vw;
+    }
   `
 );
 
