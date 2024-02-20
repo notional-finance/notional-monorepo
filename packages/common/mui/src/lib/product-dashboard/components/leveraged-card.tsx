@@ -39,7 +39,7 @@ export const LeveragedCard = ({
           />
           <Box component="div" sx={{ textAlign: 'left', margin: 'auto' }}>
             <GridCardTitle>{symbol}</GridCardTitle>
-            <GridSubCard>{title}</GridSubCard>
+            <GridCardSubTitle>{title}</GridCardSubTitle>
           </Box>
         </Box>
 
@@ -142,7 +142,7 @@ const GridCardApy = styled(CurrencyTitle)(
         `
 );
 
-const GridSubCard = styled('span')(
+const GridCardSubTitle = styled('span')(
   ({ theme }) => `
       font-size: 12px;
       font-style: normal;
