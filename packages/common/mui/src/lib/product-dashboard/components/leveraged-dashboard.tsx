@@ -21,7 +21,7 @@ export const LeveragedDashboard = ({
 
   return (
     <Box sx={{ marginTop: isLoading ? theme.spacing(7.5) : '0px' }}>
-      {!isLoading ? (
+      {!isLoading && productData !== undefined ? (
         productData.map(
           ({ sectionTitle, data, hasLeveragedPosition }, index) => (
             <Container

@@ -13,7 +13,7 @@ export interface DashboardDataProps {
 }
 
 export interface LeveragedDashboardProps {
-  productData: {
+  productData?: {
     sectionTitle?: string;
     data: DashboardDataProps[];
     hasLeveragedPosition?: boolean;
@@ -25,19 +25,19 @@ export interface LeveragedDashboardProps {
 }
 
 export interface ProductDashboardProps {
-  productData: {
+  productData?: {
     sectionTitle?: string;
     data: DashboardDataProps[];
     hasLeveragedPosition?: boolean;
     hasNegativePosition?: boolean;
   }[];
+  isLoading?: boolean;
+  showNegativeYields?: boolean;
+  setShowNegativeYields?: (value: boolean) => void;
   headerData: {
     toggleOptions: React.ReactNode[];
     messageBoxText: any;
   };
-  isLoading?: boolean;
-  showNegativeYields?: boolean;
-  setShowNegativeYields?: (value: boolean) => void;
 }
 
 export const ProductDashboard = ({
@@ -47,7 +47,7 @@ export const ProductDashboard = ({
   setShowNegativeYields,
 }: ProductDashboardProps) => {
   const theme = useTheme();
-  const isLoading = productData.length === 0;
+  const isLoading = productData === undefined || productData.length === 0;
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
       <DashboardHeader headerData={headerData} />
