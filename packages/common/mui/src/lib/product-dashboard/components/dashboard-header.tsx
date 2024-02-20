@@ -26,6 +26,10 @@ const HeaderContainer = styled(Box)(
     justify-content: space-between;
     border-bottom: ${theme.shape.borderStandard};
     padding: ${theme.spacing(3)};
+    ${theme.breakpoints.down('sm')} {
+      flex-direction: column;  
+      align-items: start;
+    }
           `
 );
 
@@ -39,6 +43,9 @@ const MessageBox = styled(Box)(
   background: ${theme.palette.background.default};
   padding: ${theme.spacing(1.5, 2)};
   border-radius: ${theme.shape.borderRadius()};
+  ${theme.breakpoints.down('sm')} {
+    margin-top: ${theme.spacing(2)};
+  }
           `
 );
 

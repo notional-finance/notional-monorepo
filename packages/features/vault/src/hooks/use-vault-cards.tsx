@@ -44,7 +44,6 @@ export const useVaultCards = (network: Network): ProductDashboardProps => {
         tvl: `TVL: ${vaultTVL ? formatNumberAsAbbr(vaultTVL.toFloat(), 0) : 0}`,
         apy: apy || 0,
         title: name,
-        organicApyOnly: true,
         routeCallback: () => history.push(`/vaults/${network}/${vaultAddress}`),
       };
     })
@@ -73,7 +72,7 @@ export const useVaultCards = (network: Network): ProductDashboardProps => {
 
   const productData = [
     {
-      sectionTitle: 'Recommended',
+      sectionTitle: '',
       data: negativeApyCheck(defaultVaultData),
       hasLeveragedPosition: false,
     },
@@ -81,7 +80,8 @@ export const useVaultCards = (network: Network): ProductDashboardProps => {
 
   if (userVaultPositions.length > 0) {
     productData.unshift({
-      sectionTitle: 'Your position(s)',
+      sectionTitle:
+        userVaultPositions.length === 1 ? 'Your position' : 'Your positions',
       data: userVaultPositions,
       hasLeveragedPosition: true,
     });

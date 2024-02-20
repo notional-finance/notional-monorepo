@@ -10,7 +10,6 @@ export interface DashboardDataProps {
   hasPosition?: boolean;
   incentiveValue?: string;
   incentiveSymbol?: string;
-  organicApyOnly?: boolean;
 }
 
 export interface LeveragedDashboardProps {
