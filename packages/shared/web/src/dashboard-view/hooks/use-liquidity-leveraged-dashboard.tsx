@@ -24,17 +24,21 @@ export const useLiquidityLeveragedDashboard = (
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
   const allMaxAPYs = useMaxYield(network);
 
-  console.log(depositTokensWithPositions);
+  console.log({ leveragedLiquidity });
 
   const allData = leveragedLiquidity
     .filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt')
     .map((y) => {
+      console.log({ y });
       return {
         ...y,
         symbol: y.underlying.symbol,
         title: y.underlying.symbol,
+        subTitle: `TVL: ${y.tvl ? formatNumberAsAbbr(y.tvl.toFloat(), 0) : 0}`,
         hasPosition: depositTokensWithPositions.includes(y.underlying.symbol),
-        tvl: `TVL: ${y.tvl ? formatNumberAsAbbr(y.tvl.toFloat(), 0) : 0}`,
+        bottomValue: ``,
+        incentiveValue: '12.00%',
+        incentiveSymbol: 'ARB',
         apy:
           allMaxAPYs.find((m) => m.token.currencyId === y.token.currencyId)
             ?.totalAPY || 0,

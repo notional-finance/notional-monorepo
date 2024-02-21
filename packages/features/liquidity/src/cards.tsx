@@ -20,10 +20,6 @@ import {
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { useSelectedNetwork } from '@notional-finance/wallet';
 import { useNotionalTheme } from '@notional-finance/styles';
-import {
-  useLeveragedNTokenPositions,
-  useMaxYield,
-} from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
@@ -221,53 +217,6 @@ export const LiquidityVariableCardView = () => {
           'https://docs.notional.finance/notional-v3/product-guides/providing-liquidity',
       }}
       routePath={`${PRODUCTS.LIQUIDITY_VARIABLE}/${network}`}
-    />
-  );
-};
-
-export const LiquidityLeveragedCardView = () => {
-  const network = useSelectedNetwork();
-  const {
-    yields: { leveragedLiquidity },
-  } = useAllMarkets(network);
-  const { depositTokensWithPositions } = useLeveragedNTokenPositions(network);
-  const allMaxAPYs = useMaxYield(network);
-
-  // These are the default yields using prime debt
-  const cardData = leveragedLiquidity
-    .filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt')
-    .map((y) => {
-      return {
-        ...y,
-        hasPosition: depositTokensWithPositions.includes(y.underlying.symbol),
-        maxAPY: allMaxAPYs.find(
-          (m) => m.token.currencyId === y.token.currencyId
-        )?.totalAPY,
-      };
-    });
-
-  return (
-    <LiquidityCardView
-      cardData={cardData}
-      messages={{
-        heading: defineMessage({
-          defaultMessage: 'Leveraged Liquidity',
-          description: 'page heading',
-        }),
-        subtitle: defineMessage({
-          defaultMessage: `Multiply your returns returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.
-              `,
-          description: 'page heading subtitle',
-        }),
-        linkText: defineMessage({
-          defaultMessage: 'Read leveraged liquidity docs',
-          description: 'docs link',
-        }),
-        docsLink:
-          'https://docs.notional.finance/notional-v3/product-guides/leveraged-liquidity',
-      }}
-      routePath={`${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}`}
-      isLeveraged
     />
   );
 };
