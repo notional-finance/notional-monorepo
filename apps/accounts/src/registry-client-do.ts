@@ -17,8 +17,14 @@ import {
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { BaseDO, MetricType } from '@notional-finance/durable-objects';
-import { calculateAccountIRR, currentContestId } from './factors/calculations';
+import {
+  calculateAccountIRR,
+  currentContestId,
+  excludedAccounts,
+} from './factors/calculations';
 import { Env } from '.';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
 
 export class RegistryClientDO extends BaseDO<Env> {
   constructor(state: DurableObjectState, env: Env) {
@@ -65,9 +71,9 @@ export class RegistryClientDO extends BaseDO<Env> {
         if (network === Network.All) continue;
         await this.checkAccountList(network);
         await this.checkTotalSupply(network);
-        await this.saveContestIRR(network, currentContestId);
         await this.saveYieldData(network);
         await this.checkDBMonitors(network);
+        await this.saveContestIRR(network, currentContestId);
       }
 
       return new Response('Ok', { status: 200 });
@@ -218,6 +224,8 @@ export class RegistryClientDO extends BaseDO<Env> {
     const participants = await this.getContestParticipants(contestId);
     const accounts = Registry.getAccountRegistry();
     const allContestants = participants
+      // .filter((a) => a.address === '0x7c88b0345983c709426b3b0648bb10ba1a5fd8da')
+      .filter((a) => !excludedAccounts.includes(a.address))
       .map((p) => {
         try {
           const account = accounts.getLatestFromSubject(network, p.address);
@@ -418,6 +426,50 @@ export class RegistryClientDO extends BaseDO<Env> {
         });
       }
     }
+    const data = (await Registry.getAnalyticsRegistry().getView(
+      network,
+      'ExternalLendingHistory'
+    )) as unknown as ExternalLendingHistoryQuery;
+
+    for (const e of data.externalLendings) {
+      const underlyingHeld = TokenBalance.fromID(
+        // Takes the most recent underlying snapshot
+        e.underlyingSnapshots?.shift()?.storedBalanceOf || 0,
+        e.underlying.id,
+        network
+      );
+      const pCash = Registry.getTokenRegistry().getPrimeCash(
+        network,
+        underlyingHeld.currencyId
+      );
+      const pDebt = Registry.getTokenRegistry().getPrimeDebt(
+        network,
+        underlyingHeld.currencyId
+      );
+      if (!pCash.totalSupply || !pDebt.totalSupply)
+        throw Error(`Total Supply for ${underlyingHeld.symbol} not found`);
+
+      const expectedUnderlying = pCash.totalSupply
+        ?.toUnderlying()
+        .sub(pDebt.totalSupply?.toUnderlying());
+      if (expectedUnderlying.gt(underlyingHeld)) {
+        await this.logger.submitEvent({
+          host: this.serviceName,
+          network,
+          aggregation_key: 'PrimeCashInvariant',
+          alert_type: 'error',
+          title: `Prime Cash Invariant: ${underlyingHeld.symbol}`,
+          tags: [network],
+          text: `
+            Prime Cash Invariant mismatch detected in ${underlyingHeld.symbol}
+            Total Prime Supply: ${pCash.totalSupply?.toString()}
+            Total Prime Debt: ${pDebt.totalSupply?.toString()}
+            Total Underlying Held: ${underlyingHeld.toString()}
+            Expected Underlying Held: ${expectedUnderlying.toString()}
+            `,
+        });
+      }
+    }
   }
 
   private async checkDBMonitors(network: Network) {
@@ -427,8 +479,7 @@ export class RegistryClientDO extends BaseDO<Env> {
       'monitoring_fcash_rates',
       'monitoring_ntoken_value',
       'monitoring_pcash_and_pdebt_exchange_rate_monotonicity',
-      'monitoring_pcash_balances',
-      'monitoring_tvl',
+      // 'monitoring_tvl', Turned off temporarily
       'monitoring_vault_share_value',
       'monitoring_vault_reinvestments',
     ];

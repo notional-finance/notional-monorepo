@@ -17,9 +17,11 @@ import {
 import { calculateAccruedIncentives } from '@notional-finance/notionable/global/account/incentives';
 import initialValue from './initialValue.json';
 
-const contestStart = 1704096000;
+const contestStart = 1704096000; // Jan 1
 const contestEnd = 1711350000; // March 25, Midnight
 export const currentContestId = 1;
+
+export const excludedAccounts = ['0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243'];
 
 const exchangeRates = {
   ETH: 2500,
@@ -76,6 +78,9 @@ export function calculateAccountIRR(account: AccountDefinition) {
     )
     .reduce((p, c) => p + c, portfolioNetWorth + valueOfUnclaimedIncentives);
 
+  const hasLeverage = !!account.balances.find(
+    (t) => t.tokenType === 'VaultDebt' || t.isNegative()
+  );
   const cashFlows: CashFlow[] = (account.accountHistory || [])
     .filter((a) => contestStart < a.timestamp && a.timestamp < contestEnd)
     .sort((a, b) => a.timestamp - b.timestamp)
@@ -167,8 +172,9 @@ export function calculateAccountIRR(account: AccountDefinition) {
     getNowSeconds() * 1000 -
     Math.min(...allFlows.map(({ date }) => date.getTime()));
 
-  let irr = 0;
-  if (msSinceFirstDeposit > 15 * ONE_MINUTE_MS && Math.abs(netDeposits) < 10) {
+  let irr = null;
+  // Enforce a $10 minimum deposit, otherwise the IRR will be null
+  if (msSinceFirstDeposit > 15 * ONE_MINUTE_MS && Math.abs(netDeposits) > 10) {
     try {
       irr = xirr(allFlows);
     } catch (e) {
@@ -180,10 +186,18 @@ export function calculateAccountIRR(account: AccountDefinition) {
     }
   }
 
+  // console.log(
+  //   allFlows
+  //     .map(({ date, amount }) => `${date.toISOString()},${amount}`)
+  //     .join('\n')
+  // );
+  // console.log('NET DEPOSITS', irr, netDeposits);
+
   return {
     irr,
     totalNetWorth,
     netDeposits,
-    earnings: totalNetWorth + netDeposits,
+    earnings: totalNetWorth - netDeposits,
+    hasLeverage,
   };
 }

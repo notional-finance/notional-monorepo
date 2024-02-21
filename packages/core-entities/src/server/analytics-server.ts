@@ -25,6 +25,12 @@ import {
 } from '@notional-finance/util';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { BigNumber } from 'ethers';
+import { ExecutionResult } from 'graphql';
+
+export type GraphDocument = keyof Omit<
+  Awaited<ReturnType<typeof loadGraphClientDeferred>>,
+  'execute'
+>;
 
 const USE_CROSS_FETCH =
   process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
@@ -209,7 +215,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
     const vaults = await Promise.all(
       whitelistedVaults(network).map(async (vaultAddress) => {
-        const r = await this._fetchView(network, vaultAddress);
+        const r = await this.fetchView(network, vaultAddress);
         const data = r.map((p) => {
           return {
             vaultAddress,
@@ -252,7 +258,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
   }
 
   protected async _refreshAllNetwork() {
-    const flatData = await this._fetchView(
+    const flatData = await this.fetchView(
       Network.All,
       'historical_oracle_values'
     );
@@ -294,10 +300,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     } as CacheSchema<unknown>;
   }
 
-  protected async _fetchView(
-    network: Network,
-    view: string
-  ): Promise<AnalyticsData> {
+  async fetchView(network: Network, view: string): Promise<AnalyticsData> {
     const _fetch = USE_CROSS_FETCH ? crossFetch : fetch;
     const cacheUrl = `${this.dataServiceURL}/query?network=${network}&view=${view}`;
     const result = await _fetch(cacheUrl, {
@@ -308,6 +311,17 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     const body = await result.text();
     if (result.status !== 200) throw Error(`Failed Request: ${body}`);
     return JSON.parse(body);
+  }
+
+  async fetchGraphDocument<T = unknown>(
+    network: Network,
+    document: GraphDocument,
+    variables: Record<string, string | number>
+  ): Promise<ExecutionResult<T>> {
+    const { execute, ...documents } = await loadGraphClientDeferred();
+    const doc = documents[document];
+    // NOTE: this does not paginate
+    return await execute(doc, variables, { chainName: network });
   }
 
   private _convertOrNull<T>(v: string | number | null, fn: (d: number) => T) {

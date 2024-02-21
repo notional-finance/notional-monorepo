@@ -361,6 +361,10 @@ export type ActiveMarket_orderBy =
   | 'pCashMarket__lastUpdateTimestamp'
   | 'fCashMarkets';
 
+export type Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type Balance = {
   /** Account:Token ID */
   id: Scalars['ID'];
@@ -907,10 +911,6 @@ export type CurrencyConfiguration = {
   treasuryReserveBuffer?: Maybe<Scalars['BigInt']>;
   /** Addresses of potential prime cash holdings */
   primeCashHoldings?: Maybe<Array<Scalars['Bytes']>>;
-  /** Rebalancing targets */
-  rebalancingTargets?: Maybe<Array<Scalars['Int']>>;
-  /** Rebalancing cooldown */
-  rebalancingCooldown?: Maybe<Scalars['Int']>;
   /** Proportion of deposits that go into each corresponding market */
   depositShares?: Maybe<Array<Scalars['Int']>>;
   /** Maximum market proportion that the nToken will provide liquidity at */
@@ -931,6 +931,7 @@ export type CurrencyConfiguration = {
   /** Maximum valuation deviation percentage for nToken minting */
   maxMintDeviationPercentage?: Maybe<Scalars['Int']>;
   incentives?: Maybe<Incentive>;
+  externalLending?: Maybe<ExternalLending>;
 };
 
 
@@ -1224,20 +1225,6 @@ export type CurrencyConfiguration_filter = {
   primeCashHoldings_contains_nocase?: InputMaybe<Array<Scalars['Bytes']>>;
   primeCashHoldings_not_contains?: InputMaybe<Array<Scalars['Bytes']>>;
   primeCashHoldings_not_contains_nocase?: InputMaybe<Array<Scalars['Bytes']>>;
-  rebalancingTargets?: InputMaybe<Array<Scalars['Int']>>;
-  rebalancingTargets_not?: InputMaybe<Array<Scalars['Int']>>;
-  rebalancingTargets_contains?: InputMaybe<Array<Scalars['Int']>>;
-  rebalancingTargets_contains_nocase?: InputMaybe<Array<Scalars['Int']>>;
-  rebalancingTargets_not_contains?: InputMaybe<Array<Scalars['Int']>>;
-  rebalancingTargets_not_contains_nocase?: InputMaybe<Array<Scalars['Int']>>;
-  rebalancingCooldown?: InputMaybe<Scalars['Int']>;
-  rebalancingCooldown_not?: InputMaybe<Scalars['Int']>;
-  rebalancingCooldown_gt?: InputMaybe<Scalars['Int']>;
-  rebalancingCooldown_lt?: InputMaybe<Scalars['Int']>;
-  rebalancingCooldown_gte?: InputMaybe<Scalars['Int']>;
-  rebalancingCooldown_lte?: InputMaybe<Scalars['Int']>;
-  rebalancingCooldown_in?: InputMaybe<Array<Scalars['Int']>>;
-  rebalancingCooldown_not_in?: InputMaybe<Array<Scalars['Int']>>;
   depositShares?: InputMaybe<Array<Scalars['Int']>>;
   depositShares_not?: InputMaybe<Array<Scalars['Int']>>;
   depositShares_contains?: InputMaybe<Array<Scalars['Int']>>;
@@ -1311,6 +1298,7 @@ export type CurrencyConfiguration_filter = {
   maxMintDeviationPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
   maxMintDeviationPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
   incentives_?: InputMaybe<Incentive_filter>;
+  externalLending_?: InputMaybe<ExternalLending_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<CurrencyConfiguration_filter>>>;
@@ -1418,8 +1406,6 @@ export type CurrencyConfiguration_orderBy =
   | 'fCashNextCurves'
   | 'treasuryReserveBuffer'
   | 'primeCashHoldings'
-  | 'rebalancingTargets'
-  | 'rebalancingCooldown'
   | 'depositShares'
   | 'leverageThresholds'
   | 'proportions'
@@ -1447,7 +1433,12 @@ export type CurrencyConfiguration_orderBy =
   | 'incentives__accumulatedSecondaryRewardPerNToken'
   | 'incentives__lastSecondaryAccumulatedTime'
   | 'incentives__secondaryEmissionRate'
-  | 'incentives__secondaryRewardEndTime';
+  | 'incentives__secondaryRewardEndTime'
+  | 'externalLending'
+  | 'externalLending__id'
+  | 'externalLending__lastUpdateBlockNumber'
+  | 'externalLending__lastUpdateTimestamp'
+  | 'externalLending__protocolRevenueAllTime';
 
 export type DEX =
   | '_UNUSED'
@@ -1581,6 +1572,530 @@ export type ExchangeRate_orderBy =
   | 'oracle__matured'
   | 'rate'
   | 'totalSupply';
+
+export type ExternalLending = {
+  /** Currency ID */
+  id: Scalars['ID'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
+  lastUpdateTimestamp: Scalars['Int'];
+  currencyConfiguration: CurrencyConfiguration;
+  /** Reference to the underlying token */
+  underlying: Token;
+  /** Accumulate the revenue from snapshots */
+  protocolRevenueAllTime: Scalars['BigInt'];
+  currentExternal?: Maybe<ExternalLendingSnapshot>;
+  externalSnapshots?: Maybe<Array<ExternalLendingSnapshot>>;
+  currentUnderlying: UnderlyingSnapshot;
+  underlyingSnapshots?: Maybe<Array<UnderlyingSnapshot>>;
+};
+
+
+export type ExternalLendingexternalSnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ExternalLendingSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ExternalLendingSnapshot_filter>;
+};
+
+
+export type ExternalLendingunderlyingSnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<UnderlyingSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<UnderlyingSnapshot_filter>;
+};
+
+export type ExternalLendingSnapshot = {
+  /** CurrencyID:ExternalLendingToken:Block Number */
+  id: Scalars['ID'];
+  blockNumber: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  transactionHash: Scalars['Bytes'];
+  /** Reference to the parent object */
+  externalLending: ExternalLending;
+  prevSnapshot?: Maybe<ExternalLendingSnapshot>;
+  /** Reference to the external lending token, this may change over time so referenced inside the snapshot */
+  externalLendingToken: Token;
+  /** Direct balanceOf the external lending token held by the contract */
+  balanceOf: Scalars['BigInt'];
+  /** Direct balanceOf the external lending token in underlying of held by the contract */
+  balanceOfUnderlying: Scalars['BigInt'];
+  /** Stored balanceOf of the external lending token held by the contract */
+  storedBalanceOf: Scalars['BigInt'];
+  /** Stored balanceOf in underlying of the external lending held by the contract */
+  storedBalanceOfUnderlying: Scalars['BigInt'];
+  /** Lending revenue accrued to protocol */
+  protocolRevenueSinceLastSnapshot: Scalars['BigInt'];
+  /** Updated when protocol interest has been harvested */
+  protocolInterestHarvested: Scalars['BigInt'];
+  /** Target time between rebalance calls */
+  cooldownTime: Scalars['Int'];
+  /** Required threshold to withdraw from external lending protocol */
+  withdrawThreshold: Scalars['Int'];
+  /** Target utilization for external lending */
+  targetUtilization: Scalars['Int'];
+  /** Current utilization of the market at the snapshot */
+  currentUtilization: Scalars['Int'];
+  /** Amount in underlying available to withdraw of the holding from the external market */
+  holdingAvailableToWithdraw: Scalars['BigInt'];
+};
+
+export type ExternalLendingSnapshot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactionHash?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  externalLending?: InputMaybe<Scalars['String']>;
+  externalLending_not?: InputMaybe<Scalars['String']>;
+  externalLending_gt?: InputMaybe<Scalars['String']>;
+  externalLending_lt?: InputMaybe<Scalars['String']>;
+  externalLending_gte?: InputMaybe<Scalars['String']>;
+  externalLending_lte?: InputMaybe<Scalars['String']>;
+  externalLending_in?: InputMaybe<Array<Scalars['String']>>;
+  externalLending_not_in?: InputMaybe<Array<Scalars['String']>>;
+  externalLending_contains?: InputMaybe<Scalars['String']>;
+  externalLending_contains_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_not_contains?: InputMaybe<Scalars['String']>;
+  externalLending_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_starts_with?: InputMaybe<Scalars['String']>;
+  externalLending_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_not_starts_with?: InputMaybe<Scalars['String']>;
+  externalLending_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_ends_with?: InputMaybe<Scalars['String']>;
+  externalLending_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_not_ends_with?: InputMaybe<Scalars['String']>;
+  externalLending_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_?: InputMaybe<ExternalLending_filter>;
+  prevSnapshot?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not?: InputMaybe<Scalars['String']>;
+  prevSnapshot_gt?: InputMaybe<Scalars['String']>;
+  prevSnapshot_lt?: InputMaybe<Scalars['String']>;
+  prevSnapshot_gte?: InputMaybe<Scalars['String']>;
+  prevSnapshot_lte?: InputMaybe<Scalars['String']>;
+  prevSnapshot_in?: InputMaybe<Array<Scalars['String']>>;
+  prevSnapshot_not_in?: InputMaybe<Array<Scalars['String']>>;
+  prevSnapshot_contains?: InputMaybe<Scalars['String']>;
+  prevSnapshot_contains_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_contains?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_starts_with?: InputMaybe<Scalars['String']>;
+  prevSnapshot_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_starts_with?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_ends_with?: InputMaybe<Scalars['String']>;
+  prevSnapshot_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_ends_with?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_?: InputMaybe<ExternalLendingSnapshot_filter>;
+  externalLendingToken?: InputMaybe<Scalars['String']>;
+  externalLendingToken_not?: InputMaybe<Scalars['String']>;
+  externalLendingToken_gt?: InputMaybe<Scalars['String']>;
+  externalLendingToken_lt?: InputMaybe<Scalars['String']>;
+  externalLendingToken_gte?: InputMaybe<Scalars['String']>;
+  externalLendingToken_lte?: InputMaybe<Scalars['String']>;
+  externalLendingToken_in?: InputMaybe<Array<Scalars['String']>>;
+  externalLendingToken_not_in?: InputMaybe<Array<Scalars['String']>>;
+  externalLendingToken_contains?: InputMaybe<Scalars['String']>;
+  externalLendingToken_contains_nocase?: InputMaybe<Scalars['String']>;
+  externalLendingToken_not_contains?: InputMaybe<Scalars['String']>;
+  externalLendingToken_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  externalLendingToken_starts_with?: InputMaybe<Scalars['String']>;
+  externalLendingToken_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLendingToken_not_starts_with?: InputMaybe<Scalars['String']>;
+  externalLendingToken_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLendingToken_ends_with?: InputMaybe<Scalars['String']>;
+  externalLendingToken_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLendingToken_not_ends_with?: InputMaybe<Scalars['String']>;
+  externalLendingToken_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLendingToken_?: InputMaybe<Token_filter>;
+  balanceOf?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_not?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_gt?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_lt?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_gte?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_lte?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balanceOf_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balanceOfUnderlying?: InputMaybe<Scalars['BigInt']>;
+  balanceOfUnderlying_not?: InputMaybe<Scalars['BigInt']>;
+  balanceOfUnderlying_gt?: InputMaybe<Scalars['BigInt']>;
+  balanceOfUnderlying_lt?: InputMaybe<Scalars['BigInt']>;
+  balanceOfUnderlying_gte?: InputMaybe<Scalars['BigInt']>;
+  balanceOfUnderlying_lte?: InputMaybe<Scalars['BigInt']>;
+  balanceOfUnderlying_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balanceOfUnderlying_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  storedBalanceOf?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_not?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_gt?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_lt?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_gte?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_lte?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  storedBalanceOf_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  storedBalanceOfUnderlying?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOfUnderlying_not?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOfUnderlying_gt?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOfUnderlying_lt?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOfUnderlying_gte?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOfUnderlying_lte?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOfUnderlying_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  storedBalanceOfUnderlying_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  protocolRevenueSinceLastSnapshot?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueSinceLastSnapshot_not?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueSinceLastSnapshot_gt?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueSinceLastSnapshot_lt?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueSinceLastSnapshot_gte?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueSinceLastSnapshot_lte?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueSinceLastSnapshot_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  protocolRevenueSinceLastSnapshot_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  protocolInterestHarvested?: InputMaybe<Scalars['BigInt']>;
+  protocolInterestHarvested_not?: InputMaybe<Scalars['BigInt']>;
+  protocolInterestHarvested_gt?: InputMaybe<Scalars['BigInt']>;
+  protocolInterestHarvested_lt?: InputMaybe<Scalars['BigInt']>;
+  protocolInterestHarvested_gte?: InputMaybe<Scalars['BigInt']>;
+  protocolInterestHarvested_lte?: InputMaybe<Scalars['BigInt']>;
+  protocolInterestHarvested_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  protocolInterestHarvested_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  cooldownTime?: InputMaybe<Scalars['Int']>;
+  cooldownTime_not?: InputMaybe<Scalars['Int']>;
+  cooldownTime_gt?: InputMaybe<Scalars['Int']>;
+  cooldownTime_lt?: InputMaybe<Scalars['Int']>;
+  cooldownTime_gte?: InputMaybe<Scalars['Int']>;
+  cooldownTime_lte?: InputMaybe<Scalars['Int']>;
+  cooldownTime_in?: InputMaybe<Array<Scalars['Int']>>;
+  cooldownTime_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  withdrawThreshold?: InputMaybe<Scalars['Int']>;
+  withdrawThreshold_not?: InputMaybe<Scalars['Int']>;
+  withdrawThreshold_gt?: InputMaybe<Scalars['Int']>;
+  withdrawThreshold_lt?: InputMaybe<Scalars['Int']>;
+  withdrawThreshold_gte?: InputMaybe<Scalars['Int']>;
+  withdrawThreshold_lte?: InputMaybe<Scalars['Int']>;
+  withdrawThreshold_in?: InputMaybe<Array<Scalars['Int']>>;
+  withdrawThreshold_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  targetUtilization?: InputMaybe<Scalars['Int']>;
+  targetUtilization_not?: InputMaybe<Scalars['Int']>;
+  targetUtilization_gt?: InputMaybe<Scalars['Int']>;
+  targetUtilization_lt?: InputMaybe<Scalars['Int']>;
+  targetUtilization_gte?: InputMaybe<Scalars['Int']>;
+  targetUtilization_lte?: InputMaybe<Scalars['Int']>;
+  targetUtilization_in?: InputMaybe<Array<Scalars['Int']>>;
+  targetUtilization_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  currentUtilization?: InputMaybe<Scalars['Int']>;
+  currentUtilization_not?: InputMaybe<Scalars['Int']>;
+  currentUtilization_gt?: InputMaybe<Scalars['Int']>;
+  currentUtilization_lt?: InputMaybe<Scalars['Int']>;
+  currentUtilization_gte?: InputMaybe<Scalars['Int']>;
+  currentUtilization_lte?: InputMaybe<Scalars['Int']>;
+  currentUtilization_in?: InputMaybe<Array<Scalars['Int']>>;
+  currentUtilization_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  holdingAvailableToWithdraw?: InputMaybe<Scalars['BigInt']>;
+  holdingAvailableToWithdraw_not?: InputMaybe<Scalars['BigInt']>;
+  holdingAvailableToWithdraw_gt?: InputMaybe<Scalars['BigInt']>;
+  holdingAvailableToWithdraw_lt?: InputMaybe<Scalars['BigInt']>;
+  holdingAvailableToWithdraw_gte?: InputMaybe<Scalars['BigInt']>;
+  holdingAvailableToWithdraw_lte?: InputMaybe<Scalars['BigInt']>;
+  holdingAvailableToWithdraw_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  holdingAvailableToWithdraw_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<ExternalLendingSnapshot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<ExternalLendingSnapshot_filter>>>;
+};
+
+export type ExternalLendingSnapshot_orderBy =
+  | 'id'
+  | 'blockNumber'
+  | 'timestamp'
+  | 'transactionHash'
+  | 'externalLending'
+  | 'externalLending__id'
+  | 'externalLending__lastUpdateBlockNumber'
+  | 'externalLending__lastUpdateTimestamp'
+  | 'externalLending__protocolRevenueAllTime'
+  | 'prevSnapshot'
+  | 'prevSnapshot__id'
+  | 'prevSnapshot__blockNumber'
+  | 'prevSnapshot__timestamp'
+  | 'prevSnapshot__transactionHash'
+  | 'prevSnapshot__balanceOf'
+  | 'prevSnapshot__balanceOfUnderlying'
+  | 'prevSnapshot__storedBalanceOf'
+  | 'prevSnapshot__storedBalanceOfUnderlying'
+  | 'prevSnapshot__protocolRevenueSinceLastSnapshot'
+  | 'prevSnapshot__protocolInterestHarvested'
+  | 'prevSnapshot__cooldownTime'
+  | 'prevSnapshot__withdrawThreshold'
+  | 'prevSnapshot__targetUtilization'
+  | 'prevSnapshot__currentUtilization'
+  | 'prevSnapshot__holdingAvailableToWithdraw'
+  | 'externalLendingToken'
+  | 'externalLendingToken__id'
+  | 'externalLendingToken__firstUpdateBlockNumber'
+  | 'externalLendingToken__firstUpdateTimestamp'
+  | 'externalLendingToken__firstUpdateTransactionHash'
+  | 'externalLendingToken__lastUpdateBlockNumber'
+  | 'externalLendingToken__lastUpdateTimestamp'
+  | 'externalLendingToken__lastUpdateTransactionHash'
+  | 'externalLendingToken__tokenType'
+  | 'externalLendingToken__tokenInterface'
+  | 'externalLendingToken__currencyId'
+  | 'externalLendingToken__name'
+  | 'externalLendingToken__symbol'
+  | 'externalLendingToken__decimals'
+  | 'externalLendingToken__precision'
+  | 'externalLendingToken__totalSupply'
+  | 'externalLendingToken__hasTransferFee'
+  | 'externalLendingToken__isfCashDebt'
+  | 'externalLendingToken__maturity'
+  | 'externalLendingToken__vaultAddress'
+  | 'externalLendingToken__tokenAddress'
+  | 'balanceOf'
+  | 'balanceOfUnderlying'
+  | 'storedBalanceOf'
+  | 'storedBalanceOfUnderlying'
+  | 'protocolRevenueSinceLastSnapshot'
+  | 'protocolInterestHarvested'
+  | 'cooldownTime'
+  | 'withdrawThreshold'
+  | 'targetUtilization'
+  | 'currentUtilization'
+  | 'holdingAvailableToWithdraw';
+
+export type ExternalLending_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_lt?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_gte?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_lte?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateTimestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  currencyConfiguration?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_gt?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_lt?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_gte?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_lte?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_in?: InputMaybe<Array<Scalars['String']>>;
+  currencyConfiguration_not_in?: InputMaybe<Array<Scalars['String']>>;
+  currencyConfiguration_contains?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_contains_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_contains?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_starts_with?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_starts_with?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_ends_with?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_ends_with?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_?: InputMaybe<CurrencyConfiguration_filter>;
+  underlying?: InputMaybe<Scalars['String']>;
+  underlying_not?: InputMaybe<Scalars['String']>;
+  underlying_gt?: InputMaybe<Scalars['String']>;
+  underlying_lt?: InputMaybe<Scalars['String']>;
+  underlying_gte?: InputMaybe<Scalars['String']>;
+  underlying_lte?: InputMaybe<Scalars['String']>;
+  underlying_in?: InputMaybe<Array<Scalars['String']>>;
+  underlying_not_in?: InputMaybe<Array<Scalars['String']>>;
+  underlying_contains?: InputMaybe<Scalars['String']>;
+  underlying_contains_nocase?: InputMaybe<Scalars['String']>;
+  underlying_not_contains?: InputMaybe<Scalars['String']>;
+  underlying_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  underlying_starts_with?: InputMaybe<Scalars['String']>;
+  underlying_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_not_starts_with?: InputMaybe<Scalars['String']>;
+  underlying_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_ends_with?: InputMaybe<Scalars['String']>;
+  underlying_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_not_ends_with?: InputMaybe<Scalars['String']>;
+  underlying_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_?: InputMaybe<Token_filter>;
+  protocolRevenueAllTime?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueAllTime_not?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueAllTime_gt?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueAllTime_lt?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueAllTime_gte?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueAllTime_lte?: InputMaybe<Scalars['BigInt']>;
+  protocolRevenueAllTime_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  protocolRevenueAllTime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  currentExternal?: InputMaybe<Scalars['String']>;
+  currentExternal_not?: InputMaybe<Scalars['String']>;
+  currentExternal_gt?: InputMaybe<Scalars['String']>;
+  currentExternal_lt?: InputMaybe<Scalars['String']>;
+  currentExternal_gte?: InputMaybe<Scalars['String']>;
+  currentExternal_lte?: InputMaybe<Scalars['String']>;
+  currentExternal_in?: InputMaybe<Array<Scalars['String']>>;
+  currentExternal_not_in?: InputMaybe<Array<Scalars['String']>>;
+  currentExternal_contains?: InputMaybe<Scalars['String']>;
+  currentExternal_contains_nocase?: InputMaybe<Scalars['String']>;
+  currentExternal_not_contains?: InputMaybe<Scalars['String']>;
+  currentExternal_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  currentExternal_starts_with?: InputMaybe<Scalars['String']>;
+  currentExternal_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currentExternal_not_starts_with?: InputMaybe<Scalars['String']>;
+  currentExternal_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currentExternal_ends_with?: InputMaybe<Scalars['String']>;
+  currentExternal_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currentExternal_not_ends_with?: InputMaybe<Scalars['String']>;
+  currentExternal_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currentExternal_?: InputMaybe<ExternalLendingSnapshot_filter>;
+  externalSnapshots_?: InputMaybe<ExternalLendingSnapshot_filter>;
+  currentUnderlying?: InputMaybe<Scalars['String']>;
+  currentUnderlying_not?: InputMaybe<Scalars['String']>;
+  currentUnderlying_gt?: InputMaybe<Scalars['String']>;
+  currentUnderlying_lt?: InputMaybe<Scalars['String']>;
+  currentUnderlying_gte?: InputMaybe<Scalars['String']>;
+  currentUnderlying_lte?: InputMaybe<Scalars['String']>;
+  currentUnderlying_in?: InputMaybe<Array<Scalars['String']>>;
+  currentUnderlying_not_in?: InputMaybe<Array<Scalars['String']>>;
+  currentUnderlying_contains?: InputMaybe<Scalars['String']>;
+  currentUnderlying_contains_nocase?: InputMaybe<Scalars['String']>;
+  currentUnderlying_not_contains?: InputMaybe<Scalars['String']>;
+  currentUnderlying_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  currentUnderlying_starts_with?: InputMaybe<Scalars['String']>;
+  currentUnderlying_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currentUnderlying_not_starts_with?: InputMaybe<Scalars['String']>;
+  currentUnderlying_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currentUnderlying_ends_with?: InputMaybe<Scalars['String']>;
+  currentUnderlying_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currentUnderlying_not_ends_with?: InputMaybe<Scalars['String']>;
+  currentUnderlying_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currentUnderlying_?: InputMaybe<UnderlyingSnapshot_filter>;
+  underlyingSnapshots_?: InputMaybe<UnderlyingSnapshot_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<ExternalLending_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<ExternalLending_filter>>>;
+};
+
+export type ExternalLending_orderBy =
+  | 'id'
+  | 'lastUpdateBlockNumber'
+  | 'lastUpdateTimestamp'
+  | 'currencyConfiguration'
+  | 'currencyConfiguration__id'
+  | 'currencyConfiguration__lastUpdateBlockNumber'
+  | 'currencyConfiguration__lastUpdateTimestamp'
+  | 'currencyConfiguration__lastUpdateTransactionHash'
+  | 'currencyConfiguration__maxUnderlyingSupply'
+  | 'currencyConfiguration__collateralHaircut'
+  | 'currencyConfiguration__debtBuffer'
+  | 'currencyConfiguration__liquidationDiscount'
+  | 'currencyConfiguration__primeCashRateOracleTimeWindowSeconds'
+  | 'currencyConfiguration__primeCashHoldingsOracle'
+  | 'currencyConfiguration__primeDebtAllowed'
+  | 'currencyConfiguration__fCashRateOracleTimeWindowSeconds'
+  | 'currencyConfiguration__fCashReserveFeeSharePercent'
+  | 'currencyConfiguration__fCashDebtBufferBasisPoints'
+  | 'currencyConfiguration__fCashHaircutBasisPoints'
+  | 'currencyConfiguration__fCashMinOracleRate'
+  | 'currencyConfiguration__fCashMaxOracleRate'
+  | 'currencyConfiguration__fCashMaxDiscountFactor'
+  | 'currencyConfiguration__fCashLiquidationHaircutBasisPoints'
+  | 'currencyConfiguration__fCashLiquidationDebtBufferBasisPoints'
+  | 'currencyConfiguration__treasuryReserveBuffer'
+  | 'currencyConfiguration__residualPurchaseIncentiveBasisPoints'
+  | 'currencyConfiguration__residualPurchaseTimeBufferSeconds'
+  | 'currencyConfiguration__cashWithholdingBufferBasisPoints'
+  | 'currencyConfiguration__pvHaircutPercentage'
+  | 'currencyConfiguration__liquidationHaircutPercentage'
+  | 'currencyConfiguration__maxMintDeviationPercentage'
+  | 'underlying'
+  | 'underlying__id'
+  | 'underlying__firstUpdateBlockNumber'
+  | 'underlying__firstUpdateTimestamp'
+  | 'underlying__firstUpdateTransactionHash'
+  | 'underlying__lastUpdateBlockNumber'
+  | 'underlying__lastUpdateTimestamp'
+  | 'underlying__lastUpdateTransactionHash'
+  | 'underlying__tokenType'
+  | 'underlying__tokenInterface'
+  | 'underlying__currencyId'
+  | 'underlying__name'
+  | 'underlying__symbol'
+  | 'underlying__decimals'
+  | 'underlying__precision'
+  | 'underlying__totalSupply'
+  | 'underlying__hasTransferFee'
+  | 'underlying__isfCashDebt'
+  | 'underlying__maturity'
+  | 'underlying__vaultAddress'
+  | 'underlying__tokenAddress'
+  | 'protocolRevenueAllTime'
+  | 'currentExternal'
+  | 'currentExternal__id'
+  | 'currentExternal__blockNumber'
+  | 'currentExternal__timestamp'
+  | 'currentExternal__transactionHash'
+  | 'currentExternal__balanceOf'
+  | 'currentExternal__balanceOfUnderlying'
+  | 'currentExternal__storedBalanceOf'
+  | 'currentExternal__storedBalanceOfUnderlying'
+  | 'currentExternal__protocolRevenueSinceLastSnapshot'
+  | 'currentExternal__protocolInterestHarvested'
+  | 'currentExternal__cooldownTime'
+  | 'currentExternal__withdrawThreshold'
+  | 'currentExternal__targetUtilization'
+  | 'currentExternal__currentUtilization'
+  | 'currentExternal__holdingAvailableToWithdraw'
+  | 'externalSnapshots'
+  | 'currentUnderlying'
+  | 'currentUnderlying__id'
+  | 'currentUnderlying__blockNumber'
+  | 'currentUnderlying__timestamp'
+  | 'currentUnderlying__balanceOf'
+  | 'currentUnderlying__storedBalanceOf'
+  | 'underlyingSnapshots';
 
 export type Incentive = {
   /** ID is the currency id */
@@ -2031,7 +2546,6 @@ export type Incentive_orderBy =
   | 'currencyConfiguration__fCashLiquidationHaircutBasisPoints'
   | 'currencyConfiguration__fCashLiquidationDebtBufferBasisPoints'
   | 'currencyConfiguration__treasuryReserveBuffer'
-  | 'currencyConfiguration__rebalancingCooldown'
   | 'currencyConfiguration__residualPurchaseIncentiveBasisPoints'
   | 'currencyConfiguration__residualPurchaseTimeBufferSeconds'
   | 'currencyConfiguration__cashWithholdingBufferBasisPoints'
@@ -3444,6 +3958,12 @@ export type Query = {
   tradingModulePermissions: Array<TradingModulePermission>;
   reinvestment?: Maybe<Reinvestment>;
   reinvestments: Array<Reinvestment>;
+  externalLending?: Maybe<ExternalLending>;
+  externalLendings: Array<ExternalLending>;
+  underlyingSnapshot?: Maybe<UnderlyingSnapshot>;
+  underlyingSnapshots: Array<UnderlyingSnapshot>;
+  externalLendingSnapshot?: Maybe<ExternalLendingSnapshot>;
+  externalLendingSnapshots: Array<ExternalLendingSnapshot>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
 };
@@ -3899,6 +4419,60 @@ export type QueryreinvestmentsArgs = {
 };
 
 
+export type QueryexternalLendingArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryexternalLendingsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ExternalLending_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ExternalLending_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryunderlyingSnapshotArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryunderlyingSnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<UnderlyingSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<UnderlyingSnapshot_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryexternalLendingSnapshotArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryexternalLendingSnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ExternalLendingSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ExternalLendingSnapshot_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Query_metaArgs = {
   block?: InputMaybe<Block_height>;
 };
@@ -4158,6 +4732,12 @@ export type Subscription = {
   tradingModulePermissions: Array<TradingModulePermission>;
   reinvestment?: Maybe<Reinvestment>;
   reinvestments: Array<Reinvestment>;
+  externalLending?: Maybe<ExternalLending>;
+  externalLendings: Array<ExternalLending>;
+  underlyingSnapshot?: Maybe<UnderlyingSnapshot>;
+  underlyingSnapshots: Array<UnderlyingSnapshot>;
+  externalLendingSnapshot?: Maybe<ExternalLendingSnapshot>;
+  externalLendingSnapshots: Array<ExternalLendingSnapshot>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
 };
@@ -4608,6 +5188,60 @@ export type SubscriptionreinvestmentsArgs = {
   orderBy?: InputMaybe<Reinvestment_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Reinvestment_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionexternalLendingArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionexternalLendingsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ExternalLending_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ExternalLending_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionunderlyingSnapshotArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionunderlyingSnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<UnderlyingSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<UnderlyingSnapshot_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionexternalLendingSnapshotArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionexternalLendingSnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ExternalLendingSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ExternalLendingSnapshot_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -5800,6 +6434,154 @@ export type Transfer_orderBy =
   | 'underlying__tokenAddress'
   | 'maturity';
 
+export type UnderlyingSnapshot = {
+  id: Scalars['ID'];
+  blockNumber: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  transaction?: Maybe<Transaction>;
+  /** Reference to the parent object */
+  externalLending: ExternalLending;
+  prevSnapshot?: Maybe<UnderlyingSnapshot>;
+  /** Direct balanceOf the underlying token held by the contract */
+  balanceOf: Scalars['BigInt'];
+  /** Stored balanceOf of the underlying token held by the contract */
+  storedBalanceOf: Scalars['BigInt'];
+};
+
+export type UnderlyingSnapshot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transaction?: InputMaybe<Scalars['String']>;
+  transaction_not?: InputMaybe<Scalars['String']>;
+  transaction_gt?: InputMaybe<Scalars['String']>;
+  transaction_lt?: InputMaybe<Scalars['String']>;
+  transaction_gte?: InputMaybe<Scalars['String']>;
+  transaction_lte?: InputMaybe<Scalars['String']>;
+  transaction_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_contains?: InputMaybe<Scalars['String']>;
+  transaction_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_contains?: InputMaybe<Scalars['String']>;
+  transaction_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_?: InputMaybe<Transaction_filter>;
+  externalLending?: InputMaybe<Scalars['String']>;
+  externalLending_not?: InputMaybe<Scalars['String']>;
+  externalLending_gt?: InputMaybe<Scalars['String']>;
+  externalLending_lt?: InputMaybe<Scalars['String']>;
+  externalLending_gte?: InputMaybe<Scalars['String']>;
+  externalLending_lte?: InputMaybe<Scalars['String']>;
+  externalLending_in?: InputMaybe<Array<Scalars['String']>>;
+  externalLending_not_in?: InputMaybe<Array<Scalars['String']>>;
+  externalLending_contains?: InputMaybe<Scalars['String']>;
+  externalLending_contains_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_not_contains?: InputMaybe<Scalars['String']>;
+  externalLending_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_starts_with?: InputMaybe<Scalars['String']>;
+  externalLending_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_not_starts_with?: InputMaybe<Scalars['String']>;
+  externalLending_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_ends_with?: InputMaybe<Scalars['String']>;
+  externalLending_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_not_ends_with?: InputMaybe<Scalars['String']>;
+  externalLending_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  externalLending_?: InputMaybe<ExternalLending_filter>;
+  prevSnapshot?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not?: InputMaybe<Scalars['String']>;
+  prevSnapshot_gt?: InputMaybe<Scalars['String']>;
+  prevSnapshot_lt?: InputMaybe<Scalars['String']>;
+  prevSnapshot_gte?: InputMaybe<Scalars['String']>;
+  prevSnapshot_lte?: InputMaybe<Scalars['String']>;
+  prevSnapshot_in?: InputMaybe<Array<Scalars['String']>>;
+  prevSnapshot_not_in?: InputMaybe<Array<Scalars['String']>>;
+  prevSnapshot_contains?: InputMaybe<Scalars['String']>;
+  prevSnapshot_contains_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_contains?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_starts_with?: InputMaybe<Scalars['String']>;
+  prevSnapshot_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_starts_with?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_ends_with?: InputMaybe<Scalars['String']>;
+  prevSnapshot_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_ends_with?: InputMaybe<Scalars['String']>;
+  prevSnapshot_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  prevSnapshot_?: InputMaybe<UnderlyingSnapshot_filter>;
+  balanceOf?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_not?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_gt?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_lt?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_gte?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_lte?: InputMaybe<Scalars['BigInt']>;
+  balanceOf_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balanceOf_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  storedBalanceOf?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_not?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_gt?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_lt?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_gte?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_lte?: InputMaybe<Scalars['BigInt']>;
+  storedBalanceOf_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  storedBalanceOf_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<UnderlyingSnapshot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<UnderlyingSnapshot_filter>>>;
+};
+
+export type UnderlyingSnapshot_orderBy =
+  | 'id'
+  | 'blockNumber'
+  | 'timestamp'
+  | 'transaction'
+  | 'transaction__id'
+  | 'transaction__blockNumber'
+  | 'transaction__timestamp'
+  | 'transaction__transactionHash'
+  | 'transaction___nextStartIndex'
+  | 'externalLending'
+  | 'externalLending__id'
+  | 'externalLending__lastUpdateBlockNumber'
+  | 'externalLending__lastUpdateTimestamp'
+  | 'externalLending__protocolRevenueAllTime'
+  | 'prevSnapshot'
+  | 'prevSnapshot__id'
+  | 'prevSnapshot__blockNumber'
+  | 'prevSnapshot__timestamp'
+  | 'prevSnapshot__balanceOf'
+  | 'prevSnapshot__storedBalanceOf'
+  | 'balanceOf'
+  | 'storedBalanceOf';
+
 export type VaultConfiguration = {
   /** ID is the address of the vault */
   id: Scalars['ID'];
@@ -6181,7 +6963,6 @@ export type VaultConfiguration_orderBy =
   | 'totalUsedSecondaryBorrowCapacity'
   | 'minAccountSecondaryBorrow';
 
-/** All maturities of this strategy vault */
 export type WhitelistedCapability =
   | 'GlobalTransferOperator'
   | 'AuthorizedCallbackContract'
@@ -6315,7 +7096,6 @@ export type WhitelistedContract_orderBy =
   | 'currency__fCashLiquidationHaircutBasisPoints'
   | 'currency__fCashLiquidationDebtBufferBasisPoints'
   | 'currency__treasuryReserveBuffer'
-  | 'currency__rebalancingCooldown'
   | 'currency__residualPurchaseIncentiveBasisPoints'
   | 'currency__residualPurchaseTimeBufferSeconds'
   | 'currency__cashWithholdingBufferBasisPoints'
@@ -6998,6 +7778,18 @@ export type nTokenFeeBuffer_orderBy =
   reinvestment: InContextSdkMethod<Query['reinvestment'], QueryreinvestmentArgs, MeshContext>,
   /** null **/
   reinvestments: InContextSdkMethod<Query['reinvestments'], QueryreinvestmentsArgs, MeshContext>,
+  /** null **/
+  externalLending: InContextSdkMethod<Query['externalLending'], QueryexternalLendingArgs, MeshContext>,
+  /** null **/
+  externalLendings: InContextSdkMethod<Query['externalLendings'], QueryexternalLendingsArgs, MeshContext>,
+  /** null **/
+  underlyingSnapshot: InContextSdkMethod<Query['underlyingSnapshot'], QueryunderlyingSnapshotArgs, MeshContext>,
+  /** null **/
+  underlyingSnapshots: InContextSdkMethod<Query['underlyingSnapshots'], QueryunderlyingSnapshotsArgs, MeshContext>,
+  /** null **/
+  externalLendingSnapshot: InContextSdkMethod<Query['externalLendingSnapshot'], QueryexternalLendingSnapshotArgs, MeshContext>,
+  /** null **/
+  externalLendingSnapshots: InContextSdkMethod<Query['externalLendingSnapshots'], QueryexternalLendingSnapshotsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   _meta: InContextSdkMethod<Query['_meta'], Query_metaArgs, MeshContext>
   };
@@ -7107,12 +7899,24 @@ export type nTokenFeeBuffer_orderBy =
   reinvestment: InContextSdkMethod<Subscription['reinvestment'], SubscriptionreinvestmentArgs, MeshContext>,
   /** null **/
   reinvestments: InContextSdkMethod<Subscription['reinvestments'], SubscriptionreinvestmentsArgs, MeshContext>,
+  /** null **/
+  externalLending: InContextSdkMethod<Subscription['externalLending'], SubscriptionexternalLendingArgs, MeshContext>,
+  /** null **/
+  externalLendings: InContextSdkMethod<Subscription['externalLendings'], SubscriptionexternalLendingsArgs, MeshContext>,
+  /** null **/
+  underlyingSnapshot: InContextSdkMethod<Subscription['underlyingSnapshot'], SubscriptionunderlyingSnapshotArgs, MeshContext>,
+  /** null **/
+  underlyingSnapshots: InContextSdkMethod<Subscription['underlyingSnapshots'], SubscriptionunderlyingSnapshotsArgs, MeshContext>,
+  /** null **/
+  externalLendingSnapshot: InContextSdkMethod<Subscription['externalLendingSnapshot'], SubscriptionexternalLendingSnapshotArgs, MeshContext>,
+  /** null **/
+  externalLendingSnapshots: InContextSdkMethod<Subscription['externalLendingSnapshots'], SubscriptionexternalLendingSnapshotsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   _meta: InContextSdkMethod<Subscription['_meta'], Subscription_metaArgs, MeshContext>
   };
 
   export type Context = {
       ["NotionalV3"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
-      
+      ["chainName"]: Scalars['ID']
     };
 }

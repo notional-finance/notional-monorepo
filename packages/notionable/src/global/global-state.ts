@@ -137,6 +137,12 @@ interface ApplicationState {
   /** All active accounts from the analytics registry */
   activeAccounts?: Record<Network, Record<string, number>>;
   historicalTrading?: Record<Network, HistoricalTrading>;
+  /** Stats for the home page hero section */
+  heroStats?: {
+    totalValueLocked: number;
+    totalOpenDebt: number;
+    totalAccounts: number;
+  };
 }
 
 /** These settings are associated with the user directly */
