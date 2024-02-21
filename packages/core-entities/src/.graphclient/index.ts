@@ -9239,7 +9239,7 @@ export const AllAccountsDocument = gql`
       }
     }
     profitLossLineItems(
-      where: {bundle_: {bundleName_in: ["Deposit", "Deposit and Transfer", "Withdraw", "Transfer Asset", "Transfer Incentive", "Transfer Secondary Incentive", "Vault Entry", "Vault Exit", "Vault Roll"]}}
+      where: {bundle_: {bundleName_in: ["Deposit", "Deposit and Transfer", "Withdraw", "Transfer Asset", "Transfer Incentive", "Transfer Secondary Incentive", "Vault Entry", "Vault Exit", "Vault Roll", "Borrow Prime Cash", "Repay Prime Cash", "Borrow fCash", "Repay fCash"]}}
       first: 1000
       orderBy: blockNumber
       orderDirection: desc
