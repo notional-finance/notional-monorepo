@@ -7,6 +7,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { CurrencyIcon } from '../currency-icon/currency-icon';
 import { FormattedMessage } from 'react-intl';
+import { Network } from '@notional-finance/util';
 
 export const EnabledCurrenciesButton = () => {
   const theme = useTheme();
@@ -32,7 +33,9 @@ export const EnabledCurrenciesButton = () => {
 
 export const EnabledCurrencies = () => {
   const theme = useTheme();
-  const network = useWalletConnectedNetwork();
+  // NOTE: this is a temporary hack to show connected networks for read only addresses,
+  // in the future this should show all networks by default
+  const network = useWalletConnectedNetwork() || Network.ArbitrumOne;
   const walletConnected = useAccountReady(network);
   const { enabledTokens, supportedTokens } = useWalletAllowances(network);
   const systemTokenSymbols = supportedTokens.map((t) => t.symbol);
