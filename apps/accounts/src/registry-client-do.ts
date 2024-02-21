@@ -433,7 +433,8 @@ export class RegistryClientDO extends BaseDO<Env> {
 
     for (const e of data.externalLendings) {
       const underlyingHeld = TokenBalance.fromID(
-        e.underlyingSnapshot?.pop()?.storedBalanceOf || 0,
+        // Takes the most recent underlying snapshot
+        e.underlyingSnapshots?.shift()?.storedBalanceOf || 0,
         e.underlying.id,
         network
       );
@@ -452,28 +453,21 @@ export class RegistryClientDO extends BaseDO<Env> {
         ?.toUnderlying()
         .sub(pDebt.totalSupply?.toUnderlying());
       if (expectedUnderlying.gt(underlyingHeld)) {
-        console.log(`
+        await this.logger.submitEvent({
+          host: this.serviceName,
+          network,
+          aggregation_key: 'PrimeCashInvariant',
+          alert_type: 'error',
+          title: `Prime Cash Invariant: ${underlyingHeld.symbol}`,
+          tags: [network],
+          text: `
             Prime Cash Invariant mismatch detected in ${underlyingHeld.symbol}
             Total Prime Supply: ${pCash.totalSupply?.toString()}
             Total Prime Debt: ${pDebt.totalSupply?.toString()}
             Total Underlying Held: ${underlyingHeld.toString()}
             Expected Underlying Held: ${expectedUnderlying.toString()}
-            `);
-        // await this.logger.submitEvent({
-        //   host: this.serviceName,
-        //   network,
-        //   aggregation_key: 'PrimeCashInvariant',
-        //   alert_type: 'error',
-        //   title: `Prime Cash Invariant: ${underlyingHeld.symbol}`,
-        //   tags: [network],
-        //   text: `
-        //     Prime Cash Invariant mismatch detected in ${underlyingHeld.symbol}
-        //     Total Prime Supply: ${pCash.totalSupply?.toString()}
-        //     Total Prime Debt: ${pDebt.totalSupply?.toString()}
-        //     Total Underlying Held: ${underlyingHeld.toString()}
-        //     Expected Underlying Held: ${expectedUnderlying.toString()}
-        //     `,
-        // });
+            `,
+        });
       }
     }
   }
@@ -485,8 +479,7 @@ export class RegistryClientDO extends BaseDO<Env> {
       'monitoring_fcash_rates',
       'monitoring_ntoken_value',
       'monitoring_pcash_and_pdebt_exchange_rate_monotonicity',
-      'monitoring_pcash_balances',
-      'monitoring_tvl',
+      // 'monitoring_tvl', Turned off temporarily
       'monitoring_vault_share_value',
       'monitoring_vault_reinvestments',
     ];
