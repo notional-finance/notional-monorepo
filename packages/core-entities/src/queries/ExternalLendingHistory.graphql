@@ -2,7 +2,7 @@ query ExternalLendingHistory {
   externalLendings {
     id
     underlying { id }
-    underlyingSnapshot (orderBy: timestamp, orderDirection:desc, first: 10) {
+    underlyingSnapshots (orderBy: timestamp, orderDirection:desc, first: 10) {
       timestamp
       balanceOf
       storedBalanceOf

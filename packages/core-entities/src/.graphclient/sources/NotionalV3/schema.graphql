@@ -308,6 +308,11 @@ enum ActiveMarket_orderBy {
   fCashMarkets
 }
 
+enum Aggregation_interval {
+  hour
+  day
+}
+
 type Balance {
   """Account:Token ID"""
   id: ID!
@@ -857,6 +862,7 @@ type CurrencyConfiguration {
   """Maximum valuation deviation percentage for nToken minting"""
   maxMintDeviationPercentage: Int
   incentives: Incentive
+  externalLending: ExternalLending
 }
 
 input CurrencyConfiguration_filter {
@@ -1205,6 +1211,7 @@ input CurrencyConfiguration_filter {
   maxMintDeviationPercentage_in: [Int!]
   maxMintDeviationPercentage_not_in: [Int!]
   incentives_: Incentive_filter
+  externalLending_: ExternalLending_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [CurrencyConfiguration_filter]
@@ -1340,6 +1347,11 @@ enum CurrencyConfiguration_orderBy {
   incentives__lastSecondaryAccumulatedTime
   incentives__secondaryEmissionRate
   incentives__secondaryRewardEndTime
+  externalLending
+  externalLending__id
+  externalLending__lastUpdateBlockNumber
+  externalLending__lastUpdateTimestamp
+  externalLending__protocolRevenueAllTime
 }
 
 enum DEX {
@@ -1482,6 +1494,7 @@ type ExternalLending {
   id: ID!
   lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
+  currencyConfiguration: CurrencyConfiguration!
   """Reference to the underlying token"""
   underlying: Token!
   """Accumulate the revenue from snapshots"""
@@ -1489,7 +1502,7 @@ type ExternalLending {
   currentExternal: ExternalLendingSnapshot
   externalSnapshots(skip: Int = 0, first: Int = 100, orderBy: ExternalLendingSnapshot_orderBy, orderDirection: OrderDirection, where: ExternalLendingSnapshot_filter): [ExternalLendingSnapshot!]
   currentUnderlying: UnderlyingSnapshot!
-  underlyingSnapshot(skip: Int = 0, first: Int = 100, orderBy: UnderlyingSnapshot_orderBy, orderDirection: OrderDirection, where: UnderlyingSnapshot_filter): [UnderlyingSnapshot!]
+  underlyingSnapshots(skip: Int = 0, first: Int = 100, orderBy: UnderlyingSnapshot_orderBy, orderDirection: OrderDirection, where: UnderlyingSnapshot_filter): [UnderlyingSnapshot!]
 }
 
 type ExternalLendingSnapshot {
@@ -1812,6 +1825,27 @@ input ExternalLending_filter {
   lastUpdateTimestamp_lte: Int
   lastUpdateTimestamp_in: [Int!]
   lastUpdateTimestamp_not_in: [Int!]
+  currencyConfiguration: String
+  currencyConfiguration_not: String
+  currencyConfiguration_gt: String
+  currencyConfiguration_lt: String
+  currencyConfiguration_gte: String
+  currencyConfiguration_lte: String
+  currencyConfiguration_in: [String!]
+  currencyConfiguration_not_in: [String!]
+  currencyConfiguration_contains: String
+  currencyConfiguration_contains_nocase: String
+  currencyConfiguration_not_contains: String
+  currencyConfiguration_not_contains_nocase: String
+  currencyConfiguration_starts_with: String
+  currencyConfiguration_starts_with_nocase: String
+  currencyConfiguration_not_starts_with: String
+  currencyConfiguration_not_starts_with_nocase: String
+  currencyConfiguration_ends_with: String
+  currencyConfiguration_ends_with_nocase: String
+  currencyConfiguration_not_ends_with: String
+  currencyConfiguration_not_ends_with_nocase: String
+  currencyConfiguration_: CurrencyConfiguration_filter
   underlying: String
   underlying_not: String
   underlying_gt: String
@@ -1884,7 +1918,7 @@ input ExternalLending_filter {
   currentUnderlying_not_ends_with: String
   currentUnderlying_not_ends_with_nocase: String
   currentUnderlying_: UnderlyingSnapshot_filter
-  underlyingSnapshot_: UnderlyingSnapshot_filter
+  underlyingSnapshots_: UnderlyingSnapshot_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [ExternalLending_filter]
@@ -1895,6 +1929,34 @@ enum ExternalLending_orderBy {
   id
   lastUpdateBlockNumber
   lastUpdateTimestamp
+  currencyConfiguration
+  currencyConfiguration__id
+  currencyConfiguration__lastUpdateBlockNumber
+  currencyConfiguration__lastUpdateTimestamp
+  currencyConfiguration__lastUpdateTransactionHash
+  currencyConfiguration__maxUnderlyingSupply
+  currencyConfiguration__collateralHaircut
+  currencyConfiguration__debtBuffer
+  currencyConfiguration__liquidationDiscount
+  currencyConfiguration__primeCashRateOracleTimeWindowSeconds
+  currencyConfiguration__primeCashHoldingsOracle
+  currencyConfiguration__primeDebtAllowed
+  currencyConfiguration__fCashRateOracleTimeWindowSeconds
+  currencyConfiguration__fCashReserveFeeSharePercent
+  currencyConfiguration__fCashDebtBufferBasisPoints
+  currencyConfiguration__fCashHaircutBasisPoints
+  currencyConfiguration__fCashMinOracleRate
+  currencyConfiguration__fCashMaxOracleRate
+  currencyConfiguration__fCashMaxDiscountFactor
+  currencyConfiguration__fCashLiquidationHaircutBasisPoints
+  currencyConfiguration__fCashLiquidationDebtBufferBasisPoints
+  currencyConfiguration__treasuryReserveBuffer
+  currencyConfiguration__residualPurchaseIncentiveBasisPoints
+  currencyConfiguration__residualPurchaseTimeBufferSeconds
+  currencyConfiguration__cashWithholdingBufferBasisPoints
+  currencyConfiguration__pvHaircutPercentage
+  currencyConfiguration__liquidationHaircutPercentage
+  currencyConfiguration__maxMintDeviationPercentage
   underlying
   underlying__id
   underlying__firstUpdateBlockNumber
@@ -1940,7 +2002,7 @@ enum ExternalLending_orderBy {
   currentUnderlying__timestamp
   currentUnderlying__balanceOf
   currentUnderlying__storedBalanceOf
-  underlyingSnapshot
+  underlyingSnapshots
 }
 
 type Incentive {
@@ -6526,6 +6588,7 @@ type UnderlyingSnapshot {
   id: ID!
   blockNumber: BigInt!
   timestamp: BigInt!
+  transaction: Transaction
   """Reference to the parent object"""
   externalLending: ExternalLending!
   prevSnapshot: UnderlyingSnapshot
@@ -6560,6 +6623,27 @@ input UnderlyingSnapshot_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
+  transaction: String
+  transaction_not: String
+  transaction_gt: String
+  transaction_lt: String
+  transaction_gte: String
+  transaction_lte: String
+  transaction_in: [String!]
+  transaction_not_in: [String!]
+  transaction_contains: String
+  transaction_contains_nocase: String
+  transaction_not_contains: String
+  transaction_not_contains_nocase: String
+  transaction_starts_with: String
+  transaction_starts_with_nocase: String
+  transaction_not_starts_with: String
+  transaction_not_starts_with_nocase: String
+  transaction_ends_with: String
+  transaction_ends_with_nocase: String
+  transaction_not_ends_with: String
+  transaction_not_ends_with_nocase: String
+  transaction_: Transaction_filter
   externalLending: String
   externalLending_not: String
   externalLending_gt: String
@@ -6628,6 +6712,12 @@ enum UnderlyingSnapshot_orderBy {
   id
   blockNumber
   timestamp
+  transaction
+  transaction__id
+  transaction__blockNumber
+  transaction__timestamp
+  transaction__transactionHash
+  transaction___nextStartIndex
   externalLending
   externalLending__id
   externalLending__lastUpdateBlockNumber
@@ -7016,7 +7106,6 @@ enum VaultConfiguration_orderBy {
   minAccountSecondaryBorrow
 }
 
-"""All maturities of this strategy vault"""
 enum WhitelistedCapability {
   GlobalTransferOperator
   AuthorizedCallbackContract

@@ -383,6 +383,10 @@ export type ActiveMarket_orderBy =
   | 'pCashMarket__lastUpdateTimestamp'
   | 'fCashMarkets';
 
+export type Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type Balance = {
   /** Account:Token ID */
   id: Scalars['ID'];
@@ -949,6 +953,7 @@ export type CurrencyConfiguration = {
   /** Maximum valuation deviation percentage for nToken minting */
   maxMintDeviationPercentage?: Maybe<Scalars['Int']>;
   incentives?: Maybe<Incentive>;
+  externalLending?: Maybe<ExternalLending>;
 };
 
 
@@ -1315,6 +1320,7 @@ export type CurrencyConfiguration_filter = {
   maxMintDeviationPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
   maxMintDeviationPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
   incentives_?: InputMaybe<Incentive_filter>;
+  externalLending_?: InputMaybe<ExternalLending_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<CurrencyConfiguration_filter>>>;
@@ -1449,7 +1455,12 @@ export type CurrencyConfiguration_orderBy =
   | 'incentives__accumulatedSecondaryRewardPerNToken'
   | 'incentives__lastSecondaryAccumulatedTime'
   | 'incentives__secondaryEmissionRate'
-  | 'incentives__secondaryRewardEndTime';
+  | 'incentives__secondaryRewardEndTime'
+  | 'externalLending'
+  | 'externalLending__id'
+  | 'externalLending__lastUpdateBlockNumber'
+  | 'externalLending__lastUpdateTimestamp'
+  | 'externalLending__protocolRevenueAllTime';
 
 export type DEX =
   | '_UNUSED'
@@ -1589,6 +1600,7 @@ export type ExternalLending = {
   id: Scalars['ID'];
   lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
+  currencyConfiguration: CurrencyConfiguration;
   /** Reference to the underlying token */
   underlying: Token;
   /** Accumulate the revenue from snapshots */
@@ -1596,7 +1608,7 @@ export type ExternalLending = {
   currentExternal?: Maybe<ExternalLendingSnapshot>;
   externalSnapshots?: Maybe<Array<ExternalLendingSnapshot>>;
   currentUnderlying: UnderlyingSnapshot;
-  underlyingSnapshot?: Maybe<Array<UnderlyingSnapshot>>;
+  underlyingSnapshots?: Maybe<Array<UnderlyingSnapshot>>;
 };
 
 
@@ -1609,7 +1621,7 @@ export type ExternalLendingexternalSnapshotsArgs = {
 };
 
 
-export type ExternalLendingunderlyingSnapshotArgs = {
+export type ExternalLendingunderlyingSnapshotsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<UnderlyingSnapshot_orderBy>;
@@ -1928,6 +1940,27 @@ export type ExternalLending_filter = {
   lastUpdateTimestamp_lte?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_in?: InputMaybe<Array<Scalars['Int']>>;
   lastUpdateTimestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  currencyConfiguration?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_gt?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_lt?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_gte?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_lte?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_in?: InputMaybe<Array<Scalars['String']>>;
+  currencyConfiguration_not_in?: InputMaybe<Array<Scalars['String']>>;
+  currencyConfiguration_contains?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_contains_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_contains?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_starts_with?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_starts_with?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_ends_with?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_ends_with?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  currencyConfiguration_?: InputMaybe<CurrencyConfiguration_filter>;
   underlying?: InputMaybe<Scalars['String']>;
   underlying_not?: InputMaybe<Scalars['String']>;
   underlying_gt?: InputMaybe<Scalars['String']>;
@@ -2000,7 +2033,7 @@ export type ExternalLending_filter = {
   currentUnderlying_not_ends_with?: InputMaybe<Scalars['String']>;
   currentUnderlying_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   currentUnderlying_?: InputMaybe<UnderlyingSnapshot_filter>;
-  underlyingSnapshot_?: InputMaybe<UnderlyingSnapshot_filter>;
+  underlyingSnapshots_?: InputMaybe<UnderlyingSnapshot_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<ExternalLending_filter>>>;
@@ -2011,6 +2044,34 @@ export type ExternalLending_orderBy =
   | 'id'
   | 'lastUpdateBlockNumber'
   | 'lastUpdateTimestamp'
+  | 'currencyConfiguration'
+  | 'currencyConfiguration__id'
+  | 'currencyConfiguration__lastUpdateBlockNumber'
+  | 'currencyConfiguration__lastUpdateTimestamp'
+  | 'currencyConfiguration__lastUpdateTransactionHash'
+  | 'currencyConfiguration__maxUnderlyingSupply'
+  | 'currencyConfiguration__collateralHaircut'
+  | 'currencyConfiguration__debtBuffer'
+  | 'currencyConfiguration__liquidationDiscount'
+  | 'currencyConfiguration__primeCashRateOracleTimeWindowSeconds'
+  | 'currencyConfiguration__primeCashHoldingsOracle'
+  | 'currencyConfiguration__primeDebtAllowed'
+  | 'currencyConfiguration__fCashRateOracleTimeWindowSeconds'
+  | 'currencyConfiguration__fCashReserveFeeSharePercent'
+  | 'currencyConfiguration__fCashDebtBufferBasisPoints'
+  | 'currencyConfiguration__fCashHaircutBasisPoints'
+  | 'currencyConfiguration__fCashMinOracleRate'
+  | 'currencyConfiguration__fCashMaxOracleRate'
+  | 'currencyConfiguration__fCashMaxDiscountFactor'
+  | 'currencyConfiguration__fCashLiquidationHaircutBasisPoints'
+  | 'currencyConfiguration__fCashLiquidationDebtBufferBasisPoints'
+  | 'currencyConfiguration__treasuryReserveBuffer'
+  | 'currencyConfiguration__residualPurchaseIncentiveBasisPoints'
+  | 'currencyConfiguration__residualPurchaseTimeBufferSeconds'
+  | 'currencyConfiguration__cashWithholdingBufferBasisPoints'
+  | 'currencyConfiguration__pvHaircutPercentage'
+  | 'currencyConfiguration__liquidationHaircutPercentage'
+  | 'currencyConfiguration__maxMintDeviationPercentage'
   | 'underlying'
   | 'underlying__id'
   | 'underlying__firstUpdateBlockNumber'
@@ -2056,7 +2117,7 @@ export type ExternalLending_orderBy =
   | 'currentUnderlying__timestamp'
   | 'currentUnderlying__balanceOf'
   | 'currentUnderlying__storedBalanceOf'
-  | 'underlyingSnapshot';
+  | 'underlyingSnapshots';
 
 export type Incentive = {
   /** ID is the currency id */
@@ -6399,6 +6460,7 @@ export type UnderlyingSnapshot = {
   id: Scalars['ID'];
   blockNumber: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
+  transaction?: Maybe<Transaction>;
   /** Reference to the parent object */
   externalLending: ExternalLending;
   prevSnapshot?: Maybe<UnderlyingSnapshot>;
@@ -6433,6 +6495,27 @@ export type UnderlyingSnapshot_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transaction?: InputMaybe<Scalars['String']>;
+  transaction_not?: InputMaybe<Scalars['String']>;
+  transaction_gt?: InputMaybe<Scalars['String']>;
+  transaction_lt?: InputMaybe<Scalars['String']>;
+  transaction_gte?: InputMaybe<Scalars['String']>;
+  transaction_lte?: InputMaybe<Scalars['String']>;
+  transaction_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_contains?: InputMaybe<Scalars['String']>;
+  transaction_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_contains?: InputMaybe<Scalars['String']>;
+  transaction_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_?: InputMaybe<Transaction_filter>;
   externalLending?: InputMaybe<Scalars['String']>;
   externalLending_not?: InputMaybe<Scalars['String']>;
   externalLending_gt?: InputMaybe<Scalars['String']>;
@@ -6501,6 +6584,12 @@ export type UnderlyingSnapshot_orderBy =
   | 'id'
   | 'blockNumber'
   | 'timestamp'
+  | 'transaction'
+  | 'transaction__id'
+  | 'transaction__blockNumber'
+  | 'transaction__timestamp'
+  | 'transaction__transactionHash'
+  | 'transaction___nextStartIndex'
   | 'externalLending'
   | 'externalLending__id'
   | 'externalLending__lastUpdateBlockNumber'
@@ -6896,7 +6985,6 @@ export type VaultConfiguration_orderBy =
   | 'totalUsedSecondaryBorrowCapacity'
   | 'minAccountSecondaryBorrow';
 
-/** All maturities of this strategy vault */
 export type WhitelistedCapability =
   | 'GlobalTransferOperator'
   | 'AuthorizedCallbackContract'
@@ -7703,6 +7791,7 @@ export type ResolversTypes = ResolversObject<{
   ActiveMarket: ResolverTypeWrapper<ActiveMarket>;
   ActiveMarket_filter: ActiveMarket_filter;
   ActiveMarket_orderBy: ActiveMarket_orderBy;
+  Aggregation_interval: Aggregation_interval;
   Balance: ResolverTypeWrapper<Balance>;
   BalanceSnapshot: ResolverTypeWrapper<BalanceSnapshot>;
   BalanceSnapshot_filter: BalanceSnapshot_filter;
@@ -8020,6 +8109,7 @@ export type CurrencyConfigurationResolvers<ContextType = MeshContext & { chainNa
   liquidationHaircutPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   maxMintDeviationPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   incentives?: Resolver<Maybe<ResolversTypes['Incentive']>, ParentType, ContextType>;
+  externalLending?: Resolver<Maybe<ResolversTypes['ExternalLending']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -8038,12 +8128,13 @@ export type ExternalLendingResolvers<ContextType = MeshContext & { chainName: st
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  currencyConfiguration?: Resolver<ResolversTypes['CurrencyConfiguration'], ParentType, ContextType>;
   underlying?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   protocolRevenueAllTime?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   currentExternal?: Resolver<Maybe<ResolversTypes['ExternalLendingSnapshot']>, ParentType, ContextType>;
   externalSnapshots?: Resolver<Maybe<Array<ResolversTypes['ExternalLendingSnapshot']>>, ParentType, ContextType, RequireFields<ExternalLendingexternalSnapshotsArgs, 'skip' | 'first'>>;
   currentUnderlying?: Resolver<ResolversTypes['UnderlyingSnapshot'], ParentType, ContextType>;
-  underlyingSnapshot?: Resolver<Maybe<Array<ResolversTypes['UnderlyingSnapshot']>>, ParentType, ContextType, RequireFields<ExternalLendingunderlyingSnapshotArgs, 'skip' | 'first'>>;
+  underlyingSnapshots?: Resolver<Maybe<Array<ResolversTypes['UnderlyingSnapshot']>>, ParentType, ContextType, RequireFields<ExternalLendingunderlyingSnapshotsArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -8439,6 +8530,7 @@ export type UnderlyingSnapshotResolvers<ContextType = MeshContext & { chainName:
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   externalLending?: Resolver<ResolversTypes['ExternalLending'], ParentType, ContextType>;
   prevSnapshot?: Resolver<Maybe<ResolversTypes['UnderlyingSnapshot']>, ParentType, ContextType>;
   balanceOf?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -8963,7 +9055,7 @@ export type ExternalLendingHistoryQueryVariables = Exact<{ [key: string]: never;
 
 export type ExternalLendingHistoryQuery = { externalLendings: Array<(
     Pick<ExternalLending, 'id'>
-    & { underlying: Pick<Token, 'id'>, underlyingSnapshot?: Maybe<Array<Pick<UnderlyingSnapshot, 'timestamp' | 'balanceOf' | 'storedBalanceOf'>>> }
+    & { underlying: Pick<Token, 'id'>, underlyingSnapshots?: Maybe<Array<Pick<UnderlyingSnapshot, 'timestamp' | 'balanceOf' | 'storedBalanceOf'>>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type HistoricalOracleValuesQueryVariables = Exact<{
@@ -9591,7 +9683,7 @@ export const ExternalLendingHistoryDocument = gql`
     underlying {
       id
     }
-    underlyingSnapshot(orderBy: timestamp, orderDirection: desc, first: 10) {
+    underlyingSnapshots(orderBy: timestamp, orderDirection: desc, first: 10) {
       timestamp
       balanceOf
       storedBalanceOf
