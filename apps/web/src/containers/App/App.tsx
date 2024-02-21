@@ -7,7 +7,8 @@ import {
 import {
   FeatureLoader,
   TrackingConsent,
-  DashboardView,
+  VaultDashboard,
+  LiquidityLeveragedDashboard,
 } from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
 import { Redirect, Route, Switch, useParams } from 'react-router';
@@ -153,7 +154,7 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/liquidity-leveraged/:selectedNetwork"
-            component={DashboardView}
+            component={LiquidityLeveragedDashboard}
             routeType="Card"
           />
           <AppLayoutRoute
@@ -173,7 +174,7 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/vaults/:selectedNetwork"
-            component={DashboardView}
+            component={VaultDashboard}
             routeType="Card"
           />
           <AppLayoutRoute

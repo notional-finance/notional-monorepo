@@ -11,12 +11,13 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { colors } from '@notional-finance/styles';
 
 export const LeveragedCard = ({
-  title,
   apy,
-  tvl,
+  title,
   symbol,
-  routeCallback,
+  subTitle,
+  bottomValue,
   hasPosition,
+  routeCallback,
   incentiveValue,
   incentiveSymbol,
 }: DashboardDataProps) => {
@@ -38,8 +39,10 @@ export const LeveragedCard = ({
             style={{ marginRight: theme.spacing(2) }}
           />
           <Box component="div" sx={{ textAlign: 'left', margin: 'auto' }}>
-            <GridCardTitle>{symbol}</GridCardTitle>
-            <GridCardSubTitle>{title}</GridCardSubTitle>
+            <GridCardTitle>{title}</GridCardTitle>
+            <GridCardSubTitle id="grid-card-sub-title">
+              {subTitle}
+            </GridCardSubTitle>
           </Box>
         </Box>
 
@@ -56,16 +59,18 @@ export const LeveragedCard = ({
           {formatNumberAsPercent(apy)}
         </GridCardApy>
       </Box>
-      <IncentiveContainer id="incentive">
-        <SectionTitle
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          {tvl}
-        </SectionTitle>
+      <GridCardFooter id="incentive">
+        {bottomValue && (
+          <SectionTitle
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {bottomValue}
+          </SectionTitle>
+        )}
         {incentiveValue && incentiveSymbol && (
           <SectionTitle
             sx={{
@@ -89,12 +94,12 @@ export const LeveragedCard = ({
             <FormattedMessage defaultMessage={'Incentive APY'} />
           </SectionTitle>
         )}
-      </IncentiveContainer>
+      </GridCardFooter>
     </GridCard>
   );
 };
 
-const IncentiveContainer = styled(Box)(
+const GridCardFooter = styled(Box)(
   ({ theme }) => `
       display: flex;
       width: 100%;
@@ -152,7 +157,6 @@ const GridCardSubTitle = styled('span')(
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
-      width: ${theme.spacing(30.5)};    
         ${theme.breakpoints.down('sm')} {
           width: ${theme.spacing(21)};
         }

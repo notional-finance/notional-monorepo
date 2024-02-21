@@ -8,6 +8,7 @@ import { FormattedMessage } from 'react-intl';
 
 interface ContainerProps {
   hasLeveragedPosition?: boolean;
+  threeWideGrid?: boolean;
   theme: NotionalTheme;
 }
 
@@ -16,6 +17,7 @@ export const LeveragedDashboard = ({
   setShowNegativeYields,
   showNegativeYields,
   isLoading,
+  threeWideGrid,
 }: LeveragedDashboardProps) => {
   const theme = useTheme();
 
@@ -40,13 +42,14 @@ export const LeveragedDashboard = ({
               >
                 {sectionTitle}
               </Caption>
-              <GridCardContainer>
+              <GridCardContainer threeWideGrid={threeWideGrid} theme={theme}>
                 {data.map(
                   (
                     {
                       title,
+                      subTitle,
                       apy,
-                      tvl,
+                      bottomValue,
                       routeCallback,
                       symbol,
                       hasPosition,
@@ -59,9 +62,10 @@ export const LeveragedDashboard = ({
                       <LeveragedCard
                         key={index}
                         title={title}
+                        subTitle={subTitle}
                         routeCallback={routeCallback}
                         apy={apy}
-                        tvl={tvl}
+                        bottomValue={bottomValue}
                         symbol={symbol}
                         hasPosition={hasPosition}
                         incentiveValue={incentiveValue}
@@ -118,11 +122,18 @@ const Container = styled(Box, {
     `
 );
 
-const GridCardContainer = styled(Box)(
-  ({ theme }) => `
+const GridCardContainer = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'threeWideGrid',
+})(
+  ({ threeWideGrid, theme }: ContainerProps) => `
       display: grid;
       gap: ${theme.spacing(3)};
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: ${
+        threeWideGrid ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)'
+      };
+      #grid-card-sub-title {
+        width: ${threeWideGrid ? '100%' : theme.spacing(30.5)};
+      }
       ${theme.breakpoints.down('sm')} {
           grid-template-columns: repeat(1, 1fr);
       }
