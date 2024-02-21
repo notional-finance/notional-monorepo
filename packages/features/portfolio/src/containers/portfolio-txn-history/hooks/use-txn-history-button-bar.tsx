@@ -4,7 +4,7 @@ import { ButtonOptionsType } from '@notional-finance/mui';
 import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import {
   useSelectedPortfolioNetwork,
-  useVaultHoldings,
+  useTransactionHistory,
 } from '@notional-finance/notionable-hooks';
 
 export const useTxnHistoryButtonBar = (
@@ -15,7 +15,9 @@ export const useTxnHistoryButtonBar = (
   const history = useHistory();
   const queryParams = new URLSearchParams(search);
   const network = useSelectedPortfolioNetwork();
-  const hasVaultHoldings = useVaultHoldings(network).length > 0;
+  const hasVaultHoldings = !!useTransactionHistory(network).find(
+    (h) => !!h.vaultName
+  );
 
   const handleButtonBarClick = (type: TXN_HISTORY_TYPE) => {
     if (queryParams && queryParams.get('txnHistoryType')) {
