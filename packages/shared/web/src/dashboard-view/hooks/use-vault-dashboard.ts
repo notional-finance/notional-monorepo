@@ -36,11 +36,12 @@ export const useVaultDashboard = (
       const apy = profile?.totalAPY || y?.totalAPY || undefined;
 
       return {
+        title: primaryToken.symbol,
+        subTitle: name,
+        bottomValue: `TVL: ${vaultTVL ? formatNumberAsAbbr(vaultTVL.toFloat(), 0) : 0}`,
         symbol: primaryToken.symbol,
         hasPosition: profile ? true : false,
-        tvl: `TVL: ${vaultTVL ? formatNumberAsAbbr(vaultTVL.toFloat(), 0) : 0}`,
         apy: apy || 0,
-        title: name,
         routeCallback: () => history.push(`/vaults/${network}/${vaultAddress}`),
       };
     })
