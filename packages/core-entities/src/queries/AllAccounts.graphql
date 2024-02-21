@@ -43,7 +43,12 @@ query AllAccounts($skip: Int) {
                 "Transfer Secondary Incentive",
                 "Vault Entry",
                 "Vault Exit",
-                "Vault Roll"
+                "Vault Roll",
+                # These are used for debt detection
+                "Borrow Prime Cash",
+                "Repay Prime Cash",
+                "Borrow fCash",
+                "Repay fCash",
             ]}}
             first: 1000, orderBy: blockNumber, orderDirection: desc
         ) {

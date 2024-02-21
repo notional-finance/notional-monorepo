@@ -78,9 +78,24 @@ export function calculateAccountIRR(account: AccountDefinition) {
     )
     .reduce((p, c) => p + c, portfolioNetWorth + valueOfUnclaimedIncentives);
 
-  const hasLeverage = !!account.balances.find(
-    (t) => t.tokenType === 'VaultDebt' || t.isNegative()
-  );
+  const hasLeverage =
+    !!account.balances.find(
+      (t) => t.tokenType === 'VaultDebt' || t.isNegative()
+    ) ||
+    // Also checks if the account has used debt during the contest
+    (account.accountHistory || []).find(
+      (a) =>
+        contestStart < a.timestamp &&
+        a.timestamp < contestEnd &&
+        (a.bundleName === 'Vault Entry' ||
+          a.bundleName === 'Vault Exit' ||
+          a.bundleName === 'Vault Roll' ||
+          a.bundleName === 'Borrow fCash' ||
+          a.bundleName === 'Repay fCash' ||
+          a.bundleName === 'Borrow Prime Cash' ||
+          a.bundleName === 'Repay Prime Cash')
+    );
+
   const cashFlows: CashFlow[] = (account.accountHistory || [])
     .filter((a) => contestStart < a.timestamp && a.timestamp < contestEnd)
     .sort((a, b) => a.timestamp - b.timestamp)
