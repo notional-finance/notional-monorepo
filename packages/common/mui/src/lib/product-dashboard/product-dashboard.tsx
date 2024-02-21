@@ -3,10 +3,11 @@ import { LeveragedDashboard, DashboardHeader } from './components';
 
 export interface DashboardDataProps {
   title: string;
+  subTitle: string;
   apy: number;
-  tvl: string;
   symbol: string;
   routeCallback: () => void;
+  bottomValue?: string;
   hasPosition?: boolean;
   incentiveValue?: string;
   incentiveSymbol?: string;
@@ -22,6 +23,7 @@ export interface LeveragedDashboardProps {
   showNegativeYields?: boolean;
   setShowNegativeYields?: (value: boolean) => void;
   isLoading?: boolean;
+  threeWideGrid?: boolean;
 }
 
 export interface ProductDashboardProps {
@@ -38,6 +40,7 @@ export interface ProductDashboardProps {
     toggleOptions: React.ReactNode[];
     messageBoxText: any;
   };
+  threeWideGrid?: boolean;
 }
 
 export const ProductDashboard = ({
@@ -45,9 +48,10 @@ export const ProductDashboard = ({
   headerData,
   showNegativeYields,
   setShowNegativeYields,
+  threeWideGrid = true,
 }: ProductDashboardProps) => {
   const theme = useTheme();
-  const isLoading = productData === undefined || productData.length === 0;
+  const isLoading = productData && productData?.length === 0 ? true : false;
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
       <DashboardHeader headerData={headerData} />
@@ -56,6 +60,7 @@ export const ProductDashboard = ({
         isLoading={isLoading}
         showNegativeYields={showNegativeYields}
         setShowNegativeYields={setShowNegativeYields}
+        threeWideGrid={threeWideGrid}
       />
     </MainContainer>
   );

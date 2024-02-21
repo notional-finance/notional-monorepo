@@ -1,2 +1,2 @@
 export { LiquidityVariable, LiquidityLeveraged } from './liquidity';
-export { LiquidityVariableCardView, LiquidityLeveragedCardView } from './cards';
+export { LiquidityVariableCardView } from './cards';
