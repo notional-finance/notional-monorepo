@@ -11,12 +11,18 @@ const DATA_URL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 
 interface ContestData {
   rank: string;
-  username: { text: string; dataSet: string };
+  username: {
+    text: string;
+    communityName: string;
+    dataSet: string;
+    fullAddress: string;
+  };
   totalAPY: string;
-  totalDeposits: string;
+  totalDeposits: { displayValue: string; value: number };
   netWorth: string;
   totalEarnings: string;
   address: string;
+  communityId: number;
 }
 
 interface AccountResponse {
@@ -30,9 +36,59 @@ interface AccountResponse {
   contestId: number;
 }
 
+const handleCommunityName = (communityId: number) => {
+  let communityName = 'NOTE';
+  switch (communityId) {
+    case 1:
+      communityName = 'cryptotesters';
+      break;
+    case 2:
+      communityName = 'layer2dao';
+      break;
+    case 3:
+      communityName = 'llamas';
+      break;
+    default:
+      communityName = 'NOTE';
+      break;
+  }
+  return communityName;
+};
+
+const formatTableData = (
+  a: AccountResponse,
+  i: number,
+  hasLeverage: boolean
+) => {
+  return {
+    rank: (i + 1).toString().padStart(2, '0'),
+    username: {
+      text: truncateAddress(a.address),
+      communityName: handleCommunityName(a.communityId),
+      dataSet: hasLeverage ? 'highRoller' : 'fatCat',
+      fullAddress: a.address,
+    },
+    communityId: a.communityId,
+    address: a.address,
+    totalAPY: formatNumberAsPercent((a.irr || 0) * 100),
+    totalEarnings: `$${formatNumber(a.earnings)}`,
+    totalDeposits: {
+      displayValue:
+        a.netDeposits < 0 ? `$0.0000` : `$${formatNumber(a.netDeposits)}`,
+      value: a.netDeposits,
+    },
+    netWorth: `$${formatNumber(a.totalNetWorth)}`,
+  };
+};
+
 export function useLeaderboardData() {
   const [highRollerData, setHighRollerData] = useState<ContestData[]>([]);
   const [fatCatData, setFatCatData] = useState<ContestData[]>([]);
+  const [currentUserData, setCurrentUserData] = useState<
+    ContestData[] | undefined
+  >([]);
+  const [highRollerPartner, setHighRollerPartner] = useState<number>(0);
+  const [fatCatPartner, setFatCatPartner] = useState<number>(0);
   const network = useSelectedNetwork();
   const {
     globalState: { wallet },
@@ -47,59 +103,51 @@ export function useLeaderboardData() {
         },
       });
       const data: AccountResponse[] = await response.json();
-      const haveLeverage = data
-        .filter((a) => a.hasLeverage && a.irr)
-        .sort((a, b) => (b.irr || 0) - (a.irr || 0));
+      const userData = data.find((c) => c.address === wallet?.selectedAddress);
 
-      setHighRollerData(
-        haveLeverage.map((a, i) => ({
-          rank: (i + 1).toString().padStart(2, '0'),
-          username: {
-            text: truncateAddress(a.address),
-            dataSet: 'highRoller',
-            fullAddress: a.address,
-          },
-          address: a.address,
-          totalAPY: formatNumberAsPercent((a.irr || 0) * 100),
-          totalEarnings: `$${formatNumber(a.earnings)}`,
-          totalDeposits:
-            a.netDeposits < 0 ? `$0.0000` : `$${formatNumber(a.netDeposits)}`,
-          netWorth: `$${formatNumber(a.totalNetWorth)}`,
-        }))
-      );
-      setFatCatData(
-        data
-          .filter((a) => !a.hasLeverage && a.irr)
-          .sort((a, b) => (b.irr || 0) - (a.irr || 0))
-          .map((a, i) => ({
-            rank: (i + 1).toString().padStart(2, '0'),
-            username: {
-              text: truncateAddress(a.address),
-              dataSet: 'fatCat',
-              fullAddress: a.address,
-            },
-            address: a.address,
-            totalAPY: formatNumberAsPercent((a.irr || 0) * 100),
-            totalEarnings: `$${formatNumber(a.earnings)}`,
-            totalDeposits:
-              a.netDeposits < 0 ? `$0.0000` : `$${formatNumber(a.netDeposits)}`,
-            netWorth: `$${formatNumber(a.totalNetWorth)}`,
-          }))
-      );
+      const filteredHighRollerData = data
+        .filter((a) => a.hasLeverage && a.irr)
+        .filter(({ netDeposits }) => netDeposits > 100)
+        .sort((a, b) => (b.irr || 0) - (a.irr || 0))
+        .map((a, i) => formatTableData(a, i, true));
+
+      setHighRollerData(filteredHighRollerData);
+
+      const filteredFatCatData = data
+        .filter((a) => !a.hasLeverage && a.irr)
+        .filter(({ netDeposits }) => netDeposits > 100)
+        .sort((a, b) => (b.irr || 0) - (a.irr || 0))
+        .map((a, i) => formatTableData(a, i, false));
+
+      setFatCatData(filteredFatCatData);
+
+      if (userData && userData.netDeposits < 100) {
+        setCurrentUserData(
+          [userData].map((a, i) => {
+            const hasLeverage = a.hasLeverage && a.irr ? true : false;
+            return formatTableData(a, i, hasLeverage);
+          })
+        );
+      } else if (userData && userData.netDeposits > 100) {
+        const userContestData =
+        filteredHighRollerData.find((c) => c.address === wallet?.selectedAddress) ||
+          filteredFatCatData.find((c) => c.address === wallet?.selectedAddress);
+        if (userContestData) setCurrentUserData([userContestData]);
+      }
     }
-  }, [network]);
+  }, [network, wallet?.selectedAddress]);
 
   useEffect(() => {
     fetchContestData();
   }, [fetchContestData]);
 
-  const currentUserData =
-    highRollerData.find((c) => c.address === wallet?.selectedAddress) ||
-    fatCatData.find((c) => c.address === wallet?.selectedAddress);
-
   return {
-    highRollerData,
-    fatCatData,
-    currentUserData: currentUserData ? [currentUserData] : [],
+    highRollerData: highRollerPartner > 0 ? highRollerData.filter(({communityId}) => communityId === highRollerPartner) : highRollerData,
+    fatCatData: fatCatPartner > 0 ? fatCatData.filter(({communityId}) => communityId === fatCatPartner) : fatCatData,
+    setHighRollerPartner,
+    highRollerPartner,
+    setFatCatPartner,
+    fatCatPartner,
+    currentUserData: currentUserData ? currentUserData : [],
   };
 }

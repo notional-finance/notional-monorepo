@@ -75,7 +75,7 @@ export const useContestRulesInfo = () => {
       ),
       answer: (
         <FormattedMessage
-          defaultMessage={`Participants must hold a minimum account value of $100 in Notional for at least 24 hours to be eligible for prizes.`}
+          defaultMessage={`Participants must hold a minimum account value of $100 in Notional for at least 24 hours and until the end of the contest to be eligible for prizes.`}
         />
       ),
     },

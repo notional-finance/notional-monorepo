@@ -1,21 +1,13 @@
 import { useState } from 'react';
 import { Box } from '@mui/material';
 import { CopyCaption } from '../../copy-caption/copy-caption';
-import highRoller from './assets/high-roller.svg';
-import fatCat from './assets/fat-cat.svg';
-import sadSack from './assets/sad-sack.svg';
+import { TokenIcon } from '@notional-finance/icons';
 
 export const CustomIconCell = ({ cell }) => {
   const [showAlert, setShowAlert] = useState<boolean>(false);
-  const { row, value } = cell;
+  const { value } = cell;
   if (!value) return null;
-  const { text, dataSet, fullAddress } = value;
-
-  const imgData = {
-    fatCat,
-    sadSack,
-    highRoller,
-  };
+  const { text, fullAddress, communityName } = value;
 
   if (showAlert) {
     setTimeout(() => {
@@ -40,15 +32,16 @@ export const CustomIconCell = ({ cell }) => {
       }}
       onClick={handleCopy}
     >
-      {row.original.rank === '01' && (
-        <img
-          src={imgData[dataSet]}
-          alt="icon"
-          style={{ height: '18px', marginRight: '8px' }}
-        />
-      )}
+      <TokenIcon
+        symbol={communityName}
+        size="medium"
+        style={{ marginRight: '8px' }}
+      />
       {text}
-      <CopyCaption showAlert={showAlert} />
+      <CopyCaption
+        showAlert={showAlert}
+        sx={{ marginLeft: '-120px', position: 'relative' }}
+      />
     </Box>
   );
 };
