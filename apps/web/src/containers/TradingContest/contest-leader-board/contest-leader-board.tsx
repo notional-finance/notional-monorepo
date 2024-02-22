@@ -8,6 +8,7 @@ import {
   BgImgContainer,
   MainContainer,
   ContestButtonBar,
+  ContestPartnersButtons,
 } from '../components';
 import { useContestPass } from '@notional-finance/notionable-hooks';
 import { ContestTable, LinkText, Button } from '@notional-finance/mui';
@@ -17,6 +18,7 @@ import { colors } from '@notional-finance/styles';
 import test from '../assets/color-blobs.png';
 import { useLeaderBoardTables } from '../hooks';
 import { useSelectedNetwork } from '@notional-finance/wallet';
+import { Caption } from '@notional-finance/mui';
 
 export const ContestLeaderBoard = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
@@ -28,6 +30,10 @@ export const ContestLeaderBoard = () => {
     currentUserColumns,
     highRollerData,
     fatCatData,
+    setHighRollerPartner,
+    highRollerPartner,
+    setFatCatPartner,
+    fatCatPartner,
   } = useLeaderBoardTables();
 
   return (
@@ -68,11 +74,11 @@ export const ContestLeaderBoard = () => {
                   fontFamily: 'Avenir Next',
                 }}
               >
-                <FormattedMessage defaultMessage={'Rules & Prizes'} />
+                <FormattedMessage defaultMessage={'Contest Rules & Prizes'} />
               </Button>
             </CountDownContainer>
             {currentUserData.length > 0 && (
-              <UserTableContainer>
+              <Box>
                 <SectionTitle
                   sx={{
                     marginBottom: theme.spacing(4),
@@ -92,54 +98,68 @@ export const ContestLeaderBoard = () => {
                         >
                           {currentUserData[0].username?.dataSet === 'highRoller'
                             ? 'HIGH ROLLER'
-                            : currentUserData[0].username?.dataSet === 'fatCat'
-                            ? 'FAT CAT'
-                            : 'SAD SACK'}
+                            : 'FAT CAT'}
                         </Box>
                       ),
                     }}
                   />
                 </SectionTitle>
-                <ContestTable
-                  maxHeight={theme.spacing(77.5)}
-                  columns={currentUserColumns}
-                  data={currentUserData}
-                  isCurrentUser
-                />
-                <LinkText
-                  to="/portfolio/overview"
-                  sx={{ marginTop: theme.spacing(2) }}
-                >
-                  <FormattedMessage defaultMessage={'View in Portfolio'} />
-                </LinkText>
-              </UserTableContainer>
+                <UserTableContainer>
+                  <ContestTable
+                    columns={currentUserColumns}
+                    data={currentUserData}
+                    isCurrentUser
+                  />
+                  {currentUserData[0].netWorth.value < 100 && (
+                    <Caption
+                      sx={{
+                        color: colors.red,
+                        fontWeight: 500,
+                        marginTop: theme.spacing(1),
+                      }}
+                    >
+                      <FormattedMessage
+                        defaultMessage={
+                          'Your total net worth must be greater than $100 to compete for a prize.'
+                        }
+                      />
+                    </Caption>
+                  )}
+                  <LinkText
+                    to="/portfolio/overview"
+                    sx={{ marginTop: theme.spacing(1) }}
+                  >
+                    <FormattedMessage defaultMessage={'View in Portfolio'} />
+                  </LinkText>
+                </UserTableContainer>
+              </Box>
             )}
             <TableContainer>
+              <ContestPartnersButtons
+                setPartnerCallback={setHighRollerPartner}
+                partnerId={highRollerPartner}
+              />
               <ContestTable
                 maxHeight={theme.spacing(77.5)}
                 tableTitle={<FormattedMessage defaultMessage={'HIGH ROLLER'} />}
-                tableTitleSubText={
-                  <FormattedMessage
-                    defaultMessage={'Highest realized APY with leverage'}
-                  />
-                }
                 columns={leaderBoardColumns}
                 data={highRollerData}
-                tableLoading={highRollerData.length === 0}
+                tableLoading={
+                  highRollerData.length === 0 && highRollerPartner === 0
+                }
               />
             </TableContainer>
             <TableContainer>
+              <ContestPartnersButtons
+                setPartnerCallback={setFatCatPartner}
+                partnerId={fatCatPartner}
+              />
               <ContestTable
                 maxHeight={theme.spacing(77.5)}
                 tableTitle={<FormattedMessage defaultMessage={'FAT CAT'} />}
-                tableTitleSubText={
-                  <FormattedMessage
-                    defaultMessage={'Highest realized APY without leverage'}
-                  />
-                }
                 columns={leaderBoardColumns}
                 data={fatCatData}
-                tableLoading={fatCatData.length === 0}
+                tableLoading={fatCatData.length === 0 && fatCatPartner === 0}
               />
             </TableContainer>
             <ContestPrizes />
@@ -147,7 +167,9 @@ export const ContestLeaderBoard = () => {
               <Box sx={{ display: 'flex', marginTop: '100px' }}>
                 <ContestButtonBar
                   buttonOneText={
-                    <FormattedMessage defaultMessage={'Rules & Prizes'} />
+                    <FormattedMessage
+                      defaultMessage={'Contest Rules & Prizes'}
+                    />
                   }
                   buttonOnePathTo={`/contest-rules/${network}`}
                   buttonTwoText={
@@ -178,7 +200,7 @@ const TableContainer = styled(Box)(
 const UserTableContainer = styled(Box)(
   ({ theme }) => `
     display: flex;
-    align-items: center;
+    flex-direction: column;
   ${theme.breakpoints.down('md')} {
     justify-content: center;
     flex-direction: column;
