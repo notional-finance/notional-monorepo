@@ -199,11 +199,11 @@ export function calculateAccountIRR(account: AccountDefinition) {
     }
   }
 
-  console.log(
-    allFlows.map(({ date, amount }) => `${date.toISOString()},${amount}`)
-    // .join('\n')
-  );
-  console.log('NET DEPOSITS', irr, netDeposits);
+  // console.log(
+  //   allFlows.map(({ date, amount }) => `${date.toISOString()},${amount}`)
+  //   // .join('\n')
+  // );
+  // console.log('NET DEPOSITS', irr, netDeposits);
 
   return {
     irr,
