@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { CopyCaption } from '../../copy-caption/copy-caption';
 import { TokenIcon } from '@notional-finance/icons';
 
 export const CustomIconCell = ({ cell }) => {
+  const theme = useTheme();
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const { value } = cell;
   if (!value) return null;
@@ -40,7 +41,7 @@ export const CustomIconCell = ({ cell }) => {
       {text}
       <CopyCaption
         showAlert={showAlert}
-        sx={{ marginLeft: '-120px', position: 'relative' }}
+        sx={{ marginLeft: `-${theme.spacing(15)}`, position: 'relative' }}
       />
     </Box>
   );
