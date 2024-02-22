@@ -140,9 +140,7 @@ export function calculateAccountIRR(account: AccountDefinition) {
       };
     });
 
-  const netDeposits =
-    cashFlows.reduce((s, { balance }) => s + balance, 0) * -1 +
-    initialAccountValue.toFloat();
+  const netDeposits = cashFlows.reduce((s, { balance }) => s + balance, 0) * -1;
 
   // NOTE: groups up the cash flow to sum up flows that occur at the same time
   const allFlows = Array.from(
@@ -189,7 +187,7 @@ export function calculateAccountIRR(account: AccountDefinition) {
 
   let irr = null;
   // Enforce a $10 minimum deposit, otherwise the IRR will be null
-  if (msSinceFirstDeposit > 15 * ONE_MINUTE_MS && Math.abs(netDeposits) > 10) {
+  if (msSinceFirstDeposit > 15 * ONE_MINUTE_MS) {
     try {
       irr = xirr(allFlows);
     } catch (e) {
@@ -201,18 +199,17 @@ export function calculateAccountIRR(account: AccountDefinition) {
     }
   }
 
-  // console.log(
-  //   allFlows
-  //     .map(({ date, amount }) => `${date.toISOString()},${amount}`)
-  //     .join('\n')
-  // );
-  // console.log('NET DEPOSITS', irr, netDeposits);
+  console.log(
+    allFlows.map(({ date, amount }) => `${date.toISOString()},${amount}`)
+    // .join('\n')
+  );
+  console.log('NET DEPOSITS', irr, netDeposits);
 
   return {
     irr,
     totalNetWorth,
     netDeposits,
-    earnings: totalNetWorth - netDeposits,
+    earnings: totalNetWorth - netDeposits + initialAccountValue.toFloat(),
     hasLeverage,
   };
 }
