@@ -110,7 +110,7 @@ export const ContestLeaderBoard = () => {
                     data={currentUserData}
                     isCurrentUser
                   />
-                  {currentUserData[0].totalDeposits.value < 100 && (
+                  {currentUserData[0].netWorth.value < 100 && (
                     <Caption
                       sx={{
                         color: colors.red,
@@ -120,7 +120,7 @@ export const ContestLeaderBoard = () => {
                     >
                       <FormattedMessage
                         defaultMessage={
-                          'Your total deposits must be greater than $100 to compete for a prize.'
+                          'Your total net worth must be greater than $100 to compete for a prize.'
                         }
                       />
                     </Caption>

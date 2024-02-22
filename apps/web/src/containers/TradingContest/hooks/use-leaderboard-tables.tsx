@@ -33,6 +33,12 @@ export const useLeaderBoardTables = () => {
     {
       Header: 'Total Deposits',
       accessor: 'totalDeposits',
+      textAlign: 'right',
+      width: '225px',
+    },
+    {
+      Header: 'Net Worth',
+      accessor: 'netWorth',
       Cell: ({
         cell: {
           value: { value, displayValue },
@@ -40,12 +46,6 @@ export const useLeaderBoardTables = () => {
       }) => (
         <Box sx={{ color: value < 100 ? colors.red : '' }}>{displayValue}</Box>
       ),
-      textAlign: 'right',
-      width: '225px',
-    },
-    {
-      Header: 'Net Worth',
-      accessor: 'netWorth',
       textAlign: 'right',
       width: '225px',
     },

@@ -18,8 +18,8 @@ interface ContestData {
     fullAddress: string;
   };
   totalAPY: string;
-  totalDeposits: { displayValue: string; value: number };
-  netWorth: string;
+  totalDeposits: string;
+  netWorth: { displayValue: string; value: number };
   totalEarnings: string;
   address: string;
   communityId: number;
@@ -72,12 +72,12 @@ const formatTableData = (
     address: a.address,
     totalAPY: formatNumberAsPercent((a.irr || 0) * 100),
     totalEarnings: `$${formatNumber(a.earnings)}`,
-    totalDeposits: {
+    totalDeposits: a.netDeposits < 0 ? `$0.0000` : `$${formatNumber(a.netDeposits)}`,
+    netWorth: {
       displayValue:
-        a.netDeposits < 0 ? `$0.0000` : `$${formatNumber(a.netDeposits)}`,
-      value: a.netDeposits,
+        a.totalNetWorth < 0 ? `$0.0000` : `$${formatNumber(a.totalNetWorth)}`,
+      value: a.totalNetWorth,
     },
-    netWorth: `$${formatNumber(a.totalNetWorth)}`,
   };
 };
 
@@ -107,7 +107,7 @@ export function useLeaderboardData() {
 
       const filteredHighRollerData = data
         .filter((a) => a.hasLeverage && a.irr)
-        .filter(({ netDeposits }) => netDeposits > 100)
+        .filter(({ totalNetWorth }) => totalNetWorth > 100)
         .sort((a, b) => (b.irr || 0) - (a.irr || 0))
         .map((a, i) => formatTableData(a, i, true));
 
@@ -115,20 +115,20 @@ export function useLeaderboardData() {
 
       const filteredFatCatData = data
         .filter((a) => !a.hasLeverage && a.irr)
-        .filter(({ netDeposits }) => netDeposits > 100)
+        .filter(({ totalNetWorth }) => totalNetWorth > 100)
         .sort((a, b) => (b.irr || 0) - (a.irr || 0))
         .map((a, i) => formatTableData(a, i, false));
 
       setFatCatData(filteredFatCatData);
 
-      if (userData && userData.netDeposits < 100) {
+      if (userData && userData.totalNetWorth < 100) {
         setCurrentUserData(
           [userData].map((a, i) => {
             const hasLeverage = a.hasLeverage && a.irr ? true : false;
             return formatTableData(a, i, hasLeverage);
           })
         );
-      } else if (userData && userData.netDeposits > 100) {
+      } else if (userData && userData.totalNetWorth > 100) {
         const userContestData =
         filteredHighRollerData.find((c) => c.address === wallet?.selectedAddress) ||
           filteredFatCatData.find((c) => c.address === wallet?.selectedAddress);
