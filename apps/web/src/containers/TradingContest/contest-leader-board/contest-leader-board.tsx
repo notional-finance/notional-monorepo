@@ -167,7 +167,9 @@ export const ContestLeaderBoard = () => {
               <Box sx={{ display: 'flex', marginTop: '100px' }}>
                 <ContestButtonBar
                   buttonOneText={
-                    <FormattedMessage defaultMessage={'Rules & Prizes'} />
+                    <FormattedMessage
+                      defaultMessage={'Contest Rules & Prizes'}
+                    />
                   }
                   buttonOnePathTo={`/contest-rules/${network}`}
                   buttonTwoText={
