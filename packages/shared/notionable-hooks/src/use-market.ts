@@ -184,7 +184,7 @@ export const useAllMarkets = (network: Network | undefined) => {
         return {
           ...y,
           product: 'Leveraged Vault',
-          link: `${PRODUCTS.LEVERAGED_VAULT}/${network}/${y.underlying.symbol}`,
+          link: `${PRODUCTS.VAULTS}/${network}`,
         };
       }),
     leveragedLend: allYields
