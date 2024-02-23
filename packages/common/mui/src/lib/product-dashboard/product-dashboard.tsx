@@ -1,19 +1,22 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { LeveragedDashboard, DashboardHeader } from './components';
+import { DashboardGrid, DashboardHeader } from './components';
+import { MessageDescriptor } from 'react-intl';
 
 export interface DashboardDataProps {
   title: string;
+  subTitle: string;
   apy: number;
-  tvl: string;
   symbol: string;
   routeCallback: () => void;
+  bottomValue?: string;
   hasPosition?: boolean;
+  apySubTitle?: MessageDescriptor;
   incentiveValue?: string;
-  incentiveSymbol?: string;
+  incentiveSymbols?: (string | undefined)[] | [];
 }
 
-export interface LeveragedDashboardProps {
-  productData: {
+export interface DashboardGridProps {
+  productData?: {
     sectionTitle?: string;
     data: DashboardDataProps[];
     hasLeveragedPosition?: boolean;
@@ -22,22 +25,25 @@ export interface LeveragedDashboardProps {
   showNegativeYields?: boolean;
   setShowNegativeYields?: (value: boolean) => void;
   isLoading?: boolean;
+  threeWideGrid?: boolean;
+  hideApyTitle?: boolean;
 }
 
 export interface ProductDashboardProps {
-  productData: {
+  productData?: {
     sectionTitle?: string;
     data: DashboardDataProps[];
     hasLeveragedPosition?: boolean;
     hasNegativePosition?: boolean;
   }[];
+  isLoading?: boolean;
+  showNegativeYields?: boolean;
+  setShowNegativeYields?: (value: boolean) => void;
   headerData: {
     toggleOptions: React.ReactNode[];
     messageBoxText: any;
   };
-  isLoading?: boolean;
-  showNegativeYields?: boolean;
-  setShowNegativeYields?: (value: boolean) => void;
+  threeWideGrid?: boolean;
 }
 
 export const ProductDashboard = ({
@@ -45,17 +51,19 @@ export const ProductDashboard = ({
   headerData,
   showNegativeYields,
   setShowNegativeYields,
+  threeWideGrid = true,
 }: ProductDashboardProps) => {
   const theme = useTheme();
-  const isLoading = productData.length === 0;
+  const isLoading = productData && productData?.length === 0 ? true : false;
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
       <DashboardHeader headerData={headerData} />
-      <LeveragedDashboard
+      <DashboardGrid
         productData={productData}
         isLoading={isLoading}
         showNegativeYields={showNegativeYields}
         setShowNegativeYields={setShowNegativeYields}
+        threeWideGrid={threeWideGrid}
       />
     </MainContainer>
   );

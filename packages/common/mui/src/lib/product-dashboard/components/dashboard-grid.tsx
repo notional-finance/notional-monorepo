@@ -1,27 +1,29 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { LeveragedCard } from './leveraged-card';
+import { DashboardCard } from './dashboard-card';
 import { Caption, LinkText } from '../../typography/typography';
 import ProgressIndicator from '../../progress-indicator/progress-indicator';
-import { LeveragedDashboardProps } from '../product-dashboard';
+import { DashboardGridProps } from '../product-dashboard';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
 interface ContainerProps {
   hasLeveragedPosition?: boolean;
+  threeWideGrid?: boolean;
   theme: NotionalTheme;
 }
 
-export const LeveragedDashboard = ({
+export const DashboardGrid = ({
   productData,
   setShowNegativeYields,
   showNegativeYields,
   isLoading,
-}: LeveragedDashboardProps) => {
+  threeWideGrid,
+}: DashboardGridProps) => {
   const theme = useTheme();
 
   return (
     <Box sx={{ marginTop: isLoading ? theme.spacing(7.5) : '0px' }}>
-      {!isLoading ? (
+      {!isLoading && productData ? (
         productData.map(
           ({ sectionTitle, data, hasLeveragedPosition }, index) => (
             <Container
@@ -40,32 +42,36 @@ export const LeveragedDashboard = ({
               >
                 {sectionTitle}
               </Caption>
-              <GridCardContainer>
+              <GridCardContainer threeWideGrid={threeWideGrid} theme={theme}>
                 {data.map(
                   (
                     {
                       title,
+                      subTitle,
                       apy,
-                      tvl,
+                      bottomValue,
                       routeCallback,
                       symbol,
                       hasPosition,
                       incentiveValue,
-                      incentiveSymbol,
+                      incentiveSymbols,
+                      apySubTitle,
                     },
                     index
                   ) => (
                     <div key={index}>
-                      <LeveragedCard
+                      <DashboardCard
                         key={index}
                         title={title}
+                        subTitle={subTitle}
                         routeCallback={routeCallback}
                         apy={apy}
-                        tvl={tvl}
+                        bottomValue={bottomValue}
                         symbol={symbol}
                         hasPosition={hasPosition}
                         incentiveValue={incentiveValue}
-                        incentiveSymbol={incentiveSymbol}
+                        incentiveSymbols={incentiveSymbols}
+                        apySubTitle={apySubTitle}
                       />
                     </div>
                   )
@@ -108,6 +114,10 @@ const Container = styled(Box, {
       padding-top: ${theme.spacing(4)};
       padding-left: ${theme.spacing(3)};
       padding-right: ${theme.spacing(3)};
+      ${theme.breakpoints.down('sm')} {
+        padding-left: ${theme.spacing(2)};
+        padding-right: ${theme.spacing(2)};
+    }
       ${
         hasLeveragedPosition
           ? `
@@ -118,15 +128,25 @@ const Container = styled(Box, {
     `
 );
 
-const GridCardContainer = styled(Box)(
-  ({ theme }) => `
+const GridCardContainer = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'threeWideGrid',
+})(
+  ({ threeWideGrid, theme }: ContainerProps) => `
       display: grid;
       gap: ${theme.spacing(3)};
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: ${
+        threeWideGrid ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)'
+      };
+      #grid-card-sub-title {
+        width: ${threeWideGrid ? '100%' : theme.spacing(30.5)};
+        ${theme.breakpoints.down('xs')} {
+          width: ${threeWideGrid ? '100%' : theme.spacing(12)};
+        }
+      }
       ${theme.breakpoints.down('sm')} {
           grid-template-columns: repeat(1, 1fr);
       }
         `
 );
 
-export default LeveragedDashboard;
+export default DashboardGrid;

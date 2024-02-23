@@ -8,19 +8,27 @@ import {
 } from '../../typography/typography';
 import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { colors } from '@notional-finance/styles';
+import { NotionalTheme, colors } from '@notional-finance/styles';
 
-export const LeveragedCard = ({
-  title,
+interface GridCardApyProps {
+  hideApySubTitle: boolean;
+  theme: NotionalTheme;
+}
+
+export const DashboardCard = ({
   apy,
-  tvl,
+  title,
   symbol,
+  subTitle,
+  bottomValue,
+  apySubTitle,
   routeCallback,
-  hasPosition,
   incentiveValue,
-  incentiveSymbol,
+  incentiveSymbols,
 }: DashboardDataProps) => {
   const theme = useTheme();
+
+  const hideFooter = !bottomValue && !incentiveSymbols;
 
   return (
     <GridCard onClick={() => routeCallback()}>
@@ -31,53 +39,78 @@ export const LeveragedCard = ({
           padding: theme.spacing(2),
         }}
       >
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <TokenIcon
             symbol={symbol}
             size="xl"
             style={{ marginRight: theme.spacing(2) }}
           />
           <Box component="div" sx={{ textAlign: 'left', margin: 'auto' }}>
-            <GridCardTitle>{symbol}</GridCardTitle>
-            <GridCardSubTitle>{title}</GridCardSubTitle>
+            <GridCardTitle>{title}</GridCardTitle>
+            <GridCardSubTitle id="grid-card-sub-title">
+              {subTitle}
+            </GridCardSubTitle>
           </Box>
         </Box>
 
         <GridCardApy
+          hideApySubTitle={!apySubTitle ? true : false}
+          theme={theme}
           sx={{ color: apy < 0 ? colors.red : theme.palette.typography.main }}
         >
-          <SectionTitle>
-            {hasPosition ? (
-              <FormattedMessage defaultMessage={'Current APY'} />
-            ) : (
-              <FormattedMessage defaultMessage={'AS HIGH AS'} />
-            )}
+          <SectionTitle
+            sx={{
+              display: 'flex',
+              justifyContent: 'end',
+            }}
+          >
+            {apySubTitle && <FormattedMessage {...apySubTitle} />}
           </SectionTitle>
-          {formatNumberAsPercent(apy)}
+          {formatNumberAsPercent(apy) + ' APY'}
         </GridCardApy>
       </Box>
-      <IncentiveContainer id="incentive">
-        <SectionTitle
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          {tvl}
-        </SectionTitle>
-        {incentiveValue && incentiveSymbol && (
+      <GridCardFooter
+        id="incentive"
+        sx={{ display: hideFooter ? 'none' : 'flex' }}
+      >
+        {bottomValue && (
+          <SectionTitle
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {bottomValue}
+          </SectionTitle>
+        )}
+        {incentiveSymbols && incentiveSymbols.length > 0 && (
           <SectionTitle
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
+              paddingLeft:
+                incentiveSymbols.length > 1 ? theme.spacing(1) : '0px',
             }}
           >
-            <TokenIcon
-              symbol={incentiveSymbol}
-              size="small"
-              style={{ marginRight: theme.spacing(1) }}
-            />
+            {incentiveSymbols.map((incentiveSymbol, index) => (
+              <TokenIcon
+                key={index}
+                symbol={incentiveSymbol}
+                size="small"
+                style={{
+                  marginRight: theme.spacing(1),
+                  position:
+                    index === 1 && incentiveSymbols.length > 1
+                      ? 'absolute'
+                      : 'relative',
+                  marginLeft:
+                    index === 1 && incentiveSymbols.length > 1
+                      ? `-${theme.spacing(1)}`
+                      : '0px',
+                }}
+              />
+            ))}
             <Box
               sx={{
                 color: theme.palette.typography.main,
@@ -89,14 +122,13 @@ export const LeveragedCard = ({
             <FormattedMessage defaultMessage={'Incentive APY'} />
           </SectionTitle>
         )}
-      </IncentiveContainer>
+      </GridCardFooter>
     </GridCard>
   );
 };
 
-const IncentiveContainer = styled(Box)(
+const GridCardFooter = styled(Box)(
   ({ theme }) => `
-      display: flex;
       width: 100%;
       background: ${theme.palette.background.default};
       border-radius: 0px 0px ${theme.shape.borderRadius()} ${theme.shape.borderRadius()};
@@ -136,9 +168,14 @@ const GridCardTitle = styled(SmallInput)(
       `
 );
 
-const GridCardApy = styled(CurrencyTitle)(
-  ({ theme }) => `
+const GridCardApy = styled(CurrencyTitle, {
+  shouldForwardProp: (prop: string) => prop !== 'hideApySubTitle',
+})(
+  ({ hideApySubTitle, theme }: GridCardApyProps) => `
+      display: ${hideApySubTitle ? 'flex' : 'block'};
+      align-items: ${hideApySubTitle ? 'center' : ''};
       padding-left: ${theme.spacing(1)};
+      white-space: nowrap;
         `
 );
 
@@ -152,14 +189,7 @@ const GridCardSubTitle = styled('span')(
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
-      width: ${theme.spacing(30.5)};    
-        ${theme.breakpoints.down('sm')} {
-          width: ${theme.spacing(21)};
-        }
-        ${theme.breakpoints.down('xs')} {
-          width: ${theme.spacing(18)};
-        }
         `
 );
 
-export default LeveragedCard;
+export default DashboardCard;

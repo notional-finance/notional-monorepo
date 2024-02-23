@@ -8,7 +8,6 @@ export * from './lib/box-display/box-display';
 export * from './lib/button/button';
 export * from './lib/button-bar/button-bar';
 export * from './lib/card/card';
-export * from './lib/card-variants';
 export * from './lib/chart-tool-tip/chart-tool-tip';
 export * from './lib/chart-header/chart-header';
 export * from './lib/chart-header-totals/chart-header-totals';
