@@ -1,4 +1,5 @@
 import { RATE_PRECISION } from '@notional-finance/util';
+import { FiatSymbols, FIAT_NAMES } from '@notional-finance/core-entities';
 
 const allCommas = /,{1}/g;
 
@@ -53,7 +54,9 @@ export function formatNumberAsAPY(num: number | string, decimals = 2) {
 export function formatNumberAsAbbr(
   num: number,
   decimalPlaces = 3,
-  locale = 'en-US'
+  baseCurrency?: string,
+  locale = 'en-US',
+  
 ) {
   let suffix = '';
 
@@ -80,5 +83,7 @@ export function formatNumberAsAbbr(
     return localeString.replace('-', '');
   }
 
-  return `$${localeString}${suffix}`;
+  const symbol = baseCurrency && FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$';
+
+  return `${symbol}${localeString}${suffix}`;
 }

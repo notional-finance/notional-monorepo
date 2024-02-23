@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { defineMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
@@ -18,6 +18,7 @@ export const useLiquidityLeveragedDashboard = (
     yields: { leveragedLiquidity },
   } = useAllMarkets(network);
   const history = useHistory();
+  const baseCurrency = useFiat();
   const { nTokenPositions } = useLeveragedNTokenPositions(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
@@ -34,8 +35,17 @@ export const useLiquidityLeveragedDashboard = (
         ...y,
         symbol: y.underlying.symbol,
         title: y.underlying.symbol,
-        subTitle: `TVL: ${y.tvl ? formatNumberAsAbbr(y.tvl.toFloat(), 0) : 0}`,
+        subTitle: `TVL: ${
+          y.tvl
+            ? formatNumberAsAbbr(
+                y.tvl.toFiat(baseCurrency).toFloat(),
+                0,
+                baseCurrency
+              )
+            : 0
+        }`,
         hasPosition: currentPosition ? true : false,
+        tvlNum: y.tvl ? y.tvl.toFloat() : 0,
         apySubTitle: currentPosition
           ? defineMessage({
               defaultMessage: `Current APY`,
@@ -78,7 +88,7 @@ export const useLiquidityLeveragedDashboard = (
           ),
       };
     })
-    .sort((a, b) => b.apy - a.apy);
+    .sort((a, b) => b.tvlNum - a.tvlNum);
 
   const defaultLeveragedLiquidityData = allData.filter(
     ({ hasPosition }) => !hasPosition
