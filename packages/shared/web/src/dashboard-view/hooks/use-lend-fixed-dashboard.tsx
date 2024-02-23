@@ -33,7 +33,7 @@ export const useLendFixedDashboard = (network: Network) => {
           description: 'subtitle',
         }),
         apy: y.totalAPY,
-        tvlNum: y.tvl ? y.tvl.toFloat() : 0,
+        tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         routeCallback: () =>
           history.push(
             `/${PRODUCTS.LEND_FIXED}/${network}/${y.underlying.symbol}`
@@ -49,6 +49,8 @@ export const useLendFixedDashboard = (network: Network) => {
         return null;
       }
     });
+
+  console.log({ allData });
 
   const productData = [
     {

@@ -43,7 +43,7 @@ export const useVaultDashboard = (
         subTitle: name,
         bottomValue: `TVL: ${vaultTVL ? formatNumberAsAbbr(vaultTVL.toFiat(baseCurrency).toFloat(), 0) : 0}`,
         symbol: primaryToken.symbol,
-        tvlNum: vaultTVL ? vaultTVL.toFloat() : 0,
+        tvlNum: vaultTVL ? vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         hasPosition: profile ? true : false,
         apy: apy || 0,
         routeCallback: () => history.push(`/${PRODUCTS.VAULTS}/${network}/${vaultAddress}`),
@@ -60,7 +60,7 @@ export const useVaultDashboard = (
         ),
       };
     })
-    .sort((a, b) => b.tvlNum - a.tvlNum)
+    .sort((a, b) => b.apy - a.apy)
 
   const defaultVaultData = allVaultData.filter(
     ({ hasPosition }) => !hasPosition

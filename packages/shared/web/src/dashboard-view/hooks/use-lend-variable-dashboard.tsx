@@ -27,7 +27,7 @@ export const useLendVariableDashboard = (network: Network) => {
         }`,
         hasPosition: false,
         apy: y.totalAPY,
-        tvlNum: y.tvl ? y.tvl.toFloat() : 0,
+        tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         routeCallback: () =>
           history.push(
             `/${PRODUCTS.LEND_VARIABLE}/${network}/${y.underlying.symbol}`
