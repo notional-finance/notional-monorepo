@@ -47,6 +47,7 @@ const OuterContainer = styled(Box)(
   height: fit-content;
   border-radius: ${theme.shape.borderRadiusLarge};
   ${theme.breakpoints.down('sm')} {
+    margin-top: ${theme.spacing(6)};
     padding: ${theme.spacing(2)};
   }
 `

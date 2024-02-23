@@ -6,15 +6,16 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
 import {
-  LeveragedDashboardProps,
+  DashboardGridProps,
   DashboardDataProps,
 } from '@notional-finance/mui';
-import { Network } from '@notional-finance/util';
+import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
+import { defineMessage } from 'react-intl';
 
 export const useVaultDashboard = (
   network: Network
-): LeveragedDashboardProps => {
+): DashboardGridProps => {
   const history = useHistory();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
@@ -34,7 +35,7 @@ export const useVaultDashboard = (
         (p) => p.vault.vaultAddress === vaultAddress
       )?.vault;
       const apy = profile?.totalAPY || y?.totalAPY || undefined;
-
+      
       return {
         title: primaryToken.symbol,
         subTitle: name,
@@ -42,7 +43,18 @@ export const useVaultDashboard = (
         symbol: primaryToken.symbol,
         hasPosition: profile ? true : false,
         apy: apy || 0,
-        routeCallback: () => history.push(`/vaults/${network}/${vaultAddress}`),
+        routeCallback: () => history.push(`/${PRODUCTS.VAULTS}/${network}/${vaultAddress}`),
+        apySubTitle: profile ? (
+          defineMessage({
+            defaultMessage: `Current APY`,
+            description: 'subtitle',
+          })
+        ) : (
+          defineMessage({
+            defaultMessage: `AS HIGH AS`,
+            description: 'subtitle',
+          })
+        ),
       };
     })
     .sort((a, b) => b.apy - a.apy);
