@@ -24,7 +24,7 @@ export function TradeActionTitle({
       }}
     >
       {value !== undefined ? (
-        <CountUp value={value} suffix={valueSuffix} decimals={3} delay={0.3} />
+        <CountUp value={value} suffix={valueSuffix} decimals={2} delay={0.3} />
       ) : (
         '-'
       )}
