@@ -1,5 +1,5 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -9,6 +9,7 @@ export const useBorrowFixedDashboard = (network: Network) => {
     yields: { fCashBorrow },
   } = useAllMarkets(network);
   const history = useHistory();
+  const baseCurrency = useFiat();
   const tokenObj = {};
 
   const allData = fCashBorrow
@@ -17,12 +18,21 @@ export const useBorrowFixedDashboard = (network: Network) => {
         ...y,
         symbol: y.underlying.symbol,
         title: y.underlying.symbol,
-        subTitle: `TVL: ${y.tvl ? formatNumberAsAbbr(y.tvl.toFloat(), 0) : 0}`,
+        subTitle: `TVL: ${
+          y.tvl
+            ? formatNumberAsAbbr(
+                y.tvl.toFiat(baseCurrency).toFloat(),
+                0,
+                baseCurrency
+              )
+            : 0
+        }`,
         hasPosition: false,
         apySubTitle: defineMessage({
           defaultMessage: `AS LOW AS`,
           description: 'subtitle',
         }),
+        tvlNum: y.tvl ? y.tvl.toFloat() : 0,
         apy: y.totalAPY,
         routeCallback: () =>
           history.push(
@@ -30,7 +40,7 @@ export const useBorrowFixedDashboard = (network: Network) => {
           ),
       };
     })
-    .sort((a, b) => a.apy - b.apy)
+    .sort((a, b) => b.tvlNum - a.tvlNum)
     .filter((data) => {
       if (!tokenObj[data.symbol]) {
         tokenObj[data.symbol] = true;

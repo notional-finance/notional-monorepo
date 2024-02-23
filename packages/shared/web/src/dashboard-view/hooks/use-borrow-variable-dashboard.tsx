@@ -1,5 +1,5 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useHistory } from 'react-router';
 
@@ -8,6 +8,7 @@ export const useBorrowVariableDashboard = (network: Network) => {
     yields: { variableBorrow },
   } = useAllMarkets(network);
   const history = useHistory();
+  const baseCurrency = useFiat();
 
   const allData = variableBorrow
     .map((y) => {
@@ -15,8 +16,17 @@ export const useBorrowVariableDashboard = (network: Network) => {
         ...y,
         symbol: y.underlying.symbol,
         title: y.underlying.symbol,
-        subTitle: `TVL: ${y.tvl ? formatNumberAsAbbr(y.tvl.toFloat(), 0) : 0}`,
+        subTitle: `TVL: ${
+          y.tvl
+            ? formatNumberAsAbbr(
+                y.tvl.toFiat(baseCurrency).toFloat(),
+                0,
+                baseCurrency
+              )
+            : 0
+        }`,
         hasPosition: false,
+        tvlNum: y.tvl ? y.tvl.toFloat() : 0,
         apy: y.totalAPY,
         routeCallback: () =>
           history.push(
@@ -24,7 +34,7 @@ export const useBorrowVariableDashboard = (network: Network) => {
           ),
       };
     })
-    .sort((a, b) => a.apy - b.apy);
+    .sort((a, b) => b.tvlNum - a.tvlNum);
 
   const productData = [
     {

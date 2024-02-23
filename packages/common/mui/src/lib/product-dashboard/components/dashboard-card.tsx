@@ -105,7 +105,9 @@ export const DashboardCard = ({
                       ? 'absolute'
                       : 'relative',
                   marginLeft:
-                    index === 1 && incentiveSymbols.length > 1 ? '-8px' : '0px',
+                    index === 1 && incentiveSymbols.length > 1
+                      ? `-${theme.spacing(1)}`
+                      : '0px',
                 }}
               />
             ))}

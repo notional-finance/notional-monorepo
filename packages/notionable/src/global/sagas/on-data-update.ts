@@ -36,7 +36,7 @@ function onYieldsUpdate$(global$: Observable<GlobalState>) {
     take(1),
     switchMap(() => Registry.getYieldRegistry().subscribeNetworks()),
     switchMap((networks) => {
-      return timer(0, 10_000).pipe(
+      return timer(0, 60_000).pipe(
         map(() => {
           return {
             allYields: networks.reduce((acc, n) => {

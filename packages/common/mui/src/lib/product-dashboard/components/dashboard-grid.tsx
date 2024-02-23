@@ -23,7 +23,7 @@ export const DashboardGrid = ({
 
   return (
     <Box sx={{ marginTop: isLoading ? theme.spacing(7.5) : '0px' }}>
-      {!isLoading && productData !== undefined ? (
+      {!isLoading && productData ? (
         productData.map(
           ({ sectionTitle, data, hasLeveragedPosition }, index) => (
             <Container
