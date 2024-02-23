@@ -50,8 +50,6 @@ export const useLendFixedDashboard = (network: Network) => {
       }
     });
 
-  console.log({ allData });
-
   const productData = [
     {
       sectionTitle: '',
