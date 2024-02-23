@@ -32,7 +32,7 @@ export const useLiquidityVariableDashboard = (network: Network) => {
           defaultMessage: `AS HIGH AS`,
           description: 'subtitle',
         }),
-        tvlNum: y.tvl ? y.tvl.toFloat() : 0,
+        tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         bottomValue: ``,
         incentiveValue: getTotalIncentiveApy(
           y?.noteIncentives?.incentiveAPY,
