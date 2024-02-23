@@ -1,3 +1,3 @@
-export * from './leveraged-card'
-export * from './leveraged-dashboard'
+export * from './dashboard-card'
+export * from './dashboard-grid'
 export * from './dashboard-header'

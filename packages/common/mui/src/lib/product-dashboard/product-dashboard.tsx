@@ -1,5 +1,6 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { LeveragedDashboard, DashboardHeader } from './components';
+import { DashboardGrid, DashboardHeader } from './components';
+import { MessageDescriptor } from 'react-intl';
 
 export interface DashboardDataProps {
   title: string;
@@ -9,11 +10,12 @@ export interface DashboardDataProps {
   routeCallback: () => void;
   bottomValue?: string;
   hasPosition?: boolean;
+  apySubTitle?: MessageDescriptor;
   incentiveValue?: string;
-  incentiveSymbol?: string;
+  incentiveSymbols?: (string | undefined)[] | [];
 }
 
-export interface LeveragedDashboardProps {
+export interface DashboardGridProps {
   productData?: {
     sectionTitle?: string;
     data: DashboardDataProps[];
@@ -24,6 +26,7 @@ export interface LeveragedDashboardProps {
   setShowNegativeYields?: (value: boolean) => void;
   isLoading?: boolean;
   threeWideGrid?: boolean;
+  hideApyTitle?: boolean;
 }
 
 export interface ProductDashboardProps {
@@ -55,7 +58,7 @@ export const ProductDashboard = ({
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
       <DashboardHeader headerData={headerData} />
-      <LeveragedDashboard
+      <DashboardGrid
         productData={productData}
         isLoading={isLoading}
         showNegativeYields={showNegativeYields}

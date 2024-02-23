@@ -14,6 +14,7 @@ export const useLeveragedNTokenPositions = (
     };
   }
 
+
   const nTokenPositions = holdingsGroups.filter(
     ({ asset }) => asset.balance.tokenType === 'nToken'
   );
@@ -34,5 +35,6 @@ export const useLeveragedNTokenPositions = (
     currentPosition,
     depositTokensWithPositions,
     currentHoldings,
+    nTokenPositions,
   };
 };

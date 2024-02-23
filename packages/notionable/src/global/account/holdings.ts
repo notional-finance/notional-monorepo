@@ -200,6 +200,13 @@ export function calculateGroupedHoldings(
                 ? debtHoldings.marketYield.totalAPY
                 : // Need to check for undefined here if the debtHoldings is undefined
                   debtHoldings?.statement?.impliedFixedRate,
+            totalLeveragedApy: leveragedYield(
+              assetHoldings.marketYield?.totalAPY,
+              (debtHoldings?.marketYield?.token.tokenType === 'PrimeDebt'
+              ? debtHoldings.marketYield.totalAPY
+              : debtHoldings?.statement?.impliedFixedRate),
+              leverageRatio
+            ),
           });
         }
       }
@@ -213,6 +220,7 @@ export function calculateGroupedHoldings(
       leverageRatio: number;
       hasMatured: boolean;
       borrowAPY: number | undefined;
+      totalLeveragedApy: number | undefined;
     }[]
   );
 }

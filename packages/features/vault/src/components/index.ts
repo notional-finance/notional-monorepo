@@ -1,7 +1,6 @@
 export * from './vault-sub-nav/vault-sub-nav';
 export * from './mobile-vault-summary';
 export * from './transaction-cost-caption';
-export * from './vault-card-overlay/vault-card-overlay';
 export * from './vault-side-drawer';
 export * from './vault-details-table';
 export * from './vault-leverage-slider';

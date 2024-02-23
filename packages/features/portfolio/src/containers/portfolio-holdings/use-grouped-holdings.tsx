@@ -64,16 +64,12 @@ export function useGroupedHoldingsTable() {
       leverageRatio,
       presentValue,
       borrowAPY,
+      totalLeveragedApy,
     }) => {
       const underlying = asset.underlying;
       const { icon } = formatTokenType(asset.token);
       const debtData = formatTokenType(debt.token);
 
-      const marketApy = leveragedYield(
-        assetYield?.totalAPY,
-        borrowAPY,
-        leverageRatio
-      );
       const noteAPY = assetYield?.noteIncentives?.incentiveAPY;
       const noteIncentives =
         noteAPY !== undefined
@@ -127,11 +123,12 @@ export function useGroupedHoldingsTable() {
           data: [
             {
               displayValue: formatNumberAsPercentWithUndefined(
-                marketApy,
+                totalLeveragedApy,
                 '-',
                 2
               ),
-              isNegative: marketApy !== undefined && marketApy < 0,
+              isNegative:
+                totalLeveragedApy !== undefined && totalLeveragedApy < 0,
             },
             {
               displayValue:

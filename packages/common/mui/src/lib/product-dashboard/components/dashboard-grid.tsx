@@ -1,8 +1,8 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { LeveragedCard } from './leveraged-card';
+import { DashboardCard } from './dashboard-card';
 import { Caption, LinkText } from '../../typography/typography';
 import ProgressIndicator from '../../progress-indicator/progress-indicator';
-import { LeveragedDashboardProps } from '../product-dashboard';
+import { DashboardGridProps } from '../product-dashboard';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
@@ -12,13 +12,13 @@ interface ContainerProps {
   theme: NotionalTheme;
 }
 
-export const LeveragedDashboard = ({
+export const DashboardGrid = ({
   productData,
   setShowNegativeYields,
   showNegativeYields,
   isLoading,
   threeWideGrid,
-}: LeveragedDashboardProps) => {
+}: DashboardGridProps) => {
   const theme = useTheme();
 
   return (
@@ -54,12 +54,13 @@ export const LeveragedDashboard = ({
                       symbol,
                       hasPosition,
                       incentiveValue,
-                      incentiveSymbol,
+                      incentiveSymbols,
+                      apySubTitle,
                     },
                     index
                   ) => (
                     <div key={index}>
-                      <LeveragedCard
+                      <DashboardCard
                         key={index}
                         title={title}
                         subTitle={subTitle}
@@ -69,7 +70,8 @@ export const LeveragedDashboard = ({
                         symbol={symbol}
                         hasPosition={hasPosition}
                         incentiveValue={incentiveValue}
-                        incentiveSymbol={incentiveSymbol}
+                        incentiveSymbols={incentiveSymbols}
+                        apySubTitle={apySubTitle}
                       />
                     </div>
                   )
@@ -112,6 +114,10 @@ const Container = styled(Box, {
       padding-top: ${theme.spacing(4)};
       padding-left: ${theme.spacing(3)};
       padding-right: ${theme.spacing(3)};
+      ${theme.breakpoints.down('sm')} {
+        padding-left: ${theme.spacing(2)};
+        padding-right: ${theme.spacing(2)};
+    }
       ${
         hasLeveragedPosition
           ? `
@@ -133,6 +139,9 @@ const GridCardContainer = styled(Box, {
       };
       #grid-card-sub-title {
         width: ${threeWideGrid ? '100%' : theme.spacing(30.5)};
+        ${theme.breakpoints.down('xs')} {
+          width: ${threeWideGrid ? '100%' : theme.spacing(12)};
+        }
       }
       ${theme.breakpoints.down('sm')} {
           grid-template-columns: repeat(1, 1fr);
@@ -140,4 +149,4 @@ const GridCardContainer = styled(Box, {
         `
 );
 
-export default LeveragedDashboard;
+export default DashboardGrid;
