@@ -51,6 +51,7 @@ export const LiquidityYieldInfo = ({
           <CountUp
             value={liquidityYieldData.interestAPY}
             suffix="%"
+            decimals={2}
             delay={0.3}
           />
         ) : (
@@ -76,6 +77,7 @@ export const LiquidityYieldInfo = ({
             <CountUp
               value={liquidityYieldData?.noteIncentives.incentiveAPY}
               suffix="%"
+              decimals={2}
               delay={0.3}
             />
           ) : (
@@ -101,6 +103,7 @@ export const LiquidityYieldInfo = ({
               <CountUp
                 value={liquidityYieldData?.secondaryIncentives.incentiveAPY}
                 suffix="%"
+                decimals={2}
                 delay={0.3}
               />
             ) : (
