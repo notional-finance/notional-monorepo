@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Network } from '@notional-finance/util';
+import { defineMessage } from 'react-intl';
+import { Network, PRODUCTS } from '@notional-finance/util';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import {
-  LeveragedDashboardProps,
-  DashboardDataProps,
-} from '@notional-finance/mui';
+import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
+import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
 import { useHistory } from 'react-router';
 import {
   useLeveragedNTokenPositions,
@@ -14,39 +13,68 @@ import {
 
 export const useLiquidityLeveragedDashboard = (
   network: Network
-): LeveragedDashboardProps => {
+): DashboardGridProps => {
   const {
     yields: { leveragedLiquidity },
   } = useAllMarkets(network);
   const history = useHistory();
-  const { depositTokensWithPositions } = useLeveragedNTokenPositions(network);
+  const { nTokenPositions } = useLeveragedNTokenPositions(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
   const allMaxAPYs = useMaxYield(network);
 
-  console.log({ leveragedLiquidity });
-
   const allData = leveragedLiquidity
     .filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt')
     .map((y) => {
-      console.log({ y });
+      const currentPosition = nTokenPositions?.find(
+        (n) => n.asset.balance.underlying.symbol === y.underlying.symbol
+      );
+
       return {
         ...y,
         symbol: y.underlying.symbol,
         title: y.underlying.symbol,
         subTitle: `TVL: ${y.tvl ? formatNumberAsAbbr(y.tvl.toFloat(), 0) : 0}`,
-        hasPosition: depositTokensWithPositions.includes(y.underlying.symbol),
+        hasPosition: currentPosition ? true : false,
+        apySubTitle: currentPosition
+          ? defineMessage({
+              defaultMessage: `Current APY`,
+              description: 'subtitle',
+            })
+          : defineMessage({
+              defaultMessage: `AS HIGH AS`,
+              description: 'subtitle',
+            }),
         bottomValue: ``,
-        incentiveValue: '12.00%',
-        incentiveSymbol: 'ARB',
+        incentiveValue: currentPosition
+          ? getTotalIncentiveApy(
+              currentPosition?.asset.marketYield?.noteIncentives?.incentiveAPY,
+              currentPosition?.asset.marketYield?.secondaryIncentives
+                ?.incentiveAPY
+            )
+          : getTotalIncentiveApy(
+              y?.noteIncentives?.incentiveAPY,
+              y?.secondaryIncentives?.incentiveAPY
+            ),
+        incentiveSymbols: currentPosition
+          ? getTotalIncentiveSymbol(
+              currentPosition?.asset.marketYield?.secondaryIncentives?.symbol,
+              currentPosition?.asset.marketYield?.noteIncentives?.symbol
+            )
+          : getTotalIncentiveSymbol(
+              y?.secondaryIncentives?.symbol,
+              y?.noteIncentives?.symbol
+            ),
         apy:
-          allMaxAPYs.find((m) => m.token.currencyId === y.token.currencyId)
-            ?.totalAPY || 0,
+          currentPosition && currentPosition.totalLeveragedApy
+            ? currentPosition.totalLeveragedApy
+            : allMaxAPYs.find((m) => m.token.currencyId === y.token.currencyId)
+                ?.totalAPY || 0,
         routeCallback: () =>
           history.push(
-            depositTokensWithPositions.includes(y.underlying.symbol)
-              ? `/liquidity-leveraged/${network}/IncreaseLeveragedNToken/${y.underlying.symbol}`
-              : `/liquidity-leveraged/${network}/CreateLeveragedNToken/${y.underlying.symbol}`
+            currentPosition
+              ? `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/IncreaseLeveragedNToken/${y.underlying.symbol}`
+              : `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/CreateLeveragedNToken/${y.underlying.symbol}`
           ),
       };
     })
