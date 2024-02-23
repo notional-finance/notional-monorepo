@@ -26,7 +26,7 @@ export const useBorrowVariableDashboard = (network: Network) => {
             : 0
         }`,
         hasPosition: false,
-        tvlNum: y.tvl ? y.tvl.toFloat() : 0,
+        tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         apy: y.totalAPY,
         routeCallback: () =>
           history.push(

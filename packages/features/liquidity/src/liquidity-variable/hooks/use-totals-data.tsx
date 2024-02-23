@@ -48,7 +48,7 @@ export const useTotalsData = (
   return {
     totalsData: [
       {
-        title: <FormattedMessage defaultMessage={'TVL'} />,
+        title: <FormattedMessage defaultMessage={'Market Liquidity'} />,
         value: liquidityYieldData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
         prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
       },
