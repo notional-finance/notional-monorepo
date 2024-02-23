@@ -3,6 +3,7 @@ import {
   useAllVaults,
   useVaultHoldings,
   useAllMarkets,
+  useFiat,
 } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
 import {
@@ -17,6 +18,7 @@ export const useVaultDashboard = (
   network: Network
 ): DashboardGridProps => {
   const history = useHistory();
+  const baseCurrency = useFiat();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
@@ -39,8 +41,9 @@ export const useVaultDashboard = (
       return {
         title: primaryToken.symbol,
         subTitle: name,
-        bottomValue: `TVL: ${vaultTVL ? formatNumberAsAbbr(vaultTVL.toFloat(), 0) : 0}`,
+        bottomValue: `TVL: ${vaultTVL ? formatNumberAsAbbr(vaultTVL.toFiat(baseCurrency).toFloat(), 0) : 0}`,
         symbol: primaryToken.symbol,
+        tvlNum: vaultTVL ? vaultTVL.toFloat() : 0,
         hasPosition: profile ? true : false,
         apy: apy || 0,
         routeCallback: () => history.push(`/${PRODUCTS.VAULTS}/${network}/${vaultAddress}`),
@@ -57,7 +60,7 @@ export const useVaultDashboard = (
         ),
       };
     })
-    .sort((a, b) => b.apy - a.apy);
+    .sort((a, b) => b.tvlNum - a.tvlNum)
 
   const defaultVaultData = allVaultData.filter(
     ({ hasPosition }) => !hasPosition
