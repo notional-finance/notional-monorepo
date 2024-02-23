@@ -36,7 +36,7 @@ export const useTotalsData = (deposit: TokenDefinition | undefined) => {
 
   return [
     {
-      title: <FormattedMessage defaultMessage={'TVL'} />,
+      title: <FormattedMessage defaultMessage={'Market Liquidity'} />,
       value: tvlData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },

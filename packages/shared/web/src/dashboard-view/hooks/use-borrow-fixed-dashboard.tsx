@@ -32,7 +32,7 @@ export const useBorrowFixedDashboard = (network: Network) => {
           defaultMessage: `AS LOW AS`,
           description: 'subtitle',
         }),
-        tvlNum: y.tvl ? y.tvl.toFloat() : 0,
+        tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         apy: y.totalAPY,
         routeCallback: () =>
           history.push(

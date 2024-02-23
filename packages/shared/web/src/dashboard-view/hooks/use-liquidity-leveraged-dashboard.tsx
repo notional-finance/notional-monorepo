@@ -45,7 +45,7 @@ export const useLiquidityLeveragedDashboard = (
             : 0
         }`,
         hasPosition: currentPosition ? true : false,
-        tvlNum: y.tvl ? y.tvl.toFloat() : 0,
+        tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         apySubTitle: currentPosition
           ? defineMessage({
               defaultMessage: `Current APY`,
