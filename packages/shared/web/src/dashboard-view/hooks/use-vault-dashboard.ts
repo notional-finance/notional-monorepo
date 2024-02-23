@@ -41,7 +41,7 @@ export const useVaultDashboard = (
       return {
         title: primaryToken.symbol,
         subTitle: name,
-        bottomValue: `TVL: ${vaultTVL ? formatNumberAsAbbr(vaultTVL.toFiat(baseCurrency).toFloat(), 0) : 0}`,
+        bottomValue: profile ? `NET WORTH: ${profile?.netWorth().toDisplayStringWithSymbol()}` : `TVL: ${vaultTVL ? formatNumberAsAbbr(vaultTVL.toFiat(baseCurrency).toFloat(), 0) : 0}`,
         symbol: primaryToken.symbol,
         tvlNum: vaultTVL ? vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         hasPosition: profile ? true : false,
