@@ -6,7 +6,7 @@ import { useHistory } from 'react-router';
 
 export const useLendFixedDashboard = (network: Network) => {
   const {
-    yields: { fCashLend },
+    yields: { fCashLend, liquidity },
   } = useAllMarkets(network);
   const history = useHistory();
   const baseCurrency = useFiat();
@@ -14,14 +14,17 @@ export const useLendFixedDashboard = (network: Network) => {
 
   const allData = fCashLend
     .map((y) => {
+      const nTokenLiquidity = liquidity.find(
+        (x) => x.underlying.symbol === y.underlying.symbol
+      );
       return {
         ...y,
         symbol: y.underlying.symbol,
         title: y.underlying.symbol,
-        subTitle: `TVL: ${
-          y.tvl
+        subTitle: `Liquidity: ${
+          nTokenLiquidity && nTokenLiquidity.tvl
             ? formatNumberAsAbbr(
-                y.tvl.toFiat(baseCurrency).toFloat(),
+                nTokenLiquidity?.tvl.toFiat(baseCurrency).toFloat(),
                 0,
                 baseCurrency
               )
@@ -33,7 +36,9 @@ export const useLendFixedDashboard = (network: Network) => {
           description: 'subtitle',
         }),
         apy: y.totalAPY,
-        tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
+        tvlNum: nTokenLiquidity?.tvl
+          ? nTokenLiquidity.tvl.toFiat(baseCurrency).toNumber()
+          : 0,
         routeCallback: () =>
           history.push(
             `/${PRODUCTS.LEND_FIXED}/${network}/${y.underlying.symbol}`
