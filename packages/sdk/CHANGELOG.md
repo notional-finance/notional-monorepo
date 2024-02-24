@@ -2,6 +2,20 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.5.0](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.8...sdk-0.5.0) (2024-02-24)
+
+
+### Features
+
+* add withdraw cash ([#628](https://github.com/notional-finance/notional-monorepo/issues/628)) ([a0d6ed1](https://github.com/notional-finance/notional-monorepo/commit/a0d6ed123d9b7926e80e8a436bd7e26ea31ad349))
+
+
+### Bug Fixes
+
+* add temporary gas adjustment to batch lend ([#197](https://github.com/notional-finance/notional-monorepo/issues/197)) ([c46a17c](https://github.com/notional-finance/notional-monorepo/commit/c46a17c6c187ac542092b0c9c301bba45d9a1f2c))
+* hardcoding of ceth ([#528](https://github.com/notional-finance/notional-monorepo/issues/528)) ([40d1cb0](https://github.com/notional-finance/notional-monorepo/commit/40d1cb0f86e2b959d015811cd304417efed8445f))
+* update graph url ([#305](https://github.com/notional-finance/notional-monorepo/issues/305)) ([f8dfddb](https://github.com/notional-finance/notional-monorepo/commit/f8dfddb83446feb427b698008a54efea7e7893fd))
+
 ## [0.4.9](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.8...sdk-0.4.9) (2023-06-23)
 
 
