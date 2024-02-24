@@ -14,6 +14,17 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
       description: '',
     },
   }),
+  [PORTFOLIO_ACTIONS.WITHDRAW_CASH]: defineMessages({
+    heading: { defaultMessage: 'Withdraw Cash', description: '' },
+    helptext: {
+      defaultMessage: 'Withdraw your idle cash balances',
+      description: '',
+    },
+    inputLabel: {
+      defaultMessage: 'Enter the amount to withdraw',
+      description: '',
+    },
+  }),
   [PORTFOLIO_ACTIONS.DEPOSIT]: defineMessages({
     heading: { defaultMessage: 'Deposit Collateral', description: '' },
     helptext: {

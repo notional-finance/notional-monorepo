@@ -50,6 +50,7 @@ export enum PORTFOLIO_ACTIONS {
   MANAGE_VAULT = 'manage-vault',
   MANAGE_BORROW = 'manage-borrow',
   MANAGE_LEND = 'manage-lend',
+  WITHDRAW_CASH = 'withdraw-cash',
 }
 
 export enum WITHDRAW_TYPE {
