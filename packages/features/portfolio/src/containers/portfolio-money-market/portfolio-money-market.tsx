@@ -16,6 +16,10 @@ const actionLabels = defineMessages({
     defaultMessage: 'Repay Cash Debt',
     description: 'button text',
   },
+  withdrawCash: {
+    defaultMessage: 'Withdraw Cash',
+    description: 'button text',
+  },
 });
 
 export const PortfolioMoneyMarket = () => {
@@ -38,10 +42,22 @@ export const PortfolioMoneyMarket = () => {
       : actionLabels.convertCash;
 
     return (
-      <Box sx={{ padding: theme.spacing(3) }}>
-        <Button size="large" to={actionLink}>
-          <FormattedMessage {...buttonLabel} />
-        </Button>
+      <Box sx={{ display: 'flex' }}>
+        <Box sx={{ padding: theme.spacing(3) }}>
+          <Button size="large" to={actionLink}>
+            <FormattedMessage {...buttonLabel} />
+          </Button>
+        </Box>
+        {!original['isNegative'] && (
+          <Box sx={{ padding: theme.spacing(3) }}>
+            <Button
+              size="large"
+              to={`/portfolio/${category}/${PORTFOLIO_ACTIONS.WITHDRAW_CASH}?symbol=${original.currency.symbol}`}
+            >
+              <FormattedMessage {...actionLabels.withdrawCash} />
+            </Button>
+          </Box>
+        )}
       </Box>
     );
   };

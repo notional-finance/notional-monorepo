@@ -15,6 +15,7 @@ import {
   WithdrawLend,
   ManageVault,
   ManageMaturities,
+  WithdrawCash,
 } from '../side-drawers';
 
 export const usePortfolioSideDrawers = () => {
@@ -37,6 +38,7 @@ export const usePortfolioSideDrawers = () => {
     [PORTFOLIO_ACTIONS.MANAGE_VAULT]: ManageVault,
     [PORTFOLIO_ACTIONS.MANAGE_LEND]: ManageMaturities,
     [PORTFOLIO_ACTIONS.MANAGE_BORROW]: ManageMaturities,
+    [PORTFOLIO_ACTIONS.WITHDRAW_CASH]: WithdrawCash,
   };
 
   const SideDrawerComponent =

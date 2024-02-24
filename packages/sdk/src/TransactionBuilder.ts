@@ -214,6 +214,24 @@ export default class TransactionBuilder {
     ]);
   }
 
+  public withdrawCash(
+    address: string,
+    symbol: string,
+    amountInternal: TypedBigNumber,
+    redeemToUnderlying: boolean,
+    overrides = {} as Overrides
+  ) {
+    const currency = System.getSystem().getCurrencyBySymbol(symbol);
+    amountInternal.check(BigNumberType.InternalAsset, currency.assetSymbol);
+
+    return this.populateTxnAndGas(address, 'withdraw', [
+      currency.id,
+      amountInternal.n,
+      redeemToUnderlying,
+      overrides,
+    ]);
+  }
+
   /**
    * Mints nTokens given the amount of cash to deposit
    *
