@@ -67,7 +67,7 @@ const run = async (env: Env) => {
 
   const accounts = (
     (await (
-      await fetch(env.ACCOUNT_SERVICE_URL, {
+      await fetch(`${env.ACCOUNT_SERVICE_URL}?network=${env.NETWORK}`, {
         headers: {
           'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
         },

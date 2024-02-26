@@ -1,4 +1,4 @@
-import ethers, { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers';
 import { Knex } from 'knex';
 import {
   Network,
@@ -37,14 +37,10 @@ const networkToId = {
 };
 
 export type DataServiceSettings = {
-  // TODO: support multiple networks
-  network: Network;
   blocksPerSecond: Record<string, number>;
   maxProviderRequests: number;
   interval: number;
   frequency: number; // hourly, daily etc.
-  startingBlock: number;
-  registryUrl: string;
   dataUrl: string;
   mergeConflicts: boolean;
   backfillDelayMs: number;
@@ -57,11 +53,7 @@ export default class DataService {
   public static readonly VAULT_ACCOUNTS_TABLE_NAME = 'vault_accounts';
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
 
-  constructor(
-    public provider: ethers.providers.Provider,
-    public db: Knex,
-    public settings: DataServiceSettings
-  ) {}
+  constructor(public db: Knex, public settings: DataServiceSettings) {}
 
   private getKeyByValue(object, value) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -519,17 +511,17 @@ export default class DataService {
       .ignore();
   }
 
-  public async accounts() {
+  public async accounts(network: Network) {
     return this.db
       .select('account_id')
       .from(DataService.ACCOUNTS_TABLE_NAME)
-      .where('network_id', this.networkToId(this.settings.network));
+      .where('network_id', this.networkToId(network));
   }
 
-  public async vaultAccounts() {
+  public async vaultAccounts(network: Network) {
     return this.db
       .select(['account_id', 'vault_id'])
       .from(DataService.VAULT_ACCOUNTS_TABLE_NAME)
-      .where('network_id', this.networkToId(this.settings.network));
+      .where('network_id', this.networkToId(network));
   }
 }

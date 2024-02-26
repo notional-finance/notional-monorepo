@@ -6,11 +6,13 @@ logpush = true
 node_compat = true
 minify = true
 
+[triggers]
+crons = ["0/10 * * * *"]
 
-[env.dev]
-name = "liquidation-bot-dev"
+[env.arbitrum]
+name = "liquidation-bot-arbitrum"
 
-[env.dev.vars]
+[env.arbitrum.vars]
 NX_DATA_URL = 'https://data-dev.notional.finance'
 ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
 ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
@@ -26,11 +28,21 @@ EXACT_OUT_SLIPPAGE_LIMIT = '1020'
 GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
 
-[env.beta]
-name = "liquidation-bot-beta"
+[env.mainnet]
+name = "liquidation-bot-mainnet"
 
-[env.prod]
-name = "liquidation-bot"
-
-[triggers]
-crons = ["0/10 * * * *"]
+[env.mainnet.vars]
+NX_DATA_URL = 'https://data-dev.notional.finance'
+ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
+ZERO_EX_SWAP_URL = 'https://api.0x.org/swap/v1/quote'
+NETWORK = 'mainnet'
+FLASH_LIQUIDATOR_CONTRACT = ''
+FLASH_LIQUIDATOR_OWNER = ''
+FLASH_LENDER_ADDRESS = '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2'
+FLASH_LOAN_BUFFER = '1005'
+NOTIONAL_PROXY_CONTRACT = '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f'
+DUST_THRESHOLD = '100000000000000'
+EXACT_IN_SLIPPAGE_LIMIT = '980'
+EXACT_OUT_SLIPPAGE_LIMIT = '1020'
+GAS_COST_BUFFER = '1000'
+PROFIT_THRESHOLD = '-579531698874532'
