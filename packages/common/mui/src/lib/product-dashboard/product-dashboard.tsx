@@ -2,6 +2,7 @@ import { Box, styled, useTheme } from '@mui/material';
 import { DashboardGrid, DashboardHeader } from './components';
 import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
+// import { DataTable } from '../data-table/data-table';
 
 export interface DashboardDataProps {
   title: string;
@@ -55,22 +56,26 @@ export const ProductDashboard = ({
   threeWideGrid = true,
 }: ProductDashboardProps) => {
   const theme = useTheme();
-  const [showGrid, setShowGrid] = useState<boolean>(true);
+  const [dashboardTab, setDashboardTab] = useState<number>(0);
   const isLoading = productData && productData?.length === 0 ? true : false;
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
       <DashboardHeader
         headerData={headerData}
-        showGrid={showGrid}
-        setShowGrid={setShowGrid}
+        dashboardTab={dashboardTab}
+        setDashboardTab={setDashboardTab}
       />
-      <DashboardGrid
-        productData={productData}
-        isLoading={isLoading}
-        showNegativeYields={showNegativeYields}
-        setShowNegativeYields={setShowNegativeYields}
-        threeWideGrid={threeWideGrid}
-      />
+      {dashboardTab === 0 ? (
+        <DashboardGrid
+          productData={productData}
+          isLoading={isLoading}
+          showNegativeYields={showNegativeYields}
+          setShowNegativeYields={setShowNegativeYields}
+          threeWideGrid={threeWideGrid}
+        />
+      ) : (
+        <div>DATA TABLE</div>
+      )}
     </MainContainer>
   );
 };

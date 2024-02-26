@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs, styled, Tab, Box, useTheme } from '@mui/material';
+import { Tabs, styled, Tab, Box, useTheme, SxProps } from '@mui/material';
 import { TabsUnstyledProps } from '@mui/base';
 import { NotionalTheme } from '@notional-finance/styles';
 
@@ -12,6 +12,7 @@ export interface SimpleToggleProps extends TabsUnstyledProps {
   ) => void;
   minHeight?: string;
   width?: string;
+  sx?: SxProps;
 }
 
 interface StyledTabProps {
@@ -22,6 +23,7 @@ export const SimpleToggle = ({
   selectedTabIndex = 0,
   tabLabels,
   onChange,
+  sx,
 }: SimpleToggleProps) => {
   const theme = useTheme() as NotionalTheme;
   return (
@@ -33,6 +35,7 @@ export const SimpleToggle = ({
         defaultValue={0}
         value={selectedTabIndex}
         onChange={onChange}
+        sx={{ ...sx }}
       >
         {tabLabels.map((l, i) => {
           return (
@@ -68,6 +71,10 @@ const StyledTabs = styled(Tabs)(
   box-shadow: ${theme?.shape.shadowStandard};
   transition: background 0.3s ease;
   min-height: ${theme.spacing(4.75)};
+
+  .MuiButtonBase-root {
+    min-width: 0px;
+  }
   
   .MuiTabs-indicator {
     z-index: 1;
@@ -92,7 +99,7 @@ const StyledTab = styled(Tab)(
   transition-duration: 0.3s;
   transition-property: all;
   min-height: unset;
-  padding: ${theme.spacing(0.5, 2)};
+  padding: ${theme.spacing(1)};
 
   &.Mui-selected {
     color: ${theme.palette.typography.main};
