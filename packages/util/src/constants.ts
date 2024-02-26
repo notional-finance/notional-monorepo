@@ -75,8 +75,8 @@ export const AlchemyNFTUrl: Record<Network, string> = {
 };
 
 export const NotionalAddress: Record<Network, string> = {
-  [Network.All]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  [Network.Mainnet]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  [Network.All]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f',
+  [Network.Mainnet]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f',
   [Network.ArbitrumOne]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   [Network.Optimism]: '',
   [Network.Goerli]: '0xD8229B55bD73c61D840d339491219ec6Fa667B0a',

@@ -35,7 +35,7 @@ NX_ENV = 'dev'
 VERSION = 'v1'
 NX_DATA_URL = 'https://data-dev.notional.finance'
 DATA_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com'
-SUPPORTED_NETWORKS = ['arbitrum', 'all']
+SUPPORTED_NETWORKS = ['arbitrum', 'all', 'mainnet']
 
 [env.beta]
 name = "data-beta"

@@ -32,6 +32,8 @@ export const defaultConfigDefs: ConfigDefinition[] = [
 
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   [ProtocolName.NotionalV3]: {
+    [Network.Mainnet]:
+      'https://api.studio.thegraph.com/query/36749/notional-v3-mainnet/version/latest',
     [Network.ArbitrumOne]:
       'https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest',
   },
@@ -42,6 +44,8 @@ export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
       'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2',
   },
   [ProtocolName.Curve]: {
+    [Network.Mainnet]:
+      'https://api.thegraph.com/subgraphs/name/messari/curve-finance-ethereum',
     [Network.ArbitrumOne]:
       'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
   },

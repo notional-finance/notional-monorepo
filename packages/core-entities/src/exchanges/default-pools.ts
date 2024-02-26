@@ -2,41 +2,24 @@ import { ALT_ETH, Network } from '@notional-finance/util';
 import { PoolDefinition } from '..';
 
 const defaultPools: Record<Network, PoolDefinition[]> = {
-  [Network.Goerli]: [
-    // TODO: add nTokens
-  ],
   [Network.Mainnet]: [
     {
-      address: '0x32296969ef14eb0c6d29669c550d4a0449130230',
-      PoolClass: 'MetaStablePool',
-      registerTokens: [
-        {
-          id: '0x32296969ef14eb0c6d29669c550d4a0449130230',
-          address: '0x32296969ef14eb0c6d29669c550d4a0449130230',
-          network: Network.Mainnet,
-          symbol: 'B-stETH-STABLE',
-          name: 'Balancer stETH-ETH Stable',
-          decimals: 18,
-          tokenInterface: 'ERC20',
-          tokenType: 'Underlying',
-        },
-      ],
+      // nETH
+      address: '0x3410463726a7a22ce0809367a4418fe82fc31fd3',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
     },
     {
-      address: '0x5FAE7E604FC3e24fd43A72867ceBaC94c65b404A',
-      PoolClass: 'Curve2TokenPoolV2',
-      registerTokens: [
-        {
-          id: '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
-          address: '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
-          network: Network.Mainnet,
-          symbol: 'cbETH/ETH-f',
-          name: 'Curve.fi Factory Crypto Pool: cbETH/ETH',
-          decimals: 18,
-          tokenInterface: 'ERC20',
-          tokenType: 'Underlying',
-        },
-      ],
+      // nDAI
+      address: '0x87c478f00999d65f88d3088291a6928b55703444',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nUSDC
+      address: '0x2920f9fc667e780c0cb5a78a104d21413377f97e',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
     },
   ],
   [Network.ArbitrumOne]: [

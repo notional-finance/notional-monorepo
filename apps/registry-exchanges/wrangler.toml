@@ -23,7 +23,7 @@ NX_ENV = 'dev'
 # the durable object to a clean version
 VERSION = 'v2'
 NX_DATA_URL = 'https://data-dev.notional.finance'
-SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
+SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]
 
 [env.dev.durable_objects]
 bindings = [
