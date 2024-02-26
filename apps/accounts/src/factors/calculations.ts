@@ -17,7 +17,7 @@ import {
 import { calculateAccruedIncentives } from '@notional-finance/notionable/global/account/incentives';
 import initialValue from './initialValue.json';
 
-const contestStart = 1704096000; // Jan 1
+const contestStart = 1708934400; // Feb 26, Midnight
 const contestEnd = 1711350000; // March 25, Midnight
 export const currentContestId = 1;
 

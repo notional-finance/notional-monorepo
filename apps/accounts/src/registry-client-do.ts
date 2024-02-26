@@ -224,7 +224,7 @@ export class RegistryClientDO extends BaseDO<Env> {
     const participants = await this.getContestParticipants(contestId);
     const accounts = Registry.getAccountRegistry();
     const allContestants = participants
-      // .filter((a) => a.address === '0x7c88b0345983c709426b3b0648bb10ba1a5fd8da')
+      // .filter((a) => a.address === '0xc3c8476ebe9f8cb776bcd18fac10eb203754a78a')
       .filter((a) => !excludedAccounts.includes(a.address))
       .map((p) => {
         try {
@@ -237,7 +237,9 @@ export class RegistryClientDO extends BaseDO<Env> {
           return undefined;
         }
       })
-      .filter((_) => !!_);
+      .filter((_) => !!_)
+      // NOTE: put a cap on IRR to exclude obviously incorrect values
+      .filter(({ irr }) => irr === null || irr < 5);
 
     await this.putStorageKey(
       `${network}/accounts`,
