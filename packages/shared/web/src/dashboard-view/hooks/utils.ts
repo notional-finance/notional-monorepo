@@ -32,7 +32,7 @@ export const getTotalIncentiveSymbol = (symbol1?: string, symbol2?: string) => {
 export const getDebtOrCollateralFactor = (
   token: TokenDefinition,
   underlying: TokenDefinition,
-  isBorrow = false
+  isBorrow: boolean
 ) => {
   const { buffer, haircut } =
     Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(token);
