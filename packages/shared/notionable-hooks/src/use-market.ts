@@ -292,13 +292,3 @@ export const useSpotMaturityData = (
     );
   }, [tokens, nonLeveragedYields]);
 };
-
-export const useCollateralAndDebtFactors = (network: Network | undefined) => {
-  if (network) {
-    return Registry.getConfigurationRegistry().getCollateralAndDebtFactors(
-      network
-    );
-  } else {
-    return {};
-  }
-};
