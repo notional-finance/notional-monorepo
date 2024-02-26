@@ -1,5 +1,6 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { DashboardGrid, DashboardHeader } from './components';
+import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
 
 export interface DashboardDataProps {
@@ -54,10 +55,15 @@ export const ProductDashboard = ({
   threeWideGrid = true,
 }: ProductDashboardProps) => {
   const theme = useTheme();
+  const [showGrid, setShowGrid] = useState<boolean>(true);
   const isLoading = productData && productData?.length === 0 ? true : false;
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
-      <DashboardHeader headerData={headerData} />
+      <DashboardHeader
+        headerData={headerData}
+        showGrid={showGrid}
+        setShowGrid={setShowGrid}
+      />
       <DashboardGrid
         productData={productData}
         isLoading={isLoading}

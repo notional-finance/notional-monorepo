@@ -1,3 +1,4 @@
+import { SetStateAction, Dispatch } from 'react';
 import { Box, styled } from '@mui/material';
 import { SimpleToggle } from '../../simple-toggle/simple-toggle';
 import { MessageDescriptor } from 'react-intl';
@@ -7,7 +8,16 @@ export interface DashboardHeaderProps {
     toggleOptions: React.ReactNode[];
     messageBoxText: MessageDescriptor;
   };
+  showGrid?: boolean;
+  setShowGrid?: Dispatch<SetStateAction<boolean>>;
 }
+
+// const gridToggleData = {
+//   toggleOptions: [
+//     <Box sx={{ fontSize: '14px', display: 'flex' }}>Grid</Box>,
+//     <Box sx={{ fontSize: '14px', display: 'flex' }}>List</Box>,
+//   ],
+// };
 
 export const DashboardHeader = ({ headerData }: DashboardHeaderProps) => {
   const { toggleOptions, messageBoxText } = headerData;
