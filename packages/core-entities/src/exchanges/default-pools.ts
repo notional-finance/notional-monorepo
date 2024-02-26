@@ -2,6 +2,7 @@ import { ALT_ETH, Network } from '@notional-finance/util';
 import { PoolDefinition } from '..';
 
 const defaultPools: Record<Network, PoolDefinition[]> = {
+  [Network.Goerli]: [],
   [Network.Mainnet]: [
     {
       // nETH
