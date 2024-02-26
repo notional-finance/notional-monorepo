@@ -500,6 +500,16 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return this._assertDefined(this.getConfig(network, currencyId).debtBuffer);
   }
 
+  getCollateralAndDebtFactors(network: Network) {
+    return this.getAllListedCurrencies(network)?.reduce((acc, c) => {
+      acc[c.id] = {
+        collateralFactor: this._assertDefined(c.collateralHaircut),
+        debtFactor: this._assertDefined(c.debtBuffer),
+      };
+      return acc;
+    }, {} as Record<string, { collateralFactor: number; debtFactor: number }>);
+  }
+
   getInterestRiskAdjustment(
     oracle: OracleDefinition,
     inverted: boolean,
