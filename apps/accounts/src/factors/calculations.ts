@@ -17,29 +17,29 @@ import {
 import { calculateAccruedIncentives } from '@notional-finance/notionable/global/account/incentives';
 import initialValue from './initialValue.json';
 
-const contestStart = 1704096000; // Jan 1
+const contestStart = 1708923600; // Feb 26, Midnight
 const contestEnd = 1711350000; // March 25, Midnight
 export const currentContestId = 1;
 
 export const excludedAccounts = ['0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243'];
 
 const exchangeRates = {
-  ETH: 2500,
+  ETH: 3070,
   DAI: 1,
   USDC: 1,
-  WBTC: 50_000,
-  wstETH: 2_700,
+  WBTC: 51_300,
+  wstETH: 3550,
   FRAX: 1,
-  rETH: 2_600,
+  rETH: 3370,
   USDT: 1,
-  cbETH: 2_600,
-  GMX: 42,
-  ARB: 2,
-  UNI: 7,
-  LDO: 3,
-  LINK: 20,
-  NOTE: 0.1,
-  RDNT: 0.3,
+  cbETH: 3250,
+  GMX: 51,
+  ARB: 1.85,
+  UNI: 10.5,
+  LDO: 3.3,
+  LINK: 18.5,
+  NOTE: 0.14,
+  RDNT: 0.37,
 };
 
 function convertToUSD(b: TokenBalance): number {
@@ -73,8 +73,8 @@ export function calculateAccountIRR(account: AccountDefinition) {
     .map(
       (v) =>
         convertToUSD(v.vaultShares.toUnderlying()) +
-        convertToUSD(v.vaultCash.toUnderlying()) -
-        convertToUSD(v.vaultDebt.toUnderlying())
+        convertToUSD(v.vaultCash.toUnderlying()) +
+        Math.abs(convertToUSD(v.vaultDebt.toUnderlying())) * -1
     )
     .reduce((p, c) => p + c, portfolioNetWorth + valueOfUnclaimedIncentives);
 
@@ -185,7 +185,7 @@ export function calculateAccountIRR(account: AccountDefinition) {
     getNowSeconds() * 1000 -
     Math.min(...allFlows.map(({ date }) => date.getTime()));
 
-  let irr = null;
+  let irr: number | null = null;
   // Enforce a $10 minimum deposit, otherwise the IRR will be null
   if (msSinceFirstDeposit > 15 * ONE_MINUTE_MS) {
     try {
@@ -200,6 +200,7 @@ export function calculateAccountIRR(account: AccountDefinition) {
   }
 
   // console.log(
+  //   irr,
   //   allFlows.map(({ date, amount }) => `${date.toISOString()},${amount}`)
   //   // .join('\n')
   // );
