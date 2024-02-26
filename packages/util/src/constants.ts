@@ -56,7 +56,7 @@ export const NetworkId: Record<Network, number> = {
   [Network.Optimism]: 10,
 };
 
-export const SupportedNetworks = [Network.ArbitrumOne];
+export const SupportedNetworks = [Network.ArbitrumOne, Network.Mainnet];
 
 export const AlchemyUrl: Record<Network, string> = {
   [Network.All]: 'https://eth-mainnet.g.alchemy.com/v2',
