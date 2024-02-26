@@ -6,9 +6,11 @@ node_compat = true
 logpush = true
 minify = true
 
+[triggers]
+crons = ["0/10 * * * *"]
 
-[env.dev]
-name = "vault-liquidator-dev"
+[env.arbitrum]
+name = "vault-liquidator-arbitrum"
 
 [env.dev.vars]
 NX_DATA_URL = 'https://data-dev.notional.finance'
@@ -25,11 +27,20 @@ DUST_THRESHOLD = '0'
 PROFIT_THRESHOLD = '0'
 SLIPPAGE_LIMIT = '950'
 
-[env.beta]
-name = "vault-liquidator-beta"
+[env.mainnet]
+name = "vault-liquidator-mainnet"
 
-[env.prod]
-name = "vault-liquidator"
-
-[triggers]
-crons = ["0/10 * * * *"]
+[env.mainnet.vars]
+NX_DATA_URL = 'https://data-dev.notional.finance'
+ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultAccounts'
+ZERO_EX_SWAP_URL = 'https://api.0x.org/swap/v1/quote'
+NETWORK = 'mainnet'
+FLASH_LIQUIDATOR_CONTRACT = ''
+FLASH_LIQUIDATOR_OWNER = ''
+FLASH_LENDER_ADDRESS = '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2'
+FLASH_LOAN_BUFFER = '1005'
+NOTIONAL_PROXY_CONTRACT = '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f'
+GAS_COST_BUFFER = '1000'
+DUST_THRESHOLD = '0'
+PROFIT_THRESHOLD = '0'
+SLIPPAGE_LIMIT = '950'
