@@ -10,7 +10,7 @@ import NotionalV3Liquidator from './NotionalV3Liquidator';
 import * as tokens from './config/tokens.json';
 import { overrides } from './config/overrides';
 import { ERC20__factory } from '@notional-finance/contracts';
-import { MetricNames } from './types';
+import { MetricNames, RiskyAccount } from './types';
 import {
   DDSeries,
   Logger,
@@ -105,15 +105,12 @@ const run = async (env: Env) => {
   );
 
   // Currently the worker cannot process more than 2000 accounts per batch
-  const batchedAccounts = batchArray(
-    addresses.sort(() => Math.random() - 0.5).slice(2000),
-    500
-  );
-  const riskyAccounts =
-    // Batch up the accounts so that we don't get errors from the RPC
-    (
-      await Promise.all(batchedAccounts.map((a) => liq.getRiskyAccounts(a)))
-    ).flatMap((_) => _);
+  const batchedAccounts = batchArray(addresses, 250);
+  let riskyAccounts: RiskyAccount[] = [];
+  for (const batch of batchedAccounts) {
+    const risky = await liq.getRiskyAccounts(batch);
+    riskyAccounts = riskyAccounts.concat(risky);
+  }
 
   const ddSeries: DDSeries = {
     series: [],
@@ -135,7 +132,7 @@ const run = async (env: Env) => {
       metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
       points: [
         {
-          value: accounts.length,
+          value: addresses.length,
           timestamp: getNowSeconds(),
         },
       ],
