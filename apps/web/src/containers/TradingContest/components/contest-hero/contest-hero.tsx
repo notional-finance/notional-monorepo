@@ -44,11 +44,9 @@ export const ContestHero = () => {
                     fontFamily: 'Avenir Next',
                     cursor: 'pointer',
                   }}
-                  to={`/portfolio/${network}`}
+                  to={`/contest-leaderboard/${network}`}
                 >
-                  <FormattedMessage
-                    defaultMessage={'See Yield Opportunities'}
-                  />
+                  <FormattedMessage defaultMessage={'View Leader Board'} />
                 </Button>
               ) : (
                 <Button
@@ -72,18 +70,19 @@ export const ContestHero = () => {
                 <Button
                   size="large"
                   variant="outlined"
-                  to={`/portfolio/${network}/overview`}
+                  to={`/portfolio/${network}`}
                   sx={{
-                    width: '330px',
+                    width: theme.spacing(41.25),
                     border: `1px solid ${colors.neonTurquoise}`,
-                    cursor: 'pointer',
                     ':hover': {
                       background: colors.matteGreen,
                     },
                     fontFamily: 'Avenir Next',
                   }}
                 >
-                  <FormattedMessage defaultMessage={'Back To App'} />
+                  <FormattedMessage
+                    defaultMessage={'See Yield Opportunities'}
+                  />
                 </Button>
               ) : (
                 <Button
