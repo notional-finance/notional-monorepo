@@ -69,7 +69,7 @@ export const ContestRulesInfo = () => {
               ) : undefined
             }
             buttonOnePathTo={
-              contestActive ? `/contest-leaderboard${network}` : undefined
+              contestActive ? `/contest-leaderboard/${network}` : undefined
             }
             buttonTwoText={<FormattedMessage defaultMessage={'Contest Home'} />}
             buttonTwoPathTo="/contest"
