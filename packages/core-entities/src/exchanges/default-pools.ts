@@ -1,24 +1,25 @@
 import { ALT_ETH, Network } from '@notional-finance/util';
 import { PoolDefinition } from '..';
 
+// NOTE: all the addresses in this file are checksummed
 const defaultPools: Record<Network, PoolDefinition[]> = {
   [Network.Goerli]: [],
   [Network.Mainnet]: [
     {
       // nETH
-      address: '0x3410463726a7a22ce0809367a4418fe82fc31fd3',
+      address: '0x3410463726a7A22ce0809367a4418FE82Fc31FD3',
       PoolClass: 'fCashMarket',
       registerTokens: [],
     },
     {
       // nDAI
-      address: '0x87c478f00999d65f88d3088291a6928b55703444',
+      address: '0x87C478f00999d65F88D3088291a6928b55703444',
       PoolClass: 'fCashMarket',
       registerTokens: [],
     },
     {
       // nUSDC
-      address: '0x2920f9fc667e780c0cb5a78a104d21413377f97e',
+      address: '0x2920F9Fc667E780C0CB5a78a104d21413377f97E',
       PoolClass: 'fCashMarket',
       registerTokens: [],
     },
