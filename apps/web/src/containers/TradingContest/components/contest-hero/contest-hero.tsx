@@ -46,7 +46,7 @@ export const ContestHero = () => {
                   }}
                   to={`/contest-leaderboard/${network}`}
                 >
-                  <FormattedMessage defaultMessage={'View Leader Board'} />
+                  <FormattedMessage defaultMessage={'View Leaderboard'} />
                 </Button>
               ) : (
                 <Button
