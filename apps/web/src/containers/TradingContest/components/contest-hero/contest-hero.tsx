@@ -22,7 +22,7 @@ export const ContestHero = () => {
         <TextAndButtonWrapper>
           <>
             <TitleText>
-              {hasContestPass ? (
+              {hasContestPass && !contestActive ? (
                 <FormattedMessage defaultMessage={'You are Entered!'} />
               ) : (
                 <FormattedMessage defaultMessage={'Notional V3 STIP Blitz'} />
