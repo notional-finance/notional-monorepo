@@ -12,7 +12,7 @@ crons = ["0/10 * * * *"]
 [env.arbitrum]
 name = "vault-liquidator-arbitrum"
 
-[env.dev.vars]
+[env.arbitrum.vars]
 NX_DATA_URL = 'https://data-dev.notional.finance'
 ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultAccounts'
 ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
