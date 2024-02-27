@@ -21,7 +21,7 @@ export const useBorrowFixedDashboard = (network: Network) => {
         ...y,
         symbol: y.underlying.symbol,
         title: y.underlying.symbol,
-        subTitle: `TVl: ${
+        subTitle: `Liquidity: ${
           nTokenLiquidity && nTokenLiquidity.tvl
             ? formatNumberAsAbbr(
                 nTokenLiquidity?.tvl.toFiat(baseCurrency).toFloat(),
