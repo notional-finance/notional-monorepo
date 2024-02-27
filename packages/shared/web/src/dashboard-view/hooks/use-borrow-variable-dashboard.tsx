@@ -16,7 +16,7 @@ export const useBorrowVariableDashboard = (network: Network) => {
         ...y,
         symbol: y.underlying.symbol,
         title: y.underlying.symbol,
-        subTitle: `TVL: ${
+        subTitle: `Liquidity: ${
           y.tvl
             ? formatNumberAsAbbr(
                 y.tvl.toFiat(baseCurrency).toFloat(),
