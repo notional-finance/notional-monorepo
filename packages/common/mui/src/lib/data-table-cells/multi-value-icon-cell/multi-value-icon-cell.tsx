@@ -15,6 +15,7 @@ export interface MultiValueIconCellProps {
     value: {
       symbol: string;
       label: string;
+      symbolSize?: string;
       caption?: string;
       inlineIcons?: boolean;
     };
@@ -64,7 +65,7 @@ export const MultiValueIconCell = (props): JSX.Element => {
       }}
     >
       {!original.isTotalRow && !inlineIcons ? (
-        <div>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {values?.symbol && values.symbolBottom && (
             <DoubleTokenIcon
               size="medium"
@@ -73,9 +74,12 @@ export const MultiValueIconCell = (props): JSX.Element => {
             />
           )}
           {values?.symbol && !values.symbolBottom && (
-            <TokenIcon symbol={values?.symbol} size="medium" />
+            <TokenIcon
+              symbol={values?.symbol}
+              size={values?.symbolSize || 'medium'}
+            />
           )}
-        </div>
+        </Box>
       ) : null}
       <Box sx={{ marginLeft: theme.spacing(1), marginRight: theme.spacing(1) }}>
         <FirstValue

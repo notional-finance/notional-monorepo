@@ -2,8 +2,8 @@ import { Box, styled, useTheme } from '@mui/material';
 import { DashboardGrid, DashboardHeader } from './components';
 import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
-// import { DataTable } from '../data-table/data-table';
-import { DataTableColumn } from '../data-table/types';
+import { DataTable } from '../data-table/data-table';
+import { DataTableColumn, TABLE_VARIANTS } from '../data-table/types';
 
 export interface DashboardDataProps {
   title: string;
@@ -25,6 +25,23 @@ export interface DashboardGridProps {
     hasLeveragedPosition?: boolean;
     hasNegativePosition?: boolean;
   }[];
+  showNegativeYields?: boolean;
+  setShowNegativeYields?: (value: boolean) => void;
+  isLoading?: boolean;
+  threeWideGrid?: boolean;
+  hideApyTitle?: boolean;
+}
+export interface DashboardViewProps {
+  gridData?: {
+    sectionTitle?: string;
+    data: DashboardDataProps[];
+    hasLeveragedPosition?: boolean;
+    hasNegativePosition?: boolean;
+  }[];
+  listData?: {
+    columns: Array<DataTableColumn>;
+    data: Array<any>;
+  };
   showNegativeYields?: boolean;
   setShowNegativeYields?: (value: boolean) => void;
   isLoading?: boolean;
@@ -55,7 +72,7 @@ export interface ProductDashboardProps {
 
 export const ProductDashboard = ({
   gridData,
-  // listData,
+  listData,
   headerData,
   showNegativeYields,
   setShowNegativeYields,
@@ -64,6 +81,7 @@ export const ProductDashboard = ({
   const theme = useTheme();
   const [dashboardTab, setDashboardTab] = useState<number>(0);
   const isLoading = gridData && gridData?.length === 0 ? true : false;
+
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
       <DashboardHeader
@@ -80,8 +98,21 @@ export const ProductDashboard = ({
           threeWideGrid={threeWideGrid}
         />
       ) : (
-        <div>DATA TABLE</div>
-        // <DataTable />
+        listData?.columns && (
+          <Box
+            sx={{
+              marginTop: theme.spacing(4),
+              marginBottom: theme.spacing(0.5),
+            }}
+          >
+            <DataTable
+              columns={listData.columns}
+              data={listData?.data}
+              tableVariant={TABLE_VARIANTS.SORTABLE}
+              sx={{ border: 'none', borderRadius: '6px' }}
+            />
+          </Box>
+        )
       )}
     </MainContainer>
   );

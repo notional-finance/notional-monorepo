@@ -4,12 +4,13 @@ import { FeatureLoader } from '../feature-loader/feature-loader';
 import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
-import { ProductDashboard, DashboardGridProps } from '@notional-finance/mui';
+import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
 import { PRODUCTS } from '@notional-finance/util';
 import { ThemeProvider } from '@mui/material';
 import {
   useDashboardConfig,
   useVaultDashboard,
+  useLendFixedList,
   useLendFixedDashboard,
   useBorrowFixedDashboard,
   useLendVariableDashboard,
@@ -20,15 +21,16 @@ import {
 
 export const DashboardView = ({
   gridData,
+  listData,
   showNegativeYields,
   setShowNegativeYields,
   threeWideGrid,
-}: DashboardGridProps) => {
+}: DashboardViewProps) => {
   const network = useSelectedNetwork();
   const themeVariant = useThemeVariant();
   const { pathname } = useLocation();
   const [_, routeKey] = pathname.split('/');
-  const themeLanding = useNotionalTheme(themeVariant, 'landing');
+  const themeLanding = useNotionalTheme(themeVariant, 'product');
   const { containerData, headerData } = useDashboardConfig(
     routeKey as PRODUCTS
   );
@@ -39,6 +41,7 @@ export const DashboardView = ({
         <CardContainer {...containerData}>
           <ProductDashboard
             gridData={gridData || []}
+            listData={listData}
             setShowNegativeYields={setShowNegativeYields}
             showNegativeYields={showNegativeYields}
             headerData={headerData}
@@ -89,7 +92,8 @@ export const BorrowFixedDashboard = () => {
 export const LendFixedDashboard = () => {
   const network = useSelectedNetwork();
   const gridData = useLendFixedDashboard(network);
-  return <DashboardView {...gridData} />;
+  const listData = useLendFixedList(network);
+  return <DashboardView {...gridData} listData={listData} />;
 };
 
 export default LiquidityLeveragedDashboard;
