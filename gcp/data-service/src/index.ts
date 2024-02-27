@@ -211,7 +211,8 @@ async function main() {
     try {
       const network: Network = req.body.network;
       if (!['mainnet', 'arbitrum'].includes(network)) {
-        return res.status(400).send('Invalid network');
+        res.status(400).send('Invalid network');
+        return;
       }
 
       let accountIds: string[] = [];
