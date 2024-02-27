@@ -27,4 +27,19 @@ actions:
                   contract:
                     address: 0x1344A36A1B56144C3Bc62E7757377D288fDE0369
                   name: TransferBatch
+              - network: 1
+                eventEmitted:
+                  contract:
+                    address: 0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f
+                  name: AccountContextUpdate
+              - network: 1
+                eventEmitted:
+                  contract:
+                    address: 0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f
+                  name: TransferSingle
+              - network: 1
+                eventEmitted:
+                  contract:
+                    address: 0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f
+                  name: TransferBatch
         execution_type: sequential

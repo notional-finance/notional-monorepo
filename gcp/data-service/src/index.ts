@@ -209,9 +209,13 @@ async function main() {
 
   app.post('/events', async (req, res) => {
     try {
+      const network: Network = req.body.network;
+      if (!['mainnet', 'arbitrum'].includes(network)) {
+        return res.status(400).send('Invalid network');
+      }
+
       let accountIds: string[] = [];
       let vaultAccounts: VaultAccount[] = [];
-
       req.body.events.forEach((event: DataServiceEvent) => {
         if (event.name === 'AccountContextUpdate') {
           accountIds.push(event.params.account);
@@ -249,7 +253,7 @@ async function main() {
 
       accountIds = accountIds.filter((a) => a !== ZERO_ADDRESS);
       if (accountIds.length > 0) {
-        await dataService.insertAccounts(Network.ArbitrumOne, accountIds);
+        await dataService.insertAccounts(network, accountIds);
       }
 
       vaultAccounts = vaultAccounts.filter(
@@ -257,7 +261,7 @@ async function main() {
       );
       if (vaultAccounts.length > 0) {
         await dataService.insertVaultAccounts(
-          Network.ArbitrumOne,
+          network,
           vaultAccounts
         );
       }
