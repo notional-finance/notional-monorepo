@@ -44,7 +44,11 @@ export const DashboardHeader = ({
 
   return (
     <HeaderContainer>
-      <SimpleToggle tabLabels={toggleOptions} selectedTabIndex={0} />
+      <SimpleToggle
+        tabLabels={toggleOptions}
+        selectedTabIndex={0}
+        toggleStyle={'accent'}
+      />
 
       <Box sx={{ display: 'flex' }}>
         {messageBoxText && <MessageBox>{messageBoxText}</MessageBox>}

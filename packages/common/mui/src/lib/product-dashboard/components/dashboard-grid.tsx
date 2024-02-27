@@ -13,7 +13,7 @@ interface ContainerProps {
 }
 
 export const DashboardGrid = ({
-  productData,
+  gridData,
   setShowNegativeYields,
   showNegativeYields,
   isLoading,
@@ -23,79 +23,77 @@ export const DashboardGrid = ({
 
   return (
     <Box sx={{ marginTop: isLoading ? theme.spacing(7.5) : '0px' }}>
-      {!isLoading && productData ? (
-        productData.map(
-          ({ sectionTitle, data, hasLeveragedPosition }, index) => (
-            <Container
-              key={index}
-              hasLeveragedPosition={hasLeveragedPosition}
-              theme={theme}
+      {!isLoading && gridData ? (
+        gridData.map(({ sectionTitle, data, hasLeveragedPosition }, index) => (
+          <Container
+            key={index}
+            hasLeveragedPosition={hasLeveragedPosition}
+            theme={theme}
+          >
+            <Caption
+              sx={{
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                textAlign: 'left',
+                marginBottom: theme.spacing(2),
+                letterSpacing: '1.4px',
+              }}
             >
-              <Caption
+              {sectionTitle}
+            </Caption>
+            <GridCardContainer threeWideGrid={threeWideGrid} theme={theme}>
+              {data.map(
+                (
+                  {
+                    title,
+                    subTitle,
+                    apy,
+                    bottomValue,
+                    routeCallback,
+                    symbol,
+                    hasPosition,
+                    incentiveValue,
+                    incentiveSymbols,
+                    apySubTitle,
+                  },
+                  index
+                ) => (
+                  <div key={index}>
+                    <DashboardCard
+                      key={index}
+                      title={title}
+                      subTitle={subTitle}
+                      routeCallback={routeCallback}
+                      apy={apy}
+                      bottomValue={bottomValue}
+                      symbol={symbol}
+                      hasPosition={hasPosition}
+                      incentiveValue={incentiveValue}
+                      incentiveSymbols={incentiveSymbols}
+                      apySubTitle={apySubTitle}
+                    />
+                  </div>
+                )
+              )}
+            </GridCardContainer>
+            {!hasLeveragedPosition && setShowNegativeYields && (
+              <LinkText
+                onClick={() => setShowNegativeYields(!showNegativeYields)}
                 sx={{
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
+                  cursor: 'pointer',
                   textAlign: 'left',
-                  marginBottom: theme.spacing(2),
-                  letterSpacing: '1.4px',
+                  paddingTop: theme.spacing(4),
                 }}
               >
-                {sectionTitle}
-              </Caption>
-              <GridCardContainer threeWideGrid={threeWideGrid} theme={theme}>
-                {data.map(
-                  (
-                    {
-                      title,
-                      subTitle,
-                      apy,
-                      bottomValue,
-                      routeCallback,
-                      symbol,
-                      hasPosition,
-                      incentiveValue,
-                      incentiveSymbols,
-                      apySubTitle,
-                    },
-                    index
-                  ) => (
-                    <div key={index}>
-                      <DashboardCard
-                        key={index}
-                        title={title}
-                        subTitle={subTitle}
-                        routeCallback={routeCallback}
-                        apy={apy}
-                        bottomValue={bottomValue}
-                        symbol={symbol}
-                        hasPosition={hasPosition}
-                        incentiveValue={incentiveValue}
-                        incentiveSymbols={incentiveSymbols}
-                        apySubTitle={apySubTitle}
-                      />
-                    </div>
-                  )
+                {showNegativeYields ? (
+                  <FormattedMessage defaultMessage={'Hide negative yields'} />
+                ) : (
+                  <FormattedMessage defaultMessage={'See negative yields'} />
                 )}
-              </GridCardContainer>
-              {!hasLeveragedPosition && setShowNegativeYields && (
-                <LinkText
-                  onClick={() => setShowNegativeYields(!showNegativeYields)}
-                  sx={{
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    paddingTop: theme.spacing(4),
-                  }}
-                >
-                  {showNegativeYields ? (
-                    <FormattedMessage defaultMessage={'Hide negative yields'} />
-                  ) : (
-                    <FormattedMessage defaultMessage={'See negative yields'} />
-                  )}
-                </LinkText>
-              )}
-            </Container>
-          )
-        )
+              </LinkText>
+            )}
+          </Container>
+        ))
       ) : (
         <ProgressIndicator
           type="notional"

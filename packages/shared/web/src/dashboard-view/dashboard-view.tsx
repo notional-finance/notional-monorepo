@@ -19,7 +19,7 @@ import {
 } from './hooks';
 
 export const DashboardView = ({
-  productData,
+  gridData,
   showNegativeYields,
   setShowNegativeYields,
   threeWideGrid,
@@ -38,7 +38,7 @@ export const DashboardView = ({
       <FeatureLoader featureLoaded={!!network && themeVariant ? true : false}>
         <CardContainer {...containerData}>
           <ProductDashboard
-            productData={productData || []}
+            gridData={gridData || []}
             setShowNegativeYields={setShowNegativeYields}
             showNegativeYields={showNegativeYields}
             headerData={headerData}
@@ -52,44 +52,44 @@ export const DashboardView = ({
 
 export const VaultDashboard = () => {
   const network = useSelectedNetwork();
-  const productData = useVaultDashboard(network);
-  return <DashboardView {...productData} threeWideGrid={false} />;
+  const gridData = useVaultDashboard(network);
+  return <DashboardView {...gridData} threeWideGrid={false} />;
 };
 
 export const LiquidityLeveragedDashboard = () => {
   const network = useSelectedNetwork();
-  const productData = useLiquidityLeveragedDashboard(network);
-  return <DashboardView {...productData} />;
+  const gridData = useLiquidityLeveragedDashboard(network);
+  return <DashboardView {...gridData} />;
 };
 
 export const LiquidityVariableDashboard = () => {
   const network = useSelectedNetwork();
-  const productData = useLiquidityVariableDashboard(network);
-  return <DashboardView {...productData} />;
+  const gridData = useLiquidityVariableDashboard(network);
+  return <DashboardView {...gridData} />;
 };
 
 export const LendVariableDashboard = () => {
   const network = useSelectedNetwork();
-  const productData = useLendVariableDashboard(network);
-  return <DashboardView {...productData} />;
+  const gridData = useLendVariableDashboard(network);
+  return <DashboardView {...gridData} />;
 };
 
 export const BorrowVariableDashboard = () => {
   const network = useSelectedNetwork();
-  const productData = useBorrowVariableDashboard(network);
-  return <DashboardView {...productData} />;
+  const gridData = useBorrowVariableDashboard(network);
+  return <DashboardView {...gridData} />;
 };
 
 export const BorrowFixedDashboard = () => {
   const network = useSelectedNetwork();
-  const productData = useBorrowFixedDashboard(network);
-  return <DashboardView {...productData} />;
+  const gridData = useBorrowFixedDashboard(network);
+  return <DashboardView {...gridData} />;
 };
 
 export const LendFixedDashboard = () => {
   const network = useSelectedNetwork();
-  const productData = useLendFixedDashboard(network);
-  return <DashboardView {...productData} />;
+  const gridData = useLendFixedDashboard(network);
+  return <DashboardView {...gridData} />;
 };
 
 export default LiquidityLeveragedDashboard;

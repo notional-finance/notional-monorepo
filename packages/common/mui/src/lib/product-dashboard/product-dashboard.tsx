@@ -3,6 +3,7 @@ import { DashboardGrid, DashboardHeader } from './components';
 import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
 // import { DataTable } from '../data-table/data-table';
+import { DataTableColumn } from '../data-table/types';
 
 export interface DashboardDataProps {
   title: string;
@@ -18,7 +19,7 @@ export interface DashboardDataProps {
 }
 
 export interface DashboardGridProps {
-  productData?: {
+  gridData?: {
     sectionTitle?: string;
     data: DashboardDataProps[];
     hasLeveragedPosition?: boolean;
@@ -32,12 +33,16 @@ export interface DashboardGridProps {
 }
 
 export interface ProductDashboardProps {
-  productData?: {
+  gridData?: {
     sectionTitle?: string;
     data: DashboardDataProps[];
     hasLeveragedPosition?: boolean;
     hasNegativePosition?: boolean;
   }[];
+  listData?: {
+    columns: Array<DataTableColumn>;
+    data: Array<any>;
+  };
   isLoading?: boolean;
   showNegativeYields?: boolean;
   setShowNegativeYields?: (value: boolean) => void;
@@ -49,7 +54,8 @@ export interface ProductDashboardProps {
 }
 
 export const ProductDashboard = ({
-  productData,
+  gridData,
+  // listData,
   headerData,
   showNegativeYields,
   setShowNegativeYields,
@@ -57,7 +63,7 @@ export const ProductDashboard = ({
 }: ProductDashboardProps) => {
   const theme = useTheme();
   const [dashboardTab, setDashboardTab] = useState<number>(0);
-  const isLoading = productData && productData?.length === 0 ? true : false;
+  const isLoading = gridData && gridData?.length === 0 ? true : false;
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
       <DashboardHeader
@@ -67,7 +73,7 @@ export const ProductDashboard = ({
       />
       {dashboardTab === 0 ? (
         <DashboardGrid
-          productData={productData}
+          gridData={gridData}
           isLoading={isLoading}
           showNegativeYields={showNegativeYields}
           setShowNegativeYields={setShowNegativeYields}
@@ -75,6 +81,7 @@ export const ProductDashboard = ({
         />
       ) : (
         <div>DATA TABLE</div>
+        // <DataTable />
       )}
     </MainContainer>
   );

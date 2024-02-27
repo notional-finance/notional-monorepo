@@ -635,16 +635,16 @@ const getThemeData = (
       secondary: {
         main:
           themeVariant === THEME_VARIANTS.LIGHT
-            ? colors.green
-            : colors.neonTurquoise,
+            ? colors.white
+            : colors.darkGreen,
         light:
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.aqua
             : colors.neonTurquoise,
         dark:
           themeVariant === THEME_VARIANTS.LIGHT
-            ? colors.matteGreen
-            : colors.white,
+            ? colors.iceWhite
+            : colors.matteGreen,
         contrastText:
           themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
         accent:

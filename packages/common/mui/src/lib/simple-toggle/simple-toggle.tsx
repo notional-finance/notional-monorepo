@@ -10,6 +10,7 @@ export interface SimpleToggleProps extends TabsUnstyledProps {
     event: React.SyntheticEvent<Element, Event>,
     value: string | number | boolean
   ) => void;
+  toggleStyle?: 'accent' | 'basic';
   minHeight?: string;
   width?: string;
   sx?: SxProps;
@@ -17,18 +18,21 @@ export interface SimpleToggleProps extends TabsUnstyledProps {
 
 interface StyledTabProps {
   theme: NotionalTheme;
+  toggleStyle: 'accent' | 'basic';
 }
 
 export const SimpleToggle = ({
   selectedTabIndex = 0,
+  toggleStyle = 'basic',
   tabLabels,
   onChange,
   sx,
 }: SimpleToggleProps) => {
   const theme = useTheme() as NotionalTheme;
   return (
-    <Container theme={theme}>
+    <Container theme={theme} toggleStyle={toggleStyle}>
       <StyledTabs
+        toggleStyle={toggleStyle}
         theme={theme}
         selectionFollowsFocus={true}
         variant="fullWidth"
@@ -41,6 +45,7 @@ export const SimpleToggle = ({
           return (
             <StyledTab
               disableRipple={true}
+              toggleStyle={toggleStyle}
               theme={theme}
               key={`tab-label-${i}`}
               label={l}
@@ -53,17 +58,23 @@ export const SimpleToggle = ({
 };
 
 const Container = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'width',
+  shouldForwardProp: (prop: string) => prop !== 'toggleStyle',
 })(
-  ({ theme }: StyledTabProps) => `
+  ({ theme, toggleStyle }: StyledTabProps) => `
   height: 100%;
-  background: ${theme.palette.background.paper};
+  background: ${
+    toggleStyle === 'basic'
+      ? theme.palette.secondary.dark
+      : theme.palette.background.paper
+  };
   border-radius: ${theme.shape.borderRadius()};
 `
 );
 
-const StyledTabs = styled(Tabs)(
-  ({ theme }: StyledTabProps) => `
+const StyledTabs = styled(Tabs, {
+  shouldForwardProp: (prop: string) => prop !== 'toggleStyle',
+})(
+  ({ theme, toggleStyle }: StyledTabProps) => `
   height: 100%;
   border-radius: ${theme.shape.borderRadius()};
   border: ${theme?.shape.borderStandard};
@@ -78,7 +89,11 @@ const StyledTabs = styled(Tabs)(
   
   .MuiTabs-indicator {
     z-index: 1;
-    background: ${theme.palette.info.light};
+    background: ${
+      toggleStyle === 'basic'
+        ? theme.palette.secondary.main
+        : theme.palette.info.light
+    };
     border-radius: ${theme.shape.borderRadius()};
     height: 100%;
   }
@@ -88,11 +103,17 @@ const StyledTabs = styled(Tabs)(
 `
 );
 
-const StyledTab = styled(Tab)(
-  ({ theme }) => `
+const StyledTab = styled(Tab, {
+  shouldForwardProp: (prop: string) => prop !== 'toggleStyle',
+})(
+  ({ theme, toggleStyle }: StyledTabProps) => `
   height: 100%;
   font-family: ${theme.typography.fontFamily};
-  color: ${theme.palette.typography.main};
+  color: ${
+    toggleStyle === 'basic'
+      ? theme.palette.typography.light
+      : theme.palette.typography.main
+  };
   font-weight: 500;
   z-index: 2;
   transition-delay: 0s;
@@ -101,7 +122,14 @@ const StyledTab = styled(Tab)(
   min-height: unset;
   padding: ${theme.spacing(1)};
 
+  svg {
+    fill: ${theme.palette.typography.light};
+  }
+
   &.Mui-selected {
+    svg {
+      fill: ${theme.palette.typography.main};
+    }
     color: ${theme.palette.typography.main};
   }
 `

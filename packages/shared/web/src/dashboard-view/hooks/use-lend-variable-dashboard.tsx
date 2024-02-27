@@ -36,7 +36,7 @@ export const useLendVariableDashboard = (network: Network) => {
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);
 
-  const productData = [
+  const gridData = [
     {
       sectionTitle: '',
       data: allData,
@@ -45,7 +45,7 @@ export const useLendVariableDashboard = (network: Network) => {
   ];
 
   return {
-    productData: allData.length > 0 ? productData : [],
+    gridData: allData.length > 0 ? gridData : [],
     setShowNegativeYields: undefined,
     showNegativeYields: undefined,
   };

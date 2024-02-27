@@ -108,7 +108,7 @@ export const useLiquidityLeveragedDashboard = (
     }
   };
 
-  const productData = [
+  const gridData = [
     {
       sectionTitle: '',
       data: negativeApyCheck(defaultLeveragedLiquidityData),
@@ -117,7 +117,7 @@ export const useLiquidityLeveragedDashboard = (
   ];
 
   if (userPositions.length > 0) {
-    productData.unshift({
+    gridData.unshift({
       sectionTitle:
         userPositions.length === 1 ? 'Your position' : 'Your positions',
       data: userPositions,
@@ -125,10 +125,10 @@ export const useLiquidityLeveragedDashboard = (
     });
   }
 
-  const levLiquidityData = allData && allData.length > 0 ? productData : [];
+  const levLiquidityData = allData && allData.length > 0 ? gridData : [];
 
   return {
-    productData: levLiquidityData,
+    gridData: levLiquidityData,
     setShowNegativeYields: hasNegativeApy ? setShowNegativeYields : undefined,
     showNegativeYields: hasNegativeApy ? showNegativeYields : undefined,
   };
