@@ -1,8 +1,10 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import { Paragraph, ContestTable } from '@notional-finance/mui';
+import { Paragraph, ContestTable, Button } from '@notional-finance/mui';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
+import { useContestPass } from '@notional-finance/notionable-hooks';
 import {
   partnersTableColumns,
   partnersTableData,
@@ -10,6 +12,9 @@ import {
 } from '../../contest-data';
 
 export const ContestPartners = () => {
+  const theme = useTheme();
+  const network = useSelectedNetwork();
+  const { hasContestPass } = useContestPass();
   return (
     <Container>
       <SectionTitle>
@@ -34,6 +39,25 @@ export const ContestPartners = () => {
           />
         </TableContainer>
       </ContentContainer>
+      {!hasContestPass && (
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Button
+            size="large"
+            variant="outlined"
+            sx={{
+              width: theme.spacing(41.25),
+              border: `1px solid ${colors.neonTurquoise}`,
+              ':hover': {
+                background: colors.matteGreen,
+              },
+              fontFamily: 'Avenir Next',
+            }}
+            to={`/contest-leaderboard/${network}`}
+          >
+            <FormattedMessage defaultMessage={'View Leaderboard'} />
+          </Button>
+        </Box>
+      )}
     </Container>
   );
 };
@@ -41,7 +65,7 @@ export const ContestPartners = () => {
 const Container = styled(Box)(
   ({ theme }) => `
       margin-top: ${theme.spacing(6)};
-      margin-bottom: ${theme.spacing(15)};
+      margin-bottom: ${theme.spacing(32)};
   `
 );
 
@@ -61,7 +85,7 @@ const ContentContainer = styled(Box)(
   justify-content: space-between;
   gap: ${theme.spacing(12)};
   align-items: center;
-  margin-bottom: ${theme.spacing(32)};
+  margin-bottom: ${theme.spacing(11)};
   ${theme.breakpoints.down('md')} {
     flex-direction: column;
   }
