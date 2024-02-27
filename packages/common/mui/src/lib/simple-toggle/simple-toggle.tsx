@@ -11,6 +11,7 @@ export interface SimpleToggleProps extends TabsUnstyledProps {
     event: React.SyntheticEvent<Element, Event>,
     value: string | number | boolean
   ) => void;
+  toggleStyle?: 'accent' | 'basic';
   minHeight?: string;
   width?: string;
   sx?: SxProps;
@@ -25,8 +26,9 @@ export const SimpleToggle = ({
 }: SimpleToggleProps) => {
   const theme = useTheme() as NotionalTheme;
   return (
-    <Container theme={theme}>
+    <Container theme={theme} toggleStyle={toggleStyle}>
       <StyledTabs
+        toggleStyle={toggleStyle}
         theme={theme}
         selectionFollowsFocus={true}
         variant={tabVariant}
@@ -39,6 +41,7 @@ export const SimpleToggle = ({
           return (
             <StyledTab
               disableRipple={true}
+              toggleStyle={toggleStyle}
               theme={theme}
               key={`tab-label-${i}`}
               label={l}
@@ -53,7 +56,11 @@ export const SimpleToggle = ({
 const Container = styled(Box)(
   ({ theme }) => `
   height: 100%;
-  background: ${theme.palette.background.paper};
+  background: ${
+    toggleStyle === 'basic'
+      ? theme.palette.secondary.dark
+      : theme.palette.background.paper
+  };
   border-radius: ${theme.shape.borderRadius()};
 `
 );
@@ -73,7 +80,11 @@ const StyledTabs = styled(Tabs)(
   
   .MuiTabs-indicator {
     z-index: 1;
-    background: ${theme.palette.info.light};
+    background: ${
+      toggleStyle === 'basic'
+        ? theme.palette.secondary.main
+        : theme.palette.info.light
+    };
     border-radius: ${theme.shape.borderRadius()};
     height: 100%;
   }
@@ -83,8 +94,10 @@ const StyledTabs = styled(Tabs)(
 `
 );
 
-const StyledTab = styled(Tab)(
-  ({ theme }) => `
+const StyledTab = styled(Tab, {
+  shouldForwardProp: (prop: string) => prop !== 'toggleStyle',
+})(
+  ({ theme, toggleStyle }: StyledTabProps) => `
   height: 100%;
   font-family: ${theme.typography.fontFamily};
   color: ${theme.palette.typography.light};

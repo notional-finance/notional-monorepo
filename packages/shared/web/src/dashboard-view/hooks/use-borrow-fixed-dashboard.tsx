@@ -55,7 +55,7 @@ export const useBorrowFixedDashboard = (network: Network) => {
       }
     });
 
-  const productData = [
+  const gridData = [
     {
       sectionTitle: '',
       data: allData,
@@ -64,7 +64,7 @@ export const useBorrowFixedDashboard = (network: Network) => {
   ];
 
   return {
-    productData: allData.length > 0 ? productData : [],
+    gridData: allData.length > 0 ? gridData : [],
     setShowNegativeYields: undefined,
     showNegativeYields: undefined,
   };

@@ -82,7 +82,7 @@ export const useVaultDashboard = (
     }
   };
 
-  const productData = [
+  const gridData = [
     {
       sectionTitle: '',
       data: negativeApyCheck(defaultVaultData),
@@ -91,7 +91,7 @@ export const useVaultDashboard = (
   ];
 
   if (userVaultPositions.length > 0) {
-    productData.unshift({
+    gridData.unshift({
       sectionTitle:
         userVaultPositions.length === 1 ? 'Your position' : 'Your positions',
       data: userVaultPositions,
@@ -100,10 +100,10 @@ export const useVaultDashboard = (
   }
 
   const vaultData =
-    leveragedVaults && leveragedVaults.length > 0 ? productData : [];
+    leveragedVaults && leveragedVaults.length > 0 ? gridData : [];
 
   return {
-    productData: vaultData,
+    gridData: vaultData,
     setShowNegativeYields: hasNegativeApy ? setShowNegativeYields : undefined,
     showNegativeYields: hasNegativeApy ? showNegativeYields : undefined,
   };
