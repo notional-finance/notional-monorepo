@@ -138,6 +138,7 @@ export const accountsFn: ActionFn = async (
         'x-auth-token': dataServiceAuthToken
       },
       body: JSON.stringify({
+        network: context.metadata.getNetwork(),
         events
       })
     });
