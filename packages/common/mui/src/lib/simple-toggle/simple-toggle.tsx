@@ -97,7 +97,7 @@ const StyledTabs = styled(Tabs)(
 const StyledTab = styled(Tab, {
   shouldForwardProp: (prop: string) => prop !== 'toggleStyle',
 })(
-  ({ theme, toggleStyle }: StyledTabProps) => `
+  ({ theme }: StyledTabProps) => `
   height: 100%;
   font-family: ${theme.typography.fontFamily};
   color: ${theme.palette.typography.light};
