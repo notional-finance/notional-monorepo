@@ -2,13 +2,13 @@ import { Box, useTheme, styled } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import { DashboardDataProps } from '../product-dashboard';
 import {
-  SmallInput,
+  H4,
   CurrencyTitle,
-  SectionTitle,
+  LargeInputTextEmphasized,
 } from '../../typography/typography';
 import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { NotionalTheme, colors } from '@notional-finance/styles';
+import { NotionalTheme } from '@notional-finance/styles';
 
 interface GridCardApyProps {
   hideApySubTitle: boolean;
@@ -27,7 +27,6 @@ export const DashboardCard = ({
   incentiveSymbols,
 }: DashboardDataProps) => {
   const theme = useTheme();
-
   const hideFooter = !bottomValue && !incentiveSymbols;
 
   return (
@@ -56,17 +55,28 @@ export const DashboardCard = ({
         <GridCardApy
           hideApySubTitle={!apySubTitle ? true : false}
           theme={theme}
-          sx={{ color: apy < 0 ? colors.red : theme.palette.typography.main }}
         >
           <SectionTitle
             sx={{
               display: 'flex',
               justifyContent: 'end',
+              color: theme.palette.typography.light,
+              fontWeight: 600,
             }}
           >
             {apySubTitle && <FormattedMessage {...apySubTitle} />}
           </SectionTitle>
-          {formatNumberAsPercent(apy) + ' APY'}
+          <LargeInputTextEmphasized
+            sx={{
+              fontWeight: 700,
+              color:
+                apy < 0
+                  ? theme.palette.error.main
+                  : theme.palette.typography.main,
+            }}
+          >
+            {formatNumberAsPercent(apy) + ' APY'}
+          </LargeInputTextEmphasized>
         </GridCardApy>
       </Box>
       <GridCardFooter
@@ -161,10 +171,23 @@ const GridCard = styled(Box)(
         `
 );
 
-const GridCardTitle = styled(SmallInput)(
-  `
+const GridCardTitle = styled(H4)(
+  ({ theme }) => `
+    font-family: Avenir Next;
     display: block;
     text-align: left;
+    margin-bottom: ${theme.spacing(0.5)};
+      `
+);
+
+const SectionTitle = styled(Box)(
+  `
+    font-family: Avenir Next;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-style: normal;
+    font-weight: 600;
       `
 );
 
@@ -176,6 +199,7 @@ const GridCardApy = styled(CurrencyTitle, {
       align-items: ${hideApySubTitle ? 'center' : ''};
       padding-left: ${theme.spacing(1)};
       white-space: nowrap;
+      letter-spacing: 1px;
         `
 );
 

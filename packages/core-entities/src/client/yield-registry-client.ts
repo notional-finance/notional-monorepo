@@ -39,7 +39,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         if (!t.currencyId) throw Error('Missing currency id');
         if (!t.underlying) throw Error(`Token has no underlying`);
         const market = exchanges.getNotionalMarket(network, t.currencyId);
-        const interestAPY = market.getSpotInterestRate(t) || 0;
+        const organicAPY = market.getSpotInterestRate(t) || 0;
         const underlying = tokens.getTokenByID(network, t.underlying);
 
         let nativeTokenAPY: number | undefined = undefined;
@@ -52,8 +52,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           token: t,
           tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
           underlying,
-          totalAPY: interestAPY,
-          interestAPY,
+          totalAPY: organicAPY,
+          organicAPY,
           nativeTokenAPY,
         };
       });
@@ -180,7 +180,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         }),
         { numerator: 0, denominator: 0 }
       );
-    const interestAPY = numerator / denominator;
+    const organicAPY = numerator / denominator;
 
     return {
       token: netNTokens.token,
@@ -189,9 +189,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       totalAPY:
         incentiveAPY +
         feeAPY +
-        interestAPY +
+        organicAPY +
         (secondaryIncentives?.incentiveAPY || 0),
-      interestAPY,
+      organicAPY,
       feeAPY,
       noteIncentives: {
         symbol: 'NOTE',
@@ -237,7 +237,11 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         debt.totalAPY,
         leverageRatio
       ),
-      strategyAPY: yieldData.totalAPY,
+      organicAPY: this.calculateLeveragedAPY(
+        (yieldData.organicAPY || 0) + (yieldData.feeAPY || 0),
+        debt.totalAPY,
+        leverageRatio
+      ),
       leveraged: {
         debtToken: debt.token,
         debtRate: debt.totalAPY,
@@ -298,8 +302,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           //   .toNumber();
           // const leverageRatio = inverted / RATE_PRECISION - 1;
 
-          const leverageRatio = 3.5;
-
           // maxLeverageRatio = [(1 - (pvFactor * nTokenHaircut)) ^ -1] - 1
           const maxFactor = BigNumber.from(RATE_PRECISION)
             .pow(2)
@@ -308,7 +310,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             .pow(3)
             .div(maxFactor)
             .toNumber();
-          const maxLeverageRatio = maxFactorInverted / RATE_PRECISION - 1;
+          const maxLeverageRatio = (maxFactorInverted / RATE_PRECISION - 1);
+          const leverageRatio = maxLeverageRatio * 0.8;
 
           return this._makeLeveraged(
             nToken,

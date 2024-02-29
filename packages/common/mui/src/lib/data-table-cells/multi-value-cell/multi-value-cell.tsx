@@ -32,7 +32,7 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
               <Box>
                 <FirstValue
                   error={isNegative}
-                  sx={{ marginBottom: '0px', width: '100%', fontWeight: 600 }}
+                  sx={{ marginBottom: '0px', width: '100%', fontWeight: 500 }}
                 >
                   {displayValue}
                 </FirstValue>

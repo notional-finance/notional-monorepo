@@ -5,7 +5,7 @@ import { defineMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useHistory } from 'react-router';
 
-export const useLiquidityVariableDashboard = (network: Network) => {
+export const useLiquidityVariableGrid = (network: Network) => {
   const {
     yields: { liquidity },
   } = useAllMarkets(network);
@@ -51,7 +51,7 @@ export const useLiquidityVariableDashboard = (network: Network) => {
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);
 
-  const productData = [
+  const gridData = [
     {
       sectionTitle: '',
       data: allData,
@@ -60,7 +60,7 @@ export const useLiquidityVariableDashboard = (network: Network) => {
   ];
 
   return {
-    productData: allData.length > 0 ? productData : [],
+    gridData: allData.length > 0 ? gridData : [],
     setShowNegativeYields: undefined,
     showNegativeYields: undefined,
   };

@@ -4,15 +4,27 @@ import { Network, PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
-export const useLendFixedDashboard = (network: Network) => {
+export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
   const {
-    yields: { fCashLend, liquidity },
+    yields: { fCashLend, fCashBorrow, liquidity },
   } = useAllMarkets(network);
   const history = useHistory();
   const baseCurrency = useFiat();
   const tokenObj = {};
+  const yieldData = product === PRODUCTS.LEND_FIXED ? fCashLend : fCashBorrow;
 
-  const allData = fCashLend
+  const apySubTitle =
+    product === PRODUCTS.LEND_FIXED
+      ? defineMessage({
+          defaultMessage: `AS HIGH AS`,
+          description: 'subtitle',
+        })
+      : defineMessage({
+          defaultMessage: `AS LOW AS`,
+          description: 'subtitle',
+        });
+
+  const allData = yieldData
     .map((y) => {
       const nTokenLiquidity = liquidity.find(
         (x) => x.underlying.symbol === y.underlying.symbol
@@ -31,18 +43,13 @@ export const useLendFixedDashboard = (network: Network) => {
             : 0
         }`,
         hasPosition: false,
-        apySubTitle: defineMessage({
-          defaultMessage: `AS HIGH AS`,
-          description: 'subtitle',
-        }),
-        apy: y.totalAPY,
+        apySubTitle: apySubTitle,
         tvlNum: nTokenLiquidity?.tvl
           ? nTokenLiquidity.tvl.toFiat(baseCurrency).toNumber()
           : 0,
+        apy: y.totalAPY,
         routeCallback: () =>
-          history.push(
-            `/${PRODUCTS.LEND_FIXED}/${network}/${y.underlying.symbol}`
-          ),
+          history.push(`/${product}/${network}/${y.underlying.symbol}`),
       };
     })
     .sort((a, b) => b.tvlNum - a.tvlNum)
@@ -55,7 +62,7 @@ export const useLendFixedDashboard = (network: Network) => {
       }
     });
 
-  const productData = [
+  const gridData = [
     {
       sectionTitle: '',
       data: allData,
@@ -64,7 +71,7 @@ export const useLendFixedDashboard = (network: Network) => {
   ];
 
   return {
-    productData: allData.length > 0 ? productData : [],
+    gridData: allData.length > 0 ? gridData : [],
     setShowNegativeYields: undefined,
     showNegativeYields: undefined,
   };

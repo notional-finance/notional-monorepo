@@ -14,7 +14,7 @@ import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
 
-export const useVaultDashboard = (
+export const useVaultGrid = (
   network: Network
 ): DashboardGridProps => {
   const history = useHistory();
@@ -82,16 +82,16 @@ export const useVaultDashboard = (
     }
   };
 
-  const productData = [
+  const gridData = [
     {
-      sectionTitle: '',
+      sectionTitle: userVaultPositions.length > 0 ? 'opportunities' : '',
       data: negativeApyCheck(defaultVaultData),
       hasLeveragedPosition: false,
     },
   ];
 
   if (userVaultPositions.length > 0) {
-    productData.unshift({
+    gridData.unshift({
       sectionTitle:
         userVaultPositions.length === 1 ? 'Your position' : 'Your positions',
       data: userVaultPositions,
@@ -100,10 +100,10 @@ export const useVaultDashboard = (
   }
 
   const vaultData =
-    leveragedVaults && leveragedVaults.length > 0 ? productData : [];
+    leveragedVaults && leveragedVaults.length > 0 ? gridData : [];
 
   return {
-    productData: vaultData,
+    gridData: vaultData,
     setShowNegativeYields: hasNegativeApy ? setShowNegativeYields : undefined,
     showNegativeYields: hasNegativeApy ? showNegativeYields : undefined,
   };
