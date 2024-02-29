@@ -191,7 +191,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
         },
         walletBalance: maxBalance?.toFloat() || 0,
         totalApy: y.totalAPY || 0,
-        organicApy: y.interestAPY,
+        organicApy: y.organicAPY,
         incentiveApy: getCombinedIncentiveData(
           y.noteIncentives,
           y.secondaryIncentives
@@ -226,8 +226,8 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
           },
           organicApy: {
             symbol: y.underlying.symbol,
-            label: y.interestAPY,
-            labelIsNegative: y.interestAPY && y.interestAPY < 0 ? true : false,
+            label: y.organicAPY,
+            labelIsNegative: y.organicAPY && y.organicAPY < 0 ? true : false,
           },
           incentiveApy: getIncentiveData(
             y.noteIncentives,

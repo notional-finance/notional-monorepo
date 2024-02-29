@@ -107,7 +107,7 @@ export const useLiquidityLeveragedGrid = (
 
   const gridData = [
     {
-      sectionTitle: '',
+      sectionTitle: userPositions.length > 0 ? 'opportunities' : '',
       data: negativeApyCheck(defaultLeveragedLiquidityData),
       hasLeveragedPosition: false,
     },

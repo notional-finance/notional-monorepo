@@ -84,7 +84,7 @@ export const useVaultGrid = (
 
   const gridData = [
     {
-      sectionTitle: '',
+      sectionTitle: userVaultPositions.length > 0 ? 'opportunities' : '',
       data: negativeApyCheck(defaultVaultData),
       hasLeveragedPosition: false,
     },

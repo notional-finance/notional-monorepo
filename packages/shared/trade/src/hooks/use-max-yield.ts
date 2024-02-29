@@ -13,11 +13,5 @@ export const useMaxYield = (network: Network | undefined) => {
       leveragedLiquidity,
       (t) => t.underlying.symbol
     ).entries(),
-  ]
-    .map(([, data]) => getMax(data))
-    .map((y) => {
-      return {
-        ...y,
-      };
-    }) as YieldData[];
+  ].map(([, data]) => getMax(data)) as YieldData[];
 };

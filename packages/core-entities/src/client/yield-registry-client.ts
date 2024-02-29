@@ -39,7 +39,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         if (!t.currencyId) throw Error('Missing currency id');
         if (!t.underlying) throw Error(`Token has no underlying`);
         const market = exchanges.getNotionalMarket(network, t.currencyId);
-        const interestAPY = market.getSpotInterestRate(t) || 0;
+        const organicAPY = market.getSpotInterestRate(t) || 0;
         const underlying = tokens.getTokenByID(network, t.underlying);
 
         let nativeTokenAPY: number | undefined = undefined;
@@ -52,8 +52,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           token: t,
           tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
           underlying,
-          totalAPY: interestAPY,
-          interestAPY,
+          totalAPY: organicAPY,
+          organicAPY,
           nativeTokenAPY,
         };
       });
@@ -180,7 +180,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         }),
         { numerator: 0, denominator: 0 }
       );
-    const interestAPY = numerator / denominator;
+    const organicAPY = numerator / denominator;
 
     return {
       token: netNTokens.token,
@@ -189,9 +189,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       totalAPY:
         incentiveAPY +
         feeAPY +
-        interestAPY +
+        organicAPY +
         (secondaryIncentives?.incentiveAPY || 0),
-      interestAPY,
+      organicAPY,
       feeAPY,
       noteIncentives: {
         symbol: 'NOTE',
@@ -237,8 +237,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         debt.totalAPY,
         leverageRatio
       ),
-      interestAPY: this.calculateLeveragedAPY(
-        (yieldData.interestAPY || 0) + (yieldData.feeAPY || 0),
+      organicAPY: this.calculateLeveragedAPY(
+        (yieldData.organicAPY || 0) + (yieldData.feeAPY || 0),
         debt.totalAPY,
         leverageRatio
       ),
