@@ -52,7 +52,10 @@ export default class TreasuryManager {
     const lastNoteInvestmentTimestamp = await this.getLastNoteInvestmentTime();
     console.log("lastNoteInvestmentTimestamp", lastNoteInvestmentTimestamp);
     const duration = Date.now() / 1000 - lastNoteInvestmentTimestamp;
-    if (duration > Config.TREASURY_REINVESTMENT_INTERVAL) {
+    if (
+      duration > Config.TREASURY_REINVESTMENT_INTERVAL &&
+      new Date('2024-03-10T00:00:00.000Z').getTime() <= Date.now() // start reinvesting at Saturday midnight
+    ) {
       const wethToken = ERC20__factory.connect(this.WETH, this.provider);
       const wethBalance = await wethToken.balanceOf(this.proxy.address);
 
