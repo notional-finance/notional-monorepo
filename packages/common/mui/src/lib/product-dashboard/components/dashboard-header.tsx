@@ -4,59 +4,6 @@ import { FourSquareIcon, ListIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { DashboardHeaderProps } from '../product-dashboard';
 
-const gridToggleData = [
-  <Box
-    sx={{
-      fontSize: '14px',
-      display: 'flex',
-      svg: { height: '16px', width: '16px', marginRight: '8px' },
-    }}
-  >
-    <FourSquareIcon />
-    <FormattedMessage defaultMessage="Grid" />
-  </Box>,
-  <Box
-    sx={{
-      fontSize: '14px',
-      display: 'flex',
-      svg: { height: '16px', width: '16px', marginRight: '8px' },
-    }}
-  >
-    <ListIcon />
-    <FormattedMessage defaultMessage="List" />
-  </Box>,
-];
-
-const tokenGroupData = [
-  <Box
-    sx={{
-      display: 'flex',
-      whiteSpace: 'nowrap',
-      fontSize: '14px',
-    }}
-  >
-    <FormattedMessage defaultMessage="All" />
-  </Box>,
-  <Box
-    sx={{
-      display: 'flex',
-      whiteSpace: 'nowrap',
-      fontSize: '14px',
-    }}
-  >
-    <FormattedMessage defaultMessage="Stablecoins" />
-  </Box>,
-  <Box
-    sx={{
-      display: 'flex',
-      whiteSpace: 'nowrap',
-      fontSize: '14px',
-    }}
-  >
-    ETH + LSDs
-  </Box>,
-];
-
 export const DashboardHeader = ({
   headerData,
   tokenGroup,
@@ -66,6 +13,67 @@ export const DashboardHeader = ({
 }: DashboardHeaderProps) => {
   const theme = useTheme();
   const { toggleOptions, messageBoxText } = headerData;
+
+  const gridToggleData = [
+    <Box
+      sx={{
+        fontSize: '14px',
+        display: 'flex',
+        svg: {
+          height: theme.spacing(2),
+          width: theme.spacing(2),
+          marginRight: theme.spacing(1),
+        },
+      }}
+    >
+      <FourSquareIcon />
+      <FormattedMessage defaultMessage="Grid" />
+    </Box>,
+    <Box
+      sx={{
+        fontSize: '14px',
+        display: 'flex',
+        svg: {
+          height: theme.spacing(2),
+          width: theme.spacing(2),
+          marginRight: theme.spacing(1),
+        },
+      }}
+    >
+      <ListIcon />
+      <FormattedMessage defaultMessage="List" />
+    </Box>,
+  ];
+
+  const tokenGroupData = [
+    <Box
+      sx={{
+        display: 'flex',
+        whiteSpace: 'nowrap',
+        fontSize: '14px',
+      }}
+    >
+      <FormattedMessage defaultMessage="All" />
+    </Box>,
+    <Box
+      sx={{
+        display: 'flex',
+        whiteSpace: 'nowrap',
+        fontSize: '14px',
+      }}
+    >
+      <FormattedMessage defaultMessage="Stablecoins" />
+    </Box>,
+    <Box
+      sx={{
+        display: 'flex',
+        whiteSpace: 'nowrap',
+        fontSize: '14px',
+      }}
+    >
+      ETH + LSDs
+    </Box>,
+  ];
 
   return (
     <HeaderContainer>
