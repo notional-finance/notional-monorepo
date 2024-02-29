@@ -18,6 +18,17 @@ export interface DashboardDataProps {
   incentiveSymbols?: (string | undefined)[] | [];
 }
 
+export interface DashboardHeaderProps {
+  headerData: {
+    toggleOptions: React.ReactNode[];
+    messageBoxText?: JSX.Element | MessageDescriptor;
+  };
+  dashboardTab: number;
+  setDashboardTab: (value: number) => void;
+  tokenGroup: number;
+  setTokenGroup: (value: number) => void;
+}
+
 export interface DashboardGridProps {
   gridData?: {
     sectionTitle?: string;
@@ -31,41 +42,18 @@ export interface DashboardGridProps {
   threeWideGrid?: boolean;
   hideApyTitle?: boolean;
 }
-export interface DashboardViewProps {
-  gridData?: {
-    sectionTitle?: string;
-    data: DashboardDataProps[];
-    hasLeveragedPosition?: boolean;
-    hasNegativePosition?: boolean;
-  }[];
+export interface DashboardViewProps extends DashboardGridProps {
   listData: Array<any>;
   listColumns: Array<DataTableColumn>;
-  showNegativeYields?: boolean;
-  setShowNegativeYields?: (value: boolean) => void;
-  isLoading?: boolean;
-  threeWideGrid?: boolean;
-  hideApyTitle?: boolean;
 }
 
-export interface ProductDashboardProps {
-  gridData?: {
-    sectionTitle?: string;
-    data: DashboardDataProps[];
-    hasLeveragedPosition?: boolean;
-    hasNegativePosition?: boolean;
-  }[];
-  listData: Array<any>;
-  listColumns: Array<DataTableColumn>;
+export interface ProductDashboardProps extends DashboardViewProps {
   tokenGroup: number;
-  setTokenGroup: any;
-  isLoading?: boolean;
-  showNegativeYields?: boolean;
-  setShowNegativeYields?: (value: boolean) => void;
+  setTokenGroup: (value: number) => void;
   headerData: {
     toggleOptions: React.ReactNode[];
-    messageBoxText: any;
+    messageBoxText: JSX.Element | MessageDescriptor;
   };
-  threeWideGrid?: boolean;
 }
 
 export const ProductDashboard = ({

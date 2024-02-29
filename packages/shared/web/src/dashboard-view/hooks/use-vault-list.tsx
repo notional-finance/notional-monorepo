@@ -163,25 +163,6 @@ export const useVaultList = (network: Network) => {
         walletBalance: maxBalance?.toFloat() || 0,
         pool: y.poolName,
         protocols: `${y.boosterProtocol} / ${y.baseProtocol}`,
-        // totalApy: {
-        //   data: [
-        //     {
-        //       displayValue: x?.totalAPY
-        //         ? formatNumberAsPercent(x.totalAPY, 2)
-        //         : undefined,
-        //       isNegtive: x?.totalAPY && x?.totalAPY < 0 ? true : false,
-        //     },
-        //     {
-        //       displayValue: x?.leveraged?.leverageRatio
-        //         ? `${formatNumber(x?.leveraged?.leverageRatio, 1)}x Leverage`
-        //         : '',
-        //       isNegtive:
-        //         x?.leveraged?.leverageRatio && x?.leveraged?.leverageRatio < 0
-        //           ? true
-        //           : false,
-        //     },
-        //   ],
-        // },
         totalApy: x?.totalAPY || 0,
         // TODO: Add incentive APY back in when we need it
         // incentiveApy: getCombinedIncentiveData(

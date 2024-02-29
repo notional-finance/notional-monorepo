@@ -1,18 +1,8 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { SimpleToggle } from '../../simple-toggle/simple-toggle';
 import { FourSquareIcon, ListIcon } from '@notional-finance/icons';
-import { MessageDescriptor, FormattedMessage } from 'react-intl';
-
-export interface DashboardHeaderProps {
-  headerData: {
-    toggleOptions: React.ReactNode[];
-    messageBoxText?: MessageDescriptor;
-  };
-  dashboardTab: number;
-  setDashboardTab: any;
-  tokenGroup: number;
-  setTokenGroup: any;
-}
+import { FormattedMessage } from 'react-intl';
+import { DashboardHeaderProps } from '../product-dashboard';
 
 const gridToggleData = [
   <Box
@@ -99,13 +89,13 @@ export const DashboardHeader = ({
       </Box>
       <Box sx={{ display: 'flex' }}>
         {messageBoxText && <MessageBox>{messageBoxText}</MessageBox>}
-        <Test>
+        <GridListToggleWrapper>
           <SimpleToggle
             tabLabels={gridToggleData}
             selectedTabIndex={dashboardTab}
             onChange={(_, v) => setDashboardTab(v as number)}
           />
-        </Test>
+        </GridListToggleWrapper>
       </Box>
     </HeaderContainer>
   );
@@ -126,7 +116,7 @@ const HeaderContainer = styled(Box)(
           `
 );
 
-const Test = styled(Box)(
+const GridListToggleWrapper = styled(Box)(
   ({ theme }) => `
   ${theme.breakpoints.down('sm')} {
     display: none;
