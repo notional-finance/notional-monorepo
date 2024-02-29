@@ -66,7 +66,6 @@ export interface ProductDashboardProps extends DashboardViewProps {
     networkToggle: number;
     handleNetWorkToggle: (value: number) => void;
   };
-  threeWideGrid?: boolean;
 }
 
 export const ProductDashboard = ({
