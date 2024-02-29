@@ -1,6 +1,6 @@
 import {
+  formatNumber,
   formatNumberAsAbbr,
-  //   formatLeverageRatio,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
 import {
@@ -9,23 +9,32 @@ import {
   useAccountDefinition,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, defineMessage } from 'react-intl';
+import { getDebtOrCollateralFactor } from './utils';
 import {
   DataTableColumn,
   DisplayCell,
   LinkCell,
   MultiValueIconCell,
-  //   MultiValueIconCell,
 } from '@notional-finance/mui';
 
-export const useLendFixedList = (network: Network) => {
+export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
   const {
-    yields: { fCashLend },
+    yields: { fCashLend, fCashBorrow, variableBorrow, variableLend },
   } = useAllMarkets(network);
   const baseCurrency = useFiat();
   const account = useAccountDefinition(network);
+  const isBorrow =
+    product === PRODUCTS.BORROW_FIXED || product === PRODUCTS.BORROW_VARIABLE;
 
-  const listColumns: DataTableColumn[] = [
+  const yieldData = {
+    [PRODUCTS.LEND_FIXED]: fCashLend,
+    [PRODUCTS.LEND_VARIABLE]: variableLend,
+    [PRODUCTS.BORROW_FIXED]: fCashBorrow,
+    [PRODUCTS.BORROW_VARIABLE]: variableBorrow,
+  };
+
+  let listColumns: DataTableColumn[] = [
     {
       Header: (
         <FormattedMessage
@@ -45,6 +54,10 @@ export const useLendFixedList = (network: Network) => {
         />
       ),
       Cell: DisplayCell,
+      displayFormatter: (val, symbol) => {
+        return `${formatNumber(val, 2)} ${symbol}`;
+      },
+      showSymbol: true,
       accessor: 'walletBalance',
       sortType: 'basic',
       sortDescFirst: true,
@@ -81,7 +94,6 @@ export const useLendFixedList = (network: Network) => {
         />
       ),
       Cell: DisplayCell,
-      // Update this to use baseCurrency
       displayFormatter: formatNumberAsAbbr,
       accessor: 'liquidity',
       textAlign: 'right',
@@ -89,37 +101,49 @@ export const useLendFixedList = (network: Network) => {
       sortDescFirst: true,
     },
     {
-      Header: (
+      Header: isBorrow ? (
+        <FormattedMessage
+          defaultMessage="Debt Factor"
+          description={'Collateral Factor header'}
+        />
+      ) : (
         <FormattedMessage
           defaultMessage="Collateral Factor"
           description={'Collateral Factor header'}
         />
       ),
       accessor: 'collateralFactor',
+      columnHeaderToolTip: defineMessage({
+        defaultMessage:
+          'Max LTV = (Collateral factor of collateral currency) / (Debt factor of debt currency)',
+      }),
       textAlign: 'right',
     },
-    // {
-    //   Header: (
-    //     <FormattedMessage
-    //       defaultMessage="INCENTIVE APY"
-    //       description={'INCENTIVE APY header'}
-    //     />
-    //   ),
-    //   Cell: MultiValueIconCell,
-    //   accessor: 'incentiveAPY',
-    //   textAlign: 'right',
-    //   sortType: 'basic',
-    //   sortDescFirst: true,
-    // },
     {
       Header: '',
       Cell: LinkCell,
       accessor: 'view',
       textAlign: 'right',
+      width: '70px',
     },
   ];
 
-  const listData = fCashLend
+  if (isBorrow) {
+    listColumns = listColumns.filter((x) => x.accessor !== 'walletBalance');
+  }
+
+  if (
+    product === PRODUCTS.LEND_VARIABLE ||
+    product === PRODUCTS.BORROW_VARIABLE
+  ) {
+    listColumns = listColumns.filter((x) => x.accessor !== 'maturity');
+  }
+
+  if (account === undefined) {
+    listColumns = listColumns.filter((x) => x.accessor !== 'walletBalance');
+  }
+
+  const listData = yieldData[product]
     .map((y) => {
       const maxBalance = account
         ? account.balances.find(
@@ -134,28 +158,20 @@ export const useLendFixedList = (network: Network) => {
           label: y.underlying.symbol,
           caption: network.charAt(0).toUpperCase() + network.slice(1),
         },
-        walletBalance: `${maxBalance?.toFloat().toFixed(2)} ${
-          y.underlying.symbol
-        }`,
+        walletBalance: maxBalance?.toFloat() || 0,
         maturity: y.token.maturity,
         apy: y.totalAPY,
         liquidity: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
-        // subTitle: `TVL: ${
-        //   y.tvl
-        //     ? formatNumberAsAbbr(
-        //         y.tvl.toFiat(baseCurrency).toFloat(),
-        //         0,
-        //         baseCurrency
-        //       )
-        //     : 0
-        // }`,
-        collateralFactor: 0,
-        view: `/${PRODUCTS.LEND_FIXED}/${network}/${y.underlying.symbol}`,
+        symbol: y.underlying.symbol,
+        collateralFactor: getDebtOrCollateralFactor(
+          y.token,
+          y.underlying,
+          isBorrow
+        ),
+        view: `${product}/${network}/${y.underlying.symbol}`,
       };
     })
-    .sort((a, b) => b.liquidity - a.liquidity);
+    .sort((a, b) => b.walletBalance - a.walletBalance);
 
-  console.log({ listData });
-
-  return { columns: listColumns, data: listData };
+  return { listColumns, listData };
 };

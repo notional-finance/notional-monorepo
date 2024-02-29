@@ -5,7 +5,7 @@ import { defineMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useHistory } from 'react-router';
 
-export const useLiquidityVariableDashboard = (network: Network) => {
+export const useLiquidityVariableGrid = (network: Network) => {
   const {
     yields: { liquidity },
   } = useAllMarkets(network);

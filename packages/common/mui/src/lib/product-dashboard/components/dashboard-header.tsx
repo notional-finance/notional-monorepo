@@ -1,7 +1,7 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { SimpleToggle } from '../../simple-toggle/simple-toggle';
 import { FourSquareIcon, ListIcon } from '@notional-finance/icons';
-import { MessageDescriptor } from 'react-intl';
+import { MessageDescriptor, FormattedMessage } from 'react-intl';
 
 export interface DashboardHeaderProps {
   headerData: {
@@ -10,6 +10,8 @@ export interface DashboardHeaderProps {
   };
   dashboardTab: number;
   setDashboardTab: any;
+  tokenGroup: number;
+  setTokenGroup: any;
 }
 
 const gridToggleData = [
@@ -21,7 +23,7 @@ const gridToggleData = [
     }}
   >
     <FourSquareIcon />
-    Grid
+    <FormattedMessage defaultMessage="Grid" />
   </Box>,
   <Box
     sx={{
@@ -31,32 +33,79 @@ const gridToggleData = [
     }}
   >
     <ListIcon />
-    List
+    <FormattedMessage defaultMessage="List" />
+  </Box>,
+];
+
+const tokenGroupData = [
+  <Box
+    sx={{
+      display: 'flex',
+      whiteSpace: 'nowrap',
+      fontSize: '14px',
+    }}
+  >
+    <FormattedMessage defaultMessage="All" />
+  </Box>,
+  <Box
+    sx={{
+      display: 'flex',
+      whiteSpace: 'nowrap',
+      fontSize: '14px',
+    }}
+  >
+    <FormattedMessage defaultMessage="Stablecoins" />
+  </Box>,
+  <Box
+    sx={{
+      display: 'flex',
+      whiteSpace: 'nowrap',
+      fontSize: '14px',
+    }}
+  >
+    ETH + LSDs
   </Box>,
 ];
 
 export const DashboardHeader = ({
   headerData,
+  tokenGroup,
+  setTokenGroup,
   dashboardTab,
   setDashboardTab,
 }: DashboardHeaderProps) => {
+  const theme = useTheme();
   const { toggleOptions, messageBoxText } = headerData;
 
   return (
     <HeaderContainer>
-      <SimpleToggle
-        tabLabels={toggleOptions}
-        selectedTabIndex={0}
-        toggleStyle={'accent'}
-      />
-
+      <Box sx={{ display: 'flex' }}>
+        <Box sx={{ marginRight: theme.spacing(3) }}>
+          <SimpleToggle
+            tabLabels={toggleOptions}
+            selectedTabIndex={0}
+            toggleStyle={'accent'}
+          />
+        </Box>
+        {dashboardTab === 1 && (
+          <SimpleToggle
+            tabVariant="standard"
+            toggleStyle={'accent'}
+            tabLabels={tokenGroupData}
+            selectedTabIndex={tokenGroup}
+            onChange={(_, v) => setTokenGroup(v as number)}
+          />
+        )}
+      </Box>
       <Box sx={{ display: 'flex' }}>
         {messageBoxText && <MessageBox>{messageBoxText}</MessageBox>}
-        <SimpleToggle
-          tabLabels={gridToggleData}
-          selectedTabIndex={dashboardTab}
-          onChange={(_, v) => setDashboardTab(v as number)}
-        />
+        <Test>
+          <SimpleToggle
+            tabLabels={gridToggleData}
+            selectedTabIndex={dashboardTab}
+            onChange={(_, v) => setDashboardTab(v as number)}
+          />
+        </Test>
       </Box>
     </HeaderContainer>
   );
@@ -77,6 +126,13 @@ const HeaderContainer = styled(Box)(
           `
 );
 
+const Test = styled(Box)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  }
+          `
+);
 const MessageBox = styled(Box)(
   ({ theme }) => `
   font-size: 12px;
@@ -88,7 +144,7 @@ const MessageBox = styled(Box)(
   padding: ${theme.spacing(1.5, 2)};
   border-radius: ${theme.shape.borderRadius()};
   margin-right: ${theme.spacing(3)};
-  ${theme.breakpoints.down('sm')} {
+  ${theme.breakpoints.down('md')} {
     display: none;
   }
           `

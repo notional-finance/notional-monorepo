@@ -38,10 +38,8 @@ export interface DashboardViewProps {
     hasLeveragedPosition?: boolean;
     hasNegativePosition?: boolean;
   }[];
-  listData?: {
-    columns: Array<DataTableColumn>;
-    data: Array<any>;
-  };
+  listData: Array<any>;
+  listColumns: Array<DataTableColumn>;
   showNegativeYields?: boolean;
   setShowNegativeYields?: (value: boolean) => void;
   isLoading?: boolean;
@@ -56,10 +54,10 @@ export interface ProductDashboardProps {
     hasLeveragedPosition?: boolean;
     hasNegativePosition?: boolean;
   }[];
-  listData?: {
-    columns: Array<DataTableColumn>;
-    data: Array<any>;
-  };
+  listData: Array<any>;
+  listColumns: Array<DataTableColumn>;
+  tokenGroup: number;
+  setTokenGroup: any;
   isLoading?: boolean;
   showNegativeYields?: boolean;
   setShowNegativeYields?: (value: boolean) => void;
@@ -73,6 +71,9 @@ export interface ProductDashboardProps {
 export const ProductDashboard = ({
   gridData,
   listData,
+  listColumns,
+  tokenGroup,
+  setTokenGroup,
   headerData,
   showNegativeYields,
   setShowNegativeYields,
@@ -86,6 +87,8 @@ export const ProductDashboard = ({
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
       <DashboardHeader
         headerData={headerData}
+        tokenGroup={tokenGroup}
+        setTokenGroup={setTokenGroup}
         dashboardTab={dashboardTab}
         setDashboardTab={setDashboardTab}
       />
@@ -98,7 +101,7 @@ export const ProductDashboard = ({
           threeWideGrid={threeWideGrid}
         />
       ) : (
-        listData?.columns && (
+        listColumns && (
           <Box
             sx={{
               marginTop: theme.spacing(4),
@@ -106,8 +109,8 @@ export const ProductDashboard = ({
             }}
           >
             <DataTable
-              columns={listData.columns}
-              data={listData?.data}
+              columns={listColumns}
+              data={listData}
               tableVariant={TABLE_VARIANTS.SORTABLE}
               sx={{ border: 'none', borderRadius: '6px' }}
             />

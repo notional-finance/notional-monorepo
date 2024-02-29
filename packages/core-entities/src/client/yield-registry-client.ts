@@ -237,7 +237,11 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         debt.totalAPY,
         leverageRatio
       ),
-      strategyAPY: yieldData.totalAPY,
+      interestAPY: this.calculateLeveragedAPY(
+        (yieldData.interestAPY || 0) + (yieldData.feeAPY || 0),
+        debt.totalAPY,
+        leverageRatio
+      ),
       leveraged: {
         debtToken: debt.token,
         debtRate: debt.totalAPY,
@@ -298,8 +302,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           //   .toNumber();
           // const leverageRatio = inverted / RATE_PRECISION - 1;
 
-          const leverageRatio = 3.5;
-
           // maxLeverageRatio = [(1 - (pvFactor * nTokenHaircut)) ^ -1] - 1
           const maxFactor = BigNumber.from(RATE_PRECISION)
             .pow(2)
@@ -308,7 +310,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             .pow(3)
             .div(maxFactor)
             .toNumber();
-          const maxLeverageRatio = maxFactorInverted / RATE_PRECISION - 1;
+          const maxLeverageRatio = (maxFactorInverted / RATE_PRECISION - 1);
+          const leverageRatio = maxLeverageRatio * 0.8;
 
           return this._makeLeveraged(
             nToken,

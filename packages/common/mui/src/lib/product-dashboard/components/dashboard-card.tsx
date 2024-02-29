@@ -8,7 +8,7 @@ import {
 } from '../../typography/typography';
 import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { NotionalTheme, colors } from '@notional-finance/styles';
+import { NotionalTheme } from '@notional-finance/styles';
 
 interface GridCardApyProps {
   hideApySubTitle: boolean;
@@ -27,7 +27,6 @@ export const DashboardCard = ({
   incentiveSymbols,
 }: DashboardDataProps) => {
   const theme = useTheme();
-
   const hideFooter = !bottomValue && !incentiveSymbols;
 
   return (
@@ -56,7 +55,6 @@ export const DashboardCard = ({
         <GridCardApy
           hideApySubTitle={!apySubTitle ? true : false}
           theme={theme}
-          sx={{ color: apy < 0 ? colors.red : theme.palette.typography.main }}
         >
           <SectionTitle
             sx={{
@@ -68,7 +66,15 @@ export const DashboardCard = ({
           >
             {apySubTitle && <FormattedMessage {...apySubTitle} />}
           </SectionTitle>
-          <LargeInputTextEmphasized sx={{ fontWeight: 700 }}>
+          <LargeInputTextEmphasized
+            sx={{
+              fontWeight: 700,
+              color:
+                apy < 0
+                  ? theme.palette.error.main
+                  : theme.palette.typography.main,
+            }}
+          >
             {formatNumberAsPercent(apy) + ' APY'}
           </LargeInputTextEmphasized>
         </GridCardApy>

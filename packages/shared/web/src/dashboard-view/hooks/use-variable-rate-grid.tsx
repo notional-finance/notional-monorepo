@@ -3,14 +3,16 @@ import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useHistory } from 'react-router';
 
-export const useLendVariableDashboard = (network: Network) => {
+export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
   const {
-    yields: { variableLend },
+    yields: { variableLend, variableBorrow },
   } = useAllMarkets(network);
   const history = useHistory();
   const baseCurrency = useFiat();
+  const yieldData =
+    product === PRODUCTS.LEND_VARIABLE ? variableLend : variableBorrow;
 
-  const allData = variableLend
+  const allData = yieldData
     .map((y) => {
       return {
         ...y,
@@ -29,9 +31,7 @@ export const useLendVariableDashboard = (network: Network) => {
         apy: y.totalAPY,
         tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         routeCallback: () =>
-          history.push(
-            `/${PRODUCTS.LEND_VARIABLE}/${network}/${y.underlying.symbol}`
-          ),
+          history.push(`/${product}/${network}/${y.underlying.symbol}`),
       };
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);

@@ -1,3 +1,4 @@
+import { MessageDescriptor } from 'react-intl';
 import { Column } from 'react-table';
 
 export enum CONTEST_TABLE_VARIANTS {
@@ -14,6 +15,8 @@ export type ContestTableColumn = Column & {
   sortType?: string;
   sortDescFirst?: boolean;
   displayFormatter?: any; 
+  showSymbol?: boolean; 
+  columnHeaderToolTip?: MessageDescriptor; 
   marginRight?: any; 
   isIDCell?: boolean;
   padding?: string;

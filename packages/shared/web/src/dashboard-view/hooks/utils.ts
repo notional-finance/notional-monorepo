@@ -2,6 +2,7 @@ import {
   Registry,
   TokenBalance,
   TokenDefinition,
+  YieldData,
 } from '@notional-finance/core-entities';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 
@@ -46,5 +47,58 @@ export const getDebtOrCollateralFactor = (
       (unit.toRiskAdjustedUnderlying().toFloat() * haircut) /
       100
     ).toFixed(4);
+  }
+};
+
+export const sortListData = (data: any[], tokenGroup: number) => {
+  const stableCoins = ['USDC', 'USDT', 'DAI', 'FRAX'];
+  const lsdsAndEth = ['wstETH', 'cbETH', 'rETH', 'ETH'];
+  if(data.length > 0 && tokenGroup === 0){
+    return data;
+  } else if(data.length > 0 && tokenGroup === 1){
+    return data.filter((x) => stableCoins.includes(x.currency.symbol));
+  } else if(data.length > 0 && tokenGroup === 2){
+    return data.filter((x) => lsdsAndEth.includes(x.currency.symbol));
+  } else {
+    return []
+  }
+}
+
+export const getIncentiveData = (
+  incentives: YieldData['noteIncentives'],
+  secondaryIncentives: YieldData['secondaryIncentives']
+) => {
+  if (secondaryIncentives && incentives) {
+    return {
+      inlineIcons: true,
+      label: formatNumberAsPercent(incentives.incentiveAPY),
+      symbol: incentives.symbol,
+      caption: formatNumberAsPercent(secondaryIncentives.incentiveAPY),
+      captionSymbol: secondaryIncentives.symbol,
+    };
+  } else if (incentives && !secondaryIncentives) {
+    return {
+      inlineIcons: true,
+      label: formatNumberAsPercent(incentives.incentiveAPY),
+      symbol: incentives.symbol,
+    };
+  } else {
+    return {
+      label: '',
+      symbol: '',
+    };
+  }
+};
+
+export const getCombinedIncentiveData = (
+  incentives: YieldData['noteIncentives'],
+  secondaryIncentives: YieldData['secondaryIncentives']
+) => {
+  if (secondaryIncentives && incentives) {
+    return incentives.incentiveAPY + secondaryIncentives.incentiveAPY;
+  } else if (incentives && !secondaryIncentives) {
+    return incentives.incentiveAPY;
+  } else {
+    return 0;
   }
 };

@@ -14,7 +14,7 @@ import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
 
-export const useVaultDashboard = (
+export const useVaultGrid = (
   network: Network
 ): DashboardGridProps => {
   const history = useHistory();

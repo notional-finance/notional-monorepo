@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { defineMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
-import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
+// import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
+import { useFiat } from '@notional-finance/notionable-hooks';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
@@ -11,12 +12,9 @@ import {
   useMaxYield,
 } from '@notional-finance/trade';
 
-export const useLiquidityLeveragedDashboard = (
+export const useLiquidityLeveragedGrid = (
   network: Network
 ): DashboardGridProps => {
-  const {
-    yields: { leveragedLiquidity },
-  } = useAllMarkets(network);
   const history = useHistory();
   const baseCurrency = useFiat();
   const { nTokenPositions } = useLeveragedNTokenPositions(network);
@@ -24,8 +22,7 @@ export const useLiquidityLeveragedDashboard = (
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
   const allMaxAPYs = useMaxYield(network);
 
-  const allData = leveragedLiquidity
-    .filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt')
+  const allData = allMaxAPYs
     .map((y) => {
       const currentPosition = nTokenPositions?.find(
         (n) => n.asset.balance.underlying.symbol === y.underlying.symbol
@@ -134,4 +131,4 @@ export const useLiquidityLeveragedDashboard = (
   };
 };
 
-export default useLiquidityLeveragedDashboard;
+export default useLiquidityLeveragedGrid;

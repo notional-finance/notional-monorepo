@@ -6,7 +6,6 @@ import { colors } from '@notional-finance/styles';
 export const DisplayCell = ({ cell }): JSX.Element => {
   const { column, value, row } = cell;
   const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
-
   const isPending = column.showLoadingSpinner && row.original.isPending;
   const ToolTip = column?.ToolTip;
   const toolTipData = row.original?.toolTipData;
@@ -38,7 +37,12 @@ export const DisplayCell = ({ cell }): JSX.Element => {
                   : '',
             }}
           >
-            {column.displayFormatter(parseFloat(value))}
+            {column.showSymbol
+              ? column.displayFormatter(
+                  parseFloat(value),
+                  cell.row.original.symbol
+                )
+              : column.displayFormatter(parseFloat(value))}
           </FirstValue>
         </Box>
       ) : parseFloat(value) === 0 ? (

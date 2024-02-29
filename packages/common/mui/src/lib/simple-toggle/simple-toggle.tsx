@@ -6,6 +6,7 @@ import { NotionalTheme } from '@notional-finance/styles';
 export interface SimpleToggleProps extends TabsUnstyledProps {
   selectedTabIndex: number;
   tabLabels: React.ReactNode[];
+  tabVariant?: 'standard' | 'scrollable' | 'fullWidth' | undefined;
   onChange?: (
     event: React.SyntheticEvent<Element, Event>,
     value: string | number | boolean
@@ -24,6 +25,7 @@ interface StyledTabProps {
 export const SimpleToggle = ({
   selectedTabIndex = 0,
   toggleStyle = 'basic',
+  tabVariant = 'fullWidth',
   tabLabels,
   onChange,
   sx,
@@ -35,7 +37,7 @@ export const SimpleToggle = ({
         toggleStyle={toggleStyle}
         theme={theme}
         selectionFollowsFocus={true}
-        variant="fullWidth"
+        variant={tabVariant}
         defaultValue={0}
         value={selectedTabIndex}
         onChange={onChange}
@@ -106,14 +108,10 @@ const StyledTabs = styled(Tabs, {
 const StyledTab = styled(Tab, {
   shouldForwardProp: (prop: string) => prop !== 'toggleStyle',
 })(
-  ({ theme, toggleStyle }: StyledTabProps) => `
+  ({ theme }: StyledTabProps) => `
   height: 100%;
   font-family: ${theme.typography.fontFamily};
-  color: ${
-    toggleStyle === 'basic'
-      ? theme.palette.typography.light
-      : theme.palette.typography.main
-  };
+  color: ${theme.palette.typography.light};
   font-weight: 500;
   z-index: 2;
   transition-delay: 0s;
