@@ -5,18 +5,13 @@ import {
   ButtonText,
   InputLabel,
   LabelValue,
-  ToggleSwitch,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import React from 'react';
-import {
-  formatLeverageRatio,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
+import { formatLeverageRatio } from '@notional-finance/helpers';
 import { useLeveragedNTokenPositions } from '../hooks';
 import { BorrowTermsDropdown } from '../borrow-terms-dropdown/borrow-terms-dropdown';
 import { LeverageSlider } from '../leverage-slider/leverage-slider';
-import { useMaxYield } from '../hooks';
 import { useHistory } from 'react-router';
 
 interface TermsProps {
@@ -67,58 +62,6 @@ export const CustomTerms = ({
           })}
         />
       )}
-    </Terms>
-  );
-};
-
-export const DefaultTerms = ({ context }: TermsProps) => {
-  const {
-    state: { customizeLeverage, riskFactorLimit, deposit, selectedNetwork },
-    updateState,
-  } = context;
-
-  const toggleLeverage = () =>
-    updateState({ customizeLeverage: !customizeLeverage });
-  const maxYield = useMaxYield(selectedNetwork).find(
-    (y) => y.token.currencyId === deposit?.currencyId
-  )?.totalAPY;
-
-  const leverageRatio =
-    riskFactorLimit?.riskFactor === 'leverageRatio'
-      ? (riskFactorLimit.limit as number)
-      : 0;
-
-  return (
-    <Terms
-      inputLabel={defineMessage({
-        defaultMessage: 'Default Terms are Selected',
-      })}
-      hasPosition={false}
-      context={context}
-    >
-      <TermsBox
-        hasPosition={false}
-        leverageRatio={leverageRatio}
-        borrowType="Variable"
-        actionClick={toggleLeverage}
-        actionBody={
-          <Box>
-            <Body
-              gutter="default"
-              main
-              msg={defineMessage({ defaultMessage: 'Customize' })}
-            />
-            <Body sx={{ textWrap: 'nowrap' }}>
-              <FormattedMessage
-                defaultMessage={'Up to {max} APY'}
-                values={{
-                  max: maxYield ? formatNumberAsPercent(maxYield) : '',
-                }}
-              />
-            </Body>
-          </Box>
-        }
-      />
     </Terms>
   );
 };
@@ -174,21 +117,13 @@ export const ManageTerms = ({
 
 const Terms = ({
   inputLabel,
-  hasPosition,
   children,
-  context,
 }: {
   inputLabel: MessageDescriptor;
   hasPosition: boolean;
   children: React.ReactNode | React.ReactNode[];
   context: BaseTradeContext;
 }) => {
-  const { state, updateState } = context;
-  const { customizeLeverage } = state;
-
-  const toggleLeverage = () =>
-    updateState({ customizeLeverage: !customizeLeverage });
-
   return (
     <Box>
       <Box
@@ -199,13 +134,6 @@ const Terms = ({
         }}
       >
         <InputLabel inputLabel={inputLabel} />
-        {!hasPosition && (
-          <ToggleSwitch
-            isChecked={customizeLeverage}
-            onToggle={toggleLeverage}
-            label={<FormattedMessage defaultMessage={'Customize'} />}
-          />
-        )}
       </Box>
       <Box>{children}</Box>
     </Box>
