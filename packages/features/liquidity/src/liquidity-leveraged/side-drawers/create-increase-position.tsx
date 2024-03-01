@@ -10,7 +10,7 @@ import { PRODUCTS } from '@notional-finance/util';
 import { useContext } from 'react';
 import { defineMessage } from 'react-intl';
 import { LiquidityContext } from '../../liquidity';
-import { LiquidityDetailsTable } from '../components/liquidity-details-table';
+import { LiquidityDetailsTable } from '../components';
 
 export const CreateOrIncreasePosition = () => {
   const context = useContext(LiquidityContext);

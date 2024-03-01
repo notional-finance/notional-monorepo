@@ -25,11 +25,7 @@ interface ManageTermsProps extends TermsProps {
   isVault?: boolean;
 }
 
-export const CustomTerms = ({
-  context,
-  CustomLeverageSlider,
-  hideToggle = false,
-}: TermsProps) => {
+export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
   const theme = useTheme();
   const {
     state: { deposit },
@@ -38,8 +34,6 @@ export const CustomTerms = ({
   return (
     <Terms
       inputLabel={defineMessage({ defaultMessage: '2. Select Borrow Terms' })}
-      hasPosition={hideToggle}
-      context={context}
     >
       <BorrowTermsDropdown context={context} />
       <Box height={theme.spacing(6)} />
@@ -95,8 +89,6 @@ export const ManageTerms = ({
       inputLabel={defineMessage({
         defaultMessage: 'Current Terms',
       })}
-      hasPosition={true}
-      context={context}
     >
       <TermsBox
         hasPosition={true}
@@ -120,9 +112,7 @@ const Terms = ({
   children,
 }: {
   inputLabel: MessageDescriptor;
-  hasPosition: boolean;
   children: React.ReactNode | React.ReactNode[];
-  context: BaseTradeContext;
 }) => {
   return (
     <Box>
