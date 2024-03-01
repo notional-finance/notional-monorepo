@@ -170,7 +170,7 @@ export const useVaultList = (network: Network) => {
         //   y.secondaryIncentives
         // ),
         liquidity: y.vaultTVL ? y.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
-        view: `/${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}`,
+        view: `${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}`,
         symbol: y.primaryToken.symbol,
         borrowTerms: {
           data: [
