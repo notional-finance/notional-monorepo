@@ -62,9 +62,6 @@ export const LiquidityLeveragedSideDrawer = () => {
     }
   }, [availableDebtTokens, queryData, updateState, tradeType]);
 
-  console.log({ defaultLeverageRatio });
-  console.log({ riskFactorLimit });
-
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
     deposit && defaultLeverageRatio
       ? {
