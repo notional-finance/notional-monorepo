@@ -17,13 +17,11 @@ export const useTotalsData = (
   const data = useAllMarkets(deposit?.network);
   const baseCurrency = useFiat();
   const {
-    yields: { fCashBorrow, liquidity },
+    yields: { fCashBorrow },
   } = data;
   const totalBorrowers = useTotalHolders(debt);
 
-  const tvlData = liquidity?.find(
-    (data) => data.underlying?.id === deposit?.id
-  )?.tvl;
+  const liquidity = fCashBorrow.find(({ token }) => token.id === debt?.id);
 
   let totalFixedRateDebt;
   if (deposit) {
@@ -39,7 +37,7 @@ export const useTotalsData = (
   return [
     {
       title: <FormattedMessage defaultMessage={'TVL'} />,
-      value: tvlData?.toFiat(baseCurrency).toFloat() || '-',
+      value: liquidity?.liquidity?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {

@@ -161,7 +161,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
         walletBalance: maxBalance?.toFloat() || 0,
         maturity: y.token.maturity,
         apy: y.totalAPY,
-        liquidity: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
+        liquidity: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,
         symbol: y.underlying.symbol,
         collateralFactor: getDebtOrCollateralFactor(
           y.token,

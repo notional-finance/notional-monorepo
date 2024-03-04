@@ -6,7 +6,7 @@ import { useHistory } from 'react-router';
 
 export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
   const {
-    yields: { fCashLend, fCashBorrow, liquidity },
+    yields: { fCashLend, fCashBorrow },
   } = useAllMarkets(network);
   const history = useHistory();
   const baseCurrency = useFiat();
@@ -26,27 +26,18 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
 
   const allData = yieldData
     .map((y) => {
-      const nTokenLiquidity = liquidity.find(
-        (x) => x.underlying.symbol === y.underlying.symbol
-      );
       return {
         ...y,
         symbol: y.underlying.symbol,
         title: y.underlying.symbol,
-        subTitle: `Liquidity: ${
-          nTokenLiquidity && nTokenLiquidity.tvl
-            ? formatNumberAsAbbr(
-                nTokenLiquidity?.tvl.toFiat(baseCurrency).toFloat(),
-                0,
-                baseCurrency
-              )
-            : 0
-        }`,
+        subTitle: `Liquidity: ${formatNumberAsAbbr(
+          y?.liquidity?.toFiat(baseCurrency).toFloat() || 0,
+          0,
+          baseCurrency
+        )}`,
         hasPosition: false,
         apySubTitle: apySubTitle,
-        tvlNum: nTokenLiquidity?.tvl
-          ? nTokenLiquidity.tvl.toFiat(baseCurrency).toNumber()
-          : 0,
+        tvlNum: y?.liquidity ? y.liquidity.toFiat(baseCurrency).toNumber() : 0,
         apy: y.totalAPY,
         routeCallback: () =>
           history.push(`/${product}/${network}/${y.underlying.symbol}`),

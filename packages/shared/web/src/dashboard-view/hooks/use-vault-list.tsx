@@ -105,14 +105,11 @@ export const useVaultList = (network: Network) => {
     // },
     {
       Header: (
-        <FormattedMessage
-          defaultMessage="Liquidity"
-          description={'Liquidity header'}
-        />
+        <FormattedMessage defaultMessage="TVL" description={'TVL header'} />
       ),
       Cell: DisplayCell,
       displayFormatter: formatNumberAsAbbr,
-      accessor: 'liquidity',
+      accessor: 'tvl',
       textAlign: 'right',
       sortType: 'basic',
       sortDescFirst: true,
@@ -169,7 +166,7 @@ export const useVaultList = (network: Network) => {
         //   y.noteIncentives,
         //   y.secondaryIncentives
         // ),
-        liquidity: y.vaultTVL ? y.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
+        tvl: y.vaultTVL ? y.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         view: `${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}`,
         symbol: y.primaryToken.symbol,
         borrowTerms: {
