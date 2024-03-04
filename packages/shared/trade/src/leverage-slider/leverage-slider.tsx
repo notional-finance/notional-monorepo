@@ -44,7 +44,6 @@ export const LeverageSlider = ({
       deposit,
       maxLeverageRatio,
       minLeverageRatio,
-      defaultLeverageRatio,
       collateral,
       debtOptions,
       collateralOptions,
@@ -101,7 +100,7 @@ export const LeverageSlider = ({
     }
   });
 
-  return defaultLeverageRatio && maxLeverageRatio ? (
+  return maxLeverageRatio ? (
     <SliderInput
       ref={sliderInputRef}
       min={minLeverageRatio || 0}

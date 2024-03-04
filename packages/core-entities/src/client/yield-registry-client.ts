@@ -325,7 +325,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             .div(maxFactor)
             .toNumber();
           const maxLeverageRatio = maxFactorInverted / RATE_PRECISION - 1;
-          const leverageRatio = maxLeverageRatio * 0.8;
+          const leverageRatio = maxLeverageRatio * 0.6;
 
           return this._makeLeveraged(
             nToken,
