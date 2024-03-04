@@ -1,9 +1,10 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import {
   SideDrawerRouter,
   useLeveragedNTokenPositions,
 } from '@notional-finance/trade';
 import { LiquidityContext } from '../liquidity';
+import { useQueryParams } from '@notional-finance/notionable-hooks';
 import { PRODUCTS } from '@notional-finance/util';
 import {
   AdjustLeverage,
@@ -18,19 +19,22 @@ import { TokenBalance } from '@notional-finance/core-entities';
 
 export const LiquidityLeveragedSideDrawer = () => {
   const context = useContext(LiquidityContext);
+  const queryData = useQueryParams();
   // NOTE: need to use the URL parameter or infinite loop conditions will exist
   const { selectedDepositToken } = useParams<{
     selectedDepositToken?: string;
   }>();
   const {
     state: {
-      customizeLeverage,
       debt,
+      tradeType,
       defaultLeverageRatio,
+      availableDebtTokens,
       deposit,
       riskFactorLimit,
       selectedNetwork,
     },
+    updateState,
   } = context;
   const loaded = deposit && deposit?.symbol === selectedDepositToken;
 
@@ -50,6 +54,23 @@ export const LiquidityLeveragedSideDrawer = () => {
       : undefined,
   };
 
+  useEffect(() => {
+    const borrowOptionId = queryData.get('borrowOption');
+    if (borrowOptionId && tradeType === 'LeveragedNToken') {
+      const debt = availableDebtTokens?.find((t) => t.id === borrowOptionId);
+      updateState({ debt });
+    }
+  }, [availableDebtTokens, queryData, updateState, tradeType]);
+
+  const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
+    deposit && defaultLeverageRatio
+      ? {
+          riskFactor: 'leverageRatio',
+          limit: defaultLeverageRatio,
+          args: [deposit.currencyId],
+        }
+      : undefined;
+
   return (
     <SideDrawerRouter
       context={context}
@@ -65,14 +86,7 @@ export const LiquidityLeveragedSideDrawer = () => {
           requiredState: {
             tradeType: 'LeveragedNToken',
             debt: loaded ? debt : undefined,
-            riskFactorLimit:
-              loaded && deposit && defaultLeverageRatio && !customizeLeverage
-                ? {
-                    riskFactor: 'leverageRatio',
-                    limit: defaultLeverageRatio,
-                    args: [deposit.currencyId],
-                  }
-                : undefined,
+            riskFactorLimit: riskFactorLimit || defaultRiskLimit,
           },
         },
         {
@@ -83,7 +97,6 @@ export const LiquidityLeveragedSideDrawer = () => {
             tradeType: 'IncreaseLeveragedNToken',
             selectedDepositToken,
             ...currentPositionState,
-            customizeLeverage: true,
           },
         },
         {
@@ -103,7 +116,6 @@ export const LiquidityLeveragedSideDrawer = () => {
                   collateralBalance: currentPosition?.debt.balance.neg(),
                 }),
             maxWithdraw: false,
-            customizeLeverage: true,
           },
         },
         {
@@ -124,7 +136,6 @@ export const LiquidityLeveragedSideDrawer = () => {
                   collateral: currentPosition?.debt.balance.token,
                   collateralBalance: currentPosition?.debt.balance.neg(),
                 }),
-            customizeLeverage: true,
             // Set this to true since the entire debt is being rolled to
             // prevent cash dust from accruing
             maxWithdraw: true,
@@ -141,7 +152,6 @@ export const LiquidityLeveragedSideDrawer = () => {
             riskFactorLimit: riskFactorLimit
               ? undefined
               : currentPositionState?.riskFactorLimit,
-            customizeLeverage: true,
           },
         },
         {
@@ -157,7 +167,6 @@ export const LiquidityLeveragedSideDrawer = () => {
             debt: currentPosition?.asset.balance.token,
             riskFactorLimit: currentPositionState?.riskFactorLimit,
             selectedDepositToken,
-            customizeLeverage: true,
           },
         },
       ]}

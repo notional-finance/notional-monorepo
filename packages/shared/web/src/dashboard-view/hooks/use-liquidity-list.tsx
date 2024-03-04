@@ -205,7 +205,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
         view:
           product === PRODUCTS.LIQUIDITY_VARIABLE
             ? `${product}/${network}/${y.underlying.symbol}`
-            : `${product}/${network}/CreateLeveragedNToken/${y.underlying.symbol}`,
+            : `${product}/${network}/CreateLeveragedNToken/${y.underlying.symbol}?borrowOption=${y?.leveraged?.debtToken?.id}`,
         symbol: y.underlying.symbol,
         borrowTerms: y?.leveraged?.debtToken?.maturity
           ? y?.leveraged?.debtToken?.maturity

@@ -79,9 +79,6 @@ interface UserInputs {
   /** Selected network for the current trade, the user can change this */
   selectedNetwork?: Network;
 
-  /** Set to true if the user is inputting custom leverage amounts */
-  customizeLeverage: boolean;
-
   /** Used as a flag to reset the state on path changes */
   reset?: boolean;
 
@@ -197,12 +194,10 @@ export const initialBaseTradeState: BaseTradeState = {
   calculationSuccess: false,
   maxWithdraw: false,
   inputErrors: false,
-  customizeLeverage: false,
 };
 
 export const initialVaultTradeState: VaultTradeState = {
   ...initialBaseTradeState,
-  customizeLeverage: false,
   underMinAccountBorrow: false,
   overCapacityError: false,
 };

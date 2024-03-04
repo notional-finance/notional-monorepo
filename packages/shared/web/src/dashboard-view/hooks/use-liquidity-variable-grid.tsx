@@ -1,7 +1,6 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
-import { defineMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useHistory } from 'react-router';
 
@@ -28,10 +27,6 @@ export const useLiquidityVariableGrid = (network: Network) => {
             : 0
         }`,
         hasPosition: false,
-        apySubTitle: defineMessage({
-          defaultMessage: `AS HIGH AS`,
-          description: 'subtitle',
-        }),
         tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         bottomValue: ``,
         incentiveValue: getTotalIncentiveApy(
