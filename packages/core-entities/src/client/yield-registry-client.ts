@@ -48,9 +48,18 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           nativeTokenAPY = 0;
         }
 
+        // Prime Cash and Prime Debt liquidity is based on prime cash supply
+        const liquidity =
+          t.tokenType === 'PrimeCash' || t.tokenType === 'PrimeDebt'
+            ? tokens
+                .getPrimeCash(network, t.currencyId)
+                .totalSupply?.toUnderlying() || TokenBalance.zero(underlying)
+            : undefined;
+
         return {
           token: t,
           tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          liquidity,
           underlying,
           totalAPY: organicAPY,
           organicAPY,
@@ -100,6 +109,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         // Adds the prime cash value in the nToken to the fCash TVL
         return Object.assign(y, {
           tvl: fCash.toUnderlying().add(pCash.toUnderlying()),
+          liquidity: fCash.toUnderlying().add(pCash.toUnderlying()),
         });
       });
   }
@@ -180,11 +190,14 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         }),
         { numerator: 0, denominator: 0 }
       );
+    // This is the blended nToken APY
     const organicAPY = numerator / denominator;
+    const tvl = netNTokens.token.totalSupply?.toUnderlying();
 
     return {
       token: netNTokens.token,
-      tvl: netNTokens.token.totalSupply?.toUnderlying(),
+      tvl,
+      liquidity: tvl,
       underlying,
       totalAPY:
         incentiveAPY +
@@ -242,6 +255,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         debt.totalAPY,
         leverageRatio
       ),
+      liquidity: yieldData.liquidity,
       leveraged: {
         debtToken: debt.token,
         debtRate: debt.totalAPY,
@@ -310,8 +324,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             .pow(3)
             .div(maxFactor)
             .toNumber();
-          const maxLeverageRatio = (maxFactorInverted / RATE_PRECISION - 1);
-          const leverageRatio = maxLeverageRatio * 0.8;
+          const maxLeverageRatio = maxFactorInverted / RATE_PRECISION - 1;
+          const leverageRatio = maxLeverageRatio * 0.6;
 
           return this._makeLeveraged(
             nToken,

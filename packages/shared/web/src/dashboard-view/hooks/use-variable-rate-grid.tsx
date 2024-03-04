@@ -19,9 +19,9 @@ export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
         symbol: y.underlying.symbol,
         title: y.underlying.symbol,
         subTitle: `Liquidity: ${
-          y.tvl
+          y.liquidity
             ? formatNumberAsAbbr(
-                y.tvl.toFiat(baseCurrency).toFloat(),
+                y.liquidity.toFiat(baseCurrency).toFloat(),
                 0,
                 baseCurrency
               )
@@ -29,7 +29,7 @@ export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
         }`,
         hasPosition: false,
         apy: y.totalAPY,
-        tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
+        tvlNum: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,
         routeCallback: () =>
           history.push(`/${product}/${network}/${y.underlying.symbol}`),
       };

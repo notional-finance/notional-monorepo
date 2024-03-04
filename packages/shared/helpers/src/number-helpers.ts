@@ -53,10 +53,9 @@ export function formatNumberAsAPY(num: number | string, decimals = 2) {
 
 export function formatNumberAsAbbr(
   num: number,
-  decimalPlaces = 3,
+  decimalPlaces?: number,
   baseCurrency?: string,
-  locale = 'en-US',
-  
+  locale = 'en-US'
 ) {
   let suffix = '';
 
@@ -73,6 +72,13 @@ export function formatNumberAsAbbr(
     num = num / 1_000_000_000;
   }
 
+  const symbol =
+    baseCurrency && FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$';
+  if (decimalPlaces === undefined && baseCurrency) {
+    // Use 2 decimals for fiat and 4 for non fiat
+    decimalPlaces = symbol ? 2 : 4;
+  }
+
   const localeString = num.toLocaleString(locale, {
     minimumFractionDigits: decimalPlaces,
     maximumFractionDigits: decimalPlaces,
@@ -82,8 +88,6 @@ export function formatNumberAsAbbr(
   if (localeString.match(/-0\.?[0]*$/)) {
     return localeString.replace('-', '');
   }
-
-  const symbol = baseCurrency && FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$';
 
   return `${symbol}${localeString}${suffix}`;
 }
