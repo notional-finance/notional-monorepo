@@ -188,18 +188,23 @@ export function calculateGroupedHoldings(
             ({ balance }) => balance.tokenId === asset.tokenId
           ) as typeof holdings[number];
 
+          const borrowApyData = debtHoldings?.marketYield?.token.tokenType === 'PrimeDebt'
+          ? debtHoldings.marketYield.totalAPY
+          : // Need to check for undefined here if the debtHoldings is undefined
+            debtHoldings?.statement?.impliedFixedRate
+
           l.push({
             asset: assetHoldings,
             debt: debtHoldings as PortfolioHolding,
             presentValue,
             leverageRatio,
             hasMatured: asset?.hasMatured || debt?.hasMatured ? true : false,
-            borrowAPY:
-              // NOTE: this accounts for matured debts and uses the variable APY after maturity
-              debtHoldings?.marketYield?.token.tokenType === 'PrimeDebt'
-                ? debtHoldings.marketYield.totalAPY
-                : // Need to check for undefined here if the debtHoldings is undefined
-                  debtHoldings?.statement?.impliedFixedRate,
+            borrowAPY: borrowApyData,
+            totalLeveragedApy: leveragedYield(
+              assetHoldings.marketYield?.totalAPY,
+              borrowApyData,
+              leverageRatio
+            ),
           });
         }
       }
@@ -213,6 +218,7 @@ export function calculateGroupedHoldings(
       leverageRatio: number;
       hasMatured: boolean;
       borrowAPY: number | undefined;
+      totalLeveragedApy: number | undefined;
     }[]
   );
 }

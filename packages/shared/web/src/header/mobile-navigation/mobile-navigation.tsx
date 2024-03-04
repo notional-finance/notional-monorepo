@@ -33,7 +33,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
   const history = useHistory();
   const { pathname } = useLocation();
   const {
-    globalState: { isAccountReady },
+    globalState: { isAccountPending, wallet },
   } = useNotionalContext();
   const { setWalletSideDrawer } = useSideDrawerManager();
 
@@ -81,8 +81,8 @@ export function MobileNavigation({ ...rest }: TabsProps) {
 
   return window.innerWidth <= theme.breakpoints.values.sm ? (
     <>
-      <Box>
-        {!isAccountReady && pathname !== '/' && (
+      <Box sx={{ display: 'flex', justifyContent: 'end' }}>
+        {!wallet?.selectedAddress && isAccountPending && pathname !== '/' && (
           <Button
             onClick={() =>
               setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)

@@ -6,10 +6,12 @@ import {
   TableRow,
   useTheme,
   styled,
+  Box,
 } from '@mui/material';
 import { UpAndDownIcon } from '@notional-finance/icons';
 import { TableColumnHeading } from '../../typography/typography';
 import { DataTableTitleBar } from '../data-table-title-bar/data-table-title-bar';
+import { InfoTooltip } from '../../info-tooltip/info-tooltip';
 import { NotionalTheme } from '@notional-finance/styles';
 
 interface DataTableHeadProps {
@@ -31,6 +33,7 @@ export const DataTableHead = ({
   tableTitle,
 }: DataTableHeadProps) => {
   const theme = useTheme();
+
   return (
     <TableHeadContainer
       expandableTable={expandableTable}
@@ -83,7 +86,19 @@ export const DataTableHead = ({
               <TableColumnHeading
                 sx={{ marginRight: column['marginRight'] || '0px' }}
               >
-                {column['render']('Header')}
+                {column['columnHeaderToolTip'] ? (
+                  <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
+                    <InfoTooltip
+                      sx={{ marginLeft: theme.spacing(1) }}
+                      iconSize={theme.spacing(2)}
+                      iconColor={theme.palette.typography.accent}
+                      toolTipText={column['columnHeaderToolTip']}
+                    />
+                    <Box>{column['render']('Header')}</Box>
+                  </Box>
+                ) : (
+                  column['render']('Header')
+                )}
                 {tableVariant === TABLE_VARIANTS.SORTABLE &&
                   column['render']('Header') && (
                     <UpAndDownIcon

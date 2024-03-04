@@ -41,16 +41,17 @@ export const LiquidityYieldInfo = ({
         sx={{
           marginRight: theme.spacing(2),
           color:
-            liquidityYieldData?.interestAPY !== undefined &&
-            liquidityYieldData?.interestAPY < 0
+            liquidityYieldData?.organicAPY !== undefined &&
+            liquidityYieldData?.organicAPY < 0
               ? theme.palette.error.main
               : theme.palette.typography.light,
         }}
       >
-        {liquidityYieldData?.interestAPY !== undefined ? (
+        {liquidityYieldData?.organicAPY !== undefined ? (
           <CountUp
-            value={liquidityYieldData.interestAPY}
+            value={liquidityYieldData.organicAPY}
             suffix="%"
+            decimals={2}
             delay={0.3}
           />
         ) : (
@@ -76,6 +77,7 @@ export const LiquidityYieldInfo = ({
             <CountUp
               value={liquidityYieldData?.noteIncentives.incentiveAPY}
               suffix="%"
+              decimals={2}
               delay={0.3}
             />
           ) : (
@@ -101,6 +103,7 @@ export const LiquidityYieldInfo = ({
               <CountUp
                 value={liquidityYieldData?.secondaryIncentives.incentiveAPY}
                 suffix="%"
+                decimals={2}
                 delay={0.3}
               />
             ) : (

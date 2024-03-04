@@ -39,7 +39,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         if (!t.currencyId) throw Error('Missing currency id');
         if (!t.underlying) throw Error(`Token has no underlying`);
         const market = exchanges.getNotionalMarket(network, t.currencyId);
-        const interestAPY = market.getSpotInterestRate(t) || 0;
+        const organicAPY = market.getSpotInterestRate(t) || 0;
         const underlying = tokens.getTokenByID(network, t.underlying);
 
         let nativeTokenAPY: number | undefined = undefined;
@@ -48,12 +48,21 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           nativeTokenAPY = 0;
         }
 
+        // Prime Cash and Prime Debt liquidity is based on prime cash supply
+        const liquidity =
+          t.tokenType === 'PrimeCash' || t.tokenType === 'PrimeDebt'
+            ? tokens
+                .getPrimeCash(network, t.currencyId)
+                .totalSupply?.toUnderlying() || TokenBalance.zero(underlying)
+            : undefined;
+
         return {
           token: t,
           tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          liquidity,
           underlying,
-          totalAPY: interestAPY,
-          interestAPY,
+          totalAPY: organicAPY,
+          organicAPY,
           nativeTokenAPY,
         };
       });
@@ -100,6 +109,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         // Adds the prime cash value in the nToken to the fCash TVL
         return Object.assign(y, {
           tvl: fCash.toUnderlying().add(pCash.toUnderlying()),
+          liquidity: fCash.toUnderlying().add(pCash.toUnderlying()),
         });
       });
   }
@@ -180,18 +190,21 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         }),
         { numerator: 0, denominator: 0 }
       );
-    const interestAPY = numerator / denominator;
+    // This is the blended nToken APY
+    const organicAPY = numerator / denominator;
+    const tvl = netNTokens.token.totalSupply?.toUnderlying();
 
     return {
       token: netNTokens.token,
-      tvl: netNTokens.token.totalSupply?.toUnderlying(),
+      tvl,
+      liquidity: tvl,
       underlying,
       totalAPY:
         incentiveAPY +
         feeAPY +
-        interestAPY +
+        organicAPY +
         (secondaryIncentives?.incentiveAPY || 0),
-      interestAPY,
+      organicAPY,
       feeAPY,
       noteIncentives: {
         symbol: 'NOTE',
@@ -237,7 +250,12 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         debt.totalAPY,
         leverageRatio
       ),
-      strategyAPY: yieldData.totalAPY,
+      organicAPY: this.calculateLeveragedAPY(
+        (yieldData.organicAPY || 0) + (yieldData.feeAPY || 0),
+        debt.totalAPY,
+        leverageRatio
+      ),
+      liquidity: yieldData.liquidity,
       leveraged: {
         debtToken: debt.token,
         debtRate: debt.totalAPY,
@@ -298,8 +316,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           //   .toNumber();
           // const leverageRatio = inverted / RATE_PRECISION - 1;
 
-          const leverageRatio = 3.5;
-
           // maxLeverageRatio = [(1 - (pvFactor * nTokenHaircut)) ^ -1] - 1
           const maxFactor = BigNumber.from(RATE_PRECISION)
             .pow(2)
@@ -309,6 +325,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             .div(maxFactor)
             .toNumber();
           const maxLeverageRatio = maxFactorInverted / RATE_PRECISION - 1;
+          const leverageRatio = maxLeverageRatio * 0.6;
 
           return this._makeLeveraged(
             nToken,

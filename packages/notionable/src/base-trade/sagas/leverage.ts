@@ -72,10 +72,9 @@ export function defaultLeverageRatio(
         maxLeverageRatio: Math.max(
           ...options.map((y) => y.leveraged?.maxLeverageRatio || 0)
         ),
-        // Return the min of the default leverage ratios...
-        defaultLeverageRatio: Math.min(
-          ...options.map((y) => y.leveraged?.leverageRatio || 0)
-        ),
+        defaultLeverageRatio: options.find(
+          (y) => y.leveraged?.debtToken?.id === debt?.id
+        )?.leveraged?.leverageRatio,
       };
     }),
     filterEmpty()
