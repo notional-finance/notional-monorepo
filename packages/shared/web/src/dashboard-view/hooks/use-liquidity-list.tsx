@@ -175,10 +175,8 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
 
   const listData = yieldData
     .map((y) => {
-      const maxBalance = account
-        ? account.balances.find(
-            (t) => t.underlying.symbol === y.underlying.symbol
-          )
+      const walletBalance = account
+        ? account.balances.find((t) => t.tokenId === y.underlying.id)
         : undefined;
 
       return {
@@ -189,7 +187,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
           label: y.underlying.symbol,
           caption: network.charAt(0).toUpperCase() + network.slice(1),
         },
-        walletBalance: maxBalance?.toFloat() || 0,
+        walletBalance: walletBalance?.toFloat() || 0,
         totalApy: y.totalAPY || 0,
         organicApy: y.organicAPY,
         incentiveApy: getCombinedIncentiveData(
