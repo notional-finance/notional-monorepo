@@ -143,10 +143,8 @@ export const useVaultList = (network: Network) => {
       const x = getMax(
         leveragedVaults.filter((z) => z.token.vaultAddress === y.vaultAddress)
       );
-      const maxBalance = account
-        ? account.balances.find(
-            (t) => t.underlying.symbol === y.primaryToken.symbol
-          )
+      const walletBalance = account
+        ? account.balances.find((t) => t.tokenId === y.primaryToken.id)
         : undefined;
 
       return {
@@ -157,7 +155,7 @@ export const useVaultList = (network: Network) => {
           label: y.primaryToken.symbol,
           caption: network.charAt(0).toUpperCase() + network.slice(1),
         },
-        walletBalance: maxBalance?.toFloat() || 0,
+        walletBalance: walletBalance?.toFloat() || 0,
         pool: y.poolName,
         protocols: `${y.boosterProtocol} / ${y.baseProtocol}`,
         totalApy: x?.totalAPY || 0,

@@ -145,10 +145,8 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
 
   const listData = yieldData[product]
     .map((y) => {
-      const maxBalance = account
-        ? account.balances.find(
-            (t) => t.underlying.symbol === y.underlying.symbol
-          )
+      const walletBalance = account
+        ? account.balances.find((t) => t.tokenId === y.underlying.id)
         : undefined;
       return {
         currency: {
@@ -158,7 +156,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
           label: y.underlying.symbol,
           caption: network.charAt(0).toUpperCase() + network.slice(1),
         },
-        walletBalance: maxBalance?.toFloat() || 0,
+        walletBalance: walletBalance?.toFloat() || 0,
         maturity: y.token.maturity,
         apy: y.totalAPY,
         liquidity: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,
