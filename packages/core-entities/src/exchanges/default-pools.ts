@@ -23,6 +23,36 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       PoolClass: 'fCashMarket',
       registerTokens: [],
     },
+    {
+      // nwstETH
+      address: '0x9499ad68Cd1b00a869853a986ac3F82401650933',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nFRAX
+      address: '0x96bE0C426Ea53ECb6F154bEd27c9dE85722A5C6F',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nrETH
+      address: '0xd623646DA89F9264547272f268785d9C64af9ce3',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nUSDT
+      address: '0x0Da210F60A179Ee3364123943930dAdbAb8B210e',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // ncbETH
+      address: '0xa2ADBc0d7C8Da646f9d5f6CfA9Eb396403067da0',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
   ],
   [Network.ArbitrumOne]: [
     {
