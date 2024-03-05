@@ -501,7 +501,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       .concat(this.getPrimeDebtYield(network))
       .concat(this.getNTokenYield(network))
       .concat(this.getfCashYield(network))
-      .concat(this.getLeveragedLendYield(network))
+      // .concat(this.getLeveragedLendYield(network))
       .concat(this.getLeveragedNTokenYield(network))
       .concat(this.getLeveragedVaultYield(network));
 

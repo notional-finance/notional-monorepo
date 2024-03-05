@@ -1,21 +1,18 @@
 import { FormattedMessage } from 'react-intl';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useHeadlineRates } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { Network } from '@notional-finance/util';
 
 export const useProductCards = () => {
   const {
-    headlineRates: {
-      fCashLend,
-      variableLend,
-      leveragedVaults,
-      leveragedLiquidity,
-      // leveragedLend,
-      liquidity,
-      fCashBorrow,
-      variableBorrow,
-    },
-  } = useAllMarkets(Network.ArbitrumOne);
+    fCashLend,
+    variableLend,
+    leveragedVaults,
+    leveragedLiquidity,
+    // leveragedLend,
+    liquidity,
+    fCashBorrow,
+    variableBorrow,
+  } = useHeadlineRates();
 
   const earnYieldData = [
     {
