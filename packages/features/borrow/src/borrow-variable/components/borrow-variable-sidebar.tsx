@@ -8,6 +8,7 @@ import {
 import { PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { BorrowVariableContext } from '../borrow-variable';
+import { NetworkSelector } from '@notional-finance/wallet';
 import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';
 
 export const BorrowVariableSidebar = () => {
@@ -30,6 +31,7 @@ export const BorrowVariableSidebar = () => {
       showDrawer
       isWithdraw
       variableBorrowRequired
+      NetworkSelector={NetworkSelector}
     >
       <DepositInput
         showScrollPopper

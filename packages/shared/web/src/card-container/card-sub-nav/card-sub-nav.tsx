@@ -47,23 +47,23 @@ export const CardSubNav = () => {
         )}
 
         {leveredUp
-          ? leveragedLinks.map(({ title, to }, i) => (
+          ? leveragedLinks.map(({ title, to, key }, i) => (
               <StyledButton
                 key={i}
                 to={to}
                 variant="outlined"
-                active={to === pathname}
+                active={pathname.includes(key)}
                 theme={theme}
               >
                 {title}
               </StyledButton>
             ))
-          : links.map(({ title, to }, i) => (
+          : links.map(({ title, to, key }, i) => (
               <StyledButton
                 key={i}
                 to={to}
                 variant="outlined"
-                active={to === pathname}
+                active={pathname.includes(key)}
                 theme={theme}
               >
                 {title}

@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 export interface CardSubNavProps {
   to: string;
   title: ReactNode;
+  key: string;
 }
 
 export const useCardSubNav = () => {
@@ -16,26 +17,31 @@ export const useCardSubNav = () => {
         {
           title: <FormattedMessage defaultMessage={'Fixed Rate Borrowing'} />,
           to: `/borrow-fixed/${network}`,
+          key: 'borrow-fixed',
         },
         {
           title: (
             <FormattedMessage defaultMessage={'Variable Rate Borrowing'} />
           ),
           to: `/borrow-variable/${network}`,
+          key: 'borrow-variable',
         },
       ]
     : [
         {
           title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
           to: `/lend-fixed/${network}`,
+          key: 'lend-fixed',
         },
         {
           title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
           to: `/lend-variable/${network}`,
+          key: 'lend-variable',
         },
         {
           title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
           to: `/liquidity-variable/${network}`,
+          key: 'liquidity-variable',
         },
       ];
 
@@ -43,6 +49,7 @@ export const useCardSubNav = () => {
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
       to: `/vaults/${network}`,
+      key: 'vaults',
     },
     // {
     //   title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
@@ -51,6 +58,7 @@ export const useCardSubNav = () => {
     {
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
       to: `/liquidity-leveraged/${network}`,
+      key: 'liquidity-leveraged',
     },
   ];
   return { links, leveragedLinks };

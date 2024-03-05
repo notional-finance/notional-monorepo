@@ -13,7 +13,7 @@ import {
   useReadOnlyAddress,
 } from '@notional-finance/notionable-hooks';
 import { TradeState } from '@notional-finance/notionable';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   FormattedMessage,
   MessageDescriptor,
@@ -32,9 +32,8 @@ import { TransactionApprovals } from '../transaction-approvals/transaction-appro
 import { useLocation } from 'react-router-dom';
 import { TradeSummary } from './components/trade-summary';
 import { isLeveragedTrade } from '@notional-finance/notionable';
-import { PRODUCTS } from '@notional-finance/util';
 import { SwitchNetwork } from '../transaction-approvals/switch-network';
-import { NetworkSelector } from '@notional-finance/wallet';
+import { PRODUCTS } from '@notional-finance/util';
 
 interface TransactionSidebarProps {
   heading?:
@@ -52,6 +51,7 @@ interface TransactionSidebarProps {
   isPortfolio?: boolean;
   showDrawer?: boolean;
   riskComponent?: React.ReactNode;
+  NetworkSelector?: React.ElementType;
   onReturnToForm?: () => void;
   onConfirmCancel?: () => void;
   onCancelCallback?: () => void;
@@ -75,6 +75,7 @@ export const TransactionSidebar = ({
   requiredApprovalAmount,
   onCancelRouteCallback,
   variableBorrowRequired,
+  NetworkSelector,
   isWithdraw = false,
   hideTextOnMobile,
 }: TransactionSidebarProps) => {
@@ -82,7 +83,7 @@ export const TransactionSidebar = ({
   const { pathname } = useLocation();
   const [showTxnApprovals, setShowTxnApprovals] = useState(false);
   const [showSwitchNetwork, setShowSwitchNetwork] = useState(false);
-  const { canSubmit, confirm, tradeType, debt, collateral, selectedNetwork } =
+  const { canSubmit, confirm, debt, collateral, selectedNetwork, tradeType } =
     state;
   const walletConnectedNetwork = useWalletConnectedNetwork();
   const isReadyOnlyWallet = useReadOnlyAddress();

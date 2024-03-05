@@ -26,7 +26,7 @@ export interface ActionSidebarProps {
   canSubmit?: boolean;
   cancelRoute?: string;
   onCancelCallback?: () => void;
-  NetworkSelector?: any;
+  NetworkSelector?: React.ElementType;
   CustomActionButton?: React.ElementType;
   showActionButtons?: boolean;
   hideTextOnMobile?: boolean;
@@ -84,13 +84,25 @@ export const ActionSidebar = ({
             justifyContent: 'space-between',
           }}
         >
-          <LargeInputTextEmphasized
-            gutter="default"
-            sx={{ display: { xs: 'none', sm: 'none', md: 'flex' } }}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignContent: 'center',
+              width: '100%',
+            }}
           >
-            <FormattedMessage {...heading} />
-            <NetworkSelector />
-          </LargeInputTextEmphasized>
+            <LargeInputTextEmphasized
+              gutter="default"
+              sx={{
+                display: { xs: 'none', sm: 'none', md: 'block' },
+              }}
+            >
+              <FormattedMessage {...heading} />
+            </LargeInputTextEmphasized>
+            {NetworkSelector && <NetworkSelector />}
+          </Box>
+
           <H4
             gutter="default"
             sx={{

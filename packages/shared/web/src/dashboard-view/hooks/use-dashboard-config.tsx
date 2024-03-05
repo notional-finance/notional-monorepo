@@ -143,18 +143,18 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
   const history = useHistory();
   const { pathname } = useLocation();
   const selectedNetwork = useSelectedNetwork();
-  const [networkToggle, setNetworkToggle] = useState<number>(0);
+  const defaultNetwork = selectedNetwork === Network.Mainnet ? 1 : 0;
+  const [networkToggle, setNetworkToggle] = useState<number>(defaultNetwork);
 
-  const handleClick = (label: Network) => {
+  const handleNetWorkToggle = (v: number) => {
+    const label = v === 0 ? Network.ArbitrumOne : Network.Mainnet;
     history.push(pathname.replace(selectedNetwork, label));
+    setNetworkToggle(v);
   };
 
   const headerData = {
     toggleOptions: [
-      <Box
-        sx={{ fontSize: '14px', display: 'flex' }}
-        onClick={() => handleClick(Network.ArbitrumOne)}
-      >
+      <Box sx={{ fontSize: '14px', display: 'flex' }}>
         <TokenIcon
           symbol="arb"
           size="small"
@@ -162,10 +162,7 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
         />
         Arbitrum
       </Box>,
-      <Box
-        sx={{ fontSize: '14px', display: 'flex' }}
-        onClick={() => handleClick(Network.Mainnet)}
-      >
+      <Box sx={{ fontSize: '14px', display: 'flex' }}>
         <TokenIcon
           symbol="eth"
           size="small"
@@ -178,7 +175,7 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
       <FormattedMessage defaultMessage={'Native Token Yield not shown.'} />
     ),
     networkToggle,
-    setNetworkToggle,
+    handleNetWorkToggle,
   };
 
   return {

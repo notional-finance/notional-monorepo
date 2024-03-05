@@ -4,19 +4,20 @@ import { CoinsIcon, CoinsCircleIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { usePendingValues } from '../invest-and-earn/use-invest-earn-links';
-import { Network } from '@notional-finance/util';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 
 export const useBorrowDropDown = () => {
   const theme = useTheme();
+  const selectedNetwork = useSelectedNetwork();
 
   const {
     headlineRates: { fCashBorrow, variableBorrow },
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(selectedNetwork);
 
   const links: SectionLinkProps[] = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Borrow'} />,
-      to: '/borrow-fixed',
+      to: `/borrow-fixed/${selectedNetwork}`,
       icon: (
         <CoinsIcon
           sx={{
@@ -38,7 +39,7 @@ export const useBorrowDropDown = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Rate Borrow'} />,
-      to: '/borrow-variable',
+      to: `/borrow-variable/${selectedNetwork}`,
       icon: (
         <CoinsCircleIcon
           sx={{

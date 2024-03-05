@@ -5,7 +5,7 @@ import { Chain } from '@web3-onboard/common';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
 import { chains } from '../onboard-context';
-import { Body, Caption, H4, H5 } from '@notional-finance/mui';
+import { Caption, H4, H5 } from '@notional-finance/mui';
 import { useTheme, Box, Button, styled, Popover } from '@mui/material';
 import { useSelectedNetwork } from '../hooks/use-network';
 import { useHistory, useLocation } from 'react-router';
@@ -33,6 +33,12 @@ export const NetworkSelectorButton = ({
       onClick={() => handleClick(data)}
       active={data?.label === selectedNetwork}
       theme={theme}
+      sx={{
+        borderRadius:
+          data?.label === selectedNetwork && data.label === Network.Mainnet
+            ? '0px 0px 6px 6px'
+            : '0px',
+      }}
     >
       <Box sx={{ marginRight: theme.spacing(1) }}>
         <TokenIcon
@@ -51,7 +57,6 @@ export const NetworkSelectorButton = ({
       >
         {data.label}
       </H4>
-      <Body sx={{ color: theme.palette.typography.main }}>0.000 USD</Body>
     </NetworkButton>
   );
 };
@@ -95,8 +100,8 @@ export function NetworkSelector() {
             sx={{
               borderRadius: '50%',
               background: theme.palette.info.light,
-              height: '16px',
-              width: '16px',
+              height: theme.spacing(2),
+              width: theme.spacing(2),
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -104,8 +109,9 @@ export function NetworkSelector() {
           >
             <ArrowIcon
               sx={{
-                transform: 'rotate(-180deg)',
-                width: '12px',
+                transform: open ? 'rotate(0deg)' : 'rotate(-180deg)',
+                transition: '.5s ease',
+                width: theme.spacing(1.5),
                 color: theme.palette.secondary.light,
               }}
             />
@@ -122,7 +128,7 @@ export function NetworkSelector() {
         onClose={() => handleClose()}
         transitionDuration={{ exit: 0, enter: 200 }}
         sx={{
-          marginTop: '10px',
+          marginTop: theme.spacing(1),
           '.MuiPopover-paper': {
             boxShadow: theme.shape.shadowLarge(),
             borderRadius: theme.shape.borderRadius(),
@@ -148,7 +154,7 @@ export function NetworkSelector() {
           <Title>
             <FormattedMessage defaultMessage={'NETWORK'} />
           </Title>
-          <Box sx={{ margin: 'auto', padding: '1px' }}>
+          <Box sx={{ margin: 'auto' }}>
             {chains.map((data: Chain) => (
               <NetworkSelectorButton
                 key={data.id}
@@ -165,13 +171,13 @@ export function NetworkSelector() {
 
 const NetworkSelectorWrapper = styled(Box)(
   ({ theme }) => `
-    min-width: 117px;
+    min-width: ${theme.spacing(15)};
     margin-left: ${theme.spacing(2.5)};
     box-shadow: none;
     transition: .3s ease;
     border-radius: 50px;
     #basic-button {
-      padding: 8px 12px;
+      padding: ${theme.spacing(1, 1.5)};
       border-radius: 50px;
       border: ${theme.shape.borderStandard};
       color: ${theme.palette.typography.main};

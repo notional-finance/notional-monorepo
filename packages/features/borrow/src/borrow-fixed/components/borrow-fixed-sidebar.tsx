@@ -9,6 +9,7 @@ import { defineMessage } from 'react-intl';
 import { BorrowFixedContext } from '../borrow-fixed';
 import { useContext } from 'react';
 import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';
+import { NetworkSelector } from '@notional-finance/wallet';
 
 export const BorrowFixedSidebar = () => {
   const { currencyInputRef } = useCurrencyInputRef();
@@ -26,6 +27,7 @@ export const BorrowFixedSidebar = () => {
       context={context}
       showDrawer
       isWithdraw
+      NetworkSelector={NetworkSelector}
       // If the cash balance is negative, then the account will require
       // prime borrow to be enabled, even though a further negative balance
       // will not be incurred

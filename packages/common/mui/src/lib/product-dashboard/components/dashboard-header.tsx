@@ -7,19 +7,19 @@ export interface DashboardHeaderProps {
     toggleOptions: React.ReactNode[];
     messageBoxText: MessageDescriptor;
     networkToggle: number;
-    setNetworkToggle: (value: number) => void;
+    handleNetWorkToggle: (value: number) => void;
   };
 }
 
 export const DashboardHeader = ({ headerData }: DashboardHeaderProps) => {
-  const { toggleOptions, messageBoxText, networkToggle, setNetworkToggle } =
+  const { toggleOptions, messageBoxText, networkToggle, handleNetWorkToggle } =
     headerData;
   return (
     <HeaderContainer>
       <SimpleToggle
         tabLabels={toggleOptions}
         selectedTabIndex={networkToggle}
-        onChange={setNetworkToggle}
+        onChange={(_, v) => handleNetWorkToggle(v as number)}
       />
       <MessageBox>{messageBoxText}</MessageBox>
     </HeaderContainer>

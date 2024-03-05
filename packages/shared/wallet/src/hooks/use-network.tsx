@@ -28,5 +28,6 @@ export function useNetworkSelector() {
 }
 export function useSelectedNetwork() {
   const { selectedNetwork } = useParams<{ selectedNetwork: Network }>();
+
   return selectedNetwork;
 }
