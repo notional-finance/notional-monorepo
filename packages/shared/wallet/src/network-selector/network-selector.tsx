@@ -273,6 +273,7 @@ function NetworkSelector({
 
 const NetworkSelectorWrapper = styled(Box)(
   ({ theme }) => `
+    min-width: ${theme.spacing(15)};
     margin-left: ${theme.spacing(2.5)};
     box-shadow: none;
     transition: .3s ease;
