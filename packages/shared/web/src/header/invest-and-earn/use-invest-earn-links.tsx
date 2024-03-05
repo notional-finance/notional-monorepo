@@ -11,7 +11,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { Network } from '@notional-finance/util';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 
 export const usePendingValues = (value: number | undefined) => {
   const theme = useTheme();
@@ -31,6 +31,7 @@ export const usePendingValues = (value: number | undefined) => {
 
 export const useInvestEarnLinks = () => {
   const theme = useTheme();
+  const selectedNetwork = useSelectedNetwork();
   const {
     headlineRates: {
       fCashLend,
@@ -40,12 +41,12 @@ export const useInvestEarnLinks = () => {
       // leveragedLend,
       leveragedLiquidity,
     },
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(selectedNetwork);
 
   const lowRiskLinks: SectionLinkProps[] = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
-      to: '/lend-fixed',
+      to: `/lend-fixed/${selectedNetwork}`,
       icon: (
         <BarChartLateralIcon
           sx={{
@@ -67,7 +68,7 @@ export const useInvestEarnLinks = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
-      to: '/lend-variable',
+      to: `/lend-variable/${selectedNetwork}`,
       icon: (
         <BarChartIcon
           sx={{
@@ -88,7 +89,7 @@ export const useInvestEarnLinks = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      to: '/liquidity-variable',
+      to: `/liquidity-variable/${selectedNetwork}`,
       icon: (
         <PieChartIcon
           sx={{
@@ -132,7 +133,7 @@ export const useInvestEarnLinks = () => {
   const highYieldLinks: SectionLinkProps[] = [
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
-      to: '/vaults',
+      to: `/vaults/${selectedNetwork}`,
       icon: (
         <VaultIcon
           sx={{
@@ -174,7 +175,7 @@ export const useInvestEarnLinks = () => {
     // },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
-      to: '/liquidity-leveraged',
+      to: `/liquidity-leveraged/${selectedNetwork}`,
       icon: (
         <PieChartIcon
           sx={{

@@ -12,7 +12,8 @@ export const DashboardHeader = ({
   setDashboardTab,
 }: DashboardHeaderProps) => {
   const theme = useTheme();
-  const { toggleOptions, messageBoxText } = headerData;
+  const { toggleOptions, messageBoxText, networkToggle, handleNetWorkToggle } =
+    headerData;
 
   const gridToggleData = [
     <Box
@@ -81,8 +82,8 @@ export const DashboardHeader = ({
         <Box sx={{ marginRight: theme.spacing(3) }}>
           <SimpleToggle
             tabLabels={toggleOptions}
-            selectedTabIndex={0}
-            toggleStyle={'accent'}
+            selectedTabIndex={networkToggle}
+            onChange={(_, v) => handleNetWorkToggle(v as number)}
           />
         </Box>
         {dashboardTab === 1 && (

@@ -3,21 +3,31 @@ import { useParams } from 'react-router';
 import { defineMessages } from 'react-intl';
 
 export function useNetworkSelector() {
-  const labels = defineMessages({
+  const networkSelectorData = {
     [Network.ArbitrumOne]: {
-      defaultMessage: 'Arbitrum',
+      messages: defineMessages({
+        networkName: {
+          defaultMessage: 'Arbitrum',
+          description: 'network name',
+        },
+      }),
+      networkSymbol: 'arb',
     },
-
     [Network.Mainnet]: {
-      defaultMessage: 'Mainnet',
+      messages: defineMessages({
+        networkName: {
+          defaultMessage: 'Mainnet',
+          description: 'network name',
+        },
+      }),
+      networkSymbol: 'eth',
     },
-  });
-
-  return {
-    labels,
   };
+
+  return networkSelectorData;
 }
 export function useSelectedNetwork() {
   const { selectedNetwork } = useParams<{ selectedNetwork: Network }>();
+
   return selectedNetwork;
 }
