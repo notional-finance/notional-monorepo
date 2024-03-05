@@ -30,6 +30,7 @@ export interface ActionSidebarProps {
   showActionButtons?: boolean;
   hideTextOnMobile?: boolean;
   advancedToggle?: ToggleSwitchProps;
+  NetworkSelector?: React.ElementType;
   leverageDisabled?: boolean;
   handleSubmit?: () => void;
 }
@@ -65,6 +66,7 @@ export const ActionSidebar = ({
   cancelRoute,
   onCancelCallback,
   CustomActionButton,
+  NetworkSelector,
   advancedToggle,
   showActionButtons = true,
   hideTextOnMobile = true,
@@ -82,12 +84,24 @@ export const ActionSidebar = ({
             justifyContent: 'space-between',
           }}
         >
-          <LargeInputTextEmphasized
-            gutter="default"
-            sx={{ display: { xs: 'none', sm: 'none', md: 'block' } }}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignContent: 'center',
+              width: '100%',
+            }}
           >
-            <FormattedMessage {...heading} />
-          </LargeInputTextEmphasized>
+            <LargeInputTextEmphasized
+              gutter="default"
+              sx={{
+                display: { xs: 'none', sm: 'none', md: 'block' },
+              }}
+            >
+              <FormattedMessage {...heading} />
+            </LargeInputTextEmphasized>
+            {NetworkSelector && <NetworkSelector />}
+          </Box>
           <H4
             gutter="default"
             sx={{

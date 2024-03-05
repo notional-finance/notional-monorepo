@@ -31,6 +31,8 @@ import nwstETH from '../../assets/icons/currencies/nwstETH.svg';
 import wsteth_alt from '../../assets/icons/currencies/wsteth-alt.svg';
 import fDAI from '../../assets/icons/currencies/fDAI.svg';
 import pDAI from '../../assets/icons/currencies/pDAI.svg';
+import sDAI from '../../assets/icons/currencies/sDAI.svg';
+import psDAI from '../../assets/icons/currencies/psDAI.svg';
 import fUSDC from '../../assets/icons/currencies/fUSDC.svg';
 import fWBTC from '../../assets/icons/currencies/fWBTC.svg';
 import fETH from '../../assets/icons/currencies/fETH.svg';
@@ -173,6 +175,16 @@ export const TokenImageList: TokenImageMap = {
     name: 'pdai',
     img: pDAI,
     alt: 'prime DAI icon',
+  },
+  sdai: {
+    name: 'sdai',
+    img: sDAI,
+    alt: 'staked DAI icon',
+  },
+  psdai: {
+    name: 'psdai',
+    img: psDAI,
+    alt: 'prime staked DAI icon',
   },
   note: {
     name: 'note',

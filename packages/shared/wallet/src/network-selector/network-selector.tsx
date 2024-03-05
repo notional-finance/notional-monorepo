@@ -2,22 +2,15 @@ import React, { useState } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { Chain } from '@web3-onboard/common';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NotionalTheme } from '@notional-finance/styles';
-import { ArrowIcon, CircleIcon } from '@notional-finance/icons';
+import { ArrowIcon } from '@notional-finance/icons';
 import { chains } from '../onboard-context';
-import { LabelValue } from '@notional-finance/mui';
-import {
-  useTheme,
-  Box,
-  Button,
-  styled,
-  ListItemIcon,
-  Popover,
-} from '@mui/material';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { Caption, H4, H5 } from '@notional-finance/mui';
+import { useTheme, Box, Button, styled, Popover } from '@mui/material';
+import { getNetworkSymbol } from '@notional-finance/util';
+import { useSelectedNetwork } from '../hooks/use-network';
+import { useHistory, useLocation } from 'react-router';
 import { Network } from '@notional-finance/util';
-import { useNetworkSelector } from '../hooks/use-network';
 
 export interface NetworkButtonProps {
   active?: boolean;
@@ -33,50 +26,44 @@ export const NetworkSelectorButton = ({
   handleClick,
 }: NetworkSelectorButtonProps) => {
   const theme = useTheme();
-  const { labels } = useNetworkSelector();
-  const label = data.label ? labels[data.label] : '';
+  const selectedNetwork = useSelectedNetwork();
+  const dataLabel = data.label as Network;
   return (
     <NetworkButton
       key={data.id}
-      onClick={data.id === chains[0].id ? () => handleClick(data) : undefined}
-      active={data?.id === chains[0].id}
+      onClick={() => handleClick(data)}
+      active={data?.label === selectedNetwork}
       theme={theme}
+      sx={{
+        borderRadius:
+          dataLabel === selectedNetwork && dataLabel === Network.Mainnet
+            ? '0px 0px 6px 6px'
+            : '0px',
+      }}
     >
-      <ListItemIcon sx={{ marginRight: '0px' }}>
-        <TokenIcon
-          symbol={data.id === chains[0].id ? 'arb' : 'eth'}
-          size="large"
-        />
-      </ListItemIcon>
-      <Box sx={{ flex: 1, alignItems: 'center', display: 'flex' }}>
-        <FormattedMessage {...label} />
+      <Box sx={{ marginRight: theme.spacing(1) }}>
+        <TokenIcon symbol={getNetworkSymbol(dataLabel)} size="medium" />
       </Box>
-      <Box
+      <H4
         sx={{
-          justifyContent: 'flex-end',
-          display: 'flex',
+          flex: 1,
           alignItems: 'center',
+          display: 'flex',
+          fontWeight: 500,
+          textTransform: 'capitalize',
         }}
       >
-        {chains[0].id === data.id ? (
-          <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
-        ) : (
-          <CircleIcon
-            sx={{
-              stroke: theme.palette.borders.accentPaper,
-              width: theme.spacing(2.5),
-              height: theme.spacing(2.5),
-            }}
-          />
-        )}
-      </Box>
+        {data.label}
+      </H4>
     </NetworkButton>
   );
 };
 
 export function NetworkSelector() {
   const theme = useTheme();
-  const { updateNotional } = useNotionalContext();
+  const history = useHistory();
+  const { pathname } = useLocation();
+  const selectedNetwork = useSelectedNetwork();
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
 
@@ -84,12 +71,11 @@ export function NetworkSelector() {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = async (chain?: Chain) => {
-    if (chain) {
-      const currentChain = chain.label as Network;
-      updateNotional({ selectedNetwork: currentChain });
-    }
+  const handleClose = (data?: any) => {
     setAnchorEl(null);
+    if (data.label && !pathname.includes(data.label) && selectedNetwork) {
+      history.push(pathname.replace(selectedNetwork, data.label));
+    }
   };
 
   return (
@@ -101,11 +87,34 @@ export function NetworkSelector() {
         variant="outlined"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        startIcon={<TokenIcon symbol="arb" size="medium" />}
-        endIcon={<ArrowIcon sx={{ transform: 'rotate(-180deg)' }} />}
+        startIcon={
+          <TokenIcon symbol={getNetworkSymbol(selectedNetwork)} size="small" />
+        }
+        endIcon={
+          <Box
+            sx={{
+              borderRadius: '50%',
+              background: theme.palette.info.light,
+              height: theme.spacing(2),
+              width: theme.spacing(2),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <ArrowIcon
+              sx={{
+                transform: open ? 'rotate(0deg)' : 'rotate(-180deg)',
+                transition: '.5s ease',
+                width: theme.spacing(1.5),
+                color: theme.palette.secondary.light,
+              }}
+            />
+          </Box>
+        }
         sx={{ boxShadow: 'none' }}
       >
-        <TextWrapper theme={theme}>{chains[0].label}</TextWrapper>
+        <TextWrapper theme={theme}>{selectedNetwork}</TextWrapper>
       </DropdownButton>
       <Popover
         id="basic-menu"
@@ -114,9 +123,10 @@ export function NetworkSelector() {
         onClose={() => handleClose()}
         transitionDuration={{ exit: 0, enter: 200 }}
         sx={{
-          marginTop: '10px',
+          marginTop: theme.spacing(1),
           '.MuiPopover-paper': {
             boxShadow: theme.shape.shadowLarge(),
+            borderRadius: theme.shape.borderRadius(),
             width: {
               xs: '100%',
               sm: '100%',
@@ -139,12 +149,12 @@ export function NetworkSelector() {
           <Title>
             <FormattedMessage defaultMessage={'NETWORK'} />
           </Title>
-          <Box sx={{ width: '380px', margin: 'auto' }}>
+          <Box sx={{ margin: 'auto' }}>
             {chains.map((data: Chain) => (
               <NetworkSelectorButton
                 key={data.id}
                 data={data}
-                handleClick={handleClose}
+                handleClick={() => handleClose(data)}
               />
             ))}
           </Box>
@@ -156,11 +166,20 @@ export function NetworkSelector() {
 
 const NetworkSelectorWrapper = styled(Box)(
   ({ theme }) => `
+    min-width: ${theme.spacing(15)};
     margin-left: ${theme.spacing(2.5)};
+    box-shadow: none;
+    transition: .3s ease;
+    border-radius: 50px;
     #basic-button {
-      padding: 10px 15px;
-      border-radius: ${theme.shape.borderRadius()};
+      padding: ${theme.spacing(1, 1.5)};
+      border-radius: 50px;
+      border: ${theme.shape.borderStandard};
       color: ${theme.palette.typography.main};
+      &:hover {
+        box-shadow: none;
+        background-color: ${theme.palette.info.light};
+      }
     }
     #basic-menu {
       border-radius: ${theme.shape.borderRadius()};
@@ -174,9 +193,7 @@ const NetworkSelectorWrapper = styled(Box)(
 
 const NetworkInnerWrapper = styled(Box)(
   ({ theme }) => `
-    width: 450px;
-    margin-top: ${theme.spacing(5)};
-    margin-bottom: ${theme.spacing(5)};
+    width: 350px;
     ${theme.breakpoints.down('sm')} {
       width: 100%;
       padding: ${theme.spacing(1)};
@@ -191,26 +208,24 @@ const DropdownButton = styled(Button)(
   text-transform: capitalize;
   justify-content: flex-start;
   font-size: 1rem;
-  border: 1px solid ${theme.palette.primary.light};
+  border: ${theme.shape.borderStandard};
   background: ${theme.palette.common.white};
-  &:hover {
-    background-color: ${theme.palette.background.default} !important;
-  }
 `
 );
 
-const TextWrapper = styled('div')(
-  () => `
+const TextWrapper = styled(Caption)(
+  ({ theme }) => `
   flex: 1;
   text-align: left;
+  color: ${theme.palette.typography.light};
 `
 );
 
-const Title = styled(LabelValue)(
+const Title = styled(H5)(
   ({ theme }) => `
   margin: 30px auto;
-  width: 380px;
-  font-weight: 700;
+  padding-left: ${theme.spacing(3)};
+  letter-spacing: 1px;
   color: ${theme.palette.typography.light};
   ${theme.breakpoints.down('sm')} {
     width: auto;
@@ -223,21 +238,17 @@ const NetworkButton = styled(Box, {
 })(
   ({ theme, active }: NetworkButtonProps) => `
   width: 100%;
-  padding: 15px 10px;
-  border-radius: ${theme.shape.borderRadius()};
-  border: 1px solid ${
-    active ? theme.palette.primary.main : theme.palette.borders.accentPaper
-  };
-  margin: 15px auto;
-  cursor: ${active ? 'pointer' : 'not-allowed'};
-  background: ${
-    active ? theme.palette.info.light : theme.palette.borders.default
-  };
+  padding: ${theme.spacing(2.5, 3)};
+  border: ${active ? '1px solid ' + theme.palette.secondary.light : 'none'};
+  margin: auto;
+  cursor: pointer;
+  background: ${active ? theme.palette.info.light : 'transparent'};
   color: ${theme.palette.primary.dark};
   font-weight: 500;
   display: flex;
-  ${theme.breakpoints.down('sm')} {
-    width: auto;
+  justify-content: space-between;
+  &:hover {
+    background-color: ${theme.palette.info.light};
   }
   `
 );

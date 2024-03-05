@@ -11,6 +11,7 @@ import { useContext } from 'react';
 import { defineMessage } from 'react-intl';
 import { LiquidityContext } from '../../liquidity';
 import { LiquidityDetailsTable } from '../components';
+import { NetworkSelector } from '@notional-finance/wallet';
 
 export const CreateOrIncreasePosition = () => {
   const context = useContext(LiquidityContext);
@@ -26,6 +27,7 @@ export const CreateOrIncreasePosition = () => {
       context={context}
       riskComponent={currentPosition ? <LiquidityDetailsTable /> : undefined}
       variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}
+      NetworkSelector={NetworkSelector}
     >
       <DepositInput
         showScrollPopper
