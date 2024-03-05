@@ -149,8 +149,6 @@ interface ApplicationState {
 interface UserSettingsState {
   themeVariant: THEME_VARIANTS;
   baseCurrency: FiatKeys;
-  /** Which network is the porfolio currently showing */
-  selectedPortfolioNetwork?: Network;
   /** Which country is the user located in */
   country?: string;
 }

@@ -11,7 +11,7 @@ import {
   useFiat,
   useGroupedHoldings,
   usePendingPnLCalculation,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
   Network,
@@ -43,7 +43,7 @@ function formatCaption(asset: TokenBalance, debt: TokenBalance) {
 
 export function useGroupedHoldingsTable() {
   const baseCurrency = useFiat();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const groupedTokens = useGroupedHoldings(network) || [];
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens

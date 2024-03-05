@@ -3,7 +3,7 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { ButtonOptionsType } from '@notional-finance/mui';
 import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import {
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
   useTransactionHistory,
 } from '@notional-finance/notionable-hooks';
 
@@ -14,7 +14,7 @@ export const useTxnHistoryButtonBar = (
   const { search, pathname } = useLocation();
   const history = useHistory();
   const queryParams = new URLSearchParams(search);
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const hasVaultHoldings = !!useTransactionHistory(network).find(
     (h) => !!h.vaultName
   );

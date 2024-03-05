@@ -8,14 +8,14 @@ import {
   useAccountReady,
   usePortfolioRiskProfile,
   useFiat,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { Registry } from '@notional-finance/core-entities';
 
 export const useTotalHoldingsTable = () => {
   const baseCurrency = useFiat();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const portfolio = usePortfolioRiskProfile(network);
   const isAccountReady = useAccountReady(network);
 

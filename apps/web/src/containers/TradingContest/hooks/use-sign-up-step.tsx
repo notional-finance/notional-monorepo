@@ -1,10 +1,10 @@
 import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import {
   TransactionStatus,
   useAccountReady,
   useNotionalContext,
   useMintPass,
+  useSelectedNetwork
 } from '@notional-finance/notionable-hooks';
 import { useHistory, useParams } from 'react-router-dom';
 import { useEffect } from 'react';

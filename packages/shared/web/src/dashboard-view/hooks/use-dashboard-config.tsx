@@ -5,7 +5,7 @@ import { TokenIcon } from '@notional-finance/icons';
 import { Box, useTheme } from '@mui/material';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useHistory, useLocation } from 'react-router';
-import { useSelectedNetwork } from '@notional-finance/wallet';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const config = {
   [PRODUCTS.VAULTS]: {

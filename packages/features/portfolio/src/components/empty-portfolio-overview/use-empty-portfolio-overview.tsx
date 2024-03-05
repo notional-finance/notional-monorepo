@@ -11,13 +11,13 @@ import {
 import { useTheme } from '@mui/material';
 import {
   useHeadlineRates,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const useEmptyPortfolioOverview = () => {
   const theme = useTheme();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const {
     fCashLend,
     variableLend,
