@@ -26,6 +26,7 @@ export interface ActionSidebarProps {
   canSubmit?: boolean;
   cancelRoute?: string;
   onCancelCallback?: () => void;
+  NetworkSelector?: any;
   CustomActionButton?: React.ElementType;
   showActionButtons?: boolean;
   hideTextOnMobile?: boolean;
@@ -63,6 +64,7 @@ export const ActionSidebar = ({
   children,
   canSubmit,
   cancelRoute,
+  NetworkSelector,
   onCancelCallback,
   CustomActionButton,
   advancedToggle,
@@ -84,9 +86,10 @@ export const ActionSidebar = ({
         >
           <LargeInputTextEmphasized
             gutter="default"
-            sx={{ display: { xs: 'none', sm: 'none', md: 'block' } }}
+            sx={{ display: { xs: 'none', sm: 'none', md: 'flex' } }}
           >
             <FormattedMessage {...heading} />
+            <NetworkSelector />
           </LargeInputTextEmphasized>
           <H4
             gutter="default"

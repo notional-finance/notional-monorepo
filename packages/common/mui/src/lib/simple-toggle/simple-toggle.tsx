@@ -6,10 +6,7 @@ import { NotionalTheme } from '@notional-finance/styles';
 export interface SimpleToggleProps extends TabsUnstyledProps {
   selectedTabIndex: number;
   tabLabels: React.ReactNode[];
-  onChange?: (
-    event: React.SyntheticEvent<Element, Event>,
-    value: string | number | boolean
-  ) => void;
+  onChange?: any;
   minHeight?: string;
   width?: string;
 }

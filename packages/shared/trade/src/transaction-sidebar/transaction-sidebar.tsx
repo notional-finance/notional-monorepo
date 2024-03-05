@@ -34,6 +34,7 @@ import { TradeSummary } from './components/trade-summary';
 import { isLeveragedTrade } from '@notional-finance/notionable';
 import { PRODUCTS } from '@notional-finance/util';
 import { SwitchNetwork } from '../transaction-approvals/switch-network';
+import { NetworkSelector } from '@notional-finance/wallet';
 
 interface TransactionSidebarProps {
   heading?:
@@ -198,6 +199,7 @@ export const TransactionSidebar = ({
   ) : (
     <ActionSidebar
       heading={heading || TransactionHeadings[tradeType].heading}
+      NetworkSelector={NetworkSelector}
       helptext={getTokenSpecificHelpText()}
       advancedToggle={advancedToggle}
       CustomActionButton={isPortfolio ? undefined : TradeActionButton}

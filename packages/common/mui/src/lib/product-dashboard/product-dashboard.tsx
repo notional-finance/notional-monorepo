@@ -42,6 +42,8 @@ export interface ProductDashboardProps {
   headerData: {
     toggleOptions: React.ReactNode[];
     messageBoxText: any;
+    networkToggle: number;
+    setNetworkToggle: (value: number) => void;
   };
   threeWideGrid?: boolean;
 }
