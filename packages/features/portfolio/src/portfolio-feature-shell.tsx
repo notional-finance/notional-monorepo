@@ -27,6 +27,7 @@ import {
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
+import { PortfolioNetworkSelector } from '@notional-finance/wallet';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -94,6 +95,7 @@ const Portfolio = () => {
             <ButtonBar buttonOptions={buttonData} />
           )}
           <ClaimNoteButton />
+          <PortfolioNetworkSelector />
         </ActionButtonRow>
         {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
           params.category === undefined) && (

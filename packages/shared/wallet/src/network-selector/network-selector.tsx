@@ -5,7 +5,11 @@ import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
 import { Caption, H4, H5, Paragraph } from '@notional-finance/mui';
 import { useTheme, Box, Button, styled, Popover } from '@mui/material';
-import { PRODUCTS, getNetworkSymbol } from '@notional-finance/util';
+import {
+  PRODUCTS,
+  SupportedNetworks,
+  getNetworkSymbol,
+} from '@notional-finance/util';
 import { useHistory, useLocation } from 'react-router';
 import { Network } from '@notional-finance/util';
 import {
@@ -15,6 +19,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
+import { useSelectedNetwork } from '../hooks';
 
 export interface NetworkButtonProps {
   active?: boolean;
@@ -78,19 +83,13 @@ export const NetworkSelectorButton = ({
   );
 };
 
-export function NetworkSelector({
+export function TransactionNetworkSelector({
   context,
   product,
 }: {
   context: BaseTradeContext;
   product: PRODUCTS;
 }) {
-  const theme = useTheme();
-  const history = useHistory();
-  const { pathname } = useLocation();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [anchorEl, setAnchorEl] = useState<any>(null);
-  const open = Boolean(anchorEl);
   const {
     state: { selectedNetwork, deposit },
   } = context;
@@ -99,6 +98,44 @@ export function NetworkSelector({
     availableNetworks,
     deposit?.symbol
   );
+
+  return (
+    <NetworkSelector
+      availableNetworks={availableNetworks}
+      selectedNetwork={selectedNetwork}
+      walletBalances={walletBalances}
+    />
+  );
+}
+
+export function PortfolioNetworkSelector() {
+  const selectedNetwork = useSelectedNetwork();
+  const walletBalances = [];
+
+  return (
+    <NetworkSelector
+      availableNetworks={SupportedNetworks}
+      selectedNetwork={selectedNetwork}
+      walletBalances={walletBalances}
+    />
+  );
+}
+
+function NetworkSelector({
+  selectedNetwork,
+  availableNetworks,
+  walletBalances,
+}: {
+  selectedNetwork?: Network;
+  availableNetworks: Network[];
+  walletBalances: TokenBalance[];
+}) {
+  const theme = useTheme();
+  const history = useHistory();
+  const { pathname } = useLocation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [anchorEl, setAnchorEl] = useState<any>(null);
+  const open = Boolean(anchorEl);
   const canSelect = availableNetworks.length > 1;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -293,4 +330,4 @@ const NetworkButton = styled(Box, {
   `
 );
 
-export default NetworkSelector;
+export default TransactionNetworkSelector;

@@ -4,7 +4,7 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
 import { LendVariableContext } from '../../lend-variable/lend-variable';
-import { NetworkSelector } from '@notional-finance/wallet';
+import { TransactionNetworkSelector } from '@notional-finance/wallet';
 
 export const LendVariableSidebar = () => {
   const context = useContext(LendVariableContext);
@@ -16,7 +16,10 @@ export const LendVariableSidebar = () => {
       context={context}
       showDrawer
       NetworkSelector={
-        <NetworkSelector product={PRODUCTS.LEND_VARIABLE} context={context} />
+        <TransactionNetworkSelector
+          product={PRODUCTS.LEND_VARIABLE}
+          context={context}
+        />
       }
     >
       <DepositInput

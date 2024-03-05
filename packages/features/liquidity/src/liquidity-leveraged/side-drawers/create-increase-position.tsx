@@ -11,7 +11,7 @@ import { useContext } from 'react';
 import { defineMessage } from 'react-intl';
 import { LiquidityContext } from '../../liquidity';
 import { LiquidityDetailsTable } from '../components';
-import { NetworkSelector } from '@notional-finance/wallet';
+import { TransactionNetworkSelector } from '@notional-finance/wallet';
 
 export const CreateOrIncreasePosition = () => {
   const context = useContext(LiquidityContext);
@@ -29,7 +29,7 @@ export const CreateOrIncreasePosition = () => {
       variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}
       NetworkSelector={
         currentPosition === undefined ? (
-          <NetworkSelector
+          <TransactionNetworkSelector
             product={PRODUCTS.LIQUIDITY_LEVERAGED}
             context={context}
           />
