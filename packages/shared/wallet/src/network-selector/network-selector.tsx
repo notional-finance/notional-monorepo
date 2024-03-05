@@ -3,7 +3,7 @@ import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
-import { Caption, H4, H5 } from '@notional-finance/mui';
+import { Caption, H4, H5, Paragraph } from '@notional-finance/mui';
 import { useTheme, Box, Button, styled, Popover } from '@mui/material';
 import { PRODUCTS, getNetworkSymbol } from '@notional-finance/util';
 import { useHistory, useLocation } from 'react-router';
@@ -13,6 +13,8 @@ import {
   useProductNetwork,
   useWalletBalancesOnNetworks,
 } from '@notional-finance/notionable-hooks';
+import { TokenBalance } from '@notional-finance/core-entities';
+import { WalletIcon } from '@notional-finance/icons';
 
 export interface NetworkButtonProps {
   active?: boolean;
@@ -23,6 +25,7 @@ export interface NetworkSelectorButtonProps {
   isSelected: boolean;
   network: Network;
   handleClick: (network: Network) => void;
+  balance?: TokenBalance;
 }
 
 export const NetworkSelectorButton = ({
@@ -30,6 +33,7 @@ export const NetworkSelectorButton = ({
   isSelected,
   network,
   handleClick,
+  balance,
 }: NetworkSelectorButtonProps) => {
   const theme = useTheme();
   return (
@@ -56,6 +60,20 @@ export const NetworkSelectorButton = ({
       >
         {network}
       </H4>
+      {balance && (
+        <Box
+          sx={{
+            display: 'flex',
+            gap: theme.spacing(1),
+            alignItems: 'center',
+          }}
+        >
+          <WalletIcon
+            sx={{ width: theme.spacing(2), height: theme.spacing(2) }}
+          />
+          <Paragraph>{balance.toDisplayStringWithSymbol(4, true)}</Paragraph>
+        </Box>
+      )}
     </NetworkButton>
   );
 };
@@ -70,6 +88,7 @@ export function NetworkSelector({
   const theme = useTheme();
   const history = useHistory();
   const { pathname } = useLocation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
   const {
@@ -175,6 +194,7 @@ export function NetworkSelector({
                 isSelected={n === selectedNetwork}
                 network={n}
                 handleClick={() => handleClose(n)}
+                balance={walletBalances.find((t) => t.network === n)}
               />
             ))}
           </Box>
