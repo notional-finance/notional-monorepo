@@ -7,6 +7,7 @@ import { ArrowIcon } from '@notional-finance/icons';
 import { chains } from '../onboard-context';
 import { Caption, H4, H5 } from '@notional-finance/mui';
 import { useTheme, Box, Button, styled, Popover } from '@mui/material';
+import { getNetworkSymbol } from '@notional-finance/util';
 import { useSelectedNetwork } from '../hooks/use-network';
 import { useHistory, useLocation } from 'react-router';
 import { Network } from '@notional-finance/util';
@@ -26,7 +27,7 @@ export const NetworkSelectorButton = ({
 }: NetworkSelectorButtonProps) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
-
+  const dataLabel = data.label as Network;
   return (
     <NetworkButton
       key={data.id}
@@ -35,16 +36,13 @@ export const NetworkSelectorButton = ({
       theme={theme}
       sx={{
         borderRadius:
-          data?.label === selectedNetwork && data.label === Network.Mainnet
+          dataLabel === selectedNetwork && dataLabel === Network.Mainnet
             ? '0px 0px 6px 6px'
             : '0px',
       }}
     >
       <Box sx={{ marginRight: theme.spacing(1) }}>
-        <TokenIcon
-          symbol={data.label === Network.ArbitrumOne ? 'arb' : 'eth'}
-          size="medium"
-        />
+        <TokenIcon symbol={getNetworkSymbol(dataLabel)} size="medium" />
       </Box>
       <H4
         sx={{
@@ -90,10 +88,7 @@ export function NetworkSelector() {
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
         startIcon={
-          <TokenIcon
-            symbol={selectedNetwork === Network.ArbitrumOne ? 'arb' : 'eth'}
-            size="small"
-          />
+          <TokenIcon symbol={getNetworkSymbol(selectedNetwork)} size="small" />
         }
         endIcon={
           <Box
