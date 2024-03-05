@@ -15,7 +15,9 @@ export const LendVariableSidebar = () => {
     <TransactionSidebar
       context={context}
       showDrawer
-      NetworkSelector={NetworkSelector}
+      NetworkSelector={
+        <NetworkSelector product={PRODUCTS.LEND_VARIABLE} context={context} />
+      }
     >
       <DepositInput
         showScrollPopper

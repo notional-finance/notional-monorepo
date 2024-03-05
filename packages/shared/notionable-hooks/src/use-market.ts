@@ -3,7 +3,7 @@ import {
   TokenDefinition,
   YieldData,
 } from '@notional-finance/core-entities';
-import { Network, SupportedNetworks } from '@notional-finance/util';
+import { Network, PRODUCTS, SupportedNetworks } from '@notional-finance/util';
 import { useCallback, useMemo } from 'react';
 import { useNotionalContext } from './use-notional';
 
@@ -101,6 +101,51 @@ export function useYieldsReady(network: Network | undefined) {
   } = useNotionalContext();
   return _allYields && network && _allYields[network] ? true : false;
 }
+
+export const useProductNetwork = (
+  product: PRODUCTS,
+  underlyingSymbol: string | undefined
+) => {
+  const tokens = Registry.getTokenRegistry();
+  return SupportedNetworks.filter((n) => {
+    if (
+      product === PRODUCTS.LEND_FIXED ||
+      product === PRODUCTS.LEND_LEVERAGED ||
+      product === PRODUCTS.BORROW_FIXED ||
+      product === PRODUCTS.LIQUIDITY_LEVERAGED ||
+      product === PRODUCTS.LIQUIDITY_VARIABLE
+    ) {
+      return !!tokens
+        .getAllTokens(n)
+        .find(
+          (t) =>
+            t.tokenType === 'nToken' &&
+            t.underlying &&
+            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
+        );
+    } else if (product === PRODUCTS.BORROW_VARIABLE) {
+      return !!tokens
+        .getAllTokens(n)
+        .find(
+          (t) =>
+            t.tokenType === 'PrimeDebt' &&
+            t.underlying &&
+            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
+        );
+    } else if (product === PRODUCTS.LEND_VARIABLE) {
+      return !!tokens
+        .getAllTokens(n)
+        .find(
+          (t) =>
+            t.tokenType === 'PrimeCash' &&
+            t.underlying &&
+            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
+        );
+    } else {
+      return false;
+    }
+  });
+};
 
 export const useAllNetworkMarkets = () => {
   const {

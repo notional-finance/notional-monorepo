@@ -31,7 +31,9 @@ export const BorrowFixedSidebar = () => {
       // prime borrow to be enabled, even though a further negative balance
       // will not be incurred
       variableBorrowRequired={cashBalance?.isNegative()}
-      NetworkSelector={NetworkSelector}
+      NetworkSelector={
+        <NetworkSelector product={PRODUCTS.BORROW_FIXED} context={context} />
+      }
     >
       <DepositInput
         isWithdraw

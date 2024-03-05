@@ -15,7 +15,12 @@ export const LiquidityVariableSidebar = () => {
     <TransactionSidebar
       context={context}
       showDrawer
-      NetworkSelector={NetworkSelector}
+      NetworkSelector={
+        <NetworkSelector
+          product={PRODUCTS.LIQUIDITY_VARIABLE}
+          context={context}
+        />
+      }
     >
       <DepositInput
         showScrollPopper

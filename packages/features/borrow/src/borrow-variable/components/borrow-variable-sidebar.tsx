@@ -31,7 +31,9 @@ export const BorrowVariableSidebar = () => {
       showDrawer
       isWithdraw
       variableBorrowRequired
-      NetworkSelector={NetworkSelector}
+      NetworkSelector={
+        <NetworkSelector product={PRODUCTS.BORROW_VARIABLE} context={context} />
+      }
     >
       <DepositInput
         showScrollPopper

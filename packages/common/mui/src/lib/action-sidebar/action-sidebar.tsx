@@ -30,7 +30,7 @@ export interface ActionSidebarProps {
   showActionButtons?: boolean;
   hideTextOnMobile?: boolean;
   advancedToggle?: ToggleSwitchProps;
-  NetworkSelector?: React.ElementType;
+  NetworkSelector?: React.ReactNode;
   leverageDisabled?: boolean;
   handleSubmit?: () => void;
 }
@@ -100,7 +100,7 @@ export const ActionSidebar = ({
             >
               <FormattedMessage {...heading} />
             </LargeInputTextEmphasized>
-            {NetworkSelector && <NetworkSelector />}
+            {NetworkSelector}
           </Box>
           <H4
             gutter="default"

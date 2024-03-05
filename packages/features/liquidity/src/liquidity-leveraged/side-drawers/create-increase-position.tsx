@@ -27,7 +27,14 @@ export const CreateOrIncreasePosition = () => {
       context={context}
       riskComponent={currentPosition ? <LiquidityDetailsTable /> : undefined}
       variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}
-      NetworkSelector={NetworkSelector}
+      NetworkSelector={
+        currentPosition === undefined ? (
+          <NetworkSelector
+            product={PRODUCTS.LIQUIDITY_LEVERAGED}
+            context={context}
+          />
+        ) : undefined
+      }
     >
       <DepositInput
         showScrollPopper

@@ -19,7 +19,9 @@ export const LendFixedSidebar = () => {
     <TransactionSidebar
       context={context}
       showDrawer
-      NetworkSelector={NetworkSelector}
+      NetworkSelector={
+        <NetworkSelector product={PRODUCTS.LEND_FIXED} context={context} />
+      }
     >
       <DepositInput
         ref={currencyInputRef}

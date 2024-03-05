@@ -58,7 +58,7 @@ interface TransactionSidebarProps {
   isWithdraw?: boolean;
   hideTextOnMobile?: boolean;
   variableBorrowRequired?: boolean;
-  NetworkSelector?: React.ElementType;
+  NetworkSelector?: React.ReactNode;
 }
 
 export const TransactionSidebar = ({

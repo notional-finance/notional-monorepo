@@ -1,48 +1,49 @@
 import React, { useState } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { Chain } from '@web3-onboard/common';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
-import { chains } from '../onboard-context';
 import { Caption, H4, H5 } from '@notional-finance/mui';
 import { useTheme, Box, Button, styled, Popover } from '@mui/material';
-import { getNetworkSymbol } from '@notional-finance/util';
-import { useSelectedNetwork } from '../hooks/use-network';
+import { PRODUCTS, getNetworkSymbol } from '@notional-finance/util';
 import { useHistory, useLocation } from 'react-router';
 import { Network } from '@notional-finance/util';
+import {
+  BaseTradeContext,
+  useProductNetwork,
+  useWalletBalancesOnNetworks,
+} from '@notional-finance/notionable-hooks';
 
 export interface NetworkButtonProps {
   active?: boolean;
   theme: NotionalTheme;
 }
 export interface NetworkSelectorButtonProps {
-  data: Chain;
-  handleClick: (data: Chain) => void;
+  isLast?: boolean;
+  isSelected: boolean;
+  network: Network;
+  handleClick: (network: Network) => void;
 }
 
 export const NetworkSelectorButton = ({
-  data,
+  isLast,
+  isSelected,
+  network,
   handleClick,
 }: NetworkSelectorButtonProps) => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork();
-  const dataLabel = data.label as Network;
   return (
     <NetworkButton
-      key={data.id}
-      onClick={() => handleClick(data)}
-      active={data?.label === selectedNetwork}
+      key={network}
+      onClick={() => handleClick(network)}
+      active={isSelected}
       theme={theme}
       sx={{
-        borderRadius:
-          dataLabel === selectedNetwork && dataLabel === Network.Mainnet
-            ? '0px 0px 6px 6px'
-            : '0px',
+        borderRadius: isSelected && isLast ? '0px 0px 6px 6px' : '0px',
       }}
     >
       <Box sx={{ marginRight: theme.spacing(1) }}>
-        <TokenIcon symbol={getNetworkSymbol(dataLabel)} size="medium" />
+        <TokenIcon symbol={getNetworkSymbol(network)} size="medium" />
       </Box>
       <H4
         sx={{
@@ -53,28 +54,42 @@ export const NetworkSelectorButton = ({
           textTransform: 'capitalize',
         }}
       >
-        {data.label}
+        {network}
       </H4>
     </NetworkButton>
   );
 };
 
-export function NetworkSelector() {
+export function NetworkSelector({
+  context,
+  product,
+}: {
+  context: BaseTradeContext;
+  product: PRODUCTS;
+}) {
   const theme = useTheme();
   const history = useHistory();
   const { pathname } = useLocation();
-  const selectedNetwork = useSelectedNetwork();
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
+  const {
+    state: { selectedNetwork, deposit },
+  } = context;
+  const availableNetworks = useProductNetwork(product, deposit?.symbol);
+  const walletBalances = useWalletBalancesOnNetworks(
+    availableNetworks,
+    deposit?.symbol
+  );
+  const canSelect = availableNetworks.length > 1;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (data?: any) => {
+  const handleClose = (network?: Network) => {
     setAnchorEl(null);
-    if (data.label && !pathname.includes(data.label) && selectedNetwork) {
-      history.push(pathname.replace(selectedNetwork, data.label));
+    if (network && !pathname.includes(network) && selectedNetwork) {
+      history.push(pathname.replace(selectedNetwork, network));
     }
   };
 
@@ -86,31 +101,34 @@ export function NetworkSelector() {
         aria-haspopup="true"
         variant="outlined"
         aria-expanded={open ? 'true' : undefined}
+        disabled={!canSelect}
         onClick={handleClick}
         startIcon={
           <TokenIcon symbol={getNetworkSymbol(selectedNetwork)} size="small" />
         }
         endIcon={
-          <Box
-            sx={{
-              borderRadius: '50%',
-              background: theme.palette.info.light,
-              height: theme.spacing(2),
-              width: theme.spacing(2),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <ArrowIcon
+          canSelect ? (
+            <Box
               sx={{
-                transform: open ? 'rotate(0deg)' : 'rotate(-180deg)',
-                transition: '.5s ease',
-                width: theme.spacing(1.5),
-                color: theme.palette.secondary.light,
+                borderRadius: '50%',
+                background: theme.palette.info.light,
+                height: theme.spacing(2),
+                width: theme.spacing(2),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
-            />
-          </Box>
+            >
+              <ArrowIcon
+                sx={{
+                  transform: open ? 'rotate(0deg)' : 'rotate(-180deg)',
+                  transition: '.5s ease',
+                  width: theme.spacing(1.5),
+                  color: theme.palette.secondary.light,
+                }}
+              />
+            </Box>
+          ) : undefined
         }
         sx={{ boxShadow: 'none' }}
       >
@@ -150,11 +168,13 @@ export function NetworkSelector() {
             <FormattedMessage defaultMessage={'NETWORK'} />
           </Title>
           <Box sx={{ margin: 'auto' }}>
-            {chains.map((data: Chain) => (
+            {availableNetworks.map((n, i) => (
               <NetworkSelectorButton
-                key={data.id}
-                data={data}
-                handleClick={() => handleClose(data)}
+                key={n}
+                isLast={i === availableNetworks.length - 1}
+                isSelected={n === selectedNetwork}
+                network={n}
+                handleClick={() => handleClose(n)}
               />
             ))}
           </Box>
