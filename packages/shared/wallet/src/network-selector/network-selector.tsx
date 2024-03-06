@@ -14,6 +14,7 @@ import { useHistory, useLocation } from 'react-router';
 import { Network } from '@notional-finance/util';
 import {
   BaseTradeContext,
+  useAccountNetWorth,
   useProductNetwork,
   useWalletBalancesOnNetworks,
 } from '@notional-finance/notionable-hooks';
@@ -73,10 +74,15 @@ export const NetworkSelectorButton = ({
             alignItems: 'center',
           }}
         >
-          <WalletIcon
-            sx={{ width: theme.spacing(2), height: theme.spacing(2) }}
-          />
-          <Paragraph>{balance.toDisplayStringWithSymbol(4, true)}</Paragraph>
+          {balance.tokenType !== 'Fiat' && (
+            <WalletIcon
+              sx={{ width: theme.spacing(2), height: theme.spacing(2) }}
+            />
+          )}
+          <Paragraph>
+            {balance.toDisplayStringWithSymbol(4, true)}
+            {balance.tokenType === 'Fiat' ? ' Net Worth' : ''}
+          </Paragraph>
         </Box>
       )}
     </NetworkButton>
@@ -110,7 +116,7 @@ export function TransactionNetworkSelector({
 
 export function PortfolioNetworkSelector() {
   const selectedNetwork = useSelectedNetwork();
-  const walletBalances = [];
+  const walletBalances = useAccountNetWorth();
 
   return (
     <NetworkSelector
@@ -130,7 +136,7 @@ function NetworkSelector({
 }: {
   selectedNetwork?: Network;
   availableNetworks: Network[];
-  walletBalances: TokenBalance[];
+  walletBalances: Record<Network, TokenBalance>;
   isPortfolio?: boolean;
 }) {
   const theme = useTheme();
@@ -252,7 +258,7 @@ function NetworkSelector({
                 isSelected={n === selectedNetwork}
                 network={n}
                 handleClick={() => handleClose(n)}
-                balance={walletBalances.find((t) => t.network === n)}
+                balance={walletBalances[n]}
               />
             ))}
           </Box>

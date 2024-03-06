@@ -201,18 +201,19 @@ export function useWalletBalancesOnNetworks(
   const {
     globalState: { networkAccounts },
   } = useNotionalContext();
-  if (!underlyingSymbol) return [];
+  if (!underlyingSymbol) return {} as Record<Network, TokenBalance>;
 
-  return networks.map((n) => {
+  return networks.reduce((acc, n) => {
     const acct =
       networkAccounts && networkAccounts[n] ? networkAccounts[n] : undefined;
 
-    return (
+    acc[n] =
       acct?.accountDefinition?.balances.find(
         (t) => t.tokenType === 'Underlying' && t.symbol === underlyingSymbol
-      ) || TokenBalance.fromSymbol(0, underlyingSymbol, n)
-    );
-  });
+      ) || TokenBalance.fromSymbol(0, underlyingSymbol, n);
+
+    return acc;
+  }, {} as Record<Network, TokenBalance>);
 }
 
 export function useWalletBalances(

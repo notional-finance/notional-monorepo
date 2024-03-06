@@ -14,6 +14,7 @@ import {
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer, ethers } from 'ethers';
 import {
+  CurrentFactors,
   GroupedHolding,
   PortfolioHolding,
   VaultHolding,
@@ -78,6 +79,7 @@ export interface AccountState {
   vaultHoldings?: VaultHolding[];
   accruedIncentives?: AccruedIncentives[];
   totalIncentives?: TotalIncentives;
+  currentFactors?: CurrentFactors;
 }
 
 export interface TransactionState {

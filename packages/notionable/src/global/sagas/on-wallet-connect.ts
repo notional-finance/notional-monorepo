@@ -16,6 +16,7 @@ import {
 } from '@notional-finance/util';
 import { Registry } from '@notional-finance/core-entities';
 import {
+  calculateAccountCurrentFactors,
   calculateGroupedHoldings,
   calculateHoldings,
   calculateVaultHoldings,
@@ -161,6 +162,7 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
                 ) || [],
                 a.network
               );
+              const vaultHoldings = calculateVaultHoldings(a);
 
               n[a.network] = {
                 isAccountReady: true,
@@ -168,9 +170,14 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
                 accountDefinition: a,
                 portfolioHoldings,
                 groupedHoldings: calculateGroupedHoldings(a, portfolioHoldings),
-                vaultHoldings: calculateVaultHoldings(a),
+                vaultHoldings,
                 accruedIncentives,
                 totalIncentives,
+                currentFactors: calculateAccountCurrentFactors(
+                  portfolioHoldings,
+                  vaultHoldings,
+                  g.baseCurrency
+                ),
               };
             }
 

@@ -1,7 +1,7 @@
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
-import { Network } from '@notional-finance/util';
-import { useFiat, useFiatToken } from './use-user-settings';
+import { Network, SupportedNetworks } from '@notional-finance/util';
+import { useFiatToken } from './use-user-settings';
 
 /** Contains selectors for account holdings information */
 
@@ -97,51 +97,43 @@ export function usePortfolioLiquidationPrices(network: Network | undefined) {
 }
 
 export function useAccountCurrentFactors(network: Network | undefined) {
-  const baseCurrency = useFiat();
   const fiatToken = useFiatToken();
-  const holdings = usePortfolioHoldings(network);
-  const vaults = useVaultHoldings(network);
-
-  const { weightedYield, netWorth, debts, assets } = vaults.reduce(
-    ({ weightedYield, netWorth, debts, assets }, { totalAPY, vault }) => {
-      const { debts: d, assets: a, netWorth: _w } = vault.getAllRiskFactors();
-      const w = _w.toFiat(baseCurrency).toFloat();
-      return {
-        weightedYield: weightedYield + (totalAPY || 0) * w,
-        netWorth: netWorth.add(_w.toFiat(baseCurrency)),
-        debts: debts.add(d.toFiat(baseCurrency)),
-        assets: assets.add(a.toFiat(baseCurrency)),
-      };
-    },
-    holdings.reduce(
-      (
-        { weightedYield, netWorth, assets, debts },
-        { marketYield, balance }
-      ) => {
-        const w = balance.toFiat(baseCurrency);
-        return {
-          weightedYield:
-            weightedYield + (marketYield?.totalAPY || 0) * w.toFloat(),
-          netWorth: netWorth.add(w),
-          debts: balance.isNegative() ? debts.add(w) : debts,
-          assets: balance.isPositive() ? assets.add(w) : assets,
-        };
-      },
-      {
-        weightedYield: 0,
-        netWorth: TokenBalance.zero(fiatToken),
-        debts: TokenBalance.zero(fiatToken),
-        assets: TokenBalance.zero(fiatToken),
-      }
-    )
-  );
-
-  return {
-    currentAPY: !netWorth.isZero()
-      ? weightedYield / netWorth.toFloat()
-      : undefined,
-    netWorth,
-    debts,
-    assets,
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+  const emptyFactors = {
+    currentAPY: undefined,
+    netWorth: TokenBalance.zero(fiatToken),
+    debts: TokenBalance.zero(fiatToken),
+    assets: TokenBalance.zero(fiatToken),
   };
+
+  if (
+    networkAccounts &&
+    network &&
+    networkAccounts[network] &&
+    networkAccounts[network].currentFactors
+  ) {
+    return networkAccounts[network].currentFactors || emptyFactors;
+  } else {
+    return emptyFactors;
+  }
+}
+
+export function useAccountNetWorth() {
+  const fiatToken = useFiatToken();
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+
+  return SupportedNetworks.reduce((acc, n) => {
+    if (networkAccounts && networkAccounts[n]) {
+      acc[n] =
+        networkAccounts[n].currentFactors?.netWorth ||
+        TokenBalance.zero(fiatToken);
+    } else {
+      acc[n] = TokenBalance.zero(fiatToken);
+    }
+    return acc;
+  }, {} as Record<Network, TokenBalance>);
 }
