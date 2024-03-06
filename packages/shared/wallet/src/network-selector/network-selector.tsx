@@ -79,7 +79,7 @@ export const NetworkSelectorButton = ({
               sx={{ width: theme.spacing(2), height: theme.spacing(2) }}
             />
           )}
-          <Paragraph>
+          <Paragraph main>
             {balance.toDisplayStringWithSymbol(4, true)}
             {balance.tokenType === 'Fiat' ? ' Net Worth' : ''}
           </Paragraph>
@@ -201,7 +201,7 @@ function NetworkSelector({
         }
         sx={{
           boxShadow: 'none',
-          padding: isPortfolio ? '8px 12px' : '4px 12px',
+          padding: isPortfolio ? '8px 12px' : '6px 12px',
           borderRadius: '50px',
           border: theme.shape.borderStandard,
           color: theme.palette.typography.main,
@@ -228,6 +228,7 @@ function NetworkSelector({
           '.MuiPopover-paper': {
             boxShadow: theme.shape.shadowLarge(),
             borderRadius: theme.shape.borderRadius(),
+            border: theme.shape.borderStandard,
             width: {
               xs: '100%',
               sm: '100%',
@@ -247,9 +248,11 @@ function NetworkSelector({
         }}
       >
         <NetworkInnerWrapper>
-          <Title>
-            <FormattedMessage defaultMessage={'NETWORK'} />
-          </Title>
+          <Box sx={{ padding: theme.spacing(3) }}>
+            <H5>
+              <FormattedMessage defaultMessage={'NETWORK'} />
+            </H5>
+          </Box>
           <Box sx={{ margin: 'auto' }}>
             {availableNetworks.map((n, i) => (
               <NetworkSelectorButton
@@ -305,25 +308,7 @@ const DropdownButton = styled(Button)(
 `
 );
 
-// const TextWrapper = styled(Caption)(
-//   ({ theme }) => `
-//   flex: 1;
-//   text-align: center;
-//   color: ${theme.palette.typography.light};
-// `
-// );
 
-const Title = styled(H5)(
-  ({ theme }) => `
-  margin: 30px auto;
-  padding-left: ${theme.spacing(3)};
-  letter-spacing: 1px;
-  color: ${theme.palette.typography.light};
-  ${theme.breakpoints.down('sm')} {
-    width: auto;
-  }
-  `
-);
 
 const NetworkButton = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'active',
