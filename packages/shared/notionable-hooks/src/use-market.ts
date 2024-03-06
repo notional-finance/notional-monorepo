@@ -3,7 +3,12 @@ import {
   TokenDefinition,
   YieldData,
 } from '@notional-finance/core-entities';
-import { Network, PRODUCTS, SupportedNetworks } from '@notional-finance/util';
+import {
+  Network,
+  PRODUCTS,
+  SupportedNetworks,
+  unique,
+} from '@notional-finance/util';
 import { useCallback, useMemo } from 'react';
 import { useNotionalContext } from './use-notional';
 
@@ -64,6 +69,21 @@ export function usePrimeDebt(
   } catch {
     return undefined;
   }
+}
+
+export function useAllUniqueUnderlyingTokens(
+  networks: Network[] = SupportedNetworks
+) {
+  return unique(
+    networks.flatMap((n) => {
+      return Registry.getTokenRegistry()
+        .getAllTokens(n)
+        .filter(
+          (t) => t.tokenType === 'Underlying' && t.currencyId !== undefined
+        )
+        .map((t) => t.symbol);
+    })
+  );
 }
 
 export function useUnderlyingTokens(network: Network | undefined) {
