@@ -308,8 +308,6 @@ const DropdownButton = styled(Button)(
 `
 );
 
-
-
 const NetworkButton = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'active',
 })(
