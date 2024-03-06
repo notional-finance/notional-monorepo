@@ -26,6 +26,7 @@ export const useLiquidityVariableGrid = (network: Network) => {
               )
             : 0
         }`,
+        network: y.token.network,
         hasPosition: false,
         tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         bottomValue: ``,

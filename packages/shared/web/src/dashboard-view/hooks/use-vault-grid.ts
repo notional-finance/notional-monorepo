@@ -46,6 +46,7 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
                 : 0
             }`,
         symbol: primaryToken.symbol,
+        network: primaryToken.network,
         hasPosition: profile ? true : false,
         apy: apy || 0,
         routeCallback: () =>

@@ -218,25 +218,25 @@ export const useHeadlineRates = (network?: Network) => {
   }, [_allYields, network]);
 };
 
+const emptyYields = {
+  nonLeveragedYields: [],
+  liquidity: [],
+  fCashLend: [],
+  fCashBorrow: [],
+  variableLend: [],
+  variableBorrow: [],
+  vaultShares: [],
+  leveragedVaults: [],
+  leveragedLend: [],
+  leveragedLiquidity: [],
+};
+
 export const useAllMarkets = (network: Network | undefined) => {
   const {
     globalState: { allYields: _allYields },
   } = useNotionalContext();
   const allYields =
-    _allYields && network
-      ? _allYields[network]
-      : {
-          nonLeveragedYields: [],
-          liquidity: [],
-          fCashLend: [],
-          fCashBorrow: [],
-          variableLend: [],
-          variableBorrow: [],
-          vaultShares: [],
-          leveragedVaults: [],
-          leveragedLend: [],
-          leveragedLiquidity: [],
-        };
+    _allYields && network ? _allYields[network] || emptyYields : emptyYields;
 
   const getMax = useCallback((y: YieldData[]) => {
     return y.reduce(
@@ -254,7 +254,7 @@ export const useAllMarkets = (network: Network | undefined) => {
 
   return {
     yields: allYields,
-    nonLeveragedYields: allYields.nonLeveragedYields,
+    nonLeveragedYields: allYields['nonLeveragedYields'],
     getMax,
     getMin,
   };

@@ -35,6 +35,7 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
           0,
           baseCurrency
         )}`,
+        network: y.token.network,
         hasPosition: false,
         apySubTitle: apySubTitle,
         tvlNum: y?.liquidity ? y.liquidity.toFiat(baseCurrency).toNumber() : 0,
