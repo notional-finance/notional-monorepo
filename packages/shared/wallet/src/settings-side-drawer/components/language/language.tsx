@@ -16,6 +16,7 @@ export const LanguageButton = () => {
   const savedLanguage = language ? language : navigator.language;
   const languageOptions = useLanguageOptions();
   const langData = languageOptions.find((data) => data.key === savedLanguage);
+  const msg = messages[savedLanguage] || messages['en-US'];
   return (
     <Box
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -30,7 +31,7 @@ export const LanguageButton = () => {
         {langData?.Icon && langData.Icon}
       </Box>
 
-      <FormattedMessage {...messages[savedLanguage]} />
+      <FormattedMessage {...msg} />
     </Box>
   );
 };

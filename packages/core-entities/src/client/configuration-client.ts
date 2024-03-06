@@ -599,8 +599,6 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     return {
       nTokenHaircut,
-      // TODO: this needs to be set per nToken
-      nTokenMaxDrawdown: Math.floor(0.95 * RATE_PRECISION),
     };
   }
 
