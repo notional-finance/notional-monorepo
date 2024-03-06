@@ -9,24 +9,32 @@ import {
   CoinsIcon,
   CoinsCircleIcon,
 } from '@notional-finance/icons';
-import { MARKET_TYPE, Network } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { TokenIcon } from '@notional-finance/icons';
-import { useUnderlyingTokens } from '@notional-finance/notionable-hooks';
+import { useAllUniqueUnderlyingTokens } from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
+
+const selectedNetworkOptions = {
+  0: [Network.ArbitrumOne, Network.Mainnet],
+  1: [Network.ArbitrumOne],
+  2: [Network.Mainnet],
+};
 
 export const useMarketTableDropdowns = (
   earnBorrowOption: number,
-  network: Network | undefined
+  allNetworksOption: number
 ) => {
   const theme = useTheme();
-  const depositTokens = useUnderlyingTokens(network);
+  const depositTokens = useAllUniqueUnderlyingTokens(
+    selectedNetworkOptions[allNetworksOption]
+  );
   const [currencyOptions, setCurrencyOptions] = useState([]);
   const [productOptions, setProductOptions] = useState([]);
 
   useEffect(() => {
     setProductOptions([]);
     setCurrencyOptions([]);
-  }, [earnBorrowOption]);
+  }, [earnBorrowOption, allNetworksOption]);
 
   const products = {
     0: [
@@ -123,9 +131,7 @@ export const useMarketTableDropdowns = (
     ],
   };
 
-  console.log({ depositTokens });
-
-  const underlyingTokens = depositTokens.map(({ symbol }) => ({
+  const underlyingTokens = depositTokens.map((symbol) => ({
     id: symbol,
     title: symbol,
     icon: <TokenIcon size="medium" symbol={symbol.toLocaleLowerCase()} />,

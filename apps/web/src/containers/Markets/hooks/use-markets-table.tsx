@@ -4,7 +4,6 @@ import {
   formatLeverageRatio,
   formatNumberAsAbbr,
   formatNumberAsPercent,
-  formatYieldCaption,
 } from '@notional-finance/helpers';
 import {
   DataTableColumn,
@@ -17,8 +16,8 @@ import {
   useAllNetworkMarkets,
   useFiat,
 } from '@notional-finance/notionable-hooks';
+import { Network } from '@notional-finance/util';
 import {
-  MARKET_TYPE,
   PRIME_CASH_VAULT_MATURITY,
   getDateString,
 } from '@notional-finance/util';
@@ -27,6 +26,7 @@ import { FormattedMessage } from 'react-intl';
 
 export const useMarketsTable = (
   earnBorrowOption: number,
+  allNetworksOption: number,
   currencyOptions: SelectedOptions[],
   productOptions: SelectedOptions[]
 ) => {
@@ -153,6 +153,11 @@ export const useMarketsTable = (
       ({ accessor }) => accessor !== 'incentiveAPY'
     );
   }
+  const selectedNetworkOptions = {
+    0: '',
+    1: Network.ArbitrumOne,
+    2: Network.Mainnet,
+  };
 
   const formatMarketData = (allMarketsData: typeof borrowYields) => {
     const getTotalIncentiveApy = (
@@ -193,7 +198,15 @@ export const useMarketsTable = (
         };
       }
     };
-    return allMarketsData
+
+    const marketsData = selectedNetworkOptions[allNetworksOption]
+      ? allMarketsData.filter(
+          (data) =>
+            data.token.network === selectedNetworkOptions[allNetworksOption]
+        )
+      : allMarketsData;
+
+    return marketsData
       .map((data) => {
         const {
           underlying,
@@ -226,8 +239,10 @@ export const useMarketsTable = (
           multiValueCellData: {
             currency: {
               symbol: underlying.symbol,
+              symbolSize: 'large',
               label: underlying.symbol,
-              caption: formatYieldCaption(data),
+              caption:
+                token.network.charAt(0).toUpperCase() + token.network.slice(1),
             },
             incentiveAPY: getIncentiveData(noteIncentives, secondaryIncentives),
           },

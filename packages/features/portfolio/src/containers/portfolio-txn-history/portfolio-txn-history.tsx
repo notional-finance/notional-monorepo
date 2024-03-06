@@ -18,16 +18,12 @@ export const PortfolioTransactionHistory = () => {
     pendingTokenData,
   } = useTxnHistoryData(txnHistoryCategory);
 
-  const {
-    dropdownsData,
-    currencyOptions,
-    assetOrVaultOptions,
-    clearQueryAndFilters,
-  } = useTxnHistoryDropdowns(
-    txnHistoryCategory,
-    allCurrencyOptions,
-    allAssetOrVaultOptions
-  );
+  const { dropdownsData, currencyOptions, assetOrVaultOptions } =
+    useTxnHistoryDropdowns(
+      txnHistoryCategory,
+      allCurrencyOptions,
+      allAssetOrVaultOptions
+    );
 
   const { txnHistoryData, txnHistoryColumns, marketDataCSVFormatter } =
     useTxnHistoryTable(
@@ -47,7 +43,6 @@ export const PortfolioTransactionHistory = () => {
         <FormattedMessage defaultMessage={'Calculating transaction'} />
       }
       pendingTokenData={pendingTokenData}
-      clearQueryAndFilters={clearQueryAndFilters}
       csvDataFormatter={marketDataCSVFormatter}
     />
   );

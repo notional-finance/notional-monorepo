@@ -60,8 +60,8 @@ interface DataTableProps {
   filterBarData?: any[];
   rightToggleData?: DataTableToggleProps;
   allNetworksToggleData?: DataTableToggleProps;
-  clearQueryAndFilters?: () => void;
   csvDataFormatter?: (data: any[]) => any;
+  accentCSV?: boolean;
   stateZeroMessage?: ReactNode;
   hiddenRowMessage?: ReactNode;
   infoBoxData?: InfoBoxDataProps[];
@@ -90,8 +90,8 @@ export const DataTable = ({
   filterBarData,
   rightToggleData,
   allNetworksToggleData,
-  clearQueryAndFilters,
   csvDataFormatter,
+  accentCSV,
   stateZeroMessage,
   setShowHiddenRows,
   hiddenRowMessage,
@@ -164,15 +164,6 @@ export const DataTable = ({
   const height = ref.current?.clientHeight;
   const width = ref.current?.clientWidth;
 
-  // const handleCSVClick = () => {
-  //   if (csvDataFormatter && data) {
-  //     console.log(
-  //       'csvDataFormatter(data): ',
-  //       csvDataFormatter(data)
-  //     );
-  //   }
-  // };
-
   return (
     <div>
       {csvDataFormatter && data && (
@@ -183,7 +174,10 @@ export const DataTable = ({
         >
           <Box
             sx={{
-              color: colors.neonTurquoise,
+              display: width < 700 ? 'none' : 'block',
+              color: accentCSV
+                ? colors.neonTurquoise
+                : theme.palette.typography.accent,
               textAlign: 'right',
               textDecoration: 'underline',
               marginBottom: theme.spacing(1),
@@ -192,7 +186,9 @@ export const DataTable = ({
             <FormattedMessage defaultMessage={'Download CSV'} />
             <DownloadIcon
               sx={{
-                fill: colors.neonTurquoise,
+                fill: accentCSV
+                  ? colors.neonTurquoise
+                  : theme.palette.typography.accent,
                 height: theme.spacing(2),
                 marginLeft: theme.spacing(1),
               }}
@@ -259,7 +255,6 @@ export const DataTable = ({
               filterBarData={filterBarData}
               rightToggleData={rightToggleData}
               allNetworksToggleData={allNetworksToggleData}
-              clearQueryAndFilters={clearQueryAndFilters}
             />
           )}
 

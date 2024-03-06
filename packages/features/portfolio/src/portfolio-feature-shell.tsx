@@ -90,15 +90,16 @@ const Portfolio = () => {
         <SideNav />
       </PortfolioSidebar>
       <PortfolioMainContent>
-        {params.category !== PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
-          <ActionButtonRow>
-            {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-              <ButtonBar buttonOptions={buttonData} />
-            )}
-            <ClaimNoteButton />
-            <PortfolioNetworkSelector />
-          </ActionButtonRow>
-        )}
+        <ActionButtonRow>
+          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
+            <ButtonBar buttonOptions={buttonData} />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS ||
+            (params.category === PORTFOLIO_CATEGORIES.OVERVIEW && (
+              <ClaimNoteButton />
+            ))}
+          <PortfolioNetworkSelector />
+        </ActionButtonRow>
         {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
           params.category === undefined) && (
           <>

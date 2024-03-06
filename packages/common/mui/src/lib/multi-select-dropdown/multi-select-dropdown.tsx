@@ -28,7 +28,6 @@ interface MultiSelectDropdownProps {
   selected: SelectedOptions[];
   setSelected: any;
   placeHolderText: ReactNode;
-  clearQueryAndFilters?: () => void;
 }
 
 export const MultiSelectDropdown = ({
@@ -36,7 +35,6 @@ export const MultiSelectDropdown = ({
   selected,
   setSelected,
   placeHolderText,
-  clearQueryAndFilters,
 }: MultiSelectDropdownProps) => {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +57,6 @@ export const MultiSelectDropdown = ({
         return newArray;
       }
     });
-    if (clearQueryAndFilters) clearQueryAndFilters();
   };
 
   const handleSelectAll = () => {
@@ -140,6 +137,7 @@ export const MultiSelectDropdown = ({
                     <Box
                       component="span"
                       sx={{
+                        fontWeight: 500,
                         marginRight: theme.spacing(1),
                         marginTop: theme.spacing(0.5),
                       }}
@@ -224,13 +222,13 @@ const DropdownOptions = styled('ul', {
     box-sizing: border-box;
     left: 0;
     width: 100%;
-    height: ${theme.spacing(38)};
+    max-height: ${theme.spacing(38)};
     overflow: auto;
     list-style: none;
     padding: 0px;
     border: 1px solid ${theme.palette.borders.paper};
     background: ${theme.palette.background.paper};
-    z-index: 9;
+    z-index: 99999;
 `
 );
 
@@ -245,7 +243,8 @@ const DropdownOption = styled('li')(`
   `);
 
 const Text = styled(LabelValue)(`
-  line-height: 19.6px;
+    line-height: 19.6px;
+    font-weight: 500;
   `);
 
 export default MultiSelectDropdown;

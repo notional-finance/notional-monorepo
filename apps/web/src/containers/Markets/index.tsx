@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { styled, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
-import { H1, DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
-import { MARKET_TYPE } from '@notional-finance/util';
+import { H1, DataTable, TABLE_VARIANTS, Subtitle } from '@notional-finance/mui';
+import { StackIcon } from '@notional-finance/icons';
 import {
   useEarnBorrowOptions,
   useMarketsTable,
@@ -12,31 +12,67 @@ import {
 } from './hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import { MarketsMobileNav, MobileFilterOptions } from './components';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const Markets = () => {
   const theme = useTheme();
-  const network = useSelectedNetwork();
-  const [marketType, setMarketType] = useState<MARKET_TYPE>(MARKET_TYPE.EARN);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const rightToggleData = useEarnBorrowOptions();
   const allNetworksToggleData = useAllNetworksToggle();
 
   const earnBorrowOption = rightToggleData.toggleKey || 0;
+  const allNetworksOption = allNetworksToggleData.toggleKey || 0;
 
   const { dropdownsData, currencyOptions, productOptions } =
-    useMarketTableDropdowns(earnBorrowOption, network);
+    useMarketTableDropdowns(earnBorrowOption, allNetworksOption);
   const { marketTableColumns, marketTableData, marketDataCSVFormatter } =
-    useMarketsTable(earnBorrowOption, currencyOptions, productOptions);
+    useMarketsTable(
+      earnBorrowOption,
+      allNetworksOption,
+      currencyOptions,
+      productOptions
+    );
 
   return (
     <FeatureLoader featureLoaded={true}>
       <Box sx={{ marginBottom: theme.spacing(20) }}>
         <Background>
           <StyledTopContent>
-            <Title gutter="default">
-              <FormattedMessage defaultMessage={'Markets'} />
-            </Title>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: theme.spacing(2),
+              }}
+            >
+              <StackIcon
+                className="color-fill"
+                sx={{
+                  height: theme.spacing(6),
+                  width: theme.spacing(6),
+                  fill: colors.white,
+                  stroke: 'transparent',
+                }}
+              />
+              <Title
+                gutter="default"
+                sx={{ marginLeft: theme.spacing(3), marginBottom: '0px' }}
+              >
+                <FormattedMessage defaultMessage={'Markets'} />
+              </Title>
+            </Box>
+            <Subtitle
+              sx={{
+                width: '600px',
+                color: colors.white,
+                marginBottom: theme.spacing(8),
+              }}
+            >
+              <FormattedMessage
+                defaultMessage={
+                  'See all our opportunities and filter/sort to your liking. Filter by product, currency, and network to find the opportunity that’s right for you.'
+                }
+              />
+            </Subtitle>
           </StyledTopContent>
         </Background>
         <MobileTitle>
@@ -46,6 +82,7 @@ export const Markets = () => {
         </MobileTitle>
         <TableContainer>
           <DataTable
+            accentCSV
             data={marketTableData}
             columns={marketTableColumns}
             tableVariant={TABLE_VARIANTS.SORTABLE}
@@ -56,8 +93,8 @@ export const Markets = () => {
           />
         </TableContainer>
         <MarketsMobileNav
-          setMarketType={setMarketType}
-          marketType={marketType}
+          setEarnBorrowOption={rightToggleData.setToggleKey}
+          earnBorrowOption={earnBorrowOption}
           filterOpen={filterOpen}
           setFilterOpen={setFilterOpen}
         />
@@ -127,10 +164,10 @@ const StyledTopContent = styled(Box)(
   ({ theme }) => `
   width: 100%;
   max-width: 1335px;
-  min-height: ${theme.spacing(33)};
   display: flex;
   flex-direction: column;
   margin: auto;
+  margin-top: 150px;
   ${theme.breakpoints.down('lg')} {
     margin-left: ${theme.spacing(6)};
     margin-right: ${theme.spacing(6)};

@@ -3,27 +3,44 @@ import { MultiSelectDropdown } from '../../multi-select-dropdown/multi-select-dr
 import { FormattedMessage } from 'react-intl';
 import SimpleToggle from '../../simple-toggle/simple-toggle';
 import { DataTableToggleProps } from '../data-table';
+import { useEffect, useState } from 'react';
 
 interface DataTableFilterBarProps {
   filterBarData: any[];
   rightToggleData?: DataTableToggleProps;
   allNetworksToggleData?: DataTableToggleProps;
-  clearQueryAndFilters?: () => void;
 }
 
 export const DataTableFilterBar = ({
   filterBarData,
   rightToggleData,
   allNetworksToggleData,
-  clearQueryAndFilters,
 }: DataTableFilterBarProps) => {
   const theme = useTheme();
+  const [resetButtonDisabled, setResetButtonDisabled] = useState(true);
   const handleFilterReset = () => {
     filterBarData.forEach(({ setSelectedOptions }) => setSelectedOptions([]));
-    if (clearQueryAndFilters) {
-      clearQueryAndFilters();
+    if (allNetworksToggleData?.setToggleKey) {
+      allNetworksToggleData.setToggleKey(0);
+    }
+    if (rightToggleData?.setToggleKey) {
+      rightToggleData.setToggleKey(0);
     }
   };
+
+  useEffect(() => {
+    filterBarData.forEach(({ selectedOptions }) => {
+      if (
+        selectedOptions.length > 0 ||
+        (allNetworksToggleData && allNetworksToggleData?.toggleKey > 0)
+      ) {
+        setResetButtonDisabled(false);
+        return;
+      } else {
+        setResetButtonDisabled(true);
+      }
+    });
+  }, [filterBarData, allNetworksToggleData]);
 
   return (
     <Container>
@@ -42,7 +59,6 @@ export const DataTableFilterBar = ({
               key={index}
               options={data}
               selected={selectedOptions}
-              clearQueryAndFilters={clearQueryAndFilters}
               setSelected={setSelectedOptions}
               placeHolderText={placeHolderText}
             />
@@ -50,6 +66,7 @@ export const DataTableFilterBar = ({
         )}
         {allNetworksToggleData && (
           <SimpleToggle
+            sx={{ marginRight: theme.spacing(3) }}
             tabVariant="standard"
             tabLabels={allNetworksToggleData.toggleOptions}
             selectedTabIndex={allNetworksToggleData.toggleKey}
@@ -60,13 +77,15 @@ export const DataTableFilterBar = ({
         <Box
           onClick={handleFilterReset}
           sx={{
-            marginLeft: theme.spacing(3),
             padding: '8px 16px',
             border: theme.shape.borderStandard,
             borderRadius: theme.shape.borderRadius(),
             fontSize: '14px',
             cursor: 'pointer',
-            color: theme.palette.typography.main,
+            fontWeight: 500,
+            color: resetButtonDisabled
+              ? theme.palette.typography.light
+              : theme.palette.typography.main,
             background: theme.palette.secondary.main,
           }}
         >
