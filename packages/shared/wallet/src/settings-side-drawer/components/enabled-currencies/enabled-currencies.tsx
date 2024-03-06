@@ -128,11 +128,10 @@ export const EnabledCurrencies = () => {
       </Title>
       <Paragraph marginBottom={theme.spacing(4)}>
         <FormattedMessage
-          defaultMessage={'Reset or revoke your token allowances below'}
+          defaultMessage={'Reset or revoke your token approvals below'}
         />
       </Paragraph>
       {SupportedNetworks.map((network) => {
-        if (allowances[network].length === 0) return null;
         return (
           <Box
             sx={{
@@ -143,9 +142,15 @@ export const EnabledCurrencies = () => {
           >
             <H5 gutter="default">{network}</H5>
             <Divider sx={{ marginBottom: theme.spacing(2) }} />
-            {allowances[network].map((a) => (
-              <TokenAllowanceRow amount={a.amount} />
-            ))}
+            {allowances[network].length === 0 ? (
+              <Subtitle textAlign={'center'} light>
+                <FormattedMessage defaultMessage={'No Approvals Set'} />
+              </Subtitle>
+            ) : (
+              allowances[network].map((a) => (
+                <TokenAllowanceRow amount={a.amount} />
+              ))
+            )}
           </Box>
         );
       })}
