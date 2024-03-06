@@ -12,13 +12,13 @@ import {
   useNOTE,
   usePendingPnLCalculation,
   usePortfolioHoldings,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
   Network,
   PORTFOLIO_ACTIONS,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';

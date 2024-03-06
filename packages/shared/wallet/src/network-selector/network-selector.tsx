@@ -17,10 +17,10 @@ import {
   useAccountNetWorth,
   useProductNetwork,
   useWalletBalancesOnNetworks,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
-import { useSelectedNetwork } from '../hooks';
 
 export interface NetworkButtonProps {
   active?: boolean;
