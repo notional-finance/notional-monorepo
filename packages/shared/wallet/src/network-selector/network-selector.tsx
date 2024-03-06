@@ -3,7 +3,7 @@ import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
-import { Caption, H4, H5, Paragraph } from '@notional-finance/mui';
+import { Caption, H4, H5, Paragraph, Subtitle } from '@notional-finance/mui';
 import { useTheme, Box, Button, styled, Popover } from '@mui/material';
 import {
   PRODUCTS,
@@ -51,7 +51,7 @@ export const NetworkSelectorButton = ({
         borderRadius: isSelected && isLast ? '0px 0px 6px 6px' : '0px',
       }}
     >
-      <Box sx={{ marginRight: theme.spacing(1) }}>
+      <Box sx={{ marginRight: theme.spacing(1), lineHeight: 1 }}>
         <TokenIcon symbol={getNetworkSymbol(network)} size="medium" />
       </Box>
       <H4
@@ -117,6 +117,7 @@ export function PortfolioNetworkSelector() {
       availableNetworks={SupportedNetworks}
       selectedNetwork={selectedNetwork}
       walletBalances={walletBalances}
+      isPortfolio
     />
   );
 }
@@ -125,10 +126,12 @@ function NetworkSelector({
   selectedNetwork,
   availableNetworks,
   walletBalances,
+  isPortfolio,
 }: {
   selectedNetwork?: Network;
   availableNetworks: Network[];
   walletBalances: TokenBalance[];
+  isPortfolio?: boolean;
 }) {
   const theme = useTheme();
   const history = useHistory();
@@ -160,12 +163,16 @@ function NetworkSelector({
         disabled={!canSelect}
         onClick={handleClick}
         startIcon={
-          <TokenIcon symbol={getNetworkSymbol(selectedNetwork)} size="small" />
+          <TokenIcon
+            symbol={getNetworkSymbol(selectedNetwork)}
+            size={isPortfolio ? 'medium' : 'small'}
+          />
         }
         endIcon={
           canSelect ? (
             <Box
               sx={{
+                marginLeft: isPortfolio ? theme.spacing(3) : theme.spacing(1),
                 borderRadius: '50%',
                 background: theme.palette.info.light,
                 height: theme.spacing(2),
@@ -186,9 +193,23 @@ function NetworkSelector({
             </Box>
           ) : undefined
         }
-        sx={{ boxShadow: 'none' }}
+        sx={{
+          boxShadow: 'none',
+          padding: isPortfolio ? '8px 12px' : '4px 12px',
+          borderRadius: '50px',
+          border: theme.shape.borderStandard,
+          color: theme.palette.typography.main,
+          '&:hover': {
+            boxShadow: 'none',
+            backgroundColor: theme.palette.info.light,
+          },
+        }}
       >
-        <TextWrapper theme={theme}>{selectedNetwork}</TextWrapper>
+        {isPortfolio ? (
+          <Subtitle light>{selectedNetwork}</Subtitle>
+        ) : (
+          <Caption>{selectedNetwork}</Caption>
+        )}
       </DropdownButton>
       <Popover
         id="basic-menu"
@@ -243,21 +264,10 @@ function NetworkSelector({
 
 const NetworkSelectorWrapper = styled(Box)(
   ({ theme }) => `
-    min-width: ${theme.spacing(15)};
     margin-left: ${theme.spacing(2.5)};
     box-shadow: none;
     transition: .3s ease;
     border-radius: 50px;
-    #basic-button {
-      padding: ${theme.spacing(1, 1.5)};
-      border-radius: 50px;
-      border: ${theme.shape.borderStandard};
-      color: ${theme.palette.typography.main};
-      &:hover {
-        box-shadow: none;
-        background-color: ${theme.palette.info.light};
-      }
-    }
     #basic-menu {
       border-radius: ${theme.shape.borderRadius()};
     }
@@ -284,19 +294,18 @@ const DropdownButton = styled(Button)(
   width: 100%;
   text-transform: capitalize;
   justify-content: flex-start;
-  font-size: 1rem;
   border: ${theme.shape.borderStandard};
   background: ${theme.palette.common.white};
 `
 );
 
-const TextWrapper = styled(Caption)(
-  ({ theme }) => `
-  flex: 1;
-  text-align: left;
-  color: ${theme.palette.typography.light};
-`
-);
+// const TextWrapper = styled(Caption)(
+//   ({ theme }) => `
+//   flex: 1;
+//   text-align: center;
+//   color: ${theme.palette.typography.light};
+// `
+// );
 
 const Title = styled(H5)(
   ({ theme }) => `

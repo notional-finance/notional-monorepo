@@ -468,7 +468,7 @@ export function TokenIcon({
     tokenIcon.alt = `${symbol?.toLowerCase()} ${tokenIcon.alt}`;
   }
 
-  return (
+  return networkIcon ? (
     <Box position="relative">
       {networkIcon && size === 'medium' && (
         <img
@@ -496,6 +496,14 @@ export function TokenIcon({
         style={{ ...style }}
       />
     </Box>
+  ) : (
+    <img
+      width={tokenSizes[size]}
+      height={tokenSizes[size]}
+      src={useAccentBorderImg ? tokenIcon.accentBorderImg : image}
+      alt={tokenIcon.alt}
+      style={{ ...style }}
+    />
   );
 }
 
