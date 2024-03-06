@@ -446,6 +446,9 @@ export function TokenIcon({
   const tokenIcon: TokenImg = Object.keys(TokenImageList).includes(tokenKey)
     ? TokenImageList[tokenKey]
     : TokenImageList['unknown'];
+  const networkIcon = network
+    ? TokenImageList[getNetworkSymbol(network)]
+    : undefined;
 
   const networkIcon = network
     ? TokenImageList[getNetworkSymbol(network)]
