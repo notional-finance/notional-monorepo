@@ -164,15 +164,6 @@ export const DataTable = ({
   const height = ref.current?.clientHeight;
   const width = ref.current?.clientWidth;
 
-  // const handleCSVClick = () => {
-  //   if (csvDataFormatter && data) {
-  //     console.log(
-  //       'csvDataFormatter(data): ',
-  //       csvDataFormatter(data)
-  //     );
-  //   }
-  // };
-
   return (
     <div>
       {csvDataFormatter && data && (
