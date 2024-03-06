@@ -11,7 +11,6 @@ export interface SimpleToggleProps extends TabsUnstyledProps {
     event: React.SyntheticEvent<Element, Event>,
     value: string | number | boolean
   ) => void;
-  toggleStyle?: 'accent' | 'basic';
   minHeight?: string;
   width?: string;
   sx?: SxProps;

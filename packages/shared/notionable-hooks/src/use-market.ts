@@ -168,6 +168,21 @@ export const useProductNetwork = (
   });
 };
 
+export function useAllUniqueUnderlyingTokens(
+  networks: Network[] = SupportedNetworks
+) {
+  return unique(
+    networks.flatMap((n) => {
+      return Registry.getTokenRegistry()
+        .getAllTokens(n)
+        .filter(
+          (t) => t.tokenType === 'Underlying' && t.currencyId !== undefined
+        )
+        .map((t) => t.symbol);
+    })
+  );
+}
+
 export const useAllNetworkMarkets = () => {
   const {
     globalState: { allYields: _allYields },
