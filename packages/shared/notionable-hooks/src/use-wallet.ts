@@ -1,11 +1,16 @@
 import { useMemo } from 'react';
 import {
+  Allowance,
   Registry,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
-import { Network, groupArrayToMap } from '@notional-finance/util';
+import {
+  Network,
+  SupportedNetworks,
+  groupArrayToMap,
+} from '@notional-finance/util';
 import {
   formatNumberAsPercent,
   truncateAddress,
@@ -74,15 +79,19 @@ export function useReadOnlyAddress() {
   return wallet?.isReadOnlyAddress === true;
 }
 
-export function useWalletAllowances(network: Network | undefined) {
-  const account = useAccountDefinition(network);
-
-  const enabledTokens =
-    account?.allowances
-      ?.filter((a) => a.amount.isPositive())
-      .map((a) => a.amount.token) || [];
-  const supportedTokens = account?.allowances?.map((a) => a.amount.token) || [];
-  return { enabledTokens, supportedTokens };
+export function useWalletAllowances() {
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+  return SupportedNetworks.reduce((acc, n) => {
+    acc[n as Network] =
+      networkAccounts && networkAccounts[n as Network]
+        ? networkAccounts[n as Network].accountDefinition?.allowances?.filter(
+            (a) => a.amount.isPositive() && a.amount.symbol !== 'ETH'
+          ) || []
+        : [];
+    return acc;
+  }, {} as Record<Network, Allowance[]>);
 }
 
 export function useWalletBalanceInputCheck(
@@ -192,18 +201,19 @@ export function useWalletBalancesOnNetworks(
   const {
     globalState: { networkAccounts },
   } = useNotionalContext();
-  if (!underlyingSymbol) return [];
+  if (!underlyingSymbol) return {} as Record<Network, TokenBalance>;
 
-  return networks.map((n) => {
+  return networks.reduce((acc, n) => {
     const acct =
       networkAccounts && networkAccounts[n] ? networkAccounts[n] : undefined;
 
-    return (
+    acc[n] =
       acct?.accountDefinition?.balances.find(
         (t) => t.tokenType === 'Underlying' && t.symbol === underlyingSymbol
-      ) || TokenBalance.fromSymbol(0, underlyingSymbol, n)
-    );
-  });
+      ) || TokenBalance.fromSymbol(0, underlyingSymbol, n);
+
+    return acc;
+  }, {} as Record<Network, TokenBalance>);
 }
 
 export function useWalletBalances(

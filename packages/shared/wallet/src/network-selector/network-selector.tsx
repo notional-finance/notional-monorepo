@@ -3,7 +3,7 @@ import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
-import { Caption, H4, H5, Paragraph } from '@notional-finance/mui';
+import { Caption, H4, H5, Paragraph, Subtitle } from '@notional-finance/mui';
 import { useTheme, Box, Button, styled, Popover } from '@mui/material';
 import {
   PRODUCTS,
@@ -14,6 +14,7 @@ import { useHistory, useLocation } from 'react-router';
 import { Network } from '@notional-finance/util';
 import {
   BaseTradeContext,
+  useAccountNetWorth,
   useProductNetwork,
   useWalletBalancesOnNetworks,
 } from '@notional-finance/notionable-hooks';
@@ -51,7 +52,7 @@ export const NetworkSelectorButton = ({
         borderRadius: isSelected && isLast ? '0px 0px 6px 6px' : '0px',
       }}
     >
-      <Box sx={{ marginRight: theme.spacing(1) }}>
+      <Box sx={{ marginRight: theme.spacing(1), lineHeight: 1 }}>
         <TokenIcon symbol={getNetworkSymbol(network)} size="medium" />
       </Box>
       <H4
@@ -73,10 +74,15 @@ export const NetworkSelectorButton = ({
             alignItems: 'center',
           }}
         >
-          <WalletIcon
-            sx={{ width: theme.spacing(2), height: theme.spacing(2) }}
-          />
-          <Paragraph>{balance.toDisplayStringWithSymbol(4, true)}</Paragraph>
+          {balance.tokenType !== 'Fiat' && (
+            <WalletIcon
+              sx={{ width: theme.spacing(2), height: theme.spacing(2) }}
+            />
+          )}
+          <Paragraph main>
+            {balance.toDisplayStringWithSymbol(4, true)}
+            {balance.tokenType === 'Fiat' ? ' Net Worth' : ''}
+          </Paragraph>
         </Box>
       )}
     </NetworkButton>
@@ -110,13 +116,14 @@ export function TransactionNetworkSelector({
 
 export function PortfolioNetworkSelector() {
   const selectedNetwork = useSelectedNetwork();
-  const walletBalances = [];
+  const walletBalances = useAccountNetWorth();
 
   return (
     <NetworkSelector
       availableNetworks={SupportedNetworks}
       selectedNetwork={selectedNetwork}
       walletBalances={walletBalances}
+      isPortfolio
     />
   );
 }
@@ -125,10 +132,12 @@ function NetworkSelector({
   selectedNetwork,
   availableNetworks,
   walletBalances,
+  isPortfolio,
 }: {
   selectedNetwork?: Network;
   availableNetworks: Network[];
-  walletBalances: TokenBalance[];
+  walletBalances: Record<Network, TokenBalance>;
+  isPortfolio?: boolean;
 }) {
   const theme = useTheme();
   const history = useHistory();
@@ -160,12 +169,16 @@ function NetworkSelector({
         disabled={!canSelect}
         onClick={handleClick}
         startIcon={
-          <TokenIcon symbol={getNetworkSymbol(selectedNetwork)} size="small" />
+          <TokenIcon
+            symbol={getNetworkSymbol(selectedNetwork)}
+            size={isPortfolio ? 'medium' : 'small'}
+          />
         }
         endIcon={
           canSelect ? (
             <Box
               sx={{
+                marginLeft: isPortfolio ? theme.spacing(3) : theme.spacing(1),
                 borderRadius: '50%',
                 background: theme.palette.info.light,
                 height: theme.spacing(2),
@@ -186,9 +199,23 @@ function NetworkSelector({
             </Box>
           ) : undefined
         }
-        sx={{ boxShadow: 'none' }}
+        sx={{
+          boxShadow: 'none',
+          padding: isPortfolio ? '8px 12px' : '6px 12px',
+          borderRadius: '50px',
+          border: theme.shape.borderStandard,
+          color: theme.palette.typography.main,
+          '&:hover': {
+            boxShadow: 'none',
+            backgroundColor: theme.palette.info.light,
+          },
+        }}
       >
-        <TextWrapper theme={theme}>{selectedNetwork}</TextWrapper>
+        {isPortfolio ? (
+          <Subtitle light>{selectedNetwork}</Subtitle>
+        ) : (
+          <Caption>{selectedNetwork}</Caption>
+        )}
       </DropdownButton>
       <Popover
         id="basic-menu"
@@ -201,6 +228,7 @@ function NetworkSelector({
           '.MuiPopover-paper': {
             boxShadow: theme.shape.shadowLarge(),
             borderRadius: theme.shape.borderRadius(),
+            border: theme.shape.borderStandard,
             width: {
               xs: '100%',
               sm: '100%',
@@ -220,9 +248,11 @@ function NetworkSelector({
         }}
       >
         <NetworkInnerWrapper>
-          <Title>
-            <FormattedMessage defaultMessage={'NETWORK'} />
-          </Title>
+          <Box sx={{ padding: theme.spacing(3) }}>
+            <H5>
+              <FormattedMessage defaultMessage={'NETWORK'} />
+            </H5>
+          </Box>
           <Box sx={{ margin: 'auto' }}>
             {availableNetworks.map((n, i) => (
               <NetworkSelectorButton
@@ -231,7 +261,7 @@ function NetworkSelector({
                 isSelected={n === selectedNetwork}
                 network={n}
                 handleClick={() => handleClose(n)}
-                balance={walletBalances.find((t) => t.network === n)}
+                balance={walletBalances[n]}
               />
             ))}
           </Box>
@@ -243,21 +273,10 @@ function NetworkSelector({
 
 const NetworkSelectorWrapper = styled(Box)(
   ({ theme }) => `
-    min-width: ${theme.spacing(15)};
     margin-left: ${theme.spacing(2.5)};
     box-shadow: none;
     transition: .3s ease;
     border-radius: 50px;
-    #basic-button {
-      padding: ${theme.spacing(1, 1.5)};
-      border-radius: 50px;
-      border: ${theme.shape.borderStandard};
-      color: ${theme.palette.typography.main};
-      &:hover {
-        box-shadow: none;
-        background-color: ${theme.palette.info.light};
-      }
-    }
     #basic-menu {
       border-radius: ${theme.shape.borderRadius()};
     }
@@ -284,30 +303,9 @@ const DropdownButton = styled(Button)(
   width: 100%;
   text-transform: capitalize;
   justify-content: flex-start;
-  font-size: 1rem;
   border: ${theme.shape.borderStandard};
   background: ${theme.palette.common.white};
 `
-);
-
-const TextWrapper = styled(Caption)(
-  ({ theme }) => `
-  flex: 1;
-  text-align: left;
-  color: ${theme.palette.typography.light};
-`
-);
-
-const Title = styled(H5)(
-  ({ theme }) => `
-  margin: 30px auto;
-  padding-left: ${theme.spacing(3)};
-  letter-spacing: 1px;
-  color: ${theme.palette.typography.light};
-  ${theme.breakpoints.down('sm')} {
-    width: auto;
-  }
-  `
 );
 
 const NetworkButton = styled(Box, {

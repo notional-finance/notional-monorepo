@@ -295,15 +295,8 @@ export class AccountRiskProfile extends BaseRiskProfile {
       );
     }
 
-    // Apply lower bounds for nToken and fCash
-    if (asset.tokenType === 'nToken') {
-      const { nTokenMaxDrawdown } =
-        Registry.getConfigurationRegistry().getNTokenLeverageFactors(asset);
-
-      // This is the minimum price for an nToken
-      if (threshold.lt(unitOfAsset.mulInRatePrecision(nTokenMaxDrawdown)))
-        return null;
-    } else if (asset.tokenType === 'fCash') {
+    // Apply lower bounds for fCash
+    if (asset.tokenType === 'fCash') {
       if (riskAdjustedValue.isPositive()) {
         const { lowestDiscountFactor } =
           Registry.getConfigurationRegistry().getMinLendRiskAdjustedDiscountFactor(
