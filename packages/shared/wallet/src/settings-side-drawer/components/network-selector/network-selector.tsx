@@ -33,7 +33,7 @@ export const NetworkSettingsButton = () => {
         symbol={getNetworkSymbol(walletNetwork) || 'unknown'}
         size="medium"
       />
-      <Box sx={{ marginLeft: theme.spacing(1), textDecoration: 'capitalize' }}>
+      <Box sx={{ marginLeft: theme.spacing(1), textTransform: 'capitalize' }}>
         {chain?.label || walletNetwork}
       </Box>
     </Box>
