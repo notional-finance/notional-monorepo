@@ -1,36 +1,27 @@
-import { useState } from 'react';
-import { CSVLink } from 'react-csv';
 import { styled, Box, useTheme } from '@mui/material';
 import { MultiSelectDropdown } from '../../multi-select-dropdown/multi-select-dropdown';
-import { Button } from '../../button/button';
-import { DownloadIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
+import SimpleToggle from '../../simple-toggle/simple-toggle';
+import { DataTableToggleProps } from '../data-table';
 
 interface DataTableFilterBarProps {
   filterBarData: any[];
-  downloadCSVFormatter?: (data: any[]) => any;
+  rightToggleData?: DataTableToggleProps;
+  allNetworksToggleData?: DataTableToggleProps;
   clearQueryAndFilters?: () => void;
-  tableData?: any[];
 }
 
 export const DataTableFilterBar = ({
   filterBarData,
+  rightToggleData,
+  allNetworksToggleData,
   clearQueryAndFilters,
-  downloadCSVFormatter,
-  tableData,
 }: DataTableFilterBarProps) => {
-  const [data, setData] = useState([]);
   const theme = useTheme();
   const handleFilterReset = () => {
     filterBarData.forEach(({ setSelectedOptions }) => setSelectedOptions([]));
     if (clearQueryAndFilters) {
       clearQueryAndFilters();
-    }
-  };
-
-  const handleCSVClick = () => {
-    if (downloadCSVFormatter && tableData) {
-      setData(downloadCSVFormatter(tableData));
     }
   };
 
@@ -57,10 +48,19 @@ export const DataTableFilterBar = ({
             />
           )
         )}
+        {allNetworksToggleData && (
+          <SimpleToggle
+            tabVariant="standard"
+            tabLabels={allNetworksToggleData.toggleOptions}
+            selectedTabIndex={allNetworksToggleData.toggleKey}
+            onChange={(_, v) => allNetworksToggleData.setToggleKey(v as number)}
+          />
+        )}
         {/* TODO: Add disabled mode to reset button */}
         <Box
           onClick={handleFilterReset}
           sx={{
+            marginLeft: theme.spacing(3),
             padding: '8px 16px',
             border: theme.shape.borderStandard,
             borderRadius: theme.shape.borderRadius(),
@@ -73,26 +73,13 @@ export const DataTableFilterBar = ({
           <FormattedMessage defaultMessage={'Reset'} />
         </Box>
       </Box>
-      <CSVLink
-        data={data}
-        filename={'notional-market-data.csv'}
-        target="_blank"
-      >
-        <Button
-          onClick={() => handleCSVClick()}
-          variant="outlined"
-          sx={{ height: theme.spacing(6), padding: '0px 20px' }}
-        >
-          <FormattedMessage defaultMessage={'Download CSV'} />
-          <DownloadIcon
-            sx={{
-              fill: theme.palette.typography.accent,
-              height: theme.spacing(2),
-              marginLeft: theme.spacing(1),
-            }}
-          />
-        </Button>
-      </CSVLink>
+      {rightToggleData && (
+        <SimpleToggle
+          tabLabels={rightToggleData.toggleOptions}
+          selectedTabIndex={rightToggleData.toggleKey}
+          onChange={(_, v) => rightToggleData.setToggleKey(v as number)}
+        />
+      )}
     </Container>
   );
 };

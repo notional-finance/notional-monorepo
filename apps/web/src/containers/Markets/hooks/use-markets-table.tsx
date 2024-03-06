@@ -26,7 +26,7 @@ import { useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 export const useMarketsTable = (
-  marketType: MARKET_TYPE,
+  earnBorrowOption: number,
   currencyOptions: SelectedOptions[],
   productOptions: SelectedOptions[]
 ) => {
@@ -34,7 +34,7 @@ export const useMarketsTable = (
   const baseCurrency = useFiat();
   const { earnYields, borrowYields } = useAllNetworkMarkets();
 
-  const tableColumns: DataTableColumn[] = [
+  let tableColumns: DataTableColumn[] = [
     {
       Header: (
         <FormattedMessage
@@ -148,6 +148,12 @@ export const useMarketsTable = (
     },
   ];
 
+  if (earnBorrowOption === 1) {
+    tableColumns = tableColumns.filter(
+      ({ accessor }) => accessor !== 'incentiveAPY'
+    );
+  }
+
   const formatMarketData = (allMarketsData: typeof borrowYields) => {
     const getTotalIncentiveApy = (
       incentives: YieldData['noteIncentives'],
@@ -231,9 +237,9 @@ export const useMarketsTable = (
   };
 
   const initialData =
-    marketType === MARKET_TYPE.BORROW
-      ? formatMarketData(borrowYields)
-      : formatMarketData(earnYields);
+    earnBorrowOption === 0
+      ? formatMarketData(earnYields)
+      : formatMarketData(borrowYields);
 
   const getIds = (options: SelectedOptions[]) => {
     return options.map(({ id }) => id);
@@ -264,7 +270,7 @@ export const useMarketsTable = (
   };
 
   const marketTableColumns =
-    marketType === MARKET_TYPE.BORROW
+    earnBorrowOption === 1
       ? tableColumns.filter(
           ({ accessor }) => accessor !== 'leverage' && accessor !== 'noteAPY'
         )

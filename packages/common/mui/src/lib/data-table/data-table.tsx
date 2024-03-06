@@ -18,7 +18,9 @@ import {
 import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded, useSortBy } from 'react-table';
 import { FormattedMessage } from 'react-intl';
+import { CSVLink } from 'react-csv';
 import { TableCell } from '../typography/typography';
+import { DownloadIcon } from '@notional-finance/icons';
 import {
   DataTableColumn,
   ExpandedRows,
@@ -27,6 +29,13 @@ import {
   ToggleBarPropsType,
   TABLE_VARIANTS,
 } from './types';
+import { colors } from '@notional-finance/styles';
+
+export interface DataTableToggleProps {
+  toggleOptions: JSX.Element[];
+  toggleKey: number;
+  setToggleKey: (v: number) => void;
+}
 
 interface DataTableProps {
   columns: Array<DataTableColumn>;
@@ -49,8 +58,10 @@ interface DataTableProps {
   showHiddenRows?: boolean;
   tableLoading?: boolean;
   filterBarData?: any[];
+  rightToggleData?: DataTableToggleProps;
+  allNetworksToggleData?: DataTableToggleProps;
   clearQueryAndFilters?: () => void;
-  marketDataCSVFormatter?: (data: any[]) => any;
+  csvDataFormatter?: (data: any[]) => any;
   stateZeroMessage?: ReactNode;
   hiddenRowMessage?: ReactNode;
   infoBoxData?: InfoBoxDataProps[];
@@ -77,8 +88,10 @@ export const DataTable = ({
   setExpandedRows,
   tableLoading,
   filterBarData,
+  rightToggleData,
+  allNetworksToggleData,
   clearQueryAndFilters,
-  marketDataCSVFormatter,
+  csvDataFormatter,
   stateZeroMessage,
   setShowHiddenRows,
   hiddenRowMessage,
@@ -151,8 +164,42 @@ export const DataTable = ({
   const height = ref.current?.clientHeight;
   const width = ref.current?.clientWidth;
 
+  // const handleCSVClick = () => {
+  //   if (csvDataFormatter && data) {
+  //     console.log(
+  //       'csvDataFormatter(data): ',
+  //       csvDataFormatter(data)
+  //     );
+  //   }
+  // };
+
   return (
     <div>
+      {csvDataFormatter && data && (
+        <CSVLink
+          data={csvDataFormatter(data)}
+          filename={'notional-market-data.csv'}
+          target="_blank"
+        >
+          <Box
+            sx={{
+              color: colors.neonTurquoise,
+              textAlign: 'right',
+              textDecoration: 'underline',
+              marginBottom: theme.spacing(1),
+            }}
+          >
+            <FormattedMessage defaultMessage={'Download CSV'} />
+            <DownloadIcon
+              sx={{
+                fill: colors.neonTurquoise,
+                height: theme.spacing(2),
+                marginLeft: theme.spacing(1),
+              }}
+            />
+          </Box>
+        </CSVLink>
+      )}
       {maxHeight ? (
         <DataTableScroll
           columns={columns}
@@ -210,9 +257,9 @@ export const DataTable = ({
           {filterBarData && filterBarData.length > 0 && (
             <DataTableFilterBar
               filterBarData={filterBarData}
-              tableData={data}
+              rightToggleData={rightToggleData}
+              allNetworksToggleData={allNetworksToggleData}
               clearQueryAndFilters={clearQueryAndFilters}
-              downloadCSVFormatter={marketDataCSVFormatter}
             />
           )}
 

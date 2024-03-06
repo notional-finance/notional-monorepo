@@ -14,13 +14,15 @@ import {
 import { getEtherscanTransactionLink } from '@notional-finance/util';
 import { SelectedOptions } from '@notional-finance/mui';
 
-export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
+export const useTxnHistoryData = (txnHistoryCategory: number) => {
   let assetOrVaultData: SelectedOptions[] = [];
   let currencyData: SelectedOptions[] = [];
 
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
   const accountHistory = useTransactionHistory(network);
+
+  console.log({ accountHistory });
 
   const allAccountHistoryData = accountHistory
     .sort((x, y) => y.timestamp - x.timestamp)
@@ -85,7 +87,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
     return filteredArray;
   }, []);
 
-  if (txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS) {
+  if (txnHistoryCategory === 0) {
     accountHistoryData = allAccountHistoryData.filter(
       ({ vaultName }) => !vaultName
     );
@@ -105,7 +107,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
     });
   }
 
-  if (txnHistoryType === TXN_HISTORY_TYPE.LEVERAGED_VAULT) {
+  if (txnHistoryCategory === 1) {
     accountHistoryData = allAccountHistoryData.filter(
       ({ vaultName }) => vaultName
     );
@@ -122,6 +124,8 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
 
   const allCurrencyOptions = removeDuplicateObjects(currencyData);
   const allAssetOrVaultOptions = removeDuplicateObjects(assetOrVaultData);
+
+  console.log({ accountHistoryData });
 
   return {
     accountHistoryData,

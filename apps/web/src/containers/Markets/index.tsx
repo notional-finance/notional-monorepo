@@ -2,17 +2,13 @@ import { useState } from 'react';
 import { styled, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
-import {
-  H1,
-  ButtonBar,
-  DataTable,
-  TABLE_VARIANTS,
-} from '@notional-finance/mui';
+import { H1, DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
 import { MARKET_TYPE } from '@notional-finance/util';
 import {
-  useButtonBar,
+  useEarnBorrowOptions,
   useMarketsTable,
   useMarketTableDropdowns,
+  useAllNetworksToggle,
 } from './hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import { MarketsMobileNav, MobileFilterOptions } from './components';
@@ -23,12 +19,15 @@ export const Markets = () => {
   const network = useSelectedNetwork();
   const [marketType, setMarketType] = useState<MARKET_TYPE>(MARKET_TYPE.EARN);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
-  const buttonData = useButtonBar(setMarketType, marketType);
-  const { dropdownsData, currencyOptions, productOptions } =
-    useMarketTableDropdowns(marketType, network);
+  const rightToggleData = useEarnBorrowOptions();
+  const allNetworksToggleData = useAllNetworksToggle();
 
+  const earnBorrowOption = rightToggleData.toggleKey || 0;
+
+  const { dropdownsData, currencyOptions, productOptions } =
+    useMarketTableDropdowns(earnBorrowOption, network);
   const { marketTableColumns, marketTableData, marketDataCSVFormatter } =
-    useMarketsTable(marketType, currencyOptions, productOptions);
+    useMarketsTable(earnBorrowOption, currencyOptions, productOptions);
 
   return (
     <FeatureLoader featureLoaded={true}>
@@ -38,16 +37,6 @@ export const Markets = () => {
             <Title gutter="default">
               <FormattedMessage defaultMessage={'Markets'} />
             </Title>
-            <ButtonBar
-              buttonOptions={buttonData}
-              buttonVariant="outlined"
-              customButtonColor={colors.black}
-              customButtonBGColor={colors.neonTurquoise}
-              sx={{
-                background: colors.black,
-                borderRadius: theme.shape.borderRadius(),
-              }}
-            />
           </StyledTopContent>
         </Background>
         <MobileTitle>
@@ -61,7 +50,9 @@ export const Markets = () => {
             columns={marketTableColumns}
             tableVariant={TABLE_VARIANTS.SORTABLE}
             filterBarData={dropdownsData}
-            marketDataCSVFormatter={marketDataCSVFormatter}
+            rightToggleData={rightToggleData}
+            allNetworksToggleData={allNetworksToggleData}
+            csvDataFormatter={marketDataCSVFormatter}
           />
         </TableContainer>
         <MarketsMobileNav

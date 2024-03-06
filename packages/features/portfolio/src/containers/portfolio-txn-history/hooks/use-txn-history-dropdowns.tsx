@@ -5,7 +5,7 @@ import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { useLocation, useHistory } from 'react-router-dom';
 
 export const useTxnHistoryDropdowns = (
-  txnHistoryType: TXN_HISTORY_TYPE,
+  txnHistoryCategory: number,
   allCurrencyOptions: any[],
   allAssetOrVaultOptions: any[]
 ) => {
@@ -34,7 +34,7 @@ export const useTxnHistoryDropdowns = (
   useEffect(() => {
     setAssetOrVaultOptions([]);
     setCurrencyOptions([]);
-  }, [txnHistoryType]);
+  }, [txnHistoryCategory]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(search);
@@ -62,7 +62,7 @@ export const useTxnHistoryDropdowns = (
       selectedOptions: assetOrVaultOptions,
       setSelectedOptions: setAssetOrVaultOptions,
       placeHolderText:
-        txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS ? (
+        txnHistoryCategory === 0 ? (
           <FormattedMessage defaultMessage={'Assets'} />
         ) : (
           <FormattedMessage defaultMessage={'Vaults'} />

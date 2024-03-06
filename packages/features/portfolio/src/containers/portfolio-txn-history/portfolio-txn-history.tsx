@@ -1,34 +1,30 @@
-import { useEffect, useState } from 'react';
-import { DataTable, ButtonBar } from '@notional-finance/mui';
-import { TXN_HISTORY_TYPE } from '@notional-finance/util';
-import { useLocation } from 'react-router-dom';
+import { DataTable } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import {
   useTxnHistoryTable,
-  useTxnHistoryButtonBar,
+  useTxnHistoryCategory,
   useTxnHistoryDropdowns,
   useTxnHistoryData,
 } from './hooks';
 
 export const PortfolioTransactionHistory = () => {
-  const { search } = useLocation();
-  const [txnHistoryType, setTxnHistoryType] = useState<TXN_HISTORY_TYPE>(
-    TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
-  );
+  const rightToggleData = useTxnHistoryCategory();
+  const txnHistoryCategory = rightToggleData?.toggleKey || 0;
+
   const {
     accountHistoryData,
     allCurrencyOptions,
     allAssetOrVaultOptions,
     pendingTokenData,
-  } = useTxnHistoryData(txnHistoryType);
-  const buttonData = useTxnHistoryButtonBar(setTxnHistoryType, txnHistoryType);
+  } = useTxnHistoryData(txnHistoryCategory);
+
   const {
     dropdownsData,
     currencyOptions,
     assetOrVaultOptions,
     clearQueryAndFilters,
   } = useTxnHistoryDropdowns(
-    txnHistoryType,
+    txnHistoryCategory,
     allCurrencyOptions,
     allAssetOrVaultOptions
   );
@@ -37,40 +33,23 @@ export const PortfolioTransactionHistory = () => {
     useTxnHistoryTable(
       currencyOptions,
       assetOrVaultOptions,
-      txnHistoryType,
+      txnHistoryCategory,
       accountHistoryData
     );
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(search);
-    if (queryParams && queryParams.get('txnHistoryType')) {
-      const historyType = queryParams.get('txnHistoryType') as TXN_HISTORY_TYPE;
-      setTxnHistoryType(historyType);
-    }
-  }, [search, txnHistoryType, dropdownsData, allAssetOrVaultOptions]);
-
   return (
-    <>
-      {buttonData.length > 0 && (
-        <ButtonBar
-          buttonOptions={buttonData}
-          buttonVariant="outlined"
-          barPosition="absolute"
-        />
-      )}
-
-      <DataTable
-        data={txnHistoryData || []}
-        columns={txnHistoryColumns}
-        filterBarData={dropdownsData}
-        pendingMessage={
-          <FormattedMessage defaultMessage={'Calculating transaction'} />
-        }
-        pendingTokenData={pendingTokenData}
-        clearQueryAndFilters={clearQueryAndFilters}
-        marketDataCSVFormatter={marketDataCSVFormatter}
-      />
-    </>
+    <DataTable
+      data={txnHistoryData || []}
+      columns={txnHistoryColumns}
+      filterBarData={dropdownsData}
+      rightToggleData={rightToggleData}
+      pendingMessage={
+        <FormattedMessage defaultMessage={'Calculating transaction'} />
+      }
+      pendingTokenData={pendingTokenData}
+      clearQueryAndFilters={clearQueryAndFilters}
+      csvDataFormatter={marketDataCSVFormatter}
+    />
   );
 };
 

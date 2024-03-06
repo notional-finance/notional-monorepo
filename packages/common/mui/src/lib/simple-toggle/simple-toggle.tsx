@@ -11,7 +11,6 @@ export interface SimpleToggleProps extends TabsUnstyledProps {
     event: React.SyntheticEvent<Element, Event>,
     value: string | number | boolean
   ) => void;
-  toggleStyle?: 'accent' | 'basic';
   minHeight?: string;
   width?: string;
   sx?: SxProps;
@@ -65,7 +64,6 @@ const StyledTabs = styled(Tabs)(
   border-radius: ${theme.shape.borderRadius()};
   border: ${theme?.shape.borderStandard};
   padding: 2px;
-  box-shadow: ${theme?.shape.shadowStandard};
   transition: background 0.3s ease;
   min-height: ${theme.spacing(4.75)};
 
