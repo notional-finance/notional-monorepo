@@ -19,8 +19,6 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
   const pendingTokenData = usePendingPnLCalculation(network);
   const accountHistory = useTransactionHistory(network);
 
-  console.log({ accountHistory });
-
   const allAccountHistoryData = accountHistory
     .sort((x, y) => y.timestamp - x.timestamp)
     .map(
@@ -124,8 +122,6 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
 
   const allCurrencyOptions = removeDuplicateObjects(currencyData);
   const allAssetOrVaultOptions = removeDuplicateObjects(assetOrVaultData);
-
-  console.log({ accountHistoryData });
 
   return {
     accountHistoryData,
