@@ -59,14 +59,7 @@ export function useLiquidationChart(
   );
 
   let yAxisDomain: AxisDomain = ['auto', 'auto'];
-  if (token?.tokenType === 'nToken') {
-    const { nTokenMaxDrawdown } =
-      Registry.getConfigurationRegistry().getNTokenLeverageFactors(token);
-    yAxisDomain = [
-      nTokenMaxDrawdown / RATE_PRECISION,
-      (2 * RATE_PRECISION - nTokenMaxDrawdown) / RATE_PRECISION,
-    ];
-  } else if (token?.tokenType === 'fCash') {
+  if (token?.tokenType === 'fCash') {
     // This range technically only applies to lending fCash but works as a boundary on the
     // fCash price anyway
     const { lowestDiscountFactor } =
