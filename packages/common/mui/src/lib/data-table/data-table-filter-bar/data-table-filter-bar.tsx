@@ -57,13 +57,21 @@ export const DataTableFilterBar = ({
             />
           )
         )}
-        <Button
+        {/* TODO: Add disabled mode to reset button */}
+        <Box
           onClick={handleFilterReset}
-          variant="outlined"
-          sx={{ height: theme.spacing(6), padding: '0px 20px' }}
+          sx={{
+            padding: '8px 16px',
+            border: theme.shape.borderStandard,
+            borderRadius: theme.shape.borderRadius(),
+            fontSize: '14px',
+            cursor: 'pointer',
+            color: theme.palette.typography.main,
+            background: theme.palette.secondary.main,
+          }}
         >
           <FormattedMessage defaultMessage={'Reset'} />
-        </Button>
+        </Box>
       </Box>
       <CSVLink
         data={data}

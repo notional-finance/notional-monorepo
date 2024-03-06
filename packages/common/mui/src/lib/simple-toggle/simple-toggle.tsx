@@ -17,14 +17,8 @@ export interface SimpleToggleProps extends TabsUnstyledProps {
   sx?: SxProps;
 }
 
-interface StyledTabProps {
-  theme: NotionalTheme;
-  toggleStyle: 'accent' | 'basic';
-}
-
 export const SimpleToggle = ({
   selectedTabIndex = 0,
-  toggleStyle = 'basic',
   tabVariant = 'fullWidth',
   tabLabels,
   onChange,
@@ -32,9 +26,8 @@ export const SimpleToggle = ({
 }: SimpleToggleProps) => {
   const theme = useTheme() as NotionalTheme;
   return (
-    <Container theme={theme} toggleStyle={toggleStyle}>
+    <Container theme={theme}>
       <StyledTabs
-        toggleStyle={toggleStyle}
         theme={theme}
         selectionFollowsFocus={true}
         variant={tabVariant}
@@ -47,7 +40,6 @@ export const SimpleToggle = ({
           return (
             <StyledTab
               disableRipple={true}
-              toggleStyle={toggleStyle}
               theme={theme}
               key={`tab-label-${i}`}
               label={l}
@@ -59,24 +51,16 @@ export const SimpleToggle = ({
   );
 };
 
-const Container = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'toggleStyle',
-})(
-  ({ theme, toggleStyle }: StyledTabProps) => `
+const Container = styled(Box)(
+  ({ theme }) => `
   height: 100%;
-  background: ${
-    toggleStyle === 'basic'
-      ? theme.palette.secondary.dark
-      : theme.palette.background.paper
-  };
+  background: ${theme.palette.background.paper};
   border-radius: ${theme.shape.borderRadius()};
 `
 );
 
-const StyledTabs = styled(Tabs, {
-  shouldForwardProp: (prop: string) => prop !== 'toggleStyle',
-})(
-  ({ theme, toggleStyle }: StyledTabProps) => `
+const StyledTabs = styled(Tabs)(
+  ({ theme }) => `
   height: 100%;
   border-radius: ${theme.shape.borderRadius()};
   border: ${theme?.shape.borderStandard};
@@ -91,11 +75,7 @@ const StyledTabs = styled(Tabs, {
   
   .MuiTabs-indicator {
     z-index: 1;
-    background: ${
-      toggleStyle === 'basic'
-        ? theme.palette.secondary.main
-        : theme.palette.info.light
-    };
+    background: ${theme.palette.info.light};
     border-radius: ${theme.shape.borderRadius()};
     height: 100%;
   }
@@ -105,10 +85,8 @@ const StyledTabs = styled(Tabs, {
 `
 );
 
-const StyledTab = styled(Tab, {
-  shouldForwardProp: (prop: string) => prop !== 'toggleStyle',
-})(
-  ({ theme }: StyledTabProps) => `
+const StyledTab = styled(Tab)(
+  ({ theme }) => `
   height: 100%;
   font-family: ${theme.typography.fontFamily};
   color: ${theme.palette.typography.light};
