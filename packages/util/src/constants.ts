@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 
+export const UNLIMITED_APPROVAL = BigNumber.from(2).pow(96);
 export const INTERNAL_TOKEN_PRECISION = 1e8;
 export const INTERNAL_TOKEN_DECIMALS = 8;
 export const RATE_PRECISION = 1e9;

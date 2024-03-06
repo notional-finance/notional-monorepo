@@ -470,6 +470,15 @@ export function TokenIcon({
 
   return (
     <Box position="relative">
+      {networkIcon && size === 'medium' && (
+        <img
+          src={networkIcon.img}
+          alt={network}
+          width={'14px'}
+          height={'14px'}
+          style={{ position: 'absolute', bottom: '2px', right: '-4px' }}
+        />
+      )}
       {networkIcon && size === 'xl' && (
         <img
           src={networkIcon.img}
