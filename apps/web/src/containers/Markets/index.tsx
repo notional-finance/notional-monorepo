@@ -15,8 +15,8 @@ import {
   useMarketTableDropdowns,
 } from './hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { MarketsMobileNav, MobileFilterOptions } from './components';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const Markets = () => {
   const theme = useTheme();

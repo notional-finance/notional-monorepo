@@ -3,7 +3,7 @@ import { Box, styled } from '@mui/material';
 import {
   useAccountLoading,
   useAccountReady,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
 import { ButtonBar, SideDrawer, TypeForm } from '@notional-finance/mui';
@@ -27,6 +27,7 @@ import {
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
+import { PortfolioNetworkSelector } from '@notional-finance/wallet';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -35,7 +36,7 @@ export interface PortfolioParams {
 }
 
 export const PortfolioFeatureShell = () => {
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const isAccountLoading = useAccountLoading();
 
   return (
@@ -49,7 +50,7 @@ const Portfolio = () => {
   const params = useParams<PortfolioParams>();
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const isAccountReady = useAccountReady(network);
   const buttonData = usePortfolioButtonBar();
 
@@ -94,6 +95,7 @@ const Portfolio = () => {
             <ButtonBar buttonOptions={buttonData} />
           )}
           <ClaimNoteButton />
+          <PortfolioNetworkSelector />
         </ActionButtonRow>
         {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
           params.category === undefined) && (

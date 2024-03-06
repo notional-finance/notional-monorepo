@@ -1,6 +1,6 @@
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { useLocation } from 'react-router-dom';
 
 export interface CardSubNavProps {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   useAccountHistoryChart,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import {
@@ -29,7 +29,7 @@ import { FormattedMessage } from 'react-intl';
 export const useTotalsChart = () => {
   const baseCurrency = useFiat();
   const windowDimensions = useWindowDimensions();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const { currentAPY, netWorth, debts, assets } =
     useAccountCurrentFactors(network);
   const [secondsMultiple, setSecondsMultiple] = useState(1.5);

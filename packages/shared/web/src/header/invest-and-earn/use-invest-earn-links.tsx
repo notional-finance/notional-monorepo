@@ -9,9 +9,12 @@ import {
   VaultIcon,
 } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useHeadlineRates,
+  useWalletConnectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { useSelectedNetwork } from '@notional-finance/wallet';
+import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 export const usePendingValues = (value: number | undefined) => {
   const theme = useTheme();
@@ -31,17 +34,21 @@ export const usePendingValues = (value: number | undefined) => {
 
 export const useInvestEarnLinks = () => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork();
+
+  // In the dropdown menu we ensure that we always resolve to some network
+  // destination
+  const selectedNetwork =
+    useWalletConnectedNetwork() ||
+    getDefaultNetworkFromHostname(window.location.hostname);
+
   const {
-    headlineRates: {
-      fCashLend,
-      liquidity,
-      leveragedVaults,
-      variableLend,
-      // leveragedLend,
-      leveragedLiquidity,
-    },
-  } = useAllMarkets(selectedNetwork);
+    fCashLend,
+    liquidity,
+    leveragedVaults,
+    variableLend,
+    // leveragedLend,
+    leveragedLiquidity,
+  } = useHeadlineRates();
 
   const lowRiskLinks: SectionLinkProps[] = [
     {

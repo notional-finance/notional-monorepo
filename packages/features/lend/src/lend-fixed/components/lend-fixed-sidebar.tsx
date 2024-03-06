@@ -8,7 +8,7 @@ import {
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
 import { LendFixedContext } from '../../lend-fixed/lend-fixed';
-import { NetworkSelector } from '@notional-finance/wallet';
+import { TransactionNetworkSelector } from '@notional-finance/wallet';
 
 export const LendFixedSidebar = () => {
   const context = useContext(LendFixedContext);
@@ -19,7 +19,12 @@ export const LendFixedSidebar = () => {
     <TransactionSidebar
       context={context}
       showDrawer
-      NetworkSelector={NetworkSelector}
+      NetworkSelector={
+        <TransactionNetworkSelector
+          product={PRODUCTS.LEND_FIXED}
+          context={context}
+        />
+      }
     >
       <DepositInput
         ref={currencyInputRef}

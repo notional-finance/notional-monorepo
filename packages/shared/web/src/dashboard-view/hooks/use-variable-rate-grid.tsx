@@ -27,6 +27,7 @@ export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
               )
             : 0
         }`,
+        network: y.token.network,
         hasPosition: false,
         apy: y.totalAPY,
         tvlNum: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,

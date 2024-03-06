@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { CardContainer } from '../card-container/card-container';
 import { FeatureLoader } from '../feature-loader/feature-loader';
-import { useThemeVariant } from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork, useThemeVariant } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
 import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';

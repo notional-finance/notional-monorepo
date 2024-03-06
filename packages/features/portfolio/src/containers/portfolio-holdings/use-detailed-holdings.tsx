@@ -12,20 +12,19 @@ import {
   useNOTE,
   usePendingPnLCalculation,
   usePortfolioHoldings,
-  useSelectedPortfolioNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
   Network,
   PORTFOLIO_ACTIONS,
-  TABLE_WARNINGS,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
+import { useSelectedNetwork } from '@notional-finance/wallet';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
 export function useDetailedHoldingsTable() {
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
@@ -33,7 +32,7 @@ export function useDetailedHoldingsTable() {
   const history = useHistory();
   const baseCurrency = useFiat();
   const fiatToken = useFiatToken();
-  const NOTE = useNOTE();
+  const NOTE = useNOTE(network);
 
   return useMemo(() => {
     const totals = holdings.reduce(

@@ -5,11 +5,11 @@ import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { ContestCountDown } from '../contest-countdown/contest-countdown';
 import { BodySecondary, Button } from '@notional-finance/mui';
 import { TitleText } from '../contest-shared-elements/contest-shared-elements';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { messages } from '../../contest-data';
 import {
   contestActive,
   useContestPass,
+  useSelectedNetwork
 } from '@notional-finance/notionable-hooks';
 
 export const ContestHero = () => {

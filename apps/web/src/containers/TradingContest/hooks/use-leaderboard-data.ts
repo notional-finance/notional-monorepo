@@ -3,8 +3,7 @@ import {
   formatNumberAsPercent,
   truncateAddress,
 } from '@notional-finance/helpers';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
-import { useSelectedNetwork } from '@notional-finance/wallet';
+import { useNotionalContext, useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useState } from 'react';
 
 const DATA_URL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';

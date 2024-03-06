@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { DataTable } from '../data-table/data-table';
 import { DataTableColumn, TABLE_VARIANTS } from '../data-table/types';
+import { Network } from '@notional-finance/util';
 
 export interface DashboardDataProps {
   title: string;
   subTitle: string;
   apy: number;
   symbol: string;
+  network: Network;
   routeCallback: () => void;
   bottomValue?: string;
   hasPosition?: boolean;

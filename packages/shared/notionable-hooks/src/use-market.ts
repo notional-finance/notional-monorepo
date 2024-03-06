@@ -3,7 +3,7 @@ import {
   TokenDefinition,
   YieldData,
 } from '@notional-finance/core-entities';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import { Network, PRODUCTS, SupportedNetworks } from '@notional-finance/util';
 import { useCallback, useMemo } from 'react';
 import { useNotionalContext } from './use-notional';
 
@@ -99,20 +99,144 @@ export function useYieldsReady(network: Network | undefined) {
   const {
     globalState: { allYields: _allYields },
   } = useNotionalContext();
-  return _allYields &&
-    network &&
-    _allYields[network] &&
-    _allYields[network].length > 0
-    ? true
-    : false;
+  return _allYields && network && _allYields[network] ? true : false;
 }
 
-// TODO: this needs more refactoring....
+export const useProductNetwork = (
+  product: PRODUCTS,
+  underlyingSymbol: string | undefined
+) => {
+  const tokens = Registry.getTokenRegistry();
+  return SupportedNetworks.filter((n) => {
+    if (
+      product === PRODUCTS.LEND_FIXED ||
+      product === PRODUCTS.LEND_LEVERAGED ||
+      product === PRODUCTS.BORROW_FIXED ||
+      product === PRODUCTS.LIQUIDITY_LEVERAGED ||
+      product === PRODUCTS.LIQUIDITY_VARIABLE
+    ) {
+      return !!tokens
+        .getAllTokens(n)
+        .find(
+          (t) =>
+            t.tokenType === 'nToken' &&
+            t.underlying &&
+            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
+        );
+    } else if (product === PRODUCTS.BORROW_VARIABLE) {
+      return !!tokens
+        .getAllTokens(n)
+        .find(
+          (t) =>
+            t.tokenType === 'PrimeDebt' &&
+            t.underlying &&
+            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
+        );
+    } else if (product === PRODUCTS.LEND_VARIABLE) {
+      return !!tokens
+        .getAllTokens(n)
+        .find(
+          (t) =>
+            t.tokenType === 'PrimeCash' &&
+            t.underlying &&
+            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
+        );
+    } else {
+      return false;
+    }
+  });
+};
+
+export const useAllNetworkMarkets = () => {
+  const {
+    globalState: { allYields: _allYields },
+  } = useNotionalContext();
+
+  const earnYields = _allYields
+    ? Object.keys(_allYields).flatMap((n) => {
+        const yields = _allYields[n as Network];
+        return [
+          ...yields.liquidity,
+          ...yields.fCashLend,
+          ...yields.variableLend,
+          ...yields.leveragedVaults,
+          // ...yields.leveragedLend,
+          ...yields.leveragedLiquidity,
+        ];
+      })
+    : [];
+
+  const borrowYields = _allYields
+    ? Object.keys(_allYields).flatMap((n) => {
+        const yields = _allYields[n as Network];
+        return [...yields.fCashBorrow, ...yields.variableBorrow];
+      })
+    : [];
+
+  return { earnYields, borrowYields };
+};
+
+export const useHeadlineRates = (network?: Network) => {
+  const {
+    globalState: { allYields: _allYields },
+  } = useNotionalContext();
+
+  return useMemo(() => {
+    const getMax = (y: YieldData[]) => {
+      return y.reduce(
+        (m, t) => (m === null || t.totalAPY > m.totalAPY ? t : m),
+        null as YieldData | null
+      );
+    };
+
+    const getMin = (y: YieldData[]) => {
+      return y.reduce(
+        (m, t) => (m === null || t.totalAPY < m.totalAPY ? t : m),
+        null as YieldData | null
+      );
+    };
+
+    // If a network is defined then use it, otherwise this returns values
+    // across all networks
+    const networks = network ? [network] : SupportedNetworks;
+    const extractKey = (k: keyof NonNullable<typeof _allYields>[Network]) => {
+      return networks.flatMap((n) =>
+        _allYields && _allYields[n] ? _allYields[n][k] : []
+      );
+    };
+
+    return {
+      liquidity: getMax(extractKey('liquidity')),
+      fCashLend: getMax(extractKey('fCashLend')),
+      fCashBorrow: getMin(extractKey('fCashBorrow')),
+      variableLend: getMax(extractKey('variableLend')),
+      variableBorrow: getMin(extractKey('variableBorrow')),
+      leveragedVaults: getMax(extractKey('leveragedVaults')),
+      // leveragedLend: getMax(extractKey('leveragedLend')),
+      leveragedLiquidity: getMax(extractKey('leveragedLiquidity')),
+    };
+  }, [_allYields, network]);
+};
+
+const emptyYields = {
+  nonLeveragedYields: [],
+  liquidity: [],
+  fCashLend: [],
+  fCashBorrow: [],
+  variableLend: [],
+  variableBorrow: [],
+  vaultShares: [],
+  leveragedVaults: [],
+  leveragedLend: [],
+  leveragedLiquidity: [],
+};
+
 export const useAllMarkets = (network: Network | undefined) => {
   const {
     globalState: { allYields: _allYields },
   } = useNotionalContext();
-  const allYields = _allYields && network ? _allYields[network] || [] : [];
+  const allYields =
+    _allYields && network ? _allYields[network] || emptyYields : emptyYields;
 
   const getMax = useCallback((y: YieldData[]) => {
     return y.reduce(
@@ -127,122 +251,12 @@ export const useAllMarkets = (network: Network | undefined) => {
       null as YieldData | null
     );
   }, []);
-  const nonLeveragedYields = allYields.filter((y) => y.leveraged === undefined);
-
-  const yields = {
-    liquidity: nonLeveragedYields
-      .filter((y) => y.token.tokenType === 'nToken')
-      .map((y) => {
-        return {
-          ...y,
-          product: 'Provide Liquidity',
-          link: `${PRODUCTS.LIQUIDITY_VARIABLE}/${network}/${y.underlying.symbol}`,
-        };
-      }),
-    fCashLend: nonLeveragedYields
-      .filter((y) => y.token.tokenType === 'fCash')
-      .map((y) => {
-        return {
-          ...y,
-          product: 'Fixed Lend',
-          link: `${PRODUCTS.LEND_FIXED}/${network}/${y.underlying.symbol}`,
-        };
-      }),
-    fCashBorrow: nonLeveragedYields
-      .filter((y) => y.token.tokenType === 'fCash')
-      .map((y) => {
-        return {
-          ...y,
-          product: 'Fixed Borrow',
-          link: `${PRODUCTS.BORROW_FIXED}/${network}/${y.underlying.symbol}`,
-        };
-      }),
-    variableLend: nonLeveragedYields
-      .filter((y) => y.token.tokenType === 'PrimeCash')
-      .map((y) => {
-        return {
-          ...y,
-          product: 'Variable Lend',
-          link: `${PRODUCTS.LEND_VARIABLE}/${network}/${y.underlying.symbol}`,
-        };
-      }),
-    variableBorrow: nonLeveragedYields
-      .filter((y) => y.token.tokenType === 'PrimeDebt')
-      .map((y) => {
-        return {
-          ...y,
-          product: 'Variable Borrow',
-          link: `${PRODUCTS.BORROW_VARIABLE}/${network}/${y.underlying.symbol}`,
-        };
-      }),
-    vaultShares: nonLeveragedYields.filter(
-      (y) => y.token.tokenType === 'VaultShare'
-    ),
-    leveragedVaults: allYields
-      .filter((y) => y.token.tokenType === 'VaultShare' && !!y.leveraged)
-      .map((y) => {
-        return {
-          ...y,
-          product: 'Leveraged Vault',
-          link: `${PRODUCTS.VAULTS}/${network}`,
-        };
-      }),
-    leveragedLend: allYields
-      .filter(
-        (y) =>
-          (y.token.tokenType === 'fCash' ||
-            y.token.tokenType === 'PrimeCash') &&
-          !!y.leveraged
-      )
-      .map((y) => {
-        return {
-          ...y,
-          product: 'Leveraged Lend',
-          link: `${PRODUCTS.LEND_LEVERAGED}/${network}/${y.underlying.symbol}`,
-        };
-      }),
-    leveragedLiquidity: allYields
-      .filter((y) => y.token.tokenType === 'nToken' && !!y.leveraged)
-      .map((y) => {
-        return {
-          ...y,
-          product: 'Leveraged Liquidity',
-          link: `${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/${y.underlying.symbol}`,
-        };
-      }),
-  };
-
-  const earnYields = [
-    ...yields.liquidity,
-    ...yields.fCashLend,
-    ...yields.variableLend,
-    ...yields.leveragedVaults,
-    ...yields.leveragedLend,
-    ...yields.leveragedLiquidity,
-  ];
-
-  const borrowYields = [...yields.fCashBorrow, ...yields.variableBorrow];
-
-  const headlineRates = {
-    liquidity: getMax(yields.liquidity),
-    fCashLend: getMax(yields.fCashLend),
-    fCashBorrow: getMin(yields.fCashBorrow),
-    variableLend: getMax(yields.variableLend),
-    variableBorrow: getMin(yields.variableBorrow),
-    leveragedVaults: getMax(yields.leveragedVaults),
-    leveragedLend: getMax(yields.leveragedLend),
-    leveragedLiquidity: getMax(yields.leveragedLiquidity),
-  };
 
   return {
-    headlineRates,
-    allYields,
-    yields,
+    yields: allYields,
+    nonLeveragedYields: allYields['nonLeveragedYields'],
     getMax,
     getMin,
-    earnYields: earnYields,
-    borrowYields: borrowYields,
-    nonLeveragedYields,
   };
 };
 

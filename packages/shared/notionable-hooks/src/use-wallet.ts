@@ -185,6 +185,27 @@ function useApyValues(
   return apyData;
 }
 
+export function useWalletBalancesOnNetworks(
+  networks: Network[],
+  underlyingSymbol: string | undefined
+) {
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+  if (!underlyingSymbol) return [];
+
+  return networks.map((n) => {
+    const acct =
+      networkAccounts && networkAccounts[n] ? networkAccounts[n] : undefined;
+
+    return (
+      acct?.accountDefinition?.balances.find(
+        (t) => t.tokenType === 'Underlying' && t.symbol === underlyingSymbol
+      ) || TokenBalance.fromSymbol(0, underlyingSymbol, n)
+    );
+  });
+}
+
 export function useWalletBalances(
   network: Network | undefined,
   tokens: TokenDefinition[] | undefined,

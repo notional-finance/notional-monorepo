@@ -25,6 +25,7 @@ export const DashboardCard = ({
   routeCallback,
   incentiveValue,
   incentiveSymbols,
+  network,
 }: DashboardDataProps) => {
   const theme = useTheme();
   const hideFooter = !bottomValue && !incentiveSymbols;
@@ -43,6 +44,7 @@ export const DashboardCard = ({
             symbol={symbol}
             size="xl"
             style={{ marginRight: theme.spacing(2) }}
+            network={network}
           />
           <Box component="div" sx={{ textAlign: 'left', margin: 'auto' }}>
             <GridCardTitle>{title}</GridCardTitle>

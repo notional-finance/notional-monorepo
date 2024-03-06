@@ -1,3 +1,3 @@
 export * from './use-wallet-side-drawer';
 export * from './use-connect';
-export * from './use-network';
+export * from '../../../notionable-hooks/src/use-network';

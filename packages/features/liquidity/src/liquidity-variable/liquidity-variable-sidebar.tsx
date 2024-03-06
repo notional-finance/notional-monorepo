@@ -4,7 +4,7 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity';
 import { PRODUCTS } from '@notional-finance/util';
-import { NetworkSelector } from '@notional-finance/wallet';
+import { TransactionNetworkSelector } from '@notional-finance/wallet';
 
 export const LiquidityVariableSidebar = () => {
   const context = useContext(LiquidityContext);
@@ -15,7 +15,12 @@ export const LiquidityVariableSidebar = () => {
     <TransactionSidebar
       context={context}
       showDrawer
-      NetworkSelector={NetworkSelector}
+      NetworkSelector={
+        <TransactionNetworkSelector
+          product={PRODUCTS.LIQUIDITY_VARIABLE}
+          context={context}
+        />
+      }
     >
       <DepositInput
         showScrollPopper

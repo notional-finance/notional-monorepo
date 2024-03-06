@@ -19,7 +19,7 @@ import { FormattedMessage } from 'react-intl';
 import {
   useCurrentLiquidationPrices,
   useFiat,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -109,7 +109,7 @@ export const useVaultHoldingsTable = () => {
   const theme = useTheme();
   const baseCurrency = useFiat();
   const history = useHistory();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const { vaultLiquidation } = useCurrentLiquidationPrices(network);
   const vaults = useVaultHoldings(network);
 
@@ -255,14 +255,18 @@ export const useVaultHoldingsTable = () => {
             {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
-                history.push(`/vaults/${network}/${v.vaultAddress}/WithdrawVault`);
+                history.push(
+                  `/vaults/${network}/${v.vaultAddress}/WithdrawVault`
+                );
               },
             },
           ],
-          txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams({
-            txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
-            assetOrVaultId: config.vaultAddress,
-          })}`,
+          txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
+            {
+              txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
+              assetOrVaultId: config.vaultAddress,
+            }
+          )}`,
           riskTableData: vaultRiskData?.liquidationPrices,
           riskTableColumns: vaultRiskTableColumns,
         },

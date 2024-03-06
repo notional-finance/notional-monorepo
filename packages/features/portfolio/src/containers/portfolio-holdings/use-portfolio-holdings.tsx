@@ -11,7 +11,7 @@ import { TotalEarningsTooltip } from '../../components';
 import {
   usePendingPnLCalculation,
   useLeverageBlock,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useDetailedHoldingsTable } from './use-detailed-holdings';
 import { useGroupedHoldingsTable } from './use-grouped-holdings';
@@ -23,8 +23,8 @@ export function usePortfolioHoldings() {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const [toggleOption, setToggleOption] = useState<number>(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
-  const network = useSelectedPortfolioNetwork();
-  const pendingTokenData = usePendingPnLCalculation(network)
+  const network = useSelectedNetwork();
+  const pendingTokenData = usePendingPnLCalculation(network);
   const { detailedHoldings } = useDetailedHoldingsTable();
   const { groupedRows, groupedTokens } = useGroupedHoldingsTable();
 

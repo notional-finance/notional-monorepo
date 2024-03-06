@@ -60,7 +60,6 @@ function onWalletChange$(global$: Observable<GlobalState>) {
       if (selectedAddress === undefined) return undefined;
 
       return {
-        selectedPortfolioNetwork: cur.wallet?.selectedChain,
         networkAccounts: undefined,
         isAccountPending: true,
       };

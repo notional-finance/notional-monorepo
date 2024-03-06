@@ -12,14 +12,14 @@ import {
 import { PortfolioParams } from '../portfolio-feature-shell';
 import {
   usePortfolioHoldings,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 
 export const useSideNav = () => {
   const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const numHoldings = usePortfolioHoldings(network).length;
   const numVaults = useVaultHoldings(network).length;
 

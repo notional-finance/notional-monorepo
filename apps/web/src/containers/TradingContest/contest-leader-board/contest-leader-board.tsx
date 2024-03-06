@@ -10,14 +10,13 @@ import {
   ContestButtonBar,
   ContestPartnersButtons,
 } from '../components';
-import { useContestPass } from '@notional-finance/notionable-hooks';
+import { useContestPass, useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { ContestTable, LinkText, Button } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import test from '../assets/color-blobs.png';
 import { useLeaderBoardTables } from '../hooks';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { Caption } from '@notional-finance/mui';
 
 export const ContestLeaderBoard = () => {

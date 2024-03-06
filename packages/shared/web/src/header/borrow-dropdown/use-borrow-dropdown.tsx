@@ -2,17 +2,22 @@ import { SectionLinkProps } from '@notional-finance/mui';
 import { useTheme } from '@mui/material';
 import { CoinsIcon, CoinsCircleIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useHeadlineRates,
+  useWalletConnectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { usePendingValues } from '../invest-and-earn/use-invest-earn-links';
-import { useSelectedNetwork } from '@notional-finance/wallet';
+import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 export const useBorrowDropDown = () => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork();
+  // In the dropdown menu we ensure that we always resolve to some network
+  // destination
+  const selectedNetwork =
+    useWalletConnectedNetwork() ||
+    getDefaultNetworkFromHostname(window.location.hostname);
 
-  const {
-    headlineRates: { fCashBorrow, variableBorrow },
-  } = useAllMarkets(selectedNetwork);
+  const { fCashBorrow, variableBorrow } = useHeadlineRates();
 
   const links: SectionLinkProps[] = [
     {

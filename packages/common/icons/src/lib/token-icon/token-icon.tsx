@@ -78,6 +78,8 @@ import pUNI from '../../assets/icons/currencies/pUNI.svg';
 import cryptotesters from '../../assets/icons/community-icons/cryptotesters.svg';
 import L2DAO from '../../assets/icons/community-icons/L2DAO.svg';
 import Llamas from '../../assets/icons/community-icons/Llama.svg';
+import { Network, getNetworkSymbol } from '@notional-finance/util';
+import { Box } from '@mui/material';
 
 export interface TokenImg {
   name: string;
@@ -429,6 +431,7 @@ export interface TokenIconProps {
   size: 'small' | 'medium' | 'large' | 'xl' | 'xxl';
   style?: React.CSSProperties;
   useAccentBorderImg?: boolean;
+  network?: Network;
 }
 
 export function TokenIcon({
@@ -436,11 +439,15 @@ export function TokenIcon({
   size,
   style,
   useAccentBorderImg,
+  network,
 }: TokenIconProps) {
   const tokenKey = symbol?.toLowerCase();
   const tokenIcon: TokenImg = Object.keys(TokenImageList).includes(tokenKey)
     ? TokenImageList[tokenKey]
     : TokenImageList['unknown'];
+  const networkIcon = network
+    ? TokenImageList[getNetworkSymbol(network)]
+    : undefined;
 
   const tokenSizes = {
     small: '16px',
@@ -462,13 +469,24 @@ export function TokenIcon({
   }
 
   return (
-    <img
-      width={tokenSizes[size]}
-      height={tokenSizes[size]}
-      src={useAccentBorderImg ? tokenIcon.accentBorderImg : image}
-      alt={tokenIcon.alt}
-      style={{ ...style }}
-    />
+    <Box position="relative">
+      {networkIcon && size === 'xl' && (
+        <img
+          src={networkIcon.img}
+          alt={network}
+          width={tokenSizes['small']}
+          height={tokenSizes['small']}
+          style={{ position: 'absolute', bottom: '4px', right: '16px' }}
+        />
+      )}
+      <img
+        width={tokenSizes[size]}
+        height={tokenSizes[size]}
+        src={useAccentBorderImg ? tokenIcon.accentBorderImg : image}
+        alt={tokenIcon.alt}
+        style={{ ...style }}
+      />
+    </Box>
   );
 }
 

@@ -55,6 +55,7 @@ export const DashboardGrid = ({
                     incentiveValue,
                     incentiveSymbols,
                     apySubTitle,
+                    network
                   },
                   index
                 ) => (
@@ -71,6 +72,7 @@ export const DashboardGrid = ({
                       incentiveValue={incentiveValue}
                       incentiveSymbols={incentiveSymbols}
                       apySubTitle={apySubTitle}
+                      network={network}
                     />
                   </div>
                 )
