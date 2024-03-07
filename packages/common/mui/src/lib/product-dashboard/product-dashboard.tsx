@@ -1,6 +1,5 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { DashboardGrid, DashboardHeader } from './components';
-import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { DataTable } from '../data-table/data-table';
 import { DataTableColumn, TABLE_VARIANTS } from '../data-table/types';
@@ -27,10 +26,10 @@ export interface DashboardHeaderProps {
     networkToggle: number;
     handleNetWorkToggle: (value: number) => void;
   };
-  dashboardTab: number;
-  setDashboardTab: (value: number) => void;
   tokenGroup: number;
   setTokenGroup: (value: number) => void;
+  dashboardTab: number;
+  handleDashboardTab: (value: number) => void;
 }
 
 export interface DashboardGridProps {
@@ -54,6 +53,8 @@ export interface DashboardViewProps extends DashboardGridProps {
 export interface ProductDashboardProps extends DashboardViewProps {
   tokenGroup: number;
   setTokenGroup: (value: number) => void;
+  dashboardTab: number;
+  handleDashboardTab: (value: number) => void;
   headerData: {
     toggleOptions: React.ReactNode[];
     messageBoxText: JSX.Element | MessageDescriptor;
@@ -72,9 +73,10 @@ export const ProductDashboard = ({
   showNegativeYields,
   setShowNegativeYields,
   threeWideGrid = true,
+  dashboardTab,
+  handleDashboardTab,
 }: ProductDashboardProps) => {
   const theme = useTheme();
-  const [dashboardTab, setDashboardTab] = useState<number>(0);
   const isLoading = gridData && gridData?.length === 0 ? true : false;
 
   return (
@@ -84,7 +86,7 @@ export const ProductDashboard = ({
         tokenGroup={tokenGroup}
         setTokenGroup={setTokenGroup}
         dashboardTab={dashboardTab}
-        setDashboardTab={setDashboardTab}
+        handleDashboardTab={handleDashboardTab}
       />
       {dashboardTab === 0 ? (
         <DashboardGrid

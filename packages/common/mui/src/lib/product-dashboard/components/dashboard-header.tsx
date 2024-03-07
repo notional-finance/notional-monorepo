@@ -9,7 +9,7 @@ export const DashboardHeader = ({
   tokenGroup,
   setTokenGroup,
   dashboardTab,
-  setDashboardTab,
+  handleDashboardTab,
 }: DashboardHeaderProps) => {
   const theme = useTheme();
   const { toggleOptions, messageBoxText, networkToggle, handleNetWorkToggle } =
@@ -101,7 +101,7 @@ export const DashboardHeader = ({
           <SimpleToggle
             tabLabels={gridToggleData}
             selectedTabIndex={dashboardTab}
-            onChange={(_, v) => setDashboardTab(v as number)}
+            onChange={(_, v) => handleDashboardTab(v as number)}
           />
         </GridListToggleWrapper>
       </Box>
