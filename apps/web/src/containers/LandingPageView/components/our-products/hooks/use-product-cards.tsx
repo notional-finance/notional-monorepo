@@ -12,6 +12,8 @@ export const useProductCards = () => {
     variableBorrow,
   } = useHeadlineRates();
 
+  console.log({ fCashLend });
+
   const earnYieldData = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
