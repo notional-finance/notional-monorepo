@@ -4,7 +4,6 @@ import {
   formatLeverageRatio,
   formatNumberAsAbbr,
   formatNumberAsPercent,
-  formatYieldCaption,
 } from '@notional-finance/helpers';
 import {
   DataTableColumn,
@@ -17,8 +16,8 @@ import {
   useAllNetworkMarkets,
   useFiat,
 } from '@notional-finance/notionable-hooks';
+import { Network } from '@notional-finance/util';
 import {
-  MARKET_TYPE,
   PRIME_CASH_VAULT_MATURITY,
   getDateString,
 } from '@notional-finance/util';
@@ -26,7 +25,8 @@ import { useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 export const useMarketsTable = (
-  marketType: MARKET_TYPE,
+  earnBorrowOption: number,
+  allNetworksOption: number,
   currencyOptions: SelectedOptions[],
   productOptions: SelectedOptions[]
 ) => {
@@ -34,7 +34,7 @@ export const useMarketsTable = (
   const baseCurrency = useFiat();
   const { earnYields, borrowYields } = useAllNetworkMarkets();
 
-  const tableColumns: DataTableColumn[] = [
+  let tableColumns: DataTableColumn[] = [
     {
       Header: (
         <FormattedMessage
@@ -123,21 +123,21 @@ export const useMarketsTable = (
       width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
     },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="INCENTIVE APY"
-          description={'INCENTIVE APY header'}
-        />
-      ),
-      Cell: MultiValueIconCell,
-      accessor: 'incentiveAPY',
-      textAlign: 'right',
-      sortType: 'basic',
-      sortDescFirst: true,
-      width: theme.spacing(14.5),
-      marginRight: theme.spacing(1.25),
-    },
+    // {
+    //   Header: (
+    //     <FormattedMessage
+    //       defaultMessage="INCENTIVE APY"
+    //       description={'INCENTIVE APY header'}
+    //     />
+    //   ),
+    //   Cell: MultiValueIconCell,
+    //   accessor: 'incentiveAPY',
+    //   textAlign: 'right',
+    //   sortType: 'basic',
+    //   sortDescFirst: true,
+    //   width: theme.spacing(14.5),
+    //   marginRight: theme.spacing(1.25),
+    // },
     {
       Header: '',
       Cell: LinkCell,
@@ -147,6 +147,17 @@ export const useMarketsTable = (
       marginRight: theme.spacing(1.25),
     },
   ];
+
+  if (earnBorrowOption === 1) {
+    tableColumns = tableColumns.filter(
+      ({ accessor }) => accessor !== 'incentiveAPY'
+    );
+  }
+  const selectedNetworkOptions = {
+    0: '',
+    1: Network.ArbitrumOne,
+    2: Network.Mainnet,
+  };
 
   const formatMarketData = (allMarketsData: typeof borrowYields) => {
     const getTotalIncentiveApy = (
@@ -187,7 +198,15 @@ export const useMarketsTable = (
         };
       }
     };
-    return allMarketsData
+
+    const marketsData = selectedNetworkOptions[allNetworksOption]
+      ? allMarketsData.filter(
+          (data) =>
+            data.token.network === selectedNetworkOptions[allNetworksOption]
+        )
+      : allMarketsData;
+
+    return marketsData
       .map((data) => {
         const {
           underlying,
@@ -220,8 +239,11 @@ export const useMarketsTable = (
           multiValueCellData: {
             currency: {
               symbol: underlying.symbol,
+              symbolSize: 'large',
               label: underlying.symbol,
-              caption: formatYieldCaption(data),
+              network: token.network,
+              caption:
+                token.network.charAt(0).toUpperCase() + token.network.slice(1),
             },
             incentiveAPY: getIncentiveData(noteIncentives, secondaryIncentives),
           },
@@ -231,9 +253,9 @@ export const useMarketsTable = (
   };
 
   const initialData =
-    marketType === MARKET_TYPE.BORROW
-      ? formatMarketData(borrowYields)
-      : formatMarketData(earnYields);
+    earnBorrowOption === 0
+      ? formatMarketData(earnYields)
+      : formatMarketData(borrowYields);
 
   const getIds = (options: SelectedOptions[]) => {
     return options.map(({ id }) => id);
@@ -264,7 +286,7 @@ export const useMarketsTable = (
   };
 
   const marketTableColumns =
-    marketType === MARKET_TYPE.BORROW
+    earnBorrowOption === 1
       ? tableColumns.filter(
           ({ accessor }) => accessor !== 'leverage' && accessor !== 'noteAPY'
         )

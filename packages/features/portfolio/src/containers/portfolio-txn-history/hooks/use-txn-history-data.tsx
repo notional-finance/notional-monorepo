@@ -14,7 +14,7 @@ import {
 import { getEtherscanTransactionLink } from '@notional-finance/util';
 import { SelectedOptions } from '@notional-finance/mui';
 
-export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
+export const useTxnHistoryData = (txnHistoryCategory: number) => {
   let assetOrVaultData: SelectedOptions[] = [];
   let currencyData: SelectedOptions[] = [];
 
@@ -85,7 +85,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
     return filteredArray;
   }, []);
 
-  if (txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS) {
+  if (txnHistoryCategory === 0) {
     accountHistoryData = allAccountHistoryData.filter(
       ({ vaultName }) => !vaultName
     );
@@ -105,7 +105,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
     });
   }
 
-  if (txnHistoryType === TXN_HISTORY_TYPE.LEVERAGED_VAULT) {
+  if (txnHistoryCategory === 1) {
     accountHistoryData = allAccountHistoryData.filter(
       ({ vaultName }) => vaultName
     );

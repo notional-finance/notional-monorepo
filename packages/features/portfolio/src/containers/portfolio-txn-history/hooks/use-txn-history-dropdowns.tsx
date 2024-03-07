@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { SelectedOptions } from '@notional-finance/mui';
-import { TXN_HISTORY_TYPE } from '@notional-finance/util';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 export const useTxnHistoryDropdowns = (
-  txnHistoryType: TXN_HISTORY_TYPE,
+  txnHistoryCategory: number,
   allCurrencyOptions: any[],
   allAssetOrVaultOptions: any[]
 ) => {
-  const { search, pathname } = useLocation();
-  const history = useHistory();
-  const queryParams = new URLSearchParams(search);
+  const { search } = useLocation();
   const [currencyOptions, setCurrencyOptions] = useState<
     SelectedOptions[] | []
   >([]);
@@ -19,22 +16,10 @@ export const useTxnHistoryDropdowns = (
     SelectedOptions[] | []
   >([]);
 
-  // NOTE: This function is passed down and used by the multi-select-dropdown component and the data-table-filter-bar component
-  // Used to clear the query params and the selected options in the dropdowns
-  // If we want to filter by asset from the query in the future that will need to be added here as well as in the table we are linking from
-
-  const clearQueryAndFilters = () => {
-    if (queryParams && queryParams.get('assetOrVaultId')) {
-      queryParams.delete('assetOrVaultId');
-      history.push(`${pathname}?${queryParams.toString()}`);
-      setAssetOrVaultOptions([]);
-    }
-  };
-
   useEffect(() => {
     setAssetOrVaultOptions([]);
     setCurrencyOptions([]);
-  }, [txnHistoryType]);
+  }, [txnHistoryCategory]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(search);
@@ -62,7 +47,7 @@ export const useTxnHistoryDropdowns = (
       selectedOptions: assetOrVaultOptions,
       setSelectedOptions: setAssetOrVaultOptions,
       placeHolderText:
-        txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS ? (
+        txnHistoryCategory === 0 ? (
           <FormattedMessage defaultMessage={'Assets'} />
         ) : (
           <FormattedMessage defaultMessage={'Vaults'} />
@@ -75,7 +60,6 @@ export const useTxnHistoryDropdowns = (
     dropdownsData,
     currencyOptions,
     assetOrVaultOptions,
-    clearQueryAndFilters,
   };
 };
 

@@ -90,6 +90,7 @@ export function useUnderlyingTokens(network: Network | undefined) {
   const allTokens = network
     ? Registry.getTokenRegistry().getAllTokens(network)
     : [];
+
   return allTokens.filter(
     (t) => t.tokenType === 'Underlying' && t.currencyId !== undefined
   );

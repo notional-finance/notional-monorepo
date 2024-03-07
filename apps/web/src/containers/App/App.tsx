@@ -183,7 +183,7 @@ const AllRoutes = () => {
             routeType="Portfolio"
           />
           <AppLayoutRoute
-            path="/markets/:selectedNetwork"
+            path="/markets"
             component={Markets}
             routeType="Markets"
           />

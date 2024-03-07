@@ -14,7 +14,7 @@ import { FormattedMessage } from 'react-intl';
 export const useTxnHistoryTable = (
   currencyOptions: SelectedOptions[],
   assetOrVaultOptions: SelectedOptions[],
-  txnHistoryType: TXN_HISTORY_TYPE,
+  txnHistoryCategory: number,
   accountHistoryData: any[]
 ) => {
   const VaultNameCell = ({ cell: { value } }) => {
@@ -107,7 +107,7 @@ export const useTxnHistoryTable = (
   ];
 
   const txnHistoryColumns =
-    txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
+    txnHistoryCategory === 0
       ? tableColumns.filter(({ accessor }) => accessor !== 'vaultName')
       : tableColumns;
 
@@ -123,7 +123,7 @@ export const useTxnHistoryTable = (
     if (filterData.length === 0) return accountHistoryData;
 
     if (assetOrVaultIds.length > 0 && currencyIds.length > 0) {
-      return txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
+      return txnHistoryCategory === 0
         ? accountHistoryData
             .filter(({ currency }) => filterData.includes(currency))
             .filter(({ token }) => filterData.includes(token.id))
@@ -136,18 +136,12 @@ export const useTxnHistoryTable = (
         currencyIds.includes(currency)
       );
     }
-    if (
-      assetOrVaultIds.length > 0 &&
-      txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
-    ) {
+    if (assetOrVaultIds.length > 0 && txnHistoryCategory === 0) {
       return accountHistoryData.filter(({ token }) =>
         filterData.includes(token.id)
       );
     }
-    if (
-      assetOrVaultIds.length > 0 &&
-      txnHistoryType === TXN_HISTORY_TYPE.LEVERAGED_VAULT
-    ) {
+    if (assetOrVaultIds.length > 0 && txnHistoryCategory === 1) {
       return accountHistoryData.filter(({ token }) =>
         filterData.includes(token.vaultAddress)
       );
@@ -173,7 +167,7 @@ export const useTxnHistoryTable = (
             transactionType.label
           } ${transactionType.symbol.toUpperCase()}`,
           'Underlying Amount': underlyingAmount.data[0].displayValue,
-          'Asset Amount': assetAmount.data[0].displayValue,
+          'Asset Amount': assetAmount.data && assetAmount.data[0].displayValue,
           Asset: asset.label,
           Price: price,
           Time: getDateString(time, { showTime: true, slashesFormat: true }),

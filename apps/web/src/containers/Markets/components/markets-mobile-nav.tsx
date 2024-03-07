@@ -8,26 +8,26 @@ import { FormattedMessage } from 'react-intl';
 import { NotionalTheme, colors } from '@notional-finance/styles';
 
 interface CustomLinkProps {
-  marketType?: MARKET_TYPE;
-  id?: MARKET_TYPE;
+  earnBorrowOption: number;
+  dataKey?: number;
   theme: NotionalTheme;
 }
 
 interface MarketsMobileNavProps {
-  setMarketType: Dispatch<SetStateAction<MARKET_TYPE>>;
-  marketType: MARKET_TYPE;
+  setEarnBorrowOption: (v: number) => void;
+  earnBorrowOption: number;
   filterOpen: boolean;
   setFilterOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export function MarketsMobileNav({
-  marketType,
-  setMarketType,
+  earnBorrowOption,
+  setEarnBorrowOption,
   filterOpen,
   setFilterOpen,
 }: MarketsMobileNavProps) {
   const theme = useTheme();
-  const options = useMarketsMobileNav(setMarketType, marketType);
+  const options = useMarketsMobileNav(setEarnBorrowOption, earnBorrowOption);
 
   return (
     <MobileNavContainer>
@@ -45,14 +45,18 @@ export function MarketsMobileNav({
           {options.map(({ title, Icon, id }, index) => (
             <CustomLink
               key={`${index}-${id}`}
-              id={id}
+              dataKey={id}
               theme={theme}
-              marketType={marketType}
-              onClick={() => setMarketType(id)}
+              earnBorrowOption={earnBorrowOption}
+              onClick={() => setEarnBorrowOption(id)}
               sx={{ marginRight: theme.spacing(2) }}
             >
               <Box>{Icon}</Box>
-              <Title id={id} theme={theme} marketType={marketType}>
+              <Title
+                dataKey={id}
+                theme={theme}
+                earnBorrowOption={earnBorrowOption}
+              >
                 {title}
               </Title>
             </CustomLink>
@@ -72,7 +76,7 @@ export function MarketsMobileNav({
         >
           <CustomLink
             theme={theme}
-            marketType={marketType}
+            earnBorrowOption={earnBorrowOption}
             onClick={() => setFilterOpen(!filterOpen)}
           >
             <Box>
@@ -84,7 +88,11 @@ export function MarketsMobileNav({
                 }}
               />
             </Box>
-            <Title className="title" theme={theme} marketType={marketType}>
+            <Title
+              className="title"
+              theme={theme}
+              earnBorrowOption={earnBorrowOption}
+            >
               <FormattedMessage defaultMessage={'Filter'} />
             </Title>
           </CustomLink>
@@ -117,11 +125,14 @@ const NavOption = styled(Box)(`
 `);
 
 const CustomLink = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'marketType' && prop !== 'id',
+  shouldForwardProp: (prop: string) =>
+    prop !== 'earnBorrowOption' && prop !== 'dataKey',
 })(
-  ({ marketType, id, theme }: CustomLinkProps) => `
+  ({ earnBorrowOption, dataKey, theme }: CustomLinkProps) => `
   background: ${
-    marketType === id ? theme.palette.background.paper : 'transparent'
+    earnBorrowOption === dataKey
+      ? theme.palette.background.paper
+      : 'transparent'
   };
   padding: ${theme.spacing(0.5, 1)};
   border-radius: ${theme.shape.borderRadiusLarge};
@@ -130,16 +141,17 @@ const CustomLink = styled(Box, {
 );
 
 const Title = styled(Caption, {
-  shouldForwardProp: (prop: string) => prop !== 'marketType' && prop !== 'id',
+  shouldForwardProp: (prop: string) =>
+    prop !== 'earnBorrowOption' && prop !== 'dataKey',
 })(
-  ({ marketType, id, theme }: CustomLinkProps) => `
+  ({ earnBorrowOption, dataKey, theme }: CustomLinkProps) => `
   font-weight: ${
-    marketType === id
+    earnBorrowOption === dataKey
       ? theme.typography.fontWeightMedium
       : theme.typography.fontWeightRegular
   };
   color: ${
-    marketType === id
+    earnBorrowOption === dataKey
       ? theme.palette.typography.main
       : theme.palette.typography.light
   };

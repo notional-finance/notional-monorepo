@@ -191,6 +191,7 @@ export const useVaultList = (network: Network) => {
             symbolBottom: '',
             label: y.primaryToken.symbol,
             caption: network.charAt(0).toUpperCase() + network.slice(1),
+            network: network,
           },
           totalApy: {
             label: x?.totalAPY

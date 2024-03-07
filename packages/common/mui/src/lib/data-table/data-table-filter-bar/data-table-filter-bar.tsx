@@ -1,38 +1,47 @@
-import { useState } from 'react';
-import { CSVLink } from 'react-csv';
 import { styled, Box, useTheme } from '@mui/material';
 import { MultiSelectDropdown } from '../../multi-select-dropdown/multi-select-dropdown';
-import { Button } from '../../button/button';
-import { DownloadIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
+import SimpleToggle from '../../simple-toggle/simple-toggle';
+import { DataTableToggleProps } from '../data-table';
+import { useEffect, useState } from 'react';
+import { Body } from '../../typography/typography';
 
 interface DataTableFilterBarProps {
   filterBarData: any[];
-  downloadCSVFormatter?: (data: any[]) => any;
-  clearQueryAndFilters?: () => void;
-  tableData?: any[];
+  rightToggleData?: DataTableToggleProps;
+  allNetworksToggleData?: DataTableToggleProps;
 }
 
 export const DataTableFilterBar = ({
   filterBarData,
-  clearQueryAndFilters,
-  downloadCSVFormatter,
-  tableData,
+  rightToggleData,
+  allNetworksToggleData,
 }: DataTableFilterBarProps) => {
-  const [data, setData] = useState([]);
   const theme = useTheme();
+  const [resetButtonDisabled, setResetButtonDisabled] = useState(true);
   const handleFilterReset = () => {
     filterBarData.forEach(({ setSelectedOptions }) => setSelectedOptions([]));
-    if (clearQueryAndFilters) {
-      clearQueryAndFilters();
+    if (allNetworksToggleData?.setToggleKey) {
+      allNetworksToggleData.setToggleKey(0);
+    }
+    if (rightToggleData?.setToggleKey) {
+      rightToggleData.setToggleKey(0);
     }
   };
 
-  const handleCSVClick = () => {
-    if (downloadCSVFormatter && tableData) {
-      setData(downloadCSVFormatter(tableData));
-    }
-  };
+  useEffect(() => {
+    filterBarData.forEach(({ selectedOptions }) => {
+      if (
+        selectedOptions.length > 0 ||
+        (allNetworksToggleData && allNetworksToggleData?.toggleKey > 0)
+      ) {
+        setResetButtonDisabled(false);
+        return;
+      } else {
+        setResetButtonDisabled(true);
+      }
+    });
+  }, [filterBarData, allNetworksToggleData]);
 
   return (
     <Container>
@@ -51,40 +60,43 @@ export const DataTableFilterBar = ({
               key={index}
               options={data}
               selected={selectedOptions}
-              clearQueryAndFilters={clearQueryAndFilters}
               setSelected={setSelectedOptions}
               placeHolderText={placeHolderText}
             />
           )
         )}
-        <Button
+        {allNetworksToggleData && (
+          <SimpleToggle
+            sx={{ marginRight: theme.spacing(3) }}
+            tabVariant="standard"
+            tabLabels={allNetworksToggleData.toggleOptions}
+            selectedTabIndex={allNetworksToggleData.toggleKey}
+            onChange={(_, v) => allNetworksToggleData.setToggleKey(v as number)}
+          />
+        )}
+        <Body
           onClick={handleFilterReset}
-          variant="outlined"
-          sx={{ height: theme.spacing(6), padding: '0px 20px' }}
+          sx={{
+            padding: theme.spacing(1, 2),
+            border: theme.shape.borderStandard,
+            borderRadius: theme.shape.borderRadius(),
+            cursor: 'pointer',
+            color: resetButtonDisabled
+              ? theme.palette.typography.light
+              : theme.palette.typography.main,
+            background: theme.palette.secondary.main,
+          }}
         >
           <FormattedMessage defaultMessage={'Reset'} />
-        </Button>
+        </Body>
       </Box>
-      <CSVLink
-        data={data}
-        filename={'notional-market-data.csv'}
-        target="_blank"
-      >
-        <Button
-          onClick={() => handleCSVClick()}
-          variant="outlined"
-          sx={{ height: theme.spacing(6), padding: '0px 20px' }}
-        >
-          <FormattedMessage defaultMessage={'Download CSV'} />
-          <DownloadIcon
-            sx={{
-              fill: theme.palette.typography.accent,
-              height: theme.spacing(2),
-              marginLeft: theme.spacing(1),
-            }}
-          />
-        </Button>
-      </CSVLink>
+      {rightToggleData && (
+        <SimpleToggle
+          tabLabels={rightToggleData.toggleOptions}
+          selectedTabIndex={rightToggleData.toggleKey}
+          onChange={(_, v) => rightToggleData.setToggleKey(v as number)}
+        />
+      )}
     </Container>
   );
 };

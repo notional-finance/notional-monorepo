@@ -89,7 +89,6 @@ export const DashboardHeader = ({
         {dashboardTab === 1 && (
           <SimpleToggle
             tabVariant="standard"
-            toggleStyle={'accent'}
             tabLabels={tokenGroupData}
             selectedTabIndex={tokenGroup}
             onChange={(_, v) => setTokenGroup(v as number)}

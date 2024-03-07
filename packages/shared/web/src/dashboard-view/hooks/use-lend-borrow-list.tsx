@@ -154,6 +154,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
           symbolSize: 'large',
           symbolBottom: '',
           label: y.underlying.symbol,
+          network: network,
           caption: network.charAt(0).toUpperCase() + network.slice(1),
         },
         walletBalance: walletBalance?.toFloat() || 0,
