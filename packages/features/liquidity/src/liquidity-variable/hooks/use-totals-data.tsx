@@ -54,7 +54,7 @@ export const useTotalsData = (
       },
       {
         title: <FormattedMessage defaultMessage={'Incentive APY'} />,
-        value: totalIncentives ? totalIncentives : '-',
+        value: totalIncentives ? totalIncentives : 'None',
         Icon: SparklesIcon,
         suffix: totalIncentives ? '%' : '',
       },

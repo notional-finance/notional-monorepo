@@ -11,6 +11,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import {
   useHeadlineRates,
+  useSelectedNetwork,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
@@ -37,16 +38,17 @@ export const useInvestEarnLinks = () => {
 
   // In the dropdown menu we ensure that we always resolve to some network
   // destination
-  const selectedNetwork =
+  const currentNetwork = useSelectedNetwork();
+  const defaultNetwork =
     useWalletConnectedNetwork() ||
     getDefaultNetworkFromHostname(window.location.hostname);
+  const selectedNetwork = currentNetwork || defaultNetwork;
 
   const {
     fCashLend,
     liquidity,
     leveragedVaults,
     variableLend,
-    // leveragedLend,
     leveragedLiquidity,
   } = useHeadlineRates();
 
