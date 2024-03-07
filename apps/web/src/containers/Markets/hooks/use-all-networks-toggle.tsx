@@ -1,6 +1,7 @@
-import { Box, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import { useState } from 'react';
+import { Body } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 
 export const useAllNetworksToggle = () => {
@@ -8,17 +9,16 @@ export const useAllNetworksToggle = () => {
   const [networkToggleOption, setNetworkToggleOption] = useState(0);
 
   const allMarketsOptions = [
-    <Box
+    <Body
       sx={{
-        fontSize: '14px',
         display: 'flex',
-        width: '110px',
+        width: theme.spacing(13.75),
         alignContent: 'center',
         justifyContent: 'center',
       }}
     >
       <FormattedMessage defaultMessage={'All Networks'} />
-    </Box>,
+    </Body>,
     <TokenIcon
       symbol="arb"
       size="small"

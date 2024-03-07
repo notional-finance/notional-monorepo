@@ -4,6 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import SimpleToggle from '../../simple-toggle/simple-toggle';
 import { DataTableToggleProps } from '../data-table';
 import { useEffect, useState } from 'react';
+import { Body } from '../../typography/typography';
 
 interface DataTableFilterBarProps {
   filterBarData: any[];
@@ -73,16 +74,13 @@ export const DataTableFilterBar = ({
             onChange={(_, v) => allNetworksToggleData.setToggleKey(v as number)}
           />
         )}
-        {/* TODO: Add disabled mode to reset button */}
-        <Box
+        <Body
           onClick={handleFilterReset}
           sx={{
-            padding: '8px 16px',
+            padding: theme.spacing(1, 2),
             border: theme.shape.borderStandard,
             borderRadius: theme.shape.borderRadius(),
-            fontSize: '14px',
             cursor: 'pointer',
-            fontWeight: 500,
             color: resetButtonDisabled
               ? theme.palette.typography.light
               : theme.palette.typography.main,
@@ -90,7 +88,7 @@ export const DataTableFilterBar = ({
           }}
         >
           <FormattedMessage defaultMessage={'Reset'} />
-        </Box>
+        </Body>
       </Box>
       {rightToggleData && (
         <SimpleToggle

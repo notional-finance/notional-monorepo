@@ -123,21 +123,21 @@ export const useMarketsTable = (
       width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
     },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="INCENTIVE APY"
-          description={'INCENTIVE APY header'}
-        />
-      ),
-      Cell: MultiValueIconCell,
-      accessor: 'incentiveAPY',
-      textAlign: 'right',
-      sortType: 'basic',
-      sortDescFirst: true,
-      width: theme.spacing(14.5),
-      marginRight: theme.spacing(1.25),
-    },
+    // {
+    //   Header: (
+    //     <FormattedMessage
+    //       defaultMessage="INCENTIVE APY"
+    //       description={'INCENTIVE APY header'}
+    //     />
+    //   ),
+    //   Cell: MultiValueIconCell,
+    //   accessor: 'incentiveAPY',
+    //   textAlign: 'right',
+    //   sortType: 'basic',
+    //   sortDescFirst: true,
+    //   width: theme.spacing(14.5),
+    //   marginRight: theme.spacing(1.25),
+    // },
     {
       Header: '',
       Cell: LinkCell,
@@ -241,6 +241,7 @@ export const useMarketsTable = (
               symbol: underlying.symbol,
               symbolSize: 'large',
               label: underlying.symbol,
+              network: token.network,
               caption:
                 token.network.charAt(0).toUpperCase() + token.network.slice(1),
             },

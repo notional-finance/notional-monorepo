@@ -215,6 +215,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
             symbolBottom: '',
             label: y.underlying.symbol,
             caption: network.charAt(0).toUpperCase() + network.slice(1),
+            network: network,
           },
           totalApy: {
             label: formatNumberAsPercent(y.totalAPY, 2),

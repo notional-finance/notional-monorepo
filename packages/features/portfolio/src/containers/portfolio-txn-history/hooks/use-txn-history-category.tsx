@@ -2,34 +2,33 @@ import {
   useSelectedNetwork,
   useTransactionHistory,
 } from '@notional-finance/notionable-hooks';
-
+import { Body } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { Box } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { useState } from 'react';
 
 export const useTxnHistoryCategory = () => {
+  const theme = useTheme();
   const [txnCategory, setTxnCategory] = useState<number>(0);
   const network = useSelectedNetwork();
   const hasVaultHoldings = !!useTransactionHistory(network).find(
     (h) => !!h.vaultName
   );
   const txnCategoryOptions = [
-    <Box
+    <Body
       sx={{
-        fontSize: '14px',
-        width: '150px',
+        width: theme.spacing(18.75),
       }}
     >
       <FormattedMessage defaultMessage={'Portfolio Holdings'} />
-    </Box>,
-    <Box
+    </Body>,
+    <Body
       sx={{
-        fontSize: '14px',
-        width: '150px',
+        width: theme.spacing(18.75),
       }}
     >
       <FormattedMessage defaultMessage={'Leveraged Vaults'} />
-    </Box>,
+    </Body>,
   ];
   return hasVaultHoldings
     ? {

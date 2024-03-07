@@ -445,6 +445,7 @@ export function TokenIcon({
   const tokenIcon: TokenImg = Object.keys(TokenImageList).includes(tokenKey)
     ? TokenImageList[tokenKey]
     : TokenImageList['unknown'];
+
   const networkIcon = network
     ? TokenImageList[getNetworkSymbol(network)]
     : undefined;
@@ -477,6 +478,15 @@ export function TokenIcon({
           width={'14px'}
           height={'14px'}
           style={{ position: 'absolute', bottom: '2px', right: '-4px' }}
+        />
+      )}
+      {networkIcon && size === 'large' && (
+        <img
+          src={networkIcon.img}
+          alt={network}
+          width={'12px'}
+          height={'12px'}
+          style={{ position: 'absolute', bottom: '5px', left: '20px' }}
         />
       )}
       {networkIcon && size === 'xl' && (

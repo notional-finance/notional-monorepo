@@ -167,7 +167,7 @@ const StyledTopContent = styled(Box)(
   display: flex;
   flex-direction: column;
   margin: auto;
-  margin-top: 150px;
+  margin-top: ${theme.spacing(18.75)};
   ${theme.breakpoints.down('lg')} {
     margin-left: ${theme.spacing(6)};
     margin-right: ${theme.spacing(6)};
