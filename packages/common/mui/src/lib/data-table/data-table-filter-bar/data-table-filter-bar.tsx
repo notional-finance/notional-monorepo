@@ -67,7 +67,9 @@ export const DataTableFilterBar = ({
         )}
         {allNetworksToggleData && (
           <SimpleToggle
-            sx={{ marginRight: theme.spacing(3) }}
+            sx={{
+              marginRight: theme.spacing(3),
+            }}
             tabVariant="standard"
             tabLabels={allNetworksToggleData.toggleOptions}
             selectedTabIndex={allNetworksToggleData.toggleKey}

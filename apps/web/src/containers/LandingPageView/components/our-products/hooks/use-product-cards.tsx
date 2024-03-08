@@ -8,9 +8,7 @@ export const useProductCards = () => {
     variableLend,
     leveragedVaults,
     leveragedLiquidity,
-    // leveragedLend,
     liquidity,
-    fCashBorrow,
     variableBorrow,
   } = useHeadlineRates();
 
@@ -28,7 +26,7 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: fCashLend === null,
-      fixedRate: true,
+      network: fCashLend?.token.network,
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
@@ -43,13 +41,14 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: variableLend === null,
+      network: variableLend?.token.network,
     },
     {
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
       link: '/liquidity-variable',
       text: (
         <FormattedMessage
-          defaultMessage={`Earn NOTE incentives, interest, and trading fees from Notional's liquidity pools.`}
+          defaultMessage={`Earn incentives, interest, and trading fees from Notional's liquidity pools.`}
         />
       ),
       apy: `${formatNumberAsPercent(liquidity?.totalAPY || 0)} APY`,
@@ -57,6 +56,7 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: liquidity === null,
+      network: liquidity?.token.network,
     },
   ];
 
@@ -76,21 +76,9 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: leveragedVaults === null,
+      isLeveraged: true,
+      network: leveragedVaults?.token.network,
     },
-    // {
-    //   title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
-    //   link: '/lend-leveraged',
-    //   text: (
-    //     <FormattedMessage
-    //       defaultMessage={`Arbitrage Notional's interest rates by borrowing from one maturity and lending to another with leverage.`}
-    //     />
-    //   ),
-    //   apy: `${formatNumberAsPercent(leveragedLend?.totalAPY || 0)} APY`,
-    //   symbol: leveragedLend?.underlying.symbol,
-    //   groupedSymbols: 'eth_dai_usdc_wbtc',
-    //   apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
-    //   loading: leveragedLend === null,
-    // },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
       link: '/liquidity-leveraged',
@@ -104,31 +92,15 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: leveragedLiquidity === null,
+      isLeveraged: true,
+      network: leveragedLiquidity?.token.network,
     },
-  ];
-
-  const borrowData = [
     {
-      title: <FormattedMessage defaultMessage={'Fixed Borrow'} />,
+      title: <FormattedMessage defaultMessage={'Borrow'} />,
       link: '/borrow-fixed',
       text: (
         <FormattedMessage
-          defaultMessage={'Choose a term and get a guaranteed interest rate.'}
-        />
-      ),
-      apy: `${formatNumberAsPercent(fCashBorrow?.totalAPY || 0)} APY`,
-      symbol: fCashBorrow?.underlying.symbol,
-      groupedSymbols: 'eth_dai_usdc_wbtc',
-      apyTitle: <FormattedMessage defaultMessage={'as low as'} />,
-      loading: fCashBorrow === null,
-      fixedRate: true,
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Variable Borrow'} />,
-      link: '/borrow-variable',
-      text: (
-        <FormattedMessage
-          defaultMessage={`Pay a variable interest rate and close out your debt at any time for no penalty.`}
+          defaultMessage={'Borrow at fixed or variable rates.'}
         />
       ),
       apy: `${formatNumberAsPercent(variableBorrow?.totalAPY || 0)} APY`,
@@ -136,9 +108,11 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as low as'} />,
       loading: variableBorrow === null,
+      network: variableBorrow?.token.network,
     },
   ];
-  return { earnYieldData, borrowData, leveragedYieldData };
+
+  return { earnYieldData, leveragedYieldData };
 };
 
 export default useProductCards;
