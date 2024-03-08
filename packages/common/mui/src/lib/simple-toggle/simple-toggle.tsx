@@ -105,6 +105,9 @@ const StyledTab = styled(Tab)(
       fill: ${theme.palette.typography.main};
     }
     color: ${theme.palette.typography.main};
+    div {
+      color: ${theme.palette.typography.main};
+    }
   }
 `
 );
