@@ -108,7 +108,8 @@ export const useVaultList = (network: Network) => {
         <FormattedMessage defaultMessage="TVL" description={'TVL header'} />
       ),
       Cell: DisplayCell,
-      displayFormatter: formatNumberAsAbbr,
+      displayFormatter: (value: number) =>
+        formatNumberAsAbbr(value, 0, baseCurrency),
       accessor: 'tvl',
       textAlign: 'right',
       sortType: 'basic',

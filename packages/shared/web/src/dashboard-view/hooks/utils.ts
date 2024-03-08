@@ -5,6 +5,7 @@ import {
   YieldData,
 } from '@notional-finance/core-entities';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { STABLE_COINS, LSDS } from '@notional-finance/util';
 
 export const getTotalIncentiveApy = (num1?: number, num2?: number) => {
   if (num1 && num2) {
@@ -51,14 +52,13 @@ export const getDebtOrCollateralFactor = (
 };
 
 export const sortListData = (data: any[], tokenGroup: number) => {
-  const stableCoins = ['USDC', 'USDT', 'DAI', 'FRAX'];
-  const lsdsAndEth = ['wstETH', 'cbETH', 'rETH', 'ETH'];
+
   if(data.length > 0 && tokenGroup === 0){
     return data;
   } else if(data.length > 0 && tokenGroup === 1){
-    return data.filter((x) => stableCoins.includes(x.currency.symbol));
+    return data.filter((x) => STABLE_COINS.includes(x.currency.symbol));
   } else if(data.length > 0 && tokenGroup === 2){
-    return data.filter((x) => lsdsAndEth.includes(x.currency.symbol));
+    return data.filter((x) => LSDS.includes(x.currency.symbol) || x.currency.symbol === 'ETH');
   } else {
     return []
   }

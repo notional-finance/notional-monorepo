@@ -94,7 +94,8 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
         />
       ),
       Cell: DisplayCell,
-      displayFormatter: formatNumberAsAbbr,
+      displayFormatter: (value: number) =>
+        formatNumberAsAbbr(value, 0, baseCurrency),
       accessor: 'liquidity',
       textAlign: 'right',
       sortType: 'basic',

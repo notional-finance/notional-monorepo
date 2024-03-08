@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import { CardContainer } from '../card-container/card-container';
 import { FeatureLoader } from '../feature-loader/feature-loader';
-import { useSelectedNetwork, useThemeVariant } from '@notional-finance/notionable-hooks';
+import {
+  useSelectedNetwork,
+  useThemeVariant,
+} from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
 import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
 import { PRODUCTS } from '@notional-finance/util';
+import {
+  setInLocalStorage,
+  getFromLocalStorage,
+} from '@notional-finance/helpers';
 import { ThemeProvider } from '@mui/material';
 import {
   useVaultList,
@@ -32,11 +39,23 @@ export const DashboardView = ({
   const themeVariant = useThemeVariant();
   const { pathname } = useLocation();
   const [_, routeKey] = pathname.split('/');
+  const userSettings = getFromLocalStorage('userSettings');
   const [tokenGroup, setTokenGroup] = useState<number>(0);
   const themeLanding = useNotionalTheme(themeVariant, 'product');
+  const [dashboardTab, setDashboardTab] = useState<number>(
+    userSettings.dashboardTab || 0
+  );
   const { containerData, headerData } = useDashboardConfig(
     routeKey as PRODUCTS
   );
+
+  const handleDashboardTab = (value: number) => {
+    setDashboardTab(value);
+    setInLocalStorage('userSettings', {
+      ...userSettings,
+      dashboardTab: value,
+    });
+  };
 
   return (
     <ThemeProvider theme={themeLanding}>
@@ -52,6 +71,8 @@ export const DashboardView = ({
             threeWideGrid={threeWideGrid}
             tokenGroup={tokenGroup}
             setTokenGroup={setTokenGroup}
+            dashboardTab={dashboardTab}
+            handleDashboardTab={handleDashboardTab}
           />
         </CardContainer>
       </FeatureLoader>

@@ -57,6 +57,9 @@ export const NetworkId: Record<Network, number> = {
   [Network.Optimism]: 10,
 };
 
+export const STABLE_COINS = ['USDC', 'USDT', 'DAI', 'FRAX'];
+export const LSDS = ['wstETH', 'cbETH', 'rETH'];
+
 export const SupportedNetworks = [Network.ArbitrumOne, Network.Mainnet];
 
 export const AlchemyUrl: Record<Network, string> = {
