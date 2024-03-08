@@ -469,13 +469,15 @@ export function TokenIcon({
     tokenIcon.alt = `${symbol?.toLowerCase()} ${tokenIcon.alt}`;
   }
 
+  const networkIconSrc = useAccentBorderImg
+    ? networkIcon?.accentBorderImg
+    : networkIcon?.img;
+
   return networkIcon ? (
     <Box position="relative">
       {networkIcon && size === 'medium' && (
         <img
-          src={
-            useAccentBorderImg ? networkIcon.accentBorderImg : networkIcon.img
-          }
+          src={networkIconSrc}
           alt={network}
           width={'14px'}
           height={'14px'}
@@ -484,9 +486,7 @@ export function TokenIcon({
       )}
       {networkIcon && size === 'large' && (
         <img
-          src={
-            useAccentBorderImg ? networkIcon.accentBorderImg : networkIcon.img
-          }
+          src={networkIconSrc}
           alt={network}
           width={'12px'}
           height={'12px'}
@@ -495,9 +495,7 @@ export function TokenIcon({
       )}
       {networkIcon && size === 'xl' && (
         <img
-          src={
-            useAccentBorderImg ? networkIcon.accentBorderImg : networkIcon.img
-          }
+          src={networkIconSrc}
           alt={network}
           width={tokenSizes['small']}
           height={tokenSizes['small']}
