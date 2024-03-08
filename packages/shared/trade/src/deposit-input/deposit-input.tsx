@@ -10,7 +10,7 @@ import {
 import { MessageDescriptor } from 'react-intl';
 import { getDepositErrorMessage } from './get-deposit-error-messages';
 import { useDepositInput } from './use-deposit-input';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import {
   BaseTradeContext,
   useWalletBalances,
@@ -30,7 +30,7 @@ interface DepositInputProps {
   maxWithdraw?: TokenBalance;
   useZeroDefault?: boolean;
   showScrollPopper?: boolean;
-  excludeSupplyCap?: boolean
+  excludeSupplyCap?: boolean;
 }
 
 /**
@@ -55,11 +55,12 @@ export const DepositInput = React.forwardRef<
       maxWithdraw,
       useZeroDefault,
       showScrollPopper,
-      excludeSupplyCap
+      excludeSupplyCap,
     },
     ref
   ) => {
     const history = useHistory();
+    const { pathname } = useLocation();
     const theme = useTheme();
     const {
       state: {
@@ -112,7 +113,8 @@ export const DepositInput = React.forwardRef<
     const errorMessage = getDepositErrorMessage(
       errorMsgOverride,
       errorMsg,
-      calculateError
+      calculateError,
+      pathname
     );
 
     if (!availableDepositTokens || !deposit) return <PageLoading />;

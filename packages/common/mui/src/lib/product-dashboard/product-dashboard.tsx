@@ -27,7 +27,7 @@ export interface DashboardHeaderProps {
     handleNetWorkToggle: (value: number) => void;
   };
   tokenGroup: number;
-  setTokenGroup: (value: number) => void;
+  handleTokenGroup: (value: number) => void;
   dashboardTab: number;
   handleDashboardTab: (value: number) => void;
 }
@@ -52,7 +52,7 @@ export interface DashboardViewProps extends DashboardGridProps {
 
 export interface ProductDashboardProps extends DashboardViewProps {
   tokenGroup: number;
-  setTokenGroup: (value: number) => void;
+  handleTokenGroup: (value: number) => void;
   dashboardTab: number;
   handleDashboardTab: (value: number) => void;
   headerData: {
@@ -68,7 +68,7 @@ export const ProductDashboard = ({
   listData,
   listColumns,
   tokenGroup,
-  setTokenGroup,
+  handleTokenGroup,
   headerData,
   showNegativeYields,
   setShowNegativeYields,
@@ -84,7 +84,7 @@ export const ProductDashboard = ({
       <DashboardHeader
         headerData={headerData}
         tokenGroup={tokenGroup}
-        setTokenGroup={setTokenGroup}
+        handleTokenGroup={handleTokenGroup}
         dashboardTab={dashboardTab}
         handleDashboardTab={handleDashboardTab}
       />
