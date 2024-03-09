@@ -40,7 +40,9 @@ export const DashboardView = ({
   const { pathname } = useLocation();
   const [_, routeKey] = pathname.split('/');
   const userSettings = getFromLocalStorage('userSettings');
-  const [tokenGroup, setTokenGroup] = useState<number>(0);
+  const [tokenGroup, setTokenGroup] = useState<number>(
+    userSettings.tokenGroup || 0
+  );
   const themeLanding = useNotionalTheme(themeVariant, 'product');
   const [dashboardTab, setDashboardTab] = useState<number>(
     userSettings.dashboardTab || 0
@@ -57,6 +59,14 @@ export const DashboardView = ({
     });
   };
 
+  const handleTokenGroup = (value: number) => {
+    setTokenGroup(value);
+    setInLocalStorage('userSettings', {
+      ...userSettings,
+      tokenGroup: value,
+    });
+  };
+
   return (
     <ThemeProvider theme={themeLanding}>
       <FeatureLoader featureLoaded={!!network && themeVariant ? true : false}>
@@ -70,7 +80,7 @@ export const DashboardView = ({
             headerData={headerData}
             threeWideGrid={threeWideGrid}
             tokenGroup={tokenGroup}
-            setTokenGroup={setTokenGroup}
+            handleTokenGroup={handleTokenGroup}
             dashboardTab={dashboardTab}
             handleDashboardTab={handleDashboardTab}
           />

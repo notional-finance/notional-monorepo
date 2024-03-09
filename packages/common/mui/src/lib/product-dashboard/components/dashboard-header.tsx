@@ -7,7 +7,7 @@ import { DashboardHeaderProps } from '../product-dashboard';
 export const DashboardHeader = ({
   headerData,
   tokenGroup,
-  setTokenGroup,
+  handleTokenGroup,
   dashboardTab,
   handleDashboardTab,
 }: DashboardHeaderProps) => {
@@ -91,7 +91,7 @@ export const DashboardHeader = ({
             tabVariant="standard"
             tabLabels={tokenGroupData}
             selectedTabIndex={tokenGroup}
-            onChange={(_, v) => setTokenGroup(v as number)}
+            onChange={(_, v) => handleTokenGroup(v as number)}
           />
         )}
       </Box>

@@ -9,7 +9,7 @@ export const ExitEarlyFaq = () => {
       <Body sx={{ marginBottom: theme.spacing(1) }}>
         <FormattedMessage
           defaultMessage={
-            'Yes. You can exit your loan early by selling your fCash on Notional’s liquidity pool before maturity. Loans on the 3 month or 6 month liquidity pool will always be liquid, while loans on the 1 year liquidity pool may be temporarily illiquid.'
+            'Yes. You can exit your loan early by selling your fCash on Notional’s liquidity pool before maturity.'
           }
         />
       </Body>

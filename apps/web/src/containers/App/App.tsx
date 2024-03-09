@@ -24,7 +24,6 @@ import AppLayoutRoute from './AppLayoutRoute';
 import { OnboardContext } from '@notional-finance/wallet';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ScrollToTop } from '@notional-finance/mui';
 import { useConnect } from '@notional-finance/wallet/hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 // Feature shell views
@@ -271,7 +270,6 @@ export const App = () => {
       <NotionalContext.Provider value={globalState}>
         <FeatureLoader>
           <Web3OnboardProvider web3Onboard={OnboardContext}>
-            <ScrollToTop />
             <AllRoutes />
           </Web3OnboardProvider>
         </FeatureLoader>
