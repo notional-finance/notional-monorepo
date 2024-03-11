@@ -21,6 +21,7 @@ import {
   HistoricalTrading,
   VaultData,
   CacheSchema,
+  VaultReinvestment,
 } from '../Definitions';
 import {
   ASSET_PRICE_ORACLES,
@@ -272,6 +273,11 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   getHistoricalTrading(network: Network) {
     return (super.getLatestFromSubject(network, 'historicalTrading') ||
       {}) as HistoricalTrading;
+  }
+
+  getVaultReinvestments(network: Network) {
+    return (super.getLatestFromSubject(network, 'vaultReinvestment') ||
+      {}) as VaultReinvestment;
   }
 
   getKPIs() {
