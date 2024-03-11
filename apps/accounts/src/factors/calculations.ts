@@ -83,7 +83,7 @@ export function calculateAccountIRR(account: AccountDefinition) {
       (t) => t.tokenType === 'VaultDebt' || t.isNegative()
     ) ||
     // Also checks if the account has used debt during the contest
-    (account.accountHistory || []).find(
+    !!(account.accountHistory || []).find(
       (a) =>
         contestStart < a.timestamp &&
         a.timestamp < contestEnd &&

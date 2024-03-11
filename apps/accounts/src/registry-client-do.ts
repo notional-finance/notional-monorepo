@@ -72,8 +72,11 @@ export class RegistryClientDO extends BaseDO<Env> {
         await this.checkAccountList(network);
         await this.checkTotalSupply(network);
         await this.saveYieldData(network);
+
+        if (network === Network.ArbitrumOne) {
         await this.checkDBMonitors(network);
         await this.saveContestIRR(network, currentContestId);
+        }
       }
 
       return new Response('Ok', { status: 200 });
