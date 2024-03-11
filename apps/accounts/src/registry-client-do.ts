@@ -74,8 +74,8 @@ export class RegistryClientDO extends BaseDO<Env> {
         await this.saveYieldData(network);
 
         if (network === Network.ArbitrumOne) {
-        await this.checkDBMonitors(network);
-        await this.saveContestIRR(network, currentContestId);
+          await this.checkDBMonitors(network);
+          await this.saveContestIRR(network, currentContestId);
         }
       }
 

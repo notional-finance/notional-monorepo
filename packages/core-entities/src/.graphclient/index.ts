@@ -7132,6 +7132,8 @@ export type _Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['Bytes']>;
 };
 
 /** The type for the top-level _meta field */
@@ -8590,6 +8592,7 @@ export type _Block_Resolvers<ContextType = MeshContext & { chainName: string }, 
   hash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  parentHash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -9098,7 +9101,7 @@ export type VaultReinvestmentQueryVariables = Exact<{
 
 
 export type VaultReinvestmentQuery = { reinvestments: Array<(
-    Pick<Reinvestment, 'timestamp' | 'blockNumber' | 'transactionHash' | 'rewardAmountSold' | 'tokensReinvested' | 'tokensPerVaultShare' | 'underlyingAmountRealized'>
+    Pick<Reinvestment, 'timestamp' | 'blockNumber' | 'transactionHash' | 'rewardAmountSold' | 'tokensReinvested' | 'tokensPerVaultShare' | 'underlyingAmountRealized' | 'vaultSharePrice'>
     & { vault: Pick<VaultConfiguration, 'id'>, rewardTokenSold: Pick<Token, 'id'> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
@@ -9811,6 +9814,7 @@ export const VaultReinvestmentDocument = gql`
     tokensReinvested
     tokensPerVaultShare
     underlyingAmountRealized
+    vaultSharePrice
   }
   _meta {
     block {

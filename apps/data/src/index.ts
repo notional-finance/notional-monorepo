@@ -144,16 +144,21 @@ export default {
       },
     });
 
-    await fetch(`${env.DATA_SERVICE_URL}/syncAccounts?network=arbitrum`, {
-      headers: {
-        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
-      },
-    });
+    for (const network of env.SUPPORTED_NETWORKS) {
+      await fetch(`${env.DATA_SERVICE_URL}/syncAccounts?network=${network}`, {
+        headers: {
+          'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+        },
+      });
 
-    await fetch(`${env.DATA_SERVICE_URL}/syncVaultAccounts?network=arbitrum`, {
-      headers: {
-        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
-      },
-    });
+      await fetch(
+        `${env.DATA_SERVICE_URL}/syncVaultAccounts?network=${network}`,
+        {
+          headers: {
+            'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+          },
+        }
+      );
+    }
   },
 };
