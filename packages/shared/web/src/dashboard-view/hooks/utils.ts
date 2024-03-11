@@ -52,7 +52,6 @@ export const getDebtOrCollateralFactor = (
 };
 
 export const sortListData = (data: any[], tokenGroup: number) => {
-
   if(data.length > 0 && tokenGroup === 0){
     return data;
   } else if(data.length > 0 && tokenGroup === 1){

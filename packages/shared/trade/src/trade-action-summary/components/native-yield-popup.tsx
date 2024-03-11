@@ -9,7 +9,7 @@ import {
 import {
   getFromLocalStorage,
   setInLocalStorage,
-  LSDS,
+  NATIVE_YIELD,
 } from '@notional-finance/util';
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -35,7 +35,7 @@ export const NativeYieldPopup = ({ selectedToken }: NativeYieldPopupProps) => {
   );
 
   useEffect(() => {
-    if (LSDS.includes(selectedToken)) {
+    if (NATIVE_YIELD.includes(selectedToken)) {
       setShow(true);
     } else if (show) {
       setShow(false);
