@@ -19,13 +19,13 @@ jobs:
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
 
-      # - name: Publish Mainnet Liquidators
-      #   shell: bash
-      #   run: |
-      #     yarn nx run-many --target=publish-wrangler --projects=liquidation-bot,vault-liquidator --env mainnet --var NX_COMMIT_REF:${{ github.sha }}
-      #   env:
-      #     CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      #     CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
+      - name: Publish Mainnet Liquidators
+        shell: bash
+        run: |
+          yarn nx run-many --target=publish-wrangler --projects=liquidation-bot --env mainnet --var NX_COMMIT_REF:${{ github.sha }}
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
 
       - name: Publish Arbitrum Liquidators
         shell: bash
