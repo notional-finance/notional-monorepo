@@ -56,25 +56,28 @@ export const useVaultReinvestmentTable = (
     network &&
     deposit
   ) {
-    result = reinvestmentData[vaultAddress].map((data) => {
-      const sharePrice = data?.vaultSharePrice
-        ? TokenBalance.from(data.vaultSharePrice, deposit)
-        : undefined;
-      const amountSold = TokenBalance.fromID(
-        data.rewardAmountSold,
-        data?.rewardTokenSold.id,
-        network
-      );
-      return {
-        time: data.timestamp,
-        amountSold: amountSold.toDisplayStringWithSymbol(),
-        vaultSharePrice: sharePrice?.toFloat().toFixed(3),
-        txnHash: {
-          href: getEtherscanTransactionLink(data.transactionHash, network),
-          hash: data.transactionHash,
-        },
-      };
-    });
+    result = reinvestmentData[vaultAddress]
+      .map((data) => {
+        const sharePrice = data?.vaultSharePrice
+          ? TokenBalance.from(data.vaultSharePrice, deposit)
+          : undefined;
+        const amountSold = TokenBalance.fromID(
+          data.rewardAmountSold,
+          data?.rewardTokenSold.id,
+          network
+        );
+        return {
+          time: data.timestamp,
+          amountSold: amountSold.toDisplayStringWithSymbol(),
+          vaultSharePrice: sharePrice?.toFloat().toFixed(3),
+          txnHash: {
+            href: getEtherscanTransactionLink(data.transactionHash, network),
+            hash: data.transactionHash,
+          },
+        };
+      })
+      .sort((a, b) => b.time - a.time)
+      .slice(0, 25);
   }
 
   return {
