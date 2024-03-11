@@ -33,7 +33,7 @@ jobs:
       - name: Wrangler Publish
         shell: bash
         run: |
-          yarn nx run-many --target=publish-wrangler --projects=${{ github.event.inputs.registry }} --env ${{ github.event.inputs.environment || 'dev' }} --var NX_COMMIT_REF:${{ github.sha }}
+          yarn nx run-many --target=publish-wrangler --projects=registry-${{ github.event.inputs.registry }} --env ${{ github.event.inputs.environment || 'dev' }} --var NX_COMMIT_REF:${{ github.sha }}
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
