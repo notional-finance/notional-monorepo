@@ -40,7 +40,9 @@ export const useInteractiveMaturityChart = (
       formatTitle: (timestamp: number) => (
         <FormattedMessage
           defaultMessage="Maturity: {date}"
-          values={{ date: timestamp === 0 ? 'None' : getDateString(timestamp) }}
+          values={{
+            date: timestamp === 0 ? 'Variable' : getDateString(timestamp),
+          }}
         />
       ),
     },
