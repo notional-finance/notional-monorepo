@@ -1,64 +1,74 @@
-import { Registry } from '@notional-finance/core-entities';
+import {
+  Registry,
+  TokenBalance,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import { Network, getEtherscanTransactionLink } from '@notional-finance/util';
-import { TxnHashCell } from '@notional-finance/mui';
+import { DateTimeCell, TxnHashCell } from '@notional-finance/mui';
+import { useTheme } from '@mui/material';
 
-export const useVaultReinvestmentTable = (network: Network | undefined) => {
+export const useVaultReinvestmentTable = (
+  network: Network | undefined,
+  deposit: TokenDefinition | undefined,
+  vaultAddress: string | undefined
+) => {
+  const theme = useTheme();
   const tableColumns = [
     {
       Header: 'Time',
       accessor: 'time',
       textAlign: 'left',
-      width: '187px',
+      Cell: DateTimeCell,
+      width: theme.spacing(23.375),
     },
     {
       Header: 'Amount Sold',
       accessor: 'amountSold',
       textAlign: 'right',
-      width: '187px',
+      width: theme.spacing(23.375),
     },
     {
       Header: 'Vault Share Price',
       accessor: 'vaultSharePrice',
       textAlign: 'right',
-      width: '187px',
+      width: theme.spacing(23.375),
     },
     {
       Header: 'Txn Hash',
       Cell: TxnHashCell,
       accessor: 'txnHash',
       textAlign: 'right',
-      width: '187px',
+      width: theme.spacing(23.375),
       showLinkIcon: true,
     },
   ];
 
-  const data = network
-    ? Registry.getAnalyticsRegistry().getHistoricalTrading(network)
+  const reinvestmentData = network
+    ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
     : undefined;
-
-  console.log({ data });
-  let fuck = [] as any[];
-  if (data) {
-    const test = Object.values(data);
-    test.map((j) => {
-      const thing = j.filter(
-        (k) => k.underlyingTokenBalance?.symbol === 'USDC'
-      );
-      if (thing && thing.length > 0) {
-        fuck = [...fuck, ...thing];
-      }
-      return thing;
-    });
-  }
 
   let result = [] as any[];
 
-  if (fuck.length > 0) {
-    result = fuck.map((data) => {
+  if (
+    vaultAddress &&
+    reinvestmentData &&
+    reinvestmentData[vaultAddress] &&
+    network &&
+    deposit
+  ) {
+    result = reinvestmentData[vaultAddress].map((data) => {
+      const sharePrice = data?.vaultSharePrice
+        ? TokenBalance.from(data.vaultSharePrice, deposit)
+        : undefined;
+      const amountSold = TokenBalance.fromID(
+        data.rewardAmountSold,
+        data?.rewardTokenSold.id,
+        network
+      );
       return {
         time: data.timestamp,
-        amountSold: 0,
-        vaultSharePrice: 0,
+        amountSold: amountSold.toDisplayStringWithSymbol(),
+        vaultSharePrice: sharePrice?.toFloat().toFixed(3),
         txnHash: {
           href: getEtherscanTransactionLink(data.transactionHash, network),
           hash: data.transactionHash,
@@ -68,7 +78,7 @@ export const useVaultReinvestmentTable = (network: Network | undefined) => {
   }
 
   return {
-    reinvestmentTableData: result,
+    reinvestmentTableData: result || [],
     reinvestmentTableColumns: tableColumns,
   };
 };

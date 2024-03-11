@@ -37,6 +37,7 @@ export const VaultSummary = () => {
     capacityUsedPercentage,
     capacityWithUserBorrowPercentage,
     selectedNetwork,
+    deposit,
   } = state;
   const { tableColumns, returnDrivers } = useReturnDrivers(
     vaultAddress,
@@ -48,7 +49,7 @@ export const VaultSummary = () => {
   const { faqHeaderLinks, faqs } = useVaultFaq(selectedNetwork);
 
   const { reinvestmentTableData, reinvestmentTableColumns } =
-    useVaultReinvestmentTable(selectedNetwork);
+    useVaultReinvestmentTable(selectedNetwork, deposit, vaultAddress);
 
   const userCapacityMark = capacityWithUserBorrowPercentage
     ? [
@@ -198,7 +199,7 @@ export const VaultSummary = () => {
               <DataTable
                 tableTitle={
                   <FormattedMessage
-                    defaultMessage={'Vault Reinvestment Shit'}
+                    defaultMessage={'Vault Reinvestment History'}
                   />
                 }
                 data={reinvestmentTableData}

@@ -20,8 +20,7 @@ export const TxnHashCell = ({
   },
 }: TxnHashCellProps): JSX.Element => {
   const theme = useTheme() as NotionalTheme;
-  console.log(href);
-  console.log(hash);
+
   return (
     <TableCell
       href={href}
