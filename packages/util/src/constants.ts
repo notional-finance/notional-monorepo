@@ -59,6 +59,7 @@ export const NetworkId: Record<Network, number> = {
 
 export const STABLE_COINS = ['USDC', 'USDT', 'DAI', 'FRAX'];
 export const LSDS = ['wstETH', 'cbETH', 'rETH', 'sDAI'];
+export const NATIVE_YIELD = [...LSDS, 'sDAI'];
 
 export const SupportedNetworks = [Network.ArbitrumOne, Network.Mainnet];
 

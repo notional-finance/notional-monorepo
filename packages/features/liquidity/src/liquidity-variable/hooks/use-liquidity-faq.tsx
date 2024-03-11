@@ -138,11 +138,6 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
           }}
         />
       ),
-
-      //       nETH can always be redeemed for ETH except when utilization on Notional’s lending markets is very high.
-
-      // High utilization increases lending rates which should attract more capital into Notional and make redemptions possible again.
-
       componentAnswer: (
         <div>
           <Body>
