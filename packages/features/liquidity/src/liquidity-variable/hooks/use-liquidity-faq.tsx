@@ -139,6 +139,10 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
         />
       ),
 
+      //       nETH can always be redeemed for ETH except when utilization on Notional’s lending markets is very high.
+
+      // High utilization increases lending rates which should attract more capital into Notional and make redemptions possible again.
+
       componentAnswer: (
         <div>
           <Body>
@@ -156,61 +160,9 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
           <Body>
             <FormattedMessage
               defaultMessage={
-                'When utilization is too high, n{tokenSymbol} can be redeemed for a proportional share of the Prime {tokenSymbol} and f{tokenSymbol} held in the n{tokenSymbol} account.'
+                'High utilization increases lending rates which should attract more capital into Notional and make redemptions possible again.'
               }
               description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-        </div>
-      ),
-    },
-    {
-      questionString: 'What is Leverage Mode?',
-      question: (
-        <FormattedMessage
-          defaultMessage={'What is Leverage Mode?'}
-          description={'faq question'}
-        />
-      ),
-
-      componentAnswer: (
-        <div>
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'Leverage mode makes it easy to borrow against your n{tokenSymbol} at a fixed or variable rate in order to provide more n{tokenSymbol} in a single transaction.'
-              }
-              description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-          <br />
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'Using leverage can increase your yield if the n{tokenSymbol} APY is greater than the borrow rate.'
-              }
-              description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-          <br />
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'But leverage also includes liquidation risk. The n{tokenSymbol} price is stable, but it can temporarily decrease due to IL. So if you decide to use leverage, be careful.'
-              }
-              description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
             />
           </Body>
         </div>
