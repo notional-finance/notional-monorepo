@@ -10,9 +10,6 @@ on:
         description: 'Set a registry to deploy: <configuration|exchanges|oracles|tokens|vaults>'
         required: true
         default: ''
-  push:
-    branches:
-      - main
 
 jobs:
   deploy:
