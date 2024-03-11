@@ -4,7 +4,7 @@ import {
   useLeveragedNTokenPositions,
 } from '@notional-finance/trade';
 import { LiquidityContext } from '../liquidity';
-import { useQueryParams } from '@notional-finance/notionable-hooks';
+import { useQueryParams, useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { PRODUCTS } from '@notional-finance/util';
 import {
   AdjustLeverage,
@@ -21,6 +21,7 @@ export const LiquidityLeveragedSideDrawer = () => {
   const context = useContext(LiquidityContext);
   const queryData = useQueryParams();
   // NOTE: need to use the URL parameter or infinite loop conditions will exist
+  const selectedNetwork = useSelectedNetwork()
   const { selectedDepositToken } = useParams<{
     selectedDepositToken?: string;
   }>();
@@ -32,7 +33,6 @@ export const LiquidityLeveragedSideDrawer = () => {
       availableDebtTokens,
       deposit,
       riskFactorLimit,
-      selectedNetwork,
     },
     updateState,
   } = context;
