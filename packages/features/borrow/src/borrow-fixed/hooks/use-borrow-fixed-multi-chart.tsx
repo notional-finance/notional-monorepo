@@ -12,12 +12,11 @@ export const useBorrowFixedMultiChart = () => {
   const {
     state: { deposit },
   } = context;
-  const { areaChartData, apyToolTipData } =
-    useInteractiveMaturityChart(deposit);
-  const { selectedfCashId, onSelect } = useMaturitySelect(
-    'Collateral',
-    context
+  const { areaChartData, apyToolTipData } = useInteractiveMaturityChart(
+    deposit,
+    true
   );
+  const { selectedfCashId, onSelect } = useMaturitySelect('Debt', context);
   const nToken = useNToken(deposit?.network, deposit?.currencyId);
   const { tvlData } = useTokenHistory(nToken);
 

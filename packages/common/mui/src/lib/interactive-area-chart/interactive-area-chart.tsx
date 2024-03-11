@@ -24,7 +24,7 @@ import {
 
 export interface InteractiveAreaChartData {
   timestamp: number;
-  area: number;
+  area: number | undefined;
   marketKey: string;
 }
 
@@ -48,7 +48,9 @@ export const InteractiveAreaChart = ({
   const intl = useIntl();
   const theme = useTheme();
   const { ticks, lines, maxTick } = useYAxis(interactiveAreaChartData);
-  const [activeTimestamp, setActiveTimestamp] = useState<number>(0);
+  const [activeTimestamp, setActiveTimestamp] = useState<number | undefined>(
+    undefined
+  );
   const gridHeight = 260;
 
   useEffect(() => {
@@ -70,6 +72,9 @@ export const InteractiveAreaChart = ({
 
   const handleClick = (props) => {
     if (lockSelection) return;
+    // NOTE: this is the variable rate maturity, and it is
+    // not selectable in this chart.
+    if (props.value === 0) return;
     if (props.value !== activeTimestamp) {
       const selectedData = interactiveAreaChartData.find(
         (data) => data?.timestamp === props.value
