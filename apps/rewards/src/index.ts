@@ -253,14 +253,20 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
     vault.address,
     tradesPerRewardToken,
     tradesPerRewardToken.map(() => BigNumber.from(0)),
-    { from: env.MANAGER_BOT_ADDRESS }
+    {
+      from: env.MANAGER_BOT_ADDRESS,
+      gasLimit: 60e6
+    }
   );
 
   await treasuryManger.callStatic.reinvestVaultReward(
     vault.address,
     tradesPerRewardToken,
     poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
-    { from: env.MANAGER_BOT_ADDRESS }
+    {
+      from: env.MANAGER_BOT_ADDRESS,
+      gasLimit: 60e6
+    }
   );
 
 
