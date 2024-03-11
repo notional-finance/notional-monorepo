@@ -495,7 +495,7 @@ export const TradeConfiguration = {
     debtFilter: (t, _, s) =>
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
       onlySameCurrency(t, s.collateral) &&
-      t.maturity !== s.collateral?.maturity,
+      (s.collateral ? t.maturity !== s.collateral?.maturity : true),
     calculateDebtOptions: true,
     transactionBuilder: RollLendOrDebt,
   } as TransactionConfig,
