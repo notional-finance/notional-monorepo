@@ -13,7 +13,12 @@ import { PortfolioParams } from '../../portfolio-feature-shell';
 import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
 import { messages } from '../messages';
 import { useRedeemNToken } from './use-redeem-ntoken';
-import { useCurrencyInputRef } from '@notional-finance/mui';
+import {
+  Paragraph,
+  ToggleSwitch,
+  useCurrencyInputRef,
+} from '@notional-finance/mui';
+import { Box } from '@mui/material';
 
 export const RedeemNToken = () => {
   const history = useHistory();
@@ -29,6 +34,7 @@ export const RedeemNToken = () => {
     availableTokens,
     selectedToken,
     sidebarInfo,
+    acceptResiduals,
     updateRedeemNTokenState,
   } = useRedeemNToken(action);
 
@@ -47,7 +53,11 @@ export const RedeemNToken = () => {
     >
       {selectedToken && (
         <AccountWithdrawInput
-          withdrawType={WITHDRAW_TYPE.REDEEM_TO_CASH}
+          withdrawType={
+            acceptResiduals
+              ? WITHDRAW_TYPE.REDEEM_ACCEPT_RESIDUALS
+              : WITHDRAW_TYPE.REDEEM_TO_CASH
+          }
           availableTokens={availableTokens}
           selectedToken={selectedToken}
           ref={currencyInputRef}
@@ -78,6 +88,22 @@ export const RedeemNToken = () => {
           inputLabel={messages[action]['inputLabel']}
         />
       )}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'end',
+          marginTop: '-64px',
+          alignItems: 'center',
+        }}
+      >
+        <Paragraph>Accept Residuals: </Paragraph>
+        <ToggleSwitch
+          isChecked={acceptResiduals}
+          onToggle={(isChecked: boolean) =>
+            updateRedeemNTokenState({ acceptResiduals: isChecked })
+          }
+        />
+      </Box>
       <TradePropertiesGrid data={sidebarInfo} showBackground />
     </PortfolioSideDrawer>
   );
