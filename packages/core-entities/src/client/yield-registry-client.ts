@@ -8,7 +8,7 @@ import {
   isIdiosyncratic,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
-import { TokenType, YieldData } from '../Definitions';
+import { CacheSchema, TokenType, YieldData } from '../Definitions';
 import { Registry } from '../Registry';
 import { Routes } from '../server';
 import { TokenBalance } from '../token-balance';
@@ -494,6 +494,11 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
   getNonLeveragedYields(network: Network) {
     return this.getAllYields(network).filter((y) => y.leveraged === undefined);
+  }
+
+  async triggerHTTPRefresh(network: Network) {
+    const data = await this._fetch<CacheSchema<YieldData>>(network);
+    this._updateNetworkObservables(data);
   }
 
   protected override async _refresh(network: Network) {
