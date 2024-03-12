@@ -13,7 +13,7 @@ import LiquidationHelper from './LiquidationHelper';
 import ProfitCalculator from './ProfitCalculator';
 import AaveFlashLoanProvider from './lenders/AaveFlashLender';
 import { Logger } from '@notional-finance/durable-objects';
-import { Network } from '@notional-finance/util';
+import { Network, sendTxThroughRelayer } from '@notional-finance/util';
 
 export type LiquidatorSettings = {
   network: Network;
@@ -217,18 +217,15 @@ export default class NotionalV3Liquidator {
     const encodedTransaction = await this.flashLoanProvider.encodeTransaction(
       flashLiq
     );
-    const payload = JSON.stringify({
+
+    const resp = await sendTxThroughRelayer({
+      env: {
+        NETWORK: this.settings.network,
+        TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
+      },
       to: this.settings.flashLenderAddress,
       data: encodedTransaction,
-    });
-
-    const resp = await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Auth-Token': this.settings.txRelayAuthToken,
-      },
-      body: payload,
+      isLiquidator: true,
     });
 
     if (resp.status == 200) {

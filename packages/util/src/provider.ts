@@ -103,8 +103,6 @@ export function getNetworkTitle(network: Network | undefined) {
       return 'Arbitrum';
     case Network.Mainnet:
       return 'Mainnet';
-    case Network.Goerli:
-      return 'Goerli Test';
     default:
       return 'Unknown';
   }

@@ -126,7 +126,7 @@ const run = async (env: Env) => {
         },
       ],
       type: MetricType.Gauge,
-      tags: [`network:${env.NETWORK}`],
+      tags: [`network:${env.NETWORK}`, 'version:v3'],
     },
     {
       metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
@@ -137,9 +137,11 @@ const run = async (env: Env) => {
         },
       ],
       type: MetricType.Gauge,
-      tags: [`network:${env.NETWORK}`],
+      tags: [`network:${env.NETWORK}`, 'version:v3'],
     }
   );
+
+  await logger.submitMetrics(ddSeries);
 
   if (riskyAccounts.length > 0) {
     for (const account of riskyAccounts) {
@@ -161,8 +163,6 @@ const run = async (env: Env) => {
       await liq.liquidateAccount(possibleLiqs[0]);
     }
   }
-
-  await logger.submitMetrics(ddSeries);
 };
 
 export default {

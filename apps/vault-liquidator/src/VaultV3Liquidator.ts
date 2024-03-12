@@ -9,7 +9,7 @@ import {
   ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
 import { Logger } from '@notional-finance/durable-objects';
-import { Network } from '@notional-finance/util';
+import { Network, sendTxThroughRelayer } from '@notional-finance/util';
 import { overrides } from '.';
 
 export type LiquidatorSettings = {
@@ -36,7 +36,7 @@ enum LiquidationType {
   UNKNOWN = 0,
   DELEVERAGE_VAULT_ACCOUNT = 1,
   LIQUIDATE_CASH_BALANCE = 2,
-  DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH = 3
+  DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH = 3,
 }
 export default class VaultV3Liquidator {
   private liquidatorContract: Contract;
@@ -273,7 +273,8 @@ export default class VaultV3Liquidator {
 
     const callParams = {
       // Use this as the default type, will account for variable rate debt
-      liquidationType: LiquidationType.DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH,
+      liquidationType:
+        LiquidationType.DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH,
       currencyId: ra.borrowCurrencyId,
       currencyIndex: liqParams.currencyIndex,
       account: ra.id,
@@ -321,7 +322,7 @@ export default class VaultV3Liquidator {
     return {
       account: ra,
       currencyIndex: liqParams.currencyIndex,
-      maxUnderlying: liqParams.maxUnderying,
+      maxUnderlying: liqParams.maxUnderlying,
       assetAddress: assetAddress,
       flashLoanAmount: flashLoanAmount,
       callParams: callParams,
@@ -343,18 +344,14 @@ export default class VaultV3Liquidator {
       ]
     );
 
-    const payload = JSON.stringify({
-      to: this.settings.flashLiquidatorAddress,
-      data: encodedTransaction,
-    });
-
-    const resp = await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Auth-Token': this.settings.txRelayAuthToken,
+    const resp = await sendTxThroughRelayer({
+      env: {
+        NETWORK: this.settings.network,
+        TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
       },
-      body: payload,
+      to: this.settings.flashLenderAddress,
+      data: encodedTransaction,
+      isLiquidator: true,
     });
 
     if (resp.status === 200) {

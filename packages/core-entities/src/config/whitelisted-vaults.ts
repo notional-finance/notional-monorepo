@@ -17,7 +17,5 @@ export const whitelistedVaults = (network: Network) => {
       ];
     case Network.Optimism:
       return [];
-    case Network.Goerli:
-      return [];
   }
 };
