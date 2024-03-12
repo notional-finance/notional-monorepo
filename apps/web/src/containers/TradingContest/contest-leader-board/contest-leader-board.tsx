@@ -1,5 +1,5 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
-import { THEME_VARIANTS } from '@notional-finance/util';
+import { Network, THEME_VARIANTS } from '@notional-finance/util';
 import {
   ContestCountDown,
   ContestPrizes,
@@ -10,7 +10,10 @@ import {
   ContestButtonBar,
   ContestPartnersButtons,
 } from '../components';
-import { useContestPass, useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  useContestPass,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { ContestTable, LinkText, Button } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
@@ -125,7 +128,7 @@ export const ContestLeaderBoard = () => {
                     </Caption>
                   )}
                   <LinkText
-                    to="/portfolio/overview"
+                    to={`/portfolio/${Network.ArbitrumOne}/overview`}
                     sx={{ marginTop: theme.spacing(1) }}
                   >
                     <FormattedMessage defaultMessage={'View in Portfolio'} />
