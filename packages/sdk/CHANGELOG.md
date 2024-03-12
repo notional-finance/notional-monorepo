@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.5.1](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.5.0...sdk-0.5.1) (2024-03-12)
+
+
+### Bug Fixes
+
+* allow users to redeem and accept residuals ([#664](https://github.com/notional-finance/notional-monorepo/issues/664)) ([ae35d9b](https://github.com/notional-finance/notional-monorepo/commit/ae35d9b10231288f36d1f4c75bb1d87183d0bdce))
+
 ## [0.5.0](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.8...sdk-0.5.0) (2024-02-24)
 
 
