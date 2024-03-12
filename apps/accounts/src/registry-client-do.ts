@@ -108,6 +108,7 @@ export class RegistryClientDO extends BaseDO<Env> {
         )
     );
 
+    // NOTE: this includes accounts with only NOTE tokens
     const subgraphAccounts = Registry.getAccountRegistry()
       .getAllSubjectKeys(network)
       .map((a) =>
@@ -124,7 +125,7 @@ export class RegistryClientDO extends BaseDO<Env> {
           aggregation_key: 'AccountListMismatch',
           alert_type: 'error',
           title: `Account List Mismatch: ${a.address}`,
-          tags: [],
+          tags: [`network:${network}`],
           text: `Account List mismatch detected ${a.address} is not in the account list`,
         });
       }
@@ -143,7 +144,7 @@ export class RegistryClientDO extends BaseDO<Env> {
             aggregation_key: 'VaultAccountListMismatch',
             alert_type: 'error',
             title: `Vault Account List Mismatch: ${k}`,
-            tags: [],
+            tags: [`network:${network}`],
             text: `Vault Account List mismatch detected ${k} is not in the account list`,
           });
         }
