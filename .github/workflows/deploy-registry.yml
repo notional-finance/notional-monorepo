@@ -6,8 +6,12 @@ on:
         description: 'Choose an environment to deploy to: <dev|prod>'
         required: true
         default: 'dev'
+      branch:
+        description: 'Choose an branch to deploy:'
+        required: false
+        default: 'alpha/arbitrum'
       registry:
-        description: 'Set a registry to deploy: <configuration|exchanges|oracles|tokens|vaults>'
+        description: 'Set a registry to deploy: <configuration|exchanges|oracles|tokens|vaults|data>'
         required: true
         default: ''
   push:
@@ -23,6 +27,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: ${{ github.event.inputs.branch || 'alpha/arbitrum' }}
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
@@ -30,10 +35,28 @@ jobs:
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
 
-      - name: Wrangler Publish
+      - name: Wrangler Publish Registry
+        if: ${{ github.event.inputs.registry != 'data' }}
         shell: bash
-        run: |
-          yarn nx run-many --target=publish-wrangler --projects=registry-${{ github.event.inputs.registry }} --env ${{ github.event.inputs.environment || 'dev' }} --var NX_COMMIT_REF:${{ github.sha }}
+        run: >
+          yarn nx run-many
+          --target=publish-wrangler
+          --projects=registry-${{ github.event.inputs.registry }}
+          --env ${{ github.event.inputs.environment || 'dev' }}
+          --var NX_COMMIT_REF:${{ github.sha }}
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
+
+      - name: Wrangler Publish Data
+        if: ${{ github.event.inputs.registry == 'data' }}
+        shell: bash
+        run: >
+          yarn nx run-many
+          --target=publish-wrangler
+          --projects=data
+          --env ${{ github.event.inputs.environment || 'dev' }}
+          --var NX_COMMIT_REF:${{ github.sha }}
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
