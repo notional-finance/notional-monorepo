@@ -4,6 +4,13 @@ import { Network, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
 
 /** Contains selectors for account holdings information */
+function useNetworkAccounts(network: Network | undefined) {
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+
+  return network && networkAccounts && networkAccounts[network];
+}
 
 export function useAccountDefinition(network: Network | undefined) {
   const {
@@ -17,13 +24,7 @@ export function useAccountDefinition(network: Network | undefined) {
 }
 
 export function useTotalIncentives(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-
-  return networkAccounts && network
-    ? networkAccounts[network].totalIncentives || {}
-    : {};
+  return useNetworkAccounts(network)?.totalIncentives || {};
 }
 
 export function useAccountReady(network: Network | undefined) {
@@ -43,12 +44,7 @@ export function useTransactionHistory(network: Network | undefined) {
 }
 
 export function useVaultHoldings(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-  return networkAccounts && network
-    ? networkAccounts[network].vaultHoldings || []
-    : [];
+  return useNetworkAccounts(network)?.vaultHoldings || [];
 }
 
 export function useVaultPosition(
@@ -61,46 +57,23 @@ export function useVaultPosition(
 }
 
 export function usePortfolioHoldings(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-  return networkAccounts && network
-    ? networkAccounts[network].portfolioHoldings || []
-    : [];
+  return useNetworkAccounts(network)?.portfolioHoldings || [];
 }
 
 export function useGroupedHoldings(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-  return networkAccounts && network
-    ? networkAccounts[network].groupedHoldings || []
-    : undefined;
+  return useNetworkAccounts(network)?.groupedHoldings || [];
 }
 
 export function usePortfolioRiskProfile(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-  return networkAccounts && network
-    ? networkAccounts[network].riskProfile
-    : undefined;
+  return useNetworkAccounts(network)?.riskProfile;
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-  return networkAccounts && network
-    ? networkAccounts[network].portfolioLiquidationPrices || []
-    : [];
+  return useNetworkAccounts(network)?.portfolioLiquidationPrices || [];
 }
 
 export function useAccountCurrentFactors(network: Network | undefined) {
   const fiatToken = useFiatToken();
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
   const emptyFactors = {
     currentAPY: undefined,
     netWorth: TokenBalance.zero(fiatToken),
@@ -108,16 +81,7 @@ export function useAccountCurrentFactors(network: Network | undefined) {
     assets: TokenBalance.zero(fiatToken),
   };
 
-  if (
-    networkAccounts &&
-    network &&
-    networkAccounts[network] &&
-    networkAccounts[network].currentFactors
-  ) {
-    return networkAccounts[network].currentFactors || emptyFactors;
-  } else {
-    return emptyFactors;
-  }
+  return useNetworkAccounts(network)?.currentFactors || emptyFactors;
 }
 
 export function useAccountNetWorth() {
