@@ -131,15 +131,17 @@ export const DepositInput = React.forwardRef<
           <InputLabel inputLabel={inputLabel} />
           {(maxWithdraw || maxBalance) && (
             <Caption sx={{ color: theme.palette.typography.main }}>
-              <WalletIcon
-                fill={theme.palette.typography.light}
-                sx={{
-                  fontSize: '12px',
-                  position: 'relative',
-                  top: '1px',
-                  marginRight: theme.spacing(0.5),
-                }}
-              />
+              {!isWithdraw && (
+                <WalletIcon
+                  fill={theme.palette.typography.light}
+                  sx={{
+                    fontSize: '12px',
+                    position: 'relative',
+                    top: '1px',
+                    marginRight: theme.spacing(0.5),
+                  }}
+                />
+              )}
               &nbsp;
               {(
                 (maxWithdraw || maxBalance) as TokenBalance
