@@ -26,6 +26,7 @@ interface RedeemNTokenState {
   netNTokenBalance: TypedBigNumber | undefined;
   noteIncentivesMinted: TypedBigNumber | undefined;
   redemptionFees: TypedBigNumber | undefined;
+  acceptResiduals: boolean;
 }
 
 const initialRedeemNTokenState = {
@@ -36,6 +37,7 @@ const initialRedeemNTokenState = {
   netNTokenBalance: undefined,
   noteIncentivesMinted: undefined,
   redemptionFees: undefined,
+  acceptResiduals: false,
 };
 
 export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
@@ -52,6 +54,7 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
     netNTokenBalance,
     noteIncentivesMinted,
     redemptionFees,
+    acceptResiduals,
   } = state;
   const { assetKey } = useQueryParams();
   const isDeleverage = action === PORTFOLIO_ACTIONS.DELEVERAGE && assetKey;
@@ -97,10 +100,12 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
       currencyId && netNTokenBalance
         ? NTokenValue.getAssetFromRedeemNToken(
             currencyId,
-            netNTokenBalance.neg()
+            netNTokenBalance.neg(),
+            !acceptResiduals
           )
         : undefined;
-  } catch {
+  } catch (e) {
+    console.error(e);
     // If this errors then the account is unable to redeem any nTokens
   }
   const cashToPortfolio = cashFromRedemption?.toAssetCash();
@@ -169,6 +174,12 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
           minLendSlippage,
         ],
       };
+    } else if (acceptResiduals) {
+      buildTransactionCall = {
+        transactionFn: notional.redeemNTokenDirect,
+        // Set to sell token assets and accept residuals
+        transactionArgs: [address, currencyId, inputAmount, true, true],
+      };
     } else {
       // If we are in deleverage but against an ifCash asset, then we will still just
       // go to redeem ntoken direct and leave the cash in the portfolio
@@ -200,6 +211,7 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
     canSubmit,
     availableTokens,
     selectedToken,
+    acceptResiduals,
     sidebarInfo: {
       [TradePropertyKeys.amountToPortfolio]:
         cashToPortfolio?.toUnderlying() ||

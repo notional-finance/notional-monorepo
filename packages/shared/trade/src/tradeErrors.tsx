@@ -18,7 +18,7 @@ export const tradeErrors = defineMessages({
     description: 'error message',
   },
   errorCalculatingWithdraw: {
-    defaultMessage: 'Error calculating withdraw: {e}',
+    defaultMessage: '{e}, accept residuals to continue.',
     description: 'error message',
   },
   negativeCashWarningOnDeposit: {

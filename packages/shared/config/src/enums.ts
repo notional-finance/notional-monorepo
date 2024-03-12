@@ -58,6 +58,7 @@ export enum WITHDRAW_TYPE {
   ONLY_NTOKEN = 'only-ntoken',
   BOTH = 'both',
   REDEEM_TO_CASH = 'only-redeem',
+  REDEEM_ACCEPT_RESIDUALS = 'redeem-accept-residual',
 }
 
 export enum NTOKEN_ACTIONS {

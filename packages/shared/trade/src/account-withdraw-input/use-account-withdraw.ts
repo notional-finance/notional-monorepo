@@ -53,7 +53,10 @@ export function useAccountWithdraw(
       maxAmount = isUnderlying
         ? selectedBalanceSummary?.maxWithdrawValueAssetCash.toUnderlying(true)
         : selectedBalanceSummary?.maxWithdrawValueAssetCash;
-    } else if (withdrawType === WITHDRAW_TYPE.REDEEM_TO_CASH) {
+    } else if (
+      withdrawType === WITHDRAW_TYPE.REDEEM_TO_CASH ||
+      withdrawType === WITHDRAW_TYPE.REDEEM_ACCEPT_RESIDUALS
+    ) {
       // When redeeming nTokens to cash, the max amount is the total balance
       // because this will always increase the free collateral of the account
       maxAmount = selectedBalanceSummary?.nTokenBalance;
@@ -72,6 +75,9 @@ export function useAccountWithdraw(
           currencyId,
           inputAmount
         );
+        netNTokenBalance = inputAmount.neg();
+      } else if (withdrawType === WITHDRAW_TYPE.REDEEM_ACCEPT_RESIDUALS) {
+        netCashBalance = inputAmount.toAssetCash().copy(0);
         netNTokenBalance = inputAmount.neg();
       } else if (inputAmount.lte(maxAmount)) {
         const withdrawAmounts = selectedBalanceSummary.getWithdrawAmounts(
@@ -94,17 +100,19 @@ export function useAccountWithdraw(
               balanceData.accountIncentiveDebt
             )
           : undefined;
-      redemptionFees = netNTokenBalance
-        ? netNTokenBalance
-            .neg()
-            .toAssetCash(true)
-            .sub(
-              NTokenValue.getAssetFromRedeemNToken(
-                currencyId,
-                netNTokenBalance.neg()
+      redemptionFees =
+        netNTokenBalance &&
+        withdrawType !== WITHDRAW_TYPE.REDEEM_ACCEPT_RESIDUALS
+          ? netNTokenBalance
+              .neg()
+              .toAssetCash(true)
+              .sub(
+                NTokenValue.getAssetFromRedeemNToken(
+                  currencyId,
+                  netNTokenBalance.neg()
+                )
               )
-            )
-        : undefined;
+          : undefined;
     }
   } catch (e) {
     errorMsg = {
