@@ -24,9 +24,6 @@ import { StakeView } from '@notional-finance/stake-feature-shell';
 import LendCardView from '@notional-finance/lend-feature-shell/lend-card-view';
 import { LendFeatureShell } from '@notional-finance/lend-feature-shell';
 import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
-import BorrowCardView from '@notional-finance/borrow-feature-shell/borrow-card-view';
-import { BorrowFeatureShell } from '@notional-finance/borrow-feature-shell';
-import { LiquidityCurrencyView } from '@notional-finance/liquidity-feature-shell';
 import { TreasuryView } from '@notional-finance/treasury-feature-shell';
 import {
   VaultActionProvider,
@@ -36,7 +33,6 @@ import { AirdropView } from '../../containers/AirdropView';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
-import { ProvideLiquidityCards } from '@notional-finance/liquidity-feature-shell';
 const applicationId = process.env['NX_DD_APP_ID'] as string;
 const clientToken = process.env['NX_DD_API_KEY'] as string;
 const DD_SITE = process.env['NX_DD_SITE'];
@@ -108,25 +104,11 @@ export const App = () => {
               <Switch>
                 <AppLayoutRoute path="/airdrop" component={AirdropView} />
                 <AppLayoutRoute
-                  path="/borrow/:currency/:collateral"
-                  routeKey={routeKey}
-                  component={BorrowFeatureShell}
-                />
-                <AppLayoutRoute path="/borrow" component={BorrowCardView} />
-                <AppLayoutRoute
                   path="/lend/:currency"
+                  routeKey={routeKey}
                   component={LendFeatureShell}
                 />
                 <AppLayoutRoute path="/lend" component={LendCardView} />
-                <AppLayoutRoute
-                  path="/provide/:currency"
-                  routeKey={routeKey}
-                  component={LiquidityCurrencyView}
-                />
-                <AppLayoutRoute
-                  path="/provide"
-                  component={ProvideLiquidityCards}
-                />
                 <AppLayoutRoute
                   path="/stake/:ethOrWeth"
                   component={StakeView}

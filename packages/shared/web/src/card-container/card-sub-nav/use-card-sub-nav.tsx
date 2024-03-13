@@ -16,10 +16,6 @@ export const useCardSubNav = () => {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
       to: '/vaults',
     },
-    {
-      title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      to: '/provide',
-    },
   ];
   return { links };
 };

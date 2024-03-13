@@ -1,5 +1,4 @@
 import {
-  PieChartIcon,
   VaultIcon,
   BarChartIcon,
   StakeIcon,
@@ -186,21 +185,6 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
           <VaultIcon
             className="color-stroke"
             sx={{ fontSize: '1.125rem', fill: theme.palette.common.black }}
-          />
-        ),
-      },
-      {
-        key: 'provide-liquidity',
-        label: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-        link: '/provide',
-        iconImg: (
-          <PieChartIcon
-            className="color-stroke"
-            sx={{
-              fontSize: '1.125rem',
-              stroke: 'transparent',
-              fill: theme.palette.common.black,
-            }}
           />
         ),
       },

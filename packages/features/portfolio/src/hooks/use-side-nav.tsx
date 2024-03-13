@@ -2,7 +2,6 @@ import { useParams } from 'react-router-dom';
 import {
   useAssetSummary,
   useMoneyMarket,
-  useNTokenHoldings,
   useYieldStrategies,
 } from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
@@ -12,8 +11,6 @@ import {
 } from '@notional-finance/shared-config';
 import {
   BarChartIcon,
-  CoinsIcon,
-  PieChartIcon,
   FourSquareIcon,
   MoneyMarketIcon,
   StakeIcon,
@@ -25,11 +22,9 @@ import { PortfolioParams } from '../portfolio-feature-shell';
 export const useSideNav = () => {
   const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
-  const borrowSummary = useAssetSummary(LEND_BORROW.BORROW);
   const lendSummary = useAssetSummary(LEND_BORROW.LEND);
   const leveragedVaultPositions = useYieldStrategies(true);
   const moneyMarket = useMoneyMarket();
-  const nTokenHoldings = useNTokenHoldings();
 
   const sideNavOne = [
     {
@@ -43,23 +38,6 @@ export const useSideNav = () => {
       id: PORTFOLIO_CATEGORIES.LENDS,
       to: `/portfolio/${PORTFOLIO_CATEGORIES.LENDS}`,
       notifications: lendSummary?.length,
-    },
-    {
-      Icon: (
-        <CoinsIcon
-          sx={{
-            stroke:
-              category === PORTFOLIO_CATEGORIES.BORROWS
-                ? theme.palette.common.white
-                : theme.palette.typography.light,
-            fill: 'transparent',
-            width: '17px',
-          }}
-        />
-      ),
-      id: PORTFOLIO_CATEGORIES.BORROWS,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.BORROWS}`,
-      notifications: borrowSummary.length,
     },
     {
       Icon: <HistoryIcon sx={{ width: '17px' }} />,
@@ -85,12 +63,6 @@ export const useSideNav = () => {
       id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
       to: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
       notifications: leveragedVaultPositions.length,
-    },
-    {
-      Icon: <PieChartIcon sx={{ width: '17px' }} />,
-      id: PORTFOLIO_CATEGORIES.LIQUIDITY,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.LIQUIDITY}`,
-      notifications: nTokenHoldings.length,
     },
     {
       Icon: (
