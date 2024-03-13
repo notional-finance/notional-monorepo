@@ -168,6 +168,8 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
                 isAccountReady: true,
                 riskProfile,
                 accountDefinition: a,
+                portfolioLiquidationPrices:
+                  riskProfile.getAllLiquidationPrices(),
                 portfolioHoldings,
                 groupedHoldings: calculateGroupedHoldings(a, portfolioHoldings),
                 vaultHoldings,
