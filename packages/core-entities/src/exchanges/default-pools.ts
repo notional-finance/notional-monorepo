@@ -3,7 +3,6 @@ import { PoolDefinition } from '..';
 
 // NOTE: all the addresses in this file are checksummed
 const defaultPools: Record<Network, PoolDefinition[]> = {
-  [Network.Goerli]: [],
   [Network.Mainnet]: [
     {
       // nETH
