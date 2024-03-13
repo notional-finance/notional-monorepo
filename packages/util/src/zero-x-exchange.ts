@@ -11,7 +11,6 @@ const urls: Record<Network, string> = {
   mainnet: 'https://api.0x.org/swap/v1/quote',
   arbitrum: 'https://arbitrum.api.0x.org/swap/v1/quote',
   optimism: '',
-  goerli: '',
 };
 
 const DEFAULT_SLIPPAGE_PERCENT = 5;
