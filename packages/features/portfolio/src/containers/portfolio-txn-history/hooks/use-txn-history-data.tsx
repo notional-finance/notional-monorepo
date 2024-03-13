@@ -34,10 +34,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
         vaultName,
       }) => {
         const assetData = formatTokenType(token);
-        console.log(
-          'underlyingAmountRealized.toDisplayStringWithSymbol()',
-          underlyingAmountRealized.toDisplayStringWithSymbol()
-        );
+
         return {
           transactionType: {
             label: bundleName,
@@ -125,7 +122,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
 
   const allCurrencyOptions = removeDuplicateObjects(currencyData);
   const allAssetOrVaultOptions = removeDuplicateObjects(assetOrVaultData);
-  console.log({ accountHistoryData });
+
   return {
     accountHistoryData,
     allCurrencyOptions,
