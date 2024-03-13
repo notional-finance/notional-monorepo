@@ -70,22 +70,27 @@ export const formatValueWithFiat = (
 
 export const formatTokenAmount = (
   tbn?: TokenBalance,
-  impliedFixedRate?: any
+  impliedFixedRate?: any,
+  showDisplayStringWithSymbol?: boolean,
+  showStyledNegativeValues?: boolean,
+  showPositiveAsGreen?: boolean,
+  decimalPlaces?: number
 ) => {
   return !tbn || tbn.isZero()
     ? '-'
     : {
         data: [
           {
-            displayValue: tbn.toDisplayString(3, true),
-            isNegative: tbn.isNegative(),
+            displayValue: showDisplayStringWithSymbol ? tbn.toDisplayStringWithSymbol(decimalPlaces || 3) : tbn.toDisplayString(3, true),
+            showPositiveAsGreen: showPositiveAsGreen,
+            isNegative: showStyledNegativeValues ? tbn.isNegative() : false,
           },
           {
             displayValue:
               impliedFixedRate !== undefined
                 ? `${formatNumberAsPercent(impliedFixedRate)} Fixed`
                 : '',
-            isNegative: tbn.isNegative(),
+            isNegative: showStyledNegativeValues ? tbn.isNegative() : false,
           },
         ],
       };

@@ -38,6 +38,14 @@ export const useTxnHistoryTable = (
     },
     {
       Header: (
+        <FormattedMessage defaultMessage="Asset" description={'Asset header'} />
+      ),
+      Cell: MultiValueIconCell,
+      accessor: 'asset',
+      textAlign: 'left',
+    },
+    {
+      Header: (
         <FormattedMessage
           defaultMessage="Vault Name"
           description={'Vault Name header'}
@@ -58,25 +66,7 @@ export const useTxnHistoryTable = (
       accessor: 'underlyingAmount',
       textAlign: 'right',
     },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Asset Amount"
-          description={'Asset Amount header'}
-        />
-      ),
-      Cell: MultiValueCell,
-      accessor: 'assetAmount',
-      textAlign: 'right',
-    },
-    {
-      Header: (
-        <FormattedMessage defaultMessage="Asset" description={'Asset header'} />
-      ),
-      Cell: MultiValueIconCell,
-      accessor: 'asset',
-      textAlign: 'left',
-    },
+
     {
       Header: (
         <FormattedMessage defaultMessage="Price" description={'Price header'} />
@@ -90,7 +80,7 @@ export const useTxnHistoryTable = (
       ),
       Cell: DateTimeCell,
       accessor: 'time',
-      textAlign: 'left',
+      textAlign: 'right',
     },
     {
       Header: (
@@ -155,7 +145,6 @@ export const useTxnHistoryTable = (
         transactionType,
         vaultName,
         underlyingAmount,
-        assetAmount,
         asset,
         price,
         time,
@@ -163,11 +152,9 @@ export const useTxnHistoryTable = (
       }) => {
         let result = {};
         result = {
-          'Transaction Type': `${
-            transactionType.label
-          } ${transactionType.symbol.toUpperCase()}`,
-          'Underlying Amount': underlyingAmount.data[0].displayValue,
-          'Asset Amount': assetAmount.data && assetAmount.data[0].displayValue,
+          'Transaction Type': `${transactionType.label}`,
+          'Underlying Amount':
+            underlyingAmount.data && underlyingAmount.data[0].displayValue,
           Asset: asset.label,
           Price: price,
           Time: getDateString(time, { showTime: true, slashesFormat: true }),

@@ -1,20 +1,17 @@
 import { useCallback } from 'react';
-import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import {
   useTransactionHistory,
   useSelectedNetwork,
   usePendingPnLCalculation,
 } from '@notional-finance/notionable-hooks';
-import { TokenIcon } from '@notional-finance/icons';
-import {
-  formatTokenType,
-  formatTokenAmount,
-  formatNumber,
-} from '@notional-finance/helpers';
+import { ReceivedIcon, SentIcon, TokenIcon } from '@notional-finance/icons';
+import { formatTokenType, formatTokenAmount } from '@notional-finance/helpers';
 import { getEtherscanTransactionLink } from '@notional-finance/util';
 import { SelectedOptions } from '@notional-finance/mui';
+import { useTheme } from '@mui/material';
 
 export const useTxnHistoryData = (txnHistoryCategory: number) => {
+  const theme = useTheme();
   let assetOrVaultData: SelectedOptions[] = [];
   let currencyData: SelectedOptions[] = [];
 
@@ -28,7 +25,6 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
       ({
         bundleName,
         underlyingAmountRealized,
-        tokenAmount,
         token,
         realizedPrice,
         timestamp,
@@ -38,28 +34,34 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
         vaultName,
       }) => {
         const assetData = formatTokenType(token);
+        console.log(
+          'underlyingAmountRealized.toDisplayStringWithSymbol()',
+          underlyingAmountRealized.toDisplayStringWithSymbol()
+        );
         return {
           transactionType: {
             label: bundleName,
-            symbol: underlying.symbol.toLowerCase(),
+            IconComponent: underlyingAmountRealized.isNegative() ? (
+              <SentIcon fill={theme.palette.primary.dark} />
+            ) : (
+              <ReceivedIcon fill={theme.palette.primary.main} />
+            ),
           },
           vaultName: vaultName,
-          underlyingAmount: {
-            data: [
-              {
-                displayValue:
-                  underlyingAmountRealized.toDisplayStringWithSymbol(3, true),
-                isNegative: underlyingAmountRealized.isNegative(),
-              },
-            ],
-          },
-          assetAmount: formatTokenAmount(tokenAmount, impliedFixedRate),
+          underlyingAmount: formatTokenAmount(
+            underlyingAmountRealized,
+            impliedFixedRate,
+            true,
+            false,
+            underlyingAmountRealized.isPositive(),
+            4
+          ),
           asset: {
             label: assetData.title,
             symbol: assetData.icon.toLowerCase(),
             caption: assetData.caption ? assetData.caption : '',
           },
-          price: formatNumber(realizedPrice.toFloat(), 2),
+          price: realizedPrice.toDisplayStringWithSymbol(4, true),
           time: timestamp,
           txLink: {
             hash: transactionHash,
@@ -100,6 +102,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
       return {
         id: token.id,
         title: tokenData.title,
+
         icon: <TokenIcon size="medium" symbol={tokenData.icon.toLowerCase()} />,
       };
     });
@@ -122,7 +125,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
 
   const allCurrencyOptions = removeDuplicateObjects(currencyData);
   const allAssetOrVaultOptions = removeDuplicateObjects(assetOrVaultData);
-
+  console.log({ accountHistoryData });
   return {
     accountHistoryData,
     allCurrencyOptions,

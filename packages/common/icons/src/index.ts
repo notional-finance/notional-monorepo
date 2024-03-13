@@ -93,3 +93,5 @@ export * from './lib/wallet-icon/wallet-icon';
 export * from './lib/leaf-icon/leaf-icon';
 export * from './lib/list-icon/list-icon';
 export * from './lib/edit-icon/edit-icon';
+export * from './lib/received-icon/received-icon';
+export * from './lib/sent-icon/sent-icon';

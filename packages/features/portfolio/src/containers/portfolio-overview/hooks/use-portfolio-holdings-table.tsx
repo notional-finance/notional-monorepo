@@ -85,6 +85,7 @@ export const useTotalHoldingsTable = () => {
           ),
           assets: formatCryptoWithFiat(baseCurrency, totalAssets),
           debts: formatCryptoWithFiat(baseCurrency, totalDebts),
+          isDebt: totalDebts ? true : false,
         };
       }) || []
     : [];
@@ -122,10 +123,11 @@ export const useTotalHoldingsTable = () => {
             displayValue: totalDebt
               .toFiat(baseCurrency)
               .toDisplayStringWithSymbol(3, true),
-            isNegative: totalDebt.isNegative(),
+            isNegative: false,
           },
         ],
       },
+      isDebt: totalDebt ? true : false,
     });
   }
 
