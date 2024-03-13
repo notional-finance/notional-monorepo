@@ -122,7 +122,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
 
   const allCurrencyOptions = removeDuplicateObjects(currencyData);
   const allAssetOrVaultOptions = removeDuplicateObjects(assetOrVaultData);
-  console.log({ accountHistoryData });
+
   return {
     accountHistoryData,
     allCurrencyOptions,
