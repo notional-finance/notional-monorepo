@@ -25,6 +25,7 @@ import {
 import { Env } from '.';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
+import { AccountRiskProfile, VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 
 export class RegistryClientDO extends BaseDO<Env> {
   constructor(state: DurableObjectState, env: Env) {
@@ -72,11 +73,11 @@ export class RegistryClientDO extends BaseDO<Env> {
         await this.checkAccountList(network);
         await this.checkTotalSupply(network);
         await this.saveYieldData(network);
-
         if (network === Network.ArbitrumOne) {
           await this.checkDBMonitors(network);
           await this.saveContestIRR(network, currentContestId);
         }
+        await this.saveAccountRiskProfiles(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -248,6 +249,39 @@ export class RegistryClientDO extends BaseDO<Env> {
     await this.putStorageKey(
       `${network}/accounts`,
       JSON.stringify(allContestants)
+    );
+  }
+
+  private async saveAccountRiskProfiles(network: Network) {
+
+    const accounts = Registry.getAccountRegistry()
+      .getAllSubjectKeys(network)
+      .map((a) =>
+        Registry.getAccountRegistry().getLatestFromSubject(network, a)
+      )
+      .filter((acct) => acct.systemAccountType === 'None');
+
+    const riskProfiles = accounts.map((account) => {
+      const accountRiskProfile = new AccountRiskProfile(account.balances, account.network);
+      const freeCollateralFactors = accountRiskProfile.freeCollateralFactors();
+      const hasCrossCurrencyRisk = freeCollateralFactors.some((e) => e.totalAssetsLocal.add(e.totalDebtsLocal).isNegative());
+
+      return {
+        address: account.address,
+        riskFactors: accountRiskProfile.getAllRiskFactors(),
+        hasCrossCurrencyRisk,
+        vaultRiskFactors: VaultAccountRiskProfile.getAllRiskProfiles(account).map(v => {
+          return {
+            vaultAddress: v.vaultAddress,
+            riskFactors: v.getAllRiskFactors(),
+          }
+        }),
+      };
+    });
+
+    await this.putStorageKey(
+      `${network}/accounts/riskProfiles`,
+      JSON.stringify(riskProfiles)
     );
   }
 
