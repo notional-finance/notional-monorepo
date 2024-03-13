@@ -4,8 +4,6 @@ import {
 } from '@notional-finance/shared-config';
 import {
   BarChartIcon,
-  CoinsIcon,
-  PieChartIcon,
   FourSquareIcon,
   MoneyMarketIcon,
   StakeIcon,
@@ -88,41 +86,6 @@ export const usePortfolioMobileNav = () => {
       ),
     },
     {
-      title: <FormattedMessage defaultMessage={'Borrows'} />,
-      id: PORTFOLIO_CATEGORIES.BORROWS,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.BORROWS}`,
-      Icon: (
-        <CoinsIcon
-          sx={{
-            width: theme.spacing(2),
-            stroke:
-              category === PORTFOLIO_CATEGORIES.BORROWS
-                ? theme.palette.typography.main
-                : theme.palette.typography.light,
-            fill: 'transparent',
-          }}
-        />
-      ),
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Liquidity'} />,
-      id: PORTFOLIO_CATEGORIES.LIQUIDITY,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.LIQUIDITY}`,
-      Icon: (
-        <PieChartIcon
-          sx={{
-            width: theme.spacing(2),
-            fill:
-              category === PORTFOLIO_CATEGORIES.LIQUIDITY
-                ? theme.palette.typography.main
-                : theme.palette.typography.light,
-          }}
-        />
-      ),
-    },
-  ];
-  const optionSetTwo = [
-    {
       title: <FormattedMessage defaultMessage={'Vaults'} />,
       id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
       to: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
@@ -154,6 +117,8 @@ export const usePortfolioMobileNav = () => {
         />
       ),
     },
+  ];
+  const optionSetTwo = [
     {
       title: <FormattedMessage defaultMessage={'History'} />,
       id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,

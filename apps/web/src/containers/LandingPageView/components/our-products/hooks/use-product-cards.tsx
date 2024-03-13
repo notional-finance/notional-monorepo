@@ -1,14 +1,11 @@
 import { FormattedMessage } from 'react-intl';
 import { useVaultMaxRate } from './use-vault-max-rate';
-import { useProvideLiquidityMaxRate } from './use-provide-liquidity-max-rate';
 import { useLendBorrowRates } from './use-lend-borrow-rates';
 import { colors } from '@notional-finance/styles';
 import { Box } from '@mui/material';
 
 export const useProductCards = () => {
   const { maxVaultRateData, vaultDataloading } = useVaultMaxRate();
-  const { maxRateProvideLiquidityData, provideLiquidityLoading } =
-    useProvideLiquidityMaxRate();
   const {
     maxFixedLendRateData,
     minFixedBorrowRateData,
@@ -71,21 +68,6 @@ export const useProductCards = () => {
       loading: false,
       variableRate: true,
       comingSoon: true,
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      link: '/provide',
-      text: (
-        <FormattedMessage
-          defaultMessage={`Earn NOTE incentives, interest, and trading fees from Notional's liquidity pools.`}
-        />
-      ),
-      apy: `${maxRateProvideLiquidityData.maxRate} APY`,
-      symbol: maxRateProvideLiquidityData.symbol,
-      groupedSymbols: 'eth_dai_usdc_wbtc',
-      apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
-      loading: provideLiquidityLoading,
-      variableRate: true,
     },
   ];
 

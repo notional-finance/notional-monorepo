@@ -1,10 +1,5 @@
 import { CARD_CATEGORIES } from '@notional-finance/shared-config';
-import {
-  PieChartIcon,
-  CoinsIcon,
-  BarChartLateralIcon,
-  VaultIcon,
-} from '@notional-finance/icons';
+import { BarChartLateralIcon, VaultIcon } from '@notional-finance/icons';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
@@ -70,43 +65,9 @@ export const useCardMobileNav = () => {
         />
       ),
     },
-    {
-      title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      id: CARD_CATEGORIES.PROVIDE_LIQUIDITY,
-      to: `/provide`,
-      Icon: (
-        <PieChartIcon
-          sx={{
-            width: theme.spacing(2),
-            fill: CARD_CATEGORIES.PROVIDE_LIQUIDITY.includes(category)
-              ? theme.palette.typography.main
-              : theme.palette.typography.light,
-            stroke: 'transparent',
-          }}
-        />
-      ),
-    },
-  ];
-  const optionSetTwo = [
-    {
-      title: <FormattedMessage defaultMessage={'Fixed Borrow'} />,
-      id: CARD_CATEGORIES.BORROW_FIXED,
-      to: `/borrow`,
-      Icon: (
-        <CoinsIcon
-          sx={{
-            width: theme.spacing(2),
-            stroke: CARD_CATEGORIES.BORROW_FIXED.includes(category)
-              ? theme.palette.typography.main
-              : theme.palette.typography.light,
-            fill: 'transparent',
-          }}
-        />
-      ),
-    },
   ];
 
-  return { optionSetOne, optionSetTwo, defaultOptionSet };
+  return { optionSetOne, defaultOptionSet };
 };
 
 export default useCardMobileNav;

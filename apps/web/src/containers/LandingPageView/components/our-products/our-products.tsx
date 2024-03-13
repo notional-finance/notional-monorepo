@@ -1,14 +1,12 @@
-import { useState } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { useProductCards } from './hooks';
 import { ProductCards } from './components/product-cards';
-import { H5, H2, Toggle } from '@notional-finance/mui';
+import { H5, H2 } from '@notional-finance/mui';
 
 export const OurProducts = () => {
-  const [selectedTab, setSelectedTab] = useState<number>(0);
-  const { earnYieldData, borrowData } = useProductCards();
+  const { earnYieldData } = useProductCards();
   const theme = useTheme();
 
   return (
@@ -28,30 +26,12 @@ export const OurProducts = () => {
               <FormattedMessage defaultMessage={'With Notional You Can'} />
             </H2>
           </Box>
-          <Toggle
-            minHeight={theme.spacing(8)}
-            width="373px"
-            tabLabels={[
-              <Box sx={{ fontSize: '1.25rem' }}>
-                <FormattedMessage defaultMessage={'Earn Yield'} />
-              </Box>,
-              <Box sx={{ fontSize: '1.25rem' }}>
-                <FormattedMessage defaultMessage={'Borrow'} />
-              </Box>,
-            ]}
-            selectedTabIndex={selectedTab}
-            onChange={(_, v) => setSelectedTab(v as number)}
-          />
         </TitleContainer>
 
         <FlexWrapper>
-          {selectedTab === 0
-            ? earnYieldData.map((data, index) => (
-                <ProductCards key={index} {...data} />
-              ))
-            : borrowData.map((data, index) => (
-                <ProductCards key={index} {...data} />
-              ))}
+          {earnYieldData.map((data, index) => (
+            <ProductCards key={index} {...data} />
+          ))}
         </FlexWrapper>
       </Container>
     </Box>

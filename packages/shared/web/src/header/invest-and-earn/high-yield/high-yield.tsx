@@ -1,13 +1,13 @@
 import { useTheme } from '@mui/material';
 import { Section, SectionLinkProps } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { StakeIcon, PieChartIcon, VaultIcon } from '@notional-finance/icons';
+import { StakeIcon, VaultIcon } from '@notional-finance/icons';
 import { useInvestEarnYields } from '../use-invest-earn-yields';
 
 export function HighYield() {
   const theme = useTheme();
   const heading = <FormattedMessage defaultMessage={'High Yield'} />;
-  const { highestNTokenRate, highestVaultApy } = useInvestEarnYields();
+  const { highestVaultApy } = useInvestEarnYields();
 
   const links: SectionLinkProps[] = [
     {
@@ -46,28 +46,6 @@ export function HighYield() {
       description: (
         <FormattedMessage
           defaultMessage={'Stake NOTE and earn protocol revenues.'}
-        />
-      ),
-      external: false,
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      to: '/provide',
-      icon: (
-        <PieChartIcon
-          sx={{
-            fontSize: '1.5rem',
-            stroke: 'transparent',
-            fill: theme.palette.common.black,
-          }}
-        />
-      ),
-      description: (
-        <FormattedMessage
-          defaultMessage={'Earn up to {rate} variable APY'}
-          values={{
-            rate: highestNTokenRate,
-          }}
         />
       ),
       external: false,

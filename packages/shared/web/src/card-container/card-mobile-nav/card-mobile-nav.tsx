@@ -1,8 +1,4 @@
 import { useState } from 'react';
-import {
-  THEME_VARIANTS,
-  PORTFOLIO_CATEGORIES,
-} from '@notional-finance/shared-config';
 import { Box, styled, useTheme } from '@mui/material';
 import { MobileNav } from '@notional-finance/mui';
 import { useSwipeable } from 'react-swipeable';
@@ -22,7 +18,7 @@ interface CustomLinkProps {
 
 export function CardMobileNav() {
   const theme = useTheme();
-  const { optionSetOne, optionSetTwo, defaultOptionSet } = useCardMobileNav();
+  const { optionSetOne, defaultOptionSet } = useCardMobileNav();
   const { pathname } = useLocation();
 
   const [navOptions, setNavOptions] = useState<NAV_OPTIONS | null>(
@@ -76,21 +72,6 @@ export function CardMobileNav() {
               }}
             />
           </ArrowContainer>
-          {optionSetTwo.map(({ title, Icon, to, id }) => (
-            <NavOption key={id} sx={{ justifyContent: 'flex-start' }}>
-              <CustomLink
-                to={to}
-                theme={theme}
-                active={pathname === to}
-                sx={{ width: theme.spacing(11) }}
-              >
-                <Box sx={{ height: theme.spacing(3) }}>{Icon}</Box>
-                <Title theme={theme} active={pathname === to}>
-                  {title}
-                </Title>
-              </CustomLink>
-            </NavOption>
-          ))}
         </Box>
       </NavSlider>
     </MobileNavContainer>

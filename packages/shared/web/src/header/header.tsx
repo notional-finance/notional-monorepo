@@ -14,7 +14,6 @@ import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
 import { ArrowRightIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
-import betaIcon from '../icons/v3-beta-icon.svg';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {}
@@ -122,28 +121,19 @@ export function Header({ children }: HeaderProps) {
             sx={{
               display: 'flex',
               alignItems: 'center',
+              marginLeft: theme.spacing(3),
             }}
           >
-            <img
-              src={betaIcon}
-              alt="beta"
-              style={{
-                marginLeft: theme.spacing(4),
-                marginRight: theme.spacing(2),
-                height: theme.spacing(3.5),
-                width: theme.spacing(3),
-              }}
-            />
             <H4 sx={{ color: colors.black, fontWeight: 500 }}>
               <FormattedMessage
                 defaultMessage={
-                  'Notional V3 is Live on Arbitrum! <a1>Try it now</a1>'
+                  'Notional V2 is being deprecated. V3 is launching on mainnet March 25th! <a1>Learn more</a1>'
                 }
                 values={{
                   a1: (msg: any) => (
                     <ExternalLink
                       textDecoration
-                      href="https://arbitrum.notional.finance"
+                      href="https://blog.notional.finance/notional-v2-deprecation-plan/"
                       style={{ fontWeight: 600 }}
                     >
                       {msg}
