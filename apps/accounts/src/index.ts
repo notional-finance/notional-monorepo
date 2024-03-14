@@ -16,7 +16,7 @@ export interface Env {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const authKey = request.headers.get('x-auth-key');
-    if (authKey !== env.AUTH_KEY) {
+    if (request.url.endsWith('/healthcheck') && authKey !== env.AUTH_KEY) {
       return new Response(null, { status: 401 });
     }
     const stub = env.REGISTRY_CLIENT_DO.get(
