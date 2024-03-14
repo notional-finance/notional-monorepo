@@ -95,7 +95,7 @@ export const useReturnDriversTable = () => {
               displayValue: fCashData
                 ?.totalValueLocked(0)
                 .toUnderlying()
-                .toDisplayString(),
+                .toDisplayString(4),
               isNegative: false,
             },
             {
