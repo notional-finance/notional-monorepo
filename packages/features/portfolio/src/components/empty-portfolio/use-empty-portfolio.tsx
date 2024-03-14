@@ -20,15 +20,11 @@ export const useEmptyPortfolio = () => {
     [PORTFOLIO_CATEGORIES.BORROWS]: {
       messages: defineMessages({
         promptText: {
-          defaultMessage: 'You currently have no borrows or borrow history',
+          defaultMessage: 'You have no borrows or borrow history',
           description: 'empty borrow overview prompt text',
         },
-        buttonText: {
-          defaultMessage: 'Create New Borrow Order',
-          description: 'empty borrow overview button text',
-        },
       }),
-      link: '/borrow',
+      link: '',
     },
     [PORTFOLIO_CATEGORIES.LENDS]: {
       messages: defineMessages({
@@ -50,12 +46,7 @@ export const useEmptyPortfolio = () => {
             'You currently have no liquidity or liquidity history',
           description: 'empty liquidity overview prompt text',
         },
-        buttonText: {
-          defaultMessage: 'Provide Liquidity',
-          description: 'empty liquidity overview button text',
-        },
       }),
-      link: '/provide',
     },
     [PORTFOLIO_CATEGORIES.OVERVIEW]: {
       messages: defineMessages({
