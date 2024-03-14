@@ -1,13 +1,16 @@
 import { Box, useTheme, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { WarningIcon } from '@notional-finance/icons';
+import { HeadingSubtitle } from '../../typography/typography';
 
 export const DashboardStateZero = () => {
   const theme = useTheme();
   return (
     <Wrapper>
       <WarningIcon sx={{ height: theme.spacing(8), width: theme.spacing(8) }} />
-      <FormattedMessage defaultMessage={'No Profitable Opportunities'} />{' '}
+      <HeadingSubtitle sx={{ fontWeight: 600 }}>
+        <FormattedMessage defaultMessage={'No Profitable Opportunities'} />
+      </HeadingSubtitle>
     </Wrapper>
   );
 };
