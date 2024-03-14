@@ -153,23 +153,23 @@ export function useGroupedHoldingsTable() {
           earnings: totalEarningsWithNOTE
             ? totalEarningsWithNOTE
                 .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(3, true)
+                .toDisplayStringWithSymbol(2, true)
             : '-',
           toolTipData:
             totalIncentiveEarnings.length > 0
               ? {
                   perAssetEarnings: [
                     {
-                      underlying: earnings?.toDisplayStringWithSymbol(),
+                      underlying: earnings?.toDisplayStringWithSymbol(4),
                       baseCurrency: earnings
                         ?.toFiat(baseCurrency)
-                        .toDisplayStringWithSymbol(),
+                        .toDisplayStringWithSymbol(2),
                     },
                     ...totalIncentiveEarnings.map((i) => ({
-                      underlying: i.toDisplayStringWithSymbol(),
+                      underlying: i.toDisplayStringWithSymbol(4),
                       baseCurrency: i
                         .toFiat(baseCurrency)
-                        .toDisplayStringWithSymbol(),
+                        .toDisplayStringWithSymbol(2),
                     })),
                   ],
                 }
@@ -179,14 +179,13 @@ export function useGroupedHoldingsTable() {
             subRowData: [
               {
                 label: <FormattedMessage defaultMessage={'Borrow APY'} />,
-                value: formatNumberAsPercentWithUndefined(borrowAPY, '-', 3),
+                value: formatNumberAsPercentWithUndefined(borrowAPY, '-'),
               },
               {
                 label: <FormattedMessage defaultMessage={'Strategy APY'} />,
                 value: formatNumberAsPercentWithUndefined(
                   assetYield?.totalAPY,
-                  '-',
-                  3
+                  '-'
                 ),
                 showLoadingSpinner: true,
               },

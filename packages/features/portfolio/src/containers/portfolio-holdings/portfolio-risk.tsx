@@ -200,7 +200,7 @@ export const PortfolioRisk = () => {
                 profile
                   ?.totalAssets()
                   .toFiat(baseCurrency)
-                  .toDisplayStringWithSymbol(3, true) || '-'
+                  .toDisplayStringWithSymbol(2, true) || '-'
               }
             />
             <LabelAndValue
@@ -210,7 +210,7 @@ export const PortfolioRisk = () => {
                   ?.totalDebt()
                   .abs()
                   .toFiat(baseCurrency)
-                  .toDisplayStringWithSymbol(3, true) || '-'
+                  .toDisplayStringWithSymbol(2, true) || '-'
               }
             />
             <LabelAndValue

@@ -36,11 +36,11 @@ export const formatCryptoWithFiat = (
     : {
         data: [
           {
-            displayValue: tbn.toDisplayStringWithSymbol(3),
+            displayValue: tbn.toDisplayStringWithSymbol(4),
             isNegative: tbn.isNegative(),
           },
           {
-            displayValue: tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(3),
+            displayValue: tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(2),
             isNegative: tbn.isNegative(),
           },
         ],
@@ -81,7 +81,7 @@ export const formatTokenAmount = (
     : {
         data: [
           {
-            displayValue: showDisplayStringWithSymbol ? tbn.toDisplayStringWithSymbol(decimalPlaces || 3) : tbn.toDisplayString(3, true),
+            displayValue: showDisplayStringWithSymbol ? tbn.toDisplayStringWithSymbol(decimalPlaces || 4) : tbn.toDisplayString(4, true),
             showPositiveAsGreen: showPositiveAsGreen,
             isNegative: showStyledNegativeValues ? tbn.isNegative() : false,
           },

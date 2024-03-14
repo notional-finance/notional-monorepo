@@ -145,7 +145,7 @@ export const DepositInput = React.forwardRef<
               &nbsp;
               {(
                 (maxWithdraw || maxBalance) as TokenBalance
-              ).toDisplayStringWithSymbol(3, true)}
+              ).toDisplayStringWithSymbol(4, true)}
             </Caption>
           )}
         </Box>

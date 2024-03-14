@@ -150,17 +150,17 @@ function useApyValues(
     ];
     cardData.map(([symbol, yields]) => {
       const maxRate = getMax(yields)?.totalAPY || 0;
-      apyData[symbol] = `${formatNumberAsPercent(maxRate, 3)} APY`;
+      apyData[symbol] = `${formatNumberAsPercent(maxRate, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'LendVariable') {
     variableLend.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 3)} APY`;
+      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'MintNToken') {
     liquidity.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 3)} APY`;
+      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'BorrowFixed') {
@@ -169,12 +169,12 @@ function useApyValues(
     ];
     cardData.map(([symbol, yields]) => {
       const minRate = getMin(yields)?.totalAPY || 0;
-      apyData[symbol] = `${formatNumberAsPercent(minRate, 3)} APY`;
+      apyData[symbol] = `${formatNumberAsPercent(minRate, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'BorrowVariable') {
     variableBorrow.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 3)} APY`;
+      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'LeveragedNToken') {
@@ -183,7 +183,7 @@ function useApyValues(
       .map(({ underlying, totalAPY }) => {
         apyData[underlying.symbol] = `${formatNumberAsPercent(
           totalAPY,
-          3
+          2
         )} APY`;
         return apyData;
       });
@@ -235,7 +235,7 @@ export function useWalletBalances(
           token,
           content: {
             balance: maxBalance?.isPositive()
-              ? maxBalance?.toDisplayStringWithSymbol(3, true)
+              ? maxBalance?.toDisplayStringWithSymbol(4, true)
               : undefined,
             usdBalance: maxBalance?.isPositive()
               ? maxBalance?.toFiat('USD').toFloat()

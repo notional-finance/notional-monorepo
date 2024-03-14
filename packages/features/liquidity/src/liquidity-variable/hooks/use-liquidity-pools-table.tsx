@@ -67,7 +67,7 @@ export const useLiquidityPoolsTable = () => {
             },
             details: {
               symbol: underlyingTokenBalance?.symbol,
-              label: underlyingTokenBalance?.toDisplayString(),
+              label: underlyingTokenBalance?.toDisplayString(4),
             },
             interestRate: interestRate,
             time: moment(date).fromNow(),

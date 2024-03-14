@@ -65,6 +65,7 @@ export const useTotalsData = (
           ? maxSupplyData?.capacityRemaining.toFloat()
           : '-',
         suffix: deposit?.symbol ? ' ' + deposit?.symbol : '',
+        decimals: 4,
       },
     ],
     liquidityYieldData,

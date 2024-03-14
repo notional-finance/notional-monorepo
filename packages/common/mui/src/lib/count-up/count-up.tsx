@@ -15,7 +15,7 @@ export function CountUp({
   suffix = '',
   prefix = '',
   duration = 0.65,
-  decimals = 3,
+  decimals = 2,
   delay = 0,
 }: CountUpProps) {
   if (value !== undefined || value !== null) {

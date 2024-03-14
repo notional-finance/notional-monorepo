@@ -73,6 +73,7 @@ export const useVariableTotals = (state: TradeState) => {
         ? maxSupplyData?.capacityRemaining.toFloat()
         : '-',
       suffix: isBorrow ? '%' : deposit?.symbol ? ' ' + deposit?.symbol : '',
+      decimals: 4,
     },
   ];
 };

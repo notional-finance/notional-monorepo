@@ -164,23 +164,23 @@ export function useDetailedHoldingsTable() {
             presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
             isDebt: isDebt,
             earnings:
-              totalEarningsWithNOTE?.toDisplayStringWithSymbol(3, true) || '-',
+              totalEarningsWithNOTE?.toDisplayStringWithSymbol(2, true) || '-',
             toolTipData:
               totalIncentiveEarnings.length > 0
                 ? {
                     perAssetEarnings: [
                       {
                         underlying:
-                          s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
+                          s?.totalProfitAndLoss.toDisplayStringWithSymbol(4),
                         baseCurrency: s?.totalProfitAndLoss
                           .toFiat(baseCurrency)
-                          .toDisplayStringWithSymbol(),
+                          .toDisplayStringWithSymbol(2),
                       },
                       ...totalIncentiveEarnings.map((i) => ({
-                        underlying: i.toDisplayStringWithSymbol(),
+                        underlying: i.toDisplayStringWithSymbol(4),
                         baseCurrency: i
                           .toFiat(baseCurrency)
-                          .toDisplayStringWithSymbol(),
+                          .toDisplayStringWithSymbol(2),
                       })),
                     ],
                   }
@@ -190,12 +190,12 @@ export function useDetailedHoldingsTable() {
               subRowData: [
                 {
                   label: <FormattedMessage defaultMessage={'Amount'} />,
-                  value: `${b.toDisplayString(3, true)} ${title}`,
+                  value: `${b.toDisplayString(4, true)} ${title}`,
                 },
                 {
                   label: <FormattedMessage defaultMessage={'Entry Price'} />,
                   value: s
-                    ? s.adjustedCostBasis.toDisplayStringWithSymbol(3)
+                    ? s.adjustedCostBasis.toDisplayStringWithSymbol(4)
                     : '-',
                   // ? why doesnt this just show conditionally?
                   showLoadingSpinner: true,
@@ -204,7 +204,7 @@ export function useDetailedHoldingsTable() {
                   label: <FormattedMessage defaultMessage={'Current Price'} />,
                   value: `${TokenBalance.unit(b.token)
                     .toUnderlying()
-                    .toDisplayString(3)} ${b.underlying.symbol}`,
+                    .toDisplayString(4)} ${b.underlying.symbol}`,
                 },
               ],
               buttonBarData: [
@@ -280,9 +280,9 @@ export function useDetailedHoldingsTable() {
           },
         ],
       },
-      amountPaid: totals.amountPaid.toDisplayStringWithSymbol(),
-      presentValue: totals.presentValue.toDisplayStringWithSymbol(),
-      earnings: totals.earnings.toDisplayStringWithSymbol(),
+      amountPaid: totals.amountPaid.toDisplayStringWithSymbol(2),
+      presentValue: totals.presentValue.toDisplayStringWithSymbol(2),
+      earnings: totals.earnings.toDisplayStringWithSymbol(2),
       toolTipData:
         totals.totalIncentiveEarnings.length > 0
           ? {
@@ -290,14 +290,14 @@ export function useDetailedHoldingsTable() {
                 {
                   value: totals.nonNoteEarnings
                     .toFiat(baseCurrency)
-                    .toDisplayStringWithSymbol(),
+                    .toDisplayStringWithSymbol(2),
                   symbol: 'ORGANIC',
                 },
                 ...totals.totalIncentiveEarnings.map((data) => {
                   return {
                     value: data
                       .toFiat(baseCurrency)
-                      .toDisplayStringWithSymbol(),
+                      .toDisplayStringWithSymbol(2),
                     symbol: data.symbol,
                   };
                 }),

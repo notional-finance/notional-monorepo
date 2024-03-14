@@ -129,11 +129,11 @@ export const formatOption = (
         <CountUp
           value={c.largeFigure}
           suffix={c.largeFigureSuffix}
-          decimals={3}
+          decimals={2}
         />
       ) : (
         <span>
-          {c.largeFigure && c.largeFigure.toFixed(3)}
+          {c.largeFigure && c.largeFigure.toFixed(2)}
           {c.largeFigureSuffix}
         </span>
       );
