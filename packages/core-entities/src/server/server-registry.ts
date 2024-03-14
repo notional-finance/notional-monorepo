@@ -114,6 +114,8 @@ export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
     let blockNumber = 0;
     do {
       const data = await execute(query, variables, { chainName: network });
+      if (data['errors']) console.error(data['errors']);
+
       finalResults = Object.assign(finalResults, transform(data['data']));
       if (data['data'][rootVariable].length < 1000) {
         blockNumber = data['data']._meta?.block.number || 0;

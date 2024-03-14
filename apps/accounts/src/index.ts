@@ -10,10 +10,15 @@ export interface Env {
   NX_DD_API_KEY: string;
   SUPPORTED_NETWORKS: Network[];
   ACCOUNT_CACHE_R2: R2Bucket;
+  AUTH_KEY: string;
 }
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const authKey = request.headers.get('x-auth-key');
+    if (request.url.endsWith('/healthcheck') && authKey !== env.AUTH_KEY) {
+      return new Response(null, { status: 401 });
+    }
     const stub = env.REGISTRY_CLIENT_DO.get(
       env.REGISTRY_CLIENT_DO.idFromName(env.VERSION)
     );
