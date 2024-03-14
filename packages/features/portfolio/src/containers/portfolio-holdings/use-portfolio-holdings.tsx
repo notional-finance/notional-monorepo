@@ -17,6 +17,39 @@ import { useDetailedHoldingsTable } from './use-detailed-holdings';
 import { useGroupedHoldingsTable } from './use-grouped-holdings';
 import { useTheme } from '@mui/material';
 
+function insertDebtDivider(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i].asset.label.includes('Borrow')) {
+      arr.splice(i, 0, {
+        asset: {
+          symbol: '',
+          symbolBottom: '',
+          label: 'DEBT POSITIONS',
+          caption: '',
+        },
+        marketApy: {
+          data: [
+            {
+              displayValue: '',
+              isNegative: false,
+            },
+          ],
+        },
+        amountPaid: '',
+        presentValue: '',
+        earnings: '',
+        toolTipData: undefined,
+        actionRow: undefined,
+        tokenId: ' ',
+        isTotalRow: true,
+        isDividerRow: true,
+      });
+      break;
+    }
+  }
+  return arr;
+}
+
 export function usePortfolioHoldings() {
   const theme = useTheme();
   const isBlocked = useLeverageBlock();
@@ -86,6 +119,7 @@ export function usePortfolioHoldings() {
         textAlign: 'right',
         expandableTable: true,
         showLoadingSpinner: true,
+        showGreenText: true,
       },
       {
         Header: '',
@@ -114,6 +148,11 @@ export function usePortfolioHoldings() {
     }
   }, [expandedRows, setExpandedRows, Columns]);
 
+  const portfolioHoldingsData =
+    toggleOption === 0 && !isBlocked && groupedRows.length > 0
+      ? groupedHoldings
+      : detailedHoldings;
+
   return {
     portfolioHoldingsColumns: Columns,
     toggleBarProps: {
@@ -122,8 +161,7 @@ export function usePortfolioHoldings() {
       toggleData,
       showToggle: !isBlocked && groupedRows.length > 0,
     },
-    groupedHoldings: groupedHoldings.sort((a, b) => a.sortOrder - b.sortOrder),
-    detailedHoldings: detailedHoldings.sort(
+    portfolioHoldingsData: insertDebtDivider(portfolioHoldingsData).sort(
       (a, b) => a.sortOrder - b.sortOrder
     ),
     pendingTokenData,

@@ -37,6 +37,7 @@ interface DetailItem {
   value: {
     data: {
       displayValue?: string;
+      showPositiveAsGreen?: boolean;
       isNegative?: boolean;
     }[];
   };
@@ -337,7 +338,8 @@ function getTradeDetail(
         data: [
           {
             displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
-            isNegative: b.toUnderlying().isNegative(),
+            showPositiveAsGreen: b.toUnderlying().isPositive(),
+            isNegative: false,
           },
         ],
       },
@@ -354,7 +356,8 @@ function getTradeDetail(
         data: [
           {
             displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
-            isNegative: b.toUnderlying().isNegative(),
+            showPositiveAsGreen: b.toUnderlying().isPositive(),
+            isNegative: false,
           },
         ],
       },
@@ -367,7 +370,8 @@ function getTradeDetail(
         data: [
           {
             displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
-            isNegative: b.toUnderlying().isNegative(),
+            showPositiveAsGreen: b.toUnderlying().isPositive(),
+            isNegative: false,
           },
         ],
       },
@@ -384,7 +388,8 @@ function getTradeDetail(
         data: [
           {
             displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
-            isNegative: b.toUnderlying().isNegative(),
+            showPositiveAsGreen: b.toUnderlying().isPositive(),
+            isNegative: false,
           },
         ],
       },

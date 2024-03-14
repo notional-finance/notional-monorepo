@@ -78,6 +78,7 @@ import pUNI from '../../assets/icons/currencies/pUNI.svg';
 import cryptotesters from '../../assets/icons/community-icons/cryptotesters.svg';
 import L2DAO from '../../assets/icons/community-icons/L2DAO.svg';
 import Llamas from '../../assets/icons/community-icons/Llama.svg';
+import { VaultIcon } from '../vault-icon/vault-icon';
 import { Network, getNetworkSymbol } from '@notional-finance/util';
 import { Box } from '@mui/material';
 
@@ -510,6 +511,8 @@ export function TokenIcon({
         style={{ ...style }}
       />
     </Box>
+  ) : symbol === 'vaultshare' ? (
+    <VaultIcon />
   ) : (
     <img
       width={tokenSizes[size]}

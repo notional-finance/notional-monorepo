@@ -128,7 +128,6 @@ export const ProductCards = ({
                 <TokenIcon
                   symbol={symbol}
                   size="large"
-                  useAccentBorderImg
                   style={{ marginRight: theme.spacing(1.5) }}
                   network={network}
                 />
