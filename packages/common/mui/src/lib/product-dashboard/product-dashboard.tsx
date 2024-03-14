@@ -1,7 +1,12 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { DashboardGrid, DashboardHeader } from './components';
+import {
+  DashboardGrid,
+  DashboardHeader,
+  DashboardStateZero,
+} from './components';
 import { MessageDescriptor } from 'react-intl';
 import { DataTable } from '../data-table/data-table';
+import ProgressIndicator from '../progress-indicator/progress-indicator';
 import { DataTableColumn, TABLE_VARIANTS } from '../data-table/types';
 import { Network } from '@notional-finance/util';
 
@@ -78,6 +83,7 @@ export const ProductDashboard = ({
 }: ProductDashboardProps) => {
   const theme = useTheme();
   const isLoading = gridData && gridData?.length === 0 ? true : false;
+  const dataAvailable = gridData && gridData[0]?.data.length > 0 ? true : false;
 
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
@@ -88,7 +94,14 @@ export const ProductDashboard = ({
         dashboardTab={dashboardTab}
         handleDashboardTab={handleDashboardTab}
       />
-      {dashboardTab === 0 ? (
+      {isLoading ? (
+        <ProgressIndicator
+          type="notional"
+          sx={{ height: theme.spacing(57.5) }}
+        />
+      ) : !dataAvailable ? (
+        <DashboardStateZero />
+      ) : dashboardTab === 0 ? (
         <DashboardGrid
           gridData={gridData}
           isLoading={isLoading}
@@ -97,7 +110,8 @@ export const ProductDashboard = ({
           threeWideGrid={threeWideGrid}
         />
       ) : (
-        listColumns && (
+        listColumns &&
+        dataAvailable && (
           <Box
             sx={{
               marginTop: theme.spacing(4),
