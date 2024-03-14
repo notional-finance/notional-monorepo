@@ -95,3 +95,4 @@ export * from './lib/list-icon/list-icon';
 export * from './lib/edit-icon/edit-icon';
 export * from './lib/received-icon/received-icon';
 export * from './lib/sent-icon/sent-icon';
+export * from './lib/warning-icon/warning-icon';
