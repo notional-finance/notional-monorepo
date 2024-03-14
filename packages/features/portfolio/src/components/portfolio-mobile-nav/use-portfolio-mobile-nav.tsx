@@ -6,9 +6,11 @@ import {
   BarChartIcon,
   FourSquareIcon,
   MoneyMarketIcon,
+  PieChartIcon,
   StakeIcon,
   VaultIcon,
   HistoryIcon,
+  CoinsIcon,
 } from '@notional-finance/icons';
 import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
@@ -111,6 +113,39 @@ export const usePortfolioMobileNav = () => {
             width: theme.spacing(2),
             fill:
               category === PORTFOLIO_CATEGORIES.STAKED_NOTE
+                ? theme.palette.typography.main
+                : theme.palette.typography.light,
+          }}
+        />
+      ),
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Borrows'} />,
+      id: PORTFOLIO_CATEGORIES.BORROWS,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.BORROWS}`,
+      Icon: (
+        <CoinsIcon
+          sx={{
+            width: theme.spacing(2),
+            stroke:
+              category === PORTFOLIO_CATEGORIES.BORROWS
+                ? theme.palette.typography.main
+                : theme.palette.typography.light,
+            fill: 'transparent',
+          }}
+        />
+      ),
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Liquidity'} />,
+      id: PORTFOLIO_CATEGORIES.LIQUIDITY,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.LIQUIDITY}`,
+      Icon: (
+        <PieChartIcon
+          sx={{
+            width: theme.spacing(2),
+            fill:
+              category === PORTFOLIO_CATEGORIES.LIQUIDITY
                 ? theme.palette.typography.main
                 : theme.palette.typography.light,
           }}

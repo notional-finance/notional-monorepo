@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import {
   useAssetSummary,
   useMoneyMarket,
+  useNTokenHoldings,
   useYieldStrategies,
 } from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
@@ -16,6 +17,8 @@ import {
   StakeIcon,
   VaultIcon,
   HistoryIcon,
+  CoinsIcon,
+  PieChartIcon,
 } from '@notional-finance/icons';
 import { PortfolioParams } from '../portfolio-feature-shell';
 
@@ -23,6 +26,8 @@ export const useSideNav = () => {
   const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
   const lendSummary = useAssetSummary(LEND_BORROW.LEND);
+  const borrowSummary = useAssetSummary(LEND_BORROW.BORROW);
+  const nTokenHoldings = useNTokenHoldings();
   const leveragedVaultPositions = useYieldStrategies(true);
   const moneyMarket = useMoneyMarket();
 
@@ -38,6 +43,23 @@ export const useSideNav = () => {
       id: PORTFOLIO_CATEGORIES.LENDS,
       to: `/portfolio/${PORTFOLIO_CATEGORIES.LENDS}`,
       notifications: lendSummary?.length,
+    },
+    {
+      Icon: (
+        <CoinsIcon
+          sx={{
+            stroke:
+              category === PORTFOLIO_CATEGORIES.BORROWS
+                ? theme.palette.common.white
+                : theme.palette.typography.light,
+            fill: 'transparent',
+            width: '17px',
+          }}
+        />
+      ),
+      id: PORTFOLIO_CATEGORIES.BORROWS,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.BORROWS}`,
+      notifications: borrowSummary.length,
     },
     {
       Icon: <HistoryIcon sx={{ width: '17px' }} />,
@@ -63,6 +85,12 @@ export const useSideNav = () => {
       id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
       to: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
       notifications: leveragedVaultPositions.length,
+    },
+    {
+      Icon: <PieChartIcon sx={{ width: '17px' }} />,
+      id: PORTFOLIO_CATEGORIES.LIQUIDITY,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.LIQUIDITY}`,
+      notifications: nTokenHoldings.length,
     },
     {
       Icon: (
