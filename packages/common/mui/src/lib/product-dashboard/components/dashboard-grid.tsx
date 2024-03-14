@@ -15,7 +15,6 @@ export const DashboardGrid = ({
   gridData,
   setShowNegativeYields,
   showNegativeYields,
-  // isLoading,
   threeWideGrid,
 }: DashboardGridProps) => {
   const theme = useTheme();
