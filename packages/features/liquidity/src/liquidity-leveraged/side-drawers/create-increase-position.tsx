@@ -46,7 +46,8 @@ export const CreateOrIncreasePosition = () => {
       />
       {currentPosition ? (
         <ManageTerms
-          context={context}
+          borrowType={currentPosition.debt.tokenType === 'PrimeDebt' ? 'Variable' : 'Fixed'}
+          leverageRatio={currentPosition.leverageRatio}
           linkString={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/Manage/${deposit?.symbol}`}
         />
       ) : (
