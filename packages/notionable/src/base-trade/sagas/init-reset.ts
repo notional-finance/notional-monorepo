@@ -3,6 +3,25 @@ import { filterEmpty } from '@notional-finance/util';
 import { Observable, pairwise, map, filter, distinctUntilChanged } from 'rxjs';
 import { BaseTradeState, VaultTradeState } from '../base-trade-store';
 
+export function resetOnNetworkChange(state$: Observable<BaseTradeState>) {
+  return state$.pipe(
+    filter((s) => s.isReady),
+    pairwise(),
+    map(([p, c]) =>
+      p.selectedNetwork !== c.selectedNetwork
+        ? {
+            reset: true,
+            selectedNetwork: c.selectedNetwork,
+            tradeType: c.tradeType,
+            selectedToken: c.selectedToken,
+            selectedDepositToken: c.selectedDepositToken,
+          }
+        : undefined
+    ),
+    filterEmpty()
+  );
+}
+
 export function resetOnTradeTypeChange(
   state$: Observable<BaseTradeState>,
   isVault = false
@@ -43,7 +62,7 @@ export function initVaultState(state$: Observable<VaultTradeState>) {
     distinctUntilChanged(
       (p, c) =>
         p.vaultAddress === c.vaultAddress &&
-        p.selectedNetwork === c.selectedDepositToken
+        p.selectedNetwork === c.selectedNetwork
     ),
     map(({ vaultAddress, selectedNetwork, isReady }) => {
       if (!vaultAddress || !selectedNetwork || isReady) return undefined;
