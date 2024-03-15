@@ -85,7 +85,6 @@ export const useBorrowTerms = (
 
     return formattedOptions.map((o, index) => {
       const borrowRate = o?.interestRate || o?.tradeRate;
-      console.log({ borrowRate });
       const totalAPY = leveragedYield(assetAPY, borrowRate, leverageRatio);
       return {
         error:

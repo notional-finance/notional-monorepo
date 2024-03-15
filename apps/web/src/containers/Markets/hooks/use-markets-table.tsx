@@ -319,5 +319,7 @@ export const useMarketsTable = (
     );
   }, []);
 
+  console.log({ marketTableData });
+
   return { marketTableColumns, marketTableData, marketDataCSVFormatter };
 };

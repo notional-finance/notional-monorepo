@@ -171,13 +171,13 @@ export function useDetailedHoldingsTable() {
                     perAssetEarnings: [
                       {
                         underlying:
-                          s?.totalProfitAndLoss.toDisplayStringWithSymbol(4),
+                          s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
                         baseCurrency: s?.totalProfitAndLoss
                           .toFiat(baseCurrency)
                           .toDisplayStringWithSymbol(2),
                       },
                       ...totalIncentiveEarnings.map((i) => ({
-                        underlying: i.toDisplayStringWithSymbol(4),
+                        underlying: i.toDisplayStringWithSymbol(),
                         baseCurrency: i
                           .toFiat(baseCurrency)
                           .toDisplayStringWithSymbol(2),
