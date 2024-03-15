@@ -263,7 +263,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
 
     let currencyFC: TokenBalance;
     let threshold: TokenBalance;
-    const unitOfAsset = TokenBalance.unit(asset);
+    const unitOfAsset = TokenBalance.unit(riskAdjustedValue.token);
 
     if (asset.tokenType === 'Underlying') {
       if (riskAdjustedValue.isPositive() && haircut === 0) {
