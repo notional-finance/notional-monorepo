@@ -85,7 +85,7 @@ export const useMarketsTable = (
         />
       ),
       Cell: DisplayCell,
-      displayFormatter: formatNumberAsAbbr,
+      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
       accessor: 'totalTVL',
       textAlign: 'right',
       sortType: 'basic',
@@ -318,6 +318,8 @@ export const useMarketsTable = (
       }
     );
   }, []);
+
+  console.log({ marketTableData });
 
   return { marketTableColumns, marketTableData, marketDataCSVFormatter };
 };

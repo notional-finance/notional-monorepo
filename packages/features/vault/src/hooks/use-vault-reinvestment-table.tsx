@@ -68,7 +68,7 @@ export const useVaultReinvestmentTable = (
         );
         return {
           time: data.timestamp,
-          amountSold: amountSold.toDisplayStringWithSymbol(4),
+          amountSold: amountSold.toDisplayStringWithSymbol(),
           vaultSharePrice: sharePrice?.toFloat().toFixed(4),
           txnHash: {
             href: getEtherscanTransactionLink(data.transactionHash, network),

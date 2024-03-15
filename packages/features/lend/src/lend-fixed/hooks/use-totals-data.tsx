@@ -39,13 +39,13 @@ export const useTotalsData = (
       title: <FormattedMessage defaultMessage={'Market Liquidity'} />,
       value: liquidity?.liquidity?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
-      decimals: 2,
+      decimals: 0,
     },
     {
       title: <FormattedMessage defaultMessage={'Total Fixed Rate Debt'} />,
       value: totalFixedRateDebt?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
-      decimals: 2,
+      decimals: 0,
     },
     {
       title: <FormattedMessage defaultMessage={'Capacity Remaining'} />,
@@ -53,7 +53,7 @@ export const useTotalsData = (
         ? maxSupplyData?.capacityRemaining.toFloat()
         : '-',
       suffix: deposit?.symbol ? ' ' + deposit?.symbol : '',
-      decimals: 4,
+      decimals: 0,
     },
   ];
 };

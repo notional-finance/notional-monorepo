@@ -744,13 +744,13 @@ function formatLiquidationPrices(
               }
             ),
         current: p.isPriceRisk
-          ? p.current?.toFiat(baseCurrency).toDisplayStringWithSymbol(4) ||
+          ? p.current?.toFiat(baseCurrency).toDisplayStringWithSymbol() ||
             'No Risk'
-          : p.current?.toUnderlying().toDisplayStringWithSymbol(4) || 'No Risk',
+          : p.current?.toUnderlying().toDisplayStringWithSymbol() || 'No Risk',
         updated: p.isPriceRisk
-          ? p.updated?.toFiat(baseCurrency).toDisplayStringWithSymbol(4) ||
+          ? p.updated?.toFiat(baseCurrency).toDisplayStringWithSymbol() ||
             'No Risk'
-          : p.updated?.toUnderlying().toDisplayStringWithSymbol(4) || 'No Risk',
+          : p.updated?.toUnderlying().toDisplayStringWithSymbol() || 'No Risk',
         textColor: '',
         hideArrow: hideArrow || false,
       };

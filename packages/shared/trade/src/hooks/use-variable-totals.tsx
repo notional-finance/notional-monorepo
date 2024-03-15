@@ -54,11 +54,13 @@ export const useVariableTotals = (state: TradeState) => {
       title: <FormattedMessage defaultMessage={'Total Lent'} />,
       value: primeCash?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
+      decimals: 0,
     },
     {
       title: <FormattedMessage defaultMessage={'Total Borrowed'} />,
       value: primeDebt?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
+      decimals: 0,
     },
     {
       title: isBorrow ? (
@@ -73,7 +75,7 @@ export const useVariableTotals = (state: TradeState) => {
         ? maxSupplyData?.capacityRemaining.toFloat()
         : '-',
       suffix: isBorrow ? '%' : deposit?.symbol ? ' ' + deposit?.symbol : '',
-      decimals: 4,
+      decimals: 2,
     },
   ];
 };

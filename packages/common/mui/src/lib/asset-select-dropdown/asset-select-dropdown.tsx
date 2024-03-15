@@ -18,9 +18,11 @@ interface AssetSelectDropdownProps {
   options?: {
     token: TokenDefinition;
     largeFigure: number;
+    largeFigureDecimals?: number;
     largeFigureSuffix: string;
     caption?: React.ReactNode;
     largeCaption?: number;
+    largeCaptionDecimals?: number;
     largeCaptionSuffix?: string;
     disabled?: boolean;
     optionTitle?: React.ReactNode;
@@ -60,10 +62,12 @@ export const AssetSelectDropdown = ({
     ({
       token,
       largeFigure,
+      largeFigureDecimals,
       largeFigureSuffix,
       caption,
       disabled,
       largeCaption,
+      largeCaptionDecimals,
       largeCaptionSuffix,
       optionTitle,
       error,
@@ -75,7 +79,9 @@ export const AssetSelectDropdown = ({
             optionTitle,
             error,
             largeFigure,
+            largeFigureDecimals,
             largeCaption,
+            largeCaptionDecimals,
             largeCaptionSuffix,
             largeFigureSuffix,
             shouldCountUp: false,
@@ -104,6 +110,8 @@ export const AssetSelectDropdown = ({
                   content: {
                     error: o.error,
                     largeCaption: o.largeCaption,
+                    largeCaptionDecimals: o.largeCaptionDecimals,
+                    largeFigureDecimals: o.largeFigureDecimals,
                     largeCaptionSuffix: o.largeCaptionSuffix,
                     largeFigure: o.largeFigure,
                     largeFigureSuffix: o.largeFigureSuffix,

@@ -160,13 +160,13 @@ export function useGroupedHoldingsTable() {
               ? {
                   perAssetEarnings: [
                     {
-                      underlying: earnings?.toDisplayStringWithSymbol(4),
+                      underlying: earnings?.toDisplayStringWithSymbol(),
                       baseCurrency: earnings
                         ?.toFiat(baseCurrency)
                         .toDisplayStringWithSymbol(2),
                     },
                     ...totalIncentiveEarnings.map((i) => ({
-                      underlying: i.toDisplayStringWithSymbol(4),
+                      underlying: i.toDisplayStringWithSymbol(),
                       baseCurrency: i
                         .toFiat(baseCurrency)
                         .toDisplayStringWithSymbol(2),

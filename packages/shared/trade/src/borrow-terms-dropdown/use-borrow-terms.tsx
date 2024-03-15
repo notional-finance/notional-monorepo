@@ -85,7 +85,6 @@ export const useBorrowTerms = (
 
     return formattedOptions.map((o, index) => {
       const borrowRate = o?.interestRate || o?.tradeRate;
-      console.log({ borrowRate });
       const totalAPY = leveragedYield(assetAPY, borrowRate, leverageRatio);
       return {
         error:
@@ -102,8 +101,10 @@ export const useBorrowTerms = (
           ) : undefined,
         token: o?.token,
         largeCaption: totalAPY ? totalAPY : undefined,
+        largeCaptionDecimals: 2,
         largeCaptionSuffix: '% Total APY',
         largeFigure: borrowRate,
+        largeFigureDecimals: 2,
         largeFigureSuffix: `% Borrow APY`,
         caption:
           o?.token.maturity && !o?.token?.symbol.includes('open') ? (

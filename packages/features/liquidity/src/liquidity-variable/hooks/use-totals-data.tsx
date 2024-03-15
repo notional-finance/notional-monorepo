@@ -51,6 +51,7 @@ export const useTotalsData = (
         title: <FormattedMessage defaultMessage={'Market Liquidity'} />,
         value: liquidityYieldData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
         prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
+        decimals: 0,
       },
       {
         title: <FormattedMessage defaultMessage={'Incentive APY'} />,
@@ -65,7 +66,7 @@ export const useTotalsData = (
           ? maxSupplyData?.capacityRemaining.toFloat()
           : '-',
         suffix: deposit?.symbol ? ' ' + deposit?.symbol : '',
-        decimals: 4,
+        decimals: 0,
       },
     ],
     liquidityYieldData,
