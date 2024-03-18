@@ -9,7 +9,6 @@ import {
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import React from 'react';
 import { formatLeverageRatio } from '@notional-finance/helpers';
-import { useLeveragedNTokenPositions } from '../hooks';
 import { BorrowTermsDropdown } from '../borrow-terms-dropdown/borrow-terms-dropdown';
 import { LeverageSlider } from '../leverage-slider/leverage-slider';
 import { useHistory } from 'react-router';
@@ -17,12 +16,12 @@ import { useHistory } from 'react-router';
 interface TermsProps {
   context: BaseTradeContext;
   CustomLeverageSlider?: typeof LeverageSlider;
-  hideToggle?: boolean;
 }
 
-interface ManageTermsProps extends TermsProps {
+interface ManageTermsProps {
+  leverageRatio: number;
+  borrowType: 'Fixed' | 'Variable';
   linkString: string;
-  isVault?: boolean;
 }
 
 export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
@@ -61,29 +60,11 @@ export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
 };
 
 export const ManageTerms = ({
-  context,
   linkString,
-  isVault,
+  leverageRatio,
+  borrowType,
 }: ManageTermsProps) => {
   const history = useHistory();
-  const {
-    state: { riskFactorLimit, deposit, debt, selectedNetwork },
-  } = context;
-  const { currentPosition } = useLeveragedNTokenPositions(
-    selectedNetwork,
-    deposit?.symbol
-  );
-
-  const leverageRatio =
-    riskFactorLimit?.riskFactor === 'leverageRatio'
-      ? (riskFactorLimit.limit as number)
-      : 0;
-  const borrowTypeVaults = debt?.symbol.includes('fixed')
-    ? 'Fixed'
-    : 'Variable';
-  const borrowTypeLeveragedLiquidity =
-    currentPosition?.debt?.tokenType === 'fCash' ? 'Fixed' : 'Variable';
-
   return (
     <Terms
       inputLabel={defineMessage({
@@ -93,7 +74,7 @@ export const ManageTerms = ({
       <TermsBox
         hasPosition={true}
         leverageRatio={leverageRatio}
-        borrowType={isVault ? borrowTypeVaults : borrowTypeLeveragedLiquidity}
+        borrowType={borrowType}
         actionClick={() => history.push(linkString)}
         actionBody={
           <Box sx={{ alignItems: 'center', display: 'flex' }}>

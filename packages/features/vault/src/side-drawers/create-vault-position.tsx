@@ -12,6 +12,7 @@ import {
 } from '@notional-finance/trade';
 import { messages } from '../messages';
 import { useVaultPosition } from '@notional-finance/notionable-hooks';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
 export const CreateVaultPosition = () => {
   const theme = useTheme();
@@ -48,14 +49,18 @@ export const CreateVaultPosition = () => {
           />
           {vaultPosition ? (
             <ManageTerms
-              context={context}
-              isVault={true}
+              borrowType={
+                vaultPosition.vault.vaultDebt.maturity ===
+                PRIME_CASH_VAULT_MATURITY
+                  ? 'Variable'
+                  : 'Fixed'
+              }
+              leverageRatio={vaultPosition.leverageRatio}
               linkString={`/vaults/${selectedNetwork}/${vaultAddress}/Manage`}
             />
           ) : (
             <CustomTerms
               context={context}
-              hideToggle
               CustomLeverageSlider={VaultLeverageSlider}
             />
           )}
