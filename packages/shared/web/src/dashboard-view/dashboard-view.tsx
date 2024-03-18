@@ -112,8 +112,6 @@ export const LiquidityLeveragedDashboard = () => {
     network
   );
 
-  console.log({ gridData });
-
   return (
     <DashboardView
       {...gridData}
