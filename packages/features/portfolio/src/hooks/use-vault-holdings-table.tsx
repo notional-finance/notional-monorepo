@@ -223,22 +223,22 @@ export const useVaultHoldingsTable = () => {
           : undefined,
         // NOTE: these values are inside the accordion
         strategyAPY: {
-          displayValue: formatNumberAsPercent(strategyAPY, 3),
+          displayValue: formatNumberAsPercent(strategyAPY, 2),
           isNegative: strategyAPY && strategyAPY < 0,
         },
         borrowAPY: {
-          displayValue: formatNumberAsPercent(borrowAPY, 3),
+          displayValue: formatNumberAsPercent(borrowAPY, 2),
         },
         leverageRatio: formatLeverageRatio(v.leverageRatio() || 0),
         actionRow: {
           subRowData: [
             {
               label: <FormattedMessage defaultMessage={'Borrow APY'} />,
-              value: formatNumberAsPercent(borrowAPY, 3),
+              value: formatNumberAsPercent(borrowAPY, 2),
             },
             {
               label: <FormattedMessage defaultMessage={'Strategy APY'} />,
-              value: formatNumberAsPercent(strategyAPY, 3),
+              value: formatNumberAsPercent(strategyAPY, 2),
             },
             {
               label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,

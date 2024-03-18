@@ -127,7 +127,7 @@ export function useLiquidationChart(
       {
         label: pricePair || 'Price',
         value: currentPrice ? (
-          <CountUp value={currentPrice.toFloat()} decimals={3} />
+          <CountUp value={currentPrice.toFloat()} decimals={4} />
         ) : undefined,
         lineColor: theme.palette.charts.main,
         lineType: LEGEND_LINE_TYPES.SOLID,
@@ -135,7 +135,7 @@ export function useLiquidationChart(
       {
         label: <FormattedMessage defaultMessage={'Liquidation Price'} />,
         value: liquidationPrice ? (
-          <CountUp value={liquidationPrice.toFloat()} decimals={3} />
+          <CountUp value={liquidationPrice.toFloat()} decimals={4} />
         ) : undefined,
         lineColor: theme.palette.error.main,
         lineType: LEGEND_LINE_TYPES.DASHED,

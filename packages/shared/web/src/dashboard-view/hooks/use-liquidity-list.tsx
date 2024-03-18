@@ -59,7 +59,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
       ),
       Cell: DisplayCell,
       displayFormatter: (val, symbol) => {
-        return `${formatNumber(val, 2)} ${symbol}`;
+        return `${formatNumber(val, 4)} ${symbol}`;
       },
       showSymbol: true,
       accessor: 'walletBalance',

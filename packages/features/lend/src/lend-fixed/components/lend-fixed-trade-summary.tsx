@@ -45,13 +45,14 @@ export const LendFixedTradeSummary = () => {
           marginTop: theme.spacing(3),
         }}
       >
-        {totalsData.map(({ title, value, prefix, suffix }, index) => (
+        {totalsData.map(({ title, value, prefix, suffix, decimals }, index) => (
           <TotalBox
             title={title}
             value={value}
             key={index}
             prefix={prefix}
             suffix={suffix}
+            decimals={decimals}
           />
         ))}
       </Box>

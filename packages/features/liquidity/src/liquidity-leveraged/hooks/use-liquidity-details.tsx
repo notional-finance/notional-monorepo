@@ -139,10 +139,9 @@ export const useLiquidityDetails = () => {
     },
     {
       label: 'Net Worth',
-      current:
-        currentHoldings?.presentValue.toDisplayStringWithSymbol(3) || '-',
+      current: currentHoldings?.presentValue.toDisplayStringWithSymbol() || '-',
       updated: {
-        value: newNetWorth?.toDisplayStringWithSymbol(3) || '-',
+        value: newNetWorth?.toDisplayStringWithSymbol() || '-',
         arrowUp:
           getChangeType(
             currentHoldings?.presentValue.toFloat(),

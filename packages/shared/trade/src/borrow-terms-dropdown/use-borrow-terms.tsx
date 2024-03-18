@@ -101,8 +101,10 @@ export const useBorrowTerms = (
           ) : undefined,
         token: o?.token,
         largeCaption: totalAPY ? totalAPY : undefined,
+        largeCaptionDecimals: 2,
         largeCaptionSuffix: '% Total APY',
         largeFigure: borrowRate,
+        largeFigureDecimals: 2,
         largeFigureSuffix: `% Borrow APY`,
         caption:
           o?.token.maturity && !o?.token?.symbol.includes('open') ? (

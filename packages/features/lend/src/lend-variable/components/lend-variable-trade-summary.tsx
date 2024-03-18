@@ -83,16 +83,19 @@ export const LendVariableTradeSummary = () => {
           marginTop: theme.spacing(3),
         }}
       >
-        {totalsData.map(({ title, value, prefix, suffix, Icon }, index) => (
-          <TotalBox
-            title={title}
-            value={value}
-            key={index}
-            prefix={prefix}
-            suffix={suffix}
-            Icon={Icon}
-          />
-        ))}
+        {totalsData.map(
+          ({ title, value, prefix, suffix, Icon, decimals }, index) => (
+            <TotalBox
+              title={title}
+              value={value}
+              key={index}
+              prefix={prefix}
+              suffix={suffix}
+              Icon={Icon}
+              decimals={decimals}
+            />
+          )
+        )}
       </Box>
       {areaChartData.length > 0 && (
         <MultiDisplayChart
