@@ -144,6 +144,8 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
     listColumns = listColumns.filter((x) => x.accessor !== 'walletBalance');
   }
 
+  console.log({ product });
+
   const listData = yieldData[product]
     .map((y) => {
       const walletBalance = account
