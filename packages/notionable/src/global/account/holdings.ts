@@ -28,6 +28,8 @@ function isHighUtilization(
   threshold = -0.005
 ) {
   const token = balance.token;
+  if (balance.hasMatured) return undefined;
+
   if (
     token.tokenType === 'nToken' ||
     // Only show this for positive fCash
@@ -37,6 +39,7 @@ function isHighUtilization(
     const threeDay = priceChanges?.threeDay.find(
       (p) => p.asset.id === token.id
     );
+
     if (
       (oneDay?.underlyingChange !== undefined &&
         oneDay.underlyingChange < threshold) ||
