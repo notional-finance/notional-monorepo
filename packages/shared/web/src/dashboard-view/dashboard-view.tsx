@@ -111,6 +111,7 @@ export const LiquidityLeveragedDashboard = () => {
     PRODUCTS.LIQUIDITY_LEVERAGED,
     network
   );
+
   return (
     <DashboardView
       {...gridData}

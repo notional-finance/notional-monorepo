@@ -83,7 +83,10 @@ export const ProductDashboard = ({
 }: ProductDashboardProps) => {
   const theme = useTheme();
   const isLoading = gridData && gridData?.length === 0 ? true : false;
-  const dataAvailable = gridData && gridData[0]?.data.length > 0 ? true : false;
+  const noDataAvailable =
+    gridData && gridData[0]?.data.length === 0 && listData.length === 0
+      ? true
+      : false;
 
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
@@ -99,7 +102,7 @@ export const ProductDashboard = ({
           type="notional"
           sx={{ height: theme.spacing(57.5) }}
         />
-      ) : !dataAvailable ? (
+      ) : noDataAvailable ? (
         <DashboardStateZero />
       ) : dashboardTab === 0 ? (
         <DashboardGrid
@@ -110,8 +113,7 @@ export const ProductDashboard = ({
           threeWideGrid={threeWideGrid}
         />
       ) : (
-        listColumns &&
-        dataAvailable && (
+        dashboardTab === 1 && (
           <Box
             sx={{
               marginTop: theme.spacing(4),

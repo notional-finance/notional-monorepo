@@ -123,11 +123,17 @@ export const useLiquidityLeveragedGrid = (
     });
   }
 
+  const showNegativeYieldsToggle = defaultLeveragedLiquidityData.find(
+    ({ apy }) => apy < 0
+  );
+
   const levLiquidityData = allData && allData.length > 0 ? gridData : [];
 
   return {
     gridData: levLiquidityData,
-    setShowNegativeYields: hasNegativeApy ? setShowNegativeYields : undefined,
+    setShowNegativeYields: showNegativeYieldsToggle
+      ? setShowNegativeYields
+      : undefined,
     showNegativeYields: hasNegativeApy ? showNegativeYields : undefined,
   };
 };

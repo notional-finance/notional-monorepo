@@ -188,6 +188,7 @@ const Item = styled('ul', {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    white-space: nowrap;
     background: ${
       isSelected ? theme.palette.info.light : theme.palette.background.paper
     };
@@ -221,14 +222,17 @@ const DropdownOptions = styled('ul', {
     position: absolute;
     box-sizing: border-box;
     left: 0;
-    width: 100%;
     max-height: ${theme.spacing(38)};
-    overflow: auto;
     list-style: none;
     padding: 0px;
     border: 1px solid ${theme.palette.borders.paper};
     background: ${theme.palette.background.paper};
     z-index: 99999;
+    max-height: ${theme.spacing(37.5)};
+    width: ${theme.spacing(29)};
+    overflow-x: visible;
+    overflow-y: auto;
+    
 `
 );
 
