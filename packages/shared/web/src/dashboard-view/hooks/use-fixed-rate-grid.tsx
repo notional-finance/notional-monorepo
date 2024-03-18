@@ -11,7 +11,8 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
   const history = useHistory();
   const baseCurrency = useFiat();
   const tokenObj = {};
-  const yieldData = product === PRODUCTS.LEND_FIXED ? fCashLend : fCashBorrow;
+  const isBorrow = product === PRODUCTS.BORROW_FIXED;
+  const yieldData = isBorrow ? fCashBorrow : fCashLend;
 
   const apySubTitle =
     product === PRODUCTS.LEND_FIXED
@@ -24,46 +25,65 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
           description: 'subtitle',
         });
 
-  const allData = yieldData
-    .map((y) => {
-      return {
-        ...y,
-        symbol: y.underlying.symbol,
-        title: y.underlying.symbol,
-        subTitle: `Liquidity: ${formatNumberAsAbbr(
-          y?.liquidity?.toFiat(baseCurrency).toFloat() || 0,
-          0,
-          baseCurrency
-        )}`,
-        network: y.token.network,
-        hasPosition: false,
-        apySubTitle: apySubTitle,
-        tvlNum: y?.liquidity ? y.liquidity.toFiat(baseCurrency).toNumber() : 0,
-        apy: y.totalAPY,
-        routeCallback: () =>
-          history.push(`/${product}/${network}/${y.underlying.symbol}`),
-      };
-    })
-    .sort((a, b) => b.tvlNum - a.tvlNum)
-    .filter((data) => {
-      if (!tokenObj[data.symbol]) {
-        tokenObj[data.symbol] = true;
-        return data;
-      } else {
-        return null;
-      }
-    });
+  const allData = yieldData.map((y) => {
+    return {
+      ...y,
+      symbol: y.underlying.symbol,
+      title: y.underlying.symbol,
+      subTitle: `Liquidity: ${formatNumberAsAbbr(
+        y?.liquidity?.toFiat(baseCurrency).toFloat() || 0,
+        0,
+        baseCurrency
+      )}`,
+      network: y.token.network,
+      hasPosition: false,
+      apySubTitle: apySubTitle,
+      tvlNum: y?.liquidity ? y.liquidity.toFiat(baseCurrency).toNumber() : 0,
+      apy: y.totalAPY,
+      routeCallback: () =>
+        history.push(`/${product}/${network}/${y.underlying.symbol}`),
+    };
+  });
+
+  const sortGridData = (isBorrow, allData) => {
+    if (isBorrow) {
+      return allData
+        .sort((a, b) => a.apy - b.apy)
+        .filter((data) => {
+          if (!tokenObj[data.symbol]) {
+            tokenObj[data.symbol] = true;
+            return data;
+          } else {
+            return null;
+          }
+        })
+        .sort((a, b) => b.tvlNum - a.tvlNum);
+    } else {
+      return allData
+        .sort((a, b) => b.tvlNum - a.tvlNum)
+        .filter((data) => {
+          if (!tokenObj[data.symbol]) {
+            tokenObj[data.symbol] = true;
+            return data;
+          } else {
+            return null;
+          }
+        });
+    }
+  };
+
+  const sortedData = sortGridData(isBorrow, allData);
 
   const gridData = [
     {
       sectionTitle: '',
-      data: allData,
+      data: sortedData,
       hasLeveragedPosition: false,
     },
   ];
 
   return {
-    gridData: allData.length > 0 ? gridData : [],
+    gridData: sortedData.length > 0 ? gridData : [],
     setShowNegativeYields: undefined,
     showNegativeYields: undefined,
   };
