@@ -105,9 +105,13 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
   const vaultData =
     leveragedVaults && leveragedVaults.length > 0 ? gridData : [];
 
+    const showNegativeYieldsToggle = defaultVaultData.find(
+      ({ apy }) => apy < 0
+    );
+
   return {
     gridData: vaultData,
-    setShowNegativeYields: hasNegativeApy ? setShowNegativeYields : undefined,
+    setShowNegativeYields: showNegativeYieldsToggle ? setShowNegativeYields : undefined,
     showNegativeYields: hasNegativeApy ? showNegativeYields : undefined,
   };
 };
