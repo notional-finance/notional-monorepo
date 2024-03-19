@@ -1,23 +1,54 @@
 import { ALT_ETH, Network } from '@notional-finance/util';
 import { PoolDefinition } from '..';
 
+// NOTE: all the addresses in this file are checksummed
 const defaultPools: Record<Network, PoolDefinition[]> = {
   [Network.Mainnet]: [
     {
       // nETH
-      address: '0x3410463726a7a22ce0809367a4418fe82fc31fd3',
+      address: '0x3410463726a7A22ce0809367a4418FE82Fc31FD3',
       PoolClass: 'fCashMarket',
       registerTokens: [],
     },
     {
       // nDAI
-      address: '0x87c478f00999d65f88d3088291a6928b55703444',
+      address: '0x87C478f00999d65F88D3088291a6928b55703444',
       PoolClass: 'fCashMarket',
       registerTokens: [],
     },
     {
       // nUSDC
-      address: '0x2920f9fc667e780c0cb5a78a104d21413377f97e',
+      address: '0x2920F9Fc667E780C0CB5a78a104d21413377f97E',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nwstETH
+      address: '0x9499ad68Cd1b00a869853a986ac3F82401650933',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nFRAX
+      address: '0x96bE0C426Ea53ECb6F154bEd27c9dE85722A5C6F',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nrETH
+      address: '0xd623646DA89F9264547272f268785d9C64af9ce3',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nUSDT
+      address: '0x0Da210F60A179Ee3364123943930dAdbAb8B210e',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // ncbETH
+      address: '0xa2ADBc0d7C8Da646f9d5f6CfA9Eb396403067da0',
       PoolClass: 'fCashMarket',
       registerTokens: [],
     },
