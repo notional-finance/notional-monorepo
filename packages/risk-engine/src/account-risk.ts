@@ -263,7 +263,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
 
     let currencyFC: TokenBalance;
     let threshold: TokenBalance;
-    const unitOfAsset = TokenBalance.unit(asset);
+    let unitOfAsset: TokenBalance;
 
     if (asset.tokenType === 'Underlying') {
       if (riskAdjustedValue.isPositive() && haircut === 0) {
@@ -276,20 +276,32 @@ export class AccountRiskProfile extends BaseRiskProfile {
           PERCENTAGE_BASIS
         );
         currencyFC = this.freeCollateral().toToken(asset);
+        unitOfAsset = TokenBalance.unit(asset);
       }
     } else {
       // In this case we're determining asset price risk and the "FC" figure is the
       // total asset's contribution to the free collateral (i.e. the net collateral
       // available of the asset's underlying.
       if (!asset.underlying) throw Error('No underlying found');
-      currencyFC = this.netCollateralAvailable(asset.underlying);
+      const underlying = Registry.getTokenRegistry().getTokenByID(
+        asset.network,
+        asset.underlying
+      );
+      unitOfAsset = TokenBalance.unit(underlying);
+      currencyFC = this.freeCollateral().toToken(underlying);
+      const balance = this.balances.find((t) => t.tokenId === asset.id);
+      if (!balance) throw Error('No risk adjusted value found');
+      riskAdjustedValue = balance.toUnderlying();
     }
 
     if (riskAdjustedValue.isZero()) {
       return null;
     } else {
-      // 1 - collateralDenominatedFC / netCollateralAvailable
-      // If netCollateralAvailable < 0 then the exchange rate change will be positive
+      // For exchange rate risk (when token is underlying):
+      //    1 - collateralDenominatedFC / netCollateralAvailable
+      //    If netCollateralAvailable < 0 then the exchange rate change will be positive
+      // For asset rate risk (when token is an asset):
+      //    1 - collateralDenominatedFC / positionValueNoHaircuts
       threshold = unitOfAsset.sub(
         unitOfAsset.scale(currencyFC, riskAdjustedValue)
       );

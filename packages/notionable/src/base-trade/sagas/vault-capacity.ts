@@ -81,15 +81,18 @@ export function vaultCapacity(
             : maxPrimaryBorrowCapacity
                 .sub(totalUsedPrimaryBorrowCapacity)
                 .toDisplayStringWithSymbol(0);
-          capacityUsedPercentage = totalUsedPrimaryBorrowCapacity
-            .scale(100, maxPrimaryBorrowCapacity)
-            .toNumber();
-          capacityWithUserBorrowPercentage = debtBalance
+          capacityUsedPercentage = maxPrimaryBorrowCapacity.isPositive()
             ? totalUsedPrimaryBorrowCapacity
-                .add(debtBalance.neg().toUnderlying())
                 .scale(100, maxPrimaryBorrowCapacity)
                 .toNumber()
-            : undefined;
+            : 0;
+          capacityWithUserBorrowPercentage =
+            debtBalance && maxPrimaryBorrowCapacity.isPositive()
+              ? totalUsedPrimaryBorrowCapacity
+                  .add(debtBalance.neg().toUnderlying())
+                  .scale(100, maxPrimaryBorrowCapacity)
+                  .toNumber()
+              : undefined;
         }
 
         return {
