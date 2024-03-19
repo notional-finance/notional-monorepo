@@ -91,7 +91,7 @@ export const useTotalsChart = () => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: assets.toDisplayStringWithSymbol(0),
+        value: assets.toAbbrDisplayString(0),
       },
       {
         dataKey: 'totalDebts',
@@ -105,7 +105,7 @@ export const useTotalsChart = () => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: debts.abs().toDisplayStringWithSymbol(0),
+        value: debts.abs().toAbbrDisplayString(0),
       }
     );
   }
