@@ -33,12 +33,12 @@ export const ContestPartners = () => {
           <FormattedMessage {...messages.ContestPartners.bodyText} />
         </Paragraph>
         <TableContainer>
-          <ContestTable
+          {/* <ContestTable
             columns={partnersTableColumns}
             data={partnersTableData}
             tableLoading={false}
             hideOnMobile={false}
-          />
+          /> */}
         </TableContainer>
       </ContentContainer>
       {!hasContestPass && (

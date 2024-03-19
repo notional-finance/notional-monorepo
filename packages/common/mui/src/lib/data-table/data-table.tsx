@@ -8,7 +8,7 @@ import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
 import { DataTableToggle } from './data-table-toggle/data-table-toggle';
 import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
-import { DataTableScroll } from './data-table-scroll/data-table-scroll';
+// import { DataTableScroll } from './data-table-scroll/data-table-scroll';
 import { DataTablePending } from './data-table-pending/data-table-pending';
 import {
   DataTableInfoBox,
@@ -16,13 +16,18 @@ import {
 } from './data-table-info-box/data-table-info-box';
 
 import { PageLoading } from '../page-loading/page-loading';
-import { useTable, useExpanded, useSortBy } from 'react-table';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getExpandedRowModel,
+} from '@tanstack/react-table';
+// import { useExpanded } from '@tanstack/react-table';
 import { FormattedMessage } from 'react-intl';
 import { CSVLink } from 'react-csv';
 import { TableCell } from '../typography/typography';
 import { DownloadIcon } from '@notional-finance/icons';
 import {
-  DataTableColumn,
   ExpandedRows,
   TabBarPropsType,
   TableTitleButtonsType,
@@ -38,7 +43,7 @@ export interface DataTableToggleProps {
 }
 
 interface DataTableProps {
-  columns: Array<DataTableColumn>;
+  columns: Array<any>;
   data: Array<any>;
   pendingTokenData?: { hash: string }[];
   pendingMessage?: ReactNode;
@@ -102,15 +107,15 @@ export const DataTable = ({
 }: DataTableProps) => {
   const theme = useTheme();
   const [viewAllRows, setViewAllRows] = useState<boolean>(!hideExcessRows);
-  const { getTableProps, headerGroups, rows, prepareRow } = useTable(
-    {
-      columns,
-      data,
-      initialState: initialState,
-    },
-    useSortBy,
-    useExpanded
-  );
+  const table = useReactTable({
+    columns,
+    data,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+  });
+  const { rows } = table.getRowModel();
+  const headerGroups = table.getHeaderGroups();
   const ref = useRef<HTMLDivElement | any>();
   const [infoBoxActive, setInfoBoxActive] = useState<boolean | undefined>(
     undefined
@@ -164,6 +169,7 @@ export const DataTable = ({
   const height = ref.current?.clientHeight;
   const width = ref.current?.clientWidth;
 
+  // return <div>NEW TABLE HERE</div>;
   return (
     <div>
       {csvDataFormatter && data && (
@@ -197,17 +203,18 @@ export const DataTable = ({
         </CSVLink>
       )}
       {maxHeight ? (
-        <DataTableScroll
-          columns={columns}
-          data={data}
-          tableVariant={tableVariant}
-          initialState={initialState}
-          tableTitle={tableTitle}
-          maxHeight={maxHeight}
-          tableReady={tableReady}
-          tableLoading={tableLoading}
-          sx={sx}
-        />
+        // <DataTableScroll
+        //   columns={columns}
+        //   data={data}
+        //   tableVariant={tableVariant}
+        //   initialState={initialState}
+        //   tableTitle={tableTitle}
+        //   maxHeight={maxHeight}
+        //   tableReady={tableReady}
+        //   tableLoading={tableLoading}
+        //   sx={sx}
+        // />
+        <div>NO TABLE</div>
       ) : (
         <TableContainer
           ref={ref}
@@ -277,7 +284,7 @@ export const DataTable = ({
           {tableReady ? (
             <>
               <div style={{ overflow: filterBarData ? 'auto' : '' }}>
-                <Table {...getTableProps()}>
+                <Table>
                   <DataTableHead
                     headerGroups={headerGroups}
                     tableVariant={tableVariant}
@@ -285,7 +292,7 @@ export const DataTable = ({
                   />
                   <DataTableBody
                     rows={displayedRows}
-                    prepareRow={prepareRow}
+                    // prepareRow={prepareRow}
                     tableVariant={tableVariant}
                     CustomRowComponent={CustomRowComponent}
                     setExpandedRows={setExpandedRows}

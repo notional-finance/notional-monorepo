@@ -36,41 +36,41 @@ export const useMarketsTable = (
 
   let tableColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Currency"
           description={'Currency header'}
         />
       ),
-      Cell: MultiValueIconCell,
+      cell: MultiValueIconCell,
       className: 'sticky-column',
-      accessor: 'currency',
+      accessorKey: 'currency',
       textAlign: 'left',
       width: theme.spacing(18.75),
       marginRight: theme.spacing(1.25),
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Product"
           description={'Product header'}
         />
       ),
-      accessor: 'product',
+      accessorKey: 'product',
       textAlign: 'left',
       width: theme.spacing(15.875),
       marginRight: theme.spacing(1.25),
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Total APY"
           description={'Total APY header'}
         />
       ),
       displayFormatter: formatNumberAsPercent,
-      Cell: DisplayCell,
-      accessor: 'totalAPY',
+      cell: DisplayCell,
+      accessorKey: 'totalAPY',
       textAlign: 'left',
       sortType: 'basic',
       sortDescFirst: true,
@@ -78,15 +78,15 @@ export const useMarketsTable = (
       marginRight: theme.spacing(1.25),
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Liquidity"
           description={'Liquidity header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
-      accessor: 'totalTVL',
+      accessorKey: 'totalTVL',
       textAlign: 'right',
       sortType: 'basic',
       sortDescFirst: true,
@@ -94,15 +94,15 @@ export const useMarketsTable = (
       marginRight: theme.spacing(1.25),
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Leverage"
           description={'Leverage header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: formatLeverageRatio,
-      accessor: 'leverage',
+      accessorKey: 'leverage',
       textAlign: 'right',
       sortType: 'basic',
       sortDescFirst: true,
@@ -110,28 +110,28 @@ export const useMarketsTable = (
       marginRight: theme.spacing(1.25),
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Maturity"
           description={'Maturity header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: getDateString,
-      accessor: 'maturity',
+      accessorKey: 'maturity',
       textAlign: 'right',
       width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
     },
     // {
-    //   Header: (
+    //   header: (
     //     <FormattedMessage
     //       defaultMessage="INCENTIVE APY"
     //       description={'INCENTIVE APY header'}
     //     />
     //   ),
-    //   Cell: MultiValueIconCell,
-    //   accessor: 'incentiveAPY',
+    //   cell: MultiValueIconCell,
+    //   accessorKey: 'incentiveAPY',
     //   textAlign: 'right',
     //   sortType: 'basic',
     //   sortDescFirst: true,
@@ -139,9 +139,9 @@ export const useMarketsTable = (
     //   marginRight: theme.spacing(1.25),
     // },
     {
-      Header: '',
-      Cell: LinkCell,
-      accessor: 'view',
+      header: '',
+      cell: LinkCell,
+      accessorKey: 'view',
       textAlign: 'right',
       width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
@@ -150,7 +150,7 @@ export const useMarketsTable = (
 
   if (earnBorrowOption === 1) {
     tableColumns = tableColumns.filter(
-      ({ accessor }) => accessor !== 'incentiveAPY'
+      ({ accessorKey }) => accessorKey !== 'incentiveAPY'
     );
   }
   const selectedNetworkOptions = {
@@ -288,7 +288,8 @@ export const useMarketsTable = (
   const marketTableColumns =
     earnBorrowOption === 1
       ? tableColumns.filter(
-          ({ accessor }) => accessor !== 'leverage' && accessor !== 'noteAPY'
+          ({ accessorKey }) =>
+            accessorKey !== 'leverage' && accessorKey !== 'noteAPY'
         )
       : tableColumns;
 

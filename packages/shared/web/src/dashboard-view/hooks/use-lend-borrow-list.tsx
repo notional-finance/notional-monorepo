@@ -36,73 +36,73 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
 
   let listColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Currency"
           description={'Currency header'}
         />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'currency',
+      cell: MultiValueIconCell,
+      accessorKey: 'currency',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Wallet Balance"
           description={'Wallet Balance header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: (val, symbol) => {
         return `${formatNumber(val, 4)} ${symbol}`;
       },
       showSymbol: true,
-      accessor: 'walletBalance',
+      accessorKey: 'walletBalance',
       sortType: 'basic',
       sortDescFirst: true,
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Maturity"
           description={'Maturity header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: getDateString,
-      accessor: 'maturity',
+      accessorKey: 'maturity',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="APY" description={'APY header'} />
       ),
       displayFormatter: formatNumberAsPercent,
-      Cell: DisplayCell,
-      accessor: 'apy',
+      cell: DisplayCell,
+      accessorKey: 'apy',
       textAlign: 'right',
       sortType: 'basic',
       sortDescFirst: true,
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Liquidity"
           description={'Liquidity header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: (value: number) =>
         formatNumberAsAbbr(value, 0, baseCurrency),
-      accessor: 'liquidity',
+      accessorKey: 'liquidity',
       textAlign: 'right',
       sortType: 'basic',
       sortDescFirst: true,
     },
     {
-      Header: isBorrow ? (
+      header: isBorrow ? (
         <FormattedMessage
           defaultMessage="Debt Factor"
           description={'Collateral Factor header'}
@@ -113,7 +113,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
           description={'Collateral Factor header'}
         />
       ),
-      accessor: 'collateralFactor',
+      accessorKey: 'collateralFactor',
       columnHeaderToolTip: defineMessage({
         defaultMessage:
           'Max LTV = (Collateral factor of collateral currency) / (Debt factor of debt currency)',
@@ -121,27 +121,27 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
       textAlign: 'right',
     },
     {
-      Header: '',
-      Cell: LinkCell,
-      accessor: 'view',
+      header: '',
+      cell: LinkCell,
+      accessorKey: 'view',
       textAlign: 'right',
       width: '70px',
     },
   ];
 
   if (isBorrow) {
-    listColumns = listColumns.filter((x) => x.accessor !== 'walletBalance');
+    listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
   }
 
   if (
     product === PRODUCTS.LEND_VARIABLE ||
     product === PRODUCTS.BORROW_VARIABLE
   ) {
-    listColumns = listColumns.filter((x) => x.accessor !== 'maturity');
+    listColumns = listColumns.filter((x) => x.accessorKey !== 'maturity');
   }
 
   if (account === undefined) {
-    listColumns = listColumns.filter((x) => x.accessor !== 'walletBalance');
+    listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
   }
 
   const listData = yieldData[product]

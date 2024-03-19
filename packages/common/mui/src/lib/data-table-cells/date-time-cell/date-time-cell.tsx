@@ -1,26 +1,23 @@
 import { Box, useTheme } from '@mui/material';
 import { getDateString } from '@notional-finance/util';
 import { FormattedTime } from 'react-intl';
-import { DataTableColumn } from '../../data-table/types';
 import {
   SmallTableCell,
   TableCell,
   LargeTableCell,
 } from '../../typography/typography';
 
-export interface DateTimeCellProps {
-  cell: {
-    value: number;
-    column: DataTableColumn;
-  };
-}
-export const DateTimeCell = ({
-  cell: { value, column },
-}: DateTimeCellProps): JSX.Element => {
+export const DateTimeCell = ({ cell }): JSX.Element => {
   const theme = useTheme();
+  const { column, getValue } = cell;
+  const value = getValue();
   const dateValue = new Date(value * 1000);
-  const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
-  const SecondValue = column?.expandableTable ? TableCell : SmallTableCell;
+  const FirstValue = column.columnDef?.expandableTable
+    ? LargeTableCell
+    : TableCell;
+  const SecondValue = column.columnDef?.expandableTable
+    ? TableCell
+    : SmallTableCell;
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>

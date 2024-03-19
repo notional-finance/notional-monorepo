@@ -21,44 +21,44 @@ export const useTotalHoldingsTable = () => {
 
   const totalHoldingsColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Currency"
           description={'Currency header'}
         />
       ),
-      Cell: IconCell,
-      accessor: 'currency',
+      cell: IconCell,
+      accessorKey: 'currency',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Net Worth"
           description={'Net Worth header'}
         />
       ),
-      Cell: MultiValueCell,
-      accessor: 'netWorth',
+      cell: MultiValueCell,
+      accessorKey: 'netWorth',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Assets"
           description={'assets header'}
         />
       ),
-      Cell: MultiValueCell,
-      accessor: 'assets',
+      cell: MultiValueCell,
+      accessorKey: 'assets',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Debts" description={'Debts header'} />
       ),
-      Cell: MultiValueCell,
-      accessor: 'debts',
+      cell: MultiValueCell,
+      accessorKey: 'debts',
       textAlign: 'right',
     },
   ];

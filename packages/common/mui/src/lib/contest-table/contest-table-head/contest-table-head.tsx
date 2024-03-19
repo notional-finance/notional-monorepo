@@ -1,10 +1,9 @@
-import { HeaderGroup } from 'react-table';
 import { ContestTableColumn } from '../types';
 import { TableCell, TableHead, TableRow, useTheme } from '@mui/material';
 import { TableColumnHeading } from '../../typography/typography';
 
 interface ContestTableHeadProps {
-  headerGroups: Array<HeaderGroup>;
+  headerGroups: any[];
   hideOnMobile?: boolean;
 }
 
@@ -26,7 +25,7 @@ export const ContestTableHead = ({
         },
       }}
     >
-      {headerGroups.map((headerGroup: HeaderGroup) => (
+      {headerGroups.map((headerGroup) => (
         <TableRow {...headerGroup['getHeaderGroupProps']()}>
           {headerGroup.headers.map((column: ContestTableColumn) => {
             return (

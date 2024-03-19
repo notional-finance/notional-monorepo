@@ -26,71 +26,71 @@ export const useTxnHistoryTable = (
 
   const tableColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Transaction Type"
           description={'Transaction Type header'}
         />
       ),
-      accessor: 'transactionType',
-      Cell: MultiValueIconCell,
+      accessorKey: 'transactionType',
+      cell: MultiValueIconCell,
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Asset" description={'Asset header'} />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'asset',
+      cell: MultiValueIconCell,
+      accessorKey: 'asset',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Vault Name"
           description={'Vault Name header'}
         />
       ),
-      Cell: VaultNameCell,
-      accessor: 'vaultName',
+      cell: VaultNameCell,
+      accessorKey: 'vaultName',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Underlying Amount"
           description={'Underlying Amount header'}
         />
       ),
-      Cell: MultiValueCell,
-      accessor: 'underlyingAmount',
+      cell: MultiValueCell,
+      accessorKey: 'underlyingAmount',
       textAlign: 'right',
     },
 
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Price" description={'Price header'} />
       ),
-      accessor: 'price',
+      accessorKey: 'price',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Time" description={'Time header'} />
       ),
-      Cell: DateTimeCell,
-      accessor: 'time',
+      cell: DateTimeCell,
+      accessorKey: 'time',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="TX LINK"
           description={'TX LINK header'}
         />
       ),
-      accessor: 'txLink',
-      Cell: TxnHashCell,
+      accessorKey: 'txLink',
+      cell: TxnHashCell,
       textAlign: 'right',
       showLinkIcon: true,
     },
@@ -98,7 +98,7 @@ export const useTxnHistoryTable = (
 
   const txnHistoryColumns =
     txnHistoryCategory === 0
-      ? tableColumns.filter(({ accessor }) => accessor !== 'vaultName')
+      ? tableColumns.filter(({ accessorKey }) => accessorKey !== 'vaultName')
       : tableColumns;
 
   const getIds = (options: SelectedOptions[]) => {

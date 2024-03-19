@@ -8,48 +8,48 @@ import { FormattedMessage } from 'react-intl';
 export const useOverviewVaultHoldingsColumns = () => {
   const overviewVaultHoldingsColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Vault" description={'vault header'} />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'strategy',
+      cell: MultiValueIconCell,
+      accessorKey: 'strategy',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Net Worth"
           description={'Net Worth header'}
         />
       ),
-      Cell: MultiValueCell,
-      accessor: 'netWorth',
+      cell: MultiValueCell,
+      accessorKey: 'netWorth',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Assets"
           description={'assets header'}
         />
       ),
-      Cell: MultiValueCell,
-      accessor: 'assets',
+      cell: MultiValueCell,
+      accessorKey: 'assets',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Debts" description={'Debts header'} />
       ),
-      Cell: MultiValueCell,
-      accessor: 'debts',
+      cell: MultiValueCell,
+      accessorKey: 'debts',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="APY" description={'Debts header'} />
       ),
-      accessor: 'totalAPY',
+      accessorKey: 'totalAPY',
       textAlign: 'right',
     },
   ];

@@ -1,5 +1,4 @@
-import { HeaderGroup } from 'react-table';
-import { DataTableColumn, TABLE_VARIANTS } from '../types';
+import { TABLE_VARIANTS } from '../types';
 import {
   TableCell,
   TableHead,
@@ -15,7 +14,7 @@ import { InfoTooltip } from '../../info-tooltip/info-tooltip';
 import { NotionalTheme } from '@notional-finance/styles';
 
 interface DataTableHeadProps {
-  headerGroups: Array<HeaderGroup>;
+  headerGroups: any[];
   expandableTable: boolean;
   tableVariant?: TABLE_VARIANTS;
   tableTitle?: JSX.Element;
@@ -47,16 +46,18 @@ export const DataTableHead = ({
           tableVariant={tableVariant}
         />
       )}
-      {headerGroups.map((headerGroup: HeaderGroup) => (
+      {headerGroups.map((headerGroup, i) => (
         <TableRow
-          {...headerGroup['getHeaderGroupProps']()}
+          // {...headerGroup.getHeaderGroupProps()}
+          key={i}
           sx={{
             height: expandableTable ? theme.spacing(4) : '',
           }}
         >
-          {headerGroup.headers.map((column: DataTableColumn) => (
+          {headerGroup.headers.map((header: any, index) => (
             <TableCell
-              className={column.className}
+              key={index}
+              className={header.column.columnDef.className}
               sx={{
                 color: expandableTable
                   ? theme.palette.background.accentDefault
@@ -66,7 +67,7 @@ export const DataTableHead = ({
                   : tableVariant === TABLE_VARIANTS.MINI
                   ? theme.spacing(1)
                   : theme.spacing(2),
-                textAlign: column['textAlign'] || 'center',
+                textAlign: header.column.columnDef.textAlign || 'center',
                 borderTop: expandableTable
                   ? theme.shape.borderStandard
                   : 'none',
@@ -74,33 +75,32 @@ export const DataTableHead = ({
                   ? theme.shape.borderStandard
                   : 'none',
                 whiteSpace: 'nowrap',
-                'sticky-column': {
-                  minWidth: column['width'],
-                },
-                width: column['width'] || 'auto',
+                width: header.column.columnDef.width || 'auto',
               }}
-              {...(tableVariant === TABLE_VARIANTS.SORTABLE
-                ? column['getHeaderProps'](column['getSortByToggleProps']())
-                : column['getHeaderProps']())}
+              // {...(tableVariant === TABLE_VARIANTS.SORTABLE
+              //   ? column['getHeaderProps'](column['getSortByToggleProps']())
+              //   : column['getHeaderProps']())}
             >
               <TableColumnHeading
-                sx={{ marginRight: column['marginRight'] || '0px' }}
+                sx={{
+                  marginRight: header.column.columnDef.marginRight || '0px',
+                }}
               >
-                {column['columnHeaderToolTip'] ? (
+                {header.column.columnDef.columnHeaderToolTip ? (
                   <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
                     <InfoTooltip
                       sx={{ marginLeft: theme.spacing(1) }}
                       iconSize={theme.spacing(2)}
                       iconColor={theme.palette.typography.accent}
-                      toolTipText={column['columnHeaderToolTip']}
+                      toolTipText={header.column.columnDef.columnHeaderToolTip}
                     />
-                    <Box>{column['render']('Header')}</Box>
+                    <Box>{header.column.columnDef.header}</Box>
                   </Box>
                 ) : (
-                  column['render']('Header')
+                  header.column.columnDef.header
                 )}
                 {tableVariant === TABLE_VARIANTS.SORTABLE &&
-                  column['render']('Header') && (
+                  header.column.columnDef.header && (
                     <UpAndDownIcon
                       sx={{
                         height: '14px',

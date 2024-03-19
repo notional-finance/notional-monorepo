@@ -29,14 +29,14 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
         }
         columns={[
           {
-            Header: <FormattedMessage defaultMessage={'Detail'} />,
-            accessor: 'label',
+            header: <FormattedMessage defaultMessage={'Detail'} />,
+            accessorKey: 'label',
             textAlign: 'left',
           },
           {
-            Header: <FormattedMessage defaultMessage={'Value'} />,
-            Cell: MultiValueCell,
-            accessor: 'value',
+            header: <FormattedMessage defaultMessage={'Value'} />,
+            cell: MultiValueCell,
+            accessorKey: 'value',
             textAlign: 'right',
           },
         ]}

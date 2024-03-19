@@ -15,6 +15,7 @@ import {
   TableCell as TypographyTableCell,
 } from '../../typography/typography';
 import { useHistory } from 'react-router';
+import { flexRender } from '@tanstack/react-table';
 
 interface StyledTableRowProps extends TableRowProps {
   theme: NotionalTheme;
@@ -26,7 +27,7 @@ interface StyledTableRowProps extends TableRowProps {
 
 interface DataTableBodyProps {
   rows: Record<string, any>[];
-  prepareRow: any;
+  prepareRow?: any;
   CustomRowComponent?: ({ row }: { row: any }) => JSX.Element;
   tableVariant?: TABLE_VARIANTS;
   setExpandedRows?: Dispatch<SetStateAction<ExpandedRows | null>>;
@@ -122,7 +123,7 @@ const StyledTableRow = styled(TableRow, {
 
 export const DataTableBody = ({
   rows,
-  prepareRow,
+  // prepareRow,
   tableVariant,
   CustomRowComponent,
   setExpandedRows,
@@ -133,7 +134,7 @@ export const DataTableBody = ({
   return (
     <TableBody className="body">
       {rows.map((row, i) => {
-        prepareRow(row);
+        // prepareRow(row);
         const rowSelected = row['original'].rowSelected;
         const lastRow = rows[rows.length - 1];
         const styleLastRow = lastRow['id'] === row['id'];
@@ -189,10 +190,10 @@ export const DataTableBody = ({
             : {};
 
         return (
-          <Fragment key={`row-container-${i}`}>
+          <Fragment key={`row-container-${row.id}`}>
             <StyledTableRow
               theme={theme}
-              key={`row-${i}`}
+              key={`row-${row.id}`}
               rowSelected={rowSelected}
               expandableTableActive={expandableTableActive}
               tableVariant={tableVariant}
@@ -208,24 +209,23 @@ export const DataTableBody = ({
                   row.original.isDividerRow &&
                   `${theme.palette.secondary.dark} !important`,
               }}
-              {...row['getRowProps']()}
+              // {...row.getRowProps()}
             >
-              {row['cells'].map((cell: Record<string, any>) => {
+              {row.getVisibleCells().map((cell: Record<string, any>) => {
                 return (
                   <TableCell
-                    className={cell['column'].className}
+                    className={cell.column.columnDef.className}
                     sx={{
                       margin: 'auto',
                       padding:
                         tableVariant === TABLE_VARIANTS.MINI
                           ? theme.spacing(1)
-                          : cell['column'].padding || '16px',
-                      textAlign: cell['column'].textAlign || 'center',
+                          : cell.column.columnDef.padding || '16px',
+                      textAlign: cell.column.columnDef.textAlign || 'center',
                       borderBottom: 'none',
                       whiteSpace: 'nowrap',
-                      width: cell['column']['width'] || 'auto',
+                      width: cell.column.columnDef.width || 'auto',
                     }}
-                    {...cell['getCellProps']()}
                   >
                     {tableVariant === TABLE_VARIANTS.MINI ? (
                       <SmallTableCell
@@ -241,7 +241,10 @@ export const DataTableBody = ({
                             'end',
                         }}
                       >
-                        {cell['render']('Cell')}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
                       </SmallTableCell>
                     ) : (
                       <TypographyTableCell
@@ -250,7 +253,10 @@ export const DataTableBody = ({
                           fontSize: CustomRowComponent ? theme.spacing(2) : '',
                         }}
                       >
-                        {cell['render']('Cell')}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
                       </TypographyTableCell>
                     )}
                   </TableCell>

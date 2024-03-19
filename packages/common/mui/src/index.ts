@@ -20,7 +20,7 @@ export * from './lib/currency-input/currency-input';
 export * from './lib/data-table/types';
 export * from './lib/data-table/data-table';
 export * from './lib/data-table-cells';
-export * from './lib/contest-table/contest-table';
+// export * from './lib/contest-table/contest-table';
 export * from './lib/contest-table/contest-cells';
 export * from './lib/contest-table/types';
 export * from './lib/drawer/drawer';

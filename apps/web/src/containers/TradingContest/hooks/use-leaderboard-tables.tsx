@@ -10,36 +10,36 @@ import { colors } from '@notional-finance/styles';
 export const useLeaderBoardTables = () => {
   const leaderBoardColumns: ContestTableColumn[] = [
     {
-      Header: '',
-      accessor: 'rank',
-      Cell: idCell,
-      isIDCell: true,
+      header: '',
+      accessorKey: 'rank',
+      cell: idCell,
+      isIDcell: true,
       textAlign: 'center',
       width: '76px',
     },
     {
-      Header: '',
-      Cell: CustomIconCell,
-      accessor: 'username',
+      header: '',
+      cell: CustomIconCell,
+      accessorKey: 'username',
       textAlign: 'left',
       width: '225px',
     },
     {
-      Header: 'Total APY',
-      accessor: 'totalAPY',
+      header: 'Total APY',
+      accessorKey: 'totalAPY',
       textAlign: 'right',
       width: '225px',
     },
     {
-      Header: 'Total Deposits',
-      accessor: 'totalDeposits',
+      header: 'Total Deposits',
+      accessorKey: 'totalDeposits',
       textAlign: 'right',
       width: '225px',
     },
     {
-      Header: 'Net Worth',
-      accessor: 'netWorth',
-      Cell: ({
+      header: 'Net Worth',
+      accessorKey: 'netWorth',
+      cell: ({
         cell: {
           value: { value, displayValue },
         },
@@ -50,8 +50,8 @@ export const useLeaderBoardTables = () => {
       width: '225px',
     },
     {
-      Header: 'Total Earnings',
-      accessor: 'totalEarnings',
+      header: 'Total Earnings',
+      accessorKey: 'totalEarnings',
       textAlign: 'right',
       width: '225px',
     },
@@ -67,7 +67,7 @@ export const useLeaderBoardTables = () => {
   } = useLeaderboardData();
 
   const currentUserColumns = leaderBoardColumns.filter(
-    ({ accessor }) => accessor !== 'address'
+    ({ accessorKey }) => accessorKey !== 'address'
   );
 
   return {

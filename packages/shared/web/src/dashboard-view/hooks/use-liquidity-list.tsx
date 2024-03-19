@@ -40,105 +40,105 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
 
   let listColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Currency"
           description={'Currency header'}
         />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'currency',
+      cell: MultiValueIconCell,
+      accessorKey: 'currency',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Wallet Balance"
           description={'Wallet Balance header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: (val, symbol) => {
         return `${formatNumber(val, 4)} ${symbol}`;
       },
       showSymbol: true,
-      accessor: 'walletBalance',
+      accessorKey: 'walletBalance',
       sortType: 'basic',
       sortDescFirst: true,
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Total APY"
           description={'Total APY header'}
         />
       ),
-      Cell: MultiValueIconCell,
+      cell: MultiValueIconCell,
       displayFormatter: formatNumberAsPercent,
-      accessor: 'totalApy',
+      accessorKey: 'totalApy',
       sortType: 'basic',
       sortDescFirst: true,
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Organic APY"
           description={'Organic header'}
         />
       ),
-      Cell: MultiValueIconCell,
+      cell: MultiValueIconCell,
       displayFormatter: formatNumberAsPercent,
-      accessor: 'organicApy',
+      accessorKey: 'organicApy',
       sortType: 'basic',
       sortDescFirst: true,
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="INCENTIVE APY"
           description={'INCENTIVE APY header'}
         />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'incentiveApy',
+      cell: MultiValueIconCell,
+      accessorKey: 'incentiveApy',
       textAlign: 'right',
       sortType: 'basic',
       sortDescFirst: true,
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Liquidity"
           description={'Liquidity header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       // Update this to use baseCurrency
       displayFormatter: (value: number) =>
         formatNumberAsAbbr(value, 0, baseCurrency),
-      accessor: 'liquidity',
+      accessorKey: 'liquidity',
       textAlign: 'right',
       sortType: 'basic',
       sortDescFirst: true,
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Borrow Terms"
           description={'Borrow Terms header'}
         />
       ),
-      Cell: MultiValueIconCell,
+      cell: MultiValueIconCell,
       sortType: 'basic',
-      accessor: 'borrowTerms',
+      accessorKey: 'borrowTerms',
       sortDescFirst: true,
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Collateral Factor"
           description={'Collateral Factor header'}
@@ -148,30 +148,31 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
         defaultMessage:
           'Max LTV = (Collateral factor of collateral currency) / (Debt factor of debt currency)',
       }),
-      accessor: 'collateralFactor',
+      accessorKey: 'collateralFactor',
       textAlign: 'right',
     },
     {
-      Header: '',
-      Cell: LinkCell,
-      accessor: 'view',
+      header: '',
+      cell: LinkCell,
+      accessorKey: 'view',
       textAlign: 'right',
       width: '70px',
     },
   ];
 
   if (account === undefined) {
-    listColumns = listColumns.filter((x) => x.accessor !== 'walletBalance');
+    listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
   }
 
   if (product === PRODUCTS.LIQUIDITY_LEVERAGED) {
     listColumns = listColumns.filter(
-      (x) => x.accessor !== 'collateralFactor' && x.accessor !== 'liquidity'
+      (x) =>
+        x.accessorKey !== 'collateralFactor' && x.accessorKey !== 'liquidity'
     );
   }
 
   if (product === PRODUCTS.LIQUIDITY_VARIABLE) {
-    listColumns = listColumns.filter((x) => x.accessor !== 'borrowTerms');
+    listColumns = listColumns.filter((x) => x.accessorKey !== 'borrowTerms');
   }
 
   const listData = yieldData

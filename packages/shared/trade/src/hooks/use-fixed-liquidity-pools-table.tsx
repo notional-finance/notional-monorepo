@@ -16,30 +16,30 @@ export const useFixedLiquidityPoolsTable = (
   if (token) {
     tableColumns = [
       {
-        Header: (
+        header: (
           <FormattedMessage
             defaultMessage={'Maturity'}
             description={'Maturity header'}
           />
         ),
-        Cell: DisplayCell,
-        accessor: 'maturity',
+        cell: DisplayCell,
+        accessorKey: 'maturity',
         textAlign: 'left',
       },
       {
-        Header: `${token.symbol}`,
-        Cell: DisplayCell,
-        accessor: 'valueOfCash',
+        header: `${token.symbol}`,
+        cell: DisplayCell,
+        accessorKey: 'valueOfCash',
         textAlign: 'left',
       },
       {
-        Header: `f${token.symbol}`,
-        Cell: DisplayCell,
-        accessor: 'valueOfFCash',
+        header: `f${token.symbol}`,
+        cell: DisplayCell,
+        accessorKey: 'valueOfFCash',
         textAlign: 'left',
       },
       {
-        Header: (
+        header: (
           <FormattedMessage
             defaultMessage={'f{symbol} PRICE'}
             values={{
@@ -47,20 +47,20 @@ export const useFixedLiquidityPoolsTable = (
             }}
           />
         ),
-        Cell: DisplayCell,
-        accessor: 'price',
+        cell: DisplayCell,
+        accessorKey: 'price',
         textAlign: 'right',
       },
       {
-        Header: (
+        header: (
           <FormattedMessage
             defaultMessage={'Interest Rate'}
             description={'Interest Rate header'}
           />
         ),
-        Cell: DisplayCell,
+        cell: DisplayCell,
         displayFormatter: formatNumberAsPercent,
-        accessor: 'interestRate',
+        accessorKey: 'interestRate',
         textAlign: 'right',
       },
     ];

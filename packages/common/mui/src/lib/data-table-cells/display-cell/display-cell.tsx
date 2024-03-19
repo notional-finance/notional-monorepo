@@ -2,19 +2,23 @@ import { Box, useTheme } from '@mui/material';
 import { TableCell, LargeTableCell } from '../../typography/typography';
 import { ProgressIndicator } from '../../progress-indicator/progress-indicator';
 
-export const DisplayCell = ({ cell }): JSX.Element => {
+export const DisplayCell = (props): JSX.Element => {
   const theme = useTheme();
-  const { column, value, row } = cell;
-  const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
-  const isPending = column.showLoadingSpinner && row.original.isPending;
-  const ToolTip = column?.ToolTip;
+  const { column, getValue, row } = props.cell;
+  const value = getValue();
+  const FirstValue = column.columnDef?.expandableTable
+    ? LargeTableCell
+    : TableCell;
+  const isPending =
+    column.columnDef.showLoadingSpinner && row.original.isPending;
+  const ToolTip = column.columnDef?.ToolTip;
   const toolTipData = row.original?.toolTipData;
 
   return (
     <TableCell
       sx={{
         display: 'flex',
-        justifyContent: column.textAlign,
+        justifyContent: column.columnDef.textAlign,
         alignItems: 'center',
       }}
     >
@@ -23,10 +27,12 @@ export const DisplayCell = ({ cell }): JSX.Element => {
           circleSize={16}
           sx={{
             display: 'flex',
-            justifyContent: column?.textAlign,
+            justifyContent: column.columnDef?.textAlign,
           }}
         />
-      ) : value && column.displayFormatter && parseFloat(value) !== 0 ? (
+      ) : value &&
+        column.columnDef.displayFormatter &&
+        parseFloat(value) !== 0 ? (
         <Box
           sx={{
             h4: {
@@ -47,12 +53,12 @@ export const DisplayCell = ({ cell }): JSX.Element => {
                   : '',
             }}
           >
-            {column.showSymbol
-              ? column.displayFormatter(
+            {column.columnDef.showSymbol
+              ? column.columnDef.displayFormatter(
                   parseFloat(value),
-                  cell.row.original.symbol
+                  props.cell.row.original.symbol
                 )
-              : column.displayFormatter(parseFloat(value))}
+              : column.columnDef.displayFormatter(parseFloat(value))}
           </FirstValue>
         </Box>
       ) : parseFloat(value) === 0 ? (
@@ -76,7 +82,7 @@ export const DisplayCell = ({ cell }): JSX.Element => {
                 (parseFloat(value) < 0 || value.toString().includes('-')) &&
                 !row.original.isDebt
                   ? theme.palette.error.main
-                  : !row.original.isDebt && column.showGreenText
+                  : !row.original.isDebt && column.columnDef.showGreenText
                   ? theme.palette.primary.main
                   : theme.palette.typography.main,
             }}

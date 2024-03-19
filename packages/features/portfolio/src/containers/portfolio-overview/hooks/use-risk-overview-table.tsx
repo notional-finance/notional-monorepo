@@ -16,45 +16,45 @@ export const useRiskOverviewTable = () => {
 
   const riskOverviewColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Collateral"
           description={'column header'}
         />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'collateral',
+      cell: MultiValueIconCell,
+      accessorKey: 'collateral',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Risk Factor"
           description={'column header'}
         />
       ),
-      Cell: MultiValueCell,
-      accessor: 'riskFactor',
+      cell: MultiValueCell,
+      accessorKey: 'riskFactor',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Current Price"
           description={'column header'}
         />
       ),
-      accessor: 'currentPrice',
+      accessorKey: 'currentPrice',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Liquidation Price"
           description={'column header'}
         />
       ),
-      accessor: 'liquidationPrice',
+      accessorKey: 'liquidationPrice',
       textAlign: 'right',
     },
   ];

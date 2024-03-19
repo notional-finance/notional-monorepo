@@ -24,21 +24,21 @@ export const useVaultPriceExposure = (state: VaultTradeState) => {
 
   const columns: DataTableColumn[] = [
     {
-      Header: <FormattedMessage defaultMessage="Exit Price" />,
-      accessor: 'price',
+      header: <FormattedMessage defaultMessage="Exit Price" />,
+      accessorKey: 'price',
       textAlign: 'left',
       width: theme.spacing(31.75),
     },
     {
-      Header: <FormattedMessage defaultMessage="Vault Share Price" />,
-      accessor: 'vaultSharePrice',
+      header: <FormattedMessage defaultMessage="Vault Share Price" />,
+      accessorKey: 'vaultSharePrice',
       textAlign: 'right',
       width: theme.spacing(31.75),
     },
     {
-      Header: <FormattedMessage defaultMessage="Profit / Loss" />,
-      Cell: NegativeValueCell,
-      accessor: 'profitLoss',
+      header: <FormattedMessage defaultMessage="Profit / Loss" />,
+      cell: NegativeValueCell,
+      accessorKey: 'profitLoss',
       textAlign: 'right',
       width: theme.spacing(31.75),
     },

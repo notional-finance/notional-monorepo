@@ -106,6 +106,7 @@ export const Body = makeVariant('body1', 'div');
 export const Paragraph = makeVariant('body1');
 export const Label = makeVariant('body1');
 export const LabelValue = makeVariant('labelValue');
+// @ts-ignore
 export const TableCell = makeVariant('tableCell');
 export const BodySecondary = makeVariant('body2');
 export const TooltipText = makeVariant('body2');

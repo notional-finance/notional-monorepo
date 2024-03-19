@@ -2,21 +2,9 @@ import { Box, useTheme } from '@mui/material';
 import { LargeTableCell } from '../../typography/typography';
 import { TokenIcon } from '@notional-finance/icons';
 
-export interface ExpandableCurrencyCellProps {
-  row: {
-    isExpanded: boolean;
-  };
-  cell: {
-    value: {
-      symbol: string;
-      label?: string;
-    };
-  };
-}
-
-export const ExpandableCurrencyCell = ({ cell }: ExpandableCurrencyCellProps): JSX.Element => {
+export const ExpandableCurrencyCell = ({ cell }): JSX.Element => {
   const theme = useTheme();
-  const { symbol, label } = cell.value;
+  const { symbol, label } = cell.getValue();
 
   return (
     <Box
@@ -29,7 +17,9 @@ export const ExpandableCurrencyCell = ({ cell }: ExpandableCurrencyCellProps): J
       }}
     >
       <TokenIcon symbol={symbol || 'unknown'} size="medium" />
-      <LargeTableCell sx={{ marginLeft: '10px' }}>{label || symbol}</LargeTableCell>
+      <LargeTableCell sx={{ marginLeft: '10px' }}>
+        {label || symbol}
+      </LargeTableCell>
     </Box>
   );
 };
