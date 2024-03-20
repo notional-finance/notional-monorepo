@@ -18,7 +18,6 @@ import { GenericDataWriter, TokenBalanceDataWriter } from './DataWriter';
 import { gql } from '@apollo/client';
 import { configDefs as GenericConfig } from './config/GenericConfig';
 import { Arb_Balancer_Config } from './config/arb/balancer';
-import { configDefs as Arb_Convex_USDC_FRAX_Config } from './config/arb/convex/USDC_FRAX';
 import { Arb_Curve_Config } from './config/arb/convex';
 
 export const SourceContracts = {};
@@ -27,7 +26,6 @@ export const defaultConfigDefs: ConfigDefinition[] = [
   ...GenericConfig,
   ...Arb_Balancer_Config,
   ...Arb_Curve_Config,
-  ...Arb_Convex_USDC_FRAX_Config,
 ];
 
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {

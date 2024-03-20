@@ -2,7 +2,7 @@ import { getComposablePoolConfig } from './ComposablePoolConfig';
 import { Network } from '@notional-finance/util';
 import { SourceType, Strategy, TableName } from '../../../types';
 import { IAggregatorABI } from '@notional-finance/contracts';
-import { ArbTokenConfig } from '..';
+import { ArbTokenConfig, EthTokenConfig, getOracleValue } from '..';
 
 export const Arb_Balancer_Config = [
   getComposablePoolConfig(
@@ -136,6 +136,58 @@ export const Arb_Balancer_Config = [
         },
         network: Network.ArbitrumOne,
       },
+    ]
+  ),
+  getComposablePoolConfig(
+    '0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9',
+    '0x8353157092ed8be69a9df8f95af097bbf33cb2af',
+    '0xaF52695E1bB01A16D33D7194C28C42b10e0Dbec2',
+    '0xf720e9137baa9C7612e6CA59149a5057ab320cFa',
+    Network.Mainnet,
+    Strategy.Eth_Balancer_USDC_GHO_USDT,
+    [EthTokenConfig['USDC'], EthTokenConfig['GHO'], EthTokenConfig['USDT']],
+    [
+      getOracleValue(
+        Network.Mainnet,
+        Strategy.Eth_Balancer_USDC_GHO_USDT,
+        'GHO to USD Price',
+        '0x3f12643D3f6f874d39C2a4c9f2Cd6f2DbAC877FC'
+      ),
+      getOracleValue(
+        Network.Mainnet,
+        Strategy.Eth_Balancer_USDC_GHO_USDT,
+        'USDC to USD Price',
+        '0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6'
+      ),
+      getOracleValue(
+        Network.Mainnet,
+        Strategy.Eth_Balancer_USDC_GHO_USDT,
+        'USDT to USD Price',
+        '0x3E7d1eAB13ad0104d2750B8863b489D65364e32D'
+      ),
+    ]
+  ),
+  getComposablePoolConfig(
+    '0x05ff47afada98a98982113758878f9a8b9fdda0a000000000000000000000645',
+    '0x05ff47afada98a98982113758878f9a8b9fdda0a',
+    '0xaF52695E1bB01A16D33D7194C28C42b10e0Dbec2',
+    '0xC859BF9d7B8C557bBd229565124c2C09269F3aEF',
+    Network.Mainnet,
+    Strategy.Eth_Balancer_rETH_weETH,
+    [EthTokenConfig['rETH'], EthTokenConfig['weETH']],
+    [
+      getOracleValue(
+        Network.Mainnet,
+        Strategy.Eth_Balancer_rETH_weETH,
+        'rETH to ETH Price',
+        '0x536218f9E9Eb48863970252233c8F271f554C2d0'
+      ),
+      getOracleValue(
+        Network.Mainnet,
+        Strategy.Eth_Balancer_rETH_weETH,
+        'weETH to ETH Price',
+        '0x8751F736E94F6CD167e8C5B97E245680FbD9CC36'
+      ),
     ]
   ),
 ].flatMap((_) => _);

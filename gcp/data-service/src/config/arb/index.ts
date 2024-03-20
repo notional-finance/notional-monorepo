@@ -1,3 +1,7 @@
+import { Network } from '@notional-finance/util';
+import { ConfigDefinition, SourceType, Strategy, TableName } from '../../types';
+import { IAggregatorABI } from '@notional-finance/contracts';
+
 export const ArbTokenConfig = {
   WETH: {
     address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
@@ -45,3 +49,74 @@ export const ArbTokenConfig = {
     decimals: 18,
   },
 } as const;
+
+export const EthTokenConfig = {
+  WETH: {
+    address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    symbol: 'WETH',
+    decimals: 18,
+  },
+  rETH: {
+    address: '0xae78736Cd615f374D3085123A210448E74Fc6393',
+    symbol: 'rETH',
+    decimals: 18,
+  },
+  weETH: {
+    address: '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee',
+    symbol: 'weETH',
+    decimals: 18,
+  },
+  USDC: {
+    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    symbol: 'USDC',
+    decimals: 6,
+  },
+  USDT: {
+    address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    symbol: 'USDT',
+    decimals: 6,
+  },
+  DAI: {
+    address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+    symbol: 'DAI',
+    decimals: 18,
+  },
+  pyUSD: {
+    address: '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8',
+    symbol: 'pyUSD',
+    decimals: 6,
+  },
+  crvUSD: {
+    address: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+    symbol: 'crvUSD',
+    decimals: 18,
+  },
+  GHO: {
+    address: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
+    symbol: 'GHO',
+    decimals: 18,
+  },
+} as const;
+
+export function getOracleValue(
+  network: Network,
+  strategyId: Strategy,
+  name: string,
+  oracleAddress: string
+): ConfigDefinition {
+  return {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: oracleAddress,
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId,
+      variable: name,
+      decimals: 18,
+    },
+    network,
+  };
+}
