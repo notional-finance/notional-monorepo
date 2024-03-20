@@ -81,7 +81,9 @@ export const formatTokenAmount = (
     : {
         data: [
           {
-            displayValue: showDisplayStringWithSymbol ? tbn.toDisplayStringWithSymbol(decimalPlaces || 4) : tbn.toDisplayString(4, true),
+            displayValue: showDisplayStringWithSymbol
+              ? tbn.toDisplayStringWithSymbol(decimalPlaces || 4)
+              : tbn.toDisplayString(4, true),
             showPositiveAsGreen: showPositiveAsGreen,
             isNegative: showStyledNegativeValues ? tbn.isNegative() : false,
           },

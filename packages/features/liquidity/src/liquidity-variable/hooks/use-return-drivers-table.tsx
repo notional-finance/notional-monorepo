@@ -56,7 +56,9 @@ export const useReturnDriversTable = () => {
       value: {
         data: [
           {
-            displayValue: balance.toUnderlying().toAbbrDisplayString(),
+            displayValue: balance
+              .toUnderlying()
+              .toDisplayStringWithSymbol(4, true, false),
             isNegative: balance.isNegative(),
           },
           {
@@ -93,7 +95,7 @@ export const useReturnDriversTable = () => {
               displayValue: fCashData
                 ?.totalValueLocked(0)
                 .toUnderlying()
-                .toAbbrDisplayString(),
+                .toDisplayString(),
               isNegative: false,
             },
             {
