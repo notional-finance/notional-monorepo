@@ -18,7 +18,12 @@ const BalancerVault = '0xBA12222222228d8Ba445958a75a0704d566BF2C8';
 // NOTE: this controller is always called on mainnet
 const MainnetGaugeControllerAddress =
   '0xC128468b7Ce63eA702C1f104D55A2566b13D3ABD';
-const AuraLPHolderAddress = '0xC181Edc719480bd089b94647c2Dc504e2700a2B0';
+const AuraLPHolderAddress = (network: Network) =>
+  network === Network.ArbitrumOne
+    ? '0xC181Edc719480bd089b94647c2Dc504e2700a2B0'
+    : network === Network.Mainnet
+    ? '0xaF52695E1bB01A16D33D7194C28C42b10e0Dbec2'
+    : '0x';
 
 /**
  * @param poolId balancer id of the pool
@@ -75,9 +80,9 @@ export function getComposablePoolConfig(
     {
       sourceType: SourceType.Multicall,
       sourceConfig: {
-        contractAddress: AuraLPHolderAddress,
+        contractAddress: AuraLPHolderAddress(network),
         contractABI: BalancerGaugeABI,
-        method: network === Network.ArbitrumOne ? 'balanceOfPool' : 'balanceOf',
+        method: 'balanceOfPool',
         args: [balancerGaugeAddress],
       },
       tableName: TableName.GenericData,
@@ -109,7 +114,7 @@ export function getComposablePoolConfig(
         contractAddress: balancerGaugeAddress,
         contractABI: BalancerGaugeABI,
         method: 'working_balances',
-        args: [AuraLPHolderAddress],
+        args: [AuraLPHolderAddress(network)],
       },
       tableName: TableName.GenericData,
       dataConfig: {

@@ -42,7 +42,7 @@ export const Curve_Config = [
   getCurveV1PoolConfig(
     '0x390f3595bca2df7d23783dfd126427cceb997bf4',
     '0x4e6bB6B7447B7B2Aa268C16AB87F4Bb48BF57939',
-    Network.ArbitrumOne,
+    Network.Mainnet,
     Strategy.Eth_Convex_USDT_crvUSD,
     [EthTokenConfig['USDT'], EthTokenConfig['crvUSD']],
     [

@@ -141,7 +141,7 @@ export const Balancer_Config = [
   getComposablePoolConfig(
     '0x8353157092ed8be69a9df8f95af097bbf33cb2af0000000000000000000005d9',
     '0x8353157092ed8be69a9df8f95af097bbf33cb2af',
-    '0xaF52695E1bB01A16D33D7194C28C42b10e0Dbec2',
+    '0xf720e9137baa9C7612e6CA59149a5057ab320cFa',
     '0xf720e9137baa9C7612e6CA59149a5057ab320cFa',
     Network.Mainnet,
     Strategy.Eth_Balancer_USDC_GHO_USDT,
@@ -170,7 +170,7 @@ export const Balancer_Config = [
   getComposablePoolConfig(
     '0x05ff47afada98a98982113758878f9a8b9fdda0a000000000000000000000645',
     '0x05ff47afada98a98982113758878f9a8b9fdda0a',
-    '0xaF52695E1bB01A16D33D7194C28C42b10e0Dbec2',
+    '0xC859BF9d7B8C557bBd229565124c2C09269F3aEF',
     '0xC859BF9d7B8C557bBd229565124c2C09269F3aEF',
     Network.Mainnet,
     Strategy.Eth_Balancer_rETH_weETH,

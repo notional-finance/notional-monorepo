@@ -8,6 +8,11 @@ export const ArbTokenConfig = {
     symbol: 'WETH',
     decimals: 18,
   },
+  FRAX: {
+    address: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+    symbol: 'FRAX',
+    decimals: 18,
+  },
   rETH: {
     address: '0xec70dcb4a1efa46b8f2d97c310c9c4790ba5ffa8',
     symbol: 'rETH',
