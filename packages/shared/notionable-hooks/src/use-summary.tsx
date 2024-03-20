@@ -133,8 +133,8 @@ function getOrderDetails(
           {
             displayValue: `${
               isLeverageOrRoll
-                ? b.toDisplayString(3, true)
-                : b.abs().toDisplayString(3, true)
+                ? b.toDisplayString(4, true)
+                : b.abs().toDisplayString(4, true)
             } ${title}`,
             isNegative: isLeverageOrRoll ? b.isNegative() : false,
           },

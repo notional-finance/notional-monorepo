@@ -62,7 +62,8 @@ export function initVaultState(state$: Observable<VaultTradeState>) {
     distinctUntilChanged(
       (p, c) =>
         p.vaultAddress === c.vaultAddress &&
-        p.selectedNetwork === c.selectedNetwork
+        p.selectedNetwork === c.selectedNetwork &&
+        p.isReady === c.isReady
     ),
     map(({ vaultAddress, selectedNetwork, isReady }) => {
       if (!vaultAddress || !selectedNetwork || isReady) return undefined;
