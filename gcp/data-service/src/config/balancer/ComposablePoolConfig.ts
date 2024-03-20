@@ -5,14 +5,14 @@ import {
   BalancerBoostedPoolABI,
 } from '@notional-finance/contracts';
 import { Network } from '@notional-finance/util';
-import { graphQueries } from '../../../graphQueries';
+import { graphQueries } from '../../graphQueries';
 import {
   ConfigDefinition,
   ProtocolName,
   SourceType,
   Strategy,
   TableName,
-} from '../../../types';
+} from '../../types';
 
 const BalancerVault = '0xBA12222222228d8Ba445958a75a0704d566BF2C8';
 // NOTE: this controller is always called on mainnet

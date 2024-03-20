@@ -1,10 +1,10 @@
 import { getComposablePoolConfig } from './ComposablePoolConfig';
 import { Network } from '@notional-finance/util';
-import { SourceType, Strategy, TableName } from '../../../types';
+import { SourceType, Strategy, TableName } from '../../types';
 import { IAggregatorABI } from '@notional-finance/contracts';
 import { ArbTokenConfig, EthTokenConfig, getOracleValue } from '..';
 
-export const Arb_Balancer_Config = [
+export const Balancer_Config = [
   getComposablePoolConfig(
     '0xade4a71bb62bec25154cfc7e6ff49a513b491e81000000000000000000000497',
     '0xade4a71bb62bec25154cfc7e6ff49a513b491e81',

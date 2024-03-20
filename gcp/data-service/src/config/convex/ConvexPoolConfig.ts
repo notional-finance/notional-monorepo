@@ -4,14 +4,14 @@ import {
   CurveGaugeABI,
   CurveGaugeControllerABI,
 } from '@notional-finance/contracts';
-import { graphQueries } from '../../../graphQueries';
+import { graphQueries } from '../../graphQueries';
 import {
   ConfigDefinition,
   ProtocolName,
   SourceType,
   Strategy,
   TableName,
-} from '../../../types';
+} from '../../types';
 import { Network } from '@notional-finance/util';
 
 const MainnetGaugeControllerAddress =

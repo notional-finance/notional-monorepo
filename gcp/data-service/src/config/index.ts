@@ -1,5 +1,5 @@
 import { Network } from '@notional-finance/util';
-import { ConfigDefinition, SourceType, Strategy, TableName } from '../../types';
+import { ConfigDefinition, SourceType, Strategy, TableName } from '../types';
 import { IAggregatorABI } from '@notional-finance/contracts';
 
 export const ArbTokenConfig = {
