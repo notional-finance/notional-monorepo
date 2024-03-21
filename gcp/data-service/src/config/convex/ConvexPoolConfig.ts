@@ -4,14 +4,14 @@ import {
   CurveGaugeABI,
   CurveGaugeControllerABI,
 } from '@notional-finance/contracts';
-import { graphQueries } from '../../../graphQueries';
+import { graphQueries } from '../../graphQueries';
 import {
   ConfigDefinition,
   ProtocolName,
   SourceType,
   Strategy,
   TableName,
-} from '../../../types';
+} from '../../types';
 import { Network } from '@notional-finance/util';
 
 const MainnetGaugeControllerAddress =
@@ -112,7 +112,7 @@ export function getCurveV1PoolConfig(
         variable: 'Convex LP token balance in Gauge',
         decimals: 18,
       },
-      network: Network.ArbitrumOne,
+      network,
     },
     {
       sourceType: SourceType.Multicall,
@@ -127,7 +127,7 @@ export function getCurveV1PoolConfig(
         variable: 'Working Supply',
         decimals: 18,
       },
-      network: Network.ArbitrumOne,
+      network,
     },
     {
       sourceType: SourceType.Multicall,
@@ -143,7 +143,7 @@ export function getCurveV1PoolConfig(
         variable: 'Working Balance',
         decimals: 18,
       },
-      network: Network.ArbitrumOne,
+      network,
     },
     {
       sourceType: SourceType.Multicall,
@@ -171,7 +171,9 @@ export function getCurveV1PoolConfig(
           poolId: poolAddress.toLowerCase(),
         },
         transform: (r) =>
-          r.liquidityPoolDailySnapshots[0].dailyProtocolSideRevenueUSD,
+          r.liquidityPoolDailySnapshots.length > 0
+            ? r.liquidityPoolDailySnapshots[0].dailyProtocolSideRevenueUSD
+            : 0,
       },
       tableName: TableName.GenericData,
       dataConfig: {
@@ -184,3 +186,5 @@ export function getCurveV1PoolConfig(
     ...additionalConfigs,
   ];
 }
+
+0x4dece678ceceb27446b35c672dc7d61f30bad69e;
