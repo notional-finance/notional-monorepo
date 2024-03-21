@@ -24,6 +24,7 @@ import {
   InterestRateParameters,
 } from './BaseNotionalMarket';
 import { TokenDefinition } from '../../Definitions';
+import { OracleRegistryClient } from '../../client';
 
 interface fCashMarketParams {
   perMarketCash: TokenBalance[];
@@ -271,8 +272,19 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     tokensIn[0].isMatch(this.balances[0]);
 
     // Should use the oracle to fetch the nToken PV
-    const lpTokenValue = this.getBalanceArrayOracleValue(this.balances, 0);
-    const lpTokens = this.totalSupply.scale(tokensIn[0], lpTokenValue);
+    const lpTokenOracleValue = this.getBalanceArrayOracleValue(
+      this.balances,
+      0
+    );
+    const lpTokenSpotValue = this.getNTokenSpotValue();
+
+    const lpTokens = this.totalSupply.scale(
+      tokensIn[0],
+      // Use the greater of the two values
+      lpTokenOracleValue.gt(lpTokenSpotValue)
+        ? lpTokenOracleValue
+        : lpTokenSpotValue
+    );
     // NOTE: this is not correct in the face of deleverage ntoken
     const lpClaims = this.getLPTokenClaims(lpTokens);
 
@@ -354,6 +366,39 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
   /***********************************************************************/
   /*                  fCash Interest Curve Calculations                  */
   /***********************************************************************/
+
+  private getNTokenSpotValue() {
+    const primaryToken = this.balances[0].token;
+    return (
+      this.balances
+        .map((b, i) => {
+          if (i === 0) {
+            return b;
+          } else {
+            const spotExchangeRate =
+              OracleRegistryClient.interestToExchangeRate(
+                BigNumber.from(
+                  Math.floor(
+                    (this.getSpotInterestRate(b.token) || 0) * RATE_DECIMALS
+                  )
+                ),
+                b.maturity
+              ).div(RATE_PRECISION);
+
+            // b is in 8 decimal precision, after the exchange rate it is in 8
+            // decimal underlying precision
+            return TokenBalance.from(
+              b.mulInRatePrecision(spotExchangeRate).n,
+              b.underlying
+            )
+              .scaleFromInternal()
+              .toPrimeCash();
+          }
+        })
+        // Sum all balances in primary valuation
+        .reduce((v, i) => v.add(i), TokenBalance.zero(primaryToken))
+    );
+  }
 
   /**
    * Calculates the amount of fCash given a prime cash amount
