@@ -53,15 +53,15 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       registerTokens: [],
     },
     {
-      address: '0x625E92624Bc2D88619ACCc1788365A69767f6200',
+      address: '0x383E6b4437b59fff47B619CBA855CA29342A8559',
       PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
       registerTokens: [
         {
-          id: '0x625E92624Bc2D88619ACCc1788365A69767f6200',
-          address: '0x625E92624Bc2D88619ACCc1788365A69767f6200',
+          id: '0x383E6b4437b59fff47B619CBA855CA29342A8559',
+          address: '0x383E6b4437b59fff47B619CBA855CA29342A8559',
           network: Network.Mainnet,
-          symbol: 'PYcrvUSD',
-          name: 'pyUSD/crvUSD',
+          symbol: 'PayPool',
+          name: 'PYUSDUSDC',
           decimals: 18,
           tokenInterface: 'ERC20',
           tokenType: 'Underlying',
