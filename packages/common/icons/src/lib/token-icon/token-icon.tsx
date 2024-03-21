@@ -31,6 +31,8 @@ import nwstETH from '../../assets/icons/currencies/nwstETH.svg';
 import wsteth_alt from '../../assets/icons/currencies/wsteth-alt.svg';
 import fDAI from '../../assets/icons/currencies/fDAI.svg';
 import pDAI from '../../assets/icons/currencies/pDAI.svg';
+import sDAI from '../../assets/icons/currencies/sDAI.svg';
+import psDAI from '../../assets/icons/currencies/psDAI.svg';
 import fUSDC from '../../assets/icons/currencies/fUSDC.svg';
 import fWBTC from '../../assets/icons/currencies/fWBTC.svg';
 import fETH from '../../assets/icons/currencies/fETH.svg';
@@ -76,6 +78,9 @@ import pUNI from '../../assets/icons/currencies/pUNI.svg';
 import cryptotesters from '../../assets/icons/community-icons/cryptotesters.svg';
 import L2DAO from '../../assets/icons/community-icons/L2DAO.svg';
 import Llamas from '../../assets/icons/community-icons/Llama.svg';
+import { VaultIcon } from '../vault-icon/vault-icon';
+import { Network, getNetworkSymbol } from '@notional-finance/util';
+import { Box } from '@mui/material';
 
 export interface TokenImg {
   name: string;
@@ -173,6 +178,16 @@ export const TokenImageList: TokenImageMap = {
     name: 'pdai',
     img: pDAI,
     alt: 'prime DAI icon',
+  },
+  sdai: {
+    name: 'sdai',
+    img: sDAI,
+    alt: 'staked DAI icon',
+  },
+  psdai: {
+    name: 'psdai',
+    img: psDAI,
+    alt: 'prime staked DAI icon',
   },
   note: {
     name: 'note',
@@ -414,9 +429,10 @@ export const TokenImageList: TokenImageMap = {
 
 export interface TokenIconProps {
   symbol: string;
-  size: 'small' | 'medium' | 'large' | 'extraLarge';
+  size: 'small' | 'medium' | 'large' | 'xl' | 'xxl';
   style?: React.CSSProperties;
   useAccentBorderImg?: boolean;
+  network?: Network;
 }
 
 export function TokenIcon({
@@ -424,17 +440,23 @@ export function TokenIcon({
   size,
   style,
   useAccentBorderImg,
+  network,
 }: TokenIconProps) {
   const tokenKey = symbol?.toLowerCase();
   const tokenIcon: TokenImg = Object.keys(TokenImageList).includes(tokenKey)
     ? TokenImageList[tokenKey]
     : TokenImageList['unknown'];
 
+  const networkIcon = network
+    ? TokenImageList[getNetworkSymbol(network)]
+    : undefined;
+
   const tokenSizes = {
     small: '16px',
     medium: '24px',
     large: '32px',
-    extraLarge: '72px',
+    xl: '48px',
+    xxl: '72px',
   };
 
   // Allow the image to load a custom sized PNG if it matches the width
@@ -448,7 +470,50 @@ export function TokenIcon({
     tokenIcon.alt = `${symbol?.toLowerCase()} ${tokenIcon.alt}`;
   }
 
-  return (
+  const networkIconSrc = useAccentBorderImg
+    ? networkIcon?.accentBorderImg
+    : networkIcon?.img;
+
+  return networkIcon ? (
+    <Box position="relative">
+      {networkIcon && size === 'medium' && (
+        <img
+          src={networkIconSrc}
+          alt={network}
+          width={'14px'}
+          height={'14px'}
+          style={{ position: 'absolute', bottom: '2px', right: '-4px' }}
+        />
+      )}
+      {networkIcon && size === 'large' && (
+        <img
+          src={networkIconSrc}
+          alt={network}
+          width={'12px'}
+          height={'12px'}
+          style={{ position: 'absolute', bottom: '5px', left: '20px' }}
+        />
+      )}
+      {networkIcon && size === 'xl' && (
+        <img
+          src={networkIconSrc}
+          alt={network}
+          width={tokenSizes['small']}
+          height={tokenSizes['small']}
+          style={{ position: 'absolute', bottom: '4px', right: '16px' }}
+        />
+      )}
+      <img
+        width={tokenSizes[size]}
+        height={tokenSizes[size]}
+        src={useAccentBorderImg ? tokenIcon.accentBorderImg : image}
+        alt={tokenIcon.alt}
+        style={{ ...style }}
+      />
+    </Box>
+  ) : symbol === 'vaultshare' ? (
+    <VaultIcon />
+  ) : (
     <img
       width={tokenSizes[size]}
       height={tokenSizes[size]}

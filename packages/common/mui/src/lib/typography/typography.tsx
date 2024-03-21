@@ -10,6 +10,7 @@ export interface CustomTypographyProps extends StylesProps {
   contrast?: boolean;
   error?: boolean;
   main?: boolean;
+  light?: boolean;
   href?: string;
   to?: string;
   fontWeight?: 'light' | 'regular' | 'medium' | 'bold';
@@ -33,6 +34,7 @@ const makeVariant = (
     error,
     href,
     main,
+    light,
     to,
     inline,
     uppercase,
@@ -47,6 +49,7 @@ const makeVariant = (
     if (contrast) color = theme.palette.typography.contrastText;
     if (error) color = theme.palette.error.main;
     if (main) color = theme.palette.typography.main;
+    if (light) color = theme.palette.typography.light;
     let marginBottom;
     if (gutter === 'none') marginBottom = theme.spacing(0);
     if (gutter === 'tight') marginBottom = theme.spacing(0.5);

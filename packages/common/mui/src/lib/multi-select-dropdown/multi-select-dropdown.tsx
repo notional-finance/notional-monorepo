@@ -1,6 +1,6 @@
 import { useEffect, useState, ReactNode } from 'react';
 import { ChevronDownIcon, FilterIcon } from '@notional-finance/icons';
-import { H4 } from '../typography/typography';
+import { LabelValue } from '../typography/typography';
 import { Checkbox, styled, useTheme, Box } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
@@ -28,7 +28,6 @@ interface MultiSelectDropdownProps {
   selected: SelectedOptions[];
   setSelected: any;
   placeHolderText: ReactNode;
-  clearQueryAndFilters?: () => void;
 }
 
 export const MultiSelectDropdown = ({
@@ -36,7 +35,6 @@ export const MultiSelectDropdown = ({
   selected,
   setSelected,
   placeHolderText,
-  clearQueryAndFilters,
 }: MultiSelectDropdownProps) => {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +57,6 @@ export const MultiSelectDropdown = ({
         return newArray;
       }
     });
-    if (clearQueryAndFilters) clearQueryAndFilters();
   };
 
   const handleSelectAll = () => {
@@ -98,6 +95,7 @@ export const MultiSelectDropdown = ({
           {displayOptions.length <= 0 && <Text>{placeHolderText}</Text>}
         </Box>
         <ChevronDownIcon
+          sx={{ height: theme.spacing(2), width: theme.spacing(2) }}
           fillone={theme.palette.typography.accent}
           filltwo={theme.palette.primary.contrastText}
         />
@@ -139,6 +137,7 @@ export const MultiSelectDropdown = ({
                     <Box
                       component="span"
                       sx={{
+                        fontWeight: 500,
                         marginRight: theme.spacing(1),
                         marginTop: theme.spacing(0.5),
                       }}
@@ -146,7 +145,7 @@ export const MultiSelectDropdown = ({
                       {option.icon}
                     </Box>
                   )}
-                  <Box component="span">{option.title}</Box>
+                  <LabelValue component="span">{option.title}</LabelValue>
                 </Text>
                 <Checkbox
                   sx={{
@@ -172,10 +171,10 @@ const Wrapper = styled(Box)(
     cursor: pointer;
     margin-right: ${theme.spacing(3)};
     position: relative;
-    width: ${theme.spacing(29)};
-    background: ${theme.palette.common.white};
+    width: ${theme.spacing(22)};
+    background: ${theme.palette.background.paper};
     border-radius: ${theme.shape.borderRadius()};
-    border: 1px solid ${theme.palette.typography.accent};
+    border: ${theme.shape.borderStandard};
   `
 );
 
@@ -189,8 +188,9 @@ const Item = styled('ul', {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    white-space: nowrap;
     background: ${
-      isSelected ? theme.palette.info.light : theme.palette.common.white
+      isSelected ? theme.palette.info.light : theme.palette.background.paper
     };
     &:hover {
       background: ${theme.palette.info.light};
@@ -198,19 +198,21 @@ const Item = styled('ul', {
   `
 );
 
-const SelectDropdown = styled(Box)(`
+const SelectDropdown = styled(Box)(
+  ({ theme }) => `
     border: 1px solid #eee;
     font-size: 14px;
-    padding: 10px;
+    padding: ${theme.spacing(1, 1.25)};
     display: flex;
     justify-content: space-between;
     align-items: center;
     border: 1px solid transparent;
-    border-radius: 6px;
+    border-radius: ${theme.shape.borderRadius()};
     > img: {
-        height: 18px;
+        height: ${theme.spacing(2)};
     },
-`);
+`
+);
 
 const DropdownOptions = styled('ul', {
   shouldForwardProp: (prop: string) => prop !== 'isOpen',
@@ -220,14 +222,17 @@ const DropdownOptions = styled('ul', {
     position: absolute;
     box-sizing: border-box;
     left: 0;
-    width: 100%;
-    height: ${theme.spacing(38)};
-    overflow: auto;
+    max-height: ${theme.spacing(38)};
     list-style: none;
     padding: 0px;
     border: 1px solid ${theme.palette.borders.paper};
-    background: ${theme.palette.common.white};
-    z-index: 9;
+    background: ${theme.palette.background.paper};
+    z-index: 99999;
+    max-height: ${theme.spacing(37.5)};
+    width: ${theme.spacing(29)};
+    overflow-x: visible;
+    overflow-y: auto;
+    
 `
 );
 
@@ -241,7 +246,8 @@ const DropdownOption = styled('li')(`
     },
   `);
 
-const Text = styled(H4)(`
+const Text = styled(LabelValue)(`
+    line-height: 19.6px;
     font-weight: 500;
   `);
 

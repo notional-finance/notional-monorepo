@@ -39,10 +39,13 @@ export type DataTableColumn = Column & {
   sortType?: string;
   sortDescFirst?: boolean;
   displayFormatter?: any;
+  showSymbol?: boolean;
+  columnHeaderToolTip?: MessageDescriptor; 
   marginRight?: any;
   className?: string;
   sticky?: string;
   showLoadingSpinner?: boolean;
+  showGreenText?: boolean;
   ToolTip?: ReactNode;
   tooRisky?: boolean;
 };

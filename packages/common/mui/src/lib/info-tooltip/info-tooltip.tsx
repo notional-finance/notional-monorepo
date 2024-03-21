@@ -20,6 +20,7 @@ export interface InfoTooltipProps {
   iconColor?: string;
   iconSize?: string;
   onMouseEnter?: () => void;
+  InfoComponent?: any;
 }
 
 export function InfoTooltip({
@@ -29,6 +30,7 @@ export function InfoTooltip({
   iconColor,
   iconSize,
   onMouseEnter,
+  InfoComponent,
 }: InfoTooltipProps) {
   const theme = useTheme();
   const iconSizes = iconSize ? iconSize : theme.typography.caption.fontSize;
@@ -38,15 +40,21 @@ export function InfoTooltip({
       arrow
       title={ToolTipComp ? <ToolTipComp /> : <Caption msg={toolTipText} />}
     >
-      <Box
-        component="span"
-        sx={{ width: iconSizes, height: iconSizes, display: 'flex', ...sx }}
-      >
-        <InfoIcon
-          fill={iconColor ? iconColor : theme.palette.borders.accentPaper}
-          sx={{ fontSize: iconSizes }}
-        />
-      </Box>
+      {InfoComponent ? (
+        <Box>
+          <InfoComponent />
+        </Box>
+      ) : (
+        <Box
+          component="span"
+          sx={{ width: iconSizes, height: iconSizes, display: 'flex', ...sx }}
+        >
+          <InfoIcon
+            fill={iconColor ? iconColor : theme.palette.borders.accentPaper}
+            sx={{ fontSize: iconSizes }}
+          />
+        </Box>
+      )}
     </StyledToolTip>
   );
 }

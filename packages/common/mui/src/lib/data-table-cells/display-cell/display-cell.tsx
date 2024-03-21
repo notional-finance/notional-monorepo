@@ -1,12 +1,11 @@
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { TableCell, LargeTableCell } from '../../typography/typography';
 import { ProgressIndicator } from '../../progress-indicator/progress-indicator';
-import { colors } from '@notional-finance/styles';
 
 export const DisplayCell = ({ cell }): JSX.Element => {
+  const theme = useTheme();
   const { column, value, row } = cell;
   const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
-
   const isPending = column.showLoadingSpinner && row.original.isPending;
   const ToolTip = column?.ToolTip;
   const toolTipData = row.original?.toolTipData;
@@ -28,17 +27,32 @@ export const DisplayCell = ({ cell }): JSX.Element => {
           }}
         />
       ) : value && column.displayFormatter && parseFloat(value) !== 0 ? (
-        <Box sx={{ h4: { color: parseFloat(value) < 0 ? colors.red : '' } }}>
+        <Box
+          sx={{
+            h4: {
+              color:
+                parseFloat(value) < 0 && !row.original.isDebt
+                  ? theme.palette.error.main
+                  : '',
+            },
+          }}
+        >
           <FirstValue
             sx={{
               marginBottom: '0px',
               color:
-                parseFloat(value) < 0 || value.toString().includes('-')
-                  ? colors.red
+                parseFloat(value) < 0 ||
+                (value.toString().includes('-') && !row.original.isDebt)
+                  ? theme.palette.error.main
                   : '',
             }}
           >
-            {column.displayFormatter(parseFloat(value))}
+            {column.showSymbol
+              ? column.displayFormatter(
+                  parseFloat(value),
+                  cell.row.original.symbol
+                )
+              : column.displayFormatter(parseFloat(value))}
           </FirstValue>
         </Box>
       ) : parseFloat(value) === 0 ? (
@@ -48,8 +62,9 @@ export const DisplayCell = ({ cell }): JSX.Element => {
           sx={{
             h4: {
               color:
-                parseFloat(value) < 0 || value.toString().includes('-')
-                  ? colors.red
+                (parseFloat(value) < 0 || value.toString().includes('-')) &&
+                !row.original.isDebt
+                  ? theme.palette.error.main
                   : '',
             },
           }}
@@ -58,9 +73,12 @@ export const DisplayCell = ({ cell }): JSX.Element => {
             sx={{
               marginBottom: '0px',
               color:
-                parseFloat(value) < 0 || value.toString().includes('-')
-                  ? colors.red
-                  : '',
+                (parseFloat(value) < 0 || value.toString().includes('-')) &&
+                !row.original.isDebt
+                  ? theme.palette.error.main
+                  : !row.original.isDebt && column.showGreenText
+                  ? theme.palette.primary.main
+                  : theme.palette.typography.main,
             }}
           >
             {value}

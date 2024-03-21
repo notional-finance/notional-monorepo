@@ -8,15 +8,20 @@ import {
   TableCell,
   SmallTableCell,
   LargeTableCell,
+  H5,
 } from '../../typography/typography';
+import { Network } from '@notional-finance/util';
 
 export interface MultiValueIconCellProps {
   cell: {
     value: {
       symbol: string;
       label: string;
+      labelIsNegative?: boolean;
+      symbolSize?: string;
       caption?: string;
       inlineIcons?: boolean;
+      network?: Network;
     };
   };
   row: { original };
@@ -32,6 +37,7 @@ export interface MultiValueIconCellProps {
 // multiValueCellData: {
 //   currency: {
 //     symbol: underlying.symbol,
+//     iconComponent: iconComponent,
 //     label: underlying.symbol,
 //     caption: formatYieldCaption(data),
 //   },
@@ -54,7 +60,6 @@ export const MultiValueIconCell = (props): JSX.Element => {
   // NOTE* Displays a token icon on the same line as the caption or label values. Based on the values.symbol and the captionSymbol.
   // Currently used in the Markets table
   const inlineIcons = values?.inlineIcons;
-
   return (
     <Box
       sx={{
@@ -64,7 +69,7 @@ export const MultiValueIconCell = (props): JSX.Element => {
       }}
     >
       {!original.isTotalRow && !inlineIcons ? (
-        <div>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {values?.symbol && values.symbolBottom && (
             <DoubleTokenIcon
               size="medium"
@@ -73,30 +78,53 @@ export const MultiValueIconCell = (props): JSX.Element => {
             />
           )}
           {values?.symbol && !values.symbolBottom && (
-            <TokenIcon symbol={values?.symbol} size="medium" />
+            <TokenIcon
+              symbol={values?.symbol}
+              network={values.network}
+              size={values?.symbolSize || 'medium'}
+            />
           )}
-        </div>
+          {values?.IconComponent && values.IconComponent}
+        </Box>
       ) : null}
-      <Box sx={{ marginLeft: theme.spacing(1), marginRight: theme.spacing(1) }}>
+      <Box
+        sx={{
+          marginLeft: theme.spacing(1),
+          marginRight: theme.spacing(1),
+        }}
+      >
         <FirstValue
           gutter="default"
           sx={{
             marginBottom: inlineIcons ? '4px' : '0px',
             display: 'flex',
             alignItems: 'flex-start',
+            justifyContent: column.textAlign,
+            color: values?.labelIsNegative
+              ? theme.palette.error.main
+              : 'inherit',
           }}
         >
-          {values?.symbol && values.symbolBottom && (
-            <LightningIcon sx={{ height: '13px', marginLeft: '-6px' }} />
+          {original.isDividerRow ? (
+            <H5 sx={{ color: theme.palette.common.black }}>{values?.label}</H5>
+          ) : (
+            <>
+              {values?.symbol && values.symbolBottom && (
+                <LightningIcon sx={{ height: '13px', marginLeft: '-6px' }} />
+              )}
+              {inlineIcons && (
+                <TokenIcon
+                  network={Network.Mainnet}
+                  symbol={values.symbol}
+                  size="small"
+                  style={{ marginRight: theme.spacing(0.5) }}
+                />
+              )}
+              {column.displayFormatter && values?.label
+                ? column.displayFormatter(values?.label)
+                : values?.label}
+            </>
           )}
-          {inlineIcons && (
-            <TokenIcon
-              symbol={values.symbol}
-              size="small"
-              style={{ marginRight: theme.spacing(0.5) }}
-            />
-          )}
-          {values?.label}
         </FirstValue>
         <SecondValue
           sx={{
@@ -104,6 +132,7 @@ export const MultiValueIconCell = (props): JSX.Element => {
             color: theme.palette.typography.light,
             display: 'flex',
             alignItems: 'flex-start',
+            justifyContent: column.textAlign,
           }}
         >
           {inlineIcons && values?.captionSymbol && (

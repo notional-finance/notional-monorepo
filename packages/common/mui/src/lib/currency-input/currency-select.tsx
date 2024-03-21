@@ -17,10 +17,12 @@ export interface CurrencySelectOption {
   displayToken?: TokenDefinition;
   content?: {
     largeFigure?: number;
+    largeFigureDecimals?: number;
     largeFigureSuffix?: string;
     shouldCountUp?: boolean;
     caption?: React.ReactNode;
     largeCaption?: number;
+    largeCaptionDecimals?: number;
     largeCaptionSuffix?: string;
     optionTitle?: React.ReactNode;
     balance?: string | undefined;
@@ -108,10 +110,12 @@ export const formatOption = (
               <CountUp
                 value={c?.largeCaption}
                 suffix={c?.largeCaptionSuffix}
-                decimals={2}
+                decimals={c?.largeCaptionDecimals || 2}
               />
             ) : (
-              `${c?.largeCaption.toFixed(2)}${c?.largeCaptionSuffix}`
+              `${c?.largeCaption.toFixed(c?.largeCaptionDecimals || 2)}${
+                c?.largeCaptionSuffix
+              }`
             )}
           </H4>
         )}
@@ -129,11 +133,11 @@ export const formatOption = (
         <CountUp
           value={c.largeFigure}
           suffix={c.largeFigureSuffix}
-          decimals={3}
+          decimals={c.largeFigureDecimals || 2}
         />
       ) : (
         <span>
-          {c.largeFigure && c.largeFigure.toFixed(3)}
+          {c.largeFigure && c.largeFigure.toFixed(c.largeFigureDecimals || 4)}
           {c.largeFigureSuffix}
         </span>
       );
