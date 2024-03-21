@@ -80,12 +80,15 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   static getAllRiskProfiles(account: AccountDefinition) {
-    return Registry.getConfigurationRegistry()
-      .getAllListedVaults(account.network)
-      ?.map(({ vaultAddress }) => {
-        return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
-      })
-      .filter((v) => v !== undefined) as VaultAccountRiskProfile[];
+    return (
+      Registry.getConfigurationRegistry()
+        // Include disabled vaults here in case the account still has a position
+        .getAllListedVaults(account.network, true)
+        ?.map(({ vaultAddress }) => {
+          return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
+        })
+        .filter((v) => v !== undefined) as VaultAccountRiskProfile[]
+    );
   }
 
   simulate(apply: TokenBalance[]) {
@@ -223,7 +226,11 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get totalAPY() {
-    return leveragedYield(this.strategyAPY, this.borrowAPY, this.leverageRatio());
+    return leveragedYield(
+      this.strategyAPY,
+      this.borrowAPY,
+      this.leverageRatio()
+    );
   }
 
   protected _netCurrencyDebt() {

@@ -21,7 +21,13 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     );
 
     const calls = data['data'].vaultConfigurations
-      .filter((v: { enabled: boolean }) => !!v.enabled)
+      .filter(
+        (v: { vaultAddress: string }) =>
+          // These are deprecated vaults with old method signatures
+          v.vaultAddress !== '0xae38f4b960f44d86e798f36a374a1ac3f2d859fa' &&
+          v.vaultAddress !== '0xb9bdaa34ea52c3e2f3ec39fcd8146887e6b1c78c' &&
+          v.vaultAddress !== '0xb6efe4f505248846465f944801e299c14269126b'
+      )
       .map(
         ({
           vaultAddress,
