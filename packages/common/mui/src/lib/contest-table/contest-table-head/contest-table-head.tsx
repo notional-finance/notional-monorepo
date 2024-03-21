@@ -1,4 +1,3 @@
-import { ContestTableColumn } from '../types';
 import { TableCell, TableHead, TableRow, useTheme } from '@mui/material';
 import { TableColumnHeading } from '../../typography/typography';
 
@@ -19,37 +18,37 @@ export const ContestTableHead = ({
         position: 'relative',
         boxShadow: '',
         borderBottom: '',
-        marginRight: '20px',
         '@media (max-width: 1152px)': {
           display: hideOnMobile ? 'none' : 'table-header-group',
         },
       }}
     >
       {headerGroups.map((headerGroup) => (
-        <TableRow {...headerGroup['getHeaderGroupProps']()}>
-          {headerGroup.headers.map((column: ContestTableColumn) => {
+        <TableRow>
+          {headerGroup.headers.map((header: any) => {
             return (
               <TableCell
                 sx={{
                   color: theme.palette.borders.accentPaper,
                   padding: theme.spacing(2),
-                  textAlign: column['textAlign'] || 'center',
+                  textAlign: header.column.columnDef.textAlign || 'center',
                   borderTop: 'none',
                   borderBottom: 'none',
                   whiteSpace: 'nowrap',
-                  width: column['width'] || 'auto',
+                  width: header.column.columnDef.width || header.getSize(),
                   h5: {
                     fontSize: '12px',
                     fontFamily: 'Avenir Next',
                     fontWeight: '500',
                   },
                 }}
-                {...column['getHeaderProps']()}
               >
                 <TableColumnHeading
-                  sx={{ marginRight: column['marginRight'] || '0px' }}
+                  sx={{
+                    marginRight: header.column.columnDef.marginRight || '0px',
+                  }}
                 >
-                  {column['render']('Header')}
+                  {header.column.columnDef.header}
                 </TableColumnHeading>
               </TableCell>
             );

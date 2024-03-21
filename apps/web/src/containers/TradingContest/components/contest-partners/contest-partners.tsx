@@ -3,6 +3,7 @@ import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { Paragraph, ContestTable, Button } from '@notional-finance/mui';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
+import { ContestTable } from '@notional-finance/mui';
 import {
   useContestPass,
   useSelectedNetwork,
@@ -33,12 +34,12 @@ export const ContestPartners = () => {
           <FormattedMessage {...messages.ContestPartners.bodyText} />
         </Paragraph>
         <TableContainer>
-          {/* <ContestTable
+          <ContestTable
             columns={partnersTableColumns}
             data={partnersTableData}
             tableLoading={false}
             hideOnMobile={false}
-          /> */}
+          />
         </TableContainer>
       </ContentContainer>
       {!hasContestPass && (

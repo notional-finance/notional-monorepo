@@ -48,7 +48,6 @@ export const DataTableHead = ({
       )}
       {headerGroups.map((headerGroup, i) => (
         <TableRow
-          // {...headerGroup.getHeaderGroupProps()}
           key={i}
           sx={{
             height: expandableTable ? theme.spacing(4) : '',
@@ -76,10 +75,14 @@ export const DataTableHead = ({
                   : 'none',
                 whiteSpace: 'nowrap',
                 width: header.column.columnDef.width || 'auto',
+                cursor:
+                  tableVariant === TABLE_VARIANTS.SORTABLE ? 'pointer' : '',
               }}
-              // {...(tableVariant === TABLE_VARIANTS.SORTABLE
-              //   ? column['getHeaderProps'](column['getSortByToggleProps']())
-              //   : column['getHeaderProps']())}
+              onClick={
+                tableVariant === TABLE_VARIANTS.SORTABLE
+                  ? header.column.getToggleSortingHandler()
+                  : undefined
+              }
             >
               <TableColumnHeading
                 sx={{

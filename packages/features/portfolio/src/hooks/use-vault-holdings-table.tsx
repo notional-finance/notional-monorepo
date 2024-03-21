@@ -5,7 +5,6 @@ import {
   MultiValueCell,
   MultiValueIconCell,
   SliderCell,
-  ExpandedRows,
   ChevronCell,
   ArrowChangeCell,
 } from '@notional-finance/mui';
@@ -29,6 +28,7 @@ import {
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
+import { ExpandedState } from '@tanstack/react-table';
 
 const vaultRiskTableColumns: DataTableColumn[] = [
   {
@@ -104,7 +104,7 @@ export function getVaultLeveragePercentage(
 }
 
 export const useVaultHoldingsTable = () => {
-  const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
+  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const theme = useTheme();
   const baseCurrency = useFiat();

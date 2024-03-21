@@ -4,17 +4,16 @@ import { SmallTableCell } from '../../typography/typography';
 import { colors } from '@notional-finance/styles';
 
 export const ArrowIndicatorCell = ({ cell }): JSX.Element => {
+  const { column, getValue } = cell;
   const {
-    column: { textAlign, tooRisky },
-    value: {
-      arrowUp,
-      checkmark,
-      greenOnArrowUp,
-      greenOnCheckmark,
-      value,
-      isNegative,
-    },
-  } = cell;
+    arrowUp,
+    checkmark,
+    greenOnArrowUp,
+    greenOnCheckmark,
+    value,
+    isNegative,
+  } = getValue();
+  const { textAlign, tooRisky } = column.columnDef;
   const { palette, shape, spacing } = useTheme();
   const colorOnUp = greenOnArrowUp ? palette.primary.light : colors.orange;
   const colorOnDown = greenOnArrowUp ? colors.orange : palette.primary.light;

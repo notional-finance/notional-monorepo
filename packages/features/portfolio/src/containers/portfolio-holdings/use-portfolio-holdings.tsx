@@ -4,7 +4,6 @@ import {
   MultiValueIconCell,
   MultiValueCell,
   DisplayCell,
-  ExpandedRows,
   ChevronCell,
 } from '@notional-finance/mui';
 import { TotalEarningsTooltip } from '../../components';
@@ -13,6 +12,7 @@ import {
   useLeverageBlock,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
+import { ExpandedState } from '@tanstack/react-table';
 import { useDetailedHoldingsTable } from './use-detailed-holdings';
 import { useGroupedHoldingsTable } from './use-grouped-holdings';
 import { useTheme } from '@mui/material';
@@ -53,7 +53,7 @@ function insertDebtDivider(arr) {
 export function usePortfolioHoldings() {
   const theme = useTheme();
   const isBlocked = useLeverageBlock();
-  const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
+  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const [toggleOption, setToggleOption] = useState<number>(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const network = useSelectedNetwork();

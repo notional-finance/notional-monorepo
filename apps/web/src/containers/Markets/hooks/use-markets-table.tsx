@@ -6,7 +6,6 @@ import {
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
 import {
-  DataTableColumn,
   DisplayCell,
   LinkCell,
   MultiValueIconCell,
@@ -34,7 +33,7 @@ export const useMarketsTable = (
   const baseCurrency = useFiat();
   const { earnYields, borrowYields } = useAllNetworkMarkets();
 
-  let tableColumns: DataTableColumn[] = [
+  let tableColumns = [
     {
       header: (
         <FormattedMessage
@@ -72,7 +71,8 @@ export const useMarketsTable = (
       cell: DisplayCell,
       accessorKey: 'totalAPY',
       textAlign: 'left',
-      sortType: 'basic',
+      enableSorting: true,
+      sortingFn: 'basic',
       sortDescFirst: true,
       width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
@@ -88,7 +88,8 @@ export const useMarketsTable = (
       displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
       accessorKey: 'totalTVL',
       textAlign: 'right',
-      sortType: 'basic',
+      enableSorting: true,
+      sortingFn: 'basic',
       sortDescFirst: true,
       width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
@@ -104,7 +105,8 @@ export const useMarketsTable = (
       displayFormatter: formatLeverageRatio,
       accessorKey: 'leverage',
       textAlign: 'right',
-      sortType: 'basic',
+      enableSorting: true,
+      sortingFn: 'basic',
       sortDescFirst: true,
       width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),

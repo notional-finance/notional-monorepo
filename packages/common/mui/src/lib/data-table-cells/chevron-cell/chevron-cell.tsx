@@ -2,9 +2,11 @@ import { Box, useTheme } from '@mui/material';
 import { ArrowIcon, AlertIcon } from '@notional-finance/icons';
 import IconButton from '@mui/material/IconButton';
 
-export const ChevronCell = ({ row }): JSX.Element => {
+export const ChevronCell = ({ row, cell, column }): JSX.Element => {
   const theme = useTheme();
   const warning = row?.original?.actionRow?.warning;
+
+  console.log({ cell, column, row });
   return (
     <Box
       sx={{

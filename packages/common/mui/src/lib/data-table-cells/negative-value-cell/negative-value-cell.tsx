@@ -5,28 +5,25 @@ import {
   SmallTableCell,
 } from '../../typography/typography';
 
-interface NegativeValueCellProps {
-  value: {
-    isNegative?: boolean;
-    displayValueGreen?: boolean;
-    displayValue: string;
-  };
-  column?: {
-    expandableTable?: boolean;
-    smallCell?: boolean;
-  };
-}
+// interface NegativeValueCellProps {
+//   value: {
+//     isNegative?: boolean;
+//     displayValueGreen?: boolean;
+//     displayValue: string;
+//   };
+//   column?: {
+//     expandableTable?: boolean;
+//     smallCell?: boolean;
+//   };
+// }
 
-export const NegativeValueCell = ({
-  cell,
-}: {
-  cell: NegativeValueCellProps;
-}): JSX.Element => {
+export const NegativeValueCell = ({ cell }): JSX.Element => {
   const theme = useTheme();
-  const { value, column } = cell;
-  const Cell = column?.expandableTable
+  const value = cell.getValue();
+  const { column } = cell;
+  const Cell = column?.columnDef.expandableTable
     ? LargeTableCell
-    : column?.smallCell
+    : column?.columnDef.smallCell
     ? SmallTableCell
     : TableCell;
   const color = value.isNegative

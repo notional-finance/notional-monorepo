@@ -18,17 +18,16 @@ import {
 import { PageLoading } from '../page-loading/page-loading';
 import {
   useReactTable,
+  ExpandedState,
   getCoreRowModel,
   getSortedRowModel,
   getExpandedRowModel,
 } from '@tanstack/react-table';
-// import { useExpanded } from '@tanstack/react-table';
 import { FormattedMessage } from 'react-intl';
 import { CSVLink } from 'react-csv';
 import { TableCell } from '../typography/typography';
 import { DownloadIcon } from '@notional-finance/icons';
 import {
-  ExpandedRows,
   TabBarPropsType,
   TableTitleButtonsType,
   ToggleBarPropsType,
@@ -58,7 +57,7 @@ interface DataTableProps {
   tableVariant?: TABLE_VARIANTS;
   hideExcessRows?: boolean;
   initialState?: Record<any, any>;
-  setExpandedRows?: Dispatch<SetStateAction<ExpandedRows | null>>;
+  setExpandedRows?: Dispatch<SetStateAction<ExpandedState>>;
   setShowHiddenRows?: Dispatch<SetStateAction<boolean>>;
   showHiddenRows?: boolean;
   tableLoading?: boolean;
@@ -110,6 +109,7 @@ export const DataTable = ({
   const table = useReactTable({
     columns,
     data,
+    initialState,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
@@ -292,7 +292,6 @@ export const DataTable = ({
                   />
                   <DataTableBody
                     rows={displayedRows}
-                    // prepareRow={prepareRow}
                     tableVariant={tableVariant}
                     CustomRowComponent={CustomRowComponent}
                     setExpandedRows={setExpandedRows}
@@ -330,7 +329,11 @@ export const DataTable = ({
                 <PageLoading type="notional" />
               ) : (
                 <TableCell
-                  sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
+                  sx={{
+                    textAlign: 'center',
+                    margin: theme.spacing(4, 0),
+                    color: theme.palette.typography.main,
+                  }}
                 >
                   {stateZeroMessage ? (
                     stateZeroMessage

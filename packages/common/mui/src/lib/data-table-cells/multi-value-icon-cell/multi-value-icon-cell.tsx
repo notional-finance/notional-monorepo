@@ -57,7 +57,6 @@ export const MultiValueIconCell = (props): JSX.Element => {
   const SecondValue = column.columnDef?.expandableTable
     ? TableCell
     : SmallTableCell;
-  console.log({ original });
 
   const values = original.multiValueCellData
     ? original.multiValueCellData[column.id]

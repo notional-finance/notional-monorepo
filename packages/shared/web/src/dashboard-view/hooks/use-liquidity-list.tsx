@@ -17,7 +17,6 @@ import {
   getCombinedIncentiveData,
 } from './utils';
 import {
-  DataTableColumn,
   DisplayCell,
   LinkCell,
   MultiValueIconCell,
@@ -38,7 +37,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
     yieldData = allMaxAPYs;
   }
 
-  let listColumns: DataTableColumn[] = [
+  let listColumns = [
     {
       header: (
         <FormattedMessage
@@ -63,7 +62,8 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
       },
       showSymbol: true,
       accessorKey: 'walletBalance',
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
       textAlign: 'right',
     },
@@ -77,7 +77,8 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
       cell: MultiValueIconCell,
       displayFormatter: formatNumberAsPercent,
       accessorKey: 'totalApy',
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
       textAlign: 'right',
     },
@@ -91,7 +92,8 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
       cell: MultiValueIconCell,
       displayFormatter: formatNumberAsPercent,
       accessorKey: 'organicApy',
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
       textAlign: 'right',
     },
@@ -105,7 +107,8 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
       cell: MultiValueIconCell,
       accessorKey: 'incentiveApy',
       textAlign: 'right',
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
     },
     {
@@ -121,7 +124,8 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
         formatNumberAsAbbr(value, 0, baseCurrency),
       accessorKey: 'liquidity',
       textAlign: 'right',
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
     },
     {
@@ -132,7 +136,8 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
         />
       ),
       cell: MultiValueIconCell,
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       accessorKey: 'borrowTerms',
       sortDescFirst: true,
       textAlign: 'right',

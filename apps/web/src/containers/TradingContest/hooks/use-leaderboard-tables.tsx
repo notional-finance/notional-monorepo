@@ -39,13 +39,14 @@ export const useLeaderBoardTables = () => {
     {
       header: 'Net Worth',
       accessorKey: 'netWorth',
-      cell: ({
-        cell: {
-          value: { value, displayValue },
-        },
-      }) => (
-        <Box sx={{ color: value < 100 ? colors.red : '' }}>{displayValue}</Box>
-      ),
+      cell: ({ cell: { getValue } }) => {
+        const { value, displayValue } = getValue();
+        return (
+          <Box sx={{ color: value < 100 ? colors.red : '' }}>
+            {displayValue}
+          </Box>
+        );
+      },
       textAlign: 'right',
       width: '225px',
     },

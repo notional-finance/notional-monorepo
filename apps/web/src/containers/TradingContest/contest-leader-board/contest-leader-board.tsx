@@ -14,7 +14,7 @@ import {
   contestOver,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { LinkText, Button } from '@notional-finance/mui';
+import { ContestTable, LinkText, Button } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
@@ -26,11 +26,11 @@ export const ContestLeaderBoard = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const network = useSelectedNetwork();
   const {
-    // leaderBoardColumns,
+    leaderBoardColumns,
     currentUserData,
-    // currentUserColumns,
-    // highRollerData,
-    // fatCatData,
+    currentUserColumns,
+    highRollerData,
+    fatCatData,
     setHighRollerPartner,
     highRollerPartner,
     setFatCatPartner,
@@ -138,11 +138,11 @@ export const ContestLeaderBoard = () => {
                   />
                 </SectionTitle>
                 <UserTableContainer>
-                  {/* <ContestTable
+                  <ContestTable
                     columns={currentUserColumns}
                     data={currentUserData}
                     isCurrentUser
-                  /> */}
+                  />
                   {currentUserData[0].netWorth.value < 100 && (
                     <Caption
                       sx={{
@@ -172,7 +172,7 @@ export const ContestLeaderBoard = () => {
                 setPartnerCallback={setHighRollerPartner}
                 partnerId={highRollerPartner}
               />
-              {/* <ContestTable
+              <ContestTable
                 maxHeight={theme.spacing(77.5)}
                 tableTitle={<FormattedMessage defaultMessage={'HIGH ROLLER'} />}
                 columns={leaderBoardColumns}
@@ -180,20 +180,20 @@ export const ContestLeaderBoard = () => {
                 tableLoading={
                   highRollerData.length === 0 && highRollerPartner === 0
                 }
-              /> */}
+              />
             </TableContainer>
             <TableContainer>
               <ContestPartnersButtons
                 setPartnerCallback={setFatCatPartner}
                 partnerId={fatCatPartner}
               />
-              {/* <ContestTable
+              <ContestTable
                 maxHeight={theme.spacing(77.5)}
                 tableTitle={<FormattedMessage defaultMessage={'FAT CAT'} />}
                 columns={leaderBoardColumns}
                 data={fatCatData}
                 tableLoading={fatCatData.length === 0 && fatCatPartner === 0}
-              /> */}
+              />
             </TableContainer>
             <ContestPrizes />
             {

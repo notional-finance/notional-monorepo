@@ -13,7 +13,6 @@ import {
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import {
-  DataTableColumn,
   DisplayCell,
   LinkCell,
   MultiValueCell,
@@ -29,7 +28,7 @@ export const useVaultList = (network: Network) => {
   const baseCurrency = useFiat();
   const account = useAccountDefinition(network);
 
-  let listColumns: DataTableColumn[] = [
+  let listColumns = [
     {
       header: (
         <FormattedMessage
@@ -54,7 +53,8 @@ export const useVaultList = (network: Network) => {
       },
       showSymbol: true,
       accessorKey: 'walletBalance',
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
       textAlign: 'right',
     },
@@ -85,7 +85,8 @@ export const useVaultList = (network: Network) => {
       cell: MultiValueIconCell,
       displayFormatter: formatNumberAsPercent,
       accessorKey: 'totalApy',
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
       textAlign: 'right',
     },
@@ -112,7 +113,8 @@ export const useVaultList = (network: Network) => {
         formatNumberAsAbbr(value, 0, baseCurrency),
       accessorKey: 'tvl',
       textAlign: 'right',
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
     },
     {

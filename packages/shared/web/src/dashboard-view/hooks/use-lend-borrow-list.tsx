@@ -12,7 +12,6 @@ import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { getDebtOrCollateralFactor } from './utils';
 import {
-  DataTableColumn,
   DisplayCell,
   LinkCell,
   MultiValueIconCell,
@@ -34,7 +33,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
     [PRODUCTS.BORROW_VARIABLE]: variableBorrow,
   };
 
-  let listColumns: DataTableColumn[] = [
+  let listColumns = [
     {
       header: (
         <FormattedMessage
@@ -59,7 +58,8 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
       },
       showSymbol: true,
       accessorKey: 'walletBalance',
-      sortType: 'basic',
+      enableSorting: true,
+      sortingFn: 'basic',
       sortDescFirst: true,
       textAlign: 'right',
     },
@@ -83,7 +83,8 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
       cell: DisplayCell,
       accessorKey: 'apy',
       textAlign: 'right',
-      sortType: 'basic',
+      enableSorting: true,
+      sortingFn: 'basic',
       sortDescFirst: true,
     },
     {
@@ -98,7 +99,8 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
         formatNumberAsAbbr(value, 0, baseCurrency),
       accessorKey: 'liquidity',
       textAlign: 'right',
-      sortType: 'basic',
+      enableSorting: true,
+      sortingFn: 'basic',
       sortDescFirst: true,
     },
     {
