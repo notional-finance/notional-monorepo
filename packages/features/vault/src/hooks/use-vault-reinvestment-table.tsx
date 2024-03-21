@@ -6,12 +6,14 @@ import {
 import { Network, getEtherscanTransactionLink } from '@notional-finance/util';
 import { DateTimeCell, TxnHashCell } from '@notional-finance/mui';
 import { useTheme } from '@mui/material';
+import { useAnalyticsReady } from '@notional-finance/notionable-hooks';
 
 export const useVaultReinvestmentTable = (
   network: Network | undefined,
   deposit: TokenDefinition | undefined,
   vaultAddress: string | undefined
 ) => {
+
   const theme = useTheme();
   const tableColumns = [
     {
@@ -42,8 +44,9 @@ export const useVaultReinvestmentTable = (
       showLinkIcon: true,
     },
   ];
+  const analyticsReady = useAnalyticsReady(network)
 
-  const reinvestmentData = network
+  const reinvestmentData = network && analyticsReady
     ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
     : undefined;
 

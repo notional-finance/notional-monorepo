@@ -266,17 +266,17 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   }
 
   getActiveAccounts(network: Network) {
-    return (super.getLatestFromSubject(network, 'activeAccounts', undefined) ||
+    return (super.getLatestFromSubject(network, 'activeAccounts', 0) ||
       {}) as ActiveAccounts;
   }
 
   getHistoricalTrading(network: Network) {
-    return (super.getLatestFromSubject(network, 'historicalTrading', undefined) ||
+    return (super.getLatestFromSubject(network, 'historicalTrading', 0) ||
       {}) as HistoricalTrading;
   }
 
   getVaultReinvestments(network: Network) {
-    return (super.getLatestFromSubject(network, 'vaultReinvestment', undefined) ||
+    return (super.getLatestFromSubject(network, 'vaultReinvestment', 0) ||
       {}) as VaultReinvestment;
   }
 
