@@ -50,7 +50,12 @@ export enum Strategy {
   Arb_Balancer_wstETH_rETH_cbETH = 15,
   Arb_Balancer_wstETH_WETH = 16,
   Arb_Balancer_RDNT_WETH = 17,
-  Arb_Convex_USDC_USDT = 18
+  Arb_Convex_USDC_USDT = 18,
+  Eth_Convex_USDC_crvUSD = 19,
+  Eth_Convex_USDT_crvUSD = 20,
+  Eth_Convex_USDC_pyUSD = 21,
+  Eth_Balancer_USDC_GHO_USDT = 22,
+  Eth_Balancer_rETH_weETH = 23,
 }
 
 export interface MulticallConfig {
@@ -138,31 +143,34 @@ export interface VaultAccount {
 }
 
 type DataServiceAccountContextUpdate = {
-  name: 'AccountContextUpdate',
+  name: 'AccountContextUpdate';
   params: {
-    account: string,
-  }
+    account: string;
+  };
 };
 
 type DataServiceTransferBatch = {
-  name: 'TransferBatch',
+  name: 'TransferBatch';
   params: {
-    operator: string,
-    from: string,
-    to: string,
-    ids: string[],
-    values: string[],
-  }
+    operator: string;
+    from: string;
+    to: string;
+    ids: string[];
+    values: string[];
+  };
 };
 type DataServiceTransferSingle = {
-  name: 'TransferSingle',
+  name: 'TransferSingle';
   params: {
-    operator: string,
-    from: string,
-    to: string,
-    id: string,
-    value: string,
-  }
+    operator: string;
+    from: string;
+    to: string;
+    id: string;
+    value: string;
+  };
 };
 
-export type DataServiceEvent = DataServiceTransferSingle | DataServiceTransferBatch | DataServiceAccountContextUpdate;
+export type DataServiceEvent =
+  | DataServiceTransferSingle
+  | DataServiceTransferBatch
+  | DataServiceAccountContextUpdate;

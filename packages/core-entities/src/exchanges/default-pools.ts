@@ -1,25 +1,160 @@
 import { ALT_ETH, Network } from '@notional-finance/util';
 import { PoolDefinition } from '..';
 
+// NOTE: all the addresses in this file are checksummed
 const defaultPools: Record<Network, PoolDefinition[]> = {
   [Network.Mainnet]: [
     {
       // nETH
-      address: '0x3410463726a7a22ce0809367a4418fe82fc31fd3',
+      address: '0x3410463726a7A22ce0809367a4418FE82Fc31FD3',
       PoolClass: 'fCashMarket',
       registerTokens: [],
     },
     {
       // nDAI
-      address: '0x87c478f00999d65f88d3088291a6928b55703444',
+      address: '0x87C478f00999d65F88D3088291a6928b55703444',
       PoolClass: 'fCashMarket',
       registerTokens: [],
     },
     {
       // nUSDC
-      address: '0x2920f9fc667e780c0cb5a78a104d21413377f97e',
+      address: '0x2920F9Fc667E780C0CB5a78a104d21413377f97E',
       PoolClass: 'fCashMarket',
       registerTokens: [],
+    },
+    {
+      // nwstETH
+      address: '0x9499ad68Cd1b00a869853a986ac3F82401650933',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nFRAX
+      address: '0x96bE0C426Ea53ECb6F154bEd27c9dE85722A5C6F',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nrETH
+      address: '0xd623646DA89F9264547272f268785d9C64af9ce3',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nUSDT
+      address: '0x0Da210F60A179Ee3364123943930dAdbAb8B210e',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // ncbETH
+      address: '0xa2ADBc0d7C8Da646f9d5f6CfA9Eb396403067da0',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      address: '0x625E92624Bc2D88619ACCc1788365A69767f6200',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      registerTokens: [
+        {
+          id: '0x625E92624Bc2D88619ACCc1788365A69767f6200',
+          address: '0x625E92624Bc2D88619ACCc1788365A69767f6200',
+          network: Network.Mainnet,
+          symbol: 'PYcrvUSD',
+          name: 'pyUSD/crvUSD',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8',
+          address: '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8',
+          network: Network.Mainnet,
+          symbol: 'PYUSD',
+          name: 'PayPal USD',
+          decimals: 6,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0x4DEcE678ceceb27446b35C672dC7d61F30bAD69E',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      registerTokens: [
+        {
+          id: '0x4DEcE678ceceb27446b35C672dC7d61F30bAD69E',
+          address: '0x4DEcE678ceceb27446b35C672dC7d61F30bAD69E',
+          network: Network.Mainnet,
+          symbol: 'crvUSDUSDC-f',
+          name: 'Curve.fi Factory Plain Pool: crvUSD/USDT ',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+          address: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+          network: Network.Mainnet,
+          symbol: 'crvUSD',
+          name: 'Curve.Fi USD Stablecoin',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0x390f3595bCa2Df7d23783dFd126427CCeb997BF4',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      registerTokens: [
+        {
+          id: '0x390f3595bCa2Df7d23783dFd126427CCeb997BF4',
+          address: '0x390f3595bCa2Df7d23783dFd126427CCeb997BF4',
+          network: Network.Mainnet,
+          symbol: 'crvUSDUSDT-f',
+          name: 'Curve.fi Factory Plain Pool: crvUSD/USDT ',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+          address: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+          network: Network.Mainnet,
+          symbol: 'crvUSD',
+          name: 'Curve.Fi USD Stablecoin',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0x8353157092ED8Be69a9DF8F95af097bbF33Cb2aF',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0x8353157092ED8Be69a9DF8F95af097bbF33Cb2aF',
+          address: '0x8353157092ED8Be69a9DF8F95af097bbF33Cb2aF',
+          network: Network.Mainnet,
+          symbol: 'GHO/USDT/USDC',
+          name: 'Balancer GHO/USDT/USDC',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
+          address: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
+          network: Network.Mainnet,
+          symbol: 'GHO',
+          name: 'Gho Token',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
     },
   ],
   [Network.ArbitrumOne]: [
