@@ -3,7 +3,6 @@ import {
   TransactionSidebar,
   DepositInput,
   CustomTerms,
-  DefaultTerms,
   ManageTerms,
   useLeveragedNTokenPositions,
 } from '@notional-finance/trade';
@@ -11,18 +10,13 @@ import { PRODUCTS } from '@notional-finance/util';
 import { useContext } from 'react';
 import { defineMessage } from 'react-intl';
 import { LiquidityContext } from '../../liquidity';
-import { LiquidityDetailsTable } from '../components/liquidity-details-table';
+import { LiquidityDetailsTable } from '../components';
+import { TransactionNetworkSelector } from '@notional-finance/wallet';
 
 export const CreateOrIncreasePosition = () => {
   const context = useContext(LiquidityContext);
   const {
-    state: {
-      selectedDepositToken,
-      customizeLeverage,
-      debt,
-      selectedNetwork,
-      deposit,
-    },
+    state: { selectedDepositToken, debt, selectedNetwork, deposit },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
   const { currentPosition, depositTokensWithPositions } =
@@ -33,6 +27,14 @@ export const CreateOrIncreasePosition = () => {
       context={context}
       riskComponent={currentPosition ? <LiquidityDetailsTable /> : undefined}
       variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}
+      NetworkSelector={
+        currentPosition === undefined ? (
+          <TransactionNetworkSelector
+            product={PRODUCTS.LIQUIDITY_LEVERAGED}
+            context={context}
+          />
+        ) : undefined
+      }
     >
       <DepositInput
         showScrollPopper
@@ -53,13 +55,12 @@ export const CreateOrIncreasePosition = () => {
       />
       {currentPosition ? (
         <ManageTerms
-          context={context}
+          borrowType={currentPosition.debt.tokenType === 'PrimeDebt' ? 'Variable' : 'Fixed'}
+          leverageRatio={currentPosition.leverageRatio}
           linkString={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/Manage/${deposit?.symbol}`}
         />
-      ) : customizeLeverage ? (
-        <CustomTerms context={context} />
       ) : (
-        <DefaultTerms context={context} />
+        <CustomTerms context={context} />
       )}
     </TransactionSidebar>
   );

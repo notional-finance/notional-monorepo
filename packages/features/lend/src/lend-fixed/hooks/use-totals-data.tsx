@@ -10,20 +10,20 @@ import {
   useMaxSupply,
 } from '@notional-finance/notionable-hooks';
 
-export const useTotalsData = (deposit: TokenDefinition | undefined) => {
+export const useTotalsData = (
+  deposit: TokenDefinition | undefined,
+  collateral: TokenDefinition | undefined
+) => {
   const baseCurrency = useFiat();
   const {
-    yields: { fCashLend, liquidity },
+    yields: { fCashLend },
   } = useAllMarkets(deposit?.network);
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
-
-  const tvlData = liquidity?.find(
-    (data) => data.underlying?.id === deposit?.id
-  );
 
   const filteredFCash = fCashLend
     .filter(({ underlying }) => underlying?.id === deposit?.id)
     .map(({ token }) => token.totalSupply?.toUnderlying());
+  const liquidity = fCashLend.find(({ token }) => token.id === collateral?.id);
 
   let totalFixedRateDebt;
   if (filteredFCash && deposit) {
@@ -36,14 +36,16 @@ export const useTotalsData = (deposit: TokenDefinition | undefined) => {
 
   return [
     {
-      title: <FormattedMessage defaultMessage={'TVL'} />,
-      value: tvlData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
+      title: <FormattedMessage defaultMessage={'Market Liquidity'} />,
+      value: liquidity?.liquidity?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
+      decimals: 0,
     },
     {
       title: <FormattedMessage defaultMessage={'Total Fixed Rate Debt'} />,
       value: totalFixedRateDebt?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
+      decimals: 0,
     },
     {
       title: <FormattedMessage defaultMessage={'Capacity Remaining'} />,
@@ -51,6 +53,7 @@ export const useTotalsData = (deposit: TokenDefinition | undefined) => {
         ? maxSupplyData?.capacityRemaining.toFloat()
         : '-',
       suffix: deposit?.symbol ? ' ' + deposit?.symbol : '',
+      decimals: 0,
     },
   ];
 };

@@ -28,10 +28,10 @@ export const LendFixedTradeSummary = () => {
   const { pathname } = useLocation();
   const context = useContext(LendFixedContext);
   const { state } = context;
-  const { selectedDepositToken, deposit, selectedNetwork } = state;
+  const { selectedDepositToken, deposit, selectedNetwork, collateral } = state;
   const { tableColumns, tableData } = useFixedLiquidityPoolsTable(deposit);
   const { faqHeaderLinks, faqs } = useLendFixedFaq(selectedNetwork);
-  const totalsData = useTotalsData(deposit);
+  const totalsData = useTotalsData(deposit, collateral);
   const multiChartData = useLendFixedMultiChart();
 
   return (
@@ -45,13 +45,14 @@ export const LendFixedTradeSummary = () => {
           marginTop: theme.spacing(3),
         }}
       >
-        {totalsData.map(({ title, value, prefix, suffix }, index) => (
+        {totalsData.map(({ title, value, prefix, suffix, decimals }, index) => (
           <TotalBox
             title={title}
             value={value}
             key={index}
             prefix={prefix}
             suffix={suffix}
+            decimals={decimals}
           />
         ))}
       </Box>

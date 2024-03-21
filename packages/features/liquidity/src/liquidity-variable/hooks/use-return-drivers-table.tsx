@@ -56,14 +56,16 @@ export const useReturnDriversTable = () => {
       value: {
         data: [
           {
-            displayValue: balance.toUnderlying().toDisplayString(),
+            displayValue: balance
+              .toUnderlying()
+              .toDisplayStringWithSymbol(4, true, false),
             isNegative: balance.isNegative(),
           },
           {
             displayValue: balance
               .toUnderlying()
               .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(),
+              .toDisplayStringWithSymbol(2),
             isNegative: balance.isNegative(),
           },
         ],
@@ -101,7 +103,7 @@ export const useReturnDriversTable = () => {
                 ?.totalValueLocked(0)
                 .toUnderlying()
                 .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
+                .toDisplayStringWithSymbol(2),
               isNegative: false,
             },
           ],

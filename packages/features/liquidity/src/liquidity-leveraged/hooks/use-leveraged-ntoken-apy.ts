@@ -49,8 +49,8 @@ export const useLeveragedNTokenAPY = (state: TradeState) => {
 
     if (debtAPY) {
       // If using leverage apply the debt APY to the interest apy
-      liquidityYieldData.interestAPY = leveragedYield(
-        liquidityYieldData?.interestAPY || 0,
+      liquidityYieldData.organicAPY = leveragedYield(
+        (liquidityYieldData?.organicAPY || 0) + (liquidityYieldData?.feeAPY || 0),
         debtAPY,
         leverageRatio
       );
