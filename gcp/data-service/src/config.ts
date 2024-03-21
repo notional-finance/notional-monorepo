@@ -17,21 +17,21 @@ import {
 import { GenericDataWriter, TokenBalanceDataWriter } from './DataWriter';
 import { gql } from '@apollo/client';
 import { configDefs as GenericConfig } from './config/GenericConfig';
-import { Arb_Balancer_Config } from './config/arb/balancer';
-import { configDefs as Arb_Convex_USDC_FRAX_Config } from './config/arb/convex/USDC_FRAX';
-import { Arb_Curve_Config } from './config/arb/convex';
+import { Balancer_Config } from './config/balancer';
+import { Curve_Config } from './config/convex';
 
 export const SourceContracts = {};
 
 export const defaultConfigDefs: ConfigDefinition[] = [
   ...GenericConfig,
-  ...Arb_Balancer_Config,
-  ...Arb_Curve_Config,
-  ...Arb_Convex_USDC_FRAX_Config,
+  ...Balancer_Config,
+  ...Curve_Config,
 ];
 
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   [ProtocolName.NotionalV3]: {
+    [Network.Mainnet]:
+      'https://api.studio.thegraph.com/query/36749/notional-v3-mainnet/version/latest',
     [Network.ArbitrumOne]:
       'https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest',
   },
@@ -42,6 +42,8 @@ export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
       'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2',
   },
   [ProtocolName.Curve]: {
+    [Network.Mainnet]:
+      'https://api.thegraph.com/subgraphs/name/messari/curve-finance-ethereum',
     [Network.ArbitrumOne]:
       'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
   },

@@ -8,7 +8,6 @@ import {
   Network,
   ONE_HOUR_MS,
   decodeERC1155Id,
-  getProviderFromNetwork,
   padToHex256,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
@@ -60,20 +59,12 @@ const parseQueryParams = (q) => {
 };
 
 async function main() {
-  if (!process.env.NETWORK) {
-    throw Error('Network not defined');
-  }
-  if (!process.env.REGISTRY_BASE_URL) {
-    throw Error('Registry URL not defined');
-  }
   if (!process.env.DATA_BASE_URL) {
     throw Error('Data URL not defined');
   }
 
   const db = createUnixSocketPool();
-  const provider = getProviderFromNetwork(Network[process.env.NETWORK], true);
-  const dataService = new DataService(provider, db, {
-    network: Network[process.env.NETWORK],
+  const dataService = new DataService(db, {
     // TODO: get from env
     blocksPerSecond: {
       [Network.ArbitrumOne]: 2.5, // 2.5 blocks per second on arbitrum
@@ -82,8 +73,6 @@ async function main() {
     maxProviderRequests: 50,
     interval: 1, // 1 Hour
     frequency: 3600, // Hourly
-    startingBlock: 86540848, // Oldest block in the subgraph
-    registryUrl: process.env.REGISTRY_BASE_URL,
     dataUrl: process.env.DATA_BASE_URL,
     mergeConflicts: JSON.parse(process.env.MERGE_CONFLICTS || 'false'),
     backfillDelayMs: 5000,
@@ -278,17 +267,19 @@ async function main() {
     }
   });
 
-  app.get('/accounts', async (_, res) => {
+  app.get('/accounts', async (req, res) => {
     try {
-      res.send(JSON.stringify(await dataService.accounts()));
+      const params = parseQueryParams(req.query);
+      res.send(JSON.stringify(await dataService.accounts(params.network)));
     } catch (e: any) {
       res.status(500).send(e.toString());
     }
   });
 
-  app.get('/vaultAccounts', async (_, res) => {
+  app.get('/vaultAccounts', async (req, res) => {
     try {
-      res.send(JSON.stringify(await dataService.vaultAccounts()));
+      const params = parseQueryParams(req.query);
+      res.send(JSON.stringify(await dataService.vaultAccounts(params.network)));
     } catch (e: any) {
       res.status(500).send(e.toString());
     }
