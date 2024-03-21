@@ -4,7 +4,17 @@ import {
   useSanctionsBlock,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { FeatureLoader, TrackingConsent } from '@notional-finance/shared-web';
+import {
+  FeatureLoader,
+  TrackingConsent,
+  VaultDashboard,
+  LendFixedDashboard,
+  BorrowFixedDashboard,
+  LendVariableDashboard,
+  BorrowVariableDashboard,
+  LiquidityVariableDashboard,
+  LiquidityLeveragedDashboard,
+} from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
 import { Redirect, Route, Switch, useParams } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
@@ -14,36 +24,21 @@ import AppLayoutRoute from './AppLayoutRoute';
 import { OnboardContext } from '@notional-finance/wallet';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ScrollToTop } from '@notional-finance/mui';
 import { useConnect } from '@notional-finance/wallet/hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
-import {
-  LendFixed,
-  // LendLeveraged,
-  LendVariable,
-  LendCardView,
-  LendVariableCardView,
-  // LendLeveragedCardView,
-} from '@notional-finance/lend-feature-shell';
+import { LendFixed, LendVariable } from '@notional-finance/lend-feature-shell';
 import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
 import {
   BorrowFixed,
-  BorrowFixedCardView,
   BorrowVariable,
-  BorrowVariableCardView,
 } from '@notional-finance/borrow-feature-shell';
 import {
   LiquidityVariable,
-  LiquidityVariableCardView,
   LiquidityLeveraged,
-  LiquidityLeveragedCardView,
 } from '@notional-finance/liquidity-feature-shell';
-import {
-  VaultView,
-  VaultCardView,
-} from '@notional-finance/vault-feature-shell';
+import { VaultView } from '@notional-finance/vault-feature-shell';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
@@ -88,7 +83,7 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/borrow-fixed/:selectedNetwork"
-            component={BorrowFixedCardView}
+            component={BorrowFixedDashboard}
             routeType="Card"
           />
           <AppLayoutRoute
@@ -98,7 +93,7 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/borrow-variable/:selectedNetwork"
-            component={BorrowVariableCardView}
+            component={BorrowVariableDashboard}
             routeType="Card"
           />
           <AppLayoutRoute
@@ -106,14 +101,9 @@ const AllRoutes = () => {
             component={LendFixed}
             routeType="Transaction"
           />
-          {/* <AppLayoutRoute
-            path="/lend-leveraged/:selectedDepositToken"
-            component={LendLeveraged}
-            routeType="Transaction"
-          /> */}
           <AppLayoutRoute
             path="/lend-fixed/:selectedNetwork"
-            component={LendCardView}
+            component={LendFixedDashboard}
             routeType="Card"
           />
           <AppLayoutRoute
@@ -123,14 +113,9 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/lend-variable/:selectedNetwork"
-            component={LendVariableCardView}
+            component={LendVariableDashboard}
             routeType="Card"
           />
-          {/* <AppLayoutRoute
-            path="/lend-leveraged"
-            component={LendLeveragedCardView}
-            routeType="Card"
-          /> */}
           <AppLayoutRoute
             path="/liquidity-variable/:selectedNetwork/:selectedDepositToken"
             component={LiquidityVariable}
@@ -138,7 +123,7 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/liquidity-variable/:selectedNetwork"
-            component={LiquidityVariableCardView}
+            component={LiquidityVariableDashboard}
             routeType="Card"
           />
           <AppLayoutRoute
@@ -153,7 +138,7 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/liquidity-leveraged/:selectedNetwork"
-            component={LiquidityLeveragedCardView}
+            component={LiquidityLeveragedDashboard}
             routeType="Card"
           />
           <AppLayoutRoute
@@ -173,7 +158,7 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/vaults/:selectedNetwork"
-            component={VaultCardView}
+            component={VaultDashboard}
             routeType="Card"
           />
           <AppLayoutRoute
@@ -197,7 +182,7 @@ const AllRoutes = () => {
             routeType="Portfolio"
           />
           <AppLayoutRoute
-            path="/markets/:selectedNetwork"
+            path="/markets"
             component={Markets}
             routeType="Markets"
           />
@@ -206,11 +191,7 @@ const AllRoutes = () => {
             component={ServerError}
             routeType="Error"
           />
-          {/* <AppLayoutRoute
-            path="/contest"
-            component={ContestHome}
-            routeType="Contest"
-          /> */}
+
           <AppLayoutRoute
             path="/contest/:selectedNetwork"
             component={ContestHome}
@@ -289,7 +270,6 @@ export const App = () => {
       <NotionalContext.Provider value={globalState}>
         <FeatureLoader>
           <Web3OnboardProvider web3Onboard={OnboardContext}>
-            <ScrollToTop />
             <AllRoutes />
           </Web3OnboardProvider>
         </FeatureLoader>

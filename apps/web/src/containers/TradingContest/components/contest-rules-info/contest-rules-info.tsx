@@ -5,8 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { useContestRulesInfo } from '../../hooks';
 import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
-import { contestActive } from '@notional-finance/notionable-hooks';
-import { useSelectedNetwork } from '@notional-finance/wallet';
+import { contestActive, useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const ContestRulesInfo = () => {
   const theme = useTheme();
@@ -69,7 +68,7 @@ export const ContestRulesInfo = () => {
               ) : undefined
             }
             buttonOnePathTo={
-              contestActive ? `/contest-leaderboard${network}` : undefined
+              contestActive ? `/contest-leaderboard/${network}` : undefined
             }
             buttonTwoText={<FormattedMessage defaultMessage={'Contest Home'} />}
             buttonTwoPathTo="/contest"

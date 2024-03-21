@@ -4,11 +4,11 @@ import { FormattedMessage } from 'react-intl';
 import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { Button, HeadingSubtitle, CardInput } from '@notional-finance/mui';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
-import { contestActive } from '@notional-finance/notionable-hooks';
+import { contestActive, useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import fatCat from '../../assets/fat-cat.svg';
 import crown from '../../assets/crown.svg';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { prizeData } from '../../contest-data';
+import { useLocation } from 'react-router';
 
 interface PrizeInfoPropsProps {
   prizeType: string;
@@ -94,6 +94,7 @@ const PrizeInfo = ({ prizeType }: PrizeInfoPropsProps) => {
 export const ContestPrizes = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
+  const { pathname } = useLocation();
   return (
     <Container>
       <SectionTitle
@@ -106,7 +107,7 @@ export const ContestPrizes = () => {
         <Box id="prizes-header">
           <FormattedMessage defaultMessage={'Prizes'} />
         </Box>
-        {contestActive && (
+        {contestActive && !pathname.includes('leaderboard') && (
           <Button
             size="large"
             variant="outlined"

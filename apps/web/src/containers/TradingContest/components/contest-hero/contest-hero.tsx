@@ -5,11 +5,11 @@ import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { ContestCountDown } from '../contest-countdown/contest-countdown';
 import { BodySecondary, Button } from '@notional-finance/mui';
 import { TitleText } from '../contest-shared-elements/contest-shared-elements';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { messages } from '../../contest-data';
 import {
   contestActive,
   useContestPass,
+  useSelectedNetwork
 } from '@notional-finance/notionable-hooks';
 
 export const ContestHero = () => {
@@ -22,7 +22,7 @@ export const ContestHero = () => {
         <TextAndButtonWrapper>
           <>
             <TitleText>
-              {hasContestPass ? (
+              {hasContestPass && !contestActive ? (
                 <FormattedMessage defaultMessage={'You are Entered!'} />
               ) : (
                 <FormattedMessage defaultMessage={'Notional V3 STIP Blitz'} />
@@ -44,11 +44,9 @@ export const ContestHero = () => {
                     fontFamily: 'Avenir Next',
                     cursor: 'pointer',
                   }}
-                  to={`/portfolio/${network}`}
+                  to={`/contest-leaderboard/${network}`}
                 >
-                  <FormattedMessage
-                    defaultMessage={'See Yield Opportunities'}
-                  />
+                  <FormattedMessage defaultMessage={'View Leader Board'} />
                 </Button>
               ) : (
                 <Button
@@ -72,18 +70,19 @@ export const ContestHero = () => {
                 <Button
                   size="large"
                   variant="outlined"
-                  to={`/portfolio/${network}/overview`}
+                  to={`/portfolio/${network}`}
                   sx={{
-                    width: '330px',
+                    width: theme.spacing(41.25),
                     border: `1px solid ${colors.neonTurquoise}`,
-                    cursor: 'pointer',
                     ':hover': {
                       background: colors.matteGreen,
                     },
                     fontFamily: 'Avenir Next',
                   }}
                 >
-                  <FormattedMessage defaultMessage={'Back To App'} />
+                  <FormattedMessage
+                    defaultMessage={'See Yield Opportunities'}
+                  />
                 </Button>
               ) : (
                 <Button
