@@ -333,7 +333,8 @@ export function RollLendOrDebt({
   )
     throw Error('Debt and Collateral Balances positive and negative signed');
 
-  let { withdrawEntireCashBalance } = hasExistingCashBalance(
+  // eslint-disable-next-line prefer-const
+  let { cashBalance, withdrawEntireCashBalance } = hasExistingCashBalance(
     debtBalance.toPrimeCash(),
     accountBalances
   );
@@ -343,11 +344,24 @@ export function RollLendOrDebt({
   // cleared. If there is no cash balance and we are converting between fCash or
   // nTokens then cash will be withdrawn if there is no prior cash balance to maintain
   // a zero cash balance.
-  withdrawEntireCashBalance =
-    withdrawEntireCashBalance ||
-    (maxWithdraw &&
-      (collateralBalance.tokenType === 'PrimeCash' ||
-        debtBalance.tokenType === 'PrimeDebt'));
+  if (
+    maxWithdraw &&
+    collateralBalance.tokenType === 'PrimeCash' &&
+    cashBalance &&
+    cashBalance.add(collateralBalance).abs().n.lt(INTERNAL_PRECISION_DUST)
+  ) {
+    withdrawEntireCashBalance = true;
+  } else if (
+    maxWithdraw &&
+    debtBalance.tokenType === 'PrimeDebt' &&
+    cashBalance &&
+    cashBalance
+      .add(debtBalance.toPrimeCash())
+      .abs()
+      .n.lt(INTERNAL_PRECISION_DUST)
+  ) {
+    withdrawEntireCashBalance = true;
+  }
 
   return populateNotionalTxnAndGas(
     network,

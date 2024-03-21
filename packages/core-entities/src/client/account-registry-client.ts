@@ -127,7 +127,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
   public setAccount(network: Network, account: string) {
     if (
       this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT &&
-      this.activeAccount !== account
+      (this.activeAccount !== account ||
+        !this.isKeyRegistered(network, account))
     ) {
       // NOTE: deletes the previously active account from the network subjects
       // registry
@@ -150,7 +151,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     if (this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT) {
       return this._fetchSingleAccount(
         network,
-        this._walletProvider || getProviderFromNetwork(network)
+        // this._walletProvider || getProviderFromNetwork(network)
+        getProviderFromNetwork(network)
       );
     } else if (this.fetchMode === AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER) {
       return this._fetchBatchAccounts(network);

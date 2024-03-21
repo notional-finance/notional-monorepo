@@ -47,12 +47,15 @@ export function postAccountRisk(
 ) {
   return combineLatest([account$, state$]).pipe(
     distinctUntilChanged(
-      ([, p], [, c]) =>
+      ([a1, p], [a2, c]) =>
         p.calculationSuccess === c.calculationSuccess &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey &&
-        p.inputErrors === c.inputErrors
+        p.inputErrors === c.inputErrors &&
+        a1?.network === a2?.network
     ),
+    // Filter required to ensure that account and network are synchronized
+    filter(([a, s]) => !!a?.network && a.network === s.selectedNetwork),
     map(
       ([
         account,

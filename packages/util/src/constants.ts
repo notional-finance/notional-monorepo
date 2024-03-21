@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 
+export const UNLIMITED_APPROVAL = BigNumber.from(2).pow(96);
 export const INTERNAL_TOKEN_PRECISION = 1e8;
 export const INTERNAL_TOKEN_DECIMALS = 8;
 export const RATE_PRECISION = 1e9;
@@ -54,7 +55,11 @@ export const NetworkId: Record<Network, number> = {
   [Network.Optimism]: 10,
 };
 
-export const SupportedNetworks = [Network.ArbitrumOne];
+export const STABLE_COINS = ['USDC', 'USDT', 'DAI', 'FRAX'];
+export const LSDS = ['wstETH', 'cbETH', 'rETH', 'sDAI'];
+export const NATIVE_YIELD = [...LSDS, 'sDAI'];
+
+export const SupportedNetworks = [Network.ArbitrumOne, Network.Mainnet];
 
 export const AlchemyUrl: Record<Network, string> = {
   [Network.All]: 'https://eth-mainnet.g.alchemy.com/v2',
