@@ -26,7 +26,7 @@ export function vaultCapacity(
     map(
       ([
         _,
-        { debt, debtBalance, vaultAddress, priorVaultBalances },
+        { debt, debtBalance, vaultAddress, priorVaultBalances, tradeType },
         network,
       ]) => {
         const vaultCapacity =
@@ -103,7 +103,10 @@ export function vaultCapacity(
           totalCapacityRemaining,
           capacityUsedPercentage,
           capacityWithUserBorrowPercentage,
-          vaultCapacityError: overCapacityError || underMinAccountBorrow,
+          vaultCapacityError:
+            tradeType === 'WithdrawVault'
+              ? false
+              : overCapacityError || underMinAccountBorrow,
         };
       }
     ),
