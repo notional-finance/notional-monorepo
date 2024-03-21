@@ -37,6 +37,7 @@ export function useVaultProperties(
   let minAccountBorrowSize: TokenBalance | undefined = undefined;
   let minDepositRequired: string | undefined = undefined;
   let vaultName: string | undefined = undefined;
+  let enabled = true;
 
   const { reportError } = useNotionalError();
 
@@ -51,6 +52,7 @@ export function useVaultProperties(
       vaultName = config.getVaultName(network, vaultAddress);
 
       if (vaultConfig) {
+        enabled = vaultConfig.enabled;
         minDepositRequired = getMinDepositRequiredString(
           minAccountBorrowSize,
           vaultConfig.maxDeleverageCollateralRatioBasisPoints,
@@ -67,6 +69,7 @@ export function useVaultProperties(
     vaultName,
     minAccountBorrowSize,
     minDepositRequired,
+    enabled,
   };
 }
 
