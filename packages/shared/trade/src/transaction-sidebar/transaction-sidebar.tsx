@@ -58,6 +58,7 @@ interface TransactionSidebarProps {
   isWithdraw?: boolean;
   hideTextOnMobile?: boolean;
   variableBorrowRequired?: boolean;
+  NetworkSelector?: React.ReactNode;
 }
 
 export const TransactionSidebar = ({
@@ -69,6 +70,7 @@ export const TransactionSidebar = ({
   isPortfolio,
   showDrawer = false,
   riskComponent,
+  NetworkSelector,
   onReturnToForm,
   onCancelCallback,
   requiredApprovalAmount,
@@ -206,6 +208,7 @@ export const TransactionSidebar = ({
       onCancelCallback={handleActionSidebarCancel}
       leverageDisabled={leverageDisabled}
       hideTextOnMobile={isPortfolio || !hideTextOnMobile ? false : true}
+      NetworkSelector={NetworkSelector}
     >
       <ScrollToTop />
       {children}

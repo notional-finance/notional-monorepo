@@ -10,6 +10,7 @@ import { leveragedYield } from '@notional-finance/util';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
 import { Box } from '@mui/material';
+import { useHistory, useLocation } from 'react-router';
 
 export const useBorrowTerms = (
   context: BaseTradeContext,
@@ -33,6 +34,8 @@ export const useBorrowTerms = (
     },
     updateState,
   } = context;
+  const history = useHistory();
+  const { pathname } = useLocation();
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const spotMaturityData = useSpotMaturityData(
     deposit ? availableDebtTokens : [],
@@ -98,8 +101,10 @@ export const useBorrowTerms = (
           ) : undefined,
         token: o?.token,
         largeCaption: totalAPY ? totalAPY : undefined,
+        largeCaptionDecimals: 2,
         largeCaptionSuffix: '% Total APY',
         largeFigure: borrowRate,
+        largeFigureDecimals: 2,
         largeFigureSuffix: `% Borrow APY`,
         caption:
           o?.token.maturity && !o?.token?.symbol.includes('open') ? (
@@ -125,10 +130,17 @@ export const useBorrowTerms = (
         updateState({ debt, collateral });
       } else {
         const debt = availableDebtTokens?.find((t) => t.id === selectedId);
-        updateState({ debt });
+        history.push(`${pathname}?borrowOption=${debt?.id}`);
       }
     },
-    [availableCollateralTokens, availableDebtTokens, updateState, isVault]
+    [
+      availableCollateralTokens,
+      availableDebtTokens,
+      updateState,
+      isVault,
+      history,
+      pathname,
+    ]
   );
 
   return { borrowOptions, onSelect };

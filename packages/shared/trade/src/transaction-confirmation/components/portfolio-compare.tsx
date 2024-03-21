@@ -66,18 +66,12 @@ export const PortfolioCompare = ({
           onlyCurrent
             ? tableData || []
             : (tableData || []).map(
-                ({
-                  label,
-                  current,
-                  updated,
-                  changeType,
-                  isUpdatedNegative,
-                }) => {
+                ({ label, current, updated, changeType }) => {
                   return {
                     label,
                     current: {
                       displayValue: current,
-                      isNegative: current.startsWith('-'),
+                      isNegative: false,
                     },
                     updated: {
                       value: updated,
@@ -88,7 +82,7 @@ export const PortfolioCompare = ({
                       checkmark: changeType === 'cleared',
                       greenOnCheckmark: true,
                       greenOnArrowUp: true,
-                      isNegative: isUpdatedNegative,
+                      isNegative: false,
                     },
                   };
                 }

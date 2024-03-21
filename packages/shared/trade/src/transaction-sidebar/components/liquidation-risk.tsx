@@ -103,6 +103,10 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
           message={
             tradeType === 'BorrowFixed' || tradeType === 'BorrowVariable' ? (
               <FormattedMessage {...tradeErrors.borrowLiquidationRiskMsg} />
+            ) : tradeType === 'Withdraw' ? (
+              <FormattedMessage
+                {...tradeErrors.leverageLiquidationRiskWithdrawMsg}
+              />
             ) : (
               <FormattedMessage {...tradeErrors.leverageLiquidationRiskMsg} />
             )

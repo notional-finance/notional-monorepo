@@ -41,48 +41,54 @@ export const LiquidityYieldInfo = ({
         sx={{
           marginRight: theme.spacing(2),
           color:
-            liquidityYieldData?.interestAPY !== undefined &&
-            liquidityYieldData?.interestAPY < 0
+            liquidityYieldData?.organicAPY !== undefined &&
+            liquidityYieldData?.organicAPY < 0
               ? theme.palette.error.main
               : theme.palette.typography.light,
         }}
       >
-        {liquidityYieldData?.interestAPY !== undefined ? (
+        {liquidityYieldData?.organicAPY !== undefined ? (
           <CountUp
-            value={liquidityYieldData.interestAPY}
+            value={liquidityYieldData.organicAPY}
             suffix="%"
+            decimals={2}
             delay={0.3}
           />
         ) : (
           '-'
         )}
       </Subtitle>
-      <H4>
-        <FormattedMessage
-          defaultMessage={'{symbol} APY:'}
-          values={{ symbol: liquidityYieldData?.noteIncentives?.symbol }}
-        />
-        &nbsp;
-      </H4>
-      {liquidityYieldData?.noteIncentives && (
-        <Subtitle
-          sx={{
-            color: theme.palette.typography.light,
-            marginRight: theme.spacing(2),
-          }}
-        >
-          {liquidityYieldData?.noteIncentives &&
-          (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) > 0 ? (
-            <CountUp
-              value={liquidityYieldData?.noteIncentives.incentiveAPY}
-              suffix="%"
-              delay={0.3}
-            />
-          ) : (
-            '-'
-          )}
-        </Subtitle>
-      )}
+      {liquidityYieldData?.noteIncentives &&
+        liquidityYieldData?.noteIncentives.incentiveAPY > 0 && (
+          <>
+            <H4>
+              <FormattedMessage
+                defaultMessage={'{symbol} APY:'}
+                values={{ symbol: liquidityYieldData?.noteIncentives?.symbol }}
+              />
+              &nbsp;
+            </H4>
+
+            <Subtitle
+              sx={{
+                color: theme.palette.typography.light,
+                marginRight: theme.spacing(2),
+              }}
+            >
+              {liquidityYieldData?.noteIncentives &&
+              (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) > 0 ? (
+                <CountUp
+                  value={liquidityYieldData?.noteIncentives.incentiveAPY}
+                  suffix="%"
+                  decimals={2}
+                  delay={0.3}
+                />
+              ) : (
+                '-'
+              )}
+            </Subtitle>
+          </>
+        )}
       {liquidityYieldData?.secondaryIncentives && (
         <>
           <H4>
@@ -101,6 +107,7 @@ export const LiquidityYieldInfo = ({
               <CountUp
                 value={liquidityYieldData?.secondaryIncentives.incentiveAPY}
                 suffix="%"
+                decimals={2}
                 delay={0.3}
               />
             ) : (

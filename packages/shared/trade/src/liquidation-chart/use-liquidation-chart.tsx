@@ -59,14 +59,7 @@ export function useLiquidationChart(
   );
 
   let yAxisDomain: AxisDomain = ['auto', 'auto'];
-  if (token?.tokenType === 'nToken') {
-    const { nTokenMaxDrawdown } =
-      Registry.getConfigurationRegistry().getNTokenLeverageFactors(token);
-    yAxisDomain = [
-      nTokenMaxDrawdown / RATE_PRECISION,
-      (2 * RATE_PRECISION - nTokenMaxDrawdown) / RATE_PRECISION,
-    ];
-  } else if (token?.tokenType === 'fCash') {
+  if (token?.tokenType === 'fCash') {
     // This range technically only applies to lending fCash but works as a boundary on the
     // fCash price anyway
     const { lowestDiscountFactor } =
@@ -134,7 +127,7 @@ export function useLiquidationChart(
       {
         label: pricePair || 'Price',
         value: currentPrice ? (
-          <CountUp value={currentPrice.toFloat()} decimals={3} />
+          <CountUp value={currentPrice.toFloat()} decimals={4} />
         ) : undefined,
         lineColor: theme.palette.charts.main,
         lineType: LEGEND_LINE_TYPES.SOLID,
@@ -142,7 +135,7 @@ export function useLiquidationChart(
       {
         label: <FormattedMessage defaultMessage={'Liquidation Price'} />,
         value: liquidationPrice ? (
-          <CountUp value={liquidationPrice.toFloat()} decimals={3} />
+          <CountUp value={liquidationPrice.toFloat()} decimals={4} />
         ) : undefined,
         lineColor: theme.palette.error.main,
         lineType: LEGEND_LINE_TYPES.DASHED,
