@@ -1,11 +1,16 @@
 import { useMemo } from 'react';
 import {
+  Allowance,
   Registry,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
-import { Network, groupArrayToMap } from '@notional-finance/util';
+import {
+  Network,
+  SupportedNetworks,
+  groupArrayToMap,
+} from '@notional-finance/util';
 import {
   formatNumberAsPercent,
   truncateAddress,
@@ -74,15 +79,19 @@ export function useReadOnlyAddress() {
   return wallet?.isReadOnlyAddress === true;
 }
 
-export function useWalletAllowances(network: Network | undefined) {
-  const account = useAccountDefinition(network);
-
-  const enabledTokens =
-    account?.allowances
-      ?.filter((a) => a.amount.isPositive())
-      .map((a) => a.amount.token) || [];
-  const supportedTokens = account?.allowances?.map((a) => a.amount.token) || [];
-  return { enabledTokens, supportedTokens };
+export function useWalletAllowances() {
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+  return SupportedNetworks.reduce((acc, n) => {
+    acc[n as Network] =
+      networkAccounts && networkAccounts[n as Network]
+        ? networkAccounts[n as Network].accountDefinition?.allowances?.filter(
+            (a) => a.amount.isPositive() && a.amount.symbol !== 'ETH'
+          ) || []
+        : [];
+    return acc;
+  }, {} as Record<Network, Allowance[]>);
 }
 
 export function useWalletBalanceInputCheck(
@@ -141,17 +150,17 @@ function useApyValues(
     ];
     cardData.map(([symbol, yields]) => {
       const maxRate = getMax(yields)?.totalAPY || 0;
-      apyData[symbol] = `${formatNumberAsPercent(maxRate, 3)} APY`;
+      apyData[symbol] = `${formatNumberAsPercent(maxRate, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'LendVariable') {
     variableLend.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 3)} APY`;
+      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'MintNToken') {
     liquidity.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 3)} APY`;
+      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'BorrowFixed') {
@@ -160,12 +169,12 @@ function useApyValues(
     ];
     cardData.map(([symbol, yields]) => {
       const minRate = getMin(yields)?.totalAPY || 0;
-      apyData[symbol] = `${formatNumberAsPercent(minRate, 3)} APY`;
+      apyData[symbol] = `${formatNumberAsPercent(minRate, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'BorrowVariable') {
     variableBorrow.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 3)} APY`;
+      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'LeveragedNToken') {
@@ -174,7 +183,7 @@ function useApyValues(
       .map(({ underlying, totalAPY }) => {
         apyData[underlying.symbol] = `${formatNumberAsPercent(
           totalAPY,
-          3
+          2
         )} APY`;
         return apyData;
       });
@@ -183,6 +192,28 @@ function useApyValues(
   }
 
   return apyData;
+}
+
+export function useWalletBalancesOnNetworks(
+  networks: Network[],
+  underlyingSymbol: string | undefined
+) {
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+  if (!underlyingSymbol) return {} as Record<Network, TokenBalance>;
+
+  return networks.reduce((acc, n) => {
+    const acct =
+      networkAccounts && networkAccounts[n] ? networkAccounts[n] : undefined;
+
+    acc[n] =
+      acct?.accountDefinition?.balances.find(
+        (t) => t.tokenType === 'Underlying' && t.symbol === underlyingSymbol
+      ) || TokenBalance.fromSymbol(0, underlyingSymbol, n);
+
+    return acc;
+  }, {} as Record<Network, TokenBalance>);
 }
 
 export function useWalletBalances(
@@ -204,7 +235,7 @@ export function useWalletBalances(
           token,
           content: {
             balance: maxBalance?.isPositive()
-              ? maxBalance?.toDisplayStringWithSymbol(3, true)
+              ? maxBalance?.toDisplayStringWithSymbol(4, true)
               : undefined,
             usdBalance: maxBalance?.isPositive()
               ? maxBalance?.toFiat('USD').toFloat()

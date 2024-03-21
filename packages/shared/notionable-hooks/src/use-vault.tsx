@@ -14,7 +14,7 @@ export function useVaultNftCheck() {
   const history = useHistory();
   const { pathname } = useLocation();
   const vaultAddress = pathname.split('/')[2];
-  const communityMembership = useWalletCommunities()
+  const communityMembership = useWalletCommunities();
 
   useEffect(() => {
     if (vaultAddress) {
@@ -37,6 +37,7 @@ export function useVaultProperties(
   let minAccountBorrowSize: TokenBalance | undefined = undefined;
   let minDepositRequired: string | undefined = undefined;
   let vaultName: string | undefined = undefined;
+  let enabled = true;
 
   const { reportError } = useNotionalError();
 
@@ -51,6 +52,7 @@ export function useVaultProperties(
       vaultName = config.getVaultName(network, vaultAddress);
 
       if (vaultConfig) {
+        enabled = vaultConfig.enabled;
         minDepositRequired = getMinDepositRequiredString(
           minAccountBorrowSize,
           vaultConfig.maxDeleverageCollateralRatioBasisPoints,
@@ -67,6 +69,7 @@ export function useVaultProperties(
     vaultName,
     minAccountBorrowSize,
     minDepositRequired,
+    enabled,
   };
 }
 
@@ -87,9 +90,23 @@ export function useAllVaults(network: Network | undefined) {
         network,
         v.primaryBorrowCurrency.id
       );
+      const vaultTVL = Registry.getTokenRegistry()
+        .getAllTokens(network)
+        .filter(
+          (t) =>
+            t.tokenType === 'VaultShare' && t.vaultAddress === v.vaultAddress
+        )
+        .reduce((tvl, t) => {
+          if (t.totalSupply) {
+            return tvl.add(t.totalSupply.toUnderlying());
+          } else {
+            return tvl;
+          }
+        }, TokenBalance.zero(primaryToken));
 
       return {
         ...v,
+        vaultTVL,
         minAccountBorrowSize,
         totalUsedPrimaryBorrowCapacity,
         maxPrimaryBorrowCapacity,

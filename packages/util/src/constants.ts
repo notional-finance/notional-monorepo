@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 
+export const UNLIMITED_APPROVAL = BigNumber.from(2).pow(96);
 export const INTERNAL_TOKEN_PRECISION = 1e8;
 export const INTERNAL_TOKEN_DECIMALS = 8;
 export const RATE_PRECISION = 1e9;
@@ -45,25 +46,26 @@ export enum Network {
   Mainnet = 'mainnet',
   ArbitrumOne = 'arbitrum',
   Optimism = 'optimism',
-  Goerli = 'goerli',
 }
 
 export const NetworkId: Record<Network, number> = {
   [Network.All]: 1,
   [Network.Mainnet]: 1,
-  [Network.Goerli]: 5,
   [Network.ArbitrumOne]: 42161,
   [Network.Optimism]: 10,
 };
 
-export const SupportedNetworks = [Network.ArbitrumOne];
+export const STABLE_COINS = ['USDC', 'USDT', 'DAI', 'FRAX'];
+export const LSDS = ['wstETH', 'cbETH', 'rETH', 'sDAI'];
+export const NATIVE_YIELD = [...LSDS, 'sDAI'];
+
+export const SupportedNetworks = [Network.ArbitrumOne, Network.Mainnet];
 
 export const AlchemyUrl: Record<Network, string> = {
   [Network.All]: 'https://eth-mainnet.g.alchemy.com/v2',
   [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/v2',
   [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/v2',
   [Network.Optimism]: 'https://opt-mainnet.g.alchemy.com/v2',
-  [Network.Goerli]: 'https://eth-goerli.g.alchemy.com/v2',
 };
 
 export const AlchemyNFTUrl: Record<Network, string> = {
@@ -71,15 +73,13 @@ export const AlchemyNFTUrl: Record<Network, string> = {
   [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
   [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/nft/v2',
   [Network.Optimism]: 'https://opt-mainnet.g.alchemy.com/nft/v2',
-  [Network.Goerli]: 'https://arb-goerli.g.alchemy.com/nft/v2',
 };
 
 export const NotionalAddress: Record<Network, string> = {
-  [Network.All]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  [Network.Mainnet]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  [Network.All]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f',
+  [Network.Mainnet]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f',
   [Network.ArbitrumOne]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   [Network.Optimism]: '',
-  [Network.Goerli]: '0xD8229B55bD73c61D840d339491219ec6Fa667B0a',
 };
 
 export const StakedNoteAddress = '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2';

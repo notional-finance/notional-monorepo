@@ -257,6 +257,7 @@ export interface YieldData {
   underlying: TokenDefinition;
   totalAPY: number;
   tvl?: TokenBalance;
+  liquidity?: TokenBalance;
   leveraged?: {
     debtToken: TokenDefinition;
     leverageRatio: number;
@@ -265,7 +266,7 @@ export interface YieldData {
   };
   vaultName?: string;
   nativeTokenAPY?: number;
-  interestAPY?: number;
+  organicAPY?: number;
   feeAPY?: number;
   strategyAPY?: number;
   noteIncentives?: {
@@ -351,5 +352,6 @@ export type VaultReinvestment = Record<
     tokensReinvested: any;
     tokensPerVaultShare?: any;
     underlyingAmountRealized?: any;
+    vaultSharePrice?: any;
   }[]
 >;

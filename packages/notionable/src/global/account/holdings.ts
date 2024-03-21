@@ -1,4 +1,5 @@
 import {
+  Network,
   RATE_PRECISION,
   TABLE_WARNINGS,
   convertToSignedfCashId,
@@ -7,6 +8,7 @@ import {
 import { AccruedIncentives } from './incentives';
 import {
   AccountDefinition,
+  FiatKeys,
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
@@ -18,6 +20,7 @@ export type GroupedHolding = ReturnType<
   typeof calculateGroupedHoldings
 >[number];
 export type VaultHolding = ReturnType<typeof calculateVaultHoldings>[number];
+export type CurrentFactors = ReturnType<typeof calculateAccountCurrentFactors>;
 
 function isHighUtilization(
   balance: TokenBalance,
@@ -25,6 +28,8 @@ function isHighUtilization(
   threshold = -0.005
 ) {
   const token = balance.token;
+  if (balance.hasMatured) return undefined;
+
   if (
     token.tokenType === 'nToken' ||
     // Only show this for positive fCash
@@ -34,6 +39,7 @@ function isHighUtilization(
     const threeDay = priceChanges?.threeDay.find(
       (p) => p.asset.id === token.id
     );
+
     if (
       (oneDay?.underlyingChange !== undefined &&
         oneDay.underlyingChange < threshold) ||
@@ -188,18 +194,24 @@ export function calculateGroupedHoldings(
             ({ balance }) => balance.tokenId === asset.tokenId
           ) as typeof holdings[number];
 
+          const borrowApyData =
+            debtHoldings?.marketYield?.token.tokenType === 'PrimeDebt'
+              ? debtHoldings.marketYield.totalAPY
+              : // Need to check for undefined here if the debtHoldings is undefined
+                debtHoldings?.statement?.impliedFixedRate;
+
           l.push({
             asset: assetHoldings,
             debt: debtHoldings as PortfolioHolding,
             presentValue,
             leverageRatio,
             hasMatured: asset?.hasMatured || debt?.hasMatured ? true : false,
-            borrowAPY:
-              // NOTE: this accounts for matured debts and uses the variable APY after maturity
-              debtHoldings?.marketYield?.token.tokenType === 'PrimeDebt'
-                ? debtHoldings.marketYield.totalAPY
-                : // Need to check for undefined here if the debtHoldings is undefined
-                  debtHoldings?.statement?.impliedFixedRate,
+            borrowAPY: borrowApyData,
+            totalLeveragedApy: leveragedYield(
+              assetHoldings.marketYield?.totalAPY,
+              borrowApyData,
+              leverageRatio
+            ),
           });
         }
       }
@@ -213,6 +225,7 @@ export function calculateGroupedHoldings(
       leverageRatio: number;
       hasMatured: boolean;
       borrowAPY: number | undefined;
+      totalLeveragedApy: number | undefined;
     }[]
   );
 }
@@ -267,4 +280,58 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       leverageRatio,
     };
   });
+}
+
+export function calculateAccountCurrentFactors(
+  holdings: ReturnType<typeof calculateHoldings>,
+  vaults: ReturnType<typeof calculateVaultHoldings>,
+  baseCurrency: FiatKeys
+) {
+  const fiatToken = Registry.getTokenRegistry().getTokenBySymbol(
+    Network.All,
+    baseCurrency
+  );
+
+  const { weightedYield, netWorth, debts, assets } = vaults.reduce(
+    ({ weightedYield, netWorth, debts, assets }, { totalAPY, vault }) => {
+      const { debts: d, assets: a, netWorth: _w } = vault.getAllRiskFactors();
+      const w = _w.toFiat(baseCurrency).toFloat();
+      return {
+        weightedYield: weightedYield + (totalAPY || 0) * w,
+        netWorth: netWorth.add(_w.toFiat(baseCurrency)),
+        debts: debts.add(d.toFiat(baseCurrency)),
+        assets: assets.add(a.toFiat(baseCurrency)),
+      };
+    },
+    holdings.reduce(
+      (
+        { weightedYield, netWorth, assets, debts },
+        { marketYield, balance }
+      ) => {
+        const w = balance.toFiat(baseCurrency);
+        return {
+          weightedYield:
+            weightedYield + (marketYield?.totalAPY || 0) * w.toFloat(),
+          netWorth: netWorth.add(w),
+          debts: balance.isNegative() ? debts.add(w) : debts,
+          assets: balance.isPositive() ? assets.add(w) : assets,
+        };
+      },
+      {
+        weightedYield: 0,
+        netWorth: TokenBalance.zero(fiatToken),
+        debts: TokenBalance.zero(fiatToken),
+        assets: TokenBalance.zero(fiatToken),
+      }
+    )
+  );
+
+  return {
+    currentAPY: !netWorth.isZero()
+      ? weightedYield / netWorth.toFloat()
+      : undefined,
+    netWorth,
+    debts,
+    assets,
+  };
 }

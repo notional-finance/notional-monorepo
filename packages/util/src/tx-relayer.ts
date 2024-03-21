@@ -14,7 +14,6 @@ const urls: Record<Network, string> = {
   arbitrum:
     'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/0',
   optimism: '',
-  goerli: '',
 };
 
 export function sendTxThroughRelayer(arg: {

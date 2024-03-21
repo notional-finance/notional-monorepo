@@ -21,6 +21,7 @@ export * from './use-chart';
 export * from './use-liquidation-prices';
 export * from './use-geoip-block';
 export * from './use-contest';
+export * from './use-network';
 
 export type BaseTradeContext = ObservableContext<BaseTradeState>;
 export type TradeContext = ObservableContext<TradeState>;

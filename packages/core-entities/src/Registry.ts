@@ -135,6 +135,9 @@ export class Registry {
 
     // Only start the yield registry refresh after all the other refreshes begin
     if (this._self?.useAnalytics) {
+      // Trigger the initial load via HTTP to bootstrap the data
+      Registry.getYieldRegistry().triggerHTTPRefresh(network);
+
       Registry.onNetworkReady(network, () => {
         Registry.getAnalyticsRegistry().startRefreshInterval(
           network,

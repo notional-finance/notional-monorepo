@@ -10,11 +10,11 @@ import {
   PriceChange,
   TokenDefinition,
   HistoricalTrading,
-  YieldData,
 } from '@notional-finance/core-entities';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer, ethers } from 'ethers';
 import {
+  CurrentFactors,
   GroupedHolding,
   PortfolioHolding,
   VaultHolding,
@@ -22,6 +22,7 @@ import {
 import { AccruedIncentives, TotalIncentives } from './account/incentives';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { Community } from './account/communities';
+import { getIndexedYields } from './data/yields';
 
 const userSettings = getFromLocalStorage('userSettings');
 
@@ -78,6 +79,7 @@ export interface AccountState {
   vaultHoldings?: VaultHolding[];
   accruedIncentives?: AccruedIncentives[];
   totalIncentives?: TotalIncentives;
+  currentFactors?: CurrentFactors;
 }
 
 export interface TransactionState {
@@ -131,7 +133,7 @@ interface ApplicationState {
   /** URL of the cache hostname */
   cacheHostname: string;
   /** All yields calculated from the yield registry */
-  allYields?: Record<Network, YieldData[]>;
+  allYields?: Record<Network, ReturnType<typeof getIndexedYields>>;
   /** All price changes calculated from the yield registry */
   priceChanges?: Record<Network, CalculatedPriceChanges>;
   /** All active accounts from the analytics registry */
@@ -149,8 +151,6 @@ interface ApplicationState {
 interface UserSettingsState {
   themeVariant: THEME_VARIANTS;
   baseCurrency: FiatKeys;
-  /** Which network is the porfolio currently showing */
-  selectedPortfolioNetwork?: Network;
   /** Which country is the user located in */
   country?: string;
 }
@@ -182,6 +182,5 @@ export const initialGlobalState: GlobalState = {
     [Network.Mainnet]: [],
     [Network.ArbitrumOne]: [],
     [Network.Optimism]: [],
-    [Network.Goerli]: [],
   },
 };

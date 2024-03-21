@@ -16,6 +16,7 @@ import {
 } from '@notional-finance/util';
 import { Registry } from '@notional-finance/core-entities';
 import {
+  calculateAccountCurrentFactors,
   calculateGroupedHoldings,
   calculateHoldings,
   calculateVaultHoldings,
@@ -60,7 +61,6 @@ function onWalletChange$(global$: Observable<GlobalState>) {
       if (selectedAddress === undefined) return undefined;
 
       return {
-        selectedPortfolioNetwork: cur.wallet?.selectedChain,
         networkAccounts: undefined,
         isAccountPending: true,
       };
@@ -162,16 +162,24 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
                 ) || [],
                 a.network
               );
+              const vaultHoldings = calculateVaultHoldings(a);
 
               n[a.network] = {
                 isAccountReady: true,
                 riskProfile,
                 accountDefinition: a,
+                portfolioLiquidationPrices:
+                  riskProfile.getAllLiquidationPrices(),
                 portfolioHoldings,
                 groupedHoldings: calculateGroupedHoldings(a, portfolioHoldings),
-                vaultHoldings: calculateVaultHoldings(a),
+                vaultHoldings,
                 accruedIncentives,
                 totalIncentives,
+                currentFactors: calculateAccountCurrentFactors(
+                  portfolioHoldings,
+                  vaultHoldings,
+                  g.baseCurrency
+                ),
               };
             }
 

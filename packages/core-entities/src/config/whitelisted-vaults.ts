@@ -1,11 +1,21 @@
 import { Network } from '@notional-finance/util';
 
+/** @dev all vault addresses should be lowercased */
 export const whitelistedVaults = (network: Network) => {
   switch (network) {
     case Network.All:
       return [];
     case Network.Mainnet:
-      return [];
+      return [
+        // "[USDC]:pyUSD_xUSDC"
+        '0x84e58d8faa4e3b74d55d9fc762230f15d95570b8',
+        // "[USDC]:xUSDC_crvUSD"
+        '0xba4eb30f7f2e378249cf94e08f581e704326e9c6',
+        // "[USDT]:xUSDT_crvUSD":
+        '0x86b222d44ac6cc56e75b3df01fdad5dc371ef538',
+        // "[USDC]:GHO_USDT_xUSDC":
+        '0xeeb885af7c8075aa3b93e2f95e1c0bd51c758f91',
+      ];
     case Network.ArbitrumOne:
       return [
         '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
@@ -16,8 +26,6 @@ export const whitelistedVaults = (network: Network) => {
         '0x431dbfe3050ea39abbff3e0d86109fb5bafa28fd',
       ];
     case Network.Optimism:
-      return [];
-    case Network.Goerli:
       return [];
   }
 };

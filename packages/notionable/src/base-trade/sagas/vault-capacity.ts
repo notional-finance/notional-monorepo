@@ -26,7 +26,7 @@ export function vaultCapacity(
     map(
       ([
         _,
-        { debt, debtBalance, vaultAddress, priorVaultBalances },
+        { debt, debtBalance, vaultAddress, priorVaultBalances, tradeType },
         network,
       ]) => {
         const vaultCapacity =
@@ -81,15 +81,18 @@ export function vaultCapacity(
             : maxPrimaryBorrowCapacity
                 .sub(totalUsedPrimaryBorrowCapacity)
                 .toDisplayStringWithSymbol(0);
-          capacityUsedPercentage = totalUsedPrimaryBorrowCapacity
-            .scale(100, maxPrimaryBorrowCapacity)
-            .toNumber();
-          capacityWithUserBorrowPercentage = debtBalance
+          capacityUsedPercentage = maxPrimaryBorrowCapacity.isPositive()
             ? totalUsedPrimaryBorrowCapacity
-                .add(debtBalance.neg().toUnderlying())
                 .scale(100, maxPrimaryBorrowCapacity)
                 .toNumber()
-            : undefined;
+            : 0;
+          capacityWithUserBorrowPercentage =
+            debtBalance && maxPrimaryBorrowCapacity.isPositive()
+              ? totalUsedPrimaryBorrowCapacity
+                  .add(debtBalance.neg().toUnderlying())
+                  .scale(100, maxPrimaryBorrowCapacity)
+                  .toNumber()
+              : undefined;
         }
 
         return {
@@ -100,7 +103,10 @@ export function vaultCapacity(
           totalCapacityRemaining,
           capacityUsedPercentage,
           capacityWithUserBorrowPercentage,
-          vaultCapacityError: overCapacityError || underMinAccountBorrow,
+          vaultCapacityError:
+            tradeType === 'WithdrawVault'
+              ? false
+              : overCapacityError || underMinAccountBorrow,
         };
       }
     ),

@@ -15,7 +15,7 @@ describe.withRegistry(
       expect(y.length).toBe(6);
       y.forEach((y) => {
         expect(y.token.tokenType).toBe('PrimeCash');
-        expect(y.totalAPY).toEqual(y.interestAPY);
+        expect(y.totalAPY).toEqual(y.organicAPY);
         expect(y.tvl).toBeDefined();
       });
     });
@@ -27,7 +27,7 @@ describe.withRegistry(
       expect(y.length).toBe(6);
       y.forEach((y) => {
         expect(y.token.tokenType).toBe('PrimeDebt');
-        expect(y.totalAPY).toEqual(y.interestAPY);
+        expect(y.totalAPY).toEqual(y.organicAPY);
         expect(y.tvl).toBeDefined();
       });
     });
@@ -38,7 +38,7 @@ describe.withRegistry(
       expect(y.length).toBe(12);
       y.forEach((y) => {
         expect(y.token.tokenType).toBe('fCash');
-        expect(y.totalAPY).toEqual(y.interestAPY);
+        expect(y.totalAPY).toEqual(y.organicAPY);
         expect(y.token.maturity! > getNowSeconds()).toBe(true);
         expect(y.tvl).toBeDefined();
       });
@@ -49,7 +49,7 @@ describe.withRegistry(
       expect(y.length).toBe(6);
       y.forEach((y) => {
         expect(y.token.tokenType).toBe('nToken');
-        expect(y.totalAPY).toEqual(y.interestAPY);
+        expect(y.totalAPY).toEqual(y.organicAPY);
         expect(y.tvl).toBeDefined();
       });
     });
