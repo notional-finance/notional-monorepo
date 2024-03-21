@@ -93,7 +93,7 @@ const run = async (env: Env) => {
           };
         }),
       overrides: overrides.arbitrum,
-      tokens: new Map<string, string>(Object.entries(tokens.arbitrum)),
+      tokens: new Map<string, string>(Object.entries(tokens[env.NETWORK])),
       zeroExUrl: env.ZERO_EX_SWAP_URL,
       zeroExApiKey: env.ZERO_EX_API_KEY,
       exactInSlippageLimit: BigNumber.from(env.EXACT_IN_SLIPPAGE_LIMIT),

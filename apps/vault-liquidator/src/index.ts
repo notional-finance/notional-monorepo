@@ -94,7 +94,7 @@ const run = async (env: Env) => {
       dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
       txRelayUrl: env.TX_RELAY_URL,
       txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
-      tokens: new Map<string, string>(Object.entries(tokens.arbitrum)),
+      tokens: new Map<string, string>(Object.entries(tokens[env.NETWORK])),
       gasCostBuffer: BigNumber.from(env.GAS_COST_BUFFER),
       profitThreshold: BigNumber.from(env.PROFIT_THRESHOLD),
       zeroExUrl: env.ZERO_EX_SWAP_URL,
