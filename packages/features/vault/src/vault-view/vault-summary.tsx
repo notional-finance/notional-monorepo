@@ -18,6 +18,7 @@ import {
   TradeActionSummary,
 } from '@notional-finance/trade';
 import {
+  useVaultReinvestmentTable,
   useVaultExistingFactors,
   useReturnDrivers,
   useVaultFaq,
@@ -35,13 +36,20 @@ export const VaultSummary = () => {
     maxVaultCapacity,
     capacityUsedPercentage,
     capacityWithUserBorrowPercentage,
-    selectedNetwork
+    selectedNetwork,
+    deposit,
   } = state;
-  const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress, selectedNetwork);
+  const { tableColumns, returnDrivers } = useReturnDrivers(
+    vaultAddress,
+    selectedNetwork
+  );
   // const { data, columns } = useVaultPriceExposure(state);
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
   const { faqHeaderLinks, faqs } = useVaultFaq(selectedNetwork);
+
+  const { reinvestmentTableData, reinvestmentTableColumns } =
+    useVaultReinvestmentTable(selectedNetwork, deposit, vaultAddress);
 
   const userCapacityMark = capacityWithUserBorrowPercentage
     ? [
@@ -180,6 +188,23 @@ export const VaultSummary = () => {
                     />
                   </div>
                 }
+              />
+            </Box>
+            <Box
+              sx={{
+                marginBottom: theme.spacing(5),
+                marginTop: theme.spacing(5),
+              }}
+            >
+              <DataTable
+                tableTitle={
+                  <FormattedMessage
+                    defaultMessage={'Vault Reinvestment History'}
+                  />
+                }
+                data={reinvestmentTableData}
+                maxHeight={theme.spacing(51)}
+                columns={reinvestmentTableColumns}
               />
             </Box>
             <Box id={VAULT_SUB_NAV_ACTIONS.FAQ}>

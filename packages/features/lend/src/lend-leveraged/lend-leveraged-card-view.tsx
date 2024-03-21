@@ -1,9 +1,9 @@
 import {
   useAllMarkets,
   useThemeVariant,
+  useSelectedNetwork
 } from '@notional-finance/notionable-hooks';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage } from 'react-intl';

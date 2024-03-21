@@ -14,7 +14,7 @@ import { FormattedMessage } from 'react-intl';
 export const useTxnHistoryTable = (
   currencyOptions: SelectedOptions[],
   assetOrVaultOptions: SelectedOptions[],
-  txnHistoryType: TXN_HISTORY_TYPE,
+  txnHistoryCategory: number,
   accountHistoryData: any[]
 ) => {
   const VaultNameCell = ({ cell: { value } }) => {
@@ -34,6 +34,14 @@ export const useTxnHistoryTable = (
       ),
       accessor: 'transactionType',
       Cell: MultiValueIconCell,
+      textAlign: 'left',
+    },
+    {
+      Header: (
+        <FormattedMessage defaultMessage="Asset" description={'Asset header'} />
+      ),
+      Cell: MultiValueIconCell,
+      accessor: 'asset',
       textAlign: 'left',
     },
     {
@@ -58,25 +66,7 @@ export const useTxnHistoryTable = (
       accessor: 'underlyingAmount',
       textAlign: 'right',
     },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Asset Amount"
-          description={'Asset Amount header'}
-        />
-      ),
-      Cell: MultiValueCell,
-      accessor: 'assetAmount',
-      textAlign: 'right',
-    },
-    {
-      Header: (
-        <FormattedMessage defaultMessage="Asset" description={'Asset header'} />
-      ),
-      Cell: MultiValueIconCell,
-      accessor: 'asset',
-      textAlign: 'left',
-    },
+
     {
       Header: (
         <FormattedMessage defaultMessage="Price" description={'Price header'} />
@@ -90,7 +80,7 @@ export const useTxnHistoryTable = (
       ),
       Cell: DateTimeCell,
       accessor: 'time',
-      textAlign: 'left',
+      textAlign: 'right',
     },
     {
       Header: (
@@ -107,7 +97,7 @@ export const useTxnHistoryTable = (
   ];
 
   const txnHistoryColumns =
-    txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
+    txnHistoryCategory === 0
       ? tableColumns.filter(({ accessor }) => accessor !== 'vaultName')
       : tableColumns;
 
@@ -123,7 +113,7 @@ export const useTxnHistoryTable = (
     if (filterData.length === 0) return accountHistoryData;
 
     if (assetOrVaultIds.length > 0 && currencyIds.length > 0) {
-      return txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
+      return txnHistoryCategory === 0
         ? accountHistoryData
             .filter(({ currency }) => filterData.includes(currency))
             .filter(({ token }) => filterData.includes(token.id))
@@ -136,18 +126,12 @@ export const useTxnHistoryTable = (
         currencyIds.includes(currency)
       );
     }
-    if (
-      assetOrVaultIds.length > 0 &&
-      txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
-    ) {
+    if (assetOrVaultIds.length > 0 && txnHistoryCategory === 0) {
       return accountHistoryData.filter(({ token }) =>
         filterData.includes(token.id)
       );
     }
-    if (
-      assetOrVaultIds.length > 0 &&
-      txnHistoryType === TXN_HISTORY_TYPE.LEVERAGED_VAULT
-    ) {
+    if (assetOrVaultIds.length > 0 && txnHistoryCategory === 1) {
       return accountHistoryData.filter(({ token }) =>
         filterData.includes(token.vaultAddress)
       );
@@ -161,7 +145,6 @@ export const useTxnHistoryTable = (
         transactionType,
         vaultName,
         underlyingAmount,
-        assetAmount,
         asset,
         price,
         time,
@@ -169,11 +152,9 @@ export const useTxnHistoryTable = (
       }) => {
         let result = {};
         result = {
-          'Transaction Type': `${
-            transactionType.label
-          } ${transactionType.symbol.toUpperCase()}`,
-          'Underlying Amount': underlyingAmount.data[0].displayValue,
-          'Asset Amount': assetAmount.data[0].displayValue,
+          'Transaction Type': `${transactionType.label}`,
+          'Underlying Amount':
+            underlyingAmount.data && underlyingAmount.data[0].displayValue,
           Asset: asset.label,
           Price: price,
           Time: getDateString(time, { showTime: true, slashesFormat: true }),
