@@ -21,7 +21,7 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
   const {
     yields: { leveragedVaults },
     getMax,
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(network);
 
   const allVaultData = listedVaults
     .map(({ vaultAddress, name, primaryToken, vaultTVL }) => {
@@ -105,13 +105,13 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
   const vaultData =
     leveragedVaults && leveragedVaults.length > 0 ? gridData : [];
 
-    const showNegativeYieldsToggle = defaultVaultData.find(
-      ({ apy }) => apy < 0
-    );
+  const showNegativeYieldsToggle = defaultVaultData.find(({ apy }) => apy < 0);
 
   return {
     gridData: vaultData,
-    setShowNegativeYields: showNegativeYieldsToggle ? setShowNegativeYields : undefined,
+    setShowNegativeYields: showNegativeYieldsToggle
+      ? setShowNegativeYields
+      : undefined,
     showNegativeYields: hasNegativeApy ? showNegativeYields : undefined,
   };
 };

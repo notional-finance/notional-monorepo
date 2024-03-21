@@ -8,7 +8,7 @@ import {
   isIdiosyncratic,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
-import { CacheSchema, TokenType, YieldData } from '../Definitions';
+import { TokenType, YieldData } from '../Definitions';
 import { Registry } from '../Registry';
 import { Routes } from '../server';
 import { TokenBalance } from '../token-balance';
@@ -496,20 +496,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     return this.getAllYields(network).filter((y) => y.leveraged === undefined);
   }
 
-  async triggerHTTPRefresh(network: Network) {
-    const data = await this._fetch<CacheSchema<YieldData>>(network);
-    this._updateNetworkObservables(data);
-  }
-
-  protected override async _refresh(network: Network) {
-    const allYields = this.getPrimeCashYield(network)
-      .concat(this.getPrimeDebtYield(network))
-      .concat(this.getNTokenYield(network))
-      .concat(this.getfCashYield(network))
-      // .concat(this.getLeveragedLendYield(network))
-      .concat(this.getLeveragedNTokenYield(network))
-      .concat(this.getLeveragedVaultYield(network));
-
+  private _buildCacheSchema(allYields: YieldData[], network: Network) {
     return {
       values: allYields.map(
         (y) =>
@@ -522,5 +509,22 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       lastUpdateTimestamp: getNowSeconds(),
       lastUpdateBlock: 0,
     };
+  }
+
+  async triggerHTTPRefresh(network: Network) {
+    const values = await this._fetch<YieldData[]>(network);
+    this._updateNetworkObservables(this._buildCacheSchema(values, network));
+  }
+
+  protected override async _refresh(network: Network) {
+    const allYields = this.getPrimeCashYield(network)
+      .concat(this.getPrimeDebtYield(network))
+      .concat(this.getNTokenYield(network))
+      .concat(this.getfCashYield(network))
+      // .concat(this.getLeveragedLendYield(network))
+      .concat(this.getLeveragedNTokenYield(network))
+      .concat(this.getLeveragedVaultYield(network));
+
+    return this._buildCacheSchema(allYields, network);
   }
 }
