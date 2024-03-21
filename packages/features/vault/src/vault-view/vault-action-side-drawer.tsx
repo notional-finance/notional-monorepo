@@ -10,7 +10,10 @@ import {
 import { TokenBalance } from '@notional-finance/core-entities';
 import { SideDrawerRouter } from '@notional-finance/trade';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
-import { useVaultPosition } from '@notional-finance/notionable-hooks';
+import {
+  useVaultPosition,
+  useVaultProperties,
+} from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router';
 
 export const VaultActionSideDrawer = () => {
@@ -38,6 +41,7 @@ export const VaultActionSideDrawer = () => {
         }
       : undefined;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
+  const { enabled } = useVaultProperties(selectedNetwork, vaultAddress);
 
   const currentPosition = {
     collateral: vaultPosition?.vault?.vaultShares?.token,
@@ -55,7 +59,8 @@ export const VaultActionSideDrawer = () => {
       context={context}
       hasPosition={!!vaultPosition}
       routeMatch={`/vaults/${selectedNetwork}/${vaultAddress}/:path`}
-      defaultHasPosition={'IncreaseVaultPosition'}
+      // If a vault is disabled, then default them to the withdraw vault screen
+      defaultHasPosition={enabled ? 'IncreaseVaultPosition' : 'WithdrawVault'}
       defaultNoPosition={'CreateVaultPosition'}
       routes={[
         {

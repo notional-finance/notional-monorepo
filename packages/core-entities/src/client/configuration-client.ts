@@ -110,9 +110,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     }
   }
 
-  getAllListedVaults(network: Network) {
+  getAllListedVaults(network: Network, includeDisabled = false) {
     return this.getLatestFromSubject(network, network)
-      ?.vaultConfigurations.filter((v) => v.enabled)
+      ?.vaultConfigurations.filter((v) => v.enabled || includeDisabled)
       .map((v) => ({
         ...v,
         ...ConfigurationClient.parseVaultName(v.name),
