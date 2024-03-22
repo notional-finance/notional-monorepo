@@ -10,6 +10,7 @@ export interface TotalBoxProps {
   prefix?: string;
   suffix?: string;
   Icon?: React.ElementType;
+  decimals?: number;
 }
 
 export function TotalBox({
@@ -18,6 +19,7 @@ export function TotalBox({
   Icon,
   suffix,
   prefix,
+  decimals,
 }: TotalBoxProps) {
   const theme = useTheme();
   return (
@@ -46,7 +48,13 @@ export function TotalBox({
       </Body>
       <LabelValue>
         {value !== undefined && typeof value === 'number' ? (
-          <CountUp value={value} prefix={prefix} suffix={suffix} duration={1} />
+          <CountUp
+            value={value}
+            prefix={prefix}
+            suffix={suffix}
+            duration={1}
+            decimals={decimals}
+          />
         ) : (
           value
         )}

@@ -7,12 +7,13 @@ import { DashboardHeaderProps } from '../product-dashboard';
 export const DashboardHeader = ({
   headerData,
   tokenGroup,
-  setTokenGroup,
+  handleTokenGroup,
   dashboardTab,
-  setDashboardTab,
+  handleDashboardTab,
 }: DashboardHeaderProps) => {
   const theme = useTheme();
-  const { toggleOptions, messageBoxText } = headerData;
+  const { toggleOptions, messageBoxText, networkToggle, handleNetWorkToggle } =
+    headerData;
 
   const gridToggleData = [
     <Box
@@ -81,17 +82,16 @@ export const DashboardHeader = ({
         <Box sx={{ marginRight: theme.spacing(3) }}>
           <SimpleToggle
             tabLabels={toggleOptions}
-            selectedTabIndex={0}
-            toggleStyle={'accent'}
+            selectedTabIndex={networkToggle}
+            onChange={(_, v) => handleNetWorkToggle(v as number)}
           />
         </Box>
         {dashboardTab === 1 && (
           <SimpleToggle
             tabVariant="standard"
-            toggleStyle={'accent'}
             tabLabels={tokenGroupData}
             selectedTabIndex={tokenGroup}
-            onChange={(_, v) => setTokenGroup(v as number)}
+            onChange={(_, v) => handleTokenGroup(v as number)}
           />
         )}
       </Box>
@@ -101,7 +101,7 @@ export const DashboardHeader = ({
           <SimpleToggle
             tabLabels={gridToggleData}
             selectedTabIndex={dashboardTab}
-            onChange={(_, v) => setDashboardTab(v as number)}
+            onChange={(_, v) => handleDashboardTab(v as number)}
           />
         </GridListToggleWrapper>
       </Box>

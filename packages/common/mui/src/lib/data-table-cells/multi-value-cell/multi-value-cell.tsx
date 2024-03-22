@@ -1,5 +1,4 @@
 import { Box, useTheme } from '@mui/material';
-import { colors } from '@notional-finance/styles';
 import { ProgressIndicator } from '../../progress-indicator/progress-indicator';
 import {
   TableCell,
@@ -26,34 +25,42 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
           }}
         />
       ) : value?.data ? (
-        value.data.map(({ displayValue, isNegative }, index) => (
-          <Box key={`${column.id}-${row.id}-${index}`}>
-            {index === 0 && (
-              <Box>
-                <FirstValue
-                  error={isNegative}
-                  sx={{ marginBottom: '0px', width: '100%', fontWeight: 500 }}
-                >
-                  {displayValue}
-                </FirstValue>
-              </Box>
-            )}
-            {index === 1 && (
-              <Box>
-                <SecondValue
-                  sx={{
-                    color: isNegative
-                      ? colors.red
-                      : theme.palette.typography.light,
-                    width: '100%',
-                  }}
-                >
-                  {displayValue}
-                </SecondValue>
-              </Box>
-            )}
-          </Box>
-        ))
+        value.data.map(
+          ({ displayValue, isNegative, showPositiveAsGreen }, index) => (
+            <Box key={`${column.id}-${row.id}-${index}`}>
+              {index === 0 && (
+                <Box>
+                  <FirstValue
+                    error={isNegative && !row.original.isDebt}
+                    sx={{
+                      marginBottom: '0px',
+                      width: '100%',
+                      fontWeight: row.original.currency === 'Total' ? 600 : 500,
+                      color: showPositiveAsGreen && theme.palette.primary.main,
+                    }}
+                  >
+                    {displayValue}
+                  </FirstValue>
+                </Box>
+              )}
+              {index === 1 && (
+                <Box>
+                  <SecondValue
+                    sx={{
+                      color:
+                        isNegative && !row.original.isDebt
+                          ? theme.palette.error.main
+                          : theme.palette.typography.light,
+                      width: '100%',
+                    }}
+                  >
+                    {displayValue}
+                  </SecondValue>
+                </Box>
+              )}
+            </Box>
+          )
+        )
       ) : (
         value
       )}

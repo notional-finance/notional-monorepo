@@ -75,6 +75,7 @@ export const XAxisDateTick = (props) => {
   const { x, y, visibleTicksCount, payload, activeTimestamp, theme, intl } =
     props;
   const isActive = activeTimestamp === payload.value;
+  const isVariable = payload.value === 0;
 
   let textAnchor = 'middle';
   let dx = 0;
@@ -94,7 +95,7 @@ export const XAxisDateTick = (props) => {
   return (
     <g
       transform={`translate(${x},${y + 12})`}
-      cursor={'pointer'}
+      cursor={isVariable ? 'unset' : 'pointer'}
       fill={theme.palette.typography.light}
     >
       {isActive ? SelectedDate(mBoxDx, -12, theme) : null}
@@ -107,10 +108,12 @@ export const XAxisDateTick = (props) => {
         style={{ fontSize: '12px' }}
         fill={isActive ? theme.palette.typography.main : ''}
       >
-        {intl.formatDate(payload.value * 1000, {
-          month: 'short',
-          year: 'numeric',
-        })}
+        {isVariable
+          ? 'Variable'
+          : intl.formatDate(payload.value * 1000, {
+              month: 'short',
+              year: 'numeric',
+            })}
       </text>
     </g>
   );

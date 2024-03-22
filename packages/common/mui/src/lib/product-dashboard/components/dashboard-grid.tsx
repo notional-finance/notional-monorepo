@@ -1,8 +1,8 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { DashboardCard } from './dashboard-card';
 import { Caption, LinkText } from '../../typography/typography';
-import ProgressIndicator from '../../progress-indicator/progress-indicator';
 import { DashboardGridProps } from '../product-dashboard';
+import { DashboardStateZero } from './dashboard-state-zero';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
@@ -16,14 +16,14 @@ export const DashboardGrid = ({
   gridData,
   setShowNegativeYields,
   showNegativeYields,
-  isLoading,
   threeWideGrid,
 }: DashboardGridProps) => {
   const theme = useTheme();
+  const dataAvailable = gridData && gridData[0]?.data.length > 0 ? true : false;
 
   return (
-    <Box sx={{ marginTop: isLoading ? theme.spacing(7.5) : '0px' }}>
-      {!isLoading && gridData ? (
+    <Box>
+      {gridData &&
         gridData.map(({ sectionTitle, data, hasLeveragedPosition }, index) => (
           <Container
             key={index}
@@ -41,41 +41,47 @@ export const DashboardGrid = ({
             >
               {sectionTitle}
             </Caption>
-            <GridCardContainer threeWideGrid={threeWideGrid} theme={theme}>
-              {data.map(
-                (
-                  {
-                    title,
-                    subTitle,
-                    apy,
-                    bottomValue,
-                    routeCallback,
-                    symbol,
-                    hasPosition,
-                    incentiveValue,
-                    incentiveSymbols,
-                    apySubTitle,
-                  },
-                  index
-                ) => (
-                  <div key={index}>
-                    <DashboardCard
-                      key={index}
-                      title={title}
-                      subTitle={subTitle}
-                      routeCallback={routeCallback}
-                      apy={apy}
-                      bottomValue={bottomValue}
-                      symbol={symbol}
-                      hasPosition={hasPosition}
-                      incentiveValue={incentiveValue}
-                      incentiveSymbols={incentiveSymbols}
-                      apySubTitle={apySubTitle}
-                    />
-                  </div>
-                )
-              )}
-            </GridCardContainer>
+            {!dataAvailable && !showNegativeYields ? (
+              <DashboardStateZero />
+            ) : (
+              <GridCardContainer threeWideGrid={threeWideGrid} theme={theme}>
+                {data.map(
+                  (
+                    {
+                      title,
+                      subTitle,
+                      apy,
+                      bottomValue,
+                      routeCallback,
+                      symbol,
+                      hasPosition,
+                      incentiveValue,
+                      incentiveSymbols,
+                      apySubTitle,
+                      network,
+                    },
+                    index
+                  ) => (
+                    <div key={index}>
+                      <DashboardCard
+                        key={index}
+                        title={title}
+                        subTitle={subTitle}
+                        routeCallback={routeCallback}
+                        apy={apy}
+                        bottomValue={bottomValue}
+                        symbol={symbol}
+                        hasPosition={hasPosition}
+                        incentiveValue={incentiveValue}
+                        incentiveSymbols={incentiveSymbols}
+                        apySubTitle={apySubTitle}
+                        network={network}
+                      />
+                    </div>
+                  )
+                )}
+              </GridCardContainer>
+            )}
             {!hasLeveragedPosition && setShowNegativeYields && (
               <LinkText
                 onClick={() => setShowNegativeYields(!showNegativeYields)}
@@ -93,13 +99,7 @@ export const DashboardGrid = ({
               </LinkText>
             )}
           </Container>
-        ))
-      ) : (
-        <ProgressIndicator
-          type="notional"
-          sx={{ height: theme.spacing(57.5) }}
-        />
-      )}
+        ))}
     </Box>
   );
 };
