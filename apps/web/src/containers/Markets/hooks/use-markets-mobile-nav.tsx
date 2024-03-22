@@ -1,21 +1,20 @@
-import { MARKET_TYPE } from '@notional-finance/util';
 import { BarChartIcon, CoinsIcon } from '@notional-finance/icons';
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 
-export const useMarketsMobileNav = (setMarketType, marketType) => {
+export const useMarketsMobileNav = (setEarnBorrowOption, earnBorrowOption) => {
   const theme = useTheme();
 
   const options = [
     {
       title: <FormattedMessage defaultMessage={'Earn Yield'} />,
-      id: MARKET_TYPE.EARN,
+      id: 0,
       Icon: (
         <BarChartIcon
           sx={{
             width: theme.spacing(2),
             fill:
-              marketType === MARKET_TYPE.EARN
+              earnBorrowOption === 0
                 ? theme.palette.typography.main
                 : theme.palette.typography.light,
           }}
@@ -24,14 +23,14 @@ export const useMarketsMobileNav = (setMarketType, marketType) => {
     },
     {
       title: <FormattedMessage defaultMessage={'Borrow'} />,
-      id: MARKET_TYPE.BORROW,
+      id: 1,
       Icon: (
         <CoinsIcon
           sx={{
             width: theme.spacing(2),
             fill: 'transparent',
             stroke:
-              marketType === MARKET_TYPE.BORROW
+              earnBorrowOption === 1
                 ? theme.palette.typography.main
                 : theme.palette.typography.light,
           }}

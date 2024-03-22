@@ -1,4 +1,4 @@
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { Paragraph, ContestTable, Button } from '@notional-finance/mui';
@@ -85,7 +85,7 @@ const ContentContainer = styled(Box)(
   justify-content: space-between;
   gap: ${theme.spacing(12)};
   align-items: center;
-  margin-bottom: ${theme.spacing(11)};
+  margin-bottom: ${theme.spacing(32)};
   ${theme.breakpoints.down('md')} {
     flex-direction: column;
   }
