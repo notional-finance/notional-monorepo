@@ -3,6 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { Box } from '@mui/material';
 import { Body } from '@notional-finance/mui';
 import { RiskFaq } from '../components';
+import { HowItWorksFaq } from '../components';
 import {
   getEtherscanAddressLink,
   Network,
@@ -13,9 +14,13 @@ interface FaqProps {
   question: ReactNode;
   answer?: ReactNode;
   componentAnswer?: ReactNode;
+  questionDescription?: ReactNode;
 }
 
-export const useVaultFaq = (selectedNetwork: Network | undefined) => {
+export const useVaultFaq = (
+  selectedNetwork: Network | undefined,
+  tokenSymbol: string | undefined
+) => {
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',
@@ -37,11 +42,18 @@ export const useVaultFaq = (selectedNetwork: Network | undefined) => {
     {
       question: (
         <FormattedMessage
-          defaultMessage={'What are the risks?'}
+          defaultMessage={'How it works?'}
           description={'faq question'}
         />
       ),
-      componentAnswer: <RiskFaq />,
+      componentAnswer: tokenSymbol ? (
+        <HowItWorksFaq tokenSymbol={tokenSymbol} />
+      ) : (
+        <div />
+      ),
+      questionDescription: (
+        <FormattedMessage defaultMessage={'Learn how leveraged vaults work.'} />
+      ),
     },
     {
       question: (
@@ -110,6 +122,15 @@ export const useVaultFaq = (selectedNetwork: Network | undefined) => {
           defaultMessage={`When your borrow matures, it will automatically convert into a variable rate and your vault position will stay open. No action needed from you.`}
         />
       ),
+    },
+    {
+      question: (
+        <FormattedMessage
+          defaultMessage={'What are the risks?'}
+          description={'faq question'}
+        />
+      ),
+      componentAnswer: <RiskFaq />,
     },
   ];
 

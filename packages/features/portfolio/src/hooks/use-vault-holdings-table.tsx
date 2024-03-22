@@ -206,7 +206,7 @@ export const useVaultHoldingsTable = () => {
         },
         // Assets and debts are shown on the overview page
         assets: formatCryptoWithFiat(baseCurrency, v.totalAssets()),
-        debts: formatCryptoWithFiat(baseCurrency, v.totalDebt()),
+        debts: formatCryptoWithFiat(baseCurrency, v.totalDebt(), true),
         netWorth: formatCryptoWithFiat(baseCurrency, v.netWorth()),
         profit: formatCryptoWithFiat(baseCurrency, profit),
         totalAPY: totalAPY ? formatNumberAsPercent(totalAPY) : undefined,

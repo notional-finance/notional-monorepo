@@ -9,7 +9,7 @@ import {
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { VaultSubNav, MobileVaultSummary, HowItWorksFaq } from '../components';
+import { VaultSubNav, MobileVaultSummary } from '../components';
 import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import {
@@ -30,7 +30,6 @@ export const VaultSummary = () => {
   const { state } = useContext(VaultActionContext);
   const {
     vaultAddress,
-    selectedDepositToken,
     overCapacityError,
     totalCapacityRemaining,
     maxVaultCapacity,
@@ -46,7 +45,10 @@ export const VaultSummary = () => {
   // const { data, columns } = useVaultPriceExposure(state);
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
-  const { faqHeaderLinks, faqs } = useVaultFaq(selectedNetwork);
+  const { faqHeaderLinks, faqs } = useVaultFaq(
+    selectedNetwork,
+    deposit?.symbol
+  );
 
   const { reinvestmentTableData, reinvestmentTableColumns } =
     useVaultReinvestmentTable(selectedNetwork, deposit, vaultAddress);
@@ -138,20 +140,6 @@ export const VaultSummary = () => {
                   vaultShare?.maturity === PRIME_CASH_VAULT_MATURITY,
               }}
             />
-            {selectedDepositToken && (
-              <Faq
-                sx={{ boxShadow: 'none', marginBottom: theme.spacing(5) }}
-                question={<FormattedMessage defaultMessage={'How it Works'} />}
-                componentAnswer={
-                  <HowItWorksFaq tokenSymbol={selectedDepositToken} />
-                }
-                questionDescription={
-                  <FormattedMessage
-                    defaultMessage={'Learn how leveraged vaults work.'}
-                  />
-                }
-              />
-            )}
             <LiquidationChart
               state={state}
               vaultCollateral={vaultShare}
@@ -214,18 +202,24 @@ export const VaultSummary = () => {
                 }
                 links={faqHeaderLinks}
               />
-              {faqs.map(({ question, answer, componentAnswer }, index) => (
-                <Faq
-                  key={index}
-                  question={question}
-                  answer={answer}
-                  componentAnswer={componentAnswer}
-                  sx={{
-                    marginBottom: theme.spacing(2),
-                    boxShadow: theme.shape.shadowStandard,
-                  }}
-                />
-              ))}
+              {faqs.map(
+                (
+                  { question, answer, componentAnswer, questionDescription },
+                  index
+                ) => (
+                  <Faq
+                    key={index}
+                    question={question}
+                    answer={answer}
+                    componentAnswer={componentAnswer}
+                    questionDescription={questionDescription}
+                    sx={{
+                      marginBottom: theme.spacing(2),
+                      boxShadow: theme.shape.shadowStandard,
+                    }}
+                  />
+                )
+              )}
             </Box>
           </TradeActionSummary>
         </Box>

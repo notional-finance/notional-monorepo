@@ -74,95 +74,102 @@ export const MultiSelectDropdown = ({
   );
 
   return (
-    <Wrapper
-      onMouseEnter={() => setIsOpen(true)}
+    <Box
+      sx={{
+        background: 'transparent',
+        paddingBottom: theme.spacing(1.5),
+        marginBottom: `-${theme.spacing(1.5)}`,
+      }}
       onMouseLeave={() => setIsOpen(false)}
     >
-      <SelectDropdown>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <FilterIcon
-            sx={{
-              fill: theme.palette.common.black,
-              height: theme.spacing(2.25),
-              marginRight: theme.spacing(1),
-            }}
-          />
-          {displayOptions.length > 0 && (
-            <Text>
-              {selected.length} <FormattedMessage defaultMessage={'selected'} />
-            </Text>
-          )}
-          {displayOptions.length <= 0 && <Text>{placeHolderText}</Text>}
-        </Box>
-        <ChevronDownIcon
-          sx={{ height: theme.spacing(2), width: theme.spacing(2) }}
-          fillone={theme.palette.typography.accent}
-          filltwo={theme.palette.primary.contrastText}
-        />
-      </SelectDropdown>
-      <DropdownOptions isOpen={isOpen} theme={theme}>
-        <DropdownOption>
-          <Item
-            onClick={handleSelectAll}
-            isSelected={allSelected}
-            theme={theme}
-          >
-            <Text>
-              <FormattedMessage defaultMessage={'Select All'} />
-            </Text>
-            <Checkbox
+      <Wrapper onMouseEnter={() => setIsOpen(true)}>
+        <SelectDropdown>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <FilterIcon
               sx={{
-                color: theme.palette.borders.paper,
-                fill: theme.palette.common.white,
-                '&.Mui-checked': {
-                  color: theme.palette.typography.accent,
-                },
+                fill: theme.palette.common.black,
+                height: theme.spacing(2.25),
+                marginRight: theme.spacing(1),
               }}
-              checked={allSelected}
             />
-          </Item>
-          {options.map((option) => {
-            const isSelected = selected.find(({ id }) => id === option.id)
-              ? true
-              : false;
-            return (
-              <Item
-                key={option.id}
-                isSelected={isSelected}
-                onClick={() => toggleOption(option)}
-                theme={theme}
-              >
-                <Text sx={{ display: 'flex', alignItems: 'center' }}>
-                  {option?.icon && (
-                    <Box
-                      component="span"
-                      sx={{
-                        fontWeight: 500,
-                        marginRight: theme.spacing(1),
-                        marginTop: theme.spacing(0.5),
-                      }}
-                    >
-                      {option.icon}
-                    </Box>
-                  )}
-                  <LabelValue component="span">{option.title}</LabelValue>
-                </Text>
-                <Checkbox
-                  sx={{
-                    color: theme.palette.borders.paper,
-                    fill: theme.palette.common.white,
-                    '&.Mui-checked': {
-                      color: theme.palette.typography.accent,
-                    },
-                  }}
-                  checked={isSelected}
-                />
-              </Item>
-            );
-          })}
-        </DropdownOption>
-      </DropdownOptions>
-    </Wrapper>
+            {displayOptions.length > 0 && (
+              <Text>
+                {selected.length}
+                <FormattedMessage defaultMessage={'selected'} />
+              </Text>
+            )}
+            {displayOptions.length <= 0 && <Text>{placeHolderText}</Text>}
+          </Box>
+          <ChevronDownIcon
+            sx={{ height: theme.spacing(2), width: theme.spacing(2) }}
+            fillone={theme.palette.typography.accent}
+            filltwo={theme.palette.primary.contrastText}
+          />
+        </SelectDropdown>
+        <DropdownOptions theme={theme} isOpen={isOpen}>
+          <DropdownOption>
+            <Item
+              onClick={handleSelectAll}
+              isSelected={allSelected}
+              theme={theme}
+            >
+              <Text>
+                <FormattedMessage defaultMessage={'Select All'} />
+              </Text>
+              <Checkbox
+                sx={{
+                  color: theme.palette.borders.paper,
+                  fill: theme.palette.common.white,
+                  '&.Mui-checked': {
+                    color: theme.palette.typography.accent,
+                  },
+                }}
+                checked={allSelected}
+              />
+            </Item>
+            {options.map((option) => {
+              const isSelected = selected.find(({ id }) => id === option.id)
+                ? true
+                : false;
+              return (
+                <Item
+                  key={option.id}
+                  isSelected={isSelected}
+                  onClick={() => toggleOption(option)}
+                  theme={theme}
+                >
+                  <Text sx={{ display: 'flex', alignItems: 'center' }}>
+                    {option?.icon && (
+                      <Box
+                        component="span"
+                        sx={{
+                          fontWeight: 500,
+                          marginRight: theme.spacing(1),
+                          marginTop: theme.spacing(0.5),
+                        }}
+                      >
+                        {option.icon}
+                      </Box>
+                    )}
+                    <LabelValue component="span">{option.title}</LabelValue>
+                  </Text>
+                  <Checkbox
+                    sx={{
+                      color: theme.palette.borders.paper,
+                      fill: theme.palette.common.white,
+                      '&.Mui-checked': {
+                        color: theme.palette.typography.accent,
+                      },
+                    }}
+                    checked={isSelected}
+                  />
+                </Item>
+              );
+            })}
+          </DropdownOption>
+        </DropdownOptions>
+      </Wrapper>
+    </Box>
   );
 };
 
@@ -175,6 +182,7 @@ const Wrapper = styled(Box)(
     background: ${theme.palette.background.paper};
     border-radius: ${theme.shape.borderRadius()};
     border: ${theme.shape.borderStandard};
+
   `
 );
 
@@ -232,7 +240,8 @@ const DropdownOptions = styled('ul', {
     width: ${theme.spacing(29)};
     overflow-x: visible;
     overflow-y: auto;
-    
+    border-radius: ${theme.shape.borderRadius()};
+    margin-top: ${theme.spacing(1)};
 `
 );
 
