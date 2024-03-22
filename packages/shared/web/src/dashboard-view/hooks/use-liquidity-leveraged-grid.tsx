@@ -41,6 +41,7 @@ export const useLiquidityLeveragedGrid = (
               )
             : 0
         }`,
+        network: y.token.network,
         hasPosition: currentPosition ? true : false,
         tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         apySubTitle: currentPosition
@@ -122,11 +123,17 @@ export const useLiquidityLeveragedGrid = (
     });
   }
 
+  const showNegativeYieldsToggle = defaultLeveragedLiquidityData.find(
+    ({ apy }) => apy < 0
+  );
+
   const levLiquidityData = allData && allData.length > 0 ? gridData : [];
 
   return {
     gridData: levLiquidityData,
-    setShowNegativeYields: hasNegativeApy ? setShowNegativeYields : undefined,
+    setShowNegativeYields: showNegativeYieldsToggle
+      ? setShowNegativeYields
+      : undefined,
     showNegativeYields: hasNegativeApy ? showNegativeYields : undefined,
   };
 };

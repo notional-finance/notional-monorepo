@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { defineMessage } from 'react-intl';
 import { FormattedMessage } from 'react-intl';
 import { TokenIcon } from '@notional-finance/icons';
 import { Box, useTheme } from '@mui/material';
-import { PRODUCTS } from '@notional-finance/util';
-import { InfoTooltip } from '@notional-finance/mui';
+import { Network, PRODUCTS } from '@notional-finance/util';
+import { useHistory, useLocation } from 'react-router';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const config = {
   [PRODUCTS.VAULTS]: {
@@ -138,32 +140,16 @@ export const config = {
 
 export const useDashboardConfig = (routeKey: PRODUCTS) => {
   const theme = useTheme();
+  const history = useHistory();
+  const { pathname } = useLocation();
+  const selectedNetwork = useSelectedNetwork();
+  const defaultNetwork = selectedNetwork === Network.Mainnet ? 1 : 0;
+  const [networkToggle, setNetworkToggle] = useState<number>(defaultNetwork);
 
-  const InfoComponent = () => {
-    return (
-      <Box
-        sx={{
-          fontSize: '14px',
-          display: 'flex',
-        }}
-      >
-        <Box
-          sx={{
-            background: theme.palette.background.paper,
-            position: 'absolute',
-            opacity: 0.5,
-            height: '20px',
-            width: '100px',
-          }}
-        ></Box>
-        <TokenIcon
-          symbol="eth"
-          size="small"
-          style={{ marginRight: theme.spacing(1) }}
-        />
-        Mainnet
-      </Box>
-    );
+  const handleNetWorkToggle = (v: number) => {
+    const label = v === 0 ? Network.ArbitrumOne : Network.Mainnet;
+    history.push(pathname.replace(selectedNetwork, label));
+    setNetworkToggle(v);
   };
 
   const headerData = {
@@ -176,16 +162,20 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
         />
         Arbitrum
       </Box>,
-      <InfoTooltip
-        toolTipText={defineMessage({
-          defaultMessage: 'Mainnet coming soon',
-        })}
-        InfoComponent={InfoComponent}
-      />,
+      <Box sx={{ fontSize: '14px', display: 'flex' }}>
+        <TokenIcon
+          symbol="eth"
+          size="small"
+          style={{ marginRight: theme.spacing(1) }}
+        />
+        Mainnet
+      </Box>,
     ],
     messageBoxText: (
       <FormattedMessage defaultMessage={'Native Token Yield not shown.'} />
     ),
+    networkToggle,
+    handleNetWorkToggle,
   };
 
   return {

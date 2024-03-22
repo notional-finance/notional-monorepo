@@ -63,6 +63,7 @@ export const PortfolioHoldingSelect = ({
         return {
           token: b.token,
           largeFigure: maxWithdraw?.toUnderlying().toFloat() || 0,
+          largeFigureDecimals: 4,
           largeFigureSuffix: ' ' + b.underlying.symbol,
         };
       } else {
@@ -71,6 +72,7 @@ export const PortfolioHoldingSelect = ({
         return {
           token: b.tokenType === 'PrimeCash' ? b.toPrimeDebt().token : b.token,
           largeFigure: underlying.toFloat() || 0,
+          largeFigureDecimals: 4,
           largeFigureSuffix: ' ' + b.underlying.symbol,
           caption: underlying.toFiat(baseCurrency).toDisplayStringWithSymbol(),
         };

@@ -1,19 +1,33 @@
-import { Box, styled, useTheme, Grid } from '@mui/material';
-import { LabelValue } from '@notional-finance/mui';
+import { Box, useTheme, Divider } from '@mui/material';
+import {
+  Button,
+  Caption,
+  H4,
+  H5,
+  Paragraph,
+  Subtitle,
+} from '@notional-finance/mui';
 import {
   useAccountReady,
   useWalletAllowances,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { CurrencyIcon } from '../currency-icon/currency-icon';
 import { FormattedMessage } from 'react-intl';
-import { Network } from '@notional-finance/util';
+import { SupportedNetworks, UNLIMITED_APPROVAL } from '@notional-finance/util';
+import { Title } from '../../settings-side-drawer';
+import { TokenBalance } from '@notional-finance/core-entities';
+import { EditIcon, TokenIcon } from '@notional-finance/icons';
+import { useChangeNetwork, useTokenApproval } from '@notional-finance/trade';
 
 export const EnabledCurrenciesButton = () => {
   const theme = useTheme();
   const network = useWalletConnectedNetwork();
   const walletConnected = useAccountReady(network);
-  const { enabledTokens } = useWalletAllowances(network);
+  const allowances = useWalletAllowances();
+  const numEnabled = Object.values(allowances).reduce(
+    (n, a) => n + a.length,
+    0
+  );
 
   return (
     <Box
@@ -22,7 +36,7 @@ export const EnabledCurrenciesButton = () => {
       <Box sx={{ paddingRight: theme.spacing(1), display: 'flex' }}>
         {walletConnected && (
           <Box>
-            {enabledTokens.length > 0 ? enabledTokens.length : 0}{' '}
+            {numEnabled}&nbsp;
             <FormattedMessage defaultMessage={'Enabled'} />
           </Box>
         )}
@@ -31,101 +45,117 @@ export const EnabledCurrenciesButton = () => {
   );
 };
 
-export const EnabledCurrencies = () => {
+const TokenAllowanceRow = ({ amount }: { amount: TokenBalance }) => {
   const theme = useTheme();
-  // NOTE: this is a temporary hack to show connected networks for read only addresses,
-  // in the future this should show all networks by default
-  const network = useWalletConnectedNetwork() || Network.ArbitrumOne;
+  const network = useWalletConnectedNetwork();
   const walletConnected = useAccountReady(network);
-  const { enabledTokens, supportedTokens } = useWalletAllowances(network);
-  const systemTokenSymbols = supportedTokens.map((t) => t.symbol);
+  const isUnlimited = amount.n.gte(UNLIMITED_APPROVAL);
+  const canEdit = network === amount.network && walletConnected;
+  const { enableToken } = useTokenApproval(amount.symbol, amount.network);
+  const changeNetwork = useChangeNetwork();
 
   return (
-    <WalletSelectorContainer>
-      <StyledGrid container>
-        <Title>
-          <FormattedMessage defaultMessage={'Enabled Currencies'} />
-        </Title>
-        {walletConnected ? (
-          enabledTokens.map((c) => {
-            return (
-              <CurrencyIcon
-                key={c.symbol}
-                symbol={c.symbol}
-                disableOption
-                allCurrencies={false}
-                enabled
-              />
-            );
-          })
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: theme.spacing(2),
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          minWidth: theme.spacing(12),
+        }}
+      >
+        <TokenIcon
+          symbol={amount.symbol}
+          size="medium"
+          network={amount.network}
+        />
+        <Box marginLeft={theme.spacing(1.5)}>
+          <H4>{amount.symbol}</H4>
+          <Caption sx={{ textTransform: 'capitalize' }}>
+            {amount.network}
+          </Caption>
+        </Box>
+      </Box>
+      <Box
+        sx={{ display: 'flex', cursor: canEdit ? 'pointer' : 'auto' }}
+        onClick={canEdit ? () => enableToken(false) : undefined}
+      >
+        <Subtitle accent marginRight={theme.spacing(0.5)}>
+          {isUnlimited ? (
+            <FormattedMessage defaultMessage={'Unlimited'} />
+          ) : (
+            amount.toDisplayStringWithSymbol(2, true)
+          )}
+        </Subtitle>
+        {canEdit && <EditIcon />}
+      </Box>
+      <Button
+        variant="outlined"
+        sx={{
+          borderColor: theme.palette.typography.accent,
+          color: theme.palette.typography.accent,
+        }}
+        onClick={
+          canEdit
+            ? () => enableToken(false)
+            : () => changeNetwork(amount.network)
+        }
+      >
+        {canEdit ? (
+          <FormattedMessage defaultMessage={'Revoke'} />
         ) : (
-          <Box sx={{ padding: theme.spacing(2) }}>
-            <FormattedMessage
-              defaultMessage={'Select from the list below to enable collateral'}
-            />
-          </Box>
+          <FormattedMessage defaultMessage={'Switch'} />
         )}
-
-        <Box sx={{ height: '40px', width: '100%' }}></Box>
-        <Title>
-          <FormattedMessage defaultMessage={'Supported Currencies'} />
-        </Title>
-        {walletConnected
-          ? supportedTokens.map((c) => {
-              const enabled =
-                enabledTokens.find((t) => t.id === c.id) !== undefined;
-
-              return (
-                <CurrencyIcon
-                  key={c.symbol}
-                  symbol={c.symbol}
-                  disableOption={false}
-                  enabled={enabled}
-                  allCurrencies
-                />
-              );
-            })
-          : systemTokenSymbols.map((symbol) => {
-              return (
-                <CurrencyIcon
-                  key={symbol}
-                  symbol={symbol}
-                  disableOption={false}
-                  allCurrencies
-                />
-              );
-            })}
-      </StyledGrid>
-    </WalletSelectorContainer>
+      </Button>
+    </Box>
   );
 };
 
-const Title = styled(LabelValue)(
-  ({ theme }) => `
-  width: 100%;
-  margin-bottom: ${theme.spacing(2.5)};
-  font-weight: 700;
-  color: ${theme.palette.typography.light};
-  text-transform: uppercase;
-  `
-);
+export const EnabledCurrencies = () => {
+  const theme = useTheme();
+  const allowances = useWalletAllowances();
 
-const StyledGrid = styled(Grid)(
-  ({ theme }) => `
-  padding-bottom: ${theme.spacing(10)};
-  .MuiGrid-root {
-    flex-basis: 20%;
-  }
-  
-`
-);
-
-const WalletSelectorContainer = styled(Box)(
-  ({ theme }) => `
-  margin: 0px;
-  font-weight: 700;
-  color: ${theme.palette.primary.dark};
-  `
-);
+  return (
+    <Box>
+      <Title sx={{ marginBottom: theme.spacing(1) }}>
+        <FormattedMessage defaultMessage={'Enabled Tokens'} />
+      </Title>
+      <Paragraph marginBottom={theme.spacing(4)}>
+        <FormattedMessage
+          defaultMessage={'Reset or revoke your token approvals below'}
+        />
+      </Paragraph>
+      {SupportedNetworks.map((network) => {
+        return (
+          <Box
+            sx={{
+              width: '100%',
+              display: 'block',
+              marginBottom: theme.spacing(4),
+            }}
+          >
+            <H5 gutter="default">{network}</H5>
+            <Divider sx={{ marginBottom: theme.spacing(2) }} />
+            {allowances[network].length === 0 ? (
+              <Subtitle textAlign={'center'} light>
+                <FormattedMessage defaultMessage={'No Approvals Set'} />
+              </Subtitle>
+            ) : (
+              allowances[network].map((a) => (
+                <TokenAllowanceRow amount={a.amount} />
+              ))
+            )}
+          </Box>
+        );
+      })}
+    </Box>
+  );
+};
 
 export default EnabledCurrencies;

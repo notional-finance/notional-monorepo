@@ -55,14 +55,17 @@ export const tradeErrors = defineMessages({
     defaultMessage: 'Reduce leverage or increase deposit to continue',
     description: 'warning message',
   },
+  leverageLiquidationRiskWithdrawMsg: {
+    defaultMessage: 'Withdrawal amount exceeds balance',
+    description: 'warning message',
+  },
   usdcNotUSDCeMsg: {
     defaultMessage:
       'Insufficient balance. Notional accepts native USDC, not USDC.e on Arbitrum.',
     description: 'warning message',
   },
   exceedSupplyCap: {
-    defaultMessage:
-      'Supply Cap Exceeded. Max Deposit: {maxDeposit}',
+    defaultMessage: 'Supply Cap Exceeded. Max Deposit: {maxDeposit}',
     description: 'warning message',
   },
 });

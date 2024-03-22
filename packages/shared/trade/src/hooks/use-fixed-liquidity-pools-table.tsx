@@ -86,8 +86,8 @@ export const useFixedLiquidityPoolsTable = (
         maturity: getDateString(data.maturity),
         valueOfCash: perMarketCash[index]
           .toUnderlying()
-          .toDisplayString(3, true),
-        valueOfFCash: data.toUnderlying().toDisplayString(3, true),
+          .toDisplayString(4, true),
+        valueOfFCash: data.toUnderlying().toDisplayString(4, true),
         price: `${formatNumber(currentPrice)} ${token?.symbol}`,
         interestRate: interestRate,
       };

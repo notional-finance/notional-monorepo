@@ -1,8 +1,8 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
-import { formatTokenType } from '@notional-finance/helpers';
 import { CurrencyInputHandle } from '@notional-finance/mui';
 import {
   BaseTradeContext,
+  useFiat,
   usePortfolioRiskProfile,
   usePrimeTokens,
 } from '@notional-finance/notionable-hooks';
@@ -26,6 +26,7 @@ export const useDeleverage = (
     },
     updateState,
   } = context;
+  const baseCurrency = useFiat();
   const computedBalance =
     debtOrCollateral === 'Debt' ? debtBalance : collateralBalance;
   const availableTokens =
@@ -126,25 +127,27 @@ export const useDeleverage = (
           displayToken = primeDebt.find((p) => p.currencyId === t.currencyId);
         }
 
-        const { title } = formatTokenType(displayToken || t);
-
         return {
           token: t,
           displayToken,
           content: balance
             ? {
                 largeFigure: balance.toFloat(),
-                largeFigureSuffix: title,
                 shouldCountUp: false,
-                caption: balance
-                  .toFiat('USD')
-                  .toDisplayStringWithSymbol(3, true),
+                caption: balance.toFiat(baseCurrency).toDisplayString(2),
               }
             : undefined,
         };
       }) || []
     );
-  }, [availableTokens, primeCash, primeDebt, debtOrCollateral, profile]);
+  }, [
+    availableTokens,
+    primeCash,
+    primeDebt,
+    debtOrCollateral,
+    profile,
+    baseCurrency,
+  ]);
 
   return {
     options,

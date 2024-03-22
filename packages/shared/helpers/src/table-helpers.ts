@@ -36,11 +36,11 @@ export const formatCryptoWithFiat = (
     : {
         data: [
           {
-            displayValue: tbn.toDisplayStringWithSymbol(3),
+            displayValue: tbn.toDisplayStringWithSymbol(),
             isNegative: tbn.isNegative(),
           },
           {
-            displayValue: tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(3),
+            displayValue: tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(2),
             isNegative: tbn.isNegative(),
           },
         ],
@@ -70,22 +70,29 @@ export const formatValueWithFiat = (
 
 export const formatTokenAmount = (
   tbn?: TokenBalance,
-  impliedFixedRate?: any
+  impliedFixedRate?: any,
+  showDisplayStringWithSymbol?: boolean,
+  showStyledNegativeValues?: boolean,
+  showPositiveAsGreen?: boolean,
+  decimalPlaces?: number
 ) => {
   return !tbn || tbn.isZero()
     ? '-'
     : {
         data: [
           {
-            displayValue: tbn.toDisplayString(3, true),
-            isNegative: tbn.isNegative(),
+            displayValue: showDisplayStringWithSymbol
+              ? tbn.toDisplayStringWithSymbol(decimalPlaces || 4)
+              : tbn.toDisplayString(4, true),
+            showPositiveAsGreen: showPositiveAsGreen,
+            isNegative: showStyledNegativeValues ? tbn.isNegative() : false,
           },
           {
             displayValue:
               impliedFixedRate !== undefined
                 ? `${formatNumberAsPercent(impliedFixedRate)} Fixed`
                 : '',
-            isNegative: tbn.isNegative(),
+            isNegative: showStyledNegativeValues ? tbn.isNegative() : false,
           },
         ],
       };

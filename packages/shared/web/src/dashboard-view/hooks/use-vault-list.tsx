@@ -24,7 +24,7 @@ export const useVaultList = (network: Network) => {
   const {
     yields: { leveragedVaults },
     getMax,
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(network);
   const listedVaults = useAllVaults(network);
   const baseCurrency = useFiat();
   const account = useAccountDefinition(network);
@@ -50,7 +50,7 @@ export const useVaultList = (network: Network) => {
       ),
       Cell: DisplayCell,
       displayFormatter: (val, symbol) => {
-        return `${formatNumber(val, 2)} ${symbol}`;
+        return `${formatNumber(val, 4)} ${symbol}`;
       },
       showSymbol: true,
       accessor: 'walletBalance',
@@ -108,7 +108,8 @@ export const useVaultList = (network: Network) => {
         <FormattedMessage defaultMessage="TVL" description={'TVL header'} />
       ),
       Cell: DisplayCell,
-      displayFormatter: formatNumberAsAbbr,
+      displayFormatter: (value: number) =>
+        formatNumberAsAbbr(value, 0, baseCurrency),
       accessor: 'tvl',
       textAlign: 'right',
       sortType: 'basic',
@@ -191,6 +192,7 @@ export const useVaultList = (network: Network) => {
             symbolBottom: '',
             label: y.primaryToken.symbol,
             caption: network.charAt(0).toUpperCase() + network.slice(1),
+            network: network,
           },
           totalApy: {
             label: x?.totalAPY
