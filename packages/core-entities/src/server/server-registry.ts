@@ -191,12 +191,12 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
 
   /** Triggers a refresh of the underlying data */
   public async refresh(network: Network) {
-    if (!this.hasAllNetwork() && network === Network.All) return;
+    if (!this.hasAllNetwork() && network === Network.all) return;
     this._updateNetworkObservables(await this._refresh(network));
   }
 
   public async refreshAtBlock(network: Network, blockNumber: number) {
-    if (!this.hasAllNetwork() && network === Network.All) return;
+    if (!this.hasAllNetwork() && network === Network.all) return;
     this._updateNetworkObservables(await this._refresh(network, blockNumber));
   }
 

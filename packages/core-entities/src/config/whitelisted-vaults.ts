@@ -2,11 +2,11 @@ import { Network } from '@notional-finance/util';
 
 export const whitelistedVaults = (network: Network) => {
   switch (network) {
-    case Network.All:
+    case Network.all:
       return [];
-    case Network.Mainnet:
+    case Network.mainnet:
       return [];
-    case Network.ArbitrumOne:
+    case Network.arbitrum:
       return [
         '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
         '0x3df035433cface65b6d68b77cc916085d020c8b8',
@@ -15,7 +15,7 @@ export const whitelistedVaults = (network: Network) => {
         '0x37dd23ab1885982f789a2d6400b583b8ae09223d',
         '0x431dbfe3050ea39abbff3e0d86109fb5bafa28fd',
       ];
-    case Network.Optimism:
+    case Network.optimism:
       return [];
   }
 };

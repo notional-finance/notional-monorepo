@@ -19,9 +19,9 @@ const BalancerVault = '0xBA12222222228d8Ba445958a75a0704d566BF2C8';
 const MainnetGaugeControllerAddress =
   '0xC128468b7Ce63eA702C1f104D55A2566b13D3ABD';
 const AuraLPHolderAddress = (network: Network) =>
-  network === Network.ArbitrumOne
+  network === Network.arbitrum
     ? '0xC181Edc719480bd089b94647c2Dc504e2700a2B0'
-    : network === Network.Mainnet
+    : network === Network.mainnet
     ? '0xaF52695E1bB01A16D33D7194C28C42b10e0Dbec2'
     : '0x';
 
@@ -139,7 +139,7 @@ export function getComposablePoolConfig(
         decimals: 18,
       },
       // NOTE: this is always on mainnet
-      network: Network.Mainnet,
+      network: Network.mainnet,
     },
     {
       sourceType: SourceType.Subgraph,

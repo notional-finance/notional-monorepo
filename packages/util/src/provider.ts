@@ -83,14 +83,14 @@ export function getNetworkFromId(id: number) {
 export function getDefaultNetworkFromHostname(hostname: string) {
   switch (hostname) {
     default:
-      return Network.ArbitrumOne;
+      return Network.arbitrum;
   }
 }
 
 /** Returns the token symbol associated with a given network */
 export function getNetworkSymbol(network: Network | undefined) {
   switch (network) {
-    case Network.ArbitrumOne:
+    case Network.arbitrum:
       return 'arb';
     default:
       return 'eth';
@@ -99,9 +99,9 @@ export function getNetworkSymbol(network: Network | undefined) {
 
 export function getNetworkTitle(network: Network | undefined) {
   switch (network) {
-    case Network.ArbitrumOne:
+    case Network.arbitrum:
       return 'Arbitrum';
-    case Network.Mainnet:
+    case Network.mainnet:
       return 'Mainnet';
     default:
       return 'Unknown';

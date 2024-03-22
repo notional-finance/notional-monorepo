@@ -4,11 +4,11 @@ import { defineMessages } from 'react-intl';
 
 export function useNetworkSelector() {
   const labels = defineMessages({
-    [Network.ArbitrumOne]: {
+    [Network.arbitrum]: {
       defaultMessage: 'Arbitrum',
     },
 
-    [Network.Mainnet]: {
+    [Network.mainnet]: {
       defaultMessage: 'Mainnet',
     },
   });

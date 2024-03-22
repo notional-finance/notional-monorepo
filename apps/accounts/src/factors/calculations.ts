@@ -50,7 +50,7 @@ function convertToUSD(b: TokenBalance): number {
 
 export function calculateAccountIRR(account: AccountDefinition) {
   const riskProfile = new AccountRiskProfile(account.balances, account.network);
-  const USD = Registry.getTokenRegistry().getTokenBySymbol(Network.All, 'USD');
+  const USD = Registry.getTokenRegistry().getTokenBySymbol(Network.all, 'USD');
   const portfolioNetWorth = riskProfile.balances.reduce((acc, b) => {
     return acc + convertToUSD(b.toUnderlying());
   }, 0);

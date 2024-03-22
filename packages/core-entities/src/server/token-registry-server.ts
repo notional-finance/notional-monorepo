@@ -19,10 +19,10 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
   }
 
   protected async _refresh(network: Network, blockNumber?: number) {
-    if (network === Network.All) {
+    if (network === Network.all) {
       return {
         values: fiatTokens,
-        network: Network.All,
+        network: Network.all,
         lastUpdateBlock: blockNumber || 0,
         lastUpdateTimestamp: getNowSeconds(),
       };

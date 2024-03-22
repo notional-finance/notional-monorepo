@@ -100,7 +100,7 @@ export function useGroupedHoldingsTable() {
         .add(
           totalIncentiveEarnings.reduce(
             (s, i) => s.add(i.toFiat(baseCurrency)),
-            TokenBalance.fromSymbol(0, baseCurrency, Network.All)
+            TokenBalance.fromSymbol(0, baseCurrency, Network.all)
           )
         );
 

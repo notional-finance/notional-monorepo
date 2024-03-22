@@ -1,5 +1,15 @@
 import { Network } from './constants';
 
+export const treasuryManagerAddresses: Partial<Record<Network, string>> = {
+  arbitrum: '0x53144559c0d4a3304e2dd9dafbd685247429216d',
+  mainnet: '0x53144559c0d4a3304e2dd9dafbd685247429216d',
+};
+
+export const managerBotAddresses: Partial<Record<Network, string>> = {
+  arbitrum: '0xa28a0bA9633342793218D9bd8d92CBC52231361C',
+  mainnet: '0x3164400d0c849996efCb390ec1D4705f2cD5E98C',
+};
+
 interface Env {
   NETWORK: Network;
   TX_RELAY_AUTH_TOKEN: string;
@@ -9,14 +19,14 @@ const MAINNET_LIQUIDATOR_RELAY =
   'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/2';
 
 const urls: Record<Network, string> = {
-  [Network.All]: '',
+  [Network.all]: '',
   // it has 'arbitrum' in url but it is also endpoint for mainnet relayers,
   // endpoint format is "/v1/txes/:relayerId", relayerId 0 is for arbitrum an 1 for mainnet
-  [Network.Mainnet]:
+  [Network.mainnet]:
     'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/1',
-  [Network.ArbitrumOne]:
+  [Network.arbitrum]:
     'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/0',
-  [Network.Optimism]: '',
+  [Network.optimism]: '',
 };
 
 export function sendTxThroughRelayer(arg: {
@@ -32,7 +42,7 @@ export function sendTxThroughRelayer(arg: {
     data,
   });
   let url = urls[env.NETWORK];
-  if (isLiquidator && env.NETWORK === Network.Mainnet) {
+  if (isLiquidator && env.NETWORK === Network.mainnet) {
     url = MAINNET_LIQUIDATOR_RELAY;
   }
 

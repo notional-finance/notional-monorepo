@@ -32,7 +32,7 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
     try {
       await Promise.all(
         this.env.SUPPORTED_NETWORKS.map(async (network) => {
-          if (network === Network.All && !this.registry.hasAllNetwork()) return;
+          if (network === Network.all && !this.registry.hasAllNetwork()) return;
 
           // Wrap each promise with a timeout
           const refreshPromise = this.registry.refresh(network);

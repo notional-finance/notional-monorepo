@@ -11,7 +11,7 @@ export const Wrapper = ({ children }: { children: React.ReactNode }) => {
   const { updateState } = globalState;
   useEffect(() => {
     updateState({
-      selectedNetwork: Network.ArbitrumOne,
+      selectedNetwork: Network.arbitrum,
     });
   }, [updateState]);
 

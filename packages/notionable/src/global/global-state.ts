@@ -178,9 +178,9 @@ export const initialGlobalState: GlobalState = {
   sentTransactions: [],
   completedTransactions: {},
   pendingPnL: {
-    [Network.All]: [],
-    [Network.Mainnet]: [],
-    [Network.ArbitrumOne]: [],
-    [Network.Optimism]: [],
+    [Network.all]: [],
+    [Network.mainnet]: [],
+    [Network.arbitrum]: [],
+    [Network.optimism]: [],
   },
 };

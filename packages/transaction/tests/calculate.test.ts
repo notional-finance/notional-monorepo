@@ -21,7 +21,7 @@ import {
 
 describe.withForkAndRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Calculate Trade',
@@ -71,14 +71,14 @@ describe.withForkAndRegistry(
 
     const getToken = (s: string | undefined) => {
       return s
-        ? Registry.getTokenRegistry().getTokenBySymbol(Network.ArbitrumOne, s)
+        ? Registry.getTokenRegistry().getTokenBySymbol(Network.arbitrum, s)
         : undefined;
     };
 
     const getPool = (token: TokenDefinition | undefined) => {
       return token
         ? Registry.getExchangeRegistry().getPoolInstance<fCashMarket>(
-            Network.ArbitrumOne,
+            Network.arbitrum,
             Registry.getTokenRegistry().getNToken(
               token.network,
               token.currencyId

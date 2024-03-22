@@ -62,18 +62,18 @@ export class RegistryClientDO extends BaseDO<Env> {
       // First trigger a refresh for all supported networks
       await Promise.all(
         this.env.SUPPORTED_NETWORKS.map((network) => {
-          if (network === Network.All) return Promise.resolve();
+          if (network === Network.all) return Promise.resolve();
           return Registry.triggerRefresh(network);
         })
       );
 
       // Now run all metrics jobs
       for (const network of this.env.SUPPORTED_NETWORKS) {
-        if (network === Network.All) continue;
+        if (network === Network.all) continue;
         await this.checkAccountList(network);
         await this.checkTotalSupply(network);
         await this.saveYieldData(network);
-        if (network === Network.ArbitrumOne) {
+        if (network === Network.arbitrum) {
           await this.checkDBMonitors(network);
           await this.saveContestIRR(network, currentContestId);
         }
@@ -186,7 +186,7 @@ export class RegistryClientDO extends BaseDO<Env> {
   }
 
   private async getContestParticipants(contestId: number) {
-    const providerURL = getProviderURLFromNetwork(Network.ArbitrumOne, true);
+    const providerURL = getProviderURLFromNetwork(Network.arbitrum, true);
     const participants = new Array<{
       address: string;
       communityId: number;

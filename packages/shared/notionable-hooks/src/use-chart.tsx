@@ -170,7 +170,7 @@ export function useAccountHistoryChart(
       .sort((a, b) => a.timestamp - b.timestamp) || [];
 
   const base = Registry.getTokenRegistry().getTokenBySymbol(
-    Network.All,
+    Network.all,
     baseCurrency
   );
 

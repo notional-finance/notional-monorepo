@@ -77,7 +77,7 @@ export const PendingTransaction = ({
                   color: theme.palette.typography.accent,
                 }}
               >
-                {selectedNetwork === Network.ArbitrumOne ? (
+                {selectedNetwork === Network.arbitrum ? (
                   <FormattedMessage defaultMessage={'Arbiscan'} />
                 ) : (
                   <FormattedMessage defaultMessage={'Etherscan'} />

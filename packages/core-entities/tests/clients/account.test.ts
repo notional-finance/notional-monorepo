@@ -4,7 +4,7 @@ import { AccountFetchMode } from '../../src/client/account-registry-client';
 
 describe.withForkAndRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Single Account',
@@ -12,7 +12,7 @@ describe.withForkAndRegistry(
     it('can load a single account', (done) => {
       const accounts = Registry.getAccountRegistry();
       accounts.onAccountReady(
-        Network.ArbitrumOne,
+        Network.arbitrum,
         '0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243',
         (a) => {
           expect(a.address).toBe('0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243');

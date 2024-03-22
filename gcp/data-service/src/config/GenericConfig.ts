@@ -34,7 +34,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'stETH to wstETH ratio',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -49,7 +49,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'ETH to cbETH ratio',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -64,7 +64,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'ETH to rETH ratio',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -80,7 +80,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'bb-a-Usdc Exchange Rate',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -96,7 +96,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'bb-a-Usdt Exchange Rate',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -112,7 +112,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'bb-a-Dai Exchange Rate',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -128,7 +128,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'bb-a-Weth Exchange Rate',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -144,7 +144,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'bb-a-Usdc Exchange Rate - Arbitrum',
       decimals: 18,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -160,7 +160,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'bb-a-Usdt Exchange Rate - Arbitrum',
       decimals: 18,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -176,7 +176,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'bb-a-Dai Exchange Rate - Arbitrum',
       decimals: 18,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -192,7 +192,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'bb-a-Weth Exchange Rate - Arbitrum',
       decimals: 18,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -208,7 +208,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Weth To Usdc Exchange Rate',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -224,7 +224,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Weth To Bal Exchange Rate',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -240,7 +240,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Aura To Weth Exchange Rate',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -255,7 +255,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Usdc To Usd Oracle',
       decimals: 8,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -270,7 +270,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Usdt To Usd Oracle',
       decimals: 8,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -285,7 +285,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Dai To Usd Oracle',
       decimals: 8,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -300,7 +300,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Eth To Usd Oracle',
       decimals: 8,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -315,7 +315,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Rpl To Usd Oracle',
       decimals: 8,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -330,7 +330,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Ldo To Eth Oracle',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -345,7 +345,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Ohmv2 To Usd Oracle',
       decimals: 8,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -360,7 +360,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Lusd To Usd Oracle',
       decimals: 8,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -375,7 +375,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Frax To Usd Oracle',
       decimals: 8,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -390,7 +390,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Cvx To Usd Oracle',
       decimals: 8,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -405,7 +405,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Crv To Usd Oracle',
       decimals: 8,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -420,7 +420,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Arb To Usd Oracle',
       decimals: 8,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -435,7 +435,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'veBAL total supply',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -451,7 +451,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Aura veBAL balance',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -466,7 +466,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Total BAL supply',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -481,7 +481,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'veCRV total supply',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -497,7 +497,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Convex veCRV balance',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Multicall,
@@ -512,7 +512,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'Cvx total supply',
       decimals: 18,
     },
-    network: Network.Mainnet,
+    network: Network.mainnet,
   },
   {
     sourceType: SourceType.Subgraph,
@@ -530,7 +530,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'FRAX/USDC Curve Reinvestment Timestamp',
       decimals: 0,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Subgraph,
@@ -548,7 +548,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'ETH/[RETH] Balancer Reinvestment Timestamp',
       decimals: 0,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Subgraph,
@@ -566,7 +566,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: '[USDC]/4POOL Balancer Reinvestment Timestamp',
       decimals: 0,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -582,7 +582,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'ethProxyBalance',
       decimals: 18,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -598,7 +598,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'daiProxyBalance',
       decimals: 18,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -615,7 +615,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'usdcProxyBalance',
       decimals: 6,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -632,7 +632,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'usdcProxyBalance',
       decimals: 6,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -648,7 +648,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'wbtcProxyBalance',
       decimals: 8,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -664,7 +664,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'wstethProxyBalance',
       decimals: 18,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -680,7 +680,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'fraxProxyBalance',
       decimals: 18,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -696,7 +696,7 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'rethProxyBalance',
       decimals: 18,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,
@@ -712,6 +712,6 @@ export const configDefs: ConfigDefinition[] = [
       variable: 'usdtProxyBalance',
       decimals: 6,
     },
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
   },
 ];

@@ -46,11 +46,11 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   }
 
   get USD() {
-    return Registry.getTokenRegistry().getTokenBySymbol(Network.All, 'USD');
+    return Registry.getTokenRegistry().getTokenBySymbol(Network.all, 'USD');
   }
 
   get ETH() {
-    return Registry.getTokenRegistry().getTokenBySymbol(Network.All, 'ETH');
+    return Registry.getTokenRegistry().getTokenBySymbol(Network.all, 'ETH');
   }
 
   protected _getHistoricalOracles(network: Network) {

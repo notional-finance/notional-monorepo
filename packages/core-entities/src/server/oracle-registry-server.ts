@@ -32,7 +32,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   }
 
   protected async _refresh(network: Network, blockNumber?: number) {
-    if (network === Network.All) {
+    if (network === Network.all) {
       return await this._updateLatestRates(
         this._fetchFiatOracles(),
         blockNumber
@@ -325,7 +325,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   private _fetchFiatOracles(): CacheSchema<OracleDefinition> {
     return {
       values: fiatOracles,
-      network: Network.All,
+      network: Network.all,
       lastUpdateBlock: 0,
       lastUpdateTimestamp: 0,
     };

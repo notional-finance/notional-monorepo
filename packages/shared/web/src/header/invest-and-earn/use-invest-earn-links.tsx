@@ -40,7 +40,7 @@ export const useInvestEarnLinks = () => {
       // leveragedLend,
       leveragedLiquidity,
     },
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(Network.arbitrum);
 
   const lowRiskLinks: SectionLinkProps[] = [
     {

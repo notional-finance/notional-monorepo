@@ -11,7 +11,7 @@ export const useBorrowDropDown = () => {
 
   const {
     headlineRates: { fCashBorrow, variableBorrow },
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(Network.arbitrum);
 
   const links: SectionLinkProps[] = [
     {

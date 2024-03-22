@@ -21,7 +21,7 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
   const {
     yields: { leveragedVaults },
     getMax,
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(Network.arbitrum);
 
   const allVaultData = listedVaults
     .map(({ vaultAddress, name, primaryToken, vaultTVL }) => {

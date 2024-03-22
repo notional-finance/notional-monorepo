@@ -10,7 +10,7 @@ import { act } from '@testing-library/react-hooks';
 jest.setTimeout(15_000);
 describe.withForkAndRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Vault Context',
@@ -38,7 +38,7 @@ describe.withForkAndRegistry(
         act(() => {
           result.current.updateState({
             debt: Registry.getTokenRegistry().getVaultDebt(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               debtMaturity
             ),

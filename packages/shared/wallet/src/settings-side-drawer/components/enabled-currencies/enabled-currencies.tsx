@@ -35,7 +35,7 @@ export const EnabledCurrencies = () => {
   const theme = useTheme();
   // NOTE: this is a temporary hack to show connected networks for read only addresses,
   // in the future this should show all networks by default
-  const network = useWalletConnectedNetwork() || Network.ArbitrumOne;
+  const network = useWalletConnectedNetwork() || Network.arbitrum;
   const walletConnected = useAccountReady(network);
   const { enabledTokens, supportedTokens } = useWalletAllowances(network);
   const systemTokenSymbols = supportedTokens.map((t) => t.symbol);
@@ -116,7 +116,7 @@ const StyledGrid = styled(Grid)(
   .MuiGrid-root {
     flex-basis: 20%;
   }
-  
+
 `
 );
 

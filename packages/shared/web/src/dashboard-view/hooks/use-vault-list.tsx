@@ -24,7 +24,7 @@ export const useVaultList = (network: Network) => {
   const {
     yields: { leveragedVaults },
     getMax,
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(Network.arbitrum);
   const listedVaults = useAllVaults(network);
   const baseCurrency = useFiat();
   const account = useAccountDefinition(network);

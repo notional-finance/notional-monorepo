@@ -16,7 +16,7 @@ import { BigNumber } from 'ethers';
 const ETH_PRICE = 1840.282196;
 describe.withRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Token Registry',
@@ -27,38 +27,38 @@ describe.withRegistry(
     beforeAll((done) => {
       tokens = Registry.getTokenRegistry();
       oracles = Registry.getOracleRegistry();
-      tokens.onNetworkRegistered(Network.All, () => {
+      tokens.onNetworkRegistered(Network.all, () => {
         done();
       });
     });
 
     it('gets all tokens', () => {
-      expect(tokens.getAllTokens(Network.ArbitrumOne).length).toBeGreaterThan(
+      expect(tokens.getAllTokens(Network.arbitrum).length).toBeGreaterThan(
         50
       );
     });
 
     it('finds token by address', () => {
       expect(
-        tokens.getTokenByAddress(Network.ArbitrumOne, ZERO_ADDRESS)?.name
+        tokens.getTokenByAddress(Network.arbitrum, ZERO_ADDRESS)?.name
       ).toBe('Ether');
     });
 
     it('finds tokens by symbol', () => {
       expect(
-        tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC')?.address
+        tokens.getTokenBySymbol(Network.arbitrum, 'USDC')?.address
       ).toBe('0xff970a61a04b1ca14834a43f5de4533ebddb5cc8');
     });
 
     it('finds tokens by id', () => {
       const id = encodeERC1155Id(6, 1695168000, AssetType.FCASH_ASSET_TYPE);
-      expect(tokens.getTokenByID(Network.ArbitrumOne, id).name).toBe(
+      expect(tokens.getTokenByID(Network.arbitrum, id).name).toBe(
         'fFRAX Maturing 1695168000'
       );
     });
 
     it('allows a custom token to be registered', () => {
-      const t = tokens.getTokenBySymbol(Network.ArbitrumOne, 'wstETH')!;
+      const t = tokens.getTokenBySymbol(Network.arbitrum, 'wstETH')!;
 
       tokens.registerToken({
         ...t,
@@ -66,7 +66,7 @@ describe.withRegistry(
         id: '0x123',
       });
 
-      expect(tokens.getTokenByID(Network.ArbitrumOne, '0x123').symbol).toBe(
+      expect(tokens.getTokenByID(Network.arbitrum, '0x123').symbol).toBe(
         'PEPE'
       );
     });
@@ -75,7 +75,7 @@ describe.withRegistry(
       const tb = tokens.parseInputToTokenBalance(
         '1000',
         'USDC',
-        Network.ArbitrumOne
+        Network.arbitrum
       );
       expect(tb.toDisplayStringWithSymbol()).toBe('1,000.000 USDC');
     });
@@ -83,10 +83,10 @@ describe.withRegistry(
     describe('Token Balance', () => {
       it('throws errors on mismatches', () => {
         const tb1 = TokenBalance.zero(
-          tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC')!
+          tokens.getTokenBySymbol(Network.arbitrum, 'USDC')!
         );
         const tb2 = TokenBalance.zero(
-          tokens.getTokenBySymbol(Network.ArbitrumOne, 'DAI')!
+          tokens.getTokenBySymbol(Network.arbitrum, 'DAI')!
         );
 
         expect(() => tb1.eq(tb2)).toThrowError();
@@ -102,7 +102,7 @@ describe.withRegistry(
         const tb1 = tokens.parseInputToTokenBalance(
           '0',
           'USDC',
-          Network.ArbitrumOne
+          Network.arbitrum
         );
         expect(tb1.toDisplayString()).toBe('0.000');
         // Negative zero is truncated
@@ -126,12 +126,12 @@ describe.withRegistry(
         const eth = tokens.parseInputToTokenBalance(
           '1',
           'ETH',
-          Network.ArbitrumOne
+          Network.arbitrum
         );
 
         expect(
           eth
-            .toToken(tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC'))
+            .toToken(tokens.getTokenBySymbol(Network.arbitrum, 'USDC'))
             .toFloat()
         ).toBeCloseTo(ETH_PRICE);
       });
@@ -140,7 +140,7 @@ describe.withRegistry(
         const peth = tokens.parseInputToTokenBalance(
           '1',
           'pETH',
-          Network.ArbitrumOne
+          Network.arbitrum
         );
 
         expect(
@@ -151,47 +151,47 @@ describe.withRegistry(
 
     describe('Exchange Rates', () => {
       it('[FORWARD] can find a path from eth => usdc', () => {
-        const eth = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH')!;
-        const usdc = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC')!;
-        const path = oracles.findPath(eth.id, usdc.id, Network.ArbitrumOne);
+        const eth = tokens.getTokenBySymbol(Network.arbitrum, 'ETH')!;
+        const usdc = tokens.getTokenBySymbol(Network.arbitrum, 'USDC')!;
+        const path = oracles.findPath(eth.id, usdc.id, Network.arbitrum);
         expect(path).toEqual([eth.id, usdc.id]);
-        const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
+        const value = oracles.getLatestFromPath(Network.arbitrum, path);
         expect(oracles.formatNumber(value!)).toBeCloseTo(ETH_PRICE);
       });
 
       it('[REVERSE] can find a path from usdc => eth', () => {
-        const eth = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH')!;
-        const usdc = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC')!;
-        const path = oracles.findPath(usdc.id, eth.id, Network.ArbitrumOne);
+        const eth = tokens.getTokenBySymbol(Network.arbitrum, 'ETH')!;
+        const usdc = tokens.getTokenBySymbol(Network.arbitrum, 'USDC')!;
+        const path = oracles.findPath(usdc.id, eth.id, Network.arbitrum);
         expect(path).toEqual([usdc.id, eth.id]);
 
-        const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
+        const value = oracles.getLatestFromPath(Network.arbitrum, path);
         expect(oracles.formatNumber(oracles.invertRate(value!))).toBeCloseTo(
           ETH_PRICE
         );
       });
 
       it('[MULTIHOP] can find a path from wsteth => wbtc', () => {
-        const wsteth = tokens.getTokenBySymbol(Network.ArbitrumOne, 'wstETH')!;
-        const wbtc = tokens.getTokenBySymbol(Network.ArbitrumOne, 'WBTC')!;
-        const path = oracles.findPath(wbtc.id, wsteth.id, Network.ArbitrumOne);
+        const wsteth = tokens.getTokenBySymbol(Network.arbitrum, 'wstETH')!;
+        const wbtc = tokens.getTokenBySymbol(Network.arbitrum, 'WBTC')!;
+        const path = oracles.findPath(wbtc.id, wsteth.id, Network.arbitrum);
 
-        const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
+        const value = oracles.getLatestFromPath(Network.arbitrum, path);
         expect(oracles.formatNumber(value!)).toMatchSnapshot();
       });
 
       it('[MULTIHOP] can find a path from fusdc => fdai', () => {
         const fusdc = tokens.getTokenByID(
-          Network.ArbitrumOne,
+          Network.arbitrum,
           encodeERC1155Id(3, 1695168000, AssetType.FCASH_ASSET_TYPE)
         );
         const fdai = tokens.getTokenByID(
-          Network.ArbitrumOne,
+          Network.arbitrum,
           encodeERC1155Id(2, 1695168000, AssetType.FCASH_ASSET_TYPE)
         );
-        const path = oracles.findPath(fusdc.id, fdai.id, Network.ArbitrumOne);
+        const path = oracles.findPath(fusdc.id, fdai.id, Network.arbitrum);
 
-        const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
+        const value = oracles.getLatestFromPath(Network.arbitrum, path);
         expect(oracles.formatNumber(value!)).toBeCloseTo(0.999);
       });
 
@@ -199,7 +199,7 @@ describe.withRegistry(
         const pusdc = tokens.parseInputToTokenBalance(
           '1',
           'pUSDC',
-          Network.ArbitrumOne
+          Network.arbitrum
         );
 
         expect(
@@ -211,15 +211,15 @@ describe.withRegistry(
         const NOTE = tokens.parseInputToTokenBalance(
           '1',
           'NOTE',
-          Network.ArbitrumOne
+          Network.arbitrum
         );
 
         expect(
           NOTE.toFiat('USD').toDisplayStringWithSymbol(8)
         ).toMatchSnapshot();
 
-        const eth = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH')!;
-        const wbtc = tokens.getTokenBySymbol(Network.ArbitrumOne, 'WBTC')!;
+        const eth = tokens.getTokenBySymbol(Network.arbitrum, 'ETH')!;
+        const wbtc = tokens.getTokenBySymbol(Network.arbitrum, 'WBTC')!;
         expect(
           NOTE.toToken(eth).toDisplayStringWithSymbol(8)
         ).toMatchSnapshot();
@@ -235,9 +235,9 @@ describe.withRegistry(
       let FRAX: TokenDefinition;
 
       beforeAll(() => {
-        ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-        USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-        FRAX = tokens.getTokenBySymbol(Network.ArbitrumOne, 'FRAX');
+        ETH = tokens.getTokenBySymbol(Network.arbitrum, 'ETH');
+        USDC = tokens.getTokenBySymbol(Network.arbitrum, 'USDC');
+        FRAX = tokens.getTokenBySymbol(Network.arbitrum, 'FRAX');
       });
 
       /** NOTE: ETH risk adjustments must be applied manually */
@@ -268,7 +268,7 @@ describe.withRegistry(
 
       it('Neg fUSDC to USDC', () => {
         const fusdc = tokens.getTokenByID(
-          Network.ArbitrumOne,
+          Network.arbitrum,
           encodeERC1155Id(3, 1695168000, AssetType.FCASH_ASSET_TYPE)
         );
         const usdc = TokenBalance.fromFloat(-1, fusdc);
@@ -280,7 +280,7 @@ describe.withRegistry(
 
       it('Pos fUSDC to USDC', () => {
         const fusdc = tokens.getTokenByID(
-          Network.ArbitrumOne,
+          Network.arbitrum,
           encodeERC1155Id(3, 1695168000, AssetType.FCASH_ASSET_TYPE)
         );
         const usdc = TokenBalance.unit(fusdc);
@@ -291,7 +291,7 @@ describe.withRegistry(
       });
 
       it('nUSDC to USDC', () => {
-        const nUSDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'nUSDC');
+        const nUSDC = tokens.getTokenBySymbol(Network.arbitrum, 'nUSDC');
         const usdc = TokenBalance.unit(nUSDC);
         const riskAdjusted = usdc.toRiskAdjustedUnderlying();
         const underlying = usdc.toUnderlying();

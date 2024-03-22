@@ -22,7 +22,7 @@ require('dotenv').config();
 const runSetup = true;
 const WHALES: Record<Network, string[][]> = {
   // Format: [token, whale address]
-  [Network.ArbitrumOne]: [
+  [Network.arbitrum]: [
     // nUSDC
     [
       '0x0F13fb925eDC3E1FE947209010d9c0E072986ADc',
@@ -99,7 +99,7 @@ const WHALES: Record<Network, string[][]> = {
       '0x76ba3ec5f5adbf1c58c91e86502232317eea72de',
     ],
   ],
-  [Network.Mainnet]: [
+  [Network.mainnet]: [
     // WETH
     [
       '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -121,7 +121,7 @@ const WHALES: Record<Network, string[][]> = {
       '0xAd96E10123Fa34a01cf2314C42D75150849C9295',
     ],
   ],
-  [Network.All]: [],
+  [Network.all]: [],
 };
 
 fetchMock.enableMocks();
@@ -319,7 +319,7 @@ async function setupWhales(
 
     afterAll(() => {
       Registry.stopRefresh(network);
-      Registry.stopRefresh(Network.All);
+      Registry.stopRefresh(Network.all);
       server.close();
     });
   });

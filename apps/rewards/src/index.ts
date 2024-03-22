@@ -1,14 +1,13 @@
 import { TreasuryManager__factory, ERC20__factory, NotionalV3ABI } from '@notional-finance/contracts';
 import { DEX_ID, Network, TRADE_TYPE, getProviderFromNetwork, } from '@notional-finance/util';
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
-import { vaults, minTokenAmount, ARB_ETH, ARB_WETH } from './vaults';
-import { get0xData, sendTxThroughRelayer } from "@notional-finance/util";
+import { vaults, minTokenAmount, ARB_ETH, ARB_WETH, Vault } from './vaults';
+import { get0xData, sendTxThroughRelayer, managerBotAddresses, treasuryManagerAddresses } from "@notional-finance/util";
 import { simulatePopulatedTxn } from "@notional-finance/transaction";
 
 export interface Env {
-  NETWORK: keyof typeof Network;
-  TREASURY_MANAGER_ADDRESS: string;
-  MANAGER_BOT_ADDRESS: string;
+  NETWORKS: Array<Network>;
+  NETWORK: Network;
   TX_RELAY_AUTH_TOKEN: string;
   ZERO_EX_API_KEY: string;
   AUTH_KEY: string;
@@ -20,8 +19,8 @@ const SLIPPAGE_PERCENT = 2;
 
 const NotionalV3Interface = new ethers.utils.Interface(NotionalV3ABI);
 
-async function isClaimRewardsProfitable(env: Env, vault: typeof vaults[0], tx: PopulatedTransaction) {
-  const { rawLogs } = await simulatePopulatedTxn(Network[env.NETWORK], tx);
+async function isClaimRewardsProfitable(env: Env, vault: Vault, tx: PopulatedTransaction) {
+  const { rawLogs } = await simulatePopulatedTxn(env.NETWORK, tx);
   let isProfitable = false;
   for (const log of rawLogs) {
     try {
@@ -54,8 +53,8 @@ interface ReinvestmentData {
     }]
   }
 }
-async function getLastReinvestment(vault: string): Promise<{ timestamp: number } | null> {
-  return fetch('https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest', {
+async function getLastReinvestment(env: Env, vault: string): Promise<{ timestamp: number } | null> {
+  return fetch(`https://api.studio.thegraph.com/query/36749/notional-v3-${env.NETWORK}/version/latest`, {
     method: 'POST',
     headers: {
       "Content-Type": "application/json"
@@ -77,8 +76,8 @@ async function getLastReinvestment(vault: string): Promise<{ timestamp: number }
     .then((r: ReinvestmentData) => r.data.reinvestments[0]);
 }
 
-async function didTimeWindowPassed(vaultAddress: string, timeWindow: number) {
-  const lastReinvestment = await getLastReinvestment(vaultAddress);
+async function didTimeWindowPassed(env: Env, vaultAddress: string, timeWindow: number) {
+  const lastReinvestment = await getLastReinvestment(env, vaultAddress);
   if (lastReinvestment) {
     const currentTimeInSeconds = Date.now() / 1000;
 
@@ -94,7 +93,7 @@ async function didTimeWindowPassed(vaultAddress: string, timeWindow: number) {
 async function shouldSkipReinvest(env: Env, vaultAddress: string) {
   // subtract 5min from time window so reinvestment can happen each day on same time
   const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS - 5 * 60;
-  return !(await didTimeWindowPassed(vaultAddress, reinvestTimeWindow));
+  return !(await didTimeWindowPassed(env, vaultAddress, reinvestTimeWindow));
 }
 
 async function setLastClaimTimestamp(env: Env, vaultAddress: string) {
@@ -114,21 +113,23 @@ async function shouldSkipClaim(env: Env, vaultAddress: string) {
 
 const claimRewards = async (env: Env, provider: any) => {
   const treasuryManger = TreasuryManager__factory.connect(
-    env.TREASURY_MANAGER_ADDRESS,
+    treasuryManagerAddresses[env.NETWORK],
     provider
   );
 
   const results = await Promise.allSettled(
-    vaults.map(async (vault) => {
+    vaults[env.NETWORK].map(async (vault: Vault) => {
       if (await shouldSkipClaim(env, vault.address)) {
         console.log(`Skipping claim rewards for ${vault.address}, already claimed`);
         return null;
       }
 
+      const from = managerBotAddresses[env.NETWORK];
+      const to = treasuryManagerAddresses[env.NETWORK];
       // make sure call will be successful
       await treasuryManger.callStatic.claimVaultRewardTokens(
         vault.address,
-        { from: env.MANAGER_BOT_ADDRESS }
+        { from }
       );
 
       const data = treasuryManger.interface.encodeFunctionData(
@@ -136,11 +137,7 @@ const claimRewards = async (env: Env, provider: any) => {
         [vault.address]
       );
 
-      const tx: PopulatedTransaction = {
-        from: env.MANAGER_BOT_ADDRESS,
-        to: env.TREASURY_MANAGER_ADDRESS,
-        data
-      }
+      const tx: PopulatedTransaction = { from, to, data };
       if (!(await isClaimRewardsProfitable(env, vault, tx))) {
         console.log(`Skipping claim rewards for ${vault.address}, not profitable`);
         return null;
@@ -148,11 +145,7 @@ const claimRewards = async (env: Env, provider: any) => {
 
       console.log(`Sending claim tx for ${vault.address}`);
 
-      await sendTxThroughRelayer({
-        to: env.TREASURY_MANAGER_ADDRESS,
-        data,
-        env,
-      });
+      await sendTxThroughRelayer({ to, data, env });
 
       await setLastClaimTimestamp(env, vault.address);
     })
@@ -214,7 +207,7 @@ const getTrades = async (
   }));
 }
 
-const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) => {
+const reinvestVault = async (env: Env, provider: any, vault: Vault) => {
   if (await shouldSkipReinvest(env, vault.address)) {
     console.log(`Skipping reinvestment for ${vault.address}, already invested`);
     return null;
@@ -222,6 +215,10 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
 
   const tradesPerRewardToken = [];
   for (const sellToken of vault.rewardTokens) {
+    if (vault.poolTokens.includes(sellToken)) {
+      console.log(`Skipping sell of ${sellToken} since it is also a pool token.`);
+      continue;
+    }
     const amount = await ERC20__factory.connect(sellToken, provider).balanceOf(vault.address);
     if (amount.lt(BigNumber.from(minTokenAmount[sellToken]))) {
       console.log(`Skipping reinvestment for ${vault.address}: ${sellToken}, ${amount} is less than minimum`);
@@ -245,16 +242,17 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
   }
 
   const treasuryManger = TreasuryManager__factory.connect(
-    env.TREASURY_MANAGER_ADDRESS,
+    treasuryManagerAddresses[env.NETWORK],
     provider
   );
 
+  const from = managerBotAddresses[env.NETWORK];
   const { poolClaimAmounts } = await treasuryManger.callStatic.reinvestVaultReward(
     vault.address,
     tradesPerRewardToken,
     tradesPerRewardToken.map(() => BigNumber.from(0)),
     {
-      from: env.MANAGER_BOT_ADDRESS,
+      from,
       gasLimit: 60e6
     }
   );
@@ -264,7 +262,7 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
     tradesPerRewardToken,
     poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
     {
-      from: env.MANAGER_BOT_ADDRESS,
+      from,
       gasLimit: 60e6
     }
   );
@@ -287,7 +285,7 @@ const reinvestVault = async (env: Env, provider: any, vault: typeof vaults[0]) =
 
 const reinvestRewards = async (env: Env, provider: any) => {
   const errors: any = [];
-  for (const vault of vaults) {
+  for (const vault of vaults[env.NETWORK]) {
     try {
       await reinvestVault(env, provider, vault);
     } catch (err) {
@@ -308,21 +306,25 @@ export default {
     const authKey = request.headers.get('x-auth-key');
     if (authKey !== env.AUTH_KEY) {
       console.log("Headers: ", new Map(request.headers));
-      console.log("Cf: ", request.cf);
+      console.log("Cf: ", request['cf']);
       return new Response(null, { status: 401 });
     }
 
-    const provider = getProviderFromNetwork(Network[env.NETWORK], true);
+    for (const network of env.NETWORKS) {
+      env.NETWORK = network;
+      console.log(`Processing network: ${env.NETWORK}`)
+      const provider = getProviderFromNetwork(env.NETWORK, true);
 
-    await claimRewards(env, provider);
-    await reinvestRewards(env, provider);
+      await claimRewards(env, provider);
+      await reinvestRewards(env, provider);
+    }
 
     return new Response('OK');
   },
   // this method can be only call by cloudflare internal system so it does not
   // require any authentication
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
-    const provider = getProviderFromNetwork(Network[env.NETWORK], true);
+    const provider = getProviderFromNetwork(env.NETWORK, true);
 
     // cron job will run twice, once on full hour and second time 10 minutes later
     // first time it will claim rewards and second time reinvest it

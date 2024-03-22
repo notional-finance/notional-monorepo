@@ -1,7 +1,7 @@
 import { Network } from '@notional-finance/util';
 
 export interface Env {
-  NETWORK: keyof typeof Network,
+  NETWORK: Network,
   TX_RELAY_AUTH_TOKEN: string,
   ZERO_EX_API_KEY: string,
   MANAGER_BOT_ADDRESS: string,

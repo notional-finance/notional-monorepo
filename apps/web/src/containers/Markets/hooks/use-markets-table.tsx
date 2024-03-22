@@ -30,7 +30,7 @@ export const useMarketsTable = (
 ) => {
   const theme = useTheme();
   const baseCurrency = useFiat();
-  const { earnYields, borrowYields } = useAllMarkets(Network.ArbitrumOne);
+  const { earnYields, borrowYields } = useAllMarkets(Network.arbitrum);
 
   const tableColumns: DataTableColumn[] = [
     {

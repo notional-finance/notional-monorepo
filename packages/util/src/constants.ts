@@ -41,40 +41,40 @@ export const IS_LOCAL_ENV =
 export const IS_TEST_ENV = process.env['NODE_ENV'] === 'test';
 
 export enum Network {
-  All = 'all',
-  Mainnet = 'mainnet',
-  ArbitrumOne = 'arbitrum',
-  Optimism = 'optimism',
+  all = 'all',
+  mainnet = 'mainnet',
+  arbitrum = 'arbitrum',
+  optimism = 'optimism',
 }
 
 export const NetworkId: Record<Network, number> = {
-  [Network.All]: 1,
-  [Network.Mainnet]: 1,
-  [Network.ArbitrumOne]: 42161,
-  [Network.Optimism]: 10,
+  [Network.all]: 1,
+  [Network.mainnet]: 1,
+  [Network.arbitrum]: 42161,
+  [Network.optimism]: 10,
 };
 
-export const SupportedNetworks = [Network.ArbitrumOne];
+export const SupportedNetworks = [Network.arbitrum];
 
 export const AlchemyUrl: Record<Network, string> = {
-  [Network.All]: 'https://eth-mainnet.g.alchemy.com/v2',
-  [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/v2',
-  [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/v2',
-  [Network.Optimism]: 'https://opt-mainnet.g.alchemy.com/v2',
+  [Network.all]: 'https://eth-mainnet.g.alchemy.com/v2',
+  [Network.mainnet]: 'https://eth-mainnet.g.alchemy.com/v2',
+  [Network.arbitrum]: 'https://arb-mainnet.g.alchemy.com/v2',
+  [Network.optimism]: 'https://opt-mainnet.g.alchemy.com/v2',
 };
 
 export const AlchemyNFTUrl: Record<Network, string> = {
-  [Network.All]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
-  [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
-  [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/nft/v2',
-  [Network.Optimism]: 'https://opt-mainnet.g.alchemy.com/nft/v2',
+  [Network.all]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
+  [Network.mainnet]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
+  [Network.arbitrum]: 'https://arb-mainnet.g.alchemy.com/nft/v2',
+  [Network.optimism]: 'https://opt-mainnet.g.alchemy.com/nft/v2',
 };
 
 export const NotionalAddress: Record<Network, string> = {
-  [Network.All]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f',
-  [Network.Mainnet]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f',
-  [Network.ArbitrumOne]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
-  [Network.Optimism]: '',
+  [Network.all]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f',
+  [Network.mainnet]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f',
+  [Network.arbitrum]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  [Network.optimism]: '',
 };
 
 export const StakedNoteAddress = '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2';

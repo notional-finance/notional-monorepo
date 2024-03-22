@@ -1,11 +1,11 @@
-import { Network, getProviderFromNetwork, } from '@notional-finance/util';
+import { getProviderFromNetwork, } from '@notional-finance/util';
 import TreasuryManager from "./treasury_manager";
 import { Env } from "./types";
 
 export async function handler(env: Env) {
-  const provider = getProviderFromNetwork(Network[env.NETWORK], true);
+  const provider = getProviderFromNetwork(env.NETWORK, true);
 
-  const manager = new TreasuryManager(Network[env.NETWORK], provider, env);
+  const manager = new TreasuryManager(env.NETWORK, provider, env);
 
   console.log(`calling manager`);
   await manager.run();

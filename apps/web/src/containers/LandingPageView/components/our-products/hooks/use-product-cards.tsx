@@ -15,7 +15,7 @@ export const useProductCards = () => {
       fCashBorrow,
       variableBorrow,
     },
-  } = useAllMarkets(Network.ArbitrumOne);
+  } = useAllMarkets(Network.arbitrum);
 
   const earnYieldData = [
     {

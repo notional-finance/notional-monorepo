@@ -417,7 +417,7 @@ export class TokenBalance {
   ): TokenBalance {
     const oracleRegistry = Registry.getOracleRegistry();
 
-    if (this.tokenType === 'NOTE' && this.network !== Network.All) {
+    if (this.tokenType === 'NOTE' && this.network !== Network.all) {
       // If converting NOTE to any token denomination, first convert to ETH via
       // the all network
       const noteInETH = this.toFiat('ETH');
@@ -514,12 +514,12 @@ export class TokenBalance {
 
   toFiat(symbol: FiatKeys, atTimestamp?: number) {
     const tokens = Registry.getTokenRegistry();
-    const fiatToken = tokens.getTokenBySymbol(Network.All, symbol);
+    const fiatToken = tokens.getTokenBySymbol(Network.all, symbol);
 
     if (this.tokenType === 'NOTE') {
       // The NOTE token is a special case which converts directly in the
       // "All" network since the only price oracle that exists is on mainnet
-      const note = tokens.getTokenBySymbol(Network.All, 'NOTE');
+      const note = tokens.getTokenBySymbol(Network.all, 'NOTE');
       const noteInAllNetwork = TokenBalance.from(this.n, note);
       return noteInAllNetwork.toToken(fiatToken, undefined, atTimestamp);
     } else {
@@ -529,7 +529,7 @@ export class TokenBalance {
       const valueInETH = this.toToken(eth, undefined, atTimestamp);
       const ethInAllNetwork = TokenBalance.from(
         valueInETH.n,
-        tokens.getTokenBySymbol(Network.All, 'ETH')
+        tokens.getTokenBySymbol(Network.all, 'ETH')
       );
       return ethInAllNetwork.toToken(fiatToken, undefined, atTimestamp);
     }
