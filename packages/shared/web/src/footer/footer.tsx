@@ -150,6 +150,16 @@ export const Footer = () => {
           >
             <DiscordFooter />
           </ExternalLink>
+          <ExternalLink
+            href="https://v2.notional.finance/"
+            style={{
+              marginBottom: theme.spacing(3),
+              color: theme.palette.info.accent,
+              textDecoration: 'underline',
+            }}
+          >
+            View Notional V2
+          </ExternalLink>
         </FooterLeft>
         <FooterCenter>
           <Label accent uppercase marginBottom={theme.spacing(4)}>
