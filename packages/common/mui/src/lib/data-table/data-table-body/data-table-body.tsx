@@ -15,7 +15,7 @@ import {
   TableCell as TypographyTableCell,
 } from '../../typography/typography';
 import { useHistory } from 'react-router';
-import { flexRender, ExpandedState } from '@tanstack/react-table';
+import { flexRender, ExpandedState, Row } from '@tanstack/react-table';
 
 interface StyledTableRowProps extends TableRowProps {
   theme: NotionalTheme;
@@ -32,27 +32,42 @@ interface DataTableBodyProps {
   setExpandedRows?: Dispatch<SetStateAction<ExpandedState>>;
   tableVariant?: TABLE_VARIANTS;
   initialState?: Record<any, any>;
+  rowVirtualizer?: any;
 }
 
 export const DataTableBody = ({
   rows,
-  // prepareRow,
   tableVariant,
+  rowVirtualizer,
   setExpandedRows,
   CustomRowComponent,
   initialState,
 }: DataTableBodyProps) => {
   const theme = useTheme() as NotionalTheme;
+  const isScrollable = rowVirtualizer ? true : false;
+  const tableRows = isScrollable ? rowVirtualizer.getVirtualItems() : rows;
   const history = useHistory();
   return (
-    <TableBody className="body">
-      {rows.map((row, i) => {
-        // prepareRow(row);
-        const rowSelected = row['original'].rowSelected;
+    <TableBody
+      className="body"
+      sx={{
+        display: isScrollable ? 'grid' : '',
+        height: isScrollable ? `${rowVirtualizer.getTotalSize()}px` : '', //tells scrollbar how big the table is
+        position: isScrollable ? 'relative' : '', //needed for absolute positioning of rows
+      }}
+    >
+      {tableRows.map((row, i) => {
+        const testRow = rows[row.index] as Row<any>;
+        const cells = isScrollable
+          ? testRow.getVisibleCells()
+          : row.getAllCells();
+        console.log({ cells });
+
+        const rowSelected = row.original?.rowSelected
+          ? row.original?.rowSelected
+          : false;
         const lastRow = rows[rows.length - 1];
         const styleLastRow = lastRow['id'] === row['id'];
-        const { getAllCells } = row;
-        const cells = getAllCells();
         const expandableTableActive = CustomRowComponent ? true : false;
         const isExpanded = initialState?.expanded
           ? initialState?.expanded[i]
@@ -66,15 +81,15 @@ export const DataTableBody = ({
             };
             setExpandedRows(newState);
           }
-          if (row.original.view) {
-            history.push(`/${row.original.view}`);
+          if (row.original?.view) {
+            history.push(`/${row.original?.view}`);
           }
           if (row.original?.txLink?.href) {
-            window.open(row.original.txLink.href, '_blank');
+            window.open(row.original?.txLink?.href, '_blank');
           }
         };
 
-        const miniTotalRowStyles = row.original.isTotalRow
+        const miniTotalRowStyles = row.original?.isTotalRow
           ? {
               marginLeft: `-${theme.spacing(3)}`,
               marginRight: `-${theme.spacing(3)}`,
@@ -93,8 +108,18 @@ export const DataTableBody = ({
             }
           : {};
 
+        // const scrollableStyles =
+        //   isScrollable && row
+        //     ? {
+        //         display: 'flex',
+        //         position: 'absolute',
+        //         transform: row?.start ? `translateY(${row?.start}px)` : '',
+        //         width: '100%',
+        //       }
+        //     : {};
+
         const rowHoverStyles =
-          row.original.view || row.original?.txLink?.href
+          row.original?.view || row.original?.txLink?.href
             ? {
                 '&:hover': {
                   background: theme.palette.info.light,
@@ -120,11 +145,12 @@ export const DataTableBody = ({
                 },
                 ...rowHoverStyles,
                 background:
-                  row.original.isDividerRow &&
+                  row.original?.isDividerRow &&
                   `${theme.palette.secondary.dark} !important`,
+                // ...scrollableStyles,
               }}
             >
-              {row.getVisibleCells().map((cell: Record<string, any>) => {
+              {cells.map((cell: Record<string, any>) => {
                 return (
                   <TableCell
                     className={cell.column.columnDef.className}
@@ -149,8 +175,8 @@ export const DataTableBody = ({
                           },
                           ...miniTotalRowStyles,
                           justifyContent:
-                            cell?.value?.data &&
-                            row.original.isTotalRow &&
+                            cell?.column.id === 'value' &&
+                            row.original?.isTotalRow &&
                             'end',
                         }}
                       >
@@ -177,7 +203,7 @@ export const DataTableBody = ({
                 );
               })}
             </StyledTableRow>
-            {CustomRowComponent && !row.original.isTotalRow && (
+            {CustomRowComponent && !row.original?.isTotalRow && (
               <TableRow key={`sub-row-${i}`}>
                 <TableCell
                   sx={{

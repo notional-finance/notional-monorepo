@@ -8,7 +8,7 @@ import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
 import { DataTableToggle } from './data-table-toggle/data-table-toggle';
 import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
-// import { DataTableScroll } from './data-table-scroll/data-table-scroll';
+import { DataTableScroll } from './data-table-scroll/data-table-scroll';
 import { DataTablePending } from './data-table-pending/data-table-pending';
 import {
   DataTableInfoBox,
@@ -169,9 +169,14 @@ export const DataTable = ({
   const height = ref.current?.clientHeight;
   const width = ref.current?.clientWidth;
 
-  // return <div>NEW TABLE HERE</div>;
   return (
-    <div>
+    <div
+      style={{
+        border: maxHeight ? theme.shape.borderStandard : '',
+        borderRadius: maxHeight ? theme.shape.borderRadius() : '',
+        zIndex: maxHeight ? 9 : 1,
+      }}
+    >
       {csvDataFormatter && data && (
         <CSVLink
           data={csvDataFormatter(data)}
@@ -203,18 +208,16 @@ export const DataTable = ({
         </CSVLink>
       )}
       {maxHeight ? (
-        // <DataTableScroll
-        //   columns={columns}
-        //   data={data}
-        //   tableVariant={tableVariant}
-        //   initialState={initialState}
-        //   tableTitle={tableTitle}
-        //   maxHeight={maxHeight}
-        //   tableReady={tableReady}
-        //   tableLoading={tableLoading}
-        //   sx={sx}
-        // />
-        <div>NO TABLE</div>
+        <DataTableScroll
+          columns={columns}
+          data={data}
+          tableVariant={tableVariant}
+          tableTitle={tableTitle}
+          maxHeight={maxHeight}
+          tableReady={tableReady}
+          tableLoading={tableLoading}
+          sx={sx}
+        />
       ) : (
         <TableContainer
           ref={ref}
@@ -280,7 +283,6 @@ export const DataTable = ({
               pendingMessage={pendingMessage}
             />
           )}
-
           {tableReady ? (
             <>
               <div style={{ overflow: filterBarData ? 'auto' : '' }}>

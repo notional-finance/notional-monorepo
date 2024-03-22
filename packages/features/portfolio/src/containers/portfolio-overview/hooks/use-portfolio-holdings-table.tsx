@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   IconCell,
   MultiValueCell,
@@ -19,49 +20,55 @@ export const useTotalHoldingsTable = () => {
   const portfolio = usePortfolioRiskProfile(network);
   const isAccountReady = useAccountReady(network);
 
-  const totalHoldingsColumns: DataTableColumn[] = [
-    {
-      header: (
-        <FormattedMessage
-          defaultMessage="Currency"
-          description={'Currency header'}
-        />
-      ),
-      cell: IconCell,
-      accessorKey: 'currency',
-      textAlign: 'left',
-    },
-    {
-      header: (
-        <FormattedMessage
-          defaultMessage="Net Worth"
-          description={'Net Worth header'}
-        />
-      ),
-      cell: MultiValueCell,
-      accessorKey: 'netWorth',
-      textAlign: 'right',
-    },
-    {
-      header: (
-        <FormattedMessage
-          defaultMessage="Assets"
-          description={'assets header'}
-        />
-      ),
-      cell: MultiValueCell,
-      accessorKey: 'assets',
-      textAlign: 'right',
-    },
-    {
-      header: (
-        <FormattedMessage defaultMessage="Debts" description={'Debts header'} />
-      ),
-      cell: MultiValueCell,
-      accessorKey: 'debts',
-      textAlign: 'right',
-    },
-  ];
+  const totalHoldingsColumns = useMemo<DataTableColumn[]>(
+    () => [
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Currency"
+            description={'Currency header'}
+          />
+        ),
+        cell: IconCell,
+        accessorKey: 'currency',
+        textAlign: 'left',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Net Worth"
+            description={'Net Worth header'}
+          />
+        ),
+        cell: MultiValueCell,
+        accessorKey: 'netWorth',
+        textAlign: 'right',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Assets"
+            description={'assets header'}
+          />
+        ),
+        cell: MultiValueCell,
+        accessorKey: 'assets',
+        textAlign: 'right',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Debts"
+            description={'Debts header'}
+          />
+        ),
+        cell: MultiValueCell,
+        accessorKey: 'debts',
+        textAlign: 'right',
+      },
+    ],
+    []
+  );
 
   const tokens = Registry.getTokenRegistry();
   const isReady = network && isAccountReady;

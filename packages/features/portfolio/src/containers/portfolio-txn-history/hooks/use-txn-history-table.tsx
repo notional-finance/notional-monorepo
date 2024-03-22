@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import {
   MultiValueIconCell,
   MultiValueCell,
@@ -24,77 +24,86 @@ export const useTxnHistoryTable = (
     );
   };
 
-  const tableColumns: DataTableColumn[] = [
-    {
-      header: (
-        <FormattedMessage
-          defaultMessage="Transaction Type"
-          description={'Transaction Type header'}
-        />
-      ),
-      accessorKey: 'transactionType',
-      cell: MultiValueIconCell,
-      textAlign: 'left',
-    },
-    {
-      header: (
-        <FormattedMessage defaultMessage="Asset" description={'Asset header'} />
-      ),
-      cell: MultiValueIconCell,
-      accessorKey: 'asset',
-      textAlign: 'left',
-    },
-    {
-      header: (
-        <FormattedMessage
-          defaultMessage="Vault Name"
-          description={'Vault Name header'}
-        />
-      ),
-      cell: VaultNameCell,
-      accessorKey: 'vaultName',
-      textAlign: 'left',
-    },
-    {
-      header: (
-        <FormattedMessage
-          defaultMessage="Underlying Amount"
-          description={'Underlying Amount header'}
-        />
-      ),
-      cell: MultiValueCell,
-      accessorKey: 'underlyingAmount',
-      textAlign: 'right',
-    },
+  const tableColumns = useMemo<DataTableColumn[]>(
+    () => [
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Transaction Type"
+            description={'Transaction Type header'}
+          />
+        ),
+        accessorKey: 'transactionType',
+        cell: MultiValueIconCell,
+        textAlign: 'left',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Asset"
+            description={'Asset header'}
+          />
+        ),
+        cell: MultiValueIconCell,
+        accessorKey: 'asset',
+        textAlign: 'left',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Vault Name"
+            description={'Vault Name header'}
+          />
+        ),
+        cell: VaultNameCell,
+        accessorKey: 'vaultName',
+        textAlign: 'left',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Underlying Amount"
+            description={'Underlying Amount header'}
+          />
+        ),
+        cell: MultiValueCell,
+        accessorKey: 'underlyingAmount',
+        textAlign: 'right',
+      },
 
-    {
-      header: (
-        <FormattedMessage defaultMessage="Price" description={'Price header'} />
-      ),
-      accessorKey: 'price',
-      textAlign: 'right',
-    },
-    {
-      header: (
-        <FormattedMessage defaultMessage="Time" description={'Time header'} />
-      ),
-      cell: DateTimeCell,
-      accessorKey: 'time',
-      textAlign: 'right',
-    },
-    {
-      header: (
-        <FormattedMessage
-          defaultMessage="TX LINK"
-          description={'TX LINK header'}
-        />
-      ),
-      accessorKey: 'txLink',
-      cell: TxnHashCell,
-      textAlign: 'right',
-      showLinkIcon: true,
-    },
-  ];
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Price"
+            description={'Price header'}
+          />
+        ),
+        accessorKey: 'price',
+        textAlign: 'right',
+      },
+      {
+        header: (
+          <FormattedMessage defaultMessage="Time" description={'Time header'} />
+        ),
+        cell: DateTimeCell,
+        accessorKey: 'time',
+        textAlign: 'right',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="TX LINK"
+            description={'TX LINK header'}
+          />
+        ),
+        accessorKey: 'txLink',
+        cell: TxnHashCell,
+        textAlign: 'right',
+        showLinkIcon: true,
+      },
+    ],
+    []
+  );
 
   const txnHistoryColumns =
     txnHistoryCategory === 0
