@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTheme, Box, styled } from '@mui/material';
 import { H3, Body } from '../typography/typography';
 import { Button } from '../button/button';
@@ -26,7 +26,7 @@ export const FooterPopup = () => {
     setHidePopup(true);
   };
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const scrollPosition = window.innerHeight + window.scrollY + 300;
     if (scrollPosition > document.body.offsetHeight && !popUpStyles) {
       setPopupStyles(true);
@@ -34,9 +34,11 @@ export const FooterPopup = () => {
     if (scrollPosition < document.body.offsetHeight && popUpStyles) {
       setPopupStyles(false);
     }
-  };
+  }, [popUpStyles]);
 
-  window.addEventListener('scroll', handleScroll);
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   useEffect(() => {
     if (prevUiPopupDismissed) {
