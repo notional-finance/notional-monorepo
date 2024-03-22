@@ -1,8 +1,8 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { Paragraph, ContestTable, Button } from '@notional-finance/mui';
-import { useSelectedNetwork } from '@notional-finance/wallet';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
 import { useContestPass } from '@notional-finance/notionable-hooks';
 import {
