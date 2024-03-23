@@ -25,7 +25,10 @@ import {
 import { Env } from '.';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
-import { AccountRiskProfile, VaultAccountRiskProfile } from '@notional-finance/risk-engine';
+import {
+  AccountRiskProfile,
+  VaultAccountRiskProfile,
+} from '@notional-finance/risk-engine';
 
 export class RegistryClientDO extends BaseDO<Env> {
   constructor(state: DurableObjectState, env: Env) {
@@ -56,6 +59,8 @@ export class RegistryClientDO extends BaseDO<Env> {
       Registry.initialize(
         this.env.NX_DATA_URL,
         AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
+        false,
+        true,
         false
       );
 
@@ -253,7 +258,6 @@ export class RegistryClientDO extends BaseDO<Env> {
   }
 
   private async saveAccountRiskProfiles(network: Network) {
-
     const accounts = Registry.getAccountRegistry()
       .getAllSubjectKeys(network)
       .map((a) =>
@@ -262,19 +266,26 @@ export class RegistryClientDO extends BaseDO<Env> {
       .filter((acct) => acct.systemAccountType === 'None');
 
     const riskProfiles = accounts.map((account) => {
-      const accountRiskProfile = new AccountRiskProfile(account.balances, account.network);
+      const accountRiskProfile = new AccountRiskProfile(
+        account.balances,
+        account.network
+      );
       const freeCollateralFactors = accountRiskProfile.freeCollateralFactors();
-      const hasCrossCurrencyRisk = freeCollateralFactors.some((e) => e.totalAssetsLocal.add(e.totalDebtsLocal).isNegative());
+      const hasCrossCurrencyRisk = freeCollateralFactors.some((e) =>
+        e.totalAssetsLocal.add(e.totalDebtsLocal).isNegative()
+      );
 
       return {
         address: account.address,
         riskFactors: accountRiskProfile.getAllRiskFactors(),
         hasCrossCurrencyRisk,
-        vaultRiskFactors: VaultAccountRiskProfile.getAllRiskProfiles(account).map(v => {
+        vaultRiskFactors: VaultAccountRiskProfile.getAllRiskProfiles(
+          account
+        ).map((v) => {
           return {
             vaultAddress: v.vaultAddress,
             riskFactors: v.getAllRiskFactors(),
-          }
+          };
         }),
       };
     });
