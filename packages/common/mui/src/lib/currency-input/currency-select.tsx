@@ -104,7 +104,7 @@ export const formatOption = (
     leftContent = (
       <Box sx={{ display: 'flex' }}>
         {c?.error && <H4 marginLeft={theme.spacing(1)}>{c?.error}</H4>}
-        {c?.largeCaption && !c?.error && (
+        {c?.largeCaption !== undefined && !c?.error && (
           <H4 marginLeft={theme.spacing(1)}>
             {c.shouldCountUp ? (
               <CountUp
@@ -129,7 +129,7 @@ export const formatOption = (
     );
 
     const largeFigureNode =
-      c.shouldCountUp && c.largeFigure ? (
+      c.shouldCountUp && c.largeFigure !== undefined ? (
         <CountUp
           value={c.largeFigure}
           suffix={c.largeFigureSuffix}
@@ -137,7 +137,8 @@ export const formatOption = (
         />
       ) : (
         <span>
-          {c.largeFigure && c.largeFigure.toFixed(c.largeFigureDecimals || 4)}
+          {c.largeFigure !== undefined &&
+            c.largeFigure.toFixed(c.largeFigureDecimals || 4)}
           {c.largeFigureSuffix}
         </span>
       );
@@ -170,7 +171,7 @@ export const formatOption = (
 
     rightContent = (
       <Box textAlign={'right'}>
-        {largeFigureNode && c.largeFigure && !c?.error && (
+        {largeFigureNode && c.largeFigure !== undefined && !c?.error && (
           <H4
             sx={{ fontSize: c.caption ? '14px' : '16px' }}
             error={c.largeFigure < 0}

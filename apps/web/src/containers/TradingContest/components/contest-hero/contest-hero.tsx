@@ -8,14 +8,16 @@ import { TitleText } from '../contest-shared-elements/contest-shared-elements';
 import { messages } from '../../contest-data';
 import {
   contestActive,
+  contestOver,
   useContestPass,
-  useSelectedNetwork
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 
 export const ContestHero = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
   const { hasContestPass } = useContestPass();
+
   return (
     <Box>
       <ContentContainer>
@@ -29,7 +31,11 @@ export const ContestHero = () => {
               )}
             </TitleText>
             <BodyText>
-              <FormattedMessage {...messages.ContestHero.bodyText} />
+              {contestOver ? (
+                <FormattedMessage {...messages.ContestOverHero.bodyText} />
+              ) : (
+                <FormattedMessage {...messages.ContestHero.bodyText} />
+              )}
             </BodyText>
             <ContestCountDown
               title={contestActive ? 'Contest Ends:' : 'Contest Begins:'}
@@ -46,7 +52,11 @@ export const ContestHero = () => {
                   }}
                   to={`/contest-leaderboard/${network}`}
                 >
-                  <FormattedMessage defaultMessage={'View Leaderboard'} />
+                  {contestOver ? (
+                    <FormattedMessage defaultMessage={'See Contest Results'} />
+                  ) : (
+                    <FormattedMessage defaultMessage={'View Leaderboard'} />
+                  )}
                 </Button>
               ) : (
                 <Button

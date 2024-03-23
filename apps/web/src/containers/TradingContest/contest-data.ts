@@ -11,6 +11,13 @@ export const messages = {
       description: 'body text',
     },
   }),
+  ContestOverHero: defineMessages({
+    bodyText: {
+      defaultMessage:
+        'Contest has ended. Click below to see the results!',
+      description: 'body text',
+    },
+  }),
   ContestPartners: defineMessages({
     bodyText: {
       defaultMessage:

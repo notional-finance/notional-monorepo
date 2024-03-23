@@ -29,7 +29,8 @@ export const getHoldingsSortOrder = (t: TokenDefinition) => {
 // ===== NOTE: All of these helpers are to be used with the MultiValueCell
 export const formatCryptoWithFiat = (
   baseCurrency: FiatKeys,
-  tbn?: TokenBalance | null
+  tbn?: TokenBalance | null,
+  isDebt?: boolean
 ) => {
   return !tbn || tbn.isZero()
     ? '-'
@@ -37,11 +38,11 @@ export const formatCryptoWithFiat = (
         data: [
           {
             displayValue: tbn.toDisplayStringWithSymbol(),
-            isNegative: tbn.isNegative(),
+            isNegative: isDebt ? false : tbn.isNegative(),
           },
           {
             displayValue: tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(2),
-            isNegative: tbn.isNegative(),
+            isNegative: isDebt ? false : tbn.isNegative(),
           },
         ],
       };
