@@ -288,7 +288,7 @@ export function calculateAccountCurrentFactors(
   baseCurrency: FiatKeys
 ) {
   const fiatToken = Registry.getTokenRegistry().getTokenBySymbol(
-    Network.All,
+    Network.all,
     baseCurrency
   );
 

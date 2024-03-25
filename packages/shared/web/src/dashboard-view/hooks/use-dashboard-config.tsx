@@ -143,11 +143,11 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
   const history = useHistory();
   const { pathname } = useLocation();
   const selectedNetwork = useSelectedNetwork();
-  const defaultNetwork = selectedNetwork === Network.Mainnet ? 1 : 0;
+  const defaultNetwork = selectedNetwork === Network.mainnet ? 1 : 0;
   const [networkToggle, setNetworkToggle] = useState<number>(defaultNetwork);
 
   const handleNetWorkToggle = (v: number) => {
-    const label = v === 0 ? Network.ArbitrumOne : Network.Mainnet;
+    const label = v === 0 ? Network.arbitrum : Network.mainnet;
     history.push(pathname.replace(selectedNetwork, label));
     setNetworkToggle(v);
   };

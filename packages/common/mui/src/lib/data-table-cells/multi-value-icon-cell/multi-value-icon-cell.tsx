@@ -114,7 +114,7 @@ export const MultiValueIconCell = (props): JSX.Element => {
               )}
               {inlineIcons && (
                 <TokenIcon
-                  network={Network.Mainnet}
+                  network={Network.mainnet}
                   symbol={values.symbol}
                   size="small"
                   style={{ marginRight: theme.spacing(0.5) }}

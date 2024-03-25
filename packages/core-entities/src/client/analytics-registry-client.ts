@@ -217,7 +217,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
                     .toFloat();
                 } else if (
                   o.oracleType === 'nTokenSecondaryIncentiveRate' &&
-                  token.network === Network.ArbitrumOne
+                  token.network === Network.arbitrum
                 ) {
                   // NOTE: this token is currently hardcoded but we will need to make it configurable
                   // at some point in the future.

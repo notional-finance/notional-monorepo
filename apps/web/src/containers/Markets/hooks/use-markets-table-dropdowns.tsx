@@ -15,9 +15,9 @@ import { useAllUniqueUnderlyingTokens } from '@notional-finance/notionable-hooks
 import { useTheme } from '@mui/material';
 
 const selectedNetworkOptions = {
-  0: [Network.ArbitrumOne, Network.Mainnet],
-  1: [Network.ArbitrumOne],
-  2: [Network.Mainnet],
+  0: [Network.arbitrum, Network.mainnet],
+  1: [Network.arbitrum],
+  2: [Network.mainnet],
 };
 
 export const useMarketTableDropdowns = (
