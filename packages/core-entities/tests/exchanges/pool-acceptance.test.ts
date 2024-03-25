@@ -59,12 +59,12 @@ const acceptanceSuite = ({
   ];
 
   beforeAll((done) => {
-    Registry.onNetworkReady(Network.ArbitrumOne, () => {
+    Registry.onNetworkReady(Network.arbitrum, () => {
       Registry.getExchangeRegistry().onSubjectKeyReady(
-        Network.ArbitrumOne,
+        Network.arbitrum,
         address,
         () => {
-          harness = new Harness(Network.ArbitrumOne, address, provider);
+          harness = new Harness(Network.arbitrum, address, provider);
           done();
         }
       );
@@ -212,12 +212,12 @@ const acceptanceSuite = ({
 
 describe.withForkAndRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Arbitrum Pool Tests',
   () => {
-    describe.each(TestConfig[Network.ArbitrumOne])(
+    describe.each(TestConfig[Network.arbitrum])(
       'Acceptance',
       acceptanceSuite
     );
@@ -226,9 +226,9 @@ describe.withForkAndRegistry(
 
 // NOTE: there is no registry data for this yet so it does not work
 // describe.withFork(
-//   { blockNumber: 16605421, network: Network.Mainnet },
+//   { blockNumber: 16605421, network: Network.mainnet },
 //   'Mainnet Pool Tests',
 //   () => {
-//     describe.each(TestConfig[Network.Mainnet])('Acceptance', acceptanceSuite);
+//     describe.each(TestConfig[Network.mainnet])('Acceptance', acceptanceSuite);
 //   }
 // );

@@ -131,8 +131,8 @@ export default class DataService {
   }
 
   public async getBlockNumberFromTs(network: Network, ts: number) {
-    if (network === Network.All) {
-      network = Network.Mainnet;
+    if (network === Network.all) {
+      network = Network.mainnet;
     }
 
     const networkId = this.networkToId(network);
@@ -166,7 +166,7 @@ export default class DataService {
   }
 
   public async syncOracleData(ts: number) {
-    const networks = [Network.All, Network.ArbitrumOne];
+    const networks = [Network.all, Network.arbitrum];
 
     for (const network of networks) {
       const blockNumber = await this.getBlockNumberFromTs(network, ts);

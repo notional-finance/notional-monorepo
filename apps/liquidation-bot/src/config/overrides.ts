@@ -2,7 +2,7 @@ import { Network } from '@notional-finance/util';
 import { CurrencyOverride } from '../types';
 
 export const overrides = {
-  [Network.ArbitrumOne]: [
+  [Network.arbitrum]: [
     {
       // cbETH: flash borrow rETH
       id: 9,

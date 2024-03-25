@@ -8,7 +8,7 @@ import { VaultAccountRiskProfile } from '../src/vault-account-risk';
 
 describe.withForkAndRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Vault Risk',
@@ -23,11 +23,11 @@ describe.withForkAndRegistry(
         Registry.getTokenRegistry().registerToken(
           config.vaultIdToTokenDefinition(
             config.getVaultIDs(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               settledMaturity
             ).primaryCashID,
-            Network.ArbitrumOne
+            Network.arbitrum
           )
         );
 
@@ -35,7 +35,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             10,
             Registry.getTokenRegistry().getVaultShare(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               settledMaturity
             )
@@ -43,7 +43,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             -8,
             Registry.getTokenRegistry().getVaultDebt(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               settledMaturity
             )
@@ -51,7 +51,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             2,
             Registry.getTokenRegistry().getVaultCash(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               settledMaturity
             )
@@ -74,7 +74,7 @@ describe.withForkAndRegistry(
     describe('Risk Factors', () => {
       it('calculates empty leverage ratio and collateral ratio', () => {
         const vaultRiskProfile = VaultAccountRiskProfile.empty(
-          Network.ArbitrumOne,
+          Network.arbitrum,
           vaultAddress,
           maturity
         );
@@ -88,7 +88,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             1,
             Registry.getTokenRegistry().getVaultShare(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )
@@ -104,7 +104,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             1,
             Registry.getTokenRegistry().getVaultShare(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )
@@ -112,7 +112,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             -0.9,
             Registry.getTokenRegistry().getVaultDebt(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )
@@ -132,7 +132,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             1,
             Registry.getTokenRegistry().getVaultShare(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )
@@ -140,7 +140,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             -0.9,
             Registry.getTokenRegistry().getVaultDebt(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )
@@ -148,7 +148,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             0.01,
             Registry.getTokenRegistry().getVaultCash(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )
@@ -166,7 +166,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             10,
             Registry.getTokenRegistry().getVaultShare(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )
@@ -174,7 +174,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             -8,
             Registry.getTokenRegistry().getVaultDebt(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )
@@ -192,7 +192,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             10,
             Registry.getTokenRegistry().getVaultShare(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               PRIME_CASH_VAULT_MATURITY
             )
@@ -200,7 +200,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             -8,
             Registry.getTokenRegistry().getVaultDebt(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               PRIME_CASH_VAULT_MATURITY
             )
@@ -218,7 +218,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             10,
             Registry.getTokenRegistry().getVaultShare(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )
@@ -226,7 +226,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             -8,
             Registry.getTokenRegistry().getVaultDebt(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )
@@ -234,7 +234,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             2,
             Registry.getTokenRegistry().getVaultCash(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               vaultAddress,
               maturity
             )

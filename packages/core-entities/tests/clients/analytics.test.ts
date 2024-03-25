@@ -8,36 +8,36 @@ describe('Sync Analytics', () => {
       'https://data-dev.notional.finance',
       AccountFetchMode.SINGLE_ACCOUNT_DIRECT
     );
-    Registry.startRefresh(Network.ArbitrumOne);
+    Registry.startRefresh(Network.arbitrum);
     Registry.getAnalyticsRegistry().onNetworkRegistered(
-      Network.ArbitrumOne,
+      Network.arbitrum,
       () => done()
     );
   }, 8000);
 
   it('can sync views', async () => {
     const analytics = Registry.getAnalyticsRegistry();
-    // expect(analytics.getAssetVolatility(Network.ArbitrumOne));
-    // expect(analytics.getHistoricalPrices(Network.ArbitrumOne));
-    // expect(analytics.getNTokenTradingFees(Network.ArbitrumOne)).toBeDefined();
+    // expect(analytics.getAssetVolatility(Network.arbitrum));
+    // expect(analytics.getHistoricalPrices(Network.arbitrum));
+    // expect(analytics.getNTokenTradingFees(Network.arbitrum)).toBeDefined();
     // console.log(
-    //   analytics.getHistoricalOracles(Network.ArbitrumOne, 1688342400)
+    //   analytics.getHistoricalOracles(Network.arbitrum, 1688342400)
     // );
-    // console.log(analytics.getAssetHistory(Network.ArbitrumOne));
-    console.log(await analytics.getView(Network.ArbitrumOne, 'accounts_list'));
+    // console.log(analytics.getAssetHistory(Network.arbitrum));
+    console.log(await analytics.getView(Network.arbitrum, 'accounts_list'));
   });
 
   it('can fetch vaults views', () => {
     const analytics = Registry.getAnalyticsRegistry();
     expect(
       analytics.getVault(
-        Network.ArbitrumOne,
+        Network.arbitrum,
         '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf'
       )
     ).toBeDefined();
   });
 
   afterAll(() => {
-    Registry.stopRefresh(Network.ArbitrumOne);
+    Registry.stopRefresh(Network.arbitrum);
   });
 });

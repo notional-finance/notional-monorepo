@@ -15,9 +15,7 @@ kv_namespaces = [
 ]
 
 [env.dev.vars]
-NETWORK = 'ArbitrumOne'
-TREASURY_MANAGER_ADDRESS = '0x53144559c0d4a3304e2dd9dafbd685247429216d'
-MANAGER_BOT_ADDRESS = '0xa28a0bA9633342793218D9bd8d92CBC52231361C'
+NETWORKS = ["arbitrum", "mainnet"]
 REINVEST_TIME_WINDOW_IN_HOURS=24
 
 [env.beta]

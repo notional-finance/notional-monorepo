@@ -14,7 +14,7 @@ export function useFiatToken() {
     globalState: { baseCurrency },
   } = useNotionalContext();
   return Registry.getTokenRegistry().getTokenBySymbol(
-    Network.All,
+    Network.all,
     baseCurrency
   );
 }

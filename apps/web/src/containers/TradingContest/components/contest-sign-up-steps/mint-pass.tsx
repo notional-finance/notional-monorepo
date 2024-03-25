@@ -141,7 +141,7 @@ export const MintPass = ({
             buttonTwoCallBack={() =>
               isWalletConnectedToNetwork
                 ? handleMint()
-                : onSwitchNetwork(Network.ArbitrumOne)
+                : onSwitchNetwork(Network.arbitrum)
             }
           />
         </>

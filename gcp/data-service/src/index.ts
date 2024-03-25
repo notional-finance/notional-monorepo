@@ -48,7 +48,7 @@ const parseQueryParams = (q) => {
   if (endTime < startTime) {
     throw Error('endTime must be greater than startTime');
   }
-  const network = q.network ? (q.network as Network) : Network.Mainnet;
+  const network = q.network ? (q.network as Network) : Network.mainnet;
   const limit = q.limit ? parseInt(q.limit) : undefined;
   return {
     startTime: startTime,
@@ -67,8 +67,8 @@ async function main() {
   const dataService = new DataService(db, {
     // TODO: get from env
     blocksPerSecond: {
-      [Network.ArbitrumOne]: 2.5, // 2.5 blocks per second on arbitrum
-      [Network.Mainnet]: 0.083,
+      [Network.arbitrum]: 2.5, // 2.5 blocks per second on arbitrum
+      [Network.mainnet]: 0.083,
     },
     maxProviderRequests: 50,
     interval: 1, // 1 Hour

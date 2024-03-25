@@ -159,7 +159,7 @@ export const ContestLeaderBoard = () => {
                     </Caption>
                   )}
                   <LinkText
-                    to={`/portfolio/${Network.ArbitrumOne}/overview`}
+                    to={`/portfolio/${Network.arbitrum}/overview`}
                     sx={{ marginTop: theme.spacing(1) }}
                   >
                     <FormattedMessage defaultMessage={'View in Portfolio'} />

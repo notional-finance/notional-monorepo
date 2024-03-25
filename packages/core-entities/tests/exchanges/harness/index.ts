@@ -13,15 +13,15 @@ export const TestConfig: Record<
   Network,
   { address: string; Harness: PoolHarnessConstructor }[]
 > = {
-  [Network.All]: [],
-  [Network.Mainnet]: [
+  [Network.all]: [],
+  [Network.mainnet]: [
     {
       // Curve.fi Factory Crypto Pool: cbETH/ETH
       address: '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
       Harness: CurveV2Harness,
     },
   ],
-  [Network.ArbitrumOne]: [
+  [Network.arbitrum]: [
     {
       // wstETH/WETH Balancer Composable Pool
       address: '0x9791d590788598535278552EEcD4b211bFc790CB',

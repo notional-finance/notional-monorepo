@@ -160,7 +160,7 @@ export function getCurveV1PoolConfig(
         decimals: 18,
       },
       // This is always on mainnet
-      network: Network.Mainnet,
+      network: Network.mainnet,
     },
     {
       sourceType: SourceType.Subgraph,

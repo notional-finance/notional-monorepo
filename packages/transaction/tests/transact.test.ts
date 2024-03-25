@@ -21,13 +21,13 @@ import { NotionalV3, NotionalV3ABI } from '@notional-finance/contracts';
 
 describe.withForkAndRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Executes Trade Builders',
   () => {
     let address: string;
-    const network = Network.ArbitrumOne;
+    const network = Network.arbitrum;
     let ETH: TokenDefinition;
     let fETH: TokenDefinition;
     let pETH: TokenDefinition;
@@ -69,7 +69,7 @@ describe.withForkAndRegistry(
     const sendTransaction = async (txn: Promise<PopulatedTransaction>) => {
       const rcpt = await send(txn);
       const { transaction } = parseTransactionLogs(
-        Network.ArbitrumOne,
+        Network.arbitrum,
         rcpt.blockNumber,
         rcpt.logs
       );

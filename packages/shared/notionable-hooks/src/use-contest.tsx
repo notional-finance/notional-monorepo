@@ -41,7 +41,7 @@ export const ContestPartners = [
 export const NotionalPass = new Contract(
   '0xbBEF91111E9Db19E688B495972418D8ebC11F008',
   NotionalContestPassABI,
-  getProviderFromNetwork(Network.ArbitrumOne)
+  getProviderFromNetwork(Network.arbitrum)
 ) as NotionalContestPass;
 
 export function useContestPass() {
@@ -85,7 +85,7 @@ export function useMintPass() {
     isReadOnlyAddress,
     transactionHash,
     transactionStatus,
-  } = useTransactionStatus(Network.ArbitrumOne);
+  } = useTransactionStatus(Network.arbitrum);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const {
     globalState: { communityMembership, wallet },

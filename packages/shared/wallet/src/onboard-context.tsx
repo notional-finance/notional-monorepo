@@ -20,16 +20,16 @@ import {
 
 export const chains = [
   {
-    id: `0x${NetworkId[Network.ArbitrumOne].toString(16)}`,
+    id: `0x${NetworkId[Network.arbitrum].toString(16)}`,
     token: 'ETH',
-    label: Network.ArbitrumOne,
-    rpcUrl: getProviderURLFromNetwork(Network.ArbitrumOne),
+    label: Network.arbitrum,
+    rpcUrl: getProviderURLFromNetwork(Network.arbitrum),
   },
   {
-    id: `0x${NetworkId[Network.Mainnet].toString(16)}`,
+    id: `0x${NetworkId[Network.mainnet].toString(16)}`,
     token: 'ETH',
-    label: Network.Mainnet,
-    rpcUrl: getProviderURLFromNetwork(Network.Mainnet),
+    label: Network.mainnet,
+    rpcUrl: getProviderURLFromNetwork(Network.mainnet),
   },
 ];
 

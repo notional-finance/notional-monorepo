@@ -155,8 +155,8 @@ export const useMarketsTable = (
   }
   const selectedNetworkOptions = {
     0: '',
-    1: Network.ArbitrumOne,
-    2: Network.Mainnet,
+    1: Network.arbitrum,
+    2: Network.mainnet,
   };
 
   const formatMarketData = (allMarketsData: typeof borrowYields) => {

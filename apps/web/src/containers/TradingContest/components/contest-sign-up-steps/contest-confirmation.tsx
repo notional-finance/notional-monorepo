@@ -96,7 +96,7 @@ export const ContestConfirmation = ({
           fontFamily: 'Avenir Next',
           cursor: 'pointer',
         }}
-        to={`/portfolio/${Network.ArbitrumOne}`}
+        to={`/portfolio/${Network.arbitrum}`}
       >
         <FormattedMessage defaultMessage={'See Yield Opportunities'} />
       </Button>

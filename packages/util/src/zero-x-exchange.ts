@@ -2,7 +2,7 @@ import { Network } from './constants';
 import { BigNumber } from 'ethers';
 
 interface Env {
-  NETWORK: keyof typeof Network;
+  NETWORK: Network;
   ZERO_EX_API_KEY: string;
 }
 
@@ -54,7 +54,7 @@ export async function get0xData(arg: {
   }).toString();
 
   const response = await fetch(
-    `${urls[Network[env.NETWORK]]}?${searchParams}`,
+    `${urls[env.NETWORK]}?${searchParams}`,
     {
       headers: {
         '0x-api-key': env.ZERO_EX_API_KEY,

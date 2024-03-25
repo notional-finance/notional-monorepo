@@ -33,7 +33,7 @@ export const useTokenApproval = (
 
           let spender;
           if (symbol === 'WETH' || symbol === 'NOTE') {
-            if (network !== Network.Mainnet)
+            if (network !== Network.mainnet)
               throw Error('NOTE staking is only on mainnet');
             spender = StakedNoteAddress;
           } else {

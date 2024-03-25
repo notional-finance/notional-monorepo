@@ -48,7 +48,7 @@ class ArbitrumGasOracle implements IGasOracle {
 }
 
 export const overrides = {
-  [Network.ArbitrumOne]: {
+  [Network.arbitrum]: {
     [ZERO_ADDRESS]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
   },
   [Network.Mainnet]: {

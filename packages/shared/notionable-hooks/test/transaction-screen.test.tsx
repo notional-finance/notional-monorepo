@@ -40,7 +40,7 @@ jest.setTimeout(15_000);
 
 describe.withForkAndRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Transaction Screens',
@@ -53,7 +53,7 @@ describe.withForkAndRegistry(
       const address = await signer.getAddress();
       defaultInputs = {
         address,
-        network: Network.ArbitrumOne,
+        network: Network.arbitrum,
         depositBalance: undefined,
         debtBalance: undefined,
         collateralBalance: undefined,
@@ -88,7 +88,7 @@ describe.withForkAndRegistry(
         const resp = await signer.sendTransaction(t);
         await resp.wait(1);
         await new Promise<void>((r) => {
-          Registry.getAccountRegistry().triggerRefresh(Network.ArbitrumOne, r);
+          Registry.getAccountRegistry().triggerRefresh(Network.arbitrum, r);
         });
       }
 
@@ -401,14 +401,14 @@ describe.withForkAndRegistry(
               depositBalance: TokenBalance.fromFloat(
                 0.01,
                 Registry.getTokenRegistry().getTokenBySymbol(
-                  Network.ArbitrumOne,
+                  Network.arbitrum,
                   `ETH`
                 )
               ),
               collateralBalance: TokenBalance.fromFloat(
                 0.01,
                 Registry.getTokenRegistry().getTokenBySymbol(
-                  Network.ArbitrumOne,
+                  Network.arbitrum,
                   `fETH:fixed@${maturity}`
                 )
               ),
@@ -465,7 +465,7 @@ describe.withForkAndRegistry(
               depositBalance: TokenBalance.fromFloat(
                 0.1,
                 Registry.getTokenRegistry().getTokenBySymbol(
-                  Network.ArbitrumOne,
+                  Network.arbitrum,
                   'ETH'
                 )
               ),
@@ -508,7 +508,7 @@ describe.withForkAndRegistry(
               depositBalance: TokenBalance.fromFloat(
                 0.1,
                 Registry.getTokenRegistry().getTokenBySymbol(
-                  Network.ArbitrumOne,
+                  Network.arbitrum,
                   'ETH'
                 )
               ),
@@ -549,7 +549,7 @@ describe.withForkAndRegistry(
               debtBalance: TokenBalance.fromFloat(
                 -0.01,
                 Registry.getTokenRegistry().getTokenBySymbol(
-                  Network.ArbitrumOne,
+                  Network.arbitrum,
                   `pdETH`
                 )
               ),
@@ -595,7 +595,7 @@ describe.withForkAndRegistry(
               debtBalance: TokenBalance.fromFloat(
                 -0.01,
                 Registry.getTokenRegistry().getTokenBySymbol(
-                  Network.ArbitrumOne,
+                  Network.arbitrum,
                   `fETH:fixed@${maturity}`
                 )
               ),
@@ -620,21 +620,21 @@ describe.withForkAndRegistry(
             depositBalance: TokenBalance.fromFloat(
               0.01,
               Registry.getTokenRegistry().getTokenBySymbol(
-                Network.ArbitrumOne,
+                Network.arbitrum,
                 `ETH`
               )
             ),
             collateralBalance: TokenBalance.fromFloat(
               0.05,
               Registry.getTokenRegistry().getTokenBySymbol(
-                Network.ArbitrumOne,
+                Network.arbitrum,
                 `fETH:fixed@${maturity}`
               )
             ),
             debtBalance: TokenBalance.fromFloat(
               -0.04,
               Registry.getTokenRegistry().getTokenBySymbol(
-                Network.ArbitrumOne,
+                Network.arbitrum,
                 `pdETH`
               )
             ),
@@ -656,21 +656,21 @@ describe.withForkAndRegistry(
             depositBalance: TokenBalance.fromFloat(
               0.01,
               Registry.getTokenRegistry().getTokenBySymbol(
-                Network.ArbitrumOne,
+                Network.arbitrum,
                 `ETH`
               )
             ),
             collateralBalance: TokenBalance.fromFloat(
               0.05,
               Registry.getTokenRegistry().getTokenBySymbol(
-                Network.ArbitrumOne,
+                Network.arbitrum,
                 `pETH`
               )
             ),
             debtBalance: TokenBalance.fromFloat(
               -0.04,
               Registry.getTokenRegistry().getTokenBySymbol(
-                Network.ArbitrumOne,
+                Network.arbitrum,
                 `fETH:fixed@${maturity}`
               )
             ),

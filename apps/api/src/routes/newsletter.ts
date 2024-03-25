@@ -34,7 +34,7 @@ export async function handleNewsletter(_request: IRequest, env: APIEnv) {
     });
     logger.submitEvent({
       host: 'cloudflare',
-      network: Network.All,
+      network: Network.all,
       aggregation_key: 'NewsletterSubmitFailure',
       alert_type: 'error',
       title: 'Newsletter Submit Failure',

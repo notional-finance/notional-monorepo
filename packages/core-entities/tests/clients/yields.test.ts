@@ -3,14 +3,14 @@ import { Registry, AccountFetchMode } from '../../src';
 
 describe.withRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Yield Registry',
   () => {
     it('fetches prime cash yields', () => {
       const y = Registry.getYieldRegistry().getPrimeCashYield(
-        Network.ArbitrumOne
+        Network.arbitrum
       );
       expect(y.length).toBe(6);
       y.forEach((y) => {
@@ -22,7 +22,7 @@ describe.withRegistry(
 
     it('fetches prime debt yields', () => {
       const y = Registry.getYieldRegistry().getPrimeDebtYield(
-        Network.ArbitrumOne
+        Network.arbitrum
       );
       expect(y.length).toBe(6);
       y.forEach((y) => {
@@ -33,7 +33,7 @@ describe.withRegistry(
     });
 
     it('fetches fcash yields', () => {
-      const y = Registry.getYieldRegistry().getfCashYield(Network.ArbitrumOne);
+      const y = Registry.getYieldRegistry().getfCashYield(Network.arbitrum);
 
       expect(y.length).toBe(12);
       y.forEach((y) => {
@@ -45,7 +45,7 @@ describe.withRegistry(
     });
 
     it('fetches ntoken yields', () => {
-      const y = Registry.getYieldRegistry().getNTokenYield(Network.ArbitrumOne);
+      const y = Registry.getYieldRegistry().getNTokenYield(Network.arbitrum);
       expect(y.length).toBe(6);
       y.forEach((y) => {
         expect(y.token.tokenType).toBe('nToken');
@@ -56,7 +56,7 @@ describe.withRegistry(
 
     it('fetches leveraged lend yields', () => {
       const y = Registry.getYieldRegistry().getLeveragedLendYield(
-        Network.ArbitrumOne
+        Network.arbitrum
       );
       // 6 currencies, pDebt: 2, fCash: 4
       expect(y.length).toBe(36);
@@ -71,7 +71,7 @@ describe.withRegistry(
 
     it('fetches leveraged ntoken yields', () => {
       const y = Registry.getYieldRegistry().getLeveragedNTokenYield(
-        Network.ArbitrumOne
+        Network.arbitrum
       );
 
       expect(y.length).toBe(18);
@@ -87,7 +87,7 @@ describe.withRegistry(
 
     it('fetches leveraged vault yields', () => {
       const y = Registry.getYieldRegistry().getLeveragedVaultYield(
-        Network.ArbitrumOne
+        Network.arbitrum
       );
 
       expect(y.length).toBe(12);

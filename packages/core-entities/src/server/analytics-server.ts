@@ -57,7 +57,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
   }
 
   protected async _refresh(network: Network) {
-    if (network === Network.All) {
+    if (network === Network.all) {
       return this._refreshAllNetwork();
     }
 
@@ -259,7 +259,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
   protected async _refreshAllNetwork() {
     const flatData = await this.fetchView(
-      Network.All,
+      Network.all,
       'historical_oracle_values'
     );
     const historicalOracles = flatData.reduce((acc, p) => {
@@ -268,7 +268,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         acc[id] = {
           id,
           oracleAddress: p['oracle_address'] as string,
-          network: Network.All,
+          network: Network.all,
           oracleType: p['oracle_type'] as OracleType,
           base: p['base'] as string,
           quote: p['quote'] as string,
@@ -294,7 +294,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         string,
         unknown
       ][],
-      network: Network.All,
+      network: Network.all,
       lastUpdateTimestamp: getNowSeconds(),
       lastUpdateBlock: 0,
     } as CacheSchema<unknown>;

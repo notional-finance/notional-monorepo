@@ -69,16 +69,16 @@ export class Registry {
     // Kicks off Fiat token refreshes
     if (startFiatRefresh) {
       Registry._tokens.startRefreshInterval(
-        Network.All,
+        Network.all,
         Registry.DEFAULT_TOKEN_REFRESH
       );
       Registry._oracles.startRefreshInterval(
-        Network.All,
+        Network.all,
         Registry.DEFAULT_ORACLE_REFRESH
       );
       if (useAnalytics) {
         Registry._analytics.startRefreshInterval(
-          Network.All,
+          Network.all,
           Registry.DEFAULT_ANALYTICS_REFRESH
         );
       }
@@ -185,11 +185,11 @@ export class Registry {
   public static async triggerRefresh(network: Network, blockNumber?: number) {
     await Promise.all([
       Registry.getTokenRegistry().triggerRefreshPromise(
-        Network.All,
+        Network.all,
         blockNumber
       ),
       Registry.getOracleRegistry().triggerRefreshPromise(
-        Network.All,
+        Network.all,
         blockNumber
       ),
       Registry.getTokenRegistry().triggerRefreshPromise(network, blockNumber),

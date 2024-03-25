@@ -60,7 +60,7 @@ export class ViewsDO extends BaseDO<APIEnv> {
   }
 
   async fetchAllGraphViews(network: Network) {
-    if (network === Network.All) return;
+    if (network === Network.all) return;
 
     const documents = ['ExternalLendingHistoryDocument'] as GraphDocument[];
     await Promise.all(

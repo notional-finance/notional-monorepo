@@ -19,7 +19,7 @@ interface Profile {
 
 describe.withForkAndRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Account Risk',
@@ -265,14 +265,14 @@ describe.withForkAndRegistry(
         balances.map(([n, t]) =>
           TokenBalance.fromFloat(
             n,
-            tokens.getTokenBySymbol(Network.ArbitrumOne, t)
+            tokens.getTokenBySymbol(Network.arbitrum, t)
           )
         )
       );
 
       expected.forEach(({ factor, expected, args = [] }) => {
         const _args = args.map((t: string) =>
-          tokens.getTokenBySymbol(Network.ArbitrumOne, t)
+          tokens.getTokenBySymbol(Network.arbitrum, t)
         );
         const actual =
           factor === 'maxWithdraw'
@@ -286,7 +286,7 @@ describe.withForkAndRegistry(
         } else if (Array.isArray(expected)) {
           const e = TokenBalance.fromFloat(
             expected[0],
-            tokens.getTokenBySymbol(Network.ArbitrumOne, expected[1])
+            tokens.getTokenBySymbol(Network.arbitrum, expected[1])
           );
           expect(actual).toBeApprox(e, 1e-2);
         } else {
@@ -299,8 +299,8 @@ describe.withForkAndRegistry(
       'Deposit / Withdraw Maintain Factor [$riskFactor | $limit]',
       ({ riskFactor, limit, args }) => {
         const tokens = Registry.getTokenRegistry();
-        const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-        const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
+        const ETH = tokens.getTokenBySymbol(Network.arbitrum, 'ETH');
+        const USDC = tokens.getTokenBySymbol(Network.arbitrum, 'USDC');
         const p = AccountRiskProfile.from([
           TokenBalance.fromFloat(1, ETH),
           TokenBalance.fromFloat(-1280, USDC),
@@ -311,12 +311,12 @@ describe.withForkAndRegistry(
             ? limit
             : TokenBalance.fromFloat(
                 limit[0],
-                tokens.getTokenBySymbol(Network.ArbitrumOne, limit[1])
+                tokens.getTokenBySymbol(Network.arbitrum, limit[1])
               );
 
         const _args = (
           args
-            ? args.map((s) => tokens.getTokenBySymbol(Network.ArbitrumOne, s))
+            ? args.map((s) => tokens.getTokenBySymbol(Network.arbitrum, s))
             : undefined
         ) as RiskFactorLimit<RiskFactorKeys>['args'];
         const deposit = p.getDepositRequiredToMaintainRiskFactor(ETH, {
@@ -339,10 +339,10 @@ describe.withForkAndRegistry(
 
     it('All Liquidation Prices', () => {
       const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const BTC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'WBTC');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const FRAX = tokens.getTokenBySymbol(Network.ArbitrumOne, 'FRAX');
+      const ETH = tokens.getTokenBySymbol(Network.arbitrum, 'ETH');
+      const BTC = tokens.getTokenBySymbol(Network.arbitrum, 'WBTC');
+      const USDC = tokens.getTokenBySymbol(Network.arbitrum, 'USDC');
+      const FRAX = tokens.getTokenBySymbol(Network.arbitrum, 'FRAX');
       const p = AccountRiskProfile.from([
         TokenBalance.fromFloat(1, ETH),
         TokenBalance.fromFloat(0.01, BTC),
@@ -358,10 +358,10 @@ describe.withForkAndRegistry(
 
     it('All Risk Factors', () => {
       const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const BTC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'WBTC');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const FRAX = tokens.getTokenBySymbol(Network.ArbitrumOne, 'FRAX');
+      const ETH = tokens.getTokenBySymbol(Network.arbitrum, 'ETH');
+      const BTC = tokens.getTokenBySymbol(Network.arbitrum, 'WBTC');
+      const USDC = tokens.getTokenBySymbol(Network.arbitrum, 'USDC');
+      const FRAX = tokens.getTokenBySymbol(Network.arbitrum, 'FRAX');
       const p = AccountRiskProfile.from([
         TokenBalance.fromFloat(1, ETH),
         TokenBalance.fromFloat(0.01, BTC),
@@ -378,14 +378,14 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             -1,
             tokens.getTokenBySymbol(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               'fETH:fixed@1687392000'
             )
           ),
           TokenBalance.fromFloat(
             -1,
             tokens.getTokenBySymbol(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               'fETH:fixed@1695168000'
             )
           ),
@@ -403,7 +403,7 @@ describe.withForkAndRegistry(
           TokenBalance.fromFloat(
             1,
             tokens.getTokenBySymbol(
-              Network.ArbitrumOne,
+              Network.arbitrum,
               'fETH:fixed@1687392000'
             )
           ),

@@ -82,7 +82,7 @@ export const fiatTokens: [string, TokenDefinition][] = assignTokenDefaults(
     },
     NOTE: {
       // This is used to get the NOTE price from mainnet across all networks
-      network: Network.All,
+      network: Network.all,
       tokenInterface: 'ERC20',
       decimals: 8,
       tokenType: 'NOTE',
@@ -92,7 +92,7 @@ export const fiatTokens: [string, TokenDefinition][] = assignTokenDefaults(
     },
   },
   {
-    network: Network.All,
+    network: Network.all,
     tokenInterface: 'FIAT',
     decimals: 6,
     tokenType: 'Fiat',
@@ -114,7 +114,7 @@ export const fiatOracles: [string, OracleDefinition][] = assignOracleDefaults(
         base: 'eth',
         quote: 'note',
         decimals: 18,
-        network: Network.All,
+        network: Network.all,
         latestRate: {
           rate: BigNumber.from(0),
           timestamp: 0,
@@ -133,7 +133,7 @@ export const fiatOracles: [string, OracleDefinition][] = assignOracleDefaults(
     oracleType: 'Chainlink',
     base: 'usd',
     decimals: 8,
-    network: Network.All,
+    network: Network.all,
     latestRate: {
       rate: BigNumber.from(0),
       timestamp: 0,

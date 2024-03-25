@@ -30,21 +30,21 @@ export const defaultConfigDefs: ConfigDefinition[] = [
 
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   [ProtocolName.NotionalV3]: {
-    [Network.Mainnet]:
+    [Network.mainnet]:
       'https://api.studio.thegraph.com/query/36749/notional-v3-mainnet/version/latest',
-    [Network.ArbitrumOne]:
+    [Network.arbitrum]:
       'https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest',
   },
   [ProtocolName.BalancerV2]: {
-    [Network.Mainnet]:
+    [Network.mainnet]:
       'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2',
-    [Network.ArbitrumOne]:
+    [Network.arbitrum]:
       'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2',
   },
   [ProtocolName.Curve]: {
-    [Network.Mainnet]:
+    [Network.mainnet]:
       'https://api.thegraph.com/subgraphs/name/messari/curve-finance-ethereum',
-    [Network.ArbitrumOne]:
+    [Network.arbitrum]:
       'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
   },
 };

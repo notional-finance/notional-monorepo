@@ -56,7 +56,7 @@ export const renderTradeContext = async (
     r.result.current.updateNotional({
       wallet: {
         signer,
-        selectedChain: Network.ArbitrumOne,
+        selectedChain: Network.arbitrum,
         selectedAddress: signerAddress,
         isReadOnlyAddress: false,
         hasSelectedChainError: false,
@@ -178,7 +178,7 @@ export const renderVaultTradeContext = async (
     r.result.current.updateNotional({
       wallet: {
         signer,
-        selectedChain: Network.ArbitrumOne,
+        selectedChain: Network.arbitrum,
         selectedAddress: signerAddress,
         isReadOnlyAddress: false,
         hasSelectedChainError: false,

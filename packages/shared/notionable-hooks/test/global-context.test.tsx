@@ -11,7 +11,7 @@ import { EnablePrimeBorrow } from '@notional-finance/transaction';
 
 describe.withForkAndRegistry(
   {
-    network: Network.ArbitrumOne,
+    network: Network.arbitrum,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
   'Global Context',
@@ -53,7 +53,7 @@ describe.withForkAndRegistry(
           result.current.updateNotional({
             wallet: {
               signer,
-              selectedChain: Network.ArbitrumOne,
+              selectedChain: Network.arbitrum,
               selectedAddress: signerAddress,
               isReadOnlyAddress: false,
               hasSelectedChainError: false,
@@ -70,7 +70,7 @@ describe.withForkAndRegistry(
 
         const txn = await EnablePrimeBorrow({
           address: signerAddress,
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           redeemToWETH: false,
           accountBalances: [],
           maxWithdraw: false,

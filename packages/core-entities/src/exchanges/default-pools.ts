@@ -3,7 +3,7 @@ import { PoolDefinition } from '..';
 
 // NOTE: all the addresses in this file are checksummed
 const defaultPools: Record<Network, PoolDefinition[]> = {
-  [Network.Mainnet]: [
+  [Network.mainnet]: [
     {
       // nETH
       address: '0x3410463726a7A22ce0809367a4418FE82Fc31FD3',
@@ -59,7 +59,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x383E6b4437b59fff47B619CBA855CA29342A8559',
           address: '0x383E6b4437b59fff47B619CBA855CA29342A8559',
-          network: Network.Mainnet,
+          network: Network.mainnet,
           symbol: 'PayPool',
           name: 'PYUSDUSDC',
           decimals: 18,
@@ -69,7 +69,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8',
           address: '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8',
-          network: Network.Mainnet,
+          network: Network.mainnet,
           symbol: 'PYUSD',
           name: 'PayPal USD',
           decimals: 6,
@@ -85,7 +85,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x4DEcE678ceceb27446b35C672dC7d61F30bAD69E',
           address: '0x4DEcE678ceceb27446b35C672dC7d61F30bAD69E',
-          network: Network.Mainnet,
+          network: Network.mainnet,
           symbol: 'crvUSDUSDC-f',
           name: 'Curve.fi Factory Plain Pool: crvUSD/USDT ',
           decimals: 18,
@@ -95,7 +95,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
           address: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
-          network: Network.Mainnet,
+          network: Network.mainnet,
           symbol: 'crvUSD',
           name: 'Curve.Fi USD Stablecoin',
           decimals: 18,
@@ -111,7 +111,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x390f3595bCa2Df7d23783dFd126427CCeb997BF4',
           address: '0x390f3595bCa2Df7d23783dFd126427CCeb997BF4',
-          network: Network.Mainnet,
+          network: Network.mainnet,
           symbol: 'crvUSDUSDT-f',
           name: 'Curve.fi Factory Plain Pool: crvUSD/USDT ',
           decimals: 18,
@@ -121,7 +121,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
           address: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
-          network: Network.Mainnet,
+          network: Network.mainnet,
           symbol: 'crvUSD',
           name: 'Curve.Fi USD Stablecoin',
           decimals: 18,
@@ -137,7 +137,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x8353157092ED8Be69a9DF8F95af097bbF33Cb2aF',
           address: '0x8353157092ED8Be69a9DF8F95af097bbF33Cb2aF',
-          network: Network.Mainnet,
+          network: Network.mainnet,
           symbol: 'GHO/USDT/USDC',
           name: 'Balancer GHO/USDT/USDC',
           decimals: 18,
@@ -147,7 +147,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
           address: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
-          network: Network.Mainnet,
+          network: Network.mainnet,
           symbol: 'GHO',
           name: 'Gho Token',
           decimals: 18,
@@ -157,7 +157,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
   ],
-  [Network.ArbitrumOne]: [
+  [Network.arbitrum]: [
     {
       // nwstETH
       address: '0x06D45ef1f8b3C37b0de66f156B11F10b4837619A',
@@ -223,7 +223,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
           address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: 'FRAXBP-f',
           name: 'Curve.fi Factory Plain Pool: FRAXBP',
           decimals: 18,
@@ -240,7 +240,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
           address: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: '2CRV',
           name: 'Curve.fi USDC/USDT',
           decimals: 18,
@@ -251,7 +251,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
           address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: 'USDT',
           name: 'Tether USD',
           decimals: 6,
@@ -267,7 +267,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
           address: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: '2CRV',
           name: 'Curve.fi USDC/USDT',
           decimals: 18,
@@ -278,7 +278,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
           address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: 'USDC.e',
           name: 'USD Coin (Arb1)',
           decimals: 6,
@@ -296,7 +296,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
           address: '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: 'wstETHCRV',
           name: 'Curve.fi ETH/wstETH',
           decimals: 18,
@@ -307,7 +307,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: ALT_ETH,
           address: ALT_ETH,
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: 'ETH [Alt]',
           name: 'Ether [Alternate]',
           decimals: 18,
@@ -323,7 +323,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x9791d590788598535278552EEcD4b211bFc790CB',
           address: '0x9791d590788598535278552EEcD4b211bFc790CB',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: 'B-wstETH-WETH-Stable',
           name: 'Balancer wstETH-WETH-Stable Pool',
           decimals: 18,
@@ -339,7 +339,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81',
           address: '0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: 'rETH-WETH-BPT',
           name: 'Balancer rETH-WETH Stable Pool',
           decimals: 18,
@@ -355,7 +355,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B',
           address: '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: 'wstETH/rETH/cbETH',
           name: 'Balancer wstETH/rETH/cbETH CSP',
           decimals: 18,
@@ -371,7 +371,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
           address: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: '4POOL-BPT',
           name: 'Balancer Stable 4pool',
           decimals: 18,
@@ -382,7 +382,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
           address: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: 'USDC.e',
           name: 'USD Coin (Arb1)',
           decimals: 6,
@@ -398,7 +398,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         {
           id: '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
           address: '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
-          network: Network.ArbitrumOne,
+          network: Network.arbitrum,
           symbol: 'RDNT-WETH ',
           name: 'RDNT-WETH',
           decimals: 18,
@@ -408,8 +408,8 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
   ],
-  [Network.Optimism]: [],
-  [Network.All]: [],
+  [Network.optimism]: [],
+  [Network.all]: [],
 };
 
 export default defaultPools;
