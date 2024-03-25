@@ -1,18 +1,5 @@
-export function getNetworkIdFromHostname(hostname: string) {
-  switch (hostname) {
-    case 'notional.finance':
-      return 1;
-    case 'www.notional.finance':
-      return 1;
-    case 'beta.notional.finance':
-      return 1;
-    case 'dev.notional.finance':
-      return 5;
-    case 'localhost:3000':
-      return 5;
-    default:
-      return 5;
-  }
+export function getNetworkIdFromHostname(_hostname: string) {
+  return 1;
 }
 
 export function networkName(id: number) {
