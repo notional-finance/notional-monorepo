@@ -9,25 +9,27 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { getDateString } from '@notional-finance/util';
 import { TokenDefinition } from '@notional-finance/core-entities';
 
-export const useInteractiveMaturityChart = (token: TokenDefinition | undefined) => {
+export const useInteractiveMaturityChart = (
+  token: TokenDefinition | undefined,
+  isBorrow?: boolean
+) => {
   const theme = useTheme();
   const fCashMarket = useFCashMarket(token);
-  let areaChartData: any[] = [];
-
-  if (fCashMarket) {
-    const {
-      poolParams: { perMarketfCash },
-    } = fCashMarket;
-
-    areaChartData = perMarketfCash.map((data) => {
-      const interestRate = fCashMarket.getSpotInterestRate(data.token);
-      return {
-        timestamp: data.maturity,
-        area: interestRate,
-        marketKey: data.tokenId,
-      };
-    });
-  }
+  const areaChartData = fCashMarket
+    ? fCashMarket.balances.map((data) => {
+        // Shows the variable lend or borrow rate depending on the
+        // input flag
+        const interestRate =
+          isBorrow && data.token.tokenType === 'PrimeCash'
+            ? fCashMarket.getSpotInterestRate(data.toPrimeDebt().token)
+            : fCashMarket.getSpotInterestRate(data.token);
+        return {
+          timestamp: data.token.maturity || 0,
+          area: interestRate,
+          marketKey: data.tokenId,
+        };
+      })
+    : [];
 
   const chartHeaderData = {
     textHeader: <FormattedMessage defaultMessage={'APY by Maturity'} />,
@@ -35,19 +37,21 @@ export const useInteractiveMaturityChart = (token: TokenDefinition | undefined) 
 
   const apyToolTipData: ChartToolTipDataProps = {
     timestamp: {
-      formatTitle: (timestamp: any) => (
+      formatTitle: (timestamp: number) => (
         <FormattedMessage
           defaultMessage="Maturity: {date}"
-          values={{ date: getDateString(timestamp) }}
+          values={{
+            date: timestamp === 0 ? 'Variable' : getDateString(timestamp),
+          }}
         />
       ),
     },
     area: {
       lineColor: theme.palette.typography.accent,
       lineType: LEGEND_LINE_TYPES.SOLID,
-      formatTitle: (area: any) => (
+      formatTitle: (area: number) => (
         <FormattedMessage
-          defaultMessage="Fixed Rate: {rate}"
+          defaultMessage="Interest Rate: {rate}"
           values={{ rate: formatNumberAsPercent(area) }}
         />
       ),

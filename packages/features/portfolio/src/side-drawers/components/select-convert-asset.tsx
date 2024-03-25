@@ -170,7 +170,7 @@ export const SelectConvertAsset = ({ context, hasUserTouched }: SelectConvertAss
             value: `${(tradeType === 'ConvertAsset'
               ? convertFromBalance?.abs()
               : convertFromBalance
-            )?.toDisplayString(3, true)} ${title?.title || ''}`,
+            )?.toDisplayString(2, true)} ${title?.title || ''}`,
           },
           {
             detail: <FormattedMessage defaultMessage={'Present Value'} />,
@@ -179,7 +179,7 @@ export const SelectConvertAsset = ({ context, hasUserTouched }: SelectConvertAss
               : convertFromBalance
             )
               ?.toUnderlying()
-              .toDisplayStringWithSymbol(3, true),
+              .toDisplayStringWithSymbol(2, true),
           },
           {
             detail: <FormattedMessage defaultMessage={'Market APY'} />,

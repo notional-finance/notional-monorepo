@@ -28,16 +28,36 @@ export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
   if (barChartData.length > defaultDataLimit) {
     barChartData = barChartData.slice(barChartData.length - defaultDataLimit);
   }
+  const hasNOTEIncentives = !!barChartData.find(
+    ({ noteApy }) => noteApy !== undefined
+  );
+  const hasARBIncentives = !!barChartData.find(
+    ({ arbApy }) => arbApy !== undefined
+  );
+  const hasIncentives = hasARBIncentives || hasNOTEIncentives;
 
   const barConfig: BarConfigProps[] = [
     {
       dataKey: 'organicApy',
-      title: <FormattedMessage defaultMessage="ORGANIC APY" />,
-      toolTipTitle: <FormattedMessage defaultMessage="ORGANIC APY" />,
-      fill: theme.palette.background.accentDefault,
+      title: hasIncentives ? (
+        <FormattedMessage defaultMessage="ORGANIC APY" />
+      ) : (
+        <FormattedMessage defaultMessage="TOTAL APY" />
+      ),
+      toolTipTitle: hasIncentives ? (
+        <FormattedMessage defaultMessage="ORGANIC APY" />
+      ) : (
+        <FormattedMessage defaultMessage="TOTAL APY" />
+      ),
+      fill: hasIncentives
+        ? theme.palette.background.accentDefault
+        : theme.palette.charts.main,
       value: '0',
     },
-    {
+  ];
+
+  if (hasARBIncentives) {
+    barConfig.push({
       dataKey: 'arbApy',
       title: <FormattedMessage defaultMessage="ARB APY" />,
       toolTipTitle: <FormattedMessage defaultMessage="ARB APY" />,
@@ -46,16 +66,18 @@ export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
           ? colors.greenGrey
           : colors.darkGrey,
       value: '0',
-    },
-    {
+    });
+  }
+  if (hasNOTEIncentives) {
+    barConfig.push({
       dataKey: 'noteApy',
       title: <FormattedMessage defaultMessage="NOTE APY" />,
       toolTipTitle: <FormattedMessage defaultMessage="NOTE APY" />,
       fill: theme.palette.primary.light,
       radius: [8, 8, 0, 0],
       value: '0',
-    },
-  ];
+    });
+  }
 
   return { barConfig, barChartData };
 };

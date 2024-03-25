@@ -51,6 +51,9 @@ export const overrides = {
   [Network.arbitrum]: {
     [ZERO_ADDRESS]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
   },
+  [Network.Mainnet]: {
+    [ZERO_ADDRESS]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  },
 };
 
 const run = async (env: Env) => {
@@ -94,7 +97,7 @@ const run = async (env: Env) => {
       dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
       txRelayUrl: env.TX_RELAY_URL,
       txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
-      tokens: new Map<string, string>(Object.entries(tokens.arbitrum)),
+      tokens: new Map<string, string>(Object.entries(tokens[env.NETWORK])),
       gasCostBuffer: BigNumber.from(env.GAS_COST_BUFFER),
       profitThreshold: BigNumber.from(env.PROFIT_THRESHOLD),
       zeroExUrl: env.ZERO_EX_SWAP_URL,

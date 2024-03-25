@@ -4,14 +4,19 @@ import { THEME_VARIANTS } from '@notional-finance/util';
 import { Link } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { LaunchIcon } from '@notional-finance/icons';
+import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
+import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 export function LaunchAppButton() {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
+  const defaultNetwork =
+    useWalletConnectedNetwork() ||
+    getDefaultNetworkFromHostname(window.location.hostname);
 
   return (
     <Button
       component={Link}
-      to="/portfolio/overview"
+      to={`/portfolio/${defaultNetwork}/overview`}
       variant="outlined"
       color="primary"
       endIcon={

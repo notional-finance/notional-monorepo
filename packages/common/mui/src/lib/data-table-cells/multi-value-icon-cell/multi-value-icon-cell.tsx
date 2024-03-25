@@ -8,7 +8,9 @@ import {
   TableCell,
   SmallTableCell,
   LargeTableCell,
+  H5,
 } from '../../typography/typography';
+import { Network } from '@notional-finance/util';
 
 export interface MultiValueIconCellProps {
   cell: {
@@ -19,6 +21,7 @@ export interface MultiValueIconCellProps {
       symbolSize?: string;
       caption?: string;
       inlineIcons?: boolean;
+      network?: Network;
     };
   };
   row: { original };
@@ -34,6 +37,7 @@ export interface MultiValueIconCellProps {
 // multiValueCellData: {
 //   currency: {
 //     symbol: underlying.symbol,
+//     iconComponent: iconComponent,
 //     label: underlying.symbol,
 //     caption: formatYieldCaption(data),
 //   },
@@ -76,9 +80,11 @@ export const MultiValueIconCell = (props): JSX.Element => {
           {values?.symbol && !values.symbolBottom && (
             <TokenIcon
               symbol={values?.symbol}
+              network={values.network}
               size={values?.symbolSize || 'medium'}
             />
           )}
+          {values?.IconComponent && values.IconComponent}
         </Box>
       ) : null}
       <Box
@@ -99,19 +105,26 @@ export const MultiValueIconCell = (props): JSX.Element => {
               : 'inherit',
           }}
         >
-          {values?.symbol && values.symbolBottom && (
-            <LightningIcon sx={{ height: '13px', marginLeft: '-6px' }} />
+          {original.isDividerRow ? (
+            <H5 sx={{ color: theme.palette.common.black }}>{values?.label}</H5>
+          ) : (
+            <>
+              {values?.symbol && values.symbolBottom && (
+                <LightningIcon sx={{ height: '13px', marginLeft: '-6px' }} />
+              )}
+              {inlineIcons && (
+                <TokenIcon
+                  network={Network.Mainnet}
+                  symbol={values.symbol}
+                  size="small"
+                  style={{ marginRight: theme.spacing(0.5) }}
+                />
+              )}
+              {column.displayFormatter && values?.label
+                ? column.displayFormatter(values?.label)
+                : values?.label}
+            </>
           )}
-          {inlineIcons && (
-            <TokenIcon
-              symbol={values.symbol}
-              size="small"
-              style={{ marginRight: theme.spacing(0.5) }}
-            />
-          )}
-          {column.displayFormatter && values?.label
-            ? column.displayFormatter(values?.label)
-            : values?.label}
         </FirstValue>
         <SecondValue
           sx={{

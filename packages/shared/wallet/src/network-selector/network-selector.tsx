@@ -1,95 +1,161 @@
 import React, { useState } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { Chain } from '@web3-onboard/common';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NotionalTheme } from '@notional-finance/styles';
-import { ArrowIcon, CircleIcon } from '@notional-finance/icons';
-import { chains } from '../onboard-context';
-import { LabelValue } from '@notional-finance/mui';
+import { ArrowIcon } from '@notional-finance/icons';
+import { Caption, H4, H5, Paragraph, Subtitle } from '@notional-finance/mui';
+import { useTheme, Box, Button, styled, Popover } from '@mui/material';
 import {
-  useTheme,
-  Box,
-  Button,
-  styled,
-  ListItemIcon,
-  Popover,
-} from '@mui/material';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+  PRODUCTS,
+  SupportedNetworks,
+  getNetworkSymbol,
+} from '@notional-finance/util';
+import { useHistory, useLocation } from 'react-router';
 import { Network } from '@notional-finance/util';
-import { useNetworkSelector } from '../hooks/use-network';
+import {
+  BaseTradeContext,
+  useAccountNetWorth,
+  useProductNetwork,
+  useWalletBalancesOnNetworks,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
+import { TokenBalance } from '@notional-finance/core-entities';
+import { WalletIcon } from '@notional-finance/icons';
 
 export interface NetworkButtonProps {
   active?: boolean;
   theme: NotionalTheme;
 }
 export interface NetworkSelectorButtonProps {
-  data: Chain;
-  handleClick: (data: Chain) => void;
+  isLast?: boolean;
+  isSelected: boolean;
+  network: Network;
+  handleClick: (network: Network) => void;
+  balance?: TokenBalance;
 }
 
 export const NetworkSelectorButton = ({
-  data,
+  isLast,
+  isSelected,
+  network,
   handleClick,
+  balance,
 }: NetworkSelectorButtonProps) => {
   const theme = useTheme();
-  const { labels } = useNetworkSelector();
-  const label = data.label ? labels[data.label] : '';
   return (
     <NetworkButton
-      key={data.id}
-      onClick={data.id === chains[0].id ? () => handleClick(data) : undefined}
-      active={data?.id === chains[0].id}
+      key={network}
+      onClick={() => handleClick(network)}
+      active={isSelected}
       theme={theme}
+      sx={{
+        borderRadius: isSelected && isLast ? '0px 0px 6px 6px' : '0px',
+      }}
     >
-      <ListItemIcon sx={{ marginRight: '0px' }}>
-        <TokenIcon
-          symbol={data.id === chains[0].id ? 'arb' : 'eth'}
-          size="large"
-        />
-      </ListItemIcon>
-      <Box sx={{ flex: 1, alignItems: 'center', display: 'flex' }}>
-        <FormattedMessage {...label} />
+      <Box sx={{ marginRight: theme.spacing(1), lineHeight: 1 }}>
+        <TokenIcon symbol={getNetworkSymbol(network)} size="medium" />
       </Box>
-      <Box
+      <H4
         sx={{
-          justifyContent: 'flex-end',
-          display: 'flex',
+          flex: 1,
           alignItems: 'center',
+          display: 'flex',
+          fontWeight: 500,
+          textTransform: 'capitalize',
         }}
       >
-        {chains[0].id === data.id ? (
-          <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
-        ) : (
-          <CircleIcon
-            sx={{
-              stroke: theme.palette.borders.accentPaper,
-              width: theme.spacing(2.5),
-              height: theme.spacing(2.5),
-            }}
-          />
-        )}
-      </Box>
+        {network}
+      </H4>
+      {balance && (
+        <Box
+          sx={{
+            display: 'flex',
+            gap: theme.spacing(1),
+            alignItems: 'center',
+          }}
+        >
+          {balance.tokenType !== 'Fiat' && (
+            <WalletIcon
+              sx={{ width: theme.spacing(2), height: theme.spacing(2) }}
+            />
+          )}
+          <Paragraph main>
+            {balance.toDisplayStringWithSymbol(4, true)}
+            {balance.tokenType === 'Fiat' ? ' Net Worth' : ''}
+          </Paragraph>
+        </Box>
+      )}
     </NetworkButton>
   );
 };
 
-export function NetworkSelector() {
+export function TransactionNetworkSelector({
+  context,
+  product,
+}: {
+  context: BaseTradeContext;
+  product: PRODUCTS;
+}) {
+  const {
+    state: { selectedNetwork, deposit },
+  } = context;
+  const availableNetworks = useProductNetwork(product, deposit?.symbol);
+  const walletBalances = useWalletBalancesOnNetworks(
+    availableNetworks,
+    deposit?.symbol
+  );
+
+  return (
+    <NetworkSelector
+      availableNetworks={availableNetworks}
+      selectedNetwork={selectedNetwork}
+      walletBalances={walletBalances}
+    />
+  );
+}
+
+export function PortfolioNetworkSelector() {
+  const selectedNetwork = useSelectedNetwork();
+  const walletBalances = useAccountNetWorth();
+
+  return (
+    <NetworkSelector
+      availableNetworks={SupportedNetworks}
+      selectedNetwork={selectedNetwork}
+      walletBalances={walletBalances}
+      isPortfolio
+    />
+  );
+}
+
+function NetworkSelector({
+  selectedNetwork,
+  availableNetworks,
+  walletBalances,
+  isPortfolio,
+}: {
+  selectedNetwork?: Network;
+  availableNetworks: Network[];
+  walletBalances: Record<Network, TokenBalance>;
+  isPortfolio?: boolean;
+}) {
   const theme = useTheme();
-  const { updateNotional } = useNotionalContext();
+  const history = useHistory();
+  const { pathname } = useLocation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
+  const canSelect = availableNetworks.length > 1;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = async (chain?: Chain) => {
-    if (chain) {
-      const currentChain = chain.label as Network;
-      updateNotional({ selectedNetwork: currentChain });
-    }
+  const handleClose = (network?: Network) => {
     setAnchorEl(null);
+    if (network && !pathname.includes(network) && selectedNetwork) {
+      history.push(pathname.replace(selectedNetwork, network));
+    }
   };
 
   return (
@@ -100,12 +166,56 @@ export function NetworkSelector() {
         aria-haspopup="true"
         variant="outlined"
         aria-expanded={open ? 'true' : undefined}
+        disabled={!canSelect}
         onClick={handleClick}
-        startIcon={<TokenIcon symbol="arb" size="medium" />}
-        endIcon={<ArrowIcon sx={{ transform: 'rotate(-180deg)' }} />}
-        sx={{ boxShadow: 'none' }}
+        startIcon={
+          <TokenIcon
+            symbol={getNetworkSymbol(selectedNetwork)}
+            size={isPortfolio ? 'medium' : 'small'}
+          />
+        }
+        endIcon={
+          canSelect ? (
+            <Box
+              sx={{
+                marginLeft: isPortfolio ? theme.spacing(3) : theme.spacing(1),
+                borderRadius: '50%',
+                background: theme.palette.info.light,
+                height: theme.spacing(2),
+                width: theme.spacing(2),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <ArrowIcon
+                sx={{
+                  transform: open ? 'rotate(0deg)' : 'rotate(-180deg)',
+                  transition: '.5s ease',
+                  width: theme.spacing(1.5),
+                  color: theme.palette.secondary.light,
+                }}
+              />
+            </Box>
+          ) : undefined
+        }
+        sx={{
+          boxShadow: 'none',
+          padding: isPortfolio ? '8px 12px' : '6px 12px',
+          borderRadius: '50px',
+          border: theme.shape.borderStandard,
+          color: theme.palette.typography.main,
+          '&:hover': {
+            boxShadow: 'none',
+            backgroundColor: theme.palette.info.light,
+          },
+        }}
       >
-        <TextWrapper theme={theme}>{chains[0].label}</TextWrapper>
+        {isPortfolio ? (
+          <Subtitle light>{selectedNetwork}</Subtitle>
+        ) : (
+          <Caption>{selectedNetwork}</Caption>
+        )}
       </DropdownButton>
       <Popover
         id="basic-menu"
@@ -114,9 +224,11 @@ export function NetworkSelector() {
         onClose={() => handleClose()}
         transitionDuration={{ exit: 0, enter: 200 }}
         sx={{
-          marginTop: '10px',
+          marginTop: theme.spacing(1),
           '.MuiPopover-paper': {
             boxShadow: theme.shape.shadowLarge(),
+            borderRadius: theme.shape.borderRadius(),
+            border: theme.shape.borderStandard,
             width: {
               xs: '100%',
               sm: '100%',
@@ -136,15 +248,20 @@ export function NetworkSelector() {
         }}
       >
         <NetworkInnerWrapper>
-          <Title>
-            <FormattedMessage defaultMessage={'NETWORK'} />
-          </Title>
-          <Box sx={{ width: '380px', margin: 'auto' }}>
-            {chains.map((data: Chain) => (
+          <Box sx={{ padding: theme.spacing(3) }}>
+            <H5>
+              <FormattedMessage defaultMessage={'NETWORK'} />
+            </H5>
+          </Box>
+          <Box sx={{ margin: 'auto' }}>
+            {availableNetworks.map((n, i) => (
               <NetworkSelectorButton
-                key={data.id}
-                data={data}
-                handleClick={handleClose}
+                key={n}
+                isLast={i === availableNetworks.length - 1}
+                isSelected={n === selectedNetwork}
+                network={n}
+                handleClick={() => handleClose(n)}
+                balance={walletBalances[n]}
               />
             ))}
           </Box>
@@ -157,11 +274,9 @@ export function NetworkSelector() {
 const NetworkSelectorWrapper = styled(Box)(
   ({ theme }) => `
     margin-left: ${theme.spacing(2.5)};
-    #basic-button {
-      padding: 10px 15px;
-      border-radius: ${theme.shape.borderRadius()};
-      color: ${theme.palette.typography.main};
-    }
+    box-shadow: none;
+    transition: .3s ease;
+    border-radius: 50px;
     #basic-menu {
       border-radius: ${theme.shape.borderRadius()};
     }
@@ -174,9 +289,7 @@ const NetworkSelectorWrapper = styled(Box)(
 
 const NetworkInnerWrapper = styled(Box)(
   ({ theme }) => `
-    width: 450px;
-    margin-top: ${theme.spacing(5)};
-    margin-bottom: ${theme.spacing(5)};
+    width: 350px;
     ${theme.breakpoints.down('sm')} {
       width: 100%;
       padding: ${theme.spacing(1)};
@@ -190,32 +303,9 @@ const DropdownButton = styled(Button)(
   width: 100%;
   text-transform: capitalize;
   justify-content: flex-start;
-  font-size: 1rem;
-  border: 1px solid ${theme.palette.primary.light};
+  border: ${theme.shape.borderStandard};
   background: ${theme.palette.common.white};
-  &:hover {
-    background-color: ${theme.palette.background.default} !important;
-  }
 `
-);
-
-const TextWrapper = styled('div')(
-  () => `
-  flex: 1;
-  text-align: left;
-`
-);
-
-const Title = styled(LabelValue)(
-  ({ theme }) => `
-  margin: 30px auto;
-  width: 380px;
-  font-weight: 700;
-  color: ${theme.palette.typography.light};
-  ${theme.breakpoints.down('sm')} {
-    width: auto;
-  }
-  `
 );
 
 const NetworkButton = styled(Box, {
@@ -223,23 +313,19 @@ const NetworkButton = styled(Box, {
 })(
   ({ theme, active }: NetworkButtonProps) => `
   width: 100%;
-  padding: 15px 10px;
-  border-radius: ${theme.shape.borderRadius()};
-  border: 1px solid ${
-    active ? theme.palette.primary.main : theme.palette.borders.accentPaper
-  };
-  margin: 15px auto;
-  cursor: ${active ? 'pointer' : 'not-allowed'};
-  background: ${
-    active ? theme.palette.info.light : theme.palette.borders.default
-  };
+  padding: ${theme.spacing(2.5, 3)};
+  border: ${active ? '1px solid ' + theme.palette.secondary.light : 'none'};
+  margin: auto;
+  cursor: pointer;
+  background: ${active ? theme.palette.info.light : 'transparent'};
   color: ${theme.palette.primary.dark};
   font-weight: 500;
   display: flex;
-  ${theme.breakpoints.down('sm')} {
-    width: auto;
+  justify-content: space-between;
+  &:hover {
+    background-color: ${theme.palette.info.light};
   }
   `
 );
 
-export default NetworkSelector;
+export default TransactionNetworkSelector;

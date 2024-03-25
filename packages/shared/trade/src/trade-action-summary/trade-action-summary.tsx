@@ -10,11 +10,14 @@ import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
-import LeverageInfoRow from './components/leverage-info-row';
+import {
+  LeverageInfoRow,
+  LiquidityYieldInfo,
+  NativeYieldPopup,
+} from './components';
 import { formatTokenType } from '@notional-finance/helpers';
 import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
 import { leveragedYield } from '@notional-finance/util';
-import { LiquidityYieldInfo } from './components/liquidity-yield-info';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -126,7 +129,16 @@ export function TradeActionSummary({
             )
           }
         />
-        <TradeActionTitle value={totalAPY} title={apySuffix} valueSuffix="%" />
+        <TradeActionTitle
+          value={totalAPY}
+          title={apySuffix}
+          valueSuffix="%"
+          InfoComp={
+            totalAPY ? (
+              <NativeYieldPopup selectedToken={deposit?.symbol || ''} />
+            ) : undefined
+          }
+        />
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}

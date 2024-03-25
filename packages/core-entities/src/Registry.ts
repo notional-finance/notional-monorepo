@@ -36,7 +36,8 @@ export class Registry {
     cacheHostname: string,
     fetchMode: AccountFetchMode,
     startFiatRefresh = true,
-    useAnalytics = true
+    useAnalytics = true,
+    isClient = true
   ) {
     if (Registry._self) return;
 
@@ -44,7 +45,8 @@ export class Registry {
       cacheHostname,
       fetchMode,
       startFiatRefresh,
-      useAnalytics
+      useAnalytics,
+      isClient
     );
   }
 
@@ -52,7 +54,8 @@ export class Registry {
     protected _cacheHostname: string,
     fetchMode: AccountFetchMode,
     startFiatRefresh: boolean,
-    public useAnalytics: boolean
+    public useAnalytics: boolean,
+    public isClient: boolean
   ) {
     Registry._tokens = new TokenRegistryClient(_cacheHostname);
     Registry._oracles = new OracleRegistryClient(_cacheHostname);
@@ -135,6 +138,12 @@ export class Registry {
 
     // Only start the yield registry refresh after all the other refreshes begin
     if (this._self?.useAnalytics) {
+      // Trigger the initial load via HTTP to bootstrap the data if running
+      // on a client
+      if (this._self?.isClient) {
+        Registry.getYieldRegistry().triggerHTTPRefresh(network);
+      }
+
       Registry.onNetworkReady(network, () => {
         Registry.getAnalyticsRegistry().startRefreshInterval(
           network,

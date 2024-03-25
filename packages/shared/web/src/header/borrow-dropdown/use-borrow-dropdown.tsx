@@ -2,21 +2,30 @@ import { SectionLinkProps } from '@notional-finance/mui';
 import { useTheme } from '@mui/material';
 import { CoinsIcon, CoinsCircleIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useHeadlineRates,
+  useSelectedNetwork,
+  useWalletConnectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { usePendingValues } from '../invest-and-earn/use-invest-earn-links';
-import { Network } from '@notional-finance/util';
+import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 export const useBorrowDropDown = () => {
   const theme = useTheme();
+  // In the dropdown menu we ensure that we always resolve to some network
+  // destination
+  const currentNetwork = useSelectedNetwork();
+  const defaultNetwork =
+    useWalletConnectedNetwork() ||
+    getDefaultNetworkFromHostname(window.location.hostname);
+  const selectedNetwork = currentNetwork || defaultNetwork;
 
-  const {
-    headlineRates: { fCashBorrow, variableBorrow },
-  } = useAllMarkets(Network.arbitrum);
+  const { fCashBorrow, variableBorrow } = useHeadlineRates();
 
   const links: SectionLinkProps[] = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Borrow'} />,
-      to: '/borrow-fixed',
+      to: `/borrow-fixed/${selectedNetwork}`,
       icon: (
         <CoinsIcon
           sx={{
@@ -38,7 +47,7 @@ export const useBorrowDropDown = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Rate Borrow'} />,
-      to: '/borrow-variable',
+      to: `/borrow-variable/${selectedNetwork}`,
       icon: (
         <CoinsCircleIcon
           sx={{

@@ -115,7 +115,7 @@ export function usePerformanceChart(
       {
         label: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
         value: currentStrategyReturn ? (
-          <CountUp value={currentStrategyReturn} suffix="%" decimals={3} />
+          <CountUp value={currentStrategyReturn} suffix="%" decimals={2} />
         ) : undefined,
         lineColor: theme.palette.charts.accent,
         lineType: LEGEND_LINE_TYPES.DASHED,
@@ -123,7 +123,7 @@ export function usePerformanceChart(
       {
         label: <FormattedMessage defaultMessage={'Leveraged Returns'} />,
         value: currentLeveragedReturn ? (
-          <CountUp value={currentLeveragedReturn} suffix="%" decimals={3} />
+          <CountUp value={currentLeveragedReturn} suffix="%" decimals={2} />
         ) : undefined,
         lineColor: theme.palette.charts.main,
         lineType: LEGEND_LINE_TYPES.SOLID,

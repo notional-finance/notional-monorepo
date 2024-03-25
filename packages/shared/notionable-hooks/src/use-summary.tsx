@@ -37,6 +37,7 @@ interface DetailItem {
   value: {
     data: {
       displayValue?: string;
+      showPositiveAsGreen?: boolean;
       isNegative?: boolean;
     }[];
   };
@@ -132,8 +133,8 @@ function getOrderDetails(
           {
             displayValue: `${
               isLeverageOrRoll
-                ? b.toDisplayString(3, true)
-                : b.abs().toDisplayString(3, true)
+                ? b.toDisplayString(4, true)
+                : b.abs().toDisplayString(4, true)
             } ${title}`,
             isNegative: isLeverageOrRoll ? b.isNegative() : false,
           },
@@ -150,7 +151,7 @@ function getOrderDetails(
               .abs()
               .toUnderlying()
               .sub(b.abs().toUnderlying())
-              .toDisplayStringWithSymbol(3, true),
+              .toDisplayStringWithSymbol(4, true),
           },
         ],
       },
@@ -161,7 +162,7 @@ function getOrderDetails(
       value: {
         data: [
           {
-            displayValue: `${formatNumberAsPercent(apy, 3)}`,
+            displayValue: `${formatNumberAsPercent(apy, 2)}`,
             isNegative: apy < 0,
           },
         ],
@@ -178,7 +179,7 @@ function getOrderDetails(
               .abs()
               .toUnderlying()
               .divInRatePrecision(b.abs().scaleTo(RATE_DECIMALS))
-              .toDisplayStringWithSymbol(3, true),
+              .toDisplayStringWithSymbol(4, true),
             isNegative: false,
           },
         ],
@@ -210,7 +211,7 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
       value: {
         data: [
           {
-            displayValue: depositBalance.toDisplayStringWithSymbol(3, true),
+            displayValue: depositBalance.toDisplayStringWithSymbol(4, true),
             isNegative: depositBalance.isNegative(),
           },
         ],
@@ -259,7 +260,7 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
           {
             displayValue: depositBalance
               .neg()
-              .toDisplayStringWithSymbol(3, true),
+              .toDisplayStringWithSymbol(4, true),
             isNegative: depositBalance.isNegative(),
           },
         ],
@@ -336,8 +337,9 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
-            isNegative: b.toUnderlying().isNegative(),
+            displayValue: b.toUnderlying().toDisplayStringWithSymbol(4, true),
+            showPositiveAsGreen: b.toUnderlying().isPositive(),
+            isNegative: false,
           },
         ],
       },
@@ -353,8 +355,9 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
-            isNegative: b.toUnderlying().isNegative(),
+            displayValue: b.toUnderlying().toDisplayStringWithSymbol(4, true),
+            showPositiveAsGreen: b.toUnderlying().isPositive(),
+            isNegative: false,
           },
         ],
       },
@@ -366,8 +369,9 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
-            isNegative: b.toUnderlying().isNegative(),
+            displayValue: b.toUnderlying().toDisplayStringWithSymbol(4, true),
+            showPositiveAsGreen: b.toUnderlying().isPositive(),
+            isNegative: false,
           },
         ],
       },
@@ -383,8 +387,9 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
-            isNegative: b.toUnderlying().isNegative(),
+            displayValue: b.toUnderlying().toDisplayStringWithSymbol(4, true),
+            showPositiveAsGreen: b.toUnderlying().isPositive(),
+            isNegative: false,
           },
         ],
       },
@@ -630,7 +635,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     value: {
       data: [
         {
-          displayValue: feeValue.toDisplayStringWithSymbol(3, true),
+          displayValue: feeValue.toDisplayStringWithSymbol(4, true),
           isNegative: feeValue.isNegative(),
         },
       ],
@@ -651,14 +656,14 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
               displayValue: depositBalance
                 .abs()
                 .toUnderlying()
-                .toDisplayStringWithSymbol(3, true),
+                .toDisplayStringWithSymbol(4, true),
               isNegative: false,
             },
             {
               displayValue: depositBalance
                 .abs()
                 .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(3, true),
+                .toDisplayStringWithSymbol(2, true),
               isNegative: false,
             },
           ],
@@ -671,7 +676,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
           data: [
             {
               displayValue: TokenBalance.zero(underlying).toDisplayString(
-                3,
+                4,
                 true
               ),
               isNegative: false,
@@ -679,7 +684,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
             {
               displayValue: TokenBalance.zero(underlying)
                 .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(3, true),
+                .toDisplayStringWithSymbol(2, true),
               isNegative: false,
             },
           ],
@@ -699,8 +704,8 @@ export function usePortfolioComparison(
   const { postTradeBalances, comparePortfolio } = state;
   const allTableData = (comparePortfolio || []).map((p) => ({
     ...p,
-    current: p.current.toFiat(fiat).toDisplayStringWithSymbol(3, true),
-    updated: p.updated.toFiat(fiat).toDisplayStringWithSymbol(3, true),
+    current: p.current.toFiat(fiat).toDisplayStringWithSymbol(2, true),
+    updated: p.updated.toFiat(fiat).toDisplayStringWithSymbol(2, true),
   }));
   const filteredTableData = allTableData.filter(
     ({ changeType }) => changeType !== 'none'
@@ -739,13 +744,13 @@ function formatLiquidationPrices(
               }
             ),
         current: p.isPriceRisk
-          ? p.current?.toFiat(baseCurrency).toDisplayStringWithSymbol(3) ||
+          ? p.current?.toFiat(baseCurrency).toDisplayStringWithSymbol() ||
             'No Risk'
-          : p.current?.toUnderlying().toDisplayStringWithSymbol(3) || 'No Risk',
+          : p.current?.toUnderlying().toDisplayStringWithSymbol() || 'No Risk',
         updated: p.isPriceRisk
-          ? p.updated?.toFiat(baseCurrency).toDisplayStringWithSymbol(3) ||
+          ? p.updated?.toFiat(baseCurrency).toDisplayStringWithSymbol() ||
             'No Risk'
-          : p.updated?.toUnderlying().toDisplayStringWithSymbol(3) || 'No Risk',
+          : p.updated?.toUnderlying().toDisplayStringWithSymbol() || 'No Risk',
         textColor: '',
         hideArrow: hideArrow || false,
       };
@@ -865,11 +870,11 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
       current:
         currentPosition?.netWorth
           ?.toFiat(baseCurrency)
-          .toDisplayStringWithSymbol(3, true) || '-',
+          .toDisplayStringWithSymbol(2, true) || '-',
       updated:
         netWorth?.updated
           ?.toFiat(baseCurrency)
-          .toDisplayStringWithSymbol(3, true) || '-',
+          .toDisplayStringWithSymbol(2, true) || '-',
     },
     {
       ...borrowAPY,

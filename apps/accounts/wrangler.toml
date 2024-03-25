@@ -34,7 +34,7 @@ bindings = [
 NX_ENV = 'dev'
 VERSION = 'v1'
 NX_DATA_URL = 'https://data-dev.notional.finance'
-SUPPORTED_NETWORKS = ['arbitrum', 'all', 'mainnet']
+SUPPORTED_NETWORKS = ['mainnet', 'arbitrum', 'all']
 
 [env.prod]
 name = "accounts"

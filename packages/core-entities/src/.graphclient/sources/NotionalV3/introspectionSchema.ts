@@ -11575,9 +11575,35 @@ const schemaAST = {
         },
         {
           "kind": "FieldDefinition",
+          "description": {
+            "kind": "StringValue",
+            "value": "Maximum supply in underlying terms (in 8 decimals)",
+            "block": true
+          },
           "name": {
             "kind": "Name",
             "value": "maxUnderlyingSupply"
+          },
+          "arguments": [],
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "description": {
+            "kind": "StringValue",
+            "value": "Maximum utilization of the max underlying supply by prime debt",
+            "block": true
+          },
+          "name": {
+            "kind": "Name",
+            "value": "maxPrimeDebtUtilization"
           },
           "arguments": [],
           "type": {
@@ -12382,12 +12408,12 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "description": {
             "kind": "StringValue",
-            "value": "Maximum valuation deviation percentage for nToken minting",
+            "value": "Maximum valuation deviation in basis points for nToken minting",
             "block": true
           },
           "name": {
             "kind": "Name",
-            "value": "maxMintDeviationPercentage"
+            "value": "maxMintDeviationBasisPoints"
           },
           "arguments": [],
           "type": {
@@ -14097,6 +14123,138 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "maxUnderlyingSupply_not_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "maxPrimeDebtUtilization"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "maxPrimeDebtUtilization_not"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "maxPrimeDebtUtilization_gt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "maxPrimeDebtUtilization_lt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "maxPrimeDebtUtilization_gte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "maxPrimeDebtUtilization_lte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "BigInt"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "maxPrimeDebtUtilization_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "BigInt"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "maxPrimeDebtUtilization_not_in"
           },
           "type": {
             "kind": "ListType",
@@ -18098,7 +18256,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "maxMintDeviationPercentage"
+            "value": "maxMintDeviationBasisPoints"
           },
           "type": {
             "kind": "NamedType",
@@ -18113,7 +18271,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "maxMintDeviationPercentage_not"
+            "value": "maxMintDeviationBasisPoints_not"
           },
           "type": {
             "kind": "NamedType",
@@ -18128,7 +18286,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "maxMintDeviationPercentage_gt"
+            "value": "maxMintDeviationBasisPoints_gt"
           },
           "type": {
             "kind": "NamedType",
@@ -18143,7 +18301,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "maxMintDeviationPercentage_lt"
+            "value": "maxMintDeviationBasisPoints_lt"
           },
           "type": {
             "kind": "NamedType",
@@ -18158,7 +18316,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "maxMintDeviationPercentage_gte"
+            "value": "maxMintDeviationBasisPoints_gte"
           },
           "type": {
             "kind": "NamedType",
@@ -18173,7 +18331,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "maxMintDeviationPercentage_lte"
+            "value": "maxMintDeviationBasisPoints_lte"
           },
           "type": {
             "kind": "NamedType",
@@ -18188,7 +18346,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "maxMintDeviationPercentage_in"
+            "value": "maxMintDeviationBasisPoints_in"
           },
           "type": {
             "kind": "ListType",
@@ -18209,7 +18367,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "maxMintDeviationPercentage_not_in"
+            "value": "maxMintDeviationBasisPoints_not_in"
           },
           "type": {
             "kind": "ListType",
@@ -18870,6 +19028,14 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
+            "value": "maxPrimeDebtUtilization"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
             "value": "collateralHaircut"
           },
           "directives": []
@@ -19198,7 +19364,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "maxMintDeviationPercentage"
+            "value": "maxMintDeviationBasisPoints"
           },
           "directives": []
         },
@@ -27509,6 +27675,14 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
+            "value": "currencyConfiguration__maxPrimeDebtUtilization"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
             "value": "currencyConfiguration__collateralHaircut"
           },
           "directives": []
@@ -27677,7 +27851,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "currencyConfiguration__maxMintDeviationPercentage"
+            "value": "currencyConfiguration__maxMintDeviationBasisPoints"
           },
           "directives": []
         },
@@ -34173,6 +34347,14 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
+            "value": "currencyConfiguration__maxPrimeDebtUtilization"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
             "value": "currencyConfiguration__collateralHaircut"
           },
           "directives": []
@@ -34341,7 +34523,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "currencyConfiguration__maxMintDeviationPercentage"
+            "value": "currencyConfiguration__maxMintDeviationBasisPoints"
           },
           "directives": []
         },
@@ -76715,6 +76897,112 @@ const schemaAST = {
             }
           },
           "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "profitLossLineItems"
+          },
+          "arguments": [
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "skip"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Int"
+                }
+              },
+              "defaultValue": {
+                "kind": "IntValue",
+                "value": "0"
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "first"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "Int"
+                }
+              },
+              "defaultValue": {
+                "kind": "IntValue",
+                "value": "100"
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "orderBy"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "ProfitLossLineItem_orderBy"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "orderDirection"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "OrderDirection"
+                }
+              },
+              "directives": []
+            },
+            {
+              "kind": "InputValueDefinition",
+              "name": {
+                "kind": "Name",
+                "value": "where"
+              },
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "ProfitLossLineItem_filter"
+                }
+              },
+              "directives": []
+            }
+          ],
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "ProfitLossLineItem"
+                }
+              }
+            }
+          },
+          "directives": []
         }
       ],
       "interfaces": [],
@@ -77731,6 +78019,21 @@ const schemaAST = {
         },
         {
           "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "profitLossLineItems_"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "ProfitLossLineItem_filter"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
           "description": {
             "kind": "StringValue",
             "value": "Filter for the block changed event.",
@@ -77864,6 +78167,14 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "transferBundles"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "profitLossLineItems"
           },
           "directives": []
         }
@@ -93661,6 +93972,14 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
+            "value": "currency__maxPrimeDebtUtilization"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
             "value": "currency__collateralHaircut"
           },
           "directives": []
@@ -93829,7 +94148,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "currency__maxMintDeviationPercentage"
+            "value": "currency__maxMintDeviationBasisPoints"
           },
           "directives": []
         }

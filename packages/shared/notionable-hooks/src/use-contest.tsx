@@ -22,6 +22,7 @@ const date = new Date();
 const currentDate = moment(date);
 // If the startDate is before the current date, the contest is active. In the future we could add a additional check to hide things once the end date has passed.
 export const contestActive = moment(contestStartDate).isBefore(currentDate);
+export const contestOver = moment(contestEndDate).isBefore(currentDate);
 
 export const contestCountDownDate = contestActive
   ? contestEndDate

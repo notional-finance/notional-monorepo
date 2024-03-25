@@ -1,14 +1,13 @@
-import { useState } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { useProductCards } from './hooks';
 import { ProductCards } from './components/product-cards';
-import { H5, H2, Toggle } from '@notional-finance/mui';
+import { H5, H2, Label } from '@notional-finance/mui';
+import { TokenIcon } from '@notional-finance/icons';
 
 export const OurProducts = () => {
-  const [selectedTab, setSelectedTab] = useState<number>(0);
-  const { earnYieldData, borrowData, leveragedYieldData } = useProductCards();
+  const { earnYieldData, leveragedYieldData } = useProductCards();
   const theme = useTheme();
 
   return (
@@ -24,43 +23,48 @@ export const OurProducts = () => {
             >
               <FormattedMessage defaultMessage={'Our Products'} />
             </H5>
-            <H2 sx={{ color: colors.white }}>
+            <H2 sx={{ color: colors.white, marginBottom: theme.spacing(6) }}>
               <FormattedMessage defaultMessage={'With Notional You Can'} />
             </H2>
           </Box>
-          <Toggle
-            minHeight={theme.spacing(8)}
-            width="373px"
-            tabLabels={[
-              <Box sx={{ fontSize: '1.25rem' }}>
-                <FormattedMessage defaultMessage={'Earn Yield'} />
-              </Box>,
-              <Box sx={{ fontSize: '1.25rem' }}>
-                <FormattedMessage defaultMessage={'Borrow'} />
-              </Box>,
-            ]}
-            selectedTabIndex={selectedTab}
-            onChange={(_, v) => setSelectedTab(v as number)}
-          />
+          <Box id="supported-networks">
+            <H5
+              sx={{
+                color: colors.neonTurquoise,
+                marginBottom: theme.spacing(2),
+              }}
+            >
+              <FormattedMessage defaultMessage={'Supported Networks'} />
+            </H5>
+            <Box sx={{ display: 'flex', marginBottom: theme.spacing(6) }}>
+              <NetworkLabel sx={{ marginRight: theme.spacing(2) }}>
+                <TokenIcon
+                  symbol="eth"
+                  size={'large'}
+                  style={{ marginRight: theme.spacing(1) }}
+                />
+                Mainnet
+              </NetworkLabel>
+              <NetworkLabel>
+                <TokenIcon
+                  symbol="arb"
+                  size={'large'}
+                  style={{ marginRight: theme.spacing(1) }}
+                />
+                Arbitrum
+              </NetworkLabel>
+            </Box>
+          </Box>
         </TitleContainer>
+        <FlexWrapper>
+          {earnYieldData.map((data, index) => (
+            <ProductCards key={index} {...data} />
+          ))}
 
-        {selectedTab === 0 ? (
-          <FlexWrapper>
-            {earnYieldData.map((data, index) => (
-              <ProductCards key={index} {...data} />
-            ))}
-
-            {leveragedYieldData.map((data, index) => (
-              <ProductCards key={index} {...data} isLeveraged />
-            ))}
-          </FlexWrapper>
-        ) : (
-          <FlexWrapper>
-            {borrowData.map((data, index) => (
-              <ProductCards key={index} {...data} />
-            ))}
-          </FlexWrapper>
-        )}
+          {leveragedYieldData.map((data, index) => (
+            <ProductCards key={index} {...data} />
+          ))}
+        </FlexWrapper>
       </Container>
     </Box>
   );
@@ -69,13 +73,13 @@ export const OurProducts = () => {
 const Container = styled(Box)(
   ({ theme }) => `
     z-index: 2;
-    width: ${theme.spacing(170)};
-    height: ${theme.spacing(147)};
+    width: 1362px;
+    height: 100%;
     margin: auto;
     top: -${theme.spacing(4)};
     position: relative;
     background: ${colors.black};
-    padding: ${theme.spacing(7.5)};
+    padding: ${theme.spacing(10)};
     border-radius: ${theme.shape.borderRadiusLarge};
     border: ${theme.shape.borderHighlight};
     box-shadow: 0px 34px 50px -15px rgba(20, 42, 74, 0.3);
@@ -85,7 +89,7 @@ const Container = styled(Box)(
 
     ${theme.breakpoints.down('mdLanding')} {
       width: ${theme.spacing(125)};
-      height: ${theme.spacing(200)};
+      height: 100%;
       padding: ${theme.spacing(6)};
     }
 
@@ -115,20 +119,28 @@ const TitleContainer = styled(Box)(
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 0px ${theme.spacing(2.5)};
+    #supported-networks {
+      text-align: right;
+    }
     ${theme.breakpoints.down('smLanding')} {
       align-items: flex-start;
       flex-direction: column;
       h2 {
         margin-bottom: ${theme.spacing(7)};
       }
+      #supported-networks {
+        text-align: left;
+      }
     }
     ${theme.breakpoints.down(theme.breakpoints.values.sm)} {
       margin-top: ${theme.spacing(11)};
       width: 100%;
       align-items: center;
-      #title-text {
+      #title-text, #supported-networks {
         width: 100%;
+      }
+      #supported-networks {
+        text-align: left;
       }
       h2 {
         color: ${colors.black};
@@ -151,6 +163,20 @@ const FlexWrapper = styled(Box)(
     ${theme.breakpoints.down('smLanding')} {
       flex-direction: column;
     }
+  `
+);
+
+const NetworkLabel = styled(Label)(
+  ({ theme }) => `
+  color: ${colors.white};
+  background: ${colors.darkGreen};
+  border: 1px solid ${colors.blueGreen};
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  width: ${theme.spacing(18.5)};
+  height: ${theme.spacing(6)};
+  padding: ${theme.spacing(1)};
   `
 );
 

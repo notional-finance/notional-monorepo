@@ -15,8 +15,10 @@ import {
   Subtitle,
   SectionTitle,
   CardInput,
+  Caption,
   ProgressIndicator,
 } from '@notional-finance/mui';
+import { Network } from '@notional-finance/util';
 
 export interface CardStyleProps {
   isLeveraged: boolean;
@@ -34,7 +36,7 @@ export interface ProductCardsProps {
   variableRate?: boolean;
   loading?: boolean;
   isLeveraged?: boolean;
-  fixedRate?: boolean;
+  network?: Network;
 }
 
 export interface PillProps {
@@ -58,7 +60,7 @@ export const ProductCards = ({
   apyTitle,
   loading,
   isLeveraged = false,
-  fixedRate,
+  network,
 }: ProductCardsProps) => {
   const [hovered, setHovered] = useState(false);
   const themeVariant = useThemeVariant();
@@ -104,7 +106,6 @@ export const ProductCards = ({
             sx={{
               letterSpacing: '1px',
               color: colors.greenGrey,
-              marginBottom: theme.spacing(1.5),
             }}
           >
             {apyTitle}
@@ -127,16 +128,23 @@ export const ProductCards = ({
                 <TokenIcon
                   symbol={symbol}
                   size="large"
-                  useAccentBorderImg
                   style={{ marginRight: theme.spacing(1.5) }}
+                  network={network}
                 />
-                {apy}
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  {apy}
+                  <Caption
+                    sx={{
+                      textTransform: 'capitalize',
+                      color: colors.greenGrey,
+                      marginBottom: theme.spacing(1.5),
+                      marginTop: `-${theme.spacing(0.5)}`,
+                    }}
+                  >
+                    {network}
+                  </Caption>
+                </Box>
               </Box>
-              {fixedRate && (
-                <Pill>
-                  <FormattedMessage defaultMessage={'fixed'} />
-                </Pill>
-              )}
             </H4>
           ) : (
             <Box sx={{ width: theme.spacing(6) }}>
@@ -187,10 +195,10 @@ const CardContainer = styled(Link, {
 })(
   ({ isLeveraged, theme }: CardStyleProps) => `
       cursor: pointer;
-      margin-top: ${theme.spacing(8)};
-      min-height: ${theme.spacing(43.125)};
+      margin-top: ${theme.spacing(2)};
+      min-height: ${theme.spacing(40)};
       min-width: ${theme.spacing(45)};
-      height: ${theme.spacing(43.125)};
+      height: ${theme.spacing(40)};
       width: ${theme.spacing(45)};
       border: 1px solid ${isLeveraged ? '#7CABE2' : colors.blueGreen};
       border-radius: ${theme.shape.borderRadius()};
@@ -207,7 +215,7 @@ const CardContainer = styled(Link, {
         cursor: pointer;
         box-shadow: ${theme.shape.shadowLarge(colors.purpleGrey)};
         transition: all 0.3s ease;
-        transform: scale(1.1);
+        transform: scale(1.05);
       }
 
       ${theme.breakpoints.down(theme.breakpoints.values.sm)} {
@@ -303,17 +311,6 @@ const CardFooterText = styled(Box, {
       margin-bottom: -1px;
     }
   }`
-);
-
-const Pill = styled(SectionTitle)(
-  `
-    background: ${colors.aqua};
-    border-radius: 20px;
-    width: fit-content;
-    padding: 6px 12px;
-    color: ${colors.black};
-    letter-spacing: 1px;
-    `
 );
 
 export default ProductCards;

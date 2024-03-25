@@ -352,5 +352,6 @@ export type VaultReinvestment = Record<
     tokensReinvested: any;
     tokensPerVaultShare?: any;
     underlyingAmountRealized?: any;
+    vaultSharePrice?: any;
   }[]
 >;

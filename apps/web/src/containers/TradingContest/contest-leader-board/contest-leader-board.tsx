@@ -1,5 +1,5 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
-import { THEME_VARIANTS } from '@notional-finance/util';
+import { Network, THEME_VARIANTS } from '@notional-finance/util';
 import {
   ContestCountDown,
   ContestPrizes,
@@ -10,20 +10,21 @@ import {
   ContestButtonBar,
   ContestPartnersButtons,
 } from '../components';
-import { useContestPass } from '@notional-finance/notionable-hooks';
+import {
+  contestOver,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { ContestTable, LinkText, Button } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import test from '../assets/color-blobs.png';
 import { useLeaderBoardTables } from '../hooks';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { Caption } from '@notional-finance/mui';
 
 export const ContestLeaderBoard = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const network = useSelectedNetwork();
-  const { hasContestPass } = useContestPass();
   const {
     leaderBoardColumns,
     currentUserData,
@@ -44,39 +45,71 @@ export const ContestLeaderBoard = () => {
         </BgImgContainer>
         <OpacityBG>
           <MainContainer>
-            <SectionTitle
-              sx={{
-                marginBottom: theme.spacing(4),
-                display: 'flex',
-              }}
-            >
-              <Box
-                component="span"
-                sx={{
-                  marginTop: theme.spacing(10),
-                }}
-              >
-                <FormattedMessage defaultMessage={'Leaderboard'} />
-              </Box>
-            </SectionTitle>
-            <CountDownContainer>
-              <ContestCountDown sx={{ marginBottom: '0px' }} />
-              <Button
-                size="large"
-                variant="outlined"
-                to={`/contest-rules/${network}`}
-                sx={{
-                  width: theme.spacing(41.25),
-                  border: `1px solid ${colors.neonTurquoise}`,
-                  ':hover': {
-                    background: colors.matteGreen,
-                  },
-                  fontFamily: 'Avenir Next',
-                }}
-              >
-                <FormattedMessage defaultMessage={'Contest Rules & Prizes'} />
-              </Button>
-            </CountDownContainer>
+            {contestOver ? (
+              <>
+                <SectionTitle
+                  sx={{
+                    marginBottom: theme.spacing(4),
+                    display: 'flex',
+                  }}
+                >
+                  <Box
+                    component="span"
+                    sx={{
+                      marginTop: theme.spacing(10),
+                    }}
+                  >
+                    <FormattedMessage defaultMessage={'Contest Concluded'} />
+                  </Box>
+                </SectionTitle>
+                <Text>
+                  <FormattedMessage
+                    defaultMessage={
+                      '1st, 2nd, and 3rd place of each category/community will receive their prize on 4/3.'
+                    }
+                  />
+                </Text>
+              </>
+            ) : (
+              <>
+                <SectionTitle
+                  sx={{
+                    marginBottom: theme.spacing(4),
+                    display: 'flex',
+                  }}
+                >
+                  <Box
+                    component="span"
+                    sx={{
+                      marginTop: theme.spacing(10),
+                    }}
+                  >
+                    <FormattedMessage defaultMessage={'Leaderboard'} />
+                  </Box>
+                </SectionTitle>
+                <CountDownContainer>
+                  <ContestCountDown sx={{ marginBottom: '0px' }} />
+                  <Button
+                    size="large"
+                    variant="outlined"
+                    to={`/contest-rules/${network}`}
+                    sx={{
+                      width: theme.spacing(41.25),
+                      border: `1px solid ${colors.neonTurquoise}`,
+                      ':hover': {
+                        background: colors.matteGreen,
+                      },
+                      fontFamily: 'Avenir Next',
+                    }}
+                  >
+                    <FormattedMessage
+                      defaultMessage={'Contest Rules & Prizes'}
+                    />
+                  </Button>
+                </CountDownContainer>
+              </>
+            )}
+
             {currentUserData.length > 0 && (
               <Box>
                 <SectionTitle
@@ -126,7 +159,7 @@ export const ContestLeaderBoard = () => {
                     </Caption>
                   )}
                   <LinkText
-                    to="/portfolio/overview"
+                    to={`/portfolio/${Network.ArbitrumOne}/overview`}
                     sx={{ marginTop: theme.spacing(1) }}
                   >
                     <FormattedMessage defaultMessage={'View in Portfolio'} />
@@ -163,7 +196,7 @@ export const ContestLeaderBoard = () => {
               />
             </TableContainer>
             <ContestPrizes />
-            {!hasContestPass && (
+            {
               <Box sx={{ display: 'flex', marginTop: '100px' }}>
                 <ContestButtonBar
                   buttonOneText={
@@ -178,7 +211,7 @@ export const ContestLeaderBoard = () => {
                   buttonTwoPathTo={`/contest/${network}`}
                 />
               </Box>
-            )}
+            }
           </MainContainer>
         </OpacityBG>
       </OuterContainer>
@@ -228,6 +261,18 @@ const OpacityBG = styled(Box)(
   position: relative;
   z-index: 3;
     `
+);
+
+const Text = styled(Box)(
+  ({ theme }) => `
+  font-family: Avenir Next;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  color: ${colors.greenGrey};
+  margin-bottom: ${theme.spacing(3)};
+  `
 );
 
 export default ContestLeaderBoard;

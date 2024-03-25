@@ -41,6 +41,7 @@ interface TableActionRowProps {
       amount: any;
       entryPrice: any;
       currentPrice: any;
+      isDebt: boolean;
       actionRow: {
         warning: TABLE_WARNINGS | undefined;
         txnHistory: string;
@@ -72,6 +73,7 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
       hasMatured,
       warning,
     },
+    isDebt,
     asset,
     isPending,
   } = row.original;
@@ -101,7 +103,10 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
               ) : (
                 <H4
                   sx={{
-                    color: value < 0 || value.includes('-') ? colors.red : '',
+                    color:
+                      (value < 0 || value.includes('-')) && !isDebt
+                        ? colors.red
+                        : '',
                   }}
                 >
                   {value}

@@ -17,3 +17,4 @@ yarn nx publish-wrangler-manual rewards --env dev
 yarn nx publish-wrangler-manual liquidation-bot --env arbitrum
 yarn nx publish-wrangler-manual liquidation-bot --env mainnet
 yarn nx publish-wrangler-manual vault-liquidator --env arbitrum
+yarn nx publish-wrangler-manual vault-liquidator --env mainnet

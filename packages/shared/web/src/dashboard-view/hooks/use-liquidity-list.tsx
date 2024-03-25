@@ -59,7 +59,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
       ),
       Cell: DisplayCell,
       displayFormatter: (val, symbol) => {
-        return `${formatNumber(val, 2)} ${symbol}`;
+        return `${formatNumber(val, 4)} ${symbol}`;
       },
       showSymbol: true,
       accessor: 'walletBalance',
@@ -117,7 +117,8 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
       ),
       Cell: DisplayCell,
       // Update this to use baseCurrency
-      displayFormatter: formatNumberAsAbbr,
+      displayFormatter: (value: number) =>
+        formatNumberAsAbbr(value, 0, baseCurrency),
       accessor: 'liquidity',
       textAlign: 'right',
       sortType: 'basic',
@@ -215,6 +216,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
             symbolBottom: '',
             label: y.underlying.symbol,
             caption: network.charAt(0).toUpperCase() + network.slice(1),
+            network: network,
           },
           totalApy: {
             label: formatNumberAsPercent(y.totalAPY, 2),

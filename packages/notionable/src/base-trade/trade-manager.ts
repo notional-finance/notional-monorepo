@@ -12,6 +12,7 @@ import {
   selectedPool,
   selectedDepositToken,
   selectedPortfolioToken,
+  resetOnNetworkChange,
 } from './sagas';
 import { selectedAccount, selectedNetwork } from '../global';
 import { calculate, calculateMaxWithdraw } from './trade-calculation';
@@ -49,6 +50,7 @@ export function createTradeManager(
     priorAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
     selectedPortfolioToken(state$),
+    resetOnNetworkChange(state$),
     initState(state$),
     resetOnTradeTypeChange(state$)
   );

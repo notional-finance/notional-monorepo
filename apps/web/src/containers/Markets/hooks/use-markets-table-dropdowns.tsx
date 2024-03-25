@@ -9,27 +9,35 @@ import {
   CoinsIcon,
   CoinsCircleIcon,
 } from '@notional-finance/icons';
-import { MARKET_TYPE, Network } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { TokenIcon } from '@notional-finance/icons';
-import { useUnderlyingTokens } from '@notional-finance/notionable-hooks';
+import { useAllUniqueUnderlyingTokens } from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
 
+const selectedNetworkOptions = {
+  0: [Network.ArbitrumOne, Network.Mainnet],
+  1: [Network.ArbitrumOne],
+  2: [Network.Mainnet],
+};
+
 export const useMarketTableDropdowns = (
-  marketType: MARKET_TYPE,
-  network: Network | undefined
+  earnBorrowOption: number,
+  allNetworksOption: number
 ) => {
   const theme = useTheme();
-  const depositTokens = useUnderlyingTokens(network);
+  const depositTokens = useAllUniqueUnderlyingTokens(
+    selectedNetworkOptions[allNetworksOption]
+  );
   const [currencyOptions, setCurrencyOptions] = useState([]);
   const [productOptions, setProductOptions] = useState([]);
 
   useEffect(() => {
     setProductOptions([]);
     setCurrencyOptions([]);
-  }, [marketType]);
+  }, [earnBorrowOption, allNetworksOption]);
 
   const products = {
-    [MARKET_TYPE.EARN]: [
+    0: [
       {
         id: 'Fixed Lend',
         title: 'Fixed Lend',
@@ -79,18 +87,6 @@ export const useMarketTableDropdowns = (
           />
         ),
       },
-      // {
-      //   id: 'Leveraged Lend',
-      //   title: 'Leveraged Lend',
-      //   icon: (
-      //     <BarCharLightningIcon
-      //       sx={{
-      //         fontSize: theme.spacing(2),
-      //         fill: theme.palette.common.black,
-      //       }}
-      //     />
-      //   ),
-      // },
       {
         id: 'Leveraged Liquidity',
         title: 'Leveraged Liquidity',
@@ -105,7 +101,7 @@ export const useMarketTableDropdowns = (
         ),
       },
     ],
-    [MARKET_TYPE.BORROW]: [
+    1: [
       {
         id: 'Fixed Borrow',
         title: 'Fixed Borrow',
@@ -135,7 +131,7 @@ export const useMarketTableDropdowns = (
     ],
   };
 
-  const underlyingTokens = depositTokens.map(({ symbol }) => ({
+  const underlyingTokens = depositTokens.map((symbol) => ({
     id: symbol,
     title: symbol,
     icon: <TokenIcon size="medium" symbol={symbol.toLocaleLowerCase()} />,
@@ -152,7 +148,7 @@ export const useMarketTableDropdowns = (
       selectedOptions: productOptions,
       setSelectedOptions: setProductOptions,
       placeHolderText: <FormattedMessage defaultMessage={'Products'} />,
-      data: products[marketType],
+      data: products[earnBorrowOption],
     },
   ];
 

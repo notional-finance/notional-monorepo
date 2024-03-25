@@ -2,9 +2,14 @@ import { styled, Box, useTheme } from '@mui/material';
 import { Body, H1, Button } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
+import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
+import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 export const HeroContent = () => {
   const theme = useTheme();
+  const defaultNetwork =
+    useWalletConnectedNetwork() ||
+    getDefaultNetworkFromHostname(window.location.hostname);
 
   return (
     <ContentWrapper>
@@ -22,7 +27,7 @@ export const HeroContent = () => {
       <ButtonContainer>
         <Button
           size="large"
-          to="/portfolio/overview"
+          to={`/portfolio/${defaultNetwork}/overview`}
           sx={{
             marginRight: theme.spacing(6),
           }}

@@ -348,29 +348,43 @@ export class TokenBalance {
     return utils.formatUnits(this.n, this.token.decimals);
   }
 
+  abbr(useThousandsAbbr = true) {
+    const value = this.toFloat();
+    if (Math.abs(value) < 1_000) {
+      return { suffix: '', value };
+    } else if (Math.abs(value) < 1_000_000) {
+      return useThousandsAbbr
+        ? { suffix: 'k', value: value / 1_000 }
+        : { suffix: '', value };
+    } else if (Math.abs(value) < 1_000_000_000) {
+      return { suffix: 'm', value: value / 1_000_000 };
+    } else if (Math.abs(value) < 1_000_000_000_000) {
+      return { suffix: 'b', value: value / 1_000_000_000 };
+    }
+
+    return { suffix: '', value };
+  }
+
   /**
    * @param decimalPlaces maximum number of decimal places to show
    * @param abbr abbreviate to thousands (k), millions (m), billions (b)
    * @param locale formatting locale
    * @returns a string with the specified number of decimal places
    */
-  toDisplayString(decimalPlaces = 3, abbr = false, locale = 'en-US') {
+  toDisplayString(
+    decimalPlaces?: number,
+    abbr = true,
+    useThousandsAbbr = true,
+    locale = 'en-US'
+  ) {
     let value = this.toFloat();
     let suffix = '';
+    if (decimalPlaces === undefined) {
+      decimalPlaces = this.tokenType === 'Fiat' ? 2 : 4;
+    }
 
     if (abbr) {
-      if (Math.abs(value) < 1_000) {
-        suffix = '';
-      } else if (Math.abs(value) < 1_000_000) {
-        suffix = 'k';
-        value = value / 1_000;
-      } else if (Math.abs(value) < 1_000_000_000) {
-        suffix = 'm';
-        value = value / 1_000_000;
-      } else if (Math.abs(value) < 1_000_000_000_000) {
-        suffix = 'b';
-        value = value / 1_000_000_000;
-      }
+      ({ value, suffix } = this.abbr(useThousandsAbbr));
     }
 
     const localeString = value.toLocaleString(locale, {
@@ -391,15 +405,28 @@ export class TokenBalance {
    * @param locale formatting locale
    * @returns a string with the specified number of decimal places and a symbol appended
    */
-  toDisplayStringWithSymbol(decimalPlaces = 3, abbr = false, locale = 'en-US') {
+  toDisplayStringWithSymbol(
+    decimalPlaces?: number,
+    abbr = true,
+    useThousandsAbbr = true,
+    locale = 'en-US'
+  ) {
     if (this.tokenType === 'Fiat' && this.symbol !== 'NOTE') {
       return `${this.isNegative() ? '-' : ''}${
         FiatSymbols[this.token.symbol as FiatKeys]
-      }${this.abs().toDisplayString(decimalPlaces, abbr, locale)}`;
+      }${this.abs().toDisplayString(
+        decimalPlaces === undefined ? 2 : decimalPlaces,
+        abbr,
+        useThousandsAbbr,
+        locale
+      )}`;
     } else {
-      return `${this.toDisplayString(decimalPlaces, abbr, locale)} ${
-        this.token.symbol
-      }`;
+      return `${this.toDisplayString(
+        decimalPlaces === undefined ? 4 : decimalPlaces,
+        abbr,
+        useThousandsAbbr,
+        locale
+      )} ${this.token.symbol}`;
     }
   }
 

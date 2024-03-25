@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   useAccountHistoryChart,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import {
@@ -29,7 +29,7 @@ import { FormattedMessage } from 'react-intl';
 export const useTotalsChart = () => {
   const baseCurrency = useFiat();
   const windowDimensions = useWindowDimensions();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const { currentAPY, netWorth, debts, assets } =
     useAccountCurrentFactors(network);
   const [secondsMultiple, setSecondsMultiple] = useState(1.5);
@@ -73,7 +73,7 @@ export const useTotalsChart = () => {
       currencySymbol: FiatSymbols[baseCurrency]
         ? FiatSymbols[baseCurrency]
         : '$',
-      value: netWorth.toDisplayStringWithSymbol(0),
+      value: netWorth.toDisplayStringWithSymbol(2, true, false),
     },
   ];
 
@@ -91,7 +91,7 @@ export const useTotalsChart = () => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: assets.toDisplayStringWithSymbol(0),
+        value: assets.toDisplayStringWithSymbol(2, true, false),
       },
       {
         dataKey: 'totalDebts',
@@ -105,7 +105,7 @@ export const useTotalsChart = () => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: debts.abs().toDisplayStringWithSymbol(0),
+        value: debts.abs().toDisplayStringWithSymbol(2, true, false),
       }
     );
   }

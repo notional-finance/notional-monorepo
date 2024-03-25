@@ -2,9 +2,11 @@ import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { Paragraph, ContestTable, Button } from '@notional-finance/mui';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
-import { useContestPass } from '@notional-finance/notionable-hooks';
+import {
+  useContestPass,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import {
   partnersTableColumns,
   partnersTableData,
@@ -85,7 +87,7 @@ const ContentContainer = styled(Box)(
   justify-content: space-between;
   gap: ${theme.spacing(12)};
   align-items: center;
-  margin-bottom: ${theme.spacing(11)};
+  margin-bottom: ${theme.spacing(32)};
   ${theme.breakpoints.down('md')} {
     flex-direction: column;
   }

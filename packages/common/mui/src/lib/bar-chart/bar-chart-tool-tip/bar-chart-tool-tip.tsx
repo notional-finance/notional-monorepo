@@ -21,8 +21,8 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
 
   if (payload) {
     totalApy =
-      payload[0]?.payload.noteApy +
-      payload[0]?.payload.arbApy +
+      (payload[0]?.payload.noteApy || 0) +
+      (payload[0]?.payload.arbApy || 0) +
       payload[0]?.payload.organicApy;
   }
 
@@ -40,7 +40,7 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
             : ''}
         </Box>
       </Item>
-      {isStackedBar && (
+      {isStackedBar && payload && payload.length > 1 && (
         <Item>
           <Box
             sx={{

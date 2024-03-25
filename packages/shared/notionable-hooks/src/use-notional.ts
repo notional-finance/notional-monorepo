@@ -6,6 +6,7 @@ import { switchMap, take, concat } from 'rxjs';
 import { Registry } from '@notional-finance/core-entities';
 import { Network, getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { isAppReady } from '@notional-finance/notionable';
+import { useWalletConnectedNetwork } from './use-wallet';
 
 export function useAppReady() {
   const {
@@ -23,7 +24,9 @@ export function useAnalyticsReady(network: Network | undefined) {
 }
 
 export function useLastUpdateBlockNumber() {
-  const network = useSelectedPortfolioNetwork();
+  const network =
+    useWalletConnectedNetwork() ||
+    getDefaultNetworkFromHostname(window.location.hostname);
   return network
     ? Registry.getOracleRegistry().getLastUpdateBlock(network)
     : undefined;
@@ -42,20 +45,7 @@ export function useNotionalContext() {
   return { globalState: state, updateNotional: updateState, globalState$ };
 }
 
-export function useSelectedPortfolioNetwork() {
-  const {
-    globalState: { selectedPortfolioNetwork },
-  } = useNotionalContext();
-  const isAppReady = useAppReady();
-
-  return isAppReady
-    ? selectedPortfolioNetwork ||
-        getDefaultNetworkFromHostname(window.location.hostname)
-    : undefined;
-}
-
-export function useNOTE() {
-  const network = useSelectedPortfolioNetwork();
+export function useNOTE(network: Network | undefined) {
   return network
     ? Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE')
     : undefined;
@@ -79,3 +69,4 @@ export function useNotionalError() {
     reportError,
   };
 }
+

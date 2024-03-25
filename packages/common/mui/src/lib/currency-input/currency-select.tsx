@@ -17,10 +17,12 @@ export interface CurrencySelectOption {
   displayToken?: TokenDefinition;
   content?: {
     largeFigure?: number;
+    largeFigureDecimals?: number;
     largeFigureSuffix?: string;
     shouldCountUp?: boolean;
     caption?: React.ReactNode;
     largeCaption?: number;
+    largeCaptionDecimals?: number;
     largeCaptionSuffix?: string;
     optionTitle?: React.ReactNode;
     balance?: string | undefined;
@@ -102,16 +104,18 @@ export const formatOption = (
     leftContent = (
       <Box sx={{ display: 'flex' }}>
         {c?.error && <H4 marginLeft={theme.spacing(1)}>{c?.error}</H4>}
-        {c?.largeCaption && !c?.error && (
+        {c?.largeCaption !== undefined && !c?.error && (
           <H4 marginLeft={theme.spacing(1)}>
             {c.shouldCountUp ? (
               <CountUp
                 value={c?.largeCaption}
                 suffix={c?.largeCaptionSuffix}
-                decimals={2}
+                decimals={c?.largeCaptionDecimals || 2}
               />
             ) : (
-              `${c?.largeCaption.toFixed(2)}${c?.largeCaptionSuffix}`
+              `${c?.largeCaption.toFixed(c?.largeCaptionDecimals || 2)}${
+                c?.largeCaptionSuffix
+              }`
             )}
           </H4>
         )}
@@ -125,15 +129,16 @@ export const formatOption = (
     );
 
     const largeFigureNode =
-      c.shouldCountUp && c.largeFigure ? (
+      c.shouldCountUp && c.largeFigure !== undefined ? (
         <CountUp
           value={c.largeFigure}
           suffix={c.largeFigureSuffix}
-          decimals={3}
+          decimals={c.largeFigureDecimals || 2}
         />
       ) : (
         <span>
-          {c.largeFigure && c.largeFigure.toFixed(3)}
+          {c.largeFigure !== undefined &&
+            c.largeFigure.toFixed(c.largeFigureDecimals || 4)}
           {c.largeFigureSuffix}
         </span>
       );
@@ -166,7 +171,7 @@ export const formatOption = (
 
     rightContent = (
       <Box textAlign={'right'}>
-        {largeFigureNode && c.largeFigure && !c?.error && (
+        {largeFigureNode && c.largeFigure !== undefined && !c?.error && (
           <H4
             sx={{ fontSize: c.caption ? '14px' : '16px' }}
             error={c.largeFigure < 0}
