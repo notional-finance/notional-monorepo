@@ -257,10 +257,14 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   }
 
   getNTokenFeeRate(token: TokenDefinition) {
-    const apyData = this.getHistoricalAPY(token);
+    try {
+      const apyData = this.getHistoricalAPY(token);
 
-    if (apyData.length === 0) return 0;
-    else return apyData[apyData.length - 1]['nTokenFeeRate'] || 0;
+      if (apyData.length === 0) return 0;
+      else return apyData[apyData.length - 1]['nTokenFeeRate'] || 0;
+    } catch {
+      return 0;
+    }
   }
 
   getVault(network: Network, vaultAddress: string) {
