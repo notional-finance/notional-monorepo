@@ -349,7 +349,7 @@ export default class VaultV3Liquidator {
         NETWORK: this.settings.network,
         TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
       },
-      to: this.settings.flashLenderAddress,
+      to: this.settings.flashLiquidatorAddress,
       data: encodedTransaction,
       isLiquidator: true,
     });
@@ -369,7 +369,12 @@ export default class VaultV3Liquidator {
         text: `Liquidated account ${accountLiq.account.id}, ${respInfo['hash']}`,
       });
     } else {
-      console.log('Failed liquidation', await resp.text());
+      console.log(
+        'Failed liquidation',
+        resp.status,
+        resp.statusText,
+        await resp.json()
+      );
     }
   }
 }
