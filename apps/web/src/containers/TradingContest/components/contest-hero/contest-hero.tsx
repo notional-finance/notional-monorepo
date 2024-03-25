@@ -41,7 +41,23 @@ export const ContestHero = () => {
               title={contestActive ? 'Contest Ends:' : 'Contest Begins:'}
             />
             <ButtonContainer>
-              {hasContestPass ? (
+              <Button
+                size="large"
+                sx={{
+                  marginBottom: theme.spacing(3),
+                  width: '330px',
+                  fontFamily: 'Avenir Next',
+                  cursor: 'pointer',
+                }}
+                to={`/contest-leaderboard/${network}`}
+              >
+                {contestOver ? (
+                  <FormattedMessage defaultMessage={'See Contest Results'} />
+                ) : (
+                  <FormattedMessage defaultMessage={'View Leaderboard'} />
+                )}
+              </Button>
+              {/* {hasContestPass ? (
                 <Button
                   size="large"
                   sx={{
@@ -75,7 +91,7 @@ export const ContestHero = () => {
                     />
                   }
                 </Button>
-              )}
+              )} */}
               {contestActive ? (
                 <Button
                   size="large"
