@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.1.9](https://github.com/notional-finance/notional-monorepo/compare/util-0.1.8...util-0.1.9) (2024-03-25)
+
+
+### Bug Fixes
+
+* set default network to mainnet ([#698](https://github.com/notional-finance/notional-monorepo/issues/698)) ([d49c849](https://github.com/notional-finance/notional-monorepo/commit/d49c849c7f658ff84ad78008a0f6c0c9f9e1deb3))
+
 ## [0.1.8](https://github.com/notional-finance/notional-monorepo/compare/util-0.1.7...util-0.1.8) (2023-05-19)
 
 
