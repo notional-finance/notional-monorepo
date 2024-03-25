@@ -77,7 +77,7 @@ export const FooterPopup = () => {
                       accent
                       textDecoration
                       style={{ color: theme.palette.info.accent }}
-                      href="https://blog.notional.finance/notional-v3-is-live-on-arbitrum/"
+                      href="https://blog.notional.finance/notional-v3-is-live-on-mainnet/"
                     >
                       {chunk}
                     </ExternalLink>
