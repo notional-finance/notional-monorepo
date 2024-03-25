@@ -140,9 +140,9 @@ export class Registry {
     if (this._self?.useAnalytics) {
       // Trigger the initial load via HTTP to bootstrap the data if running
       // on a client
-      if (this._self?.isClient) {
-        Registry.getYieldRegistry().triggerHTTPRefresh(network);
-      }
+      // if (this._self?.isClient) {
+      //   Registry.getYieldRegistry().triggerHTTPRefresh(network);
+      // }
 
       Registry.onNetworkReady(network, () => {
         Registry.getAnalyticsRegistry().startRefreshInterval(
