@@ -5,16 +5,16 @@ import { getNowSeconds, getDateString } from '@notional-finance/util';
 import { RATE_PRECISION } from '@notional-finance/util';
 import { formatNumber, formatNumberAsPercent } from '@notional-finance/helpers';
 import { TokenDefinition } from '@notional-finance/core-entities';
+import { useMemo } from 'react';
 
 export const useFixedLiquidityPoolsTable = (
   token: TokenDefinition | undefined
 ) => {
   const fCashMarket = useFCashMarket(token);
   let tableData: any[] = [];
-  let tableColumns: DataTableColumn[] | [] = [];
   const areaChartData: any[] = [];
-  if (token) {
-    tableColumns = [
+  const tableColumns = useMemo<DataTableColumn[]>(
+    () => [
       {
         header: (
           <FormattedMessage
@@ -27,13 +27,13 @@ export const useFixedLiquidityPoolsTable = (
         textAlign: 'left',
       },
       {
-        header: `${token.symbol}`,
+        header: token ? `${token.symbol}` : '',
         cell: DisplayCell,
         accessorKey: 'valueOfCash',
         textAlign: 'left',
       },
       {
-        header: `f${token.symbol}`,
+        header: token ? `f${token.symbol}` : '',
         cell: DisplayCell,
         accessorKey: 'valueOfFCash',
         textAlign: 'left',
@@ -43,7 +43,7 @@ export const useFixedLiquidityPoolsTable = (
           <FormattedMessage
             defaultMessage={'f{symbol} PRICE'}
             values={{
-              symbol: token.symbol,
+              symbol: token?.symbol || '',
             }}
           />
         ),
@@ -63,8 +63,9 @@ export const useFixedLiquidityPoolsTable = (
         accessorKey: 'interestRate',
         textAlign: 'right',
       },
-    ];
-  }
+    ],
+    [token]
+  );
 
   if (fCashMarket) {
     const {

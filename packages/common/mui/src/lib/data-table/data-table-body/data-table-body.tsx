@@ -61,7 +61,6 @@ export const DataTableBody = ({
         const cells = isScrollable
           ? testRow.getVisibleCells()
           : row.getAllCells();
-        console.log({ cells });
 
         const rowSelected = row.original?.rowSelected
           ? row.original?.rowSelected
@@ -108,23 +107,13 @@ export const DataTableBody = ({
             }
           : {};
 
-        // const scrollableStyles =
-        //   isScrollable && row
-        //     ? {
-        //         display: 'flex',
-        //         position: 'absolute',
-        //         transform: row?.start ? `translateY(${row?.start}px)` : '',
-        //         width: '100%',
-        //       }
-        //     : {};
-
-        const rowHoverStyles =
-          row.original?.view || row.original?.txLink?.href
+        const scrollableStyles =
+          isScrollable && row
             ? {
-                '&:hover': {
-                  background: theme.palette.info.light,
-                  cursor: 'pointer',
-                },
+                display: 'flex',
+                position: 'absolute',
+                transform: row?.start ? `translateY(${row?.start}px)` : '',
+                width: '100%',
               }
             : {};
 
@@ -139,15 +128,24 @@ export const DataTableBody = ({
               styleLastRow={styleLastRow}
               onClick={handleClick}
               sx={{
+                '&:hover': {
+                  background:
+                    row.original?.view || row.original?.txLink?.href
+                      ? theme.palette.info.light
+                      : '',
+                  cursor:
+                    row.original?.view || row.original?.txLink?.href
+                      ? 'pointer'
+                      : '',
+                },
                 '&:hover #dropdown-arrow-button': {
                   transition: 'all 0.3s ease',
                   background: theme.palette.info.light,
                 },
-                ...rowHoverStyles,
                 background:
                   row.original?.isDividerRow &&
                   `${theme.palette.secondary.dark} !important`,
-                // ...scrollableStyles,
+                ...scrollableStyles,
               }}
             >
               {cells.map((cell: Record<string, any>) => {

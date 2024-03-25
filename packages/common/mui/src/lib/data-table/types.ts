@@ -51,4 +51,7 @@ export type DataTableColumn = {
   accessorKey: string;
   cell?: (row: any) => any;
   width?: string;
+  sortingFn?: any;
+  enableSorting?: boolean;
+  fontSize?: string;
 };

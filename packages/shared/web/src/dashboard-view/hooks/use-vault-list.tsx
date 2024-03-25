@@ -13,6 +13,7 @@ import {
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import {
+  DataTableColumn,
   DisplayCell,
   LinkCell,
   MultiValueCell,
@@ -28,7 +29,7 @@ export const useVaultList = (network: Network) => {
   const baseCurrency = useFiat();
   const account = useAccountDefinition(network);
 
-  let listColumns = [
+  let listColumns: DataTableColumn[] = [
     {
       header: (
         <FormattedMessage

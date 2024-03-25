@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
   MultiValueIconCell,
+  DataTableColumn,
   MultiValueCell,
   DisplayCell,
   ChevronCell,
@@ -78,7 +79,7 @@ export function usePortfolioHoldings() {
     },
   ];
 
-  const Columns = useMemo(
+  const Columns = useMemo<DataTableColumn[]>(
     () => [
       {
         header: <FormattedMessage defaultMessage="Asset" />,

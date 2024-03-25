@@ -1,5 +1,5 @@
 import { defineMessages } from 'react-intl';
-import { IconCell } from '@notional-finance/mui';
+import { DataTableColumn, IconCell } from '@notional-finance/mui';
 import { COMMUNITY_NAMES } from '@notional-finance/notionable';
 
 
@@ -27,7 +27,7 @@ export const messages = {
   }),
 };
 
-export const partnersTableColumns = [
+export const partnersTableColumns: DataTableColumn[] = [
   {
     header: 'Community',
     cell: IconCell,

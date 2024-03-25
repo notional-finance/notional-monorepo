@@ -6,6 +6,7 @@ import {
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
 import {
+  DataTableColumn,
   DisplayCell,
   LinkCell,
   MultiValueIconCell,
@@ -33,7 +34,7 @@ export const useMarketsTable = (
   const baseCurrency = useFiat();
   const { earnYields, borrowYields } = useAllNetworkMarkets();
 
-  let tableColumns = [
+  let tableColumns: DataTableColumn[] = [
     {
       header: (
         <FormattedMessage

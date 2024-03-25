@@ -14,6 +14,7 @@ import { getDebtOrCollateralFactor } from './utils';
 import {
   DisplayCell,
   LinkCell,
+  DataTableColumn,
   MultiValueIconCell,
 } from '@notional-finance/mui';
 
@@ -33,7 +34,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
     [PRODUCTS.BORROW_VARIABLE]: variableBorrow,
   };
 
-  let listColumns = [
+  let listColumns: DataTableColumn[] = [
     {
       header: (
         <FormattedMessage

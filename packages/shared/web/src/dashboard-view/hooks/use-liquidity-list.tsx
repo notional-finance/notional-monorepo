@@ -19,6 +19,7 @@ import {
 import {
   DisplayCell,
   LinkCell,
+  DataTableColumn,
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import { useMaxYield } from '@notional-finance/trade';
@@ -37,7 +38,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
     yieldData = allMaxAPYs;
   }
 
-  let listColumns = [
+  let listColumns: DataTableColumn[] = [
     {
       header: (
         <FormattedMessage
