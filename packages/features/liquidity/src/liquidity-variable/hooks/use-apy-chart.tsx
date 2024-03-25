@@ -64,7 +64,7 @@ export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
       title: <FormattedMessage defaultMessage="ARB APY" />,
       toolTipTitle: <FormattedMessage defaultMessage="ARB APY" />,
       fill:
-        selectedNetwork === Network.ArbitrumOne
+        selectedNetwork === Network.arbitrum
           ? theme.palette.background.accentDefault
           : theme.palette.charts.main,
       value: '0',
@@ -81,7 +81,7 @@ export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
     });
   }
 
-  if (selectedNetwork === Network.ArbitrumOne) {
+  if (selectedNetwork === Network.arbitrum) {
     barConfig.push(
       {
         dataKey: 'arbApy',

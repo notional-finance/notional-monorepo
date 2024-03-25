@@ -76,67 +76,6 @@ export const DashboardHeader = ({
     </Box>,
   ];
 
-  const gridToggleData = [
-    <Box
-      sx={{
-        fontSize: '14px',
-        display: 'flex',
-        svg: {
-          height: theme.spacing(2),
-          width: theme.spacing(2),
-          marginRight: theme.spacing(1),
-        },
-      }}
-    >
-      <FourSquareIcon />
-      <FormattedMessage defaultMessage="Grid" />
-    </Box>,
-    <Box
-      sx={{
-        fontSize: '14px',
-        display: 'flex',
-        svg: {
-          height: theme.spacing(2),
-          width: theme.spacing(2),
-          marginRight: theme.spacing(1),
-        },
-      }}
-    >
-      <ListIcon />
-      <FormattedMessage defaultMessage="List" />
-    </Box>,
-  ];
-
-  const tokenGroupData = [
-    <Box
-      sx={{
-        display: 'flex',
-        whiteSpace: 'nowrap',
-        fontSize: '14px',
-      }}
-    >
-      <FormattedMessage defaultMessage="All" />
-    </Box>,
-    <Box
-      sx={{
-        display: 'flex',
-        whiteSpace: 'nowrap',
-        fontSize: '14px',
-      }}
-    >
-      <FormattedMessage defaultMessage="Stablecoins" />
-    </Box>,
-    <Box
-      sx={{
-        display: 'flex',
-        whiteSpace: 'nowrap',
-        fontSize: '14px',
-      }}
-    >
-      ETH + LSDs
-    </Box>,
-  ];
-
   return (
     <HeaderContainer>
       <Box sx={{ display: 'flex' }}>

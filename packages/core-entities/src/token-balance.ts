@@ -366,30 +366,6 @@ export class TokenBalance {
   }
 
   /**
-   * @param locale formatting locale
-   * @returns a string with four decimal places when under 1,000 and appropriate abbreviations after that
-   */
-  toAbbrDisplayString(locale = 'en-US') {
-    let value = this.toFloat();
-    let suffix = '';
-    let decimalPlaces = 4;
-
-    if (Math.abs(value) < 1_000) {
-      return { suffix: '', value };
-    } else if (Math.abs(value) < 1_000_000) {
-      return useThousandsAbbr
-        ? { suffix: 'k', value: value / 1_000 }
-        : { suffix: '', value };
-    } else if (Math.abs(value) < 1_000_000_000) {
-      return { suffix: 'm', value: value / 1_000_000 };
-    } else if (Math.abs(value) < 1_000_000_000_000) {
-      return { suffix: 'b', value: value / 1_000_000_000 };
-    }
-
-    return { suffix: '', value };
-  }
-
-  /**
    * @param decimalPlaces maximum number of decimal places to show
    * @param abbr abbreviate to thousands (k), millions (m), billions (b)
    * @param locale formatting locale

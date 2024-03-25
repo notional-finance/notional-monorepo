@@ -8,7 +8,7 @@ import {
   isIdiosyncratic,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
-import { CacheSchema, TokenType, YieldData } from '../Definitions';
+import { TokenType, YieldData } from '../Definitions';
 import { Registry } from '../Registry';
 import { Routes } from '../server';
 import { TokenBalance } from '../token-balance';

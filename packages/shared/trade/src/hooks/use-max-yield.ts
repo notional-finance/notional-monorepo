@@ -1,6 +1,5 @@
 import { YieldData } from '@notional-finance/core-entities';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
-import { Network, groupArrayToMap } from '@notional-finance/util';
 import {
   Network,
   groupArrayToMap,

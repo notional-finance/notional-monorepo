@@ -451,10 +451,6 @@ export function TokenIcon({
     ? TokenImageList[getNetworkSymbol(network)]
     : undefined;
 
-  const networkIcon = network
-    ? TokenImageList[getNetworkSymbol(network)]
-    : undefined;
-
   const tokenSizes = {
     small: '16px',
     medium: '24px',

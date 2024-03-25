@@ -3,7 +3,6 @@ import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { Paragraph, ContestTable, Button } from '@notional-finance/mui';
 import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
-import { ContestTable } from '@notional-finance/mui';
 import {
   useContestPass,
   useSelectedNetwork,
