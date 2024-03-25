@@ -1,12 +1,18 @@
 import { useState } from 'react';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { CardContainer } from '../card-container/card-container';
 import { FeatureLoader } from '../feature-loader/feature-loader';
-import { useThemeVariant } from '@notional-finance/notionable-hooks';
+import {
+  useSelectedNetwork,
+  useThemeVariant,
+} from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
 import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
 import { PRODUCTS } from '@notional-finance/util';
+import {
+  setInLocalStorage,
+  getFromLocalStorage,
+} from '@notional-finance/helpers';
 import { ThemeProvider } from '@mui/material';
 import {
   useVaultList,
@@ -33,11 +39,33 @@ export const DashboardView = ({
   const themeVariant = useThemeVariant();
   const { pathname } = useLocation();
   const [_, routeKey] = pathname.split('/');
-  const [tokenGroup, setTokenGroup] = useState<number>(0);
+  const userSettings = getFromLocalStorage('userSettings');
+  const [tokenGroup, setTokenGroup] = useState<number>(
+    userSettings.tokenGroup || 0
+  );
   const themeLanding = useNotionalTheme(themeVariant, 'product');
+  const [dashboardTab, setDashboardTab] = useState<number>(
+    userSettings.dashboardTab || 0
+  );
   const { containerData, headerData } = useDashboardConfig(
     routeKey as PRODUCTS
   );
+
+  const handleDashboardTab = (value: number) => {
+    setDashboardTab(value);
+    setInLocalStorage('userSettings', {
+      ...userSettings,
+      dashboardTab: value,
+    });
+  };
+
+  const handleTokenGroup = (value: number) => {
+    setTokenGroup(value);
+    setInLocalStorage('userSettings', {
+      ...userSettings,
+      tokenGroup: value,
+    });
+  };
 
   return (
     <ThemeProvider theme={themeLanding}>
@@ -52,7 +80,9 @@ export const DashboardView = ({
             headerData={headerData}
             threeWideGrid={threeWideGrid}
             tokenGroup={tokenGroup}
-            setTokenGroup={setTokenGroup}
+            handleTokenGroup={handleTokenGroup}
+            dashboardTab={dashboardTab}
+            handleDashboardTab={handleDashboardTab}
           />
         </CardContainer>
       </FeatureLoader>
@@ -81,6 +111,7 @@ export const LiquidityLeveragedDashboard = () => {
     PRODUCTS.LIQUIDITY_LEVERAGED,
     network
   );
+
   return (
     <DashboardView
       {...gridData}

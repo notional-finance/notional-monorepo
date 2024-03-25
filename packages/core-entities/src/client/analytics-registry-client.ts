@@ -21,6 +21,7 @@ import {
   HistoricalTrading,
   VaultData,
   CacheSchema,
+  VaultReinvestment,
 } from '../Definitions';
 import {
   ASSET_PRICE_ORACLES,
@@ -214,7 +215,10 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
                       floorToMidnight(r.timestamp)
                     )
                     .toFloat();
-                } else if (o.oracleType === 'nTokenSecondaryIncentiveRate') {
+                } else if (
+                  o.oracleType === 'nTokenSecondaryIncentiveRate' &&
+                  token.network === Network.ArbitrumOne
+                ) {
                   // NOTE: this token is currently hardcoded but we will need to make it configurable
                   // at some point in the future.
                   apy = TokenBalance.fromFloat(
@@ -253,10 +257,14 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   }
 
   getNTokenFeeRate(token: TokenDefinition) {
-    const apyData = this.getHistoricalAPY(token);
+    try {
+      const apyData = this.getHistoricalAPY(token);
 
-    if (apyData.length === 0) return 0;
-    else return apyData[apyData.length - 1]['nTokenFeeRate'] || 0;
+      if (apyData.length === 0) return 0;
+      else return apyData[apyData.length - 1]['nTokenFeeRate'] || 0;
+    } catch {
+      return 0;
+    }
   }
 
   getVault(network: Network, vaultAddress: string) {
@@ -265,13 +273,18 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   }
 
   getActiveAccounts(network: Network) {
-    return (super.getLatestFromSubject(network, 'activeAccounts') ||
+    return (super.getLatestFromSubject(network, 'activeAccounts', 0) ||
       {}) as ActiveAccounts;
   }
 
   getHistoricalTrading(network: Network) {
-    return (super.getLatestFromSubject(network, 'historicalTrading') ||
+    return (super.getLatestFromSubject(network, 'historicalTrading', 0) ||
       {}) as HistoricalTrading;
+  }
+
+  getVaultReinvestments(network: Network) {
+    return (super.getLatestFromSubject(network, 'vaultReinvestment', 0) ||
+      {}) as VaultReinvestment;
   }
 
   getKPIs() {

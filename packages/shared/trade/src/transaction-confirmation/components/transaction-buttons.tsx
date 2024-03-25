@@ -2,7 +2,10 @@ import { MouseEventHandler } from 'react';
 import { styled, Box, useTheme } from '@mui/material';
 import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { TransactionStatus } from '@notional-finance/notionable-hooks';
+import {
+  TransactionStatus,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { DiscordIcon } from '@notional-finance/icons';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useLocation } from 'react-router';
@@ -48,9 +51,10 @@ export const TransactionButtons = ({
   const theme = useTheme();
   const { clearSideDrawer } = useSideDrawerManager();
   const { pathname } = useLocation();
+  const network = useSelectedNetwork();
   const portfolioLink = pathname.includes('vaults')
-    ? '/portfolio/vaults'
-    : '/portfolio/holdings';
+    ? `/portfolio/${network}/vaults`
+    : `/portfolio/${network}/holdings`;
 
   switch (transactionStatus) {
     case TransactionStatus.SUBMITTED:

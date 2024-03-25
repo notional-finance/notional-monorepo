@@ -204,6 +204,9 @@ export const DataTableBody = ({
                   background: theme.palette.info.light,
                 },
                 ...rowHoverStyles,
+                background:
+                  row.original.isDividerRow &&
+                  `${theme.palette.secondary.dark} !important`,
               }}
               {...row['getRowProps']()}
             >

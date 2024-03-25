@@ -1,15 +1,21 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { DashboardGrid, DashboardHeader } from './components';
-import { useState } from 'react';
+import {
+  DashboardGrid,
+  DashboardHeader,
+  DashboardStateZero,
+} from './components';
 import { MessageDescriptor } from 'react-intl';
 import { DataTable } from '../data-table/data-table';
+import ProgressIndicator from '../progress-indicator/progress-indicator';
 import { DataTableColumn, TABLE_VARIANTS } from '../data-table/types';
+import { Network } from '@notional-finance/util';
 
 export interface DashboardDataProps {
   title: string;
   subTitle: string;
   apy: number;
   symbol: string;
+  network: Network;
   routeCallback: () => void;
   bottomValue?: string;
   hasPosition?: boolean;
@@ -22,11 +28,13 @@ export interface DashboardHeaderProps {
   headerData: {
     toggleOptions: React.ReactNode[];
     messageBoxText?: JSX.Element | MessageDescriptor;
+    networkToggle: number;
+    handleNetWorkToggle: (value: number) => void;
   };
-  dashboardTab: number;
-  setDashboardTab: (value: number) => void;
   tokenGroup: number;
-  setTokenGroup: (value: number) => void;
+  handleTokenGroup: (value: number) => void;
+  dashboardTab: number;
+  handleDashboardTab: (value: number) => void;
 }
 
 export interface DashboardGridProps {
@@ -49,10 +57,14 @@ export interface DashboardViewProps extends DashboardGridProps {
 
 export interface ProductDashboardProps extends DashboardViewProps {
   tokenGroup: number;
-  setTokenGroup: (value: number) => void;
+  handleTokenGroup: (value: number) => void;
+  dashboardTab: number;
+  handleDashboardTab: (value: number) => void;
   headerData: {
     toggleOptions: React.ReactNode[];
     messageBoxText: JSX.Element | MessageDescriptor;
+    networkToggle: number;
+    handleNetWorkToggle: (value: number) => void;
   };
 }
 
@@ -61,26 +73,38 @@ export const ProductDashboard = ({
   listData,
   listColumns,
   tokenGroup,
-  setTokenGroup,
+  handleTokenGroup,
   headerData,
   showNegativeYields,
   setShowNegativeYields,
   threeWideGrid = true,
+  dashboardTab,
+  handleDashboardTab,
 }: ProductDashboardProps) => {
   const theme = useTheme();
-  const [dashboardTab, setDashboardTab] = useState<number>(0);
   const isLoading = gridData && gridData?.length === 0 ? true : false;
+  const noDataAvailable =
+    gridData && gridData[0]?.data.length === 0 && listData.length === 0
+      ? true
+      : false;
 
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
       <DashboardHeader
         headerData={headerData}
         tokenGroup={tokenGroup}
-        setTokenGroup={setTokenGroup}
+        handleTokenGroup={handleTokenGroup}
         dashboardTab={dashboardTab}
-        setDashboardTab={setDashboardTab}
+        handleDashboardTab={handleDashboardTab}
       />
-      {dashboardTab === 0 ? (
+      {isLoading ? (
+        <ProgressIndicator
+          type="notional"
+          sx={{ height: theme.spacing(57.5) }}
+        />
+      ) : noDataAvailable ? (
+        <DashboardStateZero />
+      ) : dashboardTab === 0 ? (
         <DashboardGrid
           gridData={gridData}
           isLoading={isLoading}
@@ -89,7 +113,7 @@ export const ProductDashboard = ({
           threeWideGrid={threeWideGrid}
         />
       ) : (
-        listColumns && (
+        dashboardTab === 1 && (
           <Box
             sx={{
               marginTop: theme.spacing(4),

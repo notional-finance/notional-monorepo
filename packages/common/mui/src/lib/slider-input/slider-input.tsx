@@ -249,6 +249,7 @@ export const SliderInput = React.forwardRef<
                 <CountUp
                   value={sliderLeverageInfo.assetValue}
                   suffix={sliderLeverageInfo.assetSuffix}
+                  decimals={4}
                 />
               </LabelValue>
             </Box>
@@ -260,6 +261,7 @@ export const SliderInput = React.forwardRef<
                 <CountUp
                   value={sliderLeverageInfo.debtValue}
                   suffix={sliderLeverageInfo.debtSuffix}
+                  decimals={4}
                 />
               </LabelValue>
             </Box>

@@ -1,24 +1,21 @@
 import { useCallback } from 'react';
-import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import {
   useTransactionHistory,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
   usePendingPnLCalculation,
 } from '@notional-finance/notionable-hooks';
-import { TokenIcon } from '@notional-finance/icons';
-import {
-  formatTokenType,
-  formatTokenAmount,
-  formatNumber,
-} from '@notional-finance/helpers';
+import { ReceivedIcon, SentIcon, TokenIcon } from '@notional-finance/icons';
+import { formatTokenType, formatTokenAmount } from '@notional-finance/helpers';
 import { getEtherscanTransactionLink } from '@notional-finance/util';
 import { SelectedOptions } from '@notional-finance/mui';
+import { useTheme } from '@mui/material';
 
-export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
+export const useTxnHistoryData = (txnHistoryCategory: number) => {
+  const theme = useTheme();
   let assetOrVaultData: SelectedOptions[] = [];
   let currencyData: SelectedOptions[] = [];
 
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
   const accountHistory = useTransactionHistory(network);
 
@@ -28,7 +25,6 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
       ({
         bundleName,
         underlyingAmountRealized,
-        tokenAmount,
         token,
         realizedPrice,
         timestamp,
@@ -38,28 +34,31 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
         vaultName,
       }) => {
         const assetData = formatTokenType(token);
+
         return {
           transactionType: {
             label: bundleName,
-            symbol: underlying.symbol.toLowerCase(),
+            IconComponent: underlyingAmountRealized.isNegative() ? (
+              <SentIcon fill={theme.palette.primary.dark} />
+            ) : (
+              <ReceivedIcon fill={theme.palette.primary.main} />
+            ),
           },
           vaultName: vaultName,
-          underlyingAmount: {
-            data: [
-              {
-                displayValue:
-                  underlyingAmountRealized.toDisplayStringWithSymbol(3, true),
-                isNegative: underlyingAmountRealized.isNegative(),
-              },
-            ],
-          },
-          assetAmount: formatTokenAmount(tokenAmount, impliedFixedRate),
+          underlyingAmount: formatTokenAmount(
+            underlyingAmountRealized,
+            impliedFixedRate,
+            true,
+            false,
+            underlyingAmountRealized.isPositive(),
+            4
+          ),
           asset: {
             label: assetData.title,
             symbol: assetData.icon.toLowerCase(),
             caption: assetData.caption ? assetData.caption : '',
           },
-          price: formatNumber(realizedPrice.toFloat(), 2),
+          price: realizedPrice.toDisplayStringWithSymbol(4, true),
           time: timestamp,
           txLink: {
             hash: transactionHash,
@@ -85,7 +84,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
     return filteredArray;
   }, []);
 
-  if (txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS) {
+  if (txnHistoryCategory === 0) {
     accountHistoryData = allAccountHistoryData.filter(
       ({ vaultName }) => !vaultName
     );
@@ -100,12 +99,13 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
       return {
         id: token.id,
         title: tokenData.title,
+
         icon: <TokenIcon size="medium" symbol={tokenData.icon.toLowerCase()} />,
       };
     });
   }
 
-  if (txnHistoryType === TXN_HISTORY_TYPE.LEVERAGED_VAULT) {
+  if (txnHistoryCategory === 1) {
     accountHistoryData = allAccountHistoryData.filter(
       ({ vaultName }) => vaultName
     );

@@ -27,11 +27,12 @@ export const CollateralSelect = ({
       depositBalance,
       collateralOptions,
       availableCollateralTokens,
-      selectedNetwork
+      selectedNetwork,
     },
   } = context;
   const spotRates = useSpotMaturityData(
-    deposit ? availableCollateralTokens : [], selectedNetwork
+    deposit ? availableCollateralTokens : [],
+    selectedNetwork
   );
 
   const options = availableCollateralTokens
@@ -47,6 +48,7 @@ export const CollateralSelect = ({
           : opt?.interestRate ||
             spotRates.find(({ tokenId }) => c.id === tokenId)?.tradeRate ||
             0,
+        largeFigureDecimals: 2,
         largeFigureSuffix:
           c.tokenType === 'fCash' ? '% Fixed APY' : '% Variable APY',
         disabled,
@@ -72,7 +74,7 @@ export const CollateralSelect = ({
           description: 'input caption',
         })}
         values={{
-          apy: `${formatNumberAsPercent(highestApy)}% APY`,
+          apy: `${formatNumberAsPercent(highestApy)} APY`,
         }}
       />
     ) : null;

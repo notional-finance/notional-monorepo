@@ -1,11 +1,11 @@
 import { styled, Box, useTheme, ThemeProvider } from '@mui/material';
 import { useLocation, useHistory } from 'react-router-dom';
 import { colors, NotionalTheme } from '@notional-finance/styles';
-import { useSelectedNetwork } from '@notional-finance/wallet';
 import { Button, LeverUpToggle } from '@notional-finance/mui';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useCardSubNav } from './use-card-sub-nav';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 interface StyledButtonProps {
   active: boolean;
@@ -47,23 +47,23 @@ export const CardSubNav = () => {
         )}
 
         {leveredUp
-          ? leveragedLinks.map(({ title, to }, i) => (
+          ? leveragedLinks.map(({ title, to, key }, i) => (
               <StyledButton
                 key={i}
                 to={to}
                 variant="outlined"
-                active={to === pathname}
+                active={pathname.includes(key)}
                 theme={theme}
               >
                 {title}
               </StyledButton>
             ))
-          : links.map(({ title, to }, i) => (
+          : links.map(({ title, to, key }, i) => (
               <StyledButton
                 key={i}
                 to={to}
                 variant="outlined"
-                active={to === pathname}
+                active={pathname.includes(key)}
                 theme={theme}
               >
                 {title}

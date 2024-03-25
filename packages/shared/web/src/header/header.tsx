@@ -8,7 +8,6 @@ import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
 import MobileNavigation from './mobile-navigation/mobile-navigation';
 import { useHistory, useLocation } from 'react-router';
-import ResourcesDropdown from './resources/resources-dropdown/resources-dropdown';
 import blitz from '@notional-finance/mui/src/assets/icons/blitz.svg';
 import {
   useNotionalContext,
@@ -75,12 +74,7 @@ export function Header({ children }: HeaderProps) {
             <Navigation navLinks={navLinks} />
           </NavContainer>
           <AnalyticsContainer>
-            {pathname === '/' && (
-              <>
-                <AnalyticsDropdown />
-                <ResourcesDropdown />
-              </>
-            )}
+            {pathname === '/' && <AnalyticsDropdown />}
           </AnalyticsContainer>
           <Box
             sx={{
@@ -175,6 +169,7 @@ const AnalyticsContainer = styled(Box)(
     height: ${theme.spacing(9)};
     display: flex;
     align-Items: center;
+    margin-right: ${theme.spacing(3)};
     ${theme.breakpoints.down('sm')} {
       display: none;
     }

@@ -6,12 +6,13 @@ import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import {
   useAccountDefinition,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
   useTotalIncentives,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import { ClaimNOTE } from '@notional-finance/transaction';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { Network } from '@notional-finance/util';
 
 interface ClaimNoteType {
   theme: NotionalTheme;
@@ -19,11 +20,19 @@ interface ClaimNoteType {
   showArbButton?: boolean;
 }
 
-const useIncentiveCountUp = (i?: {
-  current: TokenBalance;
-  in100Sec: TokenBalance;
-}) => {
+const useIncentiveCountUp = (
+  i: {
+    current: TokenBalance;
+    in100Sec: TokenBalance;
+  } | undefined,
+  network: Network
+) => {
   const [c, setCountUp] = useState<number>(0);
+
+  useEffect(() => {
+    // Reset the count up on network change
+    setCountUp(0);
+  }, [network]);
 
   useEffect(() => {
     const currentFloat = i?.current.toFloat();
@@ -51,14 +60,14 @@ const useIncentiveCountUp = (i?: {
 
 export const ClaimNoteButton = () => {
   const theme = useTheme();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const account = useAccountDefinition(network);
   const { isReadOnlyAddress, onSubmit } = useTransactionStatus(network);
   const [hover, setHover] = useState(false);
   const totalIncentives = useTotalIncentives(network);
 
-  const noteCountUp = useIncentiveCountUp(totalIncentives['NOTE']);
-  const arbCountUp = useIncentiveCountUp(totalIncentives['ARB']);
+  const noteCountUp = useIncentiveCountUp(totalIncentives['NOTE'], network);
+  const arbCountUp = useIncentiveCountUp(totalIncentives['ARB'], network);
 
   const handleClick = useCallback(async () => {
     if (isReadOnlyAddress || !account || !network) return;

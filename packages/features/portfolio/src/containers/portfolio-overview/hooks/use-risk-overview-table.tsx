@@ -5,12 +5,12 @@ import {
 } from '@notional-finance/mui';
 import {
   useCurrentLiquidationPrices,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useRiskOverviewTable = () => {
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const { exchangeRateRisk, vaultLiquidation } =
     useCurrentLiquidationPrices(network);
 

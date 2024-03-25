@@ -1,5 +1,4 @@
 import {
-  YieldData,
   Registry,
   TokenBalance,
   fCashMarket,
@@ -22,6 +21,7 @@ import {
 } from 'rxjs';
 import { CalculatedPriceChanges, GlobalState } from '../global-state';
 import { globalWhenAppReady$ } from './on-app-load';
+import { getIndexedYields } from '../data/yields';
 
 export function onDataUpdate(global$: Observable<GlobalState>) {
   return merge(
@@ -42,10 +42,13 @@ function onYieldsUpdate$(global$: Observable<GlobalState>) {
             allYields: networks.reduce((acc, n) => {
               // Skips yield registries that are not registered
               if (Registry.getYieldRegistry().isNetworkRegistered(n)) {
-                acc[n] = Registry.getYieldRegistry().getAllYields(n);
+                acc[n] = getIndexedYields(
+                  n,
+                  Registry.getYieldRegistry().getAllYields(n)
+                );
               }
               return acc;
-            }, {} as Record<Network, YieldData[]>),
+            }, {} as Record<Network, ReturnType<typeof getIndexedYields>>),
           };
         })
       );

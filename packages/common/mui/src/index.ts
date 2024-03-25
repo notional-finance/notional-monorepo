@@ -74,3 +74,5 @@ export * from './lib/external-link/external-link';
 export * from './lib/drawer-transition/drawer-transition';
 export * from './lib/manage-side-drawer/manage-side-drawer';
 export type { CurrencySelectOption } from './lib/currency-input/currency-select';
+export * from './lib/simple-toggle/simple-toggle';
+export * from './lib/footer-popup/footer-popup';

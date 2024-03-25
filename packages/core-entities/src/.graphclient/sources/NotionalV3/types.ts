@@ -875,7 +875,10 @@ export type CurrencyConfiguration = {
   pCash?: Maybe<Token>;
   /** Some currencies will not allow prime debt */
   pDebt?: Maybe<Token>;
+  /** Maximum supply in underlying terms (in 8 decimals) */
   maxUnderlyingSupply?: Maybe<Scalars['BigInt']>;
+  /** Maximum utilization of the max underlying supply by prime debt */
+  maxPrimeDebtUtilization?: Maybe<Scalars['BigInt']>;
   /** Exchange Rate Parameters */
   collateralHaircut?: Maybe<Scalars['Int']>;
   debtBuffer?: Maybe<Scalars['Int']>;
@@ -928,8 +931,8 @@ export type CurrencyConfiguration = {
   pvHaircutPercentage?: Maybe<Scalars['Int']>;
   /** Discount on nToken PV given to liquidators */
   liquidationHaircutPercentage?: Maybe<Scalars['Int']>;
-  /** Maximum valuation deviation percentage for nToken minting */
-  maxMintDeviationPercentage?: Maybe<Scalars['Int']>;
+  /** Maximum valuation deviation in basis points for nToken minting */
+  maxMintDeviationBasisPoints?: Maybe<Scalars['Int']>;
   incentives?: Maybe<Incentive>;
   externalLending?: Maybe<ExternalLending>;
 };
@@ -1058,6 +1061,14 @@ export type CurrencyConfiguration_filter = {
   maxUnderlyingSupply_lte?: InputMaybe<Scalars['BigInt']>;
   maxUnderlyingSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maxUnderlyingSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  maxPrimeDebtUtilization?: InputMaybe<Scalars['BigInt']>;
+  maxPrimeDebtUtilization_not?: InputMaybe<Scalars['BigInt']>;
+  maxPrimeDebtUtilization_gt?: InputMaybe<Scalars['BigInt']>;
+  maxPrimeDebtUtilization_lt?: InputMaybe<Scalars['BigInt']>;
+  maxPrimeDebtUtilization_gte?: InputMaybe<Scalars['BigInt']>;
+  maxPrimeDebtUtilization_lte?: InputMaybe<Scalars['BigInt']>;
+  maxPrimeDebtUtilization_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  maxPrimeDebtUtilization_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   collateralHaircut?: InputMaybe<Scalars['Int']>;
   collateralHaircut_not?: InputMaybe<Scalars['Int']>;
   collateralHaircut_gt?: InputMaybe<Scalars['Int']>;
@@ -1289,14 +1300,14 @@ export type CurrencyConfiguration_filter = {
   liquidationHaircutPercentage_lte?: InputMaybe<Scalars['Int']>;
   liquidationHaircutPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
   liquidationHaircutPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
-  maxMintDeviationPercentage?: InputMaybe<Scalars['Int']>;
-  maxMintDeviationPercentage_not?: InputMaybe<Scalars['Int']>;
-  maxMintDeviationPercentage_gt?: InputMaybe<Scalars['Int']>;
-  maxMintDeviationPercentage_lt?: InputMaybe<Scalars['Int']>;
-  maxMintDeviationPercentage_gte?: InputMaybe<Scalars['Int']>;
-  maxMintDeviationPercentage_lte?: InputMaybe<Scalars['Int']>;
-  maxMintDeviationPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
-  maxMintDeviationPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  maxMintDeviationBasisPoints?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationBasisPoints_not?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationBasisPoints_gt?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationBasisPoints_lt?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationBasisPoints_gte?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationBasisPoints_lte?: InputMaybe<Scalars['Int']>;
+  maxMintDeviationBasisPoints_in?: InputMaybe<Array<Scalars['Int']>>;
+  maxMintDeviationBasisPoints_not_in?: InputMaybe<Array<Scalars['Int']>>;
   incentives_?: InputMaybe<Incentive_filter>;
   externalLending_?: InputMaybe<ExternalLending_filter>;
   /** Filter for the block changed event. */
@@ -1374,6 +1385,7 @@ export type CurrencyConfiguration_orderBy =
   | 'pDebt__vaultAddress'
   | 'pDebt__tokenAddress'
   | 'maxUnderlyingSupply'
+  | 'maxPrimeDebtUtilization'
   | 'collateralHaircut'
   | 'debtBuffer'
   | 'liquidationDiscount'
@@ -1415,7 +1427,7 @@ export type CurrencyConfiguration_orderBy =
   | 'cashWithholdingBufferBasisPoints'
   | 'pvHaircutPercentage'
   | 'liquidationHaircutPercentage'
-  | 'maxMintDeviationPercentage'
+  | 'maxMintDeviationBasisPoints'
   | 'incentives'
   | 'incentives__id'
   | 'incentives__lastUpdateBlockNumber'
@@ -2028,6 +2040,7 @@ export type ExternalLending_orderBy =
   | 'currencyConfiguration__lastUpdateTimestamp'
   | 'currencyConfiguration__lastUpdateTransactionHash'
   | 'currencyConfiguration__maxUnderlyingSupply'
+  | 'currencyConfiguration__maxPrimeDebtUtilization'
   | 'currencyConfiguration__collateralHaircut'
   | 'currencyConfiguration__debtBuffer'
   | 'currencyConfiguration__liquidationDiscount'
@@ -2049,7 +2062,7 @@ export type ExternalLending_orderBy =
   | 'currencyConfiguration__cashWithholdingBufferBasisPoints'
   | 'currencyConfiguration__pvHaircutPercentage'
   | 'currencyConfiguration__liquidationHaircutPercentage'
-  | 'currencyConfiguration__maxMintDeviationPercentage'
+  | 'currencyConfiguration__maxMintDeviationBasisPoints'
   | 'underlying'
   | 'underlying__id'
   | 'underlying__firstUpdateBlockNumber'
@@ -2530,6 +2543,7 @@ export type Incentive_orderBy =
   | 'currencyConfiguration__lastUpdateTimestamp'
   | 'currencyConfiguration__lastUpdateTransactionHash'
   | 'currencyConfiguration__maxUnderlyingSupply'
+  | 'currencyConfiguration__maxPrimeDebtUtilization'
   | 'currencyConfiguration__collateralHaircut'
   | 'currencyConfiguration__debtBuffer'
   | 'currencyConfiguration__liquidationDiscount'
@@ -2551,7 +2565,7 @@ export type Incentive_orderBy =
   | 'currencyConfiguration__cashWithholdingBufferBasisPoints'
   | 'currencyConfiguration__pvHaircutPercentage'
   | 'currencyConfiguration__liquidationHaircutPercentage'
-  | 'currencyConfiguration__maxMintDeviationPercentage'
+  | 'currencyConfiguration__maxMintDeviationBasisPoints'
   | 'secondaryIncentiveRewarder'
   | 'incentiveEmissionRate'
   | 'accumulatedNOTEPerNToken'
@@ -5838,6 +5852,7 @@ export type Transaction = {
   _nextStartIndex: Scalars['Int'];
   transfers?: Maybe<Array<Transfer>>;
   transferBundles?: Maybe<Array<TransferBundle>>;
+  profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
 };
 
 
@@ -5874,6 +5889,15 @@ export type TransactiontransferBundlesArgs = {
   orderBy?: InputMaybe<TransferBundle_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<TransferBundle_filter>;
+};
+
+
+export type TransactionprofitLossLineItemsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ProfitLossLineItem_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ProfitLossLineItem_filter>;
 };
 
 export type Transaction_filter = {
@@ -5935,6 +5959,7 @@ export type Transaction_filter = {
   _nextStartIndex_not_in?: InputMaybe<Array<Scalars['Int']>>;
   transfers_?: InputMaybe<Transfer_filter>;
   transferBundles_?: InputMaybe<TransferBundle_filter>;
+  profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Transaction_filter>>>;
@@ -5950,7 +5975,8 @@ export type Transaction_orderBy =
   | '_transferBundles'
   | '_nextStartIndex'
   | 'transfers'
-  | 'transferBundles';
+  | 'transferBundles'
+  | 'profitLossLineItems';
 
 export type Transfer = {
   /** Transaction Hash:Log Index */
@@ -7080,6 +7106,7 @@ export type WhitelistedContract_orderBy =
   | 'currency__lastUpdateTimestamp'
   | 'currency__lastUpdateTransactionHash'
   | 'currency__maxUnderlyingSupply'
+  | 'currency__maxPrimeDebtUtilization'
   | 'currency__collateralHaircut'
   | 'currency__debtBuffer'
   | 'currency__liquidationDiscount'
@@ -7101,7 +7128,7 @@ export type WhitelistedContract_orderBy =
   | 'currency__cashWithholdingBufferBasisPoints'
   | 'currency__pvHaircutPercentage'
   | 'currency__liquidationHaircutPercentage'
-  | 'currency__maxMintDeviationPercentage';
+  | 'currency__maxMintDeviationBasisPoints';
 
 export type _Block_ = {
   /** The hash of the block */

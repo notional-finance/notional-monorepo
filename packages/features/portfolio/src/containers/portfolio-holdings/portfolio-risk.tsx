@@ -28,7 +28,7 @@ import {
   useCurrentLiquidationPrices,
   useFiat,
   usePortfolioRiskProfile,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useState } from 'react';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
@@ -138,7 +138,7 @@ export const PortfolioRisk = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const [isExpanded, setExpanded] = useState(false);
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const isAccountReady = useAccountReady(network);
   const profile = usePortfolioRiskProfile(network);
   const baseCurrency = useFiat();
@@ -200,7 +200,7 @@ export const PortfolioRisk = () => {
                 profile
                   ?.totalAssets()
                   .toFiat(baseCurrency)
-                  .toDisplayStringWithSymbol(3, true) || '-'
+                  .toDisplayStringWithSymbol(2, true) || '-'
               }
             />
             <LabelAndValue
@@ -210,7 +210,7 @@ export const PortfolioRisk = () => {
                   ?.totalDebt()
                   .abs()
                   .toFiat(baseCurrency)
-                  .toDisplayStringWithSymbol(3, true) || '-'
+                  .toDisplayStringWithSymbol(2, true) || '-'
               }
             />
             <LabelAndValue

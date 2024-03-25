@@ -663,7 +663,7 @@ const getThemeData = (
         dark: colors.orange,
       },
       info: {
-        light: alpha(colors.aqua, 0.15),
+        light: themeVariant === THEME_VARIANTS.LIGHT ? alpha(colors.aqua, 0.15) : alpha(colors.neonTurquoise, 0.25),
         main:
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.neonTurquoise

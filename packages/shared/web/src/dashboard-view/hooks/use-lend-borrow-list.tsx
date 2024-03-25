@@ -55,7 +55,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
       ),
       Cell: DisplayCell,
       displayFormatter: (val, symbol) => {
-        return `${formatNumber(val, 2)} ${symbol}`;
+        return `${formatNumber(val, 4)} ${symbol}`;
       },
       showSymbol: true,
       accessor: 'walletBalance',
@@ -94,7 +94,8 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
         />
       ),
       Cell: DisplayCell,
-      displayFormatter: formatNumberAsAbbr,
+      displayFormatter: (value: number) =>
+        formatNumberAsAbbr(value, 0, baseCurrency),
       accessor: 'liquidity',
       textAlign: 'right',
       sortType: 'basic',
@@ -154,6 +155,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
           symbolSize: 'large',
           symbolBottom: '',
           label: y.underlying.symbol,
+          network: network,
           caption: network.charAt(0).toUpperCase() + network.slice(1),
         },
         walletBalance: walletBalance?.toFloat() || 0,

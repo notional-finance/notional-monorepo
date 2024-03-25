@@ -13,16 +13,19 @@ export const TotalRow = ({ totalsData }: { totalsData: TotalBoxProps[] }) => {
         marginTop: theme.spacing(3),
       }}
     >
-      {totalsData.map(({ title, value, Icon, prefix, suffix }, index) => (
-        <TotalBox
-          title={title}
-          value={value}
-          key={index}
-          Icon={Icon}
-          prefix={prefix}
-          suffix={suffix}
-        />
-      ))}
+      {totalsData.map(
+        ({ title, value, Icon, prefix, suffix, decimals }, index) => (
+          <TotalBox
+            title={title}
+            value={value}
+            key={index}
+            Icon={Icon}
+            prefix={prefix}
+            suffix={suffix}
+            decimals={decimals}
+          />
+        )
+      )}
     </Box>
   );
 };

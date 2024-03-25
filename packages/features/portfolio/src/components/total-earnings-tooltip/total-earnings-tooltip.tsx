@@ -36,9 +36,13 @@ export const TotalEarningsTooltip = ({
               >
                 {symbol}:
                 <FirstValue
-                  sx={{ marginLeft: theme.spacing(1) }}
+                  sx={{
+                    marginLeft: theme.spacing(1),
+                    color: value?.includes('-')
+                      ? theme.palette.error.main
+                      : theme.palette.primary.main,
+                  }}
                   theme={theme}
-                  isNegative={value?.includes('-')}
                 >
                   {value}
                 </FirstValue>
@@ -100,7 +104,7 @@ const FirstValue = styled(H5, {
   ({ theme, isNegative }: FirstValueProps) => `
   margin-right: ${theme.spacing(1)};
   color: ${
-    isNegative ? theme.palette.error.main : theme.palette.typography.main
+    isNegative ? theme.palette.typography.main : theme.palette.primary.main
   };
 `
 );

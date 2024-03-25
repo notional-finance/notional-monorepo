@@ -8,14 +8,14 @@ import {
   useAccountReady,
   usePortfolioRiskProfile,
   useFiat,
-  useSelectedPortfolioNetwork,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { Registry } from '@notional-finance/core-entities';
 
 export const useTotalHoldingsTable = () => {
   const baseCurrency = useFiat();
-  const network = useSelectedPortfolioNetwork();
+  const network = useSelectedNetwork();
   const portfolio = usePortfolioRiskProfile(network);
   const isAccountReady = useAccountReady(network);
 
@@ -85,6 +85,7 @@ export const useTotalHoldingsTable = () => {
           ),
           assets: formatCryptoWithFiat(baseCurrency, totalAssets),
           debts: formatCryptoWithFiat(baseCurrency, totalDebts),
+          isDebt: totalDebts ? true : false,
         };
       }) || []
     : [];
@@ -101,7 +102,7 @@ export const useTotalHoldingsTable = () => {
           {
             displayValue: netWorth
               .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(3, true),
+              .toDisplayStringWithSymbol(2, true),
             isNegative: netWorth.isNegative(),
           },
         ],
@@ -111,7 +112,7 @@ export const useTotalHoldingsTable = () => {
           {
             displayValue: totalAssets
               .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(3, true),
+              .toDisplayStringWithSymbol(2, true),
             isNegative: totalAssets.isNegative(),
           },
         ],
@@ -121,11 +122,12 @@ export const useTotalHoldingsTable = () => {
           {
             displayValue: totalDebt
               .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(3, true),
-            isNegative: totalDebt.isNegative(),
+              .toDisplayStringWithSymbol(2, true),
+            isNegative: false,
           },
         ],
       },
+      isDebt: totalDebt ? true : false,
     });
   }
 
