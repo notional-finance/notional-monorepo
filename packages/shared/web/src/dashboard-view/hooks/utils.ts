@@ -15,7 +15,7 @@ export const getTotalIncentiveApy = (num1?: number, num2?: number) => {
   } else if (num2) {
     return formatNumberAsPercent(num2);
   } else {
-    return formatNumberAsPercent(0);
+    return undefined;
   }
 };
 

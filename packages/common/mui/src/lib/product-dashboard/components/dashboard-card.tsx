@@ -30,6 +30,9 @@ export const DashboardCard = ({
   const theme = useTheme();
   const hideFooter = !bottomValue && !incentiveSymbols;
 
+  console.log({ incentiveValue });
+  console.log({ incentiveSymbols });
+
   return (
     <GridCard onClick={() => routeCallback()}>
       <Box
@@ -123,15 +126,19 @@ export const DashboardCard = ({
                 }}
               />
             ))}
-            <Box
-              sx={{
-                color: theme.palette.typography.main,
-                marginRight: theme.spacing(0.5),
-              }}
-            >
-              {incentiveValue}
-            </Box>
-            <FormattedMessage defaultMessage={'Incentive APY'} />
+            {incentiveValue && (
+              <>
+                <Box
+                  sx={{
+                    color: theme.palette.typography.main,
+                    marginRight: theme.spacing(0.5),
+                  }}
+                >
+                  {incentiveValue}
+                </Box>
+                <FormattedMessage defaultMessage={'Incentive APY'} />
+              </>
+            )}
           </SectionTitle>
         )}
       </GridCardFooter>
@@ -142,6 +149,7 @@ export const DashboardCard = ({
 const GridCardFooter = styled(Box)(
   ({ theme }) => `
       width: 100%;
+      min-height: 32.8px;
       background: ${theme.palette.background.default};
       border-radius: 0px 0px ${theme.shape.borderRadius()} ${theme.shape.borderRadius()};
       padding: ${theme.spacing(1, 2)};
