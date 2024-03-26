@@ -30,9 +30,6 @@ export const DashboardCard = ({
   const theme = useTheme();
   const hideFooter = !bottomValue && !incentiveSymbols;
 
-  console.log({ incentiveValue });
-  console.log({ incentiveSymbols });
-
   return (
     <GridCard onClick={() => routeCallback()}>
       <Box
