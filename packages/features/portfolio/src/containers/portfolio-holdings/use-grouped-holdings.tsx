@@ -153,7 +153,7 @@ export function useGroupedHoldingsTable() {
           earnings: totalEarningsWithNOTE
             ? totalEarningsWithNOTE
                 .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(2, true)
+                .toDisplayStringWithSymbol(2, true, true, 'en-US', true)
             : '-',
           toolTipData:
             totalIncentiveEarnings.length > 0
