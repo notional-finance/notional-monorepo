@@ -42,7 +42,7 @@ export const useVaultFaq = (
     {
       question: (
         <FormattedMessage
-          defaultMessage={'How it works?'}
+          defaultMessage={'How does it work?'}
           description={'faq question'}
         />
       ),
