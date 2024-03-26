@@ -21,10 +21,12 @@ interface ClaimNoteType {
 }
 
 const useIncentiveCountUp = (
-  i: {
-    current: TokenBalance;
-    in100Sec: TokenBalance;
-  } | undefined,
+  i:
+    | {
+        current: TokenBalance;
+        in100Sec: TokenBalance;
+      }
+    | undefined,
   network: Network
 ) => {
   const [c, setCountUp] = useState<number>(0);
@@ -89,7 +91,7 @@ export const ClaimNoteButton = () => {
         justifyContent: 'end',
       }}
     >
-      {noteCountUp > 0 && account && (
+      {(noteCountUp > 0 || arbCountUp > 0) && account && (
         <Wrapper
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
@@ -98,16 +100,18 @@ export const ClaimNoteButton = () => {
           <ClaimNoteWrapper hover={hover} theme={theme}>
             <FormattedMessage defaultMessage={'Claim'} />{' '}
           </ClaimNoteWrapper>
-          <NoteWrapper theme={theme} showArbButton={arbCountUp > 0}>
-            <NoteIcon />
-            <Box sx={{ paddingLeft: theme.spacing(1) }}>
-              {noteCountUp > 0 ? (
-                <CountUp value={noteCountUp} duration={0.1} decimals={8} />
-              ) : (
-                ''
-              )}
-            </Box>
-          </NoteWrapper>
+          {noteCountUp > 0 && (
+            <NoteWrapper theme={theme} showArbButton={arbCountUp > 0}>
+              <NoteIcon />
+              <Box sx={{ paddingLeft: theme.spacing(1) }}>
+                {noteCountUp > 0 ? (
+                  <CountUp value={noteCountUp} duration={0.1} decimals={8} />
+                ) : (
+                  ''
+                )}
+              </Box>
+            </NoteWrapper>
+          )}
           {arbCountUp > 0 && (
             <ArbWrapper theme={theme}>
               <ArbitrumIcon />
