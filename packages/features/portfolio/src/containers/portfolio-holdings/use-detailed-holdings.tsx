@@ -288,7 +288,13 @@ export function useDetailedHoldingsTable() {
       },
       amountPaid: totals.amountPaid.toDisplayStringWithSymbol(2),
       presentValue: totals.presentValue.toDisplayStringWithSymbol(2),
-      earnings: totals.earnings.toDisplayStringWithSymbol(2),
+      earnings: totals.earnings.toDisplayStringWithSymbol(
+        2,
+        true,
+        true,
+        'en-US',
+        true
+      ),
       toolTipData:
         totals.totalIncentiveEarnings.length > 0
           ? {
