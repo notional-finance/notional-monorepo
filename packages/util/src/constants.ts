@@ -56,8 +56,8 @@ export const NetworkId: Record<Network, number> = {
 };
 
 export const SupportedNetworks = [Network.arbitrum, Network.mainnet];
-export const STABLE_COINS = ['USDC', 'USDT', 'DAI', 'FRAX'];
-export const LSDS = ['wstETH', 'cbETH', 'rETH', 'sDAI'];
+export const STABLE_COINS = ['USDC', 'USDT', 'DAI', 'FRAX', 'sDAI'];
+export const LSDS = ['wstETH', 'cbETH', 'rETH'];
 export const NATIVE_YIELD = [...LSDS, 'sDAI'];
 
 export const AlchemyUrl: Record<Network, string> = {

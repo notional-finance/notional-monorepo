@@ -409,17 +409,38 @@ export class TokenBalance {
     decimalPlaces?: number,
     abbr = true,
     useThousandsAbbr = true,
-    locale = 'en-US'
+    locale = 'en-US',
+    hideSmallNegativeValues = false
   ) {
+    function containsNonZeroNumber(str: string) {
+      // Remove symbols like $ , . etc.
+      const cleanedStr = str ? str?.replace(/[$,.]/g, '') : '';
+      // Check if the string contains any digit other than 0 and is negative
+      return /\d*[1-9]\d*/.test(cleanedStr)
+    }
     if (this.tokenType === 'Fiat' && this.symbol !== 'NOTE') {
-      return `${this.isNegative() ? '-' : ''}${
-        FiatSymbols[this.token.symbol as FiatKeys]
-      }${this.abs().toDisplayString(
+      if(this.isNegative() && hideSmallNegativeValues && !containsNonZeroNumber(this.abs().toDisplayString(
         decimalPlaces === undefined ? 2 : decimalPlaces,
         abbr,
         useThousandsAbbr,
         locale
-      )}`;
+      ))) {
+        return `${FiatSymbols[this.token.symbol as FiatKeys]}${this.abs().toDisplayString(
+          decimalPlaces === undefined ? 2 : decimalPlaces,
+          abbr,
+          useThousandsAbbr,
+          locale
+        )}`
+      } else {
+        return `${this.isNegative() ? '-' : ''}${
+          FiatSymbols[this.token.symbol as FiatKeys]
+        }${this.abs().toDisplayString(
+          decimalPlaces === undefined ? 2 : decimalPlaces,
+          abbr,
+          useThousandsAbbr,
+          locale
+        )}`;
+      }
     } else {
       return `${this.toDisplayString(
         decimalPlaces === undefined ? 4 : decimalPlaces,
