@@ -127,7 +127,7 @@ export function Header({ children }: HeaderProps) {
             <H4 sx={{ color: colors.black, fontWeight: 500 }}>
               <FormattedMessage
                 defaultMessage={
-                  'Notional V2 is being deprecated. V3 is launching on mainnet March 25th! <a1>Learn more</a1>'
+                  'Notional V2 is being deprecated. Notional V3 is now live! <a1>Learn more</a1>'
                 }
                 values={{
                   a1: (msg: any) => (
