@@ -19,6 +19,48 @@ export const Curve_Config = [
     [ArbTokenConfig['USDC_e'], ArbTokenConfig['FRAX']]
   ),
   getCurveV1PoolConfig(
+    '0xec090cf6dd891d2d014bea6edada6e05e025d93d',
+    '0xb12600d06753df7c706225c901e6c1346a654d0b',
+    Network.arbitrum,
+    Strategy.Arb_Convex_crvUSD_USDC,
+    [ArbTokenConfig['USDC'], ArbTokenConfig['crvUSD']],
+    [
+      getOracleValue(
+        Network.arbitrum,
+        Strategy.Arb_Convex_crvUSD_USDC,
+        'USDC to USD Price',
+        '0x50834F3163758fcC1Df9973b6e91f0F0F0434aD3'
+      ),
+      getOracleValue(
+        Network.arbitrum,
+        Strategy.Arb_Convex_crvUSD_USDC,
+        'crvUSD to USD Price',
+        '0x0a32255dd4BB6177C994bAAc73E0606fDD568f66'
+      ),
+    ]
+  ),
+  getCurveV1PoolConfig(
+    '0x73af1150f265419ef8a5db41908b700c32d49135',
+    '0xb12600d06753df7c706225c901e6c1346a654d0b',
+    Network.arbitrum,
+    Strategy.Arb_Convex_crvUSD_USDT,
+    [ArbTokenConfig['USDT'], ArbTokenConfig['crvUSD']],
+    [
+      getOracleValue(
+        Network.arbitrum,
+        Strategy.Arb_Convex_crvUSD_USDT,
+        'USDT to USD Price',
+        '0x3f3f5dF88dC9F13eac63DF89EC16ef6e7E25DdE7'
+      ),
+      getOracleValue(
+        Network.arbitrum,
+        Strategy.Arb_Convex_crvUSD_USDT,
+        'crvUSD to USD Price',
+        '0x0a32255dd4BB6177C994bAAc73E0606fDD568f66'
+      ),
+    ]
+  ),
+  getCurveV1PoolConfig(
     '0x4DEcE678ceceb27446b35C672dC7d61F30bAD69E',
     '0x95f00391cB5EebCd190EB58728B4CE23DbFa6ac1',
     Network.mainnet,

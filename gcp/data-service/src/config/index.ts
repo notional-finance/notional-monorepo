@@ -53,6 +53,11 @@ export const ArbTokenConfig = {
     symbol: 'RDNT',
     decimals: 18,
   },
+  crvUSD: {
+    address: '0x0a32255dd4BB6177C994bAAc73E0606fDD568f66',
+    symbol: 'crvUSD',
+    decimals: 18,
+  },
 } as const;
 
 export const EthTokenConfig = {
@@ -99,6 +104,11 @@ export const EthTokenConfig = {
   GHO: {
     address: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
     symbol: 'GHO',
+    decimals: 18,
+  },
+  ezETH: {
+    address: '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110',
+    symbol: 'ezETH',
     decimals: 18,
   },
 } as const;

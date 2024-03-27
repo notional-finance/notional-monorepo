@@ -188,6 +188,46 @@ export const Balancer_Config = [
         'weETH to ETH Price',
         '0x8751F736E94F6CD167e8C5B97E245680FbD9CC36'
       ),
+      {
+        sourceType: SourceType.Multicall,
+        sourceConfig: {
+          contractAddress: '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee',
+          contractABI: [
+            {
+              inputs: [],
+              name: 'getRate',
+              outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ],
+          method: 'getRate',
+        },
+        tableName: TableName.GenericData,
+        dataConfig: {
+          strategyId: Strategy.Eth_Balancer_rETH_weETH,
+          variable: 'eETH to weETH Rate',
+          decimals: 18,
+        },
+        network: Network.mainnet,
+      },
+    ]
+  ),
+  getComposablePoolConfig(
+    '0x596192bb6e41802428ac943d2f1476c1af25cc0e000000000000000000000659',
+    '0x596192bb6e41802428ac943d2f1476c1af25cc0e',
+    '0xa8B309a75f0D64ED632d45A003c68A30e59A1D8b',
+    '0xa8B309a75f0D64ED632d45A003c68A30e59A1D8b',
+    Network.mainnet,
+    Strategy.Eth_Balancer_ezETH_WETH,
+    [EthTokenConfig['ezETH'], EthTokenConfig['WETH']],
+    [
+      getOracleValue(
+        Network.mainnet,
+        Strategy.Eth_Balancer_ezETH_WETH,
+        'ezETH to ETH Price',
+        '0xF4a3e183F59D2599ee3DF213ff78b1B3b1923696'
+      ),
     ]
   ),
 ].flatMap((_) => _);
