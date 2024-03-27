@@ -1,13 +1,17 @@
-query AccountTransactionHistory($accountId: ID!) {
-  account(id: $accountId) {
-    id
-    profitLossLineItems(
-      first: 1000, orderBy: blockNumber, orderDirection: desc
-    ) {
+query AccountTransactionHistory($accountId: String!) {
+  transactions(
+    where: { profitLossLineItems_: { account: $accountId } },
+    orderBy: timestamp,
+    orderDirection: desc
+  ) {
+    timestamp
+    blockNumber
+    transactionHash 
+    profitLossLineItems(where: { account: $accountId }) {
       timestamp
       blockNumber
       transactionHash { id }
-      token { id }
+      token { id tokenType }
       underlyingToken { id }
       tokenAmount
       bundle { bundleName }
