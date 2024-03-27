@@ -4,8 +4,6 @@ import {
   Privacy,
   Language,
   LanguageButton,
-  NetworkSelector,
-  NetworkSettingsButton,
   EnabledCurrencies,
   EnabledCurrenciesButton,
   BaseCurrency,
@@ -68,19 +66,6 @@ export const useSettingsSideDrawer = () => {
     //   label: 'Notification & Reminder Settings',
     //   buttonText: 'Default',
     // },
-    {
-      key: 'network',
-      active: false,
-      label: (
-        <FormattedMessage
-          defaultMessage="Network"
-          description={'Network option title'}
-        />
-      ),
-      ViewComponent: NetworkSelector,
-      CustomButton: NetworkSettingsButton,
-      buttonText: '',
-    },
     {
       key: 'language',
       active: false,

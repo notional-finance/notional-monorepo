@@ -42,7 +42,8 @@ export function useDepositInput(
     !isWithdraw &&
     isAccountReady &&
     depositSymbol === 'USDC' &&
-    insufficientBalance === true
+    insufficientBalance === true &&
+    selectedNetwork === Network.arbitrum
   ) {
     errorMsg = tradeErrors.usdcNotUSDCeMsg;
   } else if (!isWithdraw && isAccountReady && insufficientBalance === true) {
