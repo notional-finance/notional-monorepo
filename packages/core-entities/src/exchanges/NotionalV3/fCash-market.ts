@@ -272,10 +272,7 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     tokensIn[0].isMatch(this.balances[0]);
 
     // Should use the oracle to fetch the nToken PV
-    const lpTokenOracleValue = this.getBalanceArrayOracleValue(
-      this.balances,
-      0
-    );
+    const lpTokenOracleValue = this.totalSupply.toPrimeCash();
     const lpTokenSpotValue = this.getNTokenSpotValue();
 
     const lpTokens = this.totalSupply.scale(
@@ -379,7 +376,8 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
               OracleRegistryClient.interestToExchangeRate(
                 BigNumber.from(
                   Math.floor(
-                    (this.getSpotInterestRate(b.token) || 0) * RATE_DECIMALS
+                    ((this.getSpotInterestRate(b.token) || 0) / 100) *
+                      -RATE_PRECISION
                   )
                 ),
                 b.maturity
