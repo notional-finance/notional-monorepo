@@ -66,7 +66,7 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
         </Item>
       )}
       {payload?.map((item, index) => (
-        <div>
+        <div key={index}>
           {item?.value && item.value > 0 ? (
             <Item key={index}>
               <Box
