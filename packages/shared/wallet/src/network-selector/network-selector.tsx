@@ -80,7 +80,7 @@ export const NetworkSelectorButton = ({
             />
           )}
           <Paragraph main>
-            {balance.toDisplayStringWithSymbol(4, true)}
+            {balance.toDisplayStringWithSymbol(2, true)}
             {balance.tokenType === 'Fiat' ? ' Net Worth' : ''}
           </Paragraph>
         </Box>

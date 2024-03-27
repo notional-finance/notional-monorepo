@@ -20,3 +20,10 @@ export function percentChange(
   if (!current || updated === undefined) return undefined;
   return (100 * (current - updated)) / current;
 }
+
+export function containsNonZeroNumber(str: string) {
+  // Remove symbols like $ , . etc.
+  const cleanedStr = str ? str?.replace(/[$,.]/g, '') : '';
+  // Check if the string contains any digit other than 0 and is negative
+  return /\d*[1-9]\d*/.test(cleanedStr)
+}

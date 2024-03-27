@@ -249,7 +249,8 @@ export const useMarketsTable = (
           },
         };
       })
-      .filter(({ product }) => product !== 'Leveraged Lend');
+      .filter(({ product }) => product !== 'Leveraged Lend')
+      .sort((a, b) => b.totalAPY - a.totalAPY);
   };
 
   const initialData =

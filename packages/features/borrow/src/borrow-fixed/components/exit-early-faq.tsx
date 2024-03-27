@@ -15,7 +15,7 @@ export const ExitEarlyFaq = ({ selectedDepositToken }: ExitEarlyFaqProps) => {
           <Body sx={{ marginBottom: theme.spacing(1) }}>
             <FormattedMessage
               defaultMessage={
-                'Yes. You can close out your loan early by buying back the f{selectedDepositToken} you sold on the fixed rate liquidity pool before maturity. Loans on the 3 month or 6 month liquidity pool will always be liquid while loans on the 1 year liquidity pool may be temporarily illiquid.'
+                'Yes. You can close out your loan early by buying back the f{selectedDepositToken} you sold on the fixed rate liquidity pool before maturity.'
               }
               values={{ selectedDepositToken }}
             />

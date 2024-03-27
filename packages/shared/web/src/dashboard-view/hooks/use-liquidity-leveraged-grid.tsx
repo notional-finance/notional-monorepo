@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { defineMessage } from 'react-intl';
+import { defineMessage, FormattedMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
 // import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { useFiat } from '@notional-finance/notionable-hooks';
@@ -11,10 +11,13 @@ import {
   useLeveragedNTokenPositions,
   useMaxYield,
 } from '@notional-finance/trade';
+import { Box, useTheme } from '@mui/material';
+import { LeafIcon } from '@notional-finance/icons';
 
 export const useLiquidityLeveragedGrid = (
   network: Network
 ): DashboardGridProps => {
+  const theme = useTheme();
   const history = useHistory();
   const baseCurrency = useFiat();
   const { nTokenPositions } = useLeveragedNTokenPositions(network);
@@ -53,12 +56,28 @@ export const useLiquidityLeveragedGrid = (
               defaultMessage: `AS HIGH AS`,
               description: 'subtitle',
             }),
-        bottomValue: ``,
+        bottomValue:
+          getTotalIncentiveApy(
+            y.noteIncentives?.incentiveAPY,
+            y.secondaryIncentives?.incentiveAPY
+          ) === undefined ? (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <LeafIcon
+                sx={{
+                  marginRight: theme.spacing(1),
+                  height: theme.spacing(1.75),
+                  width: theme.spacing(1.75),
+                }}
+              />
+              <FormattedMessage defaultMessage={'Organic APY'} />
+            </Box>
+          ) : (
+            ''
+          ),
         incentiveValue: currentPosition
           ? getTotalIncentiveApy(
-              currentPosition?.asset.marketYield?.noteIncentives?.incentiveAPY,
-              currentPosition?.asset.marketYield?.secondaryIncentives
-                ?.incentiveAPY
+              y.noteIncentives?.incentiveAPY,
+              y.secondaryIncentives?.incentiveAPY
             )
           : getTotalIncentiveApy(
               y?.noteIncentives?.incentiveAPY,
@@ -66,12 +85,24 @@ export const useLiquidityLeveragedGrid = (
             ),
         incentiveSymbols: currentPosition
           ? getTotalIncentiveSymbol(
-              currentPosition?.asset.marketYield?.secondaryIncentives?.symbol,
-              currentPosition?.asset.marketYield?.noteIncentives?.symbol
+              y.secondaryIncentives?.incentiveAPY &&
+                y.secondaryIncentives?.incentiveAPY > 0
+                ? y.secondaryIncentives?.symbol
+                : undefined,
+              y.noteIncentives?.incentiveAPY &&
+                y.noteIncentives?.incentiveAPY > 0
+                ? y.noteIncentives?.symbol
+                : undefined
             )
           : getTotalIncentiveSymbol(
-              y?.secondaryIncentives?.symbol,
-              y?.noteIncentives?.symbol
+              y.secondaryIncentives?.incentiveAPY &&
+                y.secondaryIncentives?.incentiveAPY > 0
+                ? y.secondaryIncentives?.symbol
+                : undefined,
+              y.noteIncentives?.incentiveAPY &&
+                y.noteIncentives?.incentiveAPY > 0
+                ? y.noteIncentives?.symbol
+                : undefined
             ),
         apy:
           currentPosition && currentPosition.totalLeveragedApy

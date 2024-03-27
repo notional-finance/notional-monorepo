@@ -9,6 +9,7 @@ import { DataTable } from '../data-table/data-table';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 import { DataTableColumn, TABLE_VARIANTS } from '../data-table/types';
 import { Network } from '@notional-finance/util';
+import { ReactNode } from 'react';
 
 export interface DashboardDataProps {
   title: string;
@@ -17,7 +18,7 @@ export interface DashboardDataProps {
   symbol: string;
   network: Network;
   routeCallback: () => void;
-  bottomValue?: string;
+  bottomValue?: string | ReactNode;
   hasPosition?: boolean;
   apySubTitle?: MessageDescriptor;
   incentiveValue?: string;
