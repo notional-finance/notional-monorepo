@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   DataTableColumn,
   MultiValueCell,
@@ -6,53 +7,62 @@ import {
 import { FormattedMessage } from 'react-intl';
 
 export const useOverviewVaultHoldingsColumns = () => {
-  const overviewVaultHoldingsColumns: DataTableColumn[] = [
-    {
-      Header: (
-        <FormattedMessage defaultMessage="Vault" description={'vault header'} />
-      ),
-      Cell: MultiValueIconCell,
-      accessor: 'strategy',
-      textAlign: 'left',
-    },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Net Worth"
-          description={'Net Worth header'}
-        />
-      ),
-      Cell: MultiValueCell,
-      accessor: 'netWorth',
-      textAlign: 'right',
-    },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Assets"
-          description={'assets header'}
-        />
-      ),
-      Cell: MultiValueCell,
-      accessor: 'assets',
-      textAlign: 'right',
-    },
-    {
-      Header: (
-        <FormattedMessage defaultMessage="Debts" description={'Debts header'} />
-      ),
-      Cell: MultiValueCell,
-      accessor: 'debts',
-      textAlign: 'right',
-    },
-    {
-      Header: (
-        <FormattedMessage defaultMessage="APY" description={'Debts header'} />
-      ),
-      accessor: 'totalAPY',
-      textAlign: 'right',
-    },
-  ];
+  const overviewVaultHoldingsColumns = useMemo<DataTableColumn[]>(
+    () => [
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Vault"
+            description={'vault header'}
+          />
+        ),
+        cell: MultiValueIconCell,
+        accessorKey: 'strategy',
+        textAlign: 'left',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Net Worth"
+            description={'Net Worth header'}
+          />
+        ),
+        cell: MultiValueCell,
+        accessorKey: 'netWorth',
+        textAlign: 'right',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Assets"
+            description={'assets header'}
+          />
+        ),
+        cell: MultiValueCell,
+        accessorKey: 'assets',
+        textAlign: 'right',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Debts"
+            description={'Debts header'}
+          />
+        ),
+        cell: MultiValueCell,
+        accessorKey: 'debts',
+        textAlign: 'right',
+      },
+      {
+        header: (
+          <FormattedMessage defaultMessage="APY" description={'Debts header'} />
+        ),
+        accessorKey: 'totalAPY',
+        textAlign: 'right',
+      },
+    ],
+    []
+  );
 
   return {
     overviewVaultHoldingsColumns,

@@ -21,7 +21,7 @@ export function usePerformanceChart(
     vaultBorrowRate?: number;
     leverageRatio?: number;
   },
-  hideTextHeader?: boolean
+  hidetextHeader?: boolean
 ) {
   const theme = useTheme();
   const { debt, debtOptions, collateralOptions, riskFactorLimit, tradeType } =
@@ -106,7 +106,7 @@ export function usePerformanceChart(
   };
 
   const areaChartHeaderData: ChartHeaderDataProps = {
-    textHeader: hideTextHeader ? (
+    textHeader: hidetextHeader ? (
       ''
     ) : (
       <FormattedMessage defaultMessage={'Performance To Date'} />

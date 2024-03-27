@@ -1,7 +1,8 @@
 import { Box } from '@mui/material';
 
 export const idCell = ({ cell }) => {
-  const { value } = cell;
+  const { getValue } = cell;
+  const value = getValue();
   return <Box sx={{ fontSize: '32px', fontFamily: 'Kunst' }}>{value}</Box>;
 };
 

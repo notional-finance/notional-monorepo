@@ -16,14 +16,18 @@ import {
 } from './data-table-info-box/data-table-info-box';
 
 import { PageLoading } from '../page-loading/page-loading';
-import { useTable, useExpanded, useSortBy } from 'react-table';
+import {
+  useReactTable,
+  ExpandedState,
+  getCoreRowModel,
+  getSortedRowModel,
+  getExpandedRowModel,
+} from '@tanstack/react-table';
 import { FormattedMessage } from 'react-intl';
 import { CSVLink } from 'react-csv';
 import { TableCell } from '../typography/typography';
 import { DownloadIcon } from '@notional-finance/icons';
 import {
-  DataTableColumn,
-  ExpandedRows,
   TabBarPropsType,
   TableTitleButtonsType,
   ToggleBarPropsType,
@@ -38,7 +42,7 @@ export interface DataTableToggleProps {
 }
 
 interface DataTableProps {
-  columns: Array<DataTableColumn>;
+  columns: Array<any>;
   data: Array<any>;
   pendingTokenData?: { hash: string }[];
   pendingMessage?: ReactNode;
@@ -53,7 +57,7 @@ interface DataTableProps {
   tableVariant?: TABLE_VARIANTS;
   hideExcessRows?: boolean;
   initialState?: Record<any, any>;
-  setExpandedRows?: Dispatch<SetStateAction<ExpandedRows | null>>;
+  setExpandedRows?: Dispatch<SetStateAction<ExpandedState>>;
   setShowHiddenRows?: Dispatch<SetStateAction<boolean>>;
   showHiddenRows?: boolean;
   tableLoading?: boolean;
@@ -102,15 +106,16 @@ export const DataTable = ({
 }: DataTableProps) => {
   const theme = useTheme();
   const [viewAllRows, setViewAllRows] = useState<boolean>(!hideExcessRows);
-  const { getTableProps, headerGroups, rows, prepareRow } = useTable(
-    {
-      columns,
-      data,
-      initialState: initialState,
-    },
-    useSortBy,
-    useExpanded
-  );
+  const table = useReactTable({
+    columns,
+    data,
+    initialState,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+  });
+  const { rows } = table.getRowModel();
+  const headerGroups = table.getHeaderGroups();
   const ref = useRef<HTMLDivElement | any>();
   const [infoBoxActive, setInfoBoxActive] = useState<boolean | undefined>(
     undefined
@@ -165,7 +170,13 @@ export const DataTable = ({
   const width = ref.current?.clientWidth;
 
   return (
-    <div>
+    <div
+      style={{
+        border: maxHeight ? theme.shape.borderStandard : '',
+        borderRadius: maxHeight ? theme.shape.borderRadius() : '',
+        zIndex: maxHeight ? 2 : 1,
+      }}
+    >
       {csvDataFormatter && data && (
         <CSVLink
           data={csvDataFormatter(data)}
@@ -201,7 +212,6 @@ export const DataTable = ({
           columns={columns}
           data={data}
           tableVariant={tableVariant}
-          initialState={initialState}
           tableTitle={tableTitle}
           maxHeight={maxHeight}
           tableReady={tableReady}
@@ -273,11 +283,10 @@ export const DataTable = ({
               pendingMessage={pendingMessage}
             />
           )}
-
           {tableReady ? (
             <>
               <div style={{ overflow: filterBarData ? 'auto' : '' }}>
-                <Table {...getTableProps()}>
+                <Table>
                   <DataTableHead
                     headerGroups={headerGroups}
                     tableVariant={tableVariant}
@@ -285,7 +294,6 @@ export const DataTable = ({
                   />
                   <DataTableBody
                     rows={displayedRows}
-                    prepareRow={prepareRow}
                     tableVariant={tableVariant}
                     CustomRowComponent={CustomRowComponent}
                     setExpandedRows={setExpandedRows}
@@ -323,7 +331,11 @@ export const DataTable = ({
                 <PageLoading type="notional" />
               ) : (
                 <TableCell
-                  sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
+                  sx={{
+                    textAlign: 'center',
+                    margin: theme.spacing(4, 0),
+                    color: theme.palette.typography.main,
+                  }}
                 >
                   {stateZeroMessage ? (
                     stateZeroMessage

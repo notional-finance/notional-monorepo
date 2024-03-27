@@ -5,6 +5,7 @@ import IconButton from '@mui/material/IconButton';
 export const ChevronCell = ({ row }): JSX.Element => {
   const theme = useTheme();
   const warning = row?.original?.actionRow?.warning;
+
   return (
     <Box
       sx={{

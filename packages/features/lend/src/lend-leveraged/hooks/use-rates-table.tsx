@@ -50,38 +50,38 @@ export const useRatesTable = (deposit: TokenDefinition | undefined) => {
 
   const ratesColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Maturity"
           description={'maturity header'}
         />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'maturity',
+      cell: MultiValueIconCell,
+      accessorKey: 'maturity',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Lend APY"
           description={'Lend APY header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: formatNumberAsPercent,
-      accessor: 'lend_apy',
+      accessorKey: 'lend_apy',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Borrow APY"
           description={'Borrow APY header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: formatNumberAsPercent,
-      accessor: 'borrow_apy',
+      accessorKey: 'borrow_apy',
       textAlign: 'right',
     },
   ];

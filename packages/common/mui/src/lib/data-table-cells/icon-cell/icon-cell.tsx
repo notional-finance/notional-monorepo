@@ -8,7 +8,9 @@ export interface IconCellProps {
   };
 }
 
-export const IconCell = ({ cell: { value } }: IconCellProps): JSX.Element => {
+export const IconCell = ({ getValue }): JSX.Element => {
+  const value = getValue();
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       {value?.toLocaleLowerCase() !== 'total' && (

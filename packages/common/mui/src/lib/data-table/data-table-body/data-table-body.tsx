@@ -8,13 +8,14 @@ import {
   Collapse,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { ExpandedRows, TABLE_VARIANTS } from '../types';
+import { TABLE_VARIANTS } from '../types';
 import { NotionalTheme } from '@notional-finance/styles';
 import {
   SmallTableCell,
   TableCell as TypographyTableCell,
 } from '../../typography/typography';
 import { useHistory } from 'react-router';
+import { flexRender, ExpandedState, Row } from '@tanstack/react-table';
 
 interface StyledTableRowProps extends TableRowProps {
   theme: NotionalTheme;
@@ -26,12 +27,202 @@ interface StyledTableRowProps extends TableRowProps {
 
 interface DataTableBodyProps {
   rows: Record<string, any>[];
-  prepareRow: any;
+  prepareRow?: any;
   CustomRowComponent?: ({ row }: { row: any }) => JSX.Element;
+  setExpandedRows?: Dispatch<SetStateAction<ExpandedState>>;
   tableVariant?: TABLE_VARIANTS;
-  setExpandedRows?: Dispatch<SetStateAction<ExpandedRows | null>>;
   initialState?: Record<any, any>;
+  rowVirtualizer?: any;
 }
+
+export const DataTableBody = ({
+  rows,
+  tableVariant,
+  rowVirtualizer,
+  setExpandedRows,
+  CustomRowComponent,
+  initialState,
+}: DataTableBodyProps) => {
+  const theme = useTheme() as NotionalTheme;
+  const isScrollable = rowVirtualizer ? true : false;
+  const tableRows = isScrollable ? rowVirtualizer.getVirtualItems() : rows;
+  const history = useHistory();
+  return (
+    <TableBody
+      className="body"
+      sx={{
+        display: isScrollable ? 'grid' : '',
+        height: isScrollable ? `${rowVirtualizer.getTotalSize()}px` : '', //tells scrollbar how big the table is
+        position: isScrollable ? 'relative' : '', //needed for absolute positioning of rows
+      }}
+    >
+      {tableRows.map((row, i) => {
+        const testRow = rows[row.index] as Row<any>;
+        const cells = isScrollable
+          ? testRow.getVisibleCells()
+          : row.getAllCells();
+
+        const rowSelected = row.original?.rowSelected
+          ? row.original?.rowSelected
+          : false;
+        const lastRow = rows[rows.length - 1];
+        const styleLastRow = lastRow['id'] === row['id'];
+        const expandableTableActive = CustomRowComponent ? true : false;
+        const isExpanded = initialState?.expanded
+          ? initialState?.expanded[i]
+          : false;
+
+        const handleClick = () => {
+          if (expandableTableActive && setExpandedRows) {
+            const newState = {
+              ...initialState?.expanded,
+              [row.index]: !initialState?.expanded[row.index],
+            };
+            setExpandedRows(newState);
+          }
+          if (row.original?.view) {
+            history.push(`/${row.original?.view}`);
+          }
+          if (row.original?.txLink?.href) {
+            window.open(row.original?.txLink?.href, '_blank');
+          }
+        };
+
+        const miniTotalRowStyles = row.original?.isTotalRow
+          ? {
+              marginLeft: `-${theme.spacing(3)}`,
+              marginRight: `-${theme.spacing(3)}`,
+              marginBottom: `-${theme.spacing(3)}`,
+              borderRadius: theme.shape.borderRadius,
+              padding: theme.spacing(2, 3),
+              height: theme.spacing(6.5),
+              background: theme.palette.background.paper,
+              display: 'flex',
+              alignItems: 'center',
+              fontWeight: 600,
+              fontSize: '14px',
+              '.multi-value-cell': {
+                span: { fontSize: '14px' },
+              },
+            }
+          : {};
+
+        const scrollableStyles =
+          isScrollable && row
+            ? {
+                display: 'flex',
+                position: 'absolute',
+                transform: row?.start ? `translateY(${row?.start}px)` : '',
+                width: '100%',
+              }
+            : {};
+
+        return (
+          <Fragment key={`row-container-${row.id}`}>
+            <StyledTableRow
+              theme={theme}
+              key={`row-${row.id}`}
+              rowSelected={rowSelected}
+              expandableTableActive={expandableTableActive}
+              tableVariant={tableVariant}
+              styleLastRow={styleLastRow}
+              onClick={handleClick}
+              sx={{
+                '&:hover': {
+                  background:
+                    row.original?.view || row.original?.txLink?.href
+                      ? theme.palette.info.light
+                      : '',
+                  cursor:
+                    row.original?.view || row.original?.txLink?.href
+                      ? 'pointer'
+                      : '',
+                },
+                '&:hover #dropdown-arrow-button': {
+                  transition: 'all 0.3s ease',
+                  background: theme.palette.info.light,
+                },
+                background:
+                  row.original?.isDividerRow &&
+                  `${theme.palette.secondary.dark} !important`,
+                ...scrollableStyles,
+              }}
+            >
+              {cells.map((cell: Record<string, any>) => {
+                return (
+                  <TableCell
+                    className={cell.column.columnDef.className}
+                    sx={{
+                      margin: 'auto',
+                      padding:
+                        tableVariant === TABLE_VARIANTS.MINI
+                          ? theme.spacing(1)
+                          : cell.column.columnDef.padding || '16px',
+                      textAlign: cell.column.columnDef.textAlign || 'center',
+                      borderBottom: 'none',
+                      whiteSpace: 'nowrap',
+                      width: cell.column.columnDef.width || 'auto',
+                    }}
+                  >
+                    {tableVariant === TABLE_VARIANTS.MINI ? (
+                      <SmallTableCell
+                        sx={{
+                          color: theme.palette.typography.main,
+                          '.multi-value-cell': {
+                            span: { fontSize: '12px' },
+                          },
+                          ...miniTotalRowStyles,
+                          justifyContent:
+                            cell?.column.id === 'value' &&
+                            row.original?.isTotalRow &&
+                            'end',
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </SmallTableCell>
+                    ) : (
+                      <TypographyTableCell
+                        id="inner-cell"
+                        sx={{
+                          color: theme.palette.typography.main,
+                          fontSize: CustomRowComponent ? theme.spacing(2) : '',
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TypographyTableCell>
+                    )}
+                  </TableCell>
+                );
+              })}
+            </StyledTableRow>
+            {CustomRowComponent && !row.original?.isTotalRow && (
+              <TableRow key={`sub-row-${i}`}>
+                <TableCell
+                  sx={{
+                    padding: '0px',
+                    borderBottom: 'none',
+                    fontSize: '16px',
+                  }}
+                  colSpan={cells.length}
+                >
+                  <Collapse in={isExpanded} sx={{ margin: '0px' }}>
+                    <CustomRowComponent row={row} />
+                  </Collapse>
+                </TableCell>
+              </TableRow>
+            )}
+          </Fragment>
+        );
+      })}
+    </TableBody>
+  );
+};
 
 const StyledTableRow = styled(TableRow, {
   shouldForwardProp: (prop: string) =>
@@ -119,165 +310,5 @@ const StyledTableRow = styled(TableRow, {
 
   `
 );
-
-export const DataTableBody = ({
-  rows,
-  prepareRow,
-  tableVariant,
-  CustomRowComponent,
-  setExpandedRows,
-  initialState,
-}: DataTableBodyProps) => {
-  const theme = useTheme() as NotionalTheme;
-  const history = useHistory();
-  return (
-    <TableBody className="body">
-      {rows.map((row, i) => {
-        prepareRow(row);
-        const rowSelected = row['original'].rowSelected;
-        const lastRow = rows[rows.length - 1];
-        const styleLastRow = lastRow['id'] === row['id'];
-        const { cells } = row;
-        const expandableTableActive = CustomRowComponent ? true : false;
-        const isExpanded = initialState?.expanded
-          ? initialState?.expanded[i]
-          : false;
-
-        const handleClick = () => {
-          if (expandableTableActive && setExpandedRows) {
-            const newState = {
-              ...initialState?.expanded,
-              [row.index]: !initialState?.expanded[row.index],
-            };
-            setExpandedRows(newState);
-          }
-          if (row.original.view) {
-            history.push(`/${row.original.view}`);
-          }
-          if (row.original?.txLink?.href) {
-            window.open(row.original.txLink.href, '_blank');
-          }
-        };
-
-        const miniTotalRowStyles = row.original.isTotalRow
-          ? {
-              marginLeft: `-${theme.spacing(3)}`,
-              marginRight: `-${theme.spacing(3)}`,
-              marginBottom: `-${theme.spacing(3)}`,
-              borderRadius: theme.shape.borderRadius,
-              padding: theme.spacing(2, 3),
-              height: theme.spacing(6.5),
-              background: theme.palette.background.paper,
-              display: 'flex',
-              alignItems: 'center',
-              fontWeight: 600,
-              fontSize: '14px',
-              '.multi-value-cell': {
-                span: { fontSize: '14px' },
-              },
-            }
-          : {};
-
-        const rowHoverStyles =
-          row.original.view || row.original?.txLink?.href
-            ? {
-                '&:hover': {
-                  background: theme.palette.info.light,
-                  cursor: 'pointer',
-                },
-              }
-            : {};
-
-        return (
-          <Fragment key={`row-container-${i}`}>
-            <StyledTableRow
-              theme={theme}
-              key={`row-${i}`}
-              rowSelected={rowSelected}
-              expandableTableActive={expandableTableActive}
-              tableVariant={tableVariant}
-              styleLastRow={styleLastRow}
-              onClick={handleClick}
-              sx={{
-                '&:hover #dropdown-arrow-button': {
-                  transition: 'all 0.3s ease',
-                  background: theme.palette.info.light,
-                },
-                ...rowHoverStyles,
-                background:
-                  row.original.isDividerRow &&
-                  `${theme.palette.secondary.dark} !important`,
-              }}
-              {...row['getRowProps']()}
-            >
-              {row['cells'].map((cell: Record<string, any>) => {
-                return (
-                  <TableCell
-                    className={cell['column'].className}
-                    sx={{
-                      margin: 'auto',
-                      padding:
-                        tableVariant === TABLE_VARIANTS.MINI
-                          ? theme.spacing(1)
-                          : cell['column'].padding || '16px',
-                      textAlign: cell['column'].textAlign || 'center',
-                      borderBottom: 'none',
-                      whiteSpace: 'nowrap',
-                      width: cell['column']['width'] || 'auto',
-                    }}
-                    {...cell['getCellProps']()}
-                  >
-                    {tableVariant === TABLE_VARIANTS.MINI ? (
-                      <SmallTableCell
-                        sx={{
-                          color: theme.palette.typography.main,
-                          '.multi-value-cell': {
-                            span: { fontSize: '12px' },
-                          },
-                          ...miniTotalRowStyles,
-                          justifyContent:
-                            cell?.value?.data &&
-                            row.original.isTotalRow &&
-                            'end',
-                        }}
-                      >
-                        {cell['render']('Cell')}
-                      </SmallTableCell>
-                    ) : (
-                      <TypographyTableCell
-                        id="inner-cell"
-                        sx={{
-                          fontSize: CustomRowComponent ? theme.spacing(2) : '',
-                        }}
-                      >
-                        {cell['render']('Cell')}
-                      </TypographyTableCell>
-                    )}
-                  </TableCell>
-                );
-              })}
-            </StyledTableRow>
-            {CustomRowComponent && !row.original.isTotalRow && (
-              <TableRow key={`sub-row-${i}`}>
-                <TableCell
-                  sx={{
-                    padding: '0px',
-                    borderBottom: 'none',
-                    fontSize: '16px',
-                  }}
-                  colSpan={cells.length}
-                >
-                  <Collapse in={isExpanded} sx={{ margin: '0px' }}>
-                    <CustomRowComponent row={row} />
-                  </Collapse>
-                </TableCell>
-              </TableRow>
-            )}
-          </Fragment>
-        );
-      })}
-    </TableBody>
-  );
-};
 
 export default DataTableBody;

@@ -15,13 +15,13 @@ export const CreateVaultLiquidationRisk = ({
     useVaultLiquidationRisk(state);
   const columns: any[] = [
     {
-      Header: <FormattedMessage defaultMessage={'Detail'} />,
-      accessor: 'label',
+      header: <FormattedMessage defaultMessage={'Detail'} />,
+      accessorKey: 'label',
       textAlign: 'left',
     },
     {
-      Header: <FormattedMessage defaultMessage={'Current'} />,
-      accessor: 'current',
+      header: <FormattedMessage defaultMessage={'Current'} />,
+      accessorKey: 'current',
       textAlign: 'right',
     },
   ];

@@ -10,6 +10,7 @@ import { styled } from '@mui/material/styles';
 import { CONTEST_TABLE_VARIANTS } from '../types';
 import { colors, NotionalTheme } from '@notional-finance/styles';
 import { TableCell as TypographyTableCell } from '../../typography/typography';
+import { flexRender } from '@tanstack/react-table';
 
 interface StyledTableRowProps extends TableRowProps {
   theme: NotionalTheme;
@@ -21,9 +22,71 @@ interface StyledTableRowProps extends TableRowProps {
 
 interface ContestTableBodyProps {
   rows: Record<string, any>[];
-  prepareRow: any;
   isCurrentUser?: boolean;
 }
+
+export const ContestTableBody = ({
+  rows,
+  isCurrentUser,
+}: ContestTableBodyProps) => {
+  const theme = useTheme() as NotionalTheme;
+
+  return (
+    <TableBody
+      sx={{
+        border: `1px solid ${colors.neonTurquoise}`,
+        overflow: 'hidden',
+      }}
+    >
+      {rows.map((row, i) => {
+        const rowSelected = row['original'].rowSelected;
+        const { getAllCells } = row;
+        const cells = getAllCells();
+
+        return (
+          <Fragment key={`row-container-${i}`}>
+            <StyledTableRow
+              theme={theme}
+              key={`row-${i}`}
+              rowSelected={rowSelected}
+              isCurrentUser={isCurrentUser}
+            >
+              {cells.map((cell: Record<string, any>) => {
+                return (
+                  <TableCell
+                    sx={{
+                      padding: cell.column.columnDef.padding || '8px 16px',
+                      textAlign: cell.column.columnDef.textAlign || 'center',
+                      whiteSpace: 'nowrap',
+                      width:
+                        cell.column.columnDef.width || cell.column.getSize(),
+                      color: isCurrentUser
+                        ? colors.neonTurquoise
+                        : colors.white,
+                      borderRight: cell.column.columnDef.isIDCell
+                        ? `1px solid ${colors.neonTurquoise}`
+                        : 'none',
+                      borderBottom: `1px solid ${colors.neonTurquoise}`,
+
+                      fontSize: cell.column.columnDef.fontSize || '14px',
+                    }}
+                  >
+                    <TypographyTableCell>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TypographyTableCell>
+                  </TableCell>
+                );
+              })}
+            </StyledTableRow>
+          </Fragment>
+        );
+      })}
+    </TableBody>
+  );
+};
 
 const StyledTableRow = styled(TableRow, {
   shouldForwardProp: (prop: string) =>
@@ -62,66 +125,5 @@ const StyledTableRow = styled(TableRow, {
     }
   `
 );
-
-export const ContestTableBody = ({
-  rows,
-  prepareRow,
-  isCurrentUser,
-}: ContestTableBodyProps) => {
-  const theme = useTheme() as NotionalTheme;
-
-  return (
-    <TableBody
-      sx={{
-        border: `1px solid ${colors.neonTurquoise}`,
-        overflow: 'hidden',
-      }}
-    >
-      {rows.map((row, i) => {
-        prepareRow(row);
-        const rowSelected = row['original'].rowSelected;
-
-        return (
-          <Fragment key={`row-container-${i}`}>
-            <StyledTableRow
-              theme={theme}
-              key={`row-${i}`}
-              rowSelected={rowSelected}
-              isCurrentUser={isCurrentUser}
-              {...row['getRowProps']()}
-            >
-              {row['cells'].map((cell: Record<string, any>) => {
-                return (
-                  <TableCell
-                    sx={{
-                      padding: cell['column'].padding || '8px 16px',
-                      textAlign: cell['column'].textAlign || 'center',
-                      whiteSpace: 'nowrap',
-                      width: cell['column']['width'] || 'auto',
-                      color: isCurrentUser
-                        ? colors.neonTurquoise
-                        : colors.white,
-                      borderRight: cell['column']['isIDCell']
-                        ? `1px solid ${colors.neonTurquoise}`
-                        : 'none',
-                      borderBottom: `1px solid ${colors.neonTurquoise}`,
-
-                      fontSize: cell['column']['fontSize'] || '14px',
-                    }}
-                    {...cell['getCellProps']()}
-                  >
-                    <TypographyTableCell>
-                      {cell['render']('Cell')}
-                    </TypographyTableCell>
-                  </TableCell>
-                );
-              })}
-            </StyledTableRow>
-          </Fragment>
-        );
-      })}
-    </TableBody>
-  );
-};
 
 export default ContestTableBody;

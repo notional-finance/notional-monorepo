@@ -26,14 +26,14 @@ export const TradeSummary = ({
       data={summary || []}
       columns={[
         {
-          Header: <FormattedMessage defaultMessage={'Description'} />,
-          accessor: 'label',
+          header: <FormattedMessage defaultMessage={'Description'} />,
+          accessorKey: 'label',
           textAlign: 'left',
         },
         {
-          Header: <FormattedMessage defaultMessage={'Value'} />,
-          accessor: 'value',
-          Cell: MultiValueCell,
+          header: <FormattedMessage defaultMessage={'Value'} />,
+          accessorKey: 'value',
+          cell: MultiValueCell,
           textAlign: 'right',
         },
       ]}

@@ -17,28 +17,28 @@ export const useVaultReinvestmentTable = (
   const theme = useTheme();
   const tableColumns = [
     {
-      Header: 'Time',
-      accessor: 'time',
+      header: 'Time',
+      accessorKey: 'time',
       textAlign: 'left',
-      Cell: DateTimeCell,
+      cell: DateTimeCell,
       width: theme.spacing(23.375),
     },
     {
-      Header: 'Amount Sold',
-      accessor: 'amountSold',
+      header: 'Amount Sold',
+      accessorKey: 'amountSold',
       textAlign: 'right',
       width: theme.spacing(23.375),
     },
     {
-      Header: 'Vault Share Price',
-      accessor: 'vaultSharePrice',
+      header: 'Vault Share Price',
+      accessorKey: 'vaultSharePrice',
       textAlign: 'right',
       width: theme.spacing(23.375),
     },
     {
-      Header: 'Txn Hash',
-      Cell: TxnHashCell,
-      accessor: 'txnHash',
+      header: 'Txn Hash',
+      cell: TxnHashCell,
+      accessorKey: 'txnHash',
       textAlign: 'right',
       width: theme.spacing(23.375),
       showLinkIcon: true,

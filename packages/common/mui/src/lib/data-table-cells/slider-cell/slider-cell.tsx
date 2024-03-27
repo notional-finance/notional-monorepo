@@ -1,29 +1,29 @@
 import { Box } from '@mui/material';
-import { RailGradient, SliderBasic } from '../../slider-basic/slider-basic';
+import { SliderBasic } from '../../slider-basic/slider-basic';
 import { Paragraph } from '../../typography/typography';
 
-interface SliderCellProps {
-  cell: {
-    value?: {
-      value: number;
-      trackColor?: string;
-      captionLeft?: React.ReactNode;
-      captionRight?: React.ReactNode;
-      railGradients?: RailGradient[];
-      min?: number;
-      max?: number;
-      showThumb?: boolean;
-      stepSize?: number;
-    };
-  };
-}
+// interface SliderCellProps {
+//   cell: {
+//     value?: {
+//       value: number;
+//       trackColor?: string;
+//       captionLeft?: React.ReactNode;
+//       captionRight?: React.ReactNode;
+//       railGradients?: RailGradient[];
+//       min?: number;
+//       max?: number;
+//       showThumb?: boolean;
+//       stepSize?: number;
+//     };
+//   };
+// }
 
-export const SliderCell = ({ cell }: SliderCellProps): JSX.Element => {
+export const SliderCell = ({ cell }): JSX.Element => {
   // Cell may be undefined in the yield holdings table
-  if (!cell.value) return <></>;
+  const value = cell.getValue();
+  if (!value) return <div></div>;
 
   const {
-    value,
     trackColor,
     captionLeft,
     captionRight,
@@ -32,9 +32,8 @@ export const SliderCell = ({ cell }: SliderCellProps): JSX.Element => {
     stepSize,
     railGradients,
     showThumb,
-  } = cell.value;
+  } = value;
   const hasCaption = captionRight || captionLeft;
-
   // Ensures that the slider margins account for the caption
   const margins = hasCaption
     ? {

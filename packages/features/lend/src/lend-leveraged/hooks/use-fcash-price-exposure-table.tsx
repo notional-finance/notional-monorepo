@@ -21,23 +21,23 @@ export const useFCashPriceExposureTable = (state: BaseTradeState) => {
   );
   const fCashPriceExposureColumns: DataTableColumn[] = [
     {
-      Header: <FormattedMessage defaultMessage="Price" />,
-      accessor: 'price',
+      header: <FormattedMessage defaultMessage="Price" />,
+      accessorKey: 'price',
       textAlign: 'left',
       width: theme.spacing(31.75),
       marginRight: theme.spacing(1.25),
     },
     {
-      Header: <FormattedMessage defaultMessage="Interest Rate" />,
-      accessor: 'interestRate',
+      header: <FormattedMessage defaultMessage="Interest Rate" />,
+      accessorKey: 'interestRate',
       textAlign: 'right',
       width: theme.spacing(31.75),
       marginRight: theme.spacing(1.25),
     },
     {
-      Header: <FormattedMessage defaultMessage="Profit / Loss" />,
-      Cell: NegativeValueCell,
-      accessor: 'profitLoss',
+      header: <FormattedMessage defaultMessage="Profit / Loss" />,
+      cell: NegativeValueCell,
+      accessorKey: 'profitLoss',
       textAlign: 'right',
       width: theme.spacing(31.75),
       marginRight: theme.spacing(1.25),

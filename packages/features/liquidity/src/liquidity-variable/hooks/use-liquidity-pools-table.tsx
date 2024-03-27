@@ -88,49 +88,49 @@ export const useLiquidityPoolsTable = () => {
 
   const poolTableColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Action"
           description={'action header'}
         />
       ),
-      Cell: MultiValueCell,
-      accessor: 'action',
+      cell: MultiValueCell,
+      accessorKey: 'action',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Details"
           description={'details header'}
         />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'details',
+      cell: MultiValueIconCell,
+      accessorKey: 'details',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Interest Rate"
           description={'interest rate header'}
         />
       ),
-      accessor: 'interestRate',
+      accessorKey: 'interestRate',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Time" description={'time header'} />
       ),
       width: '250px',
-      accessor: 'time',
+      accessorKey: 'time',
       textAlign: 'right',
     },
     {
-      Header: '',
-      accessor: 'txn',
-      Cell: TxnHashCell,
+      header: '',
+      accessorKey: 'txn',
+      cell: TxnHashCell,
       width: '50px',
       showLinkIcon: true,
       textAlign: 'right',

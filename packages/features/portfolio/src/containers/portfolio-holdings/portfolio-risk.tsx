@@ -86,50 +86,50 @@ const LabelAndValue = ({
 
 const LiquidationPriceColumns: DataTableColumn[] = [
   {
-    Header: (
+    header: (
       <FormattedMessage
         defaultMessage="Exchange Rate"
         description={'Exchange Rate column header'}
       />
     ),
-    Cell: MultiValueIconCell,
-    accessor: 'exchangeRate',
+    cell: MultiValueIconCell,
+    accessorKey: 'exchangeRate',
     textAlign: 'left',
   },
   {
-    Header: (
+    header: (
       <FormattedMessage
         defaultMessage="Liquidation Price"
         description={'column header'}
       />
     ),
-    accessor: 'liquidationPrice',
+    accessorKey: 'liquidationPrice',
     textAlign: 'right',
   },
   {
-    Header: (
+    header: (
       <FormattedMessage
         defaultMessage="Current Price"
         description={'column header'}
       />
     ),
-    accessor: 'currentPrice',
+    accessorKey: 'currentPrice',
     textAlign: 'right',
   },
   {
-    Header: (
+    header: (
       <FormattedMessage defaultMessage="24H %" description={'column header'} />
     ),
-    Cell: ArrowChangeCell,
-    accessor: 'oneDayChange',
+    cell: ArrowChangeCell,
+    accessorKey: 'oneDayChange',
     textAlign: 'right',
   },
   {
-    Header: (
+    header: (
       <FormattedMessage defaultMessage="7D %" description={'column header'} />
     ),
-    Cell: ArrowChangeCell,
-    accessor: 'sevenDayChange',
+    cell: ArrowChangeCell,
+    accessorKey: 'sevenDayChange',
     textAlign: 'right',
   },
 ];

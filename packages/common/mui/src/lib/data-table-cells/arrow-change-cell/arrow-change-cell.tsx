@@ -4,7 +4,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 export const ArrowChangeCell = ({ cell }): JSX.Element => {
   const theme = useTheme();
-  const { value, column } = cell;
+  const { getValue, column } = cell;
+  const value = getValue();
 
   return (
     <Box

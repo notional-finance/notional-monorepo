@@ -30,10 +30,20 @@ interface SelectConvertAssetProps {
   hasUserTouched: boolean;
 }
 
-export const SelectConvertAsset = ({ context, hasUserTouched }: SelectConvertAssetProps) => {
+export const SelectConvertAsset = ({
+  context,
+  hasUserTouched,
+}: SelectConvertAssetProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
-  const { tradeType, debt, collateral, debtBalance, collateralBalance, selectedNetwork } = state;
+  const {
+    tradeType,
+    debt,
+    collateral,
+    debtBalance,
+    collateralBalance,
+    selectedNetwork,
+  } = state;
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const { options, initialConvertFromBalance: balance } =
     useConvertOptions(state);
@@ -68,7 +78,7 @@ export const SelectConvertAsset = ({ context, hasUserTouched }: SelectConvertAss
     balance,
     updateState,
     tradeType,
-    hasUserTouched
+    hasUserTouched,
   ]);
 
   let heading: MessageDescriptor;
@@ -154,13 +164,13 @@ export const SelectConvertAsset = ({ context, hasUserTouched }: SelectConvertAss
         tableTitle={<span>{title?.titleWithMaturity || ''}</span>}
         columns={[
           {
-            Header: <FormattedMessage defaultMessage="Detail" />,
-            accessor: 'detail',
+            header: <FormattedMessage defaultMessage="Detail" />,
+            accessorKey: 'detail',
             textAlign: 'left',
           },
           {
-            Header: <FormattedMessage defaultMessage="Current" />,
-            accessor: 'value',
+            header: <FormattedMessage defaultMessage="Current" />,
+            accessorKey: 'value',
             textAlign: 'right',
           },
         ]}

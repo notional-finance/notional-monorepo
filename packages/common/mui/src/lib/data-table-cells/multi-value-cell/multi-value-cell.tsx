@@ -6,13 +6,19 @@ import {
   LargeTableCell,
 } from '../../typography/typography';
 
-export const MultiValueCell = ({ cell }): JSX.Element => {
+export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
   const theme = useTheme();
-  const { column, value, row } = cell;
-  const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
-  const SecondValue = column?.expandableTable ? TableCell : SmallTableCell;
+  const { getValue } = cell;
+  const value = getValue();
+  const FirstValue = column.columnDef?.expandableTable
+    ? LargeTableCell
+    : TableCell;
+  const SecondValue = column.columnDef?.expandableTable
+    ? TableCell
+    : SmallTableCell;
 
-  const isPending = column.showLoadingSpinner && row.original.isPending;
+  const isPending =
+    column.columnDef.showLoadingSpinner && row.original.isPending;
 
   return (
     <Box className="multi-value-cell">
@@ -21,13 +27,19 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
           circleSize={16}
           sx={{
             display: 'flex',
-            justifyContent: column?.textAlign,
+            justifyContent: column.columnDef?.textAlign,
           }}
         />
       ) : value?.data ? (
         value.data.map(
           ({ displayValue, isNegative, showPositiveAsGreen }, index) => (
-            <Box key={`${column.id}-${row.id}-${index}`}>
+            <Box
+              key={`${column.columnDef.id}-${row.id}-${index}`}
+              sx={{
+                display: 'flex',
+                justifyContent: column.columnDef?.textAlign,
+              }}
+            >
               {index === 0 && (
                 <Box>
                   <FirstValue

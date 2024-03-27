@@ -5,66 +5,67 @@ import { getNowSeconds, getDateString } from '@notional-finance/util';
 import { RATE_PRECISION } from '@notional-finance/util';
 import { formatNumber, formatNumberAsPercent } from '@notional-finance/helpers';
 import { TokenDefinition } from '@notional-finance/core-entities';
+import { useMemo } from 'react';
 
 export const useFixedLiquidityPoolsTable = (
   token: TokenDefinition | undefined
 ) => {
   const fCashMarket = useFCashMarket(token);
   let tableData: any[] = [];
-  let tableColumns: DataTableColumn[] | [] = [];
   const areaChartData: any[] = [];
-  if (token) {
-    tableColumns = [
+  const tableColumns = useMemo<DataTableColumn[]>(
+    () => [
       {
-        Header: (
+        header: (
           <FormattedMessage
             defaultMessage={'Maturity'}
             description={'Maturity header'}
           />
         ),
-        Cell: DisplayCell,
-        accessor: 'maturity',
+        cell: DisplayCell,
+        accessorKey: 'maturity',
         textAlign: 'left',
       },
       {
-        Header: `${token.symbol}`,
-        Cell: DisplayCell,
-        accessor: 'valueOfCash',
+        header: token ? `${token.symbol}` : '',
+        cell: DisplayCell,
+        accessorKey: 'valueOfCash',
         textAlign: 'left',
       },
       {
-        Header: `f${token.symbol}`,
-        Cell: DisplayCell,
-        accessor: 'valueOfFCash',
+        header: token ? `f${token.symbol}` : '',
+        cell: DisplayCell,
+        accessorKey: 'valueOfFCash',
         textAlign: 'left',
       },
       {
-        Header: (
+        header: (
           <FormattedMessage
             defaultMessage={'f{symbol} PRICE'}
             values={{
-              symbol: token.symbol,
+              symbol: token?.symbol || '',
             }}
           />
         ),
-        Cell: DisplayCell,
-        accessor: 'price',
+        cell: DisplayCell,
+        accessorKey: 'price',
         textAlign: 'right',
       },
       {
-        Header: (
+        header: (
           <FormattedMessage
             defaultMessage={'Interest Rate'}
             description={'Interest Rate header'}
           />
         ),
-        Cell: DisplayCell,
+        cell: DisplayCell,
         displayFormatter: formatNumberAsPercent,
-        accessor: 'interestRate',
+        accessorKey: 'interestRate',
         textAlign: 'right',
       },
-    ];
-  }
+    ],
+    [token]
+  );
 
   if (fCashMarket) {
     const {

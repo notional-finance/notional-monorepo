@@ -210,7 +210,7 @@ const MainContainer = styled(Box)(
   height: ${theme.spacing(6)};
   top: 74px;
   position: fixed;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   justify-content: space-between;
   ${theme.breakpoints.down('sm')} {

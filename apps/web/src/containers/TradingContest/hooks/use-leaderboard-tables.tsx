@@ -10,48 +10,49 @@ import { colors } from '@notional-finance/styles';
 export const useLeaderBoardTables = () => {
   const leaderBoardColumns: ContestTableColumn[] = [
     {
-      Header: '',
-      accessor: 'rank',
-      Cell: idCell,
-      isIDCell: true,
+      header: '',
+      accessorKey: 'rank',
+      cell: idCell,
+      isIDcell: true,
       textAlign: 'center',
       width: '76px',
     },
     {
-      Header: '',
-      Cell: CustomIconCell,
-      accessor: 'username',
+      header: '',
+      cell: CustomIconCell,
+      accessorKey: 'username',
       textAlign: 'left',
       width: '225px',
     },
     {
-      Header: 'Total APY',
-      accessor: 'totalAPY',
+      header: 'Total APY',
+      accessorKey: 'totalAPY',
       textAlign: 'right',
       width: '225px',
     },
     {
-      Header: 'Total Deposits',
-      accessor: 'totalDeposits',
+      header: 'Total Deposits',
+      accessorKey: 'totalDeposits',
       textAlign: 'right',
       width: '225px',
     },
     {
-      Header: 'Net Worth',
-      accessor: 'netWorth',
-      Cell: ({
-        cell: {
-          value: { value, displayValue },
-        },
-      }) => (
-        <Box sx={{ color: value < 100 ? colors.red : '' }}>{displayValue}</Box>
-      ),
+      header: 'Net Worth',
+      accessorKey: 'netWorth',
+      cell: ({ cell: { getValue } }) => {
+        const { value, displayValue } = getValue();
+        return (
+          <Box sx={{ color: value < 100 ? colors.red : '' }}>
+            {displayValue}
+          </Box>
+        );
+      },
       textAlign: 'right',
       width: '225px',
     },
     {
-      Header: 'Total Earnings',
-      accessor: 'totalEarnings',
+      header: 'Total Earnings',
+      accessorKey: 'totalEarnings',
       textAlign: 'right',
       width: '225px',
     },
@@ -67,7 +68,7 @@ export const useLeaderBoardTables = () => {
   } = useLeaderboardData();
 
   const currentUserColumns = leaderBoardColumns.filter(
-    ({ accessor }) => accessor !== 'address'
+    ({ accessorKey }) => accessorKey !== 'address'
   );
 
   return {

@@ -42,36 +42,36 @@ export const PositionDetailsTable = ({
 
   const TABLE_COLUMNS: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Detail"
           description={'Detail header'}
         />
       ),
-      Cell: ToolTipCell,
-      accessor: 'label',
+      cell: ToolTipCell,
+      accessorKey: 'label',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Current"
           description={'Current header'}
         />
       ),
-      accessor: 'current',
+      accessorKey: 'current',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Updated"
           description={'Updated header'}
         />
       ),
       tooRisky,
-      Cell: ArrowIndicatorCell,
-      accessor: 'updated',
+      cell: ArrowIndicatorCell,
+      accessorKey: 'updated',
       textAlign: 'right',
     },
   ];

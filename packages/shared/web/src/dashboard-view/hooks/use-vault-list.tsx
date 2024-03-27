@@ -31,112 +31,115 @@ export const useVaultList = (network: Network) => {
 
   let listColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Currency"
           description={'Currency header'}
         />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'currency',
+      cell: MultiValueIconCell,
+      accessorKey: 'currency',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Wallet Balance"
           description={'Wallet Balance header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: (val, symbol) => {
         return `${formatNumber(val, 4)} ${symbol}`;
       },
       showSymbol: true,
-      accessor: 'walletBalance',
-      sortType: 'basic',
+      accessorKey: 'walletBalance',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Pool" description={'Pool header'} />
       ),
-      accessor: 'pool',
+      accessorKey: 'pool',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Protocols"
           description={'Protocols header'}
         />
       ),
-      accessor: 'protocols',
+      accessorKey: 'protocols',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Total APY"
           description={'Total APY header'}
         />
       ),
-      Cell: MultiValueIconCell,
+      cell: MultiValueIconCell,
       displayFormatter: formatNumberAsPercent,
-      accessor: 'totalApy',
-      sortType: 'basic',
+      accessorKey: 'totalApy',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
       textAlign: 'right',
     },
     // TODO: Add incentive APY back in when we need it
     // {
-    //   Header: (
+    //   header: (
     //     <FormattedMessage
     //       defaultMessage="INCENTIVE APY"
     //       description={'INCENTIVE APY header'}
     //     />
     //   ),
-    //   Cell: MultiValueIconCell,
-    //   accessor: 'incentiveApy',
+    //   cell: MultiValueIconCell,
+    //   accessorKey: 'incentiveApy',
     //   textAlign: 'right',
     //   sortType: 'basic',
     //   sortDescFirst: true,
     // },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="TVL" description={'TVL header'} />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: (value: number) =>
         formatNumberAsAbbr(value, 0, baseCurrency),
-      accessor: 'tvl',
+      accessorKey: 'tvl',
       textAlign: 'right',
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Borrow Terms"
           description={'Borrow Terms header'}
         />
       ),
-      Cell: MultiValueCell,
-      accessor: 'borrowTerms',
+      cell: MultiValueCell,
+      accessorKey: 'borrowTerms',
       textAlign: 'right',
     },
     {
-      Header: '',
-      Cell: LinkCell,
-      accessor: 'view',
+      header: '',
+      cell: LinkCell,
+      accessorKey: 'view',
       textAlign: 'right',
       width: '70px',
     },
   ];
 
   if (account === undefined) {
-    listColumns = listColumns.filter((x) => x.accessor !== 'walletBalance');
+    listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
   }
 
   const listData = listedVaults

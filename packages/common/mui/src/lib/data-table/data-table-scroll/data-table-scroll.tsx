@@ -2,15 +2,22 @@ import { useTheme, Box } from '@mui/material';
 import { SxProps } from '@mui/material/styles';
 import { DataTableHead } from '../data-table-head/data-table-head';
 import { DataTableBody } from '../data-table-body/data-table-body';
-import { useTable, useBlockLayout } from 'react-table';
-import { useSticky } from 'react-table-sticky';
 import { DataTableColumn, TABLE_VARIANTS } from '../types';
 import { PageLoading } from '../../page-loading/page-loading';
 import { FormattedMessage } from 'react-intl';
 import { TableCell } from '../../typography/typography';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import {
+  ColumnDef,
+  getCoreRowModel,
+  getSortedRowModel,
+  // Row,
+  useReactTable,
+} from '@tanstack/react-table';
+import { useRef } from 'react';
 
 interface DataTableProps {
-  columns: Array<DataTableColumn>;
+  columns: ColumnDef<DataTableColumn>[];
   data: Array<any>;
   tableVariant?: TABLE_VARIANTS;
   initialState?: Record<any, any>;
@@ -33,69 +40,58 @@ export const DataTableScroll = ({
   sx,
 }: DataTableProps) => {
   const theme = useTheme();
-  const { getTableProps, headerGroups, rows, prepareRow } = useTable(
-    {
-      columns,
-      data,
-      initialState: initialState,
-    },
-    useSticky,
-    useBlockLayout
-  );
-  const displayedRows = rows;
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const { rows } = table.getRowModel();
+  const headerGroups = table.getHeaderGroups();
+
+  //The virtualizer needs to know the scrollable container element
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    estimateSize: () => 61, //estimate row height for accurate scrollbar dragging
+    getScrollElement: () => tableContainerRef.current,
+    //measure dynamic row height, except in firefox because it measures table border height incorrectly
+    measureElement:
+      typeof window !== 'undefined' &&
+      navigator.userAgent.indexOf('Firefox') === -1
+        ? (element) => element?.getBoundingClientRect().height
+        : undefined,
+    overscan: 5,
+  });
 
   return (
     <Box
       component="div"
+      ref={tableContainerRef}
       sx={{
+        overflow: 'auto',
+        position: 'relative',
+        height: maxHeight,
         '.table': {
-          border: theme.shape.borderStandard,
+          display: 'grid',
           borderRadius: theme.shape.borderRadius(),
           background: theme.palette.background.paper,
           '.header': {
             background: theme.palette.background.paper,
-          },
-
-          '.th, .td': {
-            overflow: 'hidden',
-
-            '.resizer': {
-              display: 'inline-block',
-              width: '5px',
-              height: '100%',
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              transform: 'translateX(50%)',
-              zIndex: 1,
-            },
-          },
-          '&.sticky': {
-            overflowY: 'scroll',
-            overflowX: 'auto',
-            '.header, .title-bar': {
-              top: 0,
-              position: 'sticky',
-              zIndex: 1,
-              width: 'fit-content',
-            },
-            '.body': {
-              position: 'relative',
-              zIndex: 0,
-            },
-            '[data-sticky-td]': {
-              position: 'sticky',
-            },
+            display: 'grid',
+            position: 'sticky',
+            top: 0,
+            zIndex: 2,
+            marginRight: '0px',
+            borderRadius: theme.shape.borderRadius(),
           },
         },
         ...sx,
       }}
     >
-      <Box
-        {...getTableProps()}
-        className="table sticky"
-        sx={{ width: '100%', maxHeight: maxHeight }}
-      >
+      <Box className="table">
         <DataTableHead
           tableTitle={tableTitle}
           headerGroups={headerGroups}
@@ -104,13 +100,13 @@ export const DataTableScroll = ({
         />
         {tableReady ? (
           <DataTableBody
-            rows={displayedRows}
-            prepareRow={prepareRow}
+            rows={rows}
+            rowVirtualizer={rowVirtualizer}
             tableVariant={tableVariant}
             initialState={initialState}
           />
         ) : (
-          <Box sx={{ height: maxHeight }}>
+          <Box>
             {tableLoading ? (
               <PageLoading type="notional" />
             ) : (

@@ -6,7 +6,8 @@ import { TokenIcon } from '@notional-finance/icons';
 export const CustomIconCell = ({ cell }) => {
   const theme = useTheme();
   const [showAlert, setShowAlert] = useState<boolean>(false);
-  const { value } = cell;
+  const { getValue } = cell;
+  const value = getValue();
   if (!value) return null;
   const { text, fullAddress, communityName } = value;
 

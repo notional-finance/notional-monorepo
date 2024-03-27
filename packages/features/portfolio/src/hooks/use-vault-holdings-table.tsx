@@ -5,7 +5,6 @@ import {
   MultiValueCell,
   MultiValueIconCell,
   SliderCell,
-  ExpandedRows,
   ChevronCell,
   ArrowChangeCell,
 } from '@notional-finance/mui';
@@ -29,53 +28,54 @@ import {
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
+import { ExpandedState } from '@tanstack/react-table';
 
 const vaultRiskTableColumns: DataTableColumn[] = [
   {
-    Header: (
+    header: (
       <FormattedMessage
         defaultMessage="Exchange Rate"
         description={'column header'}
       />
     ),
-    Cell: MultiValueIconCell,
-    accessor: 'exchangeRate',
+    cell: MultiValueIconCell,
+    accessorKey: 'exchangeRate',
     textAlign: 'left',
   },
   {
-    Header: (
+    header: (
       <FormattedMessage
         defaultMessage="Liquidation Price"
         description={'column header'}
       />
     ),
-    accessor: 'liquidationPrice',
+    accessorKey: 'liquidationPrice',
     textAlign: 'right',
   },
   {
-    Header: (
+    header: (
       <FormattedMessage
         defaultMessage="Current Price"
         description={'column header'}
       />
     ),
-    accessor: 'currentPrice',
+    accessorKey: 'currentPrice',
     textAlign: 'right',
   },
   {
-    Header: (
+    header: (
       <FormattedMessage defaultMessage="24H %" description={'column header'} />
     ),
-    Cell: ArrowChangeCell,
-    accessor: 'oneDayChange',
+    cell: ArrowChangeCell,
+    accessorKey: 'oneDayChange',
     textAlign: 'right',
   },
   {
-    Header: (
+    header: (
       <FormattedMessage defaultMessage="7D %" description={'column header'} />
     ),
-    Cell: ArrowChangeCell,
-    accessor: 'sevenDayChange',
+    cell: ArrowChangeCell,
+    accessorKey: 'sevenDayChange',
     textAlign: 'right',
   },
 ];
@@ -104,7 +104,7 @@ export function getVaultLeveragePercentage(
 }
 
 export const useVaultHoldingsTable = () => {
-  const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
+  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const theme = useTheme();
   const baseCurrency = useFiat();
@@ -116,65 +116,65 @@ export const useVaultHoldingsTable = () => {
   const vaultHoldingsColumns: DataTableColumn[] = useMemo(() => {
     return [
       {
-        Header: (
+        header: (
           <FormattedMessage
             defaultMessage="Vault"
             description={'vault header'}
           />
         ),
-        Cell: MultiValueIconCell,
-        accessor: 'strategy',
+        cell: MultiValueIconCell,
+        accessorKey: 'strategy',
         textAlign: 'left',
         expandableTable: true,
       },
       {
-        Header: (
+        header: (
           <FormattedMessage
             defaultMessage="Net Worth"
             description={'Net Worth header'}
           />
         ),
-        Cell: MultiValueCell,
-        accessor: 'netWorth',
+        cell: MultiValueCell,
+        accessorKey: 'netWorth',
         textAlign: 'right',
         expandableTable: true,
       },
       {
-        Header: (
+        header: (
           <FormattedMessage
             defaultMessage="Profits"
             description={'profits header'}
           />
         ),
-        Cell: MultiValueCell,
-        accessor: 'profit',
+        cell: MultiValueCell,
+        accessorKey: 'profit',
         textAlign: 'right',
         expandableTable: true,
       },
       {
-        Header: (
+        header: (
           <FormattedMessage defaultMessage="APY" description={'Debts header'} />
         ),
-        accessor: 'totalAPY',
+        accessorKey: 'totalAPY',
         textAlign: 'right',
         expandableTable: true,
       },
       {
-        Header: (
+        header: (
           <FormattedMessage
             defaultMessage="Leverage Ratio"
             description={'currency header'}
           />
         ),
-        Cell: SliderCell,
-        accessor: 'leveragePercentage',
+        cell: SliderCell,
+        accessorKey: 'leveragePercentage',
         textAlign: 'right',
         expandableTable: true,
       },
       {
-        Header: '',
-        Cell: ChevronCell,
-        accessor: 'chevron',
+        header: '',
+        cell: ChevronCell,
+        accessorKey: 'chevron',
         textAlign: 'left',
         expandableTable: true,
       },

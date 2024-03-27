@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import {
   MultiValueIconCell,
   MultiValueCell,
@@ -24,81 +24,90 @@ export const useTxnHistoryTable = (
     );
   };
 
-  const tableColumns: DataTableColumn[] = [
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Transaction Type"
-          description={'Transaction Type header'}
-        />
-      ),
-      accessor: 'transactionType',
-      Cell: MultiValueIconCell,
-      textAlign: 'left',
-    },
-    {
-      Header: (
-        <FormattedMessage defaultMessage="Asset" description={'Asset header'} />
-      ),
-      Cell: MultiValueIconCell,
-      accessor: 'asset',
-      textAlign: 'left',
-    },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Vault Name"
-          description={'Vault Name header'}
-        />
-      ),
-      Cell: VaultNameCell,
-      accessor: 'vaultName',
-      textAlign: 'left',
-    },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Underlying Amount"
-          description={'Underlying Amount header'}
-        />
-      ),
-      Cell: MultiValueCell,
-      accessor: 'underlyingAmount',
-      textAlign: 'right',
-    },
+  const tableColumns = useMemo<DataTableColumn[]>(
+    () => [
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Transaction Type"
+            description={'Transaction Type header'}
+          />
+        ),
+        accessorKey: 'transactionType',
+        cell: MultiValueIconCell,
+        textAlign: 'left',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Asset"
+            description={'Asset header'}
+          />
+        ),
+        cell: MultiValueIconCell,
+        accessorKey: 'asset',
+        textAlign: 'left',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Vault Name"
+            description={'Vault Name header'}
+          />
+        ),
+        cell: VaultNameCell,
+        accessorKey: 'vaultName',
+        textAlign: 'left',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Underlying Amount"
+            description={'Underlying Amount header'}
+          />
+        ),
+        cell: MultiValueCell,
+        accessorKey: 'underlyingAmount',
+        textAlign: 'right',
+      },
 
-    {
-      Header: (
-        <FormattedMessage defaultMessage="Price" description={'Price header'} />
-      ),
-      accessor: 'price',
-      textAlign: 'right',
-    },
-    {
-      Header: (
-        <FormattedMessage defaultMessage="Time" description={'Time header'} />
-      ),
-      Cell: DateTimeCell,
-      accessor: 'time',
-      textAlign: 'right',
-    },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="TX LINK"
-          description={'TX LINK header'}
-        />
-      ),
-      accessor: 'txLink',
-      Cell: TxnHashCell,
-      textAlign: 'right',
-      showLinkIcon: true,
-    },
-  ];
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Price"
+            description={'Price header'}
+          />
+        ),
+        accessorKey: 'price',
+        textAlign: 'right',
+      },
+      {
+        header: (
+          <FormattedMessage defaultMessage="Time" description={'Time header'} />
+        ),
+        cell: DateTimeCell,
+        accessorKey: 'time',
+        textAlign: 'right',
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="TX LINK"
+            description={'TX LINK header'}
+          />
+        ),
+        accessorKey: 'txLink',
+        cell: TxnHashCell,
+        textAlign: 'right',
+        showLinkIcon: true,
+      },
+    ],
+    []
+  );
 
   const txnHistoryColumns =
     txnHistoryCategory === 0
-      ? tableColumns.filter(({ accessor }) => accessor !== 'vaultName')
+      ? tableColumns.filter(({ accessorKey }) => accessorKey !== 'vaultName')
       : tableColumns;
 
   const getIds = (options: SelectedOptions[]) => {

@@ -1,6 +1,5 @@
 import { MessageDescriptor } from 'react-intl';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
-import { Column } from 'react-table';
 
 export enum TABLE_VARIANTS {
   MINI = 'mini',
@@ -31,7 +30,7 @@ export type ExpandedRows = {
   [key: string]: boolean;
 };
 
-export type DataTableColumn = Column & {
+export type DataTableColumn = {
   expandableTable?: boolean;
   textAlign?: string;
   showLinkIcon?: boolean;
@@ -48,4 +47,11 @@ export type DataTableColumn = Column & {
   showGreenText?: boolean;
   ToolTip?: ReactNode;
   tooRisky?: boolean;
+  header: string | ReactNode;
+  accessorKey: string;
+  cell?: (row: any) => any;
+  width?: string;
+  sortingFn?: any;
+  enableSorting?: boolean;
+  fontSize?: string;
 };
