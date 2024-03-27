@@ -56,6 +56,9 @@ export enum Strategy {
   Eth_Convex_USDC_pyUSD = 21,
   Eth_Balancer_USDC_GHO_USDT = 22,
   Eth_Balancer_rETH_weETH = 23,
+  Arb_Convex_crvUSD_USDC = 24,
+  Arb_Convex_crvUSD_USDT = 25,
+  Eth_Balancer_ezETH_WETH = 26,
 }
 
 export interface MulticallConfig {
