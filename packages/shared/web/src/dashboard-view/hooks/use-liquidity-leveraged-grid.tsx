@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
 // import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
@@ -31,47 +31,6 @@ export const useLiquidityLeveragedGrid = (
         (n) => n.asset.balance.underlying.symbol === y.underlying.symbol
       );
 
-      const handleBottomValue = () => {
-        let result: string | ReactNode = '';
-        if (currentPosition) {
-          if (
-            getTotalIncentiveApy(
-              currentPosition?.asset.marketYield?.noteIncentives?.incentiveAPY,
-              currentPosition?.asset.marketYield?.secondaryIncentives
-                ?.incentiveAPY
-            ) === undefined
-          ) {
-            result = (
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <LeafIcon
-                  sx={{
-                    marginRight: theme.spacing(1),
-                    height: theme.spacing(1.75),
-                    width: theme.spacing(1.75),
-                  }}
-                />
-                <FormattedMessage defaultMessage={'Organic APY'} />
-              </Box>
-            );
-          }
-        } else if (
-          getTotalIncentiveApy(
-            y?.noteIncentives?.incentiveAPY,
-            y?.secondaryIncentives?.incentiveAPY
-          ) === undefined
-        ) {
-          result = (
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <LeafIcon
-                sx={{ marginRight: '8px', height: '14px', width: '14px' }}
-              />
-              <FormattedMessage defaultMessage={'Organic APY'} />
-            </Box>
-          );
-        }
-        return result;
-      };
-
       return {
         ...y,
         symbol: y.underlying.symbol,
@@ -97,12 +56,28 @@ export const useLiquidityLeveragedGrid = (
               defaultMessage: `AS HIGH AS`,
               description: 'subtitle',
             }),
-        bottomValue: handleBottomValue(),
+        bottomValue:
+          getTotalIncentiveApy(
+            y.noteIncentives?.incentiveAPY,
+            y.secondaryIncentives?.incentiveAPY
+          ) === undefined ? (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <LeafIcon
+                sx={{
+                  marginRight: theme.spacing(1),
+                  height: theme.spacing(1.75),
+                  width: theme.spacing(1.75),
+                }}
+              />
+              <FormattedMessage defaultMessage={'Organic APY'} />
+            </Box>
+          ) : (
+            ''
+          ),
         incentiveValue: currentPosition
           ? getTotalIncentiveApy(
-              currentPosition?.asset.marketYield?.noteIncentives?.incentiveAPY,
-              currentPosition?.asset.marketYield?.secondaryIncentives
-                ?.incentiveAPY
+              y.noteIncentives?.incentiveAPY,
+              y.secondaryIncentives?.incentiveAPY
             )
           : getTotalIncentiveApy(
               y?.noteIncentives?.incentiveAPY,
@@ -110,28 +85,23 @@ export const useLiquidityLeveragedGrid = (
             ),
         incentiveSymbols: currentPosition
           ? getTotalIncentiveSymbol(
-              currentPosition?.asset.marketYield?.secondaryIncentives
-                ?.incentiveAPY &&
-                currentPosition?.asset.marketYield?.secondaryIncentives
-                  ?.incentiveAPY > 0
-                ? currentPosition?.asset.marketYield?.secondaryIncentives
-                    ?.symbol
+              y.secondaryIncentives?.incentiveAPY &&
+                y.secondaryIncentives?.incentiveAPY > 0
+                ? y.secondaryIncentives?.symbol
                 : undefined,
-              currentPosition?.asset.marketYield?.noteIncentives
-                ?.incentiveAPY &&
-                currentPosition?.asset.marketYield?.noteIncentives
-                  ?.incentiveAPY > 0
-                ? currentPosition?.asset.marketYield?.noteIncentives?.symbol
+              y.noteIncentives?.incentiveAPY &&
+                y.noteIncentives?.incentiveAPY > 0
+                ? y.noteIncentives?.symbol
                 : undefined
             )
           : getTotalIncentiveSymbol(
-              y?.secondaryIncentives?.incentiveAPY &&
-                y?.secondaryIncentives?.incentiveAPY > 0
-                ? y?.secondaryIncentives?.symbol
+              y.secondaryIncentives?.incentiveAPY &&
+                y.secondaryIncentives?.incentiveAPY > 0
+                ? y.secondaryIncentives?.symbol
                 : undefined,
-              y?.noteIncentives?.incentiveAPY &&
-                y?.noteIncentives?.incentiveAPY > 0
-                ? y?.noteIncentives?.symbol
+              y.noteIncentives?.incentiveAPY &&
+                y.noteIncentives?.incentiveAPY > 0
+                ? y.noteIncentives?.symbol
                 : undefined
             ),
         apy:
