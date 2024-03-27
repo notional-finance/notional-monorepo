@@ -125,7 +125,7 @@ declare module '@mui/material/styles' {
 
   interface TypographyVariants {
     labelValue: React.CSSProperties;
-    tablecell: React.CSSProperties;
+    tableCell: React.CSSProperties;
     largeNumber: React.CSSProperties;
     largeNumberLabel: React.CSSProperties;
     largeInput: React.CSSProperties;
@@ -215,7 +215,7 @@ declare module '@mui/material/Typography' {
     h6: false;
     subtitle: false;
     overline: false;
-    tablecell: true;
+    tableCell: true;
     largeNumber: true;
     labelValue: true;
     largeNumberLabel: true;
@@ -473,7 +473,7 @@ function getTypography(
         lineHeight,
         marginBottom: pxToMargin(14),
       },
-      tablecell: {
+      tableCell: {
         fontSize: pxToRem(14),
         fontWeight: fontWeight.medium,
         color: getFontColors(themeVariant).primary,

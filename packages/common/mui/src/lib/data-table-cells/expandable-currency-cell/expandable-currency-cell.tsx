@@ -17,7 +17,7 @@ export const ExpandableCurrencyCell = ({ cell }): JSX.Element => {
       }}
     >
       <TokenIcon symbol={symbol || 'unknown'} size="medium" />
-      <LargeTableCell sx={{ marginLeft: '10px' }}>
+      <LargeTableCell sx={{ marginLeft: theme.spacing(1.25) }}>
         {label || symbol}
       </LargeTableCell>
     </Box>
