@@ -9,7 +9,7 @@ export const Balancer_Config = [
     '0xd0ec47c54ca5e20aaae4616c25c825c7f48d40690000000000000000000004ef',
     '0xd0ec47c54ca5e20aaae4616c25c825c7f48d4069',
     '0x8ba2d53f34159c5c5e7add60b56c7de3bbc1da68',
-    '',
+    '0xf8A95653CC7ee59AfA2304DcC518c431a15C292C',
     Network.arbitrum,
     Strategy.Arb_Balancer_rETH_WETH,
     [ArbTokenConfig['WETH'], ArbTokenConfig['rETH']],
