@@ -6,10 +6,10 @@ import { ArbTokenConfig, EthTokenConfig, getOracleValue } from '..';
 
 export const Balancer_Config = [
   getComposablePoolConfig(
-    '0xade4a71bb62bec25154cfc7e6ff49a513b491e81000000000000000000000497',
-    '0xade4a71bb62bec25154cfc7e6ff49a513b491e81',
-    '0xd6B875d62c2661eaB66472F36c672e4B512f1135',
-    '0x00b9bcd17cB049739D25FD7f826caA2E23b05620',
+    '0xd0ec47c54ca5e20aaae4616c25c825c7f48d40690000000000000000000004ef',
+    '0xd0ec47c54ca5e20aaae4616c25c825c7f48d4069',
+    '0x8ba2d53f34159c5c5e7add60b56c7de3bbc1da68',
+    '',
     Network.arbitrum,
     Strategy.Arb_Balancer_rETH_WETH,
     [ArbTokenConfig['WETH'], ArbTokenConfig['rETH']],
