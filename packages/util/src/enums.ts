@@ -19,6 +19,16 @@ export enum PRODUCTS {
   BORROW_VARIABLE = 'borrow-variable',
 }
 
+export enum META_TAG_CATEGORIES {
+  LEND_FIXED_DASHBOARD = 'lend-fixed-dashboard',
+  LEND_VARIABLE_DASHBOARD = 'lend-variable-dashboard',
+  BORROW_FIXED_DASHBOARD = 'borrow-fixed-dashboard',
+  BORROW_VARIABLE_DASHBOARD = 'borrow-variable-dashboard',
+  LIQUIDITY_VARIABLE_DASHBOARD = 'liquidity-variable-dashboard',
+  LIQUIDITY_LEVERAGED_DASHBOARD = 'liquidity-leveraged-dashboard',
+  VAULTS_DASHBOARD = 'vaults-dashboard',
+}
+
 export enum NOTIONAL_CATEGORIES {
   LEND = 'lend',
   BORROW = 'borrow',

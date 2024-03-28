@@ -30,6 +30,7 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import { LendFixed, LendVariable } from '@notional-finance/lend-feature-shell';
 import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 import {
   BorrowFixed,
   BorrowVariable,
@@ -267,13 +268,31 @@ export const App = () => {
   return (
     <ThemeProvider theme={notionalTheme}>
       <CssBaseline />
-      <NotionalContext.Provider value={globalState}>
-        <FeatureLoader>
-          <Web3OnboardProvider web3Onboard={OnboardContext}>
-            <AllRoutes />
-          </Web3OnboardProvider>
-        </FeatureLoader>
-      </NotionalContext.Provider>
+      <HelmetProvider>
+        <NotionalContext.Provider value={globalState}>
+          <FeatureLoader>
+            <Helmet>
+              <link rel="icon" href="/favicon.svg" />
+              <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1"
+              />
+              <title>Notional Finance - DeFi Fixed Rates</title>
+              <meta
+                name="title"
+                content="Notional Finance - DeFi Fixed Rates"
+              />
+              <meta
+                name="description"
+                content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
+              />
+            </Helmet>
+            <Web3OnboardProvider web3Onboard={OnboardContext}>
+              <AllRoutes />
+            </Web3OnboardProvider>
+          </FeatureLoader>
+        </NotionalContext.Provider>
+      </HelmetProvider>
     </ThemeProvider>
   );
 };
