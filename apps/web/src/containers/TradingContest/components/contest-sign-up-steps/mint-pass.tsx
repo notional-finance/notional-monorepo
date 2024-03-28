@@ -5,7 +5,7 @@ import {
   TitleText,
   ContestBodyText,
   StepContainer,
-} from '../contest-shared-elements/contest-shared-elements';
+} from '../contest-shared-elements';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { ethers } from 'ethers';
@@ -13,7 +13,7 @@ import {
   useNotionalContext,
   useMintPass,
 } from '@notional-finance/notionable-hooks';
-import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
+import { ContestButtonBar } from '../contest-button-bar';
 import { useChangeNetwork } from '@notional-finance/trade';
 import { Network } from '@notional-finance/util';
 

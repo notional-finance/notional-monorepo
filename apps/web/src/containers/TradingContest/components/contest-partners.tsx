@@ -2,7 +2,7 @@ import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { Paragraph, ContestTable, Button } from '@notional-finance/mui';
-import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
+import { SectionTitle } from './contest-shared-elements';
 import {
   useContestPass,
   useSelectedNetwork,
@@ -11,7 +11,7 @@ import {
   partnersTableColumns,
   partnersTableData,
   messages,
-} from '../../contest-data';
+} from '../contest-data';
 
 export const ContestPartners = () => {
   const theme = useTheme();
