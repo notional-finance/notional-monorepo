@@ -41,7 +41,7 @@ export abstract class BaseNotionalMarket<
     );
     if (!supply || !debt) throw Error('Missing prime total supply');
 
-    return debt.ratioWith(supply).toNumber();
+    return debt.toUnderlying().ratioWith(supply.toUnderlying()).toNumber();
   }
 
   protected getInterestRate(marketIndex: number, utilization: number) {
@@ -112,7 +112,7 @@ export abstract class BaseNotionalMarket<
       const utilization = this.getPrimeCashUtilization();
       return (this.getPrimeDebtRate(utilization) * 100) / RATE_PRECISION;
     } else if (token.tokenType === 'fCash') {
-      return this.getfCashSpotRate(token)
+      return this.getfCashSpotRate(token);
     } else {
       return undefined;
     }
