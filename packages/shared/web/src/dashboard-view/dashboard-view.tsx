@@ -8,7 +8,7 @@ import {
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
 import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
-import { PRODUCTS } from '@notional-finance/util';
+import { META_TAG_CATEGORIES, PRODUCTS } from '@notional-finance/util';
 import {
   setInLocalStorage,
   getFromLocalStorage,
@@ -26,6 +26,11 @@ import {
   useLiquidityLeveragedGrid,
 } from './hooks';
 import { sortListData } from './hooks/utils';
+import MetaTagManager from '../meta-tag-manager/meta-tag-manager';
+
+interface DashboardViewComponentProps extends DashboardViewProps {
+  metaTagCategory: META_TAG_CATEGORIES;
+}
 
 export const DashboardView = ({
   gridData,
@@ -34,7 +39,8 @@ export const DashboardView = ({
   showNegativeYields,
   setShowNegativeYields,
   threeWideGrid,
-}: DashboardViewProps) => {
+  metaTagCategory,
+}: DashboardViewComponentProps) => {
   const network = useSelectedNetwork();
   const themeVariant = useThemeVariant();
   const { pathname } = useLocation();
@@ -70,6 +76,7 @@ export const DashboardView = ({
   return (
     <ThemeProvider theme={themeLanding}>
       <FeatureLoader featureLoaded={!!network && themeVariant ? true : false}>
+        <MetaTagManager metaTagCategory={metaTagCategory} />
         <CardContainer {...containerData}>
           <ProductDashboard
             gridData={gridData || []}
@@ -100,6 +107,7 @@ export const VaultDashboard = () => {
       listColumns={listColumns}
       listData={listData}
       threeWideGrid={false}
+      metaTagCategory={META_TAG_CATEGORIES.VAULTS_DASHBOARD}
     />
   );
 };
@@ -117,6 +125,7 @@ export const LiquidityLeveragedDashboard = () => {
       {...gridData}
       listColumns={listColumns}
       listData={listData}
+      metaTagCategory={META_TAG_CATEGORIES.LIQUIDITY_LEVERAGED_DASHBOARD}
     />
   );
 };
@@ -133,6 +142,7 @@ export const LiquidityVariableDashboard = () => {
       {...gridData}
       listColumns={listColumns}
       listData={listData}
+      metaTagCategory={META_TAG_CATEGORIES.LIQUIDITY_VARIABLE_DASHBOARD}
     />
   );
 };
@@ -149,6 +159,7 @@ export const LendVariableDashboard = () => {
       {...gridData}
       listColumns={listColumns}
       listData={listData}
+      metaTagCategory={META_TAG_CATEGORIES.LEND_VARIABLE_DASHBOARD}
     />
   );
 };
@@ -165,6 +176,7 @@ export const BorrowVariableDashboard = () => {
       {...gridData}
       listColumns={listColumns}
       listData={listData}
+      metaTagCategory={META_TAG_CATEGORIES.BORROW_VARIABLE_DASHBOARD}
     />
   );
 };
@@ -182,6 +194,7 @@ export const BorrowFixedDashboard = () => {
       {...gridData}
       listColumns={listColumns}
       listData={listData}
+      metaTagCategory={META_TAG_CATEGORIES.BORROW_FIXED_DASHBOARD}
     />
   );
 };
@@ -198,6 +211,7 @@ export const LendFixedDashboard = () => {
       {...gridData}
       listColumns={listColumns}
       listData={listData}
+      metaTagCategory={META_TAG_CATEGORIES.LEND_FIXED_DASHBOARD}
     />
   );
 };
