@@ -24,23 +24,23 @@ export const PerformanceChart = ({
   apyChartData?: ChartComponentsProps;
 }) => {
   const theme = useTheme();
-  const hidetextHeader = apyChartData ? true : false;
+  const hideTextHeader = apyChartData ? true : false;
   const {
     areaChartData,
     areaChartStyles,
     areaChartHeaderData,
-    currentLeveragedReturn,
+    currentDepositValue,
     chartToolTipData,
-  } = usePerformanceChart(state, priorVaultFactors, hidetextHeader);
+  } = usePerformanceChart(state, priorVaultFactors, hideTextHeader);
 
   const chartComponents: ChartComponentsProps[] = [
     {
       id: 'area-chart',
-      title: 'Performance To Date',
+      title: 'Deposit Value',
       hideTopGridLine: true,
       Component: (
         <AreaChart
-          showEmptyState={currentLeveragedReturn === undefined ? true : false}
+          showEmptyState={currentDepositValue === undefined ? true : false}
           emptyStateMessage={
             <FormattedMessage
               defaultMessage={'Fill in inputs to see leveraged returns'}
@@ -48,6 +48,8 @@ export const PerformanceChart = ({
           }
           showCartesianGrid
           xAxisTickFormat="date"
+          yAxisTickFormat="usd"
+          yAxisDomain={['dataMin', 'dataMax']}
           areaChartData={areaChartData}
           areaLineType="linear"
           chartToolTipData={chartToolTipData}

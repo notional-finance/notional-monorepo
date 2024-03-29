@@ -121,11 +121,52 @@ export function useLeveragedPerformance(
       return {
         timestamp: d.timestamp,
         strategyReturn: totalAPY,
+        borrowRate,
         leveragedReturn: leveragedYield(totalAPY, borrowRate, leverageRatio),
       };
     }),
-    { strategyReturn: 0, leveragedReturn: undefined }
+    { strategyReturn: 0, leveragedReturn: undefined, borrowRate: undefined }
   );
+}
+
+export function useDepositValue(
+  token: TokenDefinition | undefined,
+  isPrimeBorrow: boolean,
+  currentBorrowRate: number | undefined,
+  leverageRatio: number | null | undefined,
+  leveragedLendFixedRate: number | undefined
+) {
+  const data = useLeveragedPerformance(
+    token,
+    isPrimeBorrow,
+    currentBorrowRate,
+    leverageRatio,
+    leveragedLendFixedRate
+  );
+
+  return data.reduce((acc, d, i) => {
+    const vaultShareMultiple =
+      i === 0
+        ? 1
+        : acc[i - 1].vaultShareMultiple *
+          (1 + (d.strategyReturn || 0) / 100) ** (1 / 365);
+    const borrowRateMultiple =
+      i === 0
+        ? 1
+        : acc[i - 1].borrowRateMultiple *
+          (1 + (d.borrowRate || 0) / 100) ** (1 / 365);
+
+    acc.push({
+      timestamp: d.timestamp,
+      vaultShareMultiple,
+      borrowRateMultiple,
+      multiple:
+        100 *
+        (vaultShareMultiple +
+          (vaultShareMultiple - borrowRateMultiple) * (leverageRatio || 0)),
+    });
+    return acc;
+  }, [] as { timestamp: number; vaultShareMultiple: number; borrowRateMultiple: number; multiple: number }[]);
 }
 
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {

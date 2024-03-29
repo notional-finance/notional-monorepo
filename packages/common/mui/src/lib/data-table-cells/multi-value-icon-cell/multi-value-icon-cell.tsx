@@ -10,7 +10,6 @@ import {
   LargeTableCell,
   H5,
 } from '../../typography/typography';
-import { Network } from '@notional-finance/util';
 
 // export interface MultiValueIconCellProps {
 //   cell: {
