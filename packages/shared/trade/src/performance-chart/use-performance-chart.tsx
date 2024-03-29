@@ -30,6 +30,7 @@ export function usePerformanceChart(
     collateralOptions,
     riskFactorLimit,
     tradeType,
+    deposit,
     depositBalance,
   } = state;
   const currentBorrowRate =
@@ -96,7 +97,13 @@ export function usePerformanceChart(
         <FormattedMessage
           // eslint-disable-next-line no-template-curly-in-string
           defaultMessage={'{returns} Deposit Value'}
-          values={{ returns: <span>{formatNumber(area)}</span> }}
+          values={{
+            returns: (
+              <span>
+                {formatNumber(area)} {deposit?.symbol}
+              </span>
+            ),
+          }}
         />
       ),
     },
@@ -110,7 +117,12 @@ export function usePerformanceChart(
     ),
     legendData: [
       {
-        label: <FormattedMessage defaultMessage={'Deposit Value'} />,
+        label: (
+          <FormattedMessage
+            defaultMessage={'Deposit Value ({days}d)'}
+            values={{ days: data.length }}
+          />
+        ),
         value: currentDepositValue ? (
           <CountUp
             value={currentDepositValue.toFloat()}

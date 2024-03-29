@@ -3,8 +3,8 @@ import { alpha, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import {
   formatNumberAsPercent,
-  formatNumberToDigits,
   formatNumber,
+  formatNumberAsAbbr,
 } from '@notional-finance/helpers';
 import { ONE_WEEK, getDateString } from '@notional-finance/util';
 import {
@@ -32,7 +32,7 @@ export interface AreaChartData {
   area?: number;
 }
 export interface AreaChartStylesProps {
-  line: {
+  line?: {
     lineColor: string;
     lineType: 'solid' | 'dashed' | 'dotted';
   };
@@ -62,14 +62,15 @@ export interface AreaChartProps {
   xAxisTickCount?: number;
 }
 
-export const yAxisTickHandler = (yAxisTickFormat, v: number) => {
+export const yAxisTickHandler = (
+  yAxisTickFormat: AreaChartProps['yAxisTickFormat'],
+  v: number
+) => {
   if (yAxisTickFormat === 'percent' && typeof v === 'number') {
     return formatNumberAsPercent(v);
-  }
-  if (yAxisTickFormat === 'usd' && typeof v === 'number') {
-    return `$${formatNumberToDigits(v, 2)}`;
-  }
-  if (yAxisTickFormat === 'number' && typeof v === 'number') {
+  } else if (yAxisTickFormat === 'usd' && typeof v === 'number') {
+    return `${formatNumberAsAbbr(v, 2)}`;
+  } else if (yAxisTickFormat === 'number' && typeof v === 'number') {
     return formatNumber(v, 2);
   }
   return `${v}`;
@@ -197,7 +198,7 @@ export const AreaChart = ({
             dataKey="line"
             strokeWidth={1.5}
             stroke={
-              areaChartStyles?.line.lineColor || theme.palette.charts.main
+              areaChartStyles?.line?.lineColor || theme.palette.charts.main
             }
             strokeDasharray="3 3"
             dot={false}

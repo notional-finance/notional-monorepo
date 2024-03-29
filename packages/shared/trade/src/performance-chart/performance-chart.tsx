@@ -48,7 +48,7 @@ export const PerformanceChart = ({
           }
           showCartesianGrid
           xAxisTickFormat="date"
-          yAxisTickFormat="usd"
+          yAxisTickFormat="number"
           yAxisDomain={['dataMin', 'dataMax']}
           areaChartData={areaChartData}
           areaLineType="linear"
