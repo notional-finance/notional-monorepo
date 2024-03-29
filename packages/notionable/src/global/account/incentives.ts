@@ -23,6 +23,7 @@ export function calculateAccruedIncentives(account: AccountDefinition): {
   accruedIncentives: AccruedIncentives[];
   totalIncentives: TotalIncentives;
 } {
+  console.log('IN CALCULATE ACCREUD INCENTIVES');
   const accruedIncentives = account.balances
     .filter((t) => t.tokenType === 'nToken')
     .map((b) => {
@@ -136,7 +137,6 @@ function calculateIncentive(
   if (
     lastAccumulatedTime === undefined ||
     accumulatedRewardPerNToken === undefined ||
-    incentiveEmissionRate.isZero() ||
     rewardEndTime === 0
   ) {
     return incentiveEmissionRate.copy(0);
