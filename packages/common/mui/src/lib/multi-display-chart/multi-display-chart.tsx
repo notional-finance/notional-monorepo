@@ -1,7 +1,7 @@
 import { useState, ReactNode } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { TradeSummaryBox } from '../trade-summary-box/trade-summary-box';
-import { H4, Body } from '../typography/typography';
+import { Body } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
 import {
   ChartHeader,
@@ -15,6 +15,7 @@ import {
   ChartInfoBox,
   chartInfoBoxDataProps,
 } from '../chart-info-box/chart-info-box';
+import SimpleToggle from '../simple-toggle/simple-toggle';
 
 export interface ChartComponentsProps {
   id: string;
@@ -40,8 +41,8 @@ export const MultiDisplayChart = ({
   chartComponents,
 }: MultiDisplayChartProps) => {
   const theme = useTheme();
-  const [visibleChart, setVisibleChart] = useState(chartComponents[0].id);
-  const currentChart = chartComponents.find(({ id }) => id === visibleChart);
+  const [visibleChart, setVisibleChart] = useState(0);
+  const currentChart = chartComponents[visibleChart];
   const [chartInfoBoxActive, setChartInfoBoxActive] = useState<
     boolean | undefined
   >(undefined);
@@ -57,28 +58,12 @@ export const MultiDisplayChart = ({
               alignItems: 'center',
             }}
           >
-            <ButtonContainer>
-              {chartComponents.map(({ id, title }, index) => (
-                <H4
-                  key={index}
-                  sx={{
-                    cursor: 'pointer',
-                    paddingBottom: theme.spacing(1),
-                    borderBottom:
-                      id === visibleChart
-                        ? `2px solid ${theme.palette.charts.main}`
-                        : 'none',
-                    color:
-                      id === visibleChart
-                        ? theme.palette.charts.main
-                        : theme.palette.typography.light,
-                  }}
-                  onClick={() => setVisibleChart(id)}
-                >
-                  {title}
-                </H4>
-              ))}
-            </ButtonContainer>
+            <SimpleToggle
+              selectedTabIndex={visibleChart}
+              tabVariant="standard"
+              tabLabels={chartComponents.map(({ title }) => title)}
+              onChange={(_, value) => setVisibleChart(value as number)}
+            />
             {currentChart?.chartHeaderData && (
               <ChartHeader
                 chartHeaderData={currentChart?.chartHeaderData}
@@ -150,16 +135,5 @@ export const ChartContainer = styled(Box, {
 `
 );
 
-const ButtonContainer = styled(Box)(
-  ({ theme }) => `
-    display: flex;
-    width: fit-content;
-    padding: ${theme.spacing(1, 2)};
-    padding-bottom: 0px;
-    gap: ${theme.spacing(2)};
-    border: ${theme.shape.borderStandard};
-    border-radius: ${theme.shape.borderRadius()};
-  `
-);
 
 export default MultiDisplayChart;

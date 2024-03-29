@@ -24,24 +24,19 @@ export const PerformanceChart = ({
   };
 }) => {
   const theme = useTheme();
-  const {
-    areaChartData,
-    areaChartStyles,
-    areaChartHeaderData,
-    currentDepositValue,
-    chartToolTipData,
-  } = usePerformanceChart(state, priorVaultFactors);
-  const { collateral } = state;
+  const { areaChartData, areaChartStyles, isEmptyState, chartToolTipData } =
+    usePerformanceChart(state, priorVaultFactors);
+  const { collateral, deposit } = state;
   const { barConfig, barChartData } = useApyChart(collateral);
 
   const chartComponents: ChartComponentsProps[] = [
     {
       id: 'area-chart',
-      title: 'Deposit Value',
+      title: 'Performance',
       hideTopGridLine: true,
       Component: (
         <AreaChart
-          showEmptyState={currentDepositValue === undefined ? true : false}
+          showEmptyState={isEmptyState}
           emptyStateMessage={
             <FormattedMessage
               defaultMessage={'Fill in inputs to see leveraged returns'}
@@ -57,15 +52,24 @@ export const PerformanceChart = ({
           areaChartStyles={areaChartStyles}
         />
       ),
-      chartHeaderData: areaChartHeaderData,
+      chartHeaderData: {
+        messageBox: (
+          <FormattedMessage
+            defaultMessage={'Value of 100 {symbol} over {days} days'}
+            values={{
+              symbol: deposit?.symbol,
+              days: areaChartData.length,
+            }}
+          />
+        ),
+      },
     },
     {
       id: 'bar-chart',
-      title: 'APY',
+      title: 'Strategy APY',
       hideTopGridLine: true,
       Component: (
         <BarChart
-          title="APY"
           xAxisTickFormat="date"
           isStackedBar
           barConfig={barConfig}
@@ -73,6 +77,13 @@ export const PerformanceChart = ({
           yAxisTickFormat="percent"
         />
       ),
+      chartHeaderData: {
+        messageBox: (
+          <FormattedMessage
+            defaultMessage={'Incentives are automatically reinvested'}
+          />
+        ),
+      },
     },
   ];
 

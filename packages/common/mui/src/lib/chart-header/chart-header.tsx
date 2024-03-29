@@ -3,6 +3,7 @@ import { H4 } from '../typography/typography';
 import { Box, styled, useTheme } from '@mui/material';
 import { InfoIcon } from '@notional-finance/icons';
 import { ChartLegend } from './chart-legend/chart-legend';
+import { MessageBox } from '../message-box/message-box';
 
 export enum LEGEND_LINE_TYPES {
   SOLID = 'solid',
@@ -13,6 +14,7 @@ export enum LEGEND_LINE_TYPES {
 
 export interface ChartHeaderDataProps {
   textHeader?: ReactNode;
+  messageBox?: ReactNode;
   legendData?: {
     label: ReactNode;
     value?: any | undefined;
@@ -84,6 +86,9 @@ export const ChartHeader = ({
         </ButtonWrapper>
       )}
 
+      {chartHeaderData?.messageBox && (
+        <MessageBox>{chartHeaderData.messageBox}</MessageBox>
+      )}
       <LegendWrapper>
         {chartHeaderData?.legendData &&
           chartHeaderData?.legendData.length > 0 &&
@@ -125,7 +130,6 @@ const HeadingContainer = styled(Box)(
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: ${theme.spacing(1)};
   margin-left: ${theme.spacing(2.5)};
   margin-right: ${theme.spacing(2.5)};
 `

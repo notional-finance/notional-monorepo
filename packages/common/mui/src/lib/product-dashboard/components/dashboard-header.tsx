@@ -3,6 +3,7 @@ import { SimpleToggle } from '../../simple-toggle/simple-toggle';
 import { FourSquareIcon, ListIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { DashboardHeaderProps } from '../product-dashboard';
+import { MessageBox } from '../../message-box/message-box';
 
 export const DashboardHeader = ({
   headerData,
@@ -96,7 +97,11 @@ export const DashboardHeader = ({
         )}
       </Box>
       <Box sx={{ display: 'flex' }}>
-        {messageBoxText && <MessageBox>{messageBoxText}</MessageBox>}
+        {messageBoxText && (
+          <MessageBox sx={{ marginRight: theme.spacing(3) }}>
+            {messageBoxText}
+          </MessageBox>
+        )}
         <GridListToggleWrapper>
           <SimpleToggle
             tabLabels={gridToggleData}
@@ -129,23 +134,7 @@ const GridListToggleWrapper = styled(Box)(
   ${theme.breakpoints.down('sm')} {
     display: none;
   }
-          `
-);
-const MessageBox = styled(Box)(
-  ({ theme }) => `
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 14px;
-  color: ${theme.palette.typography.light};
-  background: ${theme.palette.background.default};
-  padding: ${theme.spacing(1.5, 2)};
-  border-radius: ${theme.shape.borderRadius()};
-  margin-right: ${theme.spacing(3)};
-  ${theme.breakpoints.down('md')} {
-    display: none;
-  }
-          `
+`
 );
 
 export default DashboardHeader;

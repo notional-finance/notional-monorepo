@@ -1,12 +1,10 @@
 import { useTheme } from '@mui/material';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { formatNumber } from '@notional-finance/helpers';
-import { RATE_PRECISION, getDateString } from '@notional-finance/util';
+import { getDateString } from '@notional-finance/util';
 import {
   ChartToolTipDataProps,
-  CountUp,
   AreaChartStylesProps,
-  ChartHeaderDataProps,
   LEGEND_LINE_TYPES,
 } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
@@ -30,7 +28,6 @@ export function usePerformanceChart(
     riskFactorLimit,
     tradeType,
     deposit,
-    depositBalance,
   } = state;
   const currentBorrowRate =
     debtOptions?.find(
@@ -66,18 +63,6 @@ export function usePerformanceChart(
     area: d.multiple,
   }));
 
-  const currentMultiple =
-    data.length > 0 ? data[data.length - 1].multiple : undefined;
-  const currentDepositValue =
-    !!depositBalance &&
-    leverageRatio !== null &&
-    leverageRatio !== undefined &&
-    currentMultiple
-      ? depositBalance.mulInRatePrecision(
-          Math.floor((currentMultiple / 100) * RATE_PRECISION)
-        )
-      : undefined;
-
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
       lineColor: 'transparent',
@@ -92,42 +77,8 @@ export function usePerformanceChart(
     area: {
       lineColor: theme.palette.charts.main,
       lineType: LEGEND_LINE_TYPES.SOLID,
-      formatTitle: (area) => (
-        <FormattedMessage
-          // eslint-disable-next-line no-template-curly-in-string
-          defaultMessage={'{returns} Deposit Value'}
-          values={{
-            returns: (
-              <span>
-                {formatNumber(area)} {deposit?.symbol}
-              </span>
-            ),
-          }}
-        />
-      ),
+      formatTitle: (area) => `${formatNumber(area)} ${deposit?.symbol}`,
     },
-  };
-
-  const areaChartHeaderData: ChartHeaderDataProps = {
-    legendData: [
-      {
-        label: (
-          <FormattedMessage
-            defaultMessage={'Deposit Value ({days}d)'}
-            values={{ days: data.length }}
-          />
-        ),
-        value: currentDepositValue ? (
-          <CountUp
-            value={currentDepositValue.toFloat()}
-            suffix={` ${currentDepositValue.symbol}`}
-            decimals={4}
-          />
-        ) : undefined,
-        lineColor: theme.palette.charts.main,
-        lineType: LEGEND_LINE_TYPES.SOLID,
-      },
-    ],
   };
 
   const areaChartStyles: AreaChartStylesProps = {
@@ -138,10 +89,9 @@ export function usePerformanceChart(
   };
 
   return {
-    currentDepositValue,
     areaChartData,
     areaChartStyles,
-    areaChartHeaderData,
     chartToolTipData,
+    isEmptyState: !!currentBorrowRate,
   };
 }
