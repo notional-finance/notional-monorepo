@@ -17,14 +17,7 @@ export interface BarChartToolTipProps extends TooltipProps<number, string> {
 export const BarChartToolTip = (props: BarChartToolTipProps) => {
   const theme = useTheme();
   const { payload, barConfig, isStackedBar } = props;
-  let totalApy = 0;
-
-  if (payload) {
-    totalApy =
-      (payload[0]?.payload.noteApy || 0) +
-      (payload[0]?.payload.arbApy || 0) +
-      payload[0]?.payload.organicApy;
-  }
+  const totalApy = payload?.reduce((acc, p) => acc + (p?.value || 0), 0) || 0;
 
   const totalBackgroundColor = `linear-gradient(to bottom, ${payload
     ?.filter((item) => item['value'] && item['value'] > 0)
@@ -65,7 +58,9 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
           <FormattedMessage defaultMessage={'Total APY'} />
         </Item>
       )}
-      {payload?.map((item, index) => (
+      {/* Reverse the payload in a stacked bar chart so the tooltips match the order of the
+      bars as they show up */}
+      {payload?.reverse().map((item, index) => (
         <div key={index}>
           {item?.value && item.value > 0 ? (
             <Item key={index}>

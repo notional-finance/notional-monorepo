@@ -167,9 +167,10 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   ): { timestamp: number; totalAPY: number; [key: string]: number }[] {
     if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       return this.getVault(token.network, token.vaultAddress).map(
-        ({ timestamp, totalAPY }) => ({
+        ({ timestamp, totalAPY, returnDrivers }) => ({
           timestamp,
           totalAPY: totalAPY || 0,
+          ...returnDrivers,
         })
       );
     }

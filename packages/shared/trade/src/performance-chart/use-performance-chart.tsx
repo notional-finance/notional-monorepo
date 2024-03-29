@@ -20,8 +20,7 @@ export function usePerformanceChart(
     isPrimeBorrow: boolean;
     vaultBorrowRate?: number;
     leverageRatio?: number;
-  },
-  hideTextHeader?: boolean
+  }
 ) {
   const theme = useTheme();
   const {
@@ -110,11 +109,6 @@ export function usePerformanceChart(
   };
 
   const areaChartHeaderData: ChartHeaderDataProps = {
-    textHeader: hideTextHeader ? (
-      ''
-    ) : (
-      <FormattedMessage defaultMessage={'Deposit Value'} />
-    ),
     legendData: [
       {
         label: (

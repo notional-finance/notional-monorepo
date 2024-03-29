@@ -2,17 +2,18 @@ import {
   MultiDisplayChart,
   AreaChart,
   ChartComponentsProps,
+  BarChart,
 } from '@notional-finance/mui';
 import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { usePerformanceChart } from './use-performance-chart';
 import { Box, useTheme } from '@mui/material';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
+import useApyChart from './use-apy-chart';
 
 export const PerformanceChart = ({
   state,
   priorVaultFactors,
-  apyChartData,
 }: {
   state: TradeState | VaultTradeState;
   priorVaultFactors?: {
@@ -21,17 +22,17 @@ export const PerformanceChart = ({
     vaultBorrowRate?: number;
     leverageRatio?: number;
   };
-  apyChartData?: ChartComponentsProps;
 }) => {
   const theme = useTheme();
-  const hideTextHeader = apyChartData ? true : false;
   const {
     areaChartData,
     areaChartStyles,
     areaChartHeaderData,
     currentDepositValue,
     chartToolTipData,
-  } = usePerformanceChart(state, priorVaultFactors, hideTextHeader);
+  } = usePerformanceChart(state, priorVaultFactors);
+  const { collateral } = state;
+  const { barConfig, barChartData } = useApyChart(collateral);
 
   const chartComponents: ChartComponentsProps[] = [
     {
@@ -57,6 +58,21 @@ export const PerformanceChart = ({
         />
       ),
       chartHeaderData: areaChartHeaderData,
+    },
+    {
+      id: 'bar-chart',
+      title: 'APY',
+      hideTopGridLine: true,
+      Component: (
+        <BarChart
+          title="APY"
+          xAxisTickFormat="date"
+          isStackedBar
+          barConfig={barConfig}
+          barChartData={barChartData}
+          yAxisTickFormat="percent"
+        />
+      ),
     },
   ];
 
