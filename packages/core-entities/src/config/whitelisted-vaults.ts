@@ -19,23 +19,23 @@ export const whitelistedVaults = (network: Network) => {
     case Network.arbitrum:
       return [
         // "[FRAX]:xFRAX_USDC_e"
-        '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf',
+        '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
         // "[USDT]:USDC_e_xUSDT"
-        '0x431dbfE3050eA39abBfF3E0d86109FB5BafA28fD',
-        // "[USDC]:crvUSD_xUSDC"
-        '0x5c36a0DeaB3531d29d848E684E8bDf5F81cDB643',
-        // "[USDT]:crvUSD_xUSDT"
-        '0xae04e4887cBf5f25c05aC1384BcD0b7e885a1F4A',
+        '0x431dbfe3050ea39abbff3e0d86109fb5bafa28fd',
+        // // "[USDC]:crvUSD_xUSDC"
+        // '0x5c36a0deab3531d29d848e684e8bdf5f81cdb643',
+        // // "[USDT]:crvUSD_xUSDT"
+        // '0xae04e4887cbf5f25c05ac1384bcd0b7e885a1f4a',
         // "[rETH]:xrETH_WETH"
-        '0x3Df035433cFACE65b6D68b77CC916085d020C8B8',
+        '0x3df035433cface65b6d68b77cc916085d020c8b8',
         // "[USDC]:xUSDC_DAI_USDT_USDC_e"
-        '0x8Ae7A8789A81A43566d0ee70264252c0DB826940',
+        '0x8ae7a8789a81a43566d0ee70264252c0db826940',
         // "[ETH]:wstETH_xWETH"
-        '0x0E8C1A069f40D0E8Fa861239D3e62003cBF3dCB2',
+        '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
         // "[wstETH]:xwstETH_cbETH_rETH"
-        '0x37dD23Ab1885982F789A2D6400B583B8aE09223d',
-        // "[ETH]:rETH_xWETH"
-        '0xA0d61c08e642103158Fc6a1495E7Ff82bAF25857',
+        '0x37dd23ab1885982f789a2d6400b583b8ae09223d',
+        // // "[ETH]:rETH_xWETH"
+        // '0xa0d61c08e642103158fc6a1495e7ff82baf25857',
       ];
     case Network.optimism:
       return [];
