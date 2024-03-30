@@ -1,4 +1,9 @@
-import { Network, RATE_PRECISION, ZERO_ADDRESS } from '@notional-finance/util';
+import {
+  Network,
+  RATE_PRECISION,
+  ZERO_ADDRESS,
+  groupArrayByKey,
+} from '@notional-finance/util';
 import { Registry } from '../../Registry';
 import { TokenBalance } from '../../token-balance';
 
@@ -6,15 +11,49 @@ import { TokenBalance } from '../../token-balance';
 import { ProfitLossLineItem, Transaction } from '../../.graphclient';
 import { AccountHistory } from '../../Definitions';
 
+/***
+ * Minting nToken => Provide Liquidity
+ * Redeem nToken => Withdraw Liquidity + sum(nTokenResidualTransfer)
+ * Transfer Incentive & Transfer Secondary Incentive => sum(to a single balance)
+ * Borrow fCash / Prime Debt [PREFER] =>
+ *    Borrow fCash => Borrow Fixed (hide sell fcash)
+ *    Repay fCash => Repay Fixed (hide buy fcash)
+ * Lend fCash / Prime Cash =>
+ *    Buy fCash => Lend Fixed
+ *    Sell fCash => Withdraw Lend Fixed
+ */
+
 export function parseTransaction(
   t: Transaction,
   network: Network
 ): AccountHistory[] {
-  return (
-    t.profitLossLineItems?.map((p) => {
-      return parseLineItem(p, network);
-    }) || []
+  const items =
+    t.profitLossLineItems?.map((p) => parseLineItem(p, network)) || [];
+  const txnLineItems = groupArrayByKey(items, ({ groupKey }) => groupKey).map(
+    (g) => {
+      const [_, name] = g[0].groupKey.split(':', 2);
+
+      // Inside each of these apply grouping logic....
+      if (name === 'Mint nToken') {
+        return g.map((_) => ({ ..._, label: 'Provide Liquidity' }));
+        // } else if (name === 'Redeem nToken') {
+        // } else if (name === 'fCash') {
+        // } else if (name === 'pCash') {
+        // } else if (
+        //   name === 'Transfer Incentive' ||
+        //   name === 'Transfer Secondary Incentive'
+        // ) {
+      } else {
+        return g.map((_) => ({ ..._, label: _.bundleName }));
+      }
+    }
   );
+
+  // then apply another transform on txn line items for:
+  //   deleverage position
+  //   leverage position
+  //   roll debt or convert asset
+  return txnLineItems.flatMap((_) => _);
 }
 
 export function parseLineItem(p: ProfitLossLineItem, network: Network) {
@@ -50,13 +89,38 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
     underlyingAmountSpot = underlyingAmountSpot.neg();
   }
 
+  const underlying = Registry.getTokenRegistry().getTokenByID(
+    network,
+    underlyingId
+  );
+  const bundleName = p.bundle?.bundleName;
+  let groupKey = `${underlying.id}:${bundleName}`;
+  if (bundleName === 'nToken Residual Transfer') {
+    groupKey = `${underlying.id}:Redeem nToken`;
+  } else if (
+    bundleName === 'Repay fCash' ||
+    bundleName === 'Borrow fCash' ||
+    bundleName === 'Buy fCash' ||
+    bundleName === 'Sell fCash'
+  ) {
+    groupKey = `${token.id}:fCash`;
+  } else if (
+    bundleName === 'Borrow Prime Cash' ||
+    bundleName === 'Repay Prime Cash' ||
+    bundleName === 'Deposit' ||
+    bundleName === 'Withdraw'
+  ) {
+    groupKey = `${underlying.id}:pCash`;
+  }
+
   return {
     timestamp: p.timestamp,
     blockNumber: p.blockNumber,
     token,
     vaultName,
-    underlying: Registry.getTokenRegistry().getTokenByID(network, underlyingId),
-    bundleName: p.bundle?.bundleName,
+    underlying,
+    bundleName,
+    label: bundleName,
     transactionHash: p.transactionHash.id,
     tokenAmount,
     underlyingAmountRealized,
@@ -67,5 +131,6 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
       ? (p.impliedFixedRate * 100) / RATE_PRECISION
       : undefined,
     isTransientLineItem: p.isTransientLineItem,
+    groupKey,
   };
 }

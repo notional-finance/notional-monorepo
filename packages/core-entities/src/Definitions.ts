@@ -133,6 +133,7 @@ export interface BalanceStatement {
 }
 
 export interface AccountHistory {
+  label: string;
   timestamp: number;
   blockNumber: number;
   token: TokenDefinition;
@@ -162,7 +163,7 @@ export interface AccountDefinition {
   /** Balances may include external wallet balances */
   balances: TokenBalance[];
   /** If prime borrows are enabled */
-  allowPrimeBorrow: boolean;
+  allowPrimeBorrow?: boolean;
   /** Stores the last update time for vault positions, used to calculate prime debt fees */
   vaultLastUpdateTime?: Record<string, number>;
   /** Account incentive debt for nToken incentives */

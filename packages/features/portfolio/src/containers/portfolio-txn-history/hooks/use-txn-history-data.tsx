@@ -23,7 +23,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
     .sort((x, y) => y.timestamp - x.timestamp)
     .map(
       ({
-        bundleName,
+        label,
         underlyingAmountRealized,
         token,
         realizedPrice,
@@ -37,7 +37,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
 
         return {
           transactionType: {
-            label: bundleName,
+            label: label,
             IconComponent: underlyingAmountRealized.isNegative() ? (
               <SentIcon fill={theme.palette.primary.dark} />
             ) : (
