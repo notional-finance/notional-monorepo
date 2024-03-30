@@ -26,7 +26,7 @@ export const PerformanceChart = ({
   const theme = useTheme();
   const { areaChartData, areaChartStyles, isEmptyState, chartToolTipData } =
     usePerformanceChart(state, priorVaultFactors);
-  const { collateral, deposit } = state;
+  const { collateral, deposit, selectedDepositToken } = state;
   const { barConfig, barChartData } = useApyChart(collateral);
 
   const chartComponents: ChartComponentsProps[] = [
@@ -66,7 +66,10 @@ export const PerformanceChart = ({
     },
     {
       id: 'bar-chart',
-      title: 'Strategy APY',
+      title:
+        collateral?.tokenType === 'VaultShare'
+          ? 'Strategy APY'
+          : `n${selectedDepositToken} APY`,
       hideTopGridLine: true,
       Component: (
         <BarChart
@@ -78,11 +81,12 @@ export const PerformanceChart = ({
         />
       ),
       chartHeaderData: {
-        messageBox: (
-          <FormattedMessage
-            defaultMessage={'Incentives are automatically reinvested'}
-          />
-        ),
+        messageBox:
+          collateral?.tokenType === 'VaultShare' ? (
+            <FormattedMessage
+              defaultMessage={'Incentives are automatically reinvested'}
+            />
+          ) : undefined,
       },
     },
   ];

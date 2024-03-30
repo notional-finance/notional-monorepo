@@ -13,11 +13,10 @@ import {
 import { useLocation } from 'react-router-dom';
 import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
-import { TradeActionSummary } from '@notional-finance/trade';
+import { TradeActionSummary, useApyChart } from '@notional-finance/trade';
 import {
   useLiquidityFaq,
   useTotalsData,
-  useApyChart,
   useReturnDriversTable,
   useLiquidityPoolsTable,
 } from './hooks';

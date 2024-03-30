@@ -25,7 +25,7 @@ function fillChartDaily<T extends { timestamp: number }>(
   const startTS = floorToMidnight(
     Math.min(...data.map(({ timestamp }) => timestamp))
   );
-  const endTS = floorToMidnight(getNowSeconds()) - SECONDS_IN_DAY;
+  const endTS = floorToMidnight(getNowSeconds());
   const buckets = (endTS - startTS) / SECONDS_IN_DAY + 1;
 
   // This algorithm ensures that the data is sorted.
@@ -56,25 +56,6 @@ export function useTokenHistory(token?: TokenDefinition) {
 
   return {
     apyData: fillChartDaily(apyData || [], { totalAPY: 0 }),
-    apyIncentiveData: fillChartDaily(
-      apyData?.map(
-        ({
-          timestamp,
-          totalAPY,
-          nTokenFeeRate,
-          nTokenIncentiveRate,
-          nTokenBlendedInterestRate,
-          nTokenSecondaryIncentiveRate,
-        }) => ({
-          timestamp,
-          totalAPY,
-          noteApy: nTokenIncentiveRate,
-          arbApy: nTokenSecondaryIncentiveRate,
-          organicApy: nTokenBlendedInterestRate + nTokenFeeRate,
-        })
-      ) || [],
-      { totalAPY: 0, noteApy: 0, arbApy: 0, organicApy: 0 }
-    ),
     tvlData: fillChartDaily(
       tvlData?.map(({ timestamp, tvlUSD }) => ({
         timestamp,

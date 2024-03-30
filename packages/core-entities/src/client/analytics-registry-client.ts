@@ -39,7 +39,7 @@ const APY_ORACLES = [
   'nTokenFeeRate',
   'nTokenIncentiveRate',
   'nTokenSecondaryIncentiveRate',
-];
+] as const;
 
 export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   protected cachePath() {
@@ -162,6 +162,27 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     );
   }
 
+  getOracleName(oracleType: typeof APY_ORACLES[number]) {
+    switch (oracleType) {
+      case 'fCashOracleRate':
+        return 'Fixed Rate';
+      case 'PrimeCashPremiumInterestRate':
+        return 'Variable Lend Rate';
+      case 'PrimeDebtPremiumInterestRate':
+        return 'Variable Borrow Rate';
+      case 'nTokenBlendedInterestRate':
+        return 'Interest Yield';
+      case 'nTokenFeeRate':
+        return 'Trading Fees';
+      case 'nTokenIncentiveRate':
+        return 'NOTE Incentive APY';
+      case 'nTokenSecondaryIncentiveRate':
+        // TODO: this reward token needs to change if we ever add a different
+        // secondary incentive.
+        return 'ARB Incentive APY';
+    }
+  }
+
   getHistoricalAPY(
     token: TokenDefinition
   ): { timestamp: number; totalAPY: number; [key: string]: number }[] {
@@ -176,7 +197,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     }
 
     const oracles = this._getHistoricalOracles(token.network).filter(
-      (o) => o.quote === token.id && APY_ORACLES.includes(o.oracleType)
+      (o) =>
+        o.quote === token.id &&
+        APY_ORACLES.includes(o.oracleType as typeof APY_ORACLES[number])
     );
 
     if (oracles.length === 1) {
@@ -239,7 +262,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
                 console.error(e);
               }
 
-              acc[o.oracleType] = apy;
+              acc[
+                this.getOracleName(o.oracleType as typeof APY_ORACLES[number])
+              ] = apy;
             }
             acc['totalAPY'] += apy;
             return acc;
