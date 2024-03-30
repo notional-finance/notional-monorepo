@@ -7,8 +7,11 @@ import {
   AreaChartStylesProps,
   LEGEND_LINE_TYPES,
 } from '@notional-finance/mui';
-import { BaseTradeState } from '@notional-finance/notionable';
-import { useDepositValue } from '@notional-finance/notionable-hooks';
+import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
+import {
+  useDepositValue,
+  useSpotMaturityData,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export function usePerformanceChart(
@@ -29,11 +32,19 @@ export function usePerformanceChart(
     tradeType,
     deposit,
   } = state;
+  const spotData = useSpotMaturityData(
+    debt ? [debt] : undefined,
+    debt ? debt.network : undefined
+  );
+  const isVault = isVaultTrade(tradeType);
+
   const currentBorrowRate =
     debtOptions?.find(
       (t) => t.token.id === debt?.id
       // Allow the historical vault borrow rate to be applied here
-    )?.interestRate || priorVaultFactors?.vaultBorrowRate;
+    )?.interestRate ||
+    priorVaultFactors?.vaultBorrowRate ||
+    spotData.find((_) => true)?.tradeRate;
 
   // Allow the vault collateral to override the set collateral for the unset state
   const collateral = state.collateral || priorVaultFactors?.vaultShare;
@@ -58,10 +69,13 @@ export function usePerformanceChart(
     leveragedLendFixedRate
   );
 
-  const areaChartData = data.map((d) => ({
+  let areaChartData = data.map((d) => ({
     timestamp: d.timestamp,
     area: d.multiple,
   }));
+
+  if (isVault && areaChartData.length > 30)
+    areaChartData = areaChartData.slice(areaChartData.length - 30);
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
