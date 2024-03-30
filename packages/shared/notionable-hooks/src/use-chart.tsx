@@ -109,7 +109,8 @@ export function useDepositValue(
   isPrimeBorrow: boolean,
   currentBorrowRate: number | undefined,
   leverageRatio: number | null | undefined,
-  leveragedLendFixedRate: number | undefined
+  leveragedLendFixedRate: number | undefined,
+  dataPoints = 90
 ) {
   const data = useLeveragedPerformance(
     token,
@@ -119,7 +120,9 @@ export function useDepositValue(
     leveragedLendFixedRate
   );
 
-  return data.reduce((acc, d, i) => {
+  return (
+    data.length > dataPoints ? data.slice(data.length - dataPoints) : data
+  ).reduce((acc, d, i) => {
     const vaultShareMultiple =
       i === 0
         ? 1
@@ -135,13 +138,13 @@ export function useDepositValue(
       timestamp: d.timestamp,
       vaultShareMultiple,
       borrowRateMultiple,
-      multiple:
+      area:
         100 *
         (vaultShareMultiple +
           (vaultShareMultiple - borrowRateMultiple) * (leverageRatio || 0)),
     });
     return acc;
-  }, [] as { timestamp: number; vaultShareMultiple: number; borrowRateMultiple: number; multiple: number }[]);
+  }, [] as { timestamp: number; vaultShareMultiple: number; borrowRateMultiple: number; area: number }[]);
 }
 
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {
