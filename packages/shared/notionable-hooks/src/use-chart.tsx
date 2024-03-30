@@ -55,13 +55,7 @@ export function useTokenHistory(token?: TokenDefinition) {
   }, [token, isReady]);
 
   return {
-    apyData: fillChartDaily(
-      apyData?.map((d) => {
-        d['area'] = d.totalAPY || 0;
-        return d;
-      }) || [],
-      { area: 0 }
-    ),
+    apyData: fillChartDaily(apyData || [], { totalAPY: 0 }),
     apyIncentiveData: fillChartDaily(
       apyData?.map(
         ({

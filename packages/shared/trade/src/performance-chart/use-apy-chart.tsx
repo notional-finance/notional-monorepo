@@ -14,11 +14,17 @@ export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
   const BarColors = useMemo(
     () =>
       ({
-        [THEME_VARIANTS.LIGHT]: [colors.black, colors.greenGrey, colors.aqua],
+        [THEME_VARIANTS.LIGHT]: [
+          colors.black,
+          colors.greenGrey,
+          colors.aqua,
+          colors.blueAccent,
+        ],
         [THEME_VARIANTS.DARK]: [
           colors.white,
           colors.darkGrey,
           colors.neonTurquoise,
+          colors.blueAccent,
         ],
       }[themeVariant]),
     [themeVariant]
@@ -28,24 +34,25 @@ export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
     apyData = apyData.slice(apyData.length - defaultDataLimit);
   }
 
-  const barConfig: BarConfigProps[] = Object.keys(apyData[0])
-    .filter(
-      (k) =>
-        k !== 'timestamp' &&
-        k !== 'area' &&
-        k !== 'totalAPY' &&
-        k !== 'Total Strategy APY'
-    )
-    .map((k, i) => {
-      return {
-        dataKey: k,
-        title: k,
-        toolTipTitle: k,
-        fill: BarColors[i % BarColors.length],
-        value: '0',
-      };
-    });
-
+  const barConfig: BarConfigProps[] = apyData.length
+    ? Object.keys(apyData[0])
+        .filter(
+          (k) =>
+            k !== 'timestamp' &&
+            k !== 'area' &&
+            k !== 'totalAPY' &&
+            k !== 'Total Strategy APY'
+        )
+        .map((k, i) => {
+          return {
+            dataKey: k,
+            title: k,
+            toolTipTitle: k,
+            fill: BarColors[i % BarColors.length],
+            value: '0',
+          };
+        })
+    : [];
 
   return { barConfig, barChartData: apyData };
 };
