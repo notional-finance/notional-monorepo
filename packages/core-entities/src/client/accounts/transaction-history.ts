@@ -9,12 +9,9 @@ import { TokenBalance } from '../../token-balance';
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ProfitLossLineItem, Transaction } from '../../.graphclient';
-import { AccountHistory } from '../../Definitions';
+import { AccountHistory, TokenDefinition } from '../../Definitions';
 
 /***
- * Minting nToken => Provide Liquidity
- * Redeem nToken => Withdraw Liquidity + sum(nTokenResidualTransfer)
- * Transfer Incentive & Transfer Secondary Incentive => sum(to a single balance)
  * Borrow fCash / Prime Debt [PREFER] =>
  *    Borrow fCash => Borrow Fixed (hide sell fcash)
  *    Repay fCash => Repay Fixed (hide buy fcash)
@@ -33,18 +30,43 @@ export function parseTransaction(
     (g) => {
       const [_, name] = g[0].groupKey.split(':', 2);
 
-      // Inside each of these apply grouping logic....
-      if (name === 'Mint nToken') {
-        return g.map((_) => ({ ..._, label: 'Provide Liquidity' }));
-        // } else if (name === 'Redeem nToken') {
+      if (name === 'Redeem nToken') {
+        const r = g.find(({ bundleName }) => bundleName === 'Redeem nToken');
+        // It should always find r, but exit in the case that we do not
+        if (!r) return g;
+
+        // Update: underlyingAmountRealized and realizedPrice
+        const w = g.reduce((acc, l) => {
+          if (l.bundleName === 'nToken Residual Transfer') {
+            acc.underlyingAmountRealized = acc.underlyingAmountRealized.add(
+              l.underlyingAmountRealized
+            );
+          }
+
+          return acc;
+        }, r);
+
+        // Recalculate the new realized price
+        w.realizedPrice = w.underlyingAmountRealized.scale(
+          w.tokenAmount.precision,
+          w.tokenAmount.abs()
+        );
+
+        return w;
+      } else if (
+        name === 'Transfer Incentive' ||
+        name === 'Transfer Secondary Incentive'
+      ) {
+        // Sum up all the incentive transfers into a single line item
+        return g.reduce((acc, l, i) => {
+          if (i > 0) acc.tokenAmount = acc.tokenAmount.add(l.tokenAmount);
+          acc.underlyingAmountRealized = acc.tokenAmount;
+          return acc;
+        }, g[0]);
         // } else if (name === 'fCash') {
         // } else if (name === 'pCash') {
-        // } else if (
-        //   name === 'Transfer Incentive' ||
-        //   name === 'Transfer Secondary Incentive'
-        // ) {
       } else {
-        return g.map((_) => ({ ..._, label: _.bundleName }));
+        return g;
       }
     }
   );
@@ -54,6 +76,21 @@ export function parseTransaction(
   //   leverage position
   //   roll debt or convert asset
   return txnLineItems.flatMap((_) => _);
+}
+
+function getLabelName(bundleName: string, token: TokenDefinition) {
+  switch (bundleName) {
+    case 'Mint nToken':
+      return 'Provide Liquidity';
+    case 'Redeem nToken':
+      return 'Withdraw Liquidity';
+    case 'Transfer Incentive':
+      return 'Claim NOTE';
+    case 'Transfer Secondary Incentive':
+      return `Claim ${token.symbol}`;
+    default:
+      return bundleName;
+  }
 }
 
 export function parseLineItem(p: ProfitLossLineItem, network: Network) {
@@ -120,7 +157,7 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
     vaultName,
     underlying,
     bundleName,
-    label: bundleName,
+    label: getLabelName(bundleName, token),
     transactionHash: p.transactionHash.id,
     tokenAmount,
     underlyingAmountRealized,

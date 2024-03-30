@@ -9200,7 +9200,7 @@ export const AccountTransactionHistoryDocument = gql`
     timestamp
     blockNumber
     transactionHash
-    profitLossLineItems(where: {account: $accountId}) {
+    profitLossLineItems(where: {account: $accountId, isTransientLineItem: false}) {
       timestamp
       blockNumber
       transactionHash {
