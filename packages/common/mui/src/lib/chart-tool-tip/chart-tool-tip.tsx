@@ -23,18 +23,28 @@ export interface ChartToolTipDataProps {
 
 export interface ChartToolTipProps extends TooltipProps<number, string> {
   chartToolTipData?: ChartToolTipDataProps;
+  areaDataKey?: string;
+  lineDataKey?: string;
 }
 
 // NOTES:
 // - Set lineType to 'none' to remove the line from the tooltip
 // - To ensure that the font color and font weight are the same wrap the entire FormattedMessage coming from the props in a span
 
-export const ChartToolTip = (props: ChartToolTipProps) => {
+export const ChartToolTip = ({
+  active,
+  payload,
+  chartToolTipData,
+  areaDataKey = 'area',
+  lineDataKey = 'line',
+}: ChartToolTipProps) => {
   const theme = useTheme();
-  const { active, payload, chartToolTipData } = props;
 
   if (active && payload) {
-    const { line, area, timestamp } = payload[0].payload;
+    const { timestamp } = payload[0].payload;
+    const area = payload[0].payload[areaDataKey];
+    const line = payload[0].payload[lineDataKey];
+
     return (
       <ToolTipBox>
         {chartToolTipData?.timestamp && (

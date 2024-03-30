@@ -55,32 +55,7 @@ export function useTokenHistory(token?: TokenDefinition) {
   }, [token, isReady]);
 
   return {
-    apyData: fillChartDaily(
-      apyData?.map(({ timestamp, totalAPY }) => ({
-        timestamp,
-        area: totalAPY,
-      })) || [],
-      { area: 0 }
-    ),
-    apyIncentiveData: fillChartDaily(
-      apyData?.map(
-        ({
-          timestamp,
-          totalAPY,
-          nTokenFeeRate,
-          nTokenIncentiveRate,
-          nTokenBlendedInterestRate,
-          nTokenSecondaryIncentiveRate,
-        }) => ({
-          timestamp,
-          totalAPY,
-          noteApy: nTokenIncentiveRate,
-          arbApy: nTokenSecondaryIncentiveRate,
-          organicApy: nTokenBlendedInterestRate + nTokenFeeRate,
-        })
-      ) || [],
-      { totalAPY: 0, noteApy: 0, arbApy: 0, organicApy: 0 }
-    ),
+    apyData: fillChartDaily(apyData || [], { totalAPY: 0 }),
     tvlData: fillChartDaily(
       tvlData?.map(({ timestamp, tvlUSD }) => ({
         timestamp,
@@ -121,11 +96,52 @@ export function useLeveragedPerformance(
       return {
         timestamp: d.timestamp,
         strategyReturn: totalAPY,
+        borrowRate,
         leveragedReturn: leveragedYield(totalAPY, borrowRate, leverageRatio),
       };
     }),
-    { strategyReturn: 0, leveragedReturn: undefined }
+    { strategyReturn: 0, leveragedReturn: undefined, borrowRate: undefined }
   );
+}
+
+export function useDepositValue(
+  token: TokenDefinition | undefined,
+  isPrimeBorrow: boolean,
+  currentBorrowRate: number | undefined,
+  leverageRatio: number | null | undefined,
+  leveragedLendFixedRate: number | undefined
+) {
+  const data = useLeveragedPerformance(
+    token,
+    isPrimeBorrow,
+    currentBorrowRate,
+    leverageRatio,
+    leveragedLendFixedRate
+  );
+
+  return data.reduce((acc, d, i) => {
+    const vaultShareMultiple =
+      i === 0
+        ? 1
+        : acc[i - 1].vaultShareMultiple *
+          (1 + (d.strategyReturn || 0) / 100) ** (1 / 365);
+    const borrowRateMultiple =
+      i === 0
+        ? 1
+        : acc[i - 1].borrowRateMultiple *
+          (1 + (d.borrowRate || 0) / 100) ** (1 / 365);
+
+    acc.push({
+      timestamp: d.timestamp,
+      vaultShareMultiple,
+      borrowRateMultiple,
+      multiple:
+        100 *
+        (vaultShareMultiple +
+          (vaultShareMultiple - borrowRateMultiple) * (leverageRatio || 0)),
+    });
+    return acc;
+  }, [] as { timestamp: number; vaultShareMultiple: number; borrowRateMultiple: number; multiple: number }[]);
 }
 
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {
@@ -133,13 +149,21 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
   if (!token || !isReady) return [];
   const data = Registry.getAnalyticsRegistry().getPriceHistory(token);
 
-  return fillChartDaily(
+  const chart = fillChartDaily(
     data.map((d) => ({
       timestamp: d.timestamp,
       assetPrice: d.priceInUnderlying?.toFloat() || 0,
     })),
     { assetPrice: 0 }
   );
+
+  // Remove the last element of the chart if it is empty, can happen when the
+  // subgraph is trailing on the latest update.
+  if (chart.length && chart[chart.length - 1].assetPrice === 0) {
+    chart.pop();
+  }
+
+  return chart;
 }
 
 export function useTotalHolders(token: TokenDefinition | undefined) {

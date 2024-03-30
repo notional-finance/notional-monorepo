@@ -60,7 +60,7 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
         .sort((a, b) => b.tvlNum - a.tvlNum);
     } else {
       return allData
-        .sort((a, b) => b.tvlNum - a.tvlNum)
+        .sort((a, b) => b.apy - a.apy)
         .filter((data) => {
           if (!tokenObj[data.symbol]) {
             tokenObj[data.symbol] = true;
@@ -68,7 +68,8 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
           } else {
             return null;
           }
-        });
+        })
+        .sort((a, b) => b.tvlNum - a.tvlNum);
     }
   };
 

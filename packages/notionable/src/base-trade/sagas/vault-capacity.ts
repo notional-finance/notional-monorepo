@@ -37,13 +37,11 @@ export function vaultCapacity(
               )
             : undefined;
 
-        let maxVaultCapacity = '';
-        let totalCapacityRemaining = '';
-        let capacityUsedPercentage = 0;
-        let capacityWithUserBorrowPercentage: number | undefined = undefined;
+        let totalCapacityRemaining: TokenBalance | undefined;
         let overCapacityError = false;
         let minBorrowSize: string | undefined = undefined;
         let underMinAccountBorrow = false;
+        let vaultTVL: TokenBalance | undefined;
 
         if (vaultCapacity) {
           const {
@@ -74,35 +72,30 @@ export function vaultCapacity(
                 .add(debtBalance.neg().toUnderlying())
                 .gt(maxPrimaryBorrowCapacity)
             : false;
-          maxVaultCapacity =
-            maxPrimaryBorrowCapacity.toDisplayStringWithSymbol(0);
           totalCapacityRemaining = overCapacityError
-            ? ''
-            : maxPrimaryBorrowCapacity
-                .sub(totalUsedPrimaryBorrowCapacity)
-                .toDisplayStringWithSymbol(0);
-          capacityUsedPercentage = maxPrimaryBorrowCapacity.isPositive()
-            ? totalUsedPrimaryBorrowCapacity
-                .scale(100, maxPrimaryBorrowCapacity)
-                .toNumber()
-            : 0;
-          capacityWithUserBorrowPercentage =
-            debtBalance && maxPrimaryBorrowCapacity.isPositive()
-              ? totalUsedPrimaryBorrowCapacity
-                  .add(debtBalance.neg().toUnderlying())
-                  .scale(100, maxPrimaryBorrowCapacity)
-                  .toNumber()
-              : undefined;
+            ? undefined
+            : maxPrimaryBorrowCapacity.sub(totalUsedPrimaryBorrowCapacity);
+          vaultTVL = Registry.getTokenRegistry()
+            .getAllTokens(network)
+            .filter(
+              (t) =>
+                t.tokenType === 'VaultShare' && t.vaultAddress === vaultAddress
+            )
+            .reduce((tvl, t) => {
+              if (t.totalSupply) {
+                return tvl.add(t.totalSupply.toUnderlying());
+              } else {
+                return tvl;
+              }
+            }, TokenBalance.zero(minAccountBorrowSize.token));
         }
 
         return {
           minBorrowSize,
-          maxVaultCapacity,
           overCapacityError,
           underMinAccountBorrow,
           totalCapacityRemaining,
-          capacityUsedPercentage,
-          capacityWithUserBorrowPercentage,
+          vaultTVL,
           vaultCapacityError:
             tradeType === 'WithdrawVault'
               ? false

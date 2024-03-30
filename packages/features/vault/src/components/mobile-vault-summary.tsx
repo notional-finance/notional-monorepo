@@ -1,20 +1,14 @@
 import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
-import {
-  H5,
-  LargeInputTextEmphasized,
-  CountUp,
-  SliderBasic,
-} from '@notional-finance/mui';
+import { H5, LargeInputTextEmphasized, CountUp } from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
 import { VaultActionContext } from '../vault';
-import { messages } from '../messages';
 import { FormattedMessage } from 'react-intl';
 
 export const MobileVaultSummary = () => {
   const theme = useTheme();
   const {
-    state: { deposit, vaultConfig, maxVaultCapacity, capacityUsedPercentage },
+    state: { deposit, vaultConfig },
   } = useContext(VaultActionContext);
   const vaultName = vaultConfig?.name;
   // TODO: refactor this to get it from the trade action summary
@@ -59,34 +53,6 @@ export const MobileVaultSummary = () => {
             <CountUp value={headlineApy || 0} suffix="% APY" decimals={2} />
           </LargeInputTextEmphasized>
         </Box>
-      </Box>
-      <Box sx={{ marginTop: theme.spacing(2) }}>
-        <Box sx={{ display: 'flex' }}>
-          <H5 sx={{ whiteSpace: 'nowrap', flex: 1 }}>
-            <FormattedMessage {...messages.summary.totalCapacity} />
-          </H5>
-          <H5
-            sx={{
-              flex: 1,
-              textAlign: 'right',
-              color: theme.palette.typography.main,
-            }}
-          >
-            {maxVaultCapacity}
-          </H5>
-        </Box>
-        <SliderBasic
-          min={0}
-          max={100}
-          step={0.01}
-          value={capacityUsedPercentage || 0}
-          disabled={true}
-          sx={{
-            height: theme.spacing(5),
-            padding: '0px',
-            marginBottom: '0px',
-          }}
-        />
       </Box>
     </Box>
   );

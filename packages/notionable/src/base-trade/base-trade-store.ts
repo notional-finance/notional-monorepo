@@ -46,10 +46,8 @@ interface VaultState {
   underMinAccountBorrow?: boolean;
   minBorrowSize?: string;
   overCapacityError?: boolean;
-  totalCapacityRemaining?: string;
-  maxVaultCapacity?: string;
-  capacityUsedPercentage?: number;
-  capacityWithUserBorrowPercentage?: number;
+  totalCapacityRemaining?: TokenBalance;
+  vaultTVL?: TokenBalance;
 }
 
 export interface TokenOption {

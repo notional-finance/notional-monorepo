@@ -10,7 +10,6 @@ import {
   LargeTableCell,
   H5,
 } from '../../typography/typography';
-import { Network } from '@notional-finance/util';
 
 // export interface MultiValueIconCellProps {
 //   cell: {
@@ -119,7 +118,7 @@ export const MultiValueIconCell = (props): JSX.Element => {
               )}
               {inlineIcons && (
                 <TokenIcon
-                  network={Network.mainnet}
+                  network={values.network || undefined}
                   symbol={values.symbol}
                   size="small"
                   style={{ marginRight: theme.spacing(0.5) }}

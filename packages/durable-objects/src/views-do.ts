@@ -35,9 +35,15 @@ export class ViewsDO extends BaseDO<APIEnv> {
   }
 
   async fetchDBView(network: Network, name: string) {
-    const data = JSON.stringify(await this.analytics.fetchView(network, name));
-    const key = `${this.serviceName}/${network}/${name}`;
-    return this.putStorageKey(key, data);
+    try {
+      const data = JSON.stringify(
+        await this.analytics.fetchView(network, name)
+      );
+      const key = `${this.serviceName}/${network}/${name}`;
+      return this.putStorageKey(key, data);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async fetchAllDBViews(network: Network) {

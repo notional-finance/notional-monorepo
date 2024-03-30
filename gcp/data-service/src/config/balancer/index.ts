@@ -6,10 +6,10 @@ import { ArbTokenConfig, EthTokenConfig, getOracleValue } from '..';
 
 export const Balancer_Config = [
   getComposablePoolConfig(
-    '0xade4a71bb62bec25154cfc7e6ff49a513b491e81000000000000000000000497',
-    '0xade4a71bb62bec25154cfc7e6ff49a513b491e81',
-    '0xd6B875d62c2661eaB66472F36c672e4B512f1135',
-    '0x00b9bcd17cB049739D25FD7f826caA2E23b05620',
+    '0xd0ec47c54ca5e20aaae4616c25c825c7f48d40690000000000000000000004ef',
+    '0xd0ec47c54ca5e20aaae4616c25c825c7f48d4069',
+    '0x8ba2d53f34159c5c5e7add60b56c7de3bbc1da68',
+    '0xf8A95653CC7ee59AfA2304DcC518c431a15C292C',
     Network.arbitrum,
     Strategy.Arb_Balancer_rETH_WETH,
     [ArbTokenConfig['WETH'], ArbTokenConfig['rETH']],
@@ -187,6 +187,46 @@ export const Balancer_Config = [
         Strategy.Eth_Balancer_rETH_weETH,
         'weETH to ETH Price',
         '0x8751F736E94F6CD167e8C5B97E245680FbD9CC36'
+      ),
+      {
+        sourceType: SourceType.Multicall,
+        sourceConfig: {
+          contractAddress: '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee',
+          contractABI: [
+            {
+              inputs: [],
+              name: 'getRate',
+              outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ],
+          method: 'getRate',
+        },
+        tableName: TableName.GenericData,
+        dataConfig: {
+          strategyId: Strategy.Eth_Balancer_rETH_weETH,
+          variable: 'eETH to weETH Rate',
+          decimals: 18,
+        },
+        network: Network.mainnet,
+      },
+    ]
+  ),
+  getComposablePoolConfig(
+    '0x596192bb6e41802428ac943d2f1476c1af25cc0e000000000000000000000659',
+    '0x596192bb6e41802428ac943d2f1476c1af25cc0e',
+    '0xa8B309a75f0D64ED632d45A003c68A30e59A1D8b',
+    '0xa8B309a75f0D64ED632d45A003c68A30e59A1D8b',
+    Network.mainnet,
+    Strategy.Eth_Balancer_ezETH_WETH,
+    [EthTokenConfig['ezETH'], EthTokenConfig['WETH']],
+    [
+      getOracleValue(
+        Network.mainnet,
+        Strategy.Eth_Balancer_ezETH_WETH,
+        'ezETH to ETH Price',
+        '0xF4a3e183F59D2599ee3DF213ff78b1B3b1923696'
       ),
     ]
   ),

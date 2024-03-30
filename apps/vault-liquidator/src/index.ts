@@ -51,7 +51,7 @@ export const overrides = {
   [Network.arbitrum]: {
     [ZERO_ADDRESS]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
   },
-  [Network.Mainnet]: {
+  [Network.mainnet]: {
     [ZERO_ADDRESS]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
   },
 };

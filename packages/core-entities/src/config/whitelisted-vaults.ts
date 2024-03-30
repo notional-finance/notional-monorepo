@@ -13,17 +13,29 @@ export const whitelistedVaults = (network: Network) => {
         // '0xba4eb30f7f2e378249cf94e08f581e704326e9c6',
         // // "[USDT]:xUSDT_crvUSD":
         // '0x86b222d44ac6cc56e75b3df01fdad5dc371ef538',
-        // // "[USDC]:GHO_USDT_xUSDC":
-        // '0xeeb885af7c8075aa3b93e2f95e1c0bd51c758f91',
+        // "[USDC]:GHO_USDT_xUSDC":
+        '0xeeb885af7c8075aa3b93e2f95e1c0bd51c758f91',
       ];
     case Network.arbitrum:
       return [
+        // "[FRAX]:xFRAX_USDC_e"
         '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
-        '0x3df035433cface65b6d68b77cc916085d020c8b8',
-        '0x8ae7a8789a81a43566d0ee70264252c0db826940',
-        '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
-        '0x37dd23ab1885982f789a2d6400b583b8ae09223d',
+        // "[USDT]:USDC_e_xUSDT"
         '0x431dbfe3050ea39abbff3e0d86109fb5bafa28fd',
+        // // "[USDC]:crvUSD_xUSDC"
+        // '0x5c36a0deab3531d29d848e684e8bdf5f81cdb643',
+        // // "[USDT]:crvUSD_xUSDT"
+        // '0xae04e4887cbf5f25c05ac1384bcd0b7e885a1f4a',
+        // "[rETH]:xrETH_WETH"
+        '0x3df035433cface65b6d68b77cc916085d020c8b8',
+        // "[USDC]:xUSDC_DAI_USDT_USDC_e"
+        '0x8ae7a8789a81a43566d0ee70264252c0db826940',
+        // "[ETH]:wstETH_xWETH"
+        '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
+        // "[wstETH]:xwstETH_cbETH_rETH"
+        '0x37dd23ab1885982f789a2d6400b583b8ae09223d',
+        // // "[ETH]:rETH_xWETH"
+        // '0xa0d61c08e642103158fc6a1495e7ff82baf25857',
       ];
     case Network.optimism:
       return [];

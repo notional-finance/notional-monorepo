@@ -164,7 +164,13 @@ export function useDetailedHoldingsTable() {
             presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
             isDebt: isDebt,
             earnings:
-              totalEarningsWithNOTE?.toDisplayStringWithSymbol(2, true) || '-',
+              totalEarningsWithNOTE?.toDisplayStringWithSymbol(
+                2,
+                true,
+                true,
+                'en-US',
+                true
+              ) || '-',
             toolTipData:
               totalIncentiveEarnings.length > 0
                 ? {
@@ -282,7 +288,13 @@ export function useDetailedHoldingsTable() {
       },
       amountPaid: totals.amountPaid.toDisplayStringWithSymbol(2),
       presentValue: totals.presentValue.toDisplayStringWithSymbol(2),
-      earnings: totals.earnings.toDisplayStringWithSymbol(2),
+      earnings: totals.earnings.toDisplayStringWithSymbol(
+        2,
+        true,
+        true,
+        'en-US',
+        true
+      ),
       toolTipData:
         totals.totalIncentiveEarnings.length > 0
           ? {

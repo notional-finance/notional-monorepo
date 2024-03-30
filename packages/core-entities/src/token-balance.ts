@@ -4,6 +4,7 @@ import {
   convertToGenericfCashId,
   encodeERC1155Id,
   getNowSeconds,
+  containsNonZeroNumber,
   INTERNAL_TOKEN_PRECISION,
   Network,
   RATE_PRECISION,
@@ -400,6 +401,12 @@ export class TokenBalance {
     return `${localeString}${suffix}`;
   }
 
+  get fiatSymbol() {
+    return this.tokenType === 'Fiat'
+      ? FiatSymbols[this.token.symbol as FiatKeys]
+      : '';
+  }
+
   /**
    * @param decimalPlaces maximum number of decimal places to show
    * @param locale formatting locale
@@ -409,17 +416,40 @@ export class TokenBalance {
     decimalPlaces?: number,
     abbr = true,
     useThousandsAbbr = true,
-    locale = 'en-US'
+    locale = 'en-US',
+    hideSmallNegativeValues = false
   ) {
     if (this.tokenType === 'Fiat' && this.symbol !== 'NOTE') {
-      return `${this.isNegative() ? '-' : ''}${
-        FiatSymbols[this.token.symbol as FiatKeys]
-      }${this.abs().toDisplayString(
-        decimalPlaces === undefined ? 2 : decimalPlaces,
-        abbr,
-        useThousandsAbbr,
-        locale
-      )}`;
+      if (
+        this.isNegative() &&
+        hideSmallNegativeValues &&
+        !containsNonZeroNumber(
+          this.abs().toDisplayString(
+            decimalPlaces === undefined ? 2 : decimalPlaces,
+            abbr,
+            useThousandsAbbr,
+            locale
+          )
+        )
+      ) {
+        return `${
+          FiatSymbols[this.token.symbol as FiatKeys]
+        }${this.abs().toDisplayString(
+          decimalPlaces === undefined ? 2 : decimalPlaces,
+          abbr,
+          useThousandsAbbr,
+          locale
+        )}`;
+      } else {
+        return `${this.isNegative() ? '-' : ''}${
+          FiatSymbols[this.token.symbol as FiatKeys]
+        }${this.abs().toDisplayString(
+          decimalPlaces === undefined ? 2 : decimalPlaces,
+          abbr,
+          useThousandsAbbr,
+          locale
+        )}`;
+      }
     } else {
       return `${this.toDisplayString(
         decimalPlaces === undefined ? 4 : decimalPlaces,

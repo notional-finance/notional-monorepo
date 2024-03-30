@@ -215,7 +215,12 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
     const vaults = await Promise.all(
       whitelistedVaults(network).map(async (vaultAddress) => {
-        const r = await this.fetchView(network, vaultAddress);
+        let r: AnalyticsData;
+        try {
+          r = await this.fetchView(network, vaultAddress);
+        } catch {
+          r = [];
+        }
         const data = r.map((p) => {
           return {
             vaultAddress,

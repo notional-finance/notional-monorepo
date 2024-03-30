@@ -2,17 +2,18 @@ import {
   MultiDisplayChart,
   AreaChart,
   ChartComponentsProps,
+  BarChart,
 } from '@notional-finance/mui';
 import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { usePerformanceChart } from './use-performance-chart';
 import { Box, useTheme } from '@mui/material';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
+import useApyChart from './use-apy-chart';
 
 export const PerformanceChart = ({
   state,
   priorVaultFactors,
-  apyChartData,
 }: {
   state: TradeState | VaultTradeState;
   priorVaultFactors?: {
@@ -21,26 +22,21 @@ export const PerformanceChart = ({
     vaultBorrowRate?: number;
     leverageRatio?: number;
   };
-  apyChartData?: ChartComponentsProps;
 }) => {
   const theme = useTheme();
-  const hidetextHeader = apyChartData ? true : false;
-  const {
-    areaChartData,
-    areaChartStyles,
-    areaChartHeaderData,
-    currentLeveragedReturn,
-    chartToolTipData,
-  } = usePerformanceChart(state, priorVaultFactors, hidetextHeader);
+  const { areaChartData, areaChartStyles, isEmptyState, chartToolTipData } =
+    usePerformanceChart(state, priorVaultFactors);
+  const { collateral, deposit, selectedDepositToken } = state;
+  const { barConfig, barChartData } = useApyChart(collateral);
 
   const chartComponents: ChartComponentsProps[] = [
     {
       id: 'area-chart',
-      title: 'Performance To Date',
+      title: 'Performance',
       hideTopGridLine: true,
       Component: (
         <AreaChart
-          showEmptyState={currentLeveragedReturn === undefined ? true : false}
+          showEmptyState={isEmptyState}
           emptyStateMessage={
             <FormattedMessage
               defaultMessage={'Fill in inputs to see leveraged returns'}
@@ -48,13 +44,50 @@ export const PerformanceChart = ({
           }
           showCartesianGrid
           xAxisTickFormat="date"
+          yAxisTickFormat="number"
+          yAxisDomain={['dataMin', 'dataMax']}
           areaChartData={areaChartData}
           areaLineType="linear"
           chartToolTipData={chartToolTipData}
           areaChartStyles={areaChartStyles}
         />
       ),
-      chartHeaderData: areaChartHeaderData,
+      chartHeaderData: {
+        messageBox: (
+          <FormattedMessage
+            defaultMessage={'Value of 100 {symbol} over {days} days'}
+            values={{
+              symbol: deposit?.symbol,
+              days: areaChartData.length,
+            }}
+          />
+        ),
+      },
+    },
+    {
+      id: 'bar-chart',
+      title:
+        collateral?.tokenType === 'VaultShare'
+          ? 'Strategy APY'
+          : `n${selectedDepositToken} APY`,
+      hideTopGridLine: true,
+      Component: (
+        <BarChart
+          xAxisTickFormat="date"
+          isStackedBar
+          barConfig={barConfig}
+          barChartData={barChartData}
+          yAxisTickFormat="percent"
+        />
+      ),
+      chartHeaderData: {
+        messageBox:
+          collateral?.tokenType === 'VaultShare' ? (
+            <FormattedMessage
+              defaultMessage={'Incentives are automatically reinvested'}
+            />
+          ) : undefined,
+      },
     },
   ];
 

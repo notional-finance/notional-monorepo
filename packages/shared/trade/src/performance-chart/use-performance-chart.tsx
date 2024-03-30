@@ -1,16 +1,14 @@
 import { useTheme } from '@mui/material';
 import { TokenDefinition } from '@notional-finance/core-entities';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatNumber } from '@notional-finance/helpers';
 import { getDateString } from '@notional-finance/util';
 import {
   ChartToolTipDataProps,
-  CountUp,
   AreaChartStylesProps,
-  ChartHeaderDataProps,
   LEGEND_LINE_TYPES,
 } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
-import { useLeveragedPerformance } from '@notional-finance/notionable-hooks';
+import { useDepositValue } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export function usePerformanceChart(
@@ -20,12 +18,17 @@ export function usePerformanceChart(
     isPrimeBorrow: boolean;
     vaultBorrowRate?: number;
     leverageRatio?: number;
-  },
-  hidetextHeader?: boolean
+  }
 ) {
   const theme = useTheme();
-  const { debt, debtOptions, collateralOptions, riskFactorLimit, tradeType } =
-    state;
+  const {
+    debt,
+    debtOptions,
+    collateralOptions,
+    riskFactorLimit,
+    tradeType,
+    deposit,
+  } = state;
   const currentBorrowRate =
     debtOptions?.find(
       (t) => t.token.id === debt?.id
@@ -45,7 +48,7 @@ export function usePerformanceChart(
   // the header
   const leverageRatio = (riskFactorLimit?.limit ||
     priorVaultFactors?.leverageRatio) as number | undefined;
-  const data = useLeveragedPerformance(
+  const data = useDepositValue(
     collateral,
     debt
       ? debt.tokenType === 'PrimeDebt'
@@ -57,20 +60,8 @@ export function usePerformanceChart(
 
   const areaChartData = data.map((d) => ({
     timestamp: d.timestamp,
-    line: d.strategyReturn,
-    area: d.leveragedReturn,
+    area: d.multiple,
   }));
-
-  const currentStrategyReturn =
-    data.length > 0 ? data[data.length - 1].strategyReturn : undefined;
-  const currentLeveragedReturn =
-    currentStrategyReturn !== undefined &&
-    leverageRatio !== null &&
-    leverageRatio !== undefined &&
-    currentBorrowRate !== undefined
-      ? currentStrategyReturn +
-        (currentStrategyReturn - currentBorrowRate) * leverageRatio
-      : undefined;
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
@@ -86,56 +77,11 @@ export function usePerformanceChart(
     area: {
       lineColor: theme.palette.charts.main,
       lineType: LEGEND_LINE_TYPES.SOLID,
-      formatTitle: (area) => (
-        <FormattedMessage
-          defaultMessage={'{returns} Leveraged Returns'}
-          values={{ returns: <span>{formatNumberAsPercent(area)}</span> }}
-        />
-      ),
+      formatTitle: (area) => `${formatNumber(area)} ${deposit?.symbol}`,
     },
-    line: {
-      lineColor: theme.palette.charts.accent,
-      lineType: LEGEND_LINE_TYPES.DASHED,
-      formatTitle: (line) => (
-        <FormattedMessage
-          defaultMessage={'{returns} Unleveraged Returns'}
-          values={{ returns: <span>{formatNumberAsPercent(line)}</span> }}
-        />
-      ),
-    },
-  };
-
-  const areaChartHeaderData: ChartHeaderDataProps = {
-    textHeader: hidetextHeader ? (
-      ''
-    ) : (
-      <FormattedMessage defaultMessage={'Performance To Date'} />
-    ),
-    legendData: [
-      {
-        label: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
-        value: currentStrategyReturn ? (
-          <CountUp value={currentStrategyReturn} suffix="%" decimals={2} />
-        ) : undefined,
-        lineColor: theme.palette.charts.accent,
-        lineType: LEGEND_LINE_TYPES.DASHED,
-      },
-      {
-        label: <FormattedMessage defaultMessage={'Leveraged Returns'} />,
-        value: currentLeveragedReturn ? (
-          <CountUp value={currentLeveragedReturn} suffix="%" decimals={2} />
-        ) : undefined,
-        lineColor: theme.palette.charts.main,
-        lineType: LEGEND_LINE_TYPES.SOLID,
-      },
-    ],
   };
 
   const areaChartStyles: AreaChartStylesProps = {
-    line: {
-      lineColor: theme.palette.charts.accent,
-      lineType: LEGEND_LINE_TYPES.DASHED,
-    },
     area: {
       lineColor: theme.palette.charts.main,
       lineType: LEGEND_LINE_TYPES.SOLID,
@@ -143,10 +89,9 @@ export function usePerformanceChart(
   };
 
   return {
-    currentLeveragedReturn,
     areaChartData,
     areaChartStyles,
-    areaChartHeaderData,
     chartToolTipData,
+    isEmptyState: currentBorrowRate === undefined,
   };
 }

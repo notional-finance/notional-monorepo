@@ -13,11 +13,10 @@ import {
 import { useLocation } from 'react-router-dom';
 import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
-import { TradeActionSummary } from '@notional-finance/trade';
+import { TradeActionSummary, useApyChart } from '@notional-finance/trade';
 import {
   useLiquidityFaq,
   useTotalsData,
-  useApyChart,
   useReturnDriversTable,
   useLiquidityPoolsTable,
 } from './hooks';
@@ -25,7 +24,10 @@ import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { LiquidityContext } from '../liquidity';
 import { HowItWorksFaq } from './components';
-import { useTokenHistory } from '@notional-finance/notionable-hooks';
+import {
+  useAssetPriceHistory,
+  useTokenHistory,
+} from '@notional-finance/notionable-hooks';
 
 export const LiquidityVariableSummary = () => {
   const theme = useTheme();
@@ -45,6 +47,7 @@ export const LiquidityVariableSummary = () => {
   const { poolTableColumns, poolTableData } = useLiquidityPoolsTable();
   const { tvlData } = useTokenHistory(collateral);
   const { barConfig, barChartData } = useApyChart(collateral);
+  const priceData = useAssetPriceHistory(collateral);
 
   return (
     <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
@@ -62,6 +65,22 @@ export const LiquidityVariableSummary = () => {
                 barConfig={barConfig}
                 barChartData={barChartData}
                 yAxisTickFormat="percent"
+              />
+            ),
+          },
+          {
+            id: 'price-area-chart',
+            title: `n${tokenSymbol} Price`,
+            hideTopGridLine: true,
+            Component: (
+              <AreaChart
+                title={`n${tokenSymbol} Price`}
+                showCartesianGrid
+                xAxisTickFormat="date"
+                yAxisTickFormat="double"
+                yAxisDomain={['dataMin - 0.05', 'dataMax + 0.05']}
+                areaDataKey={'assetPrice'}
+                areaChartData={priceData}
               />
             ),
           },

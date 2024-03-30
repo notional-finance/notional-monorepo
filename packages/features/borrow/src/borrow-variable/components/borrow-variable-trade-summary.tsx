@@ -46,6 +46,7 @@ export const BorrowVariableTradeSummary = () => {
               <AreaChart
                 title={'APY'}
                 showCartesianGrid
+                areaDataKey='totalAPY'
                 xAxisTickFormat="date"
                 areaChartData={apyData}
                 areaLineType="linear"

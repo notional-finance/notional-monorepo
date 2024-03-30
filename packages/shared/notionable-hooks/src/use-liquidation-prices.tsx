@@ -92,7 +92,7 @@ function parseUnderlyingLiquidationPrice(
   const { icon, titleWithMaturity } = formatTokenType(asset);
   const liquidationPrice = threshold
     ?.toUnderlying()
-    .toDisplayStringWithSymbol();
+    .toDisplayStringWithSymbol(2);
   return {
     // Used on portfolio screen
     exchangeRate: {
@@ -109,7 +109,7 @@ function parseUnderlyingLiquidationPrice(
         </span>
       ),
     },
-    currentPrice: oneDay?.currentUnderlying.toDisplayStringWithSymbol() || '',
+    currentPrice: oneDay?.currentUnderlying.toDisplayStringWithSymbol(2) || '',
     oneDayChange: oneDay?.underlyingChange
       ? formatNumberAsPercent(oneDay.underlyingChange)
       : '',

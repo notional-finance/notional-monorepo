@@ -3,8 +3,8 @@ import { alpha, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import {
   formatNumberAsPercent,
-  formatNumberToDigits,
   formatNumber,
+  formatNumberAsAbbr,
 } from '@notional-finance/helpers';
 import { ONE_WEEK, getDateString } from '@notional-finance/util';
 import {
@@ -32,7 +32,7 @@ export interface AreaChartData {
   area?: number;
 }
 export interface AreaChartStylesProps {
-  line: {
+  line?: {
     lineColor: string;
     lineType: 'solid' | 'dashed' | 'dotted';
   };
@@ -44,8 +44,9 @@ export interface AreaChartStylesProps {
 
 export interface AreaChartProps {
   areaChartData: AreaChartData[];
+  areaDataKey?: string;
   xAxisTickFormat?: 'date' | 'percent';
-  yAxisTickFormat?: 'percent' | 'number' | 'usd';
+  yAxisTickFormat?: 'percent' | 'number' | 'usd' | 'double';
   yAxisDomain?: AxisDomain;
   referenceLineValue?: number;
   chartToolTipData?: ChartToolTipDataProps;
@@ -62,21 +63,25 @@ export interface AreaChartProps {
   xAxisTickCount?: number;
 }
 
-export const yAxisTickHandler = (yAxisTickFormat, v: number) => {
+export const yAxisTickHandler = (
+  yAxisTickFormat: AreaChartProps['yAxisTickFormat'],
+  v: number
+) => {
   if (yAxisTickFormat === 'percent' && typeof v === 'number') {
     return formatNumberAsPercent(v);
-  }
-  if (yAxisTickFormat === 'usd' && typeof v === 'number') {
-    return `$${formatNumberToDigits(v, 2)}`;
-  }
-  if (yAxisTickFormat === 'number' && typeof v === 'number') {
+  } else if (yAxisTickFormat === 'usd' && typeof v === 'number') {
+    return `${formatNumberAsAbbr(v, 2)}`;
+  } else if (yAxisTickFormat === 'number' && typeof v === 'number') {
     return formatNumber(v, 2);
+  } else if (yAxisTickFormat === 'double' && typeof v === 'number') {
+    return formatNumber(v, 4);
   }
   return `${v}`;
 };
 
 export const AreaChart = ({
   areaChartData,
+  areaDataKey = 'area',
   xAxisTickFormat = 'date',
   yAxisTickFormat = 'percent',
   yAxisDomain,
@@ -141,6 +146,7 @@ export const AreaChart = ({
             wrapperStyle={{ outline: 'none' }}
             content={
               <ChartToolTip
+                areaDataKey={areaDataKey}
                 chartToolTipData={
                   chartToolTipData ? chartToolTipData : defaultChartToolTipData
                 }
@@ -179,13 +185,15 @@ export const AreaChart = ({
             tickLine={false}
           />
           <YAxis
+            type="number"
             orientation="left"
             yAxisId={0}
             domain={yAxisDomain}
             padding={{ top: 8 }}
-            tickCount={6}
+            tickCount={5}
             tickMargin={20}
             width={60}
+            scale={'linear'}
             tickSize={0}
             tickLine={false}
             axisLine={false}
@@ -197,7 +205,7 @@ export const AreaChart = ({
             dataKey="line"
             strokeWidth={1.5}
             stroke={
-              areaChartStyles?.line.lineColor || theme.palette.charts.main
+              areaChartStyles?.line?.lineColor || theme.palette.charts.main
             }
             strokeDasharray="3 3"
             dot={false}
@@ -206,7 +214,7 @@ export const AreaChart = ({
           <Area
             type={areaLineType}
             strokeWidth={1.5}
-            dataKey="area"
+            dataKey={areaDataKey}
             stroke={
               areaChartStyles?.area.lineColor || theme.palette.primary.light
             }
