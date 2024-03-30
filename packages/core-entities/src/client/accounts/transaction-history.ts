@@ -11,15 +11,6 @@ import { TokenBalance } from '../../token-balance';
 import { ProfitLossLineItem, Transaction } from '../../.graphclient';
 import { AccountHistory, TokenDefinition } from '../../Definitions';
 
-/***
- * Borrow fCash / Prime Debt [PREFER] =>
- *    Borrow fCash => Borrow Fixed (hide sell fcash)
- *    Repay fCash => Repay Fixed (hide buy fcash)
- * Lend fCash / Prime Cash =>
- *    Buy fCash => Lend Fixed
- *    Sell fCash => Withdraw Lend Fixed
- */
-
 export function parseTransaction(
   t: Transaction,
   network: Network
@@ -63,15 +54,13 @@ export function parseTransaction(
           acc.underlyingAmountRealized = acc.tokenAmount;
           return acc;
         }, g[0]);
-        // } else if (name === 'fCash') {
-        // } else if (name === 'pCash') {
       } else {
         return g;
       }
     }
   );
 
-  // then apply another transform on txn line items for:
+  // TODO: then apply another transform on txn line items for:
   //   deleverage position
   //   leverage position
   //   roll debt or convert asset
@@ -88,6 +77,18 @@ function getLabelName(bundleName: string, token: TokenDefinition) {
       return 'Claim NOTE';
     case 'Transfer Secondary Incentive':
       return `Claim ${token.symbol}`;
+    case 'Borrow fCash':
+      return 'Borrow Fixed';
+    case 'Repay fCash':
+      return 'Repay Fixed';
+    case 'Buy fCash':
+      return 'Lend Fixed';
+    case 'Sell fCash':
+      return 'Withdraw Lend Fixed';
+    case 'Borrow Prime Cash':
+      return 'Borrow Variable';
+    case 'Repay Prime Cash':
+      return 'Repay Variable';
     default:
       return bundleName;
   }
