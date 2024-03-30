@@ -239,6 +239,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     leverageRatio: number,
     maxLeverageRatio: number
   ): YieldData {
+    const tokens = Registry.getTokenRegistry();
+
     return {
       token: yieldData.token,
       underlying: yieldData.underlying,
@@ -261,6 +263,15 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         debtRate: debt.totalAPY,
         leverageRatio,
         maxLeverageRatio,
+        vaultDebt:
+          yieldData.token.tokenType === 'VaultShare' &&
+          yieldData.token.vaultAddress
+            ? tokens.getVaultDebt(
+                debt.token.network,
+                yieldData.token.vaultAddress,
+                debt.token.maturity || PRIME_CASH_VAULT_MATURITY
+              )
+            : undefined,
       },
       vaultName: yieldData?.vaultName,
       noteIncentives: {

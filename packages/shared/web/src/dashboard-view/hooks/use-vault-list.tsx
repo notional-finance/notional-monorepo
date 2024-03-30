@@ -9,6 +9,7 @@ import {
   useFiat,
   useAllVaults,
   useAccountDefinition,
+  useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -28,6 +29,7 @@ export const useVaultList = (network: Network) => {
   const listedVaults = useAllVaults(network);
   const baseCurrency = useFiat();
   const account = useAccountDefinition(network);
+  const vaultHoldings = useVaultHoldings(network);
 
   let listColumns: DataTableColumn[] = [
     {
@@ -150,6 +152,9 @@ export const useVaultList = (network: Network) => {
       const walletBalance = account
         ? account.balances.find((t) => t.tokenId === y.primaryToken.id)
         : undefined;
+      const profile = vaultHoldings.find(
+        (p) => p.vault.vaultAddress === y.vaultAddress
+      )?.vault;
 
       return {
         currency: {
@@ -169,7 +174,9 @@ export const useVaultList = (network: Network) => {
         //   y.secondaryIncentives
         // ),
         tvl: y.vaultTVL ? y.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
-        view: `${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}`,
+        view: profile
+          ? `/${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/IncreaseVaultPosition`
+          : `/${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/CreateVaultPosition?borrowOption=${x?.leveraged?.vaultDebt?.id}`,
         symbol: y.primaryToken.symbol,
         borrowTerms: {
           data: [

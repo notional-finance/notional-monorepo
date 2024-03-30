@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { useEffect } from 'react';
 import { VaultActionContext } from '../vault';
 import {
   ManageVault,
@@ -12,12 +13,14 @@ import { SideDrawerRouter } from '@notional-finance/trade';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
 import {
   useVaultPosition,
+  useQueryParams,
   useVaultProperties,
 } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router';
 
 export const VaultActionSideDrawer = () => {
   const context = useContext(VaultActionContext);
+  const queryData = useQueryParams();
   const { vaultAddress: vaultAddressParam } = useParams<{
     vaultAddress?: string;
   }>();
@@ -30,7 +33,11 @@ export const VaultActionSideDrawer = () => {
       debt,
       collateral,
       selectedNetwork,
+      availableCollateralTokens,
+      availableDebtTokens,
+      tradeType,
     },
+    updateState,
   } = context;
   const loaded = vaultAddress && vaultAddressParam === vaultAddress;
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
@@ -42,6 +49,30 @@ export const VaultActionSideDrawer = () => {
       : undefined;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const { enabled } = useVaultProperties(selectedNetwork, vaultAddress);
+
+  useEffect(() => {
+    const borrowOptionId = queryData.get('borrowOption');
+    if (
+      borrowOptionId &&
+      borrowOptionId !== debt?.id &&
+      tradeType === 'CreateVaultPosition'
+    ) {
+      const newDebt = availableDebtTokens?.find((t) => t.id === borrowOptionId);
+      if (newDebt) {
+        const collateral = availableCollateralTokens?.find(
+          (t) => t.maturity === newDebt?.maturity
+        );
+        updateState({ debt: newDebt, collateral });
+      }
+    }
+  }, [
+    debt,
+    availableDebtTokens,
+    availableCollateralTokens,
+    queryData,
+    updateState,
+    tradeType,
+  ]);
 
   const currentPosition = {
     collateral: vaultPosition?.vault?.vaultShares?.token,

@@ -50,7 +50,11 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
         hasPosition: profile ? true : false,
         apy: apy || 0,
         routeCallback: () =>
-          history.push(`/${PRODUCTS.VAULTS}/${network}/${vaultAddress}`),
+          history.push(
+            profile
+              ? `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/IncreaseVaultPosition`
+              : `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`
+          ),
         apySubTitle: profile
           ? defineMessage({
               defaultMessage: `Current APY`,
@@ -103,10 +107,11 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
   }
 
   const vaultData =
-    leveragedVaults && leveragedVaults.length > 0 ? gridData : [{sectionTitle: '', data: []}];
+    leveragedVaults && leveragedVaults.length > 0
+      ? gridData
+      : [{ sectionTitle: '', data: [] }];
 
   const showNegativeYieldsToggle = defaultVaultData.find(({ apy }) => apy < 0);
-
 
   return {
     gridData: vaultData,
