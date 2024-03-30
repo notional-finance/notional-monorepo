@@ -92,6 +92,6 @@ export function usePerformanceChart(
     areaChartData,
     areaChartStyles,
     chartToolTipData,
-    isEmptyState: !!currentBorrowRate,
+    isEmptyState: currentBorrowRate === undefined,
   };
 }

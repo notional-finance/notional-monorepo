@@ -174,13 +174,21 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
   if (!token || !isReady) return [];
   const data = Registry.getAnalyticsRegistry().getPriceHistory(token);
 
-  return fillChartDaily(
+  const chart = fillChartDaily(
     data.map((d) => ({
       timestamp: d.timestamp,
       assetPrice: d.priceInUnderlying?.toFloat() || 0,
     })),
     { assetPrice: 0 }
   );
+
+  // Remove the last element of the chart if it is empty, can happen when the
+  // subgraph is trailing on the latest update.
+  if (chart.length && chart[chart.length - 1].assetPrice === 0) {
+    chart.pop();
+  }
+
+  return chart;
 }
 
 export function useTotalHolders(token: TokenDefinition | undefined) {
