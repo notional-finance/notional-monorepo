@@ -44,8 +44,9 @@ export interface AreaChartStylesProps {
 
 export interface AreaChartProps {
   areaChartData: AreaChartData[];
+  areaDataKey?: string;
   xAxisTickFormat?: 'date' | 'percent';
-  yAxisTickFormat?: 'percent' | 'number' | 'usd';
+  yAxisTickFormat?: 'percent' | 'number' | 'usd' | 'double';
   yAxisDomain?: AxisDomain;
   referenceLineValue?: number;
   chartToolTipData?: ChartToolTipDataProps;
@@ -72,12 +73,15 @@ export const yAxisTickHandler = (
     return `${formatNumberAsAbbr(v, 2)}`;
   } else if (yAxisTickFormat === 'number' && typeof v === 'number') {
     return formatNumber(v, 2);
+  } else if (yAxisTickFormat === 'double' && typeof v === 'number') {
+    return formatNumber(v, 4);
   }
   return `${v}`;
 };
 
 export const AreaChart = ({
   areaChartData,
+  areaDataKey = 'area',
   xAxisTickFormat = 'date',
   yAxisTickFormat = 'percent',
   yAxisDomain,
@@ -142,6 +146,7 @@ export const AreaChart = ({
             wrapperStyle={{ outline: 'none' }}
             content={
               <ChartToolTip
+                areaDataKey={areaDataKey}
                 chartToolTipData={
                   chartToolTipData ? chartToolTipData : defaultChartToolTipData
                 }
@@ -180,6 +185,7 @@ export const AreaChart = ({
             tickLine={false}
           />
           <YAxis
+            type="number"
             orientation="left"
             yAxisId={0}
             domain={yAxisDomain}
@@ -187,6 +193,7 @@ export const AreaChart = ({
             tickCount={5}
             tickMargin={20}
             width={60}
+            scale={'linear'}
             tickSize={0}
             tickLine={false}
             axisLine={false}
@@ -207,7 +214,7 @@ export const AreaChart = ({
           <Area
             type={areaLineType}
             strokeWidth={1.5}
-            dataKey="area"
+            dataKey={areaDataKey}
             stroke={
               areaChartStyles?.area.lineColor || theme.palette.primary.light
             }
