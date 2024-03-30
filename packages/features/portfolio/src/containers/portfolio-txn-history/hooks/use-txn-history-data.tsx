@@ -24,6 +24,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
     .map(
       ({
         bundleName,
+        label,
         underlyingAmountRealized,
         token,
         realizedPrice,
@@ -34,10 +35,13 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
         vaultName,
       }) => {
         const assetData = formatTokenType(token);
+        const isIncentive =
+          bundleName === 'Transfer Incentive' ||
+          bundleName === 'Transfer Secondary Incentive';
 
         return {
           transactionType: {
-            label: bundleName,
+            label: label,
             IconComponent: underlyingAmountRealized.isNegative() ? (
               <SentIcon fill={theme.palette.primary.dark} />
             ) : (
@@ -58,7 +62,9 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
             symbol: assetData.icon.toLowerCase(),
             caption: assetData.caption ? assetData.caption : '',
           },
-          price: realizedPrice.toDisplayStringWithSymbol(4, true),
+          price: isIncentive
+            ? '-'
+            : realizedPrice.toDisplayStringWithSymbol(4, true),
           time: timestamp,
           txLink: {
             hash: transactionHash,

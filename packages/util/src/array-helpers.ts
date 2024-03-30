@@ -41,6 +41,10 @@ export function groupArrayToMap<K, T>(arr: T[], key: (t: T) => K) {
   }, new Map<K, T[]>());
 }
 
+export function groupArrayByKey<K, T>(arr: T[], key: (t: T) => K) {
+  return Array.from(groupArrayToMap(arr, key).values());
+}
+
 export function convertArrayToObject<T extends { [key: string]: unknown }>(
   array: T[],
   key: string
