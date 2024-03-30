@@ -59,23 +59,16 @@ export function usePerformanceChart(
   // the header
   const leverageRatio = (riskFactorLimit?.limit ||
     priorVaultFactors?.leverageRatio) as number | undefined;
-  const data = useDepositValue(
+  const areaChartData = useDepositValue(
     collateral,
     debt
       ? debt.tokenType === 'PrimeDebt'
       : priorVaultFactors?.isPrimeBorrow || false,
     currentBorrowRate,
     leverageRatio,
-    leveragedLendFixedRate
+    leveragedLendFixedRate,
+    isVault ? 30 : 90
   );
-
-  let areaChartData = data.map((d) => ({
-    timestamp: d.timestamp,
-    area: d.multiple,
-  }));
-
-  if (isVault && areaChartData.length > 30)
-    areaChartData = areaChartData.slice(areaChartData.length - 30);
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
