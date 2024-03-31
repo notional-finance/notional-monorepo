@@ -149,6 +149,7 @@ export interface AccountHistory {
   vaultName?: string;
   impliedFixedRate?: number;
   isTransientLineItem: boolean;
+  account?: string;
 }
 
 export interface AccountIncentiveDebt {

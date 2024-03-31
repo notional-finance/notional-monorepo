@@ -203,5 +203,6 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
       : undefined,
     isTransientLineItem: p.isTransientLineItem,
     groupKey,
+    account: p.account.id,
   };
 }
