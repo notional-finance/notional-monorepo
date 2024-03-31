@@ -134,6 +134,7 @@ export interface BalanceStatement {
 
 export interface AccountHistory {
   label: string;
+  txnLabel?: string;
   timestamp: number;
   blockNumber: number;
   token: TokenDefinition;

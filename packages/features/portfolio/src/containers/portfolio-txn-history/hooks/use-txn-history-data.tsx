@@ -25,6 +25,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
       ({
         bundleName,
         label,
+        txnLabel,
         underlyingAmountRealized,
         token,
         realizedPrice,
@@ -42,6 +43,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
         return {
           transactionType: {
             label: label,
+            caption: vaultName || txnLabel,
             IconComponent: underlyingAmountRealized.isNegative() ? (
               <SentIcon fill={theme.palette.primary.dark} />
             ) : (

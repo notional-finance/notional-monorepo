@@ -7,24 +7,17 @@ import {
   DateTimeCell,
   SelectedOptions,
 } from '@notional-finance/mui';
-import { Box, useTheme } from '@mui/material';
-import { TXN_HISTORY_TYPE, getDateString } from '@notional-finance/util';
+import { getDateString } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
+import useTxnHistoryData from './use-txn-history-data';
 
 export const useTxnHistoryTable = (
   currencyOptions: SelectedOptions[],
   assetOrVaultOptions: SelectedOptions[],
   txnHistoryCategory: number,
-  accountHistoryData: any[]
+  accountHistoryData: ReturnType<typeof useTxnHistoryData>['accountHistoryData']
 ) => {
-  const VaultNameCell = ({ cell: { value } }) => {
-    const theme = useTheme();
-    return (
-      <Box sx={{ width: theme.spacing(19), textWrap: 'wrap' }}>{value}</Box>
-    );
-  };
-
-  const tableColumns = useMemo<DataTableColumn[]>(
+  const txnHistoryColumns = useMemo<DataTableColumn[]>(
     () => [
       {
         header: (
@@ -46,17 +39,6 @@ export const useTxnHistoryTable = (
         ),
         cell: MultiValueIconCell,
         accessorKey: 'asset',
-        textAlign: 'left',
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Vault Name"
-            description={'Vault Name header'}
-          />
-        ),
-        cell: VaultNameCell,
-        accessorKey: 'vaultName',
         textAlign: 'left',
       },
       {
@@ -105,11 +87,6 @@ export const useTxnHistoryTable = (
     []
   );
 
-  const txnHistoryColumns =
-    txnHistoryCategory === 0
-      ? tableColumns.filter(({ accessorKey }) => accessorKey !== 'vaultName')
-      : tableColumns;
-
   const getIds = (options: SelectedOptions[]) => {
     return options.map(({ id }) => id);
   };
@@ -128,7 +105,9 @@ export const useTxnHistoryTable = (
             .filter(({ token }) => filterData.includes(token.id))
         : accountHistoryData
             .filter(({ currency }) => filterData.includes(currency))
-            .filter(({ token }) => filterData.includes(token.vaultAddress));
+            .filter(({ token }) =>
+              filterData.includes(token.vaultAddress || '')
+            );
     }
     if (currencyIds.length > 0) {
       return accountHistoryData.filter(({ currency }) =>
@@ -142,13 +121,13 @@ export const useTxnHistoryTable = (
     }
     if (assetOrVaultIds.length > 0 && txnHistoryCategory === 1) {
       return accountHistoryData.filter(({ token }) =>
-        filterData.includes(token.vaultAddress)
+        filterData.includes(token.vaultAddress || '')
       );
     }
     return accountHistoryData;
   };
 
-  const marketDataCSVFormatter = useCallback((data: any[]) => {
+  const marketDataCSVFormatter = useCallback((data: any) => {
     return data.map(
       ({
         transactionType,
