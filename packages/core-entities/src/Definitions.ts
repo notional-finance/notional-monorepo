@@ -134,6 +134,7 @@ export interface BalanceStatement {
 
 export interface AccountHistory {
   label: string;
+  txnLabel?: string;
   timestamp: number;
   blockNumber: number;
   token: TokenDefinition;
@@ -148,6 +149,7 @@ export interface AccountHistory {
   vaultName?: string;
   impliedFixedRate?: number;
   isTransientLineItem: boolean;
+  account?: string;
 }
 
 export interface AccountIncentiveDebt {

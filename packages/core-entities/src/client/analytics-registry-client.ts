@@ -22,6 +22,7 @@ import {
   VaultData,
   CacheSchema,
   VaultReinvestment,
+  AccountHistory,
 } from '../Definitions';
 import {
   ASSET_PRICE_ORACLES,
@@ -30,6 +31,9 @@ import {
 import { PRICE_ORACLES } from './oracle-registry-client';
 import { TokenBalance } from '../token-balance';
 import { FiatKeys } from '../config/fiat-config';
+import { fetchGraph, loadGraphClientDeferred } from '../server/server-registry';
+import { parseTransaction } from './accounts/transaction-history';
+import { Transaction } from '../.graphclient';
 
 const APY_ORACLES = [
   'fCashOracleRate',
@@ -423,6 +427,25 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
           ),
         };
       });
+  }
+
+  async getNetworkTransactions(network: Network, skip: number) {
+    const { NetworkTransactionHistoryDocument } =
+      await loadGraphClientDeferred();
+    return await fetchGraph(
+      network,
+      NetworkTransactionHistoryDocument,
+      (r): Record<string, AccountHistory[]> => {
+        return {
+          [network]: r.transactions
+            .map((t) => parseTransaction(t as Transaction, network))
+            .flatMap((_) => _),
+        };
+      },
+      {
+        skip,
+      }
+    );
   }
 
   protected override async _refresh(

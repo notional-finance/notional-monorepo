@@ -8905,6 +8905,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'MetaDocument.graphql'
       },{
+        document: NetworkTransactionHistoryDocument,
+        get rawSDL() {
+          return printWithCache(NetworkTransactionHistoryDocument);
+        },
+        location: 'NetworkTransactionHistoryDocument.graphql'
+      },{
         document: VaultReinvestmentDocument,
         get rawSDL() {
           return printWithCache(VaultReinvestmentDocument);
@@ -8976,7 +8982,7 @@ export type AccountTransactionHistoryQuery = { transactions: Array<(
     Pick<Transaction, 'timestamp' | 'blockNumber' | 'transactionHash'>
     & { profitLossLineItems?: Maybe<Array<(
       Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
-      & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
+      & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'>, account: Pick<Account, 'id'> }
     )>> }
   )> };
 
@@ -9131,6 +9137,19 @@ export type MetaQuery = { _meta?: Maybe<(
     & { block: Pick<_Block_, 'number' | 'hash' | 'timestamp'> }
   )> };
 
+export type NetworkTransactionHistoryQueryVariables = Exact<{
+  skip: Scalars['Int'];
+}>;
+
+
+export type NetworkTransactionHistoryQuery = { transactions: Array<(
+    Pick<Transaction, 'timestamp' | 'blockNumber' | 'transactionHash'>
+    & { profitLossLineItems?: Maybe<Array<(
+      Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
+      & { account: Pick<Account, 'id'>, transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
+    )>> }
+  )> };
+
 export type VaultReinvestmentQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
   minTimestamp?: InputMaybe<Scalars['Int']>;
@@ -9223,6 +9242,9 @@ export const AccountTransactionHistoryDocument = gql`
       spotPrice
       impliedFixedRate
       isTransientLineItem
+      account {
+        id
+      }
     }
   }
 }
@@ -9836,6 +9858,42 @@ export const MetaDocument = gql`
   }
 }
     ` as unknown as DocumentNode<MetaQuery, MetaQueryVariables>;
+export const NetworkTransactionHistoryDocument = gql`
+    query NetworkTransactionHistory($skip: Int!) {
+  transactions(orderBy: timestamp, orderDirection: desc, skip: $skip, first: 100) {
+    timestamp
+    blockNumber
+    transactionHash
+    profitLossLineItems(where: {isTransientLineItem: false}) {
+      account {
+        id
+      }
+      timestamp
+      blockNumber
+      transactionHash {
+        id
+      }
+      token {
+        id
+        tokenType
+      }
+      underlyingToken {
+        id
+      }
+      tokenAmount
+      bundle {
+        bundleName
+      }
+      underlyingAmountRealized
+      underlyingAmountSpot
+      realizedPrice
+      spotPrice
+      impliedFixedRate
+      isTransientLineItem
+    }
+  }
+}
+    ` as unknown as DocumentNode<NetworkTransactionHistoryQuery, NetworkTransactionHistoryQueryVariables>;
 export const VaultReinvestmentDocument = gql`
     query VaultReinvestment($skip: Int, $minTimestamp: Int) {
   reinvestments(
@@ -9867,6 +9925,7 @@ export const VaultReinvestmentDocument = gql`
   }
 }
     ` as unknown as DocumentNode<VaultReinvestmentQuery, VaultReinvestmentQueryVariables>;
+
 
 
 
@@ -9935,6 +9994,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     Meta(variables?: MetaQueryVariables, options?: C): Promise<MetaQuery> {
       return requester<MetaQuery, MetaQueryVariables>(MetaDocument, variables, options) as Promise<MetaQuery>;
+    },
+    NetworkTransactionHistory(variables: NetworkTransactionHistoryQueryVariables, options?: C): Promise<NetworkTransactionHistoryQuery> {
+      return requester<NetworkTransactionHistoryQuery, NetworkTransactionHistoryQueryVariables>(NetworkTransactionHistoryDocument, variables, options) as Promise<NetworkTransactionHistoryQuery>;
     },
     VaultReinvestment(variables?: VaultReinvestmentQueryVariables, options?: C): Promise<VaultReinvestmentQuery> {
       return requester<VaultReinvestmentQuery, VaultReinvestmentQueryVariables>(VaultReinvestmentDocument, variables, options) as Promise<VaultReinvestmentQuery>;

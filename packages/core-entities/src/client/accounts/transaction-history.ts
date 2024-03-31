@@ -17,8 +17,8 @@ export function parseTransaction(
 ): AccountHistory[] {
   const items =
     t.profitLossLineItems?.map((p) => parseLineItem(p, network)) || [];
-  const txnLineItems = groupArrayByKey(items, ({ groupKey }) => groupKey).map(
-    (g) => {
+  const txnLineItems = groupArrayByKey(items, ({ groupKey }) => groupKey)
+    .map((g) => {
       const [_, name] = g[0].groupKey.split(':', 2);
 
       if (name === 'Redeem nToken') {
@@ -57,14 +57,47 @@ export function parseTransaction(
       } else {
         return g;
       }
-    }
-  );
+    })
+    .flatMap((_) => _);
 
-  // TODO: then apply another transform on txn line items for:
-  //   deleverage position
-  //   leverage position
-  //   roll debt or convert asset
-  return txnLineItems.flatMap((_) => _);
+  if (txnLineItems.length > 1) {
+    let txnLabel: string | undefined;
+    if (
+      txnLineItems.find(({ label }) => label === 'Provide Liquidity') &&
+      txnLineItems.find(({ label }) => label.startsWith('Borrow'))
+    ) {
+      txnLabel = 'Leveraged Liquidity';
+    } else if (
+      txnLineItems.find(({ label }) => label.startsWith('Lend')) &&
+      txnLineItems.find(({ label }) => label.startsWith('Borrow'))
+    ) {
+      txnLabel = 'Leveraged Lend';
+    } else if (
+      txnLineItems.find(({ label }) => label === 'Withdraw Liquidity') &&
+      txnLineItems.find(({ label }) => label.startsWith('Repay')) &&
+      txnLineItems.find(({ label }) => label === 'Withdraw')
+    ) {
+      if (txnLineItems.find(({ label }) => label === 'Withdraw')) {
+        txnLabel = 'Withdraw Leveraged Liquidity';
+      } else {
+        txnLabel = 'Deleverage Leveraged Liquidity';
+      }
+    } else if (
+      txnLineItems.find(({ label }) => label.startsWith('Borrow')) &&
+      txnLineItems.find(({ label }) => label.startsWith('Repay'))
+    ) {
+      txnLabel = 'Roll Debt';
+    } else if (
+      txnLineItems.find(({ label }) => label.startsWith('Lend')) &&
+      txnLineItems.find(({ label }) => label.startsWith('Withdraw'))
+    ) {
+      txnLabel = 'Convert Asset';
+    }
+
+    return txnLineItems.map((l) => ({ ...l, txnLabel }));
+  } else {
+    return txnLineItems;
+  }
 }
 
 function getLabelName(bundleName: string, token: TokenDefinition) {
@@ -170,5 +203,6 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
       : undefined,
     isTransientLineItem: p.isTransientLineItem,
     groupKey,
+    account: p.account.id,
   };
 }
