@@ -16,7 +16,6 @@ kv_namespaces = [
 
 [env.dev.vars]
 NETWORKS = ["arbitrum", "mainnet"]
-REINVEST_TIME_WINDOW_IN_HOURS=24
 
 [env.beta]
 name = "rewards-beta"
@@ -26,6 +25,6 @@ name = "rewards"
 
 [triggers]
 # Run two times every other hour, once to claim tokens and then again to reinvest
-# reinvestment and claim will only happen once in specified REINVEST_TIME_WINDOW_IN_HOURS
+# reinvestment and claim will only happen once in specified reinvestment time window(in code)
 # it is tightly coupled to how we are triggering claiming and reinvestment
 crons = ["0 */2 * * *", "10 */2 * * *"]
