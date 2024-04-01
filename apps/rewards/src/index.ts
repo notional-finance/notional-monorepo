@@ -18,7 +18,7 @@ const SLIPPAGE_PERCENT = 2;
 
 const NotionalV3Interface = new ethers.utils.Interface(NotionalV3ABI);
 
-const reinvestTimeWindowInHours: Partial<Record<Network, Number>> = {
+const reinvestTimeWindowInHours: Partial<Record<Network, number>> = {
   mainnet: 7 * 24,
   arbitrum: 24,
 };
