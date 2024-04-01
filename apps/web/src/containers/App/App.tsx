@@ -277,10 +277,10 @@ export const App = () => {
                 name="viewport"
                 content="width=device-width, initial-scale=1"
               />
-              <title>Notional Finance - DeFi Fixed Rates</title>
+              <title>Notional Finance - DeFi lending and leveraged yield</title>
               <meta
                 name="title"
-                content="Notional Finance - DeFi Fixed Rates"
+                content="Notional Finance - DeFi lending and leveraged yield"
               />
               <meta
                 name="description"

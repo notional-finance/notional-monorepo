@@ -7,6 +7,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
 import { ButtonBar, SideDrawer, TypeForm } from '@notional-finance/mui';
+import { MetaTagManager } from '@notional-finance/shared-web';
 import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
 import {
   SideNav,
@@ -23,6 +24,7 @@ import {
 } from './containers';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import {
+  META_TAG_CATEGORIES,
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/util';
@@ -78,6 +80,9 @@ const Portfolio = () => {
 
   return isAccountReady ? (
     <PortfolioContainer>
+      <MetaTagManager
+        metaTagCategory={META_TAG_CATEGORIES.PORTFOLIO_OVERVIEW}
+      />
       <SideDrawer
         callback={handleDrawer}
         openDrawer={openDrawer}
@@ -121,6 +126,9 @@ const Portfolio = () => {
     </PortfolioContainer>
   ) : (
     <PortfolioContainer>
+      <MetaTagManager
+        metaTagCategory={META_TAG_CATEGORIES.PORTFOLIO_OVERVIEW}
+      />
       <PortfolioSidebar>
         <SideNav />
       </PortfolioSidebar>

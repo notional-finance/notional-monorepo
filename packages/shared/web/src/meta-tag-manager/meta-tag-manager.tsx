@@ -2,39 +2,51 @@ import { Helmet } from 'react-helmet-async';
 import { META_TAG_CATEGORIES } from '@notional-finance/util';
 
 const metaTagData = {
+  [META_TAG_CATEGORIES.PORTFOLIO_OVERVIEW]: {
+    title: 'Portfolio',
+    description: 'Track and manage your Notional positions',
+    url: '/portfolio',
+  },
   [META_TAG_CATEGORIES.LEND_FIXED_DASHBOARD]: {
-    title: 'Fixed Rate Lending',
-    description: 'Fixed rate lending dashboard',
+    title: 'Fixed rate lending',
+    description: 'Lend your crypto at fixed rates to earn fixed returns',
     url: '/lend-fixed',
   },
   [META_TAG_CATEGORIES.LEND_VARIABLE_DASHBOARD]: {
-    title: 'Variable Rate Lending',
-    description: 'Variable rate lending dashboard',
+    title: 'Variable rate lending',
+    description: 'Lend your crypto at a variable rate to earn returns',
     url: '/lend-variable',
   },
   [META_TAG_CATEGORIES.BORROW_FIXED_DASHBOARD]: {
-    title: 'Fixed Rate Borrowing',
-    description: 'Fixed rate borrowing dashboard',
+    title: 'Fixed rate borrowing',
+    description: 'Borrow against your crypto at a fixed rate',
     url: '/borrow-fixed',
   },
   [META_TAG_CATEGORIES.BORROW_VARIABLE_DASHBOARD]: {
-    title: 'Variable Rate Borrowing',
-    description: 'Variable rate borrowing dashboard',
+    title: 'Variable rate borrowing',
+    description: 'Borrow against your crypto at a variable rate',
     url: '/borrow-variable',
   },
   [META_TAG_CATEGORIES.LIQUIDITY_VARIABLE_DASHBOARD]: {
-    title: 'Variable Rate Liquidity',
-    description: 'Variable rate liquidity dashboard',
+    title: 'Provide liquidity',
+    description: `Provide liquidity to Notional’s fixed rate pools to earn interest, fees, and incentives`,
     url: '/liquidity-variable',
   },
   [META_TAG_CATEGORIES.LIQUIDITY_LEVERAGED_DASHBOARD]: {
-    title: 'Leveraged Liquidity',
-    description: 'Leveraged liquidity dashboard',
+    title: 'Leveraged liquidity',
+    description:
+      'Loop your Notional liquidity to multiply your returns in one click',
     url: '/liquidity-leveraged',
   },
   [META_TAG_CATEGORIES.VAULTS_DASHBOARD]: {
-    title: 'Vaults',
-    description: 'Vaults dashboard',
+    title: 'Leveraged vaults',
+    description:
+      'Earn leveraged yield from DeFi farming and staking strategies',
+    url: '/vaults',
+  },
+  [META_TAG_CATEGORIES.MARKETS]: {
+    title: 'All Markets',
+    description: 'Explore and compare all of Notional’s opportunities',
     url: '/vaults',
   },
 };
