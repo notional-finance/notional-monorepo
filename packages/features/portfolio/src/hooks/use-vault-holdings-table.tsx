@@ -212,7 +212,7 @@ export const useVaultHoldingsTable = () => {
         totalAPY: totalAPY ? formatNumberAsPercent(totalAPY) : undefined,
         leveragePercentage: leveragePercentage
           ? {
-              value: leveragePercentage,
+              sliderValue: leveragePercentage,
               captionLeft: formatLeverageRatio(leverageRatio || 0, 1),
               captionRight: `Max: ${formatLeverageRatio(
                 maxLeverageRatio || 0,
