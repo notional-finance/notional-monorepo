@@ -157,12 +157,12 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: '0x05ff47afada98a98982113758878f9a8b9fdda0a',
+      address: '0x05ff47AFADa98a98982113758878F9A8B9FddA0a',
       PoolClass: 'ComposableStablePool',
       registerTokens: [
         {
-          id: '0x05ff47afada98a98982113758878f9a8b9fdda0a',
-          address: '0x05ff47afada98a98982113758878f9a8b9fdda0a',
+          id: '0x05ff47AFADa98a98982113758878F9A8B9FddA0a',
+          address: '0x05ff47AFADa98a98982113758878F9A8B9FddA0a',
           network: Network.mainnet,
           symbol: 'weETH/rETH',
           name: 'Balancer weETH/rETH StablePool',
@@ -183,12 +183,12 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: '0x596192bb6e41802428ac943d2f1476c1af25cc0e',
+      address: '0x596192bB6e41802428Ac943D2f1476C1Af25CC0E',
       PoolClass: 'ComposableStablePool',
       registerTokens: [
         {
-          id: '0x596192bb6e41802428ac943d2f1476c1af25cc0e',
-          address: '0x596192bb6e41802428ac943d2f1476c1af25cc0e',
+          id: '0x596192bB6e41802428Ac943D2f1476C1Af25CC0E',
+          address: '0x596192bB6e41802428Ac943D2f1476C1Af25CC0E',
           network: Network.mainnet,
           symbol: 'ezETH-WETH-BPT',
           name: 'Balancer ezETH-WETH Stable Pool',
