@@ -20,14 +20,14 @@ export enum PRODUCTS {
 }
 
 export enum META_TAG_CATEGORIES {
-  PORTFOLIO_OVERVIEW = 'portfolio-overview',
-  LEND_FIXED_DASHBOARD = 'lend-fixed-dashboard',
-  LEND_VARIABLE_DASHBOARD = 'lend-variable-dashboard',
-  BORROW_FIXED_DASHBOARD = 'borrow-fixed-dashboard',
-  BORROW_VARIABLE_DASHBOARD = 'borrow-variable-dashboard',
-  LIQUIDITY_VARIABLE_DASHBOARD = 'liquidity-variable-dashboard',
-  LIQUIDITY_LEVERAGED_DASHBOARD = 'liquidity-leveraged-dashboard',
-  VAULTS_DASHBOARD = 'vaults-dashboard',
+  PORTFOLIO = 'portfolio',
+  LEND_FIXED = 'lend-fixed',
+  LEND_VARIABLE = 'lend-variable',
+  BORROW_FIXED = 'borrow-fixed',
+  BORROW_VARIABLE = 'borrow-variable',
+  LIQUIDITY_VARIABLE = 'liquidity-variable',
+  LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
+  VAULTS = 'vaults',
   MARKETS = 'markets',
 }
 

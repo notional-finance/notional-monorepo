@@ -1,9 +1,9 @@
 import { CompatRoute } from 'react-router-dom-v5-compat';
-import { Footer, Header } from '@notional-finance/shared-web';
+import { Footer, Header, MetaTagManager } from '@notional-finance/shared-web';
 import { WalletSelector } from '@notional-finance/wallet';
 import { Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
-import { RouteType } from '@notional-finance/util';
+import { META_TAG_CATEGORIES, RouteType } from '@notional-finance/util';
 import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { usePageTrack } from '@notional-finance/helpers';
 import { useLocation } from 'react-router';
@@ -24,6 +24,10 @@ const AppLayoutRoute = ({
   const selectedNetwork = useWalletConnectedNetwork();
   usePageTrack(routeType, selectedNetwork);
 
+  const slicedPath = path
+    .match(/\/[^/]+/)?.[0]
+    ?.slice(1) as META_TAG_CATEGORIES;
+
   return landingLayout ? (
     <CompatRoute
       path={path}
@@ -40,6 +44,7 @@ const AppLayoutRoute = ({
       key={location.hash}
       render={(matchProps: Record<string, unknown>) => (
         <Box>
+          <MetaTagManager metaTagCategory={slicedPath} />
           <AppShell>
             <Header>
               <WalletSelector />

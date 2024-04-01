@@ -10,9 +10,8 @@ import {
   useMarketTableDropdowns,
   useAllNetworksToggle,
 } from './hooks';
-import { FeatureLoader, MetaTagManager } from '@notional-finance/shared-web';
+import { FeatureLoader } from '@notional-finance/shared-web';
 import { MarketsMobileNav, MobileFilterOptions } from './components';
-import { META_TAG_CATEGORIES } from '@notional-finance/util';
 
 export const Markets = () => {
   const theme = useTheme();
@@ -35,7 +34,6 @@ export const Markets = () => {
 
   return (
     <FeatureLoader featureLoaded={true}>
-      <MetaTagManager metaTagCategory={META_TAG_CATEGORIES.MARKETS} />
       <Box sx={{ marginBottom: theme.spacing(20) }}>
         <Background>
           <StyledTopContent>
