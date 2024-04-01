@@ -20,6 +20,9 @@ import {
   MultiValueCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
+import { Box } from '@mui/material';
+import { PointsIcon } from '@notional-finance/icons';
+import { PointsMultipliers } from '@notional-finance/core-entities';
 
 export const useVaultList = (network: Network) => {
   const {
@@ -93,20 +96,19 @@ export const useVaultList = (network: Network) => {
       sortDescFirst: true,
       textAlign: 'right',
     },
-    // TODO: Add incentive APY back in when we need it
-    // {
-    //   header: (
-    //     <FormattedMessage
-    //       defaultMessage="INCENTIVE APY"
-    //       description={'INCENTIVE APY header'}
-    //     />
-    //   ),
-    //   cell: MultiValueIconCell,
-    //   accessorKey: 'incentiveApy',
-    //   textAlign: 'right',
-    //   sortType: 'basic',
-    //   sortDescFirst: true,
-    // },
+    {
+      header: (
+        <FormattedMessage
+          defaultMessage="INCENTIVE APY"
+          description={'INCENTIVE APY header'}
+        />
+      ),
+      cell: MultiValueIconCell,
+      accessorKey: 'incentiveApy',
+      textAlign: 'right',
+      sortType: 'basic',
+      sortDescFirst: true,
+    },
     {
       header: (
         <FormattedMessage defaultMessage="TVL" description={'TVL header'} />
@@ -155,6 +157,7 @@ export const useVaultList = (network: Network) => {
       const profile = vaultHoldings.find(
         (p) => p.vault.vaultAddress === y.vaultAddress
       )?.vault;
+      const points = PointsMultipliers[network][y.vaultAddress];
 
       return {
         currency: {
@@ -168,11 +171,7 @@ export const useVaultList = (network: Network) => {
         pool: y.poolName,
         protocols: `${y.boosterProtocol} / ${y.baseProtocol}`,
         totalApy: x?.totalAPY || 0,
-        // TODO: Add incentive APY back in when we need it
-        // incentiveApy: getCombinedIncentiveData(
-        //   y.noteIncentives,
-        //   y.secondaryIncentives
-        // ),
+        incentiveApy: 0,
         tvl: y.vaultTVL ? y.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         view: profile
           ? `/${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/IncreaseVaultPosition`
@@ -213,11 +212,22 @@ export const useVaultList = (network: Network) => {
               ? `${formatNumber(x?.leveraged?.leverageRatio, 1)}x Leverage`
               : undefined,
           },
-          // TODO: Add incentive APY back in when we need it
-          //   incentiveApy: getIncentiveData(
-          //     y.noteIncentives,
-          //     y.secondaryIncentives
-          //   ),
+          incentiveApy: points
+            ? {
+                label: (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      fontSize: 'inherit',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <PointsIcon sx={{ fontSize: 'inherit' }} />
+                    &nbsp;Points
+                  </Box>
+                ),
+              }
+            : undefined,
         },
       };
     })

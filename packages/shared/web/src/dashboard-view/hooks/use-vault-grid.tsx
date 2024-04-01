@@ -11,6 +11,8 @@ import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
 import { PointsMultipliers } from '@notional-finance/core-entities';
+import { PointsIcon } from '@notional-finance/icons';
+import { Box } from '@mui/material';
 
 export const useVaultGrid = (network: Network): DashboardGridProps => {
   const history = useHistory();
@@ -47,9 +49,15 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
                 ? formatNumberAsAbbr(vaultTVL.toFiat(baseCurrency).toFloat(), 0)
                 : 0
             }`,
-        bottomRightValue: points
-          ? `+ ${Object.keys(points).join('/')} Points`
-          : undefined,
+        bottomRightValue: points ? (
+          <Box
+            sx={{ display: 'flex', fontSize: 'inherit', alignItems: 'center' }}
+          >
+            <PointsIcon sx={{ fontSize: 'inherit' }} />
+            &nbsp;
+            {` ${Object.keys(points).join('/')} Points`}
+          </Box>
+        ) : undefined,
         symbol: primaryToken.symbol,
         network: primaryToken.network,
         hasPosition: profile ? true : false,
