@@ -1,5 +1,10 @@
 import { CompatRoute } from 'react-router-dom-v5-compat';
-import { Footer, Header, MetaTagManager } from '@notional-finance/shared-web';
+import {
+  Footer,
+  Header,
+  MetaTagManager,
+  metaTagData,
+} from '@notional-finance/shared-web';
 import { WalletSelector } from '@notional-finance/wallet';
 import { Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
@@ -44,7 +49,9 @@ const AppLayoutRoute = ({
       key={location.hash}
       render={(matchProps: Record<string, unknown>) => (
         <Box>
-          <MetaTagManager metaTagCategory={slicedPath} />
+          {metaTagData[slicedPath] && (
+            <MetaTagManager metaTagCategory={slicedPath} />
+          )}
           <AppShell>
             <Header>
               <WalletSelector />

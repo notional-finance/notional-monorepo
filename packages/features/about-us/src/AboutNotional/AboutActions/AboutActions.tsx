@@ -144,6 +144,7 @@ export const AboutActions = () => {
           );
           return (
             <Box
+              key={i}
               sx={{
                 display: 'inline-flex',
                 marginBottom: { xs: theme.spacing(16), lg: theme.spacing(32) },

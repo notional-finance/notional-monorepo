@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { META_TAG_CATEGORIES } from '@notional-finance/util';
 
-const metaTagData = {
+export const metaTagData = {
   [META_TAG_CATEGORIES.PORTFOLIO]: {
     title: 'Portfolio',
     description: 'Track and manage your Notional positions',
