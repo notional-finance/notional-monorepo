@@ -5,6 +5,7 @@ import {
   PageLoading,
   TradeSummaryContainer,
   TradeActionTitle,
+  H4,
 } from '@notional-finance/mui';
 import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
@@ -16,7 +17,11 @@ import {
   NativeYieldPopup,
 } from './components';
 import { formatTokenType } from '@notional-finance/helpers';
-import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
+import {
+  PointsMultipliers,
+  TokenDefinition,
+  YieldData,
+} from '@notional-finance/core-entities';
 import { leveragedYield } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
@@ -97,6 +102,10 @@ export function TradeActionSummary({
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)
       : priorVaultFactors?.leverageRatio;
+  const points =
+    selectedNetwork && vaultAddress
+      ? PointsMultipliers[selectedNetwork][vaultAddress]
+      : undefined;
 
   let totalAPY: number | undefined;
   if (isLeveraged) {
@@ -139,6 +148,11 @@ export function TradeActionSummary({
             ) : undefined
           }
         />
+        {points && (
+          <H4 sx={{ marginTop: theme.spacing(1) }} accent>{`+ ${Object.keys(
+            points
+          ).join(' & ')} Points`}</H4>
+        )}
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}

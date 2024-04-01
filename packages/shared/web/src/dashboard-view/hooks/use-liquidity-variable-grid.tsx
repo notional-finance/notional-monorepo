@@ -33,7 +33,7 @@ export const useLiquidityVariableGrid = (network: Network) => {
         network: y.token.network,
         hasPosition: false,
         tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
-        bottomValue:
+        bottomLeftValue:
           getTotalIncentiveApy(
             y?.noteIncentives?.incentiveAPY,
             y?.secondaryIncentives?.incentiveAPY
