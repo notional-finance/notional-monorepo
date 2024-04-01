@@ -11,13 +11,17 @@ export interface Env {
   TX_RELAY_AUTH_TOKEN: string;
   ZERO_EX_API_KEY: string;
   AUTH_KEY: string;
-  REINVEST_TIME_WINDOW_IN_HOURS: string;
   REWARDS_KV: KVNamespace;
 }
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 2;
 
 const NotionalV3Interface = new ethers.utils.Interface(NotionalV3ABI);
+
+const reinvestTimeWindowInHours: Partial<Record<Network, Number>> = {
+  mainnet: 7 * 24,
+  arbitrum: 24,
+};
 
 async function isClaimRewardsProfitable(env: Env, vault: Vault, tx: PopulatedTransaction) {
   const { rawLogs } = await simulatePopulatedTxn(env.NETWORK, tx);
@@ -91,8 +95,8 @@ async function didTimeWindowPassed(env: Env, vaultAddress: string, timeWindow: n
 }
 
 async function shouldSkipReinvest(env: Env, vaultAddress: string) {
-  // subtract 5min from time window so reinvestment can happen each day on same time
-  const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS - 5 * 60;
+  // subtract 5min from time window so reinvestment can happen at the same time in a day
+  const reinvestTimeWindow = Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS - 5 * 60;
   return !(await didTimeWindowPassed(env, vaultAddress, reinvestTimeWindow));
 }
 
@@ -106,8 +110,8 @@ async function shouldSkipClaim(env: Env, vaultAddress: string) {
   const claimTimestampKey = `${vaultAddress}:claimTimestamp`;
   const lastClaimTimestamp = Number(await env.REWARDS_KV.get(claimTimestampKey));
 
-  // subtract 5min from time window so reinvestment can happen each day on same time
-  const reinvestTimeWindow = Number(env.REINVEST_TIME_WINDOW_IN_HOURS || 24) * HOUR_IN_SECONDS - 5 * 60;
+  // subtract 5min from time window so claim can happen at the same time in a day
+  const reinvestTimeWindow = Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS - 5 * 60;
   return Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
 }
 
