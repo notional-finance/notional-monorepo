@@ -6,12 +6,12 @@ export const PointsMultipliers: Record<
 > = {
   [Network.mainnet]: {
     '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1': {
-      EigenLayer: 1,
       EtherFi: 1,
+      EigenLayer: 1,
     },
     '0x914255c0c289aea36e378ebb5e28293b5ed278ca': {
-      EigenLayer: 1,
       Renzo: 1,
+      EigenLayer: 1,
     },
   },
   [Network.all]: {},

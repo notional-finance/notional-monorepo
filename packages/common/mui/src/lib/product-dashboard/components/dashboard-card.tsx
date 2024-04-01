@@ -20,7 +20,8 @@ export const DashboardCard = ({
   title,
   symbol,
   subTitle,
-  bottomValue,
+  bottomLeftValue,
+  bottomRightValue,
   apySubTitle,
   routeCallback,
   incentiveValue,
@@ -28,7 +29,7 @@ export const DashboardCard = ({
   network,
 }: DashboardDataProps) => {
   const theme = useTheme();
-  const hideFooter = !bottomValue && !incentiveSymbols;
+  const hideFooter = !bottomLeftValue && !incentiveSymbols && !bottomRightValue;
 
   return (
     <GridCard onClick={() => routeCallback()}>
@@ -85,21 +86,23 @@ export const DashboardCard = ({
         id="incentive"
         sx={{ display: hideFooter ? 'none' : 'flex' }}
       >
-        {bottomValue && (
+        {bottomLeftValue && (
           <SectionTitle
             sx={{
               display: 'flex',
+              justifySelf: 'flex-start',
               justifyContent: 'center',
               alignItems: 'center',
             }}
           >
-            {bottomValue}
+            {bottomLeftValue}
           </SectionTitle>
         )}
         {incentiveSymbols && incentiveSymbols.length > 0 && (
           <SectionTitle
             sx={{
               display: 'flex',
+              justifySelf: 'flex-start',
               justifyContent: 'space-between',
               paddingLeft:
                 incentiveSymbols.length > 1 ? theme.spacing(1) : '0px',
@@ -136,6 +139,18 @@ export const DashboardCard = ({
                 <FormattedMessage defaultMessage={'Incentive APY'} />
               </>
             )}
+          </SectionTitle>
+        )}
+        {bottomRightValue && (
+          <SectionTitle
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              justifySelf: 'flex-end',
+            }}
+          >
+            {bottomRightValue}
           </SectionTitle>
         )}
       </GridCardFooter>
