@@ -142,6 +142,7 @@ export function TradeActionSummary({
           value={totalAPY}
           title={apySuffix}
           valueSuffix="%"
+          hasPoints={!!points}
           InfoComp={
             totalAPY ? (
               <NativeYieldPopup selectedToken={deposit?.symbol || ''} />
@@ -151,7 +152,9 @@ export function TradeActionSummary({
         {points && (
           <H4 sx={{ marginTop: theme.spacing(1) }} accent>{`+ ${Object.keys(
             points
-          ).join(' & ')} Points`}</H4>
+          )
+            .map((k) => `${points[k] * (leverageRatio || 1)}x ${k}`)
+            .join(' & ')} Points`}</H4>
         )}
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
