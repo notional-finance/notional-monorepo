@@ -28,6 +28,7 @@ export function LaunchAppButton() {
         />
       }
       sx={{
+        height: theme.spacing(5),
         '&.MuiButton-root': {
           borderRadius: theme.shape.borderRadius(),
           fontSize: '1rem',
