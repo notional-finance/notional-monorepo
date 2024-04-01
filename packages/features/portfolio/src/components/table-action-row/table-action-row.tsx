@@ -100,17 +100,21 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
                     alignItems: 'baseline',
                   }}
                 />
-              ) : (
+              ) : typeof value === 'string' || typeof value === 'number' ? (
                 <H4
                   sx={{
                     color:
-                      (value < 0 || value.includes('-')) && !isDebt
+                      ((value as number) < 0 ||
+                        (value as string).includes('-')) &&
+                      !isDebt
                         ? colors.red
                         : '',
                   }}
                 >
                   {value}
                 </H4>
+              ) : (
+                value
               )}
             </Box>
           ))}
