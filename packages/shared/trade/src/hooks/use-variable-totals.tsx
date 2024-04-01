@@ -11,6 +11,21 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { SxProps, useTheme } from '@mui/material';
 
+const getSevenDayAvgApy = (
+  apyData: ReturnType<typeof useTokenHistory>['apyData']
+) => {
+  const seventhToLastNum = apyData.length - 8;
+  const lastSevenApys = apyData
+    .slice(seventhToLastNum, -1)
+    .map(({ totalAPY }) => totalAPY);
+
+  const averageApy = lastSevenApys.length
+    ? lastSevenApys.reduce((a, b) => a + b) / lastSevenApys.length
+    : 0;
+
+  return averageApy;
+};
+
 export const useVariableTotals = (state: TradeState) => {
   const theme = useTheme();
   const { deposit } = state;
@@ -21,19 +36,6 @@ export const useVariableTotals = (state: TradeState) => {
 
   const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
   const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
-
-  const getSevenDayAvgApy = () => {
-    const seventhToLastNum = apyData.length - 8;
-    const lastSevenApys = apyData
-      .slice(seventhToLastNum, -1)
-      .map(({ area }) => area);
-
-    const averageApy = lastSevenApys.length
-      ? lastSevenApys.reduce((a, b) => a + b) / lastSevenApys.length
-      : 0;
-
-    return averageApy;
-  };
 
   const ToolTip = ({ sx }: { sx: SxProps }) => {
     return (
@@ -70,7 +72,7 @@ export const useVariableTotals = (state: TradeState) => {
       ),
       Icon: ToolTip,
       value: isBorrow
-        ? getSevenDayAvgApy()
+        ? getSevenDayAvgApy(apyData)
         : maxSupplyData?.capacityRemaining
         ? maxSupplyData?.capacityRemaining.toFloat()
         : '-',

@@ -133,6 +133,8 @@ export interface BalanceStatement {
 }
 
 export interface AccountHistory {
+  label: string;
+  txnLabel?: string;
   timestamp: number;
   blockNumber: number;
   token: TokenDefinition;
@@ -147,6 +149,7 @@ export interface AccountHistory {
   vaultName?: string;
   impliedFixedRate?: number;
   isTransientLineItem: boolean;
+  account?: string;
 }
 
 export interface AccountIncentiveDebt {
@@ -162,7 +165,7 @@ export interface AccountDefinition {
   /** Balances may include external wallet balances */
   balances: TokenBalance[];
   /** If prime borrows are enabled */
-  allowPrimeBorrow: boolean;
+  allowPrimeBorrow?: boolean;
   /** Stores the last update time for vault positions, used to calculate prime debt fees */
   vaultLastUpdateTime?: Record<string, number>;
   /** Account incentive debt for nToken incentives */
@@ -263,6 +266,7 @@ export interface YieldData {
     leverageRatio: number;
     debtRate: number;
     maxLeverageRatio: number;
+    vaultDebt?: TokenDefinition;
   };
   vaultName?: string;
   nativeTokenAPY?: number;

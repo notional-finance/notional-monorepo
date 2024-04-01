@@ -10,23 +10,22 @@ import {
   LargeTableCell,
   H5,
 } from '../../typography/typography';
-import { Network } from '@notional-finance/util';
 
-export interface MultiValueIconCellProps {
-  cell: {
-    value: {
-      symbol: string;
-      label: string;
-      labelIsNegative?: boolean;
-      symbolSize?: string;
-      caption?: string;
-      inlineIcons?: boolean;
-      network?: Network;
-    };
-  };
-  row: { original };
-  column: { id; textAlign };
-}
+// export interface MultiValueIconCellProps {
+//   cell: {
+//     value: {
+//       symbol: string;
+//       label: string;
+//       labelIsNegative?: boolean;
+//       symbolSize?: string;
+//       caption?: string;
+//       inlineIcons?: boolean;
+//       network?: Network;
+//     };
+//   };
+//   row: { original };
+//   column: { id; textAlign };
+// }
 
 // NOTE*
 // When the table column is sortable but needs to have cells with multiple values add multiValueCellData to the table data hook.
@@ -46,12 +45,17 @@ export interface MultiValueIconCellProps {
 export const MultiValueIconCell = (props): JSX.Element => {
   const theme = useTheme();
   const {
-    cell: { value },
+    cell: { getValue },
     row: { original },
     column,
   } = props;
-  const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
-  const SecondValue = column?.expandableTable ? TableCell : SmallTableCell;
+  const value = getValue();
+  const FirstValue = column.columnDef?.expandableTable
+    ? LargeTableCell
+    : TableCell;
+  const SecondValue = column.columnDef?.expandableTable
+    ? TableCell
+    : SmallTableCell;
 
   const values = original.multiValueCellData
     ? original.multiValueCellData[column.id]
@@ -65,7 +69,7 @@ export const MultiValueIconCell = (props): JSX.Element => {
       sx={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: column.textAlign,
+        justifyContent: column.columnDef.textAlign,
       }}
     >
       {!original.isTotalRow && !inlineIcons ? (
@@ -99,7 +103,7 @@ export const MultiValueIconCell = (props): JSX.Element => {
             marginBottom: inlineIcons ? '4px' : '0px',
             display: 'flex',
             alignItems: 'flex-start',
-            justifyContent: column.textAlign,
+            justifyContent: column.columnDef.textAlign,
             color: values?.labelIsNegative
               ? theme.palette.error.main
               : 'inherit',
@@ -120,8 +124,8 @@ export const MultiValueIconCell = (props): JSX.Element => {
                   style={{ marginRight: theme.spacing(0.5) }}
                 />
               )}
-              {column.displayFormatter && values?.label
-                ? column.displayFormatter(values?.label)
+              {column.columnDef.displayFormatter && values?.label
+                ? column.columnDef.displayFormatter(values?.label)
                 : values?.label}
             </>
           )}
@@ -132,7 +136,7 @@ export const MultiValueIconCell = (props): JSX.Element => {
             color: theme.palette.typography.light,
             display: 'flex',
             alignItems: 'flex-start',
-            justifyContent: column.textAlign,
+            justifyContent: column.columnDef.textAlign,
           }}
         >
           {inlineIcons && values?.captionSymbol && (

@@ -1,16 +1,17 @@
 import { useTheme } from '@mui/material';
 import { TokenDefinition } from '@notional-finance/core-entities';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatNumber } from '@notional-finance/helpers';
 import { getDateString } from '@notional-finance/util';
 import {
   ChartToolTipDataProps,
-  CountUp,
   AreaChartStylesProps,
-  ChartHeaderDataProps,
   LEGEND_LINE_TYPES,
 } from '@notional-finance/mui';
-import { BaseTradeState } from '@notional-finance/notionable';
-import { useLeveragedPerformance } from '@notional-finance/notionable-hooks';
+import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
+import {
+  useDepositValue,
+  useSpotMaturityData,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export function usePerformanceChart(
@@ -20,17 +21,30 @@ export function usePerformanceChart(
     isPrimeBorrow: boolean;
     vaultBorrowRate?: number;
     leverageRatio?: number;
-  },
-  hideTextHeader?: boolean
+  }
 ) {
   const theme = useTheme();
-  const { debt, debtOptions, collateralOptions, riskFactorLimit, tradeType } =
-    state;
+  const {
+    debt,
+    debtOptions,
+    collateralOptions,
+    riskFactorLimit,
+    tradeType,
+    deposit,
+  } = state;
+  const spotData = useSpotMaturityData(
+    debt ? [debt] : undefined,
+    debt ? debt.network : undefined
+  );
+  const isVault = isVaultTrade(tradeType);
+
   const currentBorrowRate =
     debtOptions?.find(
       (t) => t.token.id === debt?.id
       // Allow the historical vault borrow rate to be applied here
-    )?.interestRate || priorVaultFactors?.vaultBorrowRate;
+    )?.interestRate ||
+    priorVaultFactors?.vaultBorrowRate ||
+    spotData.find((_) => true)?.tradeRate;
 
   // Allow the vault collateral to override the set collateral for the unset state
   const collateral = state.collateral || priorVaultFactors?.vaultShare;
@@ -45,32 +59,16 @@ export function usePerformanceChart(
   // the header
   const leverageRatio = (riskFactorLimit?.limit ||
     priorVaultFactors?.leverageRatio) as number | undefined;
-  const data = useLeveragedPerformance(
+  const areaChartData = useDepositValue(
     collateral,
     debt
       ? debt.tokenType === 'PrimeDebt'
       : priorVaultFactors?.isPrimeBorrow || false,
     currentBorrowRate,
     leverageRatio,
-    leveragedLendFixedRate
+    leveragedLendFixedRate,
+    isVault ? 30 : 90
   );
-
-  const areaChartData = data.map((d) => ({
-    timestamp: d.timestamp,
-    line: d.strategyReturn,
-    area: d.leveragedReturn,
-  }));
-
-  const currentStrategyReturn =
-    data.length > 0 ? data[data.length - 1].strategyReturn : undefined;
-  const currentLeveragedReturn =
-    currentStrategyReturn !== undefined &&
-    leverageRatio !== null &&
-    leverageRatio !== undefined &&
-    currentBorrowRate !== undefined
-      ? currentStrategyReturn +
-        (currentStrategyReturn - currentBorrowRate) * leverageRatio
-      : undefined;
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
@@ -86,56 +84,11 @@ export function usePerformanceChart(
     area: {
       lineColor: theme.palette.charts.main,
       lineType: LEGEND_LINE_TYPES.SOLID,
-      formatTitle: (area) => (
-        <FormattedMessage
-          defaultMessage={'{returns} Leveraged Returns'}
-          values={{ returns: <span>{formatNumberAsPercent(area)}</span> }}
-        />
-      ),
+      formatTitle: (area) => `${formatNumber(area)} ${deposit?.symbol}`,
     },
-    line: {
-      lineColor: theme.palette.charts.accent,
-      lineType: LEGEND_LINE_TYPES.DASHED,
-      formatTitle: (line) => (
-        <FormattedMessage
-          defaultMessage={'{returns} Unleveraged Returns'}
-          values={{ returns: <span>{formatNumberAsPercent(line)}</span> }}
-        />
-      ),
-    },
-  };
-
-  const areaChartHeaderData: ChartHeaderDataProps = {
-    textHeader: hideTextHeader ? (
-      ''
-    ) : (
-      <FormattedMessage defaultMessage={'Performance To Date'} />
-    ),
-    legendData: [
-      {
-        label: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
-        value: currentStrategyReturn ? (
-          <CountUp value={currentStrategyReturn} suffix="%" decimals={2} />
-        ) : undefined,
-        lineColor: theme.palette.charts.accent,
-        lineType: LEGEND_LINE_TYPES.DASHED,
-      },
-      {
-        label: <FormattedMessage defaultMessage={'Leveraged Returns'} />,
-        value: currentLeveragedReturn ? (
-          <CountUp value={currentLeveragedReturn} suffix="%" decimals={2} />
-        ) : undefined,
-        lineColor: theme.palette.charts.main,
-        lineType: LEGEND_LINE_TYPES.SOLID,
-      },
-    ],
   };
 
   const areaChartStyles: AreaChartStylesProps = {
-    line: {
-      lineColor: theme.palette.charts.accent,
-      lineType: LEGEND_LINE_TYPES.DASHED,
-    },
     area: {
       lineColor: theme.palette.charts.main,
       lineType: LEGEND_LINE_TYPES.SOLID,
@@ -143,10 +96,9 @@ export function usePerformanceChart(
   };
 
   return {
-    currentLeveragedReturn,
     areaChartData,
     areaChartStyles,
-    areaChartHeaderData,
     chartToolTipData,
+    isEmptyState: currentBorrowRate === undefined,
   };
 }

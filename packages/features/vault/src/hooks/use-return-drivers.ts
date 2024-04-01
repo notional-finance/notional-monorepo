@@ -19,24 +19,24 @@ export const useReturnDrivers = (
 
   const tableColumns = [
     {
-      Header: intl.formatMessage(messages.summary.returnsDriversSource),
-      accessor: 'source',
+      header: intl.formatMessage(messages.summary.returnsDriversSource),
+      accessorKey: 'source',
       textAlign: 'left',
-      Cell: BorderCell,
+      cell: BorderCell,
       padding: '0px',
     },
     {
-      Header: intl.formatMessage(messages.summary.returnsDrivers7dayAverage),
-      accessor: 'shortAvg',
+      header: intl.formatMessage(messages.summary.returnsDrivers7dayAverage),
+      accessorKey: 'shortAvg',
       textAlign: 'right',
-      Cell: BorderCell,
+      cell: BorderCell,
       padding: '0px',
     },
     {
-      Header: intl.formatMessage(messages.summary.returnsDrivers30dayAverage),
-      accessor: 'longAvg',
+      header: intl.formatMessage(messages.summary.returnsDrivers30dayAverage),
+      accessorKey: 'longAvg',
       textAlign: 'right',
-      Cell: BorderCell,
+      cell: BorderCell,
       padding: '0px',
     },
   ];

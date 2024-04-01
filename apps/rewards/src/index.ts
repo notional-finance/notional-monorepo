@@ -1,9 +1,23 @@
-import { TreasuryManager__factory, ERC20__factory, NotionalV3ABI } from '@notional-finance/contracts';
-import { DEX_ID, Network, TRADE_TYPE, getProviderFromNetwork, } from '@notional-finance/util';
+import {
+  TreasuryManager__factory,
+  ERC20__factory,
+  NotionalV3ABI,
+} from '@notional-finance/contracts';
+import {
+  DEX_ID,
+  Network,
+  TRADE_TYPE,
+  getProviderFromNetwork,
+} from '@notional-finance/util';
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
 import { vaults, minTokenAmount, ARB_ETH, ARB_WETH, Vault } from './vaults';
-import { get0xData, sendTxThroughRelayer, managerBotAddresses, treasuryManagerAddresses } from "@notional-finance/util";
-import { simulatePopulatedTxn } from "@notional-finance/transaction";
+import {
+  get0xData,
+  sendTxThroughRelayer,
+  managerBotAddresses,
+  treasuryManagerAddresses,
+} from '@notional-finance/util';
+import { simulatePopulatedTxn } from '@notional-finance/transaction';
 
 export interface Env {
   NETWORKS: Array<Network>;
@@ -23,7 +37,11 @@ const reinvestTimeWindowInHours: Partial<Record<Network, number>> = {
   arbitrum: 24,
 };
 
-async function isClaimRewardsProfitable(env: Env, vault: Vault, tx: PopulatedTransaction) {
+async function isClaimRewardsProfitable(
+  env: Env,
+  vault: Vault,
+  tx: PopulatedTransaction
+) {
   const { rawLogs } = await simulatePopulatedTxn(env.NETWORK, tx);
   let isProfitable = false;
   for (const log of rawLogs) {
@@ -31,7 +49,7 @@ async function isClaimRewardsProfitable(env: Env, vault: Vault, tx: PopulatedTra
       const { name, args } = NotionalV3Interface.parseLog(log);
       const rewardToken = vault.rewardTokens.find(
         // log.address is not checksummed
-        t => t.toLowerCase() === log.address.toLowerCase()
+        (t) => t.toLowerCase() === log.address.toLowerCase()
       );
       if (
         rewardToken &&
@@ -43,29 +61,35 @@ async function isClaimRewardsProfitable(env: Env, vault: Vault, tx: PopulatedTra
         break;
       }
     } catch {
-      console.debug(`Skipping unknown event`)
+      console.debug(`Skipping unknown event`);
     }
   }
   return isProfitable;
 }
 
-
 interface ReinvestmentData {
   data: {
-    reinvestments: [{
-      timestamp: number;
-    }]
-  }
+    reinvestments: [
+      {
+        timestamp: number;
+      }
+    ];
+  };
 }
-async function getLastReinvestment(env: Env, vault: string): Promise<{ timestamp: number } | null> {
-  return fetch(`https://api.studio.thegraph.com/query/36749/notional-v3-${env.NETWORK}/version/latest`, {
-    method: 'POST',
-    headers: {
-      "Content-Type": "application/json"
-    },
+async function getLastReinvestment(
+  env: Env,
+  vault: string
+): Promise<{ timestamp: number } | null> {
+  return fetch(
+    `https://api.studio.thegraph.com/query/36749/notional-v3-${env.NETWORK}/version/latest`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
 
-    body: JSON.stringify({
-      query: `{
+      body: JSON.stringify({
+        query: `{
           reinvestments(
             orderBy: timestamp,
             orderDirection:desc,
@@ -74,18 +98,24 @@ async function getLastReinvestment(env: Env, vault: string): Promise<{ timestamp
           ) {
             timestamp
           }
-      }`
-    })
-  }).then(r => r.json())
+      }`,
+      }),
+    }
+  )
+    .then((r) => r.json())
     .then((r: ReinvestmentData) => r.data.reinvestments[0]);
 }
 
-async function didTimeWindowPassed(env: Env, vaultAddress: string, timeWindow: number) {
+async function didTimeWindowPassed(
+  env: Env,
+  vaultAddress: string,
+  timeWindow: number
+) {
   const lastReinvestment = await getLastReinvestment(env, vaultAddress);
   if (lastReinvestment) {
     const currentTimeInSeconds = Date.now() / 1000;
 
-    if (currentTimeInSeconds < (lastReinvestment.timestamp + timeWindow)) {
+    if (currentTimeInSeconds < lastReinvestment.timestamp + timeWindow) {
       return false;
     }
   }
@@ -96,7 +126,9 @@ async function didTimeWindowPassed(env: Env, vaultAddress: string, timeWindow: n
 
 async function shouldSkipReinvest(env: Env, vaultAddress: string) {
   // subtract 5min from time window so reinvestment can happen at the same time in a day
-  const reinvestTimeWindow = Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS - 5 * 60;
+  const reinvestTimeWindow =
+    Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS -
+    5 * 60;
   return !(await didTimeWindowPassed(env, vaultAddress, reinvestTimeWindow));
 }
 
@@ -108,10 +140,14 @@ async function setLastClaimTimestamp(env: Env, vaultAddress: string) {
 
 async function shouldSkipClaim(env: Env, vaultAddress: string) {
   const claimTimestampKey = `${vaultAddress}:claimTimestamp`;
-  const lastClaimTimestamp = Number(await env.REWARDS_KV.get(claimTimestampKey));
+  const lastClaimTimestamp = Number(
+    await env.REWARDS_KV.get(claimTimestampKey)
+  );
 
   // subtract 5min from time window so claim can happen at the same time in a day
-  const reinvestTimeWindow = Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS - 5 * 60;
+  const reinvestTimeWindow =
+    Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS -
+    5 * 60;
   return Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
 }
 
@@ -124,17 +160,18 @@ const claimRewards = async (env: Env, provider: any) => {
   const results = await Promise.allSettled(
     vaults[env.NETWORK].map(async (vault: Vault) => {
       if (await shouldSkipClaim(env, vault.address)) {
-        console.log(`Skipping claim rewards for ${vault.address}, already claimed`);
+        console.log(
+          `Skipping claim rewards for ${vault.address}, already claimed`
+        );
         return null;
       }
 
       const from = managerBotAddresses[env.NETWORK];
       const to = treasuryManagerAddresses[env.NETWORK];
       // make sure call will be successful
-      await treasuryManger.callStatic.claimVaultRewardTokens(
-        vault.address,
-        { from }
-      );
+      await treasuryManger.callStatic.claimVaultRewardTokens(vault.address, {
+        from,
+      });
 
       const data = treasuryManger.interface.encodeFunctionData(
         'claimVaultRewardTokens',
@@ -143,7 +180,9 @@ const claimRewards = async (env: Env, provider: any) => {
 
       const tx: PopulatedTransaction = { from, to, data };
       if (!(await isClaimRewardsProfitable(env, vault, tx))) {
-        console.log(`Skipping claim rewards for ${vault.address}, not profitable`);
+        console.log(
+          `Skipping claim rewards for ${vault.address}, not profitable`
+        );
         return null;
       }
 
@@ -155,7 +194,9 @@ const claimRewards = async (env: Env, provider: any) => {
     })
   );
 
-  const failedClaims = results.filter(r => r.status == 'rejected') as PromiseRejectedResult[];
+  const failedClaims = results.filter(
+    (r) => r.status == 'rejected'
+  ) as PromiseRejectedResult[];
   // if any of the claims failed throw error so worker execution can be properly
   // marked as failed and alarms can be triggered
   if (failedClaims.length) {
@@ -164,7 +205,9 @@ const claimRewards = async (env: Env, provider: any) => {
 };
 
 type FunRetProm = () => Promise<any>;
-const executePromisesSequentially = async (funcArray: FunRetProm[]): Promise<any[]> => {
+const executePromisesSequentially = async (
+  funcArray: FunRetProm[]
+): Promise<any[]> => {
   return funcArray.reduce(async (accumulator, func) => {
     const results = await accumulator;
     return [...results, await func()];
@@ -179,37 +222,39 @@ const getTrades = async (
 ) => {
   let slippageMultiplier = 1;
   // we need to execute them sequentially due to rate limit on 0x api
-  return executePromisesSequentially(tokens.map((token, i) => async () => {
-    const amount = sellAmounts[i];
-    let oracleSlippagePercentOrLimit = '0';
-    let exchangeData = '0x00';
+  return executePromisesSequentially(
+    tokens.map((token, i) => async () => {
+      const amount = sellAmounts[i];
+      let oracleSlippagePercentOrLimit = '0';
+      let exchangeData = '0x00';
 
-    if (!amount.eq(0)) {
-      const tradeData = await get0xData({
+      if (!amount.eq(0)) {
+        const tradeData = await get0xData({
+          sellToken,
+          buyToken: token == ARB_ETH ? ARB_WETH : token,
+          sellAmount: amount,
+          slippagePercentage: SLIPPAGE_PERCENT * slippageMultiplier++,
+          env,
+        });
+
+        oracleSlippagePercentOrLimit = tradeData.limit.toString();
+        exchangeData = tradeData.data;
+      }
+
+      return [
         sellToken,
-        buyToken: token == ARB_ETH ? ARB_WETH : token,
-        sellAmount: amount,
-        slippagePercentage: SLIPPAGE_PERCENT * (slippageMultiplier++),
-        env,
-      });
-
-      oracleSlippagePercentOrLimit = tradeData.limit.toString();
-      exchangeData = tradeData.data;
-    }
-
-    return [
-      sellToken,
-      token,
-      amount.toString(),
-      [
-        DEX_ID.ZERO_EX,
-        TRADE_TYPE.EXACT_IN_SINGLE,
-        oracleSlippagePercentOrLimit,
-        exchangeData,
-      ],
-    ];
-  }));
-}
+        token,
+        amount.toString(),
+        [
+          DEX_ID.ZERO_EX,
+          TRADE_TYPE.EXACT_IN_SINGLE,
+          oracleSlippagePercentOrLimit,
+          exchangeData,
+        ],
+      ];
+    })
+  );
+};
 
 const reinvestVault = async (env: Env, provider: any, vault: Vault) => {
   if (await shouldSkipReinvest(env, vault.address)) {
@@ -220,12 +265,18 @@ const reinvestVault = async (env: Env, provider: any, vault: Vault) => {
   const tradesPerRewardToken = [];
   for (const sellToken of vault.rewardTokens) {
     if (vault.poolTokens.includes(sellToken)) {
-      console.log(`Skipping sell of ${sellToken} since it is also a pool token.`);
+      console.log(
+        `Skipping sell of ${sellToken} since it is also a pool token.`
+      );
       continue;
     }
-    const amount = await ERC20__factory.connect(sellToken, provider).balanceOf(vault.address);
+    const amount = await ERC20__factory.connect(sellToken, provider).balanceOf(
+      vault.address
+    );
     if (amount.lt(BigNumber.from(minTokenAmount[sellToken]))) {
-      console.log(`Skipping reinvestment for ${vault.address}: ${sellToken}, ${amount} is less than minimum`);
+      console.log(
+        `Skipping reinvestment for ${vault.address}: ${sellToken}, ${amount} is less than minimum`
+      );
       continue;
     }
     const sellAmountsPerToken = vault.tokenWeights.map((weight: number) => {
@@ -236,7 +287,7 @@ const reinvestVault = async (env: Env, provider: any, vault: Vault) => {
       env,
       sellToken,
       vault.poolTokens,
-      sellAmountsPerToken,
+      sellAmountsPerToken
     );
     tradesPerRewardToken.push(trades);
   }
@@ -251,15 +302,16 @@ const reinvestVault = async (env: Env, provider: any, vault: Vault) => {
   );
 
   const from = managerBotAddresses[env.NETWORK];
-  const { poolClaimAmounts } = await treasuryManger.callStatic.reinvestVaultReward(
-    vault.address,
-    tradesPerRewardToken,
-    tradesPerRewardToken.map(() => BigNumber.from(0)),
-    {
-      from,
-      gasLimit: 60e6
-    }
-  );
+  const { poolClaimAmounts } =
+    await treasuryManger.callStatic.reinvestVaultReward(
+      vault.address,
+      tradesPerRewardToken,
+      tradesPerRewardToken.map(() => BigNumber.from(0)),
+      {
+        from,
+        gasLimit: 60e6,
+      }
+    );
 
   await treasuryManger.callStatic.reinvestVaultReward(
     vault.address,
@@ -267,24 +319,28 @@ const reinvestVault = async (env: Env, provider: any, vault: Vault) => {
     poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
     {
       from,
-      gasLimit: 60e6
+      gasLimit: 60e6,
     }
   );
 
+  const data = treasuryManger.interface.encodeFunctionData(
+    'reinvestVaultReward',
+    [
+      vault.address,
+      tradesPerRewardToken,
+      poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
+    ]
+  );
 
-  const data = treasuryManger.interface.encodeFunctionData('reinvestVaultReward', [
-    vault.address,
-    tradesPerRewardToken,
-    poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
-  ]);
-
-  console.log(`sending reinvestment tx to relayer from vault: ${vault.address}`);
+  console.log(
+    `sending reinvestment tx to relayer from vault: ${vault.address}`
+  );
 
   return sendTxThroughRelayer({
     to: treasuryManger.address,
     data,
     env,
-  })
+  });
 };
 
 const reinvestRewards = async (env: Env, provider: any) => {
@@ -306,17 +362,21 @@ const reinvestRewards = async (env: Env, provider: any) => {
 };
 
 export default {
-  async fetch(request: Request, env: Env, _: ExecutionContext): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    _: ExecutionContext
+  ): Promise<Response> {
     const authKey = request.headers.get('x-auth-key');
     if (authKey !== env.AUTH_KEY) {
-      console.log("Headers: ", new Map(request.headers));
-      console.log("Cf: ", request['cf']);
+      console.log('Headers: ', new Map(request.headers));
+      console.log('Cf: ', request['cf']);
       return new Response(null, { status: 401 });
     }
 
     for (const network of env.NETWORKS) {
       env.NETWORK = network;
-      console.log(`Processing network: ${env.NETWORK}`)
+      console.log(`Processing network: ${env.NETWORK}`);
       const provider = getProviderFromNetwork(env.NETWORK, true);
 
       await claimRewards(env, provider);
@@ -332,7 +392,7 @@ export default {
 
     // cron job will run twice, once on full hour and second time 10 minutes later
     // first time it will claim rewards and second time reinvest it
-    const currentMinuteInHour = (new Date()).getMinutes();
+    const currentMinuteInHour = new Date().getMinutes();
     if (currentMinuteInHour < 10) {
       await claimRewards(env, provider);
     } else {

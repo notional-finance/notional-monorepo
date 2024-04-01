@@ -43,6 +43,7 @@ export const DataTableTitleBar = ({
             paddingBottom: theme.spacing(2),
             paddingLeft: theme.spacing(1),
             paddingRight: theme.spacing(1),
+            color: theme.palette.typography.main,
             width: '100%',
           }}
         >

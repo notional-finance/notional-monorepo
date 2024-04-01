@@ -5,7 +5,7 @@ import { FormattedMessage } from 'react-intl';
 
 export const ToolTipCell = ({ cell }): JSX.Element => {
   const theme = useTheme();
-  const { value } = cell;
+  const value = cell.getValue();
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>

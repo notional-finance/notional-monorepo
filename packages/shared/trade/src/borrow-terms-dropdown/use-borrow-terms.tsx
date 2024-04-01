@@ -5,7 +5,6 @@ import {
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { formatMaturity } from '@notional-finance/util';
-import { isVaultTrade } from '@notional-finance/notionable';
 import { leveragedYield } from '@notional-finance/util';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
@@ -23,16 +22,13 @@ export const useBorrowTerms = (
   const {
     state: {
       debtOptions,
-      tradeType,
       collateral,
-      availableCollateralTokens,
       availableDebtTokens,
       collateralOptions,
       riskFactorLimit,
       deposit,
       selectedNetwork,
     },
-    updateState,
   } = context;
   const history = useHistory();
   const { pathname } = useLocation();
@@ -41,7 +37,6 @@ export const useBorrowTerms = (
     deposit ? availableDebtTokens : [],
     selectedNetwork
   );
-  const isVault = isVaultTrade(tradeType);
 
   const assetAPY =
     collateralOptions?.find((c) => c.token.id === collateral?.id)
@@ -121,26 +116,10 @@ export const useBorrowTerms = (
 
   const onSelect = useCallback(
     (selectedId: string | null) => {
-      if (isVault) {
-        const debt = availableDebtTokens?.find((t) => t.id === selectedId);
-        const collateral = availableCollateralTokens?.find(
-          (t) => t.maturity === debt?.maturity
-        );
-
-        updateState({ debt, collateral });
-      } else {
-        const debt = availableDebtTokens?.find((t) => t.id === selectedId);
-        history.push(`${pathname}?borrowOption=${debt?.id}`);
-      }
+      const debt = availableDebtTokens?.find((t) => t.id === selectedId);
+      history.push(`${pathname}?borrowOption=${debt?.id}`);
     },
-    [
-      availableCollateralTokens,
-      availableDebtTokens,
-      updateState,
-      isVault,
-      history,
-      pathname,
-    ]
+    [availableDebtTokens, history, pathname]
   );
 
   return { borrowOptions, onSelect };

@@ -115,28 +115,28 @@ export const useReturnDriversTable = () => {
 
   const returnDriversColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Asset" description={'asset header'} />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'asset',
+      cell: MultiValueIconCell,
+      accessorKey: 'asset',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Value" description={'value header'} />
       ),
-      Cell: MultiValueCell,
-      accessor: 'value',
+      cell: MultiValueCell,
+      accessorKey: 'value',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Apy" description={'apy header'} />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: formatNumberAsPercent,
-      accessor: 'apy',
+      accessorKey: 'apy',
       textAlign: 'right',
     },
   ];

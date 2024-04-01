@@ -3,22 +3,10 @@ import { TableCell } from '../../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
 import { LaunchIcon } from '@notional-finance/icons';
 
-export interface TxnHashCellProps {
-  cell: {
-    value: {
-      hash: string;
-      href: string;
-    };
-    column: { showLinkIcon?: boolean; textAlign?: string };
-  };
-}
-
-export const TxnHashCell = ({
-  cell: {
-    value: { href, hash },
-    column: { showLinkIcon, textAlign },
-  },
-}: TxnHashCellProps): JSX.Element => {
+export const TxnHashCell = ({ cell: { getValue, column } }): JSX.Element => {
+  const value = getValue();
+  const { hash, href } = value;
+  const { showLinkIcon, textAlign } = column.columnDef;
   const theme = useTheme() as NotionalTheme;
 
   return (

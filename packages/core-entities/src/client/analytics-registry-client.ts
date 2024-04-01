@@ -22,6 +22,7 @@ import {
   VaultData,
   CacheSchema,
   VaultReinvestment,
+  AccountHistory,
 } from '../Definitions';
 import {
   ASSET_PRICE_ORACLES,
@@ -30,6 +31,9 @@ import {
 import { PRICE_ORACLES } from './oracle-registry-client';
 import { TokenBalance } from '../token-balance';
 import { FiatKeys } from '../config/fiat-config';
+import { fetchGraph, loadGraphClientDeferred } from '../server/server-registry';
+import { parseTransaction } from './accounts/transaction-history';
+import { Transaction } from '../.graphclient';
 
 const APY_ORACLES = [
   'fCashOracleRate',
@@ -39,7 +43,7 @@ const APY_ORACLES = [
   'nTokenFeeRate',
   'nTokenIncentiveRate',
   'nTokenSecondaryIncentiveRate',
-];
+] as const;
 
 export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   protected cachePath() {
@@ -162,20 +166,44 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     );
   }
 
+  getOracleName(oracleType: typeof APY_ORACLES[number]) {
+    switch (oracleType) {
+      case 'fCashOracleRate':
+        return 'Fixed Rate';
+      case 'PrimeCashPremiumInterestRate':
+        return 'Variable Lend Rate';
+      case 'PrimeDebtPremiumInterestRate':
+        return 'Variable Borrow Rate';
+      case 'nTokenBlendedInterestRate':
+        return 'Interest Yield';
+      case 'nTokenFeeRate':
+        return 'Trading Fees';
+      case 'nTokenIncentiveRate':
+        return 'NOTE Incentive APY';
+      case 'nTokenSecondaryIncentiveRate':
+        // TODO: this reward token needs to change if we ever add a different
+        // secondary incentive.
+        return 'ARB Incentive APY';
+    }
+  }
+
   getHistoricalAPY(
     token: TokenDefinition
   ): { timestamp: number; totalAPY: number; [key: string]: number }[] {
     if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       return this.getVault(token.network, token.vaultAddress).map(
-        ({ timestamp, totalAPY }) => ({
+        ({ timestamp, totalAPY, returnDrivers }) => ({
           timestamp,
           totalAPY: totalAPY || 0,
+          ...returnDrivers,
         })
       );
     }
 
     const oracles = this._getHistoricalOracles(token.network).filter(
-      (o) => o.quote === token.id && APY_ORACLES.includes(o.oracleType)
+      (o) =>
+        o.quote === token.id &&
+        APY_ORACLES.includes(o.oracleType as typeof APY_ORACLES[number])
     );
 
     if (oracles.length === 1) {
@@ -238,7 +266,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
                 console.error(e);
               }
 
-              acc[o.oracleType] = apy;
+              acc[
+                this.getOracleName(o.oracleType as typeof APY_ORACLES[number])
+              ] = apy;
             }
             acc['totalAPY'] += apy;
             return acc;
@@ -397,6 +427,25 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
           ),
         };
       });
+  }
+
+  async getNetworkTransactions(network: Network, skip: number) {
+    const { NetworkTransactionHistoryDocument } =
+      await loadGraphClientDeferred();
+    return await fetchGraph(
+      network,
+      NetworkTransactionHistoryDocument,
+      (r): Record<string, AccountHistory[]> => {
+        return {
+          [network]: r.transactions
+            .map((t) => parseTransaction(t as Transaction, network))
+            .flatMap((_) => _),
+        };
+      },
+      {
+        skip,
+      }
+    );
   }
 
   protected override async _refresh(

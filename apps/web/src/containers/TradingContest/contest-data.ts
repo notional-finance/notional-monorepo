@@ -1,5 +1,5 @@
 import { defineMessages } from 'react-intl';
-import { IconCell } from '@notional-finance/mui';
+import { DataTableColumn, IconCell } from '@notional-finance/mui';
 import { COMMUNITY_NAMES } from '@notional-finance/notionable';
 
 
@@ -27,23 +27,23 @@ export const messages = {
   }),
 };
 
-export const partnersTableColumns = [
+export const partnersTableColumns: DataTableColumn[] = [
   {
-    Header: 'Community',
-    Cell: IconCell,
-    accessor: 'community',
+    header: 'Community',
+    cell: IconCell,
+    accessorKey: 'community',
     textAlign: 'left',
     fontSize: '20px',
   },
   {
-    Header: 'High roller prize',
-    accessor: 'hrPrize',
+    header: 'High roller prize',
+    accessorKey: 'hrPrize',
     textAlign: 'right',
     fontSize: '16px',
   },
   {
-    Header: 'Fat cat prize',
-    accessor: 'fcPrize',
+    header: 'Fat cat prize',
+    accessorKey: 'fcPrize',
     textAlign: 'right',
     fontSize: '16px',
   },

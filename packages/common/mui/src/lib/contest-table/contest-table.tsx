@@ -5,14 +5,14 @@ import { ContestTableTitleBar } from './contest-table-title-bar/contest-table-ti
 import { ContestTableHead } from './contest-table-head/contest-table-head';
 import { ContestTableBody } from './contest-table-body/contest-table-body';
 import { PageLoading } from '../page-loading/page-loading';
-import { useTable, useExpanded, useSortBy } from 'react-table';
+import { useReactTable, getCoreRowModel } from '@tanstack/react-table';
 import { FormattedMessage } from 'react-intl';
 import { TableCell } from '../typography/typography';
 import { colors } from '@notional-finance/styles';
-import { ContestTableColumn, CONTEST_TABLE_VARIANTS } from './types';
+import { CONTEST_TABLE_VARIANTS } from './types';
 
 interface ContestTableProps {
-  columns: Array<ContestTableColumn>;
+  columns: Array<any>;
   data: Array<any>;
   tableTitle?: JSX.Element;
   tableTitleSubText?: JSX.Element;
@@ -41,15 +41,15 @@ export const ContestTable = ({
   sx,
 }: ContestTableProps) => {
   const theme = useTheme();
-  const { getTableProps, headerGroups, rows, prepareRow } = useTable(
-    {
-      columns,
-      data,
-      initialState: initialState,
-    },
-    useSortBy,
-    useExpanded
-  );
+  const table = useReactTable({
+    columns,
+    data,
+    initialState,
+    getCoreRowModel: getCoreRowModel(),
+  });
+  const { rows } = table.getRowModel();
+  const headerGroups = table.getHeaderGroups();
+
   const tableReady = !tableLoading && columns?.length && data?.length;
   tableVariant = tableVariant || CONTEST_TABLE_VARIANTS.DEFAULT;
   return (
@@ -83,18 +83,14 @@ export const ContestTable = ({
       {tableReady ? (
         <>
           {!maxHeight && (
-            <Table {...getTableProps()}>
+            <Table>
               {tableVariant === CONTEST_TABLE_VARIANTS.DEFAULT && (
                 <ContestTableHead
                   headerGroups={headerGroups}
                   hideOnMobile={hideOnMobile}
                 />
               )}
-              <ContestTableBody
-                rows={rows}
-                prepareRow={prepareRow}
-                isCurrentUser={isCurrentUser}
-              />
+              <ContestTableBody rows={rows} isCurrentUser={isCurrentUser} />
             </Table>
           )}
           {maxHeight && (
@@ -106,7 +102,7 @@ export const ContestTable = ({
                   top: 0,
                 }}
               >
-                <Table {...getTableProps()}>
+                <Table>
                   <ContestTableHead
                     headerGroups={headerGroups}
                     hideOnMobile={hideOnMobile}
@@ -114,13 +110,8 @@ export const ContestTable = ({
                 </Table>
               </Box>
               <div style={{ maxHeight: maxHeight, overflow: 'auto' }}>
-                <Table {...getTableProps()}>
-                  {/* <ContestTableHead headerGroups={headerGroups} /> */}
-                  <ContestTableBody
-                    rows={rows}
-                    prepareRow={prepareRow}
-                    isCurrentUser={isCurrentUser}
-                  />
+                <Table>
+                  <ContestTableBody rows={rows} isCurrentUser={isCurrentUser} />
                 </Table>
               </div>
             </>

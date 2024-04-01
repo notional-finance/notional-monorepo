@@ -17,14 +17,9 @@ export interface BarChartToolTipProps extends TooltipProps<number, string> {
 export const BarChartToolTip = (props: BarChartToolTipProps) => {
   const theme = useTheme();
   const { payload, barConfig, isStackedBar } = props;
-  let totalApy = 0;
-
-  if (payload) {
-    totalApy =
-      (payload[0]?.payload.noteApy || 0) +
-      (payload[0]?.payload.arbApy || 0) +
-      payload[0]?.payload.organicApy;
-  }
+  const totalApy = payload?.reduce((acc, p) => acc + (p?.value || 0), 0) || 0;
+  // This needs to be reversed when we look up the matching indexes
+  const bars = barConfig.slice().reverse();
 
   const totalBackgroundColor = `linear-gradient(to bottom, ${payload
     ?.filter((item) => item['value'] && item['value'] > 0)
@@ -40,6 +35,42 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
             : ''}
         </Box>
       </Item>
+      {/* Reverse the payload in a stacked bar chart so the tooltips match the order of the
+      bars as they show up */}
+      {payload?.reverse().map((item, index) => (
+        <div key={index}>
+          {item?.value && item.value > 0 ? (
+            <Item key={index}>
+              <Box
+                sx={{
+                  height: theme.spacing(2),
+                  width: theme.spacing(0.75),
+                  borderRadius: '4px',
+                  backgroundColor: `${bars[index].fill}`,
+                }}
+              />
+              <Box
+                component={'span'}
+                sx={{
+                  marginLeft: theme.spacing(1),
+                  marginRight: theme.spacing(0.5),
+                  width: theme.spacing(7.5),
+                }}
+              >
+                {isStackedBar &&
+                  (item.value ? `${formatNumberAsPercent(item.value)}` : `0 %`)}
+                {!isStackedBar &&
+                  (item.value && bars[index]?.currencySymbol !== undefined
+                    ? `${bars[index]?.currencySymbol}${formatNumberToDigits(
+                        item.value
+                      )}`
+                    : `${bars[index]?.currencySymbol}0`)}
+              </Box>
+              {bars[index]?.toolTipTitle}
+            </Item>
+          ) : null}
+        </div>
+      ))}
       {isStackedBar && payload && payload.length > 1 && (
         <Item>
           <Box
@@ -65,40 +96,6 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
           <FormattedMessage defaultMessage={'Total APY'} />
         </Item>
       )}
-      {payload?.map((item, index) => (
-        <div key={index}>
-          {item?.value && item.value > 0 ? (
-            <Item key={index}>
-              <Box
-                sx={{
-                  height: theme.spacing(2),
-                  width: theme.spacing(0.75),
-                  borderRadius: '4px',
-                  backgroundColor: `${barConfig[index].fill}`,
-                }}
-              />
-              <Box
-                component={'span'}
-                sx={{
-                  marginLeft: theme.spacing(1),
-                  marginRight: theme.spacing(0.5),
-                  width: theme.spacing(7.5),
-                }}
-              >
-                {isStackedBar &&
-                  (item.value ? `${formatNumberAsPercent(item.value)}` : `0 %`)}
-                {!isStackedBar &&
-                  (item.value && barConfig[index]?.currencySymbol !== undefined
-                    ? `${
-                        barConfig[index]?.currencySymbol
-                      }${formatNumberToDigits(item.value)}`
-                    : `${barConfig[index]?.currencySymbol}0`)}
-              </Box>
-              {barConfig[index]?.toolTipTitle}
-            </Item>
-          ) : null}
-        </div>
-      ))}
     </ToolTipBox>
   );
 };

@@ -1,13 +1,15 @@
-query AccountTransactionHistory($accountId: String!) {
+query NetworkTransactionHistory($skip: Int!) {
   transactions(
-    where: { profitLossLineItems_: { account: $accountId } },
     orderBy: timestamp,
-    orderDirection: desc
+    orderDirection: desc,
+    skip: $skip,
+    first: 100
   ) {
     timestamp
     blockNumber
     transactionHash 
-    profitLossLineItems(where: { account: $accountId, isTransientLineItem: false }) {
+    profitLossLineItems(where: { isTransientLineItem: false }) {
+      account { id }
       timestamp
       blockNumber
       transactionHash { id }
@@ -21,7 +23,6 @@ query AccountTransactionHistory($accountId: String!) {
       spotPrice
       impliedFixedRate
       isTransientLineItem
-      account { id }
     }
   }
 }

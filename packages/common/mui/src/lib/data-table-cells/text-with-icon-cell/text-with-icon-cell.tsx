@@ -2,20 +2,8 @@ import { TokenIcon } from '@notional-finance/icons';
 import { Box, useTheme } from '@mui/material';
 import { SmallTableCell } from '../../typography/typography';
 
-export interface TextWithIconCellProps {
-  cell: {
-    value: {
-      type: string;
-      icons?: string[];
-    };
-  };
-}
-
-export const TextWithIconCell = ({
-  cell: {
-    value: { type, icons },
-  },
-}: TextWithIconCellProps): JSX.Element => {
+export const TextWithIconCell = ({ cell: { getValue } }): JSX.Element => {
+  const { type, icons } = getValue();
   const iconZero = icons && icons[0];
   const iconOne = icons && icons[1];
   const theme = useTheme();

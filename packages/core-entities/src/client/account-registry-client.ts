@@ -20,12 +20,20 @@ import {
 } from '../server/server-registry';
 import { ClientRegistry } from './client-registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { BalanceSnapshot, ProfitLossLineItem, Token } from '../.graphclient';
+import {
+  BalanceSnapshot,
+  ProfitLossLineItem,
+  Token,
+  Transaction,
+} from '../.graphclient';
 import {
   parseBalanceStatement,
   parseCurrentBalanceStatement,
 } from './accounts/balance-statement';
-import { parseTransactionHistory } from './accounts/transaction-history';
+import {
+  parseLineItem,
+  parseTransaction,
+} from './accounts/transaction-history';
 import { fetchCurrentAccount } from './accounts/current-account';
 
 export enum AccountFetchMode {
@@ -213,15 +221,11 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       AccountTransactionHistoryDocument,
       (r): Record<string, AccountHistory[]> => {
         return {
-          [account]:
-            r.account?.profitLossLineItems
-              ?.map((p) => {
-                return parseTransactionHistory(
-                  p as ProfitLossLineItem,
-                  network
-                );
-              })
-              .sort((a, b) => b.timestamp - a.timestamp) || [],
+          [account]: r.transactions
+            ?.map((t) => {
+              return parseTransaction(t as Transaction, network);
+            })
+            .flatMap((_) => _),
         };
       },
       {
@@ -333,7 +337,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               .filter((_) => !!_),
             accountHistory:
               a.profitLossLineItems?.map((p) =>
-                parseTransactionHistory(p as ProfitLossLineItem, network)
+                parseLineItem(p as ProfitLossLineItem, network)
               ) || [],
           } as AccountDefinition;
 

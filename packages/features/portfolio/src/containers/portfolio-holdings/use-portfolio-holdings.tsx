@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
   MultiValueIconCell,
+  DataTableColumn,
   MultiValueCell,
   DisplayCell,
-  ExpandedRows,
   ChevronCell,
 } from '@notional-finance/mui';
 import { TotalEarningsTooltip } from '../../components';
@@ -13,6 +13,7 @@ import {
   useLeverageBlock,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
+import { ExpandedState } from '@tanstack/react-table';
 import { useDetailedHoldingsTable } from './use-detailed-holdings';
 import { useGroupedHoldingsTable } from './use-grouped-holdings';
 import { useTheme } from '@mui/material';
@@ -53,7 +54,7 @@ function insertDebtDivider(arr) {
 export function usePortfolioHoldings() {
   const theme = useTheme();
   const isBlocked = useLeverageBlock();
-  const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
+  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const [toggleOption, setToggleOption] = useState<number>(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const network = useSelectedNetwork();
@@ -78,53 +79,53 @@ export function usePortfolioHoldings() {
     },
   ];
 
-  const Columns = useMemo(
+  const Columns = useMemo<DataTableColumn[]>(
     () => [
       {
-        Header: <FormattedMessage defaultMessage="Asset" />,
-        Cell: MultiValueIconCell,
-        accessor: 'asset',
+        header: <FormattedMessage defaultMessage="Asset" />,
+        cell: MultiValueIconCell,
+        accessorKey: 'asset',
         textAlign: 'left',
         expandableTable: true,
         width: theme.spacing(37.5),
       },
       {
-        Header: <FormattedMessage defaultMessage="Market APY" />,
-        Cell: MultiValueCell,
-        accessor: 'marketApy',
+        header: <FormattedMessage defaultMessage="Market APY" />,
+        cell: MultiValueCell,
+        accessorKey: 'marketApy',
         textAlign: 'right',
         expandableTable: true,
         width: theme.spacing(25),
       },
       {
-        Header: <FormattedMessage defaultMessage="Amount Paid" />,
-        Cell: MultiValueCell,
-        accessor: 'amountPaid',
+        header: <FormattedMessage defaultMessage="Amount Paid" />,
+        cell: MultiValueCell,
+        accessorKey: 'amountPaid',
         textAlign: 'right',
         expandableTable: true,
         showLoadingSpinner: true,
       },
       {
-        Header: <FormattedMessage defaultMessage="Present Value" />,
-        Cell: MultiValueCell,
-        accessor: 'presentValue',
+        header: <FormattedMessage defaultMessage="Present Value" />,
+        cell: MultiValueCell,
+        accessorKey: 'presentValue',
         textAlign: 'right',
         expandableTable: true,
       },
       {
-        Header: <FormattedMessage defaultMessage="Total Earnings" />,
-        Cell: DisplayCell,
+        header: <FormattedMessage defaultMessage="Total Earnings" />,
+        cell: DisplayCell,
         ToolTip: TotalEarningsTooltip,
-        accessor: 'earnings',
+        accessorKey: 'earnings',
         textAlign: 'right',
         expandableTable: true,
         showLoadingSpinner: true,
         showGreenText: true,
       },
       {
-        Header: '',
-        Cell: ChevronCell,
-        accessor: 'chevron',
+        header: '',
+        cell: ChevronCell,
+        accessorKey: 'chevron',
         textAlign: 'left',
         expandableTable: true,
       },

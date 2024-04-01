@@ -3,15 +3,13 @@ import {
   Faq,
   FaqHeader,
   DataTable,
-  SliderDisplay,
   TABLE_VARIANTS,
+  TotalRow,
 } from '@notional-finance/mui';
-import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { VaultSubNav, MobileVaultSummary } from '../components';
+import { MobileVaultSummary } from '../components';
 import { VaultActionContext } from '../vault';
-import { messages } from '../messages';
 import {
   LiquidationChart,
   PerformanceChart,
@@ -24,46 +22,52 @@ import {
   useVaultFaq,
 } from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import { useFiat } from '@notional-finance/notionable-hooks';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
+  const baseCurrency = useFiat();
   const {
     vaultAddress,
-    overCapacityError,
     totalCapacityRemaining,
-    maxVaultCapacity,
-    capacityUsedPercentage,
-    capacityWithUserBorrowPercentage,
     selectedNetwork,
     deposit,
+    vaultTVL,
   } = state;
   const { tableColumns, returnDrivers } = useReturnDrivers(
     vaultAddress,
     selectedNetwork
   );
-  // const { data, columns } = useVaultPriceExposure(state);
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
   const { faqHeaderLinks, faqs } = useVaultFaq(
     selectedNetwork,
     deposit?.symbol
   );
+  const tvl = vaultTVL?.toFiat(baseCurrency);
+
+  const totalsData = [
+    {
+      title: 'TVL',
+      value: tvl?.toFloat(),
+      prefix: tvl?.fiatSymbol,
+      decimals: 2,
+    },
+    {
+      title: 'Unused Debt Capacity',
+      value: totalCapacityRemaining?.toFloat(),
+      suffix: ` ${totalCapacityRemaining?.symbol || ''}`,
+      decimals: 0,
+    },
+    {
+      title: 'Incentives',
+      value: 'Automatic Reinvest',
+    },
+  ];
 
   const { reinvestmentTableData, reinvestmentTableColumns } =
     useVaultReinvestmentTable(selectedNetwork, deposit, vaultAddress);
-
-  const userCapacityMark = capacityWithUserBorrowPercentage
-    ? [
-        {
-          value: capacityWithUserBorrowPercentage,
-          label: '',
-          color: overCapacityError
-            ? theme.palette.error.main
-            : theme.palette.primary.light,
-        },
-      ]
-    : undefined;
 
   return (
     <Box>
@@ -90,12 +94,10 @@ export const VaultSummary = () => {
           },
         }}
       >
-        <VaultSubNav />
         <Box
           sx={{
             display: 'flex',
             justifyContent: 'center',
-            marginTop: theme.spacing(10),
           }}
         >
           <TradeActionSummary
@@ -106,30 +108,6 @@ export const VaultSummary = () => {
               leverageRatio,
             }}
           >
-            <Box
-              id={VAULT_SUB_NAV_ACTIONS.OVERVIEW}
-              sx={{ marginBottom: theme.spacing(2) }}
-            >
-              <SliderDisplay
-                min={0}
-                max={100}
-                value={capacityUsedPercentage || 0}
-                captionLeft={{
-                  title: messages.summary.capacityRemaining,
-                  value: totalCapacityRemaining,
-                }}
-                captionRight={{
-                  title: messages.summary.totalCapacity,
-                  value: maxVaultCapacity,
-                }}
-                marks={userCapacityMark}
-                sx={{
-                  border: overCapacityError
-                    ? `2px solid ${theme.palette.error.main}`
-                    : theme.shape.borderStandard,
-                }}
-              />
-            </Box>
             <PerformanceChart
               state={state}
               priorVaultFactors={{
@@ -140,44 +118,25 @@ export const VaultSummary = () => {
                   vaultShare?.maturity === PRIME_CASH_VAULT_MATURITY,
               }}
             />
+            <TotalRow totalsData={totalsData} />
             <LiquidationChart
               state={state}
               vaultCollateral={vaultShare}
               vaultLiquidationPrice={assetLiquidationPrice}
             />
-            {/* <Box marginBottom={theme.spacing(5)}>
-              <DataTable
-                tableTitle={
+            <DataTable
+              data={returnDrivers}
+              columns={tableColumns}
+              tableVariant={TABLE_VARIANTS.TOTAL_ROW}
+              tableTitle={
+                <div>
                   <FormattedMessage
-                    defaultMessage={'Vault Shares/{symbol} Price Exposure'}
-                    values={{ symbol: deposit?.symbol || '' }}
+                    defaultMessage="Return Drivers"
+                    description="Return Drivers Table Title"
                   />
-                }
-                stateZeroMessage={
-                  <FormattedMessage
-                    defaultMessage={'Fill in inputs to see price exposure'}
-                  />
-                }
-                data={data}
-                maxHeight={theme.spacing(40)}
-                columns={columns}
-              />
-            </Box> */}
-            <Box id={VAULT_SUB_NAV_ACTIONS.RETURN_DRIVERS}>
-              <DataTable
-                data={returnDrivers}
-                columns={tableColumns}
-                tableVariant={TABLE_VARIANTS.TOTAL_ROW}
-                tableTitle={
-                  <div>
-                    <FormattedMessage
-                      defaultMessage="Return Drivers"
-                      description="Return Drivers Table Title"
-                    />
-                  </div>
-                }
-              />
-            </Box>
+                </div>
+              }
+            />
             <Box
               sx={{
                 marginBottom: theme.spacing(5),
@@ -195,32 +154,30 @@ export const VaultSummary = () => {
                 columns={reinvestmentTableColumns}
               />
             </Box>
-            <Box id={VAULT_SUB_NAV_ACTIONS.FAQ}>
-              <FaqHeader
-                title={
-                  <FormattedMessage defaultMessage={'Leveraged Vault FAQ'} />
-                }
-                links={faqHeaderLinks}
-              />
-              {faqs.map(
-                (
-                  { question, answer, componentAnswer, questionDescription },
-                  index
-                ) => (
-                  <Faq
-                    key={index}
-                    question={question}
-                    answer={answer}
-                    componentAnswer={componentAnswer}
-                    questionDescription={questionDescription}
-                    sx={{
-                      marginBottom: theme.spacing(2),
-                      boxShadow: theme.shape.shadowStandard,
-                    }}
-                  />
-                )
-              )}
-            </Box>
+            <FaqHeader
+              title={
+                <FormattedMessage defaultMessage={'Leveraged Vault FAQ'} />
+              }
+              links={faqHeaderLinks}
+            />
+            {faqs.map(
+              (
+                { question, answer, componentAnswer, questionDescription },
+                index
+              ) => (
+                <Faq
+                  key={index}
+                  question={question}
+                  answer={answer}
+                  componentAnswer={componentAnswer}
+                  questionDescription={questionDescription}
+                  sx={{
+                    marginBottom: theme.spacing(2),
+                    boxShadow: theme.shape.shadowStandard,
+                  }}
+                />
+              )
+            )}
           </TradeActionSummary>
         </Box>
       </Box>

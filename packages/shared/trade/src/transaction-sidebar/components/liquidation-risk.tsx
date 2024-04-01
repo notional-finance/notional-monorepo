@@ -29,18 +29,18 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
 
   const columns: any[] = [
     {
-      Header: <FormattedMessage defaultMessage={'Detail'} />,
-      accessor: 'label',
-      Cell: ToolTipCell,
+      header: <FormattedMessage defaultMessage={'Detail'} />,
+      accessorKey: 'label',
+      cell: ToolTipCell,
       textAlign: 'left',
     },
     {
-      Header: !onlyCurrent ? (
+      header: !onlyCurrent ? (
         <FormattedMessage defaultMessage={'Current'} />
       ) : (
         <FormattedMessage defaultMessage={'Value'} />
       ),
-      accessor: 'current',
+      accessorKey: 'current',
       textAlign: 'right',
     },
   ];
@@ -51,10 +51,10 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     if (priorAccountNoRisk) columns.pop();
 
     columns.push({
-      Header: <FormattedMessage defaultMessage={'Updated'} />,
-      Cell: ArrowIndicatorCell,
+      header: <FormattedMessage defaultMessage={'Updated'} />,
+      cell: ArrowIndicatorCell,
       tooRisky,
-      accessor: 'updated',
+      accessorKey: 'updated',
       textAlign: 'right',
     });
   }

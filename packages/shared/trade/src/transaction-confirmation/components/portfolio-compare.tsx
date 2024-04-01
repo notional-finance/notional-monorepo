@@ -23,24 +23,24 @@ export const PortfolioCompare = ({
 
   const columns: any[] = [
     {
-      Header: <FormattedMessage defaultMessage={'Asset'} />,
-      accessor: 'label',
+      header: <FormattedMessage defaultMessage={'Asset'} />,
+      accessorKey: 'label',
       textAlign: 'left',
     },
     {
-      Header: <FormattedMessage defaultMessage={'Current'} />,
-      accessor: 'current',
+      header: <FormattedMessage defaultMessage={'Current'} />,
+      accessorKey: 'current',
       textAlign: 'right',
-      smallCell: true,
-      Cell: NegativeValueCell,
+      smallcell: true,
+      cell: NegativeValueCell,
     },
   ];
 
   if (!onlyCurrent) {
     columns.push({
-      Header: <FormattedMessage defaultMessage={'Updated'} />,
-      Cell: ArrowIndicatorCell,
-      accessor: 'updated',
+      header: <FormattedMessage defaultMessage={'Updated'} />,
+      cell: ArrowIndicatorCell,
+      accessorKey: 'updated',
       textAlign: 'right',
     });
   }

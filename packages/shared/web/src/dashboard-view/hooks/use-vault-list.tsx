@@ -9,6 +9,7 @@ import {
   useFiat,
   useAllVaults,
   useAccountDefinition,
+  useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -28,115 +29,119 @@ export const useVaultList = (network: Network) => {
   const listedVaults = useAllVaults(network);
   const baseCurrency = useFiat();
   const account = useAccountDefinition(network);
+  const vaultHoldings = useVaultHoldings(network);
 
   let listColumns: DataTableColumn[] = [
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Currency"
           description={'Currency header'}
         />
       ),
-      Cell: MultiValueIconCell,
-      accessor: 'currency',
+      cell: MultiValueIconCell,
+      accessorKey: 'currency',
       textAlign: 'left',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Wallet Balance"
           description={'Wallet Balance header'}
         />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: (val, symbol) => {
         return `${formatNumber(val, 4)} ${symbol}`;
       },
       showSymbol: true,
-      accessor: 'walletBalance',
-      sortType: 'basic',
+      accessorKey: 'walletBalance',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="Pool" description={'Pool header'} />
       ),
-      accessor: 'pool',
+      accessorKey: 'pool',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Protocols"
           description={'Protocols header'}
         />
       ),
-      accessor: 'protocols',
+      accessorKey: 'protocols',
       textAlign: 'right',
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Total APY"
           description={'Total APY header'}
         />
       ),
-      Cell: MultiValueIconCell,
+      cell: MultiValueIconCell,
       displayFormatter: formatNumberAsPercent,
-      accessor: 'totalApy',
-      sortType: 'basic',
+      accessorKey: 'totalApy',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
       textAlign: 'right',
     },
     // TODO: Add incentive APY back in when we need it
     // {
-    //   Header: (
+    //   header: (
     //     <FormattedMessage
     //       defaultMessage="INCENTIVE APY"
     //       description={'INCENTIVE APY header'}
     //     />
     //   ),
-    //   Cell: MultiValueIconCell,
-    //   accessor: 'incentiveApy',
+    //   cell: MultiValueIconCell,
+    //   accessorKey: 'incentiveApy',
     //   textAlign: 'right',
     //   sortType: 'basic',
     //   sortDescFirst: true,
     // },
     {
-      Header: (
+      header: (
         <FormattedMessage defaultMessage="TVL" description={'TVL header'} />
       ),
-      Cell: DisplayCell,
+      cell: DisplayCell,
       displayFormatter: (value: number) =>
         formatNumberAsAbbr(value, 0, baseCurrency),
-      accessor: 'tvl',
+      accessorKey: 'tvl',
       textAlign: 'right',
-      sortType: 'basic',
+      sortingFn: 'basic',
+      enableSorting: true,
       sortDescFirst: true,
     },
     {
-      Header: (
+      header: (
         <FormattedMessage
           defaultMessage="Borrow Terms"
           description={'Borrow Terms header'}
         />
       ),
-      Cell: MultiValueCell,
-      accessor: 'borrowTerms',
+      cell: MultiValueCell,
+      accessorKey: 'borrowTerms',
       textAlign: 'right',
     },
     {
-      Header: '',
-      Cell: LinkCell,
-      accessor: 'view',
+      header: '',
+      cell: LinkCell,
+      accessorKey: 'view',
       textAlign: 'right',
       width: '70px',
     },
   ];
 
   if (account === undefined) {
-    listColumns = listColumns.filter((x) => x.accessor !== 'walletBalance');
+    listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
   }
 
   const listData = listedVaults
@@ -147,6 +152,9 @@ export const useVaultList = (network: Network) => {
       const walletBalance = account
         ? account.balances.find((t) => t.tokenId === y.primaryToken.id)
         : undefined;
+      const profile = vaultHoldings.find(
+        (p) => p.vault.vaultAddress === y.vaultAddress
+      )?.vault;
 
       return {
         currency: {
@@ -166,7 +174,9 @@ export const useVaultList = (network: Network) => {
         //   y.secondaryIncentives
         // ),
         tvl: y.vaultTVL ? y.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
-        view: `${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}`,
+        view: profile
+          ? `/${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/IncreaseVaultPosition`
+          : `/${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/CreateVaultPosition?borrowOption=${x?.leveraged?.vaultDebt?.id}`,
         symbol: y.primaryToken.symbol,
         borrowTerms: {
           data: [
