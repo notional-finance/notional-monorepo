@@ -32,6 +32,7 @@ export const SliderCell = ({ cell }): JSX.Element => {
     stepSize,
     railGradients,
     showThumb,
+    sliderValue
   } = value;
   const hasCaption = captionRight || captionLeft;
   // Ensures that the slider margins account for the caption
@@ -49,7 +50,7 @@ export const SliderCell = ({ cell }): JSX.Element => {
       <SliderBasic
         min={min || 0}
         max={max || 100}
-        value={value}
+        value={sliderValue}
         disabled={true}
         step={stepSize || 0.01}
         trackColor={trackColor}
