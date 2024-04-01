@@ -2,9 +2,10 @@ import {
   CountUp,
   PageLoading,
   SliderInput,
+  SliderInputProps,
   useSliderInputRef,
 } from '@notional-finance/mui';
-import { FormattedMessage, defineMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
 import { MessageDescriptor } from 'react-intl';
@@ -21,6 +22,7 @@ interface LeverageSliderProps {
   leverageCurrencyId?: number;
   isDeleverage?: boolean;
   showMinMax?: boolean;
+  additionalSliderInfo?: SliderInputProps['sliderLeverageInfo'];
   onChange?: (leverageRatio: number) => void;
 }
 
@@ -34,6 +36,7 @@ export const LeverageSlider = ({
   leverageCurrencyId,
   isDeleverage,
   showMinMax,
+  additionalSliderInfo = [],
   onChange,
 }: LeverageSliderProps) => {
   const {
@@ -100,6 +103,33 @@ export const LeverageSlider = ({
     }
   });
 
+  const sliderLeverageInfo = [
+    {
+      caption: isDeleverage ? (
+        <FormattedMessage defaultMessage={'Debt Repaid'} />
+      ) : (
+        <FormattedMessage defaultMessage={'Borrow Amount'} />
+      ),
+      value: cashBorrowed
+        ? cashBorrowed.toUnderlying().abs().toFloat()
+        : debtBalance?.toUnderlying().abs().toFloat() ||
+          `- ${zeroUnderlying?.symbol || ''}`,
+      suffix: ` ${zeroUnderlying?.symbol || ''}`,
+    },
+    {
+      caption: isDeleverage ? (
+        <FormattedMessage defaultMessage={'Assets Sold'} />
+      ) : (
+        <FormattedMessage defaultMessage={'Asset Amount'} />
+      ),
+      value:
+        collateralBalance?.abs().toUnderlying().toFloat() ||
+        `- ${zeroUnderlying?.symbol || ''}`,
+      suffix: ` ${zeroUnderlying?.symbol || ''}`,
+    },
+    ...additionalSliderInfo,
+  ];
+
   return maxLeverageRatio ? (
     <SliderInput
       ref={sliderInputRef}
@@ -112,20 +142,7 @@ export const LeverageSlider = ({
       topRightCaption={topRightCaption}
       bottomCaption={bottomCaption}
       inputLabel={inputLabel}
-      sliderLeverageInfo={{
-        debtHeading: isDeleverage
-          ? defineMessage({ defaultMessage: 'Debt Repaid' })
-          : defineMessage({ defaultMessage: 'Borrow Amount' }),
-        assetHeading: isDeleverage
-          ? defineMessage({ defaultMessage: 'Assets Sold' })
-          : defineMessage({ defaultMessage: 'Asset Amount' }),
-        debtValue: cashBorrowed
-          ? cashBorrowed.toUnderlying().abs().toFloat()
-          : debtBalance?.toUnderlying().abs().toFloat(),
-        debtSuffix: ` ${zeroUnderlying?.symbol || ''}`,
-        assetValue: collateralBalance?.abs().toUnderlying().toFloat(),
-        assetSuffix: ` ${zeroUnderlying?.symbol || ''}`,
-      }}
+      sliderLeverageInfo={sliderLeverageInfo}
     />
   ) : (
     <PageLoading />
