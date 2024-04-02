@@ -1,7 +1,7 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { APIEnv } from '.';
+import { APIEnv, MetricType } from '.';
 import { BaseDO } from './abstract';
-import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
+import { Network, ONE_MINUTE_MS, getNowSeconds } from '@notional-finance/util';
 import { GraphDocument, Servers } from '@notional-finance/core-entities';
 
 export class ViewsDO extends BaseDO<APIEnv> {
@@ -82,12 +82,27 @@ export class ViewsDO extends BaseDO<APIEnv> {
           this.fetchAllGraphViews(network),
           this.analytics
             .refresh(network)
-            .then(() => {
+            .then(async () => {
               console.log('Wrote analytics data for ', network);
               this.putStorageKey(
                 `${this.serviceName}/${network}/analytics`,
                 this.analytics.serializeToJSON(network)
               );
+              await this.logger.submitMetrics({
+                series: [
+                  {
+                    metric: 'registry.data.analytics',
+                    points: [
+                      {
+                        value: 1,
+                        timestamp: getNowSeconds(),
+                      },
+                    ],
+                    tags: [`network:${network}`],
+                    type: MetricType.Gauge,
+                  },
+                ],
+              });
             })
             .catch((e) => {
               console.log('error', e);

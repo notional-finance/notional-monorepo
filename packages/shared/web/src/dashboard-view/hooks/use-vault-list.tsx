@@ -22,7 +22,6 @@ import {
 } from '@notional-finance/mui';
 import { Box } from '@mui/material';
 import { PointsIcon } from '@notional-finance/icons';
-import { PointsMultipliers } from '@notional-finance/core-entities';
 
 export const useVaultList = (network: Network) => {
   const {
@@ -147,48 +146,50 @@ export const useVaultList = (network: Network) => {
   }
 
   const listData = listedVaults
-    .map((y) => {
-      const x = getMax(
-        leveragedVaults.filter((z) => z.token.vaultAddress === y.vaultAddress)
+    .map((vault) => {
+      const y = getMax(
+        leveragedVaults.filter(
+          (z) => z.token.vaultAddress === vault.vaultAddress
+        )
       );
       const walletBalance = account
-        ? account.balances.find((t) => t.tokenId === y.primaryToken.id)
+        ? account.balances.find((t) => t.tokenId === vault.primaryToken.id)
         : undefined;
       const profile = vaultHoldings.find(
-        (p) => p.vault.vaultAddress === y.vaultAddress
+        (p) => p.vault.vaultAddress === vault.vaultAddress
       )?.vault;
-      const points = PointsMultipliers[network][y.vaultAddress];
+      const points = y?.pointMultiples;
 
       return {
         currency: {
-          symbol: y.primaryToken.symbol,
+          symbol: vault.primaryToken.symbol,
           symbolSize: 'large',
           symbolBottom: '',
-          label: y.primaryToken.symbol,
+          label: vault.primaryToken.symbol,
           caption: network.charAt(0).toUpperCase() + network.slice(1),
         },
         walletBalance: walletBalance?.toFloat() || 0,
-        pool: y.poolName,
-        protocols: `${y.boosterProtocol} / ${y.baseProtocol}`,
-        totalApy: x?.totalAPY || 0,
+        pool: vault.poolName,
+        protocols: `${vault.boosterProtocol} / ${vault.baseProtocol}`,
+        totalApy: y?.totalAPY || 0,
         incentiveApy: 0,
-        tvl: y.vaultTVL ? y.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
+        tvl: vault.vaultTVL ? vault.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         view: profile
-          ? `/${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/IncreaseVaultPosition`
-          : `/${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/CreateVaultPosition?borrowOption=${x?.leveraged?.vaultDebt?.id}`,
-        symbol: y.primaryToken.symbol,
+          ? `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/IncreaseVaultPosition`
+          : `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`,
+        symbol: vault.primaryToken.symbol,
         borrowTerms: {
           data: [
             {
               displayValue:
-                x?.leveraged?.debtToken.tokenType === 'fCash'
+                y?.leveraged?.debtToken.tokenType === 'fCash'
                   ? 'Fixed'
                   : 'Variable',
               isNegtive: false,
             },
             {
-              displayValue: x?.leveraged?.debtToken?.maturity
-                ? formatMaturity(x?.leveraged?.debtToken?.maturity)
+              displayValue: y?.leveraged?.debtToken?.maturity
+                ? formatMaturity(y?.leveraged?.debtToken?.maturity)
                 : '',
               isNegtive: false,
             },
@@ -196,20 +197,20 @@ export const useVaultList = (network: Network) => {
         },
         multiValueCellData: {
           currency: {
-            symbol: y.primaryToken.symbol,
+            symbol: vault.primaryToken.symbol,
             symbolSize: 'large',
             symbolBottom: '',
-            label: y.primaryToken.symbol,
+            label: vault.primaryToken.symbol,
             caption: network.charAt(0).toUpperCase() + network.slice(1),
             network: network,
           },
           totalApy: {
-            label: x?.totalAPY
-              ? formatNumberAsPercent(x.totalAPY, 2)
+            label: y?.totalAPY
+              ? formatNumberAsPercent(y.totalAPY, 2)
               : undefined,
-            labelIsNegative: x?.totalAPY && x?.totalAPY < 0 ? true : false,
-            caption: x?.leveraged?.leverageRatio
-              ? `${formatNumber(x?.leveraged?.leverageRatio, 1)}x Leverage`
+            labelIsNegative: y?.totalAPY && y?.totalAPY < 0 ? true : false,
+            caption: y?.leveraged?.leverageRatio
+              ? `${formatNumber(y?.leveraged?.leverageRatio, 1)}x Leverage`
               : undefined,
           },
           incentiveApy: points

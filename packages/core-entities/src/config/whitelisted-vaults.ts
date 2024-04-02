@@ -1,18 +1,19 @@
 import { Network } from '@notional-finance/util';
+import { SingleSidedLP, VaultAdapter } from '../vaults';
 
 export const PointsMultipliers: Record<
   Network,
-  Record<string, { [key: string]: number }>
+  Record<string, (v: VaultAdapter) => Record<string, number>>
 > = {
   [Network.mainnet]: {
-    '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1': {
-      EtherFi: 1,
-      EigenLayer: 1,
-    },
-    '0x914255c0c289aea36e378ebb5e28293b5ed278ca': {
-      Renzo: 1,
-      EigenLayer: 1,
-    },
+    '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1': (v) => ({
+      EtherFi: 2,
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(1),
+    }),
+    '0x914255c0c289aea36e378ebb5e28293b5ed278ca': (v) => ({
+      Renzo: 2,
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
+    }),
   },
   [Network.all]: {},
   [Network.arbitrum]: {},

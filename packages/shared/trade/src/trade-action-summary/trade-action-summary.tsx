@@ -17,11 +17,7 @@ import {
   NativeYieldPopup,
 } from './components';
 import { formatTokenType } from '@notional-finance/helpers';
-import {
-  PointsMultipliers,
-  TokenDefinition,
-  YieldData,
-} from '@notional-finance/core-entities';
+import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
 import { leveragedYield } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
@@ -84,10 +80,13 @@ export function TradeActionSummary({
       ? formatTokenType(debt).icon
       : undefined;
 
+  const nonLeveragedYield = nonLeveragedYields.find(
+    (y) => y.token.id === collateral?.id
+  );
+  const points = nonLeveragedYield?.pointMultiples;
   const assetAPY =
     collateralOptions?.find((c) => c.token.id === collateral?.id)
-      ?.interestRate ||
-    nonLeveragedYields.find((y) => y.token.id === collateral?.id)?.totalAPY;
+      ?.interestRate || nonLeveragedYield?.totalAPY;
 
   const debtAPY =
     debtOptions?.find((d) => d.token.id === debt?.id)?.interestRate ||
@@ -102,10 +101,6 @@ export function TradeActionSummary({
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)
       : priorVaultFactors?.leverageRatio;
-  const points =
-    selectedNetwork && vaultAddress
-      ? PointsMultipliers[selectedNetwork][vaultAddress]
-      : undefined;
 
   let totalAPY: number | undefined;
   if (isLeveraged) {
@@ -153,7 +148,9 @@ export function TradeActionSummary({
           <H4 sx={{ marginTop: theme.spacing(1) }} accent>{`+ ${Object.keys(
             points
           )
-            .map((k) => `${points[k] * (leverageRatio || 1)}x ${k}`)
+            .map(
+              (k) => `${(points[k] * (leverageRatio || 1)).toFixed(2)}x ${k}`
+            )
             .join(' & ')} Points`}</H4>
         )}
         {liquidityYieldData && (

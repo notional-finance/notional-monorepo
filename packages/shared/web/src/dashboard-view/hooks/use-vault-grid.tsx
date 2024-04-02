@@ -10,7 +10,6 @@ import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
-import { PointsMultipliers } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 import { Box } from '@mui/material';
 
@@ -35,7 +34,7 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
         (p) => p.vault.vaultAddress === vaultAddress
       )?.vault;
       const apy = profile?.totalAPY || y?.totalAPY || undefined;
-      const points = PointsMultipliers[network][vaultAddress];
+      const points = y?.pointMultiples;
 
       return {
         title: primaryToken.symbol,

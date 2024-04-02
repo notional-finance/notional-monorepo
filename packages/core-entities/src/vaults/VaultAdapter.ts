@@ -17,7 +17,12 @@ export abstract class VaultAdapter {
   abstract get hashKey(): string;
   abstract get strategy(): string;
 
-  constructor(public enabled: boolean, public name: string) {
+  constructor(
+    public enabled: boolean,
+    public name: string,
+    public network: Network,
+    public vaultAddress: string
+  ) {
     // NO-OP
   }
 

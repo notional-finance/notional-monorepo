@@ -30,10 +30,7 @@ import {
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
-import {
-  PointsLinks,
-  PointsMultipliers,
-} from '@notional-finance/core-entities';
+import { PointsLinks } from '@notional-finance/core-entities';
 
 const vaultRiskTableColumns: DataTableColumn[] = [
   {
@@ -187,7 +184,7 @@ export const useVaultHoldingsTable = () => {
   }, []);
 
   const vaultHoldingsData = vaults.map(
-    ({ vault: v, denom, profit, totalAPY, strategyAPY, borrowAPY }) => {
+    ({ vault: v, denom, profit, totalAPY, strategyAPY, borrowAPY, vaultYield }) => {
       const config = v.vaultConfig;
       const {
         leveragePercentage,
@@ -199,7 +196,7 @@ export const useVaultHoldingsTable = () => {
       const vaultRiskData = vaultLiquidation?.find(
         (b) => b.vaultAddress === v.vaultAddress
       );
-      const points = PointsMultipliers[network][v.vaultAddress];
+      const points = vaultYield?.pointMultiples;
       const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
         {
           label: <FormattedMessage defaultMessage={'Borrow APY'} />,

@@ -157,6 +157,7 @@ const WalletContainer = styled(Box)(
   ({ theme }) => `
     flex-grow: 0;
     display: flex;
+    align-items: center;
     ${theme.breakpoints.down('sm')} {
       display: none;
     }
