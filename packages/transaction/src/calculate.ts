@@ -530,9 +530,16 @@ export function calculateDeleverageWithdraw(i: {
   collateralBalance?: TokenBalance;
   debtBalance?: TokenBalance;
 }) {
-  if (i.maxWithdraw) return calculateCollateral(i);
-
-  return calculateDebtCollateralGivenDepositRiskLimit(i);
+  if (i.maxWithdraw && i.balances) {
+    // Add the collateral and debt balances from the account balances here, they are
+    // not passed in from maxWithdraw
+    const inputs = {
+      ...i,
+      collateralBalance: i.balances.find((b) => b.tokenId === i.collateral.id),
+      debtBalance: i.balances.find((b) => b.tokenId === i.debt.id),
+    };
+    return calculateCollateral(inputs);
+  }
 }
 
 export function calculateDebtCollateralGivenDepositRiskLimit({

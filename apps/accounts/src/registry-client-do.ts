@@ -596,9 +596,22 @@ export class RegistryClientDO extends BaseDO<Env> {
   }
 
   private async saveYieldData(network: Network) {
-    await this.putStorageKey(
-      `${network}/yields`,
-      JSON.stringify(Registry.getYieldRegistry().getAllYields(network))
-    );
+    const allYields = Registry.getYieldRegistry().getAllYields(network);
+    await this.putStorageKey(`${network}/yields`, JSON.stringify(allYields));
+    await this.logger.submitMetrics({
+      series: [
+        {
+          metric: 'registry.data.yields',
+          points: [
+            {
+              value: allYields.length,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`],
+          type: MetricType.Gauge,
+        },
+      ],
+    });
   }
 }
