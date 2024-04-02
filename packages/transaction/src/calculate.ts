@@ -540,6 +540,8 @@ export function calculateDeleverageWithdraw(i: {
     };
     return calculateCollateral(inputs);
   }
+
+  return calculateDebtCollateralGivenDepositRiskLimit(i);
 }
 
 export function calculateDebtCollateralGivenDepositRiskLimit({
