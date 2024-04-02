@@ -18,7 +18,7 @@ import {
 } from './components';
 import { formatTokenType } from '@notional-finance/helpers';
 import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
-import { leveragedYield } from '@notional-finance/util';
+import { leveragedYield, pointsMultiple } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -145,11 +145,12 @@ export function TradeActionSummary({
           }
         />
         {points && (
-          <H4 sx={{ marginTop: theme.spacing(1) }} accent>{`+ ${Object.keys(
+          <H4 sx={{ marginTop: theme.spacing(1) }} accent>{`${Object.keys(
             points
           )
             .map(
-              (k) => `${(points[k] * (leverageRatio || 1)).toFixed(2)}x ${k}`
+              (k) =>
+                `${pointsMultiple(points[k], leverageRatio).toFixed(2)}x ${k}`
             )
             .join(' & ')} Points`}</H4>
         )}
