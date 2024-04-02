@@ -19,7 +19,7 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
   const { payload, barConfig, isStackedBar } = props;
   const totalApy = payload?.reduce((acc, p) => acc + (p?.value || 0), 0) || 0;
   // This needs to be reversed when we look up the matching indexes
-  const bars = barConfig.slice().reverse();
+  const bars = isStackedBar ? barConfig.slice().reverse() : barConfig;
 
   const totalBackgroundColor = `linear-gradient(to bottom, ${payload
     ?.filter((item) => item['value'] && item['value'] > 0)
@@ -37,7 +37,7 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
       </Item>
       {/* Reverse the payload in a stacked bar chart so the tooltips match the order of the
       bars as they show up */}
-      {payload?.reverse().map((item, index) => (
+      {(isStackedBar ? payload?.reverse() : payload)?.map((item, index) => (
         <div key={index}>
           {item?.value && item.value > 0 ? (
             <Item key={index}>

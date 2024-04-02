@@ -1,5 +1,4 @@
 import { useContext } from 'react';
-import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { Body, ExternalLink } from '@notional-finance/mui';
 import { HowItWorksFaq } from '../components';
@@ -11,7 +10,6 @@ import {
 import { RiskFaq } from '../components';
 
 export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
-  const theme = useTheme();
   const context = useContext(LiquidityContext);
   const {
     state: { collateral, selectedNetwork },
@@ -161,30 +159,17 @@ export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
         />
       ),
       componentAnswer: (
-        <>
-          <Body sx={{ marginBottom: theme.spacing(2) }}>
-            <FormattedMessage
-              defaultMessage={
-                'There is no cost to provide liquidity and mint n{tokenSymbol}, but there is a cost when you redeem your n{tokenSymbol} to {tokenSymbol}.'
-              }
-              description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'The redemption cost depends on n{tokenSymbol}’s utilization. The higher {tokenSymbol} fixed interest rates, the higher n{tokenSymbol}’s utilization and the greater the redemption cost.'
-              }
-              description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-        </>
+        <Body>
+          <FormattedMessage
+            defaultMessage={
+              'Yes, the redemption cost depends on n{tokenSymbol}’s utilization. The higher {tokenSymbol} fixed interest rates, the higher n{tokenSymbol}’s utilization and the greater the redemption cost.'
+            }
+            description={'faq answer'}
+            values={{
+              tokenSymbol,
+            }}
+          />
+        </Body>
       ),
     },
     {

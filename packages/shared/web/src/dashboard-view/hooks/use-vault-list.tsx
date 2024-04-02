@@ -174,8 +174,8 @@ export const useVaultList = (network: Network) => {
         incentiveApy: 0,
         tvl: y.vaultTVL ? y.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         view: profile
-          ? `/${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/IncreaseVaultPosition`
-          : `/${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/CreateVaultPosition?borrowOption=${x?.leveraged?.vaultDebt?.id}`,
+          ? `${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/IncreaseVaultPosition`
+          : `${PRODUCTS.VAULTS}/${network}/${y.vaultAddress}/CreateVaultPosition?borrowOption=${x?.leveraged?.vaultDebt?.id}`,
         symbol: y.primaryToken.symbol,
         borrowTerms: {
           data: [
