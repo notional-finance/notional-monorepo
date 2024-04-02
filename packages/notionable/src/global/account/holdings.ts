@@ -255,9 +255,10 @@ export function calculateVaultHoldings(account: AccountDefinition) {
     const profit = (assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
       .sub(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
       .add(cashPnL?.totalProfitAndLoss || TokenBalance.zero(denom));
-    const strategyAPY =
-      allYields.find((y) => v.vaultShares.tokenId === y.token.id)?.totalAPY ||
-      0;
+    const vaultYield = allYields.find(
+      (y) => v.vaultShares.tokenId === y.token.id
+    );
+    const strategyAPY = vaultYield?.totalAPY || 0;
     const borrowAPY =
       debtPnL?.impliedFixedRate !== undefined
         ? debtPnL.impliedFixedRate
@@ -278,6 +279,7 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       profit,
       denom,
       leverageRatio,
+      vaultYield,
     };
   });
 }

@@ -292,6 +292,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             ),
           }
         : undefined,
+      pointMultiples: yieldData.pointMultiples,
     };
   }
 
@@ -460,7 +461,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         if (!v.underlying) throw Error('underlying is not defined');
         // Ensures that the oracle registry side effect happens here so that we
         // can properly get the TVL value.
-        vaults.getVaultAdapter(network, v.vaultAddress);
+        const adapter = vaults.getVaultAdapter(network, v.vaultAddress);
         const underlying = tokens.getTokenByID(network, v.underlying);
         const { defaultLeverageRatio, maxLeverageRatio } =
           config.getVaultLeverageFactors(network, v.vaultAddress);
@@ -482,6 +483,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           totalAPY,
           tvl: v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
           vaultName: config.getVaultName(network, v.vaultAddress),
+          pointMultiples: adapter.getPointMultiples(),
         };
 
         return [
