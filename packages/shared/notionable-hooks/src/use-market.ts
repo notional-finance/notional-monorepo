@@ -1,5 +1,6 @@
 import {
   Registry,
+  TokenBalance,
   TokenDefinition,
   YieldData,
 } from '@notional-finance/core-entities';
@@ -11,6 +12,7 @@ import {
 } from '@notional-finance/util';
 import { useCallback, useMemo } from 'react';
 import { useNotionalContext } from './use-notional';
+import { exchangeToLocalPrime } from '@notional-finance/transaction';
 
 export interface MaturityData {
   token: TokenDefinition;
@@ -327,3 +329,15 @@ export const useSpotMaturityData = (
     );
   }, [tokens, nonLeveragedYields]);
 };
+
+export function useTradedValue(amount: TokenBalance | undefined) {
+  const fCashMarket = useFCashMarket(amount?.token);
+  const primeCash = usePrimeCash(amount?.network, amount?.currencyId);
+  return primeCash && fCashMarket
+    ? exchangeToLocalPrime(
+        amount,
+        fCashMarket,
+        primeCash
+      ).localPrime.toUnderlying()
+    : undefined;
+}

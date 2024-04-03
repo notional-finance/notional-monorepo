@@ -3,10 +3,13 @@ import { LiquidityContext } from '../../liquidity';
 import { ErrorMessage } from '@notional-finance/mui';
 import { useQueryParams } from '@notional-finance/notionable-hooks';
 import { TABLE_WARNINGS } from '@notional-finance/util';
-import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
+import {
+  DepositInput,
+  TransactionSidebar,
+  useMaxLiquidityWithdraw,
+} from '@notional-finance/trade';
 import { defineMessage, FormattedMessage, defineMessages } from 'react-intl';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
-import { useMaxLiquidityWithdraw } from '../hooks/use-max-liquidity-withdraw';
 
 const messages = {
   [TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN]: defineMessages({
@@ -31,7 +34,7 @@ export const Withdraw = () => {
   const context = useContext(LiquidityContext);
   const search = useQueryParams();
   const warning = search.get('warning') as TABLE_WARNINGS | undefined;
-  const { currencyInputRef, onMaxValue, maxWithdraw } =
+  const { currencyInputRef, onMaxValue, maxWithdrawUnderlying } =
     useMaxLiquidityWithdraw(context);
 
   return (
@@ -50,7 +53,7 @@ export const Withdraw = () => {
         ref={currencyInputRef}
         context={context}
         inputRef={currencyInputRef}
-        maxWithdraw={maxWithdraw}
+        maxWithdraw={maxWithdrawUnderlying}
         onMaxValue={onMaxValue}
         inputLabel={defineMessage({
           defaultMessage: 'Enter amount to withdraw',

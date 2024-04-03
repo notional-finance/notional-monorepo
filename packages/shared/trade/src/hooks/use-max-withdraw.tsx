@@ -3,6 +3,7 @@ import {
   BaseTradeContext,
   usePortfolioRiskProfile,
   usePrimeCash,
+  useTradedValue,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
 
@@ -11,11 +12,13 @@ export function useMaxWithdraw(context: BaseTradeContext) {
   const { debt, selectedNetwork } = state;
   const profile = usePortfolioRiskProfile(selectedNetwork);
   const primeCash = usePrimeCash(debt?.network, debt?.currencyId);
+  const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
+
   const withdrawToken = debt?.tokenType === 'PrimeDebt' ? primeCash : debt;
   const maxWithdraw = withdrawToken
     ? profile?.maxWithdraw(withdrawToken)
     : undefined;
-  const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
+  const maxWithdrawUnderlying = useTradedValue(maxWithdraw);
 
   const onMaxValue = useCallback(() => {
     if (maxWithdraw) {
@@ -24,19 +27,19 @@ export function useMaxWithdraw(context: BaseTradeContext) {
       updateState({
         maxWithdraw: true,
         calculationSuccess: true,
-        depositBalance: maxWithdraw.toUnderlying().neg(),
+        depositBalance: maxWithdrawUnderlying?.neg(),
         debtBalance:
           debt?.tokenType === 'PrimeDebt'
             ? maxWithdraw.toToken(debt).neg()
             : maxWithdraw.neg(),
       });
     }
-  }, [maxWithdraw, updateState, setCurrencyInput, debt]);
+  }, [maxWithdraw, updateState, setCurrencyInput, debt, maxWithdrawUnderlying]);
 
   return {
     onMaxValue,
     currencyInputRef,
     setCurrencyInput,
-    maxWithdrawUnderlying: maxWithdraw?.toUnderlying(),
+    maxWithdrawUnderlying,
   };
 }
