@@ -253,7 +253,7 @@ export function calculateVaultHoldings(account: AccountDefinition) {
 
     const denom = v.denom(v.defaultSymbol);
     const profit = (assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
-      .sub(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
+      .add(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
       .add(cashPnL?.totalProfitAndLoss || TokenBalance.zero(denom));
     const strategyAPY =
       allYields.find((y) => v.vaultShares.tokenId === y.token.id)?.totalAPY ||
