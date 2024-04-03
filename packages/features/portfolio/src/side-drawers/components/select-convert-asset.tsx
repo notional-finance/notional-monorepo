@@ -166,6 +166,10 @@ export const SelectConvertAsset = ({
           {
             header: <FormattedMessage defaultMessage="Detail" />,
             accessorKey: 'detail',
+            cell: ({ cell }) => {
+              const { getValue } = cell;
+              return getValue();
+            },
             textAlign: 'left',
           },
           {
