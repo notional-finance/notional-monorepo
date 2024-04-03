@@ -83,7 +83,7 @@ export function getNetworkFromId(id: number) {
 export function getDefaultNetworkFromHostname(hostname: string) {
   switch (hostname) {
     default:
-      return Network.arbitrum;
+      return Network.mainnet;
   }
 }
 

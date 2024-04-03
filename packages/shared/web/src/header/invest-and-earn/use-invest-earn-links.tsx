@@ -9,13 +9,9 @@ import {
   VaultIcon,
 } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import {
-  useHeadlineRates,
-  useSelectedNetwork,
-  useWalletConnectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { useHeadlineRates } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+import { useDefaultNetwork } from '../use-default-network';
 
 export const usePendingValues = (value: number | undefined) => {
   const theme = useTheme();
@@ -35,14 +31,7 @@ export const usePendingValues = (value: number | undefined) => {
 
 export const useInvestEarnLinks = () => {
   const theme = useTheme();
-
-  // In the dropdown menu we ensure that we always resolve to some network
-  // destination
-  const currentNetwork = useSelectedNetwork();
-  const defaultNetwork =
-    useWalletConnectedNetwork() ||
-    getDefaultNetworkFromHostname(window.location.hostname);
-  const selectedNetwork = currentNetwork || defaultNetwork;
+  const selectedNetwork = useDefaultNetwork();
 
   const {
     fCashLend,
