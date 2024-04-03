@@ -5,6 +5,7 @@ import {
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
   INTERNAL_TOKEN_DECIMALS,
+  INTERNAL_TOKEN_PRECISION,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
@@ -271,6 +272,16 @@ export class SingleSidedLP extends VaultAdapter {
     const balance = this.pool.balances[tokenIndex];
     const tvl = this.pool.totalValueLocked(tokenIndex);
     return balance.ratioWith(tvl).toNumber() / RATE_PRECISION;
+  }
+
+  getTokenPoolShareToVaultShares(tokenIndex: number) {
+    const lpToVaultShareRatio =
+      this.totalVaultShares.isZero() || this.totalLPTokens.isZero()
+        ? 1
+        : this.totalLPTokens
+            .scale(INTERNAL_TOKEN_PRECISION, this.totalVaultShares)
+            .toFloat();
+    return this.getTokenPoolShare(tokenIndex) * lpToVaultShareRatio;
   }
 
   getPointMultiples() {

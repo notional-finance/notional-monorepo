@@ -8,11 +8,11 @@ export const PointsMultipliers: Record<
   [Network.mainnet]: {
     '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1': (v) => ({
       EtherFi: 2,
-      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(1),
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShareToVaultShares(1),
     }),
     '0x914255c0c289aea36e378ebb5e28293b5ed278ca': (v) => ({
       Renzo: 2,
-      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShareToVaultShares(0),
     }),
   },
   [Network.all]: {},

@@ -5,7 +5,7 @@ import {
   VaultContext,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
-import { pointsMultiple } from '@notional-finance/util';
+import { pointsMultiple } from '@notional-finance/helpers';
 
 export const VaultLeverageSlider = ({
   inputLabel,
@@ -19,6 +19,7 @@ export const VaultLeverageSlider = ({
   const {
     state: {
       netRealizedDebtBalance,
+      collateralBalance,
       selectedNetwork,
       collateral,
       riskFactorLimit,
@@ -39,7 +40,7 @@ export const VaultLeverageSlider = ({
         caption: (
           <FormattedMessage defaultMessage={'{k} Points'} values={{ k }} />
         ),
-        value: pointsMultiple(points[k], leverageRatio),
+        value: pointsMultiple(points[k], leverageRatio, collateralBalance),
         suffix: 'x',
       }))
     : [];

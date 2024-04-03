@@ -14,6 +14,7 @@ import {
   formatLeverageRatio,
   formatNumberAsPercent,
   formatTokenType,
+  pointsMultiple,
 } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -26,7 +27,6 @@ import {
   TXN_HISTORY_TYPE,
   formatMaturity,
   PRIME_CASH_VAULT_MATURITY,
-  pointsMultiple,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
@@ -237,9 +237,11 @@ export const useVaultHoldingsTable = () => {
               {Object.keys(points)
                 .map(
                   (k) =>
-                    `${pointsMultiple(points[k], leverageRatio).toFixed(
-                      2
-                    )}x ${k}`
+                    `${pointsMultiple(
+                      points[k],
+                      undefined,
+                      v.vaultShares
+                    ).toFixed(2)}x ${k}`
                 )
                 .join(', ')}
             </LinkText>

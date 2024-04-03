@@ -1,5 +1,5 @@
 import { RATE_PRECISION } from '@notional-finance/util';
-import { FiatSymbols, FIAT_NAMES } from '@notional-finance/core-entities';
+import { FiatSymbols, TokenBalance } from '@notional-finance/core-entities';
 
 const allCommas = /,{1}/g;
 
@@ -90,4 +90,17 @@ export function formatNumberAsAbbr(
   }
 
   return `${symbol}${localeString}${suffix}`;
+}
+
+export function pointsMultiple(
+  multiple: number,
+  leverageRatio: number | null | undefined,
+  tokenBalance?: TokenBalance
+) {
+  if (tokenBalance) {
+    // TODO: convert token balance of vault shares to lp tokens....
+    return multiple * tokenBalance.toFloat();
+  }
+
+  return multiple * ((leverageRatio || 0) + 1);
 }

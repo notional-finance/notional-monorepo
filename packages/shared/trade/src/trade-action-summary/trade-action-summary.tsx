@@ -16,9 +16,9 @@ import {
   LiquidityYieldInfo,
   NativeYieldPopup,
 } from './components';
-import { formatTokenType } from '@notional-finance/helpers';
+import { formatTokenType, pointsMultiple } from '@notional-finance/helpers';
 import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
-import { leveragedYield, pointsMultiple } from '@notional-finance/util';
+import { leveragedYield } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -48,6 +48,7 @@ export function TradeActionSummary({
     riskFactorLimit,
     vaultAddress,
     selectedNetwork,
+    collateralBalance,
   } = state;
   const isVault = !!vaultAddress;
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
@@ -150,7 +151,11 @@ export function TradeActionSummary({
           )
             .map(
               (k) =>
-                `${pointsMultiple(points[k], leverageRatio).toFixed(2)}x ${k}`
+                `${pointsMultiple(
+                  points[k],
+                  leverageRatio,
+                  collateralBalance
+                ).toFixed(2)}x ${k}`
             )
             .join(' & ')} Points`}</H4>
         )}
