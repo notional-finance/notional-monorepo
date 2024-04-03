@@ -3,6 +3,7 @@ import { Box, useTheme } from '@mui/material';
 import {
   LargeInputTextEmphasized,
   SideDrawerButton,
+  DisplayCell,
   ButtonText,
   DataTable,
   Body,
@@ -166,6 +167,7 @@ export const SelectConvertAsset = ({
           {
             header: <FormattedMessage defaultMessage="Detail" />,
             accessorKey: 'detail',
+            cell: DisplayCell,
             textAlign: 'left',
           },
           {
