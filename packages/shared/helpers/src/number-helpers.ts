@@ -97,8 +97,9 @@ export function pointsMultiple(
   leverageRatio: number | null | undefined,
   tokenBalance?: TokenBalance
 ) {
+  // Token balance is expected to be vault shares, multiple accounts for
+  // the LP token to vault share ratio.
   if (tokenBalance) {
-    // TODO: convert token balance of vault shares to lp tokens....
     return multiple * tokenBalance.toFloat();
   }
 
