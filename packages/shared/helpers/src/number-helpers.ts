@@ -100,6 +100,8 @@ export function pointsMultiple(
   // Token balance is expected to be vault shares, multiple accounts for
   // the LP token to vault share ratio.
   if (tokenBalance) {
+    if (tokenBalance.tokenType !== 'VaultShare')
+      throw Error('Point Multiple balance must be vault share');
     return multiple * tokenBalance.toFloat();
   }
 

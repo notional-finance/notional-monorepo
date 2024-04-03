@@ -40,6 +40,7 @@ export const VaultLeverageSlider = ({
         caption: (
           <FormattedMessage defaultMessage={'{k} Points'} values={{ k }} />
         ),
+        // collateralBalance is always vault shares in vault leverage sliders
         value: pointsMultiple(points[k], leverageRatio, collateralBalance),
         suffix: 'x',
       }))
