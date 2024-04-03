@@ -18,7 +18,7 @@ export function useMaxWithdraw(context: BaseTradeContext) {
   const maxWithdraw = withdrawToken
     ? profile?.maxWithdraw(withdrawToken)
     : undefined;
-  const maxWithdrawUnderlying = useTradedValue(maxWithdraw);
+  const maxWithdrawUnderlying = useTradedValue(maxWithdraw?.neg());
 
   const onMaxValue = useCallback(() => {
     if (maxWithdraw) {
