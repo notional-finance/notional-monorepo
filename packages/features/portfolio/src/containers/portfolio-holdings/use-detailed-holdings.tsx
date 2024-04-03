@@ -99,6 +99,7 @@ export function useDetailedHoldingsTable() {
           totalIncentiveEarnings,
           hasMatured,
           isHighUtilization,
+          hasNToken,
         }) => {
           const isDebt = b.isNegative();
           const { icon, formattedTitle, titleWithMaturity, title } =
@@ -117,6 +118,48 @@ export function useDetailedHoldingsTable() {
                 TokenBalance.fromSymbol(0, baseCurrency, Network.all)
               )
             );
+
+          const buttonBarData: {
+            buttonText: React.ReactNode;
+            callback: () => void;
+          }[] = [];
+
+          if (hasNToken) {
+            buttonBarData.push({
+              buttonText: <FormattedMessage defaultMessage={'Manage'} />,
+              callback: () => {
+                history.push(
+                  b.isPositive()
+                    ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}`
+                    : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}`
+                );
+              },
+            });
+          }
+
+          if (b.isPositive()) {
+            buttonBarData.push({
+              buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
+              callback: () => {
+                history.push(
+                  `/portfolio/${network}/holdings/${
+                    PORTFOLIO_ACTIONS.WITHDRAW
+                  }/${maturedTokenId}${
+                    isHighUtilization ? `?warning=${isHighUtilization}` : ''
+                  }`
+                );
+              },
+            });
+          } else {
+            buttonBarData.push({
+              buttonText: <FormattedMessage defaultMessage={'Repay'} />,
+              callback: () => {
+                history.push(
+                  `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
+                );
+              },
+            });
+          }
 
           return {
             sortOrder: getHoldingsSortOrder(b.token),
@@ -213,43 +256,7 @@ export function useDetailedHoldingsTable() {
                     .toDisplayString(4)} ${b.underlying.symbol}`,
                 },
               ],
-              buttonBarData: [
-                {
-                  buttonText: <FormattedMessage defaultMessage={'Manage'} />,
-                  callback: () => {
-                    history.push(
-                      b.isPositive()
-                        ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}`
-                        : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}`
-                    );
-                  },
-                },
-                b.isPositive()
-                  ? {
-                      buttonText: (
-                        <FormattedMessage defaultMessage={'Withdraw'} />
-                      ),
-                      callback: () => {
-                        history.push(
-                          `/portfolio/${network}/holdings/${
-                            PORTFOLIO_ACTIONS.WITHDRAW
-                          }/${maturedTokenId}${
-                            isHighUtilization
-                              ? `?warning=${isHighUtilization}`
-                              : ''
-                          }`
-                        );
-                      },
-                    }
-                  : {
-                      buttonText: <FormattedMessage defaultMessage={'Repay'} />,
-                      callback: () => {
-                        history.push(
-                          `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
-                        );
-                      },
-                    },
-              ],
+              buttonBarData,
               hasMatured: hasMatured,
               txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
                 {
