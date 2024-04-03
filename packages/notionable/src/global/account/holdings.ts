@@ -141,6 +141,11 @@ export function calculateHoldings(
       hasMatured: balance.hasMatured,
       tokenType: undefined,
       isHighUtilization: isHighUtilization(balance, priceChanges),
+      hasNToken: !!nonLeveragedYields.find(
+        (y) =>
+          y.token.tokenType === 'nToken' &&
+          y.token.currencyId === balance.currencyId
+      ),
     };
   });
 
