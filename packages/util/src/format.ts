@@ -26,3 +26,10 @@ export function leveragedYield(
     return undefined;
   return strategyAPY + (strategyAPY - borrowAPY) * leverageRatio;
 }
+
+export function pointsMultiple(
+  multiple: number,
+  leverageRatio: number | null | undefined
+) {
+  return multiple * ((leverageRatio || 0) + 1);
+}

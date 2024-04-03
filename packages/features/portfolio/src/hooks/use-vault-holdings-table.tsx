@@ -26,6 +26,7 @@ import {
   TXN_HISTORY_TYPE,
   formatMaturity,
   PRIME_CASH_VAULT_MATURITY,
+  pointsMultiple,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
@@ -184,7 +185,15 @@ export const useVaultHoldingsTable = () => {
   }, []);
 
   const vaultHoldingsData = vaults.map(
-    ({ vault: v, denom, profit, totalAPY, strategyAPY, borrowAPY, vaultYield }) => {
+    ({
+      vault: v,
+      denom,
+      profit,
+      totalAPY,
+      strategyAPY,
+      borrowAPY,
+      vaultYield,
+    }) => {
       const config = v.vaultConfig;
       const {
         leveragePercentage,
@@ -228,7 +237,9 @@ export const useVaultHoldingsTable = () => {
               {Object.keys(points)
                 .map(
                   (k) =>
-                    `${(points[k] * (leverageRatio || 1)).toFixed(2)}x ${k}`
+                    `${pointsMultiple(points[k], leverageRatio).toFixed(
+                      2
+                    )}x ${k}`
                 )
                 .join(', ')}
             </LinkText>
