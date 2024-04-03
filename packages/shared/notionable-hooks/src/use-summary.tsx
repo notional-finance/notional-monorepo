@@ -411,11 +411,8 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     tradeType,
     inputsSatisfied,
     calculationSuccess,
-    maxWithdraw,
-    debtFee,
-    collateralFee,
   } = state;
-  let depositBalance = _d;
+  const depositBalance = _d;
 
   // TODO: if underlying is not all the same the convert to fiat currency instead
   const underlying =
@@ -594,16 +591,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
 
   if (tradeType === 'RollVaultPosition') {
     // No-Op: value is set above
-  } else if (
-    tradeType === 'DeleverageWithdraw' &&
-    maxWithdraw &&
-    debtFee &&
-    collateralFee
-  ) {
-    // The deposit balance is slightly incorrect when calculating deleverage withdraw
-    // because we do not account for slippage and fees when we trigger a max withdraw
-    feeValue = debtFee.toUnderlying().add(collateralFee.toUnderlying()).neg();
-    depositBalance = depositBalance?.sub(feeValue);
   } else if (isLeverageOrRoll) {
     // Do not include roll vault position because the margin will be
     // incorrectly included in the fee value

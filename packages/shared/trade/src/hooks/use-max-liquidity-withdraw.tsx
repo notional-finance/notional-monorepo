@@ -18,7 +18,8 @@ export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
   // NOTE: this will show a liquidation risk error if the PNL on the liquidity
   // is being used to collateralize some other debt.
   const maxNTokenUnderlying = useTradedValue(nTokenBalance?.neg());
-  const maxRepayUnderlying = useTradedValue(maxRepayBalance);
+  // useTradedValue always returns a positive number
+  const maxRepayUnderlying = useTradedValue(maxRepayBalance?.neg());
   const maxWithdrawUnderlying =
     maxNTokenUnderlying && maxRepayUnderlying
       ? maxNTokenUnderlying.sub(maxRepayUnderlying)
