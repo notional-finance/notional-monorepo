@@ -408,6 +408,8 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     netDebtBalance,
     debtBalance,
     collateralBalance,
+    collateralFee,
+    debtFee,
     tradeType,
     inputsSatisfied,
     calculationSuccess,
@@ -606,15 +608,13 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     // we move the calculations into the observable so this is hidden
     collateralBalance.currencyId === depositBalance.currencyId
   ) {
-    feeValue = depositBalance
-      .toUnderlying()
-      .sub(collateralBalance.toUnderlying());
+    feeValue = collateralFee?.toUnderlying() || feeValue;
   } else if (
     debtBalance &&
     depositBalance &&
     debtBalance.currencyId === depositBalance.currencyId
   ) {
-    feeValue = depositBalance.toUnderlying().sub(debtBalance.toUnderlying());
+    feeValue = debtFee?.toUnderlying() || feeValue;
   }
 
   summary.push({
