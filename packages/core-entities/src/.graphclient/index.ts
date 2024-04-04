@@ -9048,7 +9048,9 @@ export type AllConfigurationByBlockQuery = { currencyConfigurations: Array<(
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
-export type AllOraclesQueryVariables = Exact<{ [key: string]: never; }>;
+export type AllOraclesQueryVariables = Exact<{
+  skip: Scalars['Int'];
+}>;
 
 
 export type AllOraclesQuery = { oracles: Array<(
@@ -9597,10 +9599,11 @@ export const AllConfigurationByBlockDocument = gql`
 }
     ` as unknown as DocumentNode<AllConfigurationByBlockQuery, AllConfigurationByBlockQueryVariables>;
 export const AllOraclesDocument = gql`
-    query AllOracles {
+    query AllOracles($skip: Int!) {
   oracles(
-    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate], matured: false}
+    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, fCashSpotRate], matured: false}
     first: 1000
+    skip: $skip
   ) {
     id
     lastUpdateBlockNumber
@@ -9965,7 +9968,7 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     AllConfigurationByBlock(variables?: AllConfigurationByBlockQueryVariables, options?: C): Promise<AllConfigurationByBlockQuery> {
       return requester<AllConfigurationByBlockQuery, AllConfigurationByBlockQueryVariables>(AllConfigurationByBlockDocument, variables, options) as Promise<AllConfigurationByBlockQuery>;
     },
-    AllOracles(variables?: AllOraclesQueryVariables, options?: C): Promise<AllOraclesQuery> {
+    AllOracles(variables: AllOraclesQueryVariables, options?: C): Promise<AllOraclesQuery> {
       return requester<AllOraclesQuery, AllOraclesQueryVariables>(AllOraclesDocument, variables, options) as Promise<AllOraclesQuery>;
     },
     AllOraclesByBlock(variables?: AllOraclesByBlockQueryVariables, options?: C): Promise<AllOraclesByBlockQuery> {
