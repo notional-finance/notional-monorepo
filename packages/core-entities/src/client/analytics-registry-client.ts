@@ -33,6 +33,7 @@ import { TokenBalance } from '../token-balance';
 import { FiatKeys } from '../config/fiat-config';
 import { fetchGraph, loadGraphClientDeferred } from '../server/server-registry';
 import { parseTransaction } from './accounts/transaction-history';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { Transaction } from '../.graphclient';
 
 const APY_ORACLES = [

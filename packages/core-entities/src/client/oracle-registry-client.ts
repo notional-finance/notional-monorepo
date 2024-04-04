@@ -35,10 +35,13 @@ interface Node {
 type AdjList = Map<string, Map<string, Node>>;
 const UNIT_RATE = 'UNIT_RATE';
 
+// Can change this to fCashOracleRate to use oracle rates
+const FCASH_RATE_SOURCE = 'fCashSpotRate';
+
 export const PRICE_ORACLES = [
   'sNOTE',
   'Chainlink',
-  'fCashOracleRate',
+  FCASH_RATE_SOURCE,
   'fCashSettlementRate',
   'PrimeCashToUnderlyingExchangeRate',
   'PrimeDebtToUnderlyingExchangeRate',
@@ -93,8 +96,11 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           // Only add whitelisted oracles to the adj list
           if (!PRICE_ORACLES.includes(oracle.oracleType)) return;
 
-          if (oracle.oracleType === 'fCashOracleRate') {
-            // Suppress historical oracle rates
+          if (
+            oracle.oracleType === 'fCashOracleRate' ||
+            oracle.oracleAddress === 'fCashSpotRate'
+          ) {
+            // Suppress historical fcash rates
             const { maturity } = decodeERC1155Id(oracle.quote);
             if (maturity < getNowSeconds()) return;
           }
@@ -203,10 +209,10 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
                 network,
                 currencyId
               );
-              // fCashOracleRate is from underlying => fCash id, settlement rates are from
+              // FCASH_RATE_SOURCE is from underlying => fCash id, settlement rates are from
               // fCash id => prime cash
               o = subjects
-                .get(`${underlying.id}:${base}:fCashOracleRate`)
+                .get(`${underlying.id}:${base}:${FCASH_RATE_SOURCE}`)
                 ?.asObservable();
             }
           }
@@ -224,7 +230,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           if (!o) return null;
 
           // fCash rates are interest rates so convert them to exchange rates in SCALAR_PRECISION here
-          if (o.oracleType === 'fCashOracleRate') {
+          if (o.oracleType === FCASH_RATE_SOURCE) {
             // Adjustment is set to identity values if riskAdjusted is set to None.
             const { interestAdjustment, maxDiscountFactor, oracleRateLimit } =
               config.getInterestRiskAdjustment(o, node.inverted, riskAdjusted);

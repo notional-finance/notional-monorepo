@@ -1,8 +1,6 @@
 import {
   TokenBalance,
   TokenDefinition,
-  YieldData,
-  fCashMarket,
   FiatKeys,
 } from '@notional-finance/core-entities';
 import {
@@ -12,12 +10,12 @@ import {
 } from '@notional-finance/helpers';
 import {
   BaseTradeState,
+  TokenOption,
   TradeState,
   VaultTradeState,
 } from '@notional-finance/notionable';
 import {
   RATE_DECIMALS,
-  RATE_PRECISION,
   HEALTH_FACTOR_RISK_LEVELS,
 } from '@notional-finance/util';
 import {
@@ -26,7 +24,6 @@ import {
   defineMessages,
   useIntl,
 } from 'react-intl';
-import { useAllMarkets } from './use-market';
 import { useFiat } from './use-user-settings';
 import { colors } from '@notional-finance/styles';
 import { useTheme } from '@mui/material';
@@ -72,9 +69,10 @@ const OrderDetailLabels = defineMessages({
 function getOrderDetails(
   b: TokenBalance,
   realized: TokenBalance,
+  feeValue: TokenBalance,
   intl: IntlShape,
   isLeverageOrRoll: boolean,
-  yieldData: YieldData[]
+  options: TokenOption[] | undefined
 ): DetailItem[] {
   const { title, caption } = formatTokenType(b.token);
   const apyLabel =
@@ -89,14 +87,7 @@ function getOrderDetails(
     b.tokenType === 'fCash' || b.tokenType === 'VaultShare'
       ? OrderDetailLabels.captionPrice
       : OrderDetailLabels.price;
-  let apy: number;
-  if (b.tokenType === 'fCash') {
-    apy =
-      ((fCashMarket.getImpliedInterestRate(realized, b) || 0) * 100) /
-      RATE_PRECISION;
-  } else {
-    apy = yieldData.find((y) => y.token.id === b.tokenId)?.totalAPY || 0;
-  }
+  const apy = options?.find((o) => o.token.id === b.tokenId)?.interestRate;
 
   let valueLabel: MessageDescriptor;
   switch (b.tokenType) {
@@ -125,7 +116,7 @@ function getOrderDetails(
       throw Error('Unknown token type');
   }
 
-  return [
+  const orderDetails = [
     {
       label: intl.formatMessage(valueLabel, { title, caption }),
       value: {
@@ -143,31 +134,15 @@ function getOrderDetails(
     },
     {
       label: intl.formatMessage(feeLabel, { title, caption }),
-      // Fee: diff between PV and realized cash
       value: {
         data: [
           {
-            displayValue: realized
-              .abs()
+            displayValue: feeValue
               .toUnderlying()
-              .sub(b.abs().toUnderlying())
               .toDisplayStringWithSymbol(4, true),
           },
         ],
       },
-    },
-    {
-      // APY: for fCash look at implied rate, otherwise look at yield
-      label: intl.formatMessage(apyLabel, { title, caption }),
-      value: {
-        data: [
-          {
-            displayValue: `${formatNumberAsPercent(apy, 2)}`,
-            isNegative: apy < 0,
-          },
-        ],
-      },
-      showOnExpand: true,
     },
     {
       // Price: realized cash / total units
@@ -187,20 +162,39 @@ function getOrderDetails(
       showOnExpand: true,
     },
   ];
+
+  if (apy !== undefined) {
+    orderDetails.push({
+      label: intl.formatMessage(apyLabel, { title, caption }),
+      value: {
+        data: [
+          {
+            displayValue: `${formatNumberAsPercent(apy, 2)}`,
+            isNegative: apy < 0,
+          },
+        ],
+      },
+      showOnExpand: true,
+    });
+  }
+
+  return orderDetails;
 }
 
 export function useOrderDetails(state: BaseTradeState): OrderDetails {
   const {
     debtBalance,
+    debtFee,
+    collateralFee,
+    debtOptions,
+    collateralOptions,
     collateralBalance,
     netRealizedDebtBalance,
     netRealizedCollateralBalance,
     depositBalance,
     tradeType,
-    selectedNetwork,
   } = state;
   const intl = useIntl();
-  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const orderDetails: DetailItem[] = [];
   // Only show positive values if one of the values is defined
   const isLeverageOrRoll = !!debtBalance && !!collateralBalance;
@@ -232,9 +226,10 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
       ...getOrderDetails(
         balance.unwrapVaultToken(),
         netRealizedDebtBalance,
+        debtFee?.toUnderlying() || netRealizedDebtBalance.copy(0),
         intl,
         isLeverageOrRoll,
-        nonLeveragedYields
+        debtOptions
       )
     );
   }
@@ -245,9 +240,10 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
       ...getOrderDetails(
         collateralBalance.unwrapVaultToken(),
         netRealizedCollateralBalance,
+        collateralFee?.toUnderlying() || netRealizedCollateralBalance.copy(0),
         intl,
         isLeverageOrRoll,
-        nonLeveragedYields
+        collateralOptions
       )
     );
   }
@@ -408,6 +404,8 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     netDebtBalance,
     debtBalance,
     collateralBalance,
+    collateralFee,
+    debtFee,
     tradeType,
     inputsSatisfied,
     calculationSuccess,
@@ -594,10 +592,9 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   } else if (isLeverageOrRoll) {
     // Do not include roll vault position because the margin will be
     // incorrectly included in the fee value
-    feeValue = collateralBalance
-      .toUnderlying()
-      .sub(depositBalance || TokenBalance.zero(underlying))
-      .add(debtBalance.toUnderlying());
+    feeValue = (collateralFee?.toUnderlying() || feeValue).add(
+      debtFee?.toUnderlying() || feeValue
+    );
   } else if (
     collateralBalance &&
     depositBalance &&
@@ -606,15 +603,13 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     // we move the calculations into the observable so this is hidden
     collateralBalance.currencyId === depositBalance.currencyId
   ) {
-    feeValue = depositBalance
-      .toUnderlying()
-      .sub(collateralBalance.toUnderlying());
+    feeValue = collateralFee?.toUnderlying() || feeValue;
   } else if (
     debtBalance &&
     depositBalance &&
     debtBalance.currencyId === depositBalance.currencyId
   ) {
-    feeValue = depositBalance.toUnderlying().sub(debtBalance.toUnderlying());
+    feeValue = debtFee?.toUnderlying() || feeValue;
   }
 
   summary.push({

@@ -177,9 +177,16 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     network: Network,
     query: TypedDocumentNode<R, V>,
     transform: (r: R) => Record<string, T>,
-    variables?: V
+    variables?: V,
+    rootVariable?: string
   ): Promise<CacheSchema<T>> {
-    return fetchUsingGraph<T, R, V>(network, query, transform, variables);
+    return fetchUsingGraph<T, R, V>(
+      network,
+      query,
+      transform,
+      variables,
+      rootVariable
+    );
   }
 
   protected getProvider(network: Network) {

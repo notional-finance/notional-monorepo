@@ -77,7 +77,9 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
       },
       {
         blockNumber,
-      }
+        skip: 0,
+      },
+      'oracles'
     );
   }
 
