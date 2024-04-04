@@ -231,10 +231,12 @@ export function calculateDebt({
   // a withdraw and totalDebtPrime will be negative.
   const totalDebtPrime = localDepositPrime.add(localCollateralPrime.neg());
   const netRealizedDebtBalance = totalDebtPrime.toUnderlying();
+  const netRealizedCollateralBalance = localCollateralPrime.toUnderlying();
 
   if (totalDebtPrime.isZero()) {
     return {
       netRealizedDebtBalance,
+      netRealizedCollateralBalance,
       debtBalance: TokenBalance.zero(debt),
       debtFee: totalDebtPrime.copy(0),
       collateralFee,
@@ -242,6 +244,7 @@ export function calculateDebt({
   } else if (debt.tokenType === 'PrimeDebt') {
     return {
       netRealizedDebtBalance,
+      netRealizedCollateralBalance,
       debtBalance: totalDebtPrime.toToken(debt),
       debtFee: totalDebtPrime.copy(0),
       collateralFee,
@@ -260,6 +263,7 @@ export function calculateDebt({
       debtFee: feesPaid[0],
       collateralFee,
       netRealizedDebtBalance,
+      netRealizedCollateralBalance,
     };
   } else if (debt.tokenType === 'fCash') {
     const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
@@ -273,6 +277,7 @@ export function calculateDebt({
       debtFee: feesPaid[0],
       collateralFee,
       netRealizedDebtBalance,
+      netRealizedCollateralBalance,
     };
   }
 
@@ -890,8 +895,10 @@ export function calculateVaultDebt({
   const totalDebtPrime = depositBalance
     .toPrimeCash()
     .add(collateralBalance.toPrimeCash());
-  const { feesPaid: collateralFee } =
-    vaultAdapter.getNetVaultSharesCost(collateralBalance);
+  const {
+    feesPaid: collateralFee,
+    netUnderlyingForVaultShares: netRealizedCollateralBalance,
+  } = vaultAdapter.getNetVaultSharesCost(collateralBalance);
 
   if (totalDebtPrime.isZero()) {
     return {
@@ -899,6 +906,7 @@ export function calculateVaultDebt({
       debtFee: totalDebtPrime.copy(0),
       collateralFee,
       netRealizedDebtBalance: TokenBalance.zero(debt).toUnderlying(),
+      netRealizedCollateralBalance,
     };
   } else if (debt.maturity === PRIME_CASH_VAULT_MATURITY) {
     return {
@@ -907,6 +915,7 @@ export function calculateVaultDebt({
       debtFee: totalDebtPrime.copy(0),
       collateralFee,
       netRealizedDebtBalance: totalDebtPrime.toUnderlying(),
+      netRealizedCollateralBalance,
     };
   } else {
     const fCashToken = TokenBalance.unit(debt).unwrapVaultToken().token;
@@ -928,6 +937,7 @@ export function calculateVaultDebt({
       debtFee: feesPaid[0].add(vaultFee),
       collateralFee,
       netRealizedDebtBalance: cashBorrowed.toUnderlying(),
+      netRealizedCollateralBalance,
     };
   }
 }
