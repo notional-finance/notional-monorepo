@@ -22,7 +22,7 @@ const vaultsProxy = createProxyMiddleware(['/*/vaults'], {
   changeOrigin: true,
 });
 const oraclesProxy = createProxyMiddleware(['/*/oracles'], {
-  target: 'https://registry-oracles-dev.notional-finance.workers.dev',
+  target: 'http://localhost:8890',
   changeOrigin: true,
 });
 const exchangesProxy = createProxyMiddleware(['/*/exchanges'], {
@@ -30,7 +30,7 @@ const exchangesProxy = createProxyMiddleware(['/*/exchanges'], {
   changeOrigin: true,
 });
 const dataProxy = createProxyMiddleware(['/*/views/*'], {
-  target: 'http://localhost:8890',
+  target: 'https://data-dev.notional-finance.workers.dev',
   changeOrigin: true,
 });
 
