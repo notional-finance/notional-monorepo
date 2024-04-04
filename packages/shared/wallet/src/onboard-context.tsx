@@ -83,7 +83,6 @@ const wallets = [
     appUrl,
   }),
   coinbaseModule(),
-  gnosisModule(),
 ];
 
 export const OnboardContext: OnboardAPI = init({
