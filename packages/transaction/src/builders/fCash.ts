@@ -339,12 +339,19 @@ export function RollLendOrDebt({
     accountBalances
   );
 
-  // Withdraw the entire cash balance when converting into or out of prime cash
-  // and we are attempting to convert the entire balance so that all dust is
-  // cleared. If there is no cash balance and we are converting between fCash or
-  // nTokens then cash will be withdrawn if there is no prior cash balance to maintain
-  // a zero cash balance.
   if (
+    debtBalance.tokenType === 'fCash' &&
+    collateralBalance.tokenType === 'PrimeCash'
+  ) {
+    // If convert positive fCash to prime cash, do not withdraw the entire cash balance
+    // since the purpose is to keep a cash balance afterwards
+    withdrawEntireCashBalance = false;
+  } else if (
+    // Withdraw the entire cash balance when converting into or out of prime cash
+    // and we are attempting to convert the entire balance so that all dust is
+    // cleared. If there is no cash balance and we are converting between fCash or
+    // nTokens then cash will be withdrawn if there is no prior cash balance to maintain
+    // a zero cash balance.
     maxWithdraw &&
     collateralBalance.tokenType === 'PrimeCash' &&
     cashBalance &&
