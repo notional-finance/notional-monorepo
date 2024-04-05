@@ -72,7 +72,13 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
    */
   getHistoricalOracles(network: Network, timestamp: number) {
     return this._getHistoricalOracles(network)
-      .filter((o) => PRICE_ORACLES.includes(o.oracleType))
+      .filter(
+        (o) =>
+          PRICE_ORACLES.includes(o.oracleType) ||
+          // Uses oracle rates historically, spot prices are not included in historical
+          // oracle query
+          o.oracleType === 'fCashOracleRate'
+      )
       .map((o) => {
         const { historicalRates, ..._o } = Object.assign({}, o);
         let latestRate = historicalRates.find((r) => r.timestamp === timestamp);

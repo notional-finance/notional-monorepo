@@ -196,6 +196,11 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
         if (!n) throw Error(`${token} node is not found`);
         node = n;
 
+        // Uses oracle rates historically
+        if (subjectMapOverride) {
+          node.id = node.id.replace(FCASH_RATE_SOURCE, 'fCashOracleRate');
+        }
+
         let o = subjects.get(node.id)?.asObservable();
         if (!o) {
           // When doing historical pricing, if the settlement rate is not found then switch it to
@@ -212,7 +217,12 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
               // FCASH_RATE_SOURCE is from underlying => fCash id, settlement rates are from
               // fCash id => prime cash
               o = subjects
-                .get(`${underlying.id}:${base}:${FCASH_RATE_SOURCE}`)
+                .get(
+                  `${underlying.id}:${base}:${
+                    // Uses oracle rates historically
+                    subjectMapOverride ? 'fCashOracleRate' : FCASH_RATE_SOURCE
+                  }`
+                )
                 ?.asObservable();
             }
           }

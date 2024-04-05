@@ -505,7 +505,11 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     inverted: boolean,
     riskAdjusted: RiskAdjustment
   ) {
-    if (oracle.oracleType !== 'fCashOracleRate' || riskAdjusted === 'None') {
+    if (
+      (oracle.oracleType !== 'fCashOracleRate' &&
+        oracle.oracleType !== 'fCashSpotRate') ||
+      riskAdjusted === 'None'
+    ) {
       return {
         interestAdjustment: 0,
         maxDiscountFactor: SCALAR_PRECISION,
