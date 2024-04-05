@@ -138,7 +138,7 @@ export function calculateHoldings(
 
     const positionEstablished = (
       statement?.historicalSnapshots.find((h) => h.balance.isZero()) ||
-      statement?.historicalSnapshots.slice(-1)[0]
+      statement?.historicalSnapshots.slice(-1).find((_) => true)
     )?.timestamp;
 
     return {
