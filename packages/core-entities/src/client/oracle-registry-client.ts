@@ -277,6 +277,27 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
               return { ...o.latestRate, rate: exchangeRate };
             }
           } else {
+            if (
+              o.oracleType === 'nTokenToUnderlyingExchangeRate' &&
+              FCASH_RATE_SOURCE === 'fCashSpotRate'
+            ) {
+              // Replaces nToken oracle valuations with a spot rate valuation
+              const underlying = Registry.getTokenRegistry().getTokenByID(
+                network,
+                o.base
+              );
+              if (!underlying.currencyId) throw Error('currency id not found');
+              const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
+                network,
+                underlying.currencyId
+              );
+              const totalSupply = fCashMarket.totalSupply;
+              o.latestRate.rate = fCashMarket
+                .getNTokenSpotValue()
+                .scale(totalSupply.precision, totalSupply)
+                .scaleTo(o.decimals);
+            }
+
             const haircutOrBuffer = config.getExchangeRiskAdjustment(
               o,
               node.inverted,

@@ -271,9 +271,22 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     });
     tokensIn[0].isMatch(this.balances[0]);
 
-    // Should use the oracle to fetch the nToken PV
-    const lpTokenOracleValue = this.totalSupply.toPrimeCash();
+    const nTokenOracleRate = Registry.getOracleRegistry().getLatestFromSubject(
+      this._network,
+      `${this.totalSupply.underlying.id}:${this.totalSupply.tokenId}:nTokenToUnderlyingExchangeRate`
+    )?.latestRate.rate;
+    if (nTokenOracleRate === undefined)
+      throw Error('nToken Oracle Rate not found');
+
     const lpTokenSpotValue = this.getNTokenSpotValue();
+    const lpTokenOracleValue = lpTokenSpotValue.copy(
+      this.totalSupply.divInRatePrecision(nTokenOracleRate).n
+    );
+    console.log(
+      'INSIDE LP TOKENS',
+      lpTokenSpotValue.toString(),
+      lpTokenOracleValue.toString()
+    );
 
     const lpTokens = this.totalSupply.scale(
       tokensIn[0],
@@ -364,7 +377,7 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
   /*                  fCash Interest Curve Calculations                  */
   /***********************************************************************/
 
-  private getNTokenSpotValue() {
+  public getNTokenSpotValue() {
     const primaryToken = this.balances[0].token;
     return (
       this.balances

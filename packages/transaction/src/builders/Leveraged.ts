@@ -211,7 +211,7 @@ export function DeleverageNToken({
     accountBalances
   );
 
-  if (depositBalance === undefined) {
+  if (depositBalance === undefined && maxWithdraw === false) {
     withdrawEntireCashBalance = false;
     withdrawAmountInternalPrecision = undefined;
   } else if (
