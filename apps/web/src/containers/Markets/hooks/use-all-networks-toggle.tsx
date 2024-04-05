@@ -31,16 +31,6 @@ export const useAllNetworksToggle = () => {
       }}
       alt="arb network icon"
     />,
-    // <TokenIcon
-    //   symbol="arb"
-    //   size="small"
-    //   style={{
-    //     display: 'flex',
-    //     alignContent: 'center',
-    //     justifyContent: 'center',
-    //     width: theme.spacing(3),
-    //   }}
-    // />,
     <img
       src={ethNetworkIcon}
       style={{
@@ -52,16 +42,6 @@ export const useAllNetworksToggle = () => {
       }}
       alt="arb network icon"
     />,
-    // <TokenIcon
-    //   symbol="eth"
-    //   size="small"
-    //   style={{
-    //     display: 'flex',
-    //     alignContent: 'center',
-    //     justifyContent: 'center',
-    //     width: theme.spacing(3),
-    //   }}
-    // />,
   ];
 
   // NOTE: the toggleKey is used in the other hooks as earnBorrowOption which is 0 or 1 for Earn or Borrow
