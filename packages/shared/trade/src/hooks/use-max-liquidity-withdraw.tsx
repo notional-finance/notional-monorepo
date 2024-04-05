@@ -47,7 +47,7 @@ export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
   ]);
 
   return {
-    onMaxValue,
+    onMaxValue: maxWithdrawUnderlying ? onMaxValue : undefined,
     currencyInputRef,
     setCurrencyInput,
     maxWithdrawUnderlying,

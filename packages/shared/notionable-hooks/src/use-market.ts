@@ -333,11 +333,16 @@ export const useSpotMaturityData = (
 export function useTradedValue(amount: TokenBalance | undefined) {
   const fCashMarket = useFCashMarket(amount?.token);
   const primeCash = usePrimeCash(amount?.network, amount?.currencyId);
-  return primeCash && fCashMarket
-    ? exchangeToLocalPrime(
-        amount,
-        fCashMarket,
-        primeCash
-      ).localPrime.toUnderlying()
-    : undefined;
+  try {
+    return primeCash && fCashMarket
+      ? exchangeToLocalPrime(
+          amount,
+          fCashMarket,
+          primeCash
+        ).localPrime.toUnderlying()
+      : undefined;
+  } catch (e) {
+    console.error(e);
+    return undefined;
+  }
 }

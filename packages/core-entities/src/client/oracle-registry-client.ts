@@ -98,7 +98,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
 
           if (
             oracle.oracleType === 'fCashOracleRate' ||
-            oracle.oracleAddress === 'fCashSpotRate'
+            oracle.oracleType === 'fCashSpotRate'
           ) {
             // Suppress historical fcash rates
             const { maturity } = decodeERC1155Id(oracle.quote);
@@ -198,6 +198,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
 
         // Uses oracle rates historically
         if (subjectMapOverride) {
+          node = { ...n };
           node.id = node.id.replace(FCASH_RATE_SOURCE, 'fCashOracleRate');
         }
 

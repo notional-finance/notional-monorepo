@@ -58,10 +58,6 @@ export const modules = [
     label: 'Coinbase Wallet',
     icon: CoinbaseWallet,
   },
-  {
-    label: 'Gnosis Safe',
-    icon: CoinbaseWallet,
-  },
 ];
 
 const email = process.env['NX_CONTACT_EMAIL'] as string;
