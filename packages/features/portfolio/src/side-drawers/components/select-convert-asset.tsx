@@ -15,6 +15,8 @@ import { messages } from '../messages';
 import {
   TradeContext,
   useAllMarkets,
+  usePrimeCash,
+  usePrimeDebt,
 } from '@notional-finance/notionable-hooks';
 import {
   formatNumberAsPercent,
@@ -48,9 +50,22 @@ export const SelectConvertAsset = ({
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const { options, initialConvertFromBalance: balance } =
     useConvertOptions(state);
-  const convertFromToken = tradeType === 'ConvertAsset' ? debt : collateral;
+
+  let convertFromToken = tradeType === 'ConvertAsset' ? debt : collateral;
+  const pCash = usePrimeCash(selectedNetwork, convertFromToken?.currencyId);
+  const pDebt = usePrimeDebt(selectedNetwork, convertFromToken?.currencyId);
+  if (convertFromToken?.tokenType === 'PrimeCash') {
+    convertFromToken = pDebt;
+  } else if (convertFromToken?.tokenType === 'PrimeDebt') {
+    convertFromToken = pCash;
+  }
+
   const convertFromBalance =
-    tradeType === 'ConvertAsset' ? debtBalance : collateralBalance;
+    convertFromToken &&
+    (tradeType === 'ConvertAsset' ? debtBalance : collateralBalance)?.toToken(
+      convertFromToken
+    );
+
   const marketApy = nonLeveragedYields.find(
     (y) => y.token.id === convertFromToken?.id
   )?.totalAPY;
