@@ -124,8 +124,8 @@ function getOrderDetails(
           {
             displayValue: `${
               isLeverageOrRoll
-                ? b.toDisplayString(4, true)
-                : b.abs().toDisplayString(4, true)
+                ? b.toDisplayString(4, true, false)
+                : b.abs().toDisplayString(4, true, false)
             } ${title}`,
             isNegative: isLeverageOrRoll ? b.isNegative() : false,
           },
@@ -139,7 +139,7 @@ function getOrderDetails(
           {
             displayValue: feeValue
               .toUnderlying()
-              .toDisplayStringWithSymbol(4, true),
+              .toDisplayStringWithSymbol(4, true, false),
           },
         ],
       },
@@ -154,7 +154,7 @@ function getOrderDetails(
               .abs()
               .toUnderlying()
               .divInRatePrecision(b.abs().scaleTo(RATE_DECIMALS))
-              .toDisplayStringWithSymbol(4, true),
+              .toDisplayStringWithSymbol(4, true, false),
             isNegative: false,
           },
         ],
@@ -205,7 +205,11 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
       value: {
         data: [
           {
-            displayValue: depositBalance.toDisplayStringWithSymbol(4, true),
+            displayValue: depositBalance.toDisplayStringWithSymbol(
+              4,
+              true,
+              false
+            ),
             isNegative: depositBalance.isNegative(),
           },
         ],
@@ -256,7 +260,7 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
           {
             displayValue: depositBalance
               .neg()
-              .toDisplayStringWithSymbol(4, true),
+              .toDisplayStringWithSymbol(4, true, false),
             isNegative: depositBalance.isNegative(),
           },
         ],
@@ -333,7 +337,9 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b.toUnderlying().toDisplayStringWithSymbol(4, true),
+            displayValue: b
+              .toUnderlying()
+              .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
             isNegative: false,
           },
@@ -351,7 +357,9 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b.toUnderlying().toDisplayStringWithSymbol(4, true),
+            displayValue: b
+              .toUnderlying()
+              .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
             isNegative: false,
           },
@@ -365,7 +373,9 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b.toUnderlying().toDisplayStringWithSymbol(4, true),
+            displayValue: b
+              .toUnderlying()
+              .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
             isNegative: false,
           },
@@ -383,7 +393,9 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b.toUnderlying().toDisplayStringWithSymbol(4, true),
+            displayValue: b
+              .toUnderlying()
+              .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
             isNegative: false,
           },
@@ -617,7 +629,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     value: {
       data: [
         {
-          displayValue: feeValue.toDisplayStringWithSymbol(4, true),
+          displayValue: feeValue.toDisplayStringWithSymbol(4, true, false),
           isNegative: feeValue.isNegative(),
         },
       ],
@@ -638,14 +650,14 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
               displayValue: depositBalance
                 .abs()
                 .toUnderlying()
-                .toDisplayStringWithSymbol(4, true),
+                .toDisplayStringWithSymbol(4, true, false),
               isNegative: false,
             },
             {
               displayValue: depositBalance
                 .abs()
                 .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(2, true),
+                .toDisplayStringWithSymbol(2, true, false),
               isNegative: false,
             },
           ],
@@ -659,14 +671,15 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
             {
               displayValue: TokenBalance.zero(underlying).toDisplayString(
                 4,
-                true
+                true,
+                false
               ),
               isNegative: false,
             },
             {
               displayValue: TokenBalance.zero(underlying)
                 .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(2, true),
+                .toDisplayStringWithSymbol(2, true, false),
               isNegative: false,
             },
           ],
@@ -686,8 +699,8 @@ export function usePortfolioComparison(
   const { postTradeBalances, comparePortfolio } = state;
   const allTableData = (comparePortfolio || []).map((p) => ({
     ...p,
-    current: p.current.toFiat(fiat).toDisplayStringWithSymbol(2, true),
-    updated: p.updated.toFiat(fiat).toDisplayStringWithSymbol(2, true),
+    current: p.current.toFiat(fiat).toDisplayStringWithSymbol(2, true, false),
+    updated: p.updated.toFiat(fiat).toDisplayStringWithSymbol(2, true, false),
   }));
   const filteredTableData = allTableData.filter(
     ({ changeType }) => changeType !== 'none'
@@ -852,11 +865,11 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
       current:
         currentPosition?.netWorth
           ?.toFiat(baseCurrency)
-          .toDisplayStringWithSymbol(2, true) || '-',
+          .toDisplayStringWithSymbol(2, true, false) || '-',
       updated:
         netWorth?.updated
           ?.toFiat(baseCurrency)
-          .toDisplayStringWithSymbol(2, true) || '-',
+          .toDisplayStringWithSymbol(2, true, false) || '-',
     },
     {
       ...borrowAPY,
