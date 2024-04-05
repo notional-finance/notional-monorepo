@@ -2,11 +2,11 @@ import { SvgIcon, SvgIconProps, useTheme } from '@mui/material';
 
 /* eslint-disable-next-line */
 export interface CurveVaultImgProps extends SvgIconProps {
-  tokenSymbol: string;
+  tokensymbol: string;
 }
 
 export function CurveVaultImg(props: CurveVaultImgProps) {
-  const { tokenSymbol } = props;
+  const { tokensymbol } = props;
   const theme = useTheme();
 
   return (
@@ -28,7 +28,7 @@ export function CurveVaultImg(props: CurveVaultImgProps) {
         >
           <tspan x="108.23" y="26.9837">
             {' '}
-            Deposit {tokenSymbol}
+            Deposit {tokensymbol}
           </tspan>
         </text>
         <text
@@ -41,7 +41,7 @@ export function CurveVaultImg(props: CurveVaultImgProps) {
         >
           <tspan x="304.497" y="26.9837">
             {' '}
-            Deploy {tokenSymbol}
+            Deploy {tokensymbol}
           </tspan>
         </text>
         <path
@@ -6151,7 +6151,7 @@ export function CurveVaultImg(props: CurveVaultImgProps) {
             Borrow{' '}
           </tspan>
           <tspan x="258" y="116.984">
-            {tokenSymbol}{' '}
+            {tokensymbol}{' '}
           </tspan>
         </text>
         <path

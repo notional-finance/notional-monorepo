@@ -50,7 +50,7 @@ export const PortfolioSideDrawer = ({
       variableBorrowRequired={enablePrimeBorrow}
       requiredApprovalAmount={requiredApprovalAmount}
     >
-      <Box sx={{ marginBottom: theme.spacing(6) }}>{children}</Box>
+      <Box sx={{ marginBottom: theme.spacing(9) }}>{children}</Box>
     </TransactionSidebar>
   );
 };

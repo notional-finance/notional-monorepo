@@ -118,10 +118,10 @@ export const DataTableBody = ({
             : {};
 
         return (
-          <Fragment key={`row-container-${row.id}`}>
+          <Fragment key={`row-container-${i}`}>
             <StyledTableRow
               theme={theme}
-              key={`row-${row.id}`}
+              key={`row-${i}`}
               rowSelected={rowSelected}
               expandableTableActive={expandableTableActive}
               tableVariant={tableVariant}
@@ -148,9 +148,10 @@ export const DataTableBody = ({
                 ...scrollableStyles,
               }}
             >
-              {cells.map((cell: Record<string, any>) => {
+              {cells.map((cell: Record<string, any>, j) => {
                 return (
                   <TableCell
+                    key={`cell-${j}`}
                     className={cell.column.columnDef.className}
                     sx={{
                       margin: 'auto',

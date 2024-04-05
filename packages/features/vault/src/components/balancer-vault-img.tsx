@@ -2,12 +2,12 @@ import { SvgIcon, SvgIconProps, useTheme } from '@mui/material';
 
 /* eslint-disable-next-line */
 export interface BalancerVaultImgProps extends SvgIconProps {
-  tokenSymbol: string;
+  tokensymbol: string;
 }
 
 export function BalancerVaultImg(props: BalancerVaultImgProps) {
   const theme = useTheme();
-  const { tokenSymbol } = props;
+  const { tokensymbol } = props;
   return (
     <SvgIcon {...props} viewBox="0 0 498 223">
       <svg
@@ -55,7 +55,7 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
         >
           <tspan x="108.23" y="26.9837">
             {' '}
-            Deposit {tokenSymbol}
+            Deposit {tokensymbol}
           </tspan>
         </text>
         <text
@@ -68,7 +68,7 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
         >
           <tspan x="304.497" y="26.9837">
             {' '}
-            Deploy {tokenSymbol}
+            Deploy {tokensymbol}
           </tspan>
         </text>
         <path
@@ -114,7 +114,7 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             Borrow{' '}
           </tspan>
           <tspan x="258" y="116.984">
-            {tokenSymbol}{' '}
+            {tokensymbol}{' '}
           </tspan>
         </text>
         <path
@@ -374,8 +374,8 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="9.43462"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#BFC9F5" stop-opacity="0.5" />
-            <stop offset="0.0001" stop-color="#8EA1F5" stop-opacity="0.5" />
+            <stop stop-color="#BFC9F5" stopOpacity="0.5" />
+            <stop offset="0.0001" stop-color="#8EA1F5" stopOpacity="0.5" />
             <stop offset="1" stop-color="#26CBCF" />
           </linearGradient>
           <linearGradient
@@ -386,8 +386,8 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="9.43462"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#BFC9F5" stop-opacity="0.5" />
-            <stop offset="0.0001" stop-color="#8EA1F5" stop-opacity="0.5" />
+            <stop stop-color="#BFC9F5" stopOpacity="0.5" />
+            <stop offset="0.0001" stop-color="#8EA1F5" stopOpacity="0.5" />
             <stop offset="1" stop-color="#26CBCF" />
           </linearGradient>
           <linearGradient
@@ -409,8 +409,8 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="139.435"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#BFC9F5" stop-opacity="0.5" />
-            <stop offset="0.0001" stop-color="#8EA1F5" stop-opacity="0.5" />
+            <stop stop-color="#BFC9F5" stopOpacity="0.5" />
+            <stop offset="0.0001" stop-color="#8EA1F5" stopOpacity="0.5" />
             <stop offset="1" stop-color="#26CBCF" />
           </linearGradient>
           <radialGradient
@@ -421,7 +421,7 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             gradientUnits="userSpaceOnUse"
             gradientTransform="translate(440.357 24.313) rotate(128.759) scale(14.7663 13.3252)"
           >
-            <stop stop-color="#3D3E4B" stop-opacity="0.75" />
+            <stop stop-color="#3D3E4B" stopOpacity="0.75" />
             <stop offset="1" stop-color="#13131C" />
           </radialGradient>
           <radialGradient

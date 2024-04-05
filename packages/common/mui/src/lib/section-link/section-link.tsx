@@ -94,7 +94,9 @@ export function SectionLink({
           {/* dropdowns have the opposite theme as the page, so use contrast when the page 
               is light (therefore the drop down is dark) */}
           <H4>{title}</H4>
-          <Label sx={{ whiteSpace: 'nowrap' }}>{description}</Label>
+          <Label sx={{ whiteSpace: 'nowrap' }} component="div">
+            {description}
+          </Label>
         </Box>
         <Box>
           <IconButton
