@@ -13,6 +13,8 @@ import {
   TokenOption,
   TradeState,
   VaultTradeState,
+  isDeleverageTrade,
+  isLeveragedTrade,
 } from '@notional-finance/notionable';
 import {
   RATE_DECIMALS,
@@ -628,35 +630,38 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     feeValue = debtFee?.toUnderlying() || feeValue;
   }
 
+  // TODO: need to update these thresholds
   let feeToolTip: MessageDescriptor | undefined;
-  if (
-    collateralBalance?.tokenType === 'nToken' &&
-    collateralFee &&
-    collateralFee
+  if (collateralBalance?.tokenType === 'nToken' && collateralFee) {
+    const feePercent = collateralFee
       .toUnderlying()
       .ratioWith(collateralBalance.toUnderlying())
       .abs()
-      .toNumber() >
-      BASIS_POINT * 10
-  ) {
-    feeToolTip = defineMessage({
-      defaultMessage:
-        'Fixed rate volatility is causing a larger than normal minting fee. This fee goes to zero as fixed rates stabilize.',
-    });
-  } else if (
-    debtBalance?.tokenType === 'nToken' &&
-    debtFee &&
-    debtFee
+      .toNumber();
+    if (
+      (isLeveragedTrade(tradeType) && feePercent > 50 * BASIS_POINT) ||
+      (!isLeveragedTrade(tradeType) && feePercent > 10 * BASIS_POINT)
+    ) {
+      feeToolTip = defineMessage({
+        defaultMessage:
+          'Fixed rate volatility is causing a larger than normal minting fee. This fee goes to zero as fixed rates stabilize.',
+      });
+    }
+  } else if (debtBalance?.tokenType === 'nToken' && debtFee) {
+    const feePercent = debtFee
       .toUnderlying()
       .ratioWith(debtBalance.toUnderlying())
       .abs()
-      .toNumber() >
-      BASIS_POINT * 10
-  ) {
-    feeToolTip = defineMessage({
-      defaultMessage:
-        'High fixed rate utilization is causing high redemption cost. This will decrease if more liquidity is provided, if fixed rates come down, or gradually over time as fixed rate loans mature.',
-    });
+      .toNumber();
+    if (
+      (isDeleverageTrade(tradeType) && feePercent > 50 * BASIS_POINT) ||
+      (!isDeleverageTrade(tradeType) && feePercent > 20 * BASIS_POINT)
+    ) {
+      feeToolTip = defineMessage({
+        defaultMessage:
+          'High fixed rate utilization is causing high redemption cost. This will decrease if more liquidity is provided, if fixed rates come down, or gradually over time as fixed rate loans mature.',
+      });
+    }
   }
 
   summary.push({
