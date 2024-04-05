@@ -7,11 +7,11 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
 import MobileNavigation from './mobile-navigation/mobile-navigation';
-import { useHistory, useLocation } from 'react-router';
-import blitz from '@notional-finance/mui/src/assets/icons/blitz.svg';
+import { useLocation } from 'react-router';
+// import blitz from '@notional-finance/mui/src/assets/icons/blitz.svg';
 import {
   useNotionalContext,
-  showContestNavLink,
+  // showContestNavLink,
 } from '@notional-finance/notionable-hooks';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
@@ -23,7 +23,6 @@ export interface HeaderProps extends AppBarProps {}
 
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
-  const history = useHistory();
   const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
   const contestTheme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
   const appTheme = useTheme();
@@ -39,9 +38,10 @@ export function Header({ children }: HeaderProps) {
     globalState: { hasSelectedChainError },
   } = useNotionalContext();
 
-  const handleContestClick = () => {
-    history.push('/contest');
-  };
+  // NOTE: Leaving this here for when we want to have another contest
+  // const handleContestClick = () => {
+  //   history.push('/contest');
+  // };
 
   window.addEventListener('scroll', () => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -86,6 +86,8 @@ export function Header({ children }: HeaderProps) {
             <MobileNavigation />
           </Box>
           <WalletContainer>
+            {/* 
+            NOTE: Leaving this here for when we want to have another contest
             {showContestNavLink && pathname !== '/' && (
               <Box
                 sx={{
@@ -111,7 +113,7 @@ export function Header({ children }: HeaderProps) {
                   }}
                 ></Box>
               </Box>
-            )}
+            )} */}
             {children}
           </WalletContainer>
         </Toolbar>

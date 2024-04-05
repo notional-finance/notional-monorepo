@@ -155,6 +155,11 @@ export function calculateHoldings(
         priceChanges,
         positionEstablished
       ),
+      hasNToken: !!nonLeveragedYields.find(
+        (y) =>
+          y.token.tokenType === 'nToken' &&
+          y.token.currencyId === balance.currencyId
+      ),
     };
   });
 

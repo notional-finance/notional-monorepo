@@ -77,7 +77,7 @@ export function WalletSelector() {
           {truncatedAddress && !isAccountPending && (
             <>
               {icon && icon.length > 0 && !isReadOnlyAddress && (
-                <IconContainer>
+                <IconContainer sx={{ paddingRight: '0px' }}>
                   <TokenIcon
                     symbol={getNetworkSymbol(walletNetwork)}
                     size="medium"
@@ -85,7 +85,7 @@ export function WalletSelector() {
                 </IconContainer>
               )}
               {isReadOnlyAddress && (
-                <IconContainer>
+                <IconContainer sx={{ paddingRight: '0px' }}>
                   <EyeIcon />
                 </IconContainer>
               )}
@@ -167,7 +167,6 @@ const IconContainer = styled(Box)(
   display: flex;
   align-items: center;
   padding: ${theme.spacing(1)};
-  background: ${theme.gradient.aqua};
   border-radius: 4px;
   `
 );

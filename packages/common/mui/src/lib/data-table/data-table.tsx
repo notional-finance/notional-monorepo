@@ -175,6 +175,7 @@ export const DataTable = ({
         border: maxHeight ? theme.shape.borderStandard : '',
         borderRadius: maxHeight ? theme.shape.borderRadius() : '',
         zIndex: maxHeight ? 2 : 1,
+        marginTop: maxHeight ? theme.spacing(5) : '',
       }}
     >
       {csvDataFormatter && data && (

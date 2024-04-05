@@ -20,7 +20,7 @@ export const useAllNetworksToggle = () => {
       <FormattedMessage defaultMessage={'All Networks'} />
     </Body>,
     <TokenIcon
-      symbol="arb"
+      symbol="arbnetwork"
       size="small"
       style={{
         display: 'flex',
@@ -30,7 +30,7 @@ export const useAllNetworksToggle = () => {
       }}
     />,
     <TokenIcon
-      symbol="eth"
+      symbol="ethnetwork"
       size="small"
       style={{
         display: 'flex',

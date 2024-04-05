@@ -156,7 +156,7 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
     toggleOptions: [
       <Box sx={{ fontSize: '14px', display: 'flex' }}>
         <TokenIcon
-          symbol="arb"
+          symbol="arbnetwork"
           size="small"
           style={{ marginRight: theme.spacing(1) }}
         />
@@ -164,7 +164,7 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
       </Box>,
       <Box sx={{ fontSize: '14px', display: 'flex' }}>
         <TokenIcon
-          symbol="eth"
+          symbol="ethnetwork"
           size="small"
           style={{ marginRight: theme.spacing(1) }}
         />

@@ -7,7 +7,7 @@ import { useThemeVariant } from '@notional-finance/notionable-hooks';
 interface CollapsibleProps {
   theme: NotionalTheme;
   open: boolean;
-  sideBoxShadow: string;
+  sideboxshadow: string;
 }
 
 export const SideNav = () => {
@@ -29,7 +29,7 @@ export const SideNav = () => {
         onMouseLeave={() => setOpen(false)}
         theme={theme}
         open={open}
-        sideBoxShadow={sideBoxShadow}
+        sideboxshadow={sideBoxShadow}
       >
         <Collapse orientation="horizontal" in={open} collapsedSize={80}>
           <SideNavOptons open={open} />
@@ -52,7 +52,7 @@ const NonCollapsible = styled(Box)(
 
 // NOTE* this unique padding-top is necessary to align with the button bar
 const Collapsible = styled(Box)(
-  ({ theme, open, sideBoxShadow }: CollapsibleProps) => `  
+  ({ theme, open, sideboxshadow }: CollapsibleProps) => `  
   height: 100vh;
   position: fixed;
   left: 0;
@@ -61,7 +61,7 @@ const Collapsible = styled(Box)(
   background: ${theme.palette.background.paper};
   border-right: ${theme.shape.borderStandard};
   z-index: 4;
-  box-shadow: ${open ? sideBoxShadow : 'none'};
+  box-shadow: ${open ? sideboxshadow : 'none'};
   ${theme.breakpoints.up('xxl')} {
     display: none;
   }

@@ -69,7 +69,7 @@ export const TransactionConfirmation = ({
   }, []);
 
   return (
-    <Box sx={{ minHeight: theme.spacing(132) }}>
+    <Box sx={{ minHeight: theme.spacing(162) }}>
       <ScrollToTop />
       <StatusHeading
         heading={heading}

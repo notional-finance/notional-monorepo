@@ -1,8 +1,10 @@
 import unknown from '../../assets/icons/currencies/currency-unknown.svg';
 import wbtc from '../../assets/icons/currencies/currency-wbtc.svg';
 import arb from '../../assets/icons/currencies/arbitrum.svg';
+import arbNetwork from '../../assets/icons/currencies/arb-network-selector.svg';
 import arb_alt from '../../assets/icons/currencies/arb-alt.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';
+import ethNetwork from '../../assets/icons/currencies/eth-network-selector.svg';
 import peth from '../../assets/icons/currencies/pETH.svg';
 import reth from '../../assets/icons/currencies/rETH.svg';
 import reth_alt from '../../assets/icons/currencies/reth-alt.svg';
@@ -109,6 +111,11 @@ export const TokenImageList: TokenImageMap = {
     img: eth,
     accentBorderImg: eth_alt,
     alt: 'Ethereum icon',
+  },
+  ethnetwork: {
+    name: 'ethnetwork',
+    img: ethNetwork,
+    alt: 'Ethereum network icon',
   },
   peth: {
     name: 'peth',
@@ -298,6 +305,11 @@ export const TokenImageList: TokenImageMap = {
     accentBorderImg: arb_alt,
     alt: 'arb',
   },
+  arbnetwork: {
+    name: 'arbnetwork',
+    img: arbNetwork,
+    alt: 'arb network icon',
+  },
   trading_fees: {
     name: 'trading_fees',
     img: trading_fees,
@@ -448,7 +460,7 @@ export function TokenIcon({
     : TokenImageList['unknown'];
 
   const networkIcon = network
-    ? TokenImageList[getNetworkSymbol(network)]
+    ? TokenImageList[getNetworkSymbol(network, true)]
     : undefined;
 
   const tokenSizes = {
