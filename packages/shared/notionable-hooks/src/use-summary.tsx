@@ -630,7 +630,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     feeValue = debtFee?.toUnderlying() || feeValue;
   }
 
-  // TODO: need to update these thresholds
   let feeToolTip: MessageDescriptor | undefined;
   if (collateralBalance?.tokenType === 'nToken' && collateralFee) {
     const feePercent = collateralFee
