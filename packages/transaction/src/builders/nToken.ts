@@ -46,6 +46,7 @@ export function ConvertCashToNToken({
   address,
   network,
   debtBalance,
+  maxWithdraw,
 }: PopulateTransactionInputs) {
   if (!debtBalance) throw Error('debtBalance required');
   if (debtBalance.isPositive() || debtBalance.tokenType !== 'PrimeDebt')
@@ -57,8 +58,9 @@ export function ConvertCashToNToken({
       getBalanceAction(
         DepositActionType.ConvertCashToNToken,
         debtBalance.toPrimeCash().neg(),
-        // no deposits or redeems here
-        false,
+        // If doing a maxWithdraw the entire cash balance will be converted but we
+        // want to clear the rounding error of 1 unit of pCash if it exists
+        maxWithdraw,
         undefined,
         false
       ),

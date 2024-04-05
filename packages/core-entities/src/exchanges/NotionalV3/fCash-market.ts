@@ -282,11 +282,6 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     const lpTokenOracleValue = lpTokenSpotValue.copy(
       this.totalSupply.divInRatePrecision(nTokenOracleRate).n
     );
-    console.log(
-      'INSIDE LP TOKENS',
-      lpTokenSpotValue.toString(),
-      lpTokenOracleValue.toString()
-    );
 
     const lpTokens = this.totalSupply.scale(
       tokensIn[0],
