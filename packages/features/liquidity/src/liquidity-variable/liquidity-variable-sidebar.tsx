@@ -31,7 +31,7 @@ export const LiquidityVariableSidebar = () => {
           `/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedNetwork}/${newToken}`
         }
         inputLabel={defineMessage({
-          defaultMessage: '1. How much liquidity do you want to provide?',
+          defaultMessage: 'Enter amount to deposit for liquidity',
           description: 'input label',
         })}
       />

@@ -48,7 +48,7 @@ export const BorrowVariableSidebar = () => {
           `/${PRODUCTS.BORROW_VARIABLE}/${selectedNetwork}/${newToken}`
         }
         inputLabel={defineMessage({
-          defaultMessage: '1. How much do you want to borrow?',
+          defaultMessage: 'Enter amount to borrow',
           description: 'input label',
         })}
         errorMsgOverride={insufficientLiquidity}
