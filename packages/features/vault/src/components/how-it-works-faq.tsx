@@ -51,10 +51,10 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
             </BodyText>
             <ImageWrapper>
               {boosterProtocol === 'Convex' && (
-                <CurveVaultImg tokenSymbol={tokenSymbol} />
+                <CurveVaultImg tokensymbol={tokenSymbol} />
               )}
               {boosterProtocol === 'Aura' && (
-                <BalancerVaultImg tokenSymbol={tokenSymbol} />
+                <BalancerVaultImg tokensymbol={tokenSymbol} />
               )}
             </ImageWrapper>
             <H5

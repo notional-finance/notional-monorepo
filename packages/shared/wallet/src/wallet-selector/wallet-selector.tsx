@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import { Box, styled } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { FormattedMessage } from 'react-intl';
-import { GearIcon, EyeIcon } from '@notional-finance/icons';
+import { GearIcon, EyeIcon, TokenIcon } from '@notional-finance/icons';
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
-import ethNetworkIcon from '@notional-finance/mui/src/assets/icons/eth-network-selector.svg';
-import arbNetworkIcon from '@notional-finance/mui/src/assets/icons/arb-network-selector.svg';
 import {
   ProgressIndicator,
   ButtonText,
@@ -16,10 +14,10 @@ import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useConnect } from '../hooks';
 import { useWalletSideDrawer } from '../hooks';
 import {
-  Network,
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
   SETTINGS_SIDE_DRAWERS,
+  getNetworkSymbol,
 } from '@notional-finance/util';
 import {
   useAccountLoading,
@@ -72,9 +70,6 @@ export function WalletSelector() {
     }
   };
 
-  const networkIcon =
-    walletNetwork === Network.arbitrum ? arbNetworkIcon : ethNetworkIcon;
-
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <OuterContainer>
@@ -82,14 +77,10 @@ export function WalletSelector() {
           {truncatedAddress && !isAccountPending && (
             <>
               {icon && icon.length > 0 && !isReadOnlyAddress && (
-                <IconContainer sx={{ paddingRight: '0px' }}>
-                  <img
-                    src={networkIcon}
-                    style={{
-                      width: theme.spacing(3),
-                      height: theme.spacing(3),
-                    }}
-                    alt="network icon"
+                <IconContainer>
+                  <TokenIcon
+                    symbol={getNetworkSymbol(walletNetwork)}
+                    size="medium"
                   />
                 </IconContainer>
               )}
@@ -176,6 +167,7 @@ const IconContainer = styled(Box)(
   display: flex;
   align-items: center;
   padding: ${theme.spacing(1)};
+  padding-right: 0px;
   border-radius: 4px;
   `
 );

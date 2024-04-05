@@ -1,6 +1,5 @@
 import { useTheme } from '@mui/material';
-import arbNetworkIcon from '@notional-finance/mui/src/assets/icons/arb-network-selector.svg';
-import ethNetworkIcon from '@notional-finance/mui/src/assets/icons/eth-network-selector.svg';
+import { TokenIcon } from '@notional-finance/icons';
 import { useState } from 'react';
 import { Body } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
@@ -20,27 +19,25 @@ export const useAllNetworksToggle = () => {
     >
       <FormattedMessage defaultMessage={'All Networks'} />
     </Body>,
-    <img
-      src={arbNetworkIcon}
+    <TokenIcon
+      symbol="arbnetwork"
+      size="small"
       style={{
-        width: theme.spacing(3),
-        height: theme.spacing(2),
         display: 'flex',
         alignContent: 'center',
         justifyContent: 'center',
+        width: theme.spacing(3),
       }}
-      alt="arb network icon"
     />,
-    <img
-      src={ethNetworkIcon}
+    <TokenIcon
+      symbol="ethnetwork"
+      size="small"
       style={{
-        width: theme.spacing(3),
-        height: theme.spacing(2),
         display: 'flex',
         alignContent: 'center',
         justifyContent: 'center',
+        width: theme.spacing(3),
       }}
-      alt="arb network icon"
     />,
   ];
 

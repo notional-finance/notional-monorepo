@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { defineMessage } from 'react-intl';
 import { FormattedMessage } from 'react-intl';
+import { TokenIcon } from '@notional-finance/icons';
 import { Box, useTheme } from '@mui/material';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useHistory, useLocation } from 'react-router';
-import arbNetworkIcon from '@notional-finance/mui/src/assets/icons/arb-network-selector.svg';
-import ethNetworkIcon from '@notional-finance/mui/src/assets/icons/eth-network-selector.svg';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const config = {
@@ -156,26 +155,18 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
   const headerData = {
     toggleOptions: [
       <Box sx={{ fontSize: '14px', display: 'flex' }}>
-        <img
-          src={arbNetworkIcon}
-          style={{
-            width: theme.spacing(2),
-            height: theme.spacing(2),
-            marginRight: theme.spacing(1),
-          }}
-          alt="arb network icon"
+        <TokenIcon
+          symbol="arbnetwork"
+          size="small"
+          style={{ marginRight: theme.spacing(1) }}
         />
         Arbitrum
       </Box>,
       <Box sx={{ fontSize: '14px', display: 'flex' }}>
-        <img
-          src={ethNetworkIcon}
-          style={{
-            width: theme.spacing(2),
-            height: theme.spacing(2),
-            marginRight: theme.spacing(1),
-          }}
-          alt="arb network icon"
+        <TokenIcon
+          symbol="ethnetwork"
+          size="small"
+          style={{ marginRight: theme.spacing(1) }}
         />
         Mainnet
       </Box>,
