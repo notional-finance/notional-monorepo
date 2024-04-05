@@ -279,7 +279,9 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           } else {
             if (
               o.oracleType === 'nTokenToUnderlyingExchangeRate' &&
-              FCASH_RATE_SOURCE === 'fCashSpotRate'
+              FCASH_RATE_SOURCE === 'fCashSpotRate' &&
+              // Only do this for current interest rates
+              subjectMapOverride === undefined
             ) {
               // Replaces nToken oracle valuations with a spot rate valuation
               const underlying = Registry.getTokenRegistry().getTokenByID(
