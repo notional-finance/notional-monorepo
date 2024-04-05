@@ -196,6 +196,11 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
         if (!n) throw Error(`${token} node is not found`);
         node = n;
 
+        // Uses oracle rates historically
+        if (subjectMapOverride) {
+          node.id = node.id.replace(FCASH_RATE_SOURCE, 'fCashOracleRate');
+        }
+
         let o = subjects.get(node.id)?.asObservable();
         if (!o) {
           // When doing historical pricing, if the settlement rate is not found then switch it to
@@ -212,7 +217,12 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
               // FCASH_RATE_SOURCE is from underlying => fCash id, settlement rates are from
               // fCash id => prime cash
               o = subjects
-                .get(`${underlying.id}:${base}:${FCASH_RATE_SOURCE}`)
+                .get(
+                  `${underlying.id}:${base}:${
+                    // Uses oracle rates historically
+                    subjectMapOverride ? 'fCashOracleRate' : FCASH_RATE_SOURCE
+                  }`
+                )
                 ?.asObservable();
             }
           }
@@ -277,6 +287,31 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
               return { ...o.latestRate, rate: exchangeRate };
             }
           } else {
+            if (
+              o.oracleType === 'nTokenToUnderlyingExchangeRate' &&
+              FCASH_RATE_SOURCE === 'fCashSpotRate' &&
+              // Only do this for current interest rates
+              subjectMapOverride === undefined
+            ) {
+              // Replaces nToken oracle valuations with a spot rate valuation
+              const underlying = Registry.getTokenRegistry().getTokenByID(
+                network,
+                o.base
+              );
+              if (!underlying.currencyId) throw Error('currency id not found');
+              const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
+                network,
+                underlying.currencyId
+              );
+              const totalSupply = fCashMarket.totalSupply;
+              o = { ...o };
+              o.latestRate.rate = fCashMarket
+                .getNTokenSpotValue()
+                .toUnderlying()
+                .scale(totalSupply.precision, totalSupply)
+                .scaleTo(o.decimals);
+            }
+
             const haircutOrBuffer = config.getExchangeRiskAdjustment(
               o,
               node.inverted,

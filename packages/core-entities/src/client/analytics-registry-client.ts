@@ -72,7 +72,13 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
    */
   getHistoricalOracles(network: Network, timestamp: number) {
     return this._getHistoricalOracles(network)
-      .filter((o) => PRICE_ORACLES.includes(o.oracleType))
+      .filter(
+        (o) =>
+          PRICE_ORACLES.includes(o.oracleType) ||
+          // Uses oracle rates historically, spot prices are not included in historical
+          // oracle query
+          o.oracleType === 'fCashOracleRate'
+      )
       .map((o) => {
         const { historicalRates, ..._o } = Object.assign({}, o);
         let latestRate = historicalRates.find((r) => r.timestamp === timestamp);
@@ -292,7 +298,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       const apyData = this.getHistoricalAPY(token);
 
       if (apyData.length === 0) return 0;
-      else return apyData[apyData.length - 1]['nTokenFeeRate'] || 0;
+      else return apyData[apyData.length - 1]['Trading Fees'] || 0;
     } catch {
       return 0;
     }

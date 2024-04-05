@@ -21,7 +21,7 @@ const messages = {
     title: { defaultMessage: 'Impermanent Loss', description: '' },
     message: {
       defaultMessage:
-        'Fixed rate volatility has caused IL. IL will go away when fixed rates return to normal range.',
+        'Fixed rate volatility has caused IL. IL will go away when fixed rates go down.',
       description: '',
     },
   }),

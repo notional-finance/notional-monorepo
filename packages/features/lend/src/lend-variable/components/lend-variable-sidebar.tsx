@@ -31,7 +31,7 @@ export const LendVariableSidebar = () => {
           `/${PRODUCTS.LEND_VARIABLE}/${selectedNetwork}/${newToken}`
         }
         inputLabel={defineMessage({
-          defaultMessage: '1. How much do you want to lend?',
+          defaultMessage: 'How much do you want to lend?',
           description: 'input label',
         })}
       />

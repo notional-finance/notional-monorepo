@@ -48,7 +48,7 @@ export const BorrowFixedSidebar = () => {
           `/${PRODUCTS.BORROW_FIXED}/${selectedNetwork}/${newToken}`
         }
         inputLabel={defineMessage({
-          defaultMessage: '1. How much do you want to borrow?',
+          defaultMessage: 'Enter amount to borrow',
           description: 'input label',
         })}
       />
@@ -56,7 +56,7 @@ export const BorrowFixedSidebar = () => {
         context={context}
         category={'Debt'}
         inputLabel={defineMessage({
-          defaultMessage: '2. Select a maturity & fix your rate',
+          defaultMessage: 'Select a maturity & fix your rate',
           description: 'input label',
         })}
       />

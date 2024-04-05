@@ -26,6 +26,8 @@ export function parseTransaction(
         // It should always find r, but exit in the case that we do not
         if (!r) return g;
 
+        // TODO: there is a bug where residuals are marked as non-transient if converting
+        // from nTokens to fCash and vice versa since the fCash remains in the portfolio...
         // Update: underlyingAmountRealized and realizedPrice
         const w = g.reduce((acc, l) => {
           if (l.bundleName === 'nToken Residual Transfer') {
