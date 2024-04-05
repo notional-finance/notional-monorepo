@@ -297,10 +297,11 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     );
     // NOTE: this is not correct in the face of deleverage ntoken
     const lpClaims = this.getLPTokenClaims(lpTokens);
+    const feesPaid = this.zeroTokenArray();
+    feesPaid[0] = tokensIn[0].sub(lpTokens.toPrimeCash());
 
     return {
-      // No fees paid on minting
-      feesPaid: this.zeroTokenArray(),
+      feesPaid,
       lpTokens,
       lpClaims,
     };
