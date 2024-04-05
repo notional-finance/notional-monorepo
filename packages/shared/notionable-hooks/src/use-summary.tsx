@@ -17,23 +17,26 @@ import {
 import {
   RATE_DECIMALS,
   HEALTH_FACTOR_RISK_LEVELS,
+  BASIS_POINT,
 } from '@notional-finance/util';
 import {
   IntlShape,
   MessageDescriptor,
+  defineMessage,
   defineMessages,
   useIntl,
 } from 'react-intl';
 import { useFiat } from './use-user-settings';
 import { colors } from '@notional-finance/styles';
-import { useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { useVaultPosition } from './use-account';
+import { InfoTooltip } from '@notional-finance/mui';
 
 interface DetailItem {
   label: React.ReactNode;
   value: {
     data: {
-      displayValue?: string;
+      displayValue?: React.ReactNode;
       showPositiveAsGreen?: boolean;
       isNegative?: boolean;
     }[];
@@ -409,6 +412,7 @@ function getTradeDetail(
 
 export function useTradeSummary(state: VaultTradeState | TradeState) {
   const intl = useIntl();
+  const theme = useTheme();
   const baseCurrency = useFiat();
   const {
     depositBalance: _d,
@@ -624,12 +628,60 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     feeValue = debtFee?.toUnderlying() || feeValue;
   }
 
+  let feeToolTip: MessageDescriptor | undefined;
+  if (
+    collateralBalance?.tokenType === 'nToken' &&
+    collateralFee &&
+    collateralFee
+      .toUnderlying()
+      .ratioWith(collateralBalance.toUnderlying())
+      .abs()
+      .toNumber() >
+      BASIS_POINT * 10
+  ) {
+    feeToolTip = defineMessage({
+      defaultMessage:
+        'Fixed rate volatility is causing a larger than normal minting fee. This fee goes to zero as fixed rates stabilize.',
+    });
+  } else if (
+    debtBalance?.tokenType === 'nToken' &&
+    debtFee &&
+    debtFee
+      .toUnderlying()
+      .ratioWith(debtBalance.toUnderlying())
+      .abs()
+      .toNumber() >
+      BASIS_POINT * 10
+  ) {
+    feeToolTip = defineMessage({
+      defaultMessage:
+        'High fixed rate utilization is causing high redemption cost. This will decrease if more liquidity is provided, if fixed rates come down, or gradually over time as fixed rate loans mature.',
+    });
+  }
+
   summary.push({
     label: intl.formatMessage({ defaultMessage: 'Fees and Slippage' }),
     value: {
       data: [
         {
-          displayValue: feeValue.toDisplayStringWithSymbol(4, true, false),
+          displayValue: (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {feeToolTip && (
+                <InfoTooltip
+                  iconColor={theme.palette.warning.main}
+                  iconSize={theme.spacing(1.5)}
+                  toolTipText={feeToolTip}
+                  sx={{
+                    marginTop: '-1px',
+                    fill: theme.palette.warning.main,
+                    marginRight: theme.spacing(0.5),
+                    fontSize: 'inherit',
+                  }}
+                />
+              )}
+              {feeValue.toDisplayStringWithSymbol(4, true, false)}
+            </Box>
+          ),
           isNegative: feeValue.isNegative(),
         },
       ],
