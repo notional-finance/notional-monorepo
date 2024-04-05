@@ -166,7 +166,6 @@ export const LiquidityVariableSummary = () => {
         columns={poolTableColumns}
         data={poolTableData}
         maxHeight={theme.spacing(54)}
-        sx={{ marginTop: theme.spacing(5) }}
       />
       <Box sx={{ marginTop: theme.spacing(5) }}>
         <FaqHeader

@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
 import { Caption, H4, H5, Paragraph, Subtitle } from '@notional-finance/mui';
 import { useTheme, Box, Button, styled, Popover } from '@mui/material';
-import {
-  PRODUCTS,
-  SupportedNetworks,
-  getNetworkSymbol,
-} from '@notional-finance/util';
+import ethNetworkIcon from '@notional-finance/mui/src/assets/icons/eth-network-selector.svg';
+import arbNetworkIcon from '@notional-finance/mui/src/assets/icons/arb-network-selector.svg';
+import { PRODUCTS, SupportedNetworks } from '@notional-finance/util';
 import { useHistory, useLocation } from 'react-router';
 import { Network } from '@notional-finance/util';
 import {
@@ -42,6 +39,8 @@ export const NetworkSelectorButton = ({
   balance,
 }: NetworkSelectorButtonProps) => {
   const theme = useTheme();
+  const networkIcon =
+    network === Network.arbitrum ? arbNetworkIcon : ethNetworkIcon;
   return (
     <NetworkButton
       key={network}
@@ -53,7 +52,11 @@ export const NetworkSelectorButton = ({
       }}
     >
       <Box sx={{ marginRight: theme.spacing(1), lineHeight: 1 }}>
-        <TokenIcon symbol={getNetworkSymbol(network)} size="medium" />
+        <img
+          src={networkIcon}
+          style={{ width: theme.spacing(3), height: theme.spacing(3) }}
+          alt="network icon"
+        />
       </Box>
       <H4
         sx={{
@@ -158,6 +161,10 @@ function NetworkSelector({
     }
   };
 
+  const networkIcon =
+    selectedNetwork === Network.arbitrum ? arbNetworkIcon : ethNetworkIcon;
+  const networkIconSize = isPortfolio ? theme.spacing(3) : theme.spacing(2);
+
   return (
     <NetworkSelectorWrapper>
       <DropdownButton
@@ -169,9 +176,10 @@ function NetworkSelector({
         disabled={!canSelect}
         onClick={handleClick}
         startIcon={
-          <TokenIcon
-            symbol={getNetworkSymbol(selectedNetwork)}
-            size={isPortfolio ? 'medium' : 'small'}
+          <img
+            src={networkIcon}
+            style={{ width: networkIconSize, height: networkIconSize }}
+            alt="network icon"
           />
         }
         endIcon={

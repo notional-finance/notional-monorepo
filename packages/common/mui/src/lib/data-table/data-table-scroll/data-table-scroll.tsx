@@ -73,7 +73,8 @@ export const DataTableScroll = ({
       sx={{
         overflow: 'auto',
         position: 'relative',
-        height: maxHeight,
+        maxHeight: maxHeight,
+        height: '100%',
         '.table': {
           display: 'grid',
           borderRadius: theme.shape.borderRadius(),

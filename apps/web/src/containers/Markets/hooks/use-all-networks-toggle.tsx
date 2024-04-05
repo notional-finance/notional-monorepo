@@ -1,5 +1,6 @@
 import { useTheme } from '@mui/material';
-import { TokenIcon } from '@notional-finance/icons';
+import arbNetworkIcon from '@notional-finance/mui/src/assets/icons/arb-network-selector.svg';
+import ethNetworkIcon from '@notional-finance/mui/src/assets/icons/eth-network-selector.svg';
 import { useState } from 'react';
 import { Body } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
@@ -19,26 +20,48 @@ export const useAllNetworksToggle = () => {
     >
       <FormattedMessage defaultMessage={'All Networks'} />
     </Body>,
-    <TokenIcon
-      symbol="arb"
-      size="small"
+    <img
+      src={arbNetworkIcon}
       style={{
+        width: theme.spacing(3),
+        height: theme.spacing(2),
         display: 'flex',
         alignContent: 'center',
         justifyContent: 'center',
-        width: theme.spacing(3),
       }}
+      alt="arb network icon"
     />,
-    <TokenIcon
-      symbol="eth"
-      size="small"
+    // <TokenIcon
+    //   symbol="arb"
+    //   size="small"
+    //   style={{
+    //     display: 'flex',
+    //     alignContent: 'center',
+    //     justifyContent: 'center',
+    //     width: theme.spacing(3),
+    //   }}
+    // />,
+    <img
+      src={ethNetworkIcon}
       style={{
+        width: theme.spacing(3),
+        height: theme.spacing(2),
         display: 'flex',
         alignContent: 'center',
         justifyContent: 'center',
-        width: theme.spacing(3),
       }}
+      alt="arb network icon"
     />,
+    // <TokenIcon
+    //   symbol="eth"
+    //   size="small"
+    //   style={{
+    //     display: 'flex',
+    //     alignContent: 'center',
+    //     justifyContent: 'center',
+    //     width: theme.spacing(3),
+    //   }}
+    // />,
   ];
 
   // NOTE: the toggleKey is used in the other hooks as earnBorrowOption which is 0 or 1 for Earn or Borrow
