@@ -155,6 +155,7 @@ export type RouteType =
   | 'Landing'
   | 'Card'
   | 'Analytics'
+  | 'Note'
   | 'Transaction'
   | 'Error'
   | 'Portfolio'

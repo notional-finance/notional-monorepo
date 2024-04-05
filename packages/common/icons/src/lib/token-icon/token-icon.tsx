@@ -14,11 +14,9 @@ import preth from '../../assets/icons/currencies/pRETH.svg';
 import usdc from '../../assets/icons/currencies/currency-usdc.svg';
 import dai from '../../assets/icons/currencies/currency-dai.svg';
 import pusdc from '../../assets/icons/currencies/pUSDC.svg';
-import note from '../../assets/icons/currencies/NOTE-20x20.png';
-import note32px from '../../assets/icons/currencies/NOTE-32x32.png';
-import snote from '../../assets/icons/currencies/sNOTE-20x20.png';
-import snote32px from '../../assets/icons/currencies/sNOTE-32x32.png';
-import note64px from '../../assets/icons/currencies/NOTE-64x64.png';
+import note from '../../assets/icons/currencies/NOTE.svg';
+import snote from '../../assets/icons/currencies/sNOTE.svg';
+// import snote from '../../assets/icons/currencies/sNOTE_GOOD.svg';
 import ndai from '../../assets/icons/currencies/nDAI.png';
 import neth from '../../assets/icons/currencies/nETH.png';
 import nusdc from '../../assets/icons/currencies/nUSDC.png';
@@ -200,18 +198,11 @@ export const TokenImageList: TokenImageMap = {
     name: 'note',
     img: note,
     alt: 'NOTE token icon',
-    widths: {
-      '32': note32px,
-      '64': note64px,
-    },
   },
   snote: {
     name: 'snote',
     img: snote,
     alt: 'Staked NOTE token icon',
-    widths: {
-      '32': snote32px,
-    },
   },
   ndai: {
     name: 'ndai',

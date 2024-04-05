@@ -1,6 +1,7 @@
 import {
   PortfolioIcon,
   StackIcon,
+  NoteOutlineIcon,
   DocsIcon,
   NotionalPlainIcon,
   ResourcesIcon,
@@ -38,6 +39,14 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       ),
     },
     {
+      key: 'invest-and-earn',
+      CustomComponent: InvestAndEarnDropdown,
+    },
+    {
+      key: 'borrow',
+      CustomComponent: BorrowDropDown,
+    },
+    {
       key: 'markets',
       label: <FormattedMessage defaultMessage={'Markets'} />,
       link: '/markets',
@@ -52,7 +61,25 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
         />
       ),
     },
+    {
+      key: 'note',
+      label: <FormattedMessage defaultMessage={'NOTE'} />,
+      link: '/note',
+      iconImg: (
+        <NoteOutlineIcon
+          fill={theme.palette.typography.main}
+          className="color-fill"
+          sx={{
+            height: theme.spacing(2.5),
+          }}
+        />
+      ),
+    },
   ];
+
+  const mobileNavLinks = navLinks.filter(
+    (navLink) => navLink.key !== 'invest-and-earn' && navLink.key !== 'borrow'
+  );
 
   const mobileSubNavLinks: INavLink[] = [
     {
@@ -117,6 +144,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
 
   return {
     navLinks,
+    mobileNavLinks,
     mobileSubNavLinks,
   };
 };

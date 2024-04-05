@@ -53,6 +53,7 @@ import {
 } from '../../containers/TradingContest';
 import { Markets } from '../Markets';
 import { NetworkTransactionsView } from '../AnalyticsViews';
+import { NoteView } from '../NoteView';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 const RedirectToDefaultNetwork = () => {
@@ -200,6 +201,7 @@ const AllRoutes = () => {
             component={Markets}
             routeType="Analytics"
           />
+          <AppLayoutRoute path="/note" component={NoteView} routeType="Note" />
           <AppLayoutRoute
             path="/analytics/transactions"
             component={NetworkTransactionsView}
@@ -284,6 +286,7 @@ export const App = () => {
   const {
     state: { themeVariant },
   } = globalState;
+
   const notionalTheme = useNotionalTheme(themeVariant);
   const intercomID = process.env['NX_INTERCOM_APP_ID'] as string;
 

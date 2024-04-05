@@ -6,8 +6,8 @@ import {
   TitleText,
   ContestBodyText,
   StepContainer,
-} from '../contest-shared-elements/contest-shared-elements';
-import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
+} from '../contest-shared-elements';
+import { ContestButtonBar } from '../contest-button-bar';
 
 export const ConnectContestWallet = () => {
   const theme = useTheme();

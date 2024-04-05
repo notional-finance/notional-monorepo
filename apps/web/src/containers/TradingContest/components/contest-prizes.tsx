@@ -3,14 +3,14 @@ import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { Button, HeadingSubtitle, CardInput } from '@notional-finance/mui';
-import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
+import { SectionTitle } from './contest-shared-elements';
 import {
   contestActive,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import fatCat from '../../assets/fat-cat.svg';
-import crown from '../../assets/crown.svg';
-import { prizeData } from '../../contest-data';
+import fatCat from '../assets/fat-cat.svg';
+import crown from '../assets/crown.svg';
+import { prizeData } from '../contest-data';
 import { useLocation } from 'react-router';
 
 interface PrizeInfoPropsProps {

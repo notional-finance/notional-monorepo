@@ -1,13 +1,13 @@
 import { styled, useTheme, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { ExternalLink, Button } from '@notional-finance/mui';
-import { ContestCountDown } from '../contest-countdown/contest-countdown';
+import { ContestCountDown } from '../contest-countdown';
 import blitzPass from './assets/blitzPass.svg';
 import {
   TitleText,
   ContestBodyText,
   StepContainer,
-} from '../contest-shared-elements/contest-shared-elements';
+} from '../contest-shared-elements';
 import {
   useMintPass,
   startDateDisplayString,

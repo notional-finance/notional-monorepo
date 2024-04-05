@@ -60,7 +60,7 @@ export function Button(props: ButtonProps) {
 
   if (href) {
     return (
-      <ExternalLink href={href} fitContent>
+      <ExternalLink href={href}>
         <MuiButton {...newProps} />
       </ExternalLink>
     );

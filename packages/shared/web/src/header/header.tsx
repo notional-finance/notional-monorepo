@@ -45,7 +45,7 @@ export function Header({ children }: HeaderProps) {
   const appTheme = useTheme();
   const { pathname } = useLocation();
   const theme =
-    pathname === '/'
+    pathname === '/' || pathname === '/note'
       ? landingTheme
       : pathname.includes('contest') || pathname.includes('points-dashboard')
       ? contestTheme
