@@ -292,7 +292,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       const apyData = this.getHistoricalAPY(token);
 
       if (apyData.length === 0) return 0;
-      else return apyData[apyData.length - 1]['nTokenFeeRate'] || 0;
+      else return apyData[apyData.length - 1]['Trading Fees'] || 0;
     } catch {
       return 0;
     }

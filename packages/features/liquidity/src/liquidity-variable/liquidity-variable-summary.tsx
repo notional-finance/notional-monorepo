@@ -39,7 +39,6 @@ export const LiquidityVariableSummary = () => {
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const { totalsData, liquidityYieldData } = useTotalsData(
     deposit,
-    collateral,
     collateralBalance
   );
   const { returnDriversColumns, returnDriversData, infoBoxData } =
