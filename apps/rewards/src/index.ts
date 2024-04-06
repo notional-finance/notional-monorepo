@@ -388,15 +388,22 @@ export default {
   // this method can be only call by cloudflare internal system so it does not
   // require any authentication
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
-    const provider = getProviderFromNetwork(env.NETWORK, true);
-
     // cron job will run twice, once on full hour and second time 10 minutes later
     // first time it will claim rewards and second time reinvest it
     const currentMinuteInHour = new Date().getMinutes();
+    let funToRun: typeof claimRewards | typeof reinvestRewards;
     if (currentMinuteInHour < 10) {
-      await claimRewards(env, provider);
+      funToRun = claimRewards;
     } else {
-      await reinvestRewards(env, provider);
+      funToRun = reinvestRewards;
+    }
+
+    for (const network of env.NETWORKS) {
+      env.NETWORK = network;
+      console.log(`Processing network: ${env.NETWORK}`);
+      const provider = getProviderFromNetwork(env.NETWORK, true);
+
+      await funToRun(env, provider);
     }
   },
 };
