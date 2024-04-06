@@ -305,7 +305,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
                 underlying.currencyId
               );
               const totalSupply = fCashMarket.totalSupply;
-              o = { ...o };
+              o = { ...o, latestRate: { ...o.latestRate } };
               o.latestRate.rate = fCashMarket
                 .getNTokenSpotValue()
                 .toUnderlying()
