@@ -448,7 +448,6 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
       console.log(this.getIRParams(marketIndex));
 
       if (utilization < leverageThresholds[i]) {
-        // TODO: this is not being calculated correctly here
         return this.getfCashSpotRateInRP(b.token);
       } else {
         // Assumed exchange rate
@@ -492,6 +491,7 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
           ${fCashAmountActual.toDisplayStringWithSymbol(4, false, false)}
           ${fee.toDisplayString()}
           ${cashToMarket.toDisplayStringWithSymbol(4, false, false)}
+          ${this.getImpliedInterestRate(marketDeposit, fCashAmountActual) || 0}
           `);
 
           if (fCashAmountActual.lte(fCashAmountAssumed)) {
@@ -503,14 +503,13 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
         }
 
         // If all this passes then we will lend the fcash amount to the balance
-        // TODO: appears that this utilization is not correct either
         const newUtilization = this.getfCashUtilization(
-          fCashAmountActual,
-          this.poolParams.perMarketfCash[i],
-          this.poolParams.perMarketCash[i].toUnderlying()
+          fCashAmountActual.copy(0),
+          this.poolParams.perMarketfCash[i].sub(fCashAmountActual),
+          this.poolParams.perMarketCash[i].toUnderlying().add(cashToMarket)
         );
+        console.log('NEW UTILIZATION', newUtilization);
         return this.getInterestRate(marketIndex, newUtilization);
-        // return 141313510;
       }
     });
     console.log('RETURNED POST TRADE SPOT RATES', postTradeSpotRates);
