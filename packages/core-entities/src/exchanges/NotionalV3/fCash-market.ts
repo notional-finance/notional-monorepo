@@ -297,12 +297,18 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     const feesPaid = this.zeroTokenArray();
     // TODO: if this is below 1 then we will see a pretty big fee, need to calculate the
     // deleverage buffer
-    const postMintSpotValue = this.getPostMintSpotValue(tokensIn[0]);
+    const postMintSpotValue = this.getPostMintSpotValue(tokensIn[0]).add(
+      tokensIn[0]
+    );
     feesPaid[0] = tokensIn[0].sub(
-      postMintSpotValue.scale(lpTokens, this.totalSupply)
+      postMintSpotValue.scale(lpTokens, this.totalSupply.add(lpTokens))
     );
     console.log(`
     POST MINT SPOT VALUE:
+    ${tokensIn[0]
+      .copy(INTERNAL_TOKEN_PRECISION)
+      .toUnderlying()
+      .toDisplayStringWithSymbol(8, false, false)}
     ${nTokenOracleRate.toString()}
     ${this.totalSupply.toDisplayStringWithSymbol(4, false, false)}
     ${tokensIn[0].toDisplayStringWithSymbol(4, false, false)}
@@ -400,12 +406,17 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
   /***********************************************************************/
 
   public getPostMintSpotValue(amountIn: TokenBalance) {
-    const { leverageThresholds, depositShares } =
+    const { leverageThresholds, depositShares, fCashReserveFeeSharePercent } =
       Registry.getConfigurationRegistry().getConfig(
         this._network,
         this.totalSupply.currencyId
       );
-    if (!leverageThresholds || !depositShares) throw Error('Config not found');
+    if (
+      !leverageThresholds ||
+      !depositShares ||
+      fCashReserveFeeSharePercent === undefined
+    )
+      throw Error('Config not found');
 
     const postTradeSpotRates = this.balances.map((b, marketIndex) => {
       if (marketIndex == 0) return RATE_PRECISION;
@@ -421,9 +432,23 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
       IN POST TRADE SPOT RATES ${marketIndex}:
       ${utilization / RATE_PRECISION}
       ${leverageThresholds[i] / RATE_PRECISION}
+      ${this.poolParams.perMarketfCash[
+        marketIndex - 1
+      ].toDisplayStringWithSymbol(8, false, false)}
+      ${this.poolParams.perMarketCash[
+        marketIndex - 1
+      ].toDisplayStringWithSymbol(8, false, false)}
+      ${this.getMarketCashUnderlying(marketIndex).toDisplayStringWithSymbol(
+        8,
+        false,
+        false
+      )}
+      ${this.getfCashSpotRateInRP(b.token)}
       `);
+      console.log(this.getIRParams(marketIndex));
 
       if (utilization < leverageThresholds[i]) {
+        // TODO: this is not being calculated correctly here
         return this.getfCashSpotRateInRP(b.token);
       } else {
         // Assumed exchange rate
@@ -444,11 +469,20 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
             .scaleTo(INTERNAL_TOKEN_DECIMALS)
         );
         let fCashAmountActual: TokenBalance;
+        let cashToMarket: TokenBalance;
         try {
           fCashAmountActual = this.getfCashGivenCashAmount(
             marketIndex,
             marketDeposit.neg()
           );
+          const { fee } = this.getCashGivenfCashAmount(
+            marketIndex,
+            fCashAmountActual
+          );
+          cashToMarket = marketDeposit
+            .sub(fee.scale(BigNumber.from(fCashReserveFeeSharePercent), 100))
+            .toUnderlying();
+
           console.log(`
           CALCULATED POST TRADE ${marketIndex}
           ${deleverageInterestRate / RATE_PRECISION}
@@ -456,6 +490,8 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
           ${marketDeposit.toDisplayStringWithSymbol(4, false, false)}
           ${fCashAmountAssumed.toDisplayStringWithSymbol(4, false, false)}
           ${fCashAmountActual.toDisplayStringWithSymbol(4, false, false)}
+          ${fee.toDisplayString()}
+          ${cashToMarket.toDisplayStringWithSymbol(4, false, false)}
           `);
 
           if (fCashAmountActual.lte(fCashAmountAssumed)) {
@@ -467,12 +503,14 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
         }
 
         // If all this passes then we will lend the fcash amount to the balance
+        // TODO: appears that this utilization is not correct either
         const newUtilization = this.getfCashUtilization(
           fCashAmountActual,
           this.poolParams.perMarketfCash[i],
-          this.poolParams.perMarketCash[i].toUnderlying().add(marketDeposit)
+          this.poolParams.perMarketCash[i].toUnderlying()
         );
         return this.getInterestRate(marketIndex, newUtilization);
+        // return 141313510;
       }
     });
     console.log('RETURNED POST TRADE SPOT RATES', postTradeSpotRates);
