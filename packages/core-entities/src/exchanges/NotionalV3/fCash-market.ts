@@ -285,6 +285,29 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
       .scaleFromInternal()
       .toPrimeCash();
 
+    try {
+      const { maxMintDeviationBasisPoints } =
+        Registry.getConfigurationRegistry().getConfig(
+          this._network,
+          this.totalSupply.currencyId
+        );
+      const deviationLimit = lpTokenOracleValue
+        .sub(lpTokenSpotValue)
+        .abs()
+        .ratioWith(lpTokenOracleValue)
+        .toNumber();
+      if (
+        maxMintDeviationBasisPoints &&
+        maxMintDeviationBasisPoints < deviationLimit
+      ) {
+        throw Error(
+          'Liquidity providing is unavailable due to high fixed rate volatility. Check back later.'
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
     const lpTokens = this.totalSupply.scale(
       tokensIn[0],
       // Use the greater of the two values
