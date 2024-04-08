@@ -497,11 +497,14 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
           // `);
 
           if (fCashAmountActual.lte(fCashAmountAssumed)) {
-            throw Error('Deleverage Buffer [ASSUMED]');
+            throw Error(
+              'Cannot mint due to high fixed rate utilization, try a smaller amount.'
+            );
           }
         } catch (e) {
-          console.error(e);
-          throw Error('Deleverage Buffer [ERROR]');
+          throw Error(
+            'Cannot mint due to high fixed rate utilization, try a smaller amount.'
+          );
         }
 
         // This calculates the post trade utilization
