@@ -2,9 +2,11 @@ import { AggregateCall } from '@notional-finance/multicall';
 import {
   AssetType,
   BASIS_POINT,
+  DELEVERAGE_BUFFER,
   encodeERC1155Id,
   getNowSeconds,
   INTERNAL_TOKEN_DECIMALS,
+  INTERNAL_TOKEN_PRECISION,
   Network,
   NotionalAddress,
   RATE_DECIMALS,
@@ -24,7 +26,6 @@ import {
   InterestRateParameters,
 } from './BaseNotionalMarket';
 import { TokenDefinition } from '../../Definitions';
-import { OracleRegistryClient } from '../../client';
 
 interface fCashMarketParams {
   perMarketCash: TokenBalance[];
@@ -279,9 +280,33 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
       throw Error('nToken Oracle Rate not found');
 
     const lpTokenSpotValue = this.getNTokenSpotValue();
-    const lpTokenOracleValue = lpTokenSpotValue.copy(
-      this.totalSupply.divInRatePrecision(nTokenOracleRate).n
-    );
+    const lpTokenOracleValue = TokenBalance.zero(this.totalSupply.underlying)
+      .copy(this.totalSupply.mulInRatePrecision(nTokenOracleRate).n)
+      .scaleFromInternal()
+      .toPrimeCash();
+
+    try {
+      const { maxMintDeviationBasisPoints } =
+        Registry.getConfigurationRegistry().getConfig(
+          this._network,
+          this.totalSupply.currencyId
+        );
+      const deviationLimit = lpTokenOracleValue
+        .sub(lpTokenSpotValue)
+        .abs()
+        .ratioWith(lpTokenOracleValue)
+        .toNumber();
+      if (
+        maxMintDeviationBasisPoints &&
+        maxMintDeviationBasisPoints < deviationLimit
+      ) {
+        throw Error(
+          'Liquidity providing is unavailable due to high fixed rate volatility. Check back later.'
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    }
 
     const lpTokens = this.totalSupply.scale(
       tokensIn[0],
@@ -293,7 +318,37 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     // NOTE: this is not correct in the face of deleverage ntoken
     const lpClaims = this.getLPTokenClaims(lpTokens);
     const feesPaid = this.zeroTokenArray();
-    feesPaid[0] = tokensIn[0].sub(lpTokens.toPrimeCash());
+    // Adds the prime cash deposited value into the nToken and adds the total supply minted
+    // in the following line.
+    const postMintSpotValue = this.getPostMintSpotValue(tokensIn[0]).add(
+      tokensIn[0]
+    );
+    feesPaid[0] = tokensIn[0].sub(
+      postMintSpotValue.scale(lpTokens, this.totalSupply.add(lpTokens))
+    );
+    // console.log(`
+    // POST MINT SPOT VALUE:
+    // ${tokensIn[0]
+    //   .copy(INTERNAL_TOKEN_PRECISION)
+    //   .toUnderlying()
+    //   .toDisplayStringWithSymbol(8, false, false)}
+    // ${nTokenOracleRate.toString()}
+    // ${this.totalSupply.toDisplayStringWithSymbol(4, false, false)}
+    // ${tokensIn[0].toDisplayStringWithSymbol(4, false, false)}
+    // ${postMintSpotValue
+    //   .scale(lpTokens, this.totalSupply)
+    //   .toDisplayStringWithSymbol(4, false, false)}
+    // ${lpTokenOracleValue
+    //   .toUnderlying()
+    //   .toDisplayStringWithSymbol(4, false, false)}
+    // ${lpTokenSpotValue
+    //   .toUnderlying()
+    //   .toDisplayStringWithSymbol(4, false, false)}
+    // ${postMintSpotValue
+    //   .toUnderlying()
+    //   .toDisplayStringWithSymbol(4, false, false)}
+    // ${feesPaid[0].toDisplayStringWithSymbol(4, false, false)}
+    // `);
 
     return {
       feesPaid,
@@ -373,34 +428,144 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
   /*                  fCash Interest Curve Calculations                  */
   /***********************************************************************/
 
-  public getNTokenSpotValue() {
+  public getPostMintSpotValue(amountIn: TokenBalance) {
+    const { leverageThresholds, depositShares, fCashReserveFeeSharePercent } =
+      Registry.getConfigurationRegistry().getConfig(
+        this._network,
+        this.totalSupply.currencyId
+      );
+    if (
+      !leverageThresholds ||
+      !depositShares ||
+      fCashReserveFeeSharePercent === undefined
+    )
+      throw Error('Config not found');
+
+    const postTradeSpotRates = this.balances.map((b, marketIndex) => {
+      if (marketIndex == 0) return RATE_PRECISION;
+
+      const i = marketIndex - 1;
+      const timeToMaturity = this.getTimeToMaturity(marketIndex);
+      const utilization = this.getfCashUtilization(
+        b.copy(0),
+        this._getTotalfCash(marketIndex),
+        this.getMarketCashUnderlying(marketIndex)
+      );
+      // console.log(`
+      // IN POST TRADE SPOT RATES ${marketIndex}:
+      // ${utilization / RATE_PRECISION}
+      // ${leverageThresholds[i] / RATE_PRECISION}
+      // ${this.poolParams.perMarketfCash[
+      //   marketIndex - 1
+      // ].toDisplayStringWithSymbol(8, false, false)}
+      // ${this.poolParams.perMarketCash[
+      //   marketIndex - 1
+      // ].toDisplayStringWithSymbol(8, false, false)}
+      // ${this.getMarketCashUnderlying(marketIndex).toDisplayStringWithSymbol(
+      //   8,
+      //   false,
+      //   false
+      // )}
+      // ${this.getfCashSpotRateInRP(b.token)}
+      // `);
+      // console.log(this.getIRParams(marketIndex));
+
+      if (utilization < leverageThresholds[i]) {
+        return this.getInterestRate(marketIndex, utilization);
+      } else {
+        // Calculate the deleverage market trade
+        const deleverageInterestRate = Math.max(
+          this.getfCashSpotRateInRP(b.token) - DELEVERAGE_BUFFER,
+          0
+        );
+        const assumedExchangeRate = this.getfCashExchangeRate(
+          deleverageInterestRate,
+          timeToMaturity
+        );
+        const marketDeposit = amountIn
+          .scale(depositShares[i], INTERNAL_TOKEN_PRECISION)
+          .toUnderlying();
+        const fCashAmountAssumed = b.copy(
+          marketDeposit
+            .mulInRatePrecision(assumedExchangeRate)
+            .scaleTo(INTERNAL_TOKEN_DECIMALS)
+        );
+
+        let fCashAmountActual: TokenBalance;
+        let cashToMarket: TokenBalance;
+        try {
+          // If this throws an error than the contract would fail as well
+          fCashAmountActual = this.getfCashGivenCashAmount(
+            marketIndex,
+            marketDeposit.neg()
+          );
+          const { fee } = this.getCashGivenfCashAmount(
+            marketIndex,
+            fCashAmountActual
+          );
+          cashToMarket = marketDeposit
+            .sub(fee.scale(BigNumber.from(fCashReserveFeeSharePercent), 100))
+            .toUnderlying();
+
+          // console.log(`
+          // CALCULATED POST TRADE ${marketIndex}
+          // ${deleverageInterestRate / RATE_PRECISION}
+          // ${assumedExchangeRate / RATE_PRECISION}
+          // ${marketDeposit.toDisplayStringWithSymbol(4, false, false)}
+          // ${fCashAmountAssumed.toDisplayStringWithSymbol(4, false, false)}
+          // ${fCashAmountActual.toDisplayStringWithSymbol(4, false, false)}
+          // ${fee.toDisplayString()}
+          // ${cashToMarket.toDisplayStringWithSymbol(4, false, false)}
+          // ${this.getImpliedInterestRate(marketDeposit, fCashAmountActual) || 0}
+          // `);
+
+          if (fCashAmountActual.lte(fCashAmountAssumed)) {
+            throw Error(
+              'Cannot mint due to high fixed rate utilization, try a smaller amount.'
+            );
+          }
+        } catch (e) {
+          throw Error(
+            'Cannot mint due to high fixed rate utilization, try a smaller amount.'
+          );
+        }
+
+        // This calculates the post trade utilization
+        const newUtilization = this.getfCashUtilization(
+          fCashAmountActual.copy(0),
+          this.poolParams.perMarketfCash[i].sub(fCashAmountActual),
+          this.poolParams.perMarketCash[i].toUnderlying().add(cashToMarket)
+        );
+        // console.log('NEW UTILIZATION', newUtilization);
+        return this.getInterestRate(marketIndex, newUtilization);
+      }
+    });
+    // console.log('RETURNED POST TRADE SPOT RATES', postTradeSpotRates);
+
+    return this.getNTokenSpotValue(postTradeSpotRates);
+  }
+
+  public getNTokenSpotValue(spotRates?: number[]) {
     const primaryToken = this.balances[0].token;
     return (
       this.balances
-        .map((b, i) => {
-          if (i === 0) {
-            return b;
-          } else {
-            const spotExchangeRate =
-              OracleRegistryClient.interestToExchangeRate(
-                BigNumber.from(
-                  Math.floor(
-                    ((this.getSpotInterestRate(b.token) || 0) / 100) *
-                      -RATE_PRECISION
-                  )
-                ),
-                b.maturity
-              ).div(RATE_PRECISION);
+        .map((b, marketIndex) => {
+          if (marketIndex === 0) return b;
+          const spotExchangeRate = this.getfCashExchangeRate(
+            spotRates
+              ? spotRates[marketIndex]
+              : this.getfCashSpotRateInRP(b.token),
+            this.getTimeToMaturity(marketIndex)
+          );
 
-            // b is in 8 decimal precision, after the exchange rate it is in 8
-            // decimal underlying precision
-            return TokenBalance.from(
-              b.mulInRatePrecision(spotExchangeRate).n,
-              b.underlying
-            )
-              .scaleFromInternal()
-              .toPrimeCash();
-          }
+          // b is in 8 decimal precision, after the exchange rate it is in 8
+          // decimal underlying precision
+          return TokenBalance.from(
+            b.divInRatePrecision(spotExchangeRate).n,
+            b.underlying
+          )
+            .scaleFromInternal()
+            .toPrimeCash();
         })
         // Sum all balances in primary valuation
         .reduce((v, i) => v.add(i), TokenBalance.zero(primaryToken))
@@ -419,8 +584,8 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     balanceOverrides?: TokenBalance[],
     nowSeconds = getNowSeconds()
   ) {
-    const totalfCash = this._getTotalfCash(marketIndex, balanceOverrides);
     const irParams = this.getIRParams(marketIndex);
+    const totalfCash = this._getTotalfCash(marketIndex, balanceOverrides);
     const totalCashUnderlying = this.getMarketCashUnderlying(marketIndex);
     const timeToMaturity = this.getTimeToMaturity(marketIndex, nowSeconds);
     const netUnderlyingToAccount = cashAmount.toUnderlying();
@@ -765,17 +930,18 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     return this.balances[0].toUnderlying().copy(0);
   }
 
-  protected getfCashSpotRate(token: TokenDefinition) {
+  protected getfCashSpotRateInRP(token: TokenDefinition) {
     const marketIndex = this.getMarketIndex(token.maturity);
     const utilization = this.getfCashUtilization(
       this.poolParams.perMarketfCash[marketIndex - 1].copy(0),
       this.poolParams.perMarketfCash[marketIndex - 1],
       this.poolParams.perMarketCash[marketIndex - 1].toUnderlying()
     );
+    return this.getInterestRate(marketIndex, utilization);
+  }
 
-    return (
-      (this.getInterestRate(marketIndex, utilization) * 100) / RATE_PRECISION
-    );
+  protected getfCashSpotRate(token: TokenDefinition) {
+    return (this.getfCashSpotRateInRP(token) * 100) / RATE_PRECISION;
   }
 
   public getSlippageRate(fCash: TokenBalance, slippageFactor: number) {
