@@ -16,6 +16,14 @@ const VaultConfig = {
       '0x05ff47afada98a98982113758878f9a8b9fdda0a000000000000000000000645',
     targetToken: '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee',
     network: Network.mainnet,
+    symbol: 'weETH',
+  },
+  '0x914255c0c289aea36e378ebb5e28293b5ed278ca': {
+    poolId:
+      '0x596192bb6e41802428ac943d2f1476c1af25cc0e000000000000000000000659',
+    targetToken: '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110',
+    network: Network.mainnet,
+    symbol: 'ezETH',
   },
 };
 
@@ -41,7 +49,7 @@ async function loadAllVaultsQuery(
 }
 
 export async function getVaultData(vaultAddress: string, blockNumber: number) {
-  const { targetToken, poolId, network } = VaultConfig[vaultAddress];
+  const { targetToken, poolId, network, symbol } = VaultConfig[vaultAddress];
 
   const { results: vaultInfo } = (await aggregate<unknown>(
     [
@@ -116,11 +124,14 @@ export async function getVaultData(vaultAddress: string, blockNumber: number) {
     const lpTokens = totalLPTokens
       .mul(BigNumber.from(a.current.currentBalance))
       .div(totalVaultShares);
-    const weETHBalance = totalTokenBalance.mul(lpTokens).div(totalLPSupply);
+    const tokenBalance = totalTokenBalance.mul(lpTokens).div(totalLPSupply);
 
     return {
       address: a.account.id,
-      effective_balance: `${ethers.utils.formatUnits(weETHBalance, 18)} weETH`,
+      effective_balance: `${ethers.utils.formatUnits(
+        tokenBalance,
+        18
+      )} ${symbol}`,
     };
   });
 }
