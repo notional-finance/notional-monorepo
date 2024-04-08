@@ -68,7 +68,7 @@ export const PerformanceChart = ({
       id: 'bar-chart',
       title:
         collateral?.tokenType === 'VaultShare'
-          ? 'Strategy APY'
+          ? 'Vault Share APY'
           : `n${selectedDepositToken} APY`,
       hideTopGridLine: true,
       Component: (
