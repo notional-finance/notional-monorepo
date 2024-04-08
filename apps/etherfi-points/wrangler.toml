@@ -1,0 +1,17 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+minify = true
+logpush = true
+
+
+[env.dev]
+name = "etherfi-points-dev"
+
+[env.beta]
+name = "etherfi-points-beta"
+
+[env.prod]
+name = "etherfi-points"

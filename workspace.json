@@ -11,6 +11,7 @@
     "core-entities": "packages/core-entities",
     "data": "apps/data",
     "durable-objects": "packages/durable-objects",
+    "etherfi-points": "apps/etherfi-points",
     "features-about-us": "packages/features/about-us",
     "features-borrow": "packages/features/borrow",
     "features-lend": "packages/features/lend",
