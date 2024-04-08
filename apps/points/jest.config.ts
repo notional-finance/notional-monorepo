@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'etherfi-points',
+  displayName: 'points',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -10,15 +10,15 @@ export default {
   },
   testEnvironment: 'miniflare',
   testEnvironmentOptions: {
-    scriptPath: 'apps/etherfi-points/dist/index.js',
+    scriptPath: 'apps/points/dist/index.js',
     modules: true,
-    wranglerConfigPath: 'apps/etherfi-points/wrangler.toml',
-    wranglerConfigEnv: 'apps/etherfi-points/.dev.vars',
+    wranglerConfigPath: 'apps/points/wrangler.toml',
+    wranglerConfigEnv: 'apps/points/.dev.vars',
   },
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js'],
-  coverageDirectory: '../../coverage/apps/etherfi-points',
+  coverageDirectory: '../../coverage/apps/points',
   testTimeout: 50000,
 };

@@ -18,3 +18,6 @@ yarn nx publish-wrangler-manual liquidation-bot --env arbitrum
 yarn nx publish-wrangler-manual liquidation-bot --env mainnet
 yarn nx publish-wrangler-manual vault-liquidator --env arbitrum
 yarn nx publish-wrangler-manual vault-liquidator --env mainnet
+
+# Points
+yarn nx publish-wrangler-manual points --env prod

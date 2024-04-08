@@ -1,7 +1,7 @@
 {
-  "name": "etherfi-points",
+  "name": "points",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/etherfi-points/src",
+  "sourceRoot": "apps/points/src",
   "projectType": "application",
   "targets": {
     "serve": {
@@ -12,7 +12,7 @@
             "command": "wrangler dev  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/etherfi-points"
+        "cwd": "apps/points"
       }
     },
     "publish-wrangler-manual": {
@@ -23,7 +23,7 @@
             "command": "wrangler deploy --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/etherfi-points"
+        "cwd": "apps/points"
       }
     },
     "publish-wrangler": {
@@ -34,21 +34,21 @@
             "command": "wrangler deploy"
           }
         ],
-        "cwd": "apps/etherfi-points"
+        "cwd": "apps/points"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/etherfi-points/**/*.ts"]
+        "lintFilePatterns": ["apps/points/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/etherfi-points"],
+      "outputs": ["{workspaceRoot}/coverage/apps/points"],
       "options": {
-        "jestConfig": "apps/etherfi-points/jest.config.ts",
+        "jestConfig": "apps/points/jest.config.ts",
         "passWithNoTests": true
       },
       "dependsOn": ["build"]
