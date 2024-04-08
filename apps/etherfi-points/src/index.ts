@@ -1,19 +1,18 @@
-export interface Env {
-}
+import { getVaultData } from './calculate-points';
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Env {}
 
 export default {
   async fetch(
     request: Request,
-    env: Env,
-    ctx: ExecutionContext
+    _env: Env,
+    _ctx: ExecutionContext
   ): Promise<Response> {
-    return new Response('Hello World!');
-  },
-  async scheduled(
-    controller: ScheduledController,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<void> {
-    console.log(`Hello World!`);
+    const url = new URL(request.url);
+    const [_, vaultAddress, blockNumber] = url.pathname.split('/', 3);
+    return new Response(
+      JSON.stringify(await getVaultData(vaultAddress, parseInt(blockNumber)))
+    );
   },
 };

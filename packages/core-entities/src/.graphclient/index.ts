@@ -8869,6 +8869,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AllTokensByBlockDocument.graphql'
       },{
+        document: AllVaultAccountsDocument,
+        get rawSDL() {
+          return printWithCache(AllVaultAccountsDocument);
+        },
+        location: 'AllVaultAccountsDocument.graphql'
+      },{
         document: AllVaultsDocument,
         get rawSDL() {
           return printWithCache(AllVaultsDocument);
@@ -9085,6 +9091,17 @@ export type AllTokensByBlockQuery = { tokens: Array<(
     Pick<Token, 'id' | 'tokenType' | 'tokenInterface' | 'currencyId' | 'name' | 'symbol' | 'decimals' | 'totalSupply' | 'hasTransferFee' | 'isfCashDebt' | 'maturity' | 'vaultAddress' | 'tokenAddress'>
     & { underlying?: Maybe<Pick<Token, 'id'>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type AllVaultAccountsQueryVariables = Exact<{
+  blockNumber: Scalars['Int'];
+  vaultAddress: Scalars['Bytes'];
+}>;
+
+
+export type AllVaultAccountsQuery = { balances: Array<(
+    Pick<Balance, 'id'>
+    & { account: Pick<Account, 'id'>, current: Pick<BalanceSnapshot, 'currentBalance'> }
+  )> };
 
 export type AllVaultsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9716,6 +9733,22 @@ export const AllTokensByBlockDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AllTokensByBlockQuery, AllTokensByBlockQueryVariables>;
+export const AllVaultAccountsDocument = gql`
+    query AllVaultAccounts($blockNumber: Int!, $vaultAddress: Bytes!) {
+  balances(
+    where: {token_: {vaultAddress: $vaultAddress, tokenType: VaultShare}}
+    block: {number: $blockNumber}
+  ) {
+    id
+    account {
+      id
+    }
+    current {
+      currentBalance
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllVaultAccountsQuery, AllVaultAccountsQueryVariables>;
 export const AllVaultsDocument = gql`
     query AllVaults {
   vaultConfigurations {
@@ -9947,6 +9980,7 @@ export const VaultReinvestmentDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
@@ -9979,6 +10013,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AllTokensByBlock(variables?: AllTokensByBlockQueryVariables, options?: C): Promise<AllTokensByBlockQuery> {
       return requester<AllTokensByBlockQuery, AllTokensByBlockQueryVariables>(AllTokensByBlockDocument, variables, options) as Promise<AllTokensByBlockQuery>;
+    },
+    AllVaultAccounts(variables: AllVaultAccountsQueryVariables, options?: C): Promise<AllVaultAccountsQuery> {
+      return requester<AllVaultAccountsQuery, AllVaultAccountsQueryVariables>(AllVaultAccountsDocument, variables, options) as Promise<AllVaultAccountsQuery>;
     },
     AllVaults(variables?: AllVaultsQueryVariables, options?: C): Promise<AllVaultsQuery> {
       return requester<AllVaultsQuery, AllVaultsQueryVariables>(AllVaultsDocument, variables, options) as Promise<AllVaultsQuery>;
