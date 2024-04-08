@@ -63,7 +63,8 @@ function getTradeDetail(
   assetOrDebt: 'Asset' | 'Debt',
   typeKey: 'deposit' | 'withdraw' | 'none' | 'repay',
   intl: IntlShape,
-  _token?: TokenDefinition
+  _token?: TokenDefinition,
+  adjustValueUnderlying?: TokenBalance
 ) {
   const tokenType = _token?.tokenType || b.unwrapVaultToken().tokenType;
   const caption = formatTokenType(
@@ -137,9 +138,11 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b
-              .toUnderlying()
-              .toDisplayStringWithSymbol(4, true, false),
+            displayValue: (adjustValueUnderlying
+              ? // Used to adjust valuation post nToken mint with minting bonus
+                b.toUnderlying().add(adjustValueUnderlying)
+              : b.toUnderlying()
+            ).toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
             isNegative: false,
           },
@@ -169,7 +172,6 @@ const FeeItem = ({
           iconSize={theme.spacing(1.5)}
           toolTipText={feeToolTip}
           sx={{
-            marginTop: '-1px',
             fill: toolTipColor,
             marginRight: theme.spacing(0.5),
             fontSize: 'inherit',
@@ -180,6 +182,46 @@ const FeeItem = ({
     </Box>
   );
 };
+
+function getFeeValue(
+  underlying: TokenDefinition,
+  isLeverageOrRoll: boolean,
+  tradeType: TradeType | VaultTradeType | undefined,
+  depositBalance: TokenBalance | undefined,
+  collateralBalance: TokenBalance | undefined,
+  debtBalance: TokenBalance | undefined,
+  collateralFee: TokenBalance | undefined,
+  debtFee: TokenBalance | undefined
+): TokenBalance {
+  const zeroUnderlying = TokenBalance.zero(underlying);
+
+  if (tradeType === 'RollVaultPosition') {
+    return zeroUnderlying;
+  } else if (isLeverageOrRoll) {
+    // Do not include roll vault position because the margin will be
+    // incorrectly included in the fee value
+    return (collateralFee?.toUnderlying() || zeroUnderlying).add(
+      debtFee?.toUnderlying() || zeroUnderlying
+    );
+  } else if (
+    collateralBalance &&
+    depositBalance &&
+    // NOTE: Deposit balances are emitted prior to collateral balances here and
+    // so it causes the fee value to "toggle" a bit as the value changes. Ideally
+    // we move the calculations into the observable so this is hidden
+    collateralBalance.currencyId === depositBalance.currencyId
+  ) {
+    return collateralFee?.toUnderlying() || zeroUnderlying;
+  } else if (
+    debtBalance &&
+    depositBalance &&
+    debtBalance.currencyId === depositBalance.currencyId
+  ) {
+    return debtFee?.toUnderlying() || zeroUnderlying;
+  } else {
+    return zeroUnderlying;
+  }
+}
 
 function getFeeDetailItem(
   feeValue: TokenBalance,
@@ -298,7 +340,17 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   // On leverage or roll, labels are slightly different
   const isLeverageOrRoll = !!debtBalance && !!collateralBalance;
 
-  let feeValue = TokenBalance.zero(underlying);
+  let feeValue = getFeeValue(
+    underlying,
+    isLeverageOrRoll,
+    tradeType,
+    depositBalance,
+    collateralBalance,
+    debtBalance,
+    collateralFee,
+    debtFee
+  );
+
   const summary: DetailItem[] = [];
   if (isLeverageOrRoll) {
     if (
@@ -423,7 +475,19 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
       if (tradeType === 'RepayDebt') {
         summary.push(getTradeDetail(netAssetBalance, 'Debt', 'deposit', intl));
       } else {
-        summary.push(getTradeDetail(netAssetBalance, 'Asset', 'deposit', intl));
+        // In here, if the fee value is positive then it needs to be adjusted...
+        summary.push(
+          getTradeDetail(
+            netAssetBalance,
+            'Asset',
+            'deposit',
+            intl,
+            undefined,
+            feeValue.isNegative() && netAssetBalance.tokenType === 'nToken'
+              ? feeValue.neg()
+              : undefined
+          )
+        );
       }
     }
   } else if (depositBalance?.isNegative()) {
@@ -457,31 +521,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     }
   } else {
     return { summary: undefined, total: undefined };
-  }
-
-  if (tradeType === 'RollVaultPosition') {
-    // No-Op: value is set above
-  } else if (isLeverageOrRoll) {
-    // Do not include roll vault position because the margin will be
-    // incorrectly included in the fee value
-    feeValue = (collateralFee?.toUnderlying() || feeValue).add(
-      debtFee?.toUnderlying() || feeValue
-    );
-  } else if (
-    collateralBalance &&
-    depositBalance &&
-    // NOTE: Deposit balances are emitted prior to collateral balances here and
-    // so it causes the fee value to "toggle" a bit as the value changes. Ideally
-    // we move the calculations into the observable so this is hidden
-    collateralBalance.currencyId === depositBalance.currencyId
-  ) {
-    feeValue = collateralFee?.toUnderlying() || feeValue;
-  } else if (
-    debtBalance &&
-    depositBalance &&
-    debtBalance.currencyId === depositBalance.currencyId
-  ) {
-    feeValue = debtFee?.toUnderlying() || feeValue;
   }
 
   const feeDetailItem = getFeeDetailItem(
