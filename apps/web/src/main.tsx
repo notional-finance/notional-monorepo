@@ -1,5 +1,5 @@
-import ReactDOM from 'react-dom';
 import { IntlProvider } from 'react-intl';
+import { createRoot } from 'react-dom/client';
 import {
   getLanguageTranslation,
   getFromLocalStorage,
@@ -17,8 +17,10 @@ async function appInit() {
   const locale = language ? language : navigator.language;
 
   const languageTranslation = await getLanguageTranslation(locale);
+  const container = document.getElementById('root');
+  const root = createRoot(container);
 
-  ReactDOM.render(
+  root.render(
     <IntlProvider
       locale={locale}
       defaultLocale="en"
