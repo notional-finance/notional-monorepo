@@ -4,7 +4,8 @@ import arb from '../../assets/icons/currencies/arbitrum.svg';
 import arbNetwork from '../../assets/icons/currencies/arb-network-selector.svg';
 import arb_alt from '../../assets/icons/currencies/arb-alt.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';
-import ethNetwork from '../../assets/icons/currencies/eth-network-selector.svg';
+// import ethNetwork from '../../assets/icons/currencies/eth-network-selector.svg';
+import ethNetwork from '../../assets/icons/currencies/ethStroke.svg';
 import peth from '../../assets/icons/currencies/pETH.svg';
 import reth from '../../assets/icons/currencies/rETH.svg';
 import reth_alt from '../../assets/icons/currencies/reth-alt.svg';
@@ -460,7 +461,7 @@ export function TokenIcon({
     : TokenImageList['unknown'];
 
   const networkIcon = network
-    ? TokenImageList[getNetworkSymbol(network, true)]
+    ? TokenImageList[getNetworkSymbol(network)]
     : undefined;
 
   const tokenSizes = {

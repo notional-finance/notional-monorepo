@@ -43,12 +43,15 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
               {index === 0 && (
                 <Box>
                   <FirstValue
-                    error={isNegative && !row.original.isDebt}
+                    error={isNegative && row.original.isDebt === false}
                     sx={{
                       marginBottom: '0px',
                       width: '100%',
                       fontWeight: row.original.currency === 'Total' ? 600 : 500,
-                      color: showPositiveAsGreen && theme.palette.primary.main,
+                      color:
+                        isNegative && !row.original.isDebt
+                          ? theme.palette.error.main
+                          : showPositiveAsGreen && theme.palette.primary.main,
                     }}
                   >
                     {displayValue}

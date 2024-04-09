@@ -27,7 +27,7 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
   }
 
   async onRefresh() {
-    const timeoutDuration = 55_000;
+    // const timeoutDuration = 55_000;
 
     try {
       await Promise.all(
