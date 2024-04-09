@@ -16,8 +16,10 @@ import {
   getEtherscanTransactionLink,
 } from '@notional-finance/util';
 import moment from 'moment';
+import { useTheme } from '@mui/material';
 
 export const useLiquidityPoolsTable = () => {
+  const theme = useTheme();
   const {
     state: { deposit, selectedNetwork },
   } = useContext(LiquidityContext);
@@ -96,6 +98,7 @@ export const useLiquidityPoolsTable = () => {
       ),
       cell: MultiValueCell,
       accessorKey: 'action',
+      width: theme.spacing(23.375),
       textAlign: 'left',
     },
     {
@@ -107,6 +110,7 @@ export const useLiquidityPoolsTable = () => {
       ),
       cell: MultiValueIconCell,
       accessorKey: 'details',
+      width: theme.spacing(23.375),
       textAlign: 'left',
     },
     {
@@ -117,14 +121,15 @@ export const useLiquidityPoolsTable = () => {
         />
       ),
       accessorKey: 'interestRate',
+      width: theme.spacing(23.375),
       textAlign: 'right',
     },
     {
       header: (
         <FormattedMessage defaultMessage="Time" description={'time header'} />
       ),
-      width: '250px',
       accessorKey: 'time',
+      width: theme.spacing(23.375),
       textAlign: 'right',
     },
     {

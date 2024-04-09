@@ -88,12 +88,12 @@ export function getDefaultNetworkFromHostname(hostname: string) {
 }
 
 /** Returns the token symbol associated with a given network */
-export function getNetworkSymbol(network: Network | undefined, withBackground?: boolean) {
+export function getNetworkSymbol(network: Network | undefined) {
   switch (network) {
     case Network.arbitrum:
-      return !withBackground ? 'arbnetwork' : 'arb';
+      return 'arbnetwork';
     case Network.mainnet:
-      return !withBackground ? 'ethnetwork' : 'eth';
+      return 'ethnetwork';
     default:
       return 'eth';
   }
