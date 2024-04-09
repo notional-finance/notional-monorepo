@@ -64,6 +64,7 @@ export const MultiValueIconCell = (props): JSX.Element => {
   // NOTE* Displays a token icon on the same line as the caption or label values. Based on the values.symbol and the captionSymbol.
   // Currently used in the Markets table
   const inlineIcons = values?.inlineIcons;
+
   return (
     <Box
       sx={{
@@ -123,7 +124,11 @@ export const MultiValueIconCell = (props): JSX.Element => {
                   style={{ marginRight: theme.spacing(0.5) }}
                 />
               )}
-              <Box sx={{ minWidth: theme.spacing(8) }}>
+              <Box
+                sx={{
+                  minWidth: !inlineIcons ? theme.spacing(8) : '',
+                }}
+              >
                 {column.columnDef.displayFormatter &&
                 values?.label !== undefined
                   ? column.columnDef.displayFormatter(values?.label)
