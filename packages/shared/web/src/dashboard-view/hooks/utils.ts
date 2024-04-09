@@ -77,7 +77,7 @@ export const getIncentiveData = (
     };
   } else if (incentives && !secondaryIncentives) {
     return {
-      inlineIcons: true,
+      inlineIcons: false,
       label: formatNumberAsPercent(incentives.incentiveAPY),
       symbol: incentives.symbol,
     };
