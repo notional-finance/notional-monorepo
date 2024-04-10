@@ -65,8 +65,8 @@ const appUrl = process.env['NX_APP_URL'] as string;
 
 const wcV2InitOptions = {
   projectId: '4c1aab455337c5172aeeaa076b5104e4',
-  requiredChains: [42161],
-  dappUrl: 'https://arbitrum.notional.finance/',
+  requiredChains: [42161, 1],
+  dappUrl: 'https://notional.finance/',
 };
 
 const wallets = [

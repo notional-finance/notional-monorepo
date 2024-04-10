@@ -35,10 +35,13 @@ interface Node {
 type AdjList = Map<string, Map<string, Node>>;
 const UNIT_RATE = 'UNIT_RATE';
 
+// Can change this to fCashOracleRate to use oracle rates
+const FCASH_RATE_SOURCE = 'fCashSpotRate';
+
 export const PRICE_ORACLES = [
   'sNOTE',
   'Chainlink',
-  'fCashOracleRate',
+  FCASH_RATE_SOURCE,
   'fCashSettlementRate',
   'PrimeCashToUnderlyingExchangeRate',
   'PrimeDebtToUnderlyingExchangeRate',
@@ -93,8 +96,11 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           // Only add whitelisted oracles to the adj list
           if (!PRICE_ORACLES.includes(oracle.oracleType)) return;
 
-          if (oracle.oracleType === 'fCashOracleRate') {
-            // Suppress historical oracle rates
+          if (
+            oracle.oracleType === 'fCashOracleRate' ||
+            oracle.oracleType === 'fCashSpotRate'
+          ) {
+            // Suppress historical fcash rates
             const { maturity } = decodeERC1155Id(oracle.quote);
             if (maturity < getNowSeconds()) return;
           }
@@ -190,6 +196,12 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
         if (!n) throw Error(`${token} node is not found`);
         node = n;
 
+        // Uses oracle rates historically
+        if (subjectMapOverride) {
+          node = { ...n };
+          node.id = node.id.replace(FCASH_RATE_SOURCE, 'fCashOracleRate');
+        }
+
         let o = subjects.get(node.id)?.asObservable();
         if (!o) {
           // When doing historical pricing, if the settlement rate is not found then switch it to
@@ -203,10 +215,15 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
                 network,
                 currencyId
               );
-              // fCashOracleRate is from underlying => fCash id, settlement rates are from
+              // FCASH_RATE_SOURCE is from underlying => fCash id, settlement rates are from
               // fCash id => prime cash
               o = subjects
-                .get(`${underlying.id}:${base}:fCashOracleRate`)
+                .get(
+                  `${underlying.id}:${base}:${
+                    // Uses oracle rates historically
+                    subjectMapOverride ? 'fCashOracleRate' : FCASH_RATE_SOURCE
+                  }`
+                )
                 ?.asObservable();
             }
           }
@@ -224,7 +241,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           if (!o) return null;
 
           // fCash rates are interest rates so convert them to exchange rates in SCALAR_PRECISION here
-          if (o.oracleType === 'fCashOracleRate') {
+          if (o.oracleType === FCASH_RATE_SOURCE) {
             // Adjustment is set to identity values if riskAdjusted is set to None.
             const { interestAdjustment, maxDiscountFactor, oracleRateLimit } =
               config.getInterestRiskAdjustment(o, node.inverted, riskAdjusted);
@@ -271,6 +288,31 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
               return { ...o.latestRate, rate: exchangeRate };
             }
           } else {
+            if (
+              o.oracleType === 'nTokenToUnderlyingExchangeRate' &&
+              FCASH_RATE_SOURCE === 'fCashSpotRate' &&
+              // Only do this for current interest rates
+              subjectMapOverride === undefined
+            ) {
+              // Replaces nToken oracle valuations with a spot rate valuation
+              const underlying = Registry.getTokenRegistry().getTokenByID(
+                network,
+                o.base
+              );
+              if (!underlying.currencyId) throw Error('currency id not found');
+              const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
+                network,
+                underlying.currencyId
+              );
+              const totalSupply = fCashMarket.totalSupply;
+              o = { ...o, latestRate: { ...o.latestRate } };
+              o.latestRate.rate = fCashMarket
+                .getNTokenSpotValue()
+                .toUnderlying()
+                .scale(totalSupply.precision, totalSupply)
+                .scaleTo(o.decimals);
+            }
+
             const haircutOrBuffer = config.getExchangeRiskAdjustment(
               o,
               node.inverted,

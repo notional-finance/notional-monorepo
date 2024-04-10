@@ -16,7 +16,6 @@ import { FormattedMessage, defineMessage } from 'react-intl';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,
-  nToken: TokenDefinition | undefined,
   nTokenAmount?: TokenBalance
 ) => {
   const theme = useTheme();

@@ -1,4 +1,35 @@
 import { Network } from '@notional-finance/util';
+import { SingleSidedLP, VaultAdapter } from '../vaults';
+
+export const PointsMultipliers: Record<
+  Network,
+  Record<string, (v: VaultAdapter) => Record<string, number>>
+> = {
+  [Network.mainnet]: {
+    '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1': (v) => ({
+      EtherFi: 2,
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(1),
+    }),
+    '0x914255c0c289aea36e378ebb5e28293b5ed278ca': (v) => ({
+      Renzo: 2,
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
+    }),
+  },
+  [Network.all]: {},
+  [Network.arbitrum]: {},
+  [Network.optimism]: {},
+};
+
+export const PointsLinks: Record<Network, Record<string, string>> = {
+  [Network.mainnet]: {
+    '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1': 'https://app.ether.fi/defi',
+    '0x914255c0c289aea36e378ebb5e28293b5ed278ca':
+      'https://app.renzoprotocol.com/defi',
+  },
+  [Network.all]: {},
+  [Network.arbitrum]: {},
+  [Network.optimism]: {},
+};
 
 /** @dev all vault addresses should be lowercased */
 export const whitelistedVaults = (network: Network) => {
@@ -15,6 +46,10 @@ export const whitelistedVaults = (network: Network) => {
         // '0x86b222d44ac6cc56e75b3df01fdad5dc371ef538',
         // "[USDC]:GHO_USDT_xUSDC":
         '0xeeb885af7c8075aa3b93e2f95e1c0bd51c758f91',
+        // "[rETH]:xrETH_weETH"
+        // '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1',
+        // "[ETH]:ezETH_xWETH":
+        // '0x914255c0c289aea36e378ebb5e28293b5ed278ca',
       ];
     case Network.arbitrum:
       return [

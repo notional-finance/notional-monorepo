@@ -1,14 +1,12 @@
 import { ReactNode } from 'react';
 import { useTheme, Box } from '@mui/material';
 import { ErrorMessage } from '../../error-message/error-message';
-import { getEtherscanTransactionLink } from '@notional-finance/util';
 import { ExternalLink } from '../../external-link/external-link';
 import { truncateAddress } from '@notional-finance/helpers';
 import { LaunchIcon } from '@notional-finance/icons';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 interface DataTablePendingProps {
-  pendingTxns: string[];
+  pendingTxns: { hash: string; link: string }[];
   pendingMessage?: ReactNode;
 }
 
@@ -17,7 +15,6 @@ export const DataTablePending = ({
   pendingMessage,
 }: DataTablePendingProps) => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork();
 
   return (
     <Box sx={{ marginBottom: theme.spacing(3) }}>
@@ -33,7 +30,7 @@ export const DataTablePending = ({
         {pendingTxns.map((txn, i) => (
           <ExternalLink
             key={i}
-            href={getEtherscanTransactionLink(txn, selectedNetwork)}
+            href={txn.link}
             accent
             style={{
               textDecorationColor: theme.palette.typography.accent,
@@ -46,7 +43,7 @@ export const DataTablePending = ({
                 alignItems: 'center',
               }}
             >
-              {truncateAddress(txn)}
+              {truncateAddress(txn.hash)}
               <LaunchIcon
                 sx={{
                   marginTop: '5px',

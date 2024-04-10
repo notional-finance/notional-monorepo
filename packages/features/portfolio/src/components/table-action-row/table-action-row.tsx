@@ -21,7 +21,7 @@ const messages = {
     title: { defaultMessage: 'Impermanent Loss', description: '' },
     message: {
       defaultMessage:
-        'Fixed rate volatility has caused IL. IL will go away when fixed rates return to normal range.',
+        'Fixed rate volatility has caused IL. IL will go away when fixed rates go down.',
       description: '',
     },
   }),
@@ -100,17 +100,21 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
                     alignItems: 'baseline',
                   }}
                 />
-              ) : (
+              ) : typeof value === 'string' || typeof value === 'number' ? (
                 <H4
                   sx={{
                     color:
-                      (value < 0 || value.includes('-')) && !isDebt
+                      ((value as number) < 0 ||
+                        (value as string).includes('-')) &&
+                      !isDebt
                         ? colors.red
                         : '',
                   }}
                 >
                   {value}
                 </H4>
+              ) : (
+                value
               )}
             </Box>
           ))}

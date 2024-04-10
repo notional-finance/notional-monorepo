@@ -156,6 +156,58 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         },
       ],
     },
+    {
+      address: '0x05ff47AFADa98a98982113758878F9A8B9FddA0a',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0x05ff47AFADa98a98982113758878F9A8B9FddA0a',
+          address: '0x05ff47AFADa98a98982113758878F9A8B9FddA0a',
+          network: Network.mainnet,
+          symbol: 'weETH/rETH',
+          name: 'Balancer weETH/rETH StablePool',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee',
+          address: '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee',
+          network: Network.mainnet,
+          symbol: 'weETH',
+          name: 'Wrapped eETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0x596192bB6e41802428Ac943D2f1476C1Af25CC0E',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0x596192bB6e41802428Ac943D2f1476C1Af25CC0E',
+          address: '0x596192bB6e41802428Ac943D2f1476C1Af25CC0E',
+          network: Network.mainnet,
+          symbol: 'ezETH-WETH-BPT',
+          name: 'Balancer ezETH-WETH Stable Pool',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110',
+          address: '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110',
+          network: Network.mainnet,
+          symbol: 'ezETH',
+          name: 'Renzo Staked ETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
   ],
   [Network.arbitrum]: [
     {

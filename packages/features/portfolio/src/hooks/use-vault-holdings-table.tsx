@@ -7,6 +7,7 @@ import {
   SliderCell,
   ChevronCell,
   ArrowChangeCell,
+  LinkText,
 } from '@notional-finance/mui';
 import {
   formatCryptoWithFiat,
@@ -25,10 +26,12 @@ import {
   TXN_HISTORY_TYPE,
   formatMaturity,
   PRIME_CASH_VAULT_MATURITY,
+  pointsMultiple,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
+import { PointsLinks } from '@notional-finance/core-entities';
 
 const vaultRiskTableColumns: DataTableColumn[] = [
   {
@@ -182,7 +185,15 @@ export const useVaultHoldingsTable = () => {
   }, []);
 
   const vaultHoldingsData = vaults.map(
-    ({ vault: v, denom, profit, totalAPY, strategyAPY, borrowAPY }) => {
+    ({
+      vault: v,
+      denom,
+      profit,
+      totalAPY,
+      strategyAPY,
+      borrowAPY,
+      vaultYield,
+    }) => {
       const config = v.vaultConfig;
       const {
         leveragePercentage,
@@ -194,6 +205,47 @@ export const useVaultHoldingsTable = () => {
       const vaultRiskData = vaultLiquidation?.find(
         (b) => b.vaultAddress === v.vaultAddress
       );
+      const points = vaultYield?.pointMultiples;
+      const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
+        {
+          label: <FormattedMessage defaultMessage={'Borrow APY'} />,
+          value: formatNumberAsPercent(borrowAPY, 2),
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Strategy APY'} />,
+          value: formatNumberAsPercent(strategyAPY, 2),
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
+          value: formatLeverageRatio(v.leverageRatio() || 0),
+        },
+      ];
+
+      if (points) {
+        const pointsLink = PointsLinks[network][v.vaultAddress];
+        subRowData.push({
+          label: <FormattedMessage defaultMessage={'Points Boost'} />,
+          value: (
+            <LinkText
+              // Make the lineHeight match H4 here
+              sx={{
+                lineHeight: `${16 * 1.4}px`,
+                ':hover': { cursor: 'pointer' },
+              }}
+              href={pointsLink}
+            >
+              {Object.keys(points)
+                .map(
+                  (k) =>
+                    `${pointsMultiple(points[k], leverageRatio).toFixed(
+                      2
+                    )}x ${k}`
+                )
+                .join(', ')}
+            </LinkText>
+          ),
+        });
+      }
 
       return {
         strategy: {
@@ -231,20 +283,7 @@ export const useVaultHoldingsTable = () => {
         },
         leverageRatio: formatLeverageRatio(v.leverageRatio() || 0),
         actionRow: {
-          subRowData: [
-            {
-              label: <FormattedMessage defaultMessage={'Borrow APY'} />,
-              value: formatNumberAsPercent(borrowAPY, 2),
-            },
-            {
-              label: <FormattedMessage defaultMessage={'Strategy APY'} />,
-              value: formatNumberAsPercent(strategyAPY, 2),
-            },
-            {
-              label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
-              value: formatLeverageRatio(v.leverageRatio() || 0),
-            },
-          ],
+          subRowData,
           buttonBarData: [
             {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,

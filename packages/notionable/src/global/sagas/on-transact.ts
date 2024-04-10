@@ -9,7 +9,10 @@ import {
 } from 'rxjs';
 import { GlobalState } from '../global-state';
 import { Registry } from '@notional-finance/core-entities';
-import { SupportedNetworks } from '@notional-finance/util';
+import {
+  SupportedNetworks,
+  getEtherscanTransactionLink,
+} from '@notional-finance/util';
 
 export function onTransact(global$: Observable<GlobalState>) {
   return merge(onSentTransaction$(global$), onPendingTransaction$(global$));
@@ -48,6 +51,7 @@ function onSentTransaction$(global$: Observable<GlobalState>) {
           const newPendingPnL = Object.assign(pendingPnL);
           if (tokens) {
             newPendingPnL[network].push({
+              link: getEtherscanTransactionLink(r.transactionHash, network),
               hash: r.transactionHash,
               blockNumber: r.blockNumber,
               tokens,

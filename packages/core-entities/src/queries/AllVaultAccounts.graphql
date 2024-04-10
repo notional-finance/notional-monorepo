@@ -1,0 +1,14 @@
+query AllVaultAccounts($blockNumber: Int!, $vaultAddress: Bytes!) {
+  balances(
+    where: {token_: {vaultAddress: $vaultAddress, tokenType: VaultShare }}
+    block: {number: $blockNumber}
+  ) {
+    id
+    account {
+      id
+    }
+    current {
+      currentBalance
+    }
+  }
+}

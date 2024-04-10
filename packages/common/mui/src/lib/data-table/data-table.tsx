@@ -44,7 +44,7 @@ export interface DataTableToggleProps {
 interface DataTableProps {
   columns: Array<any>;
   data: Array<any>;
-  pendingTokenData?: { hash: string }[];
+  pendingTokenData?: { hash: string, link: string }[];
   pendingMessage?: ReactNode;
   CustomRowComponent?: ({ row }: { row: any }) => JSX.Element;
   CustomTabComponent?: React.FunctionComponent;
@@ -280,7 +280,7 @@ export const DataTable = ({
           {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
           {pendingTokenData && pendingTokenData?.length > 0 && (
             <DataTablePending
-              pendingTxns={pendingTokenData.map((p) => p.hash)}
+              pendingTxns={pendingTokenData}
               pendingMessage={pendingMessage}
             />
           )}

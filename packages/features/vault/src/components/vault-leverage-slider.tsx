@@ -1,10 +1,11 @@
-import { MessageDescriptor } from 'react-intl';
-import { messages } from '../messages';
-import { TransactionCostCaption } from './transaction-cost-caption';
+import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useVaultActionErrors } from '../hooks';
 import { LeverageSlider } from '@notional-finance/trade';
-import { VaultContext } from '@notional-finance/notionable-hooks';
-import { TokenBalance } from '@notional-finance/core-entities';
+import {
+  VaultContext,
+  useAllMarkets,
+} from '@notional-finance/notionable-hooks';
+import { pointsMultiple } from '@notional-finance/util';
 
 export const VaultLeverageSlider = ({
   inputLabel,
@@ -16,17 +17,32 @@ export const VaultLeverageSlider = ({
   context: VaultContext;
 }) => {
   const {
-    state: { deposit, debtFee, collateralFee, netRealizedDebtBalance },
+    state: {
+      netRealizedDebtBalance,
+      selectedNetwork,
+      collateral,
+      riskFactorLimit,
+    },
   } = context;
+  const {
+    yields: { vaultShares },
+  } = useAllMarkets(selectedNetwork);
   const { leverageRatioError, isDeleverage, underMinAccountBorrowError } =
     useVaultActionErrors();
-  const transactionCosts = deposit
-    ? (debtFee?.toToken(deposit) || TokenBalance.zero(deposit)).add(
-        collateralFee?.toToken(deposit) || TokenBalance.zero(deposit)
-      )
-    : undefined;
-
   const errorMsg = leverageRatioError || underMinAccountBorrowError;
+  const leverageRatio = riskFactorLimit?.limit as number;
+  const points = vaultShares.find(
+    (y) => y.token.id === collateral?.id
+  )?.pointMultiples;
+  const additionalSliderInfo = points
+    ? Object.keys(points).map((k) => ({
+        caption: (
+          <FormattedMessage defaultMessage={'{k} Points'} values={{ k }} />
+        ),
+        value: pointsMultiple(points[k], leverageRatio),
+        suffix: 'x',
+      }))
+    : [];
 
   return (
     <LeverageSlider
@@ -36,13 +52,8 @@ export const VaultLeverageSlider = ({
       showMinMax
       isDeleverage={isDeleverage}
       cashBorrowed={netRealizedDebtBalance}
-      bottomCaption={
-        <TransactionCostCaption
-          toolTipText={messages.summary.transactionCostToolTip}
-          transactionCosts={transactionCosts}
-        />
-      }
       inputLabel={inputLabel}
+      additionalSliderInfo={additionalSliderInfo}
     />
   );
 };

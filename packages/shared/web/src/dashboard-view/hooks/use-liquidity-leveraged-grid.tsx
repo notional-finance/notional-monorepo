@@ -56,7 +56,7 @@ export const useLiquidityLeveragedGrid = (
               defaultMessage: `AS HIGH AS`,
               description: 'subtitle',
             }),
-        bottomValue:
+        bottomLeftValue:
           getTotalIncentiveApy(
             y.noteIncentives?.incentiveAPY,
             y.secondaryIncentives?.incentiveAPY

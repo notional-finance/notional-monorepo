@@ -35,7 +35,7 @@ export const LendFixedSidebar = () => {
         }
         showScrollPopper
         inputLabel={defineMessage({
-          defaultMessage: '1. How much do you want to lend?',
+          defaultMessage: 'Enter amount to lend',
           description: 'input label',
         })}
       />
@@ -43,7 +43,7 @@ export const LendFixedSidebar = () => {
         context={context}
         category={'Collateral'}
         inputLabel={defineMessage({
-          defaultMessage: '2. Select a maturity & fix your rate',
+          defaultMessage: 'Select a maturity & fix your rate',
           description: 'input label',
         })}
       />

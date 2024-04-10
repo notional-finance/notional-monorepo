@@ -93,6 +93,7 @@ export interface TransactionState {
   pendingPnL: Record<
     Network,
     {
+      link: string;
       hash: string;
       blockNumber: number;
       tokens: TokenDefinition[];

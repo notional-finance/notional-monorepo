@@ -16,7 +16,6 @@ import {
 import {
   Network,
   TXN_HISTORY_TYPE,
-  TABLE_WARNINGS,
   leveragedYield,
   formatMaturity,
 } from '@notional-finance/util';

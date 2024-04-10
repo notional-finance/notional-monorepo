@@ -18,7 +18,8 @@ export interface DashboardDataProps {
   symbol: string;
   network: Network;
   routeCallback: () => void;
-  bottomValue?: string | ReactNode;
+  bottomLeftValue?: string | ReactNode;
+  bottomRightValue?: string | ReactNode;
   hasPosition?: boolean;
   apySubTitle?: MessageDescriptor;
   incentiveValue?: string;

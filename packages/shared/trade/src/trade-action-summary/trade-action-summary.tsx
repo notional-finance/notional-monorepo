@@ -5,6 +5,7 @@ import {
   PageLoading,
   TradeSummaryContainer,
   TradeActionTitle,
+  H4,
 } from '@notional-finance/mui';
 import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
@@ -17,7 +18,7 @@ import {
 } from './components';
 import { formatTokenType } from '@notional-finance/helpers';
 import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
-import { leveragedYield } from '@notional-finance/util';
+import { leveragedYield, pointsMultiple } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -79,10 +80,13 @@ export function TradeActionSummary({
       ? formatTokenType(debt).icon
       : undefined;
 
+  const nonLeveragedYield = nonLeveragedYields.find(
+    (y) => y.token.id === collateral?.id
+  );
+  const points = nonLeveragedYield?.pointMultiples;
   const assetAPY =
     collateralOptions?.find((c) => c.token.id === collateral?.id)
-      ?.interestRate ||
-    nonLeveragedYields.find((y) => y.token.id === collateral?.id)?.totalAPY;
+      ?.interestRate || nonLeveragedYield?.totalAPY;
 
   const debtAPY =
     debtOptions?.find((d) => d.token.id === debt?.id)?.interestRate ||
@@ -133,12 +137,23 @@ export function TradeActionSummary({
           value={totalAPY}
           title={apySuffix}
           valueSuffix="%"
+          hasPoints={!!points}
           InfoComp={
             totalAPY ? (
               <NativeYieldPopup selectedToken={deposit?.symbol || ''} />
             ) : undefined
           }
         />
+        {points && (
+          <H4 sx={{ marginTop: theme.spacing(1) }} accent>{`${Object.keys(
+            points
+          )
+            .map(
+              (k) =>
+                `${pointsMultiple(points[k], leverageRatio).toFixed(2)}x ${k}`
+            )
+            .join(' & ')} Points`}</H4>
+        )}
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}

@@ -4,7 +4,7 @@ import { InputLabel } from '../input-label/input-label';
 import { useCallback, useRef, useState } from 'react';
 import SliderBasic from '../slider-basic/slider-basic';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import { Caption, LabelValue } from '../typography/typography';
+import { Caption } from '../typography/typography';
 import ErrorMessage from '../error-message/error-message';
 import React from 'react';
 import CountUp from '../count-up/count-up';
@@ -22,13 +22,10 @@ export interface SliderInputProps {
   bottomCaption?: JSX.Element;
   showMinMax?: boolean;
   sliderLeverageInfo?: {
-    debtHeading: MessageDescriptor;
-    assetHeading: MessageDescriptor;
-    debtValue?: number;
-    assetValue?: number;
-    debtSuffix?: string;
-    assetSuffix?: string;
-  };
+    caption: React.ReactNode;
+    value: number | React.ReactNode;
+    suffix?: string;
+  }[];
 }
 
 export interface SliderInputHandle {
@@ -63,10 +60,8 @@ const ValueContainer = styled(Box)(
 const LeverageInfoContainer = styled(Box)(
   ({ theme }) => `
   width: 100%;
-  display: flex;
-  justify-content: space-evenly;
-  padding-top: ${theme.spacing(1)};
-  padding-bottom: ${theme.spacing(1)};
+  display: block;
+  padding: ${theme.spacing(2, 2, 1, 2)};
   text-align: center;
   background: ${theme.palette.background.default};
   border-bottom-left-radius: ${theme.shape.borderRadius()};
@@ -241,30 +236,25 @@ export const SliderInput = React.forwardRef<
         </Container>
         {sliderLeverageInfo && (
           <LeverageInfoContainer>
-            <Box>
-              <Caption>
-                <FormattedMessage {...sliderLeverageInfo.assetHeading} />
-              </Caption>
-              <LabelValue>
-                <CountUp
-                  value={sliderLeverageInfo.assetValue}
-                  suffix={sliderLeverageInfo.assetSuffix}
-                  decimals={4}
-                />
-              </LabelValue>
-            </Box>
-            <Box>
-              <Caption>
-                <FormattedMessage {...sliderLeverageInfo.debtHeading} />
-              </Caption>
-              <LabelValue>
-                <CountUp
-                  value={sliderLeverageInfo.debtValue}
-                  suffix={sliderLeverageInfo.debtSuffix}
-                  decimals={4}
-                />
-              </LabelValue>
-            </Box>
+            {sliderLeverageInfo.map(({ caption, value, suffix }) => (
+              <Box
+                sx={{
+                  display: 'flex',
+                  marginBottom: theme.spacing(1),
+                  justifyContent: 'space-between',
+                  alignContent: 'baseline',
+                }}
+              >
+                <Caption>{caption}</Caption>
+                <Caption main fontWeight="medium">
+                  {typeof value === 'number' ? (
+                    <CountUp value={value} suffix={suffix} decimals={4} />
+                  ) : (
+                    value
+                  )}
+                </Caption>
+              </Box>
+            ))}
           </LeverageInfoContainer>
         )}
         <Caption sx={{ marginTop: theme.spacing(1.5) }}>

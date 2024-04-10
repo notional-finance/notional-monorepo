@@ -21,6 +21,7 @@
     "multicall": "packages/multicall",
     "note-reward-manager": "apps/note-reward-manager",
     "notionable": "packages/notionable",
+    "points": "apps/points",
     "registry-configuration": "apps/registry-configuration",
     "registry-exchanges": "apps/registry-exchanges",
     "registry-oracles": "apps/registry-oracles",

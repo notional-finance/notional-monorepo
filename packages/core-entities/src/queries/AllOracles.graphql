@@ -1,4 +1,4 @@
-query AllOracles {
+query AllOracles($skip: Int!) {
   oracles(where: { oracleType_in: [
     Chainlink,
     fCashOracleRate,
@@ -7,15 +7,15 @@ query AllOracles {
     PrimeDebtToUnderlyingExchangeRate,
     VaultShareOracleRate,
     nTokenToUnderlyingExchangeRate
+    fCashSpotRate,
     # NOT used in exchange rate path finding algorithm and excluded
     # from the active query to reduce the amount of data stored in the
     # oracle durable object storage.
     # PrimeCashPremiumInterestRate,
     # PrimeDebtPremiumInterestRate,
-    # fCashSpotRate,
     # PrimeCashToUnderlyingOracleInterestRate,
     # fCashToUnderlyingExchangeRate
-  ], matured: false}, first: 1000) {
+  ], matured: false}, first: 1000, skip: $skip) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp

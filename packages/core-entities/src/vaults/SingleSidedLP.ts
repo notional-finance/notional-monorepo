@@ -13,6 +13,7 @@ import { defaultAbiCoder } from 'ethers/lib/utils';
 import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
 import { TokenDefinition } from '../Definitions';
+import { PointsMultipliers } from '../config/whitelisted-vaults';
 
 export interface SingleSidedLPParams extends BaseVaultParams {
   pool: string;
@@ -69,7 +70,7 @@ export class SingleSidedLP extends VaultAdapter {
   }
 
   constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
-    super(p.enabled, p.name);
+    super(p.enabled, p.name, network, vaultAddress);
 
     this.pool = Registry.getExchangeRegistry().getPoolInstance(network, p.pool);
 
@@ -263,6 +264,20 @@ export class SingleSidedLP extends VaultAdapter {
         },
       ]
     );
+  }
+
+  /** Returns the percentage of the pool that the given token index has */
+  getTokenPoolShare(tokenIndex: number) {
+    const balance = this.pool.balances[tokenIndex];
+    const tvl = this.pool.totalValueLocked(tokenIndex);
+    return balance.ratioWith(tvl).toNumber() / RATE_PRECISION;
+  }
+
+  getPointMultiples() {
+    const pointsFunc = PointsMultipliers[this.network][this.vaultAddress];
+    if (pointsFunc) return pointsFunc(this);
+
+    return undefined;
   }
 
   getPriceExposure() {

@@ -1,8 +1,10 @@
 import {
   Network,
   RATE_PRECISION,
+  SECONDS_IN_DAY,
   TABLE_WARNINGS,
   convertToSignedfCashId,
+  getNowSeconds,
   leveragedYield,
 } from '@notional-finance/util';
 import { AccruedIncentives } from './incentives';
@@ -25,6 +27,7 @@ export type CurrentFactors = ReturnType<typeof calculateAccountCurrentFactors>;
 function isHighUtilization(
   balance: TokenBalance,
   priceChanges: CalculatedPriceChanges | undefined,
+  positionEstablished = getNowSeconds(),
   threshold = -0.005
 ) {
   const token = balance.token;
@@ -42,9 +45,11 @@ function isHighUtilization(
 
     if (
       (oneDay?.underlyingChange !== undefined &&
-        oneDay.underlyingChange < threshold) ||
+        oneDay.underlyingChange < threshold &&
+        positionEstablished < getNowSeconds() - SECONDS_IN_DAY) ||
       (threeDay?.underlyingChange !== undefined &&
-        threeDay.underlyingChange < threshold)
+        threeDay.underlyingChange < threshold &&
+        positionEstablished < getNowSeconds() - 3 * SECONDS_IN_DAY)
     ) {
       return token.tokenType === 'fCash'
         ? TABLE_WARNINGS.HIGH_UTILIZATION_FCASH
@@ -131,6 +136,11 @@ export function calculateHoldings(
         .values()
     );
 
+    const positionEstablished = (
+      statement?.historicalSnapshots.find((h) => h.balance.isZero()) ||
+      statement?.historicalSnapshots.slice(-1).find((_) => true)
+    )?.timestamp;
+
     return {
       balance,
       statement,
@@ -140,7 +150,11 @@ export function calculateHoldings(
       totalIncentiveEarnings,
       hasMatured: balance.hasMatured,
       tokenType: undefined,
-      isHighUtilization: isHighUtilization(balance, priceChanges),
+      isHighUtilization: isHighUtilization(
+        balance,
+        priceChanges,
+        positionEstablished
+      ),
       hasNToken: !!nonLeveragedYields.find(
         (y) =>
           y.token.tokenType === 'nToken' &&
@@ -260,9 +274,10 @@ export function calculateVaultHoldings(account: AccountDefinition) {
     const profit = (assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
       .add(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
       .add(cashPnL?.totalProfitAndLoss || TokenBalance.zero(denom));
-    const strategyAPY =
-      allYields.find((y) => v.vaultShares.tokenId === y.token.id)?.totalAPY ||
-      0;
+    const vaultYield = allYields.find(
+      (y) => v.vaultShares.tokenId === y.token.id
+    );
+    const strategyAPY = vaultYield?.totalAPY || 0;
     const borrowAPY =
       debtPnL?.impliedFixedRate !== undefined
         ? debtPnL.impliedFixedRate
@@ -283,6 +298,7 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       profit,
       denom,
       leverageRatio,
+      vaultYield,
     };
   });
 }

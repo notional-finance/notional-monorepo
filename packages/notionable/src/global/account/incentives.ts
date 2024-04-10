@@ -23,7 +23,6 @@ export function calculateAccruedIncentives(account: AccountDefinition): {
   accruedIncentives: AccruedIncentives[];
   totalIncentives: TotalIncentives;
 } {
-  console.log('IN CALCULATE ACCREUD INCENTIVES');
   const accruedIncentives = account.balances
     .filter((t) => t.tokenType === 'nToken')
     .map((b) => {

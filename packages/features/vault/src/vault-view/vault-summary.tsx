@@ -1,11 +1,5 @@
 import { Box, useTheme } from '@mui/material';
-import {
-  Faq,
-  FaqHeader,
-  DataTable,
-  TABLE_VARIANTS,
-  TotalRow,
-} from '@notional-finance/mui';
+import { Faq, FaqHeader, DataTable, TotalRow } from '@notional-finance/mui';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { MobileVaultSummary } from '../components';
@@ -18,7 +12,6 @@ import {
 import {
   useVaultReinvestmentTable,
   useVaultExistingFactors,
-  useReturnDrivers,
   useVaultFaq,
 } from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
@@ -35,10 +28,6 @@ export const VaultSummary = () => {
     deposit,
     vaultTVL,
   } = state;
-  const { tableColumns, returnDrivers } = useReturnDrivers(
-    vaultAddress,
-    selectedNetwork
-  );
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
   const { faqHeaderLinks, faqs } = useVaultFaq(
@@ -123,19 +112,6 @@ export const VaultSummary = () => {
               state={state}
               vaultCollateral={vaultShare}
               vaultLiquidationPrice={assetLiquidationPrice}
-            />
-            <DataTable
-              data={returnDrivers}
-              columns={tableColumns}
-              tableVariant={TABLE_VARIANTS.TOTAL_ROW}
-              tableTitle={
-                <div>
-                  <FormattedMessage
-                    defaultMessage="Return Drivers"
-                    description="Return Drivers Table Title"
-                  />
-                </div>
-              }
             />
             <Box
               sx={{

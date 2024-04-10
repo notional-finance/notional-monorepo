@@ -215,6 +215,15 @@ export function isLeveragedTrade(tradeType?: VaultTradeType | TradeType) {
   );
 }
 
+export function isDeleverageTrade(tradeType?: VaultTradeType | TradeType) {
+  if (!tradeType) return false;
+  return (
+    tradeType === 'Deleverage' ||
+    tradeType === 'DeleverageWithdraw' ||
+    tradeType === 'LeveragedNTokenAdjustLeverage'
+  );
+}
+
 export function isDeleverageWithSwappedTokens(s?: BaseTradeState) {
   if (!s?.tradeType) return false;
   return (

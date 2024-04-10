@@ -45,41 +45,11 @@ export const DashboardGrid = ({
               <DashboardStateZero />
             ) : (
               <GridCardContainer threeWideGrid={threeWideGrid} theme={theme}>
-                {data.map(
-                  (
-                    {
-                      title,
-                      subTitle,
-                      apy,
-                      bottomValue,
-                      routeCallback,
-                      symbol,
-                      hasPosition,
-                      incentiveValue,
-                      incentiveSymbols,
-                      apySubTitle,
-                      network,
-                    },
-                    index
-                  ) => (
-                    <div key={index}>
-                      <DashboardCard
-                        key={index}
-                        title={title}
-                        subTitle={subTitle}
-                        routeCallback={routeCallback}
-                        apy={apy}
-                        bottomValue={bottomValue}
-                        symbol={symbol}
-                        hasPosition={hasPosition}
-                        incentiveValue={incentiveValue}
-                        incentiveSymbols={incentiveSymbols}
-                        apySubTitle={apySubTitle}
-                        network={network}
-                      />
-                    </div>
-                  )
-                )}
+                {data.map((d, index) => (
+                  <div key={index}>
+                    <DashboardCard key={index} {...d} />
+                  </div>
+                ))}
               </GridCardContainer>
             )}
             {!hasLeveragedPosition && setShowNegativeYields && (
