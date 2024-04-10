@@ -13,6 +13,13 @@ import { Routes } from '../server';
 import { TokenType } from '../.graphclient';
 
 export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
+  constructor(cacheHostname: string) {
+    super(cacheHostname);
+    // Don't enforce freshness intervals if the subgraph happens to go down. Token
+    // data does not change very often
+    this.defaultFreshnessIntervals = 0;
+  }
+
   protected cachePath() {
     return Routes.Tokens;
   }

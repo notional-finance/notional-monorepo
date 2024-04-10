@@ -68,6 +68,7 @@ export interface NotionalError {
 
 /** Account state is written on a per network basis */
 export interface AccountState {
+  isSubgraphDown: boolean;
   isAccountReady: boolean;
   portfolioLiquidationPrices?: ReturnType<
     AccountRiskProfile['getAllLiquidationPrices']
