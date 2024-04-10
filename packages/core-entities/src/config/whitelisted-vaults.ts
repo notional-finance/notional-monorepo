@@ -47,9 +47,9 @@ export const whitelistedVaults = (network: Network) => {
         // "[USDC]:GHO_USDT_xUSDC":
         '0xeeb885af7c8075aa3b93e2f95e1c0bd51c758f91',
         // "[rETH]:xrETH_weETH"
-        '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1',
+        // '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1',
         // "[ETH]:ezETH_xWETH":
-        '0x914255c0c289aea36e378ebb5e28293b5ed278ca',
+        // '0x914255c0c289aea36e378ebb5e28293b5ed278ca',
       ];
     case Network.arbitrum:
       return [
