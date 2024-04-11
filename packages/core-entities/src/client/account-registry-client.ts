@@ -174,14 +174,19 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     address: string,
     account: AccountDefinition
   ) {
-    const [txnHistory, balanceStatements] = await Promise.all([
-      this.fetchTransactionHistory(network, address),
-      this.fetchBalanceStatements(network, address),
-    ]);
+    try {
+      const [txnHistory, balanceStatements] = await Promise.all([
+        this.fetchTransactionHistory(network, address),
+        this.fetchBalanceStatements(network, address),
+      ]);
 
-    // Set the balance statement and txn history
-    account.balanceStatement = balanceStatements.finalResults[address];
-    account.accountHistory = txnHistory.finalResults[address];
+      // Set the balance statement and txn history
+      account.balanceStatement = balanceStatements.finalResults[address];
+      account.accountHistory = txnHistory.finalResults[address];
+    } catch (e) {
+      account.balanceStatement = undefined;
+      account.accountHistory = undefined;
+    }
 
     return account;
   }

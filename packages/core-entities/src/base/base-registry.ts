@@ -25,6 +25,8 @@ export abstract class BaseRegistry<T> {
   private _intervalMS = new Map<Network, number>();
   private _intervalSubscription = new Map<Network, Subscription>();
 
+  protected defaultFreshnessIntervals = 1;
+
   /** Emits a network when a network has completed its first refresh */
   protected networkRegistered = new BehaviorSubject<Network | null>(null);
 
@@ -285,7 +287,7 @@ export abstract class BaseRegistry<T> {
   public getLatestFromSubject(
     network: Network,
     key: string,
-    checkFreshness = 1
+    checkFreshness = this.defaultFreshnessIntervals
   ) {
     // Don't check freshness if no interval is set
     const intervalMS = this._intervalMS.get(network);

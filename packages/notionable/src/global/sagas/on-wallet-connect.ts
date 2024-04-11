@@ -165,6 +165,9 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
               const vaultHoldings = calculateVaultHoldings(a);
 
               n[a.network] = {
+                isSubgraphDown:
+                  a.balanceStatement === undefined &&
+                  a.accountHistory === undefined,
                 isAccountReady: true,
                 riskProfile,
                 accountDefinition: a,
