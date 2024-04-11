@@ -177,7 +177,7 @@ export function TradeActionSummary({
             ))}
             <InfoTooltip
               iconSize={theme.spacing(2)}
-              iconColor={theme.palette.info.main}
+              iconColor={theme.palette.info.dark}
               toolTipText={defineMessage({
                 defaultMessage:
                   'Point prices are pulled from: <a>app.whales.market/points-markets</a>',
