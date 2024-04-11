@@ -10,8 +10,8 @@ import {
   SupportedNetworks,
   unique,
 } from '@notional-finance/util';
-import { useCallback, useMemo } from 'react';
-import { useNotionalContext } from './use-notional';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAnalyticsReady, useNotionalContext } from './use-notional';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
 
 export interface MaturityData {
@@ -345,4 +345,19 @@ export function useTradedValue(amount: TokenBalance | undefined) {
     console.error(e);
     return undefined;
   }
+}
+
+export function usePointPrices() {
+  const analyticsReady = useAnalyticsReady(Network.all);
+  const [pointPrices, setPointPrices] = useState<
+    { points: string; price: number }[] | undefined
+  >();
+
+  useEffect(() => {
+    if (analyticsReady && pointPrices === undefined) {
+      Registry.getAnalyticsRegistry().getPointPrices().then(setPointPrices);
+    }
+  }, [analyticsReady, pointPrices]);
+
+  return pointPrices;
 }

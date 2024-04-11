@@ -6,11 +6,16 @@ import {
   TradeSummaryContainer,
   TradeActionTitle,
   H4,
+  InfoTooltip,
+  Caption,
 } from '@notional-finance/mui';
 import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  usePointPrices,
+} from '@notional-finance/notionable-hooks';
 import {
   LeverageInfoRow,
   LiquidityYieldInfo,
@@ -58,6 +63,7 @@ export function TradeActionSummary({
   const isLeveraged =
     isLeveragedTrade(tradeType) || priorVaultFactors !== undefined;
   const collateral = state.collateral || priorVaultFactors?.vaultShare;
+  const pointPrices = usePointPrices();
 
   const apySuffix = isLeveraged ? (
     <FormattedMessage defaultMessage={'Total APY'} />
@@ -145,14 +151,52 @@ export function TradeActionSummary({
           }
         />
         {points && (
-          <H4 sx={{ marginTop: theme.spacing(1) }} accent>{`${Object.keys(
-            points
-          )
-            .map(
-              (k) =>
-                `${pointsMultiple(points[k], leverageRatio).toFixed(2)}x ${k}`
-            )
-            .join(' & ')} Points`}</H4>
+          <Box
+            sx={{
+              marginTop: theme.spacing(1),
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {Object.keys(points).map((k) => (
+              <Box marginRight={theme.spacing(1)} display="flex">
+                <H4>
+                  {`${pointsMultiple(points[k], leverageRatio).toFixed(
+                    2
+                  )}x ${k} Points:`}
+                  &nbsp;
+                </H4>
+                {pointPrices && (
+                  <H4 light>{`$${
+                    pointPrices
+                      .find((p) => p.points.includes(k))
+                      ?.price.toFixed(4) || '-'
+                  }/point`}</H4>
+                )}
+              </Box>
+            ))}
+            <InfoTooltip
+              iconSize={theme.spacing(2)}
+              iconColor={theme.palette.info.dark}
+              toolTipText={defineMessage({
+                defaultMessage:
+                  'Point prices are pulled from: <a>app.whales.market/points-markets</a>',
+                values: {
+                  a: (a: string) => (
+                    <Caption
+                      accent
+                      href="https://app.whales.market/points-markets"
+                    >
+                      {a}
+                    </Caption>
+                  ),
+                },
+              })}
+              sx={{
+                marginLeft: theme.spacing(0.5),
+              }}
+            />
+          </Box>
         )}
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
