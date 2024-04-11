@@ -49,7 +49,7 @@ export const whitelistedVaults = (network: Network) => {
         // "[rETH]:xrETH_weETH"
         // '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1',
         // "[ETH]:ezETH_xWETH":
-        // '0x914255c0c289aea36e378ebb5e28293b5ed278ca',
+        '0x914255c0c289aea36e378ebb5e28293b5ed278ca',
       ];
     case Network.arbitrum:
       return [
