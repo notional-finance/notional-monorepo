@@ -2,6 +2,8 @@ import { Network } from '@notional-finance/util';
 
 // all addresses must be properly checksummed
 // mainnet
+const ETH = '0x0000000000000000000000000000000000000000';
+const rETH = '0xae78736Cd615f374D3085123A210448E74Fc6393';
 const PYUSD = '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8';
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 const USDT = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
@@ -11,6 +13,8 @@ const CRV = '0xd533a949740bb3306d119cc777fa900ba034cd52';
 const CVX = '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b';
 const BAL = '0xba100000625a3754423978a60c9317c58a424e3D';
 const AURA = '0xc0c293ce456ff0ed870add98a0828dd4d2903dbf';
+const ezETH = '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110';
+const weETH = '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee';
 // arbitrum
 const ARB_BAL = '0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8';
 const ARB_AURA = '0x1509706a6c66CA549ff0cB464de88231DDBe213B';
@@ -76,6 +80,18 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       rewardTokens: [BAL, AURA],
       poolTokens: [GHO, '0x8353157092ED8Be69a9DF8F95af097bbF33Cb2aF', USDC, USDT],
       tokenWeights: [33, 0, 33, 33],
+    },
+    {
+      address: '0x914255c0c289aea36e378ebb5e28293b5ed278ca',
+      rewardTokens: [BAL, AURA],
+      poolTokens: ['0x596192bB6e41802428Ac943D2f1476C1Af25CC0E', ezETH, ETH],
+      tokenWeights: [0, 50, 50],
+    },
+    {
+      address: '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1',
+      rewardTokens: [BAL, AURA],
+      poolTokens: ['0x05ff47AFADa98a98982113758878F9A8B9FddA0a,', rETH, weETH],
+      tokenWeights: [0, 50, 50],
     },
   ],
   arbitrum: [
