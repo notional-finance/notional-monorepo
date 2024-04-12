@@ -170,6 +170,16 @@ export const Footer = () => {
           </Label>
           <HeadingSubtitle
             contrast
+            to="/analytics"
+            marginBottom={theme.spacing(4)}
+          >
+            <FormattedMessage
+              defaultMessage="Analytics"
+              description="footer link"
+            />
+          </HeadingSubtitle>
+          <HeadingSubtitle
+            contrast
             href="https://docs.notional.finance/notional-v3"
             marginBottom={theme.spacing(4)}
           >

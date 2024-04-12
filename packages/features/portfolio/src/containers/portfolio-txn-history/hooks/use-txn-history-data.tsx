@@ -14,7 +14,6 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
   const theme = useTheme();
   let assetOrVaultData: SelectedOptions[] = [];
   let currencyData: SelectedOptions[] = [];
-
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
   const accountHistory = useTransactionHistory(network);

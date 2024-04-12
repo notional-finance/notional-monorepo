@@ -118,10 +118,10 @@ export const DataTableBody = ({
             : {};
 
         return (
-          <Fragment key={`row-container-${i}`}>
+          <Fragment key={`row-container-${row.id}`}>
             <StyledTableRow
               theme={theme}
-              key={`row-${i}`}
+              key={`row-${row.id}`}
               rowSelected={rowSelected}
               expandableTableActive={expandableTableActive}
               tableVariant={tableVariant}
