@@ -52,6 +52,7 @@ query AllAccounts($skip: Int) {
             ]}}
             first: 1000, orderBy: blockNumber, orderDirection: desc
         ) {
+            account { id }
             timestamp
             blockNumber
             transactionHash { id }

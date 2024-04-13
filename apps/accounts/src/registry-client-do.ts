@@ -19,7 +19,7 @@ import {
 import { BaseDO, MetricType } from '@notional-finance/durable-objects';
 import {
   calculateAccountIRR,
-  currentContestId,
+  // currentContestId,
   excludedAccounts,
 } from './factors/calculations';
 import { Env } from '.';
@@ -80,7 +80,7 @@ export class RegistryClientDO extends BaseDO<Env> {
         await this.saveYieldData(network);
         if (network === Network.arbitrum) {
           await this.checkDBMonitors(network);
-          await this.saveContestIRR(network, currentContestId);
+          // await this.saveContestIRR(network, currentContestId);
         }
         await this.saveAccountRiskProfiles(network);
       }

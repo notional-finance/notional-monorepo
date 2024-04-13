@@ -9020,7 +9020,7 @@ export type AllAccountsQuery = { accounts: Array<(
         )>> }
       ) }>>, profitLossLineItems?: Maybe<Array<(
       Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
-      & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
+      & { account: Pick<Account, 'id'>, transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
   )> };
 
@@ -9332,6 +9332,9 @@ export const AllAccountsDocument = gql`
       orderBy: blockNumber
       orderDirection: desc
     ) {
+      account {
+        id
+      }
       timestamp
       blockNumber
       transactionHash {
