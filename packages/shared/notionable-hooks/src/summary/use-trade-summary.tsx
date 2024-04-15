@@ -249,7 +249,8 @@ function getFeeDetailItem(
                 toolTipColor={theme.palette.info.dark}
               />
             ),
-            isNegative: feeValue.isNegative(),
+            isNegative: false,
+            showPositiveAsGreen: true,
           },
         ],
       },
