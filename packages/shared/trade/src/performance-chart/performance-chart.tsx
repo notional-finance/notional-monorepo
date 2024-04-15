@@ -26,7 +26,8 @@ export const PerformanceChart = ({
   const theme = useTheme();
   const { areaChartData, areaChartStyles, isEmptyState, chartToolTipData } =
     usePerformanceChart(state, priorVaultFactors);
-  const { collateral, deposit, selectedDepositToken } = state;
+  const { collateral: _collateral, deposit, selectedDepositToken } = state;
+  const collateral = _collateral || priorVaultFactors?.vaultShare;
   const { barConfig, barChartData } = useApyChart(collateral);
 
   const chartComponents: ChartComponentsProps[] = [
