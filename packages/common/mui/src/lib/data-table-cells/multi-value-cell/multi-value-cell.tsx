@@ -20,8 +20,6 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
   const isPending =
     column.columnDef.showLoadingSpinner && row.original.isPending;
 
-  console.log({ value });
-
   return (
     <Box className="multi-value-cell">
       {isPending ? (
