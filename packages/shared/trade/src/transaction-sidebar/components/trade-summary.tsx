@@ -14,6 +14,8 @@ export const TradeSummary = ({
 }) => {
   const { summary } = useTradeSummary(state);
 
+  console.log({ summary });
+
   return (
     <DataTable
       tableVariant={TABLE_VARIANTS.MINI}
