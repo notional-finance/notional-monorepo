@@ -27,6 +27,7 @@ export const useTxnHistoryTable = (
           />
         ),
         accessorKey: 'transactionType',
+        showSentAndReceivedIcons: true,
         cell: MultiValueIconCell,
         textAlign: 'left',
       },

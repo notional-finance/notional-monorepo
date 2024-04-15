@@ -142,6 +142,4 @@ export const ContestTable = ({
   );
 };
 
-// export default ContestTable;
-
 export default ContestTable;

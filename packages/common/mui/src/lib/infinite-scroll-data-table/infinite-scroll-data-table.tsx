@@ -12,13 +12,15 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { PageLoading } from '../page-loading/page-loading';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { DataTableToggleProps } from '../data-table/data-table';
 import { Network } from '@notional-finance/util';
 
 type InfiniteScrollDataTable = {
   tableTitle?: JSX.Element;
   network?: Network;
-  networkToggleData: DataTableToggleProps;
+  networkToggleData: {
+    toggleKey: number;
+    setToggleKey: (v: number) => void;
+  };
   apiCallback: (fetchCount: number) => Promise<any>; // This hook must return a promise
   handleDataFormatting: (data: any) => Array<any>; // This is the function that formats the data from the API to be used in the table
   columns: Array<any>;
@@ -84,7 +86,7 @@ const Table = ({
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
-    estimateSize: () => 50, //estimate row height for accurate scrollbar dragging
+    estimateSize: () => 70, //estimate row height for accurate scrollbar dragging
     getScrollElement: () => tableContainerRef.current,
     //measure dynamic row height, except in firefox because it measures table border height incorrectly
     measureElement:
@@ -126,7 +128,7 @@ const Table = ({
           networkToggleData={networkToggleData}
         />
         {isLoading ? (
-          <Box sx={{ height: theme.spacing(75) }}>
+          <Box sx={{ height: theme.spacing(75) }} component={'colgroup'}>
             <PageLoading type="notional" />
           </Box>
         ) : (

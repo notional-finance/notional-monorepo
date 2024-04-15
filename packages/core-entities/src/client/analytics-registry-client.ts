@@ -446,8 +446,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
         return {
           [network]: r.transactions
             .map((t) => {
-              const test = parseTransaction(t as Transaction, network)
-              return test
+              return parseTransaction(t as Transaction, network);
             })
             .flatMap((_) => _),
         };

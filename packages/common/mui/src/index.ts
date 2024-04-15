@@ -78,3 +78,4 @@ export type { CurrencySelectOption } from './lib/currency-input/currency-select'
 export * from './lib/simple-toggle/simple-toggle';
 export * from './lib/footer-popup/footer-popup';
 export * from './lib/message-box/message-box';
+export * from './lib/network-toggle/network-toggle';

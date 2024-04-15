@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { defineMessage } from 'react-intl';
 import { FormattedMessage } from 'react-intl';
-import { TokenIcon } from '@notional-finance/icons';
-import { Box, useTheme } from '@mui/material';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useHistory, useLocation } from 'react-router';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
@@ -139,7 +137,6 @@ export const config = {
 };
 
 export const useDashboardConfig = (routeKey: PRODUCTS) => {
-  const theme = useTheme();
   const history = useHistory();
   const { pathname } = useLocation();
   const selectedNetwork = useSelectedNetwork();
@@ -153,24 +150,6 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
   };
 
   const headerData = {
-    toggleOptions: [
-      <Box sx={{ fontSize: '14px', display: 'flex' }}>
-        <TokenIcon
-          symbol="arbnetwork"
-          size="small"
-          style={{ marginRight: theme.spacing(1) }}
-        />
-        Arbitrum
-      </Box>,
-      <Box sx={{ fontSize: '14px', display: 'flex' }}>
-        <TokenIcon
-          symbol="ethnetwork"
-          size="small"
-          style={{ marginRight: theme.spacing(1) }}
-        />
-        Mainnet
-      </Box>,
-    ],
     messageBoxText: (
       <FormattedMessage defaultMessage={'Native Token Yield not shown.'} />
     ),

@@ -14,4 +14,5 @@ export * from './text-with-icon-cell/text-with-icon-cell';
 export * from './tooltip-cell/tooltip-cell';
 export * from './txn-hash-cell/txn-hash-cell';
 export * from './arrow-change-cell/arrow-change-cell';
+export * from './copy-paste-cell/copy-paste-cell';
 

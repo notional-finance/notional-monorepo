@@ -1,12 +1,14 @@
 import { useTheme, TableRow, Box } from '@mui/material';
 import { flexRender } from '@tanstack/react-table';
 import { TableColumnHeading } from '../typography/typography';
-import { DataTableToggleProps } from '../data-table/data-table';
-import SimpleToggle from '../simple-toggle/simple-toggle';
+import { NetworkToggle } from '../network-toggle/network-toggle';
 
 interface TableHeadProps {
   headerGroups: any[];
-  networkToggleData: DataTableToggleProps;
+  networkToggleData: {
+    toggleKey: number;
+    setToggleKey: (v: number) => void;
+  };
 }
 
 export const TableHead = ({
@@ -32,23 +34,18 @@ export const TableHead = ({
         }}
       >
         <Box sx={{ width: 'fit-content', height: 'fit-content' }}>
-          <SimpleToggle
-            sx={{
-              marginRight: theme.spacing(3),
-            }}
-            tabVariant="standard"
-            tabLabels={networkToggleData.toggleOptions}
-            selectedTabIndex={networkToggleData.toggleKey}
-            onChange={(_, v) => networkToggleData.setToggleKey(v as number)}
+          <NetworkToggle
+            selectedNetwork={networkToggleData.toggleKey}
+            handleNetWorkToggle={networkToggleData.setToggleKey}
           />
         </Box>
       </Box>
       {headerGroups.map((headerGroup) => (
         <TableRow key={headerGroup.id} sx={{ display: 'flex', width: '100%' }}>
-          {headerGroup.headers.map((header) => {
+          {headerGroup.headers.map((header, i) => {
             return (
               <TableColumnHeading
-                key={header.id}
+                key={i}
                 sx={{
                   display: 'flex',
                   width: '100%',

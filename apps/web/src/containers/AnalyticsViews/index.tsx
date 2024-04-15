@@ -7,14 +7,14 @@ import {
 } from '@notional-finance/mui';
 import { useAnalyticsTable } from './hooks/use-analytics-table';
 import { Registry } from '@notional-finance/core-entities';
-import { Network, getEtherscanTransactionLink } from '@notional-finance/util';
-import { ReceivedIcon, SentIcon, StackIcon } from '@notional-finance/icons';
-import { formatTokenAmount, formatTokenType } from '@notional-finance/helpers';
+import { Network } from '@notional-finance/util';
+import { StackIcon } from '@notional-finance/icons';
 import { useNetworkToggle } from './hooks/use-network-toggle';
 import { useTheme, Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
+import { formatTxnTableData } from '@notional-finance/helpers';
 
-export const AnalyticsView = () => {
+export const NetworkTransactionsView = () => {
   const theme = useTheme();
   const networkToggleData = useNetworkToggle();
   const network =
@@ -30,60 +30,8 @@ export const AnalyticsView = () => {
   );
 
   const handleDataFormatting = (data) => {
-    return data.finalResults[network].map(
-      ({
-        bundleName,
-        label,
-        txnLabel,
-        underlyingAmountRealized,
-        token,
-        realizedPrice,
-        timestamp,
-        transactionHash,
-        underlying,
-        impliedFixedRate,
-        vaultName,
-      }) => {
-        const assetData = formatTokenType(token);
-        const isIncentive =
-          bundleName === 'Transfer Incentive' ||
-          bundleName === 'Transfer Secondary Incentive';
-        return {
-          transactionType: {
-            label: label,
-            caption: vaultName || txnLabel,
-            IconComponent: underlyingAmountRealized.isNegative() ? (
-              <SentIcon fill={theme.palette.primary.dark} />
-            ) : (
-              <ReceivedIcon fill={theme.palette.primary.main} />
-            ),
-          },
-          vaultName: vaultName,
-          underlyingAmount: formatTokenAmount(
-            underlyingAmountRealized,
-            impliedFixedRate,
-            true,
-            false,
-            underlyingAmountRealized.isPositive(),
-            4
-          ),
-          asset: {
-            label: assetData.title,
-            symbol: assetData.icon.toLowerCase(),
-            caption: assetData.caption ? assetData.caption : '',
-          },
-          price: isIncentive
-            ? '-'
-            : realizedPrice.toDisplayStringWithSymbol(4, true),
-          time: timestamp,
-          txLink: {
-            hash: transactionHash,
-            href: getEtherscanTransactionLink(transactionHash, network),
-          },
-          currency: underlying.symbol,
-          token: token,
-        };
-      }
+    return data.finalResults[network].map((allTxnData) =>
+      formatTxnTableData(allTxnData, network)
     );
   };
 
@@ -121,7 +69,7 @@ export const AnalyticsView = () => {
         sx={{
           padding: theme.spacing(5),
           paddingTop: '0px',
-          maxWidth: theme.spacing(167),
+          maxWidth: theme.spacing(180),
           margin: 'auto',
           marginTop: `-${theme.spacing(30)}`,
         }}
@@ -142,7 +90,7 @@ const StyledTopContent = styled(Box)(
   ({ theme }) => `
   width: 100%;
   padding: ${theme.spacing(5)};
-  max-width: ${theme.spacing(167)};
+  max-width: ${theme.spacing(180)};
   display: flex;
   flex-direction: column;
   margin: auto;
@@ -184,4 +132,4 @@ const Title = styled(H1)(
 `
 );
 
-export default AnalyticsView;
+export default NetworkTransactionsView;

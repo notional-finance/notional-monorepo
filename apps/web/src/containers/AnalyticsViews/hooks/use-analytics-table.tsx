@@ -4,6 +4,7 @@ import {
   MultiValueCell,
   TxnHashCell,
   DateTimeCell,
+  CopyPasteCell,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 
@@ -19,6 +20,8 @@ export const useAnalyticsTable = () => {
         ),
         accessorKey: 'transactionType',
         cell: MultiValueIconCell,
+        showSentAndReceivedIcons: true,
+        width: '210px',
         textAlign: 'left',
       },
       {
@@ -60,6 +63,15 @@ export const useAnalyticsTable = () => {
         ),
         cell: DateTimeCell,
         accessorKey: 'time',
+        textAlign: 'right',
+      },
+      {
+        header: (
+          <FormattedMessage defaultMessage="Address" description={'Address'} />
+        ),
+        cell: CopyPasteCell,
+        showLinkIcon: false,
+        accessorKey: 'address',
         textAlign: 'right',
       },
       {

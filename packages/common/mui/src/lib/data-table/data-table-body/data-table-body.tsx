@@ -57,9 +57,9 @@ export const DataTableBody = ({
       }}
     >
       {tableRows.map((row, i) => {
-        const testRow = rows[row.index] as Row<any>;
+        const currentRow = rows[row.index] as Row<any>;
         const cells = isScrollable
-          ? testRow.getVisibleCells()
+          ? currentRow.getVisibleCells()
           : row.getAllCells();
 
         const rowSelected = row.original?.rowSelected

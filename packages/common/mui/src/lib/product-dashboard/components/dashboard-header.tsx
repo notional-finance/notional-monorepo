@@ -4,6 +4,7 @@ import { FourSquareIcon, ListIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { DashboardHeaderProps } from '../product-dashboard';
 import { MessageBox } from '../../message-box/message-box';
+import { NetworkToggle } from '../../network-toggle/network-toggle';
 
 export const DashboardHeader = ({
   headerData,
@@ -13,8 +14,7 @@ export const DashboardHeader = ({
   handleDashboardTab,
 }: DashboardHeaderProps) => {
   const theme = useTheme();
-  const { toggleOptions, messageBoxText, networkToggle, handleNetWorkToggle } =
-    headerData;
+  const { messageBoxText, networkToggle, handleNetWorkToggle } = headerData;
 
   const gridToggleData = [
     <Box
@@ -81,10 +81,9 @@ export const DashboardHeader = ({
     <HeaderContainer>
       <Box sx={{ display: 'flex' }}>
         <Box sx={{ marginRight: theme.spacing(3) }}>
-          <SimpleToggle
-            tabLabels={toggleOptions}
-            selectedTabIndex={networkToggle}
-            onChange={(_, v) => handleNetWorkToggle(v as number)}
+          <NetworkToggle
+            selectedNetwork={networkToggle}
+            handleNetWorkToggle={handleNetWorkToggle}
           />
         </Box>
         {dashboardTab === 1 && (

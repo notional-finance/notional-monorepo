@@ -18,13 +18,13 @@ export const TableBody = ({ rows, rowVirtualizer }: TableBodyProps) => {
 
   return (
     <TBody height={rowVirtualizer.getTotalSize()} theme={theme}>
-      {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+      {rowVirtualizer.getVirtualItems().map((virtualRow, index) => {
         const row = rows[virtualRow.index] as Row<any>;
         return (
           <tr
             data-index={virtualRow.index} //needed for dynamic row height measurement
             ref={(node) => rowVirtualizer.measureElement(node)} //measure dynamic row height
-            key={row.id}
+            key={index}
             style={{
               display: 'flex',
               position: 'absolute',
@@ -32,10 +32,10 @@ export const TableBody = ({ rows, rowVirtualizer }: TableBodyProps) => {
               width: '100%',
             }}
           >
-            {row.getVisibleCells().map((cell) => {
+            {row.getVisibleCells().map((cell: Record<string, any>, i) => {
               return (
                 <td
-                  key={cell.id}
+                  key={i}
                   style={{
                     width: '100%',
                     padding: theme.spacing(2),

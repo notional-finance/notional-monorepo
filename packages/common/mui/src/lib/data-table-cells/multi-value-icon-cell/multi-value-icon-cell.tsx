@@ -3,6 +3,8 @@ import {
   TokenIcon,
   DoubleTokenIcon,
   LightningIcon,
+  SentIcon,
+  ReceivedIcon,
 } from '@notional-finance/icons';
 import {
   TableCell,
@@ -90,6 +92,12 @@ export const MultiValueIconCell = (props): JSX.Element => {
             />
           )}
           {values?.IconComponent && values.IconComponent}
+          {column.columnDef?.showSentAndReceivedIcons &&
+            (values.showSentIcon ? (
+              <SentIcon fill={theme.palette.primary.dark} />
+            ) : (
+              <ReceivedIcon fill={theme.palette.primary.main} />
+            ))}
         </Box>
       ) : null}
       <Box
