@@ -15,7 +15,7 @@ import {
   GenericDataConfig,
 } from './types';
 import { GenericDataWriter, TokenBalanceDataWriter } from './DataWriter';
-import { gql } from '@apollo/client';
+import { gql } from '@apollo/client/core';
 import { configDefs as GenericConfig } from './config/GenericConfig';
 import { Balancer_Config } from './config/balancer';
 import { Curve_Config } from './config/convex';
