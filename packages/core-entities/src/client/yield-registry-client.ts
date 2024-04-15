@@ -476,6 +476,14 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           vaultAPYs.length > 0
             ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
             : 0;
+        try {
+          // If the vault debt is not found then skip generating the yield for
+          // this vault
+          if (v.vaultAddress && v.maturity)
+            tokens.getVaultDebt(network, v.vaultAddress, v.maturity);
+        } catch (e) {
+          return [];
+        }
 
         const vaultShareYield: YieldData = {
           token: v,
