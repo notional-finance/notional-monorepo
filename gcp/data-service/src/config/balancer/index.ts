@@ -230,4 +230,27 @@ export const Balancer_Config = [
       ),
     ]
   ),
+  getComposablePoolConfig(
+    '0xb61371ab661b1acec81c699854d2f911070c059e000000000000000000000516',
+    '0xb61371ab661b1acec81c699854d2f911070c059e',
+    '0x7c4a6b0c16ca99e65822cc531403ce2f8a20a912',
+    '0xcd41bc6dc6e9821c4c36848ff3397493e458a5d1',
+    Network.arbitrum,
+    Strategy.Arb_Balancer_ezETH_wstETH,
+    [ArbTokenConfig['ezETH'], ArbTokenConfig['wstETH']],
+    [
+      getOracleValue(
+        Network.arbitrum,
+        Strategy.Arb_Balancer_ezETH_wstETH,
+        'ezETH to ETH Price',
+        '0x11E1836bFF2ce9d6A5bec9cA79dc998210f3886d'
+      ),
+      getOracleValue(
+        Network.arbitrum,
+        Strategy.Arb_Balancer_ezETH_wstETH,
+        'wstETH to ETH Price',
+        '0x8910333436c7FD1fEa39e8Aef3264471755772F8'
+      ),
+    ]
+  ),
 ].flatMap((_) => _);

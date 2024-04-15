@@ -461,6 +461,15 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     return this._fetch(network, 'analytics');
   }
 
+  async getPointPrices() {
+    return this.getView<{ points: string; price: string }>(
+      Network.all,
+      'points_prices'
+    ).then((m) =>
+      m.map(({ points, price }) => ({ points, price: parseFloat(price) || 0 }))
+    );
+  }
+
   async getView<T>(network: Network, viewName: string) {
     return this._fetch<T[]>(network, viewName);
   }

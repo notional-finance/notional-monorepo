@@ -2,6 +2,8 @@ import { Network } from '@notional-finance/util';
 
 // all addresses must be properly checksummed
 // mainnet
+const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
+const rETH = '0xae78736Cd615f374D3085123A210448E74Fc6393';
 const PYUSD = '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8';
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 const USDT = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
@@ -11,7 +13,10 @@ const CRV = '0xd533a949740bb3306d119cc777fa900ba034cd52';
 const CVX = '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b';
 const BAL = '0xba100000625a3754423978a60c9317c58a424e3D';
 const AURA = '0xc0c293ce456ff0ed870add98a0828dd4d2903dbf';
+const ezETH = '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110';
+const weETH = '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee';
 // arbitrum
+const ARB_WETH = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1';
 const ARB_BAL = '0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8';
 const ARB_AURA = '0x1509706a6c66CA549ff0cB464de88231DDBe213B';
 const ARB_CRV = '0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978';
@@ -25,8 +30,12 @@ const ARB_USDT = '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9';
 const ARB_wstETH = '0x5979D7b546E38E414F7E9822514be443A4800529';
 const ARB_cbETH = '0x1DEBd73E752bEaF79865Fd6446b0c970EaE7732f';
 
-export const ARB_ETH = '0x0000000000000000000000000000000000000000';
-export const ARB_WETH = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1';
+export const ETH = '0x0000000000000000000000000000000000000000';
+
+export const wEthMapper: Partial<Record<Network, string>> = {
+  mainnet: WETH,
+  arbitrum: ARB_WETH
+}
 
 // set minimum values for tokens that are going to be claim/sell (~$15 for arbitrum, ~$150 for mainnet)
 // if token is also pool token it won't be sold
@@ -77,6 +86,18 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       poolTokens: [GHO, '0x8353157092ED8Be69a9DF8F95af097bbF33Cb2aF', USDC, USDT],
       tokenWeights: [33, 0, 33, 33],
     },
+    {
+      address: '0x914255c0c289aea36e378ebb5e28293b5ed278ca',
+      rewardTokens: [BAL, AURA],
+      poolTokens: ['0x596192bB6e41802428Ac943D2f1476C1Af25CC0E', ezETH, ETH],
+      tokenWeights: [0, 50, 50],
+    },
+    {
+      address: '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1',
+      rewardTokens: [BAL, AURA],
+      poolTokens: ['0x05ff47AFADa98a98982113758878F9A8B9FddA0a,', rETH, weETH],
+      tokenWeights: [0, 50, 50],
+    },
   ],
   arbitrum: [
     {
@@ -94,7 +115,7 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
     {
       address: '0x3Df035433cFACE65b6D68b77CC916085d020C8B8',
       rewardTokens: [ARB, ARB_BAL, ARB_AURA],
-      poolTokens: [ARB_ETH, '0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81', ARB_RETH],
+      poolTokens: [ETH, '0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81', ARB_RETH],
       tokenWeights: [50, 0, 50],
     },
     {
@@ -106,7 +127,7 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
     {
       address: '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
       rewardTokens: [ARB, ARB_BAL, ARB_AURA],
-      poolTokens: [ARB_wstETH, ARB_ETH, '0x9791d590788598535278552EEcD4b211bFc790CB'],
+      poolTokens: [ARB_wstETH, ETH, '0x9791d590788598535278552EEcD4b211bFc790CB'],
       tokenWeights: [50, 50, 0],
     },
     {

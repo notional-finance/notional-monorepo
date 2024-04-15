@@ -44,7 +44,7 @@ export const VaultSummary = () => {
       decimals: 2,
     },
     {
-      title: 'Unused Debt Capacity',
+      title: 'Remaining Borrow Capacity',
       value: totalCapacityRemaining?.toFloat(),
       suffix: ` ${totalCapacityRemaining?.symbol || ''}`,
       decimals: 0,

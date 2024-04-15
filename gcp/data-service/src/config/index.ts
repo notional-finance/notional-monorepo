@@ -58,6 +58,11 @@ export const ArbTokenConfig = {
     symbol: 'crvUSD',
     decimals: 18,
   },
+  ezETH: {
+    address: '0x2416092f143378750bb29b79eD961ab195CcEea5',
+    symbol: 'ezETH',
+    decimals: 18,
+  },
 } as const;
 
 export const EthTokenConfig = {

@@ -10,7 +10,7 @@ import {
   getProviderFromNetwork,
 } from '@notional-finance/util';
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
-import { vaults, minTokenAmount, ARB_ETH, ARB_WETH, Vault } from './vaults';
+import { vaults, minTokenAmount, ETH, wEthMapper, Vault } from './vaults';
 import {
   get0xData,
   sendTxThroughRelayer,
@@ -231,7 +231,7 @@ const getTrades = async (
       if (!amount.eq(0)) {
         const tradeData = await get0xData({
           sellToken,
-          buyToken: token == ARB_ETH ? ARB_WETH : token,
+          buyToken: token == ETH ? wEthMapper[env.NETWORK] : token,
           sellAmount: amount,
           slippagePercentage: SLIPPAGE_PERCENT * slippageMultiplier++,
           env,
