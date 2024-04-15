@@ -18,13 +18,17 @@ import {
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import { OracleDefinition, CacheSchema } from '..';
+import { OracleDefinition, CacheSchema, ClientRegistry } from '..';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 import { fiatOracles } from '../config/fiat-config';
 import { TypedDocumentNode } from '@apollo/client/core';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllOraclesQuery } from '../.graphclient';
 import { vaultOverrides } from './vault-overrides';
+
+// NOTE: this is currently hardcoded because we cannot access the worker
+// process environment directly here.
+const NX_DATA_URL = 'https://data-dev.notional.finance';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   public override hasAllNetwork(): boolean {
@@ -48,39 +52,48 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     const { AllOraclesDocument, AllOraclesByBlockDocument } =
       await loadGraphClientDeferred();
 
-    return this._fetchUsingGraph(
-      network,
-      (blockNumber !== undefined
-        ? AllOraclesByBlockDocument
-        : AllOraclesDocument) as TypedDocumentNode<AllOraclesQuery, unknown>,
-      (r) => {
-        return r.oracles.reduce((obj, v) => {
-          obj[v.id] = {
-            id: v.id,
-            oracleAddress: v.oracleAddress as string,
-            network,
-            oracleType: v.oracleType,
-            base: v.base.id,
-            baseDecimals: v.base.decimals,
-            quote: v.quote.id,
-            quoteCurrencyId: v.quote.currencyId,
-            decimals: v.decimals,
-            latestRate: {
-              rate: BigNumber.from(v.latestRate),
-              timestamp: v.lastUpdateTimestamp,
-              blockNumber: blockNumber || v.lastUpdateBlockNumber,
-            },
-          };
+    try {
+      return this._fetchUsingGraph(
+        network,
+        (blockNumber !== undefined
+          ? AllOraclesByBlockDocument
+          : AllOraclesDocument) as TypedDocumentNode<AllOraclesQuery, unknown>,
+        (r) => {
+          return r.oracles.reduce((obj, v) => {
+            obj[v.id] = {
+              id: v.id,
+              oracleAddress: v.oracleAddress as string,
+              network,
+              oracleType: v.oracleType,
+              base: v.base.id,
+              baseDecimals: v.base.decimals,
+              quote: v.quote.id,
+              quoteCurrencyId: v.quote.currencyId,
+              decimals: v.decimals,
+              latestRate: {
+                rate: BigNumber.from(v.latestRate),
+                timestamp: v.lastUpdateTimestamp,
+                blockNumber: blockNumber || v.lastUpdateBlockNumber,
+              },
+            };
 
-          return obj;
-        }, {} as Record<string, OracleDefinition>);
-      },
-      {
-        blockNumber,
-        skip: 0,
-      },
-      'oracles'
-    );
+            return obj;
+          }, {} as Record<string, OracleDefinition>);
+        },
+        {
+          blockNumber,
+          skip: 0,
+        },
+        'oracles'
+      );
+    } catch (e) {
+      console.error(e);
+      // If the subgraph has failed, get the previous cache schema and return it, we still
+      // want to continue to update the latest rates
+      return ClientRegistry.fetch<CacheSchema<OracleDefinition>>(
+        `${NX_DATA_URL}/${network}/oracles`
+      );
+    }
   }
 
   /**

@@ -42,6 +42,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
   constructor(cacheHostname: string) {
     super(cacheHostname);
+    // Don't enforce freshness intervals if the subgraph happens to go down. Configuration
+    // data does not change very often
+    this.defaultFreshnessIntervals = 0;
 
     // Ensures that all subject keys get registered
     this.subjectRegistered.asObservable().subscribe((s) => {
