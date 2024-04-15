@@ -26,7 +26,12 @@ import {
   ProtocolName,
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
-import { ApolloClient, HttpLink, InMemoryCache, gql } from '@apollo/client';
+import {
+  ApolloClient,
+  HttpLink,
+  InMemoryCache,
+  gql,
+} from '@apollo/client/core';
 import { graphQueries } from './graphQueries';
 
 // TODO: fetch from DB
