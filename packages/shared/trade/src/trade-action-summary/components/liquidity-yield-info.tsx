@@ -13,6 +13,8 @@ export const LiquidityYieldInfo = ({
 }) => {
   const theme = useTheme();
   const { pathname } = useLocation();
+  const organicAPY =
+    (liquidityYieldData.feeAPY || 0) + (liquidityYieldData.organicAPY || 0);
   return (
     <Box display="inline-flex" sx={{ marginTop: theme.spacing(1) }}>
       <H4>
@@ -41,19 +43,13 @@ export const LiquidityYieldInfo = ({
         sx={{
           marginRight: theme.spacing(2),
           color:
-            liquidityYieldData?.organicAPY !== undefined &&
-            liquidityYieldData?.organicAPY < 0
+            organicAPY !== undefined && organicAPY < 0
               ? theme.palette.error.main
               : theme.palette.typography.light,
         }}
       >
-        {liquidityYieldData?.organicAPY !== undefined ? (
-          <CountUp
-            value={liquidityYieldData.organicAPY}
-            suffix="%"
-            decimals={2}
-            delay={0.3}
-          />
+        {organicAPY !== undefined ? (
+          <CountUp value={organicAPY} suffix="%" decimals={2} delay={0.3} />
         ) : (
           '-'
         )}
