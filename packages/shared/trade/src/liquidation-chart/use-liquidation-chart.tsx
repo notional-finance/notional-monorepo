@@ -58,7 +58,7 @@ export function useLiquidationChart(
     })
   );
 
-  let yAxisDomain: AxisDomain = ['auto', 'auto'];
+  let yAxisDomain: AxisDomain = ['dataMin * 0.95', 'dataMax * 1.05'];
   if (token?.tokenType === 'fCash') {
     // This range technically only applies to lending fCash but works as a boundary on the
     // fCash price anyway
