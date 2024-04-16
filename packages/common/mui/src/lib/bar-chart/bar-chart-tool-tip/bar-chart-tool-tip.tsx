@@ -39,7 +39,7 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
       bars as they show up */}
       {(isStackedBar ? payload?.reverse() : payload)?.map((item, index) => (
         <div key={index}>
-          {item?.value && item.value > 0 ? (
+          {item?.value && item.value !== 0 ? (
             <Item key={index}>
               <Box
                 sx={{
