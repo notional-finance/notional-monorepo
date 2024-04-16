@@ -48,17 +48,16 @@ export const TableHead = ({
                 key={i}
                 sx={{
                   display: 'flex',
+                  justifyContent: header.column.columnDef.textAlign || '',
                   width: '100%',
                   whiteSpace: 'nowrap',
                   padding: theme.spacing(2),
                 }}
               >
-                <div>
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </div>
+                {flexRender(
+                  header.column.columnDef.header,
+                  header.getContext()
+                )}
               </TableColumnHeading>
             );
           })}

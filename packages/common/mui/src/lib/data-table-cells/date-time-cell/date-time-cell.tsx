@@ -20,7 +20,13 @@ export const DateTimeCell = ({ cell }): JSX.Element => {
     : SmallTableCell;
 
   return (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        textAlign: column.columnDef?.textAlign || '',
+      }}
+    >
       <FirstValue sx={{ width: '100%', marginBottom: '0px' }}>
         {getDateString(value)}
       </FirstValue>

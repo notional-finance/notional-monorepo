@@ -46,7 +46,6 @@ export const useAnalyticsTable = () => {
         accessorKey: 'underlyingAmount',
         textAlign: 'right',
       },
-
       {
         header: (
           <FormattedMessage

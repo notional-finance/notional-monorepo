@@ -41,6 +41,7 @@ export const TableBody = ({ rows, rowVirtualizer }: TableBodyProps) => {
                     padding: theme.spacing(2),
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: cell.column.columnDef.textAlign || '',
                   }}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
