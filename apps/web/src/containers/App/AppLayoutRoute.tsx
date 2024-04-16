@@ -6,6 +6,7 @@ import {
   metaTagData,
 } from '@notional-finance/shared-web';
 import { WalletSelector } from '@notional-finance/wallet';
+import { useIntercom } from 'react-use-intercom';
 import { Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { META_TAG_CATEGORIES, RouteType } from '@notional-finance/util';
@@ -13,6 +14,7 @@ import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { usePageTrack } from '@notional-finance/helpers';
 import { useLocation } from 'react-router';
 import { FooterPopup } from '@notional-finance/mui';
+import { useEffect } from 'react';
 
 const AppLayoutRoute = ({
   component: Component,
@@ -27,11 +29,18 @@ const AppLayoutRoute = ({
 }) => {
   const location = useLocation();
   const selectedNetwork = useWalletConnectedNetwork();
+  const { boot } = useIntercom();
   usePageTrack(routeType, selectedNetwork);
 
   const slicedPath = path
     .match(/\/[^/]+/)?.[0]
     ?.slice(1) as META_TAG_CATEGORIES;
+
+  useEffect(() => {
+    if (!landingLayout) {
+      boot();
+    }
+  }, [landingLayout, boot]);
 
   return landingLayout ? (
     <CompatRoute

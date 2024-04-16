@@ -38,6 +38,7 @@ jobs:
           NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
           NX_APP_URL: ${{ secrets.NX_APP_URL }}
           NX_DATA_URL: ${{ secrets.NX_DATA_URL }}
+          NX_INTERCOM_APP_ID: ${{ secrets.NX_INTERCOM_APP_ID }}
           # This segment key is not the same as the prod one
           NX_SEGMENT_KEY: ${{ secrets.NX_DEV_SEGMENT_KEY }}
           NX_ENV: ${{ github.event.inputs.environment || 'arb' }}
