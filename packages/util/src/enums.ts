@@ -154,7 +154,7 @@ export type SIDE_DRAWERS_TYPE = SETTINGS_SIDE_DRAWERS | PORTFOLIO_ACTIONS;
 export type RouteType =
   | 'Landing'
   | 'Card'
-  | 'Markets'
+  | 'Analytics'
   | 'Transaction'
   | 'Error'
   | 'Portfolio'

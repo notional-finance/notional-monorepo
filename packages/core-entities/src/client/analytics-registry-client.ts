@@ -445,7 +445,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       (r): Record<string, AccountHistory[]> => {
         return {
           [network]: r.transactions
-            .map((t) => parseTransaction(t as Transaction, network))
+            .map((t) => {
+              return parseTransaction(t as Transaction, network);
+            })
             .flatMap((_) => _),
         };
       },

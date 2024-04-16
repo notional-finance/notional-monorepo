@@ -15,12 +15,12 @@ import { NotionalTheme } from '@notional-finance/styles';
 
 interface DataTableHeadProps {
   headerGroups: any[];
-  expandableTable: boolean;
+  expandableTable?: boolean;
   tableVariant?: TABLE_VARIANTS;
   tableTitle?: JSX.Element;
 }
 interface TableHeadContainerProps {
-  expandableTable: boolean;
+  expandableTable?: boolean;
   tableVariant?: TABLE_VARIANTS;
   theme: NotionalTheme;
 }

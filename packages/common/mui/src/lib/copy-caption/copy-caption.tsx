@@ -18,7 +18,7 @@ export function CopyCaption({ showAlert, title, sx }: CopyCaptionProps) {
       sx={{
         background: theme.palette.background.paper,
         color: theme.palette.typography.main,
-        padding: theme.spacing(1.5),
+        padding: theme.spacing(1),
         position: 'absolute',
         borderRadius: theme.shape.borderRadius(),
         border: `1px solid ${theme.palette.primary.light}`,
