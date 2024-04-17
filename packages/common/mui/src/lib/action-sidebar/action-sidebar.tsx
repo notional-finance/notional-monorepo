@@ -8,7 +8,6 @@ import ToggleSwitch, {
 import {
   LargeInputTextEmphasized,
   HeadingSubtitle,
-  H4,
 } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
 
@@ -76,7 +75,7 @@ export const ActionSidebar = ({
   const theme = useTheme();
 
   return (
-    <>
+    <Container>
       <ActionSideBarContainer hideTextOnMobile={hideTextOnMobile} theme={theme}>
         <Box
           sx={{
@@ -102,7 +101,7 @@ export const ActionSidebar = ({
             </LargeInputTextEmphasized>
             {NetworkSelector}
           </Box>
-          <H4
+          {/* <H4
             gutter="default"
             sx={{
               display: { xs: 'block', sm: 'block', md: 'none' },
@@ -111,7 +110,7 @@ export const ActionSidebar = ({
             }}
           >
             <FormattedMessage {...heading} />
-          </H4>
+          </H4> */}
           {advancedToggle && (
             <Box
               sx={{
@@ -160,7 +159,7 @@ export const ActionSidebar = ({
           />
         )}
       </FormSection>
-    </>
+    </Container>
   );
 };
 
@@ -170,6 +169,17 @@ const ActionSideBarContainer = styled(Box, {
   ({ hideTextOnMobile, theme }: ActionSideBarContainerProps) => `
   ${theme.breakpoints.down('sm')} {
     display: ${hideTextOnMobile ? 'none' : 'block'};
+  }
+  
+  `
+);
+const Container = styled(Box)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    width: 90%;
+    margin: auto;
+    margin-top: ${theme.spacing(5)};
+    padding-bottom: ${theme.spacing(10)};
   }
   
   `

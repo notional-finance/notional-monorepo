@@ -282,7 +282,7 @@ const NetworkSelectorWrapper = styled(Box)(
     }
     ${theme.breakpoints.down('sm')} {
       margin-left: 0px;
-      margin-top: ${theme.spacing(3)};
+      margin-bottom: ${theme.spacing(3)};
     }
   `
 );

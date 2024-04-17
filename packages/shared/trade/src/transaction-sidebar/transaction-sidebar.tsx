@@ -32,7 +32,7 @@ import { TransactionApprovals } from '../transaction-approvals/transaction-appro
 import { useLocation } from 'react-router-dom';
 import { TradeSummary } from './components/trade-summary';
 import { isLeveragedTrade } from '@notional-finance/notionable';
-import { PRODUCTS } from '@notional-finance/util';
+import { NOTIONAL_CATEGORIES, PRODUCTS } from '@notional-finance/util';
 import { SwitchNetwork } from '../transaction-approvals/switch-network';
 
 interface TransactionSidebarProps {

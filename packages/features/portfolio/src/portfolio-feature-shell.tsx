@@ -145,6 +145,11 @@ const ActionButtonRow = styled(Box)(
   justify-content: flex-end;
   align-items: center;
   margin-bottom: ${theme.spacing(3)};
+  ${theme.breakpoints.down('sm')} {
+    flex-direction: column-reverse;
+    align-items: baseline;
+    justify-content: flex-start;
+  }
 `
 );
 
@@ -154,6 +159,8 @@ const PortfolioContainer = styled(Box)(
   min-height: 100vh;
   ${theme.breakpoints.down('sm')} {
     flex-flow: column;
+    max-width: 90%;
+    margin: auto;
   };`
 );
 

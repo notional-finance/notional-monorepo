@@ -78,8 +78,10 @@ export const BarChart = ({
     return getDateString(date, { hideYear: true });
   };
 
+  const isMobile = window.innerWidth < 756;
+
   return (
-    <Box>
+    <Box sx={{ overflowX: isMobile ? 'scroll' : '' }}>
       {barChartData.length === 0 ? (
         <Box
           sx={{
@@ -95,7 +97,7 @@ export const BarChart = ({
           />
         </Box>
       ) : (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width={isMobile ? 700 : '100%'} height={300}>
           <RechartsBarChart
             barSize={isStackedBar ? 4 : 8}
             data={barChartData}

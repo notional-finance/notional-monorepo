@@ -77,9 +77,9 @@ export function CardMobileNav() {
         )}
         {screens[currentScreen].map(({ title, Icon, to, id }) => (
           <NavOption key={id}>
-            <CustomLink to={to} theme={theme} active={pathname === to}>
+            <CustomLink to={to} theme={theme} active={pathname.includes(to)}>
               <Box sx={{ height: theme.spacing(3) }}>{Icon}</Box>
-              <Title theme={theme} active={pathname === to}>
+              <Title theme={theme} active={pathname.includes(to)}>
                 {title}
               </Title>
             </CustomLink>

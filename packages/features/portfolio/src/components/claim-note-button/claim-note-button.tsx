@@ -197,6 +197,9 @@ const Wrapper = styled('div')(
   &:hover {
     box-shadow: ${theme.shape.shadowStandard}
   }
+  ${theme.breakpoints.down('sm')} {
+    margin-left: 0px;
+  }
 `
 );
 

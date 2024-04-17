@@ -7,6 +7,11 @@ interface ColorBarProps {
   barColor: string;
   theme: NotionalTheme;
 }
+interface ContentWrapperProps {
+  lastIndex: number;
+  index: number;
+  theme: NotionalTheme;
+}
 
 export interface ChartHeaderTotalsDataProps {
   title: ReactNode;
@@ -27,21 +32,11 @@ export const ChartHeaderTotals = ({
   return (
     <HeadingContainer>
       {chartHeaderTotalsData.map(({ title, value, fill }, index) => (
-        <Box
+        <ContentWrapper
           key={index}
-          sx={{
-            marginRight:
-              index === 0
-                ? theme.spacing(8)
-                : lastIndex === index
-                ? '0px'
-                : theme.spacing(5),
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: lastIndex === index ? 'end' : 'flex-start',
-            flex: lastIndex === index ? 1 : 'unset',
-          }}
+          lastIndex={lastIndex}
+          index={index}
+          theme={theme}
         >
           <ColorBar barColor={fill} theme={theme}></ColorBar>
           <Box>
@@ -50,7 +45,7 @@ export const ChartHeaderTotals = ({
               {value}
             </LargeNumber>
           </Box>
-        </Box>
+        </ContentWrapper>
       ))}
     </HeadingContainer>
   );
@@ -64,6 +59,28 @@ const HeadingContainer = styled(Box)(
   margin-bottom: ${theme.spacing(1)};
   margin-left: ${theme.spacing(1.25)};
   margin-right: ${theme.spacing(2.5)};
+`
+);
+
+const ContentWrapper = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'barColor',
+})(
+  ({ lastIndex, index, theme }: ContentWrapperProps) => `
+  margin-right: ${
+    index === 0
+      ? theme.spacing(8)
+      : lastIndex === index
+      ? '0px'
+      : theme.spacing(5)
+  };
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: ${lastIndex === index ? 'end' : 'flex-start'};
+  flex: ${lastIndex === index ? 1 : 'unset'};
+  ${theme.breakpoints.down('sm')} {
+    margin-right: 0px;
+  }
 `
 );
 

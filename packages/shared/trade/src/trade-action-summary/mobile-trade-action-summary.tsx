@@ -44,6 +44,7 @@ export function MobileTradeActionSummary({
     <Container>
       <Box
         sx={{
+          minWidth: '100vw',
           background: theme.palette.background.paper,
           width: '100%',
           padding: theme.spacing(3, 2),
