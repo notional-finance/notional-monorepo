@@ -307,6 +307,90 @@ function getFeeDetailItem(
   };
 }
 
+function getDepositSummary(
+  state: TradeState | VaultTradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  const { netAssetBalance, netRealizedCollateralBalance, tradeType } = state;
+
+  if (netAssetBalance?.isZero() === false && netRealizedCollateralBalance) {
+    if (tradeType === 'RepayDebt') {
+      summary.push(
+        getTradeDetail(
+          netRealizedCollateralBalance,
+          'Debt',
+          'deposit',
+          intl,
+          netAssetBalance.token
+        )
+      );
+    } else {
+      // In here, if the fee value is positive then it needs to be adjusted...
+      summary.push(
+        getTradeDetail(
+          netRealizedCollateralBalance,
+          'Asset',
+          'deposit',
+          intl,
+          netAssetBalance.token
+        )
+      );
+    }
+  }
+
+  return summary;
+}
+
+function getWithdrawSummary(
+  state: TradeState | VaultTradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  const { netDebtBalance, netAssetBalance, netRealizedDebtBalance, tradeType } =
+    state;
+
+  if (netAssetBalance?.isNegative() && netRealizedDebtBalance) {
+    summary.push(
+      getTradeDetail(
+        netRealizedDebtBalance.abs(),
+        'Asset',
+        'withdraw',
+        intl,
+        netAssetBalance.token
+      )
+    );
+  } else if (netDebtBalance?.isZero() === false && netRealizedDebtBalance) {
+    if (netDebtBalance.tokenType === 'PrimeDebt' && tradeType === 'Withdraw') {
+      summary.push(
+        getTradeDetail(
+          netRealizedDebtBalance.abs(),
+          'Asset',
+          'withdraw',
+          intl,
+          netDebtBalance.toPrimeCash().token
+        )
+      );
+    } else {
+      summary.push(
+        getTradeDetail(
+          netRealizedDebtBalance.abs(),
+          'Debt',
+          netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
+          intl,
+          netDebtBalance.token
+        )
+      );
+    }
+  }
+
+  return summary;
+}
+
+// function getLeverageSummary() {}
+
+// function getConvertRollSummary() {}
+
 export function useTradeSummary(state: VaultTradeState | TradeState) {
   const intl = useIntl();
   const theme = useTheme();
@@ -349,6 +433,10 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     collateralFee,
     debtFee
   );
+
+  // Split this into three subcategories
+  //  - Leverage Transaction into/out of protocol
+  //  - Deleverage or Roll position within protocol
 
   const summary: DetailItem[] = [];
   if (isLeverageOrRoll) {
@@ -468,83 +556,9 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
         summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));
     }
   } else if (depositBalance?.isPositive()) {
-    if (netDebtBalance?.isZero() === false)
-      summary.push(
-        getTradeDetail(
-          netDebtBalance,
-          'Debt',
-          'deposit',
-          intl,
-          undefined,
-          depositBalance.sub(feeValue)
-        )
-      );
-    if (netAssetBalance?.isZero() === false) {
-      if (tradeType === 'RepayDebt') {
-        summary.push(
-          getTradeDetail(
-            netAssetBalance,
-            'Debt',
-            'deposit',
-            intl,
-            undefined,
-            depositBalance.sub(feeValue)
-          )
-        );
-      } else {
-        // In here, if the fee value is positive then it needs to be adjusted...
-        summary.push(
-          getTradeDetail(
-            netAssetBalance,
-            'Asset',
-            'deposit',
-            intl,
-            undefined,
-            depositBalance.sub(feeValue)
-          )
-        );
-      }
-    }
+    summary.push(...getDepositSummary(state, intl));
   } else if (depositBalance?.isNegative()) {
-    if (netAssetBalance?.isZero() === false)
-      summary.push(
-        getTradeDetail(
-          netAssetBalance.neg(),
-          'Asset',
-          'withdraw',
-          intl,
-          undefined,
-          depositBalance.sub(feeValue)
-        )
-      );
-    if (netDebtBalance?.isZero() === false) {
-      if (
-        netDebtBalance.tokenType === 'PrimeDebt' &&
-        tradeType === 'Withdraw'
-      ) {
-        summary.push(
-          getTradeDetail(
-            netDebtBalance.toPrimeCash().abs(),
-            'Asset',
-            'withdraw',
-            intl,
-            undefined,
-            depositBalance.sub(feeValue)
-          )
-        );
-      } else {
-        summary.push(
-          getTradeDetail(
-            netDebtBalance.abs(),
-            'Debt',
-            netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
-            intl,
-            undefined,
-            depositBalance.sub(feeValue)
-          )
-        );
-      }
-    }
+    summary.push(...getWithdrawSummary(state, intl));
   } else {
     return { summary: undefined, total: undefined };
   }

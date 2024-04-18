@@ -162,7 +162,9 @@ export function calculateCollateral({
       collateralPool.getLPTokensGivenTokens(tokensIn);
 
     return {
-      netRealizedCollateralBalance,
+      netRealizedCollateralBalance: totalCollateralPrime
+        .sub(feesPaid[0])
+        .toUnderlying(),
       collateralBalance: lpTokens,
       debtFee,
       collateralFee: feesPaid[0],
@@ -175,7 +177,9 @@ export function calculateCollateral({
     );
 
     return {
-      netRealizedCollateralBalance,
+      netRealizedCollateralBalance: totalCollateralPrime
+        .sub(feesPaid[0])
+        .toUnderlying(),
       collateralBalance: tokensOut,
       debtFee,
       collateralFee: feesPaid[0],
@@ -262,7 +266,7 @@ export function calculateDebt({
       debtBalance: lpTokens.neg(),
       debtFee: feesPaid[0],
       collateralFee,
-      netRealizedDebtBalance,
+      netRealizedDebtBalance: totalDebtPrime.sub(feesPaid[0]).toUnderlying(),
       netRealizedCollateralBalance,
     };
   } else if (debt.tokenType === 'fCash') {
@@ -276,7 +280,7 @@ export function calculateDebt({
       debtBalance: tokensOut,
       debtFee: feesPaid[0],
       collateralFee,
-      netRealizedDebtBalance,
+      netRealizedDebtBalance: totalDebtPrime.sub(feesPaid[0]).toUnderlying(),
       netRealizedCollateralBalance,
     };
   }
