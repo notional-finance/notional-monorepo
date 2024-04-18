@@ -1009,13 +1009,18 @@ export function calculateVaultCollateral({
       collateral
     );
 
+  const totalDebtFees = debtFee.add(
+    debtBalance.isNegative() ? vaultFee : vaultFee.copy(0)
+  );
+
   return {
     collateralBalance: netVaultSharesForUnderlying,
-    debtFee: debtFee.add(
-      debtBalance.isNegative() ? vaultFee : vaultFee.copy(0)
-    ),
+    debtFee: totalDebtFees,
     collateralFee: feesPaid,
-    netRealizedCollateralBalance,
-    netRealizedDebtBalance: cashBorrowed.neg().toUnderlying(),
+    netRealizedCollateralBalance: netRealizedCollateralBalance.sub(
+      feesPaid.toUnderlying()
+    ),
+    // This properly accounts for the borrow fee in the trade summary
+    netRealizedDebtBalance: localDebtPrime.add(debtFee).neg().toUnderlying(),
   };
 }
