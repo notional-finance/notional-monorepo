@@ -16,7 +16,12 @@ export const PointsMultipliers: Record<
     }),
   },
   [Network.all]: {},
-  [Network.arbitrum]: {},
+  [Network.arbitrum]: {
+    '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937': (v) => ({
+      Renzo: 2,
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
+    }),
+  },
   [Network.optimism]: {},
 };
 
@@ -27,7 +32,10 @@ export const PointsLinks: Record<Network, Record<string, string>> = {
       'https://app.renzoprotocol.com/defi',
   },
   [Network.all]: {},
-  [Network.arbitrum]: {},
+  [Network.arbitrum]: {
+    '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937':
+      'https://app.renzoprotocol.com/defi',
+  },
   [Network.optimism]: {},
 };
 
@@ -71,6 +79,8 @@ export const whitelistedVaults = (network: Network) => {
         '0x37dd23ab1885982f789a2d6400b583b8ae09223d',
         // // "[ETH]:rETH_xWETH"
         // '0xa0d61c08e642103158fc6a1495e7ff82baf25857',
+        // "[wstETH]:ezETH_xwstETH":
+        '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937',
       ];
     case Network.optimism:
       return [];
