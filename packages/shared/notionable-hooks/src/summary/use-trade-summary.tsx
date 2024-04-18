@@ -64,7 +64,7 @@ function getTradeDetail(
   typeKey: 'deposit' | 'withdraw' | 'none' | 'repay',
   intl: IntlShape,
   _token?: TokenDefinition,
-  adjustValueUnderlying?: TokenBalance
+  underlyingValueOverride?: TokenBalance
 ) {
   const tokenType = _token?.tokenType || b.unwrapVaultToken().tokenType;
   const caption = formatTokenType(
@@ -82,7 +82,7 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b
+            displayValue: (underlyingValueOverride || b)
               .toUnderlying()
               .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
@@ -102,7 +102,7 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b
+            displayValue: (underlyingValueOverride || b)
               .toUnderlying()
               .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
@@ -118,7 +118,7 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b
+            displayValue: (underlyingValueOverride || b)
               .toUnderlying()
               .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
@@ -138,11 +138,9 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: (adjustValueUnderlying
-              ? // Used to adjust valuation post nToken mint with minting bonus
-                b.toUnderlying().add(adjustValueUnderlying)
-              : b.toUnderlying()
-            ).toDisplayStringWithSymbol(4, true, false),
+            displayValue: (underlyingValueOverride || b)
+              .toUnderlying()
+              .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
             isNegative: false,
           },
@@ -471,10 +469,28 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     }
   } else if (depositBalance?.isPositive()) {
     if (netDebtBalance?.isZero() === false)
-      summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
+      summary.push(
+        getTradeDetail(
+          netDebtBalance,
+          'Debt',
+          'deposit',
+          intl,
+          undefined,
+          depositBalance.sub(feeValue)
+        )
+      );
     if (netAssetBalance?.isZero() === false) {
       if (tradeType === 'RepayDebt') {
-        summary.push(getTradeDetail(netAssetBalance, 'Debt', 'deposit', intl));
+        summary.push(
+          getTradeDetail(
+            netAssetBalance,
+            'Debt',
+            'deposit',
+            intl,
+            undefined,
+            depositBalance.sub(feeValue)
+          )
+        );
       } else {
         // In here, if the fee value is positive then it needs to be adjusted...
         summary.push(
@@ -484,9 +500,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
             'deposit',
             intl,
             undefined,
-            feeValue.isNegative() && netAssetBalance.tokenType === 'nToken'
-              ? feeValue.neg()
-              : undefined
+            depositBalance.sub(feeValue)
           )
         );
       }
@@ -494,7 +508,14 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   } else if (depositBalance?.isNegative()) {
     if (netAssetBalance?.isZero() === false)
       summary.push(
-        getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
+        getTradeDetail(
+          netAssetBalance.neg(),
+          'Asset',
+          'withdraw',
+          intl,
+          undefined,
+          depositBalance.sub(feeValue)
+        )
       );
     if (netDebtBalance?.isZero() === false) {
       if (
@@ -506,7 +527,9 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
             netDebtBalance.toPrimeCash().abs(),
             'Asset',
             'withdraw',
-            intl
+            intl,
+            undefined,
+            depositBalance.sub(feeValue)
           )
         );
       } else {
@@ -515,7 +538,9 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
             netDebtBalance.abs(),
             'Debt',
             netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
-            intl
+            intl,
+            undefined,
+            depositBalance.sub(feeValue)
           )
         );
       }
