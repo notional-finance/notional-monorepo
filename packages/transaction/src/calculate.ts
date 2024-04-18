@@ -1017,9 +1017,9 @@ export function calculateVaultCollateral({
     collateralBalance: netVaultSharesForUnderlying,
     debtFee: totalDebtFees,
     collateralFee: feesPaid,
-    netRealizedCollateralBalance: netRealizedCollateralBalance.sub(
-      feesPaid.toUnderlying()
-    ),
+    netRealizedCollateralBalance: debtBalance.isNegative()
+      ? netRealizedCollateralBalance.sub(feesPaid.toUnderlying())
+      : netRealizedCollateralBalance.add(feesPaid.toUnderlying()),
     // This properly accounts for the borrow fee in the trade summary
     netRealizedDebtBalance: localDebtPrime.add(debtFee).neg().toUnderlying(),
   };

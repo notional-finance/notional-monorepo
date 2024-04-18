@@ -13,6 +13,8 @@ import {
   isDeleverageTrade,
   TradeType,
   VaultTradeType,
+  isDeleverageWithSwappedTokens,
+  isVaultTrade,
 } from '@notional-finance/notionable';
 import { BASIS_POINT } from '@notional-finance/util';
 import {
@@ -448,7 +450,50 @@ function getLeverageSummary(
   return summary;
 }
 
-// function getConvertRollSummary() {}
+function getDeleverageWithdrawSummary(
+  state: TradeState | VaultTradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  const {
+    collateralBalance,
+    debtBalance,
+    netRealizedCollateralBalance,
+    netRealizedDebtBalance,
+    depositBalance,
+    tradeType
+  } = state;
+  const isSwapped = isDeleverageWithSwappedTokens(state);
+  const isVault = isVaultTrade(tradeType);
+
+  // TODO: not clear which one should be negative or positive
+  if (netRealizedCollateralBalance && collateralBalance)
+    summary.push(
+      getTradeDetail(
+        depositBalance && isVault
+          ? netRealizedCollateralBalance.add(depositBalance)
+          : netRealizedCollateralBalance,
+        isSwapped ? 'Debt' : 'Asset',
+        isSwapped ? 'repay' : 'withdraw',
+        intl,
+        collateralBalance.unwrapVaultToken().token
+      )
+    );
+
+  if (netRealizedDebtBalance && debtBalance) {
+    summary.push(
+      getTradeDetail(
+        netRealizedDebtBalance.neg(),
+        isSwapped ? 'Asset' : 'Debt',
+        isSwapped ? 'withdraw' : 'repay',
+        intl,
+        debtBalance.unwrapVaultToken().token
+      )
+    );
+  }
+
+  return summary;
+}
 
 export function useTradeSummary(state: VaultTradeState | TradeState) {
   const intl = useIntl();
@@ -558,19 +603,13 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     //       collateralBalance.token
     //     )
     //   );
-  } else if (isLeverageOrRoll && tradeType === 'WithdrawVault') {
-    // Sell assets
-    summary.push(
-      getTradeDetail(collateralBalance.neg(), 'Asset', 'withdraw', intl)
-    );
-    // Repay debt
-    summary.push(getTradeDetail(debtBalance, 'Debt', 'repay', intl));
   } else if (
     isLeverageOrRoll &&
-    (tradeType === 'Deleverage' || tradeType === 'DeleverageWithdraw')
+    (tradeType === 'WithdrawVault' ||
+      tradeType === 'Deleverage' ||
+      tradeType === 'DeleverageWithdraw')
   ) {
-    summary.push(getTradeDetail(debtBalance, 'Asset', 'none', intl));
-    summary.push(getTradeDetail(collateralBalance, 'Debt', 'repay', intl));
+    summary.push(...getDeleverageWithdrawSummary(state, intl));
     /** NOTE: net asset and balance changes are used below here **/
   } else if (isLeverageOrRoll && tradeType === 'RollDebt') {
     // Asset to repay: this never changes signs
