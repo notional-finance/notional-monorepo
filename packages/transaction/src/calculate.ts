@@ -843,7 +843,10 @@ export function calculateVaultRoll({
 
     return {
       netRealizedDebtBalance: netCostToRepay.toUnderlying(),
-      debtBalance: TokenBalance.from(netCostToRepay.toToken(pDebt).n, debt),
+      debtBalance: TokenBalance.from(
+        netCostToRepay.toToken(pDebt).n,
+        debt
+      ).neg(),
       // This is the cost to exit the fixed debt
       debtFee: currentDebtFee,
       collateralFee: currentDebtFee.copy(0),
