@@ -18,14 +18,16 @@ export const ConvertAsset = () => {
     state: { collateral },
     updateState,
   } = context;
-  const [hasUserTouched, setHasUserTouched] = useState<boolean>(false)
+  const [hasUserTouched, setHasUserTouched] = useState<boolean>(false);
 
   const onBalanceChange = (
     inputAmount: TokenBalance | undefined,
     _: TokenBalance | undefined,
     maxBalance: TokenBalance | undefined
   ) => {
-    if (inputAmount) setHasUserTouched(true)
+    // Fixes a race condition where the screen flashes
+    if (inputAmount === undefined && hasUserTouched === false) return;
+    if (inputAmount) setHasUserTouched(true);
     updateState({
       debtBalance: inputAmount,
       maxWithdraw: maxBalance && inputAmount?.neg().eq(maxBalance),
@@ -35,7 +37,7 @@ export const ConvertAsset = () => {
   return (
     <Box>
       <Box sx={{ display: collateral === undefined ? 'block' : 'none' }}>
-        <SelectConvertAsset context={context} hasUserTouched={hasUserTouched}/>
+        <SelectConvertAsset context={context} hasUserTouched={hasUserTouched} />
       </Box>
       {collateral && (
         <PortfolioSideDrawer context={context}>
@@ -47,7 +49,7 @@ export const ConvertAsset = () => {
               background: theme.palette.background.paper,
             }}
             titleText={defineMessage({ defaultMessage: 'Back' })}
-          ></SideBarSubHeader>
+          />
           <AssetInput
             ref={currencyInputRef}
             debtOrCollateral="Debt"

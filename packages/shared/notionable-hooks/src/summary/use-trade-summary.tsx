@@ -450,6 +450,47 @@ function getLeverageSummary(
   return summary;
 }
 
+function getRollDebtOrConvertAssetSummary(
+  state: TradeState | VaultTradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  const {
+    collateralBalance,
+    debtBalance,
+    netRealizedCollateralBalance,
+    netRealizedDebtBalance,
+    tradeType,
+  } = state;
+
+  if (netRealizedDebtBalance && debtBalance) {
+    summary.push(
+      getTradeDetail(
+        netRealizedDebtBalance.abs().neg(),
+        tradeType === 'RollDebt' ? 'Debt' : 'Asset',
+        tradeType === 'RollDebt' ? 'none' : 'withdraw',
+        intl,
+        tradeType === 'ConvertAsset' && debtBalance.tokenType === 'PrimeDebt'
+          ? debtBalance.toPrimeCash().token
+          : debtBalance.unwrapVaultToken().token
+      )
+    );
+  }
+
+  if (netRealizedCollateralBalance && collateralBalance)
+    summary.push(
+      getTradeDetail(
+        netRealizedCollateralBalance,
+        tradeType === 'RollDebt' ? 'Debt' : 'Asset',
+        tradeType === 'RollDebt' ? 'repay' : 'none',
+        intl,
+        collateralBalance.unwrapVaultToken().token
+      )
+    );
+
+  return summary;
+}
+
 function getDeleverageWithdrawSummary(
   state: TradeState | VaultTradeState,
   intl: IntlShape
@@ -461,7 +502,7 @@ function getDeleverageWithdrawSummary(
     netRealizedCollateralBalance,
     netRealizedDebtBalance,
     depositBalance,
-    tradeType
+    tradeType,
   } = state;
   const isSwapped = isDeleverageWithSwappedTokens(state);
   const isVault = isVaultTrade(tradeType);
@@ -611,49 +652,11 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   ) {
     summary.push(...getDeleverageWithdrawSummary(state, intl));
     /** NOTE: net asset and balance changes are used below here **/
-  } else if (isLeverageOrRoll && tradeType === 'RollDebt') {
-    // Asset to repay: this never changes signs
-    summary.push(getTradeDetail(collateralBalance, 'Debt', 'repay', intl));
-
-    if (netAssetBalance?.isZero() === false)
-      // This only exists if the new debt maturity has fCash in it
-      summary.push(
-        getTradeDetail(
-          netAssetBalance,
-          'Asset',
-          netAssetBalance.isNegative() ? 'withdraw' : 'none',
-          intl
-        )
-      );
-    // New borrow balance
-    if (netDebtBalance?.isZero() === false)
-      summary.push(getTradeDetail(netDebtBalance, 'Debt', 'none', intl));
-  } else if (isLeverageOrRoll && tradeType === 'ConvertAsset') {
-    // Asset to sell: this sign never changes
-    summary.push(
-      getTradeDetail(
-        debtBalance.tokenType === 'PrimeDebt'
-          ? debtBalance.toPrimeCash()
-          : debtBalance,
-        'Asset',
-        'withdraw',
-        intl
-      )
-    );
-
-    if (netDebtBalance?.isZero() === false)
-      // This only exists if the debt is being repaid in the new maturity
-      summary.push(
-        getTradeDetail(
-          netDebtBalance,
-          'Debt',
-          netDebtBalance.isPositive() ? 'repay' : 'none',
-          intl
-        )
-      );
-    if (netAssetBalance?.isZero() === false)
-      // This is the new asset balance
-      summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));
+  } else if (
+    isLeverageOrRoll &&
+    (tradeType === 'RollDebt' || tradeType === 'ConvertAsset')
+  ) {
+    summary.push(...getRollDebtOrConvertAssetSummary(state, intl));
   } else if (depositBalance?.isPositive()) {
     summary.push(...getDepositSummary(state, intl));
   } else if (depositBalance?.isNegative()) {
