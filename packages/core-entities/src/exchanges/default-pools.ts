@@ -444,6 +444,32 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
+      address: '0xB61371Ab661B1ACec81C699854D2f911070C059E',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0xB61371Ab661B1ACec81C699854D2f911070C059E',
+          address: '0xB61371Ab661B1ACec81C699854D2f911070C059E',
+          network: Network.arbitrum,
+          symbol: 'ezETH/wstETH',
+          name: 'Balancer ezETH/wstETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0x2416092f143378750bb29b79ed961ab195cceea5',
+          address: '0x2416092f143378750bb29b79ed961ab195cceea5',
+          network: Network.arbitrum,
+          symbol: 'ezETH',
+          name: 'Renzo Restaked ETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
       address: '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
       PoolClass: 'WeightedPool',
       registerTokens: [

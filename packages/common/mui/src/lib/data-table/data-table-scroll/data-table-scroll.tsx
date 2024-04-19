@@ -11,7 +11,6 @@ import {
   ColumnDef,
   getCoreRowModel,
   getSortedRowModel,
-  // Row,
   useReactTable,
 } from '@tanstack/react-table';
 import { useRef } from 'react';

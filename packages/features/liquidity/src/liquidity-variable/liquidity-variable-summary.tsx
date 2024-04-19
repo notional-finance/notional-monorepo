@@ -77,7 +77,7 @@ export const LiquidityVariableSummary = () => {
                 showCartesianGrid
                 xAxisTickFormat="date"
                 yAxisTickFormat="double"
-                yAxisDomain={['dataMin - 0.05', 'dataMax + 0.05']}
+                yAxisDomain={['dataMin * 0.95', 'dataMax * 1.05']}
                 areaDataKey={'assetPrice'}
                 areaChartData={priceData}
               />

@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { VaultActionContext } from '../vault';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { MobileVaultSummary, VaultLeverageSlider } from '../components';
+import { VaultLeverageSlider } from '../components';
 import { useVaultActionErrors } from '../hooks';
 import {
   DepositInput,
@@ -25,61 +25,42 @@ export const CreateVaultPosition = () => {
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
   return (
-    <>
-      <SummaryWrapper>
-        <MobileVaultSummary />
-      </SummaryWrapper>
-      <Box
-        sx={{
-          marginTop: {
-            xs: theme.spacing(22),
-            sm: theme.spacing(22),
-            md: '0px',
-          },
-        }}
-      >
-        <VaultSideDrawer context={context}>
-          <DepositInput
-            ref={currencyInputRef}
-            inputRef={currencyInputRef}
-            context={context}
-            errorMsgOverride={inputErrorMsg}
-            inputLabel={messages['CreateVaultPosition'].depositAmount}
-            excludeSupplyCap
+    <Box
+      sx={{
+        marginTop: {
+          xs: theme.spacing(22),
+          sm: theme.spacing(22),
+          md: '0px',
+        },
+      }}
+    >
+      <VaultSideDrawer context={context}>
+        <DepositInput
+          ref={currencyInputRef}
+          inputRef={currencyInputRef}
+          context={context}
+          errorMsgOverride={inputErrorMsg}
+          inputLabel={messages['CreateVaultPosition'].depositAmount}
+          excludeSupplyCap
+        />
+        {vaultPosition ? (
+          <ManageTerms
+            borrowType={
+              vaultPosition.vault.vaultDebt.maturity ===
+              PRIME_CASH_VAULT_MATURITY
+                ? 'Variable'
+                : 'Fixed'
+            }
+            leverageRatio={vaultPosition.leverageRatio}
+            linkString={`/vaults/${selectedNetwork}/${vaultAddress}/Manage`}
           />
-          {vaultPosition ? (
-            <ManageTerms
-              borrowType={
-                vaultPosition.vault.vaultDebt.maturity ===
-                PRIME_CASH_VAULT_MATURITY
-                  ? 'Variable'
-                  : 'Fixed'
-              }
-              leverageRatio={vaultPosition.leverageRatio}
-              linkString={`/vaults/${selectedNetwork}/${vaultAddress}/Manage`}
-            />
-          ) : (
-            <CustomTerms
-              context={context}
-              CustomLeverageSlider={VaultLeverageSlider}
-            />
-          )}
-        </VaultSideDrawer>
-      </Box>
-    </>
+        ) : (
+          <CustomTerms
+            context={context}
+            CustomLeverageSlider={VaultLeverageSlider}
+          />
+        )}
+      </VaultSideDrawer>
+    </Box>
   );
 };
-
-const SummaryWrapper = styled(Box)(
-  ({ theme }) => `
-  display: none;
-  ${theme.breakpoints.down('sm')} {
-    display: block;
-    position: fixed;
-    top: ${theme.spacing(8.75)};
-    left: 0;
-    min-width: 100vw;
-    z-index: 1;
-  }
-`
-);

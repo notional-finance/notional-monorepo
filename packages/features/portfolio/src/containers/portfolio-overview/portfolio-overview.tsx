@@ -8,7 +8,7 @@ import {
 } from './hooks';
 import { useVaultHoldingsTable } from '../../hooks';
 import { EmptyPortfolioOverview } from '../../components';
-import { Box, useTheme } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 
 export const PortfolioOverview = () => {
   const theme = useTheme();
@@ -24,7 +24,7 @@ export const PortfolioOverview = () => {
 
   return (
     <Box>
-      <Box sx={{ marginBottom: '32px' }}>
+      <Container>
         {barChartData && barConfig && (
           <MultiDisplayChart
             chartComponents={[
@@ -45,7 +45,7 @@ export const PortfolioOverview = () => {
             ]}
           />
         )}
-      </Box>
+      </Container>
 
       {!noOverviewData ? (
         <Box
@@ -100,5 +100,14 @@ export const PortfolioOverview = () => {
     </Box>
   );
 };
+
+const Container = styled(Box)(
+  ({ theme }) => `
+  margin-bottom: ${theme.spacing(4)};
+  ${theme.breakpoints.down('sm')} {
+    margin-top: ${theme.spacing(1)};
+  }
+`
+);
 
 export default PortfolioOverview;

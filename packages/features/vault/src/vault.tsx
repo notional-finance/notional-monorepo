@@ -8,6 +8,7 @@ import {
   useVaultContext,
   useYieldsReady,
 } from '@notional-finance/notionable-hooks';
+import { Box, styled } from '@mui/material';
 
 export const VaultActionContext = createVaultContext();
 
@@ -27,12 +28,24 @@ export const VaultView = () => {
       <FeatureLoader featureLoaded={featureReady}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
-          sideBar={<VaultActionSideDrawer />}
+          sideBar={
+            <SummaryWrapper>
+              <VaultActionSideDrawer />
+            </SummaryWrapper>
+          }
           mainContent={<VaultSummary />}
         />
       </FeatureLoader>
     </VaultActionContext.Provider>
   );
 };
+
+const SummaryWrapper = styled(Box)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    padding-top: ${theme.spacing(10)};
+  }
+`
+);
 
 export default VaultView;

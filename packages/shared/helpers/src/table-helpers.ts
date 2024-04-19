@@ -1,10 +1,13 @@
 import {
+  AccountHistory,
   FiatKeys,
   TokenBalance,
   TokenDefinition,
   TokenType,
 } from '@notional-finance/core-entities';
+import { Network, getEtherscanTransactionLink } from '@notional-finance/util';
 import { formatNumberAsPercent } from './number-helpers';
+import { formatTokenType, truncateAddress } from './text-helpers';
 
 const tokenTypeSortOrder: TokenType[] = [
   'Underlying',
@@ -98,3 +101,62 @@ export const formatTokenAmount = (
         ],
       };
 };
+
+export const formatTxnTableData = (data: AccountHistory, network: Network) => {
+    const {
+      bundleName,
+      label,
+      txnLabel,
+      underlyingAmountRealized,
+      token,
+      realizedPrice,
+      timestamp,
+      transactionHash,
+      underlying,
+      impliedFixedRate,
+      account,
+      vaultName,
+    } = data;
+
+      const assetData = formatTokenType(token);
+      const isIncentive =
+        bundleName === 'Transfer Incentive' ||
+        bundleName === 'Transfer Secondary Incentive';
+      const result = {
+        transactionType: {
+          label: label,
+          caption: vaultName || txnLabel,
+          showSentIcon: underlyingAmountRealized.isNegative(),
+        },
+        vaultName: vaultName,
+        address: {
+          text: account ? truncateAddress(account) : '-',
+          fullAddress: `${account}`,
+        },
+        underlyingAmount: formatTokenAmount(
+          underlyingAmountRealized,
+          impliedFixedRate,
+          true,
+          false,
+          underlyingAmountRealized.isPositive(),
+          4
+        ),
+        asset: {
+          label: assetData.title,
+          symbol: assetData.icon.toLowerCase(),
+          caption: assetData.caption ? assetData.caption : '',
+        },
+        price: isIncentive
+          ? '-'
+          : realizedPrice.toDisplayStringWithSymbol(4, true),
+        time: timestamp,
+        txLink: {
+          hash: transactionHash,
+          href: getEtherscanTransactionLink(transactionHash, network),
+        },
+        currency: underlying.symbol,
+        token: token,
+      }
+      return result;
+    }
+      

@@ -8,7 +8,6 @@ import ToggleSwitch, {
 import {
   LargeInputTextEmphasized,
   HeadingSubtitle,
-  H4,
 } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
 
@@ -32,10 +31,18 @@ export interface ActionSidebarProps {
   advancedToggle?: ToggleSwitchProps;
   NetworkSelector?: React.ReactNode;
   leverageDisabled?: boolean;
+  isPortfolio?: boolean;
   handleSubmit?: () => void;
+  mobileTopMargin?: string;
 }
 export interface ActionSideBarContainerProps {
   hideTextOnMobile: boolean;
+  isPortfolio?: boolean;
+  theme: NotionalTheme;
+}
+interface ContainerProps {
+  isPortfolio?: boolean;
+  mobileTopMargin?: string;
   theme: NotionalTheme;
 }
 
@@ -55,6 +62,7 @@ const FormSection = styled(Box, {
   }
 `
 );
+
 // - > *:not(:last-child) styles all of the children but the last one
 // - > *  styles the last child element
 
@@ -71,12 +79,18 @@ export const ActionSidebar = ({
   showActionButtons = true,
   hideTextOnMobile = true,
   handleSubmit,
+  isPortfolio,
   leverageDisabled,
+  mobileTopMargin,
 }: ActionSidebarProps) => {
   const theme = useTheme();
 
   return (
-    <>
+    <Container
+      isPortfolio={isPortfolio}
+      mobileTopMargin={mobileTopMargin}
+      theme={theme}
+    >
       <ActionSideBarContainer hideTextOnMobile={hideTextOnMobile} theme={theme}>
         <Box
           sx={{
@@ -102,16 +116,6 @@ export const ActionSidebar = ({
             </LargeInputTextEmphasized>
             {NetworkSelector}
           </Box>
-          <H4
-            gutter="default"
-            sx={{
-              display: { xs: 'block', sm: 'block', md: 'none' },
-              textTransform: 'uppercase',
-              marginBottom: theme.spacing(5),
-            }}
-          >
-            <FormattedMessage {...heading} />
-          </H4>
           {advancedToggle && (
             <Box
               sx={{
@@ -160,7 +164,7 @@ export const ActionSidebar = ({
           />
         )}
       </FormSection>
-    </>
+    </Container>
   );
 };
 
@@ -170,6 +174,21 @@ const ActionSideBarContainer = styled(Box, {
   ({ hideTextOnMobile, theme }: ActionSideBarContainerProps) => `
   ${theme.breakpoints.down('sm')} {
     display: ${hideTextOnMobile ? 'none' : 'block'};
+  }
+  
+  `
+);
+const Container = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'hideTextOnMobile',
+})(
+  ({ isPortfolio, theme, mobileTopMargin }: ContainerProps) => `
+  ${theme.breakpoints.down('sm')} {
+    margin: auto;
+    width: ${isPortfolio ? '90%' : '100%'};
+    margin-top: ${
+      isPortfolio ? '0px' : mobileTopMargin ? mobileTopMargin : theme.spacing(5)
+    };
+    padding-bottom: ${theme.spacing(10)};
   }
   
   `

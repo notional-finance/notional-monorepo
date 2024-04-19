@@ -19,6 +19,7 @@ export * from './lib/currency-img/currency-img';
 export * from './lib/currency-input/currency-input';
 export * from './lib/data-table/types';
 export * from './lib/data-table/data-table';
+export * from './lib/infinite-scroll-data-table/infinite-scroll-data-table';
 export * from './lib/data-table-cells';
 export * from './lib/contest-table/contest-table';
 export * from './lib/contest-table/contest-cells';
@@ -77,3 +78,4 @@ export type { CurrencySelectOption } from './lib/currency-input/currency-select'
 export * from './lib/simple-toggle/simple-toggle';
 export * from './lib/footer-popup/footer-popup';
 export * from './lib/message-box/message-box';
+export * from './lib/network-toggle/network-toggle';

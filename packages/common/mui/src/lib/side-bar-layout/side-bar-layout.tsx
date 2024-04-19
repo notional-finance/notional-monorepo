@@ -71,6 +71,7 @@ export function SideBarLayout({
           minHeight: '100%',
           flexGrow: { xs: 1, md: 1, lg: 0, xl: 0 },
           borderRadius: 'unset',
+          width: { xs: '100%', sm: '100%', md: 'auto', lg: 'auto', xl: 'auto' },
           '&>div': {
             height: '100%',
           },

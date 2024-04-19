@@ -51,6 +51,7 @@ import {
   ContestLeaderBoard,
 } from '../../containers/TradingContest';
 import { Markets } from '../Markets';
+import { NetworkTransactionsView } from '../AnalyticsViews';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 const RedirectToDefaultNetwork = () => {
@@ -186,7 +187,12 @@ const AllRoutes = () => {
           <AppLayoutRoute
             path="/markets"
             component={Markets}
-            routeType="Markets"
+            routeType="Analytics"
+          />
+          <AppLayoutRoute
+            path="/analytics/transactions"
+            component={NetworkTransactionsView}
+            routeType="Analytics"
           />
           <AppLayoutRoute
             path="/error"

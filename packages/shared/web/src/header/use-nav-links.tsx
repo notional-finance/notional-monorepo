@@ -1,6 +1,4 @@
 import {
-  ActiveBellIcon,
-  BellIcon,
   PortfolioIcon,
   StackIcon,
   DocsIcon,
@@ -11,14 +9,12 @@ import {
   GearIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
-import { getFromLocalStorage } from '@notional-finance/helpers';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
 import { useDefaultNetwork } from './use-default-network';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
-  const notifications = getFromLocalStorage('notifications');
   const network = useDefaultNetwork();
 
   const textColor = mobileNav
@@ -116,23 +112,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       label: <FormattedMessage defaultMessage={'Settings'} />,
       link: '',
       iconImg: <GearIcon sx={{ fontSize: '24px' }} />,
-    },
-    {
-      key: MOBILE_SUB_NAV_ACTIONS.NOTIFICATIONS,
-      label: <FormattedMessage defaultMessage={'Notifications'} />,
-      link: '',
-      noBottomBorder: true,
-      iconImg: notifications.active ? (
-        <ActiveBellIcon
-          className="color-stroke"
-          sx={{ fontSize: '24px', stroke: '', fill: textColor }}
-        />
-      ) : (
-        <BellIcon
-          className="color-stroke"
-          sx={{ fontSize: '24px', stroke: '', fill: textColor }}
-        />
-      ),
     },
   ];
 

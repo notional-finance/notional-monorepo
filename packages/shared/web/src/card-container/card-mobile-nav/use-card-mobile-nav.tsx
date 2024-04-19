@@ -24,7 +24,7 @@ const borrow = ['borrow-fixed', 'borrow-variable'];
 export const useCardMobileNav = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
-  const category = pathname.slice(1);
+  const category = pathname.split('/')[1];
 
   let defaultOptionSet = NAV_OPTIONS.EARN_YIELD;
 

@@ -34,7 +34,7 @@ const EmptyPortfolioWrapper = styled(Box)(
   margin-top: ${theme.spacing(6)};
   border-radius: ${theme.shape.borderRadius()};
   border: ${theme.shape.borderStandard};
-  height: ${theme.spacing(13)};
+  height: fit-content;
   width: 100%;
   ${theme.breakpoints.down('sm')} {
     flex-direction: column;

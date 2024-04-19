@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Box, ButtonGroup, Button, SxProps } from '@mui/material';
+import { Box, ButtonGroup, Button, SxProps, styled } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 
@@ -40,10 +40,10 @@ export const ButtonBar = ({
       }}
     >
       {buttonOptions.length > 0 ? (
-        <ButtonGroup
+        <ButtonBarGroup
           aria-label="button group"
           variant={buttonVariant}
-          sx={{ boxShadow: 'none', ...sx }}
+          sx={{ ...sx }}
         >
           {buttonOptions.map(
             ({ buttonText, callback, disabled, active }, index) => (
@@ -83,7 +83,7 @@ export const ButtonBar = ({
               </Button>
             )
           )}
-        </ButtonGroup>
+        </ButtonBarGroup>
       ) : (
         <Box sx={{ width: theme.spacing(25), display: 'flex' }}>
           <ProgressIndicator size={24} />
@@ -92,5 +92,19 @@ export const ButtonBar = ({
     </div>
   );
 };
+
+const ButtonBarGroup = styled(ButtonGroup)(
+  ({ theme }) => `
+  box-shadow: none;
+  ${theme.breakpoints.down('sm')} {
+      display: flex;
+      flex-direction: column;
+      gap: ${theme.spacing(3)};
+      button {
+        border-radius: ${theme.shape.borderRadius()} !important;
+      }
+  }
+`
+);
 
 export default ButtonBar;
