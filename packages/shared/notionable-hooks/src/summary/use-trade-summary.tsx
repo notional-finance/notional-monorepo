@@ -1,6 +1,7 @@
 import { Box, Theme, useTheme } from '@mui/material';
 import {
   FiatKeys,
+  Registry,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -25,6 +26,7 @@ import {
 } from 'react-intl';
 import { DetailItem, OrderDetailLabels, TradeSummaryLabels } from '.';
 import { useFiat } from '../use-user-settings';
+import { exchangeToLocalPrime } from '@notional-finance/transaction';
 
 function getTotalWalletItem(
   depositBalance: TokenBalance,
@@ -186,7 +188,6 @@ const FeeItem = ({
 function getFeeValue(
   underlying: TokenDefinition,
   isLeverageOrRoll: boolean,
-  tradeType: TradeType | VaultTradeType | undefined,
   depositBalance: TokenBalance | undefined,
   collateralBalance: TokenBalance | undefined,
   debtBalance: TokenBalance | undefined,
@@ -195,9 +196,7 @@ function getFeeValue(
 ): TokenBalance {
   const zeroUnderlying = TokenBalance.zero(underlying);
 
-  if (tradeType === 'RollVaultPosition') {
-    return zeroUnderlying;
-  } else if (isLeverageOrRoll) {
+  if (isLeverageOrRoll) {
     // Do not include roll vault position because the margin will be
     // incorrectly included in the fee value
     return (collateralFee?.toUnderlying() || zeroUnderlying).add(
@@ -406,6 +405,8 @@ function getLeverageSummary(
     debtBalance,
     netRealizedCollateralBalance,
     netRealizedDebtBalance,
+    debtFee,
+    tradeType,
   } = state;
 
   // This is the entry deposit, will show "Deposit and Mint Asset"
@@ -421,7 +422,7 @@ function getLeverageSummary(
     );
   }
 
-  if (debtBalance && netRealizedDebtBalance) {
+  if (debtBalance && netRealizedDebtBalance && debtFee) {
     summary.push(
       getTradeDetail(
         netRealizedDebtBalance,
@@ -431,6 +432,44 @@ function getLeverageSummary(
         debtBalance.unwrapVaultToken().token
       )
     );
+  }
+  // NOTE: rolling a vault debt will repay and withdraw all current shares
+  if (tradeType === 'RollVaultPosition') {
+    const { priorVaultBalances } = state as VaultTradeState;
+    if (priorVaultBalances) {
+      const debt = priorVaultBalances.find((t) => t.tokenType === 'VaultDebt');
+      const assets = priorVaultBalances.find(
+        (t) => t.tokenType === 'VaultShare'
+      );
+      if (debt) {
+        // Get the traded value of repaying a fixed rate debt
+        if (debt.unwrapVaultToken().tokenType === 'fCash') {
+          const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
+            debt.network,
+            debt.currencyId
+          );
+          const { netRealized } = exchangeToLocalPrime(
+            debt.neg(),
+            fCashMarket,
+            debt.unwrapVaultToken().toPrimeCash().token
+          );
+          summary.push(
+            getTradeDetail(
+              netRealized,
+              'Debt',
+              'repay',
+              intl,
+              debt.unwrapVaultToken().token
+            )
+          );
+        } else {
+          summary.push(getTradeDetail(debt.neg(), 'Debt', 'repay', intl));
+        }
+      }
+
+      if (assets)
+        summary.push(getTradeDetail(assets.neg(), 'Asset', 'withdraw', intl));
+    }
   }
 
   if (collateralBalance && netRealizedCollateralBalance) {
@@ -554,7 +593,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   } = state;
   const depositBalance = _d;
 
-  // TODO: if underlying is not all the same the convert to fiat currency instead
   const underlying =
     netAssetBalance?.underlying ||
     netDebtBalance?.underlying ||
@@ -571,7 +609,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   const feeValue = getFeeValue(
     underlying,
     isLeverageOrRoll,
-    tradeType,
     depositBalance,
     collateralBalance,
     debtBalance,
@@ -579,71 +616,15 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     debtFee
   );
 
-  // Split this into three subcategories
-  //  - Leverage Transaction into/out of protocol
-  //  - Deleverage or Roll position within protocol
-
   const summary: DetailItem[] = [];
-  if (isLeverageOrRoll && depositBalance?.isPositive()) {
+  if (
+    isLeverageOrRoll &&
+    (depositBalance?.isPositive() ||
+      tradeType === 'LeveragedNTokenAdjustLeverage' ||
+      tradeType === 'IncreaseVaultPosition' ||
+      tradeType === 'RollVaultPosition')
+  ) {
     summary.push(...getLeverageSummary(state, intl));
-
-    // if (
-    //   depositBalance?.isPositive() ||
-    //   tradeType === 'LeveragedNTokenAdjustLeverage' ||
-    //   tradeType === 'IncreaseVaultPosition' ||
-    //   tradeType === 'RollVaultPosition'
-    // ) {
-    //   // Deposit and Mint X
-    //   if (depositBalance?.isPositive()) {
-    //     summary.push(
-    //       getTradeDetail(
-    //         depositBalance,
-    //         'Asset',
-    //         'deposit',
-    //         intl,
-    //         collateralBalance.token
-    //       )
-    //     );
-    //   }
-    //   // NOTE: technically net asset changes may occur here inside Leveraged Lend
-    //   // or Leveraged Liquidity but currently they won't show in the trade summary
-    //   // Borrow
-    //   summary.push(getTradeDetail(debtBalance, 'Debt', 'none', intl));
-
-    //   // NOTE: rolling a vault debt will repay and withdraw all current shares
-    //   if (tradeType === 'RollVaultPosition') {
-    //     const { priorVaultBalances } = state as VaultTradeState;
-    //     if (priorVaultBalances) {
-    //       const debt = priorVaultBalances.find(
-    //         (t) => t.tokenType === 'VaultDebt'
-    //       );
-    //       const assets = priorVaultBalances.find(
-    //         (t) => t.tokenType === 'VaultShare'
-    //       );
-    //       if (debt) {
-    //         summary.push(getTradeDetail(debt.neg(), 'Debt', 'repay', intl));
-    //         feeValue = debt.toUnderlying().sub(debtBalance.toUnderlying());
-    //       }
-
-    //       if (assets)
-    //         summary.push(
-    //           getTradeDetail(assets.neg(), 'Asset', 'withdraw', intl)
-    //         );
-    //     }
-    //   }
-
-    //   // Mint X - deposit
-    //   summary.push(
-    //     getTradeDetail(
-    //       depositBalance
-    //         ? collateralBalance.toUnderlying().sub(depositBalance)
-    //         : collateralBalance.toUnderlying(),
-    //       'Asset',
-    //       'none',
-    //       intl,
-    //       collateralBalance.token
-    //     )
-    //   );
   } else if (
     isLeverageOrRoll &&
     (tradeType === 'WithdrawVault' ||
@@ -651,7 +632,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
       tradeType === 'DeleverageWithdraw')
   ) {
     summary.push(...getDeleverageWithdrawSummary(state, intl));
-    /** NOTE: net asset and balance changes are used below here **/
   } else if (
     isLeverageOrRoll &&
     (tradeType === 'RollDebt' || tradeType === 'ConvertAsset')
