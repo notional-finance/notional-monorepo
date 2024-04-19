@@ -183,14 +183,18 @@ export const PortfolioRisk = () => {
             })}
           />
         </H4>
-        <Box sx={{ display: 'flex' }}>
-          <Box sx={{ width: theme.spacing(54) }}>
+        <RiskContainer>
+          <Box
+            sx={{
+              width: { sm: '100%', md: theme.spacing(54) },
+            }}
+          >
             <SliderRisk healthFactor={healthFactor} />
           </Box>
           <Box
             sx={{
               display: 'flex',
-              width: '50%',
+              width: { sm: '100%', md: '50%' },
               justifyContent: 'space-evenly',
             }}
           >
@@ -218,7 +222,7 @@ export const PortfolioRisk = () => {
               value={loanToValue ? formatNumberAsPercent(loanToValue, 2) : '-'}
             />
           </Box>
-        </Box>
+        </RiskContainer>
       </RiskHeaderBox>
       {hasLiquidationPrices && (
         <Accordion
@@ -278,3 +282,12 @@ export const PortfolioRisk = () => {
     </Container>
   );
 };
+
+const RiskContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  ${theme.breakpoints.down('sm')} {
+    flex-flow: column;
+    gap: ${theme.spacing(2)};
+  };`
+);

@@ -151,6 +151,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
           variant="scrollable"
           aria-label="Notional site Mobilenavigation"
           sx={{
+            marginTop: theme.spacing(9),
             marginBottom: theme.spacing(8),
             '&.MuiTabs-root': {
               display: 'flex',
@@ -179,6 +180,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
               rel={t.external && t.target === '_blank' ? 'noreferrer' : ''}
               target={t.target || '_self'}
               component="a"
+              disableRipple
               sx={{
                 display: {
                   xs: 'flex',

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
-import { CountUp, ButtonText } from '@notional-finance/mui';
+import { CountUp, ButtonText, H4 } from '@notional-finance/mui';
 import { NoteWithShadow, ArbitrumIcon } from '@notional-finance/icons';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
@@ -89,8 +89,12 @@ export const ClaimNoteButton = () => {
       sx={{
         display: 'flex',
         justifyContent: 'end',
+        flexDirection: 'column',
       }}
     >
+      <ClaimLabel>
+        <FormattedMessage defaultMessage={'Claim'} />
+      </ClaimLabel>
       {(noteCountUp > 0 || arbCountUp > 0) && account && (
         <Wrapper
           onMouseEnter={() => setHover(true)}
@@ -150,9 +154,23 @@ const ClaimNoteWrapper = styled(ButtonText, {
   align-items: center;
   white-space: nowrap;
   transition: all .3s ease-in-out;
+  min-height: ${theme.spacing(5)};
   background: ${
     !hover ? theme.palette.common.white : theme.palette.primary.light
   };
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  }
+`
+);
+
+const ClaimLabel = styled(H4)(
+  ({ theme }) => `
+  display: block;
+  margin-bottom: ${theme.spacing(1)};
+  ${theme.breakpoints.up('sm')} {
+    display: none;
+  }
 `
 );
 
@@ -162,6 +180,7 @@ const NoteWrapper = styled(ButtonText, {
   ({ showArbButton, theme }: ClaimNoteType) => `
   display: flex;
   height: 100%;
+  min-height: ${theme.spacing(5)};
   align-items: center;
   border: 1px solid ${theme.palette.primary.light};
   padding: ${theme.spacing(0, 2, 0, 1)};
@@ -177,6 +196,7 @@ const ArbWrapper = styled(ButtonText)(
   ({ theme }) => `
   display: flex;
   height: 100%;
+  min-height: ${theme.spacing(5)};
   align-items: center;
   border: 1px solid ${theme.palette.primary.light};
   padding: ${theme.spacing(0, 2, 0, 1)};
@@ -196,6 +216,13 @@ const Wrapper = styled('div')(
   cursor: pointer;
   &:hover {
     box-shadow: ${theme.shape.shadowStandard}
+  }
+  ${theme.breakpoints.down('sm')} {
+    margin-left: 0px;
+    gap: ${theme.spacing(1)};
+    span {
+      border-radius: ${theme.shape.borderRadius()} !important;      
+    }
   }
 `
 );

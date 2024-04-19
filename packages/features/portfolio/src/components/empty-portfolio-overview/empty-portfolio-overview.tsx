@@ -21,7 +21,7 @@ export const EmptyPortfolioOverview = ({
     <Container>
       {!walletConnected && (
         <ConnectContainer>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <ConnectWalletContainer>
             <ConnectImage src={connectImage} alt="connect wallet" />
             <Box>
               <H2>
@@ -33,7 +33,7 @@ export const EmptyPortfolioOverview = ({
                 />
               </Subtitle>
             </Box>
-          </Box>
+          </ConnectWalletContainer>
 
           <Button
             size="medium"
@@ -72,6 +72,10 @@ const ConnectContainer = styled(Box)(
   align-items: center;
   border-radius: ${theme.shape.borderRadius()};
   border: ${theme.shape.borderStandard};
+  ${theme.breakpoints.down('sm')} {
+    flex-direction: column;
+    gap: ${theme.spacing(3)};
+  }
 `
 );
 
@@ -89,9 +93,21 @@ const ProductContainer = styled(Box)(
 `
 );
 
-const Container = styled(Box)(`
+const Container = styled(Box)(
+  `
   width: 100%;
-`);
+`
+);
+
+const ConnectWalletContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex; 
+  align-items: center;
+  ${theme.breakpoints.down('sm')} {
+    flex-direction: column;
+  }
+`
+);
 
 const ConnectImage = styled('img')(
   ({ theme }) => `

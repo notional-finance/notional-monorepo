@@ -6,7 +6,12 @@ import {
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
-import { ButtonBar, SideDrawer, TypeForm } from '@notional-finance/mui';
+import {
+  ButtonBar,
+  SideBarSubHeader,
+  SideDrawer,
+  TypeForm,
+} from '@notional-finance/mui';
 import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
 import {
   SideNav,
@@ -28,6 +33,7 @@ import {
 } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import { PortfolioNetworkSelector } from '@notional-finance/wallet';
+import { defineMessage } from 'react-intl';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -76,13 +82,24 @@ const Portfolio = () => {
     );
   };
 
+  const CustomHeader = ({ onClose }: any) => {
+    return (
+      <ContainerTest>
+        <SideBarSubHeader
+          callback={() => onClose()}
+          titleText={defineMessage({ defaultMessage: 'Back' })}
+        />
+      </ContainerTest>
+    );
+  };
+
   return isAccountReady ? (
     <PortfolioContainer>
       <SideDrawer
         callback={handleDrawer}
         openDrawer={openDrawer}
+        CustomHeader={CustomHeader}
         zIndex={1202}
-        marginTop="80px"
       >
         {SideDrawerComponent && <SideDrawerComponent />}
       </SideDrawer>
@@ -145,6 +162,11 @@ const ActionButtonRow = styled(Box)(
   justify-content: flex-end;
   align-items: center;
   margin-bottom: ${theme.spacing(3)};
+  ${theme.breakpoints.down('sm')} {
+    flex-direction: column-reverse;
+    align-items: baseline;
+    justify-content: flex-start;
+  }
 `
 );
 
@@ -154,6 +176,8 @@ const PortfolioContainer = styled(Box)(
   min-height: 100vh;
   ${theme.breakpoints.down('sm')} {
     flex-flow: column;
+    max-width: 90%;
+    margin: auto;
   };`
 );
 
@@ -191,6 +215,19 @@ const PortfolioMainContent = styled(Box)(
     max-width: 70vw;
     margin: ${theme.spacing(10)} auto;
   };
+`
+);
+
+const ContainerTest = styled(Box)(
+  ({ theme }) => `
+  padding: ${theme.spacing(0, 6)};
+  padding-top: ${theme.spacing(11)};
+  ${theme.breakpoints.down('sm')} {
+    padding: 0px;
+    padding-top: ${theme.spacing(11)};
+    width: 90%;
+    margin: auto;
+  }
 `
 );
 

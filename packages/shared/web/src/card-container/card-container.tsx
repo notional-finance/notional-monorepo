@@ -32,6 +32,8 @@ export function CardContainer({
     window.scrollTo(0, 0);
   }, []);
 
+  const isMobile = window.innerWidth < 756;
+
   return (
     <MainContainer sx={{ ...sx }}>
       <Background>
@@ -61,6 +63,7 @@ export function CardContainer({
                       fontSize: '40px',
                       marginRight: theme.spacing(1),
                     }}
+                    fill={isMobile ? colors.neonTurquoise : ''}
                   />
                 ) : null}
                 <Title gutter="default">

@@ -53,7 +53,14 @@ export const ManageVault = () => {
             },
           }}
         >
-          <ButtonText sx={{ display: 'flex', flex: 1 }}>{label}</ButtonText>
+          <ButtonText
+            sx={{
+              display: 'flex',
+              flex: 1,
+            }}
+          >
+            {label}
+          </ButtonText>
           {totalAPY !== undefined && (
             <ButtonData
               className={`button-data`}

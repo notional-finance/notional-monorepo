@@ -29,35 +29,33 @@ export const ManageSideDrawer = ({
   }, []);
 
   return (
-    <Box>
-      <MainWrapper>
-        <TableWrapper>
-          <LargeInputTextEmphasized
-            gutter="default"
-            sx={{ marginBottom: theme.spacing(5) }}
-          >
-            {heading}
-          </LargeInputTextEmphasized>
-          {detailsTable}
-          <LinkText
-            to={portfolioLink}
-            sx={{
-              marginTop: theme.spacing(1),
-            }}
-          >
-            <FormattedMessage defaultMessage={'View in Portfolio'} />
-          </LinkText>
-        </TableWrapper>
-        {optionSections.map(({ title, buttons }, i) =>
-          buttons.length > 0 ? (
-            <Box key={`section-${i}`}>
-              {title && <Title>{title}</Title>}
-              {buttons}
-            </Box>
-          ) : null
-        )}
-      </MainWrapper>
-    </Box>
+    <MainWrapper>
+      <TableWrapper>
+        <LargeInputTextEmphasized
+          gutter="default"
+          sx={{ marginBottom: theme.spacing(5) }}
+        >
+          {heading}
+        </LargeInputTextEmphasized>
+        {detailsTable}
+        <LinkText
+          to={portfolioLink}
+          sx={{
+            marginTop: theme.spacing(1),
+          }}
+        >
+          <FormattedMessage defaultMessage={'View in Portfolio'} />
+        </LinkText>
+      </TableWrapper>
+      {optionSections.map(({ title, buttons }, i) =>
+        buttons.length > 0 ? (
+          <Box key={`section-${i}`}>
+            {title && <Title>{title}</Title>}
+            {buttons}
+          </Box>
+        ) : null
+      )}
+    </MainWrapper>
   );
 };
 
@@ -86,5 +84,8 @@ const Title = styled(LabelValue)(
   color: ${theme.palette.typography.light};
   font-weight: 700;
   text-transform: uppercase;
+  ${theme.breakpoints.down('sm')} {
+    margin-top: 0px;
+  }
   `
 );

@@ -47,7 +47,7 @@ export const ProductRateCards = ({
       </Box>
       {productRateData.map(({ title, apy, symbol, link, icon }, index) => (
         <ProductCard onClick={() => history.push(link)} key={index}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box id="text-content" sx={{ display: 'flex', alignItems: 'center' }}>
             {icon}
             <H4 sx={{ textWrap: 'nowrap', marginLeft: theme.spacing(2) }}>
               {title}
@@ -71,7 +71,7 @@ export const ProductRateCards = ({
               </LinkText>
             </H4>
           </Box>
-          <ApyContainer>
+          <ApyContainer id="apy-content">
             {symbol && <TokenIcon symbol={symbol} size="medium" />}
             <LargeInputTextEmphasized sx={{ marginLeft: theme.spacing(1) }}>
               {apy}
@@ -101,6 +101,14 @@ const ProductCard = styled(Box)(
     }
     ${theme.breakpoints.down('md')} {
       min-width: 100%;
+      flex-direction: column;
+      gap: ${theme.spacing(3)};
+      #text-content {
+        width: 100%;
+      }
+      #apy-content {
+        width: 100%;
+      }
     }
   `
 );

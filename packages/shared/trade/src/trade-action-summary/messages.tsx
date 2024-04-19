@@ -1,4 +1,4 @@
-import { NOTIONAL_CATEGORIES } from '@notional-finance/util';
+import { PRODUCTS } from '@notional-finance/util';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 
 interface MessageData {
@@ -11,7 +11,7 @@ interface MessageData {
 // LEND, BORROW, PROVIDE LIQUIDITY, STAKE
 
 export const messages = {
-  [NOTIONAL_CATEGORIES.BORROW]: defineMessages({
+  [PRODUCTS.BORROW_FIXED]: defineMessages({
     title: {
       defaultMessage: 'Borrow',
       description: 'borrow title',
@@ -29,8 +29,26 @@ export const messages = {
       description: 'data point one description',
     },
   }),
+  [PRODUCTS.BORROW_VARIABLE]: defineMessages({
+    title: {
+      defaultMessage: 'Borrow',
+      description: 'borrow title',
+    },
+    returnType: {
+      defaultMessage: 'Variable APY',
+      description: 'return type',
+    },
+    dataPointOneTitle: {
+      defaultMessage: 'Due At Maturity',
+      description: 'data point one description',
+    },
+    dataPointTwoTitle: {
+      defaultMessage: 'Interest Due',
+      description: 'data point one description',
+    },
+  }),
 
-  [NOTIONAL_CATEGORIES.LEND]: defineMessages({
+  [PRODUCTS.LEND_FIXED]: defineMessages({
     title: {
       defaultMessage: 'Lend',
       description: 'lend title',
@@ -48,7 +66,26 @@ export const messages = {
       description: 'data point one description',
     },
   }),
-  [NOTIONAL_CATEGORIES.PROVIDE_LIQUIDITY]: defineMessages({
+
+  [PRODUCTS.LEND_VARIABLE]: defineMessages({
+    title: {
+      defaultMessage: 'Lend',
+      description: 'lend title',
+    },
+    returnType: {
+      defaultMessage: 'Variable APY',
+      description: 'return type',
+    },
+    dataPointOneTitle: {
+      defaultMessage: 'Total At Maturity',
+      description: 'data point one description',
+    },
+    dataPointTwoTitle: {
+      defaultMessage: 'Interest Earned',
+      description: 'data point one description',
+    },
+  }),
+  [PRODUCTS.LIQUIDITY_VARIABLE]: defineMessages({
     returnType: {
       defaultMessage: 'Total APY',
       description: 'return type',
@@ -62,18 +99,32 @@ export const messages = {
       description: 'data point one description',
     },
   }),
-  [NOTIONAL_CATEGORIES.STAKE]: defineMessages({
+  [PRODUCTS.LIQUIDITY_LEVERAGED]: defineMessages({
     returnType: {
-      defaultMessage: 'APY',
+      defaultMessage: 'Total APY',
       description: 'return type',
     },
     dataPointOneTitle: {
-      defaultMessage: 'Total sNOTE Value',
+      defaultMessage: 'Leveraged APY',
       description: 'data point one description',
     },
     dataPointTwoTitle: {
-      defaultMessage: 'Annual Reward Rate',
+      defaultMessage: 'NOTE Incentive Yield',
       description: 'data point one description',
     },
   }),
-} as Record<NOTIONAL_CATEGORIES, MessageData>;
+  // [NOTIONAL_CATEGORIES.STAKE]: defineMessages({
+  //   returnType: {
+  //     defaultMessage: 'APY',
+  //     description: 'return type',
+  //   },
+  //   dataPointOneTitle: {
+  //     defaultMessage: 'Total sNOTE Value',
+  //     description: 'data point one description',
+  //   },
+  //   dataPointTwoTitle: {
+  //     defaultMessage: 'Annual Reward Rate',
+  //     description: 'data point one description',
+  //   },
+  // }),
+} as Record<PRODUCTS, MessageData>;

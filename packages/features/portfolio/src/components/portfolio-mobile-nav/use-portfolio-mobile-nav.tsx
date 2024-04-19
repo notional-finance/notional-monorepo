@@ -5,13 +5,14 @@ import {
 import {
   BarChartIcon,
   FourSquareIcon,
-  StakeIcon,
+  // StakeIcon,
   VaultIcon,
   HistoryIcon,
 } from '@notional-finance/icons';
 import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -25,13 +26,14 @@ export enum NAV_OPTIONS {
 
 export const usePortfolioMobileNav = () => {
   const theme = useTheme();
+  const network = useSelectedNetwork();
   const { category } = useParams<PortfolioParams>();
 
   const options = [
     {
       title: <FormattedMessage defaultMessage={'Overview'} />,
       id: PORTFOLIO_CATEGORIES.OVERVIEW,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
+      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
       Icon: (
         <FourSquareIcon
           sx={{
@@ -47,7 +49,7 @@ export const usePortfolioMobileNav = () => {
     {
       title: <FormattedMessage defaultMessage={'Holdings'} />,
       id: PORTFOLIO_CATEGORIES.HOLDINGS,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
+      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
       Icon: (
         <BarChartIcon
           sx={{
@@ -63,7 +65,7 @@ export const usePortfolioMobileNav = () => {
     {
       title: <FormattedMessage defaultMessage={'Vaults'} />,
       id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
+      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
       Icon: (
         <VaultIcon
           sx={{
@@ -76,26 +78,26 @@ export const usePortfolioMobileNav = () => {
         />
       ),
     },
-    {
-      title: <FormattedMessage defaultMessage={'Stake'} />,
-      id: PORTFOLIO_CATEGORIES.STAKED_NOTE,
-      to: `/stake`,
-      Icon: (
-        <StakeIcon
-          sx={{
-            width: theme.spacing(2),
-            fill:
-              category === PORTFOLIO_CATEGORIES.STAKED_NOTE
-                ? theme.palette.typography.main
-                : theme.palette.typography.light,
-          }}
-        />
-      ),
-    },
+    // {
+    //   title: <FormattedMessage defaultMessage={'Stake'} />,
+    //   id: PORTFOLIO_CATEGORIES.STAKED_NOTE,
+    //   to: `/stake`,
+    //   Icon: (
+    //     <StakeIcon
+    //       sx={{
+    //         width: theme.spacing(2),
+    //         fill:
+    //           category === PORTFOLIO_CATEGORIES.STAKED_NOTE
+    //             ? theme.palette.typography.main
+    //             : theme.palette.typography.light,
+    //       }}
+    //     />
+    //   ),
+    // },
     {
       title: <FormattedMessage defaultMessage={'History'} />,
       id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
+      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
       Icon: (
         <HistoryIcon
           sx={{

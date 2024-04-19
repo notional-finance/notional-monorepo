@@ -35,10 +35,15 @@ const StyledDrawer = styled(Paper)(
 `
 );
 
-const SidebarContainer = styled('div')`
+const SidebarContainer = styled('div')(
+  ({ theme }) => `
   height: 100%;
   width: 100%;
-`;
+  ${theme.breakpoints.down('sm')} {
+    width: 90%;
+  }
+`
+);
 
 export function Drawer({ children, size, sx }: DrawerProps) {
   const width = size === 'large' ? '543px' : '400px';

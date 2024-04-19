@@ -138,6 +138,7 @@ export const TransactionConfirmation = ({
         transactionStatus === TransactionStatus.WAIT_USER_CONFIRM) &&
         transactionError === undefined && <PortfolioCompare state={state} />}
       <TransactionButtons
+        network={selectedNetwork}
         transactionStatus={
           transactionError
             ? TransactionStatus.ERROR_BUILDING

@@ -28,6 +28,7 @@ import {
 import TuneIcon from '@mui/icons-material/Tune';
 import { useTheme } from '@mui/material/styles';
 import { FormattedMessage } from 'react-intl';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const useResourceLinks = () => {
   const theme = useTheme();
@@ -167,13 +168,14 @@ export const useResourceLinks = () => {
 
 export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
   const theme = useTheme();
+  const network = useSelectedNetwork();
 
   const mobileSubNavData = {
     [MOBILE_SUB_NAV_ACTIONS.EARN_YIELD]: [
       {
         key: 'lend-fixed',
         label: <FormattedMessage defaultMessage={'Lend Fixed'} />,
-        link: '/lend-fixed',
+        link: `/lend-fixed/${network}`,
         iconImg: (
           <BarChartLateralIcon
             className="color-stroke"
@@ -184,7 +186,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       {
         key: 'lend-variable',
         label: <FormattedMessage defaultMessage={'Lend Variable'} />,
-        link: '/lend-variable',
+        link: `/lend-variable/${network}`,
         iconImg: (
           <BarChartIcon
             sx={{
@@ -197,7 +199,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       {
         key: 'liquidity-variable',
         label: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-        link: '/liquidity-variable',
+        link: `/liquidity-variable/${network}`,
         iconImg: (
           <PieChartIcon
             className="color-stroke"
@@ -212,7 +214,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       {
         key: 'vaults',
         label: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
-        link: '/vaults',
+        link: `/vaults/${network}`,
         iconImg: (
           <VaultIcon
             className="color-stroke"
@@ -223,7 +225,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       {
         key: 'liquidity-leveraged',
         label: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
-        link: '/liquidity-leveraged',
+        link: `/liquidity-leveraged/${network}`,
         iconImg: (
           <PieChartIcon
             className="color-stroke"
@@ -255,7 +257,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       {
         key: 'borrow-fixed',
         label: <FormattedMessage defaultMessage={'Borrow Fixed'} />,
-        link: '/borrow-fixed',
+        link: `/borrow-fixed/${network}`,
         iconImg: (
           <CoinsIcon
             sx={{
@@ -269,7 +271,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       {
         key: 'borrow-variable',
         label: <FormattedMessage defaultMessage={'Borrow Variable'} />,
-        link: 'borrow-variable',
+        link: `/borrow-variable/${network}`,
         iconImg: (
           <CoinsCircleIcon
             sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
