@@ -10,32 +10,36 @@ import statsImg from '../images/stats_overlay.svg';
 import { FormattedMessage } from 'react-intl';
 import { formatNumber } from '@notional-finance/helpers';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { SupportedNetworks } from '@notional-finance/util';
 
 const oneMillion = 1_000_000;
 
 export const HeroStats = () => {
   const theme = useTheme();
   const {
-    globalState: { heroStats },
+    globalState: { heroStats, activeAccounts },
   } = useNotionalContext();
+  const isReady = SupportedNetworks.every(
+    (n) => activeAccounts && activeAccounts[n]
+  );
 
   return (
     <StatsContainer>
       <ImgContainer>
         <StatsContent>
-          {heroStats?.totalAccounts ? (
+          {isReady && heroStats ? (
             <div>
               <LargeInputText>
                 {`$${formatNumber(
                   heroStats.totalValueLocked / oneMillion,
-                  0
+                  2
                 )}M`}
                 <BodySecondary>
                   <FormattedMessage defaultMessage={'Total Value Locked'} />
                 </BodySecondary>
               </LargeInputText>
               <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
-                {`$${formatNumber(heroStats.totalOpenDebt / oneMillion, 0)}M`}
+                {`$${formatNumber(heroStats.totalOpenDebt / oneMillion, 1)}M`}
                 <BodySecondary>
                   <FormattedMessage defaultMessage={'Total Open Debt'} />
                 </BodySecondary>
