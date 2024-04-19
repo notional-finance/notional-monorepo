@@ -25,6 +25,13 @@ const VaultConfig = {
     network: Network.mainnet,
     symbol: 'ezETH',
   },
+  '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937': {
+    poolId:
+      '0xb61371ab661b1acec81c699854d2f911070c059e000000000000000000000516',
+    targetToken: '0x2416092f143378750bb29b79eD961ab195CcEea5',
+    network: Network.arbitrum,
+    symbol: 'ezETH',
+  },
 };
 
 async function loadAllVaultsQuery(
@@ -120,18 +127,20 @@ export async function getVaultData(vaultAddress: string, blockNumber: number) {
   );
   const totalTokenBalance: BigNumber = poolData.balances.balances[tokenIndex];
 
-  return allVaultAccounts.balances.map((a) => {
-    const lpTokens = totalLPTokens
-      .mul(BigNumber.from(a.current.currentBalance))
-      .div(totalVaultShares);
-    const tokenBalance = totalTokenBalance.mul(lpTokens).div(totalLPSupply);
+  return allVaultAccounts.balances
+    .filter((a) => !BigNumber.from(a.current.currentBalance).isZero())
+    .map((a) => {
+      const lpTokens = totalLPTokens
+        .mul(BigNumber.from(a.current.currentBalance))
+        .div(totalVaultShares);
+      const tokenBalance = totalTokenBalance.mul(lpTokens).div(totalLPSupply);
 
-    return {
-      address: a.account.id,
-      effective_balance: `${ethers.utils.formatUnits(
-        tokenBalance,
-        18
-      )} ${symbol}`,
-    };
-  });
+      return {
+        address: a.account.id,
+        effective_balance: `${ethers.utils.formatUnits(
+          tokenBalance,
+          18
+        )} ${symbol}`,
+      };
+    });
 }
