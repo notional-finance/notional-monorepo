@@ -459,15 +459,14 @@ function computeCollateralOptions(
   return options.map((c) => {
     const i = { ...inputs, collateral: c };
     try {
-      const { collateralBalance, netRealizedCollateralBalance, collateralFee } =
-        calculationFn(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          i as any
-        ) as {
-          collateralFee: TokenBalance;
-          collateralBalance: TokenBalance;
-          netRealizedCollateralBalance: TokenBalance;
-        };
+      const { collateralBalance, netRealizedCollateralBalance } = calculationFn(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        i as any
+      ) as {
+        collateralFee: TokenBalance;
+        collateralBalance: TokenBalance;
+        netRealizedCollateralBalance: TokenBalance;
+      };
 
       return {
         token: c,
@@ -475,8 +474,7 @@ function computeCollateralOptions(
         ..._getTradedInterestRate(
           netRealizedCollateralBalance,
           collateralBalance,
-          fCashMarket,
-          collateralFee
+          fCashMarket
         ),
       };
     } catch (e) {
@@ -510,7 +508,7 @@ function computeDebtOptions(
         );
       }
 
-      const { debtBalance, netRealizedDebtBalance, debtFee } = calculationFn(
+      const { debtBalance, netRealizedDebtBalance } = calculationFn(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         i as any
       ) as {
@@ -526,7 +524,6 @@ function computeDebtOptions(
           netRealizedDebtBalance,
           debtBalance.unwrapVaultToken(),
           fCashMarket,
-          debtFee,
           tradeType
         ),
       };
@@ -545,7 +542,6 @@ function _getTradedInterestRate(
   realized: TokenBalance,
   amount: TokenBalance,
   fCashMarket: fCashMarket,
-  fee?: TokenBalance,
   tradeType?: TradeType | VaultTradeType
 ) {
   let interestRate: number | undefined;
@@ -553,10 +549,7 @@ function _getTradedInterestRate(
   if (amount.tokenType === 'fCash') {
     // We net off the fee for fcash so that we show it as an up-front
     // trading fee rather than part of the implied yield
-    interestRate = fCashMarket.getImpliedInterestRate(
-      realized.sub(fee?.toUnderlying() || realized.copy(0)),
-      amount
-    );
+    interestRate = fCashMarket.getImpliedInterestRate(realized, amount);
   } else if (amount.tokenType === 'PrimeCash') {
     // Increases or decreases the prime supply accordingly
     utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);
