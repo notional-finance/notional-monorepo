@@ -1,4 +1,8 @@
-import { RATE_PRECISION, SECONDS_IN_YEAR } from '@notional-finance/util';
+import {
+  BASIS_POINT,
+  RATE_PRECISION,
+  SECONDS_IN_YEAR,
+} from '@notional-finance/util';
 import { TokenDefinition } from '../../Definitions';
 import { Registry } from '../../Registry';
 import { TokenBalance } from '../../token-balance';
@@ -106,10 +110,25 @@ export abstract class BaseNotionalMarket<
 
   public getSpotInterestRate(token: TokenDefinition) {
     if (token.tokenType === 'PrimeCash') {
-      const utilization = this.getPrimeCashUtilization();
+      // Handles a rare edge case when the utilization is maxed out and
+      // the site thinks we are above 100% utilization by a small amount
+      // because the total supply figure has not updated
+      let utilization = this.getPrimeCashUtilization();
+      if (
+        RATE_PRECISION < utilization &&
+        utilization < RATE_PRECISION + 5 * BASIS_POINT
+      ) {
+        utilization = RATE_PRECISION;
+      }
       return (this.getPrimeSupplyRate(utilization) * 100) / RATE_PRECISION;
     } else if (token.tokenType === 'PrimeDebt') {
-      const utilization = this.getPrimeCashUtilization();
+      let utilization = this.getPrimeCashUtilization();
+      if (
+        RATE_PRECISION < utilization &&
+        utilization < RATE_PRECISION + 5 * BASIS_POINT
+      ) {
+        utilization = RATE_PRECISION;
+      }
       return (this.getPrimeDebtRate(utilization) * 100) / RATE_PRECISION;
     } else if (token.tokenType === 'fCash') {
       return this.getfCashSpotRate(token);
