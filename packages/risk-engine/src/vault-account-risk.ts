@@ -363,10 +363,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     };
   }
 
-  override maxWithdraw(
-    _token: TokenDefinition = this.vaultShares.token
-  ): TokenBalance {
+  maxWithdraw(_token: TokenDefinition = this.vaultShares.token) {
     let costToRepay: TokenBalance | undefined;
+    let debtFee: TokenBalance | undefined;
     if (this.vaultDebt.maturity !== PRIME_CASH_VAULT_MATURITY) {
       const fCash = Registry.getExchangeRegistry().getfCashMarket(
         this.network,
@@ -374,10 +373,11 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       );
 
       try {
-        const { tokensOut } = fCash.calculateTokenTrade(
+        const { tokensOut, feesPaid } = fCash.calculateTokenTrade(
           this.vaultDebt.unwrapVaultToken(),
           0
         );
+        debtFee = feesPaid[0];
 
         costToRepay = tokensOut
           .add(this.vaultCash.unwrapVaultToken())
@@ -405,10 +405,22 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         costToRepay, // this is a negative number
         this.vaultShares.token
       );
+    const { netUnderlyingForVaultShares, feesPaid } =
+      this.vaultAdapter.getNetVaultSharesCost(this.vaultShares.neg());
 
     // Return this in vault shares terms
-    return this.vaultShares.gt(netVaultSharesForUnderlying)
+    const maxWithdraw = this.vaultShares.gt(netVaultSharesForUnderlying)
       ? this.vaultShares.sub(netVaultSharesForUnderlying)
       : this.vaultShares.copy(0);
+
+    return {
+      maxWithdrawUnderlying: maxWithdraw.toUnderlying(),
+      netRealizedCollateralBalance: netUnderlyingForVaultShares.add(feesPaid),
+      collateralFee: feesPaid,
+      debtFee,
+      netRealizedDebtBalance: costToRepay.add(
+        debtFee?.toUnderlying() || costToRepay.copy(0)
+      ),
+    };
   }
 }

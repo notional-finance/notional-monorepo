@@ -50,12 +50,19 @@ export const WithdrawVault = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateState, inputAmount?.hashKey]);
 
-  const maxWithdrawUnderlying = useMemo(() => {
-    return profile?.maxWithdraw().toUnderlying();
+  const maxWithdrawValues = useMemo(() => {
+    return profile?.maxWithdraw();
   }, [profile]);
 
   const onMaxValue = useCallback(() => {
-    if (profile && maxWithdrawUnderlying) {
+    if (profile && maxWithdrawValues) {
+      const {
+        maxWithdrawUnderlying,
+        netRealizedCollateralBalance,
+        netRealizedDebtBalance,
+        debtFee,
+        collateralFee,
+      } = maxWithdrawValues;
       setCurrencyInput(maxWithdrawUnderlying.toExactString(), false);
 
       updateState({
@@ -66,9 +73,14 @@ export const WithdrawVault = () => {
         calculateError: undefined,
         collateralBalance: profile.vaultShares.neg(),
         debtBalance: profile.vaultDebt.neg(),
+        netRealizedCollateralBalance,
+        netRealizedDebtBalance,
+        debtFee,
+        collateralFee,
       });
     }
-  }, [profile, setCurrencyInput, maxWithdrawUnderlying, updateState]);
+  }, [profile, setCurrencyInput, updateState, maxWithdrawValues]);
+  const maxWithdrawUnderlying = maxWithdrawValues?.maxWithdrawUnderlying;
 
   if (!deposit || !primaryBorrowSymbol) return <PageLoading />;
 

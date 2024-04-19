@@ -542,6 +542,7 @@ function getDeleverageWithdrawSummary(
     netRealizedDebtBalance,
     depositBalance,
     tradeType,
+    maxWithdraw,
   } = state;
   const isSwapped = isDeleverageWithSwappedTokens(state);
   const isVault = isVaultTrade(tradeType);
@@ -550,7 +551,7 @@ function getDeleverageWithdrawSummary(
   if (netRealizedCollateralBalance && collateralBalance)
     summary.push(
       getTradeDetail(
-        depositBalance && isVault
+        depositBalance && isVault && !maxWithdraw
           ? netRealizedCollateralBalance.add(depositBalance)
           : netRealizedCollateralBalance,
         isSwapped ? 'Debt' : 'Asset',
