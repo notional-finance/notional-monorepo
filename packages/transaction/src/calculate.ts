@@ -60,7 +60,7 @@ export function exchangeToLocalPrime(
     return {
       localPrime: tokensOut[0].toToken(outToken),
       fees: feesPaid[0],
-      netRealized: balance.toPrimeCash().sub(feesPaid[0]).toUnderlying(),
+      netRealized: tokensOut[0].sub(feesPaid[0]).toUnderlying(),
     };
   } else if (token.tokenType === 'nToken' && balance.isPositive()) {
     if (!pool) throw Error('Pool is undefined');
@@ -73,24 +73,23 @@ export function exchangeToLocalPrime(
     return {
       localPrime: tokensIn[0].toToken(outToken),
       fees: feesPaid[0],
-      netRealized: balance.toPrimeCash().sub(feesPaid[0]).toUnderlying(),
+      netRealized: balance.sub(feesPaid[0]).toUnderlying(),
     };
   } else if (token.tokenType === 'fCash') {
     if (!pool) throw Error('Pool is undefined');
     // Buy or Sell fCash to prime cash, take the opposite of the incoming balance
-    const { tokensOut, feesPaid } = pool.calculateTokenTrade(
-      balance.unwrapVaultToken().neg(),
-      0
-    );
+    const b = balance.unwrapVaultToken().neg();
+    const { tokensOut, feesPaid } = pool.calculateTokenTrade(b, 0);
 
     return {
       localPrime: tokensOut.toToken(outToken).abs(),
       fees: feesPaid[0],
-      netRealized: balance
-        .unwrapVaultToken()
-        .toPrimeCash()
-        .sub(feesPaid[0])
-        .toUnderlying(),
+      netRealized:
+        b.tokenType === 'PrimeCash'
+          ? // in this case it is lending
+            b.sub(feesPaid[0]).toUnderlying()
+          : // in this case it is borrowing
+            tokensOut.add(feesPaid[0]).toUnderlying(),
     };
   }
 
