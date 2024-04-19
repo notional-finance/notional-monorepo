@@ -82,7 +82,7 @@ const Portfolio = () => {
     );
   };
 
-  const TestComp = ({ onClose }: any) => {
+  const CustomHeader = ({ onClose }: any) => {
     return (
       <ContainerTest>
         <SideBarSubHeader
@@ -98,7 +98,7 @@ const Portfolio = () => {
       <SideDrawer
         callback={handleDrawer}
         openDrawer={openDrawer}
-        CustomHeader={TestComp}
+        CustomHeader={CustomHeader}
         zIndex={1202}
       >
         {SideDrawerComponent && <SideDrawerComponent />}

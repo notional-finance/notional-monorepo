@@ -87,7 +87,6 @@ export const ActionSidebar = ({
 
   return (
     <Container
-      id="ACTION SIDEBAR"
       isPortfolio={isPortfolio}
       mobileTopMargin={mobileTopMargin}
       theme={theme}
@@ -117,16 +116,6 @@ export const ActionSidebar = ({
             </LargeInputTextEmphasized>
             {NetworkSelector}
           </Box>
-          {/* <H4
-            gutter="default"
-            sx={{
-              display: { xs: 'block', sm: 'block', md: 'none' },
-              textTransform: 'uppercase',
-              marginBottom: theme.spacing(5),
-            }}
-          >
-            <FormattedMessage {...heading} />
-          </H4> */}
           {advancedToggle && (
             <Box
               sx={{

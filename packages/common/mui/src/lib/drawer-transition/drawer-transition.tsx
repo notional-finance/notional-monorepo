@@ -50,7 +50,6 @@ export const DrawerTransition = ({
     <Transition nodeRef={ref} in={inState} timeout={150}>
       {(state: TransitionStatus) => (
         <Box
-          id="DRAWER_TRANSITION"
           ref={ref}
           sx={
             // Root drawer has a different fade in state
@@ -58,12 +57,10 @@ export const DrawerTransition = ({
               ? {
                   ...fadeStart,
                   ...fadeTransition[state],
-                  // width: 'inherit',
                 }
               : {
                   ...slideStart,
                   ...slideTransition[state],
-                  // width: 'inherit',
                 }
           }
         >
