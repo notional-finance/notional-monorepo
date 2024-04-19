@@ -641,8 +641,6 @@ export abstract class BaseRiskProfile implements RiskFactors {
     return undefined;
   }
 
-  abstract maxWithdraw(token: TokenDefinition): TokenBalance;
-
   /** Abstract Risk Factor Implementations **/
   abstract freeCollateral(): TokenBalance;
   abstract collateralRatio(): number | null;

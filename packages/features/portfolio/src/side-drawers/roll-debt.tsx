@@ -25,6 +25,8 @@ export const RollDebt = () => {
     _: TokenBalance | undefined,
     maxBalance: TokenBalance | undefined
   ) => {
+    // Fixes a race condition where the screen flashes
+    if (inputAmount === undefined && hasUserTouched === false) return;
     if (inputAmount) setHasUserTouched(true);
     updateState({
       collateralBalance: inputAmount,

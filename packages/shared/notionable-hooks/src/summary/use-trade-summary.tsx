@@ -1,6 +1,7 @@
 import { Box, Theme, useTheme } from '@mui/material';
 import {
   FiatKeys,
+  Registry,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -13,6 +14,8 @@ import {
   isDeleverageTrade,
   TradeType,
   VaultTradeType,
+  isDeleverageWithSwappedTokens,
+  isVaultTrade,
 } from '@notional-finance/notionable';
 import { BASIS_POINT } from '@notional-finance/util';
 import {
@@ -23,6 +26,7 @@ import {
 } from 'react-intl';
 import { DetailItem, OrderDetailLabels, TradeSummaryLabels } from '.';
 import { useFiat } from '../use-user-settings';
+import { exchangeToLocalPrime } from '@notional-finance/transaction';
 
 function getTotalWalletItem(
   depositBalance: TokenBalance,
@@ -64,7 +68,7 @@ function getTradeDetail(
   typeKey: 'deposit' | 'withdraw' | 'none' | 'repay',
   intl: IntlShape,
   _token?: TokenDefinition,
-  adjustValueUnderlying?: TokenBalance
+  underlyingValueOverride?: TokenBalance
 ) {
   const tokenType = _token?.tokenType || b.unwrapVaultToken().tokenType;
   const caption = formatTokenType(
@@ -82,7 +86,7 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b
+            displayValue: (underlyingValueOverride || b)
               .toUnderlying()
               .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
@@ -102,7 +106,7 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b
+            displayValue: (underlyingValueOverride || b)
               .toUnderlying()
               .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
@@ -118,7 +122,7 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: b
+            displayValue: (underlyingValueOverride || b)
               .toUnderlying()
               .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
@@ -138,11 +142,9 @@ function getTradeDetail(
       value: {
         data: [
           {
-            displayValue: (adjustValueUnderlying
-              ? // Used to adjust valuation post nToken mint with minting bonus
-                b.toUnderlying().add(adjustValueUnderlying)
-              : b.toUnderlying()
-            ).toDisplayStringWithSymbol(4, true, false),
+            displayValue: (underlyingValueOverride || b)
+              .toUnderlying()
+              .toDisplayStringWithSymbol(4, true, false),
             showPositiveAsGreen: b.toUnderlying().isPositive(),
             isNegative: false,
           },
@@ -186,7 +188,6 @@ const FeeItem = ({
 function getFeeValue(
   underlying: TokenDefinition,
   isLeverageOrRoll: boolean,
-  tradeType: TradeType | VaultTradeType | undefined,
   depositBalance: TokenBalance | undefined,
   collateralBalance: TokenBalance | undefined,
   debtBalance: TokenBalance | undefined,
@@ -195,9 +196,7 @@ function getFeeValue(
 ): TokenBalance {
   const zeroUnderlying = TokenBalance.zero(underlying);
 
-  if (tradeType === 'RollVaultPosition') {
-    return zeroUnderlying;
-  } else if (isLeverageOrRoll) {
+  if (isLeverageOrRoll) {
     // Do not include roll vault position because the margin will be
     // incorrectly included in the fee value
     return (collateralFee?.toUnderlying() || zeroUnderlying).add(
@@ -309,6 +308,274 @@ function getFeeDetailItem(
   };
 }
 
+function getDepositSummary(
+  state: TradeState | VaultTradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  const { netAssetBalance, netRealizedCollateralBalance, tradeType } = state;
+
+  if (netAssetBalance?.isZero() === false && netRealizedCollateralBalance) {
+    if (tradeType === 'RepayDebt') {
+      summary.push(
+        getTradeDetail(
+          netRealizedCollateralBalance,
+          'Debt',
+          'deposit',
+          intl,
+          netAssetBalance.token
+        )
+      );
+    } else {
+      // In here, if the fee value is positive then it needs to be adjusted...
+      summary.push(
+        getTradeDetail(
+          netRealizedCollateralBalance,
+          'Asset',
+          'deposit',
+          intl,
+          netAssetBalance.token
+        )
+      );
+    }
+  }
+
+  return summary;
+}
+
+function getWithdrawSummary(
+  state: TradeState | VaultTradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  const { netDebtBalance, netAssetBalance, netRealizedDebtBalance, tradeType } =
+    state;
+
+  if (netAssetBalance?.isNegative() && netRealizedDebtBalance) {
+    summary.push(
+      getTradeDetail(
+        netRealizedDebtBalance.abs(),
+        'Asset',
+        'withdraw',
+        intl,
+        netAssetBalance.token
+      )
+    );
+  } else if (netDebtBalance?.isZero() === false && netRealizedDebtBalance) {
+    if (netDebtBalance.tokenType === 'PrimeDebt' && tradeType === 'Withdraw') {
+      summary.push(
+        getTradeDetail(
+          netRealizedDebtBalance.abs(),
+          'Asset',
+          'withdraw',
+          intl,
+          netDebtBalance.toPrimeCash().token
+        )
+      );
+    } else {
+      summary.push(
+        getTradeDetail(
+          netRealizedDebtBalance.abs(),
+          'Debt',
+          netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
+          intl,
+          netDebtBalance.token
+        )
+      );
+    }
+  }
+
+  return summary;
+}
+
+/**
+ * On entry to a vault this shows three line items:
+ *   - deposit and mint
+ *   - borrow
+ *   - mint rest of the position
+ */
+function getLeverageSummary(
+  state: TradeState | VaultTradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  const {
+    depositBalance,
+    collateralBalance,
+    debtBalance,
+    netRealizedCollateralBalance,
+    netRealizedDebtBalance,
+    debtFee,
+    tradeType,
+  } = state;
+
+  // This is the entry deposit, will show "Deposit and Mint Asset"
+  if (depositBalance?.isPositive() && collateralBalance) {
+    summary.push(
+      getTradeDetail(
+        depositBalance,
+        'Asset',
+        'deposit',
+        intl,
+        collateralBalance.token
+      )
+    );
+  }
+
+  if (debtBalance && netRealizedDebtBalance && debtFee) {
+    summary.push(
+      getTradeDetail(
+        netRealizedDebtBalance,
+        'Debt',
+        'none',
+        intl,
+        debtBalance.unwrapVaultToken().token
+      )
+    );
+  }
+  // NOTE: rolling a vault debt will repay and withdraw all current shares
+  if (tradeType === 'RollVaultPosition') {
+    const { priorVaultBalances } = state as VaultTradeState;
+    if (priorVaultBalances) {
+      const debt = priorVaultBalances.find((t) => t.tokenType === 'VaultDebt');
+      const assets = priorVaultBalances.find(
+        (t) => t.tokenType === 'VaultShare'
+      );
+      if (debt) {
+        // Get the traded value of repaying a fixed rate debt
+        if (debt.unwrapVaultToken().tokenType === 'fCash') {
+          const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
+            debt.network,
+            debt.currencyId
+          );
+          const { netRealized } = exchangeToLocalPrime(
+            debt.neg(),
+            fCashMarket,
+            debt.unwrapVaultToken().toPrimeCash().token
+          );
+          summary.push(
+            getTradeDetail(
+              netRealized,
+              'Debt',
+              'repay',
+              intl,
+              debt.unwrapVaultToken().token
+            )
+          );
+        } else {
+          summary.push(getTradeDetail(debt.neg(), 'Debt', 'repay', intl));
+        }
+      }
+
+      if (assets)
+        summary.push(getTradeDetail(assets.neg(), 'Asset', 'withdraw', intl));
+    }
+  }
+
+  if (collateralBalance && netRealizedCollateralBalance) {
+    summary.push(
+      getTradeDetail(
+        depositBalance
+          ? netRealizedCollateralBalance.sub(depositBalance)
+          : netRealizedCollateralBalance,
+        'Asset',
+        'none',
+        intl,
+        collateralBalance.token
+      )
+    );
+  }
+
+  return summary;
+}
+
+function getRollDebtOrConvertAssetSummary(
+  state: TradeState | VaultTradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  const {
+    collateralBalance,
+    debtBalance,
+    netRealizedCollateralBalance,
+    netRealizedDebtBalance,
+    tradeType,
+  } = state;
+
+  if (netRealizedDebtBalance && debtBalance) {
+    summary.push(
+      getTradeDetail(
+        netRealizedDebtBalance.abs().neg(),
+        tradeType === 'RollDebt' ? 'Debt' : 'Asset',
+        tradeType === 'RollDebt' ? 'none' : 'withdraw',
+        intl,
+        tradeType === 'ConvertAsset' && debtBalance.tokenType === 'PrimeDebt'
+          ? debtBalance.toPrimeCash().token
+          : debtBalance.unwrapVaultToken().token
+      )
+    );
+  }
+
+  if (netRealizedCollateralBalance && collateralBalance)
+    summary.push(
+      getTradeDetail(
+        netRealizedCollateralBalance,
+        tradeType === 'RollDebt' ? 'Debt' : 'Asset',
+        tradeType === 'RollDebt' ? 'repay' : 'none',
+        intl,
+        collateralBalance.unwrapVaultToken().token
+      )
+    );
+
+  return summary;
+}
+
+function getDeleverageWithdrawSummary(
+  state: TradeState | VaultTradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  const {
+    collateralBalance,
+    debtBalance,
+    netRealizedCollateralBalance,
+    netRealizedDebtBalance,
+    depositBalance,
+    tradeType,
+    maxWithdraw,
+  } = state;
+  const isSwapped = isDeleverageWithSwappedTokens(state);
+  const isVault = isVaultTrade(tradeType);
+
+  // TODO: not clear which one should be negative or positive
+  if (netRealizedCollateralBalance && collateralBalance)
+    summary.push(
+      getTradeDetail(
+        depositBalance && isVault && !maxWithdraw
+          ? netRealizedCollateralBalance.add(depositBalance)
+          : netRealizedCollateralBalance,
+        isSwapped ? 'Debt' : 'Asset',
+        isSwapped ? 'repay' : 'withdraw',
+        intl,
+        collateralBalance.unwrapVaultToken().token
+      )
+    );
+
+  if (netRealizedDebtBalance && debtBalance) {
+    summary.push(
+      getTradeDetail(
+        netRealizedDebtBalance.neg(),
+        isSwapped ? 'Asset' : 'Debt',
+        isSwapped ? 'withdraw' : 'repay',
+        intl,
+        debtBalance.unwrapVaultToken().token
+      )
+    );
+  }
+
+  return summary;
+}
+
 export function useTradeSummary(state: VaultTradeState | TradeState) {
   const intl = useIntl();
   const theme = useTheme();
@@ -327,7 +594,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   } = state;
   const depositBalance = _d;
 
-  // TODO: if underlying is not all the same the convert to fiat currency instead
   const underlying =
     netAssetBalance?.underlying ||
     netDebtBalance?.underlying ||
@@ -341,10 +607,9 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   // On leverage or roll, labels are slightly different
   const isLeverageOrRoll = !!debtBalance && !!collateralBalance;
 
-  let feeValue = getFeeValue(
+  const feeValue = getFeeValue(
     underlying,
     isLeverageOrRoll,
-    tradeType,
     depositBalance,
     collateralBalance,
     debtBalance,
@@ -353,173 +618,30 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   );
 
   const summary: DetailItem[] = [];
-  if (isLeverageOrRoll) {
-    if (
-      depositBalance?.isPositive() ||
+  if (
+    isLeverageOrRoll &&
+    (depositBalance?.isPositive() ||
       tradeType === 'LeveragedNTokenAdjustLeverage' ||
       tradeType === 'IncreaseVaultPosition' ||
-      tradeType === 'RollVaultPosition'
-    ) {
-      // Deposit and Mint X
-      if (depositBalance?.isPositive()) {
-        summary.push(
-          getTradeDetail(
-            depositBalance,
-            'Asset',
-            'deposit',
-            intl,
-            collateralBalance.token
-          )
-        );
-      }
-      // NOTE: technically net asset changes may occur here inside Leveraged Lend
-      // or Leveraged Liquidity but currently they won't show in the trade summary
-      // Borrow
-      summary.push(getTradeDetail(debtBalance, 'Debt', 'none', intl));
-
-      // NOTE: rolling a vault debt will repay and withdraw all current shares
-      if (tradeType === 'RollVaultPosition') {
-        const { priorVaultBalances } = state as VaultTradeState;
-        if (priorVaultBalances) {
-          const debt = priorVaultBalances.find(
-            (t) => t.tokenType === 'VaultDebt'
-          );
-          const assets = priorVaultBalances.find(
-            (t) => t.tokenType === 'VaultShare'
-          );
-          if (debt) {
-            summary.push(getTradeDetail(debt.neg(), 'Debt', 'repay', intl));
-            feeValue = debt.toUnderlying().sub(debtBalance.toUnderlying());
-          }
-
-          if (assets)
-            summary.push(
-              getTradeDetail(assets.neg(), 'Asset', 'withdraw', intl)
-            );
-        }
-      }
-
-      // Mint X - deposit
-      summary.push(
-        getTradeDetail(
-          depositBalance
-            ? collateralBalance.toUnderlying().sub(depositBalance)
-            : collateralBalance.toUnderlying(),
-          'Asset',
-          'none',
-          intl,
-          collateralBalance.token
-        )
-      );
-    } else if (tradeType === 'WithdrawVault') {
-      // Sell assets
-      summary.push(
-        getTradeDetail(collateralBalance.neg(), 'Asset', 'withdraw', intl)
-      );
-      // Repay debt
-      summary.push(getTradeDetail(debtBalance, 'Debt', 'repay', intl));
-      /** NOTE: net asset and balance changes are used below here **/
-    } else if (
+      tradeType === 'RollVaultPosition')
+  ) {
+    summary.push(...getLeverageSummary(state, intl));
+  } else if (
+    isLeverageOrRoll &&
+    (tradeType === 'WithdrawVault' ||
       tradeType === 'Deleverage' ||
-      tradeType === 'DeleverageWithdraw'
-    ) {
-      summary.push(getTradeDetail(debtBalance, 'Asset', 'none', intl));
-      summary.push(getTradeDetail(collateralBalance, 'Debt', 'repay', intl));
-    } else if (tradeType === 'RollDebt') {
-      // Asset to repay: this never changes signs
-      summary.push(getTradeDetail(collateralBalance, 'Debt', 'repay', intl));
-
-      if (netAssetBalance?.isZero() === false)
-        // This only exists if the new debt maturity has fCash in it
-        summary.push(
-          getTradeDetail(
-            netAssetBalance,
-            'Asset',
-            netAssetBalance.isNegative() ? 'withdraw' : 'none',
-            intl
-          )
-        );
-      // New borrow balance
-      if (netDebtBalance?.isZero() === false)
-        summary.push(getTradeDetail(netDebtBalance, 'Debt', 'none', intl));
-    } else if (tradeType === 'ConvertAsset') {
-      // Asset to sell: this sign never changes
-      summary.push(
-        getTradeDetail(
-          debtBalance.tokenType === 'PrimeDebt'
-            ? debtBalance.toPrimeCash()
-            : debtBalance,
-          'Asset',
-          'withdraw',
-          intl
-        )
-      );
-
-      if (netDebtBalance?.isZero() === false)
-        // This only exists if the debt is being repaid in the new maturity
-        summary.push(
-          getTradeDetail(
-            netDebtBalance,
-            'Debt',
-            netDebtBalance.isPositive() ? 'repay' : 'none',
-            intl
-          )
-        );
-      if (netAssetBalance?.isZero() === false)
-        // This is the new asset balance
-        summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));
-    }
+      tradeType === 'DeleverageWithdraw')
+  ) {
+    summary.push(...getDeleverageWithdrawSummary(state, intl));
+  } else if (
+    isLeverageOrRoll &&
+    (tradeType === 'RollDebt' || tradeType === 'ConvertAsset')
+  ) {
+    summary.push(...getRollDebtOrConvertAssetSummary(state, intl));
   } else if (depositBalance?.isPositive()) {
-    if (netDebtBalance?.isZero() === false)
-      summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
-    if (netAssetBalance?.isZero() === false) {
-      if (tradeType === 'RepayDebt') {
-        summary.push(getTradeDetail(netAssetBalance, 'Debt', 'deposit', intl));
-      } else {
-        // In here, if the fee value is positive then it needs to be adjusted...
-        summary.push(
-          getTradeDetail(
-            netAssetBalance,
-            'Asset',
-            'deposit',
-            intl,
-            undefined,
-            feeValue.isNegative() && netAssetBalance.tokenType === 'nToken'
-              ? feeValue.neg()
-              : undefined
-          )
-        );
-      }
-    }
+    summary.push(...getDepositSummary(state, intl));
   } else if (depositBalance?.isNegative()) {
-    if (netAssetBalance?.isZero() === false)
-      summary.push(
-        getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
-      );
-    if (netDebtBalance?.isZero() === false) {
-      if (
-        netDebtBalance.tokenType === 'PrimeDebt' &&
-        tradeType === 'Withdraw'
-      ) {
-        summary.push(
-          getTradeDetail(
-            netDebtBalance.toPrimeCash().abs(),
-            'Asset',
-            'withdraw',
-            intl
-          )
-        );
-      } else {
-        summary.push(
-          getTradeDetail(
-            netDebtBalance.abs(),
-            'Debt',
-            netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
-            intl
-          )
-        );
-      }
-    }
+    summary.push(...getWithdrawSummary(state, intl));
   } else {
     return { summary: undefined, total: undefined };
   }

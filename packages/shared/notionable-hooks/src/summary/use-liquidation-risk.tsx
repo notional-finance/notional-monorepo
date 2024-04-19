@@ -132,6 +132,17 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 }
 
 export function useVaultLiquidationRisk(state: VaultTradeState) {
+  const { liquidationPrices, tooRisky, postAccountNoRisk } =
+    useVaultDetails(state);
+
+  return {
+    tooRisky,
+    postAccountNoRisk,
+    tableData: liquidationPrices,
+  };
+}
+
+export function useVaultDetails(state: VaultTradeState) {
   const {
     postAccountRisk,
     netWorth,
@@ -195,5 +206,6 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
     postAccountNoRisk:
       postAccountRisk === undefined || postAccountRisk?.leverageRatio === null,
     tableData: [...factors, ...liquidationPrices],
+    liquidationPrices,
   };
 }

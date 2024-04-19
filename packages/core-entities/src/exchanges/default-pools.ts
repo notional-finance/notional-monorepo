@@ -54,7 +54,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: '0x383E6b4437b59fff47B619CBA855CA29342A8559',
-      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         {
           id: '0x383E6b4437b59fff47B619CBA855CA29342A8559',
