@@ -331,7 +331,10 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
         Registry.getTokenRegistry()
           .getAllTokens(n)
           .filter(
-            (t) => t.tokenType === 'PrimeDebt' || t.tokenType === 'PrimeCash'
+            (t) =>
+              t.tokenType === 'PrimeDebt' ||
+              t.tokenType === 'PrimeCash' ||
+              t.tokenType === 'VaultShare'
           )
           .reduce(
             (acc, token) =>
