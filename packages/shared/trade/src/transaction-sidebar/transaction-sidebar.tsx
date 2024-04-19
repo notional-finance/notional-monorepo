@@ -32,7 +32,7 @@ import { TransactionApprovals } from '../transaction-approvals/transaction-appro
 import { useLocation } from 'react-router-dom';
 import { TradeSummary } from './components/trade-summary';
 import { isLeveragedTrade } from '@notional-finance/notionable';
-import { NOTIONAL_CATEGORIES, PRODUCTS } from '@notional-finance/util';
+import { PRODUCTS } from '@notional-finance/util';
 import { SwitchNetwork } from '../transaction-approvals/switch-network';
 
 interface TransactionSidebarProps {
@@ -59,9 +59,11 @@ interface TransactionSidebarProps {
   hideTextOnMobile?: boolean;
   variableBorrowRequired?: boolean;
   NetworkSelector?: React.ReactNode;
+  mobileTopMargin?: string;
 }
 
 export const TransactionSidebar = ({
+  mobileTopMargin,
   context,
   heading,
   helptext,
@@ -199,6 +201,7 @@ export const TransactionSidebar = ({
     />
   ) : (
     <ActionSidebar
+      mobileTopMargin={mobileTopMargin}
       heading={heading || TransactionHeadings[tradeType].heading}
       helptext={getTokenSpecificHelpText()}
       advancedToggle={advancedToggle}
@@ -209,6 +212,7 @@ export const TransactionSidebar = ({
       leverageDisabled={leverageDisabled}
       hideTextOnMobile={isPortfolio || !hideTextOnMobile ? false : true}
       NetworkSelector={NetworkSelector}
+      isPortfolio={isPortfolio}
     >
       <ScrollToTop />
       {children}

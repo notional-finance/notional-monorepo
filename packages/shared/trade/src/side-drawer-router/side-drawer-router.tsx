@@ -143,7 +143,7 @@ const DrawerRoute = ({
         {!isRootDrawer && (
           // Root drawer does not have a back button
           <SideBarSubHeader
-            paddingTop={theme.spacing(18)}
+            paddingTop={theme.spacing(5)}
             callback={onBack || history.goBack}
             titleText={defineMessage({ defaultMessage: 'Back' })}
           />

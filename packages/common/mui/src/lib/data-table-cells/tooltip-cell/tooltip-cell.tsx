@@ -14,6 +14,7 @@ export const ToolTipCell = ({ cell }): JSX.Element => {
           lineHeight: 'normal',
           fontWeight: 500,
           fontSize: '.750rem',
+          whiteSpace: 'normal',
         }}
       >
         {value.content ? <FormattedMessage {...value.content} /> : value}

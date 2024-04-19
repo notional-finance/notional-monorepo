@@ -1,38 +1,23 @@
 import { useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { NOTIONAL_CATEGORIES } from '@notional-finance/util';
-import {
-  H5,
-  LargeInputTextEmphasized,
-  CountUp,
-  H4,
-} from '@notional-finance/mui';
+import { PRODUCTS } from '@notional-finance/util';
+import { H5, LargeInputTextEmphasized, CountUp } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TokenIcon } from '@notional-finance/icons';
 import { messages } from './messages';
+import { BaseTradeState } from '@notional-finance/notionable';
+import { useAllMarkets } from '@notional-finance/notionable-hooks';
 
 interface MobileTradeActionSummaryProps {
-  tradeAction: NOTIONAL_CATEGORIES;
-  selectedToken: string;
-  dataPointOne: number | undefined;
-  dataPointOnePrefix?: string;
-  dataPointOneSuffix: string;
-  dataPointTwo: number | undefined;
-  dataPointTwoPrefix?: string;
-  dataPointTwoSuffix: string;
-  fixedAPY: number | undefined;
+  tradeAction: PRODUCTS;
+  selectedToken?: string;
+  state: BaseTradeState;
 }
 
 export function MobileTradeActionSummary({
   tradeAction,
   selectedToken,
-  dataPointOne,
-  dataPointOnePrefix,
-  dataPointOneSuffix,
-  dataPointTwo,
-  dataPointTwoPrefix,
-  dataPointTwoSuffix,
-  fixedAPY,
+  state,
 }: MobileTradeActionSummaryProps) {
   const theme = useTheme();
 
@@ -40,62 +25,49 @@ export function MobileTradeActionSummary({
     window.scrollTo(0, 0);
   }, []);
 
+  const { debt, collateralOptions, collateral, debtOptions, selectedNetwork } =
+    state;
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+  const nonLeveragedYield = nonLeveragedYields.find(
+    (y) => y.token.id === collateral?.id
+  );
+  const assetAPY =
+    collateralOptions?.find((c) => c.token.id === collateral?.id)
+      ?.interestRate || nonLeveragedYield?.totalAPY;
+  const debtAPY =
+    debtOptions?.find((d) => d.token.id === debt?.id)?.interestRate ||
+    nonLeveragedYields.find((y) => y.token.id === debt?.id)?.totalAPY;
+  const totalAPY = assetAPY !== undefined ? assetAPY : debtAPY;
+
   return (
     <Container>
       <Box
         sx={{
-          minWidth: '100vw',
-          background: theme.palette.background.paper,
-          width: '100%',
-          padding: theme.spacing(3, 2),
-          boxShadow: theme.shape.shadowStandard,
+          width: '90%',
+          margin: 'auto',
+          display: 'flex',
+          justifyContent: 'space-between',
         }}
       >
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <LargeInputTextEmphasized>{selectedToken}</LargeInputTextEmphasized>
+          <TokenIcon
+            symbol={selectedToken || ''}
+            size="large"
+            style={{
+              marginLeft: theme.spacing(1),
+              boxShadow: theme.shape.shadowStandard,
+            }}
+          />
+        </Box>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Box sx={{ flex: 1 }}>
             <H5>
               <FormattedMessage {...messages[tradeAction].returnType} />
             </H5>
             <LargeInputTextEmphasized sx={{ flex: 1 }}>
-              <CountUp value={fixedAPY} suffix="% APY" decimals={2} />
+              <CountUp value={totalAPY || 0} suffix="% APY" decimals={2} />
             </LargeInputTextEmphasized>
-          </Box>
-          <TokenIcon
-            symbol={selectedToken}
-            size="large"
-            style={{
-              borderRadius: '50%',
-              boxShadow: theme.shape.shadowStandard,
-            }}
-          />
-        </Box>
-
-        <Box sx={{ display: 'flex', marginTop: theme.spacing(3) }}>
-          <Box sx={{ flex: 1 }}>
-            <H5>
-              <FormattedMessage {...messages[tradeAction].dataPointOneTitle} />
-            </H5>
-            <H4 sx={{ flex: 1 }}>
-              <CountUp
-                value={dataPointOne}
-                prefix={dataPointOnePrefix}
-                suffix={`${dataPointOneSuffix}`}
-                decimals={2}
-              />
-            </H4>
-          </Box>
-          <Box sx={{ flex: 1, textAlign: 'right' }}>
-            <H5>
-              <FormattedMessage {...messages[tradeAction].dataPointTwoTitle} />
-            </H5>
-            <H4 sx={{ flex: 1 }}>
-              <CountUp
-                value={dataPointTwo}
-                prefix={dataPointTwoPrefix}
-                suffix={`${dataPointTwoSuffix}`}
-                decimals={2}
-              />
-            </H4>
           </Box>
         </Box>
       </Box>
@@ -107,8 +79,13 @@ const Container = styled(Box)(
   ({ theme }) => `
     display: none;
     ${theme.breakpoints.down('sm')} {
-      position: fixed;
+      box-shadow: ${theme.shape.shadowStandard};
       display: flex;
+      background: white;
+      width: 100vw;
+      position: fixed;
+      height: ${theme.spacing(10)};
+      top: 74px;
       z-index: 3;
     }
     `

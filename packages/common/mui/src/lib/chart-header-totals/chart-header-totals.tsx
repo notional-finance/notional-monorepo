@@ -59,6 +59,10 @@ const HeadingContainer = styled(Box)(
   margin-bottom: ${theme.spacing(1)};
   margin-left: ${theme.spacing(1.25)};
   margin-right: ${theme.spacing(2.5)};
+  
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  }
 `
 );
 

@@ -41,6 +41,7 @@ const Button = styled(_Button)(
   width: 100%;
   box-shadow: unset;
   transition: all .3s ease;
+  white-space: normal;
   &:hover {
     background: ${alpha(colors.aqua, 0.5)};
     box-shadow: unset;

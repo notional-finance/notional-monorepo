@@ -77,7 +77,7 @@ export const PositionDetailsTable = ({
   ];
 
   return (
-    <Box>
+    <Box id="TESTING STUFF">
       {tooRisky && !hideUpdatedColumn && (
         <ErrorMessage
           variant="error"

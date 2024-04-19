@@ -94,12 +94,8 @@ const ProductContainer = styled(Box)(
 );
 
 const Container = styled(Box)(
-  ({ theme }) => `
+  `
   width: 100%;
-  ${theme.breakpoints.down('sm')} {
-    width: 90%;
-    margin: auto;
-  }
 `
 );
 

@@ -79,9 +79,17 @@ export function CardMobileNav() {
           <NavOption key={id}>
             <CustomLink to={to} theme={theme} active={pathname.includes(to)}>
               <Box sx={{ height: theme.spacing(3) }}>{Icon}</Box>
-              <Title theme={theme} active={pathname.includes(to)}>
-                {title}
-              </Title>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Title theme={theme} active={pathname.includes(to)}>
+                  {title}
+                </Title>
+              </Box>
             </CustomLink>
           </NavOption>
         ))}
@@ -154,7 +162,7 @@ const CustomLink = styled(Link, {
   padding: ${theme.spacing(0.5, 1)};
   margin: ${theme.spacing(1)};
   border-radius: ${theme.shape.borderRadiusLarge};
-  min-width: ${theme.spacing(9)};
+  min-width: ${theme.spacing(13)};
 `
 );
 
@@ -162,7 +170,7 @@ const Title = styled(MobileNav, {
   shouldForwardProp: (prop: string) => prop !== 'active',
 })(
   ({ active, theme }: CustomLinkProps) => `
-  width: 60px;
+  width: ${theme.spacing(9)};
   font-weight: ${
     active
       ? theme.typography.fontWeightMedium
