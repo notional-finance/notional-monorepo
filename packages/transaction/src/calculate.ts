@@ -60,7 +60,7 @@ export function exchangeToLocalPrime(
     return {
       localPrime: tokensOut[0].toToken(outToken),
       fees: feesPaid[0],
-      netRealized: tokensOut[0].sub(feesPaid[0]).toUnderlying(),
+      netRealized: tokensOut[0].add(feesPaid[0]).toUnderlying(),
     };
   } else if (token.tokenType === 'nToken' && balance.isPositive()) {
     if (!pool) throw Error('Pool is undefined');
@@ -275,7 +275,11 @@ export function calculateDebt({
       debtBalance: lpTokens.neg(),
       debtFee: feesPaid[0],
       collateralFee,
-      netRealizedDebtBalance: totalDebtPrime.sub(feesPaid[0]).toUnderlying(),
+      // Ensure netRealizedDebtBalance is positive
+      netRealizedDebtBalance: totalDebtPrime
+        .sub(feesPaid[0])
+        .neg()
+        .toUnderlying(),
       netRealizedCollateralBalance,
     };
   } else if (debt.tokenType === 'fCash') {
@@ -676,6 +680,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
           debtBalance: results.debtBalance.add(debtDeposit.debtBalance),
           debtFee: results.debtFee.add(debtDeposit.debtFee),
           netRealizedDebtBalance: results.netRealizedDebtBalance.add(
+            // TODO: this is negative
             debtDeposit.netRealizedDebtBalance
           ),
         }

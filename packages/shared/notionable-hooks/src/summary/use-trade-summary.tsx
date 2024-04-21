@@ -505,7 +505,9 @@ function getRollDebtOrConvertAssetSummary(
   if (netRealizedDebtBalance && debtBalance) {
     summary.push(
       getTradeDetail(
-        netRealizedDebtBalance.abs().neg(),
+        tradeType === 'RollDebt'
+          ? netRealizedDebtBalance.abs()
+          : netRealizedDebtBalance.neg(),
         tradeType === 'RollDebt' ? 'Debt' : 'Asset',
         tradeType === 'RollDebt' ? 'none' : 'withdraw',
         intl,
@@ -519,7 +521,9 @@ function getRollDebtOrConvertAssetSummary(
   if (netRealizedCollateralBalance && collateralBalance)
     summary.push(
       getTradeDetail(
-        netRealizedCollateralBalance,
+        tradeType === 'RollDebt'
+          ? netRealizedCollateralBalance.neg()
+          : netRealizedCollateralBalance.abs(),
         tradeType === 'RollDebt' ? 'Debt' : 'Asset',
         tradeType === 'RollDebt' ? 'repay' : 'none',
         intl,
