@@ -73,7 +73,7 @@ export function exchangeToLocalPrime(
     return {
       localPrime: tokensIn[0].toToken(outToken),
       fees: feesPaid[0],
-      netRealized: balance.sub(feesPaid[0]).toUnderlying(),
+      netRealized: balance.toPrimeCash().sub(feesPaid[0]).toUnderlying(),
     };
   } else if (token.tokenType === 'fCash') {
     if (!pool) throw Error('Pool is undefined');

@@ -56,7 +56,7 @@ export const CreateOrIncreasePosition = () => {
       {currentPosition ? (
         <ManageTerms
           borrowType={
-            currentPosition.debt.tokenType === 'PrimeDebt'
+            currentPosition.debt.balance.tokenType === 'PrimeDebt'
               ? 'Variable'
               : 'Fixed'
           }
