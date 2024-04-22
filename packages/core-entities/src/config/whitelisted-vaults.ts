@@ -65,10 +65,10 @@ export const whitelistedVaults = (network: Network) => {
         '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
         // "[USDT]:USDC_e_xUSDT"
         '0x431dbfe3050ea39abbff3e0d86109fb5bafa28fd',
-        // // "[USDC]:crvUSD_xUSDC"
-        // '0x5c36a0deab3531d29d848e684e8bdf5f81cdb643',
-        // // "[USDT]:crvUSD_xUSDT"
-        // '0xae04e4887cbf5f25c05ac1384bcd0b7e885a1f4a',
+        // "[USDC]:crvUSD_xUSDC"
+        '0x5c36a0deab3531d29d848e684e8bdf5f81cdb643',
+        // "[USDT]:crvUSD_xUSDT"
+        '0xae04e4887cbf5f25c05ac1384bcd0b7e885a1f4a',
         // "[rETH]:xrETH_WETH"
         '0x3df035433cface65b6d68b77cc916085d020c8b8',
         // "[USDC]:xUSDC_DAI_USDT_USDC_e"

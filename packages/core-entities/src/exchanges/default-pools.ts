@@ -340,30 +340,53 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      // NOTE: the pool address here is different from the lp token address
-      address: '0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80',
-      PoolClass: 'Curve2TokenPoolV1_HasOracle',
+      address: '0x73af1150f265419ef8a5db41908b700c32d49135',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
       registerTokens: [
-        // ETH / wstETH Pool
         {
-          id: '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
-          address: '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
+          id: '0x73af1150f265419ef8a5db41908b700c32d49135',
+          address: '0x73af1150f265419ef8a5db41908b700c32d49135',
           network: Network.arbitrum,
-          symbol: 'wstETHCRV',
-          name: 'Curve.fi ETH/wstETH',
+          symbol: 'crvUSDC',
+          name: 'crvUSD/USDT',
           decimals: 18,
           tokenInterface: 'ERC20',
           tokenType: 'Underlying',
         },
-        // Register ALT_ETH
         {
-          id: ALT_ETH,
-          address: ALT_ETH,
+          id: '0x498bf2b1e120fed3ad3d42ea2165e9b73f99c1e5',
+          address: '0x498bf2b1e120fed3ad3d42ea2165e9b73f99c1e5',
           network: Network.arbitrum,
-          symbol: 'ETH [Alt]',
-          name: 'Ether [Alternate]',
+          symbol: 'crvUSD',
+          name: 'Curve.Fi USD Stablecoin',
           decimals: 18,
-          tokenInterface: 'ERC20', // TODO: change this to Ether interface
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0xec090cf6dd891d2d014bea6edada6e05e025d93d',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      registerTokens: [
+        {
+          id: '0xec090cf6dd891d2d014bea6edada6e05e025d93d',
+          address: '0xec090cf6dd891d2d014bea6edada6e05e025d93d',
+          network: Network.arbitrum,
+          symbol: 'crvUSDC',
+          name: 'crvUSD/USDC',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0x498bf2b1e120fed3ad3d42ea2165e9b73f99c1e5',
+          address: '0x498bf2b1e120fed3ad3d42ea2165e9b73f99c1e5',
+          network: Network.arbitrum,
+          symbol: 'crvUSD',
+          name: 'Curve.Fi USD Stablecoin',
+          decimals: 18,
+          tokenInterface: 'ERC20',
           tokenType: 'Underlying',
         },
       ],
