@@ -28,6 +28,7 @@ export const Withdraw = () => {
     setCurrencyInput,
     onMaxValue,
     maxWithdrawUnderlying,
+    belowMaxWarning,
   } = useMaxWithdraw(context);
   const {
     state: { selectedNetwork },
@@ -59,6 +60,7 @@ export const Withdraw = () => {
         context={context}
         inputRef={currencyInputRef}
         maxWithdraw={maxWithdrawUnderlying}
+        warningMsg={belowMaxWarning}
         onMaxValue={onMaxValue}
         newRoute={(newToken) =>
           `/portfolio/${selectedNetwork}/${category}/${sideDrawerKey}/${newToken}`

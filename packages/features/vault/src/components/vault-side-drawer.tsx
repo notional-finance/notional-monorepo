@@ -2,7 +2,6 @@ import { ToggleSwitchProps } from '@notional-finance/mui';
 import { TransactionSidebar } from '@notional-finance/trade';
 import { useHistory } from 'react-router';
 import { messages } from '../messages';
-import { VaultDetailsTable } from './vault-details-table';
 import {
   VaultContext,
   useVaultProperties,
@@ -43,14 +42,12 @@ export const VaultSideDrawer = ({
       showDrawer={false}
       heading={messages[tradeType].heading}
       advancedToggle={advancedToggle}
-      onCancelRouteCallback={() => history.push(`/vaults/${selectedNetwork}/${vaultAddress}`)}
+      onCancelRouteCallback={() =>
+        history.push(`/vaults/${selectedNetwork}/${vaultAddress}`)
+      }
       hideTextOnMobile={false}
       riskComponent={
-        tradeType === 'CreateVaultPosition' ? (
-          <CreateVaultLiquidationRisk key={'vault-risk-table'} state={state} />
-        ) : (
-          <VaultDetailsTable key={'vault-risk-table'} />
-        )
+        <CreateVaultLiquidationRisk key={'vault-risk-table'} state={state} />
       }
       helptext={{
         ...messages[tradeType].helptext,

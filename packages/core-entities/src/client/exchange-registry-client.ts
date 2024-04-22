@@ -36,11 +36,9 @@ export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
     network: Network,
     address: string
   ) {
-    const pool = this.getLatestFromSubject(
-      network,
-      // Converts to a checksummed address
-      ethers.utils.getAddress(address)
-    );
+    const pool =
+      this.getLatestFromSubject(network, ethers.utils.getAddress(address)) ||
+      this.getLatestFromSubject(network, address.toLowerCase());
     if (!pool) throw Error(`Pool ${address} on ${network} not found`);
     return this._buildPool<T>(network, pool);
   }

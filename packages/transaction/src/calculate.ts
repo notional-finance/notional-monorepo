@@ -33,6 +33,7 @@ export function exchangeToLocalPrime(
     return {
       localPrime: TokenBalance.zero(outToken),
       fees: TokenBalance.zero(outToken),
+      netRealized: TokenBalance.zero(outToken).toUnderlying(),
     };
   }
 
@@ -46,6 +47,7 @@ export function exchangeToLocalPrime(
       // Ensure that this returns a positive number to match all the other statements
       localPrime: balance.toToken(outToken).abs(),
       fees: balance.toPrimeCash().copy(0),
+      netRealized: balance.toToken(outToken).toUnderlying().abs(),
     };
   } else if (token.tokenType === 'nToken' && balance.isNegative()) {
     if (!pool) throw Error('Pool is undefined');
@@ -58,6 +60,7 @@ export function exchangeToLocalPrime(
     return {
       localPrime: tokensOut[0].toToken(outToken),
       fees: feesPaid[0],
+      netRealized: tokensOut[0].add(feesPaid[0]).toUnderlying(),
     };
   } else if (token.tokenType === 'nToken' && balance.isPositive()) {
     if (!pool) throw Error('Pool is undefined');
@@ -70,18 +73,23 @@ export function exchangeToLocalPrime(
     return {
       localPrime: tokensIn[0].toToken(outToken),
       fees: feesPaid[0],
+      netRealized: balance.toPrimeCash().sub(feesPaid[0]).toUnderlying(),
     };
   } else if (token.tokenType === 'fCash') {
     if (!pool) throw Error('Pool is undefined');
     // Buy or Sell fCash to prime cash, take the opposite of the incoming balance
-    const { tokensOut, feesPaid } = pool.calculateTokenTrade(
-      balance.unwrapVaultToken().neg(),
-      0
-    );
+    const b = balance.unwrapVaultToken().neg();
+    const { tokensOut, feesPaid } = pool.calculateTokenTrade(b, 0);
 
     return {
       localPrime: tokensOut.toToken(outToken).abs(),
       fees: feesPaid[0],
+      netRealized:
+        b.tokenType === 'PrimeCash'
+          ? // in this case it is lending
+            b.sub(feesPaid[0]).toUnderlying()
+          : // in this case it is borrowing
+            tokensOut.add(feesPaid[0]).toUnderlying(),
     };
   }
 
@@ -124,11 +132,11 @@ export function calculateCollateral({
     collateralUnderlying.currencyId
   );
 
-  const { localPrime: localDebtPrime, fees: debtFee } = exchangeToLocalPrime(
-    debtBalance,
-    debtPool,
-    localPrime
-  );
+  const {
+    localPrime: localDebtPrime,
+    fees: debtFee,
+    netRealized: netRealizedDebtBalance,
+  } = exchangeToLocalPrime(debtBalance, debtPool, localPrime);
 
   const localDepositPrime = depositBalance
     ? depositBalance.toToken(localPrime)
@@ -137,7 +145,6 @@ export function calculateCollateral({
   // Total collateral required in prime cash
   const totalCollateralPrime = localDepositPrime.add(localDebtPrime);
   const netRealizedCollateralBalance = totalCollateralPrime.toUnderlying();
-  const netRealizedDebtBalance = localDebtPrime.toUnderlying().neg();
 
   if (totalCollateralPrime.isZero()) {
     return {
@@ -162,7 +169,9 @@ export function calculateCollateral({
       collateralPool.getLPTokensGivenTokens(tokensIn);
 
     return {
-      netRealizedCollateralBalance,
+      netRealizedCollateralBalance: totalCollateralPrime
+        .sub(feesPaid[0])
+        .toUnderlying(),
       collateralBalance: lpTokens,
       debtFee,
       collateralFee: feesPaid[0],
@@ -175,7 +184,9 @@ export function calculateCollateral({
     );
 
     return {
-      netRealizedCollateralBalance,
+      netRealizedCollateralBalance: totalCollateralPrime
+        .sub(feesPaid[0])
+        .toUnderlying(),
       collateralBalance: tokensOut,
       debtFee,
       collateralFee: feesPaid[0],
@@ -220,8 +231,11 @@ export function calculateDebt({
     debtUnderlying.currencyId
   );
 
-  const { localPrime: localCollateralPrime, fees: collateralFee } =
-    exchangeToLocalPrime(collateralBalance, collateralPool, localPrime);
+  const {
+    localPrime: localCollateralPrime,
+    fees: collateralFee,
+    netRealized: netRealizedCollateralBalance,
+  } = exchangeToLocalPrime(collateralBalance, collateralPool, localPrime);
 
   const localDepositPrime = depositBalance
     ? depositBalance.toToken(localPrime)
@@ -231,7 +245,6 @@ export function calculateDebt({
   // a withdraw and totalDebtPrime will be negative.
   const totalDebtPrime = localDepositPrime.add(localCollateralPrime.neg());
   const netRealizedDebtBalance = totalDebtPrime.toUnderlying();
-  const netRealizedCollateralBalance = localCollateralPrime.toUnderlying();
 
   if (totalDebtPrime.isZero()) {
     return {
@@ -262,7 +275,11 @@ export function calculateDebt({
       debtBalance: lpTokens.neg(),
       debtFee: feesPaid[0],
       collateralFee,
-      netRealizedDebtBalance,
+      // Ensure netRealizedDebtBalance is positive
+      netRealizedDebtBalance: totalDebtPrime
+        .sub(feesPaid[0])
+        .neg()
+        .toUnderlying(),
       netRealizedCollateralBalance,
     };
   } else if (debt.tokenType === 'fCash') {
@@ -276,7 +293,7 @@ export function calculateDebt({
       debtBalance: tokensOut,
       debtFee: feesPaid[0],
       collateralFee,
-      netRealizedDebtBalance,
+      netRealizedDebtBalance: totalDebtPrime.sub(feesPaid[0]).toUnderlying(),
       netRealizedCollateralBalance,
     };
   }
@@ -321,6 +338,7 @@ export function calculateDeposit({
     debtFee,
   };
 }
+
 export function calculateConvertAsset(
   i: Parameters<typeof calculateCollateral>[0]
 ) {
@@ -662,6 +680,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
           debtBalance: results.debtBalance.add(debtDeposit.debtBalance),
           debtFee: results.debtFee.add(debtDeposit.debtFee),
           netRealizedDebtBalance: results.netRealizedDebtBalance.add(
+            // TODO: this is negative
             debtDeposit.netRealizedDebtBalance
           ),
         }
@@ -821,17 +840,23 @@ export function calculateVaultRoll({
 
   if (debt.maturity === PRIME_CASH_VAULT_MATURITY) {
     const pDebt = tokens.getPrimeDebt(debt.network, debt.currencyId);
+    // NOTE: this undershoots the actual vault share amount
+    const newVaultShares = TokenBalance.from(
+      collateralBalance.n,
+      tokens.getVaultShare(debt.network, debt.vaultAddress, debt.maturity)
+    );
 
     return {
       netRealizedDebtBalance: netCostToRepay.toUnderlying(),
-      debtBalance: TokenBalance.from(netCostToRepay.toToken(pDebt).n, debt),
+      debtBalance: TokenBalance.from(
+        netCostToRepay.toToken(pDebt).n,
+        debt
+      ).neg(),
+      // This is the cost to exit the fixed debt
       debtFee: currentDebtFee,
       collateralFee: currentDebtFee.copy(0),
-      // NOTE: this undershoots the actual vault share amount
-      collateralBalance: TokenBalance.from(
-        collateralBalance.n,
-        tokens.getVaultShare(debt.network, debt.vaultAddress, debt.maturity)
-      ),
+      netRealizedCollateralBalance: newVaultShares.toUnderlying(),
+      collateralBalance: newVaultShares,
     };
   } else if (debt.maturity) {
     // If fCash, need to account for additional borrow fee
@@ -847,99 +872,32 @@ export function calculateVaultRoll({
       RATE_PRECISION,
       RATE_PRECISION - feeRate
     );
+    const vaultFee = totalPrimeCashRequired.sub(netCostToRepay);
+
     const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
       totalPrimeCashRequired.neg(), // NOTE: this is negative because net cash to the pool is negative
       debtPool.getTokenIndex(tokens.unwrapVaultToken(debt))
+    );
+    // NOTE: this undershoots the actual vault share amount
+    const newVaultShares = TokenBalance.from(
+      collateralBalance.n,
+      tokens.getVaultShare(debt.network, debt.vaultAddress, debt.maturity)
     );
 
     return {
       // TokensOut is negative for the debt balance
       debtBalance: TokenBalance.from(tokensOut.n, debt),
-      debtFee: feesPaid[0].add(currentDebtFee),
+      debtFee: feesPaid[0].add(currentDebtFee).add(vaultFee),
       collateralFee: feesPaid[0].copy(0),
-      netRealizedDebtBalance: totalPrimeCashRequired.toUnderlying(),
-      // NOTE: this undershoots the actual vault share amount
-      collateralBalance: TokenBalance.from(
-        collateralBalance.n,
-        tokens.getVaultShare(debt.network, debt.vaultAddress, debt.maturity)
-      ),
+      netRealizedDebtBalance: totalPrimeCashRequired
+        .add(feesPaid[0])
+        .toUnderlying(),
+      netRealizedCollateralBalance: newVaultShares.toUnderlying(),
+      collateralBalance: newVaultShares,
     };
   }
 
   throw Error('Unknown debt token');
-}
-
-export function calculateVaultDebt({
-  debt,
-  debtPool,
-  vaultAdapter,
-  depositBalance,
-  collateralBalance,
-}: {
-  debt: TokenDefinition;
-  debtPool: fCashMarket;
-  vaultAdapter: VaultAdapter;
-  depositBalance: TokenBalance;
-  collateralBalance: TokenBalance;
-}): ReturnType<typeof calculateDebt> {
-  if (
-    debt.tokenType !== 'VaultDebt' ||
-    collateralBalance.tokenType !== 'VaultShare' ||
-    debt.vaultAddress === undefined ||
-    debt.maturity === undefined ||
-    debt.vaultAddress !== collateralBalance.token.vaultAddress
-  )
-    throw Error('Invalid inputs');
-
-  // This is all done at spot rates, this does not account for slippage...
-  const totalDebtPrime = depositBalance
-    .toPrimeCash()
-    .add(collateralBalance.toPrimeCash());
-  const {
-    feesPaid: collateralFee,
-    netUnderlyingForVaultShares: netRealizedCollateralBalance,
-  } = vaultAdapter.getNetVaultSharesCost(collateralBalance);
-
-  if (totalDebtPrime.isZero()) {
-    return {
-      debtBalance: TokenBalance.zero(debt),
-      debtFee: totalDebtPrime.copy(0),
-      collateralFee,
-      netRealizedDebtBalance: TokenBalance.zero(debt).toUnderlying(),
-      netRealizedCollateralBalance,
-    };
-  } else if (debt.maturity === PRIME_CASH_VAULT_MATURITY) {
-    return {
-      // Prime Vault Debt is denominated in PrimeDebt terms
-      debtBalance: TokenBalance.from(totalDebtPrime.neg().n, debt),
-      debtFee: totalDebtPrime.copy(0),
-      collateralFee,
-      netRealizedDebtBalance: totalDebtPrime.toUnderlying(),
-      netRealizedCollateralBalance,
-    };
-  } else {
-    const fCashToken = TokenBalance.unit(debt).unwrapVaultToken().token;
-    const { cashBorrowed, vaultFee } =
-      Registry.getConfigurationRegistry().getVaultBorrowWithFees(
-        debt.network,
-        debt.vaultAddress,
-        debt.maturity,
-        totalDebtPrime.neg()
-      );
-    const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
-      // Returns the total cash required including value fees
-      cashBorrowed,
-      debtPool.getTokenIndex(fCashToken)
-    );
-
-    return {
-      debtBalance: TokenBalance.from(tokensOut.n, debt),
-      debtFee: feesPaid[0].add(vaultFee),
-      collateralFee,
-      netRealizedDebtBalance: cashBorrowed.toUnderlying(),
-      netRealizedCollateralBalance,
-    };
-  }
 }
 
 export function calculateVaultDeposit({
@@ -1005,13 +963,18 @@ export function calculateVaultCollateral({
       collateral
     );
 
+  const totalDebtFees = debtFee.add(
+    debtBalance.isNegative() ? vaultFee : vaultFee.copy(0)
+  );
+
   return {
     collateralBalance: netVaultSharesForUnderlying,
-    debtFee: debtFee.add(
-      debtBalance.isNegative() ? vaultFee : vaultFee.copy(0)
-    ),
+    debtFee: totalDebtFees,
     collateralFee: feesPaid,
-    netRealizedCollateralBalance,
-    netRealizedDebtBalance: cashBorrowed.neg().toUnderlying(),
+    netRealizedCollateralBalance: debtBalance.isNegative()
+      ? netRealizedCollateralBalance.sub(feesPaid.toUnderlying())
+      : netRealizedCollateralBalance.add(feesPaid.toUnderlying()),
+    // This properly accounts for the borrow fee in the trade summary
+    netRealizedDebtBalance: localDebtPrime.add(debtFee).neg().toUnderlying(),
   };
 }

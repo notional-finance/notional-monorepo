@@ -334,7 +334,7 @@ export function useTradedValue(amount: TokenBalance | undefined) {
   const fCashMarket = useFCashMarket(amount?.token);
   const primeCash = usePrimeCash(amount?.network, amount?.currencyId);
   try {
-    return primeCash && fCashMarket
+    return primeCash
       ? exchangeToLocalPrime(
           amount,
           fCashMarket,

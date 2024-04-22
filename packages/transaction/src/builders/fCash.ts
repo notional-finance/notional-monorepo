@@ -324,6 +324,7 @@ export function RollLendOrDebt({
   collateralBalance,
   accountBalances,
   maxWithdraw,
+  tradeType,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('Debt and Collateral Balances must be defined');
@@ -340,6 +341,7 @@ export function RollLendOrDebt({
   );
 
   if (
+    tradeType === 'ConvertAsset' &&
     debtBalance.tokenType === 'fCash' &&
     collateralBalance.tokenType === 'PrimeCash'
   ) {

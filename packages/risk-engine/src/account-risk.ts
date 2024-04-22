@@ -387,7 +387,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
     };
   }
 
-  override maxWithdraw(token: TokenDefinition): TokenBalance {
+  maxWithdraw(token: TokenDefinition): TokenBalance {
     const balance = this.collateral.find((t) => t.token.id === token.id);
     if (!balance) return TokenBalance.zero(token);
 

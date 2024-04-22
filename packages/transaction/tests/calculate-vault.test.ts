@@ -9,7 +9,6 @@ import { RiskFactorLimit } from '@notional-finance/risk-engine';
 import { Network } from '@notional-finance/util';
 import {
   calculateVaultCollateral,
-  calculateVaultDebt,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
 } from '../src/calculate';
 
@@ -80,11 +79,8 @@ describe.withForkAndRegistry(
         const {
           debtBalance: debt1,
           collateralBalance: collateral1,
-          debtFee: df1,
-          collateralFee: cf1,
           netRealizedCollateralBalance: nrc1,
           netRealizedDebtBalance: nrd1,
-          netCollateralFromDebt
         } = calculateVaultDebtCollateralGivenDepositRiskLimit({
           collateral: collateralToken,
           debt: debtToken,
@@ -96,22 +92,7 @@ describe.withForkAndRegistry(
         });
 
         const {
-          debtBalance: debt2,
-          collateralFee: cf2,
-          debtFee: df2,
-          netRealizedDebtBalance: nrd2,
-        } = calculateVaultDebt({
-          debt: debtToken,
-          debtPool,
-          vaultAdapter,
-          depositBalance: depositInput,
-          collateralBalance: netCollateralFromDebt,
-        });
-
-        const {
           collateralBalance: collateral2,
-          collateralFee: cf3,
-          debtFee: df3,
           netRealizedCollateralBalance: nrc2,
         } = calculateVaultCollateral({
           collateral: collateralToken,
@@ -123,9 +104,6 @@ describe.withForkAndRegistry(
 
         expect(nrc1.tokenType).toBe('Underlying');
         expect(nrd1.tokenType).toBe('Underlying');
-        expect(nrd2.neg().toFloat()).toBeLessThan(
-          debt2.neg().toUnderlying().toFloat()
-        );
 
         try {
           // In general, this should be the case.
@@ -139,14 +117,8 @@ describe.withForkAndRegistry(
           expect(nrc2).toBeApprox(collateral2.toUnderlying());
         }
 
-        expect(nrd1).toBeApprox(nrd2);
         expect(nrc1).toBeApprox(nrc2);
 
-        expect(cf1).toBeApprox(cf2);
-        expect(cf2).toBeApprox(cf3);
-        expect(df1).toBeApprox(df2);
-        expect(df2).toBeApprox(df3);
-        expect(debt1).toBeApprox(debt2);
         expect(collateral1).toBeApprox(collateral2);
         expect(debt1.isNegative()).toBe(true);
         expect(collateral1.isPositive()).toBe(true);

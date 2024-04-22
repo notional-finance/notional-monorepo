@@ -41,6 +41,7 @@ jobs:
           NX_SEGMENT_KEY: ${{ secrets.NX_SEGMENT_KEY }}
           NX_ENV: ${{ github.event.inputs.environment || 'arb' }}
           NX_COMMIT_REF: ${{ github.sha }}
+          NX_INTERCOM_APP_ID: ${{ secrets.NX_INTERCOM_APP_ID }}
       - name: Publish Dev
         uses: cloudflare/pages-action@1
         with:

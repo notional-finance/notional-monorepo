@@ -138,25 +138,6 @@ export const useLiquidityDetails = () => {
       },
     },
     {
-      label: 'Net Worth',
-      current: currentHoldings?.presentValue.toDisplayStringWithSymbol() || '-',
-      updated: {
-        value: newNetWorth?.toDisplayStringWithSymbol() || '-',
-        arrowUp:
-          getChangeType(
-            currentHoldings?.presentValue.toFloat(),
-            newNetWorth?.toFloat()
-          ) === 'increase',
-        checkmark:
-          getChangeType(
-            currentHoldings?.presentValue.toFloat(),
-            newNetWorth?.toFloat()
-          ) === 'cleared',
-        greenOnCheckmark: false,
-        greenOnArrowUp: true,
-      },
-    },
-    {
       label: 'Leverage Ratio',
       current: currentHoldings?.leverageRatio
         ? formatLeverageRatio(currentHoldings?.leverageRatio)
