@@ -1,18 +1,13 @@
-name: deploy-arbitrum-dev
+name: deploy-web-v2
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Choose an environment to deploy to: <arb>'
-        required: true
-        default: 'arb'
   push:
     branches:
-      - v3/dev
+      - v2/prod
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'arb' }}
+    environment: ${{ github.event.inputs.environment || 'dev' }}
     permissions:
       contents: read
       deployments: write
@@ -24,31 +19,35 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'
           cache: 'yarn'
       - name: Yarn Install
         run: yarn install --frozen-lockfile
       - name: Build Web
         run: yarn nx build web --parallel
         env:
+          NX_BLOCK_NATIVE_DAPP_ID: ${{ secrets.NX_BLOCK_NATIVE_DAPP_ID }}
           NX_CONTACT_EMAIL: ${{ secrets.NX_CONTACT_EMAIL }}
           NX_DD_APP_ID: ${{ secrets.NX_DD_APP_ID }}
-          NX_DD_CLIENT_TOKEN: ${{ secrets.NX_DD_CLIENT_TOKEN }}
+          NX_DD_API_KEY: ${{ secrets.NX_DD_API_KEY }}
           NX_DD_BASE_URL: ${{ secrets.NX_DD_BASE_URL }}
           NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
+          NX_GOOGLE_ANALYTICS_ID: ${{ secrets.NX_GOOGLE_ANALYTICS_ID }}
+          NX_INFURA_KEY: ${{ secrets.NX_INFURA_KEY }}
           NX_APP_URL: ${{ secrets.NX_APP_URL }}
+          NX_SYSTEM_CACHE_URL: ${{ secrets.NX_SYSTEM_CACHE_URL }}
+          NX_ALCHEMY_KEY: ${{ secrets.NX_ALCHEMY_KEY }}
+          NX_EXCHANGE_RATE_API: ${{ secrets.NX_EXCHANGE_RATE_API }}
+          NX_SUBGRAPH_API_KEY: ${{ secrets.NX_SUBGRAPH_API_KEY }}
           NX_DATA_URL: ${{ secrets.NX_DATA_URL }}
-          NX_INTERCOM_APP_ID: ${{ secrets.NX_INTERCOM_APP_ID }}
-          # This segment key is not the same as the prod one
-          NX_SEGMENT_KEY: ${{ secrets.NX_DEV_SEGMENT_KEY }}
-          NX_ENV: ${{ github.event.inputs.environment || 'arb' }}
+          NX_ENV: ${{ github.event.inputs.environment || 'dev' }}
           NX_COMMIT_REF: ${{ github.sha }}
       - name: Publish Dev
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: notional-web-${{ github.event.inputs.environment || 'arb-dev' }}
+          projectName: notional-web-v2
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
