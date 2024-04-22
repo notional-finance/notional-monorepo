@@ -16,7 +16,6 @@ import {
   LiquidityLeveragedDashboard,
 } from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
-import { IntercomProvider } from 'react-use-intercom';
 import { Redirect, Route, Switch, useParams } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
 import { ServerError } from '../ServerError/server-error';
@@ -271,7 +270,6 @@ export const App = () => {
     state: { themeVariant },
   } = globalState;
   const notionalTheme = useNotionalTheme(themeVariant);
-  const intercomAppId = process.env['NX_INTERCOM_APP_ID'] as string;
 
   return (
     <ThemeProvider theme={notionalTheme}>
@@ -295,11 +293,9 @@ export const App = () => {
                 content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
               />
             </Helmet>
-            <IntercomProvider appId={intercomAppId}>
-              <Web3OnboardProvider web3Onboard={OnboardContext}>
-                <AllRoutes />
-              </Web3OnboardProvider>
-            </IntercomProvider>
+            <Web3OnboardProvider web3Onboard={OnboardContext}>
+              <AllRoutes />
+            </Web3OnboardProvider>
           </FeatureLoader>
         </NotionalContext.Provider>
       </HelmetProvider>
