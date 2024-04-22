@@ -80,7 +80,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: '0x4DEcE678ceceb27446b35C672dC7d61F30bAD69E',
-      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         {
           id: '0x4DEcE678ceceb27446b35C672dC7d61F30bAD69E',
@@ -106,7 +106,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: '0x390f3595bCa2Df7d23783dFd126427CCeb997BF4',
-      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         {
           id: '0x390f3595bCa2Df7d23783dFd126427CCeb997BF4',
@@ -286,7 +286,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
-      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         // USDT / USDC v1 pool
         {
@@ -341,7 +341,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: '0x73af1150f265419ef8a5db41908b700c32d49135',
-      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         {
           id: '0x73af1150f265419ef8a5db41908b700c32d49135',
@@ -367,7 +367,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: '0xec090cf6dd891d2d014bea6edada6e05e025d93d',
-      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         {
           id: '0xec090cf6dd891d2d014bea6edada6e05e025d93d',
