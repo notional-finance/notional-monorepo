@@ -6,7 +6,7 @@ export const treasuryManagerAddresses: Partial<Record<Network, string>> = {
 };
 
 export const managerBotAddresses: Partial<Record<Network, string>> = {
-  arbitrum: '0xa28a0bA9633342793218D9bd8d92CBC52231361C',
+  arbitrum: '0x745915418D8B70f39ce9e61A965cBB0C87f9f7Ed',
   mainnet: '0x3164400d0c849996efCb390ec1D4705f2cD5E98C',
 };
 
