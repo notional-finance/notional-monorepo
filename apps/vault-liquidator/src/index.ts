@@ -4,6 +4,7 @@ import {
   batchArray,
   getNowSeconds,
   getProviderFromNetwork,
+  groupArrayToMap,
 } from '@notional-finance/util';
 import { BigNumber, ethers } from 'ethers';
 import * as tokens from './config/tokens.json';
@@ -149,15 +150,29 @@ const run = async (env: Env) => {
 
   await logger.submitMetrics(ddSeries);
 
-  for (const riskyAccount of riskyAccounts) {
-    try {
-      const accountLiq = await liq.getAccountLiquidation(riskyAccount);
+  const groupedByVault = groupArrayToMap(riskyAccounts, (t) => t.vault);
+  for (const vault of groupedByVault.keys()) {
+    const accts = groupedByVault.get(vault) || [];
+    for (const a of accts) {
+      // TODO: in the future, make this run a batch
+      try {
+        console.log(
+          `Getting liquidation for account ${a.id} in vault ${vault}`
+        );
+        const accountLiq = await liq.getAccountLiquidation(a);
 
-      if (accountLiq) {
+        console.log(
+          `Account: ${a.id} in Vault: ${vault} liquidation params:
+  maxUnderlying: ${accountLiq.maxUnderlying.toString()}
+  assetAddress: ${accountLiq.assetAddress}
+  flashLoanAmount: ${accountLiq.flashLoanAmount.toString()}
+  callParams: ${accountLiq.callParams}
+`
+        );
         await liq.liquidateAccount(accountLiq);
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
     }
   }
 };

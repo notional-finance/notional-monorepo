@@ -45,6 +45,8 @@ export function sendTxThroughRelayer(arg: {
   if (isLiquidator && env.NETWORK === Network.mainnet) {
     url = MAINNET_LIQUIDATOR_RELAY;
   }
+  console.log(`Sending Payload to ${url}`);
+  console.log(payload);
 
   return fetch(url, {
     method: 'POST',

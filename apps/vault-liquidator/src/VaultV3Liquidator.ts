@@ -273,8 +273,7 @@ export default class VaultV3Liquidator {
 
     const callParams = {
       // Use this as the default type, will account for variable rate debt
-      liquidationType:
-        LiquidationType.DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH,
+      liquidationType: LiquidationType.DELEVERAGE_VAULT_ACCOUNT,
       currencyId: ra.borrowCurrencyId,
       currencyIndex: liqParams.currencyIndex,
       account: ra.id,
@@ -310,13 +309,13 @@ export default class VaultV3Liquidator {
     );
     const gasCost = gasAmount.mul(await this.settings.gasOracle.getGasPrice());
 
-    console.log(
-      `profit=${BigNumber.from(zeroExResp.buyAmount).sub(gasCost).toString()}`
-    );
-
     const netProfit = BigNumber.from(zeroExResp.buyAmount).sub(gasCost);
-    if (netProfit.lt(this.settings.profitThreshold)) {
-      return null;
+    if (netProfit.gt(this.settings.profitThreshold)) {
+      throw Error(
+        `Unprofitable liquidation of ${ra.id} in ${
+          ra.vault
+        }: ${netProfit.toString()}`
+      );
     }
 
     return {
@@ -344,6 +343,12 @@ export default class VaultV3Liquidator {
       ]
     );
 
+    console.log(`
+Sending liquidation to relayer:
+network: ${this.settings.network}
+to: ${this.settings.flashLiquidatorAddress}
+data: ${encodedTransaction}
+`);
     const resp = await sendTxThroughRelayer({
       env: {
         NETWORK: this.settings.network,
