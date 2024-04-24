@@ -7,7 +7,7 @@ logpush = true
 minify = true
 
 [triggers]
-crons = ["0/10 * * * *"]
+crons = ["0/2 * * * *"]
 
 [env.arbitrum]
 name = "vault-liquidator-arbitrum"
