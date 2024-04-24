@@ -310,7 +310,7 @@ export default class VaultV3Liquidator {
     const gasCost = gasAmount.mul(await this.settings.gasOracle.getGasPrice());
 
     const netProfit = BigNumber.from(zeroExResp.buyAmount).sub(gasCost);
-    if (netProfit.gt(this.settings.profitThreshold)) {
+    if (netProfit.lt(this.settings.profitThreshold)) {
       throw Error(
         `Unprofitable liquidation of ${ra.id} in ${
           ra.vault
