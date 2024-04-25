@@ -24,21 +24,19 @@ import {
 } from '@notional-finance/helpers';
 import { PORTFOLIO_ACTIONS, formatMaturity } from '@notional-finance/util';
 import { TokenOption } from '@notional-finance/notionable';
-import { useParams } from 'react-router';
+import { useHistory, useParams, useLocation } from 'react-router';
 import { TransactionHeadings } from '@notional-finance/trade';
 import { useConvertOptions } from '../hooks/use-convert-options';
 
 interface SelectConvertAssetProps {
   context: TradeContext;
-  hasUserTouched: boolean;
 }
 
-export const SelectConvertAsset = ({
-  context,
-  hasUserTouched,
-}: SelectConvertAssetProps) => {
+export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
+  const history = useHistory();
+  const { pathname } = useLocation();
   const {
     tradeType,
     debt,
@@ -50,7 +48,6 @@ export const SelectConvertAsset = ({
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const { options, initialConvertFromBalance: balance } =
     useConvertOptions(state);
-
   let convertFromToken = tradeType === 'ConvertAsset' ? debt : collateral;
   const pCash = usePrimeCash(selectedNetwork, convertFromToken?.currencyId);
   const pDebt = usePrimeDebt(selectedNetwork, convertFromToken?.currencyId);
@@ -78,8 +75,7 @@ export const SelectConvertAsset = ({
     if (
       selectedParamToken &&
       balance &&
-      (convertFromToken === undefined || convertFromBalance === undefined) &&
-      !hasUserTouched
+      (convertFromToken === undefined || convertFromBalance === undefined)
     ) {
       updateState(
         tradeType === 'ConvertAsset'
@@ -94,7 +90,6 @@ export const SelectConvertAsset = ({
     balance,
     updateState,
     tradeType,
-    hasUserTouched,
   ]);
 
   let heading: MessageDescriptor;
@@ -115,8 +110,14 @@ export const SelectConvertAsset = ({
     (o: TokenOption) => {
       const onSelect = () => {
         if (tradeType === 'ConvertAsset') {
+          history.push(
+            `${pathname.replace('manage', 'convertTo')}/${o.token.id}`
+          );
           updateState({ collateral: o.token });
         } else {
+          history.push(
+            `${pathname.replace('manage', 'convertTo')}/${o.token.id}`
+          );
           updateState({ debt: o.token });
         }
       };
@@ -150,7 +151,7 @@ export const SelectConvertAsset = ({
         </SideDrawerButton>
       );
     },
-    [updateState, tradeType, theme]
+    [updateState, tradeType, theme, history, pathname]
   );
 
   const fixedOptions =

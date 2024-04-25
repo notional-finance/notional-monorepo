@@ -67,7 +67,8 @@ const HeadingContainer = styled(Box)(
 );
 
 const ContentWrapper = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'barColor',
+  shouldForwardProp: (prop: string) =>
+    prop !== 'barColor' && prop !== 'lastIndex',
 })(
   ({ lastIndex, index, theme }: ContentWrapperProps) => `
   margin-right: ${

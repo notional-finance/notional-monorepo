@@ -156,6 +156,14 @@ export const TransactionSidebar = ({
   });
 
   const getTokenSpecificHelpText = () => {
+    console.log(
+      '================ collateral?.tokenType: ================',
+      collateral?.tokenType
+    );
+    console.log(
+      '================ debt?.tokenType: ================',
+      debt?.tokenType
+    );
     if (leverageDisabled) {
       return errorMessage.geoErrorHeading;
     } else if (helptext) {

@@ -82,5 +82,3 @@ export function SideDrawer({
     </SwipeableDrawer>
   );
 }
-
-export default SideDrawer;

@@ -162,9 +162,7 @@ export function usePortfolioHoldings() {
       toggleData,
       showToggle: !isBlocked && groupedRows.length > 0,
     },
-    portfolioHoldingsData: insertDebtDivider(portfolioHoldingsData).sort(
-      (a, b) => a.sortOrder - b.sortOrder
-    ),
+    portfolioHoldingsData: insertDebtDivider(portfolioHoldingsData),
     pendingTokenData,
     setExpandedRows,
     initialState,

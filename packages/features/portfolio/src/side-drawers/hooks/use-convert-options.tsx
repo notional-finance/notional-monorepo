@@ -22,6 +22,8 @@ export function useConvertOptions(state: BaseTradeState) {
     (t) => t.tokenId === selectedToken
   );
 
+  console.log({ collateralOptions, debtOptions });
+
   let options = tradeType === 'ConvertAsset' ? collateralOptions : debtOptions;
 
   if (
@@ -39,6 +41,11 @@ export function useConvertOptions(state: BaseTradeState) {
     initialConvertFromBalance = initialConvertFromBalance.toPrimeCash();
     options = options?.filter((t) => t.token.tokenType !== 'PrimeDebt');
   }
+
+  console.log({
+    options,
+    initialConvertFromBalance,
+  });
 
   return {
     options,

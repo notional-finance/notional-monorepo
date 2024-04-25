@@ -49,193 +49,181 @@ export function useGroupedHoldingsTable() {
   );
   const history = useHistory();
 
-  const groupedRows = groupedTokens
-    .map(
-      ({
-        asset: {
-          balance: asset,
-          marketYield: assetYield,
-          statement: assetStatement,
-          totalIncentiveEarnings,
-          isHighUtilization,
-        },
-        debt: { balance: debt, statement: debtStatement },
-        hasMatured,
-        leverageRatio,
-        presentValue,
-        borrowAPY,
-        totalLeveragedApy,
-      }) => {
-        const underlying = asset.underlying;
-        const { icon } = formatTokenType(asset.token);
-        const debtData = formatTokenType(debt.token);
+  const groupedRows = groupedTokens.map(
+    ({
+      asset: {
+        balance: asset,
+        marketYield: assetYield,
+        statement: assetStatement,
+        totalIncentiveEarnings,
+        isHighUtilization,
+      },
+      debt: { balance: debt, statement: debtStatement },
+      hasMatured,
+      leverageRatio,
+      presentValue,
+      borrowAPY,
+      totalLeveragedApy,
+    }) => {
+      const underlying = asset.underlying;
+      const { icon } = formatTokenType(asset.token);
+      const debtData = formatTokenType(debt.token);
 
-        const noteAPY = assetYield?.noteIncentives?.incentiveAPY;
-        const noteIncentives =
-          noteAPY !== undefined
-            ? leveragedYield(noteAPY, 0, leverageRatio)
-            : undefined;
-        const secondaryAPY = assetYield?.secondaryIncentives?.incentiveAPY;
-        const secondarySymbol = assetYield?.secondaryIncentives?.symbol;
-        const secondaryIncentives =
-          secondaryAPY !== undefined && secondarySymbol
-            ? leveragedYield(secondaryAPY, 0, leverageRatio)
-            : undefined;
+      const noteAPY = assetYield?.noteIncentives?.incentiveAPY;
+      const noteIncentives =
+        noteAPY !== undefined
+          ? leveragedYield(noteAPY, 0, leverageRatio)
+          : undefined;
+      const secondaryAPY = assetYield?.secondaryIncentives?.incentiveAPY;
+      const secondarySymbol = assetYield?.secondaryIncentives?.symbol;
+      const secondaryIncentives =
+        secondaryAPY !== undefined && secondarySymbol
+          ? leveragedYield(secondaryAPY, 0, leverageRatio)
+          : undefined;
 
-        const amountPaid =
-          assetStatement && debtStatement
-            ? assetStatement?.accumulatedCostRealized.add(
-                debtStatement?.accumulatedCostRealized
-              )
-            : undefined;
-        const earnings =
-          assetStatement && debtStatement
-            ? assetStatement?.totalProfitAndLoss.add(
-                debtStatement?.totalProfitAndLoss
-              )
-            : undefined;
-
-        const totalEarningsWithNOTE = earnings
-          ?.toFiat(baseCurrency)
-          .add(
-            totalIncentiveEarnings.reduce(
-              (s, i) => s.add(i.toFiat(baseCurrency)),
-              TokenBalance.fromSymbol(0, baseCurrency, Network.all)
+      const amountPaid =
+        assetStatement && debtStatement
+          ? assetStatement?.accumulatedCostRealized.add(
+              debtStatement?.accumulatedCostRealized
             )
-          );
+          : undefined;
+      const earnings =
+        assetStatement && debtStatement
+          ? assetStatement?.totalProfitAndLoss.add(
+              debtStatement?.totalProfitAndLoss
+            )
+          : undefined;
 
-        return {
-          sortOrder: getHoldingsSortOrder(asset.token),
-          tokenId: asset.tokenId,
-          asset: {
-            symbol: icon,
-            symbolBottom: debtData?.icon,
-            label:
-              asset.tokenType === 'nToken'
-                ? `Leveraged ${underlying.symbol} Liquidity`
-                : `Leveraged ${underlying.symbol} Lend`,
-            caption: formatCaption(asset, debt),
-          },
-          isPending: !!pendingTokens.find(
-            (t) => t.id === asset.tokenId || t.id === debt.tokenId
-          ),
-          marketApy: {
-            data: [
-              {
-                displayValue: formatNumberAsPercentWithUndefined(
-                  totalLeveragedApy,
-                  '-',
-                  2
-                ),
-                isNegative: false,
-              },
-              {
-                displayValue:
-                  noteIncentives && secondaryIncentives
-                    ? `${formatNumberAsPercent(
-                        noteIncentives
-                      )} NOTE, ${formatNumberAsPercent(
-                        secondaryIncentives
-                      )} ${secondarySymbol}`
-                    : noteIncentives
-                    ? `${formatNumberAsPercent(noteIncentives)} NOTE`
-                    : '',
-                isNegative: false,
-              },
-            ],
-          },
-          amountPaid: amountPaid
-            ? formatCryptoWithFiat(baseCurrency, amountPaid)
-            : '-',
-          presentValue: formatCryptoWithFiat(baseCurrency, presentValue),
-          isDebt: debt.token,
-          earnings: totalEarningsWithNOTE
-            ? totalEarningsWithNOTE
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(2, true, true, 'en-US', true)
-            : '-',
-          toolTipData:
-            totalIncentiveEarnings.length > 0
-              ? {
-                  perAssetEarnings: [
-                    {
-                      underlying: earnings?.toDisplayStringWithSymbol(),
-                      baseCurrency: earnings
-                        ?.toFiat(baseCurrency)
-                        .toDisplayStringWithSymbol(2),
-                    },
-                    ...totalIncentiveEarnings.map((i) => ({
-                      underlying: i.toDisplayStringWithSymbol(),
-                      baseCurrency: i
-                        .toFiat(baseCurrency)
-                        .toDisplayStringWithSymbol(2),
-                    })),
-                  ],
-                }
-              : undefined,
-          actionRow: {
-            warning: isHighUtilization,
-            subRowData: [
-              {
-                label: <FormattedMessage defaultMessage={'Borrow APY'} />,
-                value: formatNumberAsPercentWithUndefined(borrowAPY, '-'),
-              },
-              {
-                label: <FormattedMessage defaultMessage={'Strategy APY'} />,
-                value: formatNumberAsPercentWithUndefined(
-                  assetYield?.totalAPY,
-                  '-'
-                ),
-                showLoadingSpinner: true,
-              },
-              {
-                label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
-                value: formatLeverageRatio(leverageRatio),
-              },
-            ],
-            buttonBarData: [
-              {
-                buttonText: <FormattedMessage defaultMessage={'Manage'} />,
-                callback: () => {
-                  history.push(
-                    `/liquidity-leveraged/${network}/Manage/${underlying.symbol}`
-                  );
-                },
-              },
-              {
-                buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
-                callback: () => {
-                  history.push(
-                    `/liquidity-leveraged/${network}/Withdraw/${
-                      underlying.symbol
-                    }${
-                      isHighUtilization ? `?warning=${isHighUtilization}` : ''
-                    }`
-                  );
-                },
-              },
-            ],
-            hasMatured: hasMatured,
-            txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
-              {
-                txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
-                assetOrVaultId: asset.token.id,
-                debtId: debtStatement?.token.id || '',
+      const totalEarningsWithNOTE = earnings
+        ?.toFiat(baseCurrency)
+        .add(
+          totalIncentiveEarnings.reduce(
+            (s, i) => s.add(i.toFiat(baseCurrency)),
+            TokenBalance.fromSymbol(0, baseCurrency, Network.all)
+          )
+        );
+
+      return {
+        sortOrder: getHoldingsSortOrder(asset.token),
+        tokenId: asset.tokenId,
+        asset: {
+          symbol: icon,
+          symbolBottom: debtData?.icon,
+          label:
+            asset.tokenType === 'nToken'
+              ? `Leveraged ${underlying.symbol} Liquidity`
+              : `Leveraged ${underlying.symbol} Lend`,
+          caption: formatCaption(asset, debt) || '',
+        },
+        isPending: !!pendingTokens.find(
+          (t) => t.id === asset.tokenId || t.id === debt.tokenId
+        ),
+        marketApy: {
+          data: [
+            {
+              displayValue: formatNumberAsPercentWithUndefined(
+                totalLeveragedApy,
+                '-',
+                2
+              ),
+              isNegative: false,
+            },
+            {
+              displayValue:
+                noteIncentives && secondaryIncentives
+                  ? `${formatNumberAsPercent(
+                      noteIncentives
+                    )} NOTE, ${formatNumberAsPercent(
+                      secondaryIncentives
+                    )} ${secondarySymbol}`
+                  : noteIncentives
+                  ? `${formatNumberAsPercent(noteIncentives)} NOTE`
+                  : '',
+              isNegative: false,
+            },
+          ],
+        },
+        amountPaid: amountPaid
+          ? formatCryptoWithFiat(baseCurrency, amountPaid)
+          : '-',
+        presentValue: formatCryptoWithFiat(baseCurrency, presentValue),
+        isDebt: debt.token,
+        earnings: totalEarningsWithNOTE
+          ? totalEarningsWithNOTE
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(2, true, true, 'en-US', true)
+          : '-',
+        toolTipData:
+          totalIncentiveEarnings.length > 0
+            ? {
+                perAssetEarnings: [
+                  {
+                    underlying: earnings?.toDisplayStringWithSymbol(),
+                    baseCurrency: earnings
+                      ?.toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(2),
+                  },
+                  ...totalIncentiveEarnings.map((i) => ({
+                    underlying: i.toDisplayStringWithSymbol(),
+                    baseCurrency: i
+                      .toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(2),
+                  })),
+                ],
               }
-            )}`,
-          },
-        };
-      }
-    )
-    .sort((a, b) => {
-      if (a.isDebt && !b.isDebt) {
-        return 1;
-      }
-      if (!a.isDebt && b.isDebt) {
-        return -1;
-      }
-      return 0;
-    });
+            : undefined,
+        actionRow: {
+          warning: isHighUtilization,
+          subRowData: [
+            {
+              label: <FormattedMessage defaultMessage={'Borrow APY'} />,
+              value: formatNumberAsPercentWithUndefined(borrowAPY, '-'),
+            },
+            {
+              label: <FormattedMessage defaultMessage={'Strategy APY'} />,
+              value: formatNumberAsPercentWithUndefined(
+                assetYield?.totalAPY,
+                '-'
+              ),
+              showLoadingSpinner: true,
+            },
+            {
+              label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
+              value: formatLeverageRatio(leverageRatio),
+            },
+          ],
+          buttonBarData: [
+            {
+              buttonText: <FormattedMessage defaultMessage={'Manage'} />,
+              callback: () => {
+                history.push(
+                  `/liquidity-leveraged/${network}/Manage/${underlying.symbol}`
+                );
+              },
+            },
+            {
+              buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
+              callback: () => {
+                history.push(
+                  `/liquidity-leveraged/${network}/Withdraw/${
+                    underlying.symbol
+                  }${isHighUtilization ? `?warning=${isHighUtilization}` : ''}`
+                );
+              },
+            },
+          ],
+          hasMatured: hasMatured,
+          txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
+            {
+              txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
+              assetOrVaultId: asset.token.id,
+              debtId: debtStatement?.token.id || '',
+            }
+          )}`,
+        },
+      };
+    }
+  );
 
   return {
     groupedRows: groupedRows,
