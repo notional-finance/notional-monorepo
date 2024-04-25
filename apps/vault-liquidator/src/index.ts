@@ -81,7 +81,9 @@ const run = async (env: Env) => {
 
   const activeVaults: string[] = allVaults['values']
     .filter(([, v]) => v['enabled'] === true)
-    .map(([v]) => v as string);
+    .map(([v]) => v as string)
+    // TODO: Temporarily filter out the rETH vault
+    .filter((v) => v !== '0xa0d61c08e642103158fc6a1495e7ff82baf25857');
 
   const provider = getProviderFromNetwork(env.NETWORK, true);
   const liq = new VaultV3Liquidator(
@@ -153,8 +155,10 @@ const run = async (env: Env) => {
   const groupedByVault = groupArrayToMap(riskyAccounts, (t) => t.vault);
   for (const vault of groupedByVault.keys()) {
     const accts = groupedByVault.get(vault) || [];
+    // TODO: Sort these by most risky at the top and then group by maturity
     for (const a of accts) {
-      // TODO: in the future, make this run a batch
+      // TODO: in the future, make this run a batch but also need to group by
+      // maturity
       try {
         console.log(
           `Getting liquidation for account ${a.id} in vault ${vault}`
@@ -162,7 +166,7 @@ const run = async (env: Env) => {
         const accountLiq = await liq.getAccountLiquidation(a);
 
         console.log(
-          `Account: ${a.id} in Vault: ${vault} liquidation params:
+          `Account: ${a.id} in Vault: ${vault}
   maxUnderlying: ${accountLiq.maxUnderlying.toString()}
   assetAddress: ${accountLiq.assetAddress}
   flashLoanAmount: ${accountLiq.flashLoanAmount.toString()}

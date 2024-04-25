@@ -285,39 +285,6 @@ export default class VaultV3Liquidator {
       ),
     };
 
-    const profit = await liquidator.callStatic.estimateProfit(
-      assetAddress,
-      flashLoanAmount,
-      callParams,
-      {
-        from: this.settings.flashLiquidatorOwner,
-      }
-    );
-
-    const zeroExResp = await this.getZeroExData(
-      this.settings.zeroExUrl,
-      assetAddress,
-      'ETH',
-      profit,
-      true
-    );
-
-    const gasAmount = await liquidator.estimateGas.flashLiquidate(
-      assetAddress,
-      flashLoanAmount,
-      callParams
-    );
-    const gasCost = gasAmount.mul(await this.settings.gasOracle.getGasPrice());
-
-    const netProfit = BigNumber.from(zeroExResp.buyAmount).sub(gasCost);
-    if (netProfit.lt(this.settings.profitThreshold)) {
-      throw Error(
-        `Unprofitable liquidation of ${ra.id} in ${
-          ra.vault
-        }: ${netProfit.toString()}`
-      );
-    }
-
     return {
       account: ra,
       currencyIndex: liqParams.currencyIndex,
@@ -327,6 +294,69 @@ export default class VaultV3Liquidator {
       callParams: callParams,
     };
   }
+
+  //   public async liquidateBatch(
+  //     assetAddress: string,
+  //     flashLoanAmount: BigNumber,
+  //     callParams: {
+  //       liquidationType: LiquidationType;
+  //       currencyId: number;
+  //       currencyIndex: number;
+  //       account: string; // todo: this is an array
+  //       vault: string;
+  //       useVaultDeleverage: boolean; // todo: remove this
+  //       actionData: string;
+  //     }
+  //   ) {
+  //     const liquidator = VaultLiquidator__factory.connect(
+  //       this.liquidatorContract.address,
+  //       this.liquidatorContract.provider
+  //     );
+
+  //     const encodedTransaction = liquidator.interface.encodeFunctionData(
+  //       'flashLiquidate',
+  //       [assetAddress, flashLoanAmount, callParams]
+  //     );
+
+  //     console.log(`
+  // Sending liquidation to relayer:
+  // network: ${this.settings.network}
+  // to: ${this.settings.flashLiquidatorAddress}
+  // data: ${encodedTransaction}
+  // `);
+  //     const resp = await sendTxThroughRelayer({
+  //       env: {
+  //         NETWORK: this.settings.network,
+  //         TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
+  //       },
+  //       to: this.settings.flashLiquidatorAddress,
+  //       data: encodedTransaction,
+  //       isLiquidator: true,
+  //     });
+
+  //     if (resp.status === 200) {
+  //       const respInfo = await resp.json();
+  //       await this.logger.submitEvent({
+  //         aggregation_key: 'AccountLiquidated',
+  //         alert_type: 'info',
+  //         host: 'cloudflare',
+  //         network: this.settings.network,
+  //         title: `Account liquidated`,
+  //         tags: [
+  //           `account:${callParams.account}`,
+  //           `event:vault_account_liquidated`,
+  //         ],
+  //         text: `Liquidated account ${callParams.account}, ${respInfo['hash']}`,
+  //       });
+  //     } else {
+  //       console.log(
+  //         'Failed liquidation',
+  //         resp.status,
+  //         resp.statusText,
+  //         await resp.json()
+  //       );
+  //     }
+  //   }
 
   public async liquidateAccount(accountLiq: any) {
     const liquidator = VaultLiquidator__factory.connect(
