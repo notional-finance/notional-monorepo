@@ -117,13 +117,13 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       address: '0x5c36a0DeaB3531d29d848E684E8bDf5F81cDB643',
       rewardTokens: [ARB_CRV, ARB],
       poolTokens: [ARB_crvUSD, ARB_USDC],
-      tokenWeights: [50, 50],
+      tokenWeights: [0, 100],
     },
     {
       address: '0xae04e4887cBf5f25c05aC1384BcD0b7e885a1F4A',
       rewardTokens: [ARB_CRV, ARB],
       poolTokens: [ARB_crvUSD, ARB_USDT],
-      tokenWeights: [50, 50],
+      tokenWeights: [0, 100],
     },
     {
       address: '0x3Df035433cFACE65b6D68b77CC916085d020C8B8',
