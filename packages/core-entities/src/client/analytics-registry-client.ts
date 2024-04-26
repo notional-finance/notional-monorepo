@@ -439,6 +439,15 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       });
   }
 
+  // getTestPriceChanges(){
+  //   Registry.getTokenRegistry()
+  //     .getAllTokens(Network.all)
+  //     .map((t) => {
+  //       console.log('t.symbol: ', t.symbol);
+  //       return t
+  //     });
+  // }
+
   async getNetworkTransactions(network: Network, skip: number) {
     const { NetworkTransactionHistoryDocument } =
       await loadGraphClientDeferred();

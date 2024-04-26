@@ -50,23 +50,24 @@ export function MobileTradeActionSummary({
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <LargeInputTextEmphasized>{selectedToken}</LargeInputTextEmphasized>
           <TokenIcon
             symbol={selectedToken || ''}
             size="large"
             style={{
-              marginLeft: theme.spacing(1),
+              marginRight: theme.spacing(1),
               boxShadow: theme.shape.shadowStandard,
+              borderRadius: '50px',
             }}
           />
+          <LargeInputTextEmphasized>{selectedToken}</LargeInputTextEmphasized>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ flex: 1, textAlign: 'right' }}>
             <H5>
               <FormattedMessage {...messages[tradeAction].returnType} />
             </H5>
             <LargeInputTextEmphasized sx={{ flex: 1 }}>
-              <CountUp value={totalAPY || 0} suffix="% APY" decimals={2} />
+              <CountUp value={totalAPY || 0} suffix="%" decimals={2} />
             </LargeInputTextEmphasized>
           </Box>
         </Box>

@@ -109,8 +109,8 @@ const Table = ({
       style={{
         overflow: 'auto', //our scrollable table container
         position: 'relative', //needed for sticky header
-        maxHeight: theme.spacing(75),
-        height: theme.spacing(75), //should be a fixed height
+        maxHeight: theme.spacing(130),
+        height: theme.spacing(130), //should be a fixed height
         background: theme.palette.background.paper,
         border: theme.shape.borderStandard,
         borderRadius: theme.shape.borderRadius(),
@@ -128,7 +128,7 @@ const Table = ({
           networkToggleData={networkToggleData}
         />
         {isLoading ? (
-          <Box sx={{ height: theme.spacing(75) }} component={'colgroup'}>
+          <Box sx={{ height: theme.spacing(130) }} component={'colgroup'}>
             <PageLoading type="notional" />
           </Box>
         ) : (

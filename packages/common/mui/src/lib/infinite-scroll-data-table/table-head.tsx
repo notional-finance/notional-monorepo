@@ -50,6 +50,7 @@ export const TableHead = ({
                   display: 'flex',
                   justifyContent: header.column.columnDef.textAlign || '',
                   width: '100%',
+                  minWidth: header.column.columnDef.minWidth || 'auto',
                   whiteSpace: 'nowrap',
                   padding: theme.spacing(2),
                 }}
