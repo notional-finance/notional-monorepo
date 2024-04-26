@@ -13,7 +13,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
     permissions:
       contents: read
       deployments: write
@@ -42,7 +42,7 @@ jobs:
           NX_INTERCOM_APP_ID: ${{ secrets.NX_INTERCOM_APP_ID }}
           # This segment key is not the same as the prod one
           NX_SEGMENT_KEY: ${{ secrets.NX_DEV_SEGMENT_KEY }}
-          NX_ENV: ${{ github.event.inputs.environment }}
+          NX_ENV: ${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
           NX_COMMIT_REF: ${{ github.sha }}
       - name: Publish Dev
         uses: cloudflare/pages-action@1
