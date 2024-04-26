@@ -1,31 +1,46 @@
-import { Box } from '@mui/material';
+import { Box, styled } from '@mui/material';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { useCurrencyInputRef } from '@notional-finance/mui';
+import { DrawerTransition, useCurrencyInputRef } from '@notional-finance/mui';
 import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { AssetInput } from '@notional-finance/trade';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { SelectConvertAsset } from './components/select-convert-asset';
 import { messages } from './messages';
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { Route, Switch, useParams } from 'react-router';
+import { useConvertOptions } from './hooks/use-convert-options';
+import { PortfolioParams } from '../portfolio-feature-shell';
 
-export const RollDebt = () => {
+const ConvertDebt = () => {
+  const params = useParams<PortfolioParams>();
   const context = useTradeContext('RollDebt');
   const { currencyInputRef } = useCurrencyInputRef();
   const {
-    state: { debt },
+    state: { debtOptions, debt, collateral },
     updateState,
   } = context;
-  const [hasUserTouched, setHasUserTouched] = useState<boolean>(false);
+  const { initialConvertFromBalance: balance } = useConvertOptions(
+    context.state
+  );
+
+  const selectedDebt = debtOptions?.find(
+    ({ token }) => token.id === params?.selectedCollateralToken
+  );
+
+  useEffect(() => {
+    if (!collateral) {
+      updateState({ collateralBalance: balance, collateral: balance?.token });
+    } else if (!debt && selectedDebt) {
+      updateState({ debt: selectedDebt.token });
+    }
+  }, [debt, balance, updateState, collateral, selectedDebt]);
 
   const onBalanceChange = (
     inputAmount: TokenBalance | undefined,
     _: TokenBalance | undefined,
     maxBalance: TokenBalance | undefined
   ) => {
-    // Fixes a race condition where the screen flashes
-    if (inputAmount === undefined && hasUserTouched === false) return;
-    if (inputAmount) setHasUserTouched(true);
     updateState({
       collateralBalance: inputAmount,
       maxWithdraw: maxBalance && inputAmount?.eq(maxBalance),
@@ -33,10 +48,7 @@ export const RollDebt = () => {
   };
 
   return (
-    <Box>
-      <Box sx={{ display: debt === undefined ? 'block' : 'none' }}>
-        <SelectConvertAsset context={context} hasUserTouched={hasUserTouched} />
-      </Box>
+    <DrawerTransition fade={true}>
       {debt && (
         <PortfolioSideDrawer
           context={context}
@@ -53,6 +65,63 @@ export const RollDebt = () => {
           />
         </PortfolioSideDrawer>
       )}
-    </Box>
+    </DrawerTransition>
   );
 };
+
+export const RollDebt = () => {
+  const context = useTradeContext('RollDebt');
+  const {
+    updateState,
+    state: { collateral },
+  } = context;
+  const { initialConvertFromBalance: balance } = useConvertOptions(
+    context.state
+  );
+
+  useEffect(() => {
+    if (!collateral) {
+      updateState({ collateralBalance: balance, collateral: balance?.token });
+    }
+  }, [collateral, balance, updateState]);
+
+  return (
+    <Container>
+      <Switch>
+        <Route
+          path={`/portfolio/:selectedNetwork/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/:selectedToken/manage`}
+          exact={false}
+        >
+          <DrawerTransition fade={true}>
+            <Wrapper>
+              <SelectConvertAsset context={context} />
+            </Wrapper>
+          </DrawerTransition>
+        </Route>
+
+        <Route
+          path={`/portfolio/:selectedNetwork/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/:selectedToken/convertTo/:selectedCollateralToken`}
+          exact={false}
+        >
+          <ConvertDebt />
+        </Route>
+      </Switch>
+    </Container>
+  );
+};
+
+const Container = styled(Box)(
+  ({ theme }) => `
+      ${theme.breakpoints.down('sm')} {
+        width: 100vw;
+      }
+    `
+);
+const Wrapper = styled(Box)(
+  ({ theme }) => `
+      ${theme.breakpoints.down('sm')} {
+        width: 90%;
+        margin: auto;
+      }
+    `
+);

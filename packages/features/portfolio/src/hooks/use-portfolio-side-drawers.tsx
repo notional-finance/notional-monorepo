@@ -36,7 +36,7 @@ export const usePortfolioSideDrawers = () => {
 
   const openDrawer = SideDrawerComponent && sideDrawerOpen ? true : false;
 
-  return { SideDrawerComponent, openDrawer };
+  return { SideDrawerComponent, openDrawer, currentSideDrawerKey };
 };
 
 export default usePortfolioSideDrawers;

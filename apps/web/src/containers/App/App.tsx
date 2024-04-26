@@ -169,6 +169,16 @@ const AllRoutes = () => {
             routeType="PortfolioTransaction"
           />
           <AppLayoutRoute
+            path={`/portfolio/:selectedNetwork/:category/:sideDrawerKey/:selectedToken/:action`}
+            component={PortfolioFeatureShell}
+            routeType="PortfolioTransaction"
+          />
+          <AppLayoutRoute
+            path={`/portfolio/:selectedNetwork/:category/:sideDrawerKey/:selectedToken/:action/:selectedCollateralToken`}
+            component={PortfolioFeatureShell}
+            routeType="PortfolioTransaction"
+          />
+          <AppLayoutRoute
             path="/portfolio/:selectedNetwork/:category/:sideDrawerKey"
             component={PortfolioFeatureShell}
             routeType="PortfolioTransaction"
