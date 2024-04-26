@@ -92,9 +92,11 @@ export const ClaimNoteButton = () => {
         flexDirection: 'column',
       }}
     >
-      <ClaimLabel>
-        <FormattedMessage defaultMessage={'Claim'} />
-      </ClaimLabel>
+      {(noteCountUp > 0 || arbCountUp > 0) && account && (
+        <ClaimLabel>
+          <FormattedMessage defaultMessage={'Claim'} />
+        </ClaimLabel>
+      )}
       {(noteCountUp > 0 || arbCountUp > 0) && account && (
         <Wrapper
           onMouseEnter={() => setHover(true)}
@@ -102,7 +104,7 @@ export const ClaimNoteButton = () => {
           onClick={handleClick}
         >
           <ClaimNoteWrapper hover={hover} theme={theme}>
-            <FormattedMessage defaultMessage={'Claim'} />{' '}
+            <FormattedMessage defaultMessage={'Claim'} />
           </ClaimNoteWrapper>
           {noteCountUp > 0 && (
             <NoteWrapper theme={theme} showArbButton={arbCountUp > 0}>

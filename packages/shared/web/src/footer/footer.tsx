@@ -5,6 +5,7 @@ import logoForDarkBackground from '@notional-finance/assets/images/logos/Notiona
 import { useNotionalTheme } from '@notional-finance/styles';
 import {
   useCurrentETHPrice,
+  useNotePrice,
   useLastUpdateBlockNumber,
 } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
@@ -90,7 +91,7 @@ const StatusBox = styled(Box)(
   ({ theme }) => `
   border-radius: ${theme.shape.borderRadiusLarge};
   background-color: #013D4A;
-  padding: ${theme.spacing(1.5)};
+  padding: ${theme.spacing(2)};
   text-align: left;
 `
 );
@@ -128,6 +129,7 @@ export const Footer = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const lastUpdateBlockNumber = useLastUpdateBlockNumber();
   const { ethPrice, oneDayChange } = useCurrentETHPrice();
+  const { notePrice, notePriceChange } = useNotePrice();
   const statusOk = lastUpdateBlockNumber !== undefined;
 
   return (
@@ -234,7 +236,7 @@ export const Footer = () => {
                 }}
               />
             </LatestSyncedBlock>
-            <Label contrast textAlign="center" marginTop={theme.spacing(1)}>
+            <Label contrast textAlign="left" marginTop={theme.spacing(1.5)}>
               <FormattedMessage
                 defaultMessage={'ETH Price: {currentETHPrice} {priceChange}'}
                 values={{
@@ -253,6 +255,32 @@ export const Footer = () => {
                       }}
                     >
                       {`(${formatNumberAsPercent(oneDayChange)})`}
+                    </span>
+                  ),
+                }}
+              />
+            </Label>
+            <Label contrast textAlign="left" marginTop={theme.spacing(1)}>
+              <FormattedMessage
+                defaultMessage={'NOTE Price: {currentNOTEPrice} {priceChange}'}
+                values={{
+                  currentNOTEPrice: notePrice?.toDisplayStringWithSymbol(
+                    2,
+                    false
+                  ),
+                  priceChange: (
+                    <span
+                      style={{
+                        marginLeft: theme.spacing(0.5),
+                        color:
+                          oneDayChange > 0
+                            ? theme.palette.success.accent
+                            : theme.palette.error.main,
+                      }}
+                    >
+                      {notePriceChange
+                        ? `(${formatNumberAsPercent(notePriceChange)})`
+                        : ''}
                     </span>
                   ),
                 }}
