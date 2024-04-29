@@ -282,7 +282,7 @@ function getRequiredArgs(
             [
               ...keys,
               ...(a?.vaultLastUpdateTime && vaultAddress
-                ? a.vaultLastUpdateTime[vaultAddress].toString()
+                ? a.vaultLastUpdateTime[vaultAddress]?.toString() || ''
                 : ''),
             ],
           ];

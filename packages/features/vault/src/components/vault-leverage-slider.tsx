@@ -27,9 +27,14 @@ export const VaultLeverageSlider = ({
   const {
     yields: { vaultShares },
   } = useAllMarkets(selectedNetwork);
-  const { leverageRatioError, isDeleverage, underMinAccountBorrowError } =
-    useVaultActionErrors();
-  const errorMsg = leverageRatioError || underMinAccountBorrowError;
+  const {
+    leverageRatioError,
+    isDeleverage,
+    underMinAccountBorrowError,
+    inputErrorMsg,
+  } = useVaultActionErrors();
+  const errorMsg =
+    leverageRatioError || underMinAccountBorrowError || inputErrorMsg;
   const leverageRatio = riskFactorLimit?.limit as number;
   const points = vaultShares.find(
     (y) => y.token.id === collateral?.id
