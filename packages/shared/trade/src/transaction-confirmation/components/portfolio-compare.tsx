@@ -118,7 +118,7 @@ export const PortfolioCompare = ({
         <CopyIcon
           fill={theme.palette.typography.accent}
           sx={{
-            marginLeft: '0.25rem',
+            marginLeft: theme.spacing(0.5),
             height: '1rem',
           }}
         />
