@@ -94,9 +94,9 @@ export default class VaultV3Liquidator {
       borrowToken,
       currencyId: config.borrowCurrencyId,
       currencyIndex: 0,
-      assetAddress:
-        overrides[this.settings.network][borrowToken.tokenAddress] ||
-        borrowToken.tokenAddress,
+      assetAddress: (overrides[this.settings.network][
+        borrowToken.tokenAddress
+      ] || borrowToken.tokenAddress) as string,
       assetPrecision: borrowToken.decimals,
     };
   }
@@ -225,22 +225,23 @@ export default class VaultV3Liquidator {
     const groupedByMaturity = groupArrayToMap(accts, (t) => t.maturity);
 
     const batches: PopulatedTransaction[] = [];
+    const batchArgs: Awaited<
+      ReturnType<VaultV3Liquidator['getLiquidateCallData']>
+    >['args'][] = [];
     const batchAccounts: string[] = [];
     for (const maturity of groupedByMaturity.keys()) {
       const accts = groupedByMaturity.get(maturity) || [];
 
       if (accts.length > 0) {
-        const { accounts, batchCalldata } = await this.getLiquidateCallData(
-          vault,
-          maturity,
-          accts
-        );
+        const { accounts, batchCalldata, args } =
+          await this.getLiquidateCallData(vault, maturity, accts);
         batches.push(batchCalldata);
         batchAccounts.push(...accounts);
+        batchArgs.push(args);
       }
     }
 
-    return { batches, batchAccounts };
+    return { batches, batchAccounts, batchArgs };
   }
 
   public async getLiquidateCallData(
@@ -258,21 +259,26 @@ export default class VaultV3Liquidator {
     );
 
     const accounts = accts.map((a) => a.id);
+    const args = {
+      asset: assetAddress,
+      amount: flashLoanAmount,
+      params: {
+        liquidationType: LiquidationType.DELEVERAGE_VAULT_ACCOUNT,
+        currencyId,
+        currencyIndex,
+        accounts,
+        vault,
+        redeemData,
+      },
+    };
     const batchCalldata =
       await this.liquidatorContract.populateTransaction.flashLiquidate(
-        assetAddress,
-        flashLoanAmount,
-        {
-          liquidationType: LiquidationType.DELEVERAGE_VAULT_ACCOUNT,
-          currencyId,
-          currencyIndex,
-          accounts,
-          vault,
-          redeemData,
-        }
+        args.asset,
+        args.amount,
+        args.params
       );
 
-    return { accounts, batchCalldata };
+    return { accounts, batchCalldata, args };
   }
 
   private async getBatchParams(

@@ -87,7 +87,7 @@ const runSingleVault = async (vault: string, env: Env) => {
   const { accounts, liquidator } = await setUp(env, [vault]);
   const riskyAccounts = accounts.filter((a) => a.canLiquidate);
 
-  const { batches } = await liquidator.batchMaturityLiquidations(
+  const { batches, batchArgs } = await liquidator.batchMaturityLiquidations(
     vault,
     riskyAccounts
   );
@@ -104,12 +104,20 @@ const runSingleVault = async (vault: string, env: Env) => {
       maturity: a.maturity,
       canLiquidate: a.canLiquidate,
     }));
+  const serializedBatchArgs = batchArgs.map((a) => ({
+    asset: a.asset,
+    amount: a.amount.toString(),
+    params: {
+      ...a.params,
+    },
+  }));
 
   return new Response(
     JSON.stringify({
       accounts: serializedAccounts,
       riskyAccounts: serializedAccounts.filter((a) => a.canLiquidate),
       batches,
+      batchArgs: serializedBatchArgs,
     })
   );
 };
@@ -191,6 +199,7 @@ maturity: ${r.maturity}
 
     const { batches, batchAccounts } =
       await liquidator.batchMaturityLiquidations(vault, vaultRiskyAccounts);
+    // comment here
     const resp = await liquidator.liquidateViaMulticall(batches);
 
     if (resp.status === 200) {
@@ -216,6 +225,7 @@ maturity: ${r.maturity}
         await resp.json()
       );
     }
+    // to here
   }
 };
 
