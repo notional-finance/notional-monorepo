@@ -1,16 +1,24 @@
-import { ethers, BigNumber, Contract } from 'ethers';
-import { RiskyAccount, IGasOracle } from './types';
-import { AggregateCall, aggregate } from '@notional-finance/multicall';
+import { ethers, BigNumber, Contract, PopulatedTransaction } from 'ethers';
+import { RiskyAccount } from './types';
+import {
+  AggregateCall,
+  aggregate,
+  getMulticall,
+} from '@notional-finance/multicall';
 import {
   VaultLiquidatorABI,
   NotionalV3ABI,
-  VaultLiquidator__factory,
   NotionalV3,
   ISingleSidedLPStrategyVaultABI,
+  VaultLiquidator,
 } from '@notional-finance/contracts';
 import { Logger } from '@notional-finance/durable-objects';
-import { Network, sendTxThroughRelayer } from '@notional-finance/util';
-import { overrides } from '.';
+import {
+  INTERNAL_TOKEN_PRECISION,
+  Network,
+  ZERO_ADDRESS,
+  sendTxThroughRelayer,
+} from '@notional-finance/util';
 
 export type LiquidatorSettings = {
   network: Network;
@@ -29,17 +37,16 @@ export type LiquidatorSettings = {
   profitThreshold: BigNumber;
   zeroExUrl: string;
   zeroExApiKey: string;
-  gasOracle: IGasOracle;
 };
 
-enum LiquidationType {
+export enum LiquidationType {
   UNKNOWN = 0,
   DELEVERAGE_VAULT_ACCOUNT = 1,
   LIQUIDATE_CASH_BALANCE = 2,
   DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH = 3,
 }
 export default class VaultV3Liquidator {
-  private liquidatorContract: Contract;
+  public liquidatorContract: VaultLiquidator;
   private notionalContract: Contract;
 
   constructor(
@@ -51,7 +58,7 @@ export default class VaultV3Liquidator {
       this.settings.flashLiquidatorAddress,
       VaultLiquidatorABI,
       this.provider
-    );
+    ) as VaultLiquidator;
 
     this.notionalContract = new ethers.Contract(
       this.settings.notionalAddress,
@@ -60,14 +67,35 @@ export default class VaultV3Liquidator {
     );
   }
 
-  private getVaultConfigs(): AggregateCall[] {
-    return this.settings.vaultAddrs.flatMap((vault) => ({
-      stage: 0,
-      target: this.notionalContract,
-      method: 'getVaultConfig',
-      args: [vault],
-      key: `${vault.toLowerCase()}:vaultConfig`,
-    }));
+  public async getVaultConfig(vault: string) {
+    const { results } = await aggregate(
+      [
+        {
+          stage: 0,
+          target: this.notionalContract,
+          method: 'getVaultConfig',
+          args: [vault],
+          key: 'config',
+        },
+        {
+          stage: 1,
+          target: this.notionalContract,
+          method: 'getCurrency',
+          args: (r) => [r['config']['borrowCurrencyId']],
+          key: 'currency',
+        },
+      ],
+      this.provider
+    );
+
+    return {
+      config: results['config'] as Awaited<
+        ReturnType<NotionalV3['getVaultConfig']>
+      >,
+      borrowToken: results['currency'] as Awaited<
+        ReturnType<NotionalV3['getCurrency']>
+      >['underlyingToken'],
+    };
   }
 
   private getAccountHealthCalls(
@@ -104,33 +132,29 @@ export default class VaultV3Liquidator {
 
   public async getRiskyAccounts(
     accounts: { account_id: string; vault_id: string }[]
-  ): Promise<RiskyAccount[]> {
+  ) {
     const { results } = await aggregate(
       this.getAccountHealthCalls(accounts),
-      this.provider
-    );
-    const { results: vaultConfigs } = await aggregate(
-      this.getVaultConfigs(),
       this.provider
     );
 
     const riskyAccounts = [];
 
     accounts.forEach(({ account_id, vault_id }) => {
-      const { borrowCurrencyId, minCollateralRatio } = vaultConfigs[
-        `${vault_id.toLowerCase()}:vaultConfig`
-      ] as Awaited<ReturnType<NotionalV3['getVaultConfig']>>;
       const accountHealth = results[
         `${account_id}:${vault_id}:health`.toLowerCase()
-      ] as any;
+      ] as {
+        collateralRatio: BigNumber;
+        maxLiquidatorDepositUnderlying: [BigNumber, BigNumber, BigNumber];
+        vaultSharesToLiquidator: [BigNumber, BigNumber, BigNumber];
+      };
       const maturity = results[
         `${account_id}:${vault_id}:maturity`.toLowerCase()
       ] as BigNumber;
 
       if (
-        accountHealth.collateralRatio
-          .sub(minCollateralRatio)
-          .lt(this.settings.dustThreshold)
+        // If there is any value here, we can liquidate
+        accountHealth.maxLiquidatorDepositUnderlying[0].gt(BigNumber.from(0))
       ) {
         riskyAccounts.push({
           id: account_id,
@@ -140,8 +164,6 @@ export default class VaultV3Liquidator {
           maxLiquidatorDepositUnderlying:
             accountHealth.maxLiquidatorDepositUnderlying,
           vaultSharesToLiquidator: accountHealth.vaultSharesToLiquidator,
-          borrowCurrencyId,
-          minCollateralRatio,
         });
       }
     });
@@ -149,120 +171,46 @@ export default class VaultV3Liquidator {
     return riskyAccounts;
   }
 
-  private getLiquidationInfoCalls(
-    ra: RiskyAccount,
-    currencyIndex: number
-  ): AggregateCall[] {
+  /** Need to create new versions of this function for different vaults */
+  private async getSingleSidedLPRedeemData(
+    vault: string,
+    maturity: number,
+    totalVaultShares: BigNumber
+  ) {
     const vaultContract = new ethers.Contract(
-      ra.vault,
+      vault,
       ISingleSidedLPStrategyVaultABI,
       this.provider
     );
 
-    return [
-      {
-        stage: 0,
-        target: this.notionalContract,
-        method: 'getCurrency',
-        args: [ra.borrowCurrencyId],
-        key: 'assetAddress',
-        transform: (r) => r[1][0],
-      },
-      {
-        stage: 0,
-        target: this.notionalContract,
-        method: 'convertCashBalanceToExternal',
-        args: [
-          ra.borrowCurrencyId,
-          ra.maxLiquidatorDepositUnderlying[currencyIndex],
-          true,
-        ],
-        key: 'depositAmount',
-      },
-      {
-        stage: 0,
-        target: vaultContract,
-        method: 'convertStrategyToUnderlying',
-        args: [ra.id, ra.vaultSharesToLiquidator[currencyIndex], ra.maturity],
-        key: 'primaryAmount',
-      },
-      {
-        stage: 0,
-        target: vaultContract,
-        method: 'getStrategyVaultInfo',
-        args: [],
-        key: 'strategyVaultInfo',
-      },
-      {
-        stage: 0,
-        target: vaultContract,
-        method: 'TOKENS',
-        args: [],
-        key: 'TOKENS',
-      },
-    ];
-  }
-
-  private async getZeroExData(
-    zeroExUrl: string,
-    from: string,
-    to: string,
-    amount: BigNumber,
-    exactIn: boolean
-  ): Promise<any> {
-    if (!from || !to) {
-      throw Error('Invalid from/to');
-    }
-
-    const queryParams = new URLSearchParams({
-      sellToken: from,
-      buyToken: to,
-    });
-
-    if (exactIn) {
-      queryParams.set('sellAmount', amount.toString());
-    } else {
-      queryParams.set('buyAmount', amount.toString());
-    }
-
-    const fetchUrl = zeroExUrl + '?' + queryParams;
-    const resp = await fetch(fetchUrl, {
-      headers: {
-        '0x-api-key': this.settings.zeroExApiKey,
-      },
-    });
-    if (resp.status !== 200) {
-      throw Error('Bad 0x response');
-    }
-
-    const data = await resp.json();
-
-    return data;
-  }
-
-  public async getAccountLiquidation(ra: RiskyAccount) {
-    const liquidator = VaultLiquidator__factory.connect(
-      this.liquidatorContract.address,
-      this.liquidatorContract.provider
-    );
-
-    const liqParams = await liquidator.callStatic.getOptimalDeleveragingParams(
-      ra.id,
-      ra.vault
-    );
-
     const { results } = await aggregate(
-      this.getLiquidationInfoCalls(ra, liqParams.currencyIndex),
+      [
+        {
+          stage: 0,
+          target: vaultContract,
+          method: 'convertStrategyToUnderlying',
+          args: [ZERO_ADDRESS, totalVaultShares, maturity],
+          key: 'vaultShareValue',
+        },
+        {
+          stage: 0,
+          target: vaultContract,
+          method: 'getStrategyVaultInfo',
+          args: [],
+          key: 'strategyVaultInfo',
+        },
+        {
+          stage: 0,
+          target: vaultContract,
+          method: 'TOKENS',
+          args: [],
+          key: 'TOKENS',
+        },
+      ],
       this.provider
     );
 
-    let assetAddress = results['assetAddress'] as string;
-    assetAddress =
-      overrides[this.settings.network][assetAddress] || assetAddress;
-    const flashLoanAmount = (results['depositAmount'] as BigNumber)
-      .mul(this.settings.flashLoanBuffer)
-      .div(1000);
-    const minPrimary = (results['primaryAmount'] as BigNumber)
+    const minPrimary = (results['vaultShareValue'] as BigNumber)
       .mul(this.settings.slippageLimit)
       .div(1000);
     const minAmount = new Array(results['TOKENS'][0].length).fill(
@@ -270,146 +218,110 @@ export default class VaultV3Liquidator {
     );
     minAmount[results['strategyVaultInfo']['singleSidedTokenIndex'] as number] =
       minPrimary;
+    return ethers.utils.defaultAbiCoder.encode(
+      ['tuple(uint256[],bytes)'],
+      [[minAmount, []]]
+    );
+  }
 
-    const callParams = {
-      // Use this as the default type, will account for variable rate debt
-      liquidationType: LiquidationType.DELEVERAGE_VAULT_ACCOUNT,
-      currencyId: ra.borrowCurrencyId,
-      currencyIndex: liqParams.currencyIndex,
-      account: ra.id,
-      vault: ra.vault,
-      useVaultDeleverage: true,
-      actionData: ethers.utils.defaultAbiCoder.encode(
-        ['tuple(uint256[],bytes)'],
-        [[minAmount, []]]
-      ),
-    };
+  public async getBatchParams(
+    vault: string,
+    maturity: number,
+    riskyAccounts: RiskyAccount[],
+    assetPrecision: BigNumber,
+    currencyIndex = 0
+  ) {
+    const totalFlashLoan = riskyAccounts.reduce(
+      (s, r) => s.add(r.maxLiquidatorDepositUnderlying[currencyIndex]),
+      BigNumber.from(0)
+    );
+    const totalVaultShares = riskyAccounts.reduce(
+      (s, r) => s.add(r.vaultSharesToLiquidator[currencyIndex]),
+      BigNumber.from(0)
+    );
+    const redeemData = await this.getSingleSidedLPRedeemData(
+      vault,
+      maturity,
+      totalVaultShares
+    );
 
     return {
-      account: ra,
-      currencyIndex: liqParams.currencyIndex,
-      maxUnderlying: liqParams.maxUnderlying,
-      assetAddress: assetAddress,
-      flashLoanAmount: flashLoanAmount,
-      callParams: callParams,
+      flashLoanAmount: totalFlashLoan
+        .mul(assetPrecision)
+        .div(INTERNAL_TOKEN_PRECISION),
+      redeemData,
     };
   }
 
-  //   public async liquidateBatch(
-  //     assetAddress: string,
-  //     flashLoanAmount: BigNumber,
-  //     callParams: {
-  //       liquidationType: LiquidationType;
-  //       currencyId: number;
-  //       currencyIndex: number;
-  //       account: string; // todo: this is an array
-  //       vault: string;
-  //       useVaultDeleverage: boolean; // todo: remove this
-  //       actionData: string;
-  //     }
-  //   ) {
-  //     const liquidator = VaultLiquidator__factory.connect(
-  //       this.liquidatorContract.address,
-  //       this.liquidatorContract.provider
-  //     );
-
-  //     const encodedTransaction = liquidator.interface.encodeFunctionData(
-  //       'flashLiquidate',
-  //       [assetAddress, flashLoanAmount, callParams]
-  //     );
-
-  //     console.log(`
-  // Sending liquidation to relayer:
-  // network: ${this.settings.network}
-  // to: ${this.settings.flashLiquidatorAddress}
-  // data: ${encodedTransaction}
-  // `);
-  //     const resp = await sendTxThroughRelayer({
-  //       env: {
-  //         NETWORK: this.settings.network,
-  //         TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
-  //       },
-  //       to: this.settings.flashLiquidatorAddress,
-  //       data: encodedTransaction,
-  //       isLiquidator: true,
-  //     });
-
-  //     if (resp.status === 200) {
-  //       const respInfo = await resp.json();
-  //       await this.logger.submitEvent({
-  //         aggregation_key: 'AccountLiquidated',
-  //         alert_type: 'info',
-  //         host: 'cloudflare',
-  //         network: this.settings.network,
-  //         title: `Account liquidated`,
-  //         tags: [
-  //           `account:${callParams.account}`,
-  //           `event:vault_account_liquidated`,
-  //         ],
-  //         text: `Liquidated account ${callParams.account}, ${respInfo['hash']}`,
-  //       });
-  //     } else {
-  //       console.log(
-  //         'Failed liquidation',
-  //         resp.status,
-  //         resp.statusText,
-  //         await resp.json()
-  //       );
-  //     }
-  //   }
-
-  public async liquidateAccount(accountLiq: any) {
-    const liquidator = VaultLiquidator__factory.connect(
-      this.liquidatorContract.address,
-      this.liquidatorContract.provider
+  async liquidateViaMulticall(batch: PopulatedTransaction[]) {
+    const multicall = getMulticall(this.provider);
+    const pop = await multicall.populateTransaction.aggregate3(
+      batch.map((p) => ({
+        target: p.to,
+        allowFailure: true,
+        callData: p.data,
+      }))
     );
 
-    const encodedTransaction = liquidator.interface.encodeFunctionData(
-      'flashLiquidate',
-      [
-        accountLiq.assetAddress,
-        accountLiq.flashLoanAmount,
-        accountLiq.callParams,
-      ]
-    );
-
-    console.log(`
-Sending liquidation to relayer:
-network: ${this.settings.network}
-to: ${this.settings.flashLiquidatorAddress}
-data: ${encodedTransaction}
-`);
-    const resp = await sendTxThroughRelayer({
+    return await sendTxThroughRelayer({
       env: {
         NETWORK: this.settings.network,
         TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
       },
-      to: this.settings.flashLiquidatorAddress,
-      data: encodedTransaction,
+      to: multicall.address,
+      data: pop.data,
       isLiquidator: true,
     });
-
-    if (resp.status === 200) {
-      const respInfo = await resp.json();
-      await this.logger.submitEvent({
-        aggregation_key: 'AccountLiquidated',
-        alert_type: 'info',
-        host: 'cloudflare',
-        network: this.settings.network,
-        title: `Account liquidated`,
-        tags: [
-          `account:${accountLiq.account.id}`,
-          `event:vault_account_liquidated`,
-        ],
-        text: `Liquidated account ${accountLiq.account.id}, ${respInfo['hash']}`,
-      });
-    } else {
-      console.log(
-        'Failed liquidation',
-        resp.status,
-        resp.statusText,
-        await resp.json()
-      );
-    }
   }
 }
+
+// public async getLiquidationParams(ra: RiskyAccount) {
+//   const liqParams =
+//     await this.liquidatorContract.callStatic.getOptimalDeleveragingParams(
+//       ra.id,
+//       ra.vault
+//     );
+
+//   const { results } = await aggregate(
+//     this.getLiquidationInfoCalls(ra, liqParams.currencyIndex),
+//     this.provider
+//   );
+
+//   let assetAddress = results['assetAddress'] as string;
+//   assetAddress =
+//     overrides[this.settings.network][assetAddress] || assetAddress;
+//   const flashLoanAmount = (results['depositAmount'] as BigNumber)
+//     .mul(this.settings.flashLoanBuffer)
+//     .div(1000);
+//   const minPrimary = (results['primaryAmount'] as BigNumber)
+//     .mul(this.settings.slippageLimit)
+//     .div(1000);
+//   const minAmount = new Array(results['TOKENS'][0].length).fill(
+//     BigNumber.from(0)
+//   );
+//   minAmount[results['strategyVaultInfo']['singleSidedTokenIndex'] as number] =
+//     minPrimary;
+
+//   const callParams = {
+//     // Use this as the default type, will account for variable rate debt
+//     liquidationType: LiquidationType.DELEVERAGE_VAULT_ACCOUNT,
+//     currencyId: ra.borrowCurrencyId,
+//     currencyIndex: liqParams.currencyIndex,
+//     account: ra.id,
+//     vault: ra.vault,
+//     useVaultDeleverage: true,
+//     actionData: ethers.utils.defaultAbiCoder.encode(
+//       ['tuple(uint256[],bytes)'],
+//       [[minAmount, []]]
+//     ),
+//   };
+
+//   return {
+//     account: ra,
+//     currencyIndex: liqParams.currencyIndex,
+//     maxUnderlying: liqParams.maxUnderlying,
+//     assetAddress: assetAddress,
+//     flashLoanAmount: flashLoanAmount,
+//     callParams: callParams,
+//   };
+// }

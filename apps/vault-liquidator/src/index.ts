@@ -6,10 +6,10 @@ import {
   getProviderFromNetwork,
   groupArrayToMap,
 } from '@notional-finance/util';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, PopulatedTransaction } from 'ethers';
 import * as tokens from './config/tokens.json';
-import VaultV3Liquidator from './VaultV3Liquidator';
-import { IGasOracle, MetricNames } from './types';
+import VaultV3Liquidator, { LiquidationType } from './VaultV3Liquidator';
+import { MetricNames } from './types';
 import {
   DDSeries,
   Logger,
@@ -39,13 +39,6 @@ export interface Env {
   PROFIT_THRESHOLD: string;
   ZERO_EX_SWAP_URL: string;
   ZERO_EX_API_KEY: string;
-}
-
-class ArbitrumGasOracle implements IGasOracle {
-  public async getGasPrice(): Promise<BigNumber> {
-    // 0.1 gwei
-    return ethers.utils.parseUnits('1', 8);
-  }
 }
 
 export const overrides = {
@@ -105,7 +98,6 @@ const run = async (env: Env) => {
       profitThreshold: BigNumber.from(env.PROFIT_THRESHOLD),
       zeroExUrl: env.ZERO_EX_SWAP_URL,
       zeroExApiKey: env.ZERO_EX_API_KEY,
-      gasOracle: new ArbitrumGasOracle(),
     },
     logger
   );
@@ -154,29 +146,76 @@ const run = async (env: Env) => {
 
   const groupedByVault = groupArrayToMap(riskyAccounts, (t) => t.vault);
   for (const vault of groupedByVault.keys()) {
-    const accts = groupedByVault.get(vault) || [];
-    // TODO: Sort these by most risky at the top and then group by maturity
-    for (const a of accts) {
-      // TODO: in the future, make this run a batch but also need to group by
-      // maturity
-      try {
-        console.log(
-          `Getting liquidation for account ${a.id} in vault ${vault}`
-        );
-        const accountLiq = await liq.getAccountLiquidation(a);
+    const vaultRiskyAccounts = groupedByVault.get(vault) || [];
 
-        console.log(
-          `Account: ${a.id} in Vault: ${vault}
-  maxUnderlying: ${accountLiq.maxUnderlying.toString()}
-  assetAddress: ${accountLiq.assetAddress}
-  flashLoanAmount: ${accountLiq.flashLoanAmount.toString()}
-  callParams: ${accountLiq.callParams}
-`
+    const { config, borrowToken } = await liq.getVaultConfig(vault);
+    const currencyId = config.borrowCurrencyId;
+    const currencyIndex = 0;
+    const assetAddress =
+      overrides[liq.settings.network][borrowToken.tokenAddress] ||
+      borrowToken.tokenAddress;
+    const assetPrecision = borrowToken.decimals;
+
+    const groupedByMaturity = groupArrayToMap(
+      vaultRiskyAccounts,
+      (t) => t.maturity
+    );
+
+    const batches: PopulatedTransaction[] = [];
+    const batchAccounts: string[] = [];
+    for (const maturity of groupedByMaturity.keys()) {
+      const accts = groupedByMaturity.get(maturity) || [];
+
+      if (accts.length > 0) {
+        const { flashLoanAmount, redeemData } = await liq.getBatchParams(
+          vault,
+          maturity,
+          accts,
+          assetPrecision
         );
-        await liq.liquidateAccount(accountLiq);
-      } catch (e) {
-        console.error(e);
+
+        const accounts = accts.map((a) => a.id);
+        const batchCalldata =
+          await liq.liquidatorContract.populateTransaction.flashLiquidate(
+            assetAddress,
+            flashLoanAmount,
+            {
+              liquidationType: LiquidationType.DELEVERAGE_VAULT_ACCOUNT,
+              currencyId,
+              currencyIndex,
+              accounts,
+              vault,
+              redeemData,
+            }
+          );
+        batches.push(batchCalldata);
+        batchAccounts.push(...accounts);
       }
+    }
+
+    const resp = await liq.liquidateViaMulticall(batches);
+    if (resp.status === 200) {
+      const respInfo = await resp.json();
+      await logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'info',
+        host: 'cloudflare',
+        network: liq.settings.network,
+        title: `Vault Accounts Liquidated`,
+        tags: [`event:vault_account_liquidated`].concat(
+          batchAccounts.map((a) => `account:${a}`)
+        ),
+        text: `Liquidated vault accounts in batch ${batchAccounts.join(',')}, ${
+          respInfo['hash']
+        }`,
+      });
+    } else {
+      console.log(
+        'Failed liquidation',
+        resp.status,
+        resp.statusText,
+        await resp.json()
+      );
     }
   }
 };
