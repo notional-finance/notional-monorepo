@@ -11,14 +11,14 @@ export const PointsMultipliers: Record<
       EigenLayer: (v as SingleSidedLP).getTokenPoolShare(1),
     }),
     '0x914255c0c289aea36e378ebb5e28293b5ed278ca': (v) => ({
-      Renzo: 2,
+      Renzo: 4,
       EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
   },
   [Network.all]: {},
   [Network.arbitrum]: {
     '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937': (v) => ({
-      Renzo: 2,
+      Renzo: 4,
       EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
   },
