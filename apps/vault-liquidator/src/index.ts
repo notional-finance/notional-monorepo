@@ -7,7 +7,6 @@ import {
   groupArrayToMap,
 } from '@notional-finance/util';
 import { BigNumber, PopulatedTransaction } from 'ethers';
-import * as tokens from './config/tokens.json';
 import VaultV3Liquidator, { LiquidationType } from './VaultV3Liquidator';
 import { MetricNames } from './types';
 import {
@@ -18,7 +17,6 @@ import {
 
 export interface Env {
   NX_DATA_URL: string;
-  SUPPORTED_NETWORKS: Network[];
   ACCOUNT_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   NETWORK: Network;
@@ -27,18 +25,12 @@ export interface Env {
   FLASH_LENDER_ADDRESS: string;
   FLASH_LOAN_BUFFER: string;
   NOTIONAL_PROXY_CONTRACT: string;
-  DUST_THRESHOLD: string;
   ALCHEMY_KEY: string;
-  BN_API_KEY: string;
   DD_API_KEY: string;
   DD_APP_KEY: string;
   TX_RELAY_URL: string;
   TX_RELAY_AUTH_TOKEN: string;
   SLIPPAGE_LIMIT: string;
-  GAS_COST_BUFFER: string;
-  PROFIT_THRESHOLD: string;
-  ZERO_EX_SWAP_URL: string;
-  ZERO_EX_API_KEY: string;
 }
 
 export const overrides = {
@@ -79,28 +71,18 @@ const run = async (env: Env) => {
     .filter((v) => v !== '0xa0d61c08e642103158fc6a1495e7ff82baf25857');
 
   const provider = getProviderFromNetwork(env.NETWORK, true);
-  const liq = new VaultV3Liquidator(
-    provider,
-    {
-      network: env.NETWORK,
-      vaultAddrs: activeVaults,
-      flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
-      flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
-      flashLenderAddress: env.FLASH_LENDER_ADDRESS,
-      flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
-      slippageLimit: BigNumber.from(env.SLIPPAGE_LIMIT),
-      notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
-      dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
-      txRelayUrl: env.TX_RELAY_URL,
-      txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
-      tokens: new Map<string, string>(Object.entries(tokens[env.NETWORK])),
-      gasCostBuffer: BigNumber.from(env.GAS_COST_BUFFER),
-      profitThreshold: BigNumber.from(env.PROFIT_THRESHOLD),
-      zeroExUrl: env.ZERO_EX_SWAP_URL,
-      zeroExApiKey: env.ZERO_EX_API_KEY,
-    },
-    logger
-  );
+  const liq = new VaultV3Liquidator(provider, {
+    network: env.NETWORK,
+    vaultAddrs: activeVaults,
+    flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
+    flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
+    flashLenderAddress: env.FLASH_LENDER_ADDRESS,
+    flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
+    slippageLimit: BigNumber.from(env.SLIPPAGE_LIMIT),
+    notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
+    txRelayUrl: env.TX_RELAY_URL,
+    txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
+  });
 
   const batchedAccounts = batchArray(
     accounts.filter(({ vault_id }) => activeVaults.includes(vault_id)),

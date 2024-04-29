@@ -12,7 +12,6 @@ import {
   ISingleSidedLPStrategyVaultABI,
   VaultLiquidator,
 } from '@notional-finance/contracts';
-import { Logger } from '@notional-finance/durable-objects';
 import {
   INTERNAL_TOKEN_PRECISION,
   Network,
@@ -28,15 +27,9 @@ export type LiquidatorSettings = {
   flashLenderAddress: string;
   slippageLimit: BigNumber;
   notionalAddress: string;
-  dustThreshold: BigNumber;
   flashLoanBuffer: BigNumber;
   txRelayUrl: string;
   txRelayAuthToken: string;
-  tokens: Map<string, string>;
-  gasCostBuffer: BigNumber; // Precision = 1000
-  profitThreshold: BigNumber;
-  zeroExUrl: string;
-  zeroExApiKey: string;
 };
 
 export enum LiquidationType {
@@ -51,8 +44,7 @@ export default class VaultV3Liquidator {
 
   constructor(
     public provider: ethers.providers.Provider,
-    public settings: LiquidatorSettings,
-    private logger: Logger
+    public settings: LiquidatorSettings
   ) {
     this.liquidatorContract = new ethers.Contract(
       this.settings.flashLiquidatorAddress,
@@ -248,7 +240,9 @@ export default class VaultV3Liquidator {
     return {
       flashLoanAmount: totalFlashLoan
         .mul(assetPrecision)
-        .div(INTERNAL_TOKEN_PRECISION),
+        .mul(this.settings.flashLoanBuffer)
+        .div(INTERNAL_TOKEN_PRECISION)
+        .div(1000),
       redeemData,
     };
   }
