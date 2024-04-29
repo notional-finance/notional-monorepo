@@ -11,18 +11,7 @@ import type {
 
 const _abi = [
   {
-    inputs: [
-      {
-        internalType: "contract NotionalProxy",
-        name: "notional_",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "aave_",
-        type: "address",
-      },
-    ],
+    inputs: [],
     name: "constructor",
     stateMutability: "nonpayable",
     type: "constructor",
@@ -128,6 +117,21 @@ const _abi = [
             type: "uint8",
           },
           {
+            internalType: "address",
+            name: "vault",
+            type: "address",
+          },
+          {
+            internalType: "address[]",
+            name: "accounts",
+            type: "address[]",
+          },
+          {
+            internalType: "bytes",
+            name: "redeemData",
+            type: "bytes",
+          },
+          {
             internalType: "uint16",
             name: "currencyId",
             type: "uint16",
@@ -136,26 +140,6 @@ const _abi = [
             internalType: "uint16",
             name: "currencyIndex",
             type: "uint16",
-          },
-          {
-            internalType: "address",
-            name: "account",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "vault",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "useVaultDeleverage",
-            type: "bool",
-          },
-          {
-            internalType: "bytes",
-            name: "actionData",
-            type: "bytes",
           },
         ],
         internalType: "struct FlashLiquidatorBase.LiquidationParams",
@@ -233,6 +217,21 @@ const _abi = [
             type: "uint8",
           },
           {
+            internalType: "address",
+            name: "vault",
+            type: "address",
+          },
+          {
+            internalType: "address[]",
+            name: "accounts",
+            type: "address[]",
+          },
+          {
+            internalType: "bytes",
+            name: "redeemData",
+            type: "bytes",
+          },
+          {
             internalType: "uint16",
             name: "currencyId",
             type: "uint16",
@@ -241,26 +240,6 @@ const _abi = [
             internalType: "uint16",
             name: "currencyIndex",
             type: "uint16",
-          },
-          {
-            internalType: "address",
-            name: "account",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "vault",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "useVaultDeleverage",
-            type: "bool",
-          },
-          {
-            internalType: "bytes",
-            name: "actionData",
-            type: "bytes",
           },
         ],
         internalType: "struct FlashLiquidatorBase.LiquidationParams",
