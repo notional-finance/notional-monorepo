@@ -63,6 +63,7 @@ export * from './lib/chevron-down-icon/chevron-down-icon';
 export * from './lib/chinese-flag-icon/chinese-flag-icon';
 export * from './lib/circle-icon/circle-icon';
 export * from './lib/close-x/close-x';
+export * from './lib/close-circle-icon/close-circle-icon';
 export * from './lib/swap-icon/swap-icon';
 export * from './lib/swap-vertical-icon/swap-vertical-icon';
 export * from './lib/angled-arrow-icon/angled-arrow-icon';
