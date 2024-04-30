@@ -178,16 +178,16 @@ const runAllVaults = async (env: Env) => {
       host: 'cloudflare',
       network: env.NETWORK,
       title: `Risky Vault Account: ${r.id} in Vault: ${r.vault}`,
-      tags: [`event:vault_account_liquidated`, `account:${r.id}`],
+      tags: [`event:risky_vault_account_detected`, `account:${r.id}`],
       text: `
-account:${r.id}
-collateralRatio: ${r.collateralRatio.toNumber() / 1e9}
-maxLiquidatorDepositUnderlying: ${r.maxLiquidatorDepositUnderlying[0].toString()}
-vaultSharesToLiquidator: ${r.vaultSharesToLiquidator[0].toString()}
-debtUnderlying: ${r.debtUnderlying.toNumber() / 1e8}
-vaultShares: ${r.vaultShares.toNumber() / 1e8}
-maturity: ${r.maturity}
-`,
+  account:${r.id}
+  collateralRatio: ${r.collateralRatio.toNumber() / 1e9}
+  maxLiquidatorDepositUnderlying: ${r.maxLiquidatorDepositUnderlying[0].toString()}
+  vaultSharesToLiquidator: ${r.vaultSharesToLiquidator[0].toString()}
+  debtUnderlying: ${r.debtUnderlying.toNumber() / 1e8}
+  vaultShares: ${r.vaultShares.toNumber() / 1e8}
+  maturity: ${r.maturity}
+  `,
     });
   }
 
@@ -197,7 +197,6 @@ maturity: ${r.maturity}
 
     const { batches, batchAccounts } =
       await liquidator.batchMaturityLiquidations(vault, vaultRiskyAccounts);
-    // comment here
     const resp = await liquidator.liquidateViaMulticall(batches);
 
     if (resp.status === 200) {
@@ -222,8 +221,18 @@ maturity: ${r.maturity}
         resp.statusText,
         await resp.json()
       );
+      await logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'error',
+        host: 'cloudflare',
+        network: env.NETWORK,
+        title: `Failed Vault Liquidation`,
+        tags: [`event:failed_vault_liquidation`],
+        text: `Failed to liquidate vault accounts in batch ${batchAccounts.join(
+          ','
+        )}`,
+      });
     }
-    // to here
   }
 };
 

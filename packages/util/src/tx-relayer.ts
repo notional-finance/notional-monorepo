@@ -25,7 +25,7 @@ const urls: Record<Network, string> = {
   [Network.mainnet]:
     'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/1',
   [Network.arbitrum]:
-    'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/0',
+    'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/arbitrum',
   [Network.optimism]: '',
 };
 
