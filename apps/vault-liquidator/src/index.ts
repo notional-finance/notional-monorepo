@@ -20,7 +20,7 @@ export interface Env {
   ACCOUNT_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   NETWORK: Network;
-  FLASH_LIQUIDATOR_CONTRACT: string;
+  FLASH_LIQUIDATOR_CONTRACTS: string[];
   FLASH_LIQUIDATOR_OWNER: string;
   FLASH_LENDER_ADDRESS: string;
   FLASH_LOAN_BUFFER: string;
@@ -60,7 +60,7 @@ async function setUp(env: Env, vaultAddrs: string[]) {
   const liquidator = new VaultV3Liquidator(provider, {
     network: env.NETWORK,
     vaultAddrs,
-    flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
+    flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACTS,
     flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
     flashLenderAddress: env.FLASH_LENDER_ADDRESS,
     flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),

@@ -24,7 +24,7 @@ import { overrides } from '.';
 export type LiquidatorSettings = {
   network: Network;
   vaultAddrs: string[];
-  flashLiquidatorAddress: string;
+  flashLiquidatorAddress: string[];
   flashLiquidatorOwner: string;
   flashLenderAddress: string;
   slippageLimit: BigNumber;
@@ -41,18 +41,21 @@ enum LiquidationType {
   DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH = 3,
 }
 export default class VaultV3Liquidator {
-  public liquidatorContract: VaultLiquidator;
+  public liquidatorContracts: VaultLiquidator[];
   private notionalContract: Contract;
 
   constructor(
     public provider: ethers.providers.Provider,
     public settings: LiquidatorSettings
   ) {
-    this.liquidatorContract = new ethers.Contract(
-      this.settings.flashLiquidatorAddress,
-      VaultLiquidatorABI,
-      this.provider
-    ) as VaultLiquidator;
+    this.liquidatorContracts = this.settings.flashLiquidatorAddress.map(
+      (a) =>
+        new ethers.Contract(
+          a,
+          VaultLiquidatorABI,
+          this.provider
+        ) as VaultLiquidator
+    );
 
     this.notionalContract = new ethers.Contract(
       this.settings.notionalAddress,
@@ -234,7 +237,12 @@ export default class VaultV3Liquidator {
 
       if (accts.length > 0) {
         const { accounts, batchCalldata, args } =
-          await this.getLiquidateCallData(vault, maturity, accts);
+          await this.getLiquidateCallData(
+            vault,
+            maturity,
+            accts,
+            batches.length
+          );
         batches.push(batchCalldata);
         batchAccounts.push(...accounts);
         batchArgs.push(args);
@@ -247,7 +255,8 @@ export default class VaultV3Liquidator {
   public async getLiquidateCallData(
     vault: string,
     maturity: number,
-    accts: RiskyAccount[]
+    accts: RiskyAccount[],
+    liquidatorIndex: number
   ) {
     const { currencyId, currencyIndex, assetAddress, assetPrecision } =
       await this.getVaultConfig(vault);
@@ -271,12 +280,12 @@ export default class VaultV3Liquidator {
         redeemData,
       },
     };
-    const batchCalldata =
-      await this.liquidatorContract.populateTransaction.flashLiquidate(
-        args.asset,
-        args.amount,
-        args.params
-      );
+
+    // Must use multiple contracts in a batch liquidation due to vault exit time
+    // restrictions.
+    const batchCalldata = await this.liquidatorContracts[
+      liquidatorIndex
+    ].populateTransaction.flashLiquidate(args.asset, args.amount, args.params);
 
     return { accounts, batchCalldata, args };
   }
