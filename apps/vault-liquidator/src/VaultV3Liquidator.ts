@@ -87,7 +87,7 @@ export default class VaultV3Liquidator {
     >;
     const borrowToken = results['currency'] as Awaited<
       ReturnType<NotionalV3['getCurrency']>
-    >['underlyingToken'];
+    >;
 
     return {
       config,
@@ -95,9 +95,9 @@ export default class VaultV3Liquidator {
       currencyId: config.borrowCurrencyId,
       currencyIndex: 0,
       assetAddress: (overrides[this.settings.network][
-        borrowToken.tokenAddress
-      ] || borrowToken.tokenAddress) as string,
-      assetPrecision: borrowToken.decimals,
+        borrowToken.underlyingToken.tokenAddress
+      ] || borrowToken.underlyingToken.tokenAddress) as string,
+      assetPrecision: borrowToken.underlyingToken.decimals,
     };
   }
 

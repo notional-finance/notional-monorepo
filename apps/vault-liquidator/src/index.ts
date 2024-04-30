@@ -136,9 +136,7 @@ const runAllVaults = async (env: Env) => {
 
   const activeVaults: string[] = allVaults['values']
     .filter(([, v]) => v['enabled'] === true)
-    .map(([v]) => v as string)
-    // TODO: Temporarily filter out the rETH vault
-    .filter((v) => v !== '0xa0d61c08e642103158fc6a1495e7ff82baf25857');
+    .map(([v]) => v as string);
 
   const { accounts, liquidator } = await setUp(env, activeVaults);
   const riskyAccounts = accounts.filter((r) => r.canLiquidate);
