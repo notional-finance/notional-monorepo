@@ -152,7 +152,7 @@ export function calculateCollateral({
       collateralBalance: TokenBalance.zero(collateral),
       debtFee,
       collateralFee: totalCollateralPrime.copy(0),
-      netRealizedDebtBalance,
+      netRealizedDebtBalance: netRealizedDebtBalance.neg(),
     };
   } else if (collateral.tokenType === 'PrimeCash') {
     return {
@@ -160,7 +160,7 @@ export function calculateCollateral({
       collateralBalance: totalCollateralPrime,
       debtFee,
       collateralFee: totalCollateralPrime.copy(0),
-      netRealizedDebtBalance,
+      netRealizedDebtBalance: netRealizedDebtBalance.neg(),
     };
   } else if (collateral.tokenType === 'nToken') {
     const tokensIn = collateralPool.zeroTokenArray();
@@ -175,7 +175,7 @@ export function calculateCollateral({
       collateralBalance: lpTokens,
       debtFee,
       collateralFee: feesPaid[0],
-      netRealizedDebtBalance,
+      netRealizedDebtBalance: netRealizedDebtBalance.neg(),
     };
   } else if (collateral.tokenType === 'fCash') {
     const { tokensOut, feesPaid } = collateralPool.calculateTokenTrade(
@@ -190,7 +190,7 @@ export function calculateCollateral({
       collateralBalance: tokensOut,
       debtFee,
       collateralFee: feesPaid[0],
-      netRealizedDebtBalance,
+      netRealizedDebtBalance: netRealizedDebtBalance.neg(),
     };
   }
 
@@ -679,10 +679,12 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
       ? {
           debtBalance: results.debtBalance.add(debtDeposit.debtBalance),
           debtFee: results.debtFee.add(debtDeposit.debtFee),
-          netRealizedDebtBalance: results.netRealizedDebtBalance.add(
-            // TODO: this is negative
-            debtDeposit.netRealizedDebtBalance
-          ),
+          netRealizedDebtBalance: results.netRealizedDebtBalance
+            .add(
+              // TODO: this is negative
+              debtDeposit.netRealizedDebtBalance
+            )
+            .neg(),
         }
       : {}),
   };
@@ -847,7 +849,7 @@ export function calculateVaultRoll({
     );
 
     return {
-      netRealizedDebtBalance: netCostToRepay.toUnderlying(),
+      netRealizedDebtBalance: netCostToRepay.toUnderlying().neg(),
       debtBalance: TokenBalance.from(
         netCostToRepay.toToken(pDebt).n,
         debt
@@ -891,7 +893,8 @@ export function calculateVaultRoll({
       collateralFee: feesPaid[0].copy(0),
       netRealizedDebtBalance: totalPrimeCashRequired
         .add(feesPaid[0])
-        .toUnderlying(),
+        .toUnderlying()
+        .neg(),
       netRealizedCollateralBalance: newVaultShares.toUnderlying(),
       collateralBalance: newVaultShares,
     };

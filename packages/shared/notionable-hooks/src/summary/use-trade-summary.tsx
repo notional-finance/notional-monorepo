@@ -133,12 +133,9 @@ function getTradeDetail(
     };
   } else if (tokenType === 'VaultShare' || tokenType === 'nToken') {
     return {
-      label: intl.formatMessage(
-        TradeSummaryLabels[tokenType][b.isNegative() ? 'withdraw' : typeKey],
-        {
+      label: intl.formatMessage(TradeSummaryLabels[tokenType][typeKey], {
           caption,
-        }
-      ),
+      }),
       value: {
         data: [
           {
@@ -505,9 +502,7 @@ function getRollDebtOrConvertAssetSummary(
   if (netRealizedDebtBalance && debtBalance) {
     summary.push(
       getTradeDetail(
-        tradeType === 'RollDebt'
-          ? netRealizedDebtBalance.abs()
-          : netRealizedDebtBalance.neg(),
+        netRealizedDebtBalance.neg(),
         tradeType === 'RollDebt' ? 'Debt' : 'Asset',
         tradeType === 'RollDebt' ? 'none' : 'withdraw',
         intl,
@@ -521,9 +516,7 @@ function getRollDebtOrConvertAssetSummary(
   if (netRealizedCollateralBalance && collateralBalance)
     summary.push(
       getTradeDetail(
-        tradeType === 'RollDebt'
-          ? netRealizedCollateralBalance.neg()
-          : netRealizedCollateralBalance.abs(),
+        netRealizedCollateralBalance.neg(),
         tradeType === 'RollDebt' ? 'Debt' : 'Asset',
         tradeType === 'RollDebt' ? 'repay' : 'none',
         intl,
@@ -551,7 +544,6 @@ function getDeleverageWithdrawSummary(
   const isSwapped = isDeleverageWithSwappedTokens(state);
   const isVault = isVaultTrade(tradeType);
 
-  // TODO: not clear which one should be negative or positive
   if (netRealizedCollateralBalance && collateralBalance)
     summary.push(
       getTradeDetail(
@@ -568,7 +560,7 @@ function getDeleverageWithdrawSummary(
   if (netRealizedDebtBalance && debtBalance) {
     summary.push(
       getTradeDetail(
-        netRealizedDebtBalance.neg(),
+        netRealizedDebtBalance,
         isSwapped ? 'Asset' : 'Debt',
         isSwapped ? 'withdraw' : 'repay',
         intl,
@@ -625,16 +617,21 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   if (
     isLeverageOrRoll &&
     (depositBalance?.isPositive() ||
-      tradeType === 'LeveragedNTokenAdjustLeverage' ||
       tradeType === 'IncreaseVaultPosition' ||
-      tradeType === 'RollVaultPosition')
+      tradeType === 'RollVaultPosition' ||
+      (tradeType === 'LeveragedNTokenAdjustLeverage' &&
+        debtBalance.tokenType !== 'nToken') ||
+      (tradeType === 'AdjustVaultLeverage' && debtBalance.isNegative()))
   ) {
     summary.push(...getLeverageSummary(state, intl));
   } else if (
     isLeverageOrRoll &&
     (tradeType === 'WithdrawVault' ||
       tradeType === 'Deleverage' ||
-      tradeType === 'DeleverageWithdraw')
+      tradeType === 'DeleverageWithdraw' ||
+      (tradeType === 'LeveragedNTokenAdjustLeverage' &&
+        debtBalance.tokenType === 'nToken') ||
+      (tradeType === 'AdjustVaultLeverage' && debtBalance.isPositive()))
   ) {
     summary.push(...getDeleverageWithdrawSummary(state, intl));
   } else if (
