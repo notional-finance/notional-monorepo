@@ -95,7 +95,11 @@ const runSingleVault = async (vault: string, env: Env) => {
     .filter((a) => a.vaultShares.gt(BigNumber.from(0)))
     .map((a) => ({
       account: a.id,
-      collateralRatio: a.collateralRatio.toNumber() / 1e9,
+      collateralRatio: a.collateralRatio.lt(
+        BigNumber.from(Number.MAX_SAFE_INTEGER.toString())
+      )
+        ? a.collateralRatio.toNumber() / 1e9
+        : null,
       maxLiquidatorDepositUnderlying:
         a.maxLiquidatorDepositUnderlying[0].toString(),
       vaultSharesToLiquidator: a.vaultSharesToLiquidator[0].toString(),
