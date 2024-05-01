@@ -134,7 +134,7 @@ function getTradeDetail(
   } else if (tokenType === 'VaultShare' || tokenType === 'nToken') {
     return {
       label: intl.formatMessage(TradeSummaryLabels[tokenType][typeKey], {
-          caption,
+        caption,
       }),
       value: {
         data: [
@@ -516,7 +516,9 @@ function getRollDebtOrConvertAssetSummary(
   if (netRealizedCollateralBalance && collateralBalance)
     summary.push(
       getTradeDetail(
-        netRealizedCollateralBalance.neg(),
+        tradeType === 'RollDebt' && collateralBalance.tokenType === 'fCash'
+          ? netRealizedCollateralBalance
+          : netRealizedCollateralBalance.neg(),
         tradeType === 'RollDebt' ? 'Debt' : 'Asset',
         tradeType === 'RollDebt' ? 'repay' : 'none',
         intl,
