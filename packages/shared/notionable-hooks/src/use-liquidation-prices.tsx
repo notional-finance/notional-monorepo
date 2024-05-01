@@ -12,8 +12,13 @@ import {
 } from '@notional-finance/helpers';
 import { useTheme } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
-import { Network } from '@notional-finance/util';
-import { useNotionalContext } from './use-notional';
+import {
+  Network,
+  SECONDS_IN_DAY,
+  getMidnightUTC,
+  percentChange,
+} from '@notional-finance/util';
+import { useNOTE, useNotionalContext } from './use-notional';
 
 function usePriceChanges(network: Network | undefined) {
   const {
@@ -129,6 +134,26 @@ export function useCurrentETHPrice() {
     ethPrice: ethChange?.currentFiat,
     oneDayChange: ethChange?.fiatChange || 0,
   };
+}
+
+export function useNotePrice() {
+  const note = useNOTE(Network.all);
+  const oneNote = note ? TokenBalance.unit(note) : undefined;
+  const notePrice = oneNote?.toFiat('USD');
+  let notePriceYesterday = undefined as TokenBalance | undefined;
+  try {
+    notePriceYesterday = oneNote?.toFiat(
+      'USD',
+      getMidnightUTC() - SECONDS_IN_DAY
+    );
+  } catch {
+    notePriceYesterday = undefined;
+  }
+  const notePriceChange = percentChange(
+    notePrice?.toFloat(),
+    notePriceYesterday?.toFloat()
+  );
+  return { notePrice, notePriceChange };
 }
 
 export function useCurrentLiquidationPrices(network: Network | undefined) {

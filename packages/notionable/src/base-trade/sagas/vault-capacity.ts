@@ -3,10 +3,17 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { filterEmpty } from '@notional-finance/util';
+import { PRIME_CASH_VAULT_MATURITY, filterEmpty } from '@notional-finance/util';
 import { Observable, combineLatest, distinctUntilChanged, map } from 'rxjs';
 import { VaultTradeState } from '../base-trade-store';
 import { selectedNetwork } from '../../global';
+
+function toCapacityValue(balance: TokenBalance) {
+  return balance.maturity !== PRIME_CASH_VAULT_MATURITY
+    ? // fCash is 1-1 in internal precision
+      balance.toUnderlying().copy(balance?.n).scaleFromInternal().abs()
+    : balance.toUnderlying().abs();
+}
 
 export function vaultCapacity(
   state$: Observable<VaultTradeState>,
@@ -26,7 +33,7 @@ export function vaultCapacity(
     map(
       ([
         _,
-        { debt, debtBalance, vaultAddress, priorVaultBalances, tradeType },
+        { debtBalance, vaultAddress, priorVaultBalances, tradeType },
         network,
       ]) => {
         const vaultCapacity =
@@ -50,31 +57,47 @@ export function vaultCapacity(
             maxPrimaryBorrowCapacity,
           } = vaultCapacity;
 
+          // If the debt balance is the same as the current debt then
+          // sum them together, otherwise just go with the new debt balance
+          const priorDebtBalance = priorVaultBalances?.find(
+            (t) => t.tokenType === 'VaultDebt'
+          );
+
           const totalAccountDebt =
-            debt && debtBalance && debt.id === debtBalance.tokenId
-              ? (
-                  priorVaultBalances?.find(
-                    (t) => t.tokenId === debtBalance?.tokenId
-                  ) || TokenBalance.zero(debt)
-                ).add(debtBalance)
-              : undefined;
+            debtBalance && priorDebtBalance?.tokenId === debtBalance?.tokenId
+              ? priorDebtBalance?.add(debtBalance)
+              : debtBalance;
 
           underMinAccountBorrow = totalAccountDebt?.isNegative()
-            ? totalAccountDebt.abs().toUnderlying().lt(minAccountBorrowSize)
+            ? toCapacityValue(totalAccountDebt).lt(minAccountBorrowSize)
             : false;
 
-          minBorrowSize =
-            minAccountBorrowSize.toFloat() < 10
-              ? minAccountBorrowSize.toDisplayStringWithSymbol(1)
-              : minAccountBorrowSize.toDisplayStringWithSymbol(0);
-          overCapacityError = debtBalance
+          const netDebtBalanceForCapacity =
+            // When rolling the debt position, only add the net value to the capacity
+            tradeType === 'RollVaultPosition' &&
+            priorDebtBalance &&
+            totalAccountDebt
+              ? toCapacityValue(totalAccountDebt).sub(
+                  toCapacityValue(priorDebtBalance)
+                )
+              : totalAccountDebt
+              ? toCapacityValue(totalAccountDebt)
+              : undefined;
+
+          overCapacityError = netDebtBalanceForCapacity
             ? totalUsedPrimaryBorrowCapacity
-                .add(debtBalance.neg().toUnderlying())
+                .add(netDebtBalanceForCapacity)
                 .gt(maxPrimaryBorrowCapacity)
             : false;
           totalCapacityRemaining = overCapacityError
             ? undefined
             : maxPrimaryBorrowCapacity.sub(totalUsedPrimaryBorrowCapacity);
+
+          // NOTE: these two values below do not need to be recalculated inside the observable
+          minBorrowSize =
+            minAccountBorrowSize.toFloat() < 10
+              ? minAccountBorrowSize.toDisplayStringWithSymbol(1)
+              : minAccountBorrowSize.toDisplayStringWithSymbol(0);
           vaultTVL = Registry.getTokenRegistry()
             .getAllTokens(network)
             .filter(

@@ -146,17 +146,19 @@ const Container = styled(Box)(
   ({ theme }) => `
   display: flex;
   align-items: center;
+  justify-content: space-between;
   border-radius: ${theme.shape.borderRadius()};
   padding: 1px;
   border: 1px solid ${theme.palette.primary.light};
   background-color: ${theme.palette.common.white};
   cursor: pointer;
+  width: ${theme.spacing(26)};
   `
 );
 
 const ProcessContainer = styled(Box)(
   () => `
-  min-width: 180px;
+  width: 100%;
   display: flex;
   justify-content: center;
   `

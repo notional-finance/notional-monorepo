@@ -179,7 +179,10 @@ const ActionSideBarContainer = styled(Box, {
   `
 );
 const Container = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'hideTextOnMobile',
+  shouldForwardProp: (prop: string) =>
+    prop !== 'hideTextOnMobile' &&
+    prop !== 'mobileTopMargin' &&
+    prop !== 'isPortfolio',
 })(
   ({ isPortfolio, theme, mobileTopMargin }: ContainerProps) => `
   ${theme.breakpoints.down('sm')} {

@@ -132,6 +132,7 @@ export const formatTxnTableData = (data: AccountHistory, network: Network) => {
         address: {
           text: account ? truncateAddress(account) : '-',
           fullAddress: `${account}`,
+          network: network,
         },
         underlyingAmount: formatTokenAmount(
           underlyingAmountRealized,

@@ -1,31 +1,46 @@
-import { Box } from '@mui/material';
+import { Box, styled } from '@mui/material';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { useCurrencyInputRef } from '@notional-finance/mui';
+import { DrawerTransition, useCurrencyInputRef } from '@notional-finance/mui';
 import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { AssetInput } from '@notional-finance/trade';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { SelectConvertAsset } from './components/select-convert-asset';
+import { useConvertOptions } from './hooks/use-convert-options';
 import { messages } from './messages';
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { Route, useParams } from 'react-router';
+import { Switch } from 'react-router';
+import { PortfolioParams } from '../portfolio-feature-shell';
 
-export const ConvertAsset = () => {
+const ConvertCollateral = () => {
+  const params = useParams<PortfolioParams>();
   const context = useTradeContext('ConvertAsset');
   const { currencyInputRef } = useCurrencyInputRef();
   const {
-    state: { collateral },
     updateState,
+    state: { collateralOptions, debt, collateral },
   } = context;
-  const [hasUserTouched, setHasUserTouched] = useState<boolean>(false);
+  const { initialConvertFromBalance: balance } = useConvertOptions(
+    context.state
+  );
+  const selectedCollateral = collateralOptions?.find(
+    ({ token }) => token.id === params?.selectedCollateralToken
+  );
+
+  useEffect(() => {
+    if (!debt) {
+      updateState({ debtBalance: balance, debt: balance?.token });
+    } else if (!collateral && selectedCollateral) {
+      updateState({ collateral: selectedCollateral.token });
+    }
+  }, [debt, balance, updateState, collateral, selectedCollateral]);
 
   const onBalanceChange = (
     inputAmount: TokenBalance | undefined,
     _: TokenBalance | undefined,
     maxBalance: TokenBalance | undefined
   ) => {
-    // Fixes a race condition where the screen flashes
-    if (inputAmount === undefined && hasUserTouched === false) return;
-    if (inputAmount) setHasUserTouched(true);
     updateState({
       debtBalance: inputAmount,
       maxWithdraw: maxBalance && inputAmount?.neg().eq(maxBalance),
@@ -33,10 +48,7 @@ export const ConvertAsset = () => {
   };
 
   return (
-    <Box>
-      <Box sx={{ display: collateral === undefined ? 'block' : 'none' }}>
-        <SelectConvertAsset context={context} hasUserTouched={hasUserTouched} />
-      </Box>
+    <DrawerTransition fade={true}>
       {collateral && (
         <PortfolioSideDrawer context={context}>
           <AssetInput
@@ -50,6 +62,62 @@ export const ConvertAsset = () => {
           />
         </PortfolioSideDrawer>
       )}
-    </Box>
+    </DrawerTransition>
   );
 };
+
+export const ConvertAsset = () => {
+  const context = useTradeContext('ConvertAsset');
+  const {
+    updateState,
+    state: { debt },
+  } = context;
+  const { initialConvertFromBalance: balance } = useConvertOptions(
+    context.state
+  );
+
+  useEffect(() => {
+    if (!debt) {
+      updateState({ debtBalance: balance, debt: balance?.token });
+    }
+  }, [debt, balance, updateState]);
+
+  return (
+    <Container>
+      <Switch>
+        <Route
+          path={`/portfolio/:selectedNetwork/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/:selectedToken/manage`}
+          exact={false}
+        >
+          <DrawerTransition fade={true}>
+            <Wrapper>
+              <SelectConvertAsset context={context} />
+            </Wrapper>
+          </DrawerTransition>
+        </Route>
+        <Route
+          path={`/portfolio/:selectedNetwork/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/:selectedToken/convertTo/:selectedCollateralToken`}
+          exact={false}
+        >
+          <ConvertCollateral />
+        </Route>
+      </Switch>
+    </Container>
+  );
+};
+
+const Container = styled(Box)(
+  ({ theme }) => `
+      ${theme.breakpoints.down('sm')} {
+        width: 100vw;
+      }
+    `
+);
+const Wrapper = styled(Box)(
+  ({ theme }) => `
+      ${theme.breakpoints.down('sm')} {
+        width: 90%;
+        margin: auto;
+      }
+    `
+);

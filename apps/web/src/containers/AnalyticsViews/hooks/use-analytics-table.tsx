@@ -1,14 +1,37 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   MultiValueIconCell,
   MultiValueCell,
   TxnHashCell,
   DateTimeCell,
-  CopyPasteCell,
+  ViewAsAddressCell,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { useHistory } from 'react-router';
 
 export const useAnalyticsTable = () => {
+  const { updateNotional } = useNotionalContext();
+  const history = useHistory();
+
+  const addressClick = useCallback(
+    (address: string, network) => {
+      updateNotional({
+        hasSelectedChainError: false,
+        wallet: {
+          signer: undefined,
+          selectedAddress: address,
+          isReadOnlyAddress: true,
+          label: 'ReadOnly',
+        },
+        selectedNetwork: network,
+      });
+
+      history.push(`/portfolio/${network}/overview`);
+    },
+    [history, updateNotional]
+  );
+
   const columns = useMemo<Array<any>>(
     () => [
       {
@@ -21,7 +44,7 @@ export const useAnalyticsTable = () => {
         accessorKey: 'transactionType',
         cell: MultiValueIconCell,
         showSentAndReceivedIcons: true,
-        width: '210px',
+        minWidth: '270px',
         textAlign: 'left',
       },
       {
@@ -68,7 +91,8 @@ export const useAnalyticsTable = () => {
         header: (
           <FormattedMessage defaultMessage="Address" description={'Address'} />
         ),
-        cell: CopyPasteCell,
+        cell: ViewAsAddressCell,
+        cellCallBack: addressClick,
         showLinkIcon: false,
         accessorKey: 'address',
         textAlign: 'right',

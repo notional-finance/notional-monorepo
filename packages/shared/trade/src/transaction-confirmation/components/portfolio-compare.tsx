@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useTheme, Box } from '@mui/material';
+import { CopyIcon } from '@notional-finance/icons';
 import {
   ArrowIndicatorCell,
   DataTable,
+  LinkText,
   NegativeValueCell,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
@@ -19,6 +21,7 @@ export const PortfolioCompare = ({
   const [showHiddenRows, setShowHiddenRows] = useState(false);
   const { onlyCurrent, allTableData, filteredTableData } =
     usePortfolioComparison(state);
+
   const tableData = showHiddenRows ? allTableData : filteredTableData;
 
   const columns: any[] = [
@@ -44,6 +47,19 @@ export const PortfolioCompare = ({
       textAlign: 'right',
     });
   }
+
+  const handleCopy = () => {
+    if (state.populatedTransaction === undefined) return;
+    const { gasLimit, value, data, from, to } = state.populatedTransaction;
+    const result = {
+      data,
+      from,
+      to,
+      gasLimit: gasLimit?.toString(),
+      value: value?.toString(),
+    };
+    navigator.clipboard.writeText(JSON.stringify(result));
+  };
 
   return (
     <Box sx={{ marginBottom: theme.spacing(6) }}>
@@ -90,6 +106,23 @@ export const PortfolioCompare = ({
         }
         columns={columns}
       />
+      <LinkText
+        sx={{
+          textAlign: 'right',
+          marginTop: theme.spacing(2),
+          cursor: 'pointer',
+        }}
+        onClick={handleCopy}
+      >
+        <FormattedMessage defaultMessage={'Copy Transaction Details'} />
+        <CopyIcon
+          fill={theme.palette.typography.accent}
+          sx={{
+            marginLeft: theme.spacing(0.5),
+            height: '1rem',
+          }}
+        />
+      </LinkText>
     </Box>
   );
 };

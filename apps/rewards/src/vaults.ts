@@ -29,6 +29,7 @@ const ARB_DAI = '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1';
 const ARB_USDT = '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9';
 const ARB_wstETH = '0x5979D7b546E38E414F7E9822514be443A4800529';
 const ARB_cbETH = '0x1DEBd73E752bEaF79865Fd6446b0c970EaE7732f';
+const ARB_crvUSD = '0x498Bf2B1e120FeD3ad3D42EA2165E9b73f99C1e5';
 
 export const ETH = '0x0000000000000000000000000000000000000000';
 
@@ -111,6 +112,18 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       rewardTokens: [ARB_CRV, ARB],
       poolTokens: [ARB_USDCe, ARB_USDT],
       tokenWeights: [50, 50],
+    },
+    {
+      address: '0x5c36a0DeaB3531d29d848E684E8bDf5F81cDB643',
+      rewardTokens: [ARB_CRV, ARB],
+      poolTokens: [ARB_crvUSD, ARB_USDC],
+      tokenWeights: [0, 100],
+    },
+    {
+      address: '0xae04e4887cBf5f25c05aC1384BcD0b7e885a1F4A',
+      rewardTokens: [ARB_CRV, ARB],
+      poolTokens: [ARB_crvUSD, ARB_USDT],
+      tokenWeights: [0, 100],
     },
     {
       address: '0x3Df035433cFACE65b6D68b77CC916085d020C8B8',

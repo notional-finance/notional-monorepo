@@ -5,7 +5,7 @@ import {
   useAccountReady,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { useParams } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import {
   ButtonBar,
   SideBarSubHeader,
@@ -39,6 +39,8 @@ export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
   selectedToken?: string;
+  action?: string;
+  selectedCollateralToken?: string;
 }
 
 export const PortfolioFeatureShell = () => {
@@ -57,6 +59,8 @@ const Portfolio = () => {
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
   const network = useSelectedNetwork();
+  const history = useHistory();
+  const { pathname } = useLocation();
   const isAccountReady = useAccountReady(network);
   const buttonData = usePortfolioButtonBar();
 
@@ -75,21 +79,27 @@ const Portfolio = () => {
   }, []);
 
   const handleDrawer = () => {
-    clearSideDrawer(
-      `/portfolio/${network}/${
-        params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
-      }`
-    );
+    if (pathname.includes('convertTo')) {
+      history.push(
+        `/portfolio/${network}/${params?.category}/${params?.sideDrawerKey}/${params?.selectedToken}/manage`
+      );
+    } else {
+      clearSideDrawer(
+        `/portfolio/${network}/${
+          params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
+        }`
+      );
+    }
   };
 
   const CustomHeader = ({ onClose }: any) => {
     return (
-      <ContainerTest>
+      <CustomHeaderContainer>
         <SideBarSubHeader
           callback={() => onClose()}
           titleText={defineMessage({ defaultMessage: 'Back' })}
         />
-      </ContainerTest>
+      </CustomHeaderContainer>
     );
   };
 
@@ -218,7 +228,7 @@ const PortfolioMainContent = styled(Box)(
 `
 );
 
-const ContainerTest = styled(Box)(
+const CustomHeaderContainer = styled(Box)(
   ({ theme }) => `
   padding: ${theme.spacing(0, 6)};
   padding-top: ${theme.spacing(11)};

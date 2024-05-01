@@ -25,8 +25,8 @@ export function useMaxWithdraw(context: BaseTradeContext) {
   const maxWithdrawUnderlying = useTradedValue(maxWithdraw?.neg());
 
   const onMaxValue = useCallback(() => {
-    if (maxWithdraw) {
-      setCurrencyInput(maxWithdraw?.toUnderlying().toExactString(), false);
+    if (maxWithdrawUnderlying && maxWithdraw) {
+      setCurrencyInput(maxWithdrawUnderlying.toExactString(), false);
 
       updateState({
         maxWithdraw: true,
@@ -41,7 +41,10 @@ export function useMaxWithdraw(context: BaseTradeContext) {
   }, [maxWithdraw, updateState, setCurrencyInput, debt, maxWithdrawUnderlying]);
 
   const belowMaxWarning =
-    balance && maxWithdraw?.lt(balance) && state.maxWithdraw ? (
+    balance &&
+    state.maxWithdraw &&
+    maxWithdraw &&
+    maxWithdraw.ratioWith(balance).toNumber() < 0.999e9 ? (
       <FormattedMessage
         defaultMessage={'Max withdraw restricted by liquidation risk.'}
       />

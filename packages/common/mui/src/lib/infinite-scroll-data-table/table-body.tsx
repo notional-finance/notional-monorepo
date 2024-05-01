@@ -38,6 +38,7 @@ export const TableBody = ({ rows, rowVirtualizer }: TableBodyProps) => {
                   key={i}
                   style={{
                     width: '100%',
+                    minWidth: cell.column.columnDef.minWidth || 'auto',
                     padding: theme.spacing(2),
                     display: 'flex',
                     alignItems: 'center',
