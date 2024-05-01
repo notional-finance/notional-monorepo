@@ -34,12 +34,14 @@ export function sendTxThroughRelayer(arg: {
   to: string;
   data: string;
   isLiquidator?: boolean;
+  gasLimit?: number;
 }) {
-  const { to, data, env, isLiquidator } = arg;
+  const { to, data, env, isLiquidator, gasLimit } = arg;
 
   const payload = JSON.stringify({
     to,
     data,
+    gasLimit,
   });
   let url = urls[env.NETWORK];
   if (isLiquidator && env.NETWORK === Network.mainnet) {

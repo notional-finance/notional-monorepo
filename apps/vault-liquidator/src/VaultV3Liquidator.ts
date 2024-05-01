@@ -163,6 +163,7 @@ export default class VaultV3Liquidator {
         collateralRatio: accountHealth.collateralRatio,
         maxLiquidatorDepositUnderlying:
           accountHealth.maxLiquidatorDepositUnderlying,
+        cashBalance: acct.tempCashBalance,
         vaultSharesToLiquidator: accountHealth.vaultSharesToLiquidator,
         canLiquidate: accountHealth.maxLiquidatorDepositUnderlying[0].gt(
           BigNumber.from(0)
@@ -339,6 +340,7 @@ export default class VaultV3Liquidator {
       to: multicall.address,
       data: pop.data,
       isLiquidator: true,
+      gasLimit: pop.gasLimit.mul(120).div(100).toNumber(),
     });
   }
 }

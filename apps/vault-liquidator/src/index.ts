@@ -14,6 +14,7 @@ import {
   Logger,
   MetricType,
 } from '@notional-finance/durable-objects';
+import { formatUnits } from 'ethers/lib/utils';
 
 export interface Env {
   NX_DATA_URL: string;
@@ -103,8 +104,9 @@ const runSingleVault = async (vault: string, env: Env) => {
       maxLiquidatorDepositUnderlying:
         a.maxLiquidatorDepositUnderlying[0].toString(),
       vaultSharesToLiquidator: a.vaultSharesToLiquidator[0].toString(),
-      debtUnderlying: a.debtUnderlying.toNumber() / 1e8,
-      vaultShares: a.vaultShares.toNumber() / 1e8,
+      debtUnderlying: formatUnits(a.debtUnderlying, 8),
+      vaultShares: formatUnits(a.vaultShares, 8),
+      vaultCash: formatUnits(a.cashBalance, 8),
       maturity: a.maturity,
       canLiquidate: a.canLiquidate,
     }));

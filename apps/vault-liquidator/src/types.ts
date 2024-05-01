@@ -15,6 +15,7 @@ export type RiskyAccount = {
   vaultSharesToLiquidator: BigNumber[];
   debtUnderlying: BigNumber;
   vaultShares: BigNumber;
+  cashBalance: BigNumber;
   maturity: number;
   canLiquidate: boolean;
 };
