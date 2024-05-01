@@ -32,6 +32,7 @@ export type LiquidatorSettings = {
   flashLoanBuffer: BigNumber;
   txRelayUrl: string;
   txRelayAuthToken: string;
+  maxLiquidationsPerBatch: number;
 };
 
 enum LiquidationType {
@@ -226,7 +227,10 @@ export default class VaultV3Liquidator {
   }
 
   public async batchMaturityLiquidations(vault: string, accts: RiskyAccount[]) {
-    const groupedByMaturity = groupArrayToMap(accts, (t) => t.maturity);
+    const groupedByMaturity = groupArrayToMap(
+      accts.filter((_, index) => index < this.settings.maxLiquidationsPerBatch),
+      (t) => t.maturity
+    );
 
     const batches: PopulatedTransaction[] = [];
     const batchArgs: Awaited<
@@ -331,6 +335,13 @@ export default class VaultV3Liquidator {
         callData: p.data,
       }))
     );
+    const gasLimit = await multicall.estimateGas.aggregate3(
+      batch.map((p) => ({
+        target: p.to,
+        allowFailure: true,
+        callData: p.data,
+      }))
+    );
 
     return await sendTxThroughRelayer({
       env: {
@@ -340,7 +351,7 @@ export default class VaultV3Liquidator {
       to: multicall.address,
       data: pop.data,
       isLiquidator: true,
-      gasLimit: pop.gasLimit.mul(120).div(100).toNumber(),
+      gasLimit: gasLimit.mul(120).div(100).toNumber(),
     });
   }
 }

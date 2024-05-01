@@ -32,6 +32,7 @@ export interface Env {
   TX_RELAY_URL: string;
   TX_RELAY_AUTH_TOKEN: string;
   SLIPPAGE_LIMIT: string;
+  MAX_LIQUIDATIONS_PER_BATCH: number;
 }
 
 export const overrides = {
@@ -69,6 +70,7 @@ async function setUp(env: Env, vaultAddrs: string[]) {
     notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
     txRelayUrl: env.TX_RELAY_URL,
     txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
+    maxLiquidationsPerBatch: env.MAX_LIQUIDATIONS_PER_BATCH,
   });
 
   const batchedAccounts = batchArray(accounts, 250);
@@ -79,7 +81,9 @@ async function setUp(env: Env, vaultAddrs: string[]) {
       await Promise.all(
         batchedAccounts.map((a) => liquidator.getRiskyAccounts(a))
       )
-    ).flatMap((_) => _);
+    )
+      .flatMap((_) => _)
+      .sort((a, b) => (a.collateralRatio.lt(b.collateralRatio) ? -1 : 1));
 
   return { accounts: accountData, liquidator };
 }

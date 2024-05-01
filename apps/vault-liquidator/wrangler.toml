@@ -26,6 +26,7 @@ GAS_COST_BUFFER = '1000'
 DUST_THRESHOLD = '0'
 PROFIT_THRESHOLD = '0'
 SLIPPAGE_LIMIT = '950'
+MAX_LIQUIDATIONS_PER_BATCH = 10
 
 [env.mainnet]
 name = "vault-liquidator-mainnet"
