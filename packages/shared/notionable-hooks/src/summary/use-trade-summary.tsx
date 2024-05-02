@@ -29,6 +29,17 @@ import { useFiat } from '../use-user-settings';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
 import { useTotalAPY } from './use-total-apy';
 
+function calculate30dEarnings(
+  value: TokenBalance | undefined,
+  apy: number | undefined
+) {
+  if (value === undefined || apy === undefined) return undefined;
+  const u = value.toUnderlying();
+  return u
+    .mulInRatePrecision(Math.floor(1e9 + (apy * 1e9) / (100 * 12)))
+    .sub(u);
+}
+
 function getTotalWalletItem(
   depositBalance: TokenBalance,
   baseCurrency: FiatKeys,
@@ -590,7 +601,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     calculationSuccess,
   } = state;
   const depositBalance = _d;
-  const { totalAPY } = useTotalAPY(state);
+  const { totalAPY, assetAPY, debtAPY } = useTotalAPY(state);
 
   const underlying =
     netAssetBalance?.underlying ||
@@ -678,19 +689,18 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     earnings = depositBalance.copy(
       depositBalance.n.sub(debtBalance.scaleTo(depositBalance?.decimals))
     );
+  } else if (tradeType === 'LendVariable' || tradeType === 'MintNToken') {
+    earnings = calculate30dEarnings(collateralBalance, totalAPY);
+  } else if (tradeType === 'BorrowVariable') {
+    earnings = calculate30dEarnings(debtBalance, totalAPY);
   } else if (
-    (tradeType === 'LendVariable' ||
-      tradeType === 'MintNToken' ||
-      tradeType === 'CreateVaultPosition' ||
-      tradeType === 'LeveragedNToken' ||
-      tradeType === 'BorrowVariable') &&
-    depositBalance &&
-    totalAPY !== undefined
+    tradeType === 'CreateVaultPosition' ||
+    tradeType === 'LeveragedNToken'
   ) {
-    earnings = depositBalance
-      .mulInRatePrecision(Math.floor(1e9 + (totalAPY * 1e9 * 30) / (100 * 360)))
-      .sub(depositBalance);
-    // TODO: do we sub the fee here?
+    const assetEarnings = calculate30dEarnings(collateralBalance, assetAPY);
+    const debtCost = calculate30dEarnings(debtBalance, debtAPY)?.abs().neg();
+    earnings =
+      assetEarnings && debtCost ? assetEarnings.sub(debtCost) : undefined;
   } else {
     earnings = undefined;
   }
@@ -720,7 +730,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     walletTotal.isTotalRow = true;
     summary.push(walletTotal);
   }
-  console.log('EARNINGS', earnings?.toDisplayString());
 
   return { summary, earnings };
 }
