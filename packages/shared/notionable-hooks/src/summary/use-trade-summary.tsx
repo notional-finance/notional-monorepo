@@ -318,18 +318,17 @@ function getDepositSummary(
         getTradeDetail(
           netRealizedCollateralBalance,
           'Debt',
-          'deposit',
+          'repay',
           intl,
           netAssetBalance.token
         )
       );
     } else {
-      // In here, if the fee value is positive then it needs to be adjusted...
       summary.push(
         getTradeDetail(
           netRealizedCollateralBalance,
           'Asset',
-          'deposit',
+          'none',
           intl,
           netAssetBalance.token
         )
