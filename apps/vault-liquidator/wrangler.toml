@@ -7,7 +7,7 @@ logpush = true
 minify = true
 
 [triggers]
-crons = ["0/10 * * * *"]
+crons = ["0/2 * * * *"]
 
 [env.arbitrum]
 name = "vault-liquidator-arbitrum"
@@ -15,17 +15,18 @@ name = "vault-liquidator-arbitrum"
 [env.arbitrum.vars]
 NX_DATA_URL = 'https://data-dev.notional.finance'
 ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultAccounts'
-ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
 NETWORK = 'arbitrum'
-FLASH_LIQUIDATOR_CONTRACT = '0x78e41D1389f3Db7C196F13088D1f99A319ffcFBE'
-FLASH_LIQUIDATOR_OWNER = '0x8F5ea3CDe898B208280c0e93F3aDaaf1F5c35a7e'
+FLASH_LIQUIDATOR_CONTRACTS = [
+    '0xe8f28Cf944aBCFD98dACdcbA284AcFC56a6E929b',
+    '0x24B5FF402440aB10618F3798253d2cD5801E40F7',
+    '0xc91864Be1b097c9c85565cDB013Ba2307FFB492a'
+]
+FLASH_LIQUIDATOR_OWNER = '0x8B64fA5Fd129df9c755eB82dB1e16D6D0Bdf5Bc3'
 FLASH_LENDER_ADDRESS = '0x794a61358D6845594F94dc1DB02A252b5b4814aD'
 FLASH_LOAN_BUFFER = '1005'
 NOTIONAL_PROXY_CONTRACT = '0x1344A36A1B56144C3Bc62E7757377D288fDE0369'
-GAS_COST_BUFFER = '1000'
-DUST_THRESHOLD = '0'
-PROFIT_THRESHOLD = '0'
 SLIPPAGE_LIMIT = '950'
+MAX_LIQUIDATIONS_PER_BATCH = 10
 
 [env.mainnet]
 name = "vault-liquidator-mainnet"
@@ -33,14 +34,15 @@ name = "vault-liquidator-mainnet"
 [env.mainnet.vars]
 NX_DATA_URL = 'https://data-dev.notional.finance'
 ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultAccounts'
-ZERO_EX_SWAP_URL = 'https://api.0x.org/swap/v1/quote'
 NETWORK = 'mainnet'
-FLASH_LIQUIDATOR_CONTRACT = '0xb33E0B9E5FF443fdFE48D8A49F45828918BDab8C'
+FLASH_LIQUIDATOR_CONTRACTS = [
+    '0x77B4507981607402aB9692A1628053c39eCf4fFb',
+    '0xA573bD9cAF777B354f46f635Ca339d074bD40A66',
+    '0x12AEC56DFc38413C5FEa5506041F49416b17BdA1'
+]
 FLASH_LIQUIDATOR_OWNER = '0x8B64fA5Fd129df9c755eB82dB1e16D6D0Bdf5Bc3'
 FLASH_LENDER_ADDRESS = '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2'
 FLASH_LOAN_BUFFER = '1005'
 NOTIONAL_PROXY_CONTRACT = '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f'
-GAS_COST_BUFFER = '1000'
-DUST_THRESHOLD = '0'
-PROFIT_THRESHOLD = '0'
 SLIPPAGE_LIMIT = '950'
+MAX_LIQUIDATIONS_PER_BATCH = 5

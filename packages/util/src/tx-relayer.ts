@@ -25,7 +25,7 @@ const urls: Record<Network, string> = {
   [Network.mainnet]:
     'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/1',
   [Network.arbitrum]:
-    'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/0',
+    'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/arbitrum',
   [Network.optimism]: '',
 };
 
@@ -34,17 +34,21 @@ export function sendTxThroughRelayer(arg: {
   to: string;
   data: string;
   isLiquidator?: boolean;
+  gasLimit?: number;
 }) {
-  const { to, data, env, isLiquidator } = arg;
+  const { to, data, env, isLiquidator, gasLimit } = arg;
 
   const payload = JSON.stringify({
     to,
     data,
+    gasLimit,
   });
   let url = urls[env.NETWORK];
   if (isLiquidator && env.NETWORK === Network.mainnet) {
     url = MAINNET_LIQUIDATOR_RELAY;
   }
+  console.log(`Sending Payload to ${url}`);
+  console.log(payload);
 
   return fetch(url, {
     method: 'POST',
