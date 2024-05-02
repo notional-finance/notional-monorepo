@@ -15,6 +15,7 @@ export interface DetailItem {
 
 export const OrderDetailLabels = defineMessages({
   amountToWallet: { defaultMessage: 'Amount to Wallet' },
+  depositFromWallet: { defaultMessage: 'Deposit from Wallet' },
   amountFromWallet: { defaultMessage: 'Amount from Wallet' },
   fCashBought: { defaultMessage: '{title} Bought ({caption})' },
   fCashSold: { defaultMessage: '{title} Sold ({caption})' },

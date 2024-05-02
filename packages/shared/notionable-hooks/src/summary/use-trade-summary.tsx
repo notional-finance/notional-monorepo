@@ -27,6 +27,7 @@ import {
 import { DetailItem, OrderDetailLabels, TradeSummaryLabels } from '.';
 import { useFiat } from '../use-user-settings';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
+import { useTotalAPY } from './use-total-apy';
 
 function getTotalWalletItem(
   depositBalance: TokenBalance,
@@ -38,7 +39,7 @@ function getTotalWalletItem(
     label: intl.formatMessage(
       depositBalance.isNegative()
         ? OrderDetailLabels.amountToWallet
-        : OrderDetailLabels.amountFromWallet
+        : OrderDetailLabels.depositFromWallet
     ),
     value: {
       data: [
@@ -49,16 +50,15 @@ function getTotalWalletItem(
             .toDisplayStringWithSymbol(4, true, false),
           isNegative: false,
         },
-        {
-          displayValue: depositBalance
-            .abs()
-            .toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false),
-          isNegative: false,
-        },
+        // {
+        //   displayValue: depositBalance
+        //     .abs()
+        //     .toFiat(baseCurrency)
+        //     .toDisplayStringWithSymbol(2, true, false),
+        //   isNegative: false,
+        // },
       ],
     },
-    isTotalRow: true,
   };
 }
 
@@ -591,6 +591,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     calculationSuccess,
   } = state;
   const depositBalance = _d;
+  const { totalAPY } = useTotalAPY(state);
 
   const underlying =
     netAssetBalance?.underlying ||
@@ -615,7 +616,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     debtFee
   );
 
-  const summary: DetailItem[] = [];
+  let summary: DetailItem[] = [];
   if (
     isLeverageOrRoll &&
     (depositBalance?.isPositive() ||
@@ -660,14 +661,67 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     intl
   );
 
-  const total = getTotalWalletItem(
+  const walletTotal = getTotalWalletItem(
     depositBalance || TokenBalance.zero(underlying),
     baseCurrency,
     intl
   );
 
   summary.push(feeDetailItem);
-  summary.push(total);
 
-  return { summary, total };
+  let total: DetailItem;
+  let earnings: TokenBalance | undefined;
+  if (tradeType === 'LendFixed' && depositBalance && collateralBalance) {
+    earnings = depositBalance.copy(
+      collateralBalance.scaleTo(depositBalance.decimals).sub(depositBalance.n)
+    );
+  } else if (tradeType === 'BorrowFixed' && depositBalance && debtBalance) {
+    earnings = depositBalance.copy(
+      depositBalance.n.sub(debtBalance.scaleTo(depositBalance?.decimals))
+    );
+  } else if (
+    (tradeType === 'LendVariable' ||
+      tradeType === 'MintNToken' ||
+      tradeType === 'CreateVaultPosition' ||
+      tradeType === 'LeveragedNToken' ||
+      tradeType === 'BorrowVariable') &&
+    depositBalance &&
+    totalAPY !== undefined
+  ) {
+    earnings = depositBalance
+      .mulInRatePrecision(Math.floor(1e9 + (totalAPY * 1e9 * 30) / (100 * 360)))
+      .sub(depositBalance);
+    // TODO: do we sub the fee here?
+  } else {
+    earnings = undefined;
+  }
+
+  if (
+    tradeType === 'LendFixed' ||
+    tradeType === 'LendVariable' ||
+    tradeType === 'MintNToken' ||
+    tradeType === 'RepayDebt' ||
+    tradeType === 'CreateVaultPosition' ||
+    tradeType === 'LeveragedNToken'
+  ) {
+    total = summary.shift() as DetailItem;
+    total.isTotalRow = true;
+    total.value.data[0].showPositiveAsGreen = false;
+    if (
+      tradeType === 'CreateVaultPosition' ||
+      tradeType === 'LeveragedNToken'
+    ) {
+      total.label = intl.formatMessage(
+        defineMessage({ defaultMessage: 'Net Worth' })
+      );
+    }
+    walletTotal.value.data[0].showPositiveAsGreen = true;
+    summary = [walletTotal, ...summary, total];
+  } else {
+    walletTotal.isTotalRow = true;
+    summary.push(walletTotal);
+  }
+  console.log('EARNINGS', earnings?.toDisplayString());
+
+  return { summary, earnings };
 }
