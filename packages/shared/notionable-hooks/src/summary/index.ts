@@ -49,7 +49,7 @@ export const TradeSummaryLabels = {
   fCashLend: defineMessages({
     deposit: { defaultMessage: 'Lend Amount' },
     withdraw: { defaultMessage: 'Withdraw Fixed Lend ({caption})' },
-    none: { defaultMessage: 'Lend Fixed ({caption})' },
+    none: { defaultMessage: 'Lend Amount' },
     repay: { defaultMessage: 'N/A' },
   }),
   PrimeCash: defineMessages({
@@ -61,7 +61,7 @@ export const TradeSummaryLabels = {
   nToken: defineMessages({
     deposit: { defaultMessage: 'Liquidity Amount' },
     withdraw: { defaultMessage: 'Withdraw Liquidity' },
-    none: { defaultMessage: 'Provide Liquidity' },
+    none: { defaultMessage: 'Liquidity Amount' },
     repay: { defaultMessage: 'N/A' },
   }),
   fCashDebt: defineMessages({
@@ -109,7 +109,7 @@ export const Earnings = {
         'Estimate is based on current APY. Leveraged liquidity APYs are volatile and can change quickly. Users are also at risk of potential IL.',
     },
   }),
-  VaultShare: defineMessages({
+  CreateVaultPosition: defineMessages({
     content: { defaultMessage: '30d Estimated Earnings' },
     toolTipContent: {
       defaultMessage:
