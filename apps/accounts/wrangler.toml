@@ -17,7 +17,7 @@ deleted_classes = ["AccountCache"]
 new_classes = ["RegistryClientDO"]
 
 [triggers]
-crons = [ "0 * * * *" ]
+crons = [ "*/5 * * * *" ]
 
 [env.dev]
 name = "accounts-dev"
