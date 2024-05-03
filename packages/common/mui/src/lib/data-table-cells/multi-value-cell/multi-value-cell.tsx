@@ -28,7 +28,7 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
       : false;
 
   return (
-    <Box className="multi-value-cell" id="TESTINGS MULTI VALUE">
+    <Box className="multi-value-cell">
       {isPending ? (
         <ProgressIndicator
           circleSize={16}
