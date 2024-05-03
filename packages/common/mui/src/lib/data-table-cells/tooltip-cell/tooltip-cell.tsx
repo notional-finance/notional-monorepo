@@ -8,7 +8,7 @@ export const ToolTipCell = ({ cell, row }): JSX.Element => {
   const value = cell.getValue();
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }} id="TESTINGS TOOLTIP">
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <TableCell
         style={{
           lineHeight: 'normal',
