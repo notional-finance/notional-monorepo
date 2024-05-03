@@ -1,4 +1,4 @@
-import { DurableObjectState } from '@cloudflare/workers-types';
+import { DurableObject } from 'cloudflare:workers';
 import {
   AssetType,
   Network,
@@ -16,7 +16,7 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { BaseDO, MetricType } from '@notional-finance/durable-objects';
+import { Logger, MetricType } from '@notional-finance/durable-objects';
 import {
   calculateAccountIRR,
   // currentContestId,
@@ -29,14 +29,52 @@ import {
   AccountRiskProfile,
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
+import zlib from 'zlib';
 
-export class RegistryClientDO extends BaseDO<Env> {
+export class RegistryClientDO extends DurableObject {
+  protected serviceName: string;
+  protected env: Env;
+  protected logger: Logger;
+
   constructor(state: DurableObjectState, env: Env) {
-    super(state, env, 'registry-client');
+    super(state, env);
+    this.serviceName = 'registry-client';
+    this.env = env;
+    const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
+    this.logger = new Logger({
+      service: this.serviceName,
+      version: version,
+      env: env.NX_ENV,
+      apiKey: env.NX_DD_API_KEY,
+    });
   }
 
   getStorageKey(url: URL): string {
     return url.pathname.slice(1);
+  }
+
+  async encodeGzip(data: string) {
+    return await new Promise<string>((resolve, reject) => {
+      zlib.gzip(Buffer.from(data, 'utf-8'), (err, result) => {
+        if (err) reject(err);
+        resolve(result.toString('base64'));
+      });
+    });
+  }
+
+  async parseGzip(data: string) {
+    try {
+      const unzipped = await new Promise<string>((resolve, reject) => {
+        zlib.unzip(Buffer.from(data, 'base64'), (err, result) => {
+          if (err) reject(err);
+          resolve(result.toString('utf-8'));
+        });
+      });
+      return JSON.parse(unzipped.toString() || '{}');
+    } catch (e) {
+      console.log(e);
+      return {};
+    }
   }
 
   async getDataKey(key: string) {
@@ -50,11 +88,32 @@ export class RegistryClientDO extends BaseDO<Env> {
     await this.env.ACCOUNT_CACHE_R2.put(key, gz);
   }
 
-  async onRefresh(): Promise<void> {
-    // no-op
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+
+    if (url.pathname === '/healthcheck') {
+      return this.healthcheck();
+    }
+
+    try {
+      const storageKey = this.getStorageKey(url);
+
+      // Only accept get requests
+      if (request.method === 'GET') {
+        const data = await this.getDataKey(storageKey);
+        return new Response(JSON.stringify(data), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    } catch (e) {
+      return new Response((e as Error).toString(), { status: 500 });
+    }
+
+    return new Response('Not Found', { status: 404 });
   }
 
-  override async healthcheck() {
+  async healthcheck() {
     try {
       Registry.initialize(
         this.env.NX_DATA_URL,
@@ -79,10 +138,10 @@ export class RegistryClientDO extends BaseDO<Env> {
         await this.checkTotalSupply(network);
         await this.saveYieldData(network);
         if (network === Network.arbitrum) {
-          await this.checkDBMonitors(network);
+          // await this.checkDBMonitors(network);
           // await this.saveContestIRR(network, currentContestId);
         }
-        await this.saveAccountRiskProfiles(network);
+        // await this.saveAccountRiskProfiles(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -274,46 +333,46 @@ export class RegistryClientDO extends BaseDO<Env> {
         );
       })
       .map((account) => {
-      const accountRiskProfile = new AccountRiskProfile(
-        account.balances,
-        account.network
-      );
+        const accountRiskProfile = new AccountRiskProfile(
+          account.balances,
+          account.network
+        );
         const freeCollateralFactors =
           accountRiskProfile.freeCollateralFactors();
-      const hasCrossCurrencyRisk = freeCollateralFactors.some((e) =>
-        e.totalAssetsLocal.add(e.totalDebtsLocal).isNegative()
-      );
-      const _riskFactors = accountRiskProfile.getAllRiskFactors();
-      const riskFactors = {
-        ..._riskFactors,
-        liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
-          ...l,
-          asset: l.asset.id,
-        })),
-      };
+        const hasCrossCurrencyRisk = freeCollateralFactors.some((e) =>
+          e.totalAssetsLocal.add(e.totalDebtsLocal).isNegative()
+        );
+        const _riskFactors = accountRiskProfile.getAllRiskFactors();
+        const riskFactors = {
+          ..._riskFactors,
+          liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
+            ...l,
+            asset: l.asset.id,
+          })),
+        };
 
-      return {
-        address: account.address,
-        riskFactors,
-        hasCrossCurrencyRisk,
-        vaultRiskFactors: VaultAccountRiskProfile.getAllRiskProfiles(
-          account
-        ).map((v) => {
-          const _riskFactors = v.getAllRiskFactors();
-          const riskFactors = {
-            ..._riskFactors,
-            liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
-              ...l,
-              asset: l.asset.id,
-            })),
-          };
-          return {
-            vaultAddress: v.vaultAddress,
-            riskFactors,
-          };
-        }),
-      };
-    });
+        return {
+          address: account.address,
+          riskFactors,
+          hasCrossCurrencyRisk,
+          vaultRiskFactors: VaultAccountRiskProfile.getAllRiskProfiles(
+            account
+          ).map((v) => {
+            const _riskFactors = v.getAllRiskFactors();
+            const riskFactors = {
+              ..._riskFactors,
+              liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
+                ...l,
+                asset: l.asset.id,
+              })),
+            };
+            return {
+              vaultAddress: v.vaultAddress,
+              riskFactors,
+            };
+          }),
+        };
+      });
 
     await this.putStorageKey(
       `${network}/accounts/riskProfiles`,

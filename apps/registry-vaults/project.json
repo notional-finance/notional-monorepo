@@ -9,7 +9,7 @@
       "options": {
         "commands": [
           {
-            "command": "wrangler dev --test-scheduled-e dev --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+            "command": "wrangler dev --test-scheduled -e dev --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
         "cwd": "apps/registry-vaults"
