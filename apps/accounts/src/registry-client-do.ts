@@ -316,7 +316,7 @@ export class RegistryClientDO extends DurableObject {
     );
   }
 
-  private async saveAccountRiskProfiles(network: Network) {
+  public async saveAccountRiskProfiles(network: Network) {
     const accounts = Registry.getAccountRegistry()
       .getAllSubjectKeys(network)
       .map((a) =>

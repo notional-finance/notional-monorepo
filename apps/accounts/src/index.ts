@@ -32,7 +32,12 @@ export default {
   ): Promise<void> {
     const stub = env.REGISTRY_CLIENT_DO.get(
       env.REGISTRY_CLIENT_DO.idFromName(env.VERSION)
+    ) as unknown as RegistryClientDO;
+    await stub.healthcheck();
+    await Promise.all(
+      env.SUPPORTED_NETWORKS.map((network) =>
+        stub.saveAccountRiskProfiles(network)
+      )
     );
-    await (stub as unknown as RegistryClientDO).healthcheck();
   },
 };
