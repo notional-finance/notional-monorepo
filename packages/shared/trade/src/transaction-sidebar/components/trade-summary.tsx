@@ -2,6 +2,7 @@ import {
   DataTable,
   TABLE_VARIANTS,
   MultiValueCell,
+  ToolTipCell,
 } from '@notional-finance/mui';
 import { BaseTradeState, VaultTradeState } from '@notional-finance/notionable';
 import { useTradeSummary } from '@notional-finance/notionable-hooks';
@@ -27,6 +28,7 @@ export const TradeSummary = ({
       columns={[
         {
           header: <FormattedMessage defaultMessage={'Description'} />,
+          cell: ToolTipCell,
           accessorKey: 'label',
           textAlign: 'left',
         },

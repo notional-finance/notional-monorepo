@@ -3,18 +3,25 @@ import { InfoTooltip } from '../../info-tooltip/info-tooltip';
 import { useTheme, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 
-export const ToolTipCell = ({ cell }): JSX.Element => {
+export const ToolTipCell = ({ cell, row }): JSX.Element => {
   const theme = useTheme();
   const value = cell.getValue();
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center' }} id="TESTINGS TOOLTIP">
       <TableCell
         style={{
           lineHeight: 'normal',
-          fontWeight: 500,
-          fontSize: '.750rem',
+          fontWeight:
+            row.original.isTotalRow && !row.original.isEarningsRow ? 600 : 500,
+          fontSize:
+            row.original.isTotalRow && !row.original.isEarningsRow
+              ? theme.spacing(1.75)
+              : theme.spacing(1.5),
           whiteSpace: 'normal',
+          color: row.original.isEarningsRow
+            ? theme.palette.typography.light
+            : theme.palette.typography.main,
         }}
       >
         {value.content ? <FormattedMessage {...value.content} /> : value}
