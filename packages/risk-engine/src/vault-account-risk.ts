@@ -84,6 +84,11 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       Registry.getConfigurationRegistry()
         // Include disabled vaults here in case the account still has a position
         .getAllListedVaults(account.network, true)
+        ?.filter(
+          ({ vaultAddress }) =>
+            // Old test vault that is fully deprecated
+            vaultAddress !== '0xae38f4b960f44d86e798f36a374a1ac3f2d859fa'
+        )
         ?.map(({ vaultAddress }) => {
           return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
         })

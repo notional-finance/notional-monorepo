@@ -14,7 +14,6 @@ import {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
-  handleKPIs,
   handleAccounts,
 } from './routes';
 
@@ -59,7 +58,6 @@ const router = Router();
 // Handles preflight options
 router.options('*', handleOptions);
 
-router.get('/:network/kpis', handleKPIs);
 router.get('/geoip', handleGeoIP);
 router.get('/nft/*', handleNFT);
 router.post('/dd-forward', handleDataDogForward);
@@ -71,7 +69,7 @@ router.get('/:network/tokens', handleTokens);
 router.get('/:network/configuration', handleConfigurations);
 router.get('/:network/oracles', handleOracles);
 router.get('/:network/exchanges', handleExchanges);
-router.get('/:network/accounts', handleAccounts);
+router.get('/:network/accounts/:view', handleAccounts);
 router.get('/:network/vaults', handleVaults);
 
 // Fall through catch for 404 errors

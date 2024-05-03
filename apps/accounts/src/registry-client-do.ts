@@ -274,17 +274,33 @@ export class RegistryClientDO extends BaseDO<Env> {
       const hasCrossCurrencyRisk = freeCollateralFactors.some((e) =>
         e.totalAssetsLocal.add(e.totalDebtsLocal).isNegative()
       );
+      const _riskFactors = accountRiskProfile.getAllRiskFactors();
+      const riskFactors = {
+        ..._riskFactors,
+        liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
+          ...l,
+          asset: l.asset.id,
+        })),
+      };
 
       return {
         address: account.address,
-        riskFactors: accountRiskProfile.getAllRiskFactors(),
+        riskFactors,
         hasCrossCurrencyRisk,
         vaultRiskFactors: VaultAccountRiskProfile.getAllRiskProfiles(
           account
         ).map((v) => {
+          const _riskFactors = v.getAllRiskFactors();
+          const riskFactors = {
+            ..._riskFactors,
+            liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
+              ...l,
+              asset: l.asset.id,
+            })),
+          };
           return {
             vaultAddress: v.vaultAddress,
-            riskFactors: v.getAllRiskFactors(),
+            riskFactors,
           };
         }),
       };
