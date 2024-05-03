@@ -252,7 +252,7 @@ export class RegistryClientDO extends BaseDO<Env> {
       .filter(({ irr }) => irr === null || irr < 5);
 
     await this.putStorageKey(
-      `${network}/accounts`,
+      `${network}/accounts/contestResults`,
       JSON.stringify(allContestants)
     );
   }
@@ -265,12 +265,21 @@ export class RegistryClientDO extends BaseDO<Env> {
       )
       .filter((acct) => acct.systemAccountType === 'None');
 
-    const riskProfiles = accounts.map((account) => {
+    const riskProfiles = accounts
+      .filter((account) => {
+        // Only return accounts that have some balance
+        return (
+          account.balances.length > 0 ||
+          !account.balances.every((b) => b.isZero())
+        );
+      })
+      .map((account) => {
       const accountRiskProfile = new AccountRiskProfile(
         account.balances,
         account.network
       );
-      const freeCollateralFactors = accountRiskProfile.freeCollateralFactors();
+        const freeCollateralFactors =
+          accountRiskProfile.freeCollateralFactors();
       const hasCrossCurrencyRisk = freeCollateralFactors.some((e) =>
         e.totalAssetsLocal.add(e.totalDebtsLocal).isNegative()
       );
