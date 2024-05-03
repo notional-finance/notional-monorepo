@@ -118,7 +118,7 @@ export const DataTableBody = ({
             : {};
 
         return (
-          <Fragment key={`row-container-${row.id}`}>
+          <Fragment key={`row-container-${i}`}>
             <StyledTableRow
               theme={theme}
               key={`row-${row.id}`}
@@ -177,6 +177,7 @@ export const DataTableBody = ({
                             cell?.column.id === 'value' &&
                             row.original?.isTotalRow &&
                             'end',
+                          paddingTop: row.original?.isEarningsRow ? '0px' : '',
                         }}
                       >
                         {flexRender(

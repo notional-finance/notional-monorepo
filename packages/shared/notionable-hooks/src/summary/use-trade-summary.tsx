@@ -24,7 +24,7 @@ import {
   MessageDescriptor,
   defineMessage,
 } from 'react-intl';
-import { DetailItem, OrderDetailLabels, TradeSummaryLabels } from '.';
+import { DetailItem, OrderDetailLabels, TradeSummaryLabels, Earnings } from '.';
 import { useFiat } from '../use-user-settings';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
 import { useTotalAPY } from './use-total-apy';
@@ -729,6 +729,33 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   } else {
     walletTotal.isTotalRow = true;
     summary.push(walletTotal);
+  }
+
+  const earningsRow = {
+    isTotalRow: true,
+    isEarningsRow: true,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    label: tradeType && Earnings[tradeType] ? Earnings[tradeType] : '',
+    value: {
+      data: [
+        {
+          displayValue: `+${earnings?.toDisplayStringWithSymbol()}`,
+          isNegative: false,
+          showPositiveAsGreen: true,
+        },
+      ],
+    },
+  };
+
+  // TODO: Add all of the borrow and repay debt shit
+
+  if (
+    earnings?.isPositive() &&
+    tradeType !== 'BorrowFixed' &&
+    tradeType !== 'BorrowVariable'
+  ) {
+    summary.push(earningsRow);
   }
 
   return { summary, earnings };

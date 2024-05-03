@@ -1,4 +1,10 @@
-import { defineMessages } from 'react-intl';
+import { TradeType } from '@notional-finance/notionable';
+import { defineMessages, MessageDescriptor } from 'react-intl';
+
+interface MessageData {
+  content?: MessageDescriptor;
+  toolTipContent?: MessageDescriptor;
+}
 
 export interface DetailItem {
   label: React.ReactNode;
@@ -35,25 +41,25 @@ export const OrderDetailLabels = defineMessages({
 
 export const TradeSummaryLabels = {
   VaultShare: defineMessages({
-    deposit: { defaultMessage: 'Deposit and Mint Vault Shares ({caption})' },
+    deposit: { defaultMessage: 'Net Worth' },
     withdraw: { defaultMessage: 'Withdraw Vault Shares ({caption})' },
     none: { defaultMessage: 'Mint Vault Shares ({caption})' },
     repay: { defaultMessage: 'N/A' },
   }),
   fCashLend: defineMessages({
-    deposit: { defaultMessage: 'Deposit and Lend Fixed ({caption})' },
+    deposit: { defaultMessage: 'Lend Amount' },
     withdraw: { defaultMessage: 'Withdraw Fixed Lend ({caption})' },
     none: { defaultMessage: 'Lend Fixed ({caption})' },
     repay: { defaultMessage: 'N/A' },
   }),
   PrimeCash: defineMessages({
-    deposit: { defaultMessage: 'Deposit and Lend Variable' },
+    deposit: { defaultMessage: 'Lend Amount' },
     withdraw: { defaultMessage: 'Withdraw Variable Lend' },
     none: { defaultMessage: 'Lend Variable' },
     repay: { defaultMessage: 'N/A' },
   }),
   nToken: defineMessages({
-    deposit: { defaultMessage: 'Deposit and Provide Liquidity' },
+    deposit: { defaultMessage: 'Liquidity Amount' },
     withdraw: { defaultMessage: 'Withdraw Liquidity' },
     none: { defaultMessage: 'Provide Liquidity' },
     repay: { defaultMessage: 'N/A' },
@@ -71,3 +77,43 @@ export const TradeSummaryLabels = {
     repay: { defaultMessage: 'Repay Variable Debt' },
   }),
 };
+
+export const Earnings = {
+  LendFixed: defineMessages({
+    content: { defaultMessage: 'Earnings at Maturity' },
+    toolTipContent: {
+      defaultMessage:
+        'Guaranteed earnings if held to maturity. You can withdraw prior to maturity subject to liquidity at market rate.',
+    },
+  }),
+  MintNToken: defineMessages({
+    content: { defaultMessage: '30d Estimated Earnings' },
+    toolTipContent: {
+      defaultMessage:
+        'Estimate is based on current APY. Liquidity APY can change and users are also at risk of potential IL.',
+    },
+  }),
+
+  LendVariable: defineMessages({
+    content: { defaultMessage: '30d Estimated Earnings' },
+    toolTipContent: {
+      defaultMessage:
+        'Estimate is based on current APY. Variable lending rates can increase or decrease over time.',
+    },
+  }),
+
+  LeveragedNToken: defineMessages({
+    content: { defaultMessage: '30d Estimated Earnings' },
+    toolTipContent: {
+      defaultMessage:
+        'Estimate is based on current APY. Leveraged liquidity APYs are volatile and can change quickly. Users are also at risk of potential IL.',
+    },
+  }),
+  VaultShare: defineMessages({
+    content: { defaultMessage: '30d Estimated Earnings' },
+    toolTipContent: {
+      defaultMessage:
+        'Estimate is based on current APY. Leveraged vault APYs are volatile and can change quickly.',
+    },
+  }),
+} as unknown as Record<TradeType, MessageData>;
