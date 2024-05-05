@@ -31,7 +31,11 @@ import {
 import { PRICE_ORACLES } from './oracle-registry-client';
 import { TokenBalance } from '../token-balance';
 import { FiatKeys } from '../config/fiat-config';
-import { fetchGraph, loadGraphClientDeferred } from '../server/server-registry';
+import {
+  fetchGraph,
+  fetchGraphPaginate,
+  loadGraphClientDeferred,
+} from '../server/server-registry';
 import { parseTransaction } from './accounts/transaction-history';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { Transaction } from '../.graphclient';
@@ -472,6 +476,24 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       'points_prices'
     ).then((m) =>
       m.map(({ points, price }) => ({ points, price: parseFloat(price) || 0 }))
+    );
+  }
+
+  async getExchangeRateValues(
+    network: Network,
+    oracle: OracleDefinition,
+    // NOTE: can set this to a 90 day window or something by default
+    minTimestamp = 0
+  ) {
+    const { ExchangeRateValuesDocument } = await loadGraphClientDeferred();
+    return fetchGraphPaginate(
+      network,
+      ExchangeRateValuesDocument,
+      'exchangeRates',
+      {
+        oracleId: oracle.id,
+        minTimestamp,
+      }
     );
   }
 

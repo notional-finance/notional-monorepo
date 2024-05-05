@@ -8887,6 +8887,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AllVaultsByBlockDocument.graphql'
       },{
+        document: ExchangeRateValuesDocument,
+        get rawSDL() {
+          return printWithCache(ExchangeRateValuesDocument);
+        },
+        location: 'ExchangeRateValuesDocument.graphql'
+      },{
         document: ExternalLendingHistoryDocument,
         get rawSDL() {
           return printWithCache(ExternalLendingHistoryDocument);
@@ -9114,6 +9120,15 @@ export type AllVaultsByBlockQueryVariables = Exact<{
 
 
 export type AllVaultsByBlockQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'enabled'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type ExchangeRateValuesQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+  oracleId?: InputMaybe<Scalars['String']>;
+  minTimestamp?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type ExchangeRateValuesQuery = { exchangeRates: Array<Pick<ExchangeRate, 'timestamp' | 'rate'>> };
 
 export type ExternalLendingHistoryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9785,6 +9800,20 @@ export const AllVaultsByBlockDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AllVaultsByBlockQuery, AllVaultsByBlockQueryVariables>;
+export const ExchangeRateValuesDocument = gql`
+    query ExchangeRateValues($skip: Int, $oracleId: String, $minTimestamp: Int) {
+  exchangeRates(
+    where: {oracle: $oracleId, timestamp_gt: $minTimestamp}
+    first: 1000
+    skip: $skip
+    orderBy: timestamp
+    orderDirection: desc
+  ) {
+    timestamp
+    rate
+  }
+}
+    ` as unknown as DocumentNode<ExchangeRateValuesQuery, ExchangeRateValuesQueryVariables>;
 export const ExternalLendingHistoryDocument = gql`
     query ExternalLendingHistory {
   externalLendings {
@@ -9985,6 +10014,7 @@ export const VaultReinvestmentDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
@@ -10026,6 +10056,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AllVaultsByBlock(variables?: AllVaultsByBlockQueryVariables, options?: C): Promise<AllVaultsByBlockQuery> {
       return requester<AllVaultsByBlockQuery, AllVaultsByBlockQueryVariables>(AllVaultsByBlockDocument, variables, options) as Promise<AllVaultsByBlockQuery>;
+    },
+    ExchangeRateValues(variables?: ExchangeRateValuesQueryVariables, options?: C): Promise<ExchangeRateValuesQuery> {
+      return requester<ExchangeRateValuesQuery, ExchangeRateValuesQueryVariables>(ExchangeRateValuesDocument, variables, options) as Promise<ExchangeRateValuesQuery>;
     },
     ExternalLendingHistory(variables?: ExternalLendingHistoryQueryVariables, options?: C): Promise<ExternalLendingHistoryQuery> {
       return requester<ExternalLendingHistoryQuery, ExternalLendingHistoryQueryVariables>(ExternalLendingHistoryDocument, variables, options) as Promise<ExternalLendingHistoryQuery>;
