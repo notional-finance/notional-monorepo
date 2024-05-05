@@ -113,35 +113,41 @@ export class RegistryClientDO extends DurableObject {
     return new Response('Not Found', { status: 404 });
   }
 
+  async _init() {
+    Registry.initialize(
+      this.env.NX_DATA_URL,
+      AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
+      false,
+      true,
+      false
+    );
+
+    // First trigger a refresh for all supported networks
+    await Promise.all(
+      this.env.SUPPORTED_NETWORKS.map((network) => {
+        if (network === Network.all) return Promise.resolve();
+        return Registry.triggerRefresh(network);
+      })
+    );
+  }
+
   async healthcheck() {
     try {
-      Registry.initialize(
-        this.env.NX_DATA_URL,
-        AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
-        false,
-        true,
-        false
-      );
-
-      // First trigger a refresh for all supported networks
-      await Promise.all(
-        this.env.SUPPORTED_NETWORKS.map((network) => {
-          if (network === Network.all) return Promise.resolve();
-          return Registry.triggerRefresh(network);
-        })
-      );
+      await this._init();
 
       // Now run all metrics jobs
       for (const network of this.env.SUPPORTED_NETWORKS) {
         if (network === Network.all) continue;
-        await this.checkAccountList(network);
-        await this.checkTotalSupply(network);
-        await this.saveYieldData(network);
+        await Promise.all([
+          this.checkAccountList(network),
+          this.checkTotalSupply(network),
+          this.saveYieldData(network),
+          // this.saveAccountRiskProfiles(network),
+        ]);
         if (network === Network.arbitrum) {
           // await this.checkDBMonitors(network);
           // await this.saveContestIRR(network, currentContestId);
         }
-        // await this.saveAccountRiskProfiles(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -316,7 +322,15 @@ export class RegistryClientDO extends DurableObject {
     );
   }
 
-  public async saveAccountRiskProfiles(network: Network) {
+  public async calculateRisk() {
+    await this._init();
+    await Promise.all(
+      this.env.SUPPORTED_NETWORKS.filter((n) => n !== Network.all).map((n) =>
+        this.saveAccountRiskProfiles(n)
+      )
+    );
+  }
+  private async saveAccountRiskProfiles(network: Network) {
     const accounts = Registry.getAccountRegistry()
       .getAllSubjectKeys(network)
       .map((a) =>

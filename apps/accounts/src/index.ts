@@ -1,4 +1,4 @@
-import { Network } from '@notional-finance/util';
+import { Network, getNowSeconds } from '@notional-finance/util';
 import { RegistryClientDO } from './registry-client-do';
 export { RegistryClientDO } from './registry-client-do';
 
@@ -12,6 +12,7 @@ export interface Env {
   SUPPORTED_NETWORKS: Network[];
   ACCOUNT_CACHE_R2: R2Bucket;
   AUTH_KEY: string;
+  RISK_QUEUE: Queue;
 }
 
 export default {
@@ -34,10 +35,16 @@ export default {
       env.REGISTRY_CLIENT_DO.idFromName(env.VERSION)
     ) as unknown as RegistryClientDO;
     await stub.healthcheck();
-    // await Promise.all(
-    //   env.SUPPORTED_NETWORKS.map((network) =>
-    //     stub.saveAccountRiskProfiles(network)
-    //   )
-    // );
+    await env.RISK_QUEUE.send({
+      timestamp: getNowSeconds(),
+    });
+  },
+  async queue(batch: MessageBatch, env: Env, _ctx: ExecutionContext) {
+    const stub = env.REGISTRY_CLIENT_DO.get(
+      env.REGISTRY_CLIENT_DO.idFromName(env.VERSION)
+    ) as unknown as RegistryClientDO;
+    console.log('RECEIVED MESSAGE', batch);
+    await stub.calculateRisk();
+    console.log('WROTE PROFILE');
   },
 };
