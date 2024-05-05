@@ -2,7 +2,7 @@ import { DurableObjectState } from '@cloudflare/workers-types';
 import { APIEnv, MetricType } from '.';
 import { BaseDO } from './abstract';
 import { Network, ONE_MINUTE_MS, getNowSeconds } from '@notional-finance/util';
-import { GraphDocument, Servers } from '@notional-finance/core-entities';
+import { Servers } from '@notional-finance/core-entities';
 
 export class ViewsDO extends BaseDO<APIEnv> {
   protected analytics: InstanceType<typeof Servers.AnalyticsServer>;
@@ -59,19 +59,24 @@ export class ViewsDO extends BaseDO<APIEnv> {
     await Promise.all(data.map((v) => this.fetchDBView(network, v.view_name)));
   }
 
-  async fetchGraphDocument(network: Network, doc: GraphDocument) {
-    const { data } = await this.analytics.fetchGraphDocument(network, doc, {});
-    const key = `${this.serviceName}/${network}/${doc.replace('Document', '')}`;
-    if (data) return this.putStorageKey(key, JSON.stringify(data));
+  async storeDocument(
+    result: { data?: unknown },
+    name: string,
+    network: Network
+  ) {
+    const key = `${this.serviceName}/${network}/${name}`;
+    if (result['data'])
+      return this.putStorageKey(key, JSON.stringify(result['data']));
   }
 
   async fetchAllGraphViews(network: Network) {
     if (network === Network.all) return;
 
-    const documents = ['ExternalLendingHistoryDocument'] as GraphDocument[];
-    await Promise.all(
-      documents.map((d) => this.fetchGraphDocument(network, d))
-    );
+    await Promise.all([
+      this.analytics
+        .fetchGraphDocument(network, 'ExternalLendingHistoryDocument')
+        .then((d) => this.storeDocument(d, 'ExternalLendingHistory', network)),
+    ]);
   }
 
   async onRefresh() {
