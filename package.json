@@ -7,7 +7,7 @@
   },
   "private": true,
   "dependencies": {
-    "@apollo/client": "^3.7.0",
+    "@apollo/client": "^3.8.4",
     "@datadog/browser-rum": "^4.47.0",
     "@datadog/datadog-api-client": "^1.6.0",
     "@emotion/react": "11.10.5",
