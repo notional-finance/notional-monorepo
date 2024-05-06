@@ -116,4 +116,18 @@ export const Earnings = {
         'Estimate is based on current APY. Leveraged vault APYs are volatile and can change quickly.',
     },
   }),
+  BorrowFixed: defineMessages({
+    content: { defaultMessage: 'Interest at Maturity' },
+    toolTipContent: {
+      defaultMessage:
+        'Fixed interest due if held to maturity. You can repay prior to maturity at market rates. At maturity, fixed debts convert to variable rate.',
+    },
+  }),
+  BorrowVariable: defineMessages({
+    content: { defaultMessage: '30d Estimated Interest' },
+    toolTipContent: {
+      defaultMessage:
+        'Estimate is based on current APY. Variable borrow rates can increase or decrease over time.',
+    },
+  }),
 } as unknown as Record<TradeType, MessageData>;

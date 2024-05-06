@@ -102,7 +102,9 @@ export const DataTableBody = ({
               fontWeight: 600,
               fontSize: '14px',
               '.multi-value-cell': {
-                span: { fontSize: '14px' },
+                span: {
+                  fontSize: row.original?.isEarningsRow ? '12px' : '14px',
+                },
               },
             }
           : {};
