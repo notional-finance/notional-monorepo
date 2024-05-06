@@ -731,28 +731,29 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     summary.push(walletTotal);
   }
 
-  const isDebt = tradeType === 'BorrowFixed' || tradeType === 'BorrowVariable';
+  if (earnings) {
+    const isDebt =
+      tradeType === 'BorrowFixed' || tradeType === 'BorrowVariable';
 
-  const prefixSymbol = isDebt ? '-' : '+';
+    const prefixSymbol = isDebt ? '-' : '+';
 
-  const earningsRow = {
-    isTotalRow: true,
-    isEarningsRow: true,
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    label: tradeType && Earnings[tradeType] ? Earnings[tradeType] : '',
-    value: {
-      data: [
-        {
-          displayValue: `${prefixSymbol}${earnings?.toDisplayStringWithSymbol()}`,
-          isNegative: false,
-          showPositiveAsGreen: !isDebt,
-        },
-      ],
-    },
-  };
+    const earningsRow = {
+      isTotalRow: true,
+      isEarningsRow: true,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      label: tradeType && Earnings[tradeType] ? Earnings[tradeType] : '',
+      value: {
+        data: [
+          {
+            displayValue: `${prefixSymbol}${earnings?.toDisplayStringWithSymbol()}`,
+            isNegative: false,
+            showPositiveAsGreen: !isDebt,
+          },
+        ],
+      },
+    };
 
-  if (earnings && earnings.isPositive()) {
     summary.push(earningsRow);
   }
 
