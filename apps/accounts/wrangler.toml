@@ -24,12 +24,6 @@ name = "accounts-dev"
 r2_buckets = [
   { binding = "ACCOUNT_CACHE_R2", bucket_name = "account-cache-r2", preview_bucket_name = "account-cache-r2-dev" },
 ]
-queues.producers = [
-  { binding = "RISK_QUEUE", queue = "risk-queue"}
-]
-queues.consumers = [
-  { queue = "risk-queue", max_batch_size = 1, max_batch_timeout = 30, max_retries = 1, dead_letter_queue = "risk-queue-dlq" }
-]
 
 [env.dev.durable_objects]
 bindings = [

@@ -25,10 +25,6 @@ import {
 import { Env } from '.';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
-import {
-  AccountRiskProfile,
-  VaultAccountRiskProfile,
-} from '@notional-finance/risk-engine';
 import zlib from 'zlib';
 
 export class RegistryClientDO extends DurableObject {
@@ -142,7 +138,6 @@ export class RegistryClientDO extends DurableObject {
           this.checkAccountList(network),
           this.checkTotalSupply(network),
           this.saveYieldData(network),
-          // this.saveAccountRiskProfiles(network),
         ]);
         if (network === Network.arbitrum) {
           // await this.checkDBMonitors(network);
@@ -319,78 +314,6 @@ export class RegistryClientDO extends DurableObject {
     await this.putStorageKey(
       `${network}/accounts/contestResults`,
       JSON.stringify(allContestants)
-    );
-  }
-
-  public async calculateRisk() {
-    await this._init();
-    await Promise.all(
-      this.env.SUPPORTED_NETWORKS.filter((n) => n !== Network.all).map((n) =>
-        this.saveAccountRiskProfiles(n)
-      )
-    );
-  }
-  private async saveAccountRiskProfiles(network: Network) {
-    const accounts = Registry.getAccountRegistry()
-      .getAllSubjectKeys(network)
-      .map((a) =>
-        Registry.getAccountRegistry().getLatestFromSubject(network, a)
-      )
-      .filter((acct) => acct.systemAccountType === 'None');
-
-    const riskProfiles = accounts
-      .filter((account) => {
-        // Only return accounts that have some balance
-        return (
-          account.balances.length > 0 ||
-          !account.balances.every((b) => b.isZero())
-        );
-      })
-      .map((account) => {
-        const accountRiskProfile = new AccountRiskProfile(
-          account.balances,
-          account.network
-        );
-        const freeCollateralFactors =
-          accountRiskProfile.freeCollateralFactors();
-        const hasCrossCurrencyRisk = freeCollateralFactors.some((e) =>
-          e.totalAssetsLocal.add(e.totalDebtsLocal).isNegative()
-        );
-        const _riskFactors = accountRiskProfile.getAllRiskFactors();
-        const riskFactors = {
-          ..._riskFactors,
-          liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
-            ...l,
-            asset: l.asset.id,
-          })),
-        };
-
-        return {
-          address: account.address,
-          riskFactors,
-          hasCrossCurrencyRisk,
-          vaultRiskFactors: VaultAccountRiskProfile.getAllRiskProfiles(
-            account
-          ).map((v) => {
-            const _riskFactors = v.getAllRiskFactors();
-            const riskFactors = {
-              ..._riskFactors,
-              liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
-                ...l,
-                asset: l.asset.id,
-              })),
-            };
-            return {
-              vaultAddress: v.vaultAddress,
-              riskFactors,
-            };
-          }),
-        };
-      });
-
-    await this.putStorageKey(
-      `${network}/accounts/riskProfiles`,
-      JSON.stringify(riskProfiles)
     );
   }
 
