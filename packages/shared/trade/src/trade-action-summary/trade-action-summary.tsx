@@ -15,6 +15,7 @@ import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   useAllMarkets,
   usePointPrices,
+  useTotalAPY,
 } from '@notional-finance/notionable-hooks';
 import {
   LeverageInfoRow,
@@ -23,7 +24,7 @@ import {
 } from './components';
 import { formatTokenType } from '@notional-finance/helpers';
 import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
-import { leveragedYield, pointsMultiple } from '@notional-finance/util';
+import { pointsMultiple } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -47,14 +48,15 @@ export function TradeActionSummary({
     tradeType,
     deposit,
     debt,
-    collateralOptions,
-    debtOptions,
     vaultConfig,
-    riskFactorLimit,
     vaultAddress,
     selectedNetwork,
   } = state;
   const isVault = !!vaultAddress;
+  const { totalAPY, apySpread, leverageRatio, assetAPY } = useTotalAPY(
+    state,
+    priorVaultFactors
+  );
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
 
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
@@ -90,30 +92,7 @@ export function TradeActionSummary({
     (y) => y.token.id === collateral?.id
   );
   const points = nonLeveragedYield?.pointMultiples;
-  const assetAPY =
-    collateralOptions?.find((c) => c.token.id === collateral?.id)
-      ?.interestRate || nonLeveragedYield?.totalAPY;
 
-  const debtAPY =
-    debtOptions?.find((d) => d.token.id === debt?.id)?.interestRate ||
-    nonLeveragedYields.find((y) => y.token.id === debt?.id)?.totalAPY ||
-    priorVaultFactors?.vaultBorrowRate;
-
-  const apySpread =
-    assetAPY !== undefined && debtAPY !== undefined
-      ? assetAPY - debtAPY
-      : undefined;
-  const leverageRatio =
-    riskFactorLimit?.riskFactor === 'leverageRatio'
-      ? (riskFactorLimit.limit as number)
-      : priorVaultFactors?.leverageRatio;
-
-  let totalAPY: number | undefined;
-  if (isLeveraged) {
-    totalAPY = leveragedYield(assetAPY, debtAPY, leverageRatio);
-  } else {
-    totalAPY = assetAPY !== undefined ? assetAPY : debtAPY;
-  }
   const { title } = collateral
     ? formatTokenType(collateral)
     : isVault

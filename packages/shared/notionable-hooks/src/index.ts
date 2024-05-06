@@ -25,6 +25,7 @@ export * from './summary/use-liquidation-risk';
 export * from './summary/use-order-details';
 export * from './summary/use-portfolio-comparison';
 export * from './summary/use-trade-summary';
+export * from './summary/use-total-apy';
 
 export type BaseTradeContext = ObservableContext<BaseTradeState>;
 export type TradeContext = ObservableContext<TradeState>;

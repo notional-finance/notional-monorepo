@@ -79,8 +79,8 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
     ) {
       updateState(
         tradeType === 'ConvertAsset'
-          ? { debtBalance: balance, debt: balance?.token }
-          : { collateralBalance: balance, collateral: balance?.token }
+          ? { debtBalance: balance, debt: balance.token }
+          : { collateralBalance: balance, collateral: balance.token }
       );
     }
   }, [

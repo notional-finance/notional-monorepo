@@ -24,9 +24,21 @@ import {
   MessageDescriptor,
   defineMessage,
 } from 'react-intl';
-import { DetailItem, OrderDetailLabels, TradeSummaryLabels } from '.';
+import { DetailItem, OrderDetailLabels, TradeSummaryLabels, Earnings } from '.';
 import { useFiat } from '../use-user-settings';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
+import { useTotalAPY } from './use-total-apy';
+
+function calculate30dEarnings(
+  value: TokenBalance | undefined,
+  apy: number | undefined
+) {
+  if (value === undefined || apy === undefined) return undefined;
+  const u = value.toUnderlying();
+  return u
+    .mulInRatePrecision(Math.floor(1e9 + (apy * 1e9) / (100 * 12)))
+    .sub(u);
+}
 
 function getTotalWalletItem(
   depositBalance: TokenBalance,
@@ -38,7 +50,7 @@ function getTotalWalletItem(
     label: intl.formatMessage(
       depositBalance.isNegative()
         ? OrderDetailLabels.amountToWallet
-        : OrderDetailLabels.amountFromWallet
+        : OrderDetailLabels.depositFromWallet
     ),
     value: {
       data: [
@@ -49,16 +61,15 @@ function getTotalWalletItem(
             .toDisplayStringWithSymbol(4, true, false),
           isNegative: false,
         },
-        {
-          displayValue: depositBalance
-            .abs()
-            .toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false),
-          isNegative: false,
-        },
+        // {
+        //   displayValue: depositBalance
+        //     .abs()
+        //     .toFiat(baseCurrency)
+        //     .toDisplayStringWithSymbol(2, true, false),
+        //   isNegative: false,
+        // },
       ],
     },
-    isTotalRow: true,
   };
 }
 
@@ -133,12 +144,9 @@ function getTradeDetail(
     };
   } else if (tokenType === 'VaultShare' || tokenType === 'nToken') {
     return {
-      label: intl.formatMessage(
-        TradeSummaryLabels[tokenType][b.isNegative() ? 'withdraw' : typeKey],
-        {
-          caption,
-        }
-      ),
+      label: intl.formatMessage(TradeSummaryLabels[tokenType][typeKey], {
+        caption,
+      }),
       value: {
         data: [
           {
@@ -321,18 +329,17 @@ function getDepositSummary(
         getTradeDetail(
           netRealizedCollateralBalance,
           'Debt',
-          'deposit',
+          'repay',
           intl,
           netAssetBalance.token
         )
       );
     } else {
-      // In here, if the fee value is positive then it needs to be adjusted...
       summary.push(
         getTradeDetail(
           netRealizedCollateralBalance,
           'Asset',
-          'deposit',
+          'none',
           intl,
           netAssetBalance.token
         )
@@ -505,9 +512,7 @@ function getRollDebtOrConvertAssetSummary(
   if (netRealizedDebtBalance && debtBalance) {
     summary.push(
       getTradeDetail(
-        tradeType === 'RollDebt'
-          ? netRealizedDebtBalance.abs()
-          : netRealizedDebtBalance.neg(),
+        netRealizedDebtBalance.neg(),
         tradeType === 'RollDebt' ? 'Debt' : 'Asset',
         tradeType === 'RollDebt' ? 'none' : 'withdraw',
         intl,
@@ -521,9 +526,9 @@ function getRollDebtOrConvertAssetSummary(
   if (netRealizedCollateralBalance && collateralBalance)
     summary.push(
       getTradeDetail(
-        tradeType === 'RollDebt'
-          ? netRealizedCollateralBalance.neg()
-          : netRealizedCollateralBalance.abs(),
+        tradeType === 'RollDebt' && collateralBalance.tokenType === 'fCash'
+          ? netRealizedCollateralBalance
+          : netRealizedCollateralBalance.neg(),
         tradeType === 'RollDebt' ? 'Debt' : 'Asset',
         tradeType === 'RollDebt' ? 'repay' : 'none',
         intl,
@@ -551,7 +556,6 @@ function getDeleverageWithdrawSummary(
   const isSwapped = isDeleverageWithSwappedTokens(state);
   const isVault = isVaultTrade(tradeType);
 
-  // TODO: not clear which one should be negative or positive
   if (netRealizedCollateralBalance && collateralBalance)
     summary.push(
       getTradeDetail(
@@ -568,7 +572,7 @@ function getDeleverageWithdrawSummary(
   if (netRealizedDebtBalance && debtBalance) {
     summary.push(
       getTradeDetail(
-        netRealizedDebtBalance.neg(),
+        netRealizedDebtBalance,
         isSwapped ? 'Asset' : 'Debt',
         isSwapped ? 'withdraw' : 'repay',
         intl,
@@ -597,6 +601,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     calculationSuccess,
   } = state;
   const depositBalance = _d;
+  const { totalAPY, assetAPY, debtAPY } = useTotalAPY(state);
 
   const underlying =
     netAssetBalance?.underlying ||
@@ -621,20 +626,25 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     debtFee
   );
 
-  const summary: DetailItem[] = [];
+  let summary: DetailItem[] = [];
   if (
     isLeverageOrRoll &&
     (depositBalance?.isPositive() ||
-      tradeType === 'LeveragedNTokenAdjustLeverage' ||
       tradeType === 'IncreaseVaultPosition' ||
-      tradeType === 'RollVaultPosition')
+      tradeType === 'RollVaultPosition' ||
+      (tradeType === 'LeveragedNTokenAdjustLeverage' &&
+        debtBalance.tokenType !== 'nToken') ||
+      (tradeType === 'AdjustVaultLeverage' && debtBalance.isNegative()))
   ) {
     summary.push(...getLeverageSummary(state, intl));
   } else if (
     isLeverageOrRoll &&
     (tradeType === 'WithdrawVault' ||
       tradeType === 'Deleverage' ||
-      tradeType === 'DeleverageWithdraw')
+      tradeType === 'DeleverageWithdraw' ||
+      (tradeType === 'LeveragedNTokenAdjustLeverage' &&
+        debtBalance.tokenType === 'nToken') ||
+      (tradeType === 'AdjustVaultLeverage' && debtBalance.isPositive()))
   ) {
     summary.push(...getDeleverageWithdrawSummary(state, intl));
   } else if (
@@ -661,14 +671,91 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     intl
   );
 
-  const total = getTotalWalletItem(
+  const walletTotal = getTotalWalletItem(
     depositBalance || TokenBalance.zero(underlying),
     baseCurrency,
     intl
   );
 
   summary.push(feeDetailItem);
-  summary.push(total);
 
-  return { summary, total };
+  let total: DetailItem;
+  let earnings: TokenBalance | undefined;
+  if (tradeType === 'LendFixed' && depositBalance && collateralBalance) {
+    earnings = depositBalance.copy(
+      collateralBalance.scaleTo(depositBalance.decimals).sub(depositBalance.n)
+    );
+  } else if (tradeType === 'BorrowFixed' && depositBalance && debtBalance) {
+    earnings = depositBalance.copy(
+      depositBalance.n.sub(debtBalance.scaleTo(depositBalance?.decimals))
+    );
+  } else if (tradeType === 'LendVariable' || tradeType === 'MintNToken') {
+    earnings = calculate30dEarnings(collateralBalance, totalAPY);
+  } else if (tradeType === 'BorrowVariable') {
+    earnings = calculate30dEarnings(debtBalance, totalAPY);
+  } else if (
+    tradeType === 'CreateVaultPosition' ||
+    tradeType === 'LeveragedNToken'
+  ) {
+    const assetEarnings = calculate30dEarnings(collateralBalance, assetAPY);
+    const debtCost = calculate30dEarnings(debtBalance, debtAPY)?.abs().neg();
+    earnings =
+      assetEarnings && debtCost ? assetEarnings.sub(debtCost) : undefined;
+  } else {
+    earnings = undefined;
+  }
+
+  if (
+    tradeType === 'LendFixed' ||
+    tradeType === 'LendVariable' ||
+    tradeType === 'MintNToken' ||
+    tradeType === 'RepayDebt' ||
+    tradeType === 'CreateVaultPosition' ||
+    tradeType === 'LeveragedNToken'
+  ) {
+    total = summary.shift() as DetailItem;
+    total.isTotalRow = true;
+    total.value.data[0].showPositiveAsGreen = false;
+    if (
+      tradeType === 'CreateVaultPosition' ||
+      tradeType === 'LeveragedNToken'
+    ) {
+      total.label = intl.formatMessage(
+        defineMessage({ defaultMessage: 'Net Worth' })
+      );
+    }
+    walletTotal.value.data[0].showPositiveAsGreen = true;
+    summary = [walletTotal, ...summary, total];
+  } else {
+    walletTotal.isTotalRow = true;
+    summary.push(walletTotal);
+  }
+
+  if (earnings) {
+    const isDebt =
+      tradeType === 'BorrowFixed' || tradeType === 'BorrowVariable';
+
+    const prefixSymbol = isDebt ? '-' : '+';
+
+    const earningsRow = {
+      isTotalRow: true,
+      isEarningsRow: true,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      label: tradeType && Earnings[tradeType] ? Earnings[tradeType] : '',
+      value: {
+        data: [
+          {
+            displayValue: `${prefixSymbol}${earnings?.toDisplayStringWithSymbol()}`,
+            isNegative: false,
+            showPositiveAsGreen: !isDebt,
+          },
+        ],
+      },
+    };
+
+    summary.push(earningsRow);
+  }
+
+  return { summary, earnings };
 }

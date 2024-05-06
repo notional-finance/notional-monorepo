@@ -20,6 +20,12 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
   const isPending =
     column.columnDef.showLoadingSpinner && row.original.isPending;
 
+  const isTotalRow =
+    (row.original.isTotalRow || row.original.currency === 'Total') &&
+    !row.original.isEarningsRow
+      ? true
+      : false;
+
   return (
     <Box className="multi-value-cell">
       {isPending ? (
@@ -47,7 +53,8 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
                     sx={{
                       marginBottom: '0px',
                       width: '100%',
-                      fontWeight: row.original.currency === 'Total' ? 600 : 500,
+                      fontWeight:
+                        isTotalRow || row.original.isEarningsRow ? 600 : 500,
                       color:
                         isNegative && !row.original.isDebt
                           ? theme.palette.error.main
