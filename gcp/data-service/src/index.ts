@@ -86,11 +86,17 @@ async function main() {
       return;
     }
 
+    // This header is set by cron jobs
+    const isAppEngine = req.headers['X-Appengine-Cron'] === 'true';
     const authToken = req.headers['x-auth-token'];
-    if (!authToken || authToken !== process.env.DATA_SERVICE_AUTH_TOKEN) {
+    if (
+      !isAppEngine &&
+      (!authToken || authToken !== process.env.DATA_SERVICE_AUTH_TOKEN)
+    ) {
       res.status(403).send('Invalid auth token');
       return;
     }
+
     next();
   });
 
