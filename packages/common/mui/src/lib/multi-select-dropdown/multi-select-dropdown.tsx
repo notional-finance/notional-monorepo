@@ -94,7 +94,9 @@ export const MultiSelectDropdown = ({
             />
             {displayOptions.length > 0 && (
               <Text>
-                {selected.length}
+                <Box component="span" sx={{ marginRight: theme.spacing(0.5) }}>
+                  {selected.length}
+                </Box>
                 <FormattedMessage defaultMessage={'selected'} />
               </Text>
             )}

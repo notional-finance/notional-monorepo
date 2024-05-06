@@ -84,13 +84,18 @@ export const ContestTable = ({
         <>
           {!maxHeight && (
             <Table>
-              {tableVariant === CONTEST_TABLE_VARIANTS.DEFAULT && (
+              {tableVariant === CONTEST_TABLE_VARIANTS.DEFAULT ||
+              tableVariant === CONTEST_TABLE_VARIANTS.ACCENT ? (
                 <ContestTableHead
                   headerGroups={headerGroups}
                   hideOnMobile={hideOnMobile}
                 />
-              )}
-              <ContestTableBody rows={rows} isCurrentUser={isCurrentUser} />
+              ) : null}
+              <ContestTableBody
+                rows={rows}
+                isCurrentUser={isCurrentUser}
+                tableVariant={tableVariant}
+              />
             </Table>
           )}
           {maxHeight && (
@@ -111,7 +116,11 @@ export const ContestTable = ({
               </Box>
               <div style={{ maxHeight: maxHeight, overflow: 'auto' }}>
                 <Table>
-                  <ContestTableBody rows={rows} isCurrentUser={isCurrentUser} />
+                  <ContestTableBody
+                    rows={rows}
+                    isCurrentUser={isCurrentUser}
+                    tableVariant={tableVariant}
+                  />
                 </Table>
               </div>
             </>
