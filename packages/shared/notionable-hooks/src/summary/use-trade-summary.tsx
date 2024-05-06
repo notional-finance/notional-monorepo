@@ -731,6 +731,10 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     summary.push(walletTotal);
   }
 
+  const isDebt = tradeType === 'BorrowFixed' || tradeType === 'BorrowVariable';
+
+  const prefixSymbol = isDebt ? '-' : '+';
+
   const earningsRow = {
     isTotalRow: true,
     isEarningsRow: true,
@@ -740,20 +744,21 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     value: {
       data: [
         {
-          displayValue: `+${earnings?.toDisplayStringWithSymbol()}`,
+          displayValue: `${prefixSymbol}${earnings?.toDisplayStringWithSymbol()}`,
           isNegative: false,
-          showPositiveAsGreen: true,
+          showPositiveAsGreen: !isDebt,
         },
       ],
     },
   };
 
-  // TODO: Add all of the borrow and repay debt shit
-
   if (
     earnings?.isPositive() &&
-    tradeType !== 'BorrowFixed' &&
-    tradeType !== 'BorrowVariable'
+    tradeType !== 'Withdraw' &&
+    tradeType !== 'RepayDebt' &&
+    tradeType !== 'Deleverage' &&
+    tradeType !== 'ConvertAsset' &&
+    tradeType !== 'RollDebt'
   ) {
     summary.push(earningsRow);
   }
