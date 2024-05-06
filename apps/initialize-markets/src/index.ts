@@ -1,0 +1,103 @@
+import { Network } from '@notional-finance/util/src/constants';
+import { sendTxThroughRelayer, } from '@notional-finance/util/src/tx-relayer';
+import Markets from './Markets';
+import { AlchemyProvider, Provider, Signer } from 'ethers-v6';
+
+export interface Env {
+  NETWORKS: Array<Network>;
+  NETWORK: Network;
+  TX_RELAY_AUTH_TOKEN: string;
+  AUTH_KEY: string;
+}
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+function findTx(provider: Provider, hash: string) {
+  const retryMax = 10;
+  let retryNum = 0;
+  while (retryNum++ < retryMax){
+    const tx = provider.getTransaction(hash);
+    if (tx) return tx;
+    wait(3000);
+  }
+  throw new Error(`Unable to find tx ${hash}`);
+}
+
+export async function processMarket(
+  network: Network,
+  provider: Provider,
+  sendTransaction: Signer['sendTransaction'],
+  blockNumber: number | null = null
+) {
+  const markets = new Markets(network, provider);
+
+  const shouldInitialize = await markets.checkInitializeAllMarkets();
+  if (shouldInitialize) {
+    console.log("Initializing all markets");
+    const tx = await markets.getInitializeAllMarketsTx();
+
+    const { hash } = await sendTransaction({
+      to: tx.to,
+      data: tx.data,
+    });
+    // make sure tx is visible on network before proceeding
+    await findTx(provider, hash);
+  }
+
+  const txs = await markets.getAccountsSettlementTxs(blockNumber);
+  const vaultTxs = await markets.getVaultAccountsSettlementTxs(blockNumber);
+
+  for (const tx of txs) {
+    console.log("Settling accounts");
+    const { hash } = await sendTransaction({
+      to: tx.to,
+      data: tx.data,
+      gasLimit: 30_000_000
+    });
+    // make sure tx is visible on network before proceeding
+    await findTx(provider, hash);
+  }
+  for (const tx of vaultTxs) {
+    console.log("Settling vault accounts");
+    const { hash } = await sendTransaction({
+      to: tx.to,
+      data: tx.data,
+    });
+    // make sure tx is visible on network before proceeding
+    await findTx(provider, hash);
+  }
+}
+
+async function run(env: Env) {
+  for (const network of env.NETWORKS) {
+    env.NETWORK = network;
+    console.log(`Processing network: ${env.NETWORK}`);
+
+    const provider = new AlchemyProvider(network, 'pq08EwFvymYFPbDReObtP-SFw3bCes8Z');
+    const sendTransaction = (tx: { to: string, data: string, gasLimit?: number }) => {
+      return sendTxThroughRelayer({ env: env, ...tx, });
+    };
+
+    await processMarket(network, provider, sendTransaction as any as Signer['sendTransaction']);
+  }
+}
+
+export default {
+  async fetch(request: Request, env: Env, _: ExecutionContext): Promise<Response> {
+    const authKey = request.headers.get('x-auth-key');
+    if (authKey !== env.AUTH_KEY) {
+      console.log('Headers: ', new Map(request.headers));
+      console.log('Cf: ', request['cf']);
+      return new Response(null, { status: 401 });
+    }
+
+    await run(env);
+
+    return new Response('OK');
+  },
+  // this method can be only call by cloudflare internal system so it does not
+  // require any authentication
+  async scheduled(_: ScheduledController, env: Env): Promise<void> {
+    await run(env);
+  },
+};
