@@ -41,27 +41,27 @@ export const OrderDetailLabels = defineMessages({
 
 export const TradeSummaryLabels = {
   VaultShare: defineMessages({
-    deposit: { defaultMessage: 'Net Worth' },
+    deposit: { defaultMessage: 'Deposit and Mint Vault Shares ({caption})' },
     withdraw: { defaultMessage: 'Withdraw Vault Shares ({caption})' },
     none: { defaultMessage: 'Mint Vault Shares ({caption})' },
     repay: { defaultMessage: 'N/A' },
   }),
   fCashLend: defineMessages({
-    deposit: { defaultMessage: 'Lend Amount' },
+    deposit: { defaultMessage: 'Deposit and Lend Fixed ({caption})' },
     withdraw: { defaultMessage: 'Withdraw Fixed Lend ({caption})' },
-    none: { defaultMessage: 'Lend Amount' },
+    none: { defaultMessage: 'Lend Fixed ({caption})' },
     repay: { defaultMessage: 'N/A' },
   }),
   PrimeCash: defineMessages({
-    deposit: { defaultMessage: 'Lend Amount' },
+    deposit: { defaultMessage: 'Deposit and Lend Variable' },
     withdraw: { defaultMessage: 'Withdraw Variable Lend' },
     none: { defaultMessage: 'Lend Variable' },
     repay: { defaultMessage: 'N/A' },
   }),
   nToken: defineMessages({
-    deposit: { defaultMessage: 'Liquidity Amount' },
+    deposit: { defaultMessage: 'Deposit and Provide Liquidity' },
     withdraw: { defaultMessage: 'Withdraw Liquidity' },
-    none: { defaultMessage: 'Liquidity Amount' },
+    none: { defaultMessage: 'Provide Liquidity' },
     repay: { defaultMessage: 'N/A' },
   }),
   fCashDebt: defineMessages({
