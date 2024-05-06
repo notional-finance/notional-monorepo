@@ -3,7 +3,8 @@ import { styled, Drawer, useTheme, Box, Checkbox } from '@mui/material';
 import { SetStateAction, Dispatch } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
-import { Button, H4, H5, LinkText } from '@notional-finance/mui';
+import { H4, H5, LinkText } from '../../typography/typography';
+import { Button } from '../../button/button';
 
 interface MobileFilterOptionsProps {
   filterData: any[];

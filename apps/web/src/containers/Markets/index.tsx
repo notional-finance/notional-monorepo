@@ -1,26 +1,33 @@
-import { useState } from 'react';
 import { styled, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
-import { H1, DataTable, TABLE_VARIANTS, Subtitle } from '@notional-finance/mui';
+import {
+  H1,
+  DataTable,
+  TABLE_VARIANTS,
+  Subtitle,
+  MobileNavWithFilter,
+} from '@notional-finance/mui';
 import { StackIcon } from '@notional-finance/icons';
 import {
   useEarnBorrowOptions,
   useMarketsTable,
   useMarketTableDropdowns,
+  useMarketsMobileNav,
   useAllNetworksToggle,
 } from './hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import { MarketsMobileNav, MobileFilterOptions } from './components';
 
 export const Markets = () => {
   const theme = useTheme();
-  const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const rightToggleData = useEarnBorrowOptions();
   const allNetworksToggleData = useAllNetworksToggle();
-
   const earnBorrowOption = rightToggleData.toggleKey || 0;
   const allNetworksOption = allNetworksToggleData.toggleKey || 0;
+  const options = useMarketsMobileNav(
+    rightToggleData.setToggleKey,
+    earnBorrowOption
+  );
 
   const { dropdownsData, currencyOptions, productOptions } =
     useMarketTableDropdowns(earnBorrowOption, allNetworksOption);
@@ -92,16 +99,11 @@ export const Markets = () => {
             csvDataFormatter={marketDataCSVFormatter}
           />
         </TableContainer>
-        <MarketsMobileNav
+        <MobileNavWithFilter
           setEarnBorrowOption={rightToggleData.setToggleKey}
           earnBorrowOption={earnBorrowOption}
-          filterOpen={filterOpen}
-          setFilterOpen={setFilterOpen}
-        />
-        <MobileFilterOptions
           filterData={dropdownsData.reverse()}
-          filterOpen={filterOpen}
-          setFilterOpen={setFilterOpen}
+          options={options}
         />
       </Box>
     </FeatureLoader>

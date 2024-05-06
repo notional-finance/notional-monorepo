@@ -30,7 +30,7 @@ export const ContestTableHead = ({
               <TableCell
                 sx={{
                   color: theme.palette.borders.accentPaper,
-                  padding: theme.spacing(2),
+                  padding: header.column.columnDef.padding || theme.spacing(2),
                   textAlign: header.column.columnDef.textAlign || 'center',
                   borderTop: 'none',
                   borderBottom: 'none',
@@ -39,7 +39,7 @@ export const ContestTableHead = ({
                   h5: {
                     fontSize: '12px',
                     fontFamily: 'Avenir Next',
-                    fontWeight: '500',
+                    fontWeight: '600',
                   },
                 }}
               >

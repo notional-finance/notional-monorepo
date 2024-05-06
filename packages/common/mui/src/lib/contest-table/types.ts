@@ -4,6 +4,7 @@ import { MessageDescriptor } from 'react-intl';
 export enum CONTEST_TABLE_VARIANTS {
   COMPACT = 'compact',
   DEFAULT = 'default',
+  ACCENT = 'accent',
 }
 
 

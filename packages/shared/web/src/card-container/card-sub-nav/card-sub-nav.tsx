@@ -1,16 +1,10 @@
 import { styled, Box, useTheme, ThemeProvider } from '@mui/material';
 import { useLocation, useHistory } from 'react-router-dom';
-import { colors, NotionalTheme } from '@notional-finance/styles';
-import { Button, LeverUpToggle } from '@notional-finance/mui';
+import { StyledButton, LeverUpToggle } from '@notional-finance/mui';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useCardSubNav } from './use-card-sub-nav';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-
-interface StyledButtonProps {
-  active: boolean;
-  theme: NotionalTheme;
-}
 
 export const CardSubNav = () => {
   const theme = useTheme();
@@ -73,25 +67,6 @@ export const CardSubNav = () => {
     </ThemeProvider>
   );
 };
-
-const StyledButton = styled(Button, {
-  shouldForwardProp: (prop: string) => prop !== 'active',
-})(
-  ({ active, theme }: StyledButtonProps) => `
-    color: ${active ? colors.black : colors.white};
-    background: ${active ? colors.neonTurquoise : colors.black};
-    border: 1px solid ${colors.neonTurquoise};
-    font-weight: 500;
-    
-
-    &:hover {
-      transition: all .3s ease;
-        background: ${active ? colors.neonTurquoise : theme.palette.info.light};
-        color: ${active ? colors.black : colors.white};
-        border: 1px solid ${colors.neonTurquoise};
-    }
-`
-);
 
 const StyledContainer = styled(Box)(
   ({ theme }) => `
