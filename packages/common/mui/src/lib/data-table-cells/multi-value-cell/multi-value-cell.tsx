@@ -1,6 +1,5 @@
 import { Box, useTheme } from '@mui/material';
 import { ProgressIndicator } from '../../progress-indicator/progress-indicator';
-// import { ToolTipCell } from '../tooltip-cell/tooltip-cell';
 import {
   TableCell,
   SmallTableCell,
