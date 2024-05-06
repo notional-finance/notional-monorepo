@@ -752,14 +752,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     },
   };
 
-  if (
-    earnings?.isPositive() &&
-    tradeType !== 'Withdraw' &&
-    tradeType !== 'RepayDebt' &&
-    tradeType !== 'Deleverage' &&
-    tradeType !== 'ConvertAsset' &&
-    tradeType !== 'RollDebt'
-  ) {
+  if (earnings && earnings.isPositive()) {
     summary.push(earningsRow);
   }
 
