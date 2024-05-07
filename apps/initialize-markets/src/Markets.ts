@@ -21,7 +21,7 @@ const SETTLE_ACCOUNTS_ABI = [
   "function settleVaultsAccounts((address vaultAddress,address[] accounts)[])",
 ];
 
-const GRAPH_MAX_LIMIT = 100;
+const GRAPH_MAX_LIMIT = 1000;
 const graphUrl =
   "https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest";
 
