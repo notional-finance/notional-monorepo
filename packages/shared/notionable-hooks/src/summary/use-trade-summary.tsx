@@ -224,7 +224,7 @@ function getFeeDetailItem(
       value: {
         data: [
           {
-            displayValue: feeValue.toDisplayStringWithSymbol(),
+            displayValue: feeValue.toDisplayStringWithSymbol(4, true, false),
             isNegative: false,
             showPositiveAsGreen: true,
           },
@@ -289,7 +289,7 @@ function getFeeDetailItem(
     value: {
       data: [
         {
-          displayValue: feeValue.toDisplayStringWithSymbol(),
+          displayValue: feeValue.toDisplayStringWithSymbol(4, true, false),
           isNegative: feeValue.isNegative(),
         },
       ],
