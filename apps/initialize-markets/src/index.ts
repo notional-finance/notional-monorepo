@@ -1,7 +1,6 @@
-import { Network } from '@notional-finance/util/src/constants';
-import { sendTxThroughRelayer, } from '@notional-finance/util/src/tx-relayer';
+import { Network, sendTxThroughRelayer, getProviderFromNetwork } from '@notional-finance/util';
 import Markets from './Markets';
-import { AlchemyProvider, Provider, Signer } from 'ethers-v6';
+import { ethers, Signer } from 'ethers';
 
 export interface Env {
   NETWORKS: Array<Network>;
@@ -12,7 +11,7 @@ export interface Env {
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-function findTx(provider: Provider, hash: string) {
+function findTx(provider: ethers.providers.Provider, hash: string) {
   const retryMax = 10;
   let retryNum = 0;
   while (retryNum++ < retryMax){
@@ -25,7 +24,7 @@ function findTx(provider: Provider, hash: string) {
 
 export async function processMarket(
   network: Network,
-  provider: Provider,
+  provider: ethers.providers.Provider,
   sendTransaction: Signer['sendTransaction'],
   blockNumber: number | null = null
 ) {
@@ -73,7 +72,7 @@ async function run(env: Env) {
     env.NETWORK = network;
     console.log(`Processing network: ${env.NETWORK}`);
 
-    const provider = new AlchemyProvider(network, 'pq08EwFvymYFPbDReObtP-SFw3bCes8Z');
+    const provider = getProviderFromNetwork(network, true);
     const sendTransaction = (tx: { to: string, data: string, gasLimit?: number }) => {
       return sendTxThroughRelayer({ env: env, ...tx, });
     };

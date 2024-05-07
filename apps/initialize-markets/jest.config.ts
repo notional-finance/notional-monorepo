@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'rewards',
+  displayName: 'initialize-markets',
   preset: '../../jest.preset.js',
   globals: {
     fetch: global.fetch,

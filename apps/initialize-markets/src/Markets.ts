@@ -1,5 +1,5 @@
-import { Network } from '@notional-finance/util';
-import { ethers, Provider } from 'ethers-v6';
+import { Network, batchArray, groupArrayToMap } from '@notional-finance/util';
+import { ethers } from 'ethers';
 
 const settleAccountsAddressMap = {
   [Network.mainnet]: "",
@@ -28,7 +28,7 @@ const graphUrl =
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 class Markets {
-  constructor(private network: Network, private provider: Provider) { }
+  constructor(private network: Network, private provider: ethers.providers.Provider) { }
 
   async checkInitializeAllMarkets() {
     const initializeMarkets = new ethers.Contract(
@@ -43,7 +43,7 @@ class Markets {
   }
 
   async getInitializeAllMarketsTx() {
-    const initializeMarketsInterface = new ethers.Interface(INITIALIZE_MARKETS_ABI);
+    const initializeMarketsInterface = new ethers.utils.Interface(INITIALIZE_MARKETS_ABI);
 
     return {
       to: initializeAllMarketsAddressMap[this.network],
@@ -54,7 +54,7 @@ class Markets {
   async getAccountsSettlementTxs(block: number | null = null) {
     const settleAccountsAddress = settleAccountsAddressMap[this.network];
 
-    const settleAccounts = new ethers.Interface(SETTLE_ACCOUNTS_ABI);
+    const settleAccounts = new ethers.utils.Interface(SETTLE_ACCOUNTS_ABI);
 
     // grab all accounts from graph protocol api, max limit is GRAPH_MAX_LIMIT per request
     const accounts: Array<string> = [];
@@ -89,18 +89,7 @@ class Markets {
     } while (tempAccounts.length === GRAPH_MAX_LIMIT);
 
     console.log("accounts: ", accounts.length);
-    const perChunk = 100;
-    const accountsInChunks = accounts.reduce((resultArray, account, index) => {
-      const chunkIndex = Math.floor(index / perChunk)
-
-      if (!resultArray[chunkIndex]) {
-        resultArray[chunkIndex] = [] // start a new chunk
-      }
-
-      resultArray[chunkIndex].push(account)
-
-      return resultArray
-    }, [] as Array<Array<string>>)
+    const accountsInChunks = batchArray(accounts, 300);
 
     if (accounts.length) {
       return accountsInChunks.map((accountsChunk) => {
@@ -120,7 +109,7 @@ class Markets {
   async getVaultAccountsSettlementTxs(block: number | null = null) {
     const settleAccountsAddress = settleAccountsAddressMap[this.network];
 
-    const settleAccounts = new ethers.Interface(SETTLE_ACCOUNTS_ABI);
+    const settleAccounts = new ethers.utils.Interface(SETTLE_ACCOUNTS_ABI);
 
     const vaultAccountsArray = await fetch(graphUrl, {
       method: "POST",
@@ -149,19 +138,13 @@ class Markets {
       }),
     })
       .then((r) => r.json())
+      .then((r: any) => r.data.balances)
       // group accounts per vault
-      .then((r: { data: { balances: [{ account: { id: string }, token: { vaultAddress: string } }] } }) =>
-        r.data.balances.reduce((acc, el) => {
-          const vaultAddress = el.token.vaultAddress;
-          if (!acc[vaultAddress]) {
-            acc[vaultAddress] = new Set();
-          }
-          acc[vaultAddress].add(el.account.id)
-          return acc;
-        }, {} as { [key: string]: Set<string> })
-      )
+      .then((r) => groupArrayToMap(r, (v: any) => v.token.vaultAddress))
+      // convert to map entries
+      .then((r) => Array.from(r.entries()))
       // map to array of { vaultAddress, accounts } objects
-      .then(r => Object.entries(r).map(([vault, accounts]) => ({ vaultAddress: vault, accounts: Array.from(accounts) })));
+      .then(r => r.map(([vault, accounts]) => ({ vaultAddress: vault, accounts: accounts.map(v => v.account.id) })));
 
     if (vaultAccountsArray.length) {
       return [{
