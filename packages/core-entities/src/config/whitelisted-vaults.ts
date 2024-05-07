@@ -58,6 +58,8 @@ export const whitelistedVaults = (network: Network) => {
         '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1',
         // "[ETH]:ezETH_xWETH":
         '0x914255c0c289aea36e378ebb5e28293b5ed278ca',
+        // "[USDC]:USDe_xUSDC":
+        '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021',
       ];
     case Network.arbitrum:
       return [
@@ -81,6 +83,8 @@ export const whitelistedVaults = (network: Network) => {
         // '0xa0d61c08e642103158fc6a1495e7ff82baf25857',
         // "[wstETH]:ezETH_xwstETH":
         '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937',
+        // "[WBTC]:xWBTC_tBTC":
+        '0xf95441f348eb2fd3d5d82f9b7b961137a734eedd',
       ];
     case Network.optimism:
       return [];
