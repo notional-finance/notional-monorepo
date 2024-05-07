@@ -9,7 +9,7 @@ import {
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import React from 'react';
 import { formatLeverageRatio } from '@notional-finance/helpers';
-import { BorrowTermsDropdown } from '../borrow-terms-dropdown/borrow-terms-dropdown';
+import { BorrowTerms } from '../borrow-terms/borrow-terms';
 import { LeverageSlider } from '../leverage-slider/leverage-slider';
 import { useHistory } from 'react-router';
 
@@ -34,7 +34,7 @@ export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
     <Terms
       inputLabel={defineMessage({ defaultMessage: '2. Select Borrow Terms' })}
     >
-      <BorrowTermsDropdown context={context} />
+      <BorrowTerms context={context} />
       <Box height={theme.spacing(6)} />
       {CustomLeverageSlider ? (
         <CustomLeverageSlider
