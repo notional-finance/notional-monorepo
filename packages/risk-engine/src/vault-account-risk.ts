@@ -325,8 +325,19 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     throw new Error('Method not implemented.');
   }
 
-  healthFactor(): number | null {
-    throw new Error('Method not implemented.');
+  healthFactor() {
+    const collateralRatio = this.collateralRatio();
+    if (collateralRatio !== null) {
+      const minRatio = this.vaultConfig.minCollateralRatioBasisPoints;
+      const maxRatio =
+        this.vaultConfig.maxRequiredAccountCollateralRatioBasisPoints;
+
+      return maxRatio
+        ? (5 * (collateralRatio - minRatio)) / (maxRatio - minRatio)
+        : null;
+    }
+
+    return null;
   }
 
   netCollateralAvailable(_collateral: SymbolOrID): TokenBalance {
@@ -360,6 +371,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       liquidationPrice: this.getAllLiquidationPrices(),
       aboveMaxLeverageRatio: this.aboveMaxLeverageRatio(),
       leverageRatio: this.leverageRatio(),
+      healthFactor: this.healthFactor(),
     };
   }
 
