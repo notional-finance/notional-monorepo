@@ -326,15 +326,10 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   healthFactor() {
-    const collateralRatio = this.collateralRatio();
-    if (collateralRatio !== null) {
-      const minRatio = this.vaultConfig.minCollateralRatioBasisPoints;
-      const maxRatio =
-        this.vaultConfig.maxRequiredAccountCollateralRatioBasisPoints;
-
-      return maxRatio
-        ? (5 * (collateralRatio - minRatio)) / (maxRatio - minRatio)
-        : null;
+    const leverageRatio = this.leverageRatio();
+    if (leverageRatio !== null) {
+      // Scales the leverage ratio to 1-5 health factor
+      return 5 - (4 * (leverageRatio - 1)) / (this.maxLeverageRatio - 1);
     }
 
     return null;

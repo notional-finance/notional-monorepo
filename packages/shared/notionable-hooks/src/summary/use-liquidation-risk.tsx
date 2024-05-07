@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material';
-import { colors } from '@notional-finance/styles';
+import { NotionalTheme, colors } from '@notional-finance/styles';
 import { FiatKeys } from '@notional-finance/core-entities';
 import {
   formatTokenType,
@@ -50,6 +50,31 @@ function formatLiquidationPrices(
   );
 }
 
+function formatHealthFactorValues(
+  healthFactorValue: null | number | undefined,
+  theme: NotionalTheme
+) {
+  const textColor =
+    healthFactorValue &&
+    healthFactorValue <= HEALTH_FACTOR_RISK_LEVELS.HIGH_RISK
+      ? colors.red
+      : healthFactorValue &&
+        healthFactorValue <= HEALTH_FACTOR_RISK_LEVELS.MEDIUM_RISK
+      ? colors.orange
+      : healthFactorValue &&
+        healthFactorValue <= HEALTH_FACTOR_RISK_LEVELS.LOW_RISK
+      ? theme.palette.secondary.light
+      : theme.palette.secondary.light;
+
+  const value =
+    healthFactorValue && healthFactorValue > 5
+      ? '5+ / 5.0'
+      : !healthFactorValue
+      ? 'No Risk'
+      : ` ${healthFactorValue?.toFixed(2)} / 5.0`;
+  return { value, textColor };
+}
+
 export function usePortfolioLiquidationRisk(state: TradeState) {
   const {
     priorAccountRisk,
@@ -65,34 +90,10 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
     priorAccountRisk === undefined ||
     (priorAccountRisk?.healthFactor === null &&
       priorAccountRisk?.liquidationPrice.length === 0);
+
   const hideArrow = !onlyCurrent && priorAccountNoRisk ? true : false;
-
-  const formatHealthFactorValues = (
-    healthFactorValue: null | number | undefined
-  ) => {
-    const textColor =
-      healthFactorValue &&
-      healthFactorValue <= HEALTH_FACTOR_RISK_LEVELS.HIGH_RISK
-        ? colors.red
-        : healthFactorValue &&
-          healthFactorValue <= HEALTH_FACTOR_RISK_LEVELS.MEDIUM_RISK
-        ? colors.orange
-        : healthFactorValue &&
-          healthFactorValue <= HEALTH_FACTOR_RISK_LEVELS.LOW_RISK
-        ? theme.palette.secondary.light
-        : theme.palette.secondary.light;
-
-    const value =
-      healthFactorValue && healthFactorValue > 5
-        ? '5+ / 5.0'
-        : !healthFactorValue
-        ? 'No Risk'
-        : ` ${healthFactorValue?.toFixed(2)} / 5.0`;
-    return { value, textColor };
-  };
-
-  const currentHFData = formatHealthFactorValues(_h?.current);
-  const updatedHFData = formatHealthFactorValues(_h?.updated);
+  const currentHFData = formatHealthFactorValues(_h?.current, theme);
+  const updatedHFData = formatHealthFactorValues(_h?.updated, theme);
 
   const healthFactor = {
     ..._h,
@@ -134,32 +135,10 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 }
 
 export function useVaultLiquidationRisk(state: VaultTradeState) {
-  const { liquidationPrices, tooRisky, postAccountNoRisk } =
+  const { liquidationPrices, tooRisky, postAccountNoRisk, healthFactor } =
     useVaultDetails(state);
 
-  const liquidationRiskTableData = [
-    {
-      label: {
-        text: defineMessages({
-          content: { defaultMessage: 'Health Factor' },
-          toolTipContent: {
-            defaultMessage:
-              'Your health factor shows your risk. A lower health factor means you have more risk. If your health factor drops below 1, you can be liquidated.',
-          },
-        }),
-      },
-      updated: {
-        data: [
-          {
-            displayValue: '4.2 / 5',
-            showPositiveAsGreen: true,
-            isNegative: false,
-          },
-        ],
-      },
-    },
-    ...liquidationPrices,
-  ];
+  const liquidationRiskTableData = [...liquidationPrices, healthFactor];
 
   return {
     tooRisky,
@@ -172,6 +151,7 @@ export function useVaultDetails(state: VaultTradeState) {
   const {
     postAccountRisk,
     netWorth,
+    healthFactor: _h,
     liquidationPrice,
     borrowAPY,
     totalAPY,
@@ -182,6 +162,36 @@ export function useVaultDetails(state: VaultTradeState) {
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
   const baseCurrency = useFiat();
+  const priorAccountNoRisk =
+    currentPosition === undefined || currentPosition?.leverageRatio === null;
+
+  const theme = useTheme();
+
+  const hideArrow = !onlyCurrent && priorAccountNoRisk ? true : false;
+  const currentHFData = formatHealthFactorValues(_h?.current, theme);
+  const updatedHFData = formatHealthFactorValues(_h?.updated, theme);
+
+  const healthFactor = {
+    ..._h,
+    asset: undefined,
+    label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
+    // label: {
+    //   text: defineMessages({
+    //     content: { defaultMessage: 'Health Factor' },
+    //     toolTipContent: {
+    //       defaultMessage:
+    //         'Your health factor shows your risk. A lower health factor means you have more risk. If your health factor drops below 1, you can be liquidated.',
+    //     },
+    //   }),
+    // },
+    current:
+      onlyCurrent && _h?.current
+        ? currentHFData?.value
+        : _h?.current?.toFixed(2) || '',
+    updated: updatedHFData?.value,
+    textColor: updatedHFData?.textColor,
+    hideArrow,
+  };
 
   const factors = [
     {
@@ -193,6 +203,7 @@ export function useVaultDetails(state: VaultTradeState) {
       ),
       updated: formatNumberAsPercentWithUndefined(totalAPY?.updated, '-'),
     },
+    healthFactor,
     {
       ...netWorth,
       label: intl.formatMessage({ defaultMessage: 'Net Worth' }),
@@ -233,5 +244,6 @@ export function useVaultDetails(state: VaultTradeState) {
       postAccountRisk === undefined || postAccountRisk?.leverageRatio === null,
     tableData: [...factors, ...liquidationPrices],
     liquidationPrices,
+    healthFactor,
   };
 }
