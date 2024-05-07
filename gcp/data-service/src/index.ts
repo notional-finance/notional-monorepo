@@ -87,7 +87,7 @@ async function main() {
     }
 
     // This header is set by cron jobs
-    const isAppEngine = req.headers['X-Appengine-Cron'] === 'true';
+    const isAppEngine = req.headers['x-appengine-cron'] === 'true';
     const authToken = req.headers['x-auth-token'];
     if (
       !isAppEngine &&
@@ -325,8 +325,12 @@ async function main() {
   });
 
   app.get('/calculateRisk', async (_req, res) => {
-    await calculateAccountRisks();
-    res.send('OK');
+    try {
+      await calculateAccountRisks();
+      res.status(200).send('OK');
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
   });
 
   app.listen(port, () => {
