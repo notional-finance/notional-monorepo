@@ -19,7 +19,7 @@ export function useStakedNoteReturns() {
       .add(noteClaim)
       .toUSD()
       .toFloat();
-    annualInvestmentRate = 388000;
+    annualInvestmentRate = 50_700;
     stakedNOTEApy = (annualInvestmentRate / totalStakedNOTEValueUSD) * 100;
   }
 
