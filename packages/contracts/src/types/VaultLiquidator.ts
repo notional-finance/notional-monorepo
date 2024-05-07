@@ -30,30 +30,27 @@ import type {
 export declare namespace FlashLiquidatorBase {
   export type LiquidationParamsStruct = {
     liquidationType: PromiseOrValue<BigNumberish>;
+    vault: PromiseOrValue<string>;
+    accounts: PromiseOrValue<string>[];
+    redeemData: PromiseOrValue<BytesLike>;
     currencyId: PromiseOrValue<BigNumberish>;
     currencyIndex: PromiseOrValue<BigNumberish>;
-    account: PromiseOrValue<string>;
-    vault: PromiseOrValue<string>;
-    useVaultDeleverage: PromiseOrValue<boolean>;
-    actionData: PromiseOrValue<BytesLike>;
   };
 
   export type LiquidationParamsStructOutput = [
     number,
-    number,
-    number,
     string,
+    string[],
     string,
-    boolean,
-    string
+    number,
+    number
   ] & {
     liquidationType: number;
+    vault: string;
+    accounts: string[];
+    redeemData: string;
     currencyId: number;
     currencyIndex: number;
-    account: string;
-    vault: string;
-    useVaultDeleverage: boolean;
-    actionData: string;
   };
 }
 
@@ -63,9 +60,9 @@ export interface VaultLiquidatorInterface extends utils.Interface {
     "NOTIONAL()": FunctionFragment;
     "claimOwnership()": FunctionFragment;
     "enableCurrencies(uint16[])": FunctionFragment;
-    "estimateProfit(address,uint256,(uint8,uint16,uint16,address,address,bool,bytes))": FunctionFragment;
+    "estimateProfit(address,uint256,(uint8,address,address[],bytes,uint16,uint16))": FunctionFragment;
     "executeOperation(address[],uint256[],uint256[],address,bytes)": FunctionFragment;
-    "flashLiquidate(address,uint256,(uint8,uint16,uint16,address,address,bool,bytes))": FunctionFragment;
+    "flashLiquidate(address,uint256,(uint8,address,address[],bytes,uint16,uint16))": FunctionFragment;
     "getOptimalDeleveragingParams(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "pendingOwner()": FunctionFragment;

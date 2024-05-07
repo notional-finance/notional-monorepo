@@ -4,47 +4,35 @@ import {
   batchArray,
   getNowSeconds,
   getProviderFromNetwork,
+  groupArrayToMap,
 } from '@notional-finance/util';
-import { BigNumber, ethers } from 'ethers';
-import * as tokens from './config/tokens.json';
+import { BigNumber } from 'ethers';
 import VaultV3Liquidator from './VaultV3Liquidator';
-import { IGasOracle, MetricNames } from './types';
+import { MetricNames } from './types';
 import {
   DDSeries,
   Logger,
   MetricType,
 } from '@notional-finance/durable-objects';
+import { formatUnits } from 'ethers/lib/utils';
 
 export interface Env {
   NX_DATA_URL: string;
-  SUPPORTED_NETWORKS: Network[];
   ACCOUNT_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   NETWORK: Network;
-  FLASH_LIQUIDATOR_CONTRACT: string;
+  FLASH_LIQUIDATOR_CONTRACTS: string[];
   FLASH_LIQUIDATOR_OWNER: string;
   FLASH_LENDER_ADDRESS: string;
   FLASH_LOAN_BUFFER: string;
   NOTIONAL_PROXY_CONTRACT: string;
-  DUST_THRESHOLD: string;
   ALCHEMY_KEY: string;
-  BN_API_KEY: string;
   DD_API_KEY: string;
   DD_APP_KEY: string;
   TX_RELAY_URL: string;
   TX_RELAY_AUTH_TOKEN: string;
   SLIPPAGE_LIMIT: string;
-  GAS_COST_BUFFER: string;
-  PROFIT_THRESHOLD: string;
-  ZERO_EX_SWAP_URL: string;
-  ZERO_EX_API_KEY: string;
-}
-
-class ArbitrumGasOracle implements IGasOracle {
-  public async getGasPrice(): Promise<BigNumber> {
-    // 0.1 gwei
-    return ethers.utils.parseUnits('1', 8);
-  }
+  MAX_LIQUIDATIONS_PER_BATCH: number;
 }
 
 export const overrides = {
@@ -56,7 +44,95 @@ export const overrides = {
   },
 };
 
-const run = async (env: Env) => {
+async function setUp(env: Env, vaultAddrs: string[]) {
+  const accounts = (
+    (await (
+      await fetch(`${env.ACCOUNT_SERVICE_URL}?network=${env.NETWORK}`, {
+        headers: {
+          'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+        },
+      })
+    ).json()) as { account_id: string; vault_id: string }[]
+  ).filter(
+    ({ account_id, vault_id }) =>
+      account_id !== ZERO_ADDRESS && vaultAddrs.includes(vault_id)
+  );
+
+  const provider = getProviderFromNetwork(env.NETWORK, true);
+  const liquidator = new VaultV3Liquidator(provider, {
+    network: env.NETWORK,
+    vaultAddrs,
+    flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACTS,
+    flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
+    flashLenderAddress: env.FLASH_LENDER_ADDRESS,
+    flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
+    slippageLimit: BigNumber.from(env.SLIPPAGE_LIMIT),
+    notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
+    txRelayUrl: env.TX_RELAY_URL,
+    txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
+    maxLiquidationsPerBatch: env.MAX_LIQUIDATIONS_PER_BATCH,
+  });
+
+  const batchedAccounts = batchArray(accounts, 250);
+
+  const accountData =
+    // Batch up the accounts so that we don't get errors from the RPC
+    (
+      await Promise.all(
+        batchedAccounts.map((a) => liquidator.getRiskyAccounts(a))
+      )
+    )
+      .flatMap((_) => _)
+      .sort((a, b) => (a.collateralRatio.lt(b.collateralRatio) ? -1 : 1));
+
+  return { accounts: accountData, liquidator };
+}
+
+const runSingleVault = async (vault: string, env: Env) => {
+  const { accounts, liquidator } = await setUp(env, [vault]);
+  const riskyAccounts = accounts.filter((a) => a.canLiquidate);
+
+  const { batches, batchArgs } = await liquidator.batchMaturityLiquidations(
+    vault,
+    riskyAccounts
+  );
+  const serializedAccounts = accounts
+    .filter((a) => a.vaultShares.gt(BigNumber.from(0)))
+    .map((a) => ({
+      account: a.id,
+      collateralRatio: a.collateralRatio.lt(
+        BigNumber.from(Number.MAX_SAFE_INTEGER.toString())
+      )
+        ? a.collateralRatio.toNumber() / 1e9
+        : null,
+      maxLiquidatorDepositUnderlying:
+        a.maxLiquidatorDepositUnderlying[0].toString(),
+      vaultSharesToLiquidator: a.vaultSharesToLiquidator[0].toString(),
+      debtUnderlying: formatUnits(a.debtUnderlying, 8),
+      vaultShares: formatUnits(a.vaultShares, 8),
+      vaultCash: formatUnits(a.cashBalance, 8),
+      maturity: a.maturity,
+      canLiquidate: a.canLiquidate,
+    }));
+  const serializedBatchArgs = batchArgs.map((a) => ({
+    asset: a.asset,
+    amount: a.amount.toString(),
+    params: {
+      ...a.params,
+    },
+  }));
+
+  return new Response(
+    JSON.stringify({
+      accounts: serializedAccounts,
+      riskyAccounts: serializedAccounts.filter((a) => a.canLiquidate),
+      batches,
+      batchArgs: serializedBatchArgs,
+    })
+  );
+};
+
+const runAllVaults = async (env: Env) => {
   const allVaults = await (
     await fetch(`https://data-dev.notional.finance/${env.NETWORK}/vaults`)
   ).json();
@@ -68,55 +144,12 @@ const run = async (env: Env) => {
     service: 'vault-liquidator',
   });
 
-  const accounts = (
-    (await (
-      await fetch(`${env.ACCOUNT_SERVICE_URL}?network=${env.NETWORK}`, {
-        headers: {
-          'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
-        },
-      })
-    ).json()) as { account_id: string; vault_id: string }[]
-  ).filter(({ account_id }) => account_id !== ZERO_ADDRESS);
-
   const activeVaults: string[] = allVaults['values']
     .filter(([, v]) => v['enabled'] === true)
     .map(([v]) => v as string);
 
-  const provider = getProviderFromNetwork(env.NETWORK, true);
-  const liq = new VaultV3Liquidator(
-    provider,
-    {
-      network: env.NETWORK,
-      vaultAddrs: activeVaults,
-      flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
-      flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
-      flashLenderAddress: env.FLASH_LENDER_ADDRESS,
-      flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
-      slippageLimit: BigNumber.from(env.SLIPPAGE_LIMIT),
-      notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
-      dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
-      txRelayUrl: env.TX_RELAY_URL,
-      txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
-      tokens: new Map<string, string>(Object.entries(tokens[env.NETWORK])),
-      gasCostBuffer: BigNumber.from(env.GAS_COST_BUFFER),
-      profitThreshold: BigNumber.from(env.PROFIT_THRESHOLD),
-      zeroExUrl: env.ZERO_EX_SWAP_URL,
-      zeroExApiKey: env.ZERO_EX_API_KEY,
-      gasOracle: new ArbitrumGasOracle(),
-    },
-    logger
-  );
-
-  const batchedAccounts = batchArray(
-    accounts.filter(({ vault_id }) => activeVaults.includes(vault_id)),
-    250
-  );
-
-  const riskyAccounts =
-    // Batch up the accounts so that we don't get errors from the RPC
-    (
-      await Promise.all(batchedAccounts.map((a) => liq.getRiskyAccounts(a)))
-    ).flatMap((_) => _);
+  const { accounts, liquidator } = await setUp(env, activeVaults);
+  const riskyAccounts = accounts.filter((r) => r.canLiquidate);
 
   const ddSeries: DDSeries = {
     series: [],
@@ -148,16 +181,67 @@ const run = async (env: Env) => {
   );
 
   await logger.submitMetrics(ddSeries);
+  for (const r of riskyAccounts) {
+    await logger.submitEvent({
+      aggregation_key: 'RiskyAccount',
+      alert_type: 'info',
+      host: 'cloudflare',
+      network: env.NETWORK,
+      title: `Risky Vault Account: ${r.id} in Vault: ${r.vault}`,
+      tags: [`event:risky_vault_account_detected`, `account:${r.id}`],
+      text: `
+  account:${r.id}
+  collateralRatio: ${r.collateralRatio.toNumber() / 1e9}
+  maxLiquidatorDepositUnderlying: ${r.maxLiquidatorDepositUnderlying[0].toString()}
+  vaultSharesToLiquidator: ${r.vaultSharesToLiquidator[0].toString()}
+  debtUnderlying: ${r.debtUnderlying.toNumber() / 1e8}
+  vaultShares: ${r.vaultShares.toNumber() / 1e8}
+  maturity: ${r.maturity}
+  `,
+    });
+  }
 
-  for (const riskyAccount of riskyAccounts) {
-    try {
-      const accountLiq = await liq.getAccountLiquidation(riskyAccount);
+  const groupedByVault = groupArrayToMap(riskyAccounts, (t) => t.vault);
+  for (const vault of groupedByVault.keys()) {
+    const vaultRiskyAccounts = groupedByVault.get(vault) || [];
 
-      if (accountLiq) {
-        await liq.liquidateAccount(accountLiq);
-      }
-    } catch (e) {
-      console.error(e);
+    const { batches, batchAccounts } =
+      await liquidator.batchMaturityLiquidations(vault, vaultRiskyAccounts);
+    const resp = await liquidator.liquidateViaMulticall(batches);
+
+    if (resp.status === 200) {
+      const respInfo = await resp.json();
+      await logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'info',
+        host: 'cloudflare',
+        network: env.NETWORK,
+        title: `Vault Accounts Liquidated`,
+        tags: [`event:vault_account_liquidated`].concat(
+          batchAccounts.map((a) => `account:${a}`)
+        ),
+        text: `Liquidated vault accounts in batch ${batchAccounts.join(',')}, ${
+          respInfo['hash']
+        }`,
+      });
+    } else {
+      console.log(
+        'Failed liquidation',
+        resp.status,
+        resp.statusText,
+        await resp.json()
+      );
+      await logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'error',
+        host: 'cloudflare',
+        network: env.NETWORK,
+        title: `Failed Vault Liquidation`,
+        tags: [`event:failed_vault_liquidation`],
+        text: `Failed to liquidate vault accounts in batch ${batchAccounts.join(
+          ','
+        )}`,
+      });
     }
   }
 };
@@ -169,22 +253,29 @@ export default {
     _: ExecutionContext
   ): Promise<Response> {
     try {
-      await run(env);
+      const url = new URL(request.url);
+      const splitPath = url.pathname.split('/');
+      if (splitPath.length === 1) {
+        await runAllVaults(env);
+        return new Response('OK', { status: 200 });
+      } else if (splitPath.length === 2) {
+        return runSingleVault(splitPath[1], env);
+      } else {
+        return new Response('Not Found', { status: 404 });
+      }
     } catch (e) {
       console.error(e);
       console.trace();
+      throw e;
     }
-
-    const response = new Response('OK', { status: 200 });
-    return response;
   },
   async scheduled(
-    controller: ScheduledController,
+    _controller: ScheduledController,
     env: Env,
     _: ExecutionContext
   ): Promise<void> {
     try {
-      await run(env);
+      await runAllVaults(env);
     } catch (e) {
       console.error(e);
       console.trace();

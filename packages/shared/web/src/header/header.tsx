@@ -4,6 +4,7 @@ import { AppBar, AppBarProps, Body, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
 import {
   THEME_VARIANTS,
+  // Network,
   getFromLocalStorage,
   setInLocalStorage,
 } from '@notional-finance/util';
@@ -11,12 +12,16 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
 import MobileNavigation from './mobile-navigation/mobile-navigation';
+// import { useHistory, useLocation } from 'react-router';
 import { useLocation } from 'react-router';
 // import blitz from '@notional-finance/mui/src/assets/icons/blitz.svg';
+// import arbLM from '@notional-finance/mui/src/assets/icons/arbLM.svg';
+// import arbDM from '@notional-finance/mui/src/assets/icons/arbDM.svg';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
   useNotionalContext,
   useSelectedNetwork,
+  // useThemeVariant,
   // showContestNavLink,
 } from '@notional-finance/notionable-hooks';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
@@ -30,6 +35,8 @@ export interface HeaderProps extends AppBarProps {}
 
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
+  // const history = useHistory();
+  // const themeVariant = useThemeVariant();
   const selectedNetwork = useSelectedNetwork();
   const [hideError, setHideError] = useState(false);
   const hideSubGraphError = getFromLocalStorage('hideSubGraphError');
@@ -40,7 +47,7 @@ export function Header({ children }: HeaderProps) {
   const theme =
     pathname === '/'
       ? landingTheme
-      : pathname.includes('contest')
+      : pathname.includes('contest') || pathname.includes('points-dashboard')
       ? contestTheme
       : appTheme;
   const { navLinks } = useNavLinks(false, theme);
@@ -135,6 +142,28 @@ export function Header({ children }: HeaderProps) {
                     width: '100%',
                   }}
                 ></Box>
+              </Box>
+            )} */}
+            {/* {pathname !== '/' && (
+              <Box
+                sx={{
+                  marginRight: '32px',
+                  display: 'flex',
+                  cursor: 'pointer',
+                }}
+                onClick={() =>
+                  history.push(`/points-dashboard/${Network.arbitrum}`)
+                }
+              >
+                <img
+                  src={
+                    themeVariant === THEME_VARIANTS.DARK ||
+                    pathname.includes('points-dashboard')
+                      ? arbDM
+                      : arbLM
+                  }
+                  alt="points badge"
+                />
               </Box>
             )} */}
             {children}

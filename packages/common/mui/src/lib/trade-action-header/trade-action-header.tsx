@@ -28,9 +28,8 @@ export function TradeActionHeader({
         background: theme.palette.common.white,
         color: theme.palette.common.black,
         boxShadow: theme.shape.shadowLandingPage,
-        border: '1px solid',
-        borderImageSource: theme.gradient.aqua,
-        borderImageSlice: 1,
+        border: `1px solid ${theme.palette.typography.accent}`,
+        borderRadius: theme.shape.borderRadius(),
       }}
     >
       {tokenBottom ? (

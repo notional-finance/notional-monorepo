@@ -92,7 +92,7 @@ export const useBorrowTerms = (
           index === 0 ? (
             <FormattedMessage defaultMessage={'Variable Rate'} />
           ) : o?.token.maturity && index === 1 ? (
-            <FormattedMessage defaultMessage={'Fixed Rate'} />
+            <FormattedMessage defaultMessage={'Fixed Borrow Rate'} />
           ) : undefined,
         token: o?.token,
         largeCaption: totalAPY ? totalAPY : undefined,
@@ -100,7 +100,9 @@ export const useBorrowTerms = (
         largeCaptionSuffix: '% Total APY',
         largeFigure: borrowRate,
         largeFigureDecimals: 2,
-        largeFigureSuffix: `% Borrow APY`,
+        largeFigureSuffix: o?.token.name.includes('Open Term')
+          ? `% Borrow APY`
+          : `% Fixed Borrow APY`,
         caption:
           o?.token.maturity && !o?.token?.symbol.includes('open') ? (
             <Box>
@@ -116,10 +118,9 @@ export const useBorrowTerms = (
 
   const onSelect = useCallback(
     (selectedId: string | null) => {
-      const debt = availableDebtTokens?.find((t) => t.id === selectedId);
-      history.push(`${pathname}?borrowOption=${debt?.id}`);
+      history.push(`${pathname}?borrowOption=${selectedId}`);
     },
-    [availableDebtTokens, history, pathname]
+    [history, pathname]
   );
 
   return { borrowOptions, onSelect };

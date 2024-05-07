@@ -508,6 +508,22 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         },
       ],
     },
+    {
+      address: '0xd0EC47c54cA5e20aaAe4616c25C825c7f48D4069',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0xd0EC47c54cA5e20aaAe4616c25C825c7f48D4069',
+          address: '0xd0EC47c54cA5e20aaAe4616c25C825c7f48D4069',
+          network: Network.arbitrum,
+          symbol: 'rETH/wETH BPT',
+          name: 'Balancer rETH/wETH StablePool',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
   ],
   [Network.optimism]: [],
   [Network.all]: [],

@@ -79,3 +79,4 @@ export * from './lib/simple-toggle/simple-toggle';
 export * from './lib/footer-popup/footer-popup';
 export * from './lib/message-box/message-box';
 export * from './lib/network-toggle/network-toggle';
+export * from './lib/mobile-nav-with-filter/mobile-nav-with-filter';
