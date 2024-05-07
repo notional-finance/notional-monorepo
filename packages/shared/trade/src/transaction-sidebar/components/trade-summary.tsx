@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/mui';
 import { BaseTradeState, VaultTradeState } from '@notional-finance/notionable';
 import { useTradeSummary } from '@notional-finance/notionable-hooks';
-import TotalEarnings from './total-earnings';
+import TotalEarnings from './total-at-maturity';
 import { Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 

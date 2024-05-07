@@ -9,15 +9,15 @@ import { Body, CountUp, LabelValue } from '@notional-finance/mui';
 import { useFiat } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
-interface TotalEarningsProps {
+interface TotalAtMaturityProps {
   totalAtMaturity: TokenBalance | undefined;
   collateral: TokenDefinition | undefined;
 }
 
-export const TotalEarnings = ({
+export const TotalAtMaturity = ({
   totalAtMaturity,
   collateral,
-}: TotalEarningsProps) => {
+}: TotalAtMaturityProps) => {
   const theme = useTheme();
   const baseCurrency = useFiat();
   const tokenValue = totalAtMaturity ? totalAtMaturity?.toFloat() : 0;
@@ -76,4 +76,4 @@ const Container = styled(Box)(
     `
 );
 
-export default TotalEarnings;
+export default TotalAtMaturity;

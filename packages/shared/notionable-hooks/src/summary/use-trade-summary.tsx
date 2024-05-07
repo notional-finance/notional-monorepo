@@ -715,7 +715,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   }
 
   const totalAtMaturity =
-    collateralBalance && deposit
+    collateralBalance && deposit && tradeType === 'LendFixed'
       ? TokenBalance.from(
           collateralBalance.scaleTo(deposit?.decimals),
           deposit
