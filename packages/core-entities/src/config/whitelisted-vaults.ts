@@ -14,6 +14,9 @@ export const PointsMultipliers: Record<
       Renzo: 4,
       EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
+    '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021': (_v) => ({
+      Ethena: 30,
+    }),
   },
   [Network.all]: {},
   [Network.arbitrum]: {
@@ -30,6 +33,7 @@ export const PointsLinks: Record<Network, Record<string, string>> = {
     '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1': 'https://app.ether.fi/defi',
     '0x914255c0c289aea36e378ebb5e28293b5ed278ca':
       'https://app.renzoprotocol.com/defi',
+    '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021': 'https://app.ethena.fi/join',
   },
   [Network.all]: {},
   [Network.arbitrum]: {
