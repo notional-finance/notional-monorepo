@@ -25,7 +25,6 @@ import {
 import { Env } from '.';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
-import zlib from 'zlib';
 
 export class RegistryClientDO extends DurableObject {
   protected serviceName: string;
@@ -47,30 +46,6 @@ export class RegistryClientDO extends DurableObject {
 
   getStorageKey(url: URL): string {
     return url.pathname.slice(1);
-  }
-
-  async encodeGzip(data: string) {
-    return await new Promise<string>((resolve, reject) => {
-      zlib.gzip(Buffer.from(data, 'utf-8'), (err, result) => {
-        if (err) reject(err);
-        resolve(result.toString('base64'));
-      });
-    });
-  }
-
-  async parseGzip(data: string) {
-    try {
-      const unzipped = await new Promise<string>((resolve, reject) => {
-        zlib.unzip(Buffer.from(data, 'base64'), (err, result) => {
-          if (err) reject(err);
-          resolve(result.toString('utf-8'));
-        });
-      });
-      return JSON.parse(unzipped.toString() || '{}');
-    } catch (e) {
-      console.log(e);
-      return {};
-    }
   }
 
   async getDataKey(key: string) {
