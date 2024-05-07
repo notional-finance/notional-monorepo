@@ -47,7 +47,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: notional-web-v2
+          projectName: notional-web-v2-prod
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
