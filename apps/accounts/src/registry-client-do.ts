@@ -74,14 +74,11 @@ export class RegistryClientDO extends DurableObject {
   }
 
   async getDataKey(key: string) {
-    return this.env.ACCOUNT_CACHE_R2.get(key)
-      .then((d) => d.text())
-      .then((d) => this.parseGzip(d));
+    return this.env.ACCOUNT_CACHE_R2.get(key).then((d) => d.json());
   }
 
   async putStorageKey(key: string, data: string) {
-    const gz = await this.encodeGzip(data);
-    await this.env.ACCOUNT_CACHE_R2.put(key, gz);
+    await this.env.ACCOUNT_CACHE_R2.put(key, data);
   }
 
   async fetch(request: Request): Promise<Response> {
