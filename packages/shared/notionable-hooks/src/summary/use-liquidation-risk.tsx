@@ -97,13 +97,15 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   const healthFactor = {
     ..._h,
     asset: undefined,
-    label: defineMessages({
-      content: { defaultMessage: 'Health Factor' },
-      toolTipContent: {
-        defaultMessage:
-          'Your health factor shows your risk. A lower health factor means you have more risk. If your health factor drops below 1, you can be liquidated.',
-      },
-    }),
+    label: {
+      text: defineMessages({
+        content: { defaultMessage: 'Health Factor' },
+        toolTipContent: {
+          defaultMessage:
+            'Your health factor shows your risk. A lower health factor means you have more risk. If your health factor drops below 1, you can be liquidated.',
+        },
+      }),
+    },
     current:
       onlyCurrent && _h?.current
         ? currentHFData?.value
@@ -137,13 +139,15 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
 
   const liquidationRiskTableData = [
     {
-      label: defineMessages({
-        content: { defaultMessage: 'Health Factor' },
-        toolTipContent: {
-          defaultMessage:
-            'Your health factor shows your risk. A lower health factor means you have more risk. If your health factor drops below 1, you can be liquidated.',
-        },
-      }),
+      label: {
+        text: defineMessages({
+          content: { defaultMessage: 'Health Factor' },
+          toolTipContent: {
+            defaultMessage:
+              'Your health factor shows your risk. A lower health factor means you have more risk. If your health factor drops below 1, you can be liquidated.',
+          },
+        }),
+      },
       updated: {
         data: [
           {

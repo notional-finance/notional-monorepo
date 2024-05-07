@@ -172,7 +172,7 @@ export const DataTableBody = ({
                         sx={{
                           color: theme.palette.typography.main,
                           '.multi-value-cell': {
-                            span: { fontSize: '12px' },
+                            span: { fontSize: '12px', fontWeight: 600 },
                           },
                           ...miniTotalRowStyles,
                           justifyContent:
