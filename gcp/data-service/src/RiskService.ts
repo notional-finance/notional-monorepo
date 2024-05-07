@@ -43,13 +43,21 @@ export async function calculateAccountRisks() {
 
   await Promise.all(
     SupportedNetworks.filter((n) => n !== Network.all).map(async (n) => {
-      const results = saveAccountRiskProfiles(n);
+      const { portfolioRiskProfiles, vaultRiskProfiles } =
+        saveAccountRiskProfiles(n);
       try {
         await S3.send(
           new PutObjectCommand({
             Bucket: 'account-cache-r2',
-            Key: `${n}/accounts/riskProfiles`,
-            Body: JSON.stringify(results),
+            Key: `${n}/accounts/portfolioRisk`,
+            Body: JSON.stringify(portfolioRiskProfiles),
+          })
+        );
+        await S3.send(
+          new PutObjectCommand({
+            Bucket: 'account-cache-r2',
+            Key: `${n}/accounts/vaultRisk`,
+            Body: JSON.stringify(vaultRiskProfiles),
           })
         );
       } catch (e) {
@@ -72,7 +80,9 @@ function saveAccountRiskProfiles(network: Network) {
       );
     }) as AccountDefinition[];
 
-  const riskProfiles = accounts
+  const vaultRiskProfiles: ReturnType<typeof getVaultRiskFactors> = [];
+
+  const portfolioRiskProfiles = accounts
     .map((account) => {
       try {
         const accountRiskProfile = new AccountRiskProfile(
@@ -92,27 +102,16 @@ function saveAccountRiskProfiles(network: Network) {
             asset: l.asset.id,
           })),
         };
+        const vaultRiskFactors = getVaultRiskFactors(account);
+
+        if (vaultRiskFactors.length > 0) {
+          vaultRiskProfiles.push(...vaultRiskFactors);
+        }
 
         return {
           address: account.address,
           riskFactors,
           hasCrossCurrencyRisk,
-          vaultRiskFactors: VaultAccountRiskProfile.getAllRiskProfiles(
-            account
-          ).map((v) => {
-            const _riskFactors = v.getAllRiskFactors();
-            const riskFactors = {
-              ..._riskFactors,
-              liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
-                ...l,
-                asset: l.asset.id,
-              })),
-            };
-            return {
-              vaultAddress: v.vaultAddress,
-              riskFactors,
-            };
-          }),
         };
       } catch (e) {
         console.error(e);
@@ -121,5 +120,23 @@ function saveAccountRiskProfiles(network: Network) {
     })
     .filter((a) => a !== undefined);
 
-  return riskProfiles;
+  return { portfolioRiskProfiles, vaultRiskProfiles };
+}
+
+function getVaultRiskFactors(account: AccountDefinition) {
+  return VaultAccountRiskProfile.getAllRiskProfiles(account).map((v) => {
+    const _riskFactors = v.getAllRiskFactors();
+    const riskFactors = {
+      ..._riskFactors,
+      liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
+        ...l,
+        asset: l.asset.id,
+      })),
+    };
+    return {
+      vaultAddress: v.vaultAddress,
+      account: account.address,
+      riskFactors,
+    };
+  });
 }
