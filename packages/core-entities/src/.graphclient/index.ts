@@ -9018,16 +9018,7 @@ export type AllAccountsQuery = { accounts: Array<(
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id' | 'currencyId'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
-      ), current: (
-        Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>
-        & { incentives?: Maybe<Array<(
-          Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed' | 'currentIncentiveDebt'>
-          & { rewardToken: Pick<Token, 'id' | 'symbol'> }
-        )>> }
-      ) }>>, profitLossLineItems?: Maybe<Array<(
-      Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
-      & { account: Pick<Account, 'id'>, transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
-    )>> }
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance'> }>> }
   )> };
 
 export type AllConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
@@ -9311,7 +9302,7 @@ export const AllAccountsDocument = gql`
   ) {
     id
     systemAccountType
-    balances {
+    balances(where: {current_: {currentBalance_not: 0}}) {
       token {
         id
         currencyId
@@ -9323,55 +9314,7 @@ export const AllAccountsDocument = gql`
         timestamp
         blockNumber
         currentBalance
-        _accumulatedCostRealized
-        adjustedCostBasis
-        currentProfitAndLossAtSnapshot
-        totalILAndFeesAtSnapshot
-        totalProfitAndLossAtSnapshot
-        totalInterestAccrualAtSnapshot
-        impliedFixedRate
-        incentives {
-          rewardToken {
-            id
-            symbol
-          }
-          totalClaimed
-          adjustedClaimed
-          currentIncentiveDebt
-        }
       }
-    }
-    profitLossLineItems(
-      where: {bundle_: {bundleName_in: ["Deposit", "Deposit and Transfer", "Withdraw", "Transfer Asset", "Transfer Incentive", "Transfer Secondary Incentive", "Vault Entry", "Vault Exit", "Vault Roll", "Borrow Prime Cash", "Repay Prime Cash", "Borrow fCash", "Repay fCash"]}}
-      first: 1000
-      orderBy: blockNumber
-      orderDirection: desc
-    ) {
-      account {
-        id
-      }
-      timestamp
-      blockNumber
-      transactionHash {
-        id
-      }
-      token {
-        id
-        tokenType
-      }
-      underlyingToken {
-        id
-      }
-      tokenAmount
-      bundle {
-        bundleName
-      }
-      underlyingAmountRealized
-      underlyingAmountSpot
-      realizedPrice
-      spotPrice
-      impliedFixedRate
-      isTransientLineItem
     }
   }
 }

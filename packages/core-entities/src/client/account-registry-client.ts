@@ -20,20 +20,12 @@ import {
 } from '../server/server-registry';
 import { ClientRegistry } from './client-registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import {
-  BalanceSnapshot,
-  ProfitLossLineItem,
-  Token,
-  Transaction,
-} from '../.graphclient';
+import { BalanceSnapshot, Token, Transaction } from '../.graphclient';
 import {
   parseBalanceStatement,
   parseCurrentBalanceStatement,
 } from './accounts/balance-statement';
-import {
-  parseLineItem,
-  parseTransaction,
-} from './accounts/transaction-history';
+import { parseTransaction } from './accounts/transaction-history';
 import { fetchCurrentAccount } from './accounts/current-account';
 
 export enum AccountFetchMode {
@@ -297,53 +289,53 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   network
                 )
               ) || [],
-            balanceStatement: a.balances
-              ?.filter((b) => !!b.token.underlying)
-              .map((b) =>
-                parseCurrentBalanceStatement(
-                  b.current as BalanceSnapshot,
-                  b.token as Token,
-                  network
-                )
-              ),
-            accountIncentiveDebt: a.balances
-              ?.map((b) => {
-                const i = b.current.incentives?.find(
-                  ({ rewardToken }) => rewardToken.symbol === 'NOTE'
-                );
-                return i?.currentIncentiveDebt
-                  ? {
-                      value: TokenBalance.fromSymbol(
-                        i?.currentIncentiveDebt,
-                        'NOTE',
-                        network
-                      ),
-                      currencyId: b.token.currencyId as number,
-                    }
-                  : undefined;
-              })
-              .filter((_) => !!_),
-            secondaryIncentiveDebt: a.balances
-              ?.map((b) => {
-                const i = b.current.incentives?.find(
-                  ({ rewardToken }) => rewardToken.symbol !== 'NOTE'
-                );
-                return i?.currentIncentiveDebt
-                  ? {
-                      value: TokenBalance.fromSymbol(
-                        i?.currentIncentiveDebt,
-                        i.rewardToken.symbol,
-                        network
-                      ),
-                      currencyId: b.token.currencyId as number,
-                    }
-                  : undefined;
-              })
-              .filter((_) => !!_),
-            accountHistory:
-              a.profitLossLineItems?.map((p) =>
-                parseLineItem(p as ProfitLossLineItem, network)
-              ) || [],
+            // balanceStatement: a.balances
+            //   ?.filter((b) => !!b.token.underlying)
+            //   .map((b) =>
+            //     parseCurrentBalanceStatement(
+            //       b.current as BalanceSnapshot,
+            //       b.token as Token,
+            //       network
+            //     )
+            //   ),
+            // accountIncentiveDebt: a.balances
+            //   ?.map((b) => {
+            //     const i = b.current.incentives?.find(
+            //       ({ rewardToken }) => rewardToken.symbol === 'NOTE'
+            //     );
+            //     return i?.currentIncentiveDebt
+            //       ? {
+            //           value: TokenBalance.fromSymbol(
+            //             i?.currentIncentiveDebt,
+            //             'NOTE',
+            //             network
+            //           ),
+            //           currencyId: b.token.currencyId as number,
+            //         }
+            //       : undefined;
+            //   })
+            //   .filter((_) => !!_),
+            // secondaryIncentiveDebt: a.balances
+            //   ?.map((b) => {
+            //     const i = b.current.incentives?.find(
+            //       ({ rewardToken }) => rewardToken.symbol !== 'NOTE'
+            //     );
+            //     return i?.currentIncentiveDebt
+            //       ? {
+            //           value: TokenBalance.fromSymbol(
+            //             i?.currentIncentiveDebt,
+            //             i.rewardToken.symbol,
+            //             network
+            //           ),
+            //           currencyId: b.token.currencyId as number,
+            //         }
+            //       : undefined;
+            //   })
+            //   .filter((_) => !!_),
+            // accountHistory:
+            //   a.profitLossLineItems?.map((p) =>
+            //     parseLineItem(p as ProfitLossLineItem, network)
+            //   ) || [],
           } as AccountDefinition;
 
           return Object.assign(o, { [a.id]: acct });
