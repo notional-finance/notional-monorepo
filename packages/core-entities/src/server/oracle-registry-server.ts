@@ -121,8 +121,8 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             Object.assign(oracle, {
               // Overrides the latest rate property in the oracle record
               latestRate: {
-                rate: results[id],
-                timestamp,
+                rate: results[id].rate,
+                timestamp: results[id].timestamp || timestamp,
                 blockNumber: block.number,
               },
             }),
@@ -141,7 +141,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   private async _getAggregateCalls(
     results: CacheSchema<OracleDefinition>,
     blockNumber?: number
-  ): Promise<AggregateCall<BigNumber>[]> {
+  ): Promise<AggregateCall<{ rate: BigNumber; timestamp?: number }>[]> {
     const provider = this.getProvider(results.network);
     let ts = getNowSeconds();
     if (blockNumber) {
@@ -178,7 +178,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               r: Awaited<
                 ReturnType<IAggregator['functions']['latestRoundData']>
               >
-            ) => r.answer,
+            ) => ({ rate: r.answer, timestamp: r.updatedAt.toNumber() }),
           };
         } else if (oracle.oracleType === 'VaultShareOracleRate') {
           const { maturity } = decodeERC1155Id(oracle.quote);
@@ -208,6 +208,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
                   INTERNAL_TOKEN_PRECISION,
                   maturity,
                 ],
+                transform: (r: BigNumber) => ({ rate: r }),
               };
             }
           }
@@ -221,6 +222,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             ),
             method: 'getExchangeRate',
             args: [maturity],
+            transform: (r: BigNumber) => ({ rate: r }),
           };
         } else if (
           oracle.oracleType === 'fCashOracleRate' ||
@@ -236,9 +238,12 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               r: Awaited<ReturnType<NotionalV3['getActiveMarkets']>>
             ) => {
               const market = r.find((m) => m.maturity.toNumber() === maturity);
-              return oracle.oracleType === 'fCashOracleRate'
-                ? market?.oracleRate
-                : market?.lastImpliedRate;
+              return {
+                rate:
+                  oracle.oracleType === 'fCashOracleRate'
+                    ? market?.oracleRate
+                    : market?.lastImpliedRate,
+              };
             },
           };
         } else if (
@@ -255,13 +260,13 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               r: Awaited<ReturnType<NotionalV3['getPrimeFactors']>>
             ) => {
               if (oracle.oracleType === 'PrimeCashToUnderlyingExchangeRate') {
-                return r.primeRate.supplyFactor;
+                return { rate: r.primeRate.supplyFactor };
               } else if (
                 oracle.oracleType === 'PrimeDebtToUnderlyingExchangeRate'
               ) {
-                return r.primeRate.debtFactor;
+                return { rate: r.primeRate.debtFactor };
               } else {
-                return r.primeRate.oracleSupplyRate;
+                return { rate: r.primeRate.oracleSupplyRate };
               }
             },
           };
@@ -278,9 +283,12 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               transform: (
                 r: Awaited<ReturnType<NotionalV3['getPrimeInterestRate']>>
               ) => {
-                return oracle.oracleType === 'PrimeCashPremiumInterestRate'
-                  ? r.annualSupplyRate
-                  : r.annualDebtRatePostFee;
+                return {
+                  rate:
+                    oracle.oracleType === 'PrimeCashPremiumInterestRate'
+                      ? r.annualSupplyRate
+                      : r.annualDebtRatePostFee,
+                };
               },
             };
           } else {
@@ -296,9 +304,11 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               r: Awaited<ReturnType<NotionalV3['convertNTokenToUnderlying']>>
             ) => {
               if (!oracle.baseDecimals) throw Error('base decimals undefined');
-              return r
-                .mul(BigNumber.from(10).pow(oracle.decimals))
-                .div(BigNumber.from(10).pow(oracle.baseDecimals));
+              return {
+                rate: r
+                  .mul(BigNumber.from(10).pow(oracle.decimals))
+                  .div(BigNumber.from(10).pow(oracle.baseDecimals)),
+              };
             },
           };
         } else if (oracle.oracleType === 'fCashToUnderlyingExchangeRate') {
@@ -311,9 +321,11 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             transform: (
               r: Awaited<ReturnType<NotionalV3['getPresentfCashValue']>>
             ) => {
-              return r
-                .mul(BigNumber.from(10).pow(oracle.decimals))
-                .div(INTERNAL_TOKEN_PRECISION);
+              return {
+                rate: r
+                  .mul(BigNumber.from(10).pow(oracle.decimals))
+                  .div(INTERNAL_TOKEN_PRECISION),
+              };
             },
           };
         } else if (oracle.oracleType === 'sNOTE') {
@@ -328,7 +340,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             args: [[[0, 21600, 0]]], // Get average pair price from 1800 seconds ago
             transform: (
               r: Awaited<ReturnType<BalancerPool['getTimeWeightedAverage']>>
-            ) => r[0],
+            ) => ({ rate: r[0] }),
           };
         } else {
           return null;

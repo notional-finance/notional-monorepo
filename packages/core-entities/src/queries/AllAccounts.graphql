@@ -6,7 +6,7 @@ query AllAccounts($skip: Int) {
     ) {
         id
         systemAccountType
-        balances {
+        balances(where: {current_: { currentBalance_not: 0 }}) {
             token { 
                 id
                 currencyId
@@ -16,56 +16,57 @@ query AllAccounts($skip: Int) {
                 timestamp
                 blockNumber
                 currentBalance
-                _accumulatedCostRealized
-                adjustedCostBasis
-                currentProfitAndLossAtSnapshot
-                totalILAndFeesAtSnapshot
-                totalProfitAndLossAtSnapshot
-                totalInterestAccrualAtSnapshot
-                impliedFixedRate
-                incentives {
-                    rewardToken { id symbol }
-                    totalClaimed
-                    adjustedClaimed
-                    currentIncentiveDebt
-                }
+                # _accumulatedCostRealized
+                # adjustedCostBasis
+                # currentProfitAndLossAtSnapshot
+                # totalILAndFeesAtSnapshot
+                # totalProfitAndLossAtSnapshot
+                # totalInterestAccrualAtSnapshot
+                # impliedFixedRate
+                # incentives {
+                #     rewardToken { id symbol }
+                #     totalClaimed
+                #     adjustedClaimed
+                #     currentIncentiveDebt
+                # }
             }
         }
-        profitLossLineItems(
-            # These are the bundle types that are used for the IRR
-            # calculations
-            where: { bundle_: { bundleName_in: [
-                "Deposit"
-                "Deposit and Transfer",
-                "Withdraw",
-                "Transfer Asset",
-                "Transfer Incentive",
-                "Transfer Secondary Incentive",
-                "Vault Entry",
-                "Vault Exit",
-                "Vault Roll",
-                # These are used for debt detection
-                "Borrow Prime Cash",
-                "Repay Prime Cash",
-                "Borrow fCash",
-                "Repay fCash",
-            ]}}
-            first: 1000, orderBy: blockNumber, orderDirection: desc
-        ) {
-            account { id }
-            timestamp
-            blockNumber
-            transactionHash { id }
-            token { id tokenType }
-            underlyingToken { id }
-            tokenAmount
-            bundle { bundleName }
-            underlyingAmountRealized
-            underlyingAmountSpot
-            realizedPrice
-            spotPrice
-            impliedFixedRate
-            isTransientLineItem
-        }
+    # PnL line items are only used for calculating contest IRR
+    #     profitLossLineItems(
+    #         # These are the bundle types that are used for the IRR
+    #         # calculations
+    #         where: { bundle_: { bundleName_in: [
+    #             "Deposit"
+    #             "Deposit and Transfer",
+    #             "Withdraw",
+    #             "Transfer Asset",
+    #             "Transfer Incentive",
+    #             "Transfer Secondary Incentive",
+    #             "Vault Entry",
+    #             "Vault Exit",
+    #             "Vault Roll",
+    #             # These are used for debt detection
+    #             "Borrow Prime Cash",
+    #             "Repay Prime Cash",
+    #             "Borrow fCash",
+    #             "Repay fCash",
+    #         ]}}
+    #         first: 1000, orderBy: blockNumber, orderDirection: desc
+    #     ) {
+    #         account { id }
+    #         timestamp
+    #         blockNumber
+    #         transactionHash { id }
+    #         token { id tokenType }
+    #         underlyingToken { id }
+    #         tokenAmount
+    #         bundle { bundleName }
+    #         underlyingAmountRealized
+    #         underlyingAmountSpot
+    #         realizedPrice
+    #         spotPrice
+    #         impliedFixedRate
+    #         isTransientLineItem
+    #     }
     }
 }

@@ -1,0 +1,5 @@
+cron:
+- description: "Risk Service"
+  url: /calculateRisk
+  schedule: every 10 minutes
+  target: data-service

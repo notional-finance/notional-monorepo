@@ -16,7 +16,7 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
 
   getVaultAdapter(network: Network, vaultAddress: string) {
     const params = this.getLatestFromSubject(network, vaultAddress);
-    if (!params) throw Error('No vault params found');
+    if (!params) throw Error(`No vault params found: ${vaultAddress}`);
     return new SingleSidedLP(network, vaultAddress, params);
   }
 

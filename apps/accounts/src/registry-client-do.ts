@@ -1,4 +1,4 @@
-import { DurableObjectState } from '@cloudflare/workers-types';
+import { DurableObject } from 'cloudflare:workers';
 import {
   AssetType,
   Network,
@@ -16,7 +16,7 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { BaseDO, MetricType } from '@notional-finance/durable-objects';
+import { Logger, MetricType } from '@notional-finance/durable-objects';
 import {
   calculateAccountIRR,
   // currentContestId,
@@ -25,14 +25,23 @@ import {
 import { Env } from '.';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
-import {
-  AccountRiskProfile,
-  VaultAccountRiskProfile,
-} from '@notional-finance/risk-engine';
 
-export class RegistryClientDO extends BaseDO<Env> {
+export class RegistryClientDO extends DurableObject {
+  protected serviceName: string;
+  protected env: Env;
+  protected logger: Logger;
+
   constructor(state: DurableObjectState, env: Env) {
-    super(state, env, 'registry-client');
+    super(state, env);
+    this.serviceName = 'registry-client';
+    this.env = env;
+    const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
+    this.logger = new Logger({
+      service: this.serviceName,
+      version: version,
+      env: env.NX_ENV,
+      apiKey: env.NX_DD_API_KEY,
+    });
   }
 
   getStorageKey(url: URL): string {
@@ -40,49 +49,72 @@ export class RegistryClientDO extends BaseDO<Env> {
   }
 
   async getDataKey(key: string) {
-    return this.env.ACCOUNT_CACHE_R2.get(key)
-      .then((d) => d.text())
-      .then((d) => this.parseGzip(d));
+    return this.env.ACCOUNT_CACHE_R2.get(key).then((d) => d.json());
   }
 
   async putStorageKey(key: string, data: string) {
-    const gz = await this.encodeGzip(data);
-    await this.env.ACCOUNT_CACHE_R2.put(key, gz);
+    await this.env.ACCOUNT_CACHE_R2.put(key, data);
   }
 
-  async onRefresh(): Promise<void> {
-    // no-op
-  }
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
 
-  override async healthcheck() {
+    if (url.pathname === '/healthcheck') {
+      return this.healthcheck();
+    }
+
     try {
-      Registry.initialize(
-        this.env.NX_DATA_URL,
-        AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
-        false,
-        true,
-        false
-      );
+      const storageKey = this.getStorageKey(url);
 
-      // First trigger a refresh for all supported networks
-      await Promise.all(
-        this.env.SUPPORTED_NETWORKS.map((network) => {
-          if (network === Network.all) return Promise.resolve();
-          return Registry.triggerRefresh(network);
-        })
-      );
+      // Only accept get requests
+      if (request.method === 'GET') {
+        const data = await this.getDataKey(storageKey);
+        return new Response(JSON.stringify(data), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    } catch (e) {
+      return new Response((e as Error).toString(), { status: 500 });
+    }
+
+    return new Response('Not Found', { status: 404 });
+  }
+
+  async _init() {
+    Registry.initialize(
+      this.env.NX_DATA_URL,
+      AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
+      false,
+      true,
+      false
+    );
+
+    // First trigger a refresh for all supported networks
+    await Promise.all(
+      this.env.SUPPORTED_NETWORKS.map((network) => {
+        if (network === Network.all) return Promise.resolve();
+        return Registry.triggerRefresh(network);
+      })
+    );
+  }
+
+  async healthcheck() {
+    try {
+      await this._init();
 
       // Now run all metrics jobs
       for (const network of this.env.SUPPORTED_NETWORKS) {
         if (network === Network.all) continue;
-        await this.checkAccountList(network);
-        await this.checkTotalSupply(network);
-        await this.saveYieldData(network);
+        await Promise.all([
+          this.checkAccountList(network),
+          this.checkTotalSupply(network),
+          this.saveYieldData(network),
+        ]);
         if (network === Network.arbitrum) {
-          await this.checkDBMonitors(network);
+          // await this.checkDBMonitors(network);
           // await this.saveContestIRR(network, currentContestId);
         }
-        await this.saveAccountRiskProfiles(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -252,47 +284,8 @@ export class RegistryClientDO extends BaseDO<Env> {
       .filter(({ irr }) => irr === null || irr < 5);
 
     await this.putStorageKey(
-      `${network}/accounts`,
+      `${network}/accounts/contestResults`,
       JSON.stringify(allContestants)
-    );
-  }
-
-  private async saveAccountRiskProfiles(network: Network) {
-    const accounts = Registry.getAccountRegistry()
-      .getAllSubjectKeys(network)
-      .map((a) =>
-        Registry.getAccountRegistry().getLatestFromSubject(network, a)
-      )
-      .filter((acct) => acct.systemAccountType === 'None');
-
-    const riskProfiles = accounts.map((account) => {
-      const accountRiskProfile = new AccountRiskProfile(
-        account.balances,
-        account.network
-      );
-      const freeCollateralFactors = accountRiskProfile.freeCollateralFactors();
-      const hasCrossCurrencyRisk = freeCollateralFactors.some((e) =>
-        e.totalAssetsLocal.add(e.totalDebtsLocal).isNegative()
-      );
-
-      return {
-        address: account.address,
-        riskFactors: accountRiskProfile.getAllRiskFactors(),
-        hasCrossCurrencyRisk,
-        vaultRiskFactors: VaultAccountRiskProfile.getAllRiskProfiles(
-          account
-        ).map((v) => {
-          return {
-            vaultAddress: v.vaultAddress,
-            riskFactors: v.getAllRiskFactors(),
-          };
-        }),
-      };
-    });
-
-    await this.putStorageKey(
-      `${network}/accounts/riskProfiles`,
-      JSON.stringify(riskProfiles)
     );
   }
 

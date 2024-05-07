@@ -1,4 +1,5 @@
 import { Network } from '@notional-finance/util';
+import { RegistryClientDO } from './registry-client-do';
 export { RegistryClientDO } from './registry-client-do';
 
 export interface Env {
@@ -11,6 +12,7 @@ export interface Env {
   SUPPORTED_NETWORKS: Network[];
   ACCOUNT_CACHE_R2: R2Bucket;
   AUTH_KEY: string;
+  RISK_QUEUE: Queue;
 }
 
 export default {
@@ -31,7 +33,7 @@ export default {
   ): Promise<void> {
     const stub = env.REGISTRY_CLIENT_DO.get(
       env.REGISTRY_CLIENT_DO.idFromName(env.VERSION)
-    );
-    await stub.fetch('http://hostname/healthcheck');
+    ) as unknown as RegistryClientDO;
+    await stub.healthcheck();
   },
 };
