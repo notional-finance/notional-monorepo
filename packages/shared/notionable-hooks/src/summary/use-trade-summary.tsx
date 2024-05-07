@@ -749,8 +749,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     summary.push(earningsRow);
   }
 
-  console.log({ summary });
-
   return {
     summary,
     earnings,

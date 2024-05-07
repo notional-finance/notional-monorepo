@@ -51,8 +51,6 @@ export const CreateVaultLiquidationRisk = ({
     );
   }
 
-  console.log({ tableData });
-
   return (
     <Box>
       {tooRisky && (

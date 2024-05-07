@@ -180,8 +180,6 @@ export const TransactionSidebar = ({
     }
   };
 
-  console.log({ tradeType });
-
   const inner = showSwitchNetwork ? (
     <SwitchNetwork
       context={context}
