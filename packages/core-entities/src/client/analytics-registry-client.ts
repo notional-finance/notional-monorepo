@@ -497,6 +497,45 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     );
   }
 
+  async getAccountRisk(network: Network) {
+    const vaultRisk = ClientRegistry.fetch<{
+      account: string;
+      vaultAddress: string;
+      riskFactors: {
+        netWorth: TokenBalance;
+        debts: TokenBalance;
+        assets: TokenBalance;
+        collateralRatio: number | null;
+        liquidationPrice: {
+          asset: TokenDefinition;
+          threshold: TokenBalance | null;
+          isDebtThreshold: boolean;
+        }[];
+        aboveMaxLeverageRatio: boolean;
+        leverageRatio: number | null;
+      };
+    }>(`${this.cacheHostname}/${network}`, 'accounts/vaultRisk');
+    const portfolioRisk = ClientRegistry.fetch<{
+      address: string;
+      hasCrossCurrencyRisk: boolean;
+      riskFactors: {
+        netWorth: TokenBalance;
+        freeCollateral: TokenBalance;
+        loanToValue: number;
+        collateralRatio: number | null;
+        leverageRatio: number | null;
+        healthFactor: number | null;
+        liquidationPrice: {
+          asset: TokenDefinition;
+          threshold: TokenBalance | null;
+          isDebtThreshold: boolean;
+        }[];
+      };
+    }>(`${this.cacheHostname}/${network}`, 'accounts/portfolioRisk');
+
+    return { vaultRisk, portfolioRisk };
+  }
+
   async getView<T>(network: Network, viewName: string) {
     return this._fetch<T[]>(network, viewName);
   }
