@@ -675,7 +675,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   } else if (tradeType === 'LendVariable' || tradeType === 'MintNToken') {
     earnings = calculate30dEarnings(collateralBalance, totalAPY);
   } else if (tradeType === 'BorrowVariable') {
-    earnings = calculate30dEarnings(debtBalance, totalAPY);
+    earnings = calculate30dEarnings(debtBalance, totalAPY)?.neg();
   } else if (
     tradeType === 'CreateVaultPosition' ||
     tradeType === 'LeveragedNToken'
@@ -683,7 +683,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     const assetEarnings = calculate30dEarnings(collateralBalance, assetAPY);
     const debtCost = calculate30dEarnings(debtBalance, debtAPY)?.abs().neg();
     earnings =
-      assetEarnings && debtCost ? assetEarnings.sub(debtCost) : undefined;
+      assetEarnings && debtCost ? assetEarnings.add(debtCost) : undefined;
   } else {
     earnings = undefined;
   }
@@ -726,7 +726,8 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     const isDebt =
       tradeType === 'BorrowFixed' || tradeType === 'BorrowVariable';
 
-    const prefixSymbol = isDebt ? '-' : '+';
+    // Show the plus on positive values except for borrow fixed
+    const prefixSymbol = earnings.isPositive() && !isDebt ? '+' : '';
 
     const earningsRow = {
       isTotalRow: true,
@@ -741,8 +742,9 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
       value: {
         data: [
           {
-            displayValue: `${prefixSymbol}${earnings?.toDisplayStringWithSymbol()}`,
-            isNegative: false,
+            displayValue: `${prefixSymbol}${earnings.toDisplayStringWithSymbol()}`,
+            // Show red when earnings are negative in leverage scenarios
+            isNegative: earnings.isNegative(),
             showPositiveAsGreen: !isDebt,
           },
         ],
