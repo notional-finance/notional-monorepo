@@ -1,11 +1,18 @@
 import { TableCell } from '../../typography/typography';
 import { InfoTooltip } from '../../info-tooltip/info-tooltip';
 import { useTheme, Box } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, MessageDescriptor } from 'react-intl';
 
 export const ToolTipCell = ({ cell, row }): JSX.Element => {
   const theme = useTheme();
   const value = cell.getValue();
+
+  const content = value?.text?.content
+    ? (value.text.content as MessageDescriptor)
+    : undefined;
+  const toolTipContent = value?.text?.toolTipContent
+    ? (value.text.toolTipContent as MessageDescriptor)
+    : undefined;
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -24,14 +31,17 @@ export const ToolTipCell = ({ cell, row }): JSX.Element => {
             : theme.palette.typography.main,
         }}
       >
-        {value.content ? <FormattedMessage {...value.content} /> : value}
+        {content ? <FormattedMessage {...content} /> : value}
       </TableCell>
-      {value.toolTipContent && (
+      {toolTipContent && (
         <InfoTooltip
-          iconColor={theme.palette.typography.accent}
+          iconColor={value.iconColor || theme.palette.typography.accent}
           iconSize={theme.spacing(2)}
-          sx={{ marginLeft: theme.spacing(1) }}
-          toolTipText={value.toolTipContent}
+          sx={{
+            marginLeft: theme.spacing(1),
+            fill: value.iconColor ? value.iconColor : '',
+          }}
+          toolTipText={toolTipContent}
         />
       )}
     </Box>
