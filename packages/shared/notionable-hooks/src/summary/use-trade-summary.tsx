@@ -14,6 +14,7 @@ import {
   VaultTradeType,
   isDeleverageWithSwappedTokens,
   isVaultTrade,
+  isRollOrConvert,
 } from '@notional-finance/notionable';
 import { BASIS_POINT } from '@notional-finance/util';
 import {
@@ -179,7 +180,7 @@ function getFeeItems(
     // never be any
 
     if (
-      debtBalance?.unwrapVaultToken().tokenType !== 'PrimeCash' ||
+      debtBalance?.unwrapVaultToken().tokenType !== 'PrimeCash' &&
       debtBalance?.unwrapVaultToken().tokenType !== 'PrimeDebt'
     ) {
       feeItems.push(
@@ -193,7 +194,7 @@ function getFeeItems(
     }
     
     if (
-      collateralBalance?.unwrapVaultToken().tokenType !== 'PrimeCash' ||
+      collateralBalance?.unwrapVaultToken().tokenType !== 'PrimeCash' &&
       collateralBalance?.unwrapVaultToken().tokenType !== 'PrimeDebt'
     ) {
       feeItems.push(
@@ -283,7 +284,7 @@ function getDebtFeeDetailItem(
       },
     });
   } else if (
-    isDeleverageTrade(tradeType) &&
+    (isDeleverageTrade(tradeType) || isRollOrConvert(tradeType)) &&
     debtBalance?.unwrapVaultToken()?.tokenType === 'fCash'
   ) {
     feeToolTip = defineMessages({
