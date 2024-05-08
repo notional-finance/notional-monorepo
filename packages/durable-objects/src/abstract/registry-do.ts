@@ -11,7 +11,7 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
   constructor(
     state: DurableObjectState,
     env: BaseDOEnv,
-    alarmCadenceMS: number,
+    alarmCadenceMS: number | undefined,
     serviceName: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     protected RegistryClass: ServerRegistryConstructor<any>
@@ -27,7 +27,7 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
   }
 
   async onRefresh() {
-    // const timeoutDuration = 55_000;
+    const timeoutDuration = 55_000;
 
     try {
       await Promise.all(
@@ -36,25 +36,24 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
 
           // Wrap each promise with a timeout
           const refreshPromise = this.registry.refresh(network);
-          // const timeoutPromise = new Promise((_, reject) =>
-          //   setTimeout(
-          //     () => reject(new Error(`Timeout for ${network}`)),
-          //     timeoutDuration
-          //   )
-          // );
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(
+              () => reject(new Error(`Timeout for ${network}`)),
+              timeoutDuration
+            )
+          );
 
           // Will reject after 5 seconds....
-          await Promise.race([refreshPromise]);
+          await Promise.race([refreshPromise, timeoutPromise]);
 
           // put the serialized data into the correct network storage key
           const data = this.registry.serializeToJSON(network);
           const key = `${this.serviceName}/${network}`;
           await this.putStorageKey(key, data);
 
-          this.logger.log({
-            level: 'debug',
-            message: `Completed Refresh for ${network}`,
-          });
+          console.log(
+            `Completed Refresh on ${this.serviceName} for ${network}`
+          );
         })
       );
     } catch (error) {

@@ -94,7 +94,7 @@ export const MainContainer = styled(Box)(
   background: transparent;
   height: 100%;
   overflow: hidden;
-  max-width: 1230px;
+  max-width: 1200px;
   margin: auto;
   position: relative;
   z-index: 3;

@@ -1,15 +1,21 @@
 import {
   Button as MuiButton,
   ButtonProps as MuiButtonProps,
+  styled,
   useTheme,
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { ExternalLink } from '../external-link/external-link';
+import { NotionalTheme, colors } from '@notional-finance/styles';
 
 /* eslint-disable-next-line */
 export interface ButtonProps extends MuiButtonProps {
   href?: string;
   to?: string;
+}
+interface StyledButtonProps {
+  active: boolean;
+  theme: NotionalTheme;
 }
 
 export function Button(props: ButtonProps) {
@@ -68,5 +74,24 @@ export function Button(props: ButtonProps) {
     return <MuiButton {...newProps} />;
   }
 }
+
+export const StyledButton = styled(Button, {
+  shouldForwardProp: (prop: string) => prop !== 'active',
+})(
+  ({ active, theme }: StyledButtonProps) => `
+    color: ${active ? colors.black : colors.white};
+    background: ${active ? colors.neonTurquoise : colors.black};
+    border: 1px solid ${colors.neonTurquoise};
+    font-weight: 500;
+    
+
+    &:hover {
+      transition: all .3s ease;
+        background: ${active ? colors.neonTurquoise : theme.palette.info.light};
+        color: ${active ? colors.black : colors.white};
+        border: 1px solid ${colors.neonTurquoise};
+    }
+`
+);
 
 export default Button;

@@ -31,7 +31,11 @@ import {
 import { PRICE_ORACLES } from './oracle-registry-client';
 import { TokenBalance } from '../token-balance';
 import { FiatKeys } from '../config/fiat-config';
-import { fetchGraph, loadGraphClientDeferred } from '../server/server-registry';
+import {
+  fetchGraph,
+  fetchGraphPaginate,
+  loadGraphClientDeferred,
+} from '../server/server-registry';
 import { parseTransaction } from './accounts/transaction-history';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { Transaction } from '../.graphclient';
@@ -473,6 +477,63 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     ).then((m) =>
       m.map(({ points, price }) => ({ points, price: parseFloat(price) || 0 }))
     );
+  }
+
+  async getExchangeRateValues(
+    network: Network,
+    oracle: OracleDefinition,
+    // NOTE: can set this to a 90 day window or something by default
+    minTimestamp = 0
+  ) {
+    const { ExchangeRateValuesDocument } = await loadGraphClientDeferred();
+    return fetchGraphPaginate(
+      network,
+      ExchangeRateValuesDocument,
+      'exchangeRates',
+      {
+        oracleId: oracle.id,
+        minTimestamp,
+      }
+    );
+  }
+
+  async getAccountRisk(network: Network) {
+    const vaultRisk = ClientRegistry.fetch<{
+      account: string;
+      vaultAddress: string;
+      riskFactors: {
+        netWorth: TokenBalance;
+        debts: TokenBalance;
+        assets: TokenBalance;
+        collateralRatio: number | null;
+        liquidationPrice: {
+          asset: TokenDefinition;
+          threshold: TokenBalance | null;
+          isDebtThreshold: boolean;
+        }[];
+        aboveMaxLeverageRatio: boolean;
+        leverageRatio: number | null;
+      };
+    }>(`${this.cacheHostname}/${network}`, 'accounts/vaultRisk');
+    const portfolioRisk = ClientRegistry.fetch<{
+      address: string;
+      hasCrossCurrencyRisk: boolean;
+      riskFactors: {
+        netWorth: TokenBalance;
+        freeCollateral: TokenBalance;
+        loanToValue: number;
+        collateralRatio: number | null;
+        leverageRatio: number | null;
+        healthFactor: number | null;
+        liquidationPrice: {
+          asset: TokenDefinition;
+          threshold: TokenBalance | null;
+          isDebtThreshold: boolean;
+        }[];
+      };
+    }>(`${this.cacheHostname}/${network}`, 'accounts/portfolioRisk');
+
+    return { vaultRisk, portfolioRisk };
   }
 
   async getView<T>(network: Network, viewName: string) {

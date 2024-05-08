@@ -37,6 +37,7 @@ export async function loadGraphClientDeferred() {
     ActiveAccountsDocument,
     ExternalLendingHistoryDocument,
     NetworkTransactionHistoryDocument,
+    ExchangeRateValuesDocument,
     MetaDocument,
     // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
   } = await import('../.graphclient/index');
@@ -52,6 +53,7 @@ export async function loadGraphClientDeferred() {
     AllConfigurationByBlockDocument,
     AllOraclesByBlockDocument,
     AllVaultsByBlockDocument,
+    ExchangeRateValuesDocument,
     AccountTransactionHistoryDocument,
     AccountBalanceStatementDocument,
     HistoricalOracleValuesDocument,
@@ -98,6 +100,30 @@ export async function fetchUsingMulticall<T>(
     lastUpdateTimestamp: block.timestamp,
     lastUpdateBlock: block.number,
   };
+}
+
+export async function fetchGraphPaginate<R, V>(
+  network: Network,
+  query: TypedDocumentNode<R, V>,
+  rootVariable: string | undefined,
+  variables?: V
+) {
+  const { execute } = await loadGraphClientDeferred();
+  const executionResult = await execute(query, variables, {
+    chainName: network,
+  });
+  if (executionResult['errors']) console.error(executionResult['errors']);
+
+  while (rootVariable && executionResult['data'][rootVariable].length < 1000) {
+    (variables as unknown as { skip: number })['skip'] += 1000;
+    const r = await execute(query, variables, {
+      chainName: network,
+    });
+
+    executionResult['data'][rootVariable].push(r['data'][rootVariable]);
+  }
+
+  return executionResult;
 }
 
 export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
