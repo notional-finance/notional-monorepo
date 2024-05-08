@@ -14,7 +14,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.569.0",
     "@datadog/browser-rum": "4.24.1",
-    "@duneanalytics/client-sdk": "^0.1.5",
     "@notional-finance/contracts": "file:../../dist/packages/contracts",
     "@notional-finance/core-entities": "file:../../dist/packages/core-entities",
     "@notional-finance/multicall": "file:../../dist/packages/multicall",
