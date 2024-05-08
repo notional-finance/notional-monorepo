@@ -11,7 +11,7 @@ export const ArrowChangeCell = ({ cell }): JSX.Element => {
     <Box
       sx={{
         display: 'flex',
-        justifyContent: column.textAlign,
+        justifyContent: column.columnDef.textAlign,
         alignItems: 'center',
         width: '100%',
         color: value.includes('-') ? colors.red : theme.palette.primary.light,

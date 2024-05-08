@@ -9,7 +9,7 @@
       "options": {
         "commands": [
           {
-            "command": "wrangler dev -e dev --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+            "command": "wrangler dev --test-scheduled --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
         "cwd": "apps/registry-oracles"

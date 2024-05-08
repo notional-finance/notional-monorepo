@@ -12,6 +12,7 @@ import {
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { VaultAccount, BackfillType, DataServiceEvent } from './types';
+import { calculateAccountRisks } from './RiskService';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const port = parseInt(process.env.SERVICE_PORT || '8080');
@@ -85,11 +86,17 @@ async function main() {
       return;
     }
 
+    // This header is set by cron jobs
+    const isAppEngine = req.headers['x-appengine-cron'] === 'true';
     const authToken = req.headers['x-auth-token'];
-    if (!authToken || authToken !== process.env.DATA_SERVICE_AUTH_TOKEN) {
+    if (
+      !isAppEngine &&
+      (!authToken || authToken !== process.env.DATA_SERVICE_AUTH_TOKEN)
+    ) {
       res.status(403).send('Invalid auth token');
       return;
     }
+
     next();
   });
 
@@ -261,10 +268,7 @@ async function main() {
         (va) => va.accountId !== ZERO_ADDRESS
       );
       if (vaultAccounts.length > 0) {
-        await dataService.insertVaultAccounts(
-          network,
-          vaultAccounts
-        );
+        await dataService.insertVaultAccounts(network, vaultAccounts);
       }
       res.status(200).send('OK');
     } catch (e: any) {
@@ -315,6 +319,15 @@ async function main() {
           )
         )
       );
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/calculateRisk', async (_req, res) => {
+    try {
+      await calculateAccountRisks();
+      res.status(200).send('OK');
     } catch (e: any) {
       res.status(500).send(e.toString());
     }

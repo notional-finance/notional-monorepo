@@ -1,10 +1,13 @@
 main = "./src/index.ts"
-compatibility_date = "2022-11-11"
+compatibility_date = "2024-05-01"
 
 workers_dev = true
 node_compat = true
 minify = true
 logpush = true
+
+[triggers]
+crons = ["* * * * *"]
 
 [[migrations]]
 tag = "v1"

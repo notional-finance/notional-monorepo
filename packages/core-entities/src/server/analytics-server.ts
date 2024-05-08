@@ -12,6 +12,7 @@ import {
 import crossFetch from 'cross-fetch';
 import {
   fetchGraph,
+  fetchGraphPaginate,
   loadGraphClientDeferred,
   ServerRegistry,
 } from './server-registry';
@@ -26,6 +27,7 @@ import {
 import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { BigNumber } from 'ethers';
 import { ExecutionResult } from 'graphql';
+import { TypedDocumentNode } from '@apollo/client/core';
 
 export type GraphDocument = keyof Omit<
   Awaited<ReturnType<typeof loadGraphClientDeferred>>,
@@ -321,12 +323,15 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
   async fetchGraphDocument<T = unknown>(
     network: Network,
     document: GraphDocument,
-    variables: Record<string, string | number>
+    variables: Record<string, string | number> = {},
+    rootVariable?: string
   ): Promise<ExecutionResult<T>> {
-    const { execute, ...documents } = await loadGraphClientDeferred();
-    const doc = documents[document];
-    // NOTE: this does not paginate
-    return await execute(doc, variables, { chainName: network });
+    const documents = await loadGraphClientDeferred();
+    const doc = documents[document] as TypedDocumentNode;
+    return await fetchGraphPaginate(network, doc, rootVariable, {
+      ...variables,
+      chainName: network,
+    });
   }
 
   private _convertOrNull<T>(v: string | number | null, fn: (d: number) => T) {

@@ -86,7 +86,7 @@ export const ConvertAsset = () => {
     <Container>
       <Switch>
         <Route
-          path={`/portfolio/:selectedNetwork/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/:selectedToken/manage`}
+          path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/:selectedToken/manage`}
           exact={false}
         >
           <DrawerTransition fade={true}>
@@ -96,7 +96,7 @@ export const ConvertAsset = () => {
           </DrawerTransition>
         </Route>
         <Route
-          path={`/portfolio/:selectedNetwork/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/:selectedToken/convertTo/:selectedCollateralToken`}
+          path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/:selectedToken/convertTo/:selectedCollateralToken`}
           exact={false}
         >
           <ConvertCollateral />

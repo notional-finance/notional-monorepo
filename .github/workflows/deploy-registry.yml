@@ -9,14 +9,14 @@ on:
       branch:
         description: 'Choose an branch to deploy:'
         required: false
-        default: 'alpha/arbitrum'
+        default: 'v3/prod'
       registry:
         description: 'Set a registry to deploy: <configuration|exchanges|oracles|tokens|vaults|data>'
         required: true
         default: ''
   push:
     branches:
-      - alpha/arbitrum
+      - v3/prod
 
 jobs:
   deploy:
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ github.event.inputs.branch || 'alpha/arbitrum' }}
+          ref: ${{ github.event.inputs.branch || 'v3/prod' }}
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:

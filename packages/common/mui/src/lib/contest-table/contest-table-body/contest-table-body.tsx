@@ -18,15 +18,18 @@ interface StyledTableRowProps extends TableRowProps {
   styleLastRow?: boolean;
   isCurrentUser?: boolean;
   expandableTableActive?: boolean;
+  tableVariant?: CONTEST_TABLE_VARIANTS;
 }
 
 interface ContestTableBodyProps {
   rows: Record<string, any>[];
+  tableVariant?: CONTEST_TABLE_VARIANTS;
   isCurrentUser?: boolean;
 }
 
 export const ContestTableBody = ({
   rows,
+  tableVariant,
   isCurrentUser,
 }: ContestTableBodyProps) => {
   const theme = useTheme() as NotionalTheme;
@@ -50,6 +53,7 @@ export const ContestTableBody = ({
               key={`row-${i}`}
               rowSelected={rowSelected}
               isCurrentUser={isCurrentUser}
+              tableVariant={tableVariant}
             >
               {cells.map((cell: Record<string, any>) => {
                 return (
@@ -60,14 +64,16 @@ export const ContestTableBody = ({
                       whiteSpace: 'nowrap',
                       width:
                         cell.column.columnDef.width || cell.column.getSize(),
-                      color: isCurrentUser
-                        ? colors.neonTurquoise
-                        : colors.white,
+                      fontWeight: cell.column.columnDef.fontWeight || 'normal',
+                      color:
+                        isCurrentUser ||
+                        tableVariant === CONTEST_TABLE_VARIANTS.ACCENT
+                          ? colors.neonTurquoise
+                          : colors.white,
                       borderRight: cell.column.columnDef.isIDCell
                         ? `1px solid ${colors.neonTurquoise}`
                         : 'none',
                       borderBottom: `1px solid ${colors.neonTurquoise}`,
-
                       fontSize: cell.column.columnDef.fontSize || '14px',
                     }}
                   >
@@ -92,7 +98,12 @@ const StyledTableRow = styled(TableRow, {
   shouldForwardProp: (prop: string) =>
     prop !== 'rowSelected' && prop !== 'isCurrentUser',
 })(
-  ({ theme, rowSelected, isCurrentUser }: StyledTableRowProps) => `
+  ({
+    theme,
+    rowSelected,
+    isCurrentUser,
+    tableVariant,
+  }: StyledTableRowProps) => `
     background: ${rowSelected ? theme.palette.info.light : 'transparent'};
     box-sizing: border-box;
     box-shadow: ${
@@ -102,6 +113,12 @@ const StyledTableRow = styled(TableRow, {
       background: ${
         isCurrentUser ? `rgba(231, 232, 242, 0.25)` : `rgba(51, 248, 255, 0.10)`
       };
+    };
+
+    background: ${
+      tableVariant === CONTEST_TABLE_VARIANTS.ACCENT
+        ? 'rgba(51, 248, 255, 0.10)'
+        : ''
     };
 
     .MuiTableRow-root, td {

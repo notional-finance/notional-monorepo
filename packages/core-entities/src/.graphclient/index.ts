@@ -8887,6 +8887,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AllVaultsByBlockDocument.graphql'
       },{
+        document: ExchangeRateValuesDocument,
+        get rawSDL() {
+          return printWithCache(ExchangeRateValuesDocument);
+        },
+        location: 'ExchangeRateValuesDocument.graphql'
+      },{
         document: ExternalLendingHistoryDocument,
         get rawSDL() {
           return printWithCache(ExternalLendingHistoryDocument);
@@ -9012,16 +9018,7 @@ export type AllAccountsQuery = { accounts: Array<(
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id' | 'currencyId'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
-      ), current: (
-        Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>
-        & { incentives?: Maybe<Array<(
-          Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed' | 'currentIncentiveDebt'>
-          & { rewardToken: Pick<Token, 'id' | 'symbol'> }
-        )>> }
-      ) }>>, profitLossLineItems?: Maybe<Array<(
-      Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
-      & { account: Pick<Account, 'id'>, transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
-    )>> }
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance'> }>> }
   )> };
 
 export type AllConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
@@ -9114,6 +9111,15 @@ export type AllVaultsByBlockQueryVariables = Exact<{
 
 
 export type AllVaultsByBlockQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'enabled'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type ExchangeRateValuesQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+  oracleId?: InputMaybe<Scalars['String']>;
+  minTimestamp?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type ExchangeRateValuesQuery = { exchangeRates: Array<Pick<ExchangeRate, 'timestamp' | 'rate'>> };
 
 export type ExternalLendingHistoryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9296,7 +9302,7 @@ export const AllAccountsDocument = gql`
   ) {
     id
     systemAccountType
-    balances {
+    balances(where: {current_: {currentBalance_not: 0}}) {
       token {
         id
         currencyId
@@ -9308,55 +9314,7 @@ export const AllAccountsDocument = gql`
         timestamp
         blockNumber
         currentBalance
-        _accumulatedCostRealized
-        adjustedCostBasis
-        currentProfitAndLossAtSnapshot
-        totalILAndFeesAtSnapshot
-        totalProfitAndLossAtSnapshot
-        totalInterestAccrualAtSnapshot
-        impliedFixedRate
-        incentives {
-          rewardToken {
-            id
-            symbol
-          }
-          totalClaimed
-          adjustedClaimed
-          currentIncentiveDebt
-        }
       }
-    }
-    profitLossLineItems(
-      where: {bundle_: {bundleName_in: ["Deposit", "Deposit and Transfer", "Withdraw", "Transfer Asset", "Transfer Incentive", "Transfer Secondary Incentive", "Vault Entry", "Vault Exit", "Vault Roll", "Borrow Prime Cash", "Repay Prime Cash", "Borrow fCash", "Repay fCash"]}}
-      first: 1000
-      orderBy: blockNumber
-      orderDirection: desc
-    ) {
-      account {
-        id
-      }
-      timestamp
-      blockNumber
-      transactionHash {
-        id
-      }
-      token {
-        id
-        tokenType
-      }
-      underlyingToken {
-        id
-      }
-      tokenAmount
-      bundle {
-        bundleName
-      }
-      underlyingAmountRealized
-      underlyingAmountSpot
-      realizedPrice
-      spotPrice
-      impliedFixedRate
-      isTransientLineItem
     }
   }
 }
@@ -9785,6 +9743,20 @@ export const AllVaultsByBlockDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AllVaultsByBlockQuery, AllVaultsByBlockQueryVariables>;
+export const ExchangeRateValuesDocument = gql`
+    query ExchangeRateValues($skip: Int, $oracleId: String, $minTimestamp: Int) {
+  exchangeRates(
+    where: {oracle: $oracleId, timestamp_gt: $minTimestamp}
+    first: 1000
+    skip: $skip
+    orderBy: timestamp
+    orderDirection: desc
+  ) {
+    timestamp
+    rate
+  }
+}
+    ` as unknown as DocumentNode<ExchangeRateValuesQuery, ExchangeRateValuesQueryVariables>;
 export const ExternalLendingHistoryDocument = gql`
     query ExternalLendingHistory {
   externalLendings {
@@ -9985,6 +9957,7 @@ export const VaultReinvestmentDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
@@ -10026,6 +9999,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AllVaultsByBlock(variables?: AllVaultsByBlockQueryVariables, options?: C): Promise<AllVaultsByBlockQuery> {
       return requester<AllVaultsByBlockQuery, AllVaultsByBlockQueryVariables>(AllVaultsByBlockDocument, variables, options) as Promise<AllVaultsByBlockQuery>;
+    },
+    ExchangeRateValues(variables?: ExchangeRateValuesQueryVariables, options?: C): Promise<ExchangeRateValuesQuery> {
+      return requester<ExchangeRateValuesQuery, ExchangeRateValuesQueryVariables>(ExchangeRateValuesDocument, variables, options) as Promise<ExchangeRateValuesQuery>;
     },
     ExternalLendingHistory(variables?: ExternalLendingHistoryQueryVariables, options?: C): Promise<ExternalLendingHistoryQuery> {
       return requester<ExternalLendingHistoryQuery, ExternalLendingHistoryQueryVariables>(ExternalLendingHistoryDocument, variables, options) as Promise<ExternalLendingHistoryQuery>;

@@ -68,7 +68,7 @@ export const HeroStats = () => {
               </Button>
             </div>
           ) : (
-            <ProgressIndicator type="circular" />
+            <ProgressIndicator type="notional" />
           )}
         </StatsContent>
       </ImgContainer>

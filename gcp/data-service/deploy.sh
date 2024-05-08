@@ -3,10 +3,13 @@ set -e
 
 echo "Current directory: $(pwd)"
 
-cd ../.. && echo "$(pwd)" && yarn nx build core-entities
+cd ../..
+echo "$(pwd)"
+rm -rf ./dist
+yarn nx build risk-engine
 cd -
 rm -rf ./dist
 rm -rf ./node_modules
 cp -r ../../dist .
 yarn
-gcloud --project monitoring-agents app deploy
+gcloud --project monitoring-agents app deploy app.yaml cron.yaml
