@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { AnimationItem } from 'lottie-web';
 import { Player } from '@lottiefiles/react-lottie-player';
 import { ProgressIndicator } from '@notional-finance/mui';
-import betaPass from '../../assets/betaPass.svg';
-import betaPassOverlay from '../../assets/beta-pass-overlay.json';
+import betaPass from '../assets/betaPass.svg';
+import betaPassOverlay from '../assets/beta-pass-overlay.json';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { BETA_ACCESS } from '@notional-finance/notionable';
 

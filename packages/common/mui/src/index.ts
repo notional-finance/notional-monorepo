@@ -69,6 +69,7 @@ export * from './lib/trade-action-header/trade-action-header';
 export * from './lib/trade-action-title/trade-action-title';
 export * from './lib/trade-summary-container/trade-summary-container';
 export * from './lib/trade-summary-box/trade-summary-box';
+export * from './lib/note-chart/note-chart';
 export * from './lib/type-form/type-form';
 export * from './lib/typography/typography';
 export * from './lib/external-link/external-link';

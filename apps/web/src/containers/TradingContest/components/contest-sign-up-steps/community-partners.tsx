@@ -6,8 +6,8 @@ import {
   TitleText,
   ContestBodyText,
   StepContainer,
-} from '../contest-shared-elements/contest-shared-elements';
-import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
+} from '../contest-shared-elements';
+import { ContestButtonBar } from '../contest-button-bar';
 import Llama from './assets/Llama.svg';
 import Cryptotesters from './assets/cryptotesters.svg';
 import L2DAO from './assets/L2DAO.svg';

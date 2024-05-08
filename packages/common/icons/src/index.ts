@@ -78,6 +78,7 @@ export * from './lib/bell-icon/bell-icon';
 export * from './lib/v3-beta-icon/v3-beta-icon';
 export * from './lib/announcement-icon/announcement-icon';
 export * from './lib/plus-icon/plus-icon';
+export * from './lib/note-outline-icon/note-outline-icon';
 export * from './lib/note-with-shadow/note-with-shadow';
 export * from './lib/up-and-down-icon/up-and-down-icon';
 export * from './assets/icons/currencies/eth-dai-usdc-wbtc.svg';

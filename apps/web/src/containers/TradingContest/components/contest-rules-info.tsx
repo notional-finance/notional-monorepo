@@ -2,10 +2,13 @@ import { useTheme, Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { Faq, FaqHeader } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { useContestRulesInfo } from '../../hooks';
-import { ContestButtonBar } from '../contest-button-bar/contest-button-bar';
-import { SectionTitle } from '../contest-shared-elements/contest-shared-elements';
-import { contestActive, useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useContestRulesInfo } from '../hooks';
+import { ContestButtonBar } from './contest-button-bar';
+import { SectionTitle } from './contest-shared-elements';
+import {
+  contestActive,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 
 export const ContestRulesInfo = () => {
   const theme = useTheme();
