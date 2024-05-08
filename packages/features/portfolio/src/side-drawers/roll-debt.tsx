@@ -89,7 +89,7 @@ export const RollDebt = () => {
     <Container>
       <Switch>
         <Route
-          path={`/portfolio/:selectedNetwork/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/:selectedToken/manage`}
+          path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.ROLL_DEBT}/:selectedToken/manage`}
           exact={false}
         >
           <DrawerTransition fade={true}>
@@ -100,7 +100,7 @@ export const RollDebt = () => {
         </Route>
 
         <Route
-          path={`/portfolio/:selectedNetwork/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/:selectedToken/convertTo/:selectedCollateralToken`}
+          path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.ROLL_DEBT}/:selectedToken/convertTo/:selectedCollateralToken`}
           exact={false}
         >
           <ConvertDebt />
