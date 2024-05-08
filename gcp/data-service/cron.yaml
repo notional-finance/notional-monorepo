@@ -3,3 +3,7 @@ cron:
   url: /calculateRisk
   schedule: every 10 minutes
   target: data-service
+- description: "Sync Dune"
+  url: /syncDune
+  schedule: every day at midnight
+  target: data-service
