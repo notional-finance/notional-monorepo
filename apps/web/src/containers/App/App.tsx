@@ -52,7 +52,7 @@ import {
   ContestLeaderBoard,
 } from '../../containers/TradingContest';
 import { Markets } from '../Markets';
-import { NetworkTransactionsView } from '../AnalyticsViews';
+import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
@@ -203,8 +203,13 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute path="/note" component={NoteView} routeType="Note" />
           <AppLayoutRoute
-            path="/analytics/transactions"
-            component={NetworkTransactionsView}
+            path="/analytics/:category"
+            component={AnalyticsViews}
+            routeType="Analytics"
+          />
+          <AppLayoutRoute
+            path="/analytics"
+            component={AnalyticsViews}
             routeType="Analytics"
           />
           <AppLayoutRoute

@@ -89,6 +89,12 @@ export enum PORTFOLIO_CATEGORIES {
   TRANSACTION_HISTORY = 'transaction-history',
 }
 
+export enum ANALYTICS_VIEWS {
+  ALL_TRANSACTIONS = 'all-transactions',
+  ALL_ACCOUNTS = 'all-accounts',
+  ALL_VAULT_ACCOUNTS = 'all-vault-accounts',
+}
+
 export enum CONTEST_SIGN_UP_STEPS {
   LOADING = 'loading',
   CONNECT_WALLET = 'connect-wallet',
