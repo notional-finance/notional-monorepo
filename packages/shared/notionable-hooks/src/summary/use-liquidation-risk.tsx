@@ -174,20 +174,28 @@ export function useVaultDetails(state: VaultTradeState) {
   const healthFactor = {
     ..._h,
     asset: undefined,
-    label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-    // label: {
-    //   text: defineMessages({
-    //     content: { defaultMessage: 'Health Factor' },
-    //     toolTipContent: {
-    //       defaultMessage:
-    //         'Your health factor shows your risk. A lower health factor means you have more risk. If your health factor drops below 1, you can be liquidated.',
-    //     },
-    //   }),
-    // },
-    current:
-      onlyCurrent && _h?.current
-        ? currentHFData?.value
-        : _h?.current?.toFixed(2) || '',
+    label: {
+      text: defineMessages({
+        content: { defaultMessage: 'Health Factor' },
+        toolTipContent: {
+          defaultMessage:
+            'Your health factor shows your risk. A lower health factor means you have more risk. If your health factor drops below 1, you can be liquidated.',
+        },
+      }),
+    },
+    current: {
+      data: [
+        {
+          displayValue:
+            onlyCurrent && _h?.current
+              ? currentHFData?.value
+              : _h?.current?.toFixed(2) || '',
+          isNegative: false,
+          showPositiveAsGreen: true,
+          textColor: updatedHFData?.textColor,
+        },
+      ],
+    },
     updated: updatedHFData?.value,
     textColor: updatedHFData?.textColor,
     hideArrow,
@@ -196,7 +204,11 @@ export function useVaultDetails(state: VaultTradeState) {
   const factors = [
     {
       ...totalAPY,
-      label: intl.formatMessage({ defaultMessage: 'Total APY' }),
+      label: {
+        text: defineMessages({
+          content: { defaultMessage: 'Total APY' },
+        }),
+      },
       current: formatNumberAsPercentWithUndefined(
         currentPosition?.totalAPY,
         '-'
@@ -206,7 +218,11 @@ export function useVaultDetails(state: VaultTradeState) {
     healthFactor,
     {
       ...netWorth,
-      label: intl.formatMessage({ defaultMessage: 'Net Worth' }),
+      label: {
+        text: defineMessages({
+          content: { defaultMessage: 'Net Worth' },
+        }),
+      },
       current:
         currentPosition?.netWorth
           ?.toFiat(baseCurrency)
@@ -218,7 +234,11 @@ export function useVaultDetails(state: VaultTradeState) {
     },
     {
       ...borrowAPY,
-      label: intl.formatMessage({ defaultMessage: 'Borrow APY' }),
+      label: {
+        text: defineMessages({
+          content: { defaultMessage: 'Borrow APY' },
+        }),
+      },
       current: formatNumberAsPercentWithUndefined(
         currentPosition?.borrowAPY,
         '-'

@@ -128,7 +128,15 @@ export const useLiquidityDetails = () => {
   const table = [
     {
       label: 'Total APY',
-      current: formatNumberAsPercentWithUndefined(currentAPY, '-'),
+      current: {
+        data: [
+          {
+            displayValue: formatNumberAsPercentWithUndefined(currentAPY, '-'),
+            isNegative: false,
+          },
+        ],
+      },
+
       updated: {
         value: formatNumberAsPercentWithUndefined(newAPY, '-'),
         arrowUp: getChangeType(currentAPY, newAPY) === 'increase',
@@ -139,9 +147,16 @@ export const useLiquidityDetails = () => {
     },
     {
       label: 'Leverage Ratio',
-      current: currentHoldings?.leverageRatio
-        ? formatLeverageRatio(currentHoldings?.leverageRatio)
-        : '-',
+      current: {
+        data: [
+          {
+            displayValue: currentHoldings?.leverageRatio
+              ? formatLeverageRatio(currentHoldings?.leverageRatio)
+              : '-',
+            isNegative: false,
+          },
+        ],
+      },
       updated: {
         value: newLeverageRatio ? formatLeverageRatio(newLeverageRatio) : '-',
         arrowUp:
@@ -162,7 +177,15 @@ export const useLiquidityDetails = () => {
   if (liquidationPrice) {
     table.push({
       label: liquidationPrice.label as string,
-      current: liquidationPrice.current,
+      current: {
+        data: [
+          {
+            displayValue: liquidationPrice.current,
+            isNegative: false,
+          },
+        ],
+      },
+
       updated: {
         value: liquidationPrice.updated,
         arrowUp: liquidationPrice.changeType === 'increase',
@@ -176,10 +199,17 @@ export const useLiquidityDetails = () => {
   if (currentHoldings?.debt.marketYield?.token.tokenType === 'fCash') {
     table.push({
       label: 'Borrow Rate',
-      current: formatNumberAsPercentWithUndefined(
-        currentHoldings.borrowAPY,
-        '-'
-      ),
+      current: {
+        data: [
+          {
+            displayValue: formatNumberAsPercentWithUndefined(
+              currentHoldings.borrowAPY,
+              '-'
+            ),
+            isNegative: false,
+          },
+        ],
+      },
       updated: {
         value: formatNumberAsPercentWithUndefined(newFixedRate, '-'),
         arrowUp:
