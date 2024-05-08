@@ -76,9 +76,16 @@ export const CreateVaultLiquidationRisk = ({
             defaultMessage={'Input parameters to see your liquidation risk.'}
           />
         }
-        data={tableData.map(({ label, updated }) => ({
+        data={tableData.map(({ label, updated, textColor }) => ({
           label,
-          current: updated,
+          current: {
+            data: [
+              {
+                displayValue: updated,
+                textColor: textColor,
+              },
+            ],
+          },
         }))}
         columns={columns}
       />

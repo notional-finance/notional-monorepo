@@ -38,7 +38,10 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
         />
       ) : value?.data ? (
         value.data.map(
-          ({ displayValue, isNegative, showPositiveAsGreen }, index) => (
+          (
+            { displayValue, isNegative, showPositiveAsGreen, textColor },
+            index
+          ) => (
             <Box
               key={`${column.columnDef.id}-${row.id}-${index}`}
               sx={{
@@ -55,10 +58,11 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
                       width: '100%',
                       fontWeight:
                         isTotalRow || row.original.isEarningsRow ? 600 : 500,
-                      color:
-                        isNegative && !row.original.isDebt
-                          ? theme.palette.error.main
-                          : showPositiveAsGreen && theme.palette.primary.main,
+                      color: textColor
+                        ? textColor
+                        : isNegative && !row.original.isDebt
+                        ? theme.palette.error.main
+                        : showPositiveAsGreen && theme.palette.primary.main,
                     }}
                   >
                     {displayValue}
