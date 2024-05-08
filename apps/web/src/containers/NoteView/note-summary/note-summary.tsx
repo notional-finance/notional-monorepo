@@ -88,7 +88,7 @@ export const NoteSummary = () => {
               <H5>
                 <FormattedMessage defaultMessage={'NOTE Price'} />
               </H5>
-              <PercentAndDate apy="+3.26%" dateRange="(30d)" />
+              <PercentAndDate apy="+3.26%" dateRange="(24h)" />
             </Box>
             <H2 sx={{ display: 'flex', alignItems: 'center' }}>
               <TokenIcon
