@@ -5,7 +5,7 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
-import { Body, CountUp, LabelValue } from '@notional-finance/mui';
+import { Body, Caption, CountUp, LabelValue } from '@notional-finance/mui';
 import { useFiat } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
@@ -51,13 +51,13 @@ export const TotalAtMaturity = ({
         >
           <CountUp value={tokenValue} suffix={symbol} decimals={4} />
         </LabelValue>
-        <LabelValue>
+        <Caption>
           <CountUp
             value={fiatValue}
             prefix={FiatSymbols[baseCurrency]}
             decimals={2}
           />
-        </LabelValue>
+        </Caption>
       </Box>
     </Container>
   );
