@@ -220,6 +220,7 @@ export function isLeveragedTrade(tradeType?: VaultTradeType | TradeType) {
     isVaultTrade(tradeType) ||
     tradeType === 'LeveragedLend' ||
     tradeType === 'LeveragedNToken' ||
+    tradeType === 'IncreaseLeveragedNToken' ||
     tradeType === 'LeveragedNTokenAdjustLeverage'
   );
 }

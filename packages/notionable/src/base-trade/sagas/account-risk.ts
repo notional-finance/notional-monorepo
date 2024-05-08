@@ -55,7 +55,7 @@ export function postAccountRisk(
         a1?.network === a2?.network
     ),
     // Filter required to ensure that account and network are synchronized
-    filter(([a, s]) => !!a?.network && a.network === s.selectedNetwork),
+    filter(([a, s]) => (a === null || (!!a?.network && a.network === s.selectedNetwork))),
     map(
       ([
         account,

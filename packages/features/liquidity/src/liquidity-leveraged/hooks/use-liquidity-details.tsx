@@ -114,10 +114,10 @@ export const useLiquidityDetails = () => {
       // fixed rate since the user is increasing their position.
       // [newBalance * prevImpliedRate - netBalance * (newRate - prevRate)] / newBalance
       debtBalance.tokenId === newDebt.tokenId
-        ? (newDebt.toFloat() * currentHoldings.borrowAPY -
+        ? Math.abs((newDebt.toFloat() * currentHoldings.borrowAPY -
             debtBalance.toFloat() *
               (newBorrowRate - currentHoldings.borrowAPY)) /
-          newDebt.toFloat()
+          newDebt.toFloat())
         : // If the collateral balance is fCash that means the position is being reduced,
           // and we do not need to change the borrow rate.
           currentHoldings.borrowAPY;
