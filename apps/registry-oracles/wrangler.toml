@@ -1,11 +1,13 @@
 main = "./src/index.ts"
-compatibility_date = "2022-11-11"
+compatibility_date = "2024-05-01"
 
 workers_dev = true
 node_compat = true
 minify = true
 logpush = true
 
+[triggers]
+crons = ["* * * * *"]
 
 [[migrations]]
 tag = "v1"
@@ -19,7 +21,7 @@ NX_ENV = 'dev'
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
 VERSION = 'v1'
-SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]
+SUPPORTED_NETWORKS = [ 'arbitrum', 'mainnet', 'all' ]
 
 # NX_DD_API_KEY
 

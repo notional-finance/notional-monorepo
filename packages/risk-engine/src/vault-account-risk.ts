@@ -15,6 +15,7 @@ import {
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
+import { DeprecatedVaults } from '@notional-finance/core-entities';
 
 export class VaultAccountRiskProfile extends BaseRiskProfile {
   static collateralToLeverageRatio(collateralRatio: number) {
@@ -85,6 +86,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         // Include disabled vaults here in case the account still has a position
         .getAllListedVaults(account.network, true)
         ?.map(({ vaultAddress }) => {
+          if (DeprecatedVaults.includes(vaultAddress.toLowerCase()))
+            return undefined;
           return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
         })
         .filter((v) => v !== undefined) as VaultAccountRiskProfile[]

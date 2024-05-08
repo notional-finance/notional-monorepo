@@ -83,8 +83,8 @@ export const whitelistedVaults = (network: Network) => {
         '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
         // "[wstETH]:xwstETH_cbETH_rETH"
         '0x37dd23ab1885982f789a2d6400b583b8ae09223d',
-        // // "[ETH]:rETH_xWETH"
-        // '0xa0d61c08e642103158fc6a1495e7ff82baf25857',
+        // "[ETH]:rETH_xWETH"
+        '0xa0d61c08e642103158fc6a1495e7ff82baf25857',
         // "[wstETH]:ezETH_xwstETH":
         '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937',
         // "[WBTC]:xWBTC_tBTC":

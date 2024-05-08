@@ -54,4 +54,5 @@ export type DataTableColumn = {
   sortingFn?: any;
   enableSorting?: boolean;
   fontSize?: string;
+  showCustomIcon?: boolean;
 };

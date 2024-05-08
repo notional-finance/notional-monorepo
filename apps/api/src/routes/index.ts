@@ -13,17 +13,6 @@ function _handler(request: IRequest, ns: DurableObjectNamespace, name: string) {
   return stub.fetch(request as unknown as CFRequest);
 }
 
-const handleKPIs = (_request: IRequest, _env: APIEnv) => {
-  return new Response(
-    JSON.stringify({
-      totalAccounts: 1826,
-      totalLoanVolume: 773_000_000,
-      totalValueLocked: 26_000_000,
-    })
-  );
-  // return _handler(request, env.KPIS_DO, env.KPIS_NAME);
-};
-
 const handleYields = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
 };
@@ -86,7 +75,6 @@ const handlePlausibleForward = async (request: IRequest, _env: APIEnv) => {
 };
 
 export {
-  handleKPIs,
   handleGeoIP,
   handleNewsletter,
   handleYields,

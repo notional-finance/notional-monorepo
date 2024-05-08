@@ -20,20 +20,12 @@ import {
 } from '../server/server-registry';
 import { ClientRegistry } from './client-registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import {
-  BalanceSnapshot,
-  ProfitLossLineItem,
-  Token,
-  Transaction,
-} from '../.graphclient';
+import { BalanceSnapshot, Token, Transaction } from '../.graphclient';
 import {
   parseBalanceStatement,
   parseCurrentBalanceStatement,
 } from './accounts/balance-statement';
-import {
-  parseLineItem,
-  parseTransaction,
-} from './accounts/transaction-history';
+import { parseTransaction } from './accounts/transaction-history';
 import { fetchCurrentAccount } from './accounts/current-account';
 
 export enum AccountFetchMode {
@@ -297,6 +289,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   network
                 )
               ) || [],
+            /* NOTE: currently disabled to improve batch account loading performance
             balanceStatement: a.balances
               ?.filter((b) => !!b.token.underlying)
               .map((b) =>
@@ -344,6 +337,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               a.profitLossLineItems?.map((p) =>
                 parseLineItem(p as ProfitLossLineItem, network)
               ) || [],
+            */
           } as AccountDefinition;
 
           return Object.assign(o, { [a.id]: acct });

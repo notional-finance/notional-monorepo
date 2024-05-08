@@ -1,9 +1,8 @@
 import { SetStateAction, Dispatch } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { Caption } from '@notional-finance/mui';
+import { Caption } from '../../typography/typography';
 import { MARKET_TYPE } from '@notional-finance/util';
 import { FilterIcon } from '@notional-finance/icons';
-import { useMarketsMobileNav } from '../hooks';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme, colors } from '@notional-finance/styles';
 
@@ -14,20 +13,21 @@ interface CustomLinkProps {
 }
 
 interface MarketsMobileNavProps {
-  setEarnBorrowOption: (v: number) => void;
-  earnBorrowOption: number;
+  setEarnBorrowOption?: (v: number) => void;
+  earnBorrowOption?: number;
   filterOpen: boolean;
+  options?: any[];
   setFilterOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export function MarketsMobileNav({
-  earnBorrowOption,
+  earnBorrowOption = 0,
   setEarnBorrowOption,
   filterOpen,
+  options,
   setFilterOpen,
 }: MarketsMobileNavProps) {
   const theme = useTheme();
-  const options = useMarketsMobileNav(setEarnBorrowOption, earnBorrowOption);
 
   return (
     <MobileNavContainer>
@@ -41,27 +41,29 @@ export function MarketsMobileNav({
           alignItems: 'center',
         }}
       >
-        <NavOption>
-          {options.map(({ title, Icon, id }, index) => (
-            <CustomLink
-              key={`${index}-${id}`}
-              dataKey={id}
-              theme={theme}
-              earnBorrowOption={earnBorrowOption}
-              onClick={() => setEarnBorrowOption(id)}
-              sx={{ marginRight: theme.spacing(2) }}
-            >
-              <Box>{Icon}</Box>
-              <Title
+        {options && options.length > 0 && setEarnBorrowOption && (
+          <NavOption>
+            {options.map(({ title, Icon, id }, index) => (
+              <CustomLink
+                key={`${index}-${id}`}
                 dataKey={id}
                 theme={theme}
                 earnBorrowOption={earnBorrowOption}
+                onClick={() => setEarnBorrowOption(id)}
+                sx={{ marginRight: theme.spacing(2) }}
               >
-                {title}
-              </Title>
-            </CustomLink>
-          ))}
-        </NavOption>
+                <Box>{Icon}</Box>
+                <Title
+                  dataKey={id}
+                  theme={theme}
+                  earnBorrowOption={earnBorrowOption}
+                >
+                  {title}
+                </Title>
+              </CustomLink>
+            ))}
+          </NavOption>
+        )}
         <NavOption
           sx={{
             background: colors.matteGreen,

@@ -147,7 +147,6 @@ export function useGroupedHoldingsTable() {
           ? formatCryptoWithFiat(baseCurrency, amountPaid)
           : '-',
         presentValue: formatCryptoWithFiat(baseCurrency, presentValue),
-        isDebt: debt.token,
         earnings: totalEarningsWithNOTE
           ? totalEarningsWithNOTE
               .toFiat(baseCurrency)

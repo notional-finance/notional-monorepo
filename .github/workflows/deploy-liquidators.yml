@@ -2,7 +2,7 @@ name: Deploy Liquidator Workers
 on:
   push:
     branches:
-      - alpha/arbitrum
+      - v3/prod
 
 jobs:
   deploy:

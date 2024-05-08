@@ -43,33 +43,39 @@ export class ExchangeRegistryDO extends RegistryDO {
     super(
       state,
       env,
-      ONE_MINUTE_MS,
+      undefined,
       Routes.Exchanges,
       Servers.ExchangeRegistryServer
     );
+  }
+
+  override async healthcheck(): Promise<Response> {
+    await this.onRefresh();
+
+    return new Response('OK', { status: 200, statusText: 'OK' });
   }
 }
 
 export class OracleRegistryDO extends RegistryDO {
   constructor(state: DurableObjectState, env: BaseDOEnv) {
-    super(
-      state,
-      env,
-      ONE_MINUTE_MS,
-      Routes.Oracles,
-      Servers.OracleRegistryServer
-    );
+    super(state, env, undefined, Routes.Oracles, Servers.OracleRegistryServer);
+  }
+
+  override async healthcheck(): Promise<Response> {
+    await this.onRefresh();
+
+    return new Response('OK', { status: 200, statusText: 'OK' });
   }
 }
 
 export class VaultRegistryDO extends RegistryDO {
   constructor(state: DurableObjectState, env: BaseDOEnv) {
-    super(
-      state,
-      env,
-      ONE_MINUTE_MS,
-      Routes.Vaults,
-      Servers.VaultRegistryServer
-    );
+    super(state, env, undefined, Routes.Vaults, Servers.VaultRegistryServer);
+  }
+
+  override async healthcheck(): Promise<Response> {
+    await this.onRefresh();
+
+    return new Response('OK', { status: 200, statusText: 'OK' });
   }
 }
