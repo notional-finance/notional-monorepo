@@ -1,7 +1,7 @@
 import {
   PortfolioIcon,
   StackIcon,
-  NoteOutlineIcon,
+  // NoteOutlineIcon,
   DocsIcon,
   NotionalPlainIcon,
   ResourcesIcon,
@@ -14,6 +14,8 @@ import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
 import { useDefaultNetwork } from './use-default-network';
+import InvestAndEarnDropdown from './invest-and-earn/invest-and-earn-dropdown/invest-and-earn-dropdown';
+import BorrowDropDown from './borrow-dropdown/borrow-dropdown';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   const network = useDefaultNetwork();
@@ -61,20 +63,20 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
         />
       ),
     },
-    {
-      key: 'note',
-      label: <FormattedMessage defaultMessage={'NOTE'} />,
-      link: '/note',
-      iconImg: (
-        <NoteOutlineIcon
-          fill={theme.palette.typography.main}
-          className="color-fill"
-          sx={{
-            height: theme.spacing(2.5),
-          }}
-        />
-      ),
-    },
+    // {
+    //   key: 'note',
+    //   label: <FormattedMessage defaultMessage={'NOTE'} />,
+    //   link: '/note',
+    //   iconImg: (
+    //     <NoteOutlineIcon
+    //       fill={theme.palette.typography.main}
+    //       className="color-fill"
+    //       sx={{
+    //         height: theme.spacing(2.5),
+    //       }}
+    //     />
+    //   ),
+    // },
   ];
 
   const mobileNavLinks = navLinks.filter(
