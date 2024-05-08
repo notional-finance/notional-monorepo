@@ -205,6 +205,15 @@ export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {
   return Object.keys(VaultTradeConfiguration).includes(tradeType);
 }
 
+export function isRollOrConvert(tradeType?: VaultTradeType | TradeType) {
+  if (!tradeType) return false;
+  return (
+    tradeType === 'RollDebt' ||
+    tradeType === 'ConvertAsset' ||
+    tradeType === 'RollVaultPosition'
+  );
+}
+
 export function isLeveragedTrade(tradeType?: VaultTradeType | TradeType) {
   if (!tradeType) return false;
   return (
