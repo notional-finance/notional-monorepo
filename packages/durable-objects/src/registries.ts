@@ -43,16 +43,10 @@ export class ExchangeRegistryDO extends RegistryDO {
     super(
       state,
       env,
-      undefined,
+      ONE_MINUTE_MS,
       Routes.Exchanges,
       Servers.ExchangeRegistryServer
     );
-  }
-
-  override async healthcheck(): Promise<Response> {
-    await this.onRefresh();
-
-    return new Response('OK', { status: 200, statusText: 'OK' });
   }
 }
 
