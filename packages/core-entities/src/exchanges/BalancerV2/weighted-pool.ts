@@ -11,7 +11,7 @@ interface PoolParams {
   normalizedWeights: FixedPoint[];
   scalingFactors: FixedPoint[];
   swapFeePercentage: FixedPoint;
-  lastPostJoinExitInvariant: FixedPoint;
+  lastPostJoinExitInvariant?: FixedPoint;
 }
 
 // Adapted From: https://github.com/balancer-labs/balancer-v2-monorepo/blob/master/pkg/pool-weighted/contracts/WeightedMath.sol
@@ -243,6 +243,9 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
   }
 
   private _getPreJoinExitProtocolFees() {
+    if (this.poolParams.lastPostJoinExitInvariant === undefined)
+      return this.totalSupply.copy(0);
+
     const invariant = this.balances.reduce((inv, b, i) => {
       return inv.mulDown(
         FixedPoint.from(b.scaleTo(18)).powDown(
