@@ -10,7 +10,7 @@ import {
 import { Network, SupportedNetworks } from '@notional-finance/util';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
-const DATA_URL = process.env['DATA_BASE_URL'] as string;
+const DATA_URL = process.env['API_URL'] as string;
 const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
 const R2_ACCESS_KEY_ID = process.env['R2_ACCESS_KEY_ID'] as string;
 const R2_SECRET_ACCESS_KEY = process.env['R2_SECRET_ACCESS_KEY'] as string;
