@@ -6,6 +6,7 @@ const DUNE_API_KEY = process.env['DUNE_API_KEY'] as string;
 const queries = [
   { queryId: 3709164, name: 'sNOTEPoolData' },
   { queryId: 3709178, name: 'sNOTEReinvestment' },
+  { queryId: 3711394, name: 'NOTESupply' },
 ];
 
 export async function syncDune() {
