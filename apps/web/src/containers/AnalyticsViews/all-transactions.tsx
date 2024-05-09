@@ -3,28 +3,36 @@ import { Box, useTheme } from '@mui/material';
 import { Network } from '@notional-finance/util';
 import { Registry } from '@notional-finance/core-entities';
 import { formatTxnTableData } from '@notional-finance/helpers';
-import { useAnalyticsTable } from './hooks/use-analytics-table';
+import { useAllTransactionsTable } from './hooks';
 import { InfiniteScrollDataTable } from '@notional-finance/mui';
-import useNetworkToggle from './hooks/use-network-toggle';
 
-export const AllTransactions = () => {
+interface AllTransactionsProps {
+  networkToggleData: {
+    toggleKey: number;
+    setToggleKey: (v: number) => void;
+  };
+  selectedNetwork: Network;
+}
+
+export const AllTransactions = ({
+  networkToggleData,
+  selectedNetwork,
+}: AllTransactionsProps) => {
   const theme = useTheme();
-  const networkToggleData = useNetworkToggle();
-  const network =
-    networkToggleData.toggleKey === 0 ? Network.arbitrum : Network.mainnet;
-  const { columns } = useAnalyticsTable();
+
+  const { columns } = useAllTransactionsTable();
   const apiCallback = useCallback(
     (fetchCount) =>
       Registry.getAnalyticsRegistry().getNetworkTransactions(
-        network,
+        selectedNetwork,
         fetchCount
       ),
-    [network]
+    [selectedNetwork]
   );
 
   const handleDataFormatting = (data) => {
-    return data.finalResults[network].map((allTxnData) =>
-      formatTxnTableData(allTxnData, network)
+    return data.finalResults[selectedNetwork].map((allTxnData) =>
+      formatTxnTableData(allTxnData, selectedNetwork)
     );
   };
   return (
@@ -41,7 +49,7 @@ export const AllTransactions = () => {
         networkToggleData={networkToggleData}
         handleDataFormatting={handleDataFormatting}
         columns={columns}
-        network={network}
+        network={selectedNetwork}
         apiCallback={apiCallback}
       />
     </Box>

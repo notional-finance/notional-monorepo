@@ -10,7 +10,7 @@ import { FormattedMessage } from 'react-intl';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
 
-export const useAnalyticsTable = () => {
+export const useAllTransactionsTable = () => {
   const { updateNotional } = useNotionalContext();
   const history = useHistory();
 

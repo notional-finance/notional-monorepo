@@ -6,8 +6,9 @@ import { colors } from '@notional-finance/styles';
 import { AllTransactions } from './all-transactions';
 import { AllAccounts } from './all-accounts';
 import { AllVaultAccounts } from './all-vault-accounts';
-import { ANALYTICS_VIEWS } from '@notional-finance/util';
+import { ANALYTICS_VIEWS, Network } from '@notional-finance/util';
 import { useHistory, useParams } from 'react-router';
+import { useNetworkToggle } from './hooks';
 
 export interface AnalyticsViewsParams {
   category?: ANALYTICS_VIEWS;
@@ -16,7 +17,10 @@ export interface AnalyticsViewsParams {
 export const AnalyticsViews = () => {
   const theme = useTheme();
   const history = useHistory();
+  const networkToggleData = useNetworkToggle();
   const params = useParams<AnalyticsViewsParams>();
+  const selectedNetwork: Network =
+    networkToggleData.toggleKey === 0 ? Network.arbitrum : Network.mainnet;
 
   const buttonData = [
     {
@@ -85,11 +89,22 @@ export const AnalyticsViews = () => {
         </StyledTopContent>
       </Background>
       {params.category === ANALYTICS_VIEWS.ALL_TRANSACTIONS && (
-        <AllTransactions />
+        <AllTransactions
+          networkToggleData={networkToggleData}
+          selectedNetwork={selectedNetwork}
+        />
       )}
-      {params.category === ANALYTICS_VIEWS.ALL_ACCOUNTS && <AllAccounts />}
+      {params.category === ANALYTICS_VIEWS.ALL_ACCOUNTS && (
+        <AllAccounts
+          networkToggleData={networkToggleData}
+          selectedNetwork={selectedNetwork}
+        />
+      )}
       {params.category === ANALYTICS_VIEWS.ALL_VAULT_ACCOUNTS && (
-        <AllVaultAccounts />
+        <AllVaultAccounts
+          networkToggleData={networkToggleData}
+          selectedNetwork={selectedNetwork}
+        />
       )}
     </Box>
   );

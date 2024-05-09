@@ -1,7 +1,21 @@
 import { Box, useTheme } from '@mui/material';
+import { Network } from '@notional-finance/util';
 
-export const AllVaultAccounts = () => {
+interface AllVaultAccountsProps {
+  networkToggleData: {
+    toggleKey: number;
+    setToggleKey: (v: number) => void;
+  };
+  selectedNetwork: Network;
+}
+
+export const AllVaultAccounts = ({
+  networkToggleData,
+  selectedNetwork,
+}: AllVaultAccountsProps) => {
   const theme = useTheme();
+
+  console.log({ networkToggleData, selectedNetwork });
 
   return (
     <Box
