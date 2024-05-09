@@ -31,9 +31,9 @@ export const NoteSupply = () => {
           // option={option}
           showMarkLines={true}
           title={
-            <FormattedMessage defaultMessage={'note Circulating Supply'} />
+            <FormattedMessage defaultMessage={'NOTE Circulating Supply'} />
           }
-          largeValue={<DualColorValue valueOne={'10,000,000'} />}
+          largeValue={<DualColorValue value={10_000_000} suffix="NOTE" />}
         />
         <Box
           sx={{
@@ -61,7 +61,7 @@ export const NoteSupply = () => {
               <H5>
                 <FormattedMessage defaultMessage={'circulating supply'} />
               </H5>
-              <PercentAndDate apy="+3.26%" dateRange="(30d)" />
+              <PercentAndDate percentChange={3.26} dateRange="(30d)" />
             </Box>
             <Box>
               <H2>2,050,000</H2>
@@ -86,14 +86,9 @@ export const NoteSupply = () => {
               <H5>
                 <FormattedMessage defaultMessage={'annual emission rate'} />
               </H5>
-              <PercentAndDate apy="+3.26%" dateRange="(30d)" />
             </Box>
             <Box>
-              <DualColorValue
-                valueOne={'500,000'}
-                valueTwo="/ yr"
-                separateValues
-              />
+              <DualColorValue value={500_000} suffix="/ yr" />
               <Caption>$100,000.00</Caption>
             </Box>
           </ContentBox>

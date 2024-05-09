@@ -20,9 +20,14 @@ import {
 import { ReactNode } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
+import { useNoteSummary } from './use-note-summary';
+import { useFiat } from '@notional-finance/notionable-hooks';
 
 export const NoteSummary = () => {
   const theme = useTheme();
+  const { notePrice, notePriceChange } = useNoteSummary();
+  const baseCurrency = useFiat();
+
   return (
     <ContentContainer id="note-summary">
       <NotePageSectionTitle
@@ -51,7 +56,7 @@ export const NoteSummary = () => {
         <NoteChart
           // option={option}
           title={<FormattedMessage defaultMessage={'Total NOTE Burned'} />}
-          largeValue={<DualColorValue valueOne={'10,000'} valueTwo={'.0334'} />}
+          largeValue={<DualColorValue value={10000.0334} />}
         />
         <Box
           sx={{
@@ -72,9 +77,8 @@ export const NoteSummary = () => {
               <H5>
                 <FormattedMessage defaultMessage={'NOTE Burn Rate'} />
               </H5>
-              <PercentAndDate apy="+3.26%" dateRange="(30d)" />
             </Box>
-            <DualColorValue valueOne="250,000" valueTwo="/ yr" separateValues />
+            <DualColorValue value={250_000} suffix="/ yr" />
             <Caption>$100,000.00</Caption>
           </ContentBox>
           <ContentBox>
@@ -88,7 +92,10 @@ export const NoteSummary = () => {
               <H5>
                 <FormattedMessage defaultMessage={'NOTE Price'} />
               </H5>
-              <PercentAndDate apy="+3.26%" dateRange="(24h)" />
+              <PercentAndDate
+                percentChange={notePriceChange}
+                dateRange="(24h)"
+              />
             </Box>
             <H2 sx={{ display: 'flex', alignItems: 'center' }}>
               <TokenIcon
@@ -96,7 +103,9 @@ export const NoteSummary = () => {
                 size="large"
                 style={{ marginRight: theme.spacing(1) }}
               />
-              $0.1951
+              {notePrice
+                ?.toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(4, false, false)}
             </H2>
             <ButtonContainer>
               <Button

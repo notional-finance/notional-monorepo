@@ -3,19 +3,19 @@ import { H2, Subtitle, LabelValue } from '@notional-finance/mui';
 import { ReactNode } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
+import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 
 interface SectionTitleProps {
   symbol?: string;
   title: ReactNode;
 }
 interface PercentAndDateProps {
-  apy?: string;
+  percentChange?: number;
   dateRange: string;
 }
 interface DualColorValueProps {
-  valueOne: string;
-  valueTwo?: string;
-  separateValues?: boolean;
+  value: number;
+  suffix?: string;
 }
 interface SquareGridBgProps {
   height: string;
@@ -39,14 +39,25 @@ export const NotePageSectionTitle = ({ symbol, title }: SectionTitleProps) => {
   );
 };
 
-export const PercentAndDate = ({ apy, dateRange }: PercentAndDateProps) => {
+export const PercentAndDate = ({
+  percentChange,
+  dateRange,
+}: PercentAndDateProps) => {
   const theme = useTheme();
+  const isPositive = percentChange !== undefined && percentChange >= 0;
   return (
     <Box sx={{ display: 'flex' }}>
       <LabelValue
-        sx={{ color: colors.neonTurquoise, marginRight: theme.spacing(1) }}
+        sx={{
+          color: isPositive ? colors.neonTurquoise : colors.red,
+          marginRight: theme.spacing(1),
+        }}
       >
-        {apy}
+        {`${isPositive ? '+' : '-'}${formatNumberAsPercentWithUndefined(
+          percentChange,
+          '-',
+          2
+        )}`}
       </LabelValue>
       <LabelValue sx={{ fontSize: '12px', color: colors.greenGrey }}>
         {dateRange}
@@ -55,18 +66,17 @@ export const PercentAndDate = ({ apy, dateRange }: PercentAndDateProps) => {
   );
 };
 
-export const DualColorValue = ({
-  valueOne,
-  valueTwo,
-  separateValues,
-}: DualColorValueProps) => {
+export const DualColorValue = ({ value, suffix }: DualColorValueProps) => {
   const theme = useTheme();
+  const [valueOne, valueTwo] = suffix
+    ? [value.toFixed(0), suffix]
+    : value.toFixed(4).split('.');
   return (
     <Box sx={{ display: 'flex' }}>
       <H2
         sx={{
           color: colors.white,
-          marginRight: separateValues ? theme.spacing(1) : '0px',
+          marginRight: suffix ? theme.spacing(1) : '0px',
         }}
       >
         {valueOne}

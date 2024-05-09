@@ -154,6 +154,11 @@ export class NOTERegistryClient extends ClientRegistry<NOTEParams> {
     return pool.getLPTokenClaims(bptClaim);
   }
 
+  getTotalSNOTE() {
+    const result = this.getLatestFromSubject(Network.mainnet, sNOTE);
+    return result?.totalSNOTESupply;
+  }
+
   // TODO: put this in yield registry, this is just the most recent value in the APY oracle
   // getCurrentSNOTEYield(snote: TokenBalance) {}
   // getSingleSidedExit(snote: TokenBalance) {}

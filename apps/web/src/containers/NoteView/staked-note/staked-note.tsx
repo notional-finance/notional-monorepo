@@ -19,9 +19,12 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import { TokenIcon, WalletIcon } from '@notional-finance/icons';
+import { useStakedNoteData } from './use-staked-note-data';
 
 export const StakedNote = () => {
   const theme = useTheme();
+  const { currentSNOTEPrice, totalSNOTEValue, currentSNOTEYield } =
+    useStakedNoteData();
   return (
     <ContentContainer id="staked-note">
       <NotePageSectionTitle
@@ -40,7 +43,7 @@ export const StakedNote = () => {
           <NoteChart
             // option={option}
             title={<FormattedMessage defaultMessage={'sNOTE Price'} />}
-            largeValue={<DualColorValue valueOne={'$20'} valueTwo={'.45'} />}
+            largeValue={<DualColorValue value={currentSNOTEPrice.toFloat()} />}
           />
           <ContentBox>
             <Box
@@ -51,27 +54,25 @@ export const StakedNote = () => {
               }}
             >
               <H5>
-                <FormattedMessage defaultMessage={'snote yield'} />
+                <FormattedMessage defaultMessage={'sNOTE APY'} />
               </H5>
-              <PercentAndDate apy="+3.26%" dateRange="(30d)" />
+              <PercentAndDate percentChange={3.26} dateRange="(30d)" />
             </Box>
             <Box sx={{ marginBottom: theme.spacing(4) }}>
-              <DualColorValue
-                valueOne={'22.31%'}
-                valueTwo={'APY'}
-                separateValues
-              />
+              <DualColorValue value={currentSNOTEYield} suffix="APY" />
             </Box>
             <Container>
               <Box>
                 <SectionTitle sx={{ marginBottom: theme.spacing(0.5) }}>
-                  <FormattedMessage defaultMessage={'Total snote Value'} />
+                  <FormattedMessage defaultMessage={'Total sNOTE Value'} />
                 </SectionTitle>
-                <DiagramTitle>$2,385,838</DiagramTitle>
+                <DiagramTitle>
+                  {totalSNOTEValue?.toDisplayStringWithSymbol(2, false, false)}
+                </DiagramTitle>
               </Box>
               <Box>
                 <SectionTitle sx={{ marginBottom: theme.spacing(0.5) }}>
-                  <FormattedMessage defaultMessage={'annual reward rate'} />
+                  <FormattedMessage defaultMessage={'Annual Reward Rate'} />
                 </SectionTitle>
                 <DiagramTitle>$388,000</DiagramTitle>
               </Box>

@@ -278,6 +278,11 @@ export class Registry {
     return Registry._analytics;
   }
 
+  public static getNOTERegistry() {
+    if (Registry._note == undefined) throw Error('NOTE Registry undefined');
+    return Registry._note;
+  }
+
   public static onNetworkReady(network: Network, fn: () => void) {
     // NOTE: yield registry and analytics registry is not included in here or
     // it will create a circular dependency.

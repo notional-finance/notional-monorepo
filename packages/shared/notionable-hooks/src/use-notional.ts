@@ -51,6 +51,10 @@ export function useNOTE(network: Network | undefined) {
     : undefined;
 }
 
+export function useStakedNOTE() {
+  return Registry.getTokenRegistry().getTokenBySymbol(Network.mainnet, 'sNOTE');
+}
+
 export function useNotionalError() {
   const {
     globalState: { error },
@@ -69,4 +73,3 @@ export function useNotionalError() {
     reportError,
   };
 }
-
