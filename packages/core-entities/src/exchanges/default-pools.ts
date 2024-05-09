@@ -53,12 +53,12 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       registerTokens: [],
     },
     {
-      address: '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7',
+      address: '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7',
       PoolClass: 'SNOTEWeightedPool',
       registerTokens: [
         {
-          id: '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7',
-          address: '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7',
+          id: '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7',
+          address: '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7',
           network: Network.mainnet,
           symbol: 'sNOTE-BPT',
           name: 'Staked NOTE Weighted Pool',

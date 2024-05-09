@@ -43,7 +43,12 @@ export const StakedNote = () => {
           <NoteChart
             // option={option}
             title={<FormattedMessage defaultMessage={'sNOTE Price'} />}
-            largeValue={<DualColorValue value={currentSNOTEPrice.toFloat()} />}
+            largeValue={
+              <DualColorValue
+                prefix="$"
+                value={currentSNOTEPrice?.toFloat() || 0}
+              />
+            }
           />
           <ContentBox>
             <Box
@@ -59,7 +64,7 @@ export const StakedNote = () => {
               <PercentAndDate percentChange={3.26} dateRange="(30d)" />
             </Box>
             <Box sx={{ marginBottom: theme.spacing(4) }}>
-              <DualColorValue value={currentSNOTEYield} suffix="APY" />
+              <DualColorValue value={currentSNOTEYield || 0} suffix="APY" />
             </Box>
             <Container>
               <Box>

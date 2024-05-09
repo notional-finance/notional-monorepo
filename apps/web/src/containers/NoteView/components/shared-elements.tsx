@@ -3,7 +3,10 @@ import { H2, Subtitle, LabelValue } from '@notional-finance/mui';
 import { ReactNode } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
-import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import {
+  formatNumber,
+  formatNumberAsPercentWithUndefined,
+} from '@notional-finance/helpers';
 
 interface SectionTitleProps {
   symbol?: string;
@@ -15,6 +18,7 @@ interface PercentAndDateProps {
 }
 interface DualColorValueProps {
   value: number;
+  prefix?: string;
   suffix?: string;
 }
 interface SquareGridBgProps {
@@ -66,7 +70,11 @@ export const PercentAndDate = ({
   );
 };
 
-export const DualColorValue = ({ value, suffix }: DualColorValueProps) => {
+export const DualColorValue = ({
+  value,
+  suffix,
+  prefix,
+}: DualColorValueProps) => {
   const theme = useTheme();
   const [valueOne, valueTwo] = suffix
     ? [value.toFixed(0), suffix]
@@ -79,9 +87,12 @@ export const DualColorValue = ({ value, suffix }: DualColorValueProps) => {
           marginRight: suffix ? theme.spacing(1) : '0px',
         }}
       >
-        {valueOne}
+        {prefix || ''}
+        {formatNumber(valueOne, 0)}
       </H2>
-      {valueTwo && <H2 sx={{ color: colors.blueGreen }}>{valueTwo}</H2>}
+      <H2 sx={{ color: colors.blueGreen }}>
+        {suffix ? valueTwo : `.${valueTwo}`}
+      </H2>
     </Box>
   );
 };

@@ -15,8 +15,9 @@ import { Contract } from 'ethers';
 import { ERC20ABI, SNOTEABI } from '@notional-finance/contracts';
 import SNOTEWeightedPool from '../exchanges/BalancerV2/snote-weighted-pool';
 
-const sNOTE = '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2';
-const sNOTE_Pool = '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7';
+const sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
+const sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
+const sNOTE_Gauge = '0x09afec27f5a6201617aad014ceea8deb572b0608';
 
 interface NOTEParams {
   totalBPTHeld: TokenBalance;
@@ -29,21 +30,24 @@ export class NOTERegistryClient extends ClientRegistry<NOTEParams> {
     return 'note';
   }
 
+  public sNOTEOracle = `${ZERO_ADDRESS}:${sNOTE}:sNOTEToETHExchangeRate`;
   REDEEM_WINDOW_SECONDS = 3 * SECONDS_IN_DAY;
 
   constructor(cacheHostname: string) {
     super(cacheHostname);
-    Registry.getTokenRegistry().registerToken({
-      id: sNOTE,
-      address: sNOTE,
-      network: Network.mainnet,
-      name: 'Staked NOTE',
-      symbol: 'sNOTE',
-      decimals: 18,
-      tokenInterface: 'ERC20',
-      tokenType: 'Underlying',
-      // TODO: maybe we can put this in later?
-      totalSupply: undefined,
+    Registry.getTokenRegistry().onNetworkRegistered(Network.mainnet, () => {
+      Registry.getTokenRegistry().registerToken({
+        id: sNOTE,
+        address: sNOTE,
+        network: Network.mainnet,
+        name: 'Staked NOTE',
+        symbol: 'sNOTE',
+        decimals: 18,
+        tokenInterface: 'ERC20',
+        tokenType: 'Underlying',
+        // TODO: maybe we can put this in later?
+        totalSupply: undefined,
+      });
     });
 
     Registry.getExchangeRegistry().onSubjectKeyRegistered(
@@ -55,6 +59,7 @@ export class NOTERegistryClient extends ClientRegistry<NOTEParams> {
           ?.subscribe(() => {
             const oracles = Registry.getOracleRegistry();
             if (oracles.isNetworkRegistered(Network.mainnet)) {
+              console.log('CLAIM START');
               const sNOTEToken = Registry.getTokenRegistry().getTokenByID(
                 Network.mainnet,
                 sNOTE
@@ -65,16 +70,20 @@ export class NOTERegistryClient extends ClientRegistry<NOTEParams> {
               );
 
               // From here we will have the sNOTE pool so we can start to update...
-              const [noteClaim, ethClaim] = this.getSNOTEClaim(
-                TokenBalance.unit(sNOTEToken)
-              );
+              const claims = this.getSNOTEClaim(TokenBalance.unit(sNOTEToken));
+              if (!claims) {
+                console.log('ERROR NO CLAIMS');
+                return;
+              }
+              console.log('GOT CLAIMS');
+              const [ethClaim, noteClaim] = claims;
 
               const currentSNOTEPrice = ethClaim
                 .add(noteClaim.toToken(ETH))
                 .scaleTo(RATE_DECIMALS);
 
               const oracle: OracleDefinition = {
-                id: `${ZERO_ADDRESS}:${sNOTE}:sNOTEToETHExchangeRate`,
+                id: this.sNOTEOracle,
                 oracleAddress: sNOTE,
                 network: Network.mainnet,
                 oracleType: 'sNOTEToETHExchangeRate',
@@ -103,55 +112,69 @@ export class NOTERegistryClient extends ClientRegistry<NOTEParams> {
       SNOTEABI,
       getProviderFromNetwork(Network.mainnet)
     );
-    const sNOTE_Pool_Contract = new Contract(
-      sNOTE_Pool,
+    const sNOTE_Gauge_Contract = new Contract(
+      sNOTE_Gauge,
       ERC20ABI,
       getProviderFromNetwork(Network.mainnet)
     );
 
-    return fetchUsingMulticall(
-      network,
-      [
-        {
-          stage: 0,
-          target: sNOTE_Contract,
-          method: 'totalSupply',
-          key: 'totalSNOTESupply',
-          transform: (r) => TokenBalance.fromID(r, sNOTE, Network.mainnet),
-        },
-        {
-          stage: 0,
-          target: sNOTE_Contract,
-          method: 'coolDownTimeInSeconds',
-          key: 'coolDownTimeInSeconds',
-        },
-        {
-          stage: 0,
-          target: sNOTE_Pool_Contract,
-          method: 'balanceOf',
-          args: [sNOTE],
-          key: 'totalBPTHeld',
-          transform: (r) => TokenBalance.fromID(r, sNOTE_Pool, Network.mainnet),
-        },
-      ],
-      [
-        (r: Record<string, unknown>) => ({
-          [sNOTE]: r as unknown as NOTEParams,
-        }),
-      ]
-    );
+    return new Promise((resolve) => {
+      Registry.getTokenRegistry().onNetworkRegistered(Network.mainnet, () => {
+        console.log('CLAIM INIT FETCH');
+        fetchUsingMulticall(
+          network,
+          [
+            {
+              stage: 0,
+              target: sNOTE_Contract,
+              method: 'totalSupply',
+              key: 'totalSNOTESupply',
+              transform: (r) => TokenBalance.fromID(r, sNOTE, Network.mainnet),
+            },
+            {
+              stage: 0,
+              target: sNOTE_Contract,
+              method: 'coolDownTimeInSeconds',
+              key: 'coolDownTimeInSeconds',
+            },
+            {
+              stage: 0,
+              // All BPTs are held in the gauge
+              target: sNOTE_Gauge_Contract,
+              method: 'balanceOf',
+              args: [sNOTE],
+              key: 'totalBPTHeld',
+              transform: (r) =>
+                TokenBalance.fromID(r, sNOTE_Pool, Network.mainnet),
+            },
+          ],
+          [
+            (r: Record<string, unknown>) => ({
+              [sNOTE]: r as unknown as NOTEParams,
+            }),
+          ]
+        ).then(resolve);
+      });
+    });
   }
 
   getSNOTEClaim(snote: TokenBalance) {
-    const result = this.getLatestFromSubject(Network.mainnet, sNOTE);
-    if (!result) throw Error('No data');
-    const bptClaim = result?.totalBPTHeld.scale(snote, result.totalSNOTESupply);
-    const pool =
-      Registry.getExchangeRegistry().getPoolInstance<SNOTEWeightedPool>(
-        Network.mainnet,
-        sNOTE_Pool
+    if (this.isKeyRegistered(Network.mainnet, sNOTE)) {
+      const result = this.getLatestFromSubject(Network.mainnet, sNOTE, 0);
+      if (!result) throw Error('No data');
+      const bptClaim = result?.totalBPTHeld.scale(
+        snote,
+        result.totalSNOTESupply
       );
-    return pool.getLPTokenClaims(bptClaim);
+      const pool =
+        Registry.getExchangeRegistry().getPoolInstance<SNOTEWeightedPool>(
+          Network.mainnet,
+          sNOTE_Pool
+        );
+      return pool.getLPTokenClaims(bptClaim);
+    }
+
+    return undefined;
   }
 
   getTotalSNOTE() {
