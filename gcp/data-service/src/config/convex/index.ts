@@ -123,4 +123,46 @@ export const Curve_Config = [
       ),
     ]
   ),
+  getCurveV1PoolConfig(
+    '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
+    '0x04e80db3f84873e4132b221831af1045d27f140f',
+    Network.mainnet,
+    Strategy.Eth_Curve_USDe_USDC,
+    [EthTokenConfig['USDC'], EthTokenConfig['USDe']],
+    [
+      getOracleValue(
+        Network.mainnet,
+        Strategy.Eth_Curve_USDe_USDC,
+        'USDC to USD Price',
+        '0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6'
+      ),
+      getOracleValue(
+        Network.mainnet,
+        Strategy.Eth_Curve_USDe_USDC,
+        'USDe to USD Price',
+        '0xa569d910839Ae8865Da8F8e70FfFb0cBA869F961'
+      ),
+    ]
+  ),
+  getCurveV1PoolConfig(
+    '0x755D6688AD74661Add2FB29212ef9153D40fcA46',
+    '0xd6dacdcb438f048cf90e53415872cdb3fcc95421',
+    Network.arbitrum,
+    Strategy.Arb_Convex_WBTC_tBTC,
+    [ArbTokenConfig['WBTC'], ArbTokenConfig['tBTC']],
+    [
+      getOracleValue(
+        Network.arbitrum,
+        Strategy.Arb_Convex_WBTC_tBTC,
+        'WBTC to USD Price',
+        '0xd0C7101eACbB49F3deCcCc166d238410D6D46d57'
+      ),
+      getOracleValue(
+        Network.arbitrum,
+        Strategy.Arb_Convex_WBTC_tBTC,
+        'tBTC to USD Price',
+        '0xE808488e8627F6531bA79a13A9E0271B39abEb1C'
+      ),
+    ]
+  ),
 ].flatMap((_) => _);
