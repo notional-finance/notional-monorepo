@@ -25,7 +25,7 @@ export const VaultModal = () => {
     >
       <Container>
         <H3 sx={{ marginBottom: theme.spacing(5), textAlign: 'center' }}>
-          <FormattedMessage defaultMessage={'Info'} />
+          <FormattedMessage defaultMessage={'Important'} />
         </H3>
         <Body sx={{ marginBottom: theme.spacing(3) }}>
           <FormattedMessage
