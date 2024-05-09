@@ -101,6 +101,8 @@ export const DataTableBody = ({
               alignItems: 'center',
               fontWeight: 600,
               fontSize: '14px',
+              zIndex: 2,
+              position: 'relative',
               '.multi-value-cell': {
                 span: {
                   fontSize: row.original?.isEarningsRow ? '12px' : '14px',
