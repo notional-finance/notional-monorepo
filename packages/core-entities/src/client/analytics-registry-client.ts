@@ -362,7 +362,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
           .filter(
             (t) =>
               t.tokenType === 'PrimeDebt' ||
-              // Non-Matured fCash (TODO: need to exclude fCash leverage)
+              // Non-Matured fCash
               (t.tokenType === 'fCash' &&
                 t.isFCashDebt === false &&
                 t.maturity &&

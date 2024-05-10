@@ -6,12 +6,12 @@ import {
   DiagramTitle,
   Button,
   CardInput,
+  H2,
 } from '@notional-finance/mui';
 import {
   NotePageSectionTitle,
   SubText,
   ContentBox,
-  PercentAndDate,
   ChartSectionContainer,
   ContentContainer,
   DualColorValue,
@@ -22,12 +22,19 @@ import { TokenIcon, WalletIcon } from '@notional-finance/icons';
 import { useStakedNoteData } from './use-staked-note-data';
 import { useFiat } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
+import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 
 export const StakedNote = () => {
   const theme = useTheme();
   const baseCurrency = useFiat();
-  const { currentSNOTEPrice, totalSNOTEValue, currentSNOTEYield } =
-    useStakedNoteData();
+  const {
+    currentSNOTEPrice,
+    totalSNOTEValue,
+    currentSNOTEYield,
+    annualizedRewardRate,
+    historicalSNOTEPrice,
+    walletNOTEBalances,
+  } = useStakedNoteData();
   return (
     <ContentContainer id="staked-note">
       <NotePageSectionTitle
@@ -45,7 +52,7 @@ export const StakedNote = () => {
         <ChartSectionContainer>
           <NoteChart
             // option={option}
-            data={[]}
+            data={historicalSNOTEPrice}
             title={<FormattedMessage defaultMessage={'sNOTE Price'} />}
             largeValue={
               <DualColorValue
@@ -65,10 +72,23 @@ export const StakedNote = () => {
               <H5>
                 <FormattedMessage defaultMessage={'sNOTE APY'} />
               </H5>
-              <PercentAndDate percentChange={3.26} dateRange="(30d)" />
             </Box>
             <Box sx={{ marginBottom: theme.spacing(4) }}>
-              <DualColorValue value={currentSNOTEYield || 0} suffix="APY" />
+              <Box sx={{ display: 'flex' }}>
+                <H2
+                  sx={{
+                    color: colors.white,
+                    marginRight: theme.spacing(1),
+                  }}
+                >
+                  {formatNumberAsPercentWithUndefined(
+                    currentSNOTEYield,
+                    '-',
+                    2
+                  )}
+                </H2>
+                <H2 sx={{ color: colors.blueGreen }}>APY</H2>
+              </Box>
             </Box>
             <Container>
               <Box>
@@ -83,7 +103,13 @@ export const StakedNote = () => {
                 <SectionTitle sx={{ marginBottom: theme.spacing(0.5) }}>
                   <FormattedMessage defaultMessage={'Annual Reward Rate'} />
                 </SectionTitle>
-                <DiagramTitle>$388,000</DiagramTitle>
+                <DiagramTitle>
+                  {annualizedRewardRate?.toDisplayStringWithSymbol(
+                    0,
+                    false,
+                    false
+                  )}
+                </DiagramTitle>
               </Box>
             </Container>
             <Box
@@ -92,6 +118,8 @@ export const StakedNote = () => {
                 justifyContent: 'flex-end',
                 marginTop: theme.spacing(5),
                 marginBottom: theme.spacing(2),
+                visibility:
+                  walletNOTEBalances === undefined ? 'hidden' : 'visible',
               }}
             >
               <Box sx={{ marginRight: theme.spacing(2) }}>
@@ -106,8 +134,7 @@ export const StakedNote = () => {
                   }}
                 />
               </Box>
-
-              <CardInput>10,000.21</CardInput>
+              <CardInput>{walletNOTEBalances?.toFixed(2)}</CardInput>
             </Box>
             <Button
               size="large"

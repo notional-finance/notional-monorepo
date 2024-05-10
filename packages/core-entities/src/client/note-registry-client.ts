@@ -104,16 +104,34 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
       const resp = await this._fetch<{
         result: {
           rows: {
-            address:
-              | 'DEX Liquidity'
-              | 'Burned'
-              | 'Circulating Supply'
-              | 'Non-Circulating';
+            address: 'Burned' | 'Circulating Supply' | 'Non-Circulating';
             balance: number;
             day: string;
           }[];
         };
       }>(Network.mainnet, 'NOTESupply');
+      return resp['result']['rows'].map((r) => ({
+        ...r,
+        day: new Date(r.day),
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  async getSNOTEData() {
+    try {
+      const resp = await this._fetch<{
+        result: {
+          rows: {
+            day: string;
+            total_pool_value: number;
+            snote_supply: number;
+            price: number;
+            apy: number;
+          }[];
+        };
+      }>(Network.mainnet, 'sNOTEPoolData');
       return resp['result']['rows'].map((r) => ({
         ...r,
         day: new Date(r.day),

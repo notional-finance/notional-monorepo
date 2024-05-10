@@ -98,7 +98,6 @@ export async function populateTxnAndGas(
   gasBufferPercent = 5
 ) {
   const c = contract.connect(msgSender);
-  // TODO: where do you get the revert reason here?
   const txn = await c.populateTransaction[methodName].apply(c, methodArgs);
   if (!IS_TEST_ENV) {
     // NOTE: this fails inside unit tests for some reason

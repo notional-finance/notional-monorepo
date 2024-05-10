@@ -32,11 +32,9 @@ export function useNoteSupply(dateRange = 30 * SECONDS_IN_DAY) {
 
   const annualEmissionRate =
     Registry.getNOTERegistry().getTotalAnnualEmission();
-  const noteHistoricalSupply: [Date, number][] =
-    // TODO: change this in the data
-    supplyData
-      .filter(({ address }) => address === 'Circulating Supply')
-      .map(({ day, balance }) => [day, balance]);
+  const noteHistoricalSupply: [Date, number][] = supplyData
+    .filter(({ address }) => address === 'Circulating Supply')
+    .map(({ day, balance }) => [day, balance]);
   const noteBurnChart: [Date, number][] = supplyData
     .filter(({ address }) => address === 'Burned')
     .map(({ day, balance }) => [day, balance]);
