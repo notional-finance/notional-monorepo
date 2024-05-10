@@ -19,7 +19,8 @@ interface FaqProps {
 
 export const useVaultFaq = (
   selectedNetwork: Network | undefined,
-  tokenSymbol: string | undefined
+  tokenSymbol: string | undefined,
+  points: Record<string, number> | undefined
 ) => {
   const faqHeaderLinks = [
     {
@@ -91,7 +92,11 @@ export const useVaultFaq = (
           description={'faq question'}
         />
       ),
-      answer: (
+      answer: points ? (
+        <FormattedMessage
+          defaultMessage={`Profits from incentive token reinvestments are paid in the same token you deposit and are claimable on Notional. Profits that come from points are distributed directly to you by the partner protocol per the terms of their points program. Points profits are not claimable on Notional.`}
+        />
+      ) : (
         <FormattedMessage
           defaultMessage={`Profits are paid in the same currency you deposit. When you withdraw, you will withdraw all your principal and earnings in the deposit currency.`}
         />
@@ -104,7 +109,11 @@ export const useVaultFaq = (
           description={'faq question'}
         />
       ),
-      answer: (
+      answer: points ? (
+        <FormattedMessage
+          defaultMessage={`Rewards are reinvested weekly on Mainnet and daily on L2s. Any profits from points are not reinvested - points are only claimable by you directly from partner protocols.`}
+        />
+      ) : (
         <FormattedMessage
           defaultMessage={`Rewards are reinvested weekly on Mainnet vaults and daily for vaults on L2.`}
         />
