@@ -31,7 +31,7 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
     const { AllTokensDocument, AllTokensByBlockDocument } =
       await loadGraphClientDeferred();
 
-    return this._fetchUsingGraph(
+    const allTokens = await this._fetchUsingGraph(
       network,
       (blockNumber !== undefined
         ? AllTokensByBlockDocument
@@ -68,5 +68,26 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
         blockNumber,
       }
     );
+
+    if (network === Network.mainnet) {
+      // Manually add sNOTE to the mainnet network
+      const sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
+      allTokens.values.push([
+        sNOTE,
+        {
+          id: sNOTE,
+          address: sNOTE,
+          network: Network.mainnet,
+          name: 'Staked NOTE',
+          symbol: 'sNOTE',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+          totalSupply: undefined,
+        },
+      ]);
+    }
+
+    return allTokens;
   }
 }

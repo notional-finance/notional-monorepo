@@ -7,7 +7,7 @@ import BaseLiquidityPool from '../base-liquidity-pool';
 import { getCommonBalancerAggregateCall } from './common-calls';
 import FixedPoint from './fixed-point';
 
-interface PoolParams {
+export interface PoolParams {
   normalizedWeights: FixedPoint[];
   scalingFactors: FixedPoint[];
   swapFeePercentage: FixedPoint;
@@ -15,7 +15,9 @@ interface PoolParams {
 }
 
 // Adapted From: https://github.com/balancer-labs/balancer-v2-monorepo/blob/master/pkg/pool-weighted/contracts/WeightedMath.sol
-export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
+export default class WeightedPool<
+  T extends PoolParams
+> extends BaseLiquidityPool<T> {
   public static override getInitData(
     network: Network,
     poolAddress: string

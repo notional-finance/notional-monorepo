@@ -1,25 +1,17 @@
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
-import { useFiat, useStakedNOTE } from '@notional-finance/notionable-hooks';
-import { Network, SECONDS_IN_DAY } from '@notional-finance/util';
+import { TokenBalance } from '@notional-finance/core-entities';
+import { useFiat, useStakedNOTEPool } from '@notional-finance/notionable-hooks';
+import { SECONDS_IN_DAY } from '@notional-finance/util';
 
 export function useStakedNoteData(_dateRange = 30 * SECONDS_IN_DAY) {
-  const sNOTE = useStakedNOTE();
+  const sNOTEPool = useStakedNOTEPool();
   const baseCurrency = useFiat();
   let currentSNOTEPrice: TokenBalance | undefined;
   let totalSNOTEValue: TokenBalance | undefined;
   let currentSNOTEYield: number | undefined;
 
-  const oracles = Registry.getOracleRegistry();
-  const sNOTEOracle = Registry.getNOTERegistry().sNOTEOracle;
-  // TODO: move this logic into the observables
-  if (
-    Registry.getNOTERegistry().isNetworkRegistered(Network.mainnet) &&
-    oracles.isKeyRegistered(Network.mainnet, sNOTEOracle)
-  ) {
-    currentSNOTEPrice = TokenBalance.unit(sNOTE).toFiat(baseCurrency);
-    totalSNOTEValue = Registry.getNOTERegistry()
-      .getTotalSNOTE()
-      ?.toFiat(baseCurrency);
+  if (sNOTEPool) {
+    currentSNOTEPrice = sNOTEPool.getCurrentSNOTEPrice();
+    totalSNOTEValue = sNOTEPool.totalSNOTE.toFiat(baseCurrency);
     currentSNOTEYield = 22.31;
   }
 

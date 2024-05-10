@@ -51,4 +51,5 @@ export {
   Curve2TokenPoolV1_SelfLPToken,
   BaseNotionalMarket,
   pCashMarket,
+  SNOTEWeightedPool,
 };

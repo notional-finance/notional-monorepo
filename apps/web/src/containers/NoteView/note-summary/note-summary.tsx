@@ -20,12 +20,11 @@ import {
 import { ReactNode } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
-import { useNoteSummary } from './use-note-summary';
-import { useFiat } from '@notional-finance/notionable-hooks';
+import { useFiat, useNotePrice } from '@notional-finance/notionable-hooks';
 
 export const NoteSummary = () => {
   const theme = useTheme();
-  const { notePrice, notePriceChange } = useNoteSummary();
+  const { notePrice, notePriceChange } = useNotePrice();
   const baseCurrency = useFiat();
 
   return (
