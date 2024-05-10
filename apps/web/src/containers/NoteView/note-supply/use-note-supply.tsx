@@ -1,6 +1,13 @@
-import { NOTERegistryClient, Registry } from '@notional-finance/core-entities';
 import {
+  NOTERegistryClient,
+  Registry,
+  TokenBalance,
+} from '@notional-finance/core-entities';
+import { useNOTE } from '@notional-finance/notionable-hooks';
+import {
+  Network,
   SECONDS_IN_DAY,
+  SECONDS_IN_YEAR_ACTUAL,
   annualizedPercentChange,
   firstValue,
   getMidnightUTC,
@@ -13,6 +20,7 @@ export function useNoteSupply(dateRange = 30 * SECONDS_IN_DAY) {
     Awaited<ReturnType<NOTERegistryClient['getNOTESupplyData']>>
   >([]);
   const minDate = getMidnightUTC() - dateRange;
+  const NOTE = useNOTE(Network.mainnet);
 
   useEffect(() => {
     Registry.getNOTERegistry()
@@ -25,22 +33,49 @@ export function useNoteSupply(dateRange = 30 * SECONDS_IN_DAY) {
   // TODO: implement this...
   // const annualEmissionRate = Registry.getNOTERegistry().getAnnualEmissionRate();
   const annualEmissionRate = 0;
-  const noteHistoricalSupply: { day: Date; balance: number }[] =
+  const noteHistoricalSupply: [Date, number][] =
     // TODO: change this in the data
-    supplyData.filter(({ address }) => address === 'Circulating Supply');
-  const noteBurnChart: { day: Date; balance: number }[] = supplyData.filter(
-    ({ address }) => address === 'Burned'
-  );
+    supplyData
+      .filter(({ address }) => address === 'Circulating Supply')
+      .map(({ day, balance }) => [day, balance]);
+  const noteBurnChart: [Date, number][] = supplyData
+    .filter(({ address }) => address === 'Burned')
+    .map(({ day, balance }) => [day, balance]);
 
-  const currentSupply = lastValue(noteHistoricalSupply)?.balance;
-  const totalNoteBurned = lastValue(noteBurnChart)?.balance;
-  const noteAnnualBurnRate = annualizedPercentChange(
-    firstValue(noteBurnChart)?.balance,
-    totalNoteBurned,
-    dateRange
-  );
+  const currentSupply = (lastValue(noteHistoricalSupply) ?? [
+    undefined,
+    undefined,
+  ])[1];
+  const totalNoteBurned = (lastValue(noteBurnChart) ?? [
+    undefined,
+    undefined,
+  ])[1];
+  const initialNOTEBurned = (firstValue(noteBurnChart) ?? [
+    undefined,
+    undefined,
+  ])[1];
+
+  let annualNOTEBurnRate: TokenBalance | undefined;
+  let annualNOTEBurnPercentage: number | undefined;
+  if (
+    initialNOTEBurned !== undefined &&
+    totalNoteBurned !== undefined &&
+    NOTE
+  ) {
+    annualNOTEBurnRate = TokenBalance.fromFloat(
+      (
+        ((totalNoteBurned - initialNOTEBurned) * SECONDS_IN_YEAR_ACTUAL) /
+        dateRange
+      ).toFixed(8),
+      NOTE
+    );
+    annualNOTEBurnPercentage = currentSupply
+      ? (annualNOTEBurnRate.toFloat() * 100) / currentSupply
+      : undefined;
+  }
+
   const currentSupplyChange = annualizedPercentChange(
-    firstValue(noteHistoricalSupply)?.balance,
+    (firstValue(noteHistoricalSupply) ?? [undefined, undefined])[1],
     currentSupply,
     dateRange
   );
@@ -49,7 +84,8 @@ export function useNoteSupply(dateRange = 30 * SECONDS_IN_DAY) {
     noteBurnChart,
     noteHistoricalSupply,
     totalNoteBurned,
-    noteAnnualBurnRate,
+    annualNOTEBurnRate,
+    annualNOTEBurnPercentage,
     currentSupply,
     currentSupplyChange,
     annualEmissionRate,

@@ -21,11 +21,18 @@ import { ReactNode } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
 import { useFiat, useNotePrice } from '@notional-finance/notionable-hooks';
+import { useNoteSupply } from './use-note-supply';
 
 export const NoteSummary = () => {
   const theme = useTheme();
   const { notePrice, notePriceChange } = useNotePrice();
   const baseCurrency = useFiat();
+  const {
+    noteBurnChart,
+    totalNoteBurned,
+    annualNOTEBurnRate,
+    annualNOTEBurnPercentage,
+  } = useNoteSupply();
 
   return (
     <ContentContainer id="note-summary">
@@ -54,8 +61,9 @@ export const NoteSummary = () => {
       <ChartSectionContainer>
         <NoteChart
           // option={option}
+          data={noteBurnChart}
           title={<FormattedMessage defaultMessage={'Total NOTE Burned'} />}
-          largeValue={<DualColorValue value={10000.0334} />}
+          largeValue={<DualColorValue value={totalNoteBurned || 0} />}
         />
         <Box
           sx={{
@@ -76,9 +84,20 @@ export const NoteSummary = () => {
               <H5>
                 <FormattedMessage defaultMessage={'NOTE Burn Rate'} />
               </H5>
+              <PercentAndDate
+                percentChange={annualNOTEBurnPercentage || 0}
+                dateRange="(30d)"
+              />
             </Box>
-            <DualColorValue value={250_000} suffix="/ yr" />
-            <Caption>$100,000.00</Caption>
+            <DualColorValue
+              value={annualNOTEBurnRate?.toFloat() || 0}
+              suffix="/ yr"
+            />
+            <Caption>
+              {annualNOTEBurnRate
+                ?.toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(2, false, false)}
+            </Caption>
           </ContentBox>
           <ContentBox>
             <Box

@@ -50,14 +50,14 @@ export const PercentAndDate = ({
   const theme = useTheme();
   const isPositive = percentChange !== undefined && percentChange >= 0;
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <LabelValue
         sx={{
           color: isPositive ? colors.neonTurquoise : colors.red,
           marginRight: theme.spacing(1),
         }}
       >
-        {`${isPositive ? '+' : '-'}${formatNumberAsPercentWithUndefined(
+        {`${isPositive ? '+' : ''}${formatNumberAsPercentWithUndefined(
           percentChange,
           '-',
           2

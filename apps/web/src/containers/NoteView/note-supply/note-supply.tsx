@@ -10,9 +10,17 @@ import {
   SubText,
 } from '../components';
 import { FormattedMessage } from 'react-intl';
+import { useNoteSupply } from './use-note-supply';
 
 export const NoteSupply = () => {
   const theme = useTheme();
+  const {
+    noteHistoricalSupply,
+    currentSupply,
+    currentSupplyChange,
+    annualEmissionRate,
+  } = useNoteSupply();
+
   return (
     <ContentContainer id="note-supply">
       <NotePageSectionTitle
@@ -29,11 +37,14 @@ export const NoteSupply = () => {
       <ChartSectionContainer>
         <NoteChart
           // option={option}
-          showMarkLines={true}
+          // showMarkLines={true}
+          data={noteHistoricalSupply}
           title={
             <FormattedMessage defaultMessage={'NOTE Circulating Supply'} />
           }
-          largeValue={<DualColorValue value={10_000_000} suffix="NOTE" />}
+          largeValue={
+            <DualColorValue value={currentSupply || 0} suffix="NOTE" />
+          }
         />
         <Box
           sx={{
