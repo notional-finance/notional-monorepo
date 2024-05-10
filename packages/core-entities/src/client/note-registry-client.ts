@@ -1,13 +1,17 @@
 import { ClientRegistry } from './client-registry';
 import { CacheSchema, OracleDefinition } from '../Definitions';
 import {
+  INTERNAL_TOKEN_PRECISION,
   Network,
   SECONDS_IN_DAY,
+  SupportedNetworks,
   ZERO_ADDRESS,
   getNowSeconds,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
 import SNOTEWeightedPool from '../exchanges/BalancerV2/snote-weighted-pool';
+import { BigNumber } from 'ethers';
+import { TokenBalance } from '../token-balance';
 
 const sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
 const sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
@@ -70,6 +74,29 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
       lastUpdateTimestamp: getNowSeconds(),
       lastUpdateBlock: 0,
     };
+  }
+
+  getTotalAnnualEmission() {
+    const config = Registry.getConfigurationRegistry();
+    const totalEmissions = SupportedNetworks.reduce((total, n) => {
+      return total.add(
+        config
+          .getAllListedCurrencies(n)
+          ?.reduce(
+            (s, c) =>
+              c.incentives?.incentiveEmissionRate
+                ? s.add(c.incentives.incentiveEmissionRate)
+                : s,
+            BigNumber.from(0)
+          ) || BigNumber.from(0)
+      );
+    }, BigNumber.from(0));
+
+    return TokenBalance.fromSymbol(
+      totalEmissions.mul(INTERNAL_TOKEN_PRECISION),
+      'NOTE',
+      Network.mainnet
+    );
   }
 
   async getNOTESupplyData() {

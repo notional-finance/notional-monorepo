@@ -30,9 +30,8 @@ export function useNoteSupply(dateRange = 30 * SECONDS_IN_DAY) {
       );
   }, [minDate]);
 
-  // TODO: implement this...
-  // const annualEmissionRate = Registry.getNOTERegistry().getAnnualEmissionRate();
-  const annualEmissionRate = 0;
+  const annualEmissionRate =
+    Registry.getNOTERegistry().getTotalAnnualEmission();
   const noteHistoricalSupply: [Date, number][] =
     // TODO: change this in the data
     supplyData
@@ -75,8 +74,8 @@ export function useNoteSupply(dateRange = 30 * SECONDS_IN_DAY) {
   }
 
   const currentSupplyChange = annualizedPercentChange(
-    (firstValue(noteHistoricalSupply) ?? [undefined, undefined])[1],
     currentSupply,
+    (firstValue(noteHistoricalSupply) ?? [undefined, undefined])[1],
     dateRange
   );
 
@@ -86,7 +85,10 @@ export function useNoteSupply(dateRange = 30 * SECONDS_IN_DAY) {
     totalNoteBurned,
     annualNOTEBurnRate,
     annualNOTEBurnPercentage,
-    currentSupply,
+    currentSupply:
+      NOTE && currentSupply
+        ? TokenBalance.fromFloat(currentSupply.toFixed(8), NOTE)
+        : undefined,
     currentSupplyChange,
     annualEmissionRate,
   };

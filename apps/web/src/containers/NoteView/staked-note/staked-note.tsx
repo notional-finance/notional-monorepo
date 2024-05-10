@@ -20,9 +20,12 @@ import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import { TokenIcon, WalletIcon } from '@notional-finance/icons';
 import { useStakedNoteData } from './use-staked-note-data';
+import { useFiat } from '@notional-finance/notionable-hooks';
+import { FiatSymbols } from '@notional-finance/core-entities';
 
 export const StakedNote = () => {
   const theme = useTheme();
+  const baseCurrency = useFiat();
   const { currentSNOTEPrice, totalSNOTEValue, currentSNOTEYield } =
     useStakedNoteData();
   return (
@@ -42,11 +45,12 @@ export const StakedNote = () => {
         <ChartSectionContainer>
           <NoteChart
             // option={option}
+            data={[]}
             title={<FormattedMessage defaultMessage={'sNOTE Price'} />}
             largeValue={
               <DualColorValue
-                prefix="$"
-                value={currentSNOTEPrice?.toFloat() || 0}
+                prefix={FiatSymbols[baseCurrency]}
+                value={currentSNOTEPrice?.toFiat(baseCurrency).toFloat() || 0}
               />
             }
           />
@@ -72,7 +76,7 @@ export const StakedNote = () => {
                   <FormattedMessage defaultMessage={'Total sNOTE Value'} />
                 </SectionTitle>
                 <DiagramTitle>
-                  {totalSNOTEValue?.toDisplayStringWithSymbol(2, false, false)}
+                  {totalSNOTEValue?.toDisplayStringWithSymbol(0, false, false)}
                 </DiagramTitle>
               </Box>
               <Box>
