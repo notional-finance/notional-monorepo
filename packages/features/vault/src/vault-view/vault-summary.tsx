@@ -31,16 +31,18 @@ export const VaultSummary = () => {
   } = state;
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
-  const { faqHeaderLinks, faqs } = useVaultFaq(
-    selectedNetwork,
-    deposit?.symbol
-  );
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
 
   const nonLeveragedYield = nonLeveragedYields.find(
     (y) => y.token.id === collateral?.id
   );
   const points = nonLeveragedYield?.pointMultiples;
+
+  const { faqHeaderLinks, faqs } = useVaultFaq(
+    selectedNetwork,
+    deposit?.symbol,
+    points
+  );
 
   const tvl = vaultTVL?.toFiat(baseCurrency);
 

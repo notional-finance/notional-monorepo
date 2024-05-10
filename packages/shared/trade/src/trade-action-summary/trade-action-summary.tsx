@@ -7,7 +7,6 @@ import {
   TradeActionTitle,
   H4,
   InfoTooltip,
-  Caption,
 } from '@notional-finance/mui';
 import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
@@ -159,17 +158,7 @@ export function TradeActionSummary({
               iconColor={theme.palette.info.dark}
               toolTipText={defineMessage({
                 defaultMessage:
-                  'Point prices are pulled from: <a>app.whales.market/points-markets</a>',
-                values: {
-                  a: (a: string) => (
-                    <Caption
-                      accent
-                      href="https://app.whales.market/points-markets"
-                    >
-                      {a}
-                    </Caption>
-                  ),
-                },
+                  'Point values used are estimates. True values are not known. True values may be very different and will significantly impact total APY.',
               })}
               sx={{
                 marginLeft: theme.spacing(0.5),
