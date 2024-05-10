@@ -1,5 +1,6 @@
 import { Box, useTheme } from '@mui/material';
 import { Network } from '@notional-finance/util';
+import { DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
 import { useAllAccounts } from './hooks';
 
 interface AllAccountsProps {
@@ -16,9 +17,10 @@ export const AllAccounts = ({
 }: AllAccountsProps) => {
   const theme = useTheme();
 
-  const { tableData } = useAllAccounts(selectedNetwork);
+  const { tableData, tableColumns } = useAllAccounts(selectedNetwork);
 
   console.log({ tableData });
+  console.log({ selectedNetwork });
   console.log({ networkToggleData });
 
   return (
@@ -31,7 +33,13 @@ export const AllAccounts = ({
         marginTop: `-${theme.spacing(30)}`,
       }}
     >
-      AllAccounts
+      <DataTable
+        maxHeight={700}
+        data={tableData}
+        columns={tableColumns}
+        networkToggleData={networkToggleData}
+        tableVariant={TABLE_VARIANTS.SORTABLE}
+      />
     </Box>
   );
 };

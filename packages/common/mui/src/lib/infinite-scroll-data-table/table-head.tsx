@@ -30,6 +30,7 @@ export const TableHead = ({
       <Box
         sx={{
           padding: theme.spacing(3, 2),
+          borderBottom: theme.shape.borderStandard,
           width: '100%',
         }}
       >

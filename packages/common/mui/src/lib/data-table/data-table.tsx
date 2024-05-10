@@ -34,6 +34,7 @@ import {
   TABLE_VARIANTS,
 } from './types';
 import { colors } from '@notional-finance/styles';
+import { NetworkToggle } from '../network-toggle/network-toggle';
 
 export interface DataTableToggleProps {
   toggleOptions: JSX.Element[];
@@ -62,6 +63,10 @@ interface DataTableProps {
   showHiddenRows?: boolean;
   tableLoading?: boolean;
   filterBarData?: any[];
+  networkToggleData?: {
+    toggleKey: number;
+    setToggleKey: (v: number) => void;
+  };
   rightToggleData?: DataTableToggleProps;
   allNetworksToggleData?: DataTableToggleProps;
   csvDataFormatter?: (data: any[]) => any;
@@ -94,6 +99,7 @@ export const DataTable = ({
   filterBarData,
   rightToggleData,
   allNetworksToggleData,
+  networkToggleData,
   csvDataFormatter,
   accentCSV,
   stateZeroMessage,
@@ -213,6 +219,7 @@ export const DataTable = ({
           columns={columns}
           data={data}
           tableVariant={tableVariant}
+          networkToggleData={networkToggleData}
           tableTitle={tableTitle}
           maxHeight={maxHeight}
           tableReady={tableReady}
@@ -267,6 +274,22 @@ export const DataTable = ({
               rightToggleData={rightToggleData}
               allNetworksToggleData={allNetworksToggleData}
             />
+          )}
+          {networkToggleData && (
+            <Box
+              sx={{
+                padding: theme.spacing(3, 2),
+                borderBottom: theme.shape.borderStandard,
+                width: '100%',
+              }}
+            >
+              <Box sx={{ width: 'fit-content', height: 'fit-content' }}>
+                <NetworkToggle
+                  selectedNetwork={networkToggleData.toggleKey}
+                  handleNetWorkToggle={networkToggleData.setToggleKey}
+                />
+              </Box>
+            </Box>
           )}
 
           {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}

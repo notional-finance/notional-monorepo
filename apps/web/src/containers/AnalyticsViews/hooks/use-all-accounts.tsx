@@ -1,11 +1,16 @@
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
-import { ViewAsAddressCell } from '@notional-finance/mui';
+import {
+  formatNumberAsPercent,
+  formatNumberToDigits,
+  truncateAddress,
+} from '@notional-finance/helpers';
+import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
   useFiat,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
@@ -27,19 +32,30 @@ export const useAllAccounts = (selectedNetwork: Network) => {
   const { updateNotional } = useNotionalContext();
   const baseCurrency = useFiat();
   const history = useHistory();
+  // const [currencyOptions, setCurrencyOptions] = useState([]);
+  // const [productOptions, setProductOptions] = useState([]);
+
   const fetchAllAccounts = async () => {
     const { portfolioRisk } =
       await Registry.getAnalyticsRegistry().getAccountRisk(selectedNetwork);
     const allAccountsData = await portfolioRisk;
-
+    console.log('allAccountsData: ', allAccountsData);
     if (allAccountsData) {
-      setAllAccounts([allAccountsData]);
+      setAllAccounts(allAccountsData);
     }
   };
 
-  if (!allAccounts) {
-    fetchAllAccounts();
-  }
+  // useEffect(() => {
+  //   setProductOptions([]);
+  //   setCurrencyOptions([]);
+  // }, [earnBorrowOption, allNetworksOption]);
+
+  useEffect(() => {
+    console.log('fetchAllAccounts');
+    if (selectedNetwork) {
+      fetchAllAccounts();
+    }
+  }, [selectedNetwork]);
 
   const addressClick = useCallback(
     (address: string, network) => {
@@ -68,7 +84,8 @@ export const useAllAccounts = (selectedNetwork: Network) => {
       cellCallBack: addressClick,
       showLinkIcon: false,
       accessorKey: 'address',
-      textAlign: 'right',
+      textAlign: 'left',
+      width: '265px',
     },
     {
       header: (
@@ -79,6 +96,7 @@ export const useAllAccounts = (selectedNetwork: Network) => {
       ),
       accessorKey: 'crossCurrencyRisk',
       textAlign: 'right',
+      width: '265px',
     },
     {
       header: (
@@ -89,8 +107,12 @@ export const useAllAccounts = (selectedNetwork: Network) => {
       ),
       enableSorting: true,
       sortingFn: 'basic',
+      cell: DisplayCell,
+      // displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
+      displayFormatter: (val) => formatNumberToDigits(val, 2),
       accessorKey: 'healthFactor',
       textAlign: 'right',
+      width: '265px',
     },
     {
       header: (
@@ -99,10 +121,13 @@ export const useAllAccounts = (selectedNetwork: Network) => {
           description={'Loan To Value'}
         />
       ),
+      cell: DisplayCell,
+      displayFormatter: formatNumberAsPercent,
       enableSorting: true,
       sortingFn: 'basic',
       accessorKey: 'loanToValue',
       textAlign: 'right',
+      width: '265px',
     },
     {
       header: (
@@ -115,26 +140,72 @@ export const useAllAccounts = (selectedNetwork: Network) => {
       sortingFn: 'basic',
       accessorKey: 'netWorth',
       textAlign: 'right',
+      width: '265px',
     },
   ];
 
-  const tableData = allAccounts?.map(
-    ({ address, hasCrossCurrencyRisk, riskFactors }) => {
-      return {
-        address: address,
-        crossCurrencyRisk: hasCrossCurrencyRisk ? 'Yes' : 'No',
-        healthFactor: riskFactors.healthFactor
-          ? riskFactors.healthFactor
-          : null,
-        loanToValue: riskFactors.loanToValue ? riskFactors.loanToValue : null,
-        netWorth: riskFactors.netWorth
-          ? riskFactors.netWorth
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false)
-          : null,
-      };
+  const tableDataTest = allAccounts?.map((data) => {
+    return {
+      address: {
+        text: data.address ? truncateAddress(data.address) : '-',
+        fullAddress: `${data.address}`,
+        network: selectedNetwork,
+      },
+      crossCurrencyRisk: data.hasCrossCurrencyRisk ? 'Yes' : 'No',
+      healthFactor: data.riskFactors.healthFactor
+        ? data.riskFactors.healthFactor
+        : 0,
+      loanToValue:
+        data.riskFactors.loanToValue !== undefined
+          ? data.riskFactors.loanToValue
+          : 0,
+      netWorth: data.riskFactors.netWorth
+        ? data.riskFactors.netWorth
+            .toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false)
+        : null,
+    };
+  });
+
+  const sortedTableData = tableDataTest?.sort((a, b) => {
+    if (a.healthFactor === 0 && b.healthFactor === 0) {
+      return 0;
+    } else if (a.healthFactor === 0) {
+      return 1;
+    } else if (b.healthFactor === 0) {
+      return -1;
+    } else {
+      return a.healthFactor - b.healthFactor;
     }
-  );
+  });
+
+  // const dropdownsData = [
+  //   {
+  //     selectedOptions: currencyOptions,
+  //     setSelectedOptions: setCurrencyOptions,
+  //     placeHolderText: <FormattedMessage defaultMessage={'Currency'} />,
+  //     data: underlyingTokens,
+  //   },
+  //   {
+  //     selectedOptions: productOptions,
+  //     setSelectedOptions: setProductOptions,
+  //     placeHolderText: <FormattedMessage defaultMessage={'Products'} />,
+  //     data: products[earnBorrowOption],
+  //   },
+  // ];
+
+  // TODO:
+  // Add No Risk to health factor filter to remove the null values
+  // Add Net worth filter
+
+  return {
+    tableData:
+      sortedTableData && sortedTableData.length > 0 ? sortedTableData : [],
+    tableColumns,
+  };
+
+  // NOTE:
+  // Can sort the health factors that are null at the buttom at the beginning but not after you click sort
 
   //   Address: use the copy / click to view portfolio cell
 
@@ -147,6 +218,4 @@ export const useAllAccounts = (selectedNetwork: Network) => {
   // [Sortable] Loan To Value (format as a percentage with 2 decimal places), similar to health factor if this is null then show "-", null values should sort to the bottom of the table
 
   // [Sortable] Net Worth (format using netWorth.toFiat(baseCurrency).toDisplayStringWithSymbol(2, true, false) )
-
-  return { tableData, tableColumns };
 };
