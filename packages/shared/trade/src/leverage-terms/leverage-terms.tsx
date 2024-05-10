@@ -1,15 +1,19 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import {
+  BaseTradeContext,
+  useAllMarkets,
+} from '@notional-finance/notionable-hooks';
 import {
   Body,
   ButtonText,
+  InfoTooltip,
   InputLabel,
   LabelValue,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import React from 'react';
 import { formatLeverageRatio } from '@notional-finance/helpers';
-import { BorrowTermsDropdown } from '../borrow-terms-dropdown/borrow-terms-dropdown';
+import { BorrowTerms } from '../borrow-terms/borrow-terms';
 import { LeverageSlider } from '../leverage-slider/leverage-slider';
 import { useHistory } from 'react-router';
 
@@ -27,14 +31,22 @@ interface ManageTermsProps {
 export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
   const theme = useTheme();
   const {
-    state: { deposit },
+    state: { deposit, selectedNetwork, collateral },
   } = context;
+
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+
+  const nonLeveragedYield = nonLeveragedYields.find(
+    (y) => y.token.id === collateral?.id
+  );
+  const points = nonLeveragedYield?.pointMultiples;
 
   return (
     <Terms
       inputLabel={defineMessage({ defaultMessage: '2. Select Borrow Terms' })}
+      points={points}
     >
-      <BorrowTermsDropdown context={context} />
+      <BorrowTerms context={context} />
       <Box height={theme.spacing(6)} />
       {CustomLeverageSlider ? (
         <CustomLeverageSlider
@@ -90,21 +102,37 @@ export const ManageTerms = ({
 
 const Terms = ({
   inputLabel,
+  points,
   children,
 }: {
   inputLabel: MessageDescriptor;
+  points?: Record<string, number> | undefined;
   children: React.ReactNode | React.ReactNode[];
 }) => {
+  const theme = useTheme();
   return (
     <Box>
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
+          alignItems: 'center',
         }}
       >
         <InputLabel inputLabel={inputLabel} />
+        {points !== undefined && (
+          <InfoTooltip
+            sx={{
+              marginLeft: theme.spacing(1),
+              marginBottom: theme.spacing(1.5),
+            }}
+            iconSize={theme.spacing(2.5)}
+            iconColor={theme.palette.typography.accent}
+            toolTipText={defineMessage({
+              defaultMessage:
+                'Point values used are conservative estimates. True values are not known. True values may be very different and will significantly impact total APY.',
+            })}
+          />
+        )}
       </Box>
       <Box>{children}</Box>
     </Box>

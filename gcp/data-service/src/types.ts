@@ -60,6 +60,8 @@ export enum Strategy {
   Arb_Convex_crvUSD_USDT = 25,
   Eth_Balancer_ezETH_WETH = 26,
   Arb_Balancer_ezETH_wstETH = 27,
+  Eth_Curve_USDe_USDC = 28,
+  Arb_Convex_WBTC_tBTC = 29,
 }
 
 export interface MulticallConfig {

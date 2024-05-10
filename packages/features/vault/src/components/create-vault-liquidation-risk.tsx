@@ -1,5 +1,11 @@
 import { Box, useTheme } from '@mui/material';
-import { DataTable, ErrorMessage, TABLE_VARIANTS } from '@notional-finance/mui';
+import {
+  DataTable,
+  ErrorMessage,
+  MultiValueCell,
+  TABLE_VARIANTS,
+  ToolTipCell,
+} from '@notional-finance/mui';
 import { VaultTradeState } from '@notional-finance/notionable';
 import { useVaultLiquidationRisk } from '@notional-finance/notionable-hooks';
 import { tradeErrors } from '@notional-finance/trade';
@@ -17,11 +23,13 @@ export const CreateVaultLiquidationRisk = ({
     {
       header: <FormattedMessage defaultMessage={'Detail'} />,
       accessorKey: 'label',
+      cell: ToolTipCell,
       textAlign: 'left',
     },
     {
       header: <FormattedMessage defaultMessage={'Current'} />,
       accessorKey: 'current',
+      cell: MultiValueCell,
       textAlign: 'right',
     },
   ];
@@ -68,9 +76,16 @@ export const CreateVaultLiquidationRisk = ({
             defaultMessage={'Input parameters to see your liquidation risk.'}
           />
         }
-        data={tableData.map(({ label, updated }) => ({
+        data={tableData.map(({ label, updated, textColor }) => ({
           label,
-          current: updated,
+          current: {
+            data: [
+              {
+                displayValue: updated,
+                textColor: textColor,
+              },
+            ],
+          },
         }))}
         columns={columns}
       />

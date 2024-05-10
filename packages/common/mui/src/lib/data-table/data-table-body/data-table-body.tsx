@@ -101,8 +101,12 @@ export const DataTableBody = ({
               alignItems: 'center',
               fontWeight: 600,
               fontSize: '14px',
+              zIndex: 2,
+              position: 'relative',
               '.multi-value-cell': {
-                span: { fontSize: '14px' },
+                span: {
+                  fontSize: row.original?.isEarningsRow ? '12px' : '14px',
+                },
               },
             }
           : {};
@@ -118,7 +122,7 @@ export const DataTableBody = ({
             : {};
 
         return (
-          <Fragment key={`row-container-${row.id}`}>
+          <Fragment key={`row-container-${i}`}>
             <StyledTableRow
               theme={theme}
               key={`row-${row.id}`}
@@ -170,13 +174,14 @@ export const DataTableBody = ({
                         sx={{
                           color: theme.palette.typography.main,
                           '.multi-value-cell': {
-                            span: { fontSize: '12px' },
+                            span: { fontSize: '12px', fontWeight: 600 },
                           },
                           ...miniTotalRowStyles,
                           justifyContent:
                             cell?.column.id === 'value' &&
                             row.original?.isTotalRow &&
                             'end',
+                          paddingTop: row.original?.isEarningsRow ? '0px' : '',
                         }}
                       >
                         {flexRender(

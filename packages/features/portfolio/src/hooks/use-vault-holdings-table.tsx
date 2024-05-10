@@ -15,7 +15,7 @@ import {
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   useCurrentLiquidationPrices,
   useFiat,
@@ -247,6 +247,18 @@ export const useVaultHoldingsTable = () => {
         });
       }
 
+      const handleProfit = () => {
+        const profitData = formatCryptoWithFiat(baseCurrency, profit) as any;
+        if (points && profitData.data) {
+          profitData.data[0].toolTipContent = defineMessage({
+            defaultMessage:
+              'Most of the APY in this strategy is driven by points and point earnings are not shown here. Check the partner protocol dashboard to track accrued points.',
+            description: 'points tooltip',
+          });
+        }
+        return profitData;
+      };
+
       return {
         strategy: {
           symbol: formatTokenType(denom).icon,
@@ -260,7 +272,7 @@ export const useVaultHoldingsTable = () => {
         assets: formatCryptoWithFiat(baseCurrency, v.totalAssets()),
         debts: formatCryptoWithFiat(baseCurrency, v.totalDebt(), true),
         netWorth: formatCryptoWithFiat(baseCurrency, v.netWorth()),
-        profit: formatCryptoWithFiat(baseCurrency, profit),
+        profit: handleProfit(),
         totalAPY: totalAPY ? formatNumberAsPercent(totalAPY) : undefined,
         leveragePercentage: leveragePercentage
           ? {
@@ -283,6 +295,7 @@ export const useVaultHoldingsTable = () => {
         },
         leverageRatio: formatLeverageRatio(v.leverageRatio() || 0),
         actionRow: {
+          pointsWarning: points ? true : false,
           subRowData,
           buttonBarData: [
             {

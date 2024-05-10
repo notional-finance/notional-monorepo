@@ -1,4 +1,4 @@
-import { Box, SxProps } from '@mui/material';
+import { useTheme, Box, SxProps } from '@mui/material';
 import { PageLoading } from '@notional-finance/mui';
 import { useAppReady } from '@notional-finance/notionable-hooks';
 
@@ -16,6 +16,7 @@ export const FeatureLoader = ({
   sx,
 }: FeatureLoaderProps) => {
   const isReady = useAppReady();
+  const theme = useTheme();
   return (
     <Box>
       {isReady && featureLoaded ? (
@@ -23,7 +24,7 @@ export const FeatureLoader = ({
       ) : (
         <PageLoading
           sx={{
-            background: backgroundColor,
+            background: backgroundColor || theme.palette.background.paper,
             width: '100%',
             height: '100vh',
             zIndex: 5,

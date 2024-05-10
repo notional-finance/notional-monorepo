@@ -2,10 +2,10 @@ import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
-import { ContestCountDown } from '../contest-countdown/contest-countdown';
+import { ContestCountDown } from './contest-countdown';
 import { BodySecondary, Button } from '@notional-finance/mui';
-import { TitleText } from '../contest-shared-elements/contest-shared-elements';
-import { messages } from '../../contest-data';
+import { TitleText } from './contest-shared-elements';
+import { messages } from '../contest-data';
 import {
   contestActive,
   contestOver,

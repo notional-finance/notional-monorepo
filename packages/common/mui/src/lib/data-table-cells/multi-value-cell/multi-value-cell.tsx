@@ -1,5 +1,6 @@
 import { Box, useTheme } from '@mui/material';
 import { ProgressIndicator } from '../../progress-indicator/progress-indicator';
+import { InfoTooltip } from '../../info-tooltip/info-tooltip';
 import {
   TableCell,
   SmallTableCell,
@@ -32,7 +33,10 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
         />
       ) : value?.data ? (
         value.data.map(
-          ({ displayValue, isNegative, showPositiveAsGreen }, index) => (
+          (
+            { displayValue, isNegative, showPositiveAsGreen, toolTipContent },
+            index
+          ) => (
             <Box
               key={`${column.columnDef.id}-${row.id}-${index}`}
               sx={{
@@ -48,6 +52,7 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
                       marginBottom: '0px',
                       width: '100%',
                       fontWeight: row.original.currency === 'Total' ? 600 : 500,
+                      display: 'flex',
                       color:
                         isNegative && !row.original.isDebt
                           ? theme.palette.error.main
@@ -55,6 +60,14 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
                     }}
                   >
                     {displayValue}
+                    {toolTipContent && (
+                      <InfoTooltip
+                        iconColor={theme.palette.typography.accent}
+                        iconSize={theme.spacing(2)}
+                        sx={{ marginLeft: theme.spacing(1) }}
+                        toolTipText={toolTipContent}
+                      />
+                    )}
                   </FirstValue>
                 </Box>
               )}

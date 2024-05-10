@@ -15,15 +15,12 @@ interface Env {
   TX_RELAY_AUTH_TOKEN: string;
 }
 
-const MAINNET_LIQUIDATOR_RELAY =
-  'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/2';
-
 const urls: Record<Network, string> = {
   [Network.all]: '',
   // it has 'arbitrum' in url but it is also endpoint for mainnet relayers,
   // endpoint format is "/v1/txes/:relayerId", relayerId 0 is for arbitrum an 1 for mainnet
   [Network.mainnet]:
-    'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/1',
+    'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/mainnet',
   [Network.arbitrum]:
     'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/arbitrum',
   [Network.optimism]: '',
@@ -36,17 +33,14 @@ export function sendTxThroughRelayer(arg: {
   isLiquidator?: boolean;
   gasLimit?: number;
 }) {
-  const { to, data, env, isLiquidator, gasLimit } = arg;
+  const { to, data, env, gasLimit } = arg;
 
   const payload = JSON.stringify({
     to,
     data,
     gasLimit,
   });
-  let url = urls[env.NETWORK];
-  if (isLiquidator && env.NETWORK === Network.mainnet) {
-    url = MAINNET_LIQUIDATOR_RELAY;
-  }
+  const url = urls[env.NETWORK];
   console.log(`Sending Payload to ${url}`);
   console.log(payload);
 

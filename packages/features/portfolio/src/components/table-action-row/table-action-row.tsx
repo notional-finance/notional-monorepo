@@ -54,6 +54,7 @@ interface TableActionRowProps {
           showLoadingSpinner?: boolean;
         }[];
         hasMatured?: boolean;
+        pointsWarning?: boolean;
       };
       asset;
       isPending?: boolean;
@@ -70,6 +71,7 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
       subRowData,
       riskTableData,
       riskTableColumns,
+      pointsWarning,
       hasMatured,
       warning,
     },
@@ -157,6 +159,25 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
                 values={{
                   symbol: asset.symbol,
                 }}
+              />
+            }
+            maxWidth={'100%'}
+            sx={{ marginTop: '0px' }}
+          />
+        </Box>
+      )}
+      {pointsWarning && (
+        <Box
+          sx={{ margin: theme.spacing(0, 7), paddingBottom: theme.spacing(5) }}
+        >
+          <ErrorMessage
+            variant="pending"
+            title={<FormattedMessage defaultMessage={'APY Estimation'} />}
+            message={
+              <FormattedMessage
+                defaultMessage={
+                  'This leveraged vault earns APY from points. Track and claim your points from the partner protocol site.'
+                }
               />
             }
             maxWidth={'100%'}

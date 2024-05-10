@@ -1,4 +1,10 @@
-import { defineMessages } from 'react-intl';
+import { TradeType } from '@notional-finance/notionable';
+import { defineMessages, MessageDescriptor } from 'react-intl';
+
+interface MessageData {
+  content?: MessageDescriptor;
+  toolTipContent?: MessageDescriptor;
+}
 
 export interface DetailItem {
   label: React.ReactNode;
@@ -15,6 +21,7 @@ export interface DetailItem {
 
 export const OrderDetailLabels = defineMessages({
   amountToWallet: { defaultMessage: 'Amount to Wallet' },
+  depositFromWallet: { defaultMessage: 'Deposit from Wallet' },
   amountFromWallet: { defaultMessage: 'Amount from Wallet' },
   fCashBought: { defaultMessage: '{title} Bought ({caption})' },
   fCashSold: { defaultMessage: '{title} Sold ({caption})' },
@@ -70,3 +77,57 @@ export const TradeSummaryLabels = {
     repay: { defaultMessage: 'Repay Variable Debt' },
   }),
 };
+
+export const Earnings = {
+  LendFixed: defineMessages({
+    content: { defaultMessage: 'Earnings at Maturity' },
+    toolTipContent: {
+      defaultMessage:
+        'Guaranteed earnings if held to maturity. You can withdraw prior to maturity subject to liquidity at market rate.',
+    },
+  }),
+  MintNToken: defineMessages({
+    content: { defaultMessage: '30d Estimated Earnings' },
+    toolTipContent: {
+      defaultMessage:
+        'Estimate is based on current APY. Liquidity APY can change and users are also at risk of potential IL.',
+    },
+  }),
+
+  LendVariable: defineMessages({
+    content: { defaultMessage: '30d Estimated Earnings' },
+    toolTipContent: {
+      defaultMessage:
+        'Estimate is based on current APY. Variable lending rates can increase or decrease over time.',
+    },
+  }),
+
+  LeveragedNToken: defineMessages({
+    content: { defaultMessage: '30d Estimated Earnings' },
+    toolTipContent: {
+      defaultMessage:
+        'Estimate is based on current APY. Leveraged liquidity APYs are volatile and can change quickly. Users are also at risk of potential IL.',
+    },
+  }),
+  CreateVaultPosition: defineMessages({
+    content: { defaultMessage: '30d Estimated Earnings' },
+    toolTipContent: {
+      defaultMessage:
+        'Estimate is based on current APY. Leveraged vault APYs are volatile and can change quickly.',
+    },
+  }),
+  BorrowFixed: defineMessages({
+    content: { defaultMessage: 'Interest at Maturity' },
+    toolTipContent: {
+      defaultMessage:
+        'Fixed interest due if held to maturity. You can repay prior to maturity at market rates. At maturity, fixed debts convert to variable rate.',
+    },
+  }),
+  BorrowVariable: defineMessages({
+    content: { defaultMessage: '30d Estimated Interest' },
+    toolTipContent: {
+      defaultMessage:
+        'Estimate is based on current APY. Variable borrow rates can increase or decrease over time.',
+    },
+  }),
+} as unknown as Record<TradeType, MessageData>;

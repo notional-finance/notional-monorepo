@@ -37,12 +37,12 @@ export function MobileNavigation({ ...rest }: TabsProps) {
   } = useNotionalContext();
   const { setWalletSideDrawer } = useSideDrawerManager();
 
-  const { navLinks } = useNavLinks(true, theme);
+  const { mobileNavLinks } = useNavLinks(true, theme);
   const [selectedTab, setSelectedTab] = useState<string | false>(false);
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
 
   const currentTab =
-    navLinks.find(({ link }) => link === pathname)?.link || false;
+    mobileNavLinks.find(({ link }) => link === pathname)?.link || false;
 
   useEffect(() => {
     setSelectedTab(currentTab);
@@ -55,7 +55,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     event.preventDefault();
-    const item = navLinks.find((t) => t.link === newValue);
+    const item = mobileNavLinks.find((t) => t.link === newValue);
     if (item && item.external) {
       window.open(newValue, item.target);
     } else {
@@ -169,7 +169,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
             },
           }}
         >
-          {navLinks.map((t) => (
+          {mobileNavLinks.map((t) => (
             <Tab
               key={t.key}
               icon={t.iconImg}

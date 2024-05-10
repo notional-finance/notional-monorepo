@@ -1,12 +1,18 @@
 import { SvgIcon, SvgIconProps } from '@mui/material';
 
 /* eslint-disable-next-line */
-export interface CheckmarkIconProps extends SvgIconProps {}
+export interface CheckmarkIconProps extends SvgIconProps {
+  fill?: string;
+}
 
 export function CheckmarkIcon(props: CheckmarkIconProps) {
   return (
     <SvgIcon {...props}>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="4 4 16 16">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill={props.fill || '#33F8FF'}
+        viewBox="4 4 16 16"
+      >
         <path
           fillRule="evenodd"
           clipRule="evenodd"

@@ -173,6 +173,15 @@ function vaultRiskSummary(
     postAccountRisk,
     priorVaultBalances: prior?.balances,
     postTradeBalances: post?.balances,
+    healthFactor: {
+      current: priorAccountRisk?.healthFactor,
+      updated: postAccountRisk?.healthFactor,
+      changeType: getChangeType(
+        priorAccountRisk?.healthFactor,
+        postAccountRisk?.healthFactor
+      ),
+      greenOnArrowUp: true,
+    },
     netWorth: {
       current: priorAccountRisk?.netWorth,
       updated: postAccountRisk?.netWorth,

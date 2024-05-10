@@ -40,7 +40,7 @@
   },
   "peerDependencies": {
     "@apollo/client": "^3.8.4",
-    "graphql": "^16.6.0",
-    "@graphql-mesh/utils": "^0.93.1"
+    "@graphql-mesh/utils": "^0.93.1",
+    "graphql": "^16.6.0"
   }
 }

@@ -7,9 +7,6 @@ workers_dev = true
 node_compat = true
 minify = true
 
-[triggers]
-crons = ["* * * * *"]
-
 [[migrations]]
 tag = "v1"
 new_classes = [

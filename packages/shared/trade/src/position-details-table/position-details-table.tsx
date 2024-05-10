@@ -6,8 +6,9 @@ import {
   DataTableColumn,
   ErrorMessage,
   ToolTipCell,
+  MultiValueCell,
 } from '@notional-finance/mui';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { tradeErrors } from '../tradeErrors';
 import React from 'react';
 
@@ -18,8 +19,24 @@ interface PositionDetailsTableProps {
   onlyCurrent: boolean;
   tooRisky: boolean;
   tableData: {
-    label: string;
-    current: string;
+    label:
+      | {
+          text: {
+            content: MessageDescriptor;
+            toolTipContent?: MessageDescriptor;
+          };
+        }
+      | string;
+    current:
+      | string
+      | {
+          data: {
+            displayValue: string;
+            isNegative?: boolean;
+            showPositiveAsGreen?: boolean;
+            textColor?: string;
+          }[];
+        };
     updated: {
       value: string;
       arrowUp: boolean;
@@ -59,6 +76,7 @@ export const PositionDetailsTable = ({
           description={'Current header'}
         />
       ),
+      cell: MultiValueCell,
       accessorKey: 'current',
       textAlign: 'right',
     },

@@ -44,6 +44,7 @@ export function InvestAndEarnDropdown() {
         activeTab={currentTab ? true : false}
         hideOnClick={false}
         sx={{
+          whiteSpace: 'nowrap',
           textTransform: 'capitalize',
           fontWeight: 400,
           height: '100%',

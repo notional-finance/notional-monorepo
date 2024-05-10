@@ -63,6 +63,16 @@ export const ArbTokenConfig = {
     symbol: 'ezETH',
     decimals: 18,
   },
+  WBTC: {
+    address: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
+    symbol: 'WBTC',
+    decimals: 8,
+  },
+  tBTC: {
+    address: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40',
+    symbol: 'tBTC',
+    decimals: 18,
+  },
 } as const;
 
 export const EthTokenConfig = {
@@ -114,6 +124,11 @@ export const EthTokenConfig = {
   ezETH: {
     address: '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110',
     symbol: 'ezETH',
+    decimals: 18,
+  },
+  USDe: {
+    address: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
+    symbol: 'USDe',
     decimals: 18,
   },
 } as const;

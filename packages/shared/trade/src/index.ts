@@ -1,4 +1,4 @@
-export * from './borrow-terms-dropdown/borrow-terms-dropdown';
+export * from './borrow-terms/borrow-terms';
 export * from './trade-action-summary/trade-action-summary';
 export * from './trade-action-summary/mobile-trade-action-summary';
 export * from './transaction-confirmation/transaction-confirmation';
