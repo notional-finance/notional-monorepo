@@ -14,7 +14,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useRef } from 'react';
-import { NetworkToggle } from '../../network-toggle/network-toggle';
 import DataTableFilterBar from '../data-table-filter-bar/data-table-filter-bar';
 
 interface DataTableProps {
@@ -76,28 +75,22 @@ export const DataTableScroll = ({
 
   return (
     <Box>
-      {networkToggleData && (
-        <Box
-          className="testing"
-          sx={{
-            padding: theme.spacing(3, 2),
-            border: theme.shape.borderStandard,
-            background: theme.palette.background.paper,
-            borderRadius: '6px 6px 0px 0px',
-            width: '100%',
-          }}
-        >
-          <Box sx={{ width: 'fit-content', height: 'fit-content' }}>
-            <NetworkToggle
-              selectedNetwork={networkToggleData.toggleKey}
-              handleNetWorkToggle={networkToggleData.setToggleKey}
-            />
-          </Box>
-        </Box>
-      )}
-      {filterBarData && filterBarData.length > 0 && (
-        <DataTableFilterBar filterBarData={filterBarData} />
-      )}
+      <Box
+        className="testing"
+        sx={{
+          border: theme.shape.borderStandard,
+          background: theme.palette.background.paper,
+          borderRadius: '6px 6px 0px 0px',
+          width: '100%',
+        }}
+      >
+        {filterBarData && filterBarData.length > 0 && networkToggleData && (
+          <DataTableFilterBar
+            filterBarData={filterBarData}
+            networkToggleData={networkToggleData}
+          />
+        )}
+      </Box>
       <Box
         component="div"
         ref={tableContainerRef}

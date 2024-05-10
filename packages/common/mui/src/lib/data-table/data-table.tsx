@@ -220,6 +220,7 @@ export const DataTable = ({
           data={data}
           tableVariant={tableVariant}
           networkToggleData={networkToggleData}
+          filterBarData={filterBarData}
           tableTitle={tableTitle}
           maxHeight={maxHeight}
           tableReady={tableReady}

@@ -17,7 +17,8 @@ export const AllAccounts = ({
 }: AllAccountsProps) => {
   const theme = useTheme();
 
-  const { tableData, tableColumns } = useAllAccounts(selectedNetwork);
+  const { tableData, tableColumns, dropdownsData } =
+    useAllAccounts(selectedNetwork);
 
   console.log({ tableData });
   console.log({ selectedNetwork });
@@ -37,6 +38,7 @@ export const AllAccounts = ({
         maxHeight={700}
         data={tableData}
         columns={tableColumns}
+        filterBarData={dropdownsData}
         networkToggleData={networkToggleData}
         tableVariant={TABLE_VARIANTS.SORTABLE}
       />

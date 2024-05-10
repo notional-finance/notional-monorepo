@@ -1,11 +1,13 @@
+import { useTheme } from '@mui/material';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import {
+  formatNumberAsAbbr,
   formatNumberAsPercent,
-  formatNumberToDigits,
   truncateAddress,
 } from '@notional-finance/helpers';
 import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
+  formatHealthFactorValues,
   useFiat,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
@@ -28,30 +30,30 @@ interface Test {
 }
 
 export const useAllAccounts = (selectedNetwork: Network) => {
+  const theme = useTheme();
   const [allAccounts, setAllAccounts] = useState<Test[] | undefined>(undefined);
   const { updateNotional } = useNotionalContext();
   const baseCurrency = useFiat();
   const history = useHistory();
-  // const [currencyOptions, setCurrencyOptions] = useState([]);
-  // const [productOptions, setProductOptions] = useState([]);
+  const [healthFactorOptions, setHealthFactorOptions] = useState([]);
+  const [crossCurrencyRiskOptions, setCrossCurrencyRiskOptions] = useState([]);
+  const [netWorthOptions, setNetWorthOptions] = useState([]);
 
   const fetchAllAccounts = async () => {
     const { portfolioRisk } =
       await Registry.getAnalyticsRegistry().getAccountRisk(selectedNetwork);
     const allAccountsData = await portfolioRisk;
-    console.log('allAccountsData: ', allAccountsData);
     if (allAccountsData) {
       setAllAccounts(allAccountsData);
     }
   };
 
   // useEffect(() => {
-  //   setProductOptions([]);
-  //   setCurrencyOptions([]);
+  //   setCrossCurrencyRiskOptions([]);
+  //      setHealthFactorOptions([]);
   // }, [earnBorrowOption, allNetworksOption]);
 
   useEffect(() => {
-    console.log('fetchAllAccounts');
     if (selectedNetwork) {
       fetchAllAccounts();
     }
@@ -108,8 +110,10 @@ export const useAllAccounts = (selectedNetwork: Network) => {
       enableSorting: true,
       sortingFn: 'basic',
       cell: DisplayCell,
-      // displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
-      displayFormatter: (val) => formatNumberToDigits(val, 2),
+      displayFormatter: (val) => {
+        const { value, textColor } = formatHealthFactorValues(val, theme);
+        return <span style={{ color: textColor }}>{value}</span>;
+      },
       accessorKey: 'healthFactor',
       textAlign: 'right',
       width: '265px',
@@ -137,6 +141,8 @@ export const useAllAccounts = (selectedNetwork: Network) => {
         />
       ),
       enableSorting: true,
+      cell: DisplayCell,
+      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
       sortingFn: 'basic',
       accessorKey: 'netWorth',
       textAlign: 'right',
@@ -160,10 +166,8 @@ export const useAllAccounts = (selectedNetwork: Network) => {
           ? data.riskFactors.loanToValue
           : 0,
       netWorth: data.riskFactors.netWorth
-        ? data.riskFactors.netWorth
-            .toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false)
-        : null,
+        ? data.riskFactors.netWorth.toFiat(baseCurrency).toFloat()
+        : 0,
     };
   });
 
@@ -179,20 +183,61 @@ export const useAllAccounts = (selectedNetwork: Network) => {
     }
   });
 
-  // const dropdownsData = [
-  //   {
-  //     selectedOptions: currencyOptions,
-  //     setSelectedOptions: setCurrencyOptions,
-  //     placeHolderText: <FormattedMessage defaultMessage={'Currency'} />,
-  //     data: underlyingTokens,
-  //   },
-  //   {
-  //     selectedOptions: productOptions,
-  //     setSelectedOptions: setProductOptions,
-  //     placeHolderText: <FormattedMessage defaultMessage={'Products'} />,
-  //     data: products[earnBorrowOption],
-  //   },
-  // ];
+  const dropdownsData = [
+    {
+      selectedOptions: healthFactorOptions,
+      setSelectedOptions: setHealthFactorOptions,
+      placeHolderText: <FormattedMessage defaultMessage={'Health Factor'} />,
+      data: [
+        {
+          id: 'less_than_1.25',
+          title: '< 1.25',
+        },
+        {
+          id: 'less_than_2.5',
+          title: '< 2.5',
+        },
+        {
+          id: 'no_risk',
+          title: 'No Risk',
+        },
+      ],
+    },
+    {
+      selectedOptions: crossCurrencyRiskOptions,
+      crossCurrencyRiskOptions: setCrossCurrencyRiskOptions,
+      placeHolderText: <FormattedMessage defaultMessage={'CC Risk'} />,
+      data: [
+        {
+          id: 'yes',
+          title: 'yes',
+        },
+        {
+          id: 'no',
+          title: 'No',
+        },
+      ],
+    },
+    {
+      selectedOptions: netWorthOptions,
+      setSelectedOptions: setNetWorthOptions,
+      placeHolderText: <FormattedMessage defaultMessage={'Net Worth'} />,
+      data: [
+        {
+          id: 'greater_than_100',
+          title: '> $100',
+        },
+        {
+          id: 'greater_than_1000',
+          title: '> $1,000',
+        },
+        {
+          id: 'greater_than_100000',
+          title: '> $100,000',
+        },
+      ],
+    },
+  ];
 
   // TODO:
   // Add No Risk to health factor filter to remove the null values
@@ -202,6 +247,7 @@ export const useAllAccounts = (selectedNetwork: Network) => {
     tableData:
       sortedTableData && sortedTableData.length > 0 ? sortedTableData : [],
     tableColumns,
+    dropdownsData,
   };
 
   // NOTE:
