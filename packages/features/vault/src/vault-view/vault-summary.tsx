@@ -2,7 +2,7 @@ import { Box, useTheme } from '@mui/material';
 import { Faq, FaqHeader, DataTable, TotalRow } from '@notional-finance/mui';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { MobileVaultSummary } from '../components';
+import { MobileVaultSummary, VaultModal } from '../components';
 import { VaultActionContext } from '../vault';
 import {
   LiquidationChart,
@@ -15,7 +15,7 @@ import {
   useVaultFaq,
 } from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
-import { useFiat } from '@notional-finance/notionable-hooks';
+import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 
 export const VaultSummary = () => {
   const theme = useTheme();
@@ -25,15 +25,25 @@ export const VaultSummary = () => {
     vaultAddress,
     totalCapacityRemaining,
     selectedNetwork,
+    collateral,
     deposit,
     vaultTVL,
   } = state;
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
+  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+
+  const nonLeveragedYield = nonLeveragedYields.find(
+    (y) => y.token.id === collateral?.id
+  );
+  const points = nonLeveragedYield?.pointMultiples;
+
   const { faqHeaderLinks, faqs } = useVaultFaq(
     selectedNetwork,
-    deposit?.symbol
+    deposit?.symbol,
+    points
   );
+
   const tvl = vaultTVL?.toFiat(baseCurrency);
 
   const totalsData = [
@@ -60,6 +70,7 @@ export const VaultSummary = () => {
 
   return (
     <Box>
+      {points && <VaultModal />}
       <Box
         sx={{
           zIndex: 10,

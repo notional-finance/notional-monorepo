@@ -93,6 +93,7 @@ const Terms = ({
   children,
 }: {
   inputLabel: MessageDescriptor;
+  points?: Record<string, number> | undefined;
   children: React.ReactNode | React.ReactNode[];
 }) => {
   return (
@@ -100,8 +101,7 @@ const Terms = ({
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
+          alignItems: 'center',
         }}
       >
         <InputLabel inputLabel={inputLabel} />
