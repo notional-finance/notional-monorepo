@@ -176,6 +176,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       account.balanceStatement = balanceStatements.finalResults[address];
       account.accountHistory = txnHistory.finalResults[address];
     } catch (e) {
+      console.error(e);
       account.balanceStatement = undefined;
       account.accountHistory = undefined;
     }

@@ -9209,7 +9209,7 @@ export const AccountBalanceStatementDocument = gql`
     query AccountBalanceStatement($accountId: ID!) {
   account(id: $accountId) {
     id
-    balances {
+    balances(where: {current_: {currentBalance_not: 0}}) {
       token {
         id
         underlying {
