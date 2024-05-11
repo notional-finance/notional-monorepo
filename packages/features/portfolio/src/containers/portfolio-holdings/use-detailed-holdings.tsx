@@ -110,6 +110,7 @@ export function useDetailedHoldingsTable() {
             marketYield?.secondaryIncentives?.incentiveAPY;
           const secondarySymbol = marketYield?.secondaryIncentives?.symbol;
 
+          // TODO: lift this into holdings.ts
           const totalEarningsWithNOTE = s?.totalProfitAndLoss
             .toFiat(baseCurrency)
             .add(

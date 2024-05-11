@@ -13,13 +13,14 @@ import { BalanceSnapshot, Token } from '../../.graphclient';
 
 export function parseCurrentBalanceStatement(
   current: BalanceSnapshot,
-  token: Token,
+  _token: Token,
   network: Network
 ) {
   const tokens = Registry.getTokenRegistry();
-  if (!token.underlying) throw Error('Unknown underlying');
-  const tokenId = token.id;
-  const underlying = token.underlying;
+  if (!_token.underlying) throw Error('Unknown underlying');
+  const tokenId = _token.id;
+  const token = tokens.getTokenByID(network, tokenId);
+  const underlying = _token.underlying;
   const currentStatement = parseBalanceStatement(
     tokenId,
     underlying.id,
@@ -53,15 +54,16 @@ export function parseCurrentBalanceStatement(
 
   let totalInterestAccrual: TokenBalance;
   if (token.tokenType === 'VaultShare' || token.tokenType === 'nToken') {
-    const interestAccumulator =
-      Registry.getOracleRegistry().getLatestFromSubject(
-        network,
-        `${token.underlying}:${token.id}:${
-          token.tokenType === 'VaultShare'
-            ? 'VaultShareInterestAccrued'
-            : 'nTokenInterestAccrued'
-        }`
-      )?.latestRate.rate;
+    const a = Registry.getOracleRegistry().getLatestFromSubject(
+      network,
+      `${token.underlying}:${token.id}:${
+        token.tokenType === 'VaultShare'
+          ? 'VaultShareInterestAccrued'
+          : 'nTokenInterestAccrued'
+      }`,
+      0
+    )?.latestRate;
+    const interestAccumulator = a?.rate;
     if (interestAccumulator) {
       const currentInterestAccumulator = TokenBalance.fromID(
         interestAccumulator,
@@ -79,7 +81,40 @@ export function parseCurrentBalanceStatement(
       totalInterestAccrual = currentStatement.totalInterestAccrual.add(
         additionalAccruedInterest
       );
+      console.log(`
+INTEREST: ${token.symbol}
+Current Accumulator Time Diff: ${getNowSeconds() - a.timestamp}
+Current Accumulator: ${currentInterestAccumulator.toDisplayStringWithSymbol(
+        8,
+        false,
+        false
+      )}
+Last Accumulator: ${lastInterestAccumulator.toDisplayStringWithSymbol(
+        8,
+        false,
+        false
+      )}
+Snapshot Interest: ${currentStatement.totalInterestAccrual.toDisplayStringWithSymbol(
+        8,
+        false,
+        false
+      )}
+Additional Interest: ${additionalAccruedInterest.toDisplayStringWithSymbol(
+        8,
+        false,
+        false
+      )}
+`);
     } else {
+      console.log(`
+INTEREST: ${token.symbol}
+NO ACCUMULATOR FOUND
+Snapshot Interest: ${currentStatement.totalInterestAccrual.toDisplayStringWithSymbol(
+        8,
+        false,
+        false
+      )}
+`);
       totalInterestAccrual = currentStatement.totalInterestAccrual;
     }
   } else if (token.tokenType === 'fCash') {
@@ -88,11 +123,30 @@ export function parseCurrentBalanceStatement(
       underlying.id,
       network
     );
+    const additionalAccruedInterest = lastInterestAccumulator.scale(
+      getNowSeconds() - currentStatement.timestamp,
+      SECONDS_IN_YEAR
+    );
+    console.log(`
+INTEREST: ${token.symbol}
+Last Accumulator: ${lastInterestAccumulator.toDisplayStringWithSymbol(
+      8,
+      false,
+      false
+    )}
+Snapshot Interest: ${currentStatement.totalInterestAccrual.toDisplayStringWithSymbol(
+      8,
+      false,
+      false
+    )}
+Additional Interest: ${additionalAccruedInterest.toDisplayStringWithSymbol(
+      8,
+      false,
+      false
+    )}
+`);
     totalInterestAccrual = currentStatement.totalInterestAccrual.add(
-      lastInterestAccumulator.scale(
-        getNowSeconds() - currentStatement.timestamp,
-        SECONDS_IN_YEAR
-      )
+      additionalAccruedInterest
     );
   } else {
     // For Prime Cash and Prime Debt, the entire PNL is interest accrual

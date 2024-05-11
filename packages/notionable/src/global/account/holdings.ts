@@ -148,6 +148,10 @@ export function calculateHoldings(
       manageTokenId,
       maturedTokenId,
       totalIncentiveEarnings,
+      // TODO
+      // marketProfitLoss: statement?.totalProfitAndLoss
+      //   .add(totalIncentiveEarnings)
+      //   .sub(statement.totalInterestAccrual),
       hasMatured: balance.hasMatured,
       tokenType: undefined,
       isHighUtilization: isHighUtilization(
