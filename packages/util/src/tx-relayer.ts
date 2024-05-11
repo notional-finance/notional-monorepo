@@ -26,7 +26,7 @@ const urls: Record<Network, string> = {
   [Network.optimism]: '',
 };
 
-export function sendTxThroughRelayer(arg: {
+export async function sendTxThroughRelayer(arg: {
   env: Env;
   to: string;
   data: string;
@@ -42,7 +42,6 @@ export function sendTxThroughRelayer(arg: {
   });
   const url = urls[env.NETWORK];
   console.log(`Sending Payload to ${url}`);
-  console.log(payload);
 
   return fetch(url, {
     method: 'POST',

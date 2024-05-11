@@ -19,6 +19,8 @@ import {
 } from '@notional-finance/util';
 import { simulatePopulatedTxn } from '@notional-finance/transaction';
 
+type Provider = ethers.providers.Provider;
+
 export interface Env {
   NETWORKS: Array<Network>;
   NETWORK: Network;
@@ -151,7 +153,7 @@ async function shouldSkipClaim(env: Env, vaultAddress: string) {
   return Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
 }
 
-const claimRewards = async (env: Env, provider: any) => {
+const claimRewards = async (env: Env, provider: Provider) => {
   const treasuryManger = TreasuryManager__factory.connect(
     treasuryManagerAddresses[env.NETWORK],
     provider
@@ -256,7 +258,7 @@ const getTrades = async (
   );
 };
 
-const reinvestVault = async (env: Env, provider: any, vault: Vault) => {
+const reinvestVault = async (env: Env, provider: Provider, vault: Vault) => {
   if (await shouldSkipReinvest(env, vault.address)) {
     console.log(`Skipping reinvestment for ${vault.address}, already invested`);
     return null;
@@ -343,8 +345,8 @@ const reinvestVault = async (env: Env, provider: any, vault: Vault) => {
   });
 };
 
-const reinvestRewards = async (env: Env, provider: any) => {
-  const errors: any = [];
+const reinvestRewards = async (env: Env, provider: Provider) => {
+  const errors: Error[] = [];
   for (const vault of vaults[env.NETWORK]) {
     try {
       await reinvestVault(env, provider, vault);
