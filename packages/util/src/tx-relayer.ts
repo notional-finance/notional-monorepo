@@ -1,8 +1,5 @@
 import { Network } from './constants';
 
-let lastPostTimestamp = 0;
-const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
-
 export const treasuryManagerAddresses: Partial<Record<Network, string>> = {
   arbitrum: '0x53144559c0d4a3304e2dd9dafbd685247429216d',
   mainnet: '0x53144559c0d4a3304e2dd9dafbd685247429216d',
@@ -45,14 +42,6 @@ export async function sendTxThroughRelayer(arg: {
   });
   const url = urls[env.NETWORK];
   console.log(`Sending Payload to ${url}`);
-  console.log(payload);
-  // throttle request to relayer so proper nonce can be used
-  const currentTime = Date.now();
-  while (currentTime < lastPostTimestamp + 2000) {
-    console.log("Throttling request, waiting...");
-    await wait(2000 - (currentTime - lastPostTimestamp));
-  }
-  lastPostTimestamp = Date.now();
 
   return fetch(url, {
     method: 'POST',
