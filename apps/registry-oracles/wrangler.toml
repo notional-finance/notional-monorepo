@@ -21,9 +21,9 @@ NX_ENV = 'dev'
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
 VERSION = 'v1'
-SUPPORTED_NETWORKS = [ 'arbitrum', 'mainnet', 'all' ]
-
-# NX_DD_API_KEY
+# SUPPORTED_NETWORKS = [ 'arbitrum', 'mainnet', 'all' ]
+# NOTE: temporary change for testing
+SUPPORTED_NETWORKS = [ 'arbitrum' ]
 
 [env.dev.durable_objects]
 bindings = [
