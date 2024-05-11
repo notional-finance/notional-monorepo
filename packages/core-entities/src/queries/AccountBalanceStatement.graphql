@@ -16,6 +16,7 @@ query AccountBalanceStatement($accountId: ID!) {
         totalILAndFeesAtSnapshot
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
+        _lastInterestAccumulator
         impliedFixedRate
         incentives {
           rewardToken { id symbol }

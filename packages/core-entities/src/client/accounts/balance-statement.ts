@@ -2,6 +2,8 @@ import {
   INTERNAL_TOKEN_PRECISION,
   Network,
   RATE_PRECISION,
+  SECONDS_IN_YEAR,
+  getNowSeconds,
 } from '@notional-finance/util';
 import { Registry } from '../../Registry';
 import { TokenBalance } from '../../token-balance';
@@ -33,11 +35,10 @@ export function parseCurrentBalanceStatement(
         INTERNAL_TOKEN_PRECISION
       )
     );
-  const totalInterestAccrual = currentProfitAndLoss.sub(
-    currentStatement.totalILAndFees
-  );
+
   const incentives =
     current.incentives?.map((i) => ({
+      // PartOf: Incentive Earnings
       adjustedClaimed: TokenBalance.fromSymbol(
         i.adjustedClaimed,
         i.rewardToken.symbol,
@@ -50,17 +51,71 @@ export function parseCurrentBalanceStatement(
       ),
     })) || [];
 
+  let totalInterestAccrual: TokenBalance;
+  if (token.tokenType === 'VaultShare' || token.tokenType === 'nToken') {
+    const interestAccumulator =
+      Registry.getOracleRegistry().getLatestFromSubject(
+        network,
+        `${token.underlying}:${token.id}:${
+          token.tokenType === 'VaultShare'
+            ? 'VaultShareInterestAccrued'
+            : 'nTokenInterestAccrued'
+        }`
+      )?.latestRate.rate;
+    if (interestAccumulator) {
+      const currentInterestAccumulator = TokenBalance.fromID(
+        interestAccumulator,
+        underlying.id,
+        network
+      );
+      const lastInterestAccumulator = TokenBalance.fromID(
+        current._lastInterestAccumulator,
+        underlying.id,
+        network
+      );
+      const additionalAccruedInterest = currentInterestAccumulator
+        .sub(lastInterestAccumulator)
+        .scale(currentStatement.balance, currentStatement.balance.precision);
+      totalInterestAccrual = currentStatement.totalInterestAccrual.add(
+        additionalAccruedInterest
+      );
+    } else {
+      totalInterestAccrual = currentStatement.totalInterestAccrual;
+    }
+  } else if (token.tokenType === 'fCash') {
+    const lastInterestAccumulator = TokenBalance.fromID(
+      current._lastInterestAccumulator,
+      underlying.id,
+      network
+    );
+    totalInterestAccrual = currentStatement.totalInterestAccrual.add(
+      lastInterestAccumulator.scale(
+        getNowSeconds() - currentStatement.timestamp,
+        SECONDS_IN_YEAR
+      )
+    );
+  } else {
+    // For Prime Cash and Prime Debt, the entire PNL is interest accrual
+    totalInterestAccrual = currentProfitAndLoss;
+  }
+
+  // Total Earnings = Organic Earnings + Incentive Earnings
   return {
-    token: tokens.getTokenByID(network, tokenId),
+    token,
     blockNumber: current.blockNumber,
     underlying: tokens.getTokenByID(network, underlying.id),
     currentBalance: currentStatement.balance,
     adjustedCostBasis: currentStatement.adjustedCostBasis,
+    // TODO: this is total fees but includes slippage....
     totalILAndFees: currentStatement.totalILAndFees,
     impliedFixedRate: currentStatement.impliedFixedRate,
+    // Organic Earnings
     totalProfitAndLoss: currentProfitAndLoss,
+    // Interest Accrued to Snapshot => Bring to Current
     totalInterestAccrual,
+    // Amount Paid
     accumulatedCostRealized: currentStatement.accumulatedCostRealized,
+    // TODO: Market PNL: Total Earnings - InterestAccrued
     incentives,
   };
 }
