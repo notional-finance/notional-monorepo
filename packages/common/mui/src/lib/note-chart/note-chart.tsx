@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import type { EChartsOption, SetOptionOpts } from 'echarts';
-import { H5, LabelValue } from '../typography/typography';
+import { H5 } from '../typography/typography';
 import ReactECharts from 'echarts-for-react';
 import { ReactNode } from 'react';
 import { colors } from '@notional-finance/styles';
@@ -17,6 +17,7 @@ interface ReactEChartsProps {
 interface NoteChartProps {
   // TODO Add option type when data is available
   // option: ReactEChartsProps['option'];
+  data: [Date, number][];
   title: ReactNode;
   largeValue: ReactNode | string;
   showMarkLines?: boolean;
@@ -24,6 +25,7 @@ interface NoteChartProps {
 
 export const NoteChart = ({
   // option,
+  data,
   title,
   largeValue,
   showMarkLines,
@@ -44,9 +46,8 @@ export const NoteChart = ({
       axisTick: {
         show: false,
       },
-      type: 'category',
-      boundaryGap: false,
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      type: 'time',
+      // boundaryGap: false,
     },
     yAxis: {
       type: 'value',
@@ -61,7 +62,7 @@ export const NoteChart = ({
       {
         triggerLineEvent: true,
         // NOTE: This is the actual data for the chart
-        data: [820, 932, 901, 934, 1290, 1330, 1320],
+        data: data,
         type: 'line',
         showSymbol: false,
         symbol: 'circle',
@@ -153,7 +154,7 @@ export const NoteChart = ({
           <H5>{title}</H5>
           {largeValue}
         </Box>
-        <Box sx={{ display: 'flex' }}>
+        {/* <Box sx={{ display: 'flex' }}>
           <LabelValue
             sx={{ color: colors.neonTurquoise, marginRight: theme.spacing(1) }}
           >
@@ -162,7 +163,7 @@ export const NoteChart = ({
           <LabelValue sx={{ fontSize: '12px', color: '#BCD4DB' }}>
             (30d)
           </LabelValue>
-        </Box>
+        </Box> */}
       </LabelContainer>
       <ReactECharts option={option} style={{ height: theme.spacing(32.5) }} />
     </NoteChartContainer>

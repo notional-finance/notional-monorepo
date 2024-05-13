@@ -20,9 +20,20 @@ import {
 import { ReactNode } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
+import { useFiat, useNotePrice } from '@notional-finance/notionable-hooks';
+import { useNoteSupply } from './use-note-supply';
 
 export const NoteSummary = () => {
   const theme = useTheme();
+  const { notePrice, notePriceChange } = useNotePrice();
+  const baseCurrency = useFiat();
+  const {
+    noteBurnChart,
+    totalNoteBurned,
+    annualNOTEBurnRate,
+    annualNOTEBurnPercentage,
+  } = useNoteSupply();
+
   return (
     <ContentContainer id="note-summary">
       <NotePageSectionTitle
@@ -50,8 +61,9 @@ export const NoteSummary = () => {
       <ChartSectionContainer>
         <NoteChart
           // option={option}
+          data={noteBurnChart}
           title={<FormattedMessage defaultMessage={'Total NOTE Burned'} />}
-          largeValue={<DualColorValue valueOne={'10,000'} valueTwo={'.0334'} />}
+          largeValue={<DualColorValue value={totalNoteBurned || 0} />}
         />
         <Box
           sx={{
@@ -72,10 +84,20 @@ export const NoteSummary = () => {
               <H5>
                 <FormattedMessage defaultMessage={'NOTE Burn Rate'} />
               </H5>
-              <PercentAndDate apy="+3.26%" dateRange="(30d)" />
+              <PercentAndDate
+                percentChange={annualNOTEBurnPercentage || 0}
+                dateRange="(30d)"
+              />
             </Box>
-            <DualColorValue valueOne="250,000" valueTwo="/ yr" separateValues />
-            <Caption>$100,000.00</Caption>
+            <DualColorValue
+              value={annualNOTEBurnRate?.toFloat() || 0}
+              suffix="/ yr"
+            />
+            <Caption>
+              {annualNOTEBurnRate
+                ?.toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(2, false, false)}
+            </Caption>
           </ContentBox>
           <ContentBox>
             <Box
@@ -88,7 +110,10 @@ export const NoteSummary = () => {
               <H5>
                 <FormattedMessage defaultMessage={'NOTE Price'} />
               </H5>
-              <PercentAndDate apy="+3.26%" dateRange="(30d)" />
+              <PercentAndDate
+                percentChange={notePriceChange}
+                dateRange="(24h)"
+              />
             </Box>
             <H2 sx={{ display: 'flex', alignItems: 'center' }}>
               <TokenIcon
@@ -96,7 +121,9 @@ export const NoteSummary = () => {
                 size="large"
                 style={{ marginRight: theme.spacing(1) }}
               />
-              $0.1951
+              {notePrice
+                ?.toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(4, false, false)}
             </H2>
             <ButtonContainer>
               <Button

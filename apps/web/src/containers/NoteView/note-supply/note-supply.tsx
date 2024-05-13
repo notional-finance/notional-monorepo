@@ -10,9 +10,19 @@ import {
   SubText,
 } from '../components';
 import { FormattedMessage } from 'react-intl';
+import { useNoteSupply } from './use-note-supply';
+import { useFiat } from '@notional-finance/notionable-hooks';
 
 export const NoteSupply = () => {
   const theme = useTheme();
+  const baseCurrency = useFiat();
+  const {
+    noteHistoricalSupply,
+    currentSupply,
+    currentSupplyChange,
+    annualEmissionRate,
+  } = useNoteSupply();
+
   return (
     <ContentContainer id="note-supply">
       <NotePageSectionTitle
@@ -29,11 +39,18 @@ export const NoteSupply = () => {
       <ChartSectionContainer>
         <NoteChart
           // option={option}
-          showMarkLines={true}
+          // showMarkLines={true}
+          data={noteHistoricalSupply}
           title={
-            <FormattedMessage defaultMessage={'note Circulating Supply'} />
+            <FormattedMessage defaultMessage={'NOTE Circulating Supply'} />
           }
-          largeValue={<DualColorValue valueOne={'10,000,000'} />}
+          largeValue={
+            // TODO: this should be a hover state instead of the currentSupply...
+            <DualColorValue
+              value={currentSupply?.toFloat() || 0}
+              suffix="NOTE"
+            />
+          }
         />
         <Box
           sx={{
@@ -59,13 +76,20 @@ export const NoteSupply = () => {
               }}
             >
               <H5>
-                <FormattedMessage defaultMessage={'circulating supply'} />
+                <FormattedMessage defaultMessage={'Circulating Supply'} />
               </H5>
-              <PercentAndDate apy="+3.26%" dateRange="(30d)" />
+              <PercentAndDate
+                percentChange={currentSupplyChange}
+                dateRange="(30d)"
+              />
             </Box>
             <Box>
-              <H2>2,050,000</H2>
-              <Caption>$1,000,000.00</Caption>
+              <H2>{currentSupply?.toDisplayString(0, false, false) || ''}</H2>
+              <Caption>
+                {currentSupply
+                  ?.toFiat(baseCurrency)
+                  .toDisplayStringWithSymbol(0, false, false) || ''}
+              </Caption>
             </Box>
           </ContentBox>
           <ContentBox
@@ -86,15 +110,17 @@ export const NoteSupply = () => {
               <H5>
                 <FormattedMessage defaultMessage={'annual emission rate'} />
               </H5>
-              <PercentAndDate apy="+3.26%" dateRange="(30d)" />
             </Box>
             <Box>
               <DualColorValue
-                valueOne={'500,000'}
-                valueTwo="/ yr"
-                separateValues
+                value={annualEmissionRate?.toFloat() || 0}
+                suffix="/ yr"
               />
-              <Caption>$100,000.00</Caption>
+              <Caption>
+                {annualEmissionRate
+                  ?.toFiat(baseCurrency)
+                  .toDisplayStringWithSymbol(0, false, false) || ''}
+              </Caption>
             </Box>
           </ContentBox>
         </Box>

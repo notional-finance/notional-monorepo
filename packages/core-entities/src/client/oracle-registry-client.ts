@@ -47,6 +47,7 @@ export const PRICE_ORACLES = [
   'PrimeDebtToUnderlyingExchangeRate',
   'VaultShareOracleRate',
   'nTokenToUnderlyingExchangeRate',
+  'sNOTEToETHExchangeRate',
 ];
 
 export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {

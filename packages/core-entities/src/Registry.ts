@@ -11,6 +11,7 @@ import {
 import { VaultRegistryClient } from './client/vault-registry-client';
 import { YieldRegistryClient } from './client/yield-registry-client';
 import { AnalyticsRegistryClient } from './client/analytics-registry-client';
+import { NOTERegistryClient } from './client/note-registry-client';
 
 export class Registry {
   protected static _self?: Registry;
@@ -22,6 +23,7 @@ export class Registry {
   protected static _yields?: YieldRegistryClient;
   protected static _accounts?: AccountRegistryClient;
   protected static _analytics?: AnalyticsRegistryClient;
+  protected static _note?: NOTERegistryClient;
 
   public static DEFAULT_TOKEN_REFRESH = 20 * ONE_MINUTE_MS;
   public static DEFAULT_CONFIGURATION_REFRESH = 20 * ONE_MINUTE_MS;
@@ -65,6 +67,7 @@ export class Registry {
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
     Registry._yields = new YieldRegistryClient(_cacheHostname);
     Registry._analytics = new AnalyticsRegistryClient(_cacheHostname);
+    Registry._note = new NOTERegistryClient(_cacheHostname);
 
     // Kicks off Fiat token refreshes
     if (startFiatRefresh) {
@@ -79,6 +82,12 @@ export class Registry {
       if (useAnalytics) {
         Registry._analytics.startRefreshInterval(
           Network.all,
+          Registry.DEFAULT_ANALYTICS_REFRESH
+        );
+      }
+      if (isClient) {
+        Registry._note.startRefreshInterval(
+          Network.mainnet,
           Registry.DEFAULT_ANALYTICS_REFRESH
         );
       }
@@ -267,6 +276,11 @@ export class Registry {
     if (Registry._analytics == undefined)
       throw Error('Analytics Registry undefined');
     return Registry._analytics;
+  }
+
+  public static getNOTERegistry() {
+    if (Registry._note == undefined) throw Error('NOTE Registry undefined');
+    return Registry._note;
   }
 
   public static onNetworkReady(network: Network, fn: () => void) {
