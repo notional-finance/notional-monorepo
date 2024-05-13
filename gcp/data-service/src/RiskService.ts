@@ -133,8 +133,14 @@ function getVaultRiskFactors(account: AccountDefinition) {
         asset: l.asset.id,
       })),
     };
+    const vaultName = Registry.getConfigurationRegistry().getVaultName(
+      v.network,
+      v.vaultAddress
+    );
+
     return {
       vaultAddress: v.vaultAddress,
+      vaultName,
       account: account.address,
       riskFactors,
     };
