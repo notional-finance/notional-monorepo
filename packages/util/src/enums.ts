@@ -38,6 +38,12 @@ export enum NOTIONAL_CATEGORIES {
   STAKE = 'stake',
 }
 
+export enum ANALYTICS_VIEWS {
+  ALL_TRANSACTIONS = 'all-transactions',
+  ALL_ACCOUNTS = 'all-accounts',
+  ALL_VAULT_ACCOUNTS = 'all-vault-accounts',
+}
+
 export enum MOBILE_SUB_NAV_ACTIONS {
   EARN_YIELD = 'earn-yield',
   SETTINGS = 'settings',

@@ -10,6 +10,7 @@ import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
 import { DataTableScroll } from './data-table-scroll/data-table-scroll';
 import { DataTablePending } from './data-table-pending/data-table-pending';
+import { NetworkToggle } from '../network-toggle/network-toggle';
 import {
   DataTableInfoBox,
   InfoBoxDataProps,
@@ -62,6 +63,10 @@ interface DataTableProps {
   showHiddenRows?: boolean;
   tableLoading?: boolean;
   filterBarData?: any[];
+  networkToggleData?: {
+    toggleKey: number;
+    setToggleKey: (v: number) => void;
+  };
   rightToggleData?: DataTableToggleProps;
   allNetworksToggleData?: DataTableToggleProps;
   csvDataFormatter?: (data: any[]) => any;
@@ -92,6 +97,7 @@ export const DataTable = ({
   setExpandedRows,
   tableLoading,
   filterBarData,
+  networkToggleData,
   rightToggleData,
   allNetworksToggleData,
   csvDataFormatter,
@@ -213,6 +219,8 @@ export const DataTable = ({
           columns={columns}
           data={data}
           tableVariant={tableVariant}
+          networkToggleData={networkToggleData}
+          filterBarData={filterBarData}
           tableTitle={tableTitle}
           maxHeight={maxHeight}
           tableReady={tableReady}
@@ -270,6 +278,22 @@ export const DataTable = ({
           )}
 
           {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
+          {networkToggleData && (
+            <Box
+              sx={{
+                padding: theme.spacing(3, 2),
+                borderBottom: theme.shape.borderStandard,
+                width: '100%',
+              }}
+            >
+              <Box sx={{ width: 'fit-content', height: 'fit-content' }}>
+                <NetworkToggle
+                  selectedNetwork={networkToggleData.toggleKey}
+                  handleNetWorkToggle={networkToggleData.setToggleKey}
+                />
+              </Box>
+            </Box>
+          )}
           {toggleBarProps && tableTitle && (
             <DataTableToggle
               toggleBarProps={toggleBarProps}
