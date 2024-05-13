@@ -16,7 +16,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
-interface Test {
+interface AccountData {
   address: string;
   hasCrossCurrencyRisk: boolean;
   riskFactors: {
@@ -31,7 +31,9 @@ interface Test {
 
 export const useAllAccounts = (selectedNetwork: Network) => {
   const theme = useTheme();
-  const [allAccounts, setAllAccounts] = useState<Test[] | undefined>(undefined);
+  const [allAccounts, setAllAccounts] = useState<AccountData[] | undefined>(
+    undefined
+  );
   const { updateNotional } = useNotionalContext();
   const baseCurrency = useFiat();
   const history = useHistory();
@@ -48,10 +50,11 @@ export const useAllAccounts = (selectedNetwork: Network) => {
     }
   };
 
-  // useEffect(() => {
-  //   setCrossCurrencyRiskOptions([]);
-  //      setHealthFactorOptions([]);
-  // }, [earnBorrowOption, allNetworksOption]);
+  useEffect(() => {
+    setCrossCurrencyRiskOptions([]);
+    setHealthFactorOptions([]);
+    setNetWorthOptions([]);
+  }, []);
 
   useEffect(() => {
     if (selectedNetwork) {
@@ -150,7 +153,7 @@ export const useAllAccounts = (selectedNetwork: Network) => {
     },
   ];
 
-  const tableDataTest = allAccounts?.map((data) => {
+  const tableData = allAccounts?.map((data) => {
     return {
       address: {
         text: data.address ? truncateAddress(data.address) : '-',
@@ -171,7 +174,7 @@ export const useAllAccounts = (selectedNetwork: Network) => {
     };
   });
 
-  const sortedTableData = tableDataTest?.sort((a, b) => {
+  const sortedTableData = tableData?.sort((a, b) => {
     if (a.healthFactor === 0 && b.healthFactor === 0) {
       return 0;
     } else if (a.healthFactor === 0) {
@@ -190,30 +193,30 @@ export const useAllAccounts = (selectedNetwork: Network) => {
       placeHolderText: <FormattedMessage defaultMessage={'Health Factor'} />,
       data: [
         {
-          id: 'less_than_1.25',
+          id: 1.25,
           title: '< 1.25',
         },
         {
-          id: 'less_than_2.5',
+          id: 2.5,
           title: '< 2.5',
         },
         {
-          id: 'no_risk',
+          id: 5,
           title: 'No Risk',
         },
       ],
     },
     {
       selectedOptions: crossCurrencyRiskOptions,
-      crossCurrencyRiskOptions: setCrossCurrencyRiskOptions,
+      setSelectedOptions: setCrossCurrencyRiskOptions,
       placeHolderText: <FormattedMessage defaultMessage={'CC Risk'} />,
       data: [
         {
-          id: 'yes',
-          title: 'yes',
+          id: 'Yes',
+          title: 'Yes',
         },
         {
-          id: 'no',
+          id: 'No',
           title: 'No',
         },
       ],
@@ -224,44 +227,94 @@ export const useAllAccounts = (selectedNetwork: Network) => {
       placeHolderText: <FormattedMessage defaultMessage={'Net Worth'} />,
       data: [
         {
-          id: 'greater_than_100',
+          id: 100,
           title: '> $100',
         },
         {
-          id: 'greater_than_1000',
+          id: 1000,
           title: '> $1,000',
         },
         {
-          id: 'greater_than_100000',
+          id: 100000,
           title: '> $100,000',
         },
       ],
     },
   ];
 
-  // TODO:
-  // Add No Risk to health factor filter to remove the null values
-  // Add Net worth filter
+  const initialData =
+    sortedTableData && sortedTableData.length > 0 ? sortedTableData : [];
+
+  const getIds = (options: any[]) => {
+    return options.map(({ id }) => id);
+  };
+
+  const findSortingNum = (
+    numbers: number[],
+    sortHighestNum?: boolean
+  ): number | undefined => {
+    if (numbers.length === 0) {
+      return undefined;
+    }
+    let highestNumber = numbers[0];
+    for (let i = 1; i < numbers.length; i++) {
+      if (numbers[i] > highestNumber && sortHighestNum) {
+        highestNumber = numbers[i];
+      } else if (numbers[i] < highestNumber) {
+        highestNumber = numbers[i];
+      }
+    }
+    return highestNumber;
+  };
+
+  const filterAllAccountsData = () => {
+    const healthFactorIds = getIds(healthFactorOptions);
+    const crossCurrencyRiskIds = getIds(crossCurrencyRiskOptions);
+    const netWorthIds = getIds(netWorthOptions);
+    const highestHealthFactor = findSortingNum(healthFactorIds, true);
+    const highestNetWorth = findSortingNum(netWorthIds);
+    const ccRiskOption = crossCurrencyRiskIds[0];
+
+    const filterData = [
+      ...healthFactorIds,
+      ...crossCurrencyRiskIds,
+      ...netWorthIds,
+    ];
+
+    if (filterData.length === 0) return initialData;
+
+    return initialData.filter(
+      ({ crossCurrencyRisk, healthFactor, netWorth }) => {
+        let passFilter = true;
+
+        if (
+          crossCurrencyRiskIds.length === 1 &&
+          crossCurrencyRisk !== ccRiskOption
+        ) {
+          passFilter = false;
+        }
+
+        if (
+          highestHealthFactor !== undefined &&
+          healthFactor > highestHealthFactor
+        ) {
+          passFilter = false;
+        }
+
+        if (highestNetWorth !== undefined && netWorth < highestNetWorth) {
+          passFilter = false;
+        }
+
+        return passFilter;
+      }
+    );
+  };
+
+  const filteredTableData = filterAllAccountsData();
 
   return {
-    tableData:
-      sortedTableData && sortedTableData.length > 0 ? sortedTableData : [],
+    tableData: filteredTableData,
     tableColumns,
     dropdownsData,
   };
-
-  // NOTE:
-  // Can sort the health factors that are null at the buttom at the beginning but not after you click sort
-
-  //   Address: use the copy / click to view portfolio cell
-
-  // Cross Currency Risk (yes = true, no = false) add toggle or dropdown filter
-
-  // [Sortable] Health Factor (format as a number with 4 decimal places). By default, sort the table with the lowest health factors at the top.
-
-  // If a health factor is null then sort it to the bottom. It should have a value of "-"
-
-  // [Sortable] Loan To Value (format as a percentage with 2 decimal places), similar to health factor if this is null then show "-", null values should sort to the bottom of the table
-
-  // [Sortable] Net Worth (format using netWorth.toFiat(baseCurrency).toDisplayStringWithSymbol(2, true, false) )
 };

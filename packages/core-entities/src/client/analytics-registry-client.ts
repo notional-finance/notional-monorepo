@@ -501,6 +501,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     const vaultRisk = ClientRegistry.fetch<{
       account: string;
       vaultAddress: string;
+      vaultName: string;
       riskFactors: {
         netWorth: TokenBalance;
         debts: TokenBalance;

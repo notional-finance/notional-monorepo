@@ -16,13 +16,8 @@ export const AllAccounts = ({
   selectedNetwork,
 }: AllAccountsProps) => {
   const theme = useTheme();
-
   const { tableData, tableColumns, dropdownsData } =
     useAllAccounts(selectedNetwork);
-
-  console.log({ tableData });
-  console.log({ selectedNetwork });
-  console.log({ networkToggleData });
 
   return (
     <Box
@@ -35,7 +30,7 @@ export const AllAccounts = ({
       }}
     >
       <DataTable
-        maxHeight={700}
+        maxHeight={theme.spacing(130)}
         data={tableData}
         columns={tableColumns}
         filterBarData={dropdownsData}

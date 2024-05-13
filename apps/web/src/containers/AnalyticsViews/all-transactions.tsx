@@ -42,7 +42,7 @@ export const AllTransactions = ({
         paddingTop: '0px',
         maxWidth: theme.spacing(180),
         margin: 'auto',
-        marginTop: `-${theme.spacing(30)}`,
+        marginTop: `-${theme.spacing(25)}`,
       }}
     >
       <InfiniteScrollDataTable

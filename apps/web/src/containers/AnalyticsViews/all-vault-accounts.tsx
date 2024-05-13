@@ -1,5 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import { Network } from '@notional-finance/util';
+import { useAllVaultAccounts } from './hooks';
+import { DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
 
 interface AllVaultAccountsProps {
   networkToggleData: {
@@ -14,8 +16,8 @@ export const AllVaultAccounts = ({
   selectedNetwork,
 }: AllVaultAccountsProps) => {
   const theme = useTheme();
-
-  console.log({ networkToggleData, selectedNetwork });
+  const { tableData, tableColumns, dropdownsData } =
+    useAllVaultAccounts(selectedNetwork);
 
   return (
     <Box
@@ -27,7 +29,14 @@ export const AllVaultAccounts = ({
         marginTop: `-${theme.spacing(30)}`,
       }}
     >
-      AllVaultAccounts
+      <DataTable
+        maxHeight={theme.spacing(130)}
+        data={tableData}
+        columns={tableColumns}
+        filterBarData={dropdownsData}
+        networkToggleData={networkToggleData}
+        tableVariant={TABLE_VARIANTS.SORTABLE}
+      />
     </Box>
   );
 };
