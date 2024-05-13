@@ -2,6 +2,9 @@ import {
   BalancerBoostedPoolABI,
   BalancerVault,
   BalancerVaultABI,
+  IAggregator,
+  IAggregatorABI,
+  ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
 import { aggregate } from '@notional-finance/multicall';
@@ -17,6 +20,7 @@ const VaultConfig = {
     targetToken: '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee',
     network: Network.mainnet,
     symbol: 'weETH',
+    usdOracle: '0xE47F6c47DE1F1D93d8da32309D4dB90acDadeEaE',
   },
   '0x914255c0c289aea36e378ebb5e28293b5ed278ca': {
     poolId:
@@ -24,6 +28,7 @@ const VaultConfig = {
     targetToken: '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110',
     network: Network.mainnet,
     symbol: 'ezETH',
+    usdOracle: '0xE1fFDC18BE251E76Fb0A1cBfA6d30692c374C5fc',
   },
   '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937': {
     poolId:
@@ -31,6 +36,7 @@ const VaultConfig = {
     targetToken: '0x2416092f143378750bb29b79eD961ab195CcEea5',
     network: Network.arbitrum,
     symbol: 'ezETH',
+    usdOracle: '0x58784379C844a00d4f572917D43f991c971F96ca',
   },
 };
 
@@ -55,9 +61,11 @@ async function loadAllVaultsQuery(
   ).then((d) => d.data as AllVaultAccountsQuery);
 }
 
-export async function getVaultData(vaultAddress: string, blockNumber: number) {
-  const { targetToken, poolId, network, symbol } = VaultConfig[vaultAddress];
-
+async function getVaultInfo(
+  vaultAddress: string,
+  network: Network,
+  blockNumber: number
+) {
   const { results: vaultInfo } = (await aggregate<unknown>(
     [
       {
@@ -75,9 +83,49 @@ export async function getVaultData(vaultAddress: string, blockNumber: number) {
   )) as unknown as {
     block: providers.Block;
     results: {
-      info: Awaited<ReturnType<BalancerVault['functions']['getPoolTokens']>>;
+      info: Awaited<
+        ReturnType<
+          ISingleSidedLPStrategyVault['functions']['getStrategyVaultInfo']
+        >
+      >[number];
     };
   };
+
+  return vaultInfo;
+}
+
+export async function getVaultTVL(vaultAddress: string) {
+  const { network, usdOracle } = VaultConfig[vaultAddress];
+  const provider = getProviderFromNetwork(network, true);
+  const vault = new Contract(
+    vaultAddress,
+    ISingleSidedLPStrategyVaultABI,
+    provider
+  ) as ISingleSidedLPStrategyVault;
+  const totalVaultShares = (await vault.getStrategyVaultInfo())
+    .totalVaultShares;
+  const totalValuePrimary = await vault.convertStrategyToUnderlying(
+    ethers.constants.AddressZero,
+    totalVaultShares,
+    0
+  );
+  const usdOraclePrice = await (
+    new Contract(usdOracle, IAggregatorABI, provider) as IAggregator
+  ).latestAnswer();
+
+  return {
+    vaultAddress,
+    tvlUSD: ethers.utils.formatUnits(
+      totalValuePrimary.mul(usdOraclePrice).div(ethers.constants.WeiPerEther),
+      18
+    ),
+  };
+}
+
+export async function getVaultData(vaultAddress: string, blockNumber: number) {
+  const { targetToken, poolId, network, symbol } = VaultConfig[vaultAddress];
+
+  const vaultInfo = await getVaultInfo(vaultAddress, network, blockNumber);
 
   const { results: poolData } = (await aggregate<{
     totalSupply: BigNumber;
@@ -86,7 +134,7 @@ export async function getVaultData(vaultAddress: string, blockNumber: number) {
     [
       {
         stage: 0,
-        target: new Contract(vaultInfo.info['pool'], BalancerBoostedPoolABI),
+        target: new Contract(vaultInfo.info.pool, BalancerBoostedPoolABI),
         method: 'getActualSupply',
         key: 'totalSupply',
         args: [],
@@ -119,13 +167,13 @@ export async function getVaultData(vaultAddress: string, blockNumber: number) {
     network
   );
 
-  const totalLPTokens: BigNumber = vaultInfo.info['totalLPTokens'];
-  const totalVaultShares: BigNumber = vaultInfo.info['totalVaultShares'];
-  const totalLPSupply: BigNumber = poolData.totalSupply;
+  const totalLPTokens = vaultInfo.info.totalLPTokens;
+  const totalVaultShares = vaultInfo.info.totalVaultShares;
+  const totalLPSupply = poolData.totalSupply;
   const tokenIndex = poolData.balances.tokens.findIndex(
     (t) => t === targetToken
   );
-  const totalTokenBalance: BigNumber = poolData.balances.balances[tokenIndex];
+  const totalTokenBalance = poolData.balances.balances[tokenIndex];
 
   return allVaultAccounts.balances
     .filter((a) => !BigNumber.from(a.current.currentBalance).isZero())
