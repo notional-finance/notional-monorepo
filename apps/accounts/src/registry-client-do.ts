@@ -7,6 +7,7 @@ import {
   convertToSignedfCashId,
   decodeERC1155Id,
   getNowSeconds,
+  getProviderFromNetwork,
   getProviderURLFromNetwork,
   isERC1155Id,
   unique,
@@ -25,6 +26,7 @@ import {
 import { Env } from '.';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
+import { ethers } from 'ethers';
 
 export class RegistryClientDO extends DurableObject {
   protected serviceName: string;
@@ -110,6 +112,7 @@ export class RegistryClientDO extends DurableObject {
           this.checkAccountList(network),
           this.checkTotalSupply(network),
           this.saveYieldData(network),
+          this.monitorRelayerBalances(network),
         ]);
         if (network === Network.arbitrum) {
           // await this.checkDBMonitors(network);
@@ -516,6 +519,43 @@ export class RegistryClientDO extends DurableObject {
         });
       }
     }
+  }
+
+  private async monitorRelayerBalances(network: Network) {
+    const provider = getProviderFromNetwork(network, true);
+    const liquidatorBalance = await provider.getBalance(
+      '0xBCf0fa01AB57c6E8ab322518Ad1b4b86778f08E1'
+    );
+    const rewarderBalance = await provider.getBalance(
+      '0x745915418D8B70f39ce9e61A965cBB0C87f9f7Ed'
+    );
+
+    const series = [
+      {
+        metric: 'relayer.balance',
+        points: [
+          {
+            value: parseFloat(ethers.utils.formatUnits(liquidatorBalance, 18)),
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${network}`, `relayer:liquidator`],
+        type: MetricType.Gauge,
+      },
+      {
+        metric: 'relayer.balance',
+        points: [
+          {
+            value: parseFloat(ethers.utils.formatUnits(rewarderBalance, 18)),
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${network}`, `relayer:rewarder`],
+        type: MetricType.Gauge,
+      },
+    ];
+
+    await this.logger.submitMetrics({ series });
   }
 
   private async checkDBMonitors(network: Network) {
