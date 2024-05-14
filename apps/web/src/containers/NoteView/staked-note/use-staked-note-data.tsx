@@ -5,7 +5,7 @@ import {
 } from '@notional-finance/core-entities';
 import {
   useFiat,
-  useStakedNOTEPool,
+  useStakedNOTEPoolReady,
   useTotalNOTEBalances,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -17,7 +17,7 @@ import {
 import { useEffect, useState } from 'react';
 
 export function useStakedNoteData(dateRange = 30 * SECONDS_IN_DAY) {
-  const sNOTEPool = useStakedNOTEPool();
+  const isPoolReady = useStakedNOTEPoolReady();
   const baseCurrency = useFiat();
   const [sNOTEData, setSNOTEData] = useState<
     Awaited<ReturnType<NOTERegistryClient['getSNOTEData']>>
@@ -41,12 +41,13 @@ export function useStakedNoteData(dateRange = 30 * SECONDS_IN_DAY) {
   );
   const currentSNOTEYield = lastValue(sNOTEData)?.apy;
 
-  if (sNOTEPool) {
-    currentSNOTEPrice = sNOTEPool.getCurrentSNOTEPrice();
-    totalSNOTEValue = sNOTEPool.totalSNOTE.toFiat(baseCurrency);
+  if (isPoolReady) {
+    const sNOTEPool = Registry.getExchangeRegistry().getSNOTEPool();
+    currentSNOTEPrice = sNOTEPool?.getCurrentSNOTEPrice();
+    totalSNOTEValue = sNOTEPool?.totalSNOTE.toFiat(baseCurrency);
     annualizedRewardRate =
       currentSNOTEYield !== undefined
-        ? totalSNOTEValue.mulInRatePrecision(
+        ? totalSNOTEValue?.mulInRatePrecision(
             Math.floor((currentSNOTEYield * RATE_PRECISION) / 100)
           )
         : undefined;

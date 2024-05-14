@@ -55,15 +55,14 @@ export function useNOTE(network: Network | undefined) {
     : undefined;
 }
 
-export function useStakedNOTEPool() {
+export function useStakedNOTEPoolReady() {
   return useObservableState(
     Registry.getOracleRegistry()
       .subscribeNetworkKeys(Network.mainnet)
       .pipe(
         filter((s) => s?.key === NOTERegistryClient.sNOTEOracle),
-        map(() => Registry.getExchangeRegistry().getSNOTEPool())
-      ),
-    undefined
+        map(() => true)
+      )
   );
 }
 
