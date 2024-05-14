@@ -201,9 +201,9 @@ export class RegistryClientDO extends DurableObject {
         alert_type: 'error',
         title: `Account List Mismatch`,
         tags: [],
-        text: `Account List mismatch detected : ${[
-          ...accountSet.entries(),
-        ].toString()} is not in the subgraph list`,
+        text: `Account List mismatch detected (missing in subgraph) ${
+          accountSet.size
+        }: ${[...accountSet.entries()].toString()}`,
       });
     }
 
@@ -215,7 +215,9 @@ export class RegistryClientDO extends DurableObject {
         alert_type: 'error',
         title: `Vault Account List Mismatch`,
         tags: [],
-        text: `Account List mismatch detected : ${[
+        text: `Vault Account List mismatch detected (missing in subgraph) ${
+          vaultAccountSet.size
+        }: ${[
           ...vaultAccountSet.entries(),
         ].toString()} is not in the subgraph list`,
       });
