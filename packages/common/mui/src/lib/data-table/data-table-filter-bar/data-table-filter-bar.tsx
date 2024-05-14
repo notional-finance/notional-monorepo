@@ -1,5 +1,6 @@
 import { styled, Box, useTheme } from '@mui/material';
 import { MultiSelectDropdown } from '../../multi-select-dropdown/multi-select-dropdown';
+import { NetworkToggle } from '../../network-toggle/network-toggle';
 import { FormattedMessage } from 'react-intl';
 import SimpleToggle from '../../simple-toggle/simple-toggle';
 import { DataTableToggleProps } from '../data-table';
@@ -10,12 +11,17 @@ interface DataTableFilterBarProps {
   filterBarData: any[];
   rightToggleData?: DataTableToggleProps;
   allNetworksToggleData?: DataTableToggleProps;
+  networkToggleData?: {
+    toggleKey: number;
+    setToggleKey: (v: number) => void;
+  };
 }
 
 export const DataTableFilterBar = ({
   filterBarData,
   rightToggleData,
   allNetworksToggleData,
+  networkToggleData,
 }: DataTableFilterBarProps) => {
   const theme = useTheme();
   const [resetButtonDisabled, setResetButtonDisabled] = useState(true);
@@ -97,6 +103,12 @@ export const DataTableFilterBar = ({
           tabLabels={rightToggleData.toggleOptions}
           selectedTabIndex={rightToggleData.toggleKey}
           onChange={(_, v) => rightToggleData.setToggleKey(v as number)}
+        />
+      )}
+      {networkToggleData && (
+        <NetworkToggle
+          selectedNetwork={networkToggleData.toggleKey}
+          handleNetWorkToggle={networkToggleData.setToggleKey}
         />
       )}
     </Container>

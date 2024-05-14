@@ -501,6 +501,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     const vaultRisk = ClientRegistry.fetch<{
       account: string;
       vaultAddress: string;
+      vaultName: string;
       riskFactors: {
         netWorth: TokenBalance;
         debts: TokenBalance;
@@ -514,7 +515,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
         aboveMaxLeverageRatio: boolean;
         leverageRatio: number | null;
       };
-    }>(`${this.cacheHostname}/${network}`, 'accounts/vaultRisk');
+    }[]>(`${this.cacheHostname}/${network}`, 'accounts/vaultRisk');
     const portfolioRisk = ClientRegistry.fetch<{
       address: string;
       hasCrossCurrencyRisk: boolean;
@@ -531,7 +532,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
           isDebtThreshold: boolean;
         }[];
       };
-    }>(`${this.cacheHostname}/${network}`, 'accounts/portfolioRisk');
+    }[]>(`${this.cacheHostname}/${network}`, 'accounts/portfolioRisk');
 
     return { vaultRisk, portfolioRisk };
   }

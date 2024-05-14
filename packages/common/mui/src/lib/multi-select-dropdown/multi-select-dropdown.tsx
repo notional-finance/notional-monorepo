@@ -153,7 +153,9 @@ export const MultiSelectDropdown = ({
                         {option.icon}
                       </Box>
                     )}
-                    <LabelValue component="span">{option.title}</LabelValue>
+                    <LabelValue component="span" sx={{ whiteSpace: 'nowrap' }}>
+                      {option.title}
+                    </LabelValue>
                   </Text>
                   <Checkbox
                     sx={{
