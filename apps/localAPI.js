@@ -14,8 +14,7 @@ const configProxy = createProxyMiddleware(['/*/configuration'], {
   changeOrigin: true,
 });
 const tokensProxy = createProxyMiddleware(['/*/tokens'], {
-  target: 'http://localhost:8891',
-  // target: 'https://registry-tokens-dev.notional-finance.workers.dev',
+  target: 'https://registry-tokens-dev.notional-finance.workers.dev',
   changeOrigin: true,
 });
 const vaultsProxy = createProxyMiddleware(['/*/vaults'], {
@@ -28,8 +27,7 @@ const oraclesProxy = createProxyMiddleware(['/*/oracles'], {
   changeOrigin: true,
 });
 const exchangesProxy = createProxyMiddleware(['/*/exchanges'], {
-  target: 'http://localhost:8890',
-  // target: 'https://registry-exchanges-dev.notional-finance.workers.dev',
+  target: 'https://registry-exchanges-dev.notional-finance.workers.dev',
   changeOrigin: true,
 });
 const dataProxy = createProxyMiddleware(['/*/views/*'], {
