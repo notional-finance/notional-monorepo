@@ -1,40 +1,43 @@
-import { Box, styled, useTheme } from '@mui/material';
-import {
-  NoteChart,
-  H5,
-  SectionTitle,
-  DiagramTitle,
-  Button,
-  CardInput,
-  H2,
-} from '@notional-finance/mui';
+import { Box } from '@mui/material';
+// import { Box, styled } from '@mui/material';
+// import { Box, styled, useTheme } from '@mui/material';
+// import {
+//   NoteChart,
+//   H5,
+//   SectionTitle,
+//   DiagramTitle,
+//   Button,
+//   CardInput,
+//   H2,
+// } from '@notional-finance/mui';
 import {
   NotePageSectionTitle,
   SubText,
-  ContentBox,
-  ChartSectionContainer,
+  // ContentBox,
+  // ChartSectionContainer,
   ContentContainer,
-  DualColorValue,
+  // DualColorValue,
 } from '../components';
 import { FormattedMessage } from 'react-intl';
-import { colors } from '@notional-finance/styles';
-import { TokenIcon, WalletIcon } from '@notional-finance/icons';
+// import { colors } from '@notional-finance/styles';
+// import { TokenIcon, WalletIcon } from '@notional-finance/icons';
 import { useStakedNoteData } from './use-staked-note-data';
-import { useFiat } from '@notional-finance/notionable-hooks';
-import { FiatSymbols } from '@notional-finance/core-entities';
-import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+// import { useFiat } from '@notional-finance/notionable-hooks';
+// import { FiatSymbols } from '@notional-finance/core-entities';
+// import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 
 export const StakedNote = () => {
-  const theme = useTheme();
-  const baseCurrency = useFiat();
-  const {
-    currentSNOTEPrice,
-    totalSNOTEValue,
-    currentSNOTEYield,
-    annualizedRewardRate,
-    historicalSNOTEPrice,
-    walletNOTEBalances,
-  } = useStakedNoteData();
+  // const theme = useTheme();
+  // const baseCurrency = useFiat();
+  // const {
+  //   currentSNOTEPrice,
+  //   totalSNOTEValue,
+  //   currentSNOTEYield,
+  //   annualizedRewardRate,
+  //   historicalSNOTEPrice,
+  //   walletNOTEBalances,
+  // } = useStakedNoteData();
+  useStakedNoteData();
   return (
     <ContentContainer id="staked-note">
       <NotePageSectionTitle
@@ -49,7 +52,7 @@ export const StakedNote = () => {
         />
       </SubText>
       <Box>
-        <ChartSectionContainer>
+        {/* <ChartSectionContainer>
           <NoteChart
             // option={option}
             data={historicalSNOTEPrice}
@@ -148,27 +151,27 @@ export const StakedNote = () => {
               <FormattedMessage defaultMessage={'Stake NOTE'} />
             </Button>
           </ContentBox>
-        </ChartSectionContainer>
+        </ChartSectionContainer> */}
       </Box>
     </ContentContainer>
   );
 };
 
-const Container = styled(Box)(
-  ({ theme }) => `
-  background: ${colors.darkGreen};
-  border-radius: ${theme.shape.borderRadius()};
-  width: 100%;
-  padding: ${theme.spacing(2, 3)};
-  text-align: left;
-  display: flex;
-  justify-content: space-between;
+// const Container = styled(Box)(
+//   ({ theme }) => `
+//   background: ${colors.darkGreen};
+//   border-radius: ${theme.shape.borderRadius()};
+//   width: 100%;
+//   padding: ${theme.spacing(2, 3)};
+//   text-align: left;
+//   display: flex;
+//   justify-content: space-between;
 
-  ${theme.breakpoints.down('sm')} {
-    flex-direction: column;
-    gap: ${theme.spacing(2)};
-  }
-  `
-);
+//   ${theme.breakpoints.down('sm')} {
+//     flex-direction: column;
+//     gap: ${theme.spacing(2)};
+//   }
+//   `
+// );
 
 export default StakedNote;

@@ -46,8 +46,16 @@ export const NoteGovernance = () => {
                 Closed
               </TopCardPill>
             </TopCardData>
-            <CardInput>{topic.title}</CardInput>
-            <Subtitle
+            <CardInput
+              sx={{
+                marginBottom: theme.spacing(3),
+                height: '90px',
+                overflow: 'hidden',
+              }}
+            >
+              {topic.title}
+            </CardInput>
+            {/* <Subtitle
               sx={{
                 marginTop: theme.spacing(2),
                 marginBottom: theme.spacing(3),
@@ -55,7 +63,7 @@ export const NoteGovernance = () => {
             >
               Lorem ipsum dolor sit amet consectetur. Senectus arcu aliquam
               gravida in. Erat aliquam malesuada fermentum nunc purus...
-            </Subtitle>
+            </Subtitle> */}
             <VoteMetrics>
               <CardCaption
                 sx={{
