@@ -22,17 +22,11 @@ const vaultsProxy = createProxyMiddleware(['/*/vaults'], {
   target: 'https://registry-vaults-dev.notional-finance.workers.dev',
   changeOrigin: true,
 });
-const oraclesProxy1 = createProxyMiddleware(['/arbitrum/oracles'], {
+const oraclesProxy = createProxyMiddleware(['/*/oracles'], {
   target: 'http://localhost:8890',
+  // target: 'https://registry-oracles-dev.notional-finance.workers.dev',
   changeOrigin: true,
 });
-const oraclesProxy2 = createProxyMiddleware(
-  ['/mainnet/oracles', '/all/oracles'],
-  {
-    target: 'https://registry-oracles-dev.notional-finance.workers.dev',
-    changeOrigin: true,
-  }
-);
 const exchangesProxy = createProxyMiddleware(['/*/exchanges'], {
   target: 'http://localhost:8890',
   // target: 'https://registry-exchanges-dev.notional-finance.workers.dev',
@@ -46,8 +40,7 @@ const dataProxy = createProxyMiddleware(['/*/views/*'], {
 // Use the proxies for the specified paths
 app.use(tokensProxy);
 app.use(configProxy);
-app.use(oraclesProxy1);
-app.use(oraclesProxy2);
+app.use(oraclesProxy);
 app.use(vaultsProxy);
 app.use(exchangesProxy);
 app.use(dataProxy);
