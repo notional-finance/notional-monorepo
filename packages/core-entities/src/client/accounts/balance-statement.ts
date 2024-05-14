@@ -2,6 +2,7 @@ import {
   INTERNAL_TOKEN_PRECISION,
   Network,
   RATE_PRECISION,
+  SCALAR_PRECISION,
   SECONDS_IN_YEAR,
   getNowSeconds,
 } from '@notional-finance/util';
@@ -10,6 +11,7 @@ import { TokenBalance } from '../../token-balance';
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { BalanceSnapshot, Token } from '../../.graphclient';
+import { BigNumber } from 'ethers';
 
 export function parseCurrentBalanceStatement(
   current: BalanceSnapshot,
@@ -20,7 +22,7 @@ export function parseCurrentBalanceStatement(
   if (!_token.underlying) throw Error('Unknown underlying');
   const tokenId = _token.id;
   const token = tokens.getTokenByID(network, tokenId);
-  const underlying = _token.underlying;
+  const underlying = tokens.getTokenByID(network, _token.underlying.id);
   const currentStatement = parseBalanceStatement(
     tokenId,
     underlying.id,
@@ -54,6 +56,13 @@ export function parseCurrentBalanceStatement(
 
   let totalInterestAccrual: TokenBalance;
   if (token.tokenType === 'VaultShare' || token.tokenType === 'nToken') {
+    console.log(
+      `Current Accumulator ID: ${token.underlying}:${token.id}:${
+        token.tokenType === 'VaultShare'
+          ? 'VaultShareInterestAccrued'
+          : 'nTokenInterestAccrued'
+      }`
+    );
     const a = Registry.getOracleRegistry().getLatestFromSubject(
       network,
       `${token.underlying}:${token.id}:${
@@ -63,37 +72,31 @@ export function parseCurrentBalanceStatement(
       }`,
       0
     )?.latestRate;
-    const interestAccumulator = a?.rate;
-    if (interestAccumulator) {
-      const currentInterestAccumulator = TokenBalance.fromID(
-        interestAccumulator,
-        underlying.id,
-        network
-      );
-      const lastInterestAccumulator = TokenBalance.fromID(
-        current._lastInterestAccumulator,
-        underlying.id,
-        network
-      );
-      const additionalAccruedInterest = currentInterestAccumulator
-        .sub(lastInterestAccumulator)
+    // This interest accumulator is always in 18 decimals
+    const currentInterestAccumulator = a?.rate;
+    if (currentInterestAccumulator) {
+      const additionalAccruedInterest = TokenBalance.unit(underlying)
+        .scale(
+          currentInterestAccumulator.sub(
+            current._lastInterestAccumulator as BigNumber
+          ),
+          SCALAR_PRECISION
+        )
         .scale(currentStatement.balance, currentStatement.balance.precision);
+
       totalInterestAccrual = currentStatement.totalInterestAccrual.add(
         additionalAccruedInterest
       );
       console.log(`
 INTEREST: ${token.symbol}
+Current Balance: ${currentStatement.balance.toDisplayStringWithSymbol(
+        8,
+        false,
+        false
+      )}
 Current Accumulator Time Diff: ${getNowSeconds() - a.timestamp}
-Current Accumulator: ${currentInterestAccumulator.toDisplayStringWithSymbol(
-        8,
-        false,
-        false
-      )}
-Last Accumulator: ${lastInterestAccumulator.toDisplayStringWithSymbol(
-        8,
-        false,
-        false
-      )}
+Current Accumulator: ${currentInterestAccumulator.toString()}
+Last Accumulator: ${current._lastInterestAccumulator.toString()}
 Snapshot Interest: ${currentStatement.totalInterestAccrual.toDisplayStringWithSymbol(
         8,
         false,
@@ -118,10 +121,9 @@ Snapshot Interest: ${currentStatement.totalInterestAccrual.toDisplayStringWithSy
       totalInterestAccrual = currentStatement.totalInterestAccrual;
     }
   } else if (token.tokenType === 'fCash') {
-    const lastInterestAccumulator = TokenBalance.fromID(
+    const lastInterestAccumulator = TokenBalance.from(
       current._lastInterestAccumulator,
-      underlying.id,
-      network
+      underlying
     );
     const additionalAccruedInterest = lastInterestAccumulator.scale(
       getNowSeconds() - currentStatement.timestamp,
@@ -157,7 +159,7 @@ Additional Interest: ${additionalAccruedInterest.toDisplayStringWithSymbol(
   return {
     token,
     blockNumber: current.blockNumber,
-    underlying: tokens.getTokenByID(network, underlying.id),
+    underlying,
     currentBalance: currentStatement.balance,
     adjustedCostBasis: currentStatement.adjustedCostBasis,
     // TODO: this is total fees but includes slippage....
