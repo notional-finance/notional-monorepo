@@ -124,25 +124,30 @@ function saveAccountRiskProfiles(network: Network) {
 }
 
 function getVaultRiskFactors(account: AccountDefinition) {
-  return VaultAccountRiskProfile.getAllRiskProfiles(account).map((v) => {
-    const _riskFactors = v.getAllRiskFactors();
-    const riskFactors = {
-      ..._riskFactors,
-      liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
-        ...l,
-        asset: l.asset.id,
-      })),
-    };
-    const vaultName = Registry.getConfigurationRegistry().getVaultName(
-      v.network,
-      v.vaultAddress
-    );
+  return (
+    VaultAccountRiskProfile.getAllRiskProfiles(account)
+      // Filter out empty vault accounts
+      .filter((v) => !(v.vaultShares.isZero() && v.vaultDebt.isZero()))
+      .map((v) => {
+        const _riskFactors = v.getAllRiskFactors();
+        const riskFactors = {
+          ..._riskFactors,
+          liquidationPrice: _riskFactors.liquidationPrice.map((l) => ({
+            ...l,
+            asset: l.asset.id,
+          })),
+        };
+        const vaultName = Registry.getConfigurationRegistry().getVaultName(
+          v.network,
+          v.vaultAddress
+        );
 
-    return {
-      vaultAddress: v.vaultAddress,
-      vaultName,
-      account: account.address,
-      riskFactors,
-    };
-  });
+        return {
+          vaultAddress: v.vaultAddress,
+          vaultName,
+          account: account.address,
+          riskFactors,
+        };
+      })
+  );
 }
