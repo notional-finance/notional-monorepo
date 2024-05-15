@@ -188,6 +188,13 @@ export interface VaultTradeState
   extends BaseTradeState,
     Partial<Omit<VaultAccountRiskSummary, 'postTradeBalances'>> {}
 
+export interface NOTETradeState extends BaseTradeState {
+  redeemWindowBegin?: number;
+  redeemWindowEnd?: number;
+  inCoolDown?: boolean;
+  inRedeemWindow?: boolean;
+}
+
 export const initialBaseTradeState: BaseTradeState = {
   isReady: false,
   hasError: false,
@@ -201,6 +208,12 @@ export const initialBaseTradeState: BaseTradeState = {
 };
 
 export const initialVaultTradeState: VaultTradeState = {
+  ...initialBaseTradeState,
+  underMinAccountBorrow: false,
+  overCapacityError: false,
+};
+
+export const initialNOTETradeState: NOTETradeState = {
   ...initialBaseTradeState,
   underMinAccountBorrow: false,
   overCapacityError: false,

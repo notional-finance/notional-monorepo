@@ -20,7 +20,7 @@ import {
   StakeNOTERedeem,
 } from '@notional-finance/transaction';
 
-export function createTradeManager(
+export function createNOTEManager(
   state$: Observable<TradeState>
 ): Observable<Partial<TradeState>> {
   const network$ = of(Network.mainnet);

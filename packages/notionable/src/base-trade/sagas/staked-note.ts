@@ -44,19 +44,17 @@ export function initState(
         return {
           isReady: true,
           tradeType: 'StakeNOTECoolDown' as NOTETradeType,
-          // redeemWindowBegin: c.redeemWindowBegin,
-          // redeemWindowEnd: c.redeemWindowEnd,
           selectedNetwork: Network.mainnet,
+          ...c,
         };
       } else if (c?.inRedeemWindow) {
         return {
           isReady: true,
           tradeType: 'StakeNOTERedeem' as NOTETradeType,
-          // redeemWindowBegin: c.redeemWindowBegin,
-          // redeemWindowEnd: c.redeemWindowEnd,
           selectedNetwork: Network.mainnet,
           debt: sNOTE,
           deposit: NOTE,
+          ...c,
         };
       } else {
         const ETH = Registry.getTokenRegistry().getTokenBySymbol(
@@ -79,6 +77,7 @@ export function initState(
           availableCollateralTokens: [sNOTE],
           collateral: sNOTE,
           selectedNetwork: Network.mainnet,
+          ...c,
         };
       }
     }),
