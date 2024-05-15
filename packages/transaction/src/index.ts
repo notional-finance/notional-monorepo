@@ -33,7 +33,8 @@ export type CalculationFn =
   | typeof calculateDepositDebtGivenCollateralRiskLimit
   | typeof calculateVaultDebtCollateralGivenDepositRiskLimit
   | typeof calculateVaultDeposit
-  | typeof calculateVaultRoll;
+  | typeof calculateVaultRoll
+  | (() => void);
 
 type ParamKeys<F extends CalculationFn> = Parameters<F> extends (infer U)[]
   ? keyof U

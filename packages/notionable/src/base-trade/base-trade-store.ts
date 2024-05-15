@@ -17,8 +17,12 @@ import { AccountRiskSummary, VaultAccountRiskSummary } from './sagas';
 import { Network } from '@notional-finance/util';
 export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
+import { NOTETradeType } from './note-manager';
 export type { TradeType } from './trade-config';
 export type { VaultTradeType } from './vault-trade-config';
+export type { NOTETradeType } from './note-manager';
+
+export type AllTradeTypes = TradeType | VaultTradeType | NOTETradeType;
 
 export type FilterFunc = (
   t: TokenDefinition,
@@ -97,6 +101,8 @@ interface TokenInputs {
   riskFactorLimit?: RiskFactorLimit<RiskFactorKeys>;
   /** Calculated deposit balance, always in underlying */
   depositBalance?: TokenBalance;
+  /** A secondary deposit balance, used for NOTE balances in staking */
+  secondaryDepositBalance?: TokenBalance;
   /** Calculated deposit balance, always in `collateral` token denomination */
   collateralBalance?: TokenBalance;
   /** Calculated deposit balance, always in `debt` token denomination */
@@ -161,7 +167,7 @@ interface InitState {
   /** A list of debt tokens that can be selected */
   availableDebtTokens?: TokenDefinition[];
   /** A key into the trade configuration object */
-  tradeType?: TradeType | VaultTradeType;
+  tradeType?: AllTradeTypes;
   /** A parameter key set by the url params */
   sideDrawerKey?: string;
 }
@@ -200,12 +206,12 @@ export const initialVaultTradeState: VaultTradeState = {
   overCapacityError: false,
 };
 
-export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {
+export function isVaultTrade(tradeType?: AllTradeTypes) {
   if (!tradeType) return false;
   return Object.keys(VaultTradeConfiguration).includes(tradeType);
 }
 
-export function isRollOrConvert(tradeType?: VaultTradeType | TradeType) {
+export function isRollOrConvert(tradeType?: AllTradeTypes) {
   if (!tradeType) return false;
   return (
     tradeType === 'RollDebt' ||
@@ -214,7 +220,7 @@ export function isRollOrConvert(tradeType?: VaultTradeType | TradeType) {
   );
 }
 
-export function isLeveragedTrade(tradeType?: VaultTradeType | TradeType) {
+export function isLeveragedTrade(tradeType?: AllTradeTypes) {
   if (!tradeType) return false;
   return (
     isVaultTrade(tradeType) ||
@@ -225,7 +231,7 @@ export function isLeveragedTrade(tradeType?: VaultTradeType | TradeType) {
   );
 }
 
-export function isDeleverageTrade(tradeType?: VaultTradeType | TradeType) {
+export function isDeleverageTrade(tradeType?: AllTradeTypes) {
   if (!tradeType) return false;
   return (
     tradeType === 'Deleverage' ||

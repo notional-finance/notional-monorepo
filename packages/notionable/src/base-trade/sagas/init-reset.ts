@@ -1,4 +1,4 @@
-import { Registry } from '@notional-finance/core-entities';
+import { AccountDefinition, Registry } from '@notional-finance/core-entities';
 import { filterEmpty } from '@notional-finance/util';
 import { Observable, pairwise, map, filter, distinctUntilChanged } from 'rxjs';
 import { BaseTradeState, VaultTradeState } from '../base-trade-store';
@@ -88,5 +88,14 @@ export function initState(state$: Observable<BaseTradeState>) {
         !isReady && !!selectedNetwork && !!tradeType
     ),
     map(() => ({ isReady: true }))
+  );
+}
+
+export function resetOnAccountChange(
+  account$: Observable<AccountDefinition | null>
+) {
+  return account$.pipe(
+    distinctUntilChanged((p, c) => p?.address === c?.address),
+    map(() => ({ reset: true, isReady: false }))
   );
 }

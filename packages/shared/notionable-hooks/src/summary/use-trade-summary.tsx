@@ -10,11 +10,10 @@ import {
   TradeState,
   isLeveragedTrade,
   isDeleverageTrade,
-  TradeType,
-  VaultTradeType,
   isDeleverageWithSwappedTokens,
   isVaultTrade,
   isRollOrConvert,
+  AllTradeTypes,
 } from '@notional-finance/notionable';
 import { BASIS_POINT } from '@notional-finance/util';
 import {
@@ -169,7 +168,7 @@ function getFeeItems(
   debtBalance: TokenBalance | undefined,
   collateralFee: TokenBalance | undefined,
   debtFee: TokenBalance | undefined,
-  tradeType: TradeType | VaultTradeType | undefined,
+  tradeType: AllTradeTypes | undefined,
   theme: NotionalTheme
 ): DetailItem[] {
   const zeroUnderlying = TokenBalance.zero(underlying);
@@ -192,7 +191,7 @@ function getFeeItems(
         )
       );
     }
-    
+
     if (
       collateralBalance?.unwrapVaultToken().tokenType !== 'PrimeCash' &&
       collateralBalance?.unwrapVaultToken().tokenType !== 'PrimeDebt'
@@ -245,12 +244,12 @@ function getFeeItems(
 function getDebtFeeDetailItem(
   debtBalance: TokenBalance | undefined,
   debtFee: TokenBalance,
-  tradeType: TradeType | VaultTradeType | undefined,
+  tradeType: AllTradeTypes | undefined,
   theme: Theme
 ): DetailItem {
   let feeToolTip: FeeMessages | undefined;
   const showPositiveAsGreen = undefined;
-  let iconColor: string | undefined = undefined
+  let iconColor: string | undefined = undefined;
 
   if (debtBalance?.tokenType === 'nToken' && debtFee) {
     const feePercent = debtFee
@@ -263,7 +262,7 @@ function getDebtFeeDetailItem(
       (isDeleverageTrade(tradeType) && feePercent > 50 * BASIS_POINT) ||
       (!isDeleverageTrade(tradeType) && feePercent > 20 * BASIS_POINT)
     ) {
-      iconColor = theme.palette.warning.main
+      iconColor = theme.palette.warning.main;
       feeToolTip = defineMessages({
         content: { defaultMessage: 'Redemption Cost' },
         toolTipContent: {
@@ -308,7 +307,9 @@ function getDebtFeeDetailItem(
     value: {
       data: [
         {
-          displayValue: debtFee.toUnderlying().toDisplayStringWithSymbol(4, true, false),
+          displayValue: debtFee
+            .toUnderlying()
+            .toDisplayStringWithSymbol(4, true, false),
           isNegative: false,
           showPositiveAsGreen,
         },
@@ -320,12 +321,12 @@ function getDebtFeeDetailItem(
 function getCollateralFeeDetailItem(
   collateralBalance: TokenBalance | undefined,
   collateralFee: TokenBalance,
-  tradeType: TradeType | VaultTradeType | undefined,
+  tradeType: AllTradeTypes | undefined,
   theme: Theme
 ): DetailItem {
   let feeToolTip: FeeMessages | undefined;
   let showPositiveAsGreen: boolean | undefined = undefined;
-  let iconColor: string | undefined = undefined
+  let iconColor: string | undefined = undefined;
 
   if (collateralBalance?.tokenType === 'nToken' && collateralFee.isNegative()) {
     feeToolTip = defineMessages({
@@ -350,7 +351,7 @@ function getCollateralFeeDetailItem(
       (isLeveragedTrade(tradeType) && feePercent > 50 * BASIS_POINT) ||
       (!isLeveragedTrade(tradeType) && feePercent > 10 * BASIS_POINT)
     ) {
-      iconColor = theme.palette.warning.main
+      iconColor = theme.palette.warning.main;
       feeToolTip = defineMessages({
         content: { defaultMessage: 'Fees and Slippage' },
         toolTipContent: {
@@ -361,7 +362,7 @@ function getCollateralFeeDetailItem(
     } else {
       feeToolTip = defineMessages({
         content: { defaultMessage: 'Provide Liquidity Fee' },
-      })
+      });
     }
   } else if (collateralBalance?.tokenType === 'VaultShare') {
     feeToolTip = defineMessages({
@@ -380,12 +381,14 @@ function getCollateralFeeDetailItem(
         : defineMessages({
             content: { defaultMessage: 'Fees and Slippage' },
           }),
-      iconColor
+      iconColor,
     },
     value: {
       data: [
         {
-          displayValue: collateralFee.toUnderlying().toDisplayStringWithSymbol(4, true, false),
+          displayValue: collateralFee
+            .toUnderlying()
+            .toDisplayStringWithSymbol(4, true, false),
           isNegative: false,
           showPositiveAsGreen,
         },
