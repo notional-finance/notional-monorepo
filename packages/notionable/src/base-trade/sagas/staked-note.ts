@@ -34,7 +34,8 @@ export function initState(
     filter(([{ isReady }]) => isReady === false),
     switchMap(async ([state, account, pool]) => {
       if (pool === undefined) return undefined;
-      // TODO: maybe do this at the global level....
+      // TODO: maybe do this at the global level, causes a flash when we switch
+      // ETH to WETH
       const c = account
         ? await pool.getCoolDownStatus(account.address)
         : undefined;
@@ -129,30 +130,42 @@ export function calculateStake(
         'ETH'
       );
 
-      const { lpTokens, feesPaid } = pool.getLPTokensGivenTokens([
-        // Ensure that WETH is converted to ETH
-        state.depositBalance.toToken(ETH),
-        state.secondaryDepositBalance,
-      ]);
-
-      const collateralBalance = pool.getSNOTEForBPT(lpTokens);
-      const feesPaidInETH = feesPaid.reduce(
-        (s, t) => s.add(t.toToken(ETH)),
-        TokenBalance.zero(ETH)
-      );
-
-      return {
-        collateralBalance,
-        collateralFee: feesPaidInETH,
-        // Fees should already be deducted from collateralBalance
-        netRealizedCollateralBalance: collateralBalance.toToken(ETH),
-        canSubmit: true,
-        postTradeBalances: [
-          collateralBalance,
-          state.depositBalance,
+      // TODO: move this into a calculate function
+      try {
+        const { lpTokens, feesPaid } = pool.getLPTokensGivenTokens([
+          // Ensure that WETH is converted to ETH
+          state.depositBalance?.toToken(ETH) || TokenBalance.zero(ETH),
           state.secondaryDepositBalance,
-        ],
-      };
+        ]);
+
+        const collateralBalance = pool.getSNOTEForBPT(lpTokens);
+        const feesPaidInETH = feesPaid.reduce(
+          (s, t) => s.add(t.toToken(ETH)),
+          TokenBalance.zero(ETH)
+        );
+
+        return {
+          collateralBalance,
+          collateralFee: feesPaidInETH,
+          // Fees should already be deducted from collateralBalance
+          netRealizedCollateralBalance: collateralBalance.toToken(ETH),
+          canSubmit: true,
+          postTradeBalances: [
+            collateralBalance,
+            state.depositBalance || TokenBalance.zero(ETH),
+            state.secondaryDepositBalance,
+          ],
+        };
+      } catch (e) {
+        return {
+          collateralBalance: undefined,
+          collateralFee: undefined,
+          netRealizedCollateralBalance: undefined,
+          postTradeBalances: undefined,
+          calculateError: (e as Error).toString(),
+          canSubmit: false,
+        };
+      }
     }),
     filterEmpty()
   );
@@ -176,6 +189,7 @@ export function calculateUnstake(
 
       let debtBalance: TokenBalance;
       let feesPaid: TokenBalance[];
+      // TODO: move this into a calculate function
       if (state.maxWithdraw && state.debtBalance) {
         debtBalance = state.debtBalance;
         const lpTokens = pool.getBPTForSNOTE(debtBalance);
