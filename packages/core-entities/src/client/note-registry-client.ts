@@ -6,6 +6,7 @@ import {
   SECONDS_IN_DAY,
   SupportedNetworks,
   ZERO_ADDRESS,
+  formatNumberAsPercent,
   getNowSeconds,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
@@ -132,6 +133,32 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
       return resp['result']['rows'].map((r) => ({
         ...r,
         day: new Date(r.day),
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  async getSNOTEReinvestmentData() {
+    try {
+      const resp = await this._fetch<{
+        result: {
+          rows: {
+            day: string;
+            evt_block_time: string;
+            bpts_per_snote: number;
+            eth_reinvestment: number;
+            note_reinvestment: number;
+            transaction_hash: string;
+            apy: number;
+          }[];
+        };
+      }>(Network.mainnet, 'sNOTEReinvestment');
+      return resp['result']['rows'].map((r) => ({
+        ...r,
+        eth_reinvestment: r.eth_reinvestment.toFixed(4),
+        apy: formatNumberAsPercent(r.apy, 2),
+        day: new Date(r.evt_block_time).getTime() / 1000,
       }));
     } catch {
       return [];

@@ -8,7 +8,7 @@ import {
   TotalRow,
   FaqHeader,
   Faq,
-  // DataTable,
+  DataTable,
   TotalBoxProps,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
@@ -19,6 +19,7 @@ import { useStakingFaq } from './use-staking-faq';
 import { useStakedNoteData } from '../NoteView/staked-note/use-staked-note-data';
 import { useFiat, useNotePrice } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
+import { useReinvestmentData } from './use-reinvestment-data';
 
 export const StakeNOTESummary = () => {
   const theme = useTheme();
@@ -33,6 +34,8 @@ export const StakeNOTESummary = () => {
     totalSNOTEValue,
     currentSNOTEYield,
   } = useStakedNoteData(90 * SECONDS_IN_DAY);
+  const { reinvestmentTableColumns, reinvestmentTableData } =
+    useReinvestmentData();
   const { notePrice } = useNotePrice();
   const totalsData: TotalBoxProps[] = [
     {
@@ -97,7 +100,7 @@ export const StakeNOTESummary = () => {
         ]}
       />
       <TotalRow totalsData={totalsData} />
-      {/* <Box
+      <Box
         sx={{
           marginBottom: theme.spacing(5),
           marginTop: theme.spacing(5),
@@ -111,7 +114,7 @@ export const StakeNOTESummary = () => {
           maxHeight={theme.spacing(51)}
           columns={reinvestmentTableColumns}
         />
-      </Box> */}
+      </Box>
       <Box sx={{ marginTop: theme.spacing(5) }}>
         <FaqHeader
           title={<FormattedMessage defaultMessage={'Staked NOTE FAQ'} />}
