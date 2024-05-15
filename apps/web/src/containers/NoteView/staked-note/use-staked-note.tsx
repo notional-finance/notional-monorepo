@@ -39,6 +39,10 @@ export function useStakedNote(stakedNoteData, dateRange = 30 * SECONDS_IN_DAY) {
   const historicalSNOTEPrice: [Date, number][] = sNOTEData.map(
     ({ day, price }) => [day, price]
   );
+  const historicalSNOTEAPY: [Date, number][] = sNOTEData.map(({ day, apy }) => [
+    day,
+    apy,
+  ]);
   const currentSNOTEYield = lastValue(sNOTEData)?.apy;
 
   if (isPoolReady) {
@@ -59,6 +63,7 @@ export function useStakedNote(stakedNoteData, dateRange = 30 * SECONDS_IN_DAY) {
     currentSNOTEYield,
     annualizedRewardRate,
     historicalSNOTEPrice,
+    historicalSNOTEAPY,
     walletNOTEBalances,
   };
 }

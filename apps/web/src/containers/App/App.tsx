@@ -43,6 +43,7 @@ import {
 import { VaultView } from '@notional-finance/vault-feature-shell';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
+import { StakeNOTE } from '../../containers/StakeNOTE';
 import { LandingPageView } from '../../containers/LandingPageView';
 import {
   ContestHome,
@@ -200,6 +201,11 @@ const AllRoutes = () => {
             path="/markets"
             component={Markets}
             routeType="Analytics"
+          />
+          <AppLayoutRoute
+            path="/stake"
+            component={StakeNOTE}
+            routeType="Note"
           />
           <AppLayoutRoute path="/note" component={NoteView} routeType="Note" />
           <AppLayoutRoute

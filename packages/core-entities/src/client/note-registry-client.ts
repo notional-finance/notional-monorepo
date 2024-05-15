@@ -13,43 +13,40 @@ import SNOTEWeightedPool from '../exchanges/BalancerV2/snote-weighted-pool';
 import { BigNumber } from 'ethers';
 import { TokenBalance } from '../token-balance';
 
-const sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
-const sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
-
 export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
   protected cachePath() {
     return 'note';
   }
 
-  public static sNOTEOracle = `${ZERO_ADDRESS}:${sNOTE}:sNOTEToETHExchangeRate`;
+  public static sNOTEOracle = `${ZERO_ADDRESS}:${SNOTEWeightedPool.sNOTE}:sNOTEToETHExchangeRate`;
   REDEEM_WINDOW_SECONDS = 3 * SECONDS_IN_DAY;
 
   constructor(cacheHostname: string) {
     super(cacheHostname);
     Registry.getExchangeRegistry().onSubjectKeyRegistered(
       Network.mainnet,
-      sNOTE_Pool,
+      SNOTEWeightedPool.sNOTE_Pool,
       () => {
         Registry.getExchangeRegistry()
-          .subscribeSubject(Network.mainnet, sNOTE_Pool)
+          .subscribeSubject(Network.mainnet, SNOTEWeightedPool.sNOTE_Pool)
           ?.subscribe(() => {
             const oracles = Registry.getOracleRegistry();
             if (oracles.isNetworkRegistered(Network.mainnet)) {
               const pool =
                 Registry.getExchangeRegistry().getPoolInstance<SNOTEWeightedPool>(
                   Network.mainnet,
-                  sNOTE_Pool
+                  SNOTEWeightedPool.sNOTE_Pool
                 );
 
               const currentSNOTEPrice = pool.getCurrentSNOTEPrice();
 
               const oracle: OracleDefinition = {
                 id: NOTERegistryClient.sNOTEOracle,
-                oracleAddress: sNOTE,
+                oracleAddress: SNOTEWeightedPool.sNOTE,
                 network: Network.mainnet,
                 oracleType: 'sNOTEToETHExchangeRate',
                 base: ZERO_ADDRESS,
-                quote: sNOTE,
+                quote: SNOTEWeightedPool.sNOTE,
                 decimals: currentSNOTEPrice.decimals,
                 latestRate: {
                   blockNumber: 0,
