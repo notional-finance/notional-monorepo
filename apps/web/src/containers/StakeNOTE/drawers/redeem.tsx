@@ -7,13 +7,14 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 export const Redeem = () => {
   const theme = useTheme();
   const context = useContext(NOTEContext);
-  const noteInputRef = useCurrencyInputRef();
+  const { currencyInputRef: noteInputRef } = useCurrencyInputRef();
 
   return (
     <TransactionSidebar
       context={context}
       showDrawer
       mobileTopMargin={theme.spacing(16)}
+      riskComponent={<div />}
     >
       <DepositInput
         isWithdraw

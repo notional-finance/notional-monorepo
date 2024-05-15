@@ -31,6 +31,7 @@ export const StakeNOTESummary = () => {
     historicalSNOTEAPY,
     annualizedRewardRate,
     totalSNOTEValue,
+    currentSNOTEYield,
   } = useStakedNoteData(90 * SECONDS_IN_DAY);
   const { notePrice } = useNotePrice();
   const totalsData: TotalBoxProps[] = [
@@ -55,7 +56,7 @@ export const StakeNOTESummary = () => {
   ];
 
   return (
-    <TradeActionSummary state={state}>
+    <TradeActionSummary state={state} stakedNOTEApy={currentSNOTEYield}>
       <MultiDisplayChart
         chartComponents={[
           {

@@ -9,6 +9,7 @@ export const CoolDown = () => {
 
   return (
     <TransactionSidebar
+      riskComponent={<div />}
       context={context}
       showDrawer
       mobileTopMargin={theme.spacing(16)}

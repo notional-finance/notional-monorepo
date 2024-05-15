@@ -3,7 +3,10 @@ import {
   TokenDefinition,
   YieldData,
 } from '@notional-finance/core-entities';
-import { PRIME_CASH_VAULT_MATURITY, formatMaturity } from '@notional-finance/util';
+import {
+  PRIME_CASH_VAULT_MATURITY,
+  formatMaturity,
+} from '@notional-finance/util';
 
 export function truncateAddress(
   address: string,
@@ -33,7 +36,7 @@ export function formatTokenType(
   titleWithMaturity: string;
 } {
   const underlying =
-    token.tokenType === 'NOTE'
+    token.tokenType === 'NOTE' || token.tokenType === 'Underlying'
       ? token
       : Registry.getTokenRegistry().getUnderlying(
           token.network,

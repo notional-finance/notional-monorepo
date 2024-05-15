@@ -7,11 +7,12 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 export const Stake = () => {
   const theme = useTheme();
   const context = useContext(NOTEContext);
-  const ethInputRef = useCurrencyInputRef();
-  const noteInputRef = useCurrencyInputRef();
+  const { currencyInputRef: ethInputRef } = useCurrencyInputRef();
+  const { currencyInputRef: noteInputRef } = useCurrencyInputRef();
 
   return (
     <TransactionSidebar
+      riskComponent={<div />}
       context={context}
       showDrawer
       mobileTopMargin={theme.spacing(16)}
