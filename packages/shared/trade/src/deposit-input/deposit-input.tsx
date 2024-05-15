@@ -15,7 +15,7 @@ import {
   BaseTradeContext,
   useWalletBalances,
 } from '@notional-finance/notionable-hooks';
-import { TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
 
 interface DepositInputProps {
@@ -31,6 +31,8 @@ interface DepositInputProps {
   useZeroDefault?: boolean;
   showScrollPopper?: boolean;
   excludeSupplyCap?: boolean;
+  depositOverride?: TokenDefinition;
+  depositTokens?: TokenDefinition[];
 }
 
 /**
@@ -56,6 +58,10 @@ export const DepositInput = React.forwardRef<
       useZeroDefault,
       showScrollPopper,
       excludeSupplyCap,
+      // These two props allow the state values to be overridden, used
+      // in the case of Staked NOTE
+      depositOverride,
+      depositTokens,
     },
     ref
   ) => {
@@ -64,14 +70,16 @@ export const DepositInput = React.forwardRef<
     const theme = useTheme();
     const {
       state: {
-        deposit,
-        availableDepositTokens,
+        deposit: _deposit,
+        availableDepositTokens: _depositTokens,
         calculateError,
         tradeType,
         selectedNetwork,
       },
       updateState,
     } = context;
+    const availableDepositTokens = depositTokens || _depositTokens;
+    const deposit = depositOverride || _deposit;
     const {
       inputAmount,
       maxBalance,

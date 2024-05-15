@@ -6,7 +6,14 @@ import {
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { Network, filterEmpty } from '@notional-finance/util';
-import { Observable, combineLatest, filter, map, switchMap } from 'rxjs';
+import {
+  Observable,
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  map,
+  switchMap,
+} from 'rxjs';
 import { BaseTradeState, NOTETradeType } from '../base-trade-store';
 import { comparePortfolio } from './account-risk';
 
@@ -25,7 +32,7 @@ export function initState(
 ) {
   return combineLatest([state$, account$, pool$]).pipe(
     filter(([{ isReady }]) => isReady === false),
-    switchMap(async ([_, account, pool]) => {
+    switchMap(async ([state, account, pool]) => {
       if (pool === undefined) return undefined;
       // TODO: maybe do this at the global level....
       const c = account
@@ -69,10 +76,8 @@ export function initState(
         return {
           isReady: true,
           tradeType: 'StakeNOTE' as NOTETradeType,
-          // Select ETH as default deposit token
-          selectedDepositToken: 'ETH',
+          selectedDepositToken: state.selectedDepositToken,
           availableDepositTokens: [ETH, WETH],
-          deposit: ETH,
           // sNOTE is always the collateral
           availableCollateralTokens: [sNOTE],
           collateral: sNOTE,
@@ -81,6 +86,26 @@ export function initState(
         };
       }
     }),
+    filterEmpty()
+  );
+}
+
+export function setDepositToken(state$: Observable<BaseTradeState>) {
+  return state$.pipe(
+    filter((s) => s.isReady && s.tradeType === 'StakeNOTE'),
+    distinctUntilChanged(
+      (p, c) => p.selectedDepositToken === c.selectedDepositToken
+    ),
+    map((s) =>
+      s.selectedDepositToken
+        ? {
+            deposit: Registry.getTokenRegistry().getTokenBySymbol(
+              Network.mainnet,
+              s.selectedDepositToken
+            ),
+          }
+        : undefined
+    ),
     filterEmpty()
   );
 }

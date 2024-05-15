@@ -203,7 +203,7 @@ const AllRoutes = () => {
             routeType="Analytics"
           />
           <AppLayoutRoute
-            path="/stake"
+            path="/stake/:selectedDepositToken"
             component={StakeNOTE}
             routeType="Note"
           />
@@ -264,12 +264,6 @@ const AllRoutes = () => {
             component={AboutUsView}
             routeType="Landing"
           />
-          {/* <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
-          <AppLayoutRoute path="/stake" component={StakeView} />
-          <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
-          <AppLayoutRoute path="/unstake" component={StakeView} />
-          <AppLayoutRoute path="/treasury" component={TreasuryView} /> */}
-
           {/* Catches all the card pages that should be redirected to the default network */}
           <Route path="/:basePath">
             <RedirectToDefaultNetwork />

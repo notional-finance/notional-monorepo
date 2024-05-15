@@ -17,6 +17,7 @@ export enum PRODUCTS {
   LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
   BORROW_FIXED = 'borrow-fixed',
   BORROW_VARIABLE = 'borrow-variable',
+  STAKE_NOTE = 'stake',
 }
 
 export enum META_TAG_CATEGORIES {

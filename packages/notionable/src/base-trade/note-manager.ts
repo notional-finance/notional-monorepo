@@ -7,11 +7,11 @@ import {
   calculateUnstake,
   compareNOTEPortfolio,
   initState,
+  setDepositToken,
   stakedNOTEPool,
 } from './sagas/staked-note';
 import {
   buildTransaction,
-  resetOnAccountChange,
   simulateTransaction,
 } from './sagas';
 import {
@@ -33,8 +33,8 @@ export function createNOTEManager(
     compareNOTEPortfolio(state$, account$),
     calculateUnstake(state$, stakedNOTEPool$),
     calculateStake(state$, stakedNOTEPool$),
-    initState(state$, account$, stakedNOTEPool$),
-    resetOnAccountChange(account$)
+    setDepositToken(state$),
+    initState(state$, account$, stakedNOTEPool$)
   );
 }
 
