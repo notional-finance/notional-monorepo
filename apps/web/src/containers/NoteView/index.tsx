@@ -8,7 +8,7 @@ import { NoteSummary } from './note-supply/note-summary';
 import StakedNote from './staked-note/staked-note';
 import NoteSupply from './note-supply/note-supply';
 import NoteGovernance from './note-governance/note-governance';
-// import NoteDelegate from './note-delegate/note-delegate';
+import NoteDelegate from './note-delegate/note-delegate';
 
 export const NoteView = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
@@ -19,7 +19,7 @@ export const NoteView = () => {
       <MainContainer>
         <TopGradientBg>
           <H1 sx={{ textAlign: 'center', paddingTop: theme.spacing(12) }}>
-            <FormattedMessage defaultMessage={'The NOTE token'} />
+            <FormattedMessage defaultMessage={'The NOTE Token'} />
           </H1>
           <Body
             sx={{
@@ -54,12 +54,12 @@ export const NoteView = () => {
             <NoteGovernance />
           </GovernanceGradientBg>
         </DefaultBgContainer>
-        {/* <Box>
+        <Box>
           <SquareGridBg height={theme.spacing(100)} />
           <DelegateGradientBg>
             <NoteDelegate />
           </DelegateGradientBg>
-        </Box> */}
+        </Box>
       </MainContainer>
     </ThemeProvider>
   );
@@ -115,15 +115,15 @@ const GovernanceGradientBg = styled(Box)(
 `
 );
 
-// const DelegateGradientBg = styled(Box)(
-//   `
-//     height: 100%;
-//     position: relative;
-//     width: 100%;
-//     background: linear-gradient(#041D2E, transparent);
-//     z-index: 4;
-// `
-// );
+const DelegateGradientBg = styled(Box)(
+  `
+    height: 100%;
+    position: relative;
+    width: 100%;
+    background: linear-gradient(#041D2E, transparent);
+    z-index: 4;
+`
+);
 
 const DefaultBgContainer = styled(Box)(
   `

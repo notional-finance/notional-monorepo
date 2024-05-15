@@ -1,43 +1,46 @@
-import { Box } from '@mui/material';
-// import { Box, styled } from '@mui/material';
-// import { Box, styled, useTheme } from '@mui/material';
-// import {
-//   NoteChart,
-//   H5,
-//   SectionTitle,
-//   DiagramTitle,
-//   Button,
-//   CardInput,
-//   H2,
-// } from '@notional-finance/mui';
+import { Box, styled, useTheme } from '@mui/material';
+import {
+  NoteChart,
+  H5,
+  SectionTitle,
+  DiagramTitle,
+  Button,
+  CardInput,
+  H2,
+  DateRangeButtons,
+  dateRangeData,
+} from '@notional-finance/mui';
 import {
   NotePageSectionTitle,
   SubText,
-  // ContentBox,
-  // ChartSectionContainer,
+  ContentBox,
+  ChartSectionContainer,
   ContentContainer,
-  // DualColorValue,
+  DualColorValue,
 } from '../components';
 import { FormattedMessage } from 'react-intl';
-// import { colors } from '@notional-finance/styles';
-// import { TokenIcon, WalletIcon } from '@notional-finance/icons';
+import { colors } from '@notional-finance/styles';
+import { TokenIcon, WalletIcon } from '@notional-finance/icons';
 import { useStakedNoteData } from './use-staked-note-data';
-// import { useFiat } from '@notional-finance/notionable-hooks';
-// import { FiatSymbols } from '@notional-finance/core-entities';
-// import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import { useFiat } from '@notional-finance/notionable-hooks';
+import { FiatSymbols } from '@notional-finance/core-entities';
+import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import { SECONDS_IN_DAY } from '@notional-finance/util';
+import { useState } from 'react';
 
 export const StakedNote = () => {
-  // const theme = useTheme();
-  // const baseCurrency = useFiat();
-  // const {
-  //   currentSNOTEPrice,
-  //   totalSNOTEValue,
-  //   currentSNOTEYield,
-  //   annualizedRewardRate,
-  //   historicalSNOTEPrice,
-  //   walletNOTEBalances,
-  // } = useStakedNoteData();
-  useStakedNoteData();
+  const theme = useTheme();
+  const [dateRange, setDateRange] = useState(dateRangeData[1].value);
+  const baseCurrency = useFiat();
+  const {
+    currentSNOTEPrice,
+    totalSNOTEValue,
+    currentSNOTEYield,
+    annualizedRewardRate,
+    historicalSNOTEPrice,
+    walletNOTEBalances,
+  } = useStakedNoteData(dateRange);
+
   return (
     <ContentContainer id="staked-note">
       <NotePageSectionTitle
@@ -52,10 +55,11 @@ export const StakedNote = () => {
         />
       </SubText>
       <Box>
-        {/* <ChartSectionContainer>
+        <ChartSectionContainer>
           <NoteChart
             // option={option}
             data={historicalSNOTEPrice}
+            formatToolTipValueAsFiat
             title={<FormattedMessage defaultMessage={'sNOTE Price'} />}
             largeValue={
               <DualColorValue
@@ -143,35 +147,35 @@ export const StakedNote = () => {
               size="large"
               sx={{
                 fontFamily: 'Avenir Next',
-                cursor: 'pointer',
+                cursor: 'no-drop',
                 width: '100%',
               }}
-              to="/stake"
             >
-              <FormattedMessage defaultMessage={'Stake NOTE'} />
+              <FormattedMessage defaultMessage={'Coming soon to V3'} />
             </Button>
           </ContentBox>
-        </ChartSectionContainer> */}
+        </ChartSectionContainer>
+        <DateRangeButtons setDateRange={setDateRange} dateRange={dateRange} />
       </Box>
     </ContentContainer>
   );
 };
 
-// const Container = styled(Box)(
-//   ({ theme }) => `
-//   background: ${colors.darkGreen};
-//   border-radius: ${theme.shape.borderRadius()};
-//   width: 100%;
-//   padding: ${theme.spacing(2, 3)};
-//   text-align: left;
-//   display: flex;
-//   justify-content: space-between;
+const Container = styled(Box)(
+  ({ theme }) => `
+  background: ${colors.darkGreen};
+  border-radius: ${theme.shape.borderRadius()};
+  width: 100%;
+  padding: ${theme.spacing(2, 3)};
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
 
-//   ${theme.breakpoints.down('sm')} {
-//     flex-direction: column;
-//     gap: ${theme.spacing(2)};
-//   }
-//   `
-// );
+  ${theme.breakpoints.down('sm')} {
+    flex-direction: column;
+    gap: ${theme.spacing(2)};
+  }
+  `
+);
 
 export default StakedNote;

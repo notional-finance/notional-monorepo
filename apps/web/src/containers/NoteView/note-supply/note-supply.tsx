@@ -1,5 +1,12 @@
 import { Box, useTheme } from '@mui/material';
-import { Caption, H2, H5, NoteChart } from '@notional-finance/mui';
+import {
+  Caption,
+  H2,
+  H5,
+  NoteChart,
+  DateRangeButtons,
+  dateRangeData,
+} from '@notional-finance/mui';
 import {
   ChartSectionContainer,
   ContentBox,
@@ -12,16 +19,22 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { useNoteSupply } from './use-note-supply';
 import { useFiat } from '@notional-finance/notionable-hooks';
+import { useState } from 'react';
 
 export const NoteSupply = () => {
   const theme = useTheme();
   const baseCurrency = useFiat();
+  const [dateRange, setDateRange] = useState(dateRangeData[2].value);
   const {
     noteHistoricalSupply,
     currentSupply,
     currentSupplyChange,
     annualEmissionRate,
   } = useNoteSupply();
+
+  const currentDateRange = dateRangeData.find(
+    (range) => range.value === dateRange
+  );
 
   return (
     <ContentContainer id="note-supply">
@@ -80,7 +93,7 @@ export const NoteSupply = () => {
               </H5>
               <PercentAndDate
                 percentChange={currentSupplyChange}
-                dateRange="(30d)"
+                dateRange={`(${currentDateRange?.displayValue})`}
               />
             </Box>
             <Box>
@@ -125,6 +138,7 @@ export const NoteSupply = () => {
           </ContentBox>
         </Box>
       </ChartSectionContainer>
+      <DateRangeButtons setDateRange={setDateRange} dateRange={dateRange} />
     </ContentContainer>
   );
 };

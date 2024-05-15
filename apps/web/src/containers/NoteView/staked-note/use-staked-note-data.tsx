@@ -25,10 +25,6 @@ export function useStakedNoteData(dateRange = 30 * SECONDS_IN_DAY) {
   const minDate = getMidnightUTC() - dateRange;
   const walletNOTEBalances = useTotalNOTEBalances();
 
-  console.log({ minDate });
-  // console.log({ sNOTEPool });
-  console.log('================ TESTINGS ================');
-
   useEffect(() => {
     Registry.getNOTERegistry()
       .getSNOTEData()

@@ -13,15 +13,30 @@ import { FormattedMessage } from 'react-intl';
 import { useGovernanceData } from './use-governance-data';
 import { Button, Caption, CardInput, Subtitle } from '@notional-finance/mui';
 import { NotionalTheme, colors } from '@notional-finance/styles';
+import {
+  truncateAddress,
+  formatNumberAsAbbr,
+  formatNumberAsPercent,
+} from '@notional-finance/helpers';
 
 interface TopCardPillProps {
-  open: boolean;
+  active: boolean;
   theme: NotionalTheme;
 }
 
 export const NoteGovernance = () => {
   const theme = useTheme();
   const govData = useGovernanceData();
+
+  const calculateDaysDifference = (timestamp: number): number => {
+    const secondsPerDay = 24 * 60 * 60;
+    const currentDate = Math.floor(Date.now() / 1000);
+    const targetDate = timestamp;
+    const differenceInDays = Math.floor(
+      (currentDate - targetDate) / secondsPerDay
+    );
+    return Math.abs(differenceInDays);
+  };
 
   return (
     <ContentContainer id="governance">
@@ -36,70 +51,84 @@ export const NoteGovernance = () => {
         />
       </SubText>
       <CardContainer>
-        {govData.map((topic: any) => (
-          <ContentBox key={topic.id}>
-            <TopCardData>
-              <Subtitle sx={{ fontWeight: 600, color: colors.white }}>
-                0xCece...2eB1
-              </Subtitle>
-              <TopCardPill open={false} theme={theme}>
-                Closed
-              </TopCardPill>
-            </TopCardData>
-            <CardInput
-              sx={{
-                marginBottom: theme.spacing(3),
-                height: '90px',
-                overflow: 'hidden',
-              }}
+        {govData.map((topic: any, i) => (
+          <ContentBox sx={{ cursor: 'pointer' }} key={i}>
+            <Box
+              component={'a'}
+              key={topic.id}
+              target="_blank"
+              href={`https://snapshot.org/#/notional.eth/proposal/${topic.id}`}
             >
-              {topic.title}
-            </CardInput>
-            {/* <Subtitle
-              sx={{
-                marginTop: theme.spacing(2),
-                marginBottom: theme.spacing(3),
-              }}
-            >
-              Lorem ipsum dolor sit amet consectetur. Senectus arcu aliquam
-              gravida in. Erat aliquam malesuada fermentum nunc purus...
-            </Subtitle> */}
-            <VoteMetrics>
-              <CardCaption
+              <TopCardData>
+                <Subtitle sx={{ fontWeight: 600, color: colors.white }}>
+                  {truncateAddress(topic.author)}
+                </Subtitle>
+                <TopCardPill active={topic.state === 'active'} theme={theme}>
+                  {topic.state}
+                </TopCardPill>
+              </TopCardData>
+              <CardInput
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
+                  marginBottom: theme.spacing(3),
+                  height: '90px',
+                  overflow: 'hidden',
                 }}
               >
-                <CheckmarkIcon
-                  sx={{
-                    height: theme.spacing(3),
-                    marginRight: theme.spacing(1.5),
-                  }}
-                />
-                For 1.7M NOTE
-              </CardCaption>
-              <CardCaption>100%</CardCaption>
-            </VoteMetrics>
-            <VoteMetrics>
-              <CardCaption
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <HighlightOffIcon
-                  sx={{
-                    height: theme.spacing(3),
-                    fill: colors.red,
-                    marginRight: theme.spacing(1.5),
-                  }}
-                />
-                Against 0 NOTE
-              </CardCaption>
-              <CardCaption>0%</CardCaption>
-            </VoteMetrics>
-            <CardSubText>Ended 2 days ago - 174.5% quorum reached</CardSubText>
+                {topic.title}
+              </CardInput>
+              {topic.scores.map((score, idx) => (
+                <VoteMetrics key={idx}>
+                  <CardCaption
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {idx === 0 ? (
+                      <CheckmarkIcon
+                        sx={{
+                          height: theme.spacing(3),
+                          marginRight: theme.spacing(1.5),
+                        }}
+                      />
+                    ) : (
+                      <HighlightOffIcon
+                        sx={{
+                          height: theme.spacing(3),
+                          fill: colors.red,
+                          marginRight: theme.spacing(1.5),
+                        }}
+                      />
+                    )}
+                    {`${idx === 0 ? 'For' : 'Against'} ${formatNumberAsAbbr(
+                      score,
+                      1,
+                      '',
+                      true
+                    )} NOTE`}
+                  </CardCaption>
+                  <CardCaption>
+                    {formatNumberAsPercent((score / topic.scores_total) * 100)}
+                  </CardCaption>
+                </VoteMetrics>
+              ))}
+              <CardSubText>
+                {calculateDaysDifference(topic.end) === 0 &&
+                topic.state === 'active'
+                  ? 'Ends today'
+                  : `${
+                      topic.state === 'active' ? 'Ends in' : 'Ended'
+                    } ${calculateDaysDifference(topic.end)} ${
+                      topic.state === 'active' ? 'days' : 'days ago'
+                    }
+                  `}{' '}
+                |{' '}
+                {formatNumberAsPercent(
+                  (topic.scores_total / topic.quorum) * 100
+                )}{' '}
+                quorum reached
+              </CardSubText>
+            </Box>
           </ContentBox>
         ))}
       </CardContainer>
@@ -185,12 +214,15 @@ const VoteMetrics = styled(Box)(
   `
 );
 
-const TopCardPill = styled(Box)(
-  ({ theme, open }: TopCardPillProps) => `
-      background-color: ${open ? colors.neonTurquoise : colors.darkGreen};
-      color: ${open ? colors.black : colors.greenGrey};
+const TopCardPill = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'active',
+})(
+  ({ theme, active }: TopCardPillProps) => `
+      background-color: ${active ? colors.neonTurquoise : colors.darkGreen};
+      color: ${active ? colors.black : colors.greenGrey};
       border-radius: 20px;
       padding: ${theme.spacing(0.625, 1.5)};
+      text-transform: capitalize;
       
   `
 );
