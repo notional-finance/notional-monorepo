@@ -3,22 +3,20 @@ import { TradeState, TransactionConfig } from './base-trade-store';
 import { Observable, merge, of } from 'rxjs';
 import { selectedAccount } from '../global';
 import {
-  calculateStake,
-  calculateUnstake,
   compareNOTEPortfolio,
   initState,
   setDepositToken,
   stakedNOTEPool,
 } from './sagas/staked-note';
-import {
-  buildTransaction,
-  simulateTransaction,
-} from './sagas';
+import { buildTransaction, simulateTransaction } from './sagas';
 import {
   StakeNOTE,
   StakeNOTECoolDown,
   StakeNOTERedeem,
+  calculateStake,
+  calculateUnstake,
 } from '@notional-finance/transaction';
+import { calculate } from './trade-calculation';
 
 export function createNOTEManager(
   state$: Observable<TradeState>
@@ -31,8 +29,7 @@ export function createNOTEManager(
     simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
     compareNOTEPortfolio(state$, account$),
-    calculateUnstake(state$, stakedNOTEPool$),
-    calculateStake(state$, stakedNOTEPool$),
+    calculate(state$, of(undefined), stakedNOTEPool$, of(undefined), account$),
     setDepositToken(state$),
     initState(state$, account$, stakedNOTEPool$)
   );
@@ -40,10 +37,8 @@ export function createNOTEManager(
 
 export const NOTETradeConfiguration = {
   StakeNOTE: {
-    calculationFn: () => {
-      /* void */
-    },
-    requiredArgs: [],
+    calculationFn: calculateStake,
+    requiredArgs: ['collateralPool', 'secondaryDepositBalance'],
     collateralFilter: () => false,
     debtFilter: () => false,
     transactionBuilder: StakeNOTE,
@@ -58,10 +53,8 @@ export const NOTETradeConfiguration = {
     transactionBuilder: StakeNOTECoolDown,
   } as TransactionConfig,
   StakeNOTERedeem: {
-    calculationFn: () => {
-      /* void */
-    },
-    requiredArgs: [],
+    calculationFn: calculateUnstake,
+    requiredArgs: ['collateralPool', 'depositBalance', 'balances'],
     collateralFilter: () => false,
     debtFilter: () => false,
     transactionBuilder: StakeNOTERedeem,

@@ -298,6 +298,7 @@ function getRequiredArgs(
             [...keys, (s[r] as TokenDefinition | undefined)?.id || ''],
           ];
         case 'depositBalance':
+        case 'secondaryDepositBalance':
         case 'debtBalance':
         case 'collateralBalance':
           return [

@@ -1,6 +1,7 @@
 import {
   fCashMarket,
   Registry,
+  SNOTEWeightedPool,
   TokenBalance,
   TokenDefinition,
   VaultAdapter,
@@ -13,6 +14,7 @@ import {
 } from '@notional-finance/risk-engine';
 import {
   BASIS_POINT,
+  Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
@@ -979,5 +981,108 @@ export function calculateVaultCollateral({
       : netRealizedCollateralBalance.add(feesPaid.toUnderlying()),
     // This properly accounts for the borrow fee in the trade summary
     netRealizedDebtBalance: localDebtPrime.add(debtFee).neg().toUnderlying(),
+  };
+}
+
+export function calculateStake({
+  collateralPool,
+  depositBalance,
+  secondaryDepositBalance,
+}: {
+  collateralPool: SNOTEWeightedPool;
+  depositBalance?: TokenBalance;
+  secondaryDepositBalance?: TokenBalance;
+}) {
+  const ETH = Registry.getTokenRegistry().getTokenBySymbol(
+    Network.mainnet,
+    'ETH'
+  );
+  const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
+    Network.mainnet,
+    'NOTE'
+  );
+  const ethIn = depositBalance || TokenBalance.zero(ETH);
+  const noteIn = secondaryDepositBalance || TokenBalance.zero(NOTE);
+
+  const { lpTokens, feesPaid } = collateralPool.getLPTokensGivenTokens([
+    // Ensure that WETH is converted to ETH
+    ethIn.toToken(ETH),
+    noteIn,
+  ]);
+
+  const collateralBalance = collateralPool.getSNOTEForBPT(lpTokens);
+  const feesPaidInETH = feesPaid.reduce(
+    (s, t) => s.add(t.toToken(ETH)),
+    TokenBalance.zero(ETH)
+  );
+
+  return {
+    collateralBalance,
+    collateralFee: feesPaidInETH,
+    // Fees should already be deducted from collateralBalance
+    netRealizedCollateralBalance: collateralBalance.toToken(ETH),
+    canSubmit: true,
+    postTradeBalances: [collateralBalance, ethIn, noteIn],
+  };
+}
+
+export function calculateUnstake({
+  collateralPool,
+  depositBalance,
+  maxWithdraw,
+  balances,
+}: {
+  collateralPool: SNOTEWeightedPool;
+  maxWithdraw: boolean;
+  depositBalance: TokenBalance;
+  balances: TokenBalance[];
+}) {
+  const ETH = Registry.getTokenRegistry().getTokenBySymbol(
+    Network.mainnet,
+    'ETH'
+  );
+
+  let feesPaid: TokenBalance[];
+  const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
+    Network.mainnet,
+    'NOTE'
+  );
+  let debtBalance: TokenBalance | undefined;
+  if (maxWithdraw) {
+    debtBalance = balances.find((b) => b.symbol === 'sNOTE');
+    if (!debtBalance) throw Error('sNOTE not found');
+
+    const lpTokens = collateralPool.getBPTForSNOTE(debtBalance);
+
+    const { tokensOut, feesPaid: _f } =
+      collateralPool.getTokensOutGivenLPTokens(
+        lpTokens,
+        collateralPool.NOTE_INDEX
+      );
+    feesPaid = _f;
+    depositBalance = tokensOut[collateralPool.NOTE_INDEX];
+  } else {
+    const { lpTokens, feesPaid: _f } =
+      collateralPool.getLPTokensRequiredForTokens([
+        TokenBalance.zero(ETH),
+        // This is the NOTE balance
+        depositBalance.neg(),
+      ]);
+    debtBalance = collateralPool.getSNOTEForBPT(lpTokens);
+    feesPaid = _f;
+  }
+
+  const feesPaidInETH = feesPaid.reduce(
+    (s, t) => s.add(t.toToken(ETH)),
+    TokenBalance.zero(ETH)
+  );
+
+  return {
+    depositBalance,
+    debtBalance: debtBalance,
+    debtFee: feesPaidInETH,
+    netRealizedDebtBalance: debtBalance.toToken(NOTE),
+    canSubmit: true,
+    postTradeBalances: [debtBalance, depositBalance],
   };
 }

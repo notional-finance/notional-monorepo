@@ -3,7 +3,6 @@ import {
   NOTERegistryClient,
   Registry,
   SNOTEWeightedPool,
-  TokenBalance,
 } from '@notional-finance/core-entities';
 import { Network, filterEmpty } from '@notional-finance/util';
 import {
@@ -111,128 +110,19 @@ export function setDepositToken(state$: Observable<BaseTradeState>) {
   );
 }
 
-export function calculateStake(
-  state$: Observable<BaseTradeState>,
-  pool$: Observable<SNOTEWeightedPool | undefined>
-) {
-  return combineLatest([state$, pool$]).pipe(
-    filter(([{ isReady, tradeType }]) => isReady && tradeType === 'StakeNOTE'),
-    map(([state, pool]) => {
-      if (pool === undefined) return undefined;
-      if (
-        state.depositBalance === undefined ||
-        state.secondaryDepositBalance === undefined
-      )
-        return undefined;
-
-      const ETH = Registry.getTokenRegistry().getTokenBySymbol(
-        Network.mainnet,
-        'ETH'
-      );
-
-      // TODO: move this into a calculate function
-      try {
-        const { lpTokens, feesPaid } = pool.getLPTokensGivenTokens([
-          // Ensure that WETH is converted to ETH
-          state.depositBalance?.toToken(ETH) || TokenBalance.zero(ETH),
-          state.secondaryDepositBalance,
-        ]);
-
-        const collateralBalance = pool.getSNOTEForBPT(lpTokens);
-        const feesPaidInETH = feesPaid.reduce(
-          (s, t) => s.add(t.toToken(ETH)),
-          TokenBalance.zero(ETH)
-        );
-
-        return {
-          collateralBalance,
-          collateralFee: feesPaidInETH,
-          // Fees should already be deducted from collateralBalance
-          netRealizedCollateralBalance: collateralBalance.toToken(ETH),
-          canSubmit: true,
-          postTradeBalances: [
-            collateralBalance,
-            state.depositBalance || TokenBalance.zero(ETH),
-            state.secondaryDepositBalance,
-          ],
-        };
-      } catch (e) {
-        return {
-          collateralBalance: undefined,
-          collateralFee: undefined,
-          netRealizedCollateralBalance: undefined,
-          postTradeBalances: undefined,
-          calculateError: (e as Error).toString(),
-          canSubmit: false,
-        };
-      }
-    }),
-    filterEmpty()
-  );
-}
-
-export function calculateUnstake(
-  state$: Observable<BaseTradeState>,
-  pool$: Observable<SNOTEWeightedPool | undefined>
-) {
-  return combineLatest([state$, pool$]).pipe(
-    filter(
-      ([{ isReady, tradeType }]) => isReady && tradeType === 'StakeNOTERedeem'
-    ),
-    map(([state, pool]) => {
-      if (pool === undefined) return undefined;
-      if (state.depositBalance === undefined) return undefined;
-      const ETH = Registry.getTokenRegistry().getTokenBySymbol(
-        Network.mainnet,
-        'ETH'
-      );
-
-      let debtBalance: TokenBalance;
-      let feesPaid: TokenBalance[];
-      // TODO: move this into a calculate function
-      if (state.maxWithdraw && state.debtBalance) {
-        debtBalance = state.debtBalance;
-        const lpTokens = pool.getBPTForSNOTE(debtBalance);
-
-        const { feesPaid: _f } = pool.getTokensOutGivenLPTokens(
-          lpTokens,
-          pool.NOTE_INDEX
-        );
-        feesPaid = _f;
-        // const depositBalance = tokensOut[pool.NOTE_INDEX];
-      } else {
-        const { lpTokens, feesPaid: _f } = pool.getLPTokensRequiredForTokens([
-          TokenBalance.zero(ETH),
-          // This is the NOTE balance
-          state.depositBalance.neg(),
-        ]);
-        debtBalance = pool.getSNOTEForBPT(lpTokens);
-        feesPaid = _f;
-      }
-
-      const feesPaidInETH = feesPaid.reduce(
-        (s, t) => s.add(t.toToken(ETH)),
-        TokenBalance.zero(ETH)
-      );
-
-      return {
-        debtBalance: debtBalance,
-        debtFee: feesPaidInETH,
-        netRealizedDebtBalance: debtBalance.toToken(state.depositBalance.token),
-        canSubmit: true,
-        postTradeBalances: [debtBalance, state.depositBalance],
-      };
-    }),
-    filterEmpty()
-  );
-}
-
 export function compareNOTEPortfolio(
   state$: Observable<BaseTradeState>,
   account$: Observable<AccountDefinition | null>
 ) {
   return combineLatest([state$, account$]).pipe(
     filter(([{ canSubmit }]) => canSubmit),
+    distinctUntilChanged(
+      ([p], [c]) =>
+        p.calculationSuccess === c.calculationSuccess &&
+        p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
+        p.debtBalance?.hashKey === c.debtBalance?.hashKey &&
+        p.inputErrors === c.inputErrors
+    ),
     map(([state, account]) => {
       const prior = account?.balances.filter(
         (t) =>
