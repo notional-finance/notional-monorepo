@@ -10,7 +10,6 @@ import {
   getNowSeconds,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
-import SNOTEWeightedPool from '../exchanges/BalancerV2/snote-weighted-pool';
 import { BigNumber } from 'ethers';
 import { TokenBalance } from '../token-balance';
 
@@ -18,36 +17,33 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
   protected cachePath() {
     return 'note';
   }
+  public static sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
+  public static sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
 
-  public static sNOTEOracle = `${ZERO_ADDRESS}:${SNOTEWeightedPool.sNOTE}:sNOTEToETHExchangeRate`;
+  public static sNOTEOracle = `${ZERO_ADDRESS}:${this.sNOTE}:sNOTEToETHExchangeRate`;
   REDEEM_WINDOW_SECONDS = 3 * SECONDS_IN_DAY;
 
   constructor(cacheHostname: string) {
     super(cacheHostname);
     Registry.getExchangeRegistry().onSubjectKeyRegistered(
       Network.mainnet,
-      SNOTEWeightedPool.sNOTE_Pool,
+      NOTERegistryClient.sNOTE_Pool,
       () => {
         Registry.getExchangeRegistry()
-          .subscribeSubject(Network.mainnet, SNOTEWeightedPool.sNOTE_Pool)
+          .subscribeSubject(Network.mainnet, NOTERegistryClient.sNOTE_Pool)
           ?.subscribe(() => {
             const oracles = Registry.getOracleRegistry();
-            if (oracles.isNetworkRegistered(Network.mainnet)) {
-              const pool =
-                Registry.getExchangeRegistry().getPoolInstance<SNOTEWeightedPool>(
-                  Network.mainnet,
-                  SNOTEWeightedPool.sNOTE_Pool
-                );
-
+            const pool = Registry.getExchangeRegistry().getSNOTEPool();
+            if (oracles.isNetworkRegistered(Network.mainnet) && pool) {
               const currentSNOTEPrice = pool.getCurrentSNOTEPrice();
 
               const oracle: OracleDefinition = {
                 id: NOTERegistryClient.sNOTEOracle,
-                oracleAddress: SNOTEWeightedPool.sNOTE,
+                oracleAddress: NOTERegistryClient.sNOTE,
                 network: Network.mainnet,
                 oracleType: 'sNOTEToETHExchangeRate',
                 base: ZERO_ADDRESS,
-                quote: SNOTEWeightedPool.sNOTE,
+                quote: NOTERegistryClient.sNOTE,
                 decimals: currentSNOTEPrice.decimals,
                 latestRate: {
                   blockNumber: 0,

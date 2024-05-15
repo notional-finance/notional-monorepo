@@ -33,6 +33,7 @@ interface DepositInputProps {
   excludeSupplyCap?: boolean;
   depositOverride?: TokenDefinition;
   depositTokens?: TokenDefinition[];
+  onUpdate?: (inputAmount: TokenBalance | undefined) => void;
 }
 
 /**
@@ -49,6 +50,7 @@ export const DepositInput = React.forwardRef<
       context,
       newRoute,
       onMaxValue,
+      onUpdate,
       warningMsg,
       inputLabel,
       inputRef,
@@ -96,12 +98,16 @@ export const DepositInput = React.forwardRef<
     );
 
     useEffect(() => {
-      updateState({
-        depositBalance: inputAmount,
-        maxWithdraw: false,
-      });
+      if (onUpdate) {
+        onUpdate(inputAmount)
+      } else {
+        updateState({
+          depositBalance: inputAmount,
+          maxWithdraw: false,
+        });
+      }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateState, inputAmount?.hashKey]);
+    }, [updateState, onUpdate, inputAmount?.hashKey]);
 
     useEffect(() => {
       updateState({

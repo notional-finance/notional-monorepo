@@ -70,8 +70,8 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
         method: NO_OP,
         key: 'normalizedWeights',
         transform: () => [
-          BigNumber.from(20).pow(17),
-          BigNumber.from(80).pow(17),
+          FixedPoint.from(BigNumber.from(10).pow(17).mul(2)),
+          FixedPoint.from(BigNumber.from(10).pow(17).mul(8)),
         ],
       },
       {
@@ -80,8 +80,8 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
         method: NO_OP,
         key: 'scalingFactors',
         transform: () => [
-          BigNumber.from(10).pow(18),
-          BigNumber.from(10).pow(10),
+          FixedPoint.from(BigNumber.from(10).pow(18)),
+          FixedPoint.from(BigNumber.from(10).pow(10)),
         ],
       },
       {
