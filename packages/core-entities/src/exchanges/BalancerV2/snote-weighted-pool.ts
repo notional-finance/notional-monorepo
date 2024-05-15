@@ -31,7 +31,7 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
   public static sNOTE_Gauge = '0x09afec27f5a6201617aad014ceea8deb572b0608';
   public static sNOTE_Pool_Id =
     '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7000200000000000000000163';
-  private static sNOTE_Contract = new Contract(this.sNOTE, SNOTEABI) as SNOTE;
+  public static sNOTE_Contract = new Contract(this.sNOTE, SNOTEABI) as SNOTE;
   public redeemWindowSeconds = 3 * SECONDS_IN_DAY;
   public NOTE_INDEX = 1;
 

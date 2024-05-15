@@ -14,6 +14,11 @@ import {
   resetOnAccountChange,
   simulateTransaction,
 } from './sagas';
+import {
+  StakeNOTE,
+  StakeNOTECoolDown,
+  StakeNOTERedeem,
+} from '@notional-finance/transaction';
 
 export function createTradeManager(
   state$: Observable<TradeState>
