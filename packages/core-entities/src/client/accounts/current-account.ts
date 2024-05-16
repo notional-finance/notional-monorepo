@@ -11,6 +11,7 @@ import {
   SCALAR_PRECISION,
   ZERO_ADDRESS,
   encodefCashId,
+  getNowSeconds,
 } from '@notional-finance/util';
 import { BigNumber, Contract, providers } from 'ethers';
 import { Registry } from '../../Registry';
@@ -22,6 +23,7 @@ import {
 import { TokenBalance } from '../../token-balance';
 import { AccountDefinition, AccountIncentiveDebt } from '../../Definitions';
 import { fetchUsingMulticall } from '../../server/server-registry';
+import { SNOTEWeightedPool } from '../../exchanges';
 
 export function fetchCurrentAccount(
   network: Network,
@@ -37,7 +39,8 @@ export function fetchCurrentAccount(
   const allCalls = getNotionalAccount(network, account, notional)
     .concat(getSecondaryIncentiveCalls(network, account))
     .concat(getWalletCalls(network, account, notional))
-    .concat(getVaultCalls(network, account, notional));
+    .concat(getVaultCalls(network, account, notional))
+    .concat(getStakedNOTECalls(network, account, provider));
 
   return fetchUsingMulticall<AccountDefinition>(
     network,
@@ -91,6 +94,7 @@ export function fetchCurrentAccount(
                   amount: results[k] as TokenBalance,
                 };
               }),
+            stakedNOTEStatus: results['stakedNOTEStatus'],
           },
         };
       },
@@ -166,7 +170,12 @@ function getWalletCalls(
   const tokens = Registry.getTokenRegistry();
   const walletTokensToTrack = tokens
     .getAllTokens(network)
-    .filter((t) => t.currencyId !== undefined && t.tokenType === 'Underlying');
+    .filter(
+      (t) =>
+        (t.currencyId !== undefined && t.tokenType === 'Underlying') ||
+        t.tokenType === 'NOTE' ||
+        t.symbol === 'sNOTE'
+    );
 
   return walletTokensToTrack.flatMap<AggregateCall>((token) => {
     if (token.address === ZERO_ADDRESS) {
@@ -257,6 +266,39 @@ function getSecondaryIncentiveCalls(
         },
       ];
     });
+}
+
+function getStakedNOTECalls(
+  network: Network,
+  account: string,
+  provider: providers.Provider
+): AggregateCall[] {
+  if (network !== Network.mainnet) return [];
+  return [
+    {
+      stage: 0,
+      target: SNOTEWeightedPool.sNOTE_Contract.connect(provider),
+      method: 'accountRedeemWindowBegin',
+      args: [account],
+      key: `stakedNOTEStatus`,
+      transform: (r: BigNumber) => {
+        const redeemWindowBegin = r.toNumber();
+        const redeemWindowEnd =
+          redeemWindowBegin + SNOTEWeightedPool.redeemWindowSeconds;
+        const inCoolDown = getNowSeconds() < redeemWindowBegin;
+        const inRedeemWindow =
+          redeemWindowBegin <= getNowSeconds() &&
+          getNowSeconds() < redeemWindowEnd;
+
+        return {
+          redeemWindowBegin,
+          redeemWindowEnd,
+          inCoolDown,
+          inRedeemWindow,
+        };
+      },
+    },
+  ];
 }
 
 function getVaultCalls(

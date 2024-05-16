@@ -31,37 +31,25 @@ export function initState(
 ) {
   return combineLatest([state$, account$, pool$]).pipe(
     filter(([{ isReady }]) => isReady === false),
-    switchMap(async ([state, account, pool]) => {
+    map(([state, account, pool]) => {
       if (pool === undefined) return undefined;
-      // TODO: maybe do this at the global level, causes a flash when we switch
-      // ETH to WETH
-      const c = account
-        ? await pool.getCoolDownStatus(account.address)
-        : undefined;
       const sNOTE = Registry.getTokenRegistry().getTokenBySymbol(
         Network.mainnet,
         'sNOTE'
       );
-      const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
-        Network.mainnet,
-        'NOTE'
-      );
 
-      if (c?.inCoolDown) {
+      if (account?.stakeNOTEStatus?.inCoolDown) {
         return {
           isReady: true,
           tradeType: 'StakeNOTECoolDown' as NOTETradeType,
           selectedNetwork: Network.mainnet,
-          ...c,
         };
-      } else if (c?.inRedeemWindow) {
+      } else if (account?.stakeNOTEStatus?.inRedeemWindow) {
         return {
           isReady: true,
           tradeType: 'StakeNOTERedeem' as NOTETradeType,
           selectedNetwork: Network.mainnet,
           debt: sNOTE,
-          deposit: NOTE,
-          ...c,
         };
       } else {
         const ETH = Registry.getTokenRegistry().getTokenBySymbol(
@@ -82,7 +70,6 @@ export function initState(
           availableCollateralTokens: [sNOTE],
           collateral: sNOTE,
           selectedNetwork: Network.mainnet,
-          ...c,
         };
       }
     }),

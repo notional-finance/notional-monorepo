@@ -1071,7 +1071,6 @@ export function calculateUnstake({
     debtFee: feesPaidInETH,
     netRealizedDebtBalance: debtBalance.toToken(NOTE),
     postTradeBalances: [debtBalance, depositBalance],
-    // TODO: add this to the store
     ethSold,
   };
 }

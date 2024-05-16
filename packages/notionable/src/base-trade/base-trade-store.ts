@@ -189,10 +189,8 @@ export interface VaultTradeState
     Partial<Omit<VaultAccountRiskSummary, 'postTradeBalances'>> {}
 
 export interface NOTETradeState extends BaseTradeState {
-  redeemWindowBegin?: number;
-  redeemWindowEnd?: number;
-  inCoolDown?: boolean;
-  inRedeemWindow?: boolean;
+  optimalETH?: TokenBalance;
+  ethSold?: TokenBalance;
 }
 
 export const initialBaseTradeState: BaseTradeState = {

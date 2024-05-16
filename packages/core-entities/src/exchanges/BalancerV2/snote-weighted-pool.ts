@@ -10,12 +10,7 @@ import { AggregateCall, NO_OP } from '@notional-finance/multicall';
 import { Contract, BigNumber } from 'ethers';
 import FixedPoint from './fixed-point';
 import WeightedPool, { PoolParams } from './weighted-pool';
-import {
-  Network,
-  SECONDS_IN_DAY,
-  getNowSeconds,
-  getProviderFromNetwork,
-} from '@notional-finance/util';
+import { Network, SECONDS_IN_DAY } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
 import { Registry } from '../../Registry';
 
@@ -32,7 +27,7 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
   public static sNOTE_Pool_Id =
     '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7000200000000000000000163';
   public static sNOTE_Contract = new Contract(this.sNOTE, SNOTEABI) as SNOTE;
-  public redeemWindowSeconds = 3 * SECONDS_IN_DAY;
+  public static redeemWindowSeconds = 3 * SECONDS_IN_DAY;
   public NOTE_INDEX = 1;
 
   public static override getInitData(
@@ -176,24 +171,5 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
 
   getBPTForSNOTE(snote: TokenBalance) {
     return this.poolParams.totalBPTHeld.scale(snote, this.totalSNOTE);
-  }
-
-  async getCoolDownStatus(account: string) {
-    const redeemWindowBegin = (
-      await SNOTEWeightedPool.sNOTE_Contract
-        .connect(getProviderFromNetwork(Network.mainnet))
-        .accountRedeemWindowBegin(account)
-    ).toNumber();
-    const redeemWindowEnd = redeemWindowBegin + this.redeemWindowSeconds;
-    const inCoolDown = getNowSeconds() < redeemWindowBegin;
-    const inRedeemWindow =
-      redeemWindowBegin <= getNowSeconds() && getNowSeconds() < redeemWindowEnd;
-
-    return {
-      inCoolDown,
-      inRedeemWindow,
-      redeemWindowBegin,
-      redeemWindowEnd,
-    };
   }
 }
