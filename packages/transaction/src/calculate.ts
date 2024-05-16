@@ -1004,6 +1004,16 @@ export function calculateStake({
   const ethIn = depositBalance || TokenBalance.zero(ETH);
   const noteIn = secondaryDepositBalance || TokenBalance.zero(NOTE);
 
+  if (ethIn.isZero() && noteIn.isZero()) {
+    // Clear outputs if there is no value
+    return {
+      collateralBalance: undefined,
+      collateralFee: undefined,
+      netRealizedCollateralBalance: undefined,
+      postTradeBalances: undefined,
+    };
+  }
+
   const { lpTokens, feesPaid } = collateralPool.getLPTokensGivenTokens([
     // Ensure that WETH is converted to ETH
     ethIn.toToken(ETH),
@@ -1021,57 +1031,35 @@ export function calculateStake({
     collateralFee: feesPaidInETH,
     // Fees should already be deducted from collateralBalance
     netRealizedCollateralBalance: collateralBalance.toToken(ETH),
-    canSubmit: true,
     postTradeBalances: [collateralBalance, ethIn, noteIn],
   };
 }
 
 export function calculateUnstake({
   collateralPool,
-  depositBalance,
-  maxWithdraw,
-  balances,
+  debtBalance,
 }: {
   collateralPool: SNOTEWeightedPool;
-  maxWithdraw: boolean;
-  depositBalance: TokenBalance;
-  balances: TokenBalance[];
+  debtBalance: TokenBalance;
 }) {
   const ETH = Registry.getTokenRegistry().getTokenBySymbol(
     Network.mainnet,
     'ETH'
   );
-
-  let feesPaid: TokenBalance[];
   const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
     Network.mainnet,
     'NOTE'
   );
-  let debtBalance: TokenBalance | undefined;
-  if (maxWithdraw) {
-    debtBalance = balances.find((b) => b.symbol === 'sNOTE');
-    if (!debtBalance) throw Error('sNOTE not found');
 
-    const lpTokens = collateralPool.getBPTForSNOTE(debtBalance);
+  const lpTokens = collateralPool.getBPTForSNOTE(debtBalance);
 
-    const { tokensOut, feesPaid: _f } =
-      collateralPool.getTokensOutGivenLPTokens(
-        lpTokens,
-        collateralPool.NOTE_INDEX
-      );
-    feesPaid = _f;
-    depositBalance = tokensOut[collateralPool.NOTE_INDEX];
-  } else {
-    const { lpTokens, feesPaid: _f } =
-      collateralPool.getLPTokensRequiredForTokens([
-        TokenBalance.zero(ETH),
-        // This is the NOTE balance
-        depositBalance.neg(),
-      ]);
-    debtBalance = collateralPool.getSNOTEForBPT(lpTokens);
-    feesPaid = _f;
-  }
-
+  const { tokensOut, feesPaid } = collateralPool.getTokensOutGivenLPTokens(
+    lpTokens,
+    collateralPool.NOTE_INDEX
+  );
+  const ethSold =
+    collateralPool.getLPTokenClaims(lpTokens)[1 - collateralPool.NOTE_INDEX];
+  const depositBalance = tokensOut[collateralPool.NOTE_INDEX];
   const feesPaidInETH = feesPaid.reduce(
     (s, t) => s.add(t.toToken(ETH)),
     TokenBalance.zero(ETH)
@@ -1082,7 +1070,8 @@ export function calculateUnstake({
     debtBalance: debtBalance,
     debtFee: feesPaidInETH,
     netRealizedDebtBalance: debtBalance.toToken(NOTE),
-    canSubmit: true,
     postTradeBalances: [debtBalance, depositBalance],
+    // TODO: add this to the store
+    ethSold,
   };
 }

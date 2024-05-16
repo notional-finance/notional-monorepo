@@ -535,6 +535,7 @@ function getStakeNOTESummary(
       // Redeem sNOTE
       summary.push(getTradeDetail(state.debtBalance, 'Asset', 'repay', intl));
     }
+    // TODO: need to calculate the NOTE / ETH claims and the amount of ETH sold...
     // Withdraw NOTE will be shown as the wallet total
   }
 
