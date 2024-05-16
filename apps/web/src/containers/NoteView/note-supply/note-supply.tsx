@@ -1,5 +1,12 @@
 import { Box, useTheme } from '@mui/material';
-import { Caption, H2, H5, NoteChart } from '@notional-finance/mui';
+import {
+  Caption,
+  H2,
+  H5,
+  NoteChart,
+  DateRangeButtons,
+  ValidDateRanges,
+} from '@notional-finance/mui';
 import {
   ChartSectionContainer,
   ContentBox,
@@ -11,17 +18,38 @@ import {
 } from '../components';
 import { FormattedMessage } from 'react-intl';
 import { useNoteSupply } from './use-note-supply';
-import { useFiat } from '@notional-finance/notionable-hooks';
+import { NoteSupplyData, useFiat } from '@notional-finance/notionable-hooks';
+import { useCallback, useEffect, useState } from 'react';
 
-export const NoteSupply = () => {
+interface NoteSupplyProps {
+  noteSupplyData: NoteSupplyData | undefined;
+}
+
+export const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
   const theme = useTheme();
   const baseCurrency = useFiat();
+  const [dateRange, setDateRange] = useState(ValidDateRanges[2].value);
   const {
     noteHistoricalSupply,
     currentSupply,
     currentSupplyChange,
     annualEmissionRate,
-  } = useNoteSupply();
+  } = useNoteSupply(noteSupplyData, dateRange);
+  const [supplyDisplayValue, setSupplyDisplayValue] = useState(0);
+
+  const currentDateRange = ValidDateRanges.find(
+    (range) => range.value === dateRange
+  );
+
+  useEffect(() => {
+    if (currentSupply && supplyDisplayValue === 0) {
+      setSupplyDisplayValue(currentSupply?.toFloat());
+    }
+  }, [currentSupply, supplyDisplayValue]);
+
+  const noteNumCallback = useCallback((value: number) => {
+    setSupplyDisplayValue(value);
+  }, []);
 
   return (
     <ContentContainer id="note-supply">
@@ -36,20 +64,23 @@ export const NoteSupply = () => {
           }
         />
       </SubText>
-      <ChartSectionContainer>
+      <ChartSectionContainer
+        onMouseLeave={() => {
+          if (currentSupply) {
+            setSupplyDisplayValue(currentSupply?.toFloat());
+          }
+        }}
+      >
         <NoteChart
           // option={option}
           // showMarkLines={true}
+          noteNumCallback={noteNumCallback}
           data={noteHistoricalSupply}
           title={
             <FormattedMessage defaultMessage={'NOTE Circulating Supply'} />
           }
           largeValue={
-            // TODO: this should be a hover state instead of the currentSupply...
-            <DualColorValue
-              value={currentSupply?.toFloat() || 0}
-              suffix="NOTE"
-            />
+            <DualColorValue value={supplyDisplayValue} suffix="NOTE" />
           }
         />
         <Box
@@ -80,7 +111,7 @@ export const NoteSupply = () => {
               </H5>
               <PercentAndDate
                 percentChange={currentSupplyChange}
-                dateRange="(30d)"
+                dateRange={`(${currentDateRange?.displayValue})`}
               />
             </Box>
             <Box>
@@ -125,6 +156,7 @@ export const NoteSupply = () => {
           </ContentBox>
         </Box>
       </ChartSectionContainer>
+      <DateRangeButtons setDateRange={setDateRange} dateRange={dateRange} />
     </ContentContainer>
   );
 };

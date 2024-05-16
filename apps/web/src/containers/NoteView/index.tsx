@@ -8,10 +8,16 @@ import { NoteSummary } from './note-supply/note-summary';
 import StakedNote from './staked-note/staked-note';
 import NoteSupply from './note-supply/note-supply';
 import NoteGovernance from './note-governance/note-governance';
+import {
+  useNoteSupplyData,
+  useStakedNoteData,
+} from '@notional-finance/notionable-hooks';
 import NoteDelegate from './note-delegate/note-delegate';
 
 export const NoteView = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
+  const supplyData = useNoteSupplyData();
+  const stakedNoteData = useStakedNoteData();
 
   return (
     <ThemeProvider theme={theme}>
@@ -19,7 +25,7 @@ export const NoteView = () => {
       <MainContainer>
         <TopGradientBg>
           <H1 sx={{ textAlign: 'center', paddingTop: theme.spacing(12) }}>
-            <FormattedMessage defaultMessage={'The NOTE token'} />
+            <FormattedMessage defaultMessage={'The NOTE Token'} />
           </H1>
           <Body
             sx={{
@@ -37,16 +43,17 @@ export const NoteView = () => {
         </TopGradientBg>
         <DefaultBgContainer>
           <NoteViewSubNav />
-          <NoteSummary />
+          <NoteSummary noteSupplyData={supplyData} />
         </DefaultBgContainer>
         <Box>
           <SquareGridBg height={theme.spacing(91.25)} />
           <StakeNoteGradientBg>
-            <StakedNote />
+            <StakedNote stakedNoteData={stakedNoteData} />
           </StakeNoteGradientBg>
         </Box>
+
         <DefaultBgContainer>
-          <NoteSupply />
+          <NoteSupply noteSupplyData={supplyData} />
         </DefaultBgContainer>
         <DefaultBgContainer>
           <GovernanceGradientBg>

@@ -55,6 +55,7 @@ export function formatNumberAsAbbr(
   num: number,
   decimalPlaces?: number,
   baseCurrency?: string,
+  hideSymbol?: boolean,
   locale = 'en-US'
 ) {
   let suffix = '';
@@ -71,9 +72,10 @@ export function formatNumberAsAbbr(
     suffix = 'b';
     num = num / 1_000_000_000;
   }
+  
 
   const symbol =
-    baseCurrency && FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$';
+  hideSymbol ? '' : baseCurrency && FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$';
   if (decimalPlaces === undefined && baseCurrency) {
     // Use 2 decimals for fiat and 4 for non fiat
     decimalPlaces = symbol ? 2 : 4;

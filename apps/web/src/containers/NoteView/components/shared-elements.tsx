@@ -140,7 +140,7 @@ export const ContentContainer = styled(Box)(
     height: 100%;
     max-width: ${theme.spacing(150)};
     margin: auto;
-    padding-bottom: ${theme.spacing(18)};
+    padding-bottom: ${theme.spacing(15)};
     position: relative;
     z-index: 3;
     ${theme.breakpoints.down('sm')} {

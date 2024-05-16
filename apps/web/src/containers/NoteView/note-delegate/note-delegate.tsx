@@ -30,7 +30,7 @@ export const NoteDelegate = () => {
       </SubText>
       <CardContainer>
         {delegateData.map(
-          ({ title, subTitle, description, twitterCount }, i) => (
+          ({ title, subTitle, description, twitterCount, twitterLink }, i) => (
             <ContentBox key={i}>
               <Box
                 sx={{
@@ -41,7 +41,7 @@ export const NoteDelegate = () => {
               >
                 <Subtitle sx={{ fontWeight: 600, color: colors.white }}>
                   {title}
-                  <CardSubText sx={{ paddingTop: '0px' }}>
+                  <CardSubText sx={{ paddingTop: theme.spacing(0.5) }}>
                     {subTitle}
                   </CardSubText>
                 </Subtitle>
@@ -66,11 +66,16 @@ export const NoteDelegate = () => {
                 <CardSubText sx={{ paddingTop: '0px' }}>
                   {twitterCount}
                 </CardSubText>
-                <img
-                  src={twitterIcon}
-                  alt="twitter"
-                  style={{ height: theme.spacing(4), width: theme.spacing(4) }}
-                />
+                <Box component={'a'} href={twitterLink} target={'_blank'}>
+                  <img
+                    src={twitterIcon}
+                    alt="twitter"
+                    style={{
+                      height: theme.spacing(4),
+                      width: theme.spacing(4),
+                    }}
+                  />
+                </Box>
               </Box>
             </ContentBox>
           )

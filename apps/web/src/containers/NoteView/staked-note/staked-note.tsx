@@ -7,6 +7,8 @@ import {
   Button,
   CardInput,
   H2,
+  DateRangeButtons,
+  ValidDateRanges,
 } from '@notional-finance/mui';
 import {
   NotePageSectionTitle,
@@ -19,13 +21,20 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import { TokenIcon, WalletIcon } from '@notional-finance/icons';
-import { useStakedNoteData } from './use-staked-note-data';
-import { useFiat } from '@notional-finance/notionable-hooks';
+import { useStakedNote } from './use-staked-note';
+import { StakedNoteData, useFiat } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import { SECONDS_IN_DAY } from '@notional-finance/util';
+import { useState } from 'react';
 
-export const StakedNote = () => {
+interface StakedNoteProps {
+  stakedNoteData: StakedNoteData | undefined;
+}
+
+export const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
   const theme = useTheme();
+  const [dateRange, setDateRange] = useState(ValidDateRanges[1].value);
   const baseCurrency = useFiat();
   const {
     currentSNOTEPrice,
@@ -34,7 +43,8 @@ export const StakedNote = () => {
     annualizedRewardRate,
     historicalSNOTEPrice,
     walletNOTEBalances,
-  } = useStakedNoteData();
+  } = useStakedNote(stakedNoteData, dateRange);
+
   return (
     <ContentContainer id="staked-note">
       <NotePageSectionTitle
@@ -53,6 +63,7 @@ export const StakedNote = () => {
           <NoteChart
             // option={option}
             data={historicalSNOTEPrice}
+            formatToolTipValueAsFiat
             title={<FormattedMessage defaultMessage={'sNOTE Price'} />}
             largeValue={
               <DualColorValue
@@ -149,6 +160,7 @@ export const StakedNote = () => {
             </Button>
           </ContentBox>
         </ChartSectionContainer>
+        <DateRangeButtons setDateRange={setDateRange} dateRange={dateRange} />
       </Box>
     </ContentContainer>
   );

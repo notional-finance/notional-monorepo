@@ -16,23 +16,38 @@ import {
   H5,
   NoteChart,
   H2,
+  DateRangeButtons,
+  ValidDateRanges,
 } from '@notional-finance/mui';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
-import { useFiat, useNotePrice } from '@notional-finance/notionable-hooks';
+import {
+  NoteSupplyData,
+  useFiat,
+  useNotePrice,
+} from '@notional-finance/notionable-hooks';
 import { useNoteSupply } from './use-note-supply';
 
-export const NoteSummary = () => {
+interface NoteSummaryProps {
+  noteSupplyData: NoteSupplyData | undefined;
+}
+
+export const NoteSummary = ({ noteSupplyData }: NoteSummaryProps) => {
   const theme = useTheme();
   const { notePrice, notePriceChange } = useNotePrice();
+  const [dateRange, setDateRange] = useState(ValidDateRanges[1].value);
   const baseCurrency = useFiat();
   const {
     noteBurnChart,
     totalNoteBurned,
     annualNOTEBurnRate,
     annualNOTEBurnPercentage,
-  } = useNoteSupply();
+  } = useNoteSupply(noteSupplyData, dateRange);
+
+  const currentDateRange = ValidDateRanges.find(
+    (range) => range.value === dateRange
+  );
 
   return (
     <ContentContainer id="note-summary">
@@ -86,7 +101,7 @@ export const NoteSummary = () => {
               </H5>
               <PercentAndDate
                 percentChange={annualNOTEBurnPercentage || 0}
-                dateRange="(30d)"
+                dateRange={`(${currentDateRange?.displayValue})`}
               />
             </Box>
             <DualColorValue
@@ -157,6 +172,7 @@ export const NoteSummary = () => {
           </ContentBox>
         </Box>
       </ChartSectionContainer>
+      <DateRangeButtons setDateRange={setDateRange} dateRange={dateRange} />
     </ContentContainer>
   );
 };

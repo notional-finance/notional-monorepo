@@ -15,7 +15,7 @@ import {
 } from '@notional-finance/util';
 import { useEffect, useState } from 'react';
 
-export function useNoteSupply(dateRange = 30 * SECONDS_IN_DAY) {
+export function useNoteSupply(noteSupplyData, dateRange) {
   const [supplyData, setSupplyData] = useState<
     Awaited<ReturnType<NOTERegistryClient['getNOTESupplyData']>>
   >([]);
@@ -23,12 +23,12 @@ export function useNoteSupply(dateRange = 30 * SECONDS_IN_DAY) {
   const NOTE = useNOTE(Network.mainnet);
 
   useEffect(() => {
-    Registry.getNOTERegistry()
-      .getNOTESupplyData()
-      .then((s) =>
-        setSupplyData(s.filter(({ day }) => minDate < day.getTime() / 1000))
+    if (noteSupplyData) {
+      setSupplyData(
+        noteSupplyData.filter(({ day }) => minDate < day.getTime() / 1000)
       );
-  }, [minDate]);
+    }
+  }, [noteSupplyData, minDate]);
 
   const annualEmissionRate =
     Registry.getNOTERegistry().getTotalAnnualEmission();
