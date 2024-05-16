@@ -15,6 +15,7 @@ export enum SourceType {
 }
 
 export enum TableName {
+  VaultAPY = 'vault_apy',
   GenericData = 'generic_data',
   TokenData = 'token_data',
 }
@@ -91,6 +92,10 @@ export interface TokenDataConfig {
   decimals: number;
 }
 
+export interface VaultAPYConfig {
+  decimals: number;
+}
+
 export interface ConfigDefinition {
   sourceType: SourceType;
   sourceConfig: MulticallConfig | SubgraphConfig;
@@ -146,6 +151,18 @@ export interface IDataWriter {
 export interface VaultAccount {
   accountId: string;
   vaultId: string;
+}
+
+export interface VaultAPY {
+  blockNumber: number,
+  timestamp: number,
+  vaultAddress: string,
+  totalLpTokens: string,
+  lpTokenValuePrimaryBorrow: string,
+  rewardToken: string,
+  rewardTokensClaimed: string,
+  rewardTokenValuePrimaryBorrow: string,
+  noVaultShares: boolean,
 }
 
 type DataServiceAccountContextUpdate = {
