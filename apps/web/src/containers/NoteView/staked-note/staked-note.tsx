@@ -7,8 +7,8 @@ import {
   Button,
   CardInput,
   H2,
-  DateRangeButtons,
-  dateRangeData,
+  ValidDateRanges,
+  dateRangeValues,
 } from '@notional-finance/mui';
 import {
   NotePageSectionTitle,
@@ -34,7 +34,7 @@ interface StakedNoteProps {
 
 export const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
   const theme = useTheme();
-  const [dateRange, setDateRange] = useState(dateRangeData[1].value);
+  const [dateRange, setDateRange] = useState(dateRangeValues[1].value);
   const baseCurrency = useFiat();
   const {
     currentSNOTEPrice,
@@ -151,15 +151,16 @@ export const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
               size="large"
               sx={{
                 fontFamily: 'Avenir Next',
-                cursor: 'no-drop',
+                cursor: 'pointer',
                 width: '100%',
               }}
+              to="/stake"
             >
-              <FormattedMessage defaultMessage={'Coming soon to V3'} />
+              <FormattedMessage defaultMessage={'Stake NOTE'} />
             </Button>
           </ContentBox>
         </ChartSectionContainer>
-        <DateRangeButtons setDateRange={setDateRange} dateRange={dateRange} />
+        <ValidDateRanges setDateRange={setDateRange} dateRange={dateRange} />
       </Box>
     </ContentContainer>
   );

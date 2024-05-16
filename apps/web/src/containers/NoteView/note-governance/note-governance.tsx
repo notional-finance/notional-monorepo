@@ -18,6 +18,7 @@ import {
   formatNumberAsAbbr,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
+import { getDaysDifference } from '@notional-finance/util';
 
 interface TopCardPillProps {
   active: boolean;
@@ -27,16 +28,6 @@ interface TopCardPillProps {
 export const NoteGovernance = () => {
   const theme = useTheme();
   const govData = useGovernanceData();
-
-  const calculateDaysDifference = (timestamp: number): number => {
-    const secondsPerDay = 24 * 60 * 60;
-    const currentDate = Math.floor(Date.now() / 1000);
-    const targetDate = timestamp;
-    const differenceInDays = Math.floor(
-      (currentDate - targetDate) / secondsPerDay
-    );
-    return Math.abs(differenceInDays);
-  };
 
   return (
     <ContentContainer id="governance">
@@ -113,12 +104,11 @@ export const NoteGovernance = () => {
                 </VoteMetrics>
               ))}
               <CardSubText>
-                {calculateDaysDifference(topic.end) === 0 &&
-                topic.state === 'active'
+                {getDaysDifference(topic.end) === 0 && topic.state === 'active'
                   ? 'Ends today'
                   : `${
                       topic.state === 'active' ? 'Ends in' : 'Ended'
-                    } ${calculateDaysDifference(topic.end)} ${
+                    } ${getDaysDifference(topic.end)} ${
                       topic.state === 'active' ? 'days' : 'days ago'
                     }
                   `}{' '}

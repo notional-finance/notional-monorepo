@@ -111,3 +111,12 @@ export const formatMaturity = (ts: number) => {
 export const floorToMidnight = (ts: number, offset = 0) => {
   return ts - offset - ((ts - offset) % SECONDS_IN_DAY);
 };
+
+export const getDaysDifference = (timestamp: number): number => {
+  const currentDate = Math.floor(Date.now() / 1000);
+  const targetDate = timestamp;
+  const differenceInDays = Math.floor(
+    (currentDate - targetDate) / SECONDS_IN_DAY
+  );
+  return Math.abs(differenceInDays);
+};

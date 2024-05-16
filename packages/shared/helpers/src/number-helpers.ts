@@ -75,7 +75,7 @@ export function formatNumberAsAbbr(
   
 
   const symbol =
-    baseCurrency && FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : hideSymbol ? '' : '$';
+  hideSymbol ? '' : baseCurrency && FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$';
   if (decimalPlaces === undefined && baseCurrency) {
     // Use 2 decimals for fiat and 4 for non fiat
     decimalPlaces = symbol ? 2 : 4;

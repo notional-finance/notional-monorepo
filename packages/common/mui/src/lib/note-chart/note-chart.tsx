@@ -1,6 +1,5 @@
 import type { CSSProperties } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-// import { use, type EChartsOption, type SetOptionOpts } from 'echarts';
 import { EChartsOption, type SetOptionOpts } from 'echarts';
 import { H5 } from '../typography/typography';
 import ReactECharts from 'echarts-for-react';

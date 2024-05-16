@@ -1,11 +1,11 @@
 import { LabelValue } from '../typography/typography';
 import { Box, styled, useTheme } from '@mui/material';
 import { Dispatch, SetStateAction } from 'react';
-import { SECONDS_IN_DAY } from '@notional-finance/util';
+import { SECONDS_IN_DAY, SECONDS_IN_YEAR_ACTUAL } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
-interface DateRangeButtonsProps {
+interface ValidDateRangesProps {
   setDateRange: Dispatch<SetStateAction<number>>;
   dateRange: number;
 }
@@ -14,17 +14,17 @@ interface LabelButtonProps {
   theme: NotionalTheme;
 }
 
-export const dateRangeData = [
-  { displayValue: '30d', value: 2592000 },
-  { displayValue: '90d', value: 7776000 },
-  { displayValue: '1y', value: 31536000 },
-  { displayValue: '2y', value: 63072000 },
+export const dateRangeValues = [
+  { displayValue: '30d', value: 30 * SECONDS_IN_DAY },
+  { displayValue: '90d', value: 90 * SECONDS_IN_DAY },
+  { displayValue: '1y', value: SECONDS_IN_YEAR_ACTUAL },
+  { displayValue: '2y', value: 2 * SECONDS_IN_YEAR_ACTUAL },
 ];
 
-export const DateRangeButtons = ({
+export const ValidDateRanges = ({
   setDateRange,
   dateRange,
-}: DateRangeButtonsProps) => {
+}: ValidDateRangesProps) => {
   const theme = useTheme();
   return (
     <Box
@@ -44,7 +44,7 @@ export const DateRangeButtons = ({
       >
         <FormattedMessage defaultMessage={'Time Frame: '} />
       </LabelValue>
-      {dateRangeData.map((range, i) => (
+      {dateRangeValues.map((range, i) => (
         <LabelButton
           key={i}
           theme={theme}
@@ -78,4 +78,4 @@ const LabelButton = styled(LabelValue, {
         `
 );
 
-export default DateRangeButtons;
+export default ValidDateRanges;

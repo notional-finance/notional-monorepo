@@ -1,5 +1,5 @@
 import { Registry } from '@notional-finance/core-entities';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export type NoteSupplyData = {
   day: Date;
@@ -20,16 +20,16 @@ export function useNoteSupplyData() {
     undefined
   );
 
-  if (supplyData !== undefined) return supplyData;
-
-  try {
-    Registry.getNOTERegistry()
-      .getNOTESupplyData()
-      .then((data) => setSupplyData(data));
-    return supplyData;
-  } catch (error) {
-    return undefined;
-  }
+  useEffect(() => {
+    try {
+      Registry.getNOTERegistry()
+        .getNOTESupplyData()
+        .then((data) => setSupplyData(data));
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }, []);
+  return supplyData;
 }
 
 export function useStakedNoteData() {
@@ -37,14 +37,15 @@ export function useStakedNoteData() {
     StakedNoteData | undefined
   >(undefined);
 
-  if (stakedNoteData !== undefined) return stakedNoteData;
+  useEffect(() => {
+    try {
+      Registry.getNOTERegistry()
+        .getSNOTEData()
+        .then((data) => setStakedNoteData(data));
+    } catch (error) {
+      return undefined;
+    }
+  }, []);
 
-  try {
-    Registry.getNOTERegistry()
-      .getSNOTEData()
-      .then((data) => setStakedNoteData(data));
-    return stakedNoteData;
-  } catch (error) {
-    return undefined;
-  }
+  return stakedNoteData;
 }
