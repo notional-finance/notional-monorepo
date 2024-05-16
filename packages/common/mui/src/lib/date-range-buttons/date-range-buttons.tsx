@@ -5,7 +5,7 @@ import { SECONDS_IN_DAY, SECONDS_IN_YEAR_ACTUAL } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
-interface ValidDateRangesProps {
+interface DateRangeButtonsProps {
   setDateRange: Dispatch<SetStateAction<number>>;
   dateRange: number;
 }
@@ -14,17 +14,17 @@ interface LabelButtonProps {
   theme: NotionalTheme;
 }
 
-export const dateRangeValues = [
+export const ValidDateRanges = [
   { displayValue: '30d', value: 30 * SECONDS_IN_DAY },
   { displayValue: '90d', value: 90 * SECONDS_IN_DAY },
   { displayValue: '1y', value: SECONDS_IN_YEAR_ACTUAL },
   { displayValue: '2y', value: 2 * SECONDS_IN_YEAR_ACTUAL },
 ];
 
-export const ValidDateRanges = ({
+export const DateRangeButtons = ({
   setDateRange,
   dateRange,
-}: ValidDateRangesProps) => {
+}: DateRangeButtonsProps) => {
   const theme = useTheme();
   return (
     <Box
@@ -44,7 +44,7 @@ export const ValidDateRanges = ({
       >
         <FormattedMessage defaultMessage={'Time Frame: '} />
       </LabelValue>
-      {dateRangeValues.map((range, i) => (
+      {ValidDateRanges.map((range, i) => (
         <LabelButton
           key={i}
           theme={theme}
@@ -78,4 +78,4 @@ const LabelButton = styled(LabelValue, {
         `
 );
 
-export default ValidDateRanges;
+export default DateRangeButtons;

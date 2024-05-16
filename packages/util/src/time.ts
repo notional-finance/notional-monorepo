@@ -113,7 +113,7 @@ export const floorToMidnight = (ts: number, offset = 0) => {
 };
 
 export const getDaysDifference = (timestamp: number): number => {
-  const currentDate = Math.floor(Date.now() / 1000);
+  const currentDate = getNowSeconds();
   const targetDate = timestamp;
   const differenceInDays = Math.floor(
     (currentDate - targetDate) / SECONDS_IN_DAY

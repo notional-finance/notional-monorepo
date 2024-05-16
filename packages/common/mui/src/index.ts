@@ -81,4 +81,4 @@ export * from './lib/footer-popup/footer-popup';
 export * from './lib/message-box/message-box';
 export * from './lib/network-toggle/network-toggle';
 export * from './lib/mobile-nav-with-filter/mobile-nav-with-filter';
-export * from './lib/valid-date-ranges/valid-date-ranges';
+export * from './lib/date-range-buttons/date-range-buttons';

@@ -4,8 +4,8 @@ import {
   H2,
   H5,
   NoteChart,
+  DateRangeButtons,
   ValidDateRanges,
-  dateRangeValues,
 } from '@notional-finance/mui';
 import {
   ChartSectionContainer,
@@ -28,7 +28,7 @@ interface NoteSupplyProps {
 export const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
   const theme = useTheme();
   const baseCurrency = useFiat();
-  const [dateRange, setDateRange] = useState(dateRangeValues[2].value);
+  const [dateRange, setDateRange] = useState(ValidDateRanges[2].value);
   const {
     noteHistoricalSupply,
     currentSupply,
@@ -37,7 +37,7 @@ export const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
   } = useNoteSupply(noteSupplyData, dateRange);
   const [supplyDisplayValue, setSupplyDisplayValue] = useState(0);
 
-  const currentDateRange = dateRangeValues.find(
+  const currentDateRange = ValidDateRanges.find(
     (range) => range.value === dateRange
   );
 
@@ -156,7 +156,7 @@ export const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
           </ContentBox>
         </Box>
       </ChartSectionContainer>
-      <ValidDateRanges setDateRange={setDateRange} dateRange={dateRange} />
+      <DateRangeButtons setDateRange={setDateRange} dateRange={dateRange} />
     </ContentContainer>
   );
 };

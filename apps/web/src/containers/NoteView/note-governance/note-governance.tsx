@@ -18,7 +18,7 @@ import {
   formatNumberAsAbbr,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
-import { getDaysDifference } from '@notional-finance/util';
+import { getDateString } from '@notional-finance/util';
 
 interface TopCardPillProps {
   active: boolean;
@@ -104,14 +104,9 @@ export const NoteGovernance = () => {
                 </VoteMetrics>
               ))}
               <CardSubText>
-                {getDaysDifference(topic.end) === 0 && topic.state === 'active'
-                  ? 'Ends today'
-                  : `${
-                      topic.state === 'active' ? 'Ends in' : 'Ended'
-                    } ${getDaysDifference(topic.end)} ${
-                      topic.state === 'active' ? 'days' : 'days ago'
-                    }
-                  `}{' '}
+                {`${
+                  topic.state === 'active' ? 'Ends' : 'Ended'
+                } ${getDateString(topic.end)}`}{' '}
                 |{' '}
                 {formatNumberAsPercent(
                   (topic.scores_total / topic.quorum) * 100

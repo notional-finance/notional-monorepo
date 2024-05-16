@@ -16,8 +16,8 @@ import {
   H5,
   NoteChart,
   H2,
+  DateRangeButtons,
   ValidDateRanges,
-  dateRangeValues,
 } from '@notional-finance/mui';
 import { ReactNode, useState } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
@@ -36,7 +36,7 @@ interface NoteSummaryProps {
 export const NoteSummary = ({ noteSupplyData }: NoteSummaryProps) => {
   const theme = useTheme();
   const { notePrice, notePriceChange } = useNotePrice();
-  const [dateRange, setDateRange] = useState(dateRangeValues[1].value);
+  const [dateRange, setDateRange] = useState(ValidDateRanges[1].value);
   const baseCurrency = useFiat();
   const {
     noteBurnChart,
@@ -45,7 +45,7 @@ export const NoteSummary = ({ noteSupplyData }: NoteSummaryProps) => {
     annualNOTEBurnPercentage,
   } = useNoteSupply(noteSupplyData, dateRange);
 
-  const currentDateRange = dateRangeValues.find(
+  const currentDateRange = ValidDateRanges.find(
     (range) => range.value === dateRange
   );
 
@@ -172,7 +172,7 @@ export const NoteSummary = ({ noteSupplyData }: NoteSummaryProps) => {
           </ContentBox>
         </Box>
       </ChartSectionContainer>
-      <ValidDateRanges setDateRange={setDateRange} dateRange={dateRange} />
+      <DateRangeButtons setDateRange={setDateRange} dateRange={dateRange} />
     </ContentContainer>
   );
 };
