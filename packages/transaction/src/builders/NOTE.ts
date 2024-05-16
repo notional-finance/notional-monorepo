@@ -1,6 +1,11 @@
 import { Registry, SNOTEWeightedPool } from '@notional-finance/core-entities';
 import { PopulateTransactionInputs, populateTxnAndGas } from './common';
-import { BASIS_POINT, RATE_PRECISION } from '@notional-finance/util';
+import {
+  BASIS_POINT,
+  Network,
+  RATE_PRECISION,
+  getProviderFromNetwork,
+} from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 
 export function StakeNOTE({
@@ -9,7 +14,9 @@ export function StakeNOTE({
   depositBalance,
   secondaryDepositBalance,
 }: PopulateTransactionInputs) {
-  const sNOTE = SNOTEWeightedPool.sNOTE_Contract;
+  const sNOTE = SNOTEWeightedPool.sNOTE_Contract.connect(
+    getProviderFromNetwork(Network.mainnet)
+  );
   const pool = Registry.getExchangeRegistry().getSNOTEPool();
   if (
     !pool ||
@@ -47,7 +54,9 @@ export function StakeNOTERedeem({
   debtBalance,
   depositBalance,
 }: PopulateTransactionInputs) {
-  const sNOTE = SNOTEWeightedPool.sNOTE_Contract;
+  const sNOTE = SNOTEWeightedPool.sNOTE_Contract.connect(
+    getProviderFromNetwork(Network.mainnet)
+  );
   if (!debtBalance || !depositBalance) throw Error('Inputs not defined');
   const minNOTE = depositBalance
     .mulInRatePrecision(RATE_PRECISION - 50 * BASIS_POINT)

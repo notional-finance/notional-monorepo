@@ -81,7 +81,7 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
         key: 'scalingFactors',
         transform: () => [
           FixedPoint.from(BigNumber.from(10).pow(18)),
-          FixedPoint.from(BigNumber.from(10).pow(10)),
+          FixedPoint.from(BigNumber.from(10).pow(28)),
         ],
       },
       {

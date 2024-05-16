@@ -155,6 +155,23 @@ function getTradeDetail(
         ],
       },
     };
+  } else if (tokenType === 'Underlying' || tokenType === 'NOTE') {
+    return {
+      label: intl.formatMessage(TradeSummaryLabels['Underlying'][typeKey], {
+        symbol: b.symbol,
+      }),
+      value: {
+        data: [
+          {
+            displayValue: (
+              underlyingValueOverride || b
+            ).toDisplayStringWithSymbol(4, true, false),
+            showPositiveAsGreen: b.isPositive(),
+            isNegative: false,
+          },
+        ],
+      },
+    };
   }
 
   throw Error('invalid asset key');
@@ -173,7 +190,18 @@ function getFeeItems(
 ): DetailItem[] {
   const zeroUnderlying = TokenBalance.zero(underlying);
 
-  if (isLeverageOrRoll) {
+  if (tradeType === 'StakeNOTE' && collateralFee) {
+    return [
+      getCollateralFeeDetailItem(
+        collateralBalance,
+        collateralFee,
+        tradeType,
+        theme
+      ),
+    ];
+  } else if (tradeType === 'StakeNOTERedeem' && debtFee) {
+    return [getDebtFeeDetailItem(debtBalance, debtFee, tradeType, theme)];
+  } else if (isLeverageOrRoll) {
     const feeItems: DetailItem[] = [];
     // On leverage or roll trades, don't show prime fee balances since there will
     // never be any
@@ -476,6 +504,43 @@ function getWithdrawSummary(
   return summary;
 }
 
+function getStakeNOTESummary(
+  state: TradeState | VaultTradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  if (state.tradeType === 'StakeNOTE') {
+    // Mint sNOTE (this gets shifted to the total row)
+    if (state.collateralBalance) {
+      summary.push(
+        getTradeDetail(state.collateralBalance, 'Asset', 'none', intl)
+      );
+    }
+
+    // Deposit ETH
+    if (state.depositBalance) {
+      summary.push(
+        getTradeDetail(state.depositBalance, 'Asset', 'deposit', intl)
+      );
+    }
+
+    // Deposit NOTE
+    if (state.secondaryDepositBalance) {
+      summary.push(
+        getTradeDetail(state.secondaryDepositBalance, 'Asset', 'deposit', intl)
+      );
+    }
+  } else if (state.tradeType === 'StakeNOTERedeem') {
+    if (state.debtBalance) {
+      // Redeem sNOTE
+      summary.push(getTradeDetail(state.debtBalance, 'Asset', 'repay', intl));
+    }
+    // Withdraw NOTE will be shown as the wallet total
+  }
+
+  return summary;
+}
+
 /**
  * On entry to a vault this shows three line items:
  *   - deposit and mint
@@ -710,7 +775,9 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   );
 
   let summary: DetailItem[] = [];
-  if (
+  if (tradeType === 'StakeNOTE' || tradeType === 'StakeNOTERedeem') {
+    summary.push(...getStakeNOTESummary(state, intl));
+  } else if (
     isLeverageOrRoll &&
     (depositBalance?.isPositive() ||
       tradeType === 'IncreaseVaultPosition' ||
@@ -786,7 +853,8 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     tradeType === 'MintNToken' ||
     tradeType === 'RepayDebt' ||
     tradeType === 'CreateVaultPosition' ||
-    tradeType === 'LeveragedNToken'
+    tradeType === 'LeveragedNToken' ||
+    tradeType === 'StakeNOTE'
   ) {
     total = summary.shift() as DetailItem;
     total.isTotalRow = true;
@@ -800,7 +868,10 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
       );
     }
     walletTotal.value.data[0].showPositiveAsGreen = true;
-    summary = [walletTotal, ...summary, total];
+    summary =
+      tradeType === 'StakeNOTE'
+        ? [...summary, total]
+        : [walletTotal, ...summary, total];
   } else {
     walletTotal.isTotalRow = true;
     summary.push(walletTotal);

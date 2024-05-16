@@ -35,7 +35,6 @@ export const Stake = () => {
           ref={noteInputRef}
           inputRef={noteInputRef}
           context={context}
-          useZeroDefault
           excludeSupplyCap
           onUpdate={onNOTEUpdate}
           depositOverride={NOTE}
