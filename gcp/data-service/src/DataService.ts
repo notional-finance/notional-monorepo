@@ -23,6 +23,7 @@ import {
   SubgraphOperation,
   TableName,
   VaultAccount,
+  VaultAPY,
   ProtocolName,
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
@@ -56,9 +57,10 @@ export default class DataService {
   public static readonly ORACLE_DATA_TABLE_NAME = 'oracle_data';
   public static readonly ACCOUNTS_TABLE_NAME = 'accounts';
   public static readonly VAULT_ACCOUNTS_TABLE_NAME = 'vault_accounts';
+  public static readonly VAULT_APY_NAME = 'vault_apy';
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
 
-  constructor(public db: Knex, public settings: DataServiceSettings) {}
+  constructor(public db: Knex, public settings: DataServiceSettings) { }
 
   private getKeyByValue(object, value) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -383,7 +385,7 @@ export default class DataService {
         highBlock = block;
         const delta = Math.ceil(
           (block.timestamp - targetTimestamp) *
-            this.settings.blocksPerSecond[network.toString()]
+          this.settings.blocksPerSecond[network.toString()]
         );
         blockNumber -= delta;
         block = await provider.getBlock(blockNumber);
@@ -392,7 +394,7 @@ export default class DataService {
         lowBlock = block;
         const delta = Math.ceil(
           (targetTimestamp - block.timestamp) *
-            this.settings.blocksPerSecond[network.toString()]
+          this.settings.blocksPerSecond[network.toString()]
         );
         blockNumber += delta;
         block = await provider.getBlock(blockNumber);
@@ -513,6 +515,30 @@ export default class DataService {
       )
       .into(DataService.VAULT_ACCOUNTS_TABLE_NAME)
       .onConflict(['account_id', 'vault_id', 'network_id'])
+      .ignore();
+  }
+
+  public async insertVaultAPY(
+    network: Network,
+    vaultAPY: VaultAPY[]
+  ) {
+    return this.db
+      .insert(
+        vaultAPY.map((v) => ({
+          network_id: this.networkToId(network),
+          block_number: v.blockNumber,
+          timestamp: v.timestamp,
+          vault_address: v.vaultAddress,
+          total_lp_tokens: v.totalLpTokens,
+          lp_token_value_primary_borrow: v.lpTokenValuePrimaryBorrow,
+          reward_token: v.rewardToken,
+          reward_tokens_claimed: v.rewardTokensClaimed,
+          reward_token_value_primary_borrow: v.rewardTokenValuePrimaryBorrow,
+          no_vault_shares: v.noVaultShares,
+        }))
+      )
+      .into(DataService.VAULT_APY_NAME)
+      .onConflict(['timestamp', 'vault_address', 'reward_token'])
       .ignore();
   }
 

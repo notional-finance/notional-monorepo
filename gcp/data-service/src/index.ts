@@ -215,6 +215,17 @@ async function main() {
     }
   });
 
+  app.post('/vaultApy', async (req, res) => {
+    try {
+      const network: Network = req.body.network;
+
+      await dataService.insertVaultAPY(network, req.body.vaultAPYs);
+      res.status(200).send('OK');
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
   app.post('/events', async (req, res) => {
     try {
       const network: Network = req.body.network;
