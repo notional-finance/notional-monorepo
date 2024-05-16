@@ -18,10 +18,14 @@ import {
 } from '../components';
 import { FormattedMessage } from 'react-intl';
 import { useNoteSupply } from './use-note-supply';
-import { useFiat } from '@notional-finance/notionable-hooks';
-import { useState } from 'react';
+import { NoteSupplyData, useFiat } from '@notional-finance/notionable-hooks';
+import { useCallback, useEffect, useState } from 'react';
 
-export const NoteSupply = () => {
+interface NoteSupplyProps {
+  noteSupplyData: NoteSupplyData | undefined;
+}
+
+export const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
   const theme = useTheme();
   const baseCurrency = useFiat();
   const [dateRange, setDateRange] = useState(dateRangeData[2].value);
@@ -30,11 +34,22 @@ export const NoteSupply = () => {
     currentSupply,
     currentSupplyChange,
     annualEmissionRate,
-  } = useNoteSupply();
+  } = useNoteSupply(noteSupplyData, dateRange);
+  const [supplyDisplayValue, setSupplyDisplayValue] = useState(0);
 
   const currentDateRange = dateRangeData.find(
     (range) => range.value === dateRange
   );
+
+  useEffect(() => {
+    if (currentSupply && supplyDisplayValue === 0) {
+      setSupplyDisplayValue(currentSupply?.toFloat());
+    }
+  }, [currentSupply, supplyDisplayValue]);
+
+  const noteNumCallback = useCallback((value: number) => {
+    setSupplyDisplayValue(value);
+  }, []);
 
   return (
     <ContentContainer id="note-supply">
@@ -49,20 +64,24 @@ export const NoteSupply = () => {
           }
         />
       </SubText>
-      <ChartSectionContainer>
+      <ChartSectionContainer
+        onMouseLeave={() => {
+          if (currentSupply) {
+            setSupplyDisplayValue(currentSupply?.toFloat());
+          }
+        }}
+      >
         <NoteChart
           // option={option}
           // showMarkLines={true}
+          noteNumCallback={noteNumCallback}
           data={noteHistoricalSupply}
           title={
             <FormattedMessage defaultMessage={'NOTE Circulating Supply'} />
           }
           largeValue={
             // TODO: this should be a hover state instead of the currentSupply...
-            <DualColorValue
-              value={currentSupply?.toFloat() || 0}
-              suffix="NOTE"
-            />
+            <DualColorValue value={supplyDisplayValue} suffix="NOTE" />
           }
         />
         <Box

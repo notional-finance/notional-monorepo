@@ -16,7 +16,7 @@ import {
 } from '@notional-finance/util';
 import { useEffect, useState } from 'react';
 
-export function useStakedNoteData(dateRange = 30 * SECONDS_IN_DAY) {
+export function useStakedNote(stakedNoteData, dateRange = 30 * SECONDS_IN_DAY) {
   const isPoolReady = useStakedNOTEPoolReady();
   const baseCurrency = useFiat();
   const [sNOTEData, setSNOTEData] = useState<
@@ -26,12 +26,12 @@ export function useStakedNoteData(dateRange = 30 * SECONDS_IN_DAY) {
   const walletNOTEBalances = useTotalNOTEBalances();
 
   useEffect(() => {
-    Registry.getNOTERegistry()
-      .getSNOTEData()
-      .then((s) =>
-        setSNOTEData(s.filter(({ day }) => minDate < day.getTime() / 1000))
+    if (stakedNoteData) {
+      setSNOTEData(
+        stakedNoteData.filter(({ day }) => minDate < day.getTime() / 1000)
       );
-  }, [minDate]);
+    }
+  }, [stakedNoteData, minDate]);
 
   let currentSNOTEPrice: TokenBalance | undefined;
   let totalSNOTEValue: TokenBalance | undefined;

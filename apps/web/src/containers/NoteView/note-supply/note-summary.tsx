@@ -22,10 +22,18 @@ import {
 import { ReactNode, useState } from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
-import { useFiat, useNotePrice } from '@notional-finance/notionable-hooks';
+import {
+  NoteSupplyData,
+  useFiat,
+  useNotePrice,
+} from '@notional-finance/notionable-hooks';
 import { useNoteSupply } from './use-note-supply';
 
-export const NoteSummary = () => {
+interface NoteSummaryProps {
+  noteSupplyData: NoteSupplyData | undefined;
+}
+
+export const NoteSummary = ({ noteSupplyData }: NoteSummaryProps) => {
   const theme = useTheme();
   const { notePrice, notePriceChange } = useNotePrice();
   const [dateRange, setDateRange] = useState(dateRangeData[1].value);
@@ -35,7 +43,7 @@ export const NoteSummary = () => {
     totalNoteBurned,
     annualNOTEBurnRate,
     annualNOTEBurnPercentage,
-  } = useNoteSupply(dateRange);
+  } = useNoteSupply(noteSupplyData, dateRange);
 
   const currentDateRange = dateRangeData.find(
     (range) => range.value === dateRange

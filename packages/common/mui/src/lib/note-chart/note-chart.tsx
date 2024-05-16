@@ -26,6 +26,7 @@ interface NoteChartProps {
   largeValue: ReactNode | string;
   showMarkLines?: boolean;
   formatToolTipValueAsFiat?: boolean;
+  noteNumCallback?: (value: number) => void;
 }
 
 export const NoteChart = ({
@@ -35,6 +36,7 @@ export const NoteChart = ({
   largeValue,
   showMarkLines,
   formatToolTipValueAsFiat,
+  noteNumCallback,
 }: NoteChartProps) => {
   const theme = useTheme();
   const baseCurrency = useFiat();
@@ -157,6 +159,9 @@ export const NoteChart = ({
         const value = formatToolTipValueAsFiat
           ? formatNumberAsAbbr(params[0].data[1], 4, baseCurrency)
           : formatNumber(params[0].data[1]);
+        if (noteNumCallback) {
+          noteNumCallback(params[0].data[1]);
+        }
         return `<div style="background-color: #041D2E; width: fit-content; box-shadow: -2px 1px 24px 0px rgba(135, 155, 215, 0.20), 0px 4px 16px 0px rgba(121, 209, 212, 0.40); padding: 8px; height: 58px;">
                   <div style="color: #BCD4DB; font-family: Avenir Next; font-weight: 500;">${formatDateTooltip(
                     params[0].data[0]
