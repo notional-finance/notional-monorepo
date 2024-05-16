@@ -80,7 +80,6 @@ export const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
             <FormattedMessage defaultMessage={'NOTE Circulating Supply'} />
           }
           largeValue={
-            // TODO: this should be a hover state instead of the currentSupply...
             <DualColorValue value={supplyDisplayValue} suffix="NOTE" />
           }
         />
