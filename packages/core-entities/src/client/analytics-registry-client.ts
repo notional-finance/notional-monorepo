@@ -507,6 +507,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
         debts: TokenBalance;
         assets: TokenBalance;
         collateralRatio: number | null;
+        healthFactor: number | null;
         liquidationPrice: {
           asset: TokenDefinition;
           threshold: TokenBalance | null;
