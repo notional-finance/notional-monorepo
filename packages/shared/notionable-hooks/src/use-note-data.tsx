@@ -21,14 +21,15 @@ export function useNoteSupplyData() {
   );
 
   useEffect(() => {
-    try {
-      Registry.getNOTERegistry()
-        .getNOTESupplyData()
-        .then((data) => setSupplyData(data));
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    Registry.getNOTERegistry()
+      .getNOTESupplyData()
+      .then((data) => setSupplyData(data))
+      .catch((error) => {
+        console.error('Error fetching note supply data:', error);
+        setSupplyData(undefined);
+      });
   }, []);
+
   return supplyData;
 }
 
@@ -38,13 +39,13 @@ export function useStakedNoteData() {
   >(undefined);
 
   useEffect(() => {
-    try {
-      Registry.getNOTERegistry()
-        .getSNOTEData()
-        .then((data) => setStakedNoteData(data));
-    } catch (error) {
-      return undefined;
-    }
+    Registry.getNOTERegistry()
+      .getSNOTEData()
+      .then((data) => setStakedNoteData(data))
+      .catch((error) => {
+        console.error('Error fetching staked note data:', error);
+        setStakedNoteData(undefined);
+      });
   }, []);
 
   return stakedNoteData;
