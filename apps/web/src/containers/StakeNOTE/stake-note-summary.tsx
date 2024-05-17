@@ -16,12 +16,20 @@ import { SECONDS_IN_DAY, TRACKING_EVENTS } from '@notional-finance/util';
 import { trackEvent } from '@notional-finance/helpers';
 import { useLocation } from 'react-router';
 import { useStakingFaq } from './use-staking-faq';
-import { useStakedNoteData } from '../NoteView/staked-note/use-staked-note-data';
-import { useFiat, useNotePrice } from '@notional-finance/notionable-hooks';
+import {
+  StakedNoteData,
+  useFiat,
+  useNotePrice,
+} from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { useReinvestmentData } from './use-reinvestment-data';
+import { useStakedNote } from '../NoteView/staked-note/use-staked-note';
 
-export const StakeNOTESummary = () => {
+export const StakeNOTESummary = ({
+  stakedNoteData,
+}: {
+  stakedNoteData: StakedNoteData | undefined;
+}) => {
   const theme = useTheme();
   const { state } = useContext(NOTEContext);
   const { pathname } = useLocation();
@@ -33,7 +41,7 @@ export const StakeNOTESummary = () => {
     annualizedRewardRate,
     totalSNOTEValue,
     currentSNOTEYield,
-  } = useStakedNoteData(90 * SECONDS_IN_DAY);
+  } = useStakedNote(stakedNoteData, 90 * SECONDS_IN_DAY);
   const { reinvestmentTableColumns, reinvestmentTableData } =
     useReinvestmentData();
   const { notePrice } = useNotePrice();

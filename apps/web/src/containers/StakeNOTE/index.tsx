@@ -2,6 +2,7 @@ import { SideBarLayout } from '@notional-finance/mui';
 import {
   createNOTEContext,
   useNOTEContext,
+  useStakedNoteData,
 } from '@notional-finance/notionable-hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import { Stake, CoolDown, Redeem } from './drawers';
@@ -14,9 +15,10 @@ export const StakeNOTE = () => {
   const {
     state: { isReady, confirm, tradeType },
   } = context;
+  const stakedNoteData = useStakedNoteData();
   return (
     <NOTEContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady}>
+      <FeatureLoader featureLoaded={isReady && stakedNoteData !== undefined}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={
@@ -28,7 +30,7 @@ export const StakeNOTE = () => {
               <Stake />
             )
           }
-          mainContent={<StakeNOTESummary />}
+          mainContent={<StakeNOTESummary stakedNoteData={stakedNoteData} />}
         />
       </FeatureLoader>
     </NOTEContext.Provider>
