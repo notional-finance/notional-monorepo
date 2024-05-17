@@ -34,6 +34,7 @@ interface DepositInputProps {
   depositOverride?: TokenDefinition;
   depositTokens?: TokenDefinition[];
   onUpdate?: (inputAmount: TokenBalance | undefined) => void;
+  miniButtonLabel?: string;
 }
 
 /**
@@ -60,6 +61,7 @@ export const DepositInput = React.forwardRef<
       useZeroDefault,
       showScrollPopper,
       excludeSupplyCap,
+      miniButtonLabel = 'MAX',
       // These two props allow the state values to be overridden, used
       // in the case of Staked NOTE
       depositOverride,
@@ -99,7 +101,7 @@ export const DepositInput = React.forwardRef<
 
     useEffect(() => {
       if (onUpdate) {
-        onUpdate(inputAmount)
+        onUpdate(inputAmount);
       } else {
         updateState({
           depositBalance: inputAmount,
@@ -166,6 +168,7 @@ export const DepositInput = React.forwardRef<
         <CurrencyInput
           ref={ref}
           placeholder="0.00000000"
+          miniButtonLabel={miniButtonLabel}
           // Use 18 decimals as a the default, but that should only be temporary during page load
           decimals={decimalPlaces || 18}
           maxValue={onMaxValue ? undefined : maxBalanceString}

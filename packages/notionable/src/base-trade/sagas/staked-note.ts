@@ -103,7 +103,6 @@ export function compareNOTEPortfolio(
   account$: Observable<AccountDefinition | null>
 ) {
   return combineLatest([state$, account$]).pipe(
-    filter(([{ canSubmit }]) => canSubmit),
     distinctUntilChanged(
       ([p], [c]) =>
         p.calculationSuccess === c.calculationSuccess &&

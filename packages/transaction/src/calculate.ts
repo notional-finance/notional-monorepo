@@ -986,12 +986,16 @@ export function calculateVaultCollateral({
 
 export function calculateStake({
   collateralPool,
+  deposit,
   depositBalance,
   secondaryDepositBalance,
+  useOptimalETH,
 }: {
   collateralPool: SNOTEWeightedPool;
+  deposit?: TokenDefinition;
   depositBalance?: TokenBalance;
   secondaryDepositBalance?: TokenBalance;
+  useOptimalETH: boolean;
 }) {
   const ETH = Registry.getTokenRegistry().getTokenBySymbol(
     Network.mainnet,
@@ -1001,8 +1005,10 @@ export function calculateStake({
     Network.mainnet,
     'NOTE'
   );
-  const ethIn = depositBalance || TokenBalance.zero(ETH);
   const noteIn = secondaryDepositBalance || TokenBalance.zero(NOTE);
+  const ethIn = useOptimalETH
+    ? collateralPool.getOptimumETHForNOTE(noteIn)
+    : depositBalance || TokenBalance.zero(ETH);
 
   if (ethIn.isZero() && noteIn.isZero()) {
     // Clear outputs if there is no value
@@ -1015,7 +1021,6 @@ export function calculateStake({
   }
 
   const { lpTokens, feesPaid } = collateralPool.getLPTokensGivenTokens([
-    // Ensure that WETH is converted to ETH
     ethIn.toToken(ETH),
     noteIn,
   ]);
@@ -1025,6 +1030,10 @@ export function calculateStake({
     (s, t) => s.add(t.toToken(ETH)),
     TokenBalance.zero(ETH)
   );
+  const expectedNOTEPrice = collateralPool.getExpectedETHPrice(
+    noteIn,
+    ethIn.toToken(ETH)
+  );
 
   return {
     collateralBalance,
@@ -1032,6 +1041,8 @@ export function calculateStake({
     // Fees should already be deducted from collateralBalance
     netRealizedCollateralBalance: collateralBalance.toToken(ETH),
     postTradeBalances: [collateralBalance, ethIn, noteIn],
+    depositBalance: deposit ? ethIn.toToken(deposit) : ethIn,
+    expectedNOTEPrice,
   };
 }
 

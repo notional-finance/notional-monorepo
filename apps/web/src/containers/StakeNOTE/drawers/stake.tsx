@@ -3,7 +3,10 @@ import { NOTEContext } from '..';
 import { useTheme } from '@mui/material';
 import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import { useNOTE } from '@notional-finance/notionable-hooks';
+import {
+  useNOTE,
+  useWalletBalanceInputCheck,
+} from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
@@ -12,9 +15,10 @@ export const Stake = () => {
   const theme = useTheme();
   const context = useContext(NOTEContext);
   const {
-    state: { useOptimalETH, depositBalance },
+    state: { useOptimalETH, depositBalance, deposit },
     updateState,
   } = context;
+  const { maxBalance: maxETH } = useWalletBalanceInputCheck(deposit, undefined);
   const [hasTouchedETH, setHasTouchedETH] = useState(false);
   const NOTE = useNOTE(Network.mainnet);
   const { currencyInputRef: ethInputRef, setCurrencyInput: setETHInput } =
@@ -44,10 +48,21 @@ export const Stake = () => {
   }, [updateState]);
 
   useEffect(() => {
-    if (useOptimalETH && depositBalance)
-      setETHInput(depositBalance.toExactString(), false);
+    if (useOptimalETH && depositBalance) {
+      if (
+        maxETH &&
+        maxETH.tokenId === depositBalance.tokenId &&
+        depositBalance.gt(maxETH)
+      ) {
+        // Caps the max ETH input here
+        setETHInput(maxETH.toExactString(), false);
+        updateState({ depositBalance: maxETH });
+      } else {
+        setETHInput(depositBalance.toExactString(), false);
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useOptimalETH, depositBalance?.hashKey, setETHInput]);
+  }, [useOptimalETH, depositBalance?.hashKey, maxETH?.hashKey, setETHInput]);
 
   return (
     <TransactionSidebar
@@ -77,6 +92,8 @@ export const Stake = () => {
         ref={ethInputRef}
         inputRef={ethInputRef}
         context={context}
+        // TODO: need to suppress max balance here...
+        miniButtonLabel={'OPTIMIZE'}
         onUpdate={onETHUpdate}
         onMaxValue={onOptimize}
         excludeSupplyCap
