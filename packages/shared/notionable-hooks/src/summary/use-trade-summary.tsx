@@ -509,7 +509,7 @@ function getStakeNOTESummary(
   intl: IntlShape
 ): DetailItem[] {
   const summary: DetailItem[] = [];
-  if (state.tradeType === 'StakeNOTE') {
+  if (state.tradeType === 'StakeNOTE' && state.collateralBalance) {
     // Mint sNOTE (this gets shifted to the total row)
     if (state.collateralBalance) {
       summary.push(
@@ -530,11 +530,9 @@ function getStakeNOTESummary(
         getTradeDetail(state.secondaryDepositBalance, 'Asset', 'deposit', intl)
       );
     }
-  } else if (state.tradeType === 'StakeNOTERedeem') {
-    if (state.debtBalance) {
-      // Redeem sNOTE
-      summary.push(getTradeDetail(state.debtBalance, 'Asset', 'repay', intl));
-    }
+  } else if (state.tradeType === 'StakeNOTERedeem' && state.debtBalance) {
+    // Redeem sNOTE
+    summary.push(getTradeDetail(state.debtBalance, 'Asset', 'repay', intl));
     // TODO: need to calculate the NOTE / ETH claims and the amount of ETH sold...
     // Withdraw NOTE will be shown as the wallet total
   }
@@ -847,6 +845,8 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   } else {
     earnings = undefined;
   }
+
+  if (summary.length === 0) return { summary: undefined, total: undefined };
 
   if (
     tradeType === 'LendFixed' ||

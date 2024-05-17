@@ -15,6 +15,7 @@ import {
 } from 'rxjs';
 import { BaseTradeState, NOTETradeType } from '../base-trade-store';
 import { comparePortfolio } from './account-risk';
+import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 export function stakedNOTEPool(network$: Observable<Network>) {
   return network$.pipe(
@@ -117,10 +118,32 @@ export function compareNOTEPortfolio(
           t.symbol === state.secondaryDepositBalance?.symbol ||
           t.symbol === 'sNOTE'
       );
-      return prior && state.postTradeBalances
+      const post =
+        prior && state.postTradeBalances
+          ? AccountRiskProfile.merge(prior, state.postTradeBalances)
+          : undefined;
+
+      // Need to do additional balance checks here because the `inputErrors` property between the
+      // two inputs override each other.
+      const noteBalance = prior?.find((t) => t.symbol === 'NOTE');
+      const ethBalance = prior?.find((t) => t.tokenId === state.deposit?.id);
+      const hasSufficientNOTE =
+        state.secondaryDepositBalance &&
+        noteBalance &&
+        state.secondaryDepositBalance.lte(noteBalance);
+      const hasSufficientETH =
+        state.depositBalance &&
+        ethBalance &&
+        state.depositBalance.lte(ethBalance);
+
+      return prior && post
         ? {
-            comparePortfolio: comparePortfolio(prior, state.postTradeBalances),
-            canSubmit: state.calculationSuccess && state.inputErrors === false,
+            comparePortfolio: comparePortfolio(prior, post),
+            canSubmit:
+              state.calculationSuccess &&
+              state.inputErrors === false &&
+              hasSufficientETH &&
+              hasSufficientNOTE,
           }
         : undefined;
     }),

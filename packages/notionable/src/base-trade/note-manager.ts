@@ -8,7 +8,7 @@ import {
   setDepositToken,
   stakedNOTEPool,
 } from './sagas/staked-note';
-import { buildTransaction, simulateTransaction } from './sagas';
+import { buildTransaction } from './sagas';
 import {
   StakeNOTE,
   StakeNOTECoolDown,
@@ -26,7 +26,6 @@ export function createNOTEManager(
   const stakedNOTEPool$ = stakedNOTEPool(network$);
 
   return merge(
-    simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
     compareNOTEPortfolio(state$, account$),
     calculate(state$, of(undefined), stakedNOTEPool$, of(undefined), account$),
@@ -40,6 +39,7 @@ export const NOTETradeConfiguration = {
     calculationFn: calculateStake,
     requiredArgs: [
       'collateralPool',
+      'depositBalance',
       'useOptimalETH',
       'secondaryDepositBalance',
     ],

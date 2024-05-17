@@ -34,10 +34,11 @@ export const Stake = () => {
 
   const onETHUpdate = useCallback(
     (inputAmount: TokenBalance | undefined) => {
-      if (inputAmount !== undefined) setHasTouchedETH(true);
+      if (inputAmount?.isPositive() && hasTouchedETH === false)
+        setHasTouchedETH(true);
       updateState({
         depositBalance: inputAmount,
-        useOptimalETH: inputAmount === undefined && hasTouchedETH === false,
+        useOptimalETH: inputAmount?.isZero() && hasTouchedETH === false,
       });
     },
     [updateState, hasTouchedETH]
@@ -92,7 +93,7 @@ export const Stake = () => {
         ref={ethInputRef}
         inputRef={ethInputRef}
         context={context}
-        // TODO: need to suppress max balance here...
+        useZeroDefault
         miniButtonLabel={'OPTIMIZE'}
         onUpdate={onETHUpdate}
         onMaxValue={onOptimize}

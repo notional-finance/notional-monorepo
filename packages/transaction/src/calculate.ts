@@ -1040,7 +1040,7 @@ export function calculateStake({
     collateralFee: feesPaidInETH,
     // Fees should already be deducted from collateralBalance
     netRealizedCollateralBalance: collateralBalance.toToken(ETH),
-    postTradeBalances: [collateralBalance, ethIn, noteIn],
+    postTradeBalances: [collateralBalance, ethIn.neg(), noteIn.neg()],
     depositBalance: deposit ? ethIn.toToken(deposit) : ethIn,
     expectedNOTEPrice,
   };
