@@ -8,6 +8,7 @@ import {
   ZERO_ADDRESS,
   formatNumberAsPercent,
   getNowSeconds,
+  sNOTE,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
@@ -17,10 +18,9 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
   protected cachePath() {
     return 'note';
   }
-  public static sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
   public static sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
 
-  public static sNOTEOracle = `${ZERO_ADDRESS}:${this.sNOTE}:sNOTEToETHExchangeRate`;
+  public static sNOTEOracle = `${ZERO_ADDRESS}:${sNOTE}:sNOTEToETHExchangeRate`;
   REDEEM_WINDOW_SECONDS = 3 * SECONDS_IN_DAY;
 
   constructor(cacheHostname: string) {
@@ -39,11 +39,11 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
 
               const oracle: OracleDefinition = {
                 id: NOTERegistryClient.sNOTEOracle,
-                oracleAddress: NOTERegistryClient.sNOTE,
+                oracleAddress: sNOTE,
                 network: Network.mainnet,
                 oracleType: 'sNOTEToETHExchangeRate',
                 base: ZERO_ADDRESS,
-                quote: NOTERegistryClient.sNOTE,
+                quote: sNOTE,
                 decimals: currentSNOTEPrice.decimals,
                 latestRate: {
                   blockNumber: 0,

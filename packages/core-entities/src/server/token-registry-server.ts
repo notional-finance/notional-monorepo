@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 import { SerializedTokenBalance, TokenBalance, TokenDefinition } from '..';
 import { fiatTokens } from '../config/fiat-config';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
-import { getNowSeconds, Network } from '@notional-finance/util';
+import { getNowSeconds, Network, sNOTE } from '@notional-finance/util';
 import { TypedDocumentNode } from '@apollo/client/core';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllTokensQuery } from '../.graphclient';
@@ -71,7 +71,6 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
 
     if (network === Network.mainnet) {
       // Manually add sNOTE to the mainnet network
-      const sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
       allTokens.values.push([
         sNOTE,
         {

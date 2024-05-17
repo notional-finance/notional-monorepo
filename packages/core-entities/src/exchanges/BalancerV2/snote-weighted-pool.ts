@@ -15,6 +15,7 @@ import {
   SCALAR_DECIMALS,
   SCALAR_PRECISION,
   SECONDS_IN_DAY,
+  sNOTE,
 } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
 import { Registry } from '../../Registry';
@@ -26,12 +27,11 @@ interface SNOTEParams extends PoolParams {
 }
 
 export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
-  public static sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
   public static sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
   public static sNOTE_Gauge = '0x09afec27f5a6201617aad014ceea8deb572b0608';
   public static sNOTE_Pool_Id =
     '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7000200000000000000000163';
-  public static sNOTE_Contract = new Contract(this.sNOTE, SNOTEABI) as SNOTE;
+  public static sNOTE_Contract = new Contract(sNOTE, SNOTEABI) as SNOTE;
   public static redeemWindowSeconds = 3 * SECONDS_IN_DAY;
   public ETH_INDEX = 0;
   public NOTE_INDEX = 1;
@@ -123,7 +123,7 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
         target: this.sNOTE_Contract,
         method: 'totalSupply',
         key: 'totalSNOTESupply',
-        transform: (r) => TokenBalance.toJSON(r, this.sNOTE, Network.mainnet),
+        transform: (r) => TokenBalance.toJSON(r, sNOTE, Network.mainnet),
       },
       {
         stage: 0,
@@ -136,7 +136,7 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
         // All BPTs are held in the gauge
         target: sNOTE_Gauge_Contract,
         method: 'balanceOf',
-        args: [this.sNOTE],
+        args: [sNOTE],
         key: 'totalBPTHeld',
         transform: (r) =>
           TokenBalance.toJSON(r, this.sNOTE_Pool, Network.mainnet),
