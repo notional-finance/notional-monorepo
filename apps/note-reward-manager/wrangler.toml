@@ -12,7 +12,7 @@ name = "note-reward-manager-dev"
 
 [env.dev.vars]
 NETWORK = "mainnet"
-MANAGER_BOT_ADDRESS = "0x3164400d0c849996efCb390ec1D4705f2cD5E98C"
+MANAGER_BOT_ADDRESS = "0x745915418D8B70f39ce9e61A965cBB0C87f9f7Ed"
 
 [env.beta]
 name = "note-reward-manager-beta"
