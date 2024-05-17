@@ -19,7 +19,7 @@ name = "system-cache-dev"
 [env.dev.vars]
 NX_ENV = "dev"
 VERSION = "v2"
-SUPPORTED_CHAINS = ['mainnet', 'goerli']
+SUPPORTED_CHAINS = ['mainnet']
 
 [env.dev.durable_objects]
 bindings = [

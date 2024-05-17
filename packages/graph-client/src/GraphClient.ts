@@ -22,7 +22,7 @@ export class GraphClient {
   public apollo: ApolloClient<NormalizedCacheObject>;
 
   public static graphUrls = {
-    'mainnet/notional': `https://gateway.thegraph.com/api/${subgraphApiKey}/subgraphs/id/71WhECGDCsRfgVSdeEg2SVuveBuHa4P44VxebdVaQic5`,
+    'mainnet/notional': `"https://gateway-arbitrum.network.thegraph.com/api/${subgraphApiKey}/subgraphs/id/BnVrrrzw6cLHxFUkgtfmWcF83DopC8jrYnrMnysVKptm"`,
     'goerli/notional':
       'https://api.thegraph.com/subgraphs/name/notional-finance/goerli-v2',
   };
