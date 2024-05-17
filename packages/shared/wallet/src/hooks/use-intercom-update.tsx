@@ -14,21 +14,42 @@ export const useIntercomUpdate = () => {
 
   useEffect(() => {
     if (selectedAccount && !isReadOnlyAddress) {
-      const networkBalanceData = {};
+      const balanceData = {};
       SupportedNetworks.forEach((network) => {
         const account = networkAccounts ? networkAccounts[network] : undefined;
-        const usdBalance = account?.accountDefinition?.balances
-          .filter((t) => t.symbol !== 'sNOTE')
-          .reduce((sum, b) => sum + b.toFiat('USD').abs().toFloat(), 0);
-        networkBalanceData[network] = usdBalance
-          ? formatNumberAsAbbr(usdBalance)
-          : '';
+
+        const walletBalance = account?.accountDefinition?.balances
+          .filter((b) => b.tokenType === 'Underlying')
+          .reduce((acc, b) => acc + b.toFiat('USD').toFloat(), 0);
+
+        const notionalBalance = account?.accountDefinition?.balances
+          .filter((b) => b.tokenType !== 'Underlying')
+          .reduce((acc, b) => acc + b.toFiat('USD').toFloat(), 0);
+
+        balanceData[network] = {
+          walletBalance: walletBalance || 0,
+          notionalBalance: notionalBalance || 0,
+        };
       });
+
+      const totalWalletBalance =
+        balanceData['mainnet'].walletBalance +
+        balanceData['arbitrum'].walletBalance;
+
+      const totalNotionalBalance =
+        balanceData['mainnet'].notionalBalance +
+        balanceData['arbitrum'].notionalBalance;
+
+      const totalBalance = totalWalletBalance + totalNotionalBalance;
 
       update({
         userId: selectedAccount,
         name: selectedAccount,
-        customAttributes: networkBalanceData,
+        customAttributes: {
+          TotalWalletBalance: formatNumberAsAbbr(totalWalletBalance, 2),
+          TotalNotionalBalance: formatNumberAsAbbr(totalNotionalBalance, 2),
+          TotalBalance: formatNumberAsAbbr(totalBalance, 2),
+        },
       });
     }
   }, [selectedAccount, isReadOnlyAddress, networkAccounts, update]);

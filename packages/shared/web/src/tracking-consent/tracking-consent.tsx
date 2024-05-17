@@ -28,12 +28,13 @@ export function TrackingConsent() {
         color: theme.palette.common.black,
       }}
       buttonStyle={{
+        marginRight: '120px',
         background: theme.palette.primary.accent,
         borderRadius: theme.shape.borderRadius(),
       }}
       onDecline={onDecline}
     >
-      <span>
+      <span style={{ marginLeft: '105px' }}>
         <FormattedMessage
           defaultMessage={'We use anonymized cookies to improve our product.'}
         />
