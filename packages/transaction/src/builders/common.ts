@@ -45,6 +45,7 @@ export interface PopulateTransactionInputs {
   redeemToWETH: boolean;
   accountBalances: TokenBalance[];
   maxWithdraw: boolean;
+  secondaryDepositBalance?: TokenBalance;
   vaultLastUpdateTime?: Record<string, number>;
   tradeType?: string;
 }

@@ -33,7 +33,7 @@ export function useDepositInput(
 
   const { maxBalanceString, maxBalance, insufficientBalance } =
     useWalletBalanceInputCheck(token, inputAmount);
-  const supply = useExceedsSupplyCap(inputAmount);
+  const supply = useExceedsSupplyCap(inputAmount, excludeSupplyCap);
 
   let errorMsg: MessageDescriptor | undefined;
   // Check that this is strictly true, when undefined it means the wallet data is

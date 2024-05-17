@@ -76,6 +76,12 @@ export const TradeSummaryLabels = {
     none: { defaultMessage: 'Borrow Variable' },
     repay: { defaultMessage: 'Repay Variable Debt' },
   }),
+  Underlying: defineMessages({
+    deposit: { defaultMessage: 'Deposit {symbol}' },
+    withdraw: { defaultMessage: 'Withdraw {symbol}' },
+    none: { defaultMessage: 'Mint {symbol}' },
+    repay: { defaultMessage: 'Redeem {symbol}' },
+  }),
 };
 
 export const Earnings = {

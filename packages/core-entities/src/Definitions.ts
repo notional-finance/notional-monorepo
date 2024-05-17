@@ -185,6 +185,12 @@ export interface AccountDefinition {
   /** Specific allowances tracked for user interface purposes */
   allowances?: Allowance[];
   systemAccountType?: SystemAccount;
+  stakeNOTEStatus?: {
+    inCoolDown: boolean;
+    inRedeemWindow: boolean;
+    redeemWindowBegin: number;
+    redeemWindowEnd: number;
+  }
 }
 
 export interface SerializedAccountDefinition {

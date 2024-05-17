@@ -25,8 +25,8 @@ import { useStakedNote } from './use-staked-note';
 import { StakedNoteData, useFiat } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
-import { SECONDS_IN_DAY } from '@notional-finance/util';
 import { useState } from 'react';
+import { PRODUCTS, SECONDS_IN_DAY } from '@notional-finance/util';
 
 interface StakedNoteProps {
   stakedNoteData: StakedNoteData | undefined;
@@ -154,7 +154,7 @@ export const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
                 cursor: 'pointer',
                 width: '100%',
               }}
-              to="/stake"
+              to={`${PRODUCTS.STAKE_NOTE}/ETH`}
             >
               <FormattedMessage defaultMessage={'Stake NOTE'} />
             </Button>

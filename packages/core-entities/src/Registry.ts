@@ -284,32 +284,47 @@ export class Registry {
   }
 
   public static onNetworkReady(network: Network, fn: () => void) {
-    // NOTE: yield registry and analytics registry is not included in here or
-    // it will create a circular dependency.
-    Promise.all([
-      new Promise<void>((r) =>
-        Registry.getConfigurationRegistry().onNetworkRegistered(network, r)
-      ),
-      new Promise<void>((r) =>
-        Registry.getTokenRegistry().onNetworkRegistered(network, r)
-      ),
-      new Promise<void>((r) =>
-        Registry.getOracleRegistry().onNetworkRegistered(network, r)
-      ),
-      new Promise<void>((r) =>
-        Registry.getExchangeRegistry().onNetworkRegistered(network, r)
-      ),
-      new Promise<void>((r) =>
-        Registry.getVaultRegistry().onNetworkRegistered(network, r)
-      ),
-      new Promise<void>((r) => {
-        const accounts = Registry.getAccountRegistry();
-        // Resolve right away in single account mode since network won't register until
-        // an active account is set.
-        if (accounts.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT) r();
-        // Otherwise, resolve when all accounts have been loaded
-        else accounts.onNetworkRegistered(network, r);
-      }),
-    ]).then(fn);
+    if (network === Network.all) {
+      Promise.all([
+        new Promise<void>((r) =>
+          Registry.getTokenRegistry().onNetworkRegistered(network, r)
+        ),
+        new Promise<void>((r) =>
+          Registry.getOracleRegistry().onNetworkRegistered(network, r)
+        ),
+        new Promise<void>((r) =>
+          Registry.getAnalyticsRegistry().onNetworkRegistered(network, r)
+        ),
+      ]).then(fn);
+    } else {
+      // NOTE: yield registry and analytics registry is not included in here or
+      // it will create a circular dependency.
+      Promise.all([
+        new Promise<void>((r) =>
+          Registry.getConfigurationRegistry().onNetworkRegistered(network, r)
+        ),
+        new Promise<void>((r) =>
+          Registry.getTokenRegistry().onNetworkRegistered(network, r)
+        ),
+        new Promise<void>((r) =>
+          Registry.getOracleRegistry().onNetworkRegistered(network, r)
+        ),
+        new Promise<void>((r) =>
+          Registry.getExchangeRegistry().onNetworkRegistered(network, r)
+        ),
+        new Promise<void>((r) =>
+          Registry.getVaultRegistry().onNetworkRegistered(network, r)
+        ),
+        new Promise<void>((r) => {
+          const accounts = Registry.getAccountRegistry();
+          // Resolve right away in single account mode since network won't register until
+          // an active account is set.
+          if (accounts.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT)
+            r();
+          // Otherwise, resolve when all accounts have been loaded
+          else accounts.onNetworkRegistered(network, r);
+        }),
+      ]).then(fn);
+    }
   }
 }

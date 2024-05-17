@@ -17,10 +17,9 @@ export const useIntercomUpdate = () => {
       const networkBalanceData = {};
       SupportedNetworks.forEach((network) => {
         const account = networkAccounts ? networkAccounts[network] : undefined;
-        const usdBalance = account?.accountDefinition?.balances.reduce(
-          (sum, b) => sum + b.toFiat('USD').abs().toFloat(),
-          0
-        );
+        const usdBalance = account?.accountDefinition?.balances
+          .filter((t) => t.symbol !== 'sNOTE')
+          .reduce((sum, b) => sum + b.toFiat('USD').abs().toFloat(), 0);
         networkBalanceData[network] = usdBalance
           ? formatNumberAsAbbr(usdBalance)
           : '';

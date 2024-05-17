@@ -4,6 +4,7 @@ import {
   TokenBalance,
 } from '@notional-finance/core-entities';
 import {
+  StakedNoteData,
   useFiat,
   useStakedNOTEPoolReady,
   useTotalNOTEBalances,
@@ -16,7 +17,10 @@ import {
 } from '@notional-finance/util';
 import { useEffect, useState } from 'react';
 
-export function useStakedNote(stakedNoteData, dateRange = 30 * SECONDS_IN_DAY) {
+export function useStakedNote(
+  stakedNoteData: StakedNoteData | undefined,
+  dateRange = 30 * SECONDS_IN_DAY
+) {
   const isPoolReady = useStakedNOTEPoolReady();
   const baseCurrency = useFiat();
   const [sNOTEData, setSNOTEData] = useState<
@@ -39,6 +43,10 @@ export function useStakedNote(stakedNoteData, dateRange = 30 * SECONDS_IN_DAY) {
   const historicalSNOTEPrice: [Date, number][] = sNOTEData.map(
     ({ day, price }) => [day, price]
   );
+  const historicalSNOTEAPY: [Date, number][] = sNOTEData.map(({ day, apy }) => [
+    day,
+    apy,
+  ]);
   const currentSNOTEYield = lastValue(sNOTEData)?.apy;
 
   if (isPoolReady) {
@@ -59,6 +67,7 @@ export function useStakedNote(stakedNoteData, dateRange = 30 * SECONDS_IN_DAY) {
     currentSNOTEYield,
     annualizedRewardRate,
     historicalSNOTEPrice,
+    historicalSNOTEAPY,
     walletNOTEBalances,
   };
 }

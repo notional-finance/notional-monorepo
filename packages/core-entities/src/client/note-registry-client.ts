@@ -6,20 +6,19 @@ import {
   SECONDS_IN_DAY,
   SupportedNetworks,
   ZERO_ADDRESS,
+  formatNumberAsPercent,
   getNowSeconds,
+  sNOTE,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
-import SNOTEWeightedPool from '../exchanges/BalancerV2/snote-weighted-pool';
 import { BigNumber } from 'ethers';
 import { TokenBalance } from '../token-balance';
-
-const sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
-const sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
 
 export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
   protected cachePath() {
     return 'note';
   }
+  public static sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
 
   public static sNOTEOracle = `${ZERO_ADDRESS}:${sNOTE}:sNOTEToETHExchangeRate`;
   REDEEM_WINDOW_SECONDS = 3 * SECONDS_IN_DAY;
@@ -28,19 +27,14 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
     super(cacheHostname);
     Registry.getExchangeRegistry().onSubjectKeyRegistered(
       Network.mainnet,
-      sNOTE_Pool,
+      NOTERegistryClient.sNOTE_Pool,
       () => {
         Registry.getExchangeRegistry()
-          .subscribeSubject(Network.mainnet, sNOTE_Pool)
+          .subscribeSubject(Network.mainnet, NOTERegistryClient.sNOTE_Pool)
           ?.subscribe(() => {
             const oracles = Registry.getOracleRegistry();
-            if (oracles.isNetworkRegistered(Network.mainnet)) {
-              const pool =
-                Registry.getExchangeRegistry().getPoolInstance<SNOTEWeightedPool>(
-                  Network.mainnet,
-                  sNOTE_Pool
-                );
-
+            const pool = Registry.getExchangeRegistry().getSNOTEPool();
+            if (oracles.isNetworkRegistered(Network.mainnet) && pool) {
               const currentSNOTEPrice = pool.getCurrentSNOTEPrice();
 
               const oracle: OracleDefinition = {
@@ -135,6 +129,32 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
       return resp['result']['rows'].map((r) => ({
         ...r,
         day: new Date(r.day),
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  async getSNOTEReinvestmentData() {
+    try {
+      const resp = await this._fetch<{
+        result: {
+          rows: {
+            day: string;
+            evt_block_time: string;
+            bpts_per_snote: number;
+            eth_reinvestment: number;
+            note_reinvestment: number;
+            transaction_hash: string;
+            apy: number;
+          }[];
+        };
+      }>(Network.mainnet, 'sNOTEReinvestment');
+      return resp['result']['rows'].map((r) => ({
+        ...r,
+        eth_reinvestment: r.eth_reinvestment.toFixed(4),
+        apy: formatNumberAsPercent(r.apy, 2),
+        day: new Date(r.evt_block_time).getTime() / 1000,
       }));
     } catch {
       return [];

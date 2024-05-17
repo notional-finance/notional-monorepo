@@ -7,11 +7,10 @@ import {
   distinctUntilChanged,
 } from 'rxjs';
 import {
+  AllTradeTypes,
   BaseTradeState,
   TradeState,
-  TradeType,
   VaultTradeState,
-  VaultTradeType,
 } from '../base-trade-store';
 import { selectedAccount, selectedNetwork } from '../../global';
 import {
@@ -24,7 +23,7 @@ import { getTradeConfig } from '../trade-calculation';
 function getDefaultTokens(
   availableTokens: TokenDefinition[],
   category: Category,
-  tradeType?: TradeType | VaultTradeType | undefined
+  tradeType?: AllTradeTypes
 ) {
   if (tradeType === 'LendFixed' && category === 'Collateral') {
     return availableTokens[0];
@@ -46,7 +45,7 @@ function getSelectedToken(
   availableTokens: TokenDefinition[],
   selectedToken: string | undefined,
   category: Category,
-  tradeType?: TradeType | VaultTradeType | undefined
+  tradeType?: AllTradeTypes
 ) {
   if (availableTokens.length === 1) {
     return availableTokens[0];

@@ -265,8 +265,8 @@ export function useMaxAssetBalance(token: TokenDefinition | undefined) {
     : profile?.balances.find((b) => b.tokenId === token?.id);
 }
 
-export function useExceedsSupplyCap(deposit: TokenBalance | undefined) {
-  if (deposit) {
+export function useExceedsSupplyCap(deposit: TokenBalance | undefined, excludeSupplyCap: boolean) {
+  if (deposit && !excludeSupplyCap) {
     const { maxUnderlyingSupply, currentUnderlyingSupply } =
       Registry.getConfigurationRegistry().getMaxSupply(
         deposit?.network,

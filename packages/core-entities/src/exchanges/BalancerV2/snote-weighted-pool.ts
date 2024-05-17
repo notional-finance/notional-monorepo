@@ -4,12 +4,19 @@ import {
   BalancerVaultABI,
   ERC20ABI,
   SNOTEABI,
+  SNOTE,
 } from '@notional-finance/contracts';
 import { AggregateCall, NO_OP } from '@notional-finance/multicall';
 import { Contract, BigNumber } from 'ethers';
 import FixedPoint from './fixed-point';
 import WeightedPool, { PoolParams } from './weighted-pool';
-import { Network } from '@notional-finance/util';
+import {
+  Network,
+  SCALAR_DECIMALS,
+  SCALAR_PRECISION,
+  SECONDS_IN_DAY,
+  sNOTE,
+} from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
 import { Registry } from '../../Registry';
 
@@ -20,18 +27,20 @@ interface SNOTEParams extends PoolParams {
 }
 
 export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
-  public static sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
   public static sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
   public static sNOTE_Gauge = '0x09afec27f5a6201617aad014ceea8deb572b0608';
   public static sNOTE_Pool_Id =
     '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7000200000000000000000163';
+  public static sNOTE_Contract = new Contract(sNOTE, SNOTEABI) as SNOTE;
+  public static redeemWindowSeconds = 3 * SECONDS_IN_DAY;
+  public ETH_INDEX = 0;
+  public NOTE_INDEX = 1;
 
   public static override getInitData(
     network: Network,
     poolAddress: string
   ): AggregateCall[] {
     const pool = new Contract(poolAddress, BalancerPoolABI);
-    const sNOTE_Contract = new Contract(this.sNOTE, SNOTEABI);
     const sNOTE_Gauge_Contract = new Contract(this.sNOTE_Gauge, ERC20ABI);
 
     return [
@@ -62,8 +71,8 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
         method: NO_OP,
         key: 'normalizedWeights',
         transform: () => [
-          BigNumber.from(20).pow(17),
-          BigNumber.from(80).pow(17),
+          FixedPoint.from(BigNumber.from(10).pow(17).mul(2)),
+          FixedPoint.from(BigNumber.from(10).pow(17).mul(8)),
         ],
       },
       {
@@ -72,8 +81,8 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
         method: NO_OP,
         key: 'scalingFactors',
         transform: () => [
-          BigNumber.from(10).pow(18),
-          BigNumber.from(10).pow(10),
+          FixedPoint.from(BigNumber.from(10).pow(18)),
+          FixedPoint.from(BigNumber.from(10).pow(28)),
         ],
       },
       {
@@ -111,14 +120,14 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
       },
       {
         stage: 0,
-        target: sNOTE_Contract,
+        target: this.sNOTE_Contract,
         method: 'totalSupply',
         key: 'totalSNOTESupply',
-        transform: (r) => TokenBalance.toJSON(r, this.sNOTE, Network.mainnet),
+        transform: (r) => TokenBalance.toJSON(r, sNOTE, Network.mainnet),
       },
       {
         stage: 0,
-        target: sNOTE_Contract,
+        target: this.sNOTE_Contract,
         method: 'coolDownTimeInSeconds',
         key: 'coolDownTimeInSeconds',
       },
@@ -127,7 +136,7 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
         // All BPTs are held in the gauge
         target: sNOTE_Gauge_Contract,
         method: 'balanceOf',
-        args: [this.sNOTE],
+        args: [sNOTE],
         key: 'totalBPTHeld',
         transform: (r) =>
           TokenBalance.toJSON(r, this.sNOTE_Pool, Network.mainnet),
@@ -160,5 +169,39 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
     );
     const [ethClaim, noteClaim] = this.getLPTokenClaims(bptClaim);
     return { ethClaim, noteClaim };
+  }
+
+  getSNOTEForBPT(lpTokens: TokenBalance) {
+    return this.totalSNOTE.scale(lpTokens, this.poolParams.totalBPTHeld);
+  }
+
+  getBPTForSNOTE(snote: TokenBalance) {
+    return this.poolParams.totalBPTHeld.scale(snote, this.totalSNOTE);
+  }
+
+  getOptimumETHForNOTE(note: TokenBalance) {
+    return this.balances[this.ETH_INDEX].scale(
+      note,
+      this.balances[this.NOTE_INDEX]
+    );
+  }
+
+  getExpectedETHPrice(noteAmount: TokenBalance, ethAmount: TokenBalance) {
+    const noteRatio = this.balances[this.NOTE_INDEX]
+      .add(noteAmount)
+      .scale(
+        SCALAR_PRECISION,
+        this.poolParams.normalizedWeights[this.NOTE_INDEX].n
+      )
+      .scaleTo(SCALAR_DECIMALS);
+    const ethRatio = this.balances[this.ETH_INDEX]
+      .add(ethAmount)
+      .scale(
+        SCALAR_PRECISION,
+        this.poolParams.normalizedWeights[this.ETH_INDEX].n
+      )
+      .scaleTo(SCALAR_DECIMALS);
+
+    return ethAmount.copy(ethRatio.mul(SCALAR_PRECISION).div(noteRatio));
   }
 }
