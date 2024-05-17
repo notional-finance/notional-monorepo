@@ -1,3 +1,4 @@
+import { useTheme } from '@mui/material';
 import {
   Registry,
   TokenBalance,
@@ -10,6 +11,7 @@ import {
 } from '@notional-finance/helpers';
 import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
+  formatHealthFactorValues,
   useAllVaults,
   useFiat,
   useNotionalContext,
@@ -18,6 +20,7 @@ import { Network } from '@notional-finance/util';
 import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
+import { findSortingNum } from './use-all-accounts';
 
 interface VaultAccountData {
   account: string;
@@ -28,6 +31,7 @@ interface VaultAccountData {
     debts: TokenBalance;
     assets: TokenBalance;
     collateralRatio: number | null;
+    healthFactor: number | null;
     liquidationPrice: {
       asset: TokenDefinition;
       threshold: TokenBalance | null;
@@ -39,6 +43,7 @@ interface VaultAccountData {
 }
 
 export const useAllVaultAccounts = (selectedNetwork: Network) => {
+  const theme = useTheme();
   const listedVaults = useAllVaults(selectedNetwork);
   const [allVaultAccounts, setAllVaultAccounts] = useState<
     VaultAccountData[] | undefined
@@ -46,6 +51,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
   const { updateNotional } = useNotionalContext();
   const baseCurrency = useFiat();
   const history = useHistory();
+  const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [vaultNameOptions, setVaultNameOptions] = useState([]);
 
   const fetchAllVaultAccounts = async () => {
@@ -62,6 +68,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
     if (selectedNetwork) {
       fetchAllVaultAccounts();
       setVaultNameOptions([]);
+      setHealthFactorOptions([]);
     }
   }, [selectedNetwork]);
 
@@ -93,7 +100,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       showLinkIcon: false,
       accessorKey: 'address',
       textAlign: 'left',
-      width: '226px',
+      width: '180px',
     },
     {
       header: (
@@ -104,7 +111,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       ),
       accessorKey: 'vaultName',
       textAlign: 'right',
-      width: '226px',
+      width: '250px',
     },
     {
       header: (
@@ -119,7 +126,25 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       displayFormatter: (val) => formatNumberToDigits(val, 4),
       accessorKey: 'leverageRatio',
       textAlign: 'right',
-      width: '200px',
+      width: '180px',
+    },
+    {
+      header: (
+        <FormattedMessage
+          defaultMessage="Health Factor"
+          description={'Health Factor'}
+        />
+      ),
+      enableSorting: true,
+      sortingFn: 'basic',
+      cell: DisplayCell,
+      displayFormatter: (val) => {
+        const { value, textColor } = formatHealthFactorValues(val, theme);
+        return <span style={{ color: textColor }}>{value}</span>;
+      },
+      accessorKey: 'healthFactor',
+      textAlign: 'right',
+      width: '180px',
     },
     {
       header: (
@@ -131,10 +156,10 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       enableSorting: true,
       sortingFn: 'basic',
       cell: DisplayCell,
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
+      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
       accessorKey: 'netWorth',
       textAlign: 'right',
-      width: '226px',
+      width: '180px',
     },
     {
       header: (
@@ -143,20 +168,20 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       cell: DisplayCell,
       enableSorting: true,
       sortingFn: 'basic',
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
+      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
       accessorKey: 'assets',
       textAlign: 'right',
-      width: '226px',
+      width: '180px',
     },
     {
       header: <FormattedMessage defaultMessage="Debts" description={'Debts'} />,
       enableSorting: true,
       cell: DisplayCell,
       sortingFn: 'basic',
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
+      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
       accessorKey: 'debts',
       textAlign: 'right',
-      width: '226px',
+      width: '180px',
       isDebt: true,
     },
   ];
@@ -171,6 +196,9 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
         },
         vaultName: data.vaultName,
         leverageRatio: data.riskFactors.leverageRatio || 0,
+        healthFactor: data.riskFactors.healthFactor
+          ? data.riskFactors.healthFactor
+          : 0,
         netWorth: data.riskFactors.netWorth
           ? data.riskFactors.netWorth.toFiat(baseCurrency).toFloat()
           : 0,
@@ -185,6 +213,25 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
     .sort((a, b) => b.leverageRatio - a.leverageRatio);
 
   const dropdownsData = [
+    {
+      selectedOptions: healthFactorOptions,
+      setSelectedOptions: setHealthFactorOptions,
+      placeHolderText: <FormattedMessage defaultMessage={'Health Factor'} />,
+      data: [
+        {
+          id: 1.25,
+          title: '< 1.25',
+        },
+        {
+          id: 2.5,
+          title: '< 2.5',
+        },
+        {
+          id: 5,
+          title: 'No Risk',
+        },
+      ],
+    },
     {
       selectedOptions: vaultNameOptions,
       setSelectedOptions: setVaultNameOptions,
@@ -205,15 +252,37 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
   };
 
   const filterAllVaultAccountsData = () => {
+    const healthFactorIds = getIds(healthFactorOptions);
+    const highestHealthFactor = findSortingNum(healthFactorIds, true);
     const vaultNameIds = getIds(vaultNameOptions);
-    if (vaultNameIds.length === 0) {
-      return initialData;
-    } else if (vaultNameIds.length > 0) {
+
+    const filterData = [...healthFactorIds, ...vaultNameIds];
+
+    if (filterData.length === 0) return initialData;
+
+    if (
+      highestHealthFactor &&
+      healthFactorOptions.length > 0 &&
+      vaultNameOptions.length > 0
+    ) {
+      return initialData
+        .filter(({ healthFactor }) => healthFactor < highestHealthFactor)
+        .filter(({ vaultName }) => vaultNameIds.includes(vaultName));
+    }
+
+    if (highestHealthFactor && healthFactorOptions.length > 0) {
+      return initialData.filter(
+        ({ healthFactor }) => healthFactor < highestHealthFactor
+      );
+    }
+
+    if (vaultNameOptions.length > 0) {
       return initialData.filter(({ vaultName }) =>
         vaultNameIds.includes(vaultName)
       );
     }
-    return [];
+
+    return initialData;
   };
   const filteredTableData = filterAllVaultAccountsData();
 

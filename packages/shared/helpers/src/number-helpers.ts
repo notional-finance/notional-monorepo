@@ -55,6 +55,7 @@ export function formatNumberAsAbbr(
   num: number,
   decimalPlaces?: number,
   baseCurrency?: string,
+  removeKAbbr?: boolean,
   locale = 'en-US'
 ) {
   let suffix = '';
@@ -62,8 +63,12 @@ export function formatNumberAsAbbr(
   if (Math.abs(num) < 1_000) {
     suffix = '';
   } else if (Math.abs(num) < 1_000_000) {
-    suffix = 'k';
-    num = num / 1_000;
+    if(removeKAbbr) {
+      num
+    } else {
+      suffix = 'k';
+      num = num / 1_000;
+    }
   } else if (Math.abs(num) < 1_000_000_000) {
     suffix = 'm';
     num = num / 1_000_000;

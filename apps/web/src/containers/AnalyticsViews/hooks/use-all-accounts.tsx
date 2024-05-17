@@ -29,6 +29,24 @@ interface AccountData {
   };
 }
 
+export const findSortingNum = (
+  numbers: number[],
+  sortHighestNum?: boolean
+): number | undefined => {
+  if (numbers.length === 0) {
+    return undefined;
+  }
+  let highestNumber = numbers[0];
+  for (let i = 1; i < numbers.length; i++) {
+    if (numbers[i] > highestNumber && sortHighestNum) {
+      highestNumber = numbers[i];
+    } else if (numbers[i] < highestNumber) {
+      highestNumber = numbers[i];
+    }
+  }
+  return highestNumber;
+};
+
 export const useAllAccounts = (selectedNetwork: Network) => {
   const theme = useTheme();
   const [allAccounts, setAllAccounts] = useState<AccountData[] | undefined>(
@@ -145,7 +163,7 @@ export const useAllAccounts = (selectedNetwork: Network) => {
       ),
       enableSorting: true,
       cell: DisplayCell,
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
+      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
       sortingFn: 'basic',
       accessorKey: 'netWorth',
       textAlign: 'right',
@@ -247,24 +265,6 @@ export const useAllAccounts = (selectedNetwork: Network) => {
 
   const getIds = (options: any[]) => {
     return options.map(({ id }) => id);
-  };
-
-  const findSortingNum = (
-    numbers: number[],
-    sortHighestNum?: boolean
-  ): number | undefined => {
-    if (numbers.length === 0) {
-      return undefined;
-    }
-    let highestNumber = numbers[0];
-    for (let i = 1; i < numbers.length; i++) {
-      if (numbers[i] > highestNumber && sortHighestNum) {
-        highestNumber = numbers[i];
-      } else if (numbers[i] < highestNumber) {
-        highestNumber = numbers[i];
-      }
-    }
-    return highestNumber;
   };
 
   const filterAllAccountsData = () => {
