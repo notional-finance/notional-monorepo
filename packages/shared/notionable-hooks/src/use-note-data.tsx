@@ -21,7 +21,6 @@ export function useNoteSupplyData() {
   );
 
   useEffect(() => {
-    console.log('TESTING NOTE SUPPLY DATA');
     Registry.getNOTERegistry()
       .getNOTESupplyData()
       .then((data) => setSupplyData(data))
@@ -40,7 +39,6 @@ export function useStakedNoteData() {
   >(undefined);
 
   useEffect(() => {
-    console.log('TESTING NOTE STAKE DATA');
     Registry.getNOTERegistry()
       .getSNOTEData()
       .then((data) => setStakedNoteData(data))
