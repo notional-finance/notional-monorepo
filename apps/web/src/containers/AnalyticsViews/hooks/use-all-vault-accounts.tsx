@@ -156,7 +156,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       enableSorting: true,
       sortingFn: 'basic',
       cell: DisplayCell,
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
+      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
       accessorKey: 'netWorth',
       textAlign: 'right',
       width: '180px',
@@ -168,7 +168,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       cell: DisplayCell,
       enableSorting: true,
       sortingFn: 'basic',
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
+      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
       accessorKey: 'assets',
       textAlign: 'right',
       width: '180px',
@@ -178,7 +178,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       enableSorting: true,
       cell: DisplayCell,
       sortingFn: 'basic',
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency),
+      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
       accessorKey: 'debts',
       textAlign: 'right',
       width: '180px',
@@ -262,12 +262,24 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
 
     if (
       highestHealthFactor &&
-      healthFactorIds.length > 0 &&
-      vaultNameIds.length > 0
+      healthFactorOptions.length > 0 &&
+      vaultNameOptions.length > 0
     ) {
       return initialData
-        .filter(({ healthFactor }) => healthFactor > highestHealthFactor)
+        .filter(({ healthFactor }) => healthFactor < highestHealthFactor)
         .filter(({ vaultName }) => vaultNameIds.includes(vaultName));
+    }
+
+    if (highestHealthFactor && healthFactorOptions.length > 0) {
+      return initialData.filter(
+        ({ healthFactor }) => healthFactor < highestHealthFactor
+      );
+    }
+
+    if (vaultNameOptions.length > 0) {
+      return initialData.filter(({ vaultName }) =>
+        vaultNameIds.includes(vaultName)
+      );
     }
 
     return initialData;
