@@ -39,6 +39,7 @@ export const NOTETradeConfiguration = {
     calculationFn: calculateStake,
     requiredArgs: [
       'collateralPool',
+      'deposit',
       'depositBalance',
       'useOptimalETH',
       'secondaryDepositBalance',

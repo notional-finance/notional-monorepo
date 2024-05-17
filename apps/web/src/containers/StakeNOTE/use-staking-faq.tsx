@@ -1,8 +1,11 @@
 import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { getEtherscanAddressLink, Network } from '@notional-finance/util';
+import {
+  getEtherscanAddressLink,
+  Network,
+  sNOTE,
+} from '@notional-finance/util';
 import { ExternalLink } from '@notional-finance/mui';
-import { SNOTEWeightedPool } from '@notional-finance/core-entities';
 
 interface FaqProps {
   questionString: string;
@@ -17,7 +20,7 @@ export const useStakingFaq = () => {
       text: <FormattedMessage defaultMessage={'Staking NOTE Documentation'} />,
     },
     {
-      href: getEtherscanAddressLink(SNOTEWeightedPool.sNOTE, Network.mainnet),
+      href: getEtherscanAddressLink(sNOTE, Network.mainnet),
       text: <FormattedMessage defaultMessage={'sNOTE Contract'} />,
     },
   ];

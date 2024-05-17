@@ -12,6 +12,7 @@ import {
   ZERO_ADDRESS,
   encodefCashId,
   getNowSeconds,
+  sNOTE,
 } from '@notional-finance/util';
 import { BigNumber, Contract, providers } from 'ethers';
 import { Registry } from '../../Registry';
@@ -201,6 +202,12 @@ function getWalletCalls(
         },
       ];
     } else {
+      const allowanceAddress =
+        network === Network.mainnet &&
+        (token.symbol === 'WETH' || token.symbol === 'NOTE')
+          ? sNOTE
+          : notional.address;
+
       return [
         {
           stage: 0,
@@ -216,7 +223,7 @@ function getWalletCalls(
           stage: 0,
           target: new Contract(token.address, ERC20ABI, notional.provider),
           method: 'allowance',
-          args: [account, notional.address],
+          args: [account, allowanceAddress],
           key: `${token.address}.allowance`,
           transform: (b: BigNumber) => {
             return TokenBalance.from(b, token);
