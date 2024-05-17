@@ -70,6 +70,7 @@ export function initState(
           availableCollateralTokens: [sNOTE],
           collateral: sNOTE,
           selectedNetwork: Network.mainnet,
+          useOptimalETH: true,
         };
       }
     }),
@@ -118,7 +119,10 @@ export function compareNOTEPortfolio(
           t.symbol === 'sNOTE'
       );
       return prior && state.postTradeBalances
-        ? { comparePortfolio: comparePortfolio(prior, state.postTradeBalances) }
+        ? {
+            comparePortfolio: comparePortfolio(prior, state.postTradeBalances),
+            canSubmit: state.calculationSuccess && state.inputErrors === false,
+          }
         : undefined;
     }),
     filterEmpty()

@@ -189,7 +189,7 @@ export interface VaultTradeState
     Partial<Omit<VaultAccountRiskSummary, 'postTradeBalances'>> {}
 
 export interface NOTETradeState extends BaseTradeState {
-  optimalETH?: TokenBalance;
+  useOptimalETH?: boolean;
   ethSold?: TokenBalance;
 }
 

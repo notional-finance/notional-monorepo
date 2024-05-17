@@ -38,7 +38,11 @@ export function createNOTEManager(
 export const NOTETradeConfiguration = {
   StakeNOTE: {
     calculationFn: calculateStake,
-    requiredArgs: ['collateralPool', 'secondaryDepositBalance'],
+    requiredArgs: [
+      'collateralPool',
+      'useOptimalETH',
+      'secondaryDepositBalance',
+    ],
     collateralFilter: () => false,
     debtFilter: () => false,
     transactionBuilder: StakeNOTE,

@@ -328,6 +328,7 @@ function getRequiredArgs(
             [...keys, (s[r] as number | undefined)?.toString() || ''],
           ];
         case 'maxWithdraw':
+        case 'useOptimalETH':
           return [
             Object.assign(inputs, { [r]: s[r] }),
             [...keys, (s[r] as boolean | undefined)?.toString() || ''],
