@@ -111,37 +111,41 @@ function onAnalyticsReady$(global$: Observable<GlobalState>) {
               const historicalData =
                 Registry.getAnalyticsRegistry().getHistoricalTrading(n);
               for (const key in historicalData) {
-                const updatedData = historicalData[key].map((data) => {
-                  const fCashTokenBalance = TokenBalance.fromID(
-                    data?.fCashValue,
-                    data?.fCashId,
-                    n
-                  );
-                  const token = Registry.getTokenRegistry().getUnderlying(
-                    n,
-                    data.currencyId
-                  );
-                  const underlyingTokenBalance = TokenBalance.from(
-                    data.pCashInUnderlying,
-                    token
-                  );
-                  const interestRate = fCashMarket.getImpliedInterestRate(
-                    underlyingTokenBalance,
-                    fCashTokenBalance,
-                    data.timestamp
-                  );
-                  return {
-                    ...data,
-                    interestRate: interestRate
-                      ? formatNumberAsPercent(
-                          (interestRate * 100) / RATE_PRECISION
-                        )
-                      : formatNumberAsPercent(0),
-                    underlyingTokenBalance,
-                    fCashMaturity: fCashTokenBalance.maturity,
-                  };
-                });
-                historicalData[key] = updatedData;
+                try {
+                  const updatedData = historicalData[key].map((data) => {
+                    const fCashTokenBalance = TokenBalance.fromID(
+                      data?.fCashValue,
+                      data?.fCashId,
+                      n
+                    );
+                    const token = Registry.getTokenRegistry().getUnderlying(
+                      n,
+                      data.currencyId
+                    );
+                    const underlyingTokenBalance = TokenBalance.from(
+                      data.pCashInUnderlying,
+                      token
+                    );
+                    const interestRate = fCashMarket.getImpliedInterestRate(
+                      underlyingTokenBalance,
+                      fCashTokenBalance,
+                      data.timestamp
+                    );
+                    return {
+                      ...data,
+                      interestRate: interestRate
+                        ? formatNumberAsPercent(
+                            (interestRate * 100) / RATE_PRECISION
+                          )
+                        : formatNumberAsPercent(0),
+                      underlyingTokenBalance,
+                      fCashMaturity: fCashTokenBalance.maturity,
+                    };
+                  });
+                  historicalData[key] = updatedData;
+                } catch {
+                  // No-Op, this can fail when restricting the max currency id
+                }
               }
 
               acc[n] = historicalData;
