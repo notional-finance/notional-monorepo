@@ -76,6 +76,7 @@ import uni from '../../assets/icons/currencies/uni.svg';
 import uni_alt from '../../assets/icons/currencies/uni-alt.svg';
 import pUNI from '../../assets/icons/currencies/pUNI.svg';
 import GHO from '../../assets/icons/currencies/GHO.svg';
+import GHO_alt from '../../assets/icons/currencies/GHO-alt.svg';
 import fGHO from '../../assets/icons/currencies/fGHO.svg';
 import nGHO from '../../assets/icons/currencies/nGHO.svg';
 import pGHO from '../../assets/icons/currencies/pGHO.svg';
@@ -382,6 +383,7 @@ export const TokenImageList: TokenImageMap = {
   gho: {
     name: 'GHO',
     img: GHO,
+    accentBorderImg: GHO_alt,
     alt: 'GHO',
   },
   fgho: {
