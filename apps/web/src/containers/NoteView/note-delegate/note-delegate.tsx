@@ -102,7 +102,9 @@ export const NoteDelegate = () => {
             },
             fontFamily: 'Avenir Next',
           }}
-          href={'https://dune.com/PierreYves_Gendron/notional-delegation'}
+          href={
+            'https://forum.notional.finance/t/notional-finance-delegate-application/99/6'
+          }
         >
           <FormattedMessage defaultMessage={'Explore All Delegates'} />
         </Button>
