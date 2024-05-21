@@ -53,6 +53,12 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       registerTokens: [],
     },
     {
+      // nGHO
+      address: '0x2F7350Cb5e434C2d177922110c7e314953B84Afc',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
       address: '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7',
       PoolClass: 'SNOTEWeightedPool',
       registerTokens: [

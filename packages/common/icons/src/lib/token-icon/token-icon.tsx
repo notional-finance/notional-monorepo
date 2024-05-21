@@ -75,6 +75,11 @@ import pLINK from '../../assets/icons/currencies/pLINK.svg';
 import uni from '../../assets/icons/currencies/uni.svg';
 import uni_alt from '../../assets/icons/currencies/uni-alt.svg';
 import pUNI from '../../assets/icons/currencies/pUNI.svg';
+import GHO from '../../assets/icons/currencies/GHO.svg';
+import GHO_alt from '../../assets/icons/currencies/GHO-alt.svg';
+import fGHO from '../../assets/icons/currencies/fGHO.svg';
+import nGHO from '../../assets/icons/currencies/nGHO.svg';
+import pGHO from '../../assets/icons/currencies/pGHO.svg';
 import cryptotesters from '../../assets/icons/community-icons/cryptotesters.svg';
 import L2DAO from '../../assets/icons/community-icons/L2DAO.svg';
 import Llamas from '../../assets/icons/community-icons/Llama.svg';
@@ -374,6 +379,27 @@ export const TokenImageList: TokenImageMap = {
     img: cbETH,
     accentBorderImg: cbeth_alt,
     alt: 'cbETH',
+  },
+  gho: {
+    name: 'GHO',
+    img: GHO,
+    accentBorderImg: GHO_alt,
+    alt: 'GHO',
+  },
+  fgho: {
+    name: 'fGHO',
+    img: fGHO,
+    alt: 'fGHO',
+  },
+  ngho: {
+    name: 'nGHO',
+    img: nGHO,
+    alt: 'nGHO',
+  },
+  pgho: {
+    name: 'pGHO',
+    img: pGHO,
+    alt: 'pGHO',
   },
   uni: {
     name: 'uni',
