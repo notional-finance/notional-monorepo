@@ -22,6 +22,6 @@ export function getSecondaryTokenIncentive(network: Network, base: string) {
 export const MaxCurrencyId: Record<Network, number | undefined> = {
   [Network.all]: undefined,
   [Network.optimism]: undefined,
-  [Network.mainnet]: 10,
+  [Network.mainnet]: undefined,
   [Network.arbitrum]: undefined,
 };

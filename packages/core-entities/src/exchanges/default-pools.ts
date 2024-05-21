@@ -59,6 +59,22 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       registerTokens: [],
     },
     {
+      address: '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7',
+      PoolClass: 'SNOTEWeightedPool',
+      registerTokens: [
+        {
+          id: '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7',
+          address: '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7',
+          network: Network.mainnet,
+          symbol: 'sNOTE-BPT',
+          name: 'Staked NOTE Weighted Pool',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
       address: '0x383E6b4437b59fff47B619CBA855CA29342A8559',
       PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
