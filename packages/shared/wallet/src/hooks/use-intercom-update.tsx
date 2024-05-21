@@ -21,11 +21,11 @@ export const useIntercomUpdate = () => {
         const account = networkAccounts ? networkAccounts[network] : undefined;
 
         const walletBalance = account?.accountDefinition?.balances
-          .filter((b) => b.tokenType === 'Underlying')
+          .filter((b) => b.tokenType === 'Underlying' && b.symbol !== 'sNOTE')
           .reduce((acc, b) => acc + b.toFiat('USD').toFloat(), 0);
 
         const notionalBalance = account?.accountDefinition?.balances
-          .filter((b) => b.tokenType !== 'Underlying')
+          .filter((b) => b.tokenType !== 'Underlying' && b.symbol !== 'sNOTE')
           .reduce((acc, b) => acc + b.toFiat('USD').toFloat(), 0);
 
         if (walletBalance) {
