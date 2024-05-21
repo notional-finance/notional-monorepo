@@ -11,6 +11,7 @@ import {
 import { Routes } from '../server';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { TokenType } from '../.graphclient';
+import { MaxCurrencyId } from '../config/whitelisted-tokens';
 
 export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
   constructor(cacheHostname: string) {
@@ -25,7 +26,16 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
   }
 
   public getAllTokens(network: Network) {
-    return Array.from(this.getLatestFromAllSubjects(network).values());
+    const maxCurrencyId = MaxCurrencyId[network];
+    const allTokens = Array.from(
+      this.getLatestFromAllSubjects(network).values()
+    );
+
+    return maxCurrencyId
+      ? allTokens.filter(
+          (t) => t.currencyId === undefined || t.currencyId <= maxCurrencyId
+        )
+      : allTokens;
   }
 
   /**
