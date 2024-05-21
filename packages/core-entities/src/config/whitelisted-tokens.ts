@@ -14,6 +14,11 @@ export function getSecondaryTokenIncentive(network: Network, base: string) {
   }
 }
 
+/**
+ * If defined, this is an inclusive restriction on the currency ids shown on a given network,
+ * in other words, if there are 11 currency ids and the MaxCurrencyId is set to 10, then the 11th
+ * currency will not be shown on the UI.
+ */
 export const MaxCurrencyId: Record<Network, number | undefined> = {
   [Network.all]: undefined,
   [Network.optimism]: undefined,
