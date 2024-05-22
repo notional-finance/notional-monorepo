@@ -35,7 +35,7 @@ const messages = {
   }),
 };
 
-interface TableActionRowProps {
+export interface TableActionRowProps {
   row: {
     original: {
       amount: any;
@@ -43,6 +43,12 @@ interface TableActionRowProps {
       currentPrice: any;
       isDebt: boolean;
       actionRow: {
+        stakeNoteStatus?: {
+          inCoolDown: boolean;
+          inRedeemWindow: boolean;
+          redeemWindowBegin: number;
+          redeemWindowEnd: number;
+        };
         warning: TABLE_WARNINGS | undefined;
         txnHistory: string;
         buttonBarData: ButtonOptionsType[];

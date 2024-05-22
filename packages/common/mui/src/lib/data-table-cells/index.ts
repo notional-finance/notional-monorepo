@@ -15,4 +15,5 @@ export * from './txn-hash-cell/txn-hash-cell';
 export * from './arrow-change-cell/arrow-change-cell';
 export * from './copy-paste-cell/copy-paste-cell';
 export * from './view-as-address-cell/view-as-address-cell';
+export * from './message-cell/message-cell';
 

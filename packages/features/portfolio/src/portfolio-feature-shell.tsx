@@ -25,6 +25,7 @@ import {
   PortfolioVaults,
   PortfolioTransactionHistory,
   PortfolioHoldings,
+  PortfolioNoteStaking,
 } from './containers';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import {
@@ -139,6 +140,9 @@ const Portfolio = () => {
         )}
         {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
           <PortfolioVaults />
+        )}
+        {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+          <PortfolioNoteStaking />
         )}
         {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
           <PortfolioTransactionHistory />

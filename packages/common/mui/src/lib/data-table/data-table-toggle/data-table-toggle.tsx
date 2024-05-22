@@ -7,6 +7,7 @@ import { Tabs, styled, Tab, Box, useTheme } from '@mui/material';
 interface DataTableToggleProps {
   toggleBarProps: ToggleBarPropsType;
   tableTitle: ReactNode;
+  expandableTable?: boolean;
 }
 
 interface StyledTabProps {
@@ -18,13 +19,14 @@ interface StyledTabProps {
 export const DataTableToggle = ({
   toggleBarProps,
   tableTitle,
+  expandableTable,
 }: DataTableToggleProps) => {
   const theme = useTheme();
   const { toggleOption, setToggleOption, toggleData, showToggle } =
     toggleBarProps;
 
   return (
-    <MainContainer>
+    <MainContainer sx={{ padding: expandableTable ? theme.spacing(3) : '' }}>
       <ModuleTitle>{tableTitle}</ModuleTitle>
       {showToggle && (
         <StyledTabs

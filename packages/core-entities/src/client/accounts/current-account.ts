@@ -26,6 +26,13 @@ import { AccountDefinition, AccountIncentiveDebt } from '../../Definitions';
 import { fetchUsingMulticall } from '../../server/server-registry';
 import { SNOTEWeightedPool } from '../../exchanges';
 
+interface StakeNoteStatus {
+    inCoolDown: boolean;
+    inRedeemWindow: boolean;
+    redeemWindowBegin: number;
+    redeemWindowEnd: number;
+}
+
 export function fetchCurrentAccount(
   network: Network,
   account: string,
@@ -95,7 +102,7 @@ export function fetchCurrentAccount(
                   amount: results[k] as TokenBalance,
                 };
               }),
-            stakedNOTEStatus: results['stakedNOTEStatus'],
+            stakeNOTEStatus: results['stakeNOTEStatus'] as StakeNoteStatus,
           },
         };
       },
@@ -287,7 +294,7 @@ function getStakedNOTECalls(
       target: SNOTEWeightedPool.sNOTE_Contract.connect(provider),
       method: 'accountRedeemWindowBegin',
       args: [account],
-      key: `stakedNOTEStatus`,
+      key: `stakeNOTEStatus`,
       transform: (r: BigNumber) => {
         const redeemWindowBegin = r.toNumber();
         const redeemWindowEnd =

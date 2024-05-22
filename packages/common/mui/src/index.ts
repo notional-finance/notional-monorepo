@@ -4,6 +4,7 @@ export * from './lib/area-chart/area-chart';
 export * from './lib/bar-chart/bar-chart';
 export * from './lib/asset-select-dropdown/asset-select-dropdown';
 export * from './lib/app-bar/app-bar';
+export * from './lib/banner/banner';
 export * from './lib/box-display/box-display';
 export * from './lib/button/button';
 export * from './lib/button-bar/button-bar';

@@ -44,6 +44,7 @@ export const DataTableHead = ({
         <DataTableTitleBar
           tableTitle={tableTitle}
           tableVariant={tableVariant}
+          expandableTable={expandableTable}
         />
       )}
       {headerGroups.map((headerGroup, i) => (
@@ -62,7 +63,7 @@ export const DataTableHead = ({
                   ? theme.palette.background.accentDefault
                   : theme.palette.borders.accentPaper,
                 padding: expandableTable
-                  ? theme.spacing(0.5, 2)
+                  ? theme.spacing(0.5, 3)
                   : tableVariant === TABLE_VARIANTS.MINI
                   ? theme.spacing(1)
                   : theme.spacing(2),
