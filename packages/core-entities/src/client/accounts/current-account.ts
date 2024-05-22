@@ -22,16 +22,10 @@ import {
   getMulticall,
 } from '@notional-finance/multicall';
 import { TokenBalance } from '../../token-balance';
-import { AccountDefinition, AccountIncentiveDebt } from '../../Definitions';
+import { AccountDefinition, AccountIncentiveDebt, StakeNoteStatus } from '../../Definitions';
 import { fetchUsingMulticall } from '../../server/server-registry';
 import { SNOTEWeightedPool } from '../../exchanges';
 
-interface StakeNoteStatus {
-    inCoolDown: boolean;
-    inRedeemWindow: boolean;
-    redeemWindowBegin: number;
-    redeemWindowEnd: number;
-}
 
 export function fetchCurrentAccount(
   network: Network,

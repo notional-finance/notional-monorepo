@@ -27,7 +27,7 @@ export const Banner = ({
 }: BannerProps) => {
   const theme = useTheme();
   return (
-    <EmptyNoteStaking>
+    <BannerContainer>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         {tokenSymbol && <TokenIcon symbol={tokenSymbol} size={'xxl'} />}
         <Box
@@ -51,11 +51,11 @@ export const Banner = ({
           </Button>
         </Link>
       )}
-    </EmptyNoteStaking>
+    </BannerContainer>
   );
 };
 
-const EmptyNoteStaking = styled(Box)(
+const BannerContainer = styled(Box)(
   ({ theme }) => `
     display: flex;
     background: ${theme.palette.info.light};

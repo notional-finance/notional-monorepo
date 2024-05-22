@@ -28,7 +28,6 @@ export function usePortfolioSNOTETable() {
   const account = useAccountDefinition(Network.mainnet);
   const snoteBalance = account?.balances.find((t) => t.symbol == 'sNOTE');
   const isPoolReady = useStakedNOTEPoolReady();
-  const sNOTEPool = Registry.getExchangeRegistry().getSNOTEPool();
   const stakedNoteData = useStakedNoteData();
   const baseCurrency = useFiat();
   let result: any[] = [];
@@ -36,17 +35,19 @@ export function usePortfolioSNOTETable() {
 
   const stakeNoteStatus = account?.stakeNOTEStatus;
 
-  if (isPoolReady && snoteBalance && sNOTEPool && stakedNoteData) {
+  if (isPoolReady && snoteBalance && stakedNoteData) {
+    const sNOTEPool = Registry.getExchangeRegistry().getSNOTEPool();
     const currentSNOTEYield = formatNumberAsPercentWithUndefined(
       lastValue(stakedNoteData)?.apy,
       '-',
       2
     );
-    const { ethClaim, noteClaim } =
-      sNOTEPool.getCurrentSNOTEClaims(snoteBalance);
+
+    const sNOTEPoolData = sNOTEPool?.getCurrentSNOTEClaims(snoteBalance);
 
     noStakedNoteData =
-      (noteClaim && noteClaim?.isZero()) || noteClaim === undefined
+      (sNOTEPoolData?.noteClaim && sNOTEPoolData?.noteClaim?.isZero()) ||
+      sNOTEPoolData?.noteClaim === undefined
         ? true
         : false;
 
@@ -60,17 +61,21 @@ export function usePortfolioSNOTETable() {
         symbolSize: 'large',
         symbolBottom: '',
         label: 'sNOTE',
-        caption: '80% NOTE 20% ETH',
+        caption: '80% NOTE, 20% ETH',
       },
       marketApy: currentSNOTEYield,
       noteValue: {
         data: [
           {
-            displayValue: noteClaim.toDisplayStringWithSymbol(2, true, false),
+            displayValue: sNOTEPoolData?.noteClaim.toDisplayStringWithSymbol(
+              2,
+              true,
+              false
+            ),
             isNegative: false,
           },
           {
-            displayValue: noteClaim
+            displayValue: sNOTEPoolData?.noteClaim
               .toFiat(baseCurrency)
               .toDisplayStringWithSymbol(2, true, false),
             isNegative: false,
@@ -80,11 +85,15 @@ export function usePortfolioSNOTETable() {
       ethValue: {
         data: [
           {
-            displayValue: ethClaim.toDisplayStringWithSymbol(2, true, false),
+            displayValue: sNOTEPoolData?.ethClaim.toDisplayStringWithSymbol(
+              2,
+              true,
+              false
+            ),
             isNegative: false,
           },
           {
-            displayValue: ethClaim
+            displayValue: sNOTEPoolData?.ethClaim
               .toFiat(baseCurrency)
               .toDisplayStringWithSymbol(2, true, false),
             isNegative: false,
@@ -100,7 +109,8 @@ export function usePortfolioSNOTETable() {
         subRowData: [
           {
             label: <FormattedMessage defaultMessage={'Amount'} />,
-            value: snoteBalance.toDisplayStringWithSymbol(2, true, false) || '',
+            value:
+              snoteBalance.toDisplayStringWithSymbol(2, true, false) || '-',
           },
           {
             label: <FormattedMessage defaultMessage={'Entry Price'} />,

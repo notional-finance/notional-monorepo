@@ -1,6 +1,6 @@
 import { Registry } from '@notional-finance/core-entities';
 import { useStakedNOTEPoolReady } from '@notional-finance/notionable-hooks';
-import { SECONDS_IN_DAY } from '@notional-finance/util';
+import { SECONDS_IN_DAY, getNowSeconds } from '@notional-finance/util';
 
 export const useCoolDownDrawer = () => {
   const isPoolReady = useStakedNOTEPoolReady();
@@ -9,7 +9,7 @@ export const useCoolDownDrawer = () => {
   let coolDownEnd = 0;
   if (isPoolReady) {
     const sNOTEPool = Registry.getExchangeRegistry().getSNOTEPool();
-    const nowInSeconds = Math.floor(Date.now() / 1000);
+    const nowInSeconds = getNowSeconds();
     if (sNOTEPool?.poolParams?.coolDownTimeInSeconds) {
       days = sNOTEPool?.poolParams?.coolDownTimeInSeconds / SECONDS_IN_DAY;
       coolDownBegin =

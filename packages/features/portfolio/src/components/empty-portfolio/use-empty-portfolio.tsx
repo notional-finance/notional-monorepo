@@ -60,7 +60,7 @@ export const useEmptyPortfolio = () => {
           description: 'empty note staking overview prompt text',
         },
         buttonText: {
-          defaultMessage: 'Buy NOTE',
+          defaultMessage: 'Trade NOTE',
           description: 'empty note staking button text',
         },
       }),
