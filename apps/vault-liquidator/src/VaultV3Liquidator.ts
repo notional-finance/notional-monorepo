@@ -20,6 +20,7 @@ import {
   sendTxThroughRelayer,
 } from '@notional-finance/util';
 import { overrides } from '.';
+import { getFlashLender } from './flashLenders';
 
 export type LiquidatorSettings = {
   network: Network;
@@ -286,11 +287,17 @@ export default class VaultV3Liquidator {
       },
     };
 
+    const flashLender = getFlashLender(this.settings.network, vault, args.asset)
     // Must use multiple contracts in a batch liquidation due to vault exit time
     // restrictions.
     const batchCalldata = await this.liquidatorContracts[
       liquidatorIndex
-    ].populateTransaction.flashLiquidate(args.asset, args.amount, args.params);
+    ].populateTransaction['flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))'](
+        flashLender,
+        args.asset,
+        args.amount,
+        args.params
+      )
 
     return { accounts, batchCalldata, args };
   }
@@ -350,7 +357,6 @@ export default class VaultV3Liquidator {
       },
       to: multicall.address,
       data: pop.data,
-      isLiquidator: true,
       gasLimit: gasLimit.mul(120).div(100).toNumber(),
     });
   }
