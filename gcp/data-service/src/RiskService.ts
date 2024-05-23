@@ -15,7 +15,7 @@ import {
   groupArrayByKey,
 } from '@notional-finance/util';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getArbBoosts } from '@notional-finance/helpers';
+import { getArbBoosts } from './Boosts';
 
 const DATA_URL = process.env['API_URL'] as string;
 const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;

@@ -1498,9 +1498,6 @@
 "@notional-finance/core-entities@file:../../dist/packages/core-entities":
   version "0.0.1"
 
-"@notional-finance/helpers@file:../../dist/packages/shared/helpers":
-  version "0.0.1"
-
 "@notional-finance/multicall@file:../../dist/packages/multicall":
   version "0.0.1"
 

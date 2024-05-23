@@ -19,7 +19,6 @@
     "@notional-finance/multicall": "file:../../dist/packages/multicall",
     "@notional-finance/risk-engine": "file:../../dist/packages/risk-engine",
     "@notional-finance/util": "file:../../dist/packages/util",
-    "@notional-finance/helpers": "file:../../dist/packages/shared/helpers",
     "cross-fetch": "^3.1.5",
     "dotenv": "^10.0.0",
     "ethers": "^5.7.1",
