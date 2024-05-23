@@ -34,6 +34,7 @@ import {
   gql,
 } from '@apollo/client/core';
 import { graphQueries } from './graphQueries';
+import { calculatePointsAccrued } from './RiskService';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -59,6 +60,7 @@ export default class DataService {
   public static readonly VAULT_ACCOUNTS_TABLE_NAME = 'vault_accounts';
   public static readonly VAULT_APY_NAME = 'vault_apy';
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
+  public static readonly POINTS_TABLE_NAME = 'arb_points';
 
   constructor(public db: Knex, public settings: DataServiceSettings) {}
 
@@ -516,6 +518,16 @@ export default class DataService {
       )
       .into(DataService.VAULT_ACCOUNTS_TABLE_NAME)
       .onConflict(['account_id', 'vault_id', 'network_id'])
+      .ignore();
+  }
+
+  public async insertPointsData(
+    points: Awaited<ReturnType<typeof calculatePointsAccrued>>
+  ) {
+    return this.db
+      .insert(points)
+      .into(DataService.POINTS_TABLE_NAME)
+      .onConflict(['account', 'date'])
       .ignore();
   }
 

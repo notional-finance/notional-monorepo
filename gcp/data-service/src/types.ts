@@ -146,8 +146,8 @@ export interface DataContext {
   mergeConflicts: boolean;
 }
 
-export interface IDataWriter {
-  write(db: Knex, context: DataContext, rows: DataRow[]): Promise<any>;
+export interface IDataWriter<K = DataRow> {
+  write(db: Knex, context: DataContext, rows: K[]): Promise<any>;
 }
 
 export interface VaultAccount {
