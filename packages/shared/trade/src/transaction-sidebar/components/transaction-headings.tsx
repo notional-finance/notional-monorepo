@@ -18,6 +18,7 @@ export const TransactionHeadings: Record<
     heading: MessageDescriptor;
     helptext: MessageDescriptor;
     headerText?: MessageDescriptor;
+    walletConnectedText?: MessageDescriptor;
     'fCash-PrimeDebt'?: MessageDescriptor;
     'PrimeDebt-fCash'?: MessageDescriptor;
     'PrimeCash-fCash'?: MessageDescriptor;
@@ -208,10 +209,14 @@ export const TransactionHeadings: Record<
   }),
   StakeNOTECoolDown: defineMessages({
     heading: { defaultMessage: 'Cooldown Period Initiated' },
+    walletConnectedText: {
+      defaultMessage: 'Cancel Cooldown',
+      description: 'call to action button',
+    },
     headerText: { defaultMessage: 'Stake NOTE' },
     helptext: {
       defaultMessage:
-        'You will only have 3 days to redeem your sNOTE once the cooldown ends',
+        'You will only have 3 days to redeem your sNOTE once the cooldown ends. <a>Learn More</a>',
     },
   }),
   StakeNOTERedeem: defineMessages({
@@ -222,4 +227,80 @@ export const TransactionHeadings: Record<
         'Cooldown is completed. Enter the amount of NOTE to claim. All funds not claimed in the 3 day period will continue to be staked.',
     },
   }),
+};
+
+export const HelpTextLinks: Record<AllTradeTypes, { helpTextLink?: string }> = {
+  StakeNOTECoolDown: {
+    helpTextLink:
+      'https://docs.notional.finance/notional-v3/governance/note-staking',
+  },
+  LendFixed: {
+    helpTextLink: '',
+  },
+  LendVariable: {
+    helpTextLink: '',
+  },
+  LeveragedLend: {
+    helpTextLink: '',
+  },
+  BorrowFixed: {
+    helpTextLink: '',
+  },
+  BorrowVariable: {
+    helpTextLink: '',
+  },
+  MintNToken: {
+    helpTextLink: '',
+  },
+  LeveragedNToken: {
+    helpTextLink: '',
+  },
+  IncreaseLeveragedNToken: {
+    helpTextLink: '',
+  },
+  LeveragedNTokenAdjustLeverage: {
+    helpTextLink: '',
+  },
+  Deposit: {
+    helpTextLink: '',
+  },
+  Withdraw: {
+    helpTextLink: '',
+  },
+  RepayDebt: {
+    helpTextLink: '',
+  },
+  Deleverage: {
+    helpTextLink: '',
+  },
+  ConvertAsset: {
+    helpTextLink: '',
+  },
+  RollDebt: {
+    helpTextLink: '',
+  },
+  DeleverageWithdraw: {
+    helpTextLink: '',
+  },
+  CreateVaultPosition: {
+    helpTextLink: '',
+  },
+  IncreaseVaultPosition: {
+    helpTextLink: '',
+  },
+  AdjustVaultLeverage: {
+    helpTextLink: '',
+  },
+  RollVaultPosition: {
+    helpTextLink: '',
+  },
+  WithdrawVault: {
+    helpTextLink: '',
+  },
+  StakeNOTE: {
+    helpTextLink: '',
+  },
+  StakeNOTERedeem: {
+    helpTextLink: '',
+  },
 };
