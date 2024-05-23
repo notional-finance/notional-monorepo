@@ -1,7 +1,8 @@
 import { DataTable } from '@notional-finance/mui';
-import { TableActionRow } from '../../components';
+import { EmptyPortfolio, TableActionRow } from '../../components';
 import { FormattedMessage } from 'react-intl';
 import { useVaultHoldingsTable } from '../../hooks';
+import { Box } from '@mui/material';
 
 export const PortfolioVaults = () => {
   const {
@@ -12,19 +13,25 @@ export const PortfolioVaults = () => {
   } = useVaultHoldingsTable();
 
   return (
-    <DataTable
-      data={vaultHoldingsData}
-      columns={vaultHoldingsColumns}
-      CustomRowComponent={TableActionRow}
-      tableTitle={
-        <FormattedMessage
-          defaultMessage="Leveraged Vaults"
-          description="table title"
+    <Box>
+      {vaultHoldingsData && vaultHoldingsData.length === 0 ? (
+        <EmptyPortfolio />
+      ) : (
+        <DataTable
+          data={vaultHoldingsData}
+          columns={vaultHoldingsColumns}
+          CustomRowComponent={TableActionRow}
+          tableTitle={
+            <FormattedMessage
+              defaultMessage="Leveraged Vaults"
+              description="table title"
+            />
+          }
+          initialState={initialState}
+          setExpandedRows={setExpandedRows}
         />
-      }
-      initialState={initialState}
-      setExpandedRows={setExpandedRows}
-    />
+      )}
+    </Box>
   );
 };
 

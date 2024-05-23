@@ -22,9 +22,10 @@ import {
   getMulticall,
 } from '@notional-finance/multicall';
 import { TokenBalance } from '../../token-balance';
-import { AccountDefinition, AccountIncentiveDebt } from '../../Definitions';
+import { AccountDefinition, AccountIncentiveDebt, StakeNoteStatus } from '../../Definitions';
 import { fetchUsingMulticall } from '../../server/server-registry';
 import { SNOTEWeightedPool } from '../../exchanges';
+
 
 export function fetchCurrentAccount(
   network: Network,
@@ -95,7 +96,7 @@ export function fetchCurrentAccount(
                   amount: results[k] as TokenBalance,
                 };
               }),
-            stakedNOTEStatus: results['stakedNOTEStatus'],
+            stakeNOTEStatus: results['stakeNOTEStatus'] as StakeNoteStatus,
           },
         };
       },
@@ -287,7 +288,7 @@ function getStakedNOTECalls(
       target: SNOTEWeightedPool.sNOTE_Contract.connect(provider),
       method: 'accountRedeemWindowBegin',
       args: [account],
-      key: `stakedNOTEStatus`,
+      key: `stakeNOTEStatus`,
       transform: (r: BigNumber) => {
         const redeemWindowBegin = r.toNumber();
         const redeemWindowEnd =

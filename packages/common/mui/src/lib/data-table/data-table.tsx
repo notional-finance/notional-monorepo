@@ -273,6 +273,7 @@ export const DataTable = ({
           {toggleBarProps && tableTitle && (
             <DataTableToggle
               toggleBarProps={toggleBarProps}
+              expandableTable={expandableTable}
               tableTitle={tableTitle}
             />
           )}
@@ -299,6 +300,7 @@ export const DataTable = ({
                     CustomRowComponent={CustomRowComponent}
                     setExpandedRows={setExpandedRows}
                     initialState={initialState}
+                    expandableTable={expandableTable}
                   />
                 </Table>
               </div>

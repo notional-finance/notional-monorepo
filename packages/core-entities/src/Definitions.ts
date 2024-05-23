@@ -163,6 +163,13 @@ export interface AccountIncentiveDebt {
   currencyId: number;
 }
 
+export interface StakeNoteStatus {
+  inCoolDown: boolean;
+  inRedeemWindow: boolean;
+  redeemWindowBegin: number;
+  redeemWindowEnd: number;
+}
+
 export interface AccountDefinition {
   /** Address of the account */
   address: string;
@@ -185,12 +192,7 @@ export interface AccountDefinition {
   /** Specific allowances tracked for user interface purposes */
   allowances?: Allowance[];
   systemAccountType?: SystemAccount;
-  stakeNOTEStatus?: {
-    inCoolDown: boolean;
-    inRedeemWindow: boolean;
-    redeemWindowBegin: number;
-    redeemWindowEnd: number;
-  }
+  stakeNOTEStatus?: StakeNoteStatus;
 }
 
 export interface SerializedAccountDefinition {

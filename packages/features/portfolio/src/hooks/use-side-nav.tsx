@@ -5,7 +5,7 @@ import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import {
   BarChartIcon,
   FourSquareIcon,
-  // StakeIcon,
+  StakeIcon,
   VaultIcon,
   HistoryIcon,
 } from '@notional-finance/icons';
@@ -52,6 +52,23 @@ export const useSideNav = () => {
         id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
         to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
         notifications: numVaults,
+      },
+      {
+        Icon: (
+          <StakeIcon
+            fill={
+              category === PORTFOLIO_CATEGORIES.NOTE_STAKING
+                ? theme.palette.common.white
+                : theme.palette.typography.light
+            }
+            sx={{
+              width: theme.spacing(3),
+            }}
+          />
+        ),
+        id: PORTFOLIO_CATEGORIES.NOTE_STAKING,
+        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.NOTE_STAKING}`,
+        notifications: 0,
       },
       {
         Icon: <HistoryIcon sx={{ width: theme.spacing(3) }} />,
