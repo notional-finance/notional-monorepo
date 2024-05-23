@@ -81,7 +81,6 @@ const EmptyPortfolioWrapper = styled(Box)(
   background: ${theme.palette.common.white};
   padding: ${theme.spacing(4)};
   align-items: center;
-  margin-top: ${theme.spacing(6)};
   border-radius: ${theme.shape.borderRadius()};
   border: ${theme.shape.borderStandard};
   height: fit-content;

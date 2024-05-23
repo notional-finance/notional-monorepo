@@ -35,7 +35,7 @@ export const SNOTETableActionRow = ({ row }: TableActionRowProps) => {
                 {stakeNoteStatus?.redeemWindowBegin &&
                 stakeNoteStatus?.inCoolDown
                   ? `${getDateString(stakeNoteStatus?.redeemWindowBegin, {
-                      hideYear: true,
+                      slashesFormat: true,
                     })} - `
                   : ''}
                 {stakeNoteStatus?.redeemWindowEnd &&

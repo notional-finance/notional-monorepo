@@ -217,7 +217,7 @@ export const TransactionSidebar = ({
       <ScrollToTop />
       {children}
       {riskComponent || <LiquidationRisk state={state as TradeState} />}
-      <TradeSummary state={state} />
+      {tradeType !== 'StakeNOTECoolDown' && <TradeSummary state={state} />}
     </ActionSidebar>
   );
 

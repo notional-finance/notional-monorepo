@@ -88,7 +88,7 @@ export const CoolDownDrawer = () => {
                 />
               </Body>
               <LabelValue>
-                {coolDownEnd
+                {coolDownBegin
                   ? getDateString(coolDownBegin, {
                       showTime: true,
                       slashesFormat: true,
@@ -108,7 +108,7 @@ export const CoolDownDrawer = () => {
                 />
               </Body>
               <LabelValue>
-                {coolDownBegin
+                {coolDownEnd
                   ? getDateString(coolDownEnd, {
                       showTime: true,
                       slashesFormat: true,

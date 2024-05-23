@@ -16,6 +16,7 @@ export const StakeNOTE = () => {
     state: { isReady, confirm, tradeType },
   } = context;
   const stakedNoteData = useStakedNoteData();
+  console.log({ tradeType });
   return (
     <NOTEContext.Provider value={context}>
       <FeatureLoader featureLoaded={isReady && stakedNoteData !== undefined}>
