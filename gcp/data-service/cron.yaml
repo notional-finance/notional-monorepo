@@ -8,7 +8,7 @@ cron:
   schedule: every day 01:00
   timezone: Etc/UTC
   target: data-service
-- description: "Sync Dune"
+- description: "Calculate Points"
   url: /calculatePoints
   schedule: every day 00:00
   timezone: Etc/UTC
