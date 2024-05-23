@@ -74,6 +74,8 @@ export type TradeData = {
 export type CurrencyOverride = {
   id: number;
   flashBorrowAsset: string;
+  overridePrecision?: BigNumber;
+  basePrecision?: BigNumber;
 };
 
 export type Account = {
