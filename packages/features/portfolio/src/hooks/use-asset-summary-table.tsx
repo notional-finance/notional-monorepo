@@ -1,10 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useAssetSummary } from '@notional-finance/notionable-hooks';
-import { MaturityData } from '@notional-finance/notionable';
-import {
-  formatCryptoWithFiat,
-  formatMaturity,
-} from '@notional-finance/helpers';
+import { formatCryptoWithFiat } from '@notional-finance/helpers';
 import { LEND_BORROW } from '@notional-finance/shared-config';
 import {
   ExpandableCurrencyCell,
@@ -99,15 +95,6 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
     ];
   }, []);
 
-  const formatMaturities = (maturities: MaturityData[]) => {
-    return maturities.map((data) => ({
-      marketKey: data.marketKey,
-      maturity: formatMaturity(data.maturity),
-      tradeRateString: data.tradeRateString,
-      rollMaturityRoute: data.rollMaturityRoute,
-    }));
-  };
-
   const assetSummaryHashKey = assetSummary.map((a) => a.hashKey).join(':');
   const assetSummaryData = useMemo(() => {
     return assetSummary.map((data) => {
@@ -121,10 +108,8 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
         fixedApy: data?.fixedAPY
           ? Market.formatInterestRate(data.fixedAPY)
           : '-',
-        rollMaturities: data?.rollMaturities?.length
-          ? formatMaturities(data.rollMaturities)
-          : [],
-        borrowOrLend: LEND_BORROW.LEND,
+        rollMaturities: [],
+        borrowOrLend,
         rawMaturity: moment.unix(data.maturity).format(),
         removeAssetRoute: data.removeAssetRoute,
         route:
