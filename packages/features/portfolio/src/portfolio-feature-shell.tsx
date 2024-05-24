@@ -118,16 +118,18 @@ const Portfolio = () => {
         <SideNav />
       </PortfolioSidebar>
       <PortfolioMainContent>
-        <ActionButtonRow>
-          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-            <ButtonBar buttonOptions={buttonData} />
-          )}
-          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS ||
-            (params.category === PORTFOLIO_CATEGORIES.OVERVIEW && (
-              <ClaimNoteButton />
-            ))}
-          <PortfolioNetworkSelector />
-        </ActionButtonRow>
+        {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+          <ActionButtonRow>
+            {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
+              <ButtonBar buttonOptions={buttonData} />
+            )}
+            {params.category === PORTFOLIO_CATEGORIES.HOLDINGS ||
+              (params.category === PORTFOLIO_CATEGORIES.OVERVIEW && (
+                <ClaimNoteButton />
+              ))}
+            <PortfolioNetworkSelector />
+          </ActionButtonRow>
+        )}
         {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
           params.category === undefined) && (
           <>

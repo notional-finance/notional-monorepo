@@ -2,6 +2,7 @@ export * from './borrow-terms/borrow-terms';
 export * from './trade-action-summary/trade-action-summary';
 export * from './trade-action-summary/mobile-trade-action-summary';
 export * from './transaction-confirmation/transaction-confirmation';
+export * from './transaction-confirmation/components';
 export * from './transaction-approvals/hooks';
 export * from './leverage-slider/leverage-slider';
 export * from './leverage-terms/leverage-terms';

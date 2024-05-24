@@ -35,7 +35,7 @@ export const SNOTETableActionRow = ({ row }: TableActionRowProps) => {
                 {stakeNoteStatus?.redeemWindowBegin &&
                 stakeNoteStatus?.inCoolDown
                   ? `${getDateString(stakeNoteStatus?.redeemWindowBegin, {
-                      hideYear: true,
+                      slashesFormat: true,
                     })} - `
                   : ''}
                 {stakeNoteStatus?.redeemWindowEnd &&
@@ -50,8 +50,7 @@ export const SNOTETableActionRow = ({ row }: TableActionRowProps) => {
                 variant="contained"
                 color="primary"
                 size="large"
-                // TODO: Update this route in the future?
-                to="/stake"
+                to="/stake/ETH"
               >
                 <FormattedMessage defaultMessage={'Cancel Cooldown'} />
               </Button>
@@ -60,7 +59,7 @@ export const SNOTETableActionRow = ({ row }: TableActionRowProps) => {
                 variant="contained"
                 color="primary"
                 size="large"
-                to="/stake"
+                to="/stake/ETH"
               >
                 <FormattedMessage defaultMessage={'Redeem sNOTE'} />
               </Button>

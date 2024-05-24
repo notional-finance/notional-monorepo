@@ -26,12 +26,12 @@ export function usePortfolioSNOTETable() {
   const { pathname: currentPath } = useLocation();
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const account = useAccountDefinition(Network.mainnet);
-  const snoteBalance = account?.balances.find((t) => t.symbol == 'sNOTE');
+  const snoteBalance = account?.balances.find((t) => t.symbol === 'sNOTE');
   const isPoolReady = useStakedNOTEPoolReady();
   const stakedNoteData = useStakedNoteData();
   const baseCurrency = useFiat();
   let result: any[] = [];
-  let noStakedNoteData = true;
+  const noStakedNoteData = snoteBalance === undefined || snoteBalance.isZero();
 
   const stakeNoteStatus = account?.stakeNOTEStatus;
 
@@ -44,12 +44,6 @@ export function usePortfolioSNOTETable() {
     );
 
     const sNOTEPoolData = sNOTEPool?.getCurrentSNOTEClaims(snoteBalance);
-
-    noStakedNoteData =
-      (sNOTEPoolData?.noteClaim && sNOTEPoolData?.noteClaim?.isZero()) ||
-      sNOTEPoolData?.noteClaim === undefined
-        ? true
-        : false;
 
     const currentPrice = TokenBalance.unit(snoteBalance.token)
       .toFiat('NOTE')
@@ -129,7 +123,7 @@ export function usePortfolioSNOTETable() {
           },
           {
             buttonText: <FormattedMessage defaultMessage={'Stake More'} />,
-            callback: () => history.push('/stake'),
+            callback: () => history.push('/stake/ETH'),
           },
         ],
         txnHistory: ``,

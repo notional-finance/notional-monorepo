@@ -44,6 +44,8 @@ export function initState(
           isReady: true,
           tradeType: 'StakeNOTECoolDown' as NOTETradeType,
           selectedNetwork: Network.mainnet,
+          // This is required to get the summary to load
+          collateral: sNOTE,
         };
       } else if (account?.stakeNOTEStatus?.inRedeemWindow) {
         return {

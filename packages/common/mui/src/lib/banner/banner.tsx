@@ -62,7 +62,6 @@ const BannerContainer = styled(Box)(
     padding: ${theme.spacing(4)};
     align-items: center;
     justify-content: space-between;
-    margin-top: ${theme.spacing(6)};
     border-radius: ${theme.shape.borderRadius()};
     height: fit-content;
     width: 100%;
