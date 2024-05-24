@@ -1,7 +1,10 @@
 import { useCallback, useContext } from 'react';
 import { NOTEContext } from '..';
 import { Box, useTheme } from '@mui/material';
-import { TransactionSidebar } from '@notional-finance/trade';
+import {
+  // PendingTransaction,
+  TransactionSidebar,
+} from '@notional-finance/trade';
 import { FormattedMessage } from 'react-intl';
 import {
   Body,
@@ -29,7 +32,13 @@ import { SNOTEWeightedPool } from '@notional-finance/core-entities';
 export const CoolDown = () => {
   const theme = useTheme();
   const context = useContext(NOTEContext);
+  // const {
+  //   state: { selectedNetwork },
+  // } = context;
   const { sideDrawerOpen } = useSideDrawerState();
+  // TODO add this commented code back in when I can test that the pending transaction works correctly
+  // const { isReadOnlyAddress, onSubmit, transactionStatus, transactionHash } =
+  //   useTransactionStatus(Network.mainnet);
   const { isReadOnlyAddress, onSubmit } = useTransactionStatus(Network.mainnet);
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const account = useAccountDefinition(Network.mainnet);
@@ -116,6 +125,13 @@ export const CoolDown = () => {
           </LabelValue>
         </Box>
       </Box>
+      {/* {transactionHash && transactionStatus && (
+        <PendingTransaction
+          hash={transactionHash}
+          transactionStatus={transactionStatus}
+          selectedNetwork={selectedNetwork}
+        />
+      )} */}
       {isReadOnlyAddress || !account ? (
         <Button
           variant="contained"

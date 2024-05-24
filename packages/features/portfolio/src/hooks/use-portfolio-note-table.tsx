@@ -148,7 +148,7 @@ export function usePortfolioNOTETable() {
           },
           {
             buttonText: <FormattedMessage defaultMessage={'Stake More'} />,
-            callback: () => history.push('/stake'),
+            callback: () => history.push('/stake/ETH'),
           },
         ],
         txnHistory: ``,

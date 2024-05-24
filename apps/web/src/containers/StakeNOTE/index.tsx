@@ -14,6 +14,7 @@ export const StakeNOTE = () => {
   const context = useNOTEContext();
   const {
     state: { isReady, confirm, tradeType },
+    // updateState,
   } = context;
   const stakedNoteData = useStakedNoteData();
 

@@ -47,7 +47,7 @@ export const PortfolioNoteStaking = () => {
           buttonSuffix={` ${formatNumberAsPercent(currentSNOTEYield)} APY`}
           tokenSymbol="sNOTE"
           title={stakedNoteBanner.title}
-          link="/stake"
+          link="/stake/ETH"
         />
       )}
       {!noStakedNoteData && (
