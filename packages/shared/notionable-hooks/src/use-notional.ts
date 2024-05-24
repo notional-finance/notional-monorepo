@@ -56,13 +56,19 @@ export function useNOTE(network: Network | undefined) {
 }
 
 export function useStakedNOTEPoolReady() {
-  return useObservableState(
-    Registry.getOracleRegistry()
-      .subscribeNetworkKeys(Network.mainnet)
-      .pipe(
-        filter((s) => s?.key === NOTERegistryClient.sNOTEOracle),
-        map(() => true)
-      )
+  return (
+    useObservableState(
+      Registry.getOracleRegistry()
+        .subscribeNetworkKeys(Network.mainnet)
+        .pipe(
+          filter((s) => s?.key === NOTERegistryClient.sNOTEOracle),
+          map(() => true)
+        )
+    ) ||
+    Registry.getOracleRegistry().isKeyRegistered(
+      Network.mainnet,
+      NOTERegistryClient.sNOTEOracle
+    )
   );
 }
 
