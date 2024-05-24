@@ -45,9 +45,6 @@ export const CoolDownDrawer = () => {
     onSubmit('StartSNOTECooldown', populatedTxn);
   }, [isReadOnlyAddress, account, onSubmit]);
 
-  console.log({ transactionStatus });
-  console.log({ transactionHash });
-
   return (
     <Box>
       <Box>
