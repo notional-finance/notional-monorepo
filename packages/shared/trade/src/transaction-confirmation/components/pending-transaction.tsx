@@ -61,9 +61,26 @@ export const PendingTransaction = ({
               color: theme.palette.typography.main,
             }}
           >
-            <FormattedMessage
-              defaultMessage={'Check the status of your transaction:'}
-            />
+            <Box>
+              {transactionStatus === TransactionStatus.CONFIRMED ? (
+                <FormattedMessage
+                  defaultMessage={
+                    'Check your <a1> confirmed </a1> transaction:'
+                  }
+                  values={{
+                    a1: (msg: React.ReactNode) => (
+                      <Box component="span" sx={{ fontWeight: 600 }}>
+                        {msg}
+                      </Box>
+                    ),
+                  }}
+                />
+              ) : (
+                <FormattedMessage
+                  defaultMessage={'Check the status of your transaction:'}
+                />
+              )}
+            </Box>
             <StyledLink
               href={txnLink}
               target="_blank"

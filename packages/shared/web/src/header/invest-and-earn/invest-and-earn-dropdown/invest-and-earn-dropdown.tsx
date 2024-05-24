@@ -21,7 +21,7 @@ export function InvestAndEarnDropdown() {
   const theme = useNotionalTheme(flippedTheme);
   const tabOptions = [
     '/vaults',
-    '/stake',
+    '/stake/ETH',
     '/unstake',
     '/liquidity-variable',
     '/liquidity-leveraged',

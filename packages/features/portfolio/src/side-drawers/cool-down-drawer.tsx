@@ -6,6 +6,7 @@ import {
   Caption,
   Body,
   Button,
+  ErrorMessage,
 } from '@notional-finance/mui';
 import {
   Network,
@@ -13,19 +14,26 @@ import {
   getProviderFromNetwork,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
+import { PendingTransaction } from '@notional-finance/trade';
 import { useCoolDownDrawer } from './hooks/use-cool-down-drawer';
 import { useCallback } from 'react';
 import {
   useAccountDefinition,
+  useSelectedNetwork,
   useTransactionStatus,
+  useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { SNOTEWeightedPool } from '@notional-finance/core-entities';
 
 export const CoolDownDrawer = () => {
   const theme = useTheme();
   const account = useAccountDefinition(Network.mainnet);
-  const { isReadOnlyAddress, onSubmit } = useTransactionStatus(Network.mainnet);
+  const selectedNetwork = useSelectedNetwork();
+  const { isReadOnlyAddress, onSubmit, transactionStatus, transactionHash } =
+    useTransactionStatus(Network.mainnet);
   const { days, coolDownEnd, coolDownBegin } = useCoolDownDrawer();
+  const walletConnectedNetwork = useWalletConnectedNetwork();
+  const mustSwitchNetwork = Network.mainnet !== walletConnectedNetwork;
 
   const handleClick = useCallback(async () => {
     if (isReadOnlyAddress || !account) return;
@@ -36,6 +44,9 @@ export const CoolDownDrawer = () => {
 
     onSubmit('StartSNOTECooldown', populatedTxn);
   }, [isReadOnlyAddress, account, onSubmit]);
+
+  console.log({ transactionStatus });
+  console.log({ transactionHash });
 
   return (
     <Box>
@@ -126,12 +137,35 @@ export const CoolDownDrawer = () => {
           />
         </Caption>
       </Box>
+      {mustSwitchNetwork && (
+        <Box sx={{ height: theme.spacing(7), marginTop: theme.spacing(2) }}>
+          <ErrorMessage
+            variant="warning"
+            title={<FormattedMessage defaultMessage={'Switch Network'} />}
+            message={
+              <FormattedMessage
+                defaultMessage={'Switch your wallet to Mainnet to continue.'}
+              />
+            }
+            maxWidth={'100%'}
+            sx={{ marginTop: '0px' }}
+          />
+        </Box>
+      )}
+
+      {transactionHash && transactionStatus && (
+        <PendingTransaction
+          hash={transactionHash}
+          transactionStatus={transactionStatus}
+          selectedNetwork={selectedNetwork}
+        />
+      )}
       <Button
         onClick={handleClick}
         variant="contained"
         size="large"
         sx={{ width: '100%', marginTop: theme.spacing(12) }}
-        disabled={isReadOnlyAddress}
+        disabled={isReadOnlyAddress || mustSwitchNetwork}
       >
         <FormattedMessage
           defaultMessage={'Start {days} Day Cooldown'}
