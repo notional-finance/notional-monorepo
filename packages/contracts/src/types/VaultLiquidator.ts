@@ -60,10 +60,9 @@ export interface VaultLiquidatorInterface extends utils.Interface {
     "callback(address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "claimOwnership()": FunctionFragment;
     "enableCurrencies(uint16[])": FunctionFragment;
-    "estimateProfit(address,uint256,(uint8,address,address[],bytes,uint16,uint16))": FunctionFragment;
+    "estimateProfit(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))": FunctionFragment;
     "flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))": FunctionFragment;
-    "flashLiquidate(address,uint256,(uint8,address,address[],bytes,uint16,uint16))": FunctionFragment;
-    "flashLiquidateBatch(address[],uint256[],(uint8,address,address[],bytes,uint16,uint16)[])": FunctionFragment;
+    "flashLiquidateBatch(address[],address[],uint256[],(uint8,address,address[],bytes,uint16,uint16)[])": FunctionFragment;
     "getOptimalDeleveragingParams(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "pendingOwner()": FunctionFragment;
@@ -79,8 +78,7 @@ export interface VaultLiquidatorInterface extends utils.Interface {
       | "claimOwnership"
       | "enableCurrencies"
       | "estimateProfit"
-      | "flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))"
-      | "flashLiquidate(address,uint256,(uint8,address,address[],bytes,uint16,uint16))"
+      | "flashLiquidate"
       | "flashLiquidateBatch"
       | "getOptimalDeleveragingParams"
       | "owner"
@@ -114,22 +112,15 @@ export interface VaultLiquidatorInterface extends utils.Interface {
     functionFragment: "estimateProfit",
     values: [
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      FlashLiquidator.LiquidationParamsStruct
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))",
-    values: [
-      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       FlashLiquidator.LiquidationParamsStruct
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "flashLiquidate(address,uint256,(uint8,address,address[],bytes,uint16,uint16))",
+    functionFragment: "flashLiquidate",
     values: [
+      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       FlashLiquidator.LiquidationParamsStruct
@@ -138,6 +129,7 @@ export interface VaultLiquidatorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "flashLiquidateBatch",
     values: [
+      PromiseOrValue<string>[],
       PromiseOrValue<string>[],
       PromiseOrValue<BigNumberish>[],
       FlashLiquidator.LiquidationParamsStruct[]
@@ -181,11 +173,7 @@ export interface VaultLiquidatorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "flashLiquidate(address,uint256,(uint8,address,address[],bytes,uint16,uint16))",
+    functionFragment: "flashLiquidate",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -279,13 +267,6 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<ContractTransaction>;
 
     estimateProfit(
-      asset: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      params: FlashLiquidator.LiquidationParamsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))"(
       flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -293,7 +274,8 @@ export interface VaultLiquidator extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "flashLiquidate(address,uint256,(uint8,address,address[],bytes,uint16,uint16))"(
+    flashLiquidate(
+      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       params: FlashLiquidator.LiquidationParamsStruct,
@@ -301,6 +283,7 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<ContractTransaction>;
 
     flashLiquidateBatch(
+      flashLenderWrapper: PromiseOrValue<string>[],
       asset: PromiseOrValue<string>[],
       amount: PromiseOrValue<BigNumberish>[],
       params: FlashLiquidator.LiquidationParamsStruct[],
@@ -357,13 +340,6 @@ export interface VaultLiquidator extends BaseContract {
   ): Promise<ContractTransaction>;
 
   estimateProfit(
-    asset: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    params: FlashLiquidator.LiquidationParamsStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))"(
     flashLenderWrapper: PromiseOrValue<string>,
     asset: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
@@ -371,7 +347,8 @@ export interface VaultLiquidator extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "flashLiquidate(address,uint256,(uint8,address,address[],bytes,uint16,uint16))"(
+  flashLiquidate(
+    flashLenderWrapper: PromiseOrValue<string>,
     asset: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
     params: FlashLiquidator.LiquidationParamsStruct,
@@ -379,6 +356,7 @@ export interface VaultLiquidator extends BaseContract {
   ): Promise<ContractTransaction>;
 
   flashLiquidateBatch(
+    flashLenderWrapper: PromiseOrValue<string>[],
     asset: PromiseOrValue<string>[],
     amount: PromiseOrValue<BigNumberish>[],
     params: FlashLiquidator.LiquidationParamsStruct[],
@@ -433,13 +411,14 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<void>;
 
     estimateProfit(
+      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       params: FlashLiquidator.LiquidationParamsStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))"(
+    flashLiquidate(
       flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -447,14 +426,8 @@ export interface VaultLiquidator extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "flashLiquidate(address,uint256,(uint8,address,address[],bytes,uint16,uint16))"(
-      asset: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      params: FlashLiquidator.LiquidationParamsStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     flashLiquidateBatch(
+      flashLenderWrapper: PromiseOrValue<string>[],
       asset: PromiseOrValue<string>[],
       amount: PromiseOrValue<BigNumberish>[],
       params: FlashLiquidator.LiquidationParamsStruct[],
@@ -523,13 +496,6 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<BigNumber>;
 
     estimateProfit(
-      asset: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      params: FlashLiquidator.LiquidationParamsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))"(
       flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -537,7 +503,8 @@ export interface VaultLiquidator extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "flashLiquidate(address,uint256,(uint8,address,address[],bytes,uint16,uint16))"(
+    flashLiquidate(
+      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       params: FlashLiquidator.LiquidationParamsStruct,
@@ -545,6 +512,7 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<BigNumber>;
 
     flashLiquidateBatch(
+      flashLenderWrapper: PromiseOrValue<string>[],
       asset: PromiseOrValue<string>[],
       amount: PromiseOrValue<BigNumberish>[],
       params: FlashLiquidator.LiquidationParamsStruct[],
@@ -602,13 +570,6 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     estimateProfit(
-      asset: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      params: FlashLiquidator.LiquidationParamsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))"(
       flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -616,7 +577,8 @@ export interface VaultLiquidator extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "flashLiquidate(address,uint256,(uint8,address,address[],bytes,uint16,uint16))"(
+    flashLiquidate(
+      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       params: FlashLiquidator.LiquidationParamsStruct,
@@ -624,6 +586,7 @@ export interface VaultLiquidator extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     flashLiquidateBatch(
+      flashLenderWrapper: PromiseOrValue<string>[],
       asset: PromiseOrValue<string>[],
       amount: PromiseOrValue<BigNumberish>[],
       params: FlashLiquidator.LiquidationParamsStruct[],

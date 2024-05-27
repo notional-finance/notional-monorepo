@@ -292,7 +292,7 @@ export default class VaultV3Liquidator {
     // restrictions.
     const batchCalldata = await this.liquidatorContracts[
       liquidatorIndex
-    ].populateTransaction['flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))'](
+    ].populateTransaction.flashLiquidate(
         flashLender,
         args.asset,
         args.amount,

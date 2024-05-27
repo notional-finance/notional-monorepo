@@ -13,7 +13,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -23,117 +27,141 @@ import type {
   PromiseOrValue,
 } from "./common";
 
+export declare namespace FlashLiquidator {
+  export type LiquidationParamsStruct = {
+    liquidationType: PromiseOrValue<BigNumberish>;
+    vault: PromiseOrValue<string>;
+    accounts: PromiseOrValue<string>[];
+    redeemData: PromiseOrValue<BytesLike>;
+    currencyId: PromiseOrValue<BigNumberish>;
+    currencyIndex: PromiseOrValue<BigNumberish>;
+  };
+
+  export type LiquidationParamsStructOutput = [
+    number,
+    string,
+    string[],
+    string,
+    number,
+    number
+  ] & {
+    liquidationType: number;
+    vault: string;
+    accounts: string[];
+    redeemData: string;
+    currencyId: number;
+    currencyIndex: number;
+  };
+}
+
 export interface FlashLiquidatorInterface extends utils.Interface {
   functions: {
-    "LENDING_POOL()": FunctionFragment;
     "NOTIONAL()": FunctionFragment;
-    "TRADING_MODULE()": FunctionFragment;
-    "WETH()": FunctionFragment;
-    "approveTokens(address[],address)": FunctionFragment;
+    "callback(address,address,address,uint256,uint256,bytes)": FunctionFragment;
+    "claimOwnership()": FunctionFragment;
     "enableCurrencies(uint16[])": FunctionFragment;
-    "executeOperation(address[],uint256[],uint256[],address,bytes)": FunctionFragment;
-    "flashLoan(address,uint256,bytes,address,address)": FunctionFragment;
-    "getFreeCollateral(address)": FunctionFragment;
-    "ifCashCurrencyId()": FunctionFragment;
+    "estimateProfit(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))": FunctionFragment;
+    "flashLiquidate(address,address,uint256,(uint8,address,address[],bytes,uint16,uint16))": FunctionFragment;
+    "flashLiquidateBatch(address[],address[],uint256[],(uint8,address,address[],bytes,uint16,uint16)[])": FunctionFragment;
+    "getOptimalDeleveragingParams(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-    "withdraw(address,uint256)": FunctionFragment;
-    "wrapToWETH()": FunctionFragment;
-    "wstETH()": FunctionFragment;
+    "pendingOwner()": FunctionFragment;
+    "transferOwnership(address,bool,bool)": FunctionFragment;
+    "withdrawToOwner(address,uint256)": FunctionFragment;
+    "wrapETH()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "LENDING_POOL"
       | "NOTIONAL"
-      | "TRADING_MODULE"
-      | "WETH"
-      | "approveTokens"
+      | "callback"
+      | "claimOwnership"
       | "enableCurrencies"
-      | "executeOperation"
-      | "flashLoan"
-      | "getFreeCollateral"
-      | "ifCashCurrencyId"
+      | "estimateProfit"
+      | "flashLiquidate"
+      | "flashLiquidateBatch"
+      | "getOptimalDeleveragingParams"
       | "owner"
+      | "pendingOwner"
       | "transferOwnership"
-      | "withdraw"
-      | "wrapToWETH"
-      | "wstETH"
+      | "withdrawToOwner"
+      | "wrapETH"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "LENDING_POOL",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "NOTIONAL", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "TRADING_MODULE",
-    values?: undefined
+    functionFragment: "callback",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
-  encodeFunctionData(functionFragment: "WETH", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "approveTokens",
-    values: [PromiseOrValue<string>[], PromiseOrValue<string>]
+    functionFragment: "claimOwnership",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "enableCurrencies",
     values: [PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "executeOperation",
+    functionFragment: "estimateProfit",
     values: [
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>[],
       PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashLoan",
-    values: [
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
+      FlashLiquidator.LiquidationParamsStruct
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "getFreeCollateral",
-    values: [PromiseOrValue<string>]
+    functionFragment: "flashLiquidate",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      FlashLiquidator.LiquidationParamsStruct
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "ifCashCurrencyId",
-    values?: undefined
+    functionFragment: "flashLiquidateBatch",
+    values: [
+      PromiseOrValue<string>[],
+      PromiseOrValue<string>[],
+      PromiseOrValue<BigNumberish>[],
+      FlashLiquidator.LiquidationParamsStruct[]
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getOptimalDeleveragingParams",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "wrapToWETH",
+    functionFragment: "pendingOwner",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "wstETH", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<boolean>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawToOwner",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(functionFragment: "wrapETH", values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "LENDING_POOL",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "NOTIONAL", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "callback", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "TRADING_MODULE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "WETH", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "approveTokens",
+    functionFragment: "claimOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -141,29 +169,54 @@ export interface FlashLiquidatorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "executeOperation",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getFreeCollateral",
+    functionFragment: "estimateProfit",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "ifCashCurrencyId",
+    functionFragment: "flashLiquidate",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "flashLiquidateBatch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getOptimalDeleveragingParams",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "pendingOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "wrapToWETH", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "wstETH", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawToOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "wrapETH", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "OwnershipTransferred(address,address)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
+
+export interface OwnershipTransferredEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferredEventObject
+>;
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface FlashLiquidator extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -192,17 +245,19 @@ export interface FlashLiquidator extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    LENDING_POOL(overrides?: CallOverrides): Promise<[string]>;
-
     NOTIONAL(overrides?: CallOverrides): Promise<[string]>;
 
-    TRADING_MODULE(overrides?: CallOverrides): Promise<[string]>;
+    callback(
+      arg0: PromiseOrValue<string>,
+      paymentReceiver: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BigNumberish>,
+      fee: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    WETH(overrides?: CallOverrides): Promise<[string]>;
-
-    approveTokens(
-      tokens: PromiseOrValue<string>[],
-      spender: PromiseOrValue<string>,
+    claimOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -211,62 +266,71 @@ export interface FlashLiquidator extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    executeOperation(
-      assets: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
-      premiums: PromiseOrValue<BigNumberish>[],
-      initiator: PromiseOrValue<string>,
-      params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    flashLoan(
+    estimateProfit(
+      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      params: PromiseOrValue<BytesLike>,
-      localAddress: PromiseOrValue<string>,
-      collateralAddress: PromiseOrValue<string>,
+      params: FlashLiquidator.LiquidationParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    getFreeCollateral(
+    flashLiquidate(
+      flashLenderWrapper: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      params: FlashLiquidator.LiquidationParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    flashLiquidateBatch(
+      flashLenderWrapper: PromiseOrValue<string>[],
+      asset: PromiseOrValue<string>[],
+      amount: PromiseOrValue<BigNumberish>[],
+      params: FlashLiquidator.LiquidationParamsStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    getOptimalDeleveragingParams(
       account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    ifCashCurrencyId(overrides?: CallOverrides): Promise<[number]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
+      direct: PromiseOrValue<boolean>,
+      renounce: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    withdraw(
+    withdrawToOwner(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    wrapToWETH(
+    wrapETH(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    wstETH(overrides?: CallOverrides): Promise<[string]>;
   };
-
-  LENDING_POOL(overrides?: CallOverrides): Promise<string>;
 
   NOTIONAL(overrides?: CallOverrides): Promise<string>;
 
-  TRADING_MODULE(overrides?: CallOverrides): Promise<string>;
+  callback(
+    arg0: PromiseOrValue<string>,
+    paymentReceiver: PromiseOrValue<string>,
+    arg2: PromiseOrValue<string>,
+    arg3: PromiseOrValue<BigNumberish>,
+    fee: PromiseOrValue<BigNumberish>,
+    data: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  WETH(overrides?: CallOverrides): Promise<string>;
-
-  approveTokens(
-    tokens: PromiseOrValue<string>[],
-    spender: PromiseOrValue<string>,
+  claimOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -275,133 +339,154 @@ export interface FlashLiquidator extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  executeOperation(
-    assets: PromiseOrValue<string>[],
-    amounts: PromiseOrValue<BigNumberish>[],
-    premiums: PromiseOrValue<BigNumberish>[],
-    initiator: PromiseOrValue<string>,
-    params: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  flashLoan(
+  estimateProfit(
+    flashLenderWrapper: PromiseOrValue<string>,
     asset: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    params: PromiseOrValue<BytesLike>,
-    localAddress: PromiseOrValue<string>,
-    collateralAddress: PromiseOrValue<string>,
+    params: FlashLiquidator.LiquidationParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  getFreeCollateral(
+  flashLiquidate(
+    flashLenderWrapper: PromiseOrValue<string>,
+    asset: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    params: FlashLiquidator.LiquidationParamsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  flashLiquidateBatch(
+    flashLenderWrapper: PromiseOrValue<string>[],
+    asset: PromiseOrValue<string>[],
+    amount: PromiseOrValue<BigNumberish>[],
+    params: FlashLiquidator.LiquidationParamsStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  getOptimalDeleveragingParams(
     account: PromiseOrValue<string>,
+    vault: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  ifCashCurrencyId(overrides?: CallOverrides): Promise<number>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  pendingOwner(overrides?: CallOverrides): Promise<string>;
+
   transferOwnership(
     newOwner: PromiseOrValue<string>,
+    direct: PromiseOrValue<boolean>,
+    renounce: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  withdraw(
+  withdrawToOwner(
     token: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  wrapToWETH(
+  wrapETH(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  wstETH(overrides?: CallOverrides): Promise<string>;
-
   callStatic: {
-    LENDING_POOL(overrides?: CallOverrides): Promise<string>;
-
     NOTIONAL(overrides?: CallOverrides): Promise<string>;
 
-    TRADING_MODULE(overrides?: CallOverrides): Promise<string>;
-
-    WETH(overrides?: CallOverrides): Promise<string>;
-
-    approveTokens(
-      tokens: PromiseOrValue<string>[],
-      spender: PromiseOrValue<string>,
+    callback(
+      arg0: PromiseOrValue<string>,
+      paymentReceiver: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BigNumberish>,
+      fee: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
+
+    claimOwnership(overrides?: CallOverrides): Promise<void>;
 
     enableCurrencies(
       currencies: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<void>;
 
-    executeOperation(
-      assets: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
-      premiums: PromiseOrValue<BigNumberish>[],
-      initiator: PromiseOrValue<string>,
-      params: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    flashLoan(
+    estimateProfit(
+      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      params: PromiseOrValue<BytesLike>,
-      localAddress: PromiseOrValue<string>,
-      collateralAddress: PromiseOrValue<string>,
+      params: FlashLiquidator.LiquidationParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    flashLiquidate(
+      flashLenderWrapper: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      params: FlashLiquidator.LiquidationParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    flashLiquidateBatch(
+      flashLenderWrapper: PromiseOrValue<string>[],
+      asset: PromiseOrValue<string>[],
+      amount: PromiseOrValue<BigNumberish>[],
+      params: FlashLiquidator.LiquidationParamsStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    getOptimalDeleveragingParams(
+      account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        flashLoanResidual: BigNumber;
-        localProfit: BigNumber;
-        collateralProfit: BigNumber;
-      }
+      [number, BigNumber] & { currencyIndex: number; maxUnderlying: BigNumber }
     >;
-
-    getFreeCollateral(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber[]]>;
-
-    ifCashCurrencyId(overrides?: CallOverrides): Promise<number>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<string>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
+      direct: PromiseOrValue<boolean>,
+      renounce: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    withdraw(
+    withdrawToOwner(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    wrapToWETH(overrides?: CallOverrides): Promise<void>;
-
-    wstETH(overrides?: CallOverrides): Promise<string>;
+    wrapETH(overrides?: CallOverrides): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+  };
 
   estimateGas: {
-    LENDING_POOL(overrides?: CallOverrides): Promise<BigNumber>;
-
     NOTIONAL(overrides?: CallOverrides): Promise<BigNumber>;
 
-    TRADING_MODULE(overrides?: CallOverrides): Promise<BigNumber>;
+    callback(
+      arg0: PromiseOrValue<string>,
+      paymentReceiver: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BigNumberish>,
+      fee: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
-    WETH(overrides?: CallOverrides): Promise<BigNumber>;
-
-    approveTokens(
-      tokens: PromiseOrValue<string>[],
-      spender: PromiseOrValue<string>,
+    claimOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -410,63 +495,72 @@ export interface FlashLiquidator extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    executeOperation(
-      assets: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
-      premiums: PromiseOrValue<BigNumberish>[],
-      initiator: PromiseOrValue<string>,
-      params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    flashLoan(
+    estimateProfit(
+      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      params: PromiseOrValue<BytesLike>,
-      localAddress: PromiseOrValue<string>,
-      collateralAddress: PromiseOrValue<string>,
+      params: FlashLiquidator.LiquidationParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    getFreeCollateral(
+    flashLiquidate(
+      flashLenderWrapper: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      params: FlashLiquidator.LiquidationParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    flashLiquidateBatch(
+      flashLenderWrapper: PromiseOrValue<string>[],
+      asset: PromiseOrValue<string>[],
+      amount: PromiseOrValue<BigNumberish>[],
+      params: FlashLiquidator.LiquidationParamsStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    getOptimalDeleveragingParams(
       account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    ifCashCurrencyId(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
+      direct: PromiseOrValue<boolean>,
+      renounce: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    withdraw(
+    withdrawToOwner(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    wrapToWETH(
+    wrapETH(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    wstETH(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    LENDING_POOL(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     NOTIONAL(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    TRADING_MODULE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    callback(
+      arg0: PromiseOrValue<string>,
+      paymentReceiver: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BigNumberish>,
+      fee: PromiseOrValue<BigNumberish>,
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
-    WETH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    approveTokens(
-      tokens: PromiseOrValue<string>[],
-      spender: PromiseOrValue<string>,
+    claimOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -475,48 +569,55 @@ export interface FlashLiquidator extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    executeOperation(
-      assets: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
-      premiums: PromiseOrValue<BigNumberish>[],
-      initiator: PromiseOrValue<string>,
-      params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    flashLoan(
+    estimateProfit(
+      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      params: PromiseOrValue<BytesLike>,
-      localAddress: PromiseOrValue<string>,
-      collateralAddress: PromiseOrValue<string>,
+      params: FlashLiquidator.LiquidationParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    getFreeCollateral(
+    flashLiquidate(
+      flashLenderWrapper: PromiseOrValue<string>,
+      asset: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      params: FlashLiquidator.LiquidationParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    flashLiquidateBatch(
+      flashLenderWrapper: PromiseOrValue<string>[],
+      asset: PromiseOrValue<string>[],
+      amount: PromiseOrValue<BigNumberish>[],
+      params: FlashLiquidator.LiquidationParamsStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getOptimalDeleveragingParams(
       account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    ifCashCurrencyId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
+      direct: PromiseOrValue<boolean>,
+      renounce: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    withdraw(
+    withdrawToOwner(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    wrapToWETH(
+    wrapETH(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    wstETH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
