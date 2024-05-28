@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
 import { CountUp, ButtonText, H4 } from '@notional-finance/mui';
-import { NoteWithShadow, ArbitrumIcon } from '@notional-finance/icons';
+import { NoteWithShadow, TokenIcon } from '@notional-finance/icons';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -11,7 +11,10 @@ import {
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import { ClaimNOTE } from '@notional-finance/transaction';
-import { TokenBalance } from '@notional-finance/core-entities';
+import {
+  TokenBalance,
+  SecondaryIncentiveToken,
+} from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 
 interface ClaimNoteType {
@@ -69,7 +72,10 @@ export const ClaimNoteButton = () => {
   const totalIncentives = useTotalIncentives(network);
 
   const noteCountUp = useIncentiveCountUp(totalIncentives['NOTE'], network);
-  const arbCountUp = useIncentiveCountUp(totalIncentives['ARB'], network);
+  const secondaryCountUp = useIncentiveCountUp(
+    totalIncentives[SecondaryIncentiveToken[network]],
+    network
+  );
 
   const handleClick = useCallback(async () => {
     if (isReadOnlyAddress || !account || !network) return;
@@ -92,12 +98,12 @@ export const ClaimNoteButton = () => {
         flexDirection: 'column',
       }}
     >
-      {(noteCountUp > 0 || arbCountUp > 0) && account && (
+      {(noteCountUp > 0 || secondaryCountUp > 0) && account && (
         <ClaimLabel>
           <FormattedMessage defaultMessage={'Claim'} />
         </ClaimLabel>
       )}
-      {(noteCountUp > 0 || arbCountUp > 0) && account && (
+      {(noteCountUp > 0 || secondaryCountUp > 0) && account && (
         <Wrapper
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
@@ -107,7 +113,7 @@ export const ClaimNoteButton = () => {
             <FormattedMessage defaultMessage={'Claim'} />
           </ClaimNoteWrapper>
           {noteCountUp > 0 && (
-            <NoteWrapper theme={theme} showArbButton={arbCountUp > 0}>
+            <NoteWrapper theme={theme} showArbButton={secondaryCountUp > 0}>
               <NoteIcon />
               <Box sx={{ paddingLeft: theme.spacing(1) }}>
                 {noteCountUp > 0 ? (
@@ -118,17 +124,21 @@ export const ClaimNoteButton = () => {
               </Box>
             </NoteWrapper>
           )}
-          {arbCountUp > 0 && (
-            <ArbWrapper theme={theme}>
-              <ArbitrumIcon />
+          {secondaryCountUp > 0 && (
+            <SecondaryWrapper theme={theme}>
+              <TokenIcon symbol="GHO" size={'medium'} />
               <Box sx={{ paddingLeft: theme.spacing(1) }}>
-                {arbCountUp > 0 ? (
-                  <CountUp value={arbCountUp} duration={0.1} decimals={8} />
+                {secondaryCountUp > 0 ? (
+                  <CountUp
+                    value={secondaryCountUp}
+                    duration={0.1}
+                    decimals={8}
+                  />
                 ) : (
                   ''
                 )}
               </Box>
-            </ArbWrapper>
+            </SecondaryWrapper>
           )}
         </Wrapper>
       )}
@@ -194,7 +204,7 @@ const NoteWrapper = styled(ButtonText, {
   background: ${theme.palette.primary.light};
 `
 );
-const ArbWrapper = styled(ButtonText)(
+const SecondaryWrapper = styled(ButtonText)(
   ({ theme }) => `
   display: flex;
   height: 100%;
