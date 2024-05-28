@@ -1,6 +1,6 @@
 // all addresses need to be checksummed
 import { ethers } from 'ethers';
-import { Network, } from '@notional-finance/util';
+import { Network } from './constants';
 
 // from https://github.com/alcueca/erc7399-wrappers
 const wrappedFlashLenders: Partial<Record<Network, Record<string, string>>> = {

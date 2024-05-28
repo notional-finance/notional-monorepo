@@ -1,7 +1,7 @@
 {
   "extends": ["../../.eslintrc.json"],
-  "plugins": ["address"],
   "ignorePatterns": ["!**/*"],
+  "plugins": ["address"],
   "rules": {
     "address/addr-type": ["error", "checksum"]
   },
