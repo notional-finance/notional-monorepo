@@ -71,7 +71,7 @@ export interface DateStringOptions {
 export function getDateString(
   timestamp: number,
   opts: DateStringOptions = {},
-  inMilliseconds?: boolean,
+  inMilliseconds?: boolean
 ) {
   // Multiply by 1000 because javascript uses milliseconds.
   const formattedTimeStamp = inMilliseconds ? timestamp : timestamp * 1000;
@@ -82,15 +82,16 @@ export function getDateString(
   const year = date.toLocaleDateString('en-US', { year: 'numeric' });
 
   if (opts?.slashesFormat && opts?.showTime) {
-    return `${date.toLocaleDateString('en-US')}, ${date.toLocaleTimeString(
+    return `${date.toISOString().split('T')[0]}, ${date.toLocaleTimeString(
       'en-US',
       {
         hour: '2-digit',
         minute: '2-digit',
+        timeZoneName: 'short',
       }
     )}`;
   } else if (opts?.slashesFormat) {
-    return `${date.toLocaleDateString('en-US')}`;
+    return `${date.toISOString().split('T')[0]}`;
   } else if (opts?.hideYear) {
     return `${month} ${day}`;
   } else if (opts?.monthYear) {
