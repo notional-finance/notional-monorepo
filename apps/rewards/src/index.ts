@@ -391,7 +391,7 @@ export default {
       console.log(`Processing network: ${env.NETWORK}`);
       const provider = getProviderFromNetwork(env.NETWORK, true);
 
-      // await claimRewards(env, provider);
+      await claimRewards(env, provider);
       await reinvestRewards(env, provider);
     }
 
