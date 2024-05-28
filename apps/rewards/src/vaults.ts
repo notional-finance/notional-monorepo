@@ -60,6 +60,7 @@ export type Vault = {
   rewardTokens: Array<string>,
   poolTokens: Array<string>,
   tokenWeights: Array<number>,
+  maxSellAmount?: Record<string, string>
 }
 // tokens in the pool need to be in the same order as they are stored in the vault
 // whatever TOKENS() method on vault returns
@@ -151,6 +152,9 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       rewardTokens: [ARB, ARB_BAL, ARB_AURA],
       poolTokens: [ARB_wstETH, ETH, '0x9791d590788598535278552EEcD4b211bFc790CB'],
       tokenWeights: [50, 50, 0],
+      maxSellAmount: {
+        [ARB]: "384600000000000000000", // 384.6e18
+      }
     },
     {
       address: '0x37dD23Ab1885982F789A2D6400B583B8aE09223d',
