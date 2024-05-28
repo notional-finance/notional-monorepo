@@ -106,10 +106,10 @@ export function usePortfolioSNOTETable() {
             value:
               snoteBalance.toDisplayStringWithSymbol(2, true, false) || '-',
           },
-          {
-            label: <FormattedMessage defaultMessage={'Entry Price'} />,
-            value: '-',
-          },
+          // {
+          //   label: <FormattedMessage defaultMessage={'Entry Price'} />,
+          //   value: '-',
+          // },
           {
             label: <FormattedMessage defaultMessage={'CURRENT PRICE'} />,
             value: `${currentPrice}` || '-',

@@ -190,7 +190,7 @@ export interface VaultTradeState
 
 export interface NOTETradeState extends BaseTradeState {
   useOptimalETH?: boolean;
-  ethSold?: TokenBalance;
+  ethRedeem?: TokenBalance;
 }
 
 export const initialBaseTradeState: BaseTradeState = {

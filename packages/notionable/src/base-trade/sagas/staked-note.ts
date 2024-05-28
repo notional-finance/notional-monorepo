@@ -52,7 +52,8 @@ export function initState(
           isReady: true,
           tradeType: 'StakeNOTERedeem' as NOTETradeType,
           selectedNetwork: Network.mainnet,
-          debt: sNOTE,
+          deposit: sNOTE,
+          availableDepositTokens: [sNOTE],
         };
       } else {
         const ETH = Registry.getTokenRegistry().getTokenBySymbol(
@@ -144,8 +145,9 @@ export function compareNOTEPortfolio(
             canSubmit:
               state.calculationSuccess &&
               state.inputErrors === false &&
-              hasSufficientETH &&
-              hasSufficientNOTE,
+              (state.tradeType === 'StakeNOTE'
+                ? hasSufficientETH && hasSufficientNOTE
+                : true),
           }
         : undefined;
     }),

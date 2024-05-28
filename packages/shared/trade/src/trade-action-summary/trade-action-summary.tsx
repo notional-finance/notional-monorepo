@@ -81,8 +81,7 @@ export function TradeActionSummary({
       tradeType === 'LeveragedNToken' ||
       tradeType === 'MintNToken' ||
       tradeType === 'StakeNOTE' ||
-      tradeType === 'StakeNOTECoolDown' ||
-      tradeType === 'StakeNOTERedeem') &&
+      tradeType === 'StakeNOTECoolDown') &&
     collateral
       ? formatTokenType(collateral).icon
       : deposit?.symbol;

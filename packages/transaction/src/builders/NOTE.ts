@@ -6,7 +6,6 @@ import {
   RATE_PRECISION,
   getProviderFromNetwork,
 } from '@notional-finance/util';
-import { BigNumber } from 'ethers';
 
 export function StakeNOTE({
   address,
@@ -51,23 +50,27 @@ export function StakeNOTECoolDown({ address }: PopulateTransactionInputs) {
 
 export function StakeNOTERedeem({
   address,
-  debtBalance,
+  collateralBalance,
   depositBalance,
+  ethRedeem,
 }: PopulateTransactionInputs) {
   const sNOTE = SNOTEWeightedPool.sNOTE_Contract.connect(
     getProviderFromNetwork(Network.mainnet)
   );
-  if (!debtBalance || !depositBalance) throw Error('Inputs not defined');
-  const minNOTE = depositBalance
-    .mulInRatePrecision(RATE_PRECISION - 50 * BASIS_POINT)
-    .neg().n;
+  if (!collateralBalance || !ethRedeem || !depositBalance)
+    throw Error('Inputs not defined');
+  const minETH = ethRedeem.mulInRatePrecision(
+    RATE_PRECISION - 50 * BASIS_POINT
+  ).n;
+  const minNOTE = collateralBalance.mulInRatePrecision(
+    RATE_PRECISION - 50 * BASIS_POINT
+  ).n;
 
   return populateTxnAndGas(sNOTE, address, 'redeem', [
-    debtBalance.neg().n,
-    // Never withdraw ETH from this method
-    BigNumber.from(0),
+    depositBalance.n,
+    minETH,
     minNOTE,
-    // Never withdraw ETH from this method
-    false,
+    // Returns the native ETH
+    true,
   ]);
 }

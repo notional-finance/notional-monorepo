@@ -59,7 +59,7 @@ export const NOTETradeConfiguration = {
   } as TransactionConfig,
   StakeNOTERedeem: {
     calculationFn: calculateUnstake,
-    requiredArgs: ['collateralPool', 'debtBalance'],
+    requiredArgs: ['collateralPool', 'depositBalance'],
     collateralFilter: () => false,
     debtFilter: () => false,
     transactionBuilder: StakeNOTERedeem,

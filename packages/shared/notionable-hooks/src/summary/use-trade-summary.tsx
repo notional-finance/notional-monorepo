@@ -14,6 +14,7 @@ import {
   isVaultTrade,
   isRollOrConvert,
   AllTradeTypes,
+  NOTETradeState,
 } from '@notional-finance/notionable';
 import { BASIS_POINT } from '@notional-finance/util';
 import {
@@ -199,8 +200,9 @@ function getFeeItems(
         theme
       ),
     ];
-  } else if (tradeType === 'StakeNOTERedeem' && debtFee) {
-    return [getDebtFeeDetailItem(debtBalance, debtFee, tradeType, theme)];
+  } else if (tradeType === 'StakeNOTERedeem') {
+    // No fees, redemption is proportional
+    return [];
   } else if (isLeverageOrRoll) {
     const feeItems: DetailItem[] = [];
     // On leverage or roll trades, don't show prime fee balances since there will
@@ -505,7 +507,7 @@ function getWithdrawSummary(
 }
 
 function getStakeNOTESummary(
-  state: TradeState | VaultTradeState,
+  state: NOTETradeState,
   intl: IntlShape
 ): DetailItem[] {
   const summary: DetailItem[] = [];
@@ -530,11 +532,17 @@ function getStakeNOTESummary(
         getTradeDetail(state.secondaryDepositBalance, 'Asset', 'deposit', intl)
       );
     }
-  } else if (state.tradeType === 'StakeNOTERedeem' && state.debtBalance) {
+  } else if (
+    state.tradeType === 'StakeNOTERedeem' &&
+    state.collateralBalance &&
+    state.ethRedeem
+  ) {
     // Redeem sNOTE
-    summary.push(getTradeDetail(state.debtBalance, 'Asset', 'repay', intl));
-    // TODO: need to calculate the NOTE / ETH claims and the amount of ETH sold...
-    // Withdraw NOTE will be shown as the wallet total
+    summary.push(getTradeDetail(state.ethRedeem, 'Asset', 'withdraw', intl));
+    // Withdraw NOTE
+    summary.push(
+      getTradeDetail(state.collateralBalance, 'Asset', 'withdraw', intl)
+    );
   }
 
   return summary;
@@ -873,6 +881,8 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
       tradeType === 'StakeNOTE'
         ? [...summary, total]
         : [walletTotal, ...summary, total];
+  } else if (tradeType === 'StakeNOTERedeem') {
+    // no-op, ignore wallet total row
   } else {
     walletTotal.isTotalRow = true;
     summary.push(walletTotal);

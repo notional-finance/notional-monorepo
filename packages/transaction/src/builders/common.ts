@@ -48,6 +48,7 @@ export interface PopulateTransactionInputs {
   secondaryDepositBalance?: TokenBalance;
   vaultLastUpdateTime?: Record<string, number>;
   tradeType?: string;
+  ethRedeem?: TokenBalance;
 }
 
 export function hasExistingCashBalance(
