@@ -1048,21 +1048,17 @@ export function calculateStake({
 
 export function calculateUnstake({
   collateralPool,
-  debtBalance,
+  depositBalance,
 }: {
   collateralPool: SNOTEWeightedPool;
-  debtBalance: TokenBalance;
+  depositBalance: TokenBalance;
 }) {
   const ETH = Registry.getTokenRegistry().getTokenBySymbol(
     Network.mainnet,
     'ETH'
   );
-  const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
-    Network.mainnet,
-    'NOTE'
-  );
 
-  const lpTokens = collateralPool.getBPTForSNOTE(debtBalance);
+  const lpTokens = collateralPool.getBPTForSNOTE(depositBalance);
 
   const { tokensOut, feesPaid } = collateralPool.getTokensOutGivenLPTokens(
     lpTokens,
@@ -1070,7 +1066,7 @@ export function calculateUnstake({
   );
   const ethSold =
     collateralPool.getLPTokenClaims(lpTokens)[1 - collateralPool.NOTE_INDEX];
-  const depositBalance = tokensOut[collateralPool.NOTE_INDEX];
+  const collateralBalance = tokensOut[collateralPool.NOTE_INDEX];
   const feesPaidInETH = feesPaid.reduce(
     (s, t) => s.add(t.toToken(ETH)),
     TokenBalance.zero(ETH)
@@ -1078,10 +1074,10 @@ export function calculateUnstake({
 
   return {
     depositBalance,
-    debtBalance: debtBalance,
-    debtFee: feesPaidInETH,
-    netRealizedDebtBalance: debtBalance.toToken(NOTE),
-    postTradeBalances: [debtBalance, depositBalance],
+    collateralBalance,
+    collateralFee: feesPaidInETH,
+    netRealizedCollateralBalance: collateralBalance,
+    postTradeBalances: [collateralBalance, depositBalance],
     ethSold,
   };
 }

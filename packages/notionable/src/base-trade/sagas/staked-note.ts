@@ -52,7 +52,8 @@ export function initState(
           isReady: true,
           tradeType: 'StakeNOTERedeem' as NOTETradeType,
           selectedNetwork: Network.mainnet,
-          debt: sNOTE,
+          deposit: sNOTE,
+          availableDepositTokens: [sNOTE],
         };
       } else {
         const ETH = Registry.getTokenRegistry().getTokenBySymbol(

@@ -7,7 +7,7 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 export const Redeem = () => {
   const theme = useTheme();
   const context = useContext(NOTEContext);
-  const { currencyInputRef: noteInputRef } = useCurrencyInputRef();
+  const { currencyInputRef: sNOTEInputRef } = useCurrencyInputRef();
 
   return (
     <TransactionSidebar
@@ -21,8 +21,8 @@ export const Redeem = () => {
         onMaxValue={() => {
           console.log('TODO');
         }}
-        ref={noteInputRef}
-        inputRef={noteInputRef}
+        ref={sNOTEInputRef}
+        inputRef={sNOTEInputRef}
         context={context}
       />
       {/* Add caption for redeem window */}
