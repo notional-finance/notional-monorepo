@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useContext } from 'react';
 import { NOTEContext } from '..';
 import { Box, useTheme } from '@mui/material';
 import {
@@ -13,21 +13,17 @@ import {
   Button,
   Caption,
 } from '@notional-finance/mui';
-import {
-  useAccountDefinition,
-  useTransactionStatus,
-} from '@notional-finance/notionable-hooks';
+import { useAccountDefinition } from '@notional-finance/notionable-hooks';
 import {
   Network,
   SETTINGS_SIDE_DRAWERS,
   getDateString,
-  getProviderFromNetwork,
 } from '@notional-finance/util';
 import {
   useSideDrawerManager,
   useSideDrawerState,
 } from '@notional-finance/side-drawer';
-import { SNOTEWeightedPool } from '@notional-finance/core-entities';
+import { useCancelCoolDown } from './use-cancel-cooldown';
 
 export const CoolDown = () => {
   const theme = useTheme();
@@ -36,8 +32,13 @@ export const CoolDown = () => {
     state: { selectedNetwork },
   } = context;
   const { sideDrawerOpen } = useSideDrawerState();
-  const { isReadOnlyAddress, onSubmit, transactionStatus, transactionHash } =
-    useTransactionStatus(Network.mainnet);
+  const {
+    cancelCoolDown,
+    transactionStatus,
+    transactionHash,
+    isReadOnlyAddress,
+  } = useCancelCoolDown();
+
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const account = useAccountDefinition(Network.mainnet);
   const stakeNoteStatus = account?.stakeNOTEStatus;
@@ -53,15 +54,6 @@ export const CoolDown = () => {
       setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET);
     }
   };
-
-  const handleSubmit = useCallback(async () => {
-    if (isReadOnlyAddress || !account) return;
-    const populatedTxn = await SNOTEWeightedPool.sNOTE_Contract
-      .connect(getProviderFromNetwork(Network.mainnet))
-      .populateTransaction.stopCoolDown();
-
-    onSubmit('StopSNOTECooldown', populatedTxn);
-  }, [isReadOnlyAddress, account, onSubmit]);
 
   return (
     <TransactionSidebar
@@ -145,7 +137,7 @@ export const CoolDown = () => {
           variant="outlined"
           color="primary"
           size="large"
-          onClick={handleSubmit}
+          onClick={cancelCoolDown}
           sx={{ marginTop: theme.spacing(10) }}
         >
           <FormattedMessage defaultMessage={'Cancel Cooldown'} />
