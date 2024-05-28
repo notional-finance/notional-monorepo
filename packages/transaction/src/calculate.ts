@@ -1053,31 +1053,19 @@ export function calculateUnstake({
   collateralPool: SNOTEWeightedPool;
   depositBalance: TokenBalance;
 }) {
-  const ETH = Registry.getTokenRegistry().getTokenBySymbol(
-    Network.mainnet,
-    'ETH'
-  );
-
   const lpTokens = collateralPool.getBPTForSNOTE(depositBalance);
-
-  const { tokensOut, feesPaid } = collateralPool.getTokensOutGivenLPTokens(
-    lpTokens,
-    collateralPool.NOTE_INDEX
-  );
-  const ethSold =
-    collateralPool.getLPTokenClaims(lpTokens)[1 - collateralPool.NOTE_INDEX];
-  const collateralBalance = tokensOut[collateralPool.NOTE_INDEX];
-  const feesPaidInETH = feesPaid.reduce(
-    (s, t) => s.add(t.toToken(ETH)),
-    TokenBalance.zero(ETH)
-  );
+  const claims = collateralPool.getLPTokenClaims(lpTokens);
+  const collateralBalance = claims[collateralPool.NOTE_INDEX];
 
   return {
+    // sNOTE balance
     depositBalance,
-    collateralBalance,
-    collateralFee: feesPaidInETH,
+    // NOTE balance
+    collateralBalance: claims[collateralPool.NOTE_INDEX],
+    // No fees paid
+    collateralFee: undefined,
     netRealizedCollateralBalance: collateralBalance,
-    postTradeBalances: [collateralBalance, depositBalance],
-    ethSold,
+    postTradeBalances: [...claims, depositBalance.neg()],
+    ethRedeem: claims[collateralPool.ETH_INDEX],
   };
 }

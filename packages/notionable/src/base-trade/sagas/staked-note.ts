@@ -145,8 +145,9 @@ export function compareNOTEPortfolio(
             canSubmit:
               state.calculationSuccess &&
               state.inputErrors === false &&
-              hasSufficientETH &&
-              hasSufficientNOTE,
+              (state.tradeType === 'StakeNOTE'
+                ? hasSufficientETH && hasSufficientNOTE
+                : true),
           }
         : undefined;
     }),
