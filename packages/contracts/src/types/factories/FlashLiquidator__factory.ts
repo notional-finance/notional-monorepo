@@ -12,7 +12,28 @@ import type {
 const _abi = [
   {
     type: "constructor",
-    inputs: [],
+    inputs: [
+      {
+        name: "notional_",
+        type: "address",
+        internalType: "contract NotionalProxy",
+      },
+      {
+        name: "weth_",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "owner_",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "tradingModule_",
+        type: "address",
+        internalType: "address",
+      },
+    ],
     stateMutability: "nonpayable",
   },
   {
@@ -34,6 +55,50 @@ const _abi = [
   },
   {
     type: "function",
+    name: "TRADING_MODULE",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "contract ITradingModule",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "WETH",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "contract WETH9",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "approveTokens",
+    inputs: [
+      {
+        name: "tokens",
+        type: "address[]",
+        internalType: "address[]",
+      },
+      {
+        name: "spender",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "callback",
     inputs: [
       {
@@ -47,12 +112,12 @@ const _abi = [
         internalType: "address",
       },
       {
-        name: "",
+        name: "asset",
         type: "address",
         internalType: "address",
       },
       {
-        name: "",
+        name: "amount",
         type: "uint256",
         internalType: "uint256",
       },
@@ -62,7 +127,7 @@ const _abi = [
         internalType: "uint256",
       },
       {
-        name: "data",
+        name: "params",
         type: "bytes",
         internalType: "bytes",
       },
@@ -74,13 +139,6 @@ const _abi = [
         internalType: "bytes",
       },
     ],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "claimOwnership",
-    inputs: [],
-    outputs: [],
     stateMutability: "nonpayable",
   },
   {
@@ -98,7 +156,7 @@ const _abi = [
   },
   {
     type: "function",
-    name: "estimateProfit",
+    name: "flashLoan",
     inputs: [
       {
         name: "flashLenderWrapper",
@@ -117,45 +175,33 @@ const _abi = [
       },
       {
         name: "params",
-        type: "tuple",
-        internalType: "struct FlashLiquidator.LiquidationParams",
-        components: [
-          {
-            name: "liquidationType",
-            type: "uint8",
-            internalType: "enum FlashLiquidator.LiquidationType",
-          },
-          {
-            name: "vault",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "accounts",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "redeemData",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "currencyId",
-            type: "uint16",
-            internalType: "uint16",
-          },
-          {
-            name: "currencyIndex",
-            type: "uint16",
-            internalType: "uint16",
-          },
-        ],
+        type: "bytes",
+        internalType: "bytes",
+      },
+      {
+        name: "localAddress",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "collateralAddress",
+        type: "address",
+        internalType: "address",
       },
     ],
     outputs: [
       {
-        name: "",
+        name: "flashLoanResidual",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "localProfit",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "collateralProfit",
         type: "uint256",
         internalType: "uint256",
       },
@@ -164,169 +210,44 @@ const _abi = [
   },
   {
     type: "function",
-    name: "flashLiquidate",
-    inputs: [
-      {
-        name: "flashLenderWrapper",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "asset",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "amount",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "params",
-        type: "tuple",
-        internalType: "struct FlashLiquidator.LiquidationParams",
-        components: [
-          {
-            name: "liquidationType",
-            type: "uint8",
-            internalType: "enum FlashLiquidator.LiquidationType",
-          },
-          {
-            name: "vault",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "accounts",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "redeemData",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "currencyId",
-            type: "uint16",
-            internalType: "uint16",
-          },
-          {
-            name: "currencyIndex",
-            type: "uint16",
-            internalType: "uint16",
-          },
-        ],
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "flashLiquidateBatch",
-    inputs: [
-      {
-        name: "flashLenderWrapper",
-        type: "address[]",
-        internalType: "address[]",
-      },
-      {
-        name: "asset",
-        type: "address[]",
-        internalType: "address[]",
-      },
-      {
-        name: "amount",
-        type: "uint256[]",
-        internalType: "uint256[]",
-      },
-      {
-        name: "params",
-        type: "tuple[]",
-        internalType: "struct FlashLiquidator.LiquidationParams[]",
-        components: [
-          {
-            name: "liquidationType",
-            type: "uint8",
-            internalType: "enum FlashLiquidator.LiquidationType",
-          },
-          {
-            name: "vault",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "accounts",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "redeemData",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "currencyId",
-            type: "uint16",
-            internalType: "uint16",
-          },
-          {
-            name: "currencyIndex",
-            type: "uint16",
-            internalType: "uint16",
-          },
-        ],
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "getOptimalDeleveragingParams",
+    name: "getFreeCollateral",
     inputs: [
       {
         name: "account",
         type: "address",
         internalType: "address",
       },
-      {
-        name: "vault",
-        type: "address",
-        internalType: "address",
-      },
     ],
     outputs: [
       {
-        name: "currencyIndex",
-        type: "uint16",
-        internalType: "uint16",
-      },
-      {
-        name: "maxUnderlying",
+        name: "",
         type: "int256",
         internalType: "int256",
+      },
+      {
+        name: "",
+        type: "int256[]",
+        internalType: "int256[]",
       },
     ],
     stateMutability: "nonpayable",
   },
   {
     type: "function",
-    name: "owner",
+    name: "ifCashCurrencyId",
     inputs: [],
     outputs: [
       {
         name: "",
-        type: "address",
-        internalType: "address",
+        type: "uint16",
+        internalType: "uint16",
       },
     ],
     stateMutability: "view",
   },
   {
     type: "function",
-    name: "pendingOwner",
+    name: "owner",
     inputs: [],
     outputs: [
       {
@@ -346,23 +267,13 @@ const _abi = [
         type: "address",
         internalType: "address",
       },
-      {
-        name: "direct",
-        type: "bool",
-        internalType: "bool",
-      },
-      {
-        name: "renounce",
-        type: "bool",
-        internalType: "bool",
-      },
     ],
     outputs: [],
     stateMutability: "nonpayable",
   },
   {
     type: "function",
-    name: "withdrawToOwner",
+    name: "withdraw",
     inputs: [
       {
         name: "token",
@@ -380,45 +291,10 @@ const _abi = [
   },
   {
     type: "function",
-    name: "wrapETH",
+    name: "wrapToWETH",
     inputs: [],
     outputs: [],
     stateMutability: "nonpayable",
-  },
-  {
-    type: "event",
-    name: "OwnershipTransferred",
-    inputs: [
-      {
-        name: "previousOwner",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-      {
-        name: "newOwner",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: "error",
-    name: "ERC20Error",
-    inputs: [],
-  },
-  {
-    type: "error",
-    name: "ErrInvalidCurrencyIndex",
-    inputs: [
-      {
-        name: "index",
-        type: "uint16",
-        internalType: "uint16",
-      },
-    ],
   },
 ];
 

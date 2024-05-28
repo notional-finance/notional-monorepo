@@ -26,7 +26,6 @@ export interface Env {
   NETWORK: Network;
   FLASH_LIQUIDATOR_CONTRACT: string;
   FLASH_LIQUIDATOR_OWNER: string;
-  FLASH_LENDER_ADDRESS: string;
   FLASH_LOAN_BUFFER: string;
   NOTIONAL_PROXY_CONTRACT: string;
   DUST_THRESHOLD: string;
@@ -72,7 +71,6 @@ const run = async (env: Env) => {
       network: env.NETWORK,
       flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
       flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
-      flashLenderAddress: env.FLASH_LENDER_ADDRESS,
       flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
       notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
       dustThreshold: BigNumber.from(env.DUST_THRESHOLD),

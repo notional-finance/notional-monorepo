@@ -23,8 +23,8 @@ const tokens: Partial<Record<Network, Record<string, string>>> = {
 }
 
 const defaultFlashLenders = {
-  [Network.mainnet]: wrappedFlashLenders.mainnet.AAVE,
-  [Network.arbitrum]: wrappedFlashLenders.arbitrum.AAVE,
+  [Network.mainnet]: wrappedFlashLenders.mainnet['AAVE'],
+  [Network.arbitrum]: wrappedFlashLenders.arbitrum['AAVE'],
 }
 
 const perVaultFlashLenders: Record<string, string> = {
@@ -32,19 +32,21 @@ const perVaultFlashLenders: Record<string, string> = {
 
 const perTokenFlashLenders = {
   [Network.mainnet]: {
-    default: wrappedFlashLenders.mainnet.AAVE,
-    [tokens.mainnet.USDT]: wrappedFlashLenders.mainnet.BALANCER,
-    [tokens.mainnet.GHO]: wrappedFlashLenders.mainnet.BALANCER,
+    default: wrappedFlashLenders.mainnet['AAVE'],
+    [tokens.mainnet['USDT']]: wrappedFlashLenders.mainnet['BALANCER'],
+    [tokens.mainnet['GHO']]: wrappedFlashLenders.mainnet['BALANCER'],
   },
   [Network.arbitrum]: {}
 }
 
 const checkSumAddress = (address: string) => {
   // Convert to checksum version or throw if invalid checksum
-  return  ethers.utils.getAddress(address)
+  return ethers.utils.getAddress(address)
 }
 
-export function getFlashLender(network: Network, vault: string, token: string): string {
+export function getFlashLender(
+  { network, vault = "", token }: { network: Network, vault?: string, token: string }
+): string {
   return perVaultFlashLenders[checkSumAddress(vault)] ||
     perTokenFlashLenders[checkSumAddress(token)] ||
     defaultFlashLenders[network];
