@@ -1,6 +1,7 @@
 import {
   ArrowChangeCell,
   DataTableColumn,
+  DisplayCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import {
@@ -25,6 +26,7 @@ export const useLiquidationRisk = () => {
         ),
         cell: MultiValueIconCell,
         accessorKey: 'exchangeRate',
+        expandableTable: true,
         textAlign: 'left',
       },
       {
@@ -34,7 +36,9 @@ export const useLiquidationRisk = () => {
             description={'column header'}
           />
         ),
+        cell: DisplayCell,
         accessorKey: 'liquidationPrice',
+        expandableTable: true,
         textAlign: 'right',
       },
       {
@@ -44,7 +48,9 @@ export const useLiquidationRisk = () => {
             description={'column header'}
           />
         ),
+        cell: DisplayCell,
         accessorKey: 'currentPrice',
+        expandableTable: true,
         textAlign: 'right',
       },
       {
@@ -56,6 +62,7 @@ export const useLiquidationRisk = () => {
         ),
         cell: ArrowChangeCell,
         accessorKey: 'oneDayChange',
+        expandableTable: true,
         textAlign: 'right',
       },
       {
@@ -67,6 +74,7 @@ export const useLiquidationRisk = () => {
         ),
         cell: ArrowChangeCell,
         accessorKey: 'sevenDayChange',
+        expandableTable: true,
         textAlign: 'right',
       },
     ],

@@ -285,6 +285,10 @@ export function calculateVaultHoldings(account: AccountDefinition) {
             (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
           )?.totalAPY || 0;
 
+      const amountPaid = (assetPnL?.accumulatedCostRealized || TokenBalance.zero(denom))
+        .add(debtPnL?.accumulatedCostRealized || TokenBalance.zero(denom))
+        .add(cashPnL?.accumulatedCostRealized || TokenBalance.zero(denom));
+
     const leverageRatio = v.leverageRatio() || 0;
     const totalAPY = leveragedYield(strategyAPY, borrowAPY, leverageRatio);
 
@@ -292,8 +296,10 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       vault: v,
       liquidationPrices: v.getAllLiquidationPrices(),
       netWorth: v.netWorth(),
+      healthFactor: v.healthFactor(),
       totalAPY,
       borrowAPY,
+      amountPaid,
       strategyAPY,
       profit,
       denom,
@@ -302,6 +308,7 @@ export function calculateVaultHoldings(account: AccountDefinition) {
     };
   });
 }
+
 
 export function calculateAccountCurrentFactors(
   holdings: ReturnType<typeof calculateHoldings>,

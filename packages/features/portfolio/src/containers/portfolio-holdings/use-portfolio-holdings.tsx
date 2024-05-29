@@ -65,7 +65,6 @@ export function usePortfolioHoldings() {
   const filteredHoldings = detailedHoldings.filter(
     ({ tokenId }) => !groupedTokens.includes(tokenId)
   );
-
   const groupedHoldings = [...groupedRows, ...filteredHoldings];
 
   const toggleData = [
@@ -105,6 +104,7 @@ export function usePortfolioHoldings() {
         header: <FormattedMessage defaultMessage="Market APY" />,
         cell: MultiValueCell,
         accessorKey: 'marketApy',
+        fontWeightBold: true,
         textAlign: 'right',
         expandableTable: true,
         width: theme.spacing(25),
@@ -113,6 +113,7 @@ export function usePortfolioHoldings() {
         header: <FormattedMessage defaultMessage="Amount Paid" />,
         cell: MultiValueCell,
         accessorKey: 'amountPaid',
+        fontWeightBold: true,
         textAlign: 'right',
         expandableTable: true,
         showLoadingSpinner: true,
@@ -121,6 +122,7 @@ export function usePortfolioHoldings() {
         header: <FormattedMessage defaultMessage="Present Value" />,
         cell: MultiValueCell,
         accessorKey: 'presentValue',
+        fontWeightBold: true,
         textAlign: 'right',
         expandableTable: true,
       },

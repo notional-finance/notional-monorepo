@@ -94,7 +94,9 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
           )
         )
       ) : (
-        value
+        <Box sx={{ fontWeight: column.columnDef?.fontWeightBold ? 600 : '' }}>
+          {value}
+        </Box>
       )}
     </Box>
   );
