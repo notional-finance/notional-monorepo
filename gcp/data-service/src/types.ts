@@ -63,6 +63,8 @@ export enum Strategy {
   Arb_Balancer_ezETH_wstETH = 27,
   Eth_Curve_USDe_USDC = 28,
   Arb_Convex_WBTC_tBTC = 29,
+  Eth_Convex_GHO_crvUSD = 30,
+  Eth_Curve_GHO_USDe = 31,
 }
 
 export interface MulticallConfig {
@@ -154,15 +156,15 @@ export interface VaultAccount {
 }
 
 export interface VaultAPY {
-  blockNumber: number,
-  timestamp: number,
-  vaultAddress: string,
-  totalLpTokens: string,
-  lpTokenValuePrimaryBorrow: string,
-  rewardToken: string,
-  rewardTokensClaimed: string,
-  rewardTokenValuePrimaryBorrow: string,
-  noVaultShares: boolean,
+  blockNumber: number;
+  timestamp: number;
+  vaultAddress: string;
+  totalLpTokens: string;
+  lpTokenValuePrimaryBorrow: string;
+  rewardToken: string;
+  rewardTokensClaimed: string;
+  rewardTokenValuePrimaryBorrow: string;
+  noVaultShares: boolean;
 }
 
 type DataServiceAccountContextUpdate = {
