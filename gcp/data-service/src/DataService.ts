@@ -23,6 +23,7 @@ import {
   SubgraphOperation,
   TableName,
   VaultAccount,
+  VaultAPY,
   ProtocolName,
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
@@ -33,6 +34,7 @@ import {
   gql,
 } from '@apollo/client/core';
 import { graphQueries } from './graphQueries';
+import { calculatePointsAccrued } from './RiskService';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -56,7 +58,9 @@ export default class DataService {
   public static readonly ORACLE_DATA_TABLE_NAME = 'oracle_data';
   public static readonly ACCOUNTS_TABLE_NAME = 'accounts';
   public static readonly VAULT_ACCOUNTS_TABLE_NAME = 'vault_accounts';
+  public static readonly VAULT_APY_NAME = 'vault_apy';
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
+  public static readonly POINTS_TABLE_NAME = 'arb_points';
 
   constructor(public db: Knex, public settings: DataServiceSettings) {}
 
@@ -130,6 +134,7 @@ export default class DataService {
         }
       } catch (e: any) {
         console.error(`Failed to backfill ${ts}, ${e.toString()}`);
+        console.error(e.stack);
       }
       await new Promise((r) => setTimeout(r, this.settings.backfillDelayMs));
     }
@@ -513,6 +518,37 @@ export default class DataService {
       )
       .into(DataService.VAULT_ACCOUNTS_TABLE_NAME)
       .onConflict(['account_id', 'vault_id', 'network_id'])
+      .ignore();
+  }
+
+  public async insertPointsData(
+    points: Awaited<ReturnType<typeof calculatePointsAccrued>>
+  ) {
+    return this.db
+      .insert(points)
+      .into(DataService.POINTS_TABLE_NAME)
+      .onConflict(['account', 'date'])
+      .ignore();
+  }
+
+  public async insertVaultAPY(network: Network, vaultAPY: VaultAPY[]) {
+    return this.db
+      .insert(
+        vaultAPY.map((v) => ({
+          network_id: this.networkToId(network),
+          block_number: v.blockNumber,
+          timestamp: v.timestamp,
+          vault_address: v.vaultAddress,
+          total_lp_tokens: v.totalLpTokens,
+          lp_token_value_primary_borrow: v.lpTokenValuePrimaryBorrow,
+          reward_token: v.rewardToken,
+          reward_tokens_claimed: v.rewardTokensClaimed,
+          reward_token_value_primary_borrow: v.rewardTokenValuePrimaryBorrow,
+          no_vault_shares: v.noVaultShares,
+        }))
+      )
+      .into(DataService.VAULT_APY_NAME)
+      .onConflict(['network_id', 'timestamp', 'vault_address', 'reward_token'])
       .ignore();
   }
 

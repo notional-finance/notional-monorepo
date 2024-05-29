@@ -85,7 +85,16 @@ export default class ProfitCalculator {
     const borrowAssetOverride = this.settings.overrides.find(
       (c) => c.id === accountLiq.liquidation.getLocalCurrency().id
     );
+
     if (borrowAssetOverride) {
+      accountLiq.flashLoanAmount =
+        borrowAssetOverride.basePrecision &&
+        borrowAssetOverride.overridePrecision
+          ? accountLiq.flashLoanAmount
+              .mul(borrowAssetOverride.overridePrecision)
+              .div(borrowAssetOverride.basePrecision)
+          : accountLiq.flashLoanAmount;
+
       flashBorrowAsset = borrowAssetOverride.flashBorrowAsset;
     }
 
@@ -101,6 +110,7 @@ export default class ProfitCalculator {
         accountLiq.flashLoanAmount,
         true
       );
+
       preLiquidationTrade = {
         trade: {
           tradeType: TradeType.EXACT_IN_SINGLE,

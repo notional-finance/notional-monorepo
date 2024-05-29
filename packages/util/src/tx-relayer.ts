@@ -7,7 +7,7 @@ export const treasuryManagerAddresses: Partial<Record<Network, string>> = {
 
 export const managerBotAddresses: Partial<Record<Network, string>> = {
   arbitrum: '0x745915418D8B70f39ce9e61A965cBB0C87f9f7Ed',
-  mainnet: '0x3164400d0c849996efCb390ec1D4705f2cD5E98C',
+  mainnet: '0x745915418d8b70f39ce9e61a965cbb0c87f9f7ed',
 };
 
 interface Env {
@@ -26,7 +26,7 @@ const urls: Record<Network, string> = {
   [Network.optimism]: '',
 };
 
-export function sendTxThroughRelayer(arg: {
+export async function sendTxThroughRelayer(arg: {
   env: Env;
   to: string;
   data: string;
@@ -42,7 +42,6 @@ export function sendTxThroughRelayer(arg: {
   });
   const url = urls[env.NETWORK];
   console.log(`Sending Payload to ${url}`);
-  console.log(payload);
 
   return fetch(url, {
     method: 'POST',

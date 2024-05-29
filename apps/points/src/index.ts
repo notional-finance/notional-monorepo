@@ -1,4 +1,4 @@
-import { getVaultData } from './calculate-points';
+import { getVaultData, getVaultTVL } from './calculate-points';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Env {}
@@ -11,8 +11,12 @@ export default {
   ): Promise<Response> {
     const url = new URL(request.url);
     const [_, vaultAddress, blockNumber] = url.pathname.split('/', 3);
-    return new Response(
-      JSON.stringify(await getVaultData(vaultAddress, parseInt(blockNumber)))
-    );
+    if (blockNumber === 'tvl') {
+      return new Response(JSON.stringify(await getVaultTVL(vaultAddress)));
+    } else {
+      return new Response(
+        JSON.stringify(await getVaultData(vaultAddress, parseInt(blockNumber)))
+      );
+    }
   },
 };

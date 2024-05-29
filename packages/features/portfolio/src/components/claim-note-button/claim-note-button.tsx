@@ -11,7 +11,10 @@ import {
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import { ClaimNOTE } from '@notional-finance/transaction';
-import { TokenBalance } from '@notional-finance/core-entities';
+import {
+  TokenBalance,
+  SecondaryIncentiveToken,
+} from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 
 interface ClaimNoteType {
@@ -61,11 +64,6 @@ const useIncentiveCountUp = (
   return c;
 };
 
-const secondarySymbol = {
-  [Network.arbitrum]: 'ARB',
-  [Network.mainnet]: 'GHO',
-};
-
 export const ClaimNoteButton = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
@@ -76,7 +74,7 @@ export const ClaimNoteButton = () => {
 
   const noteCountUp = useIncentiveCountUp(totalIncentives['NOTE'], network);
   const secondaryCountUp = useIncentiveCountUp(
-    totalIncentives[secondarySymbol[network]],
+    totalIncentives[SecondaryIncentiveToken[network]],
     network
   );
 

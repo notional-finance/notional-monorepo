@@ -1,0 +1,25 @@
+{
+  "name": "vault-apy-simulator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "start": "node lib/index.js",
+    "test": "ts-node test/index.test.ts",
+    "start-dev": "node -r ts-node/register --env-file=.env src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@balancer-labs/sdk": "^1.1.5",
+    "alchemy-sdk": "^3.3.1",
+    "debug": "^4.3.4",
+    "ethers": "^5"
+  }
+}
