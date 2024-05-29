@@ -29,8 +29,9 @@ const LabelAndValue = ({
   label: MessageDescriptor;
   value: string;
 }) => {
+  const theme = useTheme();
   return (
-    <Box>
+    <Box sx={{ marginLeft: theme.spacing(2) }}>
       <H5 msg={label} />
       <LabelValue>{value}</LabelValue>
     </Box>
@@ -104,7 +105,7 @@ export const PortfolioRisk = () => {
                 display: 'flex',
                 width: { sm: '100%', md: '50%' },
                 justifyContent: 'space-evenly',
-                marginLeft: { sm: 0, md: theme.spacing(8) },
+                marginLeft: { sm: 0, md: theme.spacing(5) },
               }}
             >
               <LabelAndValue

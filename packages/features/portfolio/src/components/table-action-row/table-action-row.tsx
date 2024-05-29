@@ -7,8 +7,6 @@ import {
   H4,
   ButtonBar,
   ButtonOptionsType,
-  DataTableColumn,
-  DataTable,
   ProgressIndicator,
   ErrorMessage,
 } from '@notional-finance/mui';
@@ -53,8 +51,6 @@ export interface TableActionRowProps {
         warning: TABLE_WARNINGS | undefined;
         txnHistory: string;
         buttonBarData: ButtonOptionsType[];
-        riskTableData: any[];
-        riskTableColumns: DataTableColumn[];
         subRowData: {
           label: ReactNode;
           value: any;
@@ -77,8 +73,6 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
       txnHistory,
       buttonBarData,
       subRowData,
-      riskTableData,
-      riskTableColumns,
       pointsWarning,
       hasMatured,
       warning,
@@ -92,10 +86,7 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
     <Box
       sx={{
         background: theme.palette.background.default,
-        paddingBottom:
-          (riskTableData && riskTableData.length > 0) || hasMatured
-            ? theme.spacing(4)
-            : '0px',
+        paddingBottom: hasMatured ? theme.spacing(4) : '0px',
       }}
     >
       <Container>
@@ -211,18 +202,6 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
             sx={{ marginTop: '0px' }}
           />
         </Box>
-      )}
-      {riskTableData && riskTableData.length > 0 && (
-        <DataTable
-          tableTitle={<FormattedMessage defaultMessage={'Liquidation Risk'} />}
-          columns={riskTableColumns}
-          data={riskTableData}
-          sx={{
-            width: '96%',
-            margin: `auto`,
-            paddingBottom: theme.spacing(3),
-          }}
-        />
       )}
     </Box>
   );

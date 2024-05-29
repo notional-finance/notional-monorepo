@@ -113,8 +113,7 @@ export const NoteDelegate = () => {
 
 const DelegatePill = styled(Box)(
   ({ theme }) => `
-      background-color: #041D2E;
-      border: 1px solid ${colors.neonTurquoise};
+      background-color: ${colors.darkGreen};
       color: ${colors.neonTurquoise};
       font-size: 16px;
       border-radius: ${theme.shape.borderRadius()};

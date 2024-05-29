@@ -7,9 +7,14 @@ import { PortfolioRisk } from './portfolio-risk';
 import { useState } from 'react';
 // import { useEarningsBreakdown } from './use-earnings-breakdown';
 import { useLiquidationRisk } from './use-liquidation-risk';
+import {
+  useAccountDefinition,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 
 export const PortfolioHoldings = () => {
   const [currentTab, setCurrentTab] = useState(0);
+  const network = useSelectedNetwork();
   const {
     portfolioHoldingsColumns,
     toggleBarProps,
@@ -21,7 +26,11 @@ export const PortfolioHoldings = () => {
   // TODO: add this back in when we have the data
   // const { earningsBreakdownData, earningsBreakdownColumns } =
   //   useEarningsBreakdown();
+  const account = useAccountDefinition(network);
   const { liquidationRiskColumns, liquidationRiskData } = useLiquidationRisk();
+  const hasDebts = !!account?.balances.find(
+    (t) => t.isNegative() && !t.isVaultToken
+  );
 
   const holdingsData = {
     0: {
@@ -45,10 +54,13 @@ export const PortfolioHoldings = () => {
     // {
     //   title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
     // },
-    {
-      title: <FormattedMessage defaultMessage="Liquidation Risk" />,
-    },
   ];
+
+  if (hasDebts) {
+    tableTabs.push({
+      title: <FormattedMessage defaultMessage="Liquidation Risk" />,
+    });
+  }
 
   return (
     <Box>
@@ -80,7 +92,7 @@ export const PortfolioHoldings = () => {
         initialState={initialState}
         expandableTable={true}
         setExpandedRows={setExpandedRows}
-        tableVariant={TABLE_VARIANTS.TOTAL_ROW}
+        tableVariant={currentTab === 0 ? TABLE_VARIANTS.TOTAL_ROW : undefined}
       />
     </Box>
   );

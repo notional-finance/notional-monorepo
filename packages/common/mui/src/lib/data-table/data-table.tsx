@@ -257,7 +257,7 @@ export const DataTable = ({
           }
           component={Paper}
         >
-          {tableTitle && !toggleBarProps && (
+          {tableTitle && !toggleBarProps && !tabBarProps && (
             <DataTableTitleBar
               tableTitle={tableTitle}
               tableTitleSubText={tableTitleSubText}
