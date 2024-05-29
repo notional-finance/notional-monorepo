@@ -68,7 +68,7 @@ export const whitelistedVaults = (network: Network) => {
     case Network.arbitrum:
       return [
         // "[FRAX]:xFRAX_USDC_e"
-        '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
+        // '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
         // "[USDT]:USDC_e_xUSDT"
         '0x431dbfe3050ea39abbff3e0d86109fb5bafa28fd',
         // "[USDC]:crvUSD_xUSDC"
