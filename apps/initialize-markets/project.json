@@ -1,0 +1,58 @@
+{
+  "name": "initialize-markets",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/initialize-markets/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler dev --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/initialize-markets"
+      }
+    },
+    "publish-wrangler-manual": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler deploy --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/initialize-markets"
+      }
+    },
+    "publish-wrangler": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler deploy"
+          }
+        ],
+        "cwd": "apps/initialize-markets"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/initialize-markets/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/initialize-markets"],
+      "options": {
+        "jestConfig": "apps/initialize-markets/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "dependsOn": ["build"]
+    }
+  },
+  "tags": []
+}

@@ -25,3 +25,9 @@ export const MaxCurrencyId: Record<Network, number | undefined> = {
   [Network.mainnet]: undefined,
   [Network.arbitrum]: undefined,
 };
+
+// This is only used in the claim NOTE button
+export const SecondaryIncentiveToken = {
+  [Network.arbitrum]: 'ARB',
+  [Network.mainnet]: 'GHO',
+};

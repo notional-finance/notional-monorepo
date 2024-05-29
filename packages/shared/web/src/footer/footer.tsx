@@ -172,11 +172,11 @@ export const Footer = () => {
           </Label>
           <HeadingSubtitle
             contrast
-            to="/analytics/transactions"
+            to="/analytics/all-transactions"
             marginBottom={theme.spacing(4)}
           >
             <FormattedMessage
-              defaultMessage="View Network Transactions"
+              defaultMessage="View Analytics"
               description="footer link"
             />
           </HeadingSubtitle>

@@ -1,0 +1,24 @@
+account_id = '274f86c6dcfbb77c09e49e86d101c753'
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+minify = true
+logpush = true
+
+[env.dev]
+name = "initialize-markets-dev"
+
+[env.dev.vars]
+NETWORKS = ["arbitrum"]
+
+[env.prod]
+name = "initialize-markets"
+
+[env.prod.vars]
+NETWORKS = ["arbitrum"]
+
+[triggers]
+# runs once each day
+crons = ["1 0 * * *"]

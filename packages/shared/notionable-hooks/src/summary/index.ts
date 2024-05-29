@@ -89,14 +89,14 @@ export const Earnings = {
     content: { defaultMessage: 'Earnings at Maturity' },
     toolTipContent: {
       defaultMessage:
-        'Guaranteed earnings if held to maturity. You can withdraw prior to maturity subject to liquidity at market rate.',
+        'Guaranteed earnings if held to maturity. You can withdraw prior to maturity subject to liquidity at a market rate.',
     },
   }),
   MintNToken: defineMessages({
     content: { defaultMessage: '30d Estimated Earnings' },
     toolTipContent: {
       defaultMessage:
-        'Estimate is based on current APY. Liquidity APY can change and users are also at risk of potential IL.',
+        'Estimate is based on current APY. Liquidity APY can change and users are also at risk of impermanent loss.',
     },
   }),
 
@@ -112,7 +112,7 @@ export const Earnings = {
     content: { defaultMessage: '30d Estimated Earnings' },
     toolTipContent: {
       defaultMessage:
-        'Estimate is based on current APY. Leveraged liquidity APYs are volatile and can change quickly. Users are also at risk of potential IL.',
+        'Estimate is based on current APY. Leveraged liquidity APYs are volatile and can change quickly. Users are also at risk of impermanent loss.',
     },
   }),
   CreateVaultPosition: defineMessages({

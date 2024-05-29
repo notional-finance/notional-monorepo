@@ -29,6 +29,7 @@
     "registry-vaults": "apps/registry-vaults",
     "rewards": "apps/rewards",
     "risk-engine": "packages/risk-engine",
+    "initialize-markets": "apps/initialize-markets",
     "shared-assets": "packages/shared/assets",
     "shared-helpers": "packages/shared/helpers",
     "shared-notionable-hooks": "packages/shared/notionable-hooks",

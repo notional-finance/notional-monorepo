@@ -186,5 +186,3 @@ export function getCurveV1PoolConfig(
     ...additionalConfigs,
   ];
 }
-
-0x4dece678ceceb27446b35c672dc7d61f30bad69e;

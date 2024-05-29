@@ -9302,7 +9302,7 @@ export const AllAccountsDocument = gql`
   ) {
     id
     systemAccountType
-    balances(where: {current_: {currentBalance_not: 0}}) {
+    balances {
       token {
         id
         currencyId

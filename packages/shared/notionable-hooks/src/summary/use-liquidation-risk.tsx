@@ -50,7 +50,7 @@ function formatLiquidationPrices(
   );
 }
 
-function formatHealthFactorValues(
+export function formatHealthFactorValues(
   healthFactorValue: null | number | undefined,
   theme: NotionalTheme
 ) {

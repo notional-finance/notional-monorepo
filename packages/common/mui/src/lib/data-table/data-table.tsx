@@ -62,6 +62,10 @@ interface DataTableProps {
   showHiddenRows?: boolean;
   tableLoading?: boolean;
   filterBarData?: any[];
+  networkToggleData?: {
+    toggleKey: number;
+    setToggleKey: (v: number) => void;
+  };
   rightToggleData?: DataTableToggleProps;
   allNetworksToggleData?: DataTableToggleProps;
   csvDataFormatter?: (data: any[]) => any;
@@ -93,6 +97,7 @@ export const DataTable = ({
   setExpandedRows,
   tableLoading,
   filterBarData,
+  networkToggleData,
   rightToggleData,
   allNetworksToggleData,
   csvDataFormatter,
@@ -214,6 +219,8 @@ export const DataTable = ({
           columns={columns}
           data={data}
           tableVariant={tableVariant}
+          networkToggleData={networkToggleData}
+          filterBarData={filterBarData}
           tableTitle={tableTitle}
           maxHeight={maxHeight}
           tableReady={tableReady}

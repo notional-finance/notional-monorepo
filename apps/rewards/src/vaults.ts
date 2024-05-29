@@ -9,10 +9,10 @@ const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 const USDT = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
 const crvUSD = '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E'
 const GHO = '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f';
-const CRV = '0xd533a949740bb3306d119cc777fa900ba034cd52';
-const CVX = '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b';
+const CRV = '0xD533a949740bb3306d119CC777fa900bA034cd52';
+const CVX = '0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B';
 const BAL = '0xba100000625a3754423978a60c9317c58a424e3D';
-const AURA = '0xc0c293ce456ff0ed870add98a0828dd4d2903dbf';
+const AURA = '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF';
 const ezETH = '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110';
 const weETH = '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee';
 // arbitrum
@@ -30,6 +30,9 @@ const ARB_USDT = '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9';
 const ARB_wstETH = '0x5979D7b546E38E414F7E9822514be443A4800529';
 const ARB_cbETH = '0x1DEBd73E752bEaF79865Fd6446b0c970EaE7732f';
 const ARB_crvUSD = '0x498Bf2B1e120FeD3ad3D42EA2165E9b73f99C1e5';
+const ARB_WBTC = '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f';
+const ARB_tBTC = '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40';
+const ARB_ezETH = '0x2416092f143378750bb29b79eD961ab195CcEea5';
 
 export const ETH = '0x0000000000000000000000000000000000000000';
 
@@ -57,6 +60,7 @@ export type Vault = {
   rewardTokens: Array<string>,
   poolTokens: Array<string>,
   tokenWeights: Array<number>,
+  maxSellAmount?: Record<string, string>
 }
 // tokens in the pool need to be in the same order as they are stored in the vault
 // whatever TOKENS() method on vault returns
@@ -88,15 +92,15 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       tokenWeights: [33, 0, 33, 33],
     },
     {
-      address: '0x914255c0c289aea36e378ebb5e28293b5ed278ca',
+      address: '0x914255c0c289AEa36E378EBB5e28293b5ED278Ca',
       rewardTokens: [BAL, AURA],
       poolTokens: ['0x596192bB6e41802428Ac943D2f1476C1Af25CC0E', ezETH, ETH],
       tokenWeights: [0, 50, 50],
     },
     {
-      address: '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1',
+      address: '0x32D82A1C8618c7Be7Fe85B2F1C44357A871d52D1',
       rewardTokens: [BAL, AURA],
-      poolTokens: ['0x05ff47AFADa98a98982113758878F9A8B9FddA0a,', rETH, weETH],
+      poolTokens: ['0x05ff47AFADa98a98982113758878F9A8B9FddA0a', rETH, weETH],
       tokenWeights: [0, 50, 50],
     },
   ],
@@ -126,6 +130,12 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       tokenWeights: [0, 100],
     },
     {
+      address: '0xF95441f348eb2fd3D5D82f9B7B961137a734eEdD',
+      rewardTokens: [ARB_CRV, ARB],
+      poolTokens: [ARB_WBTC, ARB_tBTC],
+      tokenWeights: [50, 50],
+    },
+    {
       address: '0x3Df035433cFACE65b6D68b77CC916085d020C8B8',
       rewardTokens: [ARB, ARB_BAL, ARB_AURA],
       poolTokens: [ETH, '0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81', ARB_RETH],
@@ -138,16 +148,25 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       tokenWeights: [0, 25, 25, 25, 25],
     },
     {
-      address: '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
+      address: '0x0E8C1A069f40D0E8Fa861239D3e62003cBF3dCB2',
       rewardTokens: [ARB, ARB_BAL, ARB_AURA],
       poolTokens: [ARB_wstETH, ETH, '0x9791d590788598535278552EEcD4b211bFc790CB'],
       tokenWeights: [50, 50, 0],
+      maxSellAmount: {
+        [ARB]: "384600000000000000000", // 384.6e18
+      }
     },
     {
-      address: '0x37dd23ab1885982f789a2d6400b583b8ae09223d',
+      address: '0x37dD23Ab1885982F789A2D6400B583B8aE09223d',
       rewardTokens: [ARB, ARB_BAL, ARB_AURA],
       poolTokens: [ARB_cbETH, '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B', ARB_wstETH, ARB_RETH],
       tokenWeights: [33, 0, 33, 33],
+    },
+    {
+      address: '0xD7c3Dc1C36d19cF4e8cea4eA143a2f4458Dd1937',
+      rewardTokens: [ARB, ARB_BAL, ARB_AURA],
+      poolTokens: [ARB_ezETH, ARB_wstETH, '0xB61371Ab661B1ACec81C699854D2f911070C059E'],
+      tokenWeights: [50, 50, 0],
     },
   ],
 };;

@@ -15,6 +15,7 @@ export enum SourceType {
 }
 
 export enum TableName {
+  VaultAPY = 'vault_apy',
   GenericData = 'generic_data',
   TokenData = 'token_data',
 }
@@ -62,6 +63,8 @@ export enum Strategy {
   Arb_Balancer_ezETH_wstETH = 27,
   Eth_Curve_USDe_USDC = 28,
   Arb_Convex_WBTC_tBTC = 29,
+  Eth_Convex_GHO_crvUSD = 30,
+  Eth_Curve_GHO_USDe = 31,
 }
 
 export interface MulticallConfig {
@@ -88,6 +91,10 @@ export interface GenericDataConfig {
 }
 
 export interface TokenDataConfig {
+  decimals: number;
+}
+
+export interface VaultAPYConfig {
   decimals: number;
 }
 
@@ -139,13 +146,25 @@ export interface DataContext {
   mergeConflicts: boolean;
 }
 
-export interface IDataWriter {
-  write(db: Knex, context: DataContext, rows: DataRow[]): Promise<any>;
+export interface IDataWriter<K = DataRow> {
+  write(db: Knex, context: DataContext, rows: K[]): Promise<any>;
 }
 
 export interface VaultAccount {
   accountId: string;
   vaultId: string;
+}
+
+export interface VaultAPY {
+  blockNumber: number;
+  timestamp: number;
+  vaultAddress: string;
+  totalLpTokens: string;
+  lpTokenValuePrimaryBorrow: string;
+  rewardToken: string;
+  rewardTokensClaimed: string;
+  rewardTokenValuePrimaryBorrow: string;
+  noVaultShares: boolean;
 }
 
 type DataServiceAccountContextUpdate = {

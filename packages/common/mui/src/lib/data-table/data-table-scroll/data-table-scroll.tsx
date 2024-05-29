@@ -14,12 +14,18 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useRef } from 'react';
+import DataTableFilterBar from '../data-table-filter-bar/data-table-filter-bar';
 
 interface DataTableProps {
   columns: ColumnDef<DataTableColumn>[];
   data: Array<any>;
   tableVariant?: TABLE_VARIANTS;
   initialState?: Record<any, any>;
+  filterBarData?: any[];
+  networkToggleData?: {
+    toggleKey: number;
+    setToggleKey: (v: number) => void;
+  };
   tableTitle?: JSX.Element;
   tableLoading?: boolean;
   tableReady?: boolean;
@@ -36,6 +42,8 @@ export const DataTableScroll = ({
   maxHeight,
   tableLoading,
   tableReady,
+  networkToggleData,
+  filterBarData,
   sx,
 }: DataTableProps) => {
   const theme = useTheme();
@@ -66,58 +74,77 @@ export const DataTableScroll = ({
   });
 
   return (
-    <Box
-      component="div"
-      ref={tableContainerRef}
-      sx={{
-        overflow: 'auto',
-        position: 'relative',
-        maxHeight: maxHeight,
-        height: '100%',
-        '.table': {
-          display: 'grid',
-          borderRadius: theme.shape.borderRadius(),
+    <Box>
+      <Box
+        sx={{
+          border: theme.shape.borderStandard,
           background: theme.palette.background.paper,
-          '.header': {
-            background: theme.palette.background.paper,
-            display: 'grid',
-            position: 'sticky',
-            top: 0,
-            zIndex: 2,
-            marginRight: '0px',
-            borderRadius: theme.shape.borderRadius(),
-          },
-        },
-        ...sx,
-      }}
-    >
-      <Box className="table">
-        <DataTableHead
-          tableTitle={tableTitle}
-          headerGroups={headerGroups}
-          tableVariant={tableVariant}
-          expandableTable={false}
-        />
-        {tableReady ? (
-          <DataTableBody
-            rows={rows}
-            rowVirtualizer={rowVirtualizer}
-            tableVariant={tableVariant}
-            initialState={initialState}
+          borderRadius: '6px 6px 0px 0px',
+          width: '100%',
+        }}
+      >
+        {filterBarData && filterBarData.length > 0 && networkToggleData && (
+          <DataTableFilterBar
+            filterBarData={filterBarData}
+            networkToggleData={networkToggleData}
           />
-        ) : (
-          <Box>
-            {tableLoading ? (
-              <PageLoading type="notional" />
-            ) : (
-              <TableCell
-                sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
-              >
-                <FormattedMessage defaultMessage={'No Data Available'} />
-              </TableCell>
-            )}
-          </Box>
         )}
+      </Box>
+      <Box
+        component="div"
+        ref={tableContainerRef}
+        sx={{
+          overflow: 'auto',
+          position: 'relative',
+          maxHeight: maxHeight,
+          height: '100%',
+          '.table': {
+            display: 'grid',
+            borderRadius: networkToggleData
+              ? '0px'
+              : theme.shape.borderRadius(),
+            background: theme.palette.background.paper,
+            '.header': {
+              background: theme.palette.background.paper,
+              display: 'grid',
+              position: 'sticky',
+              top: 0,
+              zIndex: 2,
+              marginRight: '0px',
+              borderRadius: theme.shape.borderRadius(),
+            },
+          },
+          ...sx,
+        }}
+      >
+        <Box className="table">
+          <DataTableHead
+            tableTitle={tableTitle}
+            headerGroups={headerGroups}
+            tableVariant={tableVariant}
+            expandableTable={false}
+          />
+          {tableReady ? (
+            <DataTableBody
+              rows={rows}
+              rowVirtualizer={rowVirtualizer}
+              tableVariant={tableVariant}
+              initialState={initialState}
+            />
+          ) : (
+            <Box>
+              {tableLoading ? (
+                <PageLoading type="notional" />
+              ) : (
+                <TableCell
+                  sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
+                >
+                  <FormattedMessage defaultMessage={'No Data Available'} />
+                </TableCell>
+              )}
+            </Box>
+          )}
+        </Box>
       </Box>
     </Box>
   );
