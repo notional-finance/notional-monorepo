@@ -11,7 +11,7 @@ import {
 } from './types';
 import LiquidationHelper from './LiquidationHelper';
 import ProfitCalculator from './ProfitCalculator';
-import AaveFlashLoanProvider from './lenders/AaveFlashLender';
+import FlashLoanProvider from './lenders/FlashLender';
 import { Logger } from '@notional-finance/durable-objects';
 import { Network, sendTxThroughRelayer } from '@notional-finance/util';
 
@@ -19,7 +19,6 @@ export type LiquidatorSettings = {
   network: Network;
   flashLiquidatorAddress: string;
   flashLiquidatorOwner: string;
-  flashLenderAddress: string;
   notionalAddress: string;
   dustThreshold: BigNumber;
   flashLoanBuffer: BigNumber;
@@ -72,8 +71,8 @@ export default class NotionalV3Liquidator {
       settings.tokens.get('WETH'),
       settings.currencies
     );
-    this.flashLoanProvider = new AaveFlashLoanProvider(
-      settings.flashLenderAddress,
+    this.flashLoanProvider = new FlashLoanProvider(
+      settings.network,
       settings.flashLiquidatorAddress,
       this.provider
     );

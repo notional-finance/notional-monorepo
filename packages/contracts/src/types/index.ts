@@ -20,6 +20,7 @@ export type { CurvePoolV1WithOracle } from "./CurvePoolV1WithOracle";
 export type { CurvePoolV2 } from "./CurvePoolV2";
 export type { ERC20 } from "./ERC20";
 export type { ExchangeV3 } from "./ExchangeV3";
+export type { FlashLenderWrapper } from "./FlashLenderWrapper";
 export type { FlashLiquidator } from "./FlashLiquidator";
 export type { Governor } from "./Governor";
 export type { IAggregator } from "./IAggregator";
@@ -63,6 +64,7 @@ export { CurvePoolV1WithOracle__factory } from "./factories/CurvePoolV1WithOracl
 export { CurvePoolV2__factory } from "./factories/CurvePoolV2__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
 export { ExchangeV3__factory } from "./factories/ExchangeV3__factory";
+export { FlashLenderWrapper__factory } from "./factories/FlashLenderWrapper__factory";
 export { FlashLiquidator__factory } from "./factories/FlashLiquidator__factory";
 export { Governor__factory } from "./factories/Governor__factory";
 export { IAggregator__factory } from "./factories/IAggregator__factory";
