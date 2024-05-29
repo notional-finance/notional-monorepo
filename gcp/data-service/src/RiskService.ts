@@ -7,8 +7,15 @@ import {
   AccountRiskProfile,
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
-import { Network, SupportedNetworks } from '@notional-finance/util';
+import {
+  Network,
+  SupportedNetworks,
+  floorToMidnight,
+  getNowSeconds,
+  groupArrayByKey,
+} from '@notional-finance/util';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getArbBoosts } from './Boosts';
 
 const DATA_URL = process.env['API_URL'] as string;
 const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
@@ -150,4 +157,67 @@ function getVaultRiskFactors(account: AccountDefinition) {
         };
       })
   );
+}
+
+export async function calculatePointsAccrued(network: Network) {
+  Registry.initialize(
+    DATA_URL,
+    AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
+    false,
+    true,
+    false
+  );
+  await Registry.triggerRefresh(network);
+
+  const allAccounts = Registry.getAccountRegistry()
+    .getAllSubjectKeys(network)
+    .map((a) => Registry.getAccountRegistry().getLatestFromSubject(network, a))
+    .filter((account) => {
+      return (
+        account?.systemAccountType === 'None' &&
+        (account.balances.length > 0 ||
+          !account.balances
+            .filter((b) => b.symbol !== 'NOTE' && b.symbol !== 'sNOTE')
+            .every((b) => b.isZero()))
+      );
+    }) as AccountDefinition[];
+
+  return allAccounts.map((a: AccountDefinition) => {
+    const portfolioPoints = groupArrayByKey(
+      a.balances.filter((t) => t.token.currencyId && !t.isVaultToken),
+      (t) => t.currencyId
+    )
+      .filter(
+        (g) =>
+          // Exclude currencies where this is leverage
+          !(g.find((t) => t.isNegative()) && g.find((t) => t.isPositive()))
+      )
+      .reduce((total, g) => {
+        return (
+          total +
+          g.reduce(
+            (p, t) =>
+              p +
+              t.toUnderlying().abs().toFiat('USD').toFloat() * getArbBoosts(t),
+            0
+          )
+        );
+      }, 0);
+
+    const vaultPoints = VaultAccountRiskProfile.getAllRiskProfiles(a)
+      // Filter out empty vault accounts
+      .filter((v) => !(v.vaultShares.isZero() && v.vaultDebt.isZero()))
+      .reduce(
+        (total, v) =>
+          total +
+          v.netWorth().toFiat('USD').toFloat() * getArbBoosts(v.vaultShares),
+        0
+      );
+
+    return {
+      account: a.address,
+      points: vaultPoints + portfolioPoints,
+      date: floorToMidnight(getNowSeconds()),
+    };
+  });
 }
