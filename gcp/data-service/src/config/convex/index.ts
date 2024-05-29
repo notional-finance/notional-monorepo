@@ -165,4 +165,46 @@ export const Curve_Config = [
       ),
     ]
   ),
+  getCurveV1PoolConfig(
+    '0x635EF0056A597D13863B73825CcA297236578595',
+    '0x4717c25df44e280ec5b31acbd8c194e1ed24efe2',
+    Network.mainnet,
+    Strategy.Eth_Convex_GHO_crvUSD,
+    [EthTokenConfig['GHO'], EthTokenConfig['crvUSD']],
+    [
+      getOracleValue(
+        Network.mainnet,
+        Strategy.Eth_Convex_GHO_crvUSD,
+        'GHO to USD Price',
+        '0x3f12643D3f6f874d39C2a4c9f2Cd6f2DbAC877FC'
+      ),
+      getOracleValue(
+        Network.mainnet,
+        Strategy.Eth_Convex_GHO_crvUSD,
+        'crvUSD to USD Price',
+        '0xEEf0C605546958c1f899b6fB336C20671f9cD49F'
+      ),
+    ]
+  ),
+  getCurveV1PoolConfig(
+    '0x670a72e6D22b0956C0D2573288F82DCc5d6E3a61',
+    '0x8ed00833be7342608fafdbf776a696afbfeaae96',
+    Network.mainnet,
+    Strategy.Eth_Curve_GHO_USDe,
+    [EthTokenConfig['GHO'], EthTokenConfig['USDe']],
+    [
+      getOracleValue(
+        Network.mainnet,
+        Strategy.Eth_Curve_GHO_USDe,
+        'GHO to USD Price',
+        '0x3f12643D3f6f874d39C2a4c9f2Cd6f2DbAC877FC'
+      ),
+      getOracleValue(
+        Network.mainnet,
+        Strategy.Eth_Curve_GHO_USDe,
+        'USDe to USD Price',
+        '0xa569d910839Ae8865Da8F8e70FfFb0cBA869F961'
+      ),
+    ]
+  ),
 ].flatMap((_) => _);

@@ -60,7 +60,7 @@ export default class DataService {
   public static readonly VAULT_APY_NAME = 'vault_apy';
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
 
-  constructor(public db: Knex, public settings: DataServiceSettings) { }
+  constructor(public db: Knex, public settings: DataServiceSettings) {}
 
   private getKeyByValue(object, value) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -132,6 +132,7 @@ export default class DataService {
         }
       } catch (e: any) {
         console.error(`Failed to backfill ${ts}, ${e.toString()}`);
+        console.error(e.stack);
       }
       await new Promise((r) => setTimeout(r, this.settings.backfillDelayMs));
     }
@@ -385,7 +386,7 @@ export default class DataService {
         highBlock = block;
         const delta = Math.ceil(
           (block.timestamp - targetTimestamp) *
-          this.settings.blocksPerSecond[network.toString()]
+            this.settings.blocksPerSecond[network.toString()]
         );
         blockNumber -= delta;
         block = await provider.getBlock(blockNumber);
@@ -394,7 +395,7 @@ export default class DataService {
         lowBlock = block;
         const delta = Math.ceil(
           (targetTimestamp - block.timestamp) *
-          this.settings.blocksPerSecond[network.toString()]
+            this.settings.blocksPerSecond[network.toString()]
         );
         blockNumber += delta;
         block = await provider.getBlock(blockNumber);
@@ -518,10 +519,7 @@ export default class DataService {
       .ignore();
   }
 
-  public async insertVaultAPY(
-    network: Network,
-    vaultAPY: VaultAPY[]
-  ) {
+  public async insertVaultAPY(network: Network, vaultAPY: VaultAPY[]) {
     return this.db
       .insert(
         vaultAPY.map((v) => ({
