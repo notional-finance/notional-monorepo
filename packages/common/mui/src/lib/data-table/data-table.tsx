@@ -66,6 +66,7 @@ interface DataTableProps {
   allNetworksToggleData?: DataTableToggleProps;
   csvDataFormatter?: (data: any[]) => any;
   accentCSV?: boolean;
+  expandableTable?: boolean;
   stateZeroMessage?: ReactNode;
   hiddenRowMessage?: ReactNode;
   infoBoxData?: InfoBoxDataProps[];
@@ -100,6 +101,7 @@ export const DataTable = ({
   setShowHiddenRows,
   hiddenRowMessage,
   showHiddenRows,
+  expandableTable,
   infoBoxData,
   maxHeight,
   sx,
@@ -129,7 +131,6 @@ export const DataTable = ({
   );
 
   const tableReady = !tableLoading && columns?.length > 0 && data?.length > 0;
-  const expandableTable = CustomRowComponent ? true : false;
 
   /**
     "Default Data Table": 
@@ -269,8 +270,14 @@ export const DataTable = ({
             />
           )}
 
-          {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
-          {toggleBarProps && tableTitle && (
+          {tabBarProps && (
+            <DataTableTabBar
+              tabBarProps={tabBarProps}
+              toggleBarProps={toggleBarProps}
+            />
+          )}
+
+          {toggleBarProps && tableTitle && !tabBarProps && (
             <DataTableToggle
               toggleBarProps={toggleBarProps}
               expandableTable={expandableTable}

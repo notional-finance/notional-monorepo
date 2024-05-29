@@ -1,71 +1,98 @@
-import { TabBarPropsType } from '../types';
+import { TabBarPropsType, ToggleBarPropsType } from '../types';
 import { InfoTooltip } from '../../info-tooltip/info-tooltip';
+import { Subtitle } from '../../typography/typography';
 import { Box, Tab, Tabs, useTheme } from '@mui/material';
+import { SimpleToggle } from '../../simple-toggle/simple-toggle';
 
 interface DataTableTabBarProps {
   tabBarProps: TabBarPropsType;
+  toggleBarProps?: ToggleBarPropsType;
 }
 
-export const DataTableTabBar = ({ tabBarProps }: DataTableTabBarProps) => {
-  const { palette, shape } = useTheme();
+export const DataTableTabBar = ({
+  tabBarProps,
+  toggleBarProps,
+}: DataTableTabBarProps) => {
+  const theme = useTheme();
   const { currentTab, setCurrentTab, tableTabs } = tabBarProps;
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
   };
 
   return (
-    <Tabs
-      value={currentTab}
-      onChange={handleChange}
-      aria-label="data table tab bar"
+    <Box
       sx={{
-        color: palette.common.black,
         display: 'flex',
-        '.MuiTabs-flexContainer': {
-          justifyContent: 'space-evenly',
-        },
-        borderBottom: shape.borderStandard,
-        '.MuiTabs-indicator': {
-          height: '4px',
-          background: palette.primary.light,
-        },
-        flex: 1,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginRight: theme.spacing(3),
       }}
     >
-      {tableTabs.map(({ title, toolTipText }, index) => (
-        <Tab
-          disableRipple
-          key={`table-tab-bar-${index}`}
-          sx={{
-            color: `${palette.common.black} !important`,
-            flex: 1,
-            fontSize: '0.75rem',
-            padding: '25px',
-            fontWeight: 700,
-          }}
-          label={
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
+      <Tabs
+        value={currentTab}
+        onChange={handleChange}
+        aria-label="data table tab bar"
+        sx={{
+          maxWidth: '500px',
+          color: theme.palette.common.black,
+          display: 'flex',
+          '.MuiTabs-flexContainer': {
+            justifyContent: 'start',
+          },
+          '.MuiTabs-indicator': {
+            height: '2px',
+            background: theme.palette.primary.light,
+          },
+          flex: 1,
+        }}
+      >
+        {tableTabs.map(({ title, toolTipText }, index) => (
+          <Tab
+            disableRipple
+            key={`table-tab-bar-${index}`}
+            sx={{
+              flex: 1,
+              width: 'fit-content',
+              maxWidth: 'fit-content',
+              padding: theme.spacing(3),
+              fontWeight: 700,
+              '&:hover': {
+                background: theme.palette.info.light,
+              },
+            }}
+            label={
               <Box
                 sx={{
-                  paddingRight: '5px',
-                  textTransform: 'capitalize',
-                  fontSize: '14px',
-                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
-                {title}
+                <Subtitle
+                  sx={{
+                    whiteSpace: 'nowrap',
+                    fontWeight: currentTab === index ? 600 : '',
+                    color:
+                      currentTab === index
+                        ? theme.palette.primary.light
+                        : theme.palette.typography.light,
+                  }}
+                >
+                  {title}
+                </Subtitle>
+                {toolTipText && <InfoTooltip toolTipText={toolTipText} />}
               </Box>
-              {toolTipText && <InfoTooltip toolTipText={toolTipText} />}
-            </Box>
-          }
-        ></Tab>
-      ))}
-    </Tabs>
+            }
+          ></Tab>
+        ))}
+      </Tabs>
+      {toggleBarProps && toggleBarProps.showToggle && currentTab === 0 && (
+        <SimpleToggle
+          tabLabels={toggleBarProps.toggleData}
+          selectedTabIndex={toggleBarProps.toggleOption}
+          onChange={(_, v) => toggleBarProps.setToggleOption(v as number)}
+        />
+      )}
+    </Box>
   );
 };
 

@@ -5,50 +5,38 @@ import {
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useLocation, useHistory } from 'react-router-dom';
-import { TableTitleButtonsType } from '@notional-finance/mui';
+import { SimpleOptionProps } from '@notional-finance/mui';
 
-export const usePortfolioButtonBar = () => {
+export const useReduceRiskDropdown = () => {
   const network = useSelectedNetwork();
   const account = useAccountDefinition(network);
-  const accountReady = !!account;
   const { pathname: currentPath } = useLocation();
-  const hasWithdrawableTokens = account?.balances.find(
-    (t) => t.isPositive() && !t.isVaultToken
-  );
   const hasDebts = !!account?.balances.find(
     (t) => t.isNegative() && !t.isVaultToken
   );
 
   const history = useHistory();
 
-  const buttonData: TableTitleButtonsType[] = [
+  const options: SimpleOptionProps[] = [
     {
-      buttonText: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
+      label: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
       callback: () => {
         history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DEPOSIT}/ETH`);
       },
     },
   ];
 
-  if (hasWithdrawableTokens) {
-    buttonData.push({
-      buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
-      callback: () => {
-        history.push(
-          `${currentPath}/${PORTFOLIO_ACTIONS.WITHDRAW}/${hasWithdrawableTokens?.token.id}`
-        );
-      },
-    });
-  }
-
   if (hasDebts) {
-    buttonData.push({
-      buttonText: <FormattedMessage defaultMessage={'Deleverage'} />,
+    options.push({
+      label: <FormattedMessage defaultMessage={'Deleverage'} />,
       callback: () => {
         history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DELEVERAGE}`);
       },
     });
   }
 
-  return accountReady ? buttonData : [];
+  return {
+    options: options,
+    title: <FormattedMessage defaultMessage={'Reduce Risk'} />,
+  };
 };

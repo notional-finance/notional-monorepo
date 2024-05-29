@@ -16,7 +16,7 @@ import {
 import { ExpandedState } from '@tanstack/react-table';
 import { useDetailedHoldingsTable } from './use-detailed-holdings';
 import { useGroupedHoldingsTable } from './use-grouped-holdings';
-import { useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 
 function insertDebtDivider(arr) {
   for (let i = 0; i < arr.length; i++) {
@@ -69,14 +69,26 @@ export function usePortfolioHoldings() {
   const groupedHoldings = [...groupedRows, ...filteredHoldings];
 
   const toggleData = [
-    {
-      id: 0,
-      label: <FormattedMessage defaultMessage="Default" />,
-    },
-    {
-      id: 1,
-      label: <FormattedMessage defaultMessage="Detailed" />,
-    },
+    <Box
+      sx={{
+        fontSize: '14px',
+        display: 'flex',
+        justifyContent: 'center',
+        width: theme.spacing(11),
+      }}
+    >
+      <FormattedMessage defaultMessage="Default" />
+    </Box>,
+    <Box
+      sx={{
+        fontSize: '14px',
+        display: 'flex',
+        justifyContent: 'center',
+        width: theme.spacing(11),
+      }}
+    >
+      <FormattedMessage defaultMessage="Detailed" />
+    </Box>,
   ];
 
   const Columns = useMemo<DataTableColumn[]>(

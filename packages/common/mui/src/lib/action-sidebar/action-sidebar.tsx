@@ -29,7 +29,7 @@ export interface ActionSidebarProps {
   helpTextLink?: string;
   onCancelCallback?: () => void;
   CustomActionButton?: React.ElementType;
-  showActionButtons?: boolean;
+  hideActionButtons?: boolean;
   hideTextOnMobile?: boolean;
   advancedToggle?: ToggleSwitchProps;
   NetworkSelector?: React.ReactNode;
@@ -80,7 +80,7 @@ export const ActionSidebar = ({
   CustomActionButton,
   NetworkSelector,
   advancedToggle,
-  showActionButtons = true,
+  hideActionButtons,
   hideTextOnMobile = true,
   handleSubmit,
   isPortfolio,
@@ -161,7 +161,7 @@ export const ActionSidebar = ({
       </ActionSideBarContainer>
       <FormSection hideTextOnMobile={hideTextOnMobile} theme={theme}>
         {children}
-        {showActionButtons && !CustomActionButton && handleSubmit && (
+        {!hideActionButtons && !CustomActionButton && handleSubmit && (
           <ActionSidebarButtons
             canSubmit={canSubmit}
             cancelRoute={cancelRoute}
