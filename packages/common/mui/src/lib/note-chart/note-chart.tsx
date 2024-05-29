@@ -155,19 +155,23 @@ export const NoteChart = ({
       padding: 0,
       // TODO: Bring in data format function for axisValue when available
       formatter: function (params) {
-        const value = formatToolTipValueAsFiat
-          ? formatNumberAsAbbr(params[0].data[1], 4, baseCurrency)
-          : formatNumber(params[0].data[1]);
-        if (noteNumCallback) {
-          noteNumCallback(params[0].data[1]);
-        }
-        return `<div style="background-color: #041D2E; width: fit-content; box-shadow: -2px 1px 24px 0px rgba(135, 155, 215, 0.20), 0px 4px 16px 0px rgba(121, 209, 212, 0.40); padding: 8px; height: 58px;">
+        try {
+          const value = formatToolTipValueAsFiat
+            ? formatNumberAsAbbr(params[0].data[1], 4, baseCurrency)
+            : formatNumber(params[0].data[1]);
+          if (noteNumCallback) {
+            noteNumCallback(params[0].data[1]);
+          }
+          return `<div style="background-color: #041D2E; width: fit-content; box-shadow: -2px 1px 24px 0px rgba(135, 155, 215, 0.20), 0px 4px 16px 0px rgba(121, 209, 212, 0.40); padding: 8px; height: 58px;">
                   <div style="color: #BCD4DB; font-family: Avenir Next; font-weight: 500;">${formatDateTooltip(
                     params[0].data[0]
                   )}</div>
                   <div style="color: #ffffff; font-family: Avenir Next; font-weight: 500;" >${value}
                   </div>
                 </div>`;
+        } catch {
+          return '<div></div>';
+        }
       },
       position: function (pt) {
         return [pt[0], '10%'];
