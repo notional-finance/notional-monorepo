@@ -51,12 +51,16 @@ export function formatNumberAsAPY(num: number | string, decimals = 2) {
   return `${formatNumberAsPercent(num, decimals)} APY`;
 }
 
+export interface NumberAsAbbrOptions {
+  hideSymbol?: boolean,
+  removeKAbbr?: boolean,
+}
+
 export function formatNumberAsAbbr(
   num: number,
   decimalPlaces?: number,
   baseCurrency?: string,
-  hideSymbol?: boolean,
-  removeKAbbr?: boolean,
+  opts: NumberAsAbbrOptions = {},
   locale = 'en-US'
 ) {
   let suffix = '';
@@ -64,7 +68,7 @@ export function formatNumberAsAbbr(
   if (Math.abs(num) < 1_000) {
     suffix = '';
   } else if (Math.abs(num) < 1_000_000) {
-    if (removeKAbbr) {
+    if (opts.removeKAbbr) {
       num;
     } else {
       suffix = 'k';
@@ -78,7 +82,7 @@ export function formatNumberAsAbbr(
     num = num / 1_000_000_000;
   }
 
-  const symbol = hideSymbol
+  const symbol = opts.hideSymbol
     ? ''
     : baseCurrency && FiatSymbols[baseCurrency]
     ? FiatSymbols[baseCurrency]

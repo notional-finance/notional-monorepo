@@ -95,7 +95,7 @@ export const NoteGovernance = () => {
                       score,
                       1,
                       '',
-                      true
+                      { removeKAbbr: true }
                     )} NOTE`}
                   </CardCaption>
                   <CardCaption>
