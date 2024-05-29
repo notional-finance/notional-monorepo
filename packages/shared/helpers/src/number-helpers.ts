@@ -52,8 +52,8 @@ export function formatNumberAsAPY(num: number | string, decimals = 2) {
 }
 
 export interface NumberAsAbbrOptions {
-  hideSymbol?: boolean,
-  removeKAbbr?: boolean,
+  hideSymbol?: boolean;
+  removeKAbbr?: boolean;
 }
 
 export function formatNumberAsAbbr(
