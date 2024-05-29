@@ -21,6 +21,7 @@ export const PortfolioVaults = () => {
           data={vaultHoldingsData}
           columns={vaultHoldingsColumns}
           CustomRowComponent={TableActionRow}
+          expandableTable={true}
           tableTitle={
             <FormattedMessage
               defaultMessage="Leveraged Vaults"

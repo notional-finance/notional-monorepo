@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { ActionRowButton } from '../action-row-button/action-row-button';
+import { HistoryIcon } from '@notional-finance/icons';
 import {
   H5,
   H4,
@@ -15,6 +15,7 @@ import {
 import { colors } from '@notional-finance/styles';
 import { defineMessages } from 'react-intl';
 import { TABLE_WARNINGS } from '@notional-finance/util';
+import { useHistory } from 'react-router';
 
 const messages = {
   [TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN]: defineMessages({
@@ -70,6 +71,7 @@ export interface TableActionRowProps {
 
 export const TableActionRow = ({ row }: TableActionRowProps) => {
   const theme = useTheme();
+  const history = useHistory();
   const {
     actionRow: {
       txnHistory,
@@ -135,18 +137,24 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
             }}
           />
           {txnHistory && (
-            <ActionRowButton
-              variant="outlined"
-              size="medium"
-              {...defineMessages({
-                label: {
-                  defaultMessage: 'Transaction History',
-                  description: 'button text',
-                },
-              })}
-              route={txnHistory}
-              sx={{ marginLeft: theme.spacing(3) }}
-            />
+            <Box
+              onClick={() => history.push(txnHistory)}
+              sx={{
+                cursor: 'pointer',
+                height: theme.spacing(5),
+                border: `1px solid ${theme.palette.typography.accent}`,
+                borderRadius: theme.shape.borderRadius,
+                padding: theme.spacing(1),
+                marginLeft: theme.spacing(3),
+              }}
+            >
+              <HistoryIcon
+                sx={{
+                  fill: theme.palette.typography.accent,
+                  marginLeft: '2px',
+                }}
+              />
+            </Box>
           )}
         </ButtonContainer>
       </Container>

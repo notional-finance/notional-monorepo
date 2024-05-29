@@ -61,7 +61,7 @@ export const CoolDown = () => {
       context={context}
       showDrawer
       mobileTopMargin={theme.spacing(16)}
-      showActionButtons={false}
+      hideActionButtons={true}
     >
       {redeemWindowBeginDate && (
         <Box>

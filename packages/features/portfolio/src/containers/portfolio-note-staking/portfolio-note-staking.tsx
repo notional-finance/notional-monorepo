@@ -55,6 +55,7 @@ export const PortfolioNoteStaking = () => {
           data={data}
           columns={columns}
           CustomRowComponent={SNOTETableActionRow}
+          expandableTable={true}
           tableTitle={
             <FormattedMessage
               defaultMessage="sNOTE Holdings"
@@ -71,6 +72,7 @@ export const PortfolioNoteStaking = () => {
             data={noteData}
             columns={noteColumns}
             CustomRowComponent={TableActionRow}
+            expandableTable={true}
             tableTitle={
               <FormattedMessage
                 defaultMessage="NOTE Holdings"
