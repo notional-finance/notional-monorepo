@@ -10,7 +10,6 @@ import {
   HeadingSubtitle,
 } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
-import { ExternalLink } from '../external-link/external-link';
 
 export interface ActionSidebarProps {
   heading:
@@ -26,7 +25,6 @@ export interface ActionSidebarProps {
   children: React.ReactNode | React.ReactNode[];
   canSubmit?: boolean;
   cancelRoute?: string;
-  helpTextLink?: string;
   onCancelCallback?: () => void;
   CustomActionButton?: React.ElementType;
   hideActionButtons?: boolean;
@@ -75,7 +73,6 @@ export const ActionSidebar = ({
   children,
   canSubmit,
   cancelRoute,
-  helpTextLink,
   onCancelCallback,
   CustomActionButton,
   NetworkSelector,
@@ -139,16 +136,7 @@ export const ActionSidebar = ({
             display: { xs: 'none', sm: 'none', md: 'block' },
           }}
         >
-          <FormattedMessage
-            {...helptext}
-            values={{
-              a: (chunk: React.ReactNode) => (
-                <ExternalLink accent textDecoration href={helpTextLink || ''}>
-                  {chunk}
-                </ExternalLink>
-              ),
-            }}
-          />
+          <FormattedMessage {...helptext} />
         </HeadingSubtitle>
         <Divider
           sx={{
