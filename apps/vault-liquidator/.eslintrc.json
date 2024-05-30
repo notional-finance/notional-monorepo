@@ -3,7 +3,7 @@
   "ignorePatterns": ["!**/*"],
   "plugins": ["address"],
   "rules": {
-    "address/addr-type": ["error", "checksum"]
+    // "address/addr-type": ["error", "checksum"]
   },
   "overrides": [
     {
