@@ -258,7 +258,7 @@ export default {
         await runAllVaults(env);
         return new Response('OK', { status: 200 });
       } else if (splitPath.length === 2) {
-        return runSingleVault(splitPath[1], env);
+        return runSingleVault(splitPath[1].toLowerCase(), env);
       } else {
         return new Response('Not Found', { status: 404 });
       }
