@@ -33,32 +33,33 @@ const useIncentiveCountUp = (
   network: Network
 ) => {
   const [c, setCountUp] = useState<number>(0);
-
-  useEffect(() => {
-    // Reset the count up on network change
-    setCountUp(0);
-  }, [network]);
+  // Used to track which network the count up is showing
+  const [_network, setNetwork] = useState<Network | undefined>(undefined);
 
   useEffect(() => {
     const currentFloat = i?.current.toFloat();
     const in100SecFloat = i?.in100Sec.toFloat();
 
-    if (c === 0 && currentFloat) setCountUp(currentFloat);
+    if (_network !== network) {
+      setCountUp(currentFloat || 0);
+      setNetwork(network);
+    }
 
     if (in100SecFloat && currentFloat) {
       const perSecondFloat = (in100SecFloat - currentFloat) / 100;
       const interval = setInterval(() => {
         if (perSecondFloat > 0) {
-          setCountUp((c) => c + 0.1 * perSecondFloat);
+          setCountUp((c) => c + perSecondFloat);
         }
-      }, 100);
+      }, 1000);
 
       return () => clearInterval(interval);
     } else {
       return undefined;
     }
+    // Don't include "c" in the use effect because it is changing due to the interval
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i]);
+  }, [i, network, _network]);
 
   return c;
 };
@@ -117,7 +118,7 @@ export const ClaimNoteButton = () => {
               <NoteIcon />
               <Box sx={{ paddingLeft: theme.spacing(1) }}>
                 {noteCountUp > 0 ? (
-                  <CountUp value={noteCountUp} duration={0.1} decimals={8} />
+                  <CountUp value={noteCountUp} duration={1} decimals={8} />
                 ) : (
                   ''
                 )}
@@ -129,11 +130,7 @@ export const ClaimNoteButton = () => {
               <TokenIcon symbol="GHO" size={'medium'} />
               <Box sx={{ paddingLeft: theme.spacing(1) }}>
                 {secondaryCountUp > 0 ? (
-                  <CountUp
-                    value={secondaryCountUp}
-                    duration={0.1}
-                    decimals={8}
-                  />
+                  <CountUp value={secondaryCountUp} duration={1} decimals={8} />
                 ) : (
                   ''
                 )}

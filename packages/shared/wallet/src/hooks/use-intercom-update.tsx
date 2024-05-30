@@ -1,4 +1,3 @@
-import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { SupportedNetworks } from '@notional-finance/util';
 import { useIntercom } from 'react-use-intercom';
@@ -14,22 +13,42 @@ export const useIntercomUpdate = () => {
 
   useEffect(() => {
     if (selectedAccount && !isReadOnlyAddress) {
-      const networkBalanceData = {};
+      const balanceData = {
+        walletBalance: 0,
+        notionalBalance: 0,
+      };
       SupportedNetworks.forEach((network) => {
         const account = networkAccounts ? networkAccounts[network] : undefined;
-        const usdBalance = account?.accountDefinition?.balances.reduce(
-          (sum, b) => sum + b.toFiat('USD').abs().toFloat(),
-          0
-        );
-        networkBalanceData[network] = usdBalance
-          ? formatNumberAsAbbr(usdBalance)
-          : '';
+
+        const walletBalance = account?.accountDefinition?.balances
+          .filter((b) => b.tokenType === 'Underlying' && b.symbol !== 'sNOTE')
+          .reduce((acc, b) => acc + b.toFiat('USD').toFloat(), 0);
+
+        const notionalBalance = account?.accountDefinition?.balances
+          .filter((b) => b.tokenType !== 'Underlying' && b.symbol !== 'sNOTE')
+          .reduce((acc, b) => acc + b.toFiat('USD').toFloat(), 0);
+
+        if (walletBalance) {
+          balanceData.walletBalance = balanceData.walletBalance + walletBalance;
+        }
+
+        if (notionalBalance) {
+          balanceData.notionalBalance =
+            balanceData.notionalBalance + notionalBalance;
+        }
       });
+
+      const totalBalance =
+        balanceData.notionalBalance + balanceData.walletBalance;
 
       update({
         userId: selectedAccount,
         name: selectedAccount,
-        customAttributes: networkBalanceData,
+        customAttributes: {
+          TotalWalletBalance: balanceData.walletBalance,
+          TotalNotionalBalance: balanceData.notionalBalance,
+          TotalBalance: totalBalance,
+        },
       });
     }
   }, [selectedAccount, isReadOnlyAddress, networkAccounts, update]);

@@ -3,7 +3,7 @@ import NumberFormat from 'react-number-format';
 import { Input, Box, useTheme, Divider, styled } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import CurrencySelect, { CurrencySelectProps } from './currency-select';
-import MaxButton from '../max-button/max-button';
+import MiniButton from '../mini-button/mini-button';
 import { Paragraph, Caption } from '../typography/typography';
 import { useCallback, useRef } from 'react';
 
@@ -21,6 +21,7 @@ export interface CurrencyInputProps extends CurrencySelectProps {
   maxValue?: string;
   style?: CurrencyInputStyleProps;
   onMaxValue?: () => void;
+  miniButtonLabel?: string;
   ref: React.RefObject<HTMLDivElement>;
   showScrollPopper?: boolean;
 }
@@ -90,6 +91,7 @@ export const CurrencyInput = React.forwardRef<
     maxValue,
     onInputChange,
     onMaxValue,
+    miniButtonLabel,
     style,
     showScrollPopper,
   } = props;
@@ -180,7 +182,8 @@ export const CurrencyInput = React.forwardRef<
           inputComponent={NumberFormatter as any}
           inputProps={{ decimals }}
         />
-        <MaxButton
+        <MiniButton
+          label={miniButtonLabel || 'MAX'}
           isVisible={!!maxValue || !!onMaxValue}
           onClick={() => {
             if (maxValue) {

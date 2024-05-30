@@ -43,6 +43,9 @@ durable_objects.bindings = [
   { name = "VIEWS_DO", class_name = "ViewsDO", script_name = "data-dev" },
   { name = "ACCOUNTS_REGISTRY_DO", class_name = "RegistryClientDO", script_name = "accounts-dev" }
 ]
+r2_buckets = [
+  { binding = "ACCOUNT_CACHE_R2", bucket_name = "account-cache-r2", preview_bucket_name = "account-cache-r2-dev" },
+]
 
 [env.dev.vars]
 NX_ENV = "dev"

@@ -7,6 +7,7 @@ import {
   RATE_PRECISION,
   SECONDS_IN_YEAR,
   ZERO_ADDRESS,
+  WETHAddress,
 } from '@notional-finance/util';
 import { BigNumber, utils } from 'ethers';
 import {
@@ -47,6 +48,7 @@ export const PRICE_ORACLES = [
   'PrimeDebtToUnderlyingExchangeRate',
   'VaultShareOracleRate',
   'nTokenToUnderlyingExchangeRate',
+  'sNOTEToETHExchangeRate',
 ];
 
 export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
@@ -60,12 +62,13 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   /** Rate equal to one unit in 18 decimal precision with an arbitrary future timestamp */
   private _getUnitRate(
     network: Network,
-    baseId: string
+    baseId: string,
+    quoteId?: string
   ): Observable<OracleDefinition> {
     return of({
       id: UNIT_RATE,
       base: baseId,
-      quote: baseId,
+      quote: quoteId || baseId,
       network,
       oracleType: 'Chainlink',
       decimals: 18,
@@ -124,6 +127,25 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           this.adjLists.set(network, networkList);
         }
       });
+
+    this.networkRegistered.asObservable().subscribe((n) => {
+      if (n) {
+        this.registerOracle(n, {
+          id: UNIT_RATE,
+          base: ZERO_ADDRESS,
+          quote: WETHAddress[n],
+          network: n,
+          oracleType: 'Chainlink',
+          decimals: 18,
+          oracleAddress: ZERO_ADDRESS,
+          latestRate: {
+            rate: SCALAR_PRECISION,
+            timestamp: 2 ** 32,
+            blockNumber: 2 ** 32,
+          },
+        });
+      }
+    });
   }
 
   public destroy() {

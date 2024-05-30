@@ -1,4 +1,4 @@
-import { TradeType, VaultTradeType } from '@notional-finance/notionable';
+import { AllTradeTypes } from '@notional-finance/notionable';
 import { MessageDescriptor, defineMessages } from 'react-intl';
 export type CombinedTokenTypes =
   | 'fCash-PrimeDebt'
@@ -13,11 +13,12 @@ export type CombinedTokenTypes =
   | 'PrimeDebt-nToken';
 
 export const TransactionHeadings: Record<
-  TradeType | VaultTradeType,
+  AllTradeTypes,
   {
     heading: MessageDescriptor;
     helptext: MessageDescriptor;
     headerText?: MessageDescriptor;
+    walletConnectedText?: MessageDescriptor;
     'fCash-PrimeDebt'?: MessageDescriptor;
     'PrimeDebt-fCash'?: MessageDescriptor;
     'PrimeCash-fCash'?: MessageDescriptor;
@@ -198,4 +199,108 @@ export const TransactionHeadings: Record<
     heading: { defaultMessage: 'x' },
     helptext: { defaultMessage: 'x' },
   }),
+  StakeNOTE: defineMessages({
+    heading: { defaultMessage: 'Stake NOTE' },
+    headerText: { defaultMessage: 'Stake NOTE' },
+    helptext: {
+      defaultMessage:
+        'Staked NOTE holders provide liquidity in an 80/20 NOTE/WETH pool on Balancer.',
+    },
+  }),
+  StakeNOTECoolDown: defineMessages({
+    heading: { defaultMessage: 'Cooldown Period Initiated' },
+    walletConnectedText: {
+      defaultMessage: 'Cancel Cooldown',
+      description: 'call to action button',
+    },
+    headerText: { defaultMessage: 'Stake NOTE' },
+    helptext: {
+      defaultMessage:
+        'You will only have 3 days to redeem your sNOTE once the cooldown ends. <a>Learn More</a>',
+    },
+  }),
+  StakeNOTERedeem: defineMessages({
+    heading: { defaultMessage: 'Redeem NOTE' },
+    headerText: { defaultMessage: 'Redeem NOTE' },
+    helptext: {
+      defaultMessage:
+        'Cooldown is completed. Enter the amount of NOTE to claim. All funds not claimed in the 3 day period will continue to be staked.',
+    },
+  }),
+};
+
+export const HelpTextLinks: Record<AllTradeTypes, { helpTextLink?: string }> = {
+  StakeNOTECoolDown: {
+    helpTextLink:
+      'https://docs.notional.finance/notional-v3/governance/note-staking',
+  },
+  LendFixed: {
+    helpTextLink: '',
+  },
+  LendVariable: {
+    helpTextLink: '',
+  },
+  LeveragedLend: {
+    helpTextLink: '',
+  },
+  BorrowFixed: {
+    helpTextLink: '',
+  },
+  BorrowVariable: {
+    helpTextLink: '',
+  },
+  MintNToken: {
+    helpTextLink: '',
+  },
+  LeveragedNToken: {
+    helpTextLink: '',
+  },
+  IncreaseLeveragedNToken: {
+    helpTextLink: '',
+  },
+  LeveragedNTokenAdjustLeverage: {
+    helpTextLink: '',
+  },
+  Deposit: {
+    helpTextLink: '',
+  },
+  Withdraw: {
+    helpTextLink: '',
+  },
+  RepayDebt: {
+    helpTextLink: '',
+  },
+  Deleverage: {
+    helpTextLink: '',
+  },
+  ConvertAsset: {
+    helpTextLink: '',
+  },
+  RollDebt: {
+    helpTextLink: '',
+  },
+  DeleverageWithdraw: {
+    helpTextLink: '',
+  },
+  CreateVaultPosition: {
+    helpTextLink: '',
+  },
+  IncreaseVaultPosition: {
+    helpTextLink: '',
+  },
+  AdjustVaultLeverage: {
+    helpTextLink: '',
+  },
+  RollVaultPosition: {
+    helpTextLink: '',
+  },
+  WithdrawVault: {
+    helpTextLink: '',
+  },
+  StakeNOTE: {
+    helpTextLink: '',
+  },
+  StakeNOTERedeem: {
+    helpTextLink: '',
+  },
 };

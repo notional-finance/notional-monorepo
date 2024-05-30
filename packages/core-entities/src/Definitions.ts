@@ -59,7 +59,13 @@ export interface OracleDefinition {
   /** Network the address refers to */
   network: Network;
   /** Type of oracle interface */
-  oracleType: OracleType | 'sNOTE' | 'VaultShareAPY' | 'nTokenTotalAPY';
+  oracleType:
+    | OracleType
+    | 'sNOTE'
+    | 'VaultShareAPY'
+    | 'nTokenTotalAPY'
+    | 'sNOTEToETHExchangeRate'
+    | 'sNOTEReinvestmentAPY';
   /** Base ID for the oracle, rate is quoted as 1 unit of this token.  */
   base: string;
   /** Quote ID for the oracle, rate is how many tokens 1 unit of base will purchase.  */
@@ -157,6 +163,13 @@ export interface AccountIncentiveDebt {
   currencyId: number;
 }
 
+export interface StakeNoteStatus {
+  inCoolDown: boolean;
+  inRedeemWindow: boolean;
+  redeemWindowBegin: number;
+  redeemWindowEnd: number;
+}
+
 export interface AccountDefinition {
   /** Address of the account */
   address: string;
@@ -179,6 +192,7 @@ export interface AccountDefinition {
   /** Specific allowances tracked for user interface purposes */
   allowances?: Allowance[];
   systemAccountType?: SystemAccount;
+  stakeNOTEStatus?: StakeNoteStatus;
 }
 
 export interface SerializedAccountDefinition {

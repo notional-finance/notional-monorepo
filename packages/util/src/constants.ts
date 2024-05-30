@@ -82,7 +82,14 @@ export const NotionalAddress: Record<Network, string> = {
   [Network.optimism]: '',
 };
 
-export const StakedNoteAddress = '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2';
+export const WETHAddress: Record<Network, string> = {
+  [Network.all]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  [Network.mainnet]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  [Network.arbitrum]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+  [Network.optimism]: '',
+};
+
+export const sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
 
 export const ORACLE_TYPE_TO_ID = {
   Chainlink: 1,

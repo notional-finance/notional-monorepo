@@ -10,12 +10,14 @@ import {
   HeadingSubtitle,
 } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
+import { ExternalLink } from '../external-link/external-link';
 
 export interface ActionSidebarProps {
   heading:
     | MessageDescriptor
     | { defaultMessage: string }
     | { values?: Record<string, unknown> };
+  walletConnectedText?: MessageDescriptor;
   helptext:
     | MessageDescriptor
     | { defaultMessage: string }
@@ -24,9 +26,10 @@ export interface ActionSidebarProps {
   children: React.ReactNode | React.ReactNode[];
   canSubmit?: boolean;
   cancelRoute?: string;
+  helpTextLink?: string;
   onCancelCallback?: () => void;
   CustomActionButton?: React.ElementType;
-  showActionButtons?: boolean;
+  hideActionButtons?: boolean;
   hideTextOnMobile?: boolean;
   advancedToggle?: ToggleSwitchProps;
   NetworkSelector?: React.ReactNode;
@@ -72,16 +75,18 @@ export const ActionSidebar = ({
   children,
   canSubmit,
   cancelRoute,
+  helpTextLink,
   onCancelCallback,
   CustomActionButton,
   NetworkSelector,
   advancedToggle,
-  showActionButtons = true,
+  hideActionButtons,
   hideTextOnMobile = true,
   handleSubmit,
   isPortfolio,
   leverageDisabled,
   mobileTopMargin,
+  walletConnectedText,
 }: ActionSidebarProps) => {
   const theme = useTheme();
 
@@ -134,7 +139,16 @@ export const ActionSidebar = ({
             display: { xs: 'none', sm: 'none', md: 'block' },
           }}
         >
-          <FormattedMessage {...helptext} />
+          <FormattedMessage
+            {...helptext}
+            values={{
+              a: (chunk: React.ReactNode) => (
+                <ExternalLink accent textDecoration href={helpTextLink || ''}>
+                  {chunk}
+                </ExternalLink>
+              ),
+            }}
+          />
         </HeadingSubtitle>
         <Divider
           sx={{
@@ -147,7 +161,7 @@ export const ActionSidebar = ({
       </ActionSideBarContainer>
       <FormSection hideTextOnMobile={hideTextOnMobile} theme={theme}>
         {children}
-        {showActionButtons && !CustomActionButton && handleSubmit && (
+        {!hideActionButtons && !CustomActionButton && handleSubmit && (
           <ActionSidebarButtons
             canSubmit={canSubmit}
             cancelRoute={cancelRoute}
@@ -160,6 +174,7 @@ export const ActionSidebar = ({
           <CustomActionButton
             onSubmit={handleSubmit}
             canSubmit={canSubmit}
+            walletConnectedText={walletConnectedText}
             leverageDisabled={leverageDisabled}
           />
         )}

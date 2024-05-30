@@ -44,7 +44,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
         let nativeTokenAPY: number | undefined = undefined;
         if (tokenType === 'PrimeCash' || tokenType === 'PrimeDebt') {
-          // TODO: fill this out with a value
           nativeTokenAPY = 0;
         }
 

@@ -156,7 +156,8 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       enableSorting: true,
       sortingFn: 'basic',
       cell: DisplayCell,
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
+      displayFormatter: (val) =>
+        formatNumberAsAbbr(val, 2, baseCurrency, { removeKAbbr: true }),
       accessorKey: 'netWorth',
       textAlign: 'right',
       width: '180px',
@@ -168,7 +169,8 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       cell: DisplayCell,
       enableSorting: true,
       sortingFn: 'basic',
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
+      displayFormatter: (val) =>
+        formatNumberAsAbbr(val, 2, baseCurrency, { removeKAbbr: true }),
       accessorKey: 'assets',
       textAlign: 'right',
       width: '180px',
@@ -178,7 +180,8 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       enableSorting: true,
       cell: DisplayCell,
       sortingFn: 'basic',
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
+      displayFormatter: (val) =>
+        formatNumberAsAbbr(val, 2, baseCurrency, { removeKAbbr: true }),
       accessorKey: 'debts',
       textAlign: 'right',
       width: '180px',

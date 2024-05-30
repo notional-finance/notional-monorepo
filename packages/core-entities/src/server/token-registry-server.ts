@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 import { SerializedTokenBalance, TokenBalance, TokenDefinition } from '..';
 import { fiatTokens } from '../config/fiat-config';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
-import { getNowSeconds, Network } from '@notional-finance/util';
+import { getNowSeconds, Network, sNOTE } from '@notional-finance/util';
 import { TypedDocumentNode } from '@apollo/client/core';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllTokensQuery } from '../.graphclient';
@@ -31,7 +31,7 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
     const { AllTokensDocument, AllTokensByBlockDocument } =
       await loadGraphClientDeferred();
 
-    return this._fetchUsingGraph(
+    const allTokens = await this._fetchUsingGraph(
       network,
       (blockNumber !== undefined
         ? AllTokensByBlockDocument
@@ -68,5 +68,25 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
         blockNumber,
       }
     );
+
+    if (network === Network.mainnet) {
+      // Manually add sNOTE to the mainnet network
+      allTokens.values.push([
+        sNOTE,
+        {
+          id: sNOTE,
+          address: sNOTE,
+          network: Network.mainnet,
+          name: 'Staked NOTE',
+          symbol: 'sNOTE',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+          totalSupply: undefined,
+        },
+      ]);
+    }
+
+    return allTokens;
   }
 }

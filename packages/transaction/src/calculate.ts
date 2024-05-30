@@ -1,6 +1,7 @@
 import {
   fCashMarket,
   Registry,
+  SNOTEWeightedPool,
   TokenBalance,
   TokenDefinition,
   VaultAdapter,
@@ -13,6 +14,7 @@ import {
 } from '@notional-finance/risk-engine';
 import {
   BASIS_POINT,
+  Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
@@ -979,5 +981,91 @@ export function calculateVaultCollateral({
       : netRealizedCollateralBalance.add(feesPaid.toUnderlying()),
     // This properly accounts for the borrow fee in the trade summary
     netRealizedDebtBalance: localDebtPrime.add(debtFee).neg().toUnderlying(),
+  };
+}
+
+export function calculateStake({
+  collateralPool,
+  deposit,
+  depositBalance,
+  secondaryDepositBalance,
+  useOptimalETH,
+}: {
+  collateralPool: SNOTEWeightedPool;
+  deposit?: TokenDefinition;
+  depositBalance?: TokenBalance;
+  secondaryDepositBalance?: TokenBalance;
+  useOptimalETH: boolean;
+}) {
+  const ETH = Registry.getTokenRegistry().getTokenBySymbol(
+    Network.mainnet,
+    'ETH'
+  );
+  const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
+    Network.mainnet,
+    'NOTE'
+  );
+  const noteIn = secondaryDepositBalance || TokenBalance.zero(NOTE);
+  const ethIn = useOptimalETH
+    ? collateralPool.getOptimumETHForNOTE(noteIn)
+    : depositBalance || TokenBalance.zero(ETH);
+
+  if (ethIn.isZero() && noteIn.isZero()) {
+    // Clear outputs if there is no value
+    return {
+      collateralBalance: undefined,
+      collateralFee: undefined,
+      netRealizedCollateralBalance: undefined,
+      postTradeBalances: undefined,
+    };
+  }
+
+  const { lpTokens, feesPaid } = collateralPool.getLPTokensGivenTokens([
+    ethIn.toToken(ETH),
+    noteIn,
+  ]);
+
+  const collateralBalance = collateralPool.getSNOTEForBPT(lpTokens);
+  const feesPaidInETH = feesPaid.reduce(
+    (s, t) => s.add(t.toToken(ETH)),
+    TokenBalance.zero(ETH)
+  );
+  const expectedNOTEPrice = collateralPool.getExpectedETHPrice(
+    noteIn,
+    ethIn.toToken(ETH)
+  );
+
+  return {
+    collateralBalance,
+    collateralFee: feesPaidInETH,
+    // Fees should already be deducted from collateralBalance
+    netRealizedCollateralBalance: collateralBalance.toToken(ETH),
+    postTradeBalances: [collateralBalance, ethIn.neg(), noteIn.neg()],
+    depositBalance: deposit ? ethIn.toToken(deposit) : ethIn,
+    expectedNOTEPrice,
+  };
+}
+
+export function calculateUnstake({
+  collateralPool,
+  depositBalance,
+}: {
+  collateralPool: SNOTEWeightedPool;
+  depositBalance: TokenBalance;
+}) {
+  const lpTokens = collateralPool.getBPTForSNOTE(depositBalance);
+  const claims = collateralPool.getLPTokenClaims(lpTokens);
+  const collateralBalance = claims[collateralPool.NOTE_INDEX];
+
+  return {
+    // sNOTE balance
+    depositBalance,
+    // NOTE balance
+    collateralBalance: claims[collateralPool.NOTE_INDEX],
+    // No fees paid
+    collateralFee: undefined,
+    netRealizedCollateralBalance: collateralBalance,
+    postTradeBalances: [...claims, depositBalance.neg()],
+    ethRedeem: claims[collateralPool.ETH_INDEX],
   };
 }

@@ -43,6 +43,7 @@ import {
 import { VaultView } from '@notional-finance/vault-feature-shell';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
+import { StakeNOTE } from '../../containers/StakeNOTE';
 import { LandingPageView } from '../../containers/LandingPageView';
 import {
   ContestHome,
@@ -201,6 +202,11 @@ const AllRoutes = () => {
             component={Markets}
             routeType="Analytics"
           />
+          <AppLayoutRoute
+            path="/stake/:selectedDepositToken"
+            component={StakeNOTE}
+            routeType="Note"
+          />
           <AppLayoutRoute path="/note" component={NoteView} routeType="Note" />
           <AppLayoutRoute
             path="/analytics/:category"
@@ -263,12 +269,6 @@ const AllRoutes = () => {
             component={AboutUsView}
             routeType="Landing"
           />
-          {/* <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
-          <AppLayoutRoute path="/stake" component={StakeView} />
-          <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
-          <AppLayoutRoute path="/unstake" component={StakeView} />
-          <AppLayoutRoute path="/treasury" component={TreasuryView} /> */}
-
           {/* Catches all the card pages that should be redirected to the default network */}
           <Route path="/:basePath">
             <RedirectToDefaultNetwork />

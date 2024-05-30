@@ -3,11 +3,7 @@ import {
   useAccountDefinition,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
-import {
-  Network,
-  NotionalAddress,
-  StakedNoteAddress,
-} from '@notional-finance/util';
+import { Network, NotionalAddress, sNOTE } from '@notional-finance/util';
 import { useCallback } from 'react';
 import { ERC20, ERC20ABI } from '@notional-finance/contracts';
 
@@ -35,7 +31,7 @@ export const useTokenApproval = (
           if (symbol === 'WETH' || symbol === 'NOTE') {
             if (network !== Network.mainnet)
               throw Error('NOTE staking is only on mainnet');
-            spender = StakedNoteAddress;
+            spender = sNOTE;
           } else {
             spender = NotionalAddress[network];
           }

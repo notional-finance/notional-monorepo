@@ -21,7 +21,7 @@ export function InvestAndEarnDropdown() {
   const theme = useNotionalTheme(flippedTheme);
   const tabOptions = [
     '/vaults',
-    '/stake',
+    '/stake/ETH',
     '/unstake',
     '/liquidity-variable',
     '/liquidity-leveraged',
@@ -40,7 +40,7 @@ export function InvestAndEarnDropdown() {
       <DropdownButton
         popupId="invest-and-earn"
         labelKey={messages[NAV_DROPDOWN.EARN_YIELD]}
-        anchorPosition={{ top: 73, left: 0 }}
+        anchorReference="anchorEl"
         activeTab={currentTab ? true : false}
         hideOnClick={false}
         sx={{

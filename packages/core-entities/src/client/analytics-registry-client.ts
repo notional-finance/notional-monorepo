@@ -49,6 +49,7 @@ const APY_ORACLES = [
   'nTokenFeeRate',
   'nTokenIncentiveRate',
   'nTokenSecondaryIncentiveRate',
+  'sNOTEReinvestmentAPY',
 ] as const;
 
 export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
@@ -197,6 +198,8 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
         return 'NOTE Incentive APY';
       case 'nTokenSecondaryIncentiveRate':
         return `${incentiveSymbol || 'Secondary'} Incentive APY`;
+      case 'sNOTEReinvestmentAPY':
+        return 'sNOTE APY';
     }
   }
 
@@ -363,7 +366,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
           .filter(
             (t) =>
               t.tokenType === 'PrimeDebt' ||
-              // Non-Matured fCash (TODO: need to exclude fCash leverage)
+              // Non-Matured fCash
               (t.tokenType === 'fCash' &&
                 t.isFCashDebt === false &&
                 t.maturity &&

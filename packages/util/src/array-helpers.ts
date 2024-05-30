@@ -1,3 +1,11 @@
+export function firstValue<T>(arr: T[]): T | undefined {
+  return arr.length > 0 ? arr[0] : undefined;
+}
+
+export function lastValue<T>(arr: T[]): T | undefined {
+  return arr.length > 0 ? arr[arr.length - 1] : undefined;
+}
+
 export function unique<T>(arr: T[]): T[] {
   return arr.filter((el, index, source) => source.indexOf(el) === index);
 }

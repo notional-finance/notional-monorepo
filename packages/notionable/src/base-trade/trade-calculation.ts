@@ -16,7 +16,9 @@ import { filterEmpty, RATE_PRECISION } from '@notional-finance/util';
 import { Observable, combineLatest, filter, bufferCount, map } from 'rxjs';
 import { isHashable } from '../utils';
 import {
+  AllTradeTypes,
   BaseTradeState,
+  NOTETradeType,
   TokenOption,
   TradeConfiguration,
   TradeType,
@@ -24,13 +26,15 @@ import {
   VaultTradeType,
   isVaultTrade,
 } from './base-trade-store';
+import { NOTETradeConfiguration } from './note-manager';
 
-export function getTradeConfig(tradeType?: TradeType | VaultTradeType) {
+export function getTradeConfig(tradeType?: AllTradeTypes) {
   if (!tradeType) throw Error('Trade type undefined');
 
   const config =
     TradeConfiguration[tradeType as TradeType] ||
-    VaultTradeConfiguration[tradeType as VaultTradeType];
+    VaultTradeConfiguration[tradeType as VaultTradeType] ||
+    NOTETradeConfiguration[tradeType as NOTETradeType];
 
   if (!config) throw Error('Trade configuration not found');
   return config;
@@ -294,6 +298,7 @@ function getRequiredArgs(
             [...keys, (s[r] as TokenDefinition | undefined)?.id || ''],
           ];
         case 'depositBalance':
+        case 'secondaryDepositBalance':
         case 'debtBalance':
         case 'collateralBalance':
           return [
@@ -323,6 +328,7 @@ function getRequiredArgs(
             [...keys, (s[r] as number | undefined)?.toString() || ''],
           ];
         case 'maxWithdraw':
+        case 'useOptimalETH':
           return [
             Object.assign(inputs, { [r]: s[r] }),
             [...keys, (s[r] as boolean | undefined)?.toString() || ''],
@@ -352,7 +358,7 @@ function getRequiredArgs(
 
 function executeCalculation(
   inputsSatisfied: boolean,
-  tradeType: TradeType | VaultTradeType | undefined,
+  tradeType: AllTradeTypes | undefined,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputs: any
 ) {
@@ -397,7 +403,7 @@ function executeCalculation(
 }
 
 function computeOptions(
-  tradeType: TradeType | VaultTradeType | undefined,
+  tradeType: AllTradeTypes | undefined,
   collateralTokens: TokenDefinition[] | undefined,
   debtTokens: TokenDefinition[] | undefined,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -493,7 +499,7 @@ function computeDebtOptions(
   calculationFn: CalculationFn,
   options: TokenDefinition[],
   fCashMarket: fCashMarket,
-  tradeType: TradeType | VaultTradeType | undefined
+  tradeType: AllTradeTypes | undefined
 ) {
   return options.map((d) => {
     const i = { ...inputs, debt: d };
@@ -542,7 +548,7 @@ function _getTradedInterestRate(
   realized: TokenBalance,
   amount: TokenBalance,
   fCashMarket: fCashMarket,
-  tradeType?: TradeType | VaultTradeType
+  tradeType?: AllTradeTypes | NOTETradeType
 ) {
   let interestRate: number | undefined;
   let utilization: number | undefined;

@@ -17,17 +17,17 @@ export const LandingFooter = () => {
                 </Label>
               </li>
               <li>
-                <HeadingSubtitle contrast to="/lend">
+                <HeadingSubtitle contrast to="/lend-fixed">
                   <FormattedMessage defaultMessage="Lend" />
                 </HeadingSubtitle>
               </li>
               <li>
-                <HeadingSubtitle contrast to="/borrow">
+                <HeadingSubtitle contrast to="/borrow-fixed">
                   <FormattedMessage defaultMessage="Borrow" />
                 </HeadingSubtitle>
               </li>
               <li>
-                <HeadingSubtitle contrast to="/provide">
+                <HeadingSubtitle contrast to="/liquidity-variable">
                   <FormattedMessage defaultMessage="Provide Liquidity" />
                 </HeadingSubtitle>
               </li>

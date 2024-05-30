@@ -4,8 +4,17 @@ import { FormattedMessage } from 'react-intl';
 import { TableActionRow } from '../../components';
 import { Box } from '@mui/material';
 import { PortfolioRisk } from './portfolio-risk';
+import { useState } from 'react';
+// import { useEarningsBreakdown } from './use-earnings-breakdown';
+import { useLiquidationRisk } from './use-liquidation-risk';
+import {
+  useAccountDefinition,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 
 export const PortfolioHoldings = () => {
+  const [currentTab, setCurrentTab] = useState(0);
+  const network = useSelectedNetwork();
   const {
     portfolioHoldingsColumns,
     toggleBarProps,
@@ -14,14 +23,57 @@ export const PortfolioHoldings = () => {
     setExpandedRows,
     initialState,
   } = usePortfolioHoldings();
+  // TODO: add this back in when we have the data
+  // const { earningsBreakdownData, earningsBreakdownColumns } =
+  //   useEarningsBreakdown();
+  const account = useAccountDefinition(network);
+  const { liquidationRiskColumns, liquidationRiskData } = useLiquidationRisk();
+  const hasDebts = !!account?.balances.find(
+    (t) => t.isNegative() && !t.isVaultToken
+  );
+
+  const holdingsData = {
+    0: {
+      columns: portfolioHoldingsColumns,
+      data: portfolioHoldingsData,
+    },
+    // 1: {
+    //   columns: earningsBreakdownColumns,
+    //   data: earningsBreakdownData,
+    // },
+    1: {
+      columns: liquidationRiskColumns,
+      data: liquidationRiskData,
+    },
+  };
+
+  const tableTabs = [
+    {
+      title: <FormattedMessage defaultMessage="Positions" />,
+    },
+    // {
+    //   title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
+    // },
+  ];
+
+  if (hasDebts) {
+    tableTabs.push({
+      title: <FormattedMessage defaultMessage="Liquidation Risk" />,
+    });
+  }
 
   return (
     <Box>
       <PortfolioRisk />
       <DataTable
+        tabBarProps={{
+          tableTabs,
+          setCurrentTab,
+          currentTab,
+        }}
         toggleBarProps={toggleBarProps}
-        data={portfolioHoldingsData}
-        pendingTokenData={pendingTokenData}
+        data={holdingsData[currentTab].data}
+        pendingTokenData={currentTab === 0 ? pendingTokenData : []}
         pendingMessage={
           <FormattedMessage
             defaultMessage={
@@ -29,8 +81,8 @@ export const PortfolioHoldings = () => {
             }
           />
         }
-        columns={portfolioHoldingsColumns}
-        CustomRowComponent={TableActionRow}
+        columns={holdingsData[currentTab].columns}
+        CustomRowComponent={currentTab === 0 ? TableActionRow : undefined}
         tableTitle={
           <FormattedMessage
             defaultMessage="Portfolio Holdings"
@@ -38,8 +90,9 @@ export const PortfolioHoldings = () => {
           />
         }
         initialState={initialState}
+        expandableTable={true}
         setExpandedRows={setExpandedRows}
-        tableVariant={TABLE_VARIANTS.TOTAL_ROW}
+        tableVariant={currentTab === 0 ? TABLE_VARIANTS.TOTAL_ROW : undefined}
       />
     </Box>
   );

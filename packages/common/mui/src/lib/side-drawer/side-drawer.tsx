@@ -1,6 +1,7 @@
 import { Box, SwipeableDrawer, useTheme, alpha } from '@mui/material';
 import { defineMessage } from 'react-intl';
 import { SideBarSubHeader } from '../side-bar-sub-header/side-bar-sub-header';
+import { useEffect, useState } from 'react';
 
 export interface SideDrawerProps {
   children: React.ReactNode;
@@ -23,6 +24,30 @@ export function SideDrawer({
 }: SideDrawerProps) {
   const theme = useTheme();
 
+  const [isBannerActive, setIsBannerActive] = useState(false);
+
+  useEffect(() => {
+    const checkBannerStatus = () => {
+      const bannerElement = document.querySelector(
+        '[name="intercom-banner-frame"]'
+      );
+      setIsBannerActive(!!bannerElement);
+    };
+    checkBannerStatus();
+    const observer = new MutationObserver((mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+          checkBannerStatus();
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <SwipeableDrawer
       anchor="right"
@@ -42,6 +67,7 @@ export function SideDrawer({
           position: { xs: 'absolute', sm: 'absolute', md: 'relative' },
         },
         '&.MuiPaper-root, .MuiPaper-elevation': {
+          marginTop: isBannerActive ? theme.spacing(6) : '0px',
           overflowX: 'hidden',
           maxWidth: { xs: '100%', sm: '100%', md: '543px' },
           width: { xs: '100%', sm: '100%', md: '100%' },

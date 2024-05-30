@@ -163,7 +163,8 @@ export const useAllAccounts = (selectedNetwork: Network) => {
       ),
       enableSorting: true,
       cell: DisplayCell,
-      displayFormatter: (val) => formatNumberAsAbbr(val, 2, baseCurrency, true),
+      displayFormatter: (val) =>
+        formatNumberAsAbbr(val, 2, baseCurrency, { removeKAbbr: true }),
       sortingFn: 'basic',
       accessorKey: 'netWorth',
       textAlign: 'right',

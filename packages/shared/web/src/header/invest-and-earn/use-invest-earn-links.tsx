@@ -109,7 +109,7 @@ export const useInvestEarnLinks = () => {
     },
     // {
     //   title: <FormattedMessage defaultMessage={'NOTE Staking'} />,
-    //   to: '/stake',
+    //   to: '/stake/ETH',
     //   icon: (
     //     <StakeIcon
     //       sx={{

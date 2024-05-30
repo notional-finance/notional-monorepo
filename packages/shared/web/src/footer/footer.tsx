@@ -273,7 +273,7 @@ export const Footer = () => {
                       style={{
                         marginLeft: theme.spacing(0.5),
                         color:
-                          oneDayChange > 0
+                          notePriceChange && notePriceChange > 0
                             ? theme.palette.success.accent
                             : theme.palette.error.main,
                       }}
