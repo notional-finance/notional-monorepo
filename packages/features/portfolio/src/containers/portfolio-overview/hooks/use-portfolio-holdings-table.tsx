@@ -109,7 +109,7 @@ export const useTotalHoldingsTable = () => {
           {
             displayValue: netWorth
               .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true),
+              .toDisplayStringWithSymbol(2, true, false),
             isNegative: netWorth.isNegative(),
           },
         ],
@@ -119,7 +119,7 @@ export const useTotalHoldingsTable = () => {
           {
             displayValue: totalAssets
               .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true),
+              .toDisplayStringWithSymbol(2, true, false),
             isNegative: totalAssets.isNegative(),
           },
         ],
@@ -129,7 +129,7 @@ export const useTotalHoldingsTable = () => {
           {
             displayValue: totalDebt
               .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true),
+              .toDisplayStringWithSymbol(2, true, false),
             isNegative: false,
           },
         ],
