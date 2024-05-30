@@ -25,7 +25,6 @@ import TransactionConfirmation from '../transaction-confirmation/transaction-con
 import { LiquidationRisk } from './components';
 import {
   TransactionHeadings,
-  HelpTextLinks,
   CombinedTokenTypes,
 } from './components/transaction-headings';
 import { useTransactionApprovals } from '../transaction-approvals/hooks';
@@ -207,7 +206,6 @@ export const TransactionSidebar = ({
       mobileTopMargin={mobileTopMargin}
       heading={heading || TransactionHeadings[tradeType].heading}
       helptext={getTokenSpecificHelpText()}
-      helpTextLink={HelpTextLinks[tradeType].helpTextLink}
       advancedToggle={advancedToggle}
       CustomActionButton={
         isPortfolio || hideActionButtons === true

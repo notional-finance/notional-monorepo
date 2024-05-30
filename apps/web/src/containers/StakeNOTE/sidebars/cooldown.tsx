@@ -4,6 +4,7 @@ import { Box, useTheme } from '@mui/material';
 import {
   PendingTransaction,
   TransactionSidebar,
+  TransactionHeadings,
 } from '@notional-finance/trade';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -12,6 +13,7 @@ import {
   CountdownCards,
   Button,
   Caption,
+  ExternalLink,
 } from '@notional-finance/mui';
 import { useAccountDefinition } from '@notional-finance/notionable-hooks';
 import {
@@ -62,6 +64,22 @@ export const CoolDown = () => {
       showDrawer
       mobileTopMargin={theme.spacing(16)}
       hideActionButtons={true}
+      helptext={{
+        ...TransactionHeadings.StakeNOTECoolDown.helptext,
+        values: {
+          a: (chunk: React.ReactNode) => (
+            <ExternalLink
+              accent
+              textDecoration
+              href={
+                'https://docs.notional.finance/notional-v3/governance/note-staking'
+              }
+            >
+              {chunk}
+            </ExternalLink>
+          ),
+        },
+      }}
     >
       {redeemWindowBeginDate && (
         <Box>
