@@ -365,39 +365,60 @@ export const useVaultHoldingsTable = () => {
     (accumulator, vault) => {
       return {
         amountPaid:
-          accumulator.amountPaid + vault.amountPaid.toFiat('USD').toFloat(),
+          accumulator.amountPaid +
+          vault.amountPaid.toFiat(baseCurrency).toFloat(),
         presentValue:
-          accumulator.presentValue + vault.netWorth.toFiat('USD').toFloat(),
+          accumulator.presentValue +
+          vault.netWorth.toFiat(baseCurrency).toFloat(),
         totalEarnings:
-          accumulator.totalEarnings + vault.profit.toFiat('USD').toFloat(),
+          accumulator.totalEarnings +
+          vault.profit.toFiat(baseCurrency).toFloat(),
+        assets:
+          accumulator.assets +
+          vault.vault.totalAssets().toFiat(baseCurrency).toFloat(),
+        debts:
+          accumulator.debts +
+          vault.vault.totalDebt().toFiat(baseCurrency).toFloat(),
       };
     },
-    { amountPaid: 0, presentValue: 0, totalEarnings: 0 }
+    { amountPaid: 0, presentValue: 0, totalEarnings: 0, assets: 0, debts: 0 }
   );
 
-  vaultHoldingsData.push({
-    vault: {
-      symbol: '',
-      label: 'Total',
-      caption: '',
-    },
-    healthFactor: { value: '', textColor: '' },
-    marketAPY: '',
-    amountPaid: formatNumberAsAbbr(totalRowData.amountPaid, 2, baseCurrency),
-    presentValue: formatNumberAsAbbr(
-      totalRowData.presentValue,
-      2,
-      baseCurrency
-    ),
-    totalEarnings: formatNumberAsAbbr(
-      totalRowData.totalEarnings,
-      2,
-      baseCurrency
-    ),
-    toolTipData: undefined,
-    actionRow: undefined,
-    isTotalRow: true,
-  } as unknown as typeof vaultHoldingsData[number]);
+  if (vaultHoldingsData.length > 0) {
+    vaultHoldingsData.push({
+      vault: {
+        symbol: '',
+        label: 'Total',
+        caption: '',
+      },
+      healthFactor: { value: '', textColor: '' },
+      marketAPY: '',
+      amountPaid: formatNumberAsAbbr(totalRowData.amountPaid, 2, baseCurrency, {
+        removeKAbbr: true,
+      }),
+      presentValue: formatNumberAsAbbr(
+        totalRowData.presentValue,
+        2,
+        baseCurrency,
+        { removeKAbbr: true }
+      ),
+      totalEarnings: formatNumberAsAbbr(
+        totalRowData.totalEarnings,
+        2,
+        baseCurrency,
+        { removeKAbbr: true }
+      ),
+      assets: formatNumberAsAbbr(totalRowData.assets, 2, baseCurrency, {
+        removeKAbbr: true,
+      }),
+      debts: formatNumberAsAbbr(totalRowData.debts, 2, baseCurrency, {
+        removeKAbbr: true,
+      }),
+      toolTipData: undefined,
+      actionRow: undefined,
+      isTotalRow: true,
+    } as unknown as typeof vaultHoldingsData[number]);
+  }
 
   return {
     vaultHoldingsColumns,
