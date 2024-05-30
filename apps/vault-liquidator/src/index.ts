@@ -145,8 +145,7 @@ const runAllVaults = async (env: Env) => {
 
   const activeVaults: string[] = allVaults['values']
     .filter(([, v]) => v['enabled'] === true)
-    .map(([v]) => v as string)
-    .filter((v: string) => v !== '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf');
+    .map(([v]) => v as string);
 
   const { accounts, liquidator } = await setUp(env, activeVaults);
   const riskyAccounts = accounts.filter((r) => r.canLiquidate);
