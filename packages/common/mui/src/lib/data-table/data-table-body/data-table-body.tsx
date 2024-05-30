@@ -134,7 +134,8 @@ export const DataTableBody = ({
               styleLastRow={styleLastRow}
               onClick={handleClick}
               sx={{
-                height: setExpandedRows ? '120px' : '',
+                height:
+                  setExpandedRows && !row.original?.isDividerRow ? '120px' : '',
                 '&:hover': {
                   background:
                     row.original?.view || row.original?.txLink?.href
