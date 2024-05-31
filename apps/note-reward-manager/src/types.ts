@@ -8,6 +8,11 @@ export interface Env {
   AUTH_KEY: string
 }
 
+export enum RunType {
+  sellCOMP = 'sellCOMP',
+  burnNOTE = 'noteBurn',
+}
+
 export enum DexId {
   UNKNOWN,
   UNISWAP_V2,
