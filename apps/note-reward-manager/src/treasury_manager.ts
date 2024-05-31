@@ -111,7 +111,7 @@ export default class TreasuryManager {
           env: this.env
         });
       } else if (runType == RunType.sellCOMP) {
-        console.log('No WETH on contract, selling COMP');
+        console.log('Selling COMP...');
         const compToken = ERC20__factory.connect(this.COMP, this.provider);
         const compBal = await compToken.balanceOf(this.proxy.address);
         if (compBal.gt(0)) {
