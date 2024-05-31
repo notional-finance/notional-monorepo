@@ -11,10 +11,20 @@ export const CurveGaugeInterface = new ethers.utils.Interface([
   "function balanceOf(address) view external returns (uint256)",
 ])
 
-export const ConvexGaugeInterface = new ethers.utils.Interface([
+export const ConvexGaugeArbitrumInterface = new ethers.utils.Interface([
   "function getReward(address) external",
   "function balanceOf(address) view external returns (uint256)",
+  "function stakingToken() view external returns (address)"
 ])
+
+export const ConvexGaugeMainnetInterface = new ethers.utils.Interface([
+  "function extraRewardsLength() external view returns (uint256)",
+  "function rewardRate() view external returns (uint256)",
+  "function getReward() external",
+  "function balanceOf(address) view external returns (uint256)",
+  "function stakingToken() view external returns (address)"
+])
+
 export const AuraGaugeInterface = new ethers.utils.Interface([
   "function getReward() external",
   "function balanceOf(address) view external returns (uint256)",
