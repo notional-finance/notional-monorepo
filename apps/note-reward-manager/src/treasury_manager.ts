@@ -59,7 +59,7 @@ export default class TreasuryManager {
       if (runType === RunType.burnNOTE) {
         const wethToken = ERC20__factory.connect(this.WETH, this.provider);
         const wethBalance = await wethToken.balanceOf(this.proxy.address);
-        if(!wethBalance.gt(1e15)) {
+        if(!wethBalance.gte(1e15)) {
           console.log("No WETH available");
           return;
         }
