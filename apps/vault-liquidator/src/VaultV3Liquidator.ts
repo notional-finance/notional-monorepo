@@ -286,17 +286,21 @@ export default class VaultV3Liquidator {
       },
     };
 
-    const flashLender = getFlashLender({ network: this.settings.network, vault, token: args.asset })
+    const flashLender = getFlashLender({
+      network: this.settings.network,
+      vault,
+      token: args.asset,
+    });
     // Must use multiple contracts in a batch liquidation due to vault exit time
     // restrictions.
     const batchCalldata = await this.liquidatorContracts[
       liquidatorIndex
     ].populateTransaction.flashLiquidate(
-        flashLender,
-        args.asset,
-        args.amount,
-        args.params
-      )
+      flashLender,
+      args.asset,
+      args.amount,
+      args.params
+    );
 
     return { accounts, batchCalldata, args };
   }
@@ -356,7 +360,7 @@ export default class VaultV3Liquidator {
       },
       to: multicall.address,
       data: pop.data,
-      gasLimit: gasLimit.mul(120).div(100).toNumber(),
+      gasLimit: gasLimit.mul(150).div(100).toNumber(),
     });
   }
 }
