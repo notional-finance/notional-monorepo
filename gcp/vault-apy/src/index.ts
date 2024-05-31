@@ -10,10 +10,11 @@ import {
   TransferInterface,
   ERC20Interface,
   AuraGaugeInterface,
-  ConvexGaugeInterface,
+  ConvexGaugeArbitrumInterface,
+  ConvexGaugeMainnetInterface,
   CurveGaugeInterface
 } from './interfaces';
-import { Network, Provider, VaultTypes, VaultData, JsonRpcProvider } from './types';
+import { Network, Provider, RewardPoolType, VaultData, JsonRpcProvider } from './types';
 import { Oracle } from './oracles';
 import configPerNetwork, { Config } from './config';
 
@@ -130,7 +131,7 @@ class APYSimulator {
     let totalLpTokens = await this.#getTotalLpTokensForAccount(account, vaultData, provider);
     if (totalLpTokens.eq(0)) {
       log('vault does not exist or do not have lp tokens, finding another account for APY calculation');
-      account = await this.#findGaugeTokenHolder(vaultData.gauge, await provider.getBlockNumber());
+      account = await this.#findGaugeTokenHolder(vaultData, provider);
       log(`new account: ${account}`);
       totalLpTokens = await this.#getTotalLpTokensForAccount(account, vaultData, provider);
     }
@@ -168,9 +169,9 @@ class APYSimulator {
       const result = {
         blockNumber: block.number,
         timestamp: block.timestamp,
-        vaultAddress: isAccountVault ? vaultData.address.toLowerCase() : null,
+        vaultAddress: vaultData.address.toLowerCase(),
         totalLpTokens: totalLpTokens.toString(),
-        lpTokenValuePrimaryBorrow: lpTokenValuePrimaryBorrow.toString(),
+        lpTokenValuePrimaryBorrow: isAccountVault ? lpTokenValuePrimaryBorrow.toString() : null,
         rewardToken: token,
         rewardTokensClaimed: tokensClaimed.toString(),
         rewardTokenValuePrimaryBorrow: rewardTokenValuePrimaryBorrow.toString(),
@@ -178,9 +179,11 @@ class APYSimulator {
         /////////////////////////////////////////////////////////////////////
         network: this.#network,
         date: new Date(block.timestamp * 1000).toISOString(),
-        vaultName: await new Contract(vaultData.address, SingleSidedLPVault, provider).name(),
         rewardTokenSymbol: symbol,
-        apy: `${Number(rewardTokenValuePrimaryBorrow.mul(365).mul(10_00000).div(lpTokenValuePrimaryBorrow).toString()) / 10000}%`
+        ...(isAccountVault && {
+          vaultName: await new Contract(vaultData.address, SingleSidedLPVault, provider).name(),
+          apy: isAccountVault ? `${Number(rewardTokenValuePrimaryBorrow.mul(365).mul(10_00000).div(lpTokenValuePrimaryBorrow).toString()) / 10000}%` : null
+        })
       }
       log(result);
       allResults.push(result);
@@ -210,16 +213,32 @@ class APYSimulator {
     }]);
   }
 
-  async #findGaugeTokenHolder(gaugeAddress: string, latestBlock: number) {
-    const logs = await this.#alchemyProvider.send('alchemy_getAssetTransfers', [{
-      fromAddress: "0x0000000000000000000000000000000000000000",
-      contractAddresses: [gaugeAddress],
-      category: ["erc20"],
-      order: "desc",
-      toBlock: `0x${latestBlock.toString(16)}`,
-      maxCount: `0x${Number(1).toString(16)}`,
-    }]);
-    return logs.transfers[0].to as string;
+  async #findGaugeTokenHolder(vaultData: VaultData, provider: Provider) {
+    const latestBlock = await provider.getBlockNumber();
+    let logs: { transfers: {from: string, to: string }[] };
+    if (vaultData.rewardPoolType === RewardPoolType.ConvexMainnet) {
+      logs = await this.#alchemyProvider.send('alchemy_getAssetTransfers', [{
+        // convex voter proxy
+        toAddress: '0x989AEb4d175e16225E39E87d0D97A3360524AD80',
+        contractAddresses: [vaultData.lpToken],
+        category: ['erc20'],
+        order: 'desc',
+        toBlock: `0x${latestBlock.toString(16)}`,
+        maxCount: `0x${Number(100).toString(16)}`,
+      }]);
+      // filter out gauge deposit token
+      return logs.transfers.filter(t => t.from !== '0x4717c25df44e280ec5b31acbd8c194e1ed24efe2')[0].from;
+    } else {
+      logs = await this.#alchemyProvider.send('alchemy_getAssetTransfers', [{
+        fromAddress: '0x0000000000000000000000000000000000000000',
+        contractAddresses: [vaultData.gauge],
+        category: ['erc20'],
+        order: 'desc',
+        toBlock: `0x${latestBlock.toString(16)}`,
+        maxCount: `0x${Number(1).toString(16)}`,
+      }]);
+      return logs.transfers[0].to;
+    }
   }
 
   async #claimRewardFromGauge(account: string, vaultData: VaultData, provider: JsonRpcProvider) {
@@ -249,29 +268,36 @@ class APYSimulator {
   }
 
   async #getTotalLpTokensForAccount(account: string, vaultData: VaultData, provider: Provider): Promise<BigNumber> {
-    if (vaultData.type === VaultTypes.Aura) {
+    if (vaultData.rewardPoolType === RewardPoolType.Aura) {
       const aura = new Contract(vaultData.gauge, AuraGaugeInterface, provider);
       return aura.convertToAssets(aura.balanceOf(account));
     }
-    if (vaultData.type == VaultTypes.Convex) {
-      const convex = new Contract(vaultData.gauge, ConvexGaugeInterface, provider);
+    if (vaultData.rewardPoolType == RewardPoolType.ConvexArbitrum) {
+      const convex = new Contract(vaultData.gauge, ConvexGaugeArbitrumInterface, provider);
       return convex.balanceOf(account);
     }
-    if (vaultData.type == VaultTypes.Curve) {
-      const convex = new Contract(vaultData.gauge, CurveGaugeInterface, provider);
+    if (vaultData.rewardPoolType == RewardPoolType.ConvexMainnet) {
+      const convex = new Contract(vaultData.gauge, ConvexGaugeMainnetInterface, provider);
       return convex.balanceOf(account);
+    }
+    if (vaultData.rewardPoolType == RewardPoolType.Curve) {
+      const curve = new Contract(vaultData.gauge, CurveGaugeInterface, provider);
+      return curve.balanceOf(account);
     }
     throw new Error('Unsupported vault type');
   }
 
   #getClaimData(account: string, vaultData: VaultData) {
-    if (vaultData.type === VaultTypes.Aura) {
+    if (vaultData.rewardPoolType === RewardPoolType.Aura) {
       return AuraGaugeInterface.encodeFunctionData('getReward');
     }
-    if (vaultData.type == VaultTypes.Convex) {
-      return ConvexGaugeInterface.encodeFunctionData('getReward', [account]);
+    if (vaultData.rewardPoolType == RewardPoolType.ConvexArbitrum) {
+      return ConvexGaugeArbitrumInterface.encodeFunctionData('getReward', [account]);
     }
-    if (vaultData.type == VaultTypes.Curve) {
+    if (vaultData.rewardPoolType == RewardPoolType.ConvexMainnet) {
+      return ConvexGaugeMainnetInterface.encodeFunctionData('getReward');
+    }
+    if (vaultData.rewardPoolType == RewardPoolType.Curve) {
       return CurveGaugeInterface.encodeFunctionData('claim_rewards');
     }
     throw new Error('Unsupported vault type');
@@ -287,7 +313,11 @@ class APYSimulator {
   }
 
   async #saveToDb(reports: any[]) {
-    return fetch(this.#config.dataServiceUrl, {
+    if (!reports.length) {
+      log("nothing to save");
+      return;
+    }
+    const response = await fetch(this.#config.dataServiceUrl, {
       headers: {
         'Content-Type': 'application/json',
         'x-auth-token': process.env.DATA_SERVICE_AUTH_TOKEN as string
@@ -298,6 +328,10 @@ class APYSimulator {
         vaultAPYs: reports,
       })
     });
+    if (!response.ok) {
+      console.error(response.status, response.statusText);
+      throw new Error('Save to db failed');
+    }
   }
 }
 
@@ -338,7 +372,7 @@ process.on('exit', async function() {
 
     }
   } else if (process.argv[2].toLowerCase() == 'historical' && process.argv.length == 5) {
-    const [,,, network, vaultAddress] = process.argv;
+    const [, , , network, vaultAddress] = process.argv;
     if (!configPerNetwork[network]) {
       throw new Error('Invalid network name');
     }
