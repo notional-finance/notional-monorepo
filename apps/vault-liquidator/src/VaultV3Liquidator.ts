@@ -360,7 +360,7 @@ export default class VaultV3Liquidator {
       },
       to: multicall.address,
       data: pop.data,
-      gasLimit: gasLimit.mul(150).div(100).toNumber(),
+      gasLimit: gasLimit.mul(200).div(100).toNumber(),
     });
   }
 }
