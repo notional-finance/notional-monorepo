@@ -8,7 +8,7 @@ import {
 import { TradeStruct as Trade } from "@notional-finance/contracts/types/TradingModule";
 import Config from "./config";
 import { BigNumber } from "ethers";
-import { Env, TradeType, DexId } from "./types";
+import { Env, TradeType, DexId, RunType } from "./types";
 
 const TWO_HOURS_SEC = 1200;
 const nowInSec = () => Math.floor(Date.now() / 1000);
@@ -48,7 +48,7 @@ export default class TreasuryManager {
       .then((r: any) => r.data.stakedNoteInvestments[0]?.timestamp || 0);
   }
 
-  public async run() {
+  public async run(runType: RunType) {
     const lastNoteInvestmentTimestamp = await this.getLastNoteInvestmentTime();
     console.log("lastNoteInvestmentTimestamp", lastNoteInvestmentTimestamp);
     const duration = Date.now() / 1000 - lastNoteInvestmentTimestamp;
@@ -56,11 +56,15 @@ export default class TreasuryManager {
       duration > Config.TREASURY_REINVESTMENT_INTERVAL &&
       new Date('2024-03-10T00:00:00.000Z').getTime() <= Date.now() // start reinvesting at Saturday midnight
     ) {
-      const wethToken = ERC20__factory.connect(this.WETH, this.provider);
-      const wethBalance = await wethToken.balanceOf(this.proxy.address);
-
-      if (wethBalance.gt(0)) {
+      if (runType === RunType.burnNOTE) {
+        const wethToken = ERC20__factory.connect(this.WETH, this.provider);
+        const wethBalance = await wethToken.balanceOf(this.proxy.address);
+        if(!wethBalance.gt(1e15)) {
+          console.log("No WETH available");
+          return;
+        }
         console.log("WETH balance detected, calling investWETHAndNOTE");
+
         const noteBurnPercent = await this.proxy.noteBurnPercent();
         const wethForBurn = wethBalance.mul(noteBurnPercent).div(100);
 
@@ -106,7 +110,7 @@ export default class TreasuryManager {
           data: data,
           env: this.env
         });
-      } else {
+      } else if (runType == RunType.sellCOMP) {
         console.log('No WETH on contract, selling COMP');
         const compToken = ERC20__factory.connect(this.COMP, this.provider);
         const compBal = await compToken.balanceOf(this.proxy.address);
