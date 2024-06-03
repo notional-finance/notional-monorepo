@@ -51,7 +51,9 @@ export default class TreasuryManager {
   public async run(runType: RunType) {
     const lastNoteInvestmentTimestamp = await this.getLastNoteInvestmentTime();
     console.log("lastNoteInvestmentTimestamp", lastNoteInvestmentTimestamp);
-    const duration = Date.now() / 1000 - lastNoteInvestmentTimestamp;
+    const lastInvestmentStartOfDay = new Date(lastNoteInvestmentTimestamp * 1000);
+    lastInvestmentStartOfDay.setUTCHours(0, 0, 0, 0);
+    const duration = (Date.now()  - lastInvestmentStartOfDay.getTime()) / 1000;
     if (
       duration > Config.TREASURY_REINVESTMENT_INTERVAL &&
       new Date('2024-03-10T00:00:00.000Z').getTime() <= Date.now() // start reinvesting at Saturday midnight
