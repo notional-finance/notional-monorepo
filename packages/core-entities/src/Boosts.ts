@@ -1,5 +1,13 @@
 import { Network } from '@notional-finance/util';
 import { TokenDefinition } from './Definitions';
+import { TokenBalance } from './token-balance';
+
+export function getPointsPerDay(t: TokenBalance) {
+  return (
+    t.toUnderlying().abs().toFiat('USD').toFloat() *
+    getArbBoosts(t.token, t.isNegative())
+  );
+}
 
 export function getArbBoosts(b: TokenDefinition, isDebt: boolean) {
   if (b.network !== Network.arbitrum) return 0;
