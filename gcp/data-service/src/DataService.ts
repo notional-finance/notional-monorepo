@@ -527,7 +527,7 @@ export default class DataService {
     return this.db
       .insert(points)
       .into(DataService.POINTS_TABLE_NAME)
-      .onConflict(['account', 'date'])
+      .onConflict(['account', 'date', 'token'])
       .ignore();
   }
 
