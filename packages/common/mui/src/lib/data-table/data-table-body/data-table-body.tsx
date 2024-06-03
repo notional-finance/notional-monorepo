@@ -135,7 +135,11 @@ export const DataTableBody = ({
               onClick={handleClick}
               sx={{
                 height:
-                  setExpandedRows && !row.original?.isDividerRow ? '120px' : '',
+                  setExpandedRows &&
+                  !row.original?.isDividerRow &&
+                  !row.original?.isTotalRow
+                    ? '120px'
+                    : '',
                 '&:hover': {
                   background:
                     row.original?.view || row.original?.txLink?.href

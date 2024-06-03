@@ -2,7 +2,7 @@ import { Box, styled, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import { Link } from 'react-router-dom';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import { H2, Paragraph } from '../typography/typography';
+import { H4, Paragraph } from '../typography/typography';
 import { Button } from '../button/button';
 
 interface BannerProps {
@@ -29,7 +29,7 @@ export const Banner = ({
   return (
     <BannerContainer>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {tokenSymbol && <TokenIcon symbol={tokenSymbol} size={'xxl'} />}
+        {tokenSymbol && <TokenIcon symbol={tokenSymbol} size={'xl'} />}
         <Box
           sx={{
             display: 'flex',
@@ -37,15 +37,15 @@ export const Banner = ({
             marginLeft: theme.spacing(3),
           }}
         >
-          <H2>
+          <H4 sx={{ marginBottom: theme.spacing(0.5) }}>
             <FormattedMessage {...title} />
-          </H2>
+          </H4>
           <Paragraph msg={messages?.promptText} sx={{ flex: 1 }} />
         </Box>
       </Box>
       {!callback && link && messages?.buttonText && (
         <Link to={link}>
-          <Button variant="contained" size="large">
+          <Button variant="contained" size="medium">
             <FormattedMessage {...messages?.buttonText} />
             {buttonSuffix}
           </Button>
@@ -59,7 +59,7 @@ const BannerContainer = styled(Box)(
   ({ theme }) => `
     display: flex;
     background: ${theme.palette.info.light};
-    padding: ${theme.spacing(4)};
+    padding: ${theme.spacing(3)};
     align-items: center;
     justify-content: space-between;
     border-radius: ${theme.shape.borderRadius()};

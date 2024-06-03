@@ -118,11 +118,12 @@ const Portfolio = () => {
         <SideNav />
       </PortfolioSidebar>
       <PortfolioMainContent>
-        <ActionButtonRow>
-          {params.category && messages[params.category] && (
-            <Heading msg={messages[params.category]} />
-          )}
-          {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+        {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+          <ActionButtonRow>
+            {params.category && messages[params.category] && (
+              <Heading msg={messages[params.category]} />
+            )}
+
             <ButtonsContainer>
               {params.category === PORTFOLIO_CATEGORIES.HOLDINGS ||
               params.category === PORTFOLIO_CATEGORIES.OVERVIEW ? (
@@ -132,8 +133,8 @@ const Portfolio = () => {
               )}
               <PortfolioNetworkSelector />
             </ButtonsContainer>
-          )}
-        </ActionButtonRow>
+          </ActionButtonRow>
+        )}
 
         {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
           params.category === undefined) && (
