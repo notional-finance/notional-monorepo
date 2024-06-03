@@ -21,7 +21,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
-function formatCaption(asset: TokenBalance, debt: TokenBalance) {
+export function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   if (asset.tokenType === 'nToken' && debt.tokenType === 'PrimeDebt') {
     return 'Variable Borrow';
   } else if (asset.tokenType === 'nToken' && debt.tokenType === 'fCash') {

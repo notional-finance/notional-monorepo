@@ -11,8 +11,10 @@ import {
   useSelectedNetwork,
   usePortfolioHoldings,
   useFiat,
+  useGroupedHoldings,
 } from '@notional-finance/notionable-hooks';
 import { formatTokenType } from '@notional-finance/helpers';
+import { formatCaption } from './use-grouped-holdings';
 
 function insertDebtDivider(arr) {
   for (let i = 0; i < arr.length; i++) {
@@ -47,13 +49,13 @@ function insertDebtDivider(arr) {
   return arr;
 }
 
-export function useEarningsBreakdown() {
+export function useEarningsBreakdown(isGrouped: boolean) {
   const theme = useTheme();
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const network = useSelectedNetwork();
   const baseCurrency = useFiat();
   const holdings = usePortfolioHoldings(network);
-  // const groupedTokens = useGroupedHoldings(network) || [];
+  const groupedHoldings = useGroupedHoldings(network) || [];
 
   const Columns = useMemo<DataTableColumn[]>(
     () => [
@@ -111,8 +113,70 @@ export function useEarningsBreakdown() {
     ],
     [theme]
   );
+  const groupedEarnings = groupedHoldings.map(
+    ({
+      asset: {
+        balance: asset,
+        perIncentiveEarnings,
+        totalIncentiveEarnings,
+        totalEarningsWithIncentives,
+      },
+      debt: { balance: debt },
+      totalInterestAccrual,
+      totalILAndFees,
+      marketProfitLoss,
+    }) => {
+      const { icon } = formatTokenType(asset.token);
+      const debtData = formatTokenType(debt.token);
+      const underlying = asset.underlying;
 
-  const earningsBreakdownData = holdings
+      return {
+        asset: {
+          symbol: icon,
+          symbolBottom: debtData?.icon,
+          label:
+            asset.tokenType === 'nToken'
+              ? `Leveraged ${underlying.symbol} Liquidity`
+              : `Leveraged ${underlying.symbol} Lend`,
+          caption: formatCaption(asset, debt) || '',
+        },
+        incentivesEarnings: totalIncentiveEarnings
+          ? totalIncentiveEarnings
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(2, true, true, 'en-US', true)
+          : '0',
+        toolTipData:
+          perIncentiveEarnings.length > 0
+            ? {
+                perAssetEarnings: perIncentiveEarnings?.map((i) => ({
+                  underlying: i.toDisplayStringWithSymbol(2),
+                  baseCurrency: i
+                    .toFiat(baseCurrency)
+                    .toDisplayStringWithSymbol(2),
+                })),
+              }
+            : undefined,
+        accruedInterest:
+          totalInterestAccrual
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, true, 'en-US', true) || '0',
+        marketPNL:
+          marketProfitLoss
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, true, 'en-US', true) || '0',
+        feesPaid:
+          totalILAndFees
+            .toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, true, 'en-US', true) || '0',
+        totalEarnings:
+          totalEarningsWithIncentives
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
+      };
+    }
+  );
+
+  const detailedEarnings = holdings
     .map(
       ({
         balance: b,
@@ -136,6 +200,7 @@ export function useEarningsBreakdown() {
             caption: titleWithMaturity,
           },
           isDebt,
+          tokenId: b.tokenId,
           incentivesEarnings: totalIncentiveEarnings
             ? totalIncentiveEarnings
                 .toFiat(baseCurrency)
@@ -196,6 +261,20 @@ export function useEarningsBreakdown() {
       setExpandedRows(formattedExpandedRows);
     }
   }, [expandedRows, setExpandedRows, Columns]);
+
+  const groupedTokens = groupedHoldings.flatMap(({ asset, debt }) => [
+    asset.balance.tokenId,
+    debt.balance.tokenId,
+  ]);
+
+  const earningsBreakdownData = isGrouped
+    ? [
+        ...groupedEarnings,
+        detailedEarnings.filter(
+          ({ tokenId }) => !groupedTokens.includes(tokenId)
+        ),
+      ]
+    : detailedEarnings;
 
   return {
     earningsBreakdownColumns: Columns,

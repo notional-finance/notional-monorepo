@@ -24,7 +24,7 @@ export const PortfolioHoldings = () => {
     initialState,
   } = usePortfolioHoldings();
   const { earningsBreakdownData, earningsBreakdownColumns } =
-    useEarningsBreakdown();
+    useEarningsBreakdown(toggleBarProps.toggleOption === 1);
   const account = useAccountDefinition(network);
   const {
     liquidationRiskColumns,

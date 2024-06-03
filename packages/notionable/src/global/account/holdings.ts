@@ -232,6 +232,27 @@ export function calculateGroupedHoldings(
               ? debtHoldings.marketYield.totalAPY
               : // Need to check for undefined here if the debtHoldings is undefined
                 debtHoldings?.statement?.impliedFixedRate;
+          const underlying = asset.underlying;
+          const totalInterestAccrual = (
+            assetHoldings.statement?.totalInterestAccrual ||
+            TokenBalance.zero(underlying)
+          ).add(
+            debtHoldings?.statement?.totalInterestAccrual ||
+              TokenBalance.zero(underlying)
+          );
+          const totalILAndFees = (
+            assetHoldings.statement?.totalILAndFees ||
+            TokenBalance.zero(underlying)
+          ).add(
+            debtHoldings?.statement?.totalILAndFees ||
+              TokenBalance.zero(underlying)
+          );
+
+          const marketProfitLoss =
+            assetHoldings.totalEarningsWithIncentives?.sub(
+              totalInterestAccrual.toFiat('USD') ||
+                TokenBalance.fromSymbol(0, 'USD', Network.all)
+            ) || TokenBalance.fromSymbol(0, 'USD', Network.all);
 
           l.push({
             asset: assetHoldings,
@@ -240,6 +261,9 @@ export function calculateGroupedHoldings(
             leverageRatio,
             hasMatured: asset?.hasMatured || debt?.hasMatured ? true : false,
             borrowAPY: borrowApyData,
+            totalInterestAccrual,
+            totalILAndFees,
+            marketProfitLoss,
             totalLeveragedApy: leveragedYield(
               assetHoldings.marketYield?.totalAPY,
               borrowApyData,
@@ -255,6 +279,9 @@ export function calculateGroupedHoldings(
       asset: PortfolioHolding;
       debt: PortfolioHolding;
       presentValue: TokenBalance;
+      totalInterestAccrual: TokenBalance;
+      marketProfitLoss: TokenBalance;
+      totalILAndFees: TokenBalance;
       leverageRatio: number;
       hasMatured: boolean;
       borrowAPY: number | undefined;
