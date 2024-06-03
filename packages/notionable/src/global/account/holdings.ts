@@ -232,27 +232,20 @@ export function calculateGroupedHoldings(
               ? debtHoldings.marketYield.totalAPY
               : // Need to check for undefined here if the debtHoldings is undefined
                 debtHoldings?.statement?.impliedFixedRate;
-          const underlying = asset.underlying;
+          const zeroUnderlying = TokenBalance.zero(asset.underlying);
+
+          const totalEarnings = (
+            assetHoldings.statement?.totalProfitAndLoss || zeroUnderlying
+          ).add(debtHoldings?.statement?.totalProfitAndLoss || zeroUnderlying);
           const totalInterestAccrual = (
-            assetHoldings.statement?.totalInterestAccrual ||
-            TokenBalance.zero(underlying)
+            assetHoldings.statement?.totalInterestAccrual || zeroUnderlying
           ).add(
-            debtHoldings?.statement?.totalInterestAccrual ||
-              TokenBalance.zero(underlying)
+            debtHoldings?.statement?.totalInterestAccrual || zeroUnderlying
           );
           const totalILAndFees = (
-            assetHoldings.statement?.totalILAndFees ||
-            TokenBalance.zero(underlying)
-          ).add(
-            debtHoldings?.statement?.totalILAndFees ||
-              TokenBalance.zero(underlying)
-          );
-
-          const marketProfitLoss =
-            assetHoldings.totalEarningsWithIncentives?.sub(
-              totalInterestAccrual.toFiat('USD') ||
-                TokenBalance.fromSymbol(0, 'USD', Network.all)
-            ) || TokenBalance.fromSymbol(0, 'USD', Network.all);
+            assetHoldings.statement?.totalILAndFees || zeroUnderlying
+          ).add(debtHoldings?.statement?.totalILAndFees || zeroUnderlying);
+          const marketProfitLoss = totalEarnings.sub(totalInterestAccrual);
 
           l.push({
             asset: assetHoldings,
@@ -264,6 +257,7 @@ export function calculateGroupedHoldings(
             totalInterestAccrual,
             totalILAndFees,
             marketProfitLoss,
+            totalEarnings,
             totalLeveragedApy: leveragedYield(
               assetHoldings.marketYield?.totalAPY,
               borrowApyData,
@@ -282,6 +276,7 @@ export function calculateGroupedHoldings(
       totalInterestAccrual: TokenBalance;
       marketProfitLoss: TokenBalance;
       totalILAndFees: TokenBalance;
+      totalEarnings: TokenBalance;
       leverageRatio: number;
       hasMatured: boolean;
       borrowAPY: number | undefined;
@@ -312,9 +307,10 @@ export function calculateVaultHoldings(account: AccountDefinition) {
     );
 
     const denom = v.denom(v.defaultSymbol);
-    const profit = (assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
-      .add(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
-      .add(cashPnL?.totalProfitAndLoss || TokenBalance.zero(denom));
+    const zeroDenom = TokenBalance.zero(denom);
+    const profit = (assetPnL?.totalProfitAndLoss || zeroDenom)
+      .add(debtPnL?.totalProfitAndLoss || zeroDenom)
+      .add(cashPnL?.totalProfitAndLoss || zeroDenom);
     const vaultYield = allYields.find(
       (y) => v.vaultShares.tokenId === y.token.id
     );
@@ -326,14 +322,22 @@ export function calculateVaultHoldings(account: AccountDefinition) {
             (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
           )?.totalAPY || 0;
 
-    const amountPaid = (
-      assetPnL?.accumulatedCostRealized || TokenBalance.zero(denom)
-    )
-      .add(debtPnL?.accumulatedCostRealized || TokenBalance.zero(denom))
-      .add(cashPnL?.accumulatedCostRealized || TokenBalance.zero(denom));
+    const amountPaid = (assetPnL?.accumulatedCostRealized || zeroDenom)
+      .add(debtPnL?.accumulatedCostRealized || zeroDenom)
+      .add(cashPnL?.accumulatedCostRealized || zeroDenom);
 
     const leverageRatio = v.leverageRatio() || 0;
     const totalAPY = leveragedYield(strategyAPY, borrowAPY, leverageRatio);
+
+    const totalInterestAccrual = (assetPnL?.totalInterestAccrual || zeroDenom)
+      .add(debtPnL?.totalInterestAccrual || zeroDenom)
+      .add(cashPnL?.totalInterestAccrual || zeroDenom);
+
+    const totalILAndFees = (assetPnL?.totalILAndFees || zeroDenom)
+      .add(debtPnL?.totalILAndFees || zeroDenom)
+      .add(cashPnL?.totalILAndFees || zeroDenom);
+
+    const marketProfitLoss = profit.sub(totalInterestAccrual);
 
     return {
       vault: v,
@@ -348,6 +352,9 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       denom,
       leverageRatio,
       vaultYield,
+      marketProfitLoss,
+      totalILAndFees,
+      totalInterestAccrual,
     };
   });
 }

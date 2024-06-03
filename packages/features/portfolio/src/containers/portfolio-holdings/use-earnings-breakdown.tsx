@@ -143,7 +143,7 @@ export function useEarningsBreakdown(isGrouped: boolean) {
         incentivesEarnings: totalIncentiveEarnings
           ? totalIncentiveEarnings
               .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, true, 'en-US', true)
+              .toDisplayStringWithSymbol(2, true, false, 'en-US', true)
           : '0',
         toolTipData:
           perIncentiveEarnings.length > 0
@@ -159,15 +159,15 @@ export function useEarningsBreakdown(isGrouped: boolean) {
         accruedInterest:
           totalInterestAccrual
             ?.toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, true, 'en-US', true) || '0',
+            .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
         marketPNL:
           marketProfitLoss
             ?.toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, true, 'en-US', true) || '0',
+            .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
         feesPaid:
           totalILAndFees
             .toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, true, 'en-US', true) || '0',
+            .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
         totalEarnings:
           totalEarningsWithIncentives
             ?.toFiat(baseCurrency)
@@ -204,7 +204,7 @@ export function useEarningsBreakdown(isGrouped: boolean) {
           incentivesEarnings: totalIncentiveEarnings
             ? totalIncentiveEarnings
                 .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(2, true, true, 'en-US', true)
+                .toDisplayStringWithSymbol(2, true, false, 'en-US', true)
             : '0',
           toolTipData:
             perIncentiveEarnings.length > 0
@@ -220,15 +220,15 @@ export function useEarningsBreakdown(isGrouped: boolean) {
           accruedInterest:
             statement?.totalInterestAccrual
               ?.toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, true, 'en-US', true) || '0',
+              .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
           marketPNL:
             marketProfitLoss
               ?.toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, true, 'en-US', true) || '0',
+              .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
           feesPaid:
             statement?.totalILAndFees
               .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, true, 'en-US', true) || '0',
+              .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
           totalEarnings:
             totalEarningsWithIncentives
               ?.toFiat(baseCurrency)

@@ -55,7 +55,6 @@ export function useGroupedHoldingsTable() {
         marketYield: assetYield,
         statement: assetStatement,
         perIncentiveEarnings,
-        totalEarningsWithIncentives,
         isHighUtilization,
       },
       debt: { balance: debt, statement: debtStatement },
@@ -63,6 +62,7 @@ export function useGroupedHoldingsTable() {
       leverageRatio,
       presentValue,
       borrowAPY,
+      totalEarnings,
       totalLeveragedApy,
     }) => {
       const underlying = asset.underlying;
@@ -85,12 +85,6 @@ export function useGroupedHoldingsTable() {
         assetStatement && debtStatement
           ? assetStatement?.accumulatedCostRealized.add(
               debtStatement?.accumulatedCostRealized
-            )
-          : undefined;
-      const earnings =
-        assetStatement && debtStatement
-          ? assetStatement?.totalProfitAndLoss.add(
-              debtStatement?.totalProfitAndLoss
             )
           : undefined;
 
@@ -138,8 +132,8 @@ export function useGroupedHoldingsTable() {
           ? formatCryptoWithFiat(baseCurrency, amountPaid)
           : '-',
         presentValue: formatCryptoWithFiat(baseCurrency, presentValue),
-        earnings: totalEarningsWithIncentives
-          ? totalEarningsWithIncentives
+        earnings: totalEarnings
+          ? totalEarnings
               .toFiat(baseCurrency)
               .toDisplayStringWithSymbol(2, true, true, 'en-US', true)
           : '-',
@@ -148,8 +142,8 @@ export function useGroupedHoldingsTable() {
             ? {
                 perAssetEarnings: [
                   {
-                    underlying: earnings?.toDisplayStringWithSymbol(),
-                    baseCurrency: earnings
+                    underlying: totalEarnings?.toDisplayStringWithSymbol(),
+                    baseCurrency: totalEarnings
                       ?.toFiat(baseCurrency)
                       .toDisplayStringWithSymbol(2),
                   },
