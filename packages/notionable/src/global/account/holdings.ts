@@ -122,7 +122,7 @@ export function calculateHoldings(
         : [];
 
     // Reduces the array above to one entry per incentive token
-    const totalIncentiveEarnings = Array.from(
+    const perIncentiveEarnings = Array.from(
       _incentiveEarnings
         .reduce((m, b) => {
           const match = m.get(b.tokenId);
@@ -135,7 +135,16 @@ export function calculateHoldings(
         }, new Map<string, TokenBalance>())
         .values()
     );
+    const totalIncentiveEarnings = perIncentiveEarnings.reduce(
+      (s, i) => s.add(i.toFiat('USD')),
+      TokenBalance.fromSymbol(0, 'USD', Network.all)
+    );
 
+    const totalEarningsWithIncentives = statement?.totalProfitAndLoss
+      .toFiat('USD')
+      .add(totalIncentiveEarnings);
+
+    // TODO: this won't work when we remove historical snapshots
     const positionEstablished = (
       statement?.historicalSnapshots.find((h) => h.balance.isZero()) ||
       statement?.historicalSnapshots.slice(-1).find((_) => true)
@@ -147,13 +156,14 @@ export function calculateHoldings(
       marketYield,
       manageTokenId,
       maturedTokenId,
+      perIncentiveEarnings,
       totalIncentiveEarnings,
-      // TODO
-      // marketProfitLoss: statement?.totalProfitAndLoss
-      //   .add(totalIncentiveEarnings)
-      //   .sub(statement.totalInterestAccrual),
+      totalEarningsWithIncentives,
+      marketProfitLoss: totalEarningsWithIncentives?.sub(
+        statement?.totalInterestAccrual.toFiat('USD') ||
+          TokenBalance.fromSymbol(0, 'USD', Network.all)
+      ),
       hasMatured: balance.hasMatured,
-      tokenType: undefined,
       isHighUtilization: isHighUtilization(
         balance,
         priceChanges,
@@ -289,9 +299,11 @@ export function calculateVaultHoldings(account: AccountDefinition) {
             (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
           )?.totalAPY || 0;
 
-      const amountPaid = (assetPnL?.accumulatedCostRealized || TokenBalance.zero(denom))
-        .add(debtPnL?.accumulatedCostRealized || TokenBalance.zero(denom))
-        .add(cashPnL?.accumulatedCostRealized || TokenBalance.zero(denom));
+    const amountPaid = (
+      assetPnL?.accumulatedCostRealized || TokenBalance.zero(denom)
+    )
+      .add(debtPnL?.accumulatedCostRealized || TokenBalance.zero(denom))
+      .add(cashPnL?.accumulatedCostRealized || TokenBalance.zero(denom));
 
     const leverageRatio = v.leverageRatio() || 0;
     const totalAPY = leveragedYield(strategyAPY, borrowAPY, leverageRatio);
@@ -312,7 +324,6 @@ export function calculateVaultHoldings(account: AccountDefinition) {
     };
   });
 }
-
 
 export function calculateAccountCurrentFactors(
   holdings: ReturnType<typeof calculateHoldings>,

@@ -14,7 +14,6 @@ import {
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
-  Network,
   TXN_HISTORY_TYPE,
   leveragedYield,
   formatMaturity,
@@ -55,7 +54,8 @@ export function useGroupedHoldingsTable() {
         balance: asset,
         marketYield: assetYield,
         statement: assetStatement,
-        totalIncentiveEarnings,
+        perIncentiveEarnings,
+        totalEarningsWithIncentives,
         isHighUtilization,
       },
       debt: { balance: debt, statement: debtStatement },
@@ -93,15 +93,6 @@ export function useGroupedHoldingsTable() {
               debtStatement?.totalProfitAndLoss
             )
           : undefined;
-
-      const totalEarningsWithNOTE = earnings
-        ?.toFiat(baseCurrency)
-        .add(
-          totalIncentiveEarnings.reduce(
-            (s, i) => s.add(i.toFiat(baseCurrency)),
-            TokenBalance.fromSymbol(0, baseCurrency, Network.all)
-          )
-        );
 
       return {
         sortOrder: getHoldingsSortOrder(asset.token),
@@ -147,13 +138,13 @@ export function useGroupedHoldingsTable() {
           ? formatCryptoWithFiat(baseCurrency, amountPaid)
           : '-',
         presentValue: formatCryptoWithFiat(baseCurrency, presentValue),
-        earnings: totalEarningsWithNOTE
-          ? totalEarningsWithNOTE
+        earnings: totalEarningsWithIncentives
+          ? totalEarningsWithIncentives
               .toFiat(baseCurrency)
               .toDisplayStringWithSymbol(2, true, true, 'en-US', true)
           : '-',
         toolTipData:
-          totalIncentiveEarnings.length > 0
+          perIncentiveEarnings.length > 0
             ? {
                 perAssetEarnings: [
                   {
@@ -162,7 +153,7 @@ export function useGroupedHoldingsTable() {
                       ?.toFiat(baseCurrency)
                       .toDisplayStringWithSymbol(2),
                   },
-                  ...totalIncentiveEarnings.map((i) => ({
+                  ...perIncentiveEarnings.map((i) => ({
                     underlying: i.toDisplayStringWithSymbol(),
                     baseCurrency: i
                       .toFiat(baseCurrency)
