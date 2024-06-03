@@ -55,7 +55,9 @@ export const VaultSummary = () => {
     },
     {
       title: 'Remaining Borrow Capacity',
-      value: totalCapacityRemaining?.toFloat(),
+      value: totalCapacityRemaining?.isNegative()
+        ? 0
+        : totalCapacityRemaining?.toFloat(),
       suffix: ` ${totalCapacityRemaining?.symbol || ''}`,
       decimals: 0,
     },
