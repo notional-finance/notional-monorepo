@@ -1,6 +1,9 @@
+import { Network } from '@notional-finance/util';
 import { TokenDefinition } from './Definitions';
 
 export function getArbBoosts(b: TokenDefinition, isDebt: boolean) {
+  if (b.network !== Network.arbitrum) return 0;
+
   if (b.tokenType === 'VaultShare') {
     return 8;
   } else if (
