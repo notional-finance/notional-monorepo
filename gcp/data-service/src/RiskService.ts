@@ -2,6 +2,7 @@ import {
   Registry,
   AccountFetchMode,
   AccountDefinition,
+  getArbBoosts,
 } from '@notional-finance/core-entities';
 import {
   AccountRiskProfile,
@@ -15,7 +16,6 @@ import {
   groupArrayByKey,
 } from '@notional-finance/util';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getArbBoosts } from './Boosts';
 
 const DATA_URL = process.env['API_URL'] as string;
 const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
@@ -181,8 +181,9 @@ export async function calculatePointsAccrued(network: Network) {
             .every((b) => b.isZero()))
       );
     }) as AccountDefinition[];
+  const date = floorToMidnight(getNowSeconds());
 
-  return allAccounts.map((a: AccountDefinition) => {
+  return allAccounts.flatMap((a: AccountDefinition) => {
     const portfolioPoints = groupArrayByKey(
       a.balances.filter((t) => t.token.currencyId && !t.isVaultToken),
       (t) => t.currencyId
@@ -192,32 +193,31 @@ export async function calculatePointsAccrued(network: Network) {
           // Exclude currencies where this is leverage
           !(g.find((t) => t.isNegative()) && g.find((t) => t.isPositive()))
       )
-      .reduce((total, g) => {
-        return (
-          total +
-          g.reduce(
-            (p, t) =>
-              p +
-              t.toUnderlying().abs().toFiat('USD').toFloat() * getArbBoosts(t),
-            0
-          )
-        );
-      }, 0);
+      .flatMap((g) => {
+        return g.map((t) => ({
+          account: a.address,
+          date,
+          token: t.tokenId,
+          points:
+            t.toUnderlying().abs().toFiat('USD').toFloat() *
+            getArbBoosts(t.token, t.isNegative()),
+        }));
+      });
 
     const vaultPoints = VaultAccountRiskProfile.getAllRiskProfiles(a)
       // Filter out empty vault accounts
       .filter((v) => !(v.vaultShares.isZero() && v.vaultDebt.isZero()))
-      .reduce(
-        (total, v) =>
-          total +
-          v.netWorth().toFiat('USD').toFloat() * getArbBoosts(v.vaultShares),
-        0
-      );
+      .map((v) => ({
+        account: a.address,
+        date,
+        token: v.vaultShares.tokenId,
+        points:
+          v.netWorth().toFiat('USD').toFloat() *
+          getArbBoosts(v.vaultShares.token, false),
+      }));
 
-    return {
-      account: a.address,
-      points: vaultPoints + portfolioPoints,
-      date: floorToMidnight(getNowSeconds()),
-    };
+    return portfolioPoints
+      .concat(vaultPoints)
+      .filter(({ points }) => points > 0);
   });
 }

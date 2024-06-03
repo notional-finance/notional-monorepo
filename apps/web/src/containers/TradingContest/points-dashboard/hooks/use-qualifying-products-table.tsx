@@ -10,8 +10,9 @@ import {
 } from '@notional-finance/mui';
 import { PointsIcon } from '@notional-finance/icons';
 import { useAllNetworkMarkets } from '@notional-finance/notionable-hooks';
-import { Network } from '@notional-finance/util';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
+import { getArbBoosts } from '@notional-finance/core-entities';
 
 export const useQualifyingProductsTable = (
   currencyOptions: SelectedOptions[],
@@ -86,24 +87,39 @@ export const useQualifyingProductsTable = (
   ];
 
   const formatMarketData = (allMarketsData: typeof borrowYields) => {
-    const marketsData = allMarketsData.filter(
-      (data) =>
-        data.token.network === Network.arbitrum &&
-        data.product !== 'Provide Liquidity' &&
-        data.product !== 'Leveraged Liquidity' &&
-        data.product !== 'Leveraged Lend'
-    );
-
-    return marketsData
+    return allMarketsData
+      .filter(
+        (data) =>
+          data.product !== 'Leveraged Liquidity' &&
+          getArbBoosts(
+            data.token,
+            data.product === 'Fixed Borrow' ||
+              data.product === 'Variable Borrow'
+          ) > 0
+      )
+      .filter((data) =>
+        data.product === 'Leveraged Vault'
+          ? data.leveraged?.vaultDebt?.maturity === PRIME_CASH_VAULT_MATURITY
+          : true
+      )
       .map((data) => {
-        const { underlying, token, totalAPY, product, link } = data;
+        const { underlying, token, totalAPY, product, link, vaultName } = data;
+        const boostNum = getArbBoosts(
+          data.token,
+          data.product === 'Fixed Borrow' || data.product === 'Variable Borrow'
+        );
         return {
           currency: underlying.symbol,
-          product: product,
+          product: vaultName || product,
           //NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
           totalAPY: totalAPY === 0 ? 0.00001 : totalAPY,
           view: link,
-          boost: '6x',
+          boostNum,
+          boost: `${getArbBoosts(
+            data.token,
+            data.product === 'Fixed Borrow' ||
+              data.product === 'Variable Borrow'
+          )}x`,
           multiValueCellData: {
             currency: {
               symbol: underlying.symbol,
@@ -119,7 +135,7 @@ export const useQualifyingProductsTable = (
           },
         };
       })
-      .sort((a, b) => b.totalAPY - a.totalAPY);
+      .sort((a, b) => b.boostNum - a.boostNum);
   };
 
   const initialData = formatMarketData([...earnYields, ...borrowYields]);
