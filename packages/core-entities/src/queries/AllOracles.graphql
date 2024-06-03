@@ -8,6 +8,8 @@ query AllOracles($skip: Int!) {
     VaultShareOracleRate,
     nTokenToUnderlyingExchangeRate
     fCashSpotRate,
+    VaultShareInterestAccrued,
+    nTokenInterestAccrued
     # NOT used in exchange rate path finding algorithm and excluded
     # from the active query to reduce the amount of data stored in the
     # oracle durable object storage.

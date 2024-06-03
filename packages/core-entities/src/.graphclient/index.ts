@@ -444,6 +444,8 @@ export type BalanceSnapshot = {
   _accumulatedBalance: Scalars['BigInt'];
   /** Cumulative realized cost for internal PnL calculations */
   _accumulatedCostRealized: Scalars['BigInt'];
+  /** Internal interest accumulator */
+  _lastInterestAccumulator: Scalars['BigInt'];
   profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
   /** Snapshots of the secondary incentives */
   incentives?: Maybe<Array<IncentiveSnapshot>>;
@@ -635,6 +637,14 @@ export type BalanceSnapshot_filter = {
   _accumulatedCostRealized_lte?: InputMaybe<Scalars['BigInt']>;
   _accumulatedCostRealized_in?: InputMaybe<Array<Scalars['BigInt']>>;
   _accumulatedCostRealized_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _lastInterestAccumulator?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_not?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_gt?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_lt?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_gte?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_lte?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _lastInterestAccumulator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
   incentives_?: InputMaybe<IncentiveSnapshot_filter>;
   /** Filter for the block changed event. */
@@ -667,6 +677,7 @@ export type BalanceSnapshot_orderBy =
   | 'previousSnapshot__impliedFixedRate'
   | 'previousSnapshot___accumulatedBalance'
   | 'previousSnapshot___accumulatedCostRealized'
+  | 'previousSnapshot___lastInterestAccumulator'
   | 'balance'
   | 'balance__id'
   | 'balance__firstUpdateBlockNumber'
@@ -685,6 +696,7 @@ export type BalanceSnapshot_orderBy =
   | 'impliedFixedRate'
   | '_accumulatedBalance'
   | '_accumulatedCostRealized'
+  | '_lastInterestAccumulator'
   | 'profitLossLineItems'
   | 'incentives';
 
@@ -876,6 +888,7 @@ export type Balance_orderBy =
   | 'current__impliedFixedRate'
   | 'current___accumulatedBalance'
   | 'current___accumulatedCostRealized'
+  | 'current___lastInterestAccumulator'
   | 'snapshots';
 
 export type BlockChangedFilter = {
@@ -2340,6 +2353,7 @@ export type IncentiveSnapshot_orderBy =
   | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
+  | 'balanceSnapshot___lastInterestAccumulator'
   | 'rewardToken'
   | 'rewardToken__id'
   | 'rewardToken__firstUpdateBlockNumber'
@@ -2892,8 +2906,10 @@ export type OracleType =
   | 'PrimeDebtToMoneyMarketExchangeRate'
   | 'MoneyMarketToUnderlyingExchangeRate'
   | 'VaultShareOracleRate'
+  | 'VaultShareInterestAccrued'
   | 'nTokenToUnderlyingExchangeRate'
   | 'nTokenBlendedInterestRate'
+  | 'nTokenInterestAccrued'
   | 'nTokenFeeRate'
   | 'nTokenIncentiveRate'
   | 'nTokenSecondaryIncentiveRate';
@@ -3859,6 +3875,7 @@ export type ProfitLossLineItem_orderBy =
   | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
+  | 'balanceSnapshot___lastInterestAccumulator'
   | 'account'
   | 'account__id'
   | 'account__firstUpdateBlockNumber'
@@ -8084,6 +8101,7 @@ export type BalanceSnapshotResolvers<ContextType = MeshContext & { chainName: st
   impliedFixedRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   _accumulatedBalance?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   _accumulatedCostRealized?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  _lastInterestAccumulator?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   profitLossLineItems?: Resolver<Maybe<Array<ResolversTypes['ProfitLossLineItem']>>, ParentType, ContextType, RequireFields<BalanceSnapshotprofitLossLineItemsArgs, 'skip' | 'first'>>;
   incentives?: Resolver<Maybe<Array<ResolversTypes['IncentiveSnapshot']>>, ParentType, ContextType, RequireFields<BalanceSnapshotincentivesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -8775,7 +8793,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-v3-{context.chainName:arbitrum}/version/latest"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/36749/notional-finance-v3-{context.chainName:arbitrum}/version/latest"},
               baseDir,
               cache,
               pubsub,
@@ -8814,6 +8832,12 @@ const merger = new(BareMerger as any)({
           return printWithCache(AccountBalanceStatementDocument);
         },
         location: 'AccountBalanceStatementDocument.graphql'
+      },{
+        document: AccountHoldingsHistoricalDocument,
+        get rawSDL() {
+          return printWithCache(AccountHoldingsHistoricalDocument);
+        },
+        location: 'AccountHoldingsHistoricalDocument.graphql'
       },{
         document: AccountTransactionHistoryDocument,
         get rawSDL() {
@@ -8977,13 +9001,21 @@ export type AccountBalanceStatementQuery = { account?: Maybe<(
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
       ), current: (
-        Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>
+        Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | '_lastInterestAccumulator' | 'impliedFixedRate'>
         & { incentives?: Maybe<Array<(
           Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed'>
           & { rewardToken: Pick<Token, 'id' | 'symbol'> }
         )>> }
-      ), snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>> }
+      ) }>> }
   )> };
+
+export type AccountHoldingsHistoricalQueryVariables = Exact<{
+  accountId: Scalars['ID'];
+  minTimestamp: Scalars['Int'];
+}>;
+
+
+export type AccountHoldingsHistoricalQuery = { account?: Maybe<{ balances?: Maybe<Array<{ snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>>> }>> }> };
 
 export type AccountTransactionHistoryQueryVariables = Exact<{
   accountId: Scalars['String'];
@@ -9191,7 +9223,7 @@ export const AccountBalanceStatementDocument = gql`
     query AccountBalanceStatement($accountId: ID!) {
   account(id: $accountId) {
     id
-    balances {
+    balances(where: {current_: {currentBalance_not: 0}}) {
       token {
         id
         underlying {
@@ -9208,6 +9240,7 @@ export const AccountBalanceStatementDocument = gql`
         totalILAndFeesAtSnapshot
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
+        _lastInterestAccumulator
         impliedFixedRate
         incentives {
           rewardToken {
@@ -9218,22 +9251,26 @@ export const AccountBalanceStatementDocument = gql`
           adjustedClaimed
         }
       }
-      snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
-        timestamp
-        blockNumber
-        currentBalance
-        _accumulatedCostRealized
-        adjustedCostBasis
-        currentProfitAndLossAtSnapshot
-        totalILAndFeesAtSnapshot
-        totalProfitAndLossAtSnapshot
-        totalInterestAccrualAtSnapshot
-        impliedFixedRate
-      }
     }
   }
 }
     ` as unknown as DocumentNode<AccountBalanceStatementQuery, AccountBalanceStatementQueryVariables>;
+export const AccountHoldingsHistoricalDocument = gql`
+    query AccountHoldingsHistorical($accountId: ID!, $minTimestamp: Int!) {
+  account(id: $accountId) {
+    balances {
+      snapshots(
+        where: {timestamp_gte: $minTimestamp}
+        orderBy: timestamp
+        orderDirection: asc
+      ) {
+        timestamp
+        currentBalance
+      }
+    }
+  }
+}
+    ` as unknown as DocumentNode<AccountHoldingsHistoricalQuery, AccountHoldingsHistoricalQueryVariables>;
 export const AccountTransactionHistoryDocument = gql`
     query AccountTransactionHistory($accountId: String!) {
   transactions(
@@ -9580,7 +9617,7 @@ export const AllConfigurationByBlockDocument = gql`
 export const AllOraclesDocument = gql`
     query AllOracles($skip: Int!) {
   oracles(
-    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, fCashSpotRate], matured: false}
+    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, fCashSpotRate, VaultShareInterestAccrued, nTokenInterestAccrued], matured: false}
     first: 1000
     skip: $skip
   ) {
@@ -9958,11 +9995,15 @@ export const VaultReinvestmentDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
     AccountBalanceStatement(variables: AccountBalanceStatementQueryVariables, options?: C): Promise<AccountBalanceStatementQuery> {
       return requester<AccountBalanceStatementQuery, AccountBalanceStatementQueryVariables>(AccountBalanceStatementDocument, variables, options) as Promise<AccountBalanceStatementQuery>;
+    },
+    AccountHoldingsHistorical(variables: AccountHoldingsHistoricalQueryVariables, options?: C): Promise<AccountHoldingsHistoricalQuery> {
+      return requester<AccountHoldingsHistoricalQuery, AccountHoldingsHistoricalQueryVariables>(AccountHoldingsHistoricalDocument, variables, options) as Promise<AccountHoldingsHistoricalQuery>;
     },
     AccountTransactionHistory(variables: AccountTransactionHistoryQueryVariables, options?: C): Promise<AccountTransactionHistoryQuery> {
       return requester<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>(AccountTransactionHistoryDocument, variables, options) as Promise<AccountTransactionHistoryQuery>;

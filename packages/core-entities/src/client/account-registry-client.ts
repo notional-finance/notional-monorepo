@@ -21,10 +21,7 @@ import {
 import { ClientRegistry } from './client-registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { BalanceSnapshot, Token, Transaction } from '../.graphclient';
-import {
-  parseBalanceStatement,
-  parseCurrentBalanceStatement,
-} from './accounts/balance-statement';
+import { parseCurrentBalanceStatement } from './accounts/balance-statement';
 import { parseTransaction } from './accounts/transaction-history';
 import { fetchCurrentAccount } from './accounts/current-account';
 
@@ -176,6 +173,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       account.balanceStatement = balanceStatements.finalResults[address];
       account.accountHistory = txnHistory.finalResults[address];
     } catch (e) {
+      console.error(e);
       account.balanceStatement = undefined;
       account.accountHistory = undefined;
     }
@@ -241,7 +239,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           [account]:
             r.account?.balances
               ?.filter(({ token }) => !!token.underlying)
-              .map(({ current, snapshots, token }) => {
+              .map(({ current, token }) => {
                 if (!token.underlying) throw Error('Unknown underlying');
                 return {
                   ...parseCurrentBalanceStatement(
@@ -250,16 +248,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                     network
                   ),
                   // NOTE: this is used to populate the account history chart in the portfolio page
-                  historicalSnapshots:
-                    snapshots?.map((s) =>
-                      parseBalanceStatement(
-                        token.id,
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        token.underlying!.id,
-                        s as BalanceSnapshot,
-                        network
-                      )
-                    ) || [],
+                  historicalSnapshots: [],
                 };
               }) || [],
         };

@@ -1,0 +1,14 @@
+query AccountHoldingsHistorical($accountId: ID!, $minTimestamp: Int!) {
+  account(id: $accountId) {
+    balances {
+      snapshots(
+        where: { timestamp_gte: $minTimestamp },
+        orderBy: timestamp,
+        orderDirection: asc
+    ) {
+        timestamp
+        currentBalance
+      }
+    }
+  }
+}

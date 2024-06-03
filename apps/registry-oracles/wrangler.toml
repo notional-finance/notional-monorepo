@@ -23,8 +23,6 @@ NX_ENV = 'dev'
 VERSION = 'v1'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'mainnet', 'all' ]
 
-# NX_DD_API_KEY
-
 [env.dev.durable_objects]
 bindings = [
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
