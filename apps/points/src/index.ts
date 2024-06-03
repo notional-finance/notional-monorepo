@@ -1,3 +1,4 @@
+import { getAccountPoints } from './arb_points';
 import { getVaultData, getVaultTVL } from './calculate-points';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -11,7 +12,9 @@ export default {
   ): Promise<Response> {
     const url = new URL(request.url);
     const [_, vaultAddress, blockNumber] = url.pathname.split('/', 3);
-    if (blockNumber === 'tvl') {
+    if (vaultAddress === 'arb_account_points') {
+      return new Response(JSON.stringify(await getAccountPoints(blockNumber)));
+    } else if (blockNumber === 'tvl') {
       return new Response(JSON.stringify(await getVaultTVL(vaultAddress)));
     } else {
       return new Response(
