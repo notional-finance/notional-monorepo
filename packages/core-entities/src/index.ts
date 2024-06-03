@@ -15,3 +15,4 @@ export { fetchGraph, loadGraphClientDeferred } from './server/server-registry';
 export * from './config/whitelisted-vaults';
 export { DeprecatedVaults } from './server/vault-overrides';
 export { SecondaryIncentiveToken } from './config/whitelisted-tokens';
+export * from './Boosts';
