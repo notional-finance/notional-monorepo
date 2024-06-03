@@ -84,5 +84,8 @@ export const useLiquidationRisk = () => {
   return {
     liquidationRiskColumns: Columns,
     liquidationRiskData: [...exchangeRateRisk, ...assetPriceRisk],
+    initialLiquidationState: {
+      clickDisabled: true,
+    },
   };
 };

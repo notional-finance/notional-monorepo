@@ -14,7 +14,8 @@ export const PortfolioVaults = () => {
     // toggleBarProps,
     initialState,
   } = useVaultHoldingsTable();
-  const { riskTableData, riskTableColumns } = useVaultRiskTable();
+  const { riskTableData, riskTableColumns, initialRiskState } =
+    useVaultRiskTable();
 
   const tableTabs = [
     {
@@ -32,6 +33,7 @@ export const PortfolioVaults = () => {
     0: {
       columns: vaultHoldingsColumns,
       data: vaultHoldingsData,
+      initialState,
     },
     // 1: {
     //   columns: earningsBreakdownColumns,
@@ -40,6 +42,7 @@ export const PortfolioVaults = () => {
     1: {
       columns: riskTableColumns,
       data: riskTableData,
+      initialState: initialRiskState,
     },
   };
 
@@ -65,7 +68,7 @@ export const PortfolioVaults = () => {
               description="table title"
             />
           }
-          initialState={initialState}
+          initialState={holdingsData[currentTab].initialState}
           setExpandedRows={setExpandedRows}
           tableVariant={currentTab === 0 ? TABLE_VARIANTS.TOTAL_ROW : undefined}
         />
