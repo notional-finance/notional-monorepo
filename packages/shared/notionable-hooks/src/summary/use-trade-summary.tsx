@@ -895,6 +895,11 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
       total.label = intl.formatMessage(
         defineMessage({ defaultMessage: 'Net Worth' })
       );
+      // Subtract fees from the deposit balance
+      total.value.data[0].displayValue = depositBalance
+        ?.sub(debtFee?.toUnderlying() || TokenBalance.zero(underlying))
+        .sub(collateralFee?.toUnderlying() || TokenBalance.zero(underlying))
+        .toDisplayStringWithSymbol(4, true, false);
     }
     walletTotal.value.data[0].showPositiveAsGreen = true;
     summary =
