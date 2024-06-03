@@ -150,6 +150,8 @@ Additional Interest: ${additionalAccruedInterest.toDisplayStringWithSymbol(
     totalInterestAccrual = currentStatement.totalInterestAccrual.add(
       additionalAccruedInterest
     );
+    if (currentStatement.balance.isNegative())
+      totalInterestAccrual = totalInterestAccrual.neg();
   } else {
     // For Prime Cash and Prime Debt, the entire PNL is interest accrual
     totalInterestAccrual = currentProfitAndLoss;
