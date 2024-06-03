@@ -127,7 +127,10 @@ export const ClaimNoteButton = () => {
           )}
           {secondaryCountUp > 0 && (
             <SecondaryWrapper theme={theme}>
-              <TokenIcon symbol="GHO" size={'medium'} />
+              <TokenIcon
+                symbol={SecondaryIncentiveToken[network]}
+                size={'medium'}
+              />
               <Box sx={{ paddingLeft: theme.spacing(1) }}>
                 {secondaryCountUp > 0 ? (
                   <CountUp value={secondaryCountUp} duration={1} decimals={8} />
