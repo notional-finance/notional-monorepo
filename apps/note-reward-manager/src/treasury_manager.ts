@@ -31,7 +31,7 @@ export default class TreasuryManager {
   }
 
   public async getLastNoteInvestmentTime(): Promise<number> {
-    return fetch('https://api.thegraph.com/subgraphs/name/notional-finance/mainnet-v2', {
+    return fetch(`https://gateway-arbitrum.network.thegraph.com/api/${this.env.SUBGRAPH_API_KEY}/subgraphs/id/BnVrrrzw6cLHxFUkgtfmWcF83DopC8jrYnrMnysVKptm`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -53,15 +53,18 @@ export default class TreasuryManager {
     console.log("lastNoteInvestmentTimestamp", lastNoteInvestmentTimestamp);
     const lastInvestmentStartOfDay = new Date(lastNoteInvestmentTimestamp * 1000);
     lastInvestmentStartOfDay.setUTCHours(0, 0, 0, 0);
-    const duration = (Date.now()  - lastInvestmentStartOfDay.getTime()) / 1000;
+    const duration = (Date.now() - lastInvestmentStartOfDay.getTime()) / 1000;
     if (
-      duration > Config.TREASURY_REINVESTMENT_INTERVAL &&
-      new Date('2024-03-10T00:00:00.000Z').getTime() <= Date.now() // start reinvesting at Saturday midnight
+      // force run it twice (sellComp & burnNote) at Saturday midnight and after that respect TREASURY_REINVESTMENT_INTERVAL
+      (
+        new Date('2024-06-09T00:00:00.000Z').getTime() <= Date.now() &&
+        Date.now() < new Date('2024-06-09T00:15:00.000Z').getTime()
+      ) || duration > Config.TREASURY_REINVESTMENT_INTERVAL
     ) {
       if (runType === RunType.burnNOTE) {
         const wethToken = ERC20__factory.connect(this.WETH, this.provider);
         const wethBalance = await wethToken.balanceOf(this.proxy.address);
-        if(!wethBalance.gte(1e15)) {
+        if (!wethBalance.gte(1e15)) {
           console.log("No WETH available");
           return;
         }
@@ -147,7 +150,7 @@ export default class TreasuryManager {
           await this.proxy.callStatic.executeTrade(
             trade,
             DexId.ZERO_EX,
-          { from: this.env.MANAGER_BOT_ADDRESS }
+            { from: this.env.MANAGER_BOT_ADDRESS }
           );
 
           const data = this.proxy.interface.encodeFunctionData(
