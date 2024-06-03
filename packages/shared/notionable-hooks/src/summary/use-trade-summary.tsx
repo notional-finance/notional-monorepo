@@ -12,7 +12,6 @@ import {
   isDeleverageTrade,
   isDeleverageWithSwappedTokens,
   isVaultTrade,
-  isRollOrConvert,
   AllTradeTypes,
   NOTETradeState,
 } from '@notional-finance/notionable';
@@ -313,15 +312,20 @@ function getDebtFeeDetailItem(
       },
     });
   } else if (
-    (isDeleverageTrade(tradeType) || isRollOrConvert(tradeType)) &&
+    (isDeleverageTrade(tradeType) || tradeType === 'ConvertAsset') &&
+    debtBalance?.unwrapVaultToken()?.tokenType === 'fCash'
+  ) {
+    // In these cases the debt token is the token that is being sold, so we consider
+    // it an exit fee
+    feeToolTip = defineMessages({
+      content: { defaultMessage: 'Fixed Lend Exit Fee' },
+    });
+  } else if (
+    tradeType === 'RollDebt' &&
     debtBalance?.unwrapVaultToken()?.tokenType === 'fCash'
   ) {
     feeToolTip = defineMessages({
-      content: { defaultMessage: 'Exit Fee' },
-      toolTipContent: {
-        defaultMessage:
-          'Exiting a fixed rate debt before maturity incurs an exit fee.',
-      },
+      content: { defaultMessage: 'Fixed Borrow Entry Fee' },
     });
   }
 
@@ -330,7 +334,7 @@ function getDebtFeeDetailItem(
       text: feeToolTip
         ? feeToolTip
         : defineMessages({
-            content: { defaultMessage: 'Fees and Slippage' },
+            content: { defaultMessage: 'Fees' },
           }),
       iconColor,
     },
@@ -360,7 +364,7 @@ function getCollateralFeeDetailItem(
 
   if (collateralBalance?.tokenType === 'nToken' && collateralFee.isNegative()) {
     feeToolTip = defineMessages({
-      content: { defaultMessage: 'Mint Bonus' },
+      content: { defaultMessage: 'Liquidity Mint Bonus' },
       toolTipContent: {
         defaultMessage:
           'Minting nTokens at high utilization results in a small bonus due to an increase in the nToken valuation.',
@@ -383,7 +387,7 @@ function getCollateralFeeDetailItem(
     ) {
       iconColor = theme.palette.warning.main;
       feeToolTip = defineMessages({
-        content: { defaultMessage: 'Fees and Slippage' },
+        content: { defaultMessage: 'Fees' },
         toolTipContent: {
           defaultMessage:
             'Fixed rate volatility is causing a larger than normal minting fee. This fee goes to zero as fixed rates stabilize.',
@@ -402,6 +406,22 @@ function getCollateralFeeDetailItem(
           'Trading costs associated with entering a vault position',
       },
     });
+  } else if (
+    (isDeleverageTrade(tradeType) || tradeType === 'ConvertAsset') &&
+    collateralBalance?.unwrapVaultToken()?.tokenType === 'fCash'
+  ) {
+    feeToolTip = defineMessages({
+      content: { defaultMessage: 'Fixed Lend Entry Fee' },
+    });
+  } else if (
+    tradeType === 'RollDebt' &&
+    collateralBalance?.unwrapVaultToken()?.tokenType === 'fCash'
+  ) {
+    // In these cases the collateral token is the debt that is being repaid, so we consider
+    // it an exit fee
+    feeToolTip = defineMessages({
+      content: { defaultMessage: 'Fixed Borrow Exit Fee' },
+    });
   }
 
   return {
@@ -409,7 +429,7 @@ function getCollateralFeeDetailItem(
       text: feeToolTip
         ? feeToolTip
         : defineMessages({
-            content: { defaultMessage: 'Fees and Slippage' },
+            content: { defaultMessage: 'Fees' },
           }),
       iconColor,
     },
