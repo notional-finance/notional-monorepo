@@ -56,13 +56,6 @@ export function parseCurrentBalanceStatement(
 
   let totalInterestAccrual: TokenBalance;
   if (token.tokenType === 'VaultShare' || token.tokenType === 'nToken') {
-    console.log(
-      `Current Accumulator ID: ${token.underlying}:${token.id}:${
-        token.tokenType === 'VaultShare'
-          ? 'VaultShareInterestAccrued'
-          : 'nTokenInterestAccrued'
-      }`
-    );
     const a = Registry.getOracleRegistry().getLatestFromSubject(
       network,
       `${token.underlying}:${token.id}:${
@@ -87,37 +80,7 @@ export function parseCurrentBalanceStatement(
       totalInterestAccrual = currentStatement.totalInterestAccrual.add(
         additionalAccruedInterest
       );
-      console.log(`
-INTEREST: ${token.symbol}
-Current Balance: ${currentStatement.balance.toDisplayStringWithSymbol(
-        8,
-        false,
-        false
-      )}
-Current Accumulator Time Diff: ${getNowSeconds() - a.timestamp}
-Current Accumulator: ${currentInterestAccumulator.toString()}
-Last Accumulator: ${current._lastInterestAccumulator.toString()}
-Snapshot Interest: ${currentStatement.totalInterestAccrual.toDisplayStringWithSymbol(
-        8,
-        false,
-        false
-      )}
-Additional Interest: ${additionalAccruedInterest.toDisplayStringWithSymbol(
-        8,
-        false,
-        false
-      )}
-`);
     } else {
-      console.log(`
-INTEREST: ${token.symbol}
-NO ACCUMULATOR FOUND
-Snapshot Interest: ${currentStatement.totalInterestAccrual.toDisplayStringWithSymbol(
-        8,
-        false,
-        false
-      )}
-`);
       totalInterestAccrual = currentStatement.totalInterestAccrual;
     }
   } else if (token.tokenType === 'fCash') {
@@ -129,24 +92,6 @@ Snapshot Interest: ${currentStatement.totalInterestAccrual.toDisplayStringWithSy
       getNowSeconds() - currentStatement.timestamp,
       SECONDS_IN_YEAR
     );
-    console.log(`
-INTEREST: ${token.symbol}
-Last Accumulator: ${lastInterestAccumulator.toDisplayStringWithSymbol(
-      8,
-      false,
-      false
-    )}
-Snapshot Interest: ${currentStatement.totalInterestAccrual.toDisplayStringWithSymbol(
-      8,
-      false,
-      false
-    )}
-Additional Interest: ${additionalAccruedInterest.toDisplayStringWithSymbol(
-      8,
-      false,
-      false
-    )}
-`);
     totalInterestAccrual = currentStatement.totalInterestAccrual.add(
       additionalAccruedInterest
     );
@@ -173,7 +118,6 @@ Additional Interest: ${additionalAccruedInterest.toDisplayStringWithSymbol(
     totalInterestAccrual,
     // Amount Paid
     accumulatedCostRealized: currentStatement.accumulatedCostRealized,
-    // TODO: Market PNL: Total Earnings - InterestAccrued
     incentives,
   };
 }
