@@ -355,6 +355,8 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       marketProfitLoss,
       totalILAndFees,
       totalInterestAccrual,
+      assetPnL,
+      debtPnL
     };
   });
 }
