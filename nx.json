@@ -9,23 +9,6 @@
   "affected": {
     "defaultBase": "main"
   },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "@nrwl/nx-cloud",
-      "options": {
-        "cacheableOperations": [
-          "build",
-          "build-lib",
-          "typechain",
-          "lint",
-          "test",
-          "e2e"
-        ],
-        "runtimeCacheInputs": ["echo $NX_APP_URL"],
-        "accessToken": "ZGY4MzFkOTctM2ZiMS00OTc3LTk4YmItZDcwZGU1MGEyMjY4fHJlYWQtd3JpdGU="
-      }
-    }
-  },
   "targetDefaults": {
     "lint": {
       "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
