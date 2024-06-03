@@ -142,5 +142,8 @@ export const useVaultRiskTable = () => {
   return {
     riskTableData: tableData,
     riskTableColumns: vaultRiskTableColumns,
+    initialRiskState: {
+      clickDisabled: true,
+    },
   };
 };

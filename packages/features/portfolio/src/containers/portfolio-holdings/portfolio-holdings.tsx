@@ -27,7 +27,11 @@ export const PortfolioHoldings = () => {
   // const { earningsBreakdownData, earningsBreakdownColumns } =
   //   useEarningsBreakdown();
   const account = useAccountDefinition(network);
-  const { liquidationRiskColumns, liquidationRiskData } = useLiquidationRisk();
+  const {
+    liquidationRiskColumns,
+    liquidationRiskData,
+    initialLiquidationState,
+  } = useLiquidationRisk();
   const hasDebts = !!account?.balances.find(
     (t) => t.isNegative() && !t.isVaultToken
   );
@@ -36,6 +40,7 @@ export const PortfolioHoldings = () => {
     0: {
       columns: portfolioHoldingsColumns,
       data: portfolioHoldingsData,
+      initialState,
     },
     // 1: {
     //   columns: earningsBreakdownColumns,
@@ -44,6 +49,7 @@ export const PortfolioHoldings = () => {
     1: {
       columns: liquidationRiskColumns,
       data: liquidationRiskData,
+      initialState: initialLiquidationState,
     },
   };
 
@@ -89,7 +95,7 @@ export const PortfolioHoldings = () => {
             description="table title"
           />
         }
-        initialState={initialState}
+        initialState={holdingsData[currentTab].initialState}
         expandableTable={true}
         setExpandedRows={setExpandedRows}
         tableVariant={currentTab === 0 ? TABLE_VARIANTS.TOTAL_ROW : undefined}

@@ -1,4 +1,8 @@
-import { Banner, DataTable } from '@notional-finance/mui';
+import {
+  Banner,
+  DataTable,
+  LargeInputTextEmphasized,
+} from '@notional-finance/mui';
 import {
   TableActionRow,
   EmptyPortfolio,
@@ -6,7 +10,7 @@ import {
 } from '../../components';
 import { FormattedMessage, defineMessage, defineMessages } from 'react-intl';
 import { usePortfolioSNOTETable, usePortfolioNOTETable } from '../../hooks';
-import { Box, useTheme } from '@mui/material';
+import { Box, useTheme, styled } from '@mui/material';
 import { formatNumberAsPercent, lastValue } from '@notional-finance/util';
 import { useStakedNoteData } from '@notional-finance/notionable-hooks';
 
@@ -42,14 +46,22 @@ export const PortfolioNoteStaking = () => {
     <Box>
       {noStakedNoteData && noteData.length === 0 && <EmptyPortfolio />}
       {noStakedNoteData && noteData.length > 0 && (
-        <Banner
-          messages={stakedNoteBanner.messages}
-          buttonSuffix={` ${formatNumberAsPercent(currentSNOTEYield)} APY`}
-          tokenSymbol="sNOTE"
-          title={stakedNoteBanner.title}
-          link="/stake/ETH"
-        />
+        <Box sx={{ marginBottom: theme.spacing(3) }}>
+          <Banner
+            messages={stakedNoteBanner.messages}
+            buttonSuffix={` ${formatNumberAsPercent(currentSNOTEYield)} APY`}
+            tokenSymbol="sNOTE"
+            title={stakedNoteBanner.title}
+            link="/stake/ETH"
+          />
+        </Box>
       )}
+      <Heading sx={{ marginBottom: theme.spacing(3) }}>
+        <FormattedMessage
+          defaultMessage="NOTE Staking"
+          description="table title"
+        />
+      </Heading>
       {!noStakedNoteData && (
         <DataTable
           data={data}
@@ -67,25 +79,30 @@ export const PortfolioNoteStaking = () => {
         />
       )}
       {noteData.length > 0 && (
-        <Box sx={{ marginTop: theme.spacing(3) }}>
-          <DataTable
-            data={noteData}
-            columns={noteColumns}
-            CustomRowComponent={TableActionRow}
-            expandableTable={true}
-            tableTitle={
-              <FormattedMessage
-                defaultMessage="NOTE Holdings"
-                description="table title"
-              />
-            }
-            initialState={initialNoteState}
-            setExpandedRows={setExpandedRows}
-          />
-        </Box>
+        <DataTable
+          data={noteData}
+          columns={noteColumns}
+          CustomRowComponent={TableActionRow}
+          expandableTable={true}
+          tableTitle={
+            <FormattedMessage
+              defaultMessage="NOTE Holdings"
+              description="table title"
+            />
+          }
+          initialState={initialNoteState}
+          setExpandedRows={setExpandedRows}
+        />
       )}
     </Box>
   );
 };
+
+const Heading = styled(LargeInputTextEmphasized)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  };`
+);
 
 export default PortfolioNoteStaking;

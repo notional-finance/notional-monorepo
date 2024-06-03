@@ -20,6 +20,7 @@ const Container = styled(Box, {
   box-shadow: 0 -50px 50px -20px ${theme.palette.background.paper};
   padding-top: 20px;
   padding-bottom: 48px;
+  z-index: 2;
   ${theme.breakpoints.down('sm')} {
     position: relative;
     box-shadow: none;
