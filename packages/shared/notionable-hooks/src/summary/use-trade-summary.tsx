@@ -774,7 +774,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     calculationSuccess,
   } = state;
   const depositBalance = _d;
-  const { totalAPY, assetAPY, debtAPY } = useTotalAPY(state);
+  const { totalAPY } = useTotalAPY(state);
 
   const underlying =
     netAssetBalance?.underlying ||
@@ -866,10 +866,10 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     tradeType === 'CreateVaultPosition' ||
     tradeType === 'LeveragedNToken'
   ) {
-    const assetEarnings = calculate30dEarnings(collateralBalance, assetAPY);
-    const debtCost = calculate30dEarnings(debtBalance, debtAPY)?.abs().neg();
-    earnings =
-      assetEarnings && debtCost ? assetEarnings.add(debtCost) : undefined;
+    const netWorth = depositBalance
+      ?.sub(debtFee?.toUnderlying() || TokenBalance.zero(underlying))
+      .sub(collateralFee?.toUnderlying() || TokenBalance.zero(underlying));
+    earnings = netWorth ? calculate30dEarnings(netWorth, totalAPY) : undefined;
   } else {
     earnings = undefined;
   }
