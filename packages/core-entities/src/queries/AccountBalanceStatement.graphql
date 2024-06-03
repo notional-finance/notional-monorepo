@@ -1,7 +1,6 @@
 query AccountBalanceStatement($accountId: ID!) {
   account(id: $accountId) {
     id
-    # TODO: filter this by zero after splitting out historicals
     balances(where: { current_: {currentBalance_not: 0}}) {
       token { 
         id
@@ -24,19 +23,6 @@ query AccountBalanceStatement($accountId: ID!) {
           totalClaimed
           adjustedClaimed
         }
-      }
-      # TODO: split this query out and make it by min timestampss
-      snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
-        timestamp
-        blockNumber
-        currentBalance
-        _accumulatedCostRealized
-        adjustedCostBasis
-        currentProfitAndLossAtSnapshot
-        totalILAndFeesAtSnapshot
-        totalProfitAndLossAtSnapshot
-        totalInterestAccrualAtSnapshot
-        impliedFixedRate
       }
     }
   }

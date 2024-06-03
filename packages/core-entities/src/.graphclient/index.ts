@@ -8833,6 +8833,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AccountBalanceStatementDocument.graphql'
       },{
+        document: AccountHoldingsHistoricalDocument,
+        get rawSDL() {
+          return printWithCache(AccountHoldingsHistoricalDocument);
+        },
+        location: 'AccountHoldingsHistoricalDocument.graphql'
+      },{
         document: AccountTransactionHistoryDocument,
         get rawSDL() {
           return printWithCache(AccountTransactionHistoryDocument);
@@ -9000,8 +9006,16 @@ export type AccountBalanceStatementQuery = { account?: Maybe<(
           Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed'>
           & { rewardToken: Pick<Token, 'id' | 'symbol'> }
         )>> }
-      ), snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>> }
+      ) }>> }
   )> };
+
+export type AccountHoldingsHistoricalQueryVariables = Exact<{
+  accountId: Scalars['ID'];
+  minTimestamp: Scalars['Int'];
+}>;
+
+
+export type AccountHoldingsHistoricalQuery = { account?: Maybe<{ balances?: Maybe<Array<{ snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>>> }>> }> };
 
 export type AccountTransactionHistoryQueryVariables = Exact<{
   accountId: Scalars['String'];
@@ -9237,22 +9251,26 @@ export const AccountBalanceStatementDocument = gql`
           adjustedClaimed
         }
       }
-      snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
-        timestamp
-        blockNumber
-        currentBalance
-        _accumulatedCostRealized
-        adjustedCostBasis
-        currentProfitAndLossAtSnapshot
-        totalILAndFeesAtSnapshot
-        totalProfitAndLossAtSnapshot
-        totalInterestAccrualAtSnapshot
-        impliedFixedRate
-      }
     }
   }
 }
     ` as unknown as DocumentNode<AccountBalanceStatementQuery, AccountBalanceStatementQueryVariables>;
+export const AccountHoldingsHistoricalDocument = gql`
+    query AccountHoldingsHistorical($accountId: ID!, $minTimestamp: Int!) {
+  account(id: $accountId) {
+    balances {
+      snapshots(
+        where: {timestamp_gte: $minTimestamp}
+        orderBy: timestamp
+        orderDirection: asc
+      ) {
+        timestamp
+        currentBalance
+      }
+    }
+  }
+}
+    ` as unknown as DocumentNode<AccountHoldingsHistoricalQuery, AccountHoldingsHistoricalQueryVariables>;
 export const AccountTransactionHistoryDocument = gql`
     query AccountTransactionHistory($accountId: String!) {
   transactions(
@@ -9977,11 +9995,15 @@ export const VaultReinvestmentDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
     AccountBalanceStatement(variables: AccountBalanceStatementQueryVariables, options?: C): Promise<AccountBalanceStatementQuery> {
       return requester<AccountBalanceStatementQuery, AccountBalanceStatementQueryVariables>(AccountBalanceStatementDocument, variables, options) as Promise<AccountBalanceStatementQuery>;
+    },
+    AccountHoldingsHistorical(variables: AccountHoldingsHistoricalQueryVariables, options?: C): Promise<AccountHoldingsHistoricalQuery> {
+      return requester<AccountHoldingsHistoricalQuery, AccountHoldingsHistoricalQueryVariables>(AccountHoldingsHistoricalDocument, variables, options) as Promise<AccountHoldingsHistoricalQuery>;
     },
     AccountTransactionHistory(variables: AccountTransactionHistoryQueryVariables, options?: C): Promise<AccountTransactionHistoryQuery> {
       return requester<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>(AccountTransactionHistoryDocument, variables, options) as Promise<AccountTransactionHistoryQuery>;
