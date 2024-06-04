@@ -1,13 +1,13 @@
 import { Network } from './constants';
 
 export const treasuryManagerAddresses: Partial<Record<Network, string>> = {
-  arbitrum: '0x53144559c0d4a3304e2dd9dafbd685247429216d',
-  mainnet: '0x53144559c0d4a3304e2dd9dafbd685247429216d',
+  arbitrum: '0x53144559C0d4a3304e2DD9dAfBD685247429216d',
+  mainnet: '0x53144559C0d4a3304e2DD9dAfBD685247429216d',
 };
 
 export const managerBotAddresses: Partial<Record<Network, string>> = {
   arbitrum: '0x745915418D8B70f39ce9e61A965cBB0C87f9f7Ed',
-  mainnet: '0x745915418d8b70f39ce9e61a965cbb0c87f9f7ed',
+  mainnet: '0x745915418D8B70f39ce9e61A965cBB0C87f9f7Ed',
 };
 
 interface Env {
@@ -30,7 +30,6 @@ export async function sendTxThroughRelayer(arg: {
   env: Env;
   to: string;
   data: string;
-  isLiquidator?: boolean;
   gasLimit?: number;
 }) {
   const { to, data, env, gasLimit } = arg;
