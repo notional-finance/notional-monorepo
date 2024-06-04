@@ -100,6 +100,8 @@ export function useLeveragedPerformance(
         leveragedReturn: leveragedYield(totalAPY, borrowRate, leverageRatio),
       };
     }),
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     { strategyReturn: 0, leveragedReturn: undefined, borrowRate: undefined }
   );
 }
