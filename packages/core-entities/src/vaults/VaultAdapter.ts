@@ -93,4 +93,10 @@ export abstract class VaultAdapter {
     price: TokenBalance;
     vaultSharePrice: TokenBalance;
   }[];
+
+  abstract getVaultAPY(factors?: {
+    account: string;
+    vaultShares: TokenBalance;
+    maturity: number;
+  }): number;
 }

@@ -5,6 +5,7 @@ import {
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
   INTERNAL_TOKEN_DECIMALS,
+  SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
@@ -126,6 +127,21 @@ export class SingleSidedLP extends VaultAdapter {
       PRIME_CASH_VAULT_MATURITY
     );
     return TokenBalance.from(vaultShares.n, token);
+  }
+
+  getVaultAPY() {
+    const analytics = Registry.getAnalyticsRegistry();
+    const vaultAPYs = (analytics
+      .getVault(this.network, this.vaultAddress)
+      ?.filter(
+        ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+      )
+      .map(({ totalAPY }) => totalAPY)
+      .filter((apy) => apy !== null) || []) as number[];
+
+    return vaultAPYs.length > 0
+      ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
+      : 0;
   }
 
   getInitialVaultShareValuation(_maturity: number) {
