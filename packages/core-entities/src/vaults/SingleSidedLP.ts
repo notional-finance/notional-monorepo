@@ -129,8 +129,51 @@ export class SingleSidedLP extends VaultAdapter {
     return TokenBalance.from(vaultShares.n, token);
   }
 
+  getVaultTVL() {
+    const token = Registry.getTokenRegistry().getVaultShare(
+      this.network,
+      this.vaultAddress,
+      PRIME_CASH_VAULT_MATURITY
+    );
+    return TokenBalance.from(this.totalVaultShares, token).toUnderlying();
+  }
+
   getVaultAPY() {
     const analytics = Registry.getAnalyticsRegistry();
+    if (
+      this.vaultAddress.toLowerCase() ===
+      '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2'
+    ) {
+      // Special handling for this vault which has manual incentives
+      const vaultAPYWithoutArb = (analytics
+        .getVault(this.network, this.vaultAddress)
+        ?.filter(
+          ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+        )
+        .map((data) =>
+          data['totalAPY'] && data.returnDrivers['ARB Incentive APY']
+            ? data['totalAPY'] - data.returnDrivers['ARB Incentive APY']
+            : data['totalAPY']
+        )
+        .filter((apy) => apy !== null) || []) as number[];
+
+      const totalAPYWithoutArb =
+        vaultAPYWithoutArb.length > 0
+          ? vaultAPYWithoutArb.reduce((t, a) => t + a, 0) /
+            vaultAPYWithoutArb.length
+          : 0;
+
+      const vaultTVL = this.getVaultTVL();
+      const arbReinvestInPrimary = TokenBalance.fromFloat(
+        386.4,
+        Registry.getTokenRegistry().getTokenBySymbol(this.network, 'ARB')
+      ).toToken(vaultTVL.token);
+      const arbAPY =
+        100 * 365 * (arbReinvestInPrimary.toFloat() / vaultTVL.toFloat());
+
+      return totalAPYWithoutArb + arbAPY;
+    }
+
     const vaultAPYs = (analytics
       .getVault(this.network, this.vaultAddress)
       ?.filter(

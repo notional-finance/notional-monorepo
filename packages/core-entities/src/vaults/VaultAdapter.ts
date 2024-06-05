@@ -99,4 +99,6 @@ export abstract class VaultAdapter {
     vaultShares: TokenBalance;
     maturity: number;
   }): number;
+
+  abstract getVaultTVL(): TokenBalance;
 }
