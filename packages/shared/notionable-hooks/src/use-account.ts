@@ -118,3 +118,11 @@ export function useAccountNetWorth() {
     return acc;
   }, {} as Record<Network, TokenBalance>);
 }
+
+export function useArbPoints() {
+  const {
+    globalState: { arbPoints },
+  } = useNotionalContext();
+
+  return arbPoints;
+}

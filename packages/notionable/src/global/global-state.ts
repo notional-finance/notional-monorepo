@@ -126,6 +126,8 @@ interface AddressState {
 
   /** Every supported network has an account object written to the state */
   networkAccounts?: Record<Network, AccountState>;
+  arbPoints?: { token: string; points: number }[];
+  totalPoints?: number;
 }
 
 /** This is associated with the overall application state */
