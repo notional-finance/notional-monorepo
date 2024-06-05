@@ -90,7 +90,7 @@ export function getMulticallParams(config: MulticallConfig) {
     }
   }
 
-  let transform;
+  let transform = config.transform;
   const func = abi.getFunction(config.method);
 
   if (!func) {
@@ -100,7 +100,7 @@ export function getMulticallParams(config: MulticallConfig) {
   }
 
   const outputs = func.outputs;
-  if (outputs && outputs.length > 1) {
+  if (transform === undefined && outputs && outputs.length > 1) {
     if (!config.outputIndices) {
       throw Error(
         `Output indices not defined for method ${config.method} on contract ${config.contractAddress}`
@@ -111,7 +111,7 @@ export function getMulticallParams(config: MulticallConfig) {
     key += `:${getOutputName(outputs, indices)}`;
 
     transform = (r) => {
-      let current = r;
+      let current = r as any;
       for (let i = 0; i < indices.length; i++) {
         current = current[indices[i]];
       }
