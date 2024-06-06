@@ -48,6 +48,16 @@ export function useAccountReady(network: Network | undefined) {
   return useAccountDefinition(network) !== undefined;
 }
 
+
+export function useAcctAndBalanceReady(network: Network | undefined) {
+  const isAccountReady = useAccountReady(network);
+  const walletBalances = useAccountNetWorth();
+  const hasNotionalBalance = SupportedNetworks.find(
+    (network) => !walletBalances[network].isZero()
+  );
+  return isAccountReady && hasNotionalBalance;
+}
+
 export function useAccountLoading() {
   const {
     globalState: { isAccountPending },

@@ -104,3 +104,20 @@ export function formatNumberAsAbbr(
 
   return `${symbol}${localeString}${suffix}`;
 }
+
+export const getIncentiveTotals = (data?: any) => {
+  if (
+    data?.noteIncentives?.incentiveAPY &&
+    data?.secondaryIncentives?.incentiveAPY
+  ) {
+    return formatNumberAsPercent(
+      data.secondaryIncentives.incentiveAPY + data.noteIncentives.incentiveAPY
+    );
+  } else if (data?.noteIncentives?.incentiveAPY) {
+    return formatNumberAsPercent(data.noteIncentives.incentiveAPY);
+  } else if (data?.secondaryIncentives?.incentiveAPY) {
+    return formatNumberAsPercent(data.secondaryIncentives.incentiveAPY);
+  } else {
+    return undefined;
+  }
+};

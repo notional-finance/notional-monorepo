@@ -95,6 +95,7 @@ export enum PORTFOLIO_CATEGORIES {
   LEVERAGED_VAULTS = 'vaults',
   NOTE_STAKING = 'note-staking',
   TRANSACTION_HISTORY = 'transaction-history',
+  WELCOME = 'welcome',
 }
 
 export enum CONTEST_SIGN_UP_STEPS {

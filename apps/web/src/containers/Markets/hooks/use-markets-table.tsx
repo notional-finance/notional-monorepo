@@ -266,6 +266,7 @@ export const useMarketsTable = (
   };
 
   const filterMarketData = () => {
+    console.log({ currencyOptions, productOptions });
     const currencyIds = getIds(currencyOptions);
     const productIds = getIds(productOptions);
     const filterData = [...currencyIds, ...productIds];

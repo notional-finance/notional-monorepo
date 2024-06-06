@@ -4,7 +4,10 @@ import { THEME_VARIANTS } from '@notional-finance/util';
 import { Link } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { LaunchIcon } from '@notional-finance/icons';
-import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  useAcctAndBalanceReady,
+  useWalletConnectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 export function LaunchAppButton() {
@@ -12,11 +15,16 @@ export function LaunchAppButton() {
   const defaultNetwork =
     useWalletConnectedNetwork() ||
     getDefaultNetworkFromHostname(window.location.hostname);
+  const isAcctAndBalanceReady = useAcctAndBalanceReady(defaultNetwork);
 
   return (
     <Button
       component={Link}
-      to={`/portfolio/${defaultNetwork}/overview`}
+      to={
+        isAcctAndBalanceReady
+          ? `/portfolio/${defaultNetwork}/overview`
+          : `/portfolio/${defaultNetwork}/welcome`
+      }
       variant="outlined"
       color="primary"
       endIcon={
