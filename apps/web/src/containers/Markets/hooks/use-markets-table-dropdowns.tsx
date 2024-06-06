@@ -28,12 +28,6 @@ export const useMarketTableDropdowns = (
   const depositTokens = useAllUniqueUnderlyingTokens(
     selectedNetworkOptions[allNetworksOption]
   );
-
-  console.log(
-    'selectedNetworkOptions[allNetworksOption]: ',
-    selectedNetworkOptions[allNetworksOption]
-  );
-  console.log({ depositTokens });
   const [currencyOptions, setCurrencyOptions] = useState([]);
   const [productOptions, setProductOptions] = useState([]);
 
