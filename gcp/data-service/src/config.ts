@@ -36,14 +36,12 @@ export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
       'https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest',
   },
   [ProtocolName.BalancerV2]: {
-    [Network.mainnet]:
-      'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2',
-    [Network.arbitrum]:
-      'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2',
+    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/Fog6Z9z7DXvWy4bx36c7ETQftdtr4Ppxn7Mjpxkzka2i-1`,
+    [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/itkjv6Vdh22HtNEPQuk5c9M3T7VeGLQtXxcH8rFi1vc-0`,
   },
   [ProtocolName.Curve]: {
-    [Network.mainnet]:
-      'https://api.thegraph.com/subgraphs/name/messari/curve-finance-ethereum',
+    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF-1`,
+    // not deployed yet....
     [Network.arbitrum]:
       'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
   },
