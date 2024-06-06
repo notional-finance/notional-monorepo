@@ -193,10 +193,8 @@ export function useAccountHistoryChart(
   const baseCurrency = useFiat();
   if (!account) return undefined;
 
-  const allHistoricalSnapshots =
-    account?.balanceStatement
-      ?.flatMap((b) => b.historicalSnapshots)
-      .sort((a, b) => a.timestamp - b.timestamp) || [];
+  // These are sorted ascending by default
+  const allHistoricalSnapshots = account?.historicalBalances || [];
 
   const base = Registry.getTokenRegistry().getTokenBySymbol(
     Network.all,

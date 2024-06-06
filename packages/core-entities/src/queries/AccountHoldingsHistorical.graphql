@@ -1,6 +1,7 @@
 query AccountHoldingsHistorical($accountId: ID!, $minTimestamp: Int!) {
   account(id: $accountId) {
     balances {
+      token { id }
       snapshots(
         where: { timestamp_gte: $minTimestamp },
         orderBy: timestamp,

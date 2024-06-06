@@ -10893,7 +10893,7 @@ export type AccountHoldingsHistoricalQueryVariables = Exact<{
 }>;
 
 
-export type AccountHoldingsHistoricalQuery = { account?: Maybe<{ balances?: Maybe<Array<{ snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>>> }>> }> };
+export type AccountHoldingsHistoricalQuery = { account?: Maybe<{ balances?: Maybe<Array<{ token: Pick<Token, 'id'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>>> }>> }> };
 
 export type AccountTransactionHistoryQueryVariables = Exact<{
   accountId: Scalars['String'];
@@ -11657,31 +11657,22 @@ export const ActiveAccountsDocument = gql`
       }
     }
   }
-` as unknown as DocumentNode<ActiveAccountsQuery, ActiveAccountsQueryVariables>;
-export const AllAccountsDocument = gql`
-  query AllAccounts($skip: Int) {
-    accounts(
-      first: 1000
-      skip: $skip
-      where: {
-        systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve]
+}
+    ` as unknown as DocumentNode<AccountBalanceStatementQuery, AccountBalanceStatementQueryVariables>;
+export const AccountHoldingsHistoricalDocument = gql`
+    query AccountHoldingsHistorical($accountId: ID!, $minTimestamp: Int!) {
+  account(id: $accountId) {
+    balances {
+      token {
+        id
       }
-    ) {
-      id
-      systemAccountType
-      balances {
-        token {
-          id
-          currencyId
-          underlying {
-            id
-          }
-        }
-        current {
-          timestamp
-          blockNumber
-          currentBalance
-        }
+      snapshots(
+        where: {timestamp_gte: $minTimestamp}
+        orderBy: timestamp
+        orderDirection: asc
+      ) {
+        timestamp
+        currentBalance
       }
     }
   }
