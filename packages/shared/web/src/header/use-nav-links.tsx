@@ -9,29 +9,18 @@ import {
   CoinsIcon,
   GearIcon,
 } from '@notional-finance/icons';
-import {
-  MOBILE_SUB_NAV_ACTIONS,
-  SupportedNetworks,
-} from '@notional-finance/util';
+import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
 import { useDefaultNetwork } from './use-default-network';
 import InvestAndEarnDropdown from './invest-and-earn/invest-and-earn-dropdown/invest-and-earn-dropdown';
 import BorrowDropDown from './borrow-dropdown/borrow-dropdown';
-import {
-  useAccountNetWorth,
-  useAccountReady,
-} from '@notional-finance/notionable-hooks';
+import { useAccountAndBalanceReady } from '@notional-finance/notionable-hooks';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   const network = useDefaultNetwork();
-  const isAccountReady = useAccountReady(network);
-  const walletBalances = useAccountNetWorth();
-  const hasNotionalBalance = SupportedNetworks.find(
-    (network) => !walletBalances[network].isZero()
-  );
-
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const textColor = mobileNav
     ? theme.palette.common.black
     : theme.palette.common.white;
@@ -40,10 +29,9 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: 'portfolio',
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
-      link:
-        isAccountReady && hasNotionalBalance
-          ? `/portfolio/${network}/overview`
-          : `/portfolio/${network}/welcome`,
+      link: isAcctAndBalanceReady
+        ? `/portfolio/${network}/overview`
+        : `/portfolio/${network}/welcome`,
       iconImg: (
         <PortfolioIcon
           className="color-fill"

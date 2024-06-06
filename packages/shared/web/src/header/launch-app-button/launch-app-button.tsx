@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { LaunchIcon } from '@notional-finance/icons';
 import {
-  useAcctAndBalanceReady,
+  useAccountAndBalanceReady,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
@@ -15,7 +15,7 @@ export function LaunchAppButton() {
   const defaultNetwork =
     useWalletConnectedNetwork() ||
     getDefaultNetworkFromHostname(window.location.hostname);
-  const isAcctAndBalanceReady = useAcctAndBalanceReady(defaultNetwork);
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(defaultNetwork);
 
   return (
     <Button

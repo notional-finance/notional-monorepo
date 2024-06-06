@@ -49,11 +49,11 @@ export function useAccountReady(network: Network | undefined) {
 }
 
 
-export function useAcctAndBalanceReady(network: Network | undefined) {
+export function useAccountAndBalanceReady(network: Network | undefined) {
   const isAccountReady = useAccountReady(network);
-  const walletBalances = useAccountNetWorth();
+  const accountNetWorth = useAccountNetWorth();
   const hasNotionalBalance = SupportedNetworks.find(
-    (network) => !walletBalances[network].isZero()
+    (network) => !accountNetWorth[network].isZero()
   );
   return isAccountReady && hasNotionalBalance;
 }

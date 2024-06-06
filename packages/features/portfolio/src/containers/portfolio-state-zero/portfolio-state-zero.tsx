@@ -1,7 +1,10 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { Banner, H2, LabelValue, Subtitle } from '@notional-finance/mui';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
+import {
+  PORTFOLIO_STATE_ZERO_OPTIONS,
+  SETTINGS_SIDE_DRAWERS,
+} from '@notional-finance/util';
 import { FormattedMessage, defineMessage, defineMessages } from 'react-intl';
 import connectImage from './connect-wallet.svg';
 import { useState } from 'react';
@@ -83,19 +86,19 @@ export const PortfolioStateZero = () => {
           </Box>
 
           <Subtitle sx={{ color: theme.palette.typography.light }}>
-            {selectedTabIndex === 0 && (
+            {selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.EARN && (
               <FormattedMessage
                 defaultMessage={'Earn products offer passive, easy yield.'}
               />
             )}
-            {selectedTabIndex === 1 && (
+            {selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE && (
               <FormattedMessage
                 defaultMessage={
                   'Leveraged products offer maximum returns for advanced DeFi users.'
                 }
               />
             )}
-            {selectedTabIndex === 2 && (
+            {selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.BORROW && (
               <FormattedMessage
                 defaultMessage={
                   'Earn yield on your collateral while you borrow against it at a fixed or variable rate.'

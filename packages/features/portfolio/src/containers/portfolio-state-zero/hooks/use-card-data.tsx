@@ -10,6 +10,7 @@ import {
   VaultIcon,
 } from '@notional-finance/icons';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
 export const useCardData = (
@@ -198,9 +199,9 @@ export const useCardData = (
   ];
 
   const cardData = {
-    0: earnData,
-    1: leveragedData,
-    2: borrowData,
+    [PORTFOLIO_STATE_ZERO_OPTIONS.EARN]: earnData,
+    [PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE]: leveragedData,
+    [PORTFOLIO_STATE_ZERO_OPTIONS.BORROW]: borrowData,
   };
 
   return cardData[selectedTab];

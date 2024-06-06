@@ -3,7 +3,7 @@ import { Body, H1, Button } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import {
-  useAcctAndBalanceReady,
+  useAccountAndBalanceReady,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
@@ -13,7 +13,7 @@ export const HeroContent = () => {
   const defaultNetwork =
     useWalletConnectedNetwork() ||
     getDefaultNetworkFromHostname(window.location.hostname);
-  const isAcctAndBalanceReady = useAcctAndBalanceReady(defaultNetwork);
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(defaultNetwork);
 
   return (
     <ContentWrapper>

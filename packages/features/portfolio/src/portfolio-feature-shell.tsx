@@ -3,7 +3,7 @@ import { Box, styled } from '@mui/material';
 import {
   useAccountLoading,
   useAccountReady,
-  useAcctAndBalanceReady,
+  useAccountAndBalanceReady,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
@@ -65,7 +65,7 @@ const Portfolio = () => {
   const history = useHistory();
   const { pathname } = useLocation();
   const isAccountReady = useAccountReady(network);
-  const isAcctAndBalanceReady = useAcctAndBalanceReady(network);
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const { noteData } = usePortfolioNOTETable();
   const noteBalanceData = noteData || [];
 

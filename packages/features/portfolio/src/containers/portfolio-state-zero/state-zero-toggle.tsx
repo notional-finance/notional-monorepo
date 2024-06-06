@@ -5,6 +5,7 @@ import {
   LargeInputTextEmphasized,
   Toggle,
 } from '@notional-finance/mui';
+import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 import { Dispatch, SetStateAction } from 'react';
 import { FormattedMessage } from 'react-intl';
 
@@ -33,7 +34,11 @@ export const StateZeroToggle = ({
       }}
     >
       <LightningIcon
-        fill={selectedTabIndex === 1 ? theme.palette.common.white : ''}
+        fill={
+          selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE
+            ? theme.palette.common.white
+            : ''
+        }
       />
       <span style={{ marginLeft: theme.spacing(0.5) }}>
         <FormattedMessage defaultMessage={'Leverage'} />
@@ -60,7 +65,7 @@ export const StateZeroToggle = ({
           variant="contained"
           color="primary"
           size="large"
-          onClick={() => setSelectedTabIndex(0)}
+          onClick={() => setSelectedTabIndex(PORTFOLIO_STATE_ZERO_OPTIONS.EARN)}
           sx={{ marginTop: theme.spacing(3), width: '100%' }}
         >
           <FormattedMessage defaultMessage={'Earn'} />
@@ -69,7 +74,9 @@ export const StateZeroToggle = ({
           variant="contained"
           color="primary"
           size="large"
-          onClick={() => setSelectedTabIndex(1)}
+          onClick={() =>
+            setSelectedTabIndex(PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE)
+          }
           sx={{ marginTop: theme.spacing(3), width: '100%' }}
         >
           <FormattedMessage defaultMessage={'Leverage'} />
@@ -78,7 +85,9 @@ export const StateZeroToggle = ({
           variant="contained"
           color="primary"
           size="large"
-          onClick={() => setSelectedTabIndex(2)}
+          onClick={() =>
+            setSelectedTabIndex(PORTFOLIO_STATE_ZERO_OPTIONS.BORROW)
+          }
           sx={{ marginTop: theme.spacing(3), width: '100%' }}
         >
           <FormattedMessage defaultMessage={'Borrow'} />

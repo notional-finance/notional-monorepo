@@ -3,7 +3,7 @@ import {
   useAllUniqueUnderlyingTokens,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { PRODUCTS } from '@notional-finance/util';
+import { PORTFOLIO_STATE_ZERO_OPTIONS, PRODUCTS } from '@notional-finance/util';
 
 export const useTokenData = (selectedTabIndex: number, activeToken: string) => {
   const selectedNetwork = useSelectedNetwork();
@@ -11,12 +11,22 @@ export const useTokenData = (selectedTabIndex: number, activeToken: string) => {
   const { earnYields, borrowYields } = useAllNetworkMarkets();
 
   const requiredProducts = {
-    0: ['Variable Lend', 'Fixed Lend', 'Provide Liquidity'],
-    1: ['Leveraged Liquidity', 'Leveraged Vault'],
-    2: ['Variable Borrow', 'Fixed Borrow'],
+    [PORTFOLIO_STATE_ZERO_OPTIONS.EARN]: [
+      'Variable Lend',
+      'Fixed Lend',
+      'Provide Liquidity',
+    ],
+    [PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE]: [
+      'Leveraged Liquidity',
+      'Leveraged Vault',
+    ],
+    [PORTFOLIO_STATE_ZERO_OPTIONS.BORROW]: ['Variable Borrow', 'Fixed Borrow'],
   };
 
-  const yieldData = selectedTabIndex === 2 ? borrowYields : earnYields;
+  const yieldData =
+    selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.BORROW
+      ? borrowYields
+      : earnYields;
 
   const tokenObj: {
     [symbol: string]: { products: string[]; data: typeof earnYields };
@@ -24,7 +34,7 @@ export const useTokenData = (selectedTabIndex: number, activeToken: string) => {
 
   const leveragedTokenData: Record<string, any> = {};
 
-  if (selectedTabIndex === 1) {
+  if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE) {
     yieldData
       .filter((y) => y.token.network === selectedNetwork)
       .sort((a, b) => a.totalAPY - b.totalAPY)
