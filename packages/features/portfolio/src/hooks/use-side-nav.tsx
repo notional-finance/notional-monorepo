@@ -76,6 +76,16 @@ export const useSideNav = () => {
         to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
         notifications: 0,
       },
+      {
+        Icon: (
+          <span role="img" aria-label="wave" style={{ fontSize: '24px' }}>
+            👋
+          </span>
+        ),
+        id: PORTFOLIO_CATEGORIES.WELCOME,
+        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}`,
+        notifications: 0,
+      },
     ];
   }, [numHoldings, numVaults, category, theme, network]);
 

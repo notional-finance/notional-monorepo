@@ -16,10 +16,11 @@ import { INavLink } from './nav-link';
 import { useDefaultNetwork } from './use-default-network';
 import InvestAndEarnDropdown from './invest-and-earn/invest-and-earn-dropdown/invest-and-earn-dropdown';
 import BorrowDropDown from './borrow-dropdown/borrow-dropdown';
+import { useAccountAndBalanceReady } from '@notional-finance/notionable-hooks';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   const network = useDefaultNetwork();
-
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const textColor = mobileNav
     ? theme.palette.common.black
     : theme.palette.common.white;
@@ -28,7 +29,9 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: 'portfolio',
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
-      link: `/portfolio/${network}/overview`,
+      link: isAcctAndBalanceReady
+        ? `/portfolio/${network}/overview`
+        : `/portfolio/${network}/welcome`,
       iconImg: (
         <PortfolioIcon
           className="color-fill"

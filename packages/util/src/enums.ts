@@ -84,6 +84,12 @@ export enum PORTFOLIO_ACTIONS {
   COOL_DOWN = 'cool-down',
 }
 
+export enum PORTFOLIO_STATE_ZERO_OPTIONS {
+  EARN = 0,
+  LEVERAGE = 1,
+  BORROW = 2,
+}
+
 export enum TABLE_WARNINGS {
   HIGH_UTILIZATION_NTOKEN = 'HIGH_UTILIZATION_NTOKEN',
   HIGH_UTILIZATION_FCASH = 'HIGH_UTILIZATION_FCASH',
@@ -95,6 +101,7 @@ export enum PORTFOLIO_CATEGORIES {
   LEVERAGED_VAULTS = 'vaults',
   NOTE_STAKING = 'note-staking',
   TRANSACTION_HISTORY = 'transaction-history',
+  WELCOME = 'welcome',
 }
 
 export enum CONTEST_SIGN_UP_STEPS {

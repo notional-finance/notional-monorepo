@@ -3,8 +3,8 @@ import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
-import { Caption, H4, H5, Paragraph, Subtitle } from '@notional-finance/mui';
-import { useTheme, Box, Button, styled, Popover } from '@mui/material';
+import { Caption, H4, H5, LabelValue, Paragraph } from '@notional-finance/mui';
+import { useTheme, Box, Button, styled, Popover, SxProps } from '@mui/material';
 import {
   PRODUCTS,
   SupportedNetworks,
@@ -26,9 +26,14 @@ export interface NetworkButtonProps {
   active?: boolean;
   theme: NotionalTheme;
 }
+export interface NetworkInnerWrapperProps {
+  hideNetWorth?: boolean;
+  theme: NotionalTheme;
+}
 export interface NetworkSelectorButtonProps {
   isLast?: boolean;
   isSelected: boolean;
+  hideNetWorth?: boolean;
   network: Network;
   handleClick: (network: Network) => void;
   balance?: TokenBalance;
@@ -40,6 +45,7 @@ export const NetworkSelectorButton = ({
   network,
   handleClick,
   balance,
+  hideNetWorth,
 }: NetworkSelectorButtonProps) => {
   const theme = useTheme();
   return (
@@ -66,7 +72,7 @@ export const NetworkSelectorButton = ({
       >
         {network}
       </H4>
-      {balance && (
+      {balance && !hideNetWorth && (
         <Box
           sx={{
             display: 'flex',
@@ -114,7 +120,13 @@ export function TransactionNetworkSelector({
   );
 }
 
-export function PortfolioNetworkSelector() {
+export function PortfolioNetworkSelector({
+  sx,
+  hideNetWorth,
+}: {
+  sx?: SxProps;
+  hideNetWorth?: boolean;
+}) {
   const selectedNetwork = useSelectedNetwork();
   const walletBalances = useAccountNetWorth();
 
@@ -123,6 +135,8 @@ export function PortfolioNetworkSelector() {
       availableNetworks={SupportedNetworks}
       selectedNetwork={selectedNetwork}
       walletBalances={walletBalances}
+      hideNetWorth={hideNetWorth}
+      sx={sx}
       isPortfolio
     />
   );
@@ -132,12 +146,16 @@ function NetworkSelector({
   selectedNetwork,
   availableNetworks,
   walletBalances,
+  hideNetWorth,
   isPortfolio,
+  sx,
 }: {
   selectedNetwork?: Network;
   availableNetworks: Network[];
   walletBalances: Record<Network, TokenBalance>;
+  hideNetWorth?: boolean;
   isPortfolio?: boolean;
+  sx?: SxProps;
 }) {
   const theme = useTheme();
   const history = useHistory();
@@ -159,7 +177,7 @@ function NetworkSelector({
   };
 
   return (
-    <NetworkSelectorWrapper>
+    <NetworkSelectorWrapper sx={{ ...sx }}>
       <DropdownButton
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
@@ -212,7 +230,7 @@ function NetworkSelector({
         }}
       >
         {isPortfolio ? (
-          <Subtitle light>{selectedNetwork}</Subtitle>
+          <LabelValue>{selectedNetwork}</LabelValue>
         ) : (
           <Caption>{selectedNetwork}</Caption>
         )}
@@ -247,7 +265,7 @@ function NetworkSelector({
           horizontal: 'right',
         }}
       >
-        <NetworkInnerWrapper>
+        <NetworkInnerWrapper hideNetWorth={hideNetWorth} theme={theme}>
           <Box sx={{ padding: theme.spacing(3) }}>
             <H5>
               <FormattedMessage defaultMessage={'NETWORK'} />
@@ -262,6 +280,7 @@ function NetworkSelector({
                 network={n}
                 handleClick={() => handleClose(n)}
                 balance={walletBalances[n]}
+                hideNetWorth={hideNetWorth}
               />
             ))}
           </Box>
@@ -287,9 +306,11 @@ const NetworkSelectorWrapper = styled(Box)(
   `
 );
 
-const NetworkInnerWrapper = styled(Box)(
-  ({ theme }) => `
-    width: 350px;
+const NetworkInnerWrapper = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'hideNetWorth',
+})(
+  ({ theme, hideNetWorth }: NetworkInnerWrapperProps) => `
+    width: ${hideNetWorth ? '200px' : '350px'};
     ${theme.breakpoints.down('sm')} {
       width: 100%;
       padding: ${theme.spacing(1)};

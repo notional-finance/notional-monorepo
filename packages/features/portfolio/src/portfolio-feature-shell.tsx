@@ -3,6 +3,7 @@ import { Box, styled } from '@mui/material';
 import {
   useAccountLoading,
   useAccountReady,
+  useAccountAndBalanceReady,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
@@ -12,18 +13,18 @@ import {
   SideDrawer,
   TypeForm,
 } from '@notional-finance/mui';
-import { usePortfolioSideDrawers } from './hooks';
+import { usePortfolioNOTETable, usePortfolioSideDrawers } from './hooks';
 import {
   SideNav,
   PortfolioMobileNav,
   EmptyPortfolio,
-  EmptyPortfolioOverview,
   ClaimNoteButton,
 } from './components';
 import {
   PortfolioOverview,
   PortfolioVaults,
   PortfolioTransactionHistory,
+  PortfolioStateZero,
   PortfolioHoldings,
   PortfolioNoteStaking,
 } from './containers';
@@ -64,6 +65,9 @@ const Portfolio = () => {
   const history = useHistory();
   const { pathname } = useLocation();
   const isAccountReady = useAccountReady(network);
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
+  const { noteData } = usePortfolioNOTETable();
+  const noteBalanceData = noteData || [];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -104,7 +108,7 @@ const Portfolio = () => {
     );
   };
 
-  return isAccountReady ? (
+  return isAcctAndBalanceReady ? (
     <PortfolioContainer>
       <SideDrawer
         callback={handleDrawer}
@@ -117,61 +121,73 @@ const Portfolio = () => {
       <PortfolioSidebar>
         <SideNav />
       </PortfolioSidebar>
-      <PortfolioMainContent>
-        {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING && (
-          <ActionButtonRow>
-            {params.category && messages[params.category] && (
-              <Heading msg={messages[params.category]} />
-            )}
-            <ButtonsContainer>
-              {params.category === PORTFOLIO_CATEGORIES.HOLDINGS ||
-              params.category === PORTFOLIO_CATEGORIES.OVERVIEW ? (
-                <ClaimNoteButton />
-              ) : (
-                ''
+      {params.category !== PORTFOLIO_CATEGORIES.WELCOME && (
+        <PortfolioMainContent>
+          {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+            <ActionButtonRow>
+              {params.category && messages[params.category] && (
+                <Heading msg={messages[params.category]} />
               )}
-              <PortfolioNetworkSelector />
-            </ButtonsContainer>
-          </ActionButtonRow>
-        )}
-        {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-          params.category === undefined) && (
-          <>
-            <PortfolioOverview />
-            <TypeForm />
-          </>
-        )}
-        {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-          <PortfolioHoldings />
-        )}
-        {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-          <PortfolioVaults />
-        )}
-        {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && (
-          <PortfolioNoteStaking />
-        )}
-        {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
-          <PortfolioTransactionHistory />
-        )}
-      </PortfolioMainContent>
+              <ButtonsContainer>
+                {params.category === PORTFOLIO_CATEGORIES.HOLDINGS ||
+                params.category === PORTFOLIO_CATEGORIES.OVERVIEW ? (
+                  <ClaimNoteButton />
+                ) : (
+                  ''
+                )}
+                <PortfolioNetworkSelector />
+              </ButtonsContainer>
+            </ActionButtonRow>
+          )}
+          {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+            params.category === undefined) && (
+            <>
+              <PortfolioOverview />
+              <TypeForm />
+            </>
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
+            <PortfolioHoldings />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+            <PortfolioVaults />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+            <PortfolioNoteStaking />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
+            <PortfolioTransactionHistory />
+          )}
+        </PortfolioMainContent>
+      )}
+      {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
+        <PortfolioStateZero />
+      )}
       <PortfolioMobileNav />
     </PortfolioContainer>
   ) : (
     <PortfolioContainer>
-      <PortfolioSidebar>
-        <SideNav />
-      </PortfolioSidebar>
-      <PortfolioMainContent>
-        {params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-        params.category === undefined ? (
-          <>
-            <EmptyPortfolioOverview walletConnected={false} />
-            <TypeForm />
-          </>
-        ) : (
-          <EmptyPortfolio />
+      {noteBalanceData.length > 0 && isAccountReady && (
+        <PortfolioSidebar>
+          <SideNav />
+        </PortfolioSidebar>
+      )}
+      {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
+        <PortfolioStateZero />
+      )}
+      {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING &&
+        noteBalanceData.length > 0 && (
+          <PortfolioMainContent>
+            <PortfolioNoteStaking />
+          </PortfolioMainContent>
         )}
-      </PortfolioMainContent>
+      {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING &&
+        params.category !== PORTFOLIO_CATEGORIES.WELCOME &&
+        noteBalanceData.length > 0 && (
+          <PortfolioMainContent>
+            <EmptyPortfolio />
+          </PortfolioMainContent>
+        )}
     </PortfolioContainer>
   );
 };
