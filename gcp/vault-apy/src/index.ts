@@ -3,7 +3,6 @@ import util from 'util';
 import assert from 'node:assert/strict';
 import { exec } from 'child_process';
 import { ethers, BigNumber, Contract } from 'ethers';
-
 import {
   TradingModuleInterface,
   SingleSidedLPVault,
@@ -16,7 +15,8 @@ import {
 } from './interfaces';
 import { Network, Provider, RewardPoolType, VaultData, JsonRpcProvider } from './types';
 import { Oracle } from './oracles';
-import configPerNetwork, { Config } from './config';
+import { getPoolFees, e } from './fees';
+import configPerNetwork, { Config, POOL_DECIMALS, getTokenDecimals } from './config';
 
 const ONE_DAY_IN_SECONDS = 24 * 60 * 60;
 
@@ -103,7 +103,6 @@ class APYSimulator {
     let provider = new ethers.providers.JsonRpcProvider(rpcUrl, this.#config.chainId);
     // we can't call getExchangeRate when we warp into future without extending freshness
     await this.#extendMaxOracleFreshness(provider);
-    const oracle = new Oracle(this.#network);
 
     const allResults: any[] = [];
     for (const vaultData of this.#config.vaults) {
@@ -117,16 +116,16 @@ class APYSimulator {
       // we need to created new checkpoint each time since it is deleted after revert
       let checkpoint = await provider.send("evm_snapshot", [])
 
-      const results = await this.#calculateFutureAPY(oracle, provider, vaultData);
+      const results = await this.#calculateFutureAPY(provider, vaultData);
       allResults.push(...results);
 
       await provider.send('evm_revert', [checkpoint])
     }
 
-    await this.#saveToDb(allResults);
+    // await this.#saveToDb(allResults);
   }
 
-  async #calculateFutureAPY(oracle: Oracle, provider: JsonRpcProvider, vaultData: VaultData) {
+  async #calculateFutureAPY(provider: JsonRpcProvider, vaultData: VaultData) {
     let account = vaultData.address;
     let totalLpTokens = await this.#getTotalLpTokensForAccount(account, vaultData, provider);
     if (totalLpTokens.eq(0)) {
@@ -140,7 +139,6 @@ class APYSimulator {
 
 
     const prevBlock = await provider.getBlock("latest");
-
     await provider.send('anvil_setBalance', [account, `0x${Number(1e18).toString(16)}`]);
     await this.#claimRewardFromGauge(account, vaultData, provider);
     // warp 24 hours into future
@@ -154,39 +152,74 @@ class APYSimulator {
       priceAtTimestamp = prevBlock.timestamp;
     }
 
+    const oracle = new Oracle(this.#network, priceAtTimestamp);
+
+    const blockNumber = await this.#getBlockAtTimestamp(priceAtTimestamp);
+    const poolData = await getPoolFees(this.#network, oracle, vaultData, blockNumber, provider);
+
+    const primaryBorrowDecimals = getTokenDecimals(vaultData.primaryBorrowCurrency);
+    const poolFeesInPrimary = totalLpTokens
+      .mul(poolData.feesPerShareInPrimary)
+      // switch to primary borrow precision
+      .mul(e(primaryBorrowDecimals))
+      .div(e(POOL_DECIMALS))
+      .div(e(poolData.decimals));
+
     const lpTokenValuePrimaryBorrow = isAccountVault ? await this.#getVaultValueInPrimary(vaultData.address, provider) : null;
+
+    const lpTokenValuePrimaryBorrowNew = totalLpTokens
+      .mul(e(primaryBorrowDecimals))
+      .mul(poolData.poolValuePerShareInPrimary)
+      .div(e(POOL_DECIMALS))
+      .div(e(poolData.decimals));
+
     const rewardTokens = await this.#processTransferLogs(tx, account, provider);
 
+    const sharedData = {
+      poolFees: poolFeesInPrimary.toString(),
+      blockNumber: block.number,
+      timestamp: block.timestamp,
+      vaultAddress: vaultData.address.toLowerCase(),
+      poolValuePerShareInPrimary: poolData.poolValuePerShareInPrimary.toString(),
+      totalLpTokens: totalLpTokens.toString(),
+      lpTokenValuePrimaryBorrow: isAccountVault ? lpTokenValuePrimaryBorrow.toString() : null,
+      lpTokenValuePrimaryBorro2: lpTokenValuePrimaryBorrowNew.toString(),
+      noVaultShares: !isAccountVault,
+      // /////////////////////////////////////////////////////////////////////
+      feeApy: `${Number(poolFeesInPrimary.mul(365).mul(1_000_000).div(lpTokenValuePrimaryBorrow).toString()) / 10_000}%`,
+      network: this.#network,
+      date: new Date(block.timestamp * 1000).toISOString(),
+      ...(isAccountVault && {
+        vaultName: await new Contract(vaultData.address, SingleSidedLPVault, provider).name(),
+      })
+    }
+
     const allResults: any[] = [];
-    const { decimals: primaryBorrowDecimals } = await getTokenDetails(vaultData.primaryBorrowCurrency, provider);
     for (let [token, tokensClaimed] of rewardTokens) {
       const { decimals: tokenDecimals, symbol } = await getTokenDetails(token, provider);
-      const { price: priceInPrimary, decimals: priceDecimals } = await oracle.getPrice(token, vaultData.primaryBorrowCurrency, priceAtTimestamp)
+      const { price: priceInPrimary, decimals: priceDecimals } = await oracle.getPrice(token, vaultData.primaryBorrowCurrency)
       const rewardTokenValuePrimaryBorrow =
         BigNumber.from(tokensClaimed).mul(priceInPrimary)
           .div(BigNumber.from(10).pow(priceDecimals + tokenDecimals - primaryBorrowDecimals));
 
       const result = {
-        blockNumber: block.number,
-        timestamp: block.timestamp,
-        vaultAddress: vaultData.address.toLowerCase(),
-        totalLpTokens: totalLpTokens.toString(),
-        lpTokenValuePrimaryBorrow: isAccountVault ? lpTokenValuePrimaryBorrow.toString() : null,
+        ...sharedData,
         rewardToken: token,
         rewardTokensClaimed: tokensClaimed.toString(),
         rewardTokenValuePrimaryBorrow: rewardTokenValuePrimaryBorrow.toString(),
-        noVaultShares: !isAccountVault,
-        /////////////////////////////////////////////////////////////////////
-        network: this.#network,
-        date: new Date(block.timestamp * 1000).toISOString(),
         rewardTokenSymbol: symbol,
+        // /////////////////////////////////////////////////////////////////////
         ...(isAccountVault && {
-          vaultName: await new Contract(vaultData.address, SingleSidedLPVault, provider).name(),
           apy: isAccountVault ? `${Number(rewardTokenValuePrimaryBorrow.mul(365).mul(10_00000).div(lpTokenValuePrimaryBorrow).toString()) / 10000}%` : null
         })
       }
       log(result);
       allResults.push(result);
+    }
+
+    if (!allResults.length) {
+      allResults.push(sharedData);
+      log(sharedData);
     }
 
     return allResults;
@@ -215,12 +248,12 @@ class APYSimulator {
 
   async #findGaugeTokenHolder(vaultData: VaultData, provider: Provider) {
     const latestBlock = await provider.getBlockNumber();
-    let logs: { transfers: {from: string, to: string }[] };
+    let logs: { transfers: { from: string, to: string }[] };
     if (vaultData.rewardPoolType === RewardPoolType.ConvexMainnet) {
       logs = await this.#alchemyProvider.send('alchemy_getAssetTransfers', [{
         // convex voter proxy
         toAddress: '0x989AEb4d175e16225E39E87d0D97A3360524AD80',
-        contractAddresses: [vaultData.lpToken],
+        contractAddresses: [vaultData.pool],
         category: ['erc20'],
         order: 'desc',
         toBlock: `0x${latestBlock.toString(16)}`,
@@ -366,7 +399,7 @@ process.on('exit', async function() {
       const apySimulator = new APYSimulator(network);
       log(`processing historical apy network ${network}`)
 
-      await apySimulator.runHistorical(7, startOfToday);
+      await apySimulator.runHistorical(1, startOfToday);
 
       log("processing completed");
 
