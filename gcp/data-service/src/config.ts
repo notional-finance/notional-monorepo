@@ -22,6 +22,8 @@ import { Curve_Config } from './config/convex';
 
 export const SourceContracts = {};
 
+const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
+
 export const defaultConfigDefs: ConfigDefinition[] = [
   ...GenericConfig,
   ...Balancer_Config,
@@ -36,11 +38,11 @@ export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
       'https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest',
   },
   [ProtocolName.BalancerV2]: {
-    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/Fog6Z9z7DXvWy4bx36c7ETQftdtr4Ppxn7Mjpxkzka2i-1`,
-    [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/itkjv6Vdh22HtNEPQuk5c9M3T7VeGLQtXxcH8rFi1vc-0`,
+    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/C4ayEZP2yTXRAB8vSaTrgN4m9anTe9Mdm2ViyiAuV9TV`,
+    [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/98cQDy6tufTJtshDCuhh9z2kWXsQWBHVh2bqnLHsGAeS`,
   },
   [ProtocolName.Curve]: {
-    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF-1`,
+    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF`,
     // not deployed yet....
     [Network.arbitrum]:
       'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
