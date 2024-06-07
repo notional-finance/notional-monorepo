@@ -186,7 +186,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       // Set the balance statement and txn history
       account.balanceStatement = balanceStatements.finalResults[address];
       account.accountHistory = txnHistory.finalResults[address];
-      account.historicalBalances = historicalBalances.finalResults[address];
+      account.historicalBalances = historicalBalances.finalResults[
+        address
+      ].sort((a, b) => a.timestamp - b.timestamp);
     } catch (e) {
       console.error(e);
       account.balanceStatement = undefined;
@@ -257,20 +259,39 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       network,
       AccountHoldingsHistoricalDocument,
       (r): Record<string, HistoricalBalance[]> => {
-        return {
-          [account]:
-            r.account?.balances?.flatMap(({ snapshots, token }) => {
+        // These are the balances of any tokens that do not have
+        // a snapshot in the time range (meaning their balance did)
+        // not change during the time span
+        const current =
+          r.account?.balances
+            ?.filter(({ current }) => current.timestamp < minTimestamp)
+            .map(({ current, token }) => {
               const t = Registry.getTokenRegistry().getTokenByID(
                 network,
                 token.id
               );
-              return (
-                snapshots?.map(({ timestamp, currentBalance }) => ({
-                  timestamp,
-                  balance: TokenBalance.from(currentBalance, t),
-                })) || []
-              );
-            }) || [],
+              return {
+                timestamp: current.timestamp,
+                balance: TokenBalance.from(current.currentBalance, t),
+              };
+            }) || [];
+
+        const snapshots =
+          r.account?.balances?.flatMap(({ snapshots, token }) => {
+            const t = Registry.getTokenRegistry().getTokenByID(
+              network,
+              token.id
+            );
+            return (
+              snapshots?.map(({ timestamp, currentBalance }) => ({
+                timestamp,
+                balance: TokenBalance.from(currentBalance, t),
+              })) || []
+            );
+          }) || [];
+
+        return {
+          [account]: snapshots.concat(current),
         };
       },
       {

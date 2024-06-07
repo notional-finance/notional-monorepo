@@ -10893,7 +10893,7 @@ export type AccountHoldingsHistoricalQueryVariables = Exact<{
 }>;
 
 
-export type AccountHoldingsHistoricalQuery = { account?: Maybe<{ balances?: Maybe<Array<{ token: Pick<Token, 'id'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>>> }>> }> };
+export type AccountHoldingsHistoricalQuery = { account?: Maybe<{ balances?: Maybe<Array<{ token: Pick<Token, 'id'>, current: Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>>> }>> }> };
 
 export type AccountTransactionHistoryQueryVariables = Exact<{
   accountId: Scalars['String'];
@@ -11662,14 +11662,19 @@ export const ActiveAccountsDocument = gql`
 export const AccountHoldingsHistoricalDocument = gql`
     query AccountHoldingsHistorical($accountId: ID!, $minTimestamp: Int!) {
   account(id: $accountId) {
-    balances {
+    balances(where: {token_: {tokenType_not: NOTE}}) {
       token {
         id
+      }
+      current {
+        timestamp
+        currentBalance
       }
       snapshots(
         where: {timestamp_gte: $minTimestamp}
         orderBy: timestamp
-        orderDirection: asc
+        orderDirection: desc
+        first: 1000
       ) {
         timestamp
         currentBalance

@@ -222,6 +222,18 @@ export function useAccountHistoryChart(
             }, new Map<string, typeof allHistoricalSnapshots[number]>())
             .values()
         );
+        // TODO: appears to be some issue with exchanges rates 1 day ago
+        console.log(
+          `SNAPSHOT AT TIME: ${start} to ${end}`,
+          snapshotsAtTime
+            .filter((h) => !h.balance.isZero())
+            .map(
+              (h) =>
+                `${h.balance.toString()} ${h.balance
+                  .toFiat('USD', floorToMidnight(end))
+                  .toString()}`
+            )
+        );
 
         const assets = snapshotsAtTime
           ?.filter(
@@ -244,7 +256,7 @@ export function useAccountHistoryChart(
               balance.isNegative()
           )
           .reduce((t, b) => {
-            return t.sub(b.balance.toFiat(baseCurrency, floorToMidnight(end)));
+            return t.add(b.balance.toFiat(baseCurrency, floorToMidnight(end)));
           }, TokenBalance.zero(base));
 
         return { timestamp: start, assets, debts, netWorth: assets.sub(debts) };
