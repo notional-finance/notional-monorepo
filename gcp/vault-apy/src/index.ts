@@ -16,7 +16,8 @@ import {
 import { Network, Provider, RewardPoolType, VaultData, JsonRpcProvider } from './types';
 import { Oracle } from './oracles';
 import { getPoolFees, e } from './fees';
-import configPerNetwork, { Config, POOL_DECIMALS, getTokenDecimals } from './config';
+import configPerNetwork, { Config, POOL_DECIMALS } from './config';
+import { getTokenDecimals } from './util';
 
 const ONE_DAY_IN_SECONDS = 24 * 60 * 60;
 
@@ -116,7 +117,11 @@ class APYSimulator {
       // we need to created new checkpoint each time since it is deleted after revert
       let checkpoint = await provider.send("evm_snapshot", [])
 
-      const results = await this.#calculateFutureAPY(provider, vaultData);
+      const vault = new Contract(vaultData.address, SingleSidedLPVault, provider);
+      // attach additional data
+      vaultData.pool = vaultData.pool || (await vault.getStrategyVaultInfo())[0];
+
+      const results = await this.#calculateFutureAPY(provider, vaultData as VaultData);
       allResults.push(...results);
 
       await provider.send('evm_revert', [checkpoint])
@@ -157,7 +162,7 @@ class APYSimulator {
     const blockNumber = await this.#getBlockAtTimestamp(priceAtTimestamp);
     const poolData = await getPoolFees(this.#network, oracle, vaultData, blockNumber, provider);
 
-    const primaryBorrowDecimals = getTokenDecimals(vaultData.primaryBorrowCurrency);
+    const primaryBorrowDecimals = await getTokenDecimals(vaultData.primaryBorrowCurrency, provider);
     const poolFeesInPrimary = totalLpTokens
       .mul(poolData.feesPerShareInPrimary)
       // switch to primary borrow precision

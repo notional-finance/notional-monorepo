@@ -12,15 +12,14 @@ export enum RewardPoolType {
   Curve = 'Curve',
 }
 
-export type VaultData = {
+export type VaultDataBase = {
   address: string,
   gauge: string,
-  pool: string,
+  pool?: string,
   primaryBorrowCurrency: string,
-} & (
-    { rewardPoolType: RewardPoolType.ConvexArbitrum | RewardPoolType.Curve | RewardPoolType.ConvexMainnet } |
-    { BPTIndex: number, rewardPoolType: RewardPoolType.Aura }
-  )
+  rewardPoolType: RewardPoolType,
+}
 
+export type VaultData = VaultDataBase & { pool: string }
 export type Provider = ethers.providers.Provider;
 export type JsonRpcProvider = ethers.providers.JsonRpcProvider;

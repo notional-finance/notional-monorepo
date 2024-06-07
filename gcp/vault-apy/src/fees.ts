@@ -2,7 +2,8 @@ import { BigNumber, Contract } from 'ethers';
 import { Network, VaultData, Provider, RewardPoolType } from './types';
 import { CurvePoolInterface, ERC20Interface, BalancerPoolInterface, BalancerSpotPriceInterface, BalancerVaultInterface, CurvePoolAltInterface } from './interfaces';
 import { Oracle } from './oracles';
-import { getTokenDecimals, POOL_DECIMALS } from './config';
+import { POOL_DECIMALS } from './config';
+import { getTokenDecimals } from './util';
 
 export enum ProtocolName {
   NotionalV3 = 'NotionalV3',
@@ -139,15 +140,17 @@ const processBalancer = async (network: Network, oracle: Oracle, vaultData: Vaul
   const balancerSpotPrice = new Contract(balancerSpotPriceAddress[network], BalancerSpotPriceInterface, provider);
   const balancerVault = new Contract(balancerVaultAddress[network], BalancerVaultInterface, provider);
   const poolId = await balancerPool.getPoolId();
-  const { tokens: poolTokens } = await balancerVault.getPoolTokens(poolId);
+  const { tokens: poolTokens }: { tokens: string[] } = await balancerVault.getPoolTokens(poolId);
   const primaryBorrowIndex = poolTokens.findIndex(e => e === vaultData.primaryBorrowCurrency);
+  const bptIndex = await balancerPool.getBptIndex();
+  const tokensDecimals = await Promise.all(poolTokens.map(t => getTokenDecimals(t, provider)))
   // prices precision is in pool decimals
   const { balances, spotPrices } = await balancerSpotPrice.getComposableSpotPrices(
     poolId,
     vaultData.pool,
     primaryBorrowIndex,
-    vaultData.BPTIndex,
-    poolTokens.map(getTokenDecimals)
+    bptIndex,
+    tokensDecimals,
   );
 
   const { data: { poolSnapshots } }: any = await fetch(defaultGraphEndpoints[ProtocolName.BalancerV2][network], {
@@ -176,8 +179,8 @@ const processBalancer = async (network: Network, oracle: Oracle, vaultData: Vaul
 
   let totalPoolValueInPrimary = BigNumber.from(0);
   for (let i = 0; i < poolTokens.length; i++) {
-    if (i === vaultData.BPTIndex) continue;
-    const tokenDecimals = getTokenDecimals(poolTokens[i]);
+    if (i === bptIndex) continue;
+    const tokenDecimals = await getTokenDecimals(poolTokens[i], provider);
     if (poolTokens[i] === vaultData.primaryBorrowCurrency) {
       totalPoolValueInPrimary = totalPoolValueInPrimary.add(
         balances[i].mul(e(POOL_DECIMALS).div(e(tokenDecimals)))
