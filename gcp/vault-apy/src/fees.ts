@@ -3,7 +3,7 @@ import { Network, VaultData, Provider, RewardPoolType } from './types';
 import { CurvePoolInterface, ERC20Interface, BalancerPoolInterface, BalancerSpotPriceInterface, BalancerVaultInterface, CurvePoolAltInterface } from './interfaces';
 import { Oracle } from './oracles';
 import { POOL_DECIMALS } from './config';
-import { getTokenDecimals } from './util';
+import { getTokenDecimals, e, toInt18Precision } from './util';
 
 export enum ProtocolName {
   NotionalV3 = 'NotionalV3',
@@ -64,8 +64,6 @@ const curveSwapFeeQuery = (poolAddress: string, blockNumber: number) => `
     }
     `;
 
-export const e = (p: number) => BigNumber.from(10).pow(p);
-
 const processCurve = async (network: Network, oracle: Oracle, vaultData: VaultData, blockNumber: number, provider: Provider) => {
   const { data: { liquidityPoolDailySnapshots } }: any = await fetch(defaultGraphEndpoints[ProtocolName.Curve][network], {
     method: "POST",
@@ -88,9 +86,7 @@ const processCurve = async (network: Network, oracle: Oracle, vaultData: VaultDa
 
 
   // price from graph is returned as decimal number, upscale to 18 decimals precision
-  const feesInUSD = BigNumber.from(
-    (Number(liquidityPoolDailySnapshots[0].dailySupplySideRevenueUSD) * 1e15).toFixed(0)
-  ).mul(e(3));
+  const feesInUSD = toInt18Precision(liquidityPoolDailySnapshots[0].dailySupplySideRevenueUSD);
 
   const primaryPrice = await oracle.defiLlamaGetPrice(vaultData.primaryBorrowCurrency);
   const feesInPrimary = feesInUSD
@@ -136,14 +132,17 @@ const processBalancer = async (network: Network, oracle: Oracle, vaultData: Vaul
   if (vaultData.rewardPoolType !== RewardPoolType.Aura) {
     throw new Error('Wrong vault type');
   }
+
   const balancerPool = new Contract(vaultData.pool, BalancerPoolInterface, provider);
   const balancerSpotPrice = new Contract(balancerSpotPriceAddress[network], BalancerSpotPriceInterface, provider);
   const balancerVault = new Contract(balancerVaultAddress[network], BalancerVaultInterface, provider);
+
   const poolId = await balancerPool.getPoolId();
   const { tokens: poolTokens }: { tokens: string[] } = await balancerVault.getPoolTokens(poolId);
   const primaryBorrowIndex = poolTokens.findIndex(e => e === vaultData.primaryBorrowCurrency);
-  const bptIndex = await balancerPool.getBptIndex();
+  const bptIndex = Number(await balancerPool.getBptIndex().then((r: BigNumber) => r.toString()));
   const tokensDecimals = await Promise.all(poolTokens.map(t => getTokenDecimals(t, provider)))
+
   // prices precision is in pool decimals
   const { balances, spotPrices } = await balancerSpotPrice.getComposableSpotPrices(
     poolId,
@@ -161,9 +160,7 @@ const processBalancer = async (network: Network, oracle: Oracle, vaultData: Vaul
     }),
   }).then((r) => r.json())
   // price from graph is returned as decimal number, upscale to 1e18 precision
-  const feesInUSD = BigNumber.from(
-    ((Number(poolSnapshots[0].swapFees) - Number(poolSnapshots[1].swapFees)) * 1e15).toFixed(0)
-  ).mul(e(3));
+  const feesInUSD = toInt18Precision((Number(poolSnapshots[0].swapFees) - Number(poolSnapshots[1].swapFees)));
 
   const totalSupply = await balancerPool.getActualSupply();
 
@@ -186,9 +183,10 @@ const processBalancer = async (network: Network, oracle: Oracle, vaultData: Vaul
         balances[i].mul(e(POOL_DECIMALS).div(e(tokenDecimals)))
       )
     } else {
+      const reversePrice = e(36).div(spotPrices[i]);
       totalPoolValueInPrimary = totalPoolValueInPrimary.add(
         BigNumber.from(balances[i])
-          .mul(spotPrices[i])
+          .mul(reversePrice)
           .div(e(tokenDecimals))
       )
     }

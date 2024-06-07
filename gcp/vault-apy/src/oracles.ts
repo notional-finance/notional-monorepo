@@ -1,9 +1,6 @@
 import { BigNumber } from "ethers";
 import { Network } from "./types";
-
-export const e = (decimals: number) => BigNumber.from(10).pow(decimals);
-export const e18 = e(18);
-
+import { e18, e } from "./util";
 
 export class Oracle {
   #network: Network
@@ -17,7 +14,11 @@ export class Oracle {
   async defiLlamaGetPrice(token: string) {
     const network = this.#network === Network.mainnet ? 'ethereum' : this.#network;
     const coin = `${network}:${token}`;
-    const result = await fetch(`https://coins.llama.fi/prices/historical/${this.#timestamp}/${coin}`).then(r => r.json()).then((r: any) => r.coins[coin]);
+
+    const result = await fetch(
+      `https://coins.llama.fi/prices/historical/${this.#timestamp}/${coin}`
+    ).then(r => r.json()).then((r: any) => r.coins[coin]);
+
     return {
       price: BigNumber.from((result.price * 1e15).toFixed(0)),
       decimals: 15,
