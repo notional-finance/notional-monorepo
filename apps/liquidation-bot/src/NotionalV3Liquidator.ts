@@ -225,7 +225,7 @@ export default class NotionalV3Liquidator {
       },
       to: this.settings.flashLenderAddress,
       data: encodedTransaction,
-      isLiquidator: true,
+      gasLimit: 2_000_000,
     });
 
     if (resp.status == 200) {
