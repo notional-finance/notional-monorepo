@@ -44,7 +44,6 @@ export const BalancerVaultInterface = new ethers.utils.Interface([
 ]);
 
 export const BalancerPoolInterface = new ethers.utils.Interface([
-  "function getBptIndex() view external returns (uint256)",
   "function totalSupply() view external returns (uint256)",
   "function getActualSupply() view external returns (uint256)",
   "function getBptIndex() view external returns (uint256)",

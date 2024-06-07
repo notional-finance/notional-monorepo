@@ -23,3 +23,10 @@ export type VaultDataBase = {
 export type VaultData = VaultDataBase & { pool: string }
 export type Provider = ethers.providers.Provider;
 export type JsonRpcProvider = ethers.providers.JsonRpcProvider;
+
+export type TransferLog = {
+  token: string;
+  from: string;
+  to: string;
+  amount: string;
+}
