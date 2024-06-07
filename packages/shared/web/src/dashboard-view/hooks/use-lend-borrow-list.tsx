@@ -16,7 +16,10 @@ import {
   LinkCell,
   DataTableColumn,
   MultiValueIconCell,
+  IconCell,
 } from '@notional-finance/mui';
+import { getArbBoosts } from '@notional-finance/core-entities';
+import { PointsIcon } from '@notional-finance/icons';
 
 export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
   const {
@@ -74,6 +77,18 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
       cell: DisplayCell,
       displayFormatter: getDateString,
       accessorKey: 'maturity',
+      textAlign: 'right',
+    },
+    {
+      header: (
+        <FormattedMessage
+          defaultMessage="Points Boost"
+          description={'Points Boost header'}
+        />
+      ),
+      cell: IconCell,
+      showCustomIcon: true,
+      accessorKey: 'pointsBoost',
       textAlign: 'right',
     },
     {
@@ -149,6 +164,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
 
   const listData = yieldData[product]
     .map((y) => {
+      const boostNum = getArbBoosts(y.token, isBorrow);
       const walletBalance = account
         ? account.balances.find((t) => t.tokenId === y.underlying.id)
         : undefined;
@@ -163,6 +179,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
         },
         walletBalance: walletBalance?.toFloat() || 0,
         maturity: y.token.maturity,
+        pointsBoost: boostNum > 0 ? `${boostNum}x` : '-',
         apy: y.totalAPY,
         liquidity: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,
         symbol: y.underlying.symbol,
@@ -172,6 +189,9 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
           isBorrow
         ),
         view: `${product}/${network}/${y.underlying.symbol}`,
+        iconCellData: {
+          icon: PointsIcon,
+        },
       };
     })
     .sort((a, b) => b.walletBalance - a.walletBalance);

@@ -27,14 +27,18 @@ export const IconCell = (props): JSX.Element => {
         justifyContent: column.columnDef?.textAlign,
       }}
     >
-      {value?.toLocaleLowerCase() !== 'total' && !showCustomIcon && (
-        <TokenIcon symbol={value || 'unknown'} size="medium" />
-      )}
-      {value?.toLocaleLowerCase() !== 'total' && showCustomIcon && (
-        <CustomIcon
-          sx={{ height: theme.spacing(2), width: theme.spacing(2) }}
-        />
-      )}
+      {value !== '-' &&
+        value?.toLocaleLowerCase() !== 'total' &&
+        !showCustomIcon && (
+          <TokenIcon symbol={value || 'unknown'} size="medium" />
+        )}
+      {value !== '-' &&
+        value?.toLocaleLowerCase() !== 'total' &&
+        showCustomIcon && (
+          <CustomIcon
+            sx={{ height: theme.spacing(2), width: theme.spacing(2) }}
+          />
+        )}
       <TableCell
         style={{
           marginLeft:

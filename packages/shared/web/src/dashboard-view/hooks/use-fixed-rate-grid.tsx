@@ -1,13 +1,17 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
+import { getArbBoosts } from '@notional-finance/core-entities';
 import { Network, PRODUCTS } from '@notional-finance/util';
-import { defineMessage } from 'react-intl';
+import { FormattedMessage, defineMessage } from 'react-intl';
 import { useHistory } from 'react-router';
+import { Box, useTheme } from '@mui/material';
+import { LeafIcon, PointsIcon } from '@notional-finance/icons';
 
 export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
   const {
     yields: { fCashLend, fCashBorrow },
   } = useAllMarkets(network);
+  const theme = useTheme();
   const history = useHistory();
   const baseCurrency = useFiat();
   const tokenObj = {};
@@ -26,6 +30,8 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
         });
 
   const allData = yieldData.map((y) => {
+    const pointsBoost = getArbBoosts(y.token, isBorrow);
+
     return {
       ...y,
       symbol: y.underlying.symbol,
@@ -35,6 +41,31 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
         0,
         baseCurrency
       )}`,
+      bottomLeftValue:
+        pointsBoost > 0 ? (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <PointsIcon
+              sx={{
+                marginRight: theme.spacing(1),
+                height: theme.spacing(1.75),
+                width: theme.spacing(1.75),
+              }}
+            />
+            {`${pointsBoost}x ARB POINTS`}
+          </Box>
+        ) : (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <LeafIcon
+              fill={theme.palette.typography.main}
+              sx={{
+                marginRight: theme.spacing(1),
+                height: theme.spacing(1.75),
+                width: theme.spacing(1.75),
+              }}
+            />
+            <FormattedMessage defaultMessage={'Organic APY'} />
+          </Box>
+        ),
       network: y.token.network,
       hasPosition: false,
       apySubTitle: apySubTitle,

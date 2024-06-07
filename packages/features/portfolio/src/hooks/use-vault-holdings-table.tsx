@@ -34,7 +34,12 @@ import {
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
-import { PointsLinks } from '@notional-finance/core-entities';
+import {
+  PointsLinks,
+  Registry,
+  getArbBoosts,
+} from '@notional-finance/core-entities';
+import { PointsIcon } from '@notional-finance/icons';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -198,6 +203,8 @@ export const useVaultHoldingsTable = () => {
     ];
   }, []);
 
+  console.log({ vaults });
+
   const vaultHoldingsData = vaults.map(
     ({
       vault: v,
@@ -215,6 +222,11 @@ export const useVaultHoldingsTable = () => {
         theme
       );
       const points = vaultYield?.pointMultiples;
+      const vaultShare = Registry.getTokenRegistry().getVaultShare(
+        network,
+        v.vaultAddress,
+        PRIME_CASH_VAULT_MATURITY
+      );
       const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
         {
           label: <FormattedMessage defaultMessage={'Borrow APY'} />,
@@ -243,6 +255,9 @@ export const useVaultHoldingsTable = () => {
         },
       ];
 
+      const arbPoints = getArbBoosts(vaultShare, false);
+      // getPointsPerDay
+
       if (points) {
         const pointsLink = PointsLinks[network][v.vaultAddress];
         subRowData.push({
@@ -265,6 +280,16 @@ export const useVaultHoldingsTable = () => {
                 )
                 .join(', ')}
             </LinkText>
+          ),
+        });
+      } else if (arbPoints > 0) {
+        subRowData.push({
+          label: <FormattedMessage defaultMessage={'Points Earned'} />,
+          value: (
+            <H4 sx={{ display: 'flex' }}>
+              <PointsIcon />
+              1,000
+            </H4>
           ),
         });
       }
