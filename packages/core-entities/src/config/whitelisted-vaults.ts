@@ -71,7 +71,7 @@ export const whitelistedVaults = (network: Network) => {
         // "[GHO]:xGHO_crvUSD":
         '0x30fba4a7ec8591f25b4d37fd79943a4bb6e553e2',
         // "[GHO]:xGHO_USDe":
-        // '0xb1113cf888a019693b254da3d90f841072d85172',
+        '0xb1113cf888a019693b254da3d90f841072d85172',
       ];
     case Network.arbitrum:
       return [
