@@ -217,6 +217,7 @@ export default class NotionalV3Liquidator {
     const encodedTransaction = await this.flashLoanProvider.encodeTransaction(
       flashLiq
     );
+    const gasLimit = await this.flashLoanProvider.estimateGas(flashLiq);
 
     const resp = await sendTxThroughRelayer({
       env: {
@@ -225,7 +226,7 @@ export default class NotionalV3Liquidator {
       },
       to: this.settings.flashLenderAddress,
       data: encodedTransaction,
-      isLiquidator: true,
+      gasLimit: gasLimit.mul(200).div(100).toNumber(),
     });
 
     if (resp.status == 200) {
