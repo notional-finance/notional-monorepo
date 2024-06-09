@@ -108,22 +108,39 @@ async function getLastReinvestment(
     .then((r: ReinvestmentData) => r.data.reinvestments[0]);
 }
 
+const max = (a: number, b: number) => a < b ? b : a;
+
 async function didTimeWindowPassed(
   env: Env,
   vaultAddress: string,
   timeWindow: number
 ) {
-  const lastReinvestment = await getLastReinvestment(env, vaultAddress);
-  if (lastReinvestment) {
+  const reinvestTimestampKey = `${vaultAddress}:reinvestmentTimestamp`;
+  const lastReinvestTimestampFromKV = Number(
+    await env.REWARDS_KV.get(reinvestTimestampKey)
+  );
+
+  const lastReinvestmentTimestampSubgraph = await getLastReinvestment(env, vaultAddress).then(r => r ? Number(r.timestamp) : 0);
+
+  // take larger timestamp so in case graph is out of sync we would not reinvest each time but is run
+  const lastReinvestmentTimestamp = max(lastReinvestTimestampFromKV, lastReinvestmentTimestampSubgraph);
+
+  if (lastReinvestmentTimestamp) {
     const currentTimeInSeconds = Date.now() / 1000;
 
-    if (currentTimeInSeconds < lastReinvestment.timestamp + timeWindow) {
+    if (currentTimeInSeconds < lastReinvestmentTimestamp + timeWindow) {
       return false;
     }
   }
 
   // case when vault is new and there is no previous reinvestment event
   return true;
+}
+
+async function setLastReinvestmentTimestamp(env: Env, vaultAddress: string) {
+  const reinvestTimestampKey = `${vaultAddress}:reinvestmentTimestamp`;
+
+  return env.REWARDS_KV.put(reinvestTimestampKey, String(Date.now() / 1000));
 }
 
 async function shouldSkipReinvest(env: Env, vaultAddress: string) {
@@ -348,11 +365,13 @@ const reinvestVault = async (env: Env, provider: Provider, vault: Vault) => {
     `sending reinvestment tx to relayer from vault: ${vault.address}`
   );
 
-  return sendTxThroughRelayer({
+  await sendTxThroughRelayer({
     to: treasuryManger.address,
     data,
     env,
   });
+
+  await setLastReinvestmentTimestamp(env, vault.address);
 };
 
 const reinvestRewards = async (env: Env, provider: Provider) => {
