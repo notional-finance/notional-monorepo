@@ -5,6 +5,8 @@ import { Oracle } from './oracles';
 import { POOL_DECIMALS } from './config';
 import { getTokenDecimals, e, toInt18Precision } from './util';
 
+const SUBGRAPH_API_KEY = process.env.SUBGRAPH_API_KEY as string;
+
 export enum ProtocolName {
   NotionalV3 = 'NotionalV3',
   BalancerV2 = 'BalancerV2',
@@ -23,14 +25,11 @@ const balancerVaultAddress: Record<Network, string> = {
 
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   [ProtocolName.BalancerV2]: {
-    [Network.mainnet]:
-      'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2',
-    [Network.arbitrum]:
-      'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2',
+    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/C4ayEZP2yTXRAB8vSaTrgN4m9anTe9Mdm2ViyiAuV9TV`,
+    [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/98cQDy6tufTJtshDCuhh9z2kWXsQWBHVh2bqnLHsGAeS`,
   },
   [ProtocolName.Curve]: {
-    [Network.mainnet]:
-      'https://api.thegraph.com/subgraphs/name/messari/curve-finance-ethereum',
+    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF`,
     [Network.arbitrum]:
       'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
   },
