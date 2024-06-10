@@ -95,6 +95,8 @@ export class RegistryClientDO extends DurableObject {
       true,
       false
     );
+    Registry.getAccountRegistry().setSubgraphAPIKey =
+      this.env.NX_SUBGRAPH_API_KEY;
 
     // First trigger a refresh for all supported networks
     await Promise.all(
