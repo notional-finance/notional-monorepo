@@ -11,10 +11,45 @@ export const CurveGaugeInterface = new ethers.utils.Interface([
   "function balanceOf(address) view external returns (uint256)",
 ])
 
-export const ConvexGaugeInterface = new ethers.utils.Interface([
+export const CurvePoolInterface = new ethers.utils.Interface([
+  "function get_balances() view external returns (uint256[])",
+  "function totalSupply() view external returns (uint256)",
+  "function decimals() view external returns (uint8)",
+  "function coins(uint256) view external returns (address)",
+])
+
+export const CurvePoolAltInterface = new ethers.utils.Interface([
+  "function get_balances() view external returns (uint256[2])",
+  "function totalSupply() view external returns (uint256)",
+  "function decimals() view external returns (uint8)",
+  "function coins(uint256) view external returns (address)",
+])
+
+export const ConvexGaugeArbitrumInterface = new ethers.utils.Interface([
   "function getReward(address) external",
   "function balanceOf(address) view external returns (uint256)",
+  "function stakingToken() view external returns (address)"
 ])
+
+export const ConvexGaugeMainnetInterface = new ethers.utils.Interface([
+  "function extraRewardsLength() external view returns (uint256)",
+  "function rewardRate() view external returns (uint256)",
+  "function getReward() external",
+  "function balanceOf(address) view external returns (uint256)",
+  "function stakingToken() view external returns (address)"
+])
+
+export const BalancerVaultInterface = new ethers.utils.Interface([
+  "function getPoolTokens(bytes32 poolId) external view  returns (address[] tokens,uint256[] balances,uint256 lastChangeBlock)"
+]);
+
+export const BalancerPoolInterface = new ethers.utils.Interface([
+  "function totalSupply() view external returns (uint256)",
+  "function getActualSupply() view external returns (uint256)",
+  "function getBptIndex() view external returns (uint256)",
+  "function getPoolId() view external returns (bytes32)",
+])
+
 export const AuraGaugeInterface = new ethers.utils.Interface([
   "function getReward() external",
   "function balanceOf(address) view external returns (uint256)",
@@ -60,3 +95,14 @@ export const TransferInterface = new ethers.utils.Interface([{
   "type": "event"
 }]);
 
+
+export const BalancerSpotPriceInterface = new ethers.utils.Interface([
+  `function getComposableSpotPrices(
+        bytes32 poolId,
+        address poolAddress,
+        uint256 primaryIndex,
+        uint256 bptIndex,
+        uint8[] memory decimals
+    ) external view returns (uint256[] memory balances, uint256[] memory spotPrices)
+  `
+]);
