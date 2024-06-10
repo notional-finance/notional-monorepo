@@ -13,6 +13,8 @@ export enum PRODUCTS {
   LEND_VARIABLE = 'lend-variable',
   LEND_LEVERAGED = 'lend-leveraged',
   VAULTS = 'vaults',
+  LEVERAGED_YIELD_FARMING = 'leveraged-yield-farming',
+  LEVERAGED_POINTS_FARMING = 'leveraged-points-farming',
   LIQUIDITY_VARIABLE = 'liquidity-variable',
   LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
   BORROW_FIXED = 'borrow-fixed',
@@ -136,7 +138,8 @@ export const SIDE_DRAWERS = {
 export enum NAV_DROPDOWN {
   ABOUT = 'About',
   RESOURCES = 'Resources',
-  EARN_YIELD = 'Earn Yield',
+  EARN = 'Earn',
+  LEVERAGE = 'Leverage',
   ANALYTICS = 'Analytics',
   BORROW = 'Borrow',
 }

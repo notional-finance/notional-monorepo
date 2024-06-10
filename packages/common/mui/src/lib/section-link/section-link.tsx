@@ -1,4 +1,4 @@
-import { Paper, Box, useTheme, IconButton } from '@mui/material';
+import { Paper, Box, useTheme, IconButton, styled } from '@mui/material';
 import { ArrowIcon } from '@notional-finance/icons';
 import { ReactElement, SyntheticEvent, useState, ReactNode } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -12,6 +12,7 @@ export interface SectionLinkProps {
   icon?: ReactElement;
   title: ReactNode;
   description?: ReactNode;
+  pillText?: ReactNode;
   condensed?: boolean;
   hideBorder?: boolean;
 }
@@ -23,6 +24,7 @@ export function SectionLink({
   icon,
   title,
   description,
+  pillText,
   condensed = false,
   hideBorder = false,
 }: SectionLinkProps) {
@@ -98,6 +100,7 @@ export function SectionLink({
             {description}
           </Label>
         </Box>
+        {pillText && <PillBox>{pillText}</PillBox>}
         <Box>
           <IconButton
             sx={{
@@ -120,5 +123,17 @@ export function SectionLink({
     </Box>
   );
 }
+
+const PillBox = styled(Box)(
+  ({ theme }) => `
+    display: flex;
+    align-items: center;
+    border-radius: 20px;
+    color: ${theme.palette.typography.main};
+    padding: ${theme.spacing(0.5, 2)};
+    background: ${theme.palette.info.light};
+    margin-right: ${theme.spacing(3)};
+      `
+);
 
 export default SectionLink;

@@ -22,6 +22,8 @@ import {
   useDashboardConfig,
   useLendBorrowList,
   useLiquidityList,
+  useLeveragePointsGrid,
+  useLeveragePointsList,
   useLiquidityVariableGrid,
   useLiquidityLeveragedGrid,
 } from './hooks';
@@ -90,7 +92,21 @@ export const DashboardView = ({
   );
 };
 
-export const VaultDashboard = () => {
+export const LeveragedPointsDashboard = () => {
+  const network = useSelectedNetwork();
+  const gridData = useLeveragePointsGrid(network);
+  const { listColumns, listData } = useLeveragePointsList(network);
+  return (
+    <DashboardView
+      {...gridData}
+      listColumns={listColumns}
+      listData={listData}
+      threeWideGrid={false}
+    />
+  );
+};
+
+export const LeveragedYieldDashboard = () => {
   const network = useSelectedNetwork();
   const gridData = useVaultGrid(network);
   const { listColumns, listData } = useVaultList(network);

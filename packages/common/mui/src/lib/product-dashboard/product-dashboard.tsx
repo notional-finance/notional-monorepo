@@ -21,6 +21,7 @@ export interface DashboardDataProps {
   bottomLeftValue?: string | ReactNode;
   bottomRightValue?: string | ReactNode;
   hasPosition?: boolean;
+  isPointsVault?: boolean;
   apySubTitle?: MessageDescriptor;
   incentiveValue?: string;
   incentiveSymbols?: (string | undefined)[] | [];

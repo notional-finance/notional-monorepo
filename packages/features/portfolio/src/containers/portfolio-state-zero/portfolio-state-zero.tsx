@@ -7,7 +7,7 @@ import {
 } from '@notional-finance/util';
 import { FormattedMessage, defineMessage, defineMessages } from 'react-intl';
 import connectImage from './connect-wallet.svg';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PortfolioNetworkSelector } from '@notional-finance/wallet';
 import { NotionalTheme } from '@notional-finance/styles';
 import { TokenIcon } from '@notional-finance/icons';
@@ -49,14 +49,17 @@ export const PortfolioStateZero = () => {
   const isAccountReady = useAccountReady(selectedNetwork);
   const [activeToken, setActiveToken] = useState<string>('ETH');
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
-  const { availableSymbols, activeTokenData, leveragedTokenData } =
-    useTokenData(selectedTabIndex, activeToken);
-  const cardData = useCardData(
+  const { availableSymbols, activeTokenData } = useTokenData(
     selectedTabIndex,
-    activeToken,
-    activeTokenData,
-    leveragedTokenData
+    activeToken
   );
+  const cardData = useCardData(selectedTabIndex, activeToken, activeTokenData);
+
+  useEffect(() => {
+    if (!availableSymbols.includes(activeToken)) {
+      setActiveToken('ETH');
+    }
+  }, [availableSymbols, activeToken]);
 
   return (
     <PortfolioMainContent>
@@ -149,8 +152,14 @@ export const PortfolioStateZero = () => {
       </TokenContainer>
       <Box
         sx={{
+          width: '99%',
+          margin: 'auto',
           marginTop: theme.spacing(4),
-          gap: theme.spacing(3),
+          gap: {
+            sm: theme.spacing(6),
+            md: theme.spacing(3),
+            lg: theme.spacing(3),
+          },
           display: 'flex',
           flexWrap: 'wrap',
         }}

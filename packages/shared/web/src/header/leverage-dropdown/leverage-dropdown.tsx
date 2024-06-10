@@ -3,12 +3,12 @@ import { DropdownButton } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/util';
-import { BorrowSection } from './borrow-section';
 import { useLocation, Link } from 'react-router-dom';
-import { CoinsIcon } from '@notional-finance/icons';
+import { LightningOutlineIcon } from '@notional-finance/icons';
+import LeverageSection from './leverage-section';
 import { messages } from '../messages';
 
-export function BorrowDropDown() {
+export function LeverageDropdown() {
   const { pathname } = useLocation();
   const themeVariant = useThemeVariant();
 
@@ -18,7 +18,11 @@ export function BorrowDropDown() {
       : THEME_VARIANTS.DARK;
 
   const theme = useNotionalTheme(flippedTheme);
-  const tabOptions = ['/borrow-fixed', '/borrow-variable'];
+  const tabOptions = [
+    '/vaults',
+    '/liquidity-leveraged',
+    // '/lend-leveraged',
+  ];
   const currentTab = tabOptions.find((data) => {
     return pathname.includes(data) && !pathname.includes('portfolio')
       ? true
@@ -26,15 +30,15 @@ export function BorrowDropDown() {
   });
 
   return (
-    <Link to="/borrow-variable">
+    <Link to="/leveraged-yield-farming">
       <DropdownButton
-        popupId="borrow"
-        labelKey={messages[NAV_DROPDOWN.BORROW]}
+        popupId="leverage"
+        labelKey={messages[NAV_DROPDOWN.LEVERAGE]}
         anchorReference="anchorEl"
         activeTab={currentTab ? true : false}
         hideOnClick={false}
-        useStroke={true}
         sx={{
+          whiteSpace: 'nowrap',
           textTransform: 'capitalize',
           fontWeight: 400,
           height: '100%',
@@ -48,7 +52,7 @@ export function BorrowDropDown() {
           width: theme.spacing(78),
           overflow: 'visible',
         }}
-        icon={<CoinsIcon sx={{ fill: 'transparent', fontSize: '1.125rem' }} />}
+        icon={<LightningOutlineIcon sx={{ fontSize: '1.125rem' }} />}
       >
         <ThemeProvider theme={theme}>
           <Box
@@ -58,7 +62,7 @@ export function BorrowDropDown() {
               minHeight: '450px',
             }}
           >
-            <BorrowSection />
+            <LeverageSection />
           </Box>
           <Box
             sx={{
@@ -73,4 +77,4 @@ export function BorrowDropDown() {
   );
 }
 
-export default BorrowDropDown;
+export default LeverageDropdown;

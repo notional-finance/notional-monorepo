@@ -77,7 +77,6 @@ export const DataTableScroll = ({
     <Box>
       <Box
         sx={{
-          border: theme.shape.borderStandard,
           background: theme.palette.background.paper,
           borderRadius: '6px 6px 0px 0px',
           width: '100%',

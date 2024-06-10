@@ -46,6 +46,7 @@ export function Section({
           title={t.title}
           to={t.to}
           icon={t.icon}
+          pillText={t.pillText}
           description={t.description}
           external={t.external}
           condensed={condensed}

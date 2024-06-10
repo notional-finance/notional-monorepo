@@ -162,47 +162,66 @@ export const useCardTable = () => {
           value: <RiskScoreIndicator riskLevel="high" />,
         },
       ];
-    case 'vaults':
+    case 'leveraged-points-farming':
       return [
         {
           key: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="Redeemable Anytime" />
-            </HeadingSubtitle>
-          ),
-          value: <CheckmarkIcon />,
-        },
-        {
-          key: (
-            <HeadingSubtitle>
-              <FormattedMessage defaultMessage="NOTE Incentives" />
+              <FormattedMessage defaultMessage="Yield Type" />
             </HeadingSubtitle>
           ),
           value: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="No" />
+              <FormattedMessage defaultMessage="Points" />
             </HeadingSubtitle>
           ),
         },
         {
           key: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="Transaction Fees" />
+              <FormattedMessage defaultMessage="Liquidity Risk" />
+            </HeadingSubtitle>
+          ),
+          value: <RiskScoreIndicator riskLevel="low" />,
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="IL Risk" />
+            </HeadingSubtitle>
+          ),
+          value: <RiskScoreIndicator riskLevel="low" />,
+        },
+      ];
+    case 'leveraged-yield-farming':
+      return [
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Yield Type" />
             </HeadingSubtitle>
           ),
           value: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="Yes" />
+              <FormattedMessage defaultMessage="Organic" />
             </HeadingSubtitle>
           ),
         },
         {
           key: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="Risk Score" />
+              <FormattedMessage defaultMessage="Liquidity Risk" />
             </HeadingSubtitle>
           ),
-          value: <RiskScoreIndicator riskLevel="high" />,
+          value: <RiskScoreIndicator riskLevel="low" />,
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="IL Risk" />
+            </HeadingSubtitle>
+          ),
+          value: <RiskScoreIndicator riskLevel="low" />,
         },
       ];
     case 'liquidity-variable':
@@ -265,42 +284,30 @@ export const useCardTable = () => {
         {
           key: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="Redeemable Anytime" />
-            </HeadingSubtitle>
-          ),
-          value: <CheckmarkIcon />,
-        },
-        {
-          key: (
-            <HeadingSubtitle>
-              <FormattedMessage defaultMessage="NOTE Incentives" />
+              <FormattedMessage defaultMessage="Yield Type" />
             </HeadingSubtitle>
           ),
           value: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="Yes" />
+              <FormattedMessage defaultMessage="Organic + NOTE" />
             </HeadingSubtitle>
           ),
         },
         {
           key: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="Transaction Fees" />
+              <FormattedMessage defaultMessage="Liquidity Risk" />
             </HeadingSubtitle>
           ),
-          value: (
-            <HeadingSubtitle>
-              <FormattedMessage defaultMessage="Yes" />
-            </HeadingSubtitle>
-          ),
+          value: <RiskScoreIndicator riskLevel="medium" />,
         },
         {
           key: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="Risk Score" />
+              <FormattedMessage defaultMessage="IL Risk" />
             </HeadingSubtitle>
           ),
-          value: <RiskScoreIndicator riskLevel="high" />,
+          value: <RiskScoreIndicator riskLevel="medium" />,
         },
       ];
     case 'borrow-fixed':

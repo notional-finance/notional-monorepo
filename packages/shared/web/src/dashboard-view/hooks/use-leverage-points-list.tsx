@@ -20,8 +20,10 @@ import {
   MultiValueCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
+import { Box } from '@mui/material';
+import { PointsIcon } from '@notional-finance/icons';
 
-export const useVaultList = (network: Network) => {
+export const useLeveragePointsList = (network: Network) => {
   const {
     yields: { leveragedVaults },
     getMax,
@@ -95,6 +97,19 @@ export const useVaultList = (network: Network) => {
     },
     {
       header: (
+        <FormattedMessage
+          defaultMessage="INCENTIVE APY"
+          description={'INCENTIVE APY header'}
+        />
+      ),
+      cell: MultiValueIconCell,
+      accessorKey: 'incentiveApy',
+      textAlign: 'right',
+      sortType: 'basic',
+      sortDescFirst: true,
+    },
+    {
+      header: (
         <FormattedMessage defaultMessage="TVL" description={'TVL header'} />
       ),
       cell: DisplayCell,
@@ -143,6 +158,7 @@ export const useVaultList = (network: Network) => {
       const profile = vaultHoldings.find(
         (p) => p.vault.vaultAddress === vault.vaultAddress
       )?.vault;
+      const points = y?.pointMultiples;
 
       return {
         currency: {
@@ -159,6 +175,8 @@ export const useVaultList = (network: Network) => {
             ? vault.baseProtocol
             : `${vault.boosterProtocol} / ${vault.baseProtocol}`,
         totalApy: y?.totalAPY || 0,
+        incentiveApy: 0,
+        isPointsVault: !!points,
         tvl: vault.vaultTVL ? vault.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         view: profile
           ? `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/IncreaseVaultPosition`
@@ -199,9 +217,26 @@ export const useVaultList = (network: Network) => {
               ? `${formatNumber(y?.leveraged?.leverageRatio, 1)}x Leverage`
               : undefined,
           },
+          incentiveApy: points
+            ? {
+                label: (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      fontSize: 'inherit',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <PointsIcon sx={{ fontSize: 'inherit' }} />
+                    &nbsp;Points
+                  </Box>
+                ),
+              }
+            : undefined,
         },
       };
     })
+    .filter(({ isPointsVault }) => isPointsVault)
     .sort((a, b) => b.walletBalance - a.walletBalance);
 
   return { listColumns, listData };

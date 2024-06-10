@@ -5,11 +5,10 @@ import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/util';
 import { useLocation, Link } from 'react-router-dom';
 import { BarChartIcon } from '@notional-finance/icons';
-import HighYield from '../high-yield/high-yield';
-import LowRisk from '../low-risk/low-risk';
-import { messages } from '../../messages';
+import EarnSection from './earn-section';
+import { messages } from '../messages';
 
-export function InvestAndEarnDropdown() {
+export function EarnDropdown() {
   const { pathname } = useLocation();
   const themeVariant = useThemeVariant();
 
@@ -20,14 +19,11 @@ export function InvestAndEarnDropdown() {
 
   const theme = useNotionalTheme(flippedTheme);
   const tabOptions = [
-    '/vaults',
     '/stake/ETH',
-    '/unstake',
+    // '/unstake',
     '/liquidity-variable',
-    '/liquidity-leveraged',
     '/lend-fixed',
     '/lend-variable',
-    '/lend-leveraged',
   ];
   const currentTab = tabOptions.find((data) => {
     return pathname.includes(data) && !pathname.includes('portfolio')
@@ -38,8 +34,8 @@ export function InvestAndEarnDropdown() {
   return (
     <Link to="/lend-variable">
       <DropdownButton
-        popupId="invest-and-earn"
-        labelKey={messages[NAV_DROPDOWN.EARN_YIELD]}
+        popupId="earn"
+        labelKey={messages[NAV_DROPDOWN.EARN]}
         anchorReference="anchorEl"
         activeTab={currentTab ? true : false}
         hideOnClick={false}
@@ -55,7 +51,7 @@ export function InvestAndEarnDropdown() {
           right: 0,
           marginLeft: '5%',
           marginRight: 'auto',
-          width: '950px',
+          width: theme.spacing(78),
           overflow: 'visible',
         }}
         icon={
@@ -73,8 +69,7 @@ export function InvestAndEarnDropdown() {
               minHeight: '450px',
             }}
           >
-            <LowRisk />
-            <HighYield />
+            <EarnSection />
           </Box>
           <Box
             sx={{
@@ -89,4 +84,4 @@ export function InvestAndEarnDropdown() {
   );
 }
 
-export default InvestAndEarnDropdown;
+export default EarnDropdown;

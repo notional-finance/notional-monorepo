@@ -1,28 +1,32 @@
 import { useTheme } from '@mui/material';
 import { Section } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { useInvestEarnLinks } from '../use-invest-earn-links';
+import { useLeverageEarnLinks } from '../use-leverage-earn-links';
 
-export function HighYield() {
+export function LeverageSection() {
   const theme = useTheme();
-  const { highYieldLinks } = useInvestEarnLinks();
-  const heading = <FormattedMessage defaultMessage={'High Yield'} />;
+  const { leverageLinks } = useLeverageEarnLinks();
+  const heading = <FormattedMessage defaultMessage={'Leverage Products'} />;
 
   return (
     <Section
       heading={heading}
-      links={highYieldLinks}
+      links={leverageLinks}
       sx={{
         padding: '64px',
         paddingTop: '48px',
         whiteSpace: 'nowrap',
-        background: theme.palette.background.default,
+        background: theme.palette.background.paper,
         '.section-link-container': {
+          height: theme.spacing(10),
           marginRight: '0px',
           zIndex: 0,
         },
         '.text-container': {
           marginRight: '10px',
+        },
+        '.section-link-paper': {
+          height: '100%',
         },
         '.section-link-paper, .MuiPaper-root': {
           '&:hover': {
@@ -39,4 +43,4 @@ export function HighYield() {
   );
 }
 
-export default HighYield;
+export default LeverageSection;

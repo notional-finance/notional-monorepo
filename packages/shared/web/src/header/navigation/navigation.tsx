@@ -27,7 +27,6 @@ export function Navigation({ navLinks }: NavigationProps) {
   useEffect(() => {
     setSelectedTab(currentTab);
   }, [currentTab]);
-
   const leftNavLinks = navLinks.filter((navLink) => navLink.key !== 'note');
   const rightNavLinks = navLinks.filter((navLink) => navLink.key === 'note');
 

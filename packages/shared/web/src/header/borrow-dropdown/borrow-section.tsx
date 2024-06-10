@@ -18,12 +18,16 @@ export function BorrowSection() {
         whiteSpace: 'nowrap',
         background: theme.palette.background.paper,
         '.section-link-container': {
+          height: theme.spacing(10),
           marginRight: '0px',
           zIndex: 0,
           orderColor: '',
         },
         '.text-container': {
           marginRight: '10px',
+        },
+        '.section-link-paper': {
+          height: '100%',
         },
         '.section-link-paper, .MuiPaper-root': {
           '&:hover': {

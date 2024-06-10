@@ -8,7 +8,8 @@ import { IntercomProvider } from 'react-use-intercom';
 import {
   FeatureLoader,
   TrackingConsent,
-  VaultDashboard,
+  LeveragedYieldDashboard,
+  LeveragedPointsDashboard,
   LendFixedDashboard,
   BorrowFixedDashboard,
   LendVariableDashboard,
@@ -163,8 +164,13 @@ const AllRoutes = () => {
             routeType="Transaction"
           />
           <AppLayoutRoute
-            path="/vaults/:selectedNetwork"
-            component={VaultDashboard}
+            path="/leveraged-yield-farming/:selectedNetwork"
+            component={LeveragedYieldDashboard}
+            routeType="Card"
+          />
+          <AppLayoutRoute
+            path="/leveraged-points-farming/:selectedNetwork"
+            component={LeveragedPointsDashboard}
             routeType="Card"
           />
           <AppLayoutRoute

@@ -45,7 +45,7 @@ export const PortfolioNoteStaking = () => {
   return (
     <Box>
       {noStakedNoteData && noteData.length === 0 && <EmptyPortfolio />}
-      {noStakedNoteData && noteData.length > 0 && (
+      {noStakedNoteData && (
         <Box sx={{ marginBottom: theme.spacing(3) }}>
           <Banner
             messages={stakedNoteBanner.messages}
@@ -62,7 +62,7 @@ export const PortfolioNoteStaking = () => {
           description="table title"
         />
       </Heading>
-      {!noStakedNoteData && (
+      {!noStakedNoteData && data.length > 0 && (
         <DataTable
           data={data}
           columns={columns}
@@ -79,20 +79,22 @@ export const PortfolioNoteStaking = () => {
         />
       )}
       {noteData.length > 0 && (
-        <DataTable
-          data={noteData}
-          columns={noteColumns}
-          CustomRowComponent={TableActionRow}
-          expandableTable={true}
-          tableTitle={
-            <FormattedMessage
-              defaultMessage="NOTE Holdings"
-              description="table title"
-            />
-          }
-          initialState={initialNoteState}
-          setExpandedRows={setExpandedRows}
-        />
+        <Box sx={{ marginTop: theme.spacing(4) }}>
+          <DataTable
+            data={noteData}
+            columns={noteColumns}
+            CustomRowComponent={TableActionRow}
+            expandableTable={true}
+            tableTitle={
+              <FormattedMessage
+                defaultMessage="NOTE Holdings"
+                description="table title"
+              />
+            }
+            initialState={initialNoteState}
+            setExpandedRows={setExpandedRows}
+          />
+        </Box>
       )}
     </Box>
   );
