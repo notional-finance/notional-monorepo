@@ -28,6 +28,7 @@ import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { BigNumber } from 'ethers';
 import { ExecutionResult } from 'graphql';
 import { TypedDocumentNode } from '@apollo/client/core';
+import { Env } from '.';
 
 export type GraphDocument = keyof Omit<
   Awaited<ReturnType<typeof loadGraphClientDeferred>>,
@@ -49,9 +50,10 @@ export const ASSET_PRICE_ORACLES = [
 export class AnalyticsServer extends ServerRegistry<unknown> {
   constructor(
     private dataServiceURL: string,
-    private dataServiceAuthToken: string
+    private dataServiceAuthToken: string,
+    env: Env
   ) {
-    super();
+    super(env);
   }
 
   public override hasAllNetwork() {

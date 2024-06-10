@@ -32,10 +32,8 @@ export const defaultConfigDefs: ConfigDefinition[] = [
 
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   [ProtocolName.NotionalV3]: {
-    [Network.mainnet]:
-      'https://api.studio.thegraph.com/query/36749/notional-v3-mainnet/version/latest',
-    [Network.arbitrum]:
-      'https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest',
+    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW`,
+    [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/7q9wQYD8VB5dLWZxtuBZ8b2i8DySCK25V6XqpbdYbDep`,
   },
   [ProtocolName.BalancerV2]: {
     [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/C4ayEZP2yTXRAB8vSaTrgN4m9anTe9Mdm2ViyiAuV9TV`,
