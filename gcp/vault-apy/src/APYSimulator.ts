@@ -118,7 +118,7 @@ export default class APYSimulator {
       await provider.send('evm_revert', [checkpoint])
     }
 
-    // await this.#saveToDb(allResults);
+    await this.#saveToDb(allResults);
   }
 
   async #calculateFutureAPY(provider: JsonRpcProvider, vaultData: VaultData) {
@@ -161,9 +161,9 @@ export default class APYSimulator {
       .div(e(POOL_DECIMALS))
       .div(e(poolData.decimals));
 
-    const lpTokenValuePrimaryBorrow = isAccountVault ? await this.#getVaultValueInPrimary(vaultData.address, provider) : null;
+    const lpTokenValuePrimaryBorrowAlt = isAccountVault ? await this.#getVaultValueInPrimary(vaultData.address, provider) : null;
 
-    const lpTokenValuePrimaryBorrowNew = totalLpTokens
+    const lpTokenValuePrimaryBorrow = totalLpTokens
       .mul(e(primaryBorrowDecimals))
       .mul(poolData.poolValuePerShareInPrimary)
       .div(e(POOL_DECIMALS))
@@ -187,8 +187,8 @@ export default class APYSimulator {
       vaultAddress: vaultData.address.toLowerCase(),
       poolValuePerShareInPrimary: poolData.poolValuePerShareInPrimary.toString(),
       totalLpTokens: totalLpTokens.toString(),
-      lpTokenValuePrimaryBorrow: isAccountVault ? lpTokenValuePrimaryBorrow.toString() : null,
-      lpTokenValuePrimaryBorro2: lpTokenValuePrimaryBorrowNew.toString(),
+      lpTokenValuePrimaryBorrow: lpTokenValuePrimaryBorrow.toString(),
+      lpTokenValuePrimaryBorrowAlt: isAccountVault ? lpTokenValuePrimaryBorrowAlt.toString() : null,
       noVaultShares: !isAccountVault,
     }
 
@@ -216,8 +216,12 @@ export default class APYSimulator {
     }
 
     if (!allResults.length) {
-      allResults.push(sharedData);
-      log(sharedData);
+      const result = {
+        ...sharedData,
+        rewardToken: "Swap fees",
+      };
+      allResults.push(result);
+      log(result);
     }
 
     return allResults;

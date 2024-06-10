@@ -53,7 +53,7 @@ process.on('exit', async function() {
     log(`processing historical apy for vault: ${vaultAddress} on network ${network}`)
 
     const apySimulator = new APYSimulator(network as Network);
-    await apySimulator.runHistoricalForVault(vaultAddress, 7, startOfToday);
+    await apySimulator.runHistoricalForVault(vaultAddress, 30, startOfToday);
 
     log("processing completed");
   } else {
