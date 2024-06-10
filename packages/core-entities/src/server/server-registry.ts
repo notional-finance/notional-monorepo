@@ -5,7 +5,7 @@ import {
   Network,
   SubgraphId,
 } from '@notional-finance/util';
-import { CacheSchema } from '..';
+import { CacheSchema, Env } from '..';
 import { BaseRegistry } from '../base';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { providers } from 'ethers';
@@ -119,7 +119,7 @@ export async function fetchGraphPaginate<R, V>(
   });
   if (executionResult['errors']) console.error(executionResult['errors']);
 
-  while (rootVariable && executionResult['data'][rootVariable].length < 1000) {
+  while (rootVariable && executionResult['data'][rootVariable].length == 1000) {
     (variables as unknown as { skip: number })['skip'] += 1000;
     const r = await execute(query, variables, {
       subgraphId: SubgraphId[network],
@@ -206,6 +206,10 @@ export async function fetchUsingGraph<
 }
 
 export abstract class ServerRegistry<T> extends BaseRegistry<T> {
+  constructor(protected env: Env) {
+    super();
+  }
+
   protected async _fetchUsingMulticall(
     network: Network,
     calls: AggregateCall<T>[],
@@ -220,7 +224,7 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     transform: (r: R) => Record<string, T>,
     variables?: V,
     rootVariable?: string,
-    apiKey = process.env['NX_SUBGRAPH_API_KEY']
+    apiKey = this.env.NX_SUBGRAPH_API_KEY
   ): Promise<CacheSchema<T>> {
     return fetchUsingGraph<T, R, V>(
       network,

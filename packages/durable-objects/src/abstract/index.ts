@@ -11,6 +11,7 @@ export interface BaseDOEnv {
   NX_DD_API_KEY: string;
   NX_ENV: string;
   NX_COMMIT_REF: string;
+  NX_SUBGRAPH_API_KEY: string;
   VERSION: string;
   SUPPORTED_NETWORKS: Network[];
 }

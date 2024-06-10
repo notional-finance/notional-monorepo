@@ -17,7 +17,7 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
     protected RegistryClass: ServerRegistryConstructor<any>
   ) {
     super(state, env, serviceName, alarmCadenceMS);
-    this.registry = new RegistryClass();
+    this.registry = new RegistryClass(env);
   }
 
   getStorageKey(url: URL): string {

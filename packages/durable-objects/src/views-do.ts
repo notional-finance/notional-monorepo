@@ -11,7 +11,8 @@ export class ViewsDO extends BaseDO<APIEnv> {
     super(state, env, 'views', ONE_MINUTE_MS * 60);
     this.analytics = new Servers.AnalyticsServer(
       env.DATA_SERVICE_URL,
-      env.DATA_SERVICE_AUTH_TOKEN
+      env.DATA_SERVICE_AUTH_TOKEN,
+      env
     );
   }
 
