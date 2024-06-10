@@ -154,7 +154,7 @@ export default class APYSimulator {
     const poolData = await getPoolFees(this.#network, oracle, vaultData, blockNumber, provider);
 
     const primaryBorrowDecimals = await getTokenDecimals(vaultData.primaryBorrowCurrency, provider);
-    const poolFeesInPrimary = totalLpTokens
+    const swapFeesInPrimary = totalLpTokens
       .mul(poolData.feesPerShareInPrimary)
       // switch to primary borrow precision
       .mul(e(primaryBorrowDecimals))
@@ -173,7 +173,7 @@ export default class APYSimulator {
 
     const sharedData = {
       /////////////////local log, not saved to db/////////////////////////
-      feeApy: `${Number(poolFeesInPrimary.mul(365).mul(1_000_000).div(lpTokenValuePrimaryBorrow).toString()) / 10_000}%`,
+      feeApy: `${Number(swapFeesInPrimary.mul(365).mul(1_000_000).div(lpTokenValuePrimaryBorrow).toString()) / 10_000}%`,
       ...(isAccountVault && {
         vaultName: await new Contract(vaultData.address, SingleSidedLPVault, provider).name(),
       }),
@@ -181,7 +181,7 @@ export default class APYSimulator {
       date: new Date(block.timestamp * 1000).toISOString(),
       ///////////////////////////////////////////////////////////////////////
 
-      poolFees: poolFeesInPrimary.toString(),
+      swapFees: swapFeesInPrimary.toString(),
       blockNumber: block.number,
       timestamp: block.timestamp,
       vaultAddress: vaultData.address.toLowerCase(),
