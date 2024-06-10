@@ -50,7 +50,8 @@ const VaultConfig = {
 async function loadAllVaultsQuery(
   vaultAddress: string,
   blockNumber: number,
-  network: Network
+  network: Network,
+  apiKey: string
 ) {
   const {
     AllVaultAccountsDocument,
@@ -64,7 +65,8 @@ async function loadAllVaultsQuery(
     {
       vaultAddress,
       blockNumber,
-    }
+    },
+    apiKey
   ).then((d) => d.data as AllVaultAccountsQuery);
 }
 
@@ -130,7 +132,11 @@ export async function getVaultTVL(vaultAddress: string) {
   };
 }
 
-export async function getVaultData(vaultAddress: string, blockNumber: number) {
+export async function getVaultData(
+  vaultAddress: string,
+  blockNumber: number,
+  apiKey: string
+) {
   const { targetToken, poolId, network, symbol } = VaultConfig[vaultAddress];
 
   const vaultInfo = await getVaultInfo(vaultAddress, network, blockNumber);
@@ -172,7 +178,8 @@ export async function getVaultData(vaultAddress: string, blockNumber: number) {
   const allVaultAccounts = await loadAllVaultsQuery(
     vaultAddress,
     blockNumber,
-    network
+    network,
+    apiKey
   );
 
   const totalLPTokens = vaultInfo.info.totalLPTokens;
