@@ -1,11 +1,11 @@
 query Meta {
     _meta {
-    block {
-        number
-        hash
-        timestamp
-    }
-    deployment
-    hasIndexingErrors
+        block {
+            number
+            hash
+            timestamp
+        }
+        deployment
+        hasIndexingErrors
     }
 }

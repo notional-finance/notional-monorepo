@@ -76,6 +76,9 @@ export class ViewsDO extends BaseDO<APIEnv> {
       this.analytics
         .fetchGraphDocument(network, 'ExternalLendingHistoryDocument')
         .then((d) => this.storeDocument(d, 'ExternalLendingHistory', network)),
+      this.analytics
+        .fetchGraphDocument(network, 'MetaDocument')
+        .then((d) => this.storeDocument(d, 'SubgraphMeta', network)),
     ]);
   }
 

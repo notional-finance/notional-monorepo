@@ -3,6 +3,7 @@ import {
   AssetType,
   Network,
   PRIME_CASH_VAULT_MATURITY,
+  SECONDS_IN_HOUR,
   SETTLEMENT_RESERVE,
   convertToSignedfCashId,
   decodeERC1155Id,
@@ -25,7 +26,10 @@ import {
 } from './factors/calculations';
 import { Env } from '.';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
+import {
+  ExternalLendingHistoryQuery,
+  MetaQuery,
+} from 'packages/core-entities/src/.graphclient';
 import { ethers } from 'ethers';
 
 export class RegistryClientDO extends DurableObject {
@@ -113,6 +117,7 @@ export class RegistryClientDO extends DurableObject {
           this.checkTotalSupply(network),
           this.saveYieldData(network),
           this.monitorRelayerBalances(network),
+          this.checkSubgraphBlockNumber(network),
         ]);
         if (network === Network.arbitrum) {
           // await this.checkDBMonitors(network);
@@ -556,6 +561,34 @@ export class RegistryClientDO extends DurableObject {
     ];
 
     await this.logger.submitMetrics({ series });
+  }
+
+  private async checkSubgraphBlockNumber(network: Network) {
+    const meta = (await Registry.getAnalyticsRegistry().getView(
+      network,
+      'SubgraphMeta'
+    )) as unknown as MetaQuery;
+
+    if (
+      !meta._meta.block.timestamp ||
+      meta._meta.block.timestamp < getNowSeconds() - 2 * SECONDS_IN_HOUR
+    ) {
+      const networkTag = `network:${network}`;
+      const hours =
+        (getNowSeconds() - meta._meta.block.timestamp || 0) / SECONDS_IN_HOUR;
+
+      await this.logger.submitEvent({
+        host: this.serviceName,
+        network,
+        aggregation_key: 'MonitoringCheckFailed',
+        alert_type: 'error',
+        title: `Monitor Subgraph Block Height Failed: ${network}`,
+        tags: [networkTag, `monitor:subgraph_block_height`],
+        text: `Subgraph Block Height on ${network} is trailing by ${hours.toFixed(
+          2
+        )}`,
+      });
+    }
   }
 
   private async checkDBMonitors(network: Network) {
