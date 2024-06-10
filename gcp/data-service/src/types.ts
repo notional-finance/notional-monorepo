@@ -169,6 +169,8 @@ export interface VaultAPY {
   rewardTokensClaimed: string;
   rewardTokenValuePrimaryBorrow: string;
   noVaultShares: boolean;
+  swapFees: number;
+  rewardTokenSymbol: string;
 }
 
 type DataServiceAccountContextUpdate = {

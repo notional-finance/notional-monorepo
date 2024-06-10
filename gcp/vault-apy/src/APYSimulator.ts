@@ -181,7 +181,7 @@ export default class APYSimulator {
       date: new Date(block.timestamp * 1000).toISOString(),
       ///////////////////////////////////////////////////////////////////////
 
-      poolFees: poolFeesInPrimary.toString(),
+      swapFees: poolFeesInPrimary.toString(),
       blockNumber: block.number,
       timestamp: block.timestamp,
       vaultAddress: vaultData.address.toLowerCase(),
