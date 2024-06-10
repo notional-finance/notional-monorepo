@@ -7,6 +7,7 @@ import {
   ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
+import { fetchGraphPaginate } from '@notional-finance/core-entities';
 import { aggregate } from '@notional-finance/multicall';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { BigNumber, Contract, ethers, providers } from 'ethers';
@@ -52,18 +53,18 @@ async function loadAllVaultsQuery(
   network: Network
 ) {
   const {
-    execute,
     AllVaultAccountsDocument,
     // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
   } = await import('../../../packages/core-entities/src/.graphclient/index');
 
-  return await execute(
+  return await fetchGraphPaginate(
+    network,
     AllVaultAccountsDocument,
+    'balances',
     {
       vaultAddress,
       blockNumber,
-    },
-    { chainName: network }
+    }
   ).then((d) => d.data as AllVaultAccountsQuery);
 }
 

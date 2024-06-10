@@ -82,6 +82,13 @@ export const NotionalAddress: Record<Network, string> = {
   [Network.optimism]: '',
 };
 
+export const SubgraphId: Record<Network, string> = {
+  [Network.all]: '4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW',
+  [Network.mainnet]: '4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW',
+  [Network.arbitrum]: '7q9wQYD8VB5dLWZxtuBZ8b2i8DySCK25V6XqpbdYbDep',
+  [Network.optimism]: '',
+};
+
 export const WETHAddress: Record<Network, string> = {
   [Network.all]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
   [Network.mainnet]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
