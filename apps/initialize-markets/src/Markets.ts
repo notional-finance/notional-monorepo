@@ -22,13 +22,16 @@ const SETTLE_ACCOUNTS_ABI = [
 ];
 
 const GRAPH_MAX_LIMIT = 1000;
-const graphUrl =
-  "https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest";
+
+export const defaultGraphEndpoints: Partial<Record<Network, (subgraphKey: string) => string>> = {
+    [Network.mainnet]: (subgraphKey: string) => `https://gateway-arbitrum.network.thegraph.com/api/${subgraphKey}/subgraphs/id/4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW`,
+    [Network.arbitrum]: (subgraphKey: string) => `https://gateway-arbitrum.network.thegraph.com/api/${subgraphKey}/subgraphs/id/7q9wQYD8VB5dLWZxtuBZ8b2i8DySCK25V6XqpbdYbDep`,
+}
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 class Markets {
-  constructor(private network: Network, private provider: ethers.providers.Provider) { }
+  constructor(private network: Network, private provider: ethers.providers.Provider, private subgraphKey: string) {}
 
   async checkInitializeAllMarkets() {
     const initializeMarkets = new ethers.Contract(
@@ -62,7 +65,7 @@ class Markets {
     let skip = 0;
     do {
       await wait(10);
-      tempAccounts = await fetch(graphUrl, {
+      tempAccounts = await fetch(defaultGraphEndpoints[this.network](this.subgraphKey), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,7 +83,6 @@ class Markets {
         }),
       })
         .then((r) => r.json())
-        // .then(r => {console.log(r); return r;})
         .then((r: { data: { accounts: [{ id: string }] } }) =>
           r.data.accounts.map((a) => a.id)
         );
@@ -111,7 +113,7 @@ class Markets {
 
     const settleAccounts = new ethers.utils.Interface(SETTLE_ACCOUNTS_ABI);
 
-    const vaultAccountsArray = await fetch(graphUrl, {
+    const vaultAccountsArray = await fetch(defaultGraphEndpoints[this.network](this.subgraphKey), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

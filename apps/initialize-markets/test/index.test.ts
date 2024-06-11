@@ -1,6 +1,9 @@
 import { Network } from '@notional-finance/util/src/constants';
-import { processMarket } from '../src/index';
+import { processMarket, Env } from '../src/index';
 import { ethers } from 'ethers';
+import { assert } from 'console';
+
+assert(process.env.SUBGRAPH_API_KEY, "Env var SUBGRAPH_API_KEY needs to be set");
 
 test('should initialize markets and settle all accounts', async () => {
   const network = Network.arbitrum;
@@ -18,5 +21,10 @@ test('should initialize markets and settle all accounts', async () => {
   // address 0x0e2ec6218B896Fc7caF309492ae85B0D86891d1B
   const wallet = new ethers.Wallet('0x2b61c05e8f3746694eb59fdf6ee07ab5c7ab918f05ffdcd13a45ac4fbeaaf773', provider);
 
-  await processMarket(network, provider, wallet.sendTransaction.bind(wallet), blockNumber);
+  await processMarket(
+    { NETWORK: network, SUBGRAPH_API_KEY: process.env.SUBGRAPH_API_KEY } as Env,
+    provider,
+    wallet.sendTransaction.bind(wallet),
+    blockNumber
+  );
 }, 300_000);
