@@ -280,7 +280,7 @@ export const useVaultHoldingsTable = () => {
           label: <FormattedMessage defaultMessage={'Points Earned'} />,
           value: (
             <H4 sx={{ display: 'flex' }}>
-              <PointsIcon sx={{ marginRight: theme.spacing(1) }} />
+              <PointsIcon sx={{ marginRight: theme.spacing(0.5) }} />
               {formatNumberAsAbbr(totalPoints, 2, 'USD', { hideSymbol: true })}
               <Body
                 sx={{

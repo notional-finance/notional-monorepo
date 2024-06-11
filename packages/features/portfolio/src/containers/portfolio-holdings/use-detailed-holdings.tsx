@@ -134,9 +134,6 @@ export function useDetailedHoldingsTable() {
             callback: () => void;
           }[] = [];
 
-          console.log({ pointsPerDay });
-          console.log({ totalPoints });
-
           const subRowData: {
             label: React.ReactNode;
             value: React.ReactNode;
@@ -162,7 +159,7 @@ export function useDetailedHoldingsTable() {
               label: <FormattedMessage defaultMessage={'Points Earned'} />,
               value: (
                 <H4 sx={{ display: 'flex' }}>
-                  <PointsIcon sx={{ marginRight: theme.spacing(1) }} />
+                  <PointsIcon sx={{ marginRight: theme.spacing(0.5) }} />
                   {formatNumberAsAbbr(totalPoints, 2, 'USD', {
                     hideSymbol: true,
                   })}
@@ -374,7 +371,6 @@ export function useDetailedHoldingsTable() {
       totals,
     };
   }, [
-    theme,
     holdings,
     arbPoints,
     baseCurrency,
@@ -383,5 +379,6 @@ export function useDetailedHoldingsTable() {
     NOTE,
     pendingTokens,
     network,
+    theme,
   ]);
 }
