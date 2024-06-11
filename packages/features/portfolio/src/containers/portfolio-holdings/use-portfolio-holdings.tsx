@@ -67,8 +67,6 @@ export function usePortfolioHoldings() {
   );
   const groupedHoldings = [...groupedRows, ...filteredHoldings];
 
-  console.log({ groupedHoldings });
-
   const toggleData = [
     <Box
       sx={{

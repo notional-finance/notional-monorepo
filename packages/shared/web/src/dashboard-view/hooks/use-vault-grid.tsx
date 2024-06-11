@@ -30,8 +30,6 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
     getMax,
   } = useAllMarkets(network);
 
-  console.log({ listedVaults });
-
   const allVaultData = listedVaults
     .map(({ vaultAddress, name, primaryToken, vaultTVL }) => {
       const y = getMax(
