@@ -7,11 +7,16 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import { Network, PRODUCTS, VAULT_TYPES } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
+import { PointsIcon } from '@notional-finance/icons';
+import { Box } from '@mui/material';
 
-export const useVaultGrid = (network: Network): DashboardGridProps => {
+export const useLeveragedFarmingGrid = (
+  network: Network,
+  currentVaultType: VAULT_TYPES
+): DashboardGridProps => {
   const history = useHistory();
   const baseCurrency = useFiat();
   const listedVaults = useAllVaults(network);
@@ -32,6 +37,7 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
         (p) => p.vault.vaultAddress === vaultAddress
       )?.vault;
       const apy = profile?.totalAPY || y?.totalAPY || undefined;
+      const points = y?.pointMultiples;
 
       return {
         title: primaryToken.symbol,
@@ -45,10 +51,21 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
                 ? formatNumberAsAbbr(vaultTVL.toFiat(baseCurrency).toFloat(), 0)
                 : 0
             }`,
-        bottomRightValue: undefined,
+        bottomRightValue: points ? (
+          <Box
+            sx={{ display: 'flex', fontSize: 'inherit', alignItems: 'center' }}
+          >
+            <PointsIcon sx={{ fontSize: 'inherit' }} />
+            &nbsp;
+            {` ${Object.keys(points).join('/')} Points`}
+          </Box>
+        ) : undefined,
         symbol: primaryToken.symbol,
         network: primaryToken.network,
         hasPosition: profile ? true : false,
+        vaultType: points
+          ? VAULT_TYPES.LEVERAGED_POINTS_FARMING
+          : VAULT_TYPES.LEVERAGED_YIELD_FARMING,
         apy: apy || 0,
         routeCallback: () =>
           history.push(
@@ -67,6 +84,7 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
             }),
       };
     })
+    .filter(({ vaultType }) => vaultType === currentVaultType)
     .sort((a, b) => b.apy - a.apy);
 
   const defaultVaultData = allVaultData.filter(

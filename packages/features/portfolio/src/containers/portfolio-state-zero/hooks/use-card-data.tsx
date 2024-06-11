@@ -104,7 +104,7 @@ export const useCardData = (
 
   const leveragedData = [
     {
-      accentTitle: <FormattedMessage defaultMessage={'Incentivised Yield'} />,
+      accentTitle: <FormattedMessage defaultMessage={'Incentivized Yield'} />,
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
       icon: <PieChartIcon />,
       apy: leveragedLiquidityData?.totalAPY || 0,

@@ -60,6 +60,11 @@ export enum MOBILE_SUB_NAV_ACTIONS {
   COMPANY = 'company',
 }
 
+export enum VAULT_TYPES {
+  LEVERAGED_YIELD_FARMING = 'leveraged-yield-farming',
+  LEVERAGED_POINTS_FARMING = 'leveraged-points-farming',
+}
+
 export enum VAULT_SUB_NAV_ACTIONS {
   OVERVIEW = 'overview',
   MARKET_RETURNS = 'market-returns',

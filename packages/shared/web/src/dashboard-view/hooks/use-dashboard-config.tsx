@@ -6,25 +6,6 @@ import { useHistory, useLocation } from 'react-router';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const config = {
-  [PRODUCTS.VAULTS]: {
-    containerData: {
-      heading: defineMessage({
-        defaultMessage: 'Leveraged Points Farming',
-        description: 'page heading',
-      }),
-      subtitle: defineMessage({
-        defaultMessage: `Boost your points yield from exciting partner protocols using leverage.`,
-        description: 'page heading subtitle',
-      }),
-      linkText: defineMessage({
-        defaultMessage: 'Read leveraged point farming docs',
-        description: 'docs link',
-      }),
-      docsLink:
-        'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',
-      leveraged: true,
-    },
-  },
   [PRODUCTS.LEVERAGED_POINTS_FARMING]: {
     containerData: {
       heading: defineMessage({
