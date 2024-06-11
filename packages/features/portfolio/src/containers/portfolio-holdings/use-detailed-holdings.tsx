@@ -1,12 +1,17 @@
-import { TokenBalance } from '@notional-finance/core-entities';
+import { useTheme } from '@mui/material';
+import { TokenBalance, getPointsPerDay } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
+  formatNumberAsAbbr,
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
+import { PointsIcon } from '@notional-finance/icons';
+import { Body, H4 } from '@notional-finance/mui';
 import {
+  useArbPoints,
   useFiat,
   useFiatToken,
   useNOTE,
@@ -24,11 +29,13 @@ import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
 export function useDetailedHoldingsTable() {
+  const theme = useTheme();
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
+  const arbPoints = useArbPoints();
   const history = useHistory();
   const baseCurrency = useFiat();
   const fiatToken = useFiatToken();
@@ -104,6 +111,9 @@ export function useDetailedHoldingsTable() {
           const isDebt = b.isNegative();
           const { icon, formattedTitle, titleWithMaturity, title } =
             formatTokenType(b.token, isDebt);
+          const pointsPerDay = getPointsPerDay(b);
+          const totalPoints =
+            arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
           const marketApy = marketYield?.totalAPY;
           const noteIncentives = marketYield?.noteIncentives?.incentiveAPY;
           const secondaryIncentives =
@@ -123,6 +133,56 @@ export function useDetailedHoldingsTable() {
             buttonText: React.ReactNode;
             callback: () => void;
           }[] = [];
+
+          console.log({ pointsPerDay });
+          console.log({ totalPoints });
+
+          const subRowData: {
+            label: React.ReactNode;
+            value: React.ReactNode;
+          }[] = [
+            {
+              label: <FormattedMessage defaultMessage={'Amount'} />,
+              value: `${b.toDisplayString(4, true)} ${title}`,
+            },
+            {
+              label: <FormattedMessage defaultMessage={'Entry Price'} />,
+              value: s ? s.adjustedCostBasis.toDisplayStringWithSymbol() : '-',
+            },
+            {
+              label: <FormattedMessage defaultMessage={'Current Price'} />,
+              value: `${TokenBalance.unit(b.token)
+                .toUnderlying()
+                .toDisplayString(4)} ${b.underlying.symbol}`,
+            },
+          ];
+
+          if (totalPoints > 0) {
+            subRowData.push({
+              label: <FormattedMessage defaultMessage={'Points Earned'} />,
+              value: (
+                <H4 sx={{ display: 'flex' }}>
+                  <PointsIcon sx={{ marginRight: theme.spacing(1) }} />
+                  {formatNumberAsAbbr(totalPoints, 2, 'USD', {
+                    hideSymbol: true,
+                  })}
+                  <Body
+                    sx={{
+                      marginLeft: theme.spacing(0.5),
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    (
+                    {formatNumberAsAbbr(pointsPerDay, 2, 'USD', {
+                      hideSymbol: true,
+                    })}
+                    )/day
+                  </Body>
+                </H4>
+              ),
+            });
+          }
 
           if (hasNToken) {
             buttonBarData.push({
@@ -236,26 +296,7 @@ export function useDetailedHoldingsTable() {
                 : undefined,
             actionRow: {
               warning: isHighUtilization,
-              subRowData: [
-                {
-                  label: <FormattedMessage defaultMessage={'Amount'} />,
-                  value: `${b.toDisplayString(4, true)} ${title}`,
-                },
-                {
-                  label: <FormattedMessage defaultMessage={'Entry Price'} />,
-                  value: s
-                    ? s.adjustedCostBasis.toDisplayStringWithSymbol()
-                    : '-',
-                  // ? why doesnt this just show conditionally?
-                  showLoadingSpinner: true,
-                },
-                {
-                  label: <FormattedMessage defaultMessage={'Current Price'} />,
-                  value: `${TokenBalance.unit(b.token)
-                    .toUnderlying()
-                    .toDisplayString(4)} ${b.underlying.symbol}`,
-                },
-              ],
+              subRowData,
               buttonBarData,
               hasMatured: hasMatured,
               txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
@@ -332,5 +373,15 @@ export function useDetailedHoldingsTable() {
       detailedHoldings: detailedHoldings,
       totals,
     };
-  }, [holdings, baseCurrency, history, fiatToken, NOTE, pendingTokens]);
+  }, [
+    theme,
+    holdings,
+    arbPoints,
+    baseCurrency,
+    history,
+    fiatToken,
+    NOTE,
+    pendingTokens,
+    network,
+  ]);
 }
