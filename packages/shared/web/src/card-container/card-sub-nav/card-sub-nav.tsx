@@ -1,45 +1,22 @@
 import { styled, Box, useTheme, ThemeProvider } from '@mui/material';
-import { useLocation, useHistory } from 'react-router-dom';
-import { StyledButton, LeverUpToggle } from '@notional-finance/mui';
+import { useLocation } from 'react-router-dom';
+import { StyledButton } from '@notional-finance/mui';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useCardSubNav } from './use-card-sub-nav';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const CardSubNav = () => {
   const theme = useTheme();
   const location = useLocation();
   const { pathname } = location;
-  const network = useSelectedNetwork();
   const themeLanding = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
-  const history = useHistory();
   const leveredUp =
     pathname.includes('leveraged') || pathname.includes('vaults');
   const { links, leveragedLinks } = useCardSubNav();
 
-  const handleLeverUpToggle = () => {
-    const routes = {
-      'lend-fixed': `/liquidity-leveraged/${network}`,
-      'lend-variable': `/liquidity-leveraged/${network}`,
-      'liquidity-variable': `/liquidity-leveraged/${network}`,
-      'liquidity-leveraged': `/liquidity-variable/${network}`,
-      vaults: `/lend-fixed/${network}`,
-    };
-    const [_, routeKey] = pathname.split('/');
-    history.push(routes[routeKey]);
-  };
-
   return (
     <ThemeProvider theme={themeLanding}>
       <StyledContainer>
-        {!pathname.includes('borrow') && (
-          <LeverUpToggle
-            leveredUp={leveredUp}
-            altBackground={true}
-            handleLeverUpToggle={handleLeverUpToggle}
-          />
-        )}
-
         {leveredUp
           ? leveragedLinks.map(({ title, to, key }, i) => (
               <StyledButton

@@ -1,4 +1,4 @@
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, alpha, styled, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import {
   Caption,
@@ -8,7 +8,8 @@ import {
   LargeInputTextEmphasized,
   LinkText,
 } from '@notional-finance/mui';
-import { Network } from '@notional-finance/util';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { NotionalTheme, colors } from '@notional-finance/styles';
 import { useHistory } from 'react-router';
 
 interface StateZeroCardProps {
@@ -28,12 +29,25 @@ interface StateZeroCardProps {
   index: number;
 }
 
+interface CardDataProps {
+  theme: NotionalTheme;
+  disabled: boolean;
+}
+
 export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
   const theme = useTheme();
   const history = useHistory();
+  const selectedNetwork = useSelectedNetwork();
+
   return (
     <CardBoxContainer>
-      <CardBox key={index} onClick={() => history.push(card.cardLink)}>
+      <BoxContainer theme={theme} disabled={card.apy === 0} />
+      <CardBox
+        theme={theme}
+        key={index}
+        disabled={card.apy === 0}
+        onClick={() => (card.apy > 0 ? history.push(card.cardLink) : null)}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -58,7 +72,9 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
             >
               {card.accentTitle}
             </H5>
-            <LargeInputTextEmphasized>{card.title}</LargeInputTextEmphasized>
+            <LargeInputTextEmphasized sx={{ whiteSpace: 'nowrap' }}>
+              {card.title}
+            </LargeInputTextEmphasized>
           </Box>
           {card.icon}
         </Box>
@@ -76,31 +92,37 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
             symbol={card.symbol}
             size="xl"
             style={{ marginRight: theme.spacing(2) }}
-            network={Network.mainnet}
+            network={selectedNetwork}
           />
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <H5>{card?.apyTitle}</H5>
-            <H3>
-              <CountUp
-                value={card.apy || 0}
-                suffix="%"
-                duration={1}
-                decimals={2}
-              />
-            </H3>
+            {card.apy > 0 ? (
+              <>
+                <H5>{card?.apyTitle}</H5>
+                <H3>
+                  <CountUp
+                    value={card.apy || 0}
+                    suffix="%"
+                    duration={1}
+                    decimals={2}
+                  />
+                </H3>
+              </>
+            ) : (
+              <H3>-</H3>
+            )}
           </Box>
         </Box>
-        {card.bottomValue && (
-          <Caption
-            sx={{
-              width: '100%',
-              textAlign: 'right',
-              marginTop: theme.spacing(0.5),
-            }}
-          >
-            {card.bottomValue}
-          </Caption>
-        )}
+
+        <Caption
+          sx={{
+            width: '100%',
+            textAlign: 'right',
+            height: theme.spacing(2),
+            marginTop: theme.spacing(0.5),
+          }}
+        >
+          {card.bottomValue ? card.bottomValue : ''}
+        </Caption>
         <Box
           sx={{
             display: 'flex',
@@ -129,14 +151,35 @@ const CardBoxContainer = styled(Box)(
   ({ theme }) => `
          display: flex; 
          flex-direction: column;
-         width: 32%;
+         height: 307px;
+         width: ${theme.spacing(51)};
          @media (max-width: 1375px) {
           width: ${theme.spacing(48)}
          }
       `
 );
-const CardBox = styled(Box)(
-  ({ theme }) => `
+
+const BoxContainer = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'disabled',
+})(
+  ({ theme, disabled }: CardDataProps) => `
+          height: inherit;
+          border-radius: 6px;
+          background: ${alpha(colors.darkGrey, 0.5)};
+          position: absolute;
+          z-index: 2;
+          display: ${disabled ? 'block' : 'none'};
+         width: ${theme.spacing(51)};
+         @media (max-width: 1375px) {
+          width: ${theme.spacing(48)};
+         }
+      `
+);
+
+const CardBox = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'disabled',
+})(
+  ({ theme, disabled }: CardDataProps) => `
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -145,9 +188,31 @@ const CardBox = styled(Box)(
         width: 100%;
         padding: ${theme.spacing(4)};
         border-radius: ${theme.shape.borderRadius()};
-        background: ${theme.palette.background.paper};
         border: ${theme.shape.borderStandard};
-      `
+        background: ${theme.palette.background.paper};
+        ${
+          disabled
+            ? ''
+            : theme.gradient.hoverTransition(
+                theme.palette.background.paper,
+                theme.palette.info.light
+              )
+        }
+      ${
+        disabled
+          ? ''
+          : `&:hover {
+          z-index: 5;
+          overflow: visible;
+          cursor: pointer;
+          border: 1px solid ${theme.palette.primary.light};
+          transition: 0.3s ease;
+          transform: scale(1.02);
+          #incentive {
+              background: rgba(19, 187, 194, 0.10);
+          }
+        }`
+      }`
 );
 
 const PillBox = styled(Box)(

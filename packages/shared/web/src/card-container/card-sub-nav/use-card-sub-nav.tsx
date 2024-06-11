@@ -47,14 +47,15 @@ export const useCardSubNav = () => {
 
   const leveragedLinks: CardSubNavProps[] = [
     {
-      title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
-      to: `/vaults/${selectedNetwork}`,
-      key: 'vaults',
+      title: <FormattedMessage defaultMessage={'Leveraged Points Farming'} />,
+      to: `/leveraged-points-farming/${selectedNetwork}`,
+      key: 'leveraged-points-farming',
     },
-    // {
-    //   title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
-    //   to: `/lend-leveraged/${selectedNetwork}`,
-    // },
+    {
+      title: <FormattedMessage defaultMessage={'Leveraged Yield Farming'} />,
+      to: `/leveraged-yield-farming/${selectedNetwork}`,
+      key: 'leveraged-yield-farming',
+    },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
       to: `/liquidity-leveraged/${selectedNetwork}`,

@@ -1,6 +1,6 @@
 import {
   PortfolioIcon,
-  StackIcon,
+  // StackIcon,
   NoteOutlineIcon,
   DocsIcon,
   NotionalPlainIcon,
@@ -14,9 +14,10 @@ import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
 import { useDefaultNetwork } from './use-default-network';
-import InvestAndEarnDropdown from './invest-and-earn/invest-and-earn-dropdown/invest-and-earn-dropdown';
+import EarnDropdown from './earn-dropdown/earn-dropdown';
 import BorrowDropDown from './borrow-dropdown/borrow-dropdown';
 import { useAccountAndBalanceReady } from '@notional-finance/notionable-hooks';
+import LeverageDropdown from './leverage-dropdown/leverage-dropdown';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   const network = useDefaultNetwork();
@@ -44,28 +45,32 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       ),
     },
     {
-      key: 'invest-and-earn',
-      CustomComponent: InvestAndEarnDropdown,
+      key: 'earn',
+      CustomComponent: EarnDropdown,
+    },
+    {
+      key: 'leverage',
+      CustomComponent: LeverageDropdown,
     },
     {
       key: 'borrow',
       CustomComponent: BorrowDropDown,
     },
-    {
-      key: 'markets',
-      label: <FormattedMessage defaultMessage={'Markets'} />,
-      link: '/markets',
-      iconImg: (
-        <StackIcon
-          className="color-fill"
-          sx={{
-            height: theme.spacing(2.25),
-            fill: textColor,
-            stroke: 'transparent',
-          }}
-        />
-      ),
-    },
+    // {
+    //   key: 'markets',
+    //   label: <FormattedMessage defaultMessage={'Markets'} />,
+    //   link: '/markets',
+    //   iconImg: (
+    //     <StackIcon
+    //       className="color-fill"
+    //       sx={{
+    //         height: theme.spacing(2.25),
+    //         fill: textColor,
+    //         stroke: 'transparent',
+    //       }}
+    //     />
+    //   ),
+    // },
     {
       key: 'note',
       label: <FormattedMessage defaultMessage={'NOTE'} />,
@@ -83,7 +88,10 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   ];
 
   const mobileNavLinks = navLinks.filter(
-    (navLink) => navLink.key !== 'invest-and-earn' && navLink.key !== 'borrow'
+    (navLink) =>
+      navLink.key !== 'earn' &&
+      navLink.key !== 'borrow' &&
+      navLink.key !== 'leverage'
   );
 
   const mobileSubNavLinks: INavLink[] = [

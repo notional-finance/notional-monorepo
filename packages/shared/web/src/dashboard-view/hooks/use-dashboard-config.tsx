@@ -6,14 +6,33 @@ import { useHistory, useLocation } from 'react-router';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const config = {
-  [PRODUCTS.VAULTS]: {
+  [PRODUCTS.LEVERAGED_POINTS_FARMING]: {
     containerData: {
       heading: defineMessage({
-        defaultMessage: 'Leveraged Vaults',
+        defaultMessage: 'Leveraged Points Farming',
         description: 'page heading',
       }),
       subtitle: defineMessage({
-        defaultMessage: `Get one-click access to sophisticated DeFi yield strategies and dial up your leverage for maximum efficiency.`,
+        defaultMessage: `Boost your points yield from exciting partner protocols using leverage.`,
+        description: 'page heading subtitle',
+      }),
+      linkText: defineMessage({
+        defaultMessage: 'Read leveraged yield farming docs',
+        description: 'docs link',
+      }),
+      docsLink:
+        'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',
+      leveraged: true,
+    },
+  },
+  [PRODUCTS.LEVERAGED_YIELD_FARMING]: {
+    containerData: {
+      heading: defineMessage({
+        defaultMessage: 'Leveraged Yield Farming',
+        description: 'page heading',
+      }),
+      subtitle: defineMessage({
+        defaultMessage: `Earn leveraged yield from pegged asset liquidity pools in DeFi. Incentives are auto-harvested and reinvested.`,
         description: 'page heading subtitle',
       }),
       linkText: defineMessage({
@@ -42,6 +61,7 @@ export const config = {
       }),
       docsLink:
         'https://docs.notional.finance/notional-v3/product-guides/leveraged-liquidity',
+      leveraged: true,
     },
   },
   [PRODUCTS.LIQUIDITY_VARIABLE]: {

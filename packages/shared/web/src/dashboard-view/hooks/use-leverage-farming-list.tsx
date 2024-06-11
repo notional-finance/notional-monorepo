@@ -3,7 +3,7 @@ import {
   formatNumberAsPercent,
   formatNumber,
 } from '@notional-finance/helpers';
-import { formatMaturity } from '@notional-finance/util';
+import { VAULT_TYPES, formatMaturity } from '@notional-finance/util';
 import {
   useAllMarkets,
   useFiat,
@@ -23,7 +23,10 @@ import {
 import { Box } from '@mui/material';
 import { PointsIcon } from '@notional-finance/icons';
 
-export const useVaultList = (network: Network) => {
+export const useLeverageFarmingList = (
+  network: Network,
+  currentVaultType: VAULT_TYPES
+) => {
   const {
     yields: { leveragedVaults },
     getMax,
@@ -141,6 +144,10 @@ export const useVaultList = (network: Network) => {
     },
   ];
 
+  if (currentVaultType === VAULT_TYPES.LEVERAGED_YIELD_FARMING) {
+    listColumns = listColumns.filter((x) => x.accessorKey !== 'incentiveApy');
+  }
+
   if (account === undefined) {
     listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
   }
@@ -176,6 +183,9 @@ export const useVaultList = (network: Network) => {
             : `${vault.boosterProtocol} / ${vault.baseProtocol}`,
         totalApy: y?.totalAPY || 0,
         incentiveApy: 0,
+        vaultType: points
+          ? VAULT_TYPES.LEVERAGED_POINTS_FARMING
+          : VAULT_TYPES.LEVERAGED_YIELD_FARMING,
         tvl: vault.vaultTVL ? vault.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         view: profile
           ? `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/IncreaseVaultPosition`
@@ -235,6 +245,7 @@ export const useVaultList = (network: Network) => {
         },
       };
     })
+    .filter(({ vaultType }) => vaultType === currentVaultType)
     .sort((a, b) => b.walletBalance - a.walletBalance);
 
   return { listColumns, listData };
