@@ -40,5 +40,14 @@ export async function sendTxThroughRelayer(arg: {
       'X-Auth-Token': env.TX_RELAY_AUTH_TOKEN,
     },
     body: payload,
-  }).then(r => r.json());
+  }).then(async r => {
+      const returnData = await r.json();
+
+      if (299 < r.status) {
+        console.error(returnData);
+        throw new Error(returnData.reason || returnData.code || r.statusText);
+      }
+
+      return returnData;
+    });
 }
