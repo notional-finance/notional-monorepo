@@ -120,6 +120,7 @@ export class RegistryClientDO extends DurableObject {
           this.saveYieldData(network),
           this.monitorRelayerBalances(network),
           this.checkSubgraphBlockNumber(network),
+          this.checkRiskServiceUpdates(network),
         ]);
         if (network === Network.arbitrum) {
           // await this.checkDBMonitors(network);
@@ -663,6 +664,34 @@ export class RegistryClientDO extends DurableObject {
     }
 
     await this.logger.submitMetrics({ series: viewLengthSeries });
+  }
+
+  private async checkRiskServiceUpdates(network: Network) {
+    const vaultRisk = await this.env.ACCOUNT_CACHE_R2.head(
+      `${network}/accounts/vaultRisk`
+    );
+    const portfolioRisk = await this.env.ACCOUNT_CACHE_R2.head(
+      `${network}/accounts/portfolioRisk`
+    );
+    const lastUpdated = Math.min(
+      vaultRisk.uploaded.getTime() / 1000,
+      portfolioRisk.uploaded.getTime() / 1000
+    );
+    if (lastUpdated < getNowSeconds() - SECONDS_IN_HOUR / 2) {
+      const networkTag = `network:${network}`;
+      await this.logger.submitEvent({
+        host: this.serviceName,
+        network,
+        aggregation_key: 'MonitoringCheckFailed',
+        alert_type: 'error',
+        title: `Risk Service Updates Lagging: ${network}`,
+        tags: [networkTag, `monitor:risk_service_updates`],
+        text: `Risk Service Updates on ${network} is trailing by ${(
+          (getNowSeconds() - lastUpdated) /
+          60
+        ).toFixed(2)} minutes`,
+      });
+    }
   }
 
   private async saveYieldData(network: Network) {
