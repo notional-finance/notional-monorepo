@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { IntercomProvider } from 'react-use-intercom';
 import {
-  FeatureLoader,
+  // FeatureLoader,
   TrackingConsent,
   VaultDashboard,
   LendFixedDashboard,
@@ -300,29 +300,29 @@ export const App = () => {
       <CssBaseline />
       <HelmetProvider>
         <NotionalContext.Provider value={globalState}>
-          <FeatureLoader>
-            <Helmet>
-              <link rel="icon" href="/favicon.svg" />
-              <meta
-                name="viewport"
-                content="width=device-width, initial-scale=1"
-              />
-              <title>Notional Finance - DeFi lending and leveraged yield</title>
-              <meta
-                name="title"
-                content="Notional Finance - DeFi lending and leveraged yield"
-              />
-              <meta
-                name="description"
-                content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
-              />
-            </Helmet>
-            <IntercomProvider appId={intercomID}>
-              <Web3OnboardProvider web3Onboard={OnboardContext}>
-                <AllRoutes />
-              </Web3OnboardProvider>
-            </IntercomProvider>
-          </FeatureLoader>
+          {/* <FeatureLoader> */}
+          <Helmet>
+            <link rel="icon" href="/favicon.svg" />
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1"
+            />
+            <title>Notional Finance - DeFi lending and leveraged yield</title>
+            <meta
+              name="title"
+              content="Notional Finance - DeFi lending and leveraged yield"
+            />
+            <meta
+              name="description"
+              content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
+            />
+          </Helmet>
+          <IntercomProvider appId={intercomID}>
+            <Web3OnboardProvider web3Onboard={OnboardContext}>
+              <AllRoutes />
+            </Web3OnboardProvider>
+          </IntercomProvider>
+          {/* </FeatureLoader> */}
         </NotionalContext.Provider>
       </HelmetProvider>
     </ThemeProvider>
