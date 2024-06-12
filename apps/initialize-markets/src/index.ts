@@ -54,6 +54,7 @@ export async function processMarket(
       data: tx.data,
       gasLimit: 30_000_000
     });
+    wait(3000);
     // make sure tx is visible on network before proceeding
     await findTx(provider, hash);
   }
@@ -63,6 +64,7 @@ export async function processMarket(
       to: tx.to,
       data: tx.data,
     });
+    wait(3000);
     // make sure tx is visible on network before proceeding
     await findTx(provider, hash);
   }
