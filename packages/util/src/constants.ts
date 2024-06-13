@@ -85,12 +85,12 @@ export const NotionalAddress: Record<Network, string> = {
 export const SubgraphId: Record<Network, string> = {
   [Network.all]: '4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW',
   [Network.mainnet]: '4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW',
-  [Network.arbitrum]: '7q9wQYD8VB5dLWZxtuBZ8b2i8DySCK25V6XqpbdYbDep',
+  [Network.arbitrum]: 'DnghsCNvJ4xmp4czX8Qn7UpkJ8HyHjy7cFN4wcH91Nrx',
   [Network.optimism]: '',
 };
 
 export function getSubgraphEndpoint(network: Network, subgraphKey: string) {
-  return `https://gateway-arbitrum.network.thegraph.com/api/${subgraphKey}/subgraphs/id/${SubgraphId[network]}`
+  return `https://gateway-arbitrum.network.thegraph.com/api/${subgraphKey}/subgraphs/id/${SubgraphId[network]}`;
 }
 
 export const WETHAddress: Record<Network, string> = {
@@ -118,4 +118,3 @@ export const ORACLE_TYPE_TO_ID = {
   PrimeCashPremiumInterestRate: 13,
   sNOTE: 14,
 };
-
