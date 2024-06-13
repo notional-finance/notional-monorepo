@@ -7,6 +7,7 @@ export interface Env {
   NETWORK: Network;
   TX_RELAY_AUTH_TOKEN: string;
   AUTH_KEY: string;
+  SUBGRAPH_API_KEY: string;
 }
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -23,12 +24,12 @@ function findTx(provider: ethers.providers.Provider, hash: string) {
 }
 
 export async function processMarket(
-  network: Network,
+  env: Env,
   provider: ethers.providers.Provider,
   sendTransaction: Signer['sendTransaction'],
   blockNumber: number | null = null
 ) {
-  const markets = new Markets(network, provider);
+  const markets = new Markets(env.NETWORK, provider, env.SUBGRAPH_API_KEY);
 
   const shouldInitialize = await markets.checkInitializeAllMarkets();
   if (shouldInitialize) {
@@ -53,6 +54,7 @@ export async function processMarket(
       data: tx.data,
       gasLimit: 30_000_000
     });
+    wait(3000);
     // make sure tx is visible on network before proceeding
     await findTx(provider, hash);
   }
@@ -62,6 +64,7 @@ export async function processMarket(
       to: tx.to,
       data: tx.data,
     });
+    wait(3000);
     // make sure tx is visible on network before proceeding
     await findTx(provider, hash);
   }
@@ -77,7 +80,7 @@ async function run(env: Env) {
       return sendTxThroughRelayer({ env: env, ...tx, });
     };
 
-    await processMarket(network, provider, sendTransaction as any as Signer['sendTransaction']);
+    await processMarket(env, provider, sendTransaction as any as Signer['sendTransaction']);
   }
 }
 
