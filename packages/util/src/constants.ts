@@ -89,6 +89,10 @@ export const SubgraphId: Record<Network, string> = {
   [Network.optimism]: '',
 };
 
+export function getSubgraphEndpoint(network: Network, subgraphKey: string) {
+  return `https://gateway-arbitrum.network.thegraph.com/api/${subgraphKey}/subgraphs/id/${SubgraphId[network]}`
+}
+
 export const WETHAddress: Record<Network, string> = {
   [Network.all]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
   [Network.mainnet]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -114,3 +118,4 @@ export const ORACLE_TYPE_TO_ID = {
   PrimeCashPremiumInterestRate: 13,
   sNOTE: 14,
 };
+

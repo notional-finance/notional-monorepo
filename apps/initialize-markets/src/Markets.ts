@@ -1,4 +1,4 @@
-import { Network, batchArray, groupArrayToMap } from '@notional-finance/util';
+import { Network, batchArray, groupArrayToMap, getSubgraphEndpoint } from '@notional-finance/util';
 import { ethers } from 'ethers';
 
 const settleAccountsAddressMap = {
@@ -22,11 +22,6 @@ const SETTLE_ACCOUNTS_ABI = [
 ];
 
 const GRAPH_MAX_LIMIT = 1000;
-
-export const defaultGraphEndpoints: Partial<Record<Network, (subgraphKey: string) => string>> = {
-    [Network.mainnet]: (subgraphKey: string) => `https://gateway-arbitrum.network.thegraph.com/api/${subgraphKey}/subgraphs/id/4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW`,
-    [Network.arbitrum]: (subgraphKey: string) => `https://gateway-arbitrum.network.thegraph.com/api/${subgraphKey}/subgraphs/id/7q9wQYD8VB5dLWZxtuBZ8b2i8DySCK25V6XqpbdYbDep`,
-}
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -65,7 +60,7 @@ class Markets {
     let skip = 0;
     do {
       await wait(10);
-      tempAccounts = await fetch(defaultGraphEndpoints[this.network](this.subgraphKey), {
+      tempAccounts = await fetch(getSubgraphEndpoint(this.network, this.subgraphKey), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -113,7 +108,7 @@ class Markets {
 
     const settleAccounts = new ethers.utils.Interface(SETTLE_ACCOUNTS_ABI);
 
-    const vaultAccountsArray = await fetch(defaultGraphEndpoints[this.network](this.subgraphKey), {
+    const vaultAccountsArray = await fetch(getSubgraphEndpoint(this.network, this.subgraphKey), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
