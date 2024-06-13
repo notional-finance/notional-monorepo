@@ -8,6 +8,7 @@ import {
   Network,
   TRADE_TYPE,
   getProviderFromNetwork,
+  getSubgraphEndpoint,
 } from '@notional-finance/util';
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
 import { vaults, minTokenAmount, ETH, wEthMapper, Vault } from './vaults';
@@ -27,6 +28,7 @@ export interface Env {
   TX_RELAY_AUTH_TOKEN: string;
   ZERO_EX_API_KEY: string;
   AUTH_KEY: string;
+  SUBGRAPH_API_KEY: string;
   REWARDS_KV: KVNamespace;
 }
 const HOUR_IN_SECONDS = 60 * 60;
@@ -82,8 +84,7 @@ async function getLastReinvestment(
   env: Env,
   vault: string
 ): Promise<{ timestamp: number } | null> {
-  return fetch(
-    `https://api.studio.thegraph.com/query/36749/notional-v3-${env.NETWORK}/version/latest`,
+  return fetch(getSubgraphEndpoint(env.NETWORK, env.SUBGRAPH_API_KEY),
     {
       method: 'POST',
       headers: {
