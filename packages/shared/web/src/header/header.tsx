@@ -1,29 +1,22 @@
 import { useState } from 'react';
 import { Toolbar, Box, useTheme, ThemeProvider } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
-import { AppBar, AppBarProps, H4, ExternalLink } from '@notional-finance/mui';
+import { AppBar, AppBarProps, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
-import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
-import MobileNavigation from './mobile-navigation/mobile-navigation';
 import { useLocation } from 'react-router-dom';
 import ResourcesDropdown from './resources/resources-dropdown/resources-dropdown';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
-import { ArrowRightIcon } from '@notional-finance/icons';
-import { colors } from '@notional-finance/styles';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {}
 
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
-  const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
   const appTheme = useTheme();
   const { pathname } = useLocation();
-  const theme = pathname === '/' ? landingTheme : appTheme;
+  const theme = appTheme;
   const { navLinks } = useNavLinks(false, theme);
 
   window.addEventListener('scroll', () => {
@@ -91,7 +84,7 @@ export function Header({ children }: HeaderProps) {
               flexDirection: 'row-reverse',
             }}
           >
-            <MobileNavigation />
+            {/* <MobileNavigation /> */}
           </Box>
           <Box
             sx={{
@@ -106,45 +99,6 @@ export function Header({ children }: HeaderProps) {
             {children}
           </Box>
         </Toolbar>
-        <Box
-          sx={{
-            minWidth: '100%',
-            minHeight: theme.spacing(6),
-            background: colors.neonTurquoise,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            color: colors.black,
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              marginLeft: theme.spacing(3),
-            }}
-          >
-            <H4 sx={{ color: colors.black, fontWeight: 500 }}>
-              <FormattedMessage
-                defaultMessage={
-                  'Notional V2 is being deprecated. Notional V3 is now live! <a1>Learn more</a1>'
-                }
-                values={{
-                  a1: (msg: any) => (
-                    <ExternalLink
-                      textDecoration
-                      href="https://blog.notional.finance/notional-v2-deprecation-plan/"
-                      style={{ fontWeight: 600 }}
-                    >
-                      {msg}
-                    </ExternalLink>
-                  ),
-                }}
-              />
-            </H4>
-            <ArrowRightIcon fill={colors.black} sx={{ height: '12px' }} />
-          </Box>
-        </Box>
         {pathname === '/' && <ScrollIndicator />}
       </AppBar>
     </ThemeProvider>
