@@ -1,3 +1,4 @@
+import spindl from '@spindl-xyz/attribution';
 import {
   NotionalContext,
   useGlobalContext,
@@ -294,6 +295,13 @@ export const App = () => {
 
   const notionalTheme = useNotionalTheme(themeVariant);
   const intercomID = process.env['NX_INTERCOM_APP_ID'] as string;
+  const spindlAPI = process.env['NX_SINDL_API_KEY'] as string;
+
+  spindl.configure({
+    sdkKey: spindlAPI,
+  });
+
+  spindl.enableAutoPageViews();
 
   return (
     <ThemeProvider theme={notionalTheme}>
