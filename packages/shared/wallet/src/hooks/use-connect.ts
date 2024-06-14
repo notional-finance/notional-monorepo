@@ -1,3 +1,4 @@
+import spindl from '@spindl-xyz/attribution';
 import { trackEvent } from '@notional-finance/helpers';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
@@ -34,7 +35,10 @@ export const useConnect = () => {
     (walletLabel?: string) => {
       // No change to wallets, nothing to do here.
       if (!walletLabel || currentLabel === walletLabel) return;
-      connect({ autoSelect: { label: walletLabel, disableModals: true } });
+      connect({ autoSelect: { label: walletLabel, disableModals: true } }).then((resp) => {
+        // NOTE: this handles initial wallet connection
+        spindl.attribute(resp[0].accounts[0].address);
+      })
     },
     [connect, currentLabel]
   );
@@ -48,6 +52,14 @@ export const useConnect = () => {
     }
     updateNotional({ wallet: undefined });
   }, [disconnect, currentLabel, updateNotional]);
+
+  useEffect(() => {
+    // NOTE: this handles when the user switches the selected address in the wallet
+    if(!isReadOnlyAddress && globalState?.wallet?.selectedAddress && wallet?.accounts[0].address && (wallet?.accounts[0].address !== globalState?.wallet?.selectedAddress)) {
+      spindl.attribute(wallet?.accounts[0].address);
+    }
+    
+  }, [globalState?.wallet?.selectedAddress, wallet?.accounts, isReadOnlyAddress]);
 
   // Listens for wallet changes and sets the primary wallet as well as sends the
   // addresses to the Notional global state

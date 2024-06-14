@@ -22,6 +22,7 @@
     "@safe-global/safe-apps-provider": "^0.17.1",
     "@safe-global/safe-apps-sdk": "^8.0.0",
     "@segment/analytics-next": "^1.58.0",
+    "@spindl-xyz/attribution": "^1.6.2",
     "@swc/helpers": "~0.4.11",
     "@tanstack/react-query": "^5.29.0",
     "@tanstack/react-table": "^8.13.2",
