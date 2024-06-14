@@ -60,6 +60,7 @@ function initNetworkRegistry$(global$: Observable<GlobalState>) {
     map(({ cacheHostname }) => {
       // This is a no-op if the registry is already initialized
       Registry.initialize(
+        { NX_SUBGRAPH_API_KEY: process.env['NX_SUBGRAPH_API_KEY'] as string },
         cacheHostname,
         AccountFetchMode.SINGLE_ACCOUNT_DIRECT
       );

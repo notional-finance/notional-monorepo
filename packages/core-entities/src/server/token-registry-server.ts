@@ -69,6 +69,7 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
           return obj;
         }, {} as Record<string, SerializedToken>);
       },
+      this.env.NX_SUBGRAPH_API_KEY,
       {
         blockNumber,
       }

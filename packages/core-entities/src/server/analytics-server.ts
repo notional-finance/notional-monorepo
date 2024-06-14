@@ -128,9 +128,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           }),
           'id'
         ),
+      this.env.NX_SUBGRAPH_API_KEY,
       { minTimestamp },
       'oracles',
-      this.env.NX_SUBGRAPH_API_KEY
     );
 
     const { finalResults: historicalTrading } = await fetchGraph(
@@ -164,9 +164,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           )
         );
       },
+      this.env.NX_SUBGRAPH_API_KEY,
       { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY },
       'tradingActivity',
-      this.env.NX_SUBGRAPH_API_KEY
     );
 
     const { finalResults: vaultReinvestment } = await fetchGraph(
@@ -180,9 +180,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
             (t) => t.vault
           )
         ),
+      this.env.NX_SUBGRAPH_API_KEY,
       { minTimestamp },
       'reinvestments',
-      this.env.NX_SUBGRAPH_API_KEY
     );
 
     const { finalResults: activeAccounts } = await fetchGraph(
@@ -216,9 +216,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
         return Object.assign(activeAccounts, { totalActive });
       },
+      this.env.NX_SUBGRAPH_API_KEY,
       {},
       'accounts',
-      this.env.NX_SUBGRAPH_API_KEY
     );
 
     const vaults = await Promise.all(
@@ -338,11 +338,11 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       network,
       doc,
       rootVariable,
+      this.env.NX_SUBGRAPH_API_KEY,
       {
         ...variables,
         chainName: network,
       },
-      this.env.NX_SUBGRAPH_API_KEY
     );
   }
 

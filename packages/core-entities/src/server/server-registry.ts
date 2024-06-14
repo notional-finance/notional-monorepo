@@ -67,8 +67,6 @@ export async function loadGraphClientDeferred() {
   };
 }
 
-const NX_SUBGRAPH_API_KEY = process.env['NX_SUBGRAPH_API_KEY'];
-
 export async function fetchUsingMulticall<T>(
   network: Network,
   calls: AggregateCall<T>[],
@@ -109,8 +107,8 @@ export async function fetchGraphPaginate<R, V>(
   network: Network,
   query: TypedDocumentNode<R, V>,
   rootVariable: string | undefined,
+  apiKey: string,
   variables?: V,
-  apiKey = NX_SUBGRAPH_API_KEY
 ) {
   const { execute } = await loadGraphClientDeferred();
   const executionResult = await execute(query, variables, {
@@ -136,9 +134,9 @@ export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
   network: Network,
   query: TypedDocumentNode<R, V>,
   transform: (r: R) => Record<string, T>,
+  apiKey: string,
   variables?: V,
   rootVariable?: string,
-  apiKey = NX_SUBGRAPH_API_KEY
 ): Promise<{ finalResults: Record<string, T>; blockNumber: number }> {
   // NOTE: in order for this to deploy with cloudflare workers, the import statement
   // has to be deferred until here.
@@ -184,17 +182,17 @@ export async function fetchUsingGraph<
   network: Network,
   query: TypedDocumentNode<R, V>,
   transform: (r: R) => Record<string, T>,
+  apiKey: string,
   variables?: V,
   rootVariable?: string,
-  apiKey = process.env['NX_SUBGRAPH_API_KEY']
 ): Promise<CacheSchema<T>> {
   const { finalResults, blockNumber } = await fetchGraph(
     network,
     query,
     transform,
+    apiKey,
     variables,
     rootVariable,
-    apiKey
   );
 
   return {
@@ -222,17 +220,17 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     network: Network,
     query: TypedDocumentNode<R, V>,
     transform: (r: R) => Record<string, T>,
+    apiKey: string,
     variables?: V,
     rootVariable?: string,
-    apiKey = this.env.NX_SUBGRAPH_API_KEY
   ): Promise<CacheSchema<T>> {
     return fetchUsingGraph<T, R, V>(
       network,
       query,
       transform,
+      apiKey,
       variables,
       rootVariable,
-      apiKey
     );
   }
 
