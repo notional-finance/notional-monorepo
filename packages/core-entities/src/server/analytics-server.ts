@@ -129,7 +129,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           'id'
         ),
       { minTimestamp },
-      'oracles'
+      'oracles',
+      this.env.NX_SUBGRAPH_API_KEY
     );
 
     const { finalResults: historicalTrading } = await fetchGraph(
@@ -164,7 +165,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         );
       },
       { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY },
-      'tradingActivity'
+      'tradingActivity',
+      this.env.NX_SUBGRAPH_API_KEY
     );
 
     const { finalResults: vaultReinvestment } = await fetchGraph(
@@ -179,7 +181,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           )
         ),
       { minTimestamp },
-      'reinvestments'
+      'reinvestments',
+      this.env.NX_SUBGRAPH_API_KEY
     );
 
     const { finalResults: activeAccounts } = await fetchGraph(
@@ -214,7 +217,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         return Object.assign(activeAccounts, { totalActive });
       },
       {},
-      'accounts'
+      'accounts',
+      this.env.NX_SUBGRAPH_API_KEY
     );
 
     const vaults = await Promise.all(
@@ -330,10 +334,16 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
   ): Promise<ExecutionResult<T>> {
     const documents = await loadGraphClientDeferred();
     const doc = documents[document] as TypedDocumentNode;
-    return await fetchGraphPaginate(network, doc, rootVariable, {
-      ...variables,
-      chainName: network,
-    });
+    return await fetchGraphPaginate(
+      network,
+      doc,
+      rootVariable,
+      {
+        ...variables,
+        chainName: network,
+      },
+      this.env.NX_SUBGRAPH_API_KEY
+    );
   }
 
   private _convertOrNull<T>(v: string | number | null, fn: (d: number) => T) {
