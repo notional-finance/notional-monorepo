@@ -80,6 +80,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             return obj;
           }, {} as Record<string, OracleDefinition>);
         },
+        this.env.NX_SUBGRAPH_API_KEY,
         {
           blockNumber,
           skip: 0,

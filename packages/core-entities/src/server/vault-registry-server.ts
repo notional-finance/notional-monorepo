@@ -25,15 +25,14 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             network,
             AllVaultsDocument,
             'vaultConfigurations',
-            undefined,
             this.env.NX_SUBGRAPH_API_KEY
           )
         : await fetchGraphPaginate(
             network,
             AllVaultsByBlockDocument,
             'vaultConfigurations',
+            this.env.NX_SUBGRAPH_API_KEY,
             { blockNumber },
-            this.env.NX_SUBGRAPH_API_KEY
           );
 
     const calls = data['data'].vaultConfigurations

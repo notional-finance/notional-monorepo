@@ -38,7 +38,7 @@ export enum AccountFetchMode {
 }
 
 export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
-  protected subgraphApiKey: string | undefined;
+  protected subgraphApiKey = '';
 
   protected _activeAccount = new BehaviorSubject<string | null>(null);
 
@@ -233,6 +233,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             .flatMap((_) => _),
         };
       },
+      this.subgraphApiKey,
       {
         accountId: account.toLowerCase(),
       }
@@ -272,6 +273,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               }) || [],
         };
       },
+      this.subgraphApiKey,
       {
         accountId: account.toLowerCase(),
       }
@@ -351,9 +353,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           return Object.assign(o, { [a.id]: acct });
         }, {} as Record<string, AccountDefinition>);
       },
+      this.subgraphApiKey,
       { skip: 0 },
       'accounts',
-      this.subgraphApiKey
     );
 
     return accounts;
