@@ -1,6 +1,5 @@
 import { Tab, Tabs, TabsProps, useTheme } from '@mui/material';
 import { useLocation, useHistory, Link } from 'react-router-dom';
-import { InvestAndEarnDropdown } from '../invest-and-earn/invest-and-earn-dropdown/invest-and-earn-dropdown';
 import { useState, useEffect } from 'react';
 import { SyntheticEvent } from 'react';
 import { INavLink } from '../nav-link';
@@ -42,63 +41,60 @@ export function Navigation({ navLinks, ...rest }: NavigationProps) {
   };
 
   return (
-    <>
-      <Tabs
-        {...rest}
-        value={selectedTab}
-        onChange={handleChange}
-        aria-label="Notional site navigation"
-        sx={{
-          '.MuiTabs-vertical': {},
-          '.MuiTabs-indicator': {
-            height: '4px',
-            background: theme.gradient.landing,
-            transition: 'none',
-          },
-        }}
-      >
-        {navLinks.map((t) => (
-          <Tab
-            key={t.key}
-            icon={t.iconImg}
-            iconPosition="start"
-            label={t.label}
-            to={t.link}
-            value={t.link}
-            component={Link}
-            sx={{
-              '&.MuiTab-root, .MuiTab-labelIcon': {
-                color: theme.palette.common.black,
-                opacity: 1,
-                textTransform: 'capitalize',
-                fontWeight: 400,
-                fontSize: '1rem',
-                padding: '6px 15px',
-              },
+    <Tabs
+      {...rest}
+      value={selectedTab}
+      onChange={handleChange}
+      aria-label="Notional site navigation"
+      sx={{
+        '.MuiTabs-vertical': {},
+        '.MuiTabs-indicator': {
+          height: '4px',
+          background: theme.gradient.landing,
+          transition: 'none',
+        },
+      }}
+    >
+      {navLinks.map((t) => (
+        <Tab
+          key={t.key}
+          icon={t.iconImg}
+          iconPosition="start"
+          label={t.label}
+          to={t.link}
+          value={t.link}
+          component={Link}
+          sx={{
+            '&.MuiTab-root, .MuiTab-labelIcon': {
+              color: theme.palette.common.black,
+              opacity: 1,
+              textTransform: 'capitalize',
+              fontWeight: 400,
+              fontSize: '1rem',
+              padding: '6px 15px',
+            },
+            'svg.color-stroke': {
+              stroke: theme.palette.common.black,
+            },
+            'svg.color-fill': {
+              fill: theme.palette.common.black,
+            },
+            '&:hover': {
+              // Some of the icons need to have the stroke color set, others
+              // rely on the fill color being set. Class names are set in the
+              // use-nav-links hook
               'svg.color-stroke': {
-                stroke: theme.palette.common.black,
+                stroke: theme.palette.primary.light,
               },
               'svg.color-fill': {
-                fill: theme.palette.common.black,
+                fill: theme.palette.primary.light,
               },
-              '&:hover': {
-                // Some of the icons need to have the stroke color set, others
-                // rely on the fill color being set. Class names are set in the
-                // use-nav-links hook
-                'svg.color-stroke': {
-                  stroke: theme.palette.primary.light,
-                },
-                'svg.color-fill': {
-                  fill: theme.palette.primary.light,
-                },
-                color: theme.palette.primary.light,
-              },
-            }}
-          />
-        ))}
-      </Tabs>
-      <InvestAndEarnDropdown />
-    </>
+              color: theme.palette.primary.light,
+            },
+          }}
+        />
+      ))}
+    </Tabs>
   );
 }
 

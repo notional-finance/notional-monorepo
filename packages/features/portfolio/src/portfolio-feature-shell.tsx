@@ -4,9 +4,13 @@ import { useAccount } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
 import { ButtonBar, SideDrawer, FeatureLoader } from '@notional-finance/mui';
 import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
-import { SideNav, PortfolioMobileNav, ClaimNoteButton } from './components';
 import {
-  PortfolioOverview,
+  SideNav,
+  PortfolioMobileNav,
+  ClaimNoteButton,
+  DeprecationMessage,
+} from './components';
+import {
   PortfolioLends,
   PortfolioBorrows,
   PortfolioLiquidity,
@@ -61,18 +65,20 @@ export const PortfolioFeatureShell = () => {
           {accountConnected &&
             params.category !== PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
               <Box sx={{ justifyContent: 'flex-end', display: 'flex' }}>
-                <ButtonBar
-                  buttonOptions={buttonData}
-                  sx={{
-                    marginBottom: theme.spacing(1),
-                    height: theme.spacing(5),
-                  }}
-                />
+                {buttonData && buttonData.length > 0 && (
+                  <ButtonBar
+                    buttonOptions={buttonData}
+                    sx={{
+                      marginBottom: theme.spacing(1),
+                      height: theme.spacing(5),
+                    }}
+                  />
+                )}
                 <ClaimNoteButton />
               </Box>
             )}
           {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-            params.category === undefined) && <PortfolioOverview />}
+            params.category === undefined) && <DeprecationMessage />}
           {params.category === PORTFOLIO_CATEGORIES.LENDS && <PortfolioLends />}
           {params.category === PORTFOLIO_CATEGORIES.BORROWS && (
             <PortfolioBorrows />

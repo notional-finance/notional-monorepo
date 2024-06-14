@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { datadogRum } from '@datadog/browser-rum';
 import { useImpactTracking } from '@notional-finance/utils';
 import { initPlausible } from '@notional-finance/helpers';
@@ -12,27 +12,27 @@ import { QueryParamProvider } from 'use-query-params';
 import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
 import RouteContainer from './components/RouteContainer';
 import AppLayoutRoute from './layouts/AppLayoutRoute';
-import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';
+// import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { useNotional } from '@notional-finance/notionable-hooks';
 import { initializeNetwork } from '@notional-finance/notionable';
 import { TrackingConsent } from '@notional-finance/shared-web';
-import { ServerError } from '../../containers/server-error/server-error';
+// import { ServerError } from '../../containers/server-error/server-error';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { AboutUsView } from '@notional-finance/about-us-feature-shell';
-import { StakeView } from '@notional-finance/stake-feature-shell';
-import LendCardView from '@notional-finance/lend-feature-shell/lend-card-view';
-import { LendFeatureShell } from '@notional-finance/lend-feature-shell';
+// import { AboutUsView } from '@notional-finance/about-us-feature-shell';
+// import { StakeView } from '@notional-finance/stake-feature-shell';
+// import LendCardView from '@notional-finance/lend-feature-shell/lend-card-view';
+// import { LendFeatureShell } from '@notional-finance/lend-feature-shell';
 import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
-import { TreasuryView } from '@notional-finance/treasury-feature-shell';
-import {
-  VaultActionProvider,
-  AllStrategyView,
-} from '@notional-finance/vault-feature-shell';
-import { AirdropView } from '../../containers/AirdropView';
-import { TermsView } from '../../containers/TermsView';
-import { PrivacyView } from '../../containers/PrivacyView';
-import { LandingPageView } from '../../containers/LandingPageView';
+// import { TreasuryView } from '@notional-finance/treasury-feature-shell';
+// import {
+//   VaultActionProvider,
+//   AllStrategyView,
+// } from '@notional-finance/vault-feature-shell';
+// import { AirdropView } from '../../containers/AirdropView';
+// import { TermsView } from '../../containers/TermsView';
+// import { PrivacyView } from '../../containers/PrivacyView';
+// import { LandingPageView } from '../../containers/LandingPageView';
 const applicationId = process.env['NX_DD_APP_ID'] as string;
 const clientToken = process.env['NX_DD_API_KEY'] as string;
 const DD_SITE = process.env['NX_DD_SITE'];
@@ -61,7 +61,6 @@ datadogRum.init({
 
 export const App = () => {
   const { trackPageview } = Plausible();
-  const [routeKey, setRouteKey] = useState('');
   const { themeVariant } = useUserSettingsState();
   const notionalTheme = useNotionalTheme(themeVariant);
   const { pendingChainId, initializeNotional } = useNotional();
@@ -100,9 +99,9 @@ export const App = () => {
       <BrowserRouter>
         <QueryParamProvider adapter={ReactRouter5Adapter}>
           <CompatRouter>
-            <RouteContainer onRouteChange={setRouteKey}>
+            <RouteContainer>
               <Switch>
-                <AppLayoutRoute path="/airdrop" component={AirdropView} />
+                {/* <AppLayoutRoute path="/airdrop" component={AirdropView} />
                 <AppLayoutRoute
                   path="/lend/:currency"
                   routeKey={routeKey}
@@ -129,7 +128,7 @@ export const App = () => {
                 />
                 <AppLayoutRoute path="/vaults" component={AllStrategyView} />
                 <AppLayoutRoute path="/terms" component={TermsView} />
-                <AppLayoutRoute path="/privacy" component={PrivacyView} />
+                <AppLayoutRoute path="/privacy" component={PrivacyView} /> */}
                 <AppLayoutRoute
                   path="/portfolio/:category/:sideDrawerKey"
                   component={PortfolioFeatureShell}
@@ -142,10 +141,10 @@ export const App = () => {
                   path="/portfolio"
                   component={PortfolioFeatureShell}
                 />
-                <AppLayoutRoute path="/treasury" component={TreasuryView} />
+                {/* <AppLayoutRoute path="/treasury" component={TreasuryView} />
                 <AppLayoutRoute path="/error" component={ServerError} />
-                <LandingPageLayoutRoute path="/about" component={AboutUsView} />
-                <LandingPageLayoutRoute path="/" component={LandingPageView} />
+                <LandingPageLayoutRoute path="/about" component={AboutUsView} /> */}
+                <AppLayoutRoute path="/" component={PortfolioFeatureShell} />
               </Switch>
               <TrackingConsent />
             </RouteContainer>
