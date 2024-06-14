@@ -7,36 +7,37 @@ export interface Env extends RegistryDOEnv {
   VIEWS_DO: DurableObjectNamespace;
   DATA_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
+  NX_SUBGRAPH_API_KEY: string;
 }
 
 export { ViewsDO } from '@notional-finance/durable-objects';
 
-async function getOracleData(network: Network, blockNumber: number) {
-  const server = new Servers.OracleRegistryServer();
+async function getOracleData(env: Env, network: Network, blockNumber: number) {
+  const server = new Servers.OracleRegistryServer(env);
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
 
-async function getTokenData(network: Network, blockNumber: number) {
-  const server = new Servers.TokenRegistryServer();
+async function getTokenData(env: Env, network: Network, blockNumber: number) {
+  const server = new Servers.TokenRegistryServer(env);
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
 
-async function getExchangeData(network: Network, blockNumber: number) {
-  const server = new Servers.ExchangeRegistryServer();
+async function getExchangeData(env: Env, network: Network, blockNumber: number) {
+  const server = new Servers.ExchangeRegistryServer(env);
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
 
-async function getConfigurationData(network: Network, blockNumber: number) {
-  const server = new Servers.ConfigurationServer();
+async function getConfigurationData(env: Env, network: Network, blockNumber: number) {
+  const server = new Servers.ConfigurationServer(env);
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
 
-async function getVaultData(network: Network, blockNumber: number) {
-  const server = new Servers.VaultRegistryServer();
+async function getVaultData(env: Env, network: Network, blockNumber: number) {
+  const server = new Servers.VaultRegistryServer(env);
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
@@ -57,6 +58,7 @@ export default {
           throw Error('Block number is required');
         }
         const data = await getOracleData(
+          env,
           network as Network,
           parseInt(blockNumber)
         );
@@ -71,6 +73,7 @@ export default {
           throw Error('Block number is required');
         }
         const data = await getTokenData(
+          env,
           network as Network,
           parseInt(blockNumber)
         );
@@ -85,6 +88,7 @@ export default {
           throw Error('Block number is required');
         }
         const data = await getExchangeData(
+          env,
           network as Network,
           parseInt(blockNumber)
         );
@@ -99,6 +103,7 @@ export default {
           throw Error('Block number is required');
         }
         const data = await getConfigurationData(
+          env,
           network as Network,
           parseInt(blockNumber)
         );
@@ -113,6 +118,7 @@ export default {
           throw Error('Block number is required');
         }
         const data = await getVaultData(
+          env,
           network as Network,
           parseInt(blockNumber)
         );
