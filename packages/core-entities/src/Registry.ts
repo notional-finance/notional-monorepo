@@ -15,7 +15,7 @@ import { NOTERegistryClient } from './client/note-registry-client';
 
 type Env = {
   NX_SUBGRAPH_API_KEY: string;
-}
+};
 
 export class Registry {
   protected static _self?: Registry;
@@ -75,6 +75,7 @@ export class Registry {
     Registry._yields = new YieldRegistryClient(_cacheHostname);
     Registry._analytics = new AnalyticsRegistryClient(_cacheHostname, env);
     Registry._note = new NOTERegistryClient(_cacheHostname);
+    Registry._accounts.setSubgraphAPIKey = env.NX_SUBGRAPH_API_KEY;
 
     // Kicks off Fiat token refreshes
     if (startFiatRefresh) {
