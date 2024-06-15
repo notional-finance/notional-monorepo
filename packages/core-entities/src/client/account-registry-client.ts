@@ -355,7 +355,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       },
       this.subgraphApiKey,
       { skip: 0 },
-      'accounts',
+      'accounts'
     );
 
     return accounts;
