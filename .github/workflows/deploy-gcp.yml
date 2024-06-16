@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    name: Deploy GCP Workers
     steps:
     - uses: actions/checkout@v3
       with:
@@ -17,14 +18,15 @@ jobs:
         node-version: '18'
         cache: 'yarn'
     - run: yarn install --frozen-lockfile
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCLOUD_SERVICE_KEY }}
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
       with:
         version: 'latest'
         project_id: ${{ secrets.GCLOUD_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
-    - name: Configure gcloud
-      run: gcloud config set project ${{ secrets.GCLOUD_PROJECT_ID }}
     - name: Deploy Data Service
       shell: bash
       working-directory: gcp/data-service
