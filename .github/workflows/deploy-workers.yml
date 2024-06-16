@@ -1,0 +1,26 @@
+name: Deploy All Workers
+on:
+  push:
+    branches:
+      - v3/prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Liquidators
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - name: Deploy Workers
+        shell: bash
+        run: apps/deployWorkers.sh
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
