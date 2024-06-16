@@ -292,10 +292,10 @@ export default class NotionalV3Liquidator {
     };
   }
 
-  public async getPossibleLiquidations(
-    ra: RiskyAccount
+  public async getLargestLiquidation(
+    acct: RiskyAccount
   ): Promise<FlashLiquidation> {
-    const netUnderlying = Array.from(ra.netUnderlyingAvailable.entries());
+    const netUnderlying = Array.from(acct.netUnderlyingAvailable.entries());
     const netDebt = netUnderlying.filter(([_, n]) => n.isNegative());
 
     const possibleLiquidations = netUnderlying.flatMap(
@@ -304,11 +304,12 @@ export default class NotionalV3Liquidator {
 
         if (!netLocal.isZero()) {
           if (
-            ra.data.balances.find(
+            acct.data.balances.find(
               (a) => a.currencyId === currencyId && !a.nTokenBalance.isZero()
             )
           ) {
-            // has ntoken local currency liquidation
+            // The account has nTokens and therefore nToken liquidation is possible, this
+            // will simply swap nTokens for cash
             liquidations.push(
               new Liquidation(
                 LiquidationType.LOCAL_CURRENCY,
@@ -321,19 +322,24 @@ export default class NotionalV3Liquidator {
           }
 
           if (
-            ra.data.portfolio.find(
+            acct.data.portfolio.find(
               (a) => a.currencyId === currencyId && getNowSeconds() < a.maturity
             )
           ) {
-            const asset = ra.data.portfolio
+            // The account has fCash collateral and therefore fCash liquidation is possible, this
+            // will simply swap fCash for cash. fCash is most likely positive, collateral asset but it
+            // is possible tha fCash is negative. In that case, the account will receive both cash and
+            // negative fcash debt.
+            const asset = acct.data.portfolio
               // Sort descending so we get the largest value
-              .sort((a, b) => (b.notional.lt(a.notional) ? 1 : -1))
+              .sort((a, b) => (a.notional.lt(b.notional) ? 1 : -1))
               .find(
                 (a) =>
                   a.currencyId === currencyId && getNowSeconds() < a.maturity
               );
 
-            // Only liquidate one fCash asset at a time
+            // Only liquidate one fCash asset at a time, this is just simpler to reason
+            // about. The largest (most positive) fCash asset will be liquidated first.
             liquidations.push(
               new Liquidation(
                 LiquidationType.LOCAL_FCASH,
@@ -347,7 +353,7 @@ export default class NotionalV3Liquidator {
         }
 
         if (netLocal.gt(0)) {
-          // collateral is possible, so check all the combinations with debts
+          // Collateral liquidations are possible, check each combination of collateral and debt currency
           liquidations.push(
             ...netDebt.map(
               ([debtId, _]) =>
@@ -366,21 +372,23 @@ export default class NotionalV3Liquidator {
       }
     );
 
+    // Execute simulated liquidation calls against all the possible combinations
     const calls = possibleLiquidations.flatMap((l) =>
-      l.getFlashLoanAmountCall(this.notionalContract, ra.id)
+      l.getFlashLoanAmountCall(this.notionalContract, acct.id)
     );
     const { results } = await aggregate(calls, this.provider, undefined, true);
 
+    // Merge the results back with the possible liquidation object
     const accountLiquidations = possibleLiquidations
       .map((l) => {
         const loanAmount = results[
-          `${ra.id}:${l.getLiquidationType()}:${
+          `${acct.id}:${l.getLiquidationType()}:${
             l.getLocalCurrency().id
           }:${l.getCollateralCurrencyId()}:loanAmount`
         ] as BigNumber;
 
         return {
-          accountId: ra.id,
+          accountId: acct.id,
           liquidation: l,
           flashLoanAmount: loanAmount
             .mul(this.settings.flashLoanBuffer)
@@ -388,21 +396,28 @@ export default class NotionalV3Liquidator {
         };
       })
       .filter((l) => !l.flashLoanAmount.isZero())
-      .sort((a, b) => (b.flashLoanAmount.lt(a.flashLoanAmount) ? -1 : 1));
+      // Find the liquidation with the largest flash loan amount. This will serve as a heuristic
+      // for the most profitable liquidation
+      .sort((a, b) => (a.flashLoanAmount.lt(b.flashLoanAmount) ? 1 : -1));
 
     for (const a of accountLiquidations) {
       try {
+        // This will get all the flash liquidation parameters
         return await this.getFlashLiquidation(a);
       } catch (e) {
-        // TODO: maybe log something here?
-        // If this fails then go on to the next liquidation
+        // If this fails then will proceed to the next one
+        console.error(`Error: failed to get flash liquidation for
+Account: ${a.accountId}
+Liquidation Type: ${a.liquidation.getLiquidationType()}
+Local Currency: ${a.liquidation.getLocalCurrency().id}
+Collateral Currency: ${a.liquidation.getCollateralCurrencyId()}
+Flash Loan Amount: ${a.flashLoanAmount.toString()}
+`);
       }
     }
   }
 
   public async liquidateAccount(flashLiq: FlashLiquidation) {
-    // TODO: perhaps aggregate this and switch to use the `liquidateViaMulticall`
-    // method in the VaultV3Liquidator
     const { data, to } = await this.flashLoanProvider.encodeTransaction(
       flashLiq
     );
@@ -429,6 +444,26 @@ export default class NotionalV3Liquidator {
           `event:account_liquidated`,
         ],
         text: `Liquidated account ${flashLiq.accountLiq.accountId}, ${respInfo['hash']}`,
+      });
+    } else {
+      await this.logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'error',
+        host: 'cloudflare',
+        network: this.settings.network,
+        title: `Failed Account Liquidation`,
+        tags: [
+          `account:${flashLiq.accountLiq.accountId}`,
+          `event:failed_account_liquidated`,
+        ],
+        text: `
+Failed to liquidate account: ${flashLiq.accountLiq.accountId}
+Flash Borrow Asset: ${flashLiq.flashBorrowAsset.toString()}
+Liquidation Type: ${flashLiq.accountLiq.liquidation.getLiquidationType()}
+Local Currency: ${flashLiq.accountLiq.liquidation.getLocalCurrency().id}
+Collateral Currency: ${flashLiq.accountLiq.liquidation.getCollateralCurrencyId()}
+Flash Loan Amount: ${flashLiq.accountLiq.flashLoanAmount.toString()}
+`,
       });
     }
   }

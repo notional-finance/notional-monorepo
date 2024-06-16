@@ -208,7 +208,6 @@ const runAllVaults = async (env: Env) => {
     const { batches, batchAccounts } =
       await liquidator.batchMaturityLiquidations(vault, vaultRiskyAccounts);
 
-    // TODO: convert this section into a generic function for both liquidators
     const { resp, batch, failingTxns } = await liquidator.liquidateViaMulticall(
       batches
     );
@@ -261,7 +260,6 @@ const runAllVaults = async (env: Env) => {
           .join(',')}`,
       });
     }
-    // TODO: above ^
   }
 };
 
