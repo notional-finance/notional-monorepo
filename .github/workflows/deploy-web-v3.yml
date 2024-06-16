@@ -1,4 +1,4 @@
-name: deploy-web-v3
+name: Deploy V3 Website
 on:
   workflow_dispatch:
     inputs:
