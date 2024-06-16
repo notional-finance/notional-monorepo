@@ -21,12 +21,16 @@ jobs:
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v1
       with:
-        credentials_json: ${{ secrets.GCLOUD_SERVICE_KEY }}
+        credentials_json: ${{ GCLOUD_SERVICE_KEY }}
+      env:
+        GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
       with:
         version: 'latest'
-        project_id: ${{ secrets.GCLOUD_PROJECT_ID }}
+        project_id: ${{ GCLOUD_PROJECT_ID }}
+      env:
+        GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_PROJECT_ID }}
     - name: Deploy Data Service
       shell: bash
       working-directory: gcp/data-service
