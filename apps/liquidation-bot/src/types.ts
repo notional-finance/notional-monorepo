@@ -7,7 +7,9 @@ export interface IGasOracle {
 
 export interface IFlashLoanProvider {
   estimateGas(liq: FlashLiquidation): Promise<BigNumber>;
-  encodeTransaction(liq: FlashLiquidation): Promise<string>;
+  encodeTransaction(
+    liq: FlashLiquidation
+  ): Promise<{ data: string; to: string }>;
 }
 
 export class MetricNames {

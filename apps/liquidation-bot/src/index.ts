@@ -16,6 +16,7 @@ import {
   Logger,
   MetricType,
 } from '@notional-finance/durable-objects';
+import { formatUnits } from 'ethers/lib/utils';
 
 export interface Env {
   NX_DATA_URL: string;
@@ -41,6 +42,8 @@ export interface Env {
   PROFIT_THRESHOLD: string;
 }
 
+// TODO: add a run for any accounts under FC
+
 const run = async (env: Env) => {
   const allTokens = await (
     await fetch(`https://data-dev.notional.finance/${env.NETWORK}/tokens`)
@@ -65,7 +68,7 @@ const run = async (env: Env) => {
     .filter((a) => a !== ZERO_ADDRESS);
 
   const provider = getProviderFromNetwork(env.NETWORK, true);
-  const liq = new NotionalV3Liquidator(
+  const liquidator = new NotionalV3Liquidator(
     provider,
     {
       network: env.NETWORK,
@@ -106,7 +109,7 @@ const run = async (env: Env) => {
   const batchedAccounts = batchArray(addresses, 250);
   let riskyAccounts: RiskyAccount[] = [];
   for (const batch of batchedAccounts) {
-    const risky = await liq.getRiskyAccounts(batch);
+    const risky = await liquidator.getRiskyAccounts(batch);
     riskyAccounts = riskyAccounts.concat(risky);
   }
 
@@ -140,26 +143,28 @@ const run = async (env: Env) => {
   );
 
   await logger.submitMetrics(ddSeries);
+  for (const account of riskyAccounts) {
+    await logger.submitEvent({
+      aggregation_key: 'RiskyAccount',
+      alert_type: 'info',
+      host: 'cloudflare',
+      network: env.NETWORK,
+      title: `Risky Account: ${account.id}`,
+      tags: [`account:${account.id}`, `event:risky_account`],
+      text: `
+account: ${account.id}
+freeCollateral: ${formatUnits(account.ethFreeCollateral, 18)}
+net underlying available:
+${Array.from(account.netUnderlyingAvailable.entries())
+  .map(([id, amt]) => `${id}: ${formatUnits(amt, 8)}`)
+  .join('\n')}
+`,
+    });
+  }
 
-  if (riskyAccounts.length > 0) {
-    for (const account of riskyAccounts) {
-      await logger.submitEvent({
-        aggregation_key: 'RiskyAccount',
-        alert_type: 'info',
-        host: 'cloudflare',
-        network: env.NETWORK,
-        title: `Risky Account: ${account.id}`,
-        tags: [`account:${account.id}`, `event:risky_account`],
-        text: `Risky account ${account.id}, failed liquidation`,
-      });
-    }
-    const riskyAccount = riskyAccounts[0];
-
-    const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);
-
-    if (possibleLiqs.length > 0) {
-      await liq.liquidateAccount(possibleLiqs[0]);
-    }
+  for (const riskyAccount of riskyAccounts) {
+    const liquidation = await liquidator.getPossibleLiquidations(riskyAccount);
+    await liquidator.liquidateAccount(liquidation);
   }
 };
 

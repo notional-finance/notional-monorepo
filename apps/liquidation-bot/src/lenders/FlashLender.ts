@@ -9,17 +9,18 @@ import {
 const flashLiquidatorInterface = FlashLiquidator__factory.createInterface();
 
 export default class FlashLenderProvider implements IFlashLoanProvider {
-
   constructor(
     public network: Network,
     public flashLiquidatorAddress: string,
     public provider: providers.Provider
-  ) {
-  }
+  ) {}
 
   public async estimateGas(flashLiq: FlashLiquidation): Promise<BigNumber> {
     const flashLender = FlashLenderWrapper__factory.connect(
-      getFlashLender({ network: this.network, token: flashLiq.flashBorrowAsset }),
+      getFlashLender({
+        network: this.network,
+        token: flashLiq.flashBorrowAsset,
+      }),
       this.provider
     );
 
@@ -34,28 +35,36 @@ export default class FlashLenderProvider implements IFlashLoanProvider {
         flashLiq.collateralTrade
       ),
       this.flashLiquidatorAddress,
-      flashLiquidatorInterface.getSighash("callback")
+      flashLiquidatorInterface.getSighash('callback')
     );
   }
 
-  public async encodeTransaction(flashLiq: FlashLiquidation): Promise<string> {
+  public async encodeTransaction(
+    flashLiq: FlashLiquidation
+  ): Promise<{ data: string; to: string }> {
     const flashLender = FlashLenderWrapper__factory.connect(
-      getFlashLender({ network: this.network, token: flashLiq.flashBorrowAsset }),
+      getFlashLender({
+        network: this.network,
+        token: flashLiq.flashBorrowAsset,
+      }),
       this.provider
     );
 
-    return flashLender.interface.encodeFunctionData('flash', [
-      this.flashLiquidatorAddress,
-      flashLiq.flashBorrowAsset,
-      flashLiq.accountLiq.flashLoanAmount,
-      flashLiq.accountLiq.liquidation.encode(
-        flashLiq.accountLiq.accountId,
-        true,
-        flashLiq.preLiquidationTrade,
-        flashLiq.collateralTrade
-      ),
-      this.flashLiquidatorAddress,
-      flashLiquidatorInterface.getSighash("callback")
-    ]);
+    return {
+      data: flashLender.interface.encodeFunctionData('flash', [
+        this.flashLiquidatorAddress,
+        flashLiq.flashBorrowAsset,
+        flashLiq.accountLiq.flashLoanAmount,
+        flashLiq.accountLiq.liquidation.encode(
+          flashLiq.accountLiq.accountId,
+          true,
+          flashLiq.preLiquidationTrade,
+          flashLiq.collateralTrade
+        ),
+        this.flashLiquidatorAddress,
+        flashLiquidatorInterface.getSighash('callback'),
+      ]),
+      to: flashLender.address,
+    };
   }
 }
