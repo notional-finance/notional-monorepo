@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { Network } from './constants';
 
 // from https://github.com/alcueca/erc7399-wrappers
-const wrappedFlashLenders = {
+const wrappedFlashLenders: Record<Network, Record<string, string>> = {
   [Network.mainnet]: {
     AAVE: '0x0c86c636ed5593705b5675d370c831972C787841',
     BALANCER: '0x9E092cb431e5F1aa70e47e052773711d2Ba4917E',
@@ -15,6 +15,8 @@ const wrappedFlashLenders = {
     CAMELOT: '0x5E8820B2832aD8451f65Fa2CCe2F3Cef29016D0d',
     UNIV3: '0x319300462C37AD2D4f26B584C2b67De51F51f289',
   },
+  [Network.all]: {},
+  [Network.optimism]: {},
 };
 
 const tokens = {
@@ -22,7 +24,13 @@ const tokens = {
     USDT: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     GHO: '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
   },
-  [Network.arbitrum]: {},
+  [Network.arbitrum]: {
+    cbETH: '0x1DEBd73E752bEaF79865Fd6446b0c970EaE7732f',
+    GMX: '0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a',
+    RDNT: '0x3082CC23568eA640225c2467653dB90e9250AaA0',
+    UNI: '0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0',
+    LDO: '0x13Ad51ed4F1B7e9Dc168d8a00cB3f4dDD85EfA60',
+  },
 };
 
 const defaultFlashLenders = {
@@ -71,3 +79,27 @@ export function getFlashLender({
     defaultFlashLenders[network]
   );
 }
+
+/** Returns a comma delimited list of excluded sources for use in 0x */
+export function getExcludedSources(
+  network: Network,
+  flashLenderAddress: string
+): string | undefined {
+  const [name, _] = Object.entries(wrappedFlashLenders[network]).find(
+    ([_, address]) => address.toLowerCase() === flashLenderAddress.toLowerCase()
+  );
+  return zeroExSources[network] ? zeroExSources[network][name] : undefined;
+}
+
+// https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-sources
+const zeroExSources = {
+  [Network.mainnet]: {
+    BALANCER: 'Balancer_V2',
+    UNISWAP: 'Uniswap_V3',
+  },
+  [Network.arbitrum]: {
+    BALANCER: 'Balancer_V2',
+    CAMELOT: 'Camelot_V3',
+    UNIV3: 'Uniswap_V3',
+  },
+};

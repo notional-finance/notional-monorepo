@@ -17,6 +17,8 @@ import FlashLoanProvider from './lenders/FlashLender';
 import { Logger } from '@notional-finance/durable-objects';
 import {
   Network,
+  getExcludedSources,
+  getFlashLender,
   getNowSeconds,
   sendTxThroughRelayer,
 } from '@notional-finance/util';
@@ -173,7 +175,8 @@ export default class NotionalV3Liquidator {
     from: string,
     to: string,
     amount: BigNumber,
-    exactIn: boolean
+    exactIn: boolean,
+    excludedSources: string | undefined
   ): Promise<any> {
     if (!from || !to) {
       throw Error('Invalid from/to');
@@ -184,7 +187,11 @@ export default class NotionalV3Liquidator {
       buyToken: to,
     });
 
-    // TODO: if balancer then need to exclude it as a source for the trade...
+    // Set excluded sources in some cases to avoid re-entrancy issues inside the flash loan
+    if (excludedSources) {
+      queryParams.set('excludedSources', excludedSources);
+    }
+
     if (exactIn) {
       queryParams.set('sellAmount', amount.toString());
     } else {
@@ -210,48 +217,56 @@ export default class NotionalV3Liquidator {
   }
 
   public async getFlashLiquidation(
-    accountLiq: AccountLiquidation
+    l: AccountLiquidation
   ): Promise<FlashLiquidation> {
     const hasCollateral =
-      accountLiq.liquidation.getLiquidationType() ===
+      l.liquidation.getLiquidationType() ===
         LiquidationType.COLLATERAL_CURRENCY ||
-      accountLiq.liquidation.getLiquidationType() ===
+      l.liquidation.getLiquidationType() ===
         LiquidationType.CROSS_CURRENCY_FCASH;
 
-    let flashBorrowAsset = accountLiq.liquidation.getLocalUnderlyingAddress();
+    let flashBorrowAsset = l.liquidation.getLocalUnderlyingAddress();
     const borrowAssetOverride = this.settings.overrides.find(
-      (c) => c.id === accountLiq.liquidation.getLocalCurrency().id
+      (c) => c.id === l.liquidation.getLocalCurrency().id
     );
     if (borrowAssetOverride) {
-      accountLiq.flashLoanAmount =
+      l.flashLoanAmount =
         borrowAssetOverride.basePrecision &&
         borrowAssetOverride.overridePrecision
-          ? accountLiq.flashLoanAmount
+          ? l.flashLoanAmount
               .mul(borrowAssetOverride.overridePrecision)
               .div(borrowAssetOverride.basePrecision)
-          : accountLiq.flashLoanAmount;
+          : l.flashLoanAmount;
 
       flashBorrowAsset = borrowAssetOverride.flashBorrowAsset;
     }
 
     let preLiquidationTrade: TradeData = null;
-    if (
-      flashBorrowAsset !== accountLiq.liquidation.getLocalUnderlyingAddress()
-    ) {
+    const flashLender = getFlashLender({
+      network: this.settings.network,
+      token: flashBorrowAsset,
+    });
+    const excludedSources = getExcludedSources(
+      this.settings.network,
+      flashLender
+    );
+
+    if (flashBorrowAsset !== l.liquidation.getLocalUnderlyingAddress()) {
       // Sell flash borrowed asset for local currency
       const zeroExResp = await this.getZeroExData(
         this.settings.zeroExUrl,
         flashBorrowAsset,
-        accountLiq.liquidation.getLocalUnderlyingAddress(),
-        accountLiq.flashLoanAmount,
-        true
+        l.liquidation.getLocalUnderlyingAddress(),
+        l.flashLoanAmount,
+        true,
+        excludedSources
       );
       preLiquidationTrade = {
         trade: {
           tradeType: TradeType.EXACT_IN_SINGLE,
           sellToken: flashBorrowAsset,
-          buyToken: accountLiq.liquidation.getLocalUnderlyingAddress(),
-          amount: accountLiq.flashLoanAmount,
+          buyToken: l.liquidation.getLocalUnderlyingAddress(),
+          amount: l.flashLoanAmount,
           limit: BigNumber.from(zeroExResp.buyAmount)
             .mul(this.settings.exactInSlippageLimit)
             .div(1000),
@@ -268,18 +283,19 @@ export default class NotionalV3Liquidator {
     if (hasCollateral) {
       const zeroExResp = await this.getZeroExData(
         this.settings.zeroExUrl,
-        accountLiq.liquidation.getCollateralUnderlyingAddress(),
+        l.liquidation.getCollateralUnderlyingAddress(),
         flashBorrowAsset,
-        accountLiq.flashLoanAmount,
-        false
+        l.flashLoanAmount,
+        false,
+        excludedSources
       );
 
       collateralTrade = {
         trade: {
           tradeType: TradeType.EXACT_OUT_SINGLE,
-          sellToken: accountLiq.liquidation.getCollateralUnderlyingAddress(),
+          sellToken: l.liquidation.getCollateralUnderlyingAddress(),
           buyToken: flashBorrowAsset,
-          amount: accountLiq.flashLoanAmount,
+          amount: l.flashLoanAmount,
           limit: BigNumber.from(zeroExResp.sellAmount)
             .mul(this.settings.exactOutSlippageLimit)
             .div(1000),
@@ -293,7 +309,7 @@ export default class NotionalV3Liquidator {
     }
 
     return {
-      accountLiq: accountLiq,
+      accountLiq: l,
       flashBorrowAsset: flashBorrowAsset,
       preLiquidationTrade: preLiquidationTrade,
       collateralTrade: collateralTrade,
