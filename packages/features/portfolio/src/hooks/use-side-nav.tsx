@@ -14,7 +14,7 @@ import {
   BarChartIcon,
   FourSquareIcon,
   MoneyMarketIcon,
-  StakeIcon,
+  // StakeIcon,
   VaultIcon,
   HistoryIcon,
   CoinsIcon,
@@ -92,20 +92,20 @@ export const useSideNav = () => {
       to: `/portfolio/${PORTFOLIO_CATEGORIES.LIQUIDITY}`,
       notifications: nTokenHoldings.length,
     },
-    {
-      Icon: (
-        <StakeIcon
-          sx={{
-            width: '17px',
-            stroke: theme.palette.typography.light,
-            fill: 'transparent',
-          }}
-        />
-      ),
-      id: PORTFOLIO_CATEGORIES.STAKED_NOTE,
-      to: `/stake`,
-      notifications: 0,
-    },
+    // {
+    //   Icon: (
+    //     <StakeIcon
+    //       sx={{
+    //         width: '17px',
+    //         stroke: theme.palette.typography.light,
+    //         fill: 'transparent',
+    //       }}
+    //     />
+    //   ),
+    //   id: PORTFOLIO_CATEGORIES.STAKED_NOTE,
+    //   to: `/stake`,
+    //   notifications: 0,
+    // },
     {
       Icon: (
         <MoneyMarketIcon

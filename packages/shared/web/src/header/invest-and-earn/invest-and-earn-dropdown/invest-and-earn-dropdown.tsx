@@ -14,7 +14,7 @@ export function InvestAndEarnDropdown() {
   const { themeVariant } = useUserSettingsState();
 
   const flippedTheme =
-    themeVariant === THEME_VARIANTS.DARK || pathname === '/'
+    themeVariant === THEME_VARIANTS.DARK
       ? THEME_VARIANTS.LIGHT
       : THEME_VARIANTS.DARK;
 

@@ -37,7 +37,7 @@ export const useEmptyPortfolio = () => {
           description: 'empty lend overview button text',
         },
       }),
-      link: `/lend`,
+      link: ``,
     },
     [PORTFOLIO_CATEGORIES.LIQUIDITY]: {
       messages: defineMessages({
@@ -81,7 +81,7 @@ export const useEmptyPortfolio = () => {
           description: 'empty leveraged vault overview button text',
         },
       }),
-      link: '/vaults',
+      link: '',
     },
     [PORTFOLIO_CATEGORIES.MONEY_MARKET]: {
       messages: defineMessages({
