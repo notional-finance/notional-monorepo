@@ -122,7 +122,6 @@ export const BarChart = ({
                 ]}
                 style={{
                   fill: theme.palette.typography.light,
-                  color: theme.palette.typography.light,
                   fontSize: '12px',
                 }}
                 interval={0}
