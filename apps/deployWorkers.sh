@@ -3,7 +3,8 @@ set -e
 
 yarn nx publish-wrangler-manual accounts --env dev
 yarn nx publish-wrangler-manual api --env dev
-yarn nx publish-wrangler-manual data --env dev
+# NOTE: currently disabled because this causes issues
+# yarn nx publish-wrangler-manual data --env dev
 
 # Registry
 yarn nx publish-wrangler-manual registry-configuration --env dev

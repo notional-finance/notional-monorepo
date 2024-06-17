@@ -206,10 +206,8 @@ const runAllVaults = async (env: Env) => {
 
     const { batches, batchAccounts } =
       await liquidator.batchMaturityLiquidations(vault, vaultRiskyAccounts);
-    const resp = await liquidator.liquidateViaMulticall(batches);
-
-    if (resp.status === 200) {
-      const respInfo = await resp.json();
+    try {
+      const resp = await liquidator.liquidateViaMulticall(batches);
       await logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'info',
@@ -220,16 +218,11 @@ const runAllVaults = async (env: Env) => {
           batchAccounts.map((a) => `account:${a}`)
         ),
         text: `Liquidated vault accounts in batch ${batchAccounts.join(',')}, ${
-          respInfo['hash']
+          resp.hash
         }`,
       });
-    } else {
-      console.log(
-        'Failed liquidation',
-        resp.status,
-        resp.statusText,
-        await resp.json()
-      );
+    } catch (e) {
+      console.log('Failed liquidation', e.toString());
       await logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'error',
@@ -239,7 +232,10 @@ const runAllVaults = async (env: Env) => {
         tags: [`event:failed_vault_liquidation`],
         text: `Failed to liquidate vault accounts in batch ${batchAccounts.join(
           ','
-        )}`,
+        )}
+        
+        Error: ${e.toString()}
+        `,
       });
     }
   }
