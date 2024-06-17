@@ -138,7 +138,9 @@ export const DataTableBody = ({
                   setExpandedRows &&
                   !row.original?.isDividerRow &&
                   !row.original?.isTotalRow
-                    ? '120px'
+                    ? theme.spacing(15)
+                    : row.original?.isTotalRow && setExpandedRows
+                    ? theme.spacing(10)
                     : '',
                 '&:hover': {
                   background:
@@ -157,6 +159,12 @@ export const DataTableBody = ({
                   transition: 'all 0.3s ease',
                   background: theme.palette.info.light,
                 },
+                borderTop: row.original?.isDividerRow
+                  ? theme.shape.borderStandard
+                  : '',
+                borderBottom: row.original?.isDividerRow
+                  ? theme.shape.borderStandard
+                  : '',
                 background:
                   row.original?.isDividerRow &&
                   `${theme.palette.secondary.dark} !important`,
@@ -206,7 +214,14 @@ export const DataTableBody = ({
                         id="inner-cell"
                         sx={{
                           color: theme.palette.typography.main,
-                          fontSize: CustomRowComponent ? theme.spacing(2) : '',
+                          fontSize:
+                            row.original?.isTotalRow &&
+                            tableVariant === TABLE_VARIANTS.TOTAL_ROW &&
+                            expandableTable
+                              ? theme.spacing(2)
+                              : CustomRowComponent
+                              ? theme.spacing(2)
+                              : '',
                         }}
                       >
                         {flexRender(

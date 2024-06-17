@@ -47,8 +47,16 @@ export interface PortfolioParams {
 }
 
 export const PortfolioFeatureShell = () => {
+  const history = useHistory();
   const network = useSelectedNetwork();
   const isAccountLoading = useAccountLoading();
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
+
+  useEffect(() => {
+    if (!isAccountLoading && !isAcctAndBalanceReady) {
+      history.push(`/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}`);
+    }
+  }, [isAccountLoading, isAcctAndBalanceReady, history, network]);
 
   return (
     <FeatureLoader featureLoaded={network && !isAccountLoading}>

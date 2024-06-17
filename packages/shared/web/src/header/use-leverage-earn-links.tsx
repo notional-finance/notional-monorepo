@@ -4,9 +4,9 @@ import {
   PieChartIcon,
   BarChartIcon,
   BarChartLateralIcon,
-  // BarCharLightningIcon,
   StakeIcon,
   VaultIcon,
+  PointsIcon,
 } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
@@ -128,11 +128,9 @@ export const useLeverageEarnLinks = () => {
       title: <FormattedMessage defaultMessage={'Leveraged Points Farming'} />,
       to: `/leveraged-points-farming/${selectedNetwork}`,
       icon: (
-        <VaultIcon
-          sx={{
-            fontSize: theme.spacing(3),
-            fill: theme.palette.common.black,
-          }}
+        <PointsIcon
+          fill={theme.palette.typography.main}
+          sx={{ fontSize: theme.spacing(3) }}
         />
       ),
       pillText: <FormattedMessage defaultMessage={'Points Yield'} />,

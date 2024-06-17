@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, styled } from '@mui/material';
 import { Banner, Button, Paragraph } from '@notional-finance/mui';
 import { useEmptyPortfolio } from './use-empty-portfolio';
 import { FormattedMessage, defineMessages } from 'react-intl';
@@ -25,35 +25,17 @@ const noteBanner = {
 };
 
 export const EmptyPortfolio = () => {
-  const theme = useTheme();
   const { category } = useParams<PortfolioParams>();
-  const { messages, link, callback, href } = useEmptyPortfolio();
+  const { messages, link, callback } = useEmptyPortfolio();
   return (
     <Box>
       {category === PORTFOLIO_CATEGORIES.NOTE_STAKING ? (
-        <>
-          <Banner
-            messages={noteBanner.messages}
-            tokenSymbol="NOTE"
-            title={noteBanner.messages.title}
-            link="/note"
-          />
-          <EmptyPortfolioWrapper sx={{ marginTop: theme.spacing(3) }}>
-            <Paragraph msg={messages?.promptText} sx={{ flex: 1 }} />
-            {callback && messages?.buttonText && (
-              <Button variant="outlined" onClick={callback}>
-                <FormattedMessage {...messages?.buttonText} />
-              </Button>
-            )}
-            {!callback && href && messages?.buttonText && (
-              <a href={href} target="_blank" rel="noreferrer">
-                <Button variant="outlined">
-                  <FormattedMessage {...messages?.buttonText} />
-                </Button>
-              </a>
-            )}
-          </EmptyPortfolioWrapper>
-        </>
+        <Banner
+          messages={noteBanner.messages}
+          tokenSymbol="NOTE"
+          title={noteBanner.messages.title}
+          link="/note"
+        />
       ) : (
         <EmptyPortfolioWrapper>
           <Paragraph msg={messages?.promptText} sx={{ flex: 1 }} />

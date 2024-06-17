@@ -24,7 +24,7 @@ export const PortfolioHoldings = () => {
     initialState,
   } = usePortfolioHoldings();
   const { earningsBreakdownData, earningsBreakdownColumns } =
-    useEarningsBreakdown(toggleBarProps.toggleOption === 1);
+    useEarningsBreakdown(toggleBarProps.toggleOption === 0);
   const account = useAccountDefinition(network);
   const {
     liquidationRiskColumns,
@@ -76,6 +76,7 @@ export const PortfolioHoldings = () => {
           setCurrentTab,
           currentTab,
         }}
+        tabsThatIncludeToggle={[0, 1]}
         toggleBarProps={toggleBarProps}
         data={holdingsData[currentTab].data}
         pendingTokenData={currentTab === 0 ? pendingTokenData : []}
@@ -97,7 +98,7 @@ export const PortfolioHoldings = () => {
         initialState={holdingsData[currentTab].initialState}
         expandableTable={true}
         setExpandedRows={setExpandedRows}
-        tableVariant={currentTab === 0 ? TABLE_VARIANTS.TOTAL_ROW : undefined}
+        tableVariant={currentTab !== 2 ? TABLE_VARIANTS.TOTAL_ROW : undefined}
       />
     </Box>
   );
