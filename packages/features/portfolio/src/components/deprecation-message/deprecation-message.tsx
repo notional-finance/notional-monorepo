@@ -34,7 +34,7 @@ export const DeprecationMessage = () => {
         <Button
           variant="outlined"
           size="large"
-          href="https://blog.notional.finance/notional-v2-deprecation-plan/"
+          href="https://blog.notional.finance/notional-v2-deprecation-update/"
         >
           <FormattedMessage defaultMessage={'Read Deprecation Blog Post'} />
         </Button>
