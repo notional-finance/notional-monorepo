@@ -12,13 +12,13 @@ export interface Env {
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-function findTx(provider: ethers.providers.Provider, hash: string) {
+async function findTx(provider: ethers.providers.Provider, hash: string) {
   const retryMax = 10;
   let retryNum = 0;
   while (retryNum++ < retryMax){
     const tx = provider.getTransaction(hash);
     if (tx) return tx;
-    wait(3000);
+    await wait(3000);
   }
   throw new Error(`Unable to find tx ${hash}`);
 }
@@ -54,7 +54,7 @@ export async function processMarket(
       data: tx.data,
       gasLimit: 30_000_000
     });
-    wait(3000);
+    await wait(3000);
     // make sure tx is visible on network before proceeding
     await findTx(provider, hash);
   }
@@ -64,7 +64,7 @@ export async function processMarket(
       to: tx.to,
       data: tx.data,
     });
-    wait(3000);
+    await wait(3000);
     // make sure tx is visible on network before proceeding
     await findTx(provider, hash);
   }
