@@ -36,11 +36,11 @@ export function Navigation({ navLinks }: NavigationProps) {
       sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}
     >
       <Box sx={{ display: 'flex' }}>
-        {leftNavLinks.map((navLink: INavLink) => {
+        {leftNavLinks.map((navLink: INavLink, index) => {
           return navLink.CustomComponent ? (
-            <navLink.CustomComponent />
+            <navLink.CustomComponent key={index} />
           ) : (
-            <Box>
+            <Box key={index}>
               <Tab
                 key={navLink?.key}
                 icon={navLink?.iconImg}
@@ -93,8 +93,8 @@ export function Navigation({ navLinks }: NavigationProps) {
         })}
       </Box>
       <Box sx={{ display: 'flex' }}>
-        {rightNavLinks.map((navLink: INavLink) => (
-          <Box>
+        {rightNavLinks.map((navLink: INavLink, index) => (
+          <Box key={index}>
             <Tab
               key={navLink?.key}
               icon={navLink?.iconImg}

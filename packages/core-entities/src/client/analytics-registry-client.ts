@@ -39,6 +39,7 @@ import {
 import { parseTransaction } from './accounts/transaction-history';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { Transaction } from '../.graphclient';
+import { getSecondaryTokenIncentive } from '../config/whitelisted-tokens';
 
 const APY_ORACLES = [
   'fCashOracleRate',
@@ -48,9 +49,17 @@ const APY_ORACLES = [
   'nTokenFeeRate',
   'nTokenIncentiveRate',
   'nTokenSecondaryIncentiveRate',
+  'sNOTEReinvestmentAPY',
 ] as const;
 
+type Env = {
+  NX_SUBGRAPH_API_KEY: string;
+}
+
 export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
+  constructor(cacheHostname: string, private env: Env) {
+    super(cacheHostname);
+  }
   protected cachePath() {
     return `${Routes.Analytics}`;
   }
@@ -177,7 +186,10 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     );
   }
 
-  getOracleName(oracleType: typeof APY_ORACLES[number]) {
+  getOracleName(
+    oracleType: typeof APY_ORACLES[number],
+    incentiveSymbol?: string
+  ) {
     switch (oracleType) {
       case 'fCashOracleRate':
         return 'Fixed Rate';
@@ -192,9 +204,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       case 'nTokenIncentiveRate':
         return 'NOTE Incentive APY';
       case 'nTokenSecondaryIncentiveRate':
-        // TODO: this reward token needs to change if we ever add a different
-        // secondary incentive.
-        return 'ARB Incentive APY';
+        return `${incentiveSymbol || 'Secondary'} Incentive APY`;
+      case 'sNOTEReinvestmentAPY':
+        return 'sNOTE APY';
     }
   }
 
@@ -241,6 +253,10 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
             let apy = 0;
             if (r) {
               apy = (parseFloat(r.rate) / RATE_PRECISION) * 100;
+              const incentiveSymbol =
+                o.oracleType === 'nTokenSecondaryIncentiveRate'
+                  ? getSecondaryTokenIncentive(token.network, o.base)
+                  : undefined;
 
               try {
                 if (o.oracleType === 'nTokenIncentiveRate') {
@@ -254,15 +270,10 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
                       floorToMidnight(r.timestamp)
                     )
                     .toFloat();
-                } else if (
-                  o.oracleType === 'nTokenSecondaryIncentiveRate' &&
-                  token.network === Network.arbitrum
-                ) {
-                  // NOTE: this token is currently hardcoded but we will need to make it configurable
-                  // at some point in the future.
+                } else if (incentiveSymbol) {
                   apy = TokenBalance.fromFloat(
                     (apy / INTERNAL_TOKEN_PRECISION).toFixed(8),
-                    tokens.getTokenBySymbol(token.network, 'ARB')
+                    tokens.getTokenBySymbol(token.network, incentiveSymbol)
                   )
                     .toToken(
                       tokens.getTokenByID(token.network, o.base),
@@ -278,7 +289,10 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
               }
 
               acc[
-                this.getOracleName(o.oracleType as typeof APY_ORACLES[number])
+                this.getOracleName(
+                  o.oracleType as typeof APY_ORACLES[number],
+                  incentiveSymbol
+                )
               ] = apy;
             }
             acc['totalAPY'] += apy;
@@ -359,7 +373,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
           .filter(
             (t) =>
               t.tokenType === 'PrimeDebt' ||
-              // Non-Matured fCash (TODO: need to exclude fCash leverage)
+              // Non-Matured fCash
               (t.tokenType === 'fCash' &&
                 t.isFCashDebt === false &&
                 t.maturity &&
@@ -458,6 +472,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
             .flatMap((_) => _),
         };
       },
+      this.env.NX_SUBGRAPH_API_KEY,
       {
         skip,
       }
@@ -490,6 +505,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       network,
       ExchangeRateValuesDocument,
       'exchangeRates',
+      this.env.NX_SUBGRAPH_API_KEY,
       {
         oracleId: oracle.id,
         minTimestamp,
@@ -498,42 +514,46 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   }
 
   async getAccountRisk(network: Network) {
-    const vaultRisk = ClientRegistry.fetch<{
-      account: string;
-      vaultAddress: string;
-      vaultName: string;
-      riskFactors: {
-        netWorth: TokenBalance;
-        debts: TokenBalance;
-        assets: TokenBalance;
-        collateralRatio: number | null;
-        healthFactor: number | null;
-        liquidationPrice: {
-          asset: TokenDefinition;
-          threshold: TokenBalance | null;
-          isDebtThreshold: boolean;
-        }[];
-        aboveMaxLeverageRatio: boolean;
-        leverageRatio: number | null;
-      };
-    }[]>(`${this.cacheHostname}/${network}`, 'accounts/vaultRisk');
-    const portfolioRisk = ClientRegistry.fetch<{
-      address: string;
-      hasCrossCurrencyRisk: boolean;
-      riskFactors: {
-        netWorth: TokenBalance;
-        freeCollateral: TokenBalance;
-        loanToValue: number;
-        collateralRatio: number | null;
-        leverageRatio: number | null;
-        healthFactor: number | null;
-        liquidationPrice: {
-          asset: TokenDefinition;
-          threshold: TokenBalance | null;
-          isDebtThreshold: boolean;
-        }[];
-      };
-    }[]>(`${this.cacheHostname}/${network}`, 'accounts/portfolioRisk');
+    const vaultRisk = ClientRegistry.fetch<
+      {
+        account: string;
+        vaultAddress: string;
+        vaultName: string;
+        riskFactors: {
+          netWorth: TokenBalance;
+          debts: TokenBalance;
+          assets: TokenBalance;
+          collateralRatio: number | null;
+          healthFactor: number | null;
+          liquidationPrice: {
+            asset: TokenDefinition;
+            threshold: TokenBalance | null;
+            isDebtThreshold: boolean;
+          }[];
+          aboveMaxLeverageRatio: boolean;
+          leverageRatio: number | null;
+        };
+      }[]
+    >(`${this.cacheHostname}/${network}`, 'accounts/vaultRisk');
+    const portfolioRisk = ClientRegistry.fetch<
+      {
+        address: string;
+        hasCrossCurrencyRisk: boolean;
+        riskFactors: {
+          netWorth: TokenBalance;
+          freeCollateral: TokenBalance;
+          loanToValue: number;
+          collateralRatio: number | null;
+          leverageRatio: number | null;
+          healthFactor: number | null;
+          liquidationPrice: {
+            asset: TokenDefinition;
+            threshold: TokenBalance | null;
+            isDebtThreshold: boolean;
+          }[];
+        };
+      }[]
+    >(`${this.cacheHostname}/${network}`, 'accounts/portfolioRisk');
 
     return { vaultRisk, portfolioRisk };
   }

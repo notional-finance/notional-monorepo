@@ -1,4 +1,4 @@
-import { ALT_ETH, Network } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { PoolDefinition } from '..';
 
 // NOTE: all the addresses in this file are checksummed
@@ -57,6 +57,22 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       address: '0x2F7350Cb5e434C2d177922110c7e314953B84Afc',
       PoolClass: 'fCashMarket',
       registerTokens: [],
+    },
+    {
+      address: '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7',
+      PoolClass: 'SNOTEWeightedPool',
+      registerTokens: [
+        {
+          id: '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7',
+          address: '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7',
+          network: Network.mainnet,
+          symbol: 'sNOTE-BPT',
+          name: 'Staked NOTE Weighted Pool',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
     },
     {
       address: '0x383E6b4437b59fff47B619CBA855CA29342A8559',
@@ -224,6 +240,58 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           network: Network.mainnet,
           symbol: 'USDeUSDC',
           name: 'USDe-USDC',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
+          address: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
+          network: Network.mainnet,
+          symbol: 'USDe',
+          name: 'USDe',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0x635EF0056A597D13863B73825CcA297236578595',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
+      registerTokens: [
+        {
+          id: '0x635EF0056A597D13863B73825CcA297236578595',
+          address: '0x635EF0056A597D13863B73825CcA297236578595',
+          network: Network.mainnet,
+          symbol: 'GHOcrvUSD',
+          name: 'GHO/crvUSD',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+          address: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+          network: Network.mainnet,
+          symbol: 'crvUSD',
+          name: 'Curve.Fi USD Stablecoin',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0x670a72e6D22b0956C0D2573288F82DCc5d6E3a61',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
+      registerTokens: [
+        {
+          id: '0x670a72e6D22b0956C0D2573288F82DCc5d6E3a61',
+          address: '0x670a72e6D22b0956C0D2573288F82DCc5d6E3a61',
+          network: Network.mainnet,
+          symbol: 'GHOUSDe',
+          name: 'GHOTHENA',
           decimals: 18,
           tokenInterface: 'ERC20',
           tokenType: 'Underlying',

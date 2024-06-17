@@ -22,6 +22,8 @@ import { Curve_Config } from './config/convex';
 
 export const SourceContracts = {};
 
+const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
+
 export const defaultConfigDefs: ConfigDefinition[] = [
   ...GenericConfig,
   ...Balancer_Config,
@@ -30,20 +32,16 @@ export const defaultConfigDefs: ConfigDefinition[] = [
 
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   [ProtocolName.NotionalV3]: {
-    [Network.mainnet]:
-      'https://api.studio.thegraph.com/query/36749/notional-v3-mainnet/version/latest',
-    [Network.arbitrum]:
-      'https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest',
+    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW`,
+    [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/7q9wQYD8VB5dLWZxtuBZ8b2i8DySCK25V6XqpbdYbDep`,
   },
   [ProtocolName.BalancerV2]: {
-    [Network.mainnet]:
-      'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2',
-    [Network.arbitrum]:
-      'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2',
+    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/C4ayEZP2yTXRAB8vSaTrgN4m9anTe9Mdm2ViyiAuV9TV`,
+    [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/98cQDy6tufTJtshDCuhh9z2kWXsQWBHVh2bqnLHsGAeS`,
   },
   [ProtocolName.Curve]: {
-    [Network.mainnet]:
-      'https://api.thegraph.com/subgraphs/name/messari/curve-finance-ethereum',
+    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF`,
+    // not deployed yet....
     [Network.arbitrum]:
       'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
   },
@@ -90,7 +88,7 @@ export function getMulticallParams(config: MulticallConfig) {
     }
   }
 
-  let transform;
+  let transform = config.transform;
   const func = abi.getFunction(config.method);
 
   if (!func) {
@@ -100,7 +98,7 @@ export function getMulticallParams(config: MulticallConfig) {
   }
 
   const outputs = func.outputs;
-  if (outputs && outputs.length > 1) {
+  if (transform === undefined && outputs && outputs.length > 1) {
     if (!config.outputIndices) {
       throw Error(
         `Output indices not defined for method ${config.method} on contract ${config.contractAddress}`
@@ -111,7 +109,7 @@ export function getMulticallParams(config: MulticallConfig) {
     key += `:${getOutputName(outputs, indices)}`;
 
     transform = (r) => {
-      let current = r;
+      let current = r as any;
       for (let i = 0; i < indices.length; i++) {
         current = current[indices[i]];
       }

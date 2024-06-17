@@ -12,7 +12,7 @@ import {
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { VaultAccount, BackfillType, DataServiceEvent } from './types';
-import { calculateAccountRisks } from './RiskService';
+import { calculateAccountRisks, calculatePointsAccrued } from './RiskService';
 import { syncDune } from './DuneService';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -339,6 +339,17 @@ async function main() {
   app.get('/calculateRisk', async (_req, res) => {
     try {
       await calculateAccountRisks();
+      res.status(200).send('OK');
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/calculatePoints', async (_req, res) => {
+    try {
+      dataService.insertPointsData(
+        await calculatePointsAccrued(Network.arbitrum)
+      );
       res.status(200).send('OK');
     } catch (e: any) {
       res.status(500).send(e.toString());

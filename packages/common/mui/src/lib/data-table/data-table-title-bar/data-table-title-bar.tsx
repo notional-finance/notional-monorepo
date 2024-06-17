@@ -56,10 +56,9 @@ export const DataTableTitleBar = ({
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
-              paddingBottom: expandableTable
-                ? theme.spacing(4)
-                : theme.spacing(1),
-              paddingTop: expandableTable ? theme.spacing(4) : theme.spacing(1),
+              paddingBottom: theme.spacing(1),
+              paddingTop: theme.spacing(1),
+              padding: expandableTable ? theme.spacing(1) : '',
             }}
           >
             {tableTitle}

@@ -8,7 +8,7 @@ import {
 import { TradeStruct as Trade } from "@notional-finance/contracts/types/TradingModule";
 import Config from "./config";
 import { BigNumber } from "ethers";
-import { Env, TradeType, DexId } from "./types";
+import { Env, TradeType, DexId, RunType } from "./types";
 
 const TWO_HOURS_SEC = 1200;
 const nowInSec = () => Math.floor(Date.now() / 1000);
@@ -31,7 +31,7 @@ export default class TreasuryManager {
   }
 
   public async getLastNoteInvestmentTime(): Promise<number> {
-    return fetch('https://api.thegraph.com/subgraphs/name/notional-finance/mainnet-v2', {
+    return fetch(`https://gateway-arbitrum.network.thegraph.com/api/${this.env.SUBGRAPH_API_KEY}/subgraphs/id/BnVrrrzw6cLHxFUkgtfmWcF83DopC8jrYnrMnysVKptm`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -48,19 +48,28 @@ export default class TreasuryManager {
       .then((r: any) => r.data.stakedNoteInvestments[0]?.timestamp || 0);
   }
 
-  public async run() {
+  public async run(runType: RunType) {
     const lastNoteInvestmentTimestamp = await this.getLastNoteInvestmentTime();
     console.log("lastNoteInvestmentTimestamp", lastNoteInvestmentTimestamp);
-    const duration = Date.now() / 1000 - lastNoteInvestmentTimestamp;
+    const lastInvestmentStartOfDay = new Date(lastNoteInvestmentTimestamp * 1000);
+    lastInvestmentStartOfDay.setUTCHours(0, 0, 0, 0);
+    const duration = (Date.now() - lastInvestmentStartOfDay.getTime()) / 1000;
     if (
-      duration > Config.TREASURY_REINVESTMENT_INTERVAL &&
-      new Date('2024-03-10T00:00:00.000Z').getTime() <= Date.now() // start reinvesting at Saturday midnight
+      // force run it twice (sellComp & burnNote) at Saturday midnight and after that respect TREASURY_REINVESTMENT_INTERVAL
+      (
+        new Date('2024-06-09T00:00:00.000Z').getTime() <= Date.now() &&
+        Date.now() < new Date('2024-06-09T00:15:00.000Z').getTime()
+      ) || duration > Config.TREASURY_REINVESTMENT_INTERVAL
     ) {
-      const wethToken = ERC20__factory.connect(this.WETH, this.provider);
-      const wethBalance = await wethToken.balanceOf(this.proxy.address);
-
-      if (wethBalance.gt(0)) {
+      if (runType === RunType.burnNOTE) {
+        const wethToken = ERC20__factory.connect(this.WETH, this.provider);
+        const wethBalance = await wethToken.balanceOf(this.proxy.address);
+        if (!wethBalance.gte(1e15)) {
+          console.log("No WETH available");
+          return;
+        }
         console.log("WETH balance detected, calling investWETHAndNOTE");
+
         const noteBurnPercent = await this.proxy.noteBurnPercent();
         const wethForBurn = wethBalance.mul(noteBurnPercent).div(100);
 
@@ -106,8 +115,8 @@ export default class TreasuryManager {
           data: data,
           env: this.env
         });
-      } else {
-        console.log('No WETH on contract, selling COMP');
+      } else if (runType == RunType.sellCOMP) {
+        console.log('Selling COMP...');
         const compToken = ERC20__factory.connect(this.COMP, this.provider);
         const compBal = await compToken.balanceOf(this.proxy.address);
         if (compBal.gt(0)) {
@@ -141,7 +150,7 @@ export default class TreasuryManager {
           await this.proxy.callStatic.executeTrade(
             trade,
             DexId.ZERO_EX,
-          { from: this.env.MANAGER_BOT_ADDRESS }
+            { from: this.env.MANAGER_BOT_ADDRESS }
           );
 
           const data = this.proxy.interface.encodeFunctionData(

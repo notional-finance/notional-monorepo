@@ -240,7 +240,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       // {
       //   key: 'stake',
       //   label: <FormattedMessage defaultMessage={'Stake Note'} />,
-      //   link: '/stake',
+      //   link: '/stake/ETH',
       //   iconImg: (
       //     <StakeIcon
       //       className="color-stroke"

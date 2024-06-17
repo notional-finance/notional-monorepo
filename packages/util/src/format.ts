@@ -33,3 +33,19 @@ export function pointsMultiple(
 ) {
   return multiple * ((leverageRatio || 0) + 1);
 }
+
+const allCommas = /,{1}/g;
+
+export function formatNumber(num: string | number, decimals = 4) {
+  const cleanedNumber =
+    typeof num === 'string' ? num.replace(allCommas, '') : num;
+
+  return parseFloat(`${cleanedNumber}`).toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
+
+export function formatNumberAsPercent(num: number | string, decimals = 2) {
+  return `${formatNumber(num, decimals)}%`;
+}

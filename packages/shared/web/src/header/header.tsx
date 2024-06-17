@@ -84,7 +84,7 @@ export function Header({ children }: HeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="fixed" elevation={0} showBorder={pathname !== '/'}>
+      <AppBar position="fixed" showBorder={pathname !== '/'}>
         <Toolbar
           sx={{
             '&.MuiToolbar-root': {

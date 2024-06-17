@@ -15,7 +15,7 @@ export type TabBarPropsType = {
 };
 
 export type ToggleBarPropsType = {
-  toggleData: { label: ReactNode; id: number }[];
+  toggleData: React.ReactNode[];
   setToggleOption: Dispatch<SetStateAction<number>>;
   toggleOption: number;
   showToggle: boolean;

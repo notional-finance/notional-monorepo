@@ -82,7 +82,25 @@ export const NotionalAddress: Record<Network, string> = {
   [Network.optimism]: '',
 };
 
-export const StakedNoteAddress = '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2';
+export const SubgraphId: Record<Network, string> = {
+  [Network.all]: '4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW',
+  [Network.mainnet]: '4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW',
+  [Network.arbitrum]: 'DnghsCNvJ4xmp4czX8Qn7UpkJ8HyHjy7cFN4wcH91Nrx',
+  [Network.optimism]: '',
+};
+
+export function getSubgraphEndpoint(network: Network, subgraphKey: string) {
+  return `https://gateway-arbitrum.network.thegraph.com/api/${subgraphKey}/subgraphs/id/${SubgraphId[network]}`;
+}
+
+export const WETHAddress: Record<Network, string> = {
+  [Network.all]: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  [Network.mainnet]: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  [Network.arbitrum]: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+  [Network.optimism]: '',
+};
+
+export const sNOTE = '0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2';
 
 export const ORACLE_TYPE_TO_ID = {
   Chainlink: 1,

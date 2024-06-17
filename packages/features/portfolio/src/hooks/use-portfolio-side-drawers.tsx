@@ -12,6 +12,7 @@ import {
   Withdraw,
   Deleverage,
   RepayDebt,
+  CoolDownDrawer,
 } from '../side-drawers';
 
 export const usePortfolioSideDrawers = () => {
@@ -27,6 +28,7 @@ export const usePortfolioSideDrawers = () => {
     [PORTFOLIO_ACTIONS.REPAY_DEBT]: RepayDebt,
     [PORTFOLIO_ACTIONS.GET_NOTIFIED]: GetNotified,
     [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: AddToCalendar,
+    [PORTFOLIO_ACTIONS.COOL_DOWN]: CoolDownDrawer,
   };
 
   const SideDrawerComponent =

@@ -10,7 +10,6 @@ import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
 import { DataTableScroll } from './data-table-scroll/data-table-scroll';
 import { DataTablePending } from './data-table-pending/data-table-pending';
-import { NetworkToggle } from '../network-toggle/network-toggle';
 import {
   DataTableInfoBox,
   InfoBoxDataProps,
@@ -71,6 +70,7 @@ interface DataTableProps {
   allNetworksToggleData?: DataTableToggleProps;
   csvDataFormatter?: (data: any[]) => any;
   accentCSV?: boolean;
+  expandableTable?: boolean;
   stateZeroMessage?: ReactNode;
   hiddenRowMessage?: ReactNode;
   infoBoxData?: InfoBoxDataProps[];
@@ -106,6 +106,7 @@ export const DataTable = ({
   setShowHiddenRows,
   hiddenRowMessage,
   showHiddenRows,
+  expandableTable,
   infoBoxData,
   maxHeight,
   sx,
@@ -135,7 +136,6 @@ export const DataTable = ({
   );
 
   const tableReady = !tableLoading && columns?.length > 0 && data?.length > 0;
-  const expandableTable = CustomRowComponent ? true : false;
 
   /**
     "Default Data Table": 
@@ -257,7 +257,7 @@ export const DataTable = ({
           }
           component={Paper}
         >
-          {tableTitle && !toggleBarProps && (
+          {tableTitle && !toggleBarProps && !tabBarProps && (
             <DataTableTitleBar
               tableTitle={tableTitle}
               tableTitleSubText={tableTitleSubText}
@@ -277,26 +277,17 @@ export const DataTable = ({
             />
           )}
 
-          {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
-          {networkToggleData && (
-            <Box
-              sx={{
-                padding: theme.spacing(3, 2),
-                borderBottom: theme.shape.borderStandard,
-                width: '100%',
-              }}
-            >
-              <Box sx={{ width: 'fit-content', height: 'fit-content' }}>
-                <NetworkToggle
-                  selectedNetwork={networkToggleData.toggleKey}
-                  handleNetWorkToggle={networkToggleData.setToggleKey}
-                />
-              </Box>
-            </Box>
+          {tabBarProps && (
+            <DataTableTabBar
+              tabBarProps={tabBarProps}
+              toggleBarProps={toggleBarProps}
+            />
           )}
-          {toggleBarProps && tableTitle && (
+
+          {toggleBarProps && tableTitle && !tabBarProps && (
             <DataTableToggle
               toggleBarProps={toggleBarProps}
+              expandableTable={expandableTable}
               tableTitle={tableTitle}
             />
           )}
@@ -323,6 +314,7 @@ export const DataTable = ({
                     CustomRowComponent={CustomRowComponent}
                     setExpandedRows={setExpandedRows}
                     initialState={initialState}
+                    expandableTable={expandableTable}
                   />
                 </Table>
               </div>

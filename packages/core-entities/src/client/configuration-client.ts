@@ -78,6 +78,8 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
   static getBaseProtocol = (boosterProtocol: string) => {
     switch (boosterProtocol) {
+      case 'Curve':
+        return 'Curve';
       case 'Convex':
         return 'Curve';
       case 'Aura':

@@ -60,6 +60,7 @@ interface TransactionSidebarProps {
   variableBorrowRequired?: boolean;
   NetworkSelector?: React.ReactNode;
   mobileTopMargin?: string;
+  hideActionButtons?: boolean;
 }
 
 export const TransactionSidebar = ({
@@ -80,6 +81,7 @@ export const TransactionSidebar = ({
   variableBorrowRequired,
   isWithdraw = false,
   hideTextOnMobile,
+  hideActionButtons,
 }: TransactionSidebarProps) => {
   const { state, updateState } = context;
   const { pathname } = useLocation();
@@ -205,19 +207,25 @@ export const TransactionSidebar = ({
       heading={heading || TransactionHeadings[tradeType].heading}
       helptext={getTokenSpecificHelpText()}
       advancedToggle={advancedToggle}
-      CustomActionButton={isPortfolio ? undefined : TradeActionButton}
+      CustomActionButton={
+        isPortfolio || hideActionButtons === true
+          ? undefined
+          : TradeActionButton
+      }
+      walletConnectedText={TransactionHeadings[tradeType].walletConnectedText}
       handleSubmit={handleSubmit}
       canSubmit={canSubmit && !leverageDisabled}
       onCancelCallback={handleActionSidebarCancel}
       leverageDisabled={leverageDisabled}
       hideTextOnMobile={isPortfolio || !hideTextOnMobile ? false : true}
       NetworkSelector={NetworkSelector}
+      hideActionButtons={hideActionButtons}
       isPortfolio={isPortfolio}
     >
       <ScrollToTop />
       {children}
       {riskComponent || <LiquidationRisk state={state as TradeState} />}
-      <TradeSummary state={state} />
+      {tradeType !== 'StakeNOTECoolDown' && <TradeSummary state={state} />}
     </ActionSidebar>
   );
 

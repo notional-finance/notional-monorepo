@@ -65,30 +65,37 @@ export interface DateStringOptions {
   slashesFormat?: boolean;
   showTime?: boolean;
   hideYear?: boolean;
+  monthYear?: boolean;
 }
 
 export function getDateString(
-  timestampInSeconds: number,
-  opts: DateStringOptions = {}
+  timestamp: number,
+  opts: DateStringOptions = {},
+  inMilliseconds?: boolean
 ) {
   // Multiply by 1000 because javascript uses milliseconds.
-  const date = new Date(timestampInSeconds * 1000);
+  const formattedTimeStamp = inMilliseconds ? timestamp : timestamp * 1000;
+
+  const date = new Date(formattedTimeStamp);
   const month = date.toLocaleDateString('en-US', { month: 'short' });
   const day = date.toLocaleDateString('en-US', { day: '2-digit' });
   const year = date.toLocaleDateString('en-US', { year: 'numeric' });
 
   if (opts?.slashesFormat && opts?.showTime) {
-    return `${date.toLocaleDateString('en-US')}, ${date.toLocaleTimeString(
+    return `${date.toISOString().split('T')[0]}, ${date.toLocaleTimeString(
       'en-US',
       {
         hour: '2-digit',
         minute: '2-digit',
+        timeZoneName: 'short',
       }
     )}`;
   } else if (opts?.slashesFormat) {
-    return `${date.toLocaleDateString('en-US')}`;
+    return `${date.toISOString().split('T')[0]}`;
   } else if (opts?.hideYear) {
     return `${month} ${day}`;
+  } else if (opts?.monthYear) {
+    return `${month} ${year}`;
   }
 
   return `${month} ${day} ${year}`;
@@ -104,4 +111,13 @@ export const formatMaturity = (ts: number) => {
 
 export const floorToMidnight = (ts: number, offset = 0) => {
   return ts - offset - ((ts - offset) % SECONDS_IN_DAY);
+};
+
+export const getDaysDifference = (timestamp: number): number => {
+  const currentDate = getNowSeconds();
+  const targetDate = timestamp;
+  const differenceInDays = Math.floor(
+    (currentDate - targetDate) / SECONDS_IN_DAY
+  );
+  return Math.abs(differenceInDays);
 };

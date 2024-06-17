@@ -9,6 +9,7 @@ import { defineMessages, MessageDescriptor } from 'react-intl';
 interface EmptyPortfolioData {
   messages?: { buttonText: MessageDescriptor; promptText: MessageDescriptor };
   link?: string;
+  href?: string;
   callback?: () => void;
 }
 
@@ -51,6 +52,20 @@ export const useEmptyPortfolio = () => {
         },
       }),
       link: '',
+    },
+    [PORTFOLIO_CATEGORIES.NOTE_STAKING]: {
+      messages: defineMessages({
+        promptText: {
+          defaultMessage: 'No Data Available',
+          description: 'empty note staking overview prompt text',
+        },
+        buttonText: {
+          defaultMessage: 'Trade NOTE',
+          description: 'empty note staking button text',
+        },
+      }),
+      link: '',
+      href: 'https://matcha.xyz/tokens/ethereum/0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5',
     },
     [PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS]: {
       messages: defineMessages({

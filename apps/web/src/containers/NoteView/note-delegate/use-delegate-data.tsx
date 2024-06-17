@@ -1,28 +1,28 @@
 export const useDelegateData = () => {
   const delegateData = [
     {
-      title: 'Fire Eyes Dao',
-      subTitle: '210.21K ENS',
+      title: 'Mikhail Kuptsov',
+      subTitle: '791.74K NOTE',
       description:
-        'Lorem ipsum dolor sit amet consectetur. At bibendum ut ipsum sagittis dolor amet sit v...',
-      twitterCount: 'Trusted by 1,000 accounts',
-      twitterLink: '',
+        'Long-time Notional supporter. Early user and liquidity provider.',
+      twitterCount: 'Top Voter',
+      twitterLink: 'https://twitter.com/MikeKuptsov',
     },
     {
-      title: 'Fire Eyes Dao',
-      subTitle: '210.21K ENS',
+      title: 'Re7 Labs',
+      subTitle: '725.74K NOTE',
       description:
-        'Lorem ipsum dolor sit amet consectetur. At bibendum ut ipsum sagittis dolor amet sit v...',
-      twitterCount: 'Trusted by 1,000 accounts',
-      twitterLink: '',
+        'Professional DeFi liquidity provider managing >$100M in liquid assets.',
+      twitterCount: 'Top Voter',
+      twitterLink: 'https://twitter.com/Re7Capital',
     },
     {
-      title: 'Fire Eyes Dao',
-      subTitle: '210.21K ENS',
+      title: 'Anthias.xyz',
+      subTitle: '350.35K NOTE',
       description:
-        'Lorem ipsum dolor sit amet consectetur. At bibendum ut ipsum sagittis dolor amet sit v...',
-      twitterCount: 'Trusted by 1,000 accounts',
-      twitterLink: '',
+        'Blockchain R&D organization focused on DeFi lending risk management.',
+      twitterCount: 'Top Voter',
+      twitterLink: 'https://twitter.com/anthiasxyz',
     },
   ];
   return delegateData;

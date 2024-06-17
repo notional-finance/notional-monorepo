@@ -30,7 +30,7 @@ export function BorrowDropDown() {
       <DropdownButton
         popupId="borrow"
         labelKey={messages[NAV_DROPDOWN.BORROW]}
-        anchorPosition={{ top: 73, left: 0 }}
+        anchorReference="anchorEl"
         activeTab={currentTab ? true : false}
         hideOnClick={false}
         useStroke={true}

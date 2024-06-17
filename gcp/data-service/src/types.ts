@@ -63,6 +63,8 @@ export enum Strategy {
   Arb_Balancer_ezETH_wstETH = 27,
   Eth_Curve_USDe_USDC = 28,
   Arb_Convex_WBTC_tBTC = 29,
+  Eth_Convex_GHO_crvUSD = 30,
+  Eth_Curve_GHO_USDe = 31,
 }
 
 export interface MulticallConfig {
@@ -73,6 +75,10 @@ export interface MulticallConfig {
   outputIndices?: number[];
   firstBlock?: number;
   finalBlock?: number;
+  transform?: (
+    callResult: any,
+    prevResults: Partial<Record<string, unknown>>
+  ) => unknown;
 }
 
 export interface SubgraphConfig {
@@ -144,8 +150,8 @@ export interface DataContext {
   mergeConflicts: boolean;
 }
 
-export interface IDataWriter {
-  write(db: Knex, context: DataContext, rows: DataRow[]): Promise<any>;
+export interface IDataWriter<K = DataRow> {
+  write(db: Knex, context: DataContext, rows: K[]): Promise<any>;
 }
 
 export interface VaultAccount {
@@ -154,15 +160,17 @@ export interface VaultAccount {
 }
 
 export interface VaultAPY {
-  blockNumber: number,
-  timestamp: number,
-  vaultAddress: string,
-  totalLpTokens: string,
-  lpTokenValuePrimaryBorrow: string,
-  rewardToken: string,
-  rewardTokensClaimed: string,
-  rewardTokenValuePrimaryBorrow: string,
-  noVaultShares: boolean,
+  blockNumber: number;
+  timestamp: number;
+  vaultAddress: string;
+  totalLpTokens: string;
+  lpTokenValuePrimaryBorrow: string;
+  rewardToken: string;
+  rewardTokensClaimed: string;
+  rewardTokenValuePrimaryBorrow: string;
+  noVaultShares: boolean;
+  swapFees: number;
+  rewardTokenSymbol: string;
 }
 
 type DataServiceAccountContextUpdate = {

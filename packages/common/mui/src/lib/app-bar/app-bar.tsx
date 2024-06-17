@@ -23,10 +23,13 @@ export const AppBar = ({
         paddingRight: '0px',
         '&.MuiAppBar-root': {
           height: '4.6rem',
+          marginTop: '0px',
+          top: 'unset !important',
           borderBottom: showBorder ? theme.shape.borderStandard : '',
           background: showBorder
             ? theme.palette.background.default
             : 'transparent',
+          boxShadow: 'none',
         },
       }}
       {...rest}

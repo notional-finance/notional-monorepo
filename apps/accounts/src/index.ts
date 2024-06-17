@@ -9,6 +9,7 @@ export interface Env {
   NX_DATA_URL: string;
   NX_COMMIT_REF: string;
   NX_DD_API_KEY: string;
+  NX_SUBGRAPH_API_KEY: string;
   SUPPORTED_NETWORKS: Network[];
   ACCOUNT_CACHE_R2: R2Bucket;
   AUTH_KEY: string;

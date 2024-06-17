@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   TokenDefinition,
   FiatKeys,
@@ -137,22 +138,28 @@ export function useCurrentETHPrice() {
 }
 
 export function useNotePrice() {
+  const [notePrice, setNOTEPrice] = useState<TokenBalance | undefined>();
+  const [notePriceChange, setNOTEPriceChange] = useState<number | undefined>();
   const note = useNOTE(Network.all);
-  const oneNote = note ? TokenBalance.unit(note) : undefined;
-  const notePrice = oneNote?.toFiat('USD');
-  let notePriceYesterday = undefined as TokenBalance | undefined;
-  try {
-    notePriceYesterday = oneNote?.toFiat(
-      'USD',
-      getMidnightUTC() - SECONDS_IN_DAY
+
+  useEffect(() => {
+    const oneNote = note ? TokenBalance.unit(note) : undefined;
+    const price = oneNote?.toFiat('USD');
+    setNOTEPrice(price);
+    let notePriceYesterday = undefined as TokenBalance | undefined;
+    try {
+      notePriceYesterday = oneNote?.toFiat(
+        'USD',
+        getMidnightUTC() - SECONDS_IN_DAY
+      );
+    } catch {
+      notePriceYesterday = undefined;
+    }
+    setNOTEPriceChange(
+      percentChange(price?.toFloat(), notePriceYesterday?.toFloat())
     );
-  } catch {
-    notePriceYesterday = undefined;
-  }
-  const notePriceChange = percentChange(
-    notePrice?.toFloat(),
-    notePriceYesterday?.toFloat()
-  );
+  }, [note]);
+
   return { notePrice, notePriceChange };
 }
 

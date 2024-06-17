@@ -1,10 +1,13 @@
 import type { CSSProperties } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import type { EChartsOption, SetOptionOpts } from 'echarts';
-import { H5, LabelValue } from '../typography/typography';
+import { EChartsOption, type SetOptionOpts } from 'echarts';
+import { H5 } from '../typography/typography';
 import ReactECharts from 'echarts-for-react';
 import { ReactNode } from 'react';
 import { colors } from '@notional-finance/styles';
+import { getDateString } from '@notional-finance/util';
+import { formatNumber, formatNumberAsAbbr } from '@notional-finance/helpers';
+import { useFiat } from '@notional-finance/notionable-hooks';
 
 interface ReactEChartsProps {
   option: EChartsOption;
@@ -17,22 +20,32 @@ interface ReactEChartsProps {
 interface NoteChartProps {
   // TODO Add option type when data is available
   // option: ReactEChartsProps['option'];
+  data: [Date, number][];
   title: ReactNode;
   largeValue: ReactNode | string;
   showMarkLines?: boolean;
+  formatToolTipValueAsFiat?: boolean;
+  noteNumCallback?: (value: number) => void;
 }
 
 export const NoteChart = ({
   // option,
+  data,
   title,
   largeValue,
   showMarkLines,
+  formatToolTipValueAsFiat,
+  noteNumCallback,
 }: NoteChartProps) => {
   const theme = useTheme();
+  const baseCurrency = useFiat();
+  const formatDateTooltip = (date: Date) => {
+    return getDateString(date?.getTime(), {}, true);
+  };
 
   const option: ReactEChartsProps['option'] = {
     grid: {
-      left: '45px',
+      left: '72px',
       right: '24px',
       top: '24px',
       bottom: '24px',
@@ -44,9 +57,15 @@ export const NoteChart = ({
       axisTick: {
         show: false,
       },
-      type: 'category',
-      boundaryGap: false,
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      type: 'time',
+      axisLabel: {
+        formatter: function (value) {
+          const date = new Date(value);
+          return getDateString(date.getTime(), {}, true); // Modify the date format as per your requirement
+        },
+        hideOverlap: true,
+      },
+      // boundaryGap: false,
     },
     yAxis: {
       type: 'value',
@@ -61,7 +80,7 @@ export const NoteChart = ({
       {
         triggerLineEvent: true,
         // NOTE: This is the actual data for the chart
-        data: [820, 932, 901, 934, 1290, 1330, 1320],
+        data: data,
         type: 'line',
         showSymbol: false,
         symbol: 'circle',
@@ -136,16 +155,30 @@ export const NoteChart = ({
       padding: 0,
       // TODO: Bring in data format function for axisValue when available
       formatter: function (params) {
-        return `<div style="background-color: #041D2E; width: 100px; box-shadow: -2px 1px 24px 0px rgba(135, 155, 215, 0.20), 0px 4px 16px 0px rgba(121, 209, 212, 0.40); padding: 8px; height: 58px;">
-                  <div style="color: #BCD4DB; font-family: Avenir Next; font-weight: 500;">${params[0].axisValue}</div>
-                  <div style="color: #ffffff; font-family: Avenir Next; font-weight: 500;" >${params[0].data}</div>
+        try {
+          const value = formatToolTipValueAsFiat
+            ? formatNumberAsAbbr(params[0].data[1], 4, baseCurrency)
+            : formatNumber(params[0].data[1]);
+          if (noteNumCallback) {
+            noteNumCallback(params[0].data[1]);
+          }
+          return `<div style="background-color: #041D2E; width: fit-content; box-shadow: -2px 1px 24px 0px rgba(135, 155, 215, 0.20), 0px 4px 16px 0px rgba(121, 209, 212, 0.40); padding: 8px; height: 58px;">
+                  <div style="color: #BCD4DB; font-family: Avenir Next; font-weight: 500;">${formatDateTooltip(
+                    params[0].data[0]
+                  )}</div>
+                  <div style="color: #ffffff; font-family: Avenir Next; font-weight: 500;" >${value}
+                  </div>
                 </div>`;
+        } catch {
+          return '<div></div>';
+        }
       },
       position: function (pt) {
         return [pt[0], '10%'];
       },
     },
   };
+
   return (
     <NoteChartContainer id="NOTE CHART">
       <LabelContainer>
@@ -153,7 +186,7 @@ export const NoteChart = ({
           <H5>{title}</H5>
           {largeValue}
         </Box>
-        <Box sx={{ display: 'flex' }}>
+        {/* <Box sx={{ display: 'flex' }}>
           <LabelValue
             sx={{ color: colors.neonTurquoise, marginRight: theme.spacing(1) }}
           >
@@ -162,7 +195,7 @@ export const NoteChart = ({
           <LabelValue sx={{ fontSize: '12px', color: '#BCD4DB' }}>
             (30d)
           </LabelValue>
-        </Box>
+        </Box> */}
       </LabelContainer>
       <ReactECharts option={option} style={{ height: theme.spacing(32.5) }} />
     </NoteChartContainer>

@@ -11,6 +11,7 @@ interface ContentWrapperProps {
   lastIndex: number;
   index: number;
   theme: NotionalTheme;
+  dataLength: number;
 }
 
 export interface ChartHeaderTotalsDataProps {
@@ -37,6 +38,7 @@ export const ChartHeaderTotals = ({
           lastIndex={lastIndex}
           index={index}
           theme={theme}
+          dataLength={chartHeaderTotalsData.length}
         >
           <ColorBar barColor={fill} theme={theme}></ColorBar>
           <Box>
@@ -68,9 +70,12 @@ const HeadingContainer = styled(Box)(
 
 const ContentWrapper = styled(Box, {
   shouldForwardProp: (prop: string) =>
-    prop !== 'barColor' && prop !== 'lastIndex',
+    prop !== 'barColor' &&
+    prop !== 'lastIndex' &&
+    prop !== 'index' &&
+    prop !== 'dataLength',
 })(
-  ({ lastIndex, index, theme }: ContentWrapperProps) => `
+  ({ lastIndex, index, theme, dataLength }: ContentWrapperProps) => `
   margin-right: ${
     index === 0
       ? theme.spacing(8)
@@ -81,7 +86,9 @@ const ContentWrapper = styled(Box, {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: ${lastIndex === index ? 'end' : 'flex-start'};
+  justify-content: ${
+    lastIndex === index && dataLength > 1 ? 'end' : 'flex-start'
+  };
   flex: ${lastIndex === index ? 1 : 'unset'};
   ${theme.breakpoints.down('sm')} {
     margin-right: 0px;

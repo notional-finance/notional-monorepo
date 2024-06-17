@@ -22,7 +22,7 @@ interface StyledTableRowProps extends TableRowProps {
   rowSelected?: boolean;
   styleLastRow?: boolean;
   tableVariant?: TABLE_VARIANTS;
-  expandableTableActive?: boolean;
+  expandableTable?: boolean;
 }
 
 interface DataTableBodyProps {
@@ -33,6 +33,7 @@ interface DataTableBodyProps {
   tableVariant?: TABLE_VARIANTS;
   initialState?: Record<any, any>;
   rowVirtualizer?: any;
+  expandableTable?: boolean;
 }
 
 export const DataTableBody = ({
@@ -41,6 +42,7 @@ export const DataTableBody = ({
   rowVirtualizer,
   setExpandedRows,
   CustomRowComponent,
+  expandableTable,
   initialState,
 }: DataTableBodyProps) => {
   const theme = useTheme() as NotionalTheme;
@@ -67,13 +69,13 @@ export const DataTableBody = ({
           : false;
         const lastRow = rows[rows.length - 1];
         const styleLastRow = lastRow['id'] === row['id'];
-        const expandableTableActive = CustomRowComponent ? true : false;
+
         const isExpanded = initialState?.expanded
           ? initialState?.expanded[i]
           : false;
 
         const handleClick = () => {
-          if (expandableTableActive && setExpandedRows) {
+          if (expandableTable && setExpandedRows) {
             const newState = {
               ...initialState?.expanded,
               [row.index]: !initialState?.expanded[row.index],
@@ -127,20 +129,29 @@ export const DataTableBody = ({
               theme={theme}
               key={`row-${row.id}`}
               rowSelected={rowSelected}
-              expandableTableActive={expandableTableActive}
+              expandableTable={expandableTable}
               tableVariant={tableVariant}
               styleLastRow={styleLastRow}
               onClick={handleClick}
               sx={{
+                height:
+                  setExpandedRows &&
+                  !row.original?.isDividerRow &&
+                  !row.original?.isTotalRow
+                    ? '120px'
+                    : '',
                 '&:hover': {
                   background:
                     row.original?.view || row.original?.txLink?.href
                       ? theme.palette.info.light
                       : '',
-                  cursor:
-                    row.original?.view || row.original?.txLink?.href
-                      ? 'pointer'
-                      : '',
+                  cursor: initialState?.clickDisabled
+                    ? ''
+                    : expandableTable ||
+                      row.original?.view ||
+                      row.original?.txLink?.href
+                    ? 'pointer'
+                    : '',
                 },
                 '&:hover #dropdown-arrow-button': {
                   transition: 'all 0.3s ease',
@@ -159,10 +170,11 @@ export const DataTableBody = ({
                     className={cell.column.columnDef.className}
                     sx={{
                       margin: 'auto',
-                      padding:
-                        tableVariant === TABLE_VARIANTS.MINI
-                          ? theme.spacing(1)
-                          : cell.column.columnDef.padding || '16px',
+                      padding: expandableTable
+                        ? theme.spacing(2, 3)
+                        : tableVariant === TABLE_VARIANTS.MINI
+                        ? theme.spacing(1)
+                        : cell.column.columnDef.padding || '16px',
                       textAlign: cell.column.columnDef.textAlign || 'center',
                       borderBottom: 'none',
                       whiteSpace: 'nowrap',
@@ -234,13 +246,13 @@ const StyledTableRow = styled(TableRow, {
   shouldForwardProp: (prop: string) =>
     prop !== 'rowSelected' &&
     prop !== 'styleLastRow' &&
-    prop !== 'expandableTableActive' &&
+    prop !== 'expandableTable' &&
     prop !== 'tableVariant',
 })(
   ({
     theme,
     rowSelected,
-    expandableTableActive,
+    expandableTable,
     tableVariant,
   }: StyledTableRowProps) => `
     .MuiTableRow-root, &:nth-of-type(odd) {
@@ -249,7 +261,7 @@ const StyledTableRow = styled(TableRow, {
           ? `background: ${theme.palette.background.default};`
           : tableVariant === TABLE_VARIANTS.TOTAL_ROW
           ? `background: ${theme.palette.background.paper};`
-          : expandableTableActive
+          : expandableTable
           ? `background: ${theme.palette.background.paper};`
           : rowSelected
           ? `background: ${theme.palette.info.light};`
@@ -265,13 +277,12 @@ const StyledTableRow = styled(TableRow, {
           : ''
       } 
     }
-    cursor: ${expandableTableActive ? 'pointer' : ''};
     background: ${rowSelected ? theme.palette.info.light : 'transparent'};
     box-sizing: border-box;
     .MuiTableRow-root, td {
       .border-cell {
         height: 100%;
-        padding: ${!expandableTableActive ? theme.spacing(2) : '0px'};
+        padding: ${!expandableTable ? theme.spacing(2) : '0px'};
         border-top: 1px solid ${
           rowSelected ? theme.palette.primary.light : 'transparent'
         };

@@ -11,7 +11,8 @@ export class ViewsDO extends BaseDO<APIEnv> {
     super(state, env, 'views', ONE_MINUTE_MS * 60);
     this.analytics = new Servers.AnalyticsServer(
       env.DATA_SERVICE_URL,
-      env.DATA_SERVICE_AUTH_TOKEN
+      env.DATA_SERVICE_AUTH_TOKEN,
+      env
     );
   }
 
@@ -76,6 +77,9 @@ export class ViewsDO extends BaseDO<APIEnv> {
       this.analytics
         .fetchGraphDocument(network, 'ExternalLendingHistoryDocument')
         .then((d) => this.storeDocument(d, 'ExternalLendingHistory', network)),
+      this.analytics
+        .fetchGraphDocument(network, 'MetaDocument')
+        .then((d) => this.storeDocument(d, 'SubgraphMeta', network)),
     ]);
   }
 

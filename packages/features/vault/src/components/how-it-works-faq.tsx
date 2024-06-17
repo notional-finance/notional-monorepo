@@ -50,7 +50,8 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
               />
             </BodyText>
             <ImageWrapper>
-              {boosterProtocol === 'Convex' && (
+              {(boosterProtocol === 'Curve' ||
+                boosterProtocol === 'Convex') && (
                 <CurveVaultImg tokensymbol={tokenSymbol} />
               )}
               {boosterProtocol === 'Aura' && (

@@ -740,7 +740,6 @@ const getThemeData = (
     } as PaletteOptions,
     typography: getTypography(themeVariant, pageLayout),
     shape: {
-      // TODO: can we make this a function?
       borderStandard:
         themeVariant === THEME_VARIANTS.LIGHT
           ? `1px solid ${colors.purpleGrey}`

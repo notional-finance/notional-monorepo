@@ -5,9 +5,8 @@ import {
   DrawerTransition,
 } from '@notional-finance/mui';
 import {
+  AllTradeTypes,
   BaseTradeState,
-  TradeType,
-  VaultTradeType,
   getComparisonKey,
 } from '@notional-finance/notionable';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
@@ -27,7 +26,7 @@ interface DrawerRouteProps {
   isRootDrawer?: boolean;
   Component: React.ComponentType;
   requiredState: Partial<BaseTradeState> & {
-    tradeType: TradeType | VaultTradeType;
+    tradeType: AllTradeTypes;
   };
   onBack?: () => void;
 }

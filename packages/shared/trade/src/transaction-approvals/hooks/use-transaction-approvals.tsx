@@ -9,7 +9,12 @@ export const useTransactionApprovals = (
   variableBorrowRequired?: boolean
 ) => {
   const {
-    state: { depositBalance, deposit, selectedNetwork },
+    state: {
+      depositBalance,
+      deposit,
+      selectedNetwork,
+      secondaryDepositBalance,
+    },
   } = context;
   const {
     tokenStatus,
@@ -17,6 +22,13 @@ export const useTransactionApprovals = (
     enableToken,
     tokenApprovalTxnStatus,
   } = useTokenApproval(deposit?.symbol || '', selectedNetwork);
+
+  const {
+    tokenStatus: secondaryTokenStatus,
+    isSignerConnected: secondaryIsSignerConnected,
+    enableToken: secondaryEnableToken,
+    tokenApprovalTxnStatus: secondaryTokenApprovalTxnStatus,
+  } = useTokenApproval(secondaryDepositBalance?.symbol || '', selectedNetwork);
 
   const { isPrimeBorrowAllowed, enablePrimeBorrow, variableBorrowTxnStatus } =
     useEnablePrimeBorrow(selectedNetwork);
@@ -28,13 +40,29 @@ export const useTransactionApprovals = (
     requiredApprovalAmount ||
     (depositBalance?.isPositive() ? depositBalance : undefined);
 
+  const secondaryApprovalRequired =
+    requiredApprovalAmount ||
+    (secondaryDepositBalance?.isPositive()
+      ? secondaryDepositBalance
+      : undefined);
+
   const insufficientAllowance =
     approvalRequired && tokenStatus && tokenStatus.amount.lt(approvalRequired);
+
+  const secondaryInsufficientAllowance =
+    secondaryApprovalRequired &&
+    secondaryTokenStatus &&
+    secondaryTokenStatus.amount.lt(secondaryApprovalRequired);
 
   const tokenApprovalRequired =
     !!isSignerConnected &&
     insufficientAllowance === true &&
     tokenStatus?.amount.isZero() === true;
+
+  const secondaryTokenApprovalRequired =
+    !!secondaryIsSignerConnected &&
+    secondaryInsufficientAllowance === true &&
+    secondaryTokenStatus?.amount.isZero() === true;
 
   const allowanceIncreaseRequired =
     !!isSignerConnected &&
@@ -44,15 +72,19 @@ export const useTransactionApprovals = (
   return {
     enableToken,
     enablePrimeBorrow,
+    secondaryEnableToken,
     tokenApprovalTxnStatus,
+    secondaryTokenApprovalTxnStatus,
     variableBorrowTxnStatus,
     tokenApprovalRequired,
+    secondaryTokenApprovalRequired,
     variableBorrowApprovalRequired,
     allowanceIncreaseRequired,
     showApprovals:
       tokenApprovalRequired ||
       variableBorrowApprovalRequired ||
-      allowanceIncreaseRequired,
+      allowanceIncreaseRequired ||
+      secondaryTokenApprovalRequired,
   };
 };
 

@@ -1,4 +1,5 @@
 import { Network } from './constants';
+import { ethers } from 'ethers';
 
 export const treasuryManagerAddresses: Partial<Record<Network, string>> = {
   arbitrum: '0x53144559C0d4a3304e2DD9dAfBD685247429216d',
@@ -15,24 +16,12 @@ interface Env {
   TX_RELAY_AUTH_TOKEN: string;
 }
 
-const urls: Record<Network, string> = {
-  [Network.all]: '',
-  // it has 'arbitrum' in url but it is also endpoint for mainnet relayers,
-  // endpoint format is "/v1/txes/:relayerId", relayerId 0 is for arbitrum an 1 for mainnet
-  [Network.mainnet]:
-    'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/mainnet',
-  [Network.arbitrum]:
-    'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/arbitrum',
-  [Network.optimism]: '',
-};
-
 export async function sendTxThroughRelayer(arg: {
   env: Env;
   to: string;
   data: string;
-  isLiquidator?: boolean;
   gasLimit?: number;
-}) {
+}) : Promise<ethers.providers.TransactionResponse> {
   const { to, data, env, gasLimit } = arg;
 
   const payload = JSON.stringify({
@@ -40,7 +29,8 @@ export async function sendTxThroughRelayer(arg: {
     data,
     gasLimit,
   });
-  const url = urls[env.NETWORK];
+
+  const url = `https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/${env.NETWORK}`;
   console.log(`Sending Payload to ${url}`);
 
   return fetch(url, {
@@ -50,5 +40,14 @@ export async function sendTxThroughRelayer(arg: {
       'X-Auth-Token': env.TX_RELAY_AUTH_TOKEN,
     },
     body: payload,
-  });
+  }).then(async r => {
+      const returnData = await r.json();
+
+      if (299 < r.status) {
+        console.error(returnData);
+        throw new Error(returnData.reason || returnData.code || r.statusText);
+      }
+
+      return returnData;
+    });
 }

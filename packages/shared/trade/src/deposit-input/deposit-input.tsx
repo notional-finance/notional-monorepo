@@ -15,7 +15,7 @@ import {
   BaseTradeContext,
   useWalletBalances,
 } from '@notional-finance/notionable-hooks';
-import { TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
 
 interface DepositInputProps {
@@ -31,6 +31,10 @@ interface DepositInputProps {
   useZeroDefault?: boolean;
   showScrollPopper?: boolean;
   excludeSupplyCap?: boolean;
+  depositOverride?: TokenDefinition;
+  depositTokens?: TokenDefinition[];
+  onUpdate?: (inputAmount: TokenBalance | undefined) => void;
+  miniButtonLabel?: string;
 }
 
 /**
@@ -47,6 +51,7 @@ export const DepositInput = React.forwardRef<
       context,
       newRoute,
       onMaxValue,
+      onUpdate,
       warningMsg,
       inputLabel,
       inputRef,
@@ -56,6 +61,11 @@ export const DepositInput = React.forwardRef<
       useZeroDefault,
       showScrollPopper,
       excludeSupplyCap,
+      miniButtonLabel = 'MAX',
+      // These two props allow the state values to be overridden, used
+      // in the case of Staked NOTE
+      depositOverride,
+      depositTokens,
     },
     ref
   ) => {
@@ -64,14 +74,16 @@ export const DepositInput = React.forwardRef<
     const theme = useTheme();
     const {
       state: {
-        deposit,
-        availableDepositTokens,
+        deposit: _deposit,
+        availableDepositTokens: _depositTokens,
         calculateError,
         tradeType,
         selectedNetwork,
       },
       updateState,
     } = context;
+    const availableDepositTokens = depositTokens || _depositTokens;
+    const deposit = depositOverride || _deposit;
     const {
       inputAmount,
       maxBalance,
@@ -88,12 +100,16 @@ export const DepositInput = React.forwardRef<
     );
 
     useEffect(() => {
-      updateState({
-        depositBalance: inputAmount,
-        maxWithdraw: false,
-      });
+      if (onUpdate) {
+        onUpdate(inputAmount);
+      } else {
+        updateState({
+          depositBalance: inputAmount,
+          maxWithdraw: false,
+        });
+      }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateState, inputAmount?.hashKey]);
+    }, [updateState, onUpdate, inputAmount?.hashKey]);
 
     useEffect(() => {
       updateState({
@@ -152,6 +168,7 @@ export const DepositInput = React.forwardRef<
         <CurrencyInput
           ref={ref}
           placeholder="0.00000000"
+          miniButtonLabel={miniButtonLabel}
           // Use 18 decimals as a the default, but that should only be temporary during page load
           decimals={decimalPlaces || 18}
           maxValue={onMaxValue ? undefined : maxBalanceString}

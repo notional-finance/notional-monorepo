@@ -17,6 +17,7 @@ export enum PRODUCTS {
   LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
   BORROW_FIXED = 'borrow-fixed',
   BORROW_VARIABLE = 'borrow-variable',
+  STAKE_NOTE = 'stake',
 }
 
 export enum META_TAG_CATEGORIES {
@@ -80,6 +81,7 @@ export enum PORTFOLIO_ACTIONS {
   MANAGE_VAULT = 'manage-vault',
   MANAGE_BORROW = 'manage-borrow',
   MANAGE_LEND = 'manage-lend',
+  COOL_DOWN = 'cool-down',
 }
 
 export enum TABLE_WARNINGS {
@@ -91,7 +93,7 @@ export enum PORTFOLIO_CATEGORIES {
   OVERVIEW = 'overview',
   HOLDINGS = 'holdings',
   LEVERAGED_VAULTS = 'vaults',
-  STAKED_NOTE = 'staked-note',
+  NOTE_STAKING = 'note-staking',
   TRANSACTION_HISTORY = 'transaction-history',
 }
 

@@ -40,7 +40,7 @@ export const ChartToolTip = ({
 }: ChartToolTipProps) => {
   const theme = useTheme();
 
-  if (active && payload) {
+  if (active && payload && payload.length) {
     const { timestamp } = payload[0].payload;
     const area = payload[0].payload[areaDataKey];
     const line = payload[0].payload[lineDataKey];

@@ -14,6 +14,7 @@ export const ArrowChangeCell = ({ cell }): JSX.Element => {
         justifyContent: column.columnDef.textAlign,
         alignItems: 'center',
         width: '100%',
+        fontSize: column.columnDef?.expandableTable ? '16px' : '',
         color: value.includes('-') ? colors.red : theme.palette.primary.light,
       }}
     >

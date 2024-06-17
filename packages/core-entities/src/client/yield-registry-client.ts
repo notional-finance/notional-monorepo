@@ -44,7 +44,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
         let nativeTokenAPY: number | undefined = undefined;
         if (tokenType === 'PrimeCash' || tokenType === 'PrimeDebt') {
-          // TODO: fill this out with a value
           nativeTokenAPY = 0;
         }
 
@@ -435,7 +434,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     const fCashYields = this.getfCashYield(network);
     const debtYields = this.getPrimeDebtYield(network).concat(fCashYields);
     const tokens = Registry.getTokenRegistry();
-    const analytics = Registry.getAnalyticsRegistry();
 
     return tokens
       .getAllTokens(network)
@@ -465,17 +463,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         const underlying = tokens.getTokenByID(network, v.underlying);
         const { defaultLeverageRatio, maxLeverageRatio } =
           config.getVaultLeverageFactors(network, v.vaultAddress);
-        const vaultAPYs = (analytics
-          .getVault(network, v.vaultAddress)
-          ?.filter(
-            ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
-          )
-          .map(({ totalAPY }) => totalAPY)
-          .filter((apy) => apy !== null) || []) as number[];
-        const totalAPY =
-          vaultAPYs.length > 0
-            ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
-            : 0;
+        const totalAPY = adapter.getVaultAPY();
         try {
           // If the vault debt is not found then skip generating the yield for
           // this vault

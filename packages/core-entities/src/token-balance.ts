@@ -535,6 +535,7 @@ export class TokenBalance {
 
   toUnderlying(atTimestamp?: number) {
     if (this.tokenType === 'Underlying') return this;
+    if (this.tokenType === 'NOTE') return this;
     // Does the exchange rate conversion and decimal scaling
     return this.toToken(this.underlying, undefined, atTimestamp);
   }

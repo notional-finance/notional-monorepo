@@ -14,6 +14,13 @@ export const DisplayCell = (props): JSX.Element => {
   const ToolTip = column.columnDef?.ToolTip;
   const toolTipData = row.original?.toolTipData;
 
+  let parsedValue = 0;
+  try {
+    parsedValue = parseFloat(value);
+  } catch (e) {
+    parsedValue = 0;
+  }
+
   return (
     <TableCell
       sx={{
@@ -30,14 +37,12 @@ export const DisplayCell = (props): JSX.Element => {
             justifyContent: column.columnDef?.textAlign,
           }}
         />
-      ) : value &&
-        column.columnDef.displayFormatter &&
-        parseFloat(value) !== 0 ? (
+      ) : value && column.columnDef.displayFormatter && parsedValue !== 0 ? (
         <Box
           sx={{
             h4: {
               color:
-                parseFloat(value) < 0 && !row.original.isDebt
+                parsedValue < 0 && !row.original.isDebt
                   ? theme.palette.error.main
                   : '',
             },
@@ -47,28 +52,28 @@ export const DisplayCell = (props): JSX.Element => {
             sx={{
               marginBottom: '0px',
               color:
-                parseFloat(value) < 0 ||
-                (value.toString().includes('-') && !row.original.isDebt)
+                parsedValue < 0 ||
+                (value?.toString().includes('-') && !row.original.isDebt)
                   ? theme.palette.error.main
                   : '',
             }}
           >
             {column.columnDef.showSymbol
               ? column.columnDef.displayFormatter(
-                  parseFloat(value),
+                  parsedValue,
                   props.cell.row.original.symbol
                 )
-              : column.columnDef.displayFormatter(parseFloat(value))}
+              : column.columnDef.displayFormatter(parsedValue)}
           </FirstValue>
         </Box>
-      ) : parseFloat(value) === 0 ? (
+      ) : parsedValue === 0 ? (
         '-'
       ) : (
         <Box
           sx={{
             h4: {
               color:
-                (parseFloat(value) < 0 || value.toString().includes('-')) &&
+                (parsedValue < 0 || value?.toString().includes('-')) &&
                 !row.original.isDebt
                   ? theme.palette.error.main
                   : '',
@@ -79,7 +84,7 @@ export const DisplayCell = (props): JSX.Element => {
             sx={{
               marginBottom: '0px',
               color:
-                (parseFloat(value) < 0 || value.toString().includes('-')) &&
+                (parsedValue < 0 || value?.toString().includes('-')) &&
                 !row.original.isDebt
                   ? theme.palette.error.main
                   : !row.original.isDebt && column.columnDef.showGreenText

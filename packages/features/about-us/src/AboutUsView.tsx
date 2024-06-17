@@ -28,7 +28,6 @@ export const AboutUsView = () => {
           <Box
             sx={{
               backgroundColor: theme.palette.background.default,
-              marginTop: theme.spacing(-10),
               height: '100%',
             }}
           >

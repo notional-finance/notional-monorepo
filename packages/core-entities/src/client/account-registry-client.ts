@@ -38,6 +38,8 @@ export enum AccountFetchMode {
 }
 
 export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
+  protected subgraphApiKey = '';
+
   protected _activeAccount = new BehaviorSubject<string | null>(null);
 
   protected _walletProvider?: providers.Provider;
@@ -48,6 +50,12 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
   set walletProvider(p: providers.Provider) {
     this._walletProvider = p;
+  }
+
+  set setSubgraphAPIKey(s: string) {
+    // NOTE: this should only be required in a Cloudflare environment where the process.env
+    // is not set like it is in other places.
+    this.subgraphApiKey = s;
   }
 
   protected cachePath() {
@@ -225,6 +233,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             .flatMap((_) => _),
         };
       },
+      this.subgraphApiKey,
       {
         accountId: account.toLowerCase(),
       }
@@ -264,6 +273,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               }) || [],
         };
       },
+      this.subgraphApiKey,
       {
         accountId: account.toLowerCase(),
       }
@@ -343,6 +353,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           return Object.assign(o, { [a.id]: acct });
         }, {} as Record<string, AccountDefinition>);
       },
+      this.subgraphApiKey,
       { skip: 0 },
       'accounts'
     );

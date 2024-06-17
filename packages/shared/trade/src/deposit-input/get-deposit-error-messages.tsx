@@ -1,3 +1,4 @@
+import React from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 
 export const getDepositErrorMessage = (
@@ -5,7 +6,7 @@ export const getDepositErrorMessage = (
   errorMsg: MessageDescriptor | undefined,
   calculateError: string | undefined,
   pathname: string
-) => {
+): React.ReactNode => {
   if (errorMsgOverride) {
     return <FormattedMessage {...errorMsgOverride} />;
   } else if (errorMsg) {

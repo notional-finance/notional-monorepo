@@ -7,6 +7,7 @@ import {
   PoolClasses,
   PoolConstructor,
   pCashMarket,
+  SNOTEWeightedPool,
 } from '../exchanges';
 import { PoolDefinition, Registry, TokenBalance } from '..';
 import { ClientRegistry } from './client-registry';
@@ -81,6 +82,15 @@ export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
             )
         )
       );
+  }
+
+  public getSNOTEPool() {
+    return this.isKeyRegistered(Network.mainnet, SNOTEWeightedPool.sNOTE_Pool)
+      ? this.getPoolInstance<SNOTEWeightedPool>(
+          Network.mainnet,
+          SNOTEWeightedPool.sNOTE_Pool
+        )
+      : undefined;
   }
 
   public getNotionalMarket(network: Network, currencyId: number) {

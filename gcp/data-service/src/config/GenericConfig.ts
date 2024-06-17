@@ -10,14 +10,7 @@ import {
 } from '@notional-finance/contracts';
 import { ethers } from 'ethers';
 import { Network } from '@notional-finance/util';
-import {
-  ConfigDefinition,
-  SourceType,
-  TableName,
-  Strategy,
-  ProtocolName,
-} from '../types';
-import { graphQueries } from './../graphQueries';
+import { ConfigDefinition, SourceType, TableName, Strategy } from '../types';
 
 export const configDefs: ConfigDefinition[] = [
   {
@@ -513,60 +506,6 @@ export const configDefs: ConfigDefinition[] = [
       decimals: 18,
     },
     network: Network.mainnet,
-  },
-  {
-    sourceType: SourceType.Subgraph,
-    sourceConfig: {
-      protocol: ProtocolName.NotionalV3,
-      query: graphQueries.NotionalV3VaultReinvestments,
-      args: {
-        vault: '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
-      },
-      transform: (r) => r.reinvestments[0].timestamp,
-    },
-    tableName: TableName.GenericData,
-    dataConfig: {
-      strategyId: Strategy.Generic,
-      variable: 'FRAX/USDC Curve Reinvestment Timestamp',
-      decimals: 0,
-    },
-    network: Network.arbitrum,
-  },
-  {
-    sourceType: SourceType.Subgraph,
-    sourceConfig: {
-      protocol: ProtocolName.NotionalV3,
-      query: graphQueries.NotionalV3VaultReinvestments,
-      args: {
-        vault: '0x3df035433cface65b6d68b77cc916085d020c8b8',
-      },
-      transform: (r) => r.reinvestments[0].timestamp,
-    },
-    tableName: TableName.GenericData,
-    dataConfig: {
-      strategyId: Strategy.Generic,
-      variable: 'ETH/[RETH] Balancer Reinvestment Timestamp',
-      decimals: 0,
-    },
-    network: Network.arbitrum,
-  },
-  {
-    sourceType: SourceType.Subgraph,
-    sourceConfig: {
-      protocol: ProtocolName.NotionalV3,
-      query: graphQueries.NotionalV3VaultReinvestments,
-      args: {
-        vault: '0x8ae7a8789a81a43566d0ee70264252c0db826940',
-      },
-      transform: (r) => r.reinvestments[0].timestamp,
-    },
-    tableName: TableName.GenericData,
-    dataConfig: {
-      strategyId: Strategy.Generic,
-      variable: '[USDC]/4POOL Balancer Reinvestment Timestamp',
-      decimals: 0,
-    },
-    network: Network.arbitrum,
   },
   {
     sourceType: SourceType.Multicall,

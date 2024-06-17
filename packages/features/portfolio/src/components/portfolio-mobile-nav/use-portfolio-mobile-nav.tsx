@@ -5,7 +5,7 @@ import {
 import {
   BarChartIcon,
   FourSquareIcon,
-  // StakeIcon,
+  StakeIcon,
   VaultIcon,
   HistoryIcon,
 } from '@notional-finance/icons';
@@ -78,22 +78,23 @@ export const usePortfolioMobileNav = () => {
         />
       ),
     },
-    // {
-    //   title: <FormattedMessage defaultMessage={'Stake'} />,
-    //   id: PORTFOLIO_CATEGORIES.STAKED_NOTE,
-    //   to: `/stake`,
-    //   Icon: (
-    //     <StakeIcon
-    //       sx={{
-    //         width: theme.spacing(2),
-    //         fill:
-    //           category === PORTFOLIO_CATEGORIES.STAKED_NOTE
-    //             ? theme.palette.typography.main
-    //             : theme.palette.typography.light,
-    //       }}
-    //     />
-    //   ),
-    // },
+    {
+      title: <FormattedMessage defaultMessage={'Stake'} />,
+      id: PORTFOLIO_CATEGORIES.NOTE_STAKING,
+      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.NOTE_STAKING}`,
+      Icon: (
+        <StakeIcon
+          fill={
+            category === PORTFOLIO_CATEGORIES.NOTE_STAKING
+              ? theme.palette.typography.main
+              : theme.palette.typography.light
+          }
+          sx={{
+            width: theme.spacing(2),
+          }}
+        />
+      ),
+    },
     {
       title: <FormattedMessage defaultMessage={'History'} />,
       id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,

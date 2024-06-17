@@ -5,7 +5,13 @@ export interface Env {
   TX_RELAY_AUTH_TOKEN: string,
   ZERO_EX_API_KEY: string,
   MANAGER_BOT_ADDRESS: string,
+  SUBGRAPH_API_KEY: string,
   AUTH_KEY: string
+}
+
+export enum RunType {
+  sellCOMP = 'sellCOMP',
+  burnNOTE = 'noteBurn',
 }
 
 export enum DexId {

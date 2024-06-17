@@ -12,6 +12,23 @@ function useNetworkAccounts(network: Network | undefined) {
   return network && networkAccounts && networkAccounts[network];
 }
 
+/** Total NOTE balances across all networks */
+export function useTotalNOTEBalances() {
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+  if (networkAccounts) {
+    return SupportedNetworks.reduce((t, n) => {
+      const note = networkAccounts[n]?.accountDefinition?.balances.find(
+        (t) => t.symbol === 'NOTE'
+      );
+      return t + (note?.toFloat() || 0);
+    }, 0);
+  }
+
+  return undefined;
+}
+
 export function useAccountDefinition(network: Network | undefined) {
   const {
     globalState: { networkAccounts },
@@ -100,4 +117,12 @@ export function useAccountNetWorth() {
     }
     return acc;
   }, {} as Record<Network, TokenBalance>);
+}
+
+export function useArbPoints() {
+  const {
+    globalState: { arbPoints },
+  } = useNotionalContext();
+
+  return arbPoints;
 }

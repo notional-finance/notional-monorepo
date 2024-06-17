@@ -1,24 +1,27 @@
 import { useMemo, useEffect, useState } from 'react';
-import { Theme, useTheme } from '@mui/material';
+import { Box, Theme, useTheme } from '@mui/material';
 import {
   DataTableColumn,
   MultiValueCell,
   MultiValueIconCell,
-  SliderCell,
   ChevronCell,
-  ArrowChangeCell,
   LinkText,
+  Body,
+  H4,
+  DisplayCell,
 } from '@notional-finance/mui';
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
+  formatNumberAsAbbr,
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
-  useCurrentLiquidationPrices,
+  formatHealthFactorValues,
   useFiat,
+  useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
@@ -32,56 +35,6 @@ import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
 import { PointsLinks } from '@notional-finance/core-entities';
-
-const vaultRiskTableColumns: DataTableColumn[] = [
-  {
-    header: (
-      <FormattedMessage
-        defaultMessage="Exchange Rate"
-        description={'column header'}
-      />
-    ),
-    cell: MultiValueIconCell,
-    accessorKey: 'exchangeRate',
-    textAlign: 'left',
-  },
-  {
-    header: (
-      <FormattedMessage
-        defaultMessage="Liquidation Price"
-        description={'column header'}
-      />
-    ),
-    accessorKey: 'liquidationPrice',
-    textAlign: 'right',
-  },
-  {
-    header: (
-      <FormattedMessage
-        defaultMessage="Current Price"
-        description={'column header'}
-      />
-    ),
-    accessorKey: 'currentPrice',
-    textAlign: 'right',
-  },
-  {
-    header: (
-      <FormattedMessage defaultMessage="24H %" description={'column header'} />
-    ),
-    cell: ArrowChangeCell,
-    accessorKey: 'oneDayChange',
-    textAlign: 'right',
-  },
-  {
-    header: (
-      <FormattedMessage defaultMessage="7D %" description={'column header'} />
-    ),
-    cell: ArrowChangeCell,
-    accessorKey: 'sevenDayChange',
-    textAlign: 'right',
-  },
-];
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -109,12 +62,54 @@ export function getVaultLeveragePercentage(
 export const useVaultHoldingsTable = () => {
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
+  const [toggleOption, setToggleOption] = useState<number>(0);
+  const isBlocked = useLeverageBlock();
   const theme = useTheme();
   const baseCurrency = useFiat();
   const history = useHistory();
   const network = useSelectedNetwork();
-  const { vaultLiquidation } = useCurrentLiquidationPrices(network);
   const vaults = useVaultHoldings(network);
+
+  const toggleData = [
+    <Box
+      sx={{
+        fontSize: '14px',
+        display: 'flex',
+        justifyContent: 'center',
+        width: theme.spacing(11),
+      }}
+    >
+      <FormattedMessage defaultMessage="Default" />
+    </Box>,
+    <Box
+      sx={{
+        fontSize: '14px',
+        display: 'flex',
+        justifyContent: 'center',
+        width: theme.spacing(11),
+      }}
+    >
+      <FormattedMessage defaultMessage="Detailed" />
+    </Box>,
+  ];
+
+  const HealthFactorCell = ({ cell }) => {
+    const { column, getValue } = cell;
+    const value = getValue();
+    return (
+      <Box
+        sx={{
+          color: value.textColor,
+          display: 'flex',
+          justifyContent: column.columnDef.textAlign,
+          fontSize: '16px',
+          width: theme.spacing(10),
+        }}
+      >
+        {value.value}
+      </Box>
+    );
+  };
 
   const vaultHoldingsColumns: DataTableColumn[] = useMemo(() => {
     return [
@@ -126,51 +121,70 @@ export const useVaultHoldingsTable = () => {
           />
         ),
         cell: MultiValueIconCell,
-        accessorKey: 'strategy',
+        accessorKey: 'vault',
         textAlign: 'left',
         expandableTable: true,
       },
       {
         header: (
           <FormattedMessage
-            defaultMessage="Net Worth"
-            description={'Net Worth header'}
+            defaultMessage="Health Factor"
+            description={'Health Factor header'}
           />
         ),
-        cell: MultiValueCell,
-        accessorKey: 'netWorth',
+        cell: HealthFactorCell,
+        accessorKey: 'healthFactor',
+        textAlign: 'left',
+        expandableTable: true,
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Market APY"
+            description={'Market APY header'}
+          />
+        ),
+        cell: DisplayCell,
+        accessorKey: 'marketAPY',
         textAlign: 'right',
         expandableTable: true,
       },
       {
         header: (
           <FormattedMessage
-            defaultMessage="Profits"
-            description={'profits header'}
+            defaultMessage="Present Value"
+            description={'Present Value header'}
           />
         ),
         cell: MultiValueCell,
-        accessorKey: 'profit',
-        textAlign: 'right',
-        expandableTable: true,
-      },
-      {
-        header: (
-          <FormattedMessage defaultMessage="APY" description={'Debts header'} />
-        ),
-        accessorKey: 'totalAPY',
+        accessorKey: 'presentValue',
+        fontWeightBold: true,
         textAlign: 'right',
         expandableTable: true,
       },
       {
         header: (
           <FormattedMessage
-            defaultMessage="Leverage Ratio"
-            description={'currency header'}
+            defaultMessage="Amount Paid"
+            description={'Amount Paid header'}
           />
         ),
-        cell: SliderCell,
-        accessorKey: 'leveragePercentage',
+        cell: MultiValueCell,
+        accessorKey: 'amountPaid',
+        fontWeightBold: true,
+        textAlign: 'right',
+        expandableTable: true,
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Total Earnings"
+            description={'Total Earnings header'}
+          />
+        ),
+        cell: MultiValueCell,
+        accessorKey: 'totalEarnings',
+        fontWeightBold: true,
         textAlign: 'right',
         expandableTable: true,
       },
@@ -190,20 +204,15 @@ export const useVaultHoldingsTable = () => {
       denom,
       profit,
       totalAPY,
+      amountPaid,
       strategyAPY,
       borrowAPY,
       vaultYield,
     }) => {
       const config = v.vaultConfig;
-      const {
-        leveragePercentage,
-        leverageRatio,
-        maxLeverageRatio,
-        trackColor,
-      } = getVaultLeveragePercentage(v, theme);
-
-      const vaultRiskData = vaultLiquidation?.find(
-        (b) => b.vaultAddress === v.vaultAddress
+      const { leverageRatio, maxLeverageRatio } = getVaultLeveragePercentage(
+        v,
+        theme
       );
       const points = vaultYield?.pointMultiples;
       const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
@@ -217,7 +226,20 @@ export const useVaultHoldingsTable = () => {
         },
         {
           label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
-          value: formatLeverageRatio(v.leverageRatio() || 0),
+          value: (
+            <H4
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              {formatLeverageRatio(v.leverageRatio() || 0)}
+              <Body sx={{ marginLeft: theme.spacing(1) }}>
+                Max {maxLeverageRatio.toFixed(1)}
+              </Body>
+            </H4>
+          ),
         },
       ];
 
@@ -246,6 +268,15 @@ export const useVaultHoldingsTable = () => {
           ),
         });
       }
+      // TODO: ADD REAL REINVESTMENT DATA
+      // else {
+      //   subRowData.push({
+      //     label: (
+      //       <FormattedMessage defaultMessage={'TIME TO NEXT REINVESTMENT'} />
+      //     ),
+      //     value: '6 days 4 hrs',
+      //   });
+      // }
 
       const handleProfit = () => {
         const profitData = formatCryptoWithFiat(baseCurrency, profit) as any;
@@ -260,7 +291,7 @@ export const useVaultHoldingsTable = () => {
       };
 
       return {
-        strategy: {
+        vault: {
           symbol: formatTokenType(denom).icon,
           label: config.name,
           caption:
@@ -271,21 +302,11 @@ export const useVaultHoldingsTable = () => {
         // Assets and debts are shown on the overview page
         assets: formatCryptoWithFiat(baseCurrency, v.totalAssets()),
         debts: formatCryptoWithFiat(baseCurrency, v.totalDebt(), true),
-        netWorth: formatCryptoWithFiat(baseCurrency, v.netWorth()),
-        profit: handleProfit(),
-        totalAPY: totalAPY ? formatNumberAsPercent(totalAPY) : undefined,
-        leveragePercentage: leveragePercentage
-          ? {
-              sliderValue: leveragePercentage,
-              captionLeft: formatLeverageRatio(leverageRatio || 0, 1),
-              captionRight: `Max: ${formatLeverageRatio(
-                maxLeverageRatio || 0,
-                1
-              )}`,
-              trackColor,
-            }
-          : undefined,
-        // NOTE: these values are inside the accordion
+        healthFactor: formatHealthFactorValues(v.healthFactor(), theme),
+        presentValue: formatCryptoWithFiat(baseCurrency, v.netWorth()),
+        totalEarnings: handleProfit(),
+        marketAPY: totalAPY ? formatNumberAsPercent(totalAPY) : undefined,
+        amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
         strategyAPY: {
           displayValue: formatNumberAsPercent(strategyAPY, 2),
           isNegative: strategyAPY && strategyAPY < 0,
@@ -319,8 +340,6 @@ export const useVaultHoldingsTable = () => {
               assetOrVaultId: config.vaultAddress,
             }
           )}`,
-          riskTableData: vaultRiskData?.liquidationPrices,
-          riskTableColumns: vaultRiskTableColumns,
         },
       };
     }
@@ -342,10 +361,75 @@ export const useVaultHoldingsTable = () => {
     }
   }, [vaultHoldingsColumns, expandedRows, setExpandedRows]);
 
+  const totalRowData = vaults.reduce(
+    (accumulator, vault) => {
+      return {
+        amountPaid:
+          accumulator.amountPaid +
+          vault.amountPaid.toFiat(baseCurrency).toFloat(),
+        presentValue:
+          accumulator.presentValue +
+          vault.netWorth.toFiat(baseCurrency).toFloat(),
+        totalEarnings:
+          accumulator.totalEarnings +
+          vault.profit.toFiat(baseCurrency).toFloat(),
+        assets:
+          accumulator.assets +
+          vault.vault.totalAssets().toFiat(baseCurrency).toFloat(),
+        debts:
+          accumulator.debts +
+          vault.vault.totalDebt().toFiat(baseCurrency).toFloat(),
+      };
+    },
+    { amountPaid: 0, presentValue: 0, totalEarnings: 0, assets: 0, debts: 0 }
+  );
+
+  if (vaultHoldingsData.length > 0) {
+    vaultHoldingsData.push({
+      vault: {
+        symbol: '',
+        label: 'Total',
+        caption: '',
+      },
+      healthFactor: { value: '', textColor: '' },
+      marketAPY: '',
+      amountPaid: formatNumberAsAbbr(totalRowData.amountPaid, 2, baseCurrency, {
+        removeKAbbr: true,
+      }),
+      presentValue: formatNumberAsAbbr(
+        totalRowData.presentValue,
+        2,
+        baseCurrency,
+        { removeKAbbr: true }
+      ),
+      totalEarnings: formatNumberAsAbbr(
+        totalRowData.totalEarnings,
+        2,
+        baseCurrency,
+        { removeKAbbr: true }
+      ),
+      assets: formatNumberAsAbbr(totalRowData.assets, 2, baseCurrency, {
+        removeKAbbr: true,
+      }),
+      debts: formatNumberAsAbbr(totalRowData.debts, 2, baseCurrency, {
+        removeKAbbr: true,
+      }),
+      toolTipData: undefined,
+      actionRow: undefined,
+      isTotalRow: true,
+    } as unknown as typeof vaultHoldingsData[number]);
+  }
+
   return {
     vaultHoldingsColumns,
     vaultHoldingsData,
     setExpandedRows,
     initialState,
+    toggleBarProps: {
+      toggleOption,
+      setToggleOption,
+      toggleData,
+      showToggle: !isBlocked && vaults.length > 0,
+    },
   };
 };

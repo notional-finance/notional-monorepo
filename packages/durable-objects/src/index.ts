@@ -17,4 +17,6 @@ export interface APIEnv extends RegistryDOEnv {
   VIEWS_DO: DurableObjectNamespace;
   VIEWS_NAME: string;
   VIEW_CACHE_R2: R2Bucket;
+  ACCOUNT_CACHE_R2: R2Bucket;
+  NX_SUBGRAPH_API_KEY: string;
 }

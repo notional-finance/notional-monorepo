@@ -21,4 +21,5 @@ name = "note-reward-manager-beta"
 name = "note-reward-manager"
 
 [triggers]
-crons = ["0 * * * *"]
+# Run two times every other hour at Sunday, once to sell comp tokens and then again to burn note
+crons = ["0 */2 * * 1", "10 */2 * * 1"]

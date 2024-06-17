@@ -1,20 +1,19 @@
 import { ReactNode } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { ActionRowButton } from '../action-row-button/action-row-button';
+import { HistoryIcon } from '@notional-finance/icons';
 import {
   H5,
   H4,
   ButtonBar,
   ButtonOptionsType,
-  DataTableColumn,
-  DataTable,
   ProgressIndicator,
   ErrorMessage,
 } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { defineMessages } from 'react-intl';
 import { TABLE_WARNINGS } from '@notional-finance/util';
+import { useHistory } from 'react-router';
 
 const messages = {
   [TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN]: defineMessages({
@@ -35,7 +34,7 @@ const messages = {
   }),
 };
 
-interface TableActionRowProps {
+export interface TableActionRowProps {
   row: {
     original: {
       amount: any;
@@ -43,11 +42,15 @@ interface TableActionRowProps {
       currentPrice: any;
       isDebt: boolean;
       actionRow: {
+        stakeNoteStatus?: {
+          inCoolDown: boolean;
+          inRedeemWindow: boolean;
+          redeemWindowBegin: number;
+          redeemWindowEnd: number;
+        };
         warning: TABLE_WARNINGS | undefined;
         txnHistory: string;
         buttonBarData: ButtonOptionsType[];
-        riskTableData: any[];
-        riskTableColumns: DataTableColumn[];
         subRowData: {
           label: ReactNode;
           value: any;
@@ -64,13 +67,12 @@ interface TableActionRowProps {
 
 export const TableActionRow = ({ row }: TableActionRowProps) => {
   const theme = useTheme();
+  const history = useHistory();
   const {
     actionRow: {
       txnHistory,
       buttonBarData,
       subRowData,
-      riskTableData,
-      riskTableColumns,
       pointsWarning,
       hasMatured,
       warning,
@@ -84,10 +86,7 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
     <Box
       sx={{
         background: theme.palette.background.default,
-        paddingBottom:
-          (riskTableData && riskTableData.length > 0) || hasMatured
-            ? theme.spacing(4)
-            : '0px',
+        paddingBottom: hasMatured ? theme.spacing(4) : '0px',
       }}
     >
       <Container>
@@ -129,18 +128,24 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
             }}
           />
           {txnHistory && (
-            <ActionRowButton
-              variant="outlined"
-              size="medium"
-              {...defineMessages({
-                label: {
-                  defaultMessage: 'Transaction History',
-                  description: 'button text',
-                },
-              })}
-              route={txnHistory}
-              sx={{ marginLeft: theme.spacing(3) }}
-            />
+            <Box
+              onClick={() => history.push(txnHistory)}
+              sx={{
+                cursor: 'pointer',
+                height: theme.spacing(5),
+                border: `1px solid ${theme.palette.typography.accent}`,
+                borderRadius: theme.shape.borderRadius,
+                padding: theme.spacing(1),
+                marginLeft: theme.spacing(3),
+              }}
+            >
+              <HistoryIcon
+                sx={{
+                  fill: theme.palette.typography.accent,
+                  marginLeft: '2px',
+                }}
+              />
+            </Box>
           )}
         </ButtonContainer>
       </Container>
@@ -197,18 +202,6 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
             sx={{ marginTop: '0px' }}
           />
         </Box>
-      )}
-      {riskTableData && riskTableData.length > 0 && (
-        <DataTable
-          tableTitle={<FormattedMessage defaultMessage={'Liquidation Risk'} />}
-          columns={riskTableColumns}
-          data={riskTableData}
-          sx={{
-            width: '96%',
-            margin: `auto`,
-            paddingBottom: theme.spacing(3),
-          }}
-        />
       )}
     </Box>
   );

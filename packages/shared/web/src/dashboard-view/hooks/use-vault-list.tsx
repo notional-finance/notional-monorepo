@@ -170,7 +170,10 @@ export const useVaultList = (network: Network) => {
         },
         walletBalance: walletBalance?.toFloat() || 0,
         pool: vault.poolName,
-        protocols: `${vault.boosterProtocol} / ${vault.baseProtocol}`,
+        protocols:
+          vault.boosterProtocol === vault.baseProtocol
+            ? vault.baseProtocol
+            : `${vault.boosterProtocol} / ${vault.baseProtocol}`,
         totalApy: y?.totalAPY || 0,
         incentiveApy: 0,
         tvl: vault.vaultTVL ? vault.vaultTVL.toFiat(baseCurrency).toFloat() : 0,

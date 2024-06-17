@@ -223,6 +223,14 @@ export default class NotionalV3Liquidator {
       (c) => c.id === accountLiq.liquidation.getLocalCurrency().id
     );
     if (borrowAssetOverride) {
+      accountLiq.flashLoanAmount =
+        borrowAssetOverride.basePrecision &&
+        borrowAssetOverride.overridePrecision
+          ? accountLiq.flashLoanAmount
+              .mul(borrowAssetOverride.overridePrecision)
+              .div(borrowAssetOverride.basePrecision)
+          : accountLiq.flashLoanAmount;
+
       flashBorrowAsset = borrowAssetOverride.flashBorrowAsset;
     }
 
@@ -421,6 +429,7 @@ Flash Loan Amount: ${a.flashLoanAmount.toString()}
     const { data, to } = await this.flashLoanProvider.encodeTransaction(
       flashLiq
     );
+    const gasLimit = await this.flashLoanProvider.estimateGas(flashLiq);
 
     const resp = await sendTxThroughRelayer({
       env: {
@@ -429,6 +438,7 @@ Flash Loan Amount: ${a.flashLoanAmount.toString()}
       },
       to,
       data,
+      gasLimit: gasLimit.mul(200).div(100).toNumber(),
     });
 
     if (resp.status == 200) {

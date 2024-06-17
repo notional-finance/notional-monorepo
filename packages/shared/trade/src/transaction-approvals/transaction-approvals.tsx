@@ -14,11 +14,14 @@ export interface TransactionApprovalsProps {
   context: BaseTradeContext;
   onCancel?: () => void;
   allowanceIncreaseRequired?: boolean;
+  secondaryTokenApprovalRequired?: boolean;
   variableBorrowApprovalRequired?: boolean;
   tokenApprovalRequired?: boolean;
   tokenApprovalTxnStatus?: TransactionStatus;
+  secondaryTokenApprovalTxnStatus?: TransactionStatus;
   variableBorrowTxnStatus?: TransactionStatus;
   enableToken: (approve: boolean) => Promise<void>;
+  secondaryEnableToken: (approve: boolean) => Promise<void>;
   enablePrimeBorrow: () => void;
 }
 
@@ -26,16 +29,19 @@ export const TransactionApprovals = ({
   context,
   onCancel,
   allowanceIncreaseRequired,
+  secondaryTokenApprovalRequired,
   variableBorrowApprovalRequired,
   tokenApprovalRequired,
   tokenApprovalTxnStatus,
+  secondaryTokenApprovalTxnStatus,
   variableBorrowTxnStatus,
   enableToken,
   enablePrimeBorrow,
+  secondaryEnableToken,
 }: TransactionApprovalsProps) => {
   const theme = useTheme();
   const {
-    state: { depositBalance },
+    state: { depositBalance, secondaryDepositBalance },
   } = context;
 
   return (
@@ -66,6 +72,19 @@ export const TransactionApprovals = ({
           }
           symbol={depositBalance ? depositBalance.symbol : ''}
           callback={() => enableToken(true)}
+          title={messages.tokenApproval.title}
+          description={messages.tokenApproval.description}
+          buttonText={messages.tokenApproval.buttonText}
+        />
+      )}
+      {secondaryTokenApprovalRequired && (
+        <ApprovalButton
+          pending={
+            secondaryTokenApprovalTxnStatus !== TransactionStatus.NONE &&
+            secondaryTokenApprovalTxnStatus !== TransactionStatus.REVERT
+          }
+          symbol={secondaryDepositBalance ? secondaryDepositBalance.symbol : ''}
+          callback={() => secondaryEnableToken(true)}
           title={messages.tokenApproval.title}
           description={messages.tokenApproval.description}
           buttonText={messages.tokenApproval.buttonText}

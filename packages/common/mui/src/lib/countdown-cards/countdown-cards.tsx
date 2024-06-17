@@ -43,6 +43,7 @@ const SmallCountDownNumber = styled(LargeInputTextEmphasized)(
   () => `
   display: flex;
   justify-content: center;
+  font-size: 32px;
 `
 );
 
@@ -51,16 +52,18 @@ const Label = styled(Typography)(
   text-align: center;
   font-size: 10px;
   color: ${palette.borders.accentPaper}; 
+  margin-bottom: 0px;
 `
 );
 
 const SmallCountDownContainer = styled(Box)(
-  ({ theme: { palette } }) => `
+  ({ theme }) => `
     display: flex;
     justify-content: space-between;
-    background: ${palette.common.white};
     border-radius: 6px;
-    padding: 5px 10px;
+    padding: 0px 10px;
+    align-items: baseline;
+    width: ${theme.spacing(37.5)};
 `
 );
 
@@ -75,6 +78,19 @@ const CountDownText = styled(Box)(
   padding: 0.625rem;
   text-transform: uppercase;
   `
+);
+
+const ContentBox = styled(Box)(
+  ({ theme }) => `
+    display: flex;    
+    align-items: center;
+    justify-content: center;
+    padding: ${theme.spacing(2)};
+    margin-bottom: ${theme.spacing(2)};
+    border-radius: ${theme.shape.borderRadius()};
+    border: ${theme.shape.borderStandard};
+    background: ${theme.palette.background.default};
+    `
 );
 
 export const CountdownCards = ({
@@ -100,34 +116,43 @@ export const CountdownCards = ({
           date={futureDate}
           intervalDelay={0}
           precision={3}
-          renderer={({ days, hours, minutes, completed }) => {
+          renderer={({ days, hours, minutes, seconds, completed }) => {
             if (completedCallback && completed) {
               completedCallback();
               return <div></div>;
             } else {
               return (
-                <SmallCountDownContainer>
-                  <Box>
-                    <SmallCountDownNumber>{days}</SmallCountDownNumber>
-                    <Label>
-                      <FormattedMessage defaultMessage={'Days'} />
-                    </Label>
-                  </Box>
-                  <LargeInputTextEmphasized>:</LargeInputTextEmphasized>
-                  <Box>
-                    <SmallCountDownNumber>{hours}</SmallCountDownNumber>
-                    <Label>
-                      <FormattedMessage defaultMessage={'Hours'} />
-                    </Label>
-                  </Box>
-                  <LargeInputTextEmphasized>:</LargeInputTextEmphasized>
-                  <Box>
-                    <SmallCountDownNumber>{minutes}</SmallCountDownNumber>
-                    <Label>
-                      <FormattedMessage defaultMessage={'Minutes'} />
-                    </Label>
-                  </Box>
-                </SmallCountDownContainer>
+                <ContentBox id="CONTENT BOX">
+                  <SmallCountDownContainer>
+                    <Box>
+                      <SmallCountDownNumber>{days}</SmallCountDownNumber>
+                      <Label>
+                        <FormattedMessage defaultMessage={'Days'} />
+                      </Label>
+                    </Box>
+                    <LargeInputTextEmphasized>:</LargeInputTextEmphasized>
+                    <Box>
+                      <SmallCountDownNumber>{hours}</SmallCountDownNumber>
+                      <Label>
+                        <FormattedMessage defaultMessage={'Hours'} />
+                      </Label>
+                    </Box>
+                    <LargeInputTextEmphasized>:</LargeInputTextEmphasized>
+                    <Box>
+                      <SmallCountDownNumber>{minutes}</SmallCountDownNumber>
+                      <Label>
+                        <FormattedMessage defaultMessage={'Minutes'} />
+                      </Label>
+                    </Box>
+                    <LargeInputTextEmphasized>:</LargeInputTextEmphasized>
+                    <Box>
+                      <SmallCountDownNumber>{seconds}</SmallCountDownNumber>
+                      <Label>
+                        <FormattedMessage defaultMessage={'Seconds'} />
+                      </Label>
+                    </Box>
+                  </SmallCountDownContainer>
+                </ContentBox>
               );
             }
           }}

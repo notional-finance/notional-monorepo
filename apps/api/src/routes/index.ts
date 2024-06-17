@@ -25,6 +25,11 @@ const handleAccounts = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
 };
 
+const handleNOTEData = (request: IRequest, env: APIEnv) => {
+  const key = new URL(request.url).pathname.slice(1);
+  return env.ACCOUNT_CACHE_R2.get(key);
+};
+
 const handleConfigurations = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.CONFIGURATION_REGISTRY_DO, env.VERSION);
 };
@@ -88,4 +93,5 @@ export {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
+  handleNOTEData,
 };

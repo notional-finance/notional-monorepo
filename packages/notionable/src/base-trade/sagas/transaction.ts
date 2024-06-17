@@ -121,7 +121,11 @@ export function simulateTransaction(
                   // check to break.
                   return false;
                 } else {
-                  return t.tokenType !== 'Underlying' && !t.isVaultToken;
+                  return (
+                    t.tokenType !== 'Underlying' &&
+                    !t.isVaultToken &&
+                    t.tokenType !== 'NOTE'
+                  );
                 }
               }),
               // Exclude vault cash from the balances check since it should always

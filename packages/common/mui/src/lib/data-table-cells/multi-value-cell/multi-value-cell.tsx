@@ -51,7 +51,11 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
                     sx={{
                       marginBottom: '0px',
                       width: '100%',
-                      fontWeight: row.original.currency === 'Total' ? 600 : 500,
+                      fontWeight:
+                        row.original.currency === 'Total' ||
+                        column.columnDef?.fontWeightBold
+                          ? 600
+                          : 500,
                       display: 'flex',
                       color:
                         isNegative && !row.original.isDebt
@@ -90,7 +94,9 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
           )
         )
       ) : (
-        value
+        <Box sx={{ fontWeight: column.columnDef?.fontWeightBold ? 600 : '' }}>
+          {value}
+        </Box>
       )}
     </Box>
   );

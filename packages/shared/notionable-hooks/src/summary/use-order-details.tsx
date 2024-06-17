@@ -59,6 +59,12 @@ function getOrderDetails(
         ? OrderDetailLabels.primeDebtRepaid
         : OrderDetailLabels.primeDebtBorrowed;
       break;
+    case 'Underlying':
+    case 'NOTE':
+      valueLabel = b.isPositive()
+        ? OrderDetailLabels.assetMinted
+        : OrderDetailLabels.assetRedeemed;
+      break;
     default:
       throw Error('Unknown token type');
   }
@@ -140,6 +146,7 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
     netRealizedCollateralBalance,
     depositBalance,
     tradeType,
+    secondaryDepositBalance,
   } = state;
   const intl = useIntl();
   const orderDetails: DetailItem[] = [];
@@ -158,6 +165,24 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
               false
             ),
             isNegative: depositBalance.isNegative(),
+          },
+        ],
+      },
+    });
+  }
+
+  if (secondaryDepositBalance?.isPositive()) {
+    orderDetails.push({
+      label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
+      value: {
+        data: [
+          {
+            displayValue: secondaryDepositBalance.toDisplayStringWithSymbol(
+              4,
+              true,
+              false
+            ),
+            isNegative: secondaryDepositBalance.isNegative(),
           },
         ],
       },

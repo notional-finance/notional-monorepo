@@ -71,13 +71,13 @@ function offsettingBalance(
   } else if (t.tokenType === 'PrimeCash') {
     return !!account?.balances.find(
       (b) =>
-        b.currencyId === t.currencyId &&
+        b.token.currencyId === t.currencyId &&
         (b.tokenType === 'PrimeDebt' || (b.hasMatured && b.isNegative()))
     );
   } else if (t.tokenType === 'PrimeDebt') {
     return !!account?.balances.find(
       (b) =>
-        b.currencyId === t.currencyId &&
+        b.token.currencyId === t.currencyId &&
         (b.tokenType === 'PrimeCash' || (b.hasMatured && b.isPositive()))
     );
   } else if (t.tokenType === 'nToken') {

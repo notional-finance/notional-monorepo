@@ -10,11 +10,10 @@ import {
   TradeState,
   isLeveragedTrade,
   isDeleverageTrade,
-  TradeType,
-  VaultTradeType,
   isDeleverageWithSwappedTokens,
   isVaultTrade,
-  isRollOrConvert,
+  AllTradeTypes,
+  NOTETradeState,
 } from '@notional-finance/notionable';
 import { BASIS_POINT } from '@notional-finance/util';
 import {
@@ -156,6 +155,23 @@ function getTradeDetail(
         ],
       },
     };
+  } else if (tokenType === 'Underlying' || tokenType === 'NOTE') {
+    return {
+      label: intl.formatMessage(TradeSummaryLabels['Underlying'][typeKey], {
+        symbol: b.symbol,
+      }),
+      value: {
+        data: [
+          {
+            displayValue: (
+              underlyingValueOverride || b
+            ).toDisplayStringWithSymbol(4, true, false),
+            showPositiveAsGreen: b.isPositive(),
+            isNegative: false,
+          },
+        ],
+      },
+    };
   }
 
   throw Error('invalid asset key');
@@ -169,12 +185,24 @@ function getFeeItems(
   debtBalance: TokenBalance | undefined,
   collateralFee: TokenBalance | undefined,
   debtFee: TokenBalance | undefined,
-  tradeType: TradeType | VaultTradeType | undefined,
+  tradeType: AllTradeTypes | undefined,
   theme: NotionalTheme
 ): DetailItem[] {
   const zeroUnderlying = TokenBalance.zero(underlying);
 
-  if (isLeverageOrRoll) {
+  if (tradeType === 'StakeNOTE' && collateralFee) {
+    return [
+      getCollateralFeeDetailItem(
+        collateralBalance,
+        collateralFee,
+        tradeType,
+        theme
+      ),
+    ];
+  } else if (tradeType === 'StakeNOTERedeem') {
+    // No fees, redemption is proportional
+    return [];
+  } else if (isLeverageOrRoll) {
     const feeItems: DetailItem[] = [];
     // On leverage or roll trades, don't show prime fee balances since there will
     // never be any
@@ -192,7 +220,7 @@ function getFeeItems(
         )
       );
     }
-    
+
     if (
       collateralBalance?.unwrapVaultToken().tokenType !== 'PrimeCash' &&
       collateralBalance?.unwrapVaultToken().tokenType !== 'PrimeDebt'
@@ -245,12 +273,12 @@ function getFeeItems(
 function getDebtFeeDetailItem(
   debtBalance: TokenBalance | undefined,
   debtFee: TokenBalance,
-  tradeType: TradeType | VaultTradeType | undefined,
+  tradeType: AllTradeTypes | undefined,
   theme: Theme
 ): DetailItem {
   let feeToolTip: FeeMessages | undefined;
   const showPositiveAsGreen = undefined;
-  let iconColor: string | undefined = undefined
+  let iconColor: string | undefined = undefined;
 
   if (debtBalance?.tokenType === 'nToken' && debtFee) {
     const feePercent = debtFee
@@ -263,7 +291,7 @@ function getDebtFeeDetailItem(
       (isDeleverageTrade(tradeType) && feePercent > 50 * BASIS_POINT) ||
       (!isDeleverageTrade(tradeType) && feePercent > 20 * BASIS_POINT)
     ) {
-      iconColor = theme.palette.warning.main
+      iconColor = theme.palette.warning.main;
       feeToolTip = defineMessages({
         content: { defaultMessage: 'Redemption Cost' },
         toolTipContent: {
@@ -284,15 +312,20 @@ function getDebtFeeDetailItem(
       },
     });
   } else if (
-    (isDeleverageTrade(tradeType) || isRollOrConvert(tradeType)) &&
+    (isDeleverageTrade(tradeType) || tradeType === 'ConvertAsset') &&
+    debtBalance?.unwrapVaultToken()?.tokenType === 'fCash'
+  ) {
+    // In these cases the debt token is the token that is being sold, so we consider
+    // it an exit fee
+    feeToolTip = defineMessages({
+      content: { defaultMessage: 'Fixed Lend Exit Fee' },
+    });
+  } else if (
+    tradeType === 'RollDebt' &&
     debtBalance?.unwrapVaultToken()?.tokenType === 'fCash'
   ) {
     feeToolTip = defineMessages({
-      content: { defaultMessage: 'Exit Fee' },
-      toolTipContent: {
-        defaultMessage:
-          'Exiting a fixed rate debt before maturity incurs an exit fee.',
-      },
+      content: { defaultMessage: 'Fixed Borrow Entry Fee' },
     });
   }
 
@@ -301,14 +334,16 @@ function getDebtFeeDetailItem(
       text: feeToolTip
         ? feeToolTip
         : defineMessages({
-            content: { defaultMessage: 'Fees and Slippage' },
+            content: { defaultMessage: 'Fees' },
           }),
       iconColor,
     },
     value: {
       data: [
         {
-          displayValue: debtFee.toUnderlying().toDisplayStringWithSymbol(4, true, false),
+          displayValue: debtFee
+            .toUnderlying()
+            .toDisplayStringWithSymbol(4, true, false),
           isNegative: false,
           showPositiveAsGreen,
         },
@@ -320,16 +355,16 @@ function getDebtFeeDetailItem(
 function getCollateralFeeDetailItem(
   collateralBalance: TokenBalance | undefined,
   collateralFee: TokenBalance,
-  tradeType: TradeType | VaultTradeType | undefined,
+  tradeType: AllTradeTypes | undefined,
   theme: Theme
 ): DetailItem {
   let feeToolTip: FeeMessages | undefined;
   let showPositiveAsGreen: boolean | undefined = undefined;
-  let iconColor: string | undefined = undefined
+  let iconColor: string | undefined = undefined;
 
   if (collateralBalance?.tokenType === 'nToken' && collateralFee.isNegative()) {
     feeToolTip = defineMessages({
-      content: { defaultMessage: 'Mint Bonus' },
+      content: { defaultMessage: 'Liquidity Mint Bonus' },
       toolTipContent: {
         defaultMessage:
           'Minting nTokens at high utilization results in a small bonus due to an increase in the nToken valuation.',
@@ -350,9 +385,9 @@ function getCollateralFeeDetailItem(
       (isLeveragedTrade(tradeType) && feePercent > 50 * BASIS_POINT) ||
       (!isLeveragedTrade(tradeType) && feePercent > 10 * BASIS_POINT)
     ) {
-      iconColor = theme.palette.warning.main
+      iconColor = theme.palette.warning.main;
       feeToolTip = defineMessages({
-        content: { defaultMessage: 'Fees and Slippage' },
+        content: { defaultMessage: 'Fees' },
         toolTipContent: {
           defaultMessage:
             'Fixed rate volatility is causing a larger than normal minting fee. This fee goes to zero as fixed rates stabilize.',
@@ -361,7 +396,7 @@ function getCollateralFeeDetailItem(
     } else {
       feeToolTip = defineMessages({
         content: { defaultMessage: 'Provide Liquidity Fee' },
-      })
+      });
     }
   } else if (collateralBalance?.tokenType === 'VaultShare') {
     feeToolTip = defineMessages({
@@ -371,6 +406,22 @@ function getCollateralFeeDetailItem(
           'Trading costs associated with entering a vault position',
       },
     });
+  } else if (
+    (isDeleverageTrade(tradeType) || tradeType === 'ConvertAsset') &&
+    collateralBalance?.unwrapVaultToken()?.tokenType === 'fCash'
+  ) {
+    feeToolTip = defineMessages({
+      content: { defaultMessage: 'Fixed Lend Entry Fee' },
+    });
+  } else if (
+    tradeType === 'RollDebt' &&
+    collateralBalance?.unwrapVaultToken()?.tokenType === 'fCash'
+  ) {
+    // In these cases the collateral token is the debt that is being repaid, so we consider
+    // it an exit fee
+    feeToolTip = defineMessages({
+      content: { defaultMessage: 'Fixed Borrow Exit Fee' },
+    });
   }
 
   return {
@@ -378,14 +429,16 @@ function getCollateralFeeDetailItem(
       text: feeToolTip
         ? feeToolTip
         : defineMessages({
-            content: { defaultMessage: 'Fees and Slippage' },
+            content: { defaultMessage: 'Fees' },
           }),
-      iconColor
+      iconColor,
     },
     value: {
       data: [
         {
-          displayValue: collateralFee.toUnderlying().toDisplayStringWithSymbol(4, true, false),
+          displayValue: collateralFee
+            .toUnderlying()
+            .toDisplayStringWithSymbol(4, true, false),
           isNegative: false,
           showPositiveAsGreen,
         },
@@ -468,6 +521,48 @@ function getWithdrawSummary(
         )
       );
     }
+  }
+
+  return summary;
+}
+
+function getStakeNOTESummary(
+  state: NOTETradeState,
+  intl: IntlShape
+): DetailItem[] {
+  const summary: DetailItem[] = [];
+  if (state.tradeType === 'StakeNOTE' && state.collateralBalance) {
+    // Mint sNOTE (this gets shifted to the total row)
+    if (state.collateralBalance) {
+      summary.push(
+        getTradeDetail(state.collateralBalance, 'Asset', 'none', intl)
+      );
+    }
+
+    // Deposit ETH
+    if (state.depositBalance) {
+      summary.push(
+        getTradeDetail(state.depositBalance, 'Asset', 'deposit', intl)
+      );
+    }
+
+    // Deposit NOTE
+    if (state.secondaryDepositBalance) {
+      summary.push(
+        getTradeDetail(state.secondaryDepositBalance, 'Asset', 'deposit', intl)
+      );
+    }
+  } else if (
+    state.tradeType === 'StakeNOTERedeem' &&
+    state.collateralBalance &&
+    state.ethRedeem
+  ) {
+    // Redeem sNOTE
+    summary.push(getTradeDetail(state.ethRedeem, 'Asset', 'withdraw', intl));
+    // Withdraw NOTE
+    summary.push(
+      getTradeDetail(state.collateralBalance, 'Asset', 'withdraw', intl)
+    );
   }
 
   return summary;
@@ -679,7 +774,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     calculationSuccess,
   } = state;
   const depositBalance = _d;
-  const { totalAPY, assetAPY, debtAPY } = useTotalAPY(state);
+  const { totalAPY } = useTotalAPY(state);
 
   const underlying =
     netAssetBalance?.underlying ||
@@ -707,7 +802,9 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   );
 
   let summary: DetailItem[] = [];
-  if (
+  if (tradeType === 'StakeNOTE' || tradeType === 'StakeNOTERedeem') {
+    summary.push(...getStakeNOTESummary(state, intl));
+  } else if (
     isLeverageOrRoll &&
     (depositBalance?.isPositive() ||
       tradeType === 'IncreaseVaultPosition' ||
@@ -769,13 +866,15 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     tradeType === 'CreateVaultPosition' ||
     tradeType === 'LeveragedNToken'
   ) {
-    const assetEarnings = calculate30dEarnings(collateralBalance, assetAPY);
-    const debtCost = calculate30dEarnings(debtBalance, debtAPY)?.abs().neg();
-    earnings =
-      assetEarnings && debtCost ? assetEarnings.add(debtCost) : undefined;
+    const netWorth = depositBalance
+      ?.sub(debtFee?.toUnderlying() || TokenBalance.zero(underlying))
+      .sub(collateralFee?.toUnderlying() || TokenBalance.zero(underlying));
+    earnings = netWorth ? calculate30dEarnings(netWorth, totalAPY) : undefined;
   } else {
     earnings = undefined;
   }
+
+  if (summary.length === 0) return { summary: undefined, total: undefined };
 
   if (
     tradeType === 'LendFixed' ||
@@ -783,7 +882,8 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     tradeType === 'MintNToken' ||
     tradeType === 'RepayDebt' ||
     tradeType === 'CreateVaultPosition' ||
-    tradeType === 'LeveragedNToken'
+    tradeType === 'LeveragedNToken' ||
+    tradeType === 'StakeNOTE'
   ) {
     total = summary.shift() as DetailItem;
     total.isTotalRow = true;
@@ -795,9 +895,19 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
       total.label = intl.formatMessage(
         defineMessage({ defaultMessage: 'Net Worth' })
       );
+      // Subtract fees from the deposit balance
+      total.value.data[0].displayValue = depositBalance
+        ?.sub(debtFee?.toUnderlying() || TokenBalance.zero(underlying))
+        .sub(collateralFee?.toUnderlying() || TokenBalance.zero(underlying))
+        .toDisplayStringWithSymbol(4, true, false);
     }
     walletTotal.value.data[0].showPositiveAsGreen = true;
-    summary = [walletTotal, ...summary, total];
+    summary =
+      tradeType === 'StakeNOTE'
+        ? [...summary, total]
+        : [walletTotal, ...summary, total];
+  } else if (tradeType === 'StakeNOTERedeem') {
+    // no-op, ignore wallet total row
   } else {
     walletTotal.isTotalRow = true;
     summary.push(walletTotal);

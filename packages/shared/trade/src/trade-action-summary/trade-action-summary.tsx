@@ -27,6 +27,7 @@ import { pointsMultiple } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
+  stakedNOTEApy?: number;
   liquidityYieldData?: YieldData;
   priorVaultFactors?: {
     vaultShare?: TokenDefinition;
@@ -38,6 +39,7 @@ interface TradeActionSummaryProps {
 
 export function TradeActionSummary({
   state,
+  stakedNOTEApy,
   priorVaultFactors,
   liquidityYieldData,
   children,
@@ -77,7 +79,9 @@ export function TradeActionSummary({
   const selectedToken =
     (tradeType === 'LeveragedLend' ||
       tradeType === 'LeveragedNToken' ||
-      tradeType === 'MintNToken') &&
+      tradeType === 'MintNToken' ||
+      tradeType === 'StakeNOTE' ||
+      tradeType === 'StakeNOTECoolDown') &&
     collateral
       ? formatTokenType(collateral).icon
       : deposit?.symbol;
@@ -118,7 +122,7 @@ export function TradeActionSummary({
           }
         />
         <TradeActionTitle
-          value={totalAPY}
+          value={totalAPY || stakedNOTEApy}
           title={apySuffix}
           valueSuffix="%"
           hasPoints={!!points}

@@ -34,8 +34,8 @@ export function globalWhenAppReady$(global$: Observable<GlobalState>) {
     distinctUntilChanged(
       (p, c) => isAppReady(p.networkState) === isAppReady(c.networkState)
     ),
-    filter((g) => isAppReady(g.networkState)),
-  )
+    filter((g) => isAppReady(g.networkState))
+  );
 }
 
 function exportControlState$(global$: Observable<GlobalState>) {
@@ -60,6 +60,7 @@ function initNetworkRegistry$(global$: Observable<GlobalState>) {
     map(({ cacheHostname }) => {
       // This is a no-op if the registry is already initialized
       Registry.initialize(
+        { NX_SUBGRAPH_API_KEY: process.env['NX_SUBGRAPH_API_KEY'] as string },
         cacheHostname,
         AccountFetchMode.SINGLE_ACCOUNT_DIRECT
       );
@@ -69,6 +70,8 @@ function initNetworkRegistry$(global$: Observable<GlobalState>) {
         ns[n] = 'Pending';
         return ns;
       }, {} as NonNullable<GlobalState['networkState']>);
+      // This has to be set manually
+      networkState[Network.all] = 'Pending';
 
       return { networkState };
     })
@@ -79,7 +82,7 @@ function onNetworkLoaded$(global$: Observable<GlobalState>) {
   return global$.pipe(
     map(({ networkState }) => {
       if (networkState) {
-        const pendingNetworks = SupportedNetworks.filter(
+        const pendingNetworks = [...SupportedNetworks, Network.all].filter(
           (n) => networkState[n] === 'Pending'
         );
         if (pendingNetworks.length) return pendingNetworks;

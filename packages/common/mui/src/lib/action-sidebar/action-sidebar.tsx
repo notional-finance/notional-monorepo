@@ -16,6 +16,7 @@ export interface ActionSidebarProps {
     | MessageDescriptor
     | { defaultMessage: string }
     | { values?: Record<string, unknown> };
+  walletConnectedText?: MessageDescriptor;
   helptext:
     | MessageDescriptor
     | { defaultMessage: string }
@@ -26,7 +27,7 @@ export interface ActionSidebarProps {
   cancelRoute?: string;
   onCancelCallback?: () => void;
   CustomActionButton?: React.ElementType;
-  showActionButtons?: boolean;
+  hideActionButtons?: boolean;
   hideTextOnMobile?: boolean;
   advancedToggle?: ToggleSwitchProps;
   NetworkSelector?: React.ReactNode;
@@ -76,12 +77,13 @@ export const ActionSidebar = ({
   CustomActionButton,
   NetworkSelector,
   advancedToggle,
-  showActionButtons = true,
+  hideActionButtons,
   hideTextOnMobile = true,
   handleSubmit,
   isPortfolio,
   leverageDisabled,
   mobileTopMargin,
+  walletConnectedText,
 }: ActionSidebarProps) => {
   const theme = useTheme();
 
@@ -147,7 +149,7 @@ export const ActionSidebar = ({
       </ActionSideBarContainer>
       <FormSection hideTextOnMobile={hideTextOnMobile} theme={theme}>
         {children}
-        {showActionButtons && !CustomActionButton && handleSubmit && (
+        {!hideActionButtons && !CustomActionButton && handleSubmit && (
           <ActionSidebarButtons
             canSubmit={canSubmit}
             cancelRoute={cancelRoute}
@@ -160,6 +162,7 @@ export const ActionSidebar = ({
           <CustomActionButton
             onSubmit={handleSubmit}
             canSubmit={canSubmit}
+            walletConnectedText={walletConnectedText}
             leverageDisabled={leverageDisabled}
           />
         )}

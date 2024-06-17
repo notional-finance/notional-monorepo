@@ -91,10 +91,10 @@ const AppShell = styled(Box)`
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
-  padding-top: 67px;
 `;
 
 const MainContent = styled('div')`
+  padding-top: 67px;
   display: flex;
   flex-grow: 1;
   & > div {

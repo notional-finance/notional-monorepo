@@ -93,7 +93,7 @@ const run = async (env: Env) => {
             underlyingContract: ERC20__factory.connect(c.address, provider),
           };
         }),
-      overrides: overrides.arbitrum,
+      overrides: overrides[env.NETWORK],
       tokens: new Map<string, string>(Object.entries(tokens[env.NETWORK])),
       zeroExUrl: env.ZERO_EX_SWAP_URL,
       zeroExApiKey: env.ZERO_EX_API_KEY,

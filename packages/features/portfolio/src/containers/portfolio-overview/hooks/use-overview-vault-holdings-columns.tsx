@@ -17,7 +17,7 @@ export const useOverviewVaultHoldingsColumns = () => {
           />
         ),
         cell: MultiValueIconCell,
-        accessorKey: 'strategy',
+        accessorKey: 'vault',
         textAlign: 'left',
       },
       {
@@ -28,7 +28,7 @@ export const useOverviewVaultHoldingsColumns = () => {
           />
         ),
         cell: MultiValueCell,
-        accessorKey: 'netWorth',
+        accessorKey: 'presentValue',
         textAlign: 'right',
       },
       {
@@ -57,7 +57,7 @@ export const useOverviewVaultHoldingsColumns = () => {
         header: (
           <FormattedMessage defaultMessage="APY" description={'Debts header'} />
         ),
-        accessorKey: 'totalAPY',
+        accessorKey: 'marketAPY',
         textAlign: 'right',
       },
     ],

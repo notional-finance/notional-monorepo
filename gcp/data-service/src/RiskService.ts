@@ -2,18 +2,26 @@ import {
   Registry,
   AccountFetchMode,
   AccountDefinition,
+  getArbBoosts,
 } from '@notional-finance/core-entities';
 import {
   AccountRiskProfile,
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
-import { Network, SupportedNetworks } from '@notional-finance/util';
+import {
+  Network,
+  SupportedNetworks,
+  floorToMidnight,
+  getNowSeconds,
+  groupArrayByKey,
+} from '@notional-finance/util';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 const DATA_URL = process.env['API_URL'] as string;
 const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
 const R2_ACCESS_KEY_ID = process.env['R2_ACCESS_KEY_ID'] as string;
 const R2_SECRET_ACCESS_KEY = process.env['R2_SECRET_ACCESS_KEY'] as string;
+const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
 
 export const S3 = new S3Client({
   region: 'auto',
@@ -32,6 +40,7 @@ export async function calculateAccountRisks() {
     true,
     false
   );
+  Registry.getAccountRegistry().setSubgraphAPIKey = SUBGRAPH_API_KEY;
 
   // First trigger a refresh for all supported networks
   await Promise.all(
@@ -150,4 +159,68 @@ function getVaultRiskFactors(account: AccountDefinition) {
         };
       })
   );
+}
+
+export async function calculatePointsAccrued(network: Network) {
+  Registry.initialize(
+    DATA_URL,
+    AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
+    false,
+    true,
+    false
+  );
+  Registry.getAccountRegistry().setSubgraphAPIKey = SUBGRAPH_API_KEY;
+  await Registry.triggerRefresh(network);
+
+  const allAccounts = Registry.getAccountRegistry()
+    .getAllSubjectKeys(network)
+    .map((a) => Registry.getAccountRegistry().getLatestFromSubject(network, a))
+    .filter((account) => {
+      return (
+        account?.systemAccountType === 'None' &&
+        (account.balances.length > 0 ||
+          !account.balances
+            .filter((b) => b.symbol !== 'NOTE' && b.symbol !== 'sNOTE')
+            .every((b) => b.isZero()))
+      );
+    }) as AccountDefinition[];
+  const date = floorToMidnight(getNowSeconds());
+
+  return allAccounts.flatMap((a: AccountDefinition) => {
+    const portfolioPoints = groupArrayByKey(
+      a.balances.filter((t) => t.token.currencyId && !t.isVaultToken),
+      (t) => t.currencyId
+    )
+      .filter(
+        (g) =>
+          // Exclude currencies where this is leverage
+          !(g.find((t) => t.isNegative()) && g.find((t) => t.isPositive()))
+      )
+      .flatMap((g) => {
+        return g.map((t) => ({
+          account: a.address,
+          date,
+          token: t.tokenId,
+          points:
+            t.toUnderlying().abs().toFiat('USD').toFloat() *
+            getArbBoosts(t.token, t.isNegative()),
+        }));
+      });
+
+    const vaultPoints = VaultAccountRiskProfile.getAllRiskProfiles(a)
+      // Filter out empty vault accounts
+      .filter((v) => !(v.vaultShares.isZero() && v.vaultDebt.isZero()))
+      .map((v) => ({
+        account: a.address,
+        date,
+        token: v.vaultShares.tokenId,
+        points:
+          v.netWorth().toFiat('USD').toFloat() *
+          getArbBoosts(v.vaultShares.token, false),
+      }));
+
+    return portfolioPoints
+      .concat(vaultPoints)
+      .filter(({ points }) => points > 0);
+  });
 }

@@ -34,6 +34,7 @@ import {
   gql,
 } from '@apollo/client/core';
 import { graphQueries } from './graphQueries';
+import { calculatePointsAccrued } from './RiskService';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -59,8 +60,9 @@ export default class DataService {
   public static readonly VAULT_ACCOUNTS_TABLE_NAME = 'vault_accounts';
   public static readonly VAULT_APY_NAME = 'vault_apy';
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
+  public static readonly POINTS_TABLE_NAME = 'arb_points';
 
-  constructor(public db: Knex, public settings: DataServiceSettings) { }
+  constructor(public db: Knex, public settings: DataServiceSettings) {}
 
   private getKeyByValue(object, value) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -132,6 +134,7 @@ export default class DataService {
         }
       } catch (e: any) {
         console.error(`Failed to backfill ${ts}, ${e.toString()}`);
+        console.error(e.stack);
       }
       await new Promise((r) => setTimeout(r, this.settings.backfillDelayMs));
     }
@@ -173,7 +176,7 @@ export default class DataService {
   }
 
   public async syncOracleData(ts: number) {
-    const networks = [Network.all, Network.arbitrum];
+    const networks = [Network.all];
 
     for (const network of networks) {
       const blockNumber = await this.getBlockNumberFromTs(network, ts);
@@ -385,7 +388,7 @@ export default class DataService {
         highBlock = block;
         const delta = Math.ceil(
           (block.timestamp - targetTimestamp) *
-          this.settings.blocksPerSecond[network.toString()]
+            this.settings.blocksPerSecond[network.toString()]
         );
         blockNumber -= delta;
         block = await provider.getBlock(blockNumber);
@@ -394,7 +397,7 @@ export default class DataService {
         lowBlock = block;
         const delta = Math.ceil(
           (targetTimestamp - block.timestamp) *
-          this.settings.blocksPerSecond[network.toString()]
+            this.settings.blocksPerSecond[network.toString()]
         );
         blockNumber += delta;
         block = await provider.getBlock(blockNumber);
@@ -518,10 +521,17 @@ export default class DataService {
       .ignore();
   }
 
-  public async insertVaultAPY(
-    network: Network,
-    vaultAPY: VaultAPY[]
+  public async insertPointsData(
+    points: Awaited<ReturnType<typeof calculatePointsAccrued>>
   ) {
+    return this.db
+      .insert(points)
+      .into(DataService.POINTS_TABLE_NAME)
+      .onConflict(['account', 'date', 'token'])
+      .ignore();
+  }
+
+  public async insertVaultAPY(network: Network, vaultAPY: VaultAPY[]) {
     return this.db
       .insert(
         vaultAPY.map((v) => ({
@@ -535,6 +545,8 @@ export default class DataService {
           reward_tokens_claimed: v.rewardTokensClaimed,
           reward_token_value_primary_borrow: v.rewardTokenValuePrimaryBorrow,
           no_vault_shares: v.noVaultShares,
+          swap_fees: v.swapFees,
+          symbol: v.rewardTokenSymbol,
         }))
       )
       .into(DataService.VAULT_APY_NAME)

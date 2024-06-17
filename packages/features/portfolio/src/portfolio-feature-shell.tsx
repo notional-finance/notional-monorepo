@@ -7,12 +7,12 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import {
-  ButtonBar,
+  LargeInputTextEmphasized,
   SideBarSubHeader,
   SideDrawer,
   TypeForm,
 } from '@notional-finance/mui';
-import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
+import { usePortfolioSideDrawers } from './hooks';
 import {
   SideNav,
   PortfolioMobileNav,
@@ -25,6 +25,7 @@ import {
   PortfolioVaults,
   PortfolioTransactionHistory,
   PortfolioHoldings,
+  PortfolioNoteStaking,
 } from './containers';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import {
@@ -34,6 +35,7 @@ import {
 import { FeatureLoader } from '@notional-finance/shared-web';
 import { PortfolioNetworkSelector } from '@notional-finance/wallet';
 import { defineMessage } from 'react-intl';
+import { messages } from './messages';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -62,7 +64,6 @@ const Portfolio = () => {
   const history = useHistory();
   const { pathname } = useLocation();
   const isAccountReady = useAccountReady(network);
-  const buttonData = usePortfolioButtonBar();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -117,16 +118,22 @@ const Portfolio = () => {
         <SideNav />
       </PortfolioSidebar>
       <PortfolioMainContent>
-        <ActionButtonRow>
-          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-            <ButtonBar buttonOptions={buttonData} />
-          )}
-          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS ||
-            (params.category === PORTFOLIO_CATEGORIES.OVERVIEW && (
-              <ClaimNoteButton />
-            ))}
-          <PortfolioNetworkSelector />
-        </ActionButtonRow>
+        {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+          <ActionButtonRow>
+            {params.category && messages[params.category] && (
+              <Heading msg={messages[params.category]} />
+            )}
+            <ButtonsContainer>
+              {params.category === PORTFOLIO_CATEGORIES.HOLDINGS ||
+              params.category === PORTFOLIO_CATEGORIES.OVERVIEW ? (
+                <ClaimNoteButton />
+              ) : (
+                ''
+              )}
+              <PortfolioNetworkSelector />
+            </ButtonsContainer>
+          </ActionButtonRow>
+        )}
         {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
           params.category === undefined) && (
           <>
@@ -139,6 +146,9 @@ const Portfolio = () => {
         )}
         {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
           <PortfolioVaults />
+        )}
+        {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+          <PortfolioNoteStaking />
         )}
         {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
           <PortfolioTransactionHistory />
@@ -169,7 +179,7 @@ const Portfolio = () => {
 const ActionButtonRow = styled(Box)(
   ({ theme }) => `
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: ${theme.spacing(3)};
   ${theme.breakpoints.down('sm')} {
@@ -188,6 +198,24 @@ const PortfolioContainer = styled(Box)(
     flex-flow: column;
     max-width: 90%;
     margin: auto;
+  };`
+);
+
+const Heading = styled(LargeInputTextEmphasized)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  };`
+);
+
+const ButtonsContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  align-items: center;
+  ${theme.breakpoints.down('sm')} {
+    justify-content: space-between;
+    flex-flow: column;
+    height: ${theme.spacing(21)};
   };`
 );
 

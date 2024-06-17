@@ -31,10 +31,8 @@ export function AnalyticsDropdown() {
     <DropdownButton
       popupId="analytics"
       labelKey={messages[NAV_DROPDOWN.ANALYTICS]}
-      anchorPosition={{ top: 73, left: 0 }}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       activeTab={currentTab ? true : false}
-      anchorReference="none"
+      anchorReference="anchorEl"
       hideOnClick={false}
       sx={{
         textTransform: 'capitalize',
@@ -43,7 +41,6 @@ export function AnalyticsDropdown() {
         padding: '6px 15px',
       }}
       customPopOverStyles={{
-        top: '73px',
         right: 0,
         width: theme.spacing(82),
         overflow: 'visible',

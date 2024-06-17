@@ -13,6 +13,7 @@ import { Network } from '@notional-finance/util';
 import { fCashMarket } from './NotionalV3/fCash-market';
 import { BaseNotionalMarket } from './NotionalV3/BaseNotionalMarket';
 import { pCashMarket } from './NotionalV3/pCash-market';
+import SNOTEWeightedPool from './BalancerV2/snote-weighted-pool';
 
 type PoolConstructor = new (
   network: Network,
@@ -27,6 +28,7 @@ const PoolClasses: Record<
   typeof BaseLiquidityPool<unknown> & PoolConstructor
 > = {
   WeightedPool: WeightedPool,
+  SNOTEWeightedPool: SNOTEWeightedPool,
   fCashMarket: fCashMarket,
   ComposableStablePool: ComposableStablePool,
   Curve2TokenPoolV1: Curve2TokenPoolV1,
@@ -49,4 +51,5 @@ export {
   Curve2TokenPoolV1_SelfLPToken,
   BaseNotionalMarket,
   pCashMarket,
+  SNOTEWeightedPool,
 };

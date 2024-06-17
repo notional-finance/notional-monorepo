@@ -3,8 +3,9 @@ import {
   getNowSeconds,
   getProviderFromNetwork,
   Network,
+  SubgraphId,
 } from '@notional-finance/util';
-import { CacheSchema } from '..';
+import { CacheSchema, Env } from '..';
 import { BaseRegistry } from '../base';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { providers } from 'ethers';
@@ -106,18 +107,21 @@ export async function fetchGraphPaginate<R, V>(
   network: Network,
   query: TypedDocumentNode<R, V>,
   rootVariable: string | undefined,
-  variables?: V
+  apiKey: string,
+  variables?: V,
 ) {
   const { execute } = await loadGraphClientDeferred();
   const executionResult = await execute(query, variables, {
-    chainName: network,
+    subgraphId: SubgraphId[network],
+    apiKey,
   });
   if (executionResult['errors']) console.error(executionResult['errors']);
 
-  while (rootVariable && executionResult['data'][rootVariable].length < 1000) {
+  while (rootVariable && executionResult['data'][rootVariable].length == 1000) {
     (variables as unknown as { skip: number })['skip'] += 1000;
     const r = await execute(query, variables, {
-      chainName: network,
+      subgraphId: SubgraphId[network],
+      apiKey,
     });
 
     executionResult['data'][rootVariable].push(r['data'][rootVariable]);
@@ -130,8 +134,9 @@ export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
   network: Network,
   query: TypedDocumentNode<R, V>,
   transform: (r: R) => Record<string, T>,
+  apiKey: string,
   variables?: V,
-  rootVariable?: string
+  rootVariable?: string,
 ): Promise<{ finalResults: Record<string, T>; blockNumber: number }> {
   // NOTE: in order for this to deploy with cloudflare workers, the import statement
   // has to be deferred until here.
@@ -141,7 +146,10 @@ export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
     let finalResults = {} as Record<string, T>;
     let blockNumber = 0;
     do {
-      const data = await execute(query, variables, { chainName: network });
+      const data = await execute(query, variables, {
+        subgraphId: SubgraphId[network],
+        apiKey,
+      });
       if (data['errors']) console.error(data['errors']);
 
       finalResults = Object.assign(finalResults, transform(data['data']));
@@ -156,7 +164,10 @@ export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
 
     return { finalResults, blockNumber };
   } else {
-    const data = await execute(query, variables, { chainName: network });
+    const data = await execute(query, variables, {
+      subgraphId: SubgraphId[network],
+      apiKey,
+    });
     const finalResults = transform(data['data']);
     const blockNumber = data['data']._meta?.block.number || 0;
     return { finalResults, blockNumber };
@@ -171,15 +182,17 @@ export async function fetchUsingGraph<
   network: Network,
   query: TypedDocumentNode<R, V>,
   transform: (r: R) => Record<string, T>,
+  apiKey: string,
   variables?: V,
-  rootVariable?: string
+  rootVariable?: string,
 ): Promise<CacheSchema<T>> {
   const { finalResults, blockNumber } = await fetchGraph(
     network,
     query,
     transform,
+    apiKey,
     variables,
-    rootVariable
+    rootVariable,
   );
 
   return {
@@ -191,6 +204,10 @@ export async function fetchUsingGraph<
 }
 
 export abstract class ServerRegistry<T> extends BaseRegistry<T> {
+  constructor(protected env: Env) {
+    super();
+  }
+
   protected async _fetchUsingMulticall(
     network: Network,
     calls: AggregateCall<T>[],
@@ -203,15 +220,17 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     network: Network,
     query: TypedDocumentNode<R, V>,
     transform: (r: R) => Record<string, T>,
+    apiKey: string,
     variables?: V,
-    rootVariable?: string
+    rootVariable?: string,
   ): Promise<CacheSchema<T>> {
     return fetchUsingGraph<T, R, V>(
       network,
       query,
       transform,
+      apiKey,
       variables,
-      rootVariable
+      rootVariable,
     );
   }
 

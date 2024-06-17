@@ -132,6 +132,16 @@ export const messages: Record<
       description: '',
     },
   }),
+  [PORTFOLIO_ACTIONS.COOL_DOWN]: defineMessages({
+    heading: {
+      defaultMessage: 'Cool down',
+      description: '',
+    },
+    helptext: {
+      defaultMessage: 'Cool down',
+      description: '',
+    },
+  }),
   [TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN]: defineMessages({
     title: { defaultMessage: 'Impermanent Loss', description: '' },
     message: {

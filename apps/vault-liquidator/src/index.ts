@@ -64,7 +64,6 @@ async function setUp(env: Env, vaultAddrs: string[]) {
     vaultAddrs,
     flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACTS,
     flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
-    flashLenderAddress: env.FLASH_LENDER_ADDRESS,
     flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
     slippageLimit: BigNumber.from(env.SLIPPAGE_LIMIT),
     notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
@@ -276,7 +275,7 @@ export default {
         await runAllVaults(env);
         return new Response('OK', { status: 200 });
       } else if (splitPath.length === 2) {
-        return runSingleVault(splitPath[1], env);
+        return runSingleVault(splitPath[1].toLowerCase(), env);
       } else {
         return new Response('Not Found', { status: 404 });
       }

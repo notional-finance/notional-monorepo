@@ -1,4 +1,8 @@
-import { ServerRegistry, loadGraphClientDeferred } from './server-registry';
+import {
+  ServerRegistry,
+  fetchGraphPaginate,
+  loadGraphClientDeferred,
+} from './server-registry';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { aggregate } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
@@ -12,13 +16,24 @@ import { DeprecatedVaults, vaultOverrides } from './vault-overrides';
 
 export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
   protected async _refresh(network: Network, blockNumber?: number) {
-    const { AllVaultsDocument, AllVaultsByBlockDocument, execute } =
+    const { AllVaultsDocument, AllVaultsByBlockDocument } =
       await loadGraphClientDeferred();
-    const data = await execute(
-      blockNumber !== undefined ? AllVaultsByBlockDocument : AllVaultsDocument,
-      { blockNumber },
-      { chainName: network }
-    );
+
+    const data =
+      blockNumber === undefined
+        ? await fetchGraphPaginate(
+            network,
+            AllVaultsDocument,
+            'vaultConfigurations',
+            this.env.NX_SUBGRAPH_API_KEY
+          )
+        : await fetchGraphPaginate(
+            network,
+            AllVaultsByBlockDocument,
+            'vaultConfigurations',
+            this.env.NX_SUBGRAPH_API_KEY,
+            { blockNumber },
+          );
 
     const calls = data['data'].vaultConfigurations
       .filter(

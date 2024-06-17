@@ -18,8 +18,8 @@ export const navLabels = defineMessages({
     defaultMessage: 'Leveraged Vaults',
     description: 'navigation link',
   },
-  [PORTFOLIO_CATEGORIES.STAKED_NOTE]: {
-    defaultMessage: 'Staked NOTE',
+  [PORTFOLIO_CATEGORIES.NOTE_STAKING]: {
+    defaultMessage: 'Note staking',
     description: 'navigation link',
   },
 });
