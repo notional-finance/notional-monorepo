@@ -33,22 +33,27 @@ export const getHoldingsSortOrder = (t: TokenDefinition) => {
 export const formatCryptoWithFiat = (
   baseCurrency: FiatKeys,
   tbn?: TokenBalance | null,
-  isDebt?: boolean
+  options?: { showZero?: boolean, isDebt?: boolean}
 ) => {
-  return !tbn || tbn.isZero()
-    ? '-'
-    : {
+
+  if(options?.showZero && (!tbn || tbn.isZero())) {
+    return '0.00'
+  } else if(!tbn || tbn.isZero()) {
+    return '-'
+  } else {
+    return {
         data: [
           {
             displayValue: tbn.toDisplayStringWithSymbol(),
-            isNegative: isDebt ? false : tbn.isNegative(),
+            isNegative: options?.isDebt ? false : tbn.isNegative(),
           },
           {
             displayValue: tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(2),
-            isNegative: isDebt ? false : tbn.isNegative(),
+            isNegative: options?.isDebt ? false : tbn.isNegative(),
           },
         ],
-      };
+      }
+    }
 };
 
 export const formatValueWithFiat = (

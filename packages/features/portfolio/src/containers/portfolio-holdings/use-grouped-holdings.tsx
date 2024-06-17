@@ -132,11 +132,24 @@ export function useGroupedHoldingsTable() {
           ? formatCryptoWithFiat(baseCurrency, amountPaid)
           : '-',
         presentValue: formatCryptoWithFiat(baseCurrency, presentValue),
-        earnings: totalEarnings
-          ? totalEarnings
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, true, 'en-US', true)
-          : '-',
+        earnings: {
+          data: [
+            {
+              displayValue: totalEarnings
+                ? totalEarnings
+                    .toFiat(baseCurrency)
+                    .toDisplayStringWithSymbol(2)
+                : '-',
+              isNegative: totalEarnings
+                ? totalEarnings.toFiat(baseCurrency).isNegative()
+                : false,
+            },
+            {
+              displayValue: '',
+              isNegative: false,
+            },
+          ],
+        },
         toolTipData:
           perIncentiveEarnings.length > 0
             ? {

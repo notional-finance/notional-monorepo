@@ -153,6 +153,14 @@ export function useDetailedHoldingsTable() {
             });
           }
 
+          const totalAtMaturity =
+            b.token.tokenType === 'fCash'
+              ? TokenBalance.from(
+                  b.scaleTo(b.underlying.decimals),
+                  b.underlying
+                )
+              : undefined;
+
           return {
             sortOrder: getHoldingsSortOrder(b.token),
             tokenId: b.tokenId,
@@ -198,10 +206,31 @@ export function useDetailedHoldingsTable() {
               : '-',
             presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
             isDebt: isDebt,
-            earnings:
-              totalEarningsWithIncentives
-                ?.toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(2, true, true, 'en-US', true) || '-',
+            earnings: {
+              data: [
+                {
+                  displayValue: totalEarningsWithIncentives
+                    ? totalEarningsWithIncentives
+                        .toFiat(baseCurrency)
+                        .toDisplayStringWithSymbol(2)
+                    : '-',
+                  isNegative: totalEarningsWithIncentives
+                    ? totalEarningsWithIncentives
+                        .toFiat(baseCurrency)
+                        .isNegative()
+                    : false,
+                },
+                {
+                  displayValue:
+                    b.token.tokenType === 'fCash'
+                      ? `${totalAtMaturity?.toDisplayStringWithSymbol(
+                          2
+                        )} at Maturity`
+                      : '',
+                  isNegative: false,
+                },
+              ],
+            },
             toolTipData:
               perIncentiveEarnings.length > 0
                 ? {

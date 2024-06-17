@@ -3,7 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import {
   MultiValueIconCell,
   DataTableColumn,
-  DisplayCell,
+  MultiValueCell,
 } from '@notional-finance/mui';
 import { ExpandedState } from '@tanstack/react-table';
 import { useTheme } from '@mui/material';
@@ -13,12 +13,17 @@ import {
   useFiat,
   useGroupedHoldings,
 } from '@notional-finance/notionable-hooks';
-import { formatTokenType } from '@notional-finance/helpers';
+import {
+  formatCryptoWithFiat,
+  formatNumberAsAbbr,
+  formatTokenType,
+} from '@notional-finance/helpers';
 import { formatCaption } from './use-grouped-holdings';
+import { FiatSymbols } from '@notional-finance/core-entities';
 
 function insertDebtDivider(arr) {
   for (let i = 0; i < arr.length; i++) {
-    if (arr[i].asset.label.includes('Borrow')) {
+    if (arr[i]?.asset?.label.includes('Borrow')) {
       arr.splice(i, 0, {
         asset: {
           symbol: '',
@@ -69,9 +74,10 @@ export function useEarningsBreakdown(isGrouped: boolean) {
       },
       {
         header: <FormattedMessage defaultMessage="Incentives Earnings" />,
-        cell: DisplayCell,
+        cell: MultiValueCell,
         // ToolTip: TotalEarningsTooltip,
         accessorKey: 'incentivesEarnings',
+        fontWeightBold: true,
         textAlign: 'right',
         expandableTable: true,
         showLoadingSpinner: true,
@@ -79,8 +85,9 @@ export function useEarningsBreakdown(isGrouped: boolean) {
       },
       {
         header: <FormattedMessage defaultMessage="Accrued Interest" />,
-        cell: DisplayCell,
+        cell: MultiValueCell,
         // ToolTip: TotalEarningsTooltip,
+        fontWeightBold: true,
         accessorKey: 'accruedInterest',
         textAlign: 'right',
         expandableTable: true,
@@ -89,23 +96,27 @@ export function useEarningsBreakdown(isGrouped: boolean) {
       },
       {
         header: <FormattedMessage defaultMessage="Market PNL" />,
-        cell: DisplayCell,
+        cell: MultiValueCell,
         accessorKey: 'marketPNL',
         textAlign: 'right',
+        fontWeightBold: true,
         expandableTable: true,
+        showGreenText: true,
       },
       {
         header: <FormattedMessage defaultMessage="Fees Paid" />,
-        cell: DisplayCell,
+        cell: MultiValueCell,
         accessorKey: 'feesPaid',
         textAlign: 'right',
         expandableTable: true,
+        fontWeightBold: true,
       },
       {
         header: <FormattedMessage defaultMessage="Total Earnings" />,
-        cell: DisplayCell,
+        cell: MultiValueCell,
         accessorKey: 'totalEarnings',
         textAlign: 'right',
+        fontWeightBold: true,
         expandableTable: true,
         showLoadingSpinner: true,
         showGreenText: true,
@@ -113,6 +124,7 @@ export function useEarningsBreakdown(isGrouped: boolean) {
     ],
     [theme]
   );
+
   const groupedEarnings = groupedHoldings.map(
     ({
       asset: {
@@ -140,11 +152,10 @@ export function useEarningsBreakdown(isGrouped: boolean) {
               : `Leveraged ${underlying.symbol} Lend`,
           caption: formatCaption(asset, debt) || '',
         },
-        incentivesEarnings: totalIncentiveEarnings
-          ? totalIncentiveEarnings
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false, 'en-US', true)
-          : '0',
+        incentivesEarnings: formatCryptoWithFiat(
+          baseCurrency,
+          totalIncentiveEarnings
+        ),
         toolTipData:
           perIncentiveEarnings.length > 0
             ? {
@@ -156,25 +167,60 @@ export function useEarningsBreakdown(isGrouped: boolean) {
                 })),
               }
             : undefined,
-        accruedInterest:
+        accruedInterest: formatCryptoWithFiat(
+          baseCurrency,
           totalInterestAccrual
-            ?.toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
-        marketPNL:
-          marketProfitLoss
-            ?.toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
-        feesPaid:
-          totalILAndFees
-            .toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
-        totalEarnings:
+        ),
+        marketPNL: formatCryptoWithFiat(baseCurrency, marketProfitLoss),
+        feesPaid: formatCryptoWithFiat(baseCurrency, totalILAndFees),
+        totalEarnings: formatCryptoWithFiat(
+          baseCurrency,
           totalEarningsWithIncentives
-            ?.toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
+        ),
       };
     }
   );
+
+  const detailedTotals = holdings
+    .map(
+      ({
+        totalIncentiveEarnings,
+        statement,
+        marketProfitLoss,
+        totalEarningsWithIncentives,
+      }) => {
+        return {
+          incentivesEarnings: totalIncentiveEarnings
+            ? totalIncentiveEarnings.toFiat(baseCurrency).toFloat()
+            : 0,
+          accruedInterest:
+            statement?.totalInterestAccrual?.toFiat(baseCurrency).toFloat() ||
+            0,
+          marketPNL: marketProfitLoss?.toFiat(baseCurrency).toFloat() || 0,
+          feesPaid:
+            statement?.totalILAndFees?.toFiat(baseCurrency).toFloat() || 0,
+          totalEarnings:
+            totalEarningsWithIncentives?.toFiat(baseCurrency).toFloat() || 0,
+        };
+      }
+    )
+    .reduce(
+      (accumulator, current) => {
+        accumulator.incentivesEarnings += current.incentivesEarnings || 0;
+        accumulator.accruedInterest += current.accruedInterest || 0;
+        accumulator.marketPNL += current.marketPNL || 0;
+        accumulator.feesPaid += current.feesPaid || 0;
+        accumulator.totalEarnings += current.totalEarnings || 0;
+        return accumulator;
+      },
+      {
+        incentivesEarnings: 0,
+        accruedInterest: 0,
+        marketPNL: 0,
+        feesPaid: 0,
+        totalEarnings: 0,
+      }
+    );
 
   const detailedEarnings = holdings
     .map(
@@ -192,6 +238,29 @@ export function useEarningsBreakdown(isGrouped: boolean) {
           isDebt
         );
 
+        const incentivesEarningsData =
+          b.tokenType === 'nToken'
+            ? totalIncentiveEarnings
+              ? totalIncentiveEarnings
+                  ?.toFiat(baseCurrency)
+                  .toDisplayStringWithSymbol(2)
+              : `${FiatSymbols[baseCurrency]}0.00`
+            : '-';
+
+        const marketPNLData =
+          b.tokenType !== 'PrimeCash' && b.tokenType !== 'PrimeDebt'
+            ? marketProfitLoss
+                ?.toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(2)
+            : '-';
+
+        const feeData =
+          b.tokenType !== 'PrimeCash' && b.tokenType !== 'PrimeDebt'
+            ? formatCryptoWithFiat(baseCurrency, statement?.totalILAndFees, {
+                showZero: true,
+              })
+            : '-';
+
         return {
           asset: {
             symbol: icon,
@@ -201,11 +270,19 @@ export function useEarningsBreakdown(isGrouped: boolean) {
           },
           isDebt,
           tokenId: b.tokenId,
-          incentivesEarnings: totalIncentiveEarnings
-            ? totalIncentiveEarnings
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(2, true, false, 'en-US', true)
-            : '0',
+          // TODO: use formatCryptoWithFiat once data is ready
+          incentivesEarnings: {
+            data: [
+              {
+                displayValue: incentivesEarningsData,
+                isNegative: false,
+              },
+              {
+                displayValue: '',
+                isNegative: false,
+              },
+            ],
+          },
           toolTipData:
             perIncentiveEarnings.length > 0
               ? {
@@ -217,22 +294,41 @@ export function useEarningsBreakdown(isGrouped: boolean) {
                   })),
                 }
               : undefined,
-          accruedInterest:
-            statement?.totalInterestAccrual
-              ?.toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
-          marketPNL:
-            marketProfitLoss
-              ?.toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
-          feesPaid:
-            statement?.totalILAndFees
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
-          totalEarnings:
-            totalEarningsWithIncentives
-              ?.toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false, 'en-US', true) || '0',
+          accruedInterest: formatCryptoWithFiat(
+            baseCurrency,
+            statement?.totalInterestAccrual,
+            { showZero: true }
+          ),
+          marketPNL: {
+            data: [
+              {
+                displayValue: marketPNLData,
+                isNegative: false,
+              },
+              {
+                displayValue: '',
+                isNegative: false,
+              },
+            ],
+          },
+          feesPaid: feeData,
+          // TODO: use formatCryptoWithFiat once data is ready
+          totalEarnings: {
+            data: [
+              {
+                displayValue: totalEarningsWithIncentives
+                  ? totalEarningsWithIncentives
+                      ?.toFiat(baseCurrency)
+                      .toDisplayStringWithSymbol(2)
+                  : `${FiatSymbols[baseCurrency]}0.00`,
+                isNegative: false,
+              },
+              {
+                displayValue: '',
+                isNegative: false,
+              },
+            ],
+          },
         };
       }
     )
@@ -245,6 +341,35 @@ export function useEarningsBreakdown(isGrouped: boolean) {
       }
       return 0;
     });
+
+  detailedEarnings.push({
+    asset: {
+      symbol: '',
+      symbolBottom: '',
+      label: 'Total',
+      caption: '',
+    },
+    incentivesEarnings: formatNumberAsAbbr(
+      detailedTotals.incentivesEarnings,
+      2,
+      baseCurrency
+    ),
+    accruedInterest: formatNumberAsAbbr(
+      detailedTotals.accruedInterest,
+      2,
+      baseCurrency
+    ),
+    marketPNL: formatNumberAsAbbr(detailedTotals.marketPNL, 2, baseCurrency),
+    feesPaid: formatNumberAsAbbr(detailedTotals.feesPaid, 2, baseCurrency),
+    totalEarnings: formatNumberAsAbbr(
+      detailedTotals.totalEarnings,
+      2,
+      baseCurrency
+    ),
+    actionRow: undefined,
+    tokenId: ' ',
+    isTotalRow: true,
+  } as unknown as typeof detailedEarnings[number]);
 
   useEffect(() => {
     const formattedExpandedRows = Columns.reduce(
@@ -270,7 +395,7 @@ export function useEarningsBreakdown(isGrouped: boolean) {
   const earningsBreakdownData = isGrouped
     ? [
         ...groupedEarnings,
-        detailedEarnings.filter(
+        ...detailedEarnings.filter(
           ({ tokenId }) => !groupedTokens.includes(tokenId)
         ),
       ]

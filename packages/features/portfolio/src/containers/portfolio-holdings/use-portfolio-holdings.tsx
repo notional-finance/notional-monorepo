@@ -4,7 +4,6 @@ import {
   MultiValueIconCell,
   DataTableColumn,
   MultiValueCell,
-  DisplayCell,
   ChevronCell,
 } from '@notional-finance/mui';
 import { TotalEarningsTooltip } from '../../components';
@@ -128,10 +127,11 @@ export function usePortfolioHoldings() {
       },
       {
         header: <FormattedMessage defaultMessage="Total Earnings" />,
-        cell: DisplayCell,
+        cell: MultiValueCell,
         ToolTip: TotalEarningsTooltip,
         accessorKey: 'earnings',
         textAlign: 'right',
+        fontWeightBold: true,
         expandableTable: true,
         showLoadingSpinner: true,
         showGreenText: true,

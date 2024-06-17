@@ -61,6 +61,7 @@ interface DataTableProps {
   setShowHiddenRows?: Dispatch<SetStateAction<boolean>>;
   showHiddenRows?: boolean;
   tableLoading?: boolean;
+  tabsThatIncludeToggle?: number[];
   filterBarData?: any[];
   networkToggleData?: {
     toggleKey: number;
@@ -100,6 +101,7 @@ export const DataTable = ({
   networkToggleData,
   rightToggleData,
   allNetworksToggleData,
+  tabsThatIncludeToggle,
   csvDataFormatter,
   accentCSV,
   stateZeroMessage,
@@ -279,6 +281,7 @@ export const DataTable = ({
 
           {tabBarProps && (
             <DataTableTabBar
+              tabsThatIncludeToggle={tabsThatIncludeToggle}
               tabBarProps={tabBarProps}
               toggleBarProps={toggleBarProps}
             />

@@ -6,12 +6,14 @@ import { SimpleToggle } from '../../simple-toggle/simple-toggle';
 
 interface DataTableTabBarProps {
   tabBarProps: TabBarPropsType;
+  tabsThatIncludeToggle?: number[];
   toggleBarProps?: ToggleBarPropsType;
 }
 
 export const DataTableTabBar = ({
   tabBarProps,
   toggleBarProps,
+  tabsThatIncludeToggle,
 }: DataTableTabBarProps) => {
   const theme = useTheme();
   const { currentTab, setCurrentTab, tableTabs } = tabBarProps;
@@ -85,13 +87,15 @@ export const DataTableTabBar = ({
           ></Tab>
         ))}
       </Tabs>
-      {toggleBarProps && toggleBarProps.showToggle && currentTab === 0 && (
-        <SimpleToggle
-          tabLabels={toggleBarProps.toggleData}
-          selectedTabIndex={toggleBarProps.toggleOption}
-          onChange={(_, v) => toggleBarProps.setToggleOption(v as number)}
-        />
-      )}
+      {toggleBarProps &&
+        toggleBarProps.showToggle &&
+        tabsThatIncludeToggle?.includes(currentTab) && (
+          <SimpleToggle
+            tabLabels={toggleBarProps.toggleData}
+            selectedTabIndex={toggleBarProps.toggleOption}
+            onChange={(_, v) => toggleBarProps.setToggleOption(v as number)}
+          />
+        )}
     </Box>
   );
 };
