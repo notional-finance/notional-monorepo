@@ -74,12 +74,12 @@ export const usePortfolioButtonBar = () => {
   const history = useHistory();
 
   const buttonData: ButtonOptionsType[] = [
-    // {
-    //   buttonText: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
-    //   callback: () => {
-    //     history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DEPOSIT}`);
-    //   },
-    // },
+    {
+      buttonText: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
+      callback: () => {
+        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DEPOSIT}`);
+      },
+    },
   ];
 
   if (withdrawableTokens.length > 0) {
