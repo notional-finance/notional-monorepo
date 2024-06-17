@@ -2,6 +2,7 @@ import * as path from 'path';
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 import express from 'express';
 import Knex from 'knex';
+import { getEnvSecrets } from 'gae-env-secrets';
 import DataService from './DataService';
 import {
   AssetType,
@@ -61,6 +62,7 @@ const parseQueryParams = (q) => {
 };
 
 async function main() {
+  await getEnvSecrets({ autoDetect: true });
   if (!process.env.DATA_BASE_URL) {
     throw Error('Data URL not defined');
   }

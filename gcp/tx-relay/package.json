@@ -25,6 +25,6 @@
     "ethers": "5.4.4",
     "ethers-gcp-kms-signer": "^1.1.6",
     "express": "^4.18.2",
-    "gae-env-secrets": "^1.0.3"
+    "gae-env-secrets": "1.0.3"
   }
 }
