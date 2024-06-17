@@ -41,9 +41,7 @@ export interface Env {
   PROFIT_THRESHOLD: string;
 }
 
-// TODO: add a run for any accounts under FC
-
-const run = async (env: Env) => {
+async function setUp(env: Env) {
   const allTokens = await (
     await fetch(`https://data-dev.notional.finance/${env.NETWORK}/tokens`)
   ).json();
@@ -54,17 +52,6 @@ const run = async (env: Env) => {
     env: env.NETWORK,
     service: 'liquidator',
   });
-
-  const accounts = (await (
-    await fetch(`${env.ACCOUNT_SERVICE_URL}?network=${env.NETWORK}`, {
-      headers: {
-        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
-      },
-    })
-  ).json()) as { account_id: string }[];
-  const addresses: string[] = accounts
-    .map((a) => a.account_id)
-    .filter((a) => a !== ZERO_ADDRESS);
 
   const provider = getProviderFromNetwork(env.NETWORK, true);
   const liquidator = new NotionalV3Liquidator(
@@ -104,13 +91,70 @@ const run = async (env: Env) => {
     logger
   );
 
+  return { liquidator, logger };
+}
+
+async function processAllAccounts(env: Env, liquidator: NotionalV3Liquidator) {
   // Currently the worker cannot process more than 2000 accounts per batch
+  const accounts = (await (
+    await fetch(`${env.ACCOUNT_SERVICE_URL}?network=${env.NETWORK}`, {
+      headers: {
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+      },
+    })
+  ).json()) as { account_id: string }[];
+  const addresses: string[] = accounts
+    .map((a) => a.account_id)
+    .filter((a) => a !== ZERO_ADDRESS);
+
   const batchedAccounts = batchArray(addresses, 250);
   let riskyAccounts: RiskyAccount[] = [];
   for (const batch of batchedAccounts) {
     const risky = await liquidator.getRiskyAccounts(batch);
     riskyAccounts = riskyAccounts.concat(risky);
   }
+
+  return { riskyAccounts, addresses };
+}
+
+async function getAccountLiquidation(env: Env, address: string) {
+  const { liquidator } = await setUp(env);
+  const riskyAccounts = await liquidator.getRiskyAccounts([address]);
+  if (riskyAccounts.length) {
+    const liquidation = await liquidator.getLargestLiquidation(
+      riskyAccounts[0]
+    );
+
+    return liquidation;
+  } else {
+    return await liquidator.getAccountData(address);
+  }
+}
+
+const displayRiskyAccounts = async (env: Env) => {
+  const { liquidator } = await setUp(env);
+  const { riskyAccounts, addresses } = await processAllAccounts(
+    env,
+    liquidator
+  );
+
+  return {
+    riskyAccounts: riskyAccounts
+      .sort((a, b) => (a.ethFreeCollateral.lt(b.ethFreeCollateral) ? 1 : -1))
+      .map((r) => ({
+        account: r.id,
+        freeCollateral: formatUnits(r.ethFreeCollateral, 18),
+      })),
+    totalAccountsProcessed: addresses.length,
+  };
+};
+
+const run = async (env: Env) => {
+  const { logger, liquidator } = await setUp(env);
+  const { riskyAccounts, addresses } = await processAllAccounts(
+    env,
+    liquidator
+  );
 
   const ddSeries: DDSeries = {
     series: [],
@@ -168,16 +212,33 @@ ${Array.from(account.netUnderlyingAvailable.entries())
 };
 
 export default {
-  async fetch(__: Request, env: Env, _: ExecutionContext): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    _: ExecutionContext
+  ): Promise<Response> {
     try {
-      await run(env);
+      const url = new URL(request.url);
+      const splitPath = url.pathname.split('/');
+      if (splitPath.length === 1) {
+        return new Response(JSON.stringify(await displayRiskyAccounts(env)), {
+          status: 200,
+        });
+      } else if (splitPath.length === 2) {
+        return new Response(
+          JSON.stringify(
+            await getAccountLiquidation(env, splitPath[1].toLowerCase())
+          ),
+          { status: 200 }
+        );
+      } else {
+        return new Response('Not Found', { status: 404 });
+      }
     } catch (e) {
       console.error(e);
       console.trace();
+      return new Response(e, { status: 500 });
     }
-
-    const response = new Response('OK', { status: 200 });
-    return response;
   },
   async scheduled(
     __: ScheduledController,

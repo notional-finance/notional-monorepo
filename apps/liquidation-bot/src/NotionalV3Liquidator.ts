@@ -115,13 +115,22 @@ export default class NotionalV3Liquidator {
     return calls;
   }
 
-  public async getRiskyAccounts(addrs: string[]): Promise<RiskyAccount[]> {
+  public async getAccountData(address: string) {
     const { results } = await aggregate(
-      this.getAccountDataCalls(addrs),
+      this.getAccountDataCalls([address]),
       this.provider
     );
 
-    const accounts = addrs
+    return results;
+  }
+
+  public async getRiskyAccounts(addresses: string[]): Promise<RiskyAccount[]> {
+    const { results } = await aggregate(
+      this.getAccountDataCalls(addresses),
+      this.provider
+    );
+
+    const accounts = addresses
       .map((addr) => {
         return {
           id: addr,
