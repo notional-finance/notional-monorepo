@@ -181,7 +181,10 @@ const Portfolio = () => {
         </PortfolioSidebar>
       )}
       {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
-        <PortfolioStateZero />
+        <>
+          <PortfolioStateZero />
+          <TypeForm />
+        </>
       )}
       {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING &&
         noteBalanceData.length > 0 && (
