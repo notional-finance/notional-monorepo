@@ -31,7 +31,6 @@ export interface Env {
   NOTIONAL_PROXY_CONTRACT: string;
   DUST_THRESHOLD: string;
   ALCHEMY_KEY: string;
-  BN_API_KEY: string;
   DD_API_KEY: string;
   DD_APP_KEY: string;
   TX_RELAY_URL: string;
@@ -127,7 +126,7 @@ const run = async (env: Env) => {
         },
       ],
       type: MetricType.Gauge,
-      tags: [`network:${env.NETWORK}`, 'version:v3'],
+      tags: [`network:${env.NETWORK}`, 'version:v3.2'],
     },
     {
       metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
@@ -138,7 +137,7 @@ const run = async (env: Env) => {
         },
       ],
       type: MetricType.Gauge,
-      tags: [`network:${env.NETWORK}`, 'version:v3'],
+      tags: [`network:${env.NETWORK}`, 'version:v3.2'],
     }
   );
 
@@ -163,7 +162,7 @@ ${Array.from(account.netUnderlyingAvailable.entries())
   }
 
   for (const riskyAccount of riskyAccounts) {
-    const liquidation = await liquidator.getPossibleLiquidations(riskyAccount);
+    const liquidation = await liquidator.getLargestLiquidation(riskyAccount);
     await liquidator.liquidateAccount(liquidation);
   }
 };
