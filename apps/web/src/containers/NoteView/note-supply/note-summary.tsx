@@ -58,14 +58,14 @@ export const NoteSummary = ({ noteSupplyData }: NoteSummaryProps) => {
       <SubText>
         <FormattedMessage
           defaultMessage={
-            'Track the NOTE buy and burn. Protocol owned tokens are converted into NOTE and burned each week according to <a1>NIP-41</a1>.'
+            'Track the NOTE buy and burn. Protocol owned tokens are converted into NOTE and burned each week according to <a1>NIP-70</a1>.'
           }
           values={{
             a1: (msg: ReactNode) => (
               <ExternalLink
                 accent
                 textDecoration
-                href="https://forum.notional.finance/t/nip-41-note-token-burn/129/11"
+                href="https://forum.notional.finance/t/nip-70-plan-to-manage-notional-v3-reserves-and-conduct-periodic-note-burns/173"
               >
                 {msg}
               </ExternalLink>
