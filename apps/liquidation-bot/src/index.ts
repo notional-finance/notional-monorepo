@@ -220,7 +220,7 @@ export default {
     try {
       const url = new URL(request.url);
       const splitPath = url.pathname.split('/');
-      if (splitPath.length === 1) {
+      if (url.pathname === '/') {
         return new Response(JSON.stringify(await displayRiskyAccounts(env)), {
           status: 200,
         });
