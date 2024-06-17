@@ -1,3 +1,5 @@
+import './wdyr';
+
 import { IntlProvider } from 'react-intl';
 import {
   getLanguageTranslation,
