@@ -207,12 +207,23 @@ const runAllVaults = async (env: Env) => {
     const { batches, batchAccounts } =
       await liquidator.batchMaturityLiquidations(vault, vaultRiskyAccounts);
 
-    const { resp, batch, failingTxns } = await liquidator.liquidateViaMulticall(
-      batches
-    );
+    try {
+      const { resp, batch, failingTxns } =
+        await liquidator.liquidateViaMulticall(batches);
 
-    if (resp.status === 200) {
-      const respInfo = await resp.json();
+      if (failingTxns.length > 0) {
+        await logger.submitEvent({
+          aggregation_key: 'AccountLiquidated',
+          alert_type: 'error',
+          host: 'cloudflare',
+          network: env.NETWORK,
+          title: `Failed Vault Liquidation`,
+          tags: [`event:failed_vault_liquidation`],
+          text: `Failed to liquidate vault accounts in batch ${failingTxns
+            .flatMap(({ args }) => args.params.accounts)
+            .join(',')}`,
+        });
+      }
       await logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'info',
@@ -224,15 +235,10 @@ const runAllVaults = async (env: Env) => {
         ),
         text: `Liquidated vault accounts in batch ${batch
           .flatMap(({ args }) => args.params.accounts)
-          .join(',')}, ${respInfo['hash']}`,
+          .join(',')}, ${resp.hash}`,
       });
-    } else {
-      console.log(
-        'Failed liquidation',
-        resp.status,
-        resp.statusText,
-        await resp.json()
-      );
+    } catch (e) {
+      console.log('Failed liquidation', e.toString());
       await logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'error',
@@ -243,20 +249,6 @@ const runAllVaults = async (env: Env) => {
         text: `Failed to liquidate vault accounts in batch ${batchAccounts.join(
           ','
         )}`,
-      });
-    }
-
-    if (failingTxns.length > 0) {
-      await logger.submitEvent({
-        aggregation_key: 'AccountLiquidated',
-        alert_type: 'error',
-        host: 'cloudflare',
-        network: env.NETWORK,
-        title: `Failed Vault Liquidation`,
-        tags: [`event:failed_vault_liquidation`],
-        text: `Failed to liquidate vault accounts in batch ${failingTxns
-          .flatMap(({ args }) => args.params.accounts)
-          .join(',')}`,
       });
     }
   }

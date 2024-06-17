@@ -431,18 +431,17 @@ Flash Loan Amount: ${a.flashLoanAmount.toString()}
     );
     const gasLimit = await this.flashLoanProvider.estimateGas(flashLiq);
 
-    const resp = await sendTxThroughRelayer({
-      env: {
-        NETWORK: this.settings.network,
-        TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
-      },
-      to,
-      data,
-      gasLimit: gasLimit.mul(200).div(100).toNumber(),
-    });
+    try {
+      const txnResponse = await sendTxThroughRelayer({
+        env: {
+          NETWORK: this.settings.network,
+          TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
+        },
+        to,
+        data,
+        gasLimit: gasLimit.mul(200).div(100).toNumber(),
+      });
 
-    if (resp.status == 200) {
-      const respInfo = await resp.json();
       await this.logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'info',
@@ -453,9 +452,9 @@ Flash Loan Amount: ${a.flashLoanAmount.toString()}
           `account:${flashLiq.accountLiq.accountId}`,
           `event:account_liquidated`,
         ],
-        text: `Liquidated account ${flashLiq.accountLiq.accountId}, ${respInfo['hash']}`,
+        text: `Liquidated account ${flashLiq.accountLiq.accountId}, ${txnResponse.hash}`,
       });
-    } else {
+    } catch (e) {
       await this.logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'error',
@@ -473,6 +472,8 @@ Liquidation Type: ${flashLiq.accountLiq.liquidation.getLiquidationType()}
 Local Currency: ${flashLiq.accountLiq.liquidation.getLocalCurrency().id}
 Collateral Currency: ${flashLiq.accountLiq.liquidation.getCollateralCurrencyId()}
 Flash Loan Amount: ${flashLiq.accountLiq.flashLoanAmount.toString()}
+
+Error: ${e.toString()}
 `,
       });
     }
