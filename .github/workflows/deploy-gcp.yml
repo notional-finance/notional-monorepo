@@ -36,3 +36,7 @@ jobs:
       shell: bash
       working-directory: gcp/vault-apy
       run: ./deploy.sh
+    - name: Deploy Tx Relay
+      shell: bash
+      working-directory: gcp/tx-relay
+      run: ./deploy.sh
