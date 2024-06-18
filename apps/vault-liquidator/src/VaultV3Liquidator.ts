@@ -41,6 +41,7 @@ enum LiquidationType {
   LIQUIDATE_CASH_BALANCE = 2,
   DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH = 3,
 }
+
 export default class VaultV3Liquidator {
   public liquidatorContracts: VaultLiquidator[];
   private notionalContract: Contract;
@@ -232,10 +233,12 @@ export default class VaultV3Liquidator {
       (t) => t.maturity
     );
 
-    const batches: PopulatedTransaction[] = [];
-    const batchArgs: Awaited<
-      ReturnType<VaultV3Liquidator['getLiquidateCallData']>
-    >['args'][] = [];
+    const batches: {
+      txn: PopulatedTransaction;
+      args: Awaited<
+        ReturnType<VaultV3Liquidator['getLiquidateCallData']>
+      >['args'];
+    }[] = [];
     const batchAccounts: string[] = [];
     for (const maturity of groupedByMaturity.keys()) {
       const accts = groupedByMaturity.get(maturity) || [];
@@ -248,13 +251,15 @@ export default class VaultV3Liquidator {
             accts,
             batches.length
           );
-        batches.push(batchCalldata);
+        batches.push({
+          txn: batchCalldata,
+          args,
+        });
         batchAccounts.push(...accounts);
-        batchArgs.push(args);
       }
     }
 
-    return { batches, batchAccounts, batchArgs };
+    return { batches, batchAccounts };
   }
 
   public async getLiquidateCallData(
@@ -336,24 +341,47 @@ export default class VaultV3Liquidator {
     };
   }
 
-  async liquidateViaMulticall(batch: PopulatedTransaction[]) {
+  async liquidateViaMulticall(
+    _batch: Awaited<
+      ReturnType<typeof this.batchMaturityLiquidations>
+    >['batches']
+  ) {
+    const failingTxns: Awaited<
+      ReturnType<typeof this.batchMaturityLiquidations>
+    >['batches'] = [];
+
+    // Test each transaction to see if it will fail, and filter out the null txns
+    const batch = (
+      await Promise.all(
+        _batch.map((p) =>
+          this.provider
+            .estimateGas(p.txn)
+            .catch(() => {
+              failingTxns.push(p);
+              return null;
+            })
+            .then(() => p)
+        )
+      )
+    ).filter((p) => p !== null);
+
     const multicall = getMulticall(this.provider);
     const pop = await multicall.populateTransaction.aggregate3(
       batch.map((p) => ({
-        target: p.to,
+        target: p.txn.to,
         allowFailure: true,
-        callData: p.data,
+        callData: p.txn.data,
       }))
     );
     const gasLimit = await multicall.estimateGas.aggregate3(
       batch.map((p) => ({
-        target: p.to,
+        target: p.txn.to,
         allowFailure: true,
-        callData: p.data,
+        callData: p.txn.data,
       }))
     );
 
-    return await sendTxThroughRelayer({
+    const resp = await sendTxThroughRelayer({
       env: {
         NETWORK: this.settings.network,
         TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
@@ -362,5 +390,7 @@ export default class VaultV3Liquidator {
       data: pop.data,
       gasLimit: gasLimit.mul(200).div(100).toNumber(),
     });
+
+    return { resp, batch, failingTxns };
   }
 }

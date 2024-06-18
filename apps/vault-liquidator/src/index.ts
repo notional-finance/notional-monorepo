@@ -91,7 +91,7 @@ const runSingleVault = async (vault: string, env: Env) => {
   const { accounts, liquidator } = await setUp(env, [vault]);
   const riskyAccounts = accounts.filter((a) => a.canLiquidate);
 
-  const { batches, batchArgs } = await liquidator.batchMaturityLiquidations(
+  const { batches } = await liquidator.batchMaturityLiquidations(
     vault,
     riskyAccounts
   );
@@ -113,7 +113,7 @@ const runSingleVault = async (vault: string, env: Env) => {
       maturity: a.maturity,
       canLiquidate: a.canLiquidate,
     }));
-  const serializedBatchArgs = batchArgs.map((a) => ({
+  const serializedBatchArgs = batches.map(({ args: a }) => ({
     asset: a.asset,
     amount: a.amount.toString(),
     params: {
@@ -206,8 +206,24 @@ const runAllVaults = async (env: Env) => {
 
     const { batches, batchAccounts } =
       await liquidator.batchMaturityLiquidations(vault, vaultRiskyAccounts);
+
     try {
-      const resp = await liquidator.liquidateViaMulticall(batches);
+      const { resp, batch, failingTxns } =
+        await liquidator.liquidateViaMulticall(batches);
+
+      if (failingTxns.length > 0) {
+        await logger.submitEvent({
+          aggregation_key: 'AccountLiquidated',
+          alert_type: 'error',
+          host: 'cloudflare',
+          network: env.NETWORK,
+          title: `Failed Vault Liquidation`,
+          tags: [`event:failed_vault_liquidation`],
+          text: `Failed to liquidate vault accounts in batch ${failingTxns
+            .flatMap(({ args }) => args.params.accounts)
+            .join(',')}`,
+        });
+      }
       await logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'info',
@@ -217,9 +233,9 @@ const runAllVaults = async (env: Env) => {
         tags: [`event:vault_account_liquidated`].concat(
           batchAccounts.map((a) => `account:${a}`)
         ),
-        text: `Liquidated vault accounts in batch ${batchAccounts.join(',')}, ${
-          resp.hash
-        }`,
+        text: `Liquidated vault accounts in batch ${batch
+          .flatMap(({ args }) => args.params.accounts)
+          .join(',')}, ${resp.hash}`,
       });
     } catch (e) {
       console.log('Failed liquidation', e.toString());
