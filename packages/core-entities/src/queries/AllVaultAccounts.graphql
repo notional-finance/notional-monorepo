@@ -1,7 +1,9 @@
-query AllVaultAccounts($blockNumber: Int!, $vaultAddress: Bytes!) {
+query AllVaultAccounts($blockNumber: Int!, $vaultAddress: Bytes!, $skip: Int) {
   balances(
     where: {token_: {vaultAddress: $vaultAddress, tokenType: VaultShare }}
     block: {number: $blockNumber}
+    first: 1000,
+    skip: $skip
   ) {
     id
     account {

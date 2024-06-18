@@ -21,6 +21,7 @@ const DATA_URL = process.env['API_URL'] as string;
 const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
 const R2_ACCESS_KEY_ID = process.env['R2_ACCESS_KEY_ID'] as string;
 const R2_SECRET_ACCESS_KEY = process.env['R2_SECRET_ACCESS_KEY'] as string;
+const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
 
 export const S3 = new S3Client({
   region: 'auto',
@@ -39,6 +40,7 @@ export async function calculateAccountRisks() {
     true,
     false
   );
+  Registry.getAccountRegistry().setSubgraphAPIKey = SUBGRAPH_API_KEY;
 
   // First trigger a refresh for all supported networks
   await Promise.all(
@@ -167,6 +169,7 @@ export async function calculatePointsAccrued(network: Network) {
     true,
     false
   );
+  Registry.getAccountRegistry().setSubgraphAPIKey = SUBGRAPH_API_KEY;
   await Registry.triggerRefresh(network);
 
   const allAccounts = Registry.getAccountRegistry()

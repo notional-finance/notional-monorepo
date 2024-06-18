@@ -134,6 +134,10 @@ export const BarChart = ({
                 tickLine={false}
                 tickFormatter={formatDate}
                 axisLine={{ stroke: theme.palette.borders.paper }}
+                style={{
+                  fill: theme.palette.typography.light,
+                  fontSize: '12px',
+                }}
                 interval={0}
               />
             )}

@@ -52,7 +52,14 @@ const APY_ORACLES = [
   'sNOTEReinvestmentAPY',
 ] as const;
 
+type Env = {
+  NX_SUBGRAPH_API_KEY: string;
+}
+
 export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
+  constructor(cacheHostname: string, private env: Env) {
+    super(cacheHostname);
+  }
   protected cachePath() {
     return `${Routes.Analytics}`;
   }
@@ -465,6 +472,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
             .flatMap((_) => _),
         };
       },
+      this.env.NX_SUBGRAPH_API_KEY,
       {
         skip,
       }
@@ -497,6 +505,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       network,
       ExchangeRateValuesDocument,
       'exchangeRates',
+      this.env.NX_SUBGRAPH_API_KEY,
       {
         oracleId: oracle.id,
         minTimestamp,

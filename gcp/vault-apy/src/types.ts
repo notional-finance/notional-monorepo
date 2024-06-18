@@ -5,18 +5,28 @@ export enum Network {
   arbitrum = 'arbitrum',
 }
 
-export enum VaultTypes {
+export enum RewardPoolType {
   Aura = 'Aura',
-  Convex = 'Convex',
+  ConvexArbitrum = 'ConvexArbitrum',
+  ConvexMainnet = 'ConvexMainnet',
   Curve = 'Curve',
 }
 
-export type VaultData = {
+export type VaultDataBase = {
   address: string,
   gauge: string,
+  pool?: string,
   primaryBorrowCurrency: string,
-  type: VaultTypes
+  rewardPoolType: RewardPoolType,
 }
 
+export type VaultData = VaultDataBase & { pool: string }
 export type Provider = ethers.providers.Provider;
 export type JsonRpcProvider = ethers.providers.JsonRpcProvider;
+
+export type TransferLog = {
+  token: string;
+  from: string;
+  to: string;
+  amount: string;
+}

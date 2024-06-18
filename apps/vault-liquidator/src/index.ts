@@ -64,7 +64,6 @@ async function setUp(env: Env, vaultAddrs: string[]) {
     vaultAddrs,
     flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACTS,
     flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
-    flashLenderAddress: env.FLASH_LENDER_ADDRESS,
     flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
     slippageLimit: BigNumber.from(env.SLIPPAGE_LIMIT),
     notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
@@ -207,10 +206,8 @@ const runAllVaults = async (env: Env) => {
 
     const { batches, batchAccounts } =
       await liquidator.batchMaturityLiquidations(vault, vaultRiskyAccounts);
-    const resp = await liquidator.liquidateViaMulticall(batches);
-
-    if (resp.status === 200) {
-      const respInfo = await resp.json();
+    try {
+      const resp = await liquidator.liquidateViaMulticall(batches);
       await logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'info',
@@ -221,16 +218,11 @@ const runAllVaults = async (env: Env) => {
           batchAccounts.map((a) => `account:${a}`)
         ),
         text: `Liquidated vault accounts in batch ${batchAccounts.join(',')}, ${
-          respInfo['hash']
+          resp.hash
         }`,
       });
-    } else {
-      console.log(
-        'Failed liquidation',
-        resp.status,
-        resp.statusText,
-        await resp.json()
-      );
+    } catch (e) {
+      console.log('Failed liquidation', e.toString());
       await logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'error',
@@ -240,7 +232,10 @@ const runAllVaults = async (env: Env) => {
         tags: [`event:failed_vault_liquidation`],
         text: `Failed to liquidate vault accounts in batch ${batchAccounts.join(
           ','
-        )}`,
+        )}
+        
+        Error: ${e.toString()}
+        `,
       });
     }
   }
@@ -259,7 +254,7 @@ export default {
         await runAllVaults(env);
         return new Response('OK', { status: 200 });
       } else if (splitPath.length === 2) {
-        return runSingleVault(splitPath[1], env);
+        return runSingleVault(splitPath[1].toLowerCase(), env);
       } else {
         return new Response('Not Found', { status: 404 });
       }

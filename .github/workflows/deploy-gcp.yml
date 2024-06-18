@@ -1,0 +1,42 @@
+name: Deploy GCP Workers
+on:
+  push:
+    branches:
+      - v3/prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    name: Deploy GCP Workers
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'yarn'
+    - run: yarn install --frozen-lockfile
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCLOUD_SERVICE_KEY }}
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        version: 'latest'
+        project_id: ${{ secrets.GCLOUD_PROJECT_ID }}
+    - name: Deploy Data Service
+      shell: bash
+      working-directory: gcp/data-service
+      run: ./deploy.sh
+    - name: Deploy Vault APY
+      shell: bash
+      working-directory: gcp/vault-apy
+      run: ./deploy.sh
+    - name: Deploy Tx Relay
+      shell: bash
+      working-directory: gcp/tx-relay
+      run: ./deploy.sh

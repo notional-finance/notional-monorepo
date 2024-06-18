@@ -1,0 +1,30 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: vault-apy
+  labels:
+      cloud.googleapis.com/location: us-east1
+spec:
+  template:
+    spec:
+      template:
+        spec:
+          containers:
+          - image: us-east1-docker.pkg.dev/monitoring-agents/notional-repo/vault-apy:latest
+            env:
+            - name: DATA_SERVICE_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: DATA_SERVICE_AUTH_TOKEN
+            - name: SUBGRAPH_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: SUBGRAPH_API_KEY
+            - name: ALCHEMY_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: ALCHEMY_KEY
+          timeoutSeconds: 3600

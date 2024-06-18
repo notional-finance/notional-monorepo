@@ -1,5 +1,10 @@
-query AllVaultsByBlock($blockNumber: Int) {
-    vaultConfigurations(where: { enabled: true }, block: { number: $blockNumber }) {
+query AllVaultsByBlock($blockNumber: Int, $skip: Int) {
+    vaultConfigurations(
+      where: { enabled: true },
+      block: { number: $blockNumber },
+      first: 1000,
+      skip: $skip
+    ) {
         id
         vaultAddress
         strategy

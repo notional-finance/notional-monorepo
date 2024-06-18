@@ -17,6 +17,9 @@ export const PointsMultipliers: Record<
     '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021': (_v) => ({
       Ethena: 30,
     }),
+    '0xb1113cf888a019693b254da3d90f841072d85172': (_v) => ({
+      Ethena: 20,
+    }),
   },
   [Network.all]: {},
   [Network.arbitrum]: {
@@ -34,6 +37,7 @@ export const PointsLinks: Record<Network, Record<string, string>> = {
     '0x914255c0c289aea36e378ebb5e28293b5ed278ca':
       'https://app.renzoprotocol.com/defi',
     '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021': 'https://app.ethena.fi/join',
+    '0xb1113cf888a019693b254da3d90f841072d85172': 'https://app.ethena.fi/join',
   },
   [Network.all]: {},
   [Network.arbitrum]: {
@@ -64,11 +68,15 @@ export const whitelistedVaults = (network: Network) => {
         '0x914255c0c289aea36e378ebb5e28293b5ed278ca',
         // "[USDC]:USDe_xUSDC":
         '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021',
+        // "[GHO]:xGHO_crvUSD":
+        '0x30fba4a7ec8591f25b4d37fd79943a4bb6e553e2',
+        // "[GHO]:xGHO_USDe":
+        '0xb1113cf888a019693b254da3d90f841072d85172',
       ];
     case Network.arbitrum:
       return [
         // "[FRAX]:xFRAX_USDC_e"
-        // '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
+        '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
         // "[USDT]:USDC_e_xUSDT"
         '0x431dbfe3050ea39abbff3e0d86109fb5bafa28fd',
         // "[USDC]:crvUSD_xUSDC"

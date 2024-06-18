@@ -5,6 +5,7 @@ import {
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
   INTERNAL_TOKEN_DECIMALS,
+  SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
@@ -126,6 +127,64 @@ export class SingleSidedLP extends VaultAdapter {
       PRIME_CASH_VAULT_MATURITY
     );
     return TokenBalance.from(vaultShares.n, token);
+  }
+
+  getVaultTVL() {
+    const token = Registry.getTokenRegistry().getVaultShare(
+      this.network,
+      this.vaultAddress,
+      PRIME_CASH_VAULT_MATURITY
+    );
+    return TokenBalance.from(this.totalVaultShares, token).toUnderlying();
+  }
+
+  getVaultAPY() {
+    const analytics = Registry.getAnalyticsRegistry();
+    if (
+      this.vaultAddress.toLowerCase() ===
+      '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2'
+    ) {
+      // Special handling for this vault which has manual incentives
+      const vaultAPYWithoutArb = (analytics
+        .getVault(this.network, this.vaultAddress)
+        ?.filter(
+          ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+        )
+        .map((data) =>
+          data['totalAPY'] && data.returnDrivers['ARB Incentive APY']
+            ? data['totalAPY'] - data.returnDrivers['ARB Incentive APY']
+            : data['totalAPY']
+        )
+        .filter((apy) => apy !== null) || []) as number[];
+
+      const totalAPYWithoutArb =
+        vaultAPYWithoutArb.length > 0
+          ? vaultAPYWithoutArb.reduce((t, a) => t + a, 0) /
+            vaultAPYWithoutArb.length
+          : 0;
+
+      const vaultTVL = this.getVaultTVL();
+      const arbReinvestInPrimary = TokenBalance.fromFloat(
+        386.4,
+        Registry.getTokenRegistry().getTokenBySymbol(this.network, 'ARB')
+      ).toToken(vaultTVL.token);
+      const arbAPY =
+        100 * 365 * (arbReinvestInPrimary.toFloat() / vaultTVL.toFloat());
+
+      return totalAPYWithoutArb + arbAPY;
+    }
+
+    const vaultAPYs = (analytics
+      .getVault(this.network, this.vaultAddress)
+      ?.filter(
+        ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+      )
+      .map(({ totalAPY }) => totalAPY)
+      .filter((apy) => apy !== null) || []) as number[];
+
+    return vaultAPYs.length > 0
+      ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
+      : 0;
   }
 
   getInitialVaultShareValuation(_maturity: number) {

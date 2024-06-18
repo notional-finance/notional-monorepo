@@ -27,6 +27,7 @@ export class ConfigurationServer extends ServerRegistry<AllConfigurationQuery> {
       (r) => {
         return { [network]: r };
       },
+      this.env.NX_SUBGRAPH_API_KEY,
       {
         blockNumber,
       }

@@ -11,353 +11,414 @@ import type {
 
 const _abi = [
   {
-    inputs: [],
-    name: "constructor",
-    stateMutability: "nonpayable",
     type: "constructor",
-  },
-  {
     inputs: [],
-    name: "ERC20Error",
-    type: "error",
+    stateMutability: "nonpayable",
   },
   {
-    inputs: [
-      {
-        internalType: "uint16",
-        name: "index",
-        type: "uint16",
-      },
-    ],
-    name: "ErrInvalidCurrencyIndex",
-    type: "error",
+    type: "receive",
+    stateMutability: "payable",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "previousOwner",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "OwnershipTransferred",
-    type: "event",
-  },
-  {
-    inputs: [],
-    name: "FLASH_LENDER",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
-  },
-  {
-    inputs: [],
     name: "NOTIONAL",
+    inputs: [],
     outputs: [
       {
-        internalType: "contract NotionalProxy",
         name: "",
         type: "address",
+        internalType: "contract NotionalProxy",
       },
     ],
     stateMutability: "view",
-    type: "function",
   },
   {
-    inputs: [],
+    type: "function",
+    name: "callback",
+    inputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "paymentReceiver",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "fee",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "data",
+        type: "bytes",
+        internalType: "bytes",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "bytes",
+        internalType: "bytes",
+      },
+    ],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "claimOwnership",
+    inputs: [],
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
   },
   {
+    type: "function",
+    name: "enableCurrencies",
     inputs: [
       {
-        internalType: "uint16[]",
         name: "currencies",
         type: "uint16[]",
+        internalType: "uint16[]",
       },
     ],
-    name: "enableCurrencies",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "asset",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        components: [
-          {
-            internalType: "enum FlashLiquidatorBase.LiquidationType",
-            name: "liquidationType",
-            type: "uint8",
-          },
-          {
-            internalType: "address",
-            name: "vault",
-            type: "address",
-          },
-          {
-            internalType: "address[]",
-            name: "accounts",
-            type: "address[]",
-          },
-          {
-            internalType: "bytes",
-            name: "redeemData",
-            type: "bytes",
-          },
-          {
-            internalType: "uint16",
-            name: "currencyId",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "currencyIndex",
-            type: "uint16",
-          },
-        ],
-        internalType: "struct FlashLiquidatorBase.LiquidationParams",
-        name: "params",
-        type: "tuple",
-      },
-    ],
+    type: "function",
     name: "estimateProfit",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
-        internalType: "address[]",
-        name: "",
-        type: "address[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "premiums",
-        type: "uint256[]",
-      },
-      {
-        internalType: "address",
-        name: "",
+        name: "flashLenderWrapper",
         type: "address",
-      },
-      {
-        internalType: "bytes",
-        name: "params",
-        type: "bytes",
-      },
-    ],
-    name: "executeOperation",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
+      },
+      {
         name: "asset",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "uint256",
         name: "amount",
         type: "uint256",
+        internalType: "uint256",
       },
       {
-        components: [
-          {
-            internalType: "enum FlashLiquidatorBase.LiquidationType",
-            name: "liquidationType",
-            type: "uint8",
-          },
-          {
-            internalType: "address",
-            name: "vault",
-            type: "address",
-          },
-          {
-            internalType: "address[]",
-            name: "accounts",
-            type: "address[]",
-          },
-          {
-            internalType: "bytes",
-            name: "redeemData",
-            type: "bytes",
-          },
-          {
-            internalType: "uint16",
-            name: "currencyId",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "currencyIndex",
-            type: "uint16",
-          },
-        ],
-        internalType: "struct FlashLiquidatorBase.LiquidationParams",
         name: "params",
         type: "tuple",
+        internalType: "struct FlashLiquidator.LiquidationParams",
+        components: [
+          {
+            name: "liquidationType",
+            type: "uint8",
+            internalType: "enum FlashLiquidator.LiquidationType",
+          },
+          {
+            name: "vault",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "accounts",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "redeemData",
+            type: "bytes",
+            internalType: "bytes",
+          },
+          {
+            name: "currencyId",
+            type: "uint16",
+            internalType: "uint16",
+          },
+          {
+            name: "currencyIndex",
+            type: "uint16",
+            internalType: "uint16",
+          },
+        ],
       },
     ],
-    name: "flashLiquidate",
-    outputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
     stateMutability: "nonpayable",
-    type: "function",
   },
   {
+    type: "function",
+    name: "flashLiquidate",
     inputs: [
       {
+        name: "flashLenderWrapper",
+        type: "address",
         internalType: "address",
+      },
+      {
+        name: "asset",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "amount",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "params",
+        type: "tuple",
+        internalType: "struct FlashLiquidator.LiquidationParams",
+        components: [
+          {
+            name: "liquidationType",
+            type: "uint8",
+            internalType: "enum FlashLiquidator.LiquidationType",
+          },
+          {
+            name: "vault",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "accounts",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "redeemData",
+            type: "bytes",
+            internalType: "bytes",
+          },
+          {
+            name: "currencyId",
+            type: "uint16",
+            internalType: "uint16",
+          },
+          {
+            name: "currencyIndex",
+            type: "uint16",
+            internalType: "uint16",
+          },
+        ],
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "flashLiquidateBatch",
+    inputs: [
+      {
+        name: "flashLenderWrapper",
+        type: "address[]",
+        internalType: "address[]",
+      },
+      {
+        name: "asset",
+        type: "address[]",
+        internalType: "address[]",
+      },
+      {
+        name: "amount",
+        type: "uint256[]",
+        internalType: "uint256[]",
+      },
+      {
+        name: "params",
+        type: "tuple[]",
+        internalType: "struct FlashLiquidator.LiquidationParams[]",
+        components: [
+          {
+            name: "liquidationType",
+            type: "uint8",
+            internalType: "enum FlashLiquidator.LiquidationType",
+          },
+          {
+            name: "vault",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "accounts",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "redeemData",
+            type: "bytes",
+            internalType: "bytes",
+          },
+          {
+            name: "currencyId",
+            type: "uint16",
+            internalType: "uint16",
+          },
+          {
+            name: "currencyIndex",
+            type: "uint16",
+            internalType: "uint16",
+          },
+        ],
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "getOptimalDeleveragingParams",
+    inputs: [
+      {
         name: "account",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "address",
         name: "vault",
         type: "address",
+        internalType: "address",
       },
     ],
-    name: "getOptimalDeleveragingParams",
     outputs: [
       {
-        internalType: "uint16",
         name: "currencyIndex",
         type: "uint16",
+        internalType: "uint16",
       },
       {
-        internalType: "int256",
         name: "maxUnderlying",
         type: "int256",
+        internalType: "int256",
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
   },
   {
-    inputs: [],
+    type: "function",
     name: "owner",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
-    name: "pendingOwner",
     outputs: [
       {
-        internalType: "address",
         name: "",
         type: "address",
+        internalType: "address",
       },
     ],
     stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "pendingOwner",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "transferOwnership",
     inputs: [
       {
-        internalType: "address",
         name: "newOwner",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "bool",
         name: "direct",
         type: "bool",
+        internalType: "bool",
       },
       {
-        internalType: "bool",
         name: "renounce",
         type: "bool",
+        internalType: "bool",
       },
     ],
-    name: "transferOwnership",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
   },
   {
+    type: "function",
+    name: "withdrawToOwner",
     inputs: [
       {
-        internalType: "address",
         name: "token",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "uint256",
         name: "amount",
         type: "uint256",
+        internalType: "uint256",
       },
     ],
-    name: "withdrawToOwner",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
   },
   {
-    inputs: [],
+    type: "function",
     name: "wrapETH",
+    inputs: [],
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
   },
   {
-    stateMutability: "payable",
-    type: "receive",
+    type: "event",
+    name: "OwnershipTransferred",
+    inputs: [
+      {
+        name: "previousOwner",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "newOwner",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "error",
+    name: "ERC20Error",
+    inputs: [],
+  },
+  {
+    type: "error",
+    name: "ErrInvalidCurrencyIndex",
+    inputs: [
+      {
+        name: "index",
+        type: "uint16",
+        internalType: "uint16",
+      },
+    ],
   },
 ];
 

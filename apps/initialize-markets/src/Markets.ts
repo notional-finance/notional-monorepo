@@ -1,4 +1,4 @@
-import { Network, batchArray, groupArrayToMap } from '@notional-finance/util';
+import { Network, batchArray, groupArrayToMap, getSubgraphEndpoint } from '@notional-finance/util';
 import { ethers } from 'ethers';
 
 const settleAccountsAddressMap = {
@@ -22,13 +22,11 @@ const SETTLE_ACCOUNTS_ABI = [
 ];
 
 const GRAPH_MAX_LIMIT = 1000;
-const graphUrl =
-  "https://api.studio.thegraph.com/query/36749/notional-v3-arbitrum/version/latest";
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 class Markets {
-  constructor(private network: Network, private provider: ethers.providers.Provider) { }
+  constructor(private network: Network, private provider: ethers.providers.Provider, private subgraphKey: string) {}
 
   async checkInitializeAllMarkets() {
     const initializeMarkets = new ethers.Contract(
@@ -62,7 +60,7 @@ class Markets {
     let skip = 0;
     do {
       await wait(10);
-      tempAccounts = await fetch(graphUrl, {
+      tempAccounts = await fetch(getSubgraphEndpoint(this.network, this.subgraphKey), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,7 +78,6 @@ class Markets {
         }),
       })
         .then((r) => r.json())
-        // .then(r => {console.log(r); return r;})
         .then((r: { data: { accounts: [{ id: string }] } }) =>
           r.data.accounts.map((a) => a.id)
         );
@@ -111,7 +108,7 @@ class Markets {
 
     const settleAccounts = new ethers.utils.Interface(SETTLE_ACCOUNTS_ABI);
 
-    const vaultAccountsArray = await fetch(graphUrl, {
+    const vaultAccountsArray = await fetch(getSubgraphEndpoint(this.network, this.subgraphKey), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

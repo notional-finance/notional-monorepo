@@ -75,6 +75,10 @@ export interface MulticallConfig {
   outputIndices?: number[];
   firstBlock?: number;
   finalBlock?: number;
+  transform?: (
+    callResult: any,
+    prevResults: Partial<Record<string, unknown>>
+  ) => unknown;
 }
 
 export interface SubgraphConfig {
@@ -165,6 +169,8 @@ export interface VaultAPY {
   rewardTokensClaimed: string;
   rewardTokenValuePrimaryBorrow: string;
   noVaultShares: boolean;
+  swapFees: number;
+  rewardTokenSymbol: string;
 }
 
 type DataServiceAccountContextUpdate = {

@@ -1,13 +1,14 @@
 import { getAccountPoints } from './arb_points';
 import { getVaultData, getVaultTVL } from './calculate-points';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Env {}
+export interface Env {
+  NX_SUBGRAPH_API_KEY: string;
+}
 
 export default {
   async fetch(
     request: Request,
-    _env: Env,
+    env: Env,
     _ctx: ExecutionContext
   ): Promise<Response> {
     const url = new URL(request.url);
@@ -25,7 +26,13 @@ export default {
       return new Response(JSON.stringify(await getVaultTVL(vaultAddress)));
     } else {
       return new Response(
-        JSON.stringify(await getVaultData(vaultAddress, parseInt(blockNumber)))
+        JSON.stringify(
+          await getVaultData(
+            vaultAddress,
+            parseInt(blockNumber),
+            env.NX_SUBGRAPH_API_KEY
+          )
+        )
       );
     }
   },

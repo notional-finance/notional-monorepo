@@ -15,7 +15,11 @@ export const Servers = {
   AnalyticsServer: AnalyticsServer,
 };
 
-export type ServerRegistryConstructor<T> = new () => ServerRegistry<T>;
+export interface Env {
+  NX_SUBGRAPH_API_KEY: string;
+}
+
+export type ServerRegistryConstructor<T> = new (e: Env) => ServerRegistry<T>;
 export enum Routes {
   Configuration = 'configuration',
   Tokens = 'tokens',
