@@ -308,6 +308,32 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         },
       ],
     },
+    {
+      address: '0x58AAdFB1Afac0ad7fca1148f3cdE6aEDF5236B6D',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0x58AAdFB1Afac0ad7fca1148f3cdE6aEDF5236B6D',
+          address: '0x58AAdFB1Afac0ad7fca1148f3cdE6aEDF5236B6D',
+          network: Network.mainnet,
+          symbol: 'rsETH / WETH',
+          name: 'Balancer rsETH-WETH Stable Pool',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0xA1290d69c65A6Fe4DF752f95823fae25cB99e5A7',
+          address: '0xA1290d69c65A6Fe4DF752f95823fae25cB99e5A7',
+          network: Network.mainnet,
+          symbol: 'rsETH',
+          name: 'rsETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
   ],
   [Network.arbitrum]: [
     {

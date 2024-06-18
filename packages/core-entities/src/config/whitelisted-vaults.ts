@@ -20,6 +20,10 @@ export const PointsMultipliers: Record<
     '0xb1113cf888a019693b254da3d90f841072d85172': (_v) => ({
       Ethena: 20,
     }),
+    '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb': (v) => ({
+      Kelp: 4,
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
+    }),
   },
   [Network.all]: {},
   [Network.arbitrum]: {
@@ -38,6 +42,8 @@ export const PointsLinks: Record<Network, Record<string, string>> = {
       'https://app.renzoprotocol.com/defi',
     '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021': 'https://app.ethena.fi/join',
     '0xb1113cf888a019693b254da3d90f841072d85172': 'https://app.ethena.fi/join',
+    '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb':
+      'https://kelpdao.xyz/dashboard/',
   },
   [Network.all]: {},
   [Network.arbitrum]: {
@@ -72,6 +78,8 @@ export const whitelistedVaults = (network: Network) => {
         '0x30fba4a7ec8591f25b4d37fd79943a4bb6e553e2',
         // "[GHO]:xGHO_USDe":
         '0xb1113cf888a019693b254da3d90f841072d85172',
+        // "[ETH]:rsETH_xWETH":
+        '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb',
       ];
     case Network.arbitrum:
       return [
