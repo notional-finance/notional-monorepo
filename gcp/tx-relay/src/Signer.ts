@@ -102,7 +102,7 @@ function getTxType({ signature }: { signature: Sign }) {
   return 'unknown';
 }
 
-async function logToDataDog(message: any) {
+async function logToDataDog(message: any, ddtags = '' ) {
   return fetch("https://http-intake.logs.datadoghq.com/api/v2/logs", {
     method: 'POST',
     headers: {
@@ -112,6 +112,7 @@ async function logToDataDog(message: any) {
     },
     body: JSON.stringify({
       ddsource: "tx-relay",
+      ddtags,
       service: "signer",
       message
     })
@@ -132,7 +133,7 @@ const throttle = (() => {
   };
 })();
 
-export async function sendTransaction({ to, data, gasLimit, network }: { to: string, data: string, gasLimit: number, network: string }) {
+export async function sendTransaction({ to, data, gasLimit, nonce, network }: { to: string, data: string, nonce: number, gasLimit: number, network: string }) {
   to = to.toLowerCase();
   const signature = data.slice(0, 10) as Sign;
   if (
@@ -152,6 +153,7 @@ export async function sendTransaction({ to, data, gasLimit, network }: { to: str
   const transaction: TransactionRequest = {
     to,
     data,
+    nonce: Number.isInteger(Number(nonce)) ? nonce : undefined,
     gasLimit: Number.isInteger(Number(gasLimit)) ? gasLimit : undefined,
   };
 
@@ -173,8 +175,8 @@ export async function sendTransaction({ to, data, gasLimit, network }: { to: str
       ...sharedLogData,
       retry,
       err: JSON.stringify(err),
-      status: 'fail',
-    });
+      status: 'error',
+    }, 'event:txn_failed');
     try {
       retry++;
       // second attempt, in case nonce was stale
@@ -185,8 +187,8 @@ export async function sendTransaction({ to, data, gasLimit, network }: { to: str
         ...sharedLogData,
         retry,
         err: JSON.stringify(err),
-        status: 'fail',
-      });
+        status: 'error',
+      }, 'event:txn_failed');
 
       throw err;
     }

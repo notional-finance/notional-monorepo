@@ -40,11 +40,9 @@ export async function main() {
 
     try {
       const result = await sendTransaction({
-          to: req.body["to"],
-          data: req.body["data"],
-          gasLimit: Number(req.body["gasLimit"]),
-          network,
-        });
+        ...req.body,
+        network,
+      });
       res.status(200).send(JSON.stringify(result));
     } catch (e) {
       console.log(e);

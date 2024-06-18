@@ -53,7 +53,6 @@ Thumbs.db
 packages/sdk/cache
 apps/**/dist
 
-gcp/data-service/**/dist
-gcp/data-service/**/lib
-gcp/data-service/**/app.yml
+gcp/**/dist
+gcp/**/lib
 cspell.json
