@@ -1,3 +1,4 @@
+import { TransactionRequest, TransactionResponse } from "@ethersproject/abstract-provider"
 import { ethers } from "ethers";
 import { GcpKmsSigner } from "ethers-gcp-kms-signer";
 import { Network } from "./types";
@@ -117,9 +118,9 @@ async function logToDataDog(message: any) {
   }).catch(err => console.error(err));
 }
 
+const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
 // will only work properly if node app is not run in cluster
 const throttle = (() => {
-  const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
   const delay = 2000;
   const lastCallPerDomain = new Map();
 
@@ -148,24 +149,60 @@ export async function sendTransaction({ to, data, gasLimit, network }: { to: str
 
   const signer = new GcpKmsSigner({ ...kmsCredentials, keyId: keysToUse[to] }).connect(provider);
 
-  const tx = await signer.sendTransaction({
+  const transaction: TransactionRequest = {
     to,
     data,
     gasLimit: Number.isInteger(Number(gasLimit)) ? gasLimit : undefined,
-  });
+  };
 
-  await logToDataDog({
+  const sharedLogData = {
     txType: getTxType({ signature: signature }),
     signature,
     network,
-    hash: tx.hash,
-    from: tx.from,
-    to: tx.to,
-    gasLimit: tx.gasLimit?.toString(),
-    gasPrice: tx.gasPrice?.toString(),
+    to,
+    from: await signer.getAddress(),
+  };
+
+  let txResponse: TransactionResponse;
+  let retry = 0;
+  try {
+    // first attempt
+    txResponse = await signer.sendTransaction(transaction);
+  } catch (err) {
+    await logToDataDog({
+      ...sharedLogData,
+      retry,
+      err: JSON.stringify(err),
+      status: 'fail',
+    });
+    try {
+      retry++;
+      // second attempt, in case nonce was stale
+      await wait(1000);
+      txResponse = await signer.sendTransaction(transaction);
+    } catch (err) {
+      await logToDataDog({
+        ...sharedLogData,
+        retry,
+        err: JSON.stringify(err),
+        status: 'fail',
+      });
+
+      throw err;
+    }
+
+  }
+
+  await logToDataDog({
+    ...sharedLogData,
+    hash: txResponse.hash,
+    gasLimit: txResponse.gasLimit?.toString(),
+    gasPrice: txResponse.gasPrice?.toString(),
+    status: 'success',
+    retry,
   });
 
-  return tx;
+  return txResponse;
 }
 
 export async function getAllSignerAddresses() {
