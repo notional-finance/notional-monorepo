@@ -1,3 +1,4 @@
+import spindl from '@spindl-xyz/attribution';
 import {
   Observable,
   combineLatest,
@@ -116,6 +117,10 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
       );
       // check sanctioned address
       const isSanctionedAddress = await checkSanctionedAddress(selectedAddress);
+
+      if(!isSanctionedAddress) {
+        spindl.attribute(selectedAddress);
+      }
 
       return {
         communityMembership,

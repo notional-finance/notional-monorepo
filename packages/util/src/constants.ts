@@ -82,10 +82,21 @@ export const NotionalAddress: Record<Network, string> = {
   [Network.optimism]: '',
 };
 
+export const SubgraphId: Record<Network, string> = {
+  [Network.all]: '4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW',
+  [Network.mainnet]: '4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW',
+  [Network.arbitrum]: 'DnghsCNvJ4xmp4czX8Qn7UpkJ8HyHjy7cFN4wcH91Nrx',
+  [Network.optimism]: '',
+};
+
+export function getSubgraphEndpoint(network: Network, subgraphKey: string) {
+  return `https://gateway-arbitrum.network.thegraph.com/api/${subgraphKey}/subgraphs/id/${SubgraphId[network]}`;
+}
+
 export const WETHAddress: Record<Network, string> = {
-  [Network.all]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  [Network.mainnet]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  [Network.arbitrum]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+  [Network.all]: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  [Network.mainnet]: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  [Network.arbitrum]: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
   [Network.optimism]: '',
 };
 

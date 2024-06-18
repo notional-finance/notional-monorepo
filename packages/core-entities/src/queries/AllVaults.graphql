@@ -1,5 +1,5 @@
-query AllVaults {
-    vaultConfigurations {
+query AllVaults($skip: Int) {
+    vaultConfigurations(first: 1000, skip: $skip) {
         id
         vaultAddress
         strategy

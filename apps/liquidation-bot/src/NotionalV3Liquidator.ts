@@ -217,19 +217,19 @@ export default class NotionalV3Liquidator {
     const encodedTransaction = await this.flashLoanProvider.encodeTransaction(
       flashLiq
     );
+    const gasLimit = await this.flashLoanProvider.estimateGas(flashLiq);
 
-    const resp = await sendTxThroughRelayer({
-      env: {
-        NETWORK: this.settings.network,
-        TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
-      },
-      to: this.settings.flashLenderAddress,
-      data: encodedTransaction,
-      isLiquidator: true,
-    });
+    try {
+      const resp = await sendTxThroughRelayer({
+        env: {
+          NETWORK: this.settings.network,
+          TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
+        },
+        to: this.settings.flashLenderAddress,
+        data: encodedTransaction,
+        gasLimit: gasLimit.mul(200).div(100).toNumber(),
+      });
 
-    if (resp.status == 200) {
-      const respInfo = await resp.json();
       await this.logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'info',
@@ -240,7 +240,30 @@ export default class NotionalV3Liquidator {
           `account:${flashLiq.accountLiq.accountId}`,
           `event:account_liquidated`,
         ],
-        text: `Liquidated account ${flashLiq.accountLiq.accountId}, ${respInfo['hash']}`,
+        text: `Liquidated account ${flashLiq.accountLiq.accountId}, ${resp.hash}`,
+      });
+    } catch (e) {
+      console.error(e.toString());
+
+      await this.logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'error',
+        host: 'cloudflare',
+        network: this.settings.network,
+        title: `Account liquidated`,
+        tags: [
+          `account:${flashLiq.accountLiq.accountId}`,
+          `event:failed_account_liquidated`,
+        ],
+        text: `
+Failed to liquidate account: ${flashLiq.accountLiq.accountId}
+Flash Borrow Asset: ${flashLiq.flashBorrowAsset.toString()}
+Liquidation Type: ${flashLiq.accountLiq.liquidation.getLiquidationType()}
+Local Currency: ${flashLiq.accountLiq.liquidation.getLocalCurrency().id}
+Collateral Currency: ${flashLiq.accountLiq.liquidation.getCollateralCurrencyId()}
+Flash Loan Amount: ${flashLiq.accountLiq.flashLoanAmount.toString()}
+Error: ${e.toString()}
+        `,
       });
     }
   }

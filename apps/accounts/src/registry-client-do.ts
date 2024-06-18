@@ -3,6 +3,7 @@ import {
   AssetType,
   Network,
   PRIME_CASH_VAULT_MATURITY,
+  SECONDS_IN_HOUR,
   SETTLEMENT_RESERVE,
   convertToSignedfCashId,
   decodeERC1155Id,
@@ -25,7 +26,10 @@ import {
 } from './factors/calculations';
 import { Env } from '.';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { ExternalLendingHistoryQuery } from 'packages/core-entities/src/.graphclient';
+import {
+  ExternalLendingHistoryQuery,
+  MetaQuery,
+} from 'packages/core-entities/src/.graphclient';
 import { ethers } from 'ethers';
 
 export class RegistryClientDO extends DurableObject {
@@ -85,12 +89,15 @@ export class RegistryClientDO extends DurableObject {
 
   async _init() {
     Registry.initialize(
+      this.env,
       this.env.NX_DATA_URL,
       AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
       false,
       true,
       false
     );
+    Registry.getAccountRegistry().setSubgraphAPIKey =
+      this.env.NX_SUBGRAPH_API_KEY;
 
     // First trigger a refresh for all supported networks
     await Promise.all(
@@ -113,6 +120,8 @@ export class RegistryClientDO extends DurableObject {
           this.checkTotalSupply(network),
           this.saveYieldData(network),
           this.monitorRelayerBalances(network),
+          this.checkSubgraphBlockNumber(network),
+          this.checkRiskServiceUpdates(network),
         ]);
         if (network === Network.arbitrum) {
           // await this.checkDBMonitors(network);
@@ -558,6 +567,34 @@ export class RegistryClientDO extends DurableObject {
     await this.logger.submitMetrics({ series });
   }
 
+  private async checkSubgraphBlockNumber(network: Network) {
+    const meta = (await Registry.getAnalyticsRegistry().getView(
+      network,
+      'SubgraphMeta'
+    )) as unknown as MetaQuery;
+
+    if (
+      !meta._meta.block.timestamp ||
+      meta._meta.block.timestamp < getNowSeconds() - 2 * SECONDS_IN_HOUR
+    ) {
+      const networkTag = `network:${network}`;
+      const hours =
+        (getNowSeconds() - meta._meta.block.timestamp || 0) / SECONDS_IN_HOUR;
+
+      await this.logger.submitEvent({
+        host: this.serviceName,
+        network,
+        aggregation_key: 'MonitoringCheckFailed',
+        alert_type: 'error',
+        title: `Monitor Subgraph Block Height Failed: ${network}`,
+        tags: [networkTag, `monitor:subgraph_block_height`],
+        text: `Subgraph Block Height on ${network} is trailing by ${hours.toFixed(
+          2
+        )}`,
+      });
+    }
+  }
+
   private async checkDBMonitors(network: Network) {
     const analytics = Registry.getAnalyticsRegistry();
     const monitoringViews = [
@@ -628,6 +665,34 @@ export class RegistryClientDO extends DurableObject {
     }
 
     await this.logger.submitMetrics({ series: viewLengthSeries });
+  }
+
+  private async checkRiskServiceUpdates(network: Network) {
+    const vaultRisk = await this.env.ACCOUNT_CACHE_R2.head(
+      `${network}/accounts/vaultRisk`
+    );
+    const portfolioRisk = await this.env.ACCOUNT_CACHE_R2.head(
+      `${network}/accounts/portfolioRisk`
+    );
+    const lastUpdated = Math.min(
+      vaultRisk.uploaded.getTime() / 1000,
+      portfolioRisk.uploaded.getTime() / 1000
+    );
+    if (lastUpdated < getNowSeconds() - SECONDS_IN_HOUR / 2) {
+      const networkTag = `network:${network}`;
+      await this.logger.submitEvent({
+        host: this.serviceName,
+        network,
+        aggregation_key: 'MonitoringCheckFailed',
+        alert_type: 'error',
+        title: `Risk Service Updates Lagging: ${network}`,
+        tags: [networkTag, `monitor:risk_service_updates`],
+        text: `Risk Service Updates on ${network} is trailing by ${(
+          (getNowSeconds() - lastUpdated) /
+          60
+        ).toFixed(2)} minutes`,
+      });
+    }
   }
 
   private async saveYieldData(network: Network) {

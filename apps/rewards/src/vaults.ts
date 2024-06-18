@@ -103,6 +103,12 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       poolTokens: ['0x05ff47AFADa98a98982113758878F9A8B9FddA0a', rETH, weETH],
       tokenWeights: [0, 50, 50],
     },
+    {
+      address: '0x30fBa4a7ec8591f25B4D37fD79943a4bb6E553e2',
+      rewardTokens: [CRV, CVX],
+      poolTokens: [GHO, crvUSD],
+      tokenWeights: [50, 50],
+    },
   ],
   arbitrum: [
     {

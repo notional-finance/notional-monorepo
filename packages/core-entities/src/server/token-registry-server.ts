@@ -2,7 +2,12 @@ import { BigNumber } from 'ethers';
 import { SerializedTokenBalance, TokenBalance, TokenDefinition } from '..';
 import { fiatTokens } from '../config/fiat-config';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
-import { getNowSeconds, Network, sNOTE } from '@notional-finance/util';
+import {
+  getNowSeconds,
+  Network,
+  sNOTE,
+  WETHAddress,
+} from '@notional-finance/util';
 import { TypedDocumentNode } from '@apollo/client/core';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllTokensQuery } from '../.graphclient';
@@ -64,6 +69,7 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
           return obj;
         }, {} as Record<string, SerializedToken>);
       },
+      this.env.NX_SUBGRAPH_API_KEY,
       {
         blockNumber,
       }
@@ -71,20 +77,36 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
 
     if (network === Network.mainnet) {
       // Manually add sNOTE to the mainnet network
-      allTokens.values.push([
-        sNOTE,
-        {
-          id: sNOTE,
-          address: sNOTE,
-          network: Network.mainnet,
-          name: 'Staked NOTE',
-          symbol: 'sNOTE',
-          decimals: 18,
-          tokenInterface: 'ERC20',
-          tokenType: 'Underlying',
-          totalSupply: undefined,
-        },
-      ]);
+      allTokens.values.push(
+        [
+          sNOTE,
+          {
+            id: sNOTE,
+            address: sNOTE,
+            network: Network.mainnet,
+            name: 'Staked NOTE',
+            symbol: 'sNOTE',
+            decimals: 18,
+            tokenInterface: 'ERC20',
+            tokenType: 'Underlying',
+            totalSupply: undefined,
+          },
+        ],
+        [
+          WETHAddress[Network.mainnet],
+          {
+            id: WETHAddress[Network.mainnet],
+            address: WETHAddress[Network.mainnet],
+            network: Network.mainnet,
+            name: 'Wrapped Ether',
+            symbol: 'WETH',
+            decimals: 18,
+            tokenInterface: 'ERC20',
+            tokenType: 'Underlying',
+            totalSupply: undefined,
+          },
+        ]
+      );
     }
 
     return allTokens;

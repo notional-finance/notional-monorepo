@@ -84,11 +84,13 @@ export function vaultCapacity(
               ? toCapacityValue(totalAccountDebt)
               : undefined;
 
-          overCapacityError = netDebtBalanceForCapacity
-            ? totalUsedPrimaryBorrowCapacity
-                .add(netDebtBalanceForCapacity)
-                .gt(maxPrimaryBorrowCapacity)
-            : false;
+          overCapacityError =
+            // Skip over capacity error when debt balance is positive (repaying debt)
+            netDebtBalanceForCapacity && debtBalance?.isNegative()
+              ? totalUsedPrimaryBorrowCapacity
+                  .add(netDebtBalanceForCapacity)
+                  .gt(maxPrimaryBorrowCapacity)
+              : false;
           totalCapacityRemaining = overCapacityError
             ? undefined
             : maxPrimaryBorrowCapacity.sub(totalUsedPrimaryBorrowCapacity);

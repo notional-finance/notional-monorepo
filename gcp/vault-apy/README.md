@@ -17,6 +17,9 @@ Run with historical as first argument and vault address as second to only calcul
 
 Run with env DEBUG variable set to vault-apy to get detailed logs
 ```
+
+nvm use # switch to node 20
+
 yarn start-dev
 DEBUG=vault-apy yarn start-dev
 yarn start-dev historical

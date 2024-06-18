@@ -1,0 +1,28 @@
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+runtime: custom
+env: flex
+service: tx-relay-arbitrum
+
+manual_scaling:
+  instances: 1
+
+#[START gae_flex_pubsub_yaml]
+env_variables:
+  SERVICE_PORT: 8080
+  # secrets
+  AUTH_TOKEN: "projects/663932775145/secrets/TX_RELAY_AUTH_TOKEN/versions/latest"
+  DD_API_KEY: "projects/663932775145/secrets/DD_API_KEY/versions/latest"
+#[END gae_flex_pubsub_yaml]

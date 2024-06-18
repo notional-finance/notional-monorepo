@@ -1,7 +1,11 @@
 import { getComposablePoolConfig } from './ComposablePoolConfig';
 import { Network } from '@notional-finance/util';
 import { SourceType, Strategy, TableName } from '../../types';
-import { IAggregatorABI } from '@notional-finance/contracts';
+import {
+  IAggregatorABI,
+  ISingleSidedLPStrategyVaultABI,
+  ISingleSidedLPStrategyVault,
+} from '@notional-finance/contracts';
 import { ArbTokenConfig, EthTokenConfig, getOracleValue } from '..';
 
 export const Balancer_Config = [
@@ -110,7 +114,53 @@ export const Balancer_Config = [
     '0xb6d101874b975083c76598542946fe047f059066',
     Network.arbitrum,
     Strategy.Arb_Balancer_wstETH_WETH,
-    [ArbTokenConfig['wstETH'], ArbTokenConfig['WETH']]
+    [ArbTokenConfig['wstETH'], ArbTokenConfig['WETH']],
+    [
+      {
+        sourceType: SourceType.Multicall,
+        sourceConfig: {
+          contractAddress: '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
+          contractABI: ISingleSidedLPStrategyVaultABI,
+          method: 'getStrategyVaultInfo',
+          transform: (
+            r: Awaited<
+              ReturnType<ISingleSidedLPStrategyVault['getStrategyVaultInfo']>
+            >
+          ) => {
+            return r.totalLPTokens;
+          },
+        },
+        tableName: TableName.GenericData,
+        dataConfig: {
+          strategyId: Strategy.Arb_Balancer_wstETH_WETH,
+          variable: 'Total LP Tokens',
+          decimals: 18,
+        },
+        network: Network.arbitrum,
+      },
+      {
+        sourceType: SourceType.Multicall,
+        sourceConfig: {
+          contractAddress: '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
+          contractABI: ISingleSidedLPStrategyVaultABI,
+          method: 'getStrategyVaultInfo',
+          transform: (
+            r: Awaited<
+              ReturnType<ISingleSidedLPStrategyVault['getStrategyVaultInfo']>
+            >
+          ) => {
+            return r.totalVaultShares;
+          },
+        },
+        tableName: TableName.GenericData,
+        dataConfig: {
+          strategyId: Strategy.Arb_Balancer_wstETH_WETH,
+          variable: 'Total Vault Shares',
+          decimals: 8,
+        },
+        network: Network.arbitrum,
+      },
+    ]
   ),
   getComposablePoolConfig(
     '0x32df62dc3aed2cd6224193052ce665dc181658410002000000000000000003bd',

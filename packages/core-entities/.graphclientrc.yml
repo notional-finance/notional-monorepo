@@ -8,4 +8,4 @@ documents:
   - ./queries/*.graphql
 
 codegen:
-  contextType: 'MeshContext & { chainName: string }'
+  contextType: 'MeshContext & { apiKey: string, subgraphId: string }'

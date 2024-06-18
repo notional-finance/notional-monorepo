@@ -28,6 +28,7 @@ import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { BigNumber } from 'ethers';
 import { ExecutionResult } from 'graphql';
 import { TypedDocumentNode } from '@apollo/client/core';
+import { Env } from '.';
 
 export type GraphDocument = keyof Omit<
   Awaited<ReturnType<typeof loadGraphClientDeferred>>,
@@ -49,9 +50,10 @@ export const ASSET_PRICE_ORACLES = [
 export class AnalyticsServer extends ServerRegistry<unknown> {
   constructor(
     private dataServiceURL: string,
-    private dataServiceAuthToken: string
+    private dataServiceAuthToken: string,
+    env: Env
   ) {
-    super();
+    super(env);
   }
 
   public override hasAllNetwork() {
@@ -126,8 +128,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           }),
           'id'
         ),
+      this.env.NX_SUBGRAPH_API_KEY,
       { minTimestamp },
-      'oracles'
+      'oracles',
     );
 
     const { finalResults: historicalTrading } = await fetchGraph(
@@ -161,8 +164,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           )
         );
       },
+      this.env.NX_SUBGRAPH_API_KEY,
       { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY },
-      'tradingActivity'
+      'tradingActivity',
     );
 
     const { finalResults: vaultReinvestment } = await fetchGraph(
@@ -176,8 +180,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
             (t) => t.vault
           )
         ),
+      this.env.NX_SUBGRAPH_API_KEY,
       { minTimestamp },
-      'reinvestments'
+      'reinvestments',
     );
 
     const { finalResults: activeAccounts } = await fetchGraph(
@@ -211,8 +216,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
         return Object.assign(activeAccounts, { totalActive });
       },
+      this.env.NX_SUBGRAPH_API_KEY,
       {},
-      'accounts'
+      'accounts',
     );
 
     const vaults = await Promise.all(
@@ -328,10 +334,16 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
   ): Promise<ExecutionResult<T>> {
     const documents = await loadGraphClientDeferred();
     const doc = documents[document] as TypedDocumentNode;
-    return await fetchGraphPaginate(network, doc, rootVariable, {
-      ...variables,
-      chainName: network,
-    });
+    return await fetchGraphPaginate(
+      network,
+      doc,
+      rootVariable,
+      this.env.NX_SUBGRAPH_API_KEY,
+      {
+        ...variables,
+        chainName: network,
+      },
+    );
   }
 
   private _convertOrNull<T>(v: string | number | null, fn: (d: number) => T) {

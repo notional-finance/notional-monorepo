@@ -18,6 +18,7 @@ import {
   ZERO_ADDRESS,
   groupArrayToMap,
   sendTxThroughRelayer,
+  getFlashLender,
 } from '@notional-finance/util';
 import { overrides } from '.';
 
@@ -26,7 +27,6 @@ export type LiquidatorSettings = {
   vaultAddrs: string[];
   flashLiquidatorAddress: string[];
   flashLiquidatorOwner: string;
-  flashLenderAddress: string;
   slippageLimit: BigNumber;
   notionalAddress: string;
   flashLoanBuffer: BigNumber;
@@ -286,11 +286,21 @@ export default class VaultV3Liquidator {
       },
     };
 
+    const flashLender = getFlashLender({
+      network: this.settings.network,
+      vault,
+      token: args.asset,
+    });
     // Must use multiple contracts in a batch liquidation due to vault exit time
     // restrictions.
     const batchCalldata = await this.liquidatorContracts[
       liquidatorIndex
-    ].populateTransaction.flashLiquidate(args.asset, args.amount, args.params);
+    ].populateTransaction.flashLiquidate(
+      flashLender,
+      args.asset,
+      args.amount,
+      args.params
+    );
 
     return { accounts, batchCalldata, args };
   }
@@ -350,8 +360,7 @@ export default class VaultV3Liquidator {
       },
       to: multicall.address,
       data: pop.data,
-      isLiquidator: true,
-      gasLimit: gasLimit.mul(120).div(100).toNumber(),
+      gasLimit: gasLimit.mul(200).div(100).toNumber(),
     });
   }
 }

@@ -7,6 +7,7 @@ import {
   ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
+import { fetchGraphPaginate } from '@notional-finance/core-entities';
 import { aggregate } from '@notional-finance/multicall';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { BigNumber, Contract, ethers, providers } from 'ethers';
@@ -49,21 +50,23 @@ const VaultConfig = {
 async function loadAllVaultsQuery(
   vaultAddress: string,
   blockNumber: number,
-  network: Network
+  network: Network,
+  apiKey: string
 ) {
   const {
-    execute,
     AllVaultAccountsDocument,
     // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
   } = await import('../../../packages/core-entities/src/.graphclient/index');
 
-  return await execute(
+  return await fetchGraphPaginate(
+    network,
     AllVaultAccountsDocument,
+    'balances',
     {
       vaultAddress,
       blockNumber,
     },
-    { chainName: network }
+    apiKey
   ).then((d) => d.data as AllVaultAccountsQuery);
 }
 
@@ -129,7 +132,11 @@ export async function getVaultTVL(vaultAddress: string) {
   };
 }
 
-export async function getVaultData(vaultAddress: string, blockNumber: number) {
+export async function getVaultData(
+  vaultAddress: string,
+  blockNumber: number,
+  apiKey: string
+) {
   const { targetToken, poolId, network, symbol } = VaultConfig[vaultAddress];
 
   const vaultInfo = await getVaultInfo(vaultAddress, network, blockNumber);
@@ -171,7 +178,8 @@ export async function getVaultData(vaultAddress: string, blockNumber: number) {
   const allVaultAccounts = await loadAllVaultsQuery(
     vaultAddress,
     blockNumber,
-    network
+    network,
+    apiKey
   );
 
   const totalLPTokens = vaultInfo.info.totalLPTokens;

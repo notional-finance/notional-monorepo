@@ -13,6 +13,10 @@ import { YieldRegistryClient } from './client/yield-registry-client';
 import { AnalyticsRegistryClient } from './client/analytics-registry-client';
 import { NOTERegistryClient } from './client/note-registry-client';
 
+type Env = {
+  NX_SUBGRAPH_API_KEY: string;
+};
+
 export class Registry {
   protected static _self?: Registry;
   protected static _tokens?: TokenRegistryClient;
@@ -35,6 +39,7 @@ export class Registry {
   public static DEFAULT_ANALYTICS_REFRESH = 30 * ONE_MINUTE_MS;
 
   static initialize(
+    env: Env,
     cacheHostname: string,
     fetchMode: AccountFetchMode,
     startFiatRefresh = true,
@@ -44,6 +49,7 @@ export class Registry {
     if (Registry._self) return;
 
     Registry._self = new Registry(
+      env,
       cacheHostname,
       fetchMode,
       startFiatRefresh,
@@ -53,6 +59,7 @@ export class Registry {
   }
 
   protected constructor(
+    env: Env,
     protected _cacheHostname: string,
     fetchMode: AccountFetchMode,
     startFiatRefresh: boolean,
@@ -66,8 +73,9 @@ export class Registry {
     Registry._vaults = new VaultRegistryClient(_cacheHostname);
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
     Registry._yields = new YieldRegistryClient(_cacheHostname);
-    Registry._analytics = new AnalyticsRegistryClient(_cacheHostname);
+    Registry._analytics = new AnalyticsRegistryClient(_cacheHostname, env);
     Registry._note = new NOTERegistryClient(_cacheHostname);
+    Registry._accounts.setSubgraphAPIKey = env.NX_SUBGRAPH_API_KEY;
 
     // Kicks off Fiat token refreshes
     if (startFiatRefresh) {

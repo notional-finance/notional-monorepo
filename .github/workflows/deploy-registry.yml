@@ -14,9 +14,6 @@ on:
         description: 'Set a registry to deploy: <configuration|exchanges|oracles|tokens|vaults|data>'
         required: true
         default: ''
-  push:
-    branches:
-      - v3/prod
 
 jobs:
   deploy:

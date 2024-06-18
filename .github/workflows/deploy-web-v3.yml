@@ -1,4 +1,4 @@
-name: deploy-web-v3
+name: Deploy V3 Website
 on:
   workflow_dispatch:
     inputs:
@@ -41,6 +41,8 @@ jobs:
           NX_DATA_URL: ${{ secrets.NX_DATA_URL }}
           NX_INTERCOM_APP_ID: ${{ secrets.NX_INTERCOM_APP_ID }}
           NX_SEGMENT_KEY: ${{ secrets.NX_SEGMENT_KEY }}
+          NX_SUBGRAPH_API_KEY: ${{ secrets.NX_SUBGRAPH_UI_KEY }}
+          NX_SPINDL_API_KEY: ${{ secrets.NX_SPINDL_API_KEY }}
           NX_ENV: ${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
           NX_COMMIT_REF: ${{ github.sha }}
       - name: Publish Dev
