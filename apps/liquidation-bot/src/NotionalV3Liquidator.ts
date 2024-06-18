@@ -1,5 +1,10 @@
 import { AggregateCall, aggregate } from '@notional-finance/multicall';
-import { FlashLiquidatorABI, NotionalV3ABI } from '@notional-finance/contracts';
+import {
+  FlashLiquidatorABI,
+  IAggregator,
+  IAggregatorABI,
+  NotionalV3ABI,
+} from '@notional-finance/contracts';
 import { ethers, BigNumber, Contract } from 'ethers';
 import {
   RiskyAccount,
@@ -13,10 +18,11 @@ import {
   TradeType,
   DexId,
 } from './types';
-import FlashLoanProvider from './lenders/FlashLender';
+import FlashLoanProvider from './FlashLender';
 import { Logger } from '@notional-finance/durable-objects';
 import {
   Network,
+  WETHAddress,
   getExcludedSources,
   getFlashLender,
   getNowSeconds,
@@ -34,7 +40,6 @@ export type LiquidatorSettings = {
   txRelayUrl: string;
   txRelayAuthToken: string;
   currencies: Currency[];
-  tokens: Map<string, string>;
   zeroExUrl: string;
   zeroExApiKey: string;
   overrides: CurrencyOverride[];
@@ -83,10 +88,10 @@ export default class NotionalV3Liquidator {
   }
 
   get wethAddress(): string {
-    return this.settings.tokens.get('WETH');
+    return WETHAddress[this.settings.network];
   }
 
-  private toExternal(input: any, externalPrecision: BigNumber) {
+  private toExternal(input: BigNumber, externalPrecision: BigNumber) {
     return input
       .mul(externalPrecision)
       .div(NotionalV3Liquidator.INTERNAL_PRECISION);
@@ -225,6 +230,31 @@ export default class NotionalV3Liquidator {
     return data;
   }
 
+  private async convertFlashBorrowAmount(
+    originalFlashBorrowAmount: BigNumber,
+    borrowAssetOverride: CurrencyOverride
+  ) {
+    const oracle = new Contract(
+      borrowAssetOverride.oracle,
+      IAggregatorABI,
+      this.provider
+    ) as IAggregator;
+
+    const decimals = await oracle.decimals();
+    const rate = await oracle.latestAnswer();
+    return (
+      originalFlashBorrowAmount
+        .mul(borrowAssetOverride.overridePrecision)
+        .mul(rate)
+        // Apply the buffer again to allow for any slippage during trading
+        .mul(this.settings.flashLoanBuffer)
+        .div(borrowAssetOverride.basePrecision)
+        .div(BigNumber.from(10).pow(decimals))
+        // This is for the flash loan buffer
+        .div(1000)
+    );
+  }
+
   public async getFlashLiquidation(
     l: AccountLiquidation
   ): Promise<FlashLiquidation> {
@@ -238,15 +268,14 @@ export default class NotionalV3Liquidator {
     const borrowAssetOverride = this.settings.overrides.find(
       (c) => c.id === l.liquidation.getLocalCurrency().id
     );
-    if (borrowAssetOverride) {
-      l.flashLoanAmount =
-        borrowAssetOverride.basePrecision &&
-        borrowAssetOverride.overridePrecision
-          ? l.flashLoanAmount
-              .mul(borrowAssetOverride.overridePrecision)
-              .div(borrowAssetOverride.basePrecision)
-          : l.flashLoanAmount;
 
+    if (borrowAssetOverride) {
+      // If overriding the flash borrow asset, need to convert to the override
+      // denomination at the oracle rate here.
+      l.flashLoanAmount = await this.convertFlashBorrowAmount(
+        l.flashLoanAmount,
+        borrowAssetOverride
+      );
       flashBorrowAsset = borrowAssetOverride.flashBorrowAsset;
     }
 

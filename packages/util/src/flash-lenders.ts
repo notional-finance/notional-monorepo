@@ -55,7 +55,6 @@ const perTokenFlashLenders = {
     [tokens.arbitrum['GMX']]: wrappedFlashLenders.arbitrum['UNIV3'],
     [tokens.arbitrum['RDNT']]: wrappedFlashLenders.arbitrum['BALANCER'],
     [tokens.arbitrum['UNI']]: wrappedFlashLenders.arbitrum['UNIV3'],
-    [tokens.arbitrum['LDO']]: wrappedFlashLenders.arbitrum['UNIV3'],
   },
 };
 

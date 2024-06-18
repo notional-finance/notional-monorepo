@@ -1,5 +1,5 @@
 import { BigNumber, providers } from 'ethers';
-import { FlashLiquidation, IFlashLoanProvider } from '../types';
+import { FlashLiquidation, IFlashLoanProvider } from './types';
 import { Network, getFlashLender } from '@notional-finance/util';
 import {
   FlashLiquidator__factory,

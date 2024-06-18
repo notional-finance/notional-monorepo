@@ -7,8 +7,7 @@ import {
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import NotionalV3Liquidator from './NotionalV3Liquidator';
-import * as tokens from './config/tokens.json';
-import { overrides } from './config/overrides';
+import { overrides } from './overrides';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames, RiskyAccount } from './types';
 import {
@@ -80,7 +79,6 @@ async function setUp(env: Env) {
           };
         }),
       overrides: overrides[env.NETWORK],
-      tokens: new Map<string, string>(Object.entries(tokens[env.NETWORK])),
       zeroExUrl: env.ZERO_EX_SWAP_URL,
       zeroExApiKey: env.ZERO_EX_API_KEY,
       exactInSlippageLimit: BigNumber.from(env.EXACT_IN_SLIPPAGE_LIMIT),
