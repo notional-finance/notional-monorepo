@@ -7,8 +7,7 @@ import {
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import NotionalV3Liquidator from './NotionalV3Liquidator';
-import * as tokens from './config/tokens.json';
-import { overrides } from './config/overrides';
+import { overrides } from './overrides';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames, RiskyAccount } from './types';
 import {
@@ -16,6 +15,7 @@ import {
   Logger,
   MetricType,
 } from '@notional-finance/durable-objects';
+import { formatUnits } from 'ethers/lib/utils';
 
 export interface Env {
   NX_DATA_URL: string;
@@ -25,12 +25,10 @@ export interface Env {
   NETWORK: Network;
   FLASH_LIQUIDATOR_CONTRACT: string;
   FLASH_LIQUIDATOR_OWNER: string;
-  FLASH_LENDER_ADDRESS: string;
   FLASH_LOAN_BUFFER: string;
   NOTIONAL_PROXY_CONTRACT: string;
   DUST_THRESHOLD: string;
   ALCHEMY_KEY: string;
-  BN_API_KEY: string;
   DD_API_KEY: string;
   DD_APP_KEY: string;
   TX_RELAY_URL: string;
@@ -41,15 +39,7 @@ export interface Env {
   PROFIT_THRESHOLD: string;
 }
 
-function shuffleArray(array: string[]) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-const run = async (env: Env, isHourly: boolean) => {
+async function setUp(env: Env) {
   const allTokens = await (
     await fetch(`https://data-dev.notional.finance/${env.NETWORK}/tokens`)
   ).json();
@@ -61,25 +51,13 @@ const run = async (env: Env, isHourly: boolean) => {
     service: 'liquidator',
   });
 
-  const accounts = (await (
-    await fetch(`${env.ACCOUNT_SERVICE_URL}?network=${env.NETWORK}`, {
-      headers: {
-        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
-      },
-    })
-  ).json()) as { account_id: string }[];
-  let addresses: string[] = accounts
-    .map((a) => a.account_id)
-    .filter((a) => a !== ZERO_ADDRESS);
-
   const provider = getProviderFromNetwork(env.NETWORK, true);
-  const liq = new NotionalV3Liquidator(
+  const liquidator = new NotionalV3Liquidator(
     provider,
     {
       network: env.NETWORK,
       flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
       flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
-      flashLenderAddress: env.FLASH_LENDER_ADDRESS,
       flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
       notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
       dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
@@ -100,7 +78,7 @@ const run = async (env: Env, isHourly: boolean) => {
           };
         }),
       overrides: overrides[env.NETWORK],
-      tokens: new Map<string, string>(Object.entries(tokens[env.NETWORK])),
+      zeroExUrl: env.ZERO_EX_SWAP_URL,
       zeroExApiKey: env.ZERO_EX_API_KEY,
       exactInSlippageLimit: BigNumber.from(env.EXACT_IN_SLIPPAGE_LIMIT),
       exactOutSlippageLimit: BigNumber.from(env.EXACT_OUT_SLIPPAGE_LIMIT),
@@ -110,19 +88,70 @@ const run = async (env: Env, isHourly: boolean) => {
     logger
   );
 
-  // Currently the worker cannot process more than 2000 accounts per batch
-  if (!isHourly && env.NETWORK === Network.arbitrum) {
-    // Unable to scan all accounts in a single segment
-    addresses = shuffleArray(addresses).slice(0, 5000);
-  }
+  return { liquidator, logger };
+}
 
-  console.log('Num Addresses', addresses.length);
+async function processAllAccounts(env: Env, liquidator: NotionalV3Liquidator) {
+  // Currently the worker cannot process more than 2000 accounts per batch
+  const accounts = (await (
+    await fetch(`${env.ACCOUNT_SERVICE_URL}?network=${env.NETWORK}`, {
+      headers: {
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+      },
+    })
+  ).json()) as { account_id: string }[];
+  const addresses: string[] = accounts
+    .map((a) => a.account_id)
+    .filter((a) => a !== ZERO_ADDRESS);
+
   const batchedAccounts = batchArray(addresses, 250);
   let riskyAccounts: RiskyAccount[] = [];
   for (const batch of batchedAccounts) {
-    const risky = await liq.getRiskyAccounts(batch);
+    const risky = await liquidator.getRiskyAccounts(batch);
     riskyAccounts = riskyAccounts.concat(risky);
   }
+
+  return { riskyAccounts, addresses };
+}
+
+async function getAccountLiquidation(env: Env, address: string) {
+  const { liquidator } = await setUp(env);
+  const riskyAccounts = await liquidator.getRiskyAccounts([address]);
+  if (riskyAccounts.length) {
+    const liquidation = await liquidator.getLargestLiquidation(
+      riskyAccounts[0]
+    );
+
+    return liquidation;
+  } else {
+    return await liquidator.getAccountData(address);
+  }
+}
+
+const displayRiskyAccounts = async (env: Env) => {
+  const { liquidator } = await setUp(env);
+  const { riskyAccounts, addresses } = await processAllAccounts(
+    env,
+    liquidator
+  );
+
+  return {
+    riskyAccounts: riskyAccounts
+      .sort((a, b) => (a.ethFreeCollateral.lt(b.ethFreeCollateral) ? 1 : -1))
+      .map((r) => ({
+        account: r.id,
+        freeCollateral: formatUnits(r.ethFreeCollateral, 18),
+      })),
+    totalAccountsProcessed: addresses.length,
+  };
+};
+
+const run = async (env: Env) => {
+  const { logger, liquidator } = await setUp(env);
+  const { riskyAccounts, addresses } = await processAllAccounts(
+    env,
+    liquidator
+  );
 
   const ddSeries: DDSeries = {
     series: [],
@@ -138,7 +167,7 @@ const run = async (env: Env, isHourly: boolean) => {
         },
       ],
       type: MetricType.Gauge,
-      tags: [`network:${env.NETWORK}`, 'version:v3'],
+      tags: [`network:${env.NETWORK}`, 'version:v3.2'],
     },
     {
       metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
@@ -149,58 +178,64 @@ const run = async (env: Env, isHourly: boolean) => {
         },
       ],
       type: MetricType.Gauge,
-      tags: [`network:${env.NETWORK}`, 'version:v3'],
+      tags: [`network:${env.NETWORK}`, 'version:v3.2'],
     }
   );
 
   await logger.submitMetrics(ddSeries);
+  for (const account of riskyAccounts) {
+    await logger.submitEvent({
+      aggregation_key: 'RiskyAccount',
+      alert_type: 'info',
+      host: 'cloudflare',
+      network: env.NETWORK,
+      title: `Risky Account: ${account.id}`,
+      tags: [`account:${account.id}`, `event:risky_account`],
+      text: `
+account: ${account.id}
+freeCollateral: ${formatUnits(account.ethFreeCollateral, 18)}
+net underlying available:
+${Array.from(account.netUnderlyingAvailable.entries())
+  .map(([id, amt]) => `${id}: ${formatUnits(amt, 8)}`)
+  .join('\n')}
+`,
+    });
+  }
 
-  if (riskyAccounts.length > 0) {
-    for (const account of riskyAccounts) {
-      await logger.submitEvent({
-        aggregation_key: 'RiskyAccount',
-        alert_type: 'info',
-        host: 'cloudflare',
-        network: env.NETWORK,
-        title: `Risky Account: ${account.id}`,
-        tags: [`account:${account.id}`, `event:risky_account`],
-        text: `Risky account ${account.id}`,
-      });
-    }
-    const riskyAccount = riskyAccounts[0];
-
-    const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);
-    if (possibleLiqs.length === 0) {
-      await logger.submitEvent({
-        aggregation_key: 'AccountLiquidated',
-        alert_type: 'error',
-        host: 'cloudflare',
-        network: liq.settings.network,
-        title: `Account liquidated`,
-        tags: [`account:${riskyAccount.id}`, `event:failed_account_liquidated`],
-        text: `
-Failed to find possible liquidation for account: ${riskyAccount.id}
-        `,
-      });
-    }
-
-    if (possibleLiqs.length > 0) {
-      await liq.liquidateAccount(possibleLiqs[0]);
-    }
+  for (const riskyAccount of riskyAccounts) {
+    const liquidation = await liquidator.getLargestLiquidation(riskyAccount);
+    await liquidator.liquidateAccount(liquidation);
   }
 };
 
 export default {
-  async fetch(__: Request, env: Env, _: ExecutionContext): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    _: ExecutionContext
+  ): Promise<Response> {
     try {
-      await run(env, true);
+      const url = new URL(request.url);
+      const splitPath = url.pathname.split('/');
+      if (url.pathname === '/') {
+        return new Response(JSON.stringify(await displayRiskyAccounts(env)), {
+          status: 200,
+        });
+      } else if (splitPath.length === 2) {
+        return new Response(
+          JSON.stringify(
+            await getAccountLiquidation(env, splitPath[1].toLowerCase())
+          ),
+          { status: 200 }
+        );
+      } else {
+        return new Response('Not Found', { status: 404 });
+      }
     } catch (e) {
       console.error(e);
       console.trace();
+      return new Response(e, { status: 500 });
     }
-
-    const response = new Response('OK', { status: 200 });
-    return response;
   },
   async scheduled(
     s: ScheduledController,

@@ -1,6 +1,9 @@
 import { LiquidationType, TradeData, Currency } from './types';
 import { utils, constants, Contract } from 'ethers';
 
+/**
+ * Represents a single liquidation opportunity
+ */
 export default class Liquidation {
   public static readonly ETH_CURRENCY_ID = 1;
   public static readonly LOCAL_CURRENCY_PARAMS = 'tuple(address,uint16,uint96)';
@@ -216,40 +219,6 @@ export default class Liquidation {
   }
 
   public getFlashLoanAmountCall(notional: Contract, account: string) {
-    // TODO: enable this once we figure out how to deal with nToken residuals
-    /*if (
-      this.type === LiquidationType.LOCAL_CURRENCY ||
-      this.type === LiquidationType.COLLATERAL_CURRENCY
-    ) {
-      // Determine if nToken account has residuals
-      let currencyId = this.localCurrencyId;
-      if (this.type === LiquidationType.COLLATERAL_CURRENCY)
-        currencyId = this.collateralCurrencyId;
-
-      const system = System.getSystem();
-      const currency = system.getCurrencyById(currencyId);
-      const nTokenBalance = (await proxy.getAccountBalance(currencyId, address))
-        .nTokenBalance;
-      console.log(
-        `${currency.nTokenSymbol} balance: ${nTokenBalance.toString()}`
-      );
-      if (nTokenBalance.gt(0) && currency.nTokenSymbol) {
-        const redeemAmount = TypedBigNumber.from(
-          nTokenBalance,
-          BigNumberType.nToken,
-          currency.nTokenSymbol as string
-        );
-
-        try {
-          NTokenValue.getAssetFromRedeemNToken(currencyId, redeemAmount);
-        } catch (e: any) {
-          console.error(e);
-          console.log(`${address} has nToken residuals`);
-          this.residuals = true;
-        }
-      }
-    }*/
-
     switch (this.type) {
       case LiquidationType.LOCAL_CURRENCY: {
         const key = `${account}:${this.type}:${this.localCurrency.id}:0`;
