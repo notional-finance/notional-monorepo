@@ -138,13 +138,30 @@ export default class NotionalV3Liquidator {
       true
     );
 
-    // TODO: detect failures here....
+    const failedAccounts = addresses.filter(
+      (a) =>
+        results[`${a}:collateral`] === undefined ||
+        results[`${a}:account`] === undefined
+    );
+    for (const a of failedAccounts) {
+      await this.logger.submitEvent({
+        aggregation_key: 'AccountRiskFailure',
+        alert_type: 'error',
+        host: 'cloudflare',
+        network: this.settings.network,
+        title: `Failed Account Free Collateral`,
+        tags: [`account:${a}`, `event:failed_account_health`],
+        text: `Failed to get account free collateral: ${a}`,
+      });
+    }
 
     const accounts = addresses
-      .map((addr) => {
+      // Filter out accounts that failed their health check
+      .filter((a) => failedAccounts.includes(a))
+      .map((id) => {
         return {
-          id: addr,
-          ethFreeCollateral: (results[`${addr}:collateral`] as BigNumber[])[0],
+          id,
+          ethFreeCollateral: (results[`${id}:collateral`] as BigNumber[])[0],
         };
       })
       .filter(
@@ -493,7 +510,7 @@ Error: ${(e as Error).toString()}
       }
     }
 
-    return undefined
+    return undefined;
   }
 
   public async liquidateAccount(flashLiq: FlashLiquidation) {
