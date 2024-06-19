@@ -123,7 +123,7 @@ export interface TreasuryManagerInterface extends utils.Interface {
     "pendingOwner()": FunctionFragment;
     "priceOracleWindowInSeconds()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
-    "reinvestVaultReward(address,tuple[][],uint256[])": FunctionFragment;
+    "reinvestVaultReward(address,(address,address,uint256,(uint16,uint8,uint256,bytes))[][],uint256[])": FunctionFragment;
     "sNOTE()": FunctionFragment;
     "setCoolDownTime(uint32)": FunctionFragment;
     "setManager(address)": FunctionFragment;
