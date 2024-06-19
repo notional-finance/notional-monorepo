@@ -40,6 +40,7 @@ export type DDSeries = {
 type DDEventKey =
   | 'GeoIPLog'
   | 'NewsletterSubmitFailure'
+  | 'AccountRiskFailure'
   | 'AccountLiquidated'
   | 'RiskyAccount'
   | 'AccountListMismatch'

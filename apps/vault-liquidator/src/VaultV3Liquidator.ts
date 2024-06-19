@@ -154,7 +154,7 @@ export default class VaultV3Liquidator {
     );
     for (const f of failedRequests) {
       logger.submitEvent({
-        aggregation_key: 'AccountLiquidated',
+        aggregation_key: 'AccountRiskFailure',
         alert_type: 'error',
         host: 'cloudflare',
         network: this.settings.network,
