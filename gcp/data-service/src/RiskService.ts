@@ -34,6 +34,7 @@ export const S3 = new S3Client({
 
 export async function calculateAccountRisks() {
   Registry.initialize(
+    { NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY },
     DATA_URL,
     AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
     false,
@@ -163,6 +164,7 @@ function getVaultRiskFactors(account: AccountDefinition) {
 
 export async function calculatePointsAccrued(network: Network) {
   Registry.initialize(
+    { NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY },
     DATA_URL,
     AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
     false,

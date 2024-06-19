@@ -3243,7 +3243,7 @@ function-bind@^1.1.1:
   resolved "https://registry.yarnpkg.com/function-bind/-/function-bind-1.1.1.tgz#a56899d3ea3c9bab874bb9773b7c5ede92f4895d"
   integrity sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==
 
-gae-env-secrets@^1.0.3:
+gae-env-secrets@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/gae-env-secrets/-/gae-env-secrets-1.0.3.tgz#e46daed213ac5f157d1c621042ae06c9fa99f5bd"
   integrity sha512-5Hl+WdcwnkuX3+eHPCnWOIrBi7YkzYXLbMZEike3bm2udSRMLYrn1JRRgrJcqa8phcnIq8OKEXM4nuPNXZ13Ew==
