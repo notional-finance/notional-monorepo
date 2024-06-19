@@ -157,7 +157,7 @@ export default class NotionalV3Liquidator {
 
     const accounts = addresses
       // Filter out accounts that failed their health check
-      .filter((a) => failedAccounts.includes(a))
+      .filter((a) => !failedAccounts.includes(a))
       .map((id) => {
         return {
           id,
@@ -498,14 +498,14 @@ export default class NotionalV3Liquidator {
           title: `Failed Account Liquidation`,
           tags: [`account:${a.accountId}`, `event:failed_account_liquidated`],
           text: `
-Account: ${a.accountId}
-Liquidation Type: ${a.liquidation.getLiquidationType()}
-Local Currency: ${a.liquidation.getLocalCurrency().id}
-Collateral Currency: ${a.liquidation.getCollateralCurrencyId()}
-Flash Loan Amount: ${a.flashLoanAmount.toString()}
+        Account: ${a.accountId}
+        Liquidation Type: ${a.liquidation.getLiquidationType()}
+        Local Currency: ${a.liquidation.getLocalCurrency().id}
+        Collateral Currency: ${a.liquidation.getCollateralCurrencyId()}
+        Flash Loan Amount: ${a.flashLoanAmount.toString()}
 
-Error: ${(e as Error).toString()}
-`,
+        Error: ${(e as Error).toString()}
+        `,
         });
       }
     }

@@ -15,7 +15,7 @@ import {
   Logger,
   MetricType,
 } from '@notional-finance/durable-objects';
-import { formatUnits } from 'ethers/lib/utils';
+import { formatUnits, isAddress } from 'ethers/lib/utils';
 import { CacheSchema, TokenDefinition } from '@notional-finance/core-entities';
 
 export interface Env {
@@ -133,6 +133,13 @@ async function getAccountLiquidation(env: Env, address: string) {
       riskyAccounts[0]
     );
 
+    // Rewrite the liquidation object into something more readable
+    if (liquidation)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      liquidation.accountLiq.liquidation =
+        liquidation.accountLiq.liquidation.toString();
+
     return liquidation;
   } else {
     return await liquidator.getAccountData(address);
@@ -151,7 +158,7 @@ const displayRiskyAccounts = async (env: Env) => {
       .sort((a, b) => (a.ethFreeCollateral.lt(b.ethFreeCollateral) ? 1 : -1))
       .map((r) => ({
         account: r.id,
-        freeCollateral: formatUnits(r.ethFreeCollateral, 18),
+        freeCollateral: formatUnits(r.ethFreeCollateral, 8),
       })),
     totalAccountsProcessed: addresses.length,
   };
@@ -232,7 +239,10 @@ export default {
         return new Response(JSON.stringify(await displayRiskyAccounts(env)), {
           status: 200,
         });
-      } else if (splitPath.length === 2) {
+      } else if (
+        splitPath.length === 2 &&
+        isAddress(splitPath[1].toLowerCase())
+      ) {
         return new Response(
           JSON.stringify(
             await getAccountLiquidation(env, splitPath[1].toLowerCase())

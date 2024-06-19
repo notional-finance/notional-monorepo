@@ -42,7 +42,7 @@ const defaultFlashLenders = {
 
 const perVaultFlashLenders: Record<string, string> = {};
 
-const perTokenFlashLenders = {
+const perTokenFlashLenders: Record<Network, Record<string, string>> = {
   [Network.mainnet]: {
     default: wrappedFlashLenders.mainnet['AAVE'],
     // NOTE: this is set to USDT because the Aave flash lender does not use the proper
@@ -56,11 +56,12 @@ const perTokenFlashLenders = {
     [tokens.arbitrum['RDNT']]: wrappedFlashLenders.arbitrum['BALANCER'],
     [tokens.arbitrum['UNI']]: wrappedFlashLenders.arbitrum['UNIV3'],
   },
+  [Network.all]: {},
+  [Network.optimism]: {},
 };
-
 const checkSumAddress = (address: string) => {
   // Convert to checksum version or throw if invalid checksum
-  return ethers.utils.getAddress(address);
+  return address ? ethers.utils.getAddress(address) : '';
 };
 
 export function getFlashLender({
@@ -84,14 +85,15 @@ export function getExcludedSources(
   network: Network,
   flashLenderAddress: string
 ): string | undefined {
-  const [name, _] = Object.entries(wrappedFlashLenders[network]).find(
+  const n = Object.entries(wrappedFlashLenders[network]).find(
     ([_, address]) => address.toLowerCase() === flashLenderAddress.toLowerCase()
-  ) as [string, string];
+  );
+  const name = n ? n[1] : '';
   return zeroExSources[network] ? zeroExSources[network][name] : undefined;
 }
 
 // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-sources
-const zeroExSources = {
+const zeroExSources: Record<Network, Record<string, string>> = {
   [Network.mainnet]: {
     BALANCER: 'Balancer_V2',
     UNISWAP: 'Uniswap_V3',
@@ -101,4 +103,6 @@ const zeroExSources = {
     CAMELOT: 'Camelot_V3',
     UNIV3: 'Uniswap_V3',
   },
+  [Network.all]: {},
+  [Network.optimism]: {},
 };
