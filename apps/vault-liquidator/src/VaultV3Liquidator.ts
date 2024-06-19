@@ -21,6 +21,7 @@ import {
   getFlashLender,
 } from '@notional-finance/util';
 import { overrides } from '.';
+import { Logger } from '@notional-finance/durable-objects';
 
 export type LiquidatorSettings = {
   network: Network;
@@ -137,41 +138,68 @@ export default class VaultV3Liquidator {
   }
 
   public async getRiskyAccounts(
-    accounts: { account_id: string; vault_id: string }[]
+    accounts: { account_id: string; vault_id: string }[],
+    logger: Logger
   ) {
     const { results } = await aggregate(
       this.getAccountHealthCalls(accounts),
-      this.provider
+      this.provider,
+      undefined,
+      true // Allow failure
     );
 
-    return accounts.map(({ account_id, vault_id }) => {
-      const accountHealth = results[
-        `${account_id}:${vault_id}:health`.toLowerCase()
-      ] as {
-        collateralRatio: BigNumber;
-        maxLiquidatorDepositUnderlying: [BigNumber, BigNumber, BigNumber];
-        vaultSharesToLiquidator: [BigNumber, BigNumber, BigNumber];
-      };
-      const acct = results[
-        `${account_id}:${vault_id}:account`.toLowerCase()
-      ] as Awaited<ReturnType<NotionalV3['getVaultAccount']>>;
+    const failedRequests = accounts.filter(
+      ({ account_id, vault_id }) =>
+        results[`${account_id}:${vault_id}:health`.toLowerCase()] === undefined
+    );
+    for (const f of failedRequests) {
+      logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'error',
+        host: 'cloudflare',
+        network: this.settings.network,
+        title: `Failed Vault Account Health Factors`,
+        tags: [`event:failed_vault_account_health`],
+        text: `Failed to get vault health for ${f.account_id} in vault ${f.vault_id}`,
+      });
+    }
 
-      return {
-        id: account_id,
-        maturity: acct.maturity.toNumber(),
-        debtUnderlying: acct.accountDebtUnderlying,
-        vaultShares: acct.vaultShares,
-        vault: vault_id,
-        collateralRatio: accountHealth.collateralRatio,
-        maxLiquidatorDepositUnderlying:
-          accountHealth.maxLiquidatorDepositUnderlying,
-        cashBalance: acct.tempCashBalance,
-        vaultSharesToLiquidator: accountHealth.vaultSharesToLiquidator,
-        canLiquidate: accountHealth.maxLiquidatorDepositUnderlying[0].gt(
-          BigNumber.from(0)
-        ),
-      } as RiskyAccount;
-    });
+    return accounts
+      .filter(
+        ({ account_id, vault_id }) =>
+          // Exclude failed requests from this list
+          !failedRequests.find(
+            (f) => f.account_id === account_id && f.vault_id === vault_id
+          )
+      )
+      .map(({ account_id, vault_id }) => {
+        const accountHealth = results[
+          `${account_id}:${vault_id}:health`.toLowerCase()
+        ] as {
+          collateralRatio: BigNumber;
+          maxLiquidatorDepositUnderlying: [BigNumber, BigNumber, BigNumber];
+          vaultSharesToLiquidator: [BigNumber, BigNumber, BigNumber];
+        };
+        const acct = results[
+          `${account_id}:${vault_id}:account`.toLowerCase()
+        ] as Awaited<ReturnType<NotionalV3['getVaultAccount']>>;
+
+        return {
+          id: account_id,
+          maturity: acct.maturity.toNumber(),
+          debtUnderlying: acct.accountDebtUnderlying,
+          vaultShares: acct.vaultShares,
+          vault: vault_id,
+          collateralRatio: accountHealth.collateralRatio,
+          maxLiquidatorDepositUnderlying:
+            accountHealth.maxLiquidatorDepositUnderlying,
+          cashBalance: acct.tempCashBalance,
+          vaultSharesToLiquidator: accountHealth.vaultSharesToLiquidator,
+          canLiquidate: accountHealth.maxLiquidatorDepositUnderlying[0].gt(
+            BigNumber.from(0)
+          ),
+        } as RiskyAccount;
+      });
   }
 
   /** Need to create new versions of this function for different vaults */

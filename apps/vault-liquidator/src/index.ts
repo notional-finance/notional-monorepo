@@ -71,6 +71,12 @@ async function setUp(env: Env, vaultAddrs: string[]) {
     txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
     maxLiquidationsPerBatch: env.MAX_LIQUIDATIONS_PER_BATCH,
   });
+  const logger = new Logger({
+    apiKey: env.DD_API_KEY,
+    version: '1',
+    env: env.NETWORK,
+    service: 'vault-liquidator',
+  });
 
   const batchedAccounts = batchArray(accounts, 250);
 
@@ -78,7 +84,7 @@ async function setUp(env: Env, vaultAddrs: string[]) {
     // Batch up the accounts so that we don't get errors from the RPC
     (
       await Promise.all(
-        batchedAccounts.map((a) => liquidator.getRiskyAccounts(a))
+        batchedAccounts.map((a) => liquidator.getRiskyAccounts(a, logger))
       )
     )
       .flatMap((_) => _)
