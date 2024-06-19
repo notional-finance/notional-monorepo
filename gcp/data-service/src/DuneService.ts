@@ -1,8 +1,7 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { S3 } from './RiskService';
+import { getS3 } from './RiskService';
 import fetch from 'cross-fetch';
 
-const DUNE_API_KEY = process.env['DUNE_API_KEY'] as string;
 const queries = [
   { queryId: 3709164, name: 'sNOTEPoolData' },
   { queryId: 3709178, name: 'sNOTEReinvestment' },
@@ -10,6 +9,8 @@ const queries = [
 ];
 
 export async function syncDune() {
+  const DUNE_API_KEY = process.env['DUNE_API_KEY'] as string;
+
   for (const q of queries) {
     const { queryId, name } = q;
     const query_result = await fetch(
@@ -19,7 +20,7 @@ export async function syncDune() {
         headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
       }
     );
-    await S3.send(
+    await getS3().send(
       new PutObjectCommand({
         Bucket: 'account-cache-r2',
         Key: `mainnet/note/${name}`,

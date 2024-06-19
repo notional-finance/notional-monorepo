@@ -430,7 +430,7 @@ export default class DataService {
   }
 
   public async syncAccounts(network: Network, isVault: boolean) {
-    const endpoint = defaultGraphEndpoints[ProtocolName.NotionalV3][network];
+    const endpoint = defaultGraphEndpoints()[ProtocolName.NotionalV3][network];
     if (!endpoint) {
       throw Error('Subgraph endpoint not defined');
     }
