@@ -1,7 +1,8 @@
-import { TokenBalance } from '@notional-finance/core-entities';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
 import { Network, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
+import { useEffect, useState } from 'react';
 
 /** Contains selectors for account holdings information */
 function useNetworkAccounts(network: Network | undefined) {
@@ -125,4 +126,21 @@ export function useArbPoints() {
   } = useNotionalContext();
 
   return arbPoints;
+}
+
+export function useTotalArbPoints() {
+  const [totalPoints, setTotalPoints] = useState<{
+    season_one: number;
+    season_two: number;
+    season_three: number;
+  }>({ season_one: 0, season_two: 0, season_three: 0 });
+  useEffect(() => {
+    Registry.getAnalyticsRegistry().getTotalPoints().then(setTotalPoints);
+  }, []);
+
+  return totalPoints;
+}
+
+export function useAccountTotalPointsPerDay() {
+  return useNetworkAccounts(Network.arbitrum)?.pointsPerDay || 0;
 }
