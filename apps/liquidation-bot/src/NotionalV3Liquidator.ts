@@ -514,12 +514,12 @@ export default class NotionalV3Liquidator {
   }
 
   public async liquidateAccount(flashLiq: FlashLiquidation) {
-    const { data, to } = await this.flashLoanProvider.encodeTransaction(
-      flashLiq
-    );
-    const gasLimit = await this.flashLoanProvider.estimateGas(flashLiq);
-
     try {
+      const { data, to } = await this.flashLoanProvider.encodeTransaction(
+        flashLiq
+      );
+      const gasLimit = await this.flashLoanProvider.estimateGas(flashLiq);
+
       const txnResponse = await sendTxThroughRelayer({
         env: {
           NETWORK: this.settings.network,
