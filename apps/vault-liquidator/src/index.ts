@@ -226,23 +226,32 @@ const runAllVaults = async (env: Env) => {
           title: `Failed Vault Liquidation`,
           tags: [`event:failed_vault_liquidation`],
           text: `Failed to liquidate vault accounts in batch ${failingTxns
-            .flatMap(({ args }) => args.params.accounts)
+            .flatMap(
+              ({ args }) =>
+                `account: ${args.params.accounts}, vault: ${args.params.vault}`
+            )
             .join(',')}`,
         });
       }
-      await logger.submitEvent({
-        aggregation_key: 'AccountLiquidated',
-        alert_type: 'info',
-        host: 'cloudflare',
-        network: env.NETWORK,
-        title: `Vault Accounts Liquidated`,
-        tags: [`event:vault_account_liquidated`].concat(
-          batchAccounts.map((a) => `account:${a}`)
-        ),
-        text: `Liquidated vault accounts in batch ${batch
-          .flatMap(({ args }) => args.params.accounts)
-          .join(',')}, ${resp.hash}`,
-      });
+
+      if (resp) {
+        await logger.submitEvent({
+          aggregation_key: 'AccountLiquidated',
+          alert_type: 'info',
+          host: 'cloudflare',
+          network: env.NETWORK,
+          title: `Vault Accounts Liquidated`,
+          tags: [`event:vault_account_liquidated`].concat(
+            batchAccounts.map((a) => `account:${a}`)
+          ),
+          text: `Liquidated vault accounts in batch ${batch
+            .flatMap(
+              ({ args }) =>
+                `account: ${args.params.accounts}, vault: ${args.params.vault}`
+            )
+            .join(',')}, ${resp?.hash}`,
+        });
+      }
     } catch (e) {
       console.log('Failed liquidation', e.toString());
       await logger.submitEvent({
@@ -255,6 +264,8 @@ const runAllVaults = async (env: Env) => {
         text: `Failed to liquidate vault accounts in batch ${batchAccounts.join(
           ','
         )}
+
+        Vault Address: ${vault}
         
         Error: ${e.toString()}
         `,

@@ -391,7 +391,9 @@ export default class VaultV3Liquidator {
             .then(() => p)
         )
       )
-    ).filter((p) => p !== null);
+    )
+      // Exclude any failing txns in here
+      .filter((b) => !failingTxns.find(({ txn }) => txn.data === b.txn.data));
 
     const multicall = getMulticall(this.provider);
     const pop = await multicall.populateTransaction.aggregate3(
@@ -409,15 +411,18 @@ export default class VaultV3Liquidator {
       }))
     );
 
-    const resp = await sendTxThroughRelayer({
-      env: {
-        NETWORK: this.settings.network,
-        TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
-      },
-      to: multicall.address,
-      data: pop.data,
-      gasLimit: gasLimit.mul(200).div(100).toNumber(),
-    });
+    let resp: ethers.providers.TransactionResponse | undefined = undefined;
+    if (batch.length > 0) {
+      resp = await sendTxThroughRelayer({
+        env: {
+          NETWORK: this.settings.network,
+          TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
+        },
+        to: multicall.address,
+        data: pop.data,
+        gasLimit: gasLimit.mul(200).div(100).toNumber(),
+      });
+    }
 
     return { resp, batch, failingTxns };
   }
