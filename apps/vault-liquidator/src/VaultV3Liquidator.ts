@@ -21,6 +21,7 @@ import {
   getFlashLender,
 } from '@notional-finance/util';
 import { overrides } from '.';
+import { Logger } from '@notional-finance/durable-objects';
 
 export type LiquidatorSettings = {
   network: Network;
@@ -41,6 +42,7 @@ enum LiquidationType {
   LIQUIDATE_CASH_BALANCE = 2,
   DELEVERAGE_VAULT_ACCOUNT_AND_LIQUIDATE_CASH = 3,
 }
+
 export default class VaultV3Liquidator {
   public liquidatorContracts: VaultLiquidator[];
   private notionalContract: Contract;
@@ -136,41 +138,68 @@ export default class VaultV3Liquidator {
   }
 
   public async getRiskyAccounts(
-    accounts: { account_id: string; vault_id: string }[]
+    accounts: { account_id: string; vault_id: string }[],
+    logger: Logger
   ) {
     const { results } = await aggregate(
       this.getAccountHealthCalls(accounts),
-      this.provider
+      this.provider,
+      undefined,
+      true // Allow failure
     );
 
-    return accounts.map(({ account_id, vault_id }) => {
-      const accountHealth = results[
-        `${account_id}:${vault_id}:health`.toLowerCase()
-      ] as {
-        collateralRatio: BigNumber;
-        maxLiquidatorDepositUnderlying: [BigNumber, BigNumber, BigNumber];
-        vaultSharesToLiquidator: [BigNumber, BigNumber, BigNumber];
-      };
-      const acct = results[
-        `${account_id}:${vault_id}:account`.toLowerCase()
-      ] as Awaited<ReturnType<NotionalV3['getVaultAccount']>>;
+    const failedRequests = accounts.filter(
+      ({ account_id, vault_id }) =>
+        results[`${account_id}:${vault_id}:health`.toLowerCase()] === undefined
+    );
+    for (const f of failedRequests) {
+      logger.submitEvent({
+        aggregation_key: 'AccountRiskFailure',
+        alert_type: 'error',
+        host: 'cloudflare',
+        network: this.settings.network,
+        title: `Failed Vault Account Health Factors`,
+        tags: [`event:failed_vault_account_health`],
+        text: `Failed to get vault health for ${f.account_id} in vault ${f.vault_id}`,
+      });
+    }
 
-      return {
-        id: account_id,
-        maturity: acct.maturity.toNumber(),
-        debtUnderlying: acct.accountDebtUnderlying,
-        vaultShares: acct.vaultShares,
-        vault: vault_id,
-        collateralRatio: accountHealth.collateralRatio,
-        maxLiquidatorDepositUnderlying:
-          accountHealth.maxLiquidatorDepositUnderlying,
-        cashBalance: acct.tempCashBalance,
-        vaultSharesToLiquidator: accountHealth.vaultSharesToLiquidator,
-        canLiquidate: accountHealth.maxLiquidatorDepositUnderlying[0].gt(
-          BigNumber.from(0)
-        ),
-      } as RiskyAccount;
-    });
+    return accounts
+      .filter(
+        ({ account_id, vault_id }) =>
+          // Exclude failed requests from this list
+          !failedRequests.find(
+            (f) => f.account_id === account_id && f.vault_id === vault_id
+          )
+      )
+      .map(({ account_id, vault_id }) => {
+        const accountHealth = results[
+          `${account_id}:${vault_id}:health`.toLowerCase()
+        ] as {
+          collateralRatio: BigNumber;
+          maxLiquidatorDepositUnderlying: [BigNumber, BigNumber, BigNumber];
+          vaultSharesToLiquidator: [BigNumber, BigNumber, BigNumber];
+        };
+        const acct = results[
+          `${account_id}:${vault_id}:account`.toLowerCase()
+        ] as Awaited<ReturnType<NotionalV3['getVaultAccount']>>;
+
+        return {
+          id: account_id,
+          maturity: acct.maturity.toNumber(),
+          debtUnderlying: acct.accountDebtUnderlying,
+          vaultShares: acct.vaultShares,
+          vault: vault_id,
+          collateralRatio: accountHealth.collateralRatio,
+          maxLiquidatorDepositUnderlying:
+            accountHealth.maxLiquidatorDepositUnderlying,
+          cashBalance: acct.tempCashBalance,
+          vaultSharesToLiquidator: accountHealth.vaultSharesToLiquidator,
+          canLiquidate: accountHealth.maxLiquidatorDepositUnderlying[0].gt(
+            BigNumber.from(0)
+          ),
+        } as RiskyAccount;
+      });
   }
 
   /** Need to create new versions of this function for different vaults */
@@ -232,10 +261,12 @@ export default class VaultV3Liquidator {
       (t) => t.maturity
     );
 
-    const batches: PopulatedTransaction[] = [];
-    const batchArgs: Awaited<
-      ReturnType<VaultV3Liquidator['getLiquidateCallData']>
-    >['args'][] = [];
+    const batches: {
+      txn: PopulatedTransaction;
+      args: Awaited<
+        ReturnType<VaultV3Liquidator['getLiquidateCallData']>
+      >['args'];
+    }[] = [];
     const batchAccounts: string[] = [];
     for (const maturity of groupedByMaturity.keys()) {
       const accts = groupedByMaturity.get(maturity) || [];
@@ -248,13 +279,15 @@ export default class VaultV3Liquidator {
             accts,
             batches.length
           );
-        batches.push(batchCalldata);
+        batches.push({
+          txn: batchCalldata,
+          args,
+        });
         batchAccounts.push(...accounts);
-        batchArgs.push(args);
       }
     }
 
-    return { batches, batchAccounts, batchArgs };
+    return { batches, batchAccounts };
   }
 
   public async getLiquidateCallData(
@@ -336,24 +369,47 @@ export default class VaultV3Liquidator {
     };
   }
 
-  async liquidateViaMulticall(batch: PopulatedTransaction[]) {
+  async liquidateViaMulticall(
+    _batch: Awaited<
+      ReturnType<typeof this.batchMaturityLiquidations>
+    >['batches']
+  ) {
+    const failingTxns: Awaited<
+      ReturnType<typeof this.batchMaturityLiquidations>
+    >['batches'] = [];
+
+    // Test each transaction to see if it will fail, and filter out the null txns
+    const batch = (
+      await Promise.all(
+        _batch.map((p) =>
+          this.provider
+            .estimateGas(p.txn)
+            .catch(() => {
+              failingTxns.push(p);
+              return null;
+            })
+            .then(() => p)
+        )
+      )
+    ).filter((p) => p !== null);
+
     const multicall = getMulticall(this.provider);
     const pop = await multicall.populateTransaction.aggregate3(
       batch.map((p) => ({
-        target: p.to,
+        target: p.txn.to,
         allowFailure: true,
-        callData: p.data,
+        callData: p.txn.data,
       }))
     );
     const gasLimit = await multicall.estimateGas.aggregate3(
       batch.map((p) => ({
-        target: p.to,
+        target: p.txn.to,
         allowFailure: true,
-        callData: p.data,
+        callData: p.txn.data,
       }))
     );
 
-    return await sendTxThroughRelayer({
+    const resp = await sendTxThroughRelayer({
       env: {
         NETWORK: this.settings.network,
         TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
@@ -362,5 +418,7 @@ export default class VaultV3Liquidator {
       data: pop.data,
       gasLimit: gasLimit.mul(200).div(100).toNumber(),
     });
+
+    return { resp, batch, failingTxns };
   }
 }
