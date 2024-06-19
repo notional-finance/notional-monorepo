@@ -4,7 +4,7 @@ import { AppBar, AppBarProps, Body, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
 import {
   THEME_VARIANTS,
-  // Network,
+  Network,
   getFromLocalStorage,
   setInLocalStorage,
 } from '@notional-finance/util';
@@ -12,16 +12,15 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
 import MobileNavigation from './mobile-navigation/mobile-navigation';
-// import { useHistory, useLocation } from 'react-router';
-import { useLocation } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 // import blitz from '@notional-finance/mui/src/assets/icons/blitz.svg';
-// import arbLM from '@notional-finance/mui/src/assets/icons/arbLM.svg';
-// import arbDM from '@notional-finance/mui/src/assets/icons/arbDM.svg';
+import arbLM from '@notional-finance/mui/src/assets/icons/arbLM.svg';
+import arbDM from '@notional-finance/mui/src/assets/icons/arbDM.svg';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
   useNotionalContext,
   useSelectedNetwork,
-  // useThemeVariant,
+  useThemeVariant,
   // showContestNavLink,
 } from '@notional-finance/notionable-hooks';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
@@ -35,8 +34,8 @@ export interface HeaderProps extends AppBarProps {}
 
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
-  // const history = useHistory();
-  // const themeVariant = useThemeVariant();
+  const history = useHistory();
+  const themeVariant = useThemeVariant();
   const selectedNetwork = useSelectedNetwork();
   const [hideError, setHideError] = useState(false);
   const hideSubGraphError = getFromLocalStorage('hideSubGraphError');
@@ -144,7 +143,7 @@ export function Header({ children }: HeaderProps) {
                 ></Box>
               </Box>
             )} */}
-            {/* {pathname !== '/' && (
+            {pathname !== '/' && (
               <Box
                 sx={{
                   marginRight: '32px',
@@ -165,7 +164,7 @@ export function Header({ children }: HeaderProps) {
                   alt="points badge"
                 />
               </Box>
-            )} */}
+            )}
             {children}
           </WalletContainer>
         </Toolbar>
