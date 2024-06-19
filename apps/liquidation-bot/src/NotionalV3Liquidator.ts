@@ -3,6 +3,7 @@ import {
   FlashLiquidatorABI,
   IAggregator,
   IAggregatorABI,
+  NotionalV3,
   NotionalV3ABI,
 } from '@notional-finance/contracts';
 import { ethers, BigNumber, Contract } from 'ethers';
@@ -97,9 +98,9 @@ export default class NotionalV3Liquidator {
       .div(NotionalV3Liquidator.INTERNAL_PRECISION);
   }
 
-  private getAccountDataCalls(addrs: string[]): AggregateCall[] {
-    const calls = [];
-    addrs.forEach((addr) => {
+  private getAccountDataCalls(addresses: string[]): AggregateCall[] {
+    const calls: AggregateCall[] = [];
+    addresses.forEach((addr) => {
       calls.push({
         stage: 0,
         target: this.liquidatorContract,
@@ -132,14 +133,18 @@ export default class NotionalV3Liquidator {
   public async getRiskyAccounts(addresses: string[]): Promise<RiskyAccount[]> {
     const { results } = await aggregate(
       this.getAccountDataCalls(addresses),
-      this.provider
+      this.provider,
+      undefined,
+      true
     );
+
+    // TODO: detect failures here....
 
     const accounts = addresses
       .map((addr) => {
         return {
           id: addr,
-          ethFreeCollateral: results[`${addr}:collateral`][0],
+          ethFreeCollateral: (results[`${addr}:collateral`] as BigNumber[])[0],
         };
       })
       .filter(
@@ -153,14 +158,21 @@ export default class NotionalV3Liquidator {
 
     return accounts.map((a) => {
       const netUnderlyingAvailable = new Map<number, BigNumber>();
-      const balances = results[`${a.id}:account`][1].filter((b) => b[0] !== 0);
-      const portfolio = results[`${a.id}:account`][2];
+      const accountData = results[`${a.id}:account`] as Awaited<
+        ReturnType<NotionalV3['getAccount']>
+      >;
+      const balances = accountData.accountBalances.filter((b) => b[0] !== 0);
+      const portfolio = accountData.portfolio;
 
       balances.forEach((b, i) => {
         const currencyId = b[0] as number;
         netUnderlyingAvailable.set(
           currencyId,
-          results[`${a.id}:collateral`][1][i]
+          (
+            results[`${a.id}:collateral`] as Awaited<
+              ReturnType<NotionalV3['getFreeCollateral']>
+            >
+          )[1][i]
         );
       });
 
@@ -279,7 +291,7 @@ export default class NotionalV3Liquidator {
       flashBorrowAsset = borrowAssetOverride.flashBorrowAsset;
     }
 
-    let preLiquidationTrade: TradeData = null;
+    let preLiquidationTrade: TradeData | null = null;
     const flashLender = getFlashLender({
       network: this.settings.network,
       token: flashBorrowAsset,
@@ -317,7 +329,7 @@ export default class NotionalV3Liquidator {
       };
     }
 
-    let collateralTrade: TradeData = null;
+    let collateralTrade: TradeData | null = null;
     if (hasCollateral) {
       const zeroExResp = await this.getZeroExData(
         this.settings.zeroExUrl,
@@ -354,9 +366,7 @@ export default class NotionalV3Liquidator {
     };
   }
 
-  public async getLargestLiquidation(
-    acct: RiskyAccount
-  ): Promise<FlashLiquidation> {
+  public async getLargestLiquidation(acct: RiskyAccount) {
     const netUnderlying = Array.from(acct.netUnderlyingAvailable.entries());
     const netDebt = netUnderlying.filter(([_, n]) => n.isNegative());
 
@@ -383,22 +393,17 @@ export default class NotionalV3Liquidator {
             );
           }
 
-          if (
-            acct.data.portfolio.find(
-              (a) => a.currencyId === currencyId && getNowSeconds() < a.maturity
-            )
-          ) {
+          const fCashAssets = acct.data.portfolio.filter(
+            (a) => a.currencyId === currencyId && getNowSeconds() < a.maturity
+          );
+          if (fCashAssets.length) {
             // The account has fCash collateral and therefore fCash liquidation is possible, this
             // will simply swap fCash for cash. fCash is most likely positive, collateral asset but it
             // is possible tha fCash is negative. In that case, the account will receive both cash and
             // negative fcash debt.
-            const asset = acct.data.portfolio
+            const [asset, _] = fCashAssets
               // Sort descending so we get the largest value
-              .sort((a, b) => (a.notional.lt(b.notional) ? 1 : -1))
-              .find(
-                (a) =>
-                  a.currencyId === currencyId && getNowSeconds() < a.maturity
-              );
+              .sort((a, b) => (b.notional.lt(a.notional) ? 1 : -1));
 
             // Only liquidate one fCash asset at a time, this is just simpler to reason
             // about. The largest (most positive) fCash asset will be liquidated first.
@@ -468,15 +473,27 @@ export default class NotionalV3Liquidator {
         return await this.getFlashLiquidation(a);
       } catch (e) {
         // If this fails then will proceed to the next one
-        console.error(`Error: failed to get flash liquidation for
+        await this.logger.submitEvent({
+          aggregation_key: 'AccountLiquidated',
+          alert_type: 'error',
+          host: 'cloudflare',
+          network: this.settings.network,
+          title: `Failed Account Liquidation`,
+          tags: [`account:${a.accountId}`, `event:failed_account_liquidated`],
+          text: `
 Account: ${a.accountId}
 Liquidation Type: ${a.liquidation.getLiquidationType()}
 Local Currency: ${a.liquidation.getLocalCurrency().id}
 Collateral Currency: ${a.liquidation.getCollateralCurrencyId()}
 Flash Loan Amount: ${a.flashLoanAmount.toString()}
-`);
+
+Error: ${(e as Error).toString()}
+`,
+        });
       }
     }
+
+    return undefined
   }
 
   public async liquidateAccount(flashLiq: FlashLiquidation) {
@@ -527,7 +544,7 @@ Local Currency: ${flashLiq.accountLiq.liquidation.getLocalCurrency().id}
 Collateral Currency: ${flashLiq.accountLiq.liquidation.getCollateralCurrencyId()}
 Flash Loan Amount: ${flashLiq.accountLiq.flashLoanAmount.toString()}
 
-Error: ${e.toString()}
+Error: ${(e as Error).toString()}
 `,
       });
     }

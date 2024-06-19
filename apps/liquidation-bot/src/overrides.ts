@@ -2,7 +2,7 @@ import { Network } from '@notional-finance/util';
 import { CurrencyOverride } from './types';
 import { ethers } from 'ethers';
 
-export const overrides = {
+export const overrides: Record<Network, CurrencyOverride[]> = {
   [Network.arbitrum]: [
     {
       // LDO: flash borrow WETH
@@ -15,4 +15,6 @@ export const overrides = {
     },
   ] as CurrencyOverride[],
   [Network.mainnet]: [] as CurrencyOverride[],
+  [Network.all]: [] as CurrencyOverride[],
+  [Network.optimism]: [] as CurrencyOverride[],
 };

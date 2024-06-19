@@ -1,5 +1,6 @@
+import { AggregateCall } from '@notional-finance/multicall';
 import { LiquidationType, TradeData, Currency } from './types';
-import { utils, constants, Contract } from 'ethers';
+import { utils, constants, Contract, BigNumber } from 'ethers';
 
 /**
  * Represents a single liquidation opportunity
@@ -218,7 +219,10 @@ export default class Liquidation {
     );
   }
 
-  public getFlashLoanAmountCall(notional: Contract, account: string) {
+  public getFlashLoanAmountCall(
+    notional: Contract,
+    account: string
+  ): AggregateCall[] {
     switch (this.type) {
       case LiquidationType.LOCAL_CURRENCY: {
         const key = `${account}:${this.type}:${this.localCurrency.id}:0`;
@@ -226,7 +230,7 @@ export default class Liquidation {
           {
             stage: 0,
             target: notional,
-            transform: (r) => r[0],
+            transform: (r: BigNumber[]) => r[0],
             method: 'calculateLocalCurrencyLiquidation',
             args: [account, this.localCurrency.id, 0],
             key: `${key}:pCashLoanAmount`,
@@ -235,9 +239,9 @@ export default class Liquidation {
             stage: 1,
             target: notional,
             method: 'convertCashBalanceToExternal',
-            args: (r) => [
+            args: (r: unknown) => [
               this.localCurrency.id,
-              r[`${key}:pCashLoanAmount`] || 0,
+              (r as Record<string, BigNumber>)[`${key}:pCashLoanAmount`] || 0,
               true,
             ],
             key: `${key}:loanAmount`,
@@ -250,7 +254,7 @@ export default class Liquidation {
           {
             stage: 0,
             target: notional,
-            transform: (r) => r[0],
+            transform: (r: BigNumber[]) => r[0],
             method: 'calculateCollateralCurrencyLiquidation',
             args: [
               account,
@@ -265,9 +269,9 @@ export default class Liquidation {
             stage: 1,
             target: notional,
             method: 'convertCashBalanceToExternal',
-            args: (r) => [
+            args: (r: unknown) => [
               this.localCurrency.id,
-              r[`${key}:pCashLoanAmount`] || 0,
+              (r as Record<string, BigNumber>)[`${key}:pCashLoanAmount`] || 0,
               true,
             ],
             key: `${key}:loanAmount`,
@@ -280,7 +284,7 @@ export default class Liquidation {
           {
             stage: 0,
             target: notional,
-            transform: (r) => r[1],
+            transform: (r: BigNumber[]) => r[1],
             method: 'calculatefCashLocalLiquidation',
             args: [
               account,
@@ -294,9 +298,9 @@ export default class Liquidation {
             stage: 1,
             target: notional,
             method: 'convertCashBalanceToExternal',
-            args: (r) => [
+            args: (r: unknown) => [
               this.localCurrency.id,
-              r[`${key}:pCashLoanAmount`] || 0,
+              (r as Record<string, BigNumber>)[`${key}:pCashLoanAmount`] || 0,
               true,
             ],
             key: `${key}:loanAmount`,
@@ -309,7 +313,7 @@ export default class Liquidation {
           {
             stage: 0,
             target: notional,
-            transform: (r) => r[1],
+            transform: (r: BigNumber[]) => r[1],
             method: 'calculatefCashCrossCurrencyLiquidation',
             args: [
               account,
@@ -324,9 +328,9 @@ export default class Liquidation {
             stage: 1,
             target: notional,
             method: 'convertCashBalanceToExternal',
-            args: (r) => [
+            args: (r: unknown) => [
               this.localCurrency.id,
-              r[`${key}:pCashLoanAmount`] || 0,
+              (r as Record<string, BigNumber>)[`${key}:pCashLoanAmount`] || 0,
               true,
             ],
             key: `${key}:loanAmount`,
@@ -337,19 +341,6 @@ export default class Liquidation {
 
     throw Error('Invalid liquidation type');
   }
-
-  private getResidualCurrencyId(): number {
-    if (!this.hasResiduals) return 0;
-    return this.type == LiquidationType.LOCAL_CURRENCY
-      ? this.localCurrency.id
-      : this.collateralCurrencyId;
-  }
-
-  /*public getLiquidatorAddress(network: string): string {
-    return this.residuals
-      ? Config.getManualLiquidatorAddress(network, this.getResidualCurrencyId())
-      : Config.getFlashLiquidatorAddress(network);
-  }*/
 
   public toString(): string {
     return `type=${this.type} localCurrencyId=${this.localCurrency.id} collateralCurrencyId=${this.collateralCurrencyId} residuals=${this.residuals}`;

@@ -16,6 +16,7 @@ import {
   MetricType,
 } from '@notional-finance/durable-objects';
 import { formatUnits } from 'ethers/lib/utils';
+import { CacheSchema, TokenDefinition } from '@notional-finance/core-entities';
 
 export interface Env {
   NX_DATA_URL: string;
@@ -40,7 +41,7 @@ export interface Env {
 }
 
 async function setUp(env: Env) {
-  const allTokens = await (
+  const allTokens: CacheSchema<TokenDefinition> = await (
     await fetch(`https://data-dev.notional.finance/${env.NETWORK}/tokens`)
   ).json();
 
@@ -64,11 +65,21 @@ async function setUp(env: Env) {
       txRelayUrl: env.TX_RELAY_URL,
       txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
       currencies: allTokens['values']
-        .filter(([, t]) => t['tokenType'] === 'Underlying')
+        .filter(
+          ([, t]) =>
+            t && t.tokenType === 'Underlying' && t.currencyId !== undefined
+        )
         .map(([, c]) => {
+          if (
+            c === null ||
+            c.address === undefined ||
+            c.currencyId === undefined
+          )
+            throw Error();
+
           return {
             id: c.currencyId,
-            tokenType: '',
+            tokenType: c.tokenType,
             hasTransferFee: false,
             underlyingName: c.name,
             underlyingSymbol: c.symbol,
@@ -204,7 +215,7 @@ ${Array.from(account.netUnderlyingAvailable.entries())
 
   for (const riskyAccount of riskyAccounts) {
     const liquidation = await liquidator.getLargestLiquidation(riskyAccount);
-    await liquidator.liquidateAccount(liquidation);
+    if (liquidation) await liquidator.liquidateAccount(liquidation);
   }
 };
 
@@ -234,7 +245,7 @@ export default {
     } catch (e) {
       console.error(e);
       console.trace();
-      return new Response(e, { status: 500 });
+      return new Response(JSON.stringify(e), { status: 500 });
     }
   },
   async scheduled(

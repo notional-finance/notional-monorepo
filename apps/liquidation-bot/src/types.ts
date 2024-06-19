@@ -46,14 +46,14 @@ export enum TradeType {
 }
 
 export type Currency = {
-  id?: number;
-  tokenType?: string;
-  hasTransferFee?: boolean;
-  underlyingName?: string;
-  underlyingSymbol?: string;
-  underlyingDecimals?: BigNumber;
-  underlyingDecimalPlaces?: number;
-  underlyingContract?: Contract;
+  id: number;
+  tokenType: string;
+  hasTransferFee: boolean;
+  underlyingName: string;
+  underlyingSymbol: string;
+  underlyingDecimals: BigNumber;
+  underlyingDecimalPlaces: number;
+  underlyingContract: Contract;
 };
 
 export type Trade = {
