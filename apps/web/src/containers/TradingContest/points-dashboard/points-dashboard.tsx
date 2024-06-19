@@ -1,12 +1,16 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
-import { THEME_VARIANTS } from '@notional-finance/util';
+import {
+  THEME_VARIANTS,
+  formatNumber,
+  getDateString,
+} from '@notional-finance/util';
 import {
   SectionTitle,
   OuterContainer,
   BgImgContainer,
   MainContainer,
 } from '../components';
-import { PointsSeasonsData } from './points-dashboard-constants';
+import { useCurrentSeason } from './points-dashboard-constants';
 import { colors, useNotionalTheme } from '@notional-finance/styles';
 import backgroundColors from '../assets/color-blobs.png';
 import { YourPointsOverview } from './your-points-overview';
@@ -15,9 +19,7 @@ import { FormattedMessage } from 'react-intl';
 
 export const PointsDashboard = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
-  const {
-    seasonTwo: { startDate, endDate, totalArb },
-  } = PointsSeasonsData;
+  const { startDate, endDate, totalArb, name } = useCurrentSeason();
   return (
     <ThemeProvider theme={theme}>
       <OuterContainer sx={{ paddingBottom: '0px' }}>
@@ -29,15 +31,19 @@ export const PointsDashboard = () => {
             <TopContentContainer>
               <DisplayBoxWrapper>
                 <SectionTitle sx={{ marginBottom: theme.spacing(3) }}>
-                  <FormattedMessage defaultMessage={'Season 2'} />
+                  {name}
                 </SectionTitle>
-                <DisplayBox>{`${startDate} - ${endDate}`}</DisplayBox>
+                <DisplayBox>{`${getDateString(startDate.getTime() / 1000, {
+                  hideYear: true,
+                })} - ${getDateString(endDate.getTime() / 1000, {
+                  hideYear: true,
+                })}`}</DisplayBox>
               </DisplayBoxWrapper>
               <DisplayBoxWrapper>
                 <SectionTitle sx={{ marginBottom: theme.spacing(3) }}>
                   <FormattedMessage defaultMessage={'Total ARB'} />
                 </SectionTitle>
-                <DisplayBox>{totalArb}</DisplayBox>
+                <DisplayBox>{formatNumber(totalArb, 0)}</DisplayBox>
               </DisplayBoxWrapper>
             </TopContentContainer>
           </MainContainer>

@@ -3,6 +3,7 @@ import { colors } from '@notional-finance/styles';
 import { PointsSeasonsData } from '../points-dashboard-constants';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { getDateString } from '@notional-finance/util';
 
 export const useYourPointsOverviewTables = () => {
   const theme = useTheme();
@@ -21,13 +22,17 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${seasonOne.startDate} - ${seasonOne.endDate})`}
+            {`(${getDateString(seasonOne.startDate.getTime() / 1000, {
+              hideYear: true,
+            })} - ${getDateString(seasonOne.endDate.getTime() / 1000, {
+              hideYear: true,
+            })})`}
           </span>
         </div>
       ),
       pointsPerDay: '5,120.32',
       yourTotalPoints: '10,000.00',
-      arbReceived: '10,000.00',
+      arbReceived: '',
     },
     {
       activeSeason: (
@@ -41,13 +46,17 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${seasonTwo.startDate} - ${seasonTwo.endDate})`}
+            {`(${getDateString(seasonTwo.startDate.getTime() / 1000, {
+              hideYear: true,
+            })} - ${getDateString(seasonTwo.endDate.getTime() / 1000, {
+              hideYear: true,
+            })})`}
           </span>
         </div>
       ),
       pointsPerDay: '5,120.32',
       yourTotalPoints: '10,000.00',
-      arbReceived: '10,000.00',
+      arbReceived: '',
     },
     {
       activeSeason: (
@@ -61,13 +70,17 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${seasonThree.startDate} - ${seasonThree.endDate})`}
+            {`(${getDateString(seasonThree.startDate.getTime() / 1000, {
+              hideYear: true,
+            })} - ${getDateString(seasonThree.endDate.getTime() / 1000, {
+              hideYear: true,
+            })})`}
           </span>
         </div>
       ),
       pointsPerDay: '5,120.32',
       yourTotalPoints: '10,000.00',
-      arbReceived: '10,000.00',
+      arbReceived: '',
     },
   ];
 
