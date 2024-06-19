@@ -31,9 +31,18 @@ const Address = {
   Multicall3: '0xcA11bde05977b3631167028862bE2a173976CA11'.toLowerCase(),
   initializeAllMarkets_ARBITRUM: '0x9b6C04D1481473B2e52CaEB85822072C35460f27'.toLowerCase(),
   settleAccounts_ARBITRUM: '0x22349F0b9b6294dA5526c9E9383164d97c45ACCD'.toLowerCase(),
+
+  AaveWrappedFlashLender_MAINNET: '0x0c86c636ed5593705b5675d370c831972C787841'.toLowerCase(),
+  BalancerWrappedFlashLender_MAINNET: '0x9E092cb431e5F1aa70e47e052773711d2Ba4917E'.toLowerCase(),
+  UniV3WrappedFlashLender_MAINNET: '0x319300462C37AD2D4f26B584C2b67De51F51f289'.toLowerCase(),
+  AaveWrappedFlashLender_ARBITRUM: '0x9D4D2C08b29A2Db1c614483cd8971734BFDCC9F2'.toLowerCase(),
+  BalancerWrappedFlashLender_ARBITRUM: '0x9E092cb431e5F1aa70e47e052773711d2Ba4917E'.toLowerCase(),
+  CamelotWrappedFlashLender_ARBITRUM: '0x5E8820B2832aD8451f65Fa2CCe2F3Cef29016D0d'.toLowerCase(),
+  UniV3WrappedFlashLender_ARBITRUM: '0x319300462C37AD2D4f26B584C2b67De51F51f289'.toLowerCase(),
 }
 
 enum Sign {
+  flash = '0xaf2511c0',
   flashLoan = '0xab9c4b5d',
   flashLiquidate = '0x7bbeeafd',
   claimVaultRewardTokens = '0x36e8053c',
@@ -53,6 +62,9 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.TREASURY_MANAGER]: [Sign.claimVaultRewardTokens, Sign.reinvestVaultReward, Sign.investWETHAndNOTE, Sign.executeTrade],
     [Address.AaveV3Pool_MAINNET]: [Sign.flashLoan],
     [Address.Multicall3]: [Sign.aggregate3],
+    [Address.AaveWrappedFlashLender_MAINNET]: [Sign.flash],
+    [Address.BalancerWrappedFlashLender_MAINNET]: [Sign.flash],
+    [Address.UniV3WrappedFlashLender_MAINNET]: [Sign.flash],
   },
   arbitrum: {
     [Address.AaveFlashLiquidator_ARBITRUM]: [Sign.flashLiquidate],
@@ -61,6 +73,10 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.Multicall3]: [Sign.aggregate3],
     [Address.initializeAllMarkets_ARBITRUM]: [Sign.initializeAllMarkets],
     [Address.settleAccounts_ARBITRUM]: [Sign.settleAccounts, Sign.settleVaultsAccounts],
+    [Address.AaveWrappedFlashLender_ARBITRUM]: [Sign.flash],
+    [Address.BalancerWrappedFlashLender_ARBITRUM]: [Sign.flash],
+    [Address.UniV3WrappedFlashLender_ARBITRUM]: [Sign.flash],
+    [Address.CamelotWrappedFlashLender_ARBITRUM]: [Sign.flash],
   },
   sepolia: {
     [Address.AaveFlashLiquidator_ARBITRUM]: [Sign.flashLiquidate],
@@ -69,6 +85,10 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.Multicall3]: [Sign.aggregate3],
     [Address.initializeAllMarkets_ARBITRUM]: [Sign.initializeAllMarkets],
     [Address.settleAccounts_ARBITRUM]: [Sign.settleAccounts, Sign.settleVaultsAccounts],
+    [Address.AaveWrappedFlashLender_ARBITRUM]: [Sign.flash],
+    [Address.BalancerWrappedFlashLender_ARBITRUM]: [Sign.flash],
+    [Address.UniV3WrappedFlashLender_ARBITRUM]: [Sign.flash],
+    [Address.CamelotWrappedFlashLender_ARBITRUM]: [Sign.flash],
   }
 }
 
@@ -81,10 +101,19 @@ const keysToUse = {
   [Address.Multicall3]: Key.liquidation,
   [Address.initializeAllMarkets_ARBITRUM]: Key.liquidation,
   [Address.settleAccounts_ARBITRUM]: Key.liquidation,
+
+  [Address.AaveWrappedFlashLender_MAINNET]: Key.liquidation,
+  [Address.BalancerWrappedFlashLender_MAINNET]: Key.liquidation,
+  [Address.UniV3WrappedFlashLender_MAINNET]: Key.liquidation,
+
+  [Address.AaveWrappedFlashLender_ARBITRUM]: Key.liquidation,
+  [Address.BalancerWrappedFlashLender_ARBITRUM]: Key.liquidation,
+  [Address.UniV3WrappedFlashLender_ARBITRUM]: Key.liquidation,
+  [Address.CamelotWrappedFlashLender_ARBITRUM]: Key.liquidation,
 };
 
 function getTxType({ signature }: { signature: Sign }) {
-  if ([Sign.flashLoan, Sign.flashLiquidate, Sign.settleVaultsAccounts, Sign.settleAccounts, Sign.initializeAllMarkets].includes(signature)) {
+  if ([Sign.flash, Sign.flashLoan, Sign.flashLiquidate, Sign.settleVaultsAccounts, Sign.settleAccounts, Sign.initializeAllMarkets].includes(signature)) {
     return 'liquidation';
   }
   if ([Sign.claimVaultRewardTokens, Sign.reinvestVaultReward].includes(signature)) {
@@ -102,7 +131,7 @@ function getTxType({ signature }: { signature: Sign }) {
   return 'unknown';
 }
 
-async function logToDataDog(message: any, ddtags = '' ) {
+async function logToDataDog(message: any, ddtags = '') {
   return fetch("https://http-intake.logs.datadoghq.com/api/v2/logs", {
     method: 'POST',
     headers: {
@@ -136,11 +165,22 @@ const throttle = (() => {
 export async function sendTransaction({ to, data, gasLimit, nonce, network }: { to: string, data: string, nonce: number, gasLimit: number, network: string }) {
   to = to.toLowerCase();
   const signature = data.slice(0, 10) as Sign;
+
+  let sharedLogData: any = {
+    txType: getTxType({ signature: signature }),
+    signature,
+    network,
+    to,
+  };
+
   if (
     !whitelist[network][to] ||
     !whitelist[network][to].includes(signature)
   ) {
-    throw new Error(`Call to: ${to} method: ${signature} on network: ${network} is not allowed`);
+    const errorMessage = `Call to: ${to} method: ${signature} on network: ${network} is not allowed`;
+    await logToDataDog({ ...sharedLogData, err: errorMessage, status: 'error', }, 'event:txn_failed');
+
+    throw new Error(errorMessage);
   }
 
   // in order to properly fetch correct nonce for tx we need to throttle here per key
@@ -157,11 +197,8 @@ export async function sendTransaction({ to, data, gasLimit, nonce, network }: { 
     gasLimit: Number.isInteger(Number(gasLimit)) ? gasLimit : undefined,
   };
 
-  const sharedLogData = {
-    txType: getTxType({ signature: signature }),
-    signature,
-    network,
-    to,
+  sharedLogData = {
+    ...sharedLogData,
     from: await signer.getAddress(),
   };
 
