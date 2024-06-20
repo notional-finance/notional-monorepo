@@ -619,22 +619,6 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
-      PoolClass: 'WeightedPool',
-      registerTokens: [
-        {
-          id: '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
-          address: '0x32dF62dc3aEd2cD6224193052Ce665DC18165841',
-          network: Network.arbitrum,
-          symbol: 'RDNT-WETH ',
-          name: 'RDNT-WETH',
-          decimals: 18,
-          tokenInterface: 'ERC20',
-          tokenType: 'Underlying',
-        },
-      ],
-    },
-    {
       address: '0xd0EC47c54cA5e20aaAe4616c25C825c7f48D4069',
       PoolClass: 'ComposableStablePool',
       registerTokens: [
