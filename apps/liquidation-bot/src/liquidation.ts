@@ -147,9 +147,6 @@ export default class Liquidation {
         break;
       case LiquidationType.COLLATERAL_CURRENCY:
         {
-          if (!collateralTrade) {
-            throw Error('Collateral trade expected');
-          }
           liqCalldata = coder.encode(
             [Liquidation.COLLATERAL_CURRENCY_PARAMS],
             [
@@ -160,7 +157,7 @@ export default class Liquidation {
                 this.collateralUnderlyingAddress,
                 '0',
                 '0',
-                this.getTradeDataParams(collateralTrade),
+                collateralTrade ? this.getTradeDataParams(collateralTrade) : '',
               ],
             ]
           );
@@ -183,9 +180,6 @@ export default class Liquidation {
         break;
       case LiquidationType.CROSS_CURRENCY_FCASH:
         {
-          if (!collateralTrade) {
-            throw Error('Collateral trade expected');
-          }
           liqCalldata = coder.encode(
             [Liquidation.CROSS_CURRENCY_FCASH_PARAMS],
             [
@@ -196,7 +190,7 @@ export default class Liquidation {
                 this.collateralUnderlyingAddress,
                 this.maturities,
                 this.maturities.map(() => 0),
-                this.getTradeDataParams(collateralTrade),
+                collateralTrade ? this.getTradeDataParams(collateralTrade) : '',
               ],
             ]
           );
