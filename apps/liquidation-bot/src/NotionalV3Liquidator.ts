@@ -338,7 +338,7 @@ export default class NotionalV3Liquidator {
           limit: BigNumber.from(zeroExResp.buyAmount)
             .mul(this.settings.exactInSlippageLimit)
             .div(1000),
-          deadline: BigNumber.from(getNowSeconds()),
+          deadline: BigNumber.from(getNowSeconds() + 1000),
           exchangeData: zeroExResp.data,
         },
         dexId: DexId.ZERO_EX,
@@ -373,7 +373,7 @@ export default class NotionalV3Liquidator {
           limit: BigNumber.from(zeroExResp.sellAmount)
             .mul(this.settings.exactOutSlippageLimit)
             .div(1000),
-          deadline: BigNumber.from(getNowSeconds()),
+          deadline: BigNumber.from(getNowSeconds() + 1000),
           exchangeData: zeroExResp.data,
         },
         dexId: DexId.ZERO_EX,
