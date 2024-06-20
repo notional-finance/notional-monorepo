@@ -30,7 +30,25 @@ EXACT_OUT_SLIPPAGE_LIMIT = '1020'
 GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
 
-# This liquidator uses the additional flash lender methods
+[env.mainnet]
+name = "liquidation-bot-mainnet"
+
+[env.mainnet.vars]
+NX_DATA_URL = 'https://data-dev.notional.finance'
+ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
+ZERO_EX_SWAP_URL = 'https://api.0x.org/swap/v1/quote'
+NETWORK = 'mainnet'
+FLASH_LIQUIDATOR_CONTRACT = '0x0A058E89B904A701063fec9D0e770BA087ED3e76'
+FLASH_LIQUIDATOR_OWNER = '0x8B64fA5Fd129df9c755eB82dB1e16D6D0Bdf5Bc3'
+FLASH_LOAN_BUFFER = '1005'
+NOTIONAL_PROXY_CONTRACT = '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f'
+DUST_THRESHOLD = '100000000000000'
+EXACT_IN_SLIPPAGE_LIMIT = '980'
+EXACT_OUT_SLIPPAGE_LIMIT = '1020'
+GAS_COST_BUFFER = '1000'
+PROFIT_THRESHOLD = '-579531698874532'
+
+## New Liquidator with additional flash loan methdso
 [env.arbitrum2]
 name = "liquidation-bot-arbitrum2"
 
@@ -52,15 +70,16 @@ PROFIT_THRESHOLD = '-579531698874532'
 [env.arbitrum2.triggers]
 crons = ["0/2 * * * *"]
 
-[env.mainnet]
-name = "liquidation-bot-mainnet"
+# This liquidator uses the additional flash lender methods
+[env.mainnet2]
+name = "liquidation-bot-mainnet2"
 
-[env.mainnet.vars]
+[env.mainnet2.vars]
 NX_DATA_URL = 'https://data-dev.notional.finance'
 ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
 ZERO_EX_SWAP_URL = 'https://api.0x.org/swap/v1/quote'
 NETWORK = 'mainnet'
-FLASH_LIQUIDATOR_CONTRACT = '0x0A058E89B904A701063fec9D0e770BA087ED3e76'
+FLASH_LIQUIDATOR_CONTRACT = '0x7E9819C4fd31Efdd16Abb9e4C2b87F9991195493'
 FLASH_LIQUIDATOR_OWNER = '0x8B64fA5Fd129df9c755eB82dB1e16D6D0Bdf5Bc3'
 FLASH_LOAN_BUFFER = '1005'
 NOTIONAL_PROXY_CONTRACT = '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f'
@@ -69,3 +88,6 @@ EXACT_IN_SLIPPAGE_LIMIT = '980'
 EXACT_OUT_SLIPPAGE_LIMIT = '1020'
 GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
+
+[env.mainnet2.triggers]
+crons = ["0/2 * * * *"]

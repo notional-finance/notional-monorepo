@@ -221,6 +221,7 @@ export default class NotionalV3Liquidator {
     exactIn: boolean,
     excludedSources: string | undefined
   ): Promise<any> {
+    console.log('GET ZERO EX DATA', from, to);
     if (!from || !to) {
       throw Error('Invalid from/to');
     }
@@ -347,7 +348,13 @@ export default class NotionalV3Liquidator {
     }
 
     let collateralTrade: TradeData | null = null;
-    if (hasCollateral) {
+    if (
+      hasCollateral &&
+      // There are times when flash borrowing ETH and doing a pre-liquidation trade, we will not
+      // have to do a collateral trade.
+      l.liquidation.getCollateralUnderlyingAddress().toLowerCase() !==
+        flashBorrowAsset.toLowerCase()
+    ) {
       const zeroExResp = await this.getZeroExData(
         this.settings.zeroExUrl,
         l.liquidation.getCollateralUnderlyingAddress(),

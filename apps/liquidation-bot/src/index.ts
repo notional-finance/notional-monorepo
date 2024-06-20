@@ -211,7 +211,7 @@ const run = async (env: Env) => {
       tags: [`account:${account.id}`, `event:risky_account`],
       text: `
 account: ${account.id}
-freeCollateral: ${formatUnits(account.ethFreeCollateral, 18)}
+freeCollateral: ${formatUnits(account.ethFreeCollateral, 8)}
 net underlying available:
 ${Array.from(account.netUnderlyingAvailable.entries())
   .map(([id, amt]) => `${id}: ${formatUnits(amt, 8)}`)
