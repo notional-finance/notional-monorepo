@@ -221,7 +221,6 @@ export default class NotionalV3Liquidator {
     exactIn: boolean,
     excludedSources: string | undefined
   ): Promise<any> {
-    console.log('GET ZERO EX DATA', from, to);
     if (!from || !to) {
       throw Error('Invalid from/to');
     }

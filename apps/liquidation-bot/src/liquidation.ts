@@ -12,9 +12,11 @@ export default class Liquidation {
     'tuple(uint8,address,address,uint256,uint256,uint256,bytes)';
   public static readonly TRADE_DATA_PARAMS = `tuple(${Liquidation.TRADE_PARAMS},uint16,bool,uint32)`;
   public static readonly COLLATERAL_CURRENCY_PARAMS = `tuple(address,uint16,uint16,address,uint128,uint96,${Liquidation.TRADE_DATA_PARAMS})`;
+  public static readonly COLLATERAL_CURRENCY_PARAMS_BYTES = `tuple(address,uint16,uint16,address,uint128,uint96,bytes)`;
   public static readonly LOCAL_FCASH_PARAMS =
     'tuple(address,uint16,uint256[],uint256[])';
   public static readonly CROSS_CURRENCY_FCASH_PARAMS = `tuple(address,uint16,uint16,address,uint256[],uint256[],${Liquidation.TRADE_DATA_PARAMS})`;
+  public static readonly CROSS_CURRENCY_FCASH_PARAMS_BYTES = `tuple(address,uint16,uint16,address,uint256[],uint256[],bytes)`;
 
   private type: LiquidationType;
   private hasTransferFee: boolean;
@@ -147,20 +149,35 @@ export default class Liquidation {
         break;
       case LiquidationType.COLLATERAL_CURRENCY:
         {
-          liqCalldata = coder.encode(
-            [Liquidation.COLLATERAL_CURRENCY_PARAMS],
-            [
-              [
-                account,
-                this.localCurrency.id.toString(),
-                this.collateralCurrencyId?.toString(),
-                this.collateralUnderlyingAddress,
-                '0',
-                '0',
-                collateralTrade ? this.getTradeDataParams(collateralTrade) : '',
-              ],
-            ]
-          );
+          liqCalldata = collateralTrade
+            ? coder.encode(
+                [Liquidation.COLLATERAL_CURRENCY_PARAMS],
+                [
+                  [
+                    account,
+                    this.localCurrency.id.toString(),
+                    this.collateralCurrencyId?.toString(),
+                    this.collateralUnderlyingAddress,
+                    '0',
+                    '0',
+                    this.getTradeDataParams(collateralTrade),
+                  ],
+                ]
+              )
+            : coder.encode(
+                [Liquidation.COLLATERAL_CURRENCY_PARAMS_BYTES],
+                [
+                  [
+                    account,
+                    this.localCurrency.id.toString(),
+                    this.collateralCurrencyId?.toString(),
+                    this.collateralUnderlyingAddress,
+                    '0',
+                    '0',
+                    '0x',
+                  ],
+                ]
+              );
         }
         break;
       case LiquidationType.LOCAL_FCASH:
@@ -180,20 +197,35 @@ export default class Liquidation {
         break;
       case LiquidationType.CROSS_CURRENCY_FCASH:
         {
-          liqCalldata = coder.encode(
-            [Liquidation.CROSS_CURRENCY_FCASH_PARAMS],
-            [
-              [
-                account,
-                this.localCurrency.id.toString(),
-                this.collateralCurrencyId?.toString(),
-                this.collateralUnderlyingAddress,
-                this.maturities,
-                this.maturities.map(() => 0),
-                collateralTrade ? this.getTradeDataParams(collateralTrade) : '',
-              ],
-            ]
-          );
+          liqCalldata = collateralTrade
+            ? coder.encode(
+                [Liquidation.CROSS_CURRENCY_FCASH_PARAMS],
+                [
+                  [
+                    account,
+                    this.localCurrency.id.toString(),
+                    this.collateralCurrencyId?.toString(),
+                    this.collateralUnderlyingAddress,
+                    this.maturities,
+                    this.maturities.map(() => 0),
+                    this.getTradeDataParams(collateralTrade),
+                  ],
+                ]
+              )
+            : coder.encode(
+                [Liquidation.CROSS_CURRENCY_FCASH_PARAMS_BYTES],
+                [
+                  [
+                    account,
+                    this.localCurrency.id.toString(),
+                    this.collateralCurrencyId?.toString(),
+                    this.collateralUnderlyingAddress,
+                    this.maturities,
+                    this.maturities.map(() => 0),
+                    '0x',
+                  ],
+                ]
+              );
         }
         break;
     }
