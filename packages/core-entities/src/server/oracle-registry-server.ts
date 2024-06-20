@@ -10,6 +10,7 @@ import {
 } from '@notional-finance/contracts';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import {
+  batchArray,
   decodeERC1155Id,
   getNowSeconds,
   INTERNAL_TOKEN_PRECISION,
@@ -25,6 +26,7 @@ import { TypedDocumentNode } from '@apollo/client/core';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllOraclesQuery } from '../.graphclient';
 import { vaultOverrides } from './vault-overrides';
+import { Block } from '@ethersproject/providers';
 
 // NOTE: this is currently hardcoded because we cannot access the worker
 // process environment directly here.
@@ -106,13 +108,27 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     blockNumber?: number
   ): Promise<CacheSchema<OracleDefinition>> {
     const calls = await this._getAggregateCalls(schema, blockNumber);
-    const { block, results } = await aggregate(
-      calls,
-      this.getProvider(schema.network),
-      blockNumber,
-      true
-    );
-    const timestamp = block.timestamp;
+    console.log('CALL LENGTH', calls.length);
+    const batchedCalls = batchArray(calls, 100);
+
+    let block: Block;
+    let results: Record<
+      string,
+      {
+        rate: BigNumber;
+        timestamp?: number | undefined;
+      }
+    > = {};
+    for (const b of batchedCalls) {
+      const { block: _b, results: _r } = await aggregate(
+        b,
+        this.getProvider(schema.network),
+        blockNumber,
+        true
+      );
+      block = _b;
+      results = Object.assign(results, _r);
+    }
 
     return {
       values: schema.values.map(([id, oracle]) => {
@@ -123,7 +139,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               // Overrides the latest rate property in the oracle record
               latestRate: {
                 rate: results[id].rate,
-                timestamp: results[id].timestamp || timestamp,
+                timestamp: results[id].timestamp || block.timestamp,
                 blockNumber: block.number,
               },
             }),
