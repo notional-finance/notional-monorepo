@@ -107,10 +107,7 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
         },
       }),
     },
-    current:
-      onlyCurrent && _h?.current
-        ? currentHFData?.value
-        : _h?.current?.toFixed(2) || '',
+    current: currentHFData?.value,
     updated: updatedHFData?.value,
     textColor: updatedHFData?.textColor,
     hideArrow,
