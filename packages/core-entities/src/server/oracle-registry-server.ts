@@ -108,10 +108,9 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     blockNumber?: number
   ): Promise<CacheSchema<OracleDefinition>> {
     const calls = await this._getAggregateCalls(schema, blockNumber);
-    console.log('CALL LENGTH', calls.length);
     const batchedCalls = batchArray(calls, 100);
 
-    let block: Block;
+    let block: Block | undefined;
     let results: Record<
       string,
       {
@@ -139,8 +138,8 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               // Overrides the latest rate property in the oracle record
               latestRate: {
                 rate: results[id].rate,
-                timestamp: results[id].timestamp || block.timestamp,
-                blockNumber: block.number,
+                timestamp: results[id].timestamp || block?.timestamp || 0,
+                blockNumber: block?.number || 0,
               },
             }),
           ];
@@ -149,8 +148,8 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
         }
       }),
       network: schema.network,
-      lastUpdateBlock: block.number,
-      lastUpdateTimestamp: block.timestamp,
+      lastUpdateBlock: block?.number || 0,
+      lastUpdateTimestamp: block?.timestamp || 0,
     };
   }
 
