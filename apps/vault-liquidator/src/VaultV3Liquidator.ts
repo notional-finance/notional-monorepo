@@ -159,7 +159,7 @@ export default class VaultV3Liquidator {
         host: 'cloudflare',
         network: this.settings.network,
         title: `Failed Vault Account Health Factors`,
-        tags: [`event:failed_vault_account_health`],
+        tags: [`event:failed_vault_account_health`, `vault:${f.vault_id}`],
         text: `Failed to get vault health for ${f.account_id} in vault ${f.vault_id}`,
       });
     }
