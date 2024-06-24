@@ -206,7 +206,7 @@ export default class APYSimulator {
         ///////////////////////////////////////////////////////////////////////
 
         ...sharedData,
-        rewardToken: token,
+        rewardToken: token.toLowerCase(),
         rewardTokensClaimed: tokensClaimed.toString(),
         rewardTokenValuePrimaryBorrow: rewardTokenValuePrimaryBorrow.toString(),
         rewardTokenSymbol: symbol,
