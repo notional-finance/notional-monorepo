@@ -44,9 +44,11 @@ export const PointsDashboard = () => {
               </DisplayBoxWrapper>
               <DisplayBoxWrapper>
                 <SectionTitle sx={{ marginBottom: theme.spacing(3) }}>
-                  <FormattedMessage defaultMessage={'Points per Day'} />
+                  <FormattedMessage defaultMessage={'YOUR POINTS / DAY'} />
                 </SectionTitle>
-                <DisplayBox>{formatNumber(totalPointsPerDay, 2)}</DisplayBox>
+                <DisplayBox sx={{ width: '100%' }}>
+                  {formatNumber(totalPointsPerDay, 2)}
+                </DisplayBox>
               </DisplayBoxWrapper>
             </TopContentContainer>
           </MainContainer>
