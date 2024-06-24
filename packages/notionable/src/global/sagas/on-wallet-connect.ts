@@ -15,7 +15,11 @@ import {
   SupportedNetworks,
   filterEmpty,
 } from '@notional-finance/util';
-import { Registry } from '@notional-finance/core-entities';
+import {
+  Registry,
+  getArbBoosts,
+  getPointsPerDay,
+} from '@notional-finance/core-entities';
 import {
   calculateAccountCurrentFactors,
   calculateGroupedHoldings,
@@ -118,7 +122,7 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
       // check sanctioned address
       const isSanctionedAddress = await checkSanctionedAddress(selectedAddress);
 
-      if(!isSanctionedAddress) {
+      if (!isSanctionedAddress) {
         spindl.attribute(selectedAddress);
       }
 
@@ -170,6 +174,21 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
               );
               const vaultHoldings = calculateVaultHoldings(a);
 
+              let pointsPerDay = 0;
+              if (a.network === Network.arbitrum) {
+                pointsPerDay += vaultHoldings.reduce((t, { vault }) => {
+                  const boostNum = getArbBoosts(vault.vaultShares.token, false);
+                  const pointsPerDay =
+                    vault.netWorth().toFiat('USD').toFloat() * boostNum;
+                  return t + pointsPerDay;
+                }, 0);
+
+                pointsPerDay += portfolioHoldings.reduce(
+                  (t, { balance }) => t + getPointsPerDay(balance),
+                  0
+                );
+              }
+
               n[a.network] = {
                 isSubgraphDown:
                   a.balanceStatement === undefined &&
@@ -189,6 +208,7 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
                   vaultHoldings,
                   g.baseCurrency
                 ),
+                pointsPerDay,
               };
             }
 
@@ -209,9 +229,16 @@ function onSyncArbPoints$(global$: Observable<GlobalState>) {
       const selectedAddress = g.wallet?.selectedAddress;
       if (selectedAddress) {
         try {
-          const arbPoints: { token: string; points: number }[] = await fetch(
+          const arbPoints: {
+            token: string;
+            points: number;
+            season_one: number;
+            season_two: number;
+            season_three: number;
+          }[] = await fetch(
             `https://points.notional.finance/arb_account_points/${selectedAddress.toLowerCase()}`
           ).then((r) => r.json());
+
           const totalPoints = arbPoints.reduce(
             (t, { points }) => t + points,
             0

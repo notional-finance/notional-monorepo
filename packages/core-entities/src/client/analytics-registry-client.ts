@@ -54,7 +54,7 @@ const APY_ORACLES = [
 
 type Env = {
   NX_SUBGRAPH_API_KEY: string;
-}
+};
 
 export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   constructor(cacheHostname: string, private env: Env) {
@@ -492,6 +492,14 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     ).then((m) =>
       m.map(({ points, price }) => ({ points, price: parseFloat(price) || 0 }))
     );
+  }
+
+  async getTotalPoints() {
+    return this.getView<{
+      season_one: number;
+      season_two: number;
+      season_three: number;
+    }>(Network.arbitrum, 'total_points').then((v) => v[0]);
   }
 
   async getExchangeRateValues(

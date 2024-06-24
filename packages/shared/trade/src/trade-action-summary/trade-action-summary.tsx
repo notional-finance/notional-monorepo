@@ -22,7 +22,11 @@ import {
   NativeYieldPopup,
 } from './components';
 import { formatTokenType } from '@notional-finance/helpers';
-import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
+import {
+  TokenDefinition,
+  YieldData,
+  getArbBoosts,
+} from '@notional-finance/core-entities';
 import { pointsMultiple } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
@@ -67,6 +71,14 @@ export function TradeActionSummary({
     isLeveragedTrade(tradeType) || priorVaultFactors !== undefined;
   const collateral = state.collateral || priorVaultFactors?.vaultShare;
   const pointPrices = usePointPrices();
+
+  const lendBoosts = state?.collateral
+    ? getArbBoosts(state?.collateral, false)
+    : 0;
+  const borrowBoosts = state?.debt ? getArbBoosts(state?.debt, true) : 0;
+
+  const hasArbPoints =
+    tradeType !== 'LeveragedNToken' && (lendBoosts > 0 || borrowBoosts > 0);
 
   const apySuffix = isLeveraged ? (
     <FormattedMessage defaultMessage={'Total APY'} />
@@ -125,7 +137,7 @@ export function TradeActionSummary({
           value={totalAPY || stakedNOTEApy}
           title={apySuffix}
           valueSuffix="%"
-          hasPoints={!!points}
+          hasPoints={!!points || hasArbPoints}
           InfoComp={
             totalAPY ? (
               <NativeYieldPopup selectedToken={deposit?.symbol || ''} />
@@ -155,6 +167,9 @@ export function TradeActionSummary({
                       ?.price.toPrecision(3) || '-'
                   }/point`}</H4>
                 )}
+                {hasArbPoints && (
+                  <H4>{`${lendBoosts || borrowBoosts}x ARB Points`}</H4>
+                )}
               </Box>
             ))}
             <InfoTooltip
@@ -169,6 +184,21 @@ export function TradeActionSummary({
               }}
             />
           </Box>
+        )}
+        {hasArbPoints ? (
+          <Box
+            sx={{
+              marginTop: theme.spacing(1),
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <Box marginRight={theme.spacing(1)} display="flex">
+              <H4>{`${lendBoosts || borrowBoosts}x ARB Points`}</H4>
+            </Box>
+          </Box>
+        ) : (
+          ''
         )}
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />

@@ -3,10 +3,30 @@ import { colors } from '@notional-finance/styles';
 import { PointsSeasonsData } from '../points-dashboard-constants';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { formatNumber, getDateString } from '@notional-finance/util';
+import {
+  useArbPoints,
+  useTotalArbPoints,
+} from '@notional-finance/notionable-hooks';
 
 export const useYourPointsOverviewTables = () => {
   const theme = useTheme();
   const { seasonOne, seasonTwo, seasonThree } = PointsSeasonsData;
+  const totalPoints = useTotalArbPoints();
+  const arbPoints = useArbPoints();
+  const totalArbPointsBySeason = (arbPoints || []).reduce(
+    (t, p) => {
+      t.season_one += p.season_one;
+      t.season_two += p.season_two;
+      t.season_three += p.season_three;
+      return t;
+    },
+    {
+      season_one: 0,
+      season_two: 0,
+      season_three: 0,
+    }
+  );
 
   const yourPointsData = [
     {
@@ -21,13 +41,16 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${seasonOne.startDate} - ${seasonOne.endDate})`}
+            {`(${getDateString(seasonOne.startDate.getTime() / 1000, {
+              hideYear: true,
+            })} - ${getDateString(seasonOne.endDate.getTime() / 1000, {
+              hideYear: true,
+            })})`}
           </span>
         </div>
       ),
-      pointsPerDay: '5,120.32',
-      yourTotalPoints: '10,000.00',
-      arbReceived: '10,000.00',
+      yourTotalPoints: formatNumber(totalArbPointsBySeason.season_one, 0),
+      arbReceived: '-',
     },
     {
       activeSeason: (
@@ -41,13 +64,16 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${seasonTwo.startDate} - ${seasonTwo.endDate})`}
+            {`(${getDateString(seasonTwo.startDate.getTime() / 1000, {
+              hideYear: true,
+            })} - ${getDateString(seasonTwo.endDate.getTime() / 1000, {
+              hideYear: true,
+            })})`}
           </span>
         </div>
       ),
-      pointsPerDay: '5,120.32',
-      yourTotalPoints: '10,000.00',
-      arbReceived: '10,000.00',
+      yourTotalPoints: formatNumber(totalArbPointsBySeason.season_two, 0),
+      arbReceived: '-',
     },
     {
       activeSeason: (
@@ -61,28 +87,31 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${seasonThree.startDate} - ${seasonThree.endDate})`}
+            {`(${getDateString(seasonThree.startDate.getTime() / 1000, {
+              hideYear: true,
+            })} - ${getDateString(seasonThree.endDate.getTime() / 1000, {
+              hideYear: true,
+            })})`}
           </span>
         </div>
       ),
-      pointsPerDay: '5,120.32',
-      yourTotalPoints: '10,000.00',
-      arbReceived: '10,000.00',
+      yourTotalPoints: formatNumber(totalArbPointsBySeason.season_three, 0),
+      arbReceived: '-',
     },
   ];
 
   const overviewData = [
     {
-      totalPointsIssued: '1,250,000',
-      remainingARB: '10,000',
+      totalPointsIssued: formatNumber(totalPoints.season_one, 0),
+      totalArb: formatNumber(PointsSeasonsData.seasonOne.totalArb, 0),
     },
     {
-      totalPointsIssued: '1,250,000',
-      remainingARB: '10,000',
+      totalPointsIssued: formatNumber(totalPoints.season_two, 0),
+      totalArb: formatNumber(PointsSeasonsData.seasonTwo.totalArb, 0),
     },
     {
-      totalPointsIssued: '-',
-      remainingARB: '100,000',
+      totalPointsIssued: formatNumber(totalPoints.season_three, 0),
+      totalArb: formatNumber(PointsSeasonsData.seasonTwo.totalArb, 0),
     },
   ];
 
@@ -112,19 +141,6 @@ export const useYourPointsOverviewTables = () => {
       {
         header: (
           <FormattedMessage
-            defaultMessage="Points per day"
-            description={'Points per day header'}
-          />
-        ),
-        accessorKey: 'pointsPerDay',
-        textAlign: 'right',
-        fontSize: '16px',
-        fontWeight: 600,
-        padding: '16px',
-      },
-      {
-        header: (
-          <FormattedMessage
             defaultMessage="Your Total Points"
             description={'Your Total Points header'}
           />
@@ -138,8 +154,8 @@ export const useYourPointsOverviewTables = () => {
       {
         header: (
           <FormattedMessage
-            defaultMessage="Points Received"
-            description={'Points Received header'}
+            defaultMessage="ARB Received"
+            description={'Received header'}
           />
         ),
         accessorKey: 'arbReceived',
@@ -170,11 +186,11 @@ export const useYourPointsOverviewTables = () => {
       {
         header: (
           <FormattedMessage
-            defaultMessage="Remaining ARB"
-            description={'Remaining ARB header'}
+            defaultMessage="Total ARB"
+            description={'Total ARB header'}
           />
         ),
-        accessorKey: 'remainingARB',
+        accessorKey: 'totalArb',
         textAlign: 'right',
         fontSize: '16px',
         fontWeight: 600,

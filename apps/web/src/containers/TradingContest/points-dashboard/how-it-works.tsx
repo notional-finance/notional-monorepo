@@ -20,7 +20,7 @@ export const HowItWorks = () => {
       <Text>
         <FormattedMessage
           defaultMessage={
-            'The ARB points program will distribute 150,000 ARB to Notional users between May 15th and August 15th.'
+            'The ARB points program will distribute 175,000 ARB to Notional users between June 24th and September 16th.'
           }
         />
       </Text>
