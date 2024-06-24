@@ -107,7 +107,7 @@ export const useLeverageEarnLinks = () => {
           }}
         />
       ),
-      pillText: <FormattedMessage defaultMessage={'Passive Yield'} />,
+      pillText: <FormattedMessage defaultMessage={'NOTE Yield'} />,
       external: false,
     },
     {
