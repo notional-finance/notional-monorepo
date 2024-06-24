@@ -14,22 +14,22 @@ export function useCurrentSeason() {
 export const PointsSeasonsData = {
   seasonOne: {
     name: 'Season One',
-    startDate: new Date(2024, 6, 24),
-    endDate: new Date(2024, 7, 22),
+    startDate: new Date(2024, 5, 24),
+    endDate: new Date(2024, 6, 22),
     totalArb: 55_000,
     totalPoints: '',
   },
   seasonTwo: {
     name: 'Season Two',
-    startDate: new Date(2024, 7, 23),
-    endDate: new Date(2024, 8, 19),
+    startDate: new Date(2024, 6, 23),
+    endDate: new Date(2024, 7, 19),
     totalArb: 60_000,
     totalPoints: '',
   },
   seasonThree: {
     name: 'Season Three',
-    startDate: new Date(2024, 8, 20),
-    endDate: new Date(2024, 9, 16),
+    startDate: new Date(2024, 7, 20),
+    endDate: new Date(2024, 8, 16),
     totalArb: 60_000,
     totalPoints: '',
   },
