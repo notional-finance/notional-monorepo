@@ -12,4 +12,4 @@ rm -rf ./dist
 rm -rf ./node_modules
 cp -r ../../dist .
 yarn
-gcloud --project monitoring-agents app deploy app.yaml cron.yaml
+gcloud --verbosity=debug --project monitoring-agents app deploy app.yaml cron.yaml
