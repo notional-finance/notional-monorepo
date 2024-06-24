@@ -36,10 +36,7 @@ export const useTokenData = (selectedTabIndex: number, activeToken: string) => {
     .filter((y) => y.token.network === selectedNetwork)
     .filter((x) => depositTokens.includes(x.underlying.symbol))
     .forEach((data) => {
-      if (
-        requiredProducts[selectedTabIndex].includes(data.product) &&
-        data.totalAPY > 0.009
-      ) {
+      if (requiredProducts[selectedTabIndex].includes(data.product)) {
         if (!tokenObj[data.underlying.symbol]) {
           tokenObj[data.underlying.symbol] = { products: [], data: [] };
         }

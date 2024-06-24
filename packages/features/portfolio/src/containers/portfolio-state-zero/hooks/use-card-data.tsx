@@ -24,21 +24,26 @@ export const useCardData = (
   const leveragedLiquidityData = activeTokenData?.find(
     (data) => data.product === 'Leveraged Liquidity'
   );
-  const leveragedYieldFarming = activeTokenData?.find(
-    (data) => data.product === 'Leveraged Vault'
-  );
-  const leveragedPointsFarming = activeTokenData?.find(
-    (data) => data.product === 'Leveraged Vault' && data.pointMultiples
-  );
+  const leveragedYieldFarming = activeTokenData
+    ?.filter(
+      (data) =>
+        data.product === 'Leveraged Vault' && data.pointMultiples === undefined
+    )
+    .sort((a, b) => b.totalAPY - a.totalAPY)[0];
+
+  const leveragedPointsFarming = activeTokenData
+    ?.filter(
+      (data) => data.product === 'Leveraged Vault' && data.pointMultiples
+    )
+    .sort((a, b) => b.totalAPY - a.totalAPY)[0];
 
   const earnData = [
     {
       accentTitle: <FormattedMessage defaultMessage={'Passive Yield'} />,
       title: <FormattedMessage defaultMessage={'Lending'} />,
       icon: <BarChartIcon />,
-      apy:
-        activeTokenData?.find((data) => data.product === 'Variable Lend')
-          ?.totalAPY || 0,
+      apy: activeTokenData?.find((data) => data.product === 'Variable Lend')
+        ?.totalAPY,
       symbol: activeToken,
       cardLink: `/lend-variable/${selectedNetwork}/${activeToken}`,
       bottomLink: `/lend-variable/${selectedNetwork}`,
@@ -46,34 +51,31 @@ export const useCardData = (
       pillData: [
         <FormattedMessage defaultMessage={'No Risk of Loss'} />,
         <FormattedMessage defaultMessage={'No Fee'} />,
-        <FormattedMessage defaultMessage={'Passive Yield'} />,
+        <FormattedMessage defaultMessage={'Always Redeemable'} />,
       ],
     },
     {
       accentTitle: <FormattedMessage defaultMessage={'Guaranteed Yield'} />,
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
       icon: <BarChartLateralIcon />,
-      apy:
-        activeTokenData
-          ?.filter((data) => data.product === 'Fixed Lend')
-          ?.sort((a, b) => b.totalAPY - a.totalAPY)[0]?.totalAPY || 0,
+      apy: activeTokenData
+        ?.filter((data) => data.product === 'Fixed Lend')
+        ?.sort((a, b) => b.totalAPY - a.totalAPY)[0]?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As High As'} />,
       symbol: activeToken,
       cardLink: `/lend-fixed/${selectedNetwork}/${activeToken}`,
       bottomLink: `/lend-fixed/${selectedNetwork}`,
       bottomText: 'All Fixed Rate Lending',
       pillData: [
-        <FormattedMessage defaultMessage={'Yield Certainty'} />,
-        <FormattedMessage defaultMessage={'Low Risk'} />,
+        <FormattedMessage defaultMessage={'Early Exit Subject to Liquidity'} />,
       ],
     },
     {
       accentTitle: <FormattedMessage defaultMessage={'High yield'} />,
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
       icon: <PieChartIcon />,
-      apy:
-        activeTokenData?.find((data) => data.product === 'Provide Liquidity')
-          ?.totalAPY || 0,
+      apy: activeTokenData?.find((data) => data.product === 'Provide Liquidity')
+        ?.totalAPY,
       apyTitle: getIncentiveTotals(
         activeTokenData?.find((data) => data.product === 'Provide Liquidity')
       ) ? (
@@ -95,9 +97,9 @@ export const useCardData = (
       bottomLink: `/liquidity-variable/${selectedNetwork}`,
       bottomText: 'All Provide Liquidity',
       pillData: [
-        <FormattedMessage defaultMessage={'Earn Incentives'} />,
-        <FormattedMessage defaultMessage={'Passive Yield'} />,
+        <FormattedMessage defaultMessage={'Incentives'} />,
         <FormattedMessage defaultMessage={'Possible IL'} />,
+        <FormattedMessage defaultMessage={'Possible Illiquidity'} />,
       ],
     },
   ];
@@ -107,7 +109,7 @@ export const useCardData = (
       accentTitle: <FormattedMessage defaultMessage={'Incentivized Yield'} />,
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
       icon: <PieChartIcon />,
-      apy: leveragedLiquidityData?.totalAPY || 0,
+      apy: leveragedLiquidityData?.totalAPY,
       apyTitle: getIncentiveTotals(leveragedLiquidityData) ? (
         <FormattedMessage
           defaultMessage={'{incentiveAPY} Incentive APY'}
@@ -125,16 +127,13 @@ export const useCardData = (
       )}x`,
       bottomLink: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}`,
       bottomText: 'All Leveraged Liquidity',
-      pillData: [
-        <FormattedMessage defaultMessage={'Manageable Risk'} />,
-        <FormattedMessage defaultMessage={'Earn Incentives'} />,
-      ],
+      pillData: [<FormattedMessage defaultMessage={'Possible Illiquidity'} />],
     },
     {
       accentTitle: <FormattedMessage defaultMessage={'High Yield'} />,
       title: <FormattedMessage defaultMessage={'Leveraged Yield Farming'} />,
       icon: <VaultIcon />,
-      apy: leveragedYieldFarming?.totalAPY || 0,
+      apy: leveragedYieldFarming?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As High As'} />,
       symbol: activeToken,
       cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${leveragedYieldFarming?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${leveragedYieldFarming?.leveraged?.vaultDebt?.id}`,
@@ -146,15 +145,15 @@ export const useCardData = (
       bottomLink: `/${PRODUCTS.LEVERAGED_YIELD_FARMING}/${selectedNetwork}`,
       bottomText: 'All Leveraged Yield Farming',
       pillData: [
-        <FormattedMessage defaultMessage={'Maximum Efficiency'} />,
-        <FormattedMessage defaultMessage={'Manageable Risk'} />,
+        <FormattedMessage defaultMessage={'Low IL'} />,
+        <FormattedMessage defaultMessage={'Pegged Asset Pools'} />,
       ],
     },
     {
       accentTitle: <FormattedMessage defaultMessage={'Points Earning'} />,
       title: <FormattedMessage defaultMessage={'Leveraged Points Farming'} />,
       icon: <PointsIcon fill={theme.palette.typography.main} />,
-      apy: leveragedPointsFarming?.totalAPY || 0,
+      apy: leveragedPointsFarming?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As High as'} />,
       symbol: activeToken,
       cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${leveragedPointsFarming?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${leveragedPointsFarming?.leveraged?.vaultDebt?.id}`,
@@ -166,9 +165,8 @@ export const useCardData = (
       bottomLink: `/${PRODUCTS.LEVERAGED_POINTS_FARMING}/${selectedNetwork}`,
       bottomText: 'All Leveraged Points Farming',
       pillData: [
-        <FormattedMessage defaultMessage={'Earn Points'} />,
-        <FormattedMessage defaultMessage={'High Yield'} />,
-        <FormattedMessage defaultMessage={'Points Value'} />,
+        <FormattedMessage defaultMessage={'Low IL'} />,
+        <FormattedMessage defaultMessage={'Pegged Asset Pools'} />,
       ],
     },
   ];
@@ -178,9 +176,8 @@ export const useCardData = (
       accentTitle: <FormattedMessage defaultMessage={'Passive Interest'} />,
       title: <FormattedMessage defaultMessage={'Borrowing'} />,
       icon: <CoinsCircleIcon />,
-      apy:
-        activeTokenData?.find((data) => data.product === 'Variable Borrow')
-          ?.totalAPY || 0,
+      apy: activeTokenData?.find((data) => data.product === 'Variable Borrow')
+        ?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As Low As'} />,
       symbol: activeToken,
       cardLink: `/borrow-variable/${selectedNetwork}/${activeToken}`,
@@ -188,9 +185,8 @@ export const useCardData = (
       bottomLink: `/borrow-variable/${selectedNetwork}`,
       bottomText: 'All Borrowing',
       pillData: [
-        <FormattedMessage defaultMessage={'No Risk of Loss'} />,
-        <FormattedMessage defaultMessage={'No Fee'} />,
-        <FormattedMessage defaultMessage={'Passive Yield'} />,
+        <FormattedMessage defaultMessage={'Fully Flexible'} />,
+        <FormattedMessage defaultMessage={'Exit Anytime at No Cost'} />,
       ],
     },
     {
@@ -204,10 +200,9 @@ export const useCardData = (
           }}
         />
       ),
-      apy:
-        activeTokenData
-          ?.filter((data) => data.product === 'Fixed Borrow')
-          ?.sort((a, b) => a.totalAPY - b.totalAPY)[0]?.totalAPY || 0,
+      apy: activeTokenData
+        ?.filter((data) => data.product === 'Fixed Borrow')
+        ?.sort((a, b) => a.totalAPY - b.totalAPY)[0]?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As Low As'} />,
       symbol: activeToken,
       cardLink: `/borrow-fixed/${selectedNetwork}/${activeToken}`,
@@ -215,8 +210,8 @@ export const useCardData = (
       bottomLink: `/borrow-fixed/${selectedNetwork}`,
       bottomText: 'All Fixed Rate Borrowing',
       pillData: [
-        <FormattedMessage defaultMessage={'Yield Certainty'} />,
-        <FormattedMessage defaultMessage={'Low Risk'} />,
+        <FormattedMessage defaultMessage={'Exit Anytime'} />,
+        <FormattedMessage defaultMessage={'Entry and Early Exit Fees'} />,
       ],
     },
   ];

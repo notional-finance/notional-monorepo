@@ -38,15 +38,16 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
   const theme = useTheme();
   const history = useHistory();
   const selectedNetwork = useSelectedNetwork();
+  const disabledCard = card.apy === undefined || card.apy < 0 ? true : false;
 
   return (
     <CardBoxContainer>
-      <BoxContainer theme={theme} disabled={card.apy === 0} />
+      <BoxContainer theme={theme} disabled={disabledCard} />
       <CardBox
         theme={theme}
         key={index}
-        disabled={card.apy === 0}
-        onClick={() => (card.apy > 0 ? history.push(card.cardLink) : null)}
+        disabled={disabledCard}
+        onClick={() => (!disabledCard ? history.push(card.cardLink) : null)}
       >
         <Box
           sx={{
@@ -95,12 +96,12 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
             network={selectedNetwork}
           />
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            {card.apy > 0 ? (
+            {!disabledCard ? (
               <>
                 <H5>{card?.apyTitle}</H5>
                 <H3>
                   <CountUp
-                    value={card.apy || 0}
+                    value={card.apy}
                     suffix="%"
                     duration={1}
                     decimals={2}
