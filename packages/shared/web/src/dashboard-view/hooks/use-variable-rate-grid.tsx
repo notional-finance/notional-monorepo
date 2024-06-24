@@ -35,7 +35,7 @@ export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
             : 0
         }`,
         bottomLeftValue:
-          pointsBoost > 0 ? (
+          pointsBoost > 0 && network === Network.arbitrum ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <PointsIcon
                 sx={{
@@ -46,7 +46,7 @@ export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
               />
               {`${pointsBoost}x ARB POINTS`}
             </Box>
-          ) : (
+          ) : !isBorrow && network === Network.arbitrum ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <LeafIcon
                 fill={theme.palette.typography.main}
@@ -58,7 +58,14 @@ export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
               />
               <FormattedMessage defaultMessage={'Organic APY'} />
             </Box>
-          ),
+          ) : network === Network.arbitrum ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            />
+          ) : undefined,
         network: y.token.network,
         hasPosition: false,
         apy: y.totalAPY,

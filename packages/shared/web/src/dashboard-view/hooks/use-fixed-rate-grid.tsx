@@ -42,7 +42,7 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
         baseCurrency
       )}`,
       bottomLeftValue:
-        pointsBoost > 0 ? (
+        pointsBoost > 0 && network === Network.arbitrum ? (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <PointsIcon
               sx={{
@@ -53,7 +53,7 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
             />
             {`${pointsBoost}x ARB POINTS`}
           </Box>
-        ) : (
+        ) : !isBorrow && network === Network.arbitrum ? (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <LeafIcon
               fill={theme.palette.typography.main}
@@ -65,7 +65,14 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
             />
             <FormattedMessage defaultMessage={'Organic APY'} />
           </Box>
-        ),
+        ) : network === Network.arbitrum ? (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          />
+        ) : undefined,
       network: y.token.network,
       hasPosition: false,
       apySubTitle: apySubTitle,
