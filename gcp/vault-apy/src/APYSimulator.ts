@@ -206,7 +206,7 @@ export default class APYSimulator {
         ///////////////////////////////////////////////////////////////////////
 
         ...sharedData,
-        rewardToken: token,
+        rewardToken: token.toLowerCase(),
         rewardTokensClaimed: tokensClaimed.toString(),
         rewardTokenValuePrimaryBorrow: rewardTokenValuePrimaryBorrow.toString(),
         rewardTokenSymbol: symbol,
@@ -215,13 +215,15 @@ export default class APYSimulator {
       allResults.push(result);
     }
 
-    if (!allResults.length) {
-      const result = {
+    if (poolFeesInPrimary) {
+      const feeResult = {
         ...sharedData,
-        rewardToken: "Swap fees",
+        rewardToken: "Swap Fees",
+        rewardTokenSymbol: "Swap Fees",
+        rewardTokenValuePrimaryBorrow: poolFeesInPrimary.toString()
       };
-      allResults.push(result);
-      log(result);
+      allResults.push(feeResult);
+      log(feeResult);
     }
 
     return allResults;
