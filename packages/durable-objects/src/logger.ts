@@ -23,7 +23,7 @@ export enum MetricType {
   Gauge = 3,
 }
 
-type DDMetric = {
+export type DDMetric = {
   metric: string;
   points: {
     value: number;
@@ -127,7 +127,7 @@ export class Logger {
       };
 
       const resp = await fetch(Endpoints.metrics, opts);
-      console.log(await resp.text(), resp.status, body);
+      // console.log(await resp.text(), resp.status, body);
     } catch (e) {
       console.error(e);
     }

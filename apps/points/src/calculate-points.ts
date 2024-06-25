@@ -62,11 +62,11 @@ async function loadAllVaultsQuery(
     network,
     AllVaultAccountsDocument,
     'balances',
+    apiKey,
     {
       vaultAddress,
       blockNumber,
-    },
-    apiKey
+    }
   ).then((d) => d.data as AllVaultAccountsQuery);
 }
 
