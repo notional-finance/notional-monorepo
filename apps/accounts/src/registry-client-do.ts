@@ -18,7 +18,11 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { Logger, MetricType } from '@notional-finance/durable-objects';
+import {
+  DDMetric,
+  Logger,
+  MetricType,
+} from '@notional-finance/durable-objects';
 import {
   calculateAccountIRR,
   // currentContestId,
@@ -157,7 +161,6 @@ export class RegistryClientDO extends DurableObject {
           `${account_id}:${vault_id}`.toLowerCase()
         )
     );
-
     // NOTE: this includes accounts with only NOTE tokens
     const subgraphAccounts = Registry.getAccountRegistry()
       .getAllSubjectKeys(network)
@@ -165,10 +168,14 @@ export class RegistryClientDO extends DurableObject {
         Registry.getAccountRegistry().getLatestFromSubject(network, a)
       )
       .filter((acct) => acct.systemAccountType === 'None');
+
+    let accountsMissingInList = 0;
+    let vaultAccountsMissingInList = 0;
     for (const a of subgraphAccounts) {
       if (accountSet.has(a.address.toLowerCase())) {
         accountSet.delete(a.address.toLowerCase());
       } else {
+        accountsMissingInList += 1;
         await this.logger.submitEvent({
           host: this.serviceName,
           network,
@@ -188,6 +195,7 @@ export class RegistryClientDO extends DurableObject {
       for (const k of vaultKeys) {
         if (vaultAccountSet.has(k)) vaultAccountSet.delete(k);
         else {
+          vaultAccountsMissingInList += 1;
           await this.logger.submitEvent({
             host: this.serviceName,
             network,
@@ -234,6 +242,55 @@ export class RegistryClientDO extends DurableObject {
         ].toString()} is not in the subgraph list`,
       });
     }
+
+    await this.logger.submitMetrics({
+      series: [
+        {
+          metric: 'reconciliation.accounts.missing_in_list',
+          points: [
+            {
+              value: accountsMissingInList,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`],
+          type: MetricType.Gauge,
+        },
+        {
+          metric: 'reconciliation.accounts.missing_in_subgraph',
+          points: [
+            {
+              value: accountSet.size,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`],
+          type: MetricType.Gauge,
+        },
+        {
+          metric: 'reconciliation.vault_accounts.missing_in_list',
+          points: [
+            {
+              value: vaultAccountsMissingInList,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`],
+          type: MetricType.Gauge,
+        },
+        {
+          metric: 'reconciliation.vault_accounts.missing_in_subgraph',
+          points: [
+            {
+              value: vaultAccountSet.size,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`],
+          type: MetricType.Gauge,
+        },
+      ],
+    });
   }
 
   private async getContestParticipants(contestId: number) {
@@ -369,6 +426,7 @@ export class RegistryClientDO extends DurableObject {
     const pCashpDebt = tokens.filter(
       (t) => t.tokenType === 'PrimeCash' || t.tokenType === 'PrimeDebt'
     );
+    const series: DDMetric[] = [];
 
     for (const token of pCashpDebt) {
       const computedBalance =
@@ -376,6 +434,29 @@ export class RegistryClientDO extends DurableObject {
       const reserveBalance =
         settlementReserveBalances.find((b) => b.tokenId === token.id) ||
         TokenBalance.zero(token);
+
+      series.push({
+        metric: 'reconciliation.settlement.reserve_balance',
+        points: [
+          {
+            value: reserveBalance.abs().toFloat(),
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${network}`, `token:${token.symbol}`],
+        type: MetricType.Gauge,
+      });
+      series.push({
+        metric: 'reconciliation.settlement.computed_reserve_balance',
+        points: [
+          {
+            value: computedBalance.abs().toFloat(),
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${network}`, `token:${token.symbol}`],
+        type: MetricType.Gauge,
+      });
 
       if (computedBalance.sub(reserveBalance.abs()).abs().toFloat() > 1e-4) {
         await this.logger.submitEvent({
@@ -403,6 +484,29 @@ export class RegistryClientDO extends DurableObject {
         // Use a smaller lower bound for 6 decimal tokens like USDC and USDT since
         // they succumb to more rounding errors than other tokens.
         const lowerBound = totalSupply.underlying.decimals < 8 ? 1e-2 : 1e-4;
+
+        series.push({
+          metric: 'reconciliation.total_supply.supply_balance',
+          points: [
+            {
+              value: totalSupply.abs().toFloat(),
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`, `token:${token.symbol}`],
+          type: MetricType.Gauge,
+        });
+        series.push({
+          metric: 'reconciliation.total_supply.computed_supply_balance',
+          points: [
+            {
+              value: computedSupply.abs().toFloat(),
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`, `token:${token.symbol}`],
+          type: MetricType.Gauge,
+        });
 
         if (computedSupply.sub(totalSupply).abs().toFloat() > lowerBound) {
           await this.logger.submitEvent({
@@ -462,6 +566,29 @@ export class RegistryClientDO extends DurableObject {
           }
         }, TokenBalance.zero(totalUsedPrimaryBorrowCapacity.token));
 
+      series.push({
+        metric: 'reconciliation.vault_capacity.total_capacity',
+        points: [
+          {
+            value: totalUsedPrimaryBorrowCapacity.abs().toFloat(),
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${network}`, `vault:${v.vaultAddress}`],
+        type: MetricType.Gauge,
+      });
+      series.push({
+        metric: 'reconciliation.vault_capacity.computed_capacity',
+        points: [
+          {
+            value: totalComputedBorrows.abs().toFloat(),
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${network}`, `vault:${v.vaultAddress}`],
+        type: MetricType.Gauge,
+      });
+
       if (
         totalComputedBorrows
           .sub(totalUsedPrimaryBorrowCapacity)
@@ -510,6 +637,31 @@ export class RegistryClientDO extends DurableObject {
       const expectedUnderlying = pCash.totalSupply
         ?.toUnderlying()
         .sub(pDebt.totalSupply?.toUnderlying());
+
+      series.push({
+        metric: 'reconciliation.prime_cash.expected_underlying',
+        points: [
+          {
+            value: expectedUnderlying.abs().toFloat(),
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+        type: MetricType.Gauge,
+      });
+
+      series.push({
+        metric: 'reconciliation.prime_cash.computed_computed_underlying',
+        points: [
+          {
+            value: underlyingHeld.abs().toFloat(),
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+        type: MetricType.Gauge,
+      });
+
       if (expectedUnderlying.gt(underlyingHeld)) {
         await this.logger.submitEvent({
           host: this.serviceName,
@@ -528,6 +680,8 @@ export class RegistryClientDO extends DurableObject {
         });
       }
     }
+
+    await this.logger.submitMetrics({ series });
   }
 
   private async monitorRelayerBalances(network: Network) {
@@ -572,6 +726,22 @@ export class RegistryClientDO extends DurableObject {
       network,
       'SubgraphMeta'
     )) as unknown as MetaQuery;
+
+    await this.logger.submitMetrics({
+      series: [
+        {
+          metric: 'monitoring.subgraph.update_time',
+          points: [
+            {
+              value: meta._meta.block.timestamp || 0,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`],
+          type: MetricType.Gauge,
+        },
+      ],
+    });
 
     if (
       !meta._meta.block.timestamp ||
@@ -678,6 +848,22 @@ export class RegistryClientDO extends DurableObject {
       vaultRisk.uploaded.getTime() / 1000,
       portfolioRisk.uploaded.getTime() / 1000
     );
+    await this.logger.submitMetrics({
+      series: [
+        {
+          metric: 'monitoring.risk_service.update_time',
+          points: [
+            {
+              value: lastUpdated,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`],
+          type: MetricType.Gauge,
+        },
+      ],
+    });
+
     if (lastUpdated < getNowSeconds() - SECONDS_IN_HOUR / 2) {
       const networkTag = `network:${network}`;
       await this.logger.submitEvent({

@@ -23,7 +23,7 @@ export enum MetricType {
   Gauge = 3,
 }
 
-type DDMetric = {
+export type DDMetric = {
   metric: string;
   points: {
     value: number;

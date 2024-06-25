@@ -2,7 +2,7 @@ import { DurableObjectNamespace, R2Bucket } from '@cloudflare/workers-types';
 import { RegistryDOEnv } from './registries';
 
 export { Logger, MetricType } from './logger';
-export type { DDSeries } from './logger';
+export type { DDSeries, DDMetric } from './logger';
 export * from './abstract';
 export * from './registries';
 export * from './views-do';
