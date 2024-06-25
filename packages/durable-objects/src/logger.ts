@@ -127,7 +127,7 @@ export class Logger {
       };
 
       const resp = await fetch(Endpoints.metrics, opts);
-      console.log(await resp.text(), resp.status, body);
+      // console.log(await resp.text(), resp.status, body);
     } catch (e) {
       console.error(e);
     }

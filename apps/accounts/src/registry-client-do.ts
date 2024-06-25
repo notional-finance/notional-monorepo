@@ -642,7 +642,7 @@ export class RegistryClientDO extends DurableObject {
         metric: 'reconciliation.prime_cash.expected_underlying',
         points: [
           {
-            value: expectedUnderlying.abs().toFloat(),
+            value: expectedUnderlying.abs().toFiat('USD').toFloat(),
             timestamp: getNowSeconds(),
           },
         ],
@@ -654,7 +654,7 @@ export class RegistryClientDO extends DurableObject {
         metric: 'reconciliation.prime_cash.computed_computed_underlying',
         points: [
           {
-            value: underlyingHeld.abs().toFloat(),
+            value: underlyingHeld.abs().toFiat('USD').toFloat(),
             timestamp: getNowSeconds(),
           },
         ],
@@ -733,7 +733,7 @@ export class RegistryClientDO extends DurableObject {
           metric: 'monitoring.subgraph.update_time',
           points: [
             {
-              value: meta._meta.block.timestamp || 0,
+              value: getNowSeconds() - meta._meta.block.timestamp || 0,
               timestamp: getNowSeconds(),
             },
           ],
@@ -854,7 +854,7 @@ export class RegistryClientDO extends DurableObject {
           metric: 'monitoring.risk_service.update_time',
           points: [
             {
-              value: lastUpdated,
+              value: getNowSeconds() - lastUpdated,
               timestamp: getNowSeconds(),
             },
           ],
