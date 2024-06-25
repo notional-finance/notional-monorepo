@@ -19,7 +19,7 @@ export const usePointsFaq = () => {
       ),
       answer: (
         <FormattedMessage
-          defaultMessage={`The ARB Points Program runs from 06/24/24 to 09/15/24`}
+          defaultMessage={`The ARB Points Program runs from 06/24/24 to 09/16/24`}
         />
       ),
     },
