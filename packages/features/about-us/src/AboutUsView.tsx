@@ -3,9 +3,8 @@ import { Box, ThemeProvider } from '@mui/material';
 import AboutNotional from './AboutNotional';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import {
-  Header,
+  LandingHeader,
   LaunchAppButton,
-  FeatureLoader,
   EmailCaptureSection,
   LandingFooter,
 } from '@notional-finance/shared-web';
@@ -20,24 +19,22 @@ export const AboutUsView = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <FeatureLoader>
-        <>
-          <Header>
-            <LaunchAppButton />
-          </Header>
-          <Box
-            sx={{
-              backgroundColor: theme.palette.background.default,
-              height: '100%',
-            }}
-          >
-            <AboutNotional />
-            <MeetTheTeam />
-            <EmailCaptureSection />
-            <LandingFooter />
-          </Box>
-        </>
-      </FeatureLoader>
+      <>
+        <LandingHeader>
+          <LaunchAppButton />
+        </LandingHeader>
+        <Box
+          sx={{
+            backgroundColor: theme.palette.background.default,
+            height: '100%',
+          }}
+        >
+          <AboutNotional />
+          <MeetTheTeam />
+          <EmailCaptureSection />
+          <LandingFooter />
+        </Box>
+      </>
     </ThemeProvider>
   );
 };

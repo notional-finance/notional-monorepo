@@ -1,13 +1,59 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
-import { FormattedMessage } from 'react-intl';
-import { useProductCards } from './hooks';
 import { ProductCards } from './components/product-cards';
 import { H5, H2, Label } from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
+import { FormattedMessage } from 'react-intl';
+import earn from './assets/earn.json';
+import borrow from './assets/borrow.json';
+import leverage from './assets/leverage.json';
+import { Network } from '@notional-finance/util';
+
+const cardData = [
+  {
+    title: <FormattedMessage defaultMessage={'Earn'} />,
+    text: (
+      <FormattedMessage
+        defaultMessage={'Passive yield products that are easy and low risk.'}
+      />
+    ),
+    pillOne: <FormattedMessage defaultMessage={'Easy'} />,
+    pillTwo: <FormattedMessage defaultMessage={'Low Risk'} />,
+    link: `/portfolio/${Network.mainnet}/welcome/earn`,
+    linkTitle: <FormattedMessage defaultMessage={'Earn Products'} />,
+    lottieFile: earn,
+  },
+  {
+    title: <FormattedMessage defaultMessage={'Leverage'} />,
+    text: (
+      <FormattedMessage
+        defaultMessage={
+          'Maximum yield using leveraged strategies. For active users.'
+        }
+      />
+    ),
+    pillOne: <FormattedMessage defaultMessage={'Advanced'} />,
+    link: `/portfolio/${Network.mainnet}/welcome/leverage`,
+    linkTitle: <FormattedMessage defaultMessage={'Leverage Products'} />,
+    lottieFile: borrow,
+  },
+  {
+    title: <FormattedMessage defaultMessage={'Borrow'} />,
+    text: (
+      <FormattedMessage
+        defaultMessage={
+          'Borrow against crypto asset collateral at fixed or variable rates.'
+        }
+      />
+    ),
+    pillOne: <FormattedMessage defaultMessage={'Over-Collateralized'} />,
+    link: `/portfolio/${Network.mainnet}/welcome/borrow`,
+    linkTitle: <FormattedMessage defaultMessage={'Borrow Products'} />,
+    lottieFile: leverage,
+  },
+];
 
 export const OurProducts = () => {
-  const { earnYieldData, leveragedYieldData } = useProductCards();
   const theme = useTheme();
 
   return (
@@ -57,13 +103,23 @@ export const OurProducts = () => {
           </Box>
         </TitleContainer>
         <FlexWrapper>
-          {earnYieldData.map((data, index) => (
-            <ProductCards key={index} {...data} />
-          ))}
-
-          {leveragedYieldData.map((data, index) => (
-            <ProductCards key={index} {...data} />
-          ))}
+          {cardData.map(
+            (
+              { title, link, text, pillOne, pillTwo, lottieFile, linkTitle },
+              index
+            ) => (
+              <ProductCards
+                key={index}
+                title={title}
+                link={link}
+                linkTitle={linkTitle}
+                text={text}
+                pillOne={pillOne}
+                pillTwo={pillTwo}
+                lottieFile={lottieFile}
+              />
+            )
+          )}
         </FlexWrapper>
       </Container>
     </Box>

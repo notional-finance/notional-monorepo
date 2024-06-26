@@ -6,21 +6,20 @@ import {
   Toggle,
 } from '@notional-finance/mui';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
-import { Dispatch, SetStateAction } from 'react';
 import { FormattedMessage } from 'react-intl';
 
 interface StateZeroToggleProps {
   selectedTabIndex: number;
-  setSelectedTabIndex: Dispatch<SetStateAction<number>>;
+  handleToggle: (num: number) => void;
 }
 
 export const StateZeroToggle = ({
   selectedTabIndex,
-  setSelectedTabIndex,
+  handleToggle,
 }: StateZeroToggleProps) => {
   const theme = useTheme();
   const handleTabChange = (event, value) => {
-    setSelectedTabIndex(value);
+    handleToggle(value);
   };
 
   const ToggleData = [
@@ -65,7 +64,7 @@ export const StateZeroToggle = ({
           variant="contained"
           color="primary"
           size="large"
-          onClick={() => setSelectedTabIndex(PORTFOLIO_STATE_ZERO_OPTIONS.EARN)}
+          onClick={() => handleToggle(PORTFOLIO_STATE_ZERO_OPTIONS.EARN)}
           sx={{ marginTop: theme.spacing(3), width: '100%' }}
         >
           <FormattedMessage defaultMessage={'Earn'} />
@@ -74,9 +73,7 @@ export const StateZeroToggle = ({
           variant="contained"
           color="primary"
           size="large"
-          onClick={() =>
-            setSelectedTabIndex(PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE)
-          }
+          onClick={() => handleToggle(PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE)}
           sx={{ marginTop: theme.spacing(3), width: '100%' }}
         >
           <FormattedMessage defaultMessage={'Leverage'} />
@@ -85,9 +82,7 @@ export const StateZeroToggle = ({
           variant="contained"
           color="primary"
           size="large"
-          onClick={() =>
-            setSelectedTabIndex(PORTFOLIO_STATE_ZERO_OPTIONS.BORROW)
-          }
+          onClick={() => handleToggle(PORTFOLIO_STATE_ZERO_OPTIONS.BORROW)}
           sx={{ marginTop: theme.spacing(3), width: '100%' }}
         >
           <FormattedMessage defaultMessage={'Borrow'} />
