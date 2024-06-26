@@ -1,8 +1,9 @@
 import { Network } from '@notional-finance/util';
+import { useMemo } from 'react';
 import { useParams } from 'react-router';
 
 export function useSelectedNetwork() {
-  const { selectedNetwork } = useParams<{ selectedNetwork: Network }>();
+  const props = useParams<{ selectedNetwork: Network }>();
 
-  return selectedNetwork;
+  return useMemo(() => props.selectedNetwork, [props.selectedNetwork]);
 }

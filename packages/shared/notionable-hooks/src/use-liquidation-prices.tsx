@@ -20,15 +20,18 @@ import {
   percentChange,
 } from '@notional-finance/util';
 import { useNOTE, useNotionalContext } from './use-notional';
+import { useMemo } from 'react';
 
 function usePriceChanges(network: Network | undefined) {
   const {
     globalState: { priceChanges },
   } = useNotionalContext();
 
-  return priceChanges && network && priceChanges[network]
-    ? priceChanges[network]
-    : { oneDay: [], sevenDay: [] };
+  return useMemo(() => {
+    return priceChanges && network && priceChanges[network]
+      ? priceChanges[network]
+      : { oneDay: [], sevenDay: [] };
+  }, [priceChanges, network]);
 }
 
 function parseFiatLiquidationPrice(

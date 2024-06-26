@@ -69,7 +69,7 @@ export function useWalletConnectedNetwork() {
   const {
     globalState: { wallet },
   } = useNotionalContext();
-  return wallet?.selectedChain;
+  return useMemo(() => wallet?.selectedChain, []);
 }
 
 export function useReadOnlyAddress() {

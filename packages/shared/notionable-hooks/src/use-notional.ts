@@ -4,7 +4,7 @@ import {
   useObservableState,
 } from 'observable-hooks';
 import { NotionalError } from '@notional-finance/notionable';
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { NotionalContext } from './context/NotionalContext';
 import { switchMap, take, concat, map, filter } from 'rxjs';
 import { NOTERegistryClient, Registry } from '@notional-finance/core-entities';
@@ -25,6 +25,14 @@ export function useAnalyticsReady(network: Network | undefined) {
     globalState: { activeAccounts },
   } = useNotionalContext();
   return !!activeAccounts && !!network && !!activeAccounts[network];
+}
+
+export function useHeroStats() {
+  const {
+    globalState: { heroStats, activeAccounts },
+  } = useNotionalContext();
+
+  return useMemo(() => ({ heroStats, activeAccounts }), [heroStats, activeAccounts]);
 }
 
 export function useLastUpdateBlockNumber() {

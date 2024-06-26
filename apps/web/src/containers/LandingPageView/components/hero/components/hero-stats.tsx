@@ -9,16 +9,14 @@ import { ExternalLinkIcon } from '@notional-finance/icons';
 import statsImg from '../images/stats_overlay.svg';
 import { FormattedMessage } from 'react-intl';
 import { formatNumber } from '@notional-finance/helpers';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { useHeroStats } from '@notional-finance/notionable-hooks';
 import { SupportedNetworks } from '@notional-finance/util';
 
 const oneMillion = 1_000_000;
 
 export const HeroStats = () => {
   const theme = useTheme();
-  const {
-    globalState: { heroStats, activeAccounts },
-  } = useNotionalContext();
+  const { heroStats, activeAccounts } = useHeroStats();
   const isReady = SupportedNetworks.every(
     (n) => activeAccounts && activeAccounts[n]
   );

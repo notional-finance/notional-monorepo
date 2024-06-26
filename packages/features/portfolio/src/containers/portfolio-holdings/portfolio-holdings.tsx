@@ -104,4 +104,6 @@ export const PortfolioHoldings = () => {
   );
 };
 
+PortfolioHoldings.whyDidYouRender = true;
+
 export default PortfolioHoldings;

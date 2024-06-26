@@ -2,6 +2,7 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
 import { Network, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
+import { useMemo } from 'react';
 
 /** Contains selectors for account holdings information */
 function useNetworkAccounts(network: Network | undefined) {
@@ -52,10 +53,14 @@ export function useAccountReady(network: Network | undefined) {
 export function useAccountAndBalanceReady(network: Network | undefined) {
   const isAccountReady = useAccountReady(network);
   const accountNetWorth = useAccountNetWorth();
-  const hasNotionalBalance = SupportedNetworks.find(
-    (network) => !accountNetWorth[network].isZero()
-  );
-  return isAccountReady && hasNotionalBalance;
+  const hasNotionalBalance = useMemo(() => {
+    return SupportedNetworks.find(
+      (network) => !accountNetWorth[network].isZero()
+    );
+  }, [accountNetWorth]);
+  return useMemo(() => {
+    return isAccountReady && hasNotionalBalance;
+  }, [isAccountReady, hasNotionalBalance]);
 }
 
 export function useAccountLoading() {
@@ -71,7 +76,10 @@ export function useTransactionHistory(network: Network | undefined) {
 }
 
 export function useVaultHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.vaultHoldings || [];
+  const networkAccounts = useNetworkAccounts(network);
+  return useMemo(() => {
+    return networkAccounts?.vaultHoldings || [];
+  }, [networkAccounts]);
 }
 
 export function useVaultPosition(
@@ -84,19 +92,31 @@ export function useVaultPosition(
 }
 
 export function usePortfolioHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.portfolioHoldings || [];
+  const networkAccounts = useNetworkAccounts(network);
+  return useMemo(() => {
+    return networkAccounts?.portfolioHoldings || [];
+  }, [networkAccounts]);
 }
 
 export function useGroupedHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.groupedHoldings || [];
+  const networkAccounts = useNetworkAccounts(network);
+  return useMemo(() => {
+    return networkAccounts?.groupedHoldings || [];
+  }, [networkAccounts]);
 }
 
 export function usePortfolioRiskProfile(network: Network | undefined) {
-  return useNetworkAccounts(network)?.riskProfile;
+  const networkAccounts = useNetworkAccounts(network);
+  return useMemo(() => {
+    return networkAccounts?.riskProfile;
+  }, [networkAccounts]);
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {
-  return useNetworkAccounts(network)?.portfolioLiquidationPrices || [];
+  const networkAccounts = useNetworkAccounts(network);
+  return useMemo(() => {
+    return networkAccounts?.portfolioLiquidationPrices || [];
+  }, [networkAccounts]);
 }
 
 export function useAccountCurrentFactors(network: Network | undefined) {
