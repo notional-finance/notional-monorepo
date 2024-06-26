@@ -900,4 +900,47 @@ export class RegistryClientDO extends DurableObject {
       ],
     });
   }
+
+  private async saveTotalsData() {
+    const kpi = Registry.getAnalyticsRegistry().getKPIs();
+    await this.putStorageKey(`kpi`, JSON.stringify(kpi));
+
+    await this.logger.submitMetrics({
+      series: [
+        {
+          metric: 'monitoring.kpi.tvl',
+          points: [
+            {
+              value: kpi.totalValueLocked,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [],
+          type: MetricType.Gauge,
+        },
+        {
+          metric: 'monitoring.kpi.open_debt',
+          points: [
+            {
+              value: kpi.totalOpenDebt,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [],
+          type: MetricType.Gauge,
+        },
+        {
+          metric: 'monitoring.kpi.total_accounts',
+          points: [
+            {
+              value: kpi.totalAccounts,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [],
+          type: MetricType.Gauge,
+        },
+      ],
+    });
+  }
 }
