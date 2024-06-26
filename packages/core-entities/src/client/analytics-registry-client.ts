@@ -349,11 +349,17 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
         Registry.getTokenRegistry()
           .getAllTokens(n)
           .filter(
-            (t) => t.tokenType === 'PrimeCash' || t.tokenType === 'VaultShare'
+            (t) =>
+              t.tokenType === 'PrimeDebt' ||
+              t.tokenType === 'PrimeCash' ||
+              t.tokenType === 'VaultShare'
           )
           .reduce(
             (acc, token) =>
-              acc + (token.totalSupply?.toFiat('USD').toFloat() || 0),
+              acc +
+              (token.tokenType === 'PrimeDebt'
+                ? token.totalSupply?.toFiat('USD').neg().toFloat() || 0
+                : token.totalSupply?.toFiat('USD').toFloat() || 0),
             0
           )
       );
@@ -405,7 +411,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     );
 
     return {
-      totalValueLocked,
+      totalDeposits: totalValueLocked + totalOpenDebt,
       totalOpenDebt,
       totalAccounts,
     };

@@ -908,10 +908,10 @@ export class RegistryClientDO extends DurableObject {
     await this.logger.submitMetrics({
       series: [
         {
-          metric: 'monitoring.kpi.tvl',
+          metric: 'monitoring.kpi.total_deposits',
           points: [
             {
-              value: kpi.totalValueLocked,
+              value: kpi.totalDeposits,
               timestamp: getNowSeconds(),
             },
           ],
