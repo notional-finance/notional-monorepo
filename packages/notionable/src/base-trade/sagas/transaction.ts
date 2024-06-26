@@ -23,6 +23,7 @@ import { selectedAccount, selectedNetwork } from '../../global';
 import { BaseTradeState, isVaultTrade } from '../base-trade-store';
 import { getTradeConfig } from '../trade-calculation';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export function buildTransaction(
   state$: Observable<BaseTradeState>,
@@ -137,48 +138,38 @@ export function simulateTransaction(
 
             const mismatchedBalances = zippedBalances
               .map(([simulated, calculated]) => {
-                let rel = 0;
-                let abs = 0;
+                let abs: TokenBalance | undefined = undefined;
                 if (
                   simulated?.symbol === 'ARB' ||
                   calculated?.symbol === 'ARB'
                 ) {
-                  rel = 0;
-                  abs = 0;
+                  abs = undefined;
                 } else if (simulated && calculated) {
-                  rel = calculated.isZero()
-                    ? simulated.toFloat()
-                    : (simulated.toFloat() - calculated.toFloat()) /
-                      calculated.toFloat();
-                  abs = simulated.toFloat() - calculated.toFloat();
+                  abs = simulated.sub(calculated);
                 } else if (simulated) {
                   if (
                     simulated.token.maturity &&
                     simulated.token.maturity < getNowSeconds()
                   ) {
                     // This is a matured balance, it should be cleared to zero
-                    rel = 0;
-                    abs = 0;
+                    abs = simulated.copy(0);
                   } else {
-                    rel = simulated.toFloat();
-                    abs = simulated.toFloat();
+                    abs = simulated;
                   }
                 } else if (calculated) {
-                  rel = calculated.toFloat();
-                  abs = calculated.toFloat();
+                  abs = calculated;
                 }
 
                 return {
-                  rel,
                   abs,
                   simulatedBalance: simulated,
                   calculatedBalance: calculated,
                 };
               })
-              .filter(({ rel, abs }) => {
-                return (
-                  Math.abs(rel) > 5e-2 && Math.abs(abs) > FLOATING_POINT_DUST
-                );
+              .filter(({ abs }) => {
+                // We can increase this if it's too sensitive but for now this is just
+                // showing a warning message
+                return abs && abs.abs().toFiat('USD').toFloat() > 10;
               });
 
             if (mismatchedBalances.length > 0) {
@@ -190,12 +181,14 @@ export function simulateTransaction(
               );
 
               return {
-                transactionError:
-                  'Transaction simulation does not match calculated outputs.',
+                simulationError: `Transaction simulation detected an variance for these tokens: \n${mismatchedBalances
+                  .map(({ abs }) => abs?.toString())
+                  .join('\n')}`,
               };
             }
 
             return {
+              simulationError: undefined,
               transactionError: undefined,
             };
           })
