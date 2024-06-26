@@ -64,7 +64,7 @@ export default class APYSimulator {
     }
     const startingTimestamp = startingDate.getTime() / 1000;
     for (let i = 1; i <= numOfDays; i++) {
-      log(`processing day ${i}`)
+      log(`processing day ${i}, ${startingTimestamp - i * ONE_DAY_IN_SECONDS}`)
       const forkBlock = await this.#getBlockAtTimestamp(startingTimestamp - i * ONE_DAY_IN_SECONDS);
 
       await this.run(forkBlock);

@@ -13,6 +13,7 @@ import { POOL_DECIMALS } from './config';
 import { getTokenDecimals, e, toInt18Precision } from './util';
 
 const SUBGRAPH_API_KEY = process.env.SUBGRAPH_API_KEY as string;
+const log = require('debug')('vault-apy');
 
 export enum ProtocolName {
   NotionalV3 = 'NotionalV3',
@@ -205,22 +206,27 @@ const processBalancer = async (
       tokensDecimals
     );
 
-  const {
-    data: { poolSnapshots },
-  }: any = await fetch(
-    defaultGraphEndpoints[ProtocolName.BalancerV2][network],
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: balancerV2SwapFeeQuery(poolId, blockNumber),
-      }),
-    }
-  ).then((r) => r.json());
-  // price from graph is returned as decimal number, upscale to 1e18 precision
-  const feesInUSD = toInt18Precision(
-    Number(poolSnapshots[0].swapFees) - Number(poolSnapshots[1].swapFees)
-  );
+  let feesInUSD = BigNumber.from(0);
+  try {
+    const {
+      data: { poolSnapshots },
+    }: any = await fetch(
+      defaultGraphEndpoints[ProtocolName.BalancerV2][network],
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: balancerV2SwapFeeQuery(poolId, blockNumber),
+        }),
+      }
+    ).then((r) => r.json());
+    // price from graph is returned as decimal number, upscale to 1e18 precision
+    feesInUSD = toInt18Precision(
+      Number(poolSnapshots[0].swapFees) - Number(poolSnapshots[1].swapFees)
+    );
+  } catch (e) {
+    log(e);
+  }
 
   const totalSupply = await balancerPool.getActualSupply();
 
