@@ -23,7 +23,7 @@ export const navLabels = defineMessages({
     description: 'navigation link',
   },
   [PORTFOLIO_CATEGORIES.WELCOME]: {
-    defaultMessage: 'Welcome Ser',
+    defaultMessage: 'Welcome',
     description: 'navigation link',
   },
 });

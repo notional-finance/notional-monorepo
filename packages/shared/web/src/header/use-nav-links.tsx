@@ -13,15 +13,15 @@ import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
-import { useDefaultNetwork } from './use-default-network';
+// import { useDefaultNetwork } from './use-default-network';
 import EarnDropdown from './earn-dropdown/earn-dropdown';
 import BorrowDropDown from './borrow-dropdown/borrow-dropdown';
-import { useAccountAndBalanceReady } from '@notional-finance/notionable-hooks';
+// import { useAccountAndBalanceReady } from '@notional-finance/notionable-hooks';
 import LeverageDropdown from './leverage-dropdown/leverage-dropdown';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
-  const network = useDefaultNetwork();
-  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
+  // const network = useDefaultNetwork();
+  // const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const textColor = mobileNav
     ? theme.palette.common.black
     : theme.palette.common.white;
@@ -30,9 +30,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: 'portfolio',
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
-      link: isAcctAndBalanceReady
-        ? `/portfolio/${network}/overview`
-        : `/portfolio/${network}/welcome`,
+      link: `/portfolio/mainnet/welcome`,
       iconImg: (
         <PortfolioIcon
           className="color-fill"

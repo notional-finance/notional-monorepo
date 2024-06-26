@@ -1,14 +1,10 @@
 import spindl from '@spindl-xyz/attribution';
 import {
-  NotionalContext,
-  useGlobalContext,
   useSanctionsBlock,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { IntercomProvider } from 'react-use-intercom';
 import {
-  FeatureLoader,
-  TrackingConsent,
   LeveragedYieldDashboard,
   LeveragedPointsDashboard,
   LendFixedDashboard,
@@ -24,11 +20,9 @@ import { CompatRouter } from 'react-router-dom-v5-compat';
 import { ServerError } from '../ServerError/server-error';
 import RouteContainer from './RouteContainer';
 import AppLayoutRoute from './AppLayoutRoute';
+import LandingLayoutRoute from './LandingLayoutRoute';
 import { OnboardContext } from '@notional-finance/wallet';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 import { useConnect } from '@notional-finance/wallet/hooks';
-import { useNotionalTheme } from '@notional-finance/styles';
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import { LendFixed, LendVariable } from '@notional-finance/lend-feature-shell';
@@ -260,46 +254,21 @@ const AllRoutes = () => {
             component={ContestSignUp}
             routeType="Contest"
           />
-          <AppLayoutRoute
-            path="/terms"
-            component={TermsView}
-            routeType="Landing"
-          />
-          <AppLayoutRoute
-            path="/privacy"
-            component={PrivacyView}
-            routeType="Landing"
-          />
-          <AppLayoutRoute
-            landingLayout
-            path="/about"
-            component={AboutUsView}
-            routeType="Landing"
-          />
+          <LandingLayoutRoute path="/terms" component={TermsView} />
+          <LandingLayoutRoute path="/privacy" component={PrivacyView} />
+          <LandingLayoutRoute path="/about" component={AboutUsView} />
           {/* Catches all the card pages that should be redirected to the default network */}
           <Route path="/:basePath">
             <RedirectToDefaultNetwork />
           </Route>
-          <AppLayoutRoute
-            landingLayout
-            path="/"
-            component={LandingPageView}
-            routeType="Landing"
-          />
+          <LandingLayoutRoute path="/" component={LandingPageView} />
         </Switch>
-        <TrackingConsent />
       </RouteContainer>
     </CompatRouter>
   );
 };
 
 export const App = () => {
-  const globalState = useGlobalContext();
-  const {
-    state: { themeVariant },
-  } = globalState;
-
-  const notionalTheme = useNotionalTheme(themeVariant);
   const intercomID = process.env['NX_INTERCOM_APP_ID'] as string;
   const spindlAPI = process.env['NX_SPINDL_API_KEY'] as string;
 
@@ -310,35 +279,25 @@ export const App = () => {
   spindl.enableAutoPageViews();
 
   return (
-    <ThemeProvider theme={notionalTheme}>
-      <CssBaseline />
-      <HelmetProvider>
-        <NotionalContext.Provider value={globalState}>
-          <FeatureLoader>
-            <Helmet>
-              <link rel="icon" href="/favicon.svg" />
-              <meta
-                name="viewport"
-                content="width=device-width, initial-scale=1"
-              />
-              <title>Notional Finance - DeFi lending and leveraged yield</title>
-              <meta
-                name="title"
-                content="Notional Finance - DeFi lending and leveraged yield"
-              />
-              <meta
-                name="description"
-                content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
-              />
-            </Helmet>
-            <IntercomProvider appId={intercomID}>
-              <Web3OnboardProvider web3Onboard={OnboardContext}>
-                <AllRoutes />
-              </Web3OnboardProvider>
-            </IntercomProvider>
-          </FeatureLoader>
-        </NotionalContext.Provider>
-      </HelmetProvider>
-    </ThemeProvider>
+    <HelmetProvider>
+      <Helmet>
+        <link rel="icon" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Notional Finance - DeFi lending and leveraged yield</title>
+        <meta
+          name="title"
+          content="Notional Finance - DeFi lending and leveraged yield"
+        />
+        <meta
+          name="description"
+          content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
+        />
+      </Helmet>
+      <IntercomProvider appId={intercomID}>
+        <Web3OnboardProvider web3Onboard={OnboardContext}>
+          <AllRoutes />
+        </Web3OnboardProvider>
+      </IntercomProvider>
+    </HelmetProvider>
   );
 };

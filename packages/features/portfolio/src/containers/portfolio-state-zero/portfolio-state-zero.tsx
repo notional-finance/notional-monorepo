@@ -18,6 +18,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import StateZeroCard from './state-zero-card';
 import StateZeroToggle from './state-zero-toggle';
+import { useHistory, useParams } from 'react-router';
 
 interface TokenBoxProps {
   theme: NotionalTheme;
@@ -44,6 +45,8 @@ const stateZeroBanner = {
 
 export const PortfolioStateZero = () => {
   const theme = useTheme();
+  const history = useHistory();
+  const params = useParams<any>();
   const { setWalletSideDrawer } = useSideDrawerManager();
   const selectedNetwork = useSelectedNetwork();
   const isAccountReady = useAccountReady(selectedNetwork);
@@ -56,10 +59,39 @@ export const PortfolioStateZero = () => {
   const cardData = useCardData(selectedTabIndex, activeToken, activeTokenData);
 
   useEffect(() => {
+    if (
+      params?.sideDrawerKey === 'earn' &&
+      selectedTabIndex !== PORTFOLIO_STATE_ZERO_OPTIONS.EARN
+    ) {
+      setSelectedTabIndex(PORTFOLIO_STATE_ZERO_OPTIONS.EARN);
+    } else if (
+      params?.sideDrawerKey === 'leverage' &&
+      selectedTabIndex !== PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE
+    ) {
+      setSelectedTabIndex(PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE);
+    } else if (
+      params?.sideDrawerKey === 'borrow' &&
+      selectedTabIndex !== PORTFOLIO_STATE_ZERO_OPTIONS.BORROW
+    ) {
+      setSelectedTabIndex(PORTFOLIO_STATE_ZERO_OPTIONS.BORROW);
+    }
+  }, [selectedTabIndex, params?.sideDrawerKey]);
+
+  useEffect(() => {
     if (!availableSymbols.includes(activeToken)) {
       setActiveToken('ETH');
     }
   }, [availableSymbols, activeToken]);
+
+  const handleToggle = (toggleNum: number) => {
+    if (toggleNum === 0) {
+      history.push(`/portfolio/${selectedNetwork}/welcome/earn`);
+    } else if (toggleNum === 1) {
+      history.push(`/portfolio/${selectedNetwork}/welcome/leverage`);
+    } else if (toggleNum === 2) {
+      history.push(`/portfolio/${selectedNetwork}/welcome/borrow`);
+    }
+  };
 
   return (
     <PortfolioMainContent>
@@ -81,7 +113,7 @@ export const PortfolioStateZero = () => {
         <Box sx={{ marginTop: theme.spacing(6) }}>
           <Box sx={{ display: 'flex' }}>
             <H2 sx={{ marginRight: theme.spacing(1) }}>
-              <FormattedMessage defaultMessage={'Welcome Ser'} />
+              <FormattedMessage defaultMessage={'Welcome'} />
             </H2>
             <span role="img" aria-label="wave" style={{ fontSize: '32px' }}>
               👋
@@ -112,7 +144,7 @@ export const PortfolioStateZero = () => {
         </Box>
         <StateZeroToggle
           selectedTabIndex={selectedTabIndex}
-          setSelectedTabIndex={setSelectedTabIndex}
+          handleToggle={handleToggle}
         />
       </TopContentContainer>
       <TokenContainer>

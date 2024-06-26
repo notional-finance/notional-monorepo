@@ -23,7 +23,7 @@ export const messages: Record<PORTFOLIO_CATEGORIES, MessageDescriptor> = {
     description: '',
   }),
   [PORTFOLIO_CATEGORIES.WELCOME]: defineMessage({
-    defaultMessage: 'Welcome Ser',
+    defaultMessage: 'Welcome',
     description: '',
   }),
 };

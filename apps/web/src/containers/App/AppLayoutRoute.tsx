@@ -1,14 +1,20 @@
 import { useEffect } from 'react';
 import { CompatRoute } from 'react-router-dom-v5-compat';
+import { ThemeProvider } from '@mui/material/styles';
+import { FeatureLoader, TrackingConsent } from '@notional-finance/shared-web';
 import {
   Footer,
   Header,
   MetaTagManager,
   metaTagData,
 } from '@notional-finance/shared-web';
+import {
+  NotionalContext,
+  useGlobalContext,
+} from '@notional-finance/notionable-hooks';
 import { WalletSelector } from '@notional-finance/wallet';
-import { Box, styled } from '@mui/material';
-import { colors } from '@notional-finance/styles';
+import { Box, CssBaseline, styled } from '@mui/material';
+import { useNotionalTheme } from '@notional-finance/styles';
 import { useIntercom } from 'react-use-intercom';
 import { META_TAG_CATEGORIES, RouteType } from '@notional-finance/util';
 import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
@@ -27,9 +33,15 @@ const AppLayoutRoute = ({
   routeType: RouteType;
   landingLayout?: boolean;
 }) => {
+  const globalState = useGlobalContext();
+  const {
+    state: { themeVariant },
+  } = globalState;
+
   const location = useLocation();
   const { boot } = useIntercom();
   const selectedNetwork = useWalletConnectedNetwork();
+  const notionalTheme = useNotionalTheme(themeVariant);
   usePageTrack(routeType, selectedNetwork);
 
   const slicedPath = path
@@ -42,49 +54,39 @@ const AppLayoutRoute = ({
     }
   }, [landingLayout, boot]);
 
-  return landingLayout ? (
-    <CompatRoute
-      path={path}
-      key={location.hash}
-      render={(matchProps: Record<string, unknown>) => (
-        <LandingWrapper>
-          <Component {...matchProps} />
-        </LandingWrapper>
-      )}
-    />
-  ) : (
-    <CompatRoute
-      path={path}
-      key={location.hash}
-      render={(matchProps: Record<string, unknown>) => (
-        <Box>
-          {metaTagData[slicedPath] && (
-            <MetaTagManager metaTagCategory={slicedPath} />
-          )}
-          <AppShell>
-            <Header>
-              <WalletSelector />
-            </Header>
+  return (
+    <ThemeProvider theme={notionalTheme}>
+      <CssBaseline />
+      <NotionalContext.Provider value={globalState}>
+        <FeatureLoader>
+          <TrackingConsent />
+          <CompatRoute
+            path={path}
+            key={location.hash}
+            render={(matchProps: Record<string, unknown>) => (
+              <Box>
+                {metaTagData[slicedPath] && (
+                  <MetaTagManager metaTagCategory={slicedPath} />
+                )}
+                <AppShell>
+                  <Header>
+                    <WalletSelector />
+                  </Header>
 
-            <MainContent>
-              <Component {...matchProps} />
-            </MainContent>
-            <FooterPopup />
-            <StyledFooter />
-          </AppShell>
-        </Box>
-      )}
-    />
+                  <MainContent>
+                    <Component {...matchProps} />
+                  </MainContent>
+                  <FooterPopup />
+                  <StyledFooter />
+                </AppShell>
+              </Box>
+            )}
+          />
+        </FeatureLoader>
+      </NotionalContext.Provider>
+    </ThemeProvider>
   );
 };
-
-const LandingWrapper = styled(Box)(
-  `
-  width: 100%;
-  min-height: 100vh;
-  background: ${colors.black};
-`
-);
 
 const AppShell = styled(Box)`
   display: flex;

@@ -1,14 +1,16 @@
 import { useEffect } from 'react';
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import {
   useAccountLoading,
   useAccountReady,
   useAccountAndBalanceReady,
   useSelectedNetwork,
+  useYieldsReady,
 } from '@notional-finance/notionable-hooks';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import {
   LargeInputTextEmphasized,
+  PageLoading,
   SideBarSubHeader,
   SideDrawer,
   TypeForm,
@@ -33,7 +35,6 @@ import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/util';
-import { FeatureLoader } from '@notional-finance/shared-web';
 import { PortfolioNetworkSelector } from '@notional-finance/wallet';
 import { defineMessage } from 'react-intl';
 import { messages } from './messages';
@@ -47,21 +48,50 @@ export interface PortfolioParams {
 }
 
 export const PortfolioFeatureShell = () => {
+  const theme = useTheme();
   const history = useHistory();
+  const params = useParams<PortfolioParams>();
   const network = useSelectedNetwork();
   const isAccountLoading = useAccountLoading();
+  const yieldsReady = useYieldsReady(network);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
 
   useEffect(() => {
     if (!isAccountLoading && !isAcctAndBalanceReady) {
-      history.push(`/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}`);
+      const toggleKey = params.sideDrawerKey ? params.sideDrawerKey : '';
+      history.push(
+        `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}/${toggleKey}`
+      );
     }
-  }, [isAccountLoading, isAcctAndBalanceReady, history, network]);
+  }, [
+    isAccountLoading,
+    isAcctAndBalanceReady,
+    history,
+    network,
+    params.sideDrawerKey,
+  ]);
 
-  return (
-    <FeatureLoader featureLoaded={network && !isAccountLoading}>
-      <Portfolio />
-    </FeatureLoader>
+  return !network || isAccountLoading || !yieldsReady ? (
+    <PortfolioContainer>
+      <PortfolioSidebar>
+        <SideNav />
+      </PortfolioSidebar>
+      <PageLoading
+        sx={{
+          background: theme.palette.background.paper,
+          width: '100%',
+          height: '100vh',
+          zIndex: 5,
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        type="notional"
+      />
+    </PortfolioContainer>
+  ) : (
+    <Portfolio />
   );
 };
 
@@ -82,11 +112,13 @@ const Portfolio = () => {
   }, [params.category]);
 
   useEffect(() => {
-    clearSideDrawer(
-      `/portfolio/${network}/${
-        params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
-      }`
-    );
+    if (params.category && params.category !== PORTFOLIO_CATEGORIES.WELCOME) {
+      clearSideDrawer(
+        `/portfolio/${network}/${
+          params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
+        }`
+      );
+    }
     // NOTE: this must only run once on component mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

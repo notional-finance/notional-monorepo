@@ -6,6 +6,7 @@ export * from './landing-footer/landing-footer';
 export * from './header/wallet-display/wallet-display';
 export * from './footer/footer';
 export * from './header/header';
+export * from './header/landing-header';
 export * from './header/launch-app-button/launch-app-button';
 export * from './feature-loader/feature-loader';
 export * from './dashboard-view/dashboard-view';
