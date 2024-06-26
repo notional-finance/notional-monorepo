@@ -61,6 +61,7 @@ export const ErrorMessage = ({
         <LabelValue>{title || defaultTitle}</LabelValue>
         <Caption
           sx={{
+            whiteSpace: 'pre-line',
             maxWidth: maxWidth ? maxWidth : theme.spacing(46),
             overflow: 'hidden',
           }}

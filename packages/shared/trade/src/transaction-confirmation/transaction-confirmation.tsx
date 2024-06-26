@@ -46,6 +46,7 @@ export const TransactionConfirmation = ({
   const {
     populatedTransaction,
     transactionError,
+    simulationError,
     debt,
     collateral,
     tradeType,
@@ -131,6 +132,15 @@ export const TransactionConfirmation = ({
                 <FormattedMessage defaultMessage={'Transaction Reverted'} />
               )
             }
+          />
+        </Box>
+      )}
+      {simulationError && (
+        <Box sx={{ marginBottom: theme.spacing(6) }}>
+          <ErrorMessage
+            variant="warning"
+            marginBottom
+            message={simulationError}
           />
         </Box>
       )}
