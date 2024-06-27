@@ -155,7 +155,7 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
     },
     {
       address: '0x0E8C1A069f40D0E8Fa861239D3e62003cBF3dCB2',
-      rewardTokens: [ARB, ARB_BAL, ARB_AURA],
+      rewardTokens: [ARB],
       poolTokens: [ARB_wstETH, ETH, '0x9791d590788598535278552EEcD4b211bFc790CB'],
       tokenWeights: [50, 50, 0],
       maxSellAmount: {
