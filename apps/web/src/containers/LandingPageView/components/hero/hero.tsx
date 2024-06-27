@@ -1,7 +1,6 @@
 import { Player } from '@lottiefiles/react-lottie-player';
 import { styled, Box } from '@mui/material';
-// import { HeroContent, HeroStats } from './components';
-import { HeroContent } from './components';
+import { HeroContent, HeroStats } from './components';
 import MobileLottie from './images/mobile-lottie.json';
 import DesktopLottie from './images/desktop-lottie.json';
 import { useState } from 'react';
@@ -37,7 +36,7 @@ export const Hero = () => {
       />
       <Container>
         <HeroContent />
-        {/* <HeroStats /> */}
+        <HeroStats />
       </Container>
     </HeroContainer>
   );

@@ -63,6 +63,7 @@ export const useLiquidityLeveragedGrid = (
           ) === undefined ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <LeafIcon
+                fill={theme.palette.typography.main}
                 sx={{
                   marginRight: theme.spacing(1),
                   height: theme.spacing(1.75),

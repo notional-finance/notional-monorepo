@@ -35,7 +35,7 @@ const cardData = [
     pillOne: <FormattedMessage defaultMessage={'Advanced'} />,
     link: `/portfolio/${Network.mainnet}/welcome/leverage`,
     linkTitle: <FormattedMessage defaultMessage={'Leverage Products'} />,
-    lottieFile: borrow,
+    lottieFile: leverage,
   },
   {
     title: <FormattedMessage defaultMessage={'Borrow'} />,
@@ -49,7 +49,7 @@ const cardData = [
     pillOne: <FormattedMessage defaultMessage={'Over-Collateralized'} />,
     link: `/portfolio/${Network.mainnet}/welcome/borrow`,
     linkTitle: <FormattedMessage defaultMessage={'Borrow Products'} />,
-    lottieFile: leverage,
+    lottieFile: borrow,
   },
 ];
 
@@ -69,7 +69,12 @@ export const OurProducts = () => {
             >
               <FormattedMessage defaultMessage={'Our Products'} />
             </H5>
-            <H2 sx={{ color: colors.white, marginBottom: theme.spacing(6) }}>
+            <H2
+              sx={{
+                color: colors.white,
+                lineHeight: theme.spacing(5),
+              }}
+            >
               <FormattedMessage defaultMessage={'With Notional You Can'} />
             </H2>
           </Box>
@@ -82,7 +87,7 @@ export const OurProducts = () => {
             >
               <FormattedMessage defaultMessage={'Supported Networks'} />
             </H5>
-            <Box sx={{ display: 'flex', marginBottom: theme.spacing(6) }}>
+            <Box sx={{ display: 'flex' }}>
               <NetworkLabel sx={{ marginRight: theme.spacing(2) }}>
                 <TokenIcon
                   symbol="eth"
@@ -174,10 +179,11 @@ const TitleContainer = styled(Box)(
   ({ theme }) => `
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: end;
     #supported-networks {
       text-align: right;
     }
+    margin-bottom: ${theme.spacing(9)};
     ${theme.breakpoints.down('smLanding')} {
       align-items: flex-start;
       flex-direction: column;

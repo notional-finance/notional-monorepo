@@ -1,5 +1,11 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { Banner, H2, LabelValue, Subtitle } from '@notional-finance/mui';
+import {
+  Banner,
+  H2,
+  LabelValue,
+  SimpleDropdown,
+  Subtitle,
+} from '@notional-finance/mui';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import {
   PORTFOLIO_STATE_ZERO_OPTIONS,
@@ -11,7 +17,7 @@ import { useEffect, useState } from 'react';
 import { PortfolioNetworkSelector } from '@notional-finance/wallet';
 import { NotionalTheme } from '@notional-finance/styles';
 import { TokenIcon } from '@notional-finance/icons';
-import { useCardData, useTokenData } from './hooks';
+import { useCardData, useTokenData, useMoreDropdown } from './hooks';
 import {
   useAccountReady,
   useSelectedNetwork,
@@ -57,6 +63,10 @@ export const PortfolioStateZero = () => {
     activeToken
   );
   const cardData = useCardData(selectedTabIndex, activeToken, activeTokenData);
+  const { options, title, displaySymbols } = useMoreDropdown(
+    availableSymbols,
+    setActiveToken
+  );
 
   useEffect(() => {
     if (
@@ -159,6 +169,7 @@ export const PortfolioStateZero = () => {
         <Box
           sx={{
             display: 'flex',
+            alignItems: 'end',
             marginLeft: {
               sm: '0px',
               md: theme.spacing(3),
@@ -167,7 +178,7 @@ export const PortfolioStateZero = () => {
             flexWrap: 'wrap',
           }}
         >
-          {availableSymbols.map((token, index) => (
+          {displaySymbols.map((token, index) => (
             <TokenBox
               key={index}
               theme={theme}
@@ -180,6 +191,15 @@ export const PortfolioStateZero = () => {
               </LabelValue>
             </TokenBox>
           ))}
+          {options && options.length > 0 && (
+            <SimpleDropdown
+              options={options}
+              title={title}
+              altDropdownArrow={true}
+              sx={{ marginTop: theme.spacing(1) }}
+              innerWrapperSx={{ width: '200px', fontSize: '14px' }}
+            />
+          )}
         </Box>
       </TokenContainer>
       <Box
@@ -237,6 +257,7 @@ const TokenBox = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'active',
 })(
   ({ active, theme }: TokenBoxProps) => `
+    height: ${theme.spacing(5.25)};
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -245,6 +266,8 @@ const TokenBox = styled(Box, {
     border-radius: 50px;
     margin-right: ${theme.spacing(2)};
     margin-top: ${theme.spacing(1)};
+    
+    transition: all 0.3s;
     background: ${
       active ? theme.palette.info.light : theme.palette.background.paper
     };
@@ -253,6 +276,10 @@ const TokenBox = styled(Box, {
         ? `1px solid ${theme.palette.primary.light}`
         : theme.shape.borderStandard
     };
+    &:hover {
+      background: ${theme.palette.info.light};
+      border: 1px solid ${theme.palette.primary.light};
+    }
   `
 );
 
@@ -273,6 +300,21 @@ const TokenContainer = styled(Box)(
   ({ theme }) => `
     display: flex;
     margin-top: ${theme.spacing(8)};
+
+    #basic-button {
+      height: ${theme.spacing(5.25)};
+      border: ${theme.shape.borderStandard};
+      background: ${theme.palette.common.white};
+      color: ${theme.palette.typography.main};
+      padding: ${theme.spacing(1, 1.5)};
+      border-radius: 50px;
+      h6 {
+        font-size: 14px;
+        color: black;
+        font-weight: 600;
+      }
+    }
+
     ${theme.breakpoints.down('md')} {
       flex-direction: column;
     }

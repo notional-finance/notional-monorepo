@@ -73,9 +73,6 @@ export const PortfolioFeatureShell = () => {
 
   return !network || isAccountLoading || !yieldsReady ? (
     <PortfolioContainer>
-      <PortfolioSidebar>
-        <SideNav />
-      </PortfolioSidebar>
       <PageLoading
         sx={{
           background: theme.palette.background.paper,
