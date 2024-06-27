@@ -43,10 +43,20 @@ export const ProductCards = ({
             loop
             id="lottie-player"
             src={lottieFile}
-            style={{ width: '158px', height: '178px' }}
+            style={{
+              width: link.includes('borrow') ? '178px' : '158px',
+              height: link.includes('borrow') ? '198px' : '178px',
+            }}
           />
         </Box>
-        <CardContent className="box">
+        <CardContent
+          className="box-two"
+          sx={{
+            transform: link.includes('borrow')
+              ? 'translateY(-68px)'
+              : 'translateY(-48px)',
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
@@ -64,7 +74,7 @@ export const ProductCards = ({
             sx={{
               marginTop: theme.spacing(1),
               fontSize: theme.spacing(2),
-              marginBottom: theme.spacing(3),
+              marginBottom: theme.spacing(3.5),
             }}
           >
             {text}
@@ -91,9 +101,9 @@ export const ProductCards = ({
 const MainContainer = styled(Box)(
   ({ theme }) => `
       min-height: ${theme.spacing(40)};
-      min-width: 352px;
+      min-width: ${theme.spacing(44.25)};
       height: ${theme.spacing(40)};
-      width: 352px;
+      width: ${theme.spacing(44.25)};
       background: #041D2E;
       position: relative;
       overflow: hidden;
@@ -101,16 +111,29 @@ const MainContainer = styled(Box)(
       display: flex;
       justify-content: center;
       border-radius: ${theme.shape.borderRadius()};
-      .box {
+      .box, .box-two {
         position: relative;
       }
       .box::before {
         content: "";
         position: absolute;
         inset: 0;
-        border-radius: 6px; 
-        padding: 2px; 
+        border-radius: ${theme.shape.borderRadius()}; 
+        padding: 1.5px; 
         background: linear-gradient(to top, rgba(0, 0, 0, 0) 50%, #13BBC2 100%); 
+        -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude; 
+      }
+      .box-two::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: ${theme.shape.borderRadius()};
+        padding: 1.5px; 
+        background: linear-gradient(to top, rgba(0, 0, 0, 0) 70%, #13BBC2 100%); 
         -webkit-mask: 
         linear-gradient(#fff 0 0) content-box, 
         linear-gradient(#fff 0 0);
@@ -120,9 +143,7 @@ const MainContainer = styled(Box)(
     `
 );
 
-const CardContainer = styled(Link, {
-  shouldForwardProp: (prop: string) => prop !== 'isLeveraged',
-})(
+const CardContainer = styled(Link)(
   ({ theme }: CardStyleProps) => `
       display: block;
       cursor: pointer;
@@ -173,7 +194,6 @@ const CardContent = styled(Box)(
       cursor: pointer;
       transition: all 0.3s ease;
       background: rgba(4, 29, 46, 0.70);
-      transform: translateY(-36px);
       overflow: hidden;
       ${theme.breakpoints.up(theme.breakpoints.values.sm)} {
         &:hover {

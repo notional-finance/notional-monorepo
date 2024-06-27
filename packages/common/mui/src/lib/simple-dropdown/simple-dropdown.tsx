@@ -11,6 +11,8 @@ export interface SimpleOptionProps {
 export interface SimpleDropdown {
   options: SimpleOptionProps[];
   title: ReactNode;
+  altDropdownArrow?: boolean;
+  innerWrapperSx?: SxProps;
   sx?: SxProps;
 }
 
@@ -44,7 +46,13 @@ export const DropdownOption = ({ label, callback, handleClose }) => {
   );
 };
 
-export function SimpleDropdown({ options, title, sx }: SimpleDropdown) {
+export function SimpleDropdown({
+  options,
+  title,
+  sx,
+  innerWrapperSx,
+  altDropdownArrow,
+}: SimpleDropdown) {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
@@ -80,14 +88,18 @@ export function SimpleDropdown({ options, title, sx }: SimpleDropdown) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              borderRadius: altDropdownArrow ? '50%' : '',
+              background: altDropdownArrow ? theme.palette.info.light : '',
             }}
           >
             <ArrowIcon
               sx={{
                 transform: open ? 'rotate(0deg)' : 'rotate(-180deg)',
                 transition: '.5s ease',
-                width: theme.spacing(2),
-                color: theme.palette.common.white,
+                width: altDropdownArrow ? theme.spacing(1.5) : theme.spacing(2),
+                color: altDropdownArrow
+                  ? theme.palette.secondary.light
+                  : theme.palette.common.white,
               }}
             />
           </Box>
@@ -125,7 +137,7 @@ export function SimpleDropdown({ options, title, sx }: SimpleDropdown) {
           horizontal: 'right',
         }}
       >
-        <InnerWrapper>
+        <InnerWrapper id="inner-dropdown" sx={{ ...innerWrapperSx }}>
           <Box sx={{ margin: 'auto' }}>
             {options.map(({ label, callback }, i) => (
               <DropdownOption

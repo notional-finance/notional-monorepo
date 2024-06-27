@@ -1,43 +1,32 @@
-import { styled, Box } from '@mui/material';
-// import {
-//   LargeInputText,
-//   BodySecondary,
-//   Button,
-//   ProgressIndicator,
-// } from '@notional-finance/mui';
-// import { ExternalLinkIcon } from '@notional-finance/icons';
-// import statsImg from '../images/stats_overlay.svg';
-// import { useStatsData } from './use-stats-data';
-// import { FormattedMessage } from 'react-intl';
-// import { formatNumber } from '@notional-finance/helpers';
-// import { useNotionalContext } from '@notional-finance/notionable-hooks';
-// import { SupportedNetworks } from '@notional-finance/util';
+import { styled, Box, useTheme } from '@mui/material';
+import {
+  LargeInputText,
+  BodySecondary,
+  Button,
+  ProgressIndicator,
+} from '@notional-finance/mui';
+import { ExternalLinkIcon } from '@notional-finance/icons';
+import statsImg from '../images/stats_overlay.svg';
+import { FormattedMessage } from 'react-intl';
+import { formatNumber } from '@notional-finance/helpers';
+import { useHeroStats } from '../use-hero-stats';
 
-// const oneMillion = 1_000_000;
+const oneMillion = 1_000_000;
 
 export const HeroStats = () => {
-  // useStatsData().then((data) => console.log(data));
-  // const theme = useTheme();
-  // const {
-  //   globalState: { heroStats, activeAccounts },
-  // } = useNotionalContext();
-  // const isReady = SupportedNetworks.every(
-  //   (n) => activeAccounts && activeAccounts[n]
-  // );
+  const theme = useTheme();
+  const heroStats = useHeroStats();
 
   return (
     <StatsContainer>
-      {/* <ImgContainer>
+      <ImgContainer>
         <StatsContent>
-          {isReady && heroStats ? (
+          {heroStats ? (
             <div>
               <LargeInputText>
-                {`$${formatNumber(
-                  heroStats.totalValueLocked / oneMillion,
-                  2
-                )}M`}
+                {`$${formatNumber(heroStats.totalDeposits / oneMillion, 2)}M`}
                 <BodySecondary>
-                  <FormattedMessage defaultMessage={'Total Value Locked'} />
+                  <FormattedMessage defaultMessage={'Total Deposits'} />
                 </BodySecondary>
               </LargeInputText>
               <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
@@ -73,7 +62,7 @@ export const HeroStats = () => {
             <ProgressIndicator type="notional" />
           )}
         </StatsContent>
-      </ImgContainer> */}
+      </ImgContainer>
     </StatsContainer>
   );
 };
@@ -105,48 +94,48 @@ const StatsContainer = styled(Box)(
     `
 );
 
-// const ImgContainer = styled(Box)(
-//   ({ theme }) => `
-//       border-image: linear-gradient(to top, ${
-//         theme.palette.primary.light
-//       }, rgba(0, 0, 0, 0)) 50 100%;
-//       padding-top: 0px;
-//       padding-bottom: 0px;
-//       height: 100%;
-//       border-width: 0 0 0 1px;
-//       border-style: solid;
-//       width: 100%;
-//       backdrop-filter: blur(2px);
-//       background: url(${statsImg}) no-repeat;
-//       background-size: ${theme.spacing(50)} 100%;
+const ImgContainer = styled(Box)(
+  ({ theme }) => `
+      border-image: linear-gradient(to top, ${
+        theme.palette.primary.light
+      }, rgba(0, 0, 0, 0)) 50 100%;
+      padding-top: 0px;
+      padding-bottom: 0px;
+      height: 100%;
+      border-width: 0 0 0 1px;
+      border-style: solid;
+      width: 100%;
+      backdrop-filter: blur(2px);
+      background: url(${statsImg}) no-repeat;
+      background-size: ${theme.spacing(50)} 100%;
 
-//       ${theme.breakpoints.down('md')} {
-//         margin-top: 0px;
-//         padding-bottom: ${theme.spacing(6)};
-//       }
-//       ${theme.breakpoints.down('smLanding')} {
-//         background-size: 100% 100%;
-//       }
-//     `
-// );
+      ${theme.breakpoints.down('md')} {
+        margin-top: 0px;
+        padding-bottom: ${theme.spacing(6)};
+      }
+      ${theme.breakpoints.down('smLanding')} {
+        background-size: 100% 100%;
+      }
+    `
+);
 
-// const StatsContent = styled(Box)(
-//   ({ theme }) => `
-//       display: flex;
-//       flex-direction: column;
-//       padding-top: ${theme.spacing(19.75)};
-//       ${theme.breakpoints.down('mdLanding')} {
-//         padding-top: ${theme.spacing(5)};
-//       }
-//       @media(max-height: 800px) {
-//         padding-top: ${theme.spacing(5)};
-//       }
-//       ${theme.breakpoints.down('md')} {
-//         margin: 0 ${theme.spacing(2)} 0 ${theme.spacing(2)}};
-//         align-items: center;
-//         justify-content: center;
-//       }
-//       `
-// );
+const StatsContent = styled(Box)(
+  ({ theme }) => `
+      display: flex;
+      flex-direction: column;
+      padding-top: ${theme.spacing(19.75)};
+      ${theme.breakpoints.down('mdLanding')} {
+        padding-top: ${theme.spacing(5)};
+      }
+      @media(max-height: 800px) {
+        padding-top: ${theme.spacing(5)};
+      }
+      ${theme.breakpoints.down('md')} {
+        margin: 0 ${theme.spacing(2)} 0 ${theme.spacing(2)}};
+        align-items: center;
+        justify-content: center;
+      }
+      `
+);
 
 export default HeroStats;
