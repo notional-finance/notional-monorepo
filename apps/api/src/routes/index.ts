@@ -50,6 +50,10 @@ const handleViews = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.VIEWS_DO, env.VIEWS_NAME);
 };
 
+const handleKPI = (request: IRequest, env: APIEnv) => {
+  return env.ACCOUNT_CACHE_R2.get("kpi")
+};
+
 const handleDataDogForward = async (request: IRequest, _env: APIEnv) => {
   const ddforward = (request.query['ddforward'] as string) || '';
   if (ddforward) {
@@ -94,4 +98,5 @@ export {
   handleDataDogForward,
   handlePlausibleForward,
   handleNOTEData,
+  handleKPI
 };
