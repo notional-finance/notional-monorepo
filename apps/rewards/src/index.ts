@@ -7,6 +7,7 @@ import {
   DEX_ID,
   Network,
   TRADE_TYPE,
+  getNowSeconds,
   getProviderFromNetwork,
   getSubgraphEndpoint,
 } from '@notional-finance/util';
@@ -19,9 +20,9 @@ import {
   treasuryManagerAddresses,
 } from '@notional-finance/util';
 import { simulatePopulatedTxn } from '@notional-finance/transaction';
+import { Logger, MetricType } from '@notional-finance/durable-objects';
 
 type Provider = ethers.providers.Provider;
-
 export interface Env {
   NETWORKS: Array<Network>;
   NETWORK: Network;
@@ -30,6 +31,7 @@ export interface Env {
   AUTH_KEY: string;
   SUBGRAPH_API_KEY: string;
   REWARDS_KV: KVNamespace;
+  NX_DD_API_KEY: string;
 }
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 2;
@@ -84,15 +86,14 @@ async function getLastReinvestment(
   env: Env,
   vault: string
 ): Promise<{ timestamp: number } | null> {
-  return fetch(getSubgraphEndpoint(env.NETWORK, env.SUBGRAPH_API_KEY),
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+  return fetch(getSubgraphEndpoint(env.NETWORK, env.SUBGRAPH_API_KEY), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
 
-      body: JSON.stringify({
-        query: `{
+    body: JSON.stringify({
+      query: `{
           reinvestments(
             orderBy: timestamp,
             orderDirection:desc,
@@ -102,14 +103,13 @@ async function getLastReinvestment(
             timestamp
           }
       }`,
-      }),
-    }
-  )
+    }),
+  })
     .then((r) => r.json())
     .then((r: ReinvestmentData) => r.data.reinvestments[0]);
 }
 
-const max = (a: number, b: number) => a < b ? b : a;
+const max = (a: number, b: number) => (a < b ? b : a);
 
 async function didTimeWindowPassed(
   env: Env,
@@ -121,10 +121,16 @@ async function didTimeWindowPassed(
     await env.REWARDS_KV.get(reinvestTimestampKey)
   );
 
-  const lastReinvestmentTimestampSubgraph = await getLastReinvestment(env, vaultAddress).then(r => r ? Number(r.timestamp) : 0);
+  const lastReinvestmentTimestampSubgraph = await getLastReinvestment(
+    env,
+    vaultAddress
+  ).then((r) => (r ? Number(r.timestamp) : 0));
 
   // take larger timestamp so in case graph is out of sync we would not reinvest each time but is run
-  const lastReinvestmentTimestamp = max(lastReinvestTimestampFromKV, lastReinvestmentTimestampSubgraph);
+  const lastReinvestmentTimestamp = max(
+    lastReinvestTimestampFromKV,
+    lastReinvestmentTimestampSubgraph
+  );
 
   if (lastReinvestmentTimestamp) {
     const currentTimeInSeconds = Date.now() / 1000;
@@ -140,6 +146,27 @@ async function didTimeWindowPassed(
 
 async function setLastReinvestmentTimestamp(env: Env, vaultAddress: string) {
   const reinvestTimestampKey = `${vaultAddress}:reinvestmentTimestamp`;
+  const logger = new Logger({
+    service: 'rewards',
+    version: 'v1',
+    env: env.NETWORK,
+    apiKey: env.NX_DD_API_KEY,
+  });
+  await logger.submitMetrics({
+    series: [
+      {
+        metric: 'monitoring.rewards.last_reinvestment_timestamp',
+        points: [
+          {
+            value: 1,
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${env.NETWORK}`, `vault:${vaultAddress}`],
+        type: MetricType.Count,
+      },
+    ],
+  });
 
   return env.REWARDS_KV.put(reinvestTimestampKey, String(Date.now() / 1000));
 }
@@ -154,6 +181,28 @@ async function shouldSkipReinvest(env: Env, vaultAddress: string) {
 
 async function setLastClaimTimestamp(env: Env, vaultAddress: string) {
   const claimTimestampKey = `${vaultAddress}:claimTimestamp`;
+  const logger = new Logger({
+    service: 'rewards',
+    version: 'v1',
+    env: env.NETWORK,
+    apiKey: env.NX_DD_API_KEY,
+  });
+
+  await logger.submitMetrics({
+    series: [
+      {
+        metric: 'monitoring.rewards.last_claim_timestamp',
+        points: [
+          {
+            value: 1,
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${env.NETWORK}`, `vault:${vaultAddress}`],
+        type: MetricType.Count,
+      },
+    ],
+  });
 
   return env.REWARDS_KV.put(claimTimestampKey, String(Date.now() / 1000));
 }
@@ -291,9 +340,10 @@ const reinvestVault = async (env: Env, provider: Provider, vault: Vault) => {
       continue;
     }
 
-    let amountToSell = await ERC20__factory.connect(sellToken, provider).balanceOf(
-      vault.address
-    );
+    let amountToSell = await ERC20__factory.connect(
+      sellToken,
+      provider
+    ).balanceOf(vault.address);
 
     if (
       vault.maxSellAmount?.[sellToken] &&
