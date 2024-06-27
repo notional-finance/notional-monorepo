@@ -178,12 +178,12 @@ export default class APYSimulator {
         vaultName: await new Contract(vaultData.address, SingleSidedLPVault, provider).name(),
       }),
       network: this.#network,
-      date: new Date(block.timestamp * 1000).toISOString(),
+      date: new Date(prevBlock.timestamp * 1000).toISOString(),
       ///////////////////////////////////////////////////////////////////////
 
       swapFees: poolFeesInPrimary.toString(),
-      blockNumber: block.number,
-      timestamp: block.timestamp,
+      blockNumber: prevBlock.number,
+      timestamp: prevBlock.timestamp,
       vaultAddress: vaultData.address.toLowerCase(),
       poolValuePerShareInPrimary: poolData.poolValuePerShareInPrimary.toString(),
       totalLpTokens: totalLpTokens.toString(),
