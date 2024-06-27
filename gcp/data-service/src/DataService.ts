@@ -259,6 +259,7 @@ export default class DataService {
     operations: SubgraphOperation[]
   ) {
     const blockNumber = await this.getBlockNumberFromTs(network, ts);
+    // TODO: need to catch on bad calls here...
     const results = await Promise.all(
       operations.map((op) => {
         const client = new ApolloClient({
