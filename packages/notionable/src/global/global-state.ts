@@ -152,7 +152,7 @@ interface ApplicationState {
   historicalTrading?: Record<Network, HistoricalTrading>;
   /** Stats for the home page hero section */
   heroStats?: {
-    totalValueLocked: number;
+    totalDeposits: number;
     totalOpenDebt: number;
     totalAccounts: number;
   };

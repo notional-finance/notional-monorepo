@@ -1,4 +1,7 @@
-import { getComposablePoolConfig } from './ComposablePoolConfig';
+import {
+  getComposablePoolConfig,
+  getComposablePoolConfigNoAura,
+} from './ComposablePoolConfig';
 import { Network } from '@notional-finance/util';
 import { SourceType, Strategy, TableName } from '../../types';
 import {
@@ -300,6 +303,21 @@ export const Balancer_Config = [
         Strategy.Arb_Balancer_ezETH_wstETH,
         'wstETH to ETH Price',
         '0x8910333436c7FD1fEa39e8Aef3264471755772F8'
+      ),
+    ]
+  ),
+  getComposablePoolConfigNoAura(
+    '0x58aadfb1afac0ad7fca1148f3cde6aedf5236b6d00000000000000000000067f',
+    '0x58AAdFB1Afac0ad7fca1148f3cdE6aEDF5236B6D',
+    Network.mainnet,
+    Strategy.Eth_Balancer_rsETH_WETH,
+    [EthTokenConfig['rsETH'], EthTokenConfig['WETH']],
+    [
+      getOracleValue(
+        Network.mainnet,
+        Strategy.Eth_Balancer_rsETH_WETH,
+        'rsETH to ETH Price',
+        '0x03c68933f7a3F76875C0bc670a58e69294cDFD01'
       ),
     ]
   ),

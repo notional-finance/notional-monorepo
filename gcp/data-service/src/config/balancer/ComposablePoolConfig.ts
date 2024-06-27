@@ -178,3 +178,65 @@ export function getComposablePoolConfig(
     ...additionalConfigs,
   ];
 }
+
+export function getComposablePoolConfigNoAura(
+  poolId: string,
+  poolAddress: string,
+  network: Network,
+  strategyId: Strategy,
+  tokens: { address: string; symbol: string; decimals: number }[],
+  additionalConfigs: ConfigDefinition[] = []
+): ConfigDefinition[] {
+  return [
+    {
+      sourceType: SourceType.Multicall,
+      sourceConfig: {
+        contractAddress: poolAddress,
+        contractABI: BalancerBoostedPoolABI,
+        method: 'getActualSupply',
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId,
+        variable: 'BPT Supply',
+        decimals: 18,
+      },
+      network,
+    },
+    {
+      sourceType: SourceType.Subgraph,
+      sourceConfig: {
+        protocol: ProtocolName.BalancerV2,
+        query: graphQueries.BalancerV2SwapFee,
+        args: { poolId: poolId.toLowerCase() },
+        transform: (r) =>
+          r.poolSnapshots[0].swapFees - r.poolSnapshots[1].swapFees,
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId,
+        variable: 'Swap fees',
+        decimals: 0,
+      },
+      network,
+    },
+    ...tokens.map(({ address, symbol, decimals }) => ({
+      sourceType: SourceType.Multicall,
+      sourceConfig: {
+        contractAddress: BalancerVault,
+        contractABI: BalancerVaultABI,
+        method: 'getPoolTokenInfo',
+        args: [poolId, address],
+        outputIndices: [0],
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId,
+        variable: `${symbol} balance`,
+        decimals,
+      },
+      network,
+    })),
+    ...additionalConfigs,
+  ];
+}

@@ -160,7 +160,9 @@ export default class VaultV3Liquidator {
         network: this.settings.network,
         title: `Failed Vault Account Health Factors`,
         tags: [`event:failed_vault_account_health`, `vault:${f.vault_id}`],
-        text: `Failed to get vault health for ${f.account_id} in vault ${f.vault_id}`,
+        text: `Failed to get vault health for ${f.account_id} in vault ${
+          f.vault_id
+        } at block: ${(await this.provider.getBlock('latest')).number}`,
       });
     }
 

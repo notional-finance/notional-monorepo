@@ -30,12 +30,9 @@ export const HeroStats = () => {
           {isReady && heroStats ? (
             <div>
               <LargeInputText>
-                {`$${formatNumber(
-                  heroStats.totalValueLocked / oneMillion,
-                  2
-                )}M`}
+                {`$${formatNumber(heroStats.totalDeposits / oneMillion, 2)}M`}
                 <BodySecondary>
-                  <FormattedMessage defaultMessage={'Total Value Locked'} />
+                  <FormattedMessage defaultMessage={'Total Deposits'} />
                 </BodySecondary>
               </LargeInputText>
               <LargeInputText sx={{ marginTop: theme.spacing(6) }}>

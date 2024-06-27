@@ -9,6 +9,9 @@
     "test": "ts-node test/index.test.ts",
     "start-dev": "node -r ts-node/register --env-file=.env src/index.ts"
   },
+  "engines": {
+    "node": "20"
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {

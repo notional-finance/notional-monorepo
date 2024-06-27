@@ -64,7 +64,7 @@ export default class APYSimulator {
     }
     const startingTimestamp = startingDate.getTime() / 1000;
     for (let i = 1; i <= numOfDays; i++) {
-      log(`processing day ${i}`)
+      log(`processing day ${i}, ${startingTimestamp - i * ONE_DAY_IN_SECONDS}`)
       const forkBlock = await this.#getBlockAtTimestamp(startingTimestamp - i * ONE_DAY_IN_SECONDS);
 
       await this.run(forkBlock);
@@ -178,12 +178,12 @@ export default class APYSimulator {
         vaultName: await new Contract(vaultData.address, SingleSidedLPVault, provider).name(),
       }),
       network: this.#network,
-      date: new Date(block.timestamp * 1000).toISOString(),
+      date: new Date(prevBlock.timestamp * 1000).toISOString(),
       ///////////////////////////////////////////////////////////////////////
 
       swapFees: poolFeesInPrimary.toString(),
-      blockNumber: block.number,
-      timestamp: block.timestamp,
+      blockNumber: prevBlock.number,
+      timestamp: prevBlock.timestamp,
       vaultAddress: vaultData.address.toLowerCase(),
       poolValuePerShareInPrimary: poolData.poolValuePerShareInPrimary.toString(),
       totalLpTokens: totalLpTokens.toString(),

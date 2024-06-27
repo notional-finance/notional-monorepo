@@ -16,6 +16,7 @@ import {
   handlePlausibleForward,
   handleAccounts,
   handleNOTEData,
+  handleKPI,
 } from './routes';
 
 export {
@@ -73,6 +74,7 @@ router.get('/:network/exchanges', handleExchanges);
 router.get('/:network/accounts/:view', handleAccounts);
 router.get('/:network/note/:view', handleNOTEData);
 router.get('/:network/vaults', handleVaults);
+router.get('/kpi', handleKPI);
 
 // Fall through catch for 404 errors
 router.all('*', () => new Response('Not Found', { status: 404 }));

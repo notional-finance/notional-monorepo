@@ -411,7 +411,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     );
 
     return {
-      totalValueLocked,
+      totalDeposits: totalValueLocked + totalOpenDebt,
       totalOpenDebt,
       totalAccounts,
     };

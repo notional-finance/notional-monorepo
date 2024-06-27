@@ -29,6 +29,9 @@ yarn start-dev historical network <vaultAddress>
 ## Deploy
 
 ```
+# Run this once to configure the docker registry
+gcloud auth configure-docker us-east1-docker.pkg.dev
+
 ./deploy.sh
 ```
 Check deploy script for additional info about the deployment process

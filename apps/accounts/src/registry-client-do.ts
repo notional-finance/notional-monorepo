@@ -132,6 +132,7 @@ export class RegistryClientDO extends DurableObject {
           // await this.saveContestIRR(network, currentContestId);
         }
       }
+      await this.saveTotalsData()
 
       return new Response('Ok', { status: 200 });
     } catch (error) {
@@ -895,6 +896,49 @@ export class RegistryClientDO extends DurableObject {
             },
           ],
           tags: [`network:${network}`],
+          type: MetricType.Gauge,
+        },
+      ],
+    });
+  }
+
+  private async saveTotalsData() {
+    const kpi = Registry.getAnalyticsRegistry().getKPIs();
+    await this.putStorageKey(`kpi`, JSON.stringify(kpi));
+
+    await this.logger.submitMetrics({
+      series: [
+        {
+          metric: 'monitoring.kpi.total_deposits',
+          points: [
+            {
+              value: kpi.totalDeposits,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [],
+          type: MetricType.Gauge,
+        },
+        {
+          metric: 'monitoring.kpi.open_debt',
+          points: [
+            {
+              value: kpi.totalOpenDebt,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [],
+          type: MetricType.Gauge,
+        },
+        {
+          metric: 'monitoring.kpi.total_accounts',
+          points: [
+            {
+              value: kpi.totalAccounts,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [],
           type: MetricType.Gauge,
         },
       ],

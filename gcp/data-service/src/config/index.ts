@@ -131,6 +131,11 @@ export const EthTokenConfig = {
     symbol: 'USDe',
     decimals: 18,
   },
+  rsETH: {
+    address: '0xa1290d69c65a6fe4df752f95823fae25cb99e5a7',
+    symbol: 'rsETH',
+    decimals: 18,
+  },
 } as const;
 
 export function getOracleValue(

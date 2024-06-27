@@ -22,14 +22,16 @@ import { Curve_Config } from './config/convex';
 
 export const SourceContracts = {};
 
-
 export const defaultConfigDefs: ConfigDefinition[] = [
   ...GenericConfig,
   ...Balancer_Config,
   ...Curve_Config,
 ];
 
-export const defaultGraphEndpoints: () => Record<string, Record<string, string>> = () => {
+export const defaultGraphEndpoints: () => Record<
+  string,
+  Record<string, string>
+> = () => {
   const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
 
   return {
@@ -43,11 +45,11 @@ export const defaultGraphEndpoints: () => Record<string, Record<string, string>>
     },
     [ProtocolName.Curve]: {
       [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF`,
-      // not deployed yet....
-      [Network.arbitrum]:
-        'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
+      // NOTE: there is no subgraph for curve on arbitrum anymore
+      // [Network.arbitrum]:
+      //   'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
     },
-  }
+  };
 };
 
 export const defaultDataWriters: Record<string, IDataWriter> = {
@@ -187,16 +189,16 @@ export function buildOperations(
       }
       const endpoint =
         defaultGraphEndpoints()[configData.protocol.toString()][
-        cfg.network.toString()
+          cfg.network.toString()
         ];
-      if (!endpoint) {
-        throw Error(`subgraph ${endpoint} not found`);
+
+      if (endpoint) {
+        operations.push({
+          configDef: cfg,
+          subgraphQuery: gql(configData.query),
+          endpoint: endpoint,
+        });
       }
-      operations.push({
-        configDef: cfg,
-        subgraphQuery: gql(configData.query),
-        endpoint: endpoint,
-      });
     } else {
       throw Error('Invalid source type');
     }
