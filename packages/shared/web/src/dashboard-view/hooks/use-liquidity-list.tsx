@@ -6,7 +6,7 @@ import {
 import { formatMaturity } from '@notional-finance/util';
 import {
   useAllMarkets,
-  useFiat,
+  useUserSettings,
   useAccountDefinition,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
@@ -30,7 +30,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
     yields: { liquidity },
   } = useAllMarkets(network);
   const allMaxAPYs = useMaxYield(network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const account = useAccountDefinition(network);
   let yieldData = liquidity as YieldData[];
 

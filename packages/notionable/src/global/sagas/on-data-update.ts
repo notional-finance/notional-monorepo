@@ -4,7 +4,7 @@ import {
   fCashMarket,
   HistoricalTrading,
 } from '@notional-finance/core-entities';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatNumberAsPercent, getFromLocalStorage } from '@notional-finance/helpers';
 import {
   Network,
   SECONDS_IN_DAY,
@@ -22,6 +22,7 @@ import {
 import { CalculatedPriceChanges, GlobalState } from '../global-state';
 import { globalWhenAppReady$ } from './on-app-load';
 import { getIndexedYields } from '../data/yields';
+const userSettings = getFromLocalStorage('userSettings');
 
 export function onDataUpdate(global$: Observable<GlobalState>) {
   return merge(
@@ -63,22 +64,22 @@ function onPriceChangeUpdate$(global$: Observable<GlobalState>) {
     switchMap((networks) => {
       return timer(0, 60_000).pipe(
         withLatestFrom(global$),
-        map(([_, global]) => ({
+        map(([_]) => ({
           priceChanges: networks.reduce((acc, n) => {
             if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
               acc[n] = {
                 oneDay: Registry.getAnalyticsRegistry().getPriceChanges(
-                  global.baseCurrency,
+                  userSettings.baseCurrency,
                   n,
                   SECONDS_IN_DAY
                 ),
                 threeDay: Registry.getAnalyticsRegistry().getPriceChanges(
-                  global.baseCurrency,
+                  userSettings.baseCurrency,
                   n,
                   SECONDS_IN_DAY * 3
                 ),
                 sevenDay: Registry.getAnalyticsRegistry().getPriceChanges(
-                  global.baseCurrency,
+                  userSettings.baseCurrency,
                   n,
                   SECONDS_IN_DAY * 7
                 ),

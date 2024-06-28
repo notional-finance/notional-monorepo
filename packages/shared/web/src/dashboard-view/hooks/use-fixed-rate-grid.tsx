@@ -1,5 +1,8 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useUserSettings,
+} from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -9,7 +12,7 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
     yields: { fCashLend, fCashBorrow },
   } = useAllMarkets(network);
   const history = useHistory();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const tokenObj = {};
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
   const yieldData = isBorrow ? fCashBorrow : fCashLend;

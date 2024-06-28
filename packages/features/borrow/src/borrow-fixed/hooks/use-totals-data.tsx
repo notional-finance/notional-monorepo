@@ -5,7 +5,7 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import {
-  useFiat,
+  useUserSettings,
   useAllMarkets,
   useTotalHolders,
 } from '@notional-finance/notionable-hooks';
@@ -15,7 +15,7 @@ export const useTotalsData = (
   debt: TokenDefinition | undefined
 ) => {
   const data = useAllMarkets(deposit?.network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const {
     yields: { fCashBorrow },
   } = data;

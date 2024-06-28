@@ -15,12 +15,15 @@ import {
   useVaultFaq,
 } from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
-import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useUserSettings,
+} from '@notional-finance/notionable-hooks';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const {
     vaultAddress,
     totalCapacityRemaining,

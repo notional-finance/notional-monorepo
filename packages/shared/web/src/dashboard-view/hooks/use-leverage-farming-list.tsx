@@ -6,7 +6,7 @@ import {
 import { VAULT_TYPES, formatMaturity } from '@notional-finance/util';
 import {
   useAllMarkets,
-  useFiat,
+  useUserSettings,
   useAllVaults,
   useAccountDefinition,
   useVaultHoldings,
@@ -32,7 +32,7 @@ export const useLeverageFarmingList = (
     getMax,
   } = useAllMarkets(network);
   const listedVaults = useAllVaults(network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const account = useAccountDefinition(network);
   const vaultHoldings = useVaultHoldings(network);
 

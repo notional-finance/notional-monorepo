@@ -16,7 +16,12 @@ import { WalletSelector } from '@notional-finance/wallet';
 import { Box, CssBaseline, styled } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useIntercom } from 'react-use-intercom';
-import { META_TAG_CATEGORIES, RouteType } from '@notional-finance/util';
+import {
+  META_TAG_CATEGORIES,
+  RouteType,
+  THEME_VARIANTS,
+  getFromLocalStorage,
+} from '@notional-finance/util';
 import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { usePageTrack } from '@notional-finance/helpers';
 import { useLocation } from 'react-router';
@@ -34,14 +39,14 @@ const AppLayoutRoute = ({
   landingLayout?: boolean;
 }) => {
   const globalState = useGlobalContext();
-  const {
-    state: { themeVariant },
-  } = globalState;
-
+  const userSettings = getFromLocalStorage('userSettings');
+  const defaultThemeVariant = userSettings?.themeVariant
+    ? userSettings?.themeVariant
+    : THEME_VARIANTS.LIGHT;
   const location = useLocation();
   const { boot } = useIntercom();
   const selectedNetwork = useWalletConnectedNetwork();
-  const notionalTheme = useNotionalTheme(themeVariant);
+  const notionalTheme = useNotionalTheme(defaultThemeVariant);
   usePageTrack(routeType, selectedNetwork);
 
   const slicedPath = path

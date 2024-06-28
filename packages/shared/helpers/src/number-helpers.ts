@@ -1,5 +1,5 @@
 import { RATE_PRECISION } from '@notional-finance/util';
-import { FiatSymbols, FIAT_NAMES } from '@notional-finance/core-entities';
+import { FiatSymbols } from '@notional-finance/core-entities';
 
 const allCommas = /,{1}/g;
 

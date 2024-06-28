@@ -6,7 +6,7 @@ import {
 import { FiatSymbols } from '@notional-finance/core-entities';
 import {
   useAccountCurrentFactors,
-  useFiat,
+  useUserSettings,
 } from '@notional-finance/notionable-hooks';
 import {
   BarConfigProps,
@@ -23,11 +23,10 @@ import {
   getNowSeconds,
 } from '@notional-finance/util';
 import { colors } from '@notional-finance/styles';
-import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useTotalsChart = () => {
-  const baseCurrency = useFiat();
+  const { baseCurrency, themeVariant } = useUserSettings();
   const windowDimensions = useWindowDimensions();
   const network = useSelectedNetwork();
   const { currentAPY, netWorth, debts, assets } =
@@ -47,7 +46,6 @@ export const useTotalsChart = () => {
     getNowSeconds(),
     SECONDS_IN_DAY * 3
   );
-  const themeVariant = useThemeVariant();
 
   const barChartData = historyData?.map(
     ({ assets, debts, netWorth, timestamp }) => {

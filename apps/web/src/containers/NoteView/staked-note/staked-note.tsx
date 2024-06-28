@@ -22,7 +22,10 @@ import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import { TokenIcon, WalletIcon } from '@notional-finance/icons';
 import { useStakedNote } from './use-staked-note';
-import { StakedNoteData, useFiat } from '@notional-finance/notionable-hooks';
+import {
+  StakedNoteData,
+  useUserSettings,
+} from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useState } from 'react';
@@ -35,7 +38,7 @@ interface StakedNoteProps {
 export const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
   const theme = useTheme();
   const [dateRange, setDateRange] = useState(ValidDateRanges[1].value);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const {
     currentSNOTEPrice,
     totalSNOTEValue,

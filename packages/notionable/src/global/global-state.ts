@@ -3,15 +3,12 @@ import {
   TransactionResponse,
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
-import { THEME_VARIANTS } from '@notional-finance/util';
 import {
   AccountDefinition,
-  FiatKeys,
   PriceChange,
   TokenDefinition,
   HistoricalTrading,
 } from '@notional-finance/core-entities';
-import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer, ethers } from 'ethers';
 import {
   CurrentFactors,
@@ -23,8 +20,6 @@ import { AccruedIncentives, TotalIncentives } from './account/incentives';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { Community } from './account/communities';
 import { getIndexedYields } from './data/yields';
-
-const userSettings = getFromLocalStorage('userSettings');
 
 export enum COMMUNITY_NAMES {
   DEGEN_SCORE = 'DEGEN_SCORE',
@@ -132,6 +127,7 @@ interface AddressState {
 
 /** This is associated with the overall application state */
 interface ApplicationState {
+  country?: string;
   /** If waiting for the site to load initially */
   networkState?: Record<Network, NetworkLoadingState>;
   /** URL of the cache hostname */
@@ -152,12 +148,12 @@ interface ApplicationState {
 }
 
 /** These settings are associated with the user directly */
-interface UserSettingsState {
-  themeVariant: THEME_VARIANTS;
-  baseCurrency: FiatKeys;
-  /** Which country is the user located in */
-  country?: string;
-}
+// interface UserSettingsState {
+//   themeVariant: THEME_VARIANTS;
+//   baseCurrency: FiatKeys;
+//   /** Which country is the user located in */
+//   country?: string;
+// }
 
 interface ErrorState {
   error?: NotionalError;
@@ -167,16 +163,11 @@ export interface GlobalState
   extends Record<string, unknown>,
     ApplicationState,
     AddressState,
-    UserSettingsState,
     TransactionState,
     ErrorState {}
 
 export const initialGlobalState: GlobalState = {
   cacheHostname: CACHE_HOSTNAME,
-  themeVariant: userSettings?.themeVariant
-    ? userSettings?.themeVariant
-    : THEME_VARIANTS.LIGHT,
-  baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
   isSanctionedAddress: false,
   isAccountPending: false,
   sentTransactions: [],

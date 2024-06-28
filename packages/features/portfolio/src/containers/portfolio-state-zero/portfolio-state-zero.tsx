@@ -310,7 +310,7 @@ const TokenContainer = styled(Box)(
       border-radius: 50px;
       h6 {
         font-size: 14px;
-        color: black;
+        color: ${theme.palette.typography.main};
         font-weight: 600;
       }
     }

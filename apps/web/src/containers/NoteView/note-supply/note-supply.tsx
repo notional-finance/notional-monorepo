@@ -18,7 +18,10 @@ import {
 } from '../components';
 import { FormattedMessage } from 'react-intl';
 import { useNoteSupply } from './use-note-supply';
-import { NoteSupplyData, useFiat } from '@notional-finance/notionable-hooks';
+import {
+  NoteSupplyData,
+  useUserSettings,
+} from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useState } from 'react';
 
 interface NoteSupplyProps {
@@ -27,7 +30,7 @@ interface NoteSupplyProps {
 
 export const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
   const theme = useTheme();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const [dateRange, setDateRange] = useState(ValidDateRanges[2].value);
   const {
     noteHistoricalSupply,

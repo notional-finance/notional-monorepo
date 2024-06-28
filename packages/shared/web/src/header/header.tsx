@@ -21,7 +21,7 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
   useNotionalContext,
   useSelectedNetwork,
-  // useThemeVariant,
+  // useUserSettings,
   // showContestNavLink,
 } from '@notional-finance/notionable-hooks';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
@@ -36,7 +36,7 @@ export interface HeaderProps extends AppBarProps {}
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
   // const history = useHistory();
-  // const themeVariant = useThemeVariant();
+  // const { themeVariant } = useUserSettings();
   const selectedNetwork = useSelectedNetwork();
   const [hideError, setHideError] = useState(false);
   const hideSubGraphError = getFromLocalStorage('hideSubGraphError');

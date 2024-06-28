@@ -20,7 +20,7 @@ import {
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   formatHealthFactorValues,
-  useFiat,
+  useUserSettings,
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
@@ -65,7 +65,7 @@ export const useVaultHoldingsTable = () => {
   const [toggleOption, setToggleOption] = useState<number>(0);
   const isBlocked = useLeverageBlock();
   const theme = useTheme();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const history = useHistory();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);

@@ -3,7 +3,7 @@ import { Box, styled } from '@mui/material';
 import { Player } from '@lottiefiles/react-lottie-player';
 import { colors, NotionalTheme } from '@notional-finance/styles';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useThemeVariant } from '@notional-finance/notionable-hooks';
+import { useUserSettings } from '@notional-finance/notionable-hooks';
 import { ArrowRightIcon } from '@notional-finance/icons';
 import { Link } from 'react-router-dom';
 import { H3, Body } from '@notional-finance/mui';
@@ -31,7 +31,7 @@ export const ProductCards = ({
   linkTitle,
   lottieFile,
 }: ProductCardsProps) => {
-  const themeVariant = useThemeVariant();
+  const { themeVariant } = useUserSettings();
   const theme = useNotionalTheme(themeVariant, 'landing');
 
   return (

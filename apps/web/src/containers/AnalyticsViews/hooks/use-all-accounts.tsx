@@ -8,7 +8,7 @@ import {
 import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
   formatHealthFactorValues,
-  useFiat,
+  useUserSettings,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
@@ -53,7 +53,7 @@ export const useAllAccounts = (selectedNetwork: Network) => {
     undefined
   );
   const { updateNotional } = useNotionalContext();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const history = useHistory();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [crossCurrencyRiskOptions, setCrossCurrencyRiskOptions] = useState([]);

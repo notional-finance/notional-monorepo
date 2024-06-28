@@ -9,7 +9,7 @@ import { ExpandedState } from '@tanstack/react-table';
 import { useTheme } from '@mui/material';
 import {
   useSelectedNetwork,
-  useFiat,
+  useUserSettings,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -54,7 +54,7 @@ export function useVaultEarnings(isGrouped: boolean) {
   const theme = useTheme();
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const network = useSelectedNetwork();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const vaults = useVaultHoldings(network);
 
   const Columns = useMemo<DataTableColumn[]>(

@@ -2,7 +2,7 @@ import { AssetSelectDropdown } from '@notional-finance/mui';
 import { useCallback, useMemo } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import {
-  useFiat,
+  useUserSettings,
   BaseTradeContext,
   usePortfolioRiskProfile,
   usePrimeDebt,
@@ -32,7 +32,7 @@ export const PortfolioHoldingSelect = ({
   filterBalances,
   isWithdraw,
 }: PortfolioHoldingSelectProps) => {
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const theme = useTheme();
   const {
     state: { collateral, debt, selectedNetwork, deposit },

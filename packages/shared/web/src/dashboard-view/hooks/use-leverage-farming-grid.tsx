@@ -3,7 +3,7 @@ import {
   useAllVaults,
   useVaultHoldings,
   useAllMarkets,
-  useFiat,
+  useUserSettings,
 } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
@@ -18,7 +18,7 @@ export const useLeveragedFarmingGrid = (
   currentVaultType: VAULT_TYPES
 ): DashboardGridProps => {
   const history = useHistory();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);

@@ -8,7 +8,7 @@ import {
   MessageCell,
 } from '@notional-finance/mui';
 import {
-  useFiat,
+  useUserSettings,
   useNotePrice,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
@@ -25,7 +25,7 @@ export function usePortfolioNOTETable() {
     globalState: { networkAccounts },
   } = useNotionalContext();
 
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
 
   const result = SupportedNetworks.map((network) => {
     const account = networkAccounts

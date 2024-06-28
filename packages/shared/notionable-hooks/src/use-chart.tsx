@@ -11,7 +11,7 @@ import {
   floorToMidnight,
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
-import { useFiat } from './use-user-settings';
+import { useUserSettings } from './use-user-settings';
 import { useMemo } from 'react';
 import { useAnalyticsReady, useNotionalContext } from './use-notional';
 
@@ -190,7 +190,7 @@ export function useAccountHistoryChart(
   tickSizeInSeconds: number
 ) {
   const account = useAccountDefinition(network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   if (!account) return undefined;
 
   const allHistoricalSnapshots =

@@ -5,7 +5,7 @@ import {
 } from '@notional-finance/helpers';
 import {
   useAllMarkets,
-  useFiat,
+  useUserSettings,
   useAccountDefinition,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
@@ -22,7 +22,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
   const {
     yields: { fCashLend, fCashBorrow, variableBorrow, variableLend },
   } = useAllMarkets(network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const account = useAccountDefinition(network);
   const isBorrow =
     product === PRODUCTS.BORROW_FIXED || product === PRODUCTS.BORROW_VARIABLE;

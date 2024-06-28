@@ -29,7 +29,8 @@ import {
 } from '../account/communities';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { isAppReady } from '../../utils';
-import { identify } from '@notional-finance/helpers';
+import { identify, getFromLocalStorage } from '@notional-finance/helpers';
+const userSettings = getFromLocalStorage('userSettings');
 
 export function onWalletConnect(global$: Observable<GlobalState>) {
   return merge(
@@ -187,7 +188,7 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
                 currentFactors: calculateAccountCurrentFactors(
                   portfolioHoldings,
                   vaultHoldings,
-                  g.baseCurrency
+                  userSettings.baseCurrency
                 ),
               };
             }

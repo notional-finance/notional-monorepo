@@ -10,7 +10,7 @@ import { useTheme } from '@mui/material';
 import {
   useSelectedNetwork,
   usePortfolioHoldings,
-  useFiat,
+  useUserSettings,
   useGroupedHoldings,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -58,7 +58,7 @@ export function useEarningsBreakdown(isGrouped: boolean) {
   const theme = useTheme();
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const network = useSelectedNetwork();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const holdings = usePortfolioHoldings(network);
   const groupedHoldings = useGroupedHoldings(network) || [];
 

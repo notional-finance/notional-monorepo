@@ -1,7 +1,7 @@
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
 import { Network, SupportedNetworks } from '@notional-finance/util';
-import { useFiatToken } from './use-user-settings';
+import { useUserSettings } from './use-user-settings';
 
 /** Contains selectors for account holdings information */
 function useNetworkAccounts(network: Network | undefined) {
@@ -100,7 +100,7 @@ export function usePortfolioLiquidationPrices(network: Network | undefined) {
 }
 
 export function useAccountCurrentFactors(network: Network | undefined) {
-  const fiatToken = useFiatToken();
+  const { fiatToken } = useUserSettings();
   const emptyFactors = {
     currentAPY: undefined,
     netWorth: TokenBalance.zero(fiatToken),
@@ -112,7 +112,7 @@ export function useAccountCurrentFactors(network: Network | undefined) {
 }
 
 export function useAccountNetWorth() {
-  const fiatToken = useFiatToken();
+  const { fiatToken } = useUserSettings();
   const {
     globalState: { networkAccounts },
   } = useNotionalContext();

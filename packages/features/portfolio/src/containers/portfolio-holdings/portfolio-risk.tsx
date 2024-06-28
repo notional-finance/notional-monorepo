@@ -15,7 +15,7 @@ import {
   useAccountDefinition,
   useAccountReady,
   useCurrentLiquidationPrices,
-  useFiat,
+  useUserSettings,
   usePortfolioRiskProfile,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
@@ -45,7 +45,7 @@ export const PortfolioRisk = () => {
   const isAccountReady = useAccountReady(network);
   const profile = usePortfolioRiskProfile(network);
   const account = useAccountDefinition(network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const loanToValue = profile?.loanToValue();
   const healthFactor = profile ? profile.healthFactor() : null;
   const { exchangeRateRisk, assetPriceRisk } =

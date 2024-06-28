@@ -13,7 +13,7 @@ import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
   formatHealthFactorValues,
   useAllVaults,
-  useFiat,
+  useUserSettings,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
@@ -49,7 +49,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
     VaultAccountData[] | undefined
   >(undefined);
   const { updateNotional } = useNotionalContext();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const history = useHistory();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [vaultNameOptions, setVaultNameOptions] = useState([]);

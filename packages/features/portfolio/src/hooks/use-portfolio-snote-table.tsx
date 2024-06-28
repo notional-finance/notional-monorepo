@@ -9,7 +9,7 @@ import {
 import { TotalEarningsTooltip } from '../components';
 import {
   useAccountDefinition,
-  useFiat,
+  useUserSettings,
   useStakedNOTEPoolReady,
   useStakedNoteData,
 } from '@notional-finance/notionable-hooks';
@@ -29,7 +29,7 @@ export function usePortfolioSNOTETable() {
   const snoteBalance = account?.balances.find((t) => t.symbol === 'sNOTE');
   const isPoolReady = useStakedNOTEPoolReady();
   const stakedNoteData = useStakedNoteData();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   let result: any[] = [];
   const noStakedNoteData = snoteBalance === undefined || snoteBalance.isZero();
 

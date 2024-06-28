@@ -6,7 +6,7 @@ import {
   PriceChange,
 } from '@notional-finance/core-entities';
 import { usePortfolioLiquidationPrices, useVaultHoldings } from './use-account';
-import { useFiat } from './use-user-settings';
+import { useUserSettings } from './use-user-settings';
 import {
   formatNumberAsPercent,
   formatTokenType,
@@ -166,7 +166,7 @@ export function useNotePrice() {
 export function useCurrentLiquidationPrices(network: Network | undefined) {
   const portfolio = usePortfolioLiquidationPrices(network);
   const vaults = useVaultHoldings(network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const { oneDay, sevenDay } = usePriceChanges(network);
   const theme = useTheme();
   const secondary = (theme as NotionalTheme).palette.typography.light;

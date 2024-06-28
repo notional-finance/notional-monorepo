@@ -14,7 +14,7 @@ import {
 import {
   useAllMarkets,
   useFCashMarket,
-  useFiat,
+  useUserSettings,
 } from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -26,7 +26,7 @@ export const useReturnDriversTable = () => {
     state: { deposit, selectedDepositToken, selectedNetwork },
   } = useContext(LiquidityContext);
   const { yields } = useAllMarkets(selectedNetwork);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const fCashData = useFCashMarket(deposit);
 
   const liquidityData = yields.liquidity.find(

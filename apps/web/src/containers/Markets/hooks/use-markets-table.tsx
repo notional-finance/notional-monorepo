@@ -14,7 +14,7 @@ import {
 } from '@notional-finance/mui';
 import {
   useAllNetworkMarkets,
-  useFiat,
+  useUserSettings,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
 import {
@@ -31,7 +31,7 @@ export const useMarketsTable = (
   productOptions: SelectedOptions[]
 ) => {
   const theme = useTheme();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const { earnYields, borrowYields } = useAllNetworkMarkets();
 
   let tableColumns: DataTableColumn[] = [

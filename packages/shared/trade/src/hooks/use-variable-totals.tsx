@@ -3,7 +3,7 @@ import { FiatSymbols } from '@notional-finance/core-entities';
 import { InfoTooltip } from '@notional-finance/mui';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
-  useFiat,
+  useUserSettings,
   useTokenHistory,
   usePrimeCash,
   usePrimeDebt,
@@ -30,7 +30,7 @@ export const useVariableTotals = (state: TradeState) => {
   const theme = useTheme();
   const { deposit } = state;
   const isBorrow = state.tradeType === 'BorrowVariable';
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
   const { apyData } = useTokenHistory(state.debt);
 

@@ -8,7 +8,7 @@ import { InfoTooltip } from '@notional-finance/mui';
 import { SparklesIcon } from '@notional-finance/icons';
 import {
   useAllMarkets,
-  useFiat,
+  useUserSettings,
   useMaxSupply,
 } from '@notional-finance/notionable-hooks';
 import { SxProps, useTheme } from '@mui/material';
@@ -20,7 +20,7 @@ export const useTotalsData = (
 ) => {
   const theme = useTheme();
   const { yields } = useAllMarkets(deposit?.network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useUserSettings();
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
   const liquidityYieldData = nTokenAmount
     ? Registry.getYieldRegistry().getSimulatedNTokenYield(nTokenAmount)

@@ -7,8 +7,7 @@ import {
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
 import {
-  useFiat,
-  useFiatToken,
+  useUserSettings,
   useNOTE,
   usePendingPnLCalculation,
   usePortfolioHoldings,
@@ -30,8 +29,8 @@ export function useDetailedHoldingsTable() {
     ({ tokens }) => tokens
   );
   const history = useHistory();
-  const baseCurrency = useFiat();
-  const fiatToken = useFiatToken();
+  const { baseCurrency } = useUserSettings();
+  const { fiatToken } = useUserSettings();
   const NOTE = useNOTE(network);
 
   return useMemo(() => {
