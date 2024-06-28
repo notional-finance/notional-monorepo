@@ -46,7 +46,7 @@ export function getComposablePoolConfig(
   tokens: { address: string; symbol: string; decimals: number }[],
   additionalConfigs: ConfigDefinition[] = []
 ): ConfigDefinition[] {
-  return [
+  const config = [
     {
       sourceType: SourceType.Multicall,
       sourceConfig: {
@@ -125,23 +125,6 @@ export function getComposablePoolConfig(
       network,
     },
     {
-      sourceType: SourceType.Multicall,
-      sourceConfig: {
-        contractAddress: MainnetGaugeControllerAddress,
-        contractABI: BalancerGaugeControllerABI,
-        method: 'gauge_relative_weight(address)',
-        args: [gaugeWeightAddress],
-      },
-      tableName: TableName.GenericData,
-      dataConfig: {
-        strategyId,
-        variable: 'Gauge vote weight',
-        decimals: 18,
-      },
-      // NOTE: this is always on mainnet
-      network: Network.mainnet,
-    },
-    {
       sourceType: SourceType.Subgraph,
       sourceConfig: {
         protocol: ProtocolName.BalancerV2,
@@ -177,6 +160,28 @@ export function getComposablePoolConfig(
     })),
     ...additionalConfigs,
   ];
+
+  if (gaugeWeightAddress) {
+    config.push({
+      sourceType: SourceType.Multicall,
+      sourceConfig: {
+        contractAddress: MainnetGaugeControllerAddress,
+        contractABI: BalancerGaugeControllerABI,
+        method: 'gauge_relative_weight(address)',
+        args: [gaugeWeightAddress],
+      },
+      tableName: TableName.GenericData,
+      dataConfig: {
+        strategyId,
+        variable: 'Gauge vote weight',
+        decimals: 18,
+      },
+      // NOTE: this is always on mainnet
+      network: Network.mainnet,
+    });
+  }
+
+  return config;
 }
 
 export function getComposablePoolConfigNoAura(
