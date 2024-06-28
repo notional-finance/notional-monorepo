@@ -2,19 +2,15 @@ import { styled, Box, useTheme } from '@mui/material';
 import { Body, H1, Button } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { Network } from '@notional-finance/util';
+import { useConnectWallet } from '@web3-onboard/react';
 import { FormattedMessage } from 'react-intl';
-// import {
-//   useAccountAndBalanceReady,
-//   useWalletConnectedNetwork,
-// } from '@notional-finance/notionable-hooks';
-// import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+import { useParams } from 'react-router';
 
 export const HeroContent = () => {
   const theme = useTheme();
-  // const defaultNetwork =
-  //   useWalletConnectedNetwork() ||
-  //   getDefaultNetworkFromHostname(window.location.hostname);
-  // const isAcctAndBalanceReady = useAccountAndBalanceReady(defaultNetwork);
+  const params = useParams<any>();
+  const [{ wallet }] = useConnectWallet();
+  const network = params?.selectedNetwork || Network.mainnet;
 
   return (
     <ContentWrapper>
@@ -32,7 +28,11 @@ export const HeroContent = () => {
       <ButtonContainer>
         <Button
           size="large"
-          to={`/portfolio/${Network.mainnet}/welcome`}
+          to={
+            wallet?.accounts[0].address
+              ? `/portfolio/${network}/overview`
+              : `/portfolio/${network}/welcome`
+          }
           sx={{
             marginRight: theme.spacing(6),
           }}

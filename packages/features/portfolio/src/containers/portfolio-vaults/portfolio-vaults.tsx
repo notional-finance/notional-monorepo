@@ -4,7 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { useVaultHoldingsTable, useVaultRiskTable } from '../../hooks';
 import { Box } from '@mui/material';
 import { useState } from 'react';
-import { useVaultEarnings } from './use-vault-earnings';
+// import { useVaultEarnings } from './use-vault-earnings';
 
 export const PortfolioVaults = () => {
   const [currentTab, setCurrentTab] = useState(0);
@@ -15,9 +15,9 @@ export const PortfolioVaults = () => {
     toggleBarProps,
     initialState,
   } = useVaultHoldingsTable();
-  const { earningsBreakdownColumns, earningsBreakdownData } = useVaultEarnings(
-    toggleBarProps.toggleOption === 0
-  );
+  // const { earningsBreakdownColumns, earningsBreakdownData } = useVaultEarnings(
+  //   toggleBarProps.toggleOption === 0
+  // );
   const { riskTableData, riskTableColumns, initialRiskState } =
     useVaultRiskTable();
 
@@ -25,9 +25,9 @@ export const PortfolioVaults = () => {
     {
       title: <FormattedMessage defaultMessage="Positions" />,
     },
-    {
-      title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
-    },
+    // {
+    //   title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
+    // },
     {
       title: <FormattedMessage defaultMessage="Liquidation Risk" />,
     },
@@ -39,11 +39,11 @@ export const PortfolioVaults = () => {
       data: vaultHoldingsData,
       initialState,
     },
+    // 1: {
+    //   columns: earningsBreakdownColumns,
+    //   data: earningsBreakdownData,
+    // },
     1: {
-      columns: earningsBreakdownColumns,
-      data: earningsBreakdownData,
-    },
-    2: {
       columns: riskTableColumns,
       data: riskTableData,
       initialState: initialRiskState,
