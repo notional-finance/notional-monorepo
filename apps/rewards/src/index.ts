@@ -1,3 +1,4 @@
+import url from 'url';
 import {
   TreasuryManager__factory,
   ERC20__factory,
@@ -220,47 +221,49 @@ async function shouldSkipClaim(env: Env, vaultAddress: string) {
   return Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
 }
 
-const claimRewards = async (env: Env, provider: Provider) => {
+const claimVault = async (env: Env, provider: Provider, vault: Vault, force = false) => {
   const treasuryManger = TreasuryManager__factory.connect(
     treasuryManagerAddresses[env.NETWORK],
     provider
   );
 
+  if (!force && await shouldSkipClaim(env, vault.address)) {
+    console.log(
+      `Skipping claim rewards for ${vault.address}, already claimed`
+    );
+    return null;
+  }
+
+  const from = managerBotAddresses[env.NETWORK];
+  const to = treasuryManagerAddresses[env.NETWORK];
+  // make sure call will be successful
+  await treasuryManger.callStatic.claimVaultRewardTokens(vault.address, {
+    from,
+  });
+
+  const data = treasuryManger.interface.encodeFunctionData(
+    'claimVaultRewardTokens',
+    [vault.address]
+  );
+
+  const tx: PopulatedTransaction = { from, to, data };
+  if (!(await isClaimRewardsProfitable(env, vault, tx))) {
+    console.log(
+      `Skipping claim rewards for ${vault.address}, not profitable`
+    );
+    return null;
+  }
+
+  console.log(`Sending claim tx for ${vault.address}`);
+
+  await sendTxThroughRelayer({ to, data, env });
+
+  await setLastClaimTimestamp(env, vault.address);
+}
+
+const claimRewards = async (env: Env, provider: Provider) => {
   const results = await Promise.allSettled(
-    vaults[env.NETWORK].map(async (vault: Vault) => {
-      if (await shouldSkipClaim(env, vault.address)) {
-        console.log(
-          `Skipping claim rewards for ${vault.address}, already claimed`
-        );
-        return null;
-      }
-
-      const from = managerBotAddresses[env.NETWORK];
-      const to = treasuryManagerAddresses[env.NETWORK];
-      // make sure call will be successful
-      await treasuryManger.callStatic.claimVaultRewardTokens(vault.address, {
-        from,
-      });
-
-      const data = treasuryManger.interface.encodeFunctionData(
-        'claimVaultRewardTokens',
-        [vault.address]
-      );
-
-      const tx: PopulatedTransaction = { from, to, data };
-      if (!(await isClaimRewardsProfitable(env, vault, tx))) {
-        console.log(
-          `Skipping claim rewards for ${vault.address}, not profitable`
-        );
-        return null;
-      }
-
-      console.log(`Sending claim tx for ${vault.address}`);
-
-      await sendTxThroughRelayer({ to, data, env });
-
-      await setLastClaimTimestamp(env, vault.address);
-    })
+    vaults[env.NETWORK].map((vault) => claimVault(env, provider, vault))
   );
 
   const failedClaims = results.filter(
@@ -325,8 +328,8 @@ const getTrades = async (
   );
 };
 
-const reinvestVault = async (env: Env, provider: Provider, vault: Vault) => {
-  if (await shouldSkipReinvest(env, vault.address)) {
+const reinvestVault = async (env: Env, provider: Provider, vault: Vault, force = false) => {
+  if (!force && await shouldSkipReinvest(env, vault.address)) {
     console.log(`Skipping reinvestment for ${vault.address}, already invested`);
     return null;
   }
@@ -443,6 +446,13 @@ const reinvestRewards = async (env: Env, provider: Provider) => {
   }
 };
 
+enum Action {
+  claim = 'claim',
+  reinvest = 'reinvest'
+}
+
+type QueryParams = { network: Network, vaultAddress: string, action: Action, force: boolean };
+
 export default {
   async fetch(
     request: Request,
@@ -455,14 +465,28 @@ export default {
       console.log('Cf: ', request['cf']);
       return new Response(null, { status: 401 });
     }
+    const { network, vaultAddress, action, force = false } = url.parse(request.url, true).query as any as QueryParams;
 
-    for (const network of env.NETWORKS) {
-      env.NETWORK = network;
-      console.log(`Processing network: ${env.NETWORK}`);
-      const provider = getProviderFromNetwork(env.NETWORK, true);
+    if (!network || !vaultAddress || !action) {
+      return new Response('Missing required query parameters', { status: 400 });
+    }
 
-      await claimRewards(env, provider);
-      await reinvestRewards(env, provider);
+    const vault = vaults[network].find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
+    if (!vault) {
+      return new Response('Unknown vault address', { status: 404 });
+    }
+
+    env.NETWORK = network;
+    const provider = getProviderFromNetwork(env.NETWORK, true);
+
+    if (action.toLowerCase() == Action.claim) {
+      console.log(`Claiming for vault: ${vaultAddress}`);
+      await claimVault(env, provider, vault, force);
+    } else if (action.toLowerCase() == Action.reinvest) {
+      console.log(`Reinvesting for vault: ${vaultAddress}`);
+      await reinvestVault(env, provider, vault, force);
+    } else {
+      return new Response('Unknown action', { status: 400 });
     }
 
     return new Response('OK');
