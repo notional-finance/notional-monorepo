@@ -173,7 +173,7 @@ export default class APYSimulator {
         'vault does not exist or do not have lp tokens, finding another account for APY calculation'
       );
       account = await this.#findGaugeTokenHolder(vaultData, provider);
-      log(`new account: ${account}`);
+      log(`new account: ${account} for vault ${vaultData.address}`);
       totalLpTokens = await this.#getTotalLpTokensForAccount(
         account,
         vaultData,

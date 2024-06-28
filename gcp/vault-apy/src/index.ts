@@ -19,7 +19,7 @@ process.on('exit', async function () {
     run with env DEBUG variable set to vault-apy to get detailed logs
   `;
   const networks = Object.keys(configPerNetwork) as Network[];
-  const startOfToday = new Date();
+  const startOfToday = new Date('2024-05-07T00:00:00.000Z');
   startOfToday.setUTCHours(0, 0, 0, 0);
 
   if (process.argv.length == 2) {
