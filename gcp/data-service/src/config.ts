@@ -45,9 +45,7 @@ export const defaultGraphEndpoints: () => Record<
     },
     [ProtocolName.Curve]: {
       [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF`,
-      // NOTE: there is no subgraph for curve on arbitrum anymore
-      // [Network.arbitrum]:
-      //   'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
+      [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/Gv6NJRut2zrm79ef4QHyKAm41YHqaLF392sM3cz9wywc`,
     },
   };
 };

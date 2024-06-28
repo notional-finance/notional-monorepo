@@ -321,4 +321,21 @@ export const Balancer_Config = [
       ),
     ]
   ),
+  getComposablePoolConfig(
+    '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd73900000000000000000000055c',
+    '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739',
+    '0x59907f88C360D576Aa38dba84F26578367F96b6C',
+    '', // No Gauge Address
+    Network.arbitrum,
+    Strategy.Arb_Balancer_rsETH_WETH,
+    [ArbTokenConfig['rsETH'], ArbTokenConfig['WETH']],
+    [
+      getOracleValue(
+        Network.arbitrum,
+        Strategy.Arb_Balancer_ezETH_wstETH,
+        'rsETH to ETH Price',
+        '0x11E1836bFF2ce9d6A5bec9cA79dc998210f3886d'
+      ),
+    ]
+  ),
 ].flatMap((_) => _);

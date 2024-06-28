@@ -80,6 +80,7 @@ const config: ConfigPerNetwork = {
       {
         address: '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021',
         gauge: '0x04e80db3f84873e4132b221831af1045d27f140f',
+        pool: '0x02950460e2b9529d0e00284a5fa2d7bdf3fa4d72',
         primaryBorrowCurrency: tokens.mainnet.USDC,
         rewardPoolType: RewardPoolType.Curve,
       },
