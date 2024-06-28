@@ -38,8 +38,7 @@ export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   },
   [ProtocolName.Curve]: {
     [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF`,
-    [Network.arbitrum]:
-      'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
+    [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/Gv6NJRut2zrm79ef4QHyKAm41YHqaLF392sM3cz9wywc`,
   },
 };
 
