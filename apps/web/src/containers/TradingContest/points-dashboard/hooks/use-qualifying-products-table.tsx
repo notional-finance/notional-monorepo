@@ -111,6 +111,7 @@ export const useQualifyingProductsTable = (
         return {
           currency: underlying.symbol,
           product: vaultName || product,
+          id: vaultName ? 'Leveraged Vault' : product,
           //NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
           totalAPY: totalAPY === 0 ? 0.00001 : totalAPY,
           view: link,
@@ -148,13 +149,14 @@ export const useQualifyingProductsTable = (
     const currencyIds = getIds(currencyOptions);
     const productIds = getIds(productOptions);
     const filterData = [...currencyIds, ...productIds];
-
     if (filterData.length === 0) return initialData;
+    console.log({ initialData });
+    console.log({ filterData });
 
     if (productIds.length > 0 && currencyIds.length > 0) {
       return initialData
         .filter(({ currency }) => filterData.includes(currency))
-        .filter(({ product }) => filterData.includes(product));
+        .filter(({ id }) => filterData.includes(id));
     }
     if (currencyIds.length > 0) {
       return initialData.filter(({ currency }) =>
@@ -162,7 +164,7 @@ export const useQualifyingProductsTable = (
       );
     }
     if (productIds.length > 0) {
-      return initialData.filter(({ product }) => productIds.includes(product));
+      return initialData.filter(({ id }) => productIds.includes(id));
     }
 
     return [];

@@ -11,7 +11,7 @@ import {
 
 export const useYourPointsOverviewTables = () => {
   const theme = useTheme();
-  const { seasonOne, seasonTwo, seasonThree } = PointsSeasonsData;
+  const { season_one, season_two, season_three } = PointsSeasonsData;
   const totalPoints = useTotalArbPoints();
   const arbPoints = useArbPoints();
   const totalArbPointsBySeason = (arbPoints || []).reduce(
@@ -41,16 +41,17 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${getDateString(seasonOne.startDate.getTime() / 1000, {
+            {`(${getDateString(season_one.startDate.getTime() / 1000, {
               hideYear: true,
-            })} - ${getDateString(seasonOne.endDate.getTime() / 1000, {
+            })} - ${getDateString(season_one.endDate.getTime() / 1000, {
               hideYear: true,
             })})`}
           </span>
         </div>
       ),
+      totalPointsIssued: formatNumber(totalPoints.season_one, 0),
       yourTotalPoints: formatNumber(totalArbPointsBySeason.season_one, 0),
-      arbReceived: '-',
+      arbRewards: formatNumber(PointsSeasonsData.season_one.totalArb, 0),
     },
     {
       activeSeason: (
@@ -64,16 +65,17 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${getDateString(seasonTwo.startDate.getTime() / 1000, {
+            {`(${getDateString(season_two.startDate.getTime() / 1000, {
               hideYear: true,
-            })} - ${getDateString(seasonTwo.endDate.getTime() / 1000, {
+            })} - ${getDateString(season_two.endDate.getTime() / 1000, {
               hideYear: true,
             })})`}
           </span>
         </div>
       ),
+      totalPointsIssued: formatNumber(totalPoints.season_two, 0),
       yourTotalPoints: formatNumber(totalArbPointsBySeason.season_two, 0),
-      arbReceived: '-',
+      arbRewards: formatNumber(PointsSeasonsData.season_two.totalArb, 0),
     },
     {
       activeSeason: (
@@ -87,31 +89,17 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${getDateString(seasonThree.startDate.getTime() / 1000, {
+            {`(${getDateString(season_three.startDate.getTime() / 1000, {
               hideYear: true,
-            })} - ${getDateString(seasonThree.endDate.getTime() / 1000, {
+            })} - ${getDateString(season_three.endDate.getTime() / 1000, {
               hideYear: true,
             })})`}
           </span>
         </div>
       ),
-      yourTotalPoints: formatNumber(totalArbPointsBySeason.season_three, 0),
-      arbReceived: '-',
-    },
-  ];
-
-  const overviewData = [
-    {
-      totalPointsIssued: formatNumber(totalPoints.season_one, 0),
-      totalArb: formatNumber(PointsSeasonsData.seasonOne.totalArb, 0),
-    },
-    {
-      totalPointsIssued: formatNumber(totalPoints.season_two, 0),
-      totalArb: formatNumber(PointsSeasonsData.seasonTwo.totalArb, 0),
-    },
-    {
       totalPointsIssued: formatNumber(totalPoints.season_three, 0),
-      totalArb: formatNumber(PointsSeasonsData.seasonTwo.totalArb, 0),
+      yourTotalPoints: formatNumber(totalArbPointsBySeason.season_three, 0),
+      arbRewards: formatNumber(PointsSeasonsData.season_three.totalArb, 0),
     },
   ];
 
@@ -141,11 +129,11 @@ export const useYourPointsOverviewTables = () => {
       {
         header: (
           <FormattedMessage
-            defaultMessage="Your Total Points"
-            description={'Your Total Points header'}
+            defaultMessage="Your Points / Day"
+            description={'Your Points Day header'}
           />
         ),
-        accessorKey: 'yourTotalPoints',
+        accessorKey: 'yourPointsDay',
         textAlign: 'right',
         fontSize: '16px',
         fontWeight: 600,
@@ -154,21 +142,29 @@ export const useYourPointsOverviewTables = () => {
       {
         header: (
           <FormattedMessage
-            defaultMessage="ARB Received"
-            description={'Received header'}
+            defaultMessage="Total Points Issued / Day"
+            description={'Total Points Issued Day header'}
           />
         ),
-        accessorKey: 'arbReceived',
+        accessorKey: 'totalPointsDay',
         textAlign: 'right',
         fontSize: '16px',
         fontWeight: 600,
         padding: '16px',
       },
-    ],
-    []
-  );
-  const overviewColumns = useMemo<Array<any>>(
-    () => [
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Your Points"
+            description={'Your Points header'}
+          />
+        ),
+        accessorKey: 'yourPoints',
+        textAlign: 'right',
+        fontSize: '16px',
+        fontWeight: 600,
+        padding: '16px',
+      },
       {
         header: (
           <FormattedMessage
@@ -177,20 +173,19 @@ export const useYourPointsOverviewTables = () => {
           />
         ),
         accessorKey: 'totalPointsIssued',
-        padding: theme.spacing(2, 2, 2, 4),
-        textAlign: 'left',
+        textAlign: 'right',
         fontSize: '16px',
         fontWeight: 600,
-        width: '250px',
+        padding: '16px',
       },
       {
         header: (
           <FormattedMessage
-            defaultMessage="Total ARB"
-            description={'Total ARB header'}
+            defaultMessage="ARB Rewards"
+            description={'ARB Rewards header'}
           />
         ),
-        accessorKey: 'totalArb',
+        accessorKey: 'arbRewards',
         textAlign: 'right',
         fontSize: '16px',
         fontWeight: 600,
@@ -200,5 +195,5 @@ export const useYourPointsOverviewTables = () => {
     []
   );
 
-  return { yourPointsColumns, yourPointsData, overviewColumns, overviewData };
+  return { yourPointsColumns, yourPointsData };
 };
