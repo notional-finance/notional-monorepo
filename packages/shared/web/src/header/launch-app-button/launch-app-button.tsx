@@ -4,19 +4,19 @@ import { Network, THEME_VARIANTS } from '@notional-finance/util';
 import { Link, useParams } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { LaunchIcon } from '@notional-finance/icons';
-import { useConnectWallet } from '@web3-onboard/react';
+import { useWalletActive } from '@notional-finance/wallet';
 
 export function LaunchAppButton() {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const params = useParams<any>();
-  const [{ wallet }] = useConnectWallet();
+  const walletActive = useWalletActive();
   const network = params?.selectedNetwork || Network.mainnet;
 
   return (
     <Button
       component={Link}
       to={
-        wallet?.accounts[0].address
+        walletActive
           ? `/portfolio/${network}/overview`
           : `/portfolio/${network}/welcome`
       }
