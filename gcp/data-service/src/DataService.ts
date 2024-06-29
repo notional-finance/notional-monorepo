@@ -259,6 +259,7 @@ export default class DataService {
     operations: SubgraphOperation[]
   ) {
     const blockNumber = await this.getBlockNumberFromTs(network, ts);
+    // TODO: need to catch on bad calls here...
     const results = await Promise.all(
       operations.map((op) => {
         const client = new ApolloClient({
@@ -430,7 +431,7 @@ export default class DataService {
   }
 
   public async syncAccounts(network: Network, isVault: boolean) {
-    const endpoint = defaultGraphEndpoints[ProtocolName.NotionalV3][network];
+    const endpoint = defaultGraphEndpoints()[ProtocolName.NotionalV3][network];
     if (!endpoint) {
       throw Error('Subgraph endpoint not defined');
     }

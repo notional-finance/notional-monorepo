@@ -52,7 +52,13 @@ export class ExchangeRegistryDO extends RegistryDO {
 
 export class OracleRegistryDO extends RegistryDO {
   constructor(state: DurableObjectState, env: BaseDOEnv) {
-    super(state, env, undefined, Routes.Oracles, Servers.OracleRegistryServer);
+    super(
+      state,
+      env,
+      ONE_MINUTE_MS,
+      Routes.Oracles,
+      Servers.OracleRegistryServer
+    );
   }
 
   override async healthcheck(): Promise<Response> {

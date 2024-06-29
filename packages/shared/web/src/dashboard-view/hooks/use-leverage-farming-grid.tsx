@@ -7,11 +7,17 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
-import { Network, PRODUCTS, VAULT_TYPES } from '@notional-finance/util';
+import {
+  Network,
+  PRIME_CASH_VAULT_MATURITY,
+  PRODUCTS,
+  VAULT_TYPES,
+} from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
 import { PointsIcon } from '@notional-finance/icons';
 import { Box } from '@mui/material';
+import { Registry, getArbBoosts } from '@notional-finance/core-entities';
 
 export const useLeveragedFarmingGrid = (
   network: Network,
@@ -38,6 +44,12 @@ export const useLeveragedFarmingGrid = (
       )?.vault;
       const apy = profile?.totalAPY || y?.totalAPY || undefined;
       const points = y?.pointMultiples;
+      const vaultShare = Registry.getTokenRegistry().getVaultShare(
+        network,
+        vaultAddress,
+        PRIME_CASH_VAULT_MATURITY
+      );
+      const pointsBoost = getArbBoosts(vaultShare, false);
 
       return {
         title: primaryToken.symbol,
@@ -51,15 +63,44 @@ export const useLeveragedFarmingGrid = (
                 ? formatNumberAsAbbr(vaultTVL.toFiat(baseCurrency).toFloat(), 0)
                 : 0
             }`,
-        bottomRightValue: points ? (
-          <Box
-            sx={{ display: 'flex', fontSize: 'inherit', alignItems: 'center' }}
-          >
-            <PointsIcon sx={{ fontSize: 'inherit' }} />
-            &nbsp;
-            {` ${Object.keys(points).join('/')} Points`}
-          </Box>
-        ) : undefined,
+        bottomRightValue:
+          points && pointsBoost > 0 ? (
+            <Box
+              sx={{
+                display: 'flex',
+                fontSize: 'inherit',
+                alignItems: 'center',
+              }}
+            >
+              <PointsIcon sx={{ fontSize: 'inherit' }} />
+              &nbsp;
+              {` ARB/${Object.keys(points).join('/')} Points`}
+            </Box>
+          ) : points ? (
+            <Box
+              sx={{
+                display: 'flex',
+                fontSize: 'inherit',
+                alignItems: 'center',
+              }}
+            >
+              <PointsIcon sx={{ fontSize: 'inherit' }} />
+              &nbsp;
+              {` ${Object.keys(points).join('/')} Points`}
+            </Box>
+          ) : pointsBoost > 0 ? (
+            <Box
+              sx={{
+                display: 'flex',
+                fontSize: 'inherit',
+                alignItems: 'center',
+              }}
+            >
+              <PointsIcon sx={{ fontSize: 'inherit' }} />
+              &nbsp;
+              {` ${pointsBoost}x ARB Points`}
+            </Box>
+          ) : undefined,
         symbol: primaryToken.symbol,
         network: primaryToken.network,
         hasPosition: profile ? true : false,

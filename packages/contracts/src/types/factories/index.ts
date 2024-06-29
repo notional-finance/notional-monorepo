@@ -20,6 +20,7 @@ export { CurvePoolV1WithOracle__factory } from "./CurvePoolV1WithOracle__factory
 export { CurvePoolV2__factory } from "./CurvePoolV2__factory";
 export { ERC20__factory } from "./ERC20__factory";
 export { ExchangeV3__factory } from "./ExchangeV3__factory";
+export { FlashLenderWrapper__factory } from "./FlashLenderWrapper__factory";
 export { FlashLiquidator__factory } from "./FlashLiquidator__factory";
 export { Governor__factory } from "./Governor__factory";
 export { IAggregator__factory } from "./IAggregator__factory";

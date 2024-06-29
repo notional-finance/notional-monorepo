@@ -11,7 +11,7 @@ const DD_SITE = process.env['NX_DD_SITE'];
 // COMMIT_REF environment variable is supplied by netlify on deployment
 const version = `${process.env['NX_COMMIT_REF']?.substring(0, 8) || 'local'}`;
 const PROXY_HOST =
-  process.env['NX_DATA_URL'] || 'https://data.notional.finance';
+  process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
 const service = 'web-frontend';
 const { disableErrorReporting } = getFromLocalStorage('privacySettings');
 

@@ -1,3 +1,4 @@
+import url from 'url';
 import {
   TreasuryManager__factory,
   ERC20__factory,
@@ -7,6 +8,7 @@ import {
   DEX_ID,
   Network,
   TRADE_TYPE,
+  getNowSeconds,
   getProviderFromNetwork,
   getSubgraphEndpoint,
 } from '@notional-finance/util';
@@ -19,9 +21,9 @@ import {
   treasuryManagerAddresses,
 } from '@notional-finance/util';
 import { simulatePopulatedTxn } from '@notional-finance/transaction';
+import { Logger, MetricType } from '@notional-finance/durable-objects';
 
 type Provider = ethers.providers.Provider;
-
 export interface Env {
   NETWORKS: Array<Network>;
   NETWORK: Network;
@@ -30,6 +32,7 @@ export interface Env {
   AUTH_KEY: string;
   SUBGRAPH_API_KEY: string;
   REWARDS_KV: KVNamespace;
+  NX_DD_API_KEY: string;
 }
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 2;
@@ -84,15 +87,14 @@ async function getLastReinvestment(
   env: Env,
   vault: string
 ): Promise<{ timestamp: number } | null> {
-  return fetch(getSubgraphEndpoint(env.NETWORK, env.SUBGRAPH_API_KEY),
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+  return fetch(getSubgraphEndpoint(env.NETWORK, env.SUBGRAPH_API_KEY), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
 
-      body: JSON.stringify({
-        query: `{
+    body: JSON.stringify({
+      query: `{
           reinvestments(
             orderBy: timestamp,
             orderDirection:desc,
@@ -102,14 +104,13 @@ async function getLastReinvestment(
             timestamp
           }
       }`,
-      }),
-    }
-  )
+    }),
+  })
     .then((r) => r.json())
     .then((r: ReinvestmentData) => r.data.reinvestments[0]);
 }
 
-const max = (a: number, b: number) => a < b ? b : a;
+const max = (a: number, b: number) => (a < b ? b : a);
 
 async function didTimeWindowPassed(
   env: Env,
@@ -121,10 +122,16 @@ async function didTimeWindowPassed(
     await env.REWARDS_KV.get(reinvestTimestampKey)
   );
 
-  const lastReinvestmentTimestampSubgraph = await getLastReinvestment(env, vaultAddress).then(r => r ? Number(r.timestamp) : 0);
+  const lastReinvestmentTimestampSubgraph = await getLastReinvestment(
+    env,
+    vaultAddress
+  ).then((r) => (r ? Number(r.timestamp) : 0));
 
   // take larger timestamp so in case graph is out of sync we would not reinvest each time but is run
-  const lastReinvestmentTimestamp = max(lastReinvestTimestampFromKV, lastReinvestmentTimestampSubgraph);
+  const lastReinvestmentTimestamp = max(
+    lastReinvestTimestampFromKV,
+    lastReinvestmentTimestampSubgraph
+  );
 
   if (lastReinvestmentTimestamp) {
     const currentTimeInSeconds = Date.now() / 1000;
@@ -140,6 +147,27 @@ async function didTimeWindowPassed(
 
 async function setLastReinvestmentTimestamp(env: Env, vaultAddress: string) {
   const reinvestTimestampKey = `${vaultAddress}:reinvestmentTimestamp`;
+  const logger = new Logger({
+    service: 'rewards',
+    version: 'v1',
+    env: env.NETWORK,
+    apiKey: env.NX_DD_API_KEY,
+  });
+  await logger.submitMetrics({
+    series: [
+      {
+        metric: 'monitoring.rewards.last_reinvestment_timestamp',
+        points: [
+          {
+            value: 1,
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${env.NETWORK}`, `vault:${vaultAddress}`],
+        type: MetricType.Count,
+      },
+    ],
+  });
 
   return env.REWARDS_KV.put(reinvestTimestampKey, String(Date.now() / 1000));
 }
@@ -154,6 +182,28 @@ async function shouldSkipReinvest(env: Env, vaultAddress: string) {
 
 async function setLastClaimTimestamp(env: Env, vaultAddress: string) {
   const claimTimestampKey = `${vaultAddress}:claimTimestamp`;
+  const logger = new Logger({
+    service: 'rewards',
+    version: 'v1',
+    env: env.NETWORK,
+    apiKey: env.NX_DD_API_KEY,
+  });
+
+  await logger.submitMetrics({
+    series: [
+      {
+        metric: 'monitoring.rewards.last_claim_timestamp',
+        points: [
+          {
+            value: 1,
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [`network:${env.NETWORK}`, `vault:${vaultAddress}`],
+        type: MetricType.Count,
+      },
+    ],
+  });
 
   return env.REWARDS_KV.put(claimTimestampKey, String(Date.now() / 1000));
 }
@@ -171,47 +221,50 @@ async function shouldSkipClaim(env: Env, vaultAddress: string) {
   return Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
 }
 
-const claimRewards = async (env: Env, provider: Provider) => {
+const claimVault = async (
+  env: Env,
+  provider: Provider,
+  vault: Vault,
+  force = false
+) => {
   const treasuryManger = TreasuryManager__factory.connect(
     treasuryManagerAddresses[env.NETWORK],
     provider
   );
 
+  if (!force && (await shouldSkipClaim(env, vault.address))) {
+    console.log(`Skipping claim rewards for ${vault.address}, already claimed`);
+    return null;
+  }
+
+  const from = managerBotAddresses[env.NETWORK];
+  const to = treasuryManagerAddresses[env.NETWORK];
+  // make sure call will be successful
+  await treasuryManger.callStatic.claimVaultRewardTokens(vault.address, {
+    from,
+  });
+
+  const data = treasuryManger.interface.encodeFunctionData(
+    'claimVaultRewardTokens',
+    [vault.address]
+  );
+
+  const tx: PopulatedTransaction = { from, to, data };
+  if (!(await isClaimRewardsProfitable(env, vault, tx))) {
+    console.log(`Skipping claim rewards for ${vault.address}, not profitable`);
+    return null;
+  }
+
+  console.log(`Sending claim tx for ${vault.address}`);
+
+  await sendTxThroughRelayer({ to, data, env });
+
+  await setLastClaimTimestamp(env, vault.address);
+};
+
+const claimRewards = async (env: Env, provider: Provider) => {
   const results = await Promise.allSettled(
-    vaults[env.NETWORK].map(async (vault: Vault) => {
-      if (await shouldSkipClaim(env, vault.address)) {
-        console.log(
-          `Skipping claim rewards for ${vault.address}, already claimed`
-        );
-        return null;
-      }
-
-      const from = managerBotAddresses[env.NETWORK];
-      const to = treasuryManagerAddresses[env.NETWORK];
-      // make sure call will be successful
-      await treasuryManger.callStatic.claimVaultRewardTokens(vault.address, {
-        from,
-      });
-
-      const data = treasuryManger.interface.encodeFunctionData(
-        'claimVaultRewardTokens',
-        [vault.address]
-      );
-
-      const tx: PopulatedTransaction = { from, to, data };
-      if (!(await isClaimRewardsProfitable(env, vault, tx))) {
-        console.log(
-          `Skipping claim rewards for ${vault.address}, not profitable`
-        );
-        return null;
-      }
-
-      console.log(`Sending claim tx for ${vault.address}`);
-
-      await sendTxThroughRelayer({ to, data, env });
-
-      await setLastClaimTimestamp(env, vault.address);
-    })
+    vaults[env.NETWORK].map((vault) => claimVault(env, provider, vault))
   );
 
   const failedClaims = results.filter(
@@ -276,8 +329,13 @@ const getTrades = async (
   );
 };
 
-const reinvestVault = async (env: Env, provider: Provider, vault: Vault) => {
-  if (await shouldSkipReinvest(env, vault.address)) {
+const reinvestVault = async (
+  env: Env,
+  provider: Provider,
+  vault: Vault,
+  force = false
+) => {
+  if (!force && (await shouldSkipReinvest(env, vault.address))) {
     console.log(`Skipping reinvestment for ${vault.address}, already invested`);
     return null;
   }
@@ -291,9 +349,10 @@ const reinvestVault = async (env: Env, provider: Provider, vault: Vault) => {
       continue;
     }
 
-    let amountToSell = await ERC20__factory.connect(sellToken, provider).balanceOf(
-      vault.address
-    );
+    let amountToSell = await ERC20__factory.connect(
+      sellToken,
+      provider
+    ).balanceOf(vault.address);
 
     if (
       vault.maxSellAmount?.[sellToken] &&
@@ -393,6 +452,18 @@ const reinvestRewards = async (env: Env, provider: Provider) => {
   }
 };
 
+enum Action {
+  claim = 'claim',
+  reinvest = 'reinvest',
+}
+
+type QueryParams = {
+  network: Network;
+  vaultAddress: string;
+  action: Action;
+  force: boolean;
+};
+
 export default {
   async fetch(
     request: Request,
@@ -405,14 +476,35 @@ export default {
       console.log('Cf: ', request['cf']);
       return new Response(null, { status: 401 });
     }
+    const {
+      network,
+      vaultAddress,
+      action,
+      force = false,
+    } = url.parse(request.url, true).query as any as QueryParams;
 
-    for (const network of env.NETWORKS) {
-      env.NETWORK = network;
-      console.log(`Processing network: ${env.NETWORK}`);
-      const provider = getProviderFromNetwork(env.NETWORK, true);
+    if (!network || !vaultAddress || !action) {
+      return new Response('Missing required query parameters', { status: 400 });
+    }
 
-      await claimRewards(env, provider);
-      await reinvestRewards(env, provider);
+    const vault = vaults[network].find(
+      (v) => v.address.toLowerCase() === vaultAddress.toLowerCase()
+    );
+    if (!vault) {
+      return new Response('Unknown vault address', { status: 404 });
+    }
+
+    env.NETWORK = network;
+    const provider = getProviderFromNetwork(env.NETWORK, true);
+
+    if (action.toLowerCase() == Action.claim) {
+      console.log(`Claiming for vault: ${vaultAddress}`);
+      await claimVault(env, provider, vault, force);
+    } else if (action.toLowerCase() == Action.reinvest) {
+      console.log(`Reinvesting for vault: ${vaultAddress}`);
+      await reinvestVault(env, provider, vault, force);
+    } else {
+      return new Response('Unknown action', { status: 400 });
     }
 
     return new Response('OK');

@@ -73,6 +73,11 @@ export const ArbTokenConfig = {
     symbol: 'tBTC',
     decimals: 18,
   },
+  rsETH: {
+    address: '0x4186bfc76e2e237523cbc30fd220fe055156b41f',
+    symbol: 'rsETH',
+    decimals: 18,
+  },
 } as const;
 
 export const EthTokenConfig = {
@@ -129,6 +134,11 @@ export const EthTokenConfig = {
   USDe: {
     address: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
     symbol: 'USDe',
+    decimals: 18,
+  },
+  rsETH: {
+    address: '0xa1290d69c65a6fe4df752f95823fae25cb99e5a7',
+    symbol: 'rsETH',
     decimals: 18,
   },
 } as const;

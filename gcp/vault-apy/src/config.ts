@@ -2,19 +2,23 @@ import assert from 'node:assert/strict';
 import { Network, RewardPoolType, VaultDataBase } from './types';
 
 export type Config = {
-  chainId: number,
-  dataServiceUrl: string,
-  alchemyUrl: string,
-  addresses: Record<string, string>,
-  vaults: VaultDataBase[],
+  chainId: number;
+  dataServiceUrl: string;
+  alchemyUrl: string;
+  addresses: Record<string, string>;
+  vaults: VaultDataBase[];
 };
 type ConfigPerNetwork = Record<Network, Config>;
 
-const DATA_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultApy';
+const DATA_SERVICE_URL =
+  'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultApy';
 const ALCHEMY_KEY = process.env.ALCHEMY_KEY as string;
 
 assert(ALCHEMY_KEY, `Environment variable ALCHEMY_KEY needs to be set`);
-assert(process.env.DATA_SERVICE_AUTH_TOKEN, `Environment variable DATA_SERVICE_AUTH_TOKEN needs to be set`)
+assert(
+  process.env.DATA_SERVICE_AUTH_TOKEN,
+  `Environment variable DATA_SERVICE_AUTH_TOKEN needs to be set`
+);
 
 export const POOL_DECIMALS = 18;
 
@@ -35,9 +39,10 @@ const tokens = {
     USDC: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
     crvUSD: '0x498Bf2B1e120FeD3ad3D42EA2165E9b73f99C1e5',
     WBTC: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
-    wstETH: '0x5979D7b546E38E414F7E9822514be443A4800529'
-  }
-}
+    wstETH: '0x5979D7b546E38E414F7E9822514be443A4800529',
+    FRAX: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+  },
+};
 
 const config: ConfigPerNetwork = {
   [Network.mainnet]: {
@@ -56,7 +61,6 @@ const config: ConfigPerNetwork = {
         gauge: '0xBDD6984C3179B099E9D383ee2F44F3A57764BF7d',
         primaryBorrowCurrency: tokens.mainnet.USDC,
         rewardPoolType: RewardPoolType.Aura,
-
       },
       // rETH/weETH
       {
@@ -76,6 +80,7 @@ const config: ConfigPerNetwork = {
       {
         address: '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021',
         gauge: '0x04e80db3f84873e4132b221831af1045d27f140f',
+        pool: '0x02950460e2b9529d0e00284a5fa2d7bdf3fa4d72',
         primaryBorrowCurrency: tokens.mainnet.USDC,
         rewardPoolType: RewardPoolType.Curve,
       },
@@ -139,6 +144,12 @@ const config: ConfigPerNetwork = {
         gauge: '0x416c7ad55080ab8e294bead9b8857266e3b3f28e',
         primaryBorrowCurrency: tokens.arbitrum.USDC,
         rewardPoolType: RewardPoolType.Aura,
+      },
+      {
+        address: '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
+        gauge: '0x93729702Bf9E1687Ae2124e191B8fFbcC0C8A0B0',
+        primaryBorrowCurrency: tokens.arbitrum.FRAX,
+        rewardPoolType: RewardPoolType.ConvexArbitrum,
       },
     ],
   },

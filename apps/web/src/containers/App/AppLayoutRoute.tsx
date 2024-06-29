@@ -20,7 +20,6 @@ import { META_TAG_CATEGORIES, RouteType } from '@notional-finance/util';
 import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { usePageTrack } from '@notional-finance/helpers';
 import { useLocation } from 'react-router';
-import { FooterPopup } from '@notional-finance/mui';
 
 const AppLayoutRoute = ({
   component: Component,
@@ -76,7 +75,6 @@ const AppLayoutRoute = ({
                   <MainContent>
                     <Component {...matchProps} />
                   </MainContent>
-                  <FooterPopup />
                   <StyledFooter />
                 </AppShell>
               </Box>
