@@ -1,14 +1,16 @@
 import {
   useAllNetworkMarkets,
   useAllUniqueUnderlyingTokens,
+  useFiat,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 
-export const useTokenData = (selectedTabIndex: number, activeToken: string) => {
+export const useTokenData = (selectedTabIndex: number) => {
   const selectedNetwork = useSelectedNetwork();
   const depositTokens = useAllUniqueUnderlyingTokens([selectedNetwork]);
   const { earnYields, borrowYields } = useAllNetworkMarkets();
+  const baseCurrency = useFiat();
 
   const requiredProducts = {
     [PORTFOLIO_STATE_ZERO_OPTIONS.EARN]: [
@@ -53,10 +55,21 @@ export const useTokenData = (selectedTabIndex: number, activeToken: string) => {
         products.includes(product)
       )
     )
-    .map(([symbol]) => symbol);
+    .map((data) => {
+      const tvlValues = data[1].data.reduce((acc, curr) => {
+        const currentValue = curr?.tvl?.toFiat(baseCurrency).toFloat() || 0;
+        return acc + currentValue;
+      }, 0);
+      return {
+        data,
+        tvl: tvlValues,
+      };
+    })
+    .sort((a, b) => b.tvl - a.tvl)
+    .map(({ data }) => data[0]);
 
   return {
     availableSymbols: availableSymbols,
-    activeTokenData: tokenObj[activeToken]?.data,
+    allTokenData: tokenObj,
   };
 };

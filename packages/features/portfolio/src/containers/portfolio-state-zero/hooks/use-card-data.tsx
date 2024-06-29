@@ -16,10 +16,14 @@ import { FormattedMessage } from 'react-intl';
 export const useCardData = (
   selectedTab: number,
   activeToken: string,
-  activeTokenData: any[]
+  allTokenData: any,
+  availableSymbols: string[]
 ) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
+  const activeTokenData = allTokenData[activeToken]?.data
+    ? allTokenData[activeToken].data
+    : allTokenData[availableSymbols[0]].data;
 
   const leveragedLiquidityData = activeTokenData?.find(
     (data) => data.product === 'Leveraged Liquidity'

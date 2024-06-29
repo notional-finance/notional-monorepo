@@ -56,13 +56,15 @@ export const PortfolioStateZero = () => {
   const { setWalletSideDrawer } = useSideDrawerManager();
   const selectedNetwork = useSelectedNetwork();
   const isAccountReady = useAccountReady(selectedNetwork);
-  const [activeToken, setActiveToken] = useState<string>('ETH');
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
-  const { availableSymbols, activeTokenData } = useTokenData(
+  const { availableSymbols, allTokenData } = useTokenData(selectedTabIndex);
+  const [activeToken, setActiveToken] = useState<string>(availableSymbols[0]);
+  const cardData = useCardData(
     selectedTabIndex,
-    activeToken
+    activeToken,
+    allTokenData,
+    availableSymbols
   );
-  const cardData = useCardData(selectedTabIndex, activeToken, activeTokenData);
   const { options, title, displaySymbols } = useMoreDropdown(
     availableSymbols,
     setActiveToken
@@ -89,7 +91,7 @@ export const PortfolioStateZero = () => {
 
   useEffect(() => {
     if (!availableSymbols.includes(activeToken)) {
-      setActiveToken('ETH');
+      setActiveToken(availableSymbols[0]);
     }
   }, [availableSymbols, activeToken]);
 
@@ -310,7 +312,7 @@ const TokenContainer = styled(Box)(
       border-radius: 50px;
       h6 {
         font-size: 14px;
-        color: black;
+        color: ${theme.palette.typography.main};
         font-weight: 600;
       }
     }

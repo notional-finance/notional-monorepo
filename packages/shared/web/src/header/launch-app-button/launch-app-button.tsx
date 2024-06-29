@@ -1,17 +1,25 @@
 import { Button } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { Network, THEME_VARIANTS } from '@notional-finance/util';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { LaunchIcon } from '@notional-finance/icons';
+import { useWalletActive } from '@notional-finance/wallet';
 
 export function LaunchAppButton() {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
+  const params = useParams<any>();
+  const walletActive = useWalletActive();
+  const network = params?.selectedNetwork || Network.mainnet;
 
   return (
     <Button
       component={Link}
-      to={`/portfolio/${Network.mainnet}/welcome`}
+      to={
+        walletActive
+          ? `/portfolio/${network}/overview`
+          : `/portfolio/${network}/welcome`
+      }
       variant="outlined"
       color="primary"
       endIcon={
