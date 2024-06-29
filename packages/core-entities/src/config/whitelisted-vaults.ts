@@ -20,9 +20,6 @@ export const PointsMultipliers: Record<
     '0xb1113cf888a019693b254da3d90f841072d85172': (_v) => ({
       Ethena: 20,
     }),
-    '0xb1113cf888a019693b254da3d90f841072d85172': (_v) => ({
-      Ethena: 20,
-    }),
   },
   [Network.all]: {},
   [Network.arbitrum]: {
