@@ -4,6 +4,7 @@ import { formatTokenType } from '@notional-finance/helpers';
 import { PointsIcon } from '@notional-finance/icons';
 import {
   DataTableColumn,
+  DisplayCell,
   IconCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
@@ -18,6 +19,7 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   formatMaturity,
   formatNumber,
+  formatNumberAsPercent,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
@@ -66,6 +68,23 @@ export const useMyBreakdownTable = () => {
     {
       header: (
         <FormattedMessage
+          defaultMessage="Points APY"
+          description={'Points APY header'}
+        />
+      ),
+      displayFormatter: formatNumberAsPercent,
+      cell: DisplayCell,
+      accessorKey: 'pointsAPY',
+      textAlign: 'right',
+      enableSorting: true,
+      sortingFn: 'basic',
+      sortDescFirst: true,
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
+    },
+    {
+      header: (
+        <FormattedMessage
           defaultMessage="Total Points"
           description={'Total Points header'}
         />
@@ -99,6 +118,8 @@ export const useMyBreakdownTable = () => {
         boost: `${boostNum}x`,
         pointsPerDayNum: pointsPerDay,
         pointsPerDay: formatNumber(pointsPerDay),
+        // TODO: ADD pointsAPY value
+        pointsAPY: 0,
         totalPoints: formatNumber(totalPoints),
         iconCellData: {
           icon: PointsIcon,

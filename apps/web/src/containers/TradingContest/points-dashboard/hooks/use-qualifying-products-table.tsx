@@ -67,6 +67,40 @@ export const useQualifyingProductsTable = (
     },
     {
       header: (
+        <FormattedMessage
+          defaultMessage="APY Before Points"
+          description={'APY Before Points header'}
+        />
+      ),
+      displayFormatter: formatNumberAsPercent,
+      cell: DisplayCell,
+      accessorKey: 'apyBeforePoints',
+      textAlign: 'right',
+      enableSorting: true,
+      sortingFn: 'basic',
+      sortDescFirst: true,
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
+    },
+    {
+      header: (
+        <FormattedMessage
+          defaultMessage="Points APY"
+          description={'Points APY header'}
+        />
+      ),
+      displayFormatter: formatNumberAsPercent,
+      cell: DisplayCell,
+      accessorKey: 'pointsAPY',
+      textAlign: 'right',
+      enableSorting: true,
+      sortingFn: 'basic',
+      sortDescFirst: true,
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
+    },
+    {
+      header: (
         <FormattedMessage defaultMessage="Boost" description={'Boost header'} />
       ),
       cell: IconCell,
@@ -113,7 +147,11 @@ export const useQualifyingProductsTable = (
           product: vaultName || product,
           id: vaultName ? 'Leveraged Vault' : product,
           //NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
-          totalAPY: totalAPY === 0 ? 0.00001 : totalAPY,
+          // TODO: ADD totalAPY value
+          totalAPY: 0,
+          apyBeforePoints: totalAPY === 0 ? 0.00001 : totalAPY,
+          // TODO: ADD totalAPY value
+          pointsAPY: 0,
           view: link,
           boostNum,
           boost: `${getArbBoosts(
@@ -150,8 +188,6 @@ export const useQualifyingProductsTable = (
     const productIds = getIds(productOptions);
     const filterData = [...currencyIds, ...productIds];
     if (filterData.length === 0) return initialData;
-    console.log({ initialData });
-    console.log({ filterData });
 
     if (productIds.length > 0 && currencyIds.length > 0) {
       return initialData
