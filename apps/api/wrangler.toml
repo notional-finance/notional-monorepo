@@ -28,7 +28,7 @@ durable_objects.bindings = [
 
 [env.local.vars]
 NX_ENV = "local"
-VERSION = "v2"
+VERSION = "v1"
 VIEWS_NAME = "VIEWS_DO"
 
 [env.dev]
@@ -67,5 +67,5 @@ durable_objects.bindings = [
 
 [env.prod.vars]
 NX_ENV = "prod"
-VERSION = "v2"
+VERSION = "v1"
 VIEWS_NAME = "VIEWS_DO"

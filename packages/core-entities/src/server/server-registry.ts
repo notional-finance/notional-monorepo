@@ -108,12 +108,11 @@ export async function fetchGraphPaginate<R, V>(
   query: TypedDocumentNode<R, V>,
   rootVariable: string | undefined,
   apiKey: string,
-  variables?: V
+  variables?: V,
 ) {
   const { execute } = await loadGraphClientDeferred();
   const executionResult = await execute(query, variables, {
     subgraphId: SubgraphId[network],
-    chainName: network,
     apiKey,
   });
   if (executionResult['errors']) console.error(executionResult['errors']);
@@ -122,7 +121,6 @@ export async function fetchGraphPaginate<R, V>(
     (variables as unknown as { skip: number })['skip'] += 1000;
     const r = await execute(query, variables, {
       subgraphId: SubgraphId[network],
-      chainName: network,
       apiKey,
     });
 
@@ -138,7 +136,7 @@ export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
   transform: (r: R) => Record<string, T>,
   apiKey: string,
   variables?: V,
-  rootVariable?: string
+  rootVariable?: string,
 ): Promise<{ finalResults: Record<string, T>; blockNumber: number }> {
   // NOTE: in order for this to deploy with cloudflare workers, the import statement
   // has to be deferred until here.
@@ -168,7 +166,6 @@ export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
   } else {
     const data = await execute(query, variables, {
       subgraphId: SubgraphId[network],
-      chainName: network,
       apiKey,
     });
     const finalResults = transform(data['data']);
@@ -187,7 +184,7 @@ export async function fetchUsingGraph<
   transform: (r: R) => Record<string, T>,
   apiKey: string,
   variables?: V,
-  rootVariable?: string
+  rootVariable?: string,
 ): Promise<CacheSchema<T>> {
   const { finalResults, blockNumber } = await fetchGraph(
     network,
@@ -195,7 +192,7 @@ export async function fetchUsingGraph<
     transform,
     apiKey,
     variables,
-    rootVariable
+    rootVariable,
   );
 
   return {
@@ -225,7 +222,7 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     transform: (r: R) => Record<string, T>,
     apiKey: string,
     variables?: V,
-    rootVariable?: string
+    rootVariable?: string,
   ): Promise<CacheSchema<T>> {
     return fetchUsingGraph<T, R, V>(
       network,
@@ -233,7 +230,7 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
       transform,
       apiKey,
       variables,
-      rootVariable
+      rootVariable,
     );
   }
 

@@ -23,7 +23,7 @@ export enum MetricType {
   Gauge = 3,
 }
 
-type DDMetric = {
+export type DDMetric = {
   metric: string;
   points: {
     value: number;
@@ -40,6 +40,7 @@ export type DDSeries = {
 type DDEventKey =
   | 'GeoIPLog'
   | 'NewsletterSubmitFailure'
+  | 'AccountRiskFailure'
   | 'AccountLiquidated'
   | 'RiskyAccount'
   | 'AccountListMismatch'
@@ -125,8 +126,7 @@ export class Logger {
         },
       };
 
-      const resp = await fetch(Endpoints.metrics, opts);
-      console.log(await resp.text(), resp.status, body);
+      await fetch(Endpoints.metrics, opts);
     } catch (e) {
       console.error(e);
     }

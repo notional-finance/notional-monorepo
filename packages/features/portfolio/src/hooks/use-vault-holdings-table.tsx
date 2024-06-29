@@ -20,6 +20,7 @@ import {
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   formatHealthFactorValues,
+  useArbPoints,
   useFiat,
   useLeverageBlock,
   useSelectedNetwork,
@@ -34,7 +35,8 @@ import {
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
-import { PointsLinks } from '@notional-finance/core-entities';
+import { PointsLinks, getArbBoosts } from '@notional-finance/core-entities';
+import { PointsIcon } from '@notional-finance/icons';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -64,6 +66,7 @@ export const useVaultHoldingsTable = () => {
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const [toggleOption, setToggleOption] = useState<number>(0);
   const isBlocked = useLeverageBlock();
+  const arbPoints = useArbPoints();
   const theme = useTheme();
   const baseCurrency = useFiat();
   const history = useHistory();
@@ -216,6 +219,11 @@ export const useVaultHoldingsTable = () => {
         theme
       );
       const points = vaultYield?.pointMultiples;
+      const boostNum = getArbBoosts(v.vaultShares.token, false);
+      const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
+      const totalPoints =
+        arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)
+          ?.points || 0;
       const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
         {
           label: <FormattedMessage defaultMessage={'Borrow APY'} />,
@@ -266,6 +274,29 @@ export const useVaultHoldingsTable = () => {
                 )
                 .join(', ')}
             </LinkText>
+          ),
+        });
+      } else if (totalPoints > 0) {
+        subRowData.push({
+          label: <FormattedMessage defaultMessage={'Points Earned'} />,
+          value: (
+            <H4 sx={{ display: 'flex' }}>
+              <PointsIcon sx={{ marginRight: theme.spacing(0.5) }} />
+              {formatNumberAsAbbr(totalPoints, 2, 'USD', { hideSymbol: true })}
+              <Body
+                sx={{
+                  marginLeft: theme.spacing(0.5),
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                (
+                {formatNumberAsAbbr(pointsPerDay, 2, 'USD', {
+                  hideSymbol: true,
+                })}
+                )/day
+              </Body>
+            </H4>
           ),
         });
       }

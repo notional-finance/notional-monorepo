@@ -81,6 +81,7 @@ export interface AccountState {
   accruedIncentives?: AccruedIncentives[];
   totalIncentives?: TotalIncentives;
   currentFactors?: CurrentFactors;
+  pointsPerDay?: number;
 }
 
 export interface TransactionState {
@@ -126,7 +127,13 @@ interface AddressState {
 
   /** Every supported network has an account object written to the state */
   networkAccounts?: Record<Network, AccountState>;
-  arbPoints?: { token: string; points: number }[];
+  arbPoints?: {
+    token: string;
+    points: number;
+    season_one: number;
+    season_two: number;
+    season_three: number;
+  }[];
   totalPoints?: number;
 }
 
@@ -145,7 +152,7 @@ interface ApplicationState {
   historicalTrading?: Record<Network, HistoricalTrading>;
   /** Stats for the home page hero section */
   heroStats?: {
-    totalValueLocked: number;
+    totalDeposits: number;
     totalOpenDebt: number;
     totalAccounts: number;
   };

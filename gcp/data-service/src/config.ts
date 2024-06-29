@@ -30,21 +30,26 @@ export const defaultConfigDefs: ConfigDefinition[] = [
   ...Curve_Config,
 ];
 
-export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
-  [ProtocolName.NotionalV3]: {
-    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW`,
-    [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/7q9wQYD8VB5dLWZxtuBZ8b2i8DySCK25V6XqpbdYbDep`,
-  },
-  [ProtocolName.BalancerV2]: {
-    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/C4ayEZP2yTXRAB8vSaTrgN4m9anTe9Mdm2ViyiAuV9TV`,
-    [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/98cQDy6tufTJtshDCuhh9z2kWXsQWBHVh2bqnLHsGAeS`,
-  },
-  [ProtocolName.Curve]: {
-    [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF`,
-    // not deployed yet....
-    [Network.arbitrum]:
-      'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
-  },
+export const defaultGraphEndpoints: () => Record<
+  string,
+  Record<string, string>
+> = () => {
+  const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
+
+  return {
+    [ProtocolName.NotionalV3]: {
+      [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW`,
+      [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/7q9wQYD8VB5dLWZxtuBZ8b2i8DySCK25V6XqpbdYbDep`,
+    },
+    [ProtocolName.BalancerV2]: {
+      [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/C4ayEZP2yTXRAB8vSaTrgN4m9anTe9Mdm2ViyiAuV9TV`,
+      [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/98cQDy6tufTJtshDCuhh9z2kWXsQWBHVh2bqnLHsGAeS`,
+    },
+    [ProtocolName.Curve]: {
+      [Network.mainnet]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF`,
+      [Network.arbitrum]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/Gv6NJRut2zrm79ef4QHyKAm41YHqaLF392sM3cz9wywc`,
+    },
+  };
 };
 
 export const defaultDataWriters: Record<string, IDataWriter> = {
@@ -183,17 +188,17 @@ export function buildOperations(
         subgraphCalls.set(cfg.network, operations);
       }
       const endpoint =
-        defaultGraphEndpoints[configData.protocol.toString()][
+        defaultGraphEndpoints()[configData.protocol.toString()][
           cfg.network.toString()
         ];
-      if (!endpoint) {
-        throw Error(`subgraph ${endpoint} not found`);
+
+      if (endpoint) {
+        operations.push({
+          configDef: cfg,
+          subgraphQuery: gql(configData.query),
+          endpoint: endpoint,
+        });
       }
-      operations.push({
-        configDef: cfg,
-        subgraphQuery: gql(configData.query),
-        endpoint: endpoint,
-      });
     } else {
       throw Error('Invalid source type');
     }

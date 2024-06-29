@@ -141,6 +141,8 @@ interface TransactionState {
   populatedTransaction?: PopulatedTransaction;
   /** Error creating transaction */
   transactionError?: string;
+  /** Simulation error transaction */
+  simulationError?: string;
 
   /** Net amount of assets, when rolling refers to the new asset */
   netAssetBalance?: TokenBalance;

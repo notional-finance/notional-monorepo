@@ -19,21 +19,30 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 const DATA_URL = process.env['API_URL'] as string;
 const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
-const R2_ACCESS_KEY_ID = process.env['R2_ACCESS_KEY_ID'] as string;
-const R2_SECRET_ACCESS_KEY = process.env['R2_SECRET_ACCESS_KEY'] as string;
-const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
 
-export const S3 = new S3Client({
-  region: 'auto',
-  endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: R2_ACCESS_KEY_ID,
-    secretAccessKey: R2_SECRET_ACCESS_KEY,
-  },
-});
+let cachedS3Client: S3Client;
+export function getS3() {
+  const R2_ACCESS_KEY_ID = process.env['R2_ACCESS_KEY_ID'] as string;
+  const R2_SECRET_ACCESS_KEY = process.env['R2_SECRET_ACCESS_KEY'] as string;
+
+  if (!cachedS3Client) {
+    cachedS3Client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: R2_ACCESS_KEY_ID,
+        secretAccessKey: R2_SECRET_ACCESS_KEY,
+      },
+    });
+  }
+  return cachedS3Client;
+}
 
 export async function calculateAccountRisks() {
+  const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
+
   Registry.initialize(
+    { NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY },
     DATA_URL,
     AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
     false,
@@ -55,14 +64,14 @@ export async function calculateAccountRisks() {
       const { portfolioRiskProfiles, vaultRiskProfiles } =
         saveAccountRiskProfiles(n);
       try {
-        await S3.send(
+        await getS3().send(
           new PutObjectCommand({
             Bucket: 'account-cache-r2',
             Key: `${n}/accounts/portfolioRisk`,
             Body: JSON.stringify(portfolioRiskProfiles),
           })
         );
-        await S3.send(
+        await getS3().send(
           new PutObjectCommand({
             Bucket: 'account-cache-r2',
             Key: `${n}/accounts/vaultRisk`,
@@ -162,7 +171,9 @@ function getVaultRiskFactors(account: AccountDefinition) {
 }
 
 export async function calculatePointsAccrued(network: Network) {
+  const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
   Registry.initialize(
+    { NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY },
     DATA_URL,
     AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
     false,

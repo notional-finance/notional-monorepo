@@ -13,6 +13,9 @@ new_classes = [
     "ExchangeRegistryDO",
 ]
 
+[triggers]
+crons = ["* * * * *"]
+
 [env.dev]
 name = "registry-exchanges-dev"
 
@@ -20,7 +23,7 @@ name = "registry-exchanges-dev"
 NX_ENV = 'dev'
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
-VERSION = 'v2'
+VERSION = 'v1'
 NX_DATA_URL = 'https://data-dev.notional.finance'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]
 
@@ -35,7 +38,7 @@ name = "registry-exchange"
 
 [env.prod.vars]
 NX_ENV = 'prod'
-VERSION = 'v2'
+VERSION = 'v1'
 NX_DATA_URL = 'https://data.notional.finance'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 

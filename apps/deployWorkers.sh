@@ -14,6 +14,7 @@ yarn nx publish-wrangler-manual registry-oracles --env dev
 yarn nx publish-wrangler-manual registry-exchanges --env dev
 
 # Bots
+yarn nx publish-wrangler-manual note-reward-manager --env dev
 yarn nx publish-wrangler-manual rewards --env dev
 yarn nx publish-wrangler-manual initialize-markets --env dev
 yarn nx publish-wrangler-manual liquidation-bot --env arbitrum
