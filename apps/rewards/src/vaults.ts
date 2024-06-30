@@ -159,7 +159,7 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       poolTokens: [ARB_wstETH, ETH, '0x9791d590788598535278552EEcD4b211bFc790CB'],
       tokenWeights: [50, 50, 0],
       maxSellAmount: {
-        [ARB]: "384600000000000000000", // 384.6e18
+        [ARB]: "454400000000000000000", // 454.4e18
       }
     },
     {
