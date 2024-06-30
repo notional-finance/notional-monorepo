@@ -9,10 +9,14 @@ import {
   SelectedOptions,
 } from '@notional-finance/mui';
 import { PointsIcon } from '@notional-finance/icons';
-import { useAllNetworkMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useAllNetworkMarkets,
+  useTotalArbPoints,
+} from '@notional-finance/notionable-hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-import { getArbBoosts } from '@notional-finance/core-entities';
+import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
+import { useCurrentSeason } from '../points-dashboard-constants';
 
 export const useQualifyingProductsTable = (
   currencyOptions: SelectedOptions[],
@@ -20,6 +24,8 @@ export const useQualifyingProductsTable = (
 ) => {
   const theme = useTheme();
   const { earnYields, borrowYields } = useAllNetworkMarkets();
+  const totalArbPoints = useTotalArbPoints();
+  const currentSeason = useCurrentSeason();
 
   const tableColumns: DataTableColumn[] = [
     {
@@ -142,16 +148,21 @@ export const useQualifyingProductsTable = (
           data.token,
           data.product === 'Fixed Borrow' || data.product === 'Variable Borrow'
         );
+        const pointsAPY = getPointsAPY(
+          boostNum,
+          totalArbPoints[currentSeason.db_name],
+          currentSeason.totalArb,
+          currentSeason.startDate,
+          currentSeason.endDate
+        );
         return {
           currency: underlying.symbol,
           product: vaultName || product,
           id: vaultName ? 'Leveraged Vault' : product,
-          //NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
-          // TODO: ADD totalAPY value
-          totalAPY: 0,
+          totalAPY: totalAPY + pointsAPY,
+          // NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
           apyBeforePoints: totalAPY === 0 ? 0.00001 : totalAPY,
-          // TODO: ADD totalAPY value
-          pointsAPY: 0,
+          pointsAPY,
           view: link,
           boostNum,
           boost: `${getArbBoosts(

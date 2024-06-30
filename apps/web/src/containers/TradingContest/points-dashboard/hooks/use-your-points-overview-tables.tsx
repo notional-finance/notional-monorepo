@@ -64,11 +64,6 @@ export const useYourPointsOverviewTables = () => {
     return daysDiff;
   };
 
-  console.log(
-    'getDaysFromStartDate(season_one.startDate): ',
-    getDaysFromStartDate(season_one.startDate)
-  );
-
   const totalArbPointsBySeason = (arbPoints || []).reduce(
     (t, p) => {
       t.season_one += p.season_one;

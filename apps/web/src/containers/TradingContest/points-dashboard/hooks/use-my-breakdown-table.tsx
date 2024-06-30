@@ -1,5 +1,9 @@
 import { Box, useTheme } from '@mui/material';
-import { getArbBoosts, getPointsPerDay } from '@notional-finance/core-entities';
+import {
+  getArbBoosts,
+  getPointsAPY,
+  getPointsPerDay,
+} from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import { PointsIcon } from '@notional-finance/icons';
 import {
@@ -11,6 +15,7 @@ import {
 import {
   useArbPoints,
   usePortfolioHoldings,
+  useTotalArbPoints,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
@@ -22,12 +27,15 @@ import {
   formatNumberAsPercent,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
+import { useCurrentSeason } from '../points-dashboard-constants';
 
 export const useMyBreakdownTable = () => {
   const theme = useTheme();
   const portfolioHoldings = usePortfolioHoldings(Network.arbitrum);
   const vaultHoldings = useVaultHoldings(Network.arbitrum);
   const arbPoints = useArbPoints();
+  const totalArbPoints = useTotalArbPoints();
+  const currentSeason = useCurrentSeason();
 
   const AccentCell = ({ cell }) => {
     const { getValue } = cell;
@@ -104,6 +112,13 @@ export const useMyBreakdownTable = () => {
       const totalPoints =
         arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)
           ?.points || 0;
+      const pointsAPY = getPointsAPY(
+        boostNum,
+        totalArbPoints[currentSeason.db_name],
+        currentSeason.totalArb,
+        currentSeason.startDate,
+        currentSeason.endDate
+      );
 
       return {
         asset: {
@@ -118,8 +133,7 @@ export const useMyBreakdownTable = () => {
         boost: `${boostNum}x`,
         pointsPerDayNum: pointsPerDay,
         pointsPerDay: formatNumber(pointsPerDay),
-        // TODO: ADD pointsAPY value
-        pointsAPY: 0,
+        pointsAPY,
         totalPoints: formatNumber(totalPoints),
         iconCellData: {
           icon: PointsIcon,
