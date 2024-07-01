@@ -102,7 +102,7 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       address: '0x32D82A1C8618c7Be7Fe85B2F1C44357A871d52D1',
       rewardTokens: [BAL, AURA],
       poolTokens: ['0x05ff47AFADa98a98982113758878F9A8B9FddA0a', rETH, weETH],
-      tokenWeights: [0, 0, 100],
+      tokenWeights: [0, 100, 0],
     },
     {
       address: '0x30fBa4a7ec8591f25B4D37fD79943a4bb6E553e2',
