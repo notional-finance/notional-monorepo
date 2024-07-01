@@ -332,7 +332,7 @@ export const Balancer_Config = [
     [
       getOracleValue(
         Network.arbitrum,
-        Strategy.Arb_Balancer_ezETH_wstETH,
+        Strategy.Arb_Balancer_rsETH_WETH,
         'rsETH to ETH Price',
         '0x11E1836bFF2ce9d6A5bec9cA79dc998210f3886d'
       ),
