@@ -308,11 +308,6 @@ enum ActiveMarket_orderBy {
   fCashMarkets
 }
 
-enum Aggregation_interval {
-  hour
-  day
-}
-
 type Balance {
   """Account:Token ID"""
   id: ID!
@@ -5500,12 +5495,6 @@ enum SystemAccount {
   SecondaryIncentiveRewarder
 }
 
-"""
-A string representation of microseconds UNIX timestamp (16 digits)
-
-"""
-scalar Timestamp
-
 type Token {
   """
   ID space varies by token type:
@@ -7279,8 +7268,6 @@ type _Block_ {
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
   timestamp: Int
-  """The hash of the parent block"""
-  parentHash: Bytes
 }
 
 """The type for the top-level _meta field"""

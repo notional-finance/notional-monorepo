@@ -1,8 +1,12 @@
-query AllAccounts($skip: Int) {
+query AllAccounts($skip: Int, $startId: ID, $endId: ID) {
     accounts(
         first: 1000,
         skip: $skip,
-        where: { systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve] }
+        where: { 
+            id_gt: $startId,
+            id_lt: $endId,
+            systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve]
+        }
     ) {
         id
         systemAccountType
