@@ -1,4 +1,3 @@
-import url from 'url';
 import {
   TreasuryManager__factory,
   ERC20__factory,
@@ -451,7 +450,16 @@ enum Action {
   reinvest = 'reinvest'
 }
 
-type QueryParams = { network: Network, vaultAddress: string, action: Action, force: boolean };
+function getQueryParams(request: Request) {
+  const { searchParams } = new URL(request.url)
+
+  return {
+    network: searchParams.get('network') as Network,
+    vaultAddress: searchParams.get('vaultAddress'),
+    action: searchParams.get('action') as Action ,
+    force: !!searchParams.get('boolean'),
+  }
+}
 
 export default {
   async fetch(
@@ -465,7 +473,7 @@ export default {
       console.log('Cf: ', request['cf']);
       return new Response(null, { status: 401 });
     }
-    const { network, vaultAddress, action, force = false } = url.parse(request.url, true).query as any as QueryParams;
+    const { network, vaultAddress, action, force } = getQueryParams(request);
 
     if (!network || !vaultAddress || !action) {
       return new Response('Missing required query parameters', { status: 400 });
