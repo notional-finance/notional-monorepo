@@ -21,13 +21,19 @@ import {
 } from '../server/server-registry';
 import { ClientRegistry } from './client-registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { BalanceSnapshot, Token, Transaction } from '../.graphclient';
+import {
+  AllAccountsQuery,
+  BalanceSnapshot,
+  Token,
+  Transaction,
+} from '../.graphclient';
 import {
   parseBalanceStatement,
   parseCurrentBalanceStatement,
 } from './accounts/balance-statement';
 import { parseTransaction } from './accounts/transaction-history';
 import { fetchCurrentAccount } from './accounts/current-account';
+import { ExecutionResult } from 'graphql';
 
 export enum AccountFetchMode {
   // Used for the frontend UI, will fetch data for a single account direct from
@@ -320,17 +326,23 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         }
       );
 
-      results.data?.accounts.forEach((a) => {
-        accountData.push({
-          address: a.id,
-          network,
-          systemAccountType: a.systemAccountType,
-          balances:
-            a.balances?.map((b) =>
-              TokenBalance.fromID(b.current.currentBalance, b.token.id, network)
-            ) || [],
-        } as AccountDefinition);
-      });
+      (results as ExecutionResult<AllAccountsQuery>).data?.accounts.forEach(
+        (a) => {
+          accountData.push({
+            address: a.id,
+            network,
+            systemAccountType: a.systemAccountType,
+            balances:
+              a.balances?.map((b) =>
+                TokenBalance.fromID(
+                  b.current.currentBalance,
+                  b.token.id,
+                  network
+                )
+              ) || [],
+          } as AccountDefinition);
+        }
+      );
     }
 
     return {
