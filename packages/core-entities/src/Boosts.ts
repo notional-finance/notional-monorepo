@@ -1,7 +1,7 @@
 import {
   Network,
-  RATE_PRECISION,
   SECONDS_IN_DAY,
+  floorToMidnight,
   getNowSeconds,
 } from '@notional-finance/util';
 import { TokenDefinition } from './Definitions';
@@ -73,14 +73,17 @@ export function getPointsAPY(
     Registry.getTokenRegistry().getTokenBySymbol(Network.arbitrum, 'ARB')
   );
 
-  const dailyEmissionRate =
-    (currentTotalPoints / (getNowSeconds() - seasonStart.getTime() / 1000)) *
-    SECONDS_IN_DAY;
+  const daysIntoSeason = Math.floor(
+    (floorToMidnight(getNowSeconds()) - seasonStart.getTime() / 1000) /
+      SECONDS_IN_DAY
+  );
+  const daysLeftInSeason = Math.ceil(
+    Math.max(seasonEnd.getTime() / 1000 - floorToMidnight(getNowSeconds()), 0) /
+      SECONDS_IN_DAY
+  );
+  const dailyEmissionRate = currentTotalPoints / daysIntoSeason;
   const projectedPointTotal =
-    currentTotalPoints +
-    (dailyEmissionRate *
-      Math.max(seasonEnd.getTime() / 1000 - getNowSeconds(), 0)) /
-      SECONDS_IN_DAY;
+    currentTotalPoints + dailyEmissionRate * daysLeftInSeason;
   const pointsPerDollar = boost;
   const arbSharePerDollar = pointsPerDollar / projectedPointTotal;
 

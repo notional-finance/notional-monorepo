@@ -3,7 +3,14 @@ import { colors } from '@notional-finance/styles';
 import { PointsSeasonsData } from '../points-dashboard-constants';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Network, formatNumber, getDateString } from '@notional-finance/util';
+import {
+  Network,
+  SECONDS_IN_DAY,
+  floorToMidnight,
+  formatNumber,
+  getDateString,
+  getNowSeconds,
+} from '@notional-finance/util';
 import {
   useArbPoints,
   usePortfolioHoldings,
@@ -58,9 +65,11 @@ export const useYourPointsOverviewTables = () => {
     sumTotalPortfolioPoints + sumTotalVaultPortfolioPoints;
 
   const getDaysFromStartDate = (startDate: Date): number => {
-    const currentDate = new Date();
-    const timeDiff = Math.abs(currentDate.getTime() - startDate.getTime());
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1;
+    const timeDiff = Math.max(
+      floorToMidnight(getNowSeconds()) - startDate.getTime() / 1000,
+      0
+    );
+    const daysDiff = Math.floor(timeDiff / SECONDS_IN_DAY);
     return daysDiff;
   };
 
