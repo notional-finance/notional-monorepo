@@ -167,9 +167,6 @@ export function TradeActionSummary({
                       ?.price.toPrecision(3) || '-'
                   }/point`}</H4>
                 )}
-                {hasArbPoints && (
-                  <H4>{`${lendBoosts || borrowBoosts}x ARB Points`}</H4>
-                )}
               </Box>
             ))}
             <InfoTooltip
