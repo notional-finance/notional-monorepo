@@ -4728,32 +4728,6 @@ const schemaAST = {
       "directives": []
     },
     {
-      "kind": "EnumTypeDefinition",
-      "name": {
-        "kind": "Name",
-        "value": "Aggregation_interval"
-      },
-      "values": [
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "hour"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "day"
-          },
-          "directives": []
-        }
-      ],
-      "directives": []
-    },
-    {
       "kind": "ObjectTypeDefinition",
       "name": {
         "kind": "Name",
@@ -5431,30 +5405,6 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "_accumulatedCostRealized"
-          },
-          "arguments": [],
-          "type": {
-            "kind": "NonNullType",
-            "type": {
-              "kind": "NamedType",
-              "name": {
-                "kind": "Name",
-                "value": "BigInt"
-              }
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "FieldDefinition",
-          "description": {
-            "kind": "StringValue",
-            "value": "Internal interest accumulator",
-            "block": true
-          },
-          "name": {
-            "kind": "Name",
-            "value": "_lastInterestAccumulator"
           },
           "arguments": [],
           "type": {
@@ -8398,138 +8348,6 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "_lastInterestAccumulator"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_lastInterestAccumulator_not"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_lastInterestAccumulator_gt"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_lastInterestAccumulator_lt"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_lastInterestAccumulator_gte"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_lastInterestAccumulator_lte"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_lastInterestAccumulator_in"
-          },
-          "type": {
-            "kind": "ListType",
-            "type": {
-              "kind": "NonNullType",
-              "type": {
-                "kind": "NamedType",
-                "name": {
-                  "kind": "Name",
-                  "value": "BigInt"
-                }
-              }
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_lastInterestAccumulator_not_in"
-          },
-          "type": {
-            "kind": "ListType",
-            "type": {
-              "kind": "NonNullType",
-              "type": {
-                "kind": "NamedType",
-                "name": {
-                  "kind": "Name",
-                  "value": "BigInt"
-                }
-              }
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
             "value": "profitLossLineItems_"
           },
           "type": {
@@ -8810,14 +8628,6 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "previousSnapshot___lastInterestAccumulator"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
             "value": "balance"
           },
           "directives": []
@@ -8955,14 +8765,6 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "_accumulatedCostRealized"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "_lastInterestAccumulator"
           },
           "directives": []
         },
@@ -11483,14 +11285,6 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "current___accumulatedCostRealized"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "current___lastInterestAccumulator"
           },
           "directives": []
         },
@@ -31213,14 +31007,6 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "balanceSnapshot___lastInterestAccumulator"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
             "value": "rewardToken"
           },
           "directives": []
@@ -38786,14 +38572,6 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "VaultShareInterestAccrued"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
             "value": "nTokenToUnderlyingExchangeRate"
           },
           "directives": []
@@ -38803,14 +38581,6 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "nTokenBlendedInterestRate"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "nTokenInterestAccrued"
           },
           "directives": []
         },
@@ -52024,14 +51794,6 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "balanceSnapshot___accumulatedCostRealized"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "balanceSnapshot___lastInterestAccumulator"
           },
           "directives": []
         },
@@ -68891,19 +68653,6 @@ const schemaAST = {
           "directives": []
         }
       ],
-      "directives": []
-    },
-    {
-      "kind": "ScalarTypeDefinition",
-      "description": {
-        "kind": "StringValue",
-        "value": "A string representation of microseconds UNIX timestamp (16 digits)\n",
-        "block": true
-      },
-      "name": {
-        "kind": "Name",
-        "value": "Timestamp"
-      },
       "directives": []
     },
     {
@@ -94449,27 +94198,6 @@ const schemaAST = {
             "name": {
               "kind": "Name",
               "value": "Int"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "FieldDefinition",
-          "description": {
-            "kind": "StringValue",
-            "value": "The hash of the parent block",
-            "block": true
-          },
-          "name": {
-            "kind": "Name",
-            "value": "parentHash"
-          },
-          "arguments": [],
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "Bytes"
             }
           },
           "directives": []

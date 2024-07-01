@@ -294,6 +294,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           [account]: snapshots.concat(current),
         };
       },
+      this.subgraphApiKey,
       {
         accountId: account.toLowerCase(),
         minTimestamp,

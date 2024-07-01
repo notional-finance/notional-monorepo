@@ -20,7 +20,6 @@ export type Scalars = {
   BigInt: any;
   Bytes: any;
   Int8: any;
-  Timestamp: any;
 };
 
 export type Account = {
@@ -362,10 +361,6 @@ export type ActiveMarket_orderBy =
   | 'pCashMarket__lastUpdateTimestamp'
   | 'fCashMarkets';
 
-export type Aggregation_interval =
-  | 'hour'
-  | 'day';
-
 export type Balance = {
   /** Account:Token ID */
   id: Scalars['ID'];
@@ -422,8 +417,6 @@ export type BalanceSnapshot = {
   _accumulatedBalance: Scalars['BigInt'];
   /** Cumulative realized cost for internal PnL calculations */
   _accumulatedCostRealized: Scalars['BigInt'];
-  /** Internal interest accumulator */
-  _lastInterestAccumulator: Scalars['BigInt'];
   profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
   /** Snapshots of the secondary incentives */
   incentives?: Maybe<Array<IncentiveSnapshot>>;
@@ -615,14 +608,6 @@ export type BalanceSnapshot_filter = {
   _accumulatedCostRealized_lte?: InputMaybe<Scalars['BigInt']>;
   _accumulatedCostRealized_in?: InputMaybe<Array<Scalars['BigInt']>>;
   _accumulatedCostRealized_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  _lastInterestAccumulator?: InputMaybe<Scalars['BigInt']>;
-  _lastInterestAccumulator_not?: InputMaybe<Scalars['BigInt']>;
-  _lastInterestAccumulator_gt?: InputMaybe<Scalars['BigInt']>;
-  _lastInterestAccumulator_lt?: InputMaybe<Scalars['BigInt']>;
-  _lastInterestAccumulator_gte?: InputMaybe<Scalars['BigInt']>;
-  _lastInterestAccumulator_lte?: InputMaybe<Scalars['BigInt']>;
-  _lastInterestAccumulator_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  _lastInterestAccumulator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
   incentives_?: InputMaybe<IncentiveSnapshot_filter>;
   /** Filter for the block changed event. */
@@ -655,7 +640,6 @@ export type BalanceSnapshot_orderBy =
   | 'previousSnapshot__impliedFixedRate'
   | 'previousSnapshot___accumulatedBalance'
   | 'previousSnapshot___accumulatedCostRealized'
-  | 'previousSnapshot___lastInterestAccumulator'
   | 'balance'
   | 'balance__id'
   | 'balance__firstUpdateBlockNumber'
@@ -674,7 +658,6 @@ export type BalanceSnapshot_orderBy =
   | 'impliedFixedRate'
   | '_accumulatedBalance'
   | '_accumulatedCostRealized'
-  | '_lastInterestAccumulator'
   | 'profitLossLineItems'
   | 'incentives';
 
@@ -866,7 +849,6 @@ export type Balance_orderBy =
   | 'current__impliedFixedRate'
   | 'current___accumulatedBalance'
   | 'current___accumulatedCostRealized'
-  | 'current___lastInterestAccumulator'
   | 'snapshots';
 
 export type BlockChangedFilter = {
@@ -2331,7 +2313,6 @@ export type IncentiveSnapshot_orderBy =
   | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
-  | 'balanceSnapshot___lastInterestAccumulator'
   | 'rewardToken'
   | 'rewardToken__id'
   | 'rewardToken__firstUpdateBlockNumber'
@@ -2884,10 +2865,8 @@ export type OracleType =
   | 'PrimeDebtToMoneyMarketExchangeRate'
   | 'MoneyMarketToUnderlyingExchangeRate'
   | 'VaultShareOracleRate'
-  | 'VaultShareInterestAccrued'
   | 'nTokenToUnderlyingExchangeRate'
   | 'nTokenBlendedInterestRate'
-  | 'nTokenInterestAccrued'
   | 'nTokenFeeRate'
   | 'nTokenIncentiveRate'
   | 'nTokenSecondaryIncentiveRate';
@@ -3853,7 +3832,6 @@ export type ProfitLossLineItem_orderBy =
   | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
-  | 'balanceSnapshot___lastInterestAccumulator'
   | 'account'
   | 'account__id'
   | 'account__firstUpdateBlockNumber'
@@ -7155,8 +7133,6 @@ export type _Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
-  /** The hash of the parent block */
-  parentHash?: Maybe<Scalars['Bytes']>;
 };
 
 /** The type for the top-level _meta field */
