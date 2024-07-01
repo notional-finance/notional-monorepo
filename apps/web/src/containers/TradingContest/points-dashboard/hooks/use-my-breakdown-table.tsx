@@ -153,6 +153,13 @@ export const useMyBreakdownTable = () => {
       const pointsPerDay = getPointsPerDay(b);
       const totalPoints =
         arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
+      const pointsAPY = getPointsAPY(
+        boostNum,
+        totalArbPoints[currentSeason.db_name],
+        currentSeason.totalArb,
+        currentSeason.startDate,
+        currentSeason.endDate
+      );
 
       return {
         asset: {
@@ -163,6 +170,7 @@ export const useMyBreakdownTable = () => {
         },
         boostNum,
         pointsPerDayNum: pointsPerDay,
+        pointsAPY,
         boost: `${boostNum}x`,
         pointsPerDay: formatNumber(pointsPerDay),
         totalPoints: formatNumber(totalPoints),
