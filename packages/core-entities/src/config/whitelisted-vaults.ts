@@ -21,7 +21,7 @@ export const PointsMultipliers: Record<
       Ethena: 20,
     }),
     '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb': (v) => ({
-      Kelp: 4,
+      Kelp: 3,
       EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
   },
@@ -29,6 +29,10 @@ export const PointsMultipliers: Record<
   [Network.arbitrum]: {
     '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937': (v) => ({
       Renzo: 4,
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
+    }),
+    '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68': (v) => ({
+      Kelp: 3,
       EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
   },
@@ -105,6 +109,8 @@ export const whitelistedVaults = (network: Network) => {
         '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937',
         // "[WBTC]:xWBTC_tBTC":
         '0xf95441f348eb2fd3d5d82f9b7b961137a734eedd',
+        // "[ETH]:rsETH_xWETH":
+        '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68',
       ];
     case Network.optimism:
       return [];

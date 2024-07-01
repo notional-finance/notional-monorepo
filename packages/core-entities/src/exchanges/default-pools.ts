@@ -619,6 +619,32 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
+      address: '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739',
+          address: '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739',
+          network: Network.arbitrum,
+          symbol: 'rsETH/wETH',
+          name: 'Balancer rsETH/wETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0x4186BFC76E2E237523CBC30FD220FE055156b41F',
+          address: '0x4186BFC76E2E237523CBC30FD220FE055156b41F',
+          network: Network.arbitrum,
+          symbol: 'rsETH',
+          name: 'KelpDao Restaked ETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
       address: '0x755D6688AD74661Add2FB29212ef9153D40fcA46',
       PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [

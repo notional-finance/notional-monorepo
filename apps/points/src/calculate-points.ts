@@ -58,6 +58,18 @@ const VaultConfig = {
     usdOracle: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
     rsETHToUSD: '0xb676EA4e0A54ffD579efFc1f1317C70d671f2028',
   },
+  '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739': {
+    poolId:
+      '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd73900000000000000000000055c',
+    targetToken: '0x4186BFC76E2E237523CBC30FD220FE055156b41F',
+    network: Network.arbitrum,
+    symbol: 'rsETH',
+    // Oracle Decimals
+    decimals: 8,
+    // ETH borrow
+    usdOracle: '0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612',
+    rsETHToUSD: '0x02551ded3F5B25f60Ea67f258D907eD051E042b2',
+  },
 };
 
 async function loadAllVaultsQuery(
@@ -225,7 +237,9 @@ export async function getVaultData(
 
       if (
         vaultAddress.toLowerCase() ===
-        '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb'
+          '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb' ||
+        vaultAddress.toLowerCase() ===
+          '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739'
       ) {
         // For Kelp RS ETH its the value of all holdings in rsETH terms.
         const ethBalance = poolData.balances.balances[2]
