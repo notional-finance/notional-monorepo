@@ -58,7 +58,7 @@ const VaultConfig = {
     usdOracle: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
     rsETHToUSD: '0xb676EA4e0A54ffD579efFc1f1317C70d671f2028',
   },
-  '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739': {
+  '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68': {
     poolId:
       '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd73900000000000000000000055c',
     targetToken: '0x4186BFC76E2E237523CBC30FD220FE055156b41F',
