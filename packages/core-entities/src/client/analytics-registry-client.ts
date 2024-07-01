@@ -496,10 +496,17 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
 
   async getTotalPoints() {
     return this.getView<{
-      season_one: number;
-      season_two: number;
-      season_three: number;
-    }>(Network.arbitrum, 'total_points').then((v) => v[0]);
+      season_one: string;
+      season_two: string;
+      season_three: string;
+    }>(Network.arbitrum, 'total_points').then((v) => {
+      const d = v[0];
+      return {
+        season_one: parseFloat(d['season_one']),
+        season_two: parseFloat(d['season_two']),
+        season_three: parseFloat(d['season_three']),
+      };
+    });
   }
 
   async getExchangeRateValues(
