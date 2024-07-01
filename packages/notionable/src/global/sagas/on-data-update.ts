@@ -19,20 +19,20 @@ import {
   timer,
   withLatestFrom,
 } from 'rxjs';
-import { CalculatedPriceChanges, GlobalState } from '../global-state';
+import { ApplicationState, CalculatedPriceChanges } from '../global-state';
 import { globalWhenAppReady$ } from './on-app-load';
 import { getIndexedYields } from '../data/yields';
 
-export function onDataUpdate(global$: Observable<GlobalState>) {
+export function onDataUpdate(app$: Observable<ApplicationState>) {
   return merge(
-    onYieldsUpdate$(global$),
-    onPriceChangeUpdate$(global$),
-    onAnalyticsReady$(global$)
+    onYieldsUpdate$(app$),
+    onPriceChangeUpdate$(app$),
+    onAnalyticsReady$(app$)
   );
 }
 
-function onYieldsUpdate$(global$: Observable<GlobalState>) {
-  return globalWhenAppReady$(global$).pipe(
+function onYieldsUpdate$(app$: Observable<ApplicationState>) {
+  return globalWhenAppReady$(app$).pipe(
     take(1),
     switchMap(() => Registry.getYieldRegistry().subscribeNetworks()),
     switchMap((networks) => {
@@ -56,29 +56,29 @@ function onYieldsUpdate$(global$: Observable<GlobalState>) {
   );
 }
 
-function onPriceChangeUpdate$(global$: Observable<GlobalState>) {
-  return globalWhenAppReady$(global$).pipe(
+function onPriceChangeUpdate$(app$: Observable<ApplicationState>) {
+  return globalWhenAppReady$(app$).pipe(
     take(1),
     switchMap(() => Registry.getAnalyticsRegistry().subscribeNetworks()),
     switchMap((networks) => {
       return timer(0, 60_000).pipe(
-        withLatestFrom(global$),
-        map(([_, global]) => ({
+        withLatestFrom(app$),
+        map(([_, app]) => ({
           priceChanges: networks.reduce((acc, n) => {
             if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
               acc[n] = {
                 oneDay: Registry.getAnalyticsRegistry().getPriceChanges(
-                  global.baseCurrency,
+                  app.baseCurrency,
                   n,
                   SECONDS_IN_DAY
                 ),
                 threeDay: Registry.getAnalyticsRegistry().getPriceChanges(
-                  global.baseCurrency,
+                  app.baseCurrency,
                   n,
                   SECONDS_IN_DAY * 3
                 ),
                 sevenDay: Registry.getAnalyticsRegistry().getPriceChanges(
-                  global.baseCurrency,
+                  app.baseCurrency,
                   n,
                   SECONDS_IN_DAY * 7
                 ),
@@ -92,8 +92,8 @@ function onPriceChangeUpdate$(global$: Observable<GlobalState>) {
   );
 }
 
-function onAnalyticsReady$(global$: Observable<GlobalState>) {
-  return globalWhenAppReady$(global$).pipe(
+function onAnalyticsReady$(app$: Observable<ApplicationState>) {
+  return globalWhenAppReady$(app$).pipe(
     take(1),
     switchMap(() => Registry.getAnalyticsRegistry().subscribeNetworks()),
     switchMap((networks) => {

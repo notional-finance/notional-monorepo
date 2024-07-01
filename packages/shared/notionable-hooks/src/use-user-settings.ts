@@ -1,18 +1,18 @@
 import { Registry } from '@notional-finance/core-entities';
-import { useNotionalContext } from './use-notional';
+import { useAppContext, useNotionalContext } from './use-notional';
 import { Network } from '@notional-finance/util';
 
 export function useFiat() {
   const {
-    globalState: { baseCurrency },
-  } = useNotionalContext();
+    appState: { baseCurrency },
+  } = useAppContext();
   return baseCurrency;
 }
 
 export function useFiatToken() {
   const {
-    globalState: { baseCurrency },
-  } = useNotionalContext();
+    appState: { baseCurrency },
+  } = useAppContext();
   return Registry.getTokenRegistry().getTokenBySymbol(
     Network.all,
     baseCurrency
