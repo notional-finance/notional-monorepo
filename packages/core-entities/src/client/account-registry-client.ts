@@ -1,7 +1,9 @@
 import {
   filterEmpty,
+  getNowSeconds,
   getProviderFromNetwork,
   Network,
+  SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { providers } from 'ethers';
 import { BehaviorSubject, from, of, switchMap } from 'rxjs';
@@ -11,6 +13,8 @@ import {
   CacheSchema,
   TokenBalance,
   AccountHistory,
+  HistoricalBalance,
+  Registry,
 } from '..';
 import { Routes } from '../server';
 import {
@@ -172,18 +176,24 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     account: AccountDefinition
   ) {
     try {
-      const [txnHistory, balanceStatements] = await Promise.all([
-        this.fetchTransactionHistory(network, address),
-        this.fetchBalanceStatements(network, address),
-      ]);
+      const [txnHistory, balanceStatements, historicalBalances] =
+        await Promise.all([
+          this.fetchTransactionHistory(network, address),
+          this.fetchBalanceStatements(network, address),
+          this.fetchHistoricalBalances(network, address),
+        ]);
 
       // Set the balance statement and txn history
       account.balanceStatement = balanceStatements.finalResults[address];
       account.accountHistory = txnHistory.finalResults[address];
+      account.historicalBalances = historicalBalances.finalResults[
+        address
+      ].sort((a, b) => a.timestamp - b.timestamp);
     } catch (e) {
       console.error(e);
       account.balanceStatement = undefined;
       account.accountHistory = undefined;
+      account.historicalBalances = undefined;
     }
 
     return account;
@@ -238,6 +248,60 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     );
   }
 
+  public async fetchHistoricalBalances(
+    network: Network,
+    account: string,
+    minTimestamp = getNowSeconds() - 30 * SECONDS_IN_DAY
+  ) {
+    const { AccountHoldingsHistoricalDocument } =
+      await loadGraphClientDeferred();
+    return await fetchGraph(
+      network,
+      AccountHoldingsHistoricalDocument,
+      (r): Record<string, HistoricalBalance[]> => {
+        // These are the balances of any tokens that do not have
+        // a snapshot in the time range (meaning their balance did)
+        // not change during the time span
+        const current =
+          r.account?.balances
+            ?.filter(({ current }) => current.timestamp < minTimestamp)
+            .map(({ current, token }) => {
+              const t = Registry.getTokenRegistry().getTokenByID(
+                network,
+                token.id
+              );
+              return {
+                timestamp: current.timestamp,
+                balance: TokenBalance.from(current.currentBalance, t),
+              };
+            }) || [];
+
+        const snapshots =
+          r.account?.balances?.flatMap(({ snapshots, token }) => {
+            const t = Registry.getTokenRegistry().getTokenByID(
+              network,
+              token.id
+            );
+            return (
+              snapshots?.map(({ timestamp, currentBalance }) => ({
+                timestamp,
+                balance: TokenBalance.from(currentBalance, t),
+              })) || []
+            );
+          }) || [];
+
+        return {
+          [account]: snapshots.concat(current),
+        };
+      },
+      this.subgraphApiKey,
+      {
+        accountId: account.toLowerCase(),
+        minTimestamp,
+      }
+    );
+  }
+
   public async fetchBalanceStatements(network: Network, account: string) {
     const { AccountBalanceStatementDocument } = await loadGraphClientDeferred();
     return await fetchGraph(
@@ -256,8 +320,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                     token as Token,
                     network
                   ),
-                  // NOTE: this is used to populate the account history chart in the portfolio page
-                  historicalSnapshots: [],
                 };
               }) || [],
         };

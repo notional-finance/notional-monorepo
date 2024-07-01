@@ -360,8 +360,6 @@ type BalanceSnapshot {
   _accumulatedBalance: BigInt!
   """Cumulative realized cost for internal PnL calculations"""
   _accumulatedCostRealized: BigInt!
-  """Internal interest accumulator"""
-  _lastInterestAccumulator: BigInt!
   profitLossLineItems(skip: Int = 0, first: Int = 100, orderBy: ProfitLossLineItem_orderBy, orderDirection: OrderDirection, where: ProfitLossLineItem_filter): [ProfitLossLineItem!]
   """Snapshots of the secondary incentives"""
   incentives(skip: Int = 0, first: Int = 100, orderBy: IncentiveSnapshot_orderBy, orderDirection: OrderDirection, where: IncentiveSnapshot_filter): [IncentiveSnapshot!]
@@ -535,14 +533,6 @@ input BalanceSnapshot_filter {
   _accumulatedCostRealized_lte: BigInt
   _accumulatedCostRealized_in: [BigInt!]
   _accumulatedCostRealized_not_in: [BigInt!]
-  _lastInterestAccumulator: BigInt
-  _lastInterestAccumulator_not: BigInt
-  _lastInterestAccumulator_gt: BigInt
-  _lastInterestAccumulator_lt: BigInt
-  _lastInterestAccumulator_gte: BigInt
-  _lastInterestAccumulator_lte: BigInt
-  _lastInterestAccumulator_in: [BigInt!]
-  _lastInterestAccumulator_not_in: [BigInt!]
   profitLossLineItems_: ProfitLossLineItem_filter
   incentives_: IncentiveSnapshot_filter
   """Filter for the block changed event."""
@@ -575,7 +565,6 @@ enum BalanceSnapshot_orderBy {
   previousSnapshot__impliedFixedRate
   previousSnapshot___accumulatedBalance
   previousSnapshot___accumulatedCostRealized
-  previousSnapshot___lastInterestAccumulator
   balance
   balance__id
   balance__firstUpdateBlockNumber
@@ -594,7 +583,6 @@ enum BalanceSnapshot_orderBy {
   impliedFixedRate
   _accumulatedBalance
   _accumulatedCostRealized
-  _lastInterestAccumulator
   profitLossLineItems
   incentives
 }
@@ -787,7 +775,6 @@ enum Balance_orderBy {
   current__impliedFixedRate
   current___accumulatedBalance
   current___accumulatedCostRealized
-  current___lastInterestAccumulator
   snapshots
 }
 
@@ -2238,7 +2225,6 @@ enum IncentiveSnapshot_orderBy {
   balanceSnapshot__impliedFixedRate
   balanceSnapshot___accumulatedBalance
   balanceSnapshot___accumulatedCostRealized
-  balanceSnapshot___lastInterestAccumulator
   rewardToken
   rewardToken__id
   rewardToken__firstUpdateBlockNumber
@@ -2776,10 +2762,8 @@ enum OracleType {
   PrimeDebtToMoneyMarketExchangeRate
   MoneyMarketToUnderlyingExchangeRate
   VaultShareOracleRate
-  VaultShareInterestAccrued
   nTokenToUnderlyingExchangeRate
   nTokenBlendedInterestRate
-  nTokenInterestAccrued
   nTokenFeeRate
   nTokenIncentiveRate
   nTokenSecondaryIncentiveRate
@@ -3745,7 +3729,6 @@ enum ProfitLossLineItem_orderBy {
   balanceSnapshot__impliedFixedRate
   balanceSnapshot___accumulatedBalance
   balanceSnapshot___accumulatedCostRealized
-  balanceSnapshot___lastInterestAccumulator
   account
   account__id
   account__firstUpdateBlockNumber

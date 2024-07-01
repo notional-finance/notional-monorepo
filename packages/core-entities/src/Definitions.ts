@@ -125,17 +125,6 @@ export interface BalanceStatement {
     adjustedClaimed: TokenBalance;
   }[];
   impliedFixedRate?: number;
-
-  historicalSnapshots: {
-    timestamp: number;
-    balance: TokenBalance;
-    adjustedCostBasis: TokenBalance;
-    totalILAndFees: TokenBalance;
-    totalProfitAndLoss: TokenBalance;
-    totalInterestAccrual: TokenBalance;
-    accumulatedCostRealized: TokenBalance;
-    impliedFixedRate?: number;
-  }[];
 }
 
 export interface AccountHistory {
@@ -170,6 +159,11 @@ export interface StakeNoteStatus {
   redeemWindowEnd: number;
 }
 
+export interface HistoricalBalance {
+  timestamp: number;
+  balance: TokenBalance;
+}
+
 export interface AccountDefinition {
   /** Address of the account */
   address: string;
@@ -193,6 +187,7 @@ export interface AccountDefinition {
   allowances?: Allowance[];
   systemAccountType?: SystemAccount;
   stakeNOTEStatus?: StakeNoteStatus;
+  historicalBalances?: HistoricalBalance[];
 }
 
 export interface SerializedAccountDefinition {

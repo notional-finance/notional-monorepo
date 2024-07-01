@@ -2,16 +2,16 @@ import {
   INTERNAL_TOKEN_PRECISION,
   Network,
   RATE_PRECISION,
-  SCALAR_PRECISION,
-  SECONDS_IN_YEAR,
-  getNowSeconds,
+  // SCALAR_PRECISION,
+  // SECONDS_IN_YEAR,
+  // getNowSeconds,
 } from '@notional-finance/util';
 import { Registry } from '../../Registry';
 import { TokenBalance } from '../../token-balance';
+// import { BigNumber } from 'ethers';
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { BalanceSnapshot, Token } from '../../.graphclient';
-import { BigNumber } from 'ethers';
 
 export function parseCurrentBalanceStatement(
   current: BalanceSnapshot,
@@ -54,7 +54,9 @@ export function parseCurrentBalanceStatement(
       ),
     })) || [];
 
-  let totalInterestAccrual: TokenBalance;
+  const totalInterestAccrual: TokenBalance = currentProfitAndLoss;
+  /*
+  FIXME: add this back in for earnings breakdown
   if (token.tokenType === 'VaultShare' || token.tokenType === 'nToken') {
     const a = Registry.getOracleRegistry().getLatestFromSubject(
       network,
@@ -101,6 +103,7 @@ export function parseCurrentBalanceStatement(
     // For Prime Cash and Prime Debt, the entire PNL is interest accrual
     totalInterestAccrual = currentProfitAndLoss;
   }
+  */
 
   // Total Earnings = Organic Earnings + Incentive Earnings
   return {

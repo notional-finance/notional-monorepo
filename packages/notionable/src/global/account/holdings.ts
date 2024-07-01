@@ -144,11 +144,11 @@ export function calculateHoldings(
       .toFiat('USD')
       .add(totalIncentiveEarnings);
 
-    // TODO: this won't work when we remove historical snapshots
-    const positionEstablished = (
-      statement?.historicalSnapshots.find((h) => h.balance.isZero()) ||
-      statement?.historicalSnapshots.slice(-1).find((_) => true)
-    )?.timestamp;
+    const positionEstablished = account?.historicalBalances
+      ?.reverse()
+      .find(
+        (h) => h.balance.tokenId === balance.tokenId && !balance.isZero()
+      )?.timestamp;
 
     return {
       balance,
@@ -356,7 +356,7 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       totalILAndFees,
       totalInterestAccrual,
       assetPnL,
-      debtPnL
+      debtPnL,
     };
   });
 }
