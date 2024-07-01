@@ -21,7 +21,7 @@ export const PointsMultipliers: Record<
       Ethena: 20,
     }),
     '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb': (v) => ({
-      Kelp: 3,
+      Kelp: 2,
       EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
   },
@@ -32,7 +32,7 @@ export const PointsMultipliers: Record<
       EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
     // '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68': (v) => ({
-    //   Kelp: 3,
+    //   Kelp: 2,
     //   EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     // }),
   },
