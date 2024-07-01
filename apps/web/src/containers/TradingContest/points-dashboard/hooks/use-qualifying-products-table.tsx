@@ -9,10 +9,14 @@ import {
   SelectedOptions,
 } from '@notional-finance/mui';
 import { PointsIcon } from '@notional-finance/icons';
-import { useAllNetworkMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useAllNetworkMarkets,
+  useTotalArbPoints,
+} from '@notional-finance/notionable-hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-import { getArbBoosts } from '@notional-finance/core-entities';
+import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
+import { useCurrentSeason } from '../points-dashboard-constants';
 
 export const useQualifyingProductsTable = (
   currencyOptions: SelectedOptions[],
@@ -20,6 +24,8 @@ export const useQualifyingProductsTable = (
 ) => {
   const theme = useTheme();
   const { earnYields, borrowYields } = useAllNetworkMarkets();
+  const totalArbPoints = useTotalArbPoints();
+  const currentSeason = useCurrentSeason();
 
   const tableColumns: DataTableColumn[] = [
     {
@@ -58,6 +64,40 @@ export const useQualifyingProductsTable = (
       displayFormatter: formatNumberAsPercent,
       cell: DisplayCell,
       accessorKey: 'totalAPY',
+      textAlign: 'right',
+      enableSorting: true,
+      sortingFn: 'basic',
+      sortDescFirst: true,
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
+    },
+    {
+      header: (
+        <FormattedMessage
+          defaultMessage="APY Before Points"
+          description={'APY Before Points header'}
+        />
+      ),
+      displayFormatter: formatNumberAsPercent,
+      cell: DisplayCell,
+      accessorKey: 'apyBeforePoints',
+      textAlign: 'right',
+      enableSorting: true,
+      sortingFn: 'basic',
+      sortDescFirst: true,
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
+    },
+    {
+      header: (
+        <FormattedMessage
+          defaultMessage="Points APY"
+          description={'Points APY header'}
+        />
+      ),
+      displayFormatter: formatNumberAsPercent,
+      cell: DisplayCell,
+      accessorKey: 'pointsAPY',
       textAlign: 'right',
       enableSorting: true,
       sortingFn: 'basic',
@@ -108,11 +148,21 @@ export const useQualifyingProductsTable = (
           data.token,
           data.product === 'Fixed Borrow' || data.product === 'Variable Borrow'
         );
+        const pointsAPY = getPointsAPY(
+          boostNum,
+          totalArbPoints[currentSeason.db_name],
+          currentSeason.totalArb,
+          currentSeason.startDate,
+          currentSeason.endDate
+        );
         return {
           currency: underlying.symbol,
           product: vaultName || product,
-          //NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
-          totalAPY: totalAPY === 0 ? 0.00001 : totalAPY,
+          id: vaultName ? 'Leveraged Vault' : product,
+          totalAPY: totalAPY + pointsAPY,
+          // NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
+          apyBeforePoints: totalAPY === 0 ? 0.00001 : totalAPY,
+          pointsAPY,
           view: link,
           boostNum,
           boost: `${getArbBoosts(
@@ -148,13 +198,12 @@ export const useQualifyingProductsTable = (
     const currencyIds = getIds(currencyOptions);
     const productIds = getIds(productOptions);
     const filterData = [...currencyIds, ...productIds];
-
     if (filterData.length === 0) return initialData;
 
     if (productIds.length > 0 && currencyIds.length > 0) {
       return initialData
         .filter(({ currency }) => filterData.includes(currency))
-        .filter(({ product }) => filterData.includes(product));
+        .filter(({ id }) => filterData.includes(id));
     }
     if (currencyIds.length > 0) {
       return initialData.filter(({ currency }) =>
@@ -162,7 +211,7 @@ export const useQualifyingProductsTable = (
       );
     }
     if (productIds.length > 0) {
-      return initialData.filter(({ product }) => productIds.includes(product));
+      return initialData.filter(({ id }) => productIds.includes(id));
     }
 
     return [];

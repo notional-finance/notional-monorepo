@@ -1,15 +1,21 @@
 import { Box, useTheme } from '@mui/material';
-import { getArbBoosts, getPointsPerDay } from '@notional-finance/core-entities';
+import {
+  getArbBoosts,
+  getPointsAPY,
+  getPointsPerDay,
+} from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import { PointsIcon } from '@notional-finance/icons';
 import {
   DataTableColumn,
+  DisplayCell,
   IconCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import {
   useArbPoints,
   usePortfolioHoldings,
+  useTotalArbPoints,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
@@ -18,14 +24,18 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   formatMaturity,
   formatNumber,
+  formatNumberAsPercent,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
+import { useCurrentSeason } from '../points-dashboard-constants';
 
 export const useMyBreakdownTable = () => {
   const theme = useTheme();
   const portfolioHoldings = usePortfolioHoldings(Network.arbitrum);
   const vaultHoldings = useVaultHoldings(Network.arbitrum);
   const arbPoints = useArbPoints();
+  const totalArbPoints = useTotalArbPoints();
+  const currentSeason = useCurrentSeason();
 
   const AccentCell = ({ cell }) => {
     const { getValue } = cell;
@@ -66,6 +76,23 @@ export const useMyBreakdownTable = () => {
     {
       header: (
         <FormattedMessage
+          defaultMessage="Points APY"
+          description={'Points APY header'}
+        />
+      ),
+      displayFormatter: formatNumberAsPercent,
+      cell: DisplayCell,
+      accessorKey: 'pointsAPY',
+      textAlign: 'right',
+      enableSorting: true,
+      sortingFn: 'basic',
+      sortDescFirst: true,
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
+    },
+    {
+      header: (
+        <FormattedMessage
           defaultMessage="Total Points"
           description={'Total Points header'}
         />
@@ -85,6 +112,13 @@ export const useMyBreakdownTable = () => {
       const totalPoints =
         arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)
           ?.points || 0;
+      const pointsAPY = getPointsAPY(
+        boostNum,
+        totalArbPoints[currentSeason.db_name],
+        currentSeason.totalArb,
+        currentSeason.startDate,
+        currentSeason.endDate
+      );
 
       return {
         asset: {
@@ -99,6 +133,7 @@ export const useMyBreakdownTable = () => {
         boost: `${boostNum}x`,
         pointsPerDayNum: pointsPerDay,
         pointsPerDay: formatNumber(pointsPerDay),
+        pointsAPY,
         totalPoints: formatNumber(totalPoints),
         iconCellData: {
           icon: PointsIcon,
