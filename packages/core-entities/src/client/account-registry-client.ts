@@ -283,6 +283,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
   private async _fetchBatchAccounts(network: Network) {
     const { AllAccountsDocument } = await loadGraphClientDeferred();
+    // This kludge is necessary because the subgraph only allows a skip value of
+    // less than 5000, so we query the entire account range by the prefix here with
+    // a max number of accounts in each id range of 5000.
     const idRanges = [
       '0x0000000000000000000000000000000000000000',
       '0x1000000000000000000000000000000000000000',

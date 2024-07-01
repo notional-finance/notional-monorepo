@@ -9,7 +9,6 @@ import { CacheSchema, Env } from '..';
 import { BaseRegistry } from '../base';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { providers } from 'ethers';
-import { ExecutionResult } from 'graphql';
 
 export type TypedDocumentReturnType<T> = T extends TypedDocumentNode<
   infer U,
@@ -128,7 +127,7 @@ export async function fetchGraphPaginate<R, V>(
     executionResult['data'][rootVariable].push(r['data'][rootVariable]);
   }
 
-  return executionResult as ExecutionResult<R>;
+  return executionResult;
 }
 
 export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
