@@ -268,11 +268,8 @@ const claimRewards = async (env: Env, provider: Provider) => {
   const failedClaims = results.filter(
     (r) => r.status == 'rejected'
   ) as PromiseRejectedResult[];
-  // if any of the claims failed throw error so worker execution can be properly
-  // marked as failed and alarms can be triggered
-  if (failedClaims.length) {
-    throw new Error(failedClaims[0].reason);
-  }
+
+  return failedClaims.map(p => new Error(p.reason));
 };
 
 type FunRetProm = () => Promise<any>;
@@ -438,11 +435,8 @@ const reinvestRewards = async (env: Env, provider: Provider) => {
       errors.push(err);
     }
   }
-  // if any of the reinvestments failed throw error so worker execution can be properly
-  // marked as failed and alarms can be triggered
-  if (errors.length) {
-    throw errors[0];
-  }
+
+  return errors;
 };
 
 enum Action {
@@ -456,7 +450,7 @@ function getQueryParams(request: Request) {
   return {
     network: searchParams.get('network') as Network,
     vaultAddress: searchParams.get('vaultAddress'),
-    action: searchParams.get('action') as Action ,
+    action: searchParams.get('action') as Action,
     force: !!searchParams.get('boolean'),
   }
 }
@@ -512,12 +506,19 @@ export default {
       funToRun = reinvestRewards;
     }
 
+    const allErrors: Error[] = [];
     for (const network of env.NETWORKS) {
       env.NETWORK = network;
       console.log(`Processing network: ${env.NETWORK}`);
       const provider = getProviderFromNetwork(env.NETWORK, true);
 
-      await funToRun(env, provider);
+      const errors = await funToRun(env, provider);
+      allErrors.push(...errors);
+    }
+    // if any of the claims/reinvestment failed, throw error here so worker execution can be properly
+    // marked as failed and alarms can be triggered
+    if (allErrors.length) {
+      throw allErrors[0];
     }
   },
 };
