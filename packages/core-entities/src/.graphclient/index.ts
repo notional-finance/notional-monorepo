@@ -42,6 +42,7 @@ export type Scalars = {
   BigInt: any;
   Bytes: any;
   Int8: any;
+  Timestamp: any;
 };
 
 export type Account = {
@@ -382,6 +383,10 @@ export type ActiveMarket_orderBy =
   | 'pCashMarket__lastUpdateBlockNumber'
   | 'pCashMarket__lastUpdateTimestamp'
   | 'fCashMarkets';
+
+export type Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type Balance = {
   /** Account:Token ID */
@@ -7155,6 +7160,8 @@ export type _Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['Bytes']>;
 };
 
 /** The type for the top-level _meta field */
@@ -7814,6 +7821,7 @@ export type ResolversTypes = ResolversObject<{
   ActiveMarket: ResolverTypeWrapper<ActiveMarket>;
   ActiveMarket_filter: ActiveMarket_filter;
   ActiveMarket_orderBy: ActiveMarket_orderBy;
+  Aggregation_interval: Aggregation_interval;
   Balance: ResolverTypeWrapper<Balance>;
   BalanceSnapshot: ResolverTypeWrapper<BalanceSnapshot>;
   BalanceSnapshot_filter: BalanceSnapshot_filter;
@@ -7876,6 +7884,7 @@ export type ResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars['String']>;
   Subscription: ResolverTypeWrapper<{}>;
   SystemAccount: SystemAccount;
+  Timestamp: ResolverTypeWrapper<Scalars['Timestamp']>;
   Token: ResolverTypeWrapper<Token>;
   TokenInterface: TokenInterface;
   TokenType: TokenType;
@@ -7968,6 +7977,7 @@ export type ResolversParentTypes = ResolversObject<{
   Reinvestment_filter: Reinvestment_filter;
   String: Scalars['String'];
   Subscription: {};
+  Timestamp: Scalars['Timestamp'];
   Token: Token;
   Token_filter: Token_filter;
   TradingModulePermission: TradingModulePermission;
@@ -8457,6 +8467,10 @@ export type SubscriptionResolvers<ContextType = MeshContext & { apiKey: string, 
   _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
 }>;
 
+export interface TimestampScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Timestamp'], any> {
+  name: 'Timestamp';
+}
+
 export type TokenResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   firstUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -8614,6 +8628,7 @@ export type _Block_Resolvers<ContextType = MeshContext & { apiKey: string, subgr
   hash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  parentHash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -8693,6 +8708,7 @@ export type Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: 
   Query?: QueryResolvers<ContextType>;
   Reinvestment?: ReinvestmentResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  Timestamp?: GraphQLScalarType;
   Token?: TokenResolvers<ContextType>;
   TradingModulePermission?: TradingModulePermissionResolvers<ContextType>;
   Transaction?: TransactionResolvers<ContextType>;
@@ -9227,7 +9243,9 @@ export const AccountBalanceStatementDocument = gql`
 export const AccountHoldingsHistoricalDocument = gql`
     query AccountHoldingsHistorical($accountId: ID!, $minTimestamp: Int!) {
   account(id: $accountId) {
-    balances(where: {token_: {tokenType_not: NOTE}}) {
+    balances(
+      where: {token_: {tokenType_not_in: [NOTE, Underlying], currencyId_gt: 0}}
+    ) {
       token {
         id
       }

@@ -1,6 +1,6 @@
 query AccountHoldingsHistorical($accountId: ID!, $minTimestamp: Int!) {
   account(id: $accountId) {
-    balances (where: { token_: { tokenType_not: NOTE }}) {
+    balances (where: { token_: { tokenType_not_in: [NOTE, Underlying], currencyId_gt: 0 }}) {
       token { id }
       current {
         timestamp
