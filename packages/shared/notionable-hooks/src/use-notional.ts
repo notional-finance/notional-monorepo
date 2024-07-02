@@ -37,7 +37,7 @@ export function useLastUpdateBlockNumber() {
 }
 
 export function useAppContext() {
-  const { app, app$ } = useContext(NotionalContext);
+  const { app, app$, updateAppState } = useContext(NotionalContext);
   const initialState$ = useObservable(pluckFirst, [app]);
 
   // Ensures that listeners receive the initial global state
@@ -46,7 +46,7 @@ export function useAppContext() {
     [app$]
   );
 
-  return { appState: app, appState$ };
+  return { appState: app, appState$, updateAppState };
 }
 
 export function useNotionalContext() {
