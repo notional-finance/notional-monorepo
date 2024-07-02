@@ -9,7 +9,7 @@ import {
   pairwise,
   switchMap,
 } from 'rxjs';
-import { AccountState, GlobalState } from '../global-state';
+import { AccountState, ApplicationState, GlobalState } from '../global-state';
 import {
   Network,
   SupportedNetworks,
@@ -35,11 +35,14 @@ import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { isAppReady } from '../../utils';
 import { identify } from '@notional-finance/helpers';
 
-export function onWalletConnect(global$: Observable<GlobalState>) {
+export function onWalletConnect(
+  global$: Observable<GlobalState>,
+  app$: Observable<ApplicationState>
+) {
   return merge(
     onWalletChange$(global$),
     onSyncAccountInfo$(global$),
-    onAccountUpdates$(global$),
+    onAccountUpdates$(global$, app$),
     onSyncArbPoints$(global$)
   );
 }
@@ -136,11 +139,16 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
   );
 }
 
-function onAccountUpdates$(global$: Observable<GlobalState>) {
-  return global$.pipe(
-    distinctUntilChanged((p, c) => p.isAccountPending === c.isAccountPending),
-    filter((g) => !g.isAccountPending && isAppReady(g.networkState)),
-    switchMap((g) => {
+function onAccountUpdates$(
+  global$: Observable<GlobalState>,
+  app$: Observable<ApplicationState>
+) {
+  return combineLatest([global$, app$]).pipe(
+    distinctUntilChanged(
+      ([p], [c]) => p.isAccountPending === c.isAccountPending
+    ),
+    filter(([g, a]) => !g.isAccountPending && isAppReady(a.networkState)),
+    switchMap(([_, app]) => {
       return combineLatest(
         SupportedNetworks.map((n) =>
           Registry.getAccountRegistry().subscribeActiveAccount(n)
@@ -152,8 +160,8 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
           const networkAccounts = accts.reduce((n, a) => {
             if (a !== null) {
               const priceChanges =
-                g.priceChanges && g.priceChanges[a.network]
-                  ? g.priceChanges[a.network]
+                app.priceChanges && app.priceChanges[a.network]
+                  ? app.priceChanges[a.network]
                   : undefined;
               const { accruedIncentives, totalIncentives } =
                 calculateAccruedIncentives(a);
@@ -206,7 +214,7 @@ function onAccountUpdates$(global$: Observable<GlobalState>) {
                 currentFactors: calculateAccountCurrentFactors(
                   portfolioHoldings,
                   vaultHoldings,
-                  g.baseCurrency
+                  app.baseCurrency
                 ),
                 pointsPerDay,
               };

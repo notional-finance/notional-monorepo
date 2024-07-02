@@ -1,45 +1,63 @@
 import {
+  ApplicationState,
   GlobalState,
+  initialApplicationState,
   initialGlobalState,
+  loadAppManager,
   loadGlobalManager,
 } from '@notional-finance/notionable';
 import { useObservable, useSubscription } from 'observable-hooks';
-import { EMPTY, switchMap, tap } from 'rxjs';
+import { EMPTY, Observable, switchMap, tap } from 'rxjs';
 import { useObservableReducer } from './use-observable-reducer';
 import React from 'react';
-import { ObservableContext } from './ObservableContext';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
 
-// NOTE: this function is duplicated here because for some reason the test code
-// does not import it properly
-function createObservableContext<T>(
-  displayName: string,
-  initialState: T,
-  defaultValue = {
-    updateState: () => {
-      return;
-    },
-    state$: EMPTY,
-  }
-) {
-  const context = React.createContext<ObservableContext<T>>({
-    ...defaultValue,
-    state: initialState,
-  });
-  context.displayName = displayName;
-  return context;
-}
-
-export const NotionalContext = createObservableContext<GlobalState>(
-  'notional-global-context',
-  initialGlobalState
-);
+export const NotionalContext = React.createContext<{
+  updateGlobalState: (args: Partial<GlobalState>) => void;
+  global$: Observable<GlobalState>;
+  global: GlobalState;
+  updateAppState: (args: Partial<ApplicationState>) => void;
+  app$: Observable<ApplicationState>;
+  app: ApplicationState;
+}>({
+  updateGlobalState: () => {
+    return;
+  },
+  global$: EMPTY,
+  global: {} as GlobalState,
+  updateAppState: () => {
+    return;
+  },
+  app$: EMPTY,
+  app: {} as ApplicationState,
+});
 
 export function useGlobalContext() {
-  const { updateState, state$, state } = useObservableReducer(
-    initialGlobalState,
-    '[GLOBAL]'
+  const {
+    updateState: updateGlobalState,
+    state$: global$,
+    state: global,
+  } = useObservableReducer(initialGlobalState, '[GLOBAL]');
+
+  const {
+    updateState: updateAppState,
+    state$: app$,
+    state: app,
+  } = useObservableReducer(initialApplicationState, '[APP]');
+
+  useSubscription(
+    useObservable(
+      (s$) =>
+        s$.pipe(
+          switchMap(([a]) => loadAppManager(a)),
+          tap((s) => {
+            if (DEBUG) console.log('[APP] UPDATE:', s);
+          })
+        ),
+      [app$]
+    ),
+    updateAppState
   );
 
   // Loads managers and has them start listening to state. As each manager emits a value
@@ -48,15 +66,15 @@ export function useGlobalContext() {
     useObservable(
       (s$) =>
         s$.pipe(
-          switchMap(([s]) => loadGlobalManager(s)),
+          switchMap(([s, a]) => loadGlobalManager(s, a)),
           tap((s) => {
             if (DEBUG) console.log('[GLOBAL] UPDATE:', s);
           })
         ),
-      [state$]
+      [global$, app$]
     ),
-    updateState
+    updateGlobalState
   );
 
-  return { updateState, state$, state };
+  return { updateGlobalState, updateAppState, app$, global$, app, global };
 }

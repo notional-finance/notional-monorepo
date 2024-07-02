@@ -14,16 +14,16 @@ import { useWalletConnectedNetwork } from './use-wallet';
 
 export function useAppReady() {
   const {
-    globalState: { networkState },
-  } = useNotionalContext();
+    appState: { networkState },
+  } = useAppContext();
   return isAppReady(networkState);
 }
 
 export function useAnalyticsReady(network: Network | undefined) {
   const {
     // Active accounts is emitted when analytics are ready
-    globalState: { activeAccounts },
-  } = useNotionalContext();
+    appState: { activeAccounts },
+  } = useAppContext();
   return !!activeAccounts && !!network && !!activeAccounts[network];
 }
 
@@ -36,17 +36,34 @@ export function useLastUpdateBlockNumber() {
     : undefined;
 }
 
-export function useNotionalContext() {
-  const { state, state$, updateState } = useContext(NotionalContext);
-  const initialState$ = useObservable(pluckFirst, [state]);
+export function useAppContext() {
+  const { app, app$, updateAppState } = useContext(NotionalContext);
+  const initialState$ = useObservable(pluckFirst, [app]);
 
   // Ensures that listeners receive the initial global state
-  const globalState$ = useObservable(
+  const appState$ = useObservable(
     (s$) => concat(initialState$.pipe(take(1)), s$.pipe(switchMap(([g]) => g))),
-    [state$]
+    [app$]
   );
 
-  return { globalState: state, updateNotional: updateState, globalState$ };
+  return { appState: app, appState$, updateAppState };
+}
+
+export function useNotionalContext() {
+  const { global, global$, updateGlobalState } = useContext(NotionalContext);
+  const initialState$ = useObservable(pluckFirst, [global]);
+
+  // Ensures that listeners receive the initial global state
+  const _globalState$ = useObservable(
+    (s$) => concat(initialState$.pipe(take(1)), s$.pipe(switchMap(([g]) => g))),
+    [global$]
+  );
+
+  return {
+    globalState: global,
+    updateNotional: updateGlobalState,
+    globalState$: _globalState$,
+  };
 }
 
 export function useNOTE(network: Network | undefined) {

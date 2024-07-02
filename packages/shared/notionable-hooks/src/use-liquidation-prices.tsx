@@ -19,12 +19,12 @@ import {
   getMidnightUTC,
   percentChange,
 } from '@notional-finance/util';
-import { useNOTE, useNotionalContext } from './use-notional';
+import { useAppContext, useNOTE } from './use-notional';
 
 function usePriceChanges(network: Network | undefined) {
   const {
-    globalState: { priceChanges },
-  } = useNotionalContext();
+    appState: { priceChanges },
+  } = useAppContext();
 
   return priceChanges && network && priceChanges[network]
     ? priceChanges[network]

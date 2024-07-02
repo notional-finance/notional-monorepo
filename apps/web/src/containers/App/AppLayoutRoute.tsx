@@ -34,7 +34,7 @@ const AppLayoutRoute = ({
 }) => {
   const globalState = useGlobalContext();
   const {
-    state: { themeVariant },
+    global: { themeVariant },
   } = globalState;
 
   const location = useLocation();
