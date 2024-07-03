@@ -41,6 +41,7 @@ const tokens = {
     WBTC: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
     wstETH: '0x5979D7b546E38E414F7E9822514be443A4800529',
     FRAX: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+    WETH: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
   },
 };
 
@@ -151,8 +152,30 @@ const config: ConfigPerNetwork = {
         primaryBorrowCurrency: tokens.arbitrum.FRAX,
         rewardPoolType: RewardPoolType.ConvexArbitrum,
       },
+      // "rETH_xWETH"
+      {
+        address: '0xA0d61c08e642103158Fc6a1495E7Ff82bAF25857',
+        gauge: '0x17f061160a167d4303d5a6d32c2ac693ac87375b',
+        primaryBorrowCurrency: tokens.arbitrum.WETH,
+        rewardPoolType: RewardPoolType.Aura,
+      },
+        // "rsETH_xWETH":
+      {
+        address: '0xCAc9c01d1207e5D06bB0fD5b854832F35FE97E68',
+        gauge: '0x90cedfdb5284a274720f1db339eee9798f4fa29d',
+        primaryBorrowCurrency: tokens.arbitrum.WETH,
+        rewardPoolType: RewardPoolType.Aura,
+      },
+        // "cbETH_xwstETH_rETH":
+      {
+        address: '0x91B79F4081D3522Af2760B7698810d501eBC8010',
+        gauge: '0x8ffd26d63724aea6a4208f2704d7ebebaa790f46',
+        primaryBorrowCurrency: tokens.arbitrum.wstETH,
+        rewardPoolType: RewardPoolType.Aura,
+      },
     ],
   },
 };
+
 
 export default config;
