@@ -22,8 +22,6 @@ import { Curve_Config } from './config/convex';
 
 export const SourceContracts = {};
 
-const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
-
 export const defaultConfigDefs: ConfigDefinition[] = [
   ...GenericConfig,
   ...Balancer_Config,
