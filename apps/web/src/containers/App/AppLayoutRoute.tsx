@@ -3,7 +3,6 @@ import { CompatRoute } from 'react-router-dom-v5-compat';
 import { ThemeProvider } from '@mui/material/styles';
 import { FeatureLoader, TrackingConsent } from '@notional-finance/shared-web';
 import {
-  Footer,
   Header,
   MetaTagManager,
   metaTagData,
@@ -75,7 +74,6 @@ const AppLayoutRoute = ({
                   <MainContent>
                     <Component {...matchProps} />
                   </MainContent>
-                  <StyledFooter />
                 </AppShell>
               </Box>
             )}
@@ -102,7 +100,5 @@ const MainContent = styled('div')`
     width: 100%;
   }
 `;
-
-const StyledFooter = styled(Footer)({});
 
 export default AppLayoutRoute;

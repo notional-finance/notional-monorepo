@@ -54,12 +54,12 @@ export const Balancer_Config = [
     ]
   ),
   getComposablePoolConfig(
-    '0x4a2f6ae7f3e5d715689530873ec35593dc28951b000000000000000000000481',
-    '0x4a2f6ae7f3e5d715689530873ec35593dc28951b',
+    '0x2d6ced12420a9af5a83765a8c48be2afcd1a8feb000000000000000000000500',
+    '0x2d6CeD12420a9AF5a83765a8c48Be2aFcD1A8FEb',
     '0x2eb5661002b68ebe887d29d415c3a3b52536912c',
-    '0x56c0626e6e3931af90ebb679a321225180d4b32b',
+    '0xBE0967E7510604302b0F974E21A625D9f762B8bb',
     Network.arbitrum,
-    Strategy.Arb_Balancer_wstETH_rETH_cbETH,
+    Strategy.Arb_Balancer_cbETH_rETH_wstETH,
     [ArbTokenConfig['wstETH'], ArbTokenConfig['rETH'], ArbTokenConfig['cbETH']],
     [
       {
@@ -71,7 +71,7 @@ export const Balancer_Config = [
         },
         tableName: TableName.GenericData,
         dataConfig: {
-          strategyId: Strategy.Arb_Balancer_wstETH_rETH_cbETH,
+          strategyId: Strategy.Arb_Balancer_cbETH_rETH_wstETH,
           variable: 'rETH to USD oracle',
           decimals: 18,
         },
@@ -87,7 +87,7 @@ export const Balancer_Config = [
         },
         tableName: TableName.GenericData,
         dataConfig: {
-          strategyId: Strategy.Arb_Balancer_wstETH_rETH_cbETH,
+          strategyId: Strategy.Arb_Balancer_cbETH_rETH_wstETH,
           variable: 'wstETH to ETH oracle',
           decimals: 18,
         },
@@ -102,7 +102,7 @@ export const Balancer_Config = [
         },
         tableName: TableName.GenericData,
         dataConfig: {
-          strategyId: Strategy.Arb_Balancer_wstETH_rETH_cbETH,
+          strategyId: Strategy.Arb_Balancer_cbETH_rETH_wstETH,
           variable: 'cbETH to ETH oracle',
           decimals: 18,
         },
@@ -332,7 +332,7 @@ export const Balancer_Config = [
     [
       getOracleValue(
         Network.arbitrum,
-        Strategy.Arb_Balancer_ezETH_wstETH,
+        Strategy.Arb_Balancer_rsETH_WETH,
         'rsETH to ETH Price',
         '0x11E1836bFF2ce9d6A5bec9cA79dc998210f3886d'
       ),

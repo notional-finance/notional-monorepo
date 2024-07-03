@@ -3,17 +3,76 @@ import { colors } from '@notional-finance/styles';
 import { PointsSeasonsData } from '../points-dashboard-constants';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { formatNumber, getDateString } from '@notional-finance/util';
+import {
+  Network,
+  SECONDS_IN_DAY,
+  floorToMidnight,
+  formatNumber,
+  getDateString,
+  getNowSeconds,
+} from '@notional-finance/util';
 import {
   useArbPoints,
+  usePortfolioHoldings,
   useTotalArbPoints,
+  useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
+import { getArbBoosts, getPointsPerDay } from '@notional-finance/core-entities';
 
 export const useYourPointsOverviewTables = () => {
   const theme = useTheme();
-  const { seasonOne, seasonTwo, seasonThree } = PointsSeasonsData;
+  const { season_one, season_two, season_three } = PointsSeasonsData;
   const totalPoints = useTotalArbPoints();
   const arbPoints = useArbPoints();
+  const portfolioHoldings = usePortfolioHoldings(Network.arbitrum);
+  const vaultHoldings = useVaultHoldings(Network.arbitrum);
+
+  const vaultPointsData = vaultHoldings.map(({ vault: v }) => {
+    const boostNum = getArbBoosts(v.vaultShares.token, false);
+    const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
+    const totalVaultPoints =
+      arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)?.points ||
+      0;
+    return { pointsPerDay, totalVaultPoints };
+  });
+
+  const portfolioPointsData = portfolioHoldings.map(({ balance: b }) => {
+    const pointsPerDay = getPointsPerDay(b);
+    const totalPortfolioPoints =
+      arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
+    return { pointsPerDay, totalPortfolioPoints };
+  });
+
+  const sumPointsPerDay = portfolioPointsData.reduce(
+    (sum, data) => sum + data.pointsPerDay,
+    0
+  );
+  const sumTotalPortfolioPoints = portfolioPointsData.reduce(
+    (sum, data) => sum + data.totalPortfolioPoints,
+    0
+  );
+  const sumVaultPointsPerDay = vaultPointsData.reduce(
+    (sum, data) => sum + data.pointsPerDay,
+    0
+  );
+  const sumTotalVaultPortfolioPoints = vaultPointsData.reduce(
+    (sum, data) => sum + data.totalVaultPoints,
+    0
+  );
+
+  const yourPointsDay = sumPointsPerDay + sumVaultPointsPerDay;
+  const yourTotalPoints =
+    sumTotalPortfolioPoints + sumTotalVaultPortfolioPoints;
+
+  const getDaysFromStartDate = (startDate: Date): number => {
+    const timeDiff = Math.max(
+      floorToMidnight(getNowSeconds()) - startDate.getTime() / 1000,
+      0
+    );
+    const daysDiff = Math.floor(timeDiff / SECONDS_IN_DAY);
+    return daysDiff;
+  };
+
   const totalArbPointsBySeason = (arbPoints || []).reduce(
     (t, p) => {
       t.season_one += p.season_one;
@@ -41,16 +100,23 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${getDateString(seasonOne.startDate.getTime() / 1000, {
+            {`(${getDateString(season_one.startDate.getTime() / 1000, {
               hideYear: true,
-            })} - ${getDateString(seasonOne.endDate.getTime() / 1000, {
+            })} - ${getDateString(season_one.endDate.getTime() / 1000, {
               hideYear: true,
             })})`}
           </span>
         </div>
       ),
+      totalPointsDay: formatNumber(
+        totalPoints.season_one / getDaysFromStartDate(season_one.startDate),
+        0
+      ),
+      yourPoints: formatNumber(yourTotalPoints, 0),
+      yourPointsDay: formatNumber(yourPointsDay, 0),
+      totalPointsIssued: formatNumber(totalPoints.season_one, 0),
       yourTotalPoints: formatNumber(totalArbPointsBySeason.season_one, 0),
-      arbReceived: '-',
+      arbRewards: formatNumber(PointsSeasonsData.season_one.totalArb, 0),
     },
     {
       activeSeason: (
@@ -64,16 +130,17 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${getDateString(seasonTwo.startDate.getTime() / 1000, {
+            {`(${getDateString(season_two.startDate.getTime() / 1000, {
               hideYear: true,
-            })} - ${getDateString(seasonTwo.endDate.getTime() / 1000, {
+            })} - ${getDateString(season_two.endDate.getTime() / 1000, {
               hideYear: true,
             })})`}
           </span>
         </div>
       ),
+      totalPointsIssued: formatNumber(totalPoints.season_two, 0),
       yourTotalPoints: formatNumber(totalArbPointsBySeason.season_two, 0),
-      arbReceived: '-',
+      arbRewards: formatNumber(PointsSeasonsData.season_two.totalArb, 0),
     },
     {
       activeSeason: (
@@ -87,31 +154,17 @@ export const useYourPointsOverviewTables = () => {
               marginLeft: theme.spacing(0.5),
             }}
           >
-            {`(${getDateString(seasonThree.startDate.getTime() / 1000, {
+            {`(${getDateString(season_three.startDate.getTime() / 1000, {
               hideYear: true,
-            })} - ${getDateString(seasonThree.endDate.getTime() / 1000, {
+            })} - ${getDateString(season_three.endDate.getTime() / 1000, {
               hideYear: true,
             })})`}
           </span>
         </div>
       ),
-      yourTotalPoints: formatNumber(totalArbPointsBySeason.season_three, 0),
-      arbReceived: '-',
-    },
-  ];
-
-  const overviewData = [
-    {
-      totalPointsIssued: formatNumber(totalPoints.season_one, 0),
-      totalArb: formatNumber(PointsSeasonsData.seasonOne.totalArb, 0),
-    },
-    {
-      totalPointsIssued: formatNumber(totalPoints.season_two, 0),
-      totalArb: formatNumber(PointsSeasonsData.seasonTwo.totalArb, 0),
-    },
-    {
       totalPointsIssued: formatNumber(totalPoints.season_three, 0),
-      totalArb: formatNumber(PointsSeasonsData.seasonTwo.totalArb, 0),
+      yourTotalPoints: formatNumber(totalArbPointsBySeason.season_three, 0),
+      arbRewards: formatNumber(PointsSeasonsData.season_three.totalArb, 0),
     },
   ];
 
@@ -141,11 +194,11 @@ export const useYourPointsOverviewTables = () => {
       {
         header: (
           <FormattedMessage
-            defaultMessage="Your Total Points"
-            description={'Your Total Points header'}
+            defaultMessage="Your Points / Day"
+            description={'Your Points Day header'}
           />
         ),
-        accessorKey: 'yourTotalPoints',
+        accessorKey: 'yourPointsDay',
         textAlign: 'right',
         fontSize: '16px',
         fontWeight: 600,
@@ -154,21 +207,29 @@ export const useYourPointsOverviewTables = () => {
       {
         header: (
           <FormattedMessage
-            defaultMessage="ARB Received"
-            description={'Received header'}
+            defaultMessage="Total Points Issued / Day"
+            description={'Total Points Issued Day header'}
           />
         ),
-        accessorKey: 'arbReceived',
+        accessorKey: 'totalPointsDay',
         textAlign: 'right',
         fontSize: '16px',
         fontWeight: 600,
         padding: '16px',
       },
-    ],
-    []
-  );
-  const overviewColumns = useMemo<Array<any>>(
-    () => [
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Your Points"
+            description={'Your Points header'}
+          />
+        ),
+        accessorKey: 'yourPoints',
+        textAlign: 'right',
+        fontSize: '16px',
+        fontWeight: 600,
+        padding: '16px',
+      },
       {
         header: (
           <FormattedMessage
@@ -177,20 +238,19 @@ export const useYourPointsOverviewTables = () => {
           />
         ),
         accessorKey: 'totalPointsIssued',
-        padding: theme.spacing(2, 2, 2, 4),
-        textAlign: 'left',
+        textAlign: 'right',
         fontSize: '16px',
         fontWeight: 600,
-        width: '250px',
+        padding: '16px',
       },
       {
         header: (
           <FormattedMessage
-            defaultMessage="Total ARB"
-            description={'Total ARB header'}
+            defaultMessage="ARB Rewards"
+            description={'ARB Rewards header'}
           />
         ),
-        accessorKey: 'totalArb',
+        accessorKey: 'arbRewards',
         textAlign: 'right',
         fontSize: '16px',
         fontWeight: 600,
@@ -200,5 +260,5 @@ export const useYourPointsOverviewTables = () => {
     []
   );
 
-  return { yourPointsColumns, yourPointsData, overviewColumns, overviewData };
+  return { yourPointsColumns, yourPointsData };
 };
