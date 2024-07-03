@@ -40,6 +40,14 @@ export interface Env {
   PROFIT_THRESHOLD: string;
 }
 
+function shuffleArray(array: string[]) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
 async function setUp(env: Env) {
   const allTokens: CacheSchema<TokenDefinition> = await (
     await fetch(`https://data-dev.notional.finance/${env.NETWORK}/tokens`)
@@ -102,7 +110,11 @@ async function setUp(env: Env) {
   return { liquidator, logger };
 }
 
-async function processAllAccounts(env: Env, liquidator: NotionalV3Liquidator) {
+async function processAllAccounts(
+  env: Env,
+  liquidator: NotionalV3Liquidator,
+  isHourly: boolean
+) {
   // Currently the worker cannot process more than 2000 accounts per batch
   const accounts = (await (
     await fetch(`${env.ACCOUNT_SERVICE_URL}?network=${env.NETWORK}`, {
@@ -111,9 +123,18 @@ async function processAllAccounts(env: Env, liquidator: NotionalV3Liquidator) {
       },
     })
   ).json()) as { account_id: string }[];
-  const addresses: string[] = accounts
+  let addresses: string[] = accounts
     .map((a) => a.account_id)
     .filter((a) => a !== ZERO_ADDRESS);
+
+  // Currently the worker cannot process more than 5000 accounts per batch
+  if (!isHourly && env.NETWORK === Network.arbitrum) {
+    // Unable to scan all accounts in a single segment
+    addresses = shuffleArray(addresses).slice(0, 5000);
+    console.log(
+      `First: ${addresses[0]}, Last: ${addresses[addresses.length - 1]}`
+    );
+  }
 
   const batchedAccounts = batchArray(addresses, 250);
   let riskyAccounts: RiskyAccount[] = [];
@@ -150,7 +171,8 @@ const displayRiskyAccounts = async (env: Env) => {
   const { liquidator } = await setUp(env);
   const { riskyAccounts, addresses } = await processAllAccounts(
     env,
-    liquidator
+    liquidator,
+    false
   );
 
   return {
@@ -164,11 +186,12 @@ const displayRiskyAccounts = async (env: Env) => {
   };
 };
 
-const run = async (env: Env) => {
+const run = async (env: Env, isHourly: boolean) => {
   const { logger, liquidator } = await setUp(env);
   const { riskyAccounts, addresses } = await processAllAccounts(
     env,
-    liquidator
+    liquidator,
+    isHourly
   );
 
   const ddSeries: DDSeries = {

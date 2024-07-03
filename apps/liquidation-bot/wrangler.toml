@@ -68,7 +68,10 @@ GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
 
 [env.arbitrum2.triggers]
-crons = ["0/2 * * * *"]
+crons = [
+    "0/2 * * * *",
+    "0 * * * *"
+]
 
 # This liquidator uses the additional flash lender methods
 [env.mainnet2]
