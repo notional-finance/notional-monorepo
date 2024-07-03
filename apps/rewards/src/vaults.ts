@@ -33,6 +33,7 @@ const ARB_crvUSD = '0x498Bf2B1e120FeD3ad3D42EA2165E9b73f99C1e5';
 const ARB_WBTC = '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f';
 const ARB_tBTC = '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40';
 const ARB_ezETH = '0x2416092f143378750bb29b79eD961ab195CcEea5';
+const ARB_rsETH = '0x4186BFC76E2E237523CBC30FD220FE055156b41F';
 
 export const ETH = '0x0000000000000000000000000000000000000000';
 
@@ -175,5 +176,23 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       poolTokens: [ARB_ezETH, ARB_wstETH, '0xB61371Ab661B1ACec81C699854D2f911070C059E'],
       tokenWeights: [0, 100, 0],
     },
+    {
+      address: '0xA0d61c08e642103158Fc6a1495E7Ff82bAF25857',
+      rewardTokens: [ARB, ARB_BAL, ARB_AURA],
+      poolTokens: [ETH, '0xd0EC47c54cA5e20aaAe4616c25C825c7f48D4069', ARB_RETH],
+      tokenWeights: [100, 0, 0],
+    },
+    {
+      address: '0xCAc9c01d1207e5D06bB0fD5b854832F35FE97E68',
+      rewardTokens: [ARB, ARB_BAL, ARB_AURA],
+      poolTokens: [ARB_rsETH, ETH, '0x90e6CB5249f5e1572afBF8A96D8A1ca6aCFFd739'],
+      tokenWeights: [0, 100, 0],
+    },
+    {
+      address: '0x91B79F4081D3522Af2760B7698810d501eBC8010',
+      rewardTokens: [ARB, ARB_BAL, ARB_AURA],
+      poolTokens: [ARB_cbETH, '0x2d6CeD12420a9AF5a83765a8c48Be2aFcD1A8FEb', ARB_wstETH, ARB_RETH],
+      tokenWeights: [0, 0, 100, 0],
+    },
   ],
-};;
+};
