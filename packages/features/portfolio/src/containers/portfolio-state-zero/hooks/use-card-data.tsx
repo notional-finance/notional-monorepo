@@ -12,11 +12,12 @@ import {
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_STATE_ZERO_OPTIONS, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
+import { useTokenData } from './use-token-data';
 
 export const useCardData = (
   selectedTab: number,
   activeToken: string,
-  allTokenData: any,
+  allTokenData: ReturnType<typeof useTokenData>['allTokenData'],
   availableSymbols: string[]
 ) => {
   const theme = useTheme();
@@ -96,6 +97,10 @@ export const useCardData = (
       ) : (
         <FormattedMessage defaultMessage={'As High As'} />
       ),
+      isTotalAPYSuffix:
+        getIncentiveTotals(
+          activeTokenData?.find((data) => data.product === 'Provide Liquidity')
+        ) !== undefined,
       symbol: activeToken,
       cardLink: `/liquidity-variable/${selectedNetwork}/${activeToken}`,
       bottomLink: `/liquidity-variable/${selectedNetwork}`,
@@ -124,6 +129,8 @@ export const useCardData = (
       ) : (
         <FormattedMessage defaultMessage={'As High As'} />
       ),
+      isTotalAPYSuffix:
+        getIncentiveTotals(leveragedLiquidityData) !== undefined,
       symbol: activeToken,
       cardLink: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/CreateLeveragedNToken/${leveragedLiquidityData?.underlying?.symbol}?borrowOption=${leveragedLiquidityData?.leveraged?.debtToken?.id}`,
       bottomValue: `Max Leverage: ${leveragedLiquidityData?.leveraged?.maxLeverageRatio?.toFixed(
@@ -131,7 +138,10 @@ export const useCardData = (
       )}x`,
       bottomLink: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}`,
       bottomText: 'All Leveraged Liquidity',
-      pillData: [<FormattedMessage defaultMessage={'Possible Illiquidity'} />],
+      pillData: [
+        <FormattedMessage defaultMessage={'Max NOTE Incentives'} />,
+        <FormattedMessage defaultMessage={'Possible Illiquidity'} />,
+      ],
     },
     {
       accentTitle: <FormattedMessage defaultMessage={'High Yield'} />,
