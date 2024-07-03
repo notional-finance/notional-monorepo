@@ -25,13 +25,14 @@ import type {
 
 export interface FlashLiquidatorInterface extends utils.Interface {
   functions: {
+    "LENDING_POOL()": FunctionFragment;
     "NOTIONAL()": FunctionFragment;
     "TRADING_MODULE()": FunctionFragment;
     "WETH()": FunctionFragment;
     "approveTokens(address[],address)": FunctionFragment;
-    "callback(address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "enableCurrencies(uint16[])": FunctionFragment;
-    "flashLoan(address,address,uint256,bytes,address,address)": FunctionFragment;
+    "executeOperation(address[],uint256[],uint256[],address,bytes)": FunctionFragment;
+    "flashLoan(address,uint256,bytes,address,address)": FunctionFragment;
     "getFreeCollateral(address)": FunctionFragment;
     "ifCashCurrencyId()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -42,12 +43,13 @@ export interface FlashLiquidatorInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "LENDING_POOL"
       | "NOTIONAL"
       | "TRADING_MODULE"
       | "WETH"
       | "approveTokens"
-      | "callback"
       | "enableCurrencies"
+      | "executeOperation"
       | "flashLoan"
       | "getFreeCollateral"
       | "ifCashCurrencyId"
@@ -57,6 +59,10 @@ export interface FlashLiquidatorInterface extends utils.Interface {
       | "wrapToWETH"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "LENDING_POOL",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "NOTIONAL", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "TRADING_MODULE",
@@ -68,24 +74,22 @@ export interface FlashLiquidatorInterface extends utils.Interface {
     values: [PromiseOrValue<string>[], PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "callback",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "enableCurrencies",
     values: [PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
+    functionFragment: "executeOperation",
+    values: [
+      PromiseOrValue<string>[],
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "flashLoan",
     values: [
-      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
@@ -115,6 +119,10 @@ export interface FlashLiquidatorInterface extends utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "LENDING_POOL",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "NOTIONAL", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "TRADING_MODULE",
@@ -125,9 +133,12 @@ export interface FlashLiquidatorInterface extends utils.Interface {
     functionFragment: "approveTokens",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "callback", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "enableCurrencies",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeOperation",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
@@ -177,6 +188,8 @@ export interface FlashLiquidator extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    LENDING_POOL(overrides?: CallOverrides): Promise<[string]>;
+
     NOTIONAL(overrides?: CallOverrides): Promise<[string]>;
 
     TRADING_MODULE(overrides?: CallOverrides): Promise<[string]>;
@@ -189,23 +202,21 @@ export interface FlashLiquidator extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    callback(
-      arg0: PromiseOrValue<string>,
-      paymentReceiver: PromiseOrValue<string>,
-      asset: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      fee: PromiseOrValue<BigNumberish>,
-      params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     enableCurrencies(
       currencies: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    executeOperation(
+      assets: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      premiums: PromiseOrValue<BigNumberish>[],
+      initiator: PromiseOrValue<string>,
+      params: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     flashLoan(
-      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       params: PromiseOrValue<BytesLike>,
@@ -239,6 +250,8 @@ export interface FlashLiquidator extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  LENDING_POOL(overrides?: CallOverrides): Promise<string>;
+
   NOTIONAL(overrides?: CallOverrides): Promise<string>;
 
   TRADING_MODULE(overrides?: CallOverrides): Promise<string>;
@@ -251,23 +264,21 @@ export interface FlashLiquidator extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  callback(
-    arg0: PromiseOrValue<string>,
-    paymentReceiver: PromiseOrValue<string>,
-    asset: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    fee: PromiseOrValue<BigNumberish>,
-    params: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   enableCurrencies(
     currencies: PromiseOrValue<BigNumberish>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  executeOperation(
+    assets: PromiseOrValue<string>[],
+    amounts: PromiseOrValue<BigNumberish>[],
+    premiums: PromiseOrValue<BigNumberish>[],
+    initiator: PromiseOrValue<string>,
+    params: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   flashLoan(
-    flashLenderWrapper: PromiseOrValue<string>,
     asset: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
     params: PromiseOrValue<BytesLike>,
@@ -301,6 +312,8 @@ export interface FlashLiquidator extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    LENDING_POOL(overrides?: CallOverrides): Promise<string>;
+
     NOTIONAL(overrides?: CallOverrides): Promise<string>;
 
     TRADING_MODULE(overrides?: CallOverrides): Promise<string>;
@@ -313,23 +326,21 @@ export interface FlashLiquidator extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    callback(
-      arg0: PromiseOrValue<string>,
-      paymentReceiver: PromiseOrValue<string>,
-      asset: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      fee: PromiseOrValue<BigNumberish>,
-      params: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     enableCurrencies(
       currencies: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<void>;
 
+    executeOperation(
+      assets: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      premiums: PromiseOrValue<BigNumberish>[],
+      initiator: PromiseOrValue<string>,
+      params: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     flashLoan(
-      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       params: PromiseOrValue<BytesLike>,
@@ -370,6 +381,8 @@ export interface FlashLiquidator extends BaseContract {
   filters: {};
 
   estimateGas: {
+    LENDING_POOL(overrides?: CallOverrides): Promise<BigNumber>;
+
     NOTIONAL(overrides?: CallOverrides): Promise<BigNumber>;
 
     TRADING_MODULE(overrides?: CallOverrides): Promise<BigNumber>;
@@ -382,23 +395,21 @@ export interface FlashLiquidator extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    callback(
-      arg0: PromiseOrValue<string>,
-      paymentReceiver: PromiseOrValue<string>,
-      asset: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      fee: PromiseOrValue<BigNumberish>,
-      params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     enableCurrencies(
       currencies: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    executeOperation(
+      assets: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      premiums: PromiseOrValue<BigNumberish>[],
+      initiator: PromiseOrValue<string>,
+      params: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     flashLoan(
-      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       params: PromiseOrValue<BytesLike>,
@@ -433,6 +444,8 @@ export interface FlashLiquidator extends BaseContract {
   };
 
   populateTransaction: {
+    LENDING_POOL(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     NOTIONAL(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     TRADING_MODULE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -445,23 +458,21 @@ export interface FlashLiquidator extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    callback(
-      arg0: PromiseOrValue<string>,
-      paymentReceiver: PromiseOrValue<string>,
-      asset: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      fee: PromiseOrValue<BigNumberish>,
-      params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     enableCurrencies(
       currencies: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    executeOperation(
+      assets: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      premiums: PromiseOrValue<BigNumberish>[],
+      initiator: PromiseOrValue<string>,
+      params: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     flashLoan(
-      flashLenderWrapper: PromiseOrValue<string>,
       asset: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       params: PromiseOrValue<BytesLike>,
