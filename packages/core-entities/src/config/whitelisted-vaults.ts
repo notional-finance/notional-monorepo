@@ -31,10 +31,10 @@ export const PointsMultipliers: Record<
       Renzo: 4,
       EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
-    // '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68': (v) => ({
-    //   Kelp: 2,
-    //   EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
-    // }),
+    '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68': (v) => ({
+      Kelp: 2,
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
+    }),
   },
   [Network.optimism]: {},
 };
