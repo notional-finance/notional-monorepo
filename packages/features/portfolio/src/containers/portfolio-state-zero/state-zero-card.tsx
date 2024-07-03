@@ -20,6 +20,7 @@ interface StateZeroCardProps {
     icon: JSX.Element;
     symbol: string;
     apyTitle: string;
+    isTotalAPYSuffix?: boolean;
     apy: number;
     bottomValue: string;
     bottomLink: string;
@@ -38,7 +39,7 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
   const theme = useTheme();
   const history = useHistory();
   const selectedNetwork = useSelectedNetwork();
-  const disabledCard = card.apy === undefined || card.apy < 0 ? true : false;
+  const disabledCard = card.apy === undefined ? true : false;
 
   return (
     <CardBoxContainer>
@@ -102,7 +103,7 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
                 <H3>
                   <CountUp
                     value={card.apy}
-                    suffix="%"
+                    suffix={card?.isTotalAPYSuffix ? '% Total APY' : '% APY'}
                     duration={1}
                     decimals={2}
                   />
