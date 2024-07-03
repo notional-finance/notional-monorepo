@@ -115,7 +115,7 @@ export const useCardData = (
 
   const leveragedData = [
     {
-      accentTitle: <FormattedMessage defaultMessage={'Incentivized Yield'} />,
+      accentTitle: <FormattedMessage defaultMessage={'NOTE Yield'} />,
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
       icon: <PieChartIcon />,
       apy: leveragedLiquidityData?.totalAPY,
@@ -144,7 +144,7 @@ export const useCardData = (
       ],
     },
     {
-      accentTitle: <FormattedMessage defaultMessage={'High Yield'} />,
+      accentTitle: <FormattedMessage defaultMessage={'Organic Yield'} />,
       title: <FormattedMessage defaultMessage={'Leveraged Yield Farming'} />,
       icon: <VaultIcon />,
       apy: leveragedYieldFarming?.totalAPY,
@@ -164,7 +164,7 @@ export const useCardData = (
       ],
     },
     {
-      accentTitle: <FormattedMessage defaultMessage={'Points Earning'} />,
+      accentTitle: <FormattedMessage defaultMessage={'Points Yield'} />,
       title: <FormattedMessage defaultMessage={'Leveraged Points Farming'} />,
       icon: <PointsIcon fill={theme.palette.typography.main} />,
       apy: leveragedPointsFarming?.totalAPY,
