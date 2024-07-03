@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/mui';
 import {
   useAnalyticsReady,
-  useNotionalContext,
+  useAppContext,
 } from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -25,8 +25,8 @@ export const useLiquidityPoolsTable = () => {
   } = useContext(LiquidityContext);
   const isReady = useAnalyticsReady(selectedNetwork);
   const {
-    globalState: { historicalTrading },
-  } = useNotionalContext();
+    appState: { historicalTrading },
+  } = useAppContext();
   let poolTableData: Record<string, any>[] = [];
 
   if (
