@@ -7950,39 +7950,21 @@ export type ResolversParentTypes = ResolversObject<{
 
 export type entityDirectiveArgs = {};
 
-export type entityDirectiveResolver<
-  Result,
-  Parent,
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  Args = entityDirectiveArgs
-> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type entityDirectiveResolver<Result, Parent, ContextType = MeshContext & { apiKey: string, subgraphId: string }, Args = entityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type subgraphIdDirectiveArgs = {
   id: Scalars['String'];
 };
 
-export type subgraphIdDirectiveResolver<
-  Result,
-  Parent,
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  Args = subgraphIdDirectiveArgs
-> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type subgraphIdDirectiveResolver<Result, Parent, ContextType = MeshContext & { apiKey: string, subgraphId: string }, Args = subgraphIdDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type derivedFromDirectiveArgs = {
   field: Scalars['String'];
 };
 
-export type derivedFromDirectiveResolver<
-  Result,
-  Parent,
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  Args = derivedFromDirectiveArgs
-> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshContext & { apiKey: string, subgraphId: string }, Args = derivedFromDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type AccountResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']
-> = ResolversObject<{
+export type AccountResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   firstUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -8071,10 +8053,7 @@ export type AccountResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ActiveMarketResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['ActiveMarket'] = ResolversParentTypes['ActiveMarket']
-> = ResolversObject<{
+export type ActiveMarketResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['ActiveMarket'] = ResolversParentTypes['ActiveMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -8106,10 +8085,7 @@ export type ActiveMarketResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BalanceResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['Balance'] = ResolversParentTypes['Balance']
-> = ResolversObject<{
+export type BalanceResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Balance'] = ResolversParentTypes['Balance']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   account?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
@@ -8157,10 +8133,7 @@ export type BalanceResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BalanceSnapshotResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['BalanceSnapshot'] = ResolversParentTypes['BalanceSnapshot']
-> = ResolversObject<{
+export type BalanceSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['BalanceSnapshot'] = ResolversParentTypes['BalanceSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8247,10 +8220,7 @@ export interface BytesScalarConfig
   name: 'Bytes';
 }
 
-export type CurrencyConfigurationResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['CurrencyConfiguration'] = ResolversParentTypes['CurrencyConfiguration']
-> = ResolversObject<{
+export type CurrencyConfigurationResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['CurrencyConfiguration'] = ResolversParentTypes['CurrencyConfiguration']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -8445,10 +8415,7 @@ export type CurrencyConfigurationResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ExchangeRateResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['ExchangeRate'] = ResolversParentTypes['ExchangeRate']
-> = ResolversObject<{
+export type ExchangeRateResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['ExchangeRate'] = ResolversParentTypes['ExchangeRate']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8467,10 +8434,7 @@ export type ExchangeRateResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ExternalLendingResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['ExternalLending'] = ResolversParentTypes['ExternalLending']
-> = ResolversObject<{
+export type ExternalLendingResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['ExternalLending'] = ResolversParentTypes['ExternalLending']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -8518,10 +8482,7 @@ export type ExternalLendingResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ExternalLendingSnapshotResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['ExternalLendingSnapshot'] = ResolversParentTypes['ExternalLendingSnapshot']
-> = ResolversObject<{
+export type ExternalLendingSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['ExternalLendingSnapshot'] = ResolversParentTypes['ExternalLendingSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -8575,10 +8536,7 @@ export type ExternalLendingSnapshotResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type IncentiveResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['Incentive'] = ResolversParentTypes['Incentive']
-> = ResolversObject<{
+export type IncentiveResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Incentive'] = ResolversParentTypes['Incentive']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -8673,10 +8631,7 @@ export type IncentiveResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type IncentiveSnapshotResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['IncentiveSnapshot'] = ResolversParentTypes['IncentiveSnapshot']
-> = ResolversObject<{
+export type IncentiveSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['IncentiveSnapshot'] = ResolversParentTypes['IncentiveSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8711,10 +8666,7 @@ export interface Int8ScalarConfig
   name: 'Int8';
 }
 
-export type InterestRateCurveResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['InterestRateCurve'] = ResolversParentTypes['InterestRateCurve']
-> = ResolversObject<{
+export type InterestRateCurveResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['InterestRateCurve'] = ResolversParentTypes['InterestRateCurve']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -8742,10 +8694,7 @@ export type InterestRateCurveResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type OracleResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['Oracle'] = ResolversParentTypes['Oracle']
-> = ResolversObject<{
+export type OracleResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Oracle'] = ResolversParentTypes['Oracle']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -8784,10 +8733,7 @@ export type OracleResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type OracleRegistryResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['OracleRegistry'] = ResolversParentTypes['OracleRegistry']
-> = ResolversObject<{
+export type OracleRegistryResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['OracleRegistry'] = ResolversParentTypes['OracleRegistry']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastRefreshBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -8819,10 +8765,7 @@ export type OracleRegistryResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PrimeCashMarketResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['PrimeCashMarket'] = ResolversParentTypes['PrimeCashMarket']
-> = ResolversObject<{
+export type PrimeCashMarketResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['PrimeCashMarket'] = ResolversParentTypes['PrimeCashMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -8856,10 +8799,7 @@ export type PrimeCashMarketResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PrimeCashMarketSnapshotResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['PrimeCashMarketSnapshot'] = ResolversParentTypes['PrimeCashMarketSnapshot']
-> = ResolversObject<{
+export type PrimeCashMarketSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['PrimeCashMarketSnapshot'] = ResolversParentTypes['PrimeCashMarketSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8911,10 +8851,7 @@ export type PrimeCashMarketSnapshotResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ProfitLossLineItemResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['ProfitLossLineItem'] = ResolversParentTypes['ProfitLossLineItem']
-> = ResolversObject<{
+export type ProfitLossLineItemResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['ProfitLossLineItem'] = ResolversParentTypes['ProfitLossLineItem']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8963,391 +8900,67 @@ export type ProfitLossLineItemResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type QueryResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']
-> = ResolversObject<{
-  token?: Resolver<
-    Maybe<ResolversTypes['Token']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytokenArgs, 'id' | 'subgraphError'>
-  >;
-  tokens?: Resolver<
-    Array<ResolversTypes['Token']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytokensArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  transfer?: Resolver<
-    Maybe<ResolversTypes['Transfer']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransferArgs, 'id' | 'subgraphError'>
-  >;
-  transfers?: Resolver<
-    Array<ResolversTypes['Transfer']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransfersArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  transferBundle?: Resolver<
-    Maybe<ResolversTypes['TransferBundle']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransferBundleArgs, 'id' | 'subgraphError'>
-  >;
-  transferBundles?: Resolver<
-    Array<ResolversTypes['TransferBundle']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransferBundlesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  profitLossLineItem?: Resolver<
-    Maybe<ResolversTypes['ProfitLossLineItem']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryprofitLossLineItemArgs, 'id' | 'subgraphError'>
-  >;
-  profitLossLineItems?: Resolver<
-    Array<ResolversTypes['ProfitLossLineItem']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryprofitLossLineItemsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  transaction?: Resolver<
-    Maybe<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransactionArgs, 'id' | 'subgraphError'>
-  >;
-  transactions?: Resolver<
-    Array<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransactionsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  account?: Resolver<
-    Maybe<ResolversTypes['Account']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryaccountArgs, 'id' | 'subgraphError'>
-  >;
-  accounts?: Resolver<
-    Array<ResolversTypes['Account']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryaccountsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  nTokenFeeBuffer?: Resolver<
-    Maybe<ResolversTypes['nTokenFeeBuffer']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerynTokenFeeBufferArgs, 'id' | 'subgraphError'>
-  >;
-  nTokenFeeBuffers?: Resolver<
-    Array<ResolversTypes['nTokenFeeBuffer']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerynTokenFeeBuffersArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  oracleRegistry?: Resolver<
-    Maybe<ResolversTypes['OracleRegistry']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryoracleRegistryArgs, 'id' | 'subgraphError'>
-  >;
-  oracleRegistries?: Resolver<
-    Array<ResolversTypes['OracleRegistry']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryoracleRegistriesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  oracle?: Resolver<
-    Maybe<ResolversTypes['Oracle']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryoracleArgs, 'id' | 'subgraphError'>
-  >;
-  oracles?: Resolver<
-    Array<ResolversTypes['Oracle']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryoraclesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  exchangeRate?: Resolver<
-    Maybe<ResolversTypes['ExchangeRate']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryexchangeRateArgs, 'id' | 'subgraphError'>
-  >;
-  exchangeRates?: Resolver<
-    Array<ResolversTypes['ExchangeRate']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryexchangeRatesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  currencyConfiguration?: Resolver<
-    Maybe<ResolversTypes['CurrencyConfiguration']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerycurrencyConfigurationArgs, 'id' | 'subgraphError'>
-  >;
-  currencyConfigurations?: Resolver<
-    Array<ResolversTypes['CurrencyConfiguration']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QuerycurrencyConfigurationsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  interestRateCurve?: Resolver<
-    Maybe<ResolversTypes['InterestRateCurve']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryinterestRateCurveArgs, 'id' | 'subgraphError'>
-  >;
-  interestRateCurves?: Resolver<
-    Array<ResolversTypes['InterestRateCurve']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryinterestRateCurvesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  vaultConfiguration?: Resolver<
-    Maybe<ResolversTypes['VaultConfiguration']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryvaultConfigurationArgs, 'id' | 'subgraphError'>
-  >;
-  vaultConfigurations?: Resolver<
-    Array<ResolversTypes['VaultConfiguration']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryvaultConfigurationsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  whitelistedContract?: Resolver<
-    Maybe<ResolversTypes['WhitelistedContract']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerywhitelistedContractArgs, 'id' | 'subgraphError'>
-  >;
-  whitelistedContracts?: Resolver<
-    Array<ResolversTypes['WhitelistedContract']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QuerywhitelistedContractsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  balance?: Resolver<
-    Maybe<ResolversTypes['Balance']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerybalanceArgs, 'id' | 'subgraphError'>
-  >;
-  balances?: Resolver<
-    Array<ResolversTypes['Balance']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerybalancesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  balanceSnapshot?: Resolver<
-    Maybe<ResolversTypes['BalanceSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerybalanceSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  balanceSnapshots?: Resolver<
-    Array<ResolversTypes['BalanceSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerybalanceSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  incentiveSnapshot?: Resolver<
-    Maybe<ResolversTypes['IncentiveSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryincentiveSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  incentiveSnapshots?: Resolver<
-    Array<ResolversTypes['IncentiveSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryincentiveSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  activeMarket?: Resolver<
-    Maybe<ResolversTypes['ActiveMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryactiveMarketArgs, 'id' | 'subgraphError'>
-  >;
-  activeMarkets?: Resolver<
-    Array<ResolversTypes['ActiveMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryactiveMarketsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  primeCashMarket?: Resolver<
-    Maybe<ResolversTypes['PrimeCashMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryprimeCashMarketArgs, 'id' | 'subgraphError'>
-  >;
-  primeCashMarkets?: Resolver<
-    Array<ResolversTypes['PrimeCashMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryprimeCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  primeCashMarketSnapshot?: Resolver<
-    Maybe<ResolversTypes['PrimeCashMarketSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryprimeCashMarketSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  primeCashMarketSnapshots?: Resolver<
-    Array<ResolversTypes['PrimeCashMarketSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryprimeCashMarketSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  fCashMarket?: Resolver<
-    Maybe<ResolversTypes['fCashMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryfCashMarketArgs, 'id' | 'subgraphError'>
-  >;
-  fCashMarkets?: Resolver<
-    Array<ResolversTypes['fCashMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryfCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  fCashMarketSnapshot?: Resolver<
-    Maybe<ResolversTypes['fCashMarketSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryfCashMarketSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  fCashMarketSnapshots?: Resolver<
-    Array<ResolversTypes['fCashMarketSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryfCashMarketSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  incentive?: Resolver<
-    Maybe<ResolversTypes['Incentive']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryincentiveArgs, 'id' | 'subgraphError'>
-  >;
-  incentives?: Resolver<
-    Array<ResolversTypes['Incentive']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryincentivesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  tradingModulePermission?: Resolver<
-    Maybe<ResolversTypes['TradingModulePermission']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytradingModulePermissionArgs, 'id' | 'subgraphError'>
-  >;
-  tradingModulePermissions?: Resolver<
-    Array<ResolversTypes['TradingModulePermission']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QuerytradingModulePermissionsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  reinvestment?: Resolver<
-    Maybe<ResolversTypes['Reinvestment']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryreinvestmentArgs, 'id' | 'subgraphError'>
-  >;
-  reinvestments?: Resolver<
-    Array<ResolversTypes['Reinvestment']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryreinvestmentsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  externalLending?: Resolver<
-    Maybe<ResolversTypes['ExternalLending']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryexternalLendingArgs, 'id' | 'subgraphError'>
-  >;
-  externalLendings?: Resolver<
-    Array<ResolversTypes['ExternalLending']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryexternalLendingsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  underlyingSnapshot?: Resolver<
-    Maybe<ResolversTypes['UnderlyingSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryunderlyingSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  underlyingSnapshots?: Resolver<
-    Array<ResolversTypes['UnderlyingSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryunderlyingSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  externalLendingSnapshot?: Resolver<
-    Maybe<ResolversTypes['ExternalLendingSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryexternalLendingSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  externalLendingSnapshots?: Resolver<
-    Array<ResolversTypes['ExternalLendingSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryexternalLendingSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  _meta?: Resolver<
-    Maybe<ResolversTypes['_Meta_']>,
-    ParentType,
-    ContextType,
-    Partial<Query_metaArgs>
-  >;
+export type QueryResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  token?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<QuerytokenArgs, 'id' | 'subgraphError'>>;
+  tokens?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<QuerytokensArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QuerytransferArgs, 'id' | 'subgraphError'>>;
+  transfers?: Resolver<Array<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QuerytransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transferBundle?: Resolver<Maybe<ResolversTypes['TransferBundle']>, ParentType, ContextType, RequireFields<QuerytransferBundleArgs, 'id' | 'subgraphError'>>;
+  transferBundles?: Resolver<Array<ResolversTypes['TransferBundle']>, ParentType, ContextType, RequireFields<QuerytransferBundlesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  profitLossLineItem?: Resolver<Maybe<ResolversTypes['ProfitLossLineItem']>, ParentType, ContextType, RequireFields<QueryprofitLossLineItemArgs, 'id' | 'subgraphError'>>;
+  profitLossLineItems?: Resolver<Array<ResolversTypes['ProfitLossLineItem']>, ParentType, ContextType, RequireFields<QueryprofitLossLineItemsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType, RequireFields<QuerytransactionArgs, 'id' | 'subgraphError'>>;
+  transactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType, RequireFields<QuerytransactionsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  account?: Resolver<Maybe<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountArgs, 'id' | 'subgraphError'>>;
+  accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  nTokenFeeBuffer?: Resolver<Maybe<ResolversTypes['nTokenFeeBuffer']>, ParentType, ContextType, RequireFields<QuerynTokenFeeBufferArgs, 'id' | 'subgraphError'>>;
+  nTokenFeeBuffers?: Resolver<Array<ResolversTypes['nTokenFeeBuffer']>, ParentType, ContextType, RequireFields<QuerynTokenFeeBuffersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  oracleRegistry?: Resolver<Maybe<ResolversTypes['OracleRegistry']>, ParentType, ContextType, RequireFields<QueryoracleRegistryArgs, 'id' | 'subgraphError'>>;
+  oracleRegistries?: Resolver<Array<ResolversTypes['OracleRegistry']>, ParentType, ContextType, RequireFields<QueryoracleRegistriesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  oracle?: Resolver<Maybe<ResolversTypes['Oracle']>, ParentType, ContextType, RequireFields<QueryoracleArgs, 'id' | 'subgraphError'>>;
+  oracles?: Resolver<Array<ResolversTypes['Oracle']>, ParentType, ContextType, RequireFields<QueryoraclesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  exchangeRate?: Resolver<Maybe<ResolversTypes['ExchangeRate']>, ParentType, ContextType, RequireFields<QueryexchangeRateArgs, 'id' | 'subgraphError'>>;
+  exchangeRates?: Resolver<Array<ResolversTypes['ExchangeRate']>, ParentType, ContextType, RequireFields<QueryexchangeRatesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  currencyConfiguration?: Resolver<Maybe<ResolversTypes['CurrencyConfiguration']>, ParentType, ContextType, RequireFields<QuerycurrencyConfigurationArgs, 'id' | 'subgraphError'>>;
+  currencyConfigurations?: Resolver<Array<ResolversTypes['CurrencyConfiguration']>, ParentType, ContextType, RequireFields<QuerycurrencyConfigurationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  interestRateCurve?: Resolver<Maybe<ResolversTypes['InterestRateCurve']>, ParentType, ContextType, RequireFields<QueryinterestRateCurveArgs, 'id' | 'subgraphError'>>;
+  interestRateCurves?: Resolver<Array<ResolversTypes['InterestRateCurve']>, ParentType, ContextType, RequireFields<QueryinterestRateCurvesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  vaultConfiguration?: Resolver<Maybe<ResolversTypes['VaultConfiguration']>, ParentType, ContextType, RequireFields<QueryvaultConfigurationArgs, 'id' | 'subgraphError'>>;
+  vaultConfigurations?: Resolver<Array<ResolversTypes['VaultConfiguration']>, ParentType, ContextType, RequireFields<QueryvaultConfigurationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  whitelistedContract?: Resolver<Maybe<ResolversTypes['WhitelistedContract']>, ParentType, ContextType, RequireFields<QuerywhitelistedContractArgs, 'id' | 'subgraphError'>>;
+  whitelistedContracts?: Resolver<Array<ResolversTypes['WhitelistedContract']>, ParentType, ContextType, RequireFields<QuerywhitelistedContractsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  balance?: Resolver<Maybe<ResolversTypes['Balance']>, ParentType, ContextType, RequireFields<QuerybalanceArgs, 'id' | 'subgraphError'>>;
+  balances?: Resolver<Array<ResolversTypes['Balance']>, ParentType, ContextType, RequireFields<QuerybalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  balanceSnapshot?: Resolver<Maybe<ResolversTypes['BalanceSnapshot']>, ParentType, ContextType, RequireFields<QuerybalanceSnapshotArgs, 'id' | 'subgraphError'>>;
+  balanceSnapshots?: Resolver<Array<ResolversTypes['BalanceSnapshot']>, ParentType, ContextType, RequireFields<QuerybalanceSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  incentiveSnapshot?: Resolver<Maybe<ResolversTypes['IncentiveSnapshot']>, ParentType, ContextType, RequireFields<QueryincentiveSnapshotArgs, 'id' | 'subgraphError'>>;
+  incentiveSnapshots?: Resolver<Array<ResolversTypes['IncentiveSnapshot']>, ParentType, ContextType, RequireFields<QueryincentiveSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  activeMarket?: Resolver<Maybe<ResolversTypes['ActiveMarket']>, ParentType, ContextType, RequireFields<QueryactiveMarketArgs, 'id' | 'subgraphError'>>;
+  activeMarkets?: Resolver<Array<ResolversTypes['ActiveMarket']>, ParentType, ContextType, RequireFields<QueryactiveMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  primeCashMarket?: Resolver<Maybe<ResolversTypes['PrimeCashMarket']>, ParentType, ContextType, RequireFields<QueryprimeCashMarketArgs, 'id' | 'subgraphError'>>;
+  primeCashMarkets?: Resolver<Array<ResolversTypes['PrimeCashMarket']>, ParentType, ContextType, RequireFields<QueryprimeCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  primeCashMarketSnapshot?: Resolver<Maybe<ResolversTypes['PrimeCashMarketSnapshot']>, ParentType, ContextType, RequireFields<QueryprimeCashMarketSnapshotArgs, 'id' | 'subgraphError'>>;
+  primeCashMarketSnapshots?: Resolver<Array<ResolversTypes['PrimeCashMarketSnapshot']>, ParentType, ContextType, RequireFields<QueryprimeCashMarketSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  fCashMarket?: Resolver<Maybe<ResolversTypes['fCashMarket']>, ParentType, ContextType, RequireFields<QueryfCashMarketArgs, 'id' | 'subgraphError'>>;
+  fCashMarkets?: Resolver<Array<ResolversTypes['fCashMarket']>, ParentType, ContextType, RequireFields<QueryfCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  fCashMarketSnapshot?: Resolver<Maybe<ResolversTypes['fCashMarketSnapshot']>, ParentType, ContextType, RequireFields<QueryfCashMarketSnapshotArgs, 'id' | 'subgraphError'>>;
+  fCashMarketSnapshots?: Resolver<Array<ResolversTypes['fCashMarketSnapshot']>, ParentType, ContextType, RequireFields<QueryfCashMarketSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  incentive?: Resolver<Maybe<ResolversTypes['Incentive']>, ParentType, ContextType, RequireFields<QueryincentiveArgs, 'id' | 'subgraphError'>>;
+  incentives?: Resolver<Array<ResolversTypes['Incentive']>, ParentType, ContextType, RequireFields<QueryincentivesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tradingModulePermission?: Resolver<Maybe<ResolversTypes['TradingModulePermission']>, ParentType, ContextType, RequireFields<QuerytradingModulePermissionArgs, 'id' | 'subgraphError'>>;
+  tradingModulePermissions?: Resolver<Array<ResolversTypes['TradingModulePermission']>, ParentType, ContextType, RequireFields<QuerytradingModulePermissionsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  reinvestment?: Resolver<Maybe<ResolversTypes['Reinvestment']>, ParentType, ContextType, RequireFields<QueryreinvestmentArgs, 'id' | 'subgraphError'>>;
+  reinvestments?: Resolver<Array<ResolversTypes['Reinvestment']>, ParentType, ContextType, RequireFields<QueryreinvestmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  externalLending?: Resolver<Maybe<ResolversTypes['ExternalLending']>, ParentType, ContextType, RequireFields<QueryexternalLendingArgs, 'id' | 'subgraphError'>>;
+  externalLendings?: Resolver<Array<ResolversTypes['ExternalLending']>, ParentType, ContextType, RequireFields<QueryexternalLendingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  underlyingSnapshot?: Resolver<Maybe<ResolversTypes['UnderlyingSnapshot']>, ParentType, ContextType, RequireFields<QueryunderlyingSnapshotArgs, 'id' | 'subgraphError'>>;
+  underlyingSnapshots?: Resolver<Array<ResolversTypes['UnderlyingSnapshot']>, ParentType, ContextType, RequireFields<QueryunderlyingSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  externalLendingSnapshot?: Resolver<Maybe<ResolversTypes['ExternalLendingSnapshot']>, ParentType, ContextType, RequireFields<QueryexternalLendingSnapshotArgs, 'id' | 'subgraphError'>>;
+  externalLendingSnapshots?: Resolver<Array<ResolversTypes['ExternalLendingSnapshot']>, ParentType, ContextType, RequireFields<QueryexternalLendingSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
 }>;
 
-export type ReinvestmentResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['Reinvestment'] = ResolversParentTypes['Reinvestment']
-> = ResolversObject<{
+export type ReinvestmentResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Reinvestment'] = ResolversParentTypes['Reinvestment']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -9386,493 +8999,67 @@ export type ReinvestmentResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type SubscriptionResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']
-> = ResolversObject<{
-  token?: SubscriptionResolver<
-    Maybe<ResolversTypes['Token']>,
-    'token',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontokenArgs, 'id' | 'subgraphError'>
-  >;
-  tokens?: SubscriptionResolver<
-    Array<ResolversTypes['Token']>,
-    'tokens',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontokensArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  transfer?: SubscriptionResolver<
-    Maybe<ResolversTypes['Transfer']>,
-    'transfer',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontransferArgs, 'id' | 'subgraphError'>
-  >;
-  transfers?: SubscriptionResolver<
-    Array<ResolversTypes['Transfer']>,
-    'transfers',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontransfersArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  transferBundle?: SubscriptionResolver<
-    Maybe<ResolversTypes['TransferBundle']>,
-    'transferBundle',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontransferBundleArgs, 'id' | 'subgraphError'>
-  >;
-  transferBundles?: SubscriptionResolver<
-    Array<ResolversTypes['TransferBundle']>,
-    'transferBundles',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptiontransferBundlesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  profitLossLineItem?: SubscriptionResolver<
-    Maybe<ResolversTypes['ProfitLossLineItem']>,
-    'profitLossLineItem',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionprofitLossLineItemArgs, 'id' | 'subgraphError'>
-  >;
-  profitLossLineItems?: SubscriptionResolver<
-    Array<ResolversTypes['ProfitLossLineItem']>,
-    'profitLossLineItems',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionprofitLossLineItemsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  transaction?: SubscriptionResolver<
-    Maybe<ResolversTypes['Transaction']>,
-    'transaction',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontransactionArgs, 'id' | 'subgraphError'>
-  >;
-  transactions?: SubscriptionResolver<
-    Array<ResolversTypes['Transaction']>,
-    'transactions',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptiontransactionsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  account?: SubscriptionResolver<
-    Maybe<ResolversTypes['Account']>,
-    'account',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionaccountArgs, 'id' | 'subgraphError'>
-  >;
-  accounts?: SubscriptionResolver<
-    Array<ResolversTypes['Account']>,
-    'accounts',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionaccountsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  nTokenFeeBuffer?: SubscriptionResolver<
-    Maybe<ResolversTypes['nTokenFeeBuffer']>,
-    'nTokenFeeBuffer',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionnTokenFeeBufferArgs, 'id' | 'subgraphError'>
-  >;
-  nTokenFeeBuffers?: SubscriptionResolver<
-    Array<ResolversTypes['nTokenFeeBuffer']>,
-    'nTokenFeeBuffers',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionnTokenFeeBuffersArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  oracleRegistry?: SubscriptionResolver<
-    Maybe<ResolversTypes['OracleRegistry']>,
-    'oracleRegistry',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionoracleRegistryArgs, 'id' | 'subgraphError'>
-  >;
-  oracleRegistries?: SubscriptionResolver<
-    Array<ResolversTypes['OracleRegistry']>,
-    'oracleRegistries',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionoracleRegistriesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  oracle?: SubscriptionResolver<
-    Maybe<ResolversTypes['Oracle']>,
-    'oracle',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionoracleArgs, 'id' | 'subgraphError'>
-  >;
-  oracles?: SubscriptionResolver<
-    Array<ResolversTypes['Oracle']>,
-    'oracles',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionoraclesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  exchangeRate?: SubscriptionResolver<
-    Maybe<ResolversTypes['ExchangeRate']>,
-    'exchangeRate',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionexchangeRateArgs, 'id' | 'subgraphError'>
-  >;
-  exchangeRates?: SubscriptionResolver<
-    Array<ResolversTypes['ExchangeRate']>,
-    'exchangeRates',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionexchangeRatesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  currencyConfiguration?: SubscriptionResolver<
-    Maybe<ResolversTypes['CurrencyConfiguration']>,
-    'currencyConfiguration',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptioncurrencyConfigurationArgs, 'id' | 'subgraphError'>
-  >;
-  currencyConfigurations?: SubscriptionResolver<
-    Array<ResolversTypes['CurrencyConfiguration']>,
-    'currencyConfigurations',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptioncurrencyConfigurationsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  interestRateCurve?: SubscriptionResolver<
-    Maybe<ResolversTypes['InterestRateCurve']>,
-    'interestRateCurve',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptioninterestRateCurveArgs, 'id' | 'subgraphError'>
-  >;
-  interestRateCurves?: SubscriptionResolver<
-    Array<ResolversTypes['InterestRateCurve']>,
-    'interestRateCurves',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptioninterestRateCurvesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  vaultConfiguration?: SubscriptionResolver<
-    Maybe<ResolversTypes['VaultConfiguration']>,
-    'vaultConfiguration',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionvaultConfigurationArgs, 'id' | 'subgraphError'>
-  >;
-  vaultConfigurations?: SubscriptionResolver<
-    Array<ResolversTypes['VaultConfiguration']>,
-    'vaultConfigurations',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionvaultConfigurationsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  whitelistedContract?: SubscriptionResolver<
-    Maybe<ResolversTypes['WhitelistedContract']>,
-    'whitelistedContract',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionwhitelistedContractArgs, 'id' | 'subgraphError'>
-  >;
-  whitelistedContracts?: SubscriptionResolver<
-    Array<ResolversTypes['WhitelistedContract']>,
-    'whitelistedContracts',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionwhitelistedContractsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  balance?: SubscriptionResolver<
-    Maybe<ResolversTypes['Balance']>,
-    'balance',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionbalanceArgs, 'id' | 'subgraphError'>
-  >;
-  balances?: SubscriptionResolver<
-    Array<ResolversTypes['Balance']>,
-    'balances',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionbalancesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  balanceSnapshot?: SubscriptionResolver<
-    Maybe<ResolversTypes['BalanceSnapshot']>,
-    'balanceSnapshot',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionbalanceSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  balanceSnapshots?: SubscriptionResolver<
-    Array<ResolversTypes['BalanceSnapshot']>,
-    'balanceSnapshots',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionbalanceSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  incentiveSnapshot?: SubscriptionResolver<
-    Maybe<ResolversTypes['IncentiveSnapshot']>,
-    'incentiveSnapshot',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionincentiveSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  incentiveSnapshots?: SubscriptionResolver<
-    Array<ResolversTypes['IncentiveSnapshot']>,
-    'incentiveSnapshots',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionincentiveSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  activeMarket?: SubscriptionResolver<
-    Maybe<ResolversTypes['ActiveMarket']>,
-    'activeMarket',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionactiveMarketArgs, 'id' | 'subgraphError'>
-  >;
-  activeMarkets?: SubscriptionResolver<
-    Array<ResolversTypes['ActiveMarket']>,
-    'activeMarkets',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionactiveMarketsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  primeCashMarket?: SubscriptionResolver<
-    Maybe<ResolversTypes['PrimeCashMarket']>,
-    'primeCashMarket',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionprimeCashMarketArgs, 'id' | 'subgraphError'>
-  >;
-  primeCashMarkets?: SubscriptionResolver<
-    Array<ResolversTypes['PrimeCashMarket']>,
-    'primeCashMarkets',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionprimeCashMarketsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  primeCashMarketSnapshot?: SubscriptionResolver<
-    Maybe<ResolversTypes['PrimeCashMarketSnapshot']>,
-    'primeCashMarketSnapshot',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionprimeCashMarketSnapshotArgs,
-      'id' | 'subgraphError'
-    >
-  >;
-  primeCashMarketSnapshots?: SubscriptionResolver<
-    Array<ResolversTypes['PrimeCashMarketSnapshot']>,
-    'primeCashMarketSnapshots',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionprimeCashMarketSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  fCashMarket?: SubscriptionResolver<
-    Maybe<ResolversTypes['fCashMarket']>,
-    'fCashMarket',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionfCashMarketArgs, 'id' | 'subgraphError'>
-  >;
-  fCashMarkets?: SubscriptionResolver<
-    Array<ResolversTypes['fCashMarket']>,
-    'fCashMarkets',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionfCashMarketsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  fCashMarketSnapshot?: SubscriptionResolver<
-    Maybe<ResolversTypes['fCashMarketSnapshot']>,
-    'fCashMarketSnapshot',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionfCashMarketSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  fCashMarketSnapshots?: SubscriptionResolver<
-    Array<ResolversTypes['fCashMarketSnapshot']>,
-    'fCashMarketSnapshots',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionfCashMarketSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  incentive?: SubscriptionResolver<
-    Maybe<ResolversTypes['Incentive']>,
-    'incentive',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionincentiveArgs, 'id' | 'subgraphError'>
-  >;
-  incentives?: SubscriptionResolver<
-    Array<ResolversTypes['Incentive']>,
-    'incentives',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionincentivesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  tradingModulePermission?: SubscriptionResolver<
-    Maybe<ResolversTypes['TradingModulePermission']>,
-    'tradingModulePermission',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptiontradingModulePermissionArgs,
-      'id' | 'subgraphError'
-    >
-  >;
-  tradingModulePermissions?: SubscriptionResolver<
-    Array<ResolversTypes['TradingModulePermission']>,
-    'tradingModulePermissions',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptiontradingModulePermissionsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  reinvestment?: SubscriptionResolver<
-    Maybe<ResolversTypes['Reinvestment']>,
-    'reinvestment',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionreinvestmentArgs, 'id' | 'subgraphError'>
-  >;
-  reinvestments?: SubscriptionResolver<
-    Array<ResolversTypes['Reinvestment']>,
-    'reinvestments',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionreinvestmentsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  externalLending?: SubscriptionResolver<
-    Maybe<ResolversTypes['ExternalLending']>,
-    'externalLending',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionexternalLendingArgs, 'id' | 'subgraphError'>
-  >;
-  externalLendings?: SubscriptionResolver<
-    Array<ResolversTypes['ExternalLending']>,
-    'externalLendings',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionexternalLendingsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  underlyingSnapshot?: SubscriptionResolver<
-    Maybe<ResolversTypes['UnderlyingSnapshot']>,
-    'underlyingSnapshot',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionunderlyingSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  underlyingSnapshots?: SubscriptionResolver<
-    Array<ResolversTypes['UnderlyingSnapshot']>,
-    'underlyingSnapshots',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionunderlyingSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  externalLendingSnapshot?: SubscriptionResolver<
-    Maybe<ResolversTypes['ExternalLendingSnapshot']>,
-    'externalLendingSnapshot',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionexternalLendingSnapshotArgs,
-      'id' | 'subgraphError'
-    >
-  >;
-  externalLendingSnapshots?: SubscriptionResolver<
-    Array<ResolversTypes['ExternalLendingSnapshot']>,
-    'externalLendingSnapshots',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionexternalLendingSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  _meta?: SubscriptionResolver<
-    Maybe<ResolversTypes['_Meta_']>,
-    '_meta',
-    ParentType,
-    ContextType,
-    Partial<Subscription_metaArgs>
-  >;
+export type SubscriptionResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
+  token?: SubscriptionResolver<Maybe<ResolversTypes['Token']>, "token", ParentType, ContextType, RequireFields<SubscriptiontokenArgs, 'id' | 'subgraphError'>>;
+  tokens?: SubscriptionResolver<Array<ResolversTypes['Token']>, "tokens", ParentType, ContextType, RequireFields<SubscriptiontokensArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transfer?: SubscriptionResolver<Maybe<ResolversTypes['Transfer']>, "transfer", ParentType, ContextType, RequireFields<SubscriptiontransferArgs, 'id' | 'subgraphError'>>;
+  transfers?: SubscriptionResolver<Array<ResolversTypes['Transfer']>, "transfers", ParentType, ContextType, RequireFields<SubscriptiontransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transferBundle?: SubscriptionResolver<Maybe<ResolversTypes['TransferBundle']>, "transferBundle", ParentType, ContextType, RequireFields<SubscriptiontransferBundleArgs, 'id' | 'subgraphError'>>;
+  transferBundles?: SubscriptionResolver<Array<ResolversTypes['TransferBundle']>, "transferBundles", ParentType, ContextType, RequireFields<SubscriptiontransferBundlesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  profitLossLineItem?: SubscriptionResolver<Maybe<ResolversTypes['ProfitLossLineItem']>, "profitLossLineItem", ParentType, ContextType, RequireFields<SubscriptionprofitLossLineItemArgs, 'id' | 'subgraphError'>>;
+  profitLossLineItems?: SubscriptionResolver<Array<ResolversTypes['ProfitLossLineItem']>, "profitLossLineItems", ParentType, ContextType, RequireFields<SubscriptionprofitLossLineItemsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transaction?: SubscriptionResolver<Maybe<ResolversTypes['Transaction']>, "transaction", ParentType, ContextType, RequireFields<SubscriptiontransactionArgs, 'id' | 'subgraphError'>>;
+  transactions?: SubscriptionResolver<Array<ResolversTypes['Transaction']>, "transactions", ParentType, ContextType, RequireFields<SubscriptiontransactionsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  account?: SubscriptionResolver<Maybe<ResolversTypes['Account']>, "account", ParentType, ContextType, RequireFields<SubscriptionaccountArgs, 'id' | 'subgraphError'>>;
+  accounts?: SubscriptionResolver<Array<ResolversTypes['Account']>, "accounts", ParentType, ContextType, RequireFields<SubscriptionaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  nTokenFeeBuffer?: SubscriptionResolver<Maybe<ResolversTypes['nTokenFeeBuffer']>, "nTokenFeeBuffer", ParentType, ContextType, RequireFields<SubscriptionnTokenFeeBufferArgs, 'id' | 'subgraphError'>>;
+  nTokenFeeBuffers?: SubscriptionResolver<Array<ResolversTypes['nTokenFeeBuffer']>, "nTokenFeeBuffers", ParentType, ContextType, RequireFields<SubscriptionnTokenFeeBuffersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  oracleRegistry?: SubscriptionResolver<Maybe<ResolversTypes['OracleRegistry']>, "oracleRegistry", ParentType, ContextType, RequireFields<SubscriptionoracleRegistryArgs, 'id' | 'subgraphError'>>;
+  oracleRegistries?: SubscriptionResolver<Array<ResolversTypes['OracleRegistry']>, "oracleRegistries", ParentType, ContextType, RequireFields<SubscriptionoracleRegistriesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  oracle?: SubscriptionResolver<Maybe<ResolversTypes['Oracle']>, "oracle", ParentType, ContextType, RequireFields<SubscriptionoracleArgs, 'id' | 'subgraphError'>>;
+  oracles?: SubscriptionResolver<Array<ResolversTypes['Oracle']>, "oracles", ParentType, ContextType, RequireFields<SubscriptionoraclesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  exchangeRate?: SubscriptionResolver<Maybe<ResolversTypes['ExchangeRate']>, "exchangeRate", ParentType, ContextType, RequireFields<SubscriptionexchangeRateArgs, 'id' | 'subgraphError'>>;
+  exchangeRates?: SubscriptionResolver<Array<ResolversTypes['ExchangeRate']>, "exchangeRates", ParentType, ContextType, RequireFields<SubscriptionexchangeRatesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  currencyConfiguration?: SubscriptionResolver<Maybe<ResolversTypes['CurrencyConfiguration']>, "currencyConfiguration", ParentType, ContextType, RequireFields<SubscriptioncurrencyConfigurationArgs, 'id' | 'subgraphError'>>;
+  currencyConfigurations?: SubscriptionResolver<Array<ResolversTypes['CurrencyConfiguration']>, "currencyConfigurations", ParentType, ContextType, RequireFields<SubscriptioncurrencyConfigurationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  interestRateCurve?: SubscriptionResolver<Maybe<ResolversTypes['InterestRateCurve']>, "interestRateCurve", ParentType, ContextType, RequireFields<SubscriptioninterestRateCurveArgs, 'id' | 'subgraphError'>>;
+  interestRateCurves?: SubscriptionResolver<Array<ResolversTypes['InterestRateCurve']>, "interestRateCurves", ParentType, ContextType, RequireFields<SubscriptioninterestRateCurvesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  vaultConfiguration?: SubscriptionResolver<Maybe<ResolversTypes['VaultConfiguration']>, "vaultConfiguration", ParentType, ContextType, RequireFields<SubscriptionvaultConfigurationArgs, 'id' | 'subgraphError'>>;
+  vaultConfigurations?: SubscriptionResolver<Array<ResolversTypes['VaultConfiguration']>, "vaultConfigurations", ParentType, ContextType, RequireFields<SubscriptionvaultConfigurationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  whitelistedContract?: SubscriptionResolver<Maybe<ResolversTypes['WhitelistedContract']>, "whitelistedContract", ParentType, ContextType, RequireFields<SubscriptionwhitelistedContractArgs, 'id' | 'subgraphError'>>;
+  whitelistedContracts?: SubscriptionResolver<Array<ResolversTypes['WhitelistedContract']>, "whitelistedContracts", ParentType, ContextType, RequireFields<SubscriptionwhitelistedContractsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  balance?: SubscriptionResolver<Maybe<ResolversTypes['Balance']>, "balance", ParentType, ContextType, RequireFields<SubscriptionbalanceArgs, 'id' | 'subgraphError'>>;
+  balances?: SubscriptionResolver<Array<ResolversTypes['Balance']>, "balances", ParentType, ContextType, RequireFields<SubscriptionbalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  balanceSnapshot?: SubscriptionResolver<Maybe<ResolversTypes['BalanceSnapshot']>, "balanceSnapshot", ParentType, ContextType, RequireFields<SubscriptionbalanceSnapshotArgs, 'id' | 'subgraphError'>>;
+  balanceSnapshots?: SubscriptionResolver<Array<ResolversTypes['BalanceSnapshot']>, "balanceSnapshots", ParentType, ContextType, RequireFields<SubscriptionbalanceSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  incentiveSnapshot?: SubscriptionResolver<Maybe<ResolversTypes['IncentiveSnapshot']>, "incentiveSnapshot", ParentType, ContextType, RequireFields<SubscriptionincentiveSnapshotArgs, 'id' | 'subgraphError'>>;
+  incentiveSnapshots?: SubscriptionResolver<Array<ResolversTypes['IncentiveSnapshot']>, "incentiveSnapshots", ParentType, ContextType, RequireFields<SubscriptionincentiveSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  activeMarket?: SubscriptionResolver<Maybe<ResolversTypes['ActiveMarket']>, "activeMarket", ParentType, ContextType, RequireFields<SubscriptionactiveMarketArgs, 'id' | 'subgraphError'>>;
+  activeMarkets?: SubscriptionResolver<Array<ResolversTypes['ActiveMarket']>, "activeMarkets", ParentType, ContextType, RequireFields<SubscriptionactiveMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  primeCashMarket?: SubscriptionResolver<Maybe<ResolversTypes['PrimeCashMarket']>, "primeCashMarket", ParentType, ContextType, RequireFields<SubscriptionprimeCashMarketArgs, 'id' | 'subgraphError'>>;
+  primeCashMarkets?: SubscriptionResolver<Array<ResolversTypes['PrimeCashMarket']>, "primeCashMarkets", ParentType, ContextType, RequireFields<SubscriptionprimeCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  primeCashMarketSnapshot?: SubscriptionResolver<Maybe<ResolversTypes['PrimeCashMarketSnapshot']>, "primeCashMarketSnapshot", ParentType, ContextType, RequireFields<SubscriptionprimeCashMarketSnapshotArgs, 'id' | 'subgraphError'>>;
+  primeCashMarketSnapshots?: SubscriptionResolver<Array<ResolversTypes['PrimeCashMarketSnapshot']>, "primeCashMarketSnapshots", ParentType, ContextType, RequireFields<SubscriptionprimeCashMarketSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  fCashMarket?: SubscriptionResolver<Maybe<ResolversTypes['fCashMarket']>, "fCashMarket", ParentType, ContextType, RequireFields<SubscriptionfCashMarketArgs, 'id' | 'subgraphError'>>;
+  fCashMarkets?: SubscriptionResolver<Array<ResolversTypes['fCashMarket']>, "fCashMarkets", ParentType, ContextType, RequireFields<SubscriptionfCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  fCashMarketSnapshot?: SubscriptionResolver<Maybe<ResolversTypes['fCashMarketSnapshot']>, "fCashMarketSnapshot", ParentType, ContextType, RequireFields<SubscriptionfCashMarketSnapshotArgs, 'id' | 'subgraphError'>>;
+  fCashMarketSnapshots?: SubscriptionResolver<Array<ResolversTypes['fCashMarketSnapshot']>, "fCashMarketSnapshots", ParentType, ContextType, RequireFields<SubscriptionfCashMarketSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  incentive?: SubscriptionResolver<Maybe<ResolversTypes['Incentive']>, "incentive", ParentType, ContextType, RequireFields<SubscriptionincentiveArgs, 'id' | 'subgraphError'>>;
+  incentives?: SubscriptionResolver<Array<ResolversTypes['Incentive']>, "incentives", ParentType, ContextType, RequireFields<SubscriptionincentivesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tradingModulePermission?: SubscriptionResolver<Maybe<ResolversTypes['TradingModulePermission']>, "tradingModulePermission", ParentType, ContextType, RequireFields<SubscriptiontradingModulePermissionArgs, 'id' | 'subgraphError'>>;
+  tradingModulePermissions?: SubscriptionResolver<Array<ResolversTypes['TradingModulePermission']>, "tradingModulePermissions", ParentType, ContextType, RequireFields<SubscriptiontradingModulePermissionsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  reinvestment?: SubscriptionResolver<Maybe<ResolversTypes['Reinvestment']>, "reinvestment", ParentType, ContextType, RequireFields<SubscriptionreinvestmentArgs, 'id' | 'subgraphError'>>;
+  reinvestments?: SubscriptionResolver<Array<ResolversTypes['Reinvestment']>, "reinvestments", ParentType, ContextType, RequireFields<SubscriptionreinvestmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  externalLending?: SubscriptionResolver<Maybe<ResolversTypes['ExternalLending']>, "externalLending", ParentType, ContextType, RequireFields<SubscriptionexternalLendingArgs, 'id' | 'subgraphError'>>;
+  externalLendings?: SubscriptionResolver<Array<ResolversTypes['ExternalLending']>, "externalLendings", ParentType, ContextType, RequireFields<SubscriptionexternalLendingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  underlyingSnapshot?: SubscriptionResolver<Maybe<ResolversTypes['UnderlyingSnapshot']>, "underlyingSnapshot", ParentType, ContextType, RequireFields<SubscriptionunderlyingSnapshotArgs, 'id' | 'subgraphError'>>;
+  underlyingSnapshots?: SubscriptionResolver<Array<ResolversTypes['UnderlyingSnapshot']>, "underlyingSnapshots", ParentType, ContextType, RequireFields<SubscriptionunderlyingSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  externalLendingSnapshot?: SubscriptionResolver<Maybe<ResolversTypes['ExternalLendingSnapshot']>, "externalLendingSnapshot", ParentType, ContextType, RequireFields<SubscriptionexternalLendingSnapshotArgs, 'id' | 'subgraphError'>>;
+  externalLendingSnapshots?: SubscriptionResolver<Array<ResolversTypes['ExternalLendingSnapshot']>, "externalLendingSnapshots", ParentType, ContextType, RequireFields<SubscriptionexternalLendingSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
 }>;
 
-export type TokenResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']
-> = ResolversObject<{
+export type TokenResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   firstUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -9960,10 +9147,7 @@ export type TokenResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TradingModulePermissionResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['TradingModulePermission'] = ResolversParentTypes['TradingModulePermission']
-> = ResolversObject<{
+export type TradingModulePermissionResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['TradingModulePermission'] = ResolversParentTypes['TradingModulePermission']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -9999,10 +9183,7 @@ export type TradingModulePermissionResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TransactionResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']
-> = ResolversObject<{
+export type TransactionResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -10041,10 +9222,7 @@ export type TransactionResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TransferResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']
-> = ResolversObject<{
+export type TransferResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -10089,10 +9267,7 @@ export type TransferResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TransferBundleResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['TransferBundle'] = ResolversParentTypes['TransferBundle']
-> = ResolversObject<{
+export type TransferBundleResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['TransferBundle'] = ResolversParentTypes['TransferBundle']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -10119,10 +9294,7 @@ export type TransferBundleResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type UnderlyingSnapshotResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['UnderlyingSnapshot'] = ResolversParentTypes['UnderlyingSnapshot']
-> = ResolversObject<{
+export type UnderlyingSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['UnderlyingSnapshot'] = ResolversParentTypes['UnderlyingSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -10146,10 +9318,7 @@ export type UnderlyingSnapshotResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type VaultConfigurationResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['VaultConfiguration'] = ResolversParentTypes['VaultConfiguration']
-> = ResolversObject<{
+export type VaultConfigurationResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['VaultConfiguration'] = ResolversParentTypes['VaultConfiguration']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockHash?: Resolver<
     ResolversTypes['Bytes'],
@@ -10286,10 +9455,7 @@ export type VaultConfigurationResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type WhitelistedContractResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['WhitelistedContract'] = ResolversParentTypes['WhitelistedContract']
-> = ResolversObject<{
+export type WhitelistedContractResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['WhitelistedContract'] = ResolversParentTypes['WhitelistedContract']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -10320,20 +9486,14 @@ export type WhitelistedContractResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type _Block_Resolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['_Block_'] = ResolversParentTypes['_Block_']
-> = ResolversObject<{
+export type _Block_Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['_Block_'] = ResolversParentTypes['_Block_']> = ResolversObject<{
   hash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type _Meta_Resolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['_Meta_'] = ResolversParentTypes['_Meta_']
-> = ResolversObject<{
+export type _Meta_Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['_Meta_'] = ResolversParentTypes['_Meta_']> = ResolversObject<{
   block?: Resolver<ResolversTypes['_Block_'], ParentType, ContextType>;
   deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasIndexingErrors?: Resolver<
@@ -10344,10 +9504,7 @@ export type _Meta_Resolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type fCashMarketResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['fCashMarket'] = ResolversParentTypes['fCashMarket']
-> = ResolversObject<{
+export type fCashMarketResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['fCashMarket'] = ResolversParentTypes['fCashMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -10388,10 +9545,7 @@ export type fCashMarketResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type fCashMarketSnapshotResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['fCashMarketSnapshot'] = ResolversParentTypes['fCashMarketSnapshot']
-> = ResolversObject<{
+export type fCashMarketSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['fCashMarketSnapshot'] = ResolversParentTypes['fCashMarketSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -10430,10 +9584,7 @@ export type fCashMarketSnapshotResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type nTokenFeeBufferResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string },
-  ParentType extends ResolversParentTypes['nTokenFeeBuffer'] = ResolversParentTypes['nTokenFeeBuffer']
-> = ResolversObject<{
+export type nTokenFeeBufferResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['nTokenFeeBuffer'] = ResolversParentTypes['nTokenFeeBuffer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<
     ResolversTypes['BigInt'],
@@ -10464,9 +9615,7 @@ export type nTokenFeeBufferResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Resolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string }
-> = ResolversObject<{
+export type Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }> = ResolversObject<{
   Account?: AccountResolvers<ContextType>;
   ActiveMarket?: ActiveMarketResolvers<ContextType>;
   Balance?: BalanceResolvers<ContextType>;
@@ -10505,9 +9654,7 @@ export type Resolvers<
   nTokenFeeBuffer?: nTokenFeeBufferResolvers<ContextType>;
 }>;
 
-export type DirectiveResolvers<
-  ContextType = MeshContext & { apiKey: string; subgraphId: string }
-> = ResolversObject<{
+export type DirectiveResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }> = ResolversObject<{
   entity?: entityDirectiveResolver<any, any, ContextType>;
   subgraphId?: subgraphIdDirectiveResolver<any, any, ContextType>;
   derivedFrom?: derivedFromDirectiveResolver<any, any, ContextType>;
@@ -10566,36 +9713,33 @@ export async function getMeshOptions(): Promise<GetMeshOptions> {
     logger,
   } as any);
 
-  const sources: MeshResolvedSource[] = [];
-  const transforms: MeshTransform[] = [];
-  const additionalEnvelopPlugins: MeshPlugin<any>[] = [];
-  const notionalV3Transforms = [];
-  const additionalTypeDefs = [] as any[];
-  const notionalV3Handler = new GraphqlHandler({
-    name: 'NotionalV3',
-    config: {
-      endpoint:
-        'https://gateway-arbitrum.network.thegraph.com/api/f9f58a6131e8807672eaa304ed6abef8/subgraphs/id/{context.subgraphId:4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW}',
-    },
-    baseDir,
-    cache,
-    pubsub,
-    store: sourcesStore.child('NotionalV3'),
-    logger: logger.child('NotionalV3'),
-    importFn,
-  });
-  sources[0] = {
-    name: 'NotionalV3',
-    handler: notionalV3Handler,
-    transforms: notionalV3Transforms,
-  };
-  const additionalResolvers = [] as any[];
-  const merger = new (BareMerger as any)({
-    cache,
-    pubsub,
-    logger: logger.child('bareMerger'),
-    store: rootStore.child('bareMerger'),
-  });
+const sources: MeshResolvedSource[] = [];
+const transforms: MeshTransform[] = [];
+const additionalEnvelopPlugins: MeshPlugin<any>[] = [];
+const notionalV3Transforms = [];
+const additionalTypeDefs = [] as any[];
+const notionalV3Handler = new GraphqlHandler({
+              name: "NotionalV3",
+              config: {"endpoint":"https://gateway-arbitrum.network.thegraph.com/api/f9f58a6131e8807672eaa304ed6abef8/subgraphs/id/{context.subgraphId:4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW}"},
+              baseDir,
+              cache,
+              pubsub,
+              store: sourcesStore.child("NotionalV3"),
+              logger: logger.child("NotionalV3"),
+              importFn,
+            });
+sources[0] = {
+          name: 'NotionalV3',
+          handler: notionalV3Handler,
+          transforms: notionalV3Transforms
+        }
+const additionalResolvers = [] as any[]
+const merger = new(BareMerger as any)({
+        cache,
+        pubsub,
+        logger: logger.child('bareMerger'),
+        store: rootStore.child('bareMerger')
+      })
 
   return {
     sources,
@@ -11323,15 +10467,12 @@ export type AllVaultsQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
 }>;
 
-export type AllVaultsQuery = {
-  vaultConfigurations: Array<
-    Pick<
-      VaultConfiguration,
-      'id' | 'vaultAddress' | 'strategy' | 'name' | 'enabled'
-    >
-  >;
-  _meta?: Maybe<{ block: Pick<_Block_, 'number'> }>;
-};
+export type AllVaultsQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type AllVaultsQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'enabled'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllVaultsByBlockQueryVariables = Exact<{
   blockNumber?: InputMaybe<Scalars['Int']>;
@@ -12115,44 +11256,460 @@ export const AllVaultAccountsDocument = gql`
       }
     }
   }
-` as unknown as DocumentNode<
-  AllVaultAccountsQuery,
-  AllVaultAccountsQueryVariables
->;
-export const AllVaultsDocument = gql`
-  query AllVaults($skip: Int) {
-    vaultConfigurations(first: 1000, skip: $skip) {
-      id
-      vaultAddress
-      strategy
-      name
-      enabled
-    }
-    _meta {
-      block {
-        number
+}
+    ` as unknown as DocumentNode<ActiveAccountsQuery, ActiveAccountsQueryVariables>;
+export const AllAccountsDocument = gql`
+    query AllAccounts($skip: Int, $startId: ID, $endId: ID) {
+  accounts(
+    first: 1000
+    skip: $skip
+    where: {id_gt: $startId, id_lt: $endId, systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve]}
+  ) {
+    id
+    systemAccountType
+    balances {
+      token {
+        id
+        currencyId
+        underlying {
+          id
+        }
       }
+      current {
+        timestamp
+        blockNumber
+        currentBalance
+      }
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllAccountsQuery, AllAccountsQueryVariables>;
+export const AllConfigurationDocument = gql`
+    query AllConfiguration {
+  currencyConfigurations {
+    id
+    underlying {
+      id
+    }
+    pCash {
+      id
+    }
+    pDebt {
+      id
+    }
+    maxUnderlyingSupply
+    collateralHaircut
+    debtBuffer
+    liquidationDiscount
+    primeCashRateOracleTimeWindowSeconds
+    primeCashHoldingsOracle
+    primeCashCurve {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    primeDebtAllowed
+    fCashRateOracleTimeWindowSeconds
+    fCashReserveFeeSharePercent
+    fCashDebtBufferBasisPoints
+    fCashHaircutBasisPoints
+    fCashMinOracleRate
+    fCashMaxOracleRate
+    fCashMaxDiscountFactor
+    fCashLiquidationHaircutBasisPoints
+    fCashLiquidationDebtBufferBasisPoints
+    fCashActiveCurves {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    fCashNextCurves {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    treasuryReserveBuffer
+    primeCashHoldings
+    depositShares
+    leverageThresholds
+    proportions
+    residualPurchaseIncentiveBasisPoints
+    residualPurchaseTimeBufferSeconds
+    cashWithholdingBufferBasisPoints
+    pvHaircutPercentage
+    liquidationHaircutPercentage
+    maxMintDeviationBasisPoints
+    incentives {
+      incentiveEmissionRate
+      accumulatedNOTEPerNToken
+      lastAccumulatedTime
+      currentSecondaryReward {
+        id
+        symbol
+      }
+      secondaryIncentiveRewarder
+      secondaryEmissionRate
+      accumulatedSecondaryRewardPerNToken
+      lastSecondaryAccumulatedTime
+      secondaryRewardEndTime
+    }
+  }
+  vaultConfigurations {
+    id
+    vaultAddress
+    strategy
+    name
+    primaryBorrowCurrency {
+      id
+    }
+    minAccountBorrowSize
+    minCollateralRatioBasisPoints
+    maxDeleverageCollateralRatioBasisPoints
+    feeRateBasisPoints
+    reserveFeeSharePercent
+    liquidationRatePercent
+    maxBorrowMarketIndex
+    secondaryBorrowCurrencies {
+      id
+    }
+    maxRequiredAccountCollateralRatioBasisPoints
+    enabled
+    allowRollPosition
+    onlyVaultEntry
+    onlyVaultExit
+    onlyVaultRoll
+    onlyVaultDeleverage
+    onlyVaultSettle
+    discountfCash
+    allowsReentrancy
+    deleverageDisabled
+    maxPrimaryBorrowCapacity
+    totalUsedPrimaryBorrowCapacity
+    maxSecondaryBorrowCapacity
+    totalUsedSecondaryBorrowCapacity
+    minAccountSecondaryBorrow
+  }
+  whitelistedContracts {
+    id
+    name
+    capability
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllConfigurationQuery, AllConfigurationQueryVariables>;
+export const AllConfigurationByBlockDocument = gql`
+    query AllConfigurationByBlock($blockNumber: Int) {
+  currencyConfigurations(block: {number: $blockNumber}) {
+    id
+    underlying {
+      id
+    }
+    pCash {
+      id
+    }
+    pDebt {
+      id
+    }
+    maxUnderlyingSupply
+    collateralHaircut
+    debtBuffer
+    liquidationDiscount
+    primeCashRateOracleTimeWindowSeconds
+    primeCashHoldingsOracle
+    primeCashCurve {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    primeDebtAllowed
+    fCashRateOracleTimeWindowSeconds
+    fCashReserveFeeSharePercent
+    fCashDebtBufferBasisPoints
+    fCashHaircutBasisPoints
+    fCashMinOracleRate
+    fCashMaxOracleRate
+    fCashMaxDiscountFactor
+    fCashLiquidationHaircutBasisPoints
+    fCashLiquidationDebtBufferBasisPoints
+    fCashActiveCurves {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    fCashNextCurves {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    treasuryReserveBuffer
+    primeCashHoldings
+    depositShares
+    leverageThresholds
+    proportions
+    residualPurchaseIncentiveBasisPoints
+    residualPurchaseTimeBufferSeconds
+    cashWithholdingBufferBasisPoints
+    pvHaircutPercentage
+    liquidationHaircutPercentage
+    incentives {
+      incentiveEmissionRate
+      accumulatedNOTEPerNToken
+      lastAccumulatedTime
+      currentSecondaryReward {
+        id
+        symbol
+      }
+      secondaryIncentiveRewarder
+      secondaryEmissionRate
+      accumulatedSecondaryRewardPerNToken
+      lastSecondaryAccumulatedTime
+      secondaryRewardEndTime
+    }
+  }
+  vaultConfigurations(where: {enabled: true}, block: {number: $blockNumber}) {
+    id
+    vaultAddress
+    strategy
+    name
+    primaryBorrowCurrency {
+      id
+    }
+    minAccountBorrowSize
+    minCollateralRatioBasisPoints
+    maxDeleverageCollateralRatioBasisPoints
+    feeRateBasisPoints
+    reserveFeeSharePercent
+    liquidationRatePercent
+    maxBorrowMarketIndex
+    secondaryBorrowCurrencies {
+      id
+    }
+    maxRequiredAccountCollateralRatioBasisPoints
+    enabled
+    allowRollPosition
+    onlyVaultEntry
+    onlyVaultExit
+    onlyVaultRoll
+    onlyVaultDeleverage
+    onlyVaultSettle
+    discountfCash
+    allowsReentrancy
+    deleverageDisabled
+    maxPrimaryBorrowCapacity
+    totalUsedPrimaryBorrowCapacity
+    maxSecondaryBorrowCapacity
+    totalUsedSecondaryBorrowCapacity
+    minAccountSecondaryBorrow
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllConfigurationByBlockQuery, AllConfigurationByBlockQueryVariables>;
+export const AllOraclesDocument = gql`
+    query AllOracles($skip: Int!) {
+  oracles(
+    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, fCashSpotRate], matured: false}
+    first: 1000
+    skip: $skip
+  ) {
+    id
+    lastUpdateBlockNumber
+    lastUpdateTimestamp
+    base {
+      id
+      decimals
+    }
+    quote {
+      id
+      currencyId
+    }
+    decimals
+    oracleAddress
+    oracleType
+    mustInvert
+    latestRate
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllOraclesQuery, AllOraclesQueryVariables>;
+export const AllOraclesByBlockDocument = gql`
+    query AllOraclesByBlock($blockNumber: Int) {
+  oracles(
+    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, PrimeCashExternalLendingInterestRate, fCashSpotRate, PrimeCashToUnderlyingOracleInterestRate, fCashToUnderlyingExchangeRate], matured: false}
+    first: 1000
+    block: {number: $blockNumber}
+  ) {
+    id
+    lastUpdateBlockNumber
+    lastUpdateTimestamp
+    base {
+      id
+      decimals
+    }
+    quote {
+      id
+      currencyId
+    }
+    decimals
+    oracleAddress
+    oracleType
+    mustInvert
+    latestRate
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllOraclesByBlockQuery, AllOraclesByBlockQueryVariables>;
+export const AllTokensDocument = gql`
+    query AllTokens {
+  tokens(first: 1000) {
+    id
+    tokenType
+    tokenInterface
+    underlying {
+      id
+    }
+    currencyId
+    name
+    symbol
+    decimals
+    totalSupply
+    hasTransferFee
+    isfCashDebt
+    maturity
+    vaultAddress
+    tokenAddress
+    totalSupply
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllTokensQuery, AllTokensQueryVariables>;
+export const AllTokensByBlockDocument = gql`
+    query AllTokensByBlock($blockNumber: Int) {
+  tokens(first: 1000, block: {number: $blockNumber}) {
+    id
+    tokenType
+    tokenInterface
+    underlying {
+      id
+    }
+    currencyId
+    name
+    symbol
+    decimals
+    totalSupply
+    hasTransferFee
+    isfCashDebt
+    maturity
+    vaultAddress
+    tokenAddress
+    totalSupply
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllTokensByBlockQuery, AllTokensByBlockQueryVariables>;
+export const AllVaultAccountsDocument = gql`
+    query AllVaultAccounts($blockNumber: Int!, $vaultAddress: Bytes!, $skip: Int) {
+  balances(
+    where: {token_: {vaultAddress: $vaultAddress, tokenType: VaultShare}}
+    block: {number: $blockNumber}
+    first: 1000
+    skip: $skip
+  ) {
+    id
+    account {
+      id
+    }
+    current {
+      currentBalance
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllVaultAccountsQuery, AllVaultAccountsQueryVariables>;
+export const AllVaultsDocument = gql`
+    query AllVaults($skip: Int) {
+  vaultConfigurations(first: 1000, skip: $skip) {
+    id
+    vaultAddress
+    strategy
+    name
+    enabled
+  }
+  _meta {
+    block {
+      number
     }
   }
 ` as unknown as DocumentNode<AllVaultsQuery, AllVaultsQueryVariables>;
 export const AllVaultsByBlockDocument = gql`
-  query AllVaultsByBlock($blockNumber: Int, $skip: Int) {
-    vaultConfigurations(
-      where: { enabled: true }
-      block: { number: $blockNumber }
-      first: 1000
-      skip: $skip
-    ) {
-      id
-      vaultAddress
-      strategy
-      name
-      enabled
-    }
-    _meta {
-      block {
-        number
-      }
+    query AllVaultsByBlock($blockNumber: Int, $skip: Int) {
+  vaultConfigurations(
+    where: {enabled: true}
+    block: {number: $blockNumber}
+    first: 1000
+    skip: $skip
+  ) {
+    id
+    vaultAddress
+    strategy
+    name
+    enabled
+  }
+  _meta {
+    block {
+      number
     }
   }
 ` as unknown as DocumentNode<

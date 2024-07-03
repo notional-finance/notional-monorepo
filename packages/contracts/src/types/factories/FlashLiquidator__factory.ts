@@ -21,6 +21,8 @@ const _abi = [
       {
         name: "weth_",
         type: "address",
+      },
+      {
         internalType: "address",
       },
       {
@@ -31,7 +33,6 @@ const _abi = [
       {
         name: "tradingModule_",
         type: "address",
-        internalType: "address",
       },
     ],
     stateMutability: "nonpayable",
@@ -189,112 +190,21 @@ const _abi = [
         internalType: "address",
       },
     ],
-    outputs: [
-      {
-        name: "flashLoanResidual",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "localProfit",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "collateralProfit",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "getFreeCollateral",
-    inputs: [
-      {
-        name: "account",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "int256",
-        internalType: "int256",
-      },
-      {
-        name: "",
-        type: "int256[]",
-        internalType: "int256[]",
-      },
-    ],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "ifCashCurrencyId",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint16",
-        internalType: "uint16",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "owner",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "transferOwnership",
-    inputs: [
-      {
-        name: "newOwner",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
     name: "withdraw",
-    inputs: [
-      {
-        name: "token",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "amount",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    type: "function",
-    name: "wrapToWETH",
     inputs: [],
+    name: "wrapToWETH",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];
 

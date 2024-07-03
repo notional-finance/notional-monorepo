@@ -566,6 +566,22 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
+      address: '0x2d6CeD12420a9AF5a83765a8c48Be2aFcD1A8FEb',
+      PoolClass: 'ComposableStablePool',
+      registerTokens: [
+        {
+          id: '0x2d6CeD12420a9AF5a83765a8c48Be2aFcD1A8FEb',
+          address: '0x2d6CeD12420a9AF5a83765a8c48Be2aFcD1A8FEb',
+          network: Network.arbitrum,
+          symbol: 'cbETH/rETH/wstETH',
+          name: 'Balancer cbETH/rETH/wstETH CSP',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
       address: '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5',
       PoolClass: 'ComposableStablePool',
       registerTokens: [

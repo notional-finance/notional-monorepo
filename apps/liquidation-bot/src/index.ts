@@ -166,12 +166,25 @@ const run = async (env: Env, isHourly: boolean) => {
         network: env.NETWORK,
         title: `Risky Account: ${account.id}`,
         tags: [`account:${account.id}`, `event:risky_account`],
-        text: `Risky account ${account.id}, failed liquidation`,
+        text: `Risky account ${account.id}`,
       });
     }
     const riskyAccount = riskyAccounts[0];
 
     const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);
+    if (possibleLiqs.length === 0) {
+      await logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'error',
+        host: 'cloudflare',
+        network: liq.settings.network,
+        title: `Account liquidated`,
+        tags: [`account:${riskyAccount.id}`, `event:failed_account_liquidated`],
+        text: `
+Failed to find possible liquidation for account: ${riskyAccount.id}
+        `,
+      });
+    }
 
     if (possibleLiqs.length > 0) {
       await liq.liquidateAccount(possibleLiqs[0]);

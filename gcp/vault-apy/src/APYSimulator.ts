@@ -45,7 +45,7 @@ async function getTransferLogs(logs: ethers.providers.Log[]) {
         to: parsed.args.to,
         amount: parsed.args.amount.toString(),
       });
-    } catch {}
+    } catch { }
   }
   return transfers;
 }
@@ -168,10 +168,7 @@ export default class APYSimulator {
       log(
         'vault does not exist or do not have lp tokens, finding another account for APY calculation'
       );
-      ({ account, totalLpTokens } = await this.#findGaugeTokenHolder(
-        vaultData,
-        provider
-      ));
+      ({ account, totalLpTokens } = await this.#findGaugeTokenHolder(vaultData, provider));
       log(`new account: ${account} for vault ${vaultData.address}`);
     }
     assert(!totalLpTokens.eq(0));
@@ -232,15 +229,14 @@ export default class APYSimulator {
 
     const sharedData = {
       /////////////////local log, not saved to db/////////////////////////
-      feeApy: `${
-        Number(
-          poolFeesInPrimary
-            .mul(365)
-            .mul(1_000_000)
-            .div(lpTokenValuePrimaryBorrow)
-            .toString()
-        ) / 10_000
-      }%`,
+      feeApy: `${Number(
+        poolFeesInPrimary
+          .mul(365)
+          .mul(1_000_000)
+          .div(lpTokenValuePrimaryBorrow)
+          .toString()
+      ) / 10_000
+        }%`,
       ...(isAccountVault && {
         vaultName: await new Contract(
           vaultData.address,
@@ -284,15 +280,14 @@ export default class APYSimulator {
 
       const result = {
         /////////////////local log, not saved to db/////////////////////////
-        apy: `${
-          Number(
-            rewardTokenValuePrimaryBorrow
-              .mul(365)
-              .mul(10_00000)
-              .div(lpTokenValuePrimaryBorrow)
-              .toString()
-          ) / 10000
-        }%`,
+        apy: `${Number(
+          rewardTokenValuePrimaryBorrow
+            .mul(365)
+            .mul(10_00000)
+            .div(lpTokenValuePrimaryBorrow)
+            .toString()
+        ) / 10000
+          }%`,
         ///////////////////////////////////////////////////////////////////////
 
         ...sharedData,
@@ -326,8 +321,7 @@ export default class APYSimulator {
 
     log(`spawning network on block ${forkBlock}`);
     exec(
-      `anvil --rpc-url ${
-        this.#config.alchemyUrl
+      `anvil --rpc-url ${this.#config.alchemyUrl
       } --fork-block-number ${forkBlock}`
     );
     await wait(5000);
@@ -371,9 +365,9 @@ export default class APYSimulator {
         },
       ]);
       // filter out gauge deposit token
-      accounts = logs.transfers
-        .filter((t) => t.from !== '0x4717c25df44e280ec5b31acbd8c194e1ed24efe2')
-        .map((l) => l.from);
+      accounts = logs.transfers.filter(
+        (t) => t.from !== '0x4717c25df44e280ec5b31acbd8c194e1ed24efe2'
+      ).map(l => l.from);
     } else {
       logs = await this.#alchemyProvider.send('alchemy_getAssetTransfers', [
         {
@@ -385,7 +379,7 @@ export default class APYSimulator {
           maxCount: `0x${Number(10).toString(16)}`,
         },
       ]);
-      accounts = logs.transfers.map((l) => l.to);
+      accounts = logs.transfers.map(l => l.to);
     }
 
     for (const account of accounts) {
