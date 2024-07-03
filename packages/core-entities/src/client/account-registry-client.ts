@@ -19,15 +19,21 @@ import {
 import { Routes } from '../server';
 import {
   fetchGraph,
-  fetchUsingGraph,
+  fetchGraphPaginate,
   loadGraphClientDeferred,
 } from '../server/server-registry';
 import { ClientRegistry } from './client-registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { BalanceSnapshot, Token, Transaction } from '../.graphclient';
+import {
+  AllAccountsQuery,
+  BalanceSnapshot,
+  Token,
+  Transaction,
+} from '../.graphclient';
 import { parseCurrentBalanceStatement } from './accounts/balance-statement';
 import { parseTransaction } from './accounts/transaction-history';
 import { fetchCurrentAccount } from './accounts/current-account';
+import { ExecutionResult } from 'graphql';
 
 export enum AccountFetchMode {
   // Used for the frontend UI, will fetch data for a single account direct from
@@ -333,12 +339,46 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
   private async _fetchBatchAccounts(network: Network) {
     const { AllAccountsDocument } = await loadGraphClientDeferred();
-    const accounts = await fetchUsingGraph(
-      network,
-      AllAccountsDocument,
-      (r) => {
-        return r.accounts.reduce((o, a) => {
-          const acct = {
+    // This kludge is necessary because the subgraph only allows a skip value of
+    // less than 5000, so we query the entire account range by the prefix here with
+    // a max number of accounts in each id range of 5000.
+    const idRanges = [
+      '0x0000000000000000000000000000000000000000',
+      '0x1000000000000000000000000000000000000000',
+      '0x2000000000000000000000000000000000000000',
+      '0x3000000000000000000000000000000000000000',
+      '0x4000000000000000000000000000000000000000',
+      '0x5000000000000000000000000000000000000000',
+      '0x6000000000000000000000000000000000000000',
+      '0x7000000000000000000000000000000000000000',
+      '0x8000000000000000000000000000000000000000',
+      '0x9000000000000000000000000000000000000000',
+      '0xa000000000000000000000000000000000000000',
+      '0xb000000000000000000000000000000000000000',
+      '0xc000000000000000000000000000000000000000',
+      '0xd000000000000000000000000000000000000000',
+      '0xe000000000000000000000000000000000000000',
+      '0xf000000000000000000000000000000000000000',
+      '0xffffffffffffffffffffffffffffffffffffffff',
+    ];
+
+    const accountData: AccountDefinition[] = [];
+    for (let i = 0; i < idRanges.length - 1; i++) {
+      const results = await fetchGraphPaginate(
+        network,
+        AllAccountsDocument,
+        'accounts',
+        this.subgraphApiKey,
+        {
+          skip: 0,
+          startId: idRanges[i],
+          endId: idRanges[i + 1],
+        }
+      );
+
+      (results as ExecutionResult<AllAccountsQuery>).data?.accounts.forEach(
+        (a) => {
+          accountData.push({
             address: a.id,
             network,
             systemAccountType: a.systemAccountType,
@@ -350,65 +390,19 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   network
                 )
               ) || [],
-            /* NOTE: currently disabled to improve batch account loading performance
-            balanceStatement: a.balances
-              ?.filter((b) => !!b.token.underlying)
-              .map((b) =>
-                parseCurrentBalanceStatement(
-                  b.current as BalanceSnapshot,
-                  b.token as Token,
-                  network
-                )
-              ),
-            accountIncentiveDebt: a.balances
-              ?.map((b) => {
-                const i = b.current.incentives?.find(
-                  ({ rewardToken }) => rewardToken.symbol === 'NOTE'
-                );
-                return i?.currentIncentiveDebt
-                  ? {
-                      value: TokenBalance.fromSymbol(
-                        i?.currentIncentiveDebt,
-                        'NOTE',
-                        network
-                      ),
-                      currencyId: b.token.currencyId as number,
-                    }
-                  : undefined;
-              })
-              .filter((_) => !!_),
-            secondaryIncentiveDebt: a.balances
-              ?.map((b) => {
-                const i = b.current.incentives?.find(
-                  ({ rewardToken }) => rewardToken.symbol !== 'NOTE'
-                );
-                return i?.currentIncentiveDebt
-                  ? {
-                      value: TokenBalance.fromSymbol(
-                        i?.currentIncentiveDebt,
-                        i.rewardToken.symbol,
-                        network
-                      ),
-                      currencyId: b.token.currencyId as number,
-                    }
-                  : undefined;
-              })
-              .filter((_) => !!_),
-            accountHistory:
-              a.profitLossLineItems?.map((p) =>
-                parseLineItem(p as ProfitLossLineItem, network)
-              ) || [],
-            */
-          } as AccountDefinition;
+          } as AccountDefinition);
+        }
+      );
+    }
 
-          return Object.assign(o, { [a.id]: acct });
-        }, {} as Record<string, AccountDefinition>);
-      },
-      this.subgraphApiKey,
-      { skip: 0 },
-      'accounts'
-    );
-
-    return accounts;
+    return {
+      values: accountData.reduce((acc, a) => {
+        acc.push([a.address, a]);
+        return acc;
+      }, [] as [string, AccountDefinition | null][]),
+      network,
+      lastUpdateTimestamp: getNowSeconds(),
+      lastUpdateBlock: 0,
+    };
   }
 }

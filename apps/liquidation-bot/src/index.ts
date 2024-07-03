@@ -42,7 +42,15 @@ export interface Env {
   PROFIT_THRESHOLD: string;
 }
 
-const run = async (env: Env) => {
+function shuffleArray(array: string[]) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+const run = async (env: Env, isHourly: boolean) => {
   const allTokens = await (
     await fetch(`https://data-dev.notional.finance/${env.NETWORK}/tokens`)
   ).json();
@@ -61,7 +69,7 @@ const run = async (env: Env) => {
       },
     })
   ).json()) as { account_id: string }[];
-  const addresses: string[] = accounts
+  let addresses: string[] = accounts
     .map((a) => a.account_id)
     .filter((a) => a !== ZERO_ADDRESS);
 
@@ -105,6 +113,12 @@ const run = async (env: Env) => {
   );
 
   // Currently the worker cannot process more than 2000 accounts per batch
+  if (!isHourly && env.NETWORK === Network.arbitrum) {
+    // Unable to scan all accounts in a single segment
+    addresses = shuffleArray(addresses).slice(0, 5000);
+  }
+
+  console.log('Num Addresses', addresses.length);
   const batchedAccounts = batchArray(addresses, 250);
   let riskyAccounts: RiskyAccount[] = [];
   for (const batch of batchedAccounts) {
@@ -168,7 +182,7 @@ const run = async (env: Env) => {
 export default {
   async fetch(__: Request, env: Env, _: ExecutionContext): Promise<Response> {
     try {
-      await run(env);
+      await run(env, true);
     } catch (e) {
       console.error(e);
       console.trace();
@@ -178,12 +192,13 @@ export default {
     return response;
   },
   async scheduled(
-    __: ScheduledController,
+    s: ScheduledController,
     env: Env,
     _: ExecutionContext
   ): Promise<void> {
     try {
-      await run(env);
+      const isHourly = s.cron === '0 * * * *';
+      await run(env, isHourly);
     } catch (e) {
       console.error(e);
       console.trace();

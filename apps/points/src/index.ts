@@ -23,12 +23,14 @@ export default {
         },
       });
     } else if (blockNumber === 'tvl') {
-      return new Response(JSON.stringify(await getVaultTVL(vaultAddress)));
+      return new Response(
+        JSON.stringify(await getVaultTVL(vaultAddress.toLowerCase()))
+      );
     } else {
       return new Response(
         JSON.stringify(
           await getVaultData(
-            vaultAddress,
+            vaultAddress.toLowerCase(),
             parseInt(blockNumber),
             env.NX_SUBGRAPH_API_KEY
           )

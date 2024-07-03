@@ -67,6 +67,7 @@ export enum Strategy {
   Eth_Curve_GHO_USDe = 31,
   Eth_Balancer_rsETH_WETH = 32,
   Arb_Balancer_rsETH_WETH = 33,
+  Arb_Balancer_cbETH_rETH_wstETH = 34,
 }
 
 export interface MulticallConfig {

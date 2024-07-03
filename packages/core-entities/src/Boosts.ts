@@ -1,6 +1,12 @@
-import { Network } from '@notional-finance/util';
+import {
+  Network,
+  SECONDS_IN_DAY,
+  floorToMidnight,
+  getNowSeconds,
+} from '@notional-finance/util';
 import { TokenDefinition } from './Definitions';
 import { TokenBalance } from './token-balance';
+import { Registry } from './Registry';
 
 export function getPointsPerDay(t: TokenBalance) {
   return (
@@ -53,4 +59,36 @@ export function getArbBoosts(b: TokenDefinition, isDebt: boolean) {
   }
 
   return 0;
+}
+
+export function getPointsAPY(
+  boost: number,
+  currentTotalPoints: number,
+  totalARB: number,
+  seasonStart: Date,
+  seasonEnd: Date
+) {
+  const totalARBPerSeason = TokenBalance.fromFloat(
+    totalARB,
+    Registry.getTokenRegistry().getTokenBySymbol(Network.arbitrum, 'ARB')
+  );
+
+  const daysIntoSeason = Math.floor(
+    (floorToMidnight(getNowSeconds()) - seasonStart.getTime() / 1000) /
+      SECONDS_IN_DAY
+  );
+  const daysLeftInSeason = Math.ceil(
+    Math.max(seasonEnd.getTime() / 1000 - floorToMidnight(getNowSeconds()), 0) /
+      SECONDS_IN_DAY
+  );
+  const dailyEmissionRate = currentTotalPoints / daysIntoSeason;
+  const projectedPointTotal =
+    currentTotalPoints + dailyEmissionRate * daysLeftInSeason;
+  const pointsPerDollar = boost;
+  const arbSharePerDollar = pointsPerDollar / projectedPointTotal;
+
+  const dailyArbPerDollarInUSD =
+    totalARBPerSeason.toFiat('USD').toFloat() * arbSharePerDollar;
+
+  return dailyArbPerDollarInUSD * 365 * 100;
 }

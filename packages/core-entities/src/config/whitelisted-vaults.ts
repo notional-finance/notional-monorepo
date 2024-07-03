@@ -20,11 +20,19 @@ export const PointsMultipliers: Record<
     '0xb1113cf888a019693b254da3d90f841072d85172': (_v) => ({
       Ethena: 20,
     }),
+    '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb': (v) => ({
+      Kelp: 2,
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
+    }),
   },
   [Network.all]: {},
   [Network.arbitrum]: {
     '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937': (v) => ({
       Renzo: 4,
+      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
+    }),
+    '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68': (v) => ({
+      Kelp: 2,
       EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
   },
@@ -38,6 +46,8 @@ export const PointsLinks: Record<Network, Record<string, string>> = {
       'https://app.renzoprotocol.com/defi',
     '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021': 'https://app.ethena.fi/join',
     '0xb1113cf888a019693b254da3d90f841072d85172': 'https://app.ethena.fi/join',
+    '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb':
+      'https://kelpdao.xyz/dashboard/',
   },
   [Network.all]: {},
   [Network.arbitrum]: {
@@ -72,6 +82,8 @@ export const whitelistedVaults = (network: Network) => {
         '0x30fba4a7ec8591f25b4d37fd79943a4bb6e553e2',
         // "[GHO]:xGHO_USDe":
         '0xb1113cf888a019693b254da3d90f841072d85172',
+        // "[ETH]:rsETH_xWETH":
+        '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb',
       ];
     case Network.arbitrum:
       return [
@@ -97,6 +109,8 @@ export const whitelistedVaults = (network: Network) => {
         '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937',
         // "[WBTC]:xWBTC_tBTC":
         '0xf95441f348eb2fd3d5d82f9b7b961137a734eedd',
+        // "[ETH]:rsETH_xWETH":
+        '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68',
       ];
     case Network.optimism:
       return [];
