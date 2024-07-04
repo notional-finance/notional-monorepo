@@ -2,6 +2,7 @@ import {
   TreasuryManager__factory,
   ERC20__factory,
   NotionalV3ABI,
+  ISingleSidedLPStrategyVault__factory,
 } from '@notional-finance/contracts';
 import {
   DEX_ID,
@@ -330,9 +331,11 @@ const reinvestVault = async (env: Env, provider: Provider, vault: Vault, force =
     return null;
   }
 
+  const [poolTokens,] = await ISingleSidedLPStrategyVault__factory.connect(vault.address, provider).TOKENS();
+
   const tradesPerRewardToken = [];
   for (const sellToken of vault.rewardTokens) {
-    if (vault.poolTokens.includes(sellToken)) {
+    if (poolTokens.includes(sellToken)) {
       console.log(
         `Skipping sell of ${sellToken} since it is also a pool token.`
       );
@@ -358,14 +361,14 @@ const reinvestVault = async (env: Env, provider: Provider, vault: Vault, force =
       );
       continue;
     }
-    const sellAmountsPerToken = vault.tokenWeights.map((weight: number) => {
-      return amountToSell.mul(weight).div(100);
+    const sellAmountsPerToken = poolTokens.map((address: string) => {
+      return address.toLowerCase() === vault.reinvestToken.toLowerCase() ? amountToSell : BigNumber.from(0);
     });
 
     const trades = await getTrades(
       env,
       sellToken,
-      vault.poolTokens,
+      poolTokens,
       sellAmountsPerToken
     );
     tradesPerRewardToken.push(trades);
@@ -451,7 +454,7 @@ function getQueryParams(request: Request) {
     network: searchParams.get('network') as Network,
     vaultAddress: searchParams.get('vaultAddress'),
     action: searchParams.get('action') as Action,
-    force: !!searchParams.get('boolean'),
+    force: !!searchParams.get('force'),
   }
 }
 
