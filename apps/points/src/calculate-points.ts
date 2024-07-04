@@ -128,7 +128,7 @@ async function getVaultInfo(
   return vaultInfo;
 }
 
-export async function getVaultTVL(vaultAddress: string) {
+export async function getVaultTVL(vaultAddress: string, blockNumber?: number) {
   const { network, usdOracle, decimals } = VaultConfig[vaultAddress];
   const provider = getProviderFromNetwork(network, true);
   const vault = new Contract(
@@ -136,16 +136,24 @@ export async function getVaultTVL(vaultAddress: string) {
     ISingleSidedLPStrategyVaultABI,
     provider
   ) as ISingleSidedLPStrategyVault;
-  const totalVaultShares = (await vault.getStrategyVaultInfo())
-    .totalVaultShares;
+  const totalVaultShares = (
+    await vault.getStrategyVaultInfo({
+      blockTag: blockNumber || 'latest',
+    })
+  ).totalVaultShares;
   const totalValuePrimary = await vault.convertStrategyToUnderlying(
     ethers.constants.AddressZero,
     totalVaultShares,
-    0
+    0,
+    {
+      blockTag: blockNumber || 'latest',
+    }
   );
   const usdOraclePrice = await (
     new Contract(usdOracle, IAggregatorABI, provider) as IAggregator
-  ).latestAnswer();
+  ).latestAnswer({
+    blockTag: blockNumber || 'latest',
+  });
   const rateDecimals = BigNumber.from(10).pow(decimals);
 
   return {
