@@ -1,5 +1,5 @@
 import { useHistory, useLocation } from 'react-router';
-import { useNotionalContext } from './use-notional';
+import { useAppContext, useNotionalContext } from './use-notional';
 import { useEffect } from 'react';
 import { isTestHost } from '@notional-finance/util';
 
@@ -27,8 +27,8 @@ const SanctionedCountries = [
 
 export function useLeverageBlock() {
   const {
-    globalState: { country },
-  } = useNotionalContext();
+    appState: { country },
+  } = useAppContext();
   const isProd = env === 'production' && !isTestHost();
 
   return isProd
@@ -38,8 +38,12 @@ export function useLeverageBlock() {
 
 export function useSanctionsBlock() {
   const {
-    globalState: { country, isSanctionedAddress },
+    appState: { country },
+  } = useAppContext();
+  const {
+    globalState: { isSanctionedAddress },
   } = useNotionalContext();
+
   const history = useHistory();
   const { pathname } = useLocation();
 
