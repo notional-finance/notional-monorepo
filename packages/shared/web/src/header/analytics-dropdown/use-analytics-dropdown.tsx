@@ -1,32 +1,11 @@
 import { SectionLinkProps } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import {
-  DuneIcon,
-  DashboardIcon,
-  DefiLlamaIcon,
-  TokenTerminalIcon,
-} from '@notional-finance/icons';
+import { DuneIcon, DefiLlamaIcon } from '@notional-finance/icons';
 
 export const useAnalyticsDropdown = () => {
   const links: SectionLinkProps[] = [
     {
-      title: <FormattedMessage defaultMessage={'Notional Dashboard'} />,
-      to: 'https://info.notional.finance/',
-      icon: (
-        <DashboardIcon
-          sx={{
-            fontSize: '1.5rem',
-          }}
-        />
-      ),
-      description: (
-        <FormattedMessage
-          defaultMessage={`Use Notional's custom-built dashboard for full detail`}
-        />
-      ),
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Dune Dashboard'} />,
+      title: <FormattedMessage defaultMessage={'Dune Dashboard - Mainnet'} />,
       to: 'https://dune.com/PierreYves_Gendron/notional-dashboard',
       icon: (
         <DuneIcon
@@ -36,7 +15,25 @@ export const useAnalyticsDropdown = () => {
         />
       ),
       description: (
-        <FormattedMessage defaultMessage={`Follow Notional's stats on Dune`} />
+        <FormattedMessage
+          defaultMessage={`Follow the stats from Notional's Mainnet deployment`}
+        />
+      ),
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Dune Dashboard - Arbitrum'} />,
+      to: 'https://dune.com/PierreYves_Gendron/notional-finance-v3-arbitrum',
+      icon: (
+        <DuneIcon
+          sx={{
+            fontSize: '1.5rem',
+          }}
+        />
+      ),
+      description: (
+        <FormattedMessage
+          defaultMessage={`Follow the stats from Notional's Arbitrum deployment`}
+        />
       ),
     },
     {
@@ -54,22 +51,6 @@ export const useAnalyticsDropdown = () => {
           defaultMessage={
             'Find a Notional overview and current yields on DeFi Llama'
           }
-        />
-      ),
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Token Terminal'} />,
-      to: 'https://tokenterminal.com/terminal/projects/notional-finance',
-      icon: (
-        <TokenTerminalIcon
-          sx={{
-            fontSize: '1.5rem',
-          }}
-        />
-      ),
-      description: (
-        <FormattedMessage
-          defaultMessage={`Analyze Notional's business and revenue metrics`}
         />
       ),
     },

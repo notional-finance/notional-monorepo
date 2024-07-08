@@ -50,11 +50,13 @@ export const TypeForm = () => {
             <StartWrapper>
               <WaveButtonIcon></WaveButtonIcon>
               <Title>
-                <FormattedMessage defaultMessage={'Give us feedback!'} />
+                <FormattedMessage
+                  defaultMessage={'Want help choosing a product?'}
+                />
               </Title>
               <Text>
                 <FormattedMessage
-                  defaultMessage={'takes less than 2 minutes'}
+                  defaultMessage={'takes less than 30 seconds'}
                 />
               </Text>
               <Button
@@ -67,7 +69,7 @@ export const TypeForm = () => {
                   backgroundColor: theme.palette.primary.light,
                 }}
               >
-                <FormattedMessage defaultMessage={'Start Survey'} />
+                <FormattedMessage defaultMessage={'Start'} />
               </Button>
               <DismissText onClick={handleDismiss}>
                 <FormattedMessage defaultMessage={'Do this later'} />
@@ -78,7 +80,7 @@ export const TypeForm = () => {
             <Widget
               height={750}
               width={495}
-              id="https://eehxwr6nfuc.typeform.com/to/PToY9sQe"
+              id="https://eehxwr6nfuc.typeform.com/to/ipcwGQfv"
               style={{ fontSize: 16, zIndex: 99999 }}
               onSubmit={handleSubmit}
             ></Widget>

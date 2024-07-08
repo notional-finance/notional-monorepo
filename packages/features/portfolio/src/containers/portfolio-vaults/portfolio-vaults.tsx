@@ -4,6 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { useVaultHoldingsTable, useVaultRiskTable } from '../../hooks';
 import { Box } from '@mui/material';
 import { useState } from 'react';
+// import { useVaultEarnings } from './use-vault-earnings';
 
 export const PortfolioVaults = () => {
   const [currentTab, setCurrentTab] = useState(0);
@@ -11,9 +12,12 @@ export const PortfolioVaults = () => {
     vaultHoldingsColumns,
     vaultHoldingsData,
     setExpandedRows,
-    // toggleBarProps,
+    toggleBarProps,
     initialState,
   } = useVaultHoldingsTable();
+  // const { earningsBreakdownColumns, earningsBreakdownData } = useVaultEarnings(
+  //   toggleBarProps.toggleOption === 0
+  // );
   const { riskTableData, riskTableColumns, initialRiskState } =
     useVaultRiskTable();
 
@@ -57,10 +61,11 @@ export const PortfolioVaults = () => {
             setCurrentTab,
             currentTab,
           }}
+          tabsThatIncludeToggle={[1]}
           data={holdingsData[currentTab].data}
           columns={holdingsData[currentTab].columns}
           CustomRowComponent={currentTab === 0 ? TableActionRow : undefined}
-          toggleBarProps={undefined}
+          toggleBarProps={toggleBarProps}
           expandableTable={true}
           tableTitle={
             <FormattedMessage
@@ -70,7 +75,7 @@ export const PortfolioVaults = () => {
           }
           initialState={holdingsData[currentTab].initialState}
           setExpandedRows={setExpandedRows}
-          tableVariant={currentTab === 0 ? TABLE_VARIANTS.TOTAL_ROW : undefined}
+          tableVariant={currentTab !== 2 ? TABLE_VARIANTS.TOTAL_ROW : undefined}
         />
       )}
     </Box>

@@ -13,7 +13,10 @@ import {
 import { useAccountDefinition } from './use-account';
 import { useFiat } from './use-user-settings';
 import { useMemo } from 'react';
-import { useAnalyticsReady, useNotionalContext } from './use-notional';
+import {
+  useAnalyticsReady,
+  useAppContext,
+} from './use-notional';
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -174,8 +177,8 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
 export function useTotalHolders(token: TokenDefinition | undefined) {
   const isReady = useAnalyticsReady(token?.network);
   const {
-    globalState: { activeAccounts },
-  } = useNotionalContext();
+    appState: { activeAccounts },
+  } = useAppContext();
 
   return isReady && token && activeAccounts && activeAccounts[token.network]
     ? activeAccounts[token.network][`${token.tokenType}:${token.currencyId}`] ||
@@ -191,67 +194,84 @@ export function useAccountHistoryChart(
 ) {
   const account = useAccountDefinition(network);
   const baseCurrency = useFiat();
-  if (!account) return undefined;
 
-  const allHistoricalSnapshots =
-    account?.balanceStatement
-      ?.flatMap((b) => b.historicalSnapshots)
-      .sort((a, b) => a.timestamp - b.timestamp) || [];
+  return useMemo(() => {
+    if (!account) return undefined;
+    // These are sorted ascending by default
+    const allHistoricalSnapshots = account?.historicalBalances || [];
 
-  const base = Registry.getTokenRegistry().getTokenBySymbol(
-    Network.all,
-    baseCurrency
-  );
+    const base = Registry.getTokenRegistry().getTokenBySymbol(
+      Network.all,
+      baseCurrency
+    );
 
-  // Bucket the start and end time ranges
-  const numBuckets = Math.ceil((endTime - startTime) / tickSizeInSeconds);
-  try {
-    return new Array(numBuckets)
-      .fill(0)
-      .map((_, i) => {
-        const start = startTime + i * tickSizeInSeconds;
-        return { start, end: start + tickSizeInSeconds };
-      })
-      .map(({ start, end }) => {
-        const snapshotsAtTime = Array.from(
-          allHistoricalSnapshots
-            .filter(({ timestamp }) => timestamp < end)
-            .reduce((t, s) => {
-              // This will always set the token id key to the latest snapshot value, preserving
-              // the previous snapshot value if there was no update in this time block
-              t.set(s.balance.tokenId, s);
-              return t;
-            }, new Map<string, typeof allHistoricalSnapshots[number]>())
-            .values()
-        );
+    // Bucket the start and end time ranges
+    const numBuckets = Math.ceil((endTime - startTime) / tickSizeInSeconds);
+    try {
+      return new Array(numBuckets)
+        .fill(0)
+        .map((_, i) => {
+          const start = startTime + i * tickSizeInSeconds;
+          return { start, end: start + tickSizeInSeconds };
+        })
+        .map(({ start, end }) => {
+          const snapshotsAtTime = Array.from(
+            allHistoricalSnapshots
+              .filter(({ timestamp }) => timestamp < end)
+              .reduce((t, s) => {
+                // This will always set the token id key to the latest snapshot value, preserving
+                // the previous snapshot value if there was no update in this time block
+                t.set(s.balance.tokenId, s);
+                return t;
+              }, new Map<string, typeof allHistoricalSnapshots[number]>())
+              .values()
+          ).filter(({ balance }) => !balance.isZero());
 
-        const assets = snapshotsAtTime
-          ?.filter(
-            ({ balance }) =>
-              !(
+          const assets = snapshotsAtTime
+            ?.filter(
+              ({ balance }) =>
+                !(
+                  balance.tokenType === 'VaultDebt' ||
+                  balance.unwrapVaultToken().token.isFCashDebt === true ||
+                  balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
+                  balance.isNegative()
+                )
+            )
+            .reduce((t, b) => {
+              return t.add(
+                b.balance
+                  .unwrapVaultToken()
+                  .toUnderlying()
+                  .toFiat(baseCurrency, floorToMidnight(end))
+              );
+            }, TokenBalance.zero(base));
+
+          const debts = snapshotsAtTime
+            ?.filter(
+              ({ balance }) =>
+                balance.tokenType === 'VaultDebt' ||
                 balance.unwrapVaultToken().token.isFCashDebt === true ||
                 balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
                 balance.isNegative()
-              )
-          )
-          .reduce((t, b) => {
-            return t.add(b.balance.toFiat(baseCurrency, floorToMidnight(end)));
-          }, TokenBalance.zero(base));
+            )
+            .reduce((t, b) => {
+              return t.add(
+                b.balance
+                  .unwrapVaultToken()
+                  .toUnderlying()
+                  .toFiat(baseCurrency, floorToMidnight(end))
+              );
+            }, TokenBalance.zero(base));
 
-        const debts = snapshotsAtTime
-          ?.filter(
-            ({ balance }) =>
-              balance.unwrapVaultToken().token.isFCashDebt === true ||
-              balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
-              balance.isNegative()
-          )
-          .reduce((t, b) => {
-            return t.sub(b.balance.toFiat(baseCurrency, floorToMidnight(end)));
-          }, TokenBalance.zero(base));
-
-        return { timestamp: start, assets, debts, netWorth: assets.sub(debts) };
-      });
-  } catch (e) {
-    return undefined;
-  }
+          return {
+            timestamp: start,
+            assets,
+            debts,
+            netWorth: assets.sub(debts),
+          };
+        });
+    } catch (e) {
+      return undefined;
+    }
+  }, [account, baseCurrency, endTime, startTime, tickSizeInSeconds]);
 }

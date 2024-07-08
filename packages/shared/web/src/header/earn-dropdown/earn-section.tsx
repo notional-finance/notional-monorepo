@@ -1,29 +1,33 @@
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { Section } from '@notional-finance/mui';
-import { useInvestEarnLinks } from '../use-invest-earn-links';
+import { useLeverageEarnLinks } from '../use-leverage-earn-links';
 
-export function LowRisk() {
+export function EarnSection() {
   const theme = useTheme();
-  const { lowRiskLinks } = useInvestEarnLinks();
-  const heading = <FormattedMessage defaultMessage={'LOW RISK'} />;
+  const { earnLinks } = useLeverageEarnLinks();
+  const heading = <FormattedMessage defaultMessage={'EARN PRODUCTS'} />;
 
   return (
     <Section
       heading={heading}
-      links={lowRiskLinks}
+      links={earnLinks}
       sx={{
         padding: '64px',
         paddingTop: '48px',
         whiteSpace: 'nowrap',
         background: theme.palette.background.paper,
         '.section-link-container': {
+          height: theme.spacing(10),
           marginRight: '0px',
           zIndex: 0,
           orderColor: '',
         },
         '.text-container': {
           marginRight: '10px',
+        },
+        '.section-link-paper': {
+          height: '100%',
         },
         '.section-link-paper, .MuiPaper-root': {
           '&:hover': {
@@ -40,4 +44,4 @@ export function LowRisk() {
   );
 }
 
-export default LowRisk;
+export default EarnSection;

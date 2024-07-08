@@ -1,29 +1,32 @@
 import { useEffect } from 'react';
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import {
   useAccountLoading,
   useAccountReady,
+  useAccountAndBalanceReady,
   useSelectedNetwork,
+  useYieldsReady,
 } from '@notional-finance/notionable-hooks';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import {
   LargeInputTextEmphasized,
+  PageLoading,
   SideBarSubHeader,
   SideDrawer,
   TypeForm,
 } from '@notional-finance/mui';
-import { usePortfolioSideDrawers } from './hooks';
+import { usePortfolioNOTETable, usePortfolioSideDrawers } from './hooks';
 import {
   SideNav,
   PortfolioMobileNav,
   EmptyPortfolio,
-  EmptyPortfolioOverview,
   ClaimNoteButton,
 } from './components';
 import {
   PortfolioOverview,
   PortfolioVaults,
   PortfolioTransactionHistory,
+  PortfolioStateZero,
   PortfolioHoldings,
   PortfolioNoteStaking,
 } from './containers';
@@ -32,7 +35,6 @@ import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/util';
-import { FeatureLoader } from '@notional-finance/shared-web';
 import { PortfolioNetworkSelector } from '@notional-finance/wallet';
 import { defineMessage } from 'react-intl';
 import { messages } from './messages';
@@ -46,13 +48,47 @@ export interface PortfolioParams {
 }
 
 export const PortfolioFeatureShell = () => {
+  const theme = useTheme();
+  const history = useHistory();
+  const params = useParams<PortfolioParams>();
   const network = useSelectedNetwork();
   const isAccountLoading = useAccountLoading();
+  const yieldsReady = useYieldsReady(network);
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
 
-  return (
-    <FeatureLoader featureLoaded={network && !isAccountLoading}>
-      <Portfolio />
-    </FeatureLoader>
+  useEffect(() => {
+    if (!isAccountLoading && !isAcctAndBalanceReady) {
+      const toggleKey = params.sideDrawerKey ? params.sideDrawerKey : '';
+      history.push(
+        `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}/${toggleKey}`
+      );
+    }
+  }, [
+    isAccountLoading,
+    isAcctAndBalanceReady,
+    history,
+    network,
+    params.sideDrawerKey,
+  ]);
+
+  return !network || isAccountLoading || !yieldsReady ? (
+    <PortfolioContainer>
+      <PageLoading
+        sx={{
+          background: theme.palette.background.paper,
+          width: '100%',
+          height: '100vh',
+          zIndex: 5,
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        type="notional"
+      />
+    </PortfolioContainer>
+  ) : (
+    <Portfolio />
   );
 };
 
@@ -64,17 +100,22 @@ const Portfolio = () => {
   const history = useHistory();
   const { pathname } = useLocation();
   const isAccountReady = useAccountReady(network);
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
+  const { noteData } = usePortfolioNOTETable();
+  const noteBalanceData = noteData || [];
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [params.category]);
 
   useEffect(() => {
-    clearSideDrawer(
-      `/portfolio/${network}/${
-        params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
-      }`
-    );
+    if (params.category && params.category !== PORTFOLIO_CATEGORIES.WELCOME) {
+      clearSideDrawer(
+        `/portfolio/${network}/${
+          params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
+        }`
+      );
+    }
     // NOTE: this must only run once on component mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -104,7 +145,7 @@ const Portfolio = () => {
     );
   };
 
-  return isAccountReady ? (
+  return isAcctAndBalanceReady ? (
     <PortfolioContainer>
       <SideDrawer
         callback={handleDrawer}
@@ -117,61 +158,76 @@ const Portfolio = () => {
       <PortfolioSidebar>
         <SideNav />
       </PortfolioSidebar>
-      <PortfolioMainContent>
-        {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING && (
-          <ActionButtonRow>
-            {params.category && messages[params.category] && (
-              <Heading msg={messages[params.category]} />
-            )}
-            <ButtonsContainer>
-              {params.category === PORTFOLIO_CATEGORIES.HOLDINGS ||
-              params.category === PORTFOLIO_CATEGORIES.OVERVIEW ? (
-                <ClaimNoteButton />
-              ) : (
-                ''
+      {params.category !== PORTFOLIO_CATEGORIES.WELCOME && (
+        <PortfolioMainContent>
+          {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+            <ActionButtonRow>
+              {params.category && messages[params.category] && (
+                <Heading msg={messages[params.category]} />
               )}
-              <PortfolioNetworkSelector />
-            </ButtonsContainer>
-          </ActionButtonRow>
-        )}
-        {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-          params.category === undefined) && (
-          <>
-            <PortfolioOverview />
-            <TypeForm />
-          </>
-        )}
-        {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-          <PortfolioHoldings />
-        )}
-        {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-          <PortfolioVaults />
-        )}
-        {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && (
-          <PortfolioNoteStaking />
-        )}
-        {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
-          <PortfolioTransactionHistory />
-        )}
-      </PortfolioMainContent>
+              <ButtonsContainer>
+                {params.category === PORTFOLIO_CATEGORIES.HOLDINGS ||
+                params.category === PORTFOLIO_CATEGORIES.OVERVIEW ? (
+                  <ClaimNoteButton />
+                ) : (
+                  ''
+                )}
+                <PortfolioNetworkSelector />
+              </ButtonsContainer>
+            </ActionButtonRow>
+          )}
+          {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+            params.category === undefined) && (
+            <>
+              <PortfolioOverview />
+              <TypeForm />
+            </>
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
+            <PortfolioHoldings />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+            <PortfolioVaults />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+            <PortfolioNoteStaking />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
+            <PortfolioTransactionHistory />
+          )}
+        </PortfolioMainContent>
+      )}
+      {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
+        <PortfolioStateZero />
+      )}
       <PortfolioMobileNav />
     </PortfolioContainer>
   ) : (
     <PortfolioContainer>
-      <PortfolioSidebar>
-        <SideNav />
-      </PortfolioSidebar>
-      <PortfolioMainContent>
-        {params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-        params.category === undefined ? (
-          <>
-            <EmptyPortfolioOverview walletConnected={false} />
-            <TypeForm />
-          </>
-        ) : (
-          <EmptyPortfolio />
+      {noteBalanceData.length > 0 && isAccountReady && (
+        <PortfolioSidebar>
+          <SideNav />
+        </PortfolioSidebar>
+      )}
+      {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
+        <>
+          <PortfolioStateZero />
+          <TypeForm />
+        </>
+      )}
+      {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING &&
+        noteBalanceData.length > 0 && (
+          <PortfolioMainContent>
+            <PortfolioNoteStaking />
+          </PortfolioMainContent>
         )}
-      </PortfolioMainContent>
+      {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING &&
+        params.category !== PORTFOLIO_CATEGORIES.WELCOME &&
+        noteBalanceData.length > 0 && (
+          <PortfolioMainContent>
+            <EmptyPortfolio />
+          </PortfolioMainContent>
+        )}
     </PortfolioContainer>
   );
 };

@@ -1,6 +1,6 @@
 import {
   PortfolioIcon,
-  StackIcon,
+  // StackIcon,
   NoteOutlineIcon,
   DocsIcon,
   NotionalPlainIcon,
@@ -9,16 +9,20 @@ import {
   CoinsIcon,
   GearIcon,
 } from '@notional-finance/icons';
-import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
+import { MOBILE_SUB_NAV_ACTIONS, Network } from '@notional-finance/util';
+import { useConnectWallet } from '@web3-onboard/react';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
-import { useDefaultNetwork } from './use-default-network';
-import InvestAndEarnDropdown from './invest-and-earn/invest-and-earn-dropdown/invest-and-earn-dropdown';
+import EarnDropdown from './earn-dropdown/earn-dropdown';
 import BorrowDropDown from './borrow-dropdown/borrow-dropdown';
+import LeverageDropdown from './leverage-dropdown/leverage-dropdown';
+import { useParams } from 'react-router';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
-  const network = useDefaultNetwork();
+  const params = useParams<any>();
+  const [{ wallet }] = useConnectWallet();
+  const network = params?.selectedNetwork || Network.mainnet;
 
   const textColor = mobileNav
     ? theme.palette.common.black
@@ -28,7 +32,9 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: 'portfolio',
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
-      link: `/portfolio/${network}/overview`,
+      link: wallet?.accounts[0].address
+        ? `/portfolio/${network}/overview`
+        : `/portfolio/${network}/welcome`,
       iconImg: (
         <PortfolioIcon
           className="color-fill"
@@ -41,28 +47,32 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       ),
     },
     {
-      key: 'invest-and-earn',
-      CustomComponent: InvestAndEarnDropdown,
+      key: 'earn',
+      CustomComponent: EarnDropdown,
+    },
+    {
+      key: 'leverage',
+      CustomComponent: LeverageDropdown,
     },
     {
       key: 'borrow',
       CustomComponent: BorrowDropDown,
     },
-    {
-      key: 'markets',
-      label: <FormattedMessage defaultMessage={'Markets'} />,
-      link: '/markets',
-      iconImg: (
-        <StackIcon
-          className="color-fill"
-          sx={{
-            height: theme.spacing(2.25),
-            fill: textColor,
-            stroke: 'transparent',
-          }}
-        />
-      ),
-    },
+    // {
+    //   key: 'markets',
+    //   label: <FormattedMessage defaultMessage={'Markets'} />,
+    //   link: '/markets',
+    //   iconImg: (
+    //     <StackIcon
+    //       className="color-fill"
+    //       sx={{
+    //         height: theme.spacing(2.25),
+    //         fill: textColor,
+    //         stroke: 'transparent',
+    //       }}
+    //     />
+    //   ),
+    // },
     {
       key: 'note',
       label: <FormattedMessage defaultMessage={'NOTE'} />,
@@ -80,7 +90,10 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   ];
 
   const mobileNavLinks = navLinks.filter(
-    (navLink) => navLink.key !== 'invest-and-earn' && navLink.key !== 'borrow'
+    (navLink) =>
+      navLink.key !== 'earn' &&
+      navLink.key !== 'borrow' &&
+      navLink.key !== 'leverage'
   );
 
   const mobileSubNavLinks: INavLink[] = [

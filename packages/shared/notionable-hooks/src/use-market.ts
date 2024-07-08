@@ -11,7 +11,7 @@ import {
   unique,
 } from '@notional-finance/util';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAnalyticsReady, useNotionalContext } from './use-notional';
+import { useAnalyticsReady, useAppContext } from './use-notional';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
 
 export interface MaturityData {
@@ -120,8 +120,8 @@ export function useMaxSupply(
 
 export function useYieldsReady(network: Network | undefined) {
   const {
-    globalState: { allYields: _allYields },
-  } = useNotionalContext();
+    appState: { allYields: _allYields },
+  } = useAppContext();
   return _allYields && network && _allYields[network] ? true : false;
 }
 
@@ -172,8 +172,8 @@ export const useProductNetwork = (
 
 export const useAllNetworkMarkets = () => {
   const {
-    globalState: { allYields: _allYields },
-  } = useNotionalContext();
+    appState: { allYields: _allYields },
+  } = useAppContext();
 
   const earnYields = _allYields
     ? Object.keys(_allYields).flatMap((n) => {
@@ -201,8 +201,8 @@ export const useAllNetworkMarkets = () => {
 
 export const useHeadlineRates = (network?: Network) => {
   const {
-    globalState: { allYields: _allYields },
-  } = useNotionalContext();
+    appState: { allYields: _allYields },
+  } = useAppContext();
 
   return useMemo(() => {
     const getMax = (y: YieldData[]) => {
@@ -256,8 +256,8 @@ const emptyYields = {
 
 export const useAllMarkets = (network: Network | undefined) => {
   const {
-    globalState: { allYields: _allYields },
-  } = useNotionalContext();
+    appState: { allYields: _allYields },
+  } = useAppContext();
   const allYields =
     _allYields && network ? _allYields[network] || emptyYields : emptyYields;
 

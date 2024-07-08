@@ -14,7 +14,6 @@ import {
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
-  Network,
   TXN_HISTORY_TYPE,
   leveragedYield,
   formatMaturity,
@@ -22,7 +21,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
-function formatCaption(asset: TokenBalance, debt: TokenBalance) {
+export function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   if (asset.tokenType === 'nToken' && debt.tokenType === 'PrimeDebt') {
     return 'Variable Borrow';
   } else if (asset.tokenType === 'nToken' && debt.tokenType === 'fCash') {
@@ -55,7 +54,7 @@ export function useGroupedHoldingsTable() {
         balance: asset,
         marketYield: assetYield,
         statement: assetStatement,
-        totalIncentiveEarnings,
+        perIncentiveEarnings,
         isHighUtilization,
       },
       debt: { balance: debt, statement: debtStatement },
@@ -63,6 +62,7 @@ export function useGroupedHoldingsTable() {
       leverageRatio,
       presentValue,
       borrowAPY,
+      totalEarnings,
       totalLeveragedApy,
     }) => {
       const underlying = asset.underlying;
@@ -87,21 +87,6 @@ export function useGroupedHoldingsTable() {
               debtStatement?.accumulatedCostRealized
             )
           : undefined;
-      const earnings =
-        assetStatement && debtStatement
-          ? assetStatement?.totalProfitAndLoss.add(
-              debtStatement?.totalProfitAndLoss
-            )
-          : undefined;
-
-      const totalEarningsWithNOTE = earnings
-        ?.toFiat(baseCurrency)
-        .add(
-          totalIncentiveEarnings.reduce(
-            (s, i) => s.add(i.toFiat(baseCurrency)),
-            TokenBalance.fromSymbol(0, baseCurrency, Network.all)
-          )
-        );
 
       return {
         sortOrder: getHoldingsSortOrder(asset.token),
@@ -147,22 +132,35 @@ export function useGroupedHoldingsTable() {
           ? formatCryptoWithFiat(baseCurrency, amountPaid)
           : '-',
         presentValue: formatCryptoWithFiat(baseCurrency, presentValue),
-        earnings: totalEarningsWithNOTE
-          ? totalEarningsWithNOTE
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, true, 'en-US', true)
-          : '-',
+        earnings: {
+          data: [
+            {
+              displayValue: totalEarnings
+                ? totalEarnings
+                    .toFiat(baseCurrency)
+                    .toDisplayStringWithSymbol(2)
+                : '-',
+              isNegative: totalEarnings
+                ? totalEarnings.toFiat(baseCurrency).isNegative()
+                : false,
+            },
+            {
+              displayValue: '',
+              isNegative: false,
+            },
+          ],
+        },
         toolTipData:
-          totalIncentiveEarnings.length > 0
+          perIncentiveEarnings.length > 0
             ? {
                 perAssetEarnings: [
                   {
-                    underlying: earnings?.toDisplayStringWithSymbol(),
-                    baseCurrency: earnings
+                    underlying: totalEarnings?.toDisplayStringWithSymbol(),
+                    baseCurrency: totalEarnings
                       ?.toFiat(baseCurrency)
                       .toDisplayStringWithSymbol(2),
                   },
-                  ...totalIncentiveEarnings.map((i) => ({
+                  ...perIncentiveEarnings.map((i) => ({
                     underlying: i.toDisplayStringWithSymbol(),
                     baseCurrency: i
                       .toFiat(baseCurrency)

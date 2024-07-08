@@ -13,6 +13,8 @@ export enum PRODUCTS {
   LEND_VARIABLE = 'lend-variable',
   LEND_LEVERAGED = 'lend-leveraged',
   VAULTS = 'vaults',
+  LEVERAGED_YIELD_FARMING = 'leveraged-yield-farming',
+  LEVERAGED_POINTS_FARMING = 'leveraged-points-farming',
   LIQUIDITY_VARIABLE = 'liquidity-variable',
   LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
   BORROW_FIXED = 'borrow-fixed',
@@ -58,6 +60,11 @@ export enum MOBILE_SUB_NAV_ACTIONS {
   COMPANY = 'company',
 }
 
+export enum VAULT_TYPES {
+  LEVERAGED_YIELD_FARMING = 'leveraged-yield-farming',
+  LEVERAGED_POINTS_FARMING = 'leveraged-points-farming',
+}
+
 export enum VAULT_SUB_NAV_ACTIONS {
   OVERVIEW = 'overview',
   MARKET_RETURNS = 'market-returns',
@@ -84,6 +91,12 @@ export enum PORTFOLIO_ACTIONS {
   COOL_DOWN = 'cool-down',
 }
 
+export enum PORTFOLIO_STATE_ZERO_OPTIONS {
+  EARN = 0,
+  LEVERAGE = 1,
+  BORROW = 2,
+}
+
 export enum TABLE_WARNINGS {
   HIGH_UTILIZATION_NTOKEN = 'HIGH_UTILIZATION_NTOKEN',
   HIGH_UTILIZATION_FCASH = 'HIGH_UTILIZATION_FCASH',
@@ -95,6 +108,7 @@ export enum PORTFOLIO_CATEGORIES {
   LEVERAGED_VAULTS = 'vaults',
   NOTE_STAKING = 'note-staking',
   TRANSACTION_HISTORY = 'transaction-history',
+  WELCOME = 'welcome',
 }
 
 export enum CONTEST_SIGN_UP_STEPS {
@@ -129,7 +143,8 @@ export const SIDE_DRAWERS = {
 export enum NAV_DROPDOWN {
   ABOUT = 'About',
   RESOURCES = 'Resources',
-  EARN_YIELD = 'Earn Yield',
+  EARN = 'Earn',
+  LEVERAGE = 'Leverage',
   ANALYTICS = 'Analytics',
   BORROW = 'Borrow',
 }

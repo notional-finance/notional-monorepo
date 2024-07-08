@@ -2,22 +2,27 @@ import {
   INTERNAL_TOKEN_PRECISION,
   Network,
   RATE_PRECISION,
+  // SCALAR_PRECISION,
+  // SECONDS_IN_YEAR,
+  // getNowSeconds,
 } from '@notional-finance/util';
 import { Registry } from '../../Registry';
 import { TokenBalance } from '../../token-balance';
+// import { BigNumber } from 'ethers';
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { BalanceSnapshot, Token } from '../../.graphclient';
 
 export function parseCurrentBalanceStatement(
   current: BalanceSnapshot,
-  token: Token,
+  _token: Token,
   network: Network
 ) {
   const tokens = Registry.getTokenRegistry();
-  if (!token.underlying) throw Error('Unknown underlying');
-  const tokenId = token.id;
-  const underlying = token.underlying;
+  if (!_token.underlying) throw Error('Unknown underlying');
+  const tokenId = _token.id;
+  const token = tokens.getTokenByID(network, tokenId);
+  const underlying = tokens.getTokenByID(network, _token.underlying.id);
   const currentStatement = parseBalanceStatement(
     tokenId,
     underlying.id,
@@ -33,11 +38,10 @@ export function parseCurrentBalanceStatement(
         INTERNAL_TOKEN_PRECISION
       )
     );
-  const totalInterestAccrual = currentProfitAndLoss.sub(
-    currentStatement.totalILAndFees
-  );
+
   const incentives =
     current.incentives?.map((i) => ({
+      // PartOf: Incentive Earnings
       adjustedClaimed: TokenBalance.fromSymbol(
         i.adjustedClaimed,
         i.rewardToken.symbol,
@@ -50,16 +54,72 @@ export function parseCurrentBalanceStatement(
       ),
     })) || [];
 
+  const totalInterestAccrual: TokenBalance = currentProfitAndLoss;
+  /*
+  FIXME: add this back in for earnings breakdown
+  if (token.tokenType === 'VaultShare' || token.tokenType === 'nToken') {
+    const a = Registry.getOracleRegistry().getLatestFromSubject(
+      network,
+      `${token.underlying}:${token.id}:${
+        token.tokenType === 'VaultShare'
+          ? 'VaultShareInterestAccrued'
+          : 'nTokenInterestAccrued'
+      }`,
+      0
+    )?.latestRate;
+    // This interest accumulator is always in 18 decimals
+    const currentInterestAccumulator = a?.rate;
+    if (currentInterestAccumulator) {
+      const additionalAccruedInterest = TokenBalance.unit(underlying)
+        .scale(
+          currentInterestAccumulator.sub(
+            current._lastInterestAccumulator as BigNumber
+          ),
+          SCALAR_PRECISION
+        )
+        .scale(currentStatement.balance, currentStatement.balance.precision);
+
+      totalInterestAccrual = currentStatement.totalInterestAccrual.add(
+        additionalAccruedInterest
+      );
+    } else {
+      totalInterestAccrual = currentStatement.totalInterestAccrual;
+    }
+  } else if (token.tokenType === 'fCash') {
+    const lastInterestAccumulator = TokenBalance.from(
+      current._lastInterestAccumulator,
+      underlying
+    );
+    const additionalAccruedInterest = lastInterestAccumulator.scale(
+      getNowSeconds() - currentStatement.timestamp,
+      SECONDS_IN_YEAR
+    );
+    totalInterestAccrual = currentStatement.totalInterestAccrual.add(
+      additionalAccruedInterest
+    );
+    if (currentStatement.balance.isNegative())
+      totalInterestAccrual = totalInterestAccrual.neg();
+  } else {
+    // For Prime Cash and Prime Debt, the entire PNL is interest accrual
+    totalInterestAccrual = currentProfitAndLoss;
+  }
+  */
+
+  // Total Earnings = Organic Earnings + Incentive Earnings
   return {
-    token: tokens.getTokenByID(network, tokenId),
+    token,
     blockNumber: current.blockNumber,
-    underlying: tokens.getTokenByID(network, underlying.id),
+    underlying,
     currentBalance: currentStatement.balance,
     adjustedCostBasis: currentStatement.adjustedCostBasis,
+    // TODO: this is total fees but includes slippage....
     totalILAndFees: currentStatement.totalILAndFees,
     impliedFixedRate: currentStatement.impliedFixedRate,
+    // Organic Earnings
     totalProfitAndLoss: currentProfitAndLoss,
+    // Interest Accrued to Snapshot => Bring to Current
     totalInterestAccrual,
+    // Amount Paid
     accumulatedCostRealized: currentStatement.accumulatedCostRealized,
     incentives,
   };

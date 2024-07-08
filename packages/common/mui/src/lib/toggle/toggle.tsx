@@ -29,7 +29,7 @@ export const Toggle = ({
 }: ToggleProps) => {
   const theme = useTheme() as NotionalTheme;
   return (
-    <Container width={width}>
+    <Container width={width} theme={theme}>
       <StyledTabs
         minHeight={minHeight}
         theme={theme}
@@ -57,10 +57,10 @@ export const Toggle = ({
 const Container = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'width',
 })(
-  ({ width }: StyledTabProps) => `
+  ({ width, theme }: StyledTabProps) => `
   height: 100%;
   width: ${width};
-  background: ${colors.black};
+  background: ${theme?.palette.common.white};
   border-radius: 32px;
 `
 );
@@ -71,7 +71,7 @@ const StyledTabs = styled(Tabs, {
   ({ minHeight, theme }: StyledTabProps) => `
   height: 100%;
   border-radius: ${theme?.spacing(4)};
-  border: 1px solid ${colors.blueGreen};
+  border: ${theme?.shape.borderStandard};
   background: transparent;
   max-height: 3rem;
   min-height: unset;
@@ -82,11 +82,9 @@ const StyledTabs = styled(Tabs, {
   min-height: ${minHeight};
   transition: background 0.3s ease;
 
-  ${theme?.gradient.hoverTransition('transparent', theme?.palette.info.light)}
-
   .MuiTabs-indicator {
     z-index: 1;
-    background: ${theme?.gradient.landing};
+    background: ${theme?.palette.primary.light};
     border-radius: ${theme?.spacing(4)};
     height: 100%;
   }
@@ -101,16 +99,26 @@ const StyledTab = styled(Tab)(
   height: 100%;
   font-family: ${theme.typography.fontFamily};
   color: ${colors.greenGrey};
-  font-weight: 500;
   background-color: transparent;
   z-index: 2;
   transition-delay: 0s;
   transition-duration: 0.3s;
   transition-property: all;
   min-height: unset;
+  span {
+    font-weight: 500 !important;
+    color: ${theme?.palette.typography.light};
+  };
 
   &.Mui-selected {
-    color: ${colors.white};
+    span {
+      font-weight: 600 !important;
+      color: ${theme?.palette.typography.contrastText};
+    };
+  }
+  &:hover {
+    background: ${theme.palette.info.light};
+    border-radius: 50px;
   }
 `
 );

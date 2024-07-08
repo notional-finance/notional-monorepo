@@ -21,6 +21,7 @@ export * from './lib/bar-chart-lightning-icon/bar-chart-lightning-icon';
 export * from './lib/portfolio-chart-icon/portfolio-chart-icon';
 export * from './lib/launch-icon/launch-icon';
 export * from './lib/lightning-icon/lightning-icon';
+export * from './lib/lightning-outline-icon/lightning-outline-icon';
 export * from './lib/microsoft-cal-icon/microsoft-cal-icon';
 export * from './lib/money-market-icon/money-market-icon';
 export * from './lib/arrow-icon/arrow-icon';

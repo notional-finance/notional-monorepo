@@ -132,7 +132,7 @@ export class RegistryClientDO extends DurableObject {
           // await this.saveContestIRR(network, currentContestId);
         }
       }
-      await this.saveTotalsData()
+      await this.saveTotalsData();
 
       return new Response('Ok', { status: 200 });
     } catch (error) {

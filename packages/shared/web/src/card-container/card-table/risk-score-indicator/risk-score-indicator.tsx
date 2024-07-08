@@ -15,6 +15,10 @@ export const RiskScoreIndicator = (props) => {
       activeBars: [true, true, false, false, false],
       title: <FormattedMessage defaultMessage={'Low'} />,
     },
+    medium: {
+      activeBars: [true, true, true, false, false],
+      title: <FormattedMessage defaultMessage={'Medium'} />,
+    },
     high: {
       activeBars: [true, true, true, true, false],
       title: <FormattedMessage defaultMessage={'High'} />,

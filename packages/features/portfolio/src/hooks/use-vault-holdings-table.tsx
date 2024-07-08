@@ -190,6 +190,7 @@ export const useVaultHoldingsTable = () => {
         fontWeightBold: true,
         textAlign: 'right',
         expandableTable: true,
+        showGreenText: true,
       },
       {
         header: '',
@@ -332,7 +333,9 @@ export const useVaultHoldingsTable = () => {
         },
         // Assets and debts are shown on the overview page
         assets: formatCryptoWithFiat(baseCurrency, v.totalAssets()),
-        debts: formatCryptoWithFiat(baseCurrency, v.totalDebt(), true),
+        debts: formatCryptoWithFiat(baseCurrency, v.totalDebt(), {
+          isDebt: true,
+        }),
         healthFactor: formatHealthFactorValues(v.healthFactor(), theme),
         presentValue: formatCryptoWithFiat(baseCurrency, v.netWorth()),
         totalEarnings: handleProfit(),

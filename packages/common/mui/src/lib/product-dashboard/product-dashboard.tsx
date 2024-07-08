@@ -8,7 +8,7 @@ import { MessageDescriptor } from 'react-intl';
 import { DataTable } from '../data-table/data-table';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 import { DataTableColumn, TABLE_VARIANTS } from '../data-table/types';
-import { Network } from '@notional-finance/util';
+import { Network, VAULT_TYPES } from '@notional-finance/util';
 import { ReactNode } from 'react';
 
 export interface DashboardDataProps {

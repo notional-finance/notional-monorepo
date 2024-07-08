@@ -42,6 +42,7 @@ export type Scalars = {
   BigInt: any;
   Bytes: any;
   Int8: any;
+  Timestamp: any;
 };
 
 export type Account = {
@@ -382,6 +383,10 @@ export type ActiveMarket_orderBy =
   | 'pCashMarket__lastUpdateBlockNumber'
   | 'pCashMarket__lastUpdateTimestamp'
   | 'fCashMarkets';
+
+export type Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type Balance = {
   /** Account:Token ID */
@@ -7155,6 +7160,8 @@ export type _Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['Bytes']>;
 };
 
 /** The type for the top-level _meta field */
@@ -7814,6 +7821,7 @@ export type ResolversTypes = ResolversObject<{
   ActiveMarket: ResolverTypeWrapper<ActiveMarket>;
   ActiveMarket_filter: ActiveMarket_filter;
   ActiveMarket_orderBy: ActiveMarket_orderBy;
+  Aggregation_interval: Aggregation_interval;
   Balance: ResolverTypeWrapper<Balance>;
   BalanceSnapshot: ResolverTypeWrapper<BalanceSnapshot>;
   BalanceSnapshot_filter: BalanceSnapshot_filter;
@@ -7876,6 +7884,7 @@ export type ResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars['String']>;
   Subscription: ResolverTypeWrapper<{}>;
   SystemAccount: SystemAccount;
+  Timestamp: ResolverTypeWrapper<Scalars['Timestamp']>;
   Token: ResolverTypeWrapper<Token>;
   TokenInterface: TokenInterface;
   TokenType: TokenType;
@@ -7968,6 +7977,7 @@ export type ResolversParentTypes = ResolversObject<{
   Reinvestment_filter: Reinvestment_filter;
   String: Scalars['String'];
   Subscription: {};
+  Timestamp: Scalars['Timestamp'];
   Token: Token;
   Token_filter: Token_filter;
   TradingModulePermission: TradingModulePermission;
@@ -8457,6 +8467,10 @@ export type SubscriptionResolvers<ContextType = MeshContext & { apiKey: string, 
   _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
 }>;
 
+export interface TimestampScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Timestamp'], any> {
+  name: 'Timestamp';
+}
+
 export type TokenResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   firstUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -8614,6 +8628,7 @@ export type _Block_Resolvers<ContextType = MeshContext & { apiKey: string, subgr
   hash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  parentHash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -8693,6 +8708,7 @@ export type Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: 
   Query?: QueryResolvers<ContextType>;
   Reinvestment?: ReinvestmentResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  Timestamp?: GraphQLScalarType;
   Token?: TokenResolvers<ContextType>;
   TradingModulePermission?: TradingModulePermissionResolvers<ContextType>;
   Transaction?: TransactionResolvers<ContextType>;
@@ -8798,6 +8814,12 @@ const merger = new(BareMerger as any)({
           return printWithCache(AccountBalanceStatementDocument);
         },
         location: 'AccountBalanceStatementDocument.graphql'
+      },{
+        document: AccountHoldingsHistoricalDocument,
+        get rawSDL() {
+          return printWithCache(AccountHoldingsHistoricalDocument);
+        },
+        location: 'AccountHoldingsHistoricalDocument.graphql'
       },{
         document: AccountTransactionHistoryDocument,
         get rawSDL() {
@@ -8966,8 +8988,16 @@ export type AccountBalanceStatementQuery = { account?: Maybe<(
           Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed'>
           & { rewardToken: Pick<Token, 'id' | 'symbol'> }
         )>> }
-      ), snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>> }
+      ) }>> }
   )> };
+
+export type AccountHoldingsHistoricalQueryVariables = Exact<{
+  accountId: Scalars['ID'];
+  minTimestamp: Scalars['Int'];
+}>;
+
+
+export type AccountHoldingsHistoricalQuery = { account?: Maybe<{ balances?: Maybe<Array<{ token: Pick<Token, 'id'>, current: Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>>> }>> }> };
 
 export type AccountTransactionHistoryQueryVariables = Exact<{
   accountId: Scalars['String'];
@@ -9181,7 +9211,7 @@ export const AccountBalanceStatementDocument = gql`
     query AccountBalanceStatement($accountId: ID!) {
   account(id: $accountId) {
     id
-    balances {
+    balances(where: {current_: {currentBalance_not: 0}}) {
       token {
         id
         underlying {
@@ -9208,22 +9238,36 @@ export const AccountBalanceStatementDocument = gql`
           adjustedClaimed
         }
       }
-      snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
-        timestamp
-        blockNumber
-        currentBalance
-        _accumulatedCostRealized
-        adjustedCostBasis
-        currentProfitAndLossAtSnapshot
-        totalILAndFeesAtSnapshot
-        totalProfitAndLossAtSnapshot
-        totalInterestAccrualAtSnapshot
-        impliedFixedRate
-      }
     }
   }
 }
     ` as unknown as DocumentNode<AccountBalanceStatementQuery, AccountBalanceStatementQueryVariables>;
+export const AccountHoldingsHistoricalDocument = gql`
+    query AccountHoldingsHistorical($accountId: ID!, $minTimestamp: Int!) {
+  account(id: $accountId) {
+    balances(
+      where: {token_: {tokenType_not_in: [NOTE, Underlying], currencyId_gt: 0}}
+    ) {
+      token {
+        id
+      }
+      current {
+        timestamp
+        currentBalance
+      }
+      snapshots(
+        where: {timestamp_gte: $minTimestamp}
+        orderBy: timestamp
+        orderDirection: desc
+        first: 1000
+      ) {
+        timestamp
+        currentBalance
+      }
+    }
+  }
+}
+    ` as unknown as DocumentNode<AccountHoldingsHistoricalQuery, AccountHoldingsHistoricalQueryVariables>;
 export const AccountTransactionHistoryDocument = gql`
     query AccountTransactionHistory($accountId: String!) {
   transactions(
@@ -9955,11 +9999,15 @@ export const VaultReinvestmentDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
     AccountBalanceStatement(variables: AccountBalanceStatementQueryVariables, options?: C): Promise<AccountBalanceStatementQuery> {
       return requester<AccountBalanceStatementQuery, AccountBalanceStatementQueryVariables>(AccountBalanceStatementDocument, variables, options) as Promise<AccountBalanceStatementQuery>;
+    },
+    AccountHoldingsHistorical(variables: AccountHoldingsHistoricalQueryVariables, options?: C): Promise<AccountHoldingsHistoricalQuery> {
+      return requester<AccountHoldingsHistoricalQuery, AccountHoldingsHistoricalQueryVariables>(AccountHoldingsHistoricalDocument, variables, options) as Promise<AccountHoldingsHistoricalQuery>;
     },
     AccountTransactionHistory(variables: AccountTransactionHistoryQueryVariables, options?: C): Promise<AccountTransactionHistoryQuery> {
       return requester<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>(AccountTransactionHistoryDocument, variables, options) as Promise<AccountTransactionHistoryQuery>;

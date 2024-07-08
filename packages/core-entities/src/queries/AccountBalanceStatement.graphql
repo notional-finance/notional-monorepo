@@ -1,7 +1,7 @@
 query AccountBalanceStatement($accountId: ID!) {
   account(id: $accountId) {
     id
-    balances {
+    balances(where: { current_: {currentBalance_not: 0}}) {
       token { 
         id
         underlying { id }
@@ -16,24 +16,14 @@ query AccountBalanceStatement($accountId: ID!) {
         totalILAndFeesAtSnapshot
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
+        # FIXME: add this back into the query for earnings breakdown
+        # _lastInterestAccumulator
         impliedFixedRate
         incentives {
           rewardToken { id symbol }
           totalClaimed
           adjustedClaimed
         }
-      }
-      snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
-        timestamp
-        blockNumber
-        currentBalance
-        _accumulatedCostRealized
-        adjustedCostBasis
-        currentProfitAndLossAtSnapshot
-        totalILAndFeesAtSnapshot
-        totalProfitAndLossAtSnapshot
-        totalInterestAccrualAtSnapshot
-        impliedFixedRate
       }
     }
   }

@@ -15,6 +15,7 @@ interface BannerProps {
   callback?: () => void;
   tokenSymbol?: string;
   buttonSuffix?: string;
+  imgSrc?: any;
 }
 
 export const Banner = ({
@@ -24,12 +25,20 @@ export const Banner = ({
   buttonSuffix,
   callback,
   tokenSymbol,
+  imgSrc,
 }: BannerProps) => {
   const theme = useTheme();
   return (
     <BannerContainer>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         {tokenSymbol && <TokenIcon symbol={tokenSymbol} size={'xl'} />}
+        {imgSrc && (
+          <img
+            src={imgSrc}
+            alt="connect wallet"
+            style={{ height: theme.spacing(6), width: theme.spacing(6) }}
+          />
+        )}
         <Box
           sx={{
             display: 'flex',
@@ -50,6 +59,12 @@ export const Banner = ({
             {buttonSuffix}
           </Button>
         </Link>
+      )}
+      {callback && !link && messages?.buttonText && (
+        <Button variant="contained" size="medium" onClick={() => callback()}>
+          <FormattedMessage {...messages?.buttonText} />
+          {buttonSuffix}
+        </Button>
       )}
     </BannerContainer>
   );

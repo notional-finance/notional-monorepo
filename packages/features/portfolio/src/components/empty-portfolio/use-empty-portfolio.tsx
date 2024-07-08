@@ -1,11 +1,8 @@
 import { useParams } from 'react-router';
 import { PortfolioParams } from '../../portfolio-feature-shell';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import {
-  PORTFOLIO_CATEGORIES,
-  SETTINGS_SIDE_DRAWERS,
-} from '@notional-finance/util';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { defineMessages, MessageDescriptor } from 'react-intl';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 interface EmptyPortfolioData {
   messages?: { buttonText: MessageDescriptor; promptText: MessageDescriptor };
   link?: string;
@@ -15,34 +12,34 @@ interface EmptyPortfolioData {
 
 export const useEmptyPortfolio = () => {
   const { category } = useParams<PortfolioParams>();
-  const { setWalletSideDrawer } = useSideDrawerManager();
+  const selectedNetwork = useSelectedNetwork();
 
   const emptyData = {
     [PORTFOLIO_CATEGORIES.HOLDINGS]: {
       messages: defineMessages({
         promptText: {
-          defaultMessage: 'Connect a wallet to see your portfolio',
+          defaultMessage: 'No holdings data to display',
           description: 'empty overview prompt text',
         },
         buttonText: {
-          defaultMessage: 'Connect A Wallet',
+          defaultMessage: 'Learn about products',
           description: 'empty overview button text',
         },
       }),
-      callback: () => setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET),
+      link: `/portfolio/${selectedNetwork}/welcome`,
     },
     [PORTFOLIO_CATEGORIES.OVERVIEW]: {
       messages: defineMessages({
         promptText: {
-          defaultMessage: 'Connect a wallet to see your portfolio',
+          defaultMessage: 'No overview data to display',
           description: 'empty overview prompt text',
         },
         buttonText: {
-          defaultMessage: 'Connect A Wallet',
+          defaultMessage: 'Learn about products',
           description: 'empty overview button text',
         },
       }),
-      callback: () => setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET),
+      link: `/portfolio/${selectedNetwork}/welcome`,
     },
     [PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY]: {
       messages: defineMessages({
@@ -50,8 +47,12 @@ export const useEmptyPortfolio = () => {
           defaultMessage: 'No transaction history to show',
           description: 'empty transaction history overview prompt text',
         },
+        buttonText: {
+          defaultMessage: 'Learn about products',
+          description: 'empty overview button text',
+        },
       }),
-      link: '',
+      link: `/portfolio/${selectedNetwork}/welcome`,
     },
     [PORTFOLIO_CATEGORIES.NOTE_STAKING]: {
       messages: defineMessages({
@@ -79,6 +80,19 @@ export const useEmptyPortfolio = () => {
         },
       }),
       link: '/vaults',
+    },
+    [PORTFOLIO_CATEGORIES.WELCOME]: {
+      messages: defineMessages({
+        promptText: {
+          defaultMessage: 'Nothing to display',
+          description: 'empty leveraged vault overview prompt text',
+        },
+        buttonText: {
+          defaultMessage: 'Nothing to display',
+          description: 'empty leveraged vault overview button text',
+        },
+      }),
+      link: '',
     },
   } as Record<PORTFOLIO_CATEGORIES, EmptyPortfolioData>;
 

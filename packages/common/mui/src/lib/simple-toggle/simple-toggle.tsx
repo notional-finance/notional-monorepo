@@ -69,17 +69,17 @@ const StyledTabs = styled(Tabs)(
 
   .MuiButtonBase-root {
     min-width: 0px;
-  }
+  };
   
   .MuiTabs-indicator {
     z-index: 1;
     background: ${theme.palette.info.light};
     border-radius: ${theme.shape.borderRadius()};
     height: 100%;
-  }
+  };
   .MuiTabs-flexContainer {
     height: 100%;
-  }
+  };
 `
 );
 

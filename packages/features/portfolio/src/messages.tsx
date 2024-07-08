@@ -22,4 +22,8 @@ export const messages: Record<PORTFOLIO_CATEGORIES, MessageDescriptor> = {
     defaultMessage: 'Transaction History',
     description: '',
   }),
+  [PORTFOLIO_CATEGORIES.WELCOME]: defineMessage({
+    defaultMessage: 'Welcome',
+    description: '',
+  }),
 };

@@ -9,7 +9,7 @@ import {
   switchMap,
   withLatestFrom,
 } from 'rxjs';
-import { GlobalState } from '../global-state';
+import { ApplicationState } from '../global-state';
 import {
   Network,
   SupportedNetworks,
@@ -21,16 +21,16 @@ import { isAppReady } from '../../utils';
 const vpnCheck = 'https://detect.notional.finance/';
 const dataURL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 
-export function onAppLoad(global$: Observable<GlobalState>) {
+export function onAppLoad(app$: Observable<ApplicationState>) {
   return merge(
-    exportControlState$(global$),
-    initNetworkRegistry$(global$),
-    onNetworkLoaded$(global$)
+    exportControlState$(app$),
+    initNetworkRegistry$(app$),
+    onNetworkLoaded$(app$)
   );
 }
 
-export function globalWhenAppReady$(global$: Observable<GlobalState>) {
-  return global$.pipe(
+export function globalWhenAppReady$(app$: Observable<ApplicationState>) {
+  return app$.pipe(
     distinctUntilChanged(
       (p, c) => isAppReady(p.networkState) === isAppReady(c.networkState)
     ),
@@ -38,8 +38,8 @@ export function globalWhenAppReady$(global$: Observable<GlobalState>) {
   );
 }
 
-function exportControlState$(global$: Observable<GlobalState>) {
-  return global$.pipe(
+function exportControlState$(app$: Observable<ApplicationState>) {
+  return app$.pipe(
     filter(({ country }) => country === undefined),
     switchMap(() => {
       return from(
@@ -54,8 +54,8 @@ function exportControlState$(global$: Observable<GlobalState>) {
   );
 }
 
-function initNetworkRegistry$(global$: Observable<GlobalState>) {
-  return global$.pipe(
+function initNetworkRegistry$(app$: Observable<ApplicationState>) {
+  return app$.pipe(
     filter(({ networkState }) => networkState === undefined),
     map(({ cacheHostname }) => {
       // This is a no-op if the registry is already initialized
@@ -69,7 +69,7 @@ function initNetworkRegistry$(global$: Observable<GlobalState>) {
         Registry.startRefresh(n);
         ns[n] = 'Pending';
         return ns;
-      }, {} as NonNullable<GlobalState['networkState']>);
+      }, {} as NonNullable<ApplicationState['networkState']>);
       // This has to be set manually
       networkState[Network.all] = 'Pending';
 
@@ -78,8 +78,8 @@ function initNetworkRegistry$(global$: Observable<GlobalState>) {
   );
 }
 
-function onNetworkLoaded$(global$: Observable<GlobalState>) {
-  return global$.pipe(
+function onNetworkLoaded$(app$: Observable<ApplicationState>) {
+  return app$.pipe(
     map(({ networkState }) => {
       if (networkState) {
         const pendingNetworks = [...SupportedNetworks, Network.all].filter(
@@ -98,7 +98,7 @@ function onNetworkLoaded$(global$: Observable<GlobalState>) {
           Registry.onNetworkReady(network, () => resolve(network));
         })
     ),
-    withLatestFrom(global$),
+    withLatestFrom(app$),
     map(([n, { networkState }]) => {
       if (networkState && networkState[n] === 'Loaded') {
         return undefined;

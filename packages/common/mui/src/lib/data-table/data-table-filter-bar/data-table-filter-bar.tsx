@@ -120,7 +120,8 @@ const Container = styled(Box)(
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: ${theme.spacing(3)};
+  padding: ${theme.spacing(3)};
+  border-bottom: ${theme.shape.borderStandard};
   ${theme.breakpoints.down('sm')} {
     display: none;
   }

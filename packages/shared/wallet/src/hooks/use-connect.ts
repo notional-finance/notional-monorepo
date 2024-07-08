@@ -5,6 +5,11 @@ import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber, ethers } from 'ethers';
 import { useCallback, useEffect } from 'react';
 
+export const useWalletActive = () => {
+  const [{ wallet }] = useConnectWallet();
+  return wallet?.accounts[0].address ? true : false;
+}
+
 export const useConnect = () => {
   const { globalState, updateNotional } = useNotionalContext();
   const [

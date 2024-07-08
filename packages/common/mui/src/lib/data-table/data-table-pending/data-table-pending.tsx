@@ -17,7 +17,7 @@ export const DataTablePending = ({
   const theme = useTheme();
 
   return (
-    <Box sx={{ marginBottom: theme.spacing(3) }}>
+    <Box sx={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }}>
       <ErrorMessage
         message={pendingMessage}
         variant="pending"

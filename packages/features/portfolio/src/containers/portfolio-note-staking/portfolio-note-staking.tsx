@@ -13,12 +13,14 @@ import { usePortfolioSNOTETable, usePortfolioNOTETable } from '../../hooks';
 import { Box, useTheme, styled } from '@mui/material';
 import { formatNumberAsPercent, lastValue } from '@notional-finance/util';
 import { useStakedNoteData } from '@notional-finance/notionable-hooks';
+import { useConnect } from '@notional-finance/wallet';
 
 export const PortfolioNoteStaking = () => {
   const theme = useTheme();
   const { columns, data, initialState, setExpandedRows, noStakedNoteData } =
     usePortfolioSNOTETable();
   const { noteColumns, noteData, initialNoteState } = usePortfolioNOTETable();
+  const { isReadOnlyAddress } = useConnect();
   const stakedNoteData = useStakedNoteData();
   const currentSNOTEYield = stakedNoteData
     ? lastValue(stakedNoteData)?.apy || 0
@@ -44,8 +46,10 @@ export const PortfolioNoteStaking = () => {
 
   return (
     <Box>
-      {noStakedNoteData && noteData.length === 0 && <EmptyPortfolio />}
-      {noStakedNoteData && noteData.length > 0 && (
+      {noStakedNoteData && noteData.length === 0 && !isReadOnlyAddress && (
+        <EmptyPortfolio />
+      )}
+      {noStakedNoteData && (
         <Box sx={{ marginBottom: theme.spacing(3) }}>
           <Banner
             messages={stakedNoteBanner.messages}
@@ -56,13 +60,15 @@ export const PortfolioNoteStaking = () => {
           />
         </Box>
       )}
-      <Heading sx={{ marginBottom: theme.spacing(3) }}>
-        <FormattedMessage
-          defaultMessage="NOTE Staking"
-          description="table title"
-        />
-      </Heading>
-      {!noStakedNoteData && (
+      {(noteData.length > 0 || data.length > 0) && (
+        <Heading sx={{ marginBottom: theme.spacing(3) }}>
+          <FormattedMessage
+            defaultMessage="NOTE Staking"
+            description="table title"
+          />
+        </Heading>
+      )}
+      {!noStakedNoteData && data.length > 0 && (
         <DataTable
           data={data}
           columns={columns}
@@ -79,20 +85,22 @@ export const PortfolioNoteStaking = () => {
         />
       )}
       {noteData.length > 0 && (
-        <DataTable
-          data={noteData}
-          columns={noteColumns}
-          CustomRowComponent={TableActionRow}
-          expandableTable={true}
-          tableTitle={
-            <FormattedMessage
-              defaultMessage="NOTE Holdings"
-              description="table title"
-            />
-          }
-          initialState={initialNoteState}
-          setExpandedRows={setExpandedRows}
-        />
+        <Box sx={{ marginTop: theme.spacing(4) }}>
+          <DataTable
+            data={noteData}
+            columns={noteColumns}
+            CustomRowComponent={TableActionRow}
+            expandableTable={true}
+            tableTitle={
+              <FormattedMessage
+                defaultMessage="NOTE Holdings"
+                description="table title"
+              />
+            }
+            initialState={initialNoteState}
+            setExpandedRows={setExpandedRows}
+          />
+        </Box>
       )}
     </Box>
   );

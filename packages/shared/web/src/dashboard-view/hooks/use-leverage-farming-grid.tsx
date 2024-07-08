@@ -11,6 +11,7 @@ import {
   Network,
   PRIME_CASH_VAULT_MATURITY,
   PRODUCTS,
+  VAULT_TYPES,
 } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
@@ -18,7 +19,10 @@ import { PointsIcon } from '@notional-finance/icons';
 import { Box } from '@mui/material';
 import { Registry, getArbBoosts } from '@notional-finance/core-entities';
 
-export const useVaultGrid = (network: Network): DashboardGridProps => {
+export const useLeveragedFarmingGrid = (
+  network: Network,
+  currentVaultType: VAULT_TYPES
+): DashboardGridProps => {
   const history = useHistory();
   const baseCurrency = useFiat();
   const listedVaults = useAllVaults(network);
@@ -100,6 +104,9 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
         symbol: primaryToken.symbol,
         network: primaryToken.network,
         hasPosition: profile ? true : false,
+        vaultType: points
+          ? VAULT_TYPES.LEVERAGED_POINTS_FARMING
+          : VAULT_TYPES.LEVERAGED_YIELD_FARMING,
         apy: apy || 0,
         routeCallback: () =>
           history.push(
@@ -118,6 +125,7 @@ export const useVaultGrid = (network: Network): DashboardGridProps => {
             }),
       };
     })
+    .filter(({ vaultType }) => vaultType === currentVaultType)
     .sort((a, b) => b.apy - a.apy);
 
   const defaultVaultData = allVaultData.filter(

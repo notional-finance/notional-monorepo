@@ -40,6 +40,7 @@ export async function loadGraphClientDeferred() {
     NetworkTransactionHistoryDocument,
     ExchangeRateValuesDocument,
     MetaDocument,
+    AccountHoldingsHistoricalDocument,
     // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
   } = await import('../.graphclient/index');
 
@@ -64,6 +65,7 @@ export async function loadGraphClientDeferred() {
     ExternalLendingHistoryDocument,
     NetworkTransactionHistoryDocument,
     MetaDocument,
+    AccountHoldingsHistoricalDocument,
   };
 }
 

@@ -137,8 +137,41 @@ interface AddressState {
   totalPoints?: number;
 }
 
+/** These settings are associated with the user directly */
+interface UserSettingsState {
+  themeVariant: THEME_VARIANTS;
+}
+
+interface ErrorState {
+  error?: NotionalError;
+}
+
+export interface GlobalState
+  extends Record<string, unknown>,
+    AddressState,
+    UserSettingsState,
+    TransactionState,
+    ErrorState {}
+
+export const initialGlobalState: GlobalState = {
+  themeVariant: userSettings?.themeVariant
+    ? userSettings?.themeVariant
+    : THEME_VARIANTS.LIGHT,
+  baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
+  isSanctionedAddress: false,
+  isAccountPending: false,
+  sentTransactions: [],
+  completedTransactions: {},
+  pendingPnL: {
+    [Network.all]: [],
+    [Network.mainnet]: [],
+    [Network.arbitrum]: [],
+    [Network.optimism]: [],
+  },
+};
+
 /** This is associated with the overall application state */
-interface ApplicationState {
+export interface ApplicationState extends Record<string, unknown> {
   /** If waiting for the site to load initially */
   networkState?: Record<Network, NetworkLoadingState>;
   /** URL of the cache hostname */
@@ -156,42 +189,12 @@ interface ApplicationState {
     totalOpenDebt: number;
     totalAccounts: number;
   };
-}
-
-/** These settings are associated with the user directly */
-interface UserSettingsState {
-  themeVariant: THEME_VARIANTS;
   baseCurrency: FiatKeys;
   /** Which country is the user located in */
   country?: string;
 }
 
-interface ErrorState {
-  error?: NotionalError;
-}
-
-export interface GlobalState
-  extends Record<string, unknown>,
-    ApplicationState,
-    AddressState,
-    UserSettingsState,
-    TransactionState,
-    ErrorState {}
-
-export const initialGlobalState: GlobalState = {
+export const initialApplicationState: ApplicationState = {
   cacheHostname: CACHE_HOSTNAME,
-  themeVariant: userSettings?.themeVariant
-    ? userSettings?.themeVariant
-    : THEME_VARIANTS.LIGHT,
   baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
-  isSanctionedAddress: false,
-  isAccountPending: false,
-  sentTransactions: [],
-  completedTransactions: {},
-  pendingPnL: {
-    [Network.all]: [],
-    [Network.mainnet]: [],
-    [Network.arbitrum]: [],
-    [Network.optimism]: [],
-  },
 };

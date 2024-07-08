@@ -22,4 +22,8 @@ export const navLabels = defineMessages({
     defaultMessage: 'Note staking',
     description: 'navigation link',
   },
+  [PORTFOLIO_CATEGORIES.WELCOME]: {
+    defaultMessage: 'Welcome',
+    description: 'navigation link',
+  },
 });

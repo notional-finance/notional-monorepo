@@ -9,25 +9,19 @@ import { ExternalLinkIcon } from '@notional-finance/icons';
 import statsImg from '../images/stats_overlay.svg';
 import { FormattedMessage } from 'react-intl';
 import { formatNumber } from '@notional-finance/helpers';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
-import { SupportedNetworks } from '@notional-finance/util';
+import { useHeroStats } from '../use-hero-stats';
 
 const oneMillion = 1_000_000;
 
 export const HeroStats = () => {
   const theme = useTheme();
-  const {
-    globalState: { heroStats, activeAccounts },
-  } = useNotionalContext();
-  const isReady = SupportedNetworks.every(
-    (n) => activeAccounts && activeAccounts[n]
-  );
+  const heroStats = useHeroStats();
 
   return (
     <StatsContainer>
       <ImgContainer>
         <StatsContent>
-          {isReady && heroStats ? (
+          {heroStats ? (
             <div>
               <LargeInputText>
                 {`$${formatNumber(heroStats.totalDeposits / oneMillion, 2)}M`}
@@ -114,7 +108,7 @@ const ImgContainer = styled(Box)(
       backdrop-filter: blur(2px);
       background: url(${statsImg}) no-repeat;
       background-size: ${theme.spacing(50)} 100%;
-      
+
       ${theme.breakpoints.down('md')} {
         margin-top: 0px;
         padding-bottom: ${theme.spacing(6)};
