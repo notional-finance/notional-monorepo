@@ -71,8 +71,6 @@ export const SelectDropdown = ({
     popper: showScrollPopper ? ScrollPopper : StyledPopper,
   };
 
-  // MuiSelect-popper
-
   const popperPlacement =
     window.innerWidth <= theme.breakpoints.values.sm
       ? 'bottom'

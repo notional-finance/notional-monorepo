@@ -144,62 +144,62 @@ export function TradeActionSummary({
             ) : undefined
           }
         />
-        {points && (
-          <Box
-            sx={{
-              marginTop: theme.spacing(1),
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            {Object.keys(points).map((k) => (
-              <Box marginRight={theme.spacing(1)} display="flex">
-                <H4>
-                  {`${pointsMultiple(points[k], leverageRatio).toFixed(
-                    2
-                  )}x ${k} Points:`}
-                  &nbsp;
-                </H4>
-                {pointPrices && (
-                  <H4 light>{`$${
-                    pointPrices
-                      .find((p) => p.points.includes(k))
-                      ?.price.toPrecision(3) || '-'
-                  }/point`}</H4>
-                )}
-                {hasArbPoints && (
-                  <H4>{`${lendBoosts || borrowBoosts}x ARB Points`}</H4>
-                )}
-              </Box>
-            ))}
-            <InfoTooltip
-              iconSize={theme.spacing(2)}
-              iconColor={theme.palette.info.dark}
-              toolTipText={defineMessage({
-                defaultMessage:
-                  'Point values used are estimates. True values are not known. True values may be very different and will significantly impact total APY.',
-              })}
+        <Box sx={{ display: 'flex' }}>
+          {points && (
+            <Box
               sx={{
-                marginLeft: theme.spacing(0.5),
+                marginTop: theme.spacing(1),
+                display: 'flex',
+                alignItems: 'center',
               }}
-            />
-          </Box>
-        )}
-        {hasArbPoints ? (
-          <Box
-            sx={{
-              marginTop: theme.spacing(1),
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <Box marginRight={theme.spacing(1)} display="flex">
-              <H4>{`${lendBoosts || borrowBoosts}x ARB Points`}</H4>
+            >
+              {Object.keys(points).map((k) => (
+                <Box marginRight={theme.spacing(1)} display="flex">
+                  <H4>
+                    {`${pointsMultiple(points[k], leverageRatio).toFixed(
+                      2
+                    )}x ${k} Points:`}
+                    &nbsp;
+                  </H4>
+                  {pointPrices && (
+                    <H4 light>{`$${
+                      pointPrices
+                        .find((p) => p.points.includes(k))
+                        ?.price.toPrecision(3) || '-'
+                    }/point`}</H4>
+                  )}
+                </Box>
+              ))}
+              <InfoTooltip
+                iconSize={theme.spacing(2)}
+                iconColor={theme.palette.info.dark}
+                toolTipText={defineMessage({
+                  defaultMessage:
+                    'Point values used are estimates. True values are not known. True values may be very different and will significantly impact total APY.',
+                })}
+                sx={{
+                  marginLeft: theme.spacing(0.5),
+                }}
+              />
             </Box>
-          </Box>
-        ) : (
-          ''
-        )}
+          )}
+          {hasArbPoints ? (
+            <Box
+              sx={{
+                marginTop: theme.spacing(1),
+                marginLeft: theme.spacing(1),
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <Box marginRight={theme.spacing(1)} display="flex">
+                <H4>{`${lendBoosts || borrowBoosts}x ARB Points`}</H4>
+              </Box>
+            </Box>
+          ) : (
+            ''
+          )}
+        </Box>
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}
