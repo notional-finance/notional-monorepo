@@ -16,12 +16,11 @@ import backgroundColors from '../assets/color-blobs.png';
 import { YourPointsOverview } from './your-points-overview';
 import { PointsDashboardManager } from './points-dashboard-manager';
 import { FormattedMessage } from 'react-intl';
-import { useAccountTotalPointsPerDay } from '@notional-finance/notionable-hooks';
+import { useYourPointsOverviewTables } from './hooks';
 
 export const PointsDashboard = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
-
-  const totalPointsPerDay = useAccountTotalPointsPerDay();
+  const { yourPointsTotal } = useYourPointsOverviewTables();
   const { startDate, endDate, name } = useCurrentSeason();
   return (
     <ThemeProvider theme={theme}>
@@ -47,7 +46,7 @@ export const PointsDashboard = () => {
                   <FormattedMessage defaultMessage={'YOUR POINTS'} />
                 </SectionTitle>
                 <DisplayBox sx={{ width: '100%' }}>
-                  {formatNumber(totalPointsPerDay, 2)}
+                  {formatNumber(yourPointsTotal, 2)}
                 </DisplayBox>
               </DisplayBoxWrapper>
             </TopContentContainer>
