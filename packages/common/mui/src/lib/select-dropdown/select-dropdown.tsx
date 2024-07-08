@@ -71,8 +71,6 @@ export const SelectDropdown = ({
     popper: showScrollPopper ? ScrollPopper : StyledPopper,
   };
 
-  console.log({ popperWidth });
-
   const popperPlacement =
     window.innerWidth <= theme.breakpoints.values.sm
       ? 'bottom'
