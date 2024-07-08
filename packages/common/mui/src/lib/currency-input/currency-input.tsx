@@ -206,6 +206,7 @@ export const CurrencyInput = React.forwardRef<
           }}
         />
         <CurrencySelect
+          minWidth={theme.spacing(55.875)}
           options={props.options}
           defaultValue={props.defaultValue}
           onSelectChange={props.onSelectChange}
