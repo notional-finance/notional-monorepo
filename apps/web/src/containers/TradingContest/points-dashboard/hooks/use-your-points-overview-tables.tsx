@@ -17,7 +17,11 @@ import {
   useTotalArbPoints,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
-import { getArbBoosts, getPointsPerDay } from '@notional-finance/core-entities';
+import {
+  getArbBoosts,
+  getPointsPerDay,
+  Registry,
+} from '@notional-finance/core-entities';
 
 export const useYourPointsOverviewTables = () => {
   const theme = useTheme();
@@ -30,9 +34,22 @@ export const useYourPointsOverviewTables = () => {
   const vaultPointsData = vaultHoldings.map(({ vault: v }) => {
     const boostNum = getArbBoosts(v.vaultShares.token, false);
     const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
+
     const totalVaultPoints =
-      arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)?.points ||
-      0;
+      arbPoints?.find(({ token }) => {
+        const tokenData = Registry?.getTokenRegistry()?.getTokenByID(
+          Network.arbitrum,
+          token
+        );
+        if (
+          tokenData.tokenType === 'VaultShare' &&
+          tokenData.totalSupply?.vaultAddress === v.vaultAddress
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      })?.points || 0;
     return { pointsPerDay, totalVaultPoints };
   });
 
@@ -259,6 +276,16 @@ export const useYourPointsOverviewTables = () => {
     ],
     []
   );
+  const parseUSNumber = (input: string) => {
+    const numberString = input.replace(/[^0-9.]/g, '');
+    const parsedNumber = Number(numberString);
 
-  return { yourPointsColumns, yourPointsData };
+    return isNaN(parsedNumber) ? 0 : parsedNumber;
+  };
+
+  const yourPointsTotal = yourPointsData
+    .map((data) => parseUSNumber(data?.yourPoints || '0'))
+    .reduce((sum, data) => sum + data, 0);
+
+  return { yourPointsColumns, yourPointsData, yourPointsTotal };
 };

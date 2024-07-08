@@ -3,6 +3,7 @@ import {
   getArbBoosts,
   getPointsAPY,
   getPointsPerDay,
+  Registry,
 } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import { PointsIcon } from '@notional-finance/icons';
@@ -109,9 +110,22 @@ export const useMyBreakdownTable = () => {
       const config = v.vaultConfig;
       const boostNum = getArbBoosts(v.vaultShares.token, false);
       const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
-      const totalPoints =
-        arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)
-          ?.points || 0;
+      const totalVaultPoints =
+        arbPoints?.find(({ token }) => {
+          const tokenData = Registry?.getTokenRegistry()?.getTokenByID(
+            Network.arbitrum,
+            token
+          );
+          if (
+            tokenData.tokenType === 'VaultShare' &&
+            tokenData.totalSupply?.vaultAddress === v.vaultAddress
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        })?.points || 0;
+
       const pointsAPY = getPointsAPY(
         boostNum,
         totalArbPoints[currentSeason.db_name],
@@ -134,7 +148,7 @@ export const useMyBreakdownTable = () => {
         pointsPerDayNum: pointsPerDay,
         pointsPerDay: formatNumber(pointsPerDay),
         pointsAPY,
-        totalPoints: formatNumber(totalPoints),
+        totalPoints: formatNumber(totalVaultPoints),
         iconCellData: {
           icon: PointsIcon,
         },
@@ -151,8 +165,10 @@ export const useMyBreakdownTable = () => {
       );
       const boostNum = getArbBoosts(b.token, false);
       const pointsPerDay = getPointsPerDay(b);
+
       const totalPoints =
         arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
+
       const pointsAPY = getPointsAPY(
         boostNum,
         totalArbPoints[currentSeason.db_name],
