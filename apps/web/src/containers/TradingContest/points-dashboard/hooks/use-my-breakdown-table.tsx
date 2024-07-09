@@ -110,21 +110,22 @@ export const useMyBreakdownTable = () => {
       const config = v.vaultConfig;
       const boostNum = getArbBoosts(v.vaultShares.token, false);
       const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
-      const totalVaultPoints =
-        arbPoints?.find(({ token }) => {
-          const tokenData = Registry?.getTokenRegistry()?.getTokenByID(
-            Network.arbitrum,
-            token
-          );
-          if (
-            tokenData.tokenType === 'VaultShare' &&
-            tokenData.totalSupply?.vaultAddress === v.vaultAddress
-          ) {
-            return true;
-          } else {
-            return false;
+      let totalVaultPoints = 0;
+      arbPoints?.map(({ token, points }) => {
+        const tokenData = Registry?.getTokenRegistry()?.getTokenByID(
+          Network.arbitrum,
+          token
+        );
+        if (
+          tokenData.tokenType === 'VaultShare' &&
+          tokenData.totalSupply?.vaultAddress === v.vaultAddress
+        ) {
+          if (points > 0) {
+            totalVaultPoints = points;
           }
-        })?.points || 0;
+        }
+        return tokenData;
+      });
 
       const pointsAPY = getPointsAPY(
         boostNum,
