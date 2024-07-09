@@ -144,7 +144,7 @@ export const useMyBreakdownTable = () => {
               ? 'Open Term'
               : `Maturity: ${formatMaturity(v.maturity)}`,
         },
-        boostNum,
+        totalPointsNum: totalVaultPoints,
         boost: `${boostNum}x`,
         pointsPerDayNum: pointsPerDay,
         pointsPerDay: formatNumber(pointsPerDay),
@@ -155,7 +155,7 @@ export const useMyBreakdownTable = () => {
         },
       };
     })
-    .filter(({ boostNum }) => boostNum > 0);
+    .filter(({ totalPointsNum }) => totalPointsNum > 0);
 
   const portfolioTableData = portfolioHoldings
     .map(({ balance: b }) => {
@@ -185,7 +185,7 @@ export const useMyBreakdownTable = () => {
           label: formattedTitle,
           caption: titleWithMaturity,
         },
-        boostNum,
+        totalPointsNum: totalPoints,
         pointsPerDayNum: pointsPerDay,
         pointsAPY,
         boost: `${boostNum}x`,
@@ -196,11 +196,94 @@ export const useMyBreakdownTable = () => {
         },
       };
     })
-    .filter(({ boostNum }) => boostNum > 0);
+    .filter(({ totalPointsNum }) => totalPointsNum > 0);
 
-  const tableData = [...vaultTableData, ...portfolioTableData].sort(
-    (a, b) => b.pointsPerDayNum - a.pointsPerDayNum
+  const filterIds = [...portfolioHoldings, ...vaultHoldings].map(
+    (data: any) => {
+      if (data?.vault) {
+        return data?.vault.vaultAddress;
+      } else {
+        return data?.balance.tokenId;
+      }
+    }
   );
+
+  const historicalPoints =
+    arbPoints
+      ?.filter(({ token }) => {
+        const tokenData = Registry?.getTokenRegistry()?.getTokenByID(
+          Network.arbitrum,
+          token
+        );
+        if (
+          tokenData.tokenType === 'VaultShare' &&
+          filterIds.includes(tokenData.totalSupply?.vaultAddress)
+        ) {
+          return false;
+        } else if (!filterIds.includes(token)) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      ?.map((pointsData) => {
+        const tokenData = Registry?.getTokenRegistry()?.getTokenByID(
+          Network.arbitrum,
+          pointsData.token
+        );
+        let vaultAsset: any = undefined;
+
+        if (tokenData.tokenType === 'VaultShare' && tokenData?.vaultAddress) {
+          const config = Registry.getConfigurationRegistry();
+          const vaultConfig = config.getVaultConfig(
+            Network.arbitrum,
+            tokenData?.vaultAddress
+          );
+          vaultAsset = {
+            symbol: tokenData.totalSupply?.underlying?.symbol,
+            label: vaultConfig?.name,
+            caption:
+              tokenData?.maturity === PRIME_CASH_VAULT_MATURITY
+                ? 'Open Term'
+                : `Maturity: ${formatMaturity(tokenData?.maturity || 0)}`,
+          };
+        }
+
+        const isDebt =
+          tokenData?.tokenType.includes('Debt') || tokenData.isFCashDebt;
+        const { icon, formattedTitle, titleWithMaturity } = formatTokenType(
+          tokenData,
+          isDebt
+        );
+        const boostNum = getArbBoosts(tokenData, false);
+
+        return {
+          asset: tokenData?.vaultAddress
+            ? vaultAsset
+            : {
+                symbol: icon,
+                symbolBottom: '',
+                label: formattedTitle,
+                caption: titleWithMaturity,
+              },
+          totalPointsNum: pointsData.points,
+          pointsPerDayNum: 0,
+          pointsAPY: 0,
+          boost: `${boostNum}x`,
+          pointsPerDay: '-',
+          totalPoints: formatNumber(pointsData.points),
+          iconCellData: {
+            icon: PointsIcon,
+          },
+        };
+      })
+      .filter(({ totalPointsNum }) => totalPointsNum > 0) || ([] as any[]);
+
+  const tableData = [
+    ...vaultTableData,
+    ...portfolioTableData,
+    ...historicalPoints,
+  ].sort((a, b) => b.pointsPerDayNum - a.pointsPerDayNum);
 
   return { tableColumns, tableData };
 };
