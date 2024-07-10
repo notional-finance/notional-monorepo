@@ -1,7 +1,11 @@
 import { useEffect } from 'react';
 import { CompatRoute } from 'react-router-dom-v5-compat';
 import { ThemeProvider } from '@mui/material/styles';
-import { FeatureLoader, TrackingConsent } from '@notional-finance/shared-web';
+import {
+  FeatureLoader,
+  Footer,
+  TrackingConsent,
+} from '@notional-finance/shared-web';
 import {
   Header,
   MetaTagManager,
@@ -74,6 +78,7 @@ const AppLayoutRoute = ({
                   <MainContent>
                     <Component {...matchProps} />
                   </MainContent>
+                  <Footer />
                 </AppShell>
               </Box>
             )}
