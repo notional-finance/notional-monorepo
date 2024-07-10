@@ -159,7 +159,9 @@ export const useQualifyingProductsTable = (
           currency: underlying.symbol,
           product: vaultName || product,
           id: vaultName ? 'Leveraged Vault' : product,
-          totalAPY: totalAPY + pointsAPY,
+          totalAPY: product.includes('Borrow')
+            ? totalAPY - pointsAPY
+            : totalAPY + pointsAPY,
           // NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
           apyBeforePoints: totalAPY === 0 ? 0.00001 : totalAPY,
           pointsAPY,
