@@ -14,15 +14,15 @@ import {
   LiquidityVariableDashboard,
   LiquidityLeveragedDashboard,
 } from '@notional-finance/shared-web';
-import { Web3OnboardProvider } from '@web3-onboard/react';
 import { Redirect, Route, Switch, useParams } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
 import { ServerError } from '../ServerError/server-error';
 import RouteContainer from './RouteContainer';
 import AppLayoutRoute from './AppLayoutRoute';
+import { WagmiConfig } from '@notional-finance/wallet';
 import LandingLayoutRoute from './LandingLayoutRoute';
-import { OnboardContext } from '@notional-finance/wallet';
-import { useConnect } from '@notional-finance/wallet/hooks';
+import { WagmiProvider } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import { LendFixed, LendVariable } from '@notional-finance/lend-feature-shell';
@@ -69,10 +69,6 @@ const RedirectToDefaultNetwork = () => {
 
 const AllRoutes = () => {
   useSanctionsBlock();
-  // Have this hook here to ensure that all children routes will see updates if the onboard
-  // context changes (there is a useEffect hook inside here listening for changes in the
-  // onboard context)
-  useConnect();
 
   return (
     <CompatRouter>
@@ -278,25 +274,26 @@ export const App = () => {
 
   spindl.enableAutoPageViews();
 
+  const queryClient = new QueryClient();
+
   return (
     <HelmetProvider>
       <Helmet>
         <link rel="icon" href="/favicon.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Notional Finance - DeFi lending and leveraged yield</title>
-        <meta
-          name="title"
-          content="Notional Finance - DeFi lending and leveraged yield"
-        />
+        <meta content="Notional Finance - DeFi lending and leveraged yield" />
         <meta
           name="description"
           content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
         />
       </Helmet>
       <IntercomProvider appId={intercomID}>
-        <Web3OnboardProvider web3Onboard={OnboardContext}>
-          <AllRoutes />
-        </Web3OnboardProvider>
+        <WagmiProvider config={WagmiConfig}>
+          <QueryClientProvider client={queryClient}>
+            <AllRoutes />
+          </QueryClientProvider>
+        </WagmiProvider>
       </IntercomProvider>
     </HelmetProvider>
   );

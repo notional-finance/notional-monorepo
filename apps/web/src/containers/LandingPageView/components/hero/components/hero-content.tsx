@@ -2,14 +2,14 @@ import { styled, Box, useTheme } from '@mui/material';
 import { Body, H1, Button } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { Network } from '@notional-finance/util';
-import { useWalletActive } from '@notional-finance/wallet';
+import { useAccount as useWagmiAccount } from 'wagmi';
 import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router';
 
 export const HeroContent = () => {
   const theme = useTheme();
   const params = useParams<any>();
-  const walletActive = useWalletActive();
+  const { address } = useWagmiAccount();
   const network = params?.selectedNetwork || Network.mainnet;
 
   return (
@@ -29,7 +29,7 @@ export const HeroContent = () => {
         <Button
           size="large"
           to={
-            walletActive
+            address
               ? `/portfolio/${network}/overview`
               : `/portfolio/${network}/welcome`
           }

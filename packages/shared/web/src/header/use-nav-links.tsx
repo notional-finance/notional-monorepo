@@ -10,7 +10,7 @@ import {
   GearIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS, Network } from '@notional-finance/util';
-import { useConnectWallet } from '@web3-onboard/react';
+import { useAccount as useWagmiAccount } from 'wagmi';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
@@ -21,7 +21,7 @@ import { useParams } from 'react-router';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   const params = useParams<any>();
-  const [{ wallet }] = useConnectWallet();
+  const { address } = useWagmiAccount();
   const network = params?.selectedNetwork || Network.mainnet;
 
   const textColor = mobileNav
@@ -32,7 +32,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: 'portfolio',
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
-      link: wallet?.accounts[0].address
+      link: address
         ? `/portfolio/${network}/overview`
         : `/portfolio/${network}/welcome`,
       iconImg: (

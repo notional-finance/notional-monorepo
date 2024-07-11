@@ -54,7 +54,7 @@ export const SwitchNetwork = ({ context, onCancel }: SwitchNetworkProps) => {
         callback={() => {
           if (selectedNetwork) {
             setPending(true);
-            onSwitch(selectedNetwork, () => setPending(false));
+            onSwitch(selectedNetwork);
           }
         }}
         description={messages.switchNetwork.description}

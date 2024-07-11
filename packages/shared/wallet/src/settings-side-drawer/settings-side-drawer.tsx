@@ -9,17 +9,13 @@ import {
   SideDrawerButton,
 } from '@notional-finance/mui';
 import {
-  getFromLocalStorage,
-  setInLocalStorage,
-} from '@notional-finance/helpers';
-import {
   SettingsItem,
   useSettingsSideDrawer,
 } from './use-settings-side-drawer';
-import { useConnect } from '../hooks/use-connect';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { useWalletConnected } from '@notional-finance/notionable-hooks';
+import { useConnect } from '../hooks';
 
 /* eslint-disable-next-line */
 export interface SettingsSideDrawerProps {
@@ -33,12 +29,11 @@ export const SettingsSideDrawer = ({
 }: SettingsSideDrawerProps) => {
   const containerRef = useRef(null);
   const theme = useTheme();
+  const { disconnectWallet } = useConnect();
   const { accountData, transactionData } = useSettingsSideDrawer();
   const { clearWalletSideDrawer } = useSideDrawerManager();
-  const { disconnectWallet } = useConnect();
   const connected = useWalletConnected();
   const [settingsItem, setSettingsItem] = useState<SettingsItem | null>(null);
-  const userSettings = getFromLocalStorage('userSettings');
 
   useEffect(() => {
     if (showConnectWallet) {
@@ -51,11 +46,6 @@ export const SettingsSideDrawer = ({
   const handleDisconnect = () => {
     disconnectWallet();
     clearWalletSideDrawer();
-    setInLocalStorage('userSettings', {
-      ...userSettings,
-      currentAddress: null,
-    });
-    window.location.reload();
   };
 
   const handleClick = (data: SettingsItem | null) => {

@@ -109,11 +109,13 @@ interface AddressState {
   wallet?: {
     signer?: Signer;
     selectedChain?: Network;
+    selectedChainId?: number;
     selectedAddress: string;
     isReadOnlyAddress?: boolean;
     label?: string;
     provider?: ethers.providers.Provider;
   };
+  walletDisconnected?: boolean;
   /** These are checked on wallet connection and associated with the wallet */
   communityMembership?: Community[];
   /** Checks if the address is sanctioned on wallet connection */

@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import {
   useAccountLoading,
-  useAccountReady,
   useAccountAndBalanceReady,
   useSelectedNetwork,
+  useWalletReady,
   useYieldsReady,
 } from '@notional-finance/notionable-hooks';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
@@ -99,7 +99,7 @@ const Portfolio = () => {
   const network = useSelectedNetwork();
   const history = useHistory();
   const { pathname } = useLocation();
-  const isAccountReady = useAccountReady(network);
+  const walletReady = useWalletReady();
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const { noteData } = usePortfolioNOTETable();
   const noteBalanceData = noteData || [];
@@ -204,7 +204,7 @@ const Portfolio = () => {
     </PortfolioContainer>
   ) : (
     <PortfolioContainer>
-      {noteBalanceData.length > 0 && isAccountReady && (
+      {noteBalanceData.length > 0 && walletReady && (
         <PortfolioSidebar>
           <SideNav />
         </PortfolioSidebar>

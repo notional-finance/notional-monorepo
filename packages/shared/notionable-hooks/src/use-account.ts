@@ -41,6 +41,14 @@ export function useAccountDefinition(network: Network | undefined) {
   return account?.accountDefinition;
 }
 
+export function useWalletReady() {
+  const {
+    globalState: { wallet },
+  } = useNotionalContext();
+
+  return wallet === undefined ? false : true;
+}
+
 export function useTotalIncentives(network: Network | undefined) {
   return useNetworkAccounts(network)?.totalIncentives || {};
 }
@@ -50,12 +58,14 @@ export function useAccountReady(network: Network | undefined) {
 }
 
 export function useAccountAndBalanceReady(network: Network | undefined) {
+  const wallet = useWalletReady();
   const isAccountReady = useAccountReady(network);
   const accountNetWorth = useAccountNetWorth();
   const hasNotionalBalance = SupportedNetworks.find(
     (network) => !accountNetWorth[network].isZero()
   );
-  return isAccountReady && hasNotionalBalance;
+
+  return isAccountReady && hasNotionalBalance && wallet;
 }
 
 export function useAccountLoading() {

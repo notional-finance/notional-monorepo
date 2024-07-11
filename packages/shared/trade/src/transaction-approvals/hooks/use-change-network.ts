@@ -1,23 +1,19 @@
-import { Network } from '@notional-finance/util';
-import { useSetChain } from '@web3-onboard/react';
+import { Network, NetworkId } from '@notional-finance/util';
+import { useSwitchChain, useChainId } from 'wagmi'
 import { useCallback } from 'react';
 
 export function useChangeNetwork() {
-  const [{ chains, connectedChain }, setChain] = useSetChain();
+  const chainId = useChainId()
+  const { switchChain } = useSwitchChain()
 
   return useCallback(
     (
       network: Network,
-      onSwitched: () => void = () => {
-        /* No-Op */
-      }
     ) => {
-      const chainId = chains.find((c) => c.label === network)?.id;
-
-      if (chainId && connectedChain?.id !== chainId) {
-        setChain({ chainId }).then(onSwitched);
+      if(chainId !== NetworkId[network]) {
+        switchChain({ chainId: NetworkId[network] })
       }
     },
-    [chains, connectedChain, setChain]
+    [switchChain, chainId]
   );
 }

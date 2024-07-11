@@ -5,7 +5,6 @@ import { EyeIcon } from '@notional-finance/icons';
 import { useConnect } from '../../../hooks/use-connect';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { ViewAsAccount } from '../../../view-as-account/view-as-account';
-import { modules } from '../../../onboard-context';
 import { FormattedMessage } from 'react-intl';
 import {
   useTruncatedAddress,
@@ -51,7 +50,7 @@ export const AddressButton = () => {
 };
 
 export const WalletSwitcher = () => {
-  const { currentLabel, connectWallet } = useConnect();
+  const { connectWallet, displayConnectors, currentLabel } = useConnect();
   const { clearWalletSideDrawer } = useSideDrawerManager();
   const connected = useWalletConnected();
   const handleConnect = useCallback(
@@ -71,19 +70,19 @@ export const WalletSwitcher = () => {
           <FormattedMessage defaultMessage="Connect a Wallet" />
         )}
       </Title>
-      {modules.map(({ label, icon }, index) => {
+      {displayConnectors.map(({ name, displayIcon }, index) => {
         const image = (
           <img
-            src={icon}
+            src={displayIcon}
             style={{ height: '35px', width: '35px' }}
             alt="wallet icon"
           />
         );
         return (
           <SideDrawerActiveButton
-            label={label}
+            label={name}
             Icon={image}
-            dataKey={label}
+            dataKey={name}
             selectedKey={currentLabel}
             callback={handleConnect}
             key={index}
