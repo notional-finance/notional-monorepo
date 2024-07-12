@@ -65,7 +65,7 @@ export const useQualifyingProductsTableDropdowns = () => {
     // },
     {
       id: 'Leveraged Vault',
-      title: 'Leveraged Vault',
+      title: 'Leveraged Farming',
       icon: (
         <VaultIcon
           sx={{

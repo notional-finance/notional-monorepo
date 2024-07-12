@@ -12,8 +12,13 @@ import { PointsIcon } from '@notional-finance/icons';
 import {
   useAllNetworkMarkets,
   useTotalArbPoints,
+  useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import {
+  Network,
+  PRIME_CASH_VAULT_MATURITY,
+  PRODUCTS,
+} from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { useCurrentSeason } from '../points-dashboard-constants';
@@ -26,6 +31,7 @@ export const useQualifyingProductsTable = (
   const { earnYields, borrowYields } = useAllNetworkMarkets();
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
+  const vaultHoldings = useVaultHoldings(Network.arbitrum);
 
   const tableColumns: DataTableColumn[] = [
     {
@@ -144,6 +150,8 @@ export const useQualifyingProductsTable = (
       )
       .map((data) => {
         const { underlying, token, totalAPY, product, link, vaultName } = data;
+        const vaultAddress = data.leveraged?.vaultDebt?.vaultAddress;
+        const vaultDebtOption = data.leveraged?.vaultDebt?.id;
         const boostNum = getArbBoosts(
           data.token,
           data.product === 'Fixed Borrow' || data.product === 'Variable Borrow'
@@ -155,6 +163,9 @@ export const useQualifyingProductsTable = (
           currentSeason.startDate,
           currentSeason.endDate
         );
+        const profile = vaultHoldings.find(
+          (p) => p.vault.vaultAddress === vaultAddress
+        )?.vault;
         return {
           currency: underlying.symbol,
           product: vaultName || product,
@@ -165,7 +176,12 @@ export const useQualifyingProductsTable = (
           // NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
           apyBeforePoints: totalAPY === 0 ? 0.00001 : totalAPY,
           pointsAPY,
-          view: link,
+          view:
+            data.product === 'Leveraged Vault' && profile
+              ? `${PRODUCTS.VAULTS}/${Network.arbitrum}/${vaultAddress}/IncreaseVaultPosition`
+              : data.product === 'Leveraged Vault' && !profile
+              ? `${PRODUCTS.VAULTS}/${Network.arbitrum}/${vaultAddress}/CreateVaultPosition?borrowOption=${vaultDebtOption}`
+              : link,
           boostNum,
           boost: `${getArbBoosts(
             data.token,
