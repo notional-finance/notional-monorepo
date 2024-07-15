@@ -4,10 +4,13 @@ import {
   useVaultHoldings,
   useAllMarkets,
   useFiat,
+  useTotalArbPoints,
+  useCurrentSeason,
 } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
 import {
+  formatNumberAsPercent,
   Network,
   PRIME_CASH_VAULT_MATURITY,
   PRODUCTS,
@@ -16,17 +19,24 @@ import {
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
 import { PointsIcon } from '@notional-finance/icons';
-import { Box } from '@mui/material';
-import { Registry, getArbBoosts } from '@notional-finance/core-entities';
+import { Box, useTheme } from '@mui/material';
+import {
+  Registry,
+  getArbBoosts,
+  getPointsAPY,
+} from '@notional-finance/core-entities';
 
 export const useLeveragedFarmingGrid = (
   network: Network,
   currentVaultType: VAULT_TYPES
 ): DashboardGridProps => {
+  const theme = useTheme();
   const history = useHistory();
   const baseCurrency = useFiat();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
+  const totalArbPoints = useTotalArbPoints();
+  const currentSeason = useCurrentSeason();
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
   const {
@@ -50,6 +60,13 @@ export const useLeveragedFarmingGrid = (
         PRIME_CASH_VAULT_MATURITY
       );
       const pointsBoost = getArbBoosts(vaultShare, false);
+      const pointsAPY = getPointsAPY(
+        pointsBoost,
+        totalArbPoints[currentSeason.db_name],
+        currentSeason.totalArb,
+        currentSeason.startDate,
+        currentSeason.endDate
+      );
 
       return {
         title: primaryToken.symbol,
@@ -99,6 +116,9 @@ export const useLeveragedFarmingGrid = (
               <PointsIcon sx={{ fontSize: 'inherit' }} />
               &nbsp;
               {` ${pointsBoost}x ARB Points`}
+              <Box
+                sx={{ marginLeft: theme.spacing(0.5) }}
+              >{`(+${formatNumberAsPercent(pointsAPY, 2)}) APY`}</Box>
             </Box>
           ) : undefined,
         symbol: primaryToken.symbol,

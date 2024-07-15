@@ -1,8 +1,9 @@
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
-import { Network, SupportedNetworks } from '@notional-finance/util';
+import { Network, SEASONS, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
 import { useEffect, useState } from 'react';
+import { getNowSeconds } from '@notional-finance/util';
 
 /** Contains selectors for account holdings information */
 function useNetworkAccounts(network: Network | undefined) {
@@ -139,16 +140,55 @@ export function useArbPoints() {
 
 export function useTotalArbPoints() {
   const [totalPoints, setTotalPoints] = useState<{
-    season_one: number;
-    season_two: number;
-    season_three: number;
-  }>({ season_one: 0, season_two: 0, season_three: 0 });
+    [SEASONS.SEASON_ONE]: number;
+    [SEASONS.SEASON_TWO]: number;
+    [SEASONS.SEASON_THREE]: number;
+  }>({ [SEASONS.SEASON_ONE]: 0, [SEASONS.SEASON_TWO]: 0, [SEASONS.SEASON_THREE]: 0 });
   useEffect(() => {
     Registry.getAnalyticsRegistry().getTotalPoints().then(setTotalPoints);
   }, []);
 
   return totalPoints;
 }
+
+export function useCurrentSeason() {
+  const now = getNowSeconds();
+  if (now < PointsSeasonsData[SEASONS.SEASON_ONE].endDate.getTime() / 1000) {
+    return PointsSeasonsData[SEASONS.SEASON_ONE];
+  } else if (now < PointsSeasonsData[SEASONS.SEASON_TWO].endDate.getTime() / 1000) {
+    return PointsSeasonsData[SEASONS.SEASON_TWO];
+  } else {
+    return PointsSeasonsData[SEASONS.SEASON_THREE];
+  }
+}
+
+export const PointsSeasonsData = {
+  [SEASONS.SEASON_ONE]: {
+    name: 'Season One',
+    db_name: SEASONS.SEASON_ONE,
+    startDate: new Date(2024, 5, 24),
+    endDate: new Date(2024, 6, 22),
+    totalArb: 55_000,
+    totalPoints: '',
+  },
+  [SEASONS.SEASON_TWO]: {
+    name: 'Season Two',
+    db_name: SEASONS.SEASON_TWO,
+    startDate: new Date(2024, 6, 23),
+    endDate: new Date(2024, 7, 19),
+    totalArb: 60_000,
+    totalPoints: '',
+  },
+  [SEASONS.SEASON_THREE]: {
+    name: 'Season Three',
+    db_name: SEASONS.SEASON_THREE,
+    startDate: new Date(2024, 7, 20),
+    endDate: new Date(2024, 8, 16),
+    totalArb: 60_000,
+    totalPoints: '',
+  },
+};
+
 
 export function useAccountTotalPointsPerDay() {
   return useNetworkAccounts(Network.arbitrum)?.pointsPerDay || 0;

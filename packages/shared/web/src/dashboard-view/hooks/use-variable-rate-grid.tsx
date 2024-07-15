@@ -1,9 +1,18 @@
 import { Box, useTheme } from '@mui/material';
-import { getArbBoosts } from '@notional-finance/core-entities';
+import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
-import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import {
+  useAllMarkets,
+  useCurrentSeason,
+  useFiat,
+  useTotalArbPoints,
+} from '@notional-finance/notionable-hooks';
+import {
+  formatNumberAsPercent,
+  Network,
+  PRODUCTS,
+} from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
@@ -14,12 +23,21 @@ export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
   const theme = useTheme();
   const history = useHistory();
   const baseCurrency = useFiat();
+  const totalArbPoints = useTotalArbPoints();
+  const currentSeason = useCurrentSeason();
   const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
   const yieldData = isBorrow ? variableBorrow : variableLend;
 
   const allData = yieldData
     .map((y) => {
       const pointsBoost = getArbBoosts(y.token, isBorrow);
+      const pointsAPY = getPointsAPY(
+        pointsBoost,
+        totalArbPoints[currentSeason.db_name],
+        currentSeason.totalArb,
+        currentSeason.startDate,
+        currentSeason.endDate
+      );
 
       return {
         ...y,
@@ -45,6 +63,9 @@ export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
                 }}
               />
               {`${pointsBoost}x ARB POINTS`}
+              <Box
+                sx={{ marginLeft: theme.spacing(0.5) }}
+              >{`(+${formatNumberAsPercent(pointsAPY, 2)}) APY`}</Box>
             </Box>
           ) : !isBorrow && network === Network.arbitrum ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>

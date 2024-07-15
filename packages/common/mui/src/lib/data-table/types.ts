@@ -55,4 +55,5 @@ export type DataTableColumn = {
   enableSorting?: boolean;
   fontSize?: string;
   showCustomIcon?: boolean;
+  showPointsIcon?: boolean;
 };

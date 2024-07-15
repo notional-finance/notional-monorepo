@@ -149,6 +149,12 @@ export enum NAV_DROPDOWN {
   BORROW = 'Borrow',
 }
 
+export enum SEASONS {
+  SEASON_ONE = 'season_one',
+  SEASON_TWO = 'season_two',
+  SEASON_THREE = 'season_three',
+}
+
 export enum THEME_VARIANTS {
   LIGHT = 'light',
   DARK = 'dark',

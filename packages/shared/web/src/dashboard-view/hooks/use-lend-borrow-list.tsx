@@ -7,6 +7,8 @@ import {
   useAllMarkets,
   useFiat,
   useAccountDefinition,
+  useTotalArbPoints,
+  useCurrentSeason,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
@@ -16,15 +18,16 @@ import {
   LinkCell,
   DataTableColumn,
   MultiValueIconCell,
-  IconCell,
 } from '@notional-finance/mui';
-import { getArbBoosts } from '@notional-finance/core-entities';
+import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 
 export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
   const {
     yields: { fCashLend, fCashBorrow, variableBorrow, variableLend },
   } = useAllMarkets(network);
+  const totalArbPoints = useTotalArbPoints();
+  const currentSeason = useCurrentSeason();
   const baseCurrency = useFiat();
   const account = useAccountDefinition(network);
   const isBorrow =
@@ -86,8 +89,8 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
           description={'Points Boost header'}
         />
       ),
-      cell: IconCell,
-      showCustomIcon: true,
+      cell: MultiValueIconCell,
+      showPointsIcon: true,
       accessorKey: 'pointsBoost',
       textAlign: 'right',
     },
@@ -165,6 +168,13 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
   const listData = yieldData[product]
     .map((y) => {
       const boostNum = getArbBoosts(y.token, isBorrow);
+      const pointsAPY = getPointsAPY(
+        boostNum,
+        totalArbPoints[currentSeason.db_name],
+        currentSeason.totalArb,
+        currentSeason.startDate,
+        currentSeason.endDate
+      );
       const walletBalance = account
         ? account.balances.find((t) => t.tokenId === y.underlying.id)
         : undefined;
@@ -179,7 +189,11 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
         },
         walletBalance: walletBalance?.toFloat() || 0,
         maturity: y.token.maturity,
-        pointsBoost: boostNum > 0 ? `${boostNum}x` : '-',
+        pointsBoost: {
+          label: boostNum > 0 ? `${boostNum}x` : '-',
+          caption:
+            pointsAPY > 0 ? `${formatNumberAsPercent(pointsAPY, 2)} APY` : '',
+        },
         apy: y.totalAPY,
         liquidity: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,
         symbol: y.underlying.symbol,
