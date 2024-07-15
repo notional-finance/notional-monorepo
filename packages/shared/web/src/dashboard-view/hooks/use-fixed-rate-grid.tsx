@@ -72,7 +72,7 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
             {`${pointsBoost}x ARB POINTS `}
             <Box
               sx={{ marginLeft: theme.spacing(0.5) }}
-            >{`(+${formatNumberAsPercent(pointsAPY, 2)}) APY`}</Box>
+            >{`(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}</Box>
           </Box>
         ) : !isBorrow && network === Network.arbitrum ? (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
