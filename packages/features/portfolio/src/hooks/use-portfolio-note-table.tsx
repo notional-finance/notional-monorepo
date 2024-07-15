@@ -214,8 +214,6 @@ export function usePortfolioNOTETable() {
 
   const filteredResult = result.filter((r) => r !== null);
 
-  console.log({ hasNoteOrSNote });
-
   return {
     noteColumns: Columns,
     noteData: filteredResult,
