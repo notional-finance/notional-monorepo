@@ -7,14 +7,17 @@ import {
   TradeActionTitle,
   H4,
   InfoTooltip,
+  Subtitle,
 } from '@notional-finance/mui';
 import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   useAllMarkets,
+  useCurrentSeason,
   usePointPrices,
   useTotalAPY,
+  useTotalArbPoints,
 } from '@notional-finance/notionable-hooks';
 import {
   LeverageInfoRow,
@@ -26,8 +29,9 @@ import {
   TokenDefinition,
   YieldData,
   getArbBoosts,
+  getPointsAPY,
 } from '@notional-finance/core-entities';
-import { pointsMultiple } from '@notional-finance/util';
+import { formatNumberAsPercent, pointsMultiple } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -63,7 +67,8 @@ export function TradeActionSummary({
     priorVaultFactors
   );
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
-
+  const totalArbPoints = useTotalArbPoints();
+  const currentSeason = useCurrentSeason();
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
   const headerText =
     messages?.headerText || defineMessage({ defaultMessage: 'unknown ' });
@@ -79,6 +84,14 @@ export function TradeActionSummary({
 
   const hasArbPoints =
     tradeType !== 'LeveragedNToken' && (lendBoosts > 0 || borrowBoosts > 0);
+  const boostData = lendBoosts || borrowBoosts;
+  const pointsAPY = getPointsAPY(
+    boostData,
+    totalArbPoints[currentSeason.db_name],
+    currentSeason.totalArb,
+    currentSeason.startDate,
+    currentSeason.endDate
+  );
 
   const apySuffix = isLeveraged ? (
     <FormattedMessage defaultMessage={'Total APY'} />
@@ -183,23 +196,28 @@ export function TradeActionSummary({
               />
             </Box>
           )}
-          {hasArbPoints ? (
-            <Box
-              sx={{
-                marginTop: theme.spacing(1),
-                marginLeft: theme.spacing(1),
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <Box marginRight={theme.spacing(1)} display="flex">
-                <H4>{`${lendBoosts || borrowBoosts}x ARB Points`}</H4>
-              </Box>
-            </Box>
-          ) : (
-            ''
-          )}
         </Box>
+        {hasArbPoints ? (
+          <Box
+            sx={{
+              marginTop: theme.spacing(1),
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <Box marginRight={theme.spacing(1)} display="flex">
+              <H4>{`${lendBoosts || borrowBoosts}x ARB Points: `}</H4>
+              <Subtitle
+                sx={{
+                  color: theme.palette.typography.light,
+                  marginLeft: theme.spacing(0.5),
+                }}
+              >{`+${formatNumberAsPercent(pointsAPY, 2)} APY`}</Subtitle>
+            </Box>
+          </Box>
+        ) : (
+          ''
+        )}
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}

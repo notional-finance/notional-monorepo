@@ -1,7 +1,16 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
-import { getArbBoosts } from '@notional-finance/core-entities';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import {
+  useAllMarkets,
+  useFiat,
+  useCurrentSeason,
+  useTotalArbPoints,
+} from '@notional-finance/notionable-hooks';
+import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
+import {
+  formatNumberAsPercent,
+  Network,
+  PRODUCTS,
+} from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 import { Box, useTheme } from '@mui/material';
@@ -16,6 +25,8 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
   const baseCurrency = useFiat();
   const tokenObj = {};
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
+  const totalArbPoints = useTotalArbPoints();
+  const currentSeason = useCurrentSeason();
   const yieldData = isBorrow ? fCashBorrow : fCashLend;
 
   const apySubTitle =
@@ -31,6 +42,13 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
 
   const allData = yieldData.map((y) => {
     const pointsBoost = getArbBoosts(y.token, isBorrow);
+    const pointsAPY = getPointsAPY(
+      pointsBoost,
+      totalArbPoints[currentSeason.db_name],
+      currentSeason.totalArb,
+      currentSeason.startDate,
+      currentSeason.endDate
+    );
 
     return {
       ...y,
@@ -51,7 +69,10 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
                 width: theme.spacing(1.75),
               }}
             />
-            {`${pointsBoost}x ARB POINTS`}
+            {`${pointsBoost}x ARB POINTS `}
+            <Box
+              sx={{ marginLeft: theme.spacing(0.5) }}
+            >{`(+${formatNumberAsPercent(pointsAPY, 2)}) APY`}</Box>
           </Box>
         ) : !isBorrow && network === Network.arbitrum ? (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

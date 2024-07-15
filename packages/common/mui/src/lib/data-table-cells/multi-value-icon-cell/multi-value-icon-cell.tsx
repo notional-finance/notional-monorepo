@@ -5,6 +5,7 @@ import {
   LightningIcon,
   SentIcon,
   ReceivedIcon,
+  PointsIcon,
 } from '@notional-finance/icons';
 import {
   TableCell,
@@ -137,6 +138,15 @@ export const MultiValueIconCell = (props): JSX.Element => {
                   minWidth: !inlineIcons ? theme.spacing(8) : '',
                 }}
               >
+                {column.columnDef?.showPointsIcon && (
+                  <PointsIcon
+                    sx={{
+                      height: theme.spacing(2),
+                      width: theme.spacing(2),
+                      marginRight: theme.spacing(0.5),
+                    }}
+                  />
+                )}
                 {column.columnDef.displayFormatter &&
                 values?.label !== undefined
                   ? column.columnDef.displayFormatter(values?.label)
