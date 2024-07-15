@@ -18,7 +18,6 @@ import {
   LinkCell,
   DataTableColumn,
   MultiValueIconCell,
-  // IconCell,
 } from '@notional-finance/mui';
 import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
