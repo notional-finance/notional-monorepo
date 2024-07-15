@@ -118,7 +118,7 @@ export const useLeveragedFarmingGrid = (
               {` ${pointsBoost}x ARB Points`}
               <Box
                 sx={{ marginLeft: theme.spacing(0.5) }}
-              >{`(+${formatNumberAsPercent(pointsAPY, 2)}) APY`}</Box>
+              >{`(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}</Box>
             </Box>
           ) : undefined,
         symbol: primaryToken.symbol,
