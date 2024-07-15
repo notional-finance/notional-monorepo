@@ -101,8 +101,7 @@ const Portfolio = () => {
   const { pathname } = useLocation();
   const isAccountReady = useAccountReady(network);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
-  const { noteData } = usePortfolioNOTETable();
-  const noteBalanceData = noteData || [];
+  const { hasNoteOrSNote } = usePortfolioNOTETable();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -204,7 +203,7 @@ const Portfolio = () => {
     </PortfolioContainer>
   ) : (
     <PortfolioContainer>
-      {noteBalanceData.length > 0 && isAccountReady && (
+      {hasNoteOrSNote && isAccountReady && (
         <PortfolioSidebar>
           <SideNav />
         </PortfolioSidebar>
@@ -215,15 +214,14 @@ const Portfolio = () => {
           <TypeForm />
         </>
       )}
-      {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING &&
-        noteBalanceData.length > 0 && (
-          <PortfolioMainContent>
-            <PortfolioNoteStaking />
-          </PortfolioMainContent>
-        )}
+      {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && hasNoteOrSNote && (
+        <PortfolioMainContent>
+          <PortfolioNoteStaking />
+        </PortfolioMainContent>
+      )}
       {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING &&
         params.category !== PORTFOLIO_CATEGORIES.WELCOME &&
-        noteBalanceData.length > 0 && (
+        hasNoteOrSNote && (
           <PortfolioMainContent>
             <EmptyPortfolio />
           </PortfolioMainContent>

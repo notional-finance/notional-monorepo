@@ -24,9 +24,8 @@ export function usePortfolioNOTETable() {
   const {
     globalState: { networkAccounts },
   } = useNotionalContext();
-
+  let hasNoteOrSNote = false;
   const baseCurrency = useFiat();
-
   const result = SupportedNetworks.map((network) => {
     const account = networkAccounts
       ? networkAccounts[network].accountDefinition
@@ -39,6 +38,10 @@ export function usePortfolioNOTETable() {
         ? totalIncentives['NOTE'].current
         : undefined;
     const noteBalance = account?.balances.find((t) => t.symbol === 'NOTE');
+    const sNoteBalance = account?.balances.find((t) => t.symbol === 'sNOTE');
+
+    hasNoteOrSNote =
+      !noteBalance?.isZero() || !sNoteBalance?.isZero() ? true : false;
 
     const getTotalNote = () => {
       let total = undefined as TokenBalance | undefined;
@@ -211,9 +214,12 @@ export function usePortfolioNOTETable() {
 
   const filteredResult = result.filter((r) => r !== null);
 
+  console.log({ hasNoteOrSNote });
+
   return {
     noteColumns: Columns,
     noteData: filteredResult,
+    hasNoteOrSNote,
     initialNoteState: { expanded: { 0: false, 1: false }, clickDisabled: true },
   };
 }
