@@ -289,6 +289,7 @@ export abstract class BaseRegistry<T> {
     key: string,
     checkFreshness = this.defaultFreshnessIntervals
   ) {
+    console.log("network", network);
     // Don't check freshness if no interval is set
     const intervalMS = this._intervalMS.get(network);
     if (checkFreshness > 0 && intervalMS) {
