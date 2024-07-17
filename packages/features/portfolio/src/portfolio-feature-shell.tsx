@@ -57,7 +57,11 @@ export const PortfolioFeatureShell = () => {
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
 
   useEffect(() => {
-    if (!isAccountLoading && !isAcctAndBalanceReady) {
+    if (
+      !isAccountLoading &&
+      !isAcctAndBalanceReady &&
+      params.sideDrawerKey !== 'cool-down'
+    ) {
       const toggleKey = params.sideDrawerKey ? params.sideDrawerKey : '';
       history.push(
         `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}/${toggleKey}`
@@ -208,6 +212,17 @@ const Portfolio = () => {
           <SideNav />
         </PortfolioSidebar>
       )}
+      {hasNoteOrSNote && isAccountReady && (
+        <SideDrawer
+          callback={handleDrawer}
+          openDrawer={openDrawer}
+          CustomHeader={CustomHeader}
+          zIndex={1202}
+        >
+          {SideDrawerComponent && <SideDrawerComponent />}
+        </SideDrawer>
+      )}
+
       {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
         <>
           <PortfolioStateZero />
