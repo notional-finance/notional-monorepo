@@ -17,7 +17,11 @@ import {
   useTotalArbPoints,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
-import { getArbBoosts, getPointsPerDay } from '@notional-finance/core-entities';
+import {
+  getArbBoosts,
+  getPointsPerDay,
+  Registry,
+} from '@notional-finance/core-entities';
 
 export const useYourPointsOverviewTables = () => {
   const theme = useTheme();
@@ -26,15 +30,43 @@ export const useYourPointsOverviewTables = () => {
   const arbPoints = useArbPoints();
   const portfolioHoldings = usePortfolioHoldings(Network.arbitrum);
   const vaultHoldings = useVaultHoldings(Network.arbitrum);
-  const vaultPointsData = vaultHoldings.map(({ vault: v }) => {
-    const boostNum = getArbBoosts(v.vaultShares.token, false);
-    const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
-    return { pointsPerDay };
-  });
-  const portfolioPointsData = portfolioHoldings.map(({ balance: b }) => {
-    const pointsPerDay = getPointsPerDay(b);
-    return { pointsPerDay };
-  });
+  const vaultPointsData = vaultHoldings
+    .filter(({ vault: v }) => {
+      let totalVaultPoints = 0;
+      arbPoints?.map(({ token, points }) => {
+        const tokenData = Registry?.getTokenRegistry()?.getTokenByID(
+          Network.arbitrum,
+          token
+        );
+        if (
+          tokenData.tokenType === 'VaultShare' &&
+          tokenData.totalSupply?.vaultAddress === v.vaultAddress
+        ) {
+          if (points > 0) {
+            totalVaultPoints = points;
+          }
+        }
+        return totalVaultPoints;
+      });
+      return totalVaultPoints > 0;
+    })
+    .map(({ vault: v }) => {
+      const boostNum = getArbBoosts(v.vaultShares.token, false);
+      const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
+      return { pointsPerDay };
+    });
+
+  const portfolioPointsData = portfolioHoldings
+    .filter(({ balance: b }) => {
+      const totalPointsNum =
+        arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
+      return totalPointsNum > 0;
+    })
+    .map(({ balance: b }) => {
+      const pointsPerDay = getPointsPerDay(b);
+      return { pointsPerDay };
+    });
+
   const sumPointsPerDay = portfolioPointsData.reduce(
     (sum, data) => sum + data.pointsPerDay,
     0
@@ -43,6 +75,7 @@ export const useYourPointsOverviewTables = () => {
     (sum, data) => sum + data.pointsPerDay,
     0
   );
+
   const yourPointsDay = sumPointsPerDay + sumVaultPointsPerDay;
   const yourPointsTotal =
     arbPoints?.reduce((sum, data) => sum + data.points, 0) || 0;
