@@ -1,17 +1,10 @@
-import { Network } from './constants';
+import { Network, NetworkId } from './constants';
 import { BigNumber } from 'ethers';
 
 interface Env {
   NETWORK: Network;
   ZERO_EX_API_KEY: string;
 }
-
-const urls: Record<Network, string> = {
-  all: '',
-  mainnet: 'https://api.0x.org/swap/v1/quote',
-  arbitrum: 'https://arbitrum.api.0x.org/swap/v1/quote',
-  optimism: '',
-};
 
 const DEFAULT_SLIPPAGE_PERCENT = 5;
 const zeroXDelay = 4000; // in ms
@@ -47,14 +40,17 @@ export async function get0xData(arg: {
   }
 
   const searchParams = new URLSearchParams({
+    chainId: String(NetworkId[env.NETWORK]),
     sellToken: sellToken,
     buyToken: buyToken,
     sellAmount: sellAmount.toString(),
     slippagePercentage: String(slippagePercentage / 100),
+    // this field is required by 0x api but it's value is not important for our implementation
+    taker: '0x53144559C0d4a3304e2DD9dAfBD685247429216d',
   }).toString();
 
   const response = await fetch(
-    `${urls[env.NETWORK]}?${searchParams}`,
+    `https://api.0x.org/swap/allowance-holder/quote?${searchParams}`,
     {
       headers: {
         '0x-api-key': env.ZERO_EX_API_KEY,
@@ -73,6 +69,6 @@ export async function get0xData(arg: {
   return {
     buyAmount,
     limit: buyAmount.mul(100 - slippagePercentage).div(100),
-    data: data['data'] as string,
+    data: data['transaction']['data'] as string,
   };
 }
