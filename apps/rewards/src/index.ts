@@ -287,7 +287,8 @@ const getTrades = async (
   env: Env,
   sellToken: string,
   tokens: string[],
-  sellAmounts: BigNumber[]
+  sellAmounts: BigNumber[],
+  taker: string,
 ) => {
   let slippageMultiplier = 1;
   // we need to execute them sequentially due to rate limit on 0x api
@@ -303,6 +304,7 @@ const getTrades = async (
           buyToken: token == ETH ? wEthMapper[env.NETWORK] : token,
           sellAmount: amount,
           slippagePercentage: SLIPPAGE_PERCENT * slippageMultiplier++,
+          taker,
           env,
         });
 
@@ -369,7 +371,8 @@ const reinvestVault = async (env: Env, provider: Provider, vault: Vault, force =
       env,
       sellToken,
       poolTokens,
-      sellAmountsPerToken
+      sellAmountsPerToken,
+      vault.address,
     );
     tradesPerRewardToken.push(trades);
   }

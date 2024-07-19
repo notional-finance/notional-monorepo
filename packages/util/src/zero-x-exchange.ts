@@ -17,12 +17,14 @@ export async function get0xData(arg: {
   buyToken: string;
   sellAmount: BigNumber;
   slippagePercentage?: number;
+  taker: string;
   env: Env;
 }) {
   const {
     sellToken,
     buyToken,
     sellAmount,
+    taker,
     env,
     slippagePercentage = DEFAULT_SLIPPAGE_PERCENT,
   } = arg;
@@ -45,8 +47,7 @@ export async function get0xData(arg: {
     buyToken: buyToken,
     sellAmount: sellAmount.toString(),
     slippagePercentage: String(slippagePercentage / 100),
-    // this field is required by 0x api but it's value is not important for our implementation
-    taker: '0x53144559C0d4a3304e2DD9dAfBD685247429216d',
+    taker,
   }).toString();
 
   const response = await fetch(
