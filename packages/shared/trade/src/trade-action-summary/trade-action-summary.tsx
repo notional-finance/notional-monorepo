@@ -212,7 +212,10 @@ export function TradeActionSummary({
                   color: theme.palette.typography.light,
                   marginLeft: theme.spacing(0.5),
                 }}
-              >{`+${formatNumberAsPercent(pointsAPY, 2)} APY`}</Subtitle>
+              >
+                {pointsAPY !== Infinity &&
+                  `+${formatNumberAsPercent(pointsAPY, 2)} APY`}
+              </Subtitle>
             </Box>
           </Box>
         ) : (
