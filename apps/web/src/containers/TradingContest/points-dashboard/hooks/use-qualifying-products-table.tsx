@@ -170,12 +170,15 @@ export const useQualifyingProductsTable = (
           currency: underlying.symbol,
           product: vaultName || product,
           id: vaultName ? 'Leveraged Vault' : product,
-          totalAPY: product.includes('Borrow')
-            ? totalAPY - pointsAPY
-            : totalAPY + pointsAPY,
+          totalAPY:
+            pointsAPY === Infinity
+              ? 0
+              : product.includes('Borrow')
+              ? totalAPY - pointsAPY
+              : totalAPY + pointsAPY,
           // NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
           apyBeforePoints: totalAPY === 0 ? 0.00001 : totalAPY,
-          pointsAPY,
+          pointsAPY: pointsAPY === Infinity ? 0 : pointsAPY,
           view:
             data.product === 'Leveraged Vault' && profile
               ? `${PRODUCTS.VAULTS}/${Network.arbitrum}/${vaultAddress}/IncreaseVaultPosition`
