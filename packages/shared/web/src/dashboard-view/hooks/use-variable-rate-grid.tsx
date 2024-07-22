@@ -63,9 +63,10 @@ export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
                 }}
               />
               {`${pointsBoost}x ARB POINTS`}
-              <Box
-                sx={{ marginLeft: theme.spacing(0.5) }}
-              >{`(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}</Box>
+              <Box sx={{ marginLeft: theme.spacing(0.5) }}>
+                {pointsAPY !== Infinity &&
+                  `(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}
+              </Box>
             </Box>
           ) : !isBorrow && network === Network.arbitrum ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
