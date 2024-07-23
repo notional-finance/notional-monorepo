@@ -10,6 +10,7 @@ import {
 } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { NotionalTheme, colors } from '@notional-finance/styles';
+import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router';
 
 interface StateZeroCardProps {
@@ -26,6 +27,7 @@ interface StateZeroCardProps {
     bottomLink: string;
     bottomText: string;
     pillData: string[];
+    availableSymbols?: string[];
   };
   index: number;
 }
@@ -43,7 +45,10 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
 
   return (
     <CardBoxContainer>
-      <BoxContainer theme={theme} disabled={disabledCard} />
+      <BoxContainer
+        theme={theme}
+        disabled={disabledCard && !card?.availableSymbols ? true : false}
+      />
       <CardBox
         theme={theme}
         key={index}
@@ -123,24 +128,56 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
             marginTop: theme.spacing(0.5),
           }}
         >
-          {card.bottomValue ? card.bottomValue : ''}
+          {card.bottomValue && !card?.availableSymbols && !disabledCard ? (
+            card.bottomValue
+          ) : disabledCard && card?.availableSymbols ? (
+            <FormattedMessage
+              defaultMessage={`{symbol} not available`}
+              values={{
+                symbol: card.symbol,
+              }}
+            />
+          ) : (
+            '-'
+          )}
         </Caption>
-        <Box
-          sx={{
-            display: 'flex',
-            gap: '4px',
-            width: '100%',
-            marginTop: theme.spacing(3),
-          }}
-        >
-          {card.pillData.map((pill, index) => (
-            <PillBox key={index}>
-              <Caption sx={{ color: theme.palette.typography.main }}>
-                {pill}
-              </Caption>
-            </PillBox>
-          ))}
-        </Box>
+        {disabledCard && card?.availableSymbols ? (
+          <Box sx={{ width: '100%' }}>
+            <H5>
+              <FormattedMessage defaultMessage={'Available Currencies:'} />
+            </H5>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: '4px',
+                width: '100%',
+                marginTop: theme.spacing(1),
+              }}
+            >
+              {card?.availableSymbols.map((tokenSymbol) => (
+                <TokenIcon symbol={tokenSymbol} size="medium" />
+              ))}
+            </Box>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '4px',
+              width: '100%',
+              marginTop: theme.spacing(3),
+            }}
+          >
+            {card.pillData.map((pill, index) => (
+              <PillBox key={index}>
+                <Caption sx={{ color: theme.palette.typography.main }}>
+                  {pill}
+                </Caption>
+              </PillBox>
+            ))}
+          </Box>
+        )}
       </CardBox>
       <LinkText to={card.bottomLink} sx={{ marginTop: theme.spacing(2) }}>
         {card.bottomText}
