@@ -33,8 +33,6 @@ export const useQualifyingProductsTable = (
   const currentSeason = useCurrentSeason();
   const vaultHoldings = useVaultHoldings(Network.arbitrum);
 
-  console.log({ totalArbPoints });
-
   const tableColumns: DataTableColumn[] = [
     {
       header: (
