@@ -90,5 +90,8 @@ export function getPointsAPY(
   const dailyArbPerDollarInUSD =
     totalARBPerSeason.toFiat('USD').toFloat() * arbSharePerDollar;
 
-  return dailyArbPerDollarInUSD * 365 * 100;
+  const result = dailyArbPerDollarInUSD * 365 * 100
+
+  // TODO: remove this when we get the season two points calculating correctly
+  return result > 0 ? result : 0;
 }
