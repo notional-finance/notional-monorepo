@@ -79,9 +79,7 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
             >
               {card.accentTitle}
             </H5>
-            <LargeInputTextEmphasized sx={{ whiteSpace: 'nowrap' }}>
-              {card.title}
-            </LargeInputTextEmphasized>
+            <ProductName>{card.title}</ProductName>
           </Box>
           {card.icon}
         </Box>
@@ -105,14 +103,14 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
             {!disabledCard ? (
               <>
                 <H5>{card?.apyTitle}</H5>
-                <H3>
+                <ApyText>
                   <CountUp
                     value={card.apy}
                     suffix={card?.isTotalAPYSuffix ? '% Total APY' : '% APY'}
                     duration={1}
                     decimals={2}
                   />
-                </H3>
+                </ApyText>
               </>
             ) : (
               <H3>-</H3>
@@ -161,14 +159,7 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
             </Box>
           </Box>
         ) : (
-          <Box
-            sx={{
-              display: 'flex',
-              gap: '4px',
-              width: '100%',
-              marginTop: theme.spacing(3),
-            }}
-          >
+          <PillContainer>
             {card.pillData.map((pill, index) => (
               <PillBox key={index}>
                 <Caption sx={{ color: theme.palette.typography.main }}>
@@ -176,12 +167,10 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
                 </Caption>
               </PillBox>
             ))}
-          </Box>
+          </PillContainer>
         )}
       </CardBox>
-      <LinkText to={card.bottomLink} sx={{ marginTop: theme.spacing(2) }}>
-        {card.bottomText}
-      </LinkText>
+      <LinkTextBox to={card.bottomLink}>{card.bottomText}</LinkTextBox>
     </CardBoxContainer>
   );
 };
@@ -195,6 +184,48 @@ const CardBoxContainer = styled(Box)(
          @media (max-width: 1375px) {
           width: ${theme.spacing(48)}
          }
+         ${theme.breakpoints.down('sm')} {
+           height: 100%;
+           margin-bottom: ${theme.spacing(5)};
+         };
+      `
+);
+
+const ProductName = styled(LargeInputTextEmphasized)(
+  ({ theme }) => `
+         white-space: nowrap;
+         ${theme.breakpoints.down('sm')} {
+            font-size: 20px;
+         };
+      `
+);
+
+const ApyText = styled(H3)(
+  ({ theme }) => `
+         ${theme.breakpoints.down('sm')} {
+            font-size: 20px;
+         };
+      `
+);
+
+const LinkTextBox = styled(LinkText)(
+  ({ theme }) => `
+         margin-top: ${theme.spacing(2)};
+         ${theme.breakpoints.down('sm')} {
+            display: none;
+         };
+      `
+);
+
+const PillContainer = styled(Box)(
+  ({ theme }) => `
+        display: flex;
+        gap: 4px;
+        width: 100%;
+        margin-top: ${theme.spacing(3)};
+        ${theme.breakpoints.down('sm')} {
+           flex-wrap: wrap;
+         };
       `
 );
 
@@ -208,10 +239,13 @@ const BoxContainer = styled(Box, {
           position: absolute;
           z-index: 2;
           display: ${disabled ? 'block' : 'none'};
-         width: ${theme.spacing(51)};
-         @media (max-width: 1375px) {
-          width: ${theme.spacing(48)};
-         }
+          width: ${theme.spacing(51)};
+          @media (max-width: 1375px) {
+            width: ${theme.spacing(48)};
+          };
+          ${theme.breakpoints.down('sm')} {
+           display: none;
+         };
       `
 );
 
@@ -229,13 +263,15 @@ const CardBox = styled(Box, {
         border-radius: ${theme.shape.borderRadius()};
         border: ${theme.shape.borderStandard};
         background: ${theme.palette.background.paper};
-        ${
-          disabled
-            ? ''
-            : theme.gradient.hoverTransition(
-                theme.palette.background.paper,
-                theme.palette.info.light
-              )
+        ${theme.breakpoints.up('sm')} {
+          ${
+            disabled
+              ? ''
+              : theme.gradient.hoverTransition(
+                  theme.palette.background.paper,
+                  theme.palette.info.light
+                )
+          }
         }
       ${
         disabled
@@ -251,7 +287,14 @@ const CardBox = styled(Box, {
               background: rgba(19, 187, 194, 0.10);
           }
         }`
-      }`
+      }
+      ${theme.breakpoints.down('sm')} {
+          &:hover {
+            border: ${theme.shape.borderStandard};
+          background: ${theme.palette.background.paper};
+          }
+       };
+      `
 );
 
 const PillBox = styled(Box)(
