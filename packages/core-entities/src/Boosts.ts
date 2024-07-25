@@ -73,9 +73,12 @@ export function getPointsAPY(
     Registry.getTokenRegistry().getTokenBySymbol(Network.arbitrum, 'ARB')
   );
 
-  const daysIntoSeason = Math.floor(
-    (floorToMidnight(getNowSeconds()) - seasonStart.getTime() / 1000) /
-      SECONDS_IN_DAY
+  const daysIntoSeason = Math.max(
+    Math.ceil(
+      (floorToMidnight(getNowSeconds()) - seasonStart.getTime() / 1000) /
+        SECONDS_IN_DAY
+    ),
+    1
   );
   const daysLeftInSeason = Math.ceil(
     Math.max(seasonEnd.getTime() / 1000 - floorToMidnight(getNowSeconds()), 0) /
@@ -90,8 +93,5 @@ export function getPointsAPY(
   const dailyArbPerDollarInUSD =
     totalARBPerSeason.toFiat('USD').toFloat() * arbSharePerDollar;
 
-  const result = dailyArbPerDollarInUSD * 365 * 100
-
-  // TODO: remove this when we get the season two points calculating correctly
-  return result > 0 ? result : 0;
+  return dailyArbPerDollarInUSD * 365 * 100;
 }
