@@ -21,7 +21,6 @@ export interface Env {
   NX_DATA_URL: string;
   ACCOUNT_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
-  ZERO_EX_SWAP_URL: string;
   ZERO_EX_API_KEY: string;
   NETWORK: Network;
   FLASH_LIQUIDATOR_CONTRACT: string;
@@ -102,7 +101,6 @@ const run = async (env: Env, isHourly: boolean) => {
         }),
       overrides: overrides[env.NETWORK],
       tokens: new Map<string, string>(Object.entries(tokens[env.NETWORK])),
-      zeroExUrl: env.ZERO_EX_SWAP_URL,
       zeroExApiKey: env.ZERO_EX_API_KEY,
       exactInSlippageLimit: BigNumber.from(env.EXACT_IN_SLIPPAGE_LIMIT),
       exactOutSlippageLimit: BigNumber.from(env.EXACT_OUT_SLIPPAGE_LIMIT),

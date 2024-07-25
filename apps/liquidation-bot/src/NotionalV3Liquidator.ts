@@ -27,7 +27,6 @@ export type LiquidatorSettings = {
   txRelayAuthToken: string;
   currencies: Currency[];
   tokens: Map<string, string>;
-  zeroExUrl: string;
   zeroExApiKey: string;
   overrides: CurrencyOverride[];
   exactInSlippageLimit: BigNumber; // Precision = 1000
@@ -81,8 +80,8 @@ export default class NotionalV3Liquidator {
       new ArbitrumGasOracle(),
       this.flashLoanProvider,
       {
+        network: settings.network,
         liquidatorContract: this.liquidatorContract,
-        zeroExUrl: settings.zeroExUrl,
         zeroExApiKey: settings.zeroExApiKey,
         overrides: settings.overrides,
         liquidatorOwner: settings.flashLiquidatorOwner,
@@ -209,7 +208,8 @@ export default class NotionalV3Liquidator {
               .div(1000),
           };
         })
-        .filter((liq) => liq && !liq.flashLoanAmount.isZero())
+        .filter((liq) => liq && !liq.flashLoanAmount.isZero()),
+      this.settings.flashLiquidatorAddress
     );
   }
 

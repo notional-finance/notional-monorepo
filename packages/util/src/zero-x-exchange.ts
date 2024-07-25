@@ -12,6 +12,8 @@ const s = { lastGet0xDataCall: 0 };
 
 const wait = (ms: number) => new Promise((f) => setTimeout(f, ms));
 
+export const zeroExUrl = 'https://api.0x.org/swap/allowance-holder/quote';
+
 export async function get0xData(arg: {
   sellToken: string;
   buyToken: string;
@@ -51,7 +53,7 @@ export async function get0xData(arg: {
   }).toString();
 
   const response = await fetch(
-    `https://api.0x.org/swap/allowance-holder/quote?${searchParams}`,
+    `${zeroExUrl}?${searchParams}`,
     {
       headers: {
         '0x-api-key': env.ZERO_EX_API_KEY,
