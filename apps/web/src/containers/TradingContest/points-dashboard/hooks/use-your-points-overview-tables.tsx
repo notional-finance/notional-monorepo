@@ -94,9 +94,9 @@ export const useYourPointsOverviewTables = () => {
   const getDaysFromStartDate = (startDate: Date): number => {
     const timeDiff = Math.max(
       floorToMidnight(getNowSeconds()) - startDate.getTime() / 1000,
-      0
+      SECONDS_IN_DAY
     );
-    const daysDiff = Math.floor(timeDiff / SECONDS_IN_DAY);
+    const daysDiff = Math.ceil(timeDiff / SECONDS_IN_DAY);
     return daysDiff;
   };
 
