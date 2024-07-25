@@ -81,14 +81,15 @@ export const useYourPointsOverviewTables = () => {
   );
 
   const yourPointsDay = sumPointsPerDay + sumVaultPointsPerDay;
+  // This refers the the current season points total
   const yourPointsTotal =
-    arbPoints?.reduce((sum, data) => sum + data.points, 0) || 0;
+    arbPoints?.reduce((sum, data) => sum + data[currentSeason.db_name], 0) || 0;
   const yourTotalPointsS1 =
     arbPoints?.reduce((sum, data) => sum + data.season_one, 0) || 0;
   const yourTotalPointsS2 =
-    arbPoints?.reduce((sum, data) => sum + data.season_one, 0) || 0;
+    arbPoints?.reduce((sum, data) => sum + data.season_two, 0) || 0;
   const yourTotalPointsS3 =
-    arbPoints?.reduce((sum, data) => sum + data.season_one, 0) || 0;
+    arbPoints?.reduce((sum, data) => sum + data.season_three, 0) || 0;
 
   const getDaysFromStartDate = (startDate: Date): number => {
     const timeDiff = Math.max(
