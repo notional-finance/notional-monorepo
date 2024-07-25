@@ -17,10 +17,10 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
-      - run: yarn install --frozen-lockfile
-      - name: Deploy Workers
-        shell: bash
-        run: apps/deployWorkers.sh
-        env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
+      # - run: yarn install --frozen-lockfile
+      # - name: Deploy Workers
+      #   shell: bash
+      #   run: apps/deployWorkers.sh
+      #   env:
+      #     CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      #     CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
