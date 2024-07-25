@@ -1,6 +1,9 @@
 import { useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
-import { PointsSeasonsData } from '../points-dashboard-constants';
+import {
+  PointsSeasonsData,
+  useCurrentSeason,
+} from '../points-dashboard-constants';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -28,6 +31,7 @@ export const useYourPointsOverviewTables = () => {
   const { season_one, season_two, season_three } = PointsSeasonsData;
   const totalPoints = useTotalArbPoints();
   const arbPoints = useArbPoints();
+  const currentSeason = useCurrentSeason();
   const portfolioHoldings = usePortfolioHoldings(Network.arbitrum);
   const vaultHoldings = useVaultHoldings(Network.arbitrum);
   const vaultPointsData = vaultHoldings
@@ -81,6 +85,10 @@ export const useYourPointsOverviewTables = () => {
     arbPoints?.reduce((sum, data) => sum + data.points, 0) || 0;
   const yourTotalPointsS1 =
     arbPoints?.reduce((sum, data) => sum + data.season_one, 0) || 0;
+  const yourTotalPointsS2 =
+    arbPoints?.reduce((sum, data) => sum + data.season_one, 0) || 0;
+  const yourTotalPointsS3 =
+    arbPoints?.reduce((sum, data) => sum + data.season_one, 0) || 0;
 
   const getDaysFromStartDate = (startDate: Date): number => {
     const timeDiff = Math.max(
@@ -126,12 +134,19 @@ export const useYourPointsOverviewTables = () => {
           </span>
         </div>
       ),
-      totalPointsDay: formatNumber(
-        totalPoints.season_one / getDaysFromStartDate(season_one.startDate),
-        0
-      ),
+      totalPointsDay:
+        currentSeason.db_name === 'season_one'
+          ? formatNumber(
+              totalPoints.season_one /
+                getDaysFromStartDate(season_one.startDate),
+              0
+            )
+          : '',
       yourPoints: formatNumber(yourTotalPointsS1, 0),
-      yourPointsDay: formatNumber(yourPointsDay, 0),
+      yourPointsDay:
+        currentSeason.db_name === 'season_one'
+          ? formatNumber(yourPointsDay, 0)
+          : '',
       totalPointsIssued: formatNumber(totalPoints.season_one, 0),
       yourTotalPoints: formatNumber(totalArbPointsBySeason.season_one, 0),
       arbRewards: formatNumber(PointsSeasonsData.season_one.totalArb, 0),
@@ -156,6 +171,19 @@ export const useYourPointsOverviewTables = () => {
           </span>
         </div>
       ),
+      totalPointsDay:
+        currentSeason.db_name === 'season_two'
+          ? formatNumber(
+              totalPoints.season_two /
+                getDaysFromStartDate(season_two.startDate),
+              0
+            )
+          : '',
+      yourPoints: formatNumber(yourTotalPointsS2, 0),
+      yourPointsDay:
+        currentSeason.db_name === 'season_two'
+          ? formatNumber(yourPointsDay, 0)
+          : '',
       totalPointsIssued: formatNumber(totalPoints.season_two, 0),
       yourTotalPoints: formatNumber(totalArbPointsBySeason.season_two, 0),
       arbRewards: formatNumber(PointsSeasonsData.season_two.totalArb, 0),
@@ -180,6 +208,19 @@ export const useYourPointsOverviewTables = () => {
           </span>
         </div>
       ),
+      totalPointsDay:
+        currentSeason.db_name === 'season_three'
+          ? formatNumber(
+              totalPoints.season_three /
+                getDaysFromStartDate(season_three.startDate),
+              0
+            )
+          : '',
+      yourPoints: formatNumber(yourTotalPointsS3, 0),
+      yourPointsDay:
+        currentSeason.db_name === 'season_three'
+          ? formatNumber(yourPointsDay, 0)
+          : '',
       totalPointsIssued: formatNumber(totalPoints.season_three, 0),
       yourTotalPoints: formatNumber(totalArbPointsBySeason.season_three, 0),
       arbRewards: formatNumber(PointsSeasonsData.season_three.totalArb, 0),
@@ -275,7 +316,7 @@ export const useYourPointsOverviewTables = () => {
         padding: '16px',
       },
     ],
-    []
+    [theme]
   );
 
   return { yourPointsColumns, yourPointsData, yourPointsTotal };
