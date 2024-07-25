@@ -12,9 +12,9 @@ export async function getAccountPoints(acct: string) {
   ).then((r) => r.json());
   let currentSeason: string;
   const now = getNowSeconds();
-  if (now < new Date(2024, 7, 22).getTime() / 1000) {
+  if (now < new Date(2024, 6, 22).getTime() / 1000) {
     currentSeason = 'season_one';
-  } else if (now < new Date(2024, 8, 19).getTime() / 1000) {
+  } else if (now < new Date(2024, 7, 19).getTime() / 1000) {
     currentSeason = 'season_two';
   } else {
     currentSeason = 'season_three';
