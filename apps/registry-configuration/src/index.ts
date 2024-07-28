@@ -1,39 +1,19 @@
-import { DurableObjectNamespace, Request } from '@cloudflare/workers-types';
-import { RegistryDOEnv } from '@notional-finance/durable-objects';
-import { Routes } from '@notional-finance/core-entities/src/server';
+import { Request } from '@cloudflare/workers-types';
+import {
+  BaseDOEnv,
+  ConfigurationRegistryDO,
+} from '@notional-finance/durable-objects';
 
-// Exports durable objects so migrations can be run
-export { ConfigurationRegistryDO } from '@notional-finance/durable-objects';
-
-async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
-  const stub = ns.get(ns.idFromName(version));
-  await stub.fetch('http://hostname/healthcheck');
-}
+const run = async (env: BaseDOEnv) => {
+  const c = new ConfigurationRegistryDO(env);
+  await c.onRefresh();
+};
 
 export default {
-  async fetch(request: Request, env: RegistryDOEnv): Promise<Response> {
-    const url = new URL(request.url);
-
-    let ns: DurableObjectNamespace;
-    switch (url.pathname.split('/')[2]) {
-      case Routes.Configuration:
-        ns = env.CONFIGURATION_REGISTRY_DO;
-        break;
-      case 'healthcheck':
-        await Promise.all([
-          runHealthCheck(env.CONFIGURATION_REGISTRY_DO, env.VERSION),
-        ]);
-        return new Response(JSON.stringify({ status: 'OK' }));
-    }
-
-    const stub = ns.get(ns.idFromName(env.VERSION));
-    // @ts-expect-error worker type response does not resolve properly
-    return stub.fetch(request);
+  async fetch(_: Request, env: BaseDOEnv): Promise<Response> {
+    return run(env).then(() => new Response('OK'));
   },
-  async scheduled(_: ScheduledController, env: RegistryDOEnv): Promise<void> {
-    // Run a healthcheck against all of the durable objects.
-    await Promise.all([
-      runHealthCheck(env.CONFIGURATION_REGISTRY_DO, env.VERSION),
-    ]);
+  async scheduled(_: ScheduledController, env: BaseDOEnv): Promise<void> {
+    return run(env);
   },
 };

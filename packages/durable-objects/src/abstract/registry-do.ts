@@ -1,4 +1,3 @@
-import { DurableObjectState } from '@cloudflare/workers-types';
 import { ServerRegistryConstructor } from '@notional-finance/core-entities/src/server';
 import { BaseDO } from './base-do';
 import { BaseDOEnv } from '.';
@@ -9,14 +8,12 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
   protected registry: InstanceType<ServerRegistryConstructor<any>>;
 
   constructor(
-    state: DurableObjectState,
     env: BaseDOEnv,
-    alarmCadenceMS: number | undefined,
     serviceName: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     protected RegistryClass: ServerRegistryConstructor<any>
   ) {
-    super(state, env, serviceName, alarmCadenceMS);
+    super(env, serviceName);
     this.registry = new RegistryClass(env);
   }
 
@@ -36,24 +33,22 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
 
           // Wrap each promise with a timeout
           const refreshPromise = this.registry.refresh(network);
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(
-              () => reject(new Error(`Timeout for ${network}`)),
-              timeoutDuration
-            )
+          const timeoutPromise = new Promise<undefined>((_, reject) =>
+            setTimeout(() => reject(undefined), timeoutDuration)
           );
 
           // Will reject after 5 seconds....
-          await Promise.race([refreshPromise, timeoutPromise]);
+          const data = await Promise.race([refreshPromise, timeoutPromise]);
 
           // put the serialized data into the correct network storage key
-          const data = this.registry.serializeToJSON(network);
-          const key = `${this.serviceName}/${network}`;
-          await this.putStorageKey(key, data);
+          if (data) {
+            const key = `${this.serviceName}/${network}`;
+            await this.putStorageKey(key, data);
 
-          console.log(
-            `Completed Refresh on ${this.serviceName} for ${network}`
-          );
+            console.log(
+              `Completed Refresh on ${this.serviceName} for ${network}`
+            );
+          }
         })
       );
     } catch (error) {

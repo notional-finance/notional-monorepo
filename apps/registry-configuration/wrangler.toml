@@ -20,9 +20,15 @@ NX_ENV = 'dev'
 VERSION = 'v1'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]
 
-# NX_DD_API_KEY
 
-[env.dev.durable_objects]
-bindings = [
-  { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
+# Experimental Prod Version Using R2
+
+[env.prod]
+name = "registry-configuration-prod"
+r2_buckets = [
+  { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev" },
 ]
+
+[env.prod.vars]
+NX_ENV = 'prod'
+SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]

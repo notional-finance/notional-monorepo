@@ -1,14 +1,13 @@
-import { DurableObjectState } from '@cloudflare/workers-types';
-import { APIEnv, MetricType } from '.';
-import { BaseDO } from './abstract';
-import { Network, ONE_MINUTE_MS, getNowSeconds } from '@notional-finance/util';
+import { APIEnv, MetricType } from '..';
+import { BaseDO } from '.';
+import { Network, getNowSeconds } from '@notional-finance/util';
 import { Servers } from '@notional-finance/core-entities';
 
 export class ViewsDO extends BaseDO<APIEnv> {
   protected analytics: InstanceType<typeof Servers.AnalyticsServer>;
 
-  constructor(state: DurableObjectState, env: APIEnv) {
-    super(state, env, 'views', ONE_MINUTE_MS * 60);
+  constructor(env: APIEnv) {
+    super(env, 'views');
     this.analytics = new Servers.AnalyticsServer(
       env.DATA_SERVICE_URL,
       env.DATA_SERVICE_AUTH_TOKEN,
@@ -22,17 +21,6 @@ export class ViewsDO extends BaseDO<APIEnv> {
     const view = url.pathname.split('/')[3];
     if (!view) throw Error('View Not Found');
     return `${this.serviceName}/${network}/${view}`;
-  }
-
-  override async getDataKey(key: string) {
-    return this.env.VIEW_CACHE_R2.get(key)
-      .then((d) => d?.text())
-      .then((d) => (d ? this.parseGzip(d) : '{}'));
-  }
-
-  override async putStorageKey(key: string, data: string) {
-    const gz = await this.encodeGzip(data);
-    await this.env.VIEW_CACHE_R2.put(key, gz);
   }
 
   async fetchDBView(network: Network, name: string) {
@@ -91,27 +79,30 @@ export class ViewsDO extends BaseDO<APIEnv> {
           this.fetchAllGraphViews(network),
           this.analytics
             .refresh(network)
-            .then(async () => {
-              console.log('Wrote analytics data for ', network);
-              this.putStorageKey(
-                `${this.serviceName}/${network}/analytics`,
-                this.analytics.serializeToJSON(network)
-              );
-              await this.logger.submitMetrics({
-                series: [
-                  {
-                    metric: 'registry.data.analytics',
-                    points: [
-                      {
-                        value: 1,
-                        timestamp: getNowSeconds(),
-                      },
-                    ],
-                    tags: [`network:${network}`],
-                    type: MetricType.Gauge,
-                  },
-                ],
-              });
+            .then(async (data) => {
+              if (data) {
+                console.log('Wrote analytics data for ', network);
+                this.putStorageKey(
+                  `${this.serviceName}/${network}/analytics`,
+                  data
+                );
+
+                await this.logger.submitMetrics({
+                  series: [
+                    {
+                      metric: 'registry.data.analytics',
+                      points: [
+                        {
+                          value: 1,
+                          timestamp: getNowSeconds(),
+                        },
+                      ],
+                      tags: [`network:${network}`],
+                      type: MetricType.Gauge,
+                    },
+                  ],
+                });
+              }
             })
             .catch((e) => {
               console.log('error', e);
