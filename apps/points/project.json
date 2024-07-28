@@ -31,7 +31,7 @@
       "options": {
         "commands": [
           {
-            "command": "wrangler deploy"
+            "command": "wrangler deploy --env prod"
           }
         ],
         "cwd": "apps/points"
