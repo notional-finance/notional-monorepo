@@ -10,6 +10,6 @@ cron:
   target: data-service
 - description: "Calculate Points"
   url: /calculatePoints
-  schedule: every day 00:05
+  schedule: every day 01:05
   timezone: Etc/UTC
   target: data-service

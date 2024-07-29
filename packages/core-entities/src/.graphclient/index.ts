@@ -9026,6 +9026,7 @@ export type AllAccountsQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
   startId?: InputMaybe<Scalars['ID']>;
   endId?: InputMaybe<Scalars['ID']>;
+  blockNumber?: InputMaybe<Scalars['Int']>;
 }>;
 
 
@@ -9328,11 +9329,12 @@ export const ActiveAccountsDocument = gql`
 }
     ` as unknown as DocumentNode<ActiveAccountsQuery, ActiveAccountsQueryVariables>;
 export const AllAccountsDocument = gql`
-    query AllAccounts($skip: Int, $startId: ID, $endId: ID) {
+    query AllAccounts($skip: Int, $startId: ID, $endId: ID, $blockNumber: Int) {
   accounts(
     first: 1000
     skip: $skip
     where: {id_gt: $startId, id_lt: $endId, systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve]}
+    block: {number: $blockNumber}
   ) {
     id
     systemAccountType

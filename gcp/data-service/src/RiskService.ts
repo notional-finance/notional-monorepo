@@ -13,6 +13,7 @@ import {
   SupportedNetworks,
   floorToMidnight,
   getNowSeconds,
+  getProviderFromNetwork,
   groupArrayByKey,
 } from '@notional-finance/util';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -170,7 +171,10 @@ function getVaultRiskFactors(account: AccountDefinition) {
   );
 }
 
-export async function calculatePointsAccrued(network: Network) {
+export async function calculatePointsAccrued(
+  network: Network,
+  blockNumber?: number
+) {
   const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
   Registry.initialize(
     { NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY },
@@ -180,9 +184,19 @@ export async function calculatePointsAccrued(network: Network) {
     true,
     false
   );
+  console.log('calculatePointsAccrued: Setting subgraph API key');
   Registry.getAccountRegistry().setSubgraphAPIKey = SUBGRAPH_API_KEY;
+  console.log('calculatePointsAccrued: Triggering registry refresh');
   await Registry.triggerRefresh(network);
-
+  console.log('calculatePointsAccrued: Getting block time');
+  const blockTime = blockNumber
+    ? (await getProviderFromNetwork(network).getBlock(blockNumber)).timestamp
+    : getNowSeconds();
+  console.log(`calculatePointsAccrued: Block time: ${blockTime}`);
+  if (blockNumber) {
+    await Registry.getAccountRegistry().triggerRefreshPromise(network, blockNumber);
+  }
+  console.log('calculatePointsAccrued: Getting all accounts');
   const allAccounts = Registry.getAccountRegistry()
     .getAllSubjectKeys(network)
     .map((a) => Registry.getAccountRegistry().getLatestFromSubject(network, a))
@@ -195,7 +209,7 @@ export async function calculatePointsAccrued(network: Network) {
             .every((b) => b.isZero()))
       );
     }) as AccountDefinition[];
-  const date = floorToMidnight(getNowSeconds());
+  const date = floorToMidnight(blockTime);
 
   return allAccounts.flatMap((a: AccountDefinition) => {
     const portfolioPoints = groupArrayByKey(
