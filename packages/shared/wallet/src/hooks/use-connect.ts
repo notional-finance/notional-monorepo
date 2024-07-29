@@ -34,7 +34,6 @@ export const useConnect = () => {
   const selectedChain = onboardChainId
     ? getNetworkFromId(BigNumber.from(onboardChainId).toNumber())
     : undefined;
-
   const connectWallet = useCallback(
     (walletLabel?: string) => {
       // No change to wallets, nothing to do here.

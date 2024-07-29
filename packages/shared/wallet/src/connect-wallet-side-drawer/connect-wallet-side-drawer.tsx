@@ -4,7 +4,7 @@ import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { ViewAsAccount } from '../view-as-account/view-as-account';
-import { modules } from '../onboard-context';
+import { useWalletModules } from '../onboard-context';
 import { useConnect } from '../hooks/use-connect';
 import { useLocation } from 'react-router-dom';
 import {
@@ -18,6 +18,7 @@ export const ConnectWalletSideDrawer = () => {
   const network = useWalletConnectedNetwork();
   const connected = useAccountReady(network);
   const { clearWalletSideDrawer } = useSideDrawerManager();
+  const modules = useWalletModules();
 
   const handleConnect = useCallback(
     (label: string) => {

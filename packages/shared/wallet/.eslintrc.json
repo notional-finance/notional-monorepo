@@ -4,7 +4,17 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {}
+      "rules": {
+        "@typescript-eslint/ban-ts-comment": [
+          "error",
+          {
+            "ts-ignore": "allow-with-description",
+            "ts-nocheck": true,
+            "ts-check": false,
+            "minimumDescriptionLength": 10
+          }
+        ]
+      }
     },
     {
       "files": ["*.ts", "*.tsx"],
