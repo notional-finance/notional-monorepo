@@ -1,17 +1,14 @@
 import { init } from '@web3-onboard/react';
 import { OnboardAPI } from '@web3-onboard/core';
 import injectedModule from '@web3-onboard/injected-wallets';
+import {
+  EIP6963AnnounceProviderEvent,
+  EIP6963ProviderDetail,
+} from '@web3-onboard/injected-wallets/dist/types';
 import walletConnectModule from '@web3-onboard/walletconnect';
-import gnosisModule from '@web3-onboard/gnosis';
-// import ledgerModule from '@web3-onboard/ledger';
 import trezorModule from '@web3-onboard/trezor';
-import coinbaseModule from '@web3-onboard/coinbase';
-import MetaMask from './images/meta-mask.svg';
 import WalletConnect from './images/wallet-connect.svg';
-// import Ledger from './images/ledger.svg';
 import Trezor from './images/trezor.svg';
-import Rabby from './images/rabby.svg';
-import CoinbaseWallet from './images/coinbase-wallet.svg';
 import {
   getProviderURLFromNetwork,
   Network,
@@ -33,32 +30,48 @@ export const chains = [
   },
 ];
 
-export const modules = [
-  {
-    label: 'MetaMask',
-    icon: MetaMask,
-  },
-  {
-    label: 'Rabby Wallet',
-    icon: Rabby,
-  },
-  {
-    label: 'WalletConnect',
-    icon: WalletConnect,
-  },
-  // {
-  //   label: 'Ledger',
-  //   icon: Ledger,
-  // },
-  {
-    label: 'Trezor',
-    icon: Trezor,
-  },
-  {
-    label: 'Coinbase Wallet',
-    icon: CoinbaseWallet,
-  },
-];
+const providers: EIP6963ProviderDetail[] | any[] = [];
+// @ts-ignore: this is needed to get over a window type conflict with EIP6963AnnounceProviderEvent
+window.addEventListener(
+  'eip6963:announceProvider',
+  (event: EIP6963AnnounceProviderEvent) => {
+    providers.push(event.detail);
+  }
+);
+window.dispatchEvent(new Event('eip6963:requestProvider'));
+interface ResultInterface {
+  label: string;
+  icon: string;
+}
+
+export const useWalletModules = () => {
+  const modules = [
+    {
+      label: 'WalletConnect',
+      icon: WalletConnect,
+    },
+    {
+      label: 'Trezor',
+      icon: Trezor,
+    },
+  ];
+  const checkProvider = new Map<string, boolean>();
+  const injectedWallets: ResultInterface[] = [];
+
+  providers.forEach(({ info }) => {
+    if (checkProvider.has(info.name)) return info;
+    checkProvider.set(info.name, true);
+    injectedWallets.push({
+      label: info.name,
+      icon: info.icon,
+    });
+    return info;
+  });
+
+  return injectedWallets.length > 0
+    ? [...injectedWallets, ...modules]
+    : modules;
+};
 
 const email = process.env['NX_CONTACT_EMAIL'] as string;
 const appUrl = process.env['NX_APP_URL'] as string;
@@ -72,13 +85,10 @@ const wcV2InitOptions = {
 const wallets = [
   injectedModule(),
   walletConnectModule(wcV2InitOptions),
-  gnosisModule(),
-  // ledgerModule(),
   trezorModule({
     email,
     appUrl,
   }),
-  coinbaseModule(),
 ];
 
 export const OnboardContext: OnboardAPI = init({
