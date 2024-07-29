@@ -363,7 +363,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       '0xffffffffffffffffffffffffffffffffffffffff',
     ];
 
-    const latestBlock = await this.walletProvider.getBlock('latest');
+    const latestBlock = await getProviderFromNetwork(network).getBlock('latest');
     const accountData: AccountDefinition[] = [];
     for (let i = 0; i < idRanges.length - 1; i++) {
       const results = await fetchGraphPaginate(

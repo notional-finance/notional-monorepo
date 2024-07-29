@@ -184,12 +184,19 @@ export async function calculatePointsAccrued(
     true,
     false
   );
+  console.log('calculatePointsAccrued: Setting subgraph API key');
   Registry.getAccountRegistry().setSubgraphAPIKey = SUBGRAPH_API_KEY;
-  await Registry.triggerRefresh(network, blockNumber);
+  console.log('calculatePointsAccrued: Triggering registry refresh');
+  await Registry.triggerRefresh(network);
+  console.log('calculatePointsAccrued: Getting block time');
   const blockTime = blockNumber
     ? (await getProviderFromNetwork(network).getBlock(blockNumber)).timestamp
     : getNowSeconds();
-
+  console.log(`calculatePointsAccrued: Block time: ${blockTime}`);
+  if (blockNumber) {
+    await Registry.getAccountRegistry().triggerRefreshPromise(network, blockNumber);
+  }
+  console.log('calculatePointsAccrued: Getting all accounts');
   const allAccounts = Registry.getAccountRegistry()
     .getAllSubjectKeys(network)
     .map((a) => Registry.getAccountRegistry().getLatestFromSubject(network, a))
