@@ -161,7 +161,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
   }
 
   protected override async _refresh(
-    network: Network
+    network: Network,
+    blockNumber?: number
   ): Promise<CacheSchema<AccountDefinition>> {
     if (this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT) {
       return this._fetchSingleAccount(
@@ -170,7 +171,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         getProviderFromNetwork(network)
       );
     } else if (this.fetchMode === AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER) {
-      return this._fetchBatchAccounts(network);
+      return this._fetchBatchAccounts(network, blockNumber);
     }
 
     throw Error('Unknown fetch mode');
@@ -337,7 +338,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     );
   }
 
-  private async _fetchBatchAccounts(network: Network) {
+  private async _fetchBatchAccounts(network: Network, blockNumber?: number) {
     const { AllAccountsDocument } = await loadGraphClientDeferred();
     // This kludge is necessary because the subgraph only allows a skip value of
     // less than 5000, so we query the entire account range by the prefix here with
@@ -362,6 +363,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       '0xffffffffffffffffffffffffffffffffffffffff',
     ];
 
+    const latestBlock = await this.walletProvider.getBlock('latest');
     const accountData: AccountDefinition[] = [];
     for (let i = 0; i < idRanges.length - 1; i++) {
       const results = await fetchGraphPaginate(
@@ -373,6 +375,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           skip: 0,
           startId: idRanges[i],
           endId: idRanges[i + 1],
+          blockNumber: blockNumber || latestBlock.number,
         }
       );
 
