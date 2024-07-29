@@ -85,7 +85,7 @@ export const config = {
   [PRODUCTS.LEND_VARIABLE]: {
     containerData: {
       heading: defineMessage({
-        defaultMessage: 'Variable Rate Lending',
+        defaultMessage: 'Lending',
         description: 'page heading',
       }),
       subtitle: defineMessage({
@@ -93,7 +93,7 @@ export const config = {
         description: 'page subtitle',
       }),
       linkText: defineMessage({
-        defaultMessage: 'Read variable lend docs',
+        defaultMessage: 'Read lending docs',
         description: 'docs link',
       }),
       docsLink:
@@ -121,7 +121,7 @@ export const config = {
   [PRODUCTS.BORROW_VARIABLE]: {
     containerData: {
       heading: defineMessage({
-        defaultMessage: 'Variable Rate Borrowing',
+        defaultMessage: 'Borrowing',
         description: 'page heading',
       }),
       subtitle: defineMessage({
@@ -129,7 +129,7 @@ export const config = {
         description: 'page heading subtitle',
       }),
       linkText: defineMessage({
-        defaultMessage: 'Read variable borrow docs',
+        defaultMessage: 'Read borrowing docs',
         description: 'docs link',
       }),
       docsLink:

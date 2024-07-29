@@ -46,7 +46,7 @@ export const BorrowVariableTradeSummary = () => {
               <AreaChart
                 title={'APY'}
                 showCartesianGrid
-                areaDataKey='totalAPY'
+                areaDataKey="totalAPY"
                 xAxisTickFormat="date"
                 areaChartData={apyData}
                 areaLineType="linear"
@@ -113,7 +113,7 @@ export const BorrowVariableTradeSummary = () => {
         />
       )}
       <FaqHeader
-        title={<FormattedMessage defaultMessage={'Variable Borrow FAQ'} />}
+        title={<FormattedMessage defaultMessage={'Borrowing FAQ'} />}
         links={faqHeaderLinks}
       />
 
