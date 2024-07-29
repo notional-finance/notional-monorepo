@@ -6,4 +6,5 @@ export * from './table-action-row/vault-action-row';
 export * from './portfolio-mobile-nav/portfolio-mobile-nav';
 export * from './claim-note-button/claim-note-button';
 export * from './deprecation-message/deprecation-message';
+export * from './borrow-migration/borrow-migration';
 
