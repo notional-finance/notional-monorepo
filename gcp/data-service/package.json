@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "./build.sh",
+    "build": "tsc -b tsconfig.build.json",
     "start": "node lib/index.js",
     "docker-build": "docker build . -t data-service",
     "docker-run": "docker run --env-file .env -p 8080:8080 data-service"
