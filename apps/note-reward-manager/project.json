@@ -37,7 +37,7 @@
       "options": {
         "commands": [
           {
-            "command": "wrangler deploy"
+            "command": "wrangler deploy --env dev"
           }
         ],
         "cwd": "apps/note-reward-manager"
