@@ -10,12 +10,12 @@ import {
   TradeData,
   TradeType,
 } from './types';
-import { getNowSeconds } from '@notional-finance/util';
+import { Network, NetworkId, getNowSeconds, zeroExUrl } from '@notional-finance/util';
 import { FlashLiquidator__factory } from '@notional-finance/contracts';
 
 export type ProfitCalculatorSettings = {
+  network: Network,
   liquidatorContract: Contract;
-  zeroExUrl: string;
   zeroExApiKey: string;
   overrides: CurrencyOverride[];
   liquidatorOwner: string;
@@ -33,11 +33,11 @@ export default class ProfitCalculator {
   ) {}
 
   private async getZeroExData(
-    zeroExUrl: string,
     from: string,
     to: string,
     amount: BigNumber,
-    exactIn: boolean
+    exactIn: boolean,
+    taker: string,
   ): Promise<any> {
     if (!from || !to) {
       throw Error('Invalid from/to');
@@ -46,6 +46,8 @@ export default class ProfitCalculator {
     const queryParams = new URLSearchParams({
       sellToken: from,
       buyToken: to,
+      taker,
+      chainId: String(NetworkId[this.settings.network])
     });
 
     if (exactIn) {
@@ -73,7 +75,8 @@ export default class ProfitCalculator {
   }
 
   public async getFlashLiquidation(
-    accountLiq: AccountLiquidation
+    accountLiq: AccountLiquidation,
+    taker: string,
   ): Promise<FlashLiquidation> {
     const hasCollateral =
       accountLiq.liquidation.getLiquidationType() ===
@@ -104,11 +107,11 @@ export default class ProfitCalculator {
     ) {
       // Sell flash borrowed asset for local currency
       const zeroExResp = await this.getZeroExData(
-        this.settings.zeroExUrl,
         flashBorrowAsset,
         accountLiq.liquidation.getLocalUnderlyingAddress(),
         accountLiq.flashLoanAmount,
-        true
+        true,
+        taker,
       );
 
       preLiquidationTrade = {
@@ -132,11 +135,11 @@ export default class ProfitCalculator {
     let collateralTrade: TradeData = null;
     if (hasCollateral) {
       const zeroExResp = await this.getZeroExData(
-        this.settings.zeroExUrl,
         accountLiq.liquidation.getCollateralUnderlyingAddress(),
         flashBorrowAsset,
         accountLiq.flashLoanAmount,
-        false
+        false,
+        taker,
       );
 
       collateralTrade = {
@@ -165,7 +168,7 @@ export default class ProfitCalculator {
     };
   }
 
-  public async getTotalProfit(flashLiq: FlashLiquidation): Promise<BigNumber> {
+  public async getTotalProfit(flashLiq: FlashLiquidation, taker: string): Promise<BigNumber> {
     const liquidator = FlashLiquidator__factory.connect(
       this.settings.liquidatorContract.address,
       this.settings.liquidatorContract.provider
@@ -225,11 +228,11 @@ export default class ProfitCalculator {
         BigNumber.from(
           (
             await this.getZeroExData(
-              this.settings.zeroExUrl,
               flashLiq.accountLiq.liquidation.getCollateralUnderlyingAddress(),
               flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
               collateralProfit,
-              true
+              true,
+              taker,
             )
           ).buyAmount
         )
@@ -242,11 +245,11 @@ export default class ProfitCalculator {
     ) {
       if (flashAssetProfit.gt(0)) {
         const estimation = await this.getZeroExData(
-          this.settings.zeroExUrl,
           flashLiq.flashBorrowAsset,
           flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
           flashAssetProfit,
-          true
+          true,
+          taker,
         );
         // FX profit denominated to flash loan currency to local currency
         totalProfit = totalProfit.add(BigNumber.from(estimation.buyAmount));
@@ -257,7 +260,8 @@ export default class ProfitCalculator {
   }
 
   public async sortByProfitability(
-    liquidations: AccountLiquidation[]
+    liquidations: AccountLiquidation[],
+    taker: string,
   ): Promise<FlashLiquidation[]> {
     const profits = [];
 
@@ -265,8 +269,8 @@ export default class ProfitCalculator {
       try {
         const liq = liquidations[i];
 
-        const flashLiq = await this.getFlashLiquidation(liq);
-        const totalProfit = await this.getTotalProfit(flashLiq);
+        const flashLiq = await this.getFlashLiquidation(liq, taker);
+        const totalProfit = await this.getTotalProfit(flashLiq, taker);
 
         if (totalProfit.isZero()) {
           continue;

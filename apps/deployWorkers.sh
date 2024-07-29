@@ -1,12 +1,7 @@
 #!/bin/bash
 set -e
 
-yarn nx affected -t publish-wrangler --base=v3/prod~1 --head=main
-
-# yarn nx publish-wrangler-manual accounts --env dev
-# yarn nx publish-wrangler-manual api --env dev
-# # NOTE: currently disabled because this causes issues
-# # yarn nx publish-wrangler-manual data --env dev
+yarn nx affected --target publish-wrangler --base=v3/prod~1 --head=main
 
 # # Registry
 # yarn nx publish-wrangler-manual registry-configuration --env dev

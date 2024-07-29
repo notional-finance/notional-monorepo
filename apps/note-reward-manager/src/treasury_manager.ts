@@ -89,6 +89,7 @@ export default class TreasuryManager {
             sellToken: this.WETH,
             buyToken: this.NOTE,
             sellAmount: wethForBurn,
+            taker: this.proxy.address,
             env: this.env
           });
 
@@ -129,6 +130,7 @@ export default class TreasuryManager {
             sellToken: this.COMP,
             buyToken: this.WETH,
             sellAmount,
+            taker: this.proxy.address,
             env: this.env
           });
           console.log(`
