@@ -20,9 +20,7 @@ export const useCardSubNav = () => {
           key: 'borrow-fixed',
         },
         {
-          title: (
-            <FormattedMessage defaultMessage={'Variable Rate Borrowing'} />
-          ),
+          title: <FormattedMessage defaultMessage={'Borrowing'} />,
           to: `/borrow-variable/${selectedNetwork}`,
           key: 'borrow-variable',
         },
@@ -34,7 +32,7 @@ export const useCardSubNav = () => {
           key: 'lend-fixed',
         },
         {
-          title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
+          title: <FormattedMessage defaultMessage={'Lending'} />,
           to: `/lend-variable/${selectedNetwork}`,
           key: 'lend-variable',
         },

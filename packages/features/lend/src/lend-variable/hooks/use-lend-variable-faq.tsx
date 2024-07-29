@@ -27,9 +27,7 @@ export const useLendVariableFaq = (
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/variable-rate-lending',
-      text: (
-        <FormattedMessage defaultMessage={'Variable Lending Documentation'} />
-      ),
+      text: <FormattedMessage defaultMessage={'Lending Documentation'} />,
     },
     {
       href:

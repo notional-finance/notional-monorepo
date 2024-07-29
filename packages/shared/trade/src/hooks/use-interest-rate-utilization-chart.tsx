@@ -41,12 +41,12 @@ export const useInterestRateUtilizationChart = (
     textHeader:
       actionType === 'borrow' ? (
         <FormattedMessage
-          defaultMessage={'{symbol} Variable Borrow Rate | Utilization'}
+          defaultMessage={'{symbol} Borrow Rate | Utilization'}
           values={{ symbol: deposit?.symbol }}
         />
       ) : (
         <FormattedMessage
-          defaultMessage={'{symbol} Variable Lending Rate | Utilization'}
+          defaultMessage={'{symbol} Lending Rate | Utilization'}
           values={{ symbol: deposit?.symbol }}
         />
       ),

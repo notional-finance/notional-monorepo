@@ -40,7 +40,7 @@ export const TransactionHeadings: Record<
     headerText: { defaultMessage: 'Lend {token}' },
   }),
   LendVariable: defineMessages({
-    heading: { defaultMessage: 'Variable Lending' },
+    heading: { defaultMessage: 'Lending' },
     helptext: {
       defaultMessage:
         'Earn passive income with market-leading variable interest rates and full redeemability. Withdraw your cash whenever you need it.',
@@ -63,7 +63,7 @@ export const TransactionHeadings: Record<
     headerText: { defaultMessage: 'Borrow {token}' },
   }),
   BorrowVariable: defineMessages({
-    heading: { defaultMessage: 'Borrow Variable' },
+    heading: { defaultMessage: 'Borrowing' },
     helptext: {
       defaultMessage:
         'Borrow against your crypto with full flexibility. Leave your loan open or pay it back whenever you want with no penalty.',

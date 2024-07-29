@@ -52,7 +52,7 @@ export const LendVariableTradeSummary = () => {
               <AreaChart
                 title="APY"
                 showCartesianGrid
-                areaDataKey='totalAPY'
+                areaDataKey="totalAPY"
                 xAxisTickFormat="date"
                 areaChartData={apyData}
                 areaLineType="linear"
@@ -122,7 +122,7 @@ export const LendVariableTradeSummary = () => {
         />
       )}
       <FaqHeader
-        title={<FormattedMessage defaultMessage={'Variable Lend FAQ'} />}
+        title={<FormattedMessage defaultMessage={'Lending FAQ'} />}
         links={faqHeaderLinks}
       />
       {faqs.map(
