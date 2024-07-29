@@ -28,6 +28,7 @@ import {
   getFlashLender,
   getNowSeconds,
   sendTxThroughRelayer,
+  zeroExUrl,
 } from '@notional-finance/util';
 import Liquidation from './liquidation';
 
@@ -214,13 +215,12 @@ export default class NotionalV3Liquidator {
   }
 
   private async getZeroExData(
-    zeroExUrl: string,
     from: string,
     to: string,
     amount: BigNumber,
     exactIn: boolean,
     excludedSources: string | undefined
-  ): Promise<any> {
+  ): Promise<{ buyAmount: string; sellAmount: string; data: string }> {
     if (!from || !to) {
       throw Error('Invalid from/to');
     }
@@ -228,6 +228,7 @@ export default class NotionalV3Liquidator {
     const queryParams = new URLSearchParams({
       sellToken: from,
       buyToken: to,
+      taker: this.settings.flashLiquidatorAddress,
     });
 
     // Set excluded sources in some cases to avoid re-entrancy issues inside the flash loan
@@ -254,9 +255,11 @@ export default class NotionalV3Liquidator {
       throw Error(`Bad 0x response:  ${await resp.text()}`);
     }
 
-    const data = await resp.json();
-
-    return data;
+    return await resp.json<{
+      buyAmount: string;
+      sellAmount: string;
+      data: string;
+    }>();
   }
 
   private async convertFlashBorrowAmount(
@@ -321,7 +324,6 @@ export default class NotionalV3Liquidator {
     if (flashBorrowAsset !== l.liquidation.getLocalUnderlyingAddress()) {
       // Sell flash borrowed asset for local currency
       const zeroExResp = await this.getZeroExData(
-        this.settings.zeroExUrl,
         flashBorrowAsset,
         l.liquidation.getLocalUnderlyingAddress(),
         l.flashLoanAmount,
@@ -355,7 +357,6 @@ export default class NotionalV3Liquidator {
         flashBorrowAsset.toLowerCase()
     ) {
       const zeroExResp = await this.getZeroExData(
-        this.settings.zeroExUrl,
         l.liquidation.getCollateralUnderlyingAddress(),
         flashBorrowAsset,
         l.flashLoanAmount,
