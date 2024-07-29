@@ -9,6 +9,7 @@ import {
   PortfolioMobileNav,
   ClaimNoteButton,
   DeprecationMessage,
+  BorrowMigration,
 } from './components';
 import {
   PortfolioLends,
@@ -35,7 +36,16 @@ export const PortfolioFeatureShell = () => {
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
   const buttonData = usePortfolioButtonBar();
-  const { accountConnected } = useAccount();
+  const { accountConnected, account } = useAccount();
+
+  const remainingBorrowers = {
+    '0x22426773981251028a08fdb17e799fa2f55c203a':
+      '0xcc57354e7e6a13d519dec111a781823f9aa058c6',
+    '0x37a5183592de2f96639c2954a29e60d6062b44a1':
+      '0x9ca55348524a85148b17e053e16e6e2f2d8b7d29',
+    '0x4dc99e6867c60c002c04c1c9ad2d75fff928bfd5':
+      '0x5699cae66db88b06cd73b26f00b918e0691b64c2',
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -79,6 +89,14 @@ export const PortfolioFeatureShell = () => {
             )}
           {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
             params.category === undefined) && <DeprecationMessage />}
+          {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+            params.category === undefined) &&
+            account?.address &&
+            remainingBorrowers[account?.address] && (
+              <BorrowMigration
+                safeAddress={remainingBorrowers[account?.address]}
+              />
+            )}
           {params.category === PORTFOLIO_CATEGORIES.LENDS && <PortfolioLends />}
           {params.category === PORTFOLIO_CATEGORIES.BORROWS && (
             <PortfolioBorrows />
