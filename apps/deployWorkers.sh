@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-yarn nx affected --target publish-wrangler --base=v3/prod~1 --head=main
+yarn nx affected --target publish-wrangler --base=v3/prod~1 --head=v3/prod
 
 # # Registry
 # yarn nx publish-wrangler-manual registry-configuration --env dev
