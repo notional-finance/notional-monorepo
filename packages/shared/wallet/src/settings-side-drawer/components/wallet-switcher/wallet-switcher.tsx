@@ -5,7 +5,7 @@ import { EyeIcon } from '@notional-finance/icons';
 import { useConnect } from '../../../hooks/use-connect';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { ViewAsAccount } from '../../../view-as-account/view-as-account';
-import { modules } from '../../../onboard-context';
+import { useWalletModules } from '../../../onboard-context';
 import { FormattedMessage } from 'react-intl';
 import {
   useTruncatedAddress,
@@ -54,6 +54,7 @@ export const WalletSwitcher = () => {
   const { currentLabel, connectWallet } = useConnect();
   const { clearWalletSideDrawer } = useSideDrawerManager();
   const connected = useWalletConnected();
+  const modules = useWalletModules();
   const handleConnect = useCallback(
     (label: string) => {
       connectWallet(label);

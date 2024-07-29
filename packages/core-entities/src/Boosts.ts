@@ -73,9 +73,12 @@ export function getPointsAPY(
     Registry.getTokenRegistry().getTokenBySymbol(Network.arbitrum, 'ARB')
   );
 
-  const daysIntoSeason = Math.floor(
-    (floorToMidnight(getNowSeconds()) - seasonStart.getTime() / 1000) /
-      SECONDS_IN_DAY
+  const daysIntoSeason = Math.max(
+    Math.ceil(
+      (floorToMidnight(getNowSeconds()) - seasonStart.getTime() / 1000) /
+        SECONDS_IN_DAY
+    ),
+    1
   );
   const daysLeftInSeason = Math.ceil(
     Math.max(seasonEnd.getTime() / 1000 - floorToMidnight(getNowSeconds()), 0) /

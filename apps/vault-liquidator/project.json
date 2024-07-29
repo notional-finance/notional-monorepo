@@ -31,7 +31,10 @@
       "options": {
         "commands": [
           {
-            "command": "wrangler deploy"
+            "command": "wrangler deploy --env mainnet"
+          },
+          {
+            "command": "wrangler deploy --env arbitrum"
           }
         ],
         "cwd": "apps/vault-liquidator"

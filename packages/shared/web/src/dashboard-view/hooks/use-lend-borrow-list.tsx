@@ -192,7 +192,9 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
         pointsBoost: {
           label: boostNum > 0 ? `${boostNum}x` : '-',
           caption:
-            pointsAPY > 0 ? `${formatNumberAsPercent(pointsAPY, 2)} APY` : '',
+            pointsAPY > 0 && pointsAPY !== Infinity
+              ? `${formatNumberAsPercent(pointsAPY, 2)} APY`
+              : '',
         },
         apy: y.totalAPY,
         liquidity: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,

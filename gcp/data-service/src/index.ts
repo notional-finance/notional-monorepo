@@ -347,10 +347,13 @@ async function main() {
     }
   });
 
-  app.get('/calculatePoints', async (_req, res) => {
+  app.get('/calculatePoints', async (req, res) => {
     try {
+      const blockNumber = req.query.blockNumber
+        ? parseInt(req.query.blockNumber as string)
+        : undefined;
       dataService.insertPointsData(
-        await calculatePointsAccrued(Network.arbitrum)
+        await calculatePointsAccrued(Network.arbitrum, blockNumber)
       );
       res.status(200).send('OK');
     } catch (e: any) {

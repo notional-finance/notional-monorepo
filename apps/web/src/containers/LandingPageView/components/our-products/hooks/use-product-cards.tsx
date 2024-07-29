@@ -29,7 +29,7 @@ export const useProductCards = () => {
       network: fCashLend?.token.network,
     },
     {
-      title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
+      title: <FormattedMessage defaultMessage={'Lending'} />,
       link: 'lend-variable',
       text: (
         <FormattedMessage

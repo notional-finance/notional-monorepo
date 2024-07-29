@@ -9,7 +9,11 @@ import {
   PointsIcon,
   VaultIcon,
 } from '@notional-finance/icons';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useAllVaults,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_STATE_ZERO_OPTIONS, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useTokenData } from './use-token-data';
@@ -22,9 +26,33 @@ export const useCardData = (
 ) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
+  const listedVaults = useAllVaults(selectedNetwork);
+  const {
+    yields: { leveragedVaults },
+    getMax,
+  } = useAllMarkets(selectedNetwork);
+
   const activeTokenData = allTokenData[activeToken]?.data
     ? allTokenData[activeToken].data
     : allTokenData[availableSymbols[0]].data;
+
+  const yieldFarmingTokens: string[] = [];
+  const pointsFarmingTokens: string[] = [];
+
+  listedVaults.map(({ vaultAddress }) => {
+    const y = getMax(
+      leveragedVaults.filter((y) => y.token.vaultAddress === vaultAddress)
+    );
+    if (
+      y?.pointMultiples &&
+      !pointsFarmingTokens.includes(y?.underlying?.symbol)
+    ) {
+      pointsFarmingTokens.push(y?.underlying?.symbol);
+    } else if (y && !yieldFarmingTokens.includes(y?.underlying?.symbol)) {
+      yieldFarmingTokens.push(y?.underlying?.symbol);
+    }
+    return { yieldFarmingTokens, pointsFarmingTokens };
+  });
 
   const leveragedLiquidityData = activeTokenData?.find(
     (data) => data.product === 'Leveraged Liquidity'
@@ -150,6 +178,7 @@ export const useCardData = (
       apy: leveragedYieldFarming?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As High As'} />,
       symbol: activeToken,
+      availableSymbols: yieldFarmingTokens,
       cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${leveragedYieldFarming?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${leveragedYieldFarming?.leveraged?.vaultDebt?.id}`,
       bottomValue: `Max Leverage: ${
         leveragedYieldFarming?.leveraged?.maxLeverageRatio
@@ -170,6 +199,7 @@ export const useCardData = (
       apy: leveragedPointsFarming?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As High as'} />,
       symbol: activeToken,
+      availableSymbols: pointsFarmingTokens,
       cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${leveragedPointsFarming?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${leveragedPointsFarming?.leveraged?.vaultDebt?.id}`,
       bottomValue: `Max Leverage: ${
         leveragedPointsFarming?.leveraged?.maxLeverageRatio

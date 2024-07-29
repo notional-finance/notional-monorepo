@@ -187,7 +187,7 @@ export const useMyBreakdownTable = () => {
         },
         totalPointsNum: totalPoints,
         pointsPerDayNum: pointsPerDay,
-        pointsAPY,
+        pointsAPY: pointsAPY === Infinity ? 0 : pointsAPY,
         boost: `${boostNum}x`,
         pointsPerDay: formatNumber(pointsPerDay),
         totalPoints: formatNumber(totalPoints),
