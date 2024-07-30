@@ -339,7 +339,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
   }
 
   private async _fetchBatchAccounts(network: Network, blockNumber?: number) {
-    const { AllAccountsDocument } = await loadGraphClientDeferred();
+    const { AllAccountsDocument, AllAccountsByBlockDocument } =
+      await loadGraphClientDeferred();
     // This kludge is necessary because the subgraph only allows a skip value of
     // less than 5000, so we query the entire account range by the prefix here with
     // a max number of accounts in each id range of 5000.
@@ -363,19 +364,18 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       '0xffffffffffffffffffffffffffffffffffffffff',
     ];
 
-    const latestBlock = await getProviderFromNetwork(network).getBlock('latest');
     const accountData: AccountDefinition[] = [];
     for (let i = 0; i < idRanges.length - 1; i++) {
       const results = await fetchGraphPaginate(
         network,
-        AllAccountsDocument,
+        blockNumber ? AllAccountsByBlockDocument : AllAccountsDocument,
         'accounts',
         this.subgraphApiKey,
         {
           skip: 0,
           startId: idRanges[i],
           endId: idRanges[i + 1],
-          blockNumber: blockNumber || latestBlock.number,
+          blockNumber,
         }
       );
 

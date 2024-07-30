@@ -22,6 +22,7 @@ export async function loadGraphClientDeferred() {
   const {
     execute,
     AllAccountsDocument,
+    AllAccountsByBlockDocument,
     AllTokensDocument,
     AllConfigurationDocument,
     AllOraclesDocument,
@@ -47,6 +48,7 @@ export async function loadGraphClientDeferred() {
   return {
     execute,
     AllAccountsDocument,
+    AllAccountsByBlockDocument,
     AllTokensDocument,
     AllConfigurationDocument,
     AllOraclesDocument,
