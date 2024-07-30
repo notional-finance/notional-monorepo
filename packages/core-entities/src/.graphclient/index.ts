@@ -8839,6 +8839,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AllAccountsDocument.graphql'
       },{
+        document: AllAccountsByBlockDocument,
+        get rawSDL() {
+          return printWithCache(AllAccountsByBlockDocument);
+        },
+        location: 'AllAccountsByBlockDocument.graphql'
+      },{
         document: AllConfigurationDocument,
         get rawSDL() {
           return printWithCache(AllConfigurationDocument);
@@ -9026,11 +9032,26 @@ export type AllAccountsQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
   startId?: InputMaybe<Scalars['ID']>;
   endId?: InputMaybe<Scalars['ID']>;
-  blockNumber?: InputMaybe<Scalars['Int']>;
 }>;
 
 
 export type AllAccountsQuery = { accounts: Array<(
+    Pick<Account, 'id' | 'systemAccountType'>
+    & { balances?: Maybe<Array<{ token: (
+        Pick<Token, 'id' | 'currencyId'>
+        & { underlying?: Maybe<Pick<Token, 'id'>> }
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance'> }>> }
+  )> };
+
+export type AllAccountsByBlockQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+  startId?: InputMaybe<Scalars['ID']>;
+  endId?: InputMaybe<Scalars['ID']>;
+  blockNumber?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type AllAccountsByBlockQuery = { accounts: Array<(
     Pick<Account, 'id' | 'systemAccountType'>
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id' | 'currencyId'>
@@ -9329,7 +9350,33 @@ export const ActiveAccountsDocument = gql`
 }
     ` as unknown as DocumentNode<ActiveAccountsQuery, ActiveAccountsQueryVariables>;
 export const AllAccountsDocument = gql`
-    query AllAccounts($skip: Int, $startId: ID, $endId: ID, $blockNumber: Int) {
+    query AllAccounts($skip: Int, $startId: ID, $endId: ID) {
+  accounts(
+    first: 1000
+    skip: $skip
+    where: {id_gt: $startId, id_lt: $endId, systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve]}
+  ) {
+    id
+    systemAccountType
+    balances {
+      token {
+        id
+        currencyId
+        underlying {
+          id
+        }
+      }
+      current {
+        timestamp
+        blockNumber
+        currentBalance
+      }
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllAccountsQuery, AllAccountsQueryVariables>;
+export const AllAccountsByBlockDocument = gql`
+    query AllAccountsByBlock($skip: Int, $startId: ID, $endId: ID, $blockNumber: Int) {
   accounts(
     first: 1000
     skip: $skip
@@ -9354,7 +9401,7 @@ export const AllAccountsDocument = gql`
     }
   }
 }
-    ` as unknown as DocumentNode<AllAccountsQuery, AllAccountsQueryVariables>;
+    ` as unknown as DocumentNode<AllAccountsByBlockQuery, AllAccountsByBlockQueryVariables>;
 export const AllConfigurationDocument = gql`
     query AllConfiguration {
   currencyConfigurations {
@@ -10002,6 +10049,7 @@ export const VaultReinvestmentDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
@@ -10019,6 +10067,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AllAccounts(variables?: AllAccountsQueryVariables, options?: C): Promise<AllAccountsQuery> {
       return requester<AllAccountsQuery, AllAccountsQueryVariables>(AllAccountsDocument, variables, options) as Promise<AllAccountsQuery>;
+    },
+    AllAccountsByBlock(variables?: AllAccountsByBlockQueryVariables, options?: C): Promise<AllAccountsByBlockQuery> {
+      return requester<AllAccountsByBlockQuery, AllAccountsByBlockQueryVariables>(AllAccountsByBlockDocument, variables, options) as Promise<AllAccountsByBlockQuery>;
     },
     AllConfiguration(variables?: AllConfigurationQueryVariables, options?: C): Promise<AllConfigurationQuery> {
       return requester<AllConfigurationQuery, AllConfigurationQueryVariables>(AllConfigurationDocument, variables, options) as Promise<AllConfigurationQuery>;
