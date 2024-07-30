@@ -3,6 +3,7 @@ import {
   AssetType,
   Network,
   PRIME_CASH_VAULT_MATURITY,
+  SECONDS_IN_DAY,
   SECONDS_IN_HOUR,
   SETTLEMENT_RESERVE,
   convertToSignedfCashId,
@@ -126,7 +127,9 @@ export class RegistryClientDO extends DurableObject {
           this.monitorRelayerBalances(network),
           this.checkSubgraphBlockNumber(network),
           this.checkRiskServiceUpdates(network),
+          this.checkVaultReinvestments(network),
         ]);
+
         if (network === Network.arbitrum) {
           // await this.checkDBMonitors(network);
           // await this.saveContestIRR(network, currentContestId);
@@ -943,5 +946,117 @@ export class RegistryClientDO extends DurableObject {
         },
       ],
     });
+  }
+
+  private async checkVaultReinvestments(network: Network) {
+    const reinvestments =
+      Registry.getAnalyticsRegistry().getVaultReinvestments(network);
+    const oneHourAgo = getNowSeconds() - SECONDS_IN_HOUR;
+    const config = Registry.getConfigurationRegistry();
+
+    for (const [vaultAddress, reinvestmentList] of Object.entries(
+      reinvestments
+    )) {
+      for (const reinvestment of reinvestmentList) {
+        if (reinvestment.timestamp < oneHourAgo) continue;
+        const vault = config.getVaultConfig(network, vaultAddress);
+        const rewardToken = Registry.getTokenRegistry().getTokenByID(
+          network,
+          reinvestment.rewardTokenSold.id
+        );
+        const borrowCurrency = Registry.getTokenRegistry().getTokenByID(
+          network,
+          vault.primaryBorrowCurrency.id
+        );
+
+        // Calculate the price that the reward token was sold for
+        const amountSold = TokenBalance.from(
+          reinvestment.rewardAmountSold,
+          rewardToken
+        );
+        const amountReceived = TokenBalance.from(
+          reinvestment.underlyingAmountRealized || 0,
+          borrowCurrency
+        );
+        const calculatedPrice = amountReceived.toFloat() / amountSold.toFloat();
+
+        // Fetch the price from DeFi Llama
+        const defiLlamaPrice = await this.fetchPriceFromDeFiLlama(
+          network,
+          rewardToken.id,
+          borrowCurrency.id,
+          reinvestment.timestamp
+        );
+
+        // Calculate the difference as a percentage
+        const priceDifference =
+          Math.abs((calculatedPrice - defiLlamaPrice) / defiLlamaPrice) * 100;
+
+        // Log metrics
+        await this.logger.submitMetrics({
+          series: [
+            {
+              metric: 'vault.reinvestment.calculated_price',
+              points: [{ value: calculatedPrice, timestamp: getNowSeconds() }],
+              tags: [
+                `network:${network}`,
+                `vault:${vaultAddress}`,
+                `reward_token:${rewardToken.symbol}`,
+              ],
+              type: MetricType.Gauge,
+            },
+            {
+              metric: 'vault.reinvestment.defi_llama_price',
+              points: [{ value: defiLlamaPrice, timestamp: getNowSeconds() }],
+              tags: [
+                `network:${network}`,
+                `vault:${vaultAddress}`,
+                `reward_token:${rewardToken.symbol}`,
+              ],
+              type: MetricType.Gauge,
+            },
+            {
+              metric: 'vault.reinvestment.price_difference_percentage',
+              points: [{ value: priceDifference, timestamp: getNowSeconds() }],
+              tags: [
+                `network:${network}`,
+                `vault:${vaultAddress}`,
+                `reward_token:${rewardToken.symbol}`,
+              ],
+              type: MetricType.Gauge,
+            },
+          ],
+        });
+      }
+    }
+  }
+
+  private async fetchPriceFromDeFiLlama(
+    network: Network,
+    baseToken: string,
+    quoteToken: string,
+    timestamp: number
+  ): Promise<number> {
+    const baseTokenId = `${
+      network === 'mainnet' ? 'ethereum' : network
+    }:${baseToken}`;
+    const quoteTokenId = `${
+      network === 'mainnet' ? 'ethereum' : network
+    }:${quoteToken}`;
+    const url = `https://coins.llama.fi/prices/historical/${timestamp}/${baseTokenId},${quoteTokenId}`;
+    const response = await fetch(url);
+    const data: {
+      coins: {
+        [key: string]: {
+          price: number;
+          timestamp: number;
+          confidence: number;
+        };
+      };
+    } = await response.json();
+    const basePrice = data.coins[baseTokenId].price;
+    const quotePrice = data.coins[quoteTokenId].price;
+
+    return basePrice / quotePrice;
   }
 }
