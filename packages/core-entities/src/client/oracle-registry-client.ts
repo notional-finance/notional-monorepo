@@ -479,7 +479,10 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   invertRate(rate: ExchangeRate) {
     return {
       ...rate,
-      rate: SCALAR_PRECISION.mul(SCALAR_PRECISION).div(rate.rate),
+      // Prevent divide by zero issues
+      rate: rate.rate.isZero()
+        ? SCALAR_PRECISION
+        : SCALAR_PRECISION.mul(SCALAR_PRECISION).div(rate.rate),
     };
   }
 
