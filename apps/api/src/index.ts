@@ -12,7 +12,6 @@ import {
   // handleAccounts,
   handleNOTEData,
   handleKPI,
-  handleRegistryData,
 } from './routes';
 
 const corsHeaders = {
@@ -56,11 +55,6 @@ router.get('/:network/views/:view', handleViews);
 // router.get('/:network/yields', handleYields);
 // router.get('/:network/accounts/:view', handleAccounts);
 router.get('/:network/note/:view', handleNOTEData);
-router.get('/:network/tokens', handleRegistryData);
-router.get('/:network/configuration', handleRegistryData);
-router.get('/:network/oracles', handleRegistryData);
-router.get('/:network/exchanges', handleRegistryData);
-router.get('/:network/vaults', handleRegistryData);
 router.get('/kpi', handleKPI);
 
 // Fall through catch for 404 errors
