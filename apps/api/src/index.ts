@@ -2,14 +2,9 @@ import { Request } from '@cloudflare/workers-types';
 import { Router, IRequest } from 'itty-router';
 import { APIEnv } from '@notional-finance/durable-objects';
 import {
-  handleConfigurations,
-  handleExchanges,
   handleGeoIP,
   handleNewsletter,
-  handleOracles,
-  handleTokens,
   handleYields,
-  handleVaults,
   handleViews,
   handleNFT,
   handleDataDogForward,
@@ -17,16 +12,8 @@ import {
   handleAccounts,
   handleNOTEData,
   handleKPI,
+  handleRegistryData,
 } from './routes';
-
-export {
-  TokenRegistryDO,
-  ConfigurationRegistryDO,
-  ExchangeRegistryDO,
-  OracleRegistryDO,
-  VaultRegistryDO,
-  ViewsDO,
-} from '@notional-finance/durable-objects';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -67,13 +54,13 @@ router.post('/plausible/*', handlePlausibleForward);
 router.post('/newsletter', handleNewsletter);
 router.get('/:network/views/:view', handleViews);
 router.get('/:network/yields', handleYields);
-router.get('/:network/tokens', handleTokens);
-router.get('/:network/configuration', handleConfigurations);
-router.get('/:network/oracles', handleOracles);
-router.get('/:network/exchanges', handleExchanges);
 router.get('/:network/accounts/:view', handleAccounts);
 router.get('/:network/note/:view', handleNOTEData);
-router.get('/:network/vaults', handleVaults);
+router.get('/:network/tokens', handleRegistryData);
+router.get('/:network/configuration', handleRegistryData);
+router.get('/:network/oracles', handleRegistryData);
+router.get('/:network/exchanges', handleRegistryData);
+router.get('/:network/vaults', handleRegistryData);
 router.get('/kpi', handleKPI);
 
 // Fall through catch for 404 errors

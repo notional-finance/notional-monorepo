@@ -6,7 +6,7 @@ import {
   Request as CFRequest,
 } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
-import { APIEnv } from '@notional-finance/durable-objects';
+import { APIEnv, getRegistryData } from '@notional-finance/durable-objects';
 
 function _handler(request: IRequest, ns: DurableObjectNamespace, name: string) {
   const stub = ns.get(ns.idFromName(name));
@@ -17,8 +17,10 @@ const handleYields = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
 };
 
-const handleTokens = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.TOKEN_REGISTRY_DO, env.VERSION);
+const handleRegistryData = (request: IRequest, env: APIEnv) => {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+  return getRegistryData(env, pathname);
 };
 
 const handleAccounts = (request: IRequest, env: APIEnv) => {
@@ -30,28 +32,12 @@ const handleNOTEData = (request: IRequest, env: APIEnv) => {
   return env.ACCOUNT_CACHE_R2.get(key);
 };
 
-const handleConfigurations = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.CONFIGURATION_REGISTRY_DO, env.VERSION);
-};
-
-const handleOracles = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.ORACLE_REGISTRY_DO, env.VERSION);
-};
-
-const handleExchanges = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.EXCHANGE_REGISTRY_DO, env.VERSION);
-};
-
-const handleVaults = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.VAULT_REGISTRY_DO, env.VERSION);
-};
-
 const handleViews = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.VIEWS_DO, env.VIEWS_NAME);
 };
 
 const handleKPI = (request: IRequest, env: APIEnv) => {
-  return env.ACCOUNT_CACHE_R2.get("kpi")
+  return env.ACCOUNT_CACHE_R2.get('kpi');
 };
 
 const handleDataDogForward = async (request: IRequest, _env: APIEnv) => {
@@ -87,16 +73,12 @@ export {
   handleGeoIP,
   handleNewsletter,
   handleYields,
-  handleTokens,
-  handleConfigurations,
-  handleOracles,
-  handleExchanges,
   handleAccounts,
-  handleVaults,
+  handleRegistryData,
   handleViews,
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
   handleNOTEData,
-  handleKPI
+  handleKPI,
 };
