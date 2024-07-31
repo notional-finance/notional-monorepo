@@ -1,4 +1,5 @@
 import { Network } from '@notional-finance/util';
+import { BaseDOEnv } from '.';
 
 type LoggerOptions = {
   service: string;
@@ -51,7 +52,8 @@ type DDEventKey =
   | 'TotalBorrowCapacityMismatch'
   | 'PrimeCashInvariant'
   | 'MonitoringCheckFailed'
-  | 'MonitoringCheckLagging';
+  | 'MonitoringCheckLagging'
+  | 'RegistryTimeout';
 
 type DDEventAlertType = 'error' | 'warning' | 'info';
 
@@ -150,4 +152,14 @@ export class Logger {
       console.error(e);
     }
   }
+}
+
+export function createLogger(env: BaseDOEnv, serviceName: string): Logger {
+  const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
+  return new Logger({
+    service: serviceName,
+    version: version,
+    env: env.NX_ENV,
+    apiKey: env.NX_DD_API_KEY,
+  });
 }
