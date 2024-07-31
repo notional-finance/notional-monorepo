@@ -26,7 +26,7 @@ async function parseGzip(data: string) {
         resolve(result.toString('utf-8'));
       });
     });
-    return JSON.parse(unzipped.toString() || '{}');
+    return unzipped.toString() || '{}';
   } catch (e) {
     console.log(e);
     return {};
@@ -64,7 +64,7 @@ export async function refreshRegistry<T>(
 
         // put the serialized data into the correct network storage key
         if (data) {
-          const key = `${serviceName}/${network}`;
+          const key = `${network}/${serviceName}`;
           await putStorageKey(env, key, data);
 
           console.log(`Completed Refresh on ${serviceName} for ${network}`);

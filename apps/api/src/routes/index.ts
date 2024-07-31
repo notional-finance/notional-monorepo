@@ -13,30 +13,29 @@ function _handler(request: IRequest, ns: DurableObjectNamespace, name: string) {
   return stub.fetch(request as unknown as CFRequest);
 }
 
-const handleYields = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
-};
-
 const handleRegistryData = (request: IRequest, env: APIEnv) => {
   const url = new URL(request.url);
-  const pathname = url.pathname;
-  return getRegistryData(env, pathname);
+  const pathname = url.pathname.slice(1);
+  console.log('pathname', pathname);
+  return getRegistryData(env, pathname).then((r) => new Response(r));
 };
 
-const handleAccounts = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
-};
+// const handleYields = (request: IRequest, env: APIEnv) => {
+//   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
+// };
+// const handleAccounts = (request: IRequest, env: APIEnv) => {
+//   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
+// };
+// const handleViews = (request: IRequest, env: APIEnv) => {
+//   return _handler(request, env.VIEWS_DO, env.VIEWS_NAME);
+// };
 
 const handleNOTEData = (request: IRequest, env: APIEnv) => {
   const key = new URL(request.url).pathname.slice(1);
   return env.ACCOUNT_CACHE_R2.get(key);
 };
 
-const handleViews = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.VIEWS_DO, env.VIEWS_NAME);
-};
-
-const handleKPI = (request: IRequest, env: APIEnv) => {
+const handleKPI = (_request: IRequest, env: APIEnv) => {
   return env.ACCOUNT_CACHE_R2.get('kpi');
 };
 
@@ -72,10 +71,10 @@ const handlePlausibleForward = async (request: IRequest, _env: APIEnv) => {
 export {
   handleGeoIP,
   handleNewsletter,
-  handleYields,
-  handleAccounts,
+  // handleYields,
+  // handleAccounts,
   handleRegistryData,
-  handleViews,
+  //handleViews,
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,

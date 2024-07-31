@@ -1,4 +1,4 @@
-import { DurableObjectNamespace, R2Bucket } from '@cloudflare/workers-types';
+import { R2Bucket } from '@cloudflare/workers-types';
 import { Network } from '@notional-finance/util';
 
 export { Logger, MetricType } from './logger';
@@ -13,8 +13,6 @@ export interface APIEnv extends BaseDOEnv {
   NX_DATA_URL: string;
   DATA_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
-  ACCOUNTS_REGISTRY_DO: DurableObjectNamespace;
-  VIEWS_DO: DurableObjectNamespace;
   VIEWS_NAME: string;
   VIEW_CACHE_R2: R2Bucket;
   ACCOUNT_CACHE_R2: R2Bucket;
