@@ -6,10 +6,6 @@ node_compat = true
 minify = true
 logpush = true
 
-[[migrations]]
-tag = "v1"
-new_classes = [ "ConfigurationRegistryDO" ]
-
 [env.dev]
 name = "registry-configuration-dev"
 
@@ -20,6 +16,10 @@ NX_ENV = 'dev'
 VERSION = 'v1'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]
 
+[env.dev.durable_objects]
+bindings = [
+  { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
+]
 
 # Experimental Prod Version Using R2
 
@@ -28,6 +28,9 @@ name = "registry-configuration-prod"
 r2_buckets = [
   { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev" },
 ]
+
+[env.prod.triggers]
+crons = ["* * * * *"]
 
 [env.prod.vars]
 NX_ENV = 'prod'
