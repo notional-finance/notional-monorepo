@@ -1,6 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@analytics/*": [
+        "apps/analytics/src/*"
+      ]
+    },
     "jsx": "preserve",
     "jsxImportSource": "@emotion/react",
     "allowJs": true,
@@ -12,14 +18,26 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "incremental": true,
-    "types": ["jest", "node"]
+    "types": [
+      "jest",
+      "node"
+    ],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.js",
     "src/**/*.jsx",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "jest.config.ts"]
+  "exclude": [
+    "node_modules",
+    "jest.config.ts"
+  ]
 }
