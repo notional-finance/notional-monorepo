@@ -1,42 +1,10 @@
 import { ServerRegistryConstructor } from '@notional-finance/core-entities';
 import { BaseDOEnv } from '.';
-import zlib from 'zlib';
 import { Network } from '@notional-finance/util';
 import { createLogger } from './logger';
 
 export async function putStorageKey(env: BaseDOEnv, key: string, data: string) {
-  const gz = await encodeGzip(data);
-  await env.VIEW_CACHE_R2.put(key, gz);
-}
-
-async function encodeGzip(data: string) {
-  return await new Promise<string>((resolve, reject) => {
-    zlib.gzip(Buffer.from(data, 'utf-8'), (err, result) => {
-      if (err) reject(err);
-      resolve(result.toString('base64'));
-    });
-  });
-}
-
-async function parseGzip(data: string) {
-  try {
-    const unzipped = await new Promise<string>((resolve, reject) => {
-      zlib.unzip(Buffer.from(data, 'base64'), (err, result) => {
-        if (err) reject(err);
-        resolve(result.toString('utf-8'));
-      });
-    });
-    return unzipped.toString() || '{}';
-  } catch (e) {
-    console.log(e);
-    return {};
-  }
-}
-
-export async function getRegistryData(env: BaseDOEnv, key: string) {
-  return env.VIEW_CACHE_R2.get(key)
-    .then((d) => d?.text())
-    .then((d) => (d ? parseGzip(d) : '{}'));
+  await env.VIEW_CACHE_R2.put(key, data);
 }
 
 export async function refreshRegistry<T>(

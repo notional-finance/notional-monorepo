@@ -63,7 +63,7 @@ async function fetchAllGraphViews(
   ]);
 }
 
-export function getAnalyticsStorageKey(url: URL): string {
+export function getViewStorageKey(url: URL): string {
   const network = url.pathname.split('/')[1];
   if (!network) throw Error('Network Not Found');
   const view = url.pathname.split('/')[3];
