@@ -10,11 +10,16 @@ import {
   TradeData,
   TradeType,
 } from './types';
-import { Network, NetworkId, getNowSeconds, zeroExUrl } from '@notional-finance/util';
+import {
+  Network,
+  NetworkId,
+  getNowSeconds,
+  zeroExUrl,
+} from '@notional-finance/util';
 import { FlashLiquidator__factory } from '@notional-finance/contracts';
 
 export type ProfitCalculatorSettings = {
-  network: Network,
+  network: Network;
   liquidatorContract: Contract;
   zeroExApiKey: string;
   overrides: CurrencyOverride[];
@@ -36,9 +41,56 @@ export default class ProfitCalculator {
     from: string,
     to: string,
     amount: BigNumber,
-    exactIn: boolean,
-    taker: string,
-  ): Promise<any> {
+    taker: string
+  ): Promise<{
+    blockNumber: string;
+    buyAmount: string;
+    buyToken: string;
+    fees: {
+      integratorFee: null;
+      zeroExFee: {
+        amount: string;
+        token: string;
+        type: string;
+      };
+      gasFee: null;
+    };
+    issues: {
+      allowance: null;
+      balance: {
+        token: string;
+        actual: string;
+        expected: string;
+      };
+      simulationIncomplete: boolean;
+      invalidSourcesPassed: any[];
+    };
+    liquidityAvailable: boolean;
+    minBuyAmount: string;
+    route: {
+      fills: Array<{
+        from: string;
+        to: string;
+        source: string;
+        proportionBps: string;
+      }>;
+      tokens: Array<{
+        address: string;
+        symbol: string;
+      }>;
+    };
+    sellAmount: string;
+    sellToken: string;
+    totalNetworkFee: string;
+    transaction: {
+      to: string;
+      data: string;
+      gas: string;
+      gasPrice: string;
+      value: string;
+    };
+    zid: string;
+  }> {
     if (!from || !to) {
       throw Error('Invalid from/to');
     }
@@ -47,16 +99,14 @@ export default class ProfitCalculator {
       sellToken: from,
       buyToken: to,
       taker,
-      chainId: String(NetworkId[this.settings.network])
+      chainId: String(NetworkId[this.settings.network]),
     });
 
-    if (exactIn) {
-      queryParams.set('sellAmount', amount.toString());
-    } else {
-      queryParams.set('buyAmount', amount.toString());
-    }
+    console.log('SELL AMOUNT', amount.toString());
+    queryParams.set('sellAmount', amount.toString());
 
     const fetchUrl = zeroExUrl + '?' + queryParams;
+    console.log('FETCH URL', fetchUrl);
     const resp = await fetch(fetchUrl, {
       headers: {
         '0x-api-key': this.settings.zeroExApiKey,
@@ -69,14 +119,12 @@ export default class ProfitCalculator {
       throw Error(`Bad 0x response:  ${await resp.text()}`);
     }
 
-    const data = await resp.json();
-
-    return data;
+    return await resp.json();
   }
 
   public async getFlashLiquidation(
     accountLiq: AccountLiquidation,
-    taker: string,
+    taker: string
   ): Promise<FlashLiquidation> {
     const hasCollateral =
       accountLiq.liquidation.getLiquidationType() ===
@@ -110,8 +158,7 @@ export default class ProfitCalculator {
         flashBorrowAsset,
         accountLiq.liquidation.getLocalUnderlyingAddress(),
         accountLiq.flashLoanAmount,
-        true,
-        taker,
+        taker
       );
 
       preLiquidationTrade = {
@@ -124,7 +171,7 @@ export default class ProfitCalculator {
             .mul(this.settings.exactInSlippageLimit)
             .div(1000),
           deadline: BigNumber.from(getNowSeconds()),
-          exchangeData: zeroExResp.data,
+          exchangeData: zeroExResp.transaction.data,
         },
         dexId: DexId.ZERO_EX,
         useDynamicSlippage: false,
@@ -133,13 +180,12 @@ export default class ProfitCalculator {
     }
 
     let collateralTrade: TradeData = null;
-    if (hasCollateral) {
+    if (hasCollateral && accountLiq.collateralReceivedAmount) {
       const zeroExResp = await this.getZeroExData(
         accountLiq.liquidation.getCollateralUnderlyingAddress(),
         flashBorrowAsset,
-        accountLiq.flashLoanAmount,
-        false,
-        taker,
+        accountLiq.collateralReceivedAmount,
+        taker
       );
 
       collateralTrade = {
@@ -152,7 +198,7 @@ export default class ProfitCalculator {
             .mul(this.settings.exactOutSlippageLimit)
             .div(1000),
           deadline: BigNumber.from(getNowSeconds()),
-          exchangeData: zeroExResp.data,
+          exchangeData: zeroExResp.transaction.data,
         },
         dexId: DexId.ZERO_EX,
         useDynamicSlippage: false,
@@ -168,7 +214,10 @@ export default class ProfitCalculator {
     };
   }
 
-  public async getTotalProfit(flashLiq: FlashLiquidation, taker: string): Promise<BigNumber> {
+  public async getTotalProfit(
+    flashLiq: FlashLiquidation,
+    taker: string
+  ): Promise<BigNumber> {
     const liquidator = FlashLiquidator__factory.connect(
       this.settings.liquidatorContract.address,
       this.settings.liquidatorContract.provider
@@ -231,8 +280,7 @@ export default class ProfitCalculator {
               flashLiq.accountLiq.liquidation.getCollateralUnderlyingAddress(),
               flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
               collateralProfit,
-              true,
-              taker,
+              taker
             )
           ).buyAmount
         )
@@ -248,8 +296,7 @@ export default class ProfitCalculator {
           flashLiq.flashBorrowAsset,
           flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
           flashAssetProfit,
-          true,
-          taker,
+          taker
         );
         // FX profit denominated to flash loan currency to local currency
         totalProfit = totalProfit.add(BigNumber.from(estimation.buyAmount));
@@ -261,7 +308,7 @@ export default class ProfitCalculator {
 
   public async sortByProfitability(
     liquidations: AccountLiquidation[],
-    taker: string,
+    taker: string
   ): Promise<FlashLiquidation[]> {
     const profits = [];
 
