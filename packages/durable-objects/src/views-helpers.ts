@@ -12,7 +12,7 @@ async function fetchDBView(
 ) {
   try {
     const data = JSON.stringify(await analyticsServer.fetchView(network, name));
-    const key = `views/${network}/${name}`;
+    const key = `${network}/views/${name}`;
     return putStorageKey(env, key, data);
   } catch (e) {
     console.error(e);
@@ -41,7 +41,7 @@ async function storeDocument(
   name: string,
   network: Network
 ) {
-  const key = `views/${network}/${name}`;
+  const key = `${network}/views/${name}`;
   if (result['data'])
     return putStorageKey(env, key, JSON.stringify(result['data']));
 }
@@ -63,14 +63,6 @@ async function fetchAllGraphViews(
   ]);
 }
 
-export function getViewStorageKey(url: URL): string {
-  const network = url.pathname.split('/')[1];
-  if (!network) throw Error('Network Not Found');
-  const view = url.pathname.split('/')[3];
-  if (!view) throw Error('View Not Found');
-  return `views/${network}/${view}`;
-}
-
 export async function refreshViews(env: APIEnv) {
   const logger = createLogger(env, 'views');
   const analyticsServer = new AnalyticsServer(
@@ -89,7 +81,7 @@ export async function refreshViews(env: APIEnv) {
           .then(async (data) => {
             if (data) {
               console.log('Wrote analytics data for ', network);
-              putStorageKey(env, `views/${network}/analytics`, data);
+              putStorageKey(env, `${network}/views/analytics`, data);
 
               await logger.submitMetrics({
                 series: [

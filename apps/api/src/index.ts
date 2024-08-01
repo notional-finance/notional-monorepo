@@ -8,7 +8,6 @@ import {
   handleDataDogForward,
   handlePlausibleForward,
   // handleYields,
-  handleViews,
   // handleAccounts,
   handleNOTEData,
   handleKPI,
@@ -51,7 +50,6 @@ router.get('/nft/*', handleNFT);
 router.post('/dd-forward', handleDataDogForward);
 router.post('/plausible/*', handlePlausibleForward);
 router.post('/newsletter', handleNewsletter);
-router.get('/:network/views/:view', handleViews);
 // router.get('/:network/yields', handleYields);
 // router.get('/:network/accounts/:view', handleAccounts);
 router.get('/:network/note/:view', handleNOTEData);

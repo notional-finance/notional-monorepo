@@ -1,20 +1,22 @@
 import { Request } from '@cloudflare/workers-types';
 import { CacheSchema } from '@notional-finance/core-entities';
 import {
-  BaseDOEnv,
+  APIEnv,
   refreshRegistry,
+  refreshViews,
   Routes,
   Servers,
 } from '@notional-finance/durable-objects';
 
 export default {
-  async fetch(req: Request, env: BaseDOEnv): Promise<Response> {
+  async fetch(req: Request, env: APIEnv): Promise<Response> {
     const registries = [
       Routes.Configuration,
       Routes.Tokens,
       Routes.Exchanges,
       Routes.Vaults,
       Routes.Oracles,
+      `${Routes.Analytics}/analytics`,
     ];
 
     const url = new URL(req.url);
@@ -38,7 +40,7 @@ export default {
       headers: { 'Content-Type': 'application/json' },
     });
   },
-  async scheduled(event: ScheduledController, env: BaseDOEnv): Promise<void> {
+  async scheduled(event: ScheduledController, env: APIEnv): Promise<void> {
     const currentMinute = new Date(event.scheduledTime).getMinutes();
 
     if (currentMinute % 10 === 0) {
@@ -46,6 +48,7 @@ export default {
       await Promise.all([
         refreshRegistry(env, Routes.Configuration, Servers.ConfigurationServer),
         refreshRegistry(env, Routes.Tokens, Servers.TokenRegistryServer),
+        refreshViews(env),
       ]);
     }
 

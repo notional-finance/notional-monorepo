@@ -3,18 +3,7 @@ import { handleNewsletter } from './newsletter';
 import { handleNFT } from './nft';
 import { Request as CFRequest } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
-import { APIEnv, getViewStorageKey } from '@notional-finance/durable-objects';
-
-const handleRegistryData = async (request: IRequest, env: APIEnv) => {
-  const url = new URL(request.url);
-  const pathname = url.pathname.slice(1);
-  try {
-    return env.VIEW_CACHE_R2.get(pathname);
-  } catch (e) {
-    console.error('Error fetching registry data', e);
-    return new Response('Error fetching registry data', { status: 500 });
-  }
-};
+import { APIEnv } from '@notional-finance/durable-objects';
 
 // const handleYields = (request: IRequest, env: APIEnv) => {
 //   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
@@ -22,16 +11,6 @@ const handleRegistryData = async (request: IRequest, env: APIEnv) => {
 // const handleAccounts = (request: IRequest, env: APIEnv) => {
 //   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
 // };
-
-const handleViews = (request: IRequest, env: APIEnv) => {
-  const pathname = getViewStorageKey(new URL(request.url));
-  try {
-    return env.VIEW_CACHE_R2.get(pathname);
-  } catch (e) {
-    console.error('Error fetching view data', e);
-    return new Response('Error fetching view data', { status: 500 });
-  }
-};
 
 const handleNOTEData = (request: IRequest, env: APIEnv) => {
   const key = new URL(request.url).pathname.slice(1);
@@ -76,8 +55,6 @@ export {
   handleNewsletter,
   // handleYields,
   // handleAccounts,
-  handleRegistryData,
-  handleViews,
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
