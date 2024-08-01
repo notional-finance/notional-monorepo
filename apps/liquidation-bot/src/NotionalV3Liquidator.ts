@@ -8,6 +8,7 @@ import {
   FlashLiquidation,
   IFlashLoanProvider,
   Currency,
+  LiquidationType,
 } from './types';
 import LiquidationHelper from './LiquidationHelper';
 import ProfitCalculator from './ProfitCalculator';
@@ -190,21 +191,36 @@ export default class NotionalV3Liquidator {
     return await this.profitCalculator.sortByProfitability(
       liquidations
         .map((liq) => {
-          const result = results[
+          const flashLoanAmount = results[
             `${ra.id}:${liq.getLiquidationType()}:${
               liq.getLocalCurrency().id
             }:${liq.getCollateralCurrencyId()}:loanAmount`
           ] as BigNumber;
 
-          if (!result) {
+          if (!flashLoanAmount) {
             return null;
+          }
+
+          let collateralReceivedAmount: BigNumber | undefined = undefined;
+          if (
+            liq.getLiquidationType() === LiquidationType.COLLATERAL_CURRENCY
+          ) {
+            collateralReceivedAmount = results[
+              `${ra.id}:${liq.getLiquidationType()}:${
+                liq.getLocalCurrency().id
+              }:${liq.getCollateralCurrencyId()}:collateralReceivedAmount`
+            ] as BigNumber;
           }
 
           return {
             accountId: ra.id,
             liquidation: liq,
-            flashLoanAmount: result
+            flashLoanAmount: flashLoanAmount
               .mul(this.settings.flashLoanBuffer)
+              .div(1000),
+            // De-rate the collateral received amount just a bit
+            collateralReceivedAmount: collateralReceivedAmount
+              ?.mul(995)
               .div(1000),
           };
         })

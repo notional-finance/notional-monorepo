@@ -116,6 +116,7 @@ export type AccountLiquidation = {
   accountId: string;
   liquidation: Liquidation;
   flashLoanAmount: BigNumber;
+  collateralReceivedAmount?: BigNumber;
 };
 
 export type FlashLiquidation = {
