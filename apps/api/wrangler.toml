@@ -13,10 +13,8 @@ tsconfig = "tsconfig.json"
 name = "api-prod"
 route = { pattern = "data.notional.finance", custom_domain = true }
 r2_buckets = [
-  { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev" },
+  { binding = "ACCOUNT_CACHE_R2", bucket_name = "account-cache-r2", preview_bucket_name = "account-cache-r2-dev" },
 ]
 
 [env.prod.vars]
 NX_ENV = "prod"
-VERSION = "v1"
-VIEWS_NAME = "VIEWS_DO"
