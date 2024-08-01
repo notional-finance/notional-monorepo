@@ -190,12 +190,12 @@ export default class ProfitCalculator {
 
       collateralTrade = {
         trade: {
-          tradeType: TradeType.EXACT_OUT_SINGLE,
+          tradeType: TradeType.EXACT_IN_SINGLE,
           sellToken: accountLiq.liquidation.getCollateralUnderlyingAddress(),
           buyToken: flashBorrowAsset,
-          amount: accountLiq.flashLoanAmount,
+          amount: accountLiq.collateralReceivedAmount,
           limit: BigNumber.from(zeroExResp.sellAmount)
-            .mul(this.settings.exactOutSlippageLimit)
+            .mul(this.settings.exactInSlippageLimit)
             .div(1000),
           deadline: BigNumber.from(getNowSeconds()),
           exchangeData: zeroExResp.transaction.data,

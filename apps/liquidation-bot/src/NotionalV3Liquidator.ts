@@ -218,9 +218,10 @@ export default class NotionalV3Liquidator {
             flashLoanAmount: flashLoanAmount
               .mul(this.settings.flashLoanBuffer)
               .div(1000),
+            // De-rate the collateral received amount just a bit
             collateralReceivedAmount: collateralReceivedAmount
-              ?.mul(1000)
-              .div(this.settings.flashLoanBuffer),
+              ?.mul(995)
+              .div(1000),
           };
         })
         .filter((liq) => liq && !liq.flashLoanAmount.isZero()),
