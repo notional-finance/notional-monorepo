@@ -1,4 +1,3 @@
-import { APIEnv } from '..';
 import BetaPass from '../assets/BetaPass';
 import { IRequest } from 'itty-router';
 

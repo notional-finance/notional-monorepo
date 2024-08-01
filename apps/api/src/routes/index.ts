@@ -5,14 +5,7 @@ import { handleNFT } from './nft';
 import { Request as CFRequest } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
 
-// const handleYields = (request: IRequest, env: APIEnv) => {
-//   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
-// };
-// const handleAccounts = (request: IRequest, env: APIEnv) => {
-//   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
-// };
-
-const handleNOTEData = (request: IRequest, env: APIEnv) => {
+const handleAccountCacheRequest = (request: IRequest, env: APIEnv) => {
   const key = new URL(request.url).pathname.slice(1);
   return env.ACCOUNT_CACHE_R2.get(key);
 };
@@ -53,11 +46,9 @@ const handlePlausibleForward = async (request: IRequest) => {
 export {
   handleGeoIP,
   handleNewsletter,
-  // handleYields,
-  // handleAccounts,
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
-  handleNOTEData,
+  handleAccountCacheRequest,
   handleKPI,
 };

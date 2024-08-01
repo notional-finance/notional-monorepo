@@ -6,10 +6,8 @@ import {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
-  // handleYields,
-  // handleAccounts,
-  handleNOTEData,
   handleKPI,
+  handleAccountCacheRequest,
 } from './routes';
 
 export interface APIEnv {
@@ -58,9 +56,9 @@ router.get('/nft/*', handleNFT);
 router.post('/dd-forward', handleDataDogForward);
 router.post('/plausible/*', handlePlausibleForward);
 router.post('/newsletter', handleNewsletter);
-// router.get('/:network/yields', handleYields);
-// router.get('/:network/accounts/:view', handleAccounts);
-router.get('/:network/note/:view', handleNOTEData);
+router.get('/:network/yields', handleAccountCacheRequest);
+router.get('/:network/accounts/:view', handleAccountCacheRequest);
+router.get('/:network/note/:view', handleAccountCacheRequest);
 router.get('/kpi', handleKPI);
 
 // Fall through catch for 404 errors
