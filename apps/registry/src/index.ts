@@ -47,9 +47,12 @@ export default {
         const obj = await env.VIEW_CACHE_R2.get(`${network}/${route}`);
         if (obj) {
           const data = JSON.parse(await obj.text()) as CacheSchema<unknown>;
-          return { [route]: data.lastUpdateTimestamp };
+          return {
+            [route.replace('views/analytics', 'analytics')]:
+              data.lastUpdateTimestamp,
+          };
         }
-        return { [route]: null };
+        return { [route.replace('views/analytics', 'analytics')]: null };
       })
     );
 

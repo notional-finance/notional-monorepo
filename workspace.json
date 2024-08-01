@@ -9,7 +9,6 @@
     "common-styles": "packages/common/styles",
     "contracts": "packages/contracts",
     "core-entities": "packages/core-entities",
-    "data": "apps/data",
     "features-about-us": "packages/features/about-us",
     "features-borrow": "packages/features/borrow",
     "features-lend": "packages/features/lend",
