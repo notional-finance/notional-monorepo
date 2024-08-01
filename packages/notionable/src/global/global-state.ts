@@ -52,7 +52,7 @@ export const GATED_VAULTS: string[] = [];
 
 // Set this as the runtime default
 const CACHE_HOSTNAME =
-  process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
+  process.env['NX_DATA_URL'] || 'https://registry.notional.finance';
 
 export type NetworkLoadingState = 'Pending' | 'Loaded' | undefined;
 export type CalculatedPriceChanges = {
