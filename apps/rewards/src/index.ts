@@ -21,7 +21,7 @@ import {
   treasuryManagerAddresses,
 } from '@notional-finance/util';
 import { simulatePopulatedTxn } from '@notional-finance/transaction';
-import { Logger, MetricType } from '@notional-finance/durable-objects';
+import { Logger, MetricType } from '@notional-finance/util';
 
 type Provider = ethers.providers.Provider;
 export interface Env {
@@ -221,16 +221,19 @@ async function shouldSkipClaim(env: Env, vaultAddress: string) {
   return Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
 }
 
-const claimVault = async (env: Env, provider: Provider, vault: Vault, force = false) => {
+const claimVault = async (
+  env: Env,
+  provider: Provider,
+  vault: Vault,
+  force = false
+) => {
   const treasuryManger = TreasuryManager__factory.connect(
     treasuryManagerAddresses[env.NETWORK],
     provider
   );
 
-  if (!force && await shouldSkipClaim(env, vault.address)) {
-    console.log(
-      `Skipping claim rewards for ${vault.address}, already claimed`
-    );
+  if (!force && (await shouldSkipClaim(env, vault.address))) {
+    console.log(`Skipping claim rewards for ${vault.address}, already claimed`);
     return null;
   }
 
@@ -248,9 +251,7 @@ const claimVault = async (env: Env, provider: Provider, vault: Vault, force = fa
 
   const tx: PopulatedTransaction = { from, to, data };
   if (!(await isClaimRewardsProfitable(env, vault, tx))) {
-    console.log(
-      `Skipping claim rewards for ${vault.address}, not profitable`
-    );
+    console.log(`Skipping claim rewards for ${vault.address}, not profitable`);
     return null;
   }
 
@@ -259,7 +260,7 @@ const claimVault = async (env: Env, provider: Provider, vault: Vault, force = fa
   await sendTxThroughRelayer({ to, data, env });
 
   await setLastClaimTimestamp(env, vault.address);
-}
+};
 
 const claimRewards = async (env: Env, provider: Provider) => {
   const results = await Promise.allSettled(
@@ -270,7 +271,7 @@ const claimRewards = async (env: Env, provider: Provider) => {
     (r) => r.status == 'rejected'
   ) as PromiseRejectedResult[];
 
-  return failedClaims.map(p => new Error(p.reason));
+  return failedClaims.map((p) => new Error(p.reason));
 };
 
 type FunRetProm = () => Promise<any>;
@@ -288,7 +289,7 @@ const getTrades = async (
   sellToken: string,
   tokens: string[],
   sellAmounts: BigNumber[],
-  taker: string,
+  taker: string
 ) => {
   let slippageMultiplier = 1;
   // we need to execute them sequentially due to rate limit on 0x api
@@ -327,13 +328,21 @@ const getTrades = async (
   );
 };
 
-const reinvestVault = async (env: Env, provider: Provider, vault: Vault, force = false) => {
-  if (!force && await shouldSkipReinvest(env, vault.address)) {
+const reinvestVault = async (
+  env: Env,
+  provider: Provider,
+  vault: Vault,
+  force = false
+) => {
+  if (!force && (await shouldSkipReinvest(env, vault.address))) {
     console.log(`Skipping reinvestment for ${vault.address}, already invested`);
     return null;
   }
 
-  const [poolTokens,] = await ISingleSidedLPStrategyVault__factory.connect(vault.address, provider).TOKENS();
+  const [poolTokens] = await ISingleSidedLPStrategyVault__factory.connect(
+    vault.address,
+    provider
+  ).TOKENS();
 
   const tradesPerRewardToken = [];
   for (const sellToken of vault.rewardTokens) {
@@ -364,7 +373,9 @@ const reinvestVault = async (env: Env, provider: Provider, vault: Vault, force =
       continue;
     }
     const sellAmountsPerToken = poolTokens.map((address: string) => {
-      return address.toLowerCase() === vault.reinvestToken.toLowerCase() ? amountToSell : BigNumber.from(0);
+      return address.toLowerCase() === vault.reinvestToken.toLowerCase()
+        ? amountToSell
+        : BigNumber.from(0);
     });
 
     const trades = await getTrades(
@@ -372,7 +383,7 @@ const reinvestVault = async (env: Env, provider: Provider, vault: Vault, force =
       sellToken,
       poolTokens,
       sellAmountsPerToken,
-      vault.address,
+      vault.address
     );
     tradesPerRewardToken.push(trades);
   }
@@ -447,18 +458,18 @@ const reinvestRewards = async (env: Env, provider: Provider) => {
 
 enum Action {
   claim = 'claim',
-  reinvest = 'reinvest'
+  reinvest = 'reinvest',
 }
 
 function getQueryParams(request: Request) {
-  const { searchParams } = new URL(request.url)
+  const { searchParams } = new URL(request.url);
 
   return {
     network: searchParams.get('network') as Network,
     vaultAddress: searchParams.get('vaultAddress'),
     action: searchParams.get('action') as Action,
     force: !!searchParams.get('force'),
-  }
+  };
 }
 
 export default {
@@ -479,7 +490,9 @@ export default {
       return new Response('Missing required query parameters', { status: 400 });
     }
 
-    const vault = vaults[network].find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
+    const vault = vaults[network].find(
+      (v) => v.address.toLowerCase() === vaultAddress.toLowerCase()
+    );
     if (!vault) {
       return new Response('Unknown vault address', { status: 404 });
     }

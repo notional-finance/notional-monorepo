@@ -1,4 +1,4 @@
-import { Network } from '@notional-finance/util';
+import { Network } from './constants';
 
 type LoggerOptions = {
   service: string;
@@ -51,7 +51,8 @@ type DDEventKey =
   | 'TotalBorrowCapacityMismatch'
   | 'PrimeCashInvariant'
   | 'MonitoringCheckFailed'
-  | 'MonitoringCheckLagging';
+  | 'MonitoringCheckLagging'
+  | 'RegistryTimeout';
 
 type DDEventAlertType = 'error' | 'warning' | 'info';
 

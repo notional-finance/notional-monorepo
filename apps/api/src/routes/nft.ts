@@ -1,6 +1,5 @@
 import BetaPass from '../assets/BetaPass';
 import { IRequest } from 'itty-router';
-import { APIEnv } from '@notional-finance/durable-objects';
 
 const NFT = {
   '0x965b3aad78cdab2cc778243b12705ba3b7c5048c': {
@@ -39,7 +38,7 @@ const NFT = {
   },
 };
 
-export const handleNFT = (request: IRequest, _env: APIEnv) => {
+export const handleNFT = (request: IRequest) => {
   const url = new URL(request.url);
   const [_, _nft, _address, tokenId] = url.pathname.split('/');
   const address = _address.toLowerCase();

@@ -1,7 +1,7 @@
 {
-  "name": "data",
+  "name": "registry",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/data/src",
+  "sourceRoot": "apps/registry/src",
   "projectType": "application",
   "targets": {
     "serve": {
@@ -12,7 +12,7 @@
             "command": "wrangler dev --test-scheduled  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/data"
+        "cwd": "apps/registry"
       }
     },
     "publish-wrangler-manual": {
@@ -23,7 +23,7 @@
             "command": "wrangler deploy --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/data"
+        "cwd": "apps/registry"
       }
     },
     "publish-wrangler": {
@@ -31,24 +31,24 @@
       "options": {
         "commands": [
           {
-            "command": "wrangler deploy --env dev"
+            "command": "wrangler deploy --env prod"
           }
         ],
-        "cwd": "apps/data"
+        "cwd": "apps/registry"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/data/**/*.ts"]
+        "lintFilePatterns": ["apps/registry/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/data"],
+      "outputs": ["{workspaceRoot}/coverage/apps/registry"],
       "options": {
-        "jestConfig": "apps/data/jest.config.ts",
+        "jestConfig": "apps/registry/jest.config.ts",
         "passWithNoTests": true
       },
       "dependsOn": ["build"]

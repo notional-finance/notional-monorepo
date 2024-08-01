@@ -13,7 +13,7 @@ import {
 import LiquidationHelper from './LiquidationHelper';
 import ProfitCalculator from './ProfitCalculator';
 import AaveFlashLoanProvider from './lenders/AaveFlashLender';
-import { Logger } from '@notional-finance/durable-objects';
+import { Logger } from '@notional-finance/util';
 import { Network, sendTxThroughRelayer } from '@notional-finance/util';
 
 export type LiquidatorSettings = {
