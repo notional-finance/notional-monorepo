@@ -1,6 +1,6 @@
 import { Request } from '@cloudflare/workers-types';
 import { Router, IRequest } from 'itty-router';
-import { APIEnv } from '@notional-finance/durable-objects';
+import { APIEnv } from '@notional-finance/util';
 import {
   handleGeoIP,
   handleNewsletter,

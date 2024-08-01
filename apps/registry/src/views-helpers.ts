@@ -1,8 +1,7 @@
-import { APIEnv, MetricType } from '.';
-import { Network, getNowSeconds } from '@notional-finance/util';
+import { MetricType, Network, getNowSeconds } from '@notional-finance/util';
 import { AnalyticsServer } from '@notional-finance/core-entities/src/server/analytics-server';
-import { createLogger } from './logger';
-import { putStorageKey } from './registry-helpers';
+import { createLogger, putStorageKey } from './registry-helpers';
+import { APIEnv } from '.';
 
 async function fetchDBView(
   analyticsServer: AnalyticsServer,

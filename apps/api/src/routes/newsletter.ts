@@ -1,6 +1,6 @@
 import { Request as CFRequest } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
-import { APIEnv, Logger } from '@notional-finance/durable-objects';
+import { APIEnv, Logger } from '@notional-finance/util';
 import { Network } from '@notional-finance/util';
 
 // NOTE: this posts to Netlify because the Cloudflare worker environment is not compatible

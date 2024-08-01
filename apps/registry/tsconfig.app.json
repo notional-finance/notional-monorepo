@@ -5,5 +5,5 @@
     "module": "commonjs"
   },
   "exclude": ["jest.config.ts", "**/*.spec.ts", "**/*.test.ts"],
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "../../packages/durable-objects/src/registry-helpers.ts", "../../packages/durable-objects/src/views-helpers.ts"]
 }

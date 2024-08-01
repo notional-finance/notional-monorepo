@@ -3,7 +3,7 @@ import { handleNewsletter } from './newsletter';
 import { handleNFT } from './nft';
 import { Request as CFRequest } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
-import { APIEnv } from '@notional-finance/durable-objects';
+import { APIEnv } from '@notional-finance/util';
 
 // const handleYields = (request: IRequest, env: APIEnv) => {
 //   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);

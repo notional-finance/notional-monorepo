@@ -1,5 +1,4 @@
-import { Network } from '@notional-finance/util';
-import { BaseDOEnv } from '.';
+import { Network } from './constants';
 
 type LoggerOptions = {
   service: string;
@@ -152,14 +151,4 @@ export class Logger {
       console.error(e);
     }
   }
-}
-
-export function createLogger(env: BaseDOEnv, serviceName: string): Logger {
-  const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
-  return new Logger({
-    service: serviceName,
-    version: version,
-    env: env.NX_ENV,
-    apiKey: env.NX_DD_API_KEY,
-  });
 }

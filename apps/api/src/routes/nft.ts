@@ -1,6 +1,6 @@
 import BetaPass from '../assets/BetaPass';
 import { IRequest } from 'itty-router';
-import { APIEnv } from '@notional-finance/durable-objects';
+import { APIEnv } from '@notional-finance/util';
 
 const NFT = {
   '0x965b3aad78cdab2cc778243b12705ba3b7c5048c': {

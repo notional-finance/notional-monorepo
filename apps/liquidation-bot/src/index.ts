@@ -11,11 +11,7 @@ import * as tokens from './config/tokens.json';
 import { overrides } from './config/overrides';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames, RiskyAccount } from './types';
-import {
-  DDSeries,
-  Logger,
-  MetricType,
-} from '@notional-finance/durable-objects';
+import { DDSeries, Logger, MetricType } from '@notional-finance/util';
 
 export interface Env {
   NX_DATA_URL: string;

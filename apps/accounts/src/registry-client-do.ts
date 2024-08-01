@@ -19,11 +19,7 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import {
-  DDMetric,
-  Logger,
-  MetricType,
-} from '@notional-finance/durable-objects';
+import { DDMetric, Logger, MetricType } from '@notional-finance/util';
 import {
   calculateAccountIRR,
   // currentContestId,
