@@ -1,6 +1,5 @@
 import { Request } from '@cloudflare/workers-types';
 import { Router, IRequest } from 'itty-router';
-import { APIEnv } from '@notional-finance/util';
 import {
   handleGeoIP,
   handleNewsletter,
@@ -12,6 +11,15 @@ import {
   handleNOTEData,
   handleKPI,
 } from './routes';
+
+export interface APIEnv {
+  GHOST_ADMIN_KEY: string;
+  NX_DD_API_KEY: string;
+  ACCOUNT_CACHE_R2: R2Bucket;
+  NX_SUBGRAPH_API_KEY: string;
+  NX_COMMIT_REF: string;
+  NX_ENV: string;
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',

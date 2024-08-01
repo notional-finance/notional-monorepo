@@ -1,9 +1,9 @@
+import { APIEnv } from '..';
 import { handleGeoIP } from './geoip';
 import { handleNewsletter } from './newsletter';
 import { handleNFT } from './nft';
 import { Request as CFRequest } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
-import { APIEnv } from '@notional-finance/util';
 
 // const handleYields = (request: IRequest, env: APIEnv) => {
 //   return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
@@ -21,7 +21,7 @@ const handleKPI = (_request: IRequest, env: APIEnv) => {
   return env.ACCOUNT_CACHE_R2.get('kpi');
 };
 
-const handleDataDogForward = async (request: IRequest, _env: APIEnv) => {
+const handleDataDogForward = async (request: IRequest) => {
   const ddforward = (request.query['ddforward'] as string) || '';
   if (ddforward) {
     const _request = request as unknown as CFRequest;
@@ -37,7 +37,7 @@ const handleDataDogForward = async (request: IRequest, _env: APIEnv) => {
   return new Response('Invalid ddforward param', { status: 500 });
 };
 
-const handlePlausibleForward = async (request: IRequest, _env: APIEnv) => {
+const handlePlausibleForward = async (request: IRequest) => {
   const body = JSON.stringify(await request.json());
   return await fetch('https://plausible.io/api/event', {
     method: 'POST',
