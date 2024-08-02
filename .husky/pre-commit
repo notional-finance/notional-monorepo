@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-yarn nx affected --target=lint --base=HEAD~1 --head=HEAD
+yarn nx affected --target=lint --base=v3/prod --head=HEAD
