@@ -208,12 +208,6 @@ export async function sendTransaction({ to, data, gasLimit, nonce, network }: { 
     // first attempt
     txResponse = await signer.sendTransaction(transaction);
   } catch (err) {
-    await logToDataDog({
-      ...sharedLogData,
-      retry,
-      err: JSON.stringify(err),
-      status: 'error',
-    }, 'event:txn_failed');
     try {
       retry++;
       // second attempt, in case nonce was stale
