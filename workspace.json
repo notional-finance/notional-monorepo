@@ -3,7 +3,6 @@
   "version": 2,
   "projects": {
     "accounts": "apps/accounts",
-    "analytics": "apps/analytics",
     "api": "apps/api",
     "common-icons": "packages/common/icons",
     "common-mui": "packages/common/mui",
