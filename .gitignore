@@ -60,3 +60,4 @@ cspell.json
 # Next.js
 .next
 .nx/cache
+.nx-cache
