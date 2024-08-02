@@ -158,8 +158,7 @@ export const useMyBreakdownTable = () => {
     .filter(({ totalPointsNum }) => totalPointsNum > 0);
 
   const portfolioTableData = portfolioHoldings
-    .map((data) => {
-      const { balance: b } = data;
+    .map(({ balance: b }) => {
       const isDebt = b.isNegative();
       const { icon, formattedTitle, titleWithMaturity } = formatTokenType(
         b.token,
