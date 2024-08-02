@@ -158,13 +158,15 @@ export const useMyBreakdownTable = () => {
     .filter(({ totalPointsNum }) => totalPointsNum > 0);
 
   const portfolioTableData = portfolioHoldings
-    .map(({ balance: b }) => {
+    .map((data) => {
+      const { balance: b } = data;
       const isDebt = b.isNegative();
       const { icon, formattedTitle, titleWithMaturity } = formatTokenType(
         b.token,
         isDebt
       );
-      const boostNum = getArbBoosts(b.token, false);
+
+      const boostNum = getArbBoosts(b.token, isDebt);
       const pointsPerDay = getPointsPerDay(b);
 
       const totalPoints =
