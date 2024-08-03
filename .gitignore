@@ -56,3 +56,4 @@ apps/**/dist
 gcp/**/dist
 gcp/**/lib
 cspell.json
+.nx/**
