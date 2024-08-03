@@ -276,6 +276,7 @@ export default class NotionalV3Liquidator {
       buyToken: to,
       taker: this.settings.flashLiquidatorAddress,
       sellAmount: amount.toString(),
+      chainId: NetworkId[this.settings.network],
     });
 
     // Set excluded sources in some cases to avoid re-entrancy issues inside the flash loan
