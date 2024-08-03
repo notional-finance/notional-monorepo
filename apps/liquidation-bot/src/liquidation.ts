@@ -301,10 +301,9 @@ export default class Liquidation {
             stage: 1,
             target: notional,
             method: 'convertCashBalanceToExternal',
-            args: (r: unknown) => [
+            args: (r: any) => [
               this.localCurrency.id,
-              (r as Record<string, BigNumber>)[`${key}:pCashLoanAmount`][0] ||
-                0,
+              r[`${key}:pCashLoanAmount`][0] || 0,
               true,
             ],
             key: `${key}:loanAmount`,

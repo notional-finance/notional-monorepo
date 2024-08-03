@@ -408,7 +408,7 @@ export default class NotionalV3Liquidator {
           sellToken: l.liquidation.getCollateralUnderlyingAddress(),
           buyToken: flashBorrowAsset,
           amount: l.collateralReceivedAmount,
-          limit: BigNumber.from(zeroExResp.sellAmount)
+          limit: BigNumber.from(zeroExResp.buyAmount)
             .mul(this.settings.exactInSlippageLimit)
             .div(1000),
           deadline: BigNumber.from(getNowSeconds() + 1000),
