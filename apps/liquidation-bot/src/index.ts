@@ -97,7 +97,6 @@ async function setUp(env: Env) {
           };
         }),
       overrides: overrides[env.NETWORK],
-      zeroExUrl: env.ZERO_EX_SWAP_URL,
       zeroExApiKey: env.ZERO_EX_API_KEY,
       exactInSlippageLimit: BigNumber.from(env.EXACT_IN_SLIPPAGE_LIMIT),
       exactOutSlippageLimit: BigNumber.from(env.EXACT_OUT_SLIPPAGE_LIMIT),

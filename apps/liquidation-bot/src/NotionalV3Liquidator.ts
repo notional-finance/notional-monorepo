@@ -42,7 +42,6 @@ export type LiquidatorSettings = {
   txRelayUrl: string;
   txRelayAuthToken: string;
   currencies: Currency[];
-  zeroExUrl: string;
   zeroExApiKey: string;
   overrides: CurrencyOverride[];
   exactInSlippageLimit: BigNumber; // Precision = 1000
@@ -218,9 +217,56 @@ export default class NotionalV3Liquidator {
     from: string,
     to: string,
     amount: BigNumber,
-    exactIn: boolean,
     excludedSources: string | undefined
-  ): Promise<{ buyAmount: string; sellAmount: string; data: string }> {
+  ): Promise<{
+    blockNumber: string;
+    buyAmount: string;
+    buyToken: string;
+    fees: {
+      integratorFee: null;
+      zeroExFee: {
+        amount: string;
+        token: string;
+        type: string;
+      };
+      gasFee: null;
+    };
+    issues: {
+      allowance: null;
+      balance: {
+        token: string;
+        actual: string;
+        expected: string;
+      };
+      simulationIncomplete: boolean;
+      invalidSourcesPassed: any[];
+    };
+    liquidityAvailable: boolean;
+    minBuyAmount: string;
+    route: {
+      fills: Array<{
+        from: string;
+        to: string;
+        source: string;
+        proportionBps: string;
+      }>;
+      tokens: Array<{
+        address: string;
+        symbol: string;
+      }>;
+    };
+    sellAmount: string;
+    sellToken: string;
+    totalNetworkFee: string;
+    transaction: {
+      to: string;
+      data: string;
+      gas: string;
+      gasPrice: string;
+      value: string;
+    };
+    zid: string;
+  }> {
     if (!from || !to) {
       throw Error('Invalid from/to');
     }
@@ -229,17 +275,12 @@ export default class NotionalV3Liquidator {
       sellToken: from,
       buyToken: to,
       taker: this.settings.flashLiquidatorAddress,
+      sellAmount: amount.toString(),
     });
 
     // Set excluded sources in some cases to avoid re-entrancy issues inside the flash loan
     if (excludedSources) {
       queryParams.set('excludedSources', excludedSources);
-    }
-
-    if (exactIn) {
-      queryParams.set('sellAmount', amount.toString());
-    } else {
-      queryParams.set('buyAmount', amount.toString());
     }
 
     const fetchUrl = zeroExUrl + '?' + queryParams;
@@ -255,11 +296,7 @@ export default class NotionalV3Liquidator {
       throw Error(`Bad 0x response:  ${await resp.text()}`);
     }
 
-    return await resp.json<{
-      buyAmount: string;
-      sellAmount: string;
-      data: string;
-    }>();
+    return await resp.json();
   }
 
   private async convertFlashBorrowAmount(
@@ -327,7 +364,6 @@ export default class NotionalV3Liquidator {
         flashBorrowAsset,
         l.liquidation.getLocalUnderlyingAddress(),
         l.flashLoanAmount,
-        true,
         excludedSources
       );
       preLiquidationTrade = {
@@ -340,7 +376,7 @@ export default class NotionalV3Liquidator {
             .mul(this.settings.exactInSlippageLimit)
             .div(1000),
           deadline: BigNumber.from(getNowSeconds() + 1000),
-          exchangeData: zeroExResp.data,
+          exchangeData: zeroExResp.transaction.data,
         },
         dexId: DexId.ZERO_EX,
         useDynamicSlippage: false,
@@ -351,6 +387,7 @@ export default class NotionalV3Liquidator {
     let collateralTrade: TradeData | null = null;
     if (
       hasCollateral &&
+      l.collateralReceivedAmount &&
       // There are times when flash borrowing ETH and doing a pre-liquidation trade, we will not
       // have to do a collateral trade.
       l.liquidation.getCollateralUnderlyingAddress().toLowerCase() !==
@@ -359,22 +396,21 @@ export default class NotionalV3Liquidator {
       const zeroExResp = await this.getZeroExData(
         l.liquidation.getCollateralUnderlyingAddress(),
         flashBorrowAsset,
-        l.flashLoanAmount,
-        false,
+        l.collateralReceivedAmount,
         excludedSources
       );
 
       collateralTrade = {
         trade: {
-          tradeType: TradeType.EXACT_OUT_SINGLE,
+          tradeType: TradeType.EXACT_IN_SINGLE,
           sellToken: l.liquidation.getCollateralUnderlyingAddress(),
           buyToken: flashBorrowAsset,
-          amount: l.flashLoanAmount,
+          amount: l.collateralReceivedAmount,
           limit: BigNumber.from(zeroExResp.sellAmount)
-            .mul(this.settings.exactOutSlippageLimit)
+            .mul(this.settings.exactInSlippageLimit)
             .div(1000),
           deadline: BigNumber.from(getNowSeconds() + 1000),
-          exchangeData: zeroExResp.data,
+          exchangeData: zeroExResp.transaction.data,
         },
         dexId: DexId.ZERO_EX,
         useDynamicSlippage: false,
@@ -478,11 +514,24 @@ export default class NotionalV3Liquidator {
           }:${l.getCollateralCurrencyId()}:loanAmount`
         ] as BigNumber;
 
+        let collateralReceivedAmount: BigNumber | undefined = undefined;
+        if (l.getLiquidationType() === LiquidationType.COLLATERAL_CURRENCY) {
+          collateralReceivedAmount = results[
+            `${acct.id}:${l.getLiquidationType()}:${
+              l.getLocalCurrency().id
+            }:${l.getCollateralCurrencyId()}:collateralReceivedAmount`
+          ] as BigNumber;
+        }
+
         return {
           accountId: acct.id,
           liquidation: l,
           flashLoanAmount: loanAmount
             .mul(this.settings.flashLoanBuffer)
+            .div(1000),
+          // De-rate the collateral received amount just a bit
+          collateralReceivedAmount: collateralReceivedAmount
+            ?.mul(995)
             .div(1000),
         };
       })

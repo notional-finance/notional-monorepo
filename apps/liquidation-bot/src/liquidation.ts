@@ -280,7 +280,13 @@ export default class Liquidation {
           {
             stage: 0,
             target: notional,
-            transform: (r: BigNumber[]) => r[0],
+            transform: (
+              r: Awaited<
+                ReturnType<
+                  typeof notional.calculateCollateralCurrencyLiquidation
+                >
+              >
+            ) => r,
             method: 'calculateCollateralCurrencyLiquidation',
             args: [
               account,
@@ -297,10 +303,28 @@ export default class Liquidation {
             method: 'convertCashBalanceToExternal',
             args: (r: unknown) => [
               this.localCurrency.id,
-              (r as Record<string, BigNumber>)[`${key}:pCashLoanAmount`] || 0,
+              (r as Record<string, BigNumber>)[`${key}:pCashLoanAmount`][0] ||
+                0,
               true,
             ],
             key: `${key}:loanAmount`,
+          },
+          {
+            stage: 1,
+            target: notional,
+            method: 'convertCashBalanceToExternal',
+            args: (r) => [
+              this.collateralCurrencyId,
+              (
+                r[`${key}:pCashLoanAmount`] as Awaited<
+                  ReturnType<
+                    typeof notional.calculateCollateralCurrencyLiquidation
+                  >
+                >
+              )[1] || 0,
+              true,
+            ],
+            key: `${key}:collateralReceivedAmount`,
           },
         ];
       }
