@@ -194,7 +194,7 @@ export default class ProfitCalculator {
           sellToken: accountLiq.liquidation.getCollateralUnderlyingAddress(),
           buyToken: flashBorrowAsset,
           amount: accountLiq.collateralReceivedAmount,
-          limit: BigNumber.from(zeroExResp.sellAmount)
+          limit: BigNumber.from(zeroExResp.buyAmount)
             .mul(this.settings.exactInSlippageLimit)
             .div(1000),
           deadline: BigNumber.from(getNowSeconds()),
