@@ -7,10 +7,11 @@ import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { aggregate } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
 import {
+  ERC20ABI,
   ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
-import { Contract } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { DeprecatedVaults, vaultOverrides } from './vault-overrides';
 
@@ -32,7 +33,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             AllVaultsByBlockDocument,
             'vaultConfigurations',
             this.env.NX_SUBGRAPH_API_KEY,
-            { blockNumber },
+            { blockNumber }
           );
 
     const calls = data['data'].vaultConfigurations
@@ -40,7 +41,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         (v: { vaultAddress: string }) =>
           !DeprecatedVaults.includes(v.vaultAddress)
       )
-      .map(
+      .flatMap(
         ({
           vaultAddress,
           enabled,
@@ -68,50 +69,93 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             }
           }
 
-          return {
-            target: new Contract(
-              vaultAddress,
-              ISingleSidedLPStrategyVaultABI,
-              getProviderFromNetwork(network)
-            ),
-            method: 'getStrategyVaultInfo',
-            key: vaultAddress,
-            transform: (
-              r: Awaited<
-                ReturnType<ISingleSidedLPStrategyVault['getStrategyVaultInfo']>
-              >
-            ) => {
-              const totalLPTokens = TokenBalance.toJSON(
-                r.totalLPTokens,
-                r.pool,
-                network
-              );
+          return [
+            {
+              target: new Contract(
+                vaultAddress,
+                ISingleSidedLPStrategyVaultABI,
+                getProviderFromNetwork(network)
+              ),
+              stage: 0,
+              method: 'getStrategyVaultInfo',
+              key: vaultAddress,
+              transform: (
+                r: Awaited<
+                  ReturnType<
+                    ISingleSidedLPStrategyVault['getStrategyVaultInfo']
+                  >
+                >
+              ) => {
+                const totalLPTokens = TokenBalance.toJSON(
+                  r.totalLPTokens,
+                  r.pool,
+                  network
+                );
 
-              const totalVaultShares = r.totalVaultShares;
+                const totalVaultShares = r.totalVaultShares;
 
-              return {
-                pool: r.pool,
-                singleSidedTokenIndex: r.singleSidedTokenIndex,
-                totalLPTokens,
-                totalVaultShares,
-                secondaryTradeParams: '0x',
-                enabled,
-                name,
-              };
+                return {
+                  pool: r.pool,
+                  singleSidedTokenIndex: r.singleSidedTokenIndex,
+                  maxPoolShares: r.maxPoolShare,
+                  totalLPTokens,
+                  totalVaultShares,
+                  secondaryTradeParams: '0x',
+                  enabled,
+                  name,
+                };
+              },
             },
-          };
+            {
+              target: (r: any) =>
+                new Contract(
+                  r[vaultAddress].pool,
+                  ERC20ABI,
+                  getProviderFromNetwork(network)
+                ),
+              stage: 1,
+              method: 'totalSupply',
+              key: `${vaultAddress}.pool.totalSupply`,
+            },
+            {
+              target: (r: any) =>
+                new Contract(
+                  r[vaultAddress].pool,
+                  ERC20ABI,
+                  getProviderFromNetwork(network)
+                ),
+              stage: 1,
+              method: 'getActualSupply',
+              key: `${vaultAddress}.pool.actualSupply`,
+            },
+          ];
         }
       );
 
     const { block, results } = await aggregate(
       calls || [],
       this.getProvider(network),
-      blockNumber
+      blockNumber,
+      true // allowFailure
     );
 
-    const values = Object.keys(results).map((k) => {
-      return [k, results[k] as VaultMetadata] as [string, VaultMetadata];
-    });
+    const values = Object.keys(results)
+      .filter((k) => !k.includes('.'))
+      .map((k) => {
+        const metadata = results[k] as VaultMetadata;
+        if (results[`${k}.pool.actualSupply`]) {
+          // This will exist for Balancer pools
+          metadata['totalPoolSupply'] = results[`${k}.pool.actualSupply`] as
+            | BigNumber
+            | undefined;
+        } else {
+          metadata['totalPoolSupply'] = results[`${k}.pool.totalSupply`] as
+            | BigNumber
+            | undefined;
+        }
+
+        return [k, metadata] as [string, VaultMetadata];
+      });
 
     return {
       values,

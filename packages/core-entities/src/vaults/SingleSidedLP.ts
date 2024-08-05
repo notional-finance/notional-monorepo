@@ -22,6 +22,8 @@ export interface SingleSidedLPParams extends BaseVaultParams {
   totalLPTokens: TokenBalance;
   totalVaultShares: BigNumber;
   secondaryTradeParams: string;
+  maxPoolShare: BigNumber;
+  totalPoolSupply?: BigNumber;
 }
 
 export interface TradeParams {
@@ -165,7 +167,7 @@ export class SingleSidedLP extends VaultAdapter {
 
       const vaultTVL = this.getVaultTVL();
       const arbReinvestInPrimary = TokenBalance.fromFloat(
-        386.4,
+        466.4,
         Registry.getTokenRegistry().getTokenBySymbol(this.network, 'ARB')
       ).toToken(vaultTVL.token);
       const arbAPY =
