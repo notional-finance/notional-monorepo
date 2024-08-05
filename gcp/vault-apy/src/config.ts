@@ -52,7 +52,7 @@ const config: ConfigPerNetwork = {
     alchemyUrl: `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`,
     addresses: {
       treasuryManager: '0x53144559C0d4a3304e2DD9dAfBD685247429216d',
-      notionalOwner: '0x22341fB5D92D3d801144aA5A925F401A91418A05',
+      notionalOwner: '0x02479BFC7Dce53A02e26fE7baea45a0852CB0909',
       tradingModule: '0x594734c7e06C3D483466ADBCe401C6Bd269746C8',
     },
     vaults: [
