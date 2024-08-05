@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Box, Theme, useTheme } from '@mui/material';
 import {
   DataTableColumn,
@@ -20,6 +20,7 @@ import {
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   formatHealthFactorValues,
+  useAnalyticsReady,
   useArbPoints,
   useFiat,
   useLeverageBlock,
@@ -35,8 +36,13 @@ import {
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
-import { PointsLinks, getArbBoosts } from '@notional-finance/core-entities';
+import {
+  PointsLinks,
+  Registry,
+  getArbBoosts,
+} from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
+import moment from 'moment';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -202,6 +208,12 @@ export const useVaultHoldingsTable = () => {
     ];
   }, []);
 
+  const analyticsReady = useAnalyticsReady(network);
+  const reinvestmentData =
+    network && analyticsReady
+      ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
+      : undefined;
+
   const vaultHoldingsData = vaults.map(
     ({
       vault: v,
@@ -218,6 +230,21 @@ export const useVaultHoldingsTable = () => {
         v,
         theme
       );
+      const vaultReinvestmentData = reinvestmentData?.[v.vaultAddress];
+      let arbReinvestmentDate = '';
+      let mainnetReinvestmentDate = '';
+
+      if (vaultReinvestmentData) {
+        arbReinvestmentDate = moment(vaultReinvestmentData[0].timestamp * 1000)
+          .add(1, 'days')
+          .format('MMM DD YYYY');
+        mainnetReinvestmentDate = moment(
+          vaultReinvestmentData[0].timestamp * 1000
+        )
+          .add(7, 'days')
+          .format('MMM DD YYYY');
+      }
+
       const points = vaultYield?.pointMultiples;
       const boostNum = getArbBoosts(v.vaultShares.token, false);
       const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
@@ -251,6 +278,18 @@ export const useVaultHoldingsTable = () => {
           ),
         },
       ];
+
+      if (!points) {
+        subRowData.push({
+          label: (
+            <FormattedMessage defaultMessage={'Time to Next Reinvestment'} />
+          ),
+          value:
+            network === 'mainnet'
+              ? mainnetReinvestmentDate
+              : arbReinvestmentDate,
+        });
+      }
 
       if (points) {
         const pointsLink = PointsLinks[network][v.vaultAddress];
@@ -378,22 +417,6 @@ export const useVaultHoldingsTable = () => {
       };
     }
   );
-
-  useEffect(() => {
-    const formattedExpandedRows = vaultHoldingsColumns.reduce(
-      (accumulator, _value, index) => {
-        return { ...accumulator, [index]: index === 0 ? true : false };
-      },
-      {}
-    );
-
-    if (
-      expandedRows === null &&
-      JSON.stringify(formattedExpandedRows) !== '{}'
-    ) {
-      setExpandedRows(formattedExpandedRows);
-    }
-  }, [vaultHoldingsColumns, expandedRows, setExpandedRows]);
 
   const totalRowData = vaults.reduce(
     (accumulator, vault) => {
