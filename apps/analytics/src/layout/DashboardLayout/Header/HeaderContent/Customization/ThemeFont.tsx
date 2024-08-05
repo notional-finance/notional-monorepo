@@ -21,7 +21,7 @@ import { FontFamily } from 'types/config';
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 const roboto = Roboto({ subsets: ['latin'], weight: ['300', '400', '500', '700'] });
-const poppins = Poppins({ subsets: ['devanagari'], weight: ['400', '500', '600', '700'] });
+const poppins = Poppins({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 const publicSans = Public_Sans({ subsets: ['latin'], weight: ['400', '500', '300', '700'] });
 
 // ==============================|| CUSTOMIZATION - FONT FAMILY ||============================== //

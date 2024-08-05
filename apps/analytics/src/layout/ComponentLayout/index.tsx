@@ -7,7 +7,6 @@ import Container from '@mui/material/Container';
 import Toolbar from '@mui/material/Toolbar';
 
 // project import
-import Loader from 'components/Loader';
 import ComponentLayoutPage from './ComponentLayout';
 
 const Header = lazy(() => import('./Header'));

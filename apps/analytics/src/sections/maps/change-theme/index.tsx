@@ -14,6 +14,7 @@ interface Props extends MapBoxProps {
   themes: {
     [key: string]: string;
   };
+  projection: undefined;
 }
 
 // ==============================|| MAPBOX - THEME ||============================== //
