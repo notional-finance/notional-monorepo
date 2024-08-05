@@ -19,8 +19,8 @@ import IncomeChart from 'sections/dashboard/analytics/IncomeChart';
 import CaretDownOutlined from '@ant-design/icons/CaretDownOutlined';
 
 interface IncomeOverviewCardProps {
-  selectedListItem: string | null;
-  selectedChildItem: string | null;
+  selectedListItem?: string | null;
+  selectedChildItem?: string | null;
 }
 
 export default function IncomeOverviewCard({ selectedListItem, selectedChildItem }: IncomeOverviewCardProps) {

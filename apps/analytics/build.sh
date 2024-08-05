@@ -9,3 +9,4 @@ rm -rf ./dist
 yarn nx build common-icons
 cd -
 yarn
+yarn run build

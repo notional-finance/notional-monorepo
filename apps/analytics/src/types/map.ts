@@ -2,7 +2,7 @@ import { MapProps } from 'react-map-gl';
 
 // ==============================|| MEP TYPES ||============================== //
 
-export type MapBoxProps = Omit<MapProps, 'fog' | 'terrain'>;
+export type MapBoxProps = Omit<MapProps, 'fog' | 'terrain' | 'projection'>;
 
 export type MapControlProps = {
   minZoom: number;

@@ -81,9 +81,7 @@ export const authOptions: NextAuthOptions = {
     },
     session: ({ session, token }) => {
       if (token) {
-        session.id = token.id;
-        session.provider = token.provider;
-        session.token = token;
+        throw Error('Session is not supported');
       }
       return session;
     }

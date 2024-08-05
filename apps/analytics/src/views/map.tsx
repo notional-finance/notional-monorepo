@@ -46,7 +46,7 @@ export default function Map() {
       <Grid item xs={12}>
         <MainCard title="Theme Variants">
           <MapContainerStyled>
-            <ChangeTheme {...mapConfiguration} themes={MAPBOX_THEMES} />
+            <ChangeTheme {...mapConfiguration} themes={MAPBOX_THEMES} projection={undefined} />
           </MapContainerStyled>
         </MainCard>
       </Grid>
