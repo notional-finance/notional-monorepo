@@ -129,7 +129,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           'id'
         ),
       this.env.NX_SUBGRAPH_API_KEY,
-      { minTimestamp },
+      { minTimestamp, currentTimestamp: getNowSeconds() },
       'oracles'
     );
 
