@@ -7,6 +7,7 @@ import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { aggregate } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
 import {
+  BalancerPoolABI,
   ERC20ABI,
   ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
@@ -116,17 +117,21 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
               stage: 1,
               method: 'totalSupply',
               key: `${vaultAddress}.pool.totalSupply`,
+              transform: (r: BigNumber, prevResults: any) =>
+                TokenBalance.toJSON(r, prevResults[vaultAddress].pool, network),
             },
             {
               target: (r: any) =>
                 new Contract(
                   r[vaultAddress].pool,
-                  ERC20ABI,
+                  BalancerPoolABI,
                   getProviderFromNetwork(network)
                 ),
               stage: 1,
               method: 'getActualSupply',
               key: `${vaultAddress}.pool.actualSupply`,
+              transform: (r: BigNumber, prevResults: any) =>
+                TokenBalance.toJSON(r, prevResults[vaultAddress].pool, network),
             },
           ];
         }
