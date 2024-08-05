@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { Box, Theme, useTheme } from '@mui/material';
 import {
   DataTableColumn,
@@ -38,8 +38,8 @@ import { useHistory } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
 import {
   PointsLinks,
-  Registry,
   getArbBoosts,
+  Registry,
 } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 import moment from 'moment';
@@ -78,6 +78,11 @@ export const useVaultHoldingsTable = () => {
   const history = useHistory();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
+  const analyticsReady = useAnalyticsReady(network);
+  const reinvestmentData =
+    network && analyticsReady
+      ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
+      : undefined;
 
   const toggleData = [
     <Box
@@ -208,12 +213,6 @@ export const useVaultHoldingsTable = () => {
     ];
   }, []);
 
-  const analyticsReady = useAnalyticsReady(network);
-  const reinvestmentData =
-    network && analyticsReady
-      ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
-      : undefined;
-
   const vaultHoldingsData = vaults.map(
     ({
       vault: v,
@@ -230,6 +229,12 @@ export const useVaultHoldingsTable = () => {
         v,
         theme
       );
+      const points = vaultYield?.pointMultiples;
+      const boostNum = getArbBoosts(v.vaultShares.token, false);
+      const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
+      const totalPoints =
+        arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)
+          ?.points || 0;
       const vaultReinvestmentData = reinvestmentData?.[v.vaultAddress];
       let arbReinvestmentDate = '';
       let mainnetReinvestmentDate = '';
@@ -244,13 +249,6 @@ export const useVaultHoldingsTable = () => {
           .add(7, 'days')
           .format('MMM DD YYYY');
       }
-
-      const points = vaultYield?.pointMultiples;
-      const boostNum = getArbBoosts(v.vaultShares.token, false);
-      const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
-      const totalPoints =
-        arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)
-          ?.points || 0;
       const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
         {
           label: <FormattedMessage defaultMessage={'Borrow APY'} />,
@@ -417,6 +415,22 @@ export const useVaultHoldingsTable = () => {
       };
     }
   );
+
+  useEffect(() => {
+    const formattedExpandedRows = vaultHoldingsColumns.reduce(
+      (accumulator, _value, index) => {
+        return { ...accumulator, [index]: index === 0 ? true : false };
+      },
+      {}
+    );
+
+    if (
+      expandedRows === null &&
+      JSON.stringify(formattedExpandedRows) !== '{}'
+    ) {
+      setExpandedRows(formattedExpandedRows);
+    }
+  }, [vaultHoldingsColumns, expandedRows, setExpandedRows]);
 
   const totalRowData = vaults.reduce(
     (accumulator, vault) => {
