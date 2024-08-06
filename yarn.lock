@@ -23361,9 +23361,9 @@ workerpool@^6.5.1:
   integrity sha512-Fs4dNYcsdpYSAfVxhnl1L5zTksjvOJxtC5hzMNl+1t9B8hTJTdKDyZ5ju7ztgPy+ft9tBFXoOlDNiOT9WUXZlA==
 
 wrangler@^3.61.0:
-  version "3.69.0"
-  resolved "https://registry.yarnpkg.com/wrangler/-/wrangler-3.69.0.tgz#df5915f23a026bba65d8146e4ed59a8e6a2ba324"
-  integrity sha512-xi62rs2u35YLaPaUE70CtxUFtHnZQF1IVmM6RZFbF9n21fvmVfKeZidGV6tvqu74oL5zgdrjXQSv77m9KpibzA==
+  version "3.68.0"
+  resolved "https://registry.yarnpkg.com/wrangler/-/wrangler-3.68.0.tgz#e4a51adf7f2913faf44145388ef68562eea06c0c"
+  integrity sha512-gsIeglkh5nOn1mHJs0bf1pOq/DvIt+umjO/5a867IYYXaN4j/ar5cRR1+F5ue3S7uEjYCLIZZjs8ESiPTSEt+Q==
   dependencies:
     "@cloudflare/kv-asset-handler" "0.3.4"
     "@esbuild-plugins/node-globals-polyfill" "^0.2.3"
