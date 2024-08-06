@@ -32,6 +32,7 @@ import {
   formatMaturity,
   PRIME_CASH_VAULT_MATURITY,
   pointsMultiple,
+  Network,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useHistory } from 'react-router-dom';
@@ -67,6 +68,34 @@ export function getVaultLeveragePercentage(
   return { maxLeverageRatio, leverageRatio, leveragePercentage, trackColor };
 }
 
+export function getVaultReinvestmentDates(
+  network: Network | undefined,
+  vaultAddress: string,
+  analyticsReady: boolean
+) {
+  const reinvestmentData =
+    network && analyticsReady
+      ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
+      : undefined;
+  let arbReinvestmentDate = '';
+  let mainnetReinvestmentDate = '';
+
+  const vaultReinvestmentData =
+    vaultAddress && reinvestmentData?.[vaultAddress]
+      ? reinvestmentData[vaultAddress]
+      : undefined;
+  if (vaultReinvestmentData && vaultReinvestmentData.length > 0) {
+    arbReinvestmentDate = moment(vaultReinvestmentData[0].timestamp * 1000)
+      .add(1, 'days')
+      .format('MMM DD YYYY');
+    mainnetReinvestmentDate = moment(vaultReinvestmentData[0].timestamp * 1000)
+      .add(7, 'days')
+      .format('MMM DD YYYY');
+  }
+
+  return { arbReinvestmentDate, mainnetReinvestmentDate };
+}
+
 export const useVaultHoldingsTable = () => {
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
@@ -77,12 +106,8 @@ export const useVaultHoldingsTable = () => {
   const baseCurrency = useFiat();
   const history = useHistory();
   const network = useSelectedNetwork();
-  const vaults = useVaultHoldings(network);
   const analyticsReady = useAnalyticsReady(network);
-  const reinvestmentData =
-    network && analyticsReady
-      ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
-      : undefined;
+  const vaults = useVaultHoldings(network);
 
   const toggleData = [
     <Box
@@ -235,20 +260,9 @@ export const useVaultHoldingsTable = () => {
       const totalPoints =
         arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)
           ?.points || 0;
-      const vaultReinvestmentData = reinvestmentData?.[v.vaultAddress];
-      let arbReinvestmentDate = '';
-      let mainnetReinvestmentDate = '';
+      const { arbReinvestmentDate, mainnetReinvestmentDate } =
+        getVaultReinvestmentDates(network, v.vaultAddress, analyticsReady);
 
-      if (vaultReinvestmentData) {
-        arbReinvestmentDate = moment(vaultReinvestmentData[0].timestamp * 1000)
-          .add(1, 'days')
-          .format('MMM DD YYYY');
-        mainnetReinvestmentDate = moment(
-          vaultReinvestmentData[0].timestamp * 1000
-        )
-          .add(7, 'days')
-          .format('MMM DD YYYY');
-      }
       const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
         {
           label: <FormattedMessage defaultMessage={'Borrow APY'} />,
@@ -283,7 +297,7 @@ export const useVaultHoldingsTable = () => {
             <FormattedMessage defaultMessage={'Time to Next Reinvestment'} />
           ),
           value:
-            network === 'mainnet'
+            network === Network.mainnet
               ? mainnetReinvestmentDate
               : arbReinvestmentDate,
         });
