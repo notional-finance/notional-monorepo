@@ -1,5 +1,6 @@
-import WidgetStatistics from 'views/widget/statistics';
+// import WidgetStatistics from 'views/widget/statistics';
 
 export default function WidgetStatisticsPage() {
-  return <WidgetStatistics />;
+  return <div></div>;
+  // return <WidgetStatistics />;
 }
