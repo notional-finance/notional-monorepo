@@ -28,8 +28,10 @@ jobs:
           node-version: '18'
           cache: 'yarn'
       - name: Yarn Install
-        working-directory: apps/analytics
         run: yarn install --frozen-lockfile
+      - name: Build
+        working-directory: apps/analytics
+        run: ./build.sh
       - name: Build Web
         working-directory: apps/analytics
         run: yarn run next-on-pages
