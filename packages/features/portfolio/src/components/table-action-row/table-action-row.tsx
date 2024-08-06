@@ -220,7 +220,7 @@ const Container = styled(Box)(
 const ApyContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
-  gap: ${theme.spacing(5)};
+  gap: ${theme.spacing(3)};
   margin-left: ${theme.spacing(7)};
   `
 );
