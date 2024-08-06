@@ -1,9 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { datadogRum } from '@datadog/browser-rum';
-import { useImpactTracking } from '@notional-finance/utils';
-import { initPlausible } from '@notional-finance/helpers';
 import { getFromLocalStorage } from '@notional-finance/helpers';
-import Plausible from 'plausible-tracker';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter, Switch } from 'react-router-dom';
@@ -14,7 +11,6 @@ import RouteContainer from './components/RouteContainer';
 import AppLayoutRoute from './layouts/AppLayoutRoute';
 // import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
-import { useNotional } from '@notional-finance/notionable-hooks';
 import { initializeNetwork } from '@notional-finance/notionable';
 import { TrackingConsent } from '@notional-finance/shared-web';
 // import { ServerError } from '../../containers/server-error/server-error';
@@ -60,11 +56,8 @@ datadogRum.init({
 });
 
 export const App = () => {
-  const { trackPageview } = Plausible();
   const { themeVariant } = useUserSettingsState();
   const notionalTheme = useNotionalTheme(themeVariant);
-  const { pendingChainId, initializeNotional } = useNotional();
-  useImpactTracking();
 
   const initApplication = useCallback(async () => {
     try {
@@ -80,18 +73,8 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    initPlausible();
-    trackPageview();
-  }, [trackPageview]);
-
-  useEffect(() => {
     initApplication();
   }, [initApplication]);
-
-  // Re-initializes notional if the pending chain id changes
-  useEffect(() => {
-    if (pendingChainId !== -1) initializeNotional(pendingChainId);
-  }, [pendingChainId, initializeNotional]);
 
   return (
     <ThemeProvider theme={notionalTheme}>

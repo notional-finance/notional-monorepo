@@ -3,10 +3,7 @@ import { styled, Box, ThemeProvider } from '@mui/material';
 import { DiscordFooter } from '@notional-finance/icons';
 import logoForDarkBackground from '@notional-finance/assets/images/logos/Notional_logo_for_dark_background.svg';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useLastUpdateBlockNumber } from '@notional-finance/notionable-hooks';
-import { formatNumber, formatNumberAsPercent } from '@notional-finance/helpers';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
-import { useCryptoPriceState } from '../crypto-price-manager/store/use-crypto-price-state';
 import { useCryptoPriceManager } from '../crypto-price-manager/use-crypto-price-manager';
 import {
   ExternalLink,
@@ -84,58 +81,9 @@ const StyledFooter = styled(Box)(
 `
 );
 
-// NOTE* background-color intentionally hard coded
-const StatusBox = styled(Box)(
-  ({ theme }) => `
-  border-radius: ${theme.shape.borderRadiusLarge};
-  background-color: #013D4A;
-  padding: ${theme.spacing(1.5)};
-  text-align: left;
-`
-);
-
-const LatestSyncedBlock = styled(Box)(
-  ({ theme }) => `
-  padding-top: ${theme.spacing(1)};
-  padding-bottom: ${theme.spacing(1)};
-  padding-left: ${theme.spacing(2)};
-  padding-right: ${theme.spacing(2)};
-  border-radius: ${theme.shape.borderRadius()};
-  color: ${theme.palette.borders.accentPaper};
-  background-color: ${theme.palette.background.accentDefault};
-  display: flex;
-  align-items: baseline;
-
-  .blocknum {
-    margin-left: ${theme.spacing(1)};
-    color: ${theme.palette.success.accent};
-  }
-`
-);
-
-const StatusDot = styled(Box)(
-  ({ theme }) => `
-  width: ${theme.spacing(1)};
-  height: ${theme.spacing(1)};
-  margin-left: ${theme.spacing(1)};
-  border-radius: 50%;
-  align-self: center;
-`
-);
-
 export const Footer = () => {
   useCryptoPriceManager();
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
-  const lastUpdateBlockNumber = useLastUpdateBlockNumber();
-  const { cryptoPrices } = useCryptoPriceState();
-  const statusOk = lastUpdateBlockNumber !== undefined;
-
-  const currentETHPrice = cryptoPrices['eth']
-    ? `$${formatNumber(cryptoPrices['eth'].price, 2)}`
-    : '-';
-  const currentETHPercentChange = cryptoPrices['eth']
-    ? cryptoPrices['eth']['24H']
-    : 0;
 
   return (
     <ThemeProvider theme={theme}>
@@ -196,54 +144,7 @@ export const Footer = () => {
             />
           </HeadingSubtitle>
         </FooterCenter>
-        <FooterRight>
-          <StatusBox>
-            <LatestSyncedBlock>
-              <Label>
-                <FormattedMessage
-                  defaultMessage="Last Synced Block: {number}"
-                  description="footer link"
-                  values={{
-                    number: (
-                      <span style={{ color: theme.palette.success.accent }}>
-                        {lastUpdateBlockNumber}
-                      </span>
-                    ),
-                  }}
-                />
-              </Label>
-              <StatusDot
-                sx={{
-                  backgroundColor: statusOk
-                    ? theme.palette.success.accent
-                    : theme.palette.error.main,
-                  boxShadow: '1px',
-                }}
-              />
-            </LatestSyncedBlock>
-            <Label contrast textAlign="center" marginTop={theme.spacing(1)}>
-              <FormattedMessage
-                defaultMessage={'ETH Price: {currentETHPrice} {priceChange}'}
-                values={{
-                  currentETHPrice,
-                  priceChange: (
-                    <span
-                      style={{
-                        marginLeft: theme.spacing(0.5),
-                        color:
-                          currentETHPercentChange > 0
-                            ? theme.palette.success.accent
-                            : theme.palette.error.main,
-                      }}
-                    >
-                      {`(${formatNumberAsPercent(currentETHPercentChange)})`}
-                    </span>
-                  ),
-                }}
-              />
-            </Label>
-          </StatusBox>
-        </FooterRight>
+        <FooterRight></FooterRight>
       </StyledFooter>
     </ThemeProvider>
   );

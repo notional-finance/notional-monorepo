@@ -2,11 +2,9 @@ import {
   getFromLocalStorage,
   getNetworkIdFromHostname,
 } from '@notional-finance/util';
-import { initializeNotional } from '../notional/notional-manager';
 import {
   initializeOnboard,
   connectWallet,
-  setChain,
 } from '../onboard/onboard-manager';
 import { OnboardOptions } from '../types';
 import { chainIds as supportedChainIds, chainEntities } from '../chains';
@@ -25,8 +23,6 @@ export async function initializeNetwork({
     // attempt to load selectedNetwork from localStorage
     const wallet = getFromLocalStorage('selectedWallet');
 
-    const chainId = getDefaultNetwork();
-    await initializeNotional(chainId);
     if (wallet && typeof wallet === 'string') {
       await connectWallet(wallet);
     }
@@ -39,12 +35,7 @@ export async function switchNetwork(id: string | number) {
   const chainId = typeof id === 'string' ? parseInt(id) : id;
   try {
     const chainSupported = supportedChainIds.includes(chainId);
-    if (chainSupported) {
-      const walletConnected = await setChain(chainId);
-      if (!walletConnected) {
-        initializeNotional(chainId);
-      }
-    } else {
+    if (!chainSupported) {
       throw new Error('Unsupported Chain');
     }
   } catch (e) {

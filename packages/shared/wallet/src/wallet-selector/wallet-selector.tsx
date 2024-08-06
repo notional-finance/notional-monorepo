@@ -6,13 +6,13 @@ import {
   GearIcon,
   ActiveBellIcon,
   BellIcon,
-  EyeIcon,
+  // EyeIcon,
 } from '@notional-finance/icons';
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
-import NetworkSelector from '../network-selector/network-selector';
-import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
-import { ProgressIndicator, ButtonText, Caption } from '@notional-finance/mui';
+// import NetworkSelector from '../network-selector/network-selector';
+import { useOnboard } from '@notional-finance/notionable-hooks';
+import { ButtonText, Caption } from '@notional-finance/mui';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useWalletSideDrawer } from '../hooks';
 import {
@@ -20,6 +20,7 @@ import {
   PORTFOLIO_CATEGORIES,
   SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/shared-config';
+import { truncateAddress } from '@notional-finance/helpers';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -28,8 +29,8 @@ export interface PortfolioParams {
 
 export function WalletSelector() {
   const theme = useTheme();
-  const { connected, icon, label } = useOnboard();
-  const { truncatedAddress, address } = useAccount();
+  const { connected, icon, label, address } = useOnboard();
+  const truncatedAddress = truncateAddress(address);
   const [notificationsActive, setNotificationsActive] =
     useState<boolean>(false);
   const [showAlert, setShowAlert] = useState<boolean>(false);
@@ -121,33 +122,13 @@ export function WalletSelector() {
               </Box>
             </>
           )}
-
-          {!connected && truncatedAddress && (
-            <ProcessContainer
-              onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)}
-            >
-              <IconContainer>
-                <EyeIcon />
-              </IconContainer>
-              <ButtonText
-                sx={{ flex: 1, textAlign: 'center', alignSelf: 'center' }}
-              >
-                {truncatedAddress}
-              </ButtonText>
-            </ProcessContainer>
-          )}
-          {!connected && !truncatedAddress && (
+          {connected === false && (
             <ProcessContainer
               onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)}
             >
               <ButtonText>
                 <FormattedMessage defaultMessage="Connect a Wallet" />
               </ButtonText>
-            </ProcessContainer>
-          )}
-          {connected && !truncatedAddress && (
-            <ProcessContainer>
-              <ProgressIndicator type="circular" size={18} />
             </ProcessContainer>
           )}
           <IconContainer
@@ -159,7 +140,7 @@ export function WalletSelector() {
         </Container>
       </OuterContainer>
       <WalletSideDrawer />
-      <NetworkSelector />
+      {/* <NetworkSelector /> */}
     </>
   );
 }
