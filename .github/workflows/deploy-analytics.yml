@@ -1,4 +1,4 @@
-name: Deploy V3 Website
+name: Deploy Analytics
 on:
   workflow_dispatch:
     inputs:
