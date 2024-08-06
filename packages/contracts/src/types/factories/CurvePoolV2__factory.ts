@@ -1372,7 +1372,7 @@ const _abi = [
       },
     ],
   },
-];
+] as const;
 
 export class CurvePoolV2__factory {
   static readonly abi = _abi;

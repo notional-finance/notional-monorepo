@@ -1060,7 +1060,7 @@ const _abi = [
     name: "InvalidChain",
     inputs: [],
   },
-];
+] as const;
 
 export class TreasuryManager__factory {
   static readonly abi = _abi;
