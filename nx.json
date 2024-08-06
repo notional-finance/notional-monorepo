@@ -63,7 +63,22 @@
         "style": "@emotion/styled",
         "linter": "eslint"
       }
+    },
+    "@nrwl/next": {
+      "application": {
+        "style": "@emotion/styled",
+        "linter": "eslint"
+      }
     }
   },
-  "defaultProject": "web"
+  "defaultProject": "web",
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "lint"],
+        "cacheDirectory": ".nx-cache"
+      }
+    }
+  }
 }
