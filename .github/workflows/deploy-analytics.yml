@@ -30,10 +30,10 @@ jobs:
       - name: Yarn Install
         run: yarn install --frozen-lockfile
       - name: Build
-        working-directory: apps/analytics
+        working-directory: gcp/analytics
         run: ./build.sh
       - name: Build Web
-        working-directory: apps/analytics
+        working-directory: gcp/analytics
         run: yarn run next-on-pages
         env:
           NX_DATA_URL: ${{ secrets.NX_DATA_URL }}
@@ -47,7 +47,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: notional-analytics-${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
-          directory: apps/analytics/.vercel/output/static
+          directory: gcp/analytics/.vercel/output/static
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2

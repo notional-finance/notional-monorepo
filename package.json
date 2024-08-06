@@ -219,8 +219,7 @@
   },
   "workspaces": [
     "packages/**",
-    "apps/**",
-    "!apps/analytics/**"
+    "apps/**"
   ],
   "resolutions": {
     "@types/react": "17.0.39",
