@@ -1,9 +1,8 @@
 import React from 'react';
-import { Tabs, styled, Tab, Box, useTheme, SxProps } from '@mui/material';
-import { TabsUnstyledProps } from '@mui/base';
+import { Tabs, styled, Tab, Box, useTheme, SxProps, TabsProps } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 
-export interface SimpleToggleProps extends TabsUnstyledProps {
+export interface SimpleToggleProps extends TabsProps {
   selectedTabIndex: number;
   tabLabels: React.ReactNode[];
   tabVariant?: 'standard' | 'scrollable' | 'fullWidth' | undefined;

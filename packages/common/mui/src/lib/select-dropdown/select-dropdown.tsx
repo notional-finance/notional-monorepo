@@ -5,10 +5,11 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-import SelectUnstyled, { SelectOption } from '@mui/base/SelectUnstyled';
-import PopperUnstyled from '@mui/base/PopperUnstyled';
+import { Select } from '@mui/base/Select';
+import { Popper } from '@mui/base/Popper';
 import { ArrowIcon } from '@notional-finance/icons';
 import { ElementType, useState } from 'react';
+import { SelectOption } from '@mui/base';
 
 interface SelectDropdownProps {
   children: React.ReactNode[];
@@ -37,11 +38,11 @@ const StyledMenu = styled(MenuList)(
   `
 );
 
-const StyledPopper = styled(PopperUnstyled)(`
+const StyledPopper = styled(Popper)(`
   z-index: 99;
 `);
 
-const ScrollPopper = styled(PopperUnstyled)(
+const ScrollPopper = styled(Popper)(
   ({ theme }) => `
   z-index: 99;
   height: ${theme.spacing(41)};
@@ -147,7 +148,7 @@ export const SelectDropdown = ({
   };
 
   return (
-    <SelectUnstyled
+    <Select
       disabled={onlyOneInput}
       value={value}
       slotProps={componentProps}
@@ -162,6 +163,6 @@ export const SelectDropdown = ({
       }}
     >
       {children}
-    </SelectUnstyled>
+    </Select>
   );
 };

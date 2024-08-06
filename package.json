@@ -17,9 +17,9 @@
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/providers": "^5.7.1",
     "@lottiefiles/react-lottie-player": "3.5.3",
-    "@mui/icons-material": "^5.8.3",
-    "@mui/lab": "^5.0.0-alpha.100",
-    "@mui/material": "^5.8.3",
+    "@mui/base": "^5.0.0-beta.40",
+    "@mui/icons-material": "^5.16.6",
+    "@mui/material": "^5.16.6",
     "@safe-global/safe-apps-provider": "^0.18.3",
     "@safe-global/safe-apps-sdk": "^9.1.0",
     "@segment/analytics-next": "^1.58.0",
@@ -43,7 +43,6 @@
     "@web3-onboard/web3auth": "^2.4.0",
     "abi-decoder": "^2.4.0",
     "axios": "^0.27.2",
-    "bnc-sdk": "^4.3.0",
     "browserify-zlib": "^0.2.0",
     "calendar-link": "^2.1.1",
     "core-js": "^3.6.5",
@@ -52,14 +51,12 @@
     "echarts": "^5.5.0",
     "echarts-for-react": "^3.0.2",
     "ethers": "^5.7.1",
-    "eventemitter3": "^4.0.7",
     "fetch-retry": "^5.0.3",
     "graphql": "^16.6.0",
     "itty-router": "^3.0.12",
     "knex": "^2.5.1",
     "material-ui-popup-state": "^3.1.1",
     "moment": "^2.29.2",
-    "next": "13.0.0",
     "observable-hooks": "^4.2.0",
     "pg": "^8.11.3",
     "plausible-tracker": "^0.3.8",
@@ -222,6 +219,8 @@
     "apps/**"
   ],
   "resolutions": {
-    "string-width": "^4.2.3"
+    "string-width": "^4.2.3",
+    "@types/react": "17.0.39",
+    "@types/react-dom": "17.0.11"
   }
 }

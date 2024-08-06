@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles';
-import OptionUnstyled from '@mui/base/OptionUnstyled';
 import { Box, Button, useTheme } from '@mui/material';
+import { Option } from '@mui/base';
 import { TokenIcon } from '@notional-finance/icons';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { SelectDropdown } from '../select-dropdown/select-dropdown';
@@ -244,7 +244,7 @@ export const EmptyCurrencySelectOption = (theme: NotionalTheme) => (
   </StyledItem>
 );
 
-const StyledItem = styled(OptionUnstyled)(
+const StyledItem = styled(Option)(
   ({ theme }) => `
   font-family: ${theme.typography.fontFamily};
   display: flex;

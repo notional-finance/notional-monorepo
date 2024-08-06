@@ -1,9 +1,8 @@
 import React from 'react';
-import { Tabs, styled, Tab, Box, useTheme } from '@mui/material';
-import { TabsUnstyledProps } from '@mui/base';
+import { Tabs, styled, Tab, Box, useTheme, TabsProps } from '@mui/material';
 import { NotionalTheme, colors } from '@notional-finance/styles';
 
-export interface ToggleProps extends TabsUnstyledProps {
+export interface ToggleProps extends TabsProps {
   selectedTabIndex: number;
   tabLabels: React.ReactNode[];
   onChange?: (
