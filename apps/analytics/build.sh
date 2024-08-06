@@ -8,5 +8,4 @@ echo "$(pwd)"
 rm -rf ./dist
 yarn nx build common-icons
 cd -
-yarn
-yarn run build
+yarn add file:../../dist/packages/common/icons
