@@ -22,28 +22,16 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'yarn'
-      
-      - name: Yarn Install without frozen lockfile
-        run: |
-          yarn install --verbose
-          git diff yarn.lock > lockfile_changes.diff
-      
-      - name: Upload lockfile changes
-        uses: actions/upload-artifact@v2
-        with:
-          name: lockfile-changes
-          path: lockfile_changes.diff
-      
+      - name: Yarn Install
+        run: yarn install --frozen-lockfile
       - name: Build
         working-directory: gcp/analytics
         run: ./build.sh
-      
       - name: Build Web
         working-directory: gcp/analytics
         run: yarn run next-on-pages
@@ -59,7 +47,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: notional-analytics-${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
+          projectName: analytics-${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
           directory: gcp/analytics/.vercel/output/static
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       

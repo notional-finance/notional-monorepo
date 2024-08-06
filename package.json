@@ -222,14 +222,6 @@
     "apps/**"
   ],
   "resolutions": {
-    "@types/react": "17.0.39",
-    "@types/react-dom": "17.0.11",
-    "**/@cosmjs/tendermint-rpc": "0.28.4",
-    "**/@cosmjs/encoding": "0.28.4",
-    "**/@cosmjs/utils": "0.28.4",
-    "**/@cosmjs/stream": "0.28.4",
-    "**/@cosmjs/math": "0.28.4",
-    "**/@cosmjs/amino": "0.28.4",
-    "**/@cosmjs/proto-signing": "0.28.4"
+    "string-width": "^4.2.3"
   }
 }
