@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import DashboardLayout from 'layout/DashboardLayout';
 import HistoricalMarketDataDefault from 'views/markets/historical-market-data';
 

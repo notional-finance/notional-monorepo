@@ -31,7 +31,7 @@ export default function DraggableColumnHeader({
   const { columnOrder } = getState();
   const { column } = header;
 
-  const [{ isOverCurrent }, dropRef] = useDrop({
+  const [{ isOverCurrent } /* dropRef */] = useDrop({
     accept: 'column',
     drop: (draggedColumn: Column<TableDataProps>) => {
       const newColumnOrder = reorderColumn(draggedColumn.id, column.id, columnOrder);
@@ -43,7 +43,7 @@ export default function DraggableColumnHeader({
     })
   });
 
-  const [{ isDragging }, dragRef, previewRef] = useDrag({
+  const [{ isDragging } /* dragRef, previewRef */] = useDrag({
     collect: (monitor) => ({
       isDragging: monitor.isDragging()
     }),
@@ -52,9 +52,9 @@ export default function DraggableColumnHeader({
   });
 
   return (
-    <TableCell ref={dropRef} colSpan={header.colSpan} sx={{ cursor: 'move' }} {...header.column.columnDef.meta}>
-      <Box component="span" ref={previewRef}>
-        <Box ref={dragRef} sx={{ color: isOverCurrent ? 'primary.main' : 'text.primary', opacity: isDragging ? 0.9 : 1 }}>
+    <TableCell /* ref={dropRef} */ colSpan={header.colSpan} sx={{ cursor: 'move' }} {...header.column.columnDef.meta}>
+      <Box component="span" /* ref={previewRef} */>
+        <Box /* ref={dragRef} */ sx={{ color: isOverCurrent ? 'primary.main' : 'text.primary', opacity: isDragging ? 0.9 : 1 }}>
           {children}
         </Box>
       </Box>
