@@ -80,7 +80,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       iconImg: (
         <NoteOutlineIcon
           fill={theme.palette.typography.main}
-          className="color-fill"
           sx={{
             height: theme.spacing(2.5),
           }}
