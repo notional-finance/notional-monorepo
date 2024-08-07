@@ -1,15 +1,9 @@
-import {
-  MenuList,
-  PopperPlacementType,
-  SxProps,
-  styled,
-  useTheme,
-} from '@mui/material';
+import { MenuList, SxProps, styled, useTheme } from '@mui/material';
 import { Select } from '@mui/base/Select';
-import { Popper } from '@mui/base/Popper';
 import { ArrowIcon } from '@notional-finance/icons';
 import { ElementType, useState } from 'react';
-import { SelectOption } from '@mui/base';
+
+import { PopupPlacement, SelectOption } from '@mui/base';
 
 interface SelectDropdownProps {
   children: React.ReactNode[];
@@ -38,11 +32,11 @@ const StyledMenu = styled(MenuList)(
   `
 );
 
-const StyledPopper = styled(Popper)(`
+const StyledPopper = styled(`div`)(`
   z-index: 99;
 `);
 
-const ScrollPopper = styled(Popper)(
+const ScrollPopper = styled(`div`)(
   ({ theme }) => `
   z-index: 99;
   height: ${theme.spacing(41)};
@@ -69,13 +63,11 @@ export const SelectDropdown = ({
   const components = {
     root: buttonComponent,
     listbox: StyledMenu,
-    popper: showScrollPopper ? ScrollPopper : StyledPopper,
+    popup: showScrollPopper ? ScrollPopper : StyledPopper,
   };
 
-  const popperPlacement =
-    window.innerWidth <= theme.breakpoints.values.sm
-      ? 'bottom'
-      : ('bottom-end' as PopperPlacementType);
+  const popperPlacement: PopupPlacement =
+    window.innerWidth <= theme.breakpoints.values.sm ? 'bottom' : 'bottom-end';
 
   const componentProps = {
     root: {
@@ -121,27 +113,12 @@ export const SelectDropdown = ({
     listbox: {
       theme,
     },
-    popper: {
+    popup: {
+      id: 'currency-select-popup',
       // open: true, // NOTE: uncomment this to keep the list box open when debugging
-      popperOptions: {
-        placement: popperPlacement,
-        // If no popper width is set manually, enforce that it matches the width of the
-        // select button component
-        modifiers: [
-          {
-            name: 'sameWidth',
-            enabled: true,
-            phase: 'beforeWrite',
-            requires: ['computeStyles'],
-            fn: ({ state }) => {
-              state.styles.popper.width =
-                popperWidth || `${state.rects.reference.width}px`;
-            },
-            effect: ({ state }) => {
-              state.elements.popper.style.width = `${state.elements.reference.offsetWidth}px`;
-            },
-          },
-        ],
+      placement: popperPlacement,
+      style: {
+        width: popperWidth || 'auto',
       },
       theme,
     },
