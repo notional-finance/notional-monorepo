@@ -26,13 +26,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.18.2'
+          yarn-version: '1.22.19'
           cache: 'yarn'
       - name: Yarn Install
         # echo "Yarn install completed"
         # echo "Differences in yarn.lock:"
         # git diff yarn.lock
         run: |
-          yarn install
+          yarn install --frozen-lockfile
       - name: Build Web
         run: yarn nx build web --parallel
         env:
