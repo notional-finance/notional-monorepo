@@ -164,7 +164,8 @@ export const useMyBreakdownTable = () => {
         b.token,
         isDebt
       );
-      const boostNum = getArbBoosts(b.token, false);
+
+      const boostNum = getArbBoosts(b.token, isDebt);
       const pointsPerDay = getPointsPerDay(b);
 
       const totalPoints =

@@ -1070,7 +1070,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class BalancerLinearPool__factory {
   static readonly abi = _abi;

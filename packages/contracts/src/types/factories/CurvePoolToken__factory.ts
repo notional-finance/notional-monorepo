@@ -961,7 +961,7 @@ const _abi = [
       },
     ],
   },
-];
+] as const;
 
 export class CurvePoolToken__factory {
   static readonly abi = _abi;

@@ -621,7 +621,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class ISingleSidedLPStrategyVault__factory {
   static readonly abi = _abi;

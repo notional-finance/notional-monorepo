@@ -24,6 +24,7 @@ function getWebpackConfig(config: webpack.Configuration) {
     stream: require.resolve('stream-browserify'),
     os: require.resolve('os-browserify/browser'),
     zlib: require.resolve('browserify-zlib'),
+    vm: false,
   };
 
   config.experiments = {

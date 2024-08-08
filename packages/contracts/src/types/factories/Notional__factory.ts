@@ -6546,7 +6546,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class Notional__factory {
   static readonly abi = _abi;
