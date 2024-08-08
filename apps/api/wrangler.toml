@@ -9,63 +9,12 @@ logpush = true
 
 tsconfig = "tsconfig.json"
 
-[[migrations]]
-tag = "v1"
-deleted_classes = ["KPIsDO", "AccountsDO", "ExchangeRatesDO"]
-
-[env.local]
-name = "api-local"
-minify = false
-durable_objects.bindings = [
-  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO", script_name = "registry-exchanges-dev" },
-  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-oracles-dev" },
-  { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO", script_name = "registry-configuration-dev" },
-  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-tokens-dev" },
-  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-vaults-dev" },
-  { name = "VIEWS_DO", class_name = "ViewsDO", script_name = "data-dev" },
-  { name = "ACCOUNTS_REGISTRY_DO", class_name = "RegistryClientDO", script_name = "accounts-dev" }
-]
-
-[env.local.vars]
-NX_ENV = "local"
-VERSION = "v1"
-VIEWS_NAME = "VIEWS_DO"
-
-[env.dev]
-name = "api-dev"
-route = { pattern = "data-dev.notional.finance", custom_domain = true }
-durable_objects.bindings = [
-  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO", script_name = "registry-exchanges-dev" },
-  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-oracles-dev" },
-  { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO", script_name = "registry-configuration-dev" },
-  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-tokens-dev" },
-  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-vaults-dev" },
-  { name = "VIEWS_DO", class_name = "ViewsDO", script_name = "data-dev" },
-  { name = "ACCOUNTS_REGISTRY_DO", class_name = "RegistryClientDO", script_name = "accounts-dev" }
-]
+[env.prod]
+name = "api-prod"
+route = { pattern = "data.notional.finance", custom_domain = true }
 r2_buckets = [
   { binding = "ACCOUNT_CACHE_R2", bucket_name = "account-cache-r2", preview_bucket_name = "account-cache-r2-dev" },
 ]
 
-[env.dev.vars]
-NX_ENV = "dev"
-# This is version that defines the durable object to retreive, increment it to reset
-# the durable object to a clean version
-VERSION = "v1"
-
-[env.prod]
-name = "api"
-route = { pattern = "data.notional.finance", custom_domain = true }
-durable_objects.bindings = [
-  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO", script_name = "registry-exchange-prod" },
-  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-exchange-prod" },
-  { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO", script_name = "registry-prod" },
-  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-prod" },
-  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-prod" },
-  { name = "VIEWS_DO", class_name = "ViewsDO", script_name = "data-dev" }
-]
-
 [env.prod.vars]
 NX_ENV = "prod"
-VERSION = "v1"
-VIEWS_NAME = "VIEWS_DO"

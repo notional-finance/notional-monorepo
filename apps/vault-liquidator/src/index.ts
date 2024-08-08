@@ -13,7 +13,7 @@ import {
   DDSeries,
   Logger,
   MetricType,
-} from '@notional-finance/durable-objects';
+} from '@notional-finance/util';
 import { formatUnits } from 'ethers/lib/utils';
 
 export interface Env {

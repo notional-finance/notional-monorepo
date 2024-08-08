@@ -1,5 +1,6 @@
 import { init } from '@web3-onboard/react';
 import { OnboardAPI } from '@web3-onboard/core';
+import safeModule from '@web3-onboard/gnosis';
 import injectedModule from '@web3-onboard/injected-wallets';
 import {
   EIP6963AnnounceProviderEvent,
@@ -106,6 +107,7 @@ const wallets = [
     email,
     appUrl,
   }),
+  safeModule(),
 ];
 
 export const OnboardContext: OnboardAPI = init({

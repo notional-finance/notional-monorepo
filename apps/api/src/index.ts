@@ -1,32 +1,23 @@
 import { Request } from '@cloudflare/workers-types';
 import { Router, IRequest } from 'itty-router';
-import { APIEnv } from '@notional-finance/durable-objects';
 import {
-  handleConfigurations,
-  handleExchanges,
   handleGeoIP,
   handleNewsletter,
-  handleOracles,
-  handleTokens,
-  handleYields,
-  handleVaults,
-  handleViews,
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
-  handleAccounts,
-  handleNOTEData,
   handleKPI,
+  handleAccountCacheRequest,
 } from './routes';
 
-export {
-  TokenRegistryDO,
-  ConfigurationRegistryDO,
-  ExchangeRegistryDO,
-  OracleRegistryDO,
-  VaultRegistryDO,
-  ViewsDO,
-} from '@notional-finance/durable-objects';
+export interface APIEnv {
+  GHOST_ADMIN_KEY: string;
+  NX_DD_API_KEY: string;
+  ACCOUNT_CACHE_R2: R2Bucket;
+  NX_SUBGRAPH_API_KEY: string;
+  NX_COMMIT_REF: string;
+  NX_ENV: string;
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -65,15 +56,9 @@ router.get('/nft/*', handleNFT);
 router.post('/dd-forward', handleDataDogForward);
 router.post('/plausible/*', handlePlausibleForward);
 router.post('/newsletter', handleNewsletter);
-router.get('/:network/views/:view', handleViews);
-router.get('/:network/yields', handleYields);
-router.get('/:network/tokens', handleTokens);
-router.get('/:network/configuration', handleConfigurations);
-router.get('/:network/oracles', handleOracles);
-router.get('/:network/exchanges', handleExchanges);
-router.get('/:network/accounts/:view', handleAccounts);
-router.get('/:network/note/:view', handleNOTEData);
-router.get('/:network/vaults', handleVaults);
+router.get('/:network/yields', handleAccountCacheRequest);
+router.get('/:network/accounts/:view', handleAccountCacheRequest);
+router.get('/:network/note/:view', handleAccountCacheRequest);
 router.get('/kpi', handleKPI);
 
 // Fall through catch for 404 errors

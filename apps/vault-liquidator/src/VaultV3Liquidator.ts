@@ -21,7 +21,7 @@ import {
   getFlashLender,
 } from '@notional-finance/util';
 import { overrides } from '.';
-import { Logger } from '@notional-finance/durable-objects';
+import { Logger } from '@notional-finance/util';
 
 export type LiquidatorSettings = {
   network: Network;
