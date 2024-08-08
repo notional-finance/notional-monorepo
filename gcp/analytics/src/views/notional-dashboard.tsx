@@ -56,7 +56,7 @@ export default function NotionalDashboard() {
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       {/* row 1 */}
       <Grid item xs={12} md={12} lg={12}>
-        <Typography variant="h2" sx={{ marginTop: '72px', marginBottom: '0px' }}>
+        <Typography variant="h2" sx={{ marginTop: theme.spacing(9), marginBottom: '0px' }}>
           Notional System Overview
         </Typography>
       </Grid>
@@ -68,7 +68,7 @@ export default function NotionalDashboard() {
 
       {/* row 3 */}
       <Grid item xs={12} md={12} lg={12}>
-        <Box sx={{ background: 'white', padding: '16px' }}>
+        <Box sx={{ background: 'white', padding: theme.spacing(2) }}>
           <Grid container alignItems="center" justifyContent="space-between">
             <Grid item>
               <Typography variant="h5">Market Summary</Typography>
@@ -93,8 +93,8 @@ export default function NotionalDashboard() {
         <Typography variant="h5">View Our Other Dashboards</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <Box sx={{ background: theme.palette.primary.main, padding: '20px', borderRadius: '4px' }}>
-          <Typography variant="h4" color="white" sx={{ marginBottom: '4px' }}>
+        <Box sx={{ background: theme.palette.primary.main, padding: theme.spacing(2.5), borderRadius: theme.spacing(0.5) }}>
+          <Typography variant="h4" color="white" sx={{ marginBottom: theme.spacing(0.5) }}>
             Dune Dashboard Mainnet
           </Typography>
           <Typography variant="h6" color="white">
@@ -103,8 +103,8 @@ export default function NotionalDashboard() {
         </Box>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <Box sx={{ background: theme.palette.primary.main, padding: '20px', borderRadius: '4px' }}>
-          <Typography variant="h4" color="white" sx={{ marginBottom: '4px' }}>
+        <Box sx={{ background: theme.palette.primary.main, padding: theme.spacing(2.5), borderRadius: theme.spacing(0.5) }}>
+          <Typography variant="h4" color="white" sx={{ marginBottom: theme.spacing(0.5) }}>
             Dune Dashboard Arbitrum
           </Typography>
           <Typography variant="h6" color="white">
@@ -113,8 +113,8 @@ export default function NotionalDashboard() {
         </Box>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <Box sx={{ background: theme.palette.primary.main, padding: '20px', borderRadius: '4px' }}>
-          <Typography variant="h4" color="white" sx={{ marginBottom: '4px' }}>
+        <Box sx={{ background: theme.palette.primary.main, padding: theme.spacing(2.5), borderRadius: theme.spacing(0.5) }}>
+          <Typography variant="h4" color="white" sx={{ marginBottom: theme.spacing(0.5) }}>
             Defi Llama
           </Typography>
           <Typography variant="h6" color="white">
@@ -123,8 +123,8 @@ export default function NotionalDashboard() {
         </Box>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <Box sx={{ background: theme.palette.primary.main, padding: '20px', borderRadius: '4px' }}>
-          <Typography variant="h4" color="white" sx={{ marginBottom: '4px' }}>
+        <Box sx={{ background: theme.palette.primary.main, padding: theme.spacing(2.5), borderRadius: theme.spacing(0.5) }}>
+          <Typography variant="h4" color="white" sx={{ marginBottom: theme.spacing(0.5) }}>
             Subgraphs
           </Typography>
           <Typography variant="h6" color="white">

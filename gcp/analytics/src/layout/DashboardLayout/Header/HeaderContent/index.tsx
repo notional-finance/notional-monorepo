@@ -25,6 +25,7 @@ import Logo from 'components/logo';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useParams } from 'next/navigation';
 import { TokenIcon } from '@notional-finance/icons';
+import useNetworkTokens from '../../../../hooks/useNetworkTokens';
 
 // ==============================|| COMPONENTS - APP BAR ||============================== //
 
@@ -34,6 +35,7 @@ export default function Header() {
   const [pathname, setPathname] = React.useState<string>('');
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const downMD = useMediaQuery(theme.breakpoints.down('md'));
+  const { mainnetTokens, arbTokens } = useNetworkTokens();
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
   };
@@ -49,30 +51,10 @@ export default function Header() {
     }
   }, [pathname, setPathname]);
 
-  const mainnetTokens: string[] = ['USDC', 'rETH', 'USDT', 'ETH', 'wstETH', 'DAI', 'sDAI', 'ARB', 'GHO', 'wBTC', 'FRAX'];
-
-  const arbTokens: string[] = [
-    'USDC',
-    'rETH',
-    'USDT',
-    'ETH',
-    'wstETH',
-    'DAI',
-    'wBTC',
-    'ARB',
-    'wBTC',
-    'FRAX',
-    'LDO',
-    'UNI',
-    'cbETH',
-    'LINK',
-    'RDNT'
-  ];
-
   return (
     <>
       <AppBar sx={{ bgcolor: 'white', boxShadow: 'none' }}>
-        <Container disableGutters={downMD} sx={{ maxWidth: '1440px !important' }}>
+        <Container disableGutters={downMD} sx={{ maxWidth: `${theme.spacing(180)} !important` }}>
           <Toolbar sx={{ px: { xs: 1.5, md: 0, lg: 0 }, py: 2 }}>
             <Stack direction="row" sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }} alignItems="center" spacing={2}>
               <Typography sx={{ textAlign: 'left', display: 'inline-block' }}>
@@ -284,24 +266,24 @@ export default function Header() {
           display: 'flex'
         }}
       >
-        <Box sx={{ width: '767px', height: '100%', display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ width: theme.spacing(96), height: '100%', display: 'flex', justifyContent: 'space-between' }}>
           <Box>
             <Typography sx={{ padding: '40px', paddingBottom: '0px', display: 'flex', alignItems: 'center' }} variant="h5">
-              <TokenIcon symbol={'ethnetwork'} size="medium" style={{ marginRight: '8px' }} />
+              <TokenIcon symbol={'ethnetwork'} size="medium" style={{ marginRight: theme.spacing(1) }} />
               <span>Mainnet</span>
             </Typography>
             <Box
               sx={{
                 color: 'black',
                 background: 'white',
-                padding: '40px',
-                paddingTop: '24px',
-                paddingBottom: '24px',
+                padding: theme.spacing(5),
+                paddingTop: theme.spacing(3),
+                paddingBottom: theme.spacing(3),
                 display: 'flex',
                 flexDirection: 'column',
                 flexWrap: 'wrap',
-                gridColumnGap: '32px',
-                height: '288px'
+                gridColumnGap: theme.spacing(4),
+                height: theme.spacing(36)
               }}
             >
               {mainnetTokens.map((token, i) => (
@@ -310,9 +292,9 @@ export default function Header() {
                     className="header-link"
                     color="black"
                     underline="none"
-                    sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', marginBottom: '24px' }}
+                    sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', marginBottom: theme.spacing(3) }}
                   >
-                    <TokenIcon symbol={token.toUpperCase()} size="medium" style={{ marginRight: '16px' }} />
+                    <TokenIcon symbol={token.toUpperCase()} size="medium" style={{ marginRight: theme.spacing(2) }} />
                     <span>{token}</span>
                   </Link>
                 </NextLink>
@@ -320,22 +302,22 @@ export default function Header() {
             </Box>
           </Box>
           <Box>
-            <Typography sx={{ padding: '40px', paddingBottom: '0px', display: 'flex', alignItems: 'center' }} variant="h5">
-              <TokenIcon symbol={'arbnetwork'} size="medium" style={{ marginRight: '8px' }} />
+            <Typography sx={{ padding: theme.spacing(5), paddingBottom: '0px', display: 'flex', alignItems: 'center' }} variant="h5">
+              <TokenIcon symbol={'arbnetwork'} size="medium" style={{ marginRight: theme.spacing(1) }} />
               <span>Arbitrum</span>
             </Typography>
             <Box
               sx={{
                 color: 'black',
                 background: 'white',
-                padding: '40px',
-                paddingTop: '24px',
-                paddingBottom: '24px',
+                padding: theme.spacing(5),
+                paddingTop: theme.spacing(3),
+                paddingBottom: theme.spacing(3),
                 display: 'flex',
                 flexDirection: 'column',
                 flexWrap: 'wrap',
-                gridColumnGap: '32px',
-                height: '288px'
+                gridColumnGap: theme.spacing(4),
+                height: theme.spacing(36)
               }}
             >
               {arbTokens.map((token, i) => (
@@ -344,9 +326,9 @@ export default function Header() {
                     className="header-link"
                     color="black"
                     underline="none"
-                    sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', marginBottom: '24px' }}
+                    sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', marginBottom: theme.spacing(3) }}
                   >
-                    <TokenIcon symbol={token.toUpperCase()} size="medium" style={{ marginRight: '16px' }} />
+                    <TokenIcon symbol={token.toUpperCase()} size="medium" style={{ marginRight: theme.spacing(2) }} />
                     <span>{token}</span>
                   </Link>
                 </NextLink>

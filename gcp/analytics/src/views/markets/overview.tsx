@@ -18,9 +18,7 @@ import { TokenIcon } from '@notional-finance/icons';
 import InvoiceChart from 'components/cards/invoice/InvoiceChart';
 import { SharedH3, SharedSubtitle } from '../notional-components/shared-elements';
 import { UtilizationChart } from '../notional-components/utilization-chart';
-
-// utils
-import { capitalizeFirstLetter } from 'utils/notional-utils';
+import { useTheme } from '@mui/material';
 
 interface InvoiceWidgets {
   title: string;
@@ -82,12 +80,15 @@ const bottomWidgetsData: InvoiceWidgets[] = [
 ];
 
 export default function MarketsOverviewDefault({ token, network }: { token: string; network: string }) {
+  const theme = useTheme();
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: '80px', display: 'flex', alignItems: 'center' }}>
-        <TokenIcon symbol={token.toLocaleLowerCase()} size={'large'} style={{ marginRight: '16px' }} />
-        <h1>
-          {token} / {capitalizeFirstLetter(network)} Market
+      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: theme.spacing(10), display: 'flex', alignItems: 'center' }}>
+        <TokenIcon symbol={token.toLocaleLowerCase()} size={'large'} style={{ marginRight: theme.spacing(2) }} />
+        <h1 style={{ display: 'flex' }}>
+          {token} /{' '}
+          <Box sx={{ textTransform: 'capitalize', marginLeft: theme.spacing(0.75), marginRight: theme.spacing(0.75) }}>{network}</Box>{' '}
+          Market
         </h1>
       </Grid>
 
@@ -98,20 +99,20 @@ export default function MarketsOverviewDefault({ token, network }: { token: stri
 
       {/* row 2 */}
       <Grid item xs={12} sm={6} md={4} lg={4}>
-        <Box sx={{ background: 'white', padding: '20px', borderRadius: '4px' }}>
-          <SharedH3 sx={{ marginBottom: '4px' }}>$20.00 M</SharedH3>
+        <Box sx={{ background: 'white', padding: theme.spacing(2.5), borderRadius: theme.spacing(0.5) }}>
+          <SharedH3 sx={{ marginBottom: theme.spacing(0.5) }}>$20.00 M</SharedH3>
           <SharedSubtitle>MAX CAPACITY</SharedSubtitle>
         </Box>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={4}>
-        <Box sx={{ background: 'white', padding: '20px', borderRadius: '4px' }}>
-          <SharedH3 sx={{ marginBottom: '4px' }}>6,300</SharedH3>
+        <Box sx={{ background: 'white', padding: theme.spacing(2.5), borderRadius: theme.spacing(0.5) }}>
+          <SharedH3 sx={{ marginBottom: theme.spacing(0.5) }}>6,300</SharedH3>
           <SharedSubtitle>ACTIVE USERS</SharedSubtitle>
         </Box>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={4}>
-        <Box sx={{ background: 'white', padding: '20px', borderRadius: '4px' }}>
-          <SharedH3 sx={{ marginBottom: '4px' }}>$3,450.1235</SharedH3>
+        <Box sx={{ background: 'white', padding: theme.spacing(2.5), borderRadius: theme.spacing(0.5) }}>
+          <SharedH3 sx={{ marginBottom: theme.spacing(0.5) }}>$3,450.1235</SharedH3>
           <SharedSubtitle>ORACLE PRICE</SharedSubtitle>
         </Box>
       </Grid>
@@ -119,8 +120,8 @@ export default function MarketsOverviewDefault({ token, network }: { token: stri
       <Grid item xs={12} md={7} lg={8}>
         <UtilizationChart />
       </Grid>
-      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: '27px' }}>
-        <MainCard sx={{ mt: 2, display: 'flex', height: '473px' }} content={false}>
+      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: theme.spacing(3) }}>
+        <MainCard sx={{ mt: 2, display: 'flex', height: theme.spacing(59) }} content={false}>
           <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 }, display: 'flex', flexDirection: 'column', width: '100%' }}>
             <ListItemButton divider>
               <ListItemText primary="Company Finance Growth" />
@@ -144,8 +145,8 @@ export default function MarketsOverviewDefault({ token, network }: { token: stri
       <Grid item xs={12} md={7} lg={8}>
         <UtilizationChart />
       </Grid>
-      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: '27px' }}>
-        <MainCard sx={{ mt: 2, display: 'flex', height: '473px' }} content={false}>
+      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: theme.spacing(3) }}>
+        <MainCard sx={{ mt: 2, display: 'flex', height: theme.spacing(59) }} content={false}>
           <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 }, display: 'flex', flexDirection: 'column', width: '100%' }}>
             <ListItemButton divider>
               <ListItemText primary="Company Finance Growth" />
@@ -169,8 +170,8 @@ export default function MarketsOverviewDefault({ token, network }: { token: stri
       <Grid item xs={12} md={7} lg={8}>
         <UtilizationChart />
       </Grid>
-      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: '27px' }}>
-        <MainCard sx={{ mt: 2, display: 'flex', height: '473px' }} content={false}>
+      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: theme.spacing(3) }}>
+        <MainCard sx={{ mt: 2, display: 'flex', height: theme.spacing(59) }} content={false}>
           <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 }, display: 'flex', flexDirection: 'column', width: '100%' }}>
             <ListItemButton divider>
               <ListItemText primary="Company Finance Growth" />
