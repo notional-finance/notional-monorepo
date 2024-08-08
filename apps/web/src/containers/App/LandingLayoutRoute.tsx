@@ -11,7 +11,6 @@ const LandingLayoutRoute = ({
 }: {
   component: React.ElementType;
   path: string;
-  landingLayout?: boolean;
 }) => {
   const location = useLocation();
   const notionalTheme = useNotionalTheme(THEME_VARIANTS.DARK);

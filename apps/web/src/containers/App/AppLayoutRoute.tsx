@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { CompatRoute } from 'react-router-dom-v5-compat';
 import { ThemeProvider } from '@mui/material/styles';
 import {
@@ -18,17 +17,18 @@ import {
 import { WalletSelector } from '@notional-finance/wallet';
 import { Box, CssBaseline, styled } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useIntercom } from 'react-use-intercom';
 import { META_TAG_CATEGORIES, RouteType } from '@notional-finance/util';
-import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
-import { usePageTrack } from '@notional-finance/helpers';
 import { useLocation } from 'react-router';
+import {
+  InitIntercom,
+  InitSanctionsBlock,
+  InitPageTrack,
+} from './InitComponents';
 
 const AppLayoutRoute = ({
   component: Component,
   path,
   routeType,
-  landingLayout,
 }: {
   component: React.ElementType;
   path: string;
@@ -39,22 +39,11 @@ const AppLayoutRoute = ({
   const {
     global: { themeVariant },
   } = globalState;
-
   const location = useLocation();
-  const { boot } = useIntercom();
-  const selectedNetwork = useWalletConnectedNetwork();
   const notionalTheme = useNotionalTheme(themeVariant);
-  usePageTrack(routeType, selectedNetwork);
-
   const slicedPath = path
     .match(/\/[^/]+/)?.[0]
     ?.slice(1) as META_TAG_CATEGORIES;
-
-  useEffect(() => {
-    if (!landingLayout) {
-      boot();
-    }
-  }, [landingLayout, boot]);
 
   return (
     <ThemeProvider theme={notionalTheme}>
@@ -62,6 +51,9 @@ const AppLayoutRoute = ({
       <NotionalContext.Provider value={globalState}>
         <FeatureLoader>
           <TrackingConsent />
+          <InitIntercom />
+          <InitPageTrack routeType={routeType} />
+          <InitSanctionsBlock />
           <CompatRoute
             path={path}
             key={location.hash}

@@ -1,8 +1,5 @@
 import spindl from '@spindl-xyz/attribution';
-import {
-  useSanctionsBlock,
-  useWalletConnectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { IntercomProvider } from 'react-use-intercom';
 import {
   LeveragedYieldDashboard,
@@ -22,7 +19,6 @@ import RouteContainer from './RouteContainer';
 import AppLayoutRoute from './AppLayoutRoute';
 import LandingLayoutRoute from './LandingLayoutRoute';
 import { OnboardContext } from '@notional-finance/wallet';
-import { useConnect } from '@notional-finance/wallet/hooks';
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import { LendFixed, LendVariable } from '@notional-finance/lend-feature-shell';
@@ -68,12 +64,6 @@ const RedirectToDefaultNetwork = () => {
 };
 
 const AllRoutes = () => {
-  useSanctionsBlock();
-  // Have this hook here to ensure that all children routes will see updates if the onboard
-  // context changes (there is a useEffect hook inside here listening for changes in the
-  // onboard context)
-  useConnect();
-
   return (
     <CompatRouter>
       <RouteContainer>
