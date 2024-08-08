@@ -57,6 +57,7 @@
     "knex": "^2.5.1",
     "material-ui-popup-state": "^3.1.1",
     "moment": "^2.29.2",
+    "next": "13.0.0",
     "observable-hooks": "^4.2.0",
     "pg": "^8.11.3",
     "plausible-tracker": "^0.3.8",
