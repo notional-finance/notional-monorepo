@@ -8,16 +8,23 @@ import Typography from '@mui/material/Typography';
 
 import { UtilizationChart } from '../notional-components/utilization-chart';
 
+// utils
+import { capitalizeFirstLetter } from 'utils/notional-utils';
+
 // project import
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
 import OrdersTable from 'sections/dashboard/default/OrdersTable';
+import { TokenIcon } from '@notional-finance/icons';
 
-export default function ParametersDefault({ token }: { token: string }) {
+export default function ParametersDefault({ token, network }: { token: string; network: string }) {
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: '80px' }}>
-        <h1>{token} / Parameters</h1>
+      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: '80px', display: 'flex', alignItems: 'center' }}>
+        <TokenIcon symbol={token.toLocaleLowerCase()} size={'large'} style={{ marginRight: '16px' }} />
+        <h1>
+          {token} / {capitalizeFirstLetter(network)} Market
+        </h1>
       </Grid>
 
       <Grid item xs={12} md={7} lg={8}>

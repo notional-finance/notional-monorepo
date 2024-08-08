@@ -24,12 +24,13 @@ import Popover from '@mui/material/Popover';
 import Logo from 'components/logo';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useParams } from 'next/navigation';
+import { TokenIcon } from '@notional-finance/icons';
 
 // ==============================|| COMPONENTS - APP BAR ||============================== //
 
 export default function Header() {
   const theme = useTheme();
-  const { token } = useParams();
+  const { token, network } = useParams();
   const [pathname, setPathname] = React.useState<string>('');
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const downMD = useMediaQuery(theme.breakpoints.down('md'));
@@ -48,7 +49,25 @@ export default function Header() {
     }
   }, [pathname, setPathname]);
 
-  const availableTokens = ['ETH', 'DAI', 'USDC', 'GHO'];
+  const mainnetTokens: string[] = ['USDC', 'rETH', 'USDT', 'ETH', 'wstETH', 'DAI', 'sDAI', 'ARB', 'GHO', 'wBTC', 'FRAX'];
+
+  const arbTokens: string[] = [
+    'USDC',
+    'rETH',
+    'USDT',
+    'ETH',
+    'wstETH',
+    'DAI',
+    'wBTC',
+    'ARB',
+    'wBTC',
+    'FRAX',
+    'LDO',
+    'UNI',
+    'cbETH',
+    'LINK',
+    'RDNT'
+  ];
 
   return (
     <>
@@ -95,7 +114,7 @@ export default function Header() {
                   Transactions
                 </Link>
               </NextLink>
-              <NextLink href="/accounts" passHref legacyBehavior>
+              <NextLink href="/accounts/all-accounts" passHref legacyBehavior>
                 <Link
                   className="header-link"
                   color="black"
@@ -140,74 +159,110 @@ export default function Header() {
           {pathname.includes('markets') && (
             <Toolbar sx={{ px: { xs: 1.5, md: 0, lg: 0 }, py: 2, borderTop: '1px solid #e6ebf1' }}>
               <Stack direction="row" sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }} alignItems="center" spacing={2}>
-                <NextLink href={`/markets/${token}/overview`} passHref legacyBehavior>
+                <NextLink href={`/markets/${network}/${token}/overview`} passHref legacyBehavior>
                   <Link
                     className="header-link"
                     color="black"
                     underline="none"
                     sx={{
                       cursor: 'pointer',
-                      color: pathname.includes(`/markets/${token}/overview`) ? theme.palette.primary.main : 'black',
+                      color: pathname.includes(`/markets/${network}/${token}/overview`) ? theme.palette.primary.main : 'black',
                       fontWeight: 500
                     }}
                   >
                     Market Overview
                   </Link>
                 </NextLink>
-                <NextLink href={`/markets/${token}/breakdowns`} passHref legacyBehavior>
+                <NextLink href={`/markets/${network}/${token}/breakdowns`} passHref legacyBehavior>
                   <Link
                     className="header-link"
                     color="black"
                     underline="none"
                     sx={{
                       cursor: 'pointer',
-                      color: pathname.includes(`/markets/${token}/breakdowns`) ? theme.palette.primary.main : 'black',
+                      color: pathname.includes(`/markets/${network}/${token}/breakdowns`) ? theme.palette.primary.main : 'black',
                       fontWeight: 500
                     }}
                   >
                     Breakdowns
                   </Link>
                 </NextLink>
-                <NextLink href={`/markets/${token}/transaction-history`} passHref legacyBehavior>
+                <NextLink href={`/markets/${network}/${token}/transaction-history`} passHref legacyBehavior>
                   <Link
                     className="header-link"
                     color="black"
                     underline="none"
                     sx={{
                       cursor: 'pointer',
-                      color: pathname.includes(`/markets/${token}/transaction-history`) ? theme.palette.primary.main : 'black',
+                      color: pathname.includes(`/markets/${network}/${token}/transaction-history`) ? theme.palette.primary.main : 'black',
                       fontWeight: 500
                     }}
                   >
                     Transaction History
                   </Link>
                 </NextLink>
-                <NextLink href={`/markets/${token}/parameters`} passHref legacyBehavior>
+                <NextLink href={`/markets/${network}/${token}/parameters`} passHref legacyBehavior>
                   <Link
                     className="header-link"
                     color="black"
                     underline="none"
                     sx={{
                       cursor: 'pointer',
-                      color: pathname.includes(`/markets/${token}/parameters`) ? theme.palette.primary.main : 'black',
+                      color: pathname.includes(`/markets/${network}/${token}/parameters`) ? theme.palette.primary.main : 'black',
                       fontWeight: 500
                     }}
                   >
                     Parameters
                   </Link>
                 </NextLink>
-                <NextLink href={`/markets/${token}/historical-market-data`} passHref legacyBehavior>
+                <NextLink href={`/markets/${network}/${token}/historical-market-data`} passHref legacyBehavior>
                   <Link
                     className="header-link"
                     color="black"
                     underline="none"
                     sx={{
                       cursor: 'pointer',
-                      color: pathname.includes(`/markets/${token}/historical-market-data`) ? theme.palette.primary.main : 'black',
+                      color: pathname.includes(`/markets/${network}/${token}/historical-market-data`)
+                        ? theme.palette.primary.main
+                        : 'black',
                       fontWeight: 500
                     }}
                   >
                     Historical Market Data
+                  </Link>
+                </NextLink>
+              </Stack>
+            </Toolbar>
+          )}
+          {pathname.includes('accounts') && (
+            <Toolbar sx={{ px: { xs: 1.5, md: 0, lg: 0 }, py: 2, borderTop: '1px solid #e6ebf1' }}>
+              <Stack direction="row" sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }} alignItems="center" spacing={2}>
+                <NextLink href={`/accounts/all-accounts`} passHref legacyBehavior>
+                  <Link
+                    className="header-link"
+                    color="black"
+                    underline="none"
+                    sx={{
+                      cursor: 'pointer',
+                      color: pathname.includes(`/accounts/all-accounts`) ? theme.palette.primary.main : 'black',
+                      fontWeight: 500
+                    }}
+                  >
+                    All Accounts
+                  </Link>
+                </NextLink>
+                <NextLink href={`/accounts/vault-accounts`} passHref legacyBehavior>
+                  <Link
+                    className="header-link"
+                    color="black"
+                    underline="none"
+                    sx={{
+                      cursor: 'pointer',
+                      color: pathname.includes(`/accounts/vault-accounts`) ? theme.palette.primary.main : 'black',
+                      fontWeight: 500
+                    }}
+                  >
+                    Vault Accounts
                   </Link>
                 </NextLink>
               </Stack>
@@ -225,28 +280,79 @@ export default function Header() {
           horizontal: 'left'
         }}
         sx={{
-          marginLeft: '-180px'
+          marginLeft: '-180px',
+          display: 'flex'
         }}
       >
-        <Box
-          sx={{
-            width: '767px',
-            height: '269px',
-            color: 'black',
-            background: 'white',
-            padding: '40px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
-          }}
-        >
-          {availableTokens.map((token, i) => (
-            <NextLink href={`/markets/${token}/overview`} passHref legacyBehavior key={i}>
-              <Link className="header-link" color="black" underline="none" sx={{ cursor: 'pointer' }}>
-                {token}
-              </Link>
-            </NextLink>
-          ))}
+        <Box sx={{ width: '767px', height: '100%', display: 'flex', justifyContent: 'space-between' }}>
+          <Box>
+            <Typography sx={{ padding: '40px', paddingBottom: '0px', display: 'flex', alignItems: 'center' }} variant="h5">
+              <TokenIcon symbol={'ethnetwork'} size="medium" style={{ marginRight: '8px' }} />
+              <span>Mainnet</span>
+            </Typography>
+            <Box
+              sx={{
+                color: 'black',
+                background: 'white',
+                padding: '40px',
+                paddingTop: '24px',
+                paddingBottom: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                flexWrap: 'wrap',
+                gridColumnGap: '32px',
+                height: '288px'
+              }}
+            >
+              {mainnetTokens.map((token, i) => (
+                <NextLink href={`/markets/mainnet/${token}/overview`} passHref legacyBehavior key={i}>
+                  <Link
+                    className="header-link"
+                    color="black"
+                    underline="none"
+                    sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', marginBottom: '24px' }}
+                  >
+                    <TokenIcon symbol={token.toUpperCase()} size="medium" style={{ marginRight: '16px' }} />
+                    <span>{token}</span>
+                  </Link>
+                </NextLink>
+              ))}
+            </Box>
+          </Box>
+          <Box>
+            <Typography sx={{ padding: '40px', paddingBottom: '0px', display: 'flex', alignItems: 'center' }} variant="h5">
+              <TokenIcon symbol={'arbnetwork'} size="medium" style={{ marginRight: '8px' }} />
+              <span>Arbitrum</span>
+            </Typography>
+            <Box
+              sx={{
+                color: 'black',
+                background: 'white',
+                padding: '40px',
+                paddingTop: '24px',
+                paddingBottom: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                flexWrap: 'wrap',
+                gridColumnGap: '32px',
+                height: '288px'
+              }}
+            >
+              {arbTokens.map((token, i) => (
+                <NextLink href={`/markets/arbitrum/${token}/overview`} passHref legacyBehavior key={i}>
+                  <Link
+                    className="header-link"
+                    color="black"
+                    underline="none"
+                    sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', marginBottom: '24px' }}
+                  >
+                    <TokenIcon symbol={token.toUpperCase()} size="medium" style={{ marginRight: '16px' }} />
+                    <span>{token}</span>
+                  </Link>
+                </NextLink>
+              ))}
+            </Box>
+          </Box>
         </Box>
       </Popover>
     </>

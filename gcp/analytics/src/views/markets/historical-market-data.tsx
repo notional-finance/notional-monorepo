@@ -1,5 +1,5 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 // material-ui
 import Grid from '@mui/material/Grid';
 
@@ -7,10 +7,12 @@ import Grid from '@mui/material/Grid';
 import { NestedList } from 'views/notional-components/nested-list';
 import LayoutOutlined from '@ant-design/icons/LayoutOutlined';
 
+import { capitalizeFirstLetter } from 'utils/notional-utils';
+
 // assets
 import IncomeOverviewCard from 'sections/dashboard/analytics/IncomeOverviewCard';
 import { Box } from '@mui/material';
-import { useState } from 'react';
+import { TokenIcon } from '@notional-finance/icons';
 import { ChartSubtitle, SharedH4 } from 'views/notional-components/shared-elements';
 
 interface NestedListItem {
@@ -176,7 +178,7 @@ const nestedListItems: NestedListItem[] = [
 // TODO: add chart data to the child listItems and pass it to the chart when selected
 // TODO: get the chart digesting the data and displaying it
 
-export default function HistoricalMarketDataDefault({ token }: { token: string }) {
+export default function HistoricalMarketDataDefault({ token, network }: { token: string; network: string }) {
   const [open, setOpen] = useState<string | null>('variable_rate');
   const [childSelected, setChildSelected] = useState<string | null>('total_supplied');
 
@@ -192,8 +194,11 @@ export default function HistoricalMarketDataDefault({ token }: { token: string }
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: '80px' }}>
-        <h1>{token} / Historical Market Data</h1>
+      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: '80px', display: 'flex', alignItems: 'center' }}>
+        <TokenIcon symbol={token.toLocaleLowerCase()} size={'large'} style={{ marginRight: '16px' }} />
+        <h1>
+          {token} / {capitalizeFirstLetter(network)} Market
+        </h1>
       </Grid>
 
       <Grid item xs={12} md={12} lg={12}>

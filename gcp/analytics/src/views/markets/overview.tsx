@@ -14,9 +14,13 @@ import OrdersTable from 'sections/dashboard/default/OrdersTable';
 // assets
 import OverviewChart from 'views/notional-components/overview-chart';
 import { Box } from '@mui/system';
+import { TokenIcon } from '@notional-finance/icons';
 import InvoiceChart from 'components/cards/invoice/InvoiceChart';
 import { SharedH3, SharedSubtitle } from '../notional-components/shared-elements';
 import { UtilizationChart } from '../notional-components/utilization-chart';
+
+// utils
+import { capitalizeFirstLetter } from 'utils/notional-utils';
 
 interface InvoiceWidgets {
   title: string;
@@ -77,11 +81,14 @@ const bottomWidgetsData: InvoiceWidgets[] = [
   }
 ];
 
-export default function MarketsOverviewDefault({ token }: { token: string }) {
+export default function MarketsOverviewDefault({ token, network }: { token: string; network: string }) {
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: '80px' }}>
-        <h1>{token} / Mainnet Market</h1>
+      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: '80px', display: 'flex', alignItems: 'center' }}>
+        <TokenIcon symbol={token.toLocaleLowerCase()} size={'large'} style={{ marginRight: '16px' }} />
+        <h1>
+          {token} / {capitalizeFirstLetter(network)} Market
+        </h1>
       </Grid>
 
       {/* row 1 */}
