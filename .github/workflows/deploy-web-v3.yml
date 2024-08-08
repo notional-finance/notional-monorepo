@@ -28,7 +28,16 @@ jobs:
           node-version: '18'
           cache: 'yarn'
       - name: Yarn Install
-        run: yarn install --frozen-lockfile
+        run: |
+          echo "Current yarn.lock contents:"
+          cat yarn.lock
+          echo "Running yarn install"
+          yarn install
+          echo "Yarn install completed"
+          echo "Updated yarn.lock contents:"
+          cat yarn.lock
+          echo "Differences in yarn.lock:"
+          git diff yarn.lock
       - name: Build Web
         run: yarn nx build web --parallel
         env:
