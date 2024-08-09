@@ -74,8 +74,7 @@
     "react-is": "18.2.0",
     "react-moment": "^1.1.1",
     "react-number-format": "^4.9.1",
-    "react-router-dom": "5.3.0",
-    "react-router-dom-v5-compat": "^6.3.0",
+    "react-router-dom": "^6.22.3",
     "react-scroll": "^1.8.9",
     "react-slick": "^0.29.0",
     "react-swipeable": "^7.0.0",
@@ -142,8 +141,8 @@
     "@types/http-server": "^0.12.1",
     "@types/jest": "28.1.1",
     "@types/node": "18.11.9",
-    "@types/react": "17.0.39",
-    "@types/react-dom": "17.0.11",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.0",
     "@types/react-is": "17.0.3",
     "@types/react-router": "^5.1.17",
     "@types/react-router-dom": "5.3.3",
@@ -215,9 +214,5 @@
   "workspaces": [
     "packages/**",
     "apps/**"
-  ],
-  "resolutions": {
-    "@types/react": "17.0.39",
-    "@types/react-dom": "17.0.11"
-  }
+  ]
 }
