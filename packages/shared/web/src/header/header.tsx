@@ -12,7 +12,7 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
 import MobileNavigation from './mobile-navigation/mobile-navigation';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 // import blitz from '@notional-finance/mui/src/assets/icons/blitz.svg';
 import arbLM from '@notional-finance/mui/src/assets/icons/arbLM.svg';
 import arbDM from '@notional-finance/mui/src/assets/icons/arbDM.svg';
@@ -34,7 +34,7 @@ export interface HeaderProps extends AppBarProps {}
 
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
-  const history = useHistory();
+  const navigate = useNavigate();
   const themeVariant = useThemeVariant();
   const selectedNetwork = useSelectedNetwork();
   const [hideError, setHideError] = useState(false);
@@ -51,11 +51,12 @@ export function Header({ children }: HeaderProps) {
       : appTheme;
   const { navLinks } = useNavLinks(false, theme);
   const {
-    globalState: { hasSelectedChainError, networkAccounts },
+    globalState: { networkAccounts },
   } = useNotionalContext();
 
   const subGraphError =
     networkAccounts &&
+    selectedNetwork &&
     networkAccounts[selectedNetwork]?.isSubgraphDown &&
     !hideError &&
     hideSubGraphError !== true
@@ -64,7 +65,7 @@ export function Header({ children }: HeaderProps) {
 
   // NOTE: Leaving this here for when we want to have another contest
   // const handleContestClick = () => {
-  //   history.push('/contest');
+  //   navigate('/contest');
   // };
 
   const handleErrorMessage = () => {
@@ -151,7 +152,7 @@ export function Header({ children }: HeaderProps) {
                   cursor: 'pointer',
                 }}
                 onClick={() =>
-                  history.push(`/points-dashboard/${Network.arbitrum}`)
+                  navigate(`/points-dashboard/${Network.arbitrum}`)
                 }
               >
                 <img
@@ -201,26 +202,6 @@ export function Header({ children }: HeaderProps) {
               />
             </Box>
           </ErrorContainer>
-        )}
-        {hasSelectedChainError && (
-          <Box
-            sx={{
-              minWidth: '100%',
-              minHeight: theme.spacing(5),
-              background: colors.orange,
-              display: 'flex',
-              alignItems: 'center',
-              color: colors.black,
-            }}
-          >
-            <Box sx={{ paddingLeft: theme.spacing(3) }}>
-              <FormattedMessage
-                defaultMessage={
-                  'Please switch your wallet to the Arbitrum network.'
-                }
-              />
-            </Box>
-          </Box>
         )}
         {pathname === '/' && <ScrollIndicator />}
       </AppBar>

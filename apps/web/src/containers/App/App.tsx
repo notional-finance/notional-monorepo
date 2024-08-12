@@ -427,40 +427,20 @@ const AllRoutes = () => {
         />
         <Route
           path="/terms"
-          element={
-            <LandingLayoutRoute
-              path="/terms"
-              component={TermsView}
-            />
-          }
+          element={<LandingLayoutRoute component={TermsView} />}
         />
         <Route
           path="/privacy"
-          element={
-            <LandingLayoutRoute
-              path="/privacy"
-              component={PrivacyView}
-            />
-          }
+          element={<LandingLayoutRoute component={PrivacyView} />}
         />
         <Route
           path="/about"
-          element={
-            <LandingLayoutRoute
-              path="/about"
-              component={AboutUsView}
-            />
-          }
+          element={<LandingLayoutRoute component={AboutUsView} />}
         />
         <Route path="/:basePath" element={<RedirectToDefaultNetwork />} />
         <Route
           path="/"
-          element={
-            <LandingLayoutRoute
-              path="/"
-              component={LandingPageView}
-            />
-          }
+          element={<LandingLayoutRoute component={LandingPageView} />}
         />
       </Routes>
     </RouteContainer>

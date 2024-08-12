@@ -8,16 +8,15 @@ import {
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export const useAllTransactionsTable = () => {
   const { updateNotional } = useNotionalContext();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const addressClick = useCallback(
     (address: string, network) => {
       updateNotional({
-        hasSelectedChainError: false,
         wallet: {
           signer: undefined,
           selectedAddress: address,
@@ -27,9 +26,9 @@ export const useAllTransactionsTable = () => {
         selectedNetwork: network,
       });
 
-      history.push(`/portfolio/${network}/overview`);
+      navigate(`/portfolio/${network}/overview`);
     },
-    [history, updateNotional]
+    [navigate, updateNotional]
   );
 
   const columns = useMemo<Array<any>>(

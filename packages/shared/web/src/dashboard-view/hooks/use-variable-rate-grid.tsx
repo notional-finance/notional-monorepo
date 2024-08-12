@@ -14,14 +14,14 @@ import {
   PRODUCTS,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
   const {
     yields: { variableLend, variableBorrow },
   } = useAllMarkets(network);
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const baseCurrency = useFiat();
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
@@ -93,7 +93,7 @@ export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
         apy: y.totalAPY,
         tvlNum: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,
         routeCallback: () =>
-          history.push(`/${product}/${network}/${y.underlying.symbol}`),
+          navigate(`/${product}/${network}/${y.underlying.symbol}`),
       };
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);

@@ -18,11 +18,11 @@ import { useTheme } from '@mui/material';
 import { Network, lastValue, PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export function usePortfolioSNOTETable() {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname: currentPath } = useLocation();
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const account = useAccountDefinition(Network.mainnet);
@@ -119,11 +119,11 @@ export function usePortfolioSNOTETable() {
           {
             buttonText: <FormattedMessage defaultMessage={'Unstake'} />,
             callback: () =>
-              history.push(`${currentPath}/${PORTFOLIO_ACTIONS.COOL_DOWN}`),
+              navigate(`${currentPath}/${PORTFOLIO_ACTIONS.COOL_DOWN}`),
           },
           {
             buttonText: <FormattedMessage defaultMessage={'Stake More'} />,
-            callback: () => history.push('/stake/ETH'),
+            callback: () => navigate('/stake/ETH'),
           },
         ],
         txnHistory: ``,

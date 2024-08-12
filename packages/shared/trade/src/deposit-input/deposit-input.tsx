@@ -10,7 +10,7 @@ import {
 import { MessageDescriptor } from 'react-intl';
 import { getDepositErrorMessage } from './get-deposit-error-messages';
 import { useDepositInput } from './use-deposit-input';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   BaseTradeContext,
   useWalletBalances,
@@ -69,7 +69,7 @@ export const DepositInput = React.forwardRef<
     },
     ref
   ) => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const { pathname } = useLocation();
     const theme = useTheme();
     const {
@@ -196,7 +196,7 @@ export const DepositInput = React.forwardRef<
               newTokenSymbol !== deposit.symbol &&
               newRoute
             ) {
-              history.push(newRoute(newTokenSymbol));
+              navigate(newRoute(newTokenSymbol));
             }
           }}
           style={{

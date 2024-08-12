@@ -33,7 +33,7 @@ import {
   pointsMultiple,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
 import { PointsLinks, getArbBoosts } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
@@ -69,7 +69,7 @@ export const useVaultHoldingsTable = () => {
   const arbPoints = useArbPoints();
   const theme = useTheme();
   const baseCurrency = useFiat();
-  const history = useHistory();
+  const navigate = useNavigate();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
 
@@ -252,7 +252,7 @@ export const useVaultHoldingsTable = () => {
         },
       ];
 
-      if (points) {
+      if (points && network) {
         const pointsLink = PointsLinks[network][v.vaultAddress];
         subRowData.push({
           label: <FormattedMessage defaultMessage={'Points Boost'} />,
@@ -356,13 +356,13 @@ export const useVaultHoldingsTable = () => {
             {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               callback: () => {
-                history.push(`/vaults/${network}/${v.vaultAddress}`);
+                navigate(`/vaults/${network}/${v.vaultAddress}`);
               },
             },
             {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
-                history.push(
+                navigate(
                   `/vaults/${network}/${v.vaultAddress}/WithdrawVault`
                 );
               },

@@ -2,7 +2,7 @@ import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
 import { Network, PRODUCTS } from '@notional-finance/util';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
@@ -13,7 +13,7 @@ export const useLiquidityVariableGrid = (network: Network) => {
   } = useAllMarkets(network);
   const theme = useTheme();
   const baseCurrency = useFiat();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const allData = liquidity
     .map((y) => {
@@ -67,7 +67,7 @@ export const useLiquidityVariableGrid = (network: Network) => {
         ),
         apy: y.totalAPY,
         routeCallback: () =>
-          history.push(
+          navigate(
             `/${PRODUCTS.LIQUIDITY_VARIABLE}/${network}/${y.underlying.symbol}`
           ),
       };

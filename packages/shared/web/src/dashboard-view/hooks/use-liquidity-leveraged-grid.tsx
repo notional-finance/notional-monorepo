@@ -6,7 +6,7 @@ import { useFiat } from '@notional-finance/notionable-hooks';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import {
   useLeveragedNTokenPositions,
   useMaxYield,
@@ -18,7 +18,7 @@ export const useLiquidityLeveragedGrid = (
   network: Network
 ): DashboardGridProps => {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const baseCurrency = useFiat();
   const { nTokenPositions } = useLeveragedNTokenPositions(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
@@ -111,7 +111,7 @@ export const useLiquidityLeveragedGrid = (
             : allMaxAPYs.find((m) => m.token.currencyId === y.token.currencyId)
                 ?.totalAPY || 0,
         routeCallback: () =>
-          history.push(
+          navigate(
             currentPosition
               ? `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/IncreaseLeveragedNToken/${y.underlying.symbol}`
               : `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/CreateLeveragedNToken/${y.underlying.symbol}?borrowOption=${y?.leveraged?.debtToken?.id}`

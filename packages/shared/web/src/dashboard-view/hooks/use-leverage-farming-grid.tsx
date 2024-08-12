@@ -7,7 +7,7 @@ import {
   useTotalArbPoints,
   useCurrentSeason,
 } from '@notional-finance/notionable-hooks';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
 import {
   formatNumberAsPercent,
@@ -31,7 +31,7 @@ export const useLeveragedFarmingGrid = (
   currentVaultType: VAULT_TYPES
 ): DashboardGridProps => {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const baseCurrency = useFiat();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
@@ -130,7 +130,7 @@ export const useLeveragedFarmingGrid = (
           : VAULT_TYPES.LEVERAGED_YIELD_FARMING,
         apy: apy || 0,
         routeCallback: () =>
-          history.push(
+          navigate(
             profile
               ? `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/IncreaseVaultPosition`
               : `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`

@@ -14,7 +14,7 @@ import {
 import { Network } from '@notional-finance/util';
 import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 interface AccountData {
   address: string;
@@ -54,7 +54,7 @@ export const useAllAccounts = (selectedNetwork: Network) => {
   );
   const { updateNotional } = useNotionalContext();
   const baseCurrency = useFiat();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [crossCurrencyRiskOptions, setCrossCurrencyRiskOptions] = useState([]);
   const [netWorthOptions, setNetWorthOptions] = useState([]);
@@ -83,7 +83,6 @@ export const useAllAccounts = (selectedNetwork: Network) => {
   const addressClick = useCallback(
     (address: string, network) => {
       updateNotional({
-        hasSelectedChainError: false,
         wallet: {
           signer: undefined,
           selectedAddress: address,
@@ -93,9 +92,9 @@ export const useAllAccounts = (selectedNetwork: Network) => {
         selectedNetwork: network,
       });
 
-      history.push(`/portfolio/${network}/overview`);
+      navigate(`/portfolio/${network}/overview`);
     },
-    [history, updateNotional]
+    [navigate, updateNotional]
   );
 
   const tableColumns = [

@@ -59,7 +59,6 @@ export const renderTradeContext = async (
         selectedChain: Network.arbitrum,
         selectedAddress: signerAddress,
         isReadOnlyAddress: false,
-        hasSelectedChainError: false,
       },
     });
   });
@@ -181,7 +180,6 @@ export const renderVaultTradeContext = async (
         selectedChain: Network.arbitrum,
         selectedAddress: signerAddress,
         isReadOnlyAddress: false,
-        hasSelectedChainError: false,
       },
     });
   });

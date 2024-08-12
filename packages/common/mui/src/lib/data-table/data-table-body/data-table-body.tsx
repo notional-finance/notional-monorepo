@@ -14,7 +14,7 @@ import {
   SmallTableCell,
   TableCell as TypographyTableCell,
 } from '../../typography/typography';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { flexRender, ExpandedState, Row } from '@tanstack/react-table';
 
 interface StyledTableRowProps extends TableRowProps {
@@ -48,7 +48,7 @@ export const DataTableBody = ({
   const theme = useTheme() as NotionalTheme;
   const isScrollable = rowVirtualizer ? true : false;
   const tableRows = isScrollable ? rowVirtualizer.getVirtualItems() : rows;
-  const history = useHistory();
+  const navigate = useNavigate();
   return (
     <TableBody
       className="body"
@@ -83,7 +83,7 @@ export const DataTableBody = ({
             setExpandedRows(newState);
           }
           if (row.original?.view) {
-            history.push(`/${row.original?.view}`);
+            navigate(`/${row.original?.view}`);
           }
           if (row.original?.txLink?.href) {
             window.open(row.original?.txLink?.href, '_blank');

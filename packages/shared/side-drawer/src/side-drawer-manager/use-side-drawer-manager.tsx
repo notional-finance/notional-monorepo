@@ -4,7 +4,7 @@ import {
   PORTFOLIO_CATEGORIES,
   SIDE_DRAWERS_TYPE,
 } from '@notional-finance/util';
-import { useLocation, useHistory, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useSideDrawerState } from './store/use-side-drawer-state';
 import { updateSideDrawerState } from './store/side-drawer-store';
 import { useCallback, useMemo } from 'react';
@@ -16,13 +16,13 @@ export const RemindMe = () => {
   return <div>Remind Me</div>;
 };
 
-export interface PortfolioParams {
+export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
 }
 
 export const useSideDrawerManager = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { search, pathname } = useLocation();
   const params = useParams<PortfolioParams>();
   const searchParams = useMemo(() => new URLSearchParams(search), [search]);
@@ -46,24 +46,24 @@ export const useSideDrawerManager = () => {
     (key: string, overRide?: boolean) => {
       if (!currentSideDrawerKey || overRide) {
         searchParams.set('sideDrawer', key);
-        history.push(`${pathname}?${searchParams.toString()}`);
+        navigate(`${pathname}?${searchParams.toString()}`);
         updateSideDrawerState({
           sideDrawerOpen: true,
           currentSideDrawerKey: key,
         });
       }
     },
-    [history, searchParams, pathname, currentSideDrawerKey]
+    [navigate, searchParams, pathname, currentSideDrawerKey]
   );
 
   const clearWalletSideDrawer = useCallback(() => {
     searchParams.delete('sideDrawer');
-    history.push(`${pathname}?${searchParams.toString()}`);
+    navigate(`${pathname}?${searchParams.toString()}`);
     updateSideDrawerState({
       sideDrawerOpen: false,
       currentSideDrawerKey: null,
     });
-  }, [history, searchParams, pathname]);
+  }, [navigate, searchParams, pathname]);
 
   const setSideDrawer = useCallback(
     (newPath: string, key: SIDE_DRAWERS_TYPE) => {
@@ -71,27 +71,27 @@ export const useSideDrawerManager = () => {
         !currentSideDrawerKey ||
         currentSideDrawerKey === PORTFOLIO_ACTIONS.MANAGE_VAULT
       ) {
-        history.push(newPath);
+        navigate(newPath);
         updateSideDrawerState({
           sideDrawerOpen: true,
           currentSideDrawerKey: key,
         });
       }
     },
-    [history, currentSideDrawerKey]
+    [navigate, currentSideDrawerKey]
   );
 
   const clearSideDrawer = useCallback(
     (key?: string) => {
       if (key) {
-        history.push(key);
+        navigate(key);
       }
       updateSideDrawerState({
         sideDrawerOpen: false,
         currentSideDrawerKey: null,
       });
     },
-    [history]
+    [navigate]
   );
 
   return {
