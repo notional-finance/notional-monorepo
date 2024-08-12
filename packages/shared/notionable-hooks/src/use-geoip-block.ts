@@ -1,4 +1,4 @@
-import { useHistory, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { useAppContext, useNotionalContext } from './use-notional';
 import { useEffect } from 'react';
 import { isTestHost } from '@notional-finance/util';
@@ -44,14 +44,14 @@ export function useSanctionsBlock() {
     globalState: { isSanctionedAddress },
   } = useNotionalContext();
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
 
   const isSanctioned =
     SanctionedCountries.find((s) => s === country) || isSanctionedAddress;
   useEffect(() => {
     if (isSanctioned && pathname !== 'error') {
-      history.push('/error?code=451');
+      navigate('/error?code=451');
     }
-  }, [history, pathname, isSanctioned]);
+  }, [navigate, pathname, isSanctioned]);
 }

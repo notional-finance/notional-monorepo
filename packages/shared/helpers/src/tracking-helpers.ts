@@ -4,9 +4,8 @@ import {
   getDefaultNetworkFromHostname,
 } from '@notional-finance/util';
 import { AnalyticsBrowser } from '@segment/analytics-next';
-import { Location } from 'history';
 import { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, Location } from 'react-router';
 
 export const analytics = AnalyticsBrowser.load(
   {
@@ -69,23 +68,14 @@ export function trackPageView(
 }
 
 export const useBackStack = () => {
-  const history = useHistory<RouteState>();
-  const [backStack, setBackStack] = useState<Route[]>([history.location]);
+  const location: Route = useLocation();
+  const [backStack, setBackStack] = useState<Route[]>([location]);
 
   useEffect(() => {
-    return history.listen((location, action) => {
-      setBackStack((backStack) => {
-        switch (action) {
-          case 'POP':
-            return backStack.slice(0, backStack.length - 1);
-          case 'PUSH':
-            return [...backStack, location];
-          case 'REPLACE':
-            return [...backStack.slice(0, backStack.length - 1), location];
-        }
-      });
-    });
-  }, [setBackStack, history, backStack]);
+    setBackStack([...backStack, location]);
+    // Backstack is only updated when the location changes and should not be in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setBackStack, location]);
 
   return backStack;
 };

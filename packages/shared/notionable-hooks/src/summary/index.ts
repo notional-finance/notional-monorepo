@@ -7,7 +7,9 @@ interface MessageData {
 }
 
 export interface DetailItem {
-  label: React.ReactNode | { text: MessageDescriptor; iconColor?: string };
+  label:
+    | React.ReactNode
+    | { text: { content: MessageDescriptor }; iconColor?: string };
   value: {
     data: {
       displayValue?: React.ReactNode;

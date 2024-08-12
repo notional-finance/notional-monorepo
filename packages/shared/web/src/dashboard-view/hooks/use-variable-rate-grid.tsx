@@ -16,7 +16,10 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 
-export const useVariableRateGrid = (network: Network, product: PRODUCTS) => {
+export const useVariableRateGrid = (
+  network: Network | undefined,
+  product: PRODUCTS
+) => {
   const {
     yields: { variableLend, variableBorrow },
   } = useAllMarkets(network);

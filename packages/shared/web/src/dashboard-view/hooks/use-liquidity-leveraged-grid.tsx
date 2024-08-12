@@ -15,7 +15,7 @@ import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 
 export const useLiquidityLeveragedGrid = (
-  network: Network
+  network: Network | undefined
 ): DashboardGridProps => {
   const theme = useTheme();
   const navigate = useNavigate();

@@ -12,7 +12,10 @@ import { THEME_VARIANTS } from '@notional-finance/util';
 import { NotionalFonts } from './fonts';
 import { NormalizeCss } from './normalize';
 import React from 'react';
-import { CommonColors } from '@mui/material/styles/createPalette';
+import {
+  CommonColors,
+  PaletteColorOptions,
+} from '@mui/material/styles/createPalette';
 
 export const colors = {
   // primaries
@@ -111,12 +114,6 @@ declare module '@mui/material/styles' {
   interface PaletteColor {
     accent: string;
   }
-
-  interface SimplePaletteColorOptions {
-    accent?: string;
-  }
-
-  type PaletteColorOptions = SimplePaletteColorOptions;
 
   interface TypeBackground {
     accentPaper: string;
@@ -614,6 +611,8 @@ const getThemeData = (
             : colors.purpleGrey,
         white:
           themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
+        light: colors.white,
+        contrastText: colors.white,
       },
       primary: {
         main:
@@ -656,30 +655,42 @@ const getThemeData = (
         light: alpha(colors.red, 0.15),
         main: colors.red,
         dark: colors.red,
+        contrastText: colors.red,
       },
       warning: {
         light: alpha(colors.orange, 0.15),
         main: colors.orange,
         dark: colors.orange,
+        contrastText: colors.orange,
       },
       info: {
-        light: themeVariant === THEME_VARIANTS.LIGHT ? alpha(colors.aqua, 0.15) : alpha(colors.neonTurquoise, 0.25),
+        light:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? alpha(colors.aqua, 0.15)
+            : alpha(colors.neonTurquoise, 0.25),
         main:
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.neonTurquoise
             : colors.white,
         dark: colors.aqua,
         accent: colors.neonTurquoise,
+        contrastText:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? alpha(colors.aqua, 0.15)
+            : alpha(colors.neonTurquoise, 0.25),
       },
       pending: {
         light: alpha(colors.blueAccent, 0.15),
         main: colors.blueAccent,
         dark: colors.blueAccent,
         accent: colors.blueAccent,
+        contrastText: colors.blueAccent,
       },
       success: {
         main: colors.aqua,
         accent: colors.greenAccent,
+        contrastText: colors.greenAccent,
+        light: colors.aqua,
       },
       typography: {
         main:
@@ -710,6 +721,14 @@ const getThemeData = (
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.matteGreen
             : colors.lightGrey,
+        contrastText:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.white
+            : colors.black,
+        light:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.iceWhite
+            : colors.black,
       },
       borders: {
         paper:
@@ -722,6 +741,8 @@ const getThemeData = (
             : colors.blueGreen,
         accentDefault: colors.greenGrey,
         accentPaper: colors.secondaryGrey,
+        contrastText: colors.greenGrey,
+        light: colors.greenGrey,
       },
       charts: {
         main:
@@ -736,6 +757,8 @@ const getThemeData = (
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.blueAccent
             : colors.yellow,
+        light: colors.blueAccent,
+        contrastText: colors.blueAccent,
       },
     } as PaletteOptions,
     typography: getTypography(themeVariant, pageLayout),

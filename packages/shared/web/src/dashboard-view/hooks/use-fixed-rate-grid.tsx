@@ -16,7 +16,10 @@ import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
 
-export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
+export const useFixedRateGrid = (
+  network: Network | undefined,
+  product: PRODUCTS
+) => {
   const {
     yields: { fCashLend, fCashBorrow },
   } = useAllMarkets(network);

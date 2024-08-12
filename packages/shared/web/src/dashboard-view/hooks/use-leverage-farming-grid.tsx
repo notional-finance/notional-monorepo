@@ -27,7 +27,7 @@ import {
 } from '@notional-finance/core-entities';
 
 export const useLeveragedFarmingGrid = (
-  network: Network,
+  network: Network | undefined,
   currentVaultType: VAULT_TYPES
 ): DashboardGridProps => {
   const theme = useTheme();
@@ -54,12 +54,14 @@ export const useLeveragedFarmingGrid = (
       )?.vault;
       const apy = profile?.totalAPY || y?.totalAPY || undefined;
       const points = y?.pointMultiples;
-      const vaultShare = Registry.getTokenRegistry().getVaultShare(
-        network,
-        vaultAddress,
-        PRIME_CASH_VAULT_MATURITY
-      );
-      const pointsBoost = getArbBoosts(vaultShare, false);
+      const vaultShare = network
+        ? Registry.getTokenRegistry().getVaultShare(
+            network,
+            vaultAddress,
+            PRIME_CASH_VAULT_MATURITY
+          )
+        : undefined;
+      const pointsBoost = vaultShare ? getArbBoosts(vaultShare, false) : 0;
       const pointsAPY = getPointsAPY(
         pointsBoost,
         totalArbPoints[currentSeason.db_name],

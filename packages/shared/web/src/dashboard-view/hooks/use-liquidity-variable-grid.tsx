@@ -7,7 +7,7 @@ import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 
-export const useLiquidityVariableGrid = (network: Network) => {
+export const useLiquidityVariableGrid = (network: Network | undefined) => {
   const {
     yields: { liquidity },
   } = useAllMarkets(network);

@@ -8,7 +8,7 @@ import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { SelectConvertAsset } from './components/select-convert-asset';
 import { messages } from './messages';
 import { useEffect } from 'react';
-import { Route, Switch, useParams } from 'react-router';
+import { Route, Routes, useParams } from 'react-router';
 import { useConvertOptions } from './hooks/use-convert-options';
 import { PortfolioParams } from '../portfolio-feature-shell';
 
@@ -87,10 +87,9 @@ export const RollDebt = () => {
 
   return (
     <Container>
-      <Switch>
+      <Routes>
         <Route
           path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.ROLL_DEBT}/:selectedToken/manage`}
-          exact={false}
         >
           <DrawerTransition fade={true}>
             <Wrapper>
@@ -101,11 +100,10 @@ export const RollDebt = () => {
 
         <Route
           path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.ROLL_DEBT}/:selectedToken/convertTo/:selectedCollateralToken`}
-          exact={false}
         >
           <ConvertDebt />
         </Route>
-      </Switch>
+      </Routes>
     </Container>
   );
 };

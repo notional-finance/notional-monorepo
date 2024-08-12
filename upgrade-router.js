@@ -2,7 +2,14 @@ const fs = require('fs');
 const path = require('path');
 
 // Whitelist of root directories to search
-const rootDirs = ['./apps/web'];
+const rootDirs = [
+  './apps/web',
+  './packages/common/icons',
+  './packages/common/mui',
+  './packages/features',
+  './packages/shared',
+  './packages/util',
+];
 
 function updateFile(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
