@@ -521,6 +521,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
   }
 
   async triggerHTTPRefresh(network: Network) {
+    console.log("============= triggerHTTPRefresh =============")
     const values = await this._fetch<YieldData[]>(network);
     this._updateNetworkObservables(this._buildCacheSchema(values, network));
   }

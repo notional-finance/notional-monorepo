@@ -54,6 +54,10 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
     cacheUrl: string,
     urlSuffix?: string
   ): Promise<T> {
+    // if(!cacheUrl.includes('mainnet')) {
+    //   return {} as T;
+    // }
+    console.log("============= client registry fetch =============: ", {cacheUrl, urlSuffix})
     const _fetch = USE_CROSS_FETCH ? crossFetch : fetch;
     const result = await _fetch(
       urlSuffix ? `${cacheUrl}/${urlSuffix}` : cacheUrl
@@ -67,6 +71,7 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
   }
 
   protected async _fetch<T>(network: Network, urlSuffix?: string): Promise<T> {
+    console.log("============= client registry cached fetch =============: ", {network, urlSuffix})
     return ClientRegistry.fetch(this.cacheURL(network), urlSuffix);
   }
 

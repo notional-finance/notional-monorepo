@@ -23,14 +23,18 @@ export function usePrimeCashBalance(
   selectedNetwork: Network | undefined
 ) {
   const tokens = Registry.getTokenRegistry();
-  const token =
+  const token = useMemo(() => 
     selectedToken && selectedNetwork
       ? tokens.getTokenBySymbol(selectedNetwork, selectedToken)
-      : undefined;
-  const primeCash =
+      : undefined,
+    [selectedToken, selectedNetwork, tokens]
+  );
+  const primeCash = useMemo(() =>
     selectedNetwork && token?.currencyId
       ? tokens.getPrimeCash(selectedNetwork, token.currencyId)
-      : undefined;
+      : undefined,
+    [selectedNetwork, token, tokens]
+  );
 
   return useMaxAssetBalance(primeCash);
 }
@@ -39,8 +43,8 @@ export function useWalletCommunities() {
   const {
     globalState: { communityMembership },
   } = useNotionalContext();
-
-  return communityMembership;
+  const community = useMemo(() => communityMembership, [communityMembership]);
+  return community;
 }
 
 export function useWalletConnected() {
@@ -52,16 +56,17 @@ export function useWalletAddress() {
     globalState: { wallet },
   } = useNotionalContext();
 
-  return wallet?.selectedAddress;
+  const selectedAddress = useMemo(() => wallet?.selectedAddress, [wallet?.selectedAddress]);
+  return selectedAddress;
 }
 
 export function useTruncatedAddress() {
   const {
     globalState: { wallet },
   } = useNotionalContext();
-
-  return wallet?.selectedAddress
-    ? truncateAddress(wallet?.selectedAddress)
+  
+    const selectedAddress = useMemo(() => wallet?.selectedAddress, [wallet?.selectedAddress]);
+    return selectedAddress  ? truncateAddress(selectedAddress)
     : '';
 }
 
@@ -69,7 +74,8 @@ export function useWalletConnectedNetwork() {
   const {
     globalState: { wallet },
   } = useNotionalContext();
-  return wallet?.selectedChain;
+  const selectedWallet = useMemo(() => wallet?.selectedChain, [wallet?.selectedChain]);
+  return selectedWallet;
 }
 
 export function useReadOnlyAddress() {
@@ -99,38 +105,45 @@ export function useWalletBalanceInputCheck(
   inputAmount: TokenBalance | undefined
 ) {
   const account = useAccountDefinition(token?.network);
-  const maxBalance =
+  const maxBalance = useMemo(() =>
     token && account
       ? account.balances.find((t) => t.token.id === token?.id) ||
         TokenBalance.zero(token)
-      : undefined;
+      : undefined,
+    [token, account]
+  );
 
-  const allowance =
+  const allowance = useMemo(() =>
     token && account
       ? account.allowances?.find((a) => a.amount.tokenId === token?.id)
           ?.amount || TokenBalance.zero(token)
-      : undefined;
+      : undefined,
+    [token, account]
+  );
 
-  const insufficientBalance =
-    inputAmount && maxBalance ? maxBalance.abs().lt(inputAmount) : false;
-  const insufficientAllowance =
-    inputAmount && maxBalance ? allowance?.lt(inputAmount) : false;
+  const insufficientBalance = useMemo(() =>
+    inputAmount && maxBalance ? maxBalance.abs().lt(inputAmount) : false,
+    [inputAmount, maxBalance]
+  );
 
-  return {
+  const insufficientAllowance = useMemo(() =>
+    inputAmount && maxBalance ? allowance?.lt(inputAmount) : false,
+    [inputAmount, maxBalance, allowance]
+  );
+
+  return useMemo(() => ({
     allowance,
     maxBalanceString: maxBalance?.toExactString(),
     maxBalance,
     insufficientBalance,
     insufficientAllowance,
-  };
+  }), [allowance, maxBalance, insufficientBalance, insufficientAllowance]);
 }
 
 function useApyValues(
   tradeType: string | undefined,
   network: Network | undefined
 ) {
-  // create a apyData object with a type of a Record with key of string and value of string
-  const apyData: Record<string, string> = {};
   const {
     yields: {
       fCashLend,
@@ -144,52 +157,57 @@ function useApyValues(
     getMin,
   } = useAllMarkets(network);
 
-  if (tradeType === 'LendFixed') {
-    const cardData = [
-      ...groupArrayToMap(fCashLend, (t) => t.underlying.symbol).entries(),
-    ];
-    cardData.map(([symbol, yields]) => {
-      const maxRate = getMax(yields)?.totalAPY || 0;
-      apyData[symbol] = `${formatNumberAsPercent(maxRate, 2)} APY`;
-      return apyData;
-    });
-  } else if (tradeType === 'LendVariable') {
-    variableLend.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
-      return apyData;
-    });
-  } else if (tradeType === 'MintNToken') {
-    liquidity.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
-      return apyData;
-    });
-  } else if (tradeType === 'BorrowFixed') {
-    const cardData = [
-      ...groupArrayToMap(fCashBorrow, (t) => t.underlying.symbol).entries(),
-    ];
-    cardData.map(([symbol, yields]) => {
-      const minRate = getMin(yields)?.totalAPY || 0;
-      apyData[symbol] = `${formatNumberAsPercent(minRate, 2)} APY`;
-      return apyData;
-    });
-  } else if (tradeType === 'BorrowVariable') {
-    variableBorrow.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
-      return apyData;
-    });
-  } else if (tradeType === 'LeveragedNToken') {
-    leveragedLiquidity
-      .filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt')
-      .map(({ underlying, totalAPY }) => {
-        apyData[underlying.symbol] = `${formatNumberAsPercent(
-          totalAPY,
-          2
-        )} APY`;
-        return apyData;
+  const apyData = useMemo(() => {
+    const data: Record<string, string> = {};
+
+    if (tradeType === 'LendFixed') {
+      const cardData = [
+        ...groupArrayToMap(fCashLend, (t) => t.underlying.symbol).entries(),
+      ];
+      cardData.forEach(([symbol, yields]) => {
+        const maxRate = getMax(yields)?.totalAPY || 0;
+        data[symbol] = `${formatNumberAsPercent(maxRate, 2)} APY`;
       });
-  } else {
-    return apyData;
-  }
+    } else if (tradeType === 'LendVariable') {
+      variableLend.forEach(({ underlying, totalAPY }) => {
+        data[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+      });
+    } else if (tradeType === 'MintNToken') {
+      liquidity.forEach(({ underlying, totalAPY }) => {
+        data[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+      });
+    } else if (tradeType === 'BorrowFixed') {
+      const cardData = [
+        ...groupArrayToMap(fCashBorrow, (t) => t.underlying.symbol).entries(),
+      ];
+      cardData.forEach(([symbol, yields]) => {
+        const minRate = getMin(yields)?.totalAPY || 0;
+        data[symbol] = `${formatNumberAsPercent(minRate, 2)} APY`;
+      });
+    } else if (tradeType === 'BorrowVariable') {
+      variableBorrow.forEach(({ underlying, totalAPY }) => {
+        data[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+      });
+    } else if (tradeType === 'LeveragedNToken') {
+      leveragedLiquidity
+        .filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt')
+        .forEach(({ underlying, totalAPY }) => {
+          data[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+        });
+    }
+
+    return data;
+  }, [
+    tradeType,
+    fCashLend,
+    variableLend,
+    liquidity,
+    fCashBorrow,
+    variableBorrow,
+    leveragedLiquidity,
+    getMax,
+    getMin,
+  ]);
 
   return apyData;
 }

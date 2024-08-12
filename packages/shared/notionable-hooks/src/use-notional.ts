@@ -4,13 +4,14 @@ import {
   useObservableState,
 } from 'observable-hooks';
 import { NotionalError } from '@notional-finance/notionable';
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { NotionalContext } from './context/NotionalContext';
 import { switchMap, take, concat, map, filter } from 'rxjs';
 import { NOTERegistryClient, Registry } from '@notional-finance/core-entities';
 import { Network, getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { isAppReady } from '@notional-finance/notionable';
 import { useWalletConnectedNetwork } from './use-wallet';
+import { useSelectedNetwork } from './use-network';
 
 export function useAppReady() {
   const {
@@ -106,4 +107,28 @@ export function useNotionalError() {
     error,
     reportError,
   };
+}
+
+export function useChainError() {
+  const {
+    globalState: { hasSelectedChainError },
+  } = useNotionalContext();
+
+  const chainError = useMemo(() => hasSelectedChainError, [hasSelectedChainError]);
+  return chainError;
+}
+
+export function useSubGraphError() {
+  const selectedNetwork = useSelectedNetwork();
+  const {
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+
+  const subGraphError = useMemo(() => {
+    return networkAccounts && networkAccounts[selectedNetwork]?.isSubgraphDown
+      ? true
+      : false;
+  }, [networkAccounts, selectedNetwork]);
+
+  return subGraphError;
 }

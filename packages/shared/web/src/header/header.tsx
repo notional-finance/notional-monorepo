@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Toolbar, Box, useTheme, ThemeProvider, styled } from '@mui/material';
 import { AppBar, AppBarProps, Body, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
@@ -18,8 +18,8 @@ import arbLM from '@notional-finance/mui/src/assets/icons/arbLM.svg';
 import arbDM from '@notional-finance/mui/src/assets/icons/arbDM.svg';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
-  useNotionalContext,
-  useSelectedNetwork,
+  useChainError,
+  useSubGraphError,
   useThemeVariant,
   // showContestNavLink,
 } from '@notional-finance/notionable-hooks';
@@ -36,7 +36,6 @@ export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
   const history = useHistory();
   const themeVariant = useThemeVariant();
-  const selectedNetwork = useSelectedNetwork();
   const [hideError, setHideError] = useState(false);
   const hideSubGraphError = getFromLocalStorage('hideSubGraphError');
   const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
@@ -49,18 +48,11 @@ export function Header({ children }: HeaderProps) {
       : pathname.includes('contest') || pathname.includes('points-dashboard')
       ? contestTheme
       : appTheme;
-  const { navLinks } = useNavLinks(false, theme);
-  const {
-    globalState: { hasSelectedChainError, networkAccounts },
-  } = useNotionalContext();
+  const graphError = useSubGraphError();
+  const hasSelectedChainError = useChainError();
 
   const subGraphError =
-    networkAccounts &&
-    networkAccounts[selectedNetwork]?.isSubgraphDown &&
-    !hideError &&
-    hideSubGraphError !== true
-      ? true
-      : false;
+    !hideError && graphError && hideSubGraphError !== true ? true : false;
 
   // NOTE: Leaving this here for when we want to have another contest
   // const handleContestClick = () => {
@@ -81,6 +73,8 @@ export function Header({ children }: HeaderProps) {
     }
   });
 
+  const NavComp = React.memo(Navigation);
+
   return (
     <ThemeProvider theme={theme}>
       <AppBar position="fixed" showBorder={pathname !== '/'}>
@@ -100,7 +94,7 @@ export function Header({ children }: HeaderProps) {
             <NotionalLogo />
           </H4>
           <NavContainer>
-            <Navigation navLinks={navLinks} />
+            <NavComp />
           </NavContainer>
           <AnalyticsContainer>
             {pathname === '/' && <AnalyticsDropdown />}

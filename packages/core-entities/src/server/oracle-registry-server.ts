@@ -91,6 +91,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
       );
     } catch (e) {
       console.error(e);
+      console.log("============= SUBGRAPH FAILED =============")
       // If the subgraph has failed, get the previous cache schema and return it, we still
       // want to continue to update the latest rates
       return ClientRegistry.fetch<CacheSchema<OracleDefinition>>(

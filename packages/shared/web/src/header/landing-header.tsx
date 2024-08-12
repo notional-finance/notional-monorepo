@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Toolbar, Box, useTheme, ThemeProvider, styled } from '@mui/material';
 import { AppBar, AppBarProps, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
-import { useNavLinks } from './use-nav-links';
 import { useLocation } from 'react-router';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
@@ -25,7 +24,6 @@ export function LandingHeader({ children }: LandingHeaderProps) {
       : pathname.includes('contest') || pathname.includes('points-dashboard')
       ? contestTheme
       : appTheme;
-  const { navLinks } = useNavLinks(false, theme);
 
   window.addEventListener('scroll', () => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -35,6 +33,8 @@ export function LandingHeader({ children }: LandingHeaderProps) {
       setIsTop(true);
     }
   });
+
+  const NavComp = React.memo(Navigation);
 
   return (
     <ThemeProvider theme={theme}>
@@ -55,7 +55,7 @@ export function LandingHeader({ children }: LandingHeaderProps) {
             <NotionalLogo />
           </H4>
           <NavContainer>
-            <Navigation navLinks={navLinks} />
+            <NavComp />
           </NavContainer>
           <AnalyticsContainer>
             <AnalyticsDropdown />

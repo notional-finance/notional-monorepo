@@ -29,14 +29,23 @@ export class Registry {
   protected static _analytics?: AnalyticsRegistryClient;
   protected static _note?: NOTERegistryClient;
 
-  public static DEFAULT_TOKEN_REFRESH = 20 * ONE_MINUTE_MS;
-  public static DEFAULT_CONFIGURATION_REFRESH = 20 * ONE_MINUTE_MS;
-  public static DEFAULT_EXCHANGE_REFRESH = 10 * ONE_SECOND_MS;
-  public static DEFAULT_VAULT_REFRESH = 10 * ONE_SECOND_MS;
-  public static DEFAULT_ORACLE_REFRESH = 10 * ONE_SECOND_MS;
+  // public static DEFAULT_TOKEN_REFRESH = 20 * ONE_MINUTE_MS;
+  // public static DEFAULT_CONFIGURATION_REFRESH = 20 * ONE_MINUTE_MS;
+  // public static DEFAULT_EXCHANGE_REFRESH = 10 * ONE_SECOND_MS;
+  // public static DEFAULT_VAULT_REFRESH = 10 * ONE_SECOND_MS;
+  // public static DEFAULT_ORACLE_REFRESH = 10 * ONE_SECOND_MS;
+  // public static DEFAULT_ACCOUNT_REFRESH = ONE_MINUTE_MS;
+  // public static DEFAULT_YIELD_REFRESH = 10 * ONE_SECOND_MS;
+  // public static DEFAULT_ANALYTICS_REFRESH = 30 * ONE_MINUTE_MS;
+
+  public static DEFAULT_TOKEN_REFRESH = ONE_MINUTE_MS;
+  public static DEFAULT_CONFIGURATION_REFRESH = ONE_MINUTE_MS;
+  public static DEFAULT_EXCHANGE_REFRESH = ONE_MINUTE_MS;
+  public static DEFAULT_VAULT_REFRESH = ONE_MINUTE_MS;
+  public static DEFAULT_ORACLE_REFRESH = ONE_MINUTE_MS;
   public static DEFAULT_ACCOUNT_REFRESH = ONE_MINUTE_MS;
-  public static DEFAULT_YIELD_REFRESH = 10 * ONE_SECOND_MS;
-  public static DEFAULT_ANALYTICS_REFRESH = 30 * ONE_MINUTE_MS;
+  public static DEFAULT_YIELD_REFRESH = ONE_MINUTE_MS;
+  public static DEFAULT_ANALYTICS_REFRESH = ONE_MINUTE_MS;
 
   static initialize(
     env: Env,

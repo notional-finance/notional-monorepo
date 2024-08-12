@@ -3,12 +3,12 @@ import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber, ethers } from 'ethers';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 export const useWalletActive = () => {
   const [{ wallet }] = useConnectWallet();
   return wallet?.accounts[0].address ? true : false;
-}
+};
 
 export const useConnect = () => {
   const { globalState, updateNotional } = useNotionalContext();
@@ -20,20 +20,26 @@ export const useConnect = () => {
     _setWalletModules,
     setPrimaryWallet,
   ] = useConnectWallet();
+  
   const currentLabel = wallet?.label;
   const [{ connectedChain }] = useSetChain(currentLabel);
   const icon = wallet?.icon;
 
-  // The first account and chain are considered "selected" by the UI
-  const selectedAddress = globalState?.wallet?.isReadOnlyAddress
-    ? globalState?.wallet?.selectedAddress
-    : wallet?.accounts[0].address;
-  const isReadOnlyAddress = globalState?.wallet?.isReadOnlyAddress;
+  // Memoizing selectedAddress and selectedChain
+  const selectedAddress = useMemo(() => {
+    return globalState?.wallet?.isReadOnlyAddress
+      ? globalState?.wallet?.selectedAddress
+      : wallet?.accounts[0].address;
+  }, [globalState, wallet]);
 
   const onboardChainId = connectedChain?.id;
-  const selectedChain = onboardChainId
-    ? getNetworkFromId(BigNumber.from(onboardChainId).toNumber())
-    : undefined;
+
+  const selectedChain = useMemo(() => {
+    return onboardChainId
+      ? getNetworkFromId(BigNumber.from(onboardChainId).toNumber())
+      : undefined;
+  }, [onboardChainId]);
+
   const connectWallet = useCallback(
     (walletLabel?: string) => {
       // No change to wallets, nothing to do here.
@@ -58,7 +64,7 @@ export const useConnect = () => {
   useEffect(() => {
     if (!selectedAddress) {
       updateNotional({ wallet: undefined });
-    } else if (wallet && selectedAddress && !isReadOnlyAddress) {
+    } else if (wallet && selectedAddress && !globalState?.wallet?.isReadOnlyAddress) {
       setPrimaryWallet(wallet, selectedAddress);
       const provider = new ethers.providers.Web3Provider(wallet.provider);
       const signer = provider.getSigner();
@@ -81,11 +87,11 @@ export const useConnect = () => {
     selectedChain,
     setPrimaryWallet,
     updateNotional,
-    isReadOnlyAddress,
+    globalState?.wallet?.isReadOnlyAddress,
   ]);
 
   return {
-    isReadOnlyAddress,
+    isReadOnlyAddress: globalState?.wallet?.isReadOnlyAddress,
     connectWallet,
     disconnectWallet,
     currentLabel,

@@ -11,7 +11,7 @@ import {
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { NotionalFonts } from './fonts';
 import { NormalizeCss } from './normalize';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CommonColors } from '@mui/material/styles/createPalette';
 
 export const colors = {
@@ -822,5 +822,6 @@ export const useNotionalTheme = (
   pageLayout?: NotionalPageLayoutOptions
 ) => {
   const notionalTheme = createTheme(getThemeData(themeVariant, pageLayout));
-  return notionalTheme;
+  const theme = useMemo(() => notionalTheme, [notionalTheme]);
+  return theme;
 };

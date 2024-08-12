@@ -2,7 +2,7 @@ import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
 import { Network, SEASONS, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getNowSeconds } from '@notional-finance/util';
 
 /** Contains selectors for account holdings information */
@@ -63,7 +63,9 @@ export function useAccountLoading() {
   const {
     globalState: { isAccountPending },
   } = useNotionalContext();
-  return isAccountPending;
+
+  const memoizedIsAccountPending = useMemo(() => isAccountPending, [isAccountPending]);
+  return memoizedIsAccountPending;
 }
 
 export function useTransactionHistory(network: Network | undefined) {

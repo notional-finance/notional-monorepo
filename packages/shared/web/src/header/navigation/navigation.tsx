@@ -2,15 +2,17 @@ import { Tab, TabsProps, useTheme, Box } from '@mui/material';
 import { useLocation, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { INavLink } from '../nav-link';
+import { useNavLinks } from '../use-nav-links';
 
 /* eslint-disable-next-line */
 export interface NavigationProps extends TabsProps {
   navLinks: INavLink[];
 }
 
-export function Navigation({ navLinks }: NavigationProps) {
+export function Navigation() {
   const theme = useTheme();
   const [selectedTab, setSelectedTab] = useState<string | false>(false);
+  const { navLinks } = useNavLinks(false, theme);
   const { pathname } = useLocation();
 
   const currentTab =

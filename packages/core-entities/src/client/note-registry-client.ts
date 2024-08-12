@@ -95,6 +95,7 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
 
   async getNOTESupplyData() {
     try {
+      console.log("============= getNOTESupplyData =============")
       const resp = await this._fetch<{
         result: {
           rows: {
@@ -115,6 +116,7 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
 
   async getSNOTEData() {
     try {
+      console.log("============= getSNOTEData =============")
       const resp = await this._fetch<{
         result: {
           rows: {

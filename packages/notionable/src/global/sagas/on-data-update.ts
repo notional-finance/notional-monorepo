@@ -36,8 +36,9 @@ function onYieldsUpdate$(app$: Observable<ApplicationState>) {
     take(1),
     switchMap(() => Registry.getYieldRegistry().subscribeNetworks()),
     switchMap((networks) => {
-      return timer(0, 60_000).pipe(
+      return timer(0, 240_000).pipe(
         map(() => {
+          console.log('===================== onYieldsUpdate$ =====================');
           return {
             allYields: networks.reduce((acc, n) => {
               // Skips yield registries that are not registered
@@ -61,9 +62,11 @@ function onPriceChangeUpdate$(app$: Observable<ApplicationState>) {
     take(1),
     switchMap(() => Registry.getAnalyticsRegistry().subscribeNetworks()),
     switchMap((networks) => {
-      return timer(0, 60_000).pipe(
+      return timer(0, 240_000).pipe(
         withLatestFrom(app$),
-        map(([_, app]) => ({
+        map(([_, app]) => {
+          console.log('===================== onPriceChangeUpdate$ =====================');
+          return {
           priceChanges: networks.reduce((acc, n) => {
             if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
               acc[n] = {
@@ -86,7 +89,9 @@ function onPriceChangeUpdate$(app$: Observable<ApplicationState>) {
             }
             return acc;
           }, {} as Record<Network, CalculatedPriceChanges>),
-        }))
+        }
+      }
+      )
       );
     })
   );
@@ -97,8 +102,10 @@ function onAnalyticsReady$(app$: Observable<ApplicationState>) {
     take(1),
     switchMap(() => Registry.getAnalyticsRegistry().subscribeNetworks()),
     switchMap((networks) => {
-      return timer(0, 60_000).pipe(
-        map(() => ({
+      return timer(0, 240_000).pipe(
+        map(() => {
+          console.log('===================== onAnalyticsReady$ =====================');
+          return {
           heroStats: Registry.getAnalyticsRegistry().getKPIs(),
           activeAccounts: networks.reduce((acc, n) => {
             if (Registry.getAnalyticsRegistry().isNetworkRegistered(n)) {
@@ -152,7 +159,7 @@ function onAnalyticsReady$(app$: Observable<ApplicationState>) {
             }
             return acc;
           }, {} as Record<Network, HistoricalTrading>),
-        }))
+        }})
       );
     })
   );
