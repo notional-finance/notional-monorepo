@@ -1,5 +1,5 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 // material-ui
 import Grid from '@mui/material/Grid';
 
@@ -10,8 +10,9 @@ import LayoutOutlined from '@ant-design/icons/LayoutOutlined';
 // assets
 import IncomeOverviewCard from 'sections/dashboard/analytics/IncomeOverviewCard';
 import { Box } from '@mui/material';
-import { useState } from 'react';
+import { TokenIcon } from '@notional-finance/icons';
 import { ChartSubtitle, SharedH4 } from 'views/notional-components/shared-elements';
+import { useTheme } from '@mui/material';
 
 interface NestedListItem {
   id: string;
@@ -176,7 +177,8 @@ const nestedListItems: NestedListItem[] = [
 // TODO: add chart data to the child listItems and pass it to the chart when selected
 // TODO: get the chart digesting the data and displaying it
 
-export default function HistoricalMarketDataDefault({ token }: { token: string }) {
+export default function HistoricalMarketDataDefault({ token, network }: { token: string; network: string }) {
+  const theme = useTheme();
   const [open, setOpen] = useState<string | null>('variable_rate');
   const [childSelected, setChildSelected] = useState<string | null>('total_supplied');
 
@@ -192,20 +194,33 @@ export default function HistoricalMarketDataDefault({ token }: { token: string }
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: '80px' }}>
-        <h1>{token} / Historical Market Data</h1>
+      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: theme.spacing(10), display: 'flex', alignItems: 'center' }}>
+        <TokenIcon symbol={token.toLocaleLowerCase()} size={'large'} style={{ marginRight: theme.spacing(2) }} />
+        <h1 style={{ display: 'flex' }}>
+          {token} /{' '}
+          <Box sx={{ textTransform: 'capitalize', marginLeft: theme.spacing(0.75), marginRight: theme.spacing(0.75) }}>{network}</Box>{' '}
+          Market
+        </h1>
       </Grid>
 
       <Grid item xs={12} md={12} lg={12}>
         <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item sx={{ marginBottom: '24px' }}>
+          <Grid item sx={{ marginBottom: theme.spacing(3) }}>
             <SharedH4 sx={{ marginBottom: '0px', fontWeight: 500 }}>Historical Chart</SharedH4>
             <ChartSubtitle sx={{ textTransform: 'none' }}>
               Select the market to the right, then use the chart dropdown to choose a data-set from that market.
             </ChartSubtitle>
           </Grid>
         </Grid>
-        <Box sx={{ display: 'flex', background: 'white', padding: '24px', border: `1px solid #E7E8F2`, borderRadius: '6px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            background: 'white',
+            padding: theme.spacing(3),
+            border: `1px solid #E7E8F2`,
+            borderRadius: theme.spacing(0.75)
+          }}
+        >
           <NestedList
             open={open}
             setOpen={setOpen}
