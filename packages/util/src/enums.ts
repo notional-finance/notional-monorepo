@@ -83,8 +83,6 @@ export enum PORTFOLIO_ACTIONS {
   WITHDRAW = 'withdraw',
   CONVERT_ASSET = 'convert-asset',
   DELEVERAGE = 'deleverage',
-  GET_NOTIFIED = 'get-notified',
-  REMIND_ME = 'remind-me',
   MANAGE_VAULT = 'manage-vault',
   MANAGE_BORROW = 'manage-borrow',
   MANAGE_LEND = 'manage-lend',

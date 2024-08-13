@@ -36,10 +36,6 @@ export function useSideDrawerState() {
   }));
 }
 
-// Placeholder components
-export const GetNotified = () => <div>Get Notified</div>;
-export const RemindMe = () => <div>Remind Me</div>;
-
 export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
