@@ -1,6 +1,6 @@
 import * as path from 'path';
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import Knex from 'knex';
 import { getEnvSecrets } from 'gae-env-secrets';
 import DataService from './DataService';
@@ -319,9 +319,9 @@ async function main() {
     res.status(200).send('OK');
   });
 
-  app.use((err: any, req: Request, res: Response) => {
+  app.use(async (err: any, req: Request, res: Response) => {
     console.error(err);
-    logToDataDog({
+    await logToDataDog({
       url: req.url,
       method: req.method,
       err: JSON.stringify(err),
