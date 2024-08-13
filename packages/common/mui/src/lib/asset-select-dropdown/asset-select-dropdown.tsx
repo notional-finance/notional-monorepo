@@ -8,6 +8,7 @@ import {
 import { Paragraph } from '../typography/typography';
 import { SelectDropdown } from '../select-dropdown/select-dropdown';
 import { InputLabel } from '../input-label/input-label';
+import React from 'react';
 
 interface AssetSelectDropdownProps {
   inputLabel?: MessageDescriptor;
@@ -93,13 +94,22 @@ export const AssetSelectDropdown = ({
       );
     }
   ) || [emptyOption];
+  const inputBoxRef = React.useRef(null);
+  const parentWidth =
+    inputBoxRef && inputBoxRef['current']
+      ? inputBoxRef['current']['clientWidth']
+      : undefined;
 
   return (
-    <Box marginTop={tightMarginTop ? theme.spacing(-3) : undefined}>
+    <Box
+      marginTop={tightMarginTop ? theme.spacing(-3) : undefined}
+      ref={inputBoxRef}
+    >
       <InputLabel inputLabel={inputLabel} />
       <SelectDropdown
         buttonComponent={StyledButton}
         value={selectedTokenId || null}
+        popperWidth={parentWidth || '447px'}
         onChange={onSelect}
         renderValue={(opt) => {
           const o = options?.find(({ token }) => token?.id === opt?.value);

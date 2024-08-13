@@ -1044,7 +1044,7 @@ const _abi = [
       },
     ],
   },
-];
+] as const;
 
 export class CurveGauge__factory {
   static readonly abi = _abi;

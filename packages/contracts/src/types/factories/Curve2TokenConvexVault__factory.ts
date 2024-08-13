@@ -1270,7 +1270,7 @@ const _abi = [
     stateMutability: "payable",
     type: "receive",
   },
-];
+] as const;
 
 export class Curve2TokenConvexVault__factory {
   static readonly abi = _abi;

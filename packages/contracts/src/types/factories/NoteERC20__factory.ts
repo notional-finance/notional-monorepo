@@ -616,7 +616,7 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
-];
+] as const;
 
 export class NoteERC20__factory {
   static readonly abi = _abi;

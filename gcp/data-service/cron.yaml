@@ -13,3 +13,33 @@ cron:
   schedule: every day 01:05
   timezone: Etc/UTC
   target: data-service
+- description: "Sync Generic Data"
+  url: /syncGenericData
+  schedule: every twenty minutes
+  timezone: Etc/UTC
+  target: data-service
+- description: "Sync Oracle Data"
+  url: /syncOracleData
+  schedule: every twenty minutes
+  timezone: Etc/UTC
+  target: data-service
+- description: "Sync Accounts [Arbitrum]"
+  url: /syncAccounts?network=arbitrum
+  schedule: every twenty minutes
+  timezone: Etc/UTC
+  target: data-service
+- description: "Sync Accounts [Mainnet]"
+  url: /syncAccounts?network=mainnet
+  schedule: every twenty minutes
+  timezone: Etc/UTC
+  target: data-service
+- description: "Sync Vault Accounts [Arbitrum]"
+  url: /syncVaultAccounts?network=arbitrum
+  schedule: every twenty minutes
+  timezone: Etc/UTC
+  target: data-service
+- description: "Sync Vault Accounts [Mainnet]"
+  url: /syncVaultAccounts?network=mainnet
+  schedule: every twenty minutes
+  timezone: Etc/UTC
+  target: data-service

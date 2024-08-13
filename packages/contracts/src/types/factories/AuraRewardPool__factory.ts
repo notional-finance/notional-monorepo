@@ -1263,7 +1263,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class AuraRewardPool__factory {
   static readonly abi = _abi;
