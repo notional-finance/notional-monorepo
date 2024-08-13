@@ -10,7 +10,7 @@ import {
   SupportedNetworks,
   getNetworkSymbol,
 } from '@notional-finance/util';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Network } from '@notional-finance/util';
 import {
   BaseTradeContext,
@@ -158,7 +158,7 @@ function NetworkSelector({
   sx?: SxProps;
 }) {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [anchorEl, setAnchorEl] = useState<any>(null);
@@ -172,7 +172,7 @@ function NetworkSelector({
   const handleClose = (network?: Network) => {
     setAnchorEl(null);
     if (network && !pathname.includes(network) && selectedNetwork) {
-      history.push(pathname.replace(selectedNetwork, network));
+      navigate(pathname.replace(selectedNetwork, network));
     }
   };
 

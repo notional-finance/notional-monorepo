@@ -7,7 +7,7 @@ import {
   BodySecondary,
   SectionTitle,
 } from '@notional-finance/mui';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { DataSets } from '../use-how-it-works';
 
 export interface CardContainerProps {
@@ -37,7 +37,7 @@ export const Card = ({
   hoverTitle,
 }: CardProps) => {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -48,7 +48,7 @@ export const Card = ({
       sx={{
         height: parentIndex === 1 ? theme.spacing(34.75) : theme.spacing(30),
       }}
-      onClick={() => history.push(link)}
+      onClick={() => navigate(link)}
       onMouseOver={() => setHovered(true)}
       onMouseOut={() => setHovered(false)}
     >

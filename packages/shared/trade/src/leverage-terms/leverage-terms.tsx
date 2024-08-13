@@ -11,7 +11,7 @@ import React from 'react';
 import { formatLeverageRatio } from '@notional-finance/helpers';
 import { BorrowTerms } from '../borrow-terms/borrow-terms';
 import { LeverageSlider } from '../leverage-slider/leverage-slider';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 interface TermsProps {
   context: BaseTradeContext;
@@ -64,7 +64,7 @@ export const ManageTerms = ({
   leverageRatio,
   borrowType,
 }: ManageTermsProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   return (
     <Terms
       inputLabel={defineMessage({
@@ -75,7 +75,7 @@ export const ManageTerms = ({
         hasPosition={true}
         leverageRatio={leverageRatio}
         borrowType={borrowType}
-        actionClick={() => history.push(linkString)}
+        actionClick={() => navigate(linkString)}
         actionBody={
           <Box sx={{ alignItems: 'center', display: 'flex' }}>
             <ButtonText accent>

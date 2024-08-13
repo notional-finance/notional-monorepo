@@ -25,7 +25,10 @@ import {
 import { useMaxYield } from '@notional-finance/trade';
 import { YieldData } from '@notional-finance/core-entities';
 
-export const useLiquidityList = (product: PRODUCTS, network: Network) => {
+export const useLiquidityList = (
+  product: PRODUCTS,
+  network: Network | undefined
+) => {
   const {
     yields: { liquidity },
   } = useAllMarkets(network);
@@ -194,7 +197,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
           symbolSize: 'large',
           symbolBottom: '',
           label: y.underlying.symbol,
-          caption: network.charAt(0).toUpperCase() + network.slice(1),
+          caption: network ? network.charAt(0).toUpperCase() + network.slice(1) : '',
         },
         walletBalance: walletBalance?.toFloat() || 0,
         totalApy: y.totalAPY || 0,
@@ -223,7 +226,7 @@ export const useLiquidityList = (product: PRODUCTS, network: Network) => {
             symbolSize: 'large',
             symbolBottom: '',
             label: y.underlying.symbol,
-            caption: network.charAt(0).toUpperCase() + network.slice(1),
+            caption: network ? network.charAt(0).toUpperCase() + network.slice(1) : '',
             network: network,
           },
           totalApy: {

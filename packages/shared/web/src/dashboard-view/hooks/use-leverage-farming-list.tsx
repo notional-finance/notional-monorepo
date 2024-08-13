@@ -24,7 +24,7 @@ import { Box } from '@mui/material';
 import { PointsIcon } from '@notional-finance/icons';
 
 export const useLeverageFarmingList = (
-  network: Network,
+  network: Network | undefined,
   currentVaultType: VAULT_TYPES
 ) => {
   const {
@@ -173,7 +173,7 @@ export const useLeverageFarmingList = (
           symbolSize: 'large',
           symbolBottom: '',
           label: vault.primaryToken.symbol,
-          caption: network.charAt(0).toUpperCase() + network.slice(1),
+          caption: network ? network.charAt(0).toUpperCase() + network.slice(1) : '',
         },
         walletBalance: walletBalance?.toFloat() || 0,
         pool: vault.poolName,
@@ -214,7 +214,7 @@ export const useLeverageFarmingList = (
             symbolSize: 'large',
             symbolBottom: '',
             label: vault.primaryToken.symbol,
-            caption: network.charAt(0).toUpperCase() + network.slice(1),
+            caption: network ? network.charAt(0).toUpperCase() + network.slice(1) : '',
             network: network,
           },
           totalApy: {

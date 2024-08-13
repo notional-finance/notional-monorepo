@@ -30,7 +30,7 @@ const useIncentiveCountUp = (
         in100Sec: TokenBalance;
       }
     | undefined,
-  network: Network
+  network: Network | undefined
 ) => {
   const [c, setCountUp] = useState<number>(0);
   // Used to track which network the count up is showing
@@ -74,7 +74,7 @@ export const ClaimNoteButton = () => {
 
   const noteCountUp = useIncentiveCountUp(totalIncentives['NOTE'], network);
   const secondaryCountUp = useIncentiveCountUp(
-    totalIncentives[SecondaryIncentiveToken[network]],
+    network ? totalIncentives[SecondaryIncentiveToken[network]] : undefined,
     network
   );
 
@@ -125,7 +125,7 @@ export const ClaimNoteButton = () => {
               </Box>
             </NoteWrapper>
           )}
-          {secondaryCountUp > 0 && (
+          {secondaryCountUp > 0 && network && (
             <SecondaryWrapper theme={theme}>
               <TokenIcon
                 symbol={SecondaryIncentiveToken[network]}

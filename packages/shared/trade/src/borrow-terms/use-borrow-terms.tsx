@@ -9,7 +9,7 @@ import { leveragedYield } from '@notional-finance/util';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
 import { Box } from '@mui/material';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const useBorrowTerms = (
   context: BaseTradeContext,
@@ -30,7 +30,7 @@ export const useBorrowTerms = (
       selectedNetwork,
     },
   } = context;
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const spotMaturityData = useSpotMaturityData(
@@ -66,7 +66,7 @@ export const useBorrowTerms = (
       ) {
         result.unshift(option);
       } else {
-        result.push(option);
+        navigate(option);
       }
     }
 
@@ -117,9 +117,9 @@ export const useBorrowTerms = (
   const onSelect = useCallback(
     (selectedId: string | null) => {
       const debt = availableDebtTokens?.find((t) => t.id === selectedId);
-      history.push(`${pathname}?borrowOption=${debt?.id}`);
+      navigate(`${pathname}?borrowOption=${debt?.id}`);
     },
-    [availableDebtTokens, history, pathname]
+    [availableDebtTokens, navigate, pathname]
   );
 
   return { borrowOptions, onSelect };

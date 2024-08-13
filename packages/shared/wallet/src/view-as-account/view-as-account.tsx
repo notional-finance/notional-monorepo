@@ -16,7 +16,6 @@ export function ViewAsAccount() {
   const handleClick = () => {
     if (ethers.utils.isAddress(address)) {
       updateNotional({
-        hasSelectedChainError: false,
         wallet: {
           signer: undefined,
           selectedAddress: address,

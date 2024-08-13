@@ -8,7 +8,9 @@ import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 
 export const useTokenData = (selectedTabIndex: number) => {
   const selectedNetwork = useSelectedNetwork();
-  const depositTokens = useAllUniqueUnderlyingTokens([selectedNetwork]);
+  const depositTokens = useAllUniqueUnderlyingTokens(
+    selectedNetwork ? [selectedNetwork] : undefined
+  );
   const { earnYields, borrowYields } = useAllNetworkMarkets();
   const baseCurrency = useFiat();
 

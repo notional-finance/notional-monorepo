@@ -14,13 +14,11 @@ import { NotionalTheme } from '@notional-finance/styles';
 export interface ActionSidebarProps {
   heading:
     | MessageDescriptor
-    | { defaultMessage: string }
-    | { values?: Record<string, unknown> };
+    | { defaultMessage: string; values?: Record<string, React.ReactNode> };
   walletConnectedText?: MessageDescriptor;
   helptext:
     | MessageDescriptor
-    | { defaultMessage: string }
-    | { values?: Record<string, unknown> }
+    | { defaultMessage: string; values?: Record<string, React.ReactNode> }
     | undefined;
   children: React.ReactNode | React.ReactNode[];
   canSubmit?: boolean;

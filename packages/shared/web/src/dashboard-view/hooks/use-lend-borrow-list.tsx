@@ -22,7 +22,7 @@ import {
 import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 
-export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
+export const useLendBorrowList = (product: PRODUCTS, network: Network | undefined) => {
   const {
     yields: { fCashLend, fCashBorrow, variableBorrow, variableLend },
   } = useAllMarkets(network);
@@ -185,7 +185,7 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network) => {
           symbolBottom: '',
           label: y.underlying.symbol,
           network: network,
-          caption: network.charAt(0).toUpperCase() + network.slice(1),
+          caption: network ? network.charAt(0).toUpperCase() + network.slice(1) : '',
         },
         walletBalance: walletBalance?.toFloat() || 0,
         maturity: y.token.maturity,

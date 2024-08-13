@@ -6,7 +6,7 @@ import {
 import { ReactNode } from 'react';
 
 export interface AppBarProps extends MuiAppBarProps {
-  children: ReactNode;
+  children: ReactNode | ReactNode[];
   showBorder?: boolean;
 }
 

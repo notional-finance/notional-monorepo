@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { V3BetaIcon, CloseX } from '@notional-finance/icons';
 import { Button } from '@notional-finance/mui';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, styled, Popover, useTheme } from '@mui/material';
 import {
   setInLocalStorage,
@@ -12,7 +12,7 @@ import { colors } from '@notional-finance/styles';
 
 export function ContestDropdown() {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const userSettings = getFromLocalStorage('userSettings');
   const [anchorEl, setAnchorEl] = useState<any>(null);
@@ -37,7 +37,7 @@ export function ContestDropdown() {
     <Wrapper>
       <V3BetaIcon
         id="beta-icon"
-        onClick={() => history.push('/contest-leaderboard')}
+        onClick={() => navigate('/contest-leaderboard')}
         sx={{
           height: theme.spacing(6.25),
           width: theme.spacing(6.25),

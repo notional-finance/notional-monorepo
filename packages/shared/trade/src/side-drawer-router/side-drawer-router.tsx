@@ -15,11 +15,11 @@ import { useEffect } from 'react';
 import { defineMessage } from 'react-intl';
 import {
   Route,
-  Switch,
+  Routes,
   matchPath,
-  useHistory,
   useLocation,
-} from 'react-router';
+  useNavigate,
+} from 'react-router-dom';
 
 interface DrawerRouteProps {
   slug: string;
@@ -48,11 +48,10 @@ export const SideDrawerRouter = ({
   context,
   routeMatch,
 }: SideDrawerRouterProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
-
   useEffect(() => {
-    const match = matchPath<{ path: string }>(pathname, { path: routeMatch });
+    const match = matchPath<'path', string>({ path: routeMatch }, pathname);
     const noPath = !match || match.params.path === undefined;
     const incorrectDefault =
       match &&
@@ -66,7 +65,7 @@ export const SideDrawerRouter = ({
         hasPosition ? defaultHasPosition : defaultNoPosition
       );
       // Use replace here to avoid breaking the back button
-      history.replace(defaultPath);
+      navigate(defaultPath, { replace: true });
     }
   }, [
     routeMatch,
@@ -74,7 +73,7 @@ export const SideDrawerRouter = ({
     hasPosition,
     defaultHasPosition,
     defaultNoPosition,
-    history,
+    navigate,
   ]);
 
   const { clearSideDrawer } = useSideDrawerManager();
@@ -85,7 +84,7 @@ export const SideDrawerRouter = ({
 
   return (
     <Drawer size="large">
-      <Switch>
+      <Routes>
         {routes.map((r, i) => (
           <DrawerRoute
             key={i}
@@ -94,7 +93,7 @@ export const SideDrawerRouter = ({
             {...r}
           />
         ))}
-      </Switch>
+      </Routes>
     </Drawer>
   );
 };
@@ -111,7 +110,7 @@ const DrawerRoute = ({
   path: string;
   context: BaseTradeContext;
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const theme = useTheme();
   const { state, updateState } = context;
 
@@ -135,15 +134,14 @@ const DrawerRoute = ({
 
     updateState(requiredState);
   }, [updateState, requiredState, state, path]);
-
   return (
-    <Route path={path} exact={false}>
+    <Route path={path}>
       <DrawerTransition fade={isRootDrawer}>
         {!isRootDrawer && (
           // Root drawer does not have a back button
           <SideBarSubHeader
             paddingTop={theme.spacing(5)}
-            callback={onBack || history.goBack}
+            callback={onBack || (() => navigate(-1))}
             titleText={defineMessage({ defaultMessage: 'Back' })}
           />
         )}

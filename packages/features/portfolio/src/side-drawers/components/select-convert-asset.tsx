@@ -24,7 +24,7 @@ import {
 } from '@notional-finance/helpers';
 import { PORTFOLIO_ACTIONS, formatMaturity } from '@notional-finance/util';
 import { TokenOption } from '@notional-finance/notionable';
-import { useHistory, useParams, useLocation } from 'react-router';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { TransactionHeadings } from '@notional-finance/trade';
 import { useConvertOptions } from '../hooks/use-convert-options';
 
@@ -35,7 +35,7 @@ interface SelectConvertAssetProps {
 export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const {
     tradeType,
@@ -110,14 +110,10 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
     (o: TokenOption) => {
       const onSelect = () => {
         if (tradeType === 'ConvertAsset') {
-          history.push(
-            `${pathname.replace('manage', 'convertTo')}/${o.token.id}`
-          );
+          navigate(`${pathname.replace('manage', 'convertTo')}/${o.token.id}`);
           updateState({ collateral: o.token });
         } else {
-          history.push(
-            `${pathname.replace('manage', 'convertTo')}/${o.token.id}`
-          );
+          navigate(`${pathname.replace('manage', 'convertTo')}/${o.token.id}`);
           updateState({ debt: o.token });
         }
       };
@@ -151,7 +147,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
         </SideDrawerButton>
       );
     },
-    [updateState, tradeType, theme, history, pathname]
+    [updateState, tradeType, theme, navigate, pathname]
   );
 
   const fixedOptions =

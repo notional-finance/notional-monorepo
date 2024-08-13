@@ -1,5 +1,6 @@
 import { MessageDescriptor } from 'react-intl';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { ReactComponentLike } from 'prop-types';
 
 export enum TABLE_VARIANTS {
   MINI = 'mini',
@@ -39,13 +40,13 @@ export type DataTableColumn = {
   sortDescFirst?: boolean;
   displayFormatter?: any;
   showSymbol?: boolean;
-  columnHeaderToolTip?: MessageDescriptor; 
+  columnHeaderToolTip?: MessageDescriptor;
   marginRight?: any;
   className?: string;
   sticky?: string;
   showLoadingSpinner?: boolean;
   showGreenText?: boolean;
-  ToolTip?: ReactNode;
+  ToolTip?: ReactNode | ReactComponentLike;
   tooRisky?: boolean;
   header: string | ReactNode;
   accessorKey: string;
@@ -56,4 +57,5 @@ export type DataTableColumn = {
   fontSize?: string;
   showCustomIcon?: boolean;
   showPointsIcon?: boolean;
+  fontWeightBold?: boolean;
 };

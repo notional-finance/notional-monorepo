@@ -3,7 +3,7 @@ import { Box, styled, Typography, useTheme } from '@mui/material';
 import { PageLoading, SideBarSubHeader } from '@notional-finance/mui';
 import { AnnouncementIcon } from '@notional-finance/icons';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   getFromLocalStorage,
   setInLocalStorage,
@@ -27,12 +27,12 @@ export const NotificationsSideDrawer = ({
   toggleDrawer,
 }: NotificationsSideDrawerProps) => {
   const notifications = getFromLocalStorage('notifications');
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const theme = useTheme();
 
   const handleMarkAsRead = () => {
-    history.push(`${pathname}?sideDrawer=notifications?inactive=true`);
+    navigate(`${pathname}?sideDrawer=notifications?inactive=true`);
     setInLocalStorage('notifications', {
       active: false,
       blogData: notifications.blogData,

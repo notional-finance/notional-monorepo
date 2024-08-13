@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { CompatRoute } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import {
   FeatureLoader,
@@ -18,43 +17,34 @@ import {
 import { WalletSelector } from '@notional-finance/wallet';
 import { Box, CssBaseline, styled } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useIntercom } from 'react-use-intercom';
 import { META_TAG_CATEGORIES, RouteType } from '@notional-finance/util';
-import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
-import { usePageTrack } from '@notional-finance/helpers';
-import { useLocation } from 'react-router';
+import {
+  InitIntercom,
+  InitSanctionsBlock,
+  InitPageTrack,
+} from './InitComponents';
+
+interface AppLayoutRouteProps {
+  component: React.ComponentType<unknown>;
+  path: string;
+  routeType: RouteType;
+  landingLayout?: boolean;
+}
 
 const AppLayoutRoute = ({
   component: Component,
   path,
   routeType,
-  landingLayout,
-}: {
-  component: React.ElementType;
-  path: string;
-  routeType: RouteType;
-  landingLayout?: boolean;
-}) => {
+}: AppLayoutRouteProps) => {
   const globalState = useGlobalContext();
   const {
     global: { themeVariant },
   } = globalState;
-
-  const location = useLocation();
-  const { boot } = useIntercom();
-  const selectedNetwork = useWalletConnectedNetwork();
+  const params = useParams();
   const notionalTheme = useNotionalTheme(themeVariant);
-  usePageTrack(routeType, selectedNetwork);
-
   const slicedPath = path
     .match(/\/[^/]+/)?.[0]
     ?.slice(1) as META_TAG_CATEGORIES;
-
-  useEffect(() => {
-    if (!landingLayout) {
-      boot();
-    }
-  }, [landingLayout, boot]);
 
   return (
     <ThemeProvider theme={notionalTheme}>
@@ -62,27 +52,24 @@ const AppLayoutRoute = ({
       <NotionalContext.Provider value={globalState}>
         <FeatureLoader>
           <TrackingConsent />
-          <CompatRoute
-            path={path}
-            key={location.hash}
-            render={(matchProps: Record<string, unknown>) => (
-              <Box>
-                {metaTagData[slicedPath] && (
-                  <MetaTagManager metaTagCategory={slicedPath} />
-                )}
-                <AppShell>
-                  <Header>
-                    <WalletSelector />
-                  </Header>
-
-                  <MainContent>
-                    <Component {...matchProps} />
-                  </MainContent>
-                  <Footer />
-                </AppShell>
-              </Box>
+          <InitIntercom />
+          <InitPageTrack routeType={routeType} />
+          <InitSanctionsBlock />
+          <Box>
+            {metaTagData[slicedPath] && (
+              <MetaTagManager metaTagCategory={slicedPath} />
             )}
-          />
+            <AppShell>
+              <Header>
+                <WalletSelector />
+              </Header>
+
+              <MainContent>
+                <Component {...params} />
+              </MainContent>
+              <Footer />
+            </AppShell>
+          </Box>
         </FeatureLoader>
       </NotionalContext.Provider>
     </ThemeProvider>

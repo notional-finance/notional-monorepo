@@ -24,7 +24,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import StateZeroCard from './state-zero-card';
 import StateZeroToggle from './state-zero-toggle';
-import { useHistory, useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router-dom';
 
 interface TokenBoxProps {
   theme: NotionalTheme;
@@ -51,8 +51,8 @@ const stateZeroBanner = {
 
 export const PortfolioStateZero = () => {
   const theme = useTheme();
-  const history = useHistory();
-  const params = useParams<any>();
+  const navigate = useNavigate();
+  const params = useParams<{ sideDrawerKey?: string }>();
   const { setWalletSideDrawer } = useSideDrawerManager();
   const selectedNetwork = useSelectedNetwork();
   const isAccountReady = useAccountReady(selectedNetwork);
@@ -97,11 +97,11 @@ export const PortfolioStateZero = () => {
 
   const handleToggle = (toggleNum: number) => {
     if (toggleNum === 0) {
-      history.push(`/portfolio/${selectedNetwork}/welcome/earn`);
+      navigate(`/portfolio/${selectedNetwork}/welcome/earn`);
     } else if (toggleNum === 1) {
-      history.push(`/portfolio/${selectedNetwork}/welcome/leverage`);
+      navigate(`/portfolio/${selectedNetwork}/welcome/leverage`);
     } else if (toggleNum === 2) {
-      history.push(`/portfolio/${selectedNetwork}/welcome/borrow`);
+      navigate(`/portfolio/${selectedNetwork}/welcome/borrow`);
     }
   };
 

@@ -56,7 +56,6 @@ describe.withForkAndRegistry(
               selectedChain: Network.arbitrum,
               selectedAddress: signerAddress,
               isReadOnlyAddress: false,
-              hasSelectedChainError: false,
             },
           });
         });

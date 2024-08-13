@@ -55,7 +55,7 @@ export const StatusHeading = ({
         <FormattedMessage
           defaultMessage={'<span>Success!</span> Transaction Confirmed.'}
           values={{
-            span: (msg: string) => (
+            span: (msg: React.ReactNode) => (
               <Box
                 style={{
                   color: theme.palette.typography.accent,

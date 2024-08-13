@@ -1,7 +1,7 @@
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { SimpleOptionProps } from '@notional-finance/mui';
 import { usePortfolioHoldings } from '@notional-finance/notionable-hooks';
 
@@ -14,25 +14,25 @@ export const useReduceRiskDropdown = () => {
     ({ maturedTokenId, balance }) => maturedTokenId && !balance.isPositive()
   );
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const options: SimpleOptionProps[] = [
     {
       label: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
       callback: () => {
-        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DEPOSIT}/ETH`);
+        navigate(`${currentPath}/${PORTFOLIO_ACTIONS.DEPOSIT}/ETH`);
       },
     },
     {
       label: <FormattedMessage defaultMessage={'Deleverage'} />,
       callback: () => {
-        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DELEVERAGE}`);
+        navigate(`${currentPath}/${PORTFOLIO_ACTIONS.DELEVERAGE}`);
       },
     },
     {
       label: <FormattedMessage defaultMessage={'Repay Debt'} />,
       callback: () => {
-        history.push(
+        navigate(
           `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${debtData[0].maturedTokenId}`
         );
       },

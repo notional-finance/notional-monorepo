@@ -9,8 +9,7 @@ import { SelectConvertAsset } from './components/select-convert-asset';
 import { useConvertOptions } from './hooks/use-convert-options';
 import { messages } from './messages';
 import { useEffect } from 'react';
-import { Route, useParams } from 'react-router';
-import { Switch } from 'react-router';
+import { Route, Routes, useParams } from 'react-router';
 import { PortfolioParams } from '../portfolio-feature-shell';
 
 const ConvertCollateral = () => {
@@ -84,10 +83,9 @@ export const ConvertAsset = () => {
 
   return (
     <Container>
-      <Switch>
+      <Routes>
         <Route
           path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/:selectedToken/manage`}
-          exact={false}
         >
           <DrawerTransition fade={true}>
             <Wrapper>
@@ -97,11 +95,10 @@ export const ConvertAsset = () => {
         </Route>
         <Route
           path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/:selectedToken/convertTo/:selectedCollateralToken`}
-          exact={false}
         >
           <ConvertCollateral />
         </Route>
-      </Switch>
+      </Routes>
     </Container>
   );
 };
