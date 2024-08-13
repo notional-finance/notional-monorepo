@@ -1,6 +1,6 @@
 import * as path from 'path';
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-import express from 'express';
+import express, { Request, Response } from 'express';
 import Knex from 'knex';
 import { getEnvSecrets } from 'gae-env-secrets';
 import DataService from './DataService';
@@ -19,6 +19,23 @@ import { syncDune } from './DuneService';
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const port = parseInt(process.env.SERVICE_PORT || '8080');
 const app = express();
+
+async function logToDataDog(message: any, ddtags = '') {
+  return fetch("https://http-intake.logs.datadoghq.com/api/v2/logs", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'DD-API-KEY': process.env.DD_API_KEY as string
+    },
+    body: JSON.stringify({
+      ddsource: "data-service",
+      ddtags,
+      service: "data-service",
+      message
+    })
+  }).catch(err => console.error(err));
+}
 
 const createUnixSocketPool = () => {
   return Knex({
@@ -108,142 +125,120 @@ async function main() {
   });
 
   app.get('/blocks', async (req, res) => {
-    try {
-      const params = parseQueryParams(req.query);
-      const timestamps = dataService.getTimestamps(
-        params.startTime,
-        params.endTime
-      );
-      const blockNumbers = await Promise.all(
-        timestamps.map((ts) =>
-          dataService.getBlockNumberFromTs(params.network, ts)
-        )
-      );
-      res.send(JSON.stringify(blockNumbers));
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    const params = parseQueryParams(req.query);
+    const timestamps = dataService.getTimestamps(
+      params.startTime,
+      params.endTime
+    );
+    const blockNumbers = await Promise.all(
+      timestamps.map((ts) =>
+        dataService.getBlockNumberFromTs(params.network, ts)
+      )
+    );
+    res.send(JSON.stringify(blockNumbers));
   });
 
   app.get('/backfillOracleData', async (req, res) => {
-    try {
-      const params = parseQueryParams(req.query);
-      await dataService.backfill(
-        params.startTime,
-        params.endTime,
-        BackfillType.OracleData
-      );
-      res.send('OK');
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    const params = parseQueryParams(req.query);
+    await dataService.backfill(
+      params.startTime,
+      params.endTime,
+      BackfillType.OracleData
+    );
+    res.send('OK');
   });
 
   app.get('/backfillYieldData', async (req, res) => {
-    try {
-      const params = parseQueryParams(req.query);
-      await dataService.backfill(
-        params.startTime,
-        params.endTime,
-        BackfillType.YieldData
-      );
-      res.send('OK');
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    const params = parseQueryParams(req.query);
+    await dataService.backfill(
+      params.startTime,
+      params.endTime,
+      BackfillType.YieldData
+    );
+    res.send('OK');
   });
 
   app.get('/backfillGenericData', async (req, res) => {
-    try {
-      const params = parseQueryParams(req.query);
-      await dataService.backfill(
-        params.startTime,
-        params.endTime,
-        BackfillType.GenericData
-      );
-      res.send('OK');
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    const params = parseQueryParams(req.query);
+    await dataService.backfill(
+      params.startTime,
+      params.endTime,
+      BackfillType.GenericData
+    );
+    res.send('OK');
   });
 
   app.get('/syncOracleData', async (_, res) => {
-    try {
-      res.send(
-        JSON.stringify(
-          await dataService.syncOracleData(
-            dataService.latestTimestamp() - ONE_HOUR_MS / 1000
-          )
+    res.send(
+      JSON.stringify(
+        await dataService.syncOracleData(
+          dataService.latestTimestamp() - ONE_HOUR_MS / 1000
         )
-      );
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+      )
+    );
   });
 
   app.get('/syncGenericData', async (_, res) => {
-    try {
-      res.send(
-        JSON.stringify(
-          await dataService.syncGenericData(
-            dataService.latestTimestamp() - ONE_HOUR_MS / 1000
-          )
+    res.send(
+      JSON.stringify(
+        await dataService.syncGenericData(
+          dataService.latestTimestamp() - ONE_HOUR_MS / 1000
         )
-      );
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+      )
+    );
   });
 
   app.get('/syncAccounts', async (req, res) => {
-    try {
-      const params = parseQueryParams(req.query);
-      res.send(
-        JSON.stringify(await dataService.syncAccounts(params.network, false))
-      );
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    const params = parseQueryParams(req.query);
+    res.send(
+      JSON.stringify(await dataService.syncAccounts(params.network, false))
+    );
   });
 
   app.get('/syncVaultAccounts', async (req, res) => {
-    try {
-      const params = parseQueryParams(req.query);
-      res.send(
-        JSON.stringify(await dataService.syncAccounts(params.network, true))
-      );
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    const params = parseQueryParams(req.query);
+    res.send(
+      JSON.stringify(await dataService.syncAccounts(params.network, true))
+    );
   });
 
   app.post('/vaultApy', async (req, res) => {
-    try {
-      const network: Network = req.body.network;
+    const network: Network = req.body.network;
 
-      await dataService.insertVaultAPY(network, req.body.vaultAPYs);
-      res.status(200).send('OK');
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    await dataService.insertVaultAPY(network, req.body.vaultAPYs);
+    res.status(200).send('OK');
   });
 
   app.post('/events', async (req, res) => {
-    try {
-      const network: Network = req.body.network;
-      if (!['mainnet', 'arbitrum'].includes(network)) {
-        res.status(400).send('Invalid network');
-        return;
-      }
+    const network: Network = req.body.network;
+    if (!['mainnet', 'arbitrum'].includes(network)) {
+      res.status(400).send('Invalid network');
+      return;
+    }
 
-      let accountIds: string[] = [];
-      let vaultAccounts: VaultAccount[] = [];
-      req.body.events.forEach((event: DataServiceEvent) => {
-        if (event.name === 'AccountContextUpdate') {
-          accountIds.push(event.params.account);
-        } else if (event.name === 'TransferSingle') {
-          const id = BigNumber.from(event.params.id);
-          const params = decodeERC1155Id(padToHex256(id));
+    let accountIds: string[] = [];
+    let vaultAccounts: VaultAccount[] = [];
+    req.body.events.forEach((event: DataServiceEvent) => {
+      if (event.name === 'AccountContextUpdate') {
+        accountIds.push(event.params.account);
+      } else if (event.name === 'TransferSingle') {
+        const id = BigNumber.from(event.params.id);
+        const params = decodeERC1155Id(padToHex256(id));
+        if (
+          params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE &&
+          params.vaultAddress
+        ) {
+          accountIds.push(event.params.to);
+          vaultAccounts.push({
+            accountId: event.params.to,
+            vaultId: params.vaultAddress,
+          });
+        }
+      } else if (event.name === 'TransferBatch') {
+        const ids = event.params.ids.map(BigNumber.from);
+        const paramsArray = ids.map((id) => decodeERC1155Id(padToHex256(id)));
+
+        for (const params of paramsArray) {
           if (
             params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE &&
             params.vaultAddress
@@ -254,120 +249,85 @@ async function main() {
               vaultId: params.vaultAddress,
             });
           }
-        } else if (event.name === 'TransferBatch') {
-          const ids = event.params.ids.map(BigNumber.from);
-          const paramsArray = ids.map((id) => decodeERC1155Id(padToHex256(id)));
-
-          for (const params of paramsArray) {
-            if (
-              params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE &&
-              params.vaultAddress
-            ) {
-              accountIds.push(event.params.to);
-              vaultAccounts.push({
-                accountId: event.params.to,
-                vaultId: params.vaultAddress,
-              });
-            }
-          }
         }
-      });
-
-      accountIds = accountIds.filter((a) => a !== ZERO_ADDRESS);
-      if (accountIds.length > 0) {
-        await dataService.insertAccounts(network, accountIds);
       }
+    });
 
-      vaultAccounts = vaultAccounts.filter(
-        (va) => va.accountId !== ZERO_ADDRESS
-      );
-      if (vaultAccounts.length > 0) {
-        await dataService.insertVaultAccounts(network, vaultAccounts);
-      }
-      res.status(200).send('OK');
-    } catch (e: any) {
-      res.status(500).send(e.toString());
+    accountIds = accountIds.filter((a) => a !== ZERO_ADDRESS);
+    if (accountIds.length > 0) {
+      await dataService.insertAccounts(network, accountIds);
     }
+
+    vaultAccounts = vaultAccounts.filter(
+      (va) => va.accountId !== ZERO_ADDRESS
+    );
+    if (vaultAccounts.length > 0) {
+      await dataService.insertVaultAccounts(network, vaultAccounts);
+    }
+    res.status(200).send('OK');
   });
 
   app.get('/accounts', async (req, res) => {
-    try {
-      const params = parseQueryParams(req.query);
-      res.send(JSON.stringify(await dataService.accounts(params.network)));
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    const params = parseQueryParams(req.query);
+    res.send(JSON.stringify(await dataService.accounts(params.network)));
   });
 
   app.get('/vaultAccounts', async (req, res) => {
-    try {
-      const params = parseQueryParams(req.query);
-      res.send(JSON.stringify(await dataService.vaultAccounts(params.network)));
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    const params = parseQueryParams(req.query);
+    res.send(JSON.stringify(await dataService.vaultAccounts(params.network)));
   });
 
   app.get('/views', async (req, res) => {
-    try {
-      const params = parseQueryParams(req.query);
-      res.send(JSON.stringify(await dataService.views(params.network)));
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    const params = parseQueryParams(req.query);
+    res.send(JSON.stringify(await dataService.views(params.network)));
   });
 
   app.get('/query', async (req, res) => {
-    try {
-      const params = parseQueryParams(req.query);
-      const view = req.query.view;
-      if (!view) {
-        res.status(400).send('View required');
-      }
-      res.send(
-        JSON.stringify(
-          await dataService.getView(
-            params.network,
-            view as string,
-            params.limit
-          )
-        )
-      );
-    } catch (e: any) {
-      res.status(500).send(e.toString());
+    const params = parseQueryParams(req.query);
+    const view = req.query.view;
+    if (!view) {
+      res.status(400).send('View required');
     }
+    res.send(
+      JSON.stringify(
+        await dataService.getView(
+          params.network,
+          view as string,
+          params.limit
+        )
+      )
+    );
   });
 
   app.get('/calculateRisk', async (_req, res) => {
-    try {
-      await calculateAccountRisks();
-      res.status(200).send('OK');
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    await calculateAccountRisks();
+    res.status(200).send('OK');
   });
 
   app.get('/calculatePoints', async (req, res) => {
-    try {
-      const blockNumber = req.query.blockNumber
-        ? parseInt(req.query.blockNumber as string)
-        : undefined;
-      dataService.insertPointsData(
-        await calculatePointsAccrued(Network.arbitrum, blockNumber)
-      );
-      res.status(200).send('OK');
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    const blockNumber = req.query.blockNumber
+      ? parseInt(req.query.blockNumber as string)
+      : undefined;
+    dataService.insertPointsData(
+      await calculatePointsAccrued(Network.arbitrum, blockNumber)
+    );
+    res.status(200).send('OK');
   });
 
   app.get('/syncDune', async (_req, res) => {
-    try {
-      await syncDune();
-      res.status(200).send('OK');
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    await syncDune();
+    res.status(200).send('OK');
+  });
+
+  app.use(async (err: any, req: Request, res: Response) => {
+    console.error(err);
+    await logToDataDog({
+      url: req.url,
+      method: req.method,
+      err: JSON.stringify(err),
+      status: 'error'
+    }, 'error:express');
+    res.status(500).send(JSON.stringify(err));
   });
 
   app.listen(port, () => {
