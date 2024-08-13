@@ -6,40 +6,40 @@ cron:
 - description: "Sync Dune"
   url: /syncDune
   schedule: every day 01:30
-  timezone: Etc/UTC
   target: data-service
+  retry_parameters:
+    job_retry_limit: 1
+    min_backoff_seconds: 1800
+    max_doublings: 0
 - description: "Calculate Points"
   url: /calculatePoints
   schedule: every day 01:05
-  timezone: Etc/UTC
   target: data-service
+  retry_parameters:
+    job_retry_limit: 2
+    min_backoff_seconds: 1800
+    max_doublings: 0
 - description: "Sync Generic Data"
   url: /syncGenericData
-  schedule: every twenty minutes
-  timezone: Etc/UTC
+  schedule: every 1 hours
   target: data-service
 - description: "Sync Oracle Data"
   url: /syncOracleData
-  schedule: every twenty minutes
-  timezone: Etc/UTC
+  schedule: every 1 hours
   target: data-service
 - description: "Sync Accounts [Arbitrum]"
   url: /syncAccounts?network=arbitrum
-  schedule: every twenty minutes
-  timezone: Etc/UTC
+  schedule: every 20 minutes
   target: data-service
 - description: "Sync Accounts [Mainnet]"
   url: /syncAccounts?network=mainnet
-  schedule: every twenty minutes
-  timezone: Etc/UTC
+  schedule: every 20 minutes
   target: data-service
 - description: "Sync Vault Accounts [Arbitrum]"
   url: /syncVaultAccounts?network=arbitrum
-  schedule: every twenty minutes
-  timezone: Etc/UTC
+  schedule: every 20 minutes
   target: data-service
 - description: "Sync Vault Accounts [Mainnet]"
   url: /syncVaultAccounts?network=mainnet
-  schedule: every twenty minutes
-  timezone: Etc/UTC
+  schedule: every 20 minutes
   target: data-service
