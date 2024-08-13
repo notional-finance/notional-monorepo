@@ -7,21 +7,25 @@ cron:
   url: /syncDune
   schedule: every day 01:30
   target: data-service
+  retry_parameters:
+    job_retry_limit: 1
+    min_backoff_seconds: 1800
+    max_doublings: 0
 - description: "Calculate Points"
   url: /calculatePoints
   schedule: every day 01:05
   target: data-service
   retry_parameters:
-    min_backoff_duration: 30m
+    job_retry_limit: 2
+    min_backoff_seconds: 1800
     max_doublings: 0
-    max_retry_attempts: 2
 - description: "Sync Generic Data"
   url: /syncGenericData
-  schedule: every 20 minutes
+  schedule: every 1 hours
   target: data-service
 - description: "Sync Oracle Data"
   url: /syncOracleData
-  schedule: every 20 minutes
+  schedule: every 1 hours
   target: data-service
 - description: "Sync Accounts [Arbitrum]"
   url: /syncAccounts?network=arbitrum
