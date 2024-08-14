@@ -26,7 +26,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     params && 'selectedNetwork' in params
       ? params['selectedNetwork']
       : Network.mainnet;
-  console.log('network inside nav links', network);
 
   const textColor = mobileNav
     ? theme.palette.common.black
