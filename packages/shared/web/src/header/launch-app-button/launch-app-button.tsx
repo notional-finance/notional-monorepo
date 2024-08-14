@@ -10,7 +10,10 @@ export function LaunchAppButton() {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const params = useParams();
   const walletActive = useWalletActive();
-  const network = params ? params['selectedNetwork'] : Network.mainnet;
+  const network =
+    params && params['selectedNetwork']
+      ? params['selectedNetwork']
+      : Network.mainnet;
 
   return (
     <Button
