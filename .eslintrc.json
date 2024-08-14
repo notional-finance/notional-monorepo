@@ -1,7 +1,7 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx", "formatjs", "react-hooks", "react"],
+  "plugins": ["@nrwl/nx", "formatjs", "react-hooks", "react", "mobx"],
   "rules": {
     "formatjs/no-offset": "error",
     "formatjs/no-id": "error"
@@ -9,6 +9,7 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "extends": ["plugin:mobx/recommended"],
       "rules": {
         "@nrwl/nx/enforce-module-boundaries": [
           "warn",

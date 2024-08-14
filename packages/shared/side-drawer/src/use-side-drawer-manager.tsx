@@ -1,7 +1,12 @@
 import { types } from 'mobx-state-tree';
 import { useObserver } from 'mobx-react-lite';
 import { useCallback } from 'react';
-import { useLocation, useParams, useNavigate, NavigateFunction } from 'react-router-dom';
+import {
+  useLocation,
+  useParams,
+  useNavigate,
+  NavigateFunction,
+} from 'react-router-dom';
 import {
   PORTFOLIO_ACTIONS,
   SIDE_DRAWERS,
@@ -20,7 +25,13 @@ const SideDrawerModel = types
     currentSideDrawerKey: types.maybeNull(types.string),
   })
   .actions((self) => ({
-    setWalletSideDrawer(key: string, overRide: boolean, navigate: NavigateFunction, search: string, pathname: string) {
+    setWalletSideDrawer(
+      key: string,
+      overRide: boolean,
+      navigate: NavigateFunction,
+      search: string,
+      pathname: string
+    ) {
       if (!self.currentSideDrawerKey || overRide) {
         const searchParams = new URLSearchParams(search);
         searchParams.set('sideDrawer', key);
@@ -29,14 +40,22 @@ const SideDrawerModel = types
         self.currentSideDrawerKey = key as SIDE_DRAWERS_TYPE;
       }
     },
-    clearWalletSideDrawer(navigate: NavigateFunction, search: string, pathname: string) {
+    clearWalletSideDrawer(
+      navigate: NavigateFunction,
+      search: string,
+      pathname: string
+    ) {
       const searchParams = new URLSearchParams(search);
       searchParams.delete('sideDrawer');
       navigate(`${pathname}?${searchParams.toString()}`);
       self.sideDrawerOpen = false;
       self.currentSideDrawerKey = null;
     },
-    setSideDrawer(newPath: string, key: SIDE_DRAWERS_TYPE, navigate: NavigateFunction) {
+    setSideDrawer(
+      newPath: string,
+      key: SIDE_DRAWERS_TYPE,
+      navigate: NavigateFunction
+    ) {
       if (
         !self.currentSideDrawerKey ||
         self.currentSideDrawerKey === PORTFOLIO_ACTIONS.MANAGE_VAULT
@@ -57,7 +76,9 @@ const SideDrawerModel = types
       if (
         sideDrawerKey &&
         !self.currentSideDrawerKey &&
-        Object.values(SIDE_DRAWERS).includes(sideDrawerKey as unknown as SIDE_DRAWERS_TYPE) &&
+        Object.values(SIDE_DRAWERS).includes(
+          sideDrawerKey as unknown as SIDE_DRAWERS_TYPE
+        ) &&
         !self.sideDrawerOpen
       ) {
         self.sideDrawerOpen = true;
@@ -67,6 +88,13 @@ const SideDrawerModel = types
   }));
 
 const sideDrawerStore = SideDrawerModel.create();
+
+export const useSideDrawerState = () => {
+  return useObserver(() => ({
+    sideDrawerOpen: sideDrawerStore.sideDrawerOpen,
+    currentSideDrawerKey: sideDrawerStore.currentSideDrawerKey,
+  }));
+};
 
 export const useSideDrawerManager = () => {
   const navigate = useNavigate();
@@ -80,13 +108,19 @@ export const useSideDrawerManager = () => {
   return useObserver(() => {
     updateFromParams();
     return {
-      setSideDrawer: (newPath: string, key: SIDE_DRAWERS_TYPE) => 
+      setSideDrawer: (newPath: string, key: SIDE_DRAWERS_TYPE) =>
         sideDrawerStore.setSideDrawer(newPath, key, navigate),
-      clearSideDrawer: (key?: string) => 
+      clearSideDrawer: (key?: string) =>
         sideDrawerStore.clearSideDrawer(key, navigate),
-      setWalletSideDrawer: (key: string, overRide = false) => 
-        sideDrawerStore.setWalletSideDrawer(key, overRide, navigate, search, pathname),
-      clearWalletSideDrawer: () => 
+      setWalletSideDrawer: (key: string, overRide = false) =>
+        sideDrawerStore.setWalletSideDrawer(
+          key,
+          overRide,
+          navigate,
+          search,
+          pathname
+        ),
+      clearWalletSideDrawer: () =>
         sideDrawerStore.clearWalletSideDrawer(navigate, search, pathname),
     };
   });
