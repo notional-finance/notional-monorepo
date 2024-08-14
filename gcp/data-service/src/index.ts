@@ -40,6 +40,9 @@ async function logToDataDog(message: any, ddtags = '') {
 const createUnixSocketPool = () => {
   return Knex({
     client: 'pg',
+    pool: {
+      max: 200
+    },
     connection: {
       user: process.env.DB_USER,
       password: process.env.DB_PASS,
