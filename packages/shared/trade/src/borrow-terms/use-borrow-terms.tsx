@@ -48,7 +48,7 @@ export const useBorrowTerms = (
       ? (riskFactorLimit.limit as number)
       : priorVaultFactors?.leverageRatio;
 
-  const formatOptions = (options: any[]) => {
+  const formatOptions = useCallback((options: any[]) => {
     const result = [] as any[];
     // First sort options by maturity
     options.sort((a, b) => {
@@ -66,17 +66,18 @@ export const useBorrowTerms = (
       ) {
         result.unshift(option);
       } else {
-        navigate(option);
+        result.push(option);
       }
     }
 
     return result;
-  };
+  }, []);
 
   const borrowOptions = useMemo(() => {
     // Note this is a any[] because there were conflicts when attempting to combine the debtOptions and spotMaturityData types
     const options = debtOptions || spotMaturityData;
     const formattedOptions = formatOptions(options);
+    console.log('formattedOptions', options, formattedOptions);
 
     return formattedOptions.map((o, index) => {
       const borrowRate = o?.interestRate || o?.tradeRate;
@@ -112,7 +113,7 @@ export const useBorrowTerms = (
           ),
       };
     });
-  }, [debtOptions, spotMaturityData, leverageRatio, assetAPY]);
+  }, [debtOptions, spotMaturityData, leverageRatio, assetAPY, formatOptions]);
 
   const onSelect = useCallback(
     (selectedId: string | null) => {
