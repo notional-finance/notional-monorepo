@@ -86,11 +86,16 @@ export const SideDrawerRouter = ({
     <Drawer size="large">
       <Routes>
         {routes.map((r, i) => (
-          <DrawerRoute
-            key={i}
+          <Route
             path={routeMatch.replace(':path', r.slug)}
-            context={context}
-            {...r}
+            element={
+              <DrawerRoute
+                key={i}
+                path={routeMatch.replace(':path', r.slug)}
+                context={context}
+                {...r}
+              />
+            }
           />
         ))}
       </Routes>
@@ -135,18 +140,16 @@ const DrawerRoute = ({
     updateState(requiredState);
   }, [updateState, requiredState, state, path]);
   return (
-    <Route path={path}>
-      <DrawerTransition fade={isRootDrawer}>
-        {!isRootDrawer && (
-          // Root drawer does not have a back button
-          <SideBarSubHeader
-            paddingTop={theme.spacing(5)}
-            callback={onBack || (() => navigate(-1))}
-            titleText={defineMessage({ defaultMessage: 'Back' })}
-          />
-        )}
-        <Component />
-      </DrawerTransition>
-    </Route>
+    <DrawerTransition fade={isRootDrawer}>
+      {!isRootDrawer && (
+        // Root drawer does not have a back button
+        <SideBarSubHeader
+          paddingTop={theme.spacing(5)}
+          callback={onBack || (() => navigate(-1))}
+          titleText={defineMessage({ defaultMessage: 'Back' })}
+        />
+      )}
+      <Component />
+    </DrawerTransition>
   );
 };
