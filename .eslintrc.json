@@ -24,11 +24,11 @@
             ]
           }
         ],
-        // these values are the same as recommended
         "mobx/exhaustive-make-observable": "warn",
         "mobx/unconditional-make-observable": "error",
         "mobx/missing-make-observable": "error",
-        "mobx/missing-observer": "error",
+        // NOTE: this is disabled because it is causing false positives
+        "mobx/missing-observer": "off",
         "mobx/no-anonymous-observer": "warn"
       }
     },
