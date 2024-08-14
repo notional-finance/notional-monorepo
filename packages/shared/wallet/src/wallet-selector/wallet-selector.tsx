@@ -10,7 +10,7 @@ import {
   ButtonText,
   CopyCaption,
 } from '@notional-finance/mui';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useWalletSideDrawer, useConnect, useIntercomUpdate } from '../hooks';
 import {
   PORTFOLIO_ACTIONS,

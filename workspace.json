@@ -27,7 +27,6 @@
     "shared-assets": "packages/shared/assets",
     "shared-helpers": "packages/shared/helpers",
     "shared-notionable-hooks": "packages/shared/notionable-hooks",
-    "shared-side-drawer": "packages/shared/side-drawer",
     "shared-trade": "packages/shared/trade",
     "shared-wallet": "packages/shared/wallet",
     "shared-web": "packages/shared/web",

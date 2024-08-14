@@ -1,7 +1,7 @@
 import { ToggleSwitchProps } from '@notional-finance/mui';
 import { TransactionSidebar } from '@notional-finance/trade';
 import { useParams } from 'react-router';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { useCallback } from 'react';
 import {

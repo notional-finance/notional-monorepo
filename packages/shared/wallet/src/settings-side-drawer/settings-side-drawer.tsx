@@ -17,7 +17,7 @@ import {
   useSettingsSideDrawer,
 } from './use-settings-side-drawer';
 import { useConnect } from '../hooks/use-connect';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { useWalletConnected } from '@notional-finance/notionable-hooks';
 

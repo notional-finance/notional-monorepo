@@ -3,7 +3,7 @@ import { Box, styled } from '@mui/material';
 import { Banner, Button, Paragraph } from '@notional-finance/mui';
 import { useEmptyPortfolio } from './use-empty-portfolio';
 import { FormattedMessage, defineMessages } from 'react-intl';
-import { PortfolioParams } from '@notional-finance/side-drawer';
+import { PortfolioParams } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 
 const noteBanner = {

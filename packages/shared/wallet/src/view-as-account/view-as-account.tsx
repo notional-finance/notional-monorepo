@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, useTheme, styled } from '@mui/material';
 import { Input, Button } from '@notional-finance/mui';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';
 

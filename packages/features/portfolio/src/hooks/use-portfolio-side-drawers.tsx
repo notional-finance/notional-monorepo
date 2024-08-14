@@ -1,5 +1,5 @@
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
-import { useSideDrawerState } from '@notional-finance/side-drawer';
+import { useSideDrawerState } from '@notional-finance/notionable-hooks';
 import {
   AddToCalendar,
   ConvertAsset,
