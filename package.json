@@ -58,6 +58,7 @@
     "material-ui-popup-state": "^3.1.1",
     "mobx": "^6.13.1",
     "mobx-react-lite": "^4.0.7",
+    "mobx-state-tree": "^6.0.1",
     "moment": "^2.29.2",
     "next": "13.0.0",
     "observable-hooks": "^4.2.0",
