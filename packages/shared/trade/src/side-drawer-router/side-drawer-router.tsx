@@ -13,13 +13,7 @@ import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useEffect } from 'react';
 import { defineMessage } from 'react-intl';
-import {
-  Route,
-  Routes,
-  matchPath,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface DrawerRouteProps {
   slug: string;
@@ -38,6 +32,7 @@ interface SideDrawerRouterProps {
   routes: DrawerRouteProps[];
   context: BaseTradeContext;
   routeMatch: string;
+  action?: string;
 }
 
 export const SideDrawerRouter = ({
@@ -47,19 +42,16 @@ export const SideDrawerRouter = ({
   routes,
   context,
   routeMatch,
+  action,
 }: SideDrawerRouterProps) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   useEffect(() => {
-    const match = matchPath<'path', string>({ path: routeMatch }, pathname);
-    const noPath = !match || match.params.path === undefined;
-    const incorrectDefault =
-      match &&
-      (hasPosition
-        ? match.params.path === defaultNoPosition
-        : match.params.path !== defaultNoPosition);
+    const incorrectDefault = hasPosition
+      ? action === defaultNoPosition
+      : action !== defaultNoPosition;
 
-    if (noPath || incorrectDefault) {
+    if (action === undefined || incorrectDefault) {
       const defaultPath = routeMatch.replace(
         ':path',
         hasPosition ? defaultHasPosition : defaultNoPosition
@@ -74,6 +66,7 @@ export const SideDrawerRouter = ({
     defaultHasPosition,
     defaultNoPosition,
     navigate,
+    action,
   ]);
 
   const { clearSideDrawer } = useSideDrawerManager();
@@ -82,23 +75,17 @@ export const SideDrawerRouter = ({
     clearSideDrawer();
   }, [clearSideDrawer]);
 
+  const route = routes.find((r) => r.slug === action);
+
   return (
     <Drawer size="large">
-      <Routes>
-        {routes.map((r, i) => (
-          <Route
-            path={routeMatch.replace(':path', r.slug)}
-            element={
-              <DrawerRoute
-                key={i}
-                path={routeMatch.replace(':path', r.slug)}
-                context={context}
-                {...r}
-              />
-            }
-          />
-        ))}
-      </Routes>
+      {route && (
+        <DrawerRoute
+          path={routeMatch.replace(':path', route.slug)}
+          context={context}
+          {...route}
+        />
+      )}
     </Drawer>
   );
 };

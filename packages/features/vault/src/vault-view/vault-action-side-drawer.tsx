@@ -21,8 +21,9 @@ import { useParams } from 'react-router';
 export const VaultActionSideDrawer = () => {
   const context = useContext(VaultActionContext);
   const queryData = useQueryParams();
-  const { vaultAddress: vaultAddressParam } = useParams<{
+  const { vaultAddress: vaultAddressParam, action } = useParams<{
     vaultAddress?: string;
+    action?: string;
   }>();
   const {
     state: {
@@ -90,6 +91,7 @@ export const VaultActionSideDrawer = () => {
       context={context}
       hasPosition={!!vaultPosition}
       routeMatch={`/vaults/${selectedNetwork}/${vaultAddress}/:path`}
+      action={action}
       // If a vault is disabled, then default them to the withdraw vault screen
       defaultHasPosition={enabled ? 'IncreaseVaultPosition' : 'WithdrawVault'}
       defaultNoPosition={'CreateVaultPosition'}
