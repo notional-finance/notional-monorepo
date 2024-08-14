@@ -4,7 +4,7 @@ import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TransactionStatus } from '@notional-finance/notionable-hooks';
 import { DiscordIcon } from '@notional-finance/icons';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useLocation } from 'react-router';
 import { Network } from '@notional-finance/util';
 

@@ -88,20 +88,6 @@ export const messages: Record<
       description: '',
     },
   }),
-  [PORTFOLIO_ACTIONS.GET_NOTIFIED]: defineMessages({
-    heading: { defaultMessage: 'Get Notified', description: '' },
-    helptext: {
-      defaultMessage: 'Receive notifications for important events.',
-      description: '',
-    },
-  }),
-  [PORTFOLIO_ACTIONS.REMIND_ME]: defineMessages({
-    heading: { defaultMessage: 'Remind Me', description: '' },
-    helptext: {
-      defaultMessage: 'Set calendar reminders for important dates.',
-      description: '',
-    },
-  }),
   [PORTFOLIO_ACTIONS.MANAGE_VAULT]: defineMessages({
     heading: {
       defaultMessage: 'Manage {vaultName} Vault',

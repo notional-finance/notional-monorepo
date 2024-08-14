@@ -30,7 +30,7 @@ import {
   PortfolioHoldings,
   PortfolioNoteStaking,
 } from './containers';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
@@ -229,11 +229,12 @@ const Portfolio = () => {
           <TypeForm />
         </>
       )}
-      {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && hasNoteOrSNote && (
-        <PortfolioMainContent>
-          <PortfolioNoteStaking />
-        </PortfolioMainContent>
-      )}
+      {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING &&
+        hasNoteOrSNote && (
+          <PortfolioMainContent>
+            <PortfolioNoteStaking />
+          </PortfolioMainContent>
+        )}
       {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING &&
         params.category !== PORTFOLIO_CATEGORIES.WELCOME &&
         hasNoteOrSNote && (

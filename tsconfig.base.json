@@ -71,9 +71,6 @@
       "@notional-finance/risk-engine": ["packages/risk-engine/src/index.ts"],
       "@notional-finance/shared-web": ["packages/shared/web/src/index.ts"],
       "@notional-finance/shared-web/*": ["packages/shared/web/src/*"],
-      "@notional-finance/side-drawer": [
-        "packages/shared/side-drawer/src/index.ts"
-      ],
       "@notional-finance/styles": ["packages/common/styles/src/index.ts"],
       "@notional-finance/styles/*": ["packages/common/styles/src/*"],
       "@notional-finance/trade": ["packages/shared/trade/src/index.ts"],

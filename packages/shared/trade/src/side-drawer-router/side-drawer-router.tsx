@@ -10,7 +10,7 @@ import {
   getComparisonKey,
 } from '@notional-finance/notionable';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useEffect } from 'react';
 import { defineMessage } from 'react-intl';
 import { useLocation, useNavigate } from 'react-router-dom';

@@ -6,7 +6,7 @@ import {
   SimpleDropdown,
   Subtitle,
 } from '@notional-finance/mui';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import {
   PORTFOLIO_STATE_ZERO_OPTIONS,
   SETTINGS_SIDE_DRAWERS,

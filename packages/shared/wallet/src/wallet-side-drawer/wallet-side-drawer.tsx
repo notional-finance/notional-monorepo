@@ -3,7 +3,7 @@ import { SideDrawer } from '@notional-finance/mui';
 import { CloseX } from '@notional-finance/icons';
 import { SETTINGS_SIDE_DRAWERS, THEME_VARIANTS } from '@notional-finance/util';
 import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useWalletSideDrawer } from '../hooks';
 import { FormattedMessage } from 'react-intl';
 

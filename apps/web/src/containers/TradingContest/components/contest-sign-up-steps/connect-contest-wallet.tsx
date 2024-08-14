@@ -1,7 +1,7 @@
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import {
   TitleText,
   ContestBodyText,

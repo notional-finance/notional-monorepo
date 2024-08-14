@@ -8,7 +8,7 @@ import {
 import { messages } from './messages';
 import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { useLocation, useParams } from 'react-router';
-import { PortfolioParams } from '@notional-finance/side-drawer';
+import { PortfolioParams } from '@notional-finance/notionable-hooks';
 import { useEffect } from 'react';
 
 export const RepayDebt = () => {

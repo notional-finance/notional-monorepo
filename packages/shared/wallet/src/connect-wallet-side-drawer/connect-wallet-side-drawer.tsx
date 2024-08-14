@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { Box, styled } from '@mui/material';
 import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { ViewAsAccount } from '../view-as-account/view-as-account';
 import { useWalletModules } from '../onboard-context';
 import { useConnect } from '../hooks/use-connect';
