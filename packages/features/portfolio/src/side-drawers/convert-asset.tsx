@@ -9,7 +9,7 @@ import { SelectConvertAsset } from './components/select-convert-asset';
 import { useConvertOptions } from './hooks/use-convert-options';
 import { messages } from './messages';
 import { useEffect } from 'react';
-import { Route, Routes, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { PortfolioParams } from '../portfolio-feature-shell';
 
 const ConvertCollateral = () => {
@@ -67,6 +67,7 @@ const ConvertCollateral = () => {
 
 export const ConvertAsset = () => {
   const context = useTradeContext('ConvertAsset');
+  const { action } = useParams<PortfolioParams>();
   const {
     updateState,
     state: { debt },
@@ -83,22 +84,14 @@ export const ConvertAsset = () => {
 
   return (
     <Container>
-      <Routes>
-        <Route
-          path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/:selectedToken/manage`}
-        >
-          <DrawerTransition fade={true}>
-            <Wrapper>
-              <SelectConvertAsset context={context} />
-            </Wrapper>
-          </DrawerTransition>
-        </Route>
-        <Route
-          path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/:selectedToken/convertTo/:selectedCollateralToken`}
-        >
-          <ConvertCollateral />
-        </Route>
-      </Routes>
+      {action === 'manage' && (
+        <DrawerTransition fade={true}>
+          <Wrapper>
+            <SelectConvertAsset context={context} />
+          </Wrapper>
+        </DrawerTransition>
+      )}
+      {action === 'convertTo' && <ConvertCollateral />}
     </Container>
   );
 };

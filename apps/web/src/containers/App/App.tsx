@@ -1,4 +1,5 @@
 import spindl from '@spindl-xyz/attribution';
+import { useEffect } from 'react';
 import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { IntercomProvider } from 'react-use-intercom';
 import {
@@ -47,6 +48,9 @@ import { Markets } from '../Markets';
 import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+
+const intercomID = process.env['NX_INTERCOM_APP_ID'] as string;
+const spindlAPI = process.env['NX_SPINDL_API_KEY'] as string | undefined;
 
 const RedirectToDefaultNetwork = () => {
   const walletNetwork = useWalletConnectedNetwork();
@@ -448,14 +452,15 @@ const AllRoutes = () => {
 };
 
 export const App = () => {
-  const intercomID = process.env['NX_INTERCOM_APP_ID'] as string;
-  const spindlAPI = process.env['NX_SPINDL_API_KEY'] as string;
+  useEffect(() => {
+    if (spindlAPI) {
+      spindl.configure({
+        sdkKey: spindlAPI,
+      });
 
-  spindl.configure({
-    sdkKey: spindlAPI,
-  });
-
-  spindl.enableAutoPageViews();
+      spindl.enableAutoPageViews();
+    }
+  }, []);
 
   return (
     <HelmetProvider>
