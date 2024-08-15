@@ -23,7 +23,7 @@ import {
   useLiquidityLeveragedGrid,
 } from './hooks';
 import { sortListData } from './hooks/utils';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const DashboardView = ({
   gridData,

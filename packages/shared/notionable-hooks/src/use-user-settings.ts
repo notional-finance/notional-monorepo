@@ -1,6 +1,6 @@
 import { Registry } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from './use-app-state';
 
 
 export function useFiatToken() {

@@ -1,4 +1,4 @@
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 import {
   useAllNetworkMarkets,
   useAllUniqueUnderlyingTokens,

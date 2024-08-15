@@ -1,6 +1,6 @@
 import { Box, styled, ThemeProvider } from '@mui/material';
 import { Button, Body } from '@notional-finance/mui';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 import {
   useNotionalTheme,
   colors,

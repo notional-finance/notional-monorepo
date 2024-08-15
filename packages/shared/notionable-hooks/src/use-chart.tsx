@@ -13,7 +13,7 @@ import {
 import { useAccountDefinition } from './use-account';
 import { useMemo } from 'react';
 import { useAnalyticsReady, useAppContext } from './use-notional';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from './use-app-state';
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(

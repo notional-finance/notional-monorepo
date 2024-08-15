@@ -20,7 +20,7 @@ import {
   getNowSeconds,
 } from '@notional-finance/util';
 import { colors } from '@notional-finance/styles';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useTotalsChart = () => {

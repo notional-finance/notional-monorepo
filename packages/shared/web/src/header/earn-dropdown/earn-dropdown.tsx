@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { BarChartIcon } from '@notional-finance/icons';
 import EarnSection from './earn-section';
 import { messages } from '../messages';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export function EarnDropdown() {
   const { pathname } = useLocation();

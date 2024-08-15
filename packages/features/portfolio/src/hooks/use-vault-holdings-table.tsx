@@ -43,7 +43,7 @@ import {
 } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 import moment from 'moment';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,

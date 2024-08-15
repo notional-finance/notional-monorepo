@@ -20,7 +20,7 @@ import {
 } from '@notional-finance/mui';
 import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useLendBorrowList = (
   product: PRODUCTS,

@@ -14,7 +14,7 @@ import { FormattedMessage, defineMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useFixedRateGrid = (
   network: Network | undefined,

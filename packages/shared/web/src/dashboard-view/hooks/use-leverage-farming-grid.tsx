@@ -24,7 +24,7 @@ import {
   getArbBoosts,
   getPointsAPY,
 } from '@notional-finance/core-entities';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useLeveragedFarmingGrid = (
   network: Network | undefined,

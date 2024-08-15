@@ -6,7 +6,7 @@ import {
   setInLocalStorage,
   getFromLocalStorage,
 } from '@notional-finance/helpers';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useDarkModeToggle = () => {
   const { setThemeVariant } = useAppState();

@@ -12,7 +12,7 @@ import {
 } from '@notional-finance/trade';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useLiquidityLeveragedGrid = (
   network: Network | undefined

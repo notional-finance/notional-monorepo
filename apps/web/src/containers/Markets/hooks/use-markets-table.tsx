@@ -12,7 +12,7 @@ import {
   MultiValueIconCell,
   SelectedOptions,
 } from '@notional-finance/mui';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 import { useAllNetworkMarkets } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
 import {

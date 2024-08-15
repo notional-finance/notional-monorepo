@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useLiquidityVariableGrid = (network: Network | undefined) => {
   const {

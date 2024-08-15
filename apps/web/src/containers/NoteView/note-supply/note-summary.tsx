@@ -27,7 +27,7 @@ import {
   useNotePrice,
 } from '@notional-finance/notionable-hooks';
 import { useNoteSupply } from './use-note-supply';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface NoteSummaryProps {
   noteSupplyData: NoteSupplyData | undefined;

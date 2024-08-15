@@ -6,7 +6,7 @@ import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage } from 'react-intl';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export function LendLeveragedCardView() {
   const { themeVariant } = useAppState();

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, styled, useTheme, Collapse } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import { SideNavOptons } from './side-nav-options';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface CollapsibleProps {
   theme: NotionalTheme;

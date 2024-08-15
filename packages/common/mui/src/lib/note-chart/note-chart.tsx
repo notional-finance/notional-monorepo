@@ -7,7 +7,7 @@ import { ReactNode } from 'react';
 import { colors } from '@notional-finance/styles';
 import { getDateString } from '@notional-finance/util';
 import { formatNumber, formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface ReactEChartsProps {
   option: EChartsOption;

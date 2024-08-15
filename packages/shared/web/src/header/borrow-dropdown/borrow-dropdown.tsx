@@ -6,7 +6,7 @@ import { BorrowSection } from './borrow-section';
 import { useLocation } from 'react-router-dom';
 import { CoinsIcon } from '@notional-finance/icons';
 import { messages } from '../messages';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export function BorrowDropDown() {
   const { pathname } = useLocation();

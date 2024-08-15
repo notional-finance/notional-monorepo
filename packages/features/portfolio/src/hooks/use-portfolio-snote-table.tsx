@@ -18,7 +18,7 @@ import { Network, lastValue, PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export function usePortfolioSNOTETable() {
   const theme = useTheme();

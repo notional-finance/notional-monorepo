@@ -19,7 +19,7 @@ import {
   percentChange,
 } from '@notional-finance/util';
 import { useAppContext, useNOTE } from './use-notional';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from './use-app-state';
 
 function usePriceChanges(network: Network | undefined) {
   const {

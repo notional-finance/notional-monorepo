@@ -26,7 +26,7 @@ import ScrollIndicator from './scroll-indicator/scroll-indicator';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { AlertIcon } from '@notional-finance/icons';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {}

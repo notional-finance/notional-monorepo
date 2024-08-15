@@ -10,7 +10,7 @@ import {
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface PortfolioHoldingSelectProps {
   context: BaseTradeContext;

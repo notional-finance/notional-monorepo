@@ -5,11 +5,8 @@ import {
   formatTokenType,
   formatNumberAsPercentWithUndefined,
 } from '@notional-finance/helpers';
-import {
-  TradeState,
-  useAppState,
-  VaultTradeState,
-} from '@notional-finance/notionable';
+import { TradeState, VaultTradeState } from '@notional-finance/notionable';
+import { useAppState } from '../use-app-state';
 import { HEALTH_FACTOR_RISK_LEVELS } from '@notional-finance/util';
 import { IntlShape, useIntl, defineMessages } from 'react-intl';
 import { useVaultPosition } from '../use-account';

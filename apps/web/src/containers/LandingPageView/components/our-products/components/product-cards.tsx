@@ -7,7 +7,7 @@ import { ArrowRightIcon } from '@notional-finance/icons';
 import { Link } from 'react-router-dom';
 import { H3, Body } from '@notional-finance/mui';
 import cardBG from '../assets/card_bg.svg';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export interface CardStyleProps {
   theme: NotionalTheme;

@@ -8,7 +8,7 @@ import {
   useAllMarkets,
   useMaxSupply,
 } from '@notional-finance/notionable-hooks';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,

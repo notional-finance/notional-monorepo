@@ -23,7 +23,7 @@ import {
   InitSanctionsBlock,
   InitPageTrack,
 } from './InitComponents';
-import { useAppState } from '@notional-finance/notionable';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface AppLayoutRouteProps {
   component: React.ComponentType<unknown>;
