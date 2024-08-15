@@ -274,14 +274,14 @@ const claimRewards = async (env: Env, provider: Provider) => {
   return failedClaims.map((p) => new Error(p.reason));
 };
 
-type FunRetProm = () => Promise<any>;
-const executePromisesSequentially = async (
-  funcArray: FunRetProm[]
-): Promise<any[]> => {
+type FunRetProm<T> = () => Promise<T>;
+const executePromisesSequentially = async <T>(
+  funcArray: FunRetProm<T>[]
+) => {
   return funcArray.reduce(async (accumulator, func) => {
     const results = await accumulator;
     return [...results, await func()];
-  }, Promise.resolve([]));
+  }, Promise.resolve([] as T[]));
 };
 
 const getTrades = async (

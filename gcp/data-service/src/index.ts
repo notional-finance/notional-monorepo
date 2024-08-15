@@ -1,6 +1,6 @@
 import * as path from 'path';
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import Knex from 'knex';
 import { getEnvSecrets } from 'gae-env-secrets';
 import DataService from './DataService';
@@ -81,6 +81,10 @@ const parseQueryParams = (q) => {
   };
 };
 
+const catchAsync = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
 async function main() {
   await getEnvSecrets({ autoDetect: true });
   if (!process.env.DATA_BASE_URL) {
@@ -127,7 +131,7 @@ async function main() {
     res.send('OK');
   });
 
-  app.get('/blocks', async (req, res) => {
+  app.get('/blocks', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     const timestamps = dataService.getTimestamps(
       params.startTime,
@@ -139,9 +143,9 @@ async function main() {
       )
     );
     res.send(JSON.stringify(blockNumbers));
-  });
+  }));
 
-  app.get('/backfillOracleData', async (req, res) => {
+  app.get('/backfillOracleData', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     await dataService.backfill(
       params.startTime,
@@ -149,9 +153,9 @@ async function main() {
       BackfillType.OracleData
     );
     res.send('OK');
-  });
+  }));
 
-  app.get('/backfillYieldData', async (req, res) => {
+  app.get('/backfillYieldData', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     await dataService.backfill(
       params.startTime,
@@ -159,9 +163,9 @@ async function main() {
       BackfillType.YieldData
     );
     res.send('OK');
-  });
+  }));
 
-  app.get('/backfillGenericData', async (req, res) => {
+  app.get('/backfillGenericData', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     await dataService.backfill(
       params.startTime,
@@ -169,9 +173,9 @@ async function main() {
       BackfillType.GenericData
     );
     res.send('OK');
-  });
+  }));
 
-  app.get('/syncOracleData', async (_, res) => {
+  app.get('/syncOracleData', catchAsync(async (_, res) => {
     res.send(
       JSON.stringify(
         await dataService.syncOracleData(
@@ -179,9 +183,9 @@ async function main() {
         )
       )
     );
-  });
+  }));
 
-  app.get('/syncGenericData', async (_, res) => {
+  app.get('/syncGenericData', catchAsync(async (_, res) => {
     res.send(
       JSON.stringify(
         await dataService.syncGenericData(
@@ -189,30 +193,29 @@ async function main() {
         )
       )
     );
-  });
+  }));
 
-  app.get('/syncAccounts', async (req, res) => {
+  app.get('/syncAccounts', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     res.send(
       JSON.stringify(await dataService.syncAccounts(params.network, false))
     );
-  });
+  }));
 
-  app.get('/syncVaultAccounts', async (req, res) => {
+  app.get('/syncVaultAccounts', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     res.send(
       JSON.stringify(await dataService.syncAccounts(params.network, true))
     );
-  });
+  }));
 
-  app.post('/vaultApy', async (req, res) => {
+  app.post('/vaultApy', catchAsync(async (req, res) => {
     const network: Network = req.body.network;
-
     await dataService.insertVaultAPY(network, req.body.vaultAPYs);
     res.status(200).send('OK');
-  });
+  }));
 
-  app.post('/events', async (req, res) => {
+  app.post('/events', catchAsync(async (req, res) => {
     const network: Network = req.body.network;
     if (!['mainnet', 'arbitrum'].includes(network)) {
       res.status(400).send('Invalid network');
@@ -268,24 +271,24 @@ async function main() {
       await dataService.insertVaultAccounts(network, vaultAccounts);
     }
     res.status(200).send('OK');
-  });
+  }));
 
-  app.get('/accounts', async (req, res) => {
+  app.get('/accounts', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     res.send(JSON.stringify(await dataService.accounts(params.network)));
-  });
+  }));
 
-  app.get('/vaultAccounts', async (req, res) => {
+  app.get('/vaultAccounts', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     res.send(JSON.stringify(await dataService.vaultAccounts(params.network)));
-  });
+  }));
 
-  app.get('/views', async (req, res) => {
+  app.get('/views', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     res.send(JSON.stringify(await dataService.views(params.network)));
-  });
+  }));
 
-  app.get('/query', async (req, res) => {
+  app.get('/query', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     const view = req.query.view;
     if (!view) {
@@ -300,14 +303,14 @@ async function main() {
         )
       )
     );
-  });
+  }));
 
-  app.get('/calculateRisk', async (_req, res) => {
+  app.get('/calculateRisk', catchAsync(async (_req, res) => {
     await calculateAccountRisks();
     res.status(200).send('OK');
-  });
+  }));
 
-  app.get('/calculatePoints', async (req, res) => {
+  app.get('/calculatePoints', catchAsync(async (req, res) => {
     const blockNumber = req.query.blockNumber
       ? parseInt(req.query.blockNumber as string)
       : undefined;
@@ -315,14 +318,14 @@ async function main() {
       await calculatePointsAccrued(Network.arbitrum, blockNumber)
     );
     res.status(200).send('OK');
-  });
+  }));
 
-  app.get('/syncDune', async (_req, res) => {
+  app.get('/syncDune', catchAsync(async (_req, res) => {
     await syncDune();
     res.status(200).send('OK');
-  });
+  }));
 
-  app.use(async (err: any, req: Request, res: Response) => {
+  app.use(async (err: any, req: Request, res: Response, _next: NextFunction) => {
     console.error(err);
     await logToDataDog({
       url: req.url,
