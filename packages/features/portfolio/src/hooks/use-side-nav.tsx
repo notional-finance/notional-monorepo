@@ -26,7 +26,17 @@ export const useSideNav = () => {
   const sideNavOptions = useMemo(() => {
     return [
       {
-        Icon: <FourSquareIcon sx={{ width: theme.spacing(3) }} />,
+        Icon: (
+          <FourSquareIcon
+            sx={{
+              width: theme.spacing(3),
+              fill:
+                category === PORTFOLIO_CATEGORIES.OVERVIEW
+                  ? theme.palette.common.white
+                  : theme.palette.typography.light,
+            }}
+          />
+        ),
         id: PORTFOLIO_CATEGORIES.OVERVIEW,
         to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
         notifications: 0,
