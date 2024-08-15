@@ -285,6 +285,7 @@ async function main() {
 
   app.get('/views', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
+    res.setHeader('Cache-Control', 'public, max-age=3600');
     res.send(JSON.stringify(await dataService.views(params.network)));
   }));
 
@@ -294,6 +295,8 @@ async function main() {
     if (!view) {
       res.status(400).send('View required');
     }
+
+    res.setHeader('Cache-Control', 'public, max-age=3600');
     res.send(
       JSON.stringify(
         await dataService.getView(
@@ -330,6 +333,8 @@ async function main() {
     await logToDataDog({
       url: req.url,
       method: req.method,
+      message: err?.message,
+      stack: err?.stack,
       err: JSON.stringify(err),
       status: 'error'
     }, 'error:express');
