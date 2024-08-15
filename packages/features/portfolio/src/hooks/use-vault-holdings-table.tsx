@@ -22,10 +22,10 @@ import {
   formatHealthFactorValues,
   useAnalyticsReady,
   useArbPoints,
-  useFiat,
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
@@ -103,7 +103,7 @@ export const useVaultHoldingsTable = () => {
   const isBlocked = useLeverageBlock();
   const arbPoints = useArbPoints();
   const theme = useTheme();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const navigate = useNavigate();
   const network = useSelectedNetwork();
   const analyticsReady = useAnalyticsReady(network);

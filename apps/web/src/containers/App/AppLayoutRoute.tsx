@@ -13,6 +13,7 @@ import {
 import {
   NotionalContext,
   useGlobalContext,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { WalletSelector } from '@notional-finance/wallet';
 import { Box, CssBaseline, styled } from '@mui/material';
@@ -37,9 +38,7 @@ const AppLayoutRoute = ({
   routeType,
 }: AppLayoutRouteProps) => {
   const globalState = useGlobalContext();
-  const {
-    global: { themeVariant },
-  } = globalState;
+  const { themeVariant } = useAppState();
   const params = useParams();
   const notionalTheme = useNotionalTheme(themeVariant);
   const slicedPath = path

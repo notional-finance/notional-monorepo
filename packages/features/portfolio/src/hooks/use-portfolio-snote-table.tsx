@@ -9,9 +9,9 @@ import {
 import { TotalEarningsTooltip } from '../components';
 import {
   useAccountDefinition,
-  useFiat,
   useStakedNOTEPoolReady,
   useStakedNoteData,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { ExpandedState } from '@tanstack/react-table';
 import { useTheme } from '@mui/material';
@@ -29,7 +29,7 @@ export function usePortfolioSNOTETable() {
   const snoteBalance = account?.balances.find((t) => t.symbol === 'sNOTE');
   const isPoolReady = useStakedNOTEPoolReady();
   const stakedNoteData = useStakedNoteData();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   let result: any[] = [];
   const noStakedNoteData = snoteBalance === undefined || snoteBalance.isZero();
 

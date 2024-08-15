@@ -4,8 +4,8 @@ import {
   TokenBalance,
 } from '@notional-finance/core-entities';
 import {
+  useAppState,
   StakedNoteData,
-  useFiat,
   useStakedNOTEPoolReady,
   useTotalNOTEBalances,
 } from '@notional-finance/notionable-hooks';
@@ -22,7 +22,7 @@ export function useStakedNote(
   dateRange = 30 * SECONDS_IN_DAY
 ) {
   const isPoolReady = useStakedNOTEPoolReady();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const [sNOTEData, setSNOTEData] = useState<
     Awaited<ReturnType<NOTERegistryClient['getSNOTEData']>>
   >([]);

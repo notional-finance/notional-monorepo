@@ -1,10 +1,10 @@
-import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { SvgIcon, SvgIconProps } from '@mui/material';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 export type ImageProps = SvgIconProps;
 export const useHowItWorks = (tokenSymbol: string) => {
-  const themeVariant = useThemeVariant();
+  const { themeVariant } = useAppState();
 
   const lightModeImage = (props: ImageProps) => {
     return (

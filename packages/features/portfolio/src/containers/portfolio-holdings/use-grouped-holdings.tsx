@@ -8,10 +8,10 @@ import {
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
 import {
-  useFiat,
   useGroupedHoldings,
   usePendingPnLCalculation,
   useSelectedNetwork,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
@@ -40,7 +40,7 @@ export function formatCaption(asset: TokenBalance, debt: TokenBalance) {
 }
 
 export function useGroupedHoldingsTable() {
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const network = useSelectedNetwork();
   const groupedTokens = useGroupedHoldings(network) || [];
   const pendingTokens = usePendingPnLCalculation(network).flatMap(

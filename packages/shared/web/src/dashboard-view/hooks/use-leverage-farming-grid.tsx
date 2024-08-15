@@ -3,9 +3,9 @@ import {
   useAllVaults,
   useVaultHoldings,
   useAllMarkets,
-  useFiat,
   useTotalArbPoints,
   useCurrentSeason,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
@@ -32,7 +32,7 @@ export const useLeveragedFarmingGrid = (
 ): DashboardGridProps => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
   const totalArbPoints = useTotalArbPoints();

@@ -6,10 +6,10 @@ import {
 import { VAULT_TYPES, formatMaturity } from '@notional-finance/util';
 import {
   useAllMarkets,
-  useFiat,
   useAllVaults,
   useAccountDefinition,
   useVaultHoldings,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -32,7 +32,7 @@ export const useLeverageFarmingList = (
     getMax,
   } = useAllMarkets(network);
   const listedVaults = useAllVaults(network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const account = useAccountDefinition(network);
   const vaultHoldings = useVaultHoldings(network);
 
@@ -173,7 +173,9 @@ export const useLeverageFarmingList = (
           symbolSize: 'large',
           symbolBottom: '',
           label: vault.primaryToken.symbol,
-          caption: network ? network.charAt(0).toUpperCase() + network.slice(1) : '',
+          caption: network
+            ? network.charAt(0).toUpperCase() + network.slice(1)
+            : '',
         },
         walletBalance: walletBalance?.toFloat() || 0,
         pool: vault.poolName,
@@ -214,7 +216,9 @@ export const useLeverageFarmingList = (
             symbolSize: 'large',
             symbolBottom: '',
             label: vault.primaryToken.symbol,
-            caption: network ? network.charAt(0).toUpperCase() + network.slice(1) : '',
+            caption: network
+              ? network.charAt(0).toUpperCase() + network.slice(1)
+              : '',
             network: network,
           },
           totalApy: {

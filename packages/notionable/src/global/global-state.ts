@@ -138,10 +138,6 @@ interface AddressState {
 }
 
 /** These settings are associated with the user directly */
-interface UserSettingsState {
-  themeVariant: THEME_VARIANTS;
-}
-
 interface ErrorState {
   error?: NotionalError;
 }
@@ -149,15 +145,10 @@ interface ErrorState {
 export interface GlobalState
   extends Record<string, unknown>,
     AddressState,
-    UserSettingsState,
     TransactionState,
     ErrorState {}
 
 export const initialGlobalState: GlobalState = {
-  themeVariant: userSettings?.themeVariant
-    ? userSettings?.themeVariant
-    : THEME_VARIANTS.LIGHT,
-  baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
   isSanctionedAddress: false,
   isAccountPending: false,
   sentTransactions: [],

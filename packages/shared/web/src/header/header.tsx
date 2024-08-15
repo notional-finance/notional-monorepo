@@ -18,10 +18,9 @@ import arbLM from '@notional-finance/mui/src/assets/icons/arbLM.svg';
 import arbDM from '@notional-finance/mui/src/assets/icons/arbDM.svg';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
+  useAppState,
   useNotionalContext,
   useSelectedNetwork,
-  useThemeVariant,
-  // showContestNavLink,
 } from '@notional-finance/notionable-hooks';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
@@ -35,7 +34,7 @@ export interface HeaderProps extends AppBarProps {}
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
   const navigate = useNavigate();
-  const themeVariant = useThemeVariant();
+  const { themeVariant } = useAppState();
   const selectedNetwork = useSelectedNetwork();
   const [hideError, setHideError] = useState(false);
   const hideSubGraphError = getFromLocalStorage('hideSubGraphError');
