@@ -13,6 +13,7 @@ import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
   formatHealthFactorValues,
   useAllVaults,
+  useAppState,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
@@ -20,7 +21,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { findSortingNum } from './use-all-accounts';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface VaultAccountData {
   account: string;

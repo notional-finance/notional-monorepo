@@ -22,12 +22,14 @@ import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import { TokenIcon, WalletIcon } from '@notional-finance/icons';
 import { useStakedNote } from './use-staked-note';
-import { StakedNoteData } from '@notional-finance/notionable-hooks';
+import {
+  StakedNoteData,
+  useAppState,
+} from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useState } from 'react';
 import { PRODUCTS, SECONDS_IN_DAY } from '@notional-finance/util';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface StakedNoteProps {
   stakedNoteData: StakedNoteData | undefined;

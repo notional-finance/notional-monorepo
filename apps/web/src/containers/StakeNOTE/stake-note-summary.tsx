@@ -19,11 +19,11 @@ import { useStakingFaq } from './use-staking-faq';
 import {
   StakedNoteData,
   useNotePrice,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { useReinvestmentData } from './use-reinvestment-data';
 import { useStakedNote } from '../NoteView/staked-note/use-staked-note';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const StakeNOTESummary = ({
   stakedNoteData,

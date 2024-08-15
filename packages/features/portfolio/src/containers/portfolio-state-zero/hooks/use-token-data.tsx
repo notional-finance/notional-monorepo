@@ -1,8 +1,8 @@
-import { useAppState } from '@notional-finance/notionable-hooks';
 import {
   useAllNetworkMarkets,
   useAllUniqueUnderlyingTokens,
   useSelectedNetwork,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 

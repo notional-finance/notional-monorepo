@@ -7,11 +7,11 @@ import {
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
-import { useAppState } from '@notional-finance/notionable-hooks';
 import {
   useGroupedHoldings,
   usePendingPnLCalculation,
   useSelectedNetwork,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,

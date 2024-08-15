@@ -5,6 +5,7 @@ import {
 } from '@notional-finance/helpers';
 import { formatMaturity } from '@notional-finance/util';
 import {
+  useAppState,
   useAllMarkets,
   useAccountDefinition,
 } from '@notional-finance/notionable-hooks';
@@ -23,7 +24,6 @@ import {
 } from '@notional-finance/mui';
 import { useMaxYield } from '@notional-finance/trade';
 import { YieldData } from '@notional-finance/core-entities';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useLiquidityList = (
   product: PRODUCTS,

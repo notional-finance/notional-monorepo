@@ -9,10 +9,10 @@ import { SparklesIcon } from '@notional-finance/icons';
 import {
   useAllMarkets,
   useMaxSupply,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { SxProps, useTheme } from '@mui/material';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,

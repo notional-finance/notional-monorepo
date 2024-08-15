@@ -9,6 +9,7 @@ import {
   useAllVaults,
   useAccountDefinition,
   useVaultHoldings,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -21,7 +22,6 @@ import {
 } from '@notional-finance/mui';
 import { Box } from '@mui/material';
 import { PointsIcon } from '@notional-finance/icons';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useLeverageFarmingList = (
   network: Network | undefined,

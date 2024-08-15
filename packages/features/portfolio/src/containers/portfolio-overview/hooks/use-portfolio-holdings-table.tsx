@@ -9,10 +9,10 @@ import {
   useAccountReady,
   usePortfolioRiskProfile,
   useSelectedNetwork,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { Registry } from '@notional-finance/core-entities';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useTotalHoldingsTable = () => {
   const { baseCurrency } = useAppState();

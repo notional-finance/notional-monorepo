@@ -2,8 +2,8 @@ import { Box, useTheme } from '@mui/material';
 import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
-import { useAppState } from '@notional-finance/notionable-hooks';
 import {
+  useAppState,
   useAllMarkets,
   useCurrentSeason,
   useTotalArbPoints,

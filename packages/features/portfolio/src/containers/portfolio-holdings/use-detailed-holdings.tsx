@@ -10,11 +10,11 @@ import {
 } from '@notional-finance/helpers';
 import { PointsIcon } from '@notional-finance/icons';
 import { Body, H4 } from '@notional-finance/mui';
-import { useAppState } from '@notional-finance/notionable-hooks';
 import {
   useArbPoints,
   useFiatToken,
   useNOTE,
+  useAppState,
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,

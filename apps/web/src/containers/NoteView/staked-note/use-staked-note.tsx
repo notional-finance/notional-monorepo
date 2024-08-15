@@ -3,8 +3,8 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { useAppState } from '@notional-finance/notionable-hooks';
 import {
+  useAppState,
   StakedNoteData,
   useStakedNOTEPoolReady,
   useTotalNOTEBalances,

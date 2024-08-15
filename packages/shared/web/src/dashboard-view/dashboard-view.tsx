@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { CardContainer } from '../card-container/card-container';
 import { FeatureLoader } from '../feature-loader/feature-loader';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  useSelectedNetwork,
+  useAppState,
+} from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
 import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
@@ -23,7 +26,6 @@ import {
   useLiquidityLeveragedGrid,
 } from './hooks';
 import { sortListData } from './hooks/utils';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const DashboardView = ({
   gridData,

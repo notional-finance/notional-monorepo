@@ -12,8 +12,10 @@ import {
   MultiValueIconCell,
   SelectedOptions,
 } from '@notional-finance/mui';
-import { useAppState } from '@notional-finance/notionable-hooks';
-import { useAllNetworkMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useAllNetworkMarkets,
+  useAppState,
+} from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
 import {
   PRIME_CASH_VAULT_MATURITY,

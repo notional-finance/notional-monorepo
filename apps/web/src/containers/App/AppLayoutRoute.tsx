@@ -13,6 +13,7 @@ import {
 import {
   NotionalContext,
   useGlobalContext,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { WalletSelector } from '@notional-finance/wallet';
 import { Box, CssBaseline, styled } from '@mui/material';
@@ -23,7 +24,6 @@ import {
   InitSanctionsBlock,
   InitPageTrack,
 } from './InitComponents';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface AppLayoutRouteProps {
   component: React.ComponentType<unknown>;

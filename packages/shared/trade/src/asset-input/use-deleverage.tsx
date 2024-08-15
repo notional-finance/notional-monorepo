@@ -1,10 +1,10 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { CurrencyInputHandle } from '@notional-finance/mui';
-import { useAppState } from '@notional-finance/notionable-hooks';
 import {
   BaseTradeContext,
   usePortfolioRiskProfile,
   usePrimeTokens,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
 

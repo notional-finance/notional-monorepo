@@ -25,6 +25,7 @@ import {
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
@@ -43,7 +44,6 @@ import {
 } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 import moment from 'moment';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,

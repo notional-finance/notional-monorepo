@@ -18,6 +18,7 @@ import arbLM from '@notional-finance/mui/src/assets/icons/arbLM.svg';
 import arbDM from '@notional-finance/mui/src/assets/icons/arbDM.svg';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
+  useAppState,
   useNotionalContext,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
@@ -26,7 +27,6 @@ import ScrollIndicator from './scroll-indicator/scroll-indicator';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { AlertIcon } from '@notional-finance/icons';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {}

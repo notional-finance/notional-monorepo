@@ -8,6 +8,7 @@ import {
   MessageCell,
 } from '@notional-finance/mui';
 import {
+  useAppState,
   useNotePrice,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
@@ -15,7 +16,6 @@ import { useTheme } from '@mui/material';
 import { Network, SupportedNetworks } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 export function usePortfolioNOTETable() {
   const theme = useTheme();

@@ -6,8 +6,8 @@ import {
   truncateAddress,
 } from '@notional-finance/helpers';
 import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
-import { useAppState } from '@notional-finance/notionable-hooks';
 import {
+  useAppState,
   formatHealthFactorValues,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';

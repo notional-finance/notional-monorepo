@@ -18,9 +18,11 @@ import {
 } from '../components';
 import { FormattedMessage } from 'react-intl';
 import { useNoteSupply } from './use-note-supply';
-import { NoteSupplyData } from '@notional-finance/notionable-hooks';
+import {
+  NoteSupplyData,
+  useAppState,
+} from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useState } from 'react';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface NoteSupplyProps {
   noteSupplyData: NoteSupplyData | undefined;

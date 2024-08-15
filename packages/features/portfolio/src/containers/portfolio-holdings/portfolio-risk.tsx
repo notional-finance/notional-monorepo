@@ -17,10 +17,10 @@ import {
   useCurrentLiquidationPrices,
   usePortfolioRiskProfile,
   useSelectedNetwork,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import { useReduceRiskDropdown } from '../../hooks';
-import { useAppState } from '@notional-finance/notionable-hooks';
 
 const LabelAndValue = ({
   label,
