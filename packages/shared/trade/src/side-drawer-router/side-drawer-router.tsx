@@ -76,11 +76,13 @@ export const SideDrawerRouter = ({
   }, [clearSideDrawer]);
 
   const route = routes.find((r) => r.slug === action);
+  console.log('found route', route);
 
   return (
     <Drawer size="large">
       {route && (
         <DrawerRoute
+          key={route.slug}
           path={routeMatch.replace(':path', route.slug)}
           context={context}
           {...route}

@@ -77,7 +77,6 @@ export const useBorrowTerms = (
     // Note this is a any[] because there were conflicts when attempting to combine the debtOptions and spotMaturityData types
     const options = debtOptions || spotMaturityData;
     const formattedOptions = formatOptions(options);
-    console.log('formattedOptions', options, formattedOptions);
 
     return formattedOptions.map((o, index) => {
       const borrowRate = o?.interestRate || o?.tradeRate;
