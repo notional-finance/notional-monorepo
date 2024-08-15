@@ -18,12 +18,12 @@ import { useLocation } from 'react-router';
 import { useStakingFaq } from './use-staking-faq';
 import {
   StakedNoteData,
-  useFiat,
   useNotePrice,
 } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { useReinvestmentData } from './use-reinvestment-data';
 import { useStakedNote } from '../NoteView/staked-note/use-staked-note';
+import { useAppState } from '@notional-finance/notionable';
 
 export const StakeNOTESummary = ({
   stakedNoteData,
@@ -34,7 +34,7 @@ export const StakeNOTESummary = ({
   const { state } = useContext(NOTEContext);
   const { pathname } = useLocation();
   const { faqs, faqHeaderLinks } = useStakingFaq();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const {
     historicalSNOTEPrice,
     historicalSNOTEAPY,

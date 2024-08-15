@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
 // import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
-import { useFiat } from '@notional-finance/notionable-hooks';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
@@ -13,13 +12,14 @@ import {
 } from '@notional-finance/trade';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
+import { useAppState } from '@notional-finance/notionable';
 
 export const useLiquidityLeveragedGrid = (
   network: Network | undefined
 ): DashboardGridProps => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const { nTokenPositions } = useLeveragedNTokenPositions(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);

@@ -1,8 +1,8 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { CurrencyInputHandle } from '@notional-finance/mui';
+import { useAppState } from '@notional-finance/notionable';
 import {
   BaseTradeContext,
-  useFiat,
   usePortfolioRiskProfile,
   usePrimeTokens,
 } from '@notional-finance/notionable-hooks';
@@ -26,7 +26,7 @@ export const useDeleverage = (
     },
     updateState,
   } = context;
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const computedBalance =
     debtOrCollateral === 'Debt' ? debtBalance : collateralBalance;
   const availableTokens =

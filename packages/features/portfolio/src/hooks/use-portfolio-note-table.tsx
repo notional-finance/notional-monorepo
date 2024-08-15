@@ -8,7 +8,6 @@ import {
   MessageCell,
 } from '@notional-finance/mui';
 import {
-  useFiat,
   useNotePrice,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
@@ -16,6 +15,7 @@ import { useTheme } from '@mui/material';
 import { Network, SupportedNetworks } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { useAppState } from '@notional-finance/notionable';
 
 export function usePortfolioNOTETable() {
   const theme = useTheme();
@@ -25,7 +25,7 @@ export function usePortfolioNOTETable() {
     globalState: { networkAccounts },
   } = useNotionalContext();
   let hasNoteOrSNote = false;
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const result = SupportedNetworks.map((network) => {
     const account = networkAccounts
       ? networkAccounts[network].accountDefinition

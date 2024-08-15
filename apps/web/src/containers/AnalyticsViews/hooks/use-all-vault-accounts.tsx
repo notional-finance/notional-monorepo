@@ -13,7 +13,6 @@ import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
   formatHealthFactorValues,
   useAllVaults,
-  useFiat,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
@@ -21,6 +20,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { findSortingNum } from './use-all-accounts';
+import { useAppState } from '@notional-finance/notionable';
 
 interface VaultAccountData {
   account: string;
@@ -49,7 +49,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
     VaultAccountData[] | undefined
   >(undefined);
   const { updateNotional } = useNotionalContext();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const navigate = useNavigate();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [vaultNameOptions, setVaultNameOptions] = useState([]);

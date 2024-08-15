@@ -1,16 +1,16 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { DropdownButton } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import { BarChartIcon } from '@notional-finance/icons';
 import EarnSection from './earn-section';
 import { messages } from '../messages';
+import { useAppState } from '@notional-finance/notionable';
 
 export function EarnDropdown() {
   const { pathname } = useLocation();
-  const themeVariant = useThemeVariant();
+  const { themeVariant } = useAppState();
 
   const flippedTheme =
     themeVariant === THEME_VARIANTS.DARK || pathname === '/'

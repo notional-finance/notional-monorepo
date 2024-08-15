@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { CardContainer } from '../card-container/card-container';
 import { FeatureLoader } from '../feature-loader/feature-loader';
-import {
-  useSelectedNetwork,
-  useThemeVariant,
-} from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
 import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
@@ -26,6 +23,7 @@ import {
   useLiquidityLeveragedGrid,
 } from './hooks';
 import { sortListData } from './hooks/utils';
+import { useAppState } from '@notional-finance/notionable';
 
 export const DashboardView = ({
   gridData,
@@ -36,7 +34,7 @@ export const DashboardView = ({
   threeWideGrid,
 }: DashboardViewProps) => {
   const network = useSelectedNetwork();
-  const themeVariant = useThemeVariant();
+  const { themeVariant } = useAppState();
   const { pathname } = useLocation();
   const [_, routeKey] = pathname.split('/');
   const userSettings = getFromLocalStorage('userSettings');

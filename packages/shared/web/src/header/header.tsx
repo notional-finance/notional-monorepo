@@ -20,14 +20,13 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
   useNotionalContext,
   useSelectedNetwork,
-  useThemeVariant,
-  // showContestNavLink,
 } from '@notional-finance/notionable-hooks';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { AlertIcon } from '@notional-finance/icons';
+import { useAppState } from '@notional-finance/notionable';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {}
@@ -35,7 +34,7 @@ export interface HeaderProps extends AppBarProps {}
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
   const navigate = useNavigate();
-  const themeVariant = useThemeVariant();
+  const { themeVariant } = useAppState();
   const selectedNetwork = useSelectedNetwork();
   const [hideError, setHideError] = useState(false);
   const hideSubGraphError = getFromLocalStorage('hideSubGraphError');

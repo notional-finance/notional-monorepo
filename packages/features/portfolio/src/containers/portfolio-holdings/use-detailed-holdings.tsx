@@ -10,9 +10,9 @@ import {
 } from '@notional-finance/helpers';
 import { PointsIcon } from '@notional-finance/icons';
 import { Body, H4 } from '@notional-finance/mui';
+import { useAppState } from '@notional-finance/notionable';
 import {
   useArbPoints,
-  useFiat,
   useFiatToken,
   useNOTE,
   usePendingPnLCalculation,
@@ -37,7 +37,7 @@ export function useDetailedHoldingsTable() {
   );
   const arbPoints = useArbPoints();
   const navigate = useNavigate();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const fiatToken = useFiatToken();
   const NOTE = useNOTE(network);
 

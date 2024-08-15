@@ -12,10 +12,8 @@ import {
   MultiValueIconCell,
   SelectedOptions,
 } from '@notional-finance/mui';
-import {
-  useAllNetworkMarkets,
-  useFiat,
-} from '@notional-finance/notionable-hooks';
+import { useAppState } from '@notional-finance/notionable';
+import { useAllNetworkMarkets } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
 import {
   PRIME_CASH_VAULT_MATURITY,
@@ -31,7 +29,7 @@ export const useMarketsTable = (
   productOptions: SelectedOptions[]
 ) => {
   const theme = useTheme();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const { earnYields, borrowYields } = useAllNetworkMarkets();
 
   let tableColumns: DataTableColumn[] = [

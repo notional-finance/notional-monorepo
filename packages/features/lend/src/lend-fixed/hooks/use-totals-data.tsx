@@ -5,16 +5,16 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import {
-  useFiat,
   useAllMarkets,
   useMaxSupply,
 } from '@notional-finance/notionable-hooks';
+import { useAppState } from '@notional-finance/notionable';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,
   collateral: TokenDefinition | undefined
 ) => {
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const {
     yields: { fCashLend },
   } = useAllMarkets(deposit?.network);

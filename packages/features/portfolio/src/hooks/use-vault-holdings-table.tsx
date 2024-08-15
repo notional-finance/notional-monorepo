@@ -22,7 +22,6 @@ import {
   formatHealthFactorValues,
   useAnalyticsReady,
   useArbPoints,
-  useFiat,
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
@@ -44,6 +43,7 @@ import {
 } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 import moment from 'moment';
+import { useAppState } from '@notional-finance/notionable';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -103,7 +103,7 @@ export const useVaultHoldingsTable = () => {
   const isBlocked = useLeverageBlock();
   const arbPoints = useArbPoints();
   const theme = useTheme();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const navigate = useNavigate();
   const network = useSelectedNetwork();
   const analyticsReady = useAnalyticsReady(network);

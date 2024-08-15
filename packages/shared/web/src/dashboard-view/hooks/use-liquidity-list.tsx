@@ -6,7 +6,6 @@ import {
 import { formatMaturity } from '@notional-finance/util';
 import {
   useAllMarkets,
-  useFiat,
   useAccountDefinition,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
@@ -24,6 +23,7 @@ import {
 } from '@notional-finance/mui';
 import { useMaxYield } from '@notional-finance/trade';
 import { YieldData } from '@notional-finance/core-entities';
+import { useAppState } from '@notional-finance/notionable';
 
 export const useLiquidityList = (
   product: PRODUCTS,
@@ -33,7 +33,7 @@ export const useLiquidityList = (
     yields: { liquidity },
   } = useAllMarkets(network);
   const allMaxAPYs = useMaxYield(network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const account = useAccountDefinition(network);
   let yieldData = liquidity as YieldData[];
 
@@ -197,7 +197,9 @@ export const useLiquidityList = (
           symbolSize: 'large',
           symbolBottom: '',
           label: y.underlying.symbol,
-          caption: network ? network.charAt(0).toUpperCase() + network.slice(1) : '',
+          caption: network
+            ? network.charAt(0).toUpperCase() + network.slice(1)
+            : '',
         },
         walletBalance: walletBalance?.toFloat() || 0,
         totalApy: y.totalAPY || 0,
@@ -226,7 +228,9 @@ export const useLiquidityList = (
             symbolSize: 'large',
             symbolBottom: '',
             label: y.underlying.symbol,
-            caption: network ? network.charAt(0).toUpperCase() + network.slice(1) : '',
+            caption: network
+              ? network.charAt(0).toUpperCase() + network.slice(1)
+              : '',
             network: network,
           },
           totalApy: {

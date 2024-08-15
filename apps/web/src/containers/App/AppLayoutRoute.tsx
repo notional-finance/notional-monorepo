@@ -23,6 +23,7 @@ import {
   InitSanctionsBlock,
   InitPageTrack,
 } from './InitComponents';
+import { useAppState } from '@notional-finance/notionable';
 
 interface AppLayoutRouteProps {
   component: React.ComponentType<unknown>;
@@ -37,9 +38,7 @@ const AppLayoutRoute = ({
   routeType,
 }: AppLayoutRouteProps) => {
   const globalState = useGlobalContext();
-  const {
-    global: { themeVariant },
-  } = globalState;
+  const { themeVariant } = useAppState();
   const params = useParams();
   const notionalTheme = useNotionalTheme(themeVariant);
   const slicedPath = path

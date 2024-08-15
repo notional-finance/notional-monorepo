@@ -24,10 +24,10 @@ import { TokenIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
 import {
   NoteSupplyData,
-  useFiat,
   useNotePrice,
 } from '@notional-finance/notionable-hooks';
 import { useNoteSupply } from './use-note-supply';
+import { useAppState } from '@notional-finance/notionable';
 
 interface NoteSummaryProps {
   noteSupplyData: NoteSupplyData | undefined;
@@ -37,7 +37,7 @@ export const NoteSummary = ({ noteSupplyData }: NoteSummaryProps) => {
   const theme = useTheme();
   const { notePrice, notePriceChange } = useNotePrice();
   const [dateRange, setDateRange] = useState(ValidDateRanges[1].value);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const {
     noteBurnChart,
     totalNoteBurned,

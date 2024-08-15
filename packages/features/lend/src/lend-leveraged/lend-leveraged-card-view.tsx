@@ -1,15 +1,15 @@
 import {
   useAllMarkets,
-  useThemeVariant,
-  useSelectedNetwork
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage } from 'react-intl';
+import { useAppState } from '@notional-finance/notionable';
 
 export function LendLeveragedCardView() {
-  const themeVariant = useThemeVariant();
+  const { themeVariant } = useAppState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const network = useSelectedNetwork();
   const {

@@ -5,7 +5,6 @@ import {
 } from '@notional-finance/helpers';
 import {
   useAllMarkets,
-  useFiat,
   useAccountDefinition,
   useTotalArbPoints,
   useCurrentSeason,
@@ -21,14 +20,18 @@ import {
 } from '@notional-finance/mui';
 import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
+import { useAppState } from '@notional-finance/notionable';
 
-export const useLendBorrowList = (product: PRODUCTS, network: Network | undefined) => {
+export const useLendBorrowList = (
+  product: PRODUCTS,
+  network: Network | undefined
+) => {
   const {
     yields: { fCashLend, fCashBorrow, variableBorrow, variableLend },
   } = useAllMarkets(network);
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const account = useAccountDefinition(network);
   const isBorrow =
     product === PRODUCTS.BORROW_FIXED || product === PRODUCTS.BORROW_VARIABLE;
@@ -185,7 +188,9 @@ export const useLendBorrowList = (product: PRODUCTS, network: Network | undefine
           symbolBottom: '',
           label: y.underlying.symbol,
           network: network,
-          caption: network ? network.charAt(0).toUpperCase() + network.slice(1) : '',
+          caption: network
+            ? network.charAt(0).toUpperCase() + network.slice(1)
+            : '',
         },
         walletBalance: walletBalance?.toFloat() || 0,
         maturity: y.token.maturity,

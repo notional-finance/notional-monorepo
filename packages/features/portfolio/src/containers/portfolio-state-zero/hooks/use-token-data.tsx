@@ -1,7 +1,7 @@
+import { useAppState } from '@notional-finance/notionable';
 import {
   useAllNetworkMarkets,
   useAllUniqueUnderlyingTokens,
-  useFiat,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
@@ -12,7 +12,7 @@ export const useTokenData = (selectedTabIndex: number) => {
     selectedNetwork ? [selectedNetwork] : undefined
   );
   const { earnYields, borrowYields } = useAllNetworkMarkets();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
 
   const requiredProducts = {
     [PORTFOLIO_STATE_ZERO_OPTIONS.EARN]: [

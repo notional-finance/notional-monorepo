@@ -3,7 +3,6 @@ import {
   useAllVaults,
   useVaultHoldings,
   useAllMarkets,
-  useFiat,
   useTotalArbPoints,
   useCurrentSeason,
 } from '@notional-finance/notionable-hooks';
@@ -25,6 +24,7 @@ import {
   getArbBoosts,
   getPointsAPY,
 } from '@notional-finance/core-entities';
+import { useAppState } from '@notional-finance/notionable';
 
 export const useLeveragedFarmingGrid = (
   network: Network | undefined,
@@ -32,7 +32,7 @@ export const useLeveragedFarmingGrid = (
 ): DashboardGridProps => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
   const totalArbPoints = useTotalArbPoints();
