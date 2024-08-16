@@ -18,7 +18,7 @@ env_variables:
   MERGE_CONFLICTS: 'false'
   NX_USE_CROSS_FETCH: 'true'
   CLOUDFLARE_ACCOUNT_ID: 274f86c6dcfbb77c09e49e86d101c753
-  R2_ACCESS_KEY_ID: 787264fa24c5ced68a2e1edb73cfb6b3
+  R2_ACCESS_KEY_ID: 09f2809bc45eba2e05cf8cf7cb91a269
   # Secrets
   DB_PASS: "projects/663932775145/secrets/DB_PASS/versions/latest"
   DATA_SERVICE_AUTH_TOKEN: "projects/663932775145/secrets/DATA_SERVICE_AUTH_TOKEN/versions/latest"
