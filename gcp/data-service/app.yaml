@@ -29,5 +29,5 @@ env_variables:
 #[END gae_flex_pubsub_yaml]
 
 beta_settings:
-  cloud_sql_instances: monitoring-agents:europe-west6:notional-v2
+  cloud_sql_instances: monitoring-agents:us-central1:notional
 

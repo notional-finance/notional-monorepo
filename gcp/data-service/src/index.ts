@@ -290,7 +290,12 @@ async function main() {
   }));
 
   app.get('/readiness_check', catchAsync(async (_, res) => {
-    res.send(JSON.stringify(await dataService.readinessCheck()));
+    const isReady = await dataService.readinessCheck();
+    if (isReady) {
+      res.status(200).send('OK');
+    } else {
+      res.status(500).send('NOT OK');
+    }
   }));
 
   app.get('/query', catchAsync(async (req, res) => {
