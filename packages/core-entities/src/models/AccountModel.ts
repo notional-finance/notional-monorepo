@@ -53,6 +53,7 @@ export const AccountModel = types
   .model('Account', {
     address: types.string,
     network: NotionalTypes.Network,
+    lastUpdateTimestamp: types.optional(types.number, 0),
     systemAccountType: types.optional(NotionalTypes.SystemAccount, 'None'),
     balances: types.optional(types.array(NotionalTypes.TokenBalance), []),
     allowPrimeBorrow: types.maybe(types.boolean),
@@ -141,6 +142,7 @@ export const AccountModel = types
         if (accountDefinition.stakeNOTEStatus) {
           self.stakeNOTEStatus = accountDefinition.stakeNOTEStatus;
         }
+        self.lastUpdateTimestamp = result.lastUpdateTimestamp;
       }
     });
 

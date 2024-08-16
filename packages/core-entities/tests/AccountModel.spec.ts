@@ -1,3 +1,4 @@
+import { when } from 'mobx';
 import { Registry, AccountFetchMode } from '../src';
 import { AccountModel } from '../src/models/AccountModel';
 import { Network } from '@notional-finance/util';
@@ -18,11 +19,13 @@ describe('AccountModel', () => {
     await Registry.triggerRefresh(Network.mainnet);
   });
 
-  it('creates an account model with required fields and matches snapshot', () => {
+  it('creates an account model with required fields and matches snapshot', async () => {
     const account = AccountModel.create({
       address: '0xd74e7325dFab7D7D1ecbf22e6E6874061C50f243',
       network: Network.mainnet,
     });
+
+    await when(() => account.lastUpdateTimestamp > 0);
 
     expect(account).toMatchSnapshot();
   });

@@ -3,17 +3,406 @@
 exports[`AccountModel creates an account model with required fields and matches snapshot 1`] = `
 Object {
   "accountHistory": undefined,
-  "accountIncentiveDebt": Array [],
+  "accountIncentiveDebt": Array [
+    Object {
+      "currencyId": 1,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+    },
+    Object {
+      "currencyId": 0,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+    },
+    Object {
+      "currencyId": 0,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+    },
+    Object {
+      "currencyId": 0,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+    },
+    Object {
+      "currencyId": 0,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+    },
+    Object {
+      "currencyId": 0,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+    },
+    Object {
+      "currencyId": 0,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+    },
+    Object {
+      "currencyId": 0,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+    },
+    Object {
+      "currencyId": 0,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+    },
+    Object {
+      "currencyId": 0,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+    },
+  ],
   "address": "0xd74e7325dFab7D7D1ecbf22e6E6874061C50f243",
-  "allowPrimeBorrow": undefined,
-  "allowances": Array [],
+  "allowPrimeBorrow": true,
+  "allowances": Array [
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "network": "mainnet",
+        "tokenId": "0x0000000000000000000000000000000000000000",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "network": "mainnet",
+        "tokenId": "0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0x6b175474e89094c44da98b954eedeac495271d0f",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0x83f20f44975d03b1b09e64809b757c47f942beea",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0x853d955acef822db058eb8505911ed77f175b99e",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffc6c78ff",
+        "network": "mainnet",
+        "tokenId": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0xfffffffffffffffffffffffffffffffffffffffffffffffffe897fb1b585a3fe",
+        "network": "mainnet",
+        "tokenId": "0xae78736cd615f374d3085123a210448e74fc6393",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0xbe9895146f7af43049ca1c1ae358b0541ea49704",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0xffffffffffffffe8b78917ff",
+        "network": "mainnet",
+        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "network": "mainnet",
+        "tokenId": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+    Object {
+      "amount": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2",
+      },
+      "spender": "0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f",
+    },
+  ],
   "balanceStatement": undefined,
-  "balances": Array [],
+  "balances": Array [
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x11d05f",
+      "network": "mainnet",
+      "tokenId": "0x4a9e282635567cc4d3c6a24e16c2335f10dee9b8",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x9661ea1fa5176e",
+      "network": "mainnet",
+      "tokenId": "0x0000000000000000000000000000000000000000",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x00",
+      "network": "mainnet",
+      "tokenId": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x8b43078288cc4ce6",
+      "network": "mainnet",
+      "tokenId": "0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x02fe5486ee56942ab6",
+      "network": "mainnet",
+      "tokenId": "0x6b175474e89094c44da98b954eedeac495271d0f",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x00",
+      "network": "mainnet",
+      "tokenId": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x00",
+      "network": "mainnet",
+      "tokenId": "0x83f20f44975d03b1b09e64809b757c47f942beea",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x00",
+      "network": "mainnet",
+      "tokenId": "0x853d955acef822db058eb8505911ed77f175b99e",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x28e360",
+      "network": "mainnet",
+      "tokenId": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x00",
+      "network": "mainnet",
+      "tokenId": "0xae78736cd615f374d3085123a210448e74fc6393",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x00",
+      "network": "mainnet",
+      "tokenId": "0xbe9895146f7af43049ca1c1ae358b0541ea49704",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x0252f499e0",
+      "network": "mainnet",
+      "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x08a8bd3e",
+      "network": "mainnet",
+      "tokenId": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x034e68198bd4f48d3a",
+      "network": "mainnet",
+      "tokenId": "0x38de42f4ba8a35056b33a746a6b45be9b1c3b9d2",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x26aed4c3",
+      "network": "mainnet",
+      "tokenId": "0x0000000030fba4a7ec8591f25b4d37fd79943a4bb6e553e2000bffffffffff09",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x00",
+      "network": "mainnet",
+      "tokenId": "0x0000000030fba4a7ec8591f25b4d37fd79943a4bb6e553e2000bffffffffff0a",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x45ed6f",
+      "network": "mainnet",
+      "tokenId": "0x0000000032d82a1c8618c7be7fe85b2f1c44357a871d52d10007ffffffffff09",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x00",
+      "network": "mainnet",
+      "tokenId": "0x0000000032d82a1c8618c7be7fe85b2f1c44357a871d52d10007ffffffffff0a",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x5ae97053",
+      "network": "mainnet",
+      "tokenId": "0x0000000084e58d8faa4e3b74d55d9fc762230f15d95570b80003ffffffffff09",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "-0x4c6b5354",
+      "network": "mainnet",
+      "tokenId": "0x0000000084e58d8faa4e3b74d55d9fc762230f15d95570b80003ffffffffff0a",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x267f2333",
+      "network": "mainnet",
+      "tokenId": "0x00000000b1113cf888a019693b254da3d90f841072d85172000bffffffffff09",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x00",
+      "network": "mainnet",
+      "tokenId": "0x00000000b1113cf888a019693b254da3d90f841072d85172000bffffffffff0a",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x023b529030",
+      "network": "mainnet",
+      "tokenId": "0x00000000d6aa58cf21a0edb33375d6c0434b8bb5b589f0210003ffffffffff09",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "-0x01a6c720c0",
+      "network": "mainnet",
+      "tokenId": "0x00000000d6aa58cf21a0edb33375d6c0434b8bb5b589f0210003ffffffffff0a",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x52d528",
+      "network": "mainnet",
+      "tokenId": "0x00000000f94507f3dece4cc4c73b6cf228912b85eadc9cfb0001ffffffffff09",
+    },
+    Object {
+      "_isTokenBalance": true,
+      "hex": "0x00",
+      "network": "mainnet",
+      "tokenId": "0x00000000f94507f3dece4cc4c73b6cf228912b85eadc9cfb0001ffffffffff0a",
+    },
+  ],
   "historicalBalances": undefined,
+  "lastUpdateTimestamp": 1723847447,
   "network": "mainnet",
-  "secondaryIncentiveDebt": Array [],
-  "stakeNOTEStatus": undefined,
+  "secondaryIncentiveDebt": Array [
+    Object {
+      "currencyId": 11,
+      "value": Object {
+        "_isTokenBalance": true,
+        "hex": "0x00",
+        "network": "mainnet",
+        "tokenId": "0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f",
+      },
+    },
+  ],
+  "stakeNOTEStatus": Object {
+    "inCoolDown": false,
+    "inRedeemWindow": false,
+    "redeemWindowBegin": 1717724243,
+    "redeemWindowEnd": 1717983443,
+  },
   "systemAccountType": "None",
-  "vaultLastUpdateTime": Object {},
+  "vaultLastUpdateTime": Object {
+    "0x30fba4a7ec8591f25b4d37fd79943a4bb6e553e2": 1717159619,
+    "0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1": 1712778071,
+    "0x84e58d8faa4e3b74d55d9fc762230f15d95570b8": 1711660247,
+    "0xb1113cf888a019693b254da3d90f841072d85172": 1717159607,
+    "0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021": 1715259311,
+    "0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb": 1719005903,
+  },
 }
 `;
