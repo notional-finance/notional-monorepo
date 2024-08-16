@@ -2,12 +2,16 @@ import { useObserver } from 'mobx-react-lite';
 import { AppStore } from '@notional-finance/notionable';
 import { FiatKeys } from '@notional-finance/core-entities';
 import { THEME_VARIANTS } from '@notional-finance/util';
+import { useAppContext } from './use-notional';
 
 export const useAppState = () => {
+  const { updateAppState } = useAppContext();
   return useObserver(() => {
     return {
-      setBaseCurrency: (currency: FiatKeys) =>
-        AppStore.setBaseCurrency(currency),
+      setBaseCurrency: (currency: FiatKeys) => {
+        updateAppState({baseCurrency: currency});
+        AppStore.setBaseCurrency(currency)
+      },
       setThemeVariant: (variant: THEME_VARIANTS) =>
         AppStore.setThemeVariant(variant),
       baseCurrency: AppStore.baseCurrency,

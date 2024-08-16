@@ -6,79 +6,88 @@ import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useWalletSideDrawer } from '../hooks';
 import { FormattedMessage } from 'react-intl';
+import { useCallback } from 'react';
 
 interface SettingsButtonProps {
   theme: NotionalTheme;
   currentSidebar: string;
 }
 
-export function WalletSideDrawer() {
+const SettingsHeader = () => {
+  const { currentSideDrawerKey } = useWalletSideDrawer();
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
+  const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
+
+  return currentSideDrawerKey ? (
+    <HeaderContainer theme={lightTheme}>
+      <SettingsButton
+        onClick={() =>
+          setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.SETTINGS, true)
+        }
+        currentSidebar={currentSideDrawerKey}
+        theme={lightTheme}
+      >
+        <FormattedMessage defaultMessage="Settings" />
+      </SettingsButton>
+      <NotificationsButton
+        onClick={() =>
+          setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.NOTIFICATIONS, true)
+        }
+        currentSidebar={currentSideDrawerKey}
+        theme={lightTheme}
+      >
+        <FormattedMessage defaultMessage="Notifications" />
+      </NotificationsButton>
+      <CloseButton theme={lightTheme}>
+        <CloseX
+          onClick={() => clearWalletSideDrawer()}
+          style={{
+            stroke: lightTheme.palette.primary.contrastText,
+            float: 'right',
+            cursor: 'pointer',
+          }}
+        />
+      </CloseButton>
+    </HeaderContainer>
+  ) : (
+    <div></div>
+  );
+};
+
+const ConnectWalletHeader = () => {
+  const { clearWalletSideDrawer } = useSideDrawerManager();
   const defaultTheme = useTheme();
-  const { clearWalletSideDrawer, setWalletSideDrawer } = useSideDrawerManager();
+  const handleDrawer = () => {
+    clearWalletSideDrawer();
+  };
+
+  return (
+    <ConnectWalletContainer theme={defaultTheme}>
+      <CloseButton theme={defaultTheme}>
+        <CloseX
+          onClick={() => handleDrawer()}
+          style={{
+            stroke: defaultTheme.palette.primary.dark,
+            float: 'right',
+            cursor: 'pointer',
+          }}
+        />
+      </CloseButton>
+    </ConnectWalletContainer>
+  );
+};
+
+export function WalletSideDrawer() {
+  const { clearWalletSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer, currentSideDrawerKey } =
     useWalletSideDrawer();
   const showSettingsHeader =
     currentSideDrawerKey === SETTINGS_SIDE_DRAWERS.SETTINGS ||
     currentSideDrawerKey === SETTINGS_SIDE_DRAWERS.NOTIFICATIONS;
 
-  const handleClick = (key: string) => {
-    setWalletSideDrawer(key, true);
-  };
-
-  const handleDrawer = () => {
+  const handleDrawer = useCallback(() => {
     clearWalletSideDrawer();
-  };
-
-  const SettingsHeader = currentSideDrawerKey
-    ? () => {
-        return (
-          <HeaderContainer theme={lightTheme}>
-            <SettingsButton
-              onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.SETTINGS)}
-              currentSidebar={currentSideDrawerKey}
-              theme={lightTheme}
-            >
-              <FormattedMessage defaultMessage="Settings" />
-            </SettingsButton>
-            <NotificationsButton
-              onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.NOTIFICATIONS)}
-              currentSidebar={currentSideDrawerKey}
-              theme={lightTheme}
-            >
-              <FormattedMessage defaultMessage="Notifications" />
-            </NotificationsButton>
-            <CloseButton theme={lightTheme}>
-              <CloseX
-                onClick={() => handleDrawer()}
-                style={{
-                  stroke: lightTheme.palette.primary.contrastText,
-                  float: 'right',
-                  cursor: 'pointer',
-                }}
-              />
-            </CloseButton>
-          </HeaderContainer>
-        );
-      }
-    : undefined;
-
-  const ConnectWalletHeader = () => {
-    return (
-      <ConnectWalletContainer theme={defaultTheme}>
-        <CloseButton theme={defaultTheme}>
-          <CloseX
-            onClick={() => handleDrawer()}
-            style={{
-              stroke: defaultTheme.palette.primary.dark,
-              float: 'right',
-              cursor: 'pointer',
-            }}
-          />
-        </CloseButton>
-      </ConnectWalletContainer>
-    );
-  };
+  }, [clearWalletSideDrawer]);
 
   return (
     <SideDrawer
