@@ -51,6 +51,11 @@ export interface TokenDefinition {
   currencyId?: number;
 }
 
+export interface SerializedTokenDefinition
+  extends Omit<TokenDefinition, 'totalSupply'> {
+  totalSupply?: SerializedTokenBalance;
+}
+
 export interface OracleDefinition {
   /** Base Token ID:Quote Token ID:OracleType */
   id: string;
