@@ -2,6 +2,7 @@ import { when } from 'mobx';
 import { Registry, AccountFetchMode } from '../src';
 import { AccountModel } from '../src/models/AccountModel';
 import { Network } from '@notional-finance/util';
+import { getSnapshot } from 'mobx-state-tree';
 
 describe('AccountModel', () => {
   beforeAll(async () => {
@@ -27,6 +28,6 @@ describe('AccountModel', () => {
 
     await when(() => account.lastUpdateTimestamp > 0);
 
-    expect(account).toMatchSnapshot();
+    expect(getSnapshot(account)).toMatchSnapshot();
   });
 });

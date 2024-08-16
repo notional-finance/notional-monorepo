@@ -13,87 +13,6 @@ Object {
         "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
       },
     },
-    Object {
-      "currencyId": 0,
-      "value": Object {
-        "_isTokenBalance": true,
-        "hex": "0x00",
-        "network": "mainnet",
-        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
-      },
-    },
-    Object {
-      "currencyId": 0,
-      "value": Object {
-        "_isTokenBalance": true,
-        "hex": "0x00",
-        "network": "mainnet",
-        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
-      },
-    },
-    Object {
-      "currencyId": 0,
-      "value": Object {
-        "_isTokenBalance": true,
-        "hex": "0x00",
-        "network": "mainnet",
-        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
-      },
-    },
-    Object {
-      "currencyId": 0,
-      "value": Object {
-        "_isTokenBalance": true,
-        "hex": "0x00",
-        "network": "mainnet",
-        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
-      },
-    },
-    Object {
-      "currencyId": 0,
-      "value": Object {
-        "_isTokenBalance": true,
-        "hex": "0x00",
-        "network": "mainnet",
-        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
-      },
-    },
-    Object {
-      "currencyId": 0,
-      "value": Object {
-        "_isTokenBalance": true,
-        "hex": "0x00",
-        "network": "mainnet",
-        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
-      },
-    },
-    Object {
-      "currencyId": 0,
-      "value": Object {
-        "_isTokenBalance": true,
-        "hex": "0x00",
-        "network": "mainnet",
-        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
-      },
-    },
-    Object {
-      "currencyId": 0,
-      "value": Object {
-        "_isTokenBalance": true,
-        "hex": "0x00",
-        "network": "mainnet",
-        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
-      },
-    },
-    Object {
-      "currencyId": 0,
-      "value": Object {
-        "_isTokenBalance": true,
-        "hex": "0x00",
-        "network": "mainnet",
-        "tokenId": "0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5",
-      },
-    },
   ],
   "address": "0xd74e7325dFab7D7D1ecbf22e6E6874061C50f243",
   "allowPrimeBorrow": true,
@@ -376,7 +295,7 @@ Object {
     },
   ],
   "historicalBalances": undefined,
-  "lastUpdateTimestamp": 1723847447,
+  "lastUpdateTimestamp": 1723847855,
   "network": "mainnet",
   "secondaryIncentiveDebt": Array [
     Object {
