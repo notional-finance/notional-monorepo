@@ -67,14 +67,14 @@ export async function calculateAccountRisks() {
       try {
         await getS3().send(
           new PutObjectCommand({
-            Bucket: 'account-cache-r2',
+            Bucket: 'view-cache-r2',
             Key: `${n}/accounts/portfolioRisk`,
             Body: JSON.stringify(portfolioRiskProfiles),
           })
         );
         await getS3().send(
           new PutObjectCommand({
-            Bucket: 'account-cache-r2',
+            Bucket: 'view-cache-r2',
             Key: `${n}/accounts/vaultRisk`,
             Body: JSON.stringify(vaultRiskProfiles),
           })
@@ -194,7 +194,10 @@ export async function calculatePointsAccrued(
     : getNowSeconds();
   console.log(`calculatePointsAccrued: Block time: ${blockTime}`);
   if (blockNumber) {
-    await Registry.getAccountRegistry().triggerRefreshPromise(network, blockNumber);
+    await Registry.getAccountRegistry().triggerRefreshPromise(
+      network,
+      blockNumber
+    );
   }
   console.log('calculatePointsAccrued: Getting all accounts');
   const allAccounts = Registry.getAccountRegistry()
