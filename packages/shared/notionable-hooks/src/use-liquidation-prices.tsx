@@ -75,7 +75,9 @@ function parseFiatLiquidationPrice(
         },
       ],
     },
-    currentPrice: oneDay?.currentFiat.toDisplayStringWithSymbol(3) || '',
+    currentPrice:
+      oneDay?.currentFiat?.toFiat(baseCurrency).toDisplayStringWithSymbol(3) ||
+      '',
     oneDayChange: oneDay?.fiatChange
       ? formatNumberAsPercent(oneDay.fiatChange)
       : '',
