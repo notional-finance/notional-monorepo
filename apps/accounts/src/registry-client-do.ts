@@ -838,10 +838,10 @@ export class RegistryClientDO extends DurableObject {
   }
 
   private async checkRiskServiceUpdates(network: Network) {
-    const vaultRisk = await this.env.ACCOUNT_CACHE_R2.head(
+    const vaultRisk = await this.env.VIEW_CACHE_R2.head(
       `${network}/accounts/vaultRisk`
     );
-    const portfolioRisk = await this.env.ACCOUNT_CACHE_R2.head(
+    const portfolioRisk = await this.env.VIEW_CACHE_R2.head(
       `${network}/accounts/portfolioRisk`
     );
     const lastUpdated = Math.min(

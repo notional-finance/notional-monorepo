@@ -23,6 +23,7 @@ crons = [ "*/5 * * * *" ]
 name = "accounts-dev"
 r2_buckets = [
   { binding = "ACCOUNT_CACHE_R2", bucket_name = "account-cache-r2", preview_bucket_name = "account-cache-r2-dev" },
+  { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev" },
 ]
 
 [env.dev.durable_objects]
