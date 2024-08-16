@@ -16,4 +16,15 @@ export const useAppState = () => {
   });
 };
 
+export const useHeroStats = () => {
+  AppStore.heroStats.fetchKpiData();
+  return useObserver(() => {
+    return {
+      totalAccounts: AppStore.heroStats.totalAccounts,
+      totalDeposits: AppStore.heroStats.totalDeposits,
+      totalOpenDebt: AppStore.heroStats.totalOpenDebt,
+    };
+  });
+};
+
 export default useAppState;

@@ -3,7 +3,6 @@ import {
   TransactionResponse,
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
-import { THEME_VARIANTS } from '@notional-finance/util';
 import {
   AccountDefinition,
   FiatKeys,
@@ -174,12 +173,6 @@ export interface ApplicationState extends Record<string, unknown> {
   /** All active accounts from the analytics registry */
   activeAccounts?: Record<Network, Record<string, number>>;
   historicalTrading?: Record<Network, HistoricalTrading>;
-  /** Stats for the home page hero section */
-  heroStats?: {
-    totalDeposits: number;
-    totalOpenDebt: number;
-    totalAccounts: number;
-  };
   baseCurrency: FiatKeys;
   /** Which country is the user located in */
   country?: string;
