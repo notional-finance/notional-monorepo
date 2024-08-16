@@ -289,6 +289,10 @@ async function main() {
     res.send(JSON.stringify(await dataService.views(params.network)));
   }));
 
+  app.get('/readiness_check', catchAsync(async (_, res) => {
+    res.send(JSON.stringify(await dataService.readinessCheck()));
+  }));
+
   app.get('/query', catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     const view = req.query.view;
