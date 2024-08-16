@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AccountModel creates an account model with required fields and matches snapshot 1`] = `
+Object {
+  "accountHistory": undefined,
+  "accountIncentiveDebt": Array [],
+  "address": "0xd74e7325dFab7D7D1ecbf22e6E6874061C50f243",
+  "allowPrimeBorrow": undefined,
+  "allowances": Array [],
+  "balanceStatement": undefined,
+  "balances": Array [],
+  "historicalBalances": undefined,
+  "network": "mainnet",
+  "secondaryIncentiveDebt": Array [],
+  "stakeNOTEStatus": undefined,
+  "systemAccountType": "None",
+  "vaultLastUpdateTime": Object {},
+}
+`;
