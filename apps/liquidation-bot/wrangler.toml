@@ -29,6 +29,7 @@ EXACT_IN_SLIPPAGE_LIMIT = '980'
 EXACT_OUT_SLIPPAGE_LIMIT = '1020'
 GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
+ENVIRONMENT = 'production'
 
 [env.mainnet]
 name = "liquidation-bot-mainnet"
@@ -47,6 +48,7 @@ EXACT_IN_SLIPPAGE_LIMIT = '980'
 EXACT_OUT_SLIPPAGE_LIMIT = '1020'
 GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
+ENVIRONMENT = 'production'
 
 ## New Liquidator with additional flash loan methdso
 [env.arbitrum2]

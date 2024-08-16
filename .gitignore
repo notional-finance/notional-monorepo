@@ -57,3 +57,5 @@ gcp/**/dist
 gcp/**/lib
 cspell.json
 .nx/**
+analytics
+.nx-cache/**

@@ -38,6 +38,7 @@ export interface Env {
   EXACT_OUT_SLIPPAGE_LIMIT: string;
   GAS_COST_BUFFER: string;
   PROFIT_THRESHOLD: string;
+  ENVIRONMENT: string;
 }
 
 function shuffleArray(array: string[]) {
@@ -58,6 +59,7 @@ async function setUp(env: Env) {
     version: '1',
     env: env.NETWORK,
     service: 'liquidator',
+    environment: env.ENVIRONMENT,
   });
 
   const provider = getProviderFromNetwork(env.NETWORK, true);

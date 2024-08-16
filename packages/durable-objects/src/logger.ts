@@ -5,6 +5,7 @@ type LoggerOptions = {
   version: string;
   apiKey: string;
   env: string;
+  environment: string;
 };
 
 type LogMessage = {
@@ -79,8 +80,10 @@ const Endpoints = {
 
 export class Logger {
   baseMessage: LogMessage;
+  environment: string;
 
   constructor(public loggerConfig: LoggerOptions) {
+    this.environment = loggerConfig.environment;
     this.baseMessage = {
       ...MessageDefaults,
       service: loggerConfig.service,
@@ -115,6 +118,11 @@ export class Logger {
   }
 
   async submitMetrics(series: DDSeries) {
+    if (this.environment === 'local') {
+      console.log(series);
+      return;
+    }
+
     try {
       const body = JSON.stringify(series);
       const opts = {
@@ -133,6 +141,11 @@ export class Logger {
   }
 
   async submitEvent(event: DDEvent) {
+    if (this.environment === 'local') {
+      console.log(event);
+      return;
+    }
+
     try {
       event.tags.push(`network:${event.network}`);
       const body = JSON.stringify({ ...event, source_type_name: 'cloudflare' });
