@@ -3,7 +3,11 @@ import { NotionalTypes } from './ModelTypes';
 import { getProviderFromNetwork } from '@notional-finance/util';
 import { providers } from 'ethers';
 import { fetchCurrentAccount } from '../client/accounts/current-account';
-import { AccountDefinition, CacheSchema } from '../Definitions';
+import { AccountDefinition, AccountHistory, CacheSchema } from '../Definitions';
+import { fetchGraph, loadGraphClientDeferred } from '../server/server-registry';
+import { parseTransaction } from '../client/accounts/transaction-history';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { Transaction } from '../.graphclient';
 
 const AccountIncentiveDebtModel = types.model('AccountIncentiveDebt', {
   value: NotionalTypes.TokenBalance,
@@ -83,6 +87,8 @@ export const AccountModel = types
         redeemWindowEnd: types.number,
       })
     ),
+    // NOTE: below here are values fetched from the graph and will be updated
+    // later so that the UI can become active sooner
     accountHistory: types.maybe(types.array(AccountHistoryModel)),
     balanceStatement: types.maybe(types.array(BalanceStatementModel)),
     historicalBalances: types.maybe(
@@ -146,8 +152,32 @@ export const AccountModel = types
       }
     });
 
+    const fetchTransaction = flow(function* () {
+      const { AccountTransactionHistoryDocument } =
+        yield loadGraphClientDeferred();
+      const result = yield fetchGraph(
+        self.network,
+        AccountTransactionHistoryDocument,
+        (r): Record<string, AccountHistory[]> => {
+          return {
+            [self.address.toLowerCase()]: r.transactions
+              ?.map((t) => {
+                return parseTransaction(t as Transaction, self.network);
+              })
+              .flatMap((_) => _),
+          };
+        },
+        '',
+        {
+          accountId: self.address.toLowerCase(),
+        }
+      );
+    });
+
     return {
       afterCreate: refreshAccount,
+      refreshAccount,
+      fetchTransaction,
       setProvider: (p: providers.Provider) => {
         provider = p;
       },
