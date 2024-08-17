@@ -2,11 +2,11 @@ cron:
 - description: "Risk Service"
   url: /calculateRisk
   schedule: every 10 minutes
-  target: data-service
+  target: cron-service
 - description: "Sync Dune"
   url: /syncDune
   schedule: every day 01:30
-  target: data-service
+  target: cron-service
   retry_parameters:
     job_retry_limit: 1
     min_backoff_seconds: 1800
@@ -14,7 +14,7 @@ cron:
 - description: "Calculate Points"
   url: /calculatePoints
   schedule: every day 01:05
-  target: data-service
+  target: cron-service
   retry_parameters:
     job_retry_limit: 2
     min_backoff_seconds: 1800
@@ -22,24 +22,24 @@ cron:
 - description: "Sync Generic Data"
   url: /syncGenericData
   schedule: every 1 hours
-  target: data-service
+  target: cron-service
 - description: "Sync Oracle Data"
   url: /syncOracleData
   schedule: every 1 hours
-  target: data-service
+  target: cron-service
 - description: "Sync Accounts [Arbitrum]"
   url: /syncAccounts?network=arbitrum
   schedule: every 20 minutes
-  target: data-service
+  target: cron-service
 - description: "Sync Accounts [Mainnet]"
   url: /syncAccounts?network=mainnet
   schedule: every 20 minutes
-  target: data-service
+  target: cron-service
 - description: "Sync Vault Accounts [Arbitrum]"
   url: /syncVaultAccounts?network=arbitrum
   schedule: every 20 minutes
-  target: data-service
+  target: cron-service
 - description: "Sync Vault Accounts [Mainnet]"
   url: /syncVaultAccounts?network=mainnet
   schedule: every 20 minutes
-  target: data-service
+  target: cron-service
