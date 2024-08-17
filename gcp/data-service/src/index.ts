@@ -109,7 +109,7 @@ async function main() {
 
   app.use(express.json());
   app.use(function (req, res, next) {
-    if (req.url === '/') {
+    if (req.url === '/' || req.url === '/healthz') {
       next();
       return;
     }
