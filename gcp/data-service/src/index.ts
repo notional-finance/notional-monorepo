@@ -117,8 +117,11 @@ async function main() {
     // This header is set by cron jobs
     const isAppEngine = req.headers['x-appengine-cron'] === 'true';
     const authToken = req.headers['x-auth-token'];
+    const isHealthCheck =
+      req.headers['X-Google-Cloud-Health-Check-Request'] === '1';
     if (
       !isAppEngine &&
+      !isHealthCheck &&
       (!authToken || authToken !== process.env.DATA_SERVICE_AUTH_TOKEN)
     ) {
       res.status(403).send('Invalid auth token');

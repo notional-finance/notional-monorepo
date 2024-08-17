@@ -2,4 +2,4 @@
 set -e
 
 ./build.sh
-gcloud --project monitoring-agents app deploy app.yaml cron.yaml
+gcloud --project monitoring-agents app deploy app.yaml # cron.yaml
