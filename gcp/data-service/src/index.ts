@@ -340,6 +340,18 @@ async function main() {
   );
 
   app.get(
+    '/healthz',
+    catchAsync(async (_, res) => {
+      const isReady = await dataService.readinessCheck();
+      if (isReady) {
+        res.status(200).send('OK');
+      } else {
+        res.status(500).send('NOT OK');
+      }
+    })
+  );
+
+  app.get(
     '/query',
     catchAsync(async (req, res) => {
       const params = parseQueryParams(req.query);
