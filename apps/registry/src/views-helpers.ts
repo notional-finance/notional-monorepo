@@ -3,35 +3,35 @@ import { AnalyticsServer } from '@notional-finance/core-entities/src/server/anal
 import { createLogger, putStorageKey } from './registry-helpers';
 import { APIEnv } from '.';
 
-async function fetchDBView(
-  analyticsServer: AnalyticsServer,
-  env: APIEnv,
-  network: Network,
-  name: string
-) {
+async function fetchDBView(env: APIEnv, network: Network, name: string) {
   try {
-    const data = JSON.stringify(await analyticsServer.fetchView(network, name));
+    const result = await fetch(
+      `${env.DATA_SERVICE_URL}/query?network=${network}&view=${name}`,
+      {
+        headers: {
+          'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+        },
+      }
+    );
+    const data = await result.json();
+    if (result.status !== 200)
+      throw Error(`Failed Request: ${network}/${name}`);
+
     const key = `${network}/views/${name}`;
-    return putStorageKey(env, key, data);
+    return putStorageKey(env, key, JSON.stringify(data));
   } catch (e) {
     console.error(e);
   }
 }
 
-async function fetchAllDBViews(
-  analyticsServer: AnalyticsServer,
-  env: APIEnv,
-  network: Network
-) {
+async function fetchAllDBViews(env: APIEnv, network: Network) {
   const resp = await fetch(`${env.DATA_SERVICE_URL}/views?network=${network}`, {
     headers: {
       'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
     },
   });
   const data = (await resp.json()) as { view_name: string }[];
-  await Promise.all(
-    data.map((v) => fetchDBView(analyticsServer, env, network, v.view_name))
-  );
+  await Promise.all(data.map((v) => fetchDBView(env, network, v.view_name)));
 }
 
 async function storeDocument(
@@ -73,7 +73,7 @@ export async function refreshViews(env: APIEnv) {
   await Promise.all(
     env.SUPPORTED_NETWORKS.flatMap((network) => {
       return [
-        fetchAllDBViews(analyticsServer, env, network),
+        fetchAllDBViews(env, network),
         fetchAllGraphViews(analyticsServer, env, network),
         analyticsServer
           .refresh(network)
