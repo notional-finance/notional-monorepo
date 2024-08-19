@@ -41,6 +41,7 @@ const createUnixSocketPool = () => {
   return Knex({
     client: 'pg',
     pool: {
+      min: 0,
       max: 200,
     },
     connection: {
