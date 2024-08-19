@@ -19,7 +19,7 @@ process.on('exit', async function () {
     run with env DEBUG variable set to vault-apy to get detailed logs
   `;
   const networks = Object.keys(configPerNetwork) as Network[];
-  const startOfToday = new Date('2024-05-07T00:00:00.000Z');
+  const startOfToday = new Date();
   startOfToday.setUTCHours(0, 0, 0, 0);
 
   if (process.argv.length == 2) {
@@ -41,7 +41,7 @@ process.on('exit', async function () {
         `processing historical apy network ${network} on date ${startOfToday.toISOString()}`
       );
 
-      await apySimulator.runHistorical(90, startOfToday);
+      await apySimulator.runHistorical(30, startOfToday);
 
       log('processing completed');
     }
