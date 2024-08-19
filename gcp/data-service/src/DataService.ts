@@ -16,7 +16,6 @@ import {
 } from './config';
 import {
   BackfillType,
-  DataType,
   DataRow,
   MulticallConfig,
   MulticallOperation,
@@ -36,7 +35,7 @@ import {
 } from '@apollo/client/core';
 import { graphQueries } from './graphQueries';
 import { calculatePointsAccrued } from './RiskService';
-import { Servers } from '../../../packages/core-entities/src';
+import { Servers } from '@notional-finance/core-entities';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -353,18 +352,6 @@ export default class DataService {
         );
       })
     );
-  }
-
-  private async getData(
-    network: Network,
-    blockNumber: number,
-    dataType: DataType
-  ) {
-    const resp = await fetch(
-      `${this.settings.dataUrl}/${network}/${dataType}/${blockNumber}`
-    );
-
-    return (await resp.json()).values;
   }
 
   private async getBlockNumberByTimestamp(
