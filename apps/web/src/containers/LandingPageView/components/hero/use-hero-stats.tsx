@@ -6,7 +6,10 @@ export const useHeroStats = () => {
   useEffect(() => {
     const fetchHeroStats = async () => {
       try {
-        const response = await fetch('https://data-dev.notional.finance/kpi');
+        // NOTE: this is still connected to the old data service and should be updated to the new registry service
+        const response = await fetch(
+          'https://registry.notional.finance/all/kpi'
+        );
         const data = await response.json();
         setHeroStats(data);
       } catch (error) {

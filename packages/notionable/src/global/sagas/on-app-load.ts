@@ -19,7 +19,7 @@ import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 import { isAppReady } from '../../utils';
 
 const vpnCheck = 'https://detect.notional.finance/';
-const dataURL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
+const apiURL = 'https://api.notional.finance';
 
 export function onAppLoad(app$: Observable<ApplicationState>) {
   return merge(
@@ -45,7 +45,7 @@ function exportControlState$(app$: Observable<ApplicationState>) {
       return from(
         Promise.all([
           fetch(vpnCheck).catch(() => ({ status: 403 })),
-          fetch(`${dataURL}/geoip`).then((r) => r.json()),
+          fetch(`${apiURL}/geoip`).then((r) => r.json()),
         ]).then(([vpn, geoip]) => {
           return { country: vpn.status !== 200 ? 'VPN' : geoip['country'] };
         })

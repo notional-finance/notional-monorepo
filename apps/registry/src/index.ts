@@ -7,12 +7,11 @@ import { refreshViews } from './views-helpers';
 export interface APIEnv extends BaseDOEnv {
   GHOST_ADMIN_KEY: string;
   NX_DD_API_KEY: string;
-  NX_DATA_URL: string;
+  NX_REGISTRY_URL: string;
   DATA_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   VIEWS_NAME: string;
   VIEW_CACHE_R2: R2Bucket;
-  ACCOUNT_CACHE_R2: R2Bucket;
   NX_SUBGRAPH_API_KEY: string;
 }
 export interface BaseDOEnv {

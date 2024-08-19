@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { Knex } from 'knex';
 import {
   Network,
@@ -13,10 +12,10 @@ import {
   defaultConfigDefs,
   defaultDataWriters,
   defaultGraphEndpoints,
+  SUBGRAPH_API_KEY,
 } from './config';
 import {
   BackfillType,
-  DataType,
   DataRow,
   MulticallConfig,
   MulticallOperation,
@@ -36,6 +35,7 @@ import {
 } from '@apollo/client/core';
 import { graphQueries } from './graphQueries';
 import { calculatePointsAccrued } from './RiskService';
+import { Servers } from '@notional-finance/core-entities';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -177,29 +177,39 @@ export default class DataService {
   }
 
   public async syncOracleData(ts: number) {
+    // NOTE: this only ever syncs the all network data to get historical fiat token
+    // exchange rates. Other networks are synced via the subgraph
     const networks = [Network.all];
 
     for (const network of networks) {
       const blockNumber = await this.getBlockNumberFromTs(network, ts);
 
-      // NOTE: this requires access to the legacy data service
-      const values = await this.getData(network, blockNumber, DataType.ORACLE);
+      const server = new Servers.OracleRegistryServer({
+        NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY,
+      });
+      const values = await server.refreshAtBlock(network, blockNumber);
 
       if (values.length > 0) {
-        const query = this.db
-          .insert(
-            values.map((v) => ({
-              base: v[1].base,
-              quote: v[1].quote,
-              oracle_type: this.oracleTypeToId(v[1].oracleType),
-              network: this.networkToId(v[1].network),
-              timestamp: ts,
-              block_number: blockNumber,
-              decimals: v[1].decimals,
-              oracle_address: v[1].oracleAddress,
-              latest_rate: BigNumber.from(v[1].latestRate.rate.hex).toString(),
-            }))
+        const data = values
+          .map((v) =>
+            v[1]
+              ? {
+                  base: v[1].base,
+                  quote: v[1].quote,
+                  oracle_type: this.oracleTypeToId(v[1].oracleType),
+                  network: this.networkToId(v[1].network),
+                  timestamp: ts,
+                  block_number: blockNumber,
+                  decimals: v[1].decimals,
+                  oracle_address: v[1].oracleAddress,
+                  latest_rate: v[1].latestRate.rate.toString(),
+                }
+              : undefined
           )
+          .filter((v) => v !== undefined);
+
+        const query = this.db
+          .insert(data)
           .into(DataService.ORACLE_DATA_TABLE_NAME)
           .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
 
@@ -344,18 +354,6 @@ export default class DataService {
         );
       })
     );
-  }
-
-  private async getData(
-    network: Network,
-    blockNumber: number,
-    dataType: DataType
-  ) {
-    const resp = await fetch(
-      `${this.settings.dataUrl}/${network}/${dataType}/${blockNumber}`
-    );
-
-    return (await resp.json()).values;
   }
 
   private async getBlockNumberByTimestamp(

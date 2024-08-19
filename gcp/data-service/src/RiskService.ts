@@ -18,7 +18,7 @@ import {
 } from '@notional-finance/util';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
-const DATA_URL = process.env['API_URL'] as string;
+const REGISTRY_URL = process.env['REGISTRY_URL'] as string;
 const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
 
 let cachedS3Client: S3Client;
@@ -44,7 +44,7 @@ export async function calculateAccountRisks() {
 
   Registry.initialize(
     { NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY },
-    DATA_URL,
+    REGISTRY_URL,
     AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
     false,
     true,
@@ -178,7 +178,7 @@ export async function calculatePointsAccrued(
   const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
   Registry.initialize(
     { NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY },
-    DATA_URL,
+    REGISTRY_URL,
     AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
     false,
     true,
