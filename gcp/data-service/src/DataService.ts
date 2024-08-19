@@ -177,6 +177,8 @@ export default class DataService {
   }
 
   public async syncOracleData(ts: number) {
+    // NOTE: this only ever syncs the all network data to get historical fiat token
+    // exchange rates. Other networks are synced via the subgraph
     const networks = [Network.all];
 
     for (const network of networks) {
@@ -188,26 +190,26 @@ export default class DataService {
       const values = await server.refreshAtBlock(network, blockNumber);
 
       if (values.length > 0) {
-        const query = this.db
-          .insert(
-            values
-              .map((v) =>
-                v[1]
-                  ? {
-                      base: v[1].base,
-                      quote: v[1].quote,
-                      oracle_type: this.oracleTypeToId(v[1].oracleType),
-                      network: this.networkToId(v[1].network),
-                      timestamp: ts,
-                      block_number: blockNumber,
-                      decimals: v[1].decimals,
-                      oracle_address: v[1].oracleAddress,
-                      latest_rate: v[1].latestRate.rate.toString(),
-                    }
-                  : undefined
-              )
-              .filter((v) => v !== undefined)
+        const data = values
+          .map((v) =>
+            v[1]
+              ? {
+                  base: v[1].base,
+                  quote: v[1].quote,
+                  oracle_type: this.oracleTypeToId(v[1].oracleType),
+                  network: this.networkToId(v[1].network),
+                  timestamp: ts,
+                  block_number: blockNumber,
+                  decimals: v[1].decimals,
+                  oracle_address: v[1].oracleAddress,
+                  latest_rate: v[1].latestRate.rate.toString(),
+                }
+              : undefined
           )
+          .filter((v) => v !== undefined);
+
+        const query = this.db
+          .insert(data)
           .into(DataService.ORACLE_DATA_TABLE_NAME)
           .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
 
