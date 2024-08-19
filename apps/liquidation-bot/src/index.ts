@@ -47,7 +47,7 @@ function shuffleArray(array: string[]) {
 
 const run = async (env: Env, isHourly: boolean) => {
   const allTokens = await (
-    await fetch(`https://${env.NX_REGISTRY_URL}/${env.NETWORK}/tokens`)
+    await fetch(`${env.NX_REGISTRY_URL}/${env.NETWORK}/tokens`)
   ).json();
 
   const logger = new Logger({

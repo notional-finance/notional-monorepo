@@ -135,7 +135,7 @@ const runSingleVault = async (vault: string, env: Env) => {
 
 const runAllVaults = async (env: Env) => {
   const allVaults = await (
-    await fetch(`https://${env.NX_REGISTRY_URL}/${env.NETWORK}/vaults`)
+    await fetch(`${env.NX_REGISTRY_URL}/${env.NETWORK}/vaults`)
   ).json();
 
   const logger = new Logger({
