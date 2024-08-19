@@ -9,7 +9,7 @@ import { InputForm } from './input-form';
 
 type SubmitState = 'pending' | 'success' | 'error' | null;
 
-const APIUrl = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
+const APIUrl = 'https://api.notional.finance';
 export const EmailCaptureSection = () => {
   const theme = useTheme();
   const [email, setEmail] = useState('');

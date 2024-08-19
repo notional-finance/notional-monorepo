@@ -12,7 +12,6 @@ export interface APIEnv extends BaseDOEnv {
   DATA_SERVICE_AUTH_TOKEN: string;
   VIEWS_NAME: string;
   VIEW_CACHE_R2: R2Bucket;
-  ACCOUNT_CACHE_R2: R2Bucket;
   NX_SUBGRAPH_API_KEY: string;
 }
 export interface BaseDOEnv {

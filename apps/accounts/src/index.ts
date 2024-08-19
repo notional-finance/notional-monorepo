@@ -11,7 +11,6 @@ export interface Env {
   NX_DD_API_KEY: string;
   NX_SUBGRAPH_API_KEY: string;
   SUPPORTED_NETWORKS: Network[];
-  ACCOUNT_CACHE_R2: R2Bucket;
   VIEW_CACHE_R2: R2Bucket;
   AUTH_KEY: string;
   RISK_QUEUE: Queue;
