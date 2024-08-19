@@ -6,7 +6,7 @@ export interface Env {
   REGISTRY_CLIENT_DO: DurableObjectNamespace;
   VERSION: string;
   NX_ENV: string;
-  NX_DATA_URL: string;
+  NX_REGISTRY_URL: string;
   NX_COMMIT_REF: string;
   NX_DD_API_KEY: string;
   NX_SUBGRAPH_API_KEY: string;

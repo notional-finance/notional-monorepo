@@ -34,7 +34,7 @@ bindings = [
 [env.dev.vars]
 NX_ENV = 'dev'
 VERSION = 'v1'
-NX_DATA_URL = 'https://data-dev.notional.finance'
+NX_REGISTRY_URL = 'https://registry.notional.finance'
 SUPPORTED_NETWORKS = ['mainnet', 'arbitrum', 'all']
 
 [env.prod]

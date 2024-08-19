@@ -91,7 +91,7 @@ export class RegistryClientDO extends DurableObject {
   async _init() {
     Registry.initialize(
       this.env,
-      this.env.NX_DATA_URL,
+      this.env.NX_REGISTRY_URL,
       AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
       false,
       true,
