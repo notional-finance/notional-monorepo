@@ -186,7 +186,10 @@ export async function calculatePointsAccrued(
   );
   console.log('calculatePointsAccrued: Setting subgraph API key');
   Registry.getAccountRegistry().setSubgraphAPIKey = SUBGRAPH_API_KEY;
-  console.log('calculatePointsAccrued: Triggering registry refresh');
+  console.log(
+    'calculatePointsAccrued: Triggering registry refresh',
+    Registry.getAccountRegistry().setSubgraphAPIKey
+  );
   await Registry.triggerRefresh(network);
   console.log('calculatePointsAccrued: Getting block time');
   const blockTime = blockNumber
