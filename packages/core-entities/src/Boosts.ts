@@ -19,9 +19,6 @@ export function getArbBoosts(b: TokenDefinition, isDebt: boolean) {
   if (b.network !== Network.arbitrum) return 0;
 
   if (b.tokenType === 'VaultShare') {
-    // ezETH/wstETH
-    if (b.vaultAddress === '0xd7c3dc1c36d19cf4e8cea4ea143a2f4458dd1937')
-      return 0;
     return 8;
   } else if (
     b.tokenType === 'PrimeDebt' ||
