@@ -103,7 +103,6 @@ async function main() {
     maxProviderRequests: 50,
     interval: 1, // 1 Hour
     frequency: 3600, // Hourly
-    dataUrl: process.env.DATA_BASE_URL,
     mergeConflicts: JSON.parse(process.env.MERGE_CONFLICTS || 'false'),
     backfillDelayMs: 5000,
   });

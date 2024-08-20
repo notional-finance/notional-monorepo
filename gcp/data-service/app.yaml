@@ -11,8 +11,6 @@ env_variables:
   DB_NAME: notional-v3
   DB_HOST: /cloudsql/monitoring-agents:us-central1:notional
   REGISTRY_URL: https://registry.notional.finance
-  # This is for direct access to historical oracle data
-  DATA_BASE_URL: https://data-dev.notional-finance.workers.dev
   SERVICE_PORT: 8080
   MERGE_CONFLICTS: 'false'
   NX_USE_CROSS_FETCH: 'true'

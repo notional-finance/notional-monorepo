@@ -49,7 +49,6 @@ export type DataServiceSettings = {
   maxProviderRequests: number;
   interval: number;
   frequency: number; // hourly, daily etc.
-  dataUrl: string;
   mergeConflicts: boolean;
   backfillDelayMs: number;
 };
