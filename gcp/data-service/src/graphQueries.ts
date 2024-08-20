@@ -24,8 +24,8 @@ export const graphQueries = {
     }
     `,
   NotionalV3Accounts: `
-    query NotionalV3Accounts($size: Int, $offset: Int) {
-      accounts(first: $size, skip: $offset, where: {systemAccountType: "None"}) {
+    query NotionalV3Accounts($size: Int, $offset: Int, $startId: ID, $endId: ID) {
+      accounts(first: $size, skip: $offset, where: { id_gt: $startId, id_lt: $endId, systemAccountType: "None"}) {
         id
       }
     }

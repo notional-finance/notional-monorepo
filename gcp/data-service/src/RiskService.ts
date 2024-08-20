@@ -18,7 +18,7 @@ import {
 } from '@notional-finance/util';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
-const DATA_URL = process.env['API_URL'] as string;
+const REGISTRY_URL = process.env['REGISTRY_URL'] as string;
 const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
 
 let cachedS3Client: S3Client;
@@ -44,7 +44,7 @@ export async function calculateAccountRisks() {
 
   Registry.initialize(
     { NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY },
-    DATA_URL,
+    REGISTRY_URL,
     AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
     false,
     true,
@@ -67,14 +67,14 @@ export async function calculateAccountRisks() {
       try {
         await getS3().send(
           new PutObjectCommand({
-            Bucket: 'account-cache-r2',
+            Bucket: 'view-cache-r2',
             Key: `${n}/accounts/portfolioRisk`,
             Body: JSON.stringify(portfolioRiskProfiles),
           })
         );
         await getS3().send(
           new PutObjectCommand({
-            Bucket: 'account-cache-r2',
+            Bucket: 'view-cache-r2',
             Key: `${n}/accounts/vaultRisk`,
             Body: JSON.stringify(vaultRiskProfiles),
           })
@@ -178,7 +178,7 @@ export async function calculatePointsAccrued(
   const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
   Registry.initialize(
     { NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY },
-    DATA_URL,
+    REGISTRY_URL,
     AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
     false,
     true,
@@ -186,7 +186,10 @@ export async function calculatePointsAccrued(
   );
   console.log('calculatePointsAccrued: Setting subgraph API key');
   Registry.getAccountRegistry().setSubgraphAPIKey = SUBGRAPH_API_KEY;
-  console.log('calculatePointsAccrued: Triggering registry refresh');
+  console.log(
+    'calculatePointsAccrued: Triggering registry refresh',
+    Registry.getAccountRegistry().setSubgraphAPIKey
+  );
   await Registry.triggerRefresh(network);
   console.log('calculatePointsAccrued: Getting block time');
   const blockTime = blockNumber
@@ -194,7 +197,10 @@ export async function calculatePointsAccrued(
     : getNowSeconds();
   console.log(`calculatePointsAccrued: Block time: ${blockTime}`);
   if (blockNumber) {
-    await Registry.getAccountRegistry().triggerRefreshPromise(network, blockNumber);
+    await Registry.getAccountRegistry().triggerRefreshPromise(
+      network,
+      blockNumber
+    );
   }
   console.log('calculatePointsAccrued: Getting all accounts');
   const allAccounts = Registry.getAccountRegistry()

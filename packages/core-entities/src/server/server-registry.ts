@@ -256,7 +256,7 @@ export abstract class ServerRegistry<T> {
   }
 
   public async refreshAtBlock(network: Network, blockNumber: number) {
-    if (!this.hasAllNetwork() && network === Network.all) return;
-    return JSON.stringify(await this._refresh(network, blockNumber));
+    if (!this.hasAllNetwork() && network === Network.all) return [];
+    return (await this._refresh(network, blockNumber)).values;
   }
 }

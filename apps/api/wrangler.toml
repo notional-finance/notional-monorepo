@@ -11,10 +11,7 @@ tsconfig = "tsconfig.json"
 
 [env.prod]
 name = "api-prod"
-route = { pattern = "data.notional.finance", custom_domain = true }
-r2_buckets = [
-  { binding = "ACCOUNT_CACHE_R2", bucket_name = "account-cache-r2", preview_bucket_name = "account-cache-r2-dev" },
-]
+route = { pattern = "api.notional.finance", custom_domain = true }
 
 [env.prod.vars]
 NX_ENV = "prod"

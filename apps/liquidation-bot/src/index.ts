@@ -14,7 +14,7 @@ import { MetricNames, RiskyAccount } from './types';
 import { DDSeries, Logger, MetricType } from '@notional-finance/util';
 
 export interface Env {
-  NX_DATA_URL: string;
+  NX_REGISTRY_URL: string;
   ACCOUNT_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   ZERO_EX_API_KEY: string;
@@ -47,7 +47,7 @@ function shuffleArray(array: string[]) {
 
 const run = async (env: Env, isHourly: boolean) => {
   const allTokens = await (
-    await fetch(`https://data-dev.notional.finance/${env.NETWORK}/tokens`)
+    await fetch(`${env.NX_REGISTRY_URL}/${env.NETWORK}/tokens`)
   ).json();
 
   const logger = new Logger({

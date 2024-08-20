@@ -3,10 +3,14 @@ import {
   formatNumberAsPercent,
   truncateAddress,
 } from '@notional-finance/helpers';
-import { useNotionalContext, useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  useNotionalContext,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useState } from 'react';
 
-const DATA_URL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
+// NOTE: this URL would need to be updated if we were to ever start running contests again.
+const DATA_URL = process.env['NX_DATA_URL'] || '';
 
 interface ContestData {
   rank: string;
@@ -71,7 +75,8 @@ const formatTableData = (
     address: a.address,
     totalAPY: formatNumberAsPercent((a.irr || 0) * 100),
     totalEarnings: `$${formatNumber(a.earnings)}`,
-    totalDeposits: a.netDeposits < 0 ? `$0.0000` : `$${formatNumber(a.netDeposits)}`,
+    totalDeposits:
+      a.netDeposits < 0 ? `$0.0000` : `$${formatNumber(a.netDeposits)}`,
     netWorth: {
       displayValue:
         a.totalNetWorth < 0 ? `$0.0000` : `$${formatNumber(a.totalNetWorth)}`,
@@ -129,7 +134,9 @@ export function useLeaderboardData() {
         );
       } else if (userData && userData.totalNetWorth > 100) {
         const userContestData =
-        filteredHighRollerData.find((c) => c.address === wallet?.selectedAddress) ||
+          filteredHighRollerData.find(
+            (c) => c.address === wallet?.selectedAddress
+          ) ||
           filteredFatCatData.find((c) => c.address === wallet?.selectedAddress);
         if (userContestData) setCurrentUserData([userContestData]);
       }
@@ -141,8 +148,16 @@ export function useLeaderboardData() {
   }, [fetchContestData]);
 
   return {
-    highRollerData: highRollerPartner > 0 ? highRollerData.filter(({communityId}) => communityId === highRollerPartner) : highRollerData,
-    fatCatData: fatCatPartner > 0 ? fatCatData.filter(({communityId}) => communityId === fatCatPartner) : fatCatData,
+    highRollerData:
+      highRollerPartner > 0
+        ? highRollerData.filter(
+            ({ communityId }) => communityId === highRollerPartner
+          )
+        : highRollerData,
+    fatCatData:
+      fatCatPartner > 0
+        ? fatCatData.filter(({ communityId }) => communityId === fatCatPartner)
+        : fatCatData,
     setHighRollerPartner,
     highRollerPartner,
     setFatCatPartner,

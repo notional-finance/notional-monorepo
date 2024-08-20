@@ -22,7 +22,7 @@ export async function syncDune() {
     );
     await getS3().send(
       new PutObjectCommand({
-        Bucket: 'account-cache-r2',
+        Bucket: 'view-cache-r2',
         Key: `mainnet/note/${name}`,
         Body: JSON.stringify(await query_result.json()),
       })

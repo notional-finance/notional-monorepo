@@ -30,7 +30,7 @@ import { Block } from '@ethersproject/providers';
 
 // NOTE: this is currently hardcoded because we cannot access the worker
 // process environment directly here.
-const NX_DATA_URL = 'https://data-dev.notional.finance';
+const NX_REGISTRY_URL = 'https://registry.notional.finance';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   public override hasAllNetwork(): boolean {
@@ -94,7 +94,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
       // If the subgraph has failed, get the previous cache schema and return it, we still
       // want to continue to update the latest rates
       return ClientRegistry.fetch<CacheSchema<OracleDefinition>>(
-        `${NX_DATA_URL}/${network}/oracles`
+        `${NX_REGISTRY_URL}/${network}/oracles`
       );
     }
   }

@@ -7,12 +7,11 @@ import { refreshViews } from './views-helpers';
 export interface APIEnv extends BaseDOEnv {
   GHOST_ADMIN_KEY: string;
   NX_DD_API_KEY: string;
-  NX_DATA_URL: string;
+  NX_REGISTRY_URL: string;
   DATA_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   VIEWS_NAME: string;
   VIEW_CACHE_R2: R2Bucket;
-  ACCOUNT_CACHE_R2: R2Bucket;
   NX_SUBGRAPH_API_KEY: string;
 }
 export interface BaseDOEnv {
@@ -23,6 +22,23 @@ export interface BaseDOEnv {
   VIEW_CACHE_R2: R2Bucket;
   VERSION: string;
   SUPPORTED_NETWORKS: Network[];
+}
+async function execute(env: APIEnv, isFullRefresh: boolean) {
+  if (isFullRefresh) {
+    // Run these refreshes every 10 minutes
+    await Promise.all([
+      refreshRegistry(env, Routes.Configuration, Servers.ConfigurationServer),
+      refreshRegistry(env, Routes.Tokens, Servers.TokenRegistryServer),
+      refreshViews(env),
+    ]);
+  }
+
+  // Run these refreshes every minute
+  await Promise.all([
+    refreshRegistry(env, Routes.Exchanges, Servers.ExchangeRegistryServer),
+    refreshRegistry(env, Routes.Vaults, Servers.VaultRegistryServer),
+    refreshRegistry(env, Routes.Oracles, Servers.OracleRegistryServer),
+  ]);
 }
 
 export default {
@@ -37,6 +53,11 @@ export default {
     ];
 
     const url = new URL(req.url);
+    if (url.pathname === '/execute') {
+      await execute(env, true);
+      return new Response('Executed', { status: 200 });
+    }
+
     const network = url.pathname.split('/')[1];
     if (!network) {
       return new Response('Network not specified', { status: 400 });
@@ -62,21 +83,6 @@ export default {
   },
   async scheduled(event: ScheduledController, env: APIEnv): Promise<void> {
     const currentMinute = new Date(event.scheduledTime).getMinutes();
-
-    if (currentMinute % 10 === 0) {
-      // Run these refreshes every 10 minutes
-      await Promise.all([
-        refreshRegistry(env, Routes.Configuration, Servers.ConfigurationServer),
-        refreshRegistry(env, Routes.Tokens, Servers.TokenRegistryServer),
-        refreshViews(env),
-      ]);
-    }
-
-    // Run these refreshes every minute
-    await Promise.all([
-      refreshRegistry(env, Routes.Exchanges, Servers.ExchangeRegistryServer),
-      refreshRegistry(env, Routes.Vaults, Servers.VaultRegistryServer),
-      refreshRegistry(env, Routes.Oracles, Servers.OracleRegistryServer),
-    ]);
+    await execute(env, currentMinute % 10 === 0);
   },
 };

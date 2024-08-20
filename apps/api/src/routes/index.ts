@@ -1,18 +1,8 @@
-import { APIEnv } from '..';
 import { handleGeoIP } from './geoip';
 import { handleNewsletter } from './newsletter';
 import { handleNFT } from './nft';
 import { Request as CFRequest } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
-
-const handleAccountCacheRequest = (request: IRequest, env: APIEnv) => {
-  const key = new URL(request.url).pathname.slice(1);
-  return env.ACCOUNT_CACHE_R2.get(key);
-};
-
-const handleKPI = (_request: IRequest, env: APIEnv) => {
-  return env.ACCOUNT_CACHE_R2.get('kpi');
-};
 
 const handleDataDogForward = async (request: IRequest) => {
   const ddforward = (request.query['ddforward'] as string) || '';
@@ -49,6 +39,4 @@ export {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
-  handleAccountCacheRequest,
-  handleKPI,
 };

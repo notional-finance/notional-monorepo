@@ -130,7 +130,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         ),
       this.env.NX_SUBGRAPH_API_KEY,
       { minTimestamp },
-      'oracles',
+      'oracles'
     );
 
     const { finalResults: historicalTrading } = await fetchGraph(
@@ -166,7 +166,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       },
       this.env.NX_SUBGRAPH_API_KEY,
       { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY },
-      'tradingActivity',
+      'tradingActivity'
     );
 
     const { finalResults: vaultReinvestment } = await fetchGraph(
@@ -182,7 +182,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         ),
       this.env.NX_SUBGRAPH_API_KEY,
       { minTimestamp },
-      'reinvestments',
+      'reinvestments'
     );
 
     const { finalResults: activeAccounts } = await fetchGraph(
@@ -218,7 +218,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       },
       this.env.NX_SUBGRAPH_API_KEY,
       {},
-      'accounts',
+      'accounts'
     );
 
     const vaults = await Promise.all(
@@ -315,12 +315,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
   async fetchView(network: Network, view: string): Promise<AnalyticsData> {
     const _fetch = USE_CROSS_FETCH ? crossFetch : fetch;
-    const cacheUrl = `${this.dataServiceURL}/query?network=${network}&view=${view}`;
-    const result = await _fetch(cacheUrl, {
-      headers: {
-        'x-auth-token': this.dataServiceAuthToken,
-      },
-    });
+    const cacheUrl = `https://registry.notional.finance/${network}/views/${view}`;
+    const result = await _fetch(cacheUrl);
     const body = await result.text();
     if (result.status !== 200) throw Error(`Failed Request: ${body}`);
     return JSON.parse(body);
@@ -342,7 +338,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       {
         ...variables,
         chainName: network,
-      },
+      }
     );
   }
 
