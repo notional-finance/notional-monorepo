@@ -29,9 +29,9 @@ export const SideNavOptons = ({ open }: SideNavOptonsProps) => {
 
   return (
     <Box>
-      {sideNavOptions.map(({ id, Icon, notifications, to }, index) => {
+      {sideNavOptions.map(({ id, Icon, notifications, to }) => {
         return (
-          <Box key={index}>
+          <Box key={id}>
             {lastNavOption.id === id && (
               <Box
                 sx={{
