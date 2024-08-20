@@ -28,11 +28,11 @@ export const defaultConfigDefs: ConfigDefinition[] = [
   ...Curve_Config,
 ];
 
-export const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
 export const defaultGraphEndpoints: () => Record<
   string,
   Record<string, string>
 > = () => {
+  const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
   return {
     [ProtocolName.NotionalV3]: {
       [Network.all]: `https://gateway-arbitrum.network.thegraph.com/api/${SUBGRAPH_API_KEY}/subgraphs/id/4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW`,

@@ -89,9 +89,6 @@ const catchAsync =
 
 async function main() {
   await getEnvSecrets({ autoDetect: true });
-  if (!process.env.DATA_BASE_URL) {
-    throw Error('Data URL not defined');
-  }
 
   const db = createUnixSocketPool();
   const dataService = new DataService(db, {
