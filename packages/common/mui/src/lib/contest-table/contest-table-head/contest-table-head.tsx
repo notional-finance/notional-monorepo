@@ -23,11 +23,12 @@ export const ContestTableHead = ({
         },
       }}
     >
-      {headerGroups.map((headerGroup) => (
-        <TableRow>
-          {headerGroup.headers.map((header: any) => {
+      {headerGroups.map((headerGroup, i) => (
+        <TableRow key={`head-row-${i}`}>
+          {headerGroup.headers.map((header: any, i: number) => {
             return (
               <TableCell
+                key={`head-cell-${i}`}
                 sx={{
                   color: theme.palette.borders.accentPaper,
                   padding: header.column.columnDef.padding || theme.spacing(2),

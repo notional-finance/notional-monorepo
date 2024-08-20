@@ -43,7 +43,6 @@ export function onWalletConnect(
     onWalletChange$(global$),
     onSyncAccountInfo$(global$),
     onAccountUpdates$(global$, app$),
-    onSyncArbPoints$(global$)
   );
 }
 
@@ -226,38 +225,6 @@ function onAccountUpdates$(
           return { networkAccounts };
         })
       );
-    }),
-    filterEmpty()
-  );
-}
-
-function onSyncArbPoints$(global$: Observable<GlobalState>) {
-  return globalWhenWalletChanges$(global$).pipe(
-    switchMap(async (g) => {
-      const selectedAddress = g.wallet?.selectedAddress;
-      if (selectedAddress) {
-        try {
-          const arbPoints: {
-            token: string;
-            points: number;
-            season_one: number;
-            season_two: number;
-            season_three: number;
-          }[] = await fetch(
-            `https://points.notional.finance/arb_account_points/${selectedAddress.toLowerCase()}`
-          ).then((r) => r.json());
-
-          const totalPoints = arbPoints.reduce(
-            (t, { points }) => t + points,
-            0
-          );
-
-          return { arbPoints, totalPoints };
-        } catch {
-          return undefined;
-        }
-      }
-      return undefined;
     }),
     filterEmpty()
   );

@@ -54,7 +54,6 @@ export function SideDrawer({
       open={openDrawer}
       onClose={() => callback()}
       onOpen={() => callback()}
-      onBackdropClick={() => callback()}
       hideBackdrop={disableBackDrop}
       disableScrollLock={disableBackDrop}
       sx={{

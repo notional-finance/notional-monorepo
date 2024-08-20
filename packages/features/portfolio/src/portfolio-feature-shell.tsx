@@ -47,6 +47,17 @@ export interface PortfolioParams extends Record<string, string | undefined> {
   selectedCollateralToken?: string;
 }
 
+const CustomHeader = ({ onClose }: any) => {
+  return (
+    <CustomHeaderContainer>
+      <SideBarSubHeader
+        callback={() => onClose()}
+        titleText={defineMessage({ defaultMessage: 'Back' })}
+      />
+    </CustomHeaderContainer>
+  );
+};
+
 export const PortfolioFeatureShell = () => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -135,17 +146,6 @@ const Portfolio = () => {
         }`
       );
     }
-  };
-
-  const CustomHeader = ({ onClose }: any) => {
-    return (
-      <CustomHeaderContainer>
-        <SideBarSubHeader
-          callback={() => onClose()}
-          titleText={defineMessage({ defaultMessage: 'Back' })}
-        />
-      </CustomHeaderContainer>
-    );
   };
 
   return isAcctAndBalanceReady ? (

@@ -15,7 +15,6 @@ import {
   getNowSeconds,
 } from '@notional-finance/util';
 import {
-  useArbPoints,
   usePortfolioHoldings,
   useTotalArbPoints,
   useVaultHoldings,
@@ -26,11 +25,10 @@ import {
   Registry,
 } from '@notional-finance/core-entities';
 
-export const useYourPointsOverviewTables = () => {
+export const useYourPointsOverviewTables = (arbPoints) => {
   const theme = useTheme();
   const { season_one, season_two, season_three } = PointsSeasonsData;
   const totalPoints = useTotalArbPoints();
-  const arbPoints = useArbPoints();
   const currentSeason = useCurrentSeason();
   const portfolioHoldings = usePortfolioHoldings(Network.arbitrum);
   const vaultHoldings = useVaultHoldings(Network.arbitrum);

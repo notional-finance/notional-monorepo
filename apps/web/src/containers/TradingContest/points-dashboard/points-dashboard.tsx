@@ -16,11 +16,13 @@ import backgroundColors from '../assets/color-blobs.png';
 import { YourPointsOverview } from './your-points-overview';
 import { PointsDashboardManager } from './points-dashboard-manager';
 import { FormattedMessage } from 'react-intl';
-import { useYourPointsOverviewTables } from './hooks';
+import { usePointsDashboardStore } from './init-points-dashboard';
+import { observer } from 'mobx-react-lite';
 
 export const PointsDashboard = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
-  const { yourPointsTotal } = useYourPointsOverviewTables();
+  const { totalPoints } = usePointsDashboardStore();
+
   const { startDate, endDate, name } = useCurrentSeason();
   return (
     <ThemeProvider theme={theme}>
@@ -46,7 +48,7 @@ export const PointsDashboard = () => {
                   <FormattedMessage defaultMessage={'YOUR POINTS'} />
                 </SectionTitle>
                 <DisplayBox sx={{ width: '100%' }}>
-                  {formatNumber(yourPointsTotal, 2)}
+                  {formatNumber(totalPoints, 2)}
                 </DisplayBox>
               </DisplayBoxWrapper>
             </TopContentContainer>
@@ -116,4 +118,4 @@ const DisplayBox = styled(Box)(
       `
 );
 
-export default PointsDashboard;
+export default observer(PointsDashboard);

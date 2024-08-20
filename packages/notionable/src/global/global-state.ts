@@ -126,13 +126,6 @@ interface AddressState {
 
   /** Every supported network has an account object written to the state */
   networkAccounts?: Record<Network, AccountState>;
-  arbPoints?: {
-    token: string;
-    points: number;
-    season_one: number;
-    season_two: number;
-    season_three: number;
-  }[];
   totalPoints?: number;
 }
 

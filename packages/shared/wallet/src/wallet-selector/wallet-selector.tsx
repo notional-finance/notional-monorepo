@@ -24,6 +24,7 @@ import {
   useWalletAddress,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
+import { pointsStore } from '@notional-finance/notionable';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -56,11 +57,18 @@ export function WalletSelector() {
   };
 
   useEffect(() => {
+    pointsStore.initialize(selectedAccount || '');
+  }, [selectedAccount]);
+
+  useEffect(() => {
     if (showAlert) {
-      setTimeout(() => {
+      const intervalId = setTimeout(() => {
         setShowAlert(false);
       }, 1000);
+
+      return () => clearInterval(intervalId);
     }
+    return;
   }, [showAlert, setShowAlert]);
 
   const handleCopy = () => {

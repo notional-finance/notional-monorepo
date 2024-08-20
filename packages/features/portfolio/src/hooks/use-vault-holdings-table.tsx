@@ -21,7 +21,6 @@ import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   formatHealthFactorValues,
   useAnalyticsReady,
-  useArbPoints,
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
@@ -44,6 +43,7 @@ import {
 } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 import moment from 'moment';
+import { usePortfolioStore } from '../init-portfolio';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -101,7 +101,7 @@ export const useVaultHoldingsTable = () => {
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const [toggleOption, setToggleOption] = useState<number>(0);
   const isBlocked = useLeverageBlock();
-  const arbPoints = useArbPoints();
+  const { arbPoints } = usePortfolioStore();
   const theme = useTheme();
   const { baseCurrency } = useAppState();
   const navigate = useNavigate();
