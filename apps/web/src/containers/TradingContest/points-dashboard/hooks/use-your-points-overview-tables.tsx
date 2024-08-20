@@ -24,8 +24,9 @@ import {
   getPointsPerDay,
   Registry,
 } from '@notional-finance/core-entities';
+import { ArbPointsType } from '@notional-finance/notionable';
 
-export const useYourPointsOverviewTables = (arbPoints) => {
+export const useYourPointsOverviewTables = (arbPoints: ArbPointsType[]) => {
   const theme = useTheme();
   const { season_one, season_two, season_three } = PointsSeasonsData;
   const totalPoints = useTotalArbPoints();

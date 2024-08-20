@@ -1,4 +1,5 @@
 import { trackEvent } from '@notional-finance/helpers';
+import { pointsStore } from '@notional-finance/notionable';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
@@ -52,6 +53,10 @@ export const useConnect = () => {
     }
     updateNotional({ wallet: undefined });
   }, [disconnect, currentLabel, updateNotional]);
+
+  useEffect(() => {
+    pointsStore.initialize(selectedAddress || '');
+  }, [selectedAddress]);
 
   // Listens for wallet changes and sets the primary wallet as well as sends the
   // addresses to the Notional global state

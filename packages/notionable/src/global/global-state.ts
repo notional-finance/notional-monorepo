@@ -153,6 +153,15 @@ export const initialGlobalState: GlobalState = {
   },
 };
 
+export interface ArbPointsType {
+  token: string;
+  points: number;
+  season_one: number;
+  season_two: number;
+  season_three: number;
+  };
+
+
 /** This is associated with the overall application state */
 export interface ApplicationState extends Record<string, unknown> {
   /** If waiting for the site to load initially */

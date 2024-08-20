@@ -6,7 +6,7 @@ import { ThemeProvider } from '@mui/material';
 import { observer } from 'mobx-react-lite';
 import { usePointsDashboardStore } from './init-points-dashboard';
 
-export const MyBreakdown = () => {
+const MyBreakdown = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
   const { arbPoints } = usePointsDashboardStore();
 

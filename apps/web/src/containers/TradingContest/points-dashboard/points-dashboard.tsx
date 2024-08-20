@@ -19,7 +19,7 @@ import { FormattedMessage } from 'react-intl';
 import { usePointsDashboardStore } from './init-points-dashboard';
 import { observer } from 'mobx-react-lite';
 
-export const PointsDashboard = () => {
+const PointsDashboard = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const { totalPoints } = usePointsDashboardStore();
 

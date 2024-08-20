@@ -22,12 +22,12 @@ import {
   EmptyPortfolio,
   ClaimNoteButton,
 } from './components';
+import PortfolioHoldings from './containers/portfolio-holdings/portfolio-holdings';
 import {
   PortfolioOverview,
   PortfolioVaults,
   PortfolioTransactionHistory,
   PortfolioStateZero,
-  PortfolioHoldings,
   PortfolioNoteStaking,
 } from './containers';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';

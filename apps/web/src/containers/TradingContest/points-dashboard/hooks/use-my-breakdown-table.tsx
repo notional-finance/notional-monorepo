@@ -28,8 +28,9 @@ import {
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useCurrentSeason } from '../points-dashboard-constants';
+import { ArbPointsType } from '@notional-finance/notionable';
 
-export const useMyBreakdownTable = (arbPoints) => {
+export const useMyBreakdownTable = (arbPoints: ArbPointsType[]) => {
   const theme = useTheme();
   const portfolioHoldings = usePortfolioHoldings(Network.arbitrum);
   const vaultHoldings = useVaultHoldings(Network.arbitrum);

@@ -31,12 +31,20 @@ export const PointsStoreModel = types
       return self.arbPoints;
     });
 
+    const restoreDefault = () => {
+      self.arbPoints.replace([{ token: '', points: 0, season_one: 0, season_two: 0, season_three: 0 }]);
+      self.totalPoints = 0;
+    };
+
     const initialize = (selectedAddress: string) => {
       if (selectedAddress) {
         fetchPoints(selectedAddress);
+      } else {
+        restoreDefault();
       }
+      
     };
-    return { fetchPoints, initialize };
+    return { fetchPoints, initialize, restoreDefault };
   });
   
 export type PointsStoreType = Instance<typeof PointsStoreModel>;

@@ -13,7 +13,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
 
-export const PortfolioHoldings = () => {
+const PortfolioHoldings = () => {
   const [currentTab, setCurrentTab] = useState(0);
   const network = useSelectedNetwork();
   const {
