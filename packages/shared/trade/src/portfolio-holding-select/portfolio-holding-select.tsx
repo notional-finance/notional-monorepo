@@ -2,14 +2,14 @@ import { AssetSelectDropdown } from '@notional-finance/mui';
 import { useCallback, useMemo } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import {
-  useFiat,
   BaseTradeContext,
   usePortfolioRiskProfile,
   usePrimeDebt,
   usePrimeCash,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { useHistory, useLocation, useParams } from 'react-router';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 
 interface PortfolioHoldingSelectProps {
@@ -32,7 +32,7 @@ export const PortfolioHoldingSelect = ({
   filterBalances,
   isWithdraw,
 }: PortfolioHoldingSelectProps) => {
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const theme = useTheme();
   const {
     state: { collateral, debt, selectedNetwork, deposit },
@@ -40,7 +40,7 @@ export const PortfolioHoldingSelect = ({
   const profile = usePortfolioRiskProfile(selectedNetwork);
   const selectedToken = isWithdraw ? debt : collateral;
   const { pathname } = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { selectedToken: _paramToken } = useParams<{
     selectedToken: string;
   }>();
@@ -83,9 +83,9 @@ export const PortfolioHoldingSelect = ({
   const onSelect = useCallback(
     (id: string | null) => {
       const newPath = `${pathname.split('/').slice(0, -1).join('/')}/${id}`;
-      history.push(newPath);
+      navigate(newPath);
     },
-    [history, pathname]
+    [navigate, pathname]
   );
 
   return (

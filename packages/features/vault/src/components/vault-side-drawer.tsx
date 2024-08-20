@@ -1,6 +1,6 @@
 import { ToggleSwitchProps } from '@notional-finance/mui';
 import { TransactionSidebar } from '@notional-finance/trade';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { messages } from '../messages';
 import {
   VaultContext,
@@ -20,7 +20,7 @@ export const VaultSideDrawer = ({
   advancedToggle,
   context,
 }: VaultSideDrawerProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { state } = context;
   const {
     minBorrowSize,
@@ -43,7 +43,7 @@ export const VaultSideDrawer = ({
       heading={messages[tradeType].heading}
       advancedToggle={advancedToggle}
       onCancelRouteCallback={() =>
-        history.push(`/vaults/${selectedNetwork}/${vaultAddress}`)
+        navigate(`/vaults/${selectedNetwork}/${vaultAddress}`)
       }
       hideTextOnMobile={false}
       riskComponent={

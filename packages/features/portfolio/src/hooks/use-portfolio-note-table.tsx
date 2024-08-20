@@ -8,24 +8,24 @@ import {
   MessageCell,
 } from '@notional-finance/mui';
 import {
-  useFiat,
+  useAppState,
   useNotePrice,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
 import { Network, SupportedNetworks } from '@notional-finance/util';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { TokenBalance } from '@notional-finance/core-entities';
 
 export function usePortfolioNOTETable() {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { notePrice } = useNotePrice();
   const {
     globalState: { networkAccounts },
   } = useNotionalContext();
   let hasNoteOrSNote = false;
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const result = SupportedNetworks.map((network) => {
     const account = networkAccounts
       ? networkAccounts[network].accountDefinition
@@ -151,7 +151,7 @@ export function usePortfolioNOTETable() {
           },
           {
             buttonText: <FormattedMessage defaultMessage={'Stake More'} />,
-            callback: () => history.push('/stake/ETH'),
+            callback: () => navigate('/stake/ETH'),
           },
         ],
         txnHistory: ``,

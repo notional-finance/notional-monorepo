@@ -9,7 +9,7 @@ import { leveragedYield } from '@notional-finance/util';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
 import { Box } from '@mui/material';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const useBorrowTerms = (
   context: BaseTradeContext,
@@ -30,7 +30,7 @@ export const useBorrowTerms = (
       selectedNetwork,
     },
   } = context;
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
   const spotMaturityData = useSpotMaturityData(
@@ -48,7 +48,7 @@ export const useBorrowTerms = (
       ? (riskFactorLimit.limit as number)
       : priorVaultFactors?.leverageRatio;
 
-  const formatOptions = (options: any[]) => {
+  const formatOptions = useCallback((options: any[]) => {
     const result = [] as any[];
     // First sort options by maturity
     options.sort((a, b) => {
@@ -71,7 +71,7 @@ export const useBorrowTerms = (
     }
 
     return result;
-  };
+  }, []);
 
   const borrowOptions = useMemo(() => {
     // Note this is a any[] because there were conflicts when attempting to combine the debtOptions and spotMaturityData types
@@ -112,14 +112,14 @@ export const useBorrowTerms = (
           ),
       };
     });
-  }, [debtOptions, spotMaturityData, leverageRatio, assetAPY]);
+  }, [debtOptions, spotMaturityData, leverageRatio, assetAPY, formatOptions]);
 
   const onSelect = useCallback(
     (selectedId: string | null) => {
       const debt = availableDebtTokens?.find((t) => t.id === selectedId);
-      history.push(`${pathname}?borrowOption=${debt?.id}`);
+      navigate(`${pathname}?borrowOption=${debt?.id}`);
     },
-    [availableDebtTokens, history, pathname]
+    [availableDebtTokens, navigate, pathname]
   );
 
   return { borrowOptions, onSelect };

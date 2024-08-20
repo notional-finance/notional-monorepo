@@ -15,16 +15,16 @@ import {
   Caption,
   ExternalLink,
 } from '@notional-finance/mui';
-import { useAccountDefinition } from '@notional-finance/notionable-hooks';
+import {
+  useAccountDefinition,
+  useSideDrawerManager,
+  useSideDrawerState,
+} from '@notional-finance/notionable-hooks';
 import {
   Network,
   SETTINGS_SIDE_DRAWERS,
   getDateString,
 } from '@notional-finance/util';
-import {
-  useSideDrawerManager,
-  useSideDrawerState,
-} from '@notional-finance/side-drawer';
 import { useCancelCoolDown } from './use-cancel-cooldown';
 
 export const CoolDown = () => {

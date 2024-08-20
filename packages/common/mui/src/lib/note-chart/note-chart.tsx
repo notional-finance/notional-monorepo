@@ -7,7 +7,7 @@ import { ReactNode } from 'react';
 import { colors } from '@notional-finance/styles';
 import { getDateString } from '@notional-finance/util';
 import { formatNumber, formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useFiat } from '@notional-finance/notionable-hooks';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface ReactEChartsProps {
   option: EChartsOption;
@@ -38,7 +38,7 @@ export const NoteChart = ({
   noteNumCallback,
 }: NoteChartProps) => {
   const theme = useTheme();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const formatDateTooltip = (date: Date) => {
     return getDateString(date?.getTime(), {}, true);
   };

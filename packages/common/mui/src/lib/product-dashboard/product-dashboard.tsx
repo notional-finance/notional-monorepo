@@ -28,7 +28,7 @@ export interface DashboardDataProps {
 
 export interface DashboardHeaderProps {
   headerData: {
-    messageBoxText?: JSX.Element | MessageDescriptor;
+    messageBoxText?: ReactNode;
     networkToggle: number;
     handleNetWorkToggle: (value: number) => void;
   };
@@ -62,7 +62,7 @@ export interface ProductDashboardProps extends DashboardViewProps {
   dashboardTab: number;
   handleDashboardTab: (value: number) => void;
   headerData: {
-    messageBoxText: JSX.Element | MessageDescriptor;
+    messageBoxText: ReactNode;
     networkToggle: number;
     handleNetWorkToggle: (value: number) => void;
   };

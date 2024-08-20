@@ -6,7 +6,6 @@ import {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
-  handleKPI,
 } from './routes';
 
 export interface APIEnv {
@@ -54,7 +53,6 @@ router.get('/nft/*', handleNFT);
 router.post('/dd-forward', handleDataDogForward);
 router.post('/plausible/*', handlePlausibleForward);
 router.post('/newsletter', handleNewsletter);
-router.get('/kpi', handleKPI);
 
 // Fall through catch for 404 errors
 router.all('*', () => new Response('Not Found', { status: 404 }));

@@ -1,7 +1,7 @@
 import { YieldData, FiatSymbols } from '@notional-finance/core-entities';
 import { TradeState } from '@notional-finance/notionable';
 import { SparklesIcon } from '@notional-finance/icons';
-import { useMaxSupply, useFiat } from '@notional-finance/notionable-hooks';
+import { useMaxSupply, useAppState } from '@notional-finance/notionable-hooks';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { InfoTooltip } from '@notional-finance/mui';
 import { SxProps, useTheme } from '@mui/material';
@@ -12,7 +12,7 @@ export const useTotalsData = (
 ) => {
   const theme = useTheme();
   const { deposit } = state;
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
   let totalIncentives = 0;
 

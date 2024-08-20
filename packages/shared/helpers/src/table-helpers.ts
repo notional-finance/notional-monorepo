@@ -33,27 +33,26 @@ export const getHoldingsSortOrder = (t: TokenDefinition) => {
 export const formatCryptoWithFiat = (
   baseCurrency: FiatKeys,
   tbn?: TokenBalance | null,
-  options?: { showZero?: boolean, isDebt?: boolean}
+  options?: { showZero?: boolean; isDebt?: boolean }
 ) => {
-
-  if(options?.showZero && (!tbn || tbn.isZero())) {
-    return '0.00'
-  } else if(!tbn || tbn.isZero()) {
-    return '-'
+  if (options?.showZero && (!tbn || tbn.isZero())) {
+    return '0.00';
+  } else if (!tbn || tbn.isZero()) {
+    return '-';
   } else {
     return {
-        data: [
-          {
-            displayValue: tbn.toDisplayStringWithSymbol(),
-            isNegative: options?.isDebt ? false : tbn.isNegative(),
-          },
-          {
-            displayValue: tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(2),
-            isNegative: options?.isDebt ? false : tbn.isNegative(),
-          },
-        ],
-      }
-    }
+      data: [
+        {
+          displayValue: tbn.toDisplayStringWithSymbol(),
+          isNegative: options?.isDebt ? false : tbn.isNegative(),
+        },
+        {
+          displayValue: tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(2),
+          isNegative: options?.isDebt ? false : tbn.isNegative(),
+        },
+      ],
+    };
+  }
 };
 
 export const formatValueWithFiat = (
@@ -107,62 +106,62 @@ export const formatTokenAmount = (
       };
 };
 
-export const formatTxnTableData = (data: AccountHistory, network: Network) => {
-    const {
-      bundleName,
-      label,
-      txnLabel,
-      underlyingAmountRealized,
-      token,
-      realizedPrice,
-      timestamp,
-      transactionHash,
-      underlying,
-      impliedFixedRate,
-      account,
-      vaultName,
-    } = data;
+export const formatTxnTableData = (
+  data: AccountHistory,
+  network: Network | undefined
+) => {
+  const {
+    bundleName,
+    label,
+    txnLabel,
+    underlyingAmountRealized,
+    token,
+    realizedPrice,
+    timestamp,
+    transactionHash,
+    underlying,
+    impliedFixedRate,
+    account,
+    vaultName,
+  } = data;
 
-      const assetData = formatTokenType(token);
-      const isIncentive =
-        bundleName === 'Transfer Incentive' ||
-        bundleName === 'Transfer Secondary Incentive';
-      const result = {
-        transactionType: {
-          label: label,
-          caption: vaultName || txnLabel,
-          showSentIcon: underlyingAmountRealized.isNegative(),
-        },
-        vaultName: vaultName,
-        address: {
-          text: account ? truncateAddress(account) : '-',
-          fullAddress: `${account}`,
-          network: network,
-        },
-        underlyingAmount: formatTokenAmount(
-          underlyingAmountRealized,
-          impliedFixedRate,
-          true,
-          false,
-          underlyingAmountRealized.isPositive(),
-          4
-        ),
-        asset: {
-          label: assetData.title,
-          symbol: assetData.icon.toLowerCase(),
-          caption: assetData.caption ? assetData.caption : '',
-        },
-        price: isIncentive
-          ? '-'
-          : realizedPrice.toDisplayStringWithSymbol(4, true),
-        time: timestamp,
-        txLink: {
-          hash: transactionHash,
-          href: getEtherscanTransactionLink(transactionHash, network),
-        },
-        currency: underlying.symbol,
-        token: token,
-      }
-      return result;
-    }
-      
+  const assetData = formatTokenType(token);
+  const isIncentive =
+    bundleName === 'Transfer Incentive' ||
+    bundleName === 'Transfer Secondary Incentive';
+  const result = {
+    transactionType: {
+      label: label,
+      caption: vaultName || txnLabel,
+      showSentIcon: underlyingAmountRealized.isNegative(),
+    },
+    vaultName: vaultName,
+    address: {
+      text: account ? truncateAddress(account) : '-',
+      fullAddress: `${account}`,
+      network: network,
+    },
+    underlyingAmount: formatTokenAmount(
+      underlyingAmountRealized,
+      impliedFixedRate,
+      true,
+      false,
+      underlyingAmountRealized.isPositive(),
+      4
+    ),
+    asset: {
+      label: assetData.title,
+      symbol: assetData.icon.toLowerCase(),
+      caption: assetData.caption ? assetData.caption : '',
+    },
+    price: isIncentive ? '-' : realizedPrice.toDisplayStringWithSymbol(4, true),
+    time: timestamp,
+    txLink: {
+      hash: transactionHash,
+      href: getEtherscanTransactionLink(transactionHash, network),
+    },
+    currency: underlying.symbol,
+    token: token,
+  };
+  return result;
+};

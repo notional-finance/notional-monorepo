@@ -8,10 +8,10 @@ import {
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
 import {
-  useFiat,
   useGroupedHoldings,
   usePendingPnLCalculation,
   useSelectedNetwork,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
@@ -19,7 +19,7 @@ import {
   formatMaturity,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   if (asset.tokenType === 'nToken' && debt.tokenType === 'PrimeDebt') {
@@ -40,13 +40,13 @@ export function formatCaption(asset: TokenBalance, debt: TokenBalance) {
 }
 
 export function useGroupedHoldingsTable() {
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const network = useSelectedNetwork();
   const groupedTokens = useGroupedHoldings(network) || [];
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const groupedRows = groupedTokens.map(
     ({
@@ -193,7 +193,7 @@ export function useGroupedHoldingsTable() {
             {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               callback: () => {
-                history.push(
+                navigate(
                   `/liquidity-leveraged/${network}/Manage/${underlying.symbol}`
                 );
               },
@@ -201,7 +201,7 @@ export function useGroupedHoldingsTable() {
             {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
-                history.push(
+                navigate(
                   `/liquidity-leveraged/${network}/Withdraw/${
                     underlying.symbol
                   }${isHighUtilization ? `?warning=${isHighUtilization}` : ''}`

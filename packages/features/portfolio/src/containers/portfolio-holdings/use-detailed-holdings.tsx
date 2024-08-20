@@ -12,9 +12,9 @@ import { PointsIcon } from '@notional-finance/icons';
 import { Body, H4 } from '@notional-finance/mui';
 import {
   useArbPoints,
-  useFiat,
   useFiatToken,
   useNOTE,
+  useAppState,
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,
@@ -26,7 +26,7 @@ import {
 } from '@notional-finance/util';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export function useDetailedHoldingsTable() {
   const theme = useTheme();
@@ -36,8 +36,8 @@ export function useDetailedHoldingsTable() {
     ({ tokens }) => tokens
   );
   const arbPoints = useArbPoints();
-  const history = useHistory();
-  const baseCurrency = useFiat();
+  const navigate = useNavigate();
+  const { baseCurrency } = useAppState();
   const fiatToken = useFiatToken();
   const NOTE = useNOTE(network);
 
@@ -177,7 +177,7 @@ export function useDetailedHoldingsTable() {
             buttonBarData.push({
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               callback: () => {
-                history.push(
+                navigate(
                   b.isPositive()
                     ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
                     : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`
@@ -190,7 +190,7 @@ export function useDetailedHoldingsTable() {
             buttonBarData.push({
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
-                history.push(
+                navigate(
                   `/portfolio/${network}/holdings/${
                     PORTFOLIO_ACTIONS.WITHDRAW
                   }/${maturedTokenId}${
@@ -203,7 +203,7 @@ export function useDetailedHoldingsTable() {
             buttonBarData.push({
               buttonText: <FormattedMessage defaultMessage={'Repay'} />,
               callback: () => {
-                history.push(
+                navigate(
                   `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
                 );
               },
@@ -313,7 +313,7 @@ export function useDetailedHoldingsTable() {
               subRowData,
               buttonBarData,
               hasMatured: hasMatured,
-              txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
+              txnHistory: `/portfolio/${network}/transaction-navigate?${new URLSearchParams(
                 {
                   txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
                   assetOrVaultId: b.token.id,
@@ -381,7 +381,7 @@ export function useDetailedHoldingsTable() {
       actionRow: undefined,
       tokenId: ' ',
       isTotalRow: true,
-    } as unknown as typeof detailedHoldings[number]);
+    } as unknown as (typeof detailedHoldings)[number]);
 
     return {
       detailedHoldings: detailedHoldings,
@@ -391,7 +391,7 @@ export function useDetailedHoldingsTable() {
     holdings,
     arbPoints,
     baseCurrency,
-    history,
+    navigate,
     fiatToken,
     NOTE,
     pendingTokens,

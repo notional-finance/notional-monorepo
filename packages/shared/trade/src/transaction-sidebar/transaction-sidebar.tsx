@@ -38,12 +38,10 @@ import { SwitchNetwork } from '../transaction-approvals/switch-network';
 interface TransactionSidebarProps {
   heading?:
     | MessageDescriptor
-    | { defaultMessage: string }
-    | { values?: Record<string, unknown> };
+    | { defaultMessage: string; values?: Record<string, any> };
   helptext?:
     | MessageDescriptor
-    | { defaultMessage: string }
-    | { values?: Record<string, unknown> };
+    | { defaultMessage: string; values?: Record<string, any> };
   context: TradeContext | VaultContext;
   children?: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;

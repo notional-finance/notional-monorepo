@@ -6,7 +6,6 @@ import {
   PriceChange,
 } from '@notional-finance/core-entities';
 import { usePortfolioLiquidationPrices, useVaultHoldings } from './use-account';
-import { useFiat } from './use-user-settings';
 import {
   formatNumberAsPercent,
   formatTokenType,
@@ -20,6 +19,7 @@ import {
   percentChange,
 } from '@notional-finance/util';
 import { useAppContext, useNOTE } from './use-notional';
+import { useAppState } from './use-app-state';
 
 function usePriceChanges(network: Network | undefined) {
   const {
@@ -75,7 +75,9 @@ function parseFiatLiquidationPrice(
         },
       ],
     },
-    currentPrice: oneDay?.currentFiat.toDisplayStringWithSymbol(3) || '',
+    currentPrice:
+      oneDay?.currentFiat?.toFiat(baseCurrency).toDisplayStringWithSymbol(3) ||
+      '',
     oneDayChange: oneDay?.fiatChange
       ? formatNumberAsPercent(oneDay.fiatChange)
       : '',
@@ -166,7 +168,7 @@ export function useNotePrice() {
 export function useCurrentLiquidationPrices(network: Network | undefined) {
   const portfolio = usePortfolioLiquidationPrices(network);
   const vaults = useVaultHoldings(network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const { oneDay, sevenDay } = usePriceChanges(network);
   const theme = useTheme();
   const secondary = (theme as NotionalTheme).palette.typography.light;

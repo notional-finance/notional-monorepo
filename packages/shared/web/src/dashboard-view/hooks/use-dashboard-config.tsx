@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { defineMessage } from 'react-intl';
 import { FormattedMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const config = {
@@ -157,7 +157,7 @@ export const config = {
 };
 
 export const useDashboardConfig = (routeKey: PRODUCTS) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const selectedNetwork = useSelectedNetwork();
   const defaultNetwork = selectedNetwork === Network.mainnet ? 1 : 0;
@@ -165,8 +165,10 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
 
   const handleNetWorkToggle = (v: number) => {
     const label = v === 0 ? Network.arbitrum : Network.mainnet;
-    history.push(pathname.replace(selectedNetwork, label));
-    setNetworkToggle(v);
+    if (selectedNetwork) {
+      setNetworkToggle(v);
+      navigate(pathname.replace(selectedNetwork, label));
+    }
   };
 
   const headerData = {

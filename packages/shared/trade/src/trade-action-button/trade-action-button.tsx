@@ -7,8 +7,8 @@ import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import {
   useSideDrawerState,
   useSideDrawerManager,
-} from '@notional-finance/side-drawer';
-import { useHistory, useLocation } from 'react-router-dom';
+} from '@notional-finance/notionable-hooks';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 /* eslint-disable-next-line */
 export interface TradeActionButtonProps {
@@ -59,9 +59,8 @@ export function TradeActionButton({
   const { sideDrawerOpen } = useSideDrawerState();
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { pathname } = useLocation();
-  const history = useHistory();
-  const _onSubmit =
-    onSubmit ?? (() => history.push(`${pathname}?confirm=true`));
+  const navigate = useNavigate();
+  const _onSubmit = onSubmit ?? (() => navigate(`${pathname}?confirm=true`));
 
   const handleConnectWallet = () => {
     if (sideDrawerOpen) {

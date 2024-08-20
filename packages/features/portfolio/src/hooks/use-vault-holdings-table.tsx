@@ -22,10 +22,10 @@ import {
   formatHealthFactorValues,
   useAnalyticsReady,
   useArbPoints,
-  useFiat,
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
@@ -35,7 +35,7 @@ import {
   Network,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
 import {
   PointsLinks,
@@ -103,8 +103,8 @@ export const useVaultHoldingsTable = () => {
   const isBlocked = useLeverageBlock();
   const arbPoints = useArbPoints();
   const theme = useTheme();
-  const baseCurrency = useFiat();
-  const history = useHistory();
+  const { baseCurrency } = useAppState();
+  const navigate = useNavigate();
   const network = useSelectedNetwork();
   const analyticsReady = useAnalyticsReady(network);
   const vaults = useVaultHoldings(network);
@@ -303,7 +303,7 @@ export const useVaultHoldingsTable = () => {
         });
       }
 
-      if (points) {
+      if (points && network) {
         const pointsLink = PointsLinks[network][v.vaultAddress];
         subRowData.push({
           label: <FormattedMessage defaultMessage={'Points Boost'} />,
@@ -407,15 +407,13 @@ export const useVaultHoldingsTable = () => {
             {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               callback: () => {
-                history.push(`/vaults/${network}/${v.vaultAddress}`);
+                navigate(`/vaults/${network}/${v.vaultAddress}`);
               },
             },
             {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
-                history.push(
-                  `/vaults/${network}/${v.vaultAddress}/WithdrawVault`
-                );
+                navigate(`/vaults/${network}/${v.vaultAddress}/WithdrawVault`);
               },
             },
           ],
@@ -502,7 +500,7 @@ export const useVaultHoldingsTable = () => {
       toolTipData: undefined,
       actionRow: undefined,
       isTotalRow: true,
-    } as unknown as typeof vaultHoldingsData[number]);
+    } as unknown as (typeof vaultHoldingsData)[number]);
   }
 
   return {

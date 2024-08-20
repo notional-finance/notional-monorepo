@@ -5,26 +5,33 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
-
 import { UtilizationChart } from '../notional-components/utilization-chart';
 
 // project import
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
 import OrdersTable from 'sections/dashboard/default/OrdersTable';
+import { TokenIcon } from '@notional-finance/icons';
+import { Box, useTheme } from '@mui/material';
 
-export default function ParametersDefault({ token }: { token: string }) {
+export default function ParametersDefault({ token, network }: { token: string; network: string }) {
+  const theme = useTheme();
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: '80px' }}>
-        <h1>{token} / Parameters</h1>
+      <Grid item xs={12} md={12} lg={12} sx={{ marginTop: theme.spacing(10), display: 'flex', alignItems: 'center' }}>
+        <TokenIcon symbol={token.toLocaleLowerCase()} size={'large'} style={{ marginRight: theme.spacing(2) }} />
+        <h1 style={{ display: 'flex' }}>
+          {token} /{' '}
+          <Box sx={{ textTransform: 'capitalize', marginLeft: theme.spacing(0.75), marginRight: theme.spacing(0.75) }}>{network}</Box>{' '}
+          Market
+        </h1>
       </Grid>
 
       <Grid item xs={12} md={7} lg={8}>
         <UtilizationChart />
       </Grid>
-      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: '27px' }}>
-        <MainCard sx={{ mt: 2, display: 'flex', height: '473px' }} content={false}>
+      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: theme.spacing(3) }}>
+        <MainCard sx={{ mt: 2, display: 'flex', height: theme.spacing(59) }} content={false}>
           <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 }, display: 'flex', flexDirection: 'column', width: '100%' }}>
             <ListItemButton divider>
               <ListItemText primary="Company Finance Growth" />
@@ -68,8 +75,8 @@ export default function ParametersDefault({ token }: { token: string }) {
       <Grid item xs={12} md={7} lg={8}>
         <UtilizationChart />
       </Grid>
-      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: '27px' }}>
-        <MainCard sx={{ mt: 2, display: 'flex', height: '473px' }} content={false}>
+      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: theme.spacing(3) }}>
+        <MainCard sx={{ mt: 2, display: 'flex', height: theme.spacing(59) }} content={false}>
           <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 }, display: 'flex', flexDirection: 'column', width: '100%' }}>
             <ListItemButton divider>
               <ListItemText primary="Company Finance Growth" />
@@ -113,8 +120,8 @@ export default function ParametersDefault({ token }: { token: string }) {
       <Grid item xs={12} md={7} lg={8}>
         <UtilizationChart />
       </Grid>
-      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: '27px' }}>
-        <MainCard sx={{ mt: 2, display: 'flex', height: '473px' }} content={false}>
+      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: theme.spacing(3) }}>
+        <MainCard sx={{ mt: 2, display: 'flex', height: theme.spacing(59) }} content={false}>
           <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 }, display: 'flex', flexDirection: 'column', width: '100%' }}>
             <ListItemButton divider>
               <ListItemText primary="Company Finance Growth" />
@@ -158,8 +165,8 @@ export default function ParametersDefault({ token }: { token: string }) {
       <Grid item xs={12} md={7} lg={8}>
         <UtilizationChart />
       </Grid>
-      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: '27px' }}>
-        <MainCard sx={{ mt: 2, display: 'flex', height: '473px' }} content={false}>
+      <Grid item xs={12} md={5} lg={4} sx={{ marginTop: theme.spacing(3) }}>
+        <MainCard sx={{ mt: 2, display: 'flex', height: theme.spacing(59) }} content={false}>
           <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 }, display: 'flex', flexDirection: 'column', width: '100%' }}>
             <ListItemButton divider>
               <ListItemText primary="Company Finance Growth" />

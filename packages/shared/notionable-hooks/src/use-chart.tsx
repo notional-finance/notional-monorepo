@@ -11,12 +11,9 @@ import {
   floorToMidnight,
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
-import { useFiat } from './use-user-settings';
 import { useMemo } from 'react';
-import {
-  useAnalyticsReady,
-  useAppContext,
-} from './use-notional';
+import { useAnalyticsReady, useAppContext } from './use-notional';
+import { useAppState } from './use-app-state';
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -193,7 +190,7 @@ export function useAccountHistoryChart(
   tickSizeInSeconds: number
 ) {
   const account = useAccountDefinition(network);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
 
   return useMemo(() => {
     if (!account) return undefined;
@@ -223,7 +220,7 @@ export function useAccountHistoryChart(
                 // the previous snapshot value if there was no update in this time block
                 t.set(s.balance.tokenId, s);
                 return t;
-              }, new Map<string, typeof allHistoricalSnapshots[number]>())
+              }, new Map<string, (typeof allHistoricalSnapshots)[number]>())
               .values()
           ).filter(({ balance }) => !balance.isZero());
 

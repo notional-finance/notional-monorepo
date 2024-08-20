@@ -11,7 +11,9 @@ export const RollMaturity = () => {
     state: { debt, collateral },
   } = context;
 
-  let heading: MessageDescriptor | { values?: Record<string, unknown> };
+  let heading:
+    | MessageDescriptor
+    | { defaultMessage: string; values?: Record<string, any> };
   let helptext: MessageDescriptor;
   if (debt?.tokenType === 'PrimeDebt') {
     heading = defineMessage({

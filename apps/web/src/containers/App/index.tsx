@@ -1,7 +1,7 @@
 import { datadogRum } from '@datadog/browser-rum';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
-import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
+import { ReactRouter6Adapter } from 'use-query-params/adapters/react-router-6';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { App } from './App';
 
@@ -35,7 +35,7 @@ datadogRum.init({
 export const AppShell = () => {
   return (
     <BrowserRouter>
-      <QueryParamProvider adapter={ReactRouter5Adapter}>
+      <QueryParamProvider adapter={ReactRouter6Adapter}>
         <App />
       </QueryParamProvider>
     </BrowserRouter>

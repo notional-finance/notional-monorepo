@@ -8,6 +8,7 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import { useAccountDefinition } from '@notional-finance/notionable-hooks';
 import { Network, getDateString } from '@notional-finance/util';
 import { useCancelCoolDown } from './use-cancel-cooldown';
+import { ReactNode } from 'react';
 
 export const Redeem = () => {
   const theme = useTheme();
@@ -54,13 +55,13 @@ export const Redeem = () => {
                   : ''}
               </Body>
             ),
-            a: (msg: string) => (
+            a: (chunks: ReactNode) => (
               <LinkText
                 inline
                 onClick={cancelCoolDown}
                 sx={{ cursor: 'pointer' }}
               >
-                {msg}
+                {chunks}
               </LinkText>
             ),
           }}

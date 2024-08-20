@@ -1,7 +1,7 @@
 import { Paper, Box, useTheme, IconButton, styled } from '@mui/material';
 import { ArrowIcon } from '@notional-finance/icons';
 import { ReactElement, SyntheticEvent, useState, ReactNode } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { H4, Label } from '../typography/typography';
 
 /* eslint-disable-next-line */
@@ -29,7 +29,7 @@ export function SectionLink({
   hideBorder = false,
 }: SectionLinkProps) {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [elevation, setElevation] = useState(0);
 
   const handleClick = (event: SyntheticEvent) => {
@@ -37,7 +37,7 @@ export function SectionLink({
     if (external) {
       window.open(to, target);
     } else if (to) {
-      history.push(to);
+      navigate(to);
     }
   };
 

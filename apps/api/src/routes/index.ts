@@ -39,6 +39,4 @@ export {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
-  handleAccountCacheRequest,
-  handleKPI,
 };

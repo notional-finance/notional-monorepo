@@ -14,9 +14,12 @@ const onI18NError = (err) => {
 
 async function appInit() {
   const { language } = getFromLocalStorage('userSettings');
-  const locale = language ? language : navigator.language;
+  const locale = language || navigator.language;
   const languageTranslation = await getLanguageTranslation(locale);
   const container = document.getElementById('root');
+
+  if (!container) throw new Error('Failed to find the root element');
+
   const root = createRoot(container);
 
   root.render(
@@ -27,8 +30,7 @@ async function appInit() {
       onError={onI18NError}
     >
       <App />
-    </IntlProvider>,
-    document.getElementById('root')
+    </IntlProvider>
   );
 }
 

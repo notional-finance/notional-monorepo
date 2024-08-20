@@ -2,13 +2,13 @@ import { Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export const ContestBackButton = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
-    <Button onClick={() => history.goBack()}>
+    <Button onClick={() => navigate(-1)}>
       <ArrowIcon sx={{ transform: 'rotate(-90deg)' }} />
       <FormattedMessage defaultMessage={'Back'} />
     </Button>

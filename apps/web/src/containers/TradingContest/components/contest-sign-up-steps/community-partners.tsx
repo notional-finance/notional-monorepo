@@ -1,6 +1,5 @@
 import { styled, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import {
   TitleText,
@@ -12,7 +11,7 @@ import Llama from './assets/Llama.svg';
 import Cryptotesters from './assets/cryptotesters.svg';
 import L2DAO from './assets/L2DAO.svg';
 import { COMMUNITY_NAMES } from '@notional-finance/notionable';
-import { useMintPass } from '@notional-finance/notionable-hooks';
+import { useMintPass, useSideDrawerManager } from '@notional-finance/notionable-hooks';
 
 const imgData = {
   [COMMUNITY_NAMES.LLAMAS]: {

@@ -8,7 +8,7 @@ import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { SelectConvertAsset } from './components/select-convert-asset';
 import { messages } from './messages';
 import { useEffect } from 'react';
-import { Route, Switch, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { useConvertOptions } from './hooks/use-convert-options';
 import { PortfolioParams } from '../portfolio-feature-shell';
 
@@ -71,6 +71,7 @@ const ConvertDebt = () => {
 
 export const RollDebt = () => {
   const context = useTradeContext('RollDebt');
+  const { action } = useParams<PortfolioParams>();
   const {
     updateState,
     state: { collateral },
@@ -87,25 +88,14 @@ export const RollDebt = () => {
 
   return (
     <Container>
-      <Switch>
-        <Route
-          path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.ROLL_DEBT}/:selectedToken/manage`}
-          exact={false}
-        >
-          <DrawerTransition fade={true}>
-            <Wrapper>
-              <SelectConvertAsset context={context} />
-            </Wrapper>
-          </DrawerTransition>
-        </Route>
-
-        <Route
-          path={`/portfolio/:selectedNetwork/:category/${PORTFOLIO_ACTIONS.ROLL_DEBT}/:selectedToken/convertTo/:selectedCollateralToken`}
-          exact={false}
-        >
-          <ConvertDebt />
-        </Route>
-      </Switch>
+      {action === 'manage' && (
+        <DrawerTransition fade={true}>
+          <Wrapper>
+            <SelectConvertAsset context={context} />
+          </Wrapper>
+        </DrawerTransition>
+      )}
+      {action === 'convertTo' && <ConvertDebt />}
     </Container>
   );
 };
