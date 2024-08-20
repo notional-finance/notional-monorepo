@@ -10,6 +10,7 @@ import {
   ConvexGaugeArbitrumInterface,
   ConvexGaugeMainnetInterface,
   CurveGaugeInterface,
+  NotionalInterface,
 } from './interfaces';
 import {
   Network,
@@ -145,11 +146,17 @@ export default class APYSimulator {
       vaultData.pool =
         vaultData.pool || (await vault.getStrategyVaultInfo())[0];
 
-      const results = await this.#calculateFutureAPY(
-        provider,
-        vaultData as VaultData
-      );
-      allResults.push(...results);
+      try {
+        const results = await this.#calculateFutureAPY(
+          provider,
+          vaultData as VaultData
+        );
+        allResults.push(...results);
+      } catch (error) {
+        log(
+          `Error in #calculateFutureAPY for vault ${vaultData.address}: ${error}`
+        );
+      }
 
       await provider.send('evm_revert', [checkpoint]);
     }
@@ -336,7 +343,17 @@ export default class APYSimulator {
   }
 
   async #extendMaxOracleFreshness(provider: JsonRpcProvider) {
-    const notionalOwner = this.#config.addresses.notionalOwner;
+    const tradingModule = new Contract(
+      this.#config.addresses.tradingModule,
+      TradingModuleInterface,
+      provider
+    );
+    const notional = new Contract(
+      await tradingModule.NOTIONAL(),
+      NotionalInterface,
+      provider
+    );
+    const notionalOwner = await notional.owner();
     await provider.send('anvil_setBalance', [
       notionalOwner,
       `0x${Number(1e18).toString(16)}`,
