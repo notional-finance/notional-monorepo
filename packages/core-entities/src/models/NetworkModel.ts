@@ -4,20 +4,17 @@ import {
   SerializedToken,
   TokenRegistryServer,
 } from '../server/token-registry-server';
+import { Env } from '../server';
 
 const NetworkModel = types.model('Network', {
   network: NotionalTypes.Network,
-  tokens: types.map(TokenDefinitionModel),
+  tokens: types.optional(types.map(TokenDefinitionModel), {}),
 });
-
-const NX_SUBGRAPH_API_KEY = process.env['NX_SUBGRAPH_API_KEY'] as string;
 
 export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
   (self) => {
     let saveStorage: () => Promise<void>;
-    const tokenRegistry = new TokenRegistryServer({
-      NX_SUBGRAPH_API_KEY,
-    });
+    let tokenRegistry: TokenRegistryServer;
 
     const refresh = flow(function* () {
       const tokens: Map<string, SerializedToken> =
@@ -29,9 +26,13 @@ export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
 
     return {
       refresh,
-      setStorageMethod: (fn: (data: string) => Promise<void>) => {
+      initialize: (
+        storageMethod: (data: string) => Promise<void>,
+        env: Env
+      ) => {
+        tokenRegistry = new TokenRegistryServer(env);
         saveStorage = () => {
-          return fn(JSON.stringify(getSnapshot(self)));
+          return storageMethod(JSON.stringify(getSnapshot(self)));
         };
       },
     };

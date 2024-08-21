@@ -87,6 +87,7 @@ export const NotionalTypes = {
       return false;
     },
     getValidationMessage(snapshot) {
+      if (snapshot === undefined) return 'snapshot is undefined';
       if (snapshot._isTokenBalance === false) return 'not token balance';
       if (snapshot.network === undefined) return 'network is required';
       if (snapshot.tokenId === undefined) return 'tokenId is required';

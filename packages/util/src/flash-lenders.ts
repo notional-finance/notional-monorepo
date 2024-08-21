@@ -42,7 +42,7 @@ const defaultFlashLenders = {
 
 const perVaultFlashLenders: Record<string, string> = {};
 
-const perTokenFlashLenders = {
+const perTokenFlashLenders: Record<Network, Record<string, string>> = {
   [Network.mainnet]: {
     default: wrappedFlashLenders.mainnet['AAVE'],
     // NOTE: this is set to USDT because the Aave flash lender does not use the proper
@@ -56,6 +56,8 @@ const perTokenFlashLenders = {
     [tokens.arbitrum['RDNT']]: wrappedFlashLenders.arbitrum['BALANCER'],
     [tokens.arbitrum['UNI']]: wrappedFlashLenders.arbitrum['UNIV3'],
   },
+  [Network.optimism]: {},
+  [Network.all]: {},
 };
 
 const checkSumAddress = (address: string) => {
@@ -91,7 +93,7 @@ export function getExcludedSources(
 }
 
 // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-sources
-const zeroExSources = {
+const zeroExSources: Record<Network, Record<string, string>> = {
   [Network.mainnet]: {
     BALANCER: 'Balancer_V2',
     UNISWAP: 'Uniswap_V3',
@@ -101,4 +103,6 @@ const zeroExSources = {
     CAMELOT: 'Camelot_V3',
     UNIV3: 'Uniswap_V3',
   },
+  [Network.optimism]: {},
+  [Network.all]: {},
 };
