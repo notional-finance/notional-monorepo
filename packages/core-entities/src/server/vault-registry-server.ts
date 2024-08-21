@@ -32,7 +32,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             AllVaultsByBlockDocument,
             'vaultConfigurations',
             this.env.NX_SUBGRAPH_API_KEY,
-            { blockNumber },
+            { blockNumber }
           );
 
     const calls = data['data'].vaultConfigurations
@@ -90,6 +90,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
               const totalVaultShares = r.totalVaultShares;
 
               return {
+                vaultAddress,
                 pool: r.pool,
                 singleSidedTokenIndex: r.singleSidedTokenIndex,
                 totalLPTokens,

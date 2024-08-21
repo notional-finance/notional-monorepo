@@ -75,7 +75,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               latestRate: {
                 rate: BigNumber.from(v.latestRate),
                 timestamp: v.lastUpdateTimestamp,
-                blockNumber: blockNumber || v.lastUpdateBlockNumber,
+                blockNumber: parseInt(blockNumber || v.lastUpdateBlockNumber),
               },
             };
 

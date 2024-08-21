@@ -9,6 +9,7 @@ import {
 import { Registry } from '../Registry';
 
 export interface BaseVaultParams {
+  vaultAddress: string;
   enabled: boolean;
   name: string;
 }

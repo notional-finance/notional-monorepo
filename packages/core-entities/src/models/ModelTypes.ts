@@ -51,6 +51,7 @@ export const NotionalTypes = {
       return false;
     },
     getValidationMessage(snapshot) {
+      if (snapshot === undefined) return 'snapshot is undefined';
       if (snapshot.type !== 'BigNumber') return 'not big number';
       if (snapshot.hex === undefined) return 'hex is required';
       return '';
@@ -69,6 +70,7 @@ export const NotionalTypes = {
       return false;
     },
     getValidationMessage(snapshot) {
+      if (snapshot === undefined) return 'snapshot is undefined';
       if (snapshot._isFixedPoint === false) return 'not fixed point';
       if (snapshot._hex === undefined) return 'hex is required';
       return '';
@@ -259,4 +261,62 @@ export const ExchangeModel = types.model('Exchange', {
   latestPoolData: types.maybe(PoolDataModel),
   registerTokens: types.array(TokenDefinitionModel),
   earliestBlock: types.maybe(types.number),
+});
+
+const ExchangeRateModel = types.model('ExchangeRate', {
+  rate: types.maybe(NotionalTypes.BigNumber),
+  timestamp: types.number,
+  blockNumber: types.number,
+});
+
+export const OracleType = [
+  'Chainlink',
+  'fCashOracleRate',
+  'fCashSettlementRate',
+  'fCashToUnderlyingExchangeRate',
+  'fCashSpotRate',
+  'PrimeCashToUnderlyingOracleInterestRate',
+  'PrimeCashPremiumInterestRate',
+  'PrimeDebtPremiumInterestRate',
+  'PrimeCashExternalLendingInterestRate',
+  'PrimeCashToUnderlyingExchangeRate',
+  'PrimeCashToMoneyMarketExchangeRate',
+  'PrimeDebtToUnderlyingExchangeRate',
+  'PrimeDebtToMoneyMarketExchangeRate',
+  'MoneyMarketToUnderlyingExchangeRate',
+  'VaultShareOracleRate',
+  'nTokenToUnderlyingExchangeRate',
+  'nTokenBlendedInterestRate',
+  'nTokenFeeRate',
+  'nTokenIncentiveRate',
+  'nTokenSecondaryIncentiveRate',
+  'sNOTE',
+  'VaultShareAPY',
+  'nTokenTotalAPY',
+  'sNOTEToETHExchangeRate',
+  'sNOTEReinvestmentAPY',
+] as const;
+export type OracleType = (typeof OracleType)[number];
+
+export const OracleDefinitionModel = types.model('OracleDefinition', {
+  id: types.identifier,
+  oracleAddress: types.string,
+  network: NotionalTypes.Network,
+  oracleType: types.enumeration('OracleType', OracleType),
+  base: types.reference(TokenDefinitionModel),
+  quote: types.reference(TokenDefinitionModel),
+  decimals: types.number,
+  latestRate: ExchangeRateModel,
+});
+
+export const VaultDefinitionModel = types.model('VaultDefinition', {
+  vaultAddress: types.identifier,
+  enabled: types.boolean,
+  name: types.string,
+  // NOTE: these are just single sided lp vaults
+  pool: types.string,
+  singleSidedTokenIndex: types.number,
+  totalLPTokens: NotionalTypes.TokenBalance,
+  totalVaultShares: NotionalTypes.BigNumber,
+  secondaryTradeParams: types.string,
 });
