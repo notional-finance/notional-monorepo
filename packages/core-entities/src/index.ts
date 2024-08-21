@@ -20,3 +20,5 @@ export * from './config/whitelisted-vaults';
 export { DeprecatedVaults } from './server/vault-overrides';
 export { SecondaryIncentiveToken } from './config/whitelisted-tokens';
 export * from './Boosts';
+
+export * from './models/NetworkModel';
