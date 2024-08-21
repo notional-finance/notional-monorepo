@@ -1,6 +1,6 @@
 runtime: custom
 env: flex
-service: data-service
+service: cron-service
 
 manual_scaling:
   instances: 1
@@ -25,14 +25,6 @@ env_variables:
   DD_API_KEY: "projects/663932775145/secrets/DD_API_KEY/versions/latest"
 #[END gae_flex_pubsub_yaml]
 
-# Add liveness health check configuration
-liveness_check:
-  path: "/healthz"
-  check_interval_sec: 30
-  timeout_sec: 10
-  failure_threshold: 2
-  success_threshold: 2
 
 beta_settings:
   cloud_sql_instances: monitoring-agents:us-central1:notional
-

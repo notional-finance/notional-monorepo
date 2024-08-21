@@ -1,4 +1,5 @@
 import {
+  ACCOUNT_ID_RANGES,
   filterEmpty,
   getNowSeconds,
   getProviderFromNetwork,
@@ -341,31 +342,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
   private async _fetchBatchAccounts(network: Network, blockNumber?: number) {
     const { AllAccountsDocument, AllAccountsByBlockDocument } =
       await loadGraphClientDeferred();
-    // This kludge is necessary because the subgraph only allows a skip value of
-    // less than 5000, so we query the entire account range by the prefix here with
-    // a max number of accounts in each id range of 5000.
-    const idRanges = [
-      '0x0000000000000000000000000000000000000000',
-      '0x1000000000000000000000000000000000000000',
-      '0x2000000000000000000000000000000000000000',
-      '0x3000000000000000000000000000000000000000',
-      '0x4000000000000000000000000000000000000000',
-      '0x5000000000000000000000000000000000000000',
-      '0x6000000000000000000000000000000000000000',
-      '0x7000000000000000000000000000000000000000',
-      '0x8000000000000000000000000000000000000000',
-      '0x9000000000000000000000000000000000000000',
-      '0xa000000000000000000000000000000000000000',
-      '0xb000000000000000000000000000000000000000',
-      '0xc000000000000000000000000000000000000000',
-      '0xd000000000000000000000000000000000000000',
-      '0xe000000000000000000000000000000000000000',
-      '0xf000000000000000000000000000000000000000',
-      '0xffffffffffffffffffffffffffffffffffffffff',
-    ];
 
     const accountData: AccountDefinition[] = [];
-    for (let i = 0; i < idRanges.length - 1; i++) {
+    for (let i = 0; i < ACCOUNT_ID_RANGES.length - 1; i++) {
       const results = await fetchGraphPaginate(
         network,
         blockNumber ? AllAccountsByBlockDocument : AllAccountsDocument,
@@ -373,8 +352,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         this.subgraphApiKey,
         {
           skip: 0,
-          startId: idRanges[i],
-          endId: idRanges[i + 1],
+          startId: ACCOUNT_ID_RANGES[i],
+          endId: ACCOUNT_ID_RANGES[i + 1],
           blockNumber,
         }
       );

@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers';
 
 export enum Network {
   mainnet = 'mainnet',
@@ -10,17 +10,18 @@ export enum RewardPoolType {
   ConvexArbitrum = 'ConvexArbitrum',
   ConvexMainnet = 'ConvexMainnet',
   Curve = 'Curve',
+  Balancer = 'Balancer',
 }
 
 export type VaultDataBase = {
-  address: string,
-  gauge: string,
-  pool?: string,
-  primaryBorrowCurrency: string,
-  rewardPoolType: RewardPoolType,
-}
+  address: string;
+  gauge: string;
+  pool?: string;
+  primaryBorrowCurrency: string;
+  rewardPoolType: RewardPoolType;
+};
 
-export type VaultData = VaultDataBase & { pool: string }
+export type VaultData = VaultDataBase & { pool: string };
 export type Provider = ethers.providers.Provider;
 export type JsonRpcProvider = ethers.providers.JsonRpcProvider;
 
@@ -29,4 +30,4 @@ export type TransferLog = {
   from: string;
   to: string;
   amount: string;
-}
+};

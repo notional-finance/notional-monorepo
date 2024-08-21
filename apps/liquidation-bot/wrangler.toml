@@ -16,7 +16,7 @@ crons = [
 name = "liquidation-bot-arbitrum"
 
 [env.arbitrum.vars]
-NX_DATA_URL = 'https://data-dev.notional.finance'
+NX_REGISTRY_URL = 'https://registry.notional.finance'
 ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
 ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
 NETWORK = 'arbitrum'
@@ -35,7 +35,7 @@ PROFIT_THRESHOLD = '-579531698874532'
 name = "liquidation-bot-mainnet"
 
 [env.mainnet.vars]
-NX_DATA_URL = 'https://data-dev.notional.finance'
+NX_REGISTRY_URL = 'https://registry.notional.finance'
 ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
 ZERO_EX_SWAP_URL = 'https://api.0x.org/swap/v1/quote'
 NETWORK = 'mainnet'

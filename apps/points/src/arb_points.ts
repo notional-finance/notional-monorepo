@@ -8,7 +8,7 @@ export async function getAccountPoints(acct: string) {
     season_three: string;
     token: string;
   }[] = await fetch(
-    'https://data-dev.notional.finance/arbitrum/views/points'
+    'https://registry.notional.finance/arbitrum/views/points'
   ).then((r) => r.json());
   let currentSeason: string;
   const now = getNowSeconds();

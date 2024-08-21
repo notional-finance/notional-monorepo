@@ -22,7 +22,7 @@ crons = [ "*/5 * * * *" ]
 [env.dev]
 name = "accounts-dev"
 r2_buckets = [
-  { binding = "ACCOUNT_CACHE_R2", bucket_name = "account-cache-r2", preview_bucket_name = "account-cache-r2-dev" },
+  { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev" },
 ]
 
 [env.dev.durable_objects]
@@ -33,11 +33,6 @@ bindings = [
 [env.dev.vars]
 NX_ENV = 'dev'
 VERSION = 'v1'
-NX_DATA_URL = 'https://data-dev.notional.finance'
+NX_REGISTRY_URL = 'https://registry.notional.finance'
 SUPPORTED_NETWORKS = ['mainnet', 'arbitrum', 'all']
 
-[env.prod]
-name = "accounts"
-r2_buckets = [
-  { binding = "ACCOUNT_CACHE_R2", bucket_name = "account-cache-r2" },
-]

@@ -10,6 +10,7 @@ import {
   ConvexGaugeArbitrumInterface,
   ConvexGaugeMainnetInterface,
   CurveGaugeInterface,
+  NotionalInterface,
 } from './interfaces';
 import {
   Network,
@@ -45,7 +46,7 @@ async function getTransferLogs(logs: ethers.providers.Log[]) {
         to: parsed.args.to,
         amount: parsed.args.amount.toString(),
       });
-    } catch { }
+    } catch {}
   }
   return transfers;
 }
@@ -145,11 +146,17 @@ export default class APYSimulator {
       vaultData.pool =
         vaultData.pool || (await vault.getStrategyVaultInfo())[0];
 
-      const results = await this.#calculateFutureAPY(
-        provider,
-        vaultData as VaultData
-      );
-      allResults.push(...results);
+      try {
+        const results = await this.#calculateFutureAPY(
+          provider,
+          vaultData as VaultData
+        );
+        allResults.push(...results);
+      } catch (error) {
+        log(
+          `Error in #calculateFutureAPY for vault ${vaultData.address}: ${error}`
+        );
+      }
 
       await provider.send('evm_revert', [checkpoint]);
     }
@@ -168,7 +175,10 @@ export default class APYSimulator {
       log(
         'vault does not exist or do not have lp tokens, finding another account for APY calculation'
       );
-      ({ account, totalLpTokens } = await this.#findGaugeTokenHolder(vaultData, provider));
+      ({ account, totalLpTokens } = await this.#findGaugeTokenHolder(
+        vaultData,
+        provider
+      ));
       log(`new account: ${account} for vault ${vaultData.address}`);
     }
     assert(!totalLpTokens.eq(0));
@@ -229,14 +239,15 @@ export default class APYSimulator {
 
     const sharedData = {
       /////////////////local log, not saved to db/////////////////////////
-      feeApy: `${Number(
-        poolFeesInPrimary
-          .mul(365)
-          .mul(1_000_000)
-          .div(lpTokenValuePrimaryBorrow)
-          .toString()
-      ) / 10_000
-        }%`,
+      feeApy: `${
+        Number(
+          poolFeesInPrimary
+            .mul(365)
+            .mul(1_000_000)
+            .div(lpTokenValuePrimaryBorrow)
+            .toString()
+        ) / 10_000
+      }%`,
       ...(isAccountVault && {
         vaultName: await new Contract(
           vaultData.address,
@@ -280,14 +291,15 @@ export default class APYSimulator {
 
       const result = {
         /////////////////local log, not saved to db/////////////////////////
-        apy: `${Number(
-          rewardTokenValuePrimaryBorrow
-            .mul(365)
-            .mul(10_00000)
-            .div(lpTokenValuePrimaryBorrow)
-            .toString()
-        ) / 10000
-          }%`,
+        apy: `${
+          Number(
+            rewardTokenValuePrimaryBorrow
+              .mul(365)
+              .mul(10_00000)
+              .div(lpTokenValuePrimaryBorrow)
+              .toString()
+          ) / 10000
+        }%`,
         ///////////////////////////////////////////////////////////////////////
 
         ...sharedData,
@@ -321,7 +333,8 @@ export default class APYSimulator {
 
     log(`spawning network on block ${forkBlock}`);
     exec(
-      `anvil --rpc-url ${this.#config.alchemyUrl
+      `anvil --rpc-url ${
+        this.#config.alchemyUrl
       } --fork-block-number ${forkBlock}`
     );
     await wait(5000);
@@ -330,7 +343,17 @@ export default class APYSimulator {
   }
 
   async #extendMaxOracleFreshness(provider: JsonRpcProvider) {
-    const notionalOwner = this.#config.addresses.notionalOwner;
+    const tradingModule = new Contract(
+      this.#config.addresses.tradingModule,
+      TradingModuleInterface,
+      provider
+    );
+    const notional = new Contract(
+      await tradingModule.NOTIONAL(),
+      NotionalInterface,
+      provider
+    );
+    const notionalOwner = await notional.owner();
     await provider.send('anvil_setBalance', [
       notionalOwner,
       `0x${Number(1e18).toString(16)}`,
@@ -365,9 +388,9 @@ export default class APYSimulator {
         },
       ]);
       // filter out gauge deposit token
-      accounts = logs.transfers.filter(
-        (t) => t.from !== '0x4717c25df44e280ec5b31acbd8c194e1ed24efe2'
-      ).map(l => l.from);
+      accounts = logs.transfers
+        .filter((t) => t.from !== '0x4717c25df44e280ec5b31acbd8c194e1ed24efe2')
+        .map((l) => l.from);
     } else {
       logs = await this.#alchemyProvider.send('alchemy_getAssetTransfers', [
         {
@@ -379,7 +402,7 @@ export default class APYSimulator {
           maxCount: `0x${Number(10).toString(16)}`,
         },
       ]);
-      accounts = logs.transfers.map(l => l.to);
+      accounts = logs.transfers.map((l) => l.to);
     }
 
     for (const account of accounts) {
@@ -403,29 +426,33 @@ export default class APYSimulator {
     provider: JsonRpcProvider
   ) {
     const claimData = this.#getClaimData(account, vaultData);
-    await provider.send('anvil_impersonateAccount', [account]);
-    return provider.send('eth_sendTransaction', [
-      { from: account, to: vaultData.gauge, data: claimData },
-    ]);
+    if (claimData) {
+      await provider.send('anvil_impersonateAccount', [account]);
+      return provider.send('eth_sendTransaction', [
+        { from: account, to: vaultData.gauge, data: claimData },
+      ]);
+    }
   }
 
   async #processTransferLogs(
-    tx: any,
+    tx: string | undefined,
     account: string,
     provider: JsonRpcProvider
   ) {
-    const claimLogs = await provider
-      .getTransactionReceipt(tx)
-      .then((r) => r.logs);
-    const transfersToVault = await getTransferLogs(claimLogs).then((r) =>
-      r.filter((l) => l.to.toLowerCase() === account.toLowerCase())
-    );
-
     const rewardTokens: Map<string, BigNumber> = new Map();
-    for (const transfer of transfersToVault) {
-      const tokensClaimed =
-        rewardTokens.get(transfer.token) || BigNumber.from(0);
-      rewardTokens.set(transfer.token, tokensClaimed.add(transfer.amount));
+    if (tx) {
+      const claimLogs = await provider
+        .getTransactionReceipt(tx)
+        .then((r) => r.logs);
+      const transfersToVault = await getTransferLogs(claimLogs).then((r) =>
+        r.filter((l) => l.to.toLowerCase() === account.toLowerCase())
+      );
+
+      for (const transfer of transfersToVault) {
+        const tokensClaimed =
+          rewardTokens.get(transfer.token) || BigNumber.from(0);
+        rewardTokens.set(transfer.token, tokensClaimed.add(transfer.amount));
+      }
     }
 
     return rewardTokens;
@@ -473,10 +500,14 @@ export default class APYSimulator {
       );
       return curve.balanceOf(account);
     }
+    if (vaultData.rewardPoolType == RewardPoolType.Balancer) {
+      const balancer = new Contract(vaultData.gauge, ERC20Interface, provider);
+      return balancer.balanceOf(account);
+    }
     throw new Error('Unsupported vault type');
   }
 
-  #getClaimData(account: string, vaultData: VaultData) {
+  #getClaimData(account: string, vaultData: VaultData): string | undefined {
     if (vaultData.rewardPoolType === RewardPoolType.Aura) {
       return AuraGaugeInterface.encodeFunctionData('getReward');
     }
@@ -490,6 +521,9 @@ export default class APYSimulator {
     }
     if (vaultData.rewardPoolType == RewardPoolType.Curve) {
       return CurveGaugeInterface.encodeFunctionData('claim_rewards');
+    }
+    if (vaultData.rewardPoolType == RewardPoolType.Balancer) {
+      return undefined;
     }
     throw new Error('Unsupported vault type');
   }

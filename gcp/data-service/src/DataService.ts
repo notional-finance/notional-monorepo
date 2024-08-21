@@ -1,10 +1,10 @@
-import { BigNumber } from 'ethers';
 import { Knex } from 'knex';
 import {
   Network,
   getProviderFromNetwork,
   ORACLE_TYPE_TO_ID,
   ONE_HOUR_MS,
+  ACCOUNT_ID_RANGES,
 } from '@notional-finance/util';
 import { fetch } from 'cross-fetch';
 import {
@@ -15,7 +15,6 @@ import {
 } from './config';
 import {
   BackfillType,
-  DataType,
   DataRow,
   MulticallConfig,
   MulticallOperation,
@@ -35,6 +34,7 @@ import {
 } from '@apollo/client/core';
 import { graphQueries } from './graphQueries';
 import { calculatePointsAccrued } from './RiskService';
+import { Servers } from '@notional-finance/core-entities';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -48,7 +48,6 @@ export type DataServiceSettings = {
   maxProviderRequests: number;
   interval: number;
   frequency: number; // hourly, daily etc.
-  dataUrl: string;
   mergeConflicts: boolean;
   backfillDelayMs: number;
 };
@@ -176,28 +175,40 @@ export default class DataService {
   }
 
   public async syncOracleData(ts: number) {
+    // NOTE: this only ever syncs the all network data to get historical fiat token
+    // exchange rates. Other networks are synced via the subgraph
     const networks = [Network.all];
+    const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
 
     for (const network of networks) {
       const blockNumber = await this.getBlockNumberFromTs(network, ts);
 
-      const values = await this.getData(network, blockNumber, DataType.ORACLE);
+      const server = new Servers.OracleRegistryServer({
+        NX_SUBGRAPH_API_KEY: SUBGRAPH_API_KEY,
+      });
+      const values = await server.refreshAtBlock(network, blockNumber);
 
       if (values.length > 0) {
-        const query = this.db
-          .insert(
-            values.map((v) => ({
-              base: v[1].base,
-              quote: v[1].quote,
-              oracle_type: this.oracleTypeToId(v[1].oracleType),
-              network: this.networkToId(v[1].network),
-              timestamp: ts,
-              block_number: blockNumber,
-              decimals: v[1].decimals,
-              oracle_address: v[1].oracleAddress,
-              latest_rate: BigNumber.from(v[1].latestRate.rate.hex).toString(),
-            }))
+        const data = values
+          .map((v) =>
+            v[1]
+              ? {
+                  base: v[1].base,
+                  quote: v[1].quote,
+                  oracle_type: this.oracleTypeToId(v[1].oracleType),
+                  network: this.networkToId(v[1].network),
+                  timestamp: ts,
+                  block_number: blockNumber,
+                  decimals: v[1].decimals,
+                  oracle_address: v[1].oracleAddress,
+                  latest_rate: v[1].latestRate.rate.toString(),
+                }
+              : undefined
           )
+          .filter((v) => v !== undefined);
+
+        const query = this.db
+          .insert(data)
           .into(DataService.ORACLE_DATA_TABLE_NAME)
           .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
 
@@ -344,18 +355,6 @@ export default class DataService {
     );
   }
 
-  private async getData(
-    network: Network,
-    blockNumber: number,
-    dataType: DataType
-  ) {
-    const resp = await fetch(
-      `${this.settings.dataUrl}/${network}/${dataType}/${blockNumber}`
-    );
-
-    return (await resp.json()).values;
-  }
-
   private async getBlockNumberByTimestamp(
     network: Network,
     targetTimestamp: number
@@ -430,51 +429,70 @@ export default class DataService {
     return select;
   }
 
-  public async syncAccounts(network: Network, isVault: boolean) {
+  private getApolloClient(network: Network) {
     const endpoint = defaultGraphEndpoints()[ProtocolName.NotionalV3][network];
     if (!endpoint) {
-      throw Error('Subgraph endpoint not defined');
+      throw Error(`Subgraph endpoint not defined for network ${network}`);
     }
-    const client = new ApolloClient({
+    return new ApolloClient({
       link: new HttpLink({
         uri: endpoint,
         fetch,
       }),
       cache: new InMemoryCache(),
     });
+  }
 
+  public async syncVaultAccounts(network: Network) {
+    const client = this.getApolloClient(network);
     const size = 1000;
     let offset = 0;
 
     do {
       const resp = await client.query({
-        query: gql(
-          isVault
-            ? graphQueries.NotionalV3VaultAccounts
-            : graphQueries.NotionalV3Accounts
-        ),
+        query: gql(graphQueries.NotionalV3VaultAccounts),
         variables: {
           size: size,
           offset: offset,
         },
       });
 
-      if (isVault) {
-        const balances = resp.data['balances'];
-        if (balances.length === 0) {
-          break;
-        }
+      const balances = resp.data['balances'];
+      if (balances.length === 0) {
+        break;
+      }
 
-        await this.insertVaultAccounts(
-          network,
-          balances.map((b) => ({
-            accountId: b.account.id,
-            vaultId: b.token.vaultAddress,
-          }))
-        );
+      await this.insertVaultAccounts(
+        network,
+        balances.map((b) => ({
+          accountId: b.account.id,
+          vaultId: b.token.vaultAddress,
+        }))
+      );
 
-        offset += balances.length;
-      } else {
+      offset += balances.length;
+    } while (1);
+  }
+
+  public async syncAccounts(network: Network) {
+    const client = this.getApolloClient(network);
+    const size = 1000;
+
+    for (let i = 0; i < ACCOUNT_ID_RANGES.length - 1; i++) {
+      const startId = ACCOUNT_ID_RANGES[i];
+      const endId = ACCOUNT_ID_RANGES[i + 1];
+      let offset = 0;
+      do {
+        const resp = await client.query({
+          query: gql(graphQueries.NotionalV3Accounts),
+          variables: {
+            size: size,
+            offset: offset,
+            startId: startId,
+            endId: endId,
+          },
+        });
+
         const accounts = resp.data['accounts'];
         if (accounts.length === 0) {
           break;
@@ -486,10 +504,10 @@ export default class DataService {
         );
 
         offset += accounts.length;
-      }
 
-      await new Promise((r) => setTimeout(r, this.settings.backfillDelayMs));
-    } while (1);
+        await new Promise((r) => setTimeout(r, this.settings.backfillDelayMs));
+      } while (1);
+    }
   }
 
   public async insertAccounts(network: Network, accountIds: string[]) {
@@ -567,5 +585,12 @@ export default class DataService {
       .select(['account_id', 'vault_id'])
       .from(DataService.VAULT_ACCOUNTS_TABLE_NAME)
       .where('network_id', this.networkToId(network));
+  }
+
+  public async readinessCheck() {
+    return this.db
+      .raw('SELECT 1')
+      .then(() => true)
+      .catch(() => false);
   }
 }

@@ -13,7 +13,7 @@ crons = ["0/2 * * * *"]
 name = "vault-liquidator-arbitrum"
 
 [env.arbitrum.vars]
-NX_DATA_URL = 'https://data-dev.notional.finance'
+NX_REGISTRY_URL = 'https://registry.notional.finance'
 ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultAccounts'
 NETWORK = 'arbitrum'
 FLASH_LIQUIDATOR_CONTRACTS = [
@@ -31,7 +31,7 @@ MAX_LIQUIDATIONS_PER_BATCH = 10
 name = "vault-liquidator-mainnet"
 
 [env.mainnet.vars]
-NX_DATA_URL = 'https://data-dev.notional.finance'
+NX_REGISTRY_URL = 'https://registry.notional.finance'
 ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultAccounts'
 NETWORK = 'mainnet'
 FLASH_LIQUIDATOR_CONTRACTS = [

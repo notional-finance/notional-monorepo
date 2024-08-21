@@ -92,6 +92,20 @@ const config: ConfigPerNetwork = {
         primaryBorrowCurrency: tokens.mainnet.GHO,
         rewardPoolType: RewardPoolType.ConvexMainnet,
       },
+      // GHO/USDe
+      {
+        address: '0xb1113cf888a019693b254da3d90f841072d85172',
+        gauge: '0x8eD00833BE7342608FaFDbF776a696afbFEaAe96',
+        primaryBorrowCurrency: tokens.mainnet.GHO,
+        rewardPoolType: RewardPoolType.Curve,
+      },
+      // rsETH/WETH
+      {
+        address: '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb',
+        gauge: '0x58AAdFB1Afac0ad7fca1148f3cdE6aEDF5236B6D',
+        primaryBorrowCurrency: tokens.mainnet.WETH,
+        rewardPoolType: RewardPoolType.Balancer,
+      },
     ],
   },
   [Network.arbitrum]: {
@@ -146,6 +160,7 @@ const config: ConfigPerNetwork = {
         primaryBorrowCurrency: tokens.arbitrum.USDC,
         rewardPoolType: RewardPoolType.Aura,
       },
+      // FRAX/USDCe
       {
         address: '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
         gauge: '0x93729702Bf9E1687Ae2124e191B8fFbcC0C8A0B0',
@@ -159,23 +174,29 @@ const config: ConfigPerNetwork = {
         primaryBorrowCurrency: tokens.arbitrum.WETH,
         rewardPoolType: RewardPoolType.Aura,
       },
-        // "rsETH_xWETH":
+      // "rsETH_xWETH":
       {
         address: '0xCAc9c01d1207e5D06bB0fD5b854832F35FE97E68',
         gauge: '0x90cedfdb5284a274720f1db339eee9798f4fa29d',
         primaryBorrowCurrency: tokens.arbitrum.WETH,
         rewardPoolType: RewardPoolType.Aura,
       },
-        // "cbETH_xwstETH_rETH":
+      // "cbETH_xwstETH_rETH":
       {
         address: '0x91B79F4081D3522Af2760B7698810d501eBC8010',
         gauge: '0x8ffd26d63724aea6a4208f2704d7ebebaa790f46',
         primaryBorrowCurrency: tokens.arbitrum.wstETH,
         rewardPoolType: RewardPoolType.Aura,
       },
+      // wstETH/WETH
+      {
+        address: '0x0e8c1a069f40d0e8fa861239d3e62003cbf3dcb2',
+        gauge: '0xa7bdad177d474f946f3cdeb4bcea9d24cf017471',
+        primaryBorrowCurrency: tokens.arbitrum.WETH,
+        rewardPoolType: RewardPoolType.Aura,
+      },
     ],
   },
 };
-
 
 export default config;

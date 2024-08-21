@@ -9,15 +9,11 @@ import {
 import { BigNumber } from 'ethers';
 import VaultV3Liquidator from './VaultV3Liquidator';
 import { MetricNames } from './types';
-import {
-  DDSeries,
-  Logger,
-  MetricType,
-} from '@notional-finance/util';
+import { DDSeries, Logger, MetricType } from '@notional-finance/util';
 import { formatUnits } from 'ethers/lib/utils';
 
 export interface Env {
-  NX_DATA_URL: string;
+  NX_REGISTRY_URL: string;
   ACCOUNT_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   NETWORK: Network;
@@ -139,7 +135,7 @@ const runSingleVault = async (vault: string, env: Env) => {
 
 const runAllVaults = async (env: Env) => {
   const allVaults = await (
-    await fetch(`https://data-dev.notional.finance/${env.NETWORK}/vaults`)
+    await fetch(`${env.NX_REGISTRY_URL}/${env.NETWORK}/vaults`)
   ).json();
 
   const logger = new Logger({

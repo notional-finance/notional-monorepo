@@ -56,11 +56,11 @@ export class RegistryClientDO extends DurableObject {
   }
 
   async getDataKey(key: string) {
-    return this.env.ACCOUNT_CACHE_R2.get(key).then((d) => d.json());
+    return this.env.VIEW_CACHE_R2.get(key).then((d) => d.json());
   }
 
   async putStorageKey(key: string, data: string) {
-    await this.env.ACCOUNT_CACHE_R2.put(key, data);
+    await this.env.VIEW_CACHE_R2.put(key, data);
   }
 
   async fetch(request: Request): Promise<Response> {
@@ -91,7 +91,7 @@ export class RegistryClientDO extends DurableObject {
   async _init() {
     Registry.initialize(
       this.env,
-      this.env.NX_DATA_URL,
+      this.env.NX_REGISTRY_URL,
       AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
       false,
       true,
@@ -838,10 +838,10 @@ export class RegistryClientDO extends DurableObject {
   }
 
   private async checkRiskServiceUpdates(network: Network) {
-    const vaultRisk = await this.env.ACCOUNT_CACHE_R2.head(
+    const vaultRisk = await this.env.VIEW_CACHE_R2.head(
       `${network}/accounts/vaultRisk`
     );
-    const portfolioRisk = await this.env.ACCOUNT_CACHE_R2.head(
+    const portfolioRisk = await this.env.VIEW_CACHE_R2.head(
       `${network}/accounts/portfolioRisk`
     );
     const lastUpdated = Math.min(
@@ -903,7 +903,7 @@ export class RegistryClientDO extends DurableObject {
 
   private async saveTotalsData() {
     const kpi = Registry.getAnalyticsRegistry().getKPIs();
-    await this.putStorageKey(`kpi`, JSON.stringify(kpi));
+    await this.putStorageKey(`all/kpi`, JSON.stringify(kpi));
 
     await this.logger.submitMetrics({
       series: [
