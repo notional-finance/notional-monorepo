@@ -113,3 +113,127 @@ export const TokenDefinitionModel = types.model('TokenDefinition', {
   isFCashDebt: types.maybe(types.boolean),
   currencyId: types.maybe(types.number),
 });
+
+const InterestRateCurveModel = types.model('InterestRateCurve', {
+  kinkUtilization1: types.number,
+  kinkUtilization2: types.number,
+  kinkRate1: types.number,
+  kinkRate2: types.number,
+  maxRate: types.number,
+  minFeeRate: types.number,
+  maxFeeRate: types.number,
+  feeRatePercent: types.number,
+});
+
+const IncentiveModel = types.model('Incentive', {
+  incentiveEmissionRate: types.maybeNull(types.string),
+  accumulatedNOTEPerNToken: types.maybeNull(types.string),
+  lastAccumulatedTime: types.maybeNull(types.string),
+  currentSecondaryReward: types.maybeNull(
+    types.model({
+      id: types.string,
+      symbol: types.string,
+    })
+  ),
+  secondaryIncentiveRewarder: types.maybeNull(types.string),
+  secondaryEmissionRate: types.maybeNull(types.string),
+  accumulatedSecondaryRewardPerNToken: types.maybeNull(types.string),
+  lastSecondaryAccumulatedTime: types.maybeNull(types.string),
+  secondaryRewardEndTime: types.maybeNull(types.string),
+});
+
+const CurrencyConfigurationModel = types.model('CurrencyConfiguration', {
+  id: types.identifier,
+  underlying: types.model({ id: types.string }),
+  pCash: types.model({ id: types.string }),
+  pDebt: types.model({ id: types.string }),
+  maxUnderlyingSupply: types.string,
+  collateralHaircut: types.number,
+  debtBuffer: types.number,
+  liquidationDiscount: types.number,
+  primeCashRateOracleTimeWindowSeconds: types.number,
+  primeCashHoldingsOracle: types.string,
+  primeCashCurve: InterestRateCurveModel,
+  primeDebtAllowed: types.boolean,
+  fCashRateOracleTimeWindowSeconds: types.maybeNull(types.number),
+  fCashReserveFeeSharePercent: types.maybeNull(types.number),
+  fCashDebtBufferBasisPoints: types.maybeNull(types.number),
+  fCashHaircutBasisPoints: types.maybeNull(types.number),
+  fCashMinOracleRate: types.maybeNull(types.number),
+  fCashMaxOracleRate: types.maybeNull(types.number),
+  fCashMaxDiscountFactor: types.maybeNull(types.number),
+  fCashLiquidationHaircutBasisPoints: types.maybeNull(types.number),
+  fCashLiquidationDebtBufferBasisPoints: types.maybeNull(types.number),
+  fCashActiveCurves: types.maybeNull(types.array(InterestRateCurveModel)),
+  fCashNextCurves: types.maybeNull(types.array(InterestRateCurveModel)),
+  treasuryReserveBuffer: types.maybeNull(types.string),
+  depositShares: types.maybeNull(types.array(types.number)),
+  leverageThresholds: types.maybeNull(types.array(types.number)),
+  proportions: types.maybeNull(types.array(types.number)),
+  residualPurchaseIncentiveBasisPoints: types.maybeNull(types.number),
+  residualPurchaseTimeBufferSeconds: types.maybeNull(types.number),
+  cashWithholdingBufferBasisPoints: types.maybeNull(types.number),
+  pvHaircutPercentage: types.maybeNull(types.number),
+  liquidationHaircutPercentage: types.maybeNull(types.number),
+  maxMintDeviationBasisPoints: types.maybeNull(types.number),
+  incentives: types.maybeNull(IncentiveModel),
+});
+
+const VaultConfigurationModel = types.model('VaultConfiguration', {
+  id: types.identifier,
+  vaultAddress: types.string,
+  strategy: types.string,
+  name: types.string,
+  primaryBorrowCurrency: types.model({
+    id: types.string,
+  }),
+  minAccountBorrowSize: types.string,
+  minCollateralRatioBasisPoints: types.number,
+  maxDeleverageCollateralRatioBasisPoints: types.number,
+  feeRateBasisPoints: types.number,
+  reserveFeeSharePercent: types.number,
+  liquidationRatePercent: types.number,
+  maxBorrowMarketIndex: types.number,
+  secondaryBorrowCurrencies: types.maybeNull(
+    types.array(
+      types.model({
+        id: types.string,
+      })
+    )
+  ),
+  maxRequiredAccountCollateralRatioBasisPoints: types.number,
+  enabled: types.boolean,
+  allowRollPosition: types.boolean,
+  onlyVaultEntry: types.boolean,
+  onlyVaultExit: types.boolean,
+  onlyVaultRoll: types.boolean,
+  onlyVaultDeleverage: types.boolean,
+  onlyVaultSettle: types.boolean,
+  discountfCash: types.boolean,
+  allowsReentrancy: types.boolean,
+  deleverageDisabled: types.boolean,
+  maxPrimaryBorrowCapacity: types.string,
+  totalUsedPrimaryBorrowCapacity: types.string,
+  maxSecondaryBorrowCapacity: types.maybeNull(types.string),
+  totalUsedSecondaryBorrowCapacity: types.maybeNull(types.string),
+  minAccountSecondaryBorrow: types.maybeNull(types.string),
+});
+
+const WhitelistedContractModel = types.model('WhitelistedContract', {
+  id: types.identifier,
+  name: types.string,
+  capability: types.array(
+    types.enumeration('WhitelistedCapability', [
+      'GlobalTransferOperator',
+      'AuthorizedCallbackContract',
+      'SecondaryIncentiveRewarder',
+      'DetachedSecondaryIncentiveRewarder',
+    ])
+  ),
+});
+
+export const ConfigurationModel = types.model('Configuration', {
+  currencyConfigurations: types.array(CurrencyConfigurationModel),
+  vaultConfigurations: types.array(VaultConfigurationModel),
+  whitelistedContracts: types.array(WhitelistedContractModel),
+});
