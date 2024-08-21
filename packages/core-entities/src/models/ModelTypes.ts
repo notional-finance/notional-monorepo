@@ -3,13 +3,7 @@ import { types } from 'mobx-state-tree';
 import { SerializedTokenBalance, TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
 import FixedPoint from '../exchanges/BalancerV2/fixed-point';
-import {
-  SerializedTokenDefinition,
-  SystemAccount,
-  TokenDefinition,
-  TokenInterface,
-  TokenType,
-} from '../Definitions';
+import { SystemAccount, TokenInterface, TokenType } from '../Definitions';
 
 export const NotionalTypes = {
   Network: types.enumeration<Network>('Network', Object.values(Network)),
@@ -100,27 +94,21 @@ export const NotionalTypes = {
       return '';
     },
   }),
-  TokenDefinition: types.custom<SerializedTokenDefinition, TokenDefinition>({
-    name: 'TokenDefinition',
-    fromSnapshot(value) {
-      return {
-        ...value,
-        totalSupply: value.totalSupply
-          ? TokenBalance.fromJSON(value.totalSupply)
-          : undefined,
-      } as TokenDefinition;
-    },
-    toSnapshot(value) {
-      return {
-        ...value,
-        totalSupply: value.totalSupply?.toJSON(),
-      } as SerializedTokenDefinition;
-    },
-    isTargetType(): boolean {
-      return true;
-    },
-    getValidationMessage() {
-      return '';
-    },
-  }),
 };
+
+export const TokenDefinitionModel = types.model('TokenDefinition', {
+  id: types.identifier,
+  address: types.string,
+  network: NotionalTypes.Network,
+  name: types.string,
+  symbol: types.string,
+  decimals: types.number,
+  tokenInterface: NotionalTypes.TokenInterface,
+  tokenType: NotionalTypes.TokenType,
+  totalSupply: types.maybe(NotionalTypes.TokenBalance),
+  underlying: types.maybe(types.string),
+  maturity: types.maybe(types.number),
+  vaultAddress: types.maybe(types.string),
+  isFCashDebt: types.maybe(types.boolean),
+  currencyId: types.maybe(types.number),
+});

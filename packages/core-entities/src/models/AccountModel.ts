@@ -1,13 +1,9 @@
 import { flow, types } from 'mobx-state-tree';
-import { NotionalTypes } from './ModelTypes';
+import { NotionalTypes, TokenDefinitionModel } from './ModelTypes';
 import { getProviderFromNetwork } from '@notional-finance/util';
 import { providers } from 'ethers';
 import { fetchCurrentAccount } from '../client/accounts/current-account';
-import { AccountDefinition, AccountHistory, CacheSchema } from '../Definitions';
-import { fetchGraph, loadGraphClientDeferred } from '../server/server-registry';
-import { parseTransaction } from '../client/accounts/transaction-history';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { Transaction } from '../.graphclient';
+import { AccountDefinition, CacheSchema } from '../Definitions';
 
 const AccountIncentiveDebtModel = types.model('AccountIncentiveDebt', {
   value: NotionalTypes.TokenBalance,
@@ -15,9 +11,9 @@ const AccountIncentiveDebtModel = types.model('AccountIncentiveDebt', {
 });
 
 const BalanceStatementModel = types.model('BalanceStatement', {
-  token: NotionalTypes.TokenDefinition,
+  token: TokenDefinitionModel,
   blockNumber: types.number,
-  underlying: types.late(() => NotionalTypes.TokenDefinition),
+  underlying: TokenDefinitionModel,
   currentBalance: NotionalTypes.TokenBalance,
   adjustedCostBasis: NotionalTypes.TokenBalance,
   totalILAndFees: NotionalTypes.TokenBalance,
@@ -38,8 +34,8 @@ const AccountHistoryModel = types.model('AccountHistory', {
   txnLabel: types.maybe(types.string),
   timestamp: types.number,
   blockNumber: types.number,
-  token: NotionalTypes.TokenDefinition,
-  underlying: NotionalTypes.TokenDefinition,
+  token: TokenDefinitionModel,
+  underlying: TokenDefinitionModel,
   tokenAmount: NotionalTypes.TokenBalance,
   bundleName: types.string,
   transactionHash: types.string,
@@ -152,32 +148,35 @@ export const AccountModel = types
       }
     });
 
-    const fetchTransaction = flow(function* () {
-      const { AccountTransactionHistoryDocument } =
-        yield loadGraphClientDeferred();
-      const result = yield fetchGraph(
-        self.network,
-        AccountTransactionHistoryDocument,
-        (r): Record<string, AccountHistory[]> => {
-          return {
-            [self.address.toLowerCase()]: r.transactions
-              ?.map((t) => {
-                return parseTransaction(t as Transaction, self.network);
-              })
-              .flatMap((_) => _),
-          };
-        },
-        '',
-        {
-          accountId: self.address.toLowerCase(),
-        }
-      );
-    });
+    // const fetchTransaction = flow(function* () {
+    //   const { AccountTransactionHistoryDocument } =
+    //     yield loadGraphClientDeferred();
+    //   // NOTE: yield does not infer types properly
+    //   const result = yield fetchGraph(
+    //     self.network,
+    //     AccountTransactionHistoryDocument,
+    //     (
+    //       r: AccountTransactionHistoryQuery
+    //     ): Record<string, AccountHistory[]> => {
+    //       return {
+    //         [self.address.toLowerCase()]: r.transactions
+    //           ?.map((t) => {
+    //             return parseTransaction(t as Transaction, self.network);
+    //           })
+    //           .flatMap((_) => _),
+    //       };
+    //     },
+    //     '',
+    //     {
+    //       accountId: self.address.toLowerCase(),
+    //     }
+    //   );
+    // });
 
     return {
       afterCreate: refreshAccount,
       refreshAccount,
-      fetchTransaction,
+      // fetchTransaction,
       setProvider: (p: providers.Provider) => {
         provider = p;
       },
