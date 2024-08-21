@@ -57,10 +57,13 @@ export function WalletSelector() {
 
   useEffect(() => {
     if (showAlert) {
-      setTimeout(() => {
+      const intervalId = setTimeout(() => {
         setShowAlert(false);
       }, 1000);
+
+      return () => clearInterval(intervalId);
     }
+    return;
   }, [showAlert, setShowAlert]);
 
   const handleCopy = () => {

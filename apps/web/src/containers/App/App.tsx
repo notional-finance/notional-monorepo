@@ -21,7 +21,7 @@ import { OnboardContext } from '@notional-finance/wallet';
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import { LendFixed, LendVariable } from '@notional-finance/lend-feature-shell';
-import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
+import { InitPortfolio } from '@notional-finance/portfolio-feature-shell';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import {
   BorrowFixed,
@@ -40,6 +40,7 @@ import {
   ContestHome,
   ContestRules,
   ContestSignUp,
+  InitPointsDashboard,
   ContestLeaderBoard,
 } from '../../containers/TradingContest';
 import { Markets } from '../Markets';
@@ -242,7 +243,7 @@ const AllRoutes = () => {
           element={
             <AppLayoutRoute
               path={`/portfolio/:selectedNetwork/:category/:sideDrawerKey/:selectedToken`}
-              component={PortfolioFeatureShell}
+              component={InitPortfolio}
               routeType="PortfolioTransaction"
             />
           }
@@ -252,7 +253,7 @@ const AllRoutes = () => {
           element={
             <AppLayoutRoute
               path={`/portfolio/:selectedNetwork/:category/:sideDrawerKey/:selectedToken/:action`}
-              component={PortfolioFeatureShell}
+              component={InitPortfolio}
               routeType="PortfolioTransaction"
             />
           }
@@ -262,7 +263,7 @@ const AllRoutes = () => {
           element={
             <AppLayoutRoute
               path={`/portfolio/:selectedNetwork/:category/:sideDrawerKey/:selectedToken/:action/:selectedCollateralToken`}
-              component={PortfolioFeatureShell}
+              component={InitPortfolio}
               routeType="PortfolioTransaction"
             />
           }
@@ -272,7 +273,7 @@ const AllRoutes = () => {
           element={
             <AppLayoutRoute
               path="/portfolio/:selectedNetwork/:category/:sideDrawerKey"
-              component={PortfolioFeatureShell}
+              component={InitPortfolio}
               routeType="PortfolioTransaction"
             />
           }
@@ -282,7 +283,7 @@ const AllRoutes = () => {
           element={
             <AppLayoutRoute
               path="/portfolio/:selectedNetwork/:category/"
-              component={PortfolioFeatureShell}
+              component={InitPortfolio}
               routeType="Portfolio"
             />
           }
@@ -292,7 +293,7 @@ const AllRoutes = () => {
           element={
             <AppLayoutRoute
               path="/portfolio/:selectedNetwork"
-              component={PortfolioFeatureShell}
+              component={InitPortfolio}
               routeType="Portfolio"
             />
           }
@@ -354,6 +355,16 @@ const AllRoutes = () => {
               path="/error"
               component={ServerError}
               routeType="Error"
+            />
+          }
+        />
+        <Route
+          path="/points-dashboard/:selectedNetwork"
+          element={
+            <AppLayoutRoute
+              path="/points-dashboard/:selectedNetwork"
+              component={InitPointsDashboard}
+              routeType="Contest"
             />
           }
         />

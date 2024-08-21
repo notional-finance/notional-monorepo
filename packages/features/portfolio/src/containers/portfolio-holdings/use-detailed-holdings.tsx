@@ -29,7 +29,6 @@ export function useDetailedHoldingsTable() {
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
-  // const arbPoints = useArbPoints();
   const navigate = useNavigate();
   const { baseCurrency } = useAppState();
   const fiatToken = useFiatToken();

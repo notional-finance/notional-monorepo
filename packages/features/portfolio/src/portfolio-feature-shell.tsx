@@ -20,12 +20,12 @@ import {
   PortfolioMobileNav,
   EmptyPortfolio,
 } from './components';
+import PortfolioHoldings from './containers/portfolio-holdings/portfolio-holdings';
 import {
   PortfolioOverview,
   PortfolioVaults,
   PortfolioTransactionHistory,
   PortfolioStateZero,
-  PortfolioHoldings,
   PortfolioNoteStaking,
 } from './containers';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
@@ -42,6 +42,17 @@ export interface PortfolioParams extends Record<string, string | undefined> {
   action?: string;
   selectedCollateralToken?: string;
 }
+
+const CustomHeader = ({ onClose }: any) => {
+  return (
+    <CustomHeaderContainer>
+      <SideBarSubHeader
+        callback={() => onClose()}
+        titleText={defineMessage({ defaultMessage: 'Back' })}
+      />
+    </CustomHeaderContainer>
+  );
+};
 
 export const PortfolioFeatureShell = () => {
   const theme = useTheme();
@@ -134,17 +145,6 @@ const Portfolio = () => {
         }`
       );
     }
-  };
-
-  const CustomHeader = ({ onClose }: any) => {
-    return (
-      <CustomHeaderContainer>
-        <SideBarSubHeader
-          callback={() => onClose()}
-          titleText={defineMessage({ defaultMessage: 'Back' })}
-        />
-      </CustomHeaderContainer>
-    );
   };
 
   return isAcctAndBalanceReady ? (
