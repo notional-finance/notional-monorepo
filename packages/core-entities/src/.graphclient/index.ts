@@ -1482,7 +1482,8 @@ export type DEX =
   | 'ZERO_EX'
   | 'BALANCER_V2'
   | 'CURVE'
-  | 'NOTIONAL_VAULT';
+  | 'NOTIONAL_VAULT'
+  | 'CURVE_V2';
 
 export type ExchangeRate = {
   /** External Oracle ID:Block Number:Transaction Hash */
@@ -9174,6 +9175,7 @@ export type ExternalLendingHistoryQuery = { externalLendings: Array<(
 export type HistoricalOracleValuesQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
   minTimestamp?: InputMaybe<Scalars['Int']>;
+  currentTimestamp?: InputMaybe<Scalars['BigInt']>;
 }>;
 
 
@@ -9868,9 +9870,9 @@ export const ExternalLendingHistoryDocument = gql`
 }
     ` as unknown as DocumentNode<ExternalLendingHistoryQuery, ExternalLendingHistoryQueryVariables>;
 export const HistoricalOracleValuesDocument = gql`
-    query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
+    query HistoricalOracleValues($skip: Int, $minTimestamp: Int, $currentTimestamp: BigInt) {
   oracles(
-    where: {oracleType_in: [Chainlink, fCashSettlementRate, nTokenToUnderlyingExchangeRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, fCashOracleRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, nTokenBlendedInterestRate, nTokenFeeRate, nTokenIncentiveRate, nTokenSecondaryIncentiveRate], matured: false}
+    where: {oracleType_in: [Chainlink, fCashSettlementRate, nTokenToUnderlyingExchangeRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, fCashOracleRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, nTokenBlendedInterestRate, nTokenFeeRate, nTokenIncentiveRate, nTokenSecondaryIncentiveRate], matured: false, quote_: {maturity_gt: $currentTimestamp}}
     first: 1000
     skip: $skip
   ) {

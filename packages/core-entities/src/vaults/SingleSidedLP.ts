@@ -22,6 +22,8 @@ export interface SingleSidedLPParams extends BaseVaultParams {
   totalLPTokens: TokenBalance;
   totalVaultShares: BigNumber;
   secondaryTradeParams: string;
+  maxPoolShare: BigNumber;
+  totalPoolSupply?: TokenBalance;
 }
 
 export interface TradeParams {
@@ -57,6 +59,8 @@ export class SingleSidedLP extends VaultAdapter {
   // This does not have a token balance because maturity is unset
   public totalVaultShares: BigNumber;
   public secondaryTradeParams: string;
+  public maxPoolShare: BigNumber;
+  public totalPoolSupply: TokenBalance | undefined;
 
   get strategy() {
     return 'SingleSidedLP';
@@ -89,6 +93,8 @@ export class SingleSidedLP extends VaultAdapter {
     this.totalLPTokens = p.totalLPTokens;
     this.totalVaultShares = p.totalVaultShares;
     this.secondaryTradeParams = p.secondaryTradeParams;
+    this.maxPoolShare = p.maxPoolShare;
+    this.totalPoolSupply = p.totalPoolSupply;
 
     this._initOracles(network, vaultAddress.toLowerCase());
   }
@@ -100,6 +106,13 @@ export class SingleSidedLP extends VaultAdapter {
       this.totalVaultShares.toHexString(),
       this.singleSidedTokenIndex.toString(),
     ].join(':');
+  }
+
+  public isOverMaxPoolShare() {
+    const poolShare = this.totalPoolSupply
+      ? this.totalLPTokens.ratioWith(this.totalPoolSupply).toNumber()
+      : 0;
+    return poolShare > (this.maxPoolShare.toNumber() * RATE_PRECISION) / 1000;
   }
 
   private getVaultSharesToLPTokens(vaultShares: TokenBalance) {
@@ -165,7 +178,7 @@ export class SingleSidedLP extends VaultAdapter {
 
       const vaultTVL = this.getVaultTVL();
       const arbReinvestInPrimary = TokenBalance.fromFloat(
-        386.4,
+        466.4,
         Registry.getTokenRegistry().getTokenBySymbol(this.network, 'ARB')
       ).toToken(vaultTVL.token);
       const arbAPY =
