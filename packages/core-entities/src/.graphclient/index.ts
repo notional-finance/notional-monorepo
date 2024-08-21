@@ -9175,7 +9175,6 @@ export type ExternalLendingHistoryQuery = { externalLendings: Array<(
 export type HistoricalOracleValuesQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
   minTimestamp?: InputMaybe<Scalars['Int']>;
-  currentTimestamp?: InputMaybe<Scalars['BigInt']>;
 }>;
 
 
@@ -9870,9 +9869,9 @@ export const ExternalLendingHistoryDocument = gql`
 }
     ` as unknown as DocumentNode<ExternalLendingHistoryQuery, ExternalLendingHistoryQueryVariables>;
 export const HistoricalOracleValuesDocument = gql`
-    query HistoricalOracleValues($skip: Int, $minTimestamp: Int, $currentTimestamp: BigInt) {
+    query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
   oracles(
-    where: {oracleType_in: [Chainlink, fCashSettlementRate, nTokenToUnderlyingExchangeRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, fCashOracleRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, nTokenBlendedInterestRate, nTokenFeeRate, nTokenIncentiveRate, nTokenSecondaryIncentiveRate], matured: false, quote_: {maturity_gt: $currentTimestamp}}
+    where: {oracleType_in: [Chainlink, fCashSettlementRate, nTokenToUnderlyingExchangeRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, fCashOracleRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, nTokenBlendedInterestRate, nTokenFeeRate, nTokenIncentiveRate, nTokenSecondaryIncentiveRate], matured: false}
     first: 1000
     skip: $skip
   ) {

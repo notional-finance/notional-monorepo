@@ -151,11 +151,11 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         if (results[`${k}.pool.actualSupply`]) {
           // This will exist for Balancer pools
           metadata['totalPoolSupply'] = results[`${k}.pool.actualSupply`] as
-            | BigNumber
+            | TokenBalance
             | undefined;
         } else {
           metadata['totalPoolSupply'] = results[`${k}.pool.totalSupply`] as
-            | BigNumber
+            | TokenBalance
             | undefined;
         }
 

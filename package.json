@@ -91,7 +91,6 @@
     "sha256": "^0.2.0",
     "string-width": "^4.2.3",
     "slick-carousel": "^1.8.1",
-    "string-width": "^4.2.3",
     "tslib": "^2.3.0",
     "use-query-params": "^2.2.1",
     "yarn": "^1.22.19"
