@@ -237,3 +237,26 @@ export const ConfigurationModel = types.model('Configuration', {
   vaultConfigurations: types.array(VaultConfigurationModel),
   whitelistedContracts: types.array(WhitelistedContractModel),
 });
+
+const PoolDataModel = types
+  .model('PoolData', {
+    balances: types.array(NotionalTypes.TokenBalance),
+    totalSupply: NotionalTypes.TokenBalance,
+    // NOTE: these need to be parsed inside each exchange type
+    poolParams: types.string,
+  })
+  .preProcessSnapshot((snapshot) => ({
+    ...snapshot,
+    poolParams:
+      typeof snapshot.poolParams === 'string'
+        ? snapshot.poolParams
+        : JSON.stringify(snapshot.poolParams),
+  }));
+
+export const ExchangeModel = types.model('Exchange', {
+  address: types.identifier,
+  PoolClass: types.string,
+  latestPoolData: types.maybe(PoolDataModel),
+  registerTokens: types.array(TokenDefinitionModel),
+  earliestBlock: types.maybe(types.number),
+});
