@@ -14,7 +14,6 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import {
-  useArbPoints,
   usePortfolioHoldings,
   useTotalArbPoints,
   useVaultHoldings,
@@ -29,12 +28,12 @@ import {
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useCurrentSeason } from '../points-dashboard-constants';
+import { ArbPointsType } from '@notional-finance/notionable';
 
-export const useMyBreakdownTable = () => {
+export const useMyBreakdownTable = (arbPoints: ArbPointsType[]) => {
   const theme = useTheme();
   const portfolioHoldings = usePortfolioHoldings(Network.arbitrum);
   const vaultHoldings = useVaultHoldings(Network.arbitrum);
-  const arbPoints = useArbPoints();
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
 
@@ -167,7 +166,6 @@ export const useMyBreakdownTable = () => {
 
       const boostNum = getArbBoosts(b.token, isDebt);
       const pointsPerDay = getPointsPerDay(b);
-
       const totalPoints =
         arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
 

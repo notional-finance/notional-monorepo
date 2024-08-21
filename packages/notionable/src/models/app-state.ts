@@ -13,12 +13,7 @@ const HeroStats = types
   .actions((self) => ({
     fetchKpiData: flow(function* () {
       try {
-        const response = yield fetch(
-          `${
-            process.env['NX_REGISTRY_URL'] ||
-            'https://registry.notional.finance'
-          }/all/kpi`
-        );
+        const response = yield fetch(`${process.env['NX_DATA_URL']}/kpi`);
         const data = yield response.json();
         self.totalAccounts = data.totalAccounts;
         self.totalDeposits = data.totalDeposits;
