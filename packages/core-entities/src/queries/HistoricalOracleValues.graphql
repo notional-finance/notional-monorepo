@@ -1,4 +1,4 @@
-query HistoricalOracleValues($skip: Int, $minTimestamp: Int, $currentTimestamp: BigInt) {
+query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
   oracles(where:{
     oracleType_in:[
       Chainlink
@@ -17,9 +17,7 @@ query HistoricalOracleValues($skip: Int, $minTimestamp: Int, $currentTimestamp: 
       nTokenSecondaryIncentiveRate
     ],
     matured: false,
-    quote_: { maturity_gt: $currentTimestamp }},
-    first: 1000, skip: $skip
-  ) {
+  }, first: 1000, skip: $skip) {
     id
     base { id }
     quote { id }
