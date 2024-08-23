@@ -262,7 +262,7 @@ export function RollVault({
 
   const debtBalanceNum =
     debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
-      ? debtBalance.toUnderlying().neg().n
+      ? debtBalance.toUnderlying().neg().scaleTo(INTERNAL_TOKEN_DECIMALS)
       : debtBalance.neg().n;
 
   const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
