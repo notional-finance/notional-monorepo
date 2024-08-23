@@ -50,6 +50,7 @@ interface VaultState {
   underMinAccountBorrow?: boolean;
   minBorrowSize?: string;
   overCapacityError?: boolean;
+  totalPoolCapacity?: TokenBalance;
   totalCapacityRemaining?: TokenBalance;
   vaultTVL?: TokenBalance;
 }
