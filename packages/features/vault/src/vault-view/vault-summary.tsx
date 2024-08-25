@@ -24,7 +24,7 @@ export const VaultSummary = () => {
   const {
     vaultAddress,
     totalCapacityRemaining,
-    totalPoolCapacity,
+    totalPoolCapacityRemaining,
     selectedNetwork,
     collateral,
     deposit,
@@ -64,8 +64,10 @@ export const VaultSummary = () => {
     },
     {
       title: 'Remaining Pool Capacity',
-      value: totalPoolCapacity?.isNegative() ? 0 : totalPoolCapacity?.toFloat(),
-      suffix: ` ${totalPoolCapacity?.symbol || ''}`,
+      value: totalPoolCapacityRemaining?.isNegative()
+        ? 0
+        : totalPoolCapacityRemaining?.toFloat(),
+      suffix: ` ${totalPoolCapacityRemaining?.symbol || ''}`,
       decimals: 0,
     },
   ];

@@ -52,6 +52,8 @@ export interface DepositParams {
 }
 
 export class SingleSidedLP extends VaultAdapter {
+  POOL_CAPACITY_PRECISION = 100000;
+
   // We should make a method that just returns all of these...
   public pool: BaseLiquidityPool<unknown>; // hardcoded probably?
   public singleSidedTokenIndex: number;
@@ -108,16 +110,25 @@ export class SingleSidedLP extends VaultAdapter {
     ].join(':');
   }
 
-  public getPoolCapacity() {
+  public getRemainingPoolCapacity() {
     const vaultShare = Registry.getTokenRegistry().getVaultShare(
       this.network,
       this.vaultAddress,
       PRIME_CASH_VAULT_MATURITY
     );
-    const maxLPTokens = this.totalPoolSupply?.scale(this.maxPoolShares, 100000);
+    const maxLPTokens = this.totalPoolSupply?.scale(
+      this.maxPoolShares,
+      this.POOL_CAPACITY_PRECISION
+    );
+    const remainingLPTokens = maxLPTokens
+      ? maxLPTokens.sub(this.totalLPTokens)
+      : undefined;
 
-    return maxLPTokens
-      ? this.getLPTokensToVaultShares(maxLPTokens, vaultShare).toUnderlying()
+    return remainingLPTokens
+      ? this.getLPTokensToVaultShares(
+          remainingLPTokens,
+          vaultShare
+        ).toUnderlying()
       : undefined;
   }
 
@@ -132,7 +143,11 @@ export class SingleSidedLP extends VaultAdapter {
           .ratioWith(this.totalPoolSupply)
           .toNumber()
       : 0;
-    return poolShare > (this.maxPoolShares.toNumber() * RATE_PRECISION) / 1000;
+    return (
+      poolShare >
+      (this.maxPoolShares.toNumber() * RATE_PRECISION) /
+        this.POOL_CAPACITY_PRECISION
+    );
   }
 
   private getVaultSharesToLPTokens(vaultShares: TokenBalance) {

@@ -55,7 +55,7 @@ export function vaultCapacity(
             : undefined;
 
         let totalCapacityRemaining: TokenBalance | undefined;
-        let totalPoolCapacity: TokenBalance | undefined;
+        let totalPoolCapacityRemaining: TokenBalance | undefined;
         let overCapacityError = false;
         let minBorrowSize: string | undefined = undefined;
         let underMinAccountBorrow = false;
@@ -109,7 +109,7 @@ export function vaultCapacity(
           totalCapacityRemaining = maxPrimaryBorrowCapacity.sub(
             totalUsedPrimaryBorrowCapacity
           );
-          totalPoolCapacity = vaultAdapter?.getPoolCapacity();
+          totalPoolCapacityRemaining = vaultAdapter?.getRemainingPoolCapacity();
 
           // NOTE: these two values below do not need to be recalculated inside the observable
           minBorrowSize =
@@ -136,7 +136,7 @@ export function vaultCapacity(
           overCapacityError,
           underMinAccountBorrow,
           totalCapacityRemaining,
-          totalPoolCapacity,
+          totalPoolCapacityRemaining,
           vaultTVL,
           vaultCapacityError:
             tradeType === 'WithdrawVault'
