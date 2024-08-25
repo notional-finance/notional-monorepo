@@ -1,51 +1,51 @@
----
-- name: risk-service
-  schedule: "*/10 * * * *"
-  httpTarget:
-    uri: "PLACEHOLDER_URL/calculateRisk"
-    httpMethod: GET
+# ---
+# - name: risk-service
+#   schedule: "*/10 * * * *"
+#   httpTarget:
+#     uri: "PLACEHOLDER_URL/calculateRisk"
+#     httpMethod: GET
 
-- name: sync-dune
-  schedule: "30 1 * * *"
-  httpTarget:
-    uri: "PLACEHOLDER_URL/syncDune"
-    httpMethod: GET
-  retryConfig:
-    retryCount: 1
-    minBackoffDuration: 1800s
+# - name: sync-dune
+#   schedule: "30 1 * * *"
+#   httpTarget:
+#     uri: "PLACEHOLDER_URL/syncDune"
+#     httpMethod: GET
+#   retryConfig:
+#     retryCount: 1
+#     minBackoffDuration: 1800s
 
-- name: calculate-points
-  schedule: "5 1 * * *"
-  httpTarget:
-    uri: "PLACEHOLDER_URL/calculatePoints"
-    httpMethod: GET
-  retryConfig:
-    retryCount: 2
-    minBackoffDuration: 1800s
+# - name: calculate-points
+#   schedule: "5 1 * * *"
+#   httpTarget:
+#     uri: "PLACEHOLDER_URL/calculatePoints"
+#     httpMethod: GET
+#   retryConfig:
+#     retryCount: 2
+#     minBackoffDuration: 1800s
 
-- name: sync-generic-data
-  schedule: "0 * * * *"
-  httpTarget:
-    uri: "PLACEHOLDER_URL/syncGenericData"
-    httpMethod: GET
+# - name: sync-generic-data
+#   schedule: "0 * * * *"
+#   httpTarget:
+#     uri: "PLACEHOLDER_URL/syncGenericData"
+#     httpMethod: GET
 
-- name: sync-oracle-data
-  schedule: "0 * * * *"
-  httpTarget:
-    uri: "PLACEHOLDER_URL/syncOracleData"
-    httpMethod: GET
+# - name: sync-oracle-data
+#   schedule: "0 * * * *"
+#   httpTarget:
+#     uri: "PLACEHOLDER_URL/syncOracleData"
+#     httpMethod: GET
 
-- name: sync-accounts-arbitrum
-  schedule: "*/20 * * * *"
-  httpTarget:
-    uri: "PLACEHOLDER_URL/syncAccounts?network=arbitrum"
-    httpMethod: GET
+# - name: sync-accounts-arbitrum
+#   schedule: "*/20 * * * *"
+#   httpTarget:
+#     uri: "PLACEHOLDER_URL/syncAccounts?network=arbitrum"
+#     httpMethod: GET
 
-- name: sync-accounts-mainnet
-  schedule: "*/20 * * * *"
-  httpTarget:
-    uri: "PLACEHOLDER_URL/syncAccounts?network=mainnet"
-    httpMethod: GET
+# - name: sync-accounts-mainnet
+#   schedule: "*/20 * * * *"
+#   httpTarget:
+#     uri: "PLACEHOLDER_URL/syncAccounts?network=mainnet"
+#     httpMethod: GET
 
 - name: sync-vault-accounts-arbitrum
   schedule: "*/20 * * * *"

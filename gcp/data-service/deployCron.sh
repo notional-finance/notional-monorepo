@@ -14,7 +14,7 @@ format_secrets() {
         # Trim leading/trailing whitespace
         key=$(echo $key | xargs)
         value=$(echo $value | xargs)
-        result+="--set-secrets=$key=$value,"
+        result+="$key=$value,"
     done < "$file"
     echo "${result%,}"  # Remove trailing comma
 }
@@ -29,7 +29,7 @@ gcloud run deploy $SERVICE_NAME \
   --platform managed \
   --region=$REGION \
   --env-vars-file=cron-vars.yaml \
-  $SECRETS \
+  --set-secrets="$SECRETS" \
   --add-cloudsql-instances=monitoring-agents:us-central1:notional
 
 
