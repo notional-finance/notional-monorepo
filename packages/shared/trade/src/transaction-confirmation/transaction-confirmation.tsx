@@ -135,7 +135,7 @@ export const TransactionConfirmation = ({
           />
         </Box>
       )}
-      {simulationError && (
+      {/* {simulationError && (
         <Box sx={{ marginBottom: theme.spacing(6) }}>
           <ErrorMessage
             variant="warning"
@@ -143,7 +143,7 @@ export const TransactionConfirmation = ({
             message={simulationError}
           />
         </Box>
-      )}
+      )} */}
       {(transactionStatus === TransactionStatus.NONE ||
         transactionStatus === TransactionStatus.WAIT_USER_CONFIRM) &&
         transactionError === undefined && <PortfolioCompare state={state} />}
