@@ -46,7 +46,6 @@ export const TransactionConfirmation = ({
   const {
     populatedTransaction,
     transactionError,
-    simulationError,
     debt,
     collateral,
     tradeType,
