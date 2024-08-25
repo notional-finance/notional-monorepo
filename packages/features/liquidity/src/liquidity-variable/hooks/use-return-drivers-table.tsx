@@ -44,10 +44,13 @@ export const useReturnDriversTable = () => {
   };
 
   const formattedFCashData = fCashData?.balances?.map((balance) => {
-    const apy =
+    let apy =
       fCashData.getSpotInterestRate(balance.token) !== undefined
         ? fCashData.getSpotInterestRate(balance.token)
         : 0;
+    // If the balance is negative then the apy is negative
+    if (balance.isNegative() && apy) apy = -apy;
+
     return {
       asset: {
         symbol: handleTokenType(balance.tokenType),

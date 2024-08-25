@@ -22,7 +22,7 @@ export interface SingleSidedLPParams extends BaseVaultParams {
   totalLPTokens: TokenBalance;
   totalVaultShares: BigNumber;
   secondaryTradeParams: string;
-  maxPoolShare: BigNumber;
+  maxPoolShares: BigNumber;
   totalPoolSupply?: TokenBalance;
 }
 
@@ -52,6 +52,8 @@ export interface DepositParams {
 }
 
 export class SingleSidedLP extends VaultAdapter {
+  POOL_CAPACITY_PRECISION = 100000;
+
   // We should make a method that just returns all of these...
   public pool: BaseLiquidityPool<unknown>; // hardcoded probably?
   public singleSidedTokenIndex: number;
@@ -59,7 +61,7 @@ export class SingleSidedLP extends VaultAdapter {
   // This does not have a token balance because maturity is unset
   public totalVaultShares: BigNumber;
   public secondaryTradeParams: string;
-  public maxPoolShare: BigNumber;
+  public maxPoolShares: BigNumber;
   public totalPoolSupply: TokenBalance | undefined;
 
   get strategy() {
@@ -93,7 +95,7 @@ export class SingleSidedLP extends VaultAdapter {
     this.totalLPTokens = p.totalLPTokens;
     this.totalVaultShares = p.totalVaultShares;
     this.secondaryTradeParams = p.secondaryTradeParams;
-    this.maxPoolShare = p.maxPoolShare;
+    this.maxPoolShares = p.maxPoolShares;
     this.totalPoolSupply = p.totalPoolSupply;
 
     this._initOracles(network, vaultAddress.toLowerCase());
@@ -108,11 +110,45 @@ export class SingleSidedLP extends VaultAdapter {
     ].join(':');
   }
 
-  public isOverMaxPoolShare() {
+  public getRemainingPoolCapacity() {
+    if (this.totalPoolSupply) {
+      const vaultShare = Registry.getTokenRegistry().getVaultShare(
+        this.network,
+        this.vaultAddress,
+        PRIME_CASH_VAULT_MATURITY
+      );
+      const maxLPTokens = this.totalPoolSupply.scale(
+        this.maxPoolShares,
+        this.POOL_CAPACITY_PRECISION
+      );
+      const remainingLPTokens = maxLPTokens.sub(this.totalLPTokens);
+
+      // Convert to vault shares in order to get the underlying value
+      return this.getLPTokensToVaultShares(
+        remainingLPTokens,
+        vaultShare
+      ).toUnderlying();
+    }
+
+    return undefined;
+  }
+
+  public isOverMaxPoolShare(vaultShares?: TokenBalance) {
+    const additionalLPTokens = vaultShares
+      ? this.getVaultSharesToLPTokens(vaultShares)
+      : TokenBalance.zero(this.totalLPTokens.token);
+
     const poolShare = this.totalPoolSupply
-      ? this.totalLPTokens.ratioWith(this.totalPoolSupply).toNumber()
+      ? this.totalLPTokens
+          .add(additionalLPTokens)
+          .ratioWith(this.totalPoolSupply)
+          .toNumber()
       : 0;
-    return poolShare > (this.maxPoolShare.toNumber() * RATE_PRECISION) / 1000;
+    return (
+      poolShare >
+      (this.maxPoolShares.toNumber() * RATE_PRECISION) /
+        this.POOL_CAPACITY_PRECISION
+    );
   }
 
   private getVaultSharesToLPTokens(vaultShares: TokenBalance) {

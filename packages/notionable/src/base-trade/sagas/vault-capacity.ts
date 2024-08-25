@@ -33,7 +33,13 @@ export function vaultCapacity(
     map(
       ([
         _,
-        { debtBalance, vaultAddress, priorVaultBalances, tradeType },
+        {
+          debtBalance,
+          vaultAddress,
+          priorVaultBalances,
+          tradeType,
+          collateralBalance,
+        },
         network,
       ]) => {
         const vaultCapacity =
@@ -43,8 +49,13 @@ export function vaultCapacity(
                 vaultAddress
               )
             : undefined;
+        const vaultAdapter =
+          network && vaultAddress
+            ? Registry.getVaultRegistry().getVaultAdapter(network, vaultAddress)
+            : undefined;
 
         let totalCapacityRemaining: TokenBalance | undefined;
+        let totalPoolCapacityRemaining: TokenBalance | undefined;
         let overCapacityError = false;
         let minBorrowSize: string | undefined = undefined;
         let underMinAccountBorrow = false;
@@ -84,16 +95,21 @@ export function vaultCapacity(
               ? toCapacityValue(totalAccountDebt)
               : undefined;
 
-          overCapacityError =
-            // Skip over capacity error when debt balance is positive (repaying debt)
-            netDebtBalanceForCapacity && debtBalance?.isNegative()
-              ? totalUsedPrimaryBorrowCapacity
-                  .add(netDebtBalanceForCapacity)
-                  .gt(maxPrimaryBorrowCapacity)
-              : false;
-          totalCapacityRemaining = overCapacityError
-            ? undefined
-            : maxPrimaryBorrowCapacity.sub(totalUsedPrimaryBorrowCapacity);
+          if (netDebtBalanceForCapacity && debtBalance?.isNegative()) {
+            overCapacityError =
+              // Over capacity due to borrow
+              totalUsedPrimaryBorrowCapacity
+                .add(netDebtBalanceForCapacity)
+                .gt(maxPrimaryBorrowCapacity) ||
+              // Over capacity due to max pool share
+              vaultAdapter?.isOverMaxPoolShare(collateralBalance) ||
+              false;
+          }
+
+          totalCapacityRemaining = maxPrimaryBorrowCapacity.sub(
+            totalUsedPrimaryBorrowCapacity
+          );
+          totalPoolCapacityRemaining = vaultAdapter?.getRemainingPoolCapacity();
 
           // NOTE: these two values below do not need to be recalculated inside the observable
           minBorrowSize =
@@ -120,6 +136,7 @@ export function vaultCapacity(
           overCapacityError,
           underMinAccountBorrow,
           totalCapacityRemaining,
+          totalPoolCapacityRemaining,
           vaultTVL,
           vaultCapacityError:
             tradeType === 'WithdrawVault'
