@@ -111,25 +111,26 @@ export class SingleSidedLP extends VaultAdapter {
   }
 
   public getRemainingPoolCapacity() {
-    const vaultShare = Registry.getTokenRegistry().getVaultShare(
-      this.network,
-      this.vaultAddress,
-      PRIME_CASH_VAULT_MATURITY
-    );
-    const maxLPTokens = this.totalPoolSupply?.scale(
-      this.maxPoolShares,
-      this.POOL_CAPACITY_PRECISION
-    );
-    const remainingLPTokens = maxLPTokens
-      ? maxLPTokens.sub(this.totalLPTokens)
-      : undefined;
+    if (this.totalPoolSupply) {
+      const vaultShare = Registry.getTokenRegistry().getVaultShare(
+        this.network,
+        this.vaultAddress,
+        PRIME_CASH_VAULT_MATURITY
+      );
+      const maxLPTokens = this.totalPoolSupply.scale(
+        this.maxPoolShares,
+        this.POOL_CAPACITY_PRECISION
+      );
+      const remainingLPTokens = maxLPTokens.sub(this.totalLPTokens);
 
-    return remainingLPTokens
-      ? this.getLPTokensToVaultShares(
-          remainingLPTokens,
-          vaultShare
-        ).toUnderlying()
-      : undefined;
+      // Convert to vault shares in order to get the underlying value
+      return this.getLPTokensToVaultShares(
+        remainingLPTokens,
+        vaultShare
+      ).toUnderlying();
+    }
+
+    return undefined;
   }
 
   public isOverMaxPoolShare(vaultShares?: TokenBalance) {
