@@ -2,9 +2,15 @@
 set -e
 
 # Set your Google Cloud project ID
+PROJECT_ID="monitoring-agents"
 REGION="us-central1"
 SERVICE_NAME="cron-service"
 IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME:latest"
+
+# Build and push Docker image to GCR
+echo "Building and pushing Docker image to GCR..."
+docker build -t $IMAGE_NAME .
+docker push $IMAGE_NAME
 
 # Function to read YAML file and format secrets for gcloud command
 format_secrets() {
