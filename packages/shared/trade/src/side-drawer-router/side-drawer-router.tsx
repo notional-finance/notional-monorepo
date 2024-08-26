@@ -10,7 +10,6 @@ import {
   getComparisonKey,
 } from '@notional-finance/notionable';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
-import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useEffect } from 'react';
 import { defineMessage } from 'react-intl';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -69,14 +68,7 @@ export const SideDrawerRouter = ({
     action,
   ]);
 
-  const { clearSideDrawer } = useSideDrawerManager();
-
-  useEffect(() => {
-    clearSideDrawer();
-  }, [clearSideDrawer]);
-
   const route = routes.find((r) => r.slug === action);
-  console.log('found route', route);
 
   return (
     <Drawer size="large">
