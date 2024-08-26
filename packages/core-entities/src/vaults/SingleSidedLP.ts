@@ -52,7 +52,7 @@ export interface DepositParams {
 }
 
 export class SingleSidedLP extends VaultAdapter {
-  POOL_CAPACITY_PRECISION = 100000;
+  POOL_CAPACITY_PRECISION = 10_000;
 
   // We should make a method that just returns all of these...
   public pool: BaseLiquidityPool<unknown>; // hardcoded probably?
