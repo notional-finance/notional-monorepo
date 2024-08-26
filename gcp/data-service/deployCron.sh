@@ -45,18 +45,47 @@ gcloud run deploy $SERVICE_NAME \
 # Get the URL of the deployed service
 SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --platform managed --region $REGION --format 'value(status.url)')
 
-gcloud scheduler jobs update http sync-vault-accounts-arbitrum \
-  --location=$REGION \
-  --schedule="*/20 * * * *" \
-  --uri="${SERVICE_URL}/syncVaultAccounts?network=arbitrum" \
-  --http-method=GET \
-  --update-headers="x-auth-token=${DATA_SERVICE_AUTH_TOKEN}"
+# Function to update a scheduler job
+update_scheduler_job() {
+    local name=$1
+    local schedule=$2
+    local uri=$3
+    local retry_count=${4:-0}
+    local min_backoff=${5:-""}
 
-gcloud scheduler jobs create http sync-vault-accounts-mainnet \
-  --location=$REGION \
-  --schedule="*/20 * * * *" \
-  --uri="${SERVICE_URL}/syncVaultAccounts?network=mainnet" \
-  --http-method=GET \
-  --update-headers="x-auth-token=${DATA_SERVICE_AUTH_TOKEN}"
+    local retry_args=""
+    if [ $retry_count -gt 0 ]; then
+        retry_args="--retry-count=$retry_count"
+        if [ ! -z "$min_backoff" ]; then
+            retry_args="$retry_args --min-backoff-duration=$min_backoff"
+        fi
+    fi
 
-echo "Deployment and scheduler job creation completed."
+    gcloud scheduler jobs update http $name \
+      --location=$REGION \
+      --schedule="$schedule" \
+      --uri="${SERVICE_URL}${uri}" \
+      --http-method=GET \
+      $retry_args
+}
+
+# Update scheduler jobs based on cron.yaml
+update_scheduler_job "risk-service" "*/10 * * * *" "/calculateRisk"
+update_scheduler_job "sync-dune" "30 1 * * *" "/syncDune" 1 "1800s"
+update_scheduler_job "calculate-points" "5 1 * * *" "/calculatePoints" 2 "1800s"
+update_scheduler_job "sync-generic-data" "0 * * * *" "/syncGenericData"
+update_scheduler_job "sync-oracle-data" "0 * * * *" "/syncOracleData"
+update_scheduler_job "sync-accounts-arbitrum" "*/20 * * * *" "/syncAccounts?network=arbitrum"
+update_scheduler_job "sync-accounts-mainnet" "*/20 * * * *" "/syncAccounts?network=mainnet"
+update_scheduler_job "sync-vault-accounts-arbitrum" "*/20 * * * *" "/syncVaultAccounts?network=arbitrum"
+update_scheduler_job "sync-vault-accounts-mainnet" "*/20 * * * *" "/syncVaultAccounts?network=mainnet"
+
+echo "Scheduler jobs updated."
+
+# Create a new scheduler job using:
+#    gcloud scheduler jobs create http $JOB_NAME \
+#      --location=us-central1 \
+#      --schedule="*/20 * * * *" \
+#      --uri="https://${SERVICE_URL}/syncVaultAccounts?network=arbitrum" \
+#      --http-method=GET \
+#      --update-headers="x-auth-token=${DATA_SERVICE_AUTH_TOKEN}"
