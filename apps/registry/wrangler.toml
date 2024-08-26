@@ -6,6 +6,22 @@ node_compat = true
 minify = true
 logpush = true
 
+[env.dev]
+name = "registry-dev"
+r2_buckets = [
+  { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev" },
+]
+
+[env.dev.triggers]
+crons = [
+  "*/10 * * * *"
+]
+
+[env.dev.vars]
+NX_ENV = 'dev'
+SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]
+DATA_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com'
+
 [env.prod]
 name = "registry-prod"
 r2_buckets = [
