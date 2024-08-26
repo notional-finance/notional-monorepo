@@ -130,14 +130,6 @@ export function useAccountNetWorth() {
   }, {} as Record<Network, TokenBalance>);
 }
 
-export function useArbPoints() {
-  const {
-    globalState: { arbPoints },
-  } = useNotionalContext();
-
-  return arbPoints;
-}
-
 export function useTotalArbPoints() {
   const [totalPoints, setTotalPoints] = useState<{
     [SEASONS.SEASON_ONE]: number;

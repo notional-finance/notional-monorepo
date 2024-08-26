@@ -162,7 +162,10 @@ const processBalancer = async (
   blockNumber: number,
   provider: Provider
 ) => {
-  if (vaultData.rewardPoolType !== RewardPoolType.Aura) {
+  if (
+    vaultData.rewardPoolType !== RewardPoolType.Aura &&
+    vaultData.rewardPoolType !== RewardPoolType.Balancer
+  ) {
     throw new Error('Wrong vault type');
   }
 
@@ -275,8 +278,13 @@ export async function getPoolFees(
   blockNumber: number,
   provider: Provider
 ) {
-  if ([RewardPoolType.Aura].includes(vaultData.rewardPoolType)) {
+  if (
+    [RewardPoolType.Aura, RewardPoolType.Balancer].includes(
+      vaultData.rewardPoolType
+    )
+  ) {
     return processBalancer(network, oracle, vaultData, blockNumber, provider);
+  } else {
+    return processCurve(network, oracle, vaultData, blockNumber, provider);
   }
-  return processCurve(network, oracle, vaultData, blockNumber, provider);
 }

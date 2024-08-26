@@ -11,7 +11,6 @@ import {
 import { PointsIcon } from '@notional-finance/icons';
 import { Body, H4 } from '@notional-finance/mui';
 import {
-  useArbPoints,
   useFiatToken,
   useNOTE,
   useAppState,
@@ -27,6 +26,7 @@ import {
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
+import { usePortfolioStore } from '../../init-portfolio';
 
 export function useDetailedHoldingsTable() {
   const theme = useTheme();
@@ -35,7 +35,7 @@ export function useDetailedHoldingsTable() {
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
-  const arbPoints = useArbPoints();
+  const { arbPoints } = usePortfolioStore();
   const navigate = useNavigate();
   const { baseCurrency } = useAppState();
   const fiatToken = useFiatToken();

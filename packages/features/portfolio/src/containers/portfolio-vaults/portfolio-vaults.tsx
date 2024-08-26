@@ -4,6 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { useVaultHoldingsTable, useVaultRiskTable } from '../../hooks';
 import { Box } from '@mui/material';
 import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 // import { useVaultEarnings } from './use-vault-earnings';
 
 export const PortfolioVaults = () => {
@@ -82,4 +83,4 @@ export const PortfolioVaults = () => {
   );
 };
 
-export default PortfolioVaults;
+export default observer(PortfolioVaults);

@@ -12,7 +12,6 @@ import {
   defaultConfigDefs,
   defaultDataWriters,
   defaultGraphEndpoints,
-  SUBGRAPH_API_KEY,
 } from './config';
 import {
   BackfillType,
@@ -179,6 +178,7 @@ export default class DataService {
     // NOTE: this only ever syncs the all network data to get historical fiat token
     // exchange rates. Other networks are synced via the subgraph
     const networks = [Network.all];
+    const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
 
     for (const network of networks) {
       const blockNumber = await this.getBlockNumberFromTs(network, ts);
