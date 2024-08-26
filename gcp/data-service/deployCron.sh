@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+source .env
+
 # Set your Google Cloud project ID
 PROJECT_ID="monitoring-agents"
 REGION="us-central1"
@@ -9,8 +11,9 @@ IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME:latest"
 
 # Build and push Docker image to GCR
 echo "Building and pushing Docker image to GCR..."
-docker build -t $IMAGE_NAME .
-docker push $IMAGE_NAME
+docker buildx create --use --name multiarch-builder || true
+docker buildx use multiarch-builder
+docker buildx build --platform linux/amd64 -t $IMAGE_NAME --push .
 
 # Function to read YAML file and format secrets for gcloud command
 format_secrets() {
@@ -42,10 +45,18 @@ gcloud run deploy $SERVICE_NAME \
 # Get the URL of the deployed service
 SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --platform managed --region $REGION --format 'value(status.url)')
 
-# Replace PLACEHOLDER_URL with actual service URL in jobCron.yaml
-sed -i "s|PLACEHOLDER_URL|$SERVICE_URL|g" cron.yaml
+gcloud scheduler jobs update http sync-vault-accounts-arbitrum \
+  --location=$REGION \
+  --schedule="*/20 * * * *" \
+  --uri="${SERVICE_URL}/syncVaultAccounts?network=arbitrum" \
+  --http-method=GET \
+  --update-headers="x-auth-token=${DATA_SERVICE_AUTH_TOKEN}"
 
-# Import Cloud Scheduler jobs from YAML file
-gcloud scheduler jobs import --location=$REGION cron.yaml
+gcloud scheduler jobs create http sync-vault-accounts-mainnet \
+  --location=$REGION \
+  --schedule="*/20 * * * *" \
+  --uri="${SERVICE_URL}/syncVaultAccounts?network=mainnet" \
+  --http-method=GET \
+  --update-headers="x-auth-token=${DATA_SERVICE_AUTH_TOKEN}"
 
 echo "Deployment and scheduler job creation completed."
