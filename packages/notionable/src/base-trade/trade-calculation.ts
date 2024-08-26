@@ -556,20 +556,21 @@ function _getTradedInterestRate(
     // We net off the fee for fcash so that we show it as an up-front
     // trading fee rather than part of the implied yield
     interestRate = fCashMarket.getImpliedInterestRate(realized, amount);
-  } else if (amount.tokenType === 'PrimeCash') {
-    // Increases or decreases the prime supply accordingly
-    utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);
-    interestRate = fCashMarket.getPrimeSupplyRate(utilization);
   } else if (
-    amount.tokenType === 'PrimeDebt' &&
+    (amount.tokenType === 'PrimeDebt' || amount.tokenType === 'PrimeCash') &&
     (tradeType === 'LeveragedLend' || tradeType === 'LeveragedNToken')
   ) {
-    // If borrowing for leverage it is prime supply + prime debt
+    // If borrowing for leverage it is prime supply + prime debt and the interest rate
+    // is always the prime debt rate
     utilization = fCashMarket.getPrimeCashUtilization(
       amount.toPrimeCash().neg(),
       amount.neg()
     );
     interestRate = fCashMarket.getPrimeDebtRate(utilization);
+  } else if (amount.tokenType === 'PrimeCash') {
+    // Increases or decreases the prime supply accordingly
+    utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);
+    interestRate = fCashMarket.getPrimeSupplyRate(utilization);
   } else if (amount.tokenType === 'PrimeDebt') {
     // If borrowing and withdrawing then it is just prime debt increase. This
     // includes vault debt
