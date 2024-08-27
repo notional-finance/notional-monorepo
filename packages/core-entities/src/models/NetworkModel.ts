@@ -1,5 +1,11 @@
 import { getNowSeconds } from '@notional-finance/util';
-import { types, flow, getSnapshot, applySnapshot } from 'mobx-state-tree';
+import {
+  types,
+  flow,
+  getSnapshot,
+  applySnapshot,
+  Instance,
+} from 'mobx-state-tree';
 import {
   ConfigurationModel,
   ExchangeModel,
@@ -14,8 +20,11 @@ import { ConfigurationServer } from '../server/configuration-server';
 import { ExchangeRegistryServer } from '../server/exchange-registry-server';
 import { OracleRegistryServer } from '../server/oracle-registry-server';
 import { VaultRegistryServer } from '../server/vault-registry-server';
+import { VaultViews, ExchangeViews } from './views';
+import { TokenViews } from './views/TokenViews';
+import { ConfigurationViews } from './views/ConfigurationViews';
 
-const NetworkModel = types.model('Network', {
+export const NetworkModel = types.model('Network', {
   network: NotionalTypes.Network,
   tokens: types.optional(types.map(TokenDefinitionModel), {}),
   configuration: types.maybe(ConfigurationModel),
@@ -84,25 +93,37 @@ export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
 
 const REGISTRY_URL = 'https://registry.notional.finance';
 
-export const NetworkClientModel = NetworkModel.named('NetworkClient').actions(
-  (self) => {
-    const triggerRefresh = flow(function* () {
-      const startTime = performance.now();
-      const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);
-      const snapshot = yield response.json();
-      applySnapshot(self, snapshot);
-      const endTime = performance.now();
-      const duration = endTime - startTime;
-      console.log(
-        `${self.network} snapshot refreshed in ${duration.toFixed(2)}ms`
-      );
-    });
-
-    return {
-      triggerRefresh,
-      afterCreate: () => {
-        triggerRefresh();
-      },
-    };
-  }
+// NOTE: this is an initial implementation of the client model which has some views
+// defined that the other models depend on.
+const NetworkClientModelInternal = NetworkModel.named('NetworkClient').views(
+  (self) => ({
+    ...TokenViews(self),
+    ...ConfigurationViews(self),
+  })
 );
+
+export type NetworkModelType = Instance<typeof NetworkClientModelInternal>;
+
+export const NetworkClientModel = NetworkClientModelInternal.views((self) => ({
+  ...VaultViews(self),
+  ...ExchangeViews(self),
+})).actions((self) => {
+  const triggerRefresh = flow(function* () {
+    const startTime = performance.now();
+    const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);
+    const snapshot = yield response.json();
+    applySnapshot(self, snapshot);
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+    console.log(
+      `${self.network} snapshot refreshed in ${duration.toFixed(2)}ms`
+    );
+  });
+
+  return {
+    triggerRefresh,
+    afterCreate: () => {
+      triggerRefresh();
+    },
+  };
+});
