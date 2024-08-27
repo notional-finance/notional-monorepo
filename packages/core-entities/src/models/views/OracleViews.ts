@@ -23,22 +23,20 @@ export const buildOracleGraph = (
         if (maturity < getNowSeconds()) return adjList;
       }
 
-      const quoteToBase =
-        adjList.get(oracle.quote.id) || new Map<string, Node>();
-      quoteToBase.set(oracle.base.id, {
+      const quoteToBase = adjList[oracle.quote.id] || {};
+      quoteToBase[oracle.base.id] = {
         id: oracle.id,
         inverted: true,
-      });
+      };
 
-      const baseToQuote =
-        adjList.get(oracle.base.id) || new Map<string, Node>();
-      baseToQuote.set(oracle.quote.id, {
+      const baseToQuote = adjList[oracle.base.id] || {};
+      baseToQuote[oracle.quote.id] = {
         id: oracle.id,
         inverted: false,
-      });
+      };
 
-      adjList.set(oracle.quote.id, quoteToBase);
-      adjList.set(oracle.base.id, baseToQuote);
+      adjList[oracle.quote.id] = quoteToBase;
+      adjList[oracle.base.id] = baseToQuote;
       return adjList;
-    }, new Map<string, Map<string, Node>>());
+    }, {} as Record<string, Record<string, Node>>);
 };

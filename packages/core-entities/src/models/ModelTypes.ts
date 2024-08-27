@@ -185,7 +185,6 @@ const VaultConfigurationModel = types.model('VaultConfiguration', {
   id: types.identifier,
   vaultAddress: types.string,
   strategy: types.string,
-  name: types.string,
   primaryBorrowCurrency: types.model({
     id: types.string,
   }),
@@ -310,13 +309,19 @@ export const OracleDefinitionModel = types.model('OracleDefinition', {
 });
 
 export const OracleGraphModel = types.model('OracleGraph', {
-  adjList: types.map(
+  adjList: types.optional(
     types.map(
-      types.model({
-        id: types.reference(OracleDefinitionModel),
-        inverted: types.boolean,
-      })
-    )
+      types.optional(
+        types.map(
+          types.model({
+            id: types.reference(OracleDefinitionModel),
+            inverted: types.boolean,
+          })
+        ),
+        {}
+      )
+    ),
+    {}
   ),
 });
 
@@ -324,6 +329,10 @@ export const VaultDefinitionModel = types.model('VaultDefinition', {
   vaultAddress: types.identifier,
   enabled: types.boolean,
   name: types.string,
+  technicalName: types.string,
+  boosterProtocol: types.string,
+  poolName: types.string,
+  baseProtocol: types.string,
   // NOTE: these are just single sided lp vaults
   pool: types.string,
   singleSidedTokenIndex: types.number,

@@ -72,7 +72,6 @@ export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
 
       // TODO: add note oracle definition inside the server
       self.oracles.replace(oracles);
-      // TODO: reset the names on each vault....
       self.vaults.replace(vaults);
 
       // Registers vault tokens and vault oracles
@@ -81,8 +80,9 @@ export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
       defaultPools[self.network].forEach((pool) =>
         pool.registerTokens.forEach((t) => self.tokens.set(t.id, t))
       );
+
+      // Just use the array here for type simplicity, we rebuild the graph every time
       self.oracleGraph.adjList.replace(
-        // Just use the array here for type simplicity, we rebuild the graph every time
         buildOracleGraph(Array.from(self.oracles.values()))
       );
 
