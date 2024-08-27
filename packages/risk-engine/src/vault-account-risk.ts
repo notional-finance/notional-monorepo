@@ -27,15 +27,14 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   static empty(network: Network, vaultAddress: string, maturity: number) {
-    const config = Registry.getConfigurationRegistry();
-    const { vaultShareID } = config.getVaultIDs(
+    const vaultShare = Registry.getTokenRegistry().getVaultShare(
       network,
       vaultAddress,
       maturity
     );
     return new VaultAccountRiskProfile(
       vaultAddress,
-      [TokenBalance.fromID(0, vaultShareID, network)],
+      [TokenBalance.from(0, vaultShare)],
       0
     );
   }

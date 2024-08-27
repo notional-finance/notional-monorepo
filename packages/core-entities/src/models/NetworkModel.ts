@@ -22,7 +22,11 @@ import { OracleRegistryServer } from '../server/oracle-registry-server';
 import { VaultRegistryServer } from '../server/vault-registry-server';
 import { VaultViews, ExchangeViews } from './views';
 import { TokenViews } from './views/TokenViews';
-import { ConfigurationViews } from './views/ConfigurationViews';
+import {
+  ConfigurationViews,
+  registerVaultData,
+} from './views/ConfigurationViews';
+import defaultPools from '../exchanges/default-pools';
 
 export const NetworkModel = types.model('Network', {
   network: NotionalTypes.Network,
@@ -46,7 +50,6 @@ export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
     const refresh = flow(function* (isFullRefresh: boolean) {
       if (isFullRefresh) {
         // Run token and configuration fetches concurrently
-        // TODO: add registerToken into the snapshots...
         const [tokens, configuration] = yield Promise.all([
           tokenRegistry.fetchForModel(self.network),
           configurationRegistry.fetchForModel(self.network),
@@ -63,8 +66,20 @@ export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
       ]);
 
       self.exchanges.replace(exchanges);
+
+      // TODO: add note oracle definition inside the server
       self.oracles.replace(oracles);
+      // TODO: reset the names on each vault....
       self.vaults.replace(vaults);
+
+      // TODO: compute oracle adjacency lists in the server
+
+      // Registers vault tokens and vault oracles
+      registerVaultData(self);
+      // Registers default pool tokens for exchanges
+      defaultPools[self.network].forEach((pool) =>
+        pool.registerTokens.forEach((t) => self.tokens.set(t.id, t))
+      );
 
       self.lastUpdated = getNowSeconds();
 
@@ -82,6 +97,7 @@ export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
         exchangeRegistry = new ExchangeRegistryServer(env);
         oracleRegistry = new OracleRegistryServer(env);
         vaultRegistry = new VaultRegistryServer(env);
+        // TODO: need to fetch from previous snapshot and apply it here if not doing a full refresh
 
         saveStorage = () => {
           return storageMethod(JSON.stringify(getSnapshot(self)));
