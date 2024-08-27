@@ -2,11 +2,11 @@ import { SectionLinkProps } from '@notional-finance/mui';
 import { useTheme } from '@mui/material';
 import { CoinsIcon, CoinsCircleIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { useDefaultNetwork } from '../use-default-network';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const useBorrowDropDown = () => {
   const theme = useTheme();
-  const selectedNetwork = useDefaultNetwork();
+  const selectedNetwork = useSelectedNetwork();
 
   const links: SectionLinkProps[] = [
     {

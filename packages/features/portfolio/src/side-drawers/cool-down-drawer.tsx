@@ -21,19 +21,17 @@ import {
   useAccountDefinition,
   useSelectedNetwork,
   useTransactionStatus,
-  useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { SNOTEWeightedPool } from '@notional-finance/core-entities';
 
 export const CoolDownDrawer = () => {
   const theme = useTheme();
   const account = useAccountDefinition(Network.mainnet);
-  const selectedNetwork = useSelectedNetwork();
   const { isReadOnlyAddress, onSubmit, transactionStatus, transactionHash } =
     useTransactionStatus(Network.mainnet);
   const { days, coolDownEnd, coolDownBegin } = useCoolDownDrawer();
-  const walletConnectedNetwork = useWalletConnectedNetwork();
-  const mustSwitchNetwork = Network.mainnet !== walletConnectedNetwork;
+  const selectedNetwork = useSelectedNetwork();
+  const mustSwitchNetwork = Network.mainnet !== selectedNetwork;
 
   const handleClick = useCallback(async () => {
     if (isReadOnlyAddress || !account) return;

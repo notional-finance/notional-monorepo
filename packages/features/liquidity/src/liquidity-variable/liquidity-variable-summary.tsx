@@ -1,4 +1,5 @@
 import { Box, useTheme } from '@mui/material';
+import { observer } from 'mobx-react-lite';
 import {
   TABLE_VARIANTS,
   FaqHeader,
@@ -25,24 +26,27 @@ import { useContext } from 'react';
 import { LiquidityContext } from '../liquidity';
 import { HowItWorksFaq } from './components';
 import {
+  useAppStore,
   useAssetPriceHistory,
   useTokenHistory,
 } from '@notional-finance/notionable-hooks';
 
-export const LiquidityVariableSummary = () => {
+const LiquidityVariableSummary = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const { state } = useContext(LiquidityContext);
+  const { baseCurrency } = useAppStore();
   const { selectedDepositToken, collateral, collateralBalance, deposit } =
     state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const { totalsData, liquidityYieldData } = useTotalsData(
     deposit,
+    baseCurrency,
     collateralBalance
   );
   const { returnDriversColumns, returnDriversData, infoBoxData } =
-    useReturnDriversTable();
+    useReturnDriversTable(baseCurrency);
   const { poolTableColumns, poolTableData } = useLiquidityPoolsTable();
   const { tvlData } = useTokenHistory(collateral);
   const { barConfig, barChartData } = useApyChart(collateral);
@@ -193,4 +197,4 @@ export const LiquidityVariableSummary = () => {
   );
 };
 
-export default LiquidityVariableSummary;
+export default observer(LiquidityVariableSummary);

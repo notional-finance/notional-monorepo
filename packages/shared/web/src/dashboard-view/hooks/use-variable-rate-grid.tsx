@@ -3,7 +3,7 @@ import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
 import {
-  useAppState,
+  useAppStore,
   useAllMarkets,
   useCurrentSeason,
   useTotalArbPoints,
@@ -25,7 +25,7 @@ export const useVariableRateGrid = (
   } = useAllMarkets(network);
   const theme = useTheme();
   const navigate = useNavigate();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
   const isBorrow = product === PRODUCTS.BORROW_VARIABLE;

@@ -11,7 +11,7 @@ import {
   useAccountDefinition,
   useStakedNOTEPoolReady,
   useStakedNoteData,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { ExpandedState } from '@tanstack/react-table';
 import { useTheme } from '@mui/material';
@@ -29,7 +29,7 @@ export function usePortfolioSNOTETable() {
   const snoteBalance = account?.balances.find((t) => t.symbol === 'sNOTE');
   const isPoolReady = useStakedNOTEPoolReady();
   const stakedNoteData = useStakedNoteData();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   let result: any[] = [];
   const noStakedNoteData = snoteBalance === undefined || snoteBalance.isZero();
 

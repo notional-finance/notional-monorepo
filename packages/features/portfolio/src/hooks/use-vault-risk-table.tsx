@@ -1,4 +1,5 @@
 import { useTheme } from '@mui/material';
+import { FiatKeys } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import {
   ArrowChangeCell,
@@ -18,11 +19,14 @@ import {
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-export const useVaultRiskTable = () => {
+export const useVaultRiskTable = (baseCurrency: FiatKeys) => {
   const theme = useTheme();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
-  const { vaultLiquidation } = useCurrentLiquidationPrices(network);
+  const { vaultLiquidation } = useCurrentLiquidationPrices(
+    network,
+    baseCurrency
+  );
 
   const tableData = vaults
     .filter((data) => data.liquidationPrices.length > 0)

@@ -1,6 +1,6 @@
 import { Box, styled, ThemeProvider } from '@mui/material';
 import { Button, Body } from '@notional-finance/mui';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 import {
   useNotionalTheme,
   colors,
@@ -25,7 +25,7 @@ export interface NativeYieldPopupProps {
 }
 
 export const NativeYieldPopup = ({ selectedToken }: NativeYieldPopupProps) => {
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
   const { pathname } = useLocation();
   const userSettings = getFromLocalStorage('userSettings');
   const [show, setShow] = useState<boolean>(false);

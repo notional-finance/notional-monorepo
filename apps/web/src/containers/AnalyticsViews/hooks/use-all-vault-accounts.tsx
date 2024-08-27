@@ -1,5 +1,6 @@
 import { useTheme } from '@mui/material';
 import {
+  FiatKeys,
   Registry,
   TokenBalance,
   TokenDefinition,
@@ -13,7 +14,6 @@ import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
   formatHealthFactorValues,
   useAllVaults,
-  useAppState,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
@@ -42,14 +42,16 @@ interface VaultAccountData {
   };
 }
 
-export const useAllVaultAccounts = (selectedNetwork: Network) => {
+export const useAllVaultAccounts = (
+  selectedNetwork: Network,
+  baseCurrency: FiatKeys
+) => {
   const theme = useTheme();
   const listedVaults = useAllVaults(selectedNetwork);
   const [allVaultAccounts, setAllVaultAccounts] = useState<
     VaultAccountData[] | undefined
   >(undefined);
   const { updateNotional } = useNotionalContext();
-  const { baseCurrency } = useAppState();
   const navigate = useNavigate();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [vaultNameOptions, setVaultNameOptions] = useState([]);

@@ -9,8 +9,7 @@ import {
   VaultContext,
   TradeContext,
   useLeverageBlock,
-  useWalletConnectedNetwork,
-  useReadOnlyAddress,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { TradeState } from '@notional-finance/notionable';
 import { useCallback, useEffect, useState } from 'react';
@@ -87,27 +86,28 @@ export const TransactionSidebar = ({
   const [showSwitchNetwork, setShowSwitchNetwork] = useState(false);
   const { canSubmit, confirm, tradeType, debt, collateral, selectedNetwork } =
     state;
-  const walletConnectedNetwork = useWalletConnectedNetwork();
-  const isReadyOnlyWallet = useReadOnlyAddress();
+  const {
+    wallet: { userWallet },
+  } = useAppStore();
   const isBlocked = useLeverageBlock();
   const approvalData = useTransactionApprovals(
     context,
     requiredApprovalAmount,
     variableBorrowRequired
   );
-  const mustSwitchNetwork = selectedNetwork !== walletConnectedNetwork;
+  const mustSwitchNetwork = selectedNetwork !== userWallet?.selectedChain;
 
   const { showApprovals } = approvalData;
 
   const handleSubmit = useCallback(() => {
-    if (mustSwitchNetwork && !isReadyOnlyWallet) {
+    if (mustSwitchNetwork && !userWallet?.isReadOnlyAddress) {
       setShowSwitchNetwork(true);
-    } else if (showApprovals && !isReadyOnlyWallet) {
+    } else if (showApprovals && !userWallet?.isReadOnlyAddress) {
       setShowTxnApprovals(true);
     } else {
       updateState({ confirm: true });
     }
-  }, [updateState, showApprovals, mustSwitchNetwork, isReadyOnlyWallet]);
+  }, [updateState, showApprovals, mustSwitchNetwork, userWallet]);
 
   const onConfirmCancel = useCallback(() => {
     updateState({ confirm: false });

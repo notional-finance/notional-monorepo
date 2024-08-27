@@ -1,7 +1,7 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { DropdownButton } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import { LightningOutlineIcon } from '@notional-finance/icons';
@@ -10,7 +10,7 @@ import { messages } from '../messages';
 
 export function LeverageDropdown() {
   const { pathname } = useLocation();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
 
   const flippedTheme =
     themeVariant === THEME_VARIANTS.DARK || pathname === '/'

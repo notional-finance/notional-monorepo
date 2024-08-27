@@ -1,5 +1,9 @@
 import { useTheme } from '@mui/material';
-import { TokenBalance, getPointsPerDay } from '@notional-finance/core-entities';
+import {
+  FiatKeys,
+  TokenBalance,
+  getPointsPerDay,
+} from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
   formatNumberAsAbbr,
@@ -13,7 +17,6 @@ import { Body, H4 } from '@notional-finance/mui';
 import {
   useFiatToken,
   useNOTE,
-  useAppState,
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,
@@ -28,7 +31,7 @@ import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { usePortfolioStore } from '../../init-portfolio';
 
-export function useDetailedHoldingsTable() {
+export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
   const theme = useTheme();
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
@@ -37,7 +40,6 @@ export function useDetailedHoldingsTable() {
   );
   const { arbPoints } = usePortfolioStore();
   const navigate = useNavigate();
-  const { baseCurrency } = useAppState();
   const fiatToken = useFiatToken();
   const NOTE = useNOTE(network);
 

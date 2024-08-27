@@ -1,5 +1,6 @@
 import { FormattedMessage } from 'react-intl';
 import {
+  FiatKeys,
   TokenBalance,
   FiatSymbols,
   TokenDefinition,
@@ -7,14 +8,13 @@ import {
 import {
   useAllMarkets,
   useMaxSupply,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,
-  collateral: TokenDefinition | undefined
+  collateral: TokenDefinition | undefined,
+  baseCurrency: FiatKeys
 ) => {
-  const { baseCurrency } = useAppState();
   const {
     yields: { fCashLend },
   } = useAllMarkets(deposit?.network);

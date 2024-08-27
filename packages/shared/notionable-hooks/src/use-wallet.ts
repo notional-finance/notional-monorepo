@@ -17,6 +17,7 @@ import {
 } from '@notional-finance/helpers';
 import { useAllMarkets } from './use-market';
 import { useNotionalContext } from './use-notional';
+import { useAppStore } from './context/AppContext';
 
 export function usePrimeCashBalance(
   selectedToken: string | undefined | null,
@@ -49,34 +50,34 @@ export function useWalletConnected() {
 
 export function useWalletAddress() {
   const {
-    globalState: { wallet },
-  } = useNotionalContext();
+    wallet: { userWallet },
+  } = useAppStore();
 
-  return wallet?.selectedAddress;
+  return userWallet?.selectedAddress;
 }
 
 export function useTruncatedAddress() {
   const {
-    globalState: { wallet },
-  } = useNotionalContext();
+    wallet: { userWallet },
+  } = useAppStore();
 
-  return wallet?.selectedAddress
-    ? truncateAddress(wallet?.selectedAddress)
+  return userWallet?.selectedAddress
+    ? truncateAddress(userWallet?.selectedAddress)
     : '';
 }
 
 export function useWalletConnectedNetwork() {
   const {
-    globalState: { wallet },
-  } = useNotionalContext();
-  return wallet?.selectedChain;
+    wallet: { userWallet },
+  } = useAppStore();
+  return userWallet?.selectedChain;
 }
 
 export function useReadOnlyAddress() {
   const {
-    globalState: { wallet },
-  } = useNotionalContext();
-  return wallet?.isReadOnlyAddress === true;
+    wallet: { userWallet },
+  } = useAppStore();
+  return userWallet?.isReadOnlyAddress === true;
 }
 
 export function useWalletAllowances() {

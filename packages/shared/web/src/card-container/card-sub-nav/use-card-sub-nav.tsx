@@ -12,6 +12,7 @@ export interface CardSubNavProps {
 export const useCardSubNav = () => {
   const { pathname } = useLocation();
   const selectedNetwork = useSelectedNetwork();
+
   const links: CardSubNavProps[] = pathname.includes('borrow')
     ? [
         {

@@ -4,7 +4,7 @@ import {
   BaseTradeContext,
   usePortfolioRiskProfile,
   usePrimeTokens,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
 
@@ -26,7 +26,7 @@ export const useDeleverage = (
     },
     updateState,
   } = context;
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const computedBalance =
     debtOrCollateral === 'Debt' ? debtBalance : collateralBalance;
   const availableTokens =

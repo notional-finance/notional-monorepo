@@ -2,17 +2,19 @@ import {
   useAllNetworkMarkets,
   useAllUniqueUnderlyingTokens,
   useSelectedNetwork,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
+import { FiatKeys } from '@notional-finance/core-entities';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 
-export const useTokenData = (selectedTabIndex: number) => {
+export const useTokenData = (
+  selectedTabIndex: number,
+  baseCurrency: FiatKeys
+) => {
   const selectedNetwork = useSelectedNetwork();
   const depositTokens = useAllUniqueUnderlyingTokens(
     selectedNetwork ? [selectedNetwork] : undefined
   );
   const { earnYields, borrowYields } = useAllNetworkMarkets();
-  const { baseCurrency } = useAppState();
 
   const requiredProducts = {
     [PORTFOLIO_STATE_ZERO_OPTIONS.EARN]: [

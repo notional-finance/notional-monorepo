@@ -10,7 +10,7 @@ import {
 } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { useDefaultNetwork } from './use-default-network';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const usePendingValues = (value: number | undefined) => {
   const theme = useTheme();
@@ -30,7 +30,7 @@ export const usePendingValues = (value: number | undefined) => {
 
 export const useLeverageEarnLinks = () => {
   const theme = useTheme();
-  const selectedNetwork = useDefaultNetwork();
+  const selectedNetwork = useSelectedNetwork();
 
   const earnLinks: SectionLinkProps[] = [
     {

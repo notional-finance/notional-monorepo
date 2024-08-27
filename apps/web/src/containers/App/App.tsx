@@ -1,6 +1,9 @@
 import spindl from '@spindl-xyz/attribution';
 import { useEffect } from 'react';
-import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  AppContext,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { IntercomProvider } from 'react-use-intercom';
 import {
   LeveragedYieldDashboard,
@@ -44,21 +47,23 @@ import {
   InitPointsDashboard,
   ContestLeaderBoard,
 } from '../../containers/TradingContest';
-import { Markets } from '../Markets';
+import Markets from '../Markets';
 import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+import { appStore } from '@notional-finance/notionable';
 
 const intercomID = process.env['NX_INTERCOM_APP_ID'] as string;
 const spindlAPI = process.env['NX_SPINDL_API_KEY'] as string | undefined;
 
 const RedirectToDefaultNetwork = () => {
-  const walletNetwork = useWalletConnectedNetwork();
+  const selectedNetwork = useSelectedNetwork();
   const { basePath } = useParams<{ basePath: string }>();
   return (
     <Navigate
       to={`${basePath}/${
-        walletNetwork || getDefaultNetworkFromHostname(window.location.hostname)
+        selectedNetwork ||
+        getDefaultNetworkFromHostname(window.location.hostname)
       }`}
       replace
     />
@@ -464,24 +469,26 @@ export const App = () => {
 
   return (
     <HelmetProvider>
-      <Helmet>
-        <link rel="icon" href="/favicon.svg" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Notional Finance - DeFi lending and leveraged yield</title>
-        <meta
-          name="title"
-          content="Notional Finance - DeFi lending and leveraged yield"
-        />
-        <meta
-          name="description"
-          content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
-        />
-      </Helmet>
-      <IntercomProvider appId={intercomID}>
-        <Web3OnboardProvider web3Onboard={OnboardContext}>
-          <AllRoutes />
-        </Web3OnboardProvider>
-      </IntercomProvider>
+      <AppContext.Provider value={appStore}>
+        <Helmet>
+          <link rel="icon" href="/favicon.svg" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>Notional Finance - DeFi lending and leveraged yield</title>
+          <meta
+            name="title"
+            content="Notional Finance - DeFi lending and leveraged yield"
+          />
+          <meta
+            name="description"
+            content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
+          />
+        </Helmet>
+        <IntercomProvider appId={intercomID}>
+          <Web3OnboardProvider web3Onboard={OnboardContext}>
+            <AllRoutes />
+          </Web3OnboardProvider>
+        </IntercomProvider>
+      </AppContext.Provider>
     </HelmetProvider>
   );
 };
