@@ -309,6 +309,17 @@ export const OracleDefinitionModel = types.model('OracleDefinition', {
   latestRate: ExchangeRateModel,
 });
 
+export const OracleGraphModel = types.model('OracleGraph', {
+  adjList: types.map(
+    types.map(
+      types.model({
+        id: types.reference(OracleDefinitionModel),
+        inverted: types.boolean,
+      })
+    )
+  ),
+});
+
 export const VaultDefinitionModel = types.model('VaultDefinition', {
   vaultAddress: types.identifier,
   enabled: types.boolean,
