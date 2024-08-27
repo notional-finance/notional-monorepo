@@ -154,10 +154,12 @@ function getNotionalAccount(
             balances.push(TokenBalance.from(b.nTokenBalance, nToken));
           }
 
-          accountIncentiveDebt.push({
-            value: TokenBalance.from(b.accountIncentiveDebt, NOTE),
-            currencyId: b.currencyId,
-          });
+          if (b.currencyId > 0) {
+            accountIncentiveDebt.push({
+              value: TokenBalance.from(b.accountIncentiveDebt, NOTE),
+              currencyId: b.currencyId,
+            });
+          }
 
           return balances;
         });

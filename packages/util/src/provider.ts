@@ -21,10 +21,7 @@ export function getProviderURLFromNetwork(network: Network, useNFT = false) {
 export function getProviderFromNetwork(
   network: Network,
   skipFetchSetup = false
-) {
-  if (IS_TEST_ENV)
-    return (global as unknown as { provider: providers.Provider }).provider;
-
+): providers.Provider {
   if (skipFetchSetup) {
     return new ethers.providers.JsonRpcBatchProvider({
       url: getProviderURLFromNetwork(network),

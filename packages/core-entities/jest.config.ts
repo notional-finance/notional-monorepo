@@ -12,6 +12,5 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/packages/core-entities',
-  setupFilesAfterEnv: ['../../setup-jest.ts'],
   testEnvironment: 'node',
 };
