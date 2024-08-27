@@ -663,6 +663,8 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     if (!nToken.currencyId) throw Error('Invalid nToken');
     const config = this.getConfig(nToken.network, nToken.currencyId);
     if (!config.incentives?.currentSecondaryReward) return undefined;
+    const rewardEndTime = config.incentives.secondaryRewardEndTime as number | undefined;
+    if (rewardEndTime && rewardEndTime < getNowSeconds()) return undefined;
 
     const rewardToken = Registry.getTokenRegistry().getTokenByID(
       nToken.network,
