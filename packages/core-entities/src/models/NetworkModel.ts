@@ -11,6 +11,7 @@ import {
   ExchangeModel,
   NotionalTypes,
   OracleDefinitionModel,
+  OracleGraphModel,
   TokenDefinitionModel,
   VaultDefinitionModel,
 } from './ModelTypes';
@@ -27,6 +28,7 @@ import {
   registerVaultData,
 } from './views/ConfigurationViews';
 import defaultPools from '../exchanges/default-pools';
+import { buildOracleGraph } from './views/OracleViews';
 
 export const NetworkModel = types.model('Network', {
   network: NotionalTypes.Network,
@@ -34,6 +36,7 @@ export const NetworkModel = types.model('Network', {
   configuration: types.maybe(ConfigurationModel),
   exchanges: types.optional(types.map(ExchangeModel), {}),
   oracles: types.optional(types.map(OracleDefinitionModel), {}),
+  oracleGraph: types.optional(OracleGraphModel, {}),
   vaults: types.optional(types.map(VaultDefinitionModel), {}),
   lastUpdated: types.optional(types.number, 0),
 });
@@ -72,13 +75,15 @@ export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
       // TODO: reset the names on each vault....
       self.vaults.replace(vaults);
 
-      // TODO: compute oracle adjacency lists in the server
-
       // Registers vault tokens and vault oracles
       registerVaultData(self);
       // Registers default pool tokens for exchanges
       defaultPools[self.network].forEach((pool) =>
         pool.registerTokens.forEach((t) => self.tokens.set(t.id, t))
+      );
+      self.oracleGraph.adjList.replace(
+        // Just use the array here for type simplicity, we rebuild the graph every time
+        buildOracleGraph(Array.from(self.oracles.values()))
       );
 
       self.lastUpdated = getNowSeconds();
