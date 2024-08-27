@@ -58,8 +58,6 @@ export function getProviderFromNetwork(
   network: Network,
   skipFetchSetup = false
 ): providers.Provider {
-  if (IS_TEST_ENV) return (global as any).provider;
-
   if (skipFetchSetup) {
     return new ethers.providers.JsonRpcBatchProvider({
       url: getProviderURLFromNetwork(network),

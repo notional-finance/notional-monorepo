@@ -14,9 +14,25 @@ import {
   Network,
   SupportedNetworks,
   filterEmpty,
+  ONE_MINUTE_MS,
 } from '@notional-finance/util';
-import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
+import {
+  AccountFetchMode,
+  NetworkClientModel,
+  Registry,
+} from '@notional-finance/core-entities';
 import { isAppReady } from '../../utils';
+
+export const NetworkModels = {
+  [Network.mainnet]: NetworkClientModel.create({ network: Network.mainnet }),
+  [Network.arbitrum]: NetworkClientModel.create({ network: Network.arbitrum }),
+};
+
+setInterval(() => {
+  console.log('Refreshing snapshots');
+  NetworkModels[Network.mainnet].triggerRefresh();
+  NetworkModels[Network.arbitrum].triggerRefresh();
+}, ONE_MINUTE_MS);
 
 const vpnCheck = 'https://detect.notional.finance/';
 const apiURL = 'https://api.notional.finance';
