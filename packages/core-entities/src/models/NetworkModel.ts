@@ -1,5 +1,5 @@
 import { getNowSeconds } from '@notional-finance/util';
-import { types, flow, getSnapshot } from 'mobx-state-tree';
+import { types, flow, getSnapshot, applySnapshot } from 'mobx-state-tree';
 import {
   ConfigurationModel,
   ExchangeModel,
@@ -37,6 +37,7 @@ export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
     const refresh = flow(function* (isFullRefresh: boolean) {
       if (isFullRefresh) {
         // Run token and configuration fetches concurrently
+        // TODO: add registerToken into the snapshots...
         const [tokens, configuration] = yield Promise.all([
           tokenRegistry.fetchForModel(self.network),
           configurationRegistry.fetchForModel(self.network),
@@ -76,6 +77,31 @@ export const NetworkServerModel = NetworkModel.named('NetworkServer').actions(
         saveStorage = () => {
           return storageMethod(JSON.stringify(getSnapshot(self)));
         };
+      },
+    };
+  }
+);
+
+const REGISTRY_URL = 'https://registry.notional.finance';
+
+export const NetworkClientModel = NetworkModel.named('NetworkClient').actions(
+  (self) => {
+    const triggerRefresh = flow(function* () {
+      const startTime = performance.now();
+      const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);
+      const snapshot = yield response.json();
+      applySnapshot(self, snapshot);
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      console.log(
+        `${self.network} snapshot refreshed in ${duration.toFixed(2)}ms`
+      );
+    });
+
+    return {
+      triggerRefresh,
+      afterCreate: () => {
+        triggerRefresh();
       },
     };
   }
