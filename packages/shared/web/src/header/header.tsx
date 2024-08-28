@@ -18,7 +18,7 @@ import arbLM from '@notional-finance/mui/src/assets/icons/arbLM.svg';
 import arbDM from '@notional-finance/mui/src/assets/icons/arbDM.svg';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
-  useAppState,
+  useAppStore,
   useNotionalContext,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
@@ -34,7 +34,7 @@ export interface HeaderProps extends AppBarProps {}
 export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
   const navigate = useNavigate();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
   const selectedNetwork = useSelectedNetwork();
   const [hideError, setHideError] = useState(false);
   const hideSubGraphError = getFromLocalStorage('hideSubGraphError');

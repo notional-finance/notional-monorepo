@@ -17,6 +17,8 @@ import {
 } from '@notional-finance/helpers';
 import { useAllMarkets } from './use-market';
 import { useNotionalContext } from './use-notional';
+import { useAppStore } from './context/AppContext';
+import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 
 export function usePrimeCashBalance(
   selectedToken: string | undefined | null,
@@ -49,34 +51,35 @@ export function useWalletConnected() {
 
 export function useWalletAddress() {
   const {
-    globalState: { wallet },
-  } = useNotionalContext();
+    wallet: { userWallet },
+  } = useAppStore();
 
-  return wallet?.selectedAddress;
+  return userWallet?.selectedAddress;
 }
 
 export function useTruncatedAddress() {
   const {
-    globalState: { wallet },
-  } = useNotionalContext();
+    wallet: { userWallet },
+  } = useAppStore();
 
-  return wallet?.selectedAddress
-    ? truncateAddress(wallet?.selectedAddress)
+  return userWallet?.selectedAddress
+    ? truncateAddress(userWallet?.selectedAddress)
     : '';
 }
 
 export function useWalletConnectedNetwork() {
-  const {
-    globalState: { wallet },
-  } = useNotionalContext();
-  return wallet?.selectedChain;
+  const [{ wallet }] = useConnectWallet();
+  const currentLabel = wallet?.label;
+  const [{ connectedChain }] = useSetChain(currentLabel);
+  const selectedChain = connectedChain?.id as Network | undefined
+  return selectedChain;
 }
 
 export function useReadOnlyAddress() {
   const {
-    globalState: { wallet },
-  } = useNotionalContext();
-  return wallet?.isReadOnlyAddress === true;
+    wallet: { userWallet },
+  } = useAppStore();
+  return userWallet?.isReadOnlyAddress === true;
 }
 
 export function useWalletAllowances() {

@@ -13,9 +13,9 @@ import {
 import {
   NotionalContext,
   useGlobalContext,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
-import { WalletSelector } from '@notional-finance/wallet';
+import WalletSelector from '@notional-finance/wallet';
 import { Box, CssBaseline, styled } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { META_TAG_CATEGORIES, RouteType } from '@notional-finance/util';
@@ -24,6 +24,7 @@ import {
   InitSanctionsBlock,
   InitPageTrack,
 } from './InitComponents';
+import { observer } from 'mobx-react-lite';
 
 interface AppLayoutRouteProps {
   component: React.ComponentType<unknown>;
@@ -38,7 +39,7 @@ const AppLayoutRoute = ({
   routeType,
 }: AppLayoutRouteProps) => {
   const globalState = useGlobalContext();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
   const params = useParams();
   const notionalTheme = useNotionalTheme(themeVariant);
   const slicedPath = path
@@ -92,4 +93,4 @@ const MainContent = styled('div')`
   }
 `;
 
-export default AppLayoutRoute;
+export default observer(AppLayoutRoute);

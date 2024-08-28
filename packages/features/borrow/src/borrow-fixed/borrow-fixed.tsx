@@ -1,4 +1,5 @@
-import { BorrowFixedSidebar, BorrowFixedTradeSummary } from './components';
+import { BorrowFixedSidebar } from './components';
+import BorrowFixedTradeSummary from './components/borrow-fixed-trade-summary';
 import { SideBarLayout } from '@notional-finance/mui';
 import {
   createTradeContext,

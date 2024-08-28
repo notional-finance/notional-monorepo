@@ -12,14 +12,14 @@ import {
 } from '@notional-finance/trade';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export const useLiquidityLeveragedGrid = (
   network: Network | undefined
 ): DashboardGridProps => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const { nTokenPositions } = useLeveragedNTokenPositions(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);

@@ -4,7 +4,7 @@ import {
   truncateAddress,
 } from '@notional-finance/helpers';
 import {
-  useNotionalContext,
+  useAppStore,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useState } from 'react';
@@ -94,9 +94,7 @@ export function useLeaderboardData() {
   const [highRollerPartner, setHighRollerPartner] = useState<number>(0);
   const [fatCatPartner, setFatCatPartner] = useState<number>(0);
   const network = useSelectedNetwork();
-  const {
-    globalState: { wallet },
-  } = useNotionalContext();
+  const {wallet: {userWallet}} = useAppStore(); 
 
   const fetchContestData = useCallback(async () => {
     if (network) {
@@ -107,7 +105,7 @@ export function useLeaderboardData() {
         },
       });
       const data: AccountResponse[] = await response.json();
-      const userData = data.find((c) => c.address === wallet?.selectedAddress);
+      const userData = data.find((c) => c.address === userWallet?.selectedAddress);
 
       const filteredHighRollerData = data
         .filter((a) => a.hasLeverage && a.irr)
@@ -135,13 +133,13 @@ export function useLeaderboardData() {
       } else if (userData && userData.totalNetWorth > 100) {
         const userContestData =
           filteredHighRollerData.find(
-            (c) => c.address === wallet?.selectedAddress
+            (c) => c.address === userWallet?.selectedAddress
           ) ||
-          filteredFatCatData.find((c) => c.address === wallet?.selectedAddress);
+          filteredFatCatData.find((c) => c.address === userWallet?.selectedAddress);
         if (userContestData) setCurrentUserData([userContestData]);
       }
     }
-  }, [network, wallet?.selectedAddress]);
+  }, [network, userWallet?.selectedAddress]);
 
   useEffect(() => {
     fetchContestData();

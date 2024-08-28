@@ -1,11 +1,12 @@
-import { flow, types } from 'mobx-state-tree';
+import { flow, Instance, types } from 'mobx-state-tree';
 import { FIAT_NAMES, FiatKeys } from '@notional-finance/core-entities';
 import { getFromLocalStorage, THEME_VARIANTS } from '@notional-finance/util';
+import { WalletModel } from './wallet-store';
 
 const userSettings = getFromLocalStorage('userSettings');
 
-const HeroStats = types
-  .model('HeroStats', {
+const HeroStatsModel = types
+  .model('HeroStatsModel', {
     totalAccounts: types.number,
     totalDeposits: types.number,
     totalOpenDebt: types.number,
@@ -29,14 +30,15 @@ const HeroStats = types
     }),
   }));
 
-export const AppState = types
-  .model('AppState', {
+export const AppStoreModel = types
+  .model('AppStoreModel', {
     baseCurrency: types.enumeration('BaseCurrency', Object.values(FIAT_NAMES)),
     themeVariant: types.enumeration(
       'ThemeVariant',
       Object.values(THEME_VARIANTS)
     ),
-    heroStats: HeroStats,
+    heroStats: HeroStatsModel,
+    wallet: WalletModel,
   })
   .actions((self) => ({
     setBaseCurrency(currency: FiatKeys) {
@@ -45,9 +47,14 @@ export const AppState = types
     setThemeVariant(variant: THEME_VARIANTS) {
       self.themeVariant = variant;
     },
+    afterCreate() {
+      self.heroStats.fetchKpiData();
+    },
   }));
 
-export const AppStore = AppState.create({
+export type AppStoreType = Instance<typeof AppStoreModel>;
+
+export const appStore = AppStoreModel.create({
   baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
   themeVariant: userSettings?.themeVariant
     ? userSettings?.themeVariant
@@ -56,5 +63,15 @@ export const AppStore = AppState.create({
     totalAccounts: 0,
     totalDeposits: 0,
     totalOpenDebt: 0,
+  },
+  wallet: {
+    isSanctionedAddress: false,
+    isAccountPending: false,
+    userWallet: {
+      selectedChain: undefined,
+      selectedAddress: '',
+      isReadOnlyAddress: false,
+      label: '',
+    },
   },
 });

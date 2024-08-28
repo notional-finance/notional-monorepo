@@ -7,7 +7,7 @@ import {
   usePrimeCash,
   usePrimeDebt,
   useMaxSupply,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { SxProps, useTheme } from '@mui/material';
 
@@ -30,7 +30,7 @@ export const useVariableTotals = (state: TradeState) => {
   const theme = useTheme();
   const { deposit } = state;
   const isBorrow = state.tradeType === 'BorrowVariable';
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
   const { apyData } = useTokenHistory(state.debt);
 

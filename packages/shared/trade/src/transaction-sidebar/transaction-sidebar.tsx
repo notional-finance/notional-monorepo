@@ -34,6 +34,7 @@ import { TradeSummary } from './components/trade-summary';
 import { isLeveragedTrade } from '@notional-finance/notionable';
 import { PRODUCTS } from '@notional-finance/util';
 import { SwitchNetwork } from '../transaction-approvals/switch-network';
+import { observer } from 'mobx-react-lite';
 
 interface TransactionSidebarProps {
   heading?:
@@ -61,7 +62,7 @@ interface TransactionSidebarProps {
   hideActionButtons?: boolean;
 }
 
-export const TransactionSidebar = ({
+const TransactionSidebarComponent = ({
   mobileTopMargin,
   context,
   heading,
@@ -85,29 +86,28 @@ export const TransactionSidebar = ({
   const { pathname } = useLocation();
   const [showTxnApprovals, setShowTxnApprovals] = useState(false);
   const [showSwitchNetwork, setShowSwitchNetwork] = useState(false);
+  const selectedChain = useWalletConnectedNetwork();
   const { canSubmit, confirm, tradeType, debt, collateral, selectedNetwork } =
     state;
-  const walletConnectedNetwork = useWalletConnectedNetwork();
-  const isReadyOnlyWallet = useReadOnlyAddress();
+  const isReadOnlyAddress = useReadOnlyAddress();
   const isBlocked = useLeverageBlock();
   const approvalData = useTransactionApprovals(
     context,
     requiredApprovalAmount,
     variableBorrowRequired
   );
-  const mustSwitchNetwork = selectedNetwork !== walletConnectedNetwork;
-
+  const mustSwitchNetwork = selectedNetwork !== selectedChain;
   const { showApprovals } = approvalData;
 
   const handleSubmit = useCallback(() => {
-    if (mustSwitchNetwork && !isReadyOnlyWallet) {
+    if (mustSwitchNetwork && !isReadOnlyAddress) {
       setShowSwitchNetwork(true);
-    } else if (showApprovals && !isReadyOnlyWallet) {
+    } else if (showApprovals && !isReadOnlyAddress) {
       setShowTxnApprovals(true);
     } else {
       updateState({ confirm: true });
     }
-  }, [updateState, showApprovals, mustSwitchNetwork, isReadyOnlyWallet]);
+  }, [updateState, showApprovals, mustSwitchNetwork, isReadOnlyAddress]);
 
   const onConfirmCancel = useCallback(() => {
     updateState({ confirm: false });
@@ -229,3 +229,5 @@ export const TransactionSidebar = ({
 
   return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };
+
+export const TransactionSidebar = observer(TransactionSidebarComponent);

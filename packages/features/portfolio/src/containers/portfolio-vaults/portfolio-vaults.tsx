@@ -5,10 +5,12 @@ import { useVaultHoldingsTable, useVaultRiskTable } from '../../hooks';
 import { Box } from '@mui/material';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 // import { useVaultEarnings } from './use-vault-earnings';
 
-export const PortfolioVaults = () => {
+const PortfolioVaults = () => {
   const [currentTab, setCurrentTab] = useState(0);
+  const { baseCurrency } = useAppStore();
   const {
     vaultHoldingsColumns,
     vaultHoldingsData,
@@ -20,7 +22,7 @@ export const PortfolioVaults = () => {
   //   toggleBarProps.toggleOption === 0
   // );
   const { riskTableData, riskTableColumns, initialRiskState } =
-    useVaultRiskTable();
+    useVaultRiskTable(baseCurrency);
 
   const tableTabs = [
     {

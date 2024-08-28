@@ -6,7 +6,7 @@ import {
   usePortfolioRiskProfile,
   usePrimeDebt,
   usePrimeCash,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
@@ -32,7 +32,7 @@ export const PortfolioHoldingSelect = ({
   filterBalances,
   isWithdraw,
 }: PortfolioHoldingSelectProps) => {
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const theme = useTheme();
   const {
     state: { collateral, debt, selectedNetwork, deposit },

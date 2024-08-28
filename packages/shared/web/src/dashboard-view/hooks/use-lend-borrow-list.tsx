@@ -8,7 +8,7 @@ import {
   useAccountDefinition,
   useTotalArbPoints,
   useCurrentSeason,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
@@ -31,7 +31,7 @@ export const useLendBorrowList = (
   } = useAllMarkets(network);
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
   const isBorrow =
     product === PRODUCTS.BORROW_FIXED || product === PRODUCTS.BORROW_VARIABLE;

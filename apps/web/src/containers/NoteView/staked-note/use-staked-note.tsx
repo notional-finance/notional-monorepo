@@ -1,10 +1,10 @@
 import {
+  FiatKeys,
   NOTERegistryClient,
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import {
-  useAppState,
   StakedNoteData,
   useStakedNOTEPoolReady,
   useTotalNOTEBalances,
@@ -19,10 +19,10 @@ import { useEffect, useState } from 'react';
 
 export function useStakedNote(
   stakedNoteData: StakedNoteData | undefined,
-  dateRange = 30 * SECONDS_IN_DAY
+  dateRange = 30 * SECONDS_IN_DAY,
+  baseCurrency: FiatKeys
 ) {
   const isPoolReady = useStakedNOTEPoolReady();
-  const { baseCurrency } = useAppState();
   const [sNOTEData, setSNOTEData] = useState<
     Awaited<ReturnType<NOTERegistryClient['getSNOTEData']>>
   >([]);

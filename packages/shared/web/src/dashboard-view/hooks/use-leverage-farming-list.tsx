@@ -9,7 +9,7 @@ import {
   useAllVaults,
   useAccountDefinition,
   useVaultHoldings,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -32,7 +32,7 @@ export const useLeverageFarmingList = (
     getMax,
   } = useAllMarkets(network);
   const listedVaults = useAllVaults(network);
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
   const vaultHoldings = useVaultHoldings(network);
 

@@ -19,16 +19,14 @@ import { useCoolDownDrawer } from './hooks/use-cool-down-drawer';
 import { useCallback } from 'react';
 import {
   useAccountDefinition,
-  useSelectedNetwork,
-  useTransactionStatus,
   useWalletConnectedNetwork,
+  useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import { SNOTEWeightedPool } from '@notional-finance/core-entities';
 
 export const CoolDownDrawer = () => {
   const theme = useTheme();
   const account = useAccountDefinition(Network.mainnet);
-  const selectedNetwork = useSelectedNetwork();
   const { isReadOnlyAddress, onSubmit, transactionStatus, transactionHash } =
     useTransactionStatus(Network.mainnet);
   const { days, coolDownEnd, coolDownBegin } = useCoolDownDrawer();
@@ -154,7 +152,7 @@ export const CoolDownDrawer = () => {
         <PendingTransaction
           hash={transactionHash}
           transactionStatus={transactionStatus}
-          selectedNetwork={selectedNetwork}
+          selectedNetwork={walletConnectedNetwork}
         />
       )}
       <Button

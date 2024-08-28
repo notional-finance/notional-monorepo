@@ -1,5 +1,6 @@
 import { DataTable, MultiDisplayChart, BarChart } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
+import { observer } from 'mobx-react-lite';
 import {
   useTotalsChart,
   useRiskOverviewTable,
@@ -9,14 +10,18 @@ import {
 import { useVaultHoldingsTable } from '../../hooks';
 import { EmptyPortfolioOverview } from '../../components';
 import { Box, styled, useTheme } from '@mui/material';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
-export const PortfolioOverview = () => {
+const PortfolioOverview = () => {
   const theme = useTheme();
-  const { totalHoldingsColumns, totalHoldingsData } = useTotalHoldingsTable();
+  const { baseCurrency } = useAppStore();
+  const { totalHoldingsColumns, totalHoldingsData } =
+    useTotalHoldingsTable(baseCurrency);
   const { vaultHoldingsData } = useVaultHoldingsTable();
   const { overviewVaultHoldingsColumns } = useOverviewVaultHoldingsColumns();
-  const { riskOverviewData, riskOverviewColumns } = useRiskOverviewTable();
-  const { barChartData, barConfig, totalsData } = useTotalsChart();
+  const { riskOverviewData, riskOverviewColumns } =
+    useRiskOverviewTable(baseCurrency);
+  const { barChartData, barConfig, totalsData } = useTotalsChart(baseCurrency);
   const noOverviewData =
     totalHoldingsData.length === 0 &&
     vaultHoldingsData.length === 0 &&
@@ -110,4 +115,4 @@ const Container = styled(Box)(
 `
 );
 
-export default PortfolioOverview;
+export default observer(PortfolioOverview);

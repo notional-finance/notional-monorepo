@@ -9,13 +9,16 @@ import { ExternalLinkIcon } from '@notional-finance/icons';
 import statsImg from '../images/stats_overlay.svg';
 import { FormattedMessage } from 'react-intl';
 import { formatNumber } from '@notional-finance/helpers';
-import { useHeroStats } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
 const oneMillion = 1_000_000;
 
-export const HeroStats = () => {
+const HeroStats = () => {
   const theme = useTheme();
-  const { totalAccounts, totalDeposits, totalOpenDebt } = useHeroStats();
+  const {
+    heroStats: { totalAccounts, totalDeposits, totalOpenDebt },
+  } = useAppStore();
   const showHeroStats = totalAccounts && totalDeposits && totalOpenDebt;
 
   return (
@@ -139,4 +142,4 @@ const StatsContent = styled(Box)(
       `
 );
 
-export default HeroStats;
+export default observer(HeroStats);

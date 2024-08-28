@@ -3,12 +3,13 @@ import { DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TableActionRow } from '../../components';
 import { Box } from '@mui/material';
-import { PortfolioRisk } from './portfolio-risk';
+import PortfolioRisk from './portfolio-risk';
 import { useState } from 'react';
 // import { useEarningsBreakdown } from './use-earnings-breakdown';
 import { useLiquidationRisk } from './use-liquidation-risk';
 import {
   useAccountDefinition,
+  useAppStore,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
@@ -16,6 +17,7 @@ import { observer } from 'mobx-react-lite';
 const PortfolioHoldings = () => {
   const [currentTab, setCurrentTab] = useState(0);
   const network = useSelectedNetwork();
+  const { baseCurrency } = useAppStore();
   const {
     portfolioHoldingsColumns,
     toggleBarProps,
@@ -23,7 +25,7 @@ const PortfolioHoldings = () => {
     pendingTokenData,
     setExpandedRows,
     initialState,
-  } = usePortfolioHoldings();
+  } = usePortfolioHoldings(baseCurrency);
   // const { earningsBreakdownData, earningsBreakdownColumns } =
   //   useEarningsBreakdown(toggleBarProps.toggleOption === 0);
   const account = useAccountDefinition(network);
@@ -31,7 +33,7 @@ const PortfolioHoldings = () => {
     liquidationRiskColumns,
     liquidationRiskData,
     initialLiquidationState,
-  } = useLiquidationRisk();
+  } = useLiquidationRisk(baseCurrency);
   const hasDebts = !!account?.balances.find(
     (t) => t.isNegative() && !t.isVaultToken
   );

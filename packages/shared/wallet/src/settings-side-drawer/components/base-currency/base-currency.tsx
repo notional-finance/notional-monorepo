@@ -9,7 +9,8 @@ import { FormattedMessage } from 'react-intl';
 import { Title } from '../../settings-side-drawer';
 import { useBaseCurrency } from './use-base-currency';
 import { FiatKeys } from '@notional-finance/core-entities';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
 export const BaseCurrencyButton = () => {
   const theme = useTheme();
@@ -41,9 +42,9 @@ export const BaseCurrencyButton = () => {
   );
 };
 
-export const BaseCurrency = () => {
+const BaseCurrency = () => {
   const { allCurrencies } = useBaseCurrency();
-  const { baseCurrency, setBaseCurrency } = useAppState();
+  const { baseCurrency, setBaseCurrency } = useAppStore();
   const userSettings = getFromLocalStorage('userSettings');
   const defaultKey = userSettings?.baseCurrency || baseCurrency;
 
@@ -85,4 +86,4 @@ const WalletSelectorContainer = styled(Box)(
   `
 );
 
-export default BaseCurrency;
+export default observer(BaseCurrency);
