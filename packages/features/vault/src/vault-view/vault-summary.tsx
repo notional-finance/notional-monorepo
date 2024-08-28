@@ -14,11 +14,16 @@ import { TradeActionSummary } from '@notional-finance/trade';
 import { useVaultExistingFactors, useVaultFaq } from '../hooks';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { getVaultType } from '@notional-finance/core-entities';
+import { TradeActionSummary } from '@notional-finance/trade';
+import { useVaultExistingFactors, useVaultFaq } from '../hooks';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import { useAllMarkets } from '@notional-finance/notionable-hooks';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
   const { selectedNetwork, collateral, deposit, vaultAddress } = state;
+  const { vaultAddress, selectedNetwork, collateral, deposit } = state;
   const { vaultShare, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
   const vaultType =

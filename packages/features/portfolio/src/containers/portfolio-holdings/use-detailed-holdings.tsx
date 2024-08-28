@@ -1,4 +1,4 @@
-import { TokenBalance } from '@notional-finance/core-entities';
+import { FiatKeys, TokenBalance } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
   formatNumberAsPercent,
@@ -9,7 +9,6 @@ import {
 import {
   useFiatToken,
   useNOTE,
-  useAppState,
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,
@@ -23,14 +22,13 @@ import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 
-export function useDetailedHoldingsTable() {
+export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
   const navigate = useNavigate();
-  const { baseCurrency } = useAppState();
   const fiatToken = useFiatToken();
   const NOTE = useNOTE(network);
 

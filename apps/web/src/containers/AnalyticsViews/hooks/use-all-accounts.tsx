@@ -1,5 +1,9 @@
 import { useTheme } from '@mui/material';
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import {
+  FiatKeys,
+  Registry,
+  TokenBalance,
+} from '@notional-finance/core-entities';
 import {
   formatNumberAsAbbr,
   formatNumberAsPercent,
@@ -7,7 +11,6 @@ import {
 } from '@notional-finance/helpers';
 import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
-  useAppState,
   formatHealthFactorValues,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
@@ -47,18 +50,20 @@ export const findSortingNum = (
   return highestNumber;
 };
 
-export const useAllAccounts = (selectedNetwork: Network) => {
+export const useAllAccounts = (
+  selectedNetwork: Network,
+  baseCurrency: FiatKeys
+) => {
   const theme = useTheme();
   const [allAccounts, setAllAccounts] = useState<AccountData[] | undefined>(
     undefined
   );
   const { updateNotional } = useNotionalContext();
-  const { baseCurrency } = useAppState();
+
   const navigate = useNavigate();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [crossCurrencyRiskOptions, setCrossCurrencyRiskOptions] = useState([]);
   const [netWorthOptions, setNetWorthOptions] = useState([]);
-
   const fetchAllAccounts = async () => {
     const { portfolioRisk } =
       await Registry.getAnalyticsRegistry().getAccountRisk(selectedNetwork);

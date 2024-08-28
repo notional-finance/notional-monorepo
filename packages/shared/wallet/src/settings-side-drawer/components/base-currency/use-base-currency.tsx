@@ -17,7 +17,7 @@ import {
 } from '@notional-finance/icons';
 
 import { FIAT_NAMES } from '@notional-finance/core-entities';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 interface ImageWrapperProps {
   active: boolean;
@@ -26,7 +26,7 @@ interface ImageWrapperProps {
 
 export const useBaseCurrency = () => {
   const theme = useTheme();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const imgObj = {
     usd: UsdIcon,
     cad: CadIcon,

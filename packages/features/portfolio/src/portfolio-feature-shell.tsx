@@ -15,19 +15,13 @@ import {
   TypeForm,
 } from '@notional-finance/mui';
 import { usePortfolioNOTETable, usePortfolioSideDrawers } from './hooks';
-import {
-  SideNav,
-  PortfolioMobileNav,
-  EmptyPortfolio,
-} from './components';
+import { SideNav, PortfolioMobileNav, EmptyPortfolio } from './components';
 import PortfolioHoldings from './containers/portfolio-holdings/portfolio-holdings';
-import {
-  PortfolioOverview,
-  PortfolioVaults,
-  PortfolioTransactionHistory,
-  PortfolioStateZero,
-  PortfolioNoteStaking,
-} from './containers';
+import { PortfolioTransactionHistory } from './containers';
+import PortfolioOverview from './containers/portfolio-overview/portfolio-overview';
+import PortfolioVaults from './containers/portfolio-vaults/portfolio-vaults';
+import PortfolioStateZero from './containers/portfolio-state-zero/portfolio-state-zero';
+import PortfolioNoteStaking from './containers/portfolio-note-staking/portfolio-note-staking';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import {
   PORTFOLIO_ACTIONS,
@@ -58,11 +52,11 @@ export const PortfolioFeatureShell = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const params = useParams<PortfolioParams>();
-  const network = useSelectedNetwork();
+  const selectedNetwork = useSelectedNetwork();
   const isAccountLoading = useAccountLoading();
-  const yieldsReady = useYieldsReady(network);
-  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const { hasNoteOrSNote } = usePortfolioNOTETable();
+  const yieldsReady = useYieldsReady(selectedNetwork);
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(selectedNetwork);
 
   useEffect(() => {
     if (
@@ -73,7 +67,7 @@ export const PortfolioFeatureShell = () => {
     ) {
       const toggleKey = params.sideDrawerKey ? params.sideDrawerKey : '';
       navigate(
-        `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}/${toggleKey}`
+        `/portfolio/${selectedNetwork}/${PORTFOLIO_CATEGORIES.WELCOME}/${toggleKey}`
       );
     }
   }, [
@@ -81,11 +75,11 @@ export const PortfolioFeatureShell = () => {
     hasNoteOrSNote,
     isAcctAndBalanceReady,
     navigate,
-    network,
+    selectedNetwork,
     params.sideDrawerKey,
   ]);
 
-  return !network || isAccountLoading || !yieldsReady ? (
+  return !selectedNetwork || isAccountLoading || !yieldsReady ? (
     <PortfolioContainer>
       <PageLoading
         sx={{
@@ -110,11 +104,11 @@ const Portfolio = () => {
   const params = useParams<PortfolioParams>();
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
-  const network = useSelectedNetwork();
+  const selectedNetwork = useSelectedNetwork();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const isAccountReady = useAccountReady(network);
-  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
+  const isAccountReady = useAccountReady(selectedNetwork);
+  const isAcctAndBalanceReady = useAccountAndBalanceReady(selectedNetwork);
   const { hasNoteOrSNote } = usePortfolioNOTETable();
 
   useEffect(() => {
@@ -124,7 +118,7 @@ const Portfolio = () => {
   useEffect(() => {
     if (params.category && params.category !== PORTFOLIO_CATEGORIES.WELCOME) {
       clearSideDrawer(
-        `/portfolio/${network}/${
+        `/portfolio/${selectedNetwork}/${
           params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
         }`
       );
@@ -136,11 +130,11 @@ const Portfolio = () => {
   const handleDrawer = () => {
     if (pathname.includes('convertTo')) {
       navigate(
-        `/portfolio/${network}/${params?.category}/${params?.sideDrawerKey}/${params?.selectedToken}/manage`
+        `/portfolio/${selectedNetwork}/${params?.category}/${params?.sideDrawerKey}/${params?.selectedToken}/manage`
       );
     } else {
       clearSideDrawer(
-        `/portfolio/${network}/${
+        `/portfolio/${selectedNetwork}/${
           params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
         }`
       );
@@ -239,8 +233,6 @@ const PortfolioContainer = styled(Box)(
     margin: auto;
   };`
 );
-
-
 
 const PortfolioSidebar = styled(Box)(
   ({ theme }) => `

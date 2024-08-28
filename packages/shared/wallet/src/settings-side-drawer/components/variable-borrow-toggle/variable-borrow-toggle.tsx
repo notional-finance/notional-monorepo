@@ -5,13 +5,14 @@ import {
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useEnablePrimeBorrow } from '@notional-finance/trade';
+import { observer } from 'mobx-react-lite';
 import { useCallback } from 'react';
 
 export const useVariableBorrowToggle = () => {
-  const network = useWalletConnectedNetwork();
-  const isAccountReady = useAccountReady(network);
+  const selectedChain = useWalletConnectedNetwork();
+  const isAccountReady = useAccountReady(selectedChain);
   const { isPrimeBorrowAllowed, enablePrimeBorrow, disablePrimeBorrow } =
-    useEnablePrimeBorrow(network);
+    useEnablePrimeBorrow(selectedChain);
   const isChecked = isAccountReady ? isPrimeBorrowAllowed : false;
 
   const variableBorrowToggle = useCallback(() => {
@@ -32,7 +33,7 @@ export const useVariableBorrowToggle = () => {
   return { variableBorrowToggle, isChecked };
 };
 
-export const VariableBorrowToggle = () => {
+const VariableBorrowToggle = () => {
   const { isChecked } = useVariableBorrowToggle();
 
   return (
@@ -44,4 +45,4 @@ export const VariableBorrowToggle = () => {
   );
 };
 
-export default VariableBorrowToggle;
+export default observer(VariableBorrowToggle);

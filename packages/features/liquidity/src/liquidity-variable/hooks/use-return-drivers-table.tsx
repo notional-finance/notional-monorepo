@@ -12,21 +12,20 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import {
-  useAppState,
   useAllMarkets,
   useFCashMarket,
 } from '@notional-finance/notionable-hooks';
+import { FiatKeys } from '@notional-finance/core-entities';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../../liquidity';
 
-export const useReturnDriversTable = () => {
+export const useReturnDriversTable = (baseCurrency: FiatKeys) => {
   const theme = useTheme();
   const {
     state: { deposit, selectedDepositToken, selectedNetwork },
   } = useContext(LiquidityContext);
   const { yields } = useAllMarkets(selectedNetwork);
-  const { baseCurrency } = useAppState();
   const fCashData = useFCashMarket(deposit);
 
   const liquidityData = yields.liquidity.find(

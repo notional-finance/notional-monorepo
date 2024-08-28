@@ -6,7 +6,10 @@ import {
   SimpleDropdown,
   Subtitle,
 } from '@notional-finance/mui';
-import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
+import {
+  useAppStore,
+  useSideDrawerManager,
+} from '@notional-finance/notionable-hooks';
 import {
   PORTFOLIO_STATE_ZERO_OPTIONS,
   SETTINGS_SIDE_DRAWERS,
@@ -25,6 +28,7 @@ import {
 import StateZeroCard from './state-zero-card';
 import StateZeroToggle from './state-zero-toggle';
 import { useParams, useNavigate } from 'react-router-dom';
+import { observer } from 'mobx-react-lite';
 
 interface TokenBoxProps {
   theme: NotionalTheme;
@@ -49,15 +53,19 @@ const stateZeroBanner = {
   }),
 };
 
-export const PortfolioStateZero = () => {
+const PortfolioStateZero = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const params = useParams<{ sideDrawerKey?: string }>();
   const { setWalletSideDrawer } = useSideDrawerManager();
+  const { baseCurrency } = useAppStore();
   const selectedNetwork = useSelectedNetwork();
   const isAccountReady = useAccountReady(selectedNetwork);
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
-  const { availableSymbols, allTokenData } = useTokenData(selectedTabIndex);
+  const { availableSymbols, allTokenData } = useTokenData(
+    selectedTabIndex,
+    baseCurrency
+  );
   const [activeToken, setActiveToken] = useState<string>(availableSymbols[0]);
   const cardData = useCardData(
     selectedTabIndex,
@@ -326,4 +334,4 @@ const TokenContainer = styled(Box)(
   `
 );
 
-export default PortfolioStateZero;
+export default observer(PortfolioStateZero);

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, styled, useTheme, Collapse } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import { SideNavOptions } from './side-nav-options';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 interface CollapsibleProps {
   theme: NotionalTheme;
@@ -12,7 +12,7 @@ interface CollapsibleProps {
 
 export const SideNav = () => {
   const theme = useTheme();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
   const [open, setOpen] = useState(false);
   const sideBoxShadow =
     themeVariant === 'dark'

@@ -1,5 +1,5 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAllMarkets, useAppState } from '@notional-finance/notionable-hooks';
+import { useAllMarkets, useAppStore } from '@notional-finance/notionable-hooks';
 import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +12,7 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
     yields: { liquidity },
   } = useAllMarkets(network);
   const theme = useTheme();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const navigate = useNavigate();
 
   const allData = liquidity

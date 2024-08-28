@@ -17,8 +17,10 @@ import {
   useAllNetworksToggle,
 } from './hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
+import { useAppStore } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
-export const Markets = () => {
+const Markets = () => {
   const theme = useTheme();
   const rightToggleData = useEarnBorrowOptions();
   const allNetworksToggleData = useAllNetworksToggle();
@@ -31,12 +33,14 @@ export const Markets = () => {
 
   const { dropdownsData, currencyOptions, productOptions } =
     useMarketTableDropdowns(earnBorrowOption, allNetworksOption);
+  const { baseCurrency } = useAppStore();
   const { marketTableColumns, marketTableData, marketDataCSVFormatter } =
     useMarketsTable(
       earnBorrowOption,
       allNetworksOption,
       currencyOptions,
-      productOptions
+      productOptions,
+      baseCurrency
     );
 
   return (
@@ -180,4 +184,4 @@ const StyledTopContent = styled(Box)(
 `
 );
 
-export default Markets;
+export default observer(Markets);

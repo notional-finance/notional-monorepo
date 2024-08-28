@@ -10,10 +10,8 @@ import {
   LiquidityLeveragedSideDrawer,
   LiquidityLeveragedSummary,
 } from './liquidity-leveraged';
-import {
-  LiquidityVariableSidebar,
-  LiquidityVariableSummary,
-} from './liquidity-variable';
+import { LiquidityVariableSidebar } from './liquidity-variable';
+import LiquidityVariableSummary from './liquidity-variable/liquidity-variable-summary';
 import { useLocation } from 'react-router';
 
 export const LiquidityContext = createTradeContext('Liquidity');

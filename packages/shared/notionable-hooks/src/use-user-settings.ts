@@ -1,10 +1,10 @@
 import { Registry } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
-import { useAppState } from './use-app-state';
+import { useAppStore } from './context/AppContext';
 
 
 export function useFiatToken() {
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   return Registry.getTokenRegistry().getTokenBySymbol(
     Network.all,
     baseCurrency

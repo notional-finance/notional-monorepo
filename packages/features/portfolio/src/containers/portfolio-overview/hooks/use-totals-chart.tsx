@@ -3,10 +3,10 @@ import {
   useAccountHistoryChart,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { FiatSymbols } from '@notional-finance/core-entities';
+import { FiatKeys, FiatSymbols } from '@notional-finance/core-entities';
 import {
   useAccountCurrentFactors,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import {
   BarConfigProps,
@@ -25,8 +25,7 @@ import {
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
-export const useTotalsChart = () => {
-  const { baseCurrency } = useAppState();
+export const useTotalsChart = (baseCurrency: FiatKeys) => {
   const windowDimensions = useWindowDimensions();
   const network = useSelectedNetwork();
   const { currentAPY, netWorth, debts, assets } =
@@ -46,7 +45,7 @@ export const useTotalsChart = () => {
     getNowSeconds(),
     SECONDS_IN_DAY * 3
   );
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
 
   const barChartData = historyData?.map(
     ({ assets, debts, netWorth, timestamp }) => {

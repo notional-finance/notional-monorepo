@@ -3,7 +3,7 @@ import { CardContainer } from '../card-container/card-container';
 import { FeatureLoader } from '../feature-loader/feature-loader';
 import {
   useSelectedNetwork,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation, useParams } from 'react-router-dom';
@@ -37,7 +37,7 @@ export const DashboardView = ({
   ComingSoonComponent,
 }: DashboardViewProps) => {
   const network = useSelectedNetwork();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
   const { pathname } = useLocation();
   const [_, routeKey] = pathname.split('/');
   const userSettings = getFromLocalStorage('userSettings');

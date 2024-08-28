@@ -2,26 +2,30 @@ import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, useTheme, styled } from '@mui/material';
 import { Input, Button } from '@notional-finance/mui';
-import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import {
+  useAppStore,
+  useSelectedNetwork,
+  useSideDrawerManager,
+} from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';
+import { Network } from '@notional-finance/util';
 
 export function ViewAsAccount() {
   const theme = useTheme();
   const [address, setAddress] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
+  const selectedNetwork = useSelectedNetwork();
   const { clearWalletSideDrawer } = useSideDrawerManager();
-  const { updateNotional } = useNotionalContext();
+
+  const { wallet } = useAppStore();
 
   const handleClick = () => {
     if (ethers.utils.isAddress(address)) {
-      updateNotional({
-        wallet: {
-          signer: undefined,
-          selectedAddress: address,
-          isReadOnlyAddress: true,
-          label: 'ReadOnly',
-        },
+      wallet.setUserWallet({
+        selectedChain: selectedNetwork || Network.mainnet,
+        selectedAddress: address,
+        isReadOnlyAddress: true,
+        label: 'ReadOnly',
       });
       clearWalletSideDrawer();
     } else {

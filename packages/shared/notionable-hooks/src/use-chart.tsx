@@ -13,7 +13,7 @@ import {
 import { useAccountDefinition } from './use-account';
 import { useMemo } from 'react';
 import { useAnalyticsReady, useAppContext } from './use-notional';
-import { useAppState } from './use-app-state';
+import { useAppStore } from './context/AppContext';
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -184,7 +184,7 @@ export function useAccountHistoryChart(
   tickSizeInSeconds: number
 ) {
   const account = useAccountDefinition(network);
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
 
   return useMemo(() => {
     if (!account) return undefined;

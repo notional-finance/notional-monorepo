@@ -6,14 +6,13 @@ import {
   setInLocalStorage,
   getFromLocalStorage,
 } from '@notional-finance/helpers';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
 export const useDarkModeToggle = () => {
-  const { setThemeVariant } = useAppState();
+  const { setThemeVariant, themeVariant } = useAppStore();
   const userSettings = getFromLocalStorage('userSettings');
-  const isChecked =
-    userSettings?.themeVariant &&
-    userSettings?.themeVariant === THEME_VARIANTS.DARK;
+  const isChecked = themeVariant && themeVariant === THEME_VARIANTS.DARK;
 
   const toggleDarkMode = useCallback(() => {
     if (
@@ -48,7 +47,7 @@ export const useDarkModeToggle = () => {
   return { toggleDarkMode, isChecked };
 };
 
-export const DarkModeToggle = () => {
+const DarkModeToggle = () => {
   const { isChecked } = useDarkModeToggle();
 
   return (
@@ -60,4 +59,4 @@ export const DarkModeToggle = () => {
   );
 };
 
-export default DarkModeToggle;
+export default observer(DarkModeToggle);

@@ -23,7 +23,7 @@ import {
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
@@ -322,7 +322,7 @@ export const useVaultHoldingsTable = () => {
   const [toggleOption, setToggleOption] = useState<number>(0);
   const isBlocked = useLeverageBlock();
   const theme = useTheme();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const navigate = useNavigate();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);

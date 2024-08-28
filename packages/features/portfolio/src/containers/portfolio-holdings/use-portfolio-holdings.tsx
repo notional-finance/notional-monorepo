@@ -12,6 +12,7 @@ import {
   useLeverageBlock,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
+import { FiatKeys } from '@notional-finance/core-entities';
 import { ExpandedState } from '@tanstack/react-table';
 import { useDetailedHoldingsTable } from './use-detailed-holdings';
 import { useGroupedHoldingsTable } from './use-grouped-holdings';
@@ -50,7 +51,7 @@ function insertDebtDivider(arr) {
   return arr;
 }
 
-export function usePortfolioHoldings() {
+export function usePortfolioHoldings(baseCurrency: FiatKeys) {
   const theme = useTheme();
   const isBlocked = useLeverageBlock();
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
@@ -58,8 +59,8 @@ export function usePortfolioHoldings() {
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
-  const { detailedHoldings } = useDetailedHoldingsTable();
-  const { groupedRows, groupedTokens } = useGroupedHoldingsTable();
+  const { detailedHoldings } = useDetailedHoldingsTable(baseCurrency);
+  const { groupedRows, groupedTokens } = useGroupedHoldingsTable(baseCurrency);
 
   const filteredHoldings = detailedHoldings.filter(
     ({ tokenId }) => !groupedTokens.includes(tokenId)

@@ -3,6 +3,7 @@ import { formatTokenType } from '@notional-finance/helpers';
 import { DisplayCell, MultiValueIconCell } from '@notional-finance/mui';
 import {
   formatHealthFactorValues,
+  useAppStore,
   useCurrentLiquidationPrices,
   useSelectedNetwork,
   useVaultHoldings,
@@ -100,7 +101,11 @@ export const useVaultRiskTable = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
-  const { vaultLiquidation } = useCurrentLiquidationPrices(network);
+  const { baseCurrency } = useAppStore();
+  const { vaultLiquidation } = useCurrentLiquidationPrices(
+    network,
+    baseCurrency
+  );
 
   const tableData = vaultLiquidation
     .filter((l) => l.liquidationPrices.length > 0)

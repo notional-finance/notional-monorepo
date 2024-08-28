@@ -12,10 +12,10 @@ import {
   CommunityPartners,
   ConnectContestWallet,
   ContestConfirmation,
-  MintPass,
   OuterContainer,
   StepLoading,
 } from '../components';
+import MintPass from '../components/contest-sign-up-steps/mint-pass';
 import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import { useParams } from 'react-router-dom';
 import { ContestSignUpParams, useSignUpStep } from '../hooks';

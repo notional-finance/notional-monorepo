@@ -1,5 +1,5 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAppState, useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useAppStore, useAllMarkets } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,9 +11,7 @@ export const useVariableRateGrid = (
     yields: { variableLend, variableBorrow },
   } = useAllMarkets(network);
   const navigate = useNavigate();
-  const { baseCurrency } = useAppState();
-  // const totalArbPoints = useTotalArbPoints();
-  // const currentSeason = useCurrentSeason();
+  const { baseCurrency } = useAppStore();
   const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
   const yieldData = isBorrow ? variableBorrow : variableLend;
 

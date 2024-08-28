@@ -4,7 +4,8 @@ import {
   useYieldsReady,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
-import { LendFixedSidebar, LendFixedTradeSummary } from './components';
+import { LendFixedSidebar } from './components';
+import LendFixedTradeSummary from './components/lend-fixed-trade-summary';
 import { FeatureLoader } from '@notional-finance/shared-web';
 
 export const LendFixedContext = createTradeContext('LendFixed');

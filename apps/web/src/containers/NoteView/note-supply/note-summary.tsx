@@ -27,17 +27,18 @@ import {
   useNotePrice,
 } from '@notional-finance/notionable-hooks';
 import { useNoteSupply } from './use-note-supply';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
 interface NoteSummaryProps {
   noteSupplyData: NoteSupplyData | undefined;
 }
 
-export const NoteSummary = ({ noteSupplyData }: NoteSummaryProps) => {
+const NoteSummary = ({ noteSupplyData }: NoteSummaryProps) => {
   const theme = useTheme();
   const { notePrice, notePriceChange } = useNotePrice();
   const [dateRange, setDateRange] = useState(ValidDateRanges[1].value);
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const {
     noteBurnChart,
     totalNoteBurned,
@@ -77,6 +78,7 @@ export const NoteSummary = ({ noteSupplyData }: NoteSummaryProps) => {
         <NoteChart
           // option={option}
           data={noteBurnChart}
+          baseCurrency={baseCurrency}
           title={<FormattedMessage defaultMessage={'Total NOTE Burned'} />}
           largeValue={<DualColorValue value={totalNoteBurned || 0} />}
         />
@@ -193,4 +195,4 @@ const ButtonContainer = styled(Box)(
   `
 );
 
-export default NoteSummary;
+export default observer(NoteSummary);
