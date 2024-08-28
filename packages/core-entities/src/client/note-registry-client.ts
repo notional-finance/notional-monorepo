@@ -12,7 +12,7 @@ import {
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
-import { TokenBalance } from '../token-balance';
+import { getNetworkModel } from '../Models';
 
 export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
   protected cachePath() {
@@ -86,10 +86,9 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
       );
     }, BigNumber.from(0));
 
-    return TokenBalance.fromSymbol(
+    return getNetworkModel(Network.mainnet).getTokenBalanceFromSymbol(
       totalEmissions.mul(INTERNAL_TOKEN_PRECISION),
-      'NOTE',
-      Network.mainnet
+      'NOTE'
     );
   }
 

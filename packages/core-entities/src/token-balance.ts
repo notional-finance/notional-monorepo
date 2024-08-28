@@ -10,6 +10,8 @@ import {
   RATE_PRECISION,
   SCALAR_PRECISION,
   ZERO_ADDRESS,
+  decodeERC1155Id,
+  isERC1155Id,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { parseUnits } from 'ethers/lib/utils';
@@ -19,13 +21,31 @@ import { FiatKeys, FiatSymbols } from './config/fiat-config';
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
 
 export class TokenBalance {
+  public n: BigNumber;
+
   /** Create Methods */
   constructor(
-    public n: BigNumber,
+    _n: BigNumberish,
     public tokenId: string,
     public network: Network
   ) {
-    this.tokenId = convertToGenericfCashId(tokenId).toLowerCase();
+    if (_n instanceof BigNumber) {
+      this.n = _n;
+    } else {
+      this.n = BigNumber.from(_n);
+    }
+
+    if (isERC1155Id(tokenId)) {
+      const { isfCashDebt, assetType } = decodeERC1155Id(tokenId);
+      // Ensure that fcash debts and vault debts are negative
+      if (
+        (isfCashDebt || assetType === AssetType.VAULT_DEBT_ASSET_TYPE) &&
+        this.n.gt(0)
+      )
+        this.n = this.n.mul(-1);
+      this.tokenId = convertToGenericfCashId(tokenId).toLowerCase();
+    }
+
     // Rewrite alt eth address to zero address
     if (this.tokenId === ALT_ETH) this.tokenId = ZERO_ADDRESS;
   }
@@ -36,28 +56,6 @@ export class TokenBalance {
   }
 
   static from(n: BigNumberish, token: TokenDefinition) {
-    return new TokenBalance(BigNumber.from(n), token.id, token.network);
-  }
-
-  static fromID(n: BigNumberish, id: string, network: Network) {
-    const token = Registry.getTokenRegistry().getTokenByID(network, id);
-    const _n = BigNumber.from(n);
-    // NOTE: this is used during balance summary where fCash debt is marked
-    // with a positive amount
-    return new TokenBalance(
-      (token.isFCashDebt ||
-        token.tokenType === 'PrimeDebt' ||
-        token.tokenType === 'VaultDebt') &&
-      !_n.isNegative()
-        ? _n.mul(-1)
-        : _n,
-      token.id,
-      token.network
-    );
-  }
-
-  static fromSymbol(n: BigNumberish, symbol: string, network: Network) {
-    const token = Registry.getTokenRegistry().getTokenBySymbol(network, symbol);
     return new TokenBalance(BigNumber.from(n), token.id, token.network);
   }
 

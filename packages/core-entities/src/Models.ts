@@ -8,7 +8,7 @@ const ArbitrumNetworkModel = NetworkClientModel.create({
   network: Network.arbitrum,
 });
 
-export function getNetworkModel(network: Network) {
+export function getNetworkModel(network: Network | undefined) {
   switch (network) {
     case Network.mainnet:
       return MainnetNetworkModel;

@@ -2,6 +2,7 @@ import { useTheme } from '@mui/material';
 import {
   FiatKeys,
   TokenBalance,
+  getNetworkModel,
   getPointsPerDay,
 } from '@notional-finance/core-entities';
 import {
@@ -21,11 +22,7 @@ import {
   usePortfolioHoldings,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import {
-  Network,
-  PORTFOLIO_ACTIONS,
-  TXN_HISTORY_TYPE,
-} from '@notional-finance/util';
+import { PORTFOLIO_ACTIONS, TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
@@ -51,7 +48,10 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
           .add(
             perIncentiveEarnings.reduce(
               (s, i) => s.add(i.toFiat(baseCurrency)),
-              TokenBalance.fromSymbol(0, baseCurrency, Network.all)
+              getNetworkModel(network).getTokenBalanceFromSymbol(
+                0,
+                baseCurrency
+              )
             )
           );
 

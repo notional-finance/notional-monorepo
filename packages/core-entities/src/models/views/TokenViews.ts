@@ -7,6 +7,8 @@ import {
   encodeERC1155Id,
   PRIME_CASH_VAULT_MATURITY,
 } from '@notional-finance/util';
+import { BigNumberish } from 'ethers';
+import { TokenBalance } from '../../token-balance';
 
 export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   const getAllTokens = () => {
@@ -102,6 +104,12 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     }
   };
 
+  const getTokenBalanceFromSymbol = (n: BigNumberish, symbol: string) => {
+    const token = getTokenBySymbol(symbol);
+    if (!token) throw Error(`Token ${symbol} not found`);
+    return TokenBalance.from(n, token);
+  };
+
   return {
     getAllTokens,
     getTokenBySymbol,
@@ -114,5 +122,6 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     getVaultDebt,
     getVaultCash,
     unwrapVaultToken,
+    getTokenBalanceFromSymbol,
   };
 };

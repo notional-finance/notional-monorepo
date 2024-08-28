@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import {
   Allowance,
+  getNetworkModel,
   Registry,
   TokenBalance,
   TokenDefinition,
@@ -213,7 +214,7 @@ export function useWalletBalancesOnNetworks(
     acc[n] =
       acct?.accountDefinition?.balances.find(
         (t) => t.tokenType === 'Underlying' && t.symbol === underlyingSymbol
-      ) || TokenBalance.fromSymbol(0, underlyingSymbol, n);
+      ) || getNetworkModel(n).getTokenBalanceFromSymbol(0, underlyingSymbol);
 
     return acc;
   }, {} as Record<Network, TokenBalance>);
@@ -268,7 +269,10 @@ export function useMaxAssetBalance(token: TokenDefinition | undefined) {
     : profile?.balances.find((b) => b.tokenId === token?.id);
 }
 
-export function useExceedsSupplyCap(deposit: TokenBalance | undefined, excludeSupplyCap: boolean) {
+export function useExceedsSupplyCap(
+  deposit: TokenBalance | undefined,
+  excludeSupplyCap: boolean
+) {
   if (deposit && !excludeSupplyCap) {
     const { maxUnderlyingSupply, currentUnderlyingSupply } =
       Registry.getConfigurationRegistry().getMaxSupply(

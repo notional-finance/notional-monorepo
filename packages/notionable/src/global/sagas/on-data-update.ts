@@ -113,7 +113,7 @@ function onAnalyticsReady$(app$: Observable<ApplicationState>) {
               for (const key in historicalData) {
                 try {
                   const updatedData = historicalData[key].map((data) => {
-                    const fCashTokenBalance = TokenBalance.fromID(
+                    const fCashTokenBalance = new TokenBalance(
                       data?.fCashValue,
                       data?.fCashId,
                       n

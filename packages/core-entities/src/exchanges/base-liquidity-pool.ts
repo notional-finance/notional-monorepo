@@ -25,9 +25,7 @@ export default abstract class BaseLiquidityPool<
   public get balances() {
     // Remap WETH to ETH
     return this._balances.map((b) =>
-      b.symbol === 'WETH'
-        ? TokenBalance.fromID(b.n, ZERO_ADDRESS, b.network)
-        : b
+      b.symbol === 'WETH' ? new TokenBalance(b.n, ZERO_ADDRESS, b.network) : b
     );
   }
 
