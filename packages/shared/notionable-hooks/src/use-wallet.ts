@@ -18,6 +18,7 @@ import {
 import { useAllMarkets } from './use-market';
 import { useNotionalContext } from './use-notional';
 import { useAppStore } from './context/AppContext';
+import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 
 export function usePrimeCashBalance(
   selectedToken: string | undefined | null,
@@ -67,10 +68,11 @@ export function useTruncatedAddress() {
 }
 
 export function useWalletConnectedNetwork() {
-  const {
-    wallet: { userWallet },
-  } = useAppStore();
-  return userWallet?.selectedChain;
+  const [{ wallet }] = useConnectWallet();
+  const currentLabel = wallet?.label;
+  const [{ connectedChain }] = useSetChain(currentLabel);
+  const selectedChain = connectedChain?.id as Network | undefined
+  return selectedChain;
 }
 
 export function useReadOnlyAddress() {
