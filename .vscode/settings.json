@@ -20,5 +20,16 @@
   "eslint.format.enable": true,
   "eslint.alwaysShowStatus": true,
   
-  "cSpell.words": ["arrayify", "noindex", "Numberish", "xirr"]
+  "cSpell.words": [
+    "arrayify",
+    "noindex",
+    "Numberish",
+    "xirr"
+  ],
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

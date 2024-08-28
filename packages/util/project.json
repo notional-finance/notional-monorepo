@@ -7,6 +7,7 @@
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
+      "cache": true,
       "options": {
         "outputPath": "dist/packages/util",
         "main": "packages/util/src/index.ts",

@@ -161,7 +161,7 @@ export default class APYSimulator {
       await provider.send('evm_revert', [checkpoint]);
     }
 
-    await this.#saveToDb(allResults);
+    // await this.#saveToDb(allResults);
   }
 
   async #calculateFutureAPY(provider: JsonRpcProvider, vaultData: VaultData) {
@@ -454,6 +454,7 @@ export default class APYSimulator {
         rewardTokens.set(transfer.token, tokensClaimed.add(transfer.amount));
       }
     }
+    console.log(rewardTokens);
 
     return rewardTokens;
   }

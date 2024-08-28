@@ -1,7 +1,7 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx", "formatjs", "react-hooks", "react", "mobx"],
+  "plugins": ["@nx", "formatjs", "react-hooks", "react", "mobx"],
   "rules": {
     "formatjs/no-offset": "error",
     "formatjs/no-id": "error"
@@ -11,7 +11,7 @@
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "extends": ["plugin:mobx/recommended"],
       "rules": {
-        "@nrwl/nx/enforce-module-boundaries": [
+        "@nx/enforce-module-boundaries": [
           "warn",
           {
             "enforceBuildableLibDependency": true,
@@ -34,7 +34,7 @@
     },
     {
       "files": ["*.ts", "*.tsx"],
-      "extends": ["plugin:@nrwl/nx/typescript"],
+      "extends": ["plugin:@nx/typescript"],
       "rules": {
         "@typescript-eslint/no-unused-vars": [
           "error",
@@ -50,7 +50,7 @@
     },
     {
       "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:@nrwl/nx/javascript"],
+      "extends": ["plugin:@nx/javascript"],
       "rules": {}
     },
     {

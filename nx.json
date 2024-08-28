@@ -6,9 +6,8 @@
     "appsDir": "apps",
     "libsDir": "packages"
   },
-  "affected": {
-    "defaultBase": "main"
-  },
+  "defaultBase": "v3/prod",
+  "parallel": 4,
   "targetDefaults": {
     "lint": {
       "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]

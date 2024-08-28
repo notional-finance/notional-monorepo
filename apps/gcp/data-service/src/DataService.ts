@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import knex, { Knex } from 'knex';
 import {
   Network,
   getProviderFromNetwork,
@@ -60,8 +60,37 @@ export default class DataService {
   public static readonly VAULT_APY_NAME = 'vault_apy';
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
   public static readonly POINTS_TABLE_NAME = 'arb_points';
+  public db: Knex;
+  public settings: DataServiceSettings;
 
-  constructor(public db: Knex, public settings: DataServiceSettings) {}
+  constructor() {
+    this.db = knex({
+      client: 'pg',
+      pool: {
+        min: 0,
+        max: 200,
+      },
+      connection: {
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_NAME,
+        host: process.env.DB_HOST,
+      },
+    });
+
+    this.settings = {
+      // TODO: get from env
+      blocksPerSecond: {
+        [Network.arbitrum]: 2.5, // 2.5 blocks per second on arbitrum
+        [Network.mainnet]: 0.083,
+      },
+      maxProviderRequests: 50,
+      interval: 1, // 1 Hour
+      frequency: 3600, // Hourly
+      mergeConflicts: JSON.parse(process.env.MERGE_CONFLICTS || 'false'),
+      backfillDelayMs: 5000,
+    };
+  }
 
   private getKeyByValue(object, value) {
     return Object.keys(object).find((key) => object[key] === value);
