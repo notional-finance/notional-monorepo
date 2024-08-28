@@ -15,8 +15,33 @@ import {
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { parseUnits } from 'ethers/lib/utils';
-import { Registry, TokenDefinition, RiskAdjustment } from '.';
+import { TokenDefinition, RiskAdjustment, getNetworkModel } from '.';
 import { FiatKeys, FiatSymbols } from './config/fiat-config';
+
+// NOTE: this is a hack used to hide the circular type reference for TokenBalance from typescript
+const NetworkModelRegistry = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  models: new Map<Network, any>(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setModel(network: Network, model: any) {
+    this.models.set(network, model);
+  },
+  getModel(network: Network) {
+    if (!this.models.has(network))
+      throw new Error(`${network} is not supported`);
+    return this.models.get(network);
+  },
+};
+
+NetworkModelRegistry.setModel(
+  Network.mainnet,
+  getNetworkModel(Network.mainnet)
+);
+NetworkModelRegistry.setModel(
+  Network.arbitrum,
+  getNetworkModel(Network.arbitrum)
+);
+NetworkModelRegistry.setModel(Network.all, getNetworkModel(Network.all));
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
 
@@ -127,8 +152,10 @@ export class TokenBalance {
     return this.token.tokenType;
   }
 
-  get token() {
-    return Registry.getTokenRegistry().getTokenByID(this.network, this.tokenId);
+  get token(): TokenDefinition {
+    return NetworkModelRegistry.getModel(this.network).getTokenByID(
+      this.tokenId
+    );
   }
 
   copy(n: BigNumberish = this.n) {
@@ -154,12 +181,11 @@ export class TokenBalance {
     return utils.id([this.typeKey, this.n.toString()].join(':'));
   }
 
-  get underlying() {
+  get underlying(): TokenDefinition {
     if (this.tokenType == 'Underlying') return this.token;
     if (!this.token.underlying)
       throw Error(`No underlying defined for ${this.token.symbol}`);
-    return Registry.getTokenRegistry().getTokenByID(
-      this.token.network,
+    return NetworkModelRegistry.getModel(this.network).getTokenByID(
       this.token.underlying
     );
   }
@@ -470,16 +496,13 @@ export class TokenBalance {
     riskAdjustment: RiskAdjustment = 'None',
     timestamp?: number
   ): TokenBalance {
-    const oracleRegistry = Registry.getOracleRegistry();
+    const model = NetworkModelRegistry.getModel(this.network);
 
     if (this.tokenType === 'NOTE' && this.network !== Network.all) {
       // If converting NOTE to any token denomination, first convert to ETH via
       // the all network
       const noteInETH = this.toFiat('ETH');
-      const eth = Registry.getTokenRegistry().getTokenBySymbol(
-        this.network,
-        'ETH'
-      );
+      const eth = model.getTokenBySymbol('ETH');
       const ethInCurrentNetwork = TokenBalance.from(
         noteInETH.scale(
           BigNumber.from(10).pow(eth.decimals),
@@ -540,8 +563,7 @@ export class TokenBalance {
 
   toPrimeDebt() {
     if (this.tokenType === 'PrimeDebt') return this;
-    const primeDebt = Registry.getTokenRegistry().getPrimeDebt(
-      this.network,
+    const primeDebt = NetworkModelRegistry.getModel(this.network).getPrimeDebt(
       this.currencyId
     );
 
@@ -551,8 +573,7 @@ export class TokenBalance {
 
   toPrimeCash() {
     if (this.tokenType === 'PrimeCash') return this;
-    const primeCash = Registry.getTokenRegistry().getPrimeCash(
-      this.network,
+    const primeCash = NetworkModelRegistry.getModel(this.network).getPrimeCash(
       this.currencyId
     );
 
@@ -569,23 +590,23 @@ export class TokenBalance {
   }
 
   toFiat(symbol: FiatKeys, atTimestamp?: number) {
-    const tokens = Registry.getTokenRegistry();
-    const fiatToken = tokens.getTokenBySymbol(Network.all, symbol);
+    const allNetwork = NetworkModelRegistry.getModel(Network.all);
+    const fiatToken = allNetwork.getTokenBySymbol(symbol);
 
     if (this.tokenType === 'NOTE') {
       // The NOTE token is a special case which converts directly in the
       // "All" network since the only price oracle that exists is on mainnet
-      const note = tokens.getTokenBySymbol(Network.all, 'NOTE');
+      const note = allNetwork.getTokenBySymbol('NOTE');
       const noteInAllNetwork = TokenBalance.from(this.n, note);
       return noteInAllNetwork.toToken(fiatToken, undefined, atTimestamp);
     } else {
       // Other tokens convert to ETH first and then go via the "All" network
       // for fiat currency conversions
-      const eth = tokens.getTokenBySymbol(this.network, 'ETH');
+      const eth = allNetwork.getTokenBySymbol('ETH');
       const valueInETH = this.toToken(eth, undefined, atTimestamp);
       const ethInAllNetwork = TokenBalance.from(
         valueInETH.n,
-        tokens.getTokenBySymbol(Network.all, 'ETH')
+        allNetwork.getTokenBySymbol('ETH') as TokenDefinition
       );
       return ethInAllNetwork.toToken(fiatToken, undefined, atTimestamp);
     }
@@ -593,7 +614,9 @@ export class TokenBalance {
 
   /** Does some token id manipulation for exchange rates */
   unwrapVaultToken() {
-    const newToken = Registry.getTokenRegistry().unwrapVaultToken(this.token);
+    const newToken = NetworkModelRegistry.getModel(
+      this.network
+    ).unwrapVaultToken(this.token);
     return TokenBalance.from(this.n, newToken);
   }
 }

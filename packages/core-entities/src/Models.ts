@@ -7,6 +7,9 @@ const MainnetNetworkModel = NetworkClientModel.create({
 const ArbitrumNetworkModel = NetworkClientModel.create({
   network: Network.arbitrum,
 });
+const AllNetworkModel = NetworkClientModel.create({
+  network: Network.all,
+});
 
 export function getNetworkModel(network: Network | undefined) {
   switch (network) {
@@ -14,6 +17,8 @@ export function getNetworkModel(network: Network | undefined) {
       return MainnetNetworkModel;
     case Network.arbitrum:
       return ArbitrumNetworkModel;
+    case Network.all:
+      return AllNetworkModel;
     default:
       throw new Error('Network not supported');
   }
