@@ -1,16 +1,29 @@
 import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
 import { NetworkClientModel } from './models/NetworkModel';
 
-export const NetworkModels = {
-  [Network.mainnet]: NetworkClientModel.create({ network: Network.mainnet }),
-  [Network.arbitrum]: NetworkClientModel.create({ network: Network.arbitrum }),
-};
+const MainnetNetworkModel = NetworkClientModel.create({
+  network: Network.mainnet,
+});
+const ArbitrumNetworkModel = NetworkClientModel.create({
+  network: Network.arbitrum,
+});
+
+export function getNetworkModel(network: Network) {
+  switch (network) {
+    case Network.mainnet:
+      return MainnetNetworkModel;
+    case Network.arbitrum:
+      return ArbitrumNetworkModel;
+    default:
+      throw new Error('Network not supported');
+  }
+}
 
 // NOTE: this has to be called outside of the model to avoid issues with scope
 export function refreshNetworkModels(refreshInterval: number = ONE_MINUTE_MS) {
   setInterval(() => {
     console.log('Refreshing snapshots');
-    NetworkModels[Network.mainnet].triggerRefresh();
-    NetworkModels[Network.arbitrum].triggerRefresh();
+    MainnetNetworkModel.triggerRefresh();
+    ArbitrumNetworkModel.triggerRefresh();
   }, refreshInterval);
 }
