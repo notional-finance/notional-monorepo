@@ -481,6 +481,8 @@ export default class NotionalV3Liquidator {
           }
         }
 
+        // NOTE: in some cases you will have to force a different collateral currency
+        // than the one that is returned by the logic below.
         if (netLocal.gt(0)) {
           // Collateral liquidations are possible, check each combination of collateral and debt currency
           liquidations.push(

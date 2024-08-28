@@ -51,7 +51,7 @@ function shuffleArray(array: string[]) {
 
 async function setUp(env: Env) {
   const allTokens: CacheSchema<TokenDefinition> = await (
-    await fetch(`https://data-dev.notional.finance/${env.NETWORK}/tokens`)
+    await fetch(`https://registry.notional.finance/${env.NETWORK}/tokens`)
   ).json();
 
   const logger = new Logger({
@@ -154,6 +154,7 @@ async function getAccountLiquidation(env: Env, address: string) {
     const liquidation = await liquidator.getLargestLiquidation(
       riskyAccounts[0]
     );
+    if (liquidation) await liquidator.liquidateAccount(liquidation);
 
     // Rewrite the liquidation object into something more readable
     if (liquidation)
