@@ -1,7 +1,13 @@
-import { Box, useTheme } from '@mui/material';
-import { Faq, FaqHeader, DataTable, TotalRow } from '@notional-finance/mui';
+import { Box, SxProps, useTheme } from '@mui/material';
+import {
+  Faq,
+  FaqHeader,
+  DataTable,
+  TotalRow,
+  InfoTooltip,
+} from '@notional-finance/mui';
 import { useContext } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { defineMessage, FormattedMessage } from 'react-intl';
 import { MobileVaultSummary, VaultModal } from '../components';
 import { VaultActionContext } from '../vault';
 import {
@@ -16,6 +22,38 @@ import {
 } from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { useAllMarkets, useAppState } from '@notional-finance/notionable-hooks';
+
+const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
+  const theme = useTheme();
+
+  const toopTipData = {
+    borrowCapacity: defineMessage({
+      defaultMessage:
+        'Remaining amount that can be borrowed by this vault before max capacity.',
+    }),
+    poolCapWithoutMaxShare: defineMessage({
+      defaultMessage:
+        'This vault can only hold a fixed percentage of total LP tokens in the pool. Remaining pool capacity can change as liquidity in the pool increases or decreases.',
+    }),
+    poolCapWithMaxShare: defineMessage({
+      defaultMessage:
+        'This vault can only hold of total LP tokens in the pool. Remaining pool capacity can change as liquidity in the pool increases or decreases.',
+    }),
+  };
+
+  const currentTip = title?.includes('Borrow Capacity')
+    ? toopTipData.borrowCapacity
+    : toopTipData.poolCapWithMaxShare;
+
+  return (
+    <InfoTooltip
+      sx={{ ...sx }}
+      iconSize={theme.spacing(2)}
+      iconColor={theme.palette.typography.accent}
+      toolTipText={currentTip}
+    />
+  );
+};
 
 export const VaultSummary = () => {
   const theme = useTheme();
@@ -56,6 +94,7 @@ export const VaultSummary = () => {
     },
     {
       title: 'Remaining Borrow Capacity',
+      Icon: ToolTip,
       value: totalCapacityRemaining?.isNegative()
         ? 0
         : totalCapacityRemaining?.toFloat(),
@@ -64,6 +103,7 @@ export const VaultSummary = () => {
     },
     {
       title: 'Remaining Pool Capacity',
+      Icon: ToolTip,
       value: totalPoolCapacityRemaining?.isNegative()
         ? 0
         : totalPoolCapacityRemaining?.toFloat(),
