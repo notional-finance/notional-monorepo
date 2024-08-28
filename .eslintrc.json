@@ -45,7 +45,7 @@
         ],
         "react-hooks/exhaustive-deps": ["warn"],
         "array-callback-return": ["error"],
-        "@nrwl/nx/enforce-module-boundaries": ["warn"]
+        "@nx/enforce-module-boundaries": ["warn"]
       }
     },
     {

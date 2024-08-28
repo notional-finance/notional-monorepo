@@ -2,25 +2,19 @@
   "name": "features-about-us",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/features/about-us/src",
-  "implicitDependencies": [
-    "shared-assets"
-  ],
+  "implicitDependencies": ["shared-assets"],
   "projectType": "library",
   "tags": [],
   "targets": {
     "build": {
       "executor": "@nrwl/rollup:rollup",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/packages/features/about-us",
         "tsConfig": "packages/features/about-us/tsconfig.lib.json",
         "project": "packages/features/about-us/package.json",
         "entryFile": "packages/features/about-us/src/index.ts",
-        "external": [
-          "react/jsx-runtime"
-        ],
+        "external": ["react/jsx-runtime"],
         "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
         "compiler": "babel",
         "assets": [
@@ -38,21 +32,15 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "packages/features/about-us/**/*.{ts,tsx,js,jsx}"
-        ]
+        "lintFilePatterns": ["packages/features/about-us/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "packages/features/about-us/jest.config.ts",
         "passWithNoTests": true

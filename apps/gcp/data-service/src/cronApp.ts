@@ -3,10 +3,11 @@ import DataService from './DataService';
 import { calculateAccountRisks, calculatePointsAccrued } from './RiskService';
 import { syncDune } from './DuneService';
 import { Network, ONE_HOUR_MS } from '@notional-finance/util';
-import { logToDataDog } from './util';
+import { logToDataDog, parseQueryParams } from './util';
 
 export default async function (req: Request, res: Response) {
   const dataService = new DataService();
+  const queryParams = parseQueryParams(req.query);
 
   try {
     switch (req.path) {
@@ -15,11 +16,11 @@ export default async function (req: Request, res: Response) {
         res.status(200).send('OK');
         break;
       case '/calculatePoints':
-        const blockNumber = req.query.blockNumber
-          ? parseInt(req.query.blockNumber as string)
-          : undefined;
         await dataService.insertPointsData(
-          await calculatePointsAccrued(Network.arbitrum, blockNumber)
+          await calculatePointsAccrued(
+            Network.arbitrum,
+            queryParams.blockNumber
+          )
         );
         res.status(200).send('OK');
         break;

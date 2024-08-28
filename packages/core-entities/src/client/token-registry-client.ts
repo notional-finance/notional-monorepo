@@ -9,7 +9,7 @@ import {
   encodeERC1155Id,
 } from '@notional-finance/util';
 import { Routes } from '../server';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { TokenType } from '../.graphclient';
 import { MaxCurrencyId } from '../config/whitelisted-tokens';
 

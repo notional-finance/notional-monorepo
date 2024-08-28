@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers';
 import { BehaviorSubject } from 'rxjs';
 import { PoolClasses } from './exchanges';
 import { SerializedTokenBalance, TokenBalance } from './token-balance';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import {
   OracleType,
   SystemAccount,
@@ -11,7 +11,7 @@ import {
   TokenType,
   TransferType,
 } from './.graphclient';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 export type {
   OracleType,
   SystemAccount,

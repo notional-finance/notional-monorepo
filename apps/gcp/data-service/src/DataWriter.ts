@@ -8,11 +8,7 @@ import {
 import { Knex } from 'knex';
 
 export class TokenBalanceDataWriter implements IDataWriter {
-  public async write(
-    db: Knex,
-    context: DataContext,
-    rows: DataRow[]
-  ): Promise<any> {
+  public async write(db: Knex, context: DataContext, rows: DataRow[]) {
     const query = db
       .insert(
         rows.map((v) => {
@@ -40,11 +36,7 @@ export class TokenBalanceDataWriter implements IDataWriter {
 }
 
 export class GenericDataWriter implements IDataWriter {
-  public async write(
-    db: Knex,
-    context: DataContext,
-    rows: DataRow[]
-  ): Promise<any> {
+  public async write(db: Knex, context: DataContext, rows: DataRow[]) {
     const query = db
       .insert(
         rows.map((v) => {

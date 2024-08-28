@@ -11,7 +11,7 @@ import { fetchGraphPaginate } from '@notional-finance/core-entities';
 import { aggregate } from '@notional-finance/multicall';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { BigNumber, Contract, ethers, providers } from 'ethers';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { AllVaultAccountsQuery } from 'packages/core-entities/src/.graphclient';
 
 const VaultConfig = {
@@ -80,7 +80,7 @@ async function loadAllVaultsQuery(
 ) {
   const {
     AllVaultAccountsDocument,
-    // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+    // eslint-disable-next-line @nx/enforce-module-boundaries
   } = await import('../../../packages/core-entities/src/.graphclient/index');
 
   return await fetchGraphPaginate(

@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { NextFunction, Request, Response, Handler } from 'express';
 import DataService from './DataService';
 import {
   AssetType,
@@ -13,8 +13,37 @@ import { logToDataDog } from './util';
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const app = express();
 
+const parseQueryParams = (q: Request['query']) => {
+  const now = Date.now() / 1000;
+  let startTime = now;
+  if (q.startTime) {
+    startTime = parseInt(q.startTime as string);
+    if (startTime > now) {
+      startTime = now;
+    }
+  }
+  let endTime = now;
+  if (q.endTime) {
+    endTime = parseInt(q.endTime as string);
+    if (endTime > now) {
+      endTime = now;
+    }
+  }
+  if (endTime < startTime) {
+    throw Error('endTime must be greater than startTime');
+  }
+  const network = q.network ? (q.network as Network) : Network.mainnet;
+  const limit = q.limit ? parseInt(q.limit as string) : undefined;
+  return {
+    startTime: startTime,
+    endTime: endTime,
+    network: network,
+    limit: limit,
+  };
+};
+
 const catchAsync =
-  (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
+  (fn: Handler) => (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 
@@ -43,14 +72,14 @@ app.get('/', (_, res) => {
 app.get(
   '/blocks',
   catchAsync(async (req, res) => {
-    const params = req.query;
+    const params = parseQueryParams(req.query);
     const timestamps = dataService.getTimestamps(
       params.startTime,
       params.endTime
     );
     const blockNumbers = await Promise.all(
       timestamps.map((ts) =>
-        dataService.getBlockNumberFromTs(params.network, ts)
+        dataService.getBlockNumberFromTs(params.network as Network, ts)
       )
     );
     res.send(JSON.stringify(blockNumbers));
@@ -60,9 +89,10 @@ app.get(
 app.get(
   '/backfillOracleData',
   catchAsync(async (req, res) => {
+    const params = parseQueryParams(req.query);
     await dataService.backfill(
-      req.query.startTime,
-      req.query.endTime,
+      params.startTime,
+      params.endTime,
       BackfillType.OracleData
     );
     res.send('OK');
@@ -72,9 +102,10 @@ app.get(
 app.get(
   '/backfillYieldData',
   catchAsync(async (req, res) => {
+    const params = parseQueryParams(req.query);
     await dataService.backfill(
-      req.query.startTime,
-      req.query.endTime,
+      params.startTime,
+      params.endTime,
       BackfillType.YieldData
     );
     res.send('OK');
@@ -85,8 +116,8 @@ app.get(
   '/backfillGenericData',
   catchAsync(async (req, res) => {
     await dataService.backfill(
-      req.query.startTime,
-      req.query.endTime,
+      parseInt(req.query.startTime as string),
+      parseInt(req.query.endTime as string),
       BackfillType.GenericData
     );
     res.send('OK');
@@ -165,7 +196,9 @@ app.get(
   '/accounts',
   catchAsync(async (req, res) => {
     res.send(
-      JSON.stringify(await dataService.accounts(req.query.network as Network))
+      JSON.stringify(
+        await dataService.accounts(parseQueryParams(req.query).network)
+      )
     );
   })
 );
@@ -175,7 +208,7 @@ app.get(
   catchAsync(async (req, res) => {
     res.send(
       JSON.stringify(
-        await dataService.vaultAccounts(req.query.network as Network)
+        await dataService.vaultAccounts(parseQueryParams(req.query).network)
       )
     );
   })
@@ -186,7 +219,9 @@ app.get(
   catchAsync(async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.send(
-      JSON.stringify(await dataService.views(req.query.network as Network))
+      JSON.stringify(
+        await dataService.views(parseQueryParams(req.query).network)
+      )
     );
   })
 );
@@ -218,7 +253,7 @@ app.get(
 app.get(
   '/query',
   catchAsync(async (req, res) => {
-    const params = req.query;
+    const params = parseQueryParams(req.query);
     const view = req.query.view;
     if (!view) {
       res.status(400).send('View required');

@@ -37,7 +37,7 @@ import {
   loadGraphClientDeferred,
 } from '../server/server-registry';
 import { parseTransaction } from './accounts/transaction-history';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { Transaction } from '../.graphclient';
 import { getSecondaryTokenIncentive } from '../config/whitelisted-tokens';
 
@@ -187,7 +187,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   }
 
   getOracleName(
-    oracleType: typeof APY_ORACLES[number],
+    oracleType: (typeof APY_ORACLES)[number],
     incentiveSymbol?: string
   ) {
     switch (oracleType) {
@@ -226,7 +226,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     const oracles = this._getHistoricalOracles(token.network).filter(
       (o) =>
         o.quote === token.id &&
-        APY_ORACLES.includes(o.oracleType as typeof APY_ORACLES[number])
+        APY_ORACLES.includes(o.oracleType as (typeof APY_ORACLES)[number])
     );
 
     if (oracles.length === 1) {
@@ -290,7 +290,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
 
               acc[
                 this.getOracleName(
-                  o.oracleType as typeof APY_ORACLES[number],
+                  o.oracleType as (typeof APY_ORACLES)[number],
                   incentiveSymbol
                 )
               ] = apy;

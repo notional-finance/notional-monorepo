@@ -9,7 +9,7 @@ import {
   WETHAddress,
 } from '@notional-finance/util';
 import { TypedDocumentNode } from '@apollo/client/core';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { AllTokensQuery } from '../.graphclient';
 
 type SerializedToken =

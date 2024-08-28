@@ -7,7 +7,7 @@ import {
 import { Registry } from '../../Registry';
 import { TokenBalance } from '../../token-balance';
 
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { ProfitLossLineItem, Transaction } from '../../.graphclient';
 import { AccountHistory, TokenDefinition } from '../../Definitions';
 

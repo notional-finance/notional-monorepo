@@ -44,7 +44,7 @@
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/gcp/data-service/**/*.ts"]
+        "lintFilePatterns": ["apps/gcp/data-service/**/*.{ts,tsx,js,jsx}"]
       }
     }
   },
