@@ -80,6 +80,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
   return window.innerWidth <= theme.breakpoints.values.sm ? (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'end' }}>
+        {/* {!wallet.userWallet?.selectedAddress && isAccountPending && pathname !== '/' && ( */}
         {!wallet.userWallet?.selectedAddress && pathname !== '/' && (
           <Button
             onClick={() =>
