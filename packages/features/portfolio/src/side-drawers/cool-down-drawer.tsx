@@ -19,7 +19,7 @@ import { useCoolDownDrawer } from './hooks/use-cool-down-drawer';
 import { useCallback } from 'react';
 import {
   useAccountDefinition,
-  useSelectedNetwork,
+  useWalletConnectedNetwork,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import { SNOTEWeightedPool } from '@notional-finance/core-entities';
@@ -30,8 +30,8 @@ export const CoolDownDrawer = () => {
   const { isReadOnlyAddress, onSubmit, transactionStatus, transactionHash } =
     useTransactionStatus(Network.mainnet);
   const { days, coolDownEnd, coolDownBegin } = useCoolDownDrawer();
-  const selectedNetwork = useSelectedNetwork();
-  const mustSwitchNetwork = Network.mainnet !== selectedNetwork;
+  const walletConnectedNetwork = useWalletConnectedNetwork();
+  const mustSwitchNetwork = Network.mainnet !== walletConnectedNetwork;
 
   const handleClick = useCallback(async () => {
     if (isReadOnlyAddress || !account) return;
@@ -152,7 +152,7 @@ export const CoolDownDrawer = () => {
         <PendingTransaction
           hash={transactionHash}
           transactionStatus={transactionStatus}
-          selectedNetwork={selectedNetwork}
+          selectedNetwork={walletConnectedNetwork}
         />
       )}
       <Button

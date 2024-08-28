@@ -105,7 +105,7 @@ export function useTransactionStatus(network: Network | undefined) {
   const isWalletConnectedToNetwork =
     !!network &&
     !!userWallet?.selectedAddress &&
-    network === userWallet?.selectedAddress;
+    network === userWallet?.selectedChain;
 
   useEffect(() => {
     if (reverted) setTransactionHash(TransactionStatus.REVERT);

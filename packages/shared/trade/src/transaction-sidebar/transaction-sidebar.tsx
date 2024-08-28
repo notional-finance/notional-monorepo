@@ -33,6 +33,7 @@ import { TradeSummary } from './components/trade-summary';
 import { isLeveragedTrade } from '@notional-finance/notionable';
 import { PRODUCTS } from '@notional-finance/util';
 import { SwitchNetwork } from '../transaction-approvals/switch-network';
+import { observer } from 'mobx-react-lite';
 
 interface TransactionSidebarProps {
   heading?:
@@ -60,7 +61,7 @@ interface TransactionSidebarProps {
   hideActionButtons?: boolean;
 }
 
-export const TransactionSidebar = ({
+const TransactionSidebarComponent = ({
   mobileTopMargin,
   context,
   heading,
@@ -229,3 +230,5 @@ export const TransactionSidebar = ({
 
   return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };
+
+export const TransactionSidebar = observer(TransactionSidebarComponent);

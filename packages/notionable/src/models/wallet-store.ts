@@ -3,7 +3,7 @@ import { Network } from '@notional-finance/util';
 import { AccountState } from '../global';
 
 const UserWalletModel = types.model('UserWalletModel', {
-  selectedChain: types.optional(types.enumeration('Network', Object.values(Network)), Network.mainnet),
+  selectedChain: types.maybe(types.enumeration('Network', Object.values(Network))),
   selectedAddress: types.string,
   isReadOnlyAddress: types.optional(types.boolean, false),
   label: types.maybe(types.string),

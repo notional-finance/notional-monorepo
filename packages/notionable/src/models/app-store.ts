@@ -1,6 +1,6 @@
 import { flow, Instance, types } from 'mobx-state-tree';
 import { FIAT_NAMES, FiatKeys } from '@notional-finance/core-entities';
-import { getFromLocalStorage, Network, THEME_VARIANTS } from '@notional-finance/util';
+import { getFromLocalStorage, THEME_VARIANTS } from '@notional-finance/util';
 import { WalletModel } from './wallet-store';
 
 const userSettings = getFromLocalStorage('userSettings');
@@ -14,7 +14,12 @@ const HeroStatsModel = types
   .actions((self) => ({
     fetchKpiData: flow(function* () {
       try {
-        const response = yield fetch(`${process.env['NX_DATA_URL']}/kpi`);
+        const response = yield fetch(
+          `${
+            process.env['NX_REGISTRY_URL'] ||
+            'https://registry.notional.finance'
+          }/all/kpi`
+        );
         const data = yield response.json();
         self.totalAccounts = data.totalAccounts;
         self.totalDeposits = data.totalDeposits;
@@ -23,7 +28,7 @@ const HeroStatsModel = types
         console.error('Error fetching KPI data:', error);
       }
     }),
-  }))
+  }));
 
 export const AppStoreModel = types
   .model('AppStoreModel', {
@@ -45,7 +50,7 @@ export const AppStoreModel = types
     afterCreate() {
       self.heroStats.fetchKpiData();
     },
-  }))
+  }));
 
 export type AppStoreType = Instance<typeof AppStoreModel>;
 
@@ -59,14 +64,14 @@ export const appStore = AppStoreModel.create({
     totalDeposits: 0,
     totalOpenDebt: 0,
   },
-  wallet: { 
+  wallet: {
     isSanctionedAddress: false,
     isAccountPending: false,
     userWallet: {
-      selectedChain: Network.mainnet,
+      selectedChain: undefined,
       selectedAddress: '',
       isReadOnlyAddress: false,
       label: '',
-    }
-  }
-})
+    },
+  },
+});
