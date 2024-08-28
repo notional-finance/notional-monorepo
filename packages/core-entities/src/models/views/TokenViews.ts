@@ -21,7 +21,15 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getTokenBySymbol = (symbol: string) => {
-    return getAllTokens().find((t) => t.symbol === symbol);
+    const t = getAllTokens().find((t) => t.symbol === symbol);
+    if (!t) throw Error(`Token ${symbol} not found`);
+    return t;
+  };
+
+  const getTokenByID = (id: string) => {
+    const t = self.tokens.get(id);
+    if (!t) throw Error(`Token ${id} not found`);
+    return t;
   };
 
   const getTokenByAddress = (address: string) => {
@@ -29,9 +37,11 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getTokenByType = (currencyId?: number, tokenType?: string) => {
-    return getAllTokens().find(
+    const t = getAllTokens().find(
       (t) => t.currencyId === currencyId && t.tokenType === tokenType
     );
+    if (!t) throw Error(`Token ${currencyId} ${tokenType} not found`);
+    return t;
   };
 
   const getPrimeCash = (currencyId?: number) => {
@@ -51,30 +61,36 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getVaultShare = (vaultAddress: string, maturity: number) => {
-    return getAllTokens().find(
+    const t = getAllTokens().find(
       (t) =>
         t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
         t.maturity === maturity &&
         t.tokenType === 'VaultShare'
     );
+    if (!t) throw Error(`VaultShare ${vaultAddress} ${maturity} not found`);
+    return t;
   };
 
   const getVaultDebt = (vaultAddress: string, maturity: number) => {
-    return getAllTokens().find(
+    const t = getAllTokens().find(
       (t) =>
         t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
         t.maturity === maturity &&
         t.tokenType === 'VaultDebt'
     );
+    if (!t) throw Error(`VaultDebt ${vaultAddress} ${maturity} not found`);
+    return t;
   };
 
   const getVaultCash = (vaultAddress: string, maturity: number) => {
-    return getAllTokens().find(
+    const t = getAllTokens().find(
       (t) =>
         t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
         t.maturity === maturity &&
         t.tokenType === 'VaultCash'
     );
+    if (!t) throw Error(`VaultCash ${vaultAddress} ${maturity} not found`);
+    return t;
   };
 
   const unwrapVaultToken = (token: Instance<typeof TokenDefinitionModel>) => {
@@ -112,6 +128,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
 
   return {
     getAllTokens,
+    getTokenByID,
     getTokenBySymbol,
     getTokenByAddress,
     getPrimeCash,

@@ -5,20 +5,27 @@ import {
   decodeERC1155Id,
   encodeERC1155Id,
   getMaturityForMarketIndex,
+  getNowSeconds,
+  getProviderFromNetwork,
+  INTERNAL_TOKEN_PRECISION,
   Network,
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
+  SCALAR_PRECISION,
 } from '@notional-finance/util';
 import {
   OracleDefinition,
   TokenDefinition,
   TokenType,
 } from '../../Definitions';
-import { Contract } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import {
   ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
+  SecondaryRewarder,
+  SecondaryRewarderABI,
 } from '@notional-finance/contracts';
+import { TokenBalance } from '../../token-balance';
 
 export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
   const getConfig = (currencyId: number) => {
@@ -39,10 +46,63 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
     );
   };
 
+  const getSecondaryRewarder = (nToken: TokenDefinition) => {
+    if (!nToken.currencyId) throw Error('Invalid nToken');
+    const config = getConfig(nToken.currencyId);
+
+    return config?.incentives?.secondaryIncentiveRewarder
+      ? (new Contract(
+          config.incentives?.secondaryIncentiveRewarder,
+          SecondaryRewarderABI,
+          getProviderFromNetwork(nToken.network)
+        ) as SecondaryRewarder)
+      : undefined;
+  };
+
+  const getAnnualizedSecondaryIncentives = (nToken: TokenDefinition) => {
+    if (!nToken.currencyId) throw Error('Invalid nToken');
+    const config = getConfig(nToken.currencyId);
+    if (!config?.incentives?.currentSecondaryReward) return undefined;
+    const rewardEndTime = config?.incentives?.secondaryRewardEndTime;
+    if (rewardEndTime && rewardEndTime < getNowSeconds()) return undefined;
+
+    const rewardToken = self.tokens.get(
+      config.incentives.currentSecondaryReward.id
+    );
+    if (!rewardToken) throw Error('Unknown reward token');
+
+    const incentiveEmissionRate = TokenBalance.fromFloat(
+      BigNumber.from(
+        (config.incentives.secondaryEmissionRate as string | undefined) || 0
+      ).toNumber() / INTERNAL_TOKEN_PRECISION,
+      rewardToken
+    );
+    const accumulatedRewardPerNToken = config.incentives
+      ?.accumulatedSecondaryRewardPerNToken
+      ? TokenBalance.from(
+          // This value is stored in 18 decimals but we want to scale it to reward token precision
+          BigNumber.from(config.incentives.accumulatedSecondaryRewardPerNToken)
+            .mul(TokenBalance.unit(rewardToken).precision)
+            .div(SCALAR_PRECISION),
+          rewardToken
+        )
+      : undefined;
+
+    return {
+      rewardToken,
+      incentiveEmissionRate,
+      accumulatedRewardPerNToken,
+      lastAccumulatedTime: config.incentives?.lastSecondaryAccumulatedTime,
+      rewardEndTime,
+    };
+  };
+
   return {
     getConfig,
     getVaultConfig,
     getAllListedVaults,
+    getSecondaryRewarder,
+    getAnnualizedSecondaryIncentives,
   };
 };
 

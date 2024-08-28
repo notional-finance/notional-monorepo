@@ -15,7 +15,6 @@ import {
   sNOTE,
 } from '@notional-finance/util';
 import { BigNumber, Contract, providers } from 'ethers';
-import { Registry } from '../../Registry';
 import {
   AggregateCall,
   NO_OP,
@@ -26,9 +25,11 @@ import {
   AccountDefinition,
   AccountIncentiveDebt,
   StakeNoteStatus,
+  TokenDefinition,
 } from '../../Definitions';
 import { fetchUsingMulticall } from '../../server/server-registry';
 import { SNOTEWeightedPool } from '../../exchanges';
+import { getNetworkModel } from '../../Models';
 
 export function fetchCurrentAccount(
   network: Network,
@@ -113,8 +114,8 @@ function getNotionalAccount(
   account: string,
   notional: NotionalV3
 ): AggregateCall[] {
-  const tokens = Registry.getTokenRegistry();
-  const NOTE = Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE');
+  const model = getNetworkModel(network);
+  const NOTE = model.getTokenBySymbol('NOTE');
 
   return [
     {
@@ -129,18 +130,18 @@ function getNotionalAccount(
           const balances: TokenBalance[] = [];
 
           if (b.cashBalance.gt(0)) {
-            const pCash = tokens.getPrimeCash(network, b.currencyId);
+            const pCash = model.getPrimeCash(b.currencyId);
             balances.push(TokenBalance.from(b.cashBalance, pCash));
           } else if (b.cashBalance.lt(0)) {
-            const pCash = tokens.getPrimeCash(network, b.currencyId);
-            const pDebt = tokens.getPrimeDebt(network, b.currencyId);
+            const pCash = model.getPrimeCash(b.currencyId);
+            const pDebt = model.getPrimeDebt(b.currencyId);
             balances.push(
               TokenBalance.from(b.cashBalance, pCash).toToken(pDebt)
             );
           }
 
           if (b.nTokenBalance.gt(0)) {
-            const nToken = tokens.getNToken(network, b.currencyId);
+            const nToken = model.getNToken(b.currencyId);
             balances.push(TokenBalance.from(b.nTokenBalance, nToken));
           }
 
@@ -156,7 +157,7 @@ function getNotionalAccount(
 
         const portfolioBalances = r.portfolio.map((a) => {
           const fCashId = encodefCashId(a.currencyId, a.maturity.toNumber());
-          return TokenBalance.fromID(a.notional, fCashId, network);
+          return new TokenBalance(a.notional, fCashId, network);
         });
 
         return {
@@ -174,9 +175,9 @@ function getWalletCalls(
   account: string,
   notional: NotionalV3
 ): AggregateCall[] {
-  const tokens = Registry.getTokenRegistry();
-  const walletTokensToTrack = tokens
-    .getAllTokens(network)
+  const model = getNetworkModel(network);
+  const walletTokensToTrack = model
+    .getAllTokens()
     .filter(
       (t) =>
         (t.currencyId !== undefined && t.tokenType === 'Underlying') ||
@@ -244,20 +245,19 @@ function getSecondaryIncentiveCalls(
   network: Network,
   account: string
 ): AggregateCall[] {
-  const tokens = Registry.getTokenRegistry();
-  const config = Registry.getConfigurationRegistry();
+  const model = getNetworkModel(network);
 
-  return tokens
-    .getAllTokens(network)
+  return model
+    .getAllTokens()
     .filter(
       (t) =>
         t.currencyId !== undefined &&
         t.tokenType === 'nToken' &&
-        config.getSecondaryRewarder(t)
+        model.getSecondaryRewarder(t)
     )
     .flatMap((t) => {
-      const rewarder = config.getSecondaryRewarder(t);
-      const secondary = config.getAnnualizedSecondaryIncentives(t);
+      const rewarder = model.getSecondaryRewarder(t);
+      const secondary = model.getAnnualizedSecondaryIncentives(t);
       if (!rewarder || !secondary) return [];
       const { rewardToken } = secondary;
       const rewardPrecision = BigNumber.from(10).pow(rewardToken.decimals);
@@ -319,11 +319,9 @@ function getVaultCalls(
   account: string,
   notional: NotionalV3
 ): AggregateCall[] {
-  const config = Registry.getConfigurationRegistry();
-  // TODO: make this more efficient by calling the data service
-  return (
-    config.getAllListedVaults(network, true) || []
-  ).flatMap<AggregateCall>((v) => {
+  const model = getNetworkModel(network);
+
+  return (model.getAllListedVaults(true) || []).flatMap<AggregateCall>((v) => {
     return [
       {
         stage: 0,
@@ -336,30 +334,24 @@ function getVaultCalls(
         ) => {
           const maturity = vaultAccount.maturity.toNumber();
           if (maturity === 0) return { balances: [] };
-          const { vaultShareID, primaryDebtID, primaryCashID, primaryTokenId } =
-            config.getVaultIDs(network, v.vaultAddress, maturity);
+          const vaultShare = model.getVaultShare(v.vaultAddress, maturity);
+          const vaultDebt = model.getVaultDebt(v.vaultAddress, maturity);
+          const vaultCash = model.getVaultCash(v.vaultAddress, maturity);
+          const vaultUnderlying = model.getUnderlying(vaultShare.currencyId);
+
           const balances = [
-            TokenBalance.fromID(
-              vaultAccount.vaultShares,
-              vaultShareID,
-              network
-            ),
+            TokenBalance.from(vaultAccount.vaultShares, vaultShare),
             parseVaultDebtBalance(
-              primaryDebtID,
-              primaryTokenId,
+              vaultDebt,
+              vaultUnderlying,
               vaultAccount.accountDebtUnderlying,
-              maturity,
-              network
+              maturity
             ),
           ];
 
           if (!vaultAccount.tempCashBalance.isZero()) {
             balances.push(
-              TokenBalance.fromID(
-                vaultAccount.tempCashBalance,
-                primaryCashID,
-                network
-              )
+              TokenBalance.from(vaultAccount.tempCashBalance, vaultCash)
             );
           }
 
@@ -371,103 +363,101 @@ function getVaultCalls(
           };
         },
       },
-      {
-        stage: 0,
-        target: notional,
-        method: 'getVaultAccountSecondaryDebt',
-        args: [account, v.vaultAddress],
-        key: `${v.vaultAddress}.balance2`,
-        transform: (
-          r: Awaited<ReturnType<NotionalV3['getVaultAccountSecondaryDebt']>>
-        ) => {
-          const maturity = r.maturity.toNumber();
-          if (maturity === 0) return { balances: [] };
-          const {
-            secondaryOneCashID,
-            secondaryOneDebtID,
-            secondaryOneTokenId,
-            secondaryTwoCashID,
-            secondaryTwoDebtID,
-            secondaryTwoTokenId,
-          } = config.getVaultIDs(network, v.vaultAddress, maturity);
+      // NOTE: there are no secondary debt vaults so this is left unused
+      // {
+      //   stage: 0,
+      //   target: notional,
+      //   method: 'getVaultAccountSecondaryDebt',
+      //   args: [account, v.vaultAddress],
+      //   key: `${v.vaultAddress}.balance2`,
+      //   transform: (
+      //     r: Awaited<ReturnType<NotionalV3['getVaultAccountSecondaryDebt']>>
+      //   ) => {
+      //     const maturity = r.maturity.toNumber();
+      //     if (maturity === 0) return { balances: [] };
+      //     const {
+      //       secondaryOneCashID,
+      //       secondaryOneDebtID,
+      //       secondaryOneTokenId,
+      //       secondaryTwoCashID,
+      //       secondaryTwoDebtID,
+      //       secondaryTwoTokenId,
+      //     } = model.getVaultIDs(network, v.vaultAddress, maturity);
 
-          const secondaries: TokenBalance[] = [];
+      //     const secondaries: TokenBalance[] = [];
 
-          if (
-            secondaryOneDebtID &&
-            secondaryOneTokenId &&
-            !r.accountSecondaryDebt[0].isZero()
-          ) {
-            secondaries.push(
-              parseVaultDebtBalance(
-                secondaryOneDebtID,
-                secondaryOneTokenId,
-                r.accountSecondaryDebt[0],
-                maturity,
-                network
-              )
-            );
-          }
+      //     if (
+      //       secondaryOneDebtID &&
+      //       secondaryOneTokenId &&
+      //       !r.accountSecondaryDebt[0].isZero()
+      //     ) {
+      //       secondaries.push(
+      //         parseVaultDebtBalance(
+      //           secondaryOneDebtID,
+      //           secondaryOneTokenId,
+      //           r.accountSecondaryDebt[0],
+      //           maturity,
+      //           network
+      //         )
+      //       );
+      //     }
 
-          if (
-            secondaryTwoDebtID &&
-            secondaryTwoTokenId &&
-            !r.accountSecondaryDebt[1].isZero()
-          ) {
-            secondaries.push(
-              parseVaultDebtBalance(
-                secondaryTwoDebtID,
-                secondaryTwoTokenId,
-                r.accountSecondaryDebt[1],
-                maturity,
-                network
-              )
-            );
-          }
+      //     if (
+      //       secondaryTwoDebtID &&
+      //       secondaryTwoTokenId &&
+      //       !r.accountSecondaryDebt[1].isZero()
+      //     ) {
+      //       secondaries.push(
+      //         parseVaultDebtBalance(
+      //           secondaryTwoDebtID,
+      //           secondaryTwoTokenId,
+      //           r.accountSecondaryDebt[1],
+      //           maturity,
+      //           network
+      //         )
+      //       );
+      //     }
 
-          if (secondaryOneCashID && !r.accountSecondaryCashHeld[0].isZero()) {
-            secondaries.push(
-              TokenBalance.fromID(
-                r.accountSecondaryCashHeld[0],
-                secondaryOneCashID,
-                network
-              )
-            );
-          }
+      //     if (secondaryOneCashID && !r.accountSecondaryCashHeld[0].isZero()) {
+      //       secondaries.push(
+      //         TokenBalance.fromID(
+      //           r.accountSecondaryCashHeld[0],
+      //           secondaryOneCashID,
+      //           network
+      //         )
+      //       );
+      //     }
 
-          if (secondaryTwoCashID && !r.accountSecondaryCashHeld[1].isZero()) {
-            secondaries.push(
-              TokenBalance.fromID(
-                r.accountSecondaryCashHeld[1],
-                secondaryTwoCashID,
-                network
-              )
-            );
-          }
+      //     if (secondaryTwoCashID && !r.accountSecondaryCashHeld[1].isZero()) {
+      //       secondaries.push(
+      //         TokenBalance.fromID(
+      //           r.accountSecondaryCashHeld[1],
+      //           secondaryTwoCashID,
+      //           network
+      //         )
+      //       );
+      //     }
 
-          return { balances: secondaries };
-        },
-      },
+      //     return { balances: secondaries };
+      //   },
+      // },
     ];
   });
 }
 
 function parseVaultDebtBalance(
-  debtID: string,
-  underlyingID: string,
+  vaultDebt: TokenDefinition,
+  vaultUnderlying: TokenDefinition,
   balance: BigNumber,
-  maturity: number,
-  network: Network
+  maturity: number
 ) {
   if (maturity === PRIME_CASH_VAULT_MATURITY) {
     // In in the prime vault maturity, convert from underlying back to prime debt denomination
-    const tokens = Registry.getTokenRegistry();
-    const vaultDebtToken = tokens.getTokenByID(network, debtID);
-    const pDebt = TokenBalance.fromID(balance, underlyingID, network)
+    const pDebt = TokenBalance.from(balance, vaultUnderlying)
       .scaleFromInternal()
-      .toToken(tokens.unwrapVaultToken(vaultDebtToken));
-    return TokenBalance.fromID(pDebt.n, debtID, network);
+      .toPrimeDebt();
+    return TokenBalance.from(pDebt.n, vaultDebt);
   }
 
-  return TokenBalance.fromID(balance, debtID, network);
+  return TokenBalance.from(balance, vaultDebt);
 }

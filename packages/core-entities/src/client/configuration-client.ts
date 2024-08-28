@@ -689,7 +689,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       rewardToken,
       incentiveEmissionRate,
       accumulatedRewardPerNToken,
-      lastAccumulatedTime: config.incentives?.lastAccumulatedTime as
+      lastAccumulatedTime: config.incentives?.lastSecondaryAccumulatedTime as
         | number
         | undefined,
       rewardEndTime: config.incentives.secondaryRewardEndTime as number,

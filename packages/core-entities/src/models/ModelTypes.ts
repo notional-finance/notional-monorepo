@@ -140,8 +140,8 @@ const IncentiveModel = types.model('Incentive', {
   secondaryIncentiveRewarder: types.maybeNull(types.string),
   secondaryEmissionRate: types.maybeNull(types.string),
   accumulatedSecondaryRewardPerNToken: types.maybeNull(types.string),
-  lastSecondaryAccumulatedTime: types.maybeNull(types.string),
-  secondaryRewardEndTime: types.maybeNull(types.string),
+  lastSecondaryAccumulatedTime: types.maybeNull(types.number),
+  secondaryRewardEndTime: types.maybeNull(types.number),
 });
 
 const CurrencyConfigurationModel = types.model('CurrencyConfiguration', {
