@@ -307,7 +307,7 @@ export const OracleViews = (self: NetworkModelType) => {
       }
 
       // fCash rates are interest rates so convert them to exchange rates in SCALAR_PRECISION here
-      if (oracle.quote.tokenType === 'fCash') {
+      if (oracle.id !== 'UNIT_RATE' && oracle.quote.tokenType === 'fCash') {
         return convertFCashRateToExchangeRate(
           self,
           oracle,

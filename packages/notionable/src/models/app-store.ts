@@ -60,6 +60,7 @@ export const AppStoreModel = types
     heroStats: HeroStatsModel,
     wallet: WalletModel,
     globalError: GlobalErrorModel,
+    isAppReady: types.optional(types.boolean, false),
   })
   .actions((self) => ({
     setBaseCurrency(currency: FiatKeys) {
@@ -67,6 +68,9 @@ export const AppStoreModel = types
     },
     setThemeVariant(variant: THEME_VARIANTS) {
       self.themeVariant = variant;
+    },
+    setIsAppReady(isReady: boolean) {
+      self.isAppReady = isReady;
     },
     afterCreate() {
       self.heroStats.fetchKpiData();

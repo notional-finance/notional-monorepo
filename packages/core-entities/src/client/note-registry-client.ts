@@ -1,5 +1,5 @@
 import { ClientRegistry } from './client-registry';
-import { CacheSchema, OracleDefinition } from '../Definitions';
+import { CacheSchema } from '../Definitions';
 import {
   INTERNAL_TOKEN_PRECISION,
   Network,
@@ -25,38 +25,6 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
 
   constructor(cacheHostname: string) {
     super(cacheHostname);
-    Registry.getExchangeRegistry().onSubjectKeyRegistered(
-      Network.mainnet,
-      NOTERegistryClient.sNOTE_Pool,
-      () => {
-        Registry.getExchangeRegistry()
-          .subscribeSubject(Network.mainnet, NOTERegistryClient.sNOTE_Pool)
-          ?.subscribe(() => {
-            const oracles = Registry.getOracleRegistry();
-            const pool = Registry.getExchangeRegistry().getSNOTEPool();
-            if (oracles.isNetworkRegistered(Network.mainnet) && pool) {
-              const currentSNOTEPrice = pool.getCurrentSNOTEPrice();
-
-              const oracle: OracleDefinition = {
-                id: NOTERegistryClient.sNOTEOracle,
-                oracleAddress: sNOTE,
-                network: Network.mainnet,
-                oracleType: 'sNOTEToETHExchangeRate',
-                base: ZERO_ADDRESS,
-                quote: sNOTE,
-                decimals: currentSNOTEPrice.decimals,
-                latestRate: {
-                  blockNumber: 0,
-                  timestamp: getNowSeconds(),
-                  rate: currentSNOTEPrice.n,
-                },
-              };
-
-              oracles.registerOracle(Network.mainnet, oracle);
-            }
-          });
-      }
-    );
   }
 
   protected override async _refresh(

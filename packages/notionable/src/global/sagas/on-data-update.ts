@@ -12,6 +12,7 @@ import {
 } from '@notional-finance/util';
 import {
   Observable,
+  filter,
   map,
   merge,
   switchMap,
@@ -96,6 +97,7 @@ function onAnalyticsReady$(app$: Observable<ApplicationState>) {
   return globalWhenAppReady$(app$).pipe(
     take(1),
     switchMap(() => Registry.getAnalyticsRegistry().subscribeNetworks()),
+    filter((networks) => networks.length > 0),
     switchMap((networks) => {
       return timer(0, 60_000).pipe(
         map(() => ({

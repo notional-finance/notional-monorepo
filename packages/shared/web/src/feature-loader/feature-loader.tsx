@@ -1,7 +1,7 @@
 import { useTheme, Box, SxProps } from '@mui/material';
 import { PageLoading } from '@notional-finance/mui';
 import { useAppReady } from '@notional-finance/notionable-hooks';
-
+import { observer } from 'mobx-react-lite';
 interface FeatureLoaderProps {
   children: React.ReactNode[] | React.ReactNode;
   featureLoaded?: boolean;
@@ -9,13 +9,14 @@ interface FeatureLoaderProps {
   sx?: SxProps;
 }
 
-export const FeatureLoader = ({
+const FeatureLoader = ({
   children,
   featureLoaded = true,
   backgroundColor,
   sx,
 }: FeatureLoaderProps) => {
   const isReady = useAppReady();
+  console.log('snapshot inside feature loader', isReady);
   const theme = useTheme();
   return (
     <Box>
@@ -41,4 +42,4 @@ export const FeatureLoader = ({
   );
 };
 
-export default FeatureLoader;
+export default observer(FeatureLoader);

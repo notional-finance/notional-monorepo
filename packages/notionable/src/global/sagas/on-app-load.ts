@@ -15,11 +15,7 @@ import {
   SupportedNetworks,
   filterEmpty,
 } from '@notional-finance/util';
-import {
-  AccountFetchMode,
-  initializeTokenBalanceRegistry,
-  Registry,
-} from '@notional-finance/core-entities';
+import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 import { isAppReady } from '../../utils';
 
 const vpnCheck = 'https://detect.notional.finance/';
@@ -62,7 +58,6 @@ function initNetworkRegistry$(app$: Observable<ApplicationState>) {
   return app$.pipe(
     filter(({ networkState }) => networkState === undefined),
     map(({ cacheHostname }) => {
-      initializeTokenBalanceRegistry();
       // This is a no-op if the registry is already initialized
       Registry.initialize(
         { NX_SUBGRAPH_API_KEY: process.env['NX_SUBGRAPH_API_KEY'] as string },

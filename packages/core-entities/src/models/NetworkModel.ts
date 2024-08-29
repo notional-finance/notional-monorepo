@@ -28,7 +28,7 @@ import {
   registerVaultData,
 } from './views/ConfigurationViews';
 import defaultPools from '../exchanges/default-pools';
-import { buildOracleGraph } from './views/OracleViews';
+import { buildOracleGraph, OracleViews } from './views/OracleViews';
 
 export const NetworkModel = types.model('Network', {
   network: NotionalTypes.Network,
@@ -128,23 +128,30 @@ export type NetworkModelType = Instance<typeof NetworkClientModelInternal>;
 export const NetworkClientModel = NetworkClientModelInternal.views((self) => ({
   ...VaultViews(self),
   ...ExchangeViews(self),
-})).actions((self) => {
-  const triggerRefresh = flow(function* () {
-    const startTime = performance.now();
-    const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);
-    const snapshot = yield response.json();
-    applySnapshot(self, snapshot);
-    const endTime = performance.now();
-    const duration = endTime - startTime;
-    console.log(
-      `${self.network} snapshot refreshed in ${duration.toFixed(2)}ms`
-    );
-  });
-
-  return {
-    triggerRefresh,
-    afterCreate: () => {
-      triggerRefresh();
+  ...OracleViews(self),
+}))
+  .views((self) => ({
+    get isReady() {
+      return self.lastUpdated > 0;
     },
-  };
-});
+  }))
+  .actions((self) => {
+    const triggerRefresh = flow(function* () {
+      const startTime = performance.now();
+      const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);
+      const snapshot = yield response.json();
+      applySnapshot(self, snapshot);
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      console.log(
+        `${self.network} snapshot refreshed in ${duration.toFixed(2)}ms`
+      );
+    });
+
+    return {
+      triggerRefresh,
+      afterCreate: () => {
+        triggerRefresh();
+      },
+    };
+  });

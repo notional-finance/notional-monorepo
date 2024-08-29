@@ -43,6 +43,12 @@ export function initializeTokenBalanceRegistry() {
     getNetworkModel(Network.arbitrum)
   );
   NetworkModelRegistry.setModel(Network.all, getNetworkModel(Network.all));
+
+  return [
+    getNetworkModel(Network.mainnet),
+    getNetworkModel(Network.arbitrum),
+    getNetworkModel(Network.all),
+  ];
 }
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;

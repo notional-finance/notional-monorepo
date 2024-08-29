@@ -17,7 +17,9 @@ export function useAppReady() {
   const {
     appState: { networkState },
   } = useAppContext();
-  return isAppReady(networkState);
+  const appStore = useAppStore();
+
+  return isAppReady(networkState) && appStore.isAppReady;
 }
 
 export function useAnalyticsReady(network: Network | undefined) {

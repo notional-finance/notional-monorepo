@@ -2,6 +2,7 @@ import spindl from '@spindl-xyz/attribution';
 import { useEffect } from 'react';
 import {
   AppContext,
+  useAppStore,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { IntercomProvider } from 'react-use-intercom';
@@ -52,6 +53,9 @@ import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { appStore } from '@notional-finance/notionable';
+import { initializeTokenBalanceRegistry } from '@notional-finance/core-entities';
+import { reaction } from 'mobx';
+import { observer } from 'mobx-react-lite';
 
 const intercomID = process.env['NX_INTERCOM_APP_ID'] as string;
 const spindlAPI = process.env['NX_SPINDL_API_KEY'] as string | undefined;
@@ -70,7 +74,23 @@ const RedirectToDefaultNetwork = () => {
   );
 };
 
-const AllRoutes = () => {
+const AllRoutes = observer(() => {
+  const appStore = useAppStore();
+
+  useEffect(() => {
+    const models = initializeTokenBalanceRegistry();
+    const disposer = reaction(
+      () => models.map((m) => m.isReady),
+      (isReady) => {
+        if (isReady) {
+          appStore.setIsAppReady(true);
+        }
+      }
+    );
+
+    return () => disposer();
+  }, [appStore]);
+
   return (
     <RouteContainer>
       <Routes>
@@ -454,7 +474,7 @@ const AllRoutes = () => {
       </Routes>
     </RouteContainer>
   );
-};
+});
 
 export const App = () => {
   useEffect(() => {
