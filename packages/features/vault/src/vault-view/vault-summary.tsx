@@ -21,28 +21,51 @@ import {
   useVaultFaq,
 } from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
-import { useAllMarkets, useAppState } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useAllVaults,
+  useAppState,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 
 const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
+  const selectedNetwork = useSelectedNetwork();
+  const listedVaults = useAllVaults(selectedNetwork);
+  const { state } = useContext(VaultActionContext);
+  const { maxPoolShare, vaultAddress } = state;
   const theme = useTheme();
+  const vaultData = listedVaults.find(
+    (vault) => vault.vaultAddress === vaultAddress
+  );
 
   const toopTipData = {
     borrowCapacity: defineMessage({
       defaultMessage:
         'Remaining amount that can be borrowed by this vault before max capacity.',
     }),
-    poolCapWithoutMaxShare: defineMessage({
-      defaultMessage:
-        'This vault can only hold a fixed percentage of total LP tokens in the pool. Remaining pool capacity can change as liquidity in the pool increases or decreases.',
-    }),
     poolCapWithMaxShare: defineMessage({
       defaultMessage:
-        'This vault can only hold of total LP tokens in the pool. Remaining pool capacity can change as liquidity in the pool increases or decreases.',
+        'This vault can only hold {maxPoolShare} of total LP tokens in the {boosterProtocol} / {baseProtocol} pool. Remaining pool capacity can change as liquidity in the {boosterProtocol} / {baseProtocol} pool increases or decreases.',
+      values: {
+        maxPoolShare: maxPoolShare,
+        baseProtocol: vaultData?.baseProtocol,
+        boosterProtocol: vaultData?.boosterProtocol,
+      },
+    }),
+    poolCapWithMaxShareSameProtocol: defineMessage({
+      defaultMessage:
+        'This vault can only hold {maxPoolShare} of total LP tokens in the {boosterProtocol} pool. Remaining pool capacity can change as liquidity in the {boosterProtocol} pool increases or decreases.',
+      values: {
+        maxPoolShare: maxPoolShare,
+        boosterProtocol: vaultData?.boosterProtocol,
+      },
     }),
   };
 
   const currentTip = title?.includes('Borrow Capacity')
     ? toopTipData.borrowCapacity
+    : vaultData?.baseProtocol === vaultData?.boosterProtocol
+    ? toopTipData.poolCapWithMaxShareSameProtocol
     : toopTipData.poolCapWithMaxShare;
 
   return (
