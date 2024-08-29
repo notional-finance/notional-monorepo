@@ -30,15 +30,13 @@ export default async function (req: Request, res: Response) {
         break;
       case '/syncAccounts':
         res.send(
-          JSON.stringify(
-            await dataService.syncAccounts(req.query.network as Network)
-          )
+          JSON.stringify(await dataService.syncAccounts(queryParams.network))
         );
         break;
       case '/syncVaultAccounts':
         res.send(
           JSON.stringify(
-            await dataService.syncVaultAccounts(req.query.network as Network)
+            await dataService.syncVaultAccounts(queryParams.network)
           )
         );
         break;

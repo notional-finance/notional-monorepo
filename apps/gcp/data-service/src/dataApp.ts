@@ -8,39 +8,10 @@ import {
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { VaultAccount, BackfillType, DataServiceEvent } from './types';
-import { logToDataDog } from './util';
+import { logToDataDog, parseQueryParams } from './util';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const app = express();
-
-const parseQueryParams = (q: Request['query']) => {
-  const now = Date.now() / 1000;
-  let startTime = now;
-  if (q.startTime) {
-    startTime = parseInt(q.startTime as string);
-    if (startTime > now) {
-      startTime = now;
-    }
-  }
-  let endTime = now;
-  if (q.endTime) {
-    endTime = parseInt(q.endTime as string);
-    if (endTime > now) {
-      endTime = now;
-    }
-  }
-  if (endTime < startTime) {
-    throw Error('endTime must be greater than startTime');
-  }
-  const network = q.network ? (q.network as Network) : Network.mainnet;
-  const limit = q.limit ? parseInt(q.limit as string) : undefined;
-  return {
-    startTime: startTime,
-    endTime: endTime,
-    network: network,
-    limit: limit,
-  };
-};
 
 const catchAsync =
   (fn: Handler) => (req: Request, res: Response, next: NextFunction) => {
