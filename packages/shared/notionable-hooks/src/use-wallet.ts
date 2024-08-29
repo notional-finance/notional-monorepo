@@ -9,6 +9,7 @@ import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
 import {
   Network,
   SupportedNetworks,
+  getNetworkFromId,
   groupArrayToMap,
 } from '@notional-finance/util';
 import {
@@ -19,6 +20,7 @@ import { useAllMarkets } from './use-market';
 import { useNotionalContext } from './use-notional';
 import { useAppStore } from './context/AppContext';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
+import { BigNumber } from 'ethers';
 
 export function usePrimeCashBalance(
   selectedToken: string | undefined | null,
@@ -71,7 +73,10 @@ export function useWalletConnectedNetwork() {
   const [{ wallet }] = useConnectWallet();
   const currentLabel = wallet?.label;
   const [{ connectedChain }] = useSetChain(currentLabel);
-  const selectedChain = connectedChain?.id as Network | undefined
+  const selectedChainId = connectedChain?.id as Network | undefined
+  const selectedChain = selectedChainId
+  ? getNetworkFromId(BigNumber.from(selectedChainId).toNumber())
+  : undefined;
   return selectedChain;
 }
 
