@@ -1,0 +1,56 @@
+{
+  "name": "data-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "gcp/data-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "outputFileName": "index.js",
+      "executor": "@nrwl/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "platform": "node",
+        "target": "node22",
+        "format": ["cjs"],
+        "compiler": "tsc",
+        "outputPath": "dist/gcp/data-service",
+        "main": "gcp/data-service/src/index.ts",
+        "tsConfig": "gcp/data-service/tsconfig.json",
+        "external": [
+          "pg-query-stream",
+          "sqlite3",
+          "oracledb",
+          "tedious",
+          "mysql2",
+          "mysql",
+          "better-sqlite3"
+        ],
+        "esbuildOptions": {
+          "external": ["better-sqlite3"]
+        },
+        "generatePackageJson": true
+      }
+    },
+    "deploy-gcp": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["cd ./apps/gcp/data-service/ && sh ./deploy.sh"]
+      },
+      "dependsOn": ["data-service:build"]
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {
+        "buildTarget": "data-service:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/gcp/data-service/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}

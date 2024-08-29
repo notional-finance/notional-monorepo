@@ -1,6 +1,6 @@
 import { Network } from '@notional-finance/util';
 import { getCurveV1PoolConfig } from './ConvexPoolConfig';
-import { ArbTokenConfig, EthTokenConfig, getOracleValue } from '..';
+import { ArbTokenConfig, EthTokenConfig, getOracleValue } from '../index';
 import { Strategy } from '../../types';
 
 export const Curve_Config = [

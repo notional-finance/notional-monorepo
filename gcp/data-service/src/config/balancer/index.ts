@@ -9,7 +9,7 @@ import {
   ISingleSidedLPStrategyVaultABI,
   ISingleSidedLPStrategyVault,
 } from '@notional-finance/contracts';
-import { ArbTokenConfig, EthTokenConfig, getOracleValue } from '..';
+import { ArbTokenConfig, EthTokenConfig, getOracleValue } from '../index';
 
 export const Balancer_Config = [
   getComposablePoolConfig(

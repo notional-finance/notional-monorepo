@@ -23,6 +23,7 @@
     "points": "apps/points",
     "registry": "apps/registry",
     "rewards": "apps/rewards",
+    "data-service": "gcp/data-service",
     "risk-engine": "packages/risk-engine",
     "shared-assets": "packages/shared/assets",
     "shared-helpers": "packages/shared/helpers",
