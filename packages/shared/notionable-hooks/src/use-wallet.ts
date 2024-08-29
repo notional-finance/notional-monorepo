@@ -73,9 +73,8 @@ export function useWalletConnectedNetwork() {
   const [{ wallet }] = useConnectWallet();
   const currentLabel = wallet?.label;
   const [{ connectedChain }] = useSetChain(currentLabel);
-  const selectedChainId = connectedChain?.id as Network | undefined
-  const selectedChain = selectedChainId
-  ? getNetworkFromId(BigNumber.from(selectedChainId).toNumber())
+  const selectedChain = connectedChain?.id
+  ? getNetworkFromId(BigNumber.from(connectedChain?.id).toNumber())
   : undefined;
   return selectedChain;
 }
