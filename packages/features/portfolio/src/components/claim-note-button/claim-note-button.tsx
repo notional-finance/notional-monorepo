@@ -98,7 +98,7 @@ export const ClaimNoteButton = () => {
   const handleClick = useCallback(async () => {
     if (isReadOnlyAddress || !account || !network) return;
 
-    if (walletNetwork !== Network.mainnet) {
+    if (walletNetwork !== network) {
       setNetworkError(true);
     }
 
