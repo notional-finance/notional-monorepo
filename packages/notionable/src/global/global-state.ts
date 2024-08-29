@@ -130,15 +130,11 @@ interface AddressState {
 }
 
 /** These settings are associated with the user directly */
-interface ErrorState {
-  error?: NotionalError;
-}
 
 export interface GlobalState
   extends Record<string, unknown>,
     AddressState,
-    TransactionState,
-    ErrorState {}
+    TransactionState {}
 
 export const initialGlobalState: GlobalState = {
   isSanctionedAddress: false,

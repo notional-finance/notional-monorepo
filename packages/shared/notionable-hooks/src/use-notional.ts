@@ -11,6 +11,7 @@ import { NOTERegistryClient, Registry } from '@notional-finance/core-entities';
 import { Network, getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { isAppReady } from '@notional-finance/notionable';
 import { useWalletConnectedNetwork } from './use-wallet';
+import { useAppStore } from './context/AppContext';
 
 export function useAppReady() {
   const {
@@ -90,20 +91,17 @@ export function useStakedNOTEPoolReady() {
 }
 
 export function useNotionalError() {
-  const {
-    globalState: { error },
-    updateNotional,
-  } = useNotionalContext();
+  const appStore = useAppStore();
 
   const reportError = useCallback(
     (error: NotionalError) => {
-      updateNotional({ error });
+      appStore.globalError.setGlobalError(error);
     },
-    [updateNotional]
+    [appStore.globalError]
   );
 
   return {
-    error,
+    error: appStore.globalError.error,
     reportError,
   };
 }
