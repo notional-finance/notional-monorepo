@@ -11,25 +11,32 @@ import { NetworkModelType } from '../NetworkModel';
 import { ethers } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 
+export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
+  self: NetworkModelType,
+  address: string
+) {
+  const poolDefinition =
+    self.exchanges.get(ethers.utils.getAddress(address)) ||
+    self.exchanges.get(address.toLowerCase());
+  if (!poolDefinition)
+    throw Error(`Pool ${address} on ${self.network} not found`);
+  if (!poolDefinition.latestPoolData)
+    throw Error(`Pool data not defined for ${poolDefinition}`);
+  const PoolClass = PoolClasses[poolDefinition.PoolClass] as PoolConstructor;
+
+  return new PoolClass(
+    self.network,
+    poolDefinition.latestPoolData.balances,
+    poolDefinition.latestPoolData.totalSupply,
+    poolDefinition.latestPoolData.poolParams
+  ) as T;
+}
+
 export const ExchangeViews = (self: NetworkModelType) => {
   const getPoolInstance = <T extends BaseLiquidityPool<unknown>>(
     address: string
   ) => {
-    const poolDefinition =
-      self.exchanges.get(ethers.utils.getAddress(address)) ||
-      self.exchanges.get(address.toLowerCase());
-    if (!poolDefinition)
-      throw Error(`Pool ${address} on ${self.network} not found`);
-    if (!poolDefinition.latestPoolData)
-      throw Error(`Pool data not defined for ${poolDefinition}`);
-    const PoolClass = PoolClasses[poolDefinition.PoolClass] as PoolConstructor;
-
-    return new PoolClass(
-      self.network,
-      poolDefinition.latestPoolData.balances,
-      poolDefinition.latestPoolData.totalSupply,
-      poolDefinition.latestPoolData.poolParams
-    ) as T;
+    return getPoolInstance_<T>(self, address);
   };
 
   const getSNOTEPool = () => {

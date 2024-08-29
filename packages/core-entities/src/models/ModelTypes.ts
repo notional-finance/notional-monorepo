@@ -263,7 +263,7 @@ export const ExchangeModel = types.model('Exchange', {
 });
 
 const ExchangeRateModel = types.model('ExchangeRate', {
-  rate: types.maybe(NotionalTypes.BigNumber),
+  rate: NotionalTypes.BigNumber,
   timestamp: types.number,
   blockNumber: types.number,
 });
@@ -314,7 +314,7 @@ export const OracleGraphModel = types.model('OracleGraph', {
       types.optional(
         types.map(
           types.model({
-            id: types.reference(OracleDefinitionModel),
+            oracle: types.reference(OracleDefinitionModel),
             inverted: types.boolean,
           })
         ),

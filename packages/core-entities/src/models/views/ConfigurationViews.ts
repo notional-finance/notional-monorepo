@@ -27,17 +27,26 @@ import {
 } from '@notional-finance/contracts';
 import { TokenBalance } from '../../token-balance';
 
+export function assertDefined<T>(v: T | null | undefined): T {
+  if (v === undefined || v === null) throw Error(`Undefined Value`);
+  return v as T;
+}
+
 export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
   const getConfig = (currencyId: number) => {
-    return self.configuration?.currencyConfigurations.find(
+    const config = self.configuration?.currencyConfigurations.find(
       (c) => c.id === `${currencyId}`
     );
+    if (!config) throw Error(`Configuration not found for ${currencyId}`);
+    return config;
   };
 
   const getVaultConfig = (vaultAddress: string) => {
-    return self.configuration?.vaultConfigurations.find(
+    const config = self.configuration?.vaultConfigurations.find(
       (c) => c.id === vaultAddress
     );
+    if (!config) throw Error(`Configuration not found for ${vaultAddress}`);
+    return config;
   };
 
   const getAllListedVaults = (includeDisabled = false) => {

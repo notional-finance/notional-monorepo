@@ -530,25 +530,17 @@ export class TokenBalance {
           )
         : unwrapped.tokenId;
 
-    const path = oracleRegistry.findPath(id, token.id, this.token.network);
-    const exchangeRate =
-      timestamp !== undefined
-        ? oracleRegistry.getHistoricalFromPath(
-            this.token.network,
-            path,
-            riskAdjustment,
-            timestamp
-          )
-        : oracleRegistry.getLatestFromPath(
-            this.token.network,
-            path,
-            riskAdjustment
-          );
+    const exchangeRate: BigNumber | null = model.getExchangeRateBetweenTokens(
+      id,
+      token.id,
+      riskAdjustment,
+      timestamp
+    );
 
     if (!exchangeRate) throw Error('No Exchange Rate');
     return new TokenBalance(
       // All exchange rates from the registry are in scalar precision
-      this.scale(exchangeRate.rate, SCALAR_PRECISION).scaleTo(token.decimals),
+      this.scale(exchangeRate, SCALAR_PRECISION).scaleTo(token.decimals),
       token.id,
       token.network
     );
