@@ -22,3 +22,4 @@ export { SecondaryIncentiveToken } from './config/whitelisted-tokens';
 export * from './Boosts';
 
 export * from './Models';
+export { NetworkServerModel } from './models/NetworkModel';

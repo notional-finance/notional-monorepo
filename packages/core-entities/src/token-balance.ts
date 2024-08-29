@@ -24,7 +24,7 @@ const NetworkModelRegistry = {
   models: new Map<Network, any>(),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setModel(network: Network, model: any) {
-    this.models.set(network, model);
+    if (!this.models.has(network)) this.models.set(network, model);
   },
   getModel(network: Network) {
     if (!this.models.has(network))
@@ -33,15 +33,17 @@ const NetworkModelRegistry = {
   },
 };
 
-NetworkModelRegistry.setModel(
-  Network.mainnet,
-  getNetworkModel(Network.mainnet)
-);
-NetworkModelRegistry.setModel(
-  Network.arbitrum,
-  getNetworkModel(Network.arbitrum)
-);
-NetworkModelRegistry.setModel(Network.all, getNetworkModel(Network.all));
+export function initializeTokenBalanceRegistry() {
+  NetworkModelRegistry.setModel(
+    Network.mainnet,
+    getNetworkModel(Network.mainnet)
+  );
+  NetworkModelRegistry.setModel(
+    Network.arbitrum,
+    getNetworkModel(Network.arbitrum)
+  );
+  NetworkModelRegistry.setModel(Network.all, getNetworkModel(Network.all));
+}
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
 

@@ -72,7 +72,9 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
     if (!nToken.currencyId) throw Error('Invalid nToken');
     const config = getConfig(nToken.currencyId);
     if (!config?.incentives?.currentSecondaryReward) return undefined;
-    const rewardEndTime = config?.incentives?.secondaryRewardEndTime;
+    const rewardEndTime = config?.incentives?.secondaryRewardEndTime
+      ? parseInt(config.incentives.secondaryRewardEndTime)
+      : undefined;
     if (rewardEndTime && rewardEndTime < getNowSeconds()) return undefined;
 
     const rewardToken = self.tokens.get(
@@ -101,7 +103,9 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
       rewardToken,
       incentiveEmissionRate,
       accumulatedRewardPerNToken,
-      lastAccumulatedTime: config.incentives?.lastSecondaryAccumulatedTime,
+      lastAccumulatedTime: config.incentives?.lastSecondaryAccumulatedTime
+        ? parseInt(config.incentives.lastSecondaryAccumulatedTime)
+        : undefined,
       rewardEndTime,
     };
   };

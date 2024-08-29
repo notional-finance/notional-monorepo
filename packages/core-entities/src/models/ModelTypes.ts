@@ -140,8 +140,8 @@ const IncentiveModel = types.model('Incentive', {
   secondaryIncentiveRewarder: types.maybeNull(types.string),
   secondaryEmissionRate: types.maybeNull(types.string),
   accumulatedSecondaryRewardPerNToken: types.maybeNull(types.string),
-  lastSecondaryAccumulatedTime: types.maybeNull(types.number),
-  secondaryRewardEndTime: types.maybeNull(types.number),
+  lastSecondaryAccumulatedTime: types.maybeNull(types.string),
+  secondaryRewardEndTime: types.maybeNull(types.string),
 });
 
 const CurrencyConfigurationModel = types.model('CurrencyConfiguration', {
@@ -263,7 +263,7 @@ export const ExchangeModel = types.model('Exchange', {
 });
 
 const ExchangeRateModel = types.model('ExchangeRate', {
-  rate: NotionalTypes.BigNumber,
+  rate: types.maybe(NotionalTypes.BigNumber),
   timestamp: types.number,
   blockNumber: types.number,
 });
@@ -329,10 +329,10 @@ export const VaultDefinitionModel = types.model('VaultDefinition', {
   vaultAddress: types.identifier,
   enabled: types.boolean,
   name: types.string,
-  technicalName: types.string,
-  boosterProtocol: types.string,
-  poolName: types.string,
-  baseProtocol: types.string,
+  technicalName: types.maybe(types.string),
+  boosterProtocol: types.maybe(types.string),
+  poolName: types.maybe(types.string),
+  baseProtocol: types.maybe(types.string),
   // NOTE: these are just single sided lp vaults
   pool: types.string,
   singleSidedTokenIndex: types.number,
