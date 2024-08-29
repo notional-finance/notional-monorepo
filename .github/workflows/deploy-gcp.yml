@@ -30,8 +30,7 @@ jobs:
         project_id: ${{ secrets.GCLOUD_PROJECT_ID }}
     - name: Deploy Data Service
       shell: bash
-      working-directory: gcp/data-service
-      run: ./deploy.sh
+      run: yarn nx affected --target deploy-gcp --base=v3/prod~1 --head=v3/prod
     - name: Deploy Vault APY
       shell: bash
       working-directory: gcp/vault-apy
