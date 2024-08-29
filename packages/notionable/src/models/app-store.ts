@@ -5,6 +5,26 @@ import { WalletModel } from './wallet-store';
 
 const userSettings = getFromLocalStorage('userSettings');
 
+const ErrorModel = types.model('ErrorModel', {
+  code: types.number,
+  msg: types.string,
+});
+
+export const GlobalErrorModel = types
+  .model('GlobalErrorModel', {
+    error: types.maybe(ErrorModel),
+  })
+  .actions((self) => ({
+    setGlobalError(error: Instance<typeof ErrorModel>) {
+      self.error = error;
+    },
+    clearError() {
+      self.error = undefined;
+    },
+  }));
+
+export type GlobalErrorType = Instance<typeof GlobalErrorModel>;
+
 const HeroStatsModel = types
   .model('HeroStatsModel', {
     totalAccounts: types.number,
@@ -39,6 +59,7 @@ export const AppStoreModel = types
     ),
     heroStats: HeroStatsModel,
     wallet: WalletModel,
+    globalError: GlobalErrorModel,
   })
   .actions((self) => ({
     setBaseCurrency(currency: FiatKeys) {
@@ -63,6 +84,9 @@ export const appStore = AppStoreModel.create({
     totalAccounts: 0,
     totalDeposits: 0,
     totalOpenDebt: 0,
+  },
+  globalError: {
+    error: undefined,
   },
   wallet: {
     isSanctionedAddress: false,
