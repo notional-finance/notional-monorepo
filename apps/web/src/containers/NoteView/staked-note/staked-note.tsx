@@ -157,7 +157,7 @@ export const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
                 cursor: 'pointer',
                 width: '100%',
               }}
-              to={`${PRODUCTS.STAKE_NOTE}/ETH`}
+              to={`/${PRODUCTS.STAKE_NOTE}/ETH`}
             >
               <FormattedMessage defaultMessage={'Stake NOTE'} />
             </Button>

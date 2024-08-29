@@ -3,7 +3,11 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { PRIME_CASH_VAULT_MATURITY, filterEmpty } from '@notional-finance/util';
+import {
+  PRIME_CASH_VAULT_MATURITY,
+  filterEmpty,
+  formatNumberAsPercent,
+} from '@notional-finance/util';
 import { Observable, combineLatest, distinctUntilChanged, map } from 'rxjs';
 import { VaultTradeState } from '../base-trade-store';
 import { selectedNetwork } from '../../global';
@@ -134,6 +138,12 @@ export function vaultCapacity(
         return {
           minBorrowSize,
           overCapacityError,
+          maxPoolShare: vaultAdapter?.maxPoolShares
+            ? formatNumberAsPercent(
+                vaultAdapter?.maxPoolShares.toNumber() / 100,
+                0
+              )
+            : undefined,
           underMinAccountBorrow,
           totalCapacityRemaining,
           totalPoolCapacityRemaining,

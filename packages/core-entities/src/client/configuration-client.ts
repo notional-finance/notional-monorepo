@@ -84,6 +84,8 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
         return 'Curve';
       case 'Aura':
         return 'Balancer';
+      case 'Balancer':
+        return 'Balancer';
       default:
         return 'unknown';
     }

@@ -37,7 +37,7 @@ export const useVariableTotals = (state: TradeState) => {
   const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
   const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
 
-  const ToolTip = ({ sx }: { sx: SxProps }) => {
+  const ToolTip = ({ sx }: { title?: string; sx: SxProps }) => {
     return (
       <InfoTooltip
         sx={{ ...sx }}
