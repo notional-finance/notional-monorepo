@@ -24,7 +24,7 @@ for job in "${cron_jobs[@]}"; do
     IFS='|' read -r description url schedule <<< "$job"
     
     # Create/update the job
-    job_name=$(echo "$description" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+    job_name=$(echo "$description" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
 
     # Check if the job already exists
     if gcloud scheduler jobs describe "$job_name" --location=us-central1 &>/dev/null; then
