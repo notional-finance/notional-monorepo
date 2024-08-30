@@ -16,7 +16,6 @@ const FeatureLoader = ({
   sx,
 }: FeatureLoaderProps) => {
   const isReady = useAppReady();
-  console.log('snapshot inside feature loader', isReady);
   const theme = useTheme();
   return (
     <Box>
