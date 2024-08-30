@@ -39,7 +39,13 @@ for job in "${cron_jobs[@]}"; do
         --uri="${BASE_URI}${url}" \
         --http-method GET \
         --attempt-deadline=1800s \
+        --oidc-service-account-email=monitoring-agents@appspot.gserviceaccount.com \
         --description="$description"
     
     echo "${ACTION}d job: $job_name $url $schedule"
 done
+
+
+# gcloud run services add-iam-policy-binding cron-service \
+#     --member="serviceAccount:monitoring-agents@appspot.gserviceaccount.com" \
+#     --role="roles/run.invoker"
