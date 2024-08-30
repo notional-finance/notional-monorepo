@@ -201,12 +201,12 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     );
 
     return {
-      minAccountBorrowSize: TokenBalance.fromID(
+      minAccountBorrowSize: new TokenBalance(
         minAccountBorrowSize,
         id,
         network
       ).scaleFromInternal(),
-      totalUsedPrimaryBorrowCapacity: TokenBalance.fromID(
+      totalUsedPrimaryBorrowCapacity: new TokenBalance(
         totalUsedPrimaryBorrowCapacity,
         id,
         network
@@ -214,9 +214,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
         .scaleFromInternal()
         .add(
           primeDebt.totalSupply?.toUnderlying() ||
-            TokenBalance.fromID(0, id, network)
+            new TokenBalance(0, id, network)
         ),
-      maxPrimaryBorrowCapacity: TokenBalance.fromID(
+      maxPrimaryBorrowCapacity: new TokenBalance(
         maxPrimaryBorrowCapacity,
         id,
         network
@@ -689,7 +689,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       rewardToken,
       incentiveEmissionRate,
       accumulatedRewardPerNToken,
-      lastAccumulatedTime: config.incentives?.lastAccumulatedTime as
+      lastAccumulatedTime: config.incentives?.lastSecondaryAccumulatedTime as
         | number
         | undefined,
       rewardEndTime: config.incentives.secondaryRewardEndTime as number,

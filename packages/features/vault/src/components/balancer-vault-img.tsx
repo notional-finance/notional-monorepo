@@ -341,8 +341,8 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="37.8873"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#296C8E" />
-            <stop offset="1" stop-color="#188F9D" />
+            <stop stopColor="#296C8E" />
+            <stop offset="1" stopColor="#188F9D" />
           </linearGradient>
           <linearGradient
             id="paint1_linear_12777_49463"
@@ -352,8 +352,8 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="33.3692"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#296C8E" />
-            <stop offset="1" stop-color="#188F9D" />
+            <stop stopColor="#296C8E" />
+            <stop offset="1" stopColor="#188F9D" />
           </linearGradient>
           <linearGradient
             id="paint2_linear_12777_49463"
@@ -363,8 +363,8 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="33.3692"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#296C8E" />
-            <stop offset="1" stop-color="#188F9D" />
+            <stop stopColor="#296C8E" />
+            <stop offset="1" stopColor="#188F9D" />
           </linearGradient>
           <linearGradient
             id="paint3_linear_12777_49463"
@@ -374,9 +374,9 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="9.43462"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#BFC9F5" stopOpacity="0.5" />
-            <stop offset="0.0001" stop-color="#8EA1F5" stopOpacity="0.5" />
-            <stop offset="1" stop-color="#26CBCF" />
+            <stop stopColor="#BFC9F5" stopOpacity="0.5" />
+            <stop offset="0.0001" stopColor="#8EA1F5" stopOpacity="0.5" />
+            <stop offset="1" stopColor="#26CBCF" />
           </linearGradient>
           <linearGradient
             id="paint4_linear_12777_49463"
@@ -386,9 +386,9 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="9.43462"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#BFC9F5" stopOpacity="0.5" />
-            <stop offset="0.0001" stop-color="#8EA1F5" stopOpacity="0.5" />
-            <stop offset="1" stop-color="#26CBCF" />
+            <stop stopColor="#BFC9F5" stopOpacity="0.5" />
+            <stop offset="0.0001" stopColor="#8EA1F5" stopOpacity="0.5" />
+            <stop offset="1" stopColor="#26CBCF" />
           </linearGradient>
           <linearGradient
             id="paint5_linear_12777_49463"
@@ -398,8 +398,8 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="139.432"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0.0001" stop-color="#296B8E" />
-            <stop offset="1" stop-color="#17909D" />
+            <stop offset="0.0001" stopColor="#296B8E" />
+            <stop offset="1" stopColor="#17909D" />
           </linearGradient>
           <linearGradient
             id="paint6_linear_12777_49463"
@@ -409,9 +409,9 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="139.435"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#BFC9F5" stopOpacity="0.5" />
-            <stop offset="0.0001" stop-color="#8EA1F5" stopOpacity="0.5" />
-            <stop offset="1" stop-color="#26CBCF" />
+            <stop stopColor="#BFC9F5" stopOpacity="0.5" />
+            <stop offset="0.0001" stopColor="#8EA1F5" stopOpacity="0.5" />
+            <stop offset="1" stopColor="#26CBCF" />
           </linearGradient>
           <radialGradient
             id="paint7_radial_12777_49463"
@@ -421,8 +421,8 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             gradientUnits="userSpaceOnUse"
             gradientTransform="translate(440.357 24.313) rotate(128.759) scale(14.7663 13.3252)"
           >
-            <stop stop-color="#3D3E4B" stopOpacity="0.75" />
-            <stop offset="1" stop-color="#13131C" />
+            <stop stopColor="#3D3E4B" stopOpacity="0.75" />
+            <stop offset="1" stopColor="#13131C" />
           </radialGradient>
           <radialGradient
             id="paint8_radial_12777_49463"
@@ -432,8 +432,8 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             gradientUnits="userSpaceOnUse"
             gradientTransform="translate(458.357 42.313) rotate(128.759) scale(14.7663 13.3252)"
           >
-            <stop stop-color="#9C4ED6" />
-            <stop offset="1" stop-color="#4E18B3" />
+            <stop stopColor="#9C4ED6" />
+            <stop offset="1" stopColor="#4E18B3" />
           </radialGradient>
           <linearGradient
             id="paint9_linear_12777_49463"
@@ -443,8 +443,8 @@ export function BalancerVaultImg(props: BalancerVaultImgProps) {
             y2="36.9581"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0.0001" stop-color="#C4CFFF" />
-            <stop offset="1" stop-color="#57D3D9" />
+            <stop offset="0.0001" stopColor="#C4CFFF" />
+            <stop offset="1" stopColor="#57D3D9" />
           </linearGradient>
         </defs>
       </svg>

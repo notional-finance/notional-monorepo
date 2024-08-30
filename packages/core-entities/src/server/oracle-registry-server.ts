@@ -16,6 +16,8 @@ import {
   INTERNAL_TOKEN_PRECISION,
   Network,
   NotionalAddress,
+  SCALAR_PRECISION,
+  WETHAddress,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
@@ -46,6 +48,24 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     }
 
     const results = await this._queryAllOracles(network, blockNumber);
+    results.values.push([
+      'UNIT_RATE',
+      {
+        id: 'UNIT_RATE',
+        base: ZERO_ADDRESS,
+        quote: WETHAddress[network],
+        network,
+        oracleType: 'Chainlink',
+        decimals: 18,
+        oracleAddress: ZERO_ADDRESS,
+        latestRate: {
+          rate: SCALAR_PRECISION,
+          timestamp: 2 ** 32,
+          blockNumber: 2 ** 32,
+        },
+      },
+    ]);
+
     // Updates the latest rates using the blockchain
     return this._updateLatestRates(results, blockNumber);
   }

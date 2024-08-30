@@ -23,7 +23,7 @@ export function SparklesIcon(props: SparklesIconProps) {
             gradientUnits="userSpaceOnUse"
           >
             <stop stopColor="#2BCAD0" />
-            <stop offset="1" stop-color="#8BC1E5" />
+            <stop offset="1" stopColor="#8BC1E5" />
           </linearGradient>
           <clipPath id="clip0_9738_104433">
             <rect width="16" height="16" fill="white" />

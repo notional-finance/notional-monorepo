@@ -12,10 +12,8 @@ import {
   AccountDefinition,
   BalanceStatement,
   CacheSchema,
-  TokenBalance,
   AccountHistory,
   HistoricalBalance,
-  Registry,
 } from '..';
 import { Routes } from '../server';
 import {
@@ -31,7 +29,10 @@ import {
   Token,
   Transaction,
 } from '../.graphclient';
-import { parseCurrentBalanceStatement } from './accounts/balance-statement';
+import {
+  parseCurrentBalanceStatement,
+  parseGraphBalanceToTokenBalance,
+} from './accounts/balance-statement';
 import { parseTransaction } from './accounts/transaction-history';
 import { fetchCurrentAccount } from './accounts/current-account';
 import { ExecutionResult } from 'graphql';
@@ -273,27 +274,25 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         const current =
           r.account?.balances
             ?.filter(({ current }) => current.timestamp < minTimestamp)
-            .map(({ current, token }) => {
-              const t = Registry.getTokenRegistry().getTokenByID(
-                network,
-                token.id
-              );
-              return {
-                timestamp: current.timestamp,
-                balance: TokenBalance.from(current.currentBalance, t),
-              };
-            }) || [];
+            .map(({ current, token }) => ({
+              timestamp: current.timestamp,
+              balance: parseGraphBalanceToTokenBalance(
+                current.currentBalance,
+                token.id,
+                network
+              ),
+            })) || [];
 
         const snapshots =
           r.account?.balances?.flatMap(({ snapshots, token }) => {
-            const t = Registry.getTokenRegistry().getTokenByID(
-              network,
-              token.id
-            );
             return (
               snapshots?.map(({ timestamp, currentBalance }) => ({
                 timestamp,
-                balance: TokenBalance.from(currentBalance, t),
+                balance: parseGraphBalanceToTokenBalance(
+                  currentBalance,
+                  token.id,
+                  network
+                ),
               })) || []
             );
           }) || [];
@@ -366,7 +365,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             systemAccountType: a.systemAccountType,
             balances:
               a.balances?.map((b) =>
-                TokenBalance.fromID(
+                parseGraphBalanceToTokenBalance(
                   b.current.currentBalance,
                   b.token.id,
                   network

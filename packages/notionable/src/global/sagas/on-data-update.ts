@@ -12,6 +12,7 @@ import {
 } from '@notional-finance/util';
 import {
   Observable,
+  filter,
   map,
   merge,
   switchMap,
@@ -96,6 +97,7 @@ function onAnalyticsReady$(app$: Observable<ApplicationState>) {
   return globalWhenAppReady$(app$).pipe(
     take(1),
     switchMap(() => Registry.getAnalyticsRegistry().subscribeNetworks()),
+    filter((networks) => networks.length > 0),
     switchMap((networks) => {
       return timer(0, 60_000).pipe(
         map(() => ({
@@ -113,7 +115,7 @@ function onAnalyticsReady$(app$: Observable<ApplicationState>) {
               for (const key in historicalData) {
                 try {
                   const updatedData = historicalData[key].map((data) => {
-                    const fCashTokenBalance = TokenBalance.fromID(
+                    const fCashTokenBalance = new TokenBalance(
                       data?.fCashValue,
                       data?.fCashId,
                       n

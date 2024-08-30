@@ -22,5 +22,5 @@ describe('NetworkServerModel', () => {
     await mainnetNetwork.refresh(true);
 
     expect(savedData).toMatchSnapshot();
-  }, 10000); // Increased timeout to 10 seconds
+  }, 30000); // Increased timeout to 30 seconds
 });

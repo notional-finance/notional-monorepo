@@ -13,7 +13,6 @@ export const useVaultReinvestmentTable = (
   deposit: TokenDefinition | undefined,
   vaultAddress: string | undefined
 ) => {
-
   const theme = useTheme();
   const tableColumns = [
     {
@@ -44,11 +43,12 @@ export const useVaultReinvestmentTable = (
       showLinkIcon: true,
     },
   ];
-  const analyticsReady = useAnalyticsReady(network)
+  const analyticsReady = useAnalyticsReady(network);
 
-  const reinvestmentData = network && analyticsReady
-    ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
-    : undefined;
+  const reinvestmentData =
+    network && analyticsReady
+      ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
+      : undefined;
 
   let result = [] as any[];
 
@@ -64,7 +64,7 @@ export const useVaultReinvestmentTable = (
         const sharePrice = data?.vaultSharePrice
           ? TokenBalance.from(data.vaultSharePrice, deposit)
           : undefined;
-        const amountSold = TokenBalance.fromID(
+        const amountSold = new TokenBalance(
           data.rewardAmountSold,
           data?.rewardTokenSold.id,
           network

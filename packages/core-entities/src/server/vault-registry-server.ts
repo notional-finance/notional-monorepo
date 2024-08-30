@@ -13,6 +13,7 @@ import {
 import { Contract } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { DeprecatedVaults, vaultOverrides } from './vault-overrides';
+import { ConfigurationClient } from '../client';
 
 export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
   protected async _refresh(network: Network, blockNumber?: number) {
@@ -97,7 +98,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
                 totalVaultShares,
                 secondaryTradeParams: '0x',
                 enabled,
-                name,
+                ...ConfigurationClient.parseVaultName(name),
               };
             },
           };
