@@ -79,7 +79,7 @@
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "lint"],
+        "cacheableOperations": ["build", "lint", "typechain"],
         "cacheDirectory": ".nx-cache"
       }
     }

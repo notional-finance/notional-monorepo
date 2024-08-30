@@ -52,14 +52,13 @@ elif [ "$1" = "cron-service" ]; then
       --region us-central1 \
       --runtime nodejs22 \
       --trigger-http \
-      --no-allow-unauthenticated \
+      --allow-unauthenticated \
       --entry-point=cronService \
       --gen2 \
       --timeout=600 \
       --concurrency=1 \
       --cpu=2 \
       --memory=1024 \
-      --service-account=663932775145-compute@developer.gserviceaccount.com \
       --set-env-vars=\
 DB_USER=postgres,\
 DB_NAME=notional-v3,\

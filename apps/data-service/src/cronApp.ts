@@ -6,6 +6,16 @@ import { Network, ONE_HOUR_MS } from '@notional-finance/util';
 import { logToDataDog, parseQueryParams } from './util';
 
 export default async function (req: Request, res: Response) {
+  const isCloudScheduler = req.headers['x-cloudscheduler'];
+  const authToken = req.headers['x-auth-token'];
+  if (
+    !isCloudScheduler &&
+    (!authToken || authToken !== process.env.DATA_SERVICE_AUTH_TOKEN)
+  ) {
+    res.status(403).send('Invalid auth token');
+    return;
+  }
+
   const dataService = new DataService();
   const queryParams = parseQueryParams(req.query);
 
