@@ -1,0 +1,13 @@
+@baseUrl={{$dotenv REWARDS_URL}}
+
+# Trigger claim or reinvest for specific vault
+# @prompt network [Network] {mainnet|arbitrum}
+# @prompt vaultAddress [Address] copy vault address from ./src/vaults.ts
+# @prompt action [Action] {claim|reinvest}
+# @prompt force [Boolean] {true|false}
+GET {{baseUrl}}
+    ?network={{network}}
+    &vaultAddress={{vaultAddress}}
+    &action={{action}}
+    &force={{force}}
+x-auth-key: {{$dotenv AUTH_KEY}}

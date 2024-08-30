@@ -52,6 +52,7 @@ elif [ "$1" = "cron-service" ]; then
       --region us-central1 \
       --runtime nodejs22 \
       --trigger-http \
+      --no-allow-unauthenticated \
       --entry-point=cronService \
       --gen2 \
       --timeout=600 \
