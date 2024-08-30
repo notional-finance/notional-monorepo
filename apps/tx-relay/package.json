@@ -4,13 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -b tsconfig.build.json",
-    "start": "node lib/index.js",
-    "deploy": "gcloud --project monitoring-agents app deploy app.yaml"
+    "build-esbuild": "esbuild src/index.ts --bundle --outdir=../../dist/apps/tx-relay --platform=node --target=node22 --packages=external",
+    "deploy": "./deploy.sh"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@google-cloud/functions-framework": "^3.4.2",
     "@types/express": "^4.17.17",
     "@types/jest": "^27.0.2",
     "@types/node": "^20.12.7",
@@ -18,13 +18,11 @@
     "ts-jest": "^27.0.5",
     "ts-node": "^10.2.1",
     "tslib": "^2.3.1",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "esbuild": "0.23.1"
   },
   "dependencies": {
-    "dotenv": "^16.0.3",
     "ethers": "5.4.4",
-    "ethers-gcp-kms-signer": "^1.1.6",
-    "express": "^4.18.2",
-    "gae-env-secrets": "1.0.3"
+    "ethers-gcp-kms-signer": "^1.1.6"
   }
 }
