@@ -11,7 +11,7 @@ export type Config = {
 type ConfigPerNetwork = Record<Network, Config>;
 
 const DATA_SERVICE_URL =
-  'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultApy';
+  'https://us-central1-monitoring-agents.cloudfunctions.net/data-service/vaultApy';
 const ALCHEMY_KEY = process.env.ALCHEMY_KEY as string;
 
 assert(ALCHEMY_KEY, `Environment variable ALCHEMY_KEY needs to be set`);

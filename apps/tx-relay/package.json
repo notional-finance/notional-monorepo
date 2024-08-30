@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build-esbuild": "esbuild src/index.ts --bundle --outdir=../../dist/apps/tx-relay --platform=node --target=node22 --packages=external",
-    "deploy": "./deploy.sh"
+    "deploy-gcp": "yarn build-esbuild && ./deploy.sh"
   },
   "author": "",
   "license": "ISC",

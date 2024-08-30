@@ -15,6 +15,7 @@ gcloud --project monitoring-agents \
     --concurrency=1 \
     --cpu=1 \
     --memory=256 \
+    --service-account=monitoring-agents@appspot.gserviceaccount.com \
   --set-secrets=\
 AUTH_TOKEN=projects/663932775145/secrets/TX_RELAY_AUTH_TOKEN/versions/latest,\
 DD_API_KEY=projects/663932775145/secrets/DD_API_KEY/versions/latest

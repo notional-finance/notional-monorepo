@@ -14,7 +14,7 @@ name = "vault-liquidator-arbitrum"
 
 [env.arbitrum.vars]
 NX_REGISTRY_URL = 'https://registry.notional.finance'
-ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultAccounts'
+ACCOUNT_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service/vaultAccounts'
 NETWORK = 'arbitrum'
 FLASH_LIQUIDATOR_CONTRACTS = [
     '0xA44a8729d139b39A322a9c7754fAe98B6cff6C71',
@@ -32,7 +32,7 @@ name = "vault-liquidator-mainnet"
 
 [env.mainnet.vars]
 NX_REGISTRY_URL = 'https://registry.notional.finance'
-ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/vaultAccounts'
+ACCOUNT_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service/vaultAccounts'
 NETWORK = 'mainnet'
 FLASH_LIQUIDATOR_CONTRACTS = [
     '0x572DcC74C291Aac86860C59Ef81a69a886282F4E',

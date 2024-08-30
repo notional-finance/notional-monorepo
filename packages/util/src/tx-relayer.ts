@@ -30,7 +30,7 @@ export async function sendTxThroughRelayer(arg: {
     gasLimit,
   });
 
-  const url = `https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/${env.NETWORK}`;
+  const url = `https://us-central1-monitoring-agents.cloudfunctions.net/tx-relay/v1/txes/${env.NETWORK}`;
   console.log(`Sending Payload to ${url}`);
 
   return fetch(url, {
