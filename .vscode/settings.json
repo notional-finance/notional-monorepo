@@ -14,19 +14,20 @@
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
 
   // Eslint Settings
   "eslint.validate": ["json"],
   "eslint.format.enable": true,
   "eslint.alwaysShowStatus": true,
-  
-  "cSpell.words": [
-    "arrayify",
-    "noindex",
-    "Numberish",
-    "xirr"
-  ],
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+
+  "cSpell.words": ["arrayify", "noindex", "Numberish", "xirr"]
 }
