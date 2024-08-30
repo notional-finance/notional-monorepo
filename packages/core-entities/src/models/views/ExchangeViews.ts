@@ -7,12 +7,12 @@ import {
   SNOTEWeightedPool,
 } from '../../exchanges/index';
 import { Network } from '@notional-finance/util';
-import { NetworkModelType } from '../NetworkModel';
+import { NetworkModelIntermediateType } from '../NetworkModel';
 import { ethers } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 
 export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
-  self: NetworkModelType,
+  self: NetworkModelIntermediateType,
   address: string
 ) {
   const poolDefinition =
@@ -32,7 +32,7 @@ export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
   ) as T;
 }
 
-export const ExchangeViews = (self: NetworkModelType) => {
+export const ExchangeViews = (self: NetworkModelIntermediateType) => {
   const getPoolInstance = <T extends BaseLiquidityPool<unknown>>(
     address: string
   ) => {
