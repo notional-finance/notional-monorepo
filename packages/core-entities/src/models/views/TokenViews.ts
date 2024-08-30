@@ -101,13 +101,16 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
       token.maturity &&
       token.maturity !== PRIME_CASH_VAULT_MATURITY
     ) {
-      return self.tokens.get(
+      const t = self.tokens.get(
         encodeERC1155Id(
           token.currencyId,
           token.maturity,
           AssetType.FCASH_ASSET_TYPE
         )
       );
+      if (!t)
+        throw Error(`Token ${token.currencyId} ${token.maturity} not found`);
+      return t;
     } else if (
       token.tokenType === 'VaultDebt' &&
       token.maturity === PRIME_CASH_VAULT_MATURITY

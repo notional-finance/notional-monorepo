@@ -47,7 +47,8 @@ export const ExchangeViews = (self: NetworkModelIntermediateType) => {
 
   const getfCashMarket = (currencyId: number) => {
     const nToken = self.getNToken(currencyId);
-    return nToken ? getPoolInstance<fCashMarket>(nToken.address) : undefined;
+    if (!nToken) throw Error('NToken not found for fCash market');
+    return getPoolInstance<fCashMarket>(nToken.address);
   };
 
   const getNotionalMarket = (currencyId: number) => {

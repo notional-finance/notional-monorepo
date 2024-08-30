@@ -30,6 +30,7 @@ import {
 } from './views/ConfigurationViews';
 import defaultPools from '../exchanges/default-pools';
 import { buildOracleGraph, OracleViews } from './views/OracleViews';
+import { YieldViews } from './views/YieldViews';
 
 const REGISTRY_URL = 'https://registry.notional.finance';
 
@@ -136,7 +137,9 @@ export const NetworkServerModel = NetworkModelWithViews.named(
   };
 });
 
-export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
+export const NetworkClientModel = NetworkModelWithViews.views((self) => ({
+  ...YieldViews(self),
+})).actions((self) => {
   const triggerRefresh = flow(function* () {
     const startTime = performance.now();
     const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);
