@@ -1,21 +1,35 @@
 #!/bin/sh
 set -e
 
-cd ../../../dist/apps/gcp/data-service
+echo "Deploying ${1} functions"
 
-gcloud --project monitoring-agents \
-  functions deploy data-service \
-  --region us-central1 \
-  --runtime nodejs22 \
-  --trigger-http \
-  --allow-unauthenticated \
-  --entry-point=dataService \
-  --gen2 \
-  --timeout=600 \
-  --concurrency=1 \
-  --cpu=1 \
-  --memory=256 \
-  --set-env-vars=\
+cd ../../dist/apps/data-service
+# Remove dependencies from package.json to speed up deployment, no need to install them since they are already bundled
+jq 'del(.dependencies)' package.json > temp${1}.json && mv temp${1}.json package.json
+jq 'del(.devDependencies)' package.json > temp${1}.json && mv temp${1}.json package.json
+
+
+# Check if the first argument is provided
+if [ -z "$1" ]; then
+    echo "Error: Please provide 'data-service' or 'cron-service' as the first argument."
+    exit 1
+fi
+
+# Deploy based on the first argument
+if [ "$1" = "data-service" ]; then
+    gcloud --project monitoring-agents \
+      functions deploy data-service \
+      --region us-central1 \
+      --runtime nodejs22 \
+      --trigger-http \
+      --allow-unauthenticated \
+      --entry-point=dataService \
+      --gen2 \
+      --timeout=600 \
+      --concurrency=1 \
+      --cpu=1 \
+      --memory=256 \
+      --set-env-vars=\
 DB_USER=postgres,\
 DB_NAME=notional-v3,\
 DB_HOST=/cloudsql/monitoring-agents:us-central1:notional,\
@@ -32,20 +46,21 @@ DUNE_API_KEY=projects/663932775145/secrets/DUNE_API_KEY/versions/latest,\
 SUBGRAPH_API_KEY=projects/663932775145/secrets/SUBGRAPH_API_KEY/versions/latest,\
 DD_API_KEY=projects/663932775145/secrets/DD_API_KEY/versions/latest
 
-gcloud --project monitoring-agents \
-  functions deploy cron-service \
-  --region us-central1 \
-  --runtime nodejs22 \
-  --trigger-http \
-  --allow-unauthenticated \
-  --entry-point=cronService \
-  --gen2 \
-  --timeout=600 \
-  --concurrency=1 \
-  --cpu=2 \
-  --memory=1024 \
-  --service-account=663932775145-compute@developer.gserviceaccount.com \
-  --set-env-vars=\
+elif [ "$1" = "cron-service" ]; then
+    gcloud --project monitoring-agents \
+      functions deploy cron-service \
+      --region us-central1 \
+      --runtime nodejs22 \
+      --trigger-http \
+      --allow-unauthenticated \
+      --entry-point=cronService \
+      --gen2 \
+      --timeout=600 \
+      --concurrency=1 \
+      --cpu=2 \
+      --memory=1024 \
+      --service-account=663932775145-compute@developer.gserviceaccount.com \
+      --set-env-vars=\
 DB_USER=postgres,\
 DB_NAME=notional-v3,\
 DB_HOST=/cloudsql/monitoring-agents:us-central1:notional,\
@@ -61,32 +76,8 @@ R2_SECRET_ACCESS_KEY=projects/663932775145/secrets/R2_SECRET_ACCESS_KEY/versions
 DUNE_API_KEY=projects/663932775145/secrets/DUNE_API_KEY/versions/latest,\
 SUBGRAPH_API_KEY=projects/663932775145/secrets/SUBGRAPH_API_KEY/versions/latest,\
 DD_API_KEY=projects/663932775145/secrets/DD_API_KEY/versions/latest
-  
-cd -
-#Set the base URI as an environment variable
-# Get the function URI using gcloud
-BASE_URI=$(gcloud functions describe cron-service --region=us-central1 --format='value(url)')
-echo "Base URI: $BASE_URI"
-# Read and create jobs from cron.yaml
-while IFS= read -r line || [[ -n "$line" ]]; do
-    if [[ $line == *"description:"* ]]; then
-        description=$(echo "$line" | sed -E 's/.*description: *"(.*)".*/\1/')
-    elif [[ $line == *"url:"* ]]; then
-        url=$(echo "$line" | sed -E 's/.*url: *(.*)$/\1/')
-    elif [[ $line == *"schedule:"* ]]; then
-        schedule=$(echo "$line" | sed -E 's/.*schedule: *(.*)$/\1/')
-        # Create the job
-        job_name=$(echo "$description" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-        gcloud scheduler jobs update http "$job_name" \
-            --location=us-central1 \
-            --schedule="$schedule" \
-            --uri="${BASE_URI}${url}" \
-            --http-method GET \
-            --attempt-deadline=1800s \
-            --description="$description"
-        
-        echo "Created job: $job_name $url $schedule"
-    fi
-done < cron.yaml
 
-
+else
+    echo "Error: Invalid argument. Please provide 'data-service' or 'cron-service'."
+    exit 1
+fi

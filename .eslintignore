@@ -1,2 +1,3 @@
 packages/**/.graphclient
 apps/**/.wrangler
+apps/**/node_modules

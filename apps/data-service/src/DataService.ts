@@ -6,7 +6,6 @@ import {
   ONE_HOUR_MS,
   ACCOUNT_ID_RANGES,
 } from '@notional-finance/util';
-import { fetch } from 'cross-fetch';
 import {
   buildOperations,
   defaultConfigDefs,

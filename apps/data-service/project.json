@@ -1,7 +1,7 @@
 {
   "name": "data-service",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "gcp/data-service/src",
+  "sourceRoot": "apps/data-service/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -13,9 +13,6 @@
         "target": "node22",
         "format": ["cjs"],
         "compiler": "tsc",
-        "outputPath": "dist/gcp/data-service",
-        "main": "gcp/data-service/src/index.ts",
-        "tsConfig": "gcp/data-service/tsconfig.json",
         "external": [
           "pg-query-stream",
           "sqlite3",
@@ -25,18 +22,28 @@
           "mysql",
           "better-sqlite3"
         ],
-        "esbuildOptions": {
-          "external": ["better-sqlite3"]
-        },
-        "generatePackageJson": true
+        "esbuildOptions": {},
+        "outputPath": "dist/apps/data-service",
+        "main": "apps/data-service/src/index.ts",
+        "tsConfig": "apps/data-service/tsconfig.json"
       }
     },
     "deploy-gcp": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["cd ./apps/gcp/data-service/ && sh ./deploy.sh"]
+        "commands": [
+          "cd ./apps/data-service/ && sh ./deploy.sh data-service",
+          "cd ./apps/data-service/ && sh ./deploy.sh cron-service"
+        ]
       },
-      "dependsOn": ["data-service:build"]
+      "parallel": true,
+      "dependsOn": ["build"]
+    },
+    "deploy-cron": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["sh ./apps/data-service/deploy-cron.sh"]
+      }
     },
     "serve": {
       "executor": "@nx/js:node",
@@ -45,10 +52,10 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/gcp/data-service/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/data-service/**/*.{ts,tsx,js,jsx}"]
       }
     }
   },

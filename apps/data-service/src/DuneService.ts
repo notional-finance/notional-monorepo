@@ -1,6 +1,5 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getS3 } from './RiskService';
-import fetch from 'cross-fetch';
 
 const queries = [
   { queryId: 3709164, name: 'sNOTEPoolData' },
