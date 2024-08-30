@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
     "start": "node lib/index.js",
-    "deploy": "gcloud app deploy"
+    "deploy": "gcloud --project monitoring-agents app deploy app.yaml"
   },
   "author": "",
   "license": "ISC",
