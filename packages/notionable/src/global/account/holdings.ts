@@ -12,6 +12,7 @@ import {
   FiatKeys,
   getVaultType,
   PendlePT,
+  getNetworkModel,
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
@@ -141,7 +142,7 @@ export function calculateHoldings(
     );
     const totalIncentiveEarnings = perIncentiveEarnings.reduce(
       (s, i) => s.add(i.toFiat('USD')),
-      TokenBalance.fromSymbol(0, 'USD', Network.all)
+      getNetworkModel(account.network).getTokenBalanceFromSymbol(0, 'USD')
     );
 
     const totalEarningsWithIncentives = statement?.totalProfitAndLoss
@@ -165,7 +166,7 @@ export function calculateHoldings(
       totalEarningsWithIncentives,
       marketProfitLoss: totalEarningsWithIncentives?.sub(
         statement?.totalInterestAccrual.toFiat('USD') ||
-          TokenBalance.fromSymbol(0, 'USD', Network.all)
+          getNetworkModel(account.network).getTokenBalanceFromSymbol(0, 'USD')
       ),
       hasMatured: balance.hasMatured,
       isHighUtilization: isHighUtilization(

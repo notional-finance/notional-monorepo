@@ -43,7 +43,7 @@ export class Registry {
     cacheHostname: string,
     fetchMode: AccountFetchMode,
     startFiatRefresh = true,
-    useAnalytics = true,
+    useAnalytics = false,
     isClient = true
   ) {
     if (Registry._self) return;
@@ -299,9 +299,6 @@ export class Registry {
         ),
         new Promise<void>((r) =>
           Registry.getOracleRegistry().onNetworkRegistered(network, r)
-        ),
-        new Promise<void>((r) =>
-          Registry.getAnalyticsRegistry().onNetworkRegistered(network, r)
         ),
       ]).then(fn);
     } else {

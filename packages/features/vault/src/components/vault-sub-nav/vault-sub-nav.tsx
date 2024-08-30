@@ -178,7 +178,7 @@ const NavItem = styled(Box, {
        height: ${theme.spacing(2.5)};
        position: fixed;
        margin-top: ${theme.spacing(8.375)};
-       clip-path: polygon(100% 100%, 0 100%, 50% 50%);
+       clipPath: polygon(100% 100%, 0 100%, 50% 50%);
        transform: rotate(180deg);
        background: ${theme.palette.background.accentDefault};
      }

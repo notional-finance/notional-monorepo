@@ -1,5 +1,5 @@
 import { ClientRegistry } from './client-registry';
-import { CacheSchema, OracleDefinition } from '../Definitions';
+import { CacheSchema } from '../Definitions';
 import {
   INTERNAL_TOKEN_PRECISION,
   Network,
@@ -12,7 +12,7 @@ import {
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
-import { TokenBalance } from '../token-balance';
+import { getNetworkModel } from '../Models';
 
 export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
   protected cachePath() {
@@ -25,38 +25,6 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
 
   constructor(cacheHostname: string) {
     super(cacheHostname);
-    Registry.getExchangeRegistry().onSubjectKeyRegistered(
-      Network.mainnet,
-      NOTERegistryClient.sNOTE_Pool,
-      () => {
-        Registry.getExchangeRegistry()
-          .subscribeSubject(Network.mainnet, NOTERegistryClient.sNOTE_Pool)
-          ?.subscribe(() => {
-            const oracles = Registry.getOracleRegistry();
-            const pool = Registry.getExchangeRegistry().getSNOTEPool();
-            if (oracles.isNetworkRegistered(Network.mainnet) && pool) {
-              const currentSNOTEPrice = pool.getCurrentSNOTEPrice();
-
-              const oracle: OracleDefinition = {
-                id: NOTERegistryClient.sNOTEOracle,
-                oracleAddress: sNOTE,
-                network: Network.mainnet,
-                oracleType: 'sNOTEToETHExchangeRate',
-                base: ZERO_ADDRESS,
-                quote: sNOTE,
-                decimals: currentSNOTEPrice.decimals,
-                latestRate: {
-                  blockNumber: 0,
-                  timestamp: getNowSeconds(),
-                  rate: currentSNOTEPrice.n,
-                },
-              };
-
-              oracles.registerOracle(Network.mainnet, oracle);
-            }
-          });
-      }
-    );
   }
 
   protected override async _refresh(
@@ -86,10 +54,9 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
       );
     }, BigNumber.from(0));
 
-    return TokenBalance.fromSymbol(
+    return getNetworkModel(Network.mainnet).getTokenBalanceFromSymbol(
       totalEmissions.mul(INTERNAL_TOKEN_PRECISION),
-      'NOTE',
-      Network.mainnet
+      'NOTE'
     );
   }
 

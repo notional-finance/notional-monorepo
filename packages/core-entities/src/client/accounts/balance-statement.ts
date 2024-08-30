@@ -6,23 +6,42 @@ import {
   // SECONDS_IN_YEAR,
   // getNowSeconds,
 } from '@notional-finance/util';
-import { Registry } from '../../Registry';
 import { TokenBalance } from '../../token-balance';
 // import { BigNumber } from 'ethers';
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { BalanceSnapshot, Token } from '../../.graphclient';
+import { getNetworkModel } from '../../Models';
+import { BigNumberish, BigNumber } from 'ethers';
+
+/**
+ * Subgraph stores PrimeDebt balances as positive numbers so need to flip the sign here, fCash and vault debt
+ * balances are handled inside the TokenBalance constructor
+ */
+export function parseGraphBalanceToTokenBalance(
+  balance: BigNumberish,
+  tokenId: string,
+  network: Network
+) {
+  const model = getNetworkModel(network);
+  const isPrimeDebt = model.getTokenByID(tokenId).tokenType === 'PrimeDebt';
+  let b = BigNumber.from(balance);
+  if (isPrimeDebt && b.gt(0)) b = b.mul(-1);
+
+  return new TokenBalance(balance, tokenId, network);
+}
 
 export function parseCurrentBalanceStatement(
   current: BalanceSnapshot,
   _token: Token,
   network: Network
 ) {
-  const tokens = Registry.getTokenRegistry();
   if (!_token.underlying) throw Error('Unknown underlying');
   const tokenId = _token.id;
-  const token = tokens.getTokenByID(network, tokenId);
-  const underlying = tokens.getTokenByID(network, _token.underlying.id);
+  const model = getNetworkModel(network);
+  const token = model.getTokenByID(tokenId);
+  const underlying = model.getTokenByID(_token.underlying.id);
+
   const currentStatement = parseBalanceStatement(
     tokenId,
     underlying.id,
@@ -42,15 +61,13 @@ export function parseCurrentBalanceStatement(
   const incentives =
     current.incentives?.map((i) => ({
       // PartOf: Incentive Earnings
-      adjustedClaimed: TokenBalance.fromSymbol(
+      adjustedClaimed: getNetworkModel(network).getTokenBalanceFromSymbol(
         i.adjustedClaimed,
-        i.rewardToken.symbol,
-        network
+        i.rewardToken.symbol
       ),
-      totalClaimed: TokenBalance.fromSymbol(
+      totalClaimed: getNetworkModel(network).getTokenBalanceFromSymbol(
         i.totalClaimed,
-        i.rewardToken.symbol,
-        network
+        i.rewardToken.symbol
       ),
     })) || [];
 
@@ -131,13 +148,9 @@ export function parseBalanceStatement(
   snapshot: BalanceSnapshot,
   network: Network
 ) {
-  const balance = TokenBalance.fromID(
-    snapshot.currentBalance,
-    tokenId,
-    network
-  );
+  const balance = new TokenBalance(snapshot.currentBalance, tokenId, network);
 
-  const adjustedCostBasis = TokenBalance.fromID(
+  const adjustedCostBasis = new TokenBalance(
     snapshot.adjustedCostBasis,
     underlyingId,
     network
@@ -151,17 +164,17 @@ export function parseBalanceStatement(
     adjustedCostBasis,
     timestamp: snapshot.timestamp,
     accumulatedCostRealized,
-    totalILAndFees: TokenBalance.fromID(
+    totalILAndFees: new TokenBalance(
       snapshot.totalILAndFeesAtSnapshot,
       underlyingId,
       network
     ),
-    totalProfitAndLoss: TokenBalance.fromID(
+    totalProfitAndLoss: new TokenBalance(
       snapshot.totalProfitAndLossAtSnapshot,
       underlyingId,
       network
     ),
-    totalInterestAccrual: TokenBalance.fromID(
+    totalInterestAccrual: new TokenBalance(
       snapshot.totalInterestAccrualAtSnapshot,
       underlyingId,
       network

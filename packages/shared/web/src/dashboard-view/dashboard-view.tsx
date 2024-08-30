@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CardContainer } from '../card-container/card-container';
-import { FeatureLoader } from '../feature-loader/feature-loader';
+import FeatureLoader from '../feature-loader/feature-loader';
 import {
   useSelectedNetwork,
   useAppStore,
