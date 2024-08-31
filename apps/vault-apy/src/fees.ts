@@ -1,3 +1,4 @@
+import debug from 'debug';
 import { BigNumber, Contract } from 'ethers';
 import { Network, VaultData, Provider, RewardPoolType } from './types';
 import {
@@ -13,7 +14,7 @@ import { POOL_DECIMALS } from './config';
 import { getTokenDecimals, e, toInt18Precision } from './util';
 
 const SUBGRAPH_API_KEY = process.env.SUBGRAPH_API_KEY as string;
-const log = require('debug')('vault-apy');
+const log = debug('vault-apy');
 
 export enum ProtocolName {
   NotionalV3 = 'NotionalV3',

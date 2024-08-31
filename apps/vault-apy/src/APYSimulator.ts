@@ -1,3 +1,4 @@
+import debug from 'debug';
 import { exec } from 'child_process';
 import assert from 'node:assert/strict';
 import { ethers, BigNumber, Contract } from 'ethers';
@@ -31,7 +32,7 @@ import {
   floorToMidnight,
 } from './util';
 
-const log = require('debug')('vault-apy');
+const log = debug('vault-apy');
 
 const ONE_DAY_IN_SECONDS = 24 * 60 * 60;
 
@@ -46,6 +47,7 @@ async function getTransferLogs(logs: ethers.providers.Log[]) {
         to: parsed.args.to,
         amount: parsed.args.amount.toString(),
       });
+      // eslint-disable-next-line no-empty
     } catch {}
   }
   return transfers;
@@ -103,7 +105,7 @@ export default class APYSimulator {
     }
   }
 
-  async run(_forkBlock: number = 0, vaultAddress: string | null = null) {
+  async run(_forkBlock = 0, vaultAddress: string | null = null) {
     if (!this.#config.vaults.length) {
       log('Skipping, no vaults specified');
       return;
@@ -135,7 +137,7 @@ export default class APYSimulator {
         this.#config.chainId
       );
       // we need to created new checkpoint each time since it is deleted after revert
-      let checkpoint = await provider.send('evm_snapshot', []);
+      const checkpoint = await provider.send('evm_snapshot', []);
 
       const vault = new Contract(
         vaultData.address,
@@ -274,7 +276,7 @@ export default class APYSimulator {
     };
 
     const allResults: any[] = [];
-    for (let [token, tokensClaimed] of rewardTokens) {
+    for (const [token, tokensClaimed] of rewardTokens) {
       const { decimals: tokenDecimals, symbol } = await getTokenDetails(
         token,
         provider

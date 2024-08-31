@@ -1,9 +1,10 @@
+import debug from 'debug';
 import { Network } from './types';
 import configPerNetwork from './config';
 import { execPromise } from './util';
 import APYSimulator from './APYSimulator';
 
-const log = require('debug')('vault-apy');
+const log = debug('vault-apy');
 
 process.on('exit', async function () {
   // cleanup

@@ -6,7 +6,8 @@
   "scripts": {
     "build-functions": "esbuild src/index.ts --bundle --outdir=./dist --platform=node --target=node18 --packages=external",
     "serve": "yarn build-functions && dotenv -e .env -- functions-framework --target=txRelayService --source=./dist",
-    "deploy-gcp": "yarn build-functions && ./deploy.sh"
+    "deploy-gcp": "yarn build-functions && ./deploy.sh",
+    "lint": "eslint ./"
   },
   "author": "",
   "license": "ISC",
