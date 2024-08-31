@@ -1,3 +1,4 @@
+cd ../.. && nx run vault-apy:build && cd -
 docker build -t us-east1-docker.pkg.dev/monitoring-agents/notional-repo/vault-apy:latest ./
 
 docker push us-east1-docker.pkg.dev/monitoring-agents/notional-repo/vault-apy:latest

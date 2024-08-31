@@ -2,7 +2,7 @@
   "name": "vault-apy",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "tsc -b tsconfig.json",
     "start": "node lib/index.js",
@@ -22,6 +22,7 @@
     "@balancer-labs/sdk": "^1.1.5",
     "alchemy-sdk": "^3.3.1",
     "debug": "^4.3.4",
-    "ethers": "^5"
+    "ethers": "^5",
+    "tslib": "^2.7.0"
   }
 }

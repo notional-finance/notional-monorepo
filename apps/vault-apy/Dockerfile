@@ -12,10 +12,7 @@ COPY package*.json ./
 
 RUN yarn install
 
-COPY ./src ./src
-COPY tsconfig.json ./
-
-RUN yarn build
+COPY ./lib ./lib
 
 ENV DEBUG=vault-apy
 CMD [ "yarn", "start"]
