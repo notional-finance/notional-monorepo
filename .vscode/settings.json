@@ -29,7 +29,15 @@
   "eslint.format.enable": true,
   "eslint.alwaysShowStatus": true,
 
-  "cSpell.words": ["arrayify", "noindex", "Numberish", "xirr"],
+  "cSpell.words": [
+    "arrayify",
+    "noindex",
+    "nrwl",
+    "Numberish",
+    "PYUSD",
+    "reinvestments",
+    "xirr"
+  ],
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

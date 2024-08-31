@@ -21,22 +21,6 @@
     },
     "deploy-cron": {
       "inputs": ["{projectRoot}/deploy-cron.sh"]
-    },
-    "version": {
-      "executor": "@jscutlery/semver:version",
-      "options": {
-        "preset": "conventional",
-        "push": true,
-        "skipCommitTypes": [
-          "chore",
-          "docs",
-          "perf",
-          "test",
-          "build",
-          "ci",
-          "revert"
-        ]
-      }
     }
   },
   "targetDependencies": {

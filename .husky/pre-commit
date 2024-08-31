@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Run command using --base=[SHA1] (affected by the committed, uncommitted and untracked changes):
+# Run command using --base=[SHA1] (affected by the committed, uncommitted and untracked changes)
 yarn nx affected --target=lint --base=HEAD
