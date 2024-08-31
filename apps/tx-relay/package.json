@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build-esbuild": "esbuild src/index.ts --bundle --outdir=../../dist/apps/tx-relay --platform=node --target=node22 --packages=external",
-    "deploy-gcp": "yarn build-esbuild && ./deploy.sh"
+    "build-functions": "esbuild src/index.ts --bundle --outdir=./dist --platform=node --target=node18 --packages=external",
+    "serve": "yarn build-functions && dotenv -e .env -- functions-framework --target=txRelayService --source=./dist",
+    "deploy-gcp": "yarn build-functions && ./deploy.sh"
   },
   "author": "",
   "license": "ISC",

@@ -9,7 +9,7 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "platform": "node",
-        "target": "node22",
+        "target": "node18",
         "format": ["cjs"],
         "compiler": "tsc",
         "external": [
@@ -22,7 +22,7 @@
           "better-sqlite3"
         ],
         "esbuildOptions": {},
-        "outputPath": "dist/apps/data-service",
+        "outputPath": "apps/data-service/dist",
         "main": "apps/data-service/src/index.ts",
         "tsConfig": "apps/data-service/tsconfig.json"
       }
@@ -42,12 +42,6 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": ["sh ./apps/data-service/deploy-cron.sh"]
-      }
-    },
-    "serve": {
-      "executor": "@nx/js:node",
-      "options": {
-        "buildTarget": "data-service:build"
       }
     },
     "lint": {

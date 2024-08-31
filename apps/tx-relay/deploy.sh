@@ -1,7 +1,7 @@
 echo "Deploying tx-relay service"
 
-cp package.json ../../dist/apps/tx-relay
-cd ../../dist/apps/tx-relay
+cp package.json ./dist
+cd ./dist
 
 gcloud --project monitoring-agents \
     functions deploy tx-relay \

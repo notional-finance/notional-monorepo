@@ -3,7 +3,7 @@ set -e
 
 echo "Deploying ${1} functions"
 
-cd ../../dist/apps/data-service
+cd ./dist
 # Remove dependencies from package.json to speed up deployment, no need to install them since they are already bundled
 jq 'del(.dependencies)' package.json > temp${1}.json && mv temp${1}.json package.json
 jq 'del(.devDependencies)' package.json > temp${1}.json && mv temp${1}.json package.json
