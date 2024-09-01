@@ -20,7 +20,7 @@ if [ "$1" = "data-service" ]; then
     gcloud --project monitoring-agents \
       functions deploy data-service \
       --region us-central1 \
-      --runtime nodejs22 \
+      --runtime nodejs20 \
       --trigger-http \
       --allow-unauthenticated \
       --entry-point=dataService \
@@ -50,7 +50,7 @@ elif [ "$1" = "cron-service" ]; then
     gcloud --project monitoring-agents \
       functions deploy cron-service \
       --region us-central1 \
-      --runtime nodejs22 \
+      --runtime nodejs20 \
       --trigger-http \
       --allow-unauthenticated \
       --entry-point=cronService \

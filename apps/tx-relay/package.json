@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build-functions": "esbuild src/index.ts --bundle --outdir=./dist --platform=node --target=node18 --packages=external",
+    "build-functions": "esbuild src/index.ts --bundle --outdir=./dist --platform=node --target=node20 --packages=external",
     "serve": "yarn build-functions && dotenv -e .env -- functions-framework --target=txRelayService --source=./dist",
     "deploy-gcp": "yarn build-functions && ./deploy.sh",
     "lint": "eslint ./"

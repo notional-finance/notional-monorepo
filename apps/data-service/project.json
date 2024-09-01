@@ -9,7 +9,7 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "platform": "node",
-        "target": "node18",
+        "target": "node20",
         "format": ["cjs"],
         "compiler": "tsc",
         "external": [

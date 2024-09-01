@@ -6,8 +6,13 @@ import { Network, ONE_HOUR_MS } from '@notional-finance/util';
 import { logToDataDog, parseQueryParams } from './util';
 
 export default async function (req: Request, res: Response) {
+  // check proper header that cannot be set outside of google cloud
   const isCloudScheduler = req.headers['x-cloudscheduler'];
   const authToken = req.headers['x-auth-token'];
+  if (isCloudScheduler) {
+    console.log('headers', req.headers);
+    await logToDataDog('cron-service', req.headers, 'info:cronApp');
+  }
   if (
     !isCloudScheduler &&
     (!authToken || authToken !== process.env.DATA_SERVICE_AUTH_TOKEN)
