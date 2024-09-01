@@ -40,6 +40,7 @@ for job in "${cron_jobs[@]}"; do
         --http-method GET \
         --attempt-deadline=1800s \
         --oidc-service-account-email=monitoring-agents@appspot.gserviceaccount.com \
+        --oidc-token-audience="${BASE_URI}" \
         --description="$description"
     
     echo "${ACTION}d job: $job_name $url $schedule"

@@ -6,20 +6,9 @@ import { Network, ONE_HOUR_MS } from '@notional-finance/util';
 import { logToDataDog, parseQueryParams } from './util';
 
 export default async function (req: Request, res: Response) {
-  // check proper header that cannot be set outside of google cloud
-  const isCloudScheduler = req.headers['x-cloudscheduler'];
-  const authToken = req.headers['x-auth-token'];
-  if (isCloudScheduler) {
-    console.log('headers', req.headers);
-    await logToDataDog('cron-service', req.headers, 'info:cronApp');
-  }
-  if (
-    !isCloudScheduler &&
-    (!authToken || authToken !== process.env.DATA_SERVICE_AUTH_TOKEN)
-  ) {
-    res.status(403).send('Invalid auth token');
-    return;
-  }
+  // no custom authentication/authorization needed since cron service
+  // will be only triggered by google cloud scheduler with the proper service account
+  // that has the necessary permissions and is not meant to be accessed from outside of google cloud
 
   const dataService = new DataService();
   const queryParams = parseQueryParams(req.query);
