@@ -5,6 +5,7 @@ import { NetworkModelWithViewsType } from '../NetworkModel';
 import {
   getNowSeconds,
   INTERNAL_TOKEN_PRECISION,
+  PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
 } from '@notional-finance/util';
@@ -115,6 +116,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
       return fCash.toUnderlying().add(pCash.toUnderlying());
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const adapter = self.getVaultAdapter(token.vaultAddress);
+      // NOTE: this returns the TVL of the vault across all maturities
       return adapter.getVaultTVL();
     }
 
@@ -158,7 +160,8 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
   const getSpotAPY = (tokenId: string) => {
     const apyData: APYData = { totalAPY: 0 };
 
-    const token = self.unwrapVaultToken(self.getTokenByID(tokenId));
+    const _token = self.getTokenByID(tokenId);
+    const token = self.unwrapVaultToken(_token);
     if (!token.currencyId) throw Error('Token currencyId not found');
 
     if (
@@ -168,6 +171,16 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
     ) {
       const market = self.getNotionalMarket(token.currencyId);
       apyData.organicAPY = market.getSpotInterestRate(token) || 0;
+      if (
+        _token.tokenType === 'VaultDebt' &&
+        _token.maturity === PRIME_CASH_VAULT_MATURITY &&
+        _token.vaultAddress
+      ) {
+        // Add the debt fee to the organic APY
+        const config = self.getVaultConfig(_token.vaultAddress);
+        apyData.organicAPY +=
+          (config.feeRateBasisPoints * 100) / RATE_PRECISION;
+      }
       apyData.totalAPY = apyData.organicAPY;
     } else if (token.tokenType === 'nToken') {
       const market = self.getfCashMarket(token.currencyId);
@@ -231,32 +244,45 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
   const getSimulatedAPY = (netAmount: TokenBalance) => {
     const apyData: APYData = { totalAPY: 0 };
 
-    if (netAmount.tokenType === 'fCash') {
+    if (netAmount.unwrapVaultToken().tokenType === 'fCash') {
       const market = self.getfCashMarket(netAmount.currencyId);
-      const realized = market.calculateTokenTrade(netAmount, 0).tokensOut;
+      const realized = market.calculateTokenTrade(
+        netAmount.unwrapVaultToken(),
+        0
+      ).tokensOut;
       // We net off the fee for fcash so that we show it as an up-front
       // trading fee rather than part of the implied yield
       apyData.organicAPY =
         market.getImpliedInterestRate(realized, netAmount) || 0;
       apyData.totalAPY = apyData.organicAPY;
-    } else if (netAmount.tokenType === 'PrimeCash') {
+    } else if (netAmount.unwrapVaultToken().tokenType === 'PrimeCash') {
       // Increases or decreases the prime supply accordingly
       const market = self.getNotionalMarket(netAmount.currencyId);
       apyData.utilization = market.getPrimeCashUtilization(
-        netAmount,
+        netAmount.unwrapVaultToken(),
         undefined
       );
       apyData.organicAPY = market.getPrimeSupplyRate(apyData.utilization) || 0;
       apyData.totalAPY = apyData.organicAPY;
-    } else if (netAmount.tokenType === 'PrimeDebt') {
+    } else if (netAmount.unwrapVaultToken().tokenType === 'PrimeDebt') {
       // If borrowing and withdrawing then it is just prime debt increase. This
       // includes vault debt
       const market = self.getNotionalMarket(netAmount.currencyId);
       apyData.utilization = market.getPrimeCashUtilization(
         undefined,
-        netAmount.neg()
+        netAmount.unwrapVaultToken().neg()
       );
       apyData.organicAPY = market.getPrimeDebtRate(apyData.utilization) || 0;
+      if (
+        netAmount.token.tokenType === 'VaultDebt' &&
+        netAmount.maturity === PRIME_CASH_VAULT_MATURITY &&
+        netAmount.vaultAddress
+      ) {
+        // Add the debt fee to the organic APY
+        const config = self.getVaultConfig(netAmount.vaultAddress);
+        apyData.organicAPY +=
+          (config.feeRateBasisPoints * 100) / RATE_PRECISION;
+      }
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.tokenType === 'nToken') {
       const market = self.getfCashMarket(netAmount.currencyId);
