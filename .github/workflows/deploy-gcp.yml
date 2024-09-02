@@ -28,6 +28,6 @@ jobs:
       with:
         version: 'latest'
         project_id: ${{ secrets.GCLOUD_PROJECT_ID }}
-    - name: Deploy Aall
+    - name: Deploy All
       shell: bash
       run: apps/deployGCP.sh
