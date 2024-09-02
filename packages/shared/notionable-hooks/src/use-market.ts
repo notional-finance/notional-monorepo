@@ -7,6 +7,7 @@ import {
 import {
   Network,
   PRODUCTS,
+  RATE_PRECISION,
   SupportedNetworks,
   unique,
 } from '@notional-finance/util';
@@ -316,8 +317,22 @@ export const useSpotMaturityData = (
     return (
       tokens?.map((t) => {
         const _t = Registry.getTokenRegistry().unwrapVaultToken(t);
-        const spotRate =
+        let spotRate =
           nonLeveragedYields.find((y) => y.token.id === _t.id)?.totalAPY || 0;
+        if (
+          _t.tokenType === 'PrimeDebt' &&
+          t.tokenType === 'VaultDebt' &&
+          t.vaultAddress
+        ) {
+          // Add the vault fee to the debt rate here
+          spotRate +=
+            (Registry.getConfigurationRegistry().getVaultConfig(
+              t.network,
+              t.vaultAddress
+            ).feeRateBasisPoints *
+              100) /
+            RATE_PRECISION;
+        }
 
         return {
           token: t,

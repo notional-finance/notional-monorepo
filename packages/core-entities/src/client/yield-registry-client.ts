@@ -446,7 +446,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           whitelistedVaults(network).includes(v.vaultAddress)
       )
       .flatMap((v) => {
-        const debt = debtYields.find(
+        let debt = debtYields.find(
           (d) =>
             d.token.currencyId === v.currencyId &&
             (v.maturity === PRIME_CASH_VAULT_MATURITY
@@ -464,6 +464,18 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         const { defaultLeverageRatio, maxLeverageRatio } =
           config.getVaultLeverageFactors(network, v.vaultAddress);
         const totalAPY = adapter.getVaultAPY();
+        if (debt.token.tokenType === 'PrimeDebt') {
+          const annualizedFeeRate =
+            Registry.getConfigurationRegistry().getVaultConfig(
+              network,
+              v.vaultAddress
+            ).feeRateBasisPoints;
+          // Add the vault fee to the debt rate here, need to do a copy here to prevent
+          // the object from being mutated
+          debt = { ...debt };
+          debt.totalAPY += (annualizedFeeRate * 100) / RATE_PRECISION;
+        }
+
         try {
           // If the vault debt is not found then skip generating the yield for
           // this vault

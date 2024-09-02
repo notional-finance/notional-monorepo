@@ -528,7 +528,7 @@ function computeDebtOptions(
         balance: debtBalance,
         ..._getTradedInterestRate(
           netRealizedDebtBalance,
-          debtBalance.unwrapVaultToken(),
+          debtBalance,
           fCashMarket,
           tradeType
         ),
@@ -546,12 +546,13 @@ function computeDebtOptions(
 
 function _getTradedInterestRate(
   realized: TokenBalance,
-  amount: TokenBalance,
+  _amount: TokenBalance,
   fCashMarket: fCashMarket,
   tradeType?: AllTradeTypes | NOTETradeType
 ) {
   let interestRate: number | undefined;
   let utilization: number | undefined;
+  const amount = _amount.unwrapVaultToken();
   if (amount.tokenType === 'fCash') {
     // We net off the fee for fcash so that we show it as an up-front
     // trading fee rather than part of the implied yield
@@ -576,6 +577,15 @@ function _getTradedInterestRate(
     // includes vault debt
     utilization = fCashMarket.getPrimeCashUtilization(undefined, amount.neg());
     interestRate = fCashMarket.getPrimeDebtRate(utilization);
+    if (_amount.tokenType === 'VaultDebt') {
+      const annualizedFeeRate =
+        Registry.getConfigurationRegistry().getVaultConfig(
+          _amount.network,
+          _amount.vaultAddress
+        ).feeRateBasisPoints;
+      // Add the vault fee to the interest rate here..
+      interestRate += annualizedFeeRate;
+    }
   } else if (amount.tokenType === 'nToken') {
     return {
       interestRate:
