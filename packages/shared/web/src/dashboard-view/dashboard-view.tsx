@@ -26,6 +26,7 @@ import {
   useLiquidityLeveragedGrid,
 } from './hooks';
 import { sortListData } from './hooks/utils';
+import { observer } from 'mobx-react-lite';
 
 export const DashboardView = ({
   gridData,
@@ -163,7 +164,7 @@ export const LiquidityVariableDashboard = () => {
   );
 };
 
-export const LendVariableDashboard = () => {
+export const LendVariableDashboard = observer(() => {
   const network = useSelectedNetwork();
   const gridData = useVariableRateGrid(network, PRODUCTS.LEND_VARIABLE);
   const { listColumns, listData } = useLendBorrowList(
@@ -177,7 +178,7 @@ export const LendVariableDashboard = () => {
       listData={listData}
     />
   );
-};
+});
 
 export const BorrowVariableDashboard = () => {
   const network = useSelectedNetwork();
