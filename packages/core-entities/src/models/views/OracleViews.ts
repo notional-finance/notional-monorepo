@@ -336,8 +336,8 @@ export const OracleViews = (self: NetworkModelIntermediateType) => {
         );
 
         const scaledRate = inverted
-          ? invertRate(scaleTo(rate, 18))
-          : scaleTo(rate, 18);
+          ? invertRate(scaleTo(rate, oracle.decimals))
+          : scaleTo(rate, oracle.decimals);
 
         const adjusted = {
           ...oracle.latestRate,
