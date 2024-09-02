@@ -107,7 +107,11 @@ export const NetworkServerModel = NetworkModelWithViews.named(
     registerVaultData(self);
     // Registers default pool tokens for exchanges
     defaultPools[self.network].forEach((pool) =>
-      pool.registerTokens.forEach((t) => self.tokens.set(t.id.toLowerCase(), t))
+      pool.registerTokens.forEach((t) => {
+        if (!self.tokens.has(t.id.toLowerCase())) {
+          self.tokens.set(t.id.toLowerCase(), { ...t, id: t.id.toLowerCase() });
+        }
+      })
     );
 
     // Just use the array here for type simplicity, we rebuild the graph every time

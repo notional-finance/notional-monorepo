@@ -258,7 +258,6 @@ export const ExchangeModel = types.model('Exchange', {
   address: types.identifier,
   PoolClass: types.string,
   latestPoolData: types.maybe(PoolDataModel),
-  registerTokens: types.array(TokenDefinitionModel),
   earliestBlock: types.maybe(types.number),
 });
 
