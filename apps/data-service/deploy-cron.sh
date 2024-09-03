@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # Cron jobs to deploy, format is "Description|URL|Schedule"
