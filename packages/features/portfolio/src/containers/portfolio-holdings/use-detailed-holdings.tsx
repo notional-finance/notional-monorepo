@@ -211,11 +211,11 @@ export function useDetailedHoldingsTable() {
           }
 
           const totalAtMaturity =
-            b.token.tokenType === 'fCash'
+            b.token.tokenType === 'fCash' && s?.accumulatedCostRealized
               ? TokenBalance.from(
                   b.scaleTo(b.underlying.decimals),
                   b.underlying
-                )
+                ).sub(s.accumulatedCostRealized)
               : undefined;
 
           return {

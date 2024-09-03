@@ -33,6 +33,8 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   pointsMultiple,
   Network,
+  getDateString,
+  SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useNavigate } from 'react-router-dom';
@@ -43,7 +45,6 @@ import {
   Registry,
 } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
-import moment from 'moment';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -85,12 +86,12 @@ export function getVaultReinvestmentDates(
       ? reinvestmentData[vaultAddress]
       : undefined;
   if (vaultReinvestmentData && vaultReinvestmentData.length > 0) {
-    arbReinvestmentDate = moment(vaultReinvestmentData[0].timestamp * 1000)
-      .add(1, 'days')
-      .format('MMM DD YYYY');
-    mainnetReinvestmentDate = moment(vaultReinvestmentData[0].timestamp * 1000)
-      .add(7, 'days')
-      .format('MMM DD YYYY');
+    arbReinvestmentDate = getDateString(
+      vaultReinvestmentData[0].timestamp + SECONDS_IN_DAY
+    );
+    mainnetReinvestmentDate = getDateString(
+      vaultReinvestmentData[0].timestamp + 7 * SECONDS_IN_DAY
+    );
   }
 
   return { arbReinvestmentDate, mainnetReinvestmentDate };
