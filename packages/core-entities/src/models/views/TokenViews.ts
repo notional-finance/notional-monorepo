@@ -5,6 +5,7 @@ import { TokenDefinitionModel } from '../ModelTypes';
 import {
   AssetType,
   encodeERC1155Id,
+  getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
 } from '@notional-finance/util';
 import { BigNumberish } from 'ethers';
@@ -129,8 +130,13 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     return TokenBalance.from(n, token);
   };
 
-  const getTokensByType = (tokenType: string) => {
-    return getAllTokens().filter((t) => t.tokenType === tokenType);
+  const getTokensByType = (tokenType: string, excludeMatured = true) => {
+    const t = getAllTokens().filter((t) => t.tokenType === tokenType);
+    if (excludeMatured) {
+      return t.filter((t) => getNowSeconds() < (t.maturity || 0));
+    }
+
+    return t;
   };
 
   return {
