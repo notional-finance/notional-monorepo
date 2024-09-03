@@ -55,10 +55,12 @@ export const PortfolioFeatureShell = () => {
   const isAccountLoading = useAccountLoading();
   const yieldsReady = useYieldsReady(network);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
+  const { hasNoteOrSNote } = usePortfolioNOTETable();
 
   useEffect(() => {
     if (
       !isAccountLoading &&
+      !hasNoteOrSNote &&
       !isAcctAndBalanceReady &&
       params.sideDrawerKey !== 'cool-down'
     ) {
@@ -69,6 +71,7 @@ export const PortfolioFeatureShell = () => {
     }
   }, [
     isAccountLoading,
+    hasNoteOrSNote,
     isAcctAndBalanceReady,
     navigate,
     network,
