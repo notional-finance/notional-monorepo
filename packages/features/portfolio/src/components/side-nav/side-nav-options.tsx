@@ -31,7 +31,7 @@ export const SideNavOptons = ({ open }: SideNavOptonsProps) => {
     <Box>
       {sideNavOptions.map(({ id, Icon, notifications, to }) => {
         return (
-          <Box>
+          <Box key={id}>
             {lastNavOption.id === id && (
               <Box
                 sx={{

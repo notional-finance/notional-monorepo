@@ -133,8 +133,8 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       rewardTokens: [ARB, ARB_BAL, ARB_AURA],
       reinvestToken: ETH,
       maxSellAmount: {
-        [ARB]: '455000000000000000000', // 455e18
-      },
+        [ARB]: "448500000000000000000", // 448.5e18
+      }
     },
     {
       address: '0x37dD23Ab1885982F789A2D6400B583B8aE09223d',
