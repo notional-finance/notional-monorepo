@@ -1,5 +1,5 @@
 {
-  "name": "@notional-finance/data-service",
+  "name": "data-service",
   "version": "1.0.0",
   "description": "",
   "main": "index.cjs",
@@ -15,6 +15,7 @@
     "@aws-sdk/client-s3": "^3.569.0",
     "@google-cloud/functions-framework": "^3.4.2",
     "better-sqlite3": "^11.2.1",
+    "dotenv-cli": "^7.4.2",
     "ethers": "^5.7.1",
     "express": "^4.19.2",
     "graphql": "^16.6.0",
@@ -33,7 +34,6 @@
     "@types/express": "^4.17.21",
     "@types/node": "22.5.1",
     "@types/ws": "^7.4.7",
-    "dotenv-cli": "7.4.2",
     "typescript": "^5.5.4"
   },
   "peerDependencies": {}
