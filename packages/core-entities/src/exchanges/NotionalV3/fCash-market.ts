@@ -424,6 +424,48 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     }
   }
 
+  public getNTokenBlendedYield(
+    netNTokens?: TokenBalance,
+    additionalPrimeDebt?: TokenBalance
+  ) {
+    const { numerator, denominator } = this.balances
+      .map((b) => {
+        const underlying = b.toUnderlying();
+        const apy =
+          b.tokenType === 'PrimeCash'
+            ? (this.getPrimeSupplyRate(
+                this.getPrimeCashUtilization(
+                  netNTokens?.toPrimeCash() || b.copy(0),
+                  additionalPrimeDebt
+                )
+              ) *
+                100) /
+              RATE_PRECISION
+            : this.getSpotInterestRate(b.token);
+        if (apy === undefined) {
+          throw Error(`${b.symbol} yield not found`);
+        }
+
+        // Blended yield is the weighted average of the APYs
+        return {
+          numerator: underlying
+            .mulInRatePrecision(Math.floor(apy * RATE_PRECISION))
+            .toFloat(),
+          denominator: underlying.toFloat(),
+        };
+      })
+      .reduce(
+        (r, { numerator, denominator }) => ({
+          numerator: r.numerator + numerator,
+          denominator: r.denominator + denominator,
+        }),
+        { numerator: 0, denominator: 0 }
+      );
+
+    // This is the blended nToken APY
+    return numerator / denominator;
+  }
+
   /***********************************************************************/
   /*                  fCash Interest Curve Calculations                  */
   /***********************************************************************/

@@ -603,7 +603,9 @@ export class TokenBalance {
     } else {
       // Other tokens convert to ETH first and then go via the "All" network
       // for fiat currency conversions
-      const eth = allNetwork.getTokenBySymbol('ETH');
+      const eth = NetworkModelRegistry.getModel(this.network).getTokenBySymbol(
+        'ETH'
+      );
       const valueInETH = this.toToken(eth, undefined, atTimestamp);
       const ethInAllNetwork = TokenBalance.from(
         valueInETH.n,

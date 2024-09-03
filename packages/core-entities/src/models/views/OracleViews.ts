@@ -12,7 +12,7 @@ import { fCashMarket } from '../../exchanges/index';
 import { PRICE_ORACLES } from '../../client/oracle-registry-client';
 import { Instance } from 'mobx-state-tree';
 import { OracleDefinitionModel } from '../ModelTypes';
-import { NetworkModelType } from '../NetworkModel';
+import { NetworkModelIntermediateType } from '../NetworkModel';
 import { ExchangeRate, RiskAdjustment } from '../../Definitions';
 import { BigNumber } from 'ethers';
 import { assertDefined } from './ConfigurationViews';
@@ -91,7 +91,7 @@ function interestToExchangeRate(
 }
 
 function getInterestRiskAdjustment(
-  self: Instance<NetworkModelType>,
+  self: Instance<NetworkModelIntermediateType>,
   oracle: Instance<typeof OracleDefinitionModel>,
   inverted: boolean,
   riskAdjusted: RiskAdjustment
@@ -130,7 +130,7 @@ function getInterestRiskAdjustment(
 }
 
 function getExchangeRiskAdjustment(
-  self: Instance<NetworkModelType>,
+  self: Instance<NetworkModelIntermediateType>,
   oracle: Instance<typeof OracleDefinitionModel>,
   inverted: boolean,
   riskAdjusted: RiskAdjustment
@@ -154,7 +154,7 @@ function getExchangeRiskAdjustment(
 }
 
 function convertFCashRateToExchangeRate(
-  self: Instance<NetworkModelType>,
+  self: Instance<NetworkModelIntermediateType>,
   oracle: Instance<typeof OracleDefinitionModel>,
   inverted: boolean,
   riskAdjusted: RiskAdjustment,
@@ -203,7 +203,7 @@ function convertFCashRateToExchangeRate(
 }
 
 function getNTokenSpotRate(
-  self: Instance<NetworkModelType>,
+  self: Instance<NetworkModelIntermediateType>,
   oracle: Instance<typeof OracleDefinitionModel>
 ) {
   if (!oracle.base.currencyId) throw Error('currency id not found');
@@ -218,7 +218,7 @@ function getNTokenSpotRate(
     .scaleTo(oracle.decimals);
 }
 
-export const OracleViews = (self: NetworkModelType) => {
+export const OracleViews = (self: NetworkModelIntermediateType) => {
   const findPath = (base: string, quote: string) => {
     const adjList = self.oracleGraph.adjList;
     // Will return a unit oracle rate so that risk adjustments still work
@@ -336,8 +336,8 @@ export const OracleViews = (self: NetworkModelType) => {
         );
 
         const scaledRate = inverted
-          ? invertRate(scaleTo(rate, 18))
-          : scaleTo(rate, 18);
+          ? invertRate(scaleTo(rate, oracle.decimals))
+          : scaleTo(rate, oracle.decimals);
 
         const adjusted = {
           ...oracle.latestRate,

@@ -1,7 +1,7 @@
 import { SingleSidedLP } from '../../vaults';
-import { NetworkModelType } from '../NetworkModel';
+import { NetworkModelIntermediateType } from '../NetworkModel';
 
-export const VaultViews = (self: NetworkModelType) => {
+export const VaultViews = (self: NetworkModelIntermediateType) => {
   const isVaultEnabled = (vaultAddress: string) => {
     return self.vaults.get(vaultAddress)?.enabled || false;
   };
