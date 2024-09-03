@@ -25,8 +25,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.18.2'
-          yarn-version: '1.22.19'
+          node-version: '20'
           cache: 'yarn'
       - name: Yarn Install
         # echo "Yarn install completed"

@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "lib": ["esnext"],
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test/**",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
+  "references": []
+}

@@ -1,0 +1,22 @@
+@baseUrl={{$dotenv DATA_BASE_URL}}
+
+# @prompt network [Network] {mainnet|arbitrum}
+GET {{baseUrl}}/vaultAccounts?network={{network}}
+x-auth-token: {{$dotenv DATA_SERVICE_AUTH_TOKEN}}
+
+###
+
+# @prompt network [Network] {mainnet|arbitrum}
+GET {{baseUrl}}/accounts?network={{network}}
+x-auth-token: {{$dotenv DATA_SERVICE_AUTH_TOKEN}}
+
+###
+
+POST {{baseUrl}}/events
+x-auth-token: {{$dotenv DATA_SERVICE_AUTH_TOKEN}}
+Content-Type: application/json
+
+{
+  "network": "mainnet",
+  "events": []
+}

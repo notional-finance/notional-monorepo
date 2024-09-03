@@ -87,5 +87,11 @@
       "@notional-finance/wallet/*": ["packages/shared/wallet/src/*"]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    ".nx-cache",
+    "tmp",
+    "dist",
+    "tools/generators/cloudflare-worker/files"
+  ]
 }

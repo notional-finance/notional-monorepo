@@ -1,0 +1,56 @@
+{
+  "name": "data-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/data-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "platform": "node",
+        "target": "node20",
+        "format": ["cjs"],
+        "compiler": "tsc",
+        "external": [
+          "pg-query-stream",
+          "sqlite3",
+          "oracledb",
+          "tedious",
+          "mysql2",
+          "mysql",
+          "better-sqlite3"
+        ],
+        "esbuildOptions": {},
+        "outputPath": "apps/data-service/dist",
+        "main": "apps/data-service/src/index.ts",
+        "tsConfig": "apps/data-service/tsconfig.json"
+      }
+    },
+    "deploy-gcp": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "cd ./apps/data-service/ && sh ./deploy.sh data-service",
+          "cd ./apps/data-service/ && sh ./deploy.sh cron-service"
+        ]
+      },
+      "parallel": true,
+      "dependsOn": ["build"]
+    },
+    "deploy-cron": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["sh ./apps/data-service/deploy-cron.sh"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/data-service/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}

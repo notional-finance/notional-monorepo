@@ -6,7 +6,7 @@ import { TransferSingleEventObject, TransferBatchEventObject, AccountContextUpda
 import fetch from 'node-fetch';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-const url = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/events';
+const url = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service/events';
 
 type DataServiceAccountContextUpdate = {
   name: 'AccountContextUpdate',

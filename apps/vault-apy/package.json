@@ -1,0 +1,29 @@
+{
+  "name": "vault-apy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "start": "node lib/index.js",
+    "test": "ts-node test/index.test.ts",
+    "start-dev": "dotenv -e .env -- node -r ts-node/register src/index.ts",
+    "deploy-gcp": "./deploy.sh",
+    "lint": "eslint ./"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20",
+    "dotenv-cli": "^7.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@balancer-labs/sdk": "^1.1.5",
+    "alchemy-sdk": "^3.3.1",
+    "debug": "^4.3.4",
+    "ethers": "^5",
+    "tslib": "^2.7.0"
+  }
+}

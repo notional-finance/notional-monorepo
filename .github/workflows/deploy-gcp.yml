@@ -16,7 +16,7 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'yarn'
     - run: yarn install --frozen-lockfile
     - name: Authenticate to Google Cloud
@@ -28,15 +28,6 @@ jobs:
       with:
         version: 'latest'
         project_id: ${{ secrets.GCLOUD_PROJECT_ID }}
-    - name: Deploy Data Service
+    - name: Deploy All
       shell: bash
-      working-directory: gcp/data-service
-      run: ./deploy.sh
-    - name: Deploy Vault APY
-      shell: bash
-      working-directory: gcp/vault-apy
-      run: ./deploy.sh
-    - name: Deploy Tx Relay
-      shell: bash
-      working-directory: gcp/tx-relay
-      run: ./deploy.sh
+      run: apps/deployGCP.sh

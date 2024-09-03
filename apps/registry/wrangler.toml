@@ -21,4 +21,4 @@ crons = [
 [env.prod.vars]
 NX_ENV = 'prod'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]
-DATA_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com'
+DATA_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service'

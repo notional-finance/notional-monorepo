@@ -275,9 +275,7 @@ const claimRewards = async (env: Env, provider: Provider) => {
 };
 
 type FunRetProm<T> = () => Promise<T>;
-const executePromisesSequentially = async <T>(
-  funcArray: FunRetProm<T>[]
-) => {
+const executePromisesSequentially = async <T>(funcArray: FunRetProm<T>[]) => {
   return funcArray.reduce(async (accumulator, func) => {
     const results = await accumulator;
     return [...results, await func()];
