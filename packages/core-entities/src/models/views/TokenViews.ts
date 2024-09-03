@@ -27,7 +27,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getTokenByID = (id: string) => {
-    const t = self.tokens.get(id);
+    const t = self.tokens.get(id.toLowerCase());
     if (!t) throw Error(`Token ${id} not found`);
     return t;
   };
@@ -36,7 +36,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     return getAllTokens().find((t) => t.address === address);
   };
 
-  const getTokenByType = (currencyId?: number, tokenType?: string) => {
+  const getTokenByCurrencyId = (currencyId?: number, tokenType?: string) => {
     const t = getAllTokens().find(
       (t) => t.currencyId === currencyId && t.tokenType === tokenType
     );
@@ -45,19 +45,19 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getPrimeCash = (currencyId?: number) => {
-    return getTokenByType(currencyId, 'PrimeCash');
+    return getTokenByCurrencyId(currencyId, 'PrimeCash');
   };
 
   const getPrimeDebt = (currencyId?: number) => {
-    return getTokenByType(currencyId, 'PrimeDebt');
+    return getTokenByCurrencyId(currencyId, 'PrimeDebt');
   };
 
   const getNToken = (currencyId?: number) => {
-    return getTokenByType(currencyId, 'nToken');
+    return getTokenByCurrencyId(currencyId, 'nToken');
   };
 
   const getUnderlying = (currencyId?: number) => {
-    return getTokenByType(currencyId, 'Underlying');
+    return getTokenByCurrencyId(currencyId, 'Underlying');
   };
 
   const getVaultShare = (vaultAddress: string, maturity: number) => {
@@ -101,13 +101,16 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
       token.maturity &&
       token.maturity !== PRIME_CASH_VAULT_MATURITY
     ) {
-      return self.tokens.get(
+      const t = self.tokens.get(
         encodeERC1155Id(
           token.currencyId,
           token.maturity,
           AssetType.FCASH_ASSET_TYPE
         )
       );
+      if (!t)
+        throw Error(`Token ${token.currencyId} ${token.maturity} not found`);
+      return t;
     } else if (
       token.tokenType === 'VaultDebt' &&
       token.maturity === PRIME_CASH_VAULT_MATURITY
@@ -126,6 +129,10 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     return TokenBalance.from(n, token);
   };
 
+  const getTokensByType = (tokenType: string) => {
+    return getAllTokens().filter((t) => t.tokenType === tokenType);
+  };
+
   return {
     getAllTokens,
     getTokenByID,
@@ -140,5 +147,6 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     getVaultCash,
     unwrapVaultToken,
     getTokenBalanceFromSymbol,
+    getTokensByType,
   };
 };
