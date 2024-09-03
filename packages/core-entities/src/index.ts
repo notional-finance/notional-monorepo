@@ -23,3 +23,4 @@ export * from './Boosts';
 
 export * from './Models';
 export { NetworkServerModel, NetworkClientModel } from './models/NetworkModel';
+export * from './models/AnalyticsModel';

@@ -1,4 +1,6 @@
 import spindl from '@spindl-xyz/attribution';
+import { SWRConfig } from 'swr';
+import { AnalyticsCache } from '@notional-finance/core-entities';
 import { useEffect } from 'react';
 import {
   AppContext,
@@ -489,26 +491,31 @@ export const App = () => {
 
   return (
     <HelmetProvider>
-      <AppContext.Provider value={appStore}>
-        <Helmet>
-          <link rel="icon" href="/favicon.svg" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <title>Notional Finance - DeFi lending and leveraged yield</title>
-          <meta
-            name="title"
-            content="Notional Finance - DeFi lending and leveraged yield"
-          />
-          <meta
-            name="description"
-            content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
-          />
-        </Helmet>
-        <IntercomProvider appId={intercomID}>
-          <Web3OnboardProvider web3Onboard={OnboardContext}>
-            <AllRoutes />
-          </Web3OnboardProvider>
-        </IntercomProvider>
-      </AppContext.Provider>
+      <SWRConfig value={{ provider: () => AnalyticsCache }}>
+        <AppContext.Provider value={appStore}>
+          <Helmet>
+            <link rel="icon" href="/favicon.svg" />
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1"
+            />
+            <title>Notional Finance - DeFi lending and leveraged yield</title>
+            <meta
+              name="title"
+              content="Notional Finance - DeFi lending and leveraged yield"
+            />
+            <meta
+              name="description"
+              content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
+            />
+          </Helmet>
+          <IntercomProvider appId={intercomID}>
+            <Web3OnboardProvider web3Onboard={OnboardContext}>
+              <AllRoutes />
+            </Web3OnboardProvider>
+          </IntercomProvider>
+        </AppContext.Provider>
+      </SWRConfig>
     </HelmetProvider>
   );
 };
