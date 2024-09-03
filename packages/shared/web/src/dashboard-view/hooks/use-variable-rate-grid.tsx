@@ -1,9 +1,5 @@
 import { Box, useTheme } from '@mui/material';
-import {
-  getArbBoosts,
-  getNetworkModel,
-  getPointsAPY,
-} from '@notional-finance/core-entities';
+import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
 import {
@@ -18,28 +14,21 @@ import {
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
+import { useNetworkTokens } from './use-network-tokens';
 
 export const useVariableRateGrid = (
   network: Network | undefined,
   product: PRODUCTS
 ) => {
-  // TODO: this can be put into a hook?
-  const model = getNetworkModel(network);
-  const yieldData = model.getTokensByType('PrimeCash').map((t) => ({
-    token: t,
-    apy: model.getSpotAPY(t.id),
-    tvl: model.getTVL(t),
-    liquidity: model.getLiquidity(t),
-    underlying: t.underlying ? model.getTokenByID(t.underlying) : undefined,
-  }));
-  // TODO: this is inside a hook above....
+  const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
+  const tokenType = isBorrow ? 'PrimeDebt' : 'PrimeCash';
+  const yieldData = useNetworkTokens(network, tokenType);
 
   const theme = useTheme();
   const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
-  const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
 
   const allData = yieldData
     .map(({ token, apy, liquidity, tvl, underlying }) => {

@@ -4,7 +4,11 @@ import {
   useCurrentSeason,
   useTotalArbPoints,
 } from '@notional-finance/notionable-hooks';
-import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
+import {
+  getArbBoosts,
+  getNetworkModel,
+  getPointsAPY,
+} from '@notional-finance/core-entities';
 import {
   formatNumberAsPercent,
   Network,
@@ -31,6 +35,17 @@ export const useFixedRateGrid = (
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
   const yieldData = isBorrow ? fCashBorrow : fCashLend;
+
+  const model = getNetworkModel(network);
+  const testData = model.getTokensByType('fCash').map((t) => ({
+    token: t,
+    apy: model.getSpotAPY(t.id),
+    tvl: model.getTVL(t),
+    liquidity: model.getLiquidity(t),
+    underlying: t.underlying ? model.getTokenByID(t.underlying) : undefined,
+  }));
+
+  console.log('testData', testData);
 
   const apySubTitle =
     product === PRODUCTS.LEND_FIXED
