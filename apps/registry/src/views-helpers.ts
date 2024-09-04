@@ -76,7 +76,7 @@ export async function refreshViews(env: BaseDOEnv) {
             return putStorageKey(
               env,
               `${network}/views-dev/${v.id}`,
-              JSON.stringify(v.data)
+              JSON.stringify(v)
             );
           });
         }),
