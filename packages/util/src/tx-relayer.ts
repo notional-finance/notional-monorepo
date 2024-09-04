@@ -21,7 +21,7 @@ export async function sendTxThroughRelayer(arg: {
   to: string;
   data: string;
   gasLimit?: number;
-}) : Promise<ethers.providers.TransactionResponse> {
+}): Promise<ethers.providers.TransactionResponse> {
   const { to, data, env, gasLimit } = arg;
 
   const payload = JSON.stringify({
@@ -30,7 +30,7 @@ export async function sendTxThroughRelayer(arg: {
     gasLimit,
   });
 
-  const url = `https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com/v1/txes/${env.NETWORK}`;
+  const url = `https://us-central1-monitoring-agents.cloudfunctions.net/tx-relay/v1/txes/${env.NETWORK}`;
   console.log(`Sending Payload to ${url}`);
 
   return fetch(url, {
@@ -40,14 +40,14 @@ export async function sendTxThroughRelayer(arg: {
       'X-Auth-Token': env.TX_RELAY_AUTH_TOKEN,
     },
     body: payload,
-  }).then(async r => {
-      const returnData = await r.json();
+  }).then(async (r) => {
+    const returnData = await r.json();
 
-      if (299 < r.status) {
-        console.error(returnData);
-        throw new Error(returnData.reason || returnData.code || r.statusText);
-      }
+    if (299 < r.status) {
+      console.error(returnData);
+      throw new Error(returnData.reason || returnData.code || r.statusText);
+    }
 
-      return returnData;
-    });
+    return returnData;
+  });
 }
