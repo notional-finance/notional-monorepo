@@ -29,7 +29,7 @@ process.on('exit', async function () {
       log(`processing daily network ${network}`);
 
       const apySimulator = new APYSimulator(network);
-      await apySimulator.run();
+      await apySimulator.runAll();
 
       log('processing completed');
     }
