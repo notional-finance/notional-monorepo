@@ -1,9 +1,5 @@
 import { useEffect } from 'react';
-import {
-  Registry,
-  TokenBalance,
-  whitelistedVaults,
-} from '@notional-finance/core-entities';
+import { getNetworkModel, TokenBalance } from '@notional-finance/core-entities';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { GATED_VAULTS } from '@notional-finance/notionable';
 import { useNotionalError } from './use-notional';
@@ -41,24 +37,14 @@ export function useVaultProperties(
 
   const { reportError } = useNotionalError();
 
-  if (vaultAddress && network) {
+  const model = getNetworkModel(network);
+  if (vaultAddress && network && model) {
     try {
-      const config = Registry.getConfigurationRegistry();
-      ({ minAccountBorrowSize } = config.getVaultCapacity(
-        network,
-        vaultAddress
-      ));
-      const vaultConfig = config.getVaultConfig(network, vaultAddress);
-      vaultName = config.getVaultName(network, vaultAddress);
-
-      if (vaultConfig) {
-        enabled = vaultConfig.enabled;
-        minDepositRequired = getMinDepositRequiredString(
-          minAccountBorrowSize,
-          vaultConfig.maxDeleverageCollateralRatioBasisPoints,
-          vaultConfig.maxRequiredAccountCollateralRatioBasisPoints as number
-        );
-      }
+      const vaultConfig = model.getVaultConfig(vaultAddress);
+      minAccountBorrowSize = vaultConfig.minAccountBorrowSize;
+      minDepositRequired = vaultConfig.minDepositRequired;
+      vaultName = vaultConfig.name;
+      enabled = vaultConfig.enabled;
     } catch (e) {
       // Throws an error on an unknown vault address
       reportError({ ...(e as Error), code: 404, msg: 'Unknown Vault' });
@@ -74,65 +60,5 @@ export function useVaultProperties(
 }
 
 export function useAllVaults(network: Network | undefined) {
-  if (!network) return [];
-
-  const config = Registry.getConfigurationRegistry();
-  const listedVaults = config
-    .getAllListedVaults(network)
-    ?.filter((v) => whitelistedVaults(network).includes(v.vaultAddress))
-    .map((v) => {
-      const {
-        minAccountBorrowSize,
-        totalUsedPrimaryBorrowCapacity,
-        maxPrimaryBorrowCapacity,
-      } = config.getVaultCapacity(network, v.vaultAddress);
-      const primaryToken = Registry.getTokenRegistry().getTokenByID(
-        network,
-        v.primaryBorrowCurrency.id
-      );
-      const vaultTVL = Registry.getTokenRegistry()
-        .getAllTokens(network)
-        .filter(
-          (t) =>
-            t.tokenType === 'VaultShare' && t.vaultAddress === v.vaultAddress
-        )
-        .reduce((tvl, t) => {
-          if (t.totalSupply) {
-            return tvl.add(t.totalSupply.toUnderlying());
-          } else {
-            return tvl;
-          }
-        }, TokenBalance.zero(primaryToken));
-
-      return {
-        ...v,
-        vaultTVL,
-        minAccountBorrowSize,
-        totalUsedPrimaryBorrowCapacity,
-        maxPrimaryBorrowCapacity,
-        minDepositRequired: getMinDepositRequiredString(
-          minAccountBorrowSize,
-          v.maxDeleverageCollateralRatioBasisPoints,
-          v.maxRequiredAccountCollateralRatioBasisPoints as number
-        ),
-        primaryToken,
-      };
-    });
-
-  return listedVaults || [];
-}
-
-function getMinDepositRequiredString(
-  minAccountBorrowSize: TokenBalance,
-  maxDeleverageCollateralRatioBasisPoints: number,
-  maxRequiredAccountCollateralRatioBasisPoints: number
-) {
-  const lowerDeposit = minAccountBorrowSize
-    .mulInRatePrecision(maxDeleverageCollateralRatioBasisPoints)
-    .toDisplayStringWithSymbol(2);
-
-  const upperDeposit = minAccountBorrowSize
-    .mulInRatePrecision(maxRequiredAccountCollateralRatioBasisPoints)
-    .toDisplayStringWithSymbol(2);
-  return `${lowerDeposit} to ${upperDeposit}`;
+  return getNetworkModel(network).getAllListedVaults();
 }
