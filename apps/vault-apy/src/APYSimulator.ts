@@ -84,7 +84,7 @@ export default class APYSimulator {
     for (let i = 1; i <= numOfDays; i++) {
       const currentTimestamp = startingTimestamp - i * ONE_DAY_IN_SECONDS;
       log(`processing day ${i}, ${currentTimestamp}`);
-      let forkBlock = await this.#getBlockAtTimestamp(currentTimestamp);
+      const forkBlock = await this.#getBlockAtTimestamp(currentTimestamp);
 
       for (const vault of this.#config.vaults) {
         log(`Processing vault: ${vault.address}`);
