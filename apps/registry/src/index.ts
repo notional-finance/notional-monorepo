@@ -2,6 +2,7 @@ import { Request } from '@cloudflare/workers-types';
 import { NetworkServerModel } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 import { putStorageKey } from './registry-helpers';
+import { refreshViews } from './views-helpers';
 
 export interface BaseDOEnv {
   NX_COMMIT_REF: string | undefined;
@@ -25,6 +26,8 @@ async function execute(
   }, env);
 
   await networkModel.refresh(isFullRefresh);
+
+  await refreshViews(env);
 }
 
 export default {
