@@ -374,14 +374,14 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
       results.push({
         id: `${quote}:price`,
-        data: priceData || [],
-        legend: priceLegend || [],
+        data: priceData,
+        legend: priceLegend,
       });
 
       results.push({
         id: `${quote}:apy`,
-        data: apyData || [],
-        legend: apyLegend || [],
+        data: apyData,
+        legend: apyLegend,
       });
     });
 

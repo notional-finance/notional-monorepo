@@ -1,4 +1,3 @@
-import { Network } from '@notional-finance/util';
 import { AnalyticsServer } from '@notional-finance/core-entities/src/server/analytics-server';
 import { putStorageKey } from './registry-helpers';
 import { BaseDOEnv } from '.';
@@ -24,16 +23,16 @@ import { BaseDOEnv } from '.';
 //   }
 // }
 
-async function storeDocument(
-  env: BaseDOEnv,
-  result: { data?: unknown },
-  name: string,
-  network: Network
-) {
-  const key = `${network}/views-dev/${name}`;
-  if (result['data'])
-    return putStorageKey(env, key, JSON.stringify(result['data']));
-}
+// async function storeDocument(
+//   env: BaseDOEnv,
+//   result: { data?: unknown },
+//   name: string,
+//   network: Network
+// ) {
+//   const key = `${network}/views-dev/${name}`;
+//   if (result['data'])
+//     return putStorageKey(env, key, JSON.stringify(result['data']));
+// }
 
 // async function fetchAllDBViews(env: BaseDOEnv, network: Network) {
 //   const resp = await fetch(`${env.DATA_SERVICE_URL}/views?network=${network}`, {
@@ -74,7 +73,11 @@ export async function refreshViews(env: BaseDOEnv) {
         // Saves time series data to R2 for the registry to serve
         analyticsServer.fetchTimeSeries(network).then((resp) => {
           return resp.map((v) => {
-            return storeDocument(env, v, v.id, network);
+            return putStorageKey(
+              env,
+              `${network}/views-dev/${v.id}`,
+              JSON.stringify(v.data)
+            );
           });
         }),
       ];
