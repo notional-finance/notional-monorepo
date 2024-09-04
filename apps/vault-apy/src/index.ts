@@ -83,7 +83,38 @@ process.on('exit', async function () {
     );
 
     const apySimulator = new APYSimulator(network as Network);
-    await apySimulator.runHistoricalForVault(vaultAddress, 30, startOfToday);
+    await apySimulator.runHistoricalForVault(vaultAddress, 2, startOfToday);
+
+    log('processing completed');
+  } else if (
+    process.argv[2].toLowerCase() == 'historical-blocks' &&
+    process.argv.length >= 6
+  ) {
+    const [, , , network, vaultAddress, ...blockArgs] = process.argv;
+    if (!configPerNetwork[network]) {
+      throw new Error('Invalid network name');
+    }
+    if (
+      !configPerNetwork[network as Network].vaults.find(
+        (v) => v.address.toLowerCase() === vaultAddress.toLowerCase()
+      )
+    ) {
+      throw new Error(
+        `Vault address ${vaultAddress} does not exist in config file`
+      );
+    }
+
+    const blocks = blockArgs.map(Number);
+    if (blocks.some(isNaN)) {
+      throw new Error('Invalid block numbers provided');
+    }
+
+    log(
+      `processing historical apy for vault: ${vaultAddress} on network ${network} for specific blocks`
+    );
+
+    const apySimulator = new APYSimulator(network as Network);
+    await apySimulator.runHistoricalForVaultWithBlocks(vaultAddress, blocks);
 
     log('processing completed');
   } else {
