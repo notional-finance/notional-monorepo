@@ -38,7 +38,7 @@ jobs:
         run: |
           yarn --silent nx print-affected --base=HEAD~1 --head=HEAD | jq '.projects | contains(["web"])' && echo "is_affected=true" >> $GITHUB_OUTPUT || echo "is_affected=false" >> $GITHUB_OUTPUT
       - name: Build Web
-        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
+        if: steps.check-affected.outputs.is_affected == 'true'
         run: yarn nx build web --parallel
         env:
           NX_CONTACT_EMAIL: ${{ secrets.NX_CONTACT_EMAIL }}
