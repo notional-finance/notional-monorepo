@@ -72,7 +72,7 @@ export const useLeveragedFarmingGrid = (
 
       return {
         title: primaryToken.symbol,
-        subTitle: name,
+        subTitle: name || '',
         bottomLeftValue: profile
           ? `NET WORTH: ${
               profile?.netWorth().toDisplayStringWithSymbol() || '-'
