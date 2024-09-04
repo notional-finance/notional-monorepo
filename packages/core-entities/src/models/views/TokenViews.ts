@@ -139,6 +139,19 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     return t;
   };
 
+  const getDebtTokens = (currencyId: number) => {
+    const t = getAllTokens().filter(
+      (t) =>
+        t.currencyId === currencyId &&
+        (t.tokenType === 'PrimeDebt' ||
+          (t.tokenType === 'fCash' &&
+            t.maturity &&
+            getNowSeconds() < t.maturity))
+    );
+
+    return t;
+  };
+
   return {
     getAllTokens,
     getTokenByID,
@@ -154,5 +167,6 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     unwrapVaultToken,
     getTokenBalanceFromSymbol,
     getTokensByType,
+    getDebtTokens,
   };
 };
