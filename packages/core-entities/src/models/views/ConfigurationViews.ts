@@ -37,20 +37,6 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
     return config;
   };
 
-  const getVaultConfig = (vaultAddress: string) => {
-    const config = self.configuration?.vaultConfigurations.find(
-      (c) => c.id === vaultAddress
-    );
-    if (!config) throw Error(`Configuration not found for ${vaultAddress}`);
-    return config;
-  };
-
-  const getAllListedVaults = (includeDisabled = false) => {
-    return self.configuration?.vaultConfigurations.filter(
-      (v) => v.enabled || includeDisabled
-    );
-  };
-
   const getSecondaryRewarder = (nToken: TokenDefinition) => {
     if (!nToken.currencyId) throw Error('Invalid nToken');
     const config = getConfig(nToken.currencyId);
@@ -66,8 +52,6 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
 
   return {
     getConfig,
-    getVaultConfig,
-    getAllListedVaults,
     getSecondaryRewarder,
   };
 };

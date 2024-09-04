@@ -139,6 +139,28 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     return t;
   };
 
+  const getDebtTokens = (currencyId: number) => {
+    const t = getAllTokens().filter(
+      (t) =>
+        t.currencyId === currencyId &&
+        (t.tokenType === 'PrimeDebt' ||
+          (t.tokenType === 'fCash' &&
+            t.maturity &&
+            getNowSeconds() < t.maturity))
+    );
+
+    return t;
+  };
+
+  const getVaultShares = (vaultAddress: string, excludeMatured = true) => {
+    return getAllTokens().filter(
+      (t) =>
+        t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
+        t.tokenType === 'VaultShare' &&
+        (excludeMatured ? getNowSeconds() < (t.maturity || 0) : true)
+    );
+  };
+
   return {
     getAllTokens,
     getTokenByID,
@@ -154,5 +176,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     unwrapVaultToken,
     getTokenBalanceFromSymbol,
     getTokensByType,
+    getDebtTokens,
+    getVaultShares,
   };
 };
