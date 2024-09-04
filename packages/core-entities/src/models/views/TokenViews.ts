@@ -133,7 +133,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   const getTokensByType = (tokenType: string, excludeMatured = true) => {
     const t = getAllTokens().filter((t) => t.tokenType === tokenType);
     if (excludeMatured) {
-      return t.filter((t) => getNowSeconds() < (t.maturity || 0));
+      return t.filter((t) => t.maturity === undefined ? true : getNowSeconds() < t.maturity);
     }
 
     return t;

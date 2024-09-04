@@ -1,14 +1,9 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import {
-  useAllMarkets,
   useCurrentSeason,
   useTotalArbPoints,
 } from '@notional-finance/notionable-hooks';
-import {
-  getArbBoosts,
-  getNetworkModel,
-  getPointsAPY,
-} from '@notional-finance/core-entities';
+import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import {
   formatNumberAsPercent,
   Network,
@@ -19,14 +14,12 @@ import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useNetworkTokens } from './use-network-tokens';
 
 export const useFixedRateGrid = (
   network: Network | undefined,
   product: PRODUCTS
 ) => {
-  const {
-    yields: { fCashLend, fCashBorrow },
-  } = useAllMarkets(network);
   const theme = useTheme();
   const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
@@ -34,18 +27,10 @@ export const useFixedRateGrid = (
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
-  const yieldData = isBorrow ? fCashBorrow : fCashLend;
-
-  const model = getNetworkModel(network);
-  const testData = model.getTokensByType('fCash').map((t) => ({
-    token: t,
-    apy: model.getSpotAPY(t.id),
-    tvl: model.getTVL(t),
-    liquidity: model.getLiquidity(t),
-    underlying: t.underlying ? model.getTokenByID(t.underlying) : undefined,
-  }));
-
-  console.log('testData', testData);
+  const fCashYieldData = useNetworkTokens(network, 'fCash');
+  const yieldData = isBorrow
+    ? fCashYieldData.filter(({ token }) => token.isFCashDebt)
+    : fCashYieldData.filter(({ token }) => !token.isFCashDebt);
 
   const apySubTitle =
     product === PRODUCTS.LEND_FIXED
@@ -58,8 +43,8 @@ export const useFixedRateGrid = (
           description: 'subtitle',
         });
 
-  const allData = yieldData.map((y) => {
-    const pointsBoost = getArbBoosts(y.token, isBorrow);
+  const allData = yieldData.map(({ token, apy, tvl, underlying }) => {
+    const pointsBoost = getArbBoosts(token, isBorrow);
     const pointsAPY = getPointsAPY(
       pointsBoost,
       totalArbPoints[currentSeason.db_name],
@@ -69,11 +54,10 @@ export const useFixedRateGrid = (
     );
 
     return {
-      ...y,
-      symbol: y.underlying.symbol,
-      title: y.underlying.symbol,
+      symbol: underlying?.symbol,
+      title: underlying?.symbol,
       subTitle: `Liquidity: ${formatNumberAsAbbr(
-        y?.liquidity?.toFiat(baseCurrency).toFloat() || 0,
+        tvl?.toFiat(baseCurrency).toFloat() || 0,
         0,
         baseCurrency
       )}`,
@@ -113,13 +97,13 @@ export const useFixedRateGrid = (
             }}
           />
         ) : undefined,
-      network: y.token.network,
+      network: token.network,
       hasPosition: false,
       apySubTitle: apySubTitle,
-      tvlNum: y?.liquidity ? y.liquidity.toFiat(baseCurrency).toNumber() : 0,
-      apy: y.totalAPY,
+      tvlNum: tvl ? tvl.toFiat(baseCurrency).toNumber() : 0,
+      apy: apy.totalAPY,
       routeCallback: () =>
-        navigate(`/${product}/${network}/${y.underlying.symbol}`),
+        navigate(`/${product}/${network}/${underlying?.symbol}`),
     };
   });
 
