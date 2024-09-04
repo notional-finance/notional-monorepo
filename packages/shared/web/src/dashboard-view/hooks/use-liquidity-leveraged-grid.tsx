@@ -1,14 +1,8 @@
 import { useState } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
-// import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import {
-  getIncentiveSymbols,
-  // getTotalIncentiveApy,
-  // getTotalIncentiveSymbol,
-  sumAndFormatIncentives,
-} from './utils';
+import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
 import { useNavigate } from 'react-router-dom';
 import { useLeveragedNTokenPositions } from '@notional-finance/trade';
