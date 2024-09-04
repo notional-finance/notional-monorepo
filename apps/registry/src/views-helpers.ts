@@ -1,9 +1,9 @@
-import { MetricType, Network, getNowSeconds } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { AnalyticsServer } from '@notional-finance/core-entities/src/server/analytics-server';
-import { createLogger, putStorageKey } from './registry-helpers';
-import { APIEnv } from '.';
+import { putStorageKey } from './registry-helpers';
+import { BaseDOEnv } from '.';
 
-async function fetchDBView(env: APIEnv, network: Network, name: string) {
+async function fetchDBView(env: BaseDOEnv, network: Network, name: string) {
   try {
     const result = await fetch(
       `${env.DATA_SERVICE_URL}/query?network=${network}&view=${name}`,
@@ -24,7 +24,7 @@ async function fetchDBView(env: APIEnv, network: Network, name: string) {
   }
 }
 
-async function fetchAllDBViews(env: APIEnv, network: Network) {
+async function fetchAllDBViews(env: BaseDOEnv, network: Network) {
   const resp = await fetch(`${env.DATA_SERVICE_URL}/views?network=${network}`, {
     headers: {
       'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
@@ -35,7 +35,7 @@ async function fetchAllDBViews(env: APIEnv, network: Network) {
 }
 
 async function storeDocument(
-  env: APIEnv,
+  env: BaseDOEnv,
   result: { data?: unknown },
   name: string,
   network: Network
@@ -47,7 +47,7 @@ async function storeDocument(
 
 async function fetchAllGraphViews(
   analyticsServer: AnalyticsServer,
-  env: APIEnv,
+  env: BaseDOEnv,
   network: Network
 ) {
   if (network === Network.all) return;
@@ -62,46 +62,21 @@ async function fetchAllGraphViews(
   ]);
 }
 
-export async function refreshViews(env: APIEnv) {
-  const logger = createLogger(env, 'views');
-  const analyticsServer = new AnalyticsServer(
-    env.DATA_SERVICE_URL,
-    env.DATA_SERVICE_AUTH_TOKEN,
-    env
-  );
+export async function refreshViews(env: BaseDOEnv) {
+  // const logger = createLogger(env, 'views');
+  const analyticsServer = new AnalyticsServer(env);
 
   await Promise.all(
     env.SUPPORTED_NETWORKS.flatMap((network) => {
       return [
         fetchAllDBViews(env, network),
         fetchAllGraphViews(analyticsServer, env, network),
-        analyticsServer
-          .refresh(network)
-          .then(async (data) => {
-            if (data) {
-              console.log('Wrote analytics data for ', network);
-              putStorageKey(env, `${network}/views/analytics`, data);
-
-              await logger.submitMetrics({
-                series: [
-                  {
-                    metric: 'registry.data.analytics',
-                    points: [
-                      {
-                        value: 1,
-                        timestamp: getNowSeconds(),
-                      },
-                    ],
-                    tags: [`network:${network}`],
-                    type: MetricType.Gauge,
-                  },
-                ],
-              });
-            }
-          })
-          .catch((e) => {
-            console.log('error', e);
-          }),
+        // Saves time series data to R2 for the registry to serve
+        analyticsServer.fetchTimeSeries(network).then((resp) => {
+          return resp.map((v) => {
+            return storeDocument(env, v, v.id, network);
+          });
+        }),
       ];
     })
   );

@@ -16,7 +16,7 @@ query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
   ], matured: false}, first: 1000, skip: $skip) {
     id
     base { id tokenType }
-    quote { id tokenType underlying { id }}
+    quote { id tokenType maturity underlying { id }}
     decimals
     ratePrecision
     oracleType

@@ -4,22 +4,28 @@ import { mutate } from 'swr';
 import { NotionalTypes, TimeSeriesDataPoint } from './ModelTypes';
 import { Network } from '@notional-finance/util';
 
-interface TimeSeriesLegend {
-  series: string[];
+export interface TimeSeriesLegend {
+  series: string;
+  format: 'number' | 'percent';
+  decimals?: number;
 }
 
-interface TimeSeriesResponse {
+export interface TimeSeriesResponse {
   id: string;
   data: TimeSeriesDataPoint[];
-  legend: TimeSeriesLegend;
+  legend: TimeSeriesLegend[];
 }
 
 const TimeSeriesModel = types.model('TimeSeriesModel', {
   id: types.identifier,
   data: types.array(NotionalTypes.TimeSeriesDataPoint),
-  legend: types.model({
-    series: types.array(types.string),
-  }),
+  legend: types.array(
+    types.model({
+      series: types.array(types.string),
+      format: types.enumeration('format', ['number', 'percent', 'bignumber']),
+      decimals: types.maybe(types.number),
+    })
+  ),
 });
 
 export async function fetchTimeSeries(hostname: string, path: string) {
