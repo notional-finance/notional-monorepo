@@ -176,9 +176,9 @@ export const useLiquidityList = (
   }
 
   const listData = yieldData
-    .map((y) => {
+    .map(({ apy, tvl, underlying, debtToken }) => {
       const walletBalance = account
-        ? account.balances.find((t) => t.tokenId === y.underlying.id)
+        ? account.balances.find((t) => t.tokenId === underlying.id)
         : undefined;
       const organicApy = (y.apy.organicAPY || 0) + (y.apy.feeAPY || 0);
 
