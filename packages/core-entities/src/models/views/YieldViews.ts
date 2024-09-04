@@ -352,9 +352,9 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
     };
   };
 
-  const getDefaultLeveragedAPYs = (token: TokenDefinition) => {
+  const getDefaultLeveragedNTokenAPYs = (token: TokenDefinition) => {
     if (!token.currencyId) throw Error('Invalid token currency');
-
+    if (token.tokenType !== 'nToken') throw Error('Invalid token type');
     const { defaultLeverageRatio } = getLeverageRatios(token);
     const debtTokens = self.getDebtTokens(token.currencyId);
 
@@ -366,6 +366,23 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
       ),
       debtToken: d,
     }));
+  };
+
+  const getDefaultVaultAPYs = (vaultAddress: string) => {
+    return self.getVaultShares('VaultShare').map((share) => {
+      if (!share.maturity) throw Error('Invalid share maturity');
+      const debt = self.getVaultDebt(vaultAddress, share.maturity);
+      const { defaultLeverageRatio } = getLeverageRatios(share);
+
+      return {
+        apy: getLeveragedAPY(
+          TokenBalance.zero(share),
+          TokenBalance.zero(debt),
+          defaultLeverageRatio
+        ),
+        debtToken: debt,
+      };
+    });
   };
 
   const getDebtOrCollateralFactor = (
@@ -400,6 +417,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
     getSimulatedAPY,
     getLeveragedAPY,
     getDebtOrCollateralFactor,
-    getDefaultLeveragedAPYs,
+    getDefaultLeveragedNTokenAPYs,
+    getDefaultVaultAPYs,
   };
 };
