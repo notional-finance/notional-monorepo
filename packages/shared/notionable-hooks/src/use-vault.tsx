@@ -1,18 +1,14 @@
 import { useEffect } from 'react';
 import {
-  Registry,
-  TokenBalance,
-  whitelistedVaults,
+  getNetworkModel,
   getVaultType,
-  SingleSidedLP,
-  TokenDefinition,
+  TokenBalance,
 } from '@notional-finance/core-entities';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { GATED_VAULTS } from '@notional-finance/notionable';
 import { useNotionalError } from './use-notional';
-import { Network, PRODUCTS, RATE_PRECISION } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { useWalletCommunities } from './use-wallet';
-import { useAllMarkets } from './use-market';
 
 export function useVaultNftCheck() {
   const navigate = useNavigate();
@@ -45,24 +41,14 @@ export function useVaultProperties(
 
   const { reportError } = useNotionalError();
 
-  if (vaultAddress && network) {
+  const model = getNetworkModel(network);
+  if (vaultAddress && network && model) {
     try {
-      const config = Registry.getConfigurationRegistry();
-      ({ minAccountBorrowSize } = config.getVaultCapacity(
-        network,
-        vaultAddress
-      ));
-      const vaultConfig = config.getVaultConfig(network, vaultAddress);
-      vaultName = config.getVaultName(network, vaultAddress);
-
-      if (vaultConfig) {
-        enabled = vaultConfig.enabled;
-        minDepositRequired = getMinDepositRequiredString(
-          minAccountBorrowSize,
-          vaultConfig.maxDeleverageCollateralRatioBasisPoints,
-          vaultConfig.maxRequiredAccountCollateralRatioBasisPoints as number
-        );
-      }
+      const vaultConfig = model.getVaultConfig(vaultAddress);
+      minAccountBorrowSize = vaultConfig.minAccountBorrowSize;
+      minDepositRequired = vaultConfig.minDepositRequired;
+      vaultName = vaultConfig.name;
+      enabled = vaultConfig.enabled;
     } catch (e) {
       // Throws an error on an unknown vault address
       reportError({ ...(e as Error), code: 404, msg: 'Unknown Vault' });
@@ -79,119 +65,6 @@ export function useVaultProperties(
   };
 }
 
-export function useAllVaults(
-  network: Network | undefined,
-  vaultProduct?: PRODUCTS
-) {
-  const {
-    yields: { leveragedVaults },
-    getMax,
-  } = useAllMarkets(network);
-
-  if (!network) return [];
-
-  const config = Registry.getConfigurationRegistry();
-  const listedVaults =
-    config
-      .getAllListedVaults(network)
-      ?.filter((v) => whitelistedVaults(network).includes(v.vaultAddress))
-      .map((v) => {
-        const {
-          minAccountBorrowSize,
-          totalUsedPrimaryBorrowCapacity,
-          maxPrimaryBorrowCapacity,
-        } = config.getVaultCapacity(network, v.vaultAddress);
-        const primaryToken = Registry.getTokenRegistry().getTokenByID(
-          network,
-          v.primaryBorrowCurrency.id
-        );
-        const adapter = Registry.getVaultRegistry().getVaultAdapter(
-          network,
-          v.vaultAddress
-        );
-        const vaultTVL = adapter.getVaultTVL();
-        const maxVaultAPY = getMax(
-          leveragedVaults.filter((z) => z.token.vaultAddress === v.vaultAddress)
-        );
-        const vaultType = getVaultType(v.vaultAddress, network);
-        const totalBorrowCapacityUsed =
-          totalUsedPrimaryBorrowCapacity.toFloat() /
-          maxPrimaryBorrowCapacity.toFloat();
-        let vaultShareOfPool = 0;
-        if (vaultType.startsWith('SingleSidedLP')) {
-          vaultShareOfPool =
-            (adapter as SingleSidedLP).getPoolShare() /
-            (adapter as SingleSidedLP).getMaxPoolShare();
-        }
-
-        let rewardTokens: TokenDefinition[] = [];
-        if (vaultType === 'SingleSidedLP_DirectClaim') {
-          rewardTokens = (adapter as SingleSidedLP).rewardTokens.map((t) =>
-            Registry.getTokenRegistry().getTokenByID(network, t)
-          );
-        }
-
-        const vaultUtilization = Math.min(
-          Math.max(totalBorrowCapacityUsed, vaultShareOfPool) * 100,
-          100
-        );
-
-        return {
-          ...v,
-          vaultType,
-          vaultTVL,
-          rewardTokens,
-          vaultUtilization,
-          minAccountBorrowSize,
-          totalUsedPrimaryBorrowCapacity,
-          maxPrimaryBorrowCapacity,
-          minDepositRequired: getMinDepositRequiredString(
-            minAccountBorrowSize,
-            v.maxDeleverageCollateralRatioBasisPoints,
-            v.maxRequiredAccountCollateralRatioBasisPoints as number
-          ),
-          primaryToken,
-          maxVaultAPY,
-        };
-      }) || [];
-
-  if (vaultProduct) {
-    return listedVaults.filter((v) => {
-      switch (vaultProduct) {
-        case PRODUCTS.LEVERAGED_PENDLE:
-          return v.vaultType === 'PendlePT';
-        case PRODUCTS.LEVERAGED_POINTS_FARMING:
-          return (
-            v.vaultType.startsWith('SingleSidedLP') &&
-            v.maxVaultAPY &&
-            v.maxVaultAPY.pointMultiples !== undefined
-          );
-        case PRODUCTS.LEVERAGED_YIELD_FARMING:
-          return (
-            v.vaultType.startsWith('SingleSidedLP') &&
-            v.maxVaultAPY &&
-            v.maxVaultAPY.pointMultiples === undefined
-          );
-        default:
-          return false;
-      }
-    });
-  }
-
-  return listedVaults;
-}
-
-function getMinDepositRequiredString(
-  minAccountBorrowSize: TokenBalance,
-  maxDeleverageCollateralRatioBasisPoints: number,
-  maxRequiredAccountCollateralRatioBasisPoints: number
-) {
-  const lowerDeposit = minAccountBorrowSize
-    .mulInRatePrecision(maxDeleverageCollateralRatioBasisPoints)
-    .toDisplayStringWithSymbol(2);
-
-  const upperDeposit = minAccountBorrowSize
-    .mulInRatePrecision(maxRequiredAccountCollateralRatioBasisPoints)
-    .toDisplayStringWithSymbol(2);
-  return `${lowerDeposit} to ${upperDeposit}`;
+export function useAllVaults(network: Network | undefined) {
+  return getNetworkModel(network).getAllListedVaults();
 }

@@ -1,10 +1,9 @@
-import { Instance } from 'mobx-state-tree';
 import { TokenBalance } from '../../token-balance';
-import { TokenDefinitionModel } from '../ModelTypes';
 import { NetworkModelWithViewsType } from '../NetworkModel';
 import {
   getNowSeconds,
   INTERNAL_TOKEN_PRECISION,
+  leveragedYield,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
@@ -22,6 +21,9 @@ export interface APYData {
     incentiveAPY: number;
   }[];
   utilization?: number;
+  pointMultiples?: Record<string, number>;
+  leverageRatio?: number;
+  debtAPY?: number;
 }
 
 export const YieldViews = (self: NetworkModelWithViewsType) => {
@@ -198,12 +200,13 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
       const adapter = self.getVaultAdapter(token.vaultAddress);
       apyData.organicAPY = adapter.getVaultAPY();
       apyData.totalAPY = apyData.organicAPY;
+      apyData.pointMultiples = adapter.getPointMultiples();
     }
 
     return apyData;
   };
 
-  const getLeverageRatios = (token: Instance<typeof TokenDefinitionModel>) => {
+  const getLeverageRatios = (token: TokenDefinition) => {
     if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const config = self.getVaultConfig(token.vaultAddress);
       const minLeverageRatio =
@@ -287,7 +290,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
     } else if (netAmount.tokenType === 'nToken') {
       const market = self.getfCashMarket(netAmount.currencyId);
       apyData.organicAPY = market.getNTokenBlendedYield(netAmount);
-      // TODO: maybe add it to the oracle views?
+      // TODO: maybe add it to the oracle views and add this to the organicAPY
       apyData.feeAPY = 0;
 
       const simulatedTVL = getTVL(netAmount.token).add(
@@ -315,10 +318,93 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
   ) => {
     const collateralAPY = getSimulatedAPY(collateralAmount);
     const debtAPY = getSimulatedAPY(debtAmount);
-    return (
-      collateralAPY.totalAPY +
-      (collateralAPY.totalAPY - debtAPY.totalAPY) * leverageRatio
-    );
+
+    return {
+      totalAPY: leveragedYield(
+        collateralAPY.totalAPY,
+        debtAPY.totalAPY,
+        leverageRatio
+      ),
+      organicAPY: leveragedYield(
+        (collateralAPY.organicAPY || 0) + (collateralAPY.feeAPY || 0),
+        debtAPY.totalAPY,
+        leverageRatio
+      ),
+      incentives: collateralAPY.incentives?.map(({ symbol, incentiveAPY }) => ({
+        symbol,
+        incentiveAPY: leveragedYield(incentiveAPY, 0, leverageRatio),
+      })),
+      leverageRatio,
+      debtAPY: debtAPY.totalAPY,
+      pointMultiples: collateralAPY.pointMultiples
+        ? Object.keys(collateralAPY.pointMultiples).reduce((acc, k) => {
+            if (collateralAPY.pointMultiples) {
+              acc[k] =
+                leveragedYield(
+                  collateralAPY.pointMultiples[k] || 0,
+                  0,
+                  leverageRatio
+                ) || 0;
+            }
+            return acc;
+          }, {} as Record<string, number>)
+        : undefined,
+    };
+  };
+
+  const getDefaultLeveragedNTokenAPYs = (token: TokenDefinition) => {
+    if (!token.currencyId) throw Error('Invalid token currency');
+    if (token.tokenType !== 'nToken') throw Error('Invalid token type');
+    const { defaultLeverageRatio } = getLeverageRatios(token);
+    const debtTokens = self.getDebtTokens(token.currencyId);
+
+    return debtTokens.map((d) => ({
+      apy: getLeveragedAPY(
+        TokenBalance.zero(token),
+        TokenBalance.zero(d),
+        defaultLeverageRatio
+      ),
+      debtToken: d,
+    }));
+  };
+
+  const getDefaultVaultAPYs = (vaultAddress: string) => {
+    return self.getVaultShares('VaultShare').map((share) => {
+      if (!share.maturity) throw Error('Invalid share maturity');
+      const debt = self.getVaultDebt(vaultAddress, share.maturity);
+      const { defaultLeverageRatio } = getLeverageRatios(share);
+
+      return {
+        apy: getLeveragedAPY(
+          TokenBalance.zero(share),
+          TokenBalance.zero(debt),
+          defaultLeverageRatio
+        ),
+        debtToken: debt,
+      };
+    });
+  };
+
+  const getDebtOrCollateralFactor = (
+    token: TokenDefinition,
+    isBorrow: boolean
+  ) => {
+    if (!token.currencyId) throw Error('Invalid token currency');
+    const buffer = self.getConfig(token.currencyId).debtBuffer;
+    const haircut = self.getConfig(token.currencyId).collateralHaircut;
+    const underlying = self.getUnderlying(token.currencyId);
+
+    const unit = TokenBalance.unit(underlying).toToken(token);
+    if (isBorrow) {
+      return (
+        Math.abs(unit.neg().toRiskAdjustedUnderlying().toFloat() * buffer) / 100
+      ).toFixed(4);
+    } else {
+      return (
+        (unit.toRiskAdjustedUnderlying().toFloat() * haircut) /
+        100
+      ).toFixed(4);
+    }
   };
 
   return {
@@ -330,5 +416,8 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
     getLeverageRatios,
     getSimulatedAPY,
     getLeveragedAPY,
+    getDebtOrCollateralFactor,
+    getDefaultLeveragedNTokenAPYs,
+    getDefaultVaultAPYs,
   };
 };
