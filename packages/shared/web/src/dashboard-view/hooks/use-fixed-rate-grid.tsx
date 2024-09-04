@@ -1,25 +1,22 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useNetworkTokens } from './use-network-tokens';
 
 export const useFixedRateGrid = (
   network: Network | undefined,
   product: PRODUCTS
 ) => {
-  const {
-    yields: { fCashLend, fCashBorrow },
-  } = useAllMarkets(network);
-  // const theme = useTheme();
   const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
   const tokenObj = {};
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
-  // const totalArbPoints = useTotalArbPoints();
-  // const currentSeason = useCurrentSeason();
-  const yieldData = isBorrow ? fCashBorrow : fCashLend;
+  const fCashYieldData = useNetworkTokens(network, 'fCash');
+  const yieldData = isBorrow
+    ? fCashYieldData.filter(({ token }) => token.isFCashDebt)
+    : fCashYieldData.filter(({ token }) => !token.isFCashDebt);
 
   const apySubTitle =
     product === PRODUCTS.LEND_FIXED
@@ -32,68 +29,23 @@ export const useFixedRateGrid = (
           description: 'subtitle',
         });
 
-  const allData = yieldData.map((y) => {
-    // const pointsBoost = getArbBoosts(y.token, isBorrow);
-    // const pointsAPY = getPointsAPY(
-    //   pointsBoost,
-    //   totalArbPoints[currentSeason.db_name],
-    //   currentSeason.totalArb,
-    //   currentSeason.startDate,
-    //   currentSeason.endDate
-    // );
-
+  const allData = yieldData.map(({ apy, tvl, underlying }) => {
     return {
-      ...y,
-      symbol: y.underlying.symbol,
-      title: y.underlying.symbol,
+      symbol: underlying?.symbol,
+      title: underlying?.symbol,
       subTitle: `Liquidity: ${formatNumberAsAbbr(
-        y?.liquidity?.toFiat(baseCurrency).toFloat() || 0,
+        tvl?.toFiat(baseCurrency).toFloat() || 0,
         0,
         baseCurrency
       )}`,
       bottomLeftValue: undefined,
-      // pointsBoost > 0 && network === Network.arbitrum ? (
-      //   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      //     <PointsIcon
-      //       sx={{
-      //         marginRight: theme.spacing(1),
-      //         height: theme.spacing(1.75),
-      //         width: theme.spacing(1.75),
-      //       }}
-      //     />
-      //     {`${pointsBoost}x ARB POINTS `}
-      //     <Box sx={{ marginLeft: theme.spacing(0.5) }}>
-      //       {pointsAPY !== Infinity &&
-      //         `(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}
-      //     </Box>
-      //   </Box>
-      // ) : !isBorrow && network === Network.arbitrum ? (
-      //   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      //     <LeafIcon
-      //       fill={theme.palette.typography.main}
-      //       sx={{
-      //         marginRight: theme.spacing(1),
-      //         height: theme.spacing(1.75),
-      //         width: theme.spacing(1.75),
-      //       }}
-      //     />
-      //     <FormattedMessage defaultMessage={'Organic APY'} />
-      //   </Box>
-      // ) : network === Network.arbitrum ? (
-      //   <Box
-      //     sx={{
-      //       display: 'flex',
-      //       alignItems: 'center',
-      //     }}
-      //   />
-      // ) : undefined,
-      network: y.token.network,
+      network,
       hasPosition: false,
       apySubTitle: apySubTitle,
-      tvlNum: y?.liquidity ? y.liquidity.toFiat(baseCurrency).toNumber() : 0,
-      apy: y.totalAPY,
+      tvlNum: tvl ? tvl.toFiat(baseCurrency).toNumber() : 0,
+      apy: apy.totalAPY,
       routeCallback: () =>
-        navigate(`/${product}/${network}/${y.underlying.symbol}`),
+        navigate(`/${product}/${network}/${underlying?.symbol}`),
     };
   });
 

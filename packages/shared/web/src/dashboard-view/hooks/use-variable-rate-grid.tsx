@@ -1,23 +1,16 @@
-import { getNetworkModel } from '@notional-finance/core-entities';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
+import { useNetworkTokens } from './use-network-tokens';
 
 export const useVariableRateGrid = (
   network: Network | undefined,
   product: PRODUCTS
 ) => {
-  // TODO: this can be put into a hook?
-  const model = getNetworkModel(network);
-  const yieldData = model.getTokensByType('PrimeCash').map((t) => ({
-    token: t,
-    apy: model.getSpotAPY(t.id),
-    tvl: model.getTVL(t),
-    liquidity: model.getLiquidity(t),
-    underlying: t.underlying ? model.getTokenByID(t.underlying) : undefined,
-  }));
-  // TODO: this is inside a hook above....
+  const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
+  const tokenType = isBorrow ? 'PrimeDebt' : 'PrimeCash';
+  const yieldData = useNetworkTokens(network, tokenType);
 
   const navigate = useNavigate();
   const { baseCurrency } = useAppStore();

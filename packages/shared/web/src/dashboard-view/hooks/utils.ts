@@ -152,3 +152,16 @@ export const getCombinedIncentiveData = (
     return 0;
   }
 };
+
+export const sumAndFormatIncentives = (
+  incentives: Array<{ symbol: string; incentiveAPY: number }>
+): string => {
+  const totalAPY = incentives.reduce((sum, incentive) => sum + incentive.incentiveAPY, 0);
+  return formatNumberAsPercent(totalAPY);
+};
+
+export const getIncentiveSymbols = (
+  incentives: Array<{ symbol: string; incentiveAPY: number }>
+): string[] => {
+  return incentives.map((incentive) => incentive.symbol);
+};
