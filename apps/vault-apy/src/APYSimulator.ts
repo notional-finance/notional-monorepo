@@ -107,11 +107,19 @@ export default class APYSimulator {
           } else if (vault.rewardPoolType === RewardPoolType.ConvexArbitrum) {
             const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
             const mostRecentThursdayMidnight = this.#getMostRecentThursdayMidnight(forkBlockTimestamp);
+            const nextThursdayMidnight = this.#getNextThursdayMidnightUTC(forkBlockTimestamp);
+            const oneDayBeforeNextThursday = nextThursdayMidnight - ONE_DAY_IN_SECONDS;
             
             if (forkBlockTimestamp < mostRecentThursdayMidnight + 2 * 60 * 60) { // 2 hours ahead
               const adjustedTimestamp = mostRecentThursdayMidnight - ONE_DAY_IN_SECONDS;
               const adjustedForkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
               log(`Adjusted forkBlock to ${adjustedForkBlock} (1 day before most recent Thursday midnight)`);
+              await this.run(adjustedForkBlock, vault.address);
+              continue; // Skip the normal run call below
+            } else if (forkBlockTimestamp > oneDayBeforeNextThursday) {
+              const adjustedTimestamp = oneDayBeforeNextThursday;
+              const adjustedForkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
+              log(`Adjusted forkBlock to ${adjustedForkBlock} (1 day before next Thursday midnight)`);
               await this.run(adjustedForkBlock, vault.address);
               continue; // Skip the normal run call below
             }
@@ -157,11 +165,17 @@ export default class APYSimulator {
       } else if (vaultData.rewardPoolType === RewardPoolType.ConvexArbitrum) {
         const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
         const mostRecentThursdayMidnight = this.#getMostRecentThursdayMidnight(forkBlockTimestamp);
+        const nextThursdayMidnight = this.#getNextThursdayMidnightUTC(forkBlockTimestamp);
+        const oneDayBeforeNextThursday = nextThursdayMidnight - ONE_DAY_IN_SECONDS;
         
         if (forkBlockTimestamp < mostRecentThursdayMidnight + 2 * 60 * 60) { // 2 hours ahead
           const adjustedTimestamp = mostRecentThursdayMidnight - ONE_DAY_IN_SECONDS;
           forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
           log(`Adjusted forkBlock to ${forkBlock} (1 day before most recent Thursday midnight)`);
+        } else if (forkBlockTimestamp > oneDayBeforeNextThursday) {
+          const adjustedTimestamp = oneDayBeforeNextThursday;
+          const forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
+          log(`Adjusted forkBlock to ${forkBlock} (1 day before next Thursday midnight)`);
         }
       }
 
@@ -682,6 +696,14 @@ export default class APYSimulator {
     const day = date.getUTCDay();
     const daysToSubtract = (day + 3) % 7; // Thursday is 4, so we add 3 and take modulo 7
     date.setUTCDate(date.getUTCDate() - daysToSubtract);
+    date.setUTCHours(0, 0, 0, 0);
+    return Math.floor(date.getTime() / 1000);
+  }
+
+  #getNextThursdayMidnightUTC(timestamp: number): number {
+    const date = new Date(timestamp * 1000);
+    const daysUntilThursday = (4 - date.getUTCDay() + 7) % 7;
+    date.setUTCDate(date.getUTCDate() + daysUntilThursday);
     date.setUTCHours(0, 0, 0, 0);
     return Math.floor(date.getTime() / 1000);
   }
