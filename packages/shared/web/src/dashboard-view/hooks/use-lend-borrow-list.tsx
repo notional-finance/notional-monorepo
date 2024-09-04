@@ -4,7 +4,6 @@ import {
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
 import {
-  useAllMarkets,
   useAccountDefinition,
   useTotalArbPoints,
   useCurrentSeason,
@@ -12,7 +11,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { getDebtOrCollateralFactor } from './utils';
+// import { getDebtOrCollateralFactor } from './utils';
 import {
   DisplayCell,
   LinkCell,
@@ -21,27 +20,25 @@ import {
 } from '@notional-finance/mui';
 import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
+import { useNetworkTokens } from './use-network-tokens';
 
 export const useLendBorrowList = (
   product: PRODUCTS,
   network: Network | undefined
 ) => {
-  const {
-    yields: { fCashLend, fCashBorrow, variableBorrow, variableLend },
-  } = useAllMarkets(network);
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
   const isBorrow =
     product === PRODUCTS.BORROW_FIXED || product === PRODUCTS.BORROW_VARIABLE;
-
-  const yieldData = {
-    [PRODUCTS.LEND_FIXED]: fCashLend,
-    [PRODUCTS.LEND_VARIABLE]: variableLend,
-    [PRODUCTS.BORROW_FIXED]: fCashBorrow,
-    [PRODUCTS.BORROW_VARIABLE]: variableBorrow,
+  const yieldDataKeys = {
+    [PRODUCTS.LEND_FIXED]: 'fCash',
+    [PRODUCTS.LEND_VARIABLE]: 'PrimeCash',
+    [PRODUCTS.BORROW_FIXED]: 'fCash',
+    [PRODUCTS.BORROW_VARIABLE]: 'PrimeDebt',
   };
+  const yieldData = useNetworkTokens(network, yieldDataKeys[product]);
 
   let listColumns: DataTableColumn[] = [
     {
@@ -168,9 +165,9 @@ export const useLendBorrowList = (
     listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
   }
 
-  const listData = yieldData[product]
-    .map((y) => {
-      const boostNum = getArbBoosts(y.token, isBorrow);
+  const listData = yieldData
+    .map(({ token, apy, tvl, underlying }) => {
+      const boostNum = getArbBoosts(token, isBorrow);
       const pointsAPY = getPointsAPY(
         boostNum,
         totalArbPoints[currentSeason.db_name],
@@ -179,21 +176,21 @@ export const useLendBorrowList = (
         currentSeason.endDate
       );
       const walletBalance = account
-        ? account.balances.find((t) => t.tokenId === y.underlying.id)
+        ? account.balances.find((t) => t.tokenId === underlying?.id)
         : undefined;
       return {
         currency: {
-          symbol: y.underlying.symbol,
+          symbol: underlying?.symbol || '',
           symbolSize: 'large',
           symbolBottom: '',
-          label: y.underlying.symbol,
+          label: underlying?.symbol || '',
           network: network,
           caption: network
             ? network.charAt(0).toUpperCase() + network.slice(1)
             : '',
         },
         walletBalance: walletBalance?.toFloat() || 0,
-        maturity: y.token.maturity,
+        maturity: token.maturity,
         pointsBoost: {
           label: boostNum > 0 ? `${boostNum}x` : '-',
           caption:
@@ -201,15 +198,15 @@ export const useLendBorrowList = (
               ? `${formatNumberAsPercent(pointsAPY, 2)} APY`
               : '',
         },
-        apy: y.totalAPY,
-        liquidity: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,
-        symbol: y.underlying.symbol,
-        collateralFactor: getDebtOrCollateralFactor(
-          y.token,
-          y.underlying,
-          isBorrow
-        ),
-        view: `${product}/${network}/${y.underlying.symbol}`,
+        apy: apy.totalAPY,
+        liquidity: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
+        symbol: underlying?.symbol || '',
+        // TODO: add back in when the data is available
+        // collateralFactor: underlying
+        //   ? getDebtOrCollateralFactor(token, underlying, isBorrow)
+        //   : '',
+        collateralFactor: '',
+        view: `${product}/${network}/${underlying?.symbol}`,
         iconCellData: {
           icon: PointsIcon,
         },
