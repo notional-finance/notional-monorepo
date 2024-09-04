@@ -6,40 +6,28 @@ import {
 import { formatMaturity } from '@notional-finance/util';
 import {
   useAppStore,
-  useAllMarkets,
   useAccountDefinition,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import {
-  getDebtOrCollateralFactor,
-  getIncentiveData,
-  getCombinedIncentiveData,
-} from './utils';
+import { sumAndFormatIncentives } from './utils';
 import {
   DisplayCell,
   LinkCell,
   DataTableColumn,
   MultiValueIconCell,
 } from '@notional-finance/mui';
-import { useMaxYield } from '@notional-finance/trade';
-import { YieldData } from '@notional-finance/core-entities';
+import { useNetworkTokens } from './use-network-tokens';
 
 export const useLiquidityList = (
   product: PRODUCTS,
   network: Network | undefined
 ) => {
-  const {
-    yields: { liquidity },
-  } = useAllMarkets(network);
-  const allMaxAPYs = useMaxYield(network);
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
-  let yieldData = liquidity as YieldData[];
-
-  if (product === PRODUCTS.LIQUIDITY_LEVERAGED) {
-    yieldData = allMaxAPYs;
-  }
+  const yieldData = useNetworkTokens(network, 'nToken', {
+    leveragedNToken: product === PRODUCTS.LIQUIDITY_LEVERAGED,
+  });
 
   let listColumns: DataTableColumn[] = [
     {
@@ -185,76 +173,73 @@ export const useLiquidityList = (
   }
 
   const listData = yieldData
-    .map((y) => {
+    .map(({ apy, tvl, underlying, debtToken }) => {
       const walletBalance = account
-        ? account.balances.find((t) => t.tokenId === y.underlying.id)
+        ? account.balances.find((t) => t.tokenId === underlying.id)
         : undefined;
-      const organicApy = (y.organicAPY || 0) + (y.feeAPY || 0);
+      const organicApy = (apy.organicAPY || 0) + (apy.feeAPY || 0);
 
       return {
         currency: {
-          symbol: y.underlying.symbol,
+          symbol: underlying.symbol || '',
           symbolSize: 'large',
           symbolBottom: '',
-          label: y.underlying.symbol,
+          label: underlying.symbol || '',
           caption: network
             ? network.charAt(0).toUpperCase() + network.slice(1)
             : '',
         },
         walletBalance: walletBalance?.toFloat() || 0,
-        totalApy: y.totalAPY || 0,
+        totalApy: apy.totalAPY || 0,
         organicApy,
-        incentiveApy: getCombinedIncentiveData(
-          y.noteIncentives,
-          y.secondaryIncentives
-        ),
-        liquidity: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
-        collateralFactor: getDebtOrCollateralFactor(
-          y.token,
-          y.underlying,
-          false
-        ),
+        incentiveValue:
+          apy.incentives && apy?.incentives?.length > 0
+            ? sumAndFormatIncentives(apy.incentives)
+            : '',
+        liquidity: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
+        collateralFactor: '',
+        // collateralFactor: getDebtOrCollateralFactor(
+        //   y.token,
+        //   y.underlying,
+        //   false
+        // ),
         view:
           product === PRODUCTS.LIQUIDITY_VARIABLE
-            ? `${product}/${network}/${y.underlying.symbol}`
-            : `${product}/${network}/CreateLeveragedNToken/${y.underlying.symbol}?borrowOption=${y?.leveraged?.debtToken?.id}`,
-        symbol: y.underlying.symbol,
-        borrowTerms: y?.leveraged?.debtToken?.maturity
-          ? y?.leveraged?.debtToken?.maturity
-          : 0,
+            ? `${product}/${network}/${underlying.symbol} || ''`
+            : `${product}/${network}/CreateLeveragedNToken/${underlying.symbol}?borrowOption=${debtToken?.id}` ||
+              '',
+        symbol: underlying.symbol || '',
+        borrowTerms: debtToken?.maturity ? debtToken?.maturity : 0,
         multiValueCellData: {
           currency: {
-            symbol: y.underlying.symbol,
+            symbol: underlying.symbol || '',
             symbolSize: 'large',
             symbolBottom: '',
-            label: y.underlying.symbol,
+            label: underlying.symbol || '',
             caption: network
               ? network.charAt(0).toUpperCase() + network.slice(1)
               : '',
             network: network,
           },
           totalApy: {
-            label: formatNumberAsPercent(y.totalAPY, 2),
-            caption: y?.leveraged?.leverageRatio
-              ? `${formatNumber(y?.leveraged?.leverageRatio, 1)}x Leverage`
+            label: formatNumberAsPercent(apy.totalAPY, 2),
+            caption: apy?.leverageRatio
+              ? `${formatNumber(apy?.leverageRatio, 1)}x Leverage`
               : undefined,
           },
           organicApy: {
-            symbol: y.underlying.symbol,
+            symbol: underlying.symbol || '',
             label: organicApy,
             labelIsNegative: organicApy && organicApy < 0 ? true : false,
           },
-          incentiveApy: getIncentiveData(
-            y.noteIncentives,
-            y.secondaryIncentives
-          ),
+          incentiveValue:
+            apy.incentives && apy?.incentives?.length > 0
+              ? sumAndFormatIncentives(apy.incentives)
+              : '',
           borrowTerms: {
-            label:
-              y?.leveraged?.debtToken.tokenType === 'fCash'
-                ? 'Fixed'
-                : 'Variable',
-            caption: y?.leveraged?.debtToken?.maturity
-              ? formatMaturity(y?.leveraged?.debtToken?.maturity)
+            label: debtToken.tokenType === 'fCash' ? 'Fixed' : 'Variable',
+            caption: debtToken?.maturity
+              ? formatMaturity(debtToken?.maturity)
               : undefined,
           },
         },

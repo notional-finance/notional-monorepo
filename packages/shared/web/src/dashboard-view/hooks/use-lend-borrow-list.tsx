@@ -38,7 +38,9 @@ export const useLendBorrowList = (
     [PRODUCTS.BORROW_FIXED]: 'fCash',
     [PRODUCTS.BORROW_VARIABLE]: 'PrimeDebt',
   };
-  const yieldData = useNetworkTokens(network, yieldDataKeys[product]);
+  const yieldData = useNetworkTokens(network, yieldDataKeys[product], {
+    isBorrow,
+  });
 
   let listColumns: DataTableColumn[] = [
     {
@@ -166,7 +168,7 @@ export const useLendBorrowList = (
   }
 
   const listData = yieldData
-    .map(({ token, apy, tvl, underlying }) => {
+    .map(({ token, apy, tvl, underlying, collateralFactor }) => {
       const boostNum = getArbBoosts(token, isBorrow);
       const pointsAPY = getPointsAPY(
         boostNum,
@@ -201,11 +203,7 @@ export const useLendBorrowList = (
         apy: apy.totalAPY,
         liquidity: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         symbol: underlying?.symbol || '',
-        // TODO: add back in when the data is available
-        // collateralFactor: underlying
-        //   ? getDebtOrCollateralFactor(token, underlying, isBorrow)
-        //   : '',
-        collateralFactor: '',
+        collateralFactor: collateralFactor ? collateralFactor : '',
         view: `${product}/${network}/${underlying?.symbol}`,
         iconCellData: {
           icon: PointsIcon,
