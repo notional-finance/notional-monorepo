@@ -1482,7 +1482,8 @@ export type DEX =
   | 'ZERO_EX'
   | 'BALANCER_V2'
   | 'CURVE'
-  | 'NOTIONAL_VAULT';
+  | 'NOTIONAL_VAULT'
+  | 'CURVE_V2';
 
 export type ExchangeRate = {
   /** External Oracle ID:Block Number:Transaction Hash */
@@ -9178,8 +9179,11 @@ export type HistoricalOracleValuesQueryVariables = Exact<{
 
 
 export type HistoricalOracleValuesQuery = { oracles: Array<(
-    Pick<Oracle, 'id' | 'lastUpdateTimestamp' | 'lastUpdateBlockNumber' | 'oracleAddress' | 'decimals' | 'ratePrecision' | 'oracleType' | 'latestRate'>
-    & { base: Pick<Token, 'id'>, quote: Pick<Token, 'id'>, historicalRates?: Maybe<Array<Pick<ExchangeRate, 'totalSupply' | 'blockNumber' | 'timestamp' | 'rate'>>> }
+    Pick<Oracle, 'id' | 'decimals' | 'ratePrecision' | 'oracleType' | 'latestRate'>
+    & { base: Pick<Token, 'id' | 'tokenType'>, quote: (
+      Pick<Token, 'id' | 'tokenType'>
+      & { underlying?: Maybe<Pick<Token, 'id'>> }
+    ), historicalRates?: Maybe<Array<Pick<ExchangeRate, 'totalSupply' | 'blockNumber' | 'timestamp' | 'rate'>>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type HistoricalTradingActivityQueryVariables = Exact<{
@@ -9663,7 +9667,7 @@ export const AllConfigurationByBlockDocument = gql`
 export const AllOraclesDocument = gql`
     query AllOracles($skip: Int!) {
   oracles(
-    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, fCashSpotRate], matured: false}
+    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, fCashSpotRate, nTokenFeeRate], matured: false}
     first: 1000
     skip: $skip
   ) {
@@ -9870,20 +9874,22 @@ export const ExternalLendingHistoryDocument = gql`
 export const HistoricalOracleValuesDocument = gql`
     query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
   oracles(
-    where: {oracleType_in: [Chainlink, fCashSettlementRate, nTokenToUnderlyingExchangeRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, fCashOracleRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, nTokenBlendedInterestRate, nTokenFeeRate, nTokenIncentiveRate, nTokenSecondaryIncentiveRate], matured: false}
+    where: {oracleType_in: [Chainlink, nTokenToUnderlyingExchangeRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, fCashOracleRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, nTokenBlendedInterestRate, nTokenFeeRate, nTokenIncentiveRate, nTokenSecondaryIncentiveRate], matured: false}
     first: 1000
     skip: $skip
   ) {
     id
     base {
       id
+      tokenType
     }
     quote {
       id
+      tokenType
+      underlying {
+        id
+      }
     }
-    lastUpdateTimestamp
-    lastUpdateBlockNumber
-    oracleAddress
     decimals
     ratePrecision
     oracleType

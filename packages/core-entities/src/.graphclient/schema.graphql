@@ -1374,6 +1374,7 @@ enum DEX {
   BALANCER_V2
   CURVE
   NOTIONAL_VAULT
+  CURVE_V2
 }
 
 type ExchangeRate {

@@ -19617,6 +19617,14 @@ const schemaAST = {
             "value": "NOTIONAL_VAULT"
           },
           "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "CURVE_V2"
+          },
+          "directives": []
         }
       ],
       "directives": []
