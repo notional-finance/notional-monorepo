@@ -38,7 +38,7 @@ jobs:
         run: |
           yarn --silent nx print-affected --base=HEAD~1 --head=HEAD | jq '.projects | contains(["web"])' && echo "is_affected=true" >> $GITHUB_OUTPUT || echo "is_affected=false" >> $GITHUB_OUTPUT
       - name: Build Web
-        if: steps.check-affected.outputs.is_affected == 'true'
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         run: yarn nx build web --parallel
         env:
           NX_CONTACT_EMAIL: ${{ secrets.NX_CONTACT_EMAIL }}
@@ -55,7 +55,7 @@ jobs:
           NX_ENV: ${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
           NX_COMMIT_REF: ${{ github.sha }}
       - name: Publish Dev
-        if: steps.check-affected.outputs.is_affected == 'true'
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -64,7 +64,7 @@ jobs:
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
-        if: steps.check-affected.outputs.is_affected == 'true'
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
