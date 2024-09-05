@@ -92,11 +92,15 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
   }
 
   public async fetchTimeSeries(network: Network) {
+    const allNetworkPrices = await this.allNetworkPrices();
     if (network === Network.all) {
-      return this.allNetworkPrices();
+      return allNetworkPrices;
     }
+    const notePrices = allNetworkPrices.find(
+      (p) => p.id === `eth:note:${ChartType.PRICE}`
+    );
 
-    return this._fetchTokenTimeSeries(network);
+    return this._fetchTokenTimeSeries(network, notePrices);
   }
 
   protected reduceTimeSeriesToMidnight<T extends { timestamp: number }>(
@@ -309,7 +313,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
   protected getAPYData(
     oracles: HistoricalOracleValuesQuery['oracles'],
     network: Network,
-    chainlinkOracles: TimeSeriesResponse[]
+    chainlinkOracles: TimeSeriesResponse[],
+    notePrices: TimeSeriesResponse | undefined
   ) {
     const apyOracles = oracles.filter((o) => {
       if (o.quote.tokenType === 'fCash') {
@@ -384,8 +389,6 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       }
     } else {
       const base = apyOracles[0].base.id;
-      // XXX: get this price
-      const noteETHPrice = 1;
       const ethPriceHistory = chainlinkOracles.find(
         (c) => c.id === `${ZERO_ADDRESS}:${base}:${ChartType.PRICE}`
       );
@@ -409,6 +412,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
               this.getPriceAtTime(ethPriceHistory, r.timestamp) || 1;
             const incentiveETHPrice =
               this.getPriceAtTime(incentivePriceHistory, r.timestamp) || 1;
+            const noteETHPrice =
+              this.getPriceAtTime(notePrices, r.timestamp) || 1;
 
             if (o.oracleType === 'nTokenIncentiveRate') {
               apy =
@@ -464,6 +469,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
   protected async _fetchTokenTimeSeries(
     network: Network,
+    notePrices: TimeSeriesResponse | undefined,
     minTimestamp = getNowSeconds() - 90 * SECONDS_IN_DAY
   ) {
     const results: TimeSeriesResponse[] = [];
@@ -499,7 +505,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       const { apyData, apyLegend } = this.getAPYData(
         oracles,
         network,
-        chainlinkOracles
+        chainlinkOracles,
+        notePrices
       );
 
       results.push({
@@ -656,7 +663,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     return Array.from(
       flatData
         .reduce((acc, p) => {
-          const id = `${p['base']}:${p['quote']}`;
+          const id = `${p['base']}:${p['quote']}:${ChartType.PRICE}`;
           const resp = acc.get(id) || {
             id,
             data: [],
