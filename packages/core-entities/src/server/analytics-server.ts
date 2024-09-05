@@ -15,6 +15,7 @@ import {
   groupArrayToMap,
   INTERNAL_TOKEN_DECIMALS,
   Network,
+  RATE_DECIMALS,
   SECONDS_IN_DAY,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
@@ -354,9 +355,11 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         apyOracles[0].historicalRates?.map((r) => {
           return {
             timestamp: r.timestamp,
-            totalAPY: isVaultShare
-              ? this.formatToPercent(r.rate, apyOracles[0].decimals)
-              : this.formatToPercent(r.rate, apyOracles[0].decimals),
+            totalAPY:
+              apyOracles[0].oracleType === 'PrimeDebtPremiumInterestRate' ||
+              apyOracles[0].oracleType === 'PrimeCashPremiumInterestRate'
+                ? this.formatToPercent(r.rate, RATE_DECIMALS) // This decimals are not marked correctly in the subgraph
+                : this.formatToPercent(r.rate, apyOracles[0].decimals),
           };
         }) || []
       );
