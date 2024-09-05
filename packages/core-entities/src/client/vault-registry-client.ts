@@ -1,8 +1,7 @@
-import { Network, filterEmpty } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { Routes } from '../server';
-import { SingleSidedLP, VaultMetadata } from '../vaults';
+import { VaultAdapter, VaultMetadata } from '../vaults';
 import { ClientRegistry } from './client-registry';
-import { map } from 'rxjs';
 
 export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
   protected override cachePath() {
@@ -17,13 +16,6 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
   getVaultAdapter(network: Network, vaultAddress: string) {
     const params = this.getLatestFromSubject(network, vaultAddress);
     if (!params) throw Error(`No vault params found: ${vaultAddress}`);
-    return new SingleSidedLP(network, vaultAddress, params);
-  }
-
-  subscribeVaultAdapter(network: Network, vaultAddress: string) {
-    return this.subscribeSubject(network, vaultAddress.toLowerCase())?.pipe(
-      filterEmpty(),
-      map((p) => new SingleSidedLP(network, vaultAddress, p))
-    );
+    return {} as VaultAdapter;
   }
 }

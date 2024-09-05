@@ -43,7 +43,7 @@ export abstract class VaultAdapter {
     account: string,
     maturity: number,
     totalDeposit: TokenBalance,
-    slippageFactor: number
+    slippageFactor?: number
   ): BytesLike;
 
   abstract getRedeemParameters(
@@ -51,7 +51,7 @@ export abstract class VaultAdapter {
     maturity: number,
     vaultSharesToRedeem: TokenBalance,
     underlyingToRepayDebt: TokenBalance,
-    slippageFactor: number
+    slippageFactor?: number
   ): BytesLike;
 
   abstract getPriceExposure(): {
@@ -66,4 +66,6 @@ export abstract class VaultAdapter {
   }): number;
 
   abstract getVaultTVL(): TokenBalance;
+
+  abstract getPointMultiples(): Record<string, number> | undefined;
 }
