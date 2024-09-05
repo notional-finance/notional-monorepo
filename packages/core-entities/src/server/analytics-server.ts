@@ -13,10 +13,8 @@ import {
   groupArrayByKey,
   groupArrayToMap,
   INTERNAL_TOKEN_DECIMALS,
-  INTERNAL_TOKEN_PRECISION,
   Network,
   SECONDS_IN_DAY,
-  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish } from 'ethers';
 import { ExecutionResult } from 'graphql';
@@ -99,7 +97,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     return this._fetchTokenTimeSeries(network);
   }
 
-  protected reduceTimeSeriesToMidnight(data: TimeSeriesDataPoint[]) {
+  protected reduceTimeSeriesToMidnight<T extends { timestamp: number }>(
+    data: T[]
+  ) {
     return data.reverse().reduce((acc, d) => {
       const flooredTimestamp = floorToMidnight(d.timestamp);
       // If floored timestamp is equal then skip it, we only return one value per day at midnight UTC
@@ -115,7 +115,15 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         });
         return acc;
       }
-    }, [] as TimeSeriesDataPoint[]);
+    }, [] as T[]);
+  }
+
+  protected getPriceAtTime(
+    priceHistory: TimeSeriesResponse | undefined,
+    timestamp: number
+  ) {
+    const price = priceHistory?.data.find((p) => p.timestamp === timestamp);
+    return price ? price['price'] : 0;
   }
 
   /** Ensures that chart always has default values throughout the specified range.  */
@@ -143,8 +151,35 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     });
   }
 
-  protected getPriceAndTVLOracles(
-    oracles: HistoricalOracleValuesQuery['oracles']
+  protected getUnderlyingPriceHistory(
+    oracle: HistoricalOracleValuesQuery['oracles'][number]
+  ) {
+    const priceData = this.reduceTimeSeriesToMidnight(
+      oracle.historicalRates || []
+    ).map((r) => {
+      return {
+        timestamp: r.timestamp,
+        price: this.formatToNumber(r.rate, oracle.decimals),
+      };
+    });
+
+    return {
+      data: this.fillChartDaily(priceData || [], {
+        price: 0,
+      }),
+      legend: [
+        {
+          series: 'price',
+          format: 'number',
+          decimals: oracle?.decimals,
+        },
+      ] as TimeSeriesLegend[],
+    };
+  }
+
+  protected getPriceAndTVLHistory(
+    oracles: HistoricalOracleValuesQuery['oracles'],
+    chainlinkOracles: TimeSeriesResponse[]
   ) {
     const priceOracle = oracles.find((o) => {
       if (o.quote.tokenType === 'fCash') {
@@ -161,54 +196,86 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       return false;
     });
 
-    const ethPriceOracle = oracles.find(
-      (o) => o.oracleType === 'Chainlink' && o.base.id === ZERO_ADDRESS
+    const ethPriceHistory = chainlinkOracles?.find(
+      (o) => o.id === `${priceOracle?.quote.id}:${ChartType.PRICE}`
+    );
+    const usdETHPriceHistory = chainlinkOracles?.find(
+      (o) => o.id === `eth:${ChartType.PRICE}`
     );
 
-    const priceData = priceOracle?.historicalRates?.map((r) => {
-      const tvlUnderlying = BigNumber.from(r.totalSupply || 0)
-        .mul(BigNumber.from(r.rate || 0))
-        .div(BigNumber.from(priceOracle.ratePrecision));
-      const tvlETH = ethPriceOracle
-        ? tvlUnderlying
-            .mul(ethPriceOracle.latestRate?.rate || 0)
-            .div(ethPriceOracle.ratePrecision)
-        : BigNumber.from(0);
+    const priceData = priceOracle?.historicalRates
+      ? this.reduceTimeSeriesToMidnight(priceOracle.historicalRates).map(
+          (r) => {
+            const tvlUnderlying = this.formatToNumber(
+              BigNumber.from(r.totalSupply || 0)
+                .mul(BigNumber.from(r.rate || 0))
+                .div(BigNumber.from(priceOracle.ratePrecision)),
+              INTERNAL_TOKEN_DECIMALS
+            );
 
-      // If fCash need to convert to the exchange rate
-      const price =
-        priceOracle.oracleType === 'fCashOracleRate' &&
-        priceOracle.quote.maturity
-          ? OracleRegistryClient.interestToExchangeRate(
-              BigNumber.from(r.rate),
-              priceOracle.quote.maturity,
+            const ethPrice = this.getPriceAtTime(ethPriceHistory, r.timestamp);
+            const usdPrice = this.getPriceAtTime(
+              usdETHPriceHistory,
               r.timestamp
-            )
-          : BigNumber.from(r.rate);
+            );
 
-      return {
-        timestamp: r.timestamp,
-        price: this.formatToNumber(price, priceOracle.decimals),
-        totalSupply: this.formatToNumber(
-          r.totalSupply || 0,
-          INTERNAL_TOKEN_DECIMALS
-        ),
-        tvlUnderlying: this.formatToNumber(
-          tvlUnderlying,
-          INTERNAL_TOKEN_DECIMALS
-        ),
-        tvlETH: this.formatToNumber(tvlETH, INTERNAL_TOKEN_DECIMALS),
-      };
-    });
+            // If fCash need to convert to the exchange rate
+            const price =
+              priceOracle.oracleType === 'fCashOracleRate' &&
+              priceOracle.quote.maturity
+                ? OracleRegistryClient.interestToExchangeRate(
+                    BigNumber.from(r.rate),
+                    priceOracle.quote.maturity,
+                    r.timestamp
+                  )
+                : BigNumber.from(r.rate);
+            const priceToUnderlying = this.formatToNumber(
+              price,
+              priceOracle.decimals
+            );
+            const priceToETH = priceToUnderlying * ethPrice;
+            const priceToUSD = priceToETH * usdPrice;
+
+            return {
+              timestamp: r.timestamp,
+              priceToUnderlying,
+              priceToETH,
+              priceToUSD,
+              totalSupply: this.formatToNumber(
+                r.totalSupply || 0,
+                INTERNAL_TOKEN_DECIMALS
+              ),
+              tvlUnderlying,
+              tvlETH: tvlUnderlying * priceToETH,
+              tvlUSD: tvlUnderlying * priceToUSD,
+            };
+          }
+        )
+      : [];
 
     return {
-      priceData: this.fillChartDaily(
-        this.reduceTimeSeriesToMidnight(priceData || []),
-        { price: 0, totalSupply: 0, tvlETH: 0, tvlUnderlying: 0 }
-      ),
+      priceData: this.fillChartDaily(priceData || [], {
+        priceToUnderlying: 0,
+        priceToETH: 0,
+        priceToUSD: 0,
+        totalSupply: 0,
+        tvlUnderlying: 0,
+        tvlETH: 0,
+        tvlUSD: 0,
+      }),
       priceLegend: [
         {
-          series: 'price',
+          series: 'priceToUnderlying',
+          format: 'number',
+          decimals: priceOracle?.decimals,
+        },
+        {
+          series: 'priceToETH',
+          format: 'number',
+          decimals: priceOracle?.decimals,
+        },
+        {
+          series: 'priceToUSD',
           format: 'number',
           decimals: priceOracle?.decimals,
         },
@@ -223,6 +290,11 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           decimals: INTERNAL_TOKEN_DECIMALS,
         },
         {
+          series: 'tvlUSD',
+          format: 'number',
+          decimals: INTERNAL_TOKEN_DECIMALS,
+        },
+        {
           series: 'totalSupply',
           format: 'number',
           decimals: INTERNAL_TOKEN_DECIMALS,
@@ -233,7 +305,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
   protected getAPYData(
     oracles: HistoricalOracleValuesQuery['oracles'],
-    network: Network
+    network: Network,
+    chainlinkOracles: TimeSeriesResponse[]
   ) {
     const apyOracles = oracles.filter((o) => {
       if (o.quote.tokenType === 'fCash') {
@@ -307,10 +380,12 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           .filter((d) => d?.totalAPY !== undefined) as TimeSeriesDataPoint[];
       }
     } else {
+      const quote = apyOracles[0].quote.id;
       // XXX: get this price
-      const noteETHPrice: BigNumber = BigNumber.from(10).pow(18);
-      // XXx: get this price
-      const ethBasePrice: BigNumber = BigNumber.from(10).pow(18);
+      const noteETHPrice = 1;
+      const ethPriceHistory = chainlinkOracles.find(
+        (c) => c.id === `${quote}:${ChartType.PRICE}`
+      );
 
       // In the other case, we are dealing with nTokens which have multiple oracles
       const flooredSeries = apyOracles.flatMap((o) => {
@@ -319,26 +394,30 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
             ? getSecondaryTokenIncentive(network, o.base.id)
             : undefined;
         // XXX: get this price
-        const incentiveETHPrice = incentiveSymbol
-          ? BigNumber.from(10).pow(18)
-          : undefined;
+        const incentivePriceHistory = chainlinkOracles.find(
+          (c) => c.id === `${o.base.id}:${ChartType.PRICE}`
+        );
 
         const keyName = getOracleName(o.oracleType, incentiveSymbol);
 
         return this.reduceTimeSeriesToMidnight(
           o.historicalRates?.map((r) => {
             let apy = this.formatToPercent(r.rate, o.decimals);
+            const ethBasePrice =
+              this.getPriceAtTime(ethPriceHistory, r.timestamp) || 1;
+            const incentiveETHPrice =
+              this.getPriceAtTime(incentivePriceHistory, r.timestamp) || 1;
+
             if (o.oracleType === 'nTokenIncentiveRate') {
-              const noteAPY = BigNumber.from(r.rate)
-                .mul(noteETHPrice)
-                .div(ethBasePrice);
-              apy = this.formatToPercent(noteAPY, INTERNAL_TOKEN_DECIMALS);
+              apy =
+                (this.formatToNumber(r.rate, INTERNAL_TOKEN_DECIMALS) *
+                  noteETHPrice) /
+                ethBasePrice;
             } else if (incentiveSymbol && incentiveETHPrice) {
-              const incentiveAPY = BigNumber.from(r.rate)
-                .mul(incentiveETHPrice)
-                .div(ethBasePrice)
-                .div(INTERNAL_TOKEN_PRECISION);
-              apy = this.formatToPercent(incentiveAPY, INTERNAL_TOKEN_DECIMALS);
+              apy =
+                (this.formatToNumber(r.rate, INTERNAL_TOKEN_DECIMALS) *
+                  incentiveETHPrice) /
+                ethBasePrice;
             }
 
             return {
@@ -385,8 +464,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     network: Network,
     minTimestamp = getNowSeconds() - 90 * SECONDS_IN_DAY
   ) {
-    const results = [] as TimeSeriesResponse[];
+    const results: TimeSeriesResponse[] = [];
 
+    console.log('starting to fetch oracle values', network);
     const historicalOracleValues =
       await this.fetchGraphDocument<HistoricalOracleValuesQuery>(
         network,
@@ -394,15 +474,33 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         { minTimestamp },
         'oracles'
       );
+    console.log('fetched oracle values', network);
 
     const oraclesByQuote = groupArrayToMap(
-      historicalOracleValues.data?.oracles || [],
+      historicalOracleValues.data?.oracles.filter(
+        (o) => o.oracleType !== 'Chainlink'
+      ) || [],
       (o) => o.quote.id
     );
 
+    const chainlinkOracles =
+      historicalOracleValues.data?.oracles
+        .filter((o) => o.oracleType === 'Chainlink')
+        .map((o) => ({
+          id: `${o.quote.id}:${ChartType.PRICE}`,
+          ...this.getUnderlyingPriceHistory(o),
+        })) || ([] as TimeSeriesResponse[]);
+
     oraclesByQuote.forEach((oracles, quote) => {
-      const { priceData, priceLegend } = this.getPriceAndTVLOracles(oracles);
-      const { apyData, apyLegend } = this.getAPYData(oracles, network);
+      const { priceData, priceLegend } = this.getPriceAndTVLHistory(
+        oracles,
+        chainlinkOracles
+      );
+      const { apyData, apyLegend } = this.getAPYData(
+        oracles,
+        network,
+        chainlinkOracles
+      );
 
       results.push({
         id: `${quote}:${ChartType.PRICE}`,
@@ -417,7 +515,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       });
     });
 
-    return results;
+    return results.concat(chainlinkOracles);
   }
 
   protected async _refresh(network: Network) {
@@ -613,11 +711,5 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         chainName: network,
       }
     );
-  }
-
-  private _convertOrNull<T>(v: string | number | null, fn: (d: number) => T) {
-    if (v === null) return null;
-    else if (typeof v === 'string') return fn(parseFloat(v));
-    else return fn(v);
   }
 }
