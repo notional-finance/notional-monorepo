@@ -12,6 +12,7 @@ import {
   ConvexGaugeMainnetInterface,
   CurveGaugeInterface,
   NotionalInterface,
+  GaugeInterface,
 } from './interfaces';
 import {
   Network,
@@ -80,13 +81,21 @@ export default class APYSimulator {
       return;
     }
     const startingTimestamp = startingDate.getTime() / 1000;
+    
     for (let i = 1; i <= numOfDays; i++) {
-      log(`processing day ${i}, ${startingTimestamp - i * ONE_DAY_IN_SECONDS}`);
-      const forkBlock = await this.#getBlockAtTimestamp(
-        startingTimestamp - i * ONE_DAY_IN_SECONDS
-      );
+      const currentTimestamp = startingTimestamp - i * ONE_DAY_IN_SECONDS;
+      log(`processing day ${i}, ${currentTimestamp}`);
+      const initialForkBlock = await this.#getBlockAtTimestamp(currentTimestamp);
 
-      await this.run(forkBlock);
+      for (const vault of this.#config.vaults) {
+        log(`Processing vault: ${vault.address}`);
+        try {
+          const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vault.rewardPoolType, vault.address);
+          await this.run(adjustedForkBlock, vault.address);
+        } catch (error) {
+          log(`Error processing vault ${vault.address}: ${error}`);
+        }
+      }
     }
   }
   async runHistoricalForVault(
@@ -95,75 +104,96 @@ export default class APYSimulator {
     startingDate: Date = new Date()
   ) {
     const startingTimestamp = startingDate.getTime() / 1000;
+    const vaultData = this.#config.vaults.find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
+
+    if (!vaultData) {
+      throw new Error(`Vault address ${vaultAddress} not found in config`);
+    }
+
     for (let i = 0; i <= numOfDays; i++) {
       log(`processing day ${i}`);
-      const forkBlock = await this.#getBlockAtTimestamp(
+      const initialForkBlock = await this.#getBlockAtTimestamp(
         startingTimestamp - i * ONE_DAY_IN_SECONDS
       );
+
+      const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vaultData.rewardPoolType, vaultAddress);
+      await this.run(adjustedForkBlock, vaultAddress);
+    }
+  }
+
+  async runHistoricalForVaultWithBlocks(
+    vaultAddress: string,
+    blocks: number[]
+  ) {
+    const vaultData = this.#config.vaults.find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
+
+    if (!vaultData) {
+      throw new Error(`Vault address ${vaultAddress} not found in config`);
+    }
+
+    for (let i = 0; i < blocks.length; i++) {
+      const forkBlock = blocks[i];
+      log(`processing block ${forkBlock}`);
+
+      if (vaultData.rewardPoolType === RewardPoolType.Aura) {
+        const periodFinish = await this.getPeriodFinishForVault(vaultAddress, forkBlock);
+        const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
+        const timeDifference = periodFinish - forkBlockTimestamp;
+        log(`Time difference between periodFinish and forkBlock: ${timeDifference} seconds`);
+      }
 
       await this.run(forkBlock, vaultAddress);
     }
   }
 
-  async run(_forkBlock = 0, vaultAddress: string | null = null) {
-    if (!this.#config.vaults.length) {
-      log('Skipping, no vaults specified');
-      return;
+  async run(forkBlock: number, vaultAddress: string) {
+    const vaultData = this.#config.vaults.find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
+
+    if (!vaultData) {
+      throw new Error(`Vault address ${vaultAddress} not found in config`);
     }
-    const forkBlock =
-      _forkBlock || (await this.#alchemyProvider.getBlockNumber());
+
     const { rpcUrl } = await this.#spawnAnvil(forkBlock);
 
     let provider = new ethers.providers.JsonRpcProvider(
       rpcUrl,
       this.#config.chainId
     );
+    
     // we can't call getExchangeRate when we warp into future without extending freshness
     await this.#extendMaxOracleFreshness(provider);
 
-    const allResults: any[] = [];
-    for (const vaultData of this.#config.vaults) {
-      // skip all other vaults if vault address was explicitly specified
-      if (
-        vaultAddress &&
-        vaultData.address.toLowerCase() !== vaultAddress?.toLowerCase()
-      ) {
-        continue;
-      }
-      // new provider instance needs to be created inside the loop otherwise it wont work
-      // properly when chain is reverted to checkpoint
-      provider = new ethers.providers.JsonRpcProvider(
-        rpcUrl,
-        this.#config.chainId
+    // new provider instance needs to be created otherwise it won't work
+    // properly when chain is reverted to checkpoint
+    provider = new ethers.providers.JsonRpcProvider(
+      rpcUrl,
+      this.#config.chainId
+    );
+    
+    // we need to create new checkpoint since it is deleted after revert
+    const checkpoint = await provider.send('evm_snapshot', []);
+
+    const vault = new Contract(
+      vaultData.address,
+      SingleSidedLPVault,
+      provider
+    );
+    // attach additional data
+    vaultData.pool = vaultData.pool || (await vault.getStrategyVaultInfo())[0];
+
+    try {
+      const results = await this.#calculateFutureAPY(
+        provider,
+        vaultData as VaultData
       );
-      // we need to created new checkpoint each time since it is deleted after revert
-      const checkpoint = await provider.send('evm_snapshot', []);
-
-      const vault = new Contract(
-        vaultData.address,
-        SingleSidedLPVault,
-        provider
+      await this.#saveToDb(results);
+    } catch (error) {
+      log(
+        `Error in #calculateFutureAPY for vault ${vaultData.address}: ${error}`
       );
-      // attach additional data
-      vaultData.pool =
-        vaultData.pool || (await vault.getStrategyVaultInfo())[0];
-
-      try {
-        const results = await this.#calculateFutureAPY(
-          provider,
-          vaultData as VaultData
-        );
-        allResults.push(...results);
-      } catch (error) {
-        log(
-          `Error in #calculateFutureAPY for vault ${vaultData.address}: ${error}`
-        );
-      }
-
-      await provider.send('evm_revert', [checkpoint]);
     }
 
-    await this.#saveToDb(allResults);
+    await provider.send('evm_revert', [checkpoint]);
   }
 
   async #calculateFutureAPY(provider: JsonRpcProvider, vaultData: VaultData) {
@@ -563,4 +593,106 @@ export default class APYSimulator {
       throw new Error('Save to db failed');
     }
   }
+
+  async getPeriodFinishForVault(vaultAddress: string, forkBlock: number): Promise<number> {
+    // Find the vault data in the config
+    const vaultData = this.#config.vaults.find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
+    
+    if (!vaultData) {
+      throw new Error(`Vault address ${vaultAddress} not found in config`);
+    }
+
+    if (!vaultData.gauge) {
+      throw new Error(`Gauge address not specified for vault ${vaultAddress}`);
+    }
+
+    const gaugeContract = new Contract(vaultData.gauge, GaugeInterface, this.#alchemyProvider);
+
+    try {
+      // Call the periodFinish function at the specified block
+      const periodFinish: BigNumber = await gaugeContract.periodFinish({
+        blockTag: forkBlock
+      });
+      log(periodFinish.toString());
+      return periodFinish.toNumber();
+    } catch (error) {
+      console.error(`Error fetching periodFinish for gauge ${vaultData.gauge} at block ${forkBlock}:`, error);
+      throw error;
+    }
+  }
+
+  // Add this helper method to the APYSimulator class
+  #getMostRecentThursdayMidnight(timestamp: number): number {
+    const date = new Date(timestamp * 1000);
+    const day = date.getUTCDay();
+    const daysToSubtract = (day + 3) % 7; // Thursday is 4, so we add 3 and take modulo 7
+    date.setUTCDate(date.getUTCDate() - daysToSubtract);
+    date.setUTCHours(0, 0, 0, 0);
+    return Math.floor(date.getTime() / 1000);
+  }
+
+  #getNextThursdayMidnightUTC(timestamp: number): number {
+    const date = new Date(timestamp * 1000);
+    const daysUntilThursday = (4 - date.getUTCDay() + 7) % 7;
+    date.setUTCDate(date.getUTCDate() + daysUntilThursday);
+    date.setUTCHours(0, 0, 0, 0);
+    return Math.floor(date.getTime() / 1000);
+  }
+
+  async runAll() {
+    if (!this.#config.vaults.length) {
+      log('Skipping, no vaults specified');
+      return;
+    }
+
+    const initialForkBlock = await this.#alchemyProvider.getBlockNumber();
+    log(`Processing all vaults at block ${initialForkBlock}`);
+
+    for (const vault of this.#config.vaults) {
+      log(`Processing vault: ${vault.address}`);
+      try {
+        const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vault.rewardPoolType, vault.address);
+        await this.run(adjustedForkBlock, vault.address);
+      } catch (error) {
+        log(`Error processing vault ${vault.address}: ${error}`);
+      }
+    }
+  }
+
+  // Add this function to your APYSimulator class
+  private async getForkBlock(startingBlock: number, rewardPoolType: RewardPoolType, vaultAddress: string): Promise<number> {
+    let forkBlock = startingBlock;
+    const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
+
+    if (rewardPoolType === RewardPoolType.Aura || rewardPoolType === RewardPoolType.ConvexMainnet) {
+      const periodFinish = await this.getPeriodFinishForVault(vaultAddress, forkBlock);
+      const timeDifference = periodFinish - forkBlockTimestamp;
+      log(`Time difference between periodFinish and forkBlock: ${timeDifference} seconds`);
+
+      if (timeDifference < -ONE_DAY_IN_SECONDS || timeDifference > ONE_DAY_IN_SECONDS) {
+        // Continue as normal
+      } else {
+        // Find the fork block 1 day behind periodFinish
+        forkBlock = await this.#getBlockAtTimestamp(periodFinish - ONE_DAY_IN_SECONDS);
+        log(`Adjusted forkBlock to ${forkBlock} (1 day behind periodFinish)`);
+      }
+    } else if (rewardPoolType === RewardPoolType.ConvexArbitrum) {
+      const mostRecentThursdayMidnight = this.#getMostRecentThursdayMidnight(forkBlockTimestamp);
+      const nextThursdayMidnight = this.#getNextThursdayMidnightUTC(forkBlockTimestamp);
+      const oneDayBeforeNextThursday = nextThursdayMidnight - ONE_DAY_IN_SECONDS;
+      
+      if (forkBlockTimestamp < mostRecentThursdayMidnight + 2 * 60 * 60) { // 2 hours ahead
+        const adjustedTimestamp = mostRecentThursdayMidnight - ONE_DAY_IN_SECONDS;
+        forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
+        log(`Adjusted forkBlock to ${forkBlock} (1 day before most recent Thursday midnight)`);
+      } else if (forkBlockTimestamp > oneDayBeforeNextThursday) {
+        const adjustedTimestamp = oneDayBeforeNextThursday;
+        const forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
+        log(`Adjusted forkBlock to ${forkBlock} (1 day before next Thursday midnight)`);
+      }
+    } 
+
+    return forkBlock;
+  }
 }
+
