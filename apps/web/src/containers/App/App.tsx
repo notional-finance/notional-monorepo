@@ -1,6 +1,5 @@
 import spindl from '@spindl-xyz/attribution';
 import { SWRConfig } from 'swr';
-import { AnalyticsCache } from '@notional-finance/core-entities';
 import { useEffect } from 'react';
 import {
   AppContext,
@@ -491,7 +490,7 @@ export const App = () => {
 
   return (
     <HelmetProvider>
-      <SWRConfig value={{ provider: () => AnalyticsCache }}>
+      <SWRConfig>
         <AppContext.Provider value={appStore}>
           <Helmet>
             <link rel="icon" href="/favicon.svg" />

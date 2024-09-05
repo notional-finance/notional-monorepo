@@ -21,10 +21,13 @@ import useSWR from 'swr';
 const REGISTRY_URL =
   process.env['NX_REGISTRY_URL'] || 'https://registry.notional.finance';
 
-export const useChartData = (tokenId: string, chartType: ChartType) => {
-  const key = `${tokenId}:${chartType}`;
+export const useChartData = (
+  token: TokenDefinition | undefined,
+  chartType: ChartType
+) => {
+  const key = token ? `${token.id}:${chartType}` : undefined;
   const { data, error, isLoading } = useSWR(key, (key) =>
-    fetchTimeSeries(REGISTRY_URL, key)
+    fetchTimeSeries(REGISTRY_URL, token?.network, key)
   );
 
   return { data, error, isLoading };

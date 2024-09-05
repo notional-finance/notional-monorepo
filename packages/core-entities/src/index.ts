@@ -23,4 +23,5 @@ export * from './Boosts';
 
 export * from './Models';
 export { NetworkServerModel, NetworkClientModel } from './models/NetworkModel';
+export type { TimeSeriesDataPoint } from './models/ModelTypes';
 export * from './models/AnalyticsModel';
