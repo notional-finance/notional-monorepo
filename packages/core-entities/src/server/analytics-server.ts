@@ -7,6 +7,7 @@ import {
   ServerRegistry,
 } from './server-registry';
 import {
+  FIAT_ADDRESS,
   firstValue,
   floorToMidnight,
   getNowSeconds,
@@ -15,6 +16,7 @@ import {
   INTERNAL_TOKEN_DECIMALS,
   Network,
   SECONDS_IN_DAY,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish } from 'ethers';
 import { ExecutionResult } from 'graphql';
@@ -197,10 +199,11 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     });
 
     const ethPriceHistory = chainlinkOracles?.find(
-      (o) => o.id === `${priceOracle?.quote.id}:${ChartType.PRICE}`
+      (o) =>
+        o.id === `${ZERO_ADDRESS}:${priceOracle?.base.id}:${ChartType.PRICE}`
     );
     const usdETHPriceHistory = chainlinkOracles?.find(
-      (o) => o.id === `eth:${ChartType.PRICE}`
+      (o) => o.id === `${FIAT_ADDRESS}:${ZERO_ADDRESS}:${ChartType.PRICE}`
     );
 
     const priceData = priceOracle?.historicalRates
@@ -380,11 +383,11 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           .filter((d) => d?.totalAPY !== undefined) as TimeSeriesDataPoint[];
       }
     } else {
-      const quote = apyOracles[0].quote.id;
+      const base = apyOracles[0].base.id;
       // XXX: get this price
       const noteETHPrice = 1;
       const ethPriceHistory = chainlinkOracles.find(
-        (c) => c.id === `${quote}:${ChartType.PRICE}`
+        (c) => c.id === `${ZERO_ADDRESS}:${base}:${ChartType.PRICE}`
       );
 
       // In the other case, we are dealing with nTokens which have multiple oracles
@@ -393,9 +396,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           o.oracleType === 'nTokenSecondaryIncentiveRate'
             ? getSecondaryTokenIncentive(network, o.base.id)
             : undefined;
-        // XXX: get this price
         const incentivePriceHistory = chainlinkOracles.find(
-          (c) => c.id === `${o.base.id}:${ChartType.PRICE}`
+          (c) => c.id === `${ZERO_ADDRESS}:${o.base.id}:${ChartType.PRICE}`
         );
 
         const keyName = getOracleName(o.oracleType, incentiveSymbol);
@@ -466,7 +468,6 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
   ) {
     const results: TimeSeriesResponse[] = [];
 
-    console.log('starting to fetch oracle values', network);
     const historicalOracleValues =
       await this.fetchGraphDocument<HistoricalOracleValuesQuery>(
         network,
@@ -474,7 +475,6 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         { minTimestamp },
         'oracles'
       );
-    console.log('fetched oracle values', network);
 
     const oraclesByQuote = groupArrayToMap(
       historicalOracleValues.data?.oracles.filter(
@@ -487,7 +487,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       historicalOracleValues.data?.oracles
         .filter((o) => o.oracleType === 'Chainlink')
         .map((o) => ({
-          id: `${o.quote.id}:${ChartType.PRICE}`,
+          id: `${o.base.id}:${o.quote.id}:${ChartType.PRICE}`,
           ...this.getUnderlyingPriceHistory(o),
         })) || ([] as TimeSeriesResponse[]);
 
