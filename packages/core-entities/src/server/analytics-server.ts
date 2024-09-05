@@ -221,7 +221,11 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
               INTERNAL_TOKEN_DECIMALS
             );
 
-            const ethPrice = this.getPriceAtTime(ethPriceHistory, r.timestamp);
+            const ethPrice =
+              // Handle special case for ETH
+              priceOracle?.base.id === ZERO_ADDRESS
+                ? 1
+                : this.getPriceAtTime(ethPriceHistory, r.timestamp);
             const usdPrice = this.getPriceAtTime(
               usdETHPriceHistory,
               r.timestamp
