@@ -84,47 +84,13 @@ export default class APYSimulator {
     for (let i = 1; i <= numOfDays; i++) {
       const currentTimestamp = startingTimestamp - i * ONE_DAY_IN_SECONDS;
       log(`processing day ${i}, ${currentTimestamp}`);
-      const forkBlock = await this.#getBlockAtTimestamp(currentTimestamp);
+      const initialForkBlock = await this.#getBlockAtTimestamp(currentTimestamp);
 
       for (const vault of this.#config.vaults) {
         log(`Processing vault: ${vault.address}`);
         try {
-          if (vault.rewardPoolType === RewardPoolType.Aura || vault.rewardPoolType === RewardPoolType.ConvexMainnet) {
-            const periodFinish = await this.getPeriodFinishForVault(vault.address, forkBlock);
-            const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
-            const timeDifference = periodFinish - forkBlockTimestamp;
-            log(`Time difference between periodFinish and forkBlock: ${timeDifference} seconds`);
-
-            if (timeDifference < -ONE_DAY_IN_SECONDS || timeDifference > ONE_DAY_IN_SECONDS) {
-              // Continue as normal
-            } else {
-              // Find the fork block 1 day behind periodFinish
-              const adjustedForkBlock = await this.#getBlockAtTimestamp(periodFinish - ONE_DAY_IN_SECONDS);
-              log(`Adjusted forkBlock to ${adjustedForkBlock} (1 day behind periodFinish)`);
-              await this.run(adjustedForkBlock, vault.address);
-              continue; // Skip the normal run call below
-            }
-          } else if (vault.rewardPoolType === RewardPoolType.ConvexArbitrum) {
-            const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
-            const mostRecentThursdayMidnight = this.#getMostRecentThursdayMidnight(forkBlockTimestamp);
-            const nextThursdayMidnight = this.#getNextThursdayMidnightUTC(forkBlockTimestamp);
-            const oneDayBeforeNextThursday = nextThursdayMidnight - ONE_DAY_IN_SECONDS;
-            
-            if (forkBlockTimestamp < mostRecentThursdayMidnight + 2 * 60 * 60) { // 2 hours ahead
-              const adjustedTimestamp = mostRecentThursdayMidnight - ONE_DAY_IN_SECONDS;
-              const adjustedForkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
-              log(`Adjusted forkBlock to ${adjustedForkBlock} (1 day before most recent Thursday midnight)`);
-              await this.run(adjustedForkBlock, vault.address);
-              continue; // Skip the normal run call below
-            } else if (forkBlockTimestamp > oneDayBeforeNextThursday) {
-              const adjustedTimestamp = oneDayBeforeNextThursday;
-              const adjustedForkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
-              log(`Adjusted forkBlock to ${adjustedForkBlock} (1 day before next Thursday midnight)`);
-              await this.run(adjustedForkBlock, vault.address);
-              continue; // Skip the normal run call below
-            }
-          }
-          await this.run(forkBlock, vault.address);
+          const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vault.rewardPoolType, vault.address);
+          await this.run(adjustedForkBlock, vault.address);
         } catch (error) {
           log(`Error processing vault ${vault.address}: ${error}`);
         }
@@ -145,41 +111,12 @@ export default class APYSimulator {
 
     for (let i = 0; i <= numOfDays; i++) {
       log(`processing day ${i}`);
-      let forkBlock = await this.#getBlockAtTimestamp(
+      const initialForkBlock = await this.#getBlockAtTimestamp(
         startingTimestamp - i * ONE_DAY_IN_SECONDS
       );
 
-      if (vaultData.rewardPoolType === RewardPoolType.Aura || vaultData.rewardPoolType === RewardPoolType.ConvexMainnet) {
-        const periodFinish = await this.getPeriodFinishForVault(vaultAddress, forkBlock);
-        const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
-        const timeDifference = periodFinish - forkBlockTimestamp;
-        log(`Time difference between periodFinish and forkBlock: ${timeDifference} seconds`);
-
-        if (timeDifference < -ONE_DAY_IN_SECONDS || timeDifference > ONE_DAY_IN_SECONDS) {
-          // Continue as normal
-        } else {
-          // Find the fork block 1 day behind periodFinish
-          forkBlock = await this.#getBlockAtTimestamp(periodFinish - ONE_DAY_IN_SECONDS);
-          log(`Adjusted forkBlock to ${forkBlock} (1 day behind periodFinish)`);
-        }
-      } else if (vaultData.rewardPoolType === RewardPoolType.ConvexArbitrum) {
-        const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
-        const mostRecentThursdayMidnight = this.#getMostRecentThursdayMidnight(forkBlockTimestamp);
-        const nextThursdayMidnight = this.#getNextThursdayMidnightUTC(forkBlockTimestamp);
-        const oneDayBeforeNextThursday = nextThursdayMidnight - ONE_DAY_IN_SECONDS;
-        
-        if (forkBlockTimestamp < mostRecentThursdayMidnight + 2 * 60 * 60) { // 2 hours ahead
-          const adjustedTimestamp = mostRecentThursdayMidnight - ONE_DAY_IN_SECONDS;
-          forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
-          log(`Adjusted forkBlock to ${forkBlock} (1 day before most recent Thursday midnight)`);
-        } else if (forkBlockTimestamp > oneDayBeforeNextThursday) {
-          const adjustedTimestamp = oneDayBeforeNextThursday;
-          const forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
-          log(`Adjusted forkBlock to ${forkBlock} (1 day before next Thursday midnight)`);
-        }
-      }
-
-      await this.run(forkBlock, vaultAddress);
+      const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vaultData.rewardPoolType, vaultAddress);
+      await this.run(adjustedForkBlock, vaultAddress);
     }
   }
 
@@ -714,42 +651,54 @@ export default class APYSimulator {
       return;
     }
 
-    const latestBlock = await this.#alchemyProvider.getBlockNumber();
-    log(`Processing all vaults at block ${latestBlock}`);
+    const initialForkBlock = await this.#alchemyProvider.getBlockNumber();
+    log(`Processing all vaults at block ${initialForkBlock}`);
 
     for (const vault of this.#config.vaults) {
       log(`Processing vault: ${vault.address}`);
       try {
-        let forkBlock = latestBlock;
-
-        if (vault.rewardPoolType === RewardPoolType.Aura || vault.rewardPoolType === RewardPoolType.ConvexMainnet) {
-          const periodFinish = await this.getPeriodFinishForVault(vault.address, forkBlock);
-          const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
-          const timeDifference = periodFinish - forkBlockTimestamp;
-          log(`Time difference between periodFinish and forkBlock: ${timeDifference} seconds`);
-
-          if (timeDifference < -ONE_DAY_IN_SECONDS || timeDifference > ONE_DAY_IN_SECONDS) {
-            // Continue as normal
-          } else {
-            // Find the fork block 1 day behind periodFinish
-            forkBlock = await this.#getBlockAtTimestamp(periodFinish - ONE_DAY_IN_SECONDS);
-            log(`Adjusted forkBlock to ${forkBlock} (1 day behind periodFinish)`);
-          }
-        } else if (vault.rewardPoolType === RewardPoolType.ConvexArbitrum) {
-          const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
-          const mostRecentThursdayMidnight = this.#getMostRecentThursdayMidnight(forkBlockTimestamp);
-          
-          if (forkBlockTimestamp < mostRecentThursdayMidnight + 2 * 60 * 60) { // 2 hours ahead
-            const adjustedTimestamp = mostRecentThursdayMidnight - ONE_DAY_IN_SECONDS;
-            forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
-            log(`Adjusted forkBlock to ${forkBlock} (1 day before most recent Thursday midnight)`);
-          }
-        }
-
-        await this.run(forkBlock, vault.address);
+        const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vault.rewardPoolType, vault.address);
+        await this.run(adjustedForkBlock, vault.address);
       } catch (error) {
         log(`Error processing vault ${vault.address}: ${error}`);
       }
     }
   }
+
+  // Add this function to your APYSimulator class
+  private async getForkBlock(startingBlock: number, rewardPoolType: RewardPoolType, vaultAddress: string): Promise<number> {
+    let forkBlock = startingBlock;
+    const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
+
+    if (rewardPoolType === RewardPoolType.Aura || rewardPoolType === RewardPoolType.ConvexMainnet) {
+      const periodFinish = await this.getPeriodFinishForVault(vaultAddress, forkBlock);
+      const timeDifference = periodFinish - forkBlockTimestamp;
+      log(`Time difference between periodFinish and forkBlock: ${timeDifference} seconds`);
+
+      if (timeDifference < -ONE_DAY_IN_SECONDS || timeDifference > ONE_DAY_IN_SECONDS) {
+        // Continue as normal
+      } else {
+        // Find the fork block 1 day behind periodFinish
+        forkBlock = await this.#getBlockAtTimestamp(periodFinish - ONE_DAY_IN_SECONDS);
+        log(`Adjusted forkBlock to ${forkBlock} (1 day behind periodFinish)`);
+      }
+    } else if (rewardPoolType === RewardPoolType.ConvexArbitrum) {
+      const mostRecentThursdayMidnight = this.#getMostRecentThursdayMidnight(forkBlockTimestamp);
+      const nextThursdayMidnight = this.#getNextThursdayMidnightUTC(forkBlockTimestamp);
+      const oneDayBeforeNextThursday = nextThursdayMidnight - ONE_DAY_IN_SECONDS;
+      
+      if (forkBlockTimestamp < mostRecentThursdayMidnight + 2 * 60 * 60) { // 2 hours ahead
+        const adjustedTimestamp = mostRecentThursdayMidnight - ONE_DAY_IN_SECONDS;
+        forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
+        log(`Adjusted forkBlock to ${forkBlock} (1 day before most recent Thursday midnight)`);
+      } else if (forkBlockTimestamp > oneDayBeforeNextThursday) {
+        const adjustedTimestamp = oneDayBeforeNextThursday;
+        const forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
+        log(`Adjusted forkBlock to ${forkBlock} (1 day before next Thursday midnight)`);
+      }
+    } 
+
+    return forkBlock;
+  }
 }
+
