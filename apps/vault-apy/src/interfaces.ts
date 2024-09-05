@@ -112,3 +112,7 @@ export const BalancerSpotPriceInterface = new ethers.utils.Interface([
     ) external view returns (uint256[] memory balances, uint256[] memory spotPrices)
   `,
 ]);
+
+export const GaugeInterface = new ethers.utils.Interface([
+  'function periodFinish() view external returns (uint256)',
+]);

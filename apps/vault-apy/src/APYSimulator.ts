@@ -12,6 +12,7 @@ import {
   ConvexGaugeMainnetInterface,
   CurveGaugeInterface,
   NotionalInterface,
+  GaugeInterface,
 } from './interfaces';
 import {
   Network,
@@ -605,18 +606,11 @@ export default class APYSimulator {
       throw new Error(`Gauge address not specified for vault ${vaultAddress}`);
     }
 
-    const provider = new ethers.providers.JsonRpcProvider(this.#config.alchemyUrl);
-
-    // ABI fragment for the periodFinish variable
-    const gaugeABI = [
-      "function periodFinish() view returns (uint256)"
-    ];
-
-    const gaugeContract = new Contract(vaultData.gauge, gaugeABI, provider);
+    const gaugeContract = new Contract(vaultData.gauge, GaugeInterface, this.#alchemyProvider);
 
     try {
       // Call the periodFinish function at the specified block
-      const periodFinish: BigNumber = await gaugeContract.callStatic.periodFinish({
+      const periodFinish: BigNumber = await gaugeContract.periodFinish({
         blockTag: forkBlock
       });
       log(periodFinish.toString());

@@ -43,7 +43,7 @@ process.on('exit', async function () {
         `processing historical apy network ${network} on date ${startOfToday.toISOString()}`
       );
 
-      await apySimulator.runHistorical(30, startOfToday);
+      await apySimulator.runHistorical(1, startOfToday);
 
       log('processing completed');
     }
