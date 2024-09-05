@@ -46,7 +46,7 @@ export const useBorrowFixedMultiChart = () => {
           showCartesianGrid
           xAxisTickFormat="date"
           areaChartData={priceData?.data || []}
-          areaDataKey="tvlUnderlying"
+          areaDataKey="tvlUSD"
           areaLineType="linear"
           yAxisTickFormat="usd"
         />
