@@ -237,7 +237,7 @@ export const useLiquidityList = (
               ? sumAndFormatIncentives(apy.incentives)
               : '',
           borrowTerms: {
-            label: debtToken.tokenType === 'fCash' ? 'Fixed' : 'Variable',
+            label: debtToken?.tokenType === 'fCash' ? 'Fixed' : 'Variable',
             caption: debtToken?.maturity
               ? formatMaturity(debtToken?.maturity)
               : undefined,

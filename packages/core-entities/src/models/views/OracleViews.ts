@@ -136,13 +136,13 @@ function getExchangeRiskAdjustment(
   riskAdjusted: RiskAdjustment
 ) {
   if (riskAdjusted === 'None') return PERCENTAGE_BASIS;
+  if (oracle.id === 'UNIT_RATE') return PERCENTAGE_BASIS;
+
   const token = inverted ? oracle.base : oracle.quote;
   if (!token.currencyId) throw Error('Invalid quote currency');
   const config = self.getConfig(token.currencyId);
 
-  if (oracle.id === 'UNIT_RATE') {
-    return PERCENTAGE_BASIS;
-  } else if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Debt') {
+  if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Debt') {
     return assertDefined(config.debtBuffer);
   } else if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Asset') {
     return assertDefined(config.collateralHaircut);

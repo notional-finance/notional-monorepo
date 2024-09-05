@@ -11,7 +11,6 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
-// import { getDebtOrCollateralFactor } from './utils';
 import {
   DisplayCell,
   LinkCell,

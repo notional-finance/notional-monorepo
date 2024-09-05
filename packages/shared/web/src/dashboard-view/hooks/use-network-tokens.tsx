@@ -30,7 +30,7 @@ export const useNetworkTokens = (
         liquidity: model.getLiquidity(t),
         underlying: t.underlying ? model.getTokenByID(t.underlying) : undefined,
         debtToken: leveragedNTokenData?.debtToken,
-        // collateralFactor: model.getDebtOrCollateralFactor(t, false),
+        collateralFactor: model.getDebtOrCollateralFactor(t, false),
       };
     });
   } else {
@@ -41,10 +41,10 @@ export const useNetworkTokens = (
         tvl: model.getTVL(t),
         liquidity: model.getLiquidity(t),
         underlying: t.underlying ? model.getTokenByID(t.underlying) : undefined,
-        // collateralFactor: model.getDebtOrCollateralFactor(
-        //   t,
-        //   options?.isBorrow ?? false
-        // ),
+        collateralFactor: model.getDebtOrCollateralFactor(
+          t,
+          options?.isBorrow ?? false
+        ),
       };
     });
   }
