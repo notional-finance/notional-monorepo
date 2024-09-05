@@ -38,7 +38,6 @@ export async function fetchTimeSeries(hostname: string, path: string) {
 
 export enum ChartType {
   APY = 'apy',
-  TVL = 'tvl',
   PRICE = 'price',
 }
 
@@ -52,7 +51,7 @@ export const AnalyticsModel = types
       tokenId: string,
       chartType: ChartType
     ) {
-      const key = `${network}/views/${tokenId}/${chartType}`;
+      const key = `${network}/views/${tokenId}:${chartType}`;
 
       // Check if the data is already in the store
       if (self.timeSeries.has(key)) {

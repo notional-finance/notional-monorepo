@@ -1,4 +1,6 @@
 import {
+  ChartType,
+  fetchTimeSeries,
   Registry,
   TokenBalance,
   TokenDefinition,
@@ -14,6 +16,19 @@ import { useAccountDefinition } from './use-account';
 import { useMemo } from 'react';
 import { useAnalyticsReady, useAppContext } from './use-notional';
 import { useAppStore } from './context/AppContext';
+import useSWR from 'swr';
+
+const REGISTRY_URL =
+  process.env['NX_REGISTRY_URL'] || 'https://registry.notional.finance';
+
+export const useChartData = (tokenId: string, chartType: ChartType) => {
+  const key = `${tokenId}:${chartType}`;
+  const { data, error, isLoading } = useSWR(key, (key) =>
+    fetchTimeSeries(REGISTRY_URL, key)
+  );
+
+  return { data, error, isLoading };
+};
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(

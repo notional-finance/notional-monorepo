@@ -21,7 +21,11 @@ import {
 import { BigNumber, BigNumberish } from 'ethers';
 import { ExecutionResult } from 'graphql';
 import { TypedDocumentNode } from '@apollo/client/core';
-import { TimeSeriesLegend, TimeSeriesResponse } from '../models/AnalyticsModel';
+import {
+  ChartType,
+  TimeSeriesLegend,
+  TimeSeriesResponse,
+} from '../models/AnalyticsModel';
 import { Env } from '.';
 import { formatUnits } from 'ethers/lib/utils';
 import { OracleRegistryClient } from '../client';
@@ -114,6 +118,31 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     }, [] as TimeSeriesDataPoint[]);
   }
 
+  /** Ensures that chart always has default values throughout the specified range.  */
+  protected fillChartDaily(
+    data: TimeSeriesDataPoint[],
+    defaultValues: Omit<TimeSeriesDataPoint, 'timestamp'>
+  ) {
+    if (data.length === 0) return data;
+
+    const startTS = floorToMidnight(
+      Math.min(...data.map(({ timestamp }) => timestamp))
+    );
+    const endTS = floorToMidnight(getNowSeconds());
+    const buckets = (endTS - startTS) / SECONDS_IN_DAY + 1;
+
+    // This algorithm ensures that the data is sorted.
+    return new Array(buckets).fill(0).map((_, i) => {
+      const ts = startTS + i * SECONDS_IN_DAY;
+      return (
+        data.find(({ timestamp }) => timestamp === ts) || {
+          ...defaultValues,
+          timestamp: ts,
+        }
+      );
+    });
+  }
+
   protected getPriceAndTVLOracles(
     oracles: HistoricalOracleValuesQuery['oracles']
   ) {
@@ -173,7 +202,10 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     });
 
     return {
-      priceData: this.reduceTimeSeriesToMidnight(priceData || []),
+      priceData: this.fillChartDaily(
+        this.reduceTimeSeriesToMidnight(priceData || []),
+        { price: 0, totalSupply: 0, tvlETH: 0, tvlUnderlying: 0 }
+      ),
       priceLegend: [
         {
           series: 'price',
@@ -275,9 +307,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           .filter((d) => d?.totalAPY !== undefined) as TimeSeriesDataPoint[];
       }
     } else {
-      // TODO: get this price
+      // XXX: get this price
       const noteETHPrice: BigNumber = BigNumber.from(10).pow(18);
-      // TODO: get this price
+      // XXx: get this price
       const ethBasePrice: BigNumber = BigNumber.from(10).pow(18);
 
       // In the other case, we are dealing with nTokens which have multiple oracles
@@ -286,7 +318,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           o.oracleType === 'nTokenSecondaryIncentiveRate'
             ? getSecondaryTokenIncentive(network, o.base.id)
             : undefined;
-        // TODO: get this price
+        // XXX: get this price
         const incentiveETHPrice = incentiveSymbol
           ? BigNumber.from(10).pow(18)
           : undefined;
@@ -344,7 +376,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     }
 
     return {
-      apyData,
+      apyData: this.fillChartDaily(apyData, { totalAPY: 0 }),
       apyLegend,
     };
   }
@@ -373,13 +405,13 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       const { apyData, apyLegend } = this.getAPYData(oracles, network);
 
       results.push({
-        id: `${quote}:price`,
+        id: `${quote}:${ChartType.PRICE}`,
         data: priceData,
         legend: priceLegend,
       });
 
       results.push({
-        id: `${quote}:apy`,
+        id: `${quote}:${ChartType.APY}`,
         data: apyData,
         legend: apyLegend,
       });
