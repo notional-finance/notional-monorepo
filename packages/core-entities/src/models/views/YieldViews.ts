@@ -187,14 +187,19 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
     } else if (token.tokenType === 'nToken') {
       const market = self.getfCashMarket(token.currencyId);
       apyData.organicAPY = market.getNTokenBlendedYield();
-      // TODO: maybe add it to the oracle views?
-      apyData.feeAPY = 0;
+      const feeRate = self.oracles.get(
+        `${token.underlying}:${token.id}:nTokenFeeRate`
+      );
+      if (feeRate) {
+        apyData.feeAPY =
+          (feeRate.latestRate?.rate?.toNumber() || 0 * 100) / RATE_PRECISION;
 
+        apyData.organicAPY += apyData.feeAPY;
+      }
       const tvl = getTVL(token);
       apyData.incentives = getIncentiveAPY(token, tvl);
       apyData.totalAPY =
         apyData.organicAPY +
-        apyData.feeAPY +
         apyData.incentives.reduce((acc, curr) => acc + curr.incentiveAPY, 0);
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const adapter = self.getVaultAdapter(token.vaultAddress);
