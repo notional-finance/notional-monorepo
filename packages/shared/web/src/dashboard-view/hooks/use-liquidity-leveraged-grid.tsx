@@ -9,7 +9,7 @@ import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import { useAppStore } from '@notional-finance/notionable-hooks';
-import { useNetworkTokens } from './use-network-tokens';
+import { useLeveragedNTokens } from './use-network-tokens';
 
 export const useLiquidityLeveragedGrid = (
   network: Network | undefined
@@ -20,14 +20,12 @@ export const useLiquidityLeveragedGrid = (
   const { nTokenPositions } = useLeveragedNTokenPositions(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
-  const yieldData = useNetworkTokens(network, 'nToken', {
-    leveragedNToken: true,
-  });
+  const yieldData = useLeveragedNTokens(network);
 
   const allData = yieldData
     .map(({ token, apy, tvl, underlying, debtToken }) => {
       const currentPosition = nTokenPositions?.find(
-        (n) => n.asset.balance.underlying.symbol === underlying.symbol
+        (n) => n.asset.balance.underlying.symbol === underlying?.symbol
       );
 
       return {
@@ -71,19 +69,19 @@ export const useLiquidityLeveragedGrid = (
             ''
           ),
         incentiveValue:
-          apy.incentives && apy?.incentives?.length > 0
+          apy?.incentives && apy?.incentives?.length > 0
             ? sumAndFormatIncentives(apy.incentives)
             : '',
         incentiveSymbols:
-          apy.incentives && apy?.incentives?.length > 0
-            ? getIncentiveSymbols(apy?.incentives)
+          apy?.incentives && apy?.incentives?.length > 0
+            ? getIncentiveSymbols(apy.incentives)
             : undefined,
         apy: apy.totalAPY,
         routeCallback: () =>
           navigate(
             currentPosition
-              ? `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/IncreaseLeveragedNToken/${underlying.symbol}`
-              : `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/CreateLeveragedNToken/${underlying.symbol}?borrowOption=${debtToken?.id}`
+              ? `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/IncreaseLeveragedNToken/${underlying?.symbol}`
+              : `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/CreateLeveragedNToken/${underlying?.symbol}?borrowOption=${debtToken?.id}`
           ),
       };
     })
@@ -91,7 +89,7 @@ export const useLiquidityLeveragedGrid = (
 
   const defaultLeveragedLiquidityData = allData.filter(
     ({ hasPosition }) => !hasPosition
-  );
+  ) as DashboardDataProps[];
   const userPositions = allData.filter(({ hasPosition }) => hasPosition);
 
   const negativeApyCheck = (data: DashboardDataProps[]) => {
@@ -119,7 +117,7 @@ export const useLiquidityLeveragedGrid = (
     gridData.unshift({
       sectionTitle:
         userPositions.length === 1 ? 'Your position' : 'Your positions',
-      data: userPositions,
+      data: userPositions as DashboardDataProps[],
       hasLeveragedPosition: true,
     });
   }

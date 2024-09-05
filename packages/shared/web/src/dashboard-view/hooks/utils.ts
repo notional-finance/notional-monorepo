@@ -41,22 +41,21 @@ export const sortListData = (data: any[], tokenGroup: number) => {
 };
 
 export const getIncentiveData = (
-  incentives: YieldData['noteIncentives'],
-  secondaryIncentives: YieldData['secondaryIncentives']
+  incentives: Array<{ symbol: string; incentiveAPY?: number }>
 ) => {
-  if (secondaryIncentives && incentives) {
+  if (incentives.length >= 2) {
     return {
       inlineIcons: true,
-      label: formatNumberAsPercent(incentives.incentiveAPY),
-      symbol: incentives.symbol,
-      caption: formatNumberAsPercent(secondaryIncentives.incentiveAPY),
-      captionSymbol: secondaryIncentives.symbol,
+      label: formatNumberAsPercent(incentives[0].incentiveAPY || 0),
+      symbol: incentives[0].symbol,
+      caption: formatNumberAsPercent(incentives[1].incentiveAPY || 0),
+      captionSymbol: incentives[1].symbol,
     };
-  } else if (incentives && !secondaryIncentives) {
+  } else if (incentives.length === 1) {
     return {
       inlineIcons: false,
-      label: formatNumberAsPercent(incentives.incentiveAPY),
-      symbol: incentives.symbol,
+      label: formatNumberAsPercent(incentives[0].incentiveAPY || 0),
+      symbol: incentives[0].symbol,
     };
   } else {
     return {
@@ -80,17 +79,17 @@ export const getCombinedIncentiveData = (
 };
 
 export const sumAndFormatIncentives = (
-  incentives: Array<{ symbol: string; incentiveAPY: number }>
+  incentives: Array<{ symbol: string; incentiveAPY?: number }>
 ): string => {
   const totalAPY = incentives.reduce(
-    (sum, incentive) => sum + incentive.incentiveAPY,
+    (sum, incentive) => sum + (incentive.incentiveAPY || 0),
     0
   );
   return formatNumberAsPercent(totalAPY);
 };
 
 export const getIncentiveSymbols = (
-  incentives: Array<{ symbol: string; incentiveAPY: number }>
+  incentives: Array<{ symbol: string; incentiveAPY?: number }>
 ): string[] => {
   return incentives.map((incentive) => incentive.symbol);
 };
