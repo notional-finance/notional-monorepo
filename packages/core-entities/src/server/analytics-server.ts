@@ -402,35 +402,41 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
       // In the other case, we are dealing with nTokens which have multiple oracles
       const flooredSeries = apyOracles.flatMap((o) => {
-        const incentiveSymbol =
-          o.oracleType === 'nTokenSecondaryIncentiveRate'
-            ? getSecondaryTokenIncentive(network, o.base.id)
-            : undefined;
-        const incentivePriceHistory = chainlinkOracles.find(
-          (c) => c.id === `${ZERO_ADDRESS}:${o.base.id}:${ChartType.PRICE}`
-        );
-
+        let incentiveSymbol: string | undefined;
+        let incentivePriceHistory: TimeSeriesResponse | undefined;
+        if (o.oracleType === 'nTokenSecondaryIncentiveRate') {
+          let secondaryToken: string | undefined;
+          ({ symbol: incentiveSymbol, token: secondaryToken } =
+            getSecondaryTokenIncentive(network, o.base.id));
+          incentivePriceHistory = chainlinkOracles.find(
+            (c) =>
+              c.id === `${ZERO_ADDRESS}:${secondaryToken}:${ChartType.PRICE}`
+          );
+        }
         const keyName = getOracleName(o.oracleType, incentiveSymbol);
 
-        return this.reduceTimeSeriesToMidnight(
-          o.historicalRates?.map((r) => {
+        return this.reduceTimeSeriesToMidnight(o.historicalRates || []).map(
+          (r) => {
             let apy = this.formatToPercent(r.rate, o.decimals);
             const ethBasePrice =
-              this.getPriceAtTime(ethPriceHistory, r.timestamp) || 1;
-            const incentiveETHPrice =
-              this.getPriceAtTime(incentivePriceHistory, r.timestamp) || 1;
-            const noteETHPrice =
-              this.getPriceAtTime(notePrices, r.timestamp) || 1;
+              base === ZERO_ADDRESS
+                ? 1
+                : this.getPriceAtTime(ethPriceHistory, r.timestamp);
+            const incentiveETHPrice = this.getPriceAtTime(
+              incentivePriceHistory,
+              r.timestamp
+            );
+            const noteETHPrice = this.getPriceAtTime(notePrices, r.timestamp);
 
             if (o.oracleType === 'nTokenIncentiveRate') {
               apy =
-                (this.formatToNumber(r.rate, INTERNAL_TOKEN_DECIMALS) *
-                  noteETHPrice) /
+                (this.formatToPercent(r.rate, o.decimals) * noteETHPrice) /
                 ethBasePrice;
             } else if (incentiveSymbol && incentiveETHPrice) {
+              // NOTE: even though o.decimals is marked as 9, this is actually in 17 decimal precision,
+              // because it is in 9 decimals of rate and 8 decimals of internal token precision.
               apy =
-                (this.formatToNumber(r.rate, INTERNAL_TOKEN_DECIMALS) *
-                  incentiveETHPrice) /
+                (this.formatToPercent(r.rate, 17) * incentiveETHPrice) /
                 ethBasePrice;
             }
 
@@ -438,7 +444,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
               timestamp: r.timestamp,
               [keyName]: apy,
             };
-          }) || []
+          }
         );
       });
 
