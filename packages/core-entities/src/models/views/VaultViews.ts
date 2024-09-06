@@ -64,8 +64,6 @@ export const VaultViews = (self: NetworkModelIntermediateType) => {
     );
     const primaryToken = self.getTokenByID(v.primaryBorrowCurrency.id);
     const vaultTVL = getVaultAdapter(v.vaultAddress)?.getVaultTVL();
-    const vaultAPY = getVaultAdapter(v.vaultAddress)?.getVaultAPY();
-    console.log('vault apy ', vaultAddress, vaultAPY);
     const minAccountBorrowSize = TokenBalance.from(
       v.minAccountBorrowSize,
       primaryToken

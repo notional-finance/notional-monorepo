@@ -161,11 +161,6 @@ export class SingleSidedLP extends VaultAdapter {
         )
         .map(({ totalAPY }) => totalAPY)
         .filter((apy) => apy !== null) || [];
-    console.log(
-      'vault apy history',
-      vaultAPYs,
-      this.apyHistory?.data ? this.apyHistory.data : 'none'
-    );
 
     return vaultAPYs.length > 0
       ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
