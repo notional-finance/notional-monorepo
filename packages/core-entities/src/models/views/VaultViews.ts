@@ -4,6 +4,8 @@ import { NetworkModelIntermediateType } from '../NetworkModel';
 import { TokenBalance } from '../../token-balance';
 import { whitelistedVaults } from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
+import { ChartType } from '../ModelTypes';
+import { getSnapshot } from 'mobx-state-tree';
 
 function getMinDepositRequiredString(
   minAccountBorrowSize: TokenBalance,
@@ -41,7 +43,8 @@ export const VaultViews = (self: NetworkModelIntermediateType) => {
       vaultAddress,
       params,
       getPoolInstance_(self, params.pool),
-      primaryToken.currencyId
+      primaryToken.currencyId,
+      self.getTimeSeries(v.vaultAddress, ChartType.APY)?.data
     );
   };
 
@@ -62,6 +65,8 @@ export const VaultViews = (self: NetworkModelIntermediateType) => {
     );
     const primaryToken = self.getTokenByID(v.primaryBorrowCurrency.id);
     const vaultTVL = getVaultAdapter(v.vaultAddress)?.getVaultTVL();
+    const vaultAPY = getVaultAdapter(v.vaultAddress)?.getVaultAPY();
+    console.log('vault apy ', vaultAddress, vaultAPY);
     const minAccountBorrowSize = TokenBalance.from(
       v.minAccountBorrowSize,
       primaryToken
