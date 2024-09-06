@@ -1,81 +1,57 @@
 import { Box, styled, useTheme } from '@mui/material';
-import {
-  Banner,
-  H2,
-  LabelValue,
-  SimpleDropdown,
-  Subtitle,
-} from '@notional-finance/mui';
-import {
-  useAppStore,
-  useSideDrawerManager,
-} from '@notional-finance/notionable-hooks';
+import { H2, Subtitle } from '@notional-finance/mui';
+// import { Banner, H2, Subtitle } from '@notional-finance/mui';
+// import {
+//   useAppStore,
+//   useSideDrawerManager,
+// } from '@notional-finance/notionable-hooks';
 import {
   PORTFOLIO_STATE_ZERO_OPTIONS,
-  SETTINGS_SIDE_DRAWERS,
+  // SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/util';
-import { FormattedMessage, defineMessage, defineMessages } from 'react-intl';
-import connectImage from './connect-wallet.svg';
+// import { FormattedMessage, defineMessage, defineMessages } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
+// import connectImage from './connect-wallet.svg';
 import { useEffect, useState } from 'react';
-import { PortfolioNetworkSelector } from '@notional-finance/wallet';
-import { NotionalTheme } from '@notional-finance/styles';
-import { TokenIcon } from '@notional-finance/icons';
-import { useCardData, useTokenData, useMoreDropdown } from './hooks';
 import {
-  useAccountReady,
+  // useAccountReady,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import StateZeroCard from './state-zero-card';
 import StateZeroToggle from './state-zero-toggle';
 import { useParams, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
+import { useNetworkTokenData } from './hooks/use-network-token-data';
+import StateZeroData from './state-zero-data';
 
-interface TokenBoxProps {
-  theme: NotionalTheme;
-  active: boolean;
-}
-
-const stateZeroBanner = {
-  title: defineMessage({
-    defaultMessage: 'Please, connect your wallet',
-    description: 'empty note staking overview title',
-  }),
-  messages: defineMessages({
-    promptText: {
-      defaultMessage:
-        'Connect your wallet to see your portfolio or personalized recommendations.',
-      description: 'empty note staking overview prompt text',
-    },
-    buttonText: {
-      defaultMessage: 'Connect Wallet',
-      description: 'empty note staking button text',
-    },
-  }),
-};
+// const stateZeroBanner = {
+//   title: defineMessage({
+//     defaultMessage: 'Please, connect your wallet',
+//     description: 'empty note staking overview title',
+//   }),
+//   messages: defineMessages({
+//     promptText: {
+//       defaultMessage:
+//         'Connect your wallet to see your portfolio or personalized recommendations.',
+//       description: 'empty note staking overview prompt text',
+//     },
+//     buttonText: {
+//       defaultMessage: 'Connect Wallet',
+//       description: 'empty note staking button text',
+//     },
+//   }),
+// };
 
 const PortfolioStateZero = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const params = useParams<{ sideDrawerKey?: string }>();
-  const { setWalletSideDrawer } = useSideDrawerManager();
-  const { baseCurrency } = useAppStore();
+  // const { setWalletSideDrawer } = useSideDrawerManager();
   const selectedNetwork = useSelectedNetwork();
-  const isAccountReady = useAccountReady(selectedNetwork);
+  // const isAccountReady = useAccountReady(selectedNetwork);
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
-  const { availableSymbols, allTokenData } = useTokenData(
-    selectedTabIndex,
-    baseCurrency
-  );
-  const [activeToken, setActiveToken] = useState<string>(availableSymbols[0]);
-  const cardData = useCardData(
-    selectedTabIndex,
-    activeToken,
-    allTokenData,
-    availableSymbols
-  );
-  const { options, title, displaySymbols } = useMoreDropdown(
-    availableSymbols,
-    setActiveToken
+  const { tokenList, productGroupData, defaultSymbol } = useNetworkTokenData(
+    selectedNetwork,
+    selectedTabIndex
   );
 
   useEffect(() => {
@@ -97,12 +73,6 @@ const PortfolioStateZero = () => {
     }
   }, [selectedTabIndex, params?.sideDrawerKey]);
 
-  useEffect(() => {
-    if (!availableSymbols.includes(activeToken)) {
-      setActiveToken(availableSymbols[0]);
-    }
-  }, [availableSymbols, activeToken]);
-
   const handleToggle = (toggleNum: number) => {
     if (toggleNum === 0) {
       navigate(`/portfolio/${selectedNetwork}/welcome/earn`);
@@ -115,7 +85,7 @@ const PortfolioStateZero = () => {
 
   return (
     <PortfolioMainContent>
-      {!isAccountReady && (
+      {/* {!isAccountReady && (
         <Box sx={{ marginTop: theme.spacing(6) }}>
           <Banner
             messages={stateZeroBanner.messages}
@@ -127,8 +97,7 @@ const PortfolioStateZero = () => {
             }
           />
         </Box>
-      )}
-
+      )} */}
       <TopContentContainer>
         <Box sx={{ marginTop: theme.spacing(6) }}>
           <Box sx={{ display: 'flex' }}>
@@ -167,69 +136,12 @@ const PortfolioStateZero = () => {
           handleToggle={handleToggle}
         />
       </TopContentContainer>
-      <TokenContainer>
-        <PortfolioNetworkSelector
-          sx={{
-            marginLeft: '0px',
-            marginTop: theme.spacing(1),
-            width: 'fit-content',
-          }}
-          hideNetWorth={true}
-        />
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'end',
-            marginLeft: {
-              sm: '0px',
-              md: theme.spacing(3),
-              lg: theme.spacing(3),
-            },
-            flexWrap: 'wrap',
-          }}
-        >
-          {displaySymbols.map((token, index) => (
-            <TokenBox
-              key={index}
-              theme={theme}
-              onClick={() => setActiveToken(token)}
-              active={activeToken === token}
-            >
-              <TokenIcon symbol={token} size="small" />
-              <LabelValue sx={{ marginLeft: theme.spacing(1) }}>
-                {token}
-              </LabelValue>
-            </TokenBox>
-          ))}
-          {options && options.length > 0 && (
-            <SimpleDropdown
-              options={options}
-              title={title}
-              altDropdownArrow={true}
-              sx={{ marginTop: theme.spacing(1) }}
-              innerWrapperSx={{ width: '200px', fontSize: '14px' }}
-            />
-          )}
-        </Box>
-      </TokenContainer>
-      <Box
-        sx={{
-          width: '99%',
-          margin: 'auto',
-          marginTop: theme.spacing(4),
-          gap: {
-            sm: theme.spacing(6),
-            md: theme.spacing(3),
-            lg: theme.spacing(3),
-          },
-          display: 'flex',
-          flexWrap: 'wrap',
-        }}
-      >
-        {cardData.map((card, index) => (
-          <StateZeroCard index={index} card={card} key={index} />
-        ))}
-      </Box>
+      <StateZeroData
+        productGroupData={productGroupData}
+        defaultSymbol={defaultSymbol}
+        tokenList={tokenList}
+        selectedTabIndex={selectedTabIndex}
+      />
     </PortfolioMainContent>
   );
 };
@@ -263,36 +175,6 @@ const PortfolioMainContent = styled(Box)(
   `
 );
 
-const TokenBox = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'active',
-})(
-  ({ active, theme }: TokenBoxProps) => `
-    height: ${theme.spacing(5.25)};
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    width: fit-content;
-    padding: ${theme.spacing(1, 1.5)};
-    border-radius: 50px;
-    margin-right: ${theme.spacing(2)};
-    margin-top: ${theme.spacing(1)};
-    
-    transition: all 0.3s;
-    background: ${
-      active ? theme.palette.info.light : theme.palette.background.paper
-    };
-    border: ${
-      active
-        ? `1px solid ${theme.palette.primary.light}`
-        : theme.shape.borderStandard
-    };
-    &:hover {
-      background: ${theme.palette.info.light};
-      border: 1px solid ${theme.palette.primary.light};
-    }
-  `
-);
-
 const TopContentContainer = styled(Box)(
   ({ theme }) => `
     display: flex;
@@ -302,34 +184,6 @@ const TopContentContainer = styled(Box)(
       flex-direction: column;
       align-items: baseline;
       height: ${theme.spacing(25)};
-    }
-  `
-);
-
-const TokenContainer = styled(Box)(
-  ({ theme }) => `
-    display: flex;
-    margin-top: ${theme.spacing(8)};
-
-    #basic-button {
-      height: ${theme.spacing(5.25)};
-      border: ${theme.shape.borderStandard};
-      background: ${theme.palette.common.white};
-      color: ${theme.palette.typography.main};
-      padding: ${theme.spacing(1, 1.5)};
-      border-radius: 50px;
-      h6 {
-        font-size: 14px;
-        color: ${theme.palette.typography.main};
-        font-weight: 600;
-      }
-    }
-
-    ${theme.breakpoints.down('md')} {
-      flex-direction: column;
-    }
-    ${theme.breakpoints.down('sm')} {
-      margin-top: ${theme.spacing(25)};
     }
   `
 );

@@ -4,6 +4,7 @@ import {
   getNowSeconds,
   INTERNAL_TOKEN_PRECISION,
   leveragedYield,
+  PORTFOLIO_STATE_ZERO_OPTIONS,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
@@ -29,6 +30,16 @@ export interface APYData {
   leverageRatio?: number;
   debtAPY?: number;
 }
+
+type ProductGroupItem = {
+  token: TokenDefinition;
+  apy: APYData;
+  tvl: TokenBalance;
+  liquidity: TokenBalance;
+  underlying?: TokenDefinition;
+  collateralFactor: string;
+};
+export type ProductGroupData = ProductGroupItem[][];
 
 export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const {
@@ -430,6 +441,105 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     }
   };
 
+  const getUniqueUnderlyingSymbols = (productGroupData: ProductGroupData) => {
+    const uniqueUnderlyingSymbols = productGroupData
+      .flat()
+      .map((item) => item.underlying?.symbol)
+      .filter((symbol): symbol is string => symbol !== undefined)
+      .reduce<string[]>((acc, symbol) => {
+        if (!acc.includes(symbol)) {
+          acc.push(symbol);
+        }
+        return acc;
+      }, []);
+
+    return uniqueUnderlyingSymbols;
+  };
+
+  const getDefaultHighestAPYSymbol = (productGroupData: ProductGroupData) => {
+    const highestTotalAPYBySymbol: Record<string, number> = {};
+    productGroupData.flat().forEach((item) => {
+      const symbol = item.underlying?.symbol;
+      if (symbol) {
+        const totalAPY = item.apy?.totalAPY || 0;
+
+        if (!highestTotalAPYBySymbol[symbol]) {
+          highestTotalAPYBySymbol[symbol] = totalAPY;
+        } else {
+          highestTotalAPYBySymbol[symbol] += totalAPY;
+        }
+      }
+    });
+
+      let highestAPYSymbol = '';
+      let highestAPYValue = 0;
+      for (const data in highestTotalAPYBySymbol) {
+        if (highestTotalAPYBySymbol[data] > highestAPYValue) {
+          highestAPYValue = highestTotalAPYBySymbol[data];
+          highestAPYSymbol = data;
+        }
+      }
+
+      return highestAPYSymbol;
+  };
+
+  const getPortfolioStateZeroBorrowData = () => {
+    const group = ['fCash', 'PrimeDebt'];
+    const productGroupData = group.map((group) => {
+      return self
+        .getTokensByType(group)
+        .filter((data) => data?.isFCashDebt || data?.tokenType === 'PrimeDebt')
+        .map((t) => {
+          return {
+            token: t,
+            apy: getSpotAPY(t.id),
+            tvl: getTVL(t),
+            liquidity: getLiquidity(t),
+            underlying: t.underlying
+              ? self.getTokenByID(t.underlying)
+              : undefined,
+            collateralFactor: getDebtOrCollateralFactor(t, false),
+          };
+        });
+    });
+    const tokenList = getUniqueUnderlyingSymbols(productGroupData);
+    const defaultSymbol = 'ETH';
+    return {
+      tokenList,
+      productGroupData: productGroupData,
+      defaultSymbol,
+    };
+  };
+
+  const getPortfolioStateZeroEarnData = () => {
+    const group = ['fCash', 'PrimeCash', 'nToken'];
+    const productGroupData = group.map((group) => {
+      return self
+        .getTokensByType(group)
+        .filter((data) => !data?.isFCashDebt)
+        .map((t) => {
+          return {
+            token: t,
+            apy: getSpotAPY(t.id),
+            tvl: getTVL(t),
+            liquidity: getLiquidity(t),
+            underlying: t.underlying
+              ? self.getTokenByID(t.underlying)
+              : undefined,
+            collateralFactor: getDebtOrCollateralFactor(t, false),
+          };
+        });
+    });
+    const tokenList = getUniqueUnderlyingSymbols(productGroupData);
+    const highestAPYSymbol = getDefaultHighestAPYSymbol(productGroupData);
+
+    return {
+      tokenList,
+      productGroupData,
+      defaultSymbol: highestAPYSymbol,
+    };
+  };
+
   return {
     getSpotAPY,
     getAnnualizedNOTEIncentives,
@@ -442,5 +552,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getDebtOrCollateralFactor,
     getDefaultLeveragedNTokenAPYs,
     getDefaultVaultAPYs,
+    getPortfolioStateZeroEarnData,
+    getPortfolioStateZeroBorrowData,
   };
 };

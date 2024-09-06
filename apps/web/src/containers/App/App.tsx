@@ -48,7 +48,6 @@ import {
   InitPointsDashboard,
   ContestLeaderBoard,
 } from '../../containers/TradingContest';
-import Markets from '../Markets';
 import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
@@ -331,16 +330,6 @@ const AllRoutes = observer(() => {
               path="/portfolio/:selectedNetwork"
               component={InitPortfolio}
               routeType="Portfolio"
-            />
-          }
-        />
-        <Route
-          path="/markets"
-          element={
-            <AppLayoutRoute
-              path="/markets"
-              component={Markets}
-              routeType="Analytics"
             />
           }
         />
