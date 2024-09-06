@@ -22,7 +22,7 @@ export const useVariableRateGrid = (
 ) => {
   const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
   const tokenType = isBorrow ? 'PrimeDebt' : 'PrimeCash';
-  const yieldData = useNetworkTokens(network, tokenType);
+  const yieldData = useNetworkTokens(network, tokenType, { isBorrow });
 
   const theme = useTheme();
   const navigate = useNavigate();

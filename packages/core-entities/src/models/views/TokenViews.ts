@@ -144,11 +144,10 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
       (t) =>
         t.currencyId === currencyId &&
         (t.tokenType === 'PrimeDebt' ||
-          (t.tokenType === 'fCash' &&
+          (t.tokenType === 'fCash' && t.isFCashDebt &&
             t.maturity &&
             getNowSeconds() < t.maturity))
     );
-
     return t;
   };
 
