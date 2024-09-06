@@ -1,15 +1,12 @@
-import { TokenDefinition } from '@notional-finance/core-entities';
+import { ChartType, TokenDefinition } from '@notional-finance/core-entities';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { colors } from '@notional-finance/styles';
-import {
-  useTokenHistory,
-  useAppStore,
-} from '@notional-finance/notionable-hooks';
+import { useAppStore, useChartData } from '@notional-finance/notionable-hooks';
 import { BarConfigProps } from '@notional-finance/mui';
 import { useMemo } from 'react';
 
 export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
-  let { apyData } = useTokenHistory(token);
+  const { data: apyData } = useChartData(token, ChartType.APY);
   const { themeVariant } = useAppStore();
   const BarColors = useMemo(
     () =>
@@ -30,29 +27,30 @@ export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
     [themeVariant]
   );
 
-  if (apyData.length > defaultDataLimit) {
-    apyData = apyData.slice(apyData.length - defaultDataLimit);
+  if (apyData && apyData.data.length > defaultDataLimit) {
+    apyData.data = apyData.data.slice(apyData.data.length - defaultDataLimit);
   }
 
-  const barConfig: BarConfigProps[] = apyData.length
-    ? Object.keys(apyData[0])
-        .filter(
-          (k) =>
-            k !== 'timestamp' &&
-            k !== 'area' &&
-            k !== 'totalAPY' &&
-            k !== 'Total Strategy APY'
-        )
-        .map((k, i) => {
-          return {
-            dataKey: k,
-            title: k,
-            toolTipTitle: k,
-            fill: BarColors[i % BarColors.length],
-            value: '0',
-          };
-        })
-    : [];
+  const barConfig: BarConfigProps[] =
+    apyData && apyData.data.length
+      ? Object.keys(apyData.data[0])
+          .filter(
+            (k) =>
+              k !== 'timestamp' &&
+              k !== 'area' &&
+              k !== 'totalAPY' &&
+              k !== 'Total Strategy APY'
+          )
+          .map((k, i) => {
+            return {
+              dataKey: k,
+              title: k,
+              toolTipTitle: k,
+              fill: BarColors[i % BarColors.length],
+              value: '0',
+            };
+          })
+      : [];
 
   return { barConfig, barChartData: apyData };
 };

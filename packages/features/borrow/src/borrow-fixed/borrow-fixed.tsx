@@ -14,11 +14,10 @@ export const BorrowFixed = () => {
   const {
     state: { isReady, confirm },
   } = context;
-  const featureReady = isReady;
 
   return (
     <BorrowFixedContext.Provider value={context}>
-      <FeatureLoader featureLoaded={featureReady}>
+      <FeatureLoader featureLoaded={isReady}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={<BorrowFixedSidebar />}

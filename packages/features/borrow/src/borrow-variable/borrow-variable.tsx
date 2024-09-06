@@ -15,11 +15,10 @@ export const BorrowVariable = () => {
   const context = useTradeContext('BorrowVariable');
   const { state } = context;
   const { isReady, confirm } = state;
-  const featureReady = isReady;
 
   return (
     <BorrowVariableContext.Provider value={context}>
-      <FeatureLoader featureLoaded={featureReady}>
+      <FeatureLoader featureLoaded={isReady}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={<BorrowVariableSidebar />}
