@@ -165,14 +165,21 @@ export default class NotionalV3Liquidator {
           ethFreeCollateral: (results[`${id}:collateral`] as BigNumber[])[0],
         };
       })
-      .filter(
-        (a) =>
-          a.ethFreeCollateral.isNegative() &&
-          this.toExternal(
-            a.ethFreeCollateral.abs(),
-            NotionalV3Liquidator.ETH_PRECISION
-          ).gte(this.settings.dustThreshold)
-      );
+      .filter((a) => {
+        // Always check for negative free collateral
+        const isNegative = a.ethFreeCollateral.isNegative();
+
+        // Only apply dust threshold check if there's more than one address
+        const exceedsDustThreshold =
+          addresses.length > 1
+            ? this.toExternal(
+                a.ethFreeCollateral.abs(),
+                NotionalV3Liquidator.ETH_PRECISION
+              ).gte(this.settings.dustThreshold)
+            : true;
+
+        return isNegative && exceedsDustThreshold;
+      });
 
     return accounts.map((a) => {
       const netUnderlyingAvailable = new Map<number, BigNumber>();
