@@ -25,12 +25,8 @@ import {
 import { XAxisTick } from './x-axis-tick/x-axis-tick';
 import { AxisDomain } from 'recharts/types/util/types';
 import { useDefaultToolTips } from './use-default-tool-tips';
+import { TimeSeriesDataPoint } from '@notional-finance/core-entities';
 
-export interface AreaChartData {
-  timestamp: number;
-  line?: number;
-  area?: number;
-}
 export interface AreaChartStylesProps {
   line?: {
     lineColor: string;
@@ -43,7 +39,7 @@ export interface AreaChartStylesProps {
 }
 
 export interface AreaChartProps {
-  areaChartData: AreaChartData[];
+  areaChartData: TimeSeriesDataPoint[];
   areaDataKey?: string;
   xAxisTickFormat?: 'date' | 'percent';
   yAxisTickFormat?: 'percent' | 'number' | 'usd' | 'double';

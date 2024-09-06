@@ -1,9 +1,9 @@
-import { Network, filterEmpty } from '@notional-finance/util';
+import { filterEmpty, Network } from '@notional-finance/util';
 import { Routes } from '../server';
-import { SingleSidedLP, VaultMetadata } from '../vaults';
+import { VaultMetadata } from '../vaults';
 import { ClientRegistry } from './client-registry';
 import { map } from 'rxjs';
-import { SingleSidedLPParams } from '../vaults/SingleSidedLP';
+import { SingleSidedLP, SingleSidedLPParams } from '../vaults/SingleSidedLP';
 import { PendlePT, PendlePTVaultParams } from '../vaults/PendlePT';
 import { getVaultType } from '../config/whitelisted-vaults';
 

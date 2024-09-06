@@ -26,17 +26,9 @@ export function selectedVaultAdapter(
     filterEmpty(),
     distinctUntilChanged(),
     withLatestFrom(selectedNetwork$),
-    switchMap(([vaultAddress, network]) => {
-      try {
-        return (
-          Registry.getVaultRegistry().subscribeVaultAdapter(
-            network,
-            vaultAddress
-          ) || of(undefined)
-        );
-      } catch {
-        return of(undefined);
-      }
+    switchMap(() => {
+      // Currently undefined
+      return of(undefined);
     }),
     startWith(undefined)
   );

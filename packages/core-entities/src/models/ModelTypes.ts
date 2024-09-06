@@ -5,6 +5,11 @@ import { BigNumber } from 'ethers';
 import FixedPoint from '../exchanges/BalancerV2/fixed-point';
 import { SystemAccount, TokenInterface, TokenType } from '../Definitions';
 
+export interface TimeSeriesDataPoint {
+  timestamp: number;
+  [key: string]: number;
+}
+
 export const NotionalTypes = {
   Network: types.enumeration<Network>('Network', Object.values(Network)),
   TokenType: types.enumeration<TokenType>('TokenType', [
@@ -94,6 +99,43 @@ export const NotionalTypes = {
       if (snapshot.network === undefined) return 'network is required';
       if (snapshot.tokenId === undefined) return 'tokenId is required';
       if (snapshot.hex === undefined) return 'hex is required';
+      return '';
+    },
+  }),
+  TimeSeriesDataPoint: types.custom<TimeSeriesDataPoint, TimeSeriesDataPoint>({
+    name: 'TimeSeriesDataPoint',
+    fromSnapshot(snapshot) {
+      if (typeof snapshot.timestamp !== 'number') {
+        throw new Error('Timestamp must be a number');
+      }
+      Object.values(snapshot).forEach((value) => {
+        if (typeof value !== 'number') {
+          throw new Error('All values must be numbers');
+        }
+      });
+      return snapshot;
+    },
+    toSnapshot(value) {
+      return value;
+    },
+    isTargetType(value) {
+      return (
+        typeof value === 'object' &&
+        value !== null &&
+        typeof value.timestamp === 'number' &&
+        Object.values(value).every((v) => typeof v === 'number')
+      );
+    },
+    getValidationMessage(value) {
+      if (typeof value !== 'object' || value === null) {
+        return 'Value must be an object';
+      }
+      if (typeof value.timestamp !== 'number') {
+        return 'Timestamp must be a number';
+      }
+      if (!Object.values(value).every((v) => typeof v === 'number')) {
+        return 'All values must be numbers';
+      }
       return '';
     },
   }),
@@ -339,3 +381,32 @@ export const VaultDefinitionModel = types.model('VaultDefinition', {
   totalVaultShares: NotionalTypes.BigNumber,
   secondaryTradeParams: types.string,
 });
+
+export const TimeSeriesModel = types.model('TimeSeriesModel', {
+  id: types.identifier,
+  data: types.array(NotionalTypes.TimeSeriesDataPoint),
+  legend: types.array(
+    types.model({
+      series: types.string,
+      format: types.enumeration('format', ['number', 'percent']),
+      decimals: types.maybe(types.number),
+    })
+  ),
+});
+
+export interface TimeSeriesLegend {
+  series: string;
+  format: 'number' | 'percent';
+  decimals?: number;
+}
+
+export interface TimeSeriesResponse {
+  id: string;
+  data: TimeSeriesDataPoint[];
+  legend: TimeSeriesLegend[];
+}
+
+export enum ChartType {
+  APY = 'apy',
+  PRICE = 'price',
+}

@@ -7,7 +7,8 @@ query AllOracles($skip: Int!) {
     PrimeDebtToUnderlyingExchangeRate,
     VaultShareOracleRate,
     nTokenToUnderlyingExchangeRate
-    fCashSpotRate
+    fCashSpotRate,
+    nTokenFeeRate
     # FIXME: add these back into the query for earnings breakdown
     # VaultShareInterestAccrued,
     # nTokenInterestAccrued

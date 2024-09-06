@@ -1,11 +1,12 @@
 import { useContext } from 'react';
 import { InteractiveAreaChart, AreaChart } from '@notional-finance/mui';
-import { useTokenHistory, useNToken } from '@notional-finance/notionable-hooks';
+import { useNToken, useChartData } from '@notional-finance/notionable-hooks';
 import {
   useMaturitySelect,
   useInteractiveMaturityChart,
 } from '@notional-finance/trade';
 import { BorrowFixedContext } from '../../borrow-fixed/borrow-fixed';
+import { ChartType } from '@notional-finance/core-entities';
 
 export const useBorrowFixedMultiChart = () => {
   const context = useContext(BorrowFixedContext);
@@ -18,7 +19,7 @@ export const useBorrowFixedMultiChart = () => {
   );
   const { selectedfCashId, onSelect } = useMaturitySelect('Debt', context);
   const nToken = useNToken(deposit?.network, deposit?.currencyId);
-  const { tvlData } = useTokenHistory(nToken);
+  const { data: priceData } = useChartData(nToken, ChartType.PRICE);
 
   return [
     {
@@ -44,7 +45,8 @@ export const useBorrowFixedMultiChart = () => {
           title="Market Liquidity"
           showCartesianGrid
           xAxisTickFormat="date"
-          areaChartData={tvlData}
+          areaChartData={priceData?.data || []}
+          areaDataKey="tvlUSD"
           areaLineType="linear"
           yAxisTickFormat="usd"
         />

@@ -2,15 +2,21 @@ import { Network } from '@notional-finance/util';
 
 export function getSecondaryTokenIncentive(network: Network, base: string) {
   if (network === Network.arbitrum) {
-    return 'ARB';
+    return {
+      symbol: 'ARB',
+      token: '0x912ce59144191c1204e64559fe8253a0e49e6548',
+    };
   } else if (
     network === Network.mainnet &&
     // GHO token
     base === '0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f'
   ) {
-    return 'GHO';
+    return {
+      symbol: 'GHO',
+      token: '0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f',
+    };
   } else {
-    return undefined;
+    return { symbol: undefined, token: undefined };
   }
 }
 

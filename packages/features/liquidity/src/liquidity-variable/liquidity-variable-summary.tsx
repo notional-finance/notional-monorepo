@@ -28,8 +28,9 @@ import { HowItWorksFaq } from './components';
 import {
   useAppStore,
   useAssetPriceHistory,
-  useTokenHistory,
+  useChartData,
 } from '@notional-finance/notionable-hooks';
+import { ChartType } from '@notional-finance/core-entities';
 
 const LiquidityVariableSummary = () => {
   const theme = useTheme();
@@ -48,7 +49,7 @@ const LiquidityVariableSummary = () => {
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable(baseCurrency);
   const { poolTableColumns, poolTableData } = useLiquidityPoolsTable();
-  const { tvlData } = useTokenHistory(collateral);
+  const { data: tvlData } = useChartData(collateral, ChartType.PRICE);
   const { barConfig, barChartData } = useApyChart(collateral);
   const priceData = useAssetPriceHistory(collateral);
 
@@ -66,7 +67,7 @@ const LiquidityVariableSummary = () => {
                 xAxisTickFormat="date"
                 isStackedBar
                 barConfig={barConfig}
-                barChartData={barChartData}
+                barChartData={barChartData?.data || []}
                 yAxisTickFormat="percent"
               />
             ),
@@ -97,7 +98,8 @@ const LiquidityVariableSummary = () => {
                 showCartesianGrid
                 xAxisTickFormat="date"
                 yAxisTickFormat="usd"
-                areaChartData={tvlData}
+                areaDataKey={'tvlUSD'}
+                areaChartData={tvlData?.data || []}
                 areaLineType="linear"
               />
             ),

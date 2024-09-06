@@ -3,6 +3,7 @@ import { SingleSidedLP } from '../../vaults';
 import { NetworkModelIntermediateType } from '../NetworkModel';
 import { TokenBalance } from '../../token-balance';
 import { whitelistedVaults } from '../../config/whitelisted-vaults';
+import { getPoolInstance_ } from './ExchangeViews';
 
 function getMinDepositRequiredString(
   minAccountBorrowSize: TokenBalance,
@@ -27,7 +28,21 @@ export const VaultViews = (self: NetworkModelIntermediateType) => {
   const getVaultAdapter = (vaultAddress: string) => {
     const params = self.vaults.get(vaultAddress);
     if (!params) throw Error(`No vault params found: ${vaultAddress}`);
-    return new SingleSidedLP(self.network, vaultAddress, params);
+    const v = self.configuration?.vaultConfigurations.find(
+      (c) => c.id === vaultAddress
+    );
+    if (!v) throw Error(`Configuration not found for ${vaultAddress}`);
+    const primaryToken = self.getTokenByID(v.primaryBorrowCurrency.id);
+    if (!primaryToken.currencyId)
+      throw Error(`Token not found for ${vaultAddress}`);
+
+    return new SingleSidedLP(
+      self.network,
+      vaultAddress,
+      params,
+      getPoolInstance_(self, params.pool),
+      primaryToken.currencyId
+    );
   };
 
   const getVaultName = (vaultAddress: string) => {
@@ -41,34 +56,28 @@ export const VaultViews = (self: NetworkModelIntermediateType) => {
       (c) => c.id === vaultAddress
     );
     if (!v) throw Error(`Configuration not found for ${vaultAddress}`);
-    const {
-      primaryBorrowCurrency: { id },
-    } = v;
     const primeDebt = self.getVaultDebt(
       v.vaultAddress,
       PRIME_CASH_VAULT_MATURITY
     );
     const primaryToken = self.getTokenByID(v.primaryBorrowCurrency.id);
     const vaultTVL = getVaultAdapter(v.vaultAddress)?.getVaultTVL();
-    const minAccountBorrowSize = new TokenBalance(
+    const minAccountBorrowSize = TokenBalance.from(
       v.minAccountBorrowSize,
-      id,
-      self.network
+      primaryToken
     ).scaleFromInternal();
-    const totalUsedPrimaryBorrowCapacity = new TokenBalance(
+    const totalUsedPrimaryBorrowCapacity = TokenBalance.from(
       v.totalUsedPrimaryBorrowCapacity,
-      id,
-      self.network
+      primaryToken
     )
       .scaleFromInternal()
       .add(
-        primeDebt.totalSupply?.toUnderlying() ||
-          new TokenBalance(0, id, self.network)
+        primeDebt.totalSupply?.toUnderlying() || TokenBalance.zero(primaryToken)
       );
-    const maxPrimaryBorrowCapacity = new TokenBalance(
+
+    const maxPrimaryBorrowCapacity = TokenBalance.from(
       v.maxPrimaryBorrowCapacity,
-      id,
-      self.network
+      primaryToken
     ).scaleFromInternal();
 
     const minDepositRequired = getMinDepositRequiredString(

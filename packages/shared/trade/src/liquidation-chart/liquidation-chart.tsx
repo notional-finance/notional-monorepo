@@ -3,7 +3,11 @@ import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { useLiquidationChart } from './use-liquidation-chart';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
+import {
+  TimeSeriesDataPoint,
+  TokenBalance,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 
 export const LiquidationChart = ({
   state,
@@ -44,7 +48,7 @@ export const LiquidationChart = ({
                 yAxisTickFormat="number"
                 yAxisDomain={yAxisDomain}
                 chartToolTipData={chartToolTipData}
-                areaChartData={areaChartData}
+                areaChartData={areaChartData as TimeSeriesDataPoint[]}
                 areaLineType="linear"
                 areaChartStyles={areaChartStyles}
               />

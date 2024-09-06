@@ -5,13 +5,13 @@ import {
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
   INTERNAL_TOKEN_DECIMALS,
-  SECONDS_IN_DAY,
+  encodeERC1155Id,
+  AssetType,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
 import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder } from 'ethers/lib/utils';
-import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
 import { TokenDefinition } from '../Definitions';
 import { PointsMultipliers } from '../config/whitelisted-vaults';
@@ -101,10 +101,16 @@ export class SingleSidedLP extends VaultAdapter {
       .map((b) => b.token);
   }
 
-  constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
+  constructor(
+    network: Network,
+    vaultAddress: string,
+    p: SingleSidedLPParams,
+    _pool: BaseLiquidityPool<unknown>,
+    public currencyId: number
+  ) {
     super(p.enabled, p.name, network, vaultAddress);
 
-    this.pool = Registry.getExchangeRegistry().getPoolInstance(network, p.pool);
+    this.pool = _pool;
 
     // NOTE: make a correction for BPT index to exclude it from ComposableStablePools
     const bptIndex = this.bptIndex;
@@ -123,8 +129,6 @@ export class SingleSidedLP extends VaultAdapter {
     this.maxPoolShares = p.maxPoolShares;
     this.totalPoolSupply = p.totalPoolSupply;
     this.rewardState = p.rewardState;
-
-    this._initOracles(network, vaultAddress.toLowerCase());
   }
 
   get hashKey() {
@@ -214,36 +218,46 @@ export class SingleSidedLP extends VaultAdapter {
 
   convertToPrimeVaultShares(vaultShares: TokenBalance) {
     // Prime vault shares convert 1-1
-    const token = Registry.getTokenRegistry().getVaultShare(
-      vaultShares.network,
-      vaultShares.vaultAddress,
-      PRIME_CASH_VAULT_MATURITY
+    const primeVaultShareId = encodeERC1155Id(
+      this.currencyId,
+      PRIME_CASH_VAULT_MATURITY,
+      AssetType.VAULT_SHARE_ASSET_TYPE,
+      false,
+      this.vaultAddress
     );
-    return TokenBalance.from(vaultShares.n, token);
+    return new TokenBalance(vaultShares.n, primeVaultShareId, this.network);
   }
 
   override getVaultTVL() {
-    const token = Registry.getTokenRegistry().getVaultShare(
-      this.network,
-      this.vaultAddress,
-      PRIME_CASH_VAULT_MATURITY
+    const primeVaultShareId = encodeERC1155Id(
+      this.currencyId,
+      PRIME_CASH_VAULT_MATURITY,
+      AssetType.VAULT_SHARE_ASSET_TYPE,
+      false,
+      this.vaultAddress
     );
-    return TokenBalance.from(this.totalVaultShares, token).toUnderlying();
+    return new TokenBalance(
+      this.totalVaultShares,
+      primeVaultShareId,
+      this.network
+    ).toUnderlying();
   }
 
   getVaultAPY() {
-    const analytics = Registry.getAnalyticsRegistry();
-    const vaultAPYs = (analytics
-      .getVault(this.network, this.vaultAddress)
-      ?.filter(
-        ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
-      )
-      .map(({ totalAPY }) => totalAPY)
-      .filter((apy) => apy !== null) || []) as number[];
+    return 0;
+    // const analytics = Registry.getAnalyticsRegistry();
 
-    return vaultAPYs.length > 0
-      ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
-      : 0;
+    // const vaultAPYs = (analytics
+    //   .getVault(this.network, this.vaultAddress)
+    //   ?.filter(
+    //     ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+    //   )
+    //   .map(({ totalAPY }) => totalAPY)
+    //   .filter((apy) => apy !== null) || []) as number[];
+
+    // return vaultAPYs.length > 0
+    //   ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
+    //   : 0;
   }
 
   getInitialVaultShareValuation(_maturity: number) {

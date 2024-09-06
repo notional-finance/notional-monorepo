@@ -1,23 +1,25 @@
 import { TradeState } from '@notional-finance/notionable';
-import { FiatSymbols } from '@notional-finance/core-entities';
+import {
+  ChartType,
+  FiatSymbols,
+  TimeSeriesDataPoint,
+} from '@notional-finance/core-entities';
 import { InfoTooltip } from '@notional-finance/mui';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
-  useTokenHistory,
   usePrimeCash,
   usePrimeDebt,
   useMaxSupply,
   useAppStore,
+  useChartData,
 } from '@notional-finance/notionable-hooks';
 import { SxProps, useTheme } from '@mui/material';
 
-const getSevenDayAvgApy = (
-  apyData: ReturnType<typeof useTokenHistory>['apyData']
-) => {
+const getSevenDayAvgApy = (apyData: TimeSeriesDataPoint[]) => {
   const seventhToLastNum = apyData.length - 8;
   const lastSevenApys = apyData
     .slice(seventhToLastNum, -1)
-    .map(({ totalAPY }) => totalAPY);
+    .map((d) => d['totalAPY']);
 
   const averageApy = lastSevenApys.length
     ? lastSevenApys.reduce((a, b) => a + b) / lastSevenApys.length
@@ -32,7 +34,7 @@ export const useVariableTotals = (state: TradeState) => {
   const isBorrow = state.tradeType === 'BorrowVariable';
   const { baseCurrency } = useAppStore();
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
-  const { apyData } = useTokenHistory(state.debt);
+  const { data: apyData } = useChartData(state.debt, ChartType.APY);
 
   const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
   const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
@@ -72,7 +74,7 @@ export const useVariableTotals = (state: TradeState) => {
       ),
       Icon: ToolTip,
       value: isBorrow
-        ? getSevenDayAvgApy(apyData)
+        ? getSevenDayAvgApy(apyData?.data ?? [])
         : maxSupplyData?.capacityRemaining
         ? maxSupplyData?.capacityRemaining.toFloat()
         : '-',

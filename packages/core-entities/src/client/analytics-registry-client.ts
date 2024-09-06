@@ -256,7 +256,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
               apy = (parseFloat(r.rate) / RATE_PRECISION) * 100;
               const incentiveSymbol =
                 o.oracleType === 'nTokenSecondaryIncentiveRate'
-                  ? getSecondaryTokenIncentive(token.network, o.base)
+                  ? getSecondaryTokenIncentive(token.network, o.base)?.symbol
                   : undefined;
 
               try {
