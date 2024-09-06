@@ -1,6 +1,6 @@
 import {
   ChartType,
-  fetchTimeSeries,
+  getNetworkModel,
   Registry,
   TokenBalance,
   TokenDefinition,
@@ -13,24 +13,38 @@ import {
   floorToMidnight,
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAnalyticsReady, useAppContext } from './use-notional';
 import { useAppStore } from './context/AppContext';
-import useSWR from 'swr';
-
-const REGISTRY_URL =
-  process.env['NX_REGISTRY_URL'] || 'https://registry.notional.finance';
+import { useObserver } from 'mobx-react-lite';
 
 export const useChartData = (
   token: TokenDefinition | undefined,
   chartType: ChartType
 ) => {
-  const key = token ? `${token.id}:${chartType}` : undefined;
-  const { data, error, isLoading } = useSWR(key, (key) =>
-    fetchTimeSeries(REGISTRY_URL, token?.network, key)
-  );
+  const d = useObserver(() => {
+    if (!token)
+      return {
+        data: undefined,
+        isLoading: true,
+        error: undefined,
+      };
 
-  return { data, error, isLoading };
+    const model = getNetworkModel(token.network);
+    return model.getTimeSeries(token?.id, chartType);
+  });
+
+  useEffect(() => {
+    if (d.data === undefined && token) {
+      const asyncFetch = async () => {
+        const model = getNetworkModel(token.network);
+        await model.fetchChartData(token?.id, chartType);
+      };
+      asyncFetch();
+    }
+  }, [d.data, token, chartType]);
+
+  return d;
 };
 
 /** Ensures that chart always has default values throughout the specified range.  */

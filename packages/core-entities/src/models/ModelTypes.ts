@@ -381,3 +381,32 @@ export const VaultDefinitionModel = types.model('VaultDefinition', {
   totalVaultShares: NotionalTypes.BigNumber,
   secondaryTradeParams: types.string,
 });
+
+export const TimeSeriesModel = types.model('TimeSeriesModel', {
+  id: types.identifier,
+  data: types.array(NotionalTypes.TimeSeriesDataPoint),
+  legend: types.array(
+    types.model({
+      series: types.string,
+      format: types.enumeration('format', ['number', 'percent']),
+      decimals: types.maybe(types.number),
+    })
+  ),
+});
+
+export interface TimeSeriesLegend {
+  series: string;
+  format: 'number' | 'percent';
+  decimals?: number;
+}
+
+export interface TimeSeriesResponse {
+  id: string;
+  data: TimeSeriesDataPoint[];
+  legend: TimeSeriesLegend[];
+}
+
+export enum ChartType {
+  APY = 'apy',
+  PRICE = 'price',
+}

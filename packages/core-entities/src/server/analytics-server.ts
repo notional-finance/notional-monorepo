@@ -26,7 +26,7 @@ import {
   ChartType,
   TimeSeriesLegend,
   TimeSeriesResponse,
-} from '../models/AnalyticsModel';
+} from '../models/ModelTypes';
 import { Env } from '.';
 import { formatUnits } from 'ethers/lib/utils';
 import { OracleRegistryClient } from '../client';

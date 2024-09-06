@@ -5,7 +5,7 @@ import { useAppStore, useChartData } from '@notional-finance/notionable-hooks';
 import { BarConfigProps } from '@notional-finance/mui';
 import { useMemo } from 'react';
 
-export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
+export const useApyChart = (token?: TokenDefinition) => {
   const { data: apyData } = useChartData(token, ChartType.APY);
   const { themeVariant } = useAppStore();
   const BarColors = useMemo(
@@ -26,10 +26,6 @@ export const useApyChart = (token?: TokenDefinition, defaultDataLimit = 50) => {
       }[themeVariant]),
     [themeVariant]
   );
-
-  if (apyData && apyData.data.length > defaultDataLimit) {
-    apyData.data = apyData.data.slice(apyData.data.length - defaultDataLimit);
-  }
 
   const barConfig: BarConfigProps[] =
     apyData && apyData.data.length
