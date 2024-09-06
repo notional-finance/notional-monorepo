@@ -22,27 +22,31 @@ export const useChartData = (
   token: TokenDefinition | undefined,
   chartType: ChartType
 ) => {
+  const tokenId =
+    token?.tokenType === 'VaultShare' ? token.vaultAddress : token?.id;
+  const network = token?.network;
+
   const d = useObserver(() => {
-    if (!token)
+    if (!tokenId)
       return {
         data: undefined,
         isLoading: true,
         error: undefined,
       };
 
-    const model = getNetworkModel(token.network);
-    return model.getTimeSeries(token?.id, chartType);
+    const model = getNetworkModel(network);
+    return model.getTimeSeries(tokenId, chartType);
   });
 
   useEffect(() => {
-    if (d.data === undefined && token) {
+    if (d.data === undefined && tokenId && network) {
       const asyncFetch = async () => {
-        const model = getNetworkModel(token.network);
-        await model.fetchChartData(token?.id, chartType);
+        const model = getNetworkModel(network);
+        await model.fetchChartData(tokenId, chartType);
       };
       asyncFetch();
     }
-  }, [d.data, token, chartType]);
+  }, [d.data, tokenId, network, chartType]);
 
   return d;
 };
