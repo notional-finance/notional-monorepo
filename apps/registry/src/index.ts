@@ -2,11 +2,17 @@ import { Request } from '@cloudflare/workers-types';
 import { NetworkServerModel } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 import { putStorageKey } from './registry-helpers';
+import { refreshViews } from './views-helpers';
 
 export interface BaseDOEnv {
+  NX_COMMIT_REF: string | undefined;
+  NX_ENV: string;
+  NX_DD_API_KEY: string;
   NX_SUBGRAPH_API_KEY: string;
   VIEW_CACHE_R2: R2Bucket;
   SUPPORTED_NETWORKS: Network[];
+  DATA_SERVICE_URL: string;
+  DATA_SERVICE_AUTH_TOKEN: string;
 }
 
 async function execute(
@@ -20,6 +26,8 @@ async function execute(
   }, env);
 
   await networkModel.refresh(isFullRefresh);
+
+  await refreshViews(env);
 }
 
 export default {

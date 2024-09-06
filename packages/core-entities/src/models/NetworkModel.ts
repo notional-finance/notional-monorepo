@@ -14,6 +14,7 @@ import {
   OracleGraphModel,
   TokenDefinitionModel,
   VaultDefinitionModel,
+  TimeSeriesModel,
 } from './ModelTypes';
 import { Env } from '../server';
 import { TokenRegistryServer } from '../server/token-registry-server';
@@ -24,6 +25,7 @@ import { VaultRegistryServer } from '../server/vault-registry-server';
 import { TokenViews } from './views/TokenViews';
 import { VaultViews } from './views/VaultViews';
 import { ExchangeViews } from './views/ExchangeViews';
+import { TimeSeriesActions, TimeSeriesViews } from './views/TimeSeriesViews';
 import {
   ConfigurationViews,
   registerVaultData,
@@ -42,17 +44,31 @@ export const NetworkModel = types.model('Network', {
   oracles: types.optional(types.map(OracleDefinitionModel), {}),
   oracleGraph: types.optional(OracleGraphModel, {}),
   vaults: types.optional(types.map(VaultDefinitionModel), {}),
+  timeSeries: types.optional(types.map(TimeSeriesModel), {}),
+  timeSeriesState: types.optional(
+    types.map(
+      types.model({
+        id: types.identifier,
+        isLoading: types.boolean,
+        error: types.maybe(types.string),
+      })
+    ),
+    {}
+  ),
   lastUpdated: types.optional(types.number, 0),
 });
 
 // NOTE: this is an initial implementation of the client model which has some views
 // defined that the other models depend on.
-const NetworkModelIntermediate = NetworkModel.named(
-  'NetworkModelIntermediate'
-).views((self) => ({
-  ...TokenViews(self),
-  ...ConfigurationViews(self),
-}));
+const NetworkModelIntermediate = NetworkModel.named('NetworkModelIntermediate')
+  .actions((self) => ({
+    ...TimeSeriesActions(self),
+  }))
+  .views((self) => ({
+    ...TokenViews(self),
+    ...ConfigurationViews(self),
+    ...TimeSeriesViews(self),
+  }));
 export type NetworkModelIntermediateType = Instance<
   typeof NetworkModelIntermediate
 >;

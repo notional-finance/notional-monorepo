@@ -1,4 +1,6 @@
 import {
+  ChartType,
+  getNetworkModel,
   Registry,
   TokenBalance,
   TokenDefinition,
@@ -11,9 +13,39 @@ import {
   floorToMidnight,
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAnalyticsReady, useAppContext } from './use-notional';
 import { useAppStore } from './context/AppContext';
+import { useObserver } from 'mobx-react-lite';
+
+export const useChartData = (
+  token: TokenDefinition | undefined,
+  chartType: ChartType
+) => {
+  const d = useObserver(() => {
+    if (!token)
+      return {
+        data: undefined,
+        isLoading: true,
+        error: undefined,
+      };
+
+    const model = getNetworkModel(token.network);
+    return model.getTimeSeries(token?.id, chartType);
+  });
+
+  useEffect(() => {
+    if (d.data === undefined && token) {
+      const asyncFetch = async () => {
+        const model = getNetworkModel(token.network);
+        await model.fetchChartData(token?.id, chartType);
+      };
+      asyncFetch();
+    }
+  }, [d.data, token, chartType]);
+
+  return d;
+};
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -38,32 +70,6 @@ function fillChartDaily<T extends { timestamp: number }>(
       }
     );
   });
-}
-
-export function useTokenHistory(token?: TokenDefinition) {
-  const isReady = useAnalyticsReady(token?.network);
-  const { apyData, tvlData } = useMemo(() => {
-    const apyData =
-      token && isReady
-        ? Registry.getAnalyticsRegistry().getHistoricalAPY(token)
-        : undefined;
-    const tvlData =
-      token && isReady
-        ? Registry.getAnalyticsRegistry().getPriceHistory(token)
-        : undefined;
-    return { apyData, tvlData };
-  }, [token, isReady]);
-
-  return {
-    apyData: fillChartDaily(apyData || [], { totalAPY: 0 }),
-    tvlData: fillChartDaily(
-      tvlData?.map(({ timestamp, tvlUSD }) => ({
-        timestamp,
-        area: tvlUSD?.toFloat() || 0,
-      })) || [],
-      { area: 0 }
-    ),
-  };
 }
 
 export function useLeveragedPerformance(

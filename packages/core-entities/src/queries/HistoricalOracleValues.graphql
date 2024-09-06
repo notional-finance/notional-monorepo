@@ -1,7 +1,6 @@
 query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
   oracles(where:{ oracleType_in:[
     Chainlink
-    fCashSettlementRate
     nTokenToUnderlyingExchangeRate
     PrimeCashToUnderlyingExchangeRate
     PrimeDebtToUnderlyingExchangeRate
@@ -16,11 +15,8 @@ query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
     nTokenSecondaryIncentiveRate
   ], matured: false}, first: 1000, skip: $skip) {
     id
-    base { id }
-    quote { id }
-    lastUpdateTimestamp
-    lastUpdateBlockNumber
-    oracleAddress
+    base { id tokenType }
+    quote { id tokenType maturity underlying { id }}
     decimals
     ratePrecision
     oracleType
