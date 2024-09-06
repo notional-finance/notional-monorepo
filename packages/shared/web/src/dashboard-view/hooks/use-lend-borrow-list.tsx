@@ -9,7 +9,6 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
-// import { getDebtOrCollateralFactor } from './utils';
 import {
   DisplayCell,
   LinkCell,
@@ -33,7 +32,9 @@ export const useLendBorrowList = (
     [PRODUCTS.BORROW_FIXED]: 'fCash',
     [PRODUCTS.BORROW_VARIABLE]: 'PrimeDebt',
   };
-  const yieldData = useNetworkTokens(network, yieldDataKeys[product]);
+  const yieldData = useNetworkTokens(network, yieldDataKeys[product], {
+    isBorrow,
+  });
 
   let listColumns: DataTableColumn[] = [
     {
@@ -161,7 +162,7 @@ export const useLendBorrowList = (
   }
 
   const listData = yieldData
-    .map(({ token, apy, tvl, underlying }) => {
+    .map(({ token, apy, tvl, underlying, collateralFactor }) => {
       const walletBalance = account
         ? account.balances.find((t) => t.tokenId === underlying?.id)
         : undefined;
@@ -181,11 +182,7 @@ export const useLendBorrowList = (
         apy: apy.totalAPY,
         liquidity: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         symbol: underlying?.symbol || '',
-        // TODO: add back in when the data is available
-        // collateralFactor: underlying
-        //   ? getDebtOrCollateralFactor(token, underlying, isBorrow)
-        //   : '',
-        collateralFactor: '',
+        collateralFactor: collateralFactor ? collateralFactor : '',
         view: `${product}/${network}/${underlying?.symbol}`,
         iconCellData: {
           icon: PointsIcon,

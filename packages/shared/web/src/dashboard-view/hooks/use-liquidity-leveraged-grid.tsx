@@ -1,18 +1,15 @@
 import { useState } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
-// import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
+import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
 import { useNavigate } from 'react-router-dom';
-import {
-  useLeveragedNTokenPositions,
-  useMaxYield,
-} from '@notional-finance/trade';
+import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useLeveragedNTokens } from './use-network-tokens';
 
 export const useLiquidityLeveragedGrid = (
   network: Network | undefined
@@ -23,30 +20,29 @@ export const useLiquidityLeveragedGrid = (
   const { nTokenPositions } = useLeveragedNTokenPositions(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
-  const allMaxAPYs = useMaxYield(network);
+  const yieldData = useLeveragedNTokens(network);
 
-  const allData = allMaxAPYs
-    .map((y) => {
+  const allData = yieldData
+    .map(({ token, apy, tvl, underlying, debtToken }) => {
       const currentPosition = nTokenPositions?.find(
-        (n) => n.asset.balance.underlying.symbol === y.underlying.symbol
+        (n) => n.asset.balance.underlying.symbol === underlying?.symbol
       );
 
       return {
-        ...y,
-        symbol: y.underlying.symbol,
-        title: y.underlying.symbol,
+        symbol: underlying?.symbol || '',
+        title: underlying?.symbol || '',
         subTitle: `Liquidity: ${
-          y.tvl
+          tvl
             ? formatNumberAsAbbr(
-                y.tvl.toFiat(baseCurrency).toFloat(),
+                tvl.toFiat(baseCurrency).toFloat(),
                 0,
                 baseCurrency
               )
             : 0
         }`,
-        network: y.token.network,
+        network: token.network,
         hasPosition: currentPosition ? true : false,
-        tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
+        tvlNum: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         apySubTitle: currentPosition
           ? undefined
           : defineMessage({
@@ -54,10 +50,7 @@ export const useLiquidityLeveragedGrid = (
               description: 'subtitle',
             }),
         bottomLeftValue:
-          getTotalIncentiveApy(
-            y.noteIncentives?.incentiveAPY,
-            y.secondaryIncentives?.incentiveAPY
-          ) === undefined ? (
+          apy?.incentives?.length === 0 ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <LeafIcon
                 fill={theme.palette.typography.main}
@@ -72,46 +65,20 @@ export const useLiquidityLeveragedGrid = (
           ) : (
             ''
           ),
-        incentiveValue: currentPosition
-          ? getTotalIncentiveApy(
-              y.noteIncentives?.incentiveAPY,
-              y.secondaryIncentives?.incentiveAPY
-            )
-          : getTotalIncentiveApy(
-              y?.noteIncentives?.incentiveAPY,
-              y?.secondaryIncentives?.incentiveAPY
-            ),
-        incentiveSymbols: currentPosition
-          ? getTotalIncentiveSymbol(
-              y.secondaryIncentives?.incentiveAPY &&
-                y.secondaryIncentives?.incentiveAPY > 0
-                ? y.secondaryIncentives?.symbol
-                : undefined,
-              y.noteIncentives?.incentiveAPY &&
-                y.noteIncentives?.incentiveAPY > 0
-                ? y.noteIncentives?.symbol
-                : undefined
-            )
-          : getTotalIncentiveSymbol(
-              y.secondaryIncentives?.incentiveAPY &&
-                y.secondaryIncentives?.incentiveAPY > 0
-                ? y.secondaryIncentives?.symbol
-                : undefined,
-              y.noteIncentives?.incentiveAPY &&
-                y.noteIncentives?.incentiveAPY > 0
-                ? y.noteIncentives?.symbol
-                : undefined
-            ),
-        apy:
-          currentPosition && currentPosition.totalLeveragedApy
-            ? currentPosition.totalLeveragedApy
-            : allMaxAPYs.find((m) => m.token.currencyId === y.token.currencyId)
-                ?.totalAPY || 0,
+        incentiveValue:
+          apy?.incentives && apy?.incentives?.length > 0
+            ? sumAndFormatIncentives(apy.incentives)
+            : '',
+        incentiveSymbols:
+          apy?.incentives && apy?.incentives?.length > 0
+            ? getIncentiveSymbols(apy.incentives)
+            : undefined,
+        apy: apy.totalAPY,
         routeCallback: () =>
           navigate(
             currentPosition
-              ? `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/IncreaseLeveragedNToken/${y.underlying.symbol}`
-              : `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/CreateLeveragedNToken/${y.underlying.symbol}?borrowOption=${y?.leveraged?.debtToken?.id}`
+              ? `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/IncreaseLeveragedNToken/${underlying?.symbol}`
+              : `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/CreateLeveragedNToken/${underlying?.symbol}?borrowOption=${debtToken?.id}`
           ),
       };
     })
@@ -119,7 +86,7 @@ export const useLiquidityLeveragedGrid = (
 
   const defaultLeveragedLiquidityData = allData.filter(
     ({ hasPosition }) => !hasPosition
-  );
+  ) as DashboardDataProps[];
   const userPositions = allData.filter(({ hasPosition }) => hasPosition);
 
   const negativeApyCheck = (data: DashboardDataProps[]) => {
@@ -147,7 +114,7 @@ export const useLiquidityLeveragedGrid = (
     gridData.unshift({
       sectionTitle:
         userPositions.length === 1 ? 'Your position' : 'Your positions',
-      data: userPositions,
+      data: userPositions as DashboardDataProps[],
       hasLeveragedPosition: true,
     });
   }
