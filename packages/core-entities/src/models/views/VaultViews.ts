@@ -5,7 +5,6 @@ import { TokenBalance } from '../../token-balance';
 import { whitelistedVaults } from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
 import { ChartType } from '../ModelTypes';
-import { getSnapshot } from 'mobx-state-tree';
 
 function getMinDepositRequiredString(
   minAccountBorrowSize: TokenBalance,

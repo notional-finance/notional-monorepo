@@ -7,6 +7,7 @@ import {
   INTERNAL_TOKEN_DECIMALS,
   encodeERC1155Id,
   AssetType,
+  SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
@@ -15,6 +16,7 @@ import { defaultAbiCoder } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import { TokenDefinition } from '../Definitions';
 import { PointsMultipliers } from '../config/whitelisted-vaults';
+import { TimeSeriesResponse } from '../models/ModelTypes';
 
 export interface SingleSidedLPParams extends BaseVaultParams {
   pool: string;
@@ -75,7 +77,8 @@ export class SingleSidedLP extends VaultAdapter {
     vaultAddress: string,
     p: SingleSidedLPParams,
     _pool: BaseLiquidityPool<unknown>,
-    public currencyId: number
+    public currencyId: number,
+    public apyHistory?: TimeSeriesResponse
   ) {
     super(p.enabled, p.name, network, vaultAddress);
 
@@ -151,20 +154,22 @@ export class SingleSidedLP extends VaultAdapter {
   }
 
   getVaultAPY() {
-    return 0;
-    // const analytics = Registry.getAnalyticsRegistry();
+    const vaultAPYs =
+      this.apyHistory?.data
+        ?.filter(
+          ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+        )
+        .map(({ totalAPY }) => totalAPY)
+        .filter((apy) => apy !== null) || [];
+    console.log(
+      'vault apy history',
+      vaultAPYs,
+      this.apyHistory?.data ? this.apyHistory.data : 'none'
+    );
 
-    // const vaultAPYs = (analytics
-    //   .getVault(this.network, this.vaultAddress)
-    //   ?.filter(
-    //     ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
-    //   )
-    //   .map(({ totalAPY }) => totalAPY)
-    //   .filter((apy) => apy !== null) || []) as number[];
-
-    // return vaultAPYs.length > 0
-    //   ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
-    //   : 0;
+    return vaultAPYs.length > 0
+      ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
+      : 0;
   }
 
   getInitialVaultShareValuation(_maturity: number) {
