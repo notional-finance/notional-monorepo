@@ -34,6 +34,7 @@ import { OracleType, TimeSeriesDataPoint } from '../models/ModelTypes';
 import { getSecondaryTokenIncentive } from '../config/whitelisted-tokens';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { HistoricalOracleValuesQuery } from '../.graphclient';
+import { whitelistedVaults } from '../config/whitelisted-vaults';
 
 export type GraphDocument = keyof Omit<
   Awaited<ReturnType<typeof loadGraphClientDeferred>>,
@@ -328,8 +329,6 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         return o.oracleType === 'PrimeCashPremiumInterestRate';
       } else if (o.quote.tokenType === 'PrimeDebt') {
         return o.oracleType === 'PrimeDebtPremiumInterestRate';
-      } else if (o.quote.tokenType === 'VaultShare') {
-        return o.oracleType === 'VaultShareOracleRate';
       } else if (o.quote.tokenType === 'nToken') {
         return [
           'nTokenBlendedInterestRate',
@@ -353,8 +352,6 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       ];
 
       // Non-nToken APYs are all based on the same oracle so we can just use the first one
-      const isVaultShare = apyOracles[0].oracleType === 'VaultShareOracleRate';
-
       apyData = this.reduceTimeSeriesToMidnight(
         apyOracles[0].historicalRates?.map((r) => {
           return {
@@ -367,34 +364,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           };
         }) || []
       );
-
-      if (isVaultShare) {
-        // Take the moving 10 day average of the price difference.
-        apyData = apyData
-          .map((d, i, arr) => {
-            if (i < 10)
-              return {
-                timestamp: d.timestamp,
-                totalAPY: undefined,
-              };
-
-            const initialPrice = arr[i - 10]['totalAPY'];
-            const priceDifference =
-              d['totalAPY'] && initialPrice
-                ? d['totalAPY'] - initialPrice
-                : undefined;
-            const annualizedAPY = priceDifference
-              ? 100 * ((1 + priceDifference / initialPrice) ** (365 / 10) - 1)
-              : undefined;
-
-            return {
-              timestamp: d.timestamp,
-              totalAPY: annualizedAPY,
-            };
-          })
-          .filter((d) => d?.totalAPY !== undefined) as TimeSeriesDataPoint[];
-      }
-    } else {
+    } else if (apyOracles.length > 1) {
       const base = apyOracles[0].base.id;
       const ethPriceHistory = chainlinkOracles.find(
         (c) => c.id === `${ZERO_ADDRESS}:${base}:${ChartType.PRICE}`
@@ -515,8 +485,10 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         oracles,
         chainlinkOracles
       );
+
       const { apyData, apyLegend } = this.getAPYData(
-        oracles,
+        // Exclude vault share oracles here for APYs, we get them using a different method.
+        oracles.filter((o) => o.oracleType !== 'VaultShareOracleRate'),
         network,
         chainlinkOracles,
         notePrices
@@ -528,14 +500,56 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         legend: priceLegend,
       });
 
-      results.push({
-        id: `${quote}:${ChartType.APY}`,
-        data: apyData,
-        legend: apyLegend,
-      });
+      if (apyData.length > 0) {
+        results.push({
+          id: `${quote}:${ChartType.APY}`,
+          data: apyData,
+          legend: apyLegend,
+        });
+      }
     });
 
-    return results.concat(chainlinkOracles);
+    const vaults: TimeSeriesResponse[] = await Promise.all(
+      whitelistedVaults(network).map(async (vaultAddress) => {
+        let r: AnalyticsData;
+        try {
+          r = await this.fetchView(network, vaultAddress);
+        } catch {
+          r = [];
+        }
+        const data = r.map((p) => {
+          return {
+            timestamp: p['Timestamp'] as number,
+            totalAPY: this._convert(p['Total Strategy APY'], (d) => d * 100),
+            ...Object.keys(p)
+              .filter((k) => k !== 'Timestamp' && k !== 'Day')
+              .reduce(
+                (o, k) =>
+                  Object.assign(o, {
+                    [k]: this._convert(p[k], (d) => d * 100),
+                  }),
+                {} as Record<string, number>
+              ),
+          } as TimeSeriesDataPoint;
+        });
+
+        const legend = Object.keys(firstValue(data) || {}).map((k) => ({
+          series: k,
+          format: 'percent',
+        }));
+
+        return {
+          id: `${vaultAddress}:${ChartType.APY}`,
+          data,
+          legend: [
+            { series: 'totalAPY', format: 'percent' },
+            ...legend,
+          ] as TimeSeriesLegend[],
+        };
+      })
+    );
+
+    return results.concat(chainlinkOracles).concat(vaults);
   }
 
   protected async _refresh(network: Network) {
@@ -627,38 +641,6 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     //   'accounts'
     // );
 
-    // const vaults = await Promise.all(
-    //   whitelistedVaults(network).map(async (vaultAddress) => {
-    //     let r: AnalyticsData;
-    //     try {
-    //       r = await this.fetchView(network, vaultAddress);
-    //     } catch {
-    //       r = [];
-    //     }
-    //     const data = r.map((p) => {
-    //       return {
-    //         vaultAddress,
-    //         timestamp: p['Timestamp'] as number,
-    //         totalAPY: this._convertOrNull(
-    //           p['Total Strategy APY'],
-    //           (d) => d * 100
-    //         ),
-    //         returnDrivers: Object.keys(p)
-    //           .filter((k) => k !== 'Timestamp' && k !== 'Day')
-    //           .reduce(
-    //             (o, k) =>
-    //               Object.assign(o, {
-    //                 [k]: this._convertOrNull(p[k], (d) => d * 100),
-    //               }),
-    //             {} as Record<string, number | null>
-    //           ),
-    //       } as VaultData[number];
-    //     });
-
-    //     return [vaultAddress.toLowerCase(), data] as [string, VaultData];
-    //   })
-    // );
-
     return {
       values: [],
       network,
@@ -731,5 +713,11 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         chainName: network,
       }
     );
+  }
+
+  private _convert<T>(v: string | number | null, fn: (d: number) => T) {
+    if (v === null) return 0;
+    else if (typeof v === 'string') return fn(parseFloat(v));
+    else return fn(v);
   }
 }

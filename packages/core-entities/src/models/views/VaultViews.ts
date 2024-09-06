@@ -4,6 +4,7 @@ import { NetworkModelIntermediateType } from '../NetworkModel';
 import { TokenBalance } from '../../token-balance';
 import { whitelistedVaults } from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
+import { ChartType } from '../ModelTypes';
 
 function getMinDepositRequiredString(
   minAccountBorrowSize: TokenBalance,
@@ -41,7 +42,8 @@ export const VaultViews = (self: NetworkModelIntermediateType) => {
       vaultAddress,
       params,
       getPoolInstance_(self, params.pool),
-      primaryToken.currencyId
+      primaryToken.currencyId,
+      self.getTimeSeries(v.vaultAddress, ChartType.APY)?.data
     );
   };
 

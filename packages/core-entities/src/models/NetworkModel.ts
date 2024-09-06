@@ -1,4 +1,7 @@
-import { getNowSeconds } from '@notional-finance/util';
+import {
+  getNowSeconds,
+  PRIME_CASH_VAULT_MATURITY,
+} from '@notional-finance/util';
 import {
   types,
   flow,
@@ -15,6 +18,7 @@ import {
   TokenDefinitionModel,
   VaultDefinitionModel,
   TimeSeriesModel,
+  ChartType,
 } from './ModelTypes';
 import { Env } from '../server';
 import { TokenRegistryServer } from '../server/token-registry-server';
@@ -33,6 +37,7 @@ import {
 import defaultPools from '../exchanges/default-pools';
 import { buildOracleGraph, OracleViews } from './views/OracleViews';
 import { YieldViews } from './views/YieldViews';
+import { whitelistedVaults } from '../config/whitelisted-vaults';
 
 const REGISTRY_URL = 'https://registry.notional.finance';
 
@@ -170,6 +175,11 @@ export const NetworkClientModel = NetworkModelWithViews.views((self) => ({
     console.log(
       `${self.network} snapshot refreshed in ${duration.toFixed(2)}ms`
     );
+
+    // NOTE: just trigger this in the background so the APYs can load.
+    whitelistedVaults(self.network).forEach((vaultAddress) => {
+      self.fetchChartData(vaultAddress, ChartType.APY);
+    });
   });
 
   return {
