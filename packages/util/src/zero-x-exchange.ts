@@ -52,14 +52,12 @@ export async function get0xData(arg: {
     taker,
   }).toString();
 
-  const response = await fetch(
-    `${zeroExUrl}?${searchParams}`,
-    {
-      headers: {
-        '0x-api-key': env.ZERO_EX_API_KEY,
-      },
-    }
-  );
+  const response = await fetch(`${zeroExUrl}?${searchParams}`, {
+    headers: {
+      '0x-api-key': env.ZERO_EX_API_KEY,
+      '0x-version': 'v2',
+    },
+  });
 
   const data = await response.json();
   if (data['buyAmount'] == undefined) {
