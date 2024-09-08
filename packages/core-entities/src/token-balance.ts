@@ -15,8 +15,9 @@ import {
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { parseUnits } from 'ethers/lib/utils';
-import { TokenDefinition, RiskAdjustment, getNetworkModel } from '.';
+import { TokenDefinition, RiskAdjustment, getNetworkModel, NetworkClientModel } from '.';
 import { FiatKeys, FiatSymbols } from './config/fiat-config';
+import { Instance } from 'mobx-state-tree';
 
 // NOTE: this is a hack used to hide the circular type reference for TokenBalance from typescript
 const NetworkModelRegistry = {
@@ -33,7 +34,9 @@ const NetworkModelRegistry = {
   },
 };
 
-export function initializeTokenBalanceRegistry() {
+export function initializeTokenBalanceRegistry(): Instance<
+  typeof NetworkClientModel
+>[] {
   NetworkModelRegistry.setModel(
     Network.mainnet,
     getNetworkModel(Network.mainnet)
