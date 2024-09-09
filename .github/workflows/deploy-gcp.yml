@@ -28,6 +28,8 @@ jobs:
       with:
         version: 'latest'
         project_id: ${{ secrets.GCLOUD_PROJECT_ID }}
+    - name: Configure Docker for Artifact Registry
+      run: gcloud auth configure-docker us-east1-docker.pkg.dev
     - name: Deploy All
       shell: bash
       run: apps/deployGCP.sh

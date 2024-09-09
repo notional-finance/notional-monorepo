@@ -601,7 +601,7 @@ export default class DataService {
       )
       .into(DataService.VAULT_APY_NAME)
       .onConflict(['network_id', 'timestamp', 'vault_address', 'reward_token'])
-      .ignore();
+      .merge();
   }
 
   public async accounts(network: Network) {
