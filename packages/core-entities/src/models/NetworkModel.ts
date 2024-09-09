@@ -64,9 +64,10 @@ const NetworkModelWithViews = NetworkModel.named('NetworkModelIntermediate')
     ...TokenViews(self),
     ...ConfigurationViews(self),
     ...TimeSeriesViews(self),
-    ...VaultViews(self),
     ...ExchangeViews(self),
     ...OracleViews(self),
+    ...YieldViews(self),
+    ...VaultViews(self),
     get isReady() {
       return self.lastUpdated > 0;
     },
@@ -144,9 +145,7 @@ export const NetworkServerModel = NetworkModelWithViews.named(
   };
 });
 
-export const NetworkClientModel = NetworkModelWithViews.views((self) => ({
-  ...YieldViews(self),
-})).actions((self) => {
+export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
   const triggerRefresh = flow(function* () {
     const startTime = performance.now();
     const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);

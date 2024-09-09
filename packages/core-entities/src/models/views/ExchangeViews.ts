@@ -7,13 +7,16 @@ import {
   SNOTEWeightedPool,
 } from '../../exchanges/index';
 import { Network } from '@notional-finance/util';
-import { NetworkModelIntermediateType } from '../NetworkModel';
+import { NetworkModel } from '../NetworkModel';
 import { ethers } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 import { ClientRegistry } from '../../client/client-registry';
+import { Instance } from 'mobx-state-tree';
+import { TokenViews } from './TokenViews';
+import { ConfigurationViews } from './ConfigurationViews';
 
 export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
-  self: NetworkModelIntermediateType,
+  self: Instance<typeof NetworkModel>,
   address: string
 ) {
   const poolDefinition =
@@ -37,7 +40,10 @@ export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
   ) as T;
 }
 
-export const ExchangeViews = (self: NetworkModelIntermediateType) => {
+export const ExchangeViews = (self: Instance<typeof NetworkModel>) => {
+  const { getNToken, getPrimeCash } = TokenViews(self);
+  const { getConfig } = ConfigurationViews(self);
+
   const getPoolInstance = <T extends BaseLiquidityPool<unknown>>(
     address: string
   ) => {
@@ -51,21 +57,21 @@ export const ExchangeViews = (self: NetworkModelIntermediateType) => {
   };
 
   const getfCashMarket = (currencyId: number) => {
-    const nToken = self.getNToken(currencyId);
+    const nToken = getNToken(currencyId);
     return getPoolInstance<fCashMarket>(nToken.address);
   };
 
   const getNotionalMarket = (currencyId: number) => {
     try {
       // If there is an nToken, return the fCash market
-      if (self.getNToken(currencyId)) return getfCashMarket(currencyId);
+      if (getNToken(currencyId)) return getfCashMarket(currencyId);
     } catch (e) {
       // getNToken throws an error if the nToken is not found, but just swallow it
       // and return the pCash market
     }
 
-    const pCash = self.getPrimeCash(currencyId);
-    const config = self.getConfig(currencyId);
+    const pCash = getPrimeCash(currencyId);
+    const config = getConfig(currencyId);
 
     if (!pCash || !config?.primeCashCurve)
       throw Error('Prime Cash Curve not found');
