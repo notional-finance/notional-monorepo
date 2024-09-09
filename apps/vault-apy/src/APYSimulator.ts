@@ -91,7 +91,7 @@ export default class APYSimulator {
         log(`Processing vault: ${vault.address}`);
         try {
           const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vault.rewardPoolType, vault.address);
-          await this.run(adjustedForkBlock, vault.address);
+          await this.run(adjustedForkBlock, vault.address, currentTimestamp);
         } catch (error) {
           log(`Error processing vault ${vault.address}: ${error}`);
         }
@@ -111,13 +111,12 @@ export default class APYSimulator {
     }
 
     for (let i = 0; i <= numOfDays; i++) {
+      const currentTimestamp = startingTimestamp - i * ONE_DAY_IN_SECONDS;
       log(`processing day ${i}`);
-      const initialForkBlock = await this.#getBlockAtTimestamp(
-        startingTimestamp - i * ONE_DAY_IN_SECONDS
-      );
+      const initialForkBlock = await this.#getBlockAtTimestamp(currentTimestamp);
 
       const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vaultData.rewardPoolType, vaultAddress);
-      await this.run(adjustedForkBlock, vaultAddress);
+      await this.run(adjustedForkBlock, vaultAddress, currentTimestamp);
     }
   }
 
@@ -134,19 +133,19 @@ export default class APYSimulator {
     for (let i = 0; i < blocks.length; i++) {
       const forkBlock = blocks[i];
       log(`processing block ${forkBlock}`);
+      const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
 
       if (vaultData.rewardPoolType === RewardPoolType.Aura) {
         const periodFinish = await this.getPeriodFinishForVault(vaultAddress, forkBlock);
-        const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
         const timeDifference = periodFinish - forkBlockTimestamp;
         log(`Time difference between periodFinish and forkBlock: ${timeDifference} seconds`);
       }
 
-      await this.run(forkBlock, vaultAddress);
+      await this.run(forkBlock, vaultAddress, forkBlockTimestamp);
     }
   }
 
-  async run(forkBlock: number, vaultAddress: string) {
+  async run(forkBlock: number, vaultAddress: string, originalTimestamp: number) {
     const vaultData = this.#config.vaults.find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
 
     if (!vaultData) {
@@ -184,7 +183,9 @@ export default class APYSimulator {
     try {
       const results = await this.#calculateFutureAPY(
         provider,
-        vaultData as VaultData
+        vaultData as VaultData,
+        originalTimestamp,
+        forkBlock
       );
       await this.#saveToDb(results);
     } catch (error) {
@@ -196,7 +197,12 @@ export default class APYSimulator {
     await provider.send('evm_revert', [checkpoint]);
   }
 
-  async #calculateFutureAPY(provider: JsonRpcProvider, vaultData: VaultData) {
+  async #calculateFutureAPY(
+    provider: JsonRpcProvider,
+    vaultData: VaultData,
+    originalTimestamp: number,
+    forkBlock: number
+  ) {
     let account = vaultData.address;
     let totalLpTokens = await this.#getTotalLpTokensForAccount(
       account,
@@ -288,12 +294,12 @@ export default class APYSimulator {
         ).name(),
       }),
       network: this.#network,
-      date: new Date(prevBlock.timestamp * 1000).toISOString(),
+      date: new Date(originalTimestamp * 1000).toISOString(),
       ///////////////////////////////////////////////////////////////////////
 
       swapFees: poolFeesInPrimary.toString(),
-      blockNumber: prevBlock.number,
-      timestamp: floorToMidnight(prevBlock.timestamp),
+      blockNumber: forkBlock,
+      timestamp: floorToMidnight(originalTimestamp),
       vaultAddress: vaultData.address.toLowerCase(),
       poolValuePerShareInPrimary:
         poolData.poolValuePerShareInPrimary.toString(),
@@ -646,13 +652,14 @@ export default class APYSimulator {
     }
 
     const initialForkBlock = await this.#alchemyProvider.getBlockNumber();
+    const originalTimestamp = (await this.#alchemyProvider.getBlock(initialForkBlock)).timestamp;
     log(`Processing all vaults at block ${initialForkBlock}`);
 
     for (const vault of this.#config.vaults) {
       log(`Processing vault: ${vault.address}`);
       try {
         const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vault.rewardPoolType, vault.address);
-        await this.run(adjustedForkBlock, vault.address);
+        await this.run(adjustedForkBlock, vault.address, originalTimestamp);
       } catch (error) {
         log(`Error processing vault ${vault.address}: ${error}`);
       }
