@@ -83,7 +83,7 @@ process.on('exit', async function () {
     );
 
     const apySimulator = new APYSimulator(network as Network);
-    await apySimulator.runHistoricalForVault(vaultAddress, 30, startOfToday);
+    await apySimulator.runHistoricalForVault(vaultAddress, 2, startOfToday);
 
     log('processing completed');
   } else if (
