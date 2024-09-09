@@ -1,14 +1,5 @@
-import {
-  getNowSeconds,
-  PRIME_CASH_VAULT_MATURITY,
-} from '@notional-finance/util';
-import {
-  types,
-  flow,
-  getSnapshot,
-  applySnapshot,
-  Instance,
-} from 'mobx-state-tree';
+import { getNowSeconds } from '@notional-finance/util';
+import { types, flow, getSnapshot, applySnapshot } from 'mobx-state-tree';
 import {
   ConfigurationModel,
   ExchangeModel,
@@ -65,7 +56,7 @@ export const NetworkModel = types.model('Network', {
 
 // NOTE: this is an initial implementation of the client model which has some views
 // defined that the other models depend on.
-const NetworkModelIntermediate = NetworkModel.named('NetworkModelIntermediate')
+const NetworkModelWithViews = NetworkModel.named('NetworkModelIntermediate')
   .actions((self) => ({
     ...TimeSeriesActions(self),
   }))
@@ -73,22 +64,13 @@ const NetworkModelIntermediate = NetworkModel.named('NetworkModelIntermediate')
     ...TokenViews(self),
     ...ConfigurationViews(self),
     ...TimeSeriesViews(self),
+    ...VaultViews(self),
+    ...ExchangeViews(self),
+    ...OracleViews(self),
+    get isReady() {
+      return self.lastUpdated > 0;
+    },
   }));
-export type NetworkModelIntermediateType = Instance<
-  typeof NetworkModelIntermediate
->;
-
-const NetworkModelWithViews = NetworkModelIntermediate.views((self) => ({
-  ...VaultViews(self),
-  ...ExchangeViews(self),
-  ...OracleViews(self),
-})).views((self) => ({
-  get isReady() {
-    return self.lastUpdated > 0;
-  },
-}));
-
-export type NetworkModelWithViewsType = Instance<typeof NetworkModelWithViews>;
 
 export const NetworkServerModel = NetworkModelWithViews.named(
   'NetworkServer'

@@ -15,7 +15,12 @@ import {
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { parseUnits } from 'ethers/lib/utils';
-import { TokenDefinition, RiskAdjustment, getNetworkModel, NetworkClientModel } from '.';
+import {
+  TokenDefinition,
+  RiskAdjustment,
+  getNetworkModel,
+  NetworkClientModel,
+} from '.';
 import { FiatKeys, FiatSymbols } from './config/fiat-config';
 import { Instance } from 'mobx-state-tree';
 
