@@ -4,7 +4,7 @@ import { TokenBalance } from '../../token-balance';
 import { whitelistedVaults } from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
 import { ChartType } from '../ModelTypes';
-import { Instance } from 'mobx-state-tree';
+import { getSnapshot, Instance } from 'mobx-state-tree';
 import { NetworkModel } from '../NetworkModel';
 import { TokenViews } from './TokenViews';
 import { TimeSeriesViews } from './TimeSeriesViews';
@@ -90,10 +90,11 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
       v.maxDeleverageCollateralRatioBasisPoints,
       v.maxRequiredAccountCollateralRatioBasisPoints as number
     );
+    const vaultNameInfo = self.vaults.get(vaultAddress);
 
     return {
-      ...v,
-      ...self.vaults.get(vaultAddress),
+      ...getSnapshot(v),
+      ...(vaultNameInfo ? getSnapshot(vaultNameInfo) : {}),
       primaryToken,
       vaultTVL,
       minDepositRequired,
