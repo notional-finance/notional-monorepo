@@ -68,9 +68,7 @@ const NetworkModelWithViews = NetworkModel.named('NetworkModelIntermediate')
     ...OracleViews(self),
     ...YieldViews(self),
     ...VaultViews(self),
-    get isReady() {
-      return self.lastUpdated > 0;
-    },
+    isReady: () => self.lastUpdated > 0,
   }));
 
 export const NetworkServerModel = NetworkModelWithViews.named(

@@ -101,6 +101,8 @@ export const AccountModel = types
     let provider = getProviderFromNetwork(self.network);
 
     const refreshAccount = flow(function* () {
+      const startTime = performance.now();
+
       const result: CacheSchema<AccountDefinition> = yield fetchCurrentAccount(
         self.network,
         self.address,
@@ -147,6 +149,13 @@ export const AccountModel = types
         }
         self.lastUpdateTimestamp = result.lastUpdateTimestamp;
       }
+
+      const endTime = performance.now();
+      console.log(
+        `refreshAccount ${self.address} on ${self.network} execution time: ${
+          endTime - startTime
+        } ms`
+      );
     });
 
     const fetchAccountHistory = flow(function* () {
