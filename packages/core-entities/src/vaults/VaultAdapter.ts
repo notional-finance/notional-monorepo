@@ -89,11 +89,6 @@ export abstract class VaultAdapter {
     slippageFactor: number
   ): BytesLike;
 
-  abstract getPriceExposure(): {
-    price: TokenBalance;
-    vaultSharePrice: TokenBalance;
-  }[];
-
   abstract getVaultAPY(factors?: {
     account: string;
     vaultShares: TokenBalance;
