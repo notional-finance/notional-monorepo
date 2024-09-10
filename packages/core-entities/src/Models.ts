@@ -1,5 +1,6 @@
 import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
 import { NetworkClientModel } from './models/NetworkModel';
+import { Instance } from 'mobx-state-tree';
 
 const MainnetNetworkModel = NetworkClientModel.create({
   network: Network.mainnet,
@@ -11,7 +12,9 @@ const AllNetworkModel = NetworkClientModel.create({
   network: Network.all,
 });
 
-export function getNetworkModel(network: Network | undefined) {
+export function getNetworkModel(
+  network: Network | undefined
+): Instance<typeof NetworkClientModel> {
   switch (network) {
     case Network.mainnet:
       return MainnetNetworkModel;

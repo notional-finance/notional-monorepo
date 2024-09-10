@@ -1,9 +1,9 @@
 import { types, Instance } from 'mobx-state-tree';
-import { Network } from '@notional-finance/util';
-import { AccountState } from '../global';
+import { AccountModel, NotionalTypes } from '@notional-finance/core-entities';
+import { SupportedNetworks } from '@notional-finance/util';
 
 const UserWalletModel = types.model('UserWalletModel', {
-  selectedChain: types.maybe(types.enumeration('Network', Object.values(Network))),
+  selectedChain: types.maybe(NotionalTypes.Network),
   selectedAddress: types.string,
   isReadOnlyAddress: types.optional(types.boolean, false),
   label: types.maybe(types.string),
@@ -15,11 +15,27 @@ export const WalletModel = types
     communityMembership: types.optional(types.array(types.string), []),
     isSanctionedAddress: types.boolean,
     isAccountPending: types.boolean,
-    networkAccounts: types.maybe(types.map(types.frozen<AccountState>())),
+    networkAccounts: types.optional(types.map(AccountModel), {}),
     totalPoints: types.maybe(types.number),
   })
   .actions((self) => ({
     setUserWallet(userWallet: Instance<typeof UserWalletModel> | undefined) {
+      if (
+        userWallet?.selectedAddress &&
+        self.userWallet?.selectedAddress !== userWallet?.selectedAddress
+      ) {
+        // Trigger account data fetch on wallet address change
+        self.networkAccounts.clear();
+        SupportedNetworks.forEach((network) => {
+          const m = AccountModel.create({
+            address: userWallet.selectedAddress,
+            network,
+          });
+          // TODO: allow provider override here...
+          self.networkAccounts.set(network, m);
+        });
+      }
+
       self.userWallet = userWallet;
     },
     setCommunityMembership(membership: string[]) {
@@ -30,7 +46,7 @@ export const WalletModel = types
     },
     setIsAccountPending(isPending: boolean) {
       self.isAccountPending = isPending;
-    }, 
+    },
     setTotalPoints(points: number | undefined) {
       self.totalPoints = points;
     },

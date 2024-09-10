@@ -1,10 +1,13 @@
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { SingleSidedLP } from '../../vaults';
-import { NetworkModelIntermediateType } from '../NetworkModel';
 import { TokenBalance } from '../../token-balance';
 import { whitelistedVaults } from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
 import { ChartType } from '../ModelTypes';
+import { getSnapshot, Instance } from 'mobx-state-tree';
+import { NetworkModel } from '../NetworkModel';
+import { TokenViews } from './TokenViews';
+import { TimeSeriesViews } from './TimeSeriesViews';
 
 function getMinDepositRequiredString(
   minAccountBorrowSize: TokenBalance,
@@ -21,7 +24,10 @@ function getMinDepositRequiredString(
   return `${lowerDeposit} to ${upperDeposit}`;
 }
 
-export const VaultViews = (self: NetworkModelIntermediateType) => {
+export const VaultViews = (self: Instance<typeof NetworkModel>) => {
+  const { getTokenByID, getVaultDebt } = TokenViews(self);
+  const { getTimeSeries } = TimeSeriesViews(self);
+
   const isVaultEnabled = (vaultAddress: string) => {
     return self.vaults.get(vaultAddress)?.enabled || false;
   };
@@ -33,7 +39,7 @@ export const VaultViews = (self: NetworkModelIntermediateType) => {
       (c) => c.id === vaultAddress
     );
     if (!v) throw Error(`Configuration not found for ${vaultAddress}`);
-    const primaryToken = self.getTokenByID(v.primaryBorrowCurrency.id);
+    const primaryToken = getTokenByID(v.primaryBorrowCurrency.id);
     if (!primaryToken.currencyId)
       throw Error(`Token not found for ${vaultAddress}`);
 
@@ -43,7 +49,7 @@ export const VaultViews = (self: NetworkModelIntermediateType) => {
       params,
       getPoolInstance_(self, params.pool),
       primaryToken.currencyId,
-      self.getTimeSeries(v.vaultAddress, ChartType.APY)?.data
+      getTimeSeries(v.vaultAddress, ChartType.APY)?.data
     );
   };
 
@@ -58,11 +64,8 @@ export const VaultViews = (self: NetworkModelIntermediateType) => {
       (c) => c.id === vaultAddress
     );
     if (!v) throw Error(`Configuration not found for ${vaultAddress}`);
-    const primeDebt = self.getVaultDebt(
-      v.vaultAddress,
-      PRIME_CASH_VAULT_MATURITY
-    );
-    const primaryToken = self.getTokenByID(v.primaryBorrowCurrency.id);
+    const primeDebt = getVaultDebt(v.vaultAddress, PRIME_CASH_VAULT_MATURITY);
+    const primaryToken = getTokenByID(v.primaryBorrowCurrency.id);
     const vaultTVL = getVaultAdapter(v.vaultAddress)?.getVaultTVL();
     const minAccountBorrowSize = TokenBalance.from(
       v.minAccountBorrowSize,
@@ -87,10 +90,11 @@ export const VaultViews = (self: NetworkModelIntermediateType) => {
       v.maxDeleverageCollateralRatioBasisPoints,
       v.maxRequiredAccountCollateralRatioBasisPoints as number
     );
+    const vaultNameInfo = self.vaults.get(vaultAddress);
 
     return {
-      ...v,
-      ...self.vaults.get(vaultAddress),
+      ...getSnapshot(v),
+      ...(vaultNameInfo ? getSnapshot(vaultNameInfo) : {}),
       primaryToken,
       vaultTVL,
       minDepositRequired,
