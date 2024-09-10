@@ -113,6 +113,8 @@ export const whitelistedVaults = (network: Network) => {
         '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68',
         // "[wstETH]:cbETH_xwstETH_rETH":
         '0x91b79f4081d3522af2760b7698810d501ebc8010',
+        // "[wBTC]:xWBTC_tBTC":
+        '0xf35431fa697bdd436d8c4e8490e71bdcb52f6a09',
       ];
     case Network.optimism:
       return [];
