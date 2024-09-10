@@ -1,5 +1,5 @@
 import { TokenBalance } from '../../token-balance';
-import { NetworkModelWithViewsType } from '../NetworkModel';
+import { NetworkModel } from '../NetworkModel';
 import {
   getNowSeconds,
   INTERNAL_TOKEN_PRECISION,
@@ -9,8 +9,12 @@ import {
   SCALAR_PRECISION,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
-import { assertDefined } from './ConfigurationViews';
+import { assertDefined, ConfigurationViews } from './ConfigurationViews';
 import { TokenDefinition } from '../../Definitions';
+import { Instance } from 'mobx-state-tree';
+import { TokenViews } from './TokenViews';
+import { VaultViews } from './VaultViews';
+import { ExchangeViews } from './ExchangeViews';
 
 export interface APYData {
   totalAPY: number;
@@ -26,7 +30,21 @@ export interface APYData {
   debtAPY?: number;
 }
 
-export const YieldViews = (self: NetworkModelWithViewsType) => {
+export const YieldViews = (self: Instance<typeof NetworkModel>) => {
+  const {
+    getTokenBySymbol,
+    getTokenByID,
+    getPrimeCash,
+    getUnderlying,
+    getDebtTokens,
+    getVaultShares,
+    getVaultDebt,
+    unwrapVaultToken,
+  } = TokenViews(self);
+  const { getVaultAdapter, getVaultConfig } = VaultViews(self);
+  const { getConfig } = ConfigurationViews(self);
+  const { getfCashMarket, getNotionalMarket } = ExchangeViews(self);
+
   const convertRatioToYield = (num: TokenBalance, denom: TokenBalance) => {
     if (num.isZero()) return 0;
 
@@ -38,8 +56,8 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
 
   const getAnnualizedNOTEIncentives = (nToken: TokenDefinition) => {
     if (!nToken.currencyId) throw Error('Invalid nToken');
-    const config = self.getConfig(nToken.currencyId);
-    const NOTE = self.getTokenBySymbol('NOTE');
+    const config = getConfig(nToken.currencyId);
+    const NOTE = getTokenBySymbol('NOTE');
 
     const incentiveEmissionRate = TokenBalance.from(
       BigNumber.from(
@@ -70,14 +88,14 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
 
   const getAnnualizedSecondaryIncentives = (nToken: TokenDefinition) => {
     if (!nToken.currencyId) throw Error('Invalid nToken');
-    const config = self.getConfig(nToken.currencyId);
+    const config = getConfig(nToken.currencyId);
     if (!config?.incentives?.currentSecondaryReward) return undefined;
     const rewardEndTime = config?.incentives?.secondaryRewardEndTime
       ? parseInt(config.incentives.secondaryRewardEndTime)
       : undefined;
     if (rewardEndTime && rewardEndTime < getNowSeconds()) return undefined;
 
-    const rewardToken = self.getTokenByID(
+    const rewardToken = getTokenByID(
       config.incentives.currentSecondaryReward.id
     );
 
@@ -111,13 +129,13 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
 
   const getTVL = (token: TokenDefinition) => {
     if (token.tokenType === 'fCash' && token.currencyId) {
-      const market = self.getfCashMarket(token.currencyId);
+      const market = getfCashMarket(token.currencyId);
       const marketIndex = market.getMarketIndex(token.maturity);
       const pCash = market.poolParams.perMarketCash[marketIndex - 1];
       const fCash = market.poolParams.perMarketfCash[marketIndex - 1];
       return fCash.toUnderlying().add(pCash.toUnderlying());
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
-      const adapter = self.getVaultAdapter(token.vaultAddress);
+      const adapter = getVaultAdapter(token.vaultAddress);
       // NOTE: this returns the TVL of the vault across all maturities
       return adapter.getVaultTVL();
     }
@@ -128,7 +146,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
   const getLiquidity = (token: TokenDefinition) => {
     if (token.tokenType === 'PrimeDebt') {
       // Liquidity for prime debt is based on prime cash supply
-      return getTVL(self.getPrimeCash(token.currencyId));
+      return getTVL(getPrimeCash(token.currencyId));
     }
 
     return getTVL(token);
@@ -162,8 +180,8 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
   const getSpotAPY = (tokenId: string) => {
     const apyData: APYData = { totalAPY: 0 };
 
-    const _token = self.getTokenByID(tokenId);
-    const token = self.unwrapVaultToken(_token);
+    const _token = getTokenByID(tokenId);
+    const token = unwrapVaultToken(_token);
     if (!token.currencyId) throw Error('Token currencyId not found');
 
     if (
@@ -171,7 +189,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
       token.tokenType === 'PrimeDebt' ||
       token.tokenType === 'fCash'
     ) {
-      const market = self.getNotionalMarket(token.currencyId);
+      const market = getNotionalMarket(token.currencyId);
       apyData.organicAPY = market.getSpotInterestRate(token) || 0;
       if (
         _token.tokenType === 'VaultDebt' &&
@@ -179,13 +197,13 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
         _token.vaultAddress
       ) {
         // Add the debt fee to the organic APY
-        const config = self.getVaultConfig(_token.vaultAddress);
+        const config = getVaultConfig(_token.vaultAddress);
         apyData.organicAPY +=
           (config.feeRateBasisPoints * 100) / RATE_PRECISION;
       }
       apyData.totalAPY = apyData.organicAPY;
     } else if (token.tokenType === 'nToken') {
-      const market = self.getfCashMarket(token.currencyId);
+      const market = getfCashMarket(token.currencyId);
       apyData.organicAPY = market.getNTokenBlendedYield();
       const feeRate = self.oracles.get(
         `${token.underlying}:${token.id}:nTokenFeeRate`
@@ -202,7 +220,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
         apyData.organicAPY +
         apyData.incentives.reduce((acc, curr) => acc + curr.incentiveAPY, 0);
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
-      const adapter = self.getVaultAdapter(token.vaultAddress);
+      const adapter = getVaultAdapter(token.vaultAddress);
       apyData.organicAPY = adapter.getVaultAPY();
       apyData.totalAPY = apyData.organicAPY;
       apyData.pointMultiples = adapter.getPointMultiples();
@@ -213,7 +231,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
 
   const getLeverageRatios = (token: TokenDefinition) => {
     if (token.tokenType === 'VaultShare' && token.vaultAddress) {
-      const config = self.getVaultConfig(token.vaultAddress);
+      const config = getVaultConfig(token.vaultAddress);
       const minLeverageRatio =
         RATE_PRECISION /
         (config.maxRequiredAccountCollateralRatioBasisPoints as number);
@@ -230,7 +248,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
       //   debt.token.tokenType === 'fCash'
       //     ? TokenBalance.unit(debt.token).toUnderlying().scaleTo(RATE_DECIMALS)
       //     : RATE_PRECISION;
-      const config = self.getConfig(token.currencyId);
+      const config = getConfig(token.currencyId);
       const nTokenHaircut =
         (assertDefined(config.pvHaircutPercentage) * RATE_PRECISION) / 100;
       const pvFactor = RATE_PRECISION;
@@ -253,7 +271,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
     const apyData: APYData = { totalAPY: 0 };
 
     if (netAmount.unwrapVaultToken().tokenType === 'fCash') {
-      const market = self.getfCashMarket(netAmount.currencyId);
+      const market = getfCashMarket(netAmount.currencyId);
       const realized = market.calculateTokenTrade(
         netAmount.unwrapVaultToken(),
         0
@@ -265,7 +283,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.unwrapVaultToken().tokenType === 'PrimeCash') {
       // Increases or decreases the prime supply accordingly
-      const market = self.getNotionalMarket(netAmount.currencyId);
+      const market = getNotionalMarket(netAmount.currencyId);
       apyData.utilization = market.getPrimeCashUtilization(
         netAmount.unwrapVaultToken(),
         undefined
@@ -275,7 +293,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
     } else if (netAmount.unwrapVaultToken().tokenType === 'PrimeDebt') {
       // If borrowing and withdrawing then it is just prime debt increase. This
       // includes vault debt
-      const market = self.getNotionalMarket(netAmount.currencyId);
+      const market = getNotionalMarket(netAmount.currencyId);
       apyData.utilization = market.getPrimeCashUtilization(
         undefined,
         netAmount.unwrapVaultToken().neg()
@@ -287,13 +305,13 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
         netAmount.vaultAddress
       ) {
         // Add the debt fee to the organic APY
-        const config = self.getVaultConfig(netAmount.vaultAddress);
+        const config = getVaultConfig(netAmount.vaultAddress);
         apyData.organicAPY +=
           (config.feeRateBasisPoints * 100) / RATE_PRECISION;
       }
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.tokenType === 'nToken') {
-      const market = self.getfCashMarket(netAmount.currencyId);
+      const market = getfCashMarket(netAmount.currencyId);
       apyData.organicAPY = market.getNTokenBlendedYield(netAmount);
       // TODO: maybe add it to the oracle views and add this to the organicAPY
       apyData.feeAPY = 0;
@@ -361,7 +379,7 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
     if (!token.currencyId) throw Error('Invalid token currency');
     if (token.tokenType !== 'nToken') throw Error('Invalid token type');
     const { defaultLeverageRatio } = getLeverageRatios(token);
-    const debtTokens = self.getDebtTokens(token.currencyId);
+    const debtTokens = getDebtTokens(token.currencyId);
 
     return debtTokens.map((d) => ({
       apy: getLeveragedAPY(
@@ -374,9 +392,9 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
   };
 
   const getDefaultVaultAPYs = (vaultAddress: string) => {
-    return self.getVaultShares('VaultShare').map((share) => {
+    return getVaultShares('VaultShare').map((share) => {
       if (!share.maturity) throw Error('Invalid share maturity');
-      const debt = self.getVaultDebt(vaultAddress, share.maturity);
+      const debt = getVaultDebt(vaultAddress, share.maturity);
       const { defaultLeverageRatio } = getLeverageRatios(share);
 
       return {
@@ -395,9 +413,9 @@ export const YieldViews = (self: NetworkModelWithViewsType) => {
     isBorrow: boolean
   ) => {
     if (!token.currencyId) throw Error('Invalid token currency');
-    const buffer = self.getConfig(token.currencyId).debtBuffer;
-    const haircut = self.getConfig(token.currencyId).collateralHaircut;
-    const underlying = self.getUnderlying(token.currencyId);
+    const buffer = getConfig(token.currencyId).debtBuffer;
+    const haircut = getConfig(token.currencyId).collateralHaircut;
+    const underlying = getUnderlying(token.currencyId);
 
     const unit = TokenBalance.unit(underlying).toToken(token);
     if (isBorrow) {

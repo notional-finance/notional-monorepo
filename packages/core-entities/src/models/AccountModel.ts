@@ -1,9 +1,12 @@
-import { flow, types } from 'mobx-state-tree';
+import { flow, Instance, types } from 'mobx-state-tree';
 import { NotionalTypes, TokenDefinitionModel } from './ModelTypes';
 import { getProviderFromNetwork } from '@notional-finance/util';
 import { providers } from 'ethers';
 import { fetchCurrentAccount } from '../client/accounts/current-account';
 import { AccountDefinition, CacheSchema } from '../Definitions';
+import { AccountRegistryClient } from '../client/account-registry-client';
+
+const NX_SUBGRAPH_API_KEY = process.env['NX_SUBGRAPH_API_KEY'] as string;
 
 const AccountIncentiveDebtModel = types.model('AccountIncentiveDebt', {
   value: NotionalTypes.TokenBalance,
@@ -31,11 +34,11 @@ const BalanceStatementModel = types.model('BalanceStatement', {
 
 const AccountHistoryModel = types.model('AccountHistory', {
   label: types.string,
-  txnLabel: types.maybe(types.string),
+  txnLabel: types.optional(types.maybe(types.string), undefined),
   timestamp: types.number,
   blockNumber: types.number,
-  token: TokenDefinitionModel,
-  underlying: TokenDefinitionModel,
+  token: types.reference(TokenDefinitionModel),
+  underlying: types.reference(TokenDefinitionModel),
   tokenAmount: NotionalTypes.TokenBalance,
   bundleName: types.string,
   transactionHash: types.string,
@@ -47,6 +50,11 @@ const AccountHistoryModel = types.model('AccountHistory', {
   impliedFixedRate: types.maybe(types.number),
   isTransientLineItem: types.boolean,
   account: types.maybe(types.string),
+});
+
+const HistoricalBalanceModel = types.model('HistoricalBalance', {
+  timestamp: types.number,
+  balance: NotionalTypes.TokenBalance,
 });
 
 export const AccountModel = types
@@ -85,21 +93,16 @@ export const AccountModel = types
     ),
     // NOTE: below here are values fetched from the graph and will be updated
     // later so that the UI can become active sooner
-    accountHistory: types.maybe(types.array(AccountHistoryModel)),
-    balanceStatement: types.maybe(types.array(BalanceStatementModel)),
-    historicalBalances: types.maybe(
-      types.array(
-        types.model({
-          timestamp: types.number,
-          balance: NotionalTypes.TokenBalance,
-        })
-      )
-    ),
+    accountHistory: types.optional(types.array(AccountHistoryModel), []),
+    balanceStatement: types.optional(types.array(BalanceStatementModel), []),
+    historicalBalances: types.optional(types.array(HistoricalBalanceModel), []),
   })
   .actions((self) => {
     let provider = getProviderFromNetwork(self.network);
 
     const refreshAccount = flow(function* () {
+      const startTime = performance.now();
+
       const result: CacheSchema<AccountDefinition> = yield fetchCurrentAccount(
         self.network,
         self.address,
@@ -146,37 +149,69 @@ export const AccountModel = types
         }
         self.lastUpdateTimestamp = result.lastUpdateTimestamp;
       }
+
+      const endTime = performance.now();
+      console.log(
+        `refreshAccount ${self.address} on ${self.network} execution time: ${
+          endTime - startTime
+        } ms`
+      );
     });
 
-    // const fetchTransaction = flow(function* () {
-    //   const { AccountTransactionHistoryDocument } =
-    //     yield loadGraphClientDeferred();
-    //   // NOTE: yield does not infer types properly
-    //   const result = yield fetchGraph(
-    //     self.network,
-    //     AccountTransactionHistoryDocument,
-    //     (
-    //       r: AccountTransactionHistoryQuery
-    //     ): Record<string, AccountHistory[]> => {
-    //       return {
-    //         [self.address.toLowerCase()]: r.transactions
-    //           ?.map((t) => {
-    //             return parseTransaction(t as Transaction, self.network);
-    //           })
-    //           .flatMap((_) => _),
-    //       };
-    //     },
-    //     '',
-    //     {
-    //       accountId: self.address.toLowerCase(),
-    //     }
-    //   );
-    // });
+    const fetchAccountHistory = flow(function* () {
+      const history = (yield AccountRegistryClient.fetchTransactionHistory(
+        self.network,
+        self.address,
+        NX_SUBGRAPH_API_KEY
+      )) as Awaited<
+        ReturnType<typeof AccountRegistryClient.fetchTransactionHistory>
+      >;
+
+      self.accountHistory.replace(
+        history.finalResults[self.address] as Instance<
+          typeof AccountHistoryModel
+        >[]
+      );
+    });
+
+    const fetchBalanceStatements = flow(function* () {
+      const balanceStatements =
+        (yield AccountRegistryClient.fetchBalanceStatements(
+          self.network,
+          self.address,
+          NX_SUBGRAPH_API_KEY
+        )) as Awaited<
+          ReturnType<typeof AccountRegistryClient.fetchBalanceStatements>
+        >;
+
+      self.balanceStatement.replace(
+        balanceStatements.finalResults[self.address] as Instance<
+          typeof BalanceStatementModel
+        >[]
+      );
+    });
+
+    const fetchHistoricalBalances = flow(function* () {
+      const historicalBalances =
+        (yield AccountRegistryClient.fetchHistoricalBalances(
+          self.network,
+          self.address,
+          NX_SUBGRAPH_API_KEY
+        )) as Awaited<
+          ReturnType<typeof AccountRegistryClient.fetchHistoricalBalances>
+        >;
+
+      self.historicalBalances.replace(
+        historicalBalances.finalResults[self.address]
+      );
+    });
 
     return {
       afterCreate: refreshAccount,
       refreshAccount,
-      // fetchTransaction,
+      fetchAccountHistory,
+      fetchBalanceStatements,
+      fetchHistoricalBalances,
       setProvider: (p: providers.Provider) => {
         provider = p;
       },
