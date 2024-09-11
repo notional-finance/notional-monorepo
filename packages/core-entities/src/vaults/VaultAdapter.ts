@@ -61,18 +61,18 @@ export abstract class VaultAdapter {
 
   abstract convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance;
 
-  abstract getNetVaultSharesCost(netVaultShares: TokenBalance): Promise<{
+  abstract getNetVaultSharesCost(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
-  }>;
+  };
 
   abstract getNetVaultSharesMinted(
     netUnderlying: TokenBalance,
     vaultShare: TokenDefinition
-  ): Promise<{
+  ): {
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
-  }>;
+  };
 
   abstract getDepositParameters(
     account: string,

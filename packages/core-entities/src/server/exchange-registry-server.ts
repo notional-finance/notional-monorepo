@@ -44,6 +44,21 @@ export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
       true // allow failure
     );
 
+    const offChainPoolParams: Record<
+      string,
+      Record<string, unknown>
+    > = Object.fromEntries(
+      await Promise.all(
+        networkPools.map(async (pool) => {
+          const { address } = pool;
+          const params = await PoolClasses[
+            pool.PoolClass
+          ].getPoolParamsOffChain(network, address);
+          return [address, params];
+        })
+      )
+    );
+
     const values = networkPools.map((pool) => {
       const { address } = pool;
       const keys = poolKeys.get(address) || [];
@@ -62,7 +77,7 @@ export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
             });
           }
         },
-        { poolParams: {} } as PoolData
+        { poolParams: offChainPoolParams[address] || {} } as PoolData
       );
 
       return [address, Object.assign(pool, { latestPoolData })] as [

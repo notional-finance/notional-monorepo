@@ -10,6 +10,13 @@ export abstract class AbstractLiquidityPool {
     throw Error('Unimplemented');
   }
 
+  public static getPoolParamsOffChain(
+    _network: Network,
+    _poolAddress: string
+  ): Promise<Record<string, unknown>> {
+    return Promise.resolve({});
+  }
+
   /**
    * Calculates an EXACT_IN_SINGLE trade on the liquidity pool
    *
