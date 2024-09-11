@@ -31,7 +31,8 @@ export class TokenBalance {
   }
 
   static fromFloat(n: number | string, token: TokenDefinition) {
-    const bn = parseUnits(n.toString(), token.decimals);
+    const truncatedN = Number(n).toFixed(token.decimals);
+    const bn = parseUnits(truncatedN, token.decimals);
     return new TokenBalance(bn, token.id, token.network);
   }
 
