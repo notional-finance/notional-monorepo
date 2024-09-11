@@ -321,7 +321,7 @@ export class SingleSidedLP extends VaultAdapter {
     );
   }
 
-  getDepositParameters(
+  override async getDepositParameters(
     _account: string,
     _maturity: number,
     totalDeposit: TokenBalance,
@@ -348,7 +348,7 @@ export class SingleSidedLP extends VaultAdapter {
     );
   }
 
-  getRedeemParameters(
+  override async getRedeemParameters(
     _account: string,
     _maturity: number,
     vaultSharesToRedeem: TokenBalance,

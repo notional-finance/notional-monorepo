@@ -67,7 +67,7 @@ function getVaultSlippageRate(
   };
 }
 
-export function DepositVault({
+export async function DepositVault({
   address,
   network,
   depositBalance,
@@ -82,7 +82,7 @@ export function DepositVault({
     vaultAddress
   );
 
-  const vaultData = vaultAdapter.getDepositParameters(
+  const vaultData = await vaultAdapter.getDepositParameters(
     address,
     collateralBalance.maturity,
     depositBalance
@@ -99,7 +99,7 @@ export function DepositVault({
   ]);
 }
 
-export function EnterVault({
+export async function EnterVault({
   address,
   network,
   depositBalance,
@@ -136,7 +136,7 @@ export function EnterVault({
         .sub(profile.accruedVaultFees.toUnderlying())
         .add(depositBalance)
     : underlyingOut.add(depositBalance);
-  const vaultData = vaultAdapter.getDepositParameters(
+  const vaultData = await vaultAdapter.getDepositParameters(
     address,
     debtBalance.maturity,
     totalDeposit
@@ -154,7 +154,7 @@ export function EnterVault({
   ]);
 }
 
-export function ExitVault({
+export async function ExitVault({
   address,
   network,
   collateralBalance,
@@ -209,7 +209,7 @@ export function ExitVault({
     vaultAddress
   );
 
-  const vaultData = vaultAdapter.getRedeemParameters(
+  const vaultData = await vaultAdapter.getRedeemParameters(
     address,
     collateralBalance.maturity,
     collateralBalance.neg(),
@@ -227,7 +227,7 @@ export function ExitVault({
   ]);
 }
 
-export function RollVault({
+export async function RollVault({
   address,
   network,
   depositBalance,
@@ -271,7 +271,7 @@ export function RollVault({
     vaultAddress
   );
 
-  const vaultData = vaultAdapter.getDepositParameters(
+  const vaultData = await vaultAdapter.getDepositParameters(
     address,
     debtBalance.maturity,
     amountBorrowed.add(depositBalance).add(costToRepay)
