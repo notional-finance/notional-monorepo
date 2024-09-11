@@ -152,7 +152,14 @@ export class SingleSidedLP extends VaultAdapter {
   }
 
   private getVaultSharesToLPTokens(vaultShares: TokenBalance) {
-    return this.totalLPTokens.scale(vaultShares.n, this.totalVaultShares);
+    if (this.totalVaultShares.isZero()) {
+      return TokenBalance.fromFloat(
+        vaultShares.toFloat(),
+        this.totalLPTokens.token
+      );
+    } else {
+      return this.totalLPTokens.scale(vaultShares.n, this.totalVaultShares);
+    }
   }
 
   private getLPTokensToVaultShares(
