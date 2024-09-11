@@ -61,25 +61,25 @@ export abstract class VaultAdapter {
 
   abstract convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance;
 
-  abstract getNetVaultSharesCost(netVaultShares: TokenBalance): {
+  abstract getNetVaultSharesCost(netVaultShares: TokenBalance): Promise<{
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
-  };
+  }>;
 
   abstract getNetVaultSharesMinted(
     netUnderlying: TokenBalance,
     vaultShare: TokenDefinition
-  ): {
+  ): Promise<{
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
-  };
+  }>;
 
   abstract getDepositParameters(
     account: string,
     maturity: number,
     totalDeposit: TokenBalance,
     slippageFactor: number
-  ): BytesLike;
+  ): Promise<BytesLike>;
 
   abstract getRedeemParameters(
     account: string,
@@ -87,7 +87,7 @@ export abstract class VaultAdapter {
     vaultSharesToRedeem: TokenBalance,
     underlyingToRepayDebt: TokenBalance,
     slippageFactor: number
-  ): BytesLike;
+  ): Promise<BytesLike>;
 
   abstract getVaultAPY(factors?: {
     account: string;
