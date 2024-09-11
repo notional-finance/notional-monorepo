@@ -1,4 +1,8 @@
-import { Network, PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import {
+  Network,
+  NetworkId,
+  PRIME_CASH_VAULT_MATURITY,
+} from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { TokenBalance } from '../token-balance';
 import { Registry } from '../Registry';
@@ -9,8 +13,23 @@ export interface PendlePTVaultParams extends BaseVaultParams {
   currentPTPrice: TokenBalance;
   ptTokenExpiry: number;
   totalPTTokens: BigNumber;
+  tokenInSyAddress: string;
+  tokenOutSyAddress: string;
 }
 
+interface PendleSwapInfo {
+  data: {
+    amountTokenOut?: string;
+    amountPtOut?: string;
+    amountSyFeeFromLimit: string;
+    amountSyFeeFromMarket: string;
+    priceImpact: number;
+    impliedApy: {
+      before: number;
+      after: number;
+    };
+  };
+}
 /**
  * Primary TODOs:
  *  - fetch necessary data inside the vault registry server
@@ -22,6 +41,8 @@ export interface PendlePTVaultParams extends BaseVaultParams {
  *    to be done based on their cost basis of their vault shares
  */
 export class PendlePT extends VaultAdapter {
+  protected apiUrl = 'https://api-v2.pendle.finance/sdk/v1';
+
   public totalPTTokens: BigNumber;
 
   constructor(network: Network, vaultAddress: string, p: PendlePTVaultParams) {
@@ -79,23 +100,68 @@ export class PendlePT extends VaultAdapter {
     return TokenBalance.from(vaultShares.n, token);
   }
 
-  getNetVaultSharesCost(netVaultShares: TokenBalance): {
+  async getNetVaultSharesCost(netVaultShares: TokenBalance): Promise<{
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
-  } {
+  }> {
+    // vaultShares to PT conversion
+    const urlParams = new URLSearchParams({
+      chainId: NetworkId[this.network].toString(),
+      receiverAddr: this.vaultAddress,
+      marketAddr: this.ptMarketAddress,
+      amountPtIn: netVaultShares.scaleTo(this.ptTokenDecimals).toString(),
+      tokenOutAddr: this.tokenInSy, // this could be token in sy or token out sy
+      slippage: '1',
+    });
+    const resp = await fetch(
+      `https://api-v2.pendle.finance/sdk/v1/swapExactPtForToken?${urlParams.toString()}`
+    );
+    const info: PendleSwapInfo = await resp.json();
+
+    const netUnderlyingForVaultShares = TokenBalance.from(
+      info.data.amountTokenOut,
+      this.tokenInSy
+    );
+
+    const feesPaid = TokenBalance.from(
+      info.data.amountSyFeeFromMarket,
+      this.tokenInSy
+    );
+    return { netUnderlyingForVaultShares, feesPaid };
+
     // TODO: need to account for PT-slippage so this one is
     // given a PT amount, how do much underlying does it cost?
   }
 
-  getNetVaultSharesMinted(
+  async getNetVaultSharesMinted(
     netUnderlying: TokenBalance,
     vaultShare: TokenDefinition
-  ): {
+  ): Promise<{
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
-  } {
-    // TODO: need to account for PT-slippage so this one is
-    // given an underlying amount, how much PT do you get?
+  }> {
+    const urlParams = new URLSearchParams({
+      chainId: NetworkId[this.network].toString(),
+      receiverAddr: this.vaultAddress,
+      marketAddr: this.ptMarketAddress,
+      tokenInAddr: this.tokenInSy,
+      amountTokenIn: netUnderlying.scaleTo(this.tokenInSyDecimals).toString(),
+      slippage: '1',
+    });
+    const resp = await fetch(
+      `https://api-v2.pendle.finance/sdk/v1/swapExactTokenForPt?${urlParams.toString()}`
+    );
+    const info: PendleSwapInfo = await resp.json();
+
+    const netVaultSharesForUnderlying = TokenBalance.from(
+      info.data.amountPtOut,
+      this.vaultShareToken
+    );
+    const feesPaid = TokenBalance.from(
+      info.data.amountSyFeeFromMarket,
+      this.vaultShareToken
+    );
+    return { netVaultSharesForUnderlying, feesPaid };
   }
 
   getDepositParameters(
