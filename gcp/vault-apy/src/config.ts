@@ -195,6 +195,13 @@ const config: ConfigPerNetwork = {
         primaryBorrowCurrency: tokens.arbitrum.WETH,
         rewardPoolType: RewardPoolType.Aura,
       },
+      // "tBTC/xwBTC"
+      {
+        address: '0x3533f05b2c54ce1c2321cfe3c6f693a3cbbaea10',
+        gauge: '0xa4Ed1e1Db18d65A36B3Ef179AaFB549b45a635A4',
+        primaryBorrowCurrency: tokens.arbitrum.WBTC,
+        rewardPoolType: RewardPoolType.ConvexArbitrum,
+      },
     ],
   },
 };
