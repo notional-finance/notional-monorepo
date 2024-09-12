@@ -1,51 +1,65 @@
-import { Network, batchArray, groupArrayToMap, getSubgraphEndpoint } from '@notional-finance/util';
+import {
+  Network,
+  batchArray,
+  groupArrayToMap,
+  getSubgraphEndpoint,
+} from '@notional-finance/util';
 import { ethers } from 'ethers';
 
 const settleAccountsAddressMap = {
-  [Network.mainnet]: "",
-  [Network.arbitrum]: "0x22349F0b9b6294dA5526c9E9383164d97c45ACCD"
-}
+  [Network.mainnet]: '0x04f917B9772920BC7E39Da36b465395A7B8E893C',
+  [Network.arbitrum]: '0x22349F0b9b6294dA5526c9E9383164d97c45ACCD',
+};
 
 const initializeAllMarketsAddressMap = {
-  [Network.mainnet]: "",
-  [Network.arbitrum]: "0x9b6C04D1481473B2e52CaEB85822072C35460f27"
-}
+  [Network.mainnet]: '0x40a77E61c230BB3B847231E3F47E47c6c62257db',
+  [Network.arbitrum]: '0x9b6C04D1481473B2e52CaEB85822072C35460f27',
+};
 
 const INITIALIZE_MARKETS_ABI = [
-  "function initializeAllMarkets()",
-  "function checkInitializeAllMarkets() view returns (bool canExec, bytes memory execPayload)",
+  'function initializeAllMarkets()',
+  'function checkInitializeAllMarkets() view returns (bool canExec, bytes memory execPayload)',
 ];
 
 const SETTLE_ACCOUNTS_ABI = [
-  "function settleAccounts(address[] calldata accounts)",
-  "function settleVaultsAccounts((address vaultAddress,address[] accounts)[])",
+  'function settleAccounts(address[] calldata accounts)',
+  'function settleVaultsAccounts((address vaultAddress,address[] accounts)[])',
 ];
 
 const GRAPH_MAX_LIMIT = 1000;
 
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 class Markets {
-  constructor(private network: Network, private provider: ethers.providers.Provider, private subgraphKey: string) {}
+  constructor(
+    private network: Network,
+    private provider: ethers.providers.Provider,
+    private subgraphKey: string
+  ) {}
 
   async checkInitializeAllMarkets() {
     const initializeMarkets = new ethers.Contract(
       initializeAllMarketsAddressMap[this.network],
       INITIALIZE_MARKETS_ABI,
-      this.provider,
-    )
+      this.provider
+    );
 
-    const [shouldInitialize] = await initializeMarkets.checkInitializeAllMarkets();
+    const [shouldInitialize] =
+      await initializeMarkets.checkInitializeAllMarkets();
 
     return shouldInitialize;
   }
 
   async getInitializeAllMarketsTx() {
-    const initializeMarketsInterface = new ethers.utils.Interface(INITIALIZE_MARKETS_ABI);
+    const initializeMarketsInterface = new ethers.utils.Interface(
+      INITIALIZE_MARKETS_ABI
+    );
 
     return {
       to: initializeAllMarketsAddressMap[this.network],
-      data: initializeMarketsInterface.encodeFunctionData("initializeAllMarkets"),
+      data: initializeMarketsInterface.encodeFunctionData(
+        'initializeAllMarkets'
+      ),
     };
   }
 
@@ -60,23 +74,26 @@ class Markets {
     let skip = 0;
     do {
       await wait(10);
-      tempAccounts = await fetch(getSubgraphEndpoint(this.network, this.subgraphKey), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      tempAccounts = await fetch(
+        getSubgraphEndpoint(this.network, this.subgraphKey),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
 
-        body: JSON.stringify({
-          query: `{
+          body: JSON.stringify({
+            query: `{
           accounts(first: ${GRAPH_MAX_LIMIT}, skip: ${skip}, where:{
               nextSettleTime_lte: "${(Date.now() / 1000).toFixed(0)}",
               nextSettleTime_not: 0,
-          }${block ? `, block: {number: ${block}}` : ""}) {
+          }${block ? `, block: {number: ${block}}` : ''}) {
             id
           }
       }`,
-        }),
-      })
+          }),
+        }
+      )
         .then((r) => r.json())
         .then((r: { data: { accounts: [{ id: string }] } }) =>
           r.data.accounts.map((a) => a.id)
@@ -85,44 +102,48 @@ class Markets {
       skip += tempAccounts.length;
     } while (tempAccounts.length === GRAPH_MAX_LIMIT);
 
-    console.log("accounts: ", accounts.length);
+    console.log('accounts: ', accounts.length);
     const accountsInChunks = batchArray(accounts, 300);
 
     if (accounts.length) {
       return accountsInChunks.map((accountsChunk) => {
         return {
           to: settleAccountsAddress,
-          data: settleAccounts.encodeFunctionData("settleAccounts", [
+          data: settleAccounts.encodeFunctionData('settleAccounts', [
             accountsChunk,
           ]),
         };
       });
     } else {
-      console.log("No accounts to settle");
+      console.log('No accounts to settle');
       return [];
     }
-  };
+  }
 
   async getVaultAccountsSettlementTxs(block: number | null = null) {
     const settleAccountsAddress = settleAccountsAddressMap[this.network];
 
     const settleAccounts = new ethers.utils.Interface(SETTLE_ACCOUNTS_ABI);
 
-    const vaultAccountsArray = await fetch(getSubgraphEndpoint(this.network, this.subgraphKey), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const vaultAccountsArray = await fetch(
+      getSubgraphEndpoint(this.network, this.subgraphKey),
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
 
-      body: JSON.stringify({
-        query: `{
+        body: JSON.stringify({
+          query: `{
           balances(
             where: {
               account_: {systemAccountType: "None"},
-              token_: {tokenType: "VaultDebt", maturity_lt: ${(Date.now() / 1000).toFixed(0)}},
+              token_: {tokenType: "VaultDebt", maturity_lt: ${(
+                Date.now() / 1000
+              ).toFixed(0)}},
               current_: {currentBalance_gt: 0}
               }
-          ${block ? `, block: {number: ${block}}` : ""}) {
+          ${block ? `, block: {number: ${block}}` : ''}) {
             account {
               id
             }
@@ -131,9 +152,10 @@ class Markets {
               maturity
             }
           }
-        }`
-      }),
-    })
+        }`,
+        }),
+      }
+    )
       .then((r) => r.json())
       .then((r: any) => r.data.balances)
       // group accounts per vault
@@ -141,21 +163,27 @@ class Markets {
       // convert to map entries
       .then((r) => Array.from(r.entries()))
       // map to array of { vaultAddress, accounts } objects
-      .then(r => r.map(([vault, accounts]) => ({ vaultAddress: vault, accounts: accounts.map(v => v.account.id) })));
+      .then((r) =>
+        r.map(([vault, accounts]) => ({
+          vaultAddress: vault,
+          accounts: accounts.map((v) => v.account.id),
+        }))
+      );
 
     if (vaultAccountsArray.length) {
-      return [{
-        to: settleAccountsAddress,
-        data: settleAccounts.encodeFunctionData(
-          "settleVaultsAccounts",
-          [vaultAccountsArray]
-        ),
-      }];
+      return [
+        {
+          to: settleAccountsAddress,
+          data: settleAccounts.encodeFunctionData('settleVaultsAccounts', [
+            vaultAccountsArray,
+          ]),
+        },
+      ];
     } else {
-      console.log("No vault accounts to settle");
+      console.log('No vault accounts to settle');
       return [];
     }
-  };
+  }
 }
 
 export default Markets;

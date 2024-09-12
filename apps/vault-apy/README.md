@@ -4,7 +4,7 @@ Used to generate historical and future vault apy based on received token rewards
 
 ## Building
 
-```
+```bash
 yarn build
 ```
 
@@ -18,7 +18,7 @@ Run with historical as first argument and vault address as second to only calcul
 
 Run with env DEBUG variable set to vault-apy to get detailed logs
 
-```
+```bash
 
 yarn start-dev
 DEBUG=vault-apy yarn start-dev
@@ -28,7 +28,7 @@ yarn start-dev historical network <vaultAddress>
 
 ## Deploy
 
-```
+```bash
 # Run this once to configure the docker registry
 gcloud auth configure-docker us-east1-docker.pkg.dev
 
