@@ -26,7 +26,7 @@ export const useLiquidityList = (
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
   const variableYieldData = useNetworkTokens(network, 'nToken');
-  const leveragedYieldData = useLeveragedNTokens(network);
+  const leveragedYieldData = useLeveragedNTokens();
   const yieldData =
     product === PRODUCTS.LIQUIDITY_LEVERAGED
       ? leveragedYieldData

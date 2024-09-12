@@ -20,7 +20,7 @@ export const useLiquidityLeveragedGrid = (
   const { nTokenPositions } = useLeveragedNTokenPositions(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
-  const yieldData = useLeveragedNTokens(network);
+  const yieldData = useLeveragedNTokens();
 
   const allData = yieldData
     .map(({ token, apy, tvl, underlying, debtToken }) => {

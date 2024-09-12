@@ -1,4 +1,5 @@
 import { getNetworkModel } from '@notional-finance/core-entities';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 import { Network } from '@notional-finance/util';
 
 export const useNetworkTokens = (
@@ -26,10 +27,10 @@ export const useNetworkTokens = (
   return yieldData;
 };
 
-export const useLeveragedNTokens = (network: Network | undefined) => {
-  const model = getNetworkModel(network);
-  const yieldData = model.getTokensByType('nToken').map((t) => {
-    const debtTokens = model.getDefaultLeveragedNTokenAPYs(t);
+export const useLeveragedNTokens = () => {
+  const currentNetworkStore = useCurrentNetworkStore();
+  const yieldData = currentNetworkStore.getTokensByType('nToken').map((t) => {
+    const debtTokens = currentNetworkStore.getDefaultLeveragedNTokenAPYs(t);
     const leveragedNTokenData = debtTokens.reduce((max, current) => {
       return current?.apy?.totalAPY &&
         max?.apy?.totalAPY &&
@@ -41,12 +42,15 @@ export const useLeveragedNTokens = (network: Network | undefined) => {
     return {
       token: t,
       apy: leveragedNTokenData?.apy,
-      tvl: model.getTVL(t),
-      liquidity: model.getLiquidity(t),
-      underlying: t.underlying ? model.getTokenByID(t.underlying) : undefined,
+      tvl: currentNetworkStore.getTVL(t),
+      liquidity: currentNetworkStore.getLiquidity(t),
+      underlying: t.underlying
+        ? currentNetworkStore.getTokenByID(t.underlying)
+        : undefined,
       debtToken: leveragedNTokenData?.debtToken,
-      collateralFactor: model.getDebtOrCollateralFactor(t, false),
+      collateralFactor: currentNetworkStore.getDebtOrCollateralFactor(t, false),
     };
   });
+
   return yieldData;
 };

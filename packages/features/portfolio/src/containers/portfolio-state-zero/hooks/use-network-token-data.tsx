@@ -1,6 +1,5 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
-import { useRootStore } from '@notional-finance/notionable';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 
 type APYData = {
@@ -71,34 +70,26 @@ export const getAvailableVaults = (
 };
 
 export const useNetworkTokenData = (selectedTabIndex: number) => {
-  const rootStore = useRootStore();
-  const selectedNetwork = useSelectedNetwork();
+  const currentNetworkStore = useCurrentNetworkStore();
   if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.EARN) {
-    const productGroupData = rootStore
-      .getNetworkClient(selectedNetwork)
-      .getPortfolioStateZeroEarnData();
+    const productGroupData =
+      currentNetworkStore.getPortfolioStateZeroEarnData();
     return {
       tokenList: productGroupData.tokenList || [],
       productGroupData: productGroupData.productGroupData || [],
       defaultSymbol: productGroupData.defaultSymbol || '',
     };
   } else if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE) {
-    const productGroupData = rootStore
-      .getNetworkClient(selectedNetwork)
-      .getPortfolioStateZeroLeveragedData();
-    console.log(
-      'productGroupData.productGroupData',
-      productGroupData.productGroupData
-    );
+    const productGroupData =
+      currentNetworkStore.getPortfolioStateZeroLeveragedData();
     return {
       tokenList: productGroupData.tokenList || [],
       productGroupData: productGroupData.productGroupData || [],
       defaultSymbol: productGroupData.defaultSymbol || '',
     };
   } else {
-    const productGroupData = rootStore
-      .getNetworkClient(selectedNetwork)
-      .getPortfolioStateZeroBorrowData();
+    const productGroupData =
+      currentNetworkStore.getPortfolioStateZeroBorrowData();
     return {
       tokenList: productGroupData.tokenList || [],
       productGroupData: productGroupData.productGroupData || [],

@@ -118,7 +118,7 @@ export const useCardData = (
         leveragedNToken?.apy.incentives.length > 0,
       symbol: activeToken,
       cardLink: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/CreateLeveragedNToken/${leveragedNToken?.underlying?.symbol}?borrowOption=${leveragedNToken?.debtToken?.id}`,
-      bottomValue: `Max Leverage: ${leveragedNToken?.apy.leverageRatio?.toFixed(
+      bottomValue: `Max Leverage: ${leveragedNToken?.maxLeverageRatio?.toFixed(
         2
       )}x`,
       bottomLink: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}`,
@@ -137,7 +137,7 @@ export const useCardData = (
       symbol: activeToken,
       availableSymbols: getAvailableVaults(productGroupData, false),
       cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${farmingVault?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${farmingVault?.debtToken?.id}`,
-      bottomValue: `Max Leverage: ${farmingVault?.apy.leverageRatio.toFixed(
+      bottomValue: `Max Leverage: ${farmingVault?.maxLeverageRatio.toFixed(
         2
       )}x`,
       bottomLink: `/${PRODUCTS.LEVERAGED_YIELD_FARMING}/${selectedNetwork}`,
@@ -156,9 +156,7 @@ export const useCardData = (
       symbol: activeToken,
       availableSymbols: getAvailableVaults(productGroupData, true),
       cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${pointsVault?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${pointsVault?.debtToken?.id}`,
-      bottomValue: `Max Leverage: ${pointsVault?.apy.leverageRatio.toFixed(
-        2
-      )}x`,
+      bottomValue: `Max Leverage: ${pointsVault?.maxLeverageRatio.toFixed(2)}x`,
       bottomLink: `/${PRODUCTS.LEVERAGED_POINTS_FARMING}/${selectedNetwork}`,
       bottomText: 'All Leveraged Points Farming',
       pillData: [
