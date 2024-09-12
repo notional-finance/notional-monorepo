@@ -33,6 +33,8 @@ const keysToUse = {
   [Address.Multicall3]: Key.liquidation,
   [Address.initializeAllMarkets_ARBITRUM]: Key.liquidation,
   [Address.settleAccounts_ARBITRUM]: Key.liquidation,
+  [Address.initializeAllMarkets_MAINNET]: Key.liquidation,
+  [Address.settleAccounts_MAINNET]: Key.liquidation,
 
   [Address.AaveWrappedFlashLender_MAINNET]: Key.liquidation,
   [Address.BalancerWrappedFlashLender_MAINNET]: Key.liquidation,
