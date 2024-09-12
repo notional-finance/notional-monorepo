@@ -106,16 +106,7 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
 };
 
 function getTxType({ signature }: { signature: Sign }) {
-  if (
-    [
-      Sign.flash,
-      Sign.flashLoan,
-      Sign.flashLiquidate,
-      Sign.settleVaultsAccounts,
-      Sign.settleAccounts,
-      Sign.initializeAllMarkets,
-    ].includes(signature)
-  ) {
+  if ([Sign.flash, Sign.flashLoan, Sign.flashLiquidate].includes(signature)) {
     return 'liquidation';
   }
   if (
