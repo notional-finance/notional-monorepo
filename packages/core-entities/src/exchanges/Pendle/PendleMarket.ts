@@ -2,6 +2,7 @@ import { ERC20ABI } from '@notional-finance/contracts';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
 import {
+  doSecantSearch,
   getNowSeconds,
   getProviderFromNetwork,
   Network,
@@ -20,6 +21,9 @@ interface PendleMarketParams {
   lnFeeRateRoot: BigNumber;
   expiry: number;
   syToAssetExchangeRate: BigNumber;
+  assetTokenId: string;
+  // NOTE: this is expected in RATE_PRECISION
+  ptExchangeRate: BigNumber;
 }
 
 export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
@@ -74,10 +78,29 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     } else if (tokenIndexOut === this.PT_TOKEN_INDEX) {
       // Assume PT in at the current exchange rate, then do secant search until
       // we find the postFeeAssetToAccount that is close to tokensIn
+      const initialTokensIn = TokenBalance.from(
+        tokensIn.n,
+        this.poolParams.totalPt.token
+      );
 
-      // TODO: add a secant search here...
-      const { postFeeAssetToAccount, fee } =
-        this.calculateTokenOutGivenPTIn(tokensIn);
+      const { postFeeAssetToAccount, fee } = doSecantSearch(
+        this.poolParams.ptExchangeRate.toNumber(),
+        RATE_PRECISION,
+        (exRate: number) => {
+          const { postFeeAssetToAccount, fee } =
+            this.calculateTokenOutGivenPTIn(
+              initialTokensIn.mulInRatePrecision(exRate)
+            );
+
+          return {
+            fx: postFeeAssetToAccount.toFloat() - tokensIn.toFloat(),
+            value: {
+              postFeeAssetToAccount,
+              fee,
+            },
+          };
+        }
+      );
 
       return {
         tokensOut: postFeeAssetToAccount,
@@ -114,8 +137,8 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       this.poolParams.totalSy
         .mul(this.poolParams.syToAssetExchangeRate)
         .div(SCALAR_PRECISION),
-      this.assetTokenId,
-      this.network
+      this.poolParams.assetTokenId,
+      this._network
     );
     const rateAnchor = this.getRateAnchor(
       totalAsset,
