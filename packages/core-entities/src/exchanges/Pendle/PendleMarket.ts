@@ -1,29 +1,23 @@
 import { ERC20ABI } from '@notional-finance/contracts';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
-import { getProviderFromNetwork, Network } from '@notional-finance/util';
+import {
+  getNowSeconds,
+  getProviderFromNetwork,
+  Network,
+  RATE_PRECISION,
+  SECONDS_IN_YEAR_ACTUAL,
+} from '@notional-finance/util';
 import { AggregateCall } from '@notional-finance/multicall';
 import { BigNumber, Contract } from 'ethers';
 
 interface PendleMarketParams {
-  marketAddress: string;
-  ptToken: string;
-  tokenInSy: string;
-  tokenOutSy: string;
-  // Given Token In Amount, Returns PT Amount Out
-  marketDepthTokenIn: {
-    amountIn: TokenBalance;
-    amountOut: TokenBalance;
-    feesPaid: TokenBalance;
-    slippage: number;
-  }[];
-  // Given PT Amount In, Returns Token Out Amount
-  marketDepthTokenOut: {
-    amountIn: TokenBalance;
-    amountOut: TokenBalance;
-    feesPaid: TokenBalance;
-    slippage: number;
-  }[];
+  totalSy: TokenBalance;
+  totalPt: TokenBalance;
+  scalarRoot: number;
+  lnImpliedRate: number;
+  lnFeeRateRoot: number;
+  expiry: number;
 }
 
 export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
@@ -73,18 +67,28 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     tokenIndexOut: number,
     _balanceOverrides?: TokenBalance[]
   ): { tokensOut: TokenBalance; feesPaid: TokenBalance[] } {
-    if (tokenIndexOut === this.PT_TOKEN_INDEX) {
+    if (tokenIndexOut === this.TOKEN_IN_INDEX) {
       // Underlying token in, PT out. Search over marketDepthTokenIn to approximate the amount of PT out
       // and do a linear interpolation between the two nearest points.
-      return this.interpolateMarketDepth(
-        tokensIn,
-        this.poolParams.marketDepthTokenIn
-      );
-    } else if (tokenIndexOut === this.TOKEN_IN_INDEX) {
-      return this.interpolateMarketDepth(
-        tokensIn,
-        this.poolParams.marketDepthTokenOut
-      );
+      const { postFeeAssetToAccount, fee } =
+        this.calculateTokenOutGivenPTIn(tokensIn);
+
+      return {
+        tokensOut: postFeeAssetToAccount,
+        feesPaid: [fee, TokenBalance.zero(this.poolParams.totalPt.token)],
+      };
+    } else if (tokenIndexOut === this.PT_TOKEN_INDEX) {
+      // Assume PT in at the current exchange rate, then do secant search until
+      // we find the postFeeAssetToAccount that is close to tokensIn
+
+      // TODO: add a secant search here...
+      const { postFeeAssetToAccount, fee } =
+        this.calculateTokenOutGivenPTIn(tokensIn);
+
+      return {
+        tokensOut: postFeeAssetToAccount,
+        feesPaid: [fee, TokenBalance.zero(this.poolParams.totalPt.token)],
+      };
     } else {
       throw new Error('Invalid token index');
     }
@@ -104,93 +108,103 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     throw new Error('Method not implemented.');
   }
 
-  protected interpolateMarketDepth(
-    tokensIn: TokenBalance,
-    marketDepth: {
-      amountIn: TokenBalance;
-      amountOut: TokenBalance;
-      feesPaid: TokenBalance;
-      slippage: number;
-    }[]
-  ): { tokensOut: TokenBalance; feesPaid: TokenBalance[] } {
-    const inputAmount = tokensIn.toFloat();
-
-    if (inputAmount <= 0) {
-      throw new Error('Input amount must be greater than zero');
-    }
-
-    // Sort the marketDepth array by amountIn in ascending order
-    const sortedDepth = [...marketDepth].sort(
-      (a, b) => a.amountIn.toFloat() - b.amountIn.toFloat()
+  protected calculateTokenOutGivenPTIn(
+    ptIn: TokenBalance,
+    blockTime = getNowSeconds()
+  ) {
+    const timeToExpiry = this.poolParams.expiry - blockTime;
+    const rateScalar =
+      (this.poolParams.scalarRoot * SECONDS_IN_YEAR_ACTUAL) / timeToExpiry;
+    const totalAsset = this.syToAsset(this.poolParams.totalSy);
+    const rateAnchor = this.getRateAnchor(
+      totalAsset,
+      rateScalar,
+      this.poolParams.lnImpliedRate,
+      timeToExpiry
+    );
+    const feeRate = this._getExchangeRateFromImpliedRate(
+      this.poolParams.lnFeeRateRoot,
+      timeToExpiry
+    );
+    const preFeeExchangeRate = this._getExchangeRate(
+      totalAsset,
+      ptIn,
+      rateScalar,
+      rateAnchor
+    );
+    const preFeeAssetToAccount = ptIn.mulInRatePrecision(
+      Math.floor(preFeeExchangeRate * RATE_PRECISION)
     );
 
-    // Check if input amount exceeds maximum depth
-    if (inputAmount > sortedDepth[sortedDepth.length - 1].amountIn.toFloat()) {
-      throw new Error(
-        'Insufficient liquidity: Input amount exceeds maximum market depth'
+    let fee: TokenBalance;
+    if (ptIn.isPositive()) {
+      fee = preFeeAssetToAccount.mulInRatePrecision(
+        Math.floor((1 - feeRate) * RATE_PRECISION)
       );
+    } else {
+      fee = preFeeAssetToAccount
+        .scale(
+          Math.floor((1 - feeRate) * RATE_PRECISION),
+          Math.floor(feeRate * RATE_PRECISION)
+        )
+        .neg();
     }
 
-    // Find the two nearest points for interpolation
-    let lowerIndex = -1;
-    for (let i = 0; i < sortedDepth.length; i++) {
-      if (sortedDepth[i].amountIn.toFloat() > inputAmount) {
-        break;
-      }
-      lowerIndex = i;
-    }
+    const postFeeAssetToAccount = preFeeAssetToAccount.sub(fee);
 
-    // Handle edge case
-    if (lowerIndex === -1) {
-      // Input amount is smaller than the smallest market depth point
-      const ratio = inputAmount / sortedDepth[0].amountIn.toFloat();
-      const interpolatedOutput = ratio * sortedDepth[0].amountOut.toFloat();
-      const interpolatedFees = ratio * sortedDepth[0].feesPaid.toFloat();
-      const outputWithSlippage =
-        interpolatedOutput * (1 - sortedDepth[0].slippage);
-
-      return {
-        tokensOut: TokenBalance.fromFloat(
-          outputWithSlippage,
-          sortedDepth[0].amountOut.token
-        ),
-        feesPaid: [
-          TokenBalance.fromFloat(
-            interpolatedFees,
-            sortedDepth[0].feesPaid.token
-          ),
-        ],
-      };
-    }
-
-    // Perform linear interpolation between the two nearest points
-    const lowerPoint = sortedDepth[lowerIndex];
-    const upperPoint = sortedDepth[lowerIndex + 1];
-
-    const lowerAmount = lowerPoint.amountIn.toFloat();
-    const upperAmount = upperPoint.amountIn.toFloat();
-    const ratio = (inputAmount - lowerAmount) / (upperAmount - lowerAmount);
-
-    const interpolatedOutput =
-      lowerPoint.amountOut.toFloat() +
-      ratio * (upperPoint.amountOut.toFloat() - lowerPoint.amountOut.toFloat());
-
-    const interpolatedFees =
-      lowerPoint.feesPaid.toFloat() +
-      ratio * (upperPoint.feesPaid.toFloat() - lowerPoint.feesPaid.toFloat());
-
-    // Apply slippage (using the average slippage of the two points)
-    const averageSlippage = (lowerPoint.slippage + upperPoint.slippage) / 2;
-    const outputWithSlippage = interpolatedOutput * (1 - averageSlippage);
-
+    // This is in asset terms, not SY terms.
     return {
-      tokensOut: TokenBalance.fromFloat(
-        outputWithSlippage,
-        lowerPoint.amountOut.token
-      ),
-      feesPaid: [
-        TokenBalance.fromFloat(interpolatedFees, lowerPoint.feesPaid.token),
-      ],
+      postFeeAssetToAccount,
+      fee,
     };
+  }
+
+  protected getRateAnchor(
+    totalAsset: TokenBalance,
+    rateScalar: number,
+    lnImpliedRate: number,
+    timeToExpiry: number
+  ) {
+    const newExchangeRate = this._getExchangeRateFromImpliedRate(
+      lnImpliedRate,
+      timeToExpiry
+    );
+    const proportion =
+      this.poolParams.totalPt.toFloat() /
+      (this.poolParams.totalPt.toFloat() + totalAsset.toFloat());
+    const lnProportion = Math.log(proportion / (1 - proportion));
+
+    return newExchangeRate - lnProportion / rateScalar;
+  }
+
+  protected _getExchangeRate(
+    totalAsset: TokenBalance,
+    netPtToAccount: TokenBalance,
+    rateScalar: number,
+    rateAnchor: number
+  ) {
+    const numerator = this.poolParams.totalPt.sub(netPtToAccount).toFloat();
+    const proportion =
+      numerator / (this.poolParams.totalPt.toFloat() + totalAsset.toFloat());
+
+    if (numerator <= 0 || proportion > 0.96)
+      throw Error('Insufficient liquidity');
+
+    const lnProportion = Math.log(proportion / (1 - proportion));
+
+    const exchangeRate = lnProportion / rateScalar + rateAnchor;
+
+    if (exchangeRate < 1) throw Error('Exchange rate below one');
+
+    return exchangeRate;
+  }
+
+  protected _getExchangeRateFromImpliedRate(
+    lnImpliedRate: number,
+    timeToExpiry: number
+  ) {
+    // E = e^rt
+    const rt = (lnImpliedRate * timeToExpiry) / SECONDS_IN_YEAR_ACTUAL;
+    return Math.exp(rt);
   }
 }

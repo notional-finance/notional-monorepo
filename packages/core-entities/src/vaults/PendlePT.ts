@@ -93,6 +93,7 @@ export class PendlePT extends VaultAdapter {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
+    // Given PT Out, calculate tokens in....
     const trade = this.market.calculateTokenTrade(
       netVaultShares,
       this.market.TOKEN_IN_INDEX
@@ -106,6 +107,7 @@ export class PendlePT extends VaultAdapter {
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
   } {
+    // Given tokens in, calculate PT out...
     return { netVaultSharesForUnderlying, feesPaid };
   }
 
@@ -114,7 +116,7 @@ export class PendlePT extends VaultAdapter {
     maturity: number,
     totalDeposit: TokenBalance,
     slippageFactor: number
-  ): BytesLike {
+  ): Promise<BytesLike> {
     /**
      * struct PendleDepositParams {
      *    // for trade execution from borrowed token to token in sy
