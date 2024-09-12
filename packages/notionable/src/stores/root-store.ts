@@ -7,28 +7,42 @@ import { createContext } from 'react';
 import { AppStoreModel } from './app-store';
 
 
-export type RootStoreModel = Instance<typeof RootStore>
+export type RootStoreType = Instance<typeof RootStore>
 export type NetworkClientModelType = Instance<typeof NetworkClientModel>
 export type AppStoreModelType = Instance<typeof AppStoreModel>
 export type PortfolioStoreModelType = Instance<typeof PortfolioStoreModel>
 
 const userSettings = getFromLocalStorage('userSettings');
 
-export type RootStoreType = {
-  networkStore: NetworkClientModelType
-  portfolioStore: PortfolioStoreModelType
-  appStore: AppStoreModelType
-}
-
 const RootStore = types.model("RootStore", {
-  networkStore: NetworkClientModel, 
+  mainnetStore: NetworkClientModel, 
+  arbitrumStore: NetworkClientModel, 
+  allNetworksStore: NetworkClientModel, 
   portfolioStore: PortfolioStoreModel,
   appStore: AppStoreModel,
+}).actions(self => {
+  const getNetworkClient = (network: Network) => {
+    switch (network) {
+      case Network.mainnet:
+        return self.mainnetStore
+      case Network.arbitrum:
+        return self.arbitrumStore
+      default:
+        return self.allNetworksStore
+    }
+  }
+  return { getNetworkClient }
 })
-  export const createRootStore = (): RootStoreModel => {
+  export const createRootStore = (): RootStoreType => {
     const rootStore = RootStore.create({
-      networkStore: {
+      mainnetStore: {
         network: Network.mainnet
+      },
+      arbitrumStore: {
+        network: Network.arbitrum
+      },
+      allNetworksStore: {
+        network: Network.all
       },
       portfolioStore: {
         pointsStore: {
@@ -65,4 +79,4 @@ const RootStore = types.model("RootStore", {
       return rootStore
   }
 
-  export const RootStoreContext = createContext<RootStoreModel | null>(null);
+  export const RootStoreContext = createContext<RootStoreType | null>(null);

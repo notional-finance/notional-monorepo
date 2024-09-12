@@ -50,6 +50,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getUnderlying,
     getDebtTokens,
     getVaultShares,
+    getTokensByType,
     getVaultDebt,
     unwrapVaultToken,
   } = TokenViews(self);
@@ -404,7 +405,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getDefaultVaultAPYs = (vaultAddress: string) => {
-    return self.getVaultShares(vaultAddress).map((share) => {
+    return getVaultShares(vaultAddress).map((share) => {
       if (!share.maturity) throw Error('Invalid share maturity');
       const debt = getVaultDebt(vaultAddress, share.maturity);
       const { defaultLeverageRatio } = getLeverageRatios(share);
@@ -487,8 +488,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const getPortfolioStateZeroBorrowData = () => {
     const group = ['fCash', 'PrimeDebt'];
     const productGroupData = group.map((group) => {
-      return self
-        .getTokensByType(group)
+      return getTokensByType(group)
         .filter((data) => data?.isFCashDebt || data?.tokenType === 'PrimeDebt')
         .map((t) => {
           return {
@@ -497,7 +497,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
             tvl: getTVL(t),
             liquidity: getLiquidity(t),
             underlying: t.underlying
-              ? self.getTokenByID(t.underlying)
+              ? getTokenByID(t.underlying)
               : undefined,
             collateralFactor: getDebtOrCollateralFactor(t, false),
           };
@@ -515,8 +515,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const getPortfolioStateZeroEarnData = () => {
     const group = ['fCash', 'PrimeCash', 'nToken'];
     const productGroupData = group.map((group) => {
-      return self
-        .getTokensByType(group)
+      return getTokensByType(group)
         .filter((data) => !data?.isFCashDebt)
         .map((t) => {
           return {
@@ -525,7 +524,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
             tvl: getTVL(t),
             liquidity: getLiquidity(t),
             underlying: t.underlying
-              ? self.getTokenByID(t.underlying)
+              ? getTokenByID(t.underlying)
               : undefined,
             collateralFactor: getDebtOrCollateralFactor(t, false),
           };
@@ -544,8 +543,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const getPortfolioStateZeroLeveragedData = () => {
     const group = ['nToken', 'VaultShare'];
     const productGroupData = group.map((group) => {
-      return self
-        .getTokensByType(group)
+      return getTokensByType(group)
         .map((t) => {
           let leveragedNTokenData;
           let vaultAPYs;
@@ -576,14 +574,15 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
             tvl: getTVL(t),
             liquidity: getLiquidity(t),
             underlying: t.underlying
-              ? self.getTokenByID(t.underlying)
+              ? getTokenByID(t.underlying)
               : undefined,
             collateralFactor: getDebtOrCollateralFactor(t, false),
             debtToken: t.tokenType === 'nToken' ? leveragedNTokenData?.debtToken : vaultDebtToken,
           };
-
         })
     })
+
+    console.log('productGroupData', productGroupData);
 
     const pointsVaults = productGroupData[1].filter((item) => item?.apy?.pointMultiples);
     const farmingVaults = productGroupData[1].filter((item) => !item?.apy?.pointMultiples);

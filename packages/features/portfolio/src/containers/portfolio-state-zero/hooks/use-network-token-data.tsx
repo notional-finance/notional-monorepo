@@ -1,5 +1,6 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { useRootStore } from '@notional-finance/notionable';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 
 type APYData = {
@@ -71,25 +72,33 @@ export const getAvailableVaults = (
 
 export const useNetworkTokenData = (selectedTabIndex: number) => {
   const rootStore = useRootStore();
+  const selectedNetwork = useSelectedNetwork();
   if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.EARN) {
-    const productGroupData =
-      rootStore.networkStore.getPortfolioStateZeroEarnData();
+    const productGroupData = rootStore
+      .getNetworkClient(selectedNetwork)
+      .getPortfolioStateZeroEarnData();
     return {
       tokenList: productGroupData.tokenList || [],
       productGroupData: productGroupData.productGroupData || [],
       defaultSymbol: productGroupData.defaultSymbol || '',
     };
   } else if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE) {
-    const productGroupData =
-      rootStore.networkStore.getPortfolioStateZeroLeveragedData();
+    const productGroupData = rootStore
+      .getNetworkClient(selectedNetwork)
+      .getPortfolioStateZeroLeveragedData();
+    console.log(
+      'productGroupData.productGroupData',
+      productGroupData.productGroupData
+    );
     return {
       tokenList: productGroupData.tokenList || [],
       productGroupData: productGroupData.productGroupData || [],
       defaultSymbol: productGroupData.defaultSymbol || '',
     };
   } else {
-    const productGroupData =
-      rootStore.networkStore.getPortfolioStateZeroBorrowData();
+    const productGroupData = rootStore
+      .getNetworkClient(selectedNetwork)
+      .getPortfolioStateZeroBorrowData();
     return {
       tokenList: productGroupData.tokenList || [],
       productGroupData: productGroupData.productGroupData || [],
