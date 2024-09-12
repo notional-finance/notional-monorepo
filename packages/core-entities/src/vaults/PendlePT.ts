@@ -1,9 +1,14 @@
-import { Network, PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import {
+  INTERNAL_TOKEN_DECIMALS,
+  Network,
+  PRIME_CASH_VAULT_MATURITY,
+} from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { TokenBalance } from '../token-balance';
 import { Registry } from '../Registry';
 import { BigNumber, BytesLike } from 'ethers';
 import { PendleMarket } from '../exchanges';
+import { TokenDefinition } from '../Definitions';
 
 export interface PendlePTVaultParams extends BaseVaultParams {
   ptTokenAddress: string;
@@ -93,11 +98,22 @@ export class PendlePT extends VaultAdapter {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
-    // Given PT Out, calculate tokens in....
-    const trade = this.market.calculateTokenTrade(
-      netVaultShares,
+    const ptTokens = TokenBalance.from(
+      netVaultShares.n,
+      this.market.poolParams.totalPt.token
+    )
+      .scaleFromInternal()
+      .neg();
+
+    // Calculate the cost to purchase the PT
+    const { tokensOut, feesPaid } = this.market.calculateTokenTrade(
+      ptTokens.neg(),
       this.market.TOKEN_IN_INDEX
     );
+    return {
+      netUnderlyingForVaultShares: tokensOut,
+      feesPaid: feesPaid[0],
+    };
   }
 
   getNetVaultSharesMinted(
@@ -107,8 +123,19 @@ export class PendlePT extends VaultAdapter {
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
   } {
-    // Given tokens in, calculate PT out...
-    return { netVaultSharesForUnderlying, feesPaid };
+    // Calculate the amount received for selling the PT
+    const { tokensOut, feesPaid } = this.market.calculateTokenTrade(
+      netUnderlying.neg(),
+      this.market.PT_TOKEN_INDEX
+    );
+
+    return {
+      netVaultSharesForUnderlying: TokenBalance.from(
+        tokensOut.scaleTo(INTERNAL_TOKEN_DECIMALS),
+        vaultShare
+      ),
+      feesPaid: feesPaid[0],
+    };
   }
 
   override async getDepositParameters(

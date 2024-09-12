@@ -6,18 +6,20 @@ import {
   getProviderFromNetwork,
   Network,
   RATE_PRECISION,
+  SCALAR_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
 } from '@notional-finance/util';
 import { AggregateCall } from '@notional-finance/multicall';
 import { BigNumber, Contract } from 'ethers';
 
 interface PendleMarketParams {
-  totalSy: TokenBalance;
+  totalSy: BigNumber;
   totalPt: TokenBalance;
-  scalarRoot: number;
-  lnImpliedRate: number;
-  lnFeeRateRoot: number;
+  scalarRoot: BigNumber;
+  lnImpliedRate: BigNumber;
+  lnFeeRateRoot: BigNumber;
   expiry: number;
+  syToAssetExchangeRate: BigNumber;
 }
 
 export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
@@ -49,14 +51,6 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
         transform: () => [],
       },
     ];
-  }
-
-  public static override getPoolParamsOffChain(
-    _network: Network,
-    _poolAddress: string
-  ) {
-    // TODO: return market depth information....
-    return Promise.resolve({});
   }
 
   public TOKEN_IN_INDEX = 0;
@@ -114,16 +108,23 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   ) {
     const timeToExpiry = this.poolParams.expiry - blockTime;
     const rateScalar =
-      (this.poolParams.scalarRoot * SECONDS_IN_YEAR_ACTUAL) / timeToExpiry;
-    const totalAsset = this.syToAsset(this.poolParams.totalSy);
+      (this.poolParams.scalarRoot.toNumber() * SECONDS_IN_YEAR_ACTUAL) /
+      timeToExpiry;
+    const totalAsset = TokenBalance.fromID(
+      this.poolParams.totalSy
+        .mul(this.poolParams.syToAssetExchangeRate)
+        .div(SCALAR_PRECISION),
+      this.assetTokenId,
+      this.network
+    );
     const rateAnchor = this.getRateAnchor(
       totalAsset,
       rateScalar,
-      this.poolParams.lnImpliedRate,
+      this.poolParams.lnImpliedRate.toNumber(),
       timeToExpiry
     );
     const feeRate = this._getExchangeRateFromImpliedRate(
-      this.poolParams.lnFeeRateRoot,
+      this.poolParams.lnFeeRateRoot.toNumber(),
       timeToExpiry
     );
     const preFeeExchangeRate = this._getExchangeRate(
