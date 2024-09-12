@@ -48,6 +48,11 @@ export async function processMarket(
     await findTx(provider, hash);
   }
 
+  // skip account settlement on mainnet
+  if (env.NETWORK === Network.mainnet) {
+    return;
+  }
+
   const txs = await markets.getAccountsSettlementTxs(blockNumber);
   const vaultTxs = await markets.getVaultAccountsSettlementTxs(blockNumber);
 
