@@ -197,7 +197,7 @@ const config: ConfigPerNetwork = {
       },
       // "tBTC/xwBTC"
       {
-        address: '0xF35431Fa697bDd436D8c4e8490E71BdCb52F6A09',
+        address: '0x3533f05b2c54ce1c2321cfe3c6f693a3cbbaea10',
         gauge: '0xa4Ed1e1Db18d65A36B3Ef179AaFB549b45a635A4',
         primaryBorrowCurrency: tokens.arbitrum.WBTC,
         rewardPoolType: RewardPoolType.ConvexArbitrum,

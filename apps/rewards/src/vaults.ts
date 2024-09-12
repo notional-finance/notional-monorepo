@@ -161,5 +161,10 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       rewardTokens: [ARB, ARB_BAL, ARB_AURA],
       reinvestToken: ARB_wstETH,
     },
+    {
+      address: '0x3533F05B2C54Ce1C2321cfe3c6F693A3cBbAEa10',
+      rewardTokens: [ARB_CRV, ARB],
+      reinvestToken: ARB_WBTC,
+    },
   ],
 };
