@@ -39,9 +39,9 @@ export const Address = {
   UniV3WrappedFlashLender_ARBITRUM:
     '0x319300462C37AD2D4f26B584C2b67De51F51f289'.toLowerCase(),
   initializeAllMarkets_MAINNET:
-    '0x7a125ad9bB264969142B2895df3C0026a3f9b4c2'.toLowerCase(),
+    '0x40a77E61c230BB3B847231E3F47E47c6c62257db'.toLowerCase(),
   settleAccounts_MAINNET:
-    '0x00139EA9940AB70765D66623340D34846baf6C99'.toLowerCase(),
+    '0x04f917B9772920BC7E39Da36b465395A7B8E893C'.toLowerCase(),
 };
 
 export enum Sign {
