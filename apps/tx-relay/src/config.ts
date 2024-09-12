@@ -38,6 +38,10 @@ export const Address = {
     '0x5E8820B2832aD8451f65Fa2CCe2F3Cef29016D0d'.toLowerCase(),
   UniV3WrappedFlashLender_ARBITRUM:
     '0x319300462C37AD2D4f26B584C2b67De51F51f289'.toLowerCase(),
+  initializeAllMarkets_MAINNET:
+    '0x7a125ad9bB264969142B2895df3C0026a3f9b4c2'.toLowerCase(),
+  settleAccounts_MAINNET:
+    '0x00139EA9940AB70765D66623340D34846baf6C99'.toLowerCase(),
 };
 
 export enum Sign {

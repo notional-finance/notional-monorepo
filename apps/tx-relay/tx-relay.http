@@ -1,0 +1,6 @@
+@baseUrl={{$dotenv TX_RELAY_URL}}
+
+# Get all signers
+GET {{baseUrl}}/v1/signers
+x-auth-token: {{$dotenv AUTH_TOKEN}}
+

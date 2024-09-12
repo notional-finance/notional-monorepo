@@ -35,10 +35,14 @@
     "ddsource",
     "ddtags",
     "noindex",
+    "notionalv",
     "nrwl",
     "Numberish",
     "PYUSD",
     "reinvestments",
+    "rpcs",
+    "txes",
+    "vnet",
     "xirr"
   ],
   "[markdown]": {

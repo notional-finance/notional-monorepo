@@ -8,6 +8,8 @@ import { Address, Sign, rpcUrls } from './config';
 import { Network } from './types';
 import { logToDataDog } from './util';
 
+const TEST_CHAIN_ID = 111111;
+
 const kmsCredentials = {
   projectId: 'monitoring-agents', // your project id in gcp
   locationId: 'global', // the location where your key ring was created
@@ -53,6 +55,11 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     ],
     [Address.AaveV3Pool_MAINNET]: [Sign.flashLoan],
     [Address.Multicall3]: [Sign.aggregate3],
+    [Address.initializeAllMarkets_MAINNET]: [Sign.initializeAllMarkets],
+    [Address.settleAccounts_MAINNET]: [
+      Sign.settleAccounts,
+      Sign.settleVaultsAccounts,
+    ],
     [Address.AaveWrappedFlashLender_MAINNET]: [Sign.flash],
     [Address.BalancerWrappedFlashLender_MAINNET]: [Sign.flash],
     [Address.UniV3WrappedFlashLender_MAINNET]: [Sign.flash],
@@ -161,6 +168,7 @@ interface TransactionParams {
 
 interface ExecutionContext {
   provider?: providers.Provider;
+  rpcUrl?: string;
   log: ReturnType<typeof logToDataDog>;
 }
 
@@ -194,8 +202,20 @@ export async function sendTransaction(
   // in order to properly fetch correct nonce for tx we need to throttle here per key
   await throttle(keysToUse[to]);
 
-  const provider =
-    context.provider || ethers.getDefaultProvider(rpcUrls[network]);
+  let provider: providers.Provider;
+  if (context.rpcUrl) {
+    provider = new ethers.providers.JsonRpcProvider(context.rpcUrl);
+    const chainId = await provider
+      .getNetwork()
+      .then((network) => network.chainId);
+    if (chainId !== TEST_CHAIN_ID) {
+      throw new Error(
+        `Custom rpc urls are supported only for chain id: ${TEST_CHAIN_ID}`
+      );
+    }
+  } else {
+    provider = context.provider || ethers.getDefaultProvider(rpcUrls[network]);
+  }
 
   const signer = new GcpKmsSigner({
     ...kmsCredentials,

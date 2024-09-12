@@ -30,7 +30,7 @@ async function txRelayService(req: Request, res: Response) {
           const network: Network = req.path.split('/')[3] as Network;
           const result = await sendTransaction(
             { ...req.body, network },
-            { log }
+            { log, rpcUrl: req.body.rpcUrl }
           );
           res.status(200).send(JSON.stringify(result));
         } catch (e) {
