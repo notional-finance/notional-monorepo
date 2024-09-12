@@ -178,16 +178,16 @@ export const useLiquidityList = (
   const listData = yieldData
     .map((y) => {
       const walletBalance = account
-        ? account.balances.find((t) => t.tokenId === y.underlying.id)
+        ? account.balances.find((t) => t.tokenId === y?.underlying?.id)
         : undefined;
       const organicApy = (y.apy.organicAPY || 0) + (y.apy.feeAPY || 0);
 
       return {
         currency: {
-          symbol: y.underlying.symbol || '',
+          symbol: y?.underlying?.symbol || '',
           symbolSize: 'large',
           symbolBottom: '',
-          label: y.underlying.symbol || '',
+          label: y?.underlying?.symbol || '',
           caption: network
             ? network.charAt(0).toUpperCase() + network.slice(1)
             : '',
@@ -200,20 +200,20 @@ export const useLiquidityList = (
             ? sumAndFormatIncentives(y.apy.incentives)
             : '',
         liquidity: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
-        collateralFactor: y.collateralFactor ? y.collateralFactor : '',
+        collateralFactor: y?.collateralFactor ? y?.collateralFactor : '',
         view:
           product === PRODUCTS.LIQUIDITY_VARIABLE
-            ? `${product}/${network}/${y.underlying.symbol} || ''`
-            : `${product}/${network}/CreateLeveragedNToken/${y.underlying.symbol}?borrowOption=${y.debtToken?.id}` ||
+            ? `${product}/${network}/${y?.underlying?.symbol} || ''`
+            : `${product}/${network}/CreateLeveragedNToken/${y?.underlying?.symbol}?borrowOption=${y?.debtToken?.id}` ||
               '',
-        symbol: y.underlying.symbol || '',
-        borrowTerms: y.debtToken?.maturity ? y.debtToken?.maturity : 0,
+        symbol: y?.underlying?.symbol || '',
+        borrowTerms: y?.debtToken?.maturity ? y?.debtToken?.maturity : 0,
         multiValueCellData: {
           currency: {
-            symbol: y.underlying.symbol || '',
+            symbol: y?.underlying?.symbol || '',
             symbolSize: 'large',
             symbolBottom: '',
-            label: y.underlying.symbol || '',
+            label: y?.underlying?.symbol || '',
             caption: network
               ? network.charAt(0).toUpperCase() + network.slice(1)
               : '',
@@ -226,18 +226,18 @@ export const useLiquidityList = (
               : undefined,
           },
           organicApy: {
-            symbol: y.underlying.symbol || '',
+            symbol: y?.underlying?.symbol || '',
             label: organicApy,
             labelIsNegative: organicApy && organicApy < 0 ? true : false,
           },
           incentiveApy:
-            y.apy.incentives && y.apy?.incentives?.length > 0
-              ? getIncentiveData(y.apy.incentives)
+            y?.apy?.incentives && y?.apy?.incentives?.length > 0
+              ? getIncentiveData(y?.apy?.incentives)
               : '',
           borrowTerms: {
-            label: y.debtToken?.tokenType === 'fCash' ? 'Fixed' : 'Variable',
-            caption: y.debtToken?.maturity
-              ? formatMaturity(y.debtToken?.maturity)
+            label: y?.debtToken?.tokenType === 'fCash' ? 'Fixed' : 'Variable',
+            caption: y?.debtToken?.maturity
+              ? formatMaturity(y?.debtToken?.maturity)
               : undefined,
           },
         },

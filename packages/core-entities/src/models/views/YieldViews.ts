@@ -38,6 +38,7 @@ type ProductGroupItem = {
   liquidity: TokenBalance;
   underlying?: TokenDefinition;
   collateralFactor: string;
+  debtToken?: TokenDefinition;
 };
 export type ProductGroupData = ProductGroupItem[][];
 
@@ -403,7 +404,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getDefaultVaultAPYs = (vaultAddress: string) => {
-    return getVaultShares('VaultShare').map((share) => {
+    return self.getVaultShares(vaultAddress).map((share) => {
       if (!share.maturity) throw Error('Invalid share maturity');
       const debt = getVaultDebt(vaultAddress, share.maturity);
       const { defaultLeverageRatio } = getLeverageRatios(share);
@@ -540,6 +541,64 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     };
   };
 
+  const getPortfolioStateZeroLeveragedData = () => {
+    const group = ['nToken', 'VaultShare'];
+    const productGroupData = group.map((group) => {
+      return self
+        .getTokensByType(group)
+        .map((t) => {
+          let leveragedNTokenData;
+          let vaultAPYs;
+          let vaultDebtToken;
+          if(t.tokenType === 'nToken') {
+          const debtTokens = getDefaultLeveragedNTokenAPYs(t);
+          leveragedNTokenData = debtTokens.reduce((max, current) => {
+            return current?.apy?.totalAPY &&
+              max?.apy?.totalAPY &&
+              current.apy.totalAPY > max.apy.totalAPY
+              ? current
+              : max;
+          }, debtTokens[0]);
+          }
+          if(t.tokenType === 'VaultShare' && t.vaultAddress) {
+            const data = getDefaultVaultAPYs(t?.vaultAddress);
+            vaultAPYs = data.reduce((max, current) => {
+              return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0) ? current : max;
+            }, data[0])?.apy;
+            vaultDebtToken = data.reduce((max, current) => {
+              return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0) ? current : max;
+            }, data[0])?.debtToken;
+          }
+          
+          return {
+            token: t,
+            apy: t.tokenType === 'nToken' ? leveragedNTokenData?.apy : vaultAPYs,
+            tvl: getTVL(t),
+            liquidity: getLiquidity(t),
+            underlying: t.underlying
+              ? self.getTokenByID(t.underlying)
+              : undefined,
+            collateralFactor: getDebtOrCollateralFactor(t, false),
+            debtToken: t.tokenType === 'nToken' ? leveragedNTokenData?.debtToken : vaultDebtToken,
+          };
+
+        })
+    })
+
+    const pointsVaults = productGroupData[1].filter((item) => item?.apy?.pointMultiples);
+    const farmingVaults = productGroupData[1].filter((item) => !item?.apy?.pointMultiples);
+
+    const formattedGroupData = [productGroupData[0], pointsVaults, farmingVaults];
+    const tokenList = getUniqueUnderlyingSymbols(formattedGroupData);
+    const highestAPYSymbol = getDefaultHighestAPYSymbol(formattedGroupData);
+
+    return {
+      tokenList,
+      productGroupData: formattedGroupData,
+      defaultSymbol: highestAPYSymbol,
+    };
+  };
+
   return {
     getSpotAPY,
     getAnnualizedNOTEIncentives,
@@ -554,5 +613,6 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getDefaultVaultAPYs,
     getPortfolioStateZeroEarnData,
     getPortfolioStateZeroBorrowData,
+    getPortfolioStateZeroLeveragedData
   };
 };

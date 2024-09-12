@@ -48,6 +48,5 @@ export const useLeveragedNTokens = (network: Network | undefined) => {
       collateralFactor: model.getDebtOrCollateralFactor(t, false),
     };
   });
-
   return yieldData;
 };

@@ -1,12 +1,12 @@
-import { AppStoreType } from '@notional-finance/notionable';
+import { AppStoreType, RootStoreContext } from '@notional-finance/notionable';
 import { useContext, createContext } from 'react';
 
 export const AppContext = createContext<AppStoreType | null>(null);
 
 export const useAppStore = (): AppStoreType => {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('App Store must be used within a AppContext');
+  const rootContext = useContext(RootStoreContext);
+  if (!rootContext || !rootContext.appStore) {
+    throw new Error('RootStoreContext must be used within a RootStoreContext');
   }
-  return context;
+  return rootContext.appStore;
 };

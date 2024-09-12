@@ -49,10 +49,8 @@ const PortfolioStateZero = () => {
   const selectedNetwork = useSelectedNetwork();
   // const isAccountReady = useAccountReady(selectedNetwork);
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
-  const { tokenList, productGroupData, defaultSymbol } = useNetworkTokenData(
-    selectedNetwork,
-    selectedTabIndex
-  );
+  const { tokenList, productGroupData, defaultSymbol } =
+    useNetworkTokenData(selectedTabIndex);
 
   useEffect(() => {
     if (
@@ -137,9 +135,9 @@ const PortfolioStateZero = () => {
         />
       </TopContentContainer>
       <StateZeroData
-        productGroupData={productGroupData}
-        defaultSymbol={defaultSymbol}
-        tokenList={tokenList}
+        productGroupData={productGroupData || []}
+        defaultSymbol={defaultSymbol || ''}
+        tokenList={tokenList || []}
         selectedTabIndex={selectedTabIndex}
       />
     </PortfolioMainContent>

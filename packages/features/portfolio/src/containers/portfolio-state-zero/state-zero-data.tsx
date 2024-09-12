@@ -1,8 +1,5 @@
 import { useTheme, Box, styled } from '@mui/material';
-import {
-  ProductGroupData,
-  getAPYDataForToken,
-} from './hooks/use-network-token-data';
+import { getAPYDataForToken } from './hooks/use-network-token-data';
 import { useCardData, useMoreDropdown } from './hooks';
 import { useEffect, useState } from 'react';
 import { PortfolioNetworkSelector } from '@notional-finance/wallet';
@@ -24,7 +21,7 @@ export const StateZeroData = ({
   tokenList,
   selectedTabIndex,
 }: {
-  productGroupData: ProductGroupData;
+  productGroupData: any[];
   defaultSymbol: string;
   tokenList: string[];
   selectedTabIndex: number;
@@ -33,6 +30,7 @@ export const StateZeroData = ({
   const [activeToken, setActiveToken] = useState<string>(defaultSymbol);
   const getHighestApy =
     selectedTabIndex !== PORTFOLIO_STATE_ZERO_OPTIONS.BORROW;
+
   const tokenData = getAPYDataForToken(
     activeToken,
     productGroupData,
@@ -49,7 +47,12 @@ export const StateZeroData = ({
     }
   }, [tokenList, activeToken, defaultSymbol]);
 
-  const cardData = useCardData(selectedTabIndex, activeToken, tokenData);
+  const cardData = useCardData(
+    selectedTabIndex,
+    activeToken,
+    tokenData,
+    productGroupData
+  );
 
   return (
     <>
