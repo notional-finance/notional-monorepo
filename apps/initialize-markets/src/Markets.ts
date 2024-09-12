@@ -7,12 +7,12 @@ import {
 import { ethers } from 'ethers';
 
 const settleAccountsAddressMap = {
-  [Network.mainnet]: '',
+  [Network.mainnet]: '0x04f917B9772920BC7E39Da36b465395A7B8E893C',
   [Network.arbitrum]: '0x22349F0b9b6294dA5526c9E9383164d97c45ACCD',
 };
 
 const initializeAllMarketsAddressMap = {
-  [Network.mainnet]: '',
+  [Network.mainnet]: '0x40a77E61c230BB3B847231E3F47E47c6c62257db',
   [Network.arbitrum]: '0x9b6C04D1481473B2e52CaEB85822072C35460f27',
 };
 
