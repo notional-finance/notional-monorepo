@@ -15,7 +15,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
       - name: Deploy Workers
@@ -24,3 +24,7 @@ jobs:
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
+      - run: curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sh
+      - run: tenderly login --access-key ${{ secrets.TENDERLY_API_KEY }}
+      - name: Deploy Actions
+        run: yarn nx affected --target deploy-tenderly --base=v3/prod~1 --head=v3/prod
