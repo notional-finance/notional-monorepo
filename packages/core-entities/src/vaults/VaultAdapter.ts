@@ -105,5 +105,17 @@ export abstract class VaultAdapter {
     maturity: number;
   }): number;
 
-  abstract getVaultTVL(): TokenBalance;
+  getVaultTVL(): TokenBalance {
+    const vaultShares = Registry.getTokenRegistry()
+      .getAllTokens(this.network)
+      .filter(
+        (t) =>
+          t.tokenType === 'VaultShare' && t.vaultAddress === this.vaultAddress
+      );
+
+    return vaultShares.reduce(
+      (acc, v) => (v.totalSupply ? acc.add(v.totalSupply.toUnderlying()) : acc),
+      TokenBalance.zero(this.getBorrowedToken())
+    );
+  }
 }
