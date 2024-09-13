@@ -23,7 +23,6 @@ import {
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
-  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
@@ -42,6 +41,7 @@ import {
 } from '@notional-finance/core-entities';
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../components';
+import { useAppStore } from '@notional-finance/notionable';
 
 const HealthFactorCell = ({ cell }) => {
   const theme = useTheme();

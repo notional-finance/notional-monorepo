@@ -19,7 +19,7 @@ import {
   useFixedLiquidityPoolsTable,
 } from '@notional-finance/trade';
 import { useBorrowFixedMultiChart } from '../hooks';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { observer } from 'mobx-react-lite';
 
 const BorrowFixedTradeSummary = () => {

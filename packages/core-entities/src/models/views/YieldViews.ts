@@ -4,9 +4,11 @@ import {
   getNowSeconds,
   INTERNAL_TOKEN_PRECISION,
   leveragedYield,
+  PORTFOLIO_STATE_ZERO_OPTIONS,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
+  unique,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { assertDefined, ConfigurationViews } from './ConfigurationViews';
@@ -17,7 +19,7 @@ import { VaultViews } from './VaultViews';
 import { ExchangeViews } from './ExchangeViews';
 
 export interface APYData {
-  totalAPY: number;
+  totalAPY?: number;
   organicAPY?: number;
   feeAPY?: number;
   incentives?: {
@@ -30,6 +32,18 @@ export interface APYData {
   debtAPY?: number;
 }
 
+export type ProductGroupItem = {
+  token: TokenDefinition;
+  apy: APYData;
+  maxLeverageRatio?: number;
+  tvl: TokenBalance;
+  liquidity: TokenBalance;
+  underlying?: TokenDefinition;
+  collateralFactor: string;
+  debtToken?: TokenDefinition;
+};
+export type ProductGroupData = ProductGroupItem[][];
+
 export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const {
     getTokenBySymbol,
@@ -38,10 +52,11 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getUnderlying,
     getDebtTokens,
     getVaultShares,
+    getTokensByType,
     getVaultDebt,
     unwrapVaultToken,
   } = TokenViews(self);
-  const { getVaultAdapter, getVaultConfig } = VaultViews(self);
+  const { getVaultAdapter, getVaultConfig, getAllListedVaults } = VaultViews(self);
   const { getConfig } = ConfigurationViews(self);
   const { getfCashMarket, getNotionalMarket } = ExchangeViews(self);
 
@@ -392,7 +407,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getDefaultVaultAPYs = (vaultAddress: string) => {
-    return getVaultShares('VaultShare').map((share) => {
+    return getVaultShares(vaultAddress).map((share) => {
       if (!share.maturity) throw Error('Invalid share maturity');
       const debt = getVaultDebt(vaultAddress, share.maturity);
       const { defaultLeverageRatio } = getLeverageRatios(share);
@@ -430,6 +445,182 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     }
   };
 
+  const getUniqueUnderlyingSymbols = (productGroupData: ProductGroupData) => {
+    const uniqueUnderlyingSymbols = productGroupData
+      .flat()
+      .map((item) => item.underlying?.symbol)
+      .filter((symbol): symbol is string => symbol !== undefined)
+
+      return unique(uniqueUnderlyingSymbols);
+  };
+
+  const getDefaultHighestAPYSymbol = (productGroupData: ProductGroupData) => {
+    const highestTotalAPYBySymbol: Record<string, number> = {};
+    productGroupData.flat().forEach((item) => {
+      const symbol = item?.underlying?.symbol;
+      if (symbol) {
+        const totalAPY = item.apy?.totalAPY || 0;
+
+        if (!highestTotalAPYBySymbol[symbol]) {
+          highestTotalAPYBySymbol[symbol] = totalAPY;
+        } else {
+          highestTotalAPYBySymbol[symbol] += totalAPY;
+        }
+      }
+    });
+
+      let highestAPYSymbol = '';
+      let highestAPYValue = 0;
+      for (const data in highestTotalAPYBySymbol) {
+        if (highestTotalAPYBySymbol[data] > highestAPYValue) {
+          highestAPYValue = highestTotalAPYBySymbol[data];
+          highestAPYSymbol = data;
+        }
+      }
+
+      return highestAPYSymbol;
+  };
+
+  const getPortfolioStateZeroBorrowData = () => {
+    const group = ['fCash', 'PrimeDebt'];
+    const productGroupData = group.map((group) => {
+      return getTokensByType(group)
+        .filter((data) => data?.isFCashDebt || data?.tokenType === 'PrimeDebt')
+        .map((t) => {
+          return {
+            token: t,
+            apy: getSpotAPY(t.id),
+            tvl: getTVL(t),
+            liquidity: getLiquidity(t),
+            underlying: t.underlying
+              ? getTokenByID(t.underlying)
+              : undefined,
+            collateralFactor: getDebtOrCollateralFactor(t, false),
+          };
+        });
+    });
+    const tokenList = getUniqueUnderlyingSymbols(productGroupData);
+    const defaultSymbol = 'ETH';
+    return {
+      tokenList,
+      productGroupData: productGroupData,
+      defaultSymbol,
+    };
+  };
+
+  const getPortfolioStateZeroEarnData = () => {
+    const group = ['fCash', 'PrimeCash', 'nToken'];
+    const productGroupData = group.map((group) => {
+      return getTokensByType(group)
+        .filter((data) => !data?.isFCashDebt)
+        .map((t) => {
+          return {
+            token: t,
+            apy: getSpotAPY(t.id),
+            tvl: getTVL(t),
+            liquidity: getLiquidity(t),
+            underlying: t.underlying
+              ? getTokenByID(t.underlying)
+              : undefined,
+            collateralFactor: getDebtOrCollateralFactor(t, false),
+          };
+        });
+    });
+    const tokenList = getUniqueUnderlyingSymbols(productGroupData);
+    const highestAPYSymbol = getDefaultHighestAPYSymbol(productGroupData);
+
+    return {
+      tokenList,
+      productGroupData,
+      defaultSymbol: highestAPYSymbol,
+    };
+  };
+
+  const getLeveragedNTokenData = () => {
+    const leveragedNTokenData = getTokensByType('nToken').map((t) => {
+      const debtTokens = getDefaultLeveragedNTokenAPYs(t);
+      const leveragedNTokenData =
+        debtTokens.length > 0
+          ? debtTokens.reduce((max, current) => {
+              return current?.apy?.totalAPY &&
+                max?.apy?.totalAPY &&
+                current.apy.totalAPY > max.apy.totalAPY
+                ? current
+                : max;
+            }, debtTokens[0])
+          : undefined;
+
+      return {
+        token: t,
+        apy: leveragedNTokenData?.apy as APYData,
+        tvl: getTVL(t),
+        maxLeverageRatio: getLeverageRatios(t).maxLeverageRatio,
+        liquidity: getLiquidity(t),
+        underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
+        collateralFactor: getDebtOrCollateralFactor(t, false),
+        debtToken: leveragedNTokenData?.debtToken,
+      };
+    });
+    return leveragedNTokenData;
+  };
+
+  const getAllListedVaultsData = () => {
+    const listedVaults = getAllListedVaults()
+    const listedVaultAddresses = listedVaults.map((v) => v.vaultAddress)
+
+    const allListedVaultsData = getTokensByType('VaultShare')
+    .filter((t) => t.vaultAddress && listedVaultAddresses.includes(t.vaultAddress))
+    .map((t) => {
+          const data = getDefaultVaultAPYs(t.vaultAddress || '');
+          const vaultData = data.length > 0 ? data.reduce((max, current) => {
+            return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0)
+              ? current
+              : max;
+          }, data[0]) : undefined;
+
+        return {
+          token: t,
+          apy: vaultData?.apy as APYData,
+          tvl: getTVL(t),
+          maxLeverageRatio: getLeverageRatios(t).maxLeverageRatio,
+          liquidity: getLiquidity(t),
+          underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
+          collateralFactor: getDebtOrCollateralFactor(t, false),
+          debtToken: vaultData?.debtToken,
+        };
+      });
+
+    const pointsVaults = allListedVaultsData.filter(
+      (item) => item?.apy?.pointMultiples
+    );
+    const farmingVaults = allListedVaultsData.filter(
+      (item) => !item?.apy?.pointMultiples
+    );
+
+    return {
+      pointsVaults,
+      farmingVaults
+    }
+  };
+
+  const getPortfolioStateZeroLeveragedData = () => {
+    const { pointsVaults, farmingVaults } = getAllListedVaultsData();
+    const leveragedNTokenData = getLeveragedNTokenData();
+    const formattedGroupData = [
+      leveragedNTokenData,
+      pointsVaults,
+      farmingVaults,
+    ];
+    const tokenList = getUniqueUnderlyingSymbols(formattedGroupData);
+    const highestAPYSymbol = getDefaultHighestAPYSymbol(formattedGroupData);
+
+    return {
+      tokenList,
+      productGroupData: formattedGroupData,
+      defaultSymbol: highestAPYSymbol,
+    };
+  };
+
   return {
     getSpotAPY,
     getAnnualizedNOTEIncentives,
@@ -442,5 +633,10 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getDebtOrCollateralFactor,
     getDefaultLeveragedNTokenAPYs,
     getDefaultVaultAPYs,
+    getLeveragedNTokenData,
+    getAllListedVaultsData,
+    getPortfolioStateZeroEarnData,
+    getPortfolioStateZeroBorrowData,
+    getPortfolioStateZeroLeveragedData
   };
 };

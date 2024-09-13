@@ -9,7 +9,7 @@ import { FormattedMessage } from 'react-intl';
 import { Title } from '../../settings-side-drawer';
 import { useBaseCurrency } from './use-base-currency';
 import { FiatKeys } from '@notional-finance/core-entities';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { observer } from 'mobx-react-lite';
 
 export const BaseCurrencyButton = () => {

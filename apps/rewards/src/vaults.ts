@@ -158,6 +158,11 @@ export const vaults: Vaults = {
       rewardTokens: [a.CRV, a.ARB],
       reinvestToken: a.WBTC,
     },
+    {
+      address: '0x3533F05B2C54Ce1C2321cfe3c6F693A3cBbAEa10',
+      rewardTokens: [ARB_CRV, ARB],
+      reinvestToken: ARB_WBTC,
+    },
   ],
 };
 

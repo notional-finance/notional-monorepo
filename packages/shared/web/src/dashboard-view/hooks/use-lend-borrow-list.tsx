@@ -3,10 +3,7 @@ import {
   formatNumberAsAbbr,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
-import {
-  useAccountDefinition,
-  useAppStore,
-} from '@notional-finance/notionable-hooks';
+import { useAccountDefinition } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
@@ -17,6 +14,7 @@ import {
 } from '@notional-finance/mui';
 import { PointsIcon } from '@notional-finance/icons';
 import { useNetworkTokens } from './use-network-tokens';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const useLendBorrowList = (
   product: PRODUCTS,

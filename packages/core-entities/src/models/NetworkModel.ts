@@ -52,7 +52,7 @@ export const NetworkModel = types.model('Network', {
     {}
   ),
   lastUpdated: types.optional(types.number, 0),
-});
+})
 
 // NOTE: this is an initial implementation of the client model which has some views
 // defined that the other models depend on.

@@ -1,5 +1,5 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
@@ -55,7 +55,7 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
           apy.incentives && apy?.incentives?.length > 0
             ? getIncentiveSymbols(apy?.incentives)
             : undefined,
-        apy: apy.totalAPY,
+        apy: apy.totalAPY || 0,
         routeCallback: () =>
           navigate(
             `/${PRODUCTS.LIQUIDITY_VARIABLE}/${network}/${underlying?.symbol}`

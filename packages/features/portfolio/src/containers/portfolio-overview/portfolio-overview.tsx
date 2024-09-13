@@ -8,10 +8,14 @@ import {
   useOverviewVaultHoldingsColumns,
 } from './hooks';
 import { useVaultHoldingsTable } from '../../hooks';
-import { ClaimNoteButton, EmptyPortfolioOverview, PortfolioPageHeader } from '../../components';
+import {
+  ClaimNoteButton,
+  EmptyPortfolioOverview,
+  PortfolioPageHeader,
+} from '../../components';
 import { Box, styled, useTheme } from '@mui/material';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 
 const PortfolioOverview = () => {
   const theme = useTheme();

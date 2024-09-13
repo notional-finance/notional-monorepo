@@ -8,7 +8,6 @@ import { ObservableContext } from './context/ObservableContext';
 export * from './context/use-trade-context';
 export * from './context/use-vault-context';
 export * from './context/use-note-context';
-export * from './context/AppContext';
 export * from './context/NotionalContext';
 export * from './use-account';
 export * from './use-user-settings';

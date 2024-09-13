@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import { Body, Caption, CountUp, LabelValue } from '@notional-finance/mui';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { FormattedMessage } from 'react-intl';
 
 interface TotalAtMaturityProps {

@@ -3,8 +3,8 @@ import {
   formatNumberAsPercent,
   truncateAddress,
 } from '@notional-finance/helpers';
+import { useAppStore } from '@notional-finance/notionable';
 import {
-  useAppStore,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useState } from 'react';

@@ -1,8 +1,8 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAppStore } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
 import { useNetworkTokens } from './use-network-tokens';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const useVariableRateGrid = (
   network: Network | undefined,
@@ -32,7 +32,7 @@ export const useVariableRateGrid = (
         bottomLeftValue: undefined,
         network,
         hasPosition: false,
-        apy: apy.totalAPY,
+        apy: apy.totalAPY || 0,
         tvlNum: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         routeCallback: () =>
           navigate(`/${product}/${network}/${underlying?.symbol}`),

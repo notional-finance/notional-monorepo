@@ -22,7 +22,7 @@ import {
   TradeActionSummary,
   useFixedLiquidityPoolsTable,
 } from '@notional-finance/trade';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { observer } from 'mobx-react-lite';
 
 const LendFixedTradeSummary = () => {

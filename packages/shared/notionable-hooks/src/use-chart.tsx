@@ -15,7 +15,7 @@ import {
 import { useAccountDefinition } from './use-account';
 import { useEffect, useMemo } from 'react';
 import { useAnalyticsReady, useAppContext } from './use-notional';
-import { useAppStore } from './context/AppContext';
+import { useAppStore } from '@notional-finance/notionable';
 import { useObserver } from 'mobx-react-lite';
 
 export const useChartData = (

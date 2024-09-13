@@ -8,7 +8,6 @@ import {
   useAllVaults,
   useAccountDefinition,
   useVaultHoldings,
-  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -22,6 +21,7 @@ import {
 import { Box } from '@mui/material';
 import { MultiTokenIcon, PointsIcon } from '@notional-finance/icons';
 import { FiatKeys } from '@notional-finance/core-entities';
+import { useAppStore } from '@notional-finance/notionable';
 
 const RewardsCell = (props) => {
   const {

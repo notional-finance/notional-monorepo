@@ -1,5 +1,4 @@
 import { useTheme } from '@mui/material';
-import { getIncentiveTotals } from '@notional-finance/helpers';
 import {
   BarChartIcon,
   BarChartLateralIcon,
@@ -9,74 +8,39 @@ import {
   PointsIcon,
   VaultIcon,
 } from '@notional-finance/icons';
-import {
-  useAllMarkets,
-  useAllVaults,
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_STATE_ZERO_OPTIONS, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-import { useTokenData } from './use-token-data';
+import { sumAndFormatIncentives } from '@notional-finance/shared-web/dashboard-view/hooks/utils';
+import { getAvailableVaults } from './use-network-token-data';
+import {
+  ProductGroupItem,
+  ProductGroupData,
+} from '@notional-finance/core-entities';
 
 export const useCardData = (
-  selectedTab: number,
+  selectedTabIndex: number,
   activeToken: string,
-  allTokenData: ReturnType<typeof useTokenData>['allTokenData'],
-  availableSymbols: string[]
+  tokenData: ProductGroupItem[],
+  productGroupData: ProductGroupData
 ) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
-  const listedVaults = useAllVaults(selectedNetwork);
-  const {
-    yields: { leveragedVaults },
-    getMax,
-  } = useAllMarkets(selectedNetwork);
 
-  const activeTokenData = allTokenData[activeToken]?.data
-    ? allTokenData[activeToken].data
-    : allTokenData[availableSymbols[0]].data;
-
-  const yieldFarmingTokens: string[] = [];
-  const pointsFarmingTokens: string[] = [];
-
-  listedVaults.map(({ vaultAddress }) => {
-    const y = getMax(
-      leveragedVaults.filter((y) => y.token.vaultAddress === vaultAddress)
-    );
-    if (
-      y?.pointMultiples &&
-      !pointsFarmingTokens.includes(y?.underlying?.symbol)
-    ) {
-      pointsFarmingTokens.push(y?.underlying?.symbol);
-    } else if (y && !yieldFarmingTokens.includes(y?.underlying?.symbol)) {
-      yieldFarmingTokens.push(y?.underlying?.symbol);
-    }
-    return { yieldFarmingTokens, pointsFarmingTokens };
-  });
-
-  const leveragedLiquidityData = activeTokenData?.find(
-    (data) => data.product === 'Leveraged Liquidity'
+  const primeCashData = tokenData?.find(
+    ({ token }) => token.tokenType === 'PrimeCash'
   );
-  const leveragedYieldFarming = activeTokenData
-    ?.filter(
-      (data) =>
-        data.product === 'Leveraged Vault' && data.pointMultiples === undefined
-    )
-    .sort((a, b) => b.totalAPY - a.totalAPY)[0];
-
-  const leveragedPointsFarming = activeTokenData
-    ?.filter(
-      (data) => data.product === 'Leveraged Vault' && data.pointMultiples
-    )
-    .sort((a, b) => b.totalAPY - a.totalAPY)[0];
+  const fCashData = tokenData?.find(({ token }) => token.tokenType === 'fCash');
+  const nTokenData = tokenData?.find(
+    ({ token }) => token.tokenType === 'nToken'
+  );
 
   const earnData = [
     {
       accentTitle: <FormattedMessage defaultMessage={'Passive Yield'} />,
       title: <FormattedMessage defaultMessage={'Lending'} />,
       icon: <BarChartIcon />,
-      apy: activeTokenData?.find((data) => data.product === 'Variable Lend')
-        ?.totalAPY,
+      apy: primeCashData?.apy?.totalAPY,
       symbol: activeToken,
       cardLink: `/lend-variable/${selectedNetwork}/${activeToken}`,
       bottomLink: `/lend-variable/${selectedNetwork}`,
@@ -91,9 +55,7 @@ export const useCardData = (
       accentTitle: <FormattedMessage defaultMessage={'Guaranteed Yield'} />,
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
       icon: <BarChartLateralIcon />,
-      apy: activeTokenData
-        ?.filter((data) => data.product === 'Fixed Lend')
-        ?.sort((a, b) => b.totalAPY - a.totalAPY)[0]?.totalAPY,
+      apy: fCashData?.apy?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As High As'} />,
       symbol: activeToken,
       cardLink: `/lend-fixed/${selectedNetwork}/${activeToken}`,
@@ -107,28 +69,23 @@ export const useCardData = (
       accentTitle: <FormattedMessage defaultMessage={'High yield'} />,
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
       icon: <PieChartIcon />,
-      apy: activeTokenData?.find((data) => data.product === 'Provide Liquidity')
-        ?.totalAPY,
-      apyTitle: getIncentiveTotals(
-        activeTokenData?.find((data) => data.product === 'Provide Liquidity')
-      ) ? (
-        <FormattedMessage
-          defaultMessage={'{incentiveAPY} Incentive APY'}
-          values={{
-            incentiveAPY: getIncentiveTotals(
-              activeTokenData?.find(
-                (data) => data.product === 'Provide Liquidity'
-              )
-            ),
-          }}
-        />
-      ) : (
-        <FormattedMessage defaultMessage={'As High As'} />
-      ),
+      apy: nTokenData?.apy?.totalAPY,
+      apyTitle:
+        nTokenData?.apy?.incentives &&
+        nTokenData?.apy?.incentives?.length > 0 ? (
+          <FormattedMessage
+            defaultMessage={'{incentiveAPY} Incentive APY'}
+            values={{
+              incentiveAPY: sumAndFormatIncentives(nTokenData.apy.incentives),
+            }}
+          />
+        ) : (
+          <FormattedMessage defaultMessage={'As High As'} />
+        ),
       isTotalAPYSuffix:
-        getIncentiveTotals(
-          activeTokenData?.find((data) => data.product === 'Provide Liquidity')
-        ) !== undefined,
+        (nTokenData?.apy?.incentives &&
+          nTokenData?.apy?.incentives?.length > 0) ??
+        false,
       symbol: activeToken,
       cardLink: `/liquidity-variable/${selectedNetwork}/${activeToken}`,
       bottomLink: `/liquidity-variable/${selectedNetwork}`,
@@ -141,27 +98,40 @@ export const useCardData = (
     },
   ];
 
+  const leveragedNToken = tokenData?.find(
+    ({ token }) => token.tokenType === 'nToken'
+  );
+  const farmingVault = tokenData?.find(
+    ({ apy, token }) => !apy?.pointMultiples && token.tokenType === 'VaultShare'
+  );
+  const pointsVault = tokenData?.find(
+    ({ apy, token }) => apy?.pointMultiples && token.tokenType === 'VaultShare'
+  );
+
   const leveragedData = [
     {
       accentTitle: <FormattedMessage defaultMessage={'NOTE Yield'} />,
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
       icon: <PieChartIcon />,
-      apy: leveragedLiquidityData?.totalAPY,
-      apyTitle: getIncentiveTotals(leveragedLiquidityData) ? (
+      apy: leveragedNToken?.apy?.totalAPY,
+      apyTitle: leveragedNToken?.apy.incentives ? (
         <FormattedMessage
           defaultMessage={'{incentiveAPY} Incentive APY'}
           values={{
-            incentiveAPY: getIncentiveTotals(leveragedLiquidityData),
+            incentiveAPY: sumAndFormatIncentives(
+              leveragedNToken?.apy.incentives
+            ),
           }}
         />
       ) : (
         <FormattedMessage defaultMessage={'As High As'} />
       ),
       isTotalAPYSuffix:
-        getIncentiveTotals(leveragedLiquidityData) !== undefined,
+        leveragedNToken?.apy.incentives &&
+        leveragedNToken?.apy.incentives.length > 0,
       symbol: activeToken,
-      cardLink: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/CreateLeveragedNToken/${leveragedLiquidityData?.underlying?.symbol}?borrowOption=${leveragedLiquidityData?.leveraged?.debtToken?.id}`,
-      bottomValue: `Max Leverage: ${leveragedLiquidityData?.leveraged?.maxLeverageRatio?.toFixed(
+      cardLink: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/CreateLeveragedNToken/${leveragedNToken?.underlying?.symbol}?borrowOption=${leveragedNToken?.debtToken?.id}`,
+      bottomValue: `Max Leverage: ${leveragedNToken?.maxLeverageRatio?.toFixed(
         2
       )}x`,
       bottomLink: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}`,
@@ -175,16 +145,14 @@ export const useCardData = (
       accentTitle: <FormattedMessage defaultMessage={'Organic Yield'} />,
       title: <FormattedMessage defaultMessage={'Leveraged Yield Farming'} />,
       icon: <VaultIcon />,
-      apy: leveragedYieldFarming?.totalAPY,
+      apy: farmingVault?.apy?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As High As'} />,
       symbol: activeToken,
-      availableSymbols: yieldFarmingTokens,
-      cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${leveragedYieldFarming?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${leveragedYieldFarming?.leveraged?.vaultDebt?.id}`,
-      bottomValue: `Max Leverage: ${
-        leveragedYieldFarming?.leveraged?.maxLeverageRatio
-          ? leveragedYieldFarming?.leveraged?.maxLeverageRatio?.toFixed(2)
-          : 0
-      }x`,
+      availableSymbols: getAvailableVaults(productGroupData, false),
+      cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${farmingVault?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${farmingVault?.debtToken?.id}`,
+      bottomValue: `Max Leverage: ${farmingVault?.maxLeverageRatio?.toFixed(
+        2
+      )}x`,
       bottomLink: `/${PRODUCTS.LEVERAGED_YIELD_FARMING}/${selectedNetwork}`,
       bottomText: 'All Leveraged Yield Farming',
       pillData: [
@@ -196,16 +164,14 @@ export const useCardData = (
       accentTitle: <FormattedMessage defaultMessage={'Points Yield'} />,
       title: <FormattedMessage defaultMessage={'Leveraged Points Farming'} />,
       icon: <PointsIcon fill={theme.palette.typography.main} />,
-      apy: leveragedPointsFarming?.totalAPY,
+      apy: pointsVault?.apy?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As High as'} />,
       symbol: activeToken,
-      availableSymbols: pointsFarmingTokens,
-      cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${leveragedPointsFarming?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${leveragedPointsFarming?.leveraged?.vaultDebt?.id}`,
-      bottomValue: `Max Leverage: ${
-        leveragedPointsFarming?.leveraged?.maxLeverageRatio
-          ? leveragedPointsFarming?.leveraged?.maxLeverageRatio?.toFixed(2)
-          : 0
-      }x`,
+      availableSymbols: getAvailableVaults(productGroupData, true),
+      cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${pointsVault?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${pointsVault?.debtToken?.id}`,
+      bottomValue: `Max Leverage: ${pointsVault?.maxLeverageRatio?.toFixed(
+        2
+      )}x`,
       bottomLink: `/${PRODUCTS.LEVERAGED_POINTS_FARMING}/${selectedNetwork}`,
       bottomText: 'All Leveraged Points Farming',
       pillData: [
@@ -215,13 +181,17 @@ export const useCardData = (
     },
   ];
 
+  const primeDebtData = tokenData?.find(
+    ({ token }) => token.tokenType === 'PrimeDebt'
+  );
+  const fCashDebtData = tokenData?.find(({ token }) => token.isFCashDebt);
+
   const borrowData = [
     {
       accentTitle: <FormattedMessage defaultMessage={'Passive Interest'} />,
       title: <FormattedMessage defaultMessage={'Borrowing'} />,
       icon: <CoinsCircleIcon />,
-      apy: activeTokenData?.find((data) => data.product === 'Variable Borrow')
-        ?.totalAPY,
+      apy: primeDebtData?.apy?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As Low As'} />,
       symbol: activeToken,
       cardLink: `/borrow-variable/${selectedNetwork}/${activeToken}`,
@@ -244,9 +214,7 @@ export const useCardData = (
           }}
         />
       ),
-      apy: activeTokenData
-        ?.filter((data) => data.product === 'Fixed Borrow')
-        ?.sort((a, b) => a.totalAPY - b.totalAPY)[0]?.totalAPY,
+      apy: fCashDebtData?.apy?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As Low As'} />,
       symbol: activeToken,
       cardLink: `/borrow-fixed/${selectedNetwork}/${activeToken}`,
@@ -266,5 +234,5 @@ export const useCardData = (
     [PORTFOLIO_STATE_ZERO_OPTIONS.BORROW]: borrowData,
   };
 
-  return cardData[selectedTab];
+  return cardData[selectedTabIndex];
 };

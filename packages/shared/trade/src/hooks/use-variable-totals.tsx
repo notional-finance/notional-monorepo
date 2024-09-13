@@ -1,4 +1,4 @@
-import { TradeState } from '@notional-finance/notionable';
+import { TradeState, useAppStore } from '@notional-finance/notionable';
 import {
   ChartType,
   FiatSymbols,
@@ -10,7 +10,6 @@ import {
   usePrimeCash,
   usePrimeDebt,
   useMaxSupply,
-  useAppStore,
   useChartData,
 } from '@notional-finance/notionable-hooks';
 import { SxProps, useTheme } from '@mui/material';
