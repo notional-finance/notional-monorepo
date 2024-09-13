@@ -1,10 +1,7 @@
 import spindl from '@spindl-xyz/attribution';
 import { useEffect } from 'react';
-import {
-  AppContext,
-  useAppStore,
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { IntercomProvider } from 'react-use-intercom';
 import {
   LeveragedYieldDashboard,
@@ -26,7 +23,7 @@ import { OnboardContext } from '@notional-finance/wallet';
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import { LendFixed, LendVariable } from '@notional-finance/lend-feature-shell';
-import { InitPortfolio } from '@notional-finance/portfolio-feature-shell';
+import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import {
   BorrowFixed,
@@ -48,11 +45,13 @@ import {
   InitPointsDashboard,
   ContestLeaderBoard,
 } from '../../containers/TradingContest';
-import Markets from '../Markets';
 import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
-import { appStore } from '@notional-finance/notionable';
+import {
+  createRootStore,
+  RootStoreContext,
+} from '@notional-finance/notionable';
 import { initializeTokenBalanceRegistry } from '@notional-finance/core-entities';
 import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
@@ -279,7 +278,7 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path={`/portfolio/:selectedNetwork/:category/:sideDrawerKey/:selectedToken`}
-              component={InitPortfolio}
+              component={PortfolioFeatureShell}
               routeType="PortfolioTransaction"
             />
           }
@@ -289,7 +288,7 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path={`/portfolio/:selectedNetwork/:category/:sideDrawerKey/:selectedToken/:action`}
-              component={InitPortfolio}
+              component={PortfolioFeatureShell}
               routeType="PortfolioTransaction"
             />
           }
@@ -299,7 +298,7 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path={`/portfolio/:selectedNetwork/:category/:sideDrawerKey/:selectedToken/:action/:selectedCollateralToken`}
-              component={InitPortfolio}
+              component={PortfolioFeatureShell}
               routeType="PortfolioTransaction"
             />
           }
@@ -309,7 +308,7 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path="/portfolio/:selectedNetwork/:category/:sideDrawerKey"
-              component={InitPortfolio}
+              component={PortfolioFeatureShell}
               routeType="PortfolioTransaction"
             />
           }
@@ -319,7 +318,7 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path="/portfolio/:selectedNetwork/:category/"
-              component={InitPortfolio}
+              component={PortfolioFeatureShell}
               routeType="Portfolio"
             />
           }
@@ -329,18 +328,8 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path="/portfolio/:selectedNetwork"
-              component={InitPortfolio}
+              component={PortfolioFeatureShell}
               routeType="Portfolio"
-            />
-          }
-        />
-        <Route
-          path="/markets"
-          element={
-            <AppLayoutRoute
-              path="/markets"
-              component={Markets}
-              routeType="Analytics"
             />
           }
         />
@@ -487,9 +476,11 @@ export const App = () => {
     }
   }, []);
 
+  const rootStore = createRootStore();
+
   return (
     <HelmetProvider>
-      <AppContext.Provider value={appStore}>
+      <RootStoreContext.Provider value={rootStore}>
         <Helmet>
           <link rel="icon" href="/favicon.svg" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -508,7 +499,7 @@ export const App = () => {
             <AllRoutes />
           </Web3OnboardProvider>
         </IntercomProvider>
-      </AppContext.Provider>
+      </RootStoreContext.Provider>
     </HelmetProvider>
   );
 };

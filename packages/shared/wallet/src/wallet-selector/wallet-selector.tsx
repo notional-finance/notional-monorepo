@@ -10,10 +10,7 @@ import {
   ButtonText,
   CopyCaption,
 } from '@notional-finance/mui';
-import {
-  useAppStore,
-  useSideDrawerManager,
-} from '@notional-finance/notionable-hooks';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useWalletSideDrawer, useConnect, useIntercomUpdate } from '../hooks';
 import {
   PORTFOLIO_ACTIONS,
@@ -28,6 +25,7 @@ import {
   // useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
+import { useAppStore } from '@notional-finance/notionable';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;

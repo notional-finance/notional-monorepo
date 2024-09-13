@@ -1,10 +1,8 @@
-import {
-  useAppStore,
-  useNotionalContext,
-} from '@notional-finance/notionable-hooks';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { SupportedNetworks } from '@notional-finance/util';
 import { useIntercom } from 'react-use-intercom';
 import { useEffect } from 'react';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const useIntercomUpdate = () => {
   const { update } = useIntercom();

@@ -702,6 +702,22 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         },
       ],
     },
+    {
+      address: '0x186cF879186986A20aADFb7eAD50e3C20cb26CeC',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
+      registerTokens: [
+        {
+          id: '0x186cF879186986A20aADFb7eAD50e3C20cb26CeC',
+          address: '0x186cF879186986A20aADFb7eAD50e3C20cb26CeC',
+          network: Network.arbitrum,
+          symbol: '2BTC-ng',
+          name: '2BTC-ng',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
   ],
   [Network.optimism]: [],
   [Network.all]: [],

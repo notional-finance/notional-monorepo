@@ -19,9 +19,9 @@ import {
 } from '@notional-finance/helpers';
 import { useAllMarkets } from './use-market';
 import { useNotionalContext } from './use-notional';
-import { useAppStore } from './context/AppContext';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber } from 'ethers';
+import { useAppStore } from '@notional-finance/notionable';
 
 export function usePrimeCashBalance(
   selectedToken: string | undefined | null,

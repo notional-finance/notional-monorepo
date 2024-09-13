@@ -15,7 +15,8 @@ import {
   useVaultFaq,
 } from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
-import { useAllMarkets, useAppStore } from '@notional-finance/notionable-hooks';
+import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const VaultSummary = () => {
   const theme = useTheme();

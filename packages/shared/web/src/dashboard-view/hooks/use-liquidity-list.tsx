@@ -4,10 +4,7 @@ import {
   formatNumber,
 } from '@notional-finance/helpers';
 import { formatMaturity } from '@notional-finance/util';
-import {
-  useAppStore,
-  useAccountDefinition,
-} from '@notional-finance/notionable-hooks';
+import { useAccountDefinition } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { getIncentiveData, sumAndFormatIncentives } from './utils';
@@ -18,6 +15,7 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import { useLeveragedNTokens, useNetworkTokens } from './use-network-tokens';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const useLiquidityList = (
   product: PRODUCTS,
@@ -26,7 +24,7 @@ export const useLiquidityList = (
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
   const variableYieldData = useNetworkTokens(network, 'nToken');
-  const leveragedYieldData = useLeveragedNTokens(network);
+  const leveragedYieldData = useLeveragedNTokens();
   const yieldData =
     product === PRODUCTS.LIQUIDITY_LEVERAGED
       ? leveragedYieldData
@@ -178,16 +176,16 @@ export const useLiquidityList = (
   const listData = yieldData
     .map((y) => {
       const walletBalance = account
-        ? account.balances.find((t) => t.tokenId === y.underlying.id)
+        ? account.balances.find((t) => t.tokenId === y?.underlying?.id)
         : undefined;
       const organicApy = (y.apy.organicAPY || 0) + (y.apy.feeAPY || 0);
 
       return {
         currency: {
-          symbol: y.underlying.symbol || '',
+          symbol: y?.underlying?.symbol || '',
           symbolSize: 'large',
           symbolBottom: '',
-          label: y.underlying.symbol || '',
+          label: y?.underlying?.symbol || '',
           caption: network
             ? network.charAt(0).toUpperCase() + network.slice(1)
             : '',
@@ -200,44 +198,44 @@ export const useLiquidityList = (
             ? sumAndFormatIncentives(y.apy.incentives)
             : '',
         liquidity: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
-        collateralFactor: y.collateralFactor ? y.collateralFactor : '',
+        collateralFactor: y?.collateralFactor ? y?.collateralFactor : '',
         view:
           product === PRODUCTS.LIQUIDITY_VARIABLE
-            ? `${product}/${network}/${y.underlying.symbol} || ''`
-            : `${product}/${network}/CreateLeveragedNToken/${y.underlying.symbol}?borrowOption=${y.debtToken?.id}` ||
+            ? `${product}/${network}/${y?.underlying?.symbol} || ''`
+            : `${product}/${network}/CreateLeveragedNToken/${y?.underlying?.symbol}?borrowOption=${y?.debtToken?.id}` ||
               '',
-        symbol: y.underlying.symbol || '',
-        borrowTerms: y.debtToken?.maturity ? y.debtToken?.maturity : 0,
+        symbol: y?.underlying?.symbol || '',
+        borrowTerms: y?.debtToken?.maturity ? y?.debtToken?.maturity : 0,
         multiValueCellData: {
           currency: {
-            symbol: y.underlying.symbol || '',
+            symbol: y?.underlying?.symbol || '',
             symbolSize: 'large',
             symbolBottom: '',
-            label: y.underlying.symbol || '',
+            label: y?.underlying?.symbol || '',
             caption: network
               ? network.charAt(0).toUpperCase() + network.slice(1)
               : '',
             network: network,
           },
           totalApy: {
-            label: formatNumberAsPercent(y.apy.totalAPY, 2),
+            label: formatNumberAsPercent(y?.apy?.totalAPY || 0, 2),
             caption: y.apy?.leverageRatio
               ? `${formatNumber(y.apy?.leverageRatio, 1)}x Leverage`
               : undefined,
           },
           organicApy: {
-            symbol: y.underlying.symbol || '',
+            symbol: y?.underlying?.symbol || '',
             label: organicApy,
             labelIsNegative: organicApy && organicApy < 0 ? true : false,
           },
           incentiveApy:
-            y.apy.incentives && y.apy?.incentives?.length > 0
-              ? getIncentiveData(y.apy.incentives)
+            y?.apy?.incentives && y?.apy?.incentives?.length > 0
+              ? getIncentiveData(y?.apy?.incentives)
               : '',
           borrowTerms: {
-            label: y.debtToken?.tokenType === 'fCash' ? 'Fixed' : 'Variable',
-            caption: y.debtToken?.maturity
-              ? formatMaturity(y.debtToken?.maturity)
+            label: y?.debtToken?.tokenType === 'fCash' ? 'Fixed' : 'Variable',
+            caption: y?.debtToken?.maturity
+              ? formatMaturity(y?.debtToken?.maturity)
               : undefined,
           },
         },

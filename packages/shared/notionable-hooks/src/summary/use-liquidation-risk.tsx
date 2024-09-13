@@ -5,11 +5,14 @@ import {
   formatTokenType,
   formatNumberAsPercentWithUndefined,
 } from '@notional-finance/helpers';
-import { TradeState, VaultTradeState } from '@notional-finance/notionable';
+import {
+  TradeState,
+  VaultTradeState,
+  useAppStore,
+} from '@notional-finance/notionable';
 import { HEALTH_FACTOR_RISK_LEVELS } from '@notional-finance/util';
 import { IntlShape, useIntl, defineMessages } from 'react-intl';
 import { useVaultPosition } from '../use-account';
-import { useAppStore } from '../context/AppContext';
 
 function formatLiquidationPrices(
   liquidationPrice: TradeState['liquidationPrice'],

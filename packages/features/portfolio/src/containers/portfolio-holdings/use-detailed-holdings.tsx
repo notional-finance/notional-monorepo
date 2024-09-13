@@ -26,7 +26,7 @@ import { PORTFOLIO_ACTIONS, TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
-import { usePortfolioStore } from '../../init-portfolio';
+import { usePortfolioStore } from '@notional-finance/notionable';
 
 export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
   const theme = useTheme();

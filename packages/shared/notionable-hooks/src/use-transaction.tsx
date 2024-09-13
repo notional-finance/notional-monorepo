@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNotionalContext } from './use-notional';
 import { useLocation } from 'react-router';
 import { Registry, TokenDefinition } from '@notional-finance/core-entities';
-import { useAppStore } from './context/AppContext';
+import { useAppStore } from '@notional-finance/notionable';
 import { useConnectWallet } from '@web3-onboard/react';
 
 export enum TransactionStatus {

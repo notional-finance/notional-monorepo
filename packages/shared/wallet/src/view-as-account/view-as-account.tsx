@@ -3,12 +3,12 @@ import { ethers } from 'ethers';
 import { Box, useTheme, styled } from '@mui/material';
 import { Input, Button } from '@notional-finance/mui';
 import {
-  useAppStore,
   useSelectedNetwork,
   useSideDrawerManager,
 } from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Network } from '@notional-finance/util';
+import { useAppStore } from '@notional-finance/notionable';
 
 export function ViewAsAccount() {
   const theme = useTheme();

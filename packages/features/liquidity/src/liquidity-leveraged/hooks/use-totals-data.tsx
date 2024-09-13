@@ -1,7 +1,7 @@
 import { YieldData, FiatSymbols } from '@notional-finance/core-entities';
-import { TradeState } from '@notional-finance/notionable';
+import { TradeState, useAppStore } from '@notional-finance/notionable';
 import { SparklesIcon } from '@notional-finance/icons';
-import { useMaxSupply, useAppStore } from '@notional-finance/notionable-hooks';
+import { useMaxSupply } from '@notional-finance/notionable-hooks';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { InfoTooltip } from '@notional-finance/mui';
 import { SxProps, useTheme } from '@mui/material';

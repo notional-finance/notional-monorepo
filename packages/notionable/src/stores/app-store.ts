@@ -1,9 +1,9 @@
 import { flow, Instance, types } from 'mobx-state-tree';
 import { FIAT_NAMES, FiatKeys } from '@notional-finance/core-entities';
-import { getFromLocalStorage, THEME_VARIANTS } from '@notional-finance/util';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import { WalletModel } from './wallet-store';
 
-const userSettings = getFromLocalStorage('userSettings');
+
 
 const ErrorModel = types.model('ErrorModel', {
   code: types.number,
@@ -78,28 +78,3 @@ export const AppStoreModel = types
   }));
 
 export type AppStoreType = Instance<typeof AppStoreModel>;
-
-export const appStore = AppStoreModel.create({
-  baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
-  themeVariant: userSettings?.themeVariant
-    ? userSettings?.themeVariant
-    : THEME_VARIANTS.LIGHT,
-  heroStats: {
-    totalAccounts: 0,
-    totalDeposits: 0,
-    totalOpenDebt: 0,
-  },
-  globalError: {
-    error: undefined,
-  },
-  wallet: {
-    isSanctionedAddress: false,
-    isAccountPending: false,
-    userWallet: {
-      selectedChain: undefined,
-      selectedAddress: '',
-      isReadOnlyAddress: false,
-      label: '',
-    },
-  },
-});

@@ -6,7 +6,7 @@ import {
   setInLocalStorage,
   getFromLocalStorage,
 } from '@notional-finance/helpers';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { observer } from 'mobx-react-lite';
 
 export const useDarkModeToggle = () => {

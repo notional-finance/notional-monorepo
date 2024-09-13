@@ -10,10 +10,10 @@ import {
   MetaTagManager,
   metaTagData,
 } from '@notional-finance/shared-web';
+import { useAppStore } from '@notional-finance/notionable';
 import {
   NotionalContext,
   useGlobalContext,
-  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import WalletSelector from '@notional-finance/wallet';
 import { Box, CssBaseline, styled } from '@mui/material';

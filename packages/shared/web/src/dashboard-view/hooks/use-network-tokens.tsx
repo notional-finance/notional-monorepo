@@ -1,4 +1,5 @@
 import { getNetworkModel } from '@notional-finance/core-entities';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 import { Network } from '@notional-finance/util';
 
 export const useNetworkTokens = (
@@ -20,32 +21,39 @@ export const useNetworkTokens = (
         t,
         options?.isBorrow ?? false
       ),
+      debtToken: undefined,
     };
   });
 
   return yieldData;
 };
 
-export const useLeveragedNTokens = (network: Network | undefined) => {
-  const model = getNetworkModel(network);
-  const yieldData = model.getTokensByType('nToken').map((t) => {
-    const debtTokens = model.getDefaultLeveragedNTokenAPYs(t);
-    const leveragedNTokenData = debtTokens.reduce((max, current) => {
-      return current?.apy?.totalAPY &&
-        max?.apy?.totalAPY &&
-        current.apy.totalAPY > max.apy.totalAPY
-        ? current
-        : max;
-    }, debtTokens[0]);
+export const useLeveragedNTokens = () => {
+  const currentNetworkStore = useCurrentNetworkStore();
+  const yieldData = currentNetworkStore.getTokensByType('nToken').map((t) => {
+    const debtTokens = currentNetworkStore.getDefaultLeveragedNTokenAPYs(t);
+    const leveragedNTokenData =
+      debtTokens.length > 0
+        ? debtTokens.reduce((max, current) => {
+            return current?.apy?.totalAPY &&
+              max?.apy?.totalAPY &&
+              current.apy.totalAPY > max.apy.totalAPY
+              ? current
+              : max;
+          }, debtTokens[0])
+        : undefined;
 
     return {
       token: t,
-      apy: leveragedNTokenData?.apy,
-      tvl: model.getTVL(t),
-      liquidity: model.getLiquidity(t),
-      underlying: t.underlying ? model.getTokenByID(t.underlying) : undefined,
+      // apy: leveragedNTokenData?.apy,
+      apy: currentNetworkStore.getSpotAPY(t.id),
+      tvl: currentNetworkStore.getTVL(t),
+      liquidity: currentNetworkStore.getLiquidity(t),
+      underlying: t.underlying
+        ? currentNetworkStore.getTokenByID(t.underlying)
+        : undefined,
       debtToken: leveragedNTokenData?.debtToken,
-      collateralFactor: model.getDebtOrCollateralFactor(t, false),
+      collateralFactor: currentNetworkStore.getDebtOrCollateralFactor(t, false),
     };
   });
 

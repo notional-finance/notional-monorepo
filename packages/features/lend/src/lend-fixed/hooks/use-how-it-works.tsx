@@ -1,6 +1,6 @@
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { SvgIcon, SvgIconProps } from '@mui/material';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 
 export type ImageProps = SvgIconProps;
 export const useHowItWorks = (tokenSymbol: string) => {

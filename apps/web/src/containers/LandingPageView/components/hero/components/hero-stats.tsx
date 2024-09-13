@@ -9,7 +9,7 @@ import { ExternalLinkIcon } from '@notional-finance/icons';
 import statsImg from '../images/stats_overlay.svg';
 import { FormattedMessage } from 'react-intl';
 import { formatNumber } from '@notional-finance/helpers';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { observer } from 'mobx-react-lite';
 
 const oneMillion = 1_000_000;

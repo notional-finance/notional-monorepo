@@ -30,3 +30,4 @@ export type {
   TimeSeriesResponse,
   TimeSeriesLegend,
 } from './models/ModelTypes';
+export * from './models/views/YieldViews';
