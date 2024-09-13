@@ -17,9 +17,9 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
-      - run: yarn install --frozen-lockfile
       - run: curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sh
       - run: tenderly login --access-key ${{ secrets.TENDERLY_API_KEY }}
+      - run: yarn install --frozen-lockfile
       - name: Deploy Actions
         shell: bash
         run: apps/deployTenderly.sh

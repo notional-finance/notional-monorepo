@@ -531,9 +531,9 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@notional-finance/contracts@file:../../../dist/packages/contracts":
+"@notional-finance/contracts@file:../../../packages/contracts":
   version "0.2.4"
-  resolved "file:../../../dist/packages/contracts"
+  resolved "file:../../../packages/contracts"
 
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"
