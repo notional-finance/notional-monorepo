@@ -250,7 +250,7 @@ const claimVault = async (
   );
 
   const tx: PopulatedTransaction = { from, to, data };
-  if (!(await isClaimRewardsProfitable(env, vault, tx))) {
+  if (!force && !(await isClaimRewardsProfitable(env, vault, tx))) {
     console.log(`Skipping claim rewards for ${vault.address}, not profitable`);
     return null;
   }
