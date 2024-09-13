@@ -108,7 +108,7 @@ test.skip('should initialize markets and settle all accounts', async () => {
 }, 300_000);
 
 // this test will be run directly over tx-relayer, rpc url in this test need to be set as sepolia rpc url in tx-relayer
-test('should initialize markets and settle all accounts via tx-relayer', async () => {
+test.skip('should initialize markets and settle all accounts via tx-relayer', async () => {
   assert(
     process.env.TX_RELAY_AUTH_TOKEN,
     'Env var TX_RELAY_AUTH_TOKEN needs to be set'
@@ -125,13 +125,8 @@ test('should initialize markets and settle all accounts via tx-relayer', async (
 
   const provider = new ethers.providers.JsonRpcProvider(adminRpc);
 
-  // fund the signer
-  await provider.send('tenderly_setBalance', [
-    ['0xBCf0fa01AB57c6E8ab322518Ad1b4b86778f08E1'],
-    '0xad78ebc5ac6200000',
-  ]);
   const env = {
-    NETWORK: Network.arbitrum,
+    NETWORK: network,
     TX_RELAY_AUTH_TOKEN: process.env.TX_RELAY_AUTH_TOKEN,
     RPC_URL: publicRpc,
   };

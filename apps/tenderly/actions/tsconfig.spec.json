@@ -11,11 +11,9 @@
     "rootDir": "",
     "sourceMap": true,
     "strict": true,
-    "types": [ "@types/node", "@types/jest" ],
+    "types": ["@types/node", "@types/jest"],
     "target": "esnext"
   },
   "exclude": [],
-  "include": [
-    "test/spec.ts"
-  ]
+  "include": ["test/spec.ts"]
 }
