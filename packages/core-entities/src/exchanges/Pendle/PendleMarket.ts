@@ -1,4 +1,9 @@
-import { ERC20ABI } from '@notional-finance/contracts';
+import {
+  PendleMarketABI,
+  PendleMarket as PendleMarketContract,
+  PendleSY,
+  PendleSYABI,
+} from '@notional-finance/contracts';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
 import {
@@ -20,30 +25,115 @@ interface PendleMarketParams {
   lnImpliedRate: BigNumber;
   lnFeeRateRoot: BigNumber;
   expiry: number;
+  PT: string;
+  SY: string;
   syToAssetExchangeRate: BigNumber;
   assetTokenId: string;
-  // NOTE: this is expected in RATE_PRECISION
-  ptExchangeRate: BigNumber;
 }
+
+const PENDLE_ROUTER = {
+  [Network.mainnet]: '0x888888888889758F76e7103c6CbF23ABbF58F946',
+  [Network.arbitrum]: '0x888888888889758F76e7103c6CbF23ABbF58F946',
+  [Network.all]: '0x0000000000000000000000000000000000000000',
+  [Network.optimism]: '0x0000000000000000000000000000000000000000',
+};
 
 export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   public static override getInitData(
     network: Network,
-    ptAddress: string
+    marketAddress: string
   ): AggregateCall[] {
-    const ptToken = new Contract(
-      ptAddress,
-      ERC20ABI,
+    const market = new Contract(
+      marketAddress,
+      PendleMarketABI,
       getProviderFromNetwork(network)
-    );
+    ) as PendleMarketContract;
+
     return [
       {
         stage: 0,
-        target: ptToken,
+        target: market,
         method: 'totalSupply',
         key: 'totalSupply',
         args: [],
-        transform: (r: BigNumber) => TokenBalance.toJSON(r, ptAddress, network),
+        transform: (r: BigNumber) =>
+          TokenBalance.toJSON(r, marketAddress, network),
+      },
+      {
+        stage: 0,
+        target: market,
+        method: 'readTokens',
+        key: 'tokens',
+        args: [],
+        transform: (
+          r: Awaited<ReturnType<PendleMarketContract['readTokens']>>
+        ) => ({
+          SY: r._SY,
+          PT: r._PT,
+        }),
+      },
+      {
+        stage: 1,
+        target: market,
+        method: 'readState',
+        key: 'marketState',
+        args: [PENDLE_ROUTER[network]],
+        transform: (
+          r: Awaited<ReturnType<PendleMarketContract['readState']>>,
+          prevResults
+        ) => ({
+          totalSy: r.totalSy,
+          totalPt: TokenBalance.toJSON(
+            r.totalPt,
+            (
+              prevResults[`${marketAddress}.tokens`] as {
+                SY: string;
+                PT: string;
+              }
+            )['PT'],
+            network
+          ),
+          scalarRoot: r.scalarRoot,
+          lnImpliedRate: r.lastLnImpliedRate,
+          lnFeeRateRoot: r.lnFeeRateRoot,
+          expiry: r.expiry,
+        }),
+      },
+      {
+        stage: 1,
+        target: (prevResults) =>
+          new Contract(
+            (
+              prevResults[`${marketAddress}.tokens`] as {
+                SY: string;
+                PT: string;
+              }
+            )['SY'],
+            PendleSYABI,
+            getProviderFromNetwork(network)
+          ),
+        method: 'assetInfo',
+        key: 'assetTokenId',
+        args: [],
+        transform: (r: Awaited<ReturnType<PendleSY['assetInfo']>>) =>
+          r.assetAddress,
+      },
+      {
+        stage: 1,
+        target: (prevResults) =>
+          new Contract(
+            (
+              prevResults[`${marketAddress}.tokens`] as {
+                SY: string;
+                PT: string;
+              }
+            )['SY'],
+            PendleSYABI,
+            getProviderFromNetwork(network)
+          ),
+        method: 'exchangeRate',
+        key: 'syToAssetExchangeRate',
+        args: [],
       },
       // No balances to return for the PT token
       {
@@ -59,6 +149,29 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
   public TOKEN_IN_INDEX = 0;
   public PT_TOKEN_INDEX = 1;
+
+  get ptToken() {
+    return this.poolParams.totalPt.token;
+  }
+
+  get timeToExpiry() {
+    return this.poolParams.expiry - getNowSeconds();
+  }
+
+  get ptExchangeRate() {
+    return this.getPreFeeExchangeRate(TokenBalance.zero(this.ptToken));
+  }
+
+  get assetTokenId() {
+    return this.poolParams.assetTokenId;
+  }
+
+  get ptYieldToMaturity() {
+    return this._getExchangeRateFromImpliedRate(
+      this.poolParams.lnImpliedRate.toNumber(),
+      this.timeToExpiry
+    );
+  }
 
   public override calculateTokenTrade(
     tokensIn: TokenBalance,
@@ -78,13 +191,13 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     } else if (tokenIndexOut === this.PT_TOKEN_INDEX) {
       // Assume PT in at the current exchange rate, then do secant search until
       // we find the postFeeAssetToAccount that is close to tokensIn
-      const initialTokensIn = TokenBalance.from(
-        tokensIn.n,
-        this.poolParams.totalPt.token
+      const initialTokensIn = TokenBalance.from(tokensIn.n, this.ptToken);
+      const approxPTExchangeRate = Math.floor(
+        this.ptExchangeRate * RATE_PRECISION
       );
 
       const { postFeeAssetToAccount, fee } = doSecantSearch(
-        this.poolParams.ptExchangeRate.toNumber(),
+        approxPTExchangeRate,
         RATE_PRECISION,
         (exRate: number) => {
           const { postFeeAssetToAccount, fee } =
@@ -125,37 +238,12 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     throw new Error('Method not implemented.');
   }
 
-  protected calculateTokenOutGivenPTIn(
-    ptIn: TokenBalance,
-    blockTime = getNowSeconds()
-  ) {
-    const timeToExpiry = this.poolParams.expiry - blockTime;
-    const rateScalar =
-      (this.poolParams.scalarRoot.toNumber() * SECONDS_IN_YEAR_ACTUAL) /
-      timeToExpiry;
-    const totalAsset = TokenBalance.fromID(
-      this.poolParams.totalSy
-        .mul(this.poolParams.syToAssetExchangeRate)
-        .div(SCALAR_PRECISION),
-      this.poolParams.assetTokenId,
-      this._network
-    );
-    const rateAnchor = this.getRateAnchor(
-      totalAsset,
-      rateScalar,
-      this.poolParams.lnImpliedRate.toNumber(),
-      timeToExpiry
-    );
+  protected calculateTokenOutGivenPTIn(ptIn: TokenBalance) {
     const feeRate = this._getExchangeRateFromImpliedRate(
       this.poolParams.lnFeeRateRoot.toNumber(),
-      timeToExpiry
+      this.timeToExpiry
     );
-    const preFeeExchangeRate = this._getExchangeRate(
-      totalAsset,
-      ptIn,
-      rateScalar,
-      rateAnchor
-    );
+    const preFeeExchangeRate = this.getPreFeeExchangeRate(ptIn);
     const preFeeAssetToAccount = ptIn.mulInRatePrecision(
       Math.floor(preFeeExchangeRate * RATE_PRECISION)
     );
@@ -181,6 +269,38 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       postFeeAssetToAccount,
       fee,
     };
+  }
+
+  protected getPreFeeExchangeRate(ptIn: TokenBalance) {
+    const rateScalar =
+      (this.poolParams.scalarRoot.toNumber() * SECONDS_IN_YEAR_ACTUAL) /
+      this.timeToExpiry;
+
+    const totalAsset = TokenBalance.fromID(
+      this.poolParams.totalSy
+        .mul(this.poolParams.syToAssetExchangeRate)
+        .div(SCALAR_PRECISION),
+      this.poolParams.assetTokenId,
+      this._network
+    );
+
+    const rateAnchor = this.getRateAnchor(
+      totalAsset,
+      rateScalar,
+      this.poolParams.lnImpliedRate.toNumber(),
+      this.timeToExpiry
+    );
+
+    const preFeeExchangeRate = this._getExchangeRate(
+      totalAsset,
+      ptIn,
+      rateScalar,
+      rateAnchor
+    );
+
+    if (preFeeExchangeRate < 1) throw Error('Exchange rate below one');
+
+    return preFeeExchangeRate;
   }
 
   protected getRateAnchor(

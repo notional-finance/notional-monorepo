@@ -57,6 +57,16 @@ export abstract class VaultAdapter {
       });
   }
 
+  getBorrowedToken() {
+    return Registry.getTokenRegistry().getTokenByID(
+      this.network,
+      Registry.getConfigurationRegistry().getVaultConfig(
+        this.network,
+        this.vaultAddress
+      ).primaryBorrowCurrency.id
+    );
+  }
+
   abstract getInitialVaultShareValuation(maturity: number): ExchangeRate;
 
   abstract convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance;
