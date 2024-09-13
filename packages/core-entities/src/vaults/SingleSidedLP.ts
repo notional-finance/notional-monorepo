@@ -185,7 +185,7 @@ export class SingleSidedLP extends VaultAdapter {
     return TokenBalance.from(vaultShares.n, token);
   }
 
-  getVaultTVL() {
+  override getVaultTVL() {
     const token = Registry.getTokenRegistry().getVaultShare(
       this.network,
       this.vaultAddress,

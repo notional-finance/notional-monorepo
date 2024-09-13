@@ -16,12 +16,10 @@ export interface PendlePTVaultParams extends BaseVaultParams {
   marketAddress: string;
   tokenInSy: string;
   tokenOutSy: string;
-  totalPTTokensHeld: TokenBalance;
 }
 
 export class PendlePT extends VaultAdapter {
   protected apiUrl = 'https://api-v2.pendle.finance/sdk/v1';
-  public totalPTTokensHeld: TokenBalance;
   public tokenInSy: string;
   public tokenOutSy: string;
   protected market: PendleMarket;
@@ -32,7 +30,6 @@ export class PendlePT extends VaultAdapter {
 
   constructor(network: Network, vaultAddress: string, p: PendlePTVaultParams) {
     super(p.enabled, p.name, network, vaultAddress);
-    this.totalPTTokensHeld = p.totalPTTokensHeld;
     this.tokenInSy = p.tokenInSy;
     this.tokenOutSy = p.tokenOutSy;
     this.market = Registry.getExchangeRegistry().getPoolInstance<PendleMarket>(
@@ -45,20 +42,8 @@ export class PendlePT extends VaultAdapter {
     return this.market.ptYieldToMaturity;
   }
 
-  getVaultTVL(): TokenBalance {
-    const token = Registry.getTokenRegistry().getVaultShare(
-      this.network,
-      this.vaultAddress,
-      PRIME_CASH_VAULT_MATURITY
-    );
-    return TokenBalance.from(
-      this.totalPTTokensHeld.scaleTo(INTERNAL_TOKEN_DECIMALS),
-      token
-    ).toUnderlying();
-  }
-
   get hashKey() {
-    return [this.vaultAddress, this.totalPTTokensHeld.toHexString()].join(':');
+    return [this.vaultAddress].join(':');
   }
 
   getInitialVaultShareValuation(): ExchangeRate {
@@ -89,10 +74,7 @@ export class PendlePT extends VaultAdapter {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
-    const ptTokens = TokenBalance.from(
-      netVaultShares.n,
-      this.market.poolParams.totalPt.token
-    )
+    const ptTokens = TokenBalance.from(netVaultShares.n, this.market.ptToken)
       .scaleFromInternal()
       .neg();
 
