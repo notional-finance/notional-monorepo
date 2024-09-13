@@ -1,7 +1,6 @@
 import {
   IAggregatorABI,
   IAggregator,
-  IStrategyVaultABI,
   NotionalV3ABI,
   NotionalV3,
   BalancerPoolABI,
@@ -25,7 +24,6 @@ import { fiatOracles } from '../config/fiat-config';
 import { TypedDocumentNode } from '@apollo/client/core';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllOraclesQuery } from '../.graphclient';
-import { vaultOverrides } from './vault-overrides';
 import { Block } from '@ethersproject/providers';
 
 // NOTE: this is currently hardcoded because we cannot access the worker
@@ -198,37 +196,6 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
           };
         } else if (oracle.oracleType === 'VaultShareOracleRate') {
           const { maturity } = decodeERC1155Id(oracle.quote);
-          const override = vaultOverrides[oracle.oracleAddress];
-          if (override) {
-            const entry = override.find((o) => {
-              if (o.fromBlock && blockNumber && blockNumber < o.fromBlock) {
-                return false;
-              }
-              if (o.toBlock && blockNumber && blockNumber > o.toBlock) {
-                return false;
-              }
-              return true;
-            });
-
-            if (entry) {
-              return {
-                key: id,
-                target: new Contract(
-                  oracle.oracleAddress,
-                  IStrategyVaultABI,
-                  provider
-                ),
-                method: 'convertStrategyToUnderlying',
-                args: [
-                  oracle.oracleAddress,
-                  INTERNAL_TOKEN_PRECISION,
-                  maturity,
-                ],
-                transform: (r: BigNumber) => ({ rate: r }),
-              };
-            }
-          }
-
           return {
             key: id,
             target: new Contract(
