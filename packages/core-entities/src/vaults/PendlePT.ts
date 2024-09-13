@@ -1,4 +1,5 @@
 import {
+  getNowSeconds,
   INTERNAL_TOKEN_DECIMALS,
   Network,
   PRIME_CASH_VAULT_MATURITY,
@@ -6,57 +7,42 @@ import {
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { TokenBalance } from '../token-balance';
 import { Registry } from '../Registry';
-import { BigNumber, BytesLike } from 'ethers';
+import { BytesLike } from 'ethers';
 import { PendleMarket } from '../exchanges';
-import { TokenDefinition } from '../Definitions';
+import { ExchangeRate, TokenDefinition } from '../Definitions';
+import { defaultAbiCoder } from '@ethersproject/abi';
 
 export interface PendlePTVaultParams extends BaseVaultParams {
-  ptTokenAddress: string;
-  currentPTPrice: TokenBalance;
-  ptTokenExpiry: number;
-  totalPTTokens: BigNumber;
-  tokenInSyAddress: string;
-  tokenOutSyAddress: string;
+  marketAddress: string;
+  tokenInSy: string;
+  tokenOutSy: string;
+  totalPTTokensHeld: TokenBalance;
 }
 
-/**
- * Primary TODOs:
- *  - fetch necessary data inside the vault registry server
- *  - integrate with the pendle api to get the slippage calculations
- *  - need to get the trade execution data from some sort of API
- *  - basically the challenge here is making these calculations async and
- *    taking a look at how we trade into the token in sy
- *  - second challenge will be to figure out the user's APY, which needs
- *    to be done based on their cost basis of their vault shares
- */
 export class PendlePT extends VaultAdapter {
   protected apiUrl = 'https://api-v2.pendle.finance/sdk/v1';
-
-  public totalPTTokens: BigNumber;
+  public totalPTTokensHeld: TokenBalance;
+  public tokenInSy: string;
+  public tokenOutSy: string;
   protected market: PendleMarket;
+
+  get strategy() {
+    return 'PendlePT';
+  }
 
   constructor(network: Network, vaultAddress: string, p: PendlePTVaultParams) {
     super(p.enabled, p.name, network, vaultAddress);
-    this.totalPTTokens = p.totalPTTokens;
+    this.totalPTTokensHeld = p.totalPTTokensHeld;
+    this.tokenInSy = p.tokenInSy;
+    this.tokenOutSy = p.tokenOutSy;
     this.market = Registry.getExchangeRegistry().getPoolInstance<PendleMarket>(
       network,
-      p.ptTokenAddress
+      p.marketAddress
     );
   }
 
-  getVaultAPY(factors?: {
-    account: string;
-    vaultShares: TokenBalance;
-    maturity: number;
-  }): number {
-    if (factors) {
-      // then need to get the price that they bought vault shares at
-      // and then get the apy to maturity of that price.
-      return 0;
-    } else {
-      // return the current pendle PT yield to maturity
-      return 0;
-    }
+  getVaultAPY(): number {
+    return this.market.ptYieldToMaturity;
   }
 
   getVaultTVL(): TokenBalance {
@@ -65,23 +51,28 @@ export class PendlePT extends VaultAdapter {
       this.vaultAddress,
       PRIME_CASH_VAULT_MATURITY
     );
-    return TokenBalance.from(this.totalPTTokens, token).toUnderlying();
-  }
-
-  get strategy() {
-    return 'PendlePT';
+    return TokenBalance.from(
+      this.totalPTTokensHeld.scaleTo(INTERNAL_TOKEN_DECIMALS),
+      token
+    ).toUnderlying();
   }
 
   get hashKey() {
-    return [
-      this.vaultAddress,
-      this.totalPTTokens.toHexString(),
-      this.currentPTPrice.toHexString(),
-    ].join(':');
+    return [this.vaultAddress, this.totalPTTokensHeld.toHexString()].join(':');
   }
 
-  getInitialVaultShareValuation(maturity: number): ExchangeRate {
-    // return the current pt price, 1 vault share = 1 pt
+  getInitialVaultShareValuation(): ExchangeRate {
+    const oneAssetUnit = TokenBalance.fromID(
+      this.market.ptExchangeRate,
+      this.market.assetTokenId,
+      this.network
+    );
+
+    return {
+      rate: oneAssetUnit.toToken(this.getBorrowedToken()).n,
+      timestamp: getNowSeconds(),
+      blockNumber: 0,
+    };
   }
 
   convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance {
@@ -139,11 +130,12 @@ export class PendlePT extends VaultAdapter {
   }
 
   override async getDepositParameters(
-    account: string,
-    maturity: number,
-    totalDeposit: TokenBalance,
-    slippageFactor: number
+    _account: string,
+    _maturity: number,
+    _totalDeposit: TokenBalance,
+    _slippageFactor: number
   ): Promise<BytesLike> {
+    return '0x';
     /**
      * struct PendleDepositParams {
      *    // for trade execution from borrowed token to token in sy
@@ -159,23 +151,26 @@ export class PendlePT extends VaultAdapter {
   }
 
   override async getRedeemParameters(
-    account: string,
-    maturity: number,
-    vaultSharesToRedeem: TokenBalance,
-    underlyingToRepayDebt: TokenBalance
+    _account: string,
+    _maturity: number,
+    _vaultSharesToRedeem: TokenBalance,
+    _underlyingToRepayDebt: TokenBalance
   ): Promise<BytesLike> {
-    if (this.tokenOutSy !== this.borrowedToken) {
+    if (this.tokenOutSy === this.getBorrowedToken().id) {
       return '0x';
     } else {
-      // todo: need to configure the default market parameters
+      // In the other case, we need to determine the default exit trade.
+      // TODO: fix this....
+      return defaultAbiCoder.encode(
+        ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData) r'],
+        [
+          {
+            dexId: 0,
+            minPurchaseAmount: 0,
+            exchangeData: '0x',
+          },
+        ]
+      );
     }
-    /**
-     * Used for the exit trade after redemption
-     * struct RedeemParams {
-     *    uint8 dexId;
-     *    uint256 minPurchaseAmount;
-     *    bytes exchangeData;
-     *}
-     */
   }
 }

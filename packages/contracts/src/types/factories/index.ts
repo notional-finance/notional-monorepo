@@ -35,6 +35,8 @@ export { NoteERC20__factory } from "./NoteERC20__factory";
 export { Notional__factory } from "./Notional__factory";
 export { NotionalContestPass__factory } from "./NotionalContestPass__factory";
 export { NotionalV3__factory } from "./NotionalV3__factory";
+export { PendleMarket__factory } from "./PendleMarket__factory";
+export { PendleSY__factory } from "./PendleSY__factory";
 export { SecondaryRewarder__factory } from "./SecondaryRewarder__factory";
 export { TradingModule__factory } from "./TradingModule__factory";
 export { TreasuryManager__factory } from "./TreasuryManager__factory";
