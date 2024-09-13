@@ -1,9 +1,10 @@
 import { ChartType, TokenDefinition } from '@notional-finance/core-entities';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { colors } from '@notional-finance/styles';
-import { useAppStore, useChartData } from '@notional-finance/notionable-hooks';
+import { useChartData } from '@notional-finance/notionable-hooks';
 import { BarConfigProps } from '@notional-finance/mui';
 import { useMemo } from 'react';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const useApyChart = (token?: TokenDefinition) => {
   const { data: apyData } = useChartData(token, ChartType.APY);

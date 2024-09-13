@@ -3,7 +3,7 @@ import { styled, Box, useTheme } from '@mui/material';
 import { Link } from 'react-scroll';
 import { Label, ExternalLink } from '@notional-finance/mui';
 import { THEME_VARIANTS, VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { useVaultSubNav } from './use-vault-sub-nav';

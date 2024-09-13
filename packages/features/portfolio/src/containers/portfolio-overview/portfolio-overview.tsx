@@ -10,7 +10,7 @@ import {
 import { useVaultHoldingsTable } from '../../hooks';
 import { EmptyPortfolioOverview } from '../../components';
 import { Box, styled, useTheme } from '@mui/material';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 
 const PortfolioOverview = () => {
   const theme = useTheme();

@@ -69,7 +69,13 @@ export const getAvailableVaults = (
   return Array.from(availableVaults);
 };
 
-export const useNetworkTokenData = (selectedTabIndex: number) => {
+export const useNetworkTokenData = (
+  selectedTabIndex: number
+): {
+  tokenList: string[] | [];
+  productGroupData: ProductGroupData | [];
+  defaultSymbol: string;
+} => {
   const currentNetworkStore = useCurrentNetworkStore();
   if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.EARN) {
     const productGroupData =

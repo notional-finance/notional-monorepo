@@ -13,23 +13,34 @@ import { PORTFOLIO_STATE_ZERO_OPTIONS, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { sumAndFormatIncentives } from '@notional-finance/shared-web/dashboard-view/hooks/utils';
 import { getAvailableVaults } from './use-network-token-data';
+import {
+  ProductGroupItem,
+  ProductGroupData,
+} from '@notional-finance/core-entities';
 
 export const useCardData = (
   selectedTabIndex: number,
   activeToken: string,
-  tokenData: any,
-  productGroupData: any[]
+  tokenData: ProductGroupItem[],
+  productGroupData: ProductGroupData
 ) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
+
+  const primeCashData = tokenData?.find(
+    ({ token }) => token.tokenType === 'PrimeCash'
+  );
+  const fCashData = tokenData?.find(({ token }) => token.tokenType === 'fCash');
+  const nTokenData = tokenData?.find(
+    ({ token }) => token.tokenType === 'nToken'
+  );
 
   const earnData = [
     {
       accentTitle: <FormattedMessage defaultMessage={'Passive Yield'} />,
       title: <FormattedMessage defaultMessage={'Lending'} />,
       icon: <BarChartIcon />,
-      apy: tokenData?.find(({ token }) => token.tokenType === 'PrimeCash')?.apy
-        ?.totalAPY,
+      apy: primeCashData?.apy?.totalAPY,
       symbol: activeToken,
       cardLink: `/lend-variable/${selectedNetwork}/${activeToken}`,
       bottomLink: `/lend-variable/${selectedNetwork}`,
@@ -44,8 +55,7 @@ export const useCardData = (
       accentTitle: <FormattedMessage defaultMessage={'Guaranteed Yield'} />,
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
       icon: <BarChartLateralIcon />,
-      apy: tokenData?.find(({ token }) => token.tokenType === 'fCash')?.apy
-        ?.totalAPY,
+      apy: fCashData?.apy?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As High As'} />,
       symbol: activeToken,
       cardLink: `/lend-fixed/${selectedNetwork}/${activeToken}`,
@@ -59,20 +69,23 @@ export const useCardData = (
       accentTitle: <FormattedMessage defaultMessage={'High yield'} />,
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
       icon: <PieChartIcon />,
-      apy: tokenData?.find(({ token }) => token.tokenType === 'nToken')?.apy
-        ?.totalAPY,
+      apy: nTokenData?.apy?.totalAPY,
       apyTitle:
-        tokenData?.apy?.incentives?.length > 0 ? (
+        nTokenData?.apy?.incentives &&
+        nTokenData?.apy?.incentives?.length > 0 ? (
           <FormattedMessage
             defaultMessage={'{incentiveAPY} Incentive APY'}
             values={{
-              incentiveAPY: sumAndFormatIncentives(tokenData.apy.incentives),
+              incentiveAPY: sumAndFormatIncentives(nTokenData.apy.incentives),
             }}
           />
         ) : (
           <FormattedMessage defaultMessage={'As High As'} />
         ),
-      isTotalAPYSuffix: tokenData?.apy?.incentives?.length > 0 ?? false,
+      isTotalAPYSuffix:
+        (nTokenData?.apy?.incentives &&
+          nTokenData?.apy?.incentives?.length > 0) ??
+        false,
       symbol: activeToken,
       cardLink: `/liquidity-variable/${selectedNetwork}/${activeToken}`,
       bottomLink: `/liquidity-variable/${selectedNetwork}`,
@@ -137,7 +150,7 @@ export const useCardData = (
       symbol: activeToken,
       availableSymbols: getAvailableVaults(productGroupData, false),
       cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${farmingVault?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${farmingVault?.debtToken?.id}`,
-      bottomValue: `Max Leverage: ${farmingVault?.maxLeverageRatio.toFixed(
+      bottomValue: `Max Leverage: ${farmingVault?.maxLeverageRatio?.toFixed(
         2
       )}x`,
       bottomLink: `/${PRODUCTS.LEVERAGED_YIELD_FARMING}/${selectedNetwork}`,
@@ -156,7 +169,9 @@ export const useCardData = (
       symbol: activeToken,
       availableSymbols: getAvailableVaults(productGroupData, true),
       cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${pointsVault?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${pointsVault?.debtToken?.id}`,
-      bottomValue: `Max Leverage: ${pointsVault?.maxLeverageRatio.toFixed(2)}x`,
+      bottomValue: `Max Leverage: ${pointsVault?.maxLeverageRatio?.toFixed(
+        2
+      )}x`,
       bottomLink: `/${PRODUCTS.LEVERAGED_POINTS_FARMING}/${selectedNetwork}`,
       bottomText: 'All Leveraged Points Farming',
       pillData: [
@@ -166,13 +181,17 @@ export const useCardData = (
     },
   ];
 
+  const primeDebtData = tokenData?.find(
+    ({ token }) => token.tokenType === 'PrimeDebt'
+  );
+  const fCashDebtData = tokenData?.find(({ token }) => token.isFCashDebt);
+
   const borrowData = [
     {
       accentTitle: <FormattedMessage defaultMessage={'Passive Interest'} />,
       title: <FormattedMessage defaultMessage={'Borrowing'} />,
       icon: <CoinsCircleIcon />,
-      apy: tokenData?.find(({ token }) => token.tokenType === 'PrimeDebt')?.apy
-        ?.totalAPY,
+      apy: primeDebtData?.apy?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As Low As'} />,
       symbol: activeToken,
       cardLink: `/borrow-variable/${selectedNetwork}/${activeToken}`,
@@ -195,8 +214,7 @@ export const useCardData = (
           }}
         />
       ),
-      apy: tokenData?.find(({ token }) => token.tokenType === 'fCash')?.apy
-        ?.totalAPY,
+      apy: fCashDebtData?.apy?.totalAPY,
       apyTitle: <FormattedMessage defaultMessage={'As Low As'} />,
       symbol: activeToken,
       cardLink: `/borrow-fixed/${selectedNetwork}/${activeToken}`,

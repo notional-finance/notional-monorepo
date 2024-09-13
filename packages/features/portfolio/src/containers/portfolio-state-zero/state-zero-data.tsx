@@ -9,6 +9,7 @@ import { NotionalTheme } from '@notional-finance/styles';
 import StateZeroCard from './state-zero-card';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
+import { ProductGroupData } from '@notional-finance/core-entities';
 
 interface TokenBoxProps {
   theme: NotionalTheme;
@@ -21,7 +22,7 @@ export const StateZeroData = ({
   tokenList,
   selectedTabIndex,
 }: {
-  productGroupData: any[];
+  productGroupData: ProductGroupData | [];
   defaultSymbol: string;
   tokenList: string[];
   selectedTabIndex: number;

@@ -4,10 +4,7 @@ import {
   formatNumber,
 } from '@notional-finance/helpers';
 import { formatMaturity } from '@notional-finance/util';
-import {
-  useAppStore,
-  useAccountDefinition,
-} from '@notional-finance/notionable-hooks';
+import { useAccountDefinition } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { getIncentiveData, sumAndFormatIncentives } from './utils';
@@ -18,6 +15,7 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import { useLeveragedNTokens, useNetworkTokens } from './use-network-tokens';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const useLiquidityList = (
   product: PRODUCTS,
@@ -220,7 +218,7 @@ export const useLiquidityList = (
             network: network,
           },
           totalApy: {
-            label: formatNumberAsPercent(y.apy.totalAPY, 2),
+            label: formatNumberAsPercent(y?.apy?.totalAPY || 0, 2),
             caption: y.apy?.leverageRatio
               ? `${formatNumber(y.apy?.leverageRatio, 1)}x Leverage`
               : undefined,

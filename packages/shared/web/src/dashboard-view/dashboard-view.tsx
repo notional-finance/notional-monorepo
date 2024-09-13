@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { CardContainer } from '../card-container/card-container';
 import FeatureLoader from '../feature-loader/feature-loader';
-import {
-  useSelectedNetwork,
-  useAppStore,
-} from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
 import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
@@ -27,6 +24,7 @@ import {
 } from './hooks';
 import { sortListData } from './hooks/utils';
 import { observer } from 'mobx-react-lite';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const DashboardView = ({
   gridData,

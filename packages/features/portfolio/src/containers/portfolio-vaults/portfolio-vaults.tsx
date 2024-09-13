@@ -5,7 +5,7 @@ import { useVaultHoldingsTable, useVaultRiskTable } from '../../hooks';
 import { Box } from '@mui/material';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 // import { useVaultEarnings } from './use-vault-earnings';
 
 const PortfolioVaults = () => {

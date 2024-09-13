@@ -13,7 +13,7 @@ import { FormattedMessage, defineMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { useNetworkTokens } from './use-network-tokens';
 
 export const useFixedRateGrid = (
@@ -101,7 +101,7 @@ export const useFixedRateGrid = (
       hasPosition: false,
       apySubTitle: apySubTitle,
       tvlNum: tvl ? tvl.toFiat(baseCurrency).toNumber() : 0,
-      apy: apy.totalAPY,
+      apy: apy.totalAPY || 0,
       routeCallback: () =>
         navigate(`/${product}/${network}/${underlying?.symbol}`),
     };

@@ -21,6 +21,7 @@ export const useNetworkTokens = (
         t,
         options?.isBorrow ?? false
       ),
+      debtToken: undefined,
     };
   });
 
@@ -31,17 +32,21 @@ export const useLeveragedNTokens = () => {
   const currentNetworkStore = useCurrentNetworkStore();
   const yieldData = currentNetworkStore.getTokensByType('nToken').map((t) => {
     const debtTokens = currentNetworkStore.getDefaultLeveragedNTokenAPYs(t);
-    const leveragedNTokenData = debtTokens.reduce((max, current) => {
-      return current?.apy?.totalAPY &&
-        max?.apy?.totalAPY &&
-        current.apy.totalAPY > max.apy.totalAPY
-        ? current
-        : max;
-    }, debtTokens[0]);
+    const leveragedNTokenData =
+      debtTokens.length > 0
+        ? debtTokens.reduce((max, current) => {
+            return current?.apy?.totalAPY &&
+              max?.apy?.totalAPY &&
+              current.apy.totalAPY > max.apy.totalAPY
+              ? current
+              : max;
+          }, debtTokens[0])
+        : undefined;
 
     return {
       token: t,
-      apy: leveragedNTokenData?.apy,
+      // apy: leveragedNTokenData?.apy,
+      apy: currentNetworkStore.getSpotAPY(t.id),
       tvl: currentNetworkStore.getTVL(t),
       liquidity: currentNetworkStore.getLiquidity(t),
       underlying: t.underlying

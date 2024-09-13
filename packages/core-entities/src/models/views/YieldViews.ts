@@ -8,6 +8,7 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
+  unique,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { assertDefined, ConfigurationViews } from './ConfigurationViews';
@@ -18,7 +19,7 @@ import { VaultViews } from './VaultViews';
 import { ExchangeViews } from './ExchangeViews';
 
 export interface APYData {
-  totalAPY: number;
+  totalAPY?: number;
   organicAPY?: number;
   feeAPY?: number;
   incentives?: {
@@ -31,7 +32,7 @@ export interface APYData {
   debtAPY?: number;
 }
 
-type ProductGroupItem = {
+export type ProductGroupItem = {
   token: TokenDefinition;
   apy: APYData;
   maxLeverageRatio?: number;
@@ -444,22 +445,16 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     }
   };
 
-  const getUniqueUnderlyingSymbols = (productGroupData: any[][]) => {
+  const getUniqueUnderlyingSymbols = (productGroupData: ProductGroupData) => {
     const uniqueUnderlyingSymbols = productGroupData
       .flat()
       .map((item) => item.underlying?.symbol)
       .filter((symbol): symbol is string => symbol !== undefined)
-      .reduce<string[]>((acc, symbol) => {
-        if (!acc.includes(symbol)) {
-          acc.push(symbol);
-        }
-        return acc;
-      }, []);
 
-    return uniqueUnderlyingSymbols;
+      return unique(uniqueUnderlyingSymbols);
   };
 
-  const getDefaultHighestAPYSymbol = (productGroupData: any[][]) => {
+  const getDefaultHighestAPYSymbol = (productGroupData: ProductGroupData) => {
     const highestTotalAPYBySymbol: Record<string, number> = {};
     productGroupData.flat().forEach((item) => {
       const symbol = item?.underlying?.symbol;
@@ -543,56 +538,55 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
 
   const getLeveragedNTokenData = () => {
     const leveragedNTokenData = getTokensByType('nToken').map((t) => {
-          const debtTokens = getDefaultLeveragedNTokenAPYs(t);
-          const leveragedNTokenData = debtTokens.reduce((max, current) => {
-            return current?.apy?.totalAPY &&
-              max?.apy?.totalAPY &&
-              current.apy.totalAPY > max.apy.totalAPY
-              ? current
-              : max;
-          }, debtTokens[0]);
-        return {
-          token: t,
-          apy: leveragedNTokenData?.apy,
-          tvl: getTVL(t),
-          maxLeverageRatio: getLeverageRatios(t).maxLeverageRatio,
-          liquidity: getLiquidity(t),
-          underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
-          collateralFactor: getDebtOrCollateralFactor(t, false),
-          debtToken: leveragedNTokenData?.debtToken
-        };
-      });
-      return leveragedNTokenData
-  }
+      const debtTokens = getDefaultLeveragedNTokenAPYs(t);
+      const leveragedNTokenData =
+        debtTokens.length > 0
+          ? debtTokens.reduce((max, current) => {
+              return current?.apy?.totalAPY &&
+                max?.apy?.totalAPY &&
+                current.apy.totalAPY > max.apy.totalAPY
+                ? current
+                : max;
+            }, debtTokens[0])
+          : undefined;
+
+      return {
+        token: t,
+        apy: leveragedNTokenData?.apy as APYData,
+        tvl: getTVL(t),
+        maxLeverageRatio: getLeverageRatios(t).maxLeverageRatio,
+        liquidity: getLiquidity(t),
+        underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
+        collateralFactor: getDebtOrCollateralFactor(t, false),
+        debtToken: leveragedNTokenData?.debtToken,
+      };
+    });
+    return leveragedNTokenData;
+  };
 
   const getAllListedVaultsData = () => {
-    const listedVaults = getAllListedVaults(true)
+    const listedVaults = getAllListedVaults()
     const listedVaultAddresses = listedVaults.map((v) => v.vaultAddress)
 
     const allListedVaultsData = getTokensByType('VaultShare')
     .filter((t) => t.vaultAddress && listedVaultAddresses.includes(t.vaultAddress))
     .map((t) => {
           const data = getDefaultVaultAPYs(t.vaultAddress || '');
-          const vaultAPYs = data.reduce((max, current) => {
+          const vaultData = data.length > 0 ? data.reduce((max, current) => {
             return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0)
               ? current
               : max;
-          }, data[0])?.apy;
-          const vaultDebtToken = data.reduce((max, current) => {
-            return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0)
-              ? current
-              : max;
-          }, data[0])?.debtToken;
+          }, data[0]) : undefined;
 
         return {
           token: t,
-          apy: vaultAPYs,
+          apy: vaultData?.apy as APYData,
           tvl: getTVL(t),
           maxLeverageRatio: getLeverageRatios(t).maxLeverageRatio,
           liquidity: getLiquidity(t),
           underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
           collateralFactor: getDebtOrCollateralFactor(t, false),
-          debtToken: vaultDebtToken,
+          debtToken: vaultData?.debtToken,
         };
       });
 
@@ -619,6 +613,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     ];
     const tokenList = getUniqueUnderlyingSymbols(formattedGroupData);
     const highestAPYSymbol = getDefaultHighestAPYSymbol(formattedGroupData);
+
     return {
       tokenList,
       productGroupData: formattedGroupData,

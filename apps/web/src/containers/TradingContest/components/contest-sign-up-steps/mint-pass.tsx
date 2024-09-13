@@ -9,7 +9,8 @@ import {
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { ethers } from 'ethers';
-import { useMintPass, useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
+import { useMintPass } from '@notional-finance/notionable-hooks';
 import { ContestButtonBar } from '../contest-button-bar';
 import { useChangeNetwork } from '@notional-finance/trade';
 import { Network } from '@notional-finance/util';

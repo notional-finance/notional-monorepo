@@ -1,9 +1,7 @@
 import spindl from '@spindl-xyz/attribution';
 import { useEffect } from 'react';
-import {
-  useAppStore,
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { IntercomProvider } from 'react-use-intercom';
 import {
   LeveragedYieldDashboard,

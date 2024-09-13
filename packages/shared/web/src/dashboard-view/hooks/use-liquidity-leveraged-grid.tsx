@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { useLeveragedNTokens } from './use-network-tokens';
 
 export const useLiquidityLeveragedGrid = (
@@ -76,7 +76,7 @@ export const useLiquidityLeveragedGrid = (
           apy?.incentives && apy?.incentives?.length > 0
             ? getIncentiveSymbols(apy.incentives)
             : undefined,
-        apy: apy.totalAPY,
+        apy: apy.totalAPY || 0,
         routeCallback: () =>
           navigate(
             currentPosition

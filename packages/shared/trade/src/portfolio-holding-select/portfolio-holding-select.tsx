@@ -6,11 +6,11 @@ import {
   usePortfolioRiskProfile,
   usePrimeDebt,
   usePrimeCash,
-  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
+import { useAppStore } from '@notional-finance/notionable';
 
 interface PortfolioHoldingSelectProps {
   context: BaseTradeContext;

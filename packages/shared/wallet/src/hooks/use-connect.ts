@@ -1,6 +1,6 @@
 import { trackEvent } from '@notional-finance/helpers';
 import { pointsStore } from '@notional-finance/notionable';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber } from 'ethers';

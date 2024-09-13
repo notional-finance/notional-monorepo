@@ -5,7 +5,6 @@ import {
   useAllMarkets,
   useTotalArbPoints,
   useCurrentSeason,
-  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
@@ -25,6 +24,7 @@ import {
   getArbBoosts,
   getPointsAPY,
 } from '@notional-finance/core-entities';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const useLeveragedFarmingGrid = (
   network: Network | undefined,

@@ -26,11 +26,11 @@ import { useContext } from 'react';
 import { LiquidityContext } from '../liquidity';
 import { HowItWorksFaq } from './components';
 import {
-  useAppStore,
   useAssetPriceHistory,
   useChartData,
 } from '@notional-finance/notionable-hooks';
 import { ChartType } from '@notional-finance/core-entities';
+import { useAppStore } from '@notional-finance/notionable';
 
 const LiquidityVariableSummary = () => {
   const theme = useTheme();

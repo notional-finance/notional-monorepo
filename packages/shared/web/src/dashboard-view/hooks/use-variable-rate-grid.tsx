@@ -3,7 +3,6 @@ import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
 import {
-  useAppStore,
   useCurrentSeason,
   useTotalArbPoints,
 } from '@notional-finance/notionable-hooks';
@@ -15,6 +14,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { useNetworkTokens } from './use-network-tokens';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const useVariableRateGrid = (
   network: Network | undefined,
@@ -94,7 +94,7 @@ export const useVariableRateGrid = (
           ) : undefined,
         network: token.network,
         hasPosition: false,
-        apy: apy.totalAPY,
+        apy: apy.totalAPY || 0,
         tvlNum: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         routeCallback: () =>
           navigate(`/${product}/${network}/${underlying?.symbol}`),

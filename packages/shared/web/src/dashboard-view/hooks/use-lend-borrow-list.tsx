@@ -7,7 +7,6 @@ import {
   useAccountDefinition,
   useTotalArbPoints,
   useCurrentSeason,
-  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
@@ -20,6 +19,7 @@ import {
 import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 import { useNetworkTokens } from './use-network-tokens';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const useLendBorrowList = (
   product: PRODUCTS,
@@ -199,7 +199,7 @@ export const useLendBorrowList = (
               ? `${formatNumberAsPercent(pointsAPY, 2)} APY`
               : '',
         },
-        apy: apy.totalAPY,
+        apy: apy.totalAPY || 0,
         liquidity: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         symbol: underlying?.symbol || '',
         collateralFactor: collateralFactor ? collateralFactor : '',

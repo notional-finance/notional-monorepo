@@ -1,7 +1,7 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { DropdownButton } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import { LightningOutlineIcon } from '@notional-finance/icons';

@@ -18,10 +18,8 @@ import {
 } from '../components';
 import { FormattedMessage } from 'react-intl';
 import { useNoteSupply } from './use-note-supply';
-import {
-  NoteSupplyData,
-  useAppStore,
-} from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
+import { NoteSupplyData } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 

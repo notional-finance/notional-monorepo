@@ -11,7 +11,7 @@ import { NOTERegistryClient, Registry } from '@notional-finance/core-entities';
 import { Network, getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { isAppReady } from '@notional-finance/notionable';
 import { useWalletConnectedNetwork } from './use-wallet';
-import { useAppStore } from './context/AppContext';
+import { useAppStore } from '@notional-finance/notionable';
 
 export function useAppReady() {
   const {
