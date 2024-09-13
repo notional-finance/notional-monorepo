@@ -19,14 +19,18 @@ import { AggregateCall } from '@notional-finance/multicall';
 import { BigNumber, Contract } from 'ethers';
 
 interface PendleMarketParams {
-  totalSy: BigNumber;
-  totalPt: TokenBalance;
-  scalarRoot: BigNumber;
-  lnImpliedRate: BigNumber;
-  lnFeeRateRoot: BigNumber;
-  expiry: number;
-  PT: string;
-  SY: string;
+  marketState: {
+    totalSy: BigNumber;
+    totalPt: TokenBalance;
+    scalarRoot: BigNumber;
+    lnImpliedRate: BigNumber;
+    lnFeeRateRoot: BigNumber;
+    expiry: number;
+  };
+  tokens: {
+    PT: string;
+    SY: string;
+  };
   syToAssetExchangeRate: BigNumber;
   assetTokenId: string;
 }
@@ -151,11 +155,11 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   public PT_TOKEN_INDEX = 1;
 
   get ptToken() {
-    return this.poolParams.totalPt.token;
+    return this.poolParams.marketState.totalPt.token;
   }
 
   get timeToExpiry() {
-    return this.poolParams.expiry - getNowSeconds();
+    return this.poolParams.marketState.expiry - getNowSeconds();
   }
 
   get ptExchangeRate() {
@@ -168,7 +172,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
   get ptYieldToMaturity() {
     return this._getExchangeRateFromImpliedRate(
-      this.poolParams.lnImpliedRate.toNumber(),
+      this.poolParams.marketState.lnImpliedRate.toNumber(),
       this.timeToExpiry
     );
   }
@@ -186,7 +190,10 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
       return {
         tokensOut: postFeeAssetToAccount,
-        feesPaid: [fee, TokenBalance.zero(this.poolParams.totalPt.token)],
+        feesPaid: [
+          fee,
+          TokenBalance.zero(this.poolParams.marketState.totalPt.token),
+        ],
       };
     } else if (tokenIndexOut === this.PT_TOKEN_INDEX) {
       // Assume PT in at the current exchange rate, then do secant search until
@@ -217,7 +224,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
       return {
         tokensOut: postFeeAssetToAccount,
-        feesPaid: [fee, TokenBalance.zero(this.poolParams.totalPt.token)],
+        feesPaid: [fee, TokenBalance.zero(this.ptToken)],
       };
     } else {
       throw new Error('Invalid token index');
@@ -240,7 +247,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
   protected calculateTokenOutGivenPTIn(ptIn: TokenBalance) {
     const feeRate = this._getExchangeRateFromImpliedRate(
-      this.poolParams.lnFeeRateRoot.toNumber(),
+      this.poolParams.marketState.lnFeeRateRoot.toNumber(),
       this.timeToExpiry
     );
     const preFeeExchangeRate = this.getPreFeeExchangeRate(ptIn);
@@ -273,11 +280,12 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
   protected getPreFeeExchangeRate(ptIn: TokenBalance) {
     const rateScalar =
-      (this.poolParams.scalarRoot.toNumber() * SECONDS_IN_YEAR_ACTUAL) /
+      (this.poolParams.marketState.scalarRoot.toNumber() *
+        SECONDS_IN_YEAR_ACTUAL) /
       this.timeToExpiry;
 
     const totalAsset = TokenBalance.fromID(
-      this.poolParams.totalSy
+      this.poolParams.marketState.totalSy
         .mul(this.poolParams.syToAssetExchangeRate)
         .div(SCALAR_PRECISION),
       this.poolParams.assetTokenId,
@@ -287,7 +295,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     const rateAnchor = this.getRateAnchor(
       totalAsset,
       rateScalar,
-      this.poolParams.lnImpliedRate.toNumber(),
+      this.poolParams.marketState.lnImpliedRate.toNumber(),
       this.timeToExpiry
     );
 
@@ -314,8 +322,8 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       timeToExpiry
     );
     const proportion =
-      this.poolParams.totalPt.toFloat() /
-      (this.poolParams.totalPt.toFloat() + totalAsset.toFloat());
+      this.poolParams.marketState.totalPt.toFloat() /
+      (this.poolParams.marketState.totalPt.toFloat() + totalAsset.toFloat());
     const lnProportion = Math.log(proportion / (1 - proportion));
 
     return newExchangeRate - lnProportion / rateScalar;
@@ -327,9 +335,12 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     rateScalar: number,
     rateAnchor: number
   ) {
-    const numerator = this.poolParams.totalPt.sub(netPtToAccount).toFloat();
+    const numerator = this.poolParams.marketState.totalPt
+      .sub(netPtToAccount)
+      .toFloat();
     const proportion =
-      numerator / (this.poolParams.totalPt.toFloat() + totalAsset.toFloat());
+      numerator /
+      (this.poolParams.marketState.totalPt.toFloat() + totalAsset.toFloat());
 
     if (numerator <= 0 || proportion > 0.96)
       throw Error('Insufficient liquidity');
