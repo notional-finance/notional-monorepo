@@ -119,6 +119,7 @@ export const LeveragedYieldDashboard = () => {
     network,
     VAULT_TYPES.LEVERAGED_YIELD_FARMING
   );
+
   return (
     <DashboardView
       {...gridData}

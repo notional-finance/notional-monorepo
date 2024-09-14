@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import {
   RootStoreContext,
   RootStoreType,
@@ -27,7 +27,11 @@ export const useCurrentNetworkStore = (): NetworkClientModelType => {
     throw new Error('rootStore must be used within a RootStoreContext');
   }
 
-  return rootContext.getNetworkClient(network);
+  const networkClient = useMemo(() => {
+    return rootContext.getNetworkClient(network);
+  }, [network, rootContext]);
+
+  return networkClient;
 };
 
 export const useAppStore = (): AppStoreType => {

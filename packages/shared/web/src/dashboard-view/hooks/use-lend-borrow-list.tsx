@@ -18,8 +18,10 @@ import {
 } from '@notional-finance/mui';
 import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
-import { useNetworkTokens } from './use-network-tokens';
-import { useAppStore } from '@notional-finance/notionable';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 
 export const useLendBorrowList = (
   product: PRODUCTS,
@@ -29,17 +31,22 @@ export const useLendBorrowList = (
   const currentSeason = useCurrentSeason();
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const variableLend = currentNetworkStore.getPrimeCashLendData();
+  const variableDebt = currentNetworkStore.getPrimeCashDebtData();
+  const fCashLend = currentNetworkStore.getFCashLendData();
+  const fCashDebt = currentNetworkStore.getFCashDebtData();
+
   const isBorrow =
     product === PRODUCTS.BORROW_FIXED || product === PRODUCTS.BORROW_VARIABLE;
   const yieldDataKeys = {
-    [PRODUCTS.LEND_FIXED]: 'fCash',
-    [PRODUCTS.LEND_VARIABLE]: 'PrimeCash',
-    [PRODUCTS.BORROW_FIXED]: 'fCash',
-    [PRODUCTS.BORROW_VARIABLE]: 'PrimeDebt',
+    [PRODUCTS.LEND_FIXED]: fCashLend,
+    [PRODUCTS.LEND_VARIABLE]: variableLend,
+    [PRODUCTS.BORROW_FIXED]: fCashDebt,
+    [PRODUCTS.BORROW_VARIABLE]: variableDebt,
   };
-  const yieldData = useNetworkTokens(network, yieldDataKeys[product], {
-    isBorrow,
-  });
+
+  const yieldData = yieldDataKeys[product];
 
   let listColumns: DataTableColumn[] = [
     {

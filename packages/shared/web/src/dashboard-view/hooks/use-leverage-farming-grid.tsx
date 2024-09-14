@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import {
-  useAllVaults,
   useVaultHoldings,
-  useAllMarkets,
   useTotalArbPoints,
   useCurrentSeason,
 } from '@notional-finance/notionable-hooks';
 import { useNavigate } from 'react-router-dom';
-import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
+import { DashboardGridProps } from '@notional-finance/mui';
 import {
   formatNumberAsPercent,
   Network,
@@ -19,12 +17,11 @@ import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
 import { PointsIcon } from '@notional-finance/icons';
 import { Box, useTheme } from '@mui/material';
+import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import {
-  Registry,
-  getArbBoosts,
-  getPointsAPY,
-} from '@notional-finance/core-entities';
-import { useAppStore } from '@notional-finance/notionable';
+  useCurrentNetworkStore,
+  useAppStore,
+} from '@notional-finance/notionable';
 
 export const useLeveragedFarmingGrid = (
   network: Network | undefined,
@@ -33,35 +30,30 @@ export const useLeveragedFarmingGrid = (
   const theme = useTheme();
   const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
-  const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
-  const {
-    yields: { leveragedVaults },
-    getMax,
-  } = useAllMarkets(network);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const { farmingVaults, pointsVaults } =
+    currentNetworkStore.getAllListedVaultsData();
 
-  const allVaultData = listedVaults
-    .map(({ vaultAddress, name, primaryToken, vaultTVL }) => {
-      const y = getMax(
-        leveragedVaults.filter((y) => y.token.vaultAddress === vaultAddress)
-      );
+  const yieldData =
+    currentVaultType === VAULT_TYPES.LEVERAGED_POINTS_FARMING
+      ? pointsVaults
+      : farmingVaults;
+
+  const allVaultData = yieldData
+    .map(({ vaultData, debtToken, underlying, tvl, apy, token }) => {
+      // TODO: Replace with new MOBX account data when ready
       const profile = vaultHoldings.find(
-        (p) => p.vault.vaultAddress === vaultAddress
+        (p) => p.vault.vaultAddress === vaultData?.vaultAddress
       )?.vault;
-      const apy = profile?.totalAPY || y?.totalAPY || undefined;
-      const points = y?.pointMultiples;
-      const vaultShare = network
-        ? Registry.getTokenRegistry().getVaultShare(
-            network,
-            vaultAddress,
-            PRIME_CASH_VAULT_MATURITY
-          )
-        : undefined;
-      const pointsBoost = vaultShare ? getArbBoosts(vaultShare, false) : 0;
+      const apyData = profile?.totalAPY || apy?.totalAPY || undefined;
+      const points = apy?.pointMultiples;
+      const pointsBoost = token ? getArbBoosts(token, false) : 0;
+
       const pointsAPY = getPointsAPY(
         pointsBoost,
         totalArbPoints[currentSeason.db_name],
@@ -71,15 +63,15 @@ export const useLeveragedFarmingGrid = (
       );
 
       return {
-        title: primaryToken.symbol,
-        subTitle: name || '',
+        title: underlying?.symbol || '',
+        subTitle: vaultData?.name || '',
         bottomLeftValue: profile
           ? `NET WORTH: ${
               profile?.netWorth().toDisplayStringWithSymbol() || '-'
             }`
           : `TVL: ${
-              vaultTVL
-                ? formatNumberAsAbbr(vaultTVL.toFiat(baseCurrency).toFloat(), 0)
+              tvl
+                ? formatNumberAsAbbr(tvl.toFiat(baseCurrency).toFloat(), 0)
                 : 0
             }`,
         bottomRightValue:
@@ -124,18 +116,18 @@ export const useLeveragedFarmingGrid = (
               </Box>
             </Box>
           ) : undefined,
-        symbol: primaryToken.symbol,
-        network: primaryToken.network,
+        symbol: underlying?.symbol,
+        network: underlying?.network,
         hasPosition: profile ? true : false,
         vaultType: points
           ? VAULT_TYPES.LEVERAGED_POINTS_FARMING
           : VAULT_TYPES.LEVERAGED_YIELD_FARMING,
-        apy: apy || 0,
+        apy: apyData || 0,
         routeCallback: () =>
           navigate(
             profile
-              ? `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/IncreaseVaultPosition`
-              : `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`
+              ? `/${PRODUCTS.VAULTS}/${network}/${vaultData?.vaultAddress}/IncreaseVaultPosition`
+              : `/${PRODUCTS.VAULTS}/${network}/${vaultData?.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`
           ),
         apySubTitle: profile
           ? defineMessage({
@@ -155,11 +147,11 @@ export const useLeveragedFarmingGrid = (
     ({ hasPosition }) => !hasPosition
   );
 
-  const userVaultPositions = allVaultData.filter(
-    ({ hasPosition }) => hasPosition
-  );
+  // const userVaultPositions = allVaultData.filter(
+  //   ({ hasPosition }) => hasPosition
+  // );
 
-  const negativeApyCheck = (data: DashboardDataProps[]) => {
+  const negativeApyCheck = (data: any[]) => {
     if (!showNegativeYields) {
       return data.filter(({ apy }) => {
         if (apy < 0 && !hasNegativeApy) {
@@ -174,25 +166,28 @@ export const useLeveragedFarmingGrid = (
 
   const gridData = [
     {
-      sectionTitle: userVaultPositions.length > 0 ? 'opportunities' : '',
+      // sectionTitle: userVaultPositions.length > 0 ? 'opportunities' : '',
+      sectionTitle: '',
       data: negativeApyCheck(defaultVaultData),
       hasLeveragedPosition: false,
     },
   ];
 
-  if (userVaultPositions.length > 0) {
-    gridData.unshift({
-      sectionTitle:
-        userVaultPositions.length === 1 ? 'Your position' : 'Your positions',
-      data: userVaultPositions,
-      hasLeveragedPosition: true,
-    });
-  }
+  // if (userVaultPositions.length > 0) {
+  //   gridData.unshift({
+  //     sectionTitle:
+  //       userVaultPositions.length === 1 ? 'Your position' : 'Your positions',
+  //     data: userVaultPositions,
+  //     hasLeveragedPosition: true,
+  //   });
+  // }
 
-  const vaultData =
-    leveragedVaults && leveragedVaults.length > 0
-      ? gridData
-      : [{ sectionTitle: '', data: [] }];
+  // const vaultData =
+  //   leveragedVaults && leveragedVaults.length > 0
+  //     ? gridData
+  //     : [{ sectionTitle: '', data: [] }];
+
+  const vaultData = gridData;
 
   const showNegativeYieldsToggle = defaultVaultData.find(({ apy }) => apy < 0);
 

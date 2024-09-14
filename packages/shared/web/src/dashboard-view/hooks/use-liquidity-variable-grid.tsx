@@ -1,19 +1,23 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAppStore } from '@notional-finance/notionable';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { useNetworkTokens } from './use-network-tokens';
 
 export const useLiquidityVariableGrid = (network: Network | undefined) => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
   const navigate = useNavigate();
-  const yieldData = useNetworkTokens(network, 'nToken');
-  const allData = yieldData
+  const currentNetworkStore = useCurrentNetworkStore();
+  const variableYieldData = currentNetworkStore.getNTokenData();
+
+  const allData = variableYieldData
     .map(({ token, apy, tvl, underlying }) => {
       return {
         symbol: underlying?.symbol || '',

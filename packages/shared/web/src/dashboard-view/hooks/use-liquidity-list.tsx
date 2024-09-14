@@ -14,8 +14,10 @@ import {
   DataTableColumn,
   MultiValueIconCell,
 } from '@notional-finance/mui';
-import { useLeveragedNTokens, useNetworkTokens } from './use-network-tokens';
-import { useAppStore } from '@notional-finance/notionable';
+import {
+  useCurrentNetworkStore,
+  useAppStore,
+} from '@notional-finance/notionable';
 
 export const useLiquidityList = (
   product: PRODUCTS,
@@ -23,8 +25,10 @@ export const useLiquidityList = (
 ) => {
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
-  const variableYieldData = useNetworkTokens(network, 'nToken');
-  const leveragedYieldData = useLeveragedNTokens();
+  const currentNetworkStore = useCurrentNetworkStore();
+  const leveragedYieldData = currentNetworkStore.getLeveragedNTokenData();
+  const variableYieldData = currentNetworkStore.getNTokenData();
+
   const yieldData =
     product === PRODUCTS.LIQUIDITY_LEVERAGED
       ? leveragedYieldData

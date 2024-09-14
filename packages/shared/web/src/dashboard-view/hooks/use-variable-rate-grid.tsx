@@ -13,16 +13,20 @@ import {
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
-import { useNetworkTokens } from './use-network-tokens';
-import { useAppStore } from '@notional-finance/notionable';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 
 export const useVariableRateGrid = (
   network: Network | undefined,
   product: PRODUCTS
 ) => {
+  const currentNetworkStore = useCurrentNetworkStore();
+  const variableLend = currentNetworkStore.getPrimeCashLendData();
+  const variableDebt = currentNetworkStore.getPrimeCashDebtData();
   const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
-  const tokenType = isBorrow ? 'PrimeDebt' : 'PrimeCash';
-  const yieldData = useNetworkTokens(network, tokenType, { isBorrow });
+  const yieldData = isBorrow ? variableDebt : variableLend;
 
   const theme = useTheme();
   const navigate = useNavigate();
