@@ -14,30 +14,57 @@ import {
 } from '@notional-finance/contracts';
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../token-balance';
-import { DeprecatedVaults, vaultOverrides } from './vault-overrides';
+import { DeprecatedVaults } from './vault-overrides';
+import { ClientRegistry } from '../client/client-registry';
+import { CacheSchema } from '..';
+
+// NOTE: this is currently hardcoded because we cannot access the worker
+// process environment directly here.
+const NX_REGISTRY_URL = 'https://registry.notional.finance';
 
 export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
   protected async _refresh(network: Network, blockNumber?: number) {
     const { AllVaultsDocument, AllVaultsByBlockDocument } =
       await loadGraphClientDeferred();
 
-    const data =
-      blockNumber === undefined
-        ? await fetchGraphPaginate(
-            network,
-            AllVaultsDocument,
-            'vaultConfigurations',
-            this.env.NX_SUBGRAPH_API_KEY
-          )
-        : await fetchGraphPaginate(
-            network,
-            AllVaultsByBlockDocument,
-            'vaultConfigurations',
-            this.env.NX_SUBGRAPH_API_KEY,
-            { blockNumber }
-          );
+    let vaultConfigurations: {
+      vaultAddress: string;
+      enabled: boolean;
+      name: string;
+    }[];
+    try {
+      const data =
+        blockNumber === undefined
+          ? await fetchGraphPaginate(
+              network,
+              AllVaultsDocument,
+              'vaultConfigurations',
+              this.env.NX_SUBGRAPH_API_KEY
+            )
+          : await fetchGraphPaginate(
+              network,
+              AllVaultsByBlockDocument,
+              'vaultConfigurations',
+              this.env.NX_SUBGRAPH_API_KEY,
+              { blockNumber }
+            );
+      vaultConfigurations = data['data'].vaultConfigurations;
+    } catch (e) {
+      const response = await ClientRegistry.fetch<CacheSchema<VaultMetadata>>(
+        `${NX_REGISTRY_URL}/${network}/vaults`
+      );
+      vaultConfigurations = response.values
+        .filter(([_, p]) => p !== null)
+        .map(([v, p]) => {
+          return {
+            vaultAddress: v,
+            enabled: (p as VaultMetadata).enabled,
+            name: (p as VaultMetadata).name,
+          };
+        });
+    }
 
-    const calls = data['data'].vaultConfigurations
+    const calls = vaultConfigurations
       .filter(
         (v: { vaultAddress: string }) =>
           !DeprecatedVaults.includes(v.vaultAddress)
@@ -52,24 +79,6 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
           enabled: boolean;
           name: string;
         }) => {
-          const override = vaultOverrides[vaultAddress];
-          if (override) {
-            const bn = data['data']._meta.block.number as number;
-            const func = override.find((o) => {
-              if (o.fromBlock && (blockNumber || bn) < o.fromBlock) {
-                return false;
-              }
-              if (o.toBlock && (blockNumber || bn) > o.toBlock) {
-                return false;
-              }
-              return true;
-            });
-
-            if (func) {
-              return func.getVaultInfo(network, vaultAddress);
-            }
-          }
-
           return [
             {
               target: new Contract(
