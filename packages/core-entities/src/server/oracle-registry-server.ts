@@ -55,7 +55,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
       await loadGraphClientDeferred();
 
     try {
-      return this._fetchUsingGraph(
+      return await this._fetchUsingGraph(
         network,
         (blockNumber !== undefined
           ? AllOraclesByBlockDocument
@@ -93,7 +93,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
       console.error(e);
       // If the subgraph has failed, get the previous cache schema and return it, we still
       // want to continue to update the latest rates
-      return ClientRegistry.fetch<CacheSchema<OracleDefinition>>(
+      return await ClientRegistry.fetch<CacheSchema<OracleDefinition>>(
         `${NX_REGISTRY_URL}/${network}/oracles`
       );
     }
