@@ -25,7 +25,7 @@ export async function refreshRegistry<T>(
   const registry = new RegistryClass(env);
 
   try {
-    await Promise.all(
+    await Promise.allSettled(
       env.SUPPORTED_NETWORKS.map(async (network) => {
         if (network === Network.all && !registry.hasAllNetwork()) return;
 

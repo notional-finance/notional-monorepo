@@ -26,7 +26,7 @@ export interface BaseDOEnv {
 async function execute(env: APIEnv, isFullRefresh: boolean) {
   if (isFullRefresh) {
     // Run these refreshes every 10 minutes
-    await Promise.all([
+    await Promise.allSettled([
       refreshRegistry(env, Routes.Configuration, Servers.ConfigurationServer),
       refreshRegistry(env, Routes.Tokens, Servers.TokenRegistryServer),
       refreshViews(env),
@@ -34,7 +34,7 @@ async function execute(env: APIEnv, isFullRefresh: boolean) {
   }
 
   // Run these refreshes every minute
-  await Promise.all([
+  await Promise.allSettled([
     refreshRegistry(env, Routes.Exchanges, Servers.ExchangeRegistryServer),
     refreshRegistry(env, Routes.Vaults, Servers.VaultRegistryServer),
     refreshRegistry(env, Routes.Oracles, Servers.OracleRegistryServer),
