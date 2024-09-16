@@ -10,16 +10,9 @@ import {
   getComparisonKey,
 } from '@notional-finance/notionable';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useEffect } from 'react';
 import { defineMessage } from 'react-intl';
-import {
-  Route,
-  Switch,
-  matchPath,
-  useHistory,
-  useLocation,
-} from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface DrawerRouteProps {
   slug: string;
@@ -38,6 +31,7 @@ interface SideDrawerRouterProps {
   routes: DrawerRouteProps[];
   context: BaseTradeContext;
   routeMatch: string;
+  action?: string;
 }
 
 export const SideDrawerRouter = ({
@@ -47,26 +41,22 @@ export const SideDrawerRouter = ({
   routes,
   context,
   routeMatch,
+  action,
 }: SideDrawerRouterProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
-
   useEffect(() => {
-    const match = matchPath<{ path: string }>(pathname, { path: routeMatch });
-    const noPath = !match || match.params.path === undefined;
-    const incorrectDefault =
-      match &&
-      (hasPosition
-        ? match.params.path === defaultNoPosition
-        : match.params.path !== defaultNoPosition);
+    const incorrectDefault = hasPosition
+      ? action === defaultNoPosition
+      : action !== defaultNoPosition;
 
-    if (noPath || incorrectDefault) {
+    if (action === undefined || incorrectDefault) {
       const defaultPath = routeMatch.replace(
         ':path',
         hasPosition ? defaultHasPosition : defaultNoPosition
       );
       // Use replace here to avoid breaking the back button
-      history.replace(defaultPath);
+      navigate(defaultPath, { replace: true });
     }
   }, [
     routeMatch,
@@ -74,27 +64,22 @@ export const SideDrawerRouter = ({
     hasPosition,
     defaultHasPosition,
     defaultNoPosition,
-    history,
+    navigate,
+    action,
   ]);
 
-  const { clearSideDrawer } = useSideDrawerManager();
-
-  useEffect(() => {
-    clearSideDrawer();
-  }, [clearSideDrawer]);
+  const route = routes.find((r) => r.slug === action);
 
   return (
     <Drawer size="large">
-      <Switch>
-        {routes.map((r, i) => (
-          <DrawerRoute
-            key={i}
-            path={routeMatch.replace(':path', r.slug)}
-            context={context}
-            {...r}
-          />
-        ))}
-      </Switch>
+      {route && (
+        <DrawerRoute
+          key={route.slug}
+          path={routeMatch.replace(':path', route.slug)}
+          context={context}
+          {...route}
+        />
+      )}
     </Drawer>
   );
 };
@@ -111,7 +96,7 @@ const DrawerRoute = ({
   path: string;
   context: BaseTradeContext;
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const theme = useTheme();
   const { state, updateState } = context;
 
@@ -135,20 +120,17 @@ const DrawerRoute = ({
 
     updateState(requiredState);
   }, [updateState, requiredState, state, path]);
-
   return (
-    <Route path={path} exact={false}>
-      <DrawerTransition fade={isRootDrawer}>
-        {!isRootDrawer && (
-          // Root drawer does not have a back button
-          <SideBarSubHeader
-            paddingTop={theme.spacing(5)}
-            callback={onBack || history.goBack}
-            titleText={defineMessage({ defaultMessage: 'Back' })}
-          />
-        )}
-        <Component />
-      </DrawerTransition>
-    </Route>
+    <DrawerTransition fade={isRootDrawer}>
+      {!isRootDrawer && (
+        // Root drawer does not have a back button
+        <SideBarSubHeader
+          paddingTop={theme.spacing(5)}
+          callback={onBack || (() => navigate(-1))}
+          titleText={defineMessage({ defaultMessage: 'Back' })}
+        />
+      )}
+      <Component />
+    </DrawerTransition>
   );
 };

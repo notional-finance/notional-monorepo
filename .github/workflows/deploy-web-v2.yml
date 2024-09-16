@@ -19,7 +19,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'yarn'
       - name: Yarn Install
         run: yarn install --frozen-lockfile
@@ -39,7 +39,6 @@ jobs:
           NX_ALCHEMY_KEY: ${{ secrets.NX_ALCHEMY_KEY }}
           NX_EXCHANGE_RATE_API: ${{ secrets.NX_EXCHANGE_RATE_API }}
           NX_SUBGRAPH_API_KEY: ${{ secrets.NX_SUBGRAPH_API_KEY }}
-          NX_DATA_URL: ${{ secrets.NX_DATA_URL }}
           NX_ENV: ${{ github.event.inputs.environment || 'dev' }}
           NX_COMMIT_REF: ${{ github.sha }}
       - name: Publish Dev

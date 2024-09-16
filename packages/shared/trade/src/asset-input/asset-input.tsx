@@ -7,7 +7,7 @@ import {
   PageLoading,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import { useAssetInput } from './use-asset-input';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
@@ -65,7 +65,7 @@ export const AssetInput = React.forwardRef<
     ref
   ) => {
     const theme = useTheme();
-    const history = useHistory();
+    const navigate = useNavigate();
     const { state, updateState } = context;
     const { calculateError } = state;
     const [hasUserTouched, setHasUserTouched] = useState(false);
@@ -151,7 +151,7 @@ export const AssetInput = React.forwardRef<
             // Always clear the input string when we change tokens
             inputRef.current?.setInputOverride('');
             if (newToken !== selectedToken?.symbol && newRoute)
-              history.push(newRoute(newToken));
+              navigate(newRoute(newToken));
 
             if (afterTokenChange) afterTokenChange(newToken);
           }}

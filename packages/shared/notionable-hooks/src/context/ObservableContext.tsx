@@ -10,6 +10,8 @@ import {
   map,
   filter,
   distinctUntilChanged,
+  observeOn,
+  asyncScheduler,
 } from 'rxjs';
 import { useAppReady } from '../use-notional';
 import { useObservableReducer } from './use-observable-reducer';
@@ -63,10 +65,16 @@ export function useObservableContext<T extends ContextState>(
     useObservable(
       (o$) => {
         return o$.pipe(
-          switchMap(([s, load, appReady]) => (appReady ? load(s) : of({}))),
-          tap((s) => {
-            if (DEBUG) console.log('CALCULATED UPDATE', s);
-          })
+          switchMap(([s, load, appReady]) =>
+            appReady
+              ? load(s).pipe(
+                  observeOn(asyncScheduler),
+                  tap((s) => {
+                    if (DEBUG) console.log('CALCULATED UPDATE', s);
+                  })
+                )
+              : of({})
+          )
         );
       },
       [state$, loadManagers, isAppReady]

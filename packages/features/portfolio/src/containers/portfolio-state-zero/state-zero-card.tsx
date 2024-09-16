@@ -11,7 +11,7 @@ import {
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { NotionalTheme, colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 interface StateZeroCardProps {
   card: {
@@ -39,7 +39,7 @@ interface CardDataProps {
 
 export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const selectedNetwork = useSelectedNetwork();
   const disabledCard = card.apy === undefined ? true : false;
 
@@ -53,7 +53,7 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
         theme={theme}
         key={index}
         disabled={disabledCard}
-        onClick={() => (!disabledCard ? history.push(card.cardLink) : null)}
+        onClick={() => (!disabledCard ? navigate(card.cardLink) : null)}
       >
         <Box
           sx={{

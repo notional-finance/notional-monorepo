@@ -20,22 +20,30 @@ import {
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   formatHealthFactorValues,
+  useAnalyticsReady,
   useArbPoints,
-  useFiat,
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
   formatMaturity,
   PRIME_CASH_VAULT_MATURITY,
   pointsMultiple,
+  Network,
+  getDateString,
+  SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
-import { PointsLinks, getArbBoosts } from '@notional-finance/core-entities';
+import {
+  PointsLinks,
+  getArbBoosts,
+  Registry,
+} from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 
 export function getVaultLeveragePercentage(
@@ -61,6 +69,34 @@ export function getVaultLeveragePercentage(
   return { maxLeverageRatio, leverageRatio, leveragePercentage, trackColor };
 }
 
+export function getVaultReinvestmentDates(
+  network: Network | undefined,
+  vaultAddress: string,
+  analyticsReady: boolean
+) {
+  const reinvestmentData =
+    network && analyticsReady
+      ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
+      : undefined;
+  let arbReinvestmentDate = '';
+  let mainnetReinvestmentDate = '';
+
+  const vaultReinvestmentData =
+    vaultAddress && reinvestmentData?.[vaultAddress]
+      ? reinvestmentData[vaultAddress]
+      : undefined;
+  if (vaultReinvestmentData && vaultReinvestmentData.length > 0) {
+    arbReinvestmentDate = getDateString(
+      vaultReinvestmentData[0].timestamp + SECONDS_IN_DAY
+    );
+    mainnetReinvestmentDate = getDateString(
+      vaultReinvestmentData[0].timestamp + 7 * SECONDS_IN_DAY
+    );
+  }
+
+  return { arbReinvestmentDate, mainnetReinvestmentDate };
+}
+
 export const useVaultHoldingsTable = () => {
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
@@ -68,9 +104,10 @@ export const useVaultHoldingsTable = () => {
   const isBlocked = useLeverageBlock();
   const arbPoints = useArbPoints();
   const theme = useTheme();
-  const baseCurrency = useFiat();
-  const history = useHistory();
+  const { baseCurrency } = useAppState();
+  const navigate = useNavigate();
   const network = useSelectedNetwork();
+  const analyticsReady = useAnalyticsReady(network);
   const vaults = useVaultHoldings(network);
 
   const toggleData = [
@@ -224,6 +261,9 @@ export const useVaultHoldingsTable = () => {
       const totalPoints =
         arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)
           ?.points || 0;
+      const { arbReinvestmentDate, mainnetReinvestmentDate } =
+        getVaultReinvestmentDates(network, v.vaultAddress, analyticsReady);
+
       const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
         {
           label: <FormattedMessage defaultMessage={'Borrow APY'} />,
@@ -252,7 +292,19 @@ export const useVaultHoldingsTable = () => {
         },
       ];
 
-      if (points) {
+      if (!points) {
+        subRowData.push({
+          label: (
+            <FormattedMessage defaultMessage={'Time to Next Reinvestment'} />
+          ),
+          value:
+            network === Network.mainnet
+              ? mainnetReinvestmentDate
+              : arbReinvestmentDate,
+        });
+      }
+
+      if (points && network) {
         const pointsLink = PointsLinks[network][v.vaultAddress];
         subRowData.push({
           label: <FormattedMessage defaultMessage={'Points Boost'} />,
@@ -356,15 +408,13 @@ export const useVaultHoldingsTable = () => {
             {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               callback: () => {
-                history.push(`/vaults/${network}/${v.vaultAddress}`);
+                navigate(`/vaults/${network}/${v.vaultAddress}`);
               },
             },
             {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
-                history.push(
-                  `/vaults/${network}/${v.vaultAddress}/WithdrawVault`
-                );
+                navigate(`/vaults/${network}/${v.vaultAddress}/WithdrawVault`);
               },
             },
           ],
@@ -451,7 +501,7 @@ export const useVaultHoldingsTable = () => {
       toolTipData: undefined,
       actionRow: undefined,
       isTotalRow: true,
-    } as unknown as typeof vaultHoldingsData[number]);
+    } as unknown as (typeof vaultHoldingsData)[number]);
   }
 
   return {

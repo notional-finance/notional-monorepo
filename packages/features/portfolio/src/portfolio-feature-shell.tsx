@@ -7,7 +7,7 @@ import {
   useSelectedNetwork,
   useYieldsReady,
 } from '@notional-finance/notionable-hooks';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import {
   LargeInputTextEmphasized,
   PageLoading,
@@ -30,7 +30,7 @@ import {
   PortfolioHoldings,
   PortfolioNoteStaking,
 } from './containers';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
@@ -39,7 +39,7 @@ import { PortfolioNetworkSelector } from '@notional-finance/wallet';
 import { defineMessage } from 'react-intl';
 import { messages } from './messages';
 
-export interface PortfolioParams {
+export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
   selectedToken?: string;
@@ -49,28 +49,31 @@ export interface PortfolioParams {
 
 export const PortfolioFeatureShell = () => {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const params = useParams<PortfolioParams>();
   const network = useSelectedNetwork();
   const isAccountLoading = useAccountLoading();
   const yieldsReady = useYieldsReady(network);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
+  const { hasNoteOrSNote } = usePortfolioNOTETable();
 
   useEffect(() => {
     if (
       !isAccountLoading &&
+      !hasNoteOrSNote &&
       !isAcctAndBalanceReady &&
       params.sideDrawerKey !== 'cool-down'
     ) {
       const toggleKey = params.sideDrawerKey ? params.sideDrawerKey : '';
-      history.push(
+      navigate(
         `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}/${toggleKey}`
       );
     }
   }, [
     isAccountLoading,
+    hasNoteOrSNote,
     isAcctAndBalanceReady,
-    history,
+    navigate,
     network,
     params.sideDrawerKey,
   ]);
@@ -101,7 +104,7 @@ const Portfolio = () => {
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
   const network = useSelectedNetwork();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const isAccountReady = useAccountReady(network);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
@@ -125,7 +128,7 @@ const Portfolio = () => {
 
   const handleDrawer = () => {
     if (pathname.includes('convertTo')) {
-      history.push(
+      navigate(
         `/portfolio/${network}/${params?.category}/${params?.sideDrawerKey}/${params?.selectedToken}/manage`
       );
     } else {
@@ -229,11 +232,12 @@ const Portfolio = () => {
           <TypeForm />
         </>
       )}
-      {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && hasNoteOrSNote && (
-        <PortfolioMainContent>
-          <PortfolioNoteStaking />
-        </PortfolioMainContent>
-      )}
+      {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING &&
+        hasNoteOrSNote && (
+          <PortfolioMainContent>
+            <PortfolioNoteStaking />
+          </PortfolioMainContent>
+        )}
       {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING &&
         params.category !== PORTFOLIO_CATEGORIES.WELCOME &&
         hasNoteOrSNote && (

@@ -1,5 +1,5 @@
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
-import { useSideDrawerState } from '@notional-finance/side-drawer';
+import { useSideDrawerState } from '@notional-finance/notionable-hooks';
 import SettingsSideDrawer from '../settings-side-drawer/settings-side-drawer';
 import NotificationsSideDrawer from '../notifications-side-drawer/notifications-side-drawer';
 import ConnectWalletSideDrawer from '../connect-wallet-side-drawer/connect-wallet-side-drawer';

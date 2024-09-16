@@ -1,0 +1,56 @@
+name: Deploy Analytics
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose an environment to deploy to: <dev|prod>'
+        required: true
+        default: 'dev'
+  push:
+    branches:
+      - v3/dev
+      - v3/prod
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
+    permissions:
+      contents: read
+      deployments: write
+    name: Deploy to Cloudflare Pages
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      - name: Yarn Install
+        run: yarn install --frozen-lockfile
+      - name: Build
+        working-directory: gcp/analytics
+        run: ./build.sh
+      - name: Build Web
+        working-directory: gcp/analytics
+        run: yarn run next-on-pages
+        env:
+          NX_SEGMENT_KEY: ${{ secrets.NX_SEGMENT_KEY }}
+          NX_SUBGRAPH_API_KEY: ${{ secrets.NX_SUBGRAPH_UI_KEY }}
+          NX_ENV: ${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
+          NX_COMMIT_REF: ${{ github.sha }}
+      
+      - name: Publish Dev
+        uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: analytics-${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
+          directory: gcp/analytics/.vercel/output/static
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

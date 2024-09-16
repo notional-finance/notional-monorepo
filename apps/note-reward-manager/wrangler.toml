@@ -16,5 +16,4 @@ MANAGER_BOT_ADDRESS = "0x745915418D8B70f39ce9e61A965cBB0C87f9f7Ed"
 
 [triggers]
 # Run two times every other hour at Sunday, once to sell comp tokens and then again to burn note
-crons = []
-# crons = ["0 */2 * * 1", "10 */2 * * 1"]
+crons = ["0 */2 * * 1", "10 */2 * * 1"]

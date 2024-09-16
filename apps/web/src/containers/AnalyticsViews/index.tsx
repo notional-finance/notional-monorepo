@@ -7,16 +7,16 @@ import { AllTransactions } from './all-transactions';
 import { AllAccounts } from './all-accounts';
 import { AllVaultAccounts } from './all-vault-accounts';
 import { ANALYTICS_VIEWS, Network } from '@notional-finance/util';
-import { useHistory, useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useNetworkToggle } from './hooks';
 
-export interface AnalyticsViewsParams {
+export interface AnalyticsViewsParams extends Record<string, string | undefined> {
   category?: ANALYTICS_VIEWS;
 }
 
 export const AnalyticsViews = () => {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const networkToggleData = useNetworkToggle();
   const params = useParams<AnalyticsViewsParams>();
   const selectedNetwork: Network =
@@ -46,7 +46,7 @@ export const AnalyticsViews = () => {
             {buttonData.map(({ label, key }, i) => (
               <StyledButton
                 key={i}
-                onClick={() => history.push(`/analytics/${key}`)}
+                onClick={() => navigate(`/analytics/${key}`)}
                 variant="outlined"
                 active={params.category === key}
                 theme={theme}

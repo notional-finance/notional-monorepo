@@ -30,6 +30,7 @@ export function TotalBox({
         borderRadius: theme.shape.borderRadius(),
         padding: theme.spacing(2),
         border: theme.shape.borderStandard,
+        whiteSpace: 'nowrap',
       }}
     >
       <Body
@@ -42,6 +43,7 @@ export function TotalBox({
         {title}
         {Icon && (
           <Icon
+            title={title}
             sx={{ marginLeft: theme.spacing(0.5), height: theme.spacing(2) }}
           />
         )}

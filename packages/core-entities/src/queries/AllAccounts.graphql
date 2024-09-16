@@ -1,4 +1,4 @@
-query AllAccounts($skip: Int, $startId: ID, $endId: ID, $blockNumber: Int) {
+query AllAccounts($skip: Int, $startId: ID, $endId: ID) {
     accounts(
         first: 1000,
         skip: $skip,
@@ -7,7 +7,6 @@ query AllAccounts($skip: Int, $startId: ID, $endId: ID, $blockNumber: Int) {
             id_lt: $endId,
             systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve]
         }
-        block: { number: $blockNumber }
     ) {
         id
         systemAccountType

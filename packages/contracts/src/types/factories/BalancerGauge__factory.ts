@@ -1028,7 +1028,7 @@ const _abi = [
       },
     ],
   },
-];
+] as const;
 
 export class BalancerGauge__factory {
   static readonly abi = _abi;

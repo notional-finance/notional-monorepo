@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import { useTheme, Box, styled, alpha } from '@mui/material';
@@ -22,7 +22,7 @@ export const ProductRateCards = ({
   title,
 }: ProductRateCardsProps) => {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   return (
     <>
       <Box
@@ -46,7 +46,7 @@ export const ProductRateCards = ({
         </LinkText>
       </Box>
       {productRateData.map(({ title, apy, symbol, link, icon }, index) => (
-        <ProductCard onClick={() => history.push(link)} key={index}>
+        <ProductCard onClick={() => navigate(link)} key={index}>
           <Box id="text-content" sx={{ display: 'flex', alignItems: 'center' }}>
             {icon}
             <H4 sx={{ textWrap: 'nowrap', marginLeft: theme.spacing(2) }}>

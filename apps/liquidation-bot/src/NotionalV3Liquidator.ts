@@ -20,7 +20,6 @@ import {
   DexId,
 } from './types';
 import FlashLoanProvider from './FlashLender';
-import { Logger } from '@notional-finance/durable-objects';
 import {
   Network,
   WETHAddress,
@@ -30,6 +29,7 @@ import {
   sendTxThroughRelayer,
   zeroExUrl,
   NetworkId,
+  Logger,
 } from '@notional-finance/util';
 import Liquidation from './liquidation';
 
@@ -296,6 +296,7 @@ export default class NotionalV3Liquidator {
     const resp = await fetch(fetchUrl, {
       headers: {
         '0x-api-key': this.settings.zeroExApiKey,
+        '0x-version': 'v2',
       },
     });
 

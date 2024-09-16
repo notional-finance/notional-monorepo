@@ -3,11 +3,11 @@ import {
   useAllVaults,
   useVaultHoldings,
   useAllMarkets,
-  useFiat,
   useTotalArbPoints,
   useCurrentSeason,
+  useAppState,
 } from '@notional-finance/notionable-hooks';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
 import {
   formatNumberAsPercent,
@@ -27,12 +27,12 @@ import {
 } from '@notional-finance/core-entities';
 
 export const useLeveragedFarmingGrid = (
-  network: Network,
+  network: Network | undefined,
   currentVaultType: VAULT_TYPES
 ): DashboardGridProps => {
   const theme = useTheme();
-  const history = useHistory();
-  const baseCurrency = useFiat();
+  const navigate = useNavigate();
+  const { baseCurrency } = useAppState();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
   const totalArbPoints = useTotalArbPoints();
@@ -54,12 +54,14 @@ export const useLeveragedFarmingGrid = (
       )?.vault;
       const apy = profile?.totalAPY || y?.totalAPY || undefined;
       const points = y?.pointMultiples;
-      const vaultShare = Registry.getTokenRegistry().getVaultShare(
-        network,
-        vaultAddress,
-        PRIME_CASH_VAULT_MATURITY
-      );
-      const pointsBoost = getArbBoosts(vaultShare, false);
+      const vaultShare = network
+        ? Registry.getTokenRegistry().getVaultShare(
+            network,
+            vaultAddress,
+            PRIME_CASH_VAULT_MATURITY
+          )
+        : undefined;
+      const pointsBoost = vaultShare ? getArbBoosts(vaultShare, false) : 0;
       const pointsAPY = getPointsAPY(
         pointsBoost,
         totalArbPoints[currentSeason.db_name],
@@ -130,7 +132,7 @@ export const useLeveragedFarmingGrid = (
           : VAULT_TYPES.LEVERAGED_YIELD_FARMING,
         apy: apy || 0,
         routeCallback: () =>
-          history.push(
+          navigate(
             profile
               ? `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/IncreaseVaultPosition`
               : `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`

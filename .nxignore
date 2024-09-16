@@ -1,4 +1,7 @@
 tools/**
 demo/**
 gcp/**
+apps/analytics/**
+apps/**/dist
+
 

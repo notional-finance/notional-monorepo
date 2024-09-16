@@ -154,7 +154,8 @@ export function getBalanceAndTradeAction(
   withdrawEntireCashBalance: boolean,
   withdrawAmount: TokenBalance | undefined,
   redeemToWETH: boolean,
-  fCash: TokenBalance[]
+  fCash: TokenBalance[],
+  fCashSlippageLimit?: number
 ): BalanceActionWithTradesStruct {
   const balanceAction = getBalanceAction(
     actionType,
@@ -166,7 +167,7 @@ export function getBalanceAndTradeAction(
   let trades: string[] = [];
   if (fCash.length > 0) {
     let currencyId: number;
-    ({ trades, currencyId } = encodeTrades(fCash));
+    ({ trades, currencyId } = encodeTrades(fCash, fCashSlippageLimit));
     if (currencyId !== amount.currencyId)
       throw Error('Mismatched currency ids');
   }
@@ -179,7 +180,7 @@ export function getBalanceAndTradeAction(
 
 export function encodeTrades(
   amounts: TokenBalance[],
-  slippageFactor = 5 * BASIS_POINT
+  slippageFactor = 10 * BASIS_POINT
 ) {
   const currencyIds = unique(amounts.map((t) => t.currencyId));
   const networks = unique(amounts.map((t) => t.network));

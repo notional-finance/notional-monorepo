@@ -1,0 +1,24 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+minify = true
+logpush = true
+
+[env.prod]
+name = "registry-prod"
+r2_buckets = [
+  { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev" },
+]
+
+[env.prod.triggers]
+crons = [
+  "* * * * *",
+  "*/10 * * * *"
+]
+
+[env.prod.vars]
+NX_ENV = 'prod'
+SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]
+DATA_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service'

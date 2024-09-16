@@ -25,11 +25,20 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'yarn'
       - name: Yarn Install
-        run: yarn install --frozen-lockfile
+        # echo "Yarn install completed"
+        # echo "Differences in yarn.lock:"
+        # git diff yarn.lock
+        run: |
+          yarn install --frozen-lockfile
+      - name: Check if web project is affected
+        id: check-affected
+        run: |
+          echo "is_affected=$(yarn --silent nx print-affected --base=HEAD~1 --head=HEAD | jq '.projects | contains(["web"])')" >> $GITHUB_OUTPUT
       - name: Build Web
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         run: yarn nx build web --parallel
         env:
           NX_CONTACT_EMAIL: ${{ secrets.NX_CONTACT_EMAIL }}
@@ -38,7 +47,7 @@ jobs:
           NX_DD_BASE_URL: ${{ secrets.NX_DD_BASE_URL }}
           NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
           NX_APP_URL: ${{ secrets.NX_APP_URL }}
-          NX_DATA_URL: ${{ secrets.NX_DATA_URL }}
+          NX_REGISTRY_URL: https://registry.notional.finance
           NX_INTERCOM_APP_ID: ${{ secrets.NX_INTERCOM_APP_ID }}
           NX_SEGMENT_KEY: ${{ secrets.NX_SEGMENT_KEY }}
           NX_SUBGRAPH_API_KEY: ${{ secrets.NX_SUBGRAPH_UI_KEY }}
@@ -46,6 +55,7 @@ jobs:
           NX_ENV: ${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
           NX_COMMIT_REF: ${{ github.sha }}
       - name: Publish Dev
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -54,6 +64,7 @@ jobs:
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

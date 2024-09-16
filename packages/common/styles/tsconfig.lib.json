@@ -12,6 +12,7 @@
     "jest.config.ts",
     "**/*.spec.ts",
     "**/*.test.ts",
+    "**/*.stories.tsx",
     "**/*.spec.tsx",
     "**/*.test.tsx",
     "**/*.spec.js",

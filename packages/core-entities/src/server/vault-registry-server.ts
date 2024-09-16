@@ -7,40 +7,69 @@ import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { aggregate } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
 import {
+  BalancerPoolABI,
+  ERC20ABI,
   ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
-import { Contract } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../token-balance';
-import { DeprecatedVaults, vaultOverrides } from './vault-overrides';
+import { DeprecatedVaults } from './vault-overrides';
+import { ClientRegistry } from '../client/client-registry';
+import { CacheSchema } from '..';
+
+// NOTE: this is currently hardcoded because we cannot access the worker
+// process environment directly here.
+const NX_REGISTRY_URL = 'https://registry.notional.finance';
 
 export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
   protected async _refresh(network: Network, blockNumber?: number) {
     const { AllVaultsDocument, AllVaultsByBlockDocument } =
       await loadGraphClientDeferred();
 
-    const data =
-      blockNumber === undefined
-        ? await fetchGraphPaginate(
-            network,
-            AllVaultsDocument,
-            'vaultConfigurations',
-            this.env.NX_SUBGRAPH_API_KEY
-          )
-        : await fetchGraphPaginate(
-            network,
-            AllVaultsByBlockDocument,
-            'vaultConfigurations',
-            this.env.NX_SUBGRAPH_API_KEY,
-            { blockNumber },
-          );
+    let vaultConfigurations: {
+      vaultAddress: string;
+      enabled: boolean;
+      name: string;
+    }[];
+    try {
+      const data =
+        blockNumber === undefined
+          ? await fetchGraphPaginate(
+              network,
+              AllVaultsDocument,
+              'vaultConfigurations',
+              this.env.NX_SUBGRAPH_API_KEY
+            )
+          : await fetchGraphPaginate(
+              network,
+              AllVaultsByBlockDocument,
+              'vaultConfigurations',
+              this.env.NX_SUBGRAPH_API_KEY,
+              { blockNumber }
+            );
+      vaultConfigurations = data['data'].vaultConfigurations;
+    } catch (e) {
+      const response = await ClientRegistry.fetch<CacheSchema<VaultMetadata>>(
+        `${NX_REGISTRY_URL}/${network}/vaults`
+      );
+      vaultConfigurations = response.values
+        .filter(([_, p]) => p !== null)
+        .map(([v, p]) => {
+          return {
+            vaultAddress: v,
+            enabled: (p as VaultMetadata).enabled,
+            name: (p as VaultMetadata).name,
+          };
+        });
+    }
 
-    const calls = data['data'].vaultConfigurations
+    const calls = vaultConfigurations
       .filter(
         (v: { vaultAddress: string }) =>
           !DeprecatedVaults.includes(v.vaultAddress)
       )
-      .map(
+      .flatMap(
         ({
           vaultAddress,
           enabled,
@@ -50,68 +79,97 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
           enabled: boolean;
           name: string;
         }) => {
-          const override = vaultOverrides[vaultAddress];
-          if (override) {
-            const bn = data['data']._meta.block.number as number;
-            const func = override.find((o) => {
-              if (o.fromBlock && (blockNumber || bn) < o.fromBlock) {
-                return false;
-              }
-              if (o.toBlock && (blockNumber || bn) > o.toBlock) {
-                return false;
-              }
-              return true;
-            });
+          return [
+            {
+              target: new Contract(
+                vaultAddress,
+                ISingleSidedLPStrategyVaultABI,
+                getProviderFromNetwork(network)
+              ),
+              stage: 0,
+              method: 'getStrategyVaultInfo',
+              key: vaultAddress,
+              transform: (
+                r: Awaited<
+                  ReturnType<
+                    ISingleSidedLPStrategyVault['getStrategyVaultInfo']
+                  >
+                >
+              ) => {
+                const totalLPTokens = TokenBalance.toJSON(
+                  r.totalLPTokens,
+                  r.pool,
+                  network
+                );
 
-            if (func) {
-              return func.getVaultInfo(network, vaultAddress);
-            }
-          }
+                const totalVaultShares = r.totalVaultShares;
 
-          return {
-            target: new Contract(
-              vaultAddress,
-              ISingleSidedLPStrategyVaultABI,
-              getProviderFromNetwork(network)
-            ),
-            method: 'getStrategyVaultInfo',
-            key: vaultAddress,
-            transform: (
-              r: Awaited<
-                ReturnType<ISingleSidedLPStrategyVault['getStrategyVaultInfo']>
-              >
-            ) => {
-              const totalLPTokens = TokenBalance.toJSON(
-                r.totalLPTokens,
-                r.pool,
-                network
-              );
-
-              const totalVaultShares = r.totalVaultShares;
-
-              return {
-                pool: r.pool,
-                singleSidedTokenIndex: r.singleSidedTokenIndex,
-                totalLPTokens,
-                totalVaultShares,
-                secondaryTradeParams: '0x',
-                enabled,
-                name,
-              };
+                return {
+                  pool: r.pool,
+                  singleSidedTokenIndex: r.singleSidedTokenIndex,
+                  maxPoolShares: r.maxPoolShare,
+                  totalLPTokens,
+                  totalVaultShares,
+                  secondaryTradeParams: '0x',
+                  enabled,
+                  name,
+                };
+              },
             },
-          };
+            {
+              target: (r: any) =>
+                new Contract(
+                  r[vaultAddress].pool,
+                  ERC20ABI,
+                  getProviderFromNetwork(network)
+                ),
+              stage: 1,
+              method: 'totalSupply',
+              key: `${vaultAddress}.pool.totalSupply`,
+              transform: (r: BigNumber, prevResults: any) =>
+                TokenBalance.toJSON(r, prevResults[vaultAddress].pool, network),
+            },
+            {
+              target: (r: any) =>
+                new Contract(
+                  r[vaultAddress].pool,
+                  BalancerPoolABI,
+                  getProviderFromNetwork(network)
+                ),
+              stage: 1,
+              method: 'getActualSupply',
+              key: `${vaultAddress}.pool.actualSupply`,
+              transform: (r: BigNumber, prevResults: any) =>
+                TokenBalance.toJSON(r, prevResults[vaultAddress].pool, network),
+            },
+          ];
         }
       );
 
     const { block, results } = await aggregate(
       calls || [],
       this.getProvider(network),
-      blockNumber
+      blockNumber,
+      true // allowFailure
     );
 
-    const values = Object.keys(results).map((k) => {
-      return [k, results[k] as VaultMetadata] as [string, VaultMetadata];
-    });
+    const values = Object.keys(results)
+      .filter((k) => !k.includes('.'))
+      .map((k) => {
+        const metadata = results[k] as VaultMetadata;
+        if (results[`${k}.pool.actualSupply`]) {
+          // This will exist for Balancer pools
+          metadata['totalPoolSupply'] = results[`${k}.pool.actualSupply`] as
+            | TokenBalance
+            | undefined;
+        } else {
+          metadata['totalPoolSupply'] = results[`${k}.pool.totalSupply`] as
+            | TokenBalance
+            | undefined;
+        }
+
+        return [k, metadata] as [string, VaultMetadata];
+      });
 
     return {
       values,

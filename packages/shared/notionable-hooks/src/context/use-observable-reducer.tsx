@@ -5,6 +5,7 @@ import {
   useObservableState,
   useSubscription,
 } from 'observable-hooks';
+import { useCallback, useTransition } from 'react';
 import { concat, take, withLatestFrom, scan } from 'rxjs';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
@@ -20,9 +21,10 @@ export function useObservableReducer<T extends Resettable>(
   // Converts the initial state into an observable to make it safe in
   // a closure
   const initialState$ = useObservable(pluckFirst, [initialState]);
+  const [isPending, startTransition] = useTransition();
 
   // Creates an observable state object that can be updated
-  const [updateState, state$] = useObservableCallback<
+  const [_updateState, state$] = useObservableCallback<
     T,
     Partial<T>,
     [Partial<T>]
@@ -48,10 +50,19 @@ export function useObservableReducer<T extends Resettable>(
     (args) => args[0]
   );
 
+  const updateState = useCallback(
+    (update: Partial<T>) => {
+      startTransition(() => {
+        _updateState(update);
+      });
+    },
+    [_updateState, startTransition]
+  );
+
   const state = useObservableState(state$, initialState);
   useSubscription(state$, (s) => {
     if (DEBUG) console.log(`${logPrefix} STATE`, s);
   });
 
-  return { updateState, state$, state };
+  return { updateState, state$, state, isPending };
 }

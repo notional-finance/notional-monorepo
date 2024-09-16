@@ -873,7 +873,7 @@ const _abi = [
       },
     ],
   },
-];
+] as const;
 
 export class CurvePoolV1WithOracle__factory {
   static readonly abi = _abi;

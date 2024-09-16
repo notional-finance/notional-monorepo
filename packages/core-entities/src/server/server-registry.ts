@@ -6,7 +6,6 @@ import {
   SubgraphId,
 } from '@notional-finance/util';
 import { CacheSchema, Env } from '..';
-import { BaseRegistry } from '../base';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { providers } from 'ethers';
 
@@ -22,6 +21,7 @@ export async function loadGraphClientDeferred() {
   const {
     execute,
     AllAccountsDocument,
+    AllAccountsByBlockDocument,
     AllTokensDocument,
     AllConfigurationDocument,
     AllOraclesDocument,
@@ -47,6 +47,7 @@ export async function loadGraphClientDeferred() {
   return {
     execute,
     AllAccountsDocument,
+    AllAccountsByBlockDocument,
     AllTokensDocument,
     AllConfigurationDocument,
     AllOraclesDocument,
@@ -205,10 +206,8 @@ export async function fetchUsingGraph<
   };
 }
 
-export abstract class ServerRegistry<T> extends BaseRegistry<T> {
-  constructor(protected env: Env) {
-    super();
-  }
+export abstract class ServerRegistry<T> {
+  constructor(protected env: Env) {}
 
   protected async _fetchUsingMulticall(
     network: Network,
@@ -245,30 +244,19 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     return false;
   }
 
+  protected abstract _refresh(
+    network: Network,
+    blockNumber?: number
+  ): Promise<CacheSchema<T>>;
+
   /** Triggers a refresh of the underlying data */
   public async refresh(network: Network) {
     if (!this.hasAllNetwork() && network === Network.all) return;
-    this._updateNetworkObservables(await this._refresh(network));
+    return JSON.stringify(await this._refresh(network));
   }
 
   public async refreshAtBlock(network: Network, blockNumber: number) {
-    if (!this.hasAllNetwork() && network === Network.all) return;
-    this._updateNetworkObservables(await this._refresh(network, blockNumber));
-  }
-
-  /** Serializes the data for the given network */
-  public serializeToJSON(network: Network) {
-    const subjects = this._getNetworkSubjects(network);
-    const values = Array.from(subjects.entries()).map(([key, subject]) => [
-      key,
-      subject.value,
-    ]);
-
-    return JSON.stringify({
-      values,
-      network,
-      lastUpdateTimestamp: this.getLastUpdateTimestamp(network),
-      lastUpdateBlock: this.getLastUpdateBlock(network),
-    } as CacheSchema<T>);
+    if (!this.hasAllNetwork() && network === Network.all) return [];
+    return (await this._refresh(network, blockNumber)).values;
   }
 }

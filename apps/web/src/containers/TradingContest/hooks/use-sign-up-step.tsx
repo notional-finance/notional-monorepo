@@ -6,17 +6,17 @@ import {
   useMintPass,
   useSelectedNetwork
 } from '@notional-finance/notionable-hooks';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
-export interface ContestSignUpParams {
+export interface ContestSignUpParams extends Record<string, string | undefined> {
   step?: CONTEST_SIGN_UP_STEPS;
 }
 
 export const useSignUpStep = () => {
   const params = useParams<ContestSignUpParams>();
   const network = useSelectedNetwork();
-  const history = useHistory();
+  const navigate = useNavigate();
   const {
     globalState: { isAccountPending },
   } = useNotionalContext();
@@ -29,17 +29,17 @@ export const useSignUpStep = () => {
       !isAccountPending &&
       params.step === CONTEST_SIGN_UP_STEPS.CONNECT_WALLET
     ) {
-      history.push(CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS);
+      navigate(CONTEST_SIGN_UP_STEPS.COMMUNITY_PARTNERS);
     } else if (
       mintPass.transactionStatus === TransactionStatus.CONFIRMED &&
       params.step !== CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION
     ) {
-      history.push(CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION);
+      navigate(CONTEST_SIGN_UP_STEPS.CONTEST_CONFIRMATION);
     }
   }, [
     connected,
     isAccountPending,
-    history,
+    navigate,
     params,
     mintPass.transactionStatus,
   ]);

@@ -3459,7 +3459,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class ExchangeV3__factory {
   static readonly abi = _abi;

@@ -1,7 +1,6 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import {
   useAllMarkets,
-  useFiat,
   useCurrentSeason,
   useTotalArbPoints,
 } from '@notional-finance/notionable-hooks';
@@ -12,17 +11,21 @@ import {
   PRODUCTS,
 } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
+import { useAppState } from '@notional-finance/notionable-hooks';
 
-export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
+export const useFixedRateGrid = (
+  network: Network | undefined,
+  product: PRODUCTS
+) => {
   const {
     yields: { fCashLend, fCashBorrow },
   } = useAllMarkets(network);
   const theme = useTheme();
-  const history = useHistory();
-  const baseCurrency = useFiat();
+  const navigate = useNavigate();
+  const { baseCurrency } = useAppState();
   const tokenObj = {};
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
   const totalArbPoints = useTotalArbPoints();
@@ -101,7 +104,7 @@ export const useFixedRateGrid = (network: Network, product: PRODUCTS) => {
       tvlNum: y?.liquidity ? y.liquidity.toFiat(baseCurrency).toNumber() : 0,
       apy: y.totalAPY,
       routeCallback: () =>
-        history.push(`/${product}/${network}/${y.underlying.symbol}`),
+        navigate(`/${product}/${network}/${y.underlying.symbol}`),
     };
   });
 

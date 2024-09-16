@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { trackEvent, RouteState } from '@notional-finance/helpers';
+import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { Divider, styled, useTheme, Box } from '@mui/material';
 import { useLocation } from 'react-router';
@@ -42,11 +42,10 @@ export const TransactionConfirmation = ({
 }: TransactionConfirmationProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
-  const location = useLocation<RouteState>();
+  const location = useLocation();
   const {
     populatedTransaction,
     transactionError,
-    simulationError,
     debt,
     collateral,
     tradeType,
@@ -87,7 +86,7 @@ export const TransactionConfirmation = ({
               'By submitting a trade on our platform you agree to our <a>terms of service.</a>'
             }
             values={{
-              a: (msg: string) => (
+              a: (msg: React.ReactNode) => (
                 <ExternalLink
                   href="/terms"
                   style={{ color: theme.palette.primary.light }}
@@ -135,7 +134,7 @@ export const TransactionConfirmation = ({
           />
         </Box>
       )}
-      {simulationError && (
+      {/* {simulationError && (
         <Box sx={{ marginBottom: theme.spacing(6) }}>
           <ErrorMessage
             variant="warning"
@@ -143,7 +142,7 @@ export const TransactionConfirmation = ({
             message={simulationError}
           />
         </Box>
-      )}
+      )} */}
       {(transactionStatus === TransactionStatus.NONE ||
         transactionStatus === TransactionStatus.WAIT_USER_CONFIRM) &&
         transactionError === undefined && <PortfolioCompare state={state} />}

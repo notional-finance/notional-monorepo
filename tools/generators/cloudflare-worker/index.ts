@@ -20,11 +20,6 @@ export default async function (host: Tree, schema: NewCloudflareWorker) {
       name: schema.name,
     }
   );
-  updateJson(host, 'workspace.json', (pkgJson) => {
-    pkgJson.projects = pkgJson.projects ?? {};
-    pkgJson.projects[schema.name] = `apps/${schema.name}`;
-    return pkgJson;
-  });
   await formatFiles(host);
   return () => {
     installPackagesTask(host);

@@ -13,7 +13,7 @@ import {
 import { colors } from '@notional-finance/styles';
 import { defineMessages } from 'react-intl';
 import { TABLE_WARNINGS } from '@notional-finance/util';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 const messages = {
   [TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN]: defineMessages({
@@ -67,7 +67,7 @@ export interface TableActionRowProps {
 
 export const TableActionRow = ({ row }: TableActionRowProps) => {
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useNavigate();
   const {
     actionRow: {
       txnHistory,
@@ -129,7 +129,7 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
           />
           {txnHistory && (
             <Box
-              onClick={() => history.push(txnHistory)}
+              onClick={() => navigate(txnHistory)}
               sx={{
                 cursor: 'pointer',
                 height: theme.spacing(5),
@@ -220,7 +220,7 @@ const Container = styled(Box)(
 const ApyContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
-  gap: ${theme.spacing(5)};
+  gap: ${theme.spacing(3)};
   margin-left: ${theme.spacing(7)};
   `
 );

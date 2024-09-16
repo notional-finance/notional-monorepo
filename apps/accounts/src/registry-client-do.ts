@@ -3,6 +3,7 @@ import {
   AssetType,
   Network,
   PRIME_CASH_VAULT_MATURITY,
+  SECONDS_IN_DAY,
   SECONDS_IN_HOUR,
   SETTLEMENT_RESERVE,
   convertToSignedfCashId,
@@ -18,11 +19,7 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import {
-  DDMetric,
-  Logger,
-  MetricType,
-} from '@notional-finance/durable-objects';
+import { DDMetric, Logger, MetricType } from '@notional-finance/util';
 import {
   calculateAccountIRR,
   // currentContestId,
@@ -59,11 +56,11 @@ export class RegistryClientDO extends DurableObject {
   }
 
   async getDataKey(key: string) {
-    return this.env.ACCOUNT_CACHE_R2.get(key).then((d) => d.json());
+    return this.env.VIEW_CACHE_R2.get(key).then((d) => d.json());
   }
 
   async putStorageKey(key: string, data: string) {
-    await this.env.ACCOUNT_CACHE_R2.put(key, data);
+    await this.env.VIEW_CACHE_R2.put(key, data);
   }
 
   async fetch(request: Request): Promise<Response> {
@@ -94,7 +91,7 @@ export class RegistryClientDO extends DurableObject {
   async _init() {
     Registry.initialize(
       this.env,
-      this.env.NX_DATA_URL,
+      this.env.NX_REGISTRY_URL,
       AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
       false,
       true,
@@ -126,7 +123,9 @@ export class RegistryClientDO extends DurableObject {
           this.monitorRelayerBalances(network),
           this.checkSubgraphBlockNumber(network),
           this.checkRiskServiceUpdates(network),
+          this.checkVaultReinvestments(network),
         ]);
+
         if (network === Network.arbitrum) {
           // await this.checkDBMonitors(network);
           // await this.saveContestIRR(network, currentContestId);
@@ -839,10 +838,10 @@ export class RegistryClientDO extends DurableObject {
   }
 
   private async checkRiskServiceUpdates(network: Network) {
-    const vaultRisk = await this.env.ACCOUNT_CACHE_R2.head(
+    const vaultRisk = await this.env.VIEW_CACHE_R2.head(
       `${network}/accounts/vaultRisk`
     );
-    const portfolioRisk = await this.env.ACCOUNT_CACHE_R2.head(
+    const portfolioRisk = await this.env.VIEW_CACHE_R2.head(
       `${network}/accounts/portfolioRisk`
     );
     const lastUpdated = Math.min(
@@ -904,7 +903,7 @@ export class RegistryClientDO extends DurableObject {
 
   private async saveTotalsData() {
     const kpi = Registry.getAnalyticsRegistry().getKPIs();
-    await this.putStorageKey(`kpi`, JSON.stringify(kpi));
+    await this.putStorageKey(`all/kpi`, JSON.stringify(kpi));
 
     await this.logger.submitMetrics({
       series: [
@@ -943,5 +942,117 @@ export class RegistryClientDO extends DurableObject {
         },
       ],
     });
+  }
+
+  private async checkVaultReinvestments(network: Network) {
+    const reinvestments =
+      Registry.getAnalyticsRegistry().getVaultReinvestments(network);
+    const oneHourAgo = getNowSeconds() - SECONDS_IN_HOUR;
+    const config = Registry.getConfigurationRegistry();
+
+    for (const [vaultAddress, reinvestmentList] of Object.entries(
+      reinvestments
+    )) {
+      for (const reinvestment of reinvestmentList) {
+        if (reinvestment.timestamp < oneHourAgo) continue;
+        const vault = config.getVaultConfig(network, vaultAddress);
+        const rewardToken = Registry.getTokenRegistry().getTokenByID(
+          network,
+          reinvestment.rewardTokenSold.id
+        );
+        const borrowCurrency = Registry.getTokenRegistry().getTokenByID(
+          network,
+          vault.primaryBorrowCurrency.id
+        );
+
+        // Calculate the price that the reward token was sold for
+        const amountSold = TokenBalance.from(
+          reinvestment.rewardAmountSold,
+          rewardToken
+        );
+        const amountReceived = TokenBalance.from(
+          reinvestment.underlyingAmountRealized || 0,
+          borrowCurrency
+        );
+        const calculatedPrice = amountReceived.toFloat() / amountSold.toFloat();
+
+        // Fetch the price from DeFi Llama
+        const defiLlamaPrice = await this.fetchPriceFromDeFiLlama(
+          network,
+          rewardToken.id,
+          borrowCurrency.id,
+          reinvestment.timestamp
+        );
+
+        // Calculate the difference as a percentage
+        const priceDifference =
+          Math.abs((calculatedPrice - defiLlamaPrice) / defiLlamaPrice) * 100;
+
+        // Log metrics
+        await this.logger.submitMetrics({
+          series: [
+            {
+              metric: 'vault.reinvestment.calculated_price',
+              points: [{ value: calculatedPrice, timestamp: getNowSeconds() }],
+              tags: [
+                `network:${network}`,
+                `vault:${vaultAddress}`,
+                `reward_token:${rewardToken.symbol}`,
+              ],
+              type: MetricType.Gauge,
+            },
+            {
+              metric: 'vault.reinvestment.defi_llama_price',
+              points: [{ value: defiLlamaPrice, timestamp: getNowSeconds() }],
+              tags: [
+                `network:${network}`,
+                `vault:${vaultAddress}`,
+                `reward_token:${rewardToken.symbol}`,
+              ],
+              type: MetricType.Gauge,
+            },
+            {
+              metric: 'vault.reinvestment.price_difference_percentage',
+              points: [{ value: priceDifference, timestamp: getNowSeconds() }],
+              tags: [
+                `network:${network}`,
+                `vault:${vaultAddress}`,
+                `reward_token:${rewardToken.symbol}`,
+              ],
+              type: MetricType.Gauge,
+            },
+          ],
+        });
+      }
+    }
+  }
+
+  private async fetchPriceFromDeFiLlama(
+    network: Network,
+    baseToken: string,
+    quoteToken: string,
+    timestamp: number
+  ): Promise<number> {
+    const baseTokenId = `${
+      network === 'mainnet' ? 'ethereum' : network
+    }:${baseToken}`;
+    const quoteTokenId = `${
+      network === 'mainnet' ? 'ethereum' : network
+    }:${quoteToken}`;
+    const url = `https://coins.llama.fi/prices/historical/${timestamp}/${baseTokenId},${quoteTokenId}`;
+    const response = await fetch(url);
+    const data: {
+      coins: {
+        [key: string]: {
+          price: number;
+          timestamp: number;
+          confidence: number;
+        };
+      };
+    } = await response.json();
+    const basePrice = data.coins[baseTokenId].price;
+    const quotePrice = data.coins[quoteTokenId].price;
+
+    return basePrice / quotePrice;
   }
 }

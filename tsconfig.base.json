@@ -36,9 +36,6 @@
       "@notional-finance/core-entities": [
         "packages/core-entities/src/index.ts"
       ],
-      "@notional-finance/durable-objects": [
-        "packages/durable-objects/src/index.ts"
-      ],
       "@notional-finance/error/*": ["packages/error/src/*"],
       "@notional-finance/helpers": ["packages/shared/helpers/src/index.ts"],
       "@notional-finance/icons": ["packages/common/icons/src/index.ts"],
@@ -75,9 +72,6 @@
       "@notional-finance/risk-engine": ["packages/risk-engine/src/index.ts"],
       "@notional-finance/shared-web": ["packages/shared/web/src/index.ts"],
       "@notional-finance/shared-web/*": ["packages/shared/web/src/*"],
-      "@notional-finance/side-drawer": [
-        "packages/shared/side-drawer/src/index.ts"
-      ],
       "@notional-finance/styles": ["packages/common/styles/src/index.ts"],
       "@notional-finance/styles/*": ["packages/common/styles/src/*"],
       "@notional-finance/trade": ["packages/shared/trade/src/index.ts"],
@@ -94,5 +88,11 @@
       "@notional-finance/wallet/*": ["packages/shared/wallet/src/*"]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    ".nx-cache",
+    "tmp",
+    "dist",
+    "tools/generators/cloudflare-worker/files"
+  ]
 }

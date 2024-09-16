@@ -14,7 +14,7 @@ import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
-export interface PortfolioParams {
+export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
 }

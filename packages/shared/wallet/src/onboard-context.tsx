@@ -1,11 +1,15 @@
 import { init } from '@web3-onboard/react';
 import { OnboardAPI } from '@web3-onboard/core';
+import safeModule from '@web3-onboard/gnosis';
 import injectedModule from '@web3-onboard/injected-wallets';
 import {
   EIP6963AnnounceProviderEvent,
   EIP6963ProviderDetail,
 } from '@web3-onboard/injected-wallets/dist/types';
 import walletConnectModule from '@web3-onboard/walletconnect';
+import coinbaseModule from '@web3-onboard/coinbase';
+import MetaMask from './images/meta-mask.svg';
+import CoinbaseWallet from './images/coinbase-wallet.svg';
 import trezorModule from '@web3-onboard/trezor';
 import WalletConnect from './images/wallet-connect.svg';
 import Trezor from './images/trezor.svg';
@@ -47,6 +51,14 @@ interface ResultInterface {
 export const useWalletModules = () => {
   const modules = [
     {
+      label: 'MetaMask',
+      icon: MetaMask,
+    },
+    {
+      label: 'Coinbase Wallet',
+      icon: CoinbaseWallet,
+    },
+    {
       label: 'WalletConnect',
       icon: WalletConnect,
     },
@@ -58,15 +70,20 @@ export const useWalletModules = () => {
   const checkProvider = new Map<string, boolean>();
   const injectedWallets: ResultInterface[] = [];
 
-  providers.forEach(({ info }) => {
-    if (checkProvider.has(info.name)) return info;
-    checkProvider.set(info.name, true);
-    injectedWallets.push({
-      label: info.name,
-      icon: info.icon,
+  providers
+    .filter(
+      ({ info }) =>
+        !info.name?.includes('Coinbase') && !info.name?.includes('MetaMask')
+    )
+    .forEach(({ info }) => {
+      if (checkProvider.has(info.name)) return info;
+      checkProvider.set(info.name, true);
+      injectedWallets.push({
+        label: info.name,
+        icon: info.icon,
+      });
+      return info;
     });
-    return info;
-  });
 
   return injectedWallets.length > 0
     ? [...injectedWallets, ...modules]
@@ -84,11 +101,13 @@ const wcV2InitOptions = {
 
 const wallets = [
   injectedModule(),
+  coinbaseModule(),
   walletConnectModule(wcV2InitOptions),
   trezorModule({
     email,
     appUrl,
   }),
+  safeModule(),
 ];
 
 export const OnboardContext: OnboardAPI = init({

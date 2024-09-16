@@ -1,7 +1,7 @@
 import { datadogRum } from '@datadog/browser-rum';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
-import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
+import { ReactRouter6Adapter } from 'use-query-params/adapters/react-router-6';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { App } from './App';
 
@@ -10,8 +10,8 @@ const clientToken = process.env['NX_DD_CLIENT_TOKEN'] as string;
 const DD_SITE = process.env['NX_DD_SITE'];
 // COMMIT_REF environment variable is supplied by netlify on deployment
 const version = `${process.env['NX_COMMIT_REF']?.substring(0, 8) || 'local'}`;
-const PROXY_HOST =
-  process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
+// NOTE: this is the proxy service used to collect datadog RUM data
+const PROXY_HOST = 'https://api.notional.finance';
 const service = 'web-frontend';
 const { disableErrorReporting } = getFromLocalStorage('privacySettings');
 
@@ -35,7 +35,7 @@ datadogRum.init({
 export const AppShell = () => {
   return (
     <BrowserRouter>
-      <QueryParamProvider adapter={ReactRouter5Adapter}>
+      <QueryParamProvider adapter={ReactRouter6Adapter}>
         <App />
       </QueryParamProvider>
     </BrowserRouter>

@@ -12,9 +12,9 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import {
+  useAppState,
   useAllMarkets,
   useFCashMarket,
-  useFiat,
 } from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -26,7 +26,7 @@ export const useReturnDriversTable = () => {
     state: { deposit, selectedDepositToken, selectedNetwork },
   } = useContext(LiquidityContext);
   const { yields } = useAllMarkets(selectedNetwork);
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const fCashData = useFCashMarket(deposit);
 
   const liquidityData = yields.liquidity.find(
@@ -44,10 +44,13 @@ export const useReturnDriversTable = () => {
   };
 
   const formattedFCashData = fCashData?.balances?.map((balance) => {
-    const apy =
+    let apy =
       fCashData.getSpotInterestRate(balance.token) !== undefined
         ? fCashData.getSpotInterestRate(balance.token)
         : 0;
+    // If the balance is negative then the apy is negative
+    if (balance.isNegative() && apy) apy = -apy;
+
     return {
       asset: {
         symbol: handleTokenType(balance.tokenType),

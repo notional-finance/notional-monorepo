@@ -9,34 +9,35 @@ import { ExternalLinkIcon } from '@notional-finance/icons';
 import statsImg from '../images/stats_overlay.svg';
 import { FormattedMessage } from 'react-intl';
 import { formatNumber } from '@notional-finance/helpers';
-import { useHeroStats } from '../use-hero-stats';
+import { useHeroStats } from '@notional-finance/notionable-hooks';
 
 const oneMillion = 1_000_000;
 
 export const HeroStats = () => {
   const theme = useTheme();
-  const heroStats = useHeroStats();
+  const { totalAccounts, totalDeposits, totalOpenDebt } = useHeroStats();
+  const showHeroStats = totalAccounts && totalDeposits && totalOpenDebt;
 
   return (
     <StatsContainer>
       <ImgContainer>
         <StatsContent>
-          {heroStats ? (
+          {showHeroStats ? (
             <div>
               <LargeInputText>
-                {`$${formatNumber(heroStats.totalDeposits / oneMillion, 2)}M`}
+                {`$${formatNumber(totalDeposits / oneMillion, 2)}M`}
                 <BodySecondary>
                   <FormattedMessage defaultMessage={'Total Deposits'} />
                 </BodySecondary>
               </LargeInputText>
               <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
-                {`$${formatNumber(heroStats.totalOpenDebt / oneMillion, 1)}M`}
+                {`$${formatNumber(totalOpenDebt / oneMillion, 1)}M`}
                 <BodySecondary>
                   <FormattedMessage defaultMessage={'Total Open Debt'} />
                 </BodySecondary>
               </LargeInputText>
               <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
-                {heroStats?.totalAccounts}
+                {totalAccounts}
                 <BodySecondary>
                   <FormattedMessage defaultMessage={'Active Accounts'} />
                 </BodySecondary>

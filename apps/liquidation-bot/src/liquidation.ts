@@ -303,7 +303,13 @@ export default class Liquidation {
             method: 'convertCashBalanceToExternal',
             args: (r: any) => [
               this.localCurrency.id,
-              r[`${key}:pCashLoanAmount`][0] || 0,
+              (
+                r[`${key}:pCashLoanAmount`] as Awaited<
+                  ReturnType<
+                    typeof notional.calculateCollateralCurrencyLiquidation
+                  >
+                >
+              )[0] || 0,
               true,
             ],
             key: `${key}:loanAmount`,

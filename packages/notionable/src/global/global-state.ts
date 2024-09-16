@@ -3,7 +3,6 @@ import {
   TransactionResponse,
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
-import { THEME_VARIANTS } from '@notional-finance/util';
 import {
   AccountDefinition,
   FiatKeys,
@@ -52,7 +51,7 @@ export const GATED_VAULTS: string[] = [];
 
 // Set this as the runtime default
 const CACHE_HOSTNAME =
-  process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
+  process.env['NX_REGISTRY_URL'] || 'https://registry.notional.finance';
 
 export type NetworkLoadingState = 'Pending' | 'Loaded' | undefined;
 export type CalculatedPriceChanges = {
@@ -138,10 +137,6 @@ interface AddressState {
 }
 
 /** These settings are associated with the user directly */
-interface UserSettingsState {
-  themeVariant: THEME_VARIANTS;
-}
-
 interface ErrorState {
   error?: NotionalError;
 }
@@ -149,15 +144,10 @@ interface ErrorState {
 export interface GlobalState
   extends Record<string, unknown>,
     AddressState,
-    UserSettingsState,
     TransactionState,
     ErrorState {}
 
 export const initialGlobalState: GlobalState = {
-  themeVariant: userSettings?.themeVariant
-    ? userSettings?.themeVariant
-    : THEME_VARIANTS.LIGHT,
-  baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
   isSanctionedAddress: false,
   isAccountPending: false,
   sentTransactions: [],
@@ -183,12 +173,6 @@ export interface ApplicationState extends Record<string, unknown> {
   /** All active accounts from the analytics registry */
   activeAccounts?: Record<Network, Record<string, number>>;
   historicalTrading?: Record<Network, HistoricalTrading>;
-  /** Stats for the home page hero section */
-  heroStats?: {
-    totalDeposits: number;
-    totalOpenDebt: number;
-    totalAccounts: number;
-  };
   baseCurrency: FiatKeys;
   /** Which country is the user located in */
   country?: string;

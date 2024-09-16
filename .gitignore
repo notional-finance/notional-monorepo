@@ -55,7 +55,10 @@ apps/**/dist
 
 gcp/**/dist
 gcp/**/lib
+apps/tx-relay/lib
 cspell.json
-.nx/**
-analytics
-.nx-cache/**
+
+# Next.js
+.next
+.nx
+.nx-cache

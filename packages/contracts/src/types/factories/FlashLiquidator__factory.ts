@@ -296,7 +296,7 @@ const _abi = [
     outputs: [],
     stateMutability: "nonpayable",
   },
-];
+] as const;
 
 export class FlashLiquidator__factory {
   static readonly abi = _abi;

@@ -20,9 +20,12 @@ import LeverageDropdown from './leverage-dropdown/leverage-dropdown';
 import { useParams } from 'react-router';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
-  const params = useParams<any>();
+  const params = useParams();
   const [{ wallet }] = useConnectWallet();
-  const network = params?.selectedNetwork || Network.mainnet;
+  const network =
+    params && 'selectedNetwork' in params
+      ? params['selectedNetwork']
+      : Network.mainnet;
 
   const textColor = mobileNav
     ? theme.palette.common.black
@@ -80,7 +83,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       iconImg: (
         <NoteOutlineIcon
           fill={theme.palette.typography.main}
-          className="color-fill"
           sx={{
             height: theme.spacing(2.5),
           }}

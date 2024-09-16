@@ -4,14 +4,14 @@ import {
   TokenBalance,
   whitelistedVaults,
 } from '@notional-finance/core-entities';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { GATED_VAULTS } from '@notional-finance/notionable';
 import { useNotionalError } from './use-notional';
 import { Network } from '@notional-finance/util';
 import { useWalletCommunities } from './use-wallet';
 
 export function useVaultNftCheck() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const vaultAddress = pathname.split('/')[2];
   const communityMembership = useWalletCommunities();
@@ -24,10 +24,10 @@ export function useVaultNftCheck() {
           gatedTo.includes(name)
         );
 
-        if (!hasMembership) history.push('/vaults');
+        if (!hasMembership) navigate('/vaults');
       }
     }
-  }, [communityMembership, history, vaultAddress]);
+  }, [communityMembership, navigate, vaultAddress]);
 }
 
 export function useVaultProperties(

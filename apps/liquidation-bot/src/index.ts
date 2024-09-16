@@ -10,16 +10,12 @@ import NotionalV3Liquidator from './NotionalV3Liquidator';
 import { overrides } from './overrides';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames, RiskyAccount } from './types';
-import {
-  DDSeries,
-  Logger,
-  MetricType,
-} from '@notional-finance/durable-objects';
 import { formatUnits, isAddress } from 'ethers/lib/utils';
 import { CacheSchema, TokenDefinition } from '@notional-finance/core-entities';
+import { DDSeries, Logger, MetricType } from '@notional-finance/util';
 
 export interface Env {
-  NX_DATA_URL: string;
+  NX_REGISTRY_URL: string;
   ACCOUNT_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   ZERO_EX_API_KEY: string;
@@ -51,7 +47,7 @@ function shuffleArray(array: string[]) {
 
 async function setUp(env: Env) {
   const allTokens: CacheSchema<TokenDefinition> = await (
-    await fetch(`https://registry.notional.finance/${env.NETWORK}/tokens`)
+    await fetch(`${env.NX_REGISTRY_URL}/${env.NETWORK}/tokens`)
   ).json();
 
   const logger = new Logger({

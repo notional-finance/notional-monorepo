@@ -19,7 +19,6 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
     : SmallTableCell;
   const ToolTip = column.columnDef?.ToolTip;
   const toolTipData = row.original?.toolTipData;
-
   const isPending =
     column.columnDef.showLoadingSpinner && row.original.isPending;
 
@@ -115,9 +114,12 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
                 ? theme.spacing(2)
                 : '',
               fontWeight: column.columnDef?.fontWeightBold ? 600 : '',
-              color: column.columnDef?.showGreenText
-                ? theme.palette.primary.main
-                : theme.palette.typography.main,
+              color:
+                typeof value == 'string' && value.includes('-')
+                  ? theme.palette.error.main
+                  : column.columnDef?.showGreenText && !row.original.isDebt
+                  ? theme.palette.primary.main
+                  : theme.palette.typography.main,
             }}
           >
             {value}

@@ -14,6 +14,7 @@ export const managerBotAddresses: Partial<Record<Network, string>> = {
 interface Env {
   NETWORK: Network;
   TX_RELAY_AUTH_TOKEN: string;
+  RPC_URL?: string; // custom RPC url can only be used for testing when chain id of forked network is 111111, check is enforced by relayer on backend
 }
 
 export async function sendTxThroughRelayer(arg: {
@@ -28,6 +29,7 @@ export async function sendTxThroughRelayer(arg: {
     to,
     data,
     gasLimit,
+    rpcUrl: env.RPC_URL,
   });
 
   const url = `https://us-central1-monitoring-agents.cloudfunctions.net/tx-relay/v1/txes/${env.NETWORK}`;

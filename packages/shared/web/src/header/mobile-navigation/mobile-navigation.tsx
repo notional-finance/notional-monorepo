@@ -9,7 +9,7 @@ import {
   useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { SyntheticEvent } from 'react';
 import { MouseEvent } from 'react';
@@ -22,7 +22,7 @@ import {
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useNavLinks } from '../use-nav-links';
 import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
@@ -30,7 +30,7 @@ import { FormattedMessage } from 'react-intl';
 export function MobileNavigation({ ...rest }: TabsProps) {
   const theme = useTheme();
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const {
     globalState: { isAccountPending, wallet },
@@ -59,7 +59,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
     if (item && item.external) {
       window.open(newValue, item.target);
     } else {
-      history.push(newValue);
+      navigate(newValue);
     }
   };
 

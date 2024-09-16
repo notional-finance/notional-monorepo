@@ -25,8 +25,9 @@ export const LiquidityLeveragedSideDrawer = () => {
   const queryData = useQueryParams();
   // NOTE: need to use the URL parameter or infinite loop conditions will exist
   const selectedNetwork = useSelectedNetwork();
-  const { selectedDepositToken } = useParams<{
+  const { selectedDepositToken, action } = useParams<{
     selectedDepositToken?: string;
+    action?: string;
   }>();
   const {
     state: {
@@ -79,6 +80,7 @@ export const LiquidityLeveragedSideDrawer = () => {
       context={context}
       hasPosition={!!currentPosition}
       routeMatch={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/:path/${selectedDepositToken}`}
+      action={action}
       defaultHasPosition={`IncreaseLeveragedNToken`}
       defaultNoPosition={`CreateLeveragedNToken`}
       routes={[

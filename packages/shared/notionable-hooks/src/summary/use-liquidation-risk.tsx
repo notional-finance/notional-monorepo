@@ -6,10 +6,10 @@ import {
   formatNumberAsPercentWithUndefined,
 } from '@notional-finance/helpers';
 import { TradeState, VaultTradeState } from '@notional-finance/notionable';
+import { useAppState } from '../use-app-state';
 import { HEALTH_FACTOR_RISK_LEVELS } from '@notional-finance/util';
 import { IntlShape, useIntl, defineMessages } from 'react-intl';
 import { useVaultPosition } from '../use-account';
-import { useFiat } from '../use-user-settings';
 
 function formatLiquidationPrices(
   liquidationPrice: TradeState['liquidationPrice'],
@@ -84,7 +84,7 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   } = state;
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const theme = useTheme();
   const priorAccountNoRisk =
     priorAccountRisk === undefined ||
@@ -158,7 +158,7 @@ export function useVaultDetails(state: VaultTradeState) {
   const currentPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppState();
   const priorAccountNoRisk =
     currentPosition === undefined || currentPosition?.leverageRatio === null;
 
