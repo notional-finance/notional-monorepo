@@ -124,10 +124,10 @@ async function processAllAccounts(
     .map((a) => a.account_id)
     .filter((a) => a !== ZERO_ADDRESS);
 
-  // Currently the worker cannot process more than 5000 accounts per batch
+  // Currently the worker cannot process more than 2500 accounts per batch
   if (!isHourly && env.NETWORK === Network.arbitrum) {
     // Unable to scan all accounts in a single segment
-    addresses = shuffleArray(addresses).slice(0, 5000);
+    addresses = shuffleArray(addresses).slice(0, 2500);
     console.log(
       `First: ${addresses[0]}, Last: ${addresses[addresses.length - 1]}`
     );

@@ -96,4 +96,7 @@ GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
 
 [env.mainnet2.triggers]
-crons = ["0/2 * * * *"]
+crons = [
+    "0/2 * * * *",
+    "0 * * * *"
+]
