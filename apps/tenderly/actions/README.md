@@ -1,9 +1,7 @@
-Install Tenderly-cli https://github.com/Tenderly/tenderly-cli
+Install Tenderly-cli [here](https://github.com/Tenderly/tenderly-cli)
 
-Switch to nodejs version specified in .nvmrc or just run `nvm use`
-
-```
-npm install
+```bash
+yarn install
 # deploy actions specified in tenderly.yaml to Tenderly
-npm run deploy
+yarn run deploy-tenderly
 ```
