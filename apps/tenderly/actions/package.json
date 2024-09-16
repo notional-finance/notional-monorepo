@@ -1,21 +1,23 @@
 {
-  "name": "actions",
+  "name": "tenderly-actions",
   "version": "0.0.1",
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "deploy": "tenderly actions deploy"
+    "deploy-tenderly": "tenderly actions deploy",
+    "format": "prettier --write .",
+    "lint": "prettier --check ."
   },
   "dependencies": {
-    "@notional-finance/contracts": "file:../../dist/packages/contracts",
+    "@notional-finance/contracts": "file:../../../packages/contracts",
     "@tenderly/actions": "^0.2.18",
-    "@types/node": "16",
     "node-fetch": "^2.0.0"
   },
   "private": true,
   "devDependencies": {
     "@tenderly/actions-test": "^0.2.18",
     "@types/jest": "^29.5.12",
+    "@types/node": "16",
     "@types/node-fetch": "^2.6.11",
     "jest": "^29.7.0",
     "typescript": "^4.3.5",

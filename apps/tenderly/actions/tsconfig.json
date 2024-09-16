@@ -11,13 +11,9 @@
     "rootDir": "",
     "sourceMap": true,
     "strict": true,
-    "types": [ "@types/node", "@types/jest"],
+    "types": ["@types/node", "@types/jest"],
     "target": "es2020"
   },
-  "exclude": [
-    "**/*.spec.ts"
-  ],
-  "include": [
-    "src/*"
-  ]
+  "exclude": ["**/*.spec.ts"],
+  "include": ["src/*"]
 }
