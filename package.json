@@ -34,7 +34,7 @@
     "@types/recharts": "^1.8.24",
     "@web3-onboard/coinbase": "^2.4.1",
     "@web3-onboard/core": "^2.22.2",
-    "@web3-onboard/gnosis": "^2.3.1",
+    "@web3-onboard/gnosis": "^2.3.2",
     "@web3-onboard/injected-wallets": "^2.11.1",
     "@web3-onboard/ledger": "^2.7.1",
     "@web3-onboard/react": "^2.9.2",
