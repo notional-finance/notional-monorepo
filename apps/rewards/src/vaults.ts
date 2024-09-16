@@ -91,6 +91,11 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       rewardTokens: [CRV, CVX],
       reinvestToken: crvUSD,
     },
+    {
+      address: '0xF94507F3dECE4CC4c73B6cf228912b85Eadc9CFB',
+      rewardTokens: [USDC],
+      reinvestToken: WETH,
+    },
   ],
   arbitrum: [
     {
