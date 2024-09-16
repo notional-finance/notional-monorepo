@@ -34,6 +34,7 @@ export const wEthMapper: Partial<Record<Network, string>> = {
 // set minimum values for tokens that are going to be claim/sell (~$15 for arbitrum, ~$150 for mainnet)
 // if token is also pool token it won't be sold
 export const minTokenAmount = {
+  [USDC]: '150000000', // 150e6
   [PYUSD]: '150000000', // 150e6
   [CRV]: '230000000000000000000', // 230e18
   [CVX]: '40000000000000000000', // 40e18
@@ -138,8 +139,8 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       rewardTokens: [ARB, ARB_BAL, ARB_AURA],
       reinvestToken: ETH,
       maxSellAmount: {
-        [ARB]: "448500000000000000000", // 448.5e18
-      }
+        [ARB]: '448500000000000000000', // 448.5e18
+      },
     },
     {
       address: '0x37dD23Ab1885982F789A2D6400B583B8aE09223d',
