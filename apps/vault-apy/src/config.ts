@@ -102,9 +102,9 @@ const config: ConfigPerNetwork = {
       // rsETH/WETH
       {
         address: '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb',
-        gauge: '0x58AAdFB1Afac0ad7fca1148f3cdE6aEDF5236B6D',
+        gauge: '0xB5FdB4f75C26798A62302ee4959E4281667557E0',
         primaryBorrowCurrency: tokens.mainnet.WETH,
-        rewardPoolType: RewardPoolType.Balancer,
+        rewardPoolType: RewardPoolType.Aura,
       },
     ],
   },
