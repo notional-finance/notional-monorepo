@@ -27,6 +27,6 @@ jobs:
       - name: Install Tenderly
         run: curl https://raw.githubusercontent.com/Tenderly/tenderly-cli/master/scripts/install-linux.sh | sh
       - name: Login to Tenderly
-        run: tenderly login --access-key ${{ secrets.TENDERLY_API_KEY }}
+        run: tenderly login --authentication-method access-key --access-key ${{ secrets.TENDERLY_API_KEY }}
       - name: Deploy Tenderly Actions
         run: yarn nx affected --target deploy-tenderly --base=v3/prod~1 --head=v3/prod
