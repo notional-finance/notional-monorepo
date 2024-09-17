@@ -21,7 +21,6 @@ import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   formatHealthFactorValues,
   useAnalyticsReady,
-  useArbPoints,
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
@@ -39,12 +38,7 @@ import {
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { useNavigate } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
-import {
-  PointsLinks,
-  getArbBoosts,
-  Registry,
-} from '@notional-finance/core-entities';
-import { PointsIcon } from '@notional-finance/icons';
+import { PointsLinks, Registry } from '@notional-finance/core-entities';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -102,7 +96,7 @@ export const useVaultHoldingsTable = () => {
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const [toggleOption, setToggleOption] = useState<number>(0);
   const isBlocked = useLeverageBlock();
-  const arbPoints = useArbPoints();
+  // const arbPoints = useArbPoints();
   const theme = useTheme();
   const { baseCurrency } = useAppState();
   const navigate = useNavigate();
@@ -256,11 +250,11 @@ export const useVaultHoldingsTable = () => {
         theme
       );
       const points = vaultYield?.pointMultiples;
-      const boostNum = getArbBoosts(v.vaultShares.token, false);
-      const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
-      const totalPoints =
-        arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)
-          ?.points || 0;
+      // const boostNum = getArbBoosts(v.vaultShares.token, false);
+      // const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
+      // const totalPoints =
+      //   arbPoints?.find(({ token }) => token === v.vaultShares.tokenId)
+      //     ?.points || 0;
       const { arbReinvestmentDate, mainnetReinvestmentDate } =
         getVaultReinvestmentDates(network, v.vaultAddress, analyticsReady);
 
@@ -328,30 +322,32 @@ export const useVaultHoldingsTable = () => {
             </LinkText>
           ),
         });
-      } else if (totalPoints > 0) {
-        subRowData.push({
-          label: <FormattedMessage defaultMessage={'Points Earned'} />,
-          value: (
-            <H4 sx={{ display: 'flex' }}>
-              <PointsIcon sx={{ marginRight: theme.spacing(0.5) }} />
-              {formatNumberAsAbbr(totalPoints, 2, 'USD', { hideSymbol: true })}
-              <Body
-                sx={{
-                  marginLeft: theme.spacing(0.5),
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                (
-                {formatNumberAsAbbr(pointsPerDay, 2, 'USD', {
-                  hideSymbol: true,
-                })}
-                )/day
-              </Body>
-            </H4>
-          ),
-        });
       }
+
+      // else if (totalPoints > 0) {
+      //   subRowData.push({
+      //     label: <FormattedMessage defaultMessage={'Points Earned'} />,
+      //     value: (
+      //       <H4 sx={{ display: 'flex' }}>
+      //         <PointsIcon sx={{ marginRight: theme.spacing(0.5) }} />
+      //         {formatNumberAsAbbr(totalPoints, 2, 'USD', { hideSymbol: true })}
+      //         <Body
+      //           sx={{
+      //             marginLeft: theme.spacing(0.5),
+      //             display: 'flex',
+      //             alignItems: 'center',
+      //           }}
+      //         >
+      //           (
+      //           {formatNumberAsAbbr(pointsPerDay, 2, 'USD', {
+      //             hideSymbol: true,
+      //           })}
+      //           )/day
+      //         </Body>
+      //       </H4>
+      //     ),
+      //   });
+      // }
       // TODO: ADD REAL REINVESTMENT DATA
       // else {
       //   subRowData.push({

@@ -6,8 +6,6 @@ import {
 import {
   useAllMarkets,
   useAccountDefinition,
-  useTotalArbPoints,
-  useCurrentSeason,
   useAppState,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
@@ -19,7 +17,6 @@ import {
   DataTableColumn,
   MultiValueIconCell,
 } from '@notional-finance/mui';
-import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 
 export const useLendBorrowList = (
@@ -29,8 +26,8 @@ export const useLendBorrowList = (
   const {
     yields: { fCashLend, fCashBorrow, variableBorrow, variableLend },
   } = useAllMarkets(network);
-  const totalArbPoints = useTotalArbPoints();
-  const currentSeason = useCurrentSeason();
+  // const totalArbPoints = useTotalArbPoints();
+  // const currentSeason = useCurrentSeason();
   const { baseCurrency } = useAppState();
   const account = useAccountDefinition(network);
   const isBorrow =
@@ -85,18 +82,18 @@ export const useLendBorrowList = (
       accessorKey: 'maturity',
       textAlign: 'right',
     },
-    {
-      header: (
-        <FormattedMessage
-          defaultMessage="Points Boost"
-          description={'Points Boost header'}
-        />
-      ),
-      cell: MultiValueIconCell,
-      showPointsIcon: true,
-      accessorKey: 'pointsBoost',
-      textAlign: 'right',
-    },
+    // {
+    //   header: (
+    //     <FormattedMessage
+    //       defaultMessage="Points Boost"
+    //       description={'Points Boost header'}
+    //     />
+    //   ),
+    //   cell: MultiValueIconCell,
+    //   showPointsIcon: true,
+    //   accessorKey: 'pointsBoost',
+    //   textAlign: 'right',
+    // },
     {
       header: (
         <FormattedMessage defaultMessage="APY" description={'APY header'} />
@@ -170,14 +167,14 @@ export const useLendBorrowList = (
 
   const listData = yieldData[product]
     .map((y) => {
-      const boostNum = getArbBoosts(y.token, isBorrow);
-      const pointsAPY = getPointsAPY(
-        boostNum,
-        totalArbPoints[currentSeason.db_name],
-        currentSeason.totalArb,
-        currentSeason.startDate,
-        currentSeason.endDate
-      );
+      // const boostNum = getArbBoosts(y.token, isBorrow);
+      // const pointsAPY = getPointsAPY(
+      //   boostNum,
+      //   totalArbPoints[currentSeason.db_name],
+      //   currentSeason.totalArb,
+      //   currentSeason.startDate,
+      //   currentSeason.endDate
+      // );
       const walletBalance = account
         ? account.balances.find((t) => t.tokenId === y.underlying.id)
         : undefined;
@@ -194,13 +191,13 @@ export const useLendBorrowList = (
         },
         walletBalance: walletBalance?.toFloat() || 0,
         maturity: y.token.maturity,
-        pointsBoost: {
-          label: boostNum > 0 ? `${boostNum}x` : '-',
-          caption:
-            pointsAPY > 0 && pointsAPY !== Infinity
-              ? `${formatNumberAsPercent(pointsAPY, 2)} APY`
-              : '',
-        },
+        // pointsBoost: {
+        //   label: boostNum > 0 ? `${boostNum}x` : '-',
+        //   caption:
+        //     pointsAPY > 0 && pointsAPY !== Infinity
+        //       ? `${formatNumberAsPercent(pointsAPY, 2)} APY`
+        //       : '',
+        // },
         apy: y.totalAPY,
         liquidity: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,
         symbol: y.underlying.symbol,

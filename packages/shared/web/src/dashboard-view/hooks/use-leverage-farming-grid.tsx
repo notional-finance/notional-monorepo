@@ -3,40 +3,26 @@ import {
   useAllVaults,
   useVaultHoldings,
   useAllMarkets,
-  useTotalArbPoints,
-  useCurrentSeason,
   useAppState,
 } from '@notional-finance/notionable-hooks';
 import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
-import {
-  formatNumberAsPercent,
-  Network,
-  PRIME_CASH_VAULT_MATURITY,
-  PRODUCTS,
-  VAULT_TYPES,
-} from '@notional-finance/util';
+import { Network, PRODUCTS, VAULT_TYPES } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
 import { PointsIcon } from '@notional-finance/icons';
-import { Box, useTheme } from '@mui/material';
-import {
-  Registry,
-  getArbBoosts,
-  getPointsAPY,
-} from '@notional-finance/core-entities';
+import { Box } from '@mui/material';
 
 export const useLeveragedFarmingGrid = (
   network: Network | undefined,
   currentVaultType: VAULT_TYPES
 ): DashboardGridProps => {
-  const theme = useTheme();
   const navigate = useNavigate();
   const { baseCurrency } = useAppState();
   const listedVaults = useAllVaults(network);
   const vaultHoldings = useVaultHoldings(network);
-  const totalArbPoints = useTotalArbPoints();
-  const currentSeason = useCurrentSeason();
+  // const totalArbPoints = useTotalArbPoints();
+  // const currentSeason = useCurrentSeason();
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
   const {
@@ -54,21 +40,21 @@ export const useLeveragedFarmingGrid = (
       )?.vault;
       const apy = profile?.totalAPY || y?.totalAPY || undefined;
       const points = y?.pointMultiples;
-      const vaultShare = network
-        ? Registry.getTokenRegistry().getVaultShare(
-            network,
-            vaultAddress,
-            PRIME_CASH_VAULT_MATURITY
-          )
-        : undefined;
-      const pointsBoost = vaultShare ? getArbBoosts(vaultShare, false) : 0;
-      const pointsAPY = getPointsAPY(
-        pointsBoost,
-        totalArbPoints[currentSeason.db_name],
-        currentSeason.totalArb,
-        currentSeason.startDate,
-        currentSeason.endDate
-      );
+      // const vaultShare = network
+      //   ? Registry.getTokenRegistry().getVaultShare(
+      //       network,
+      //       vaultAddress,
+      //       PRIME_CASH_VAULT_MATURITY
+      //     )
+      //   : undefined;
+      // const pointsBoost = vaultShare ? getArbBoosts(vaultShare, false) : 0;
+      // const pointsAPY = getPointsAPY(
+      //   pointsBoost,
+      //   totalArbPoints[currentSeason.db_name],
+      //   currentSeason.totalArb,
+      //   currentSeason.startDate,
+      //   currentSeason.endDate
+      // );
 
       return {
         title: primaryToken.symbol,
@@ -82,48 +68,60 @@ export const useLeveragedFarmingGrid = (
                 ? formatNumberAsAbbr(vaultTVL.toFiat(baseCurrency).toFloat(), 0)
                 : 0
             }`,
-        bottomRightValue:
-          points && pointsBoost > 0 ? (
-            <Box
-              sx={{
-                display: 'flex',
-                fontSize: 'inherit',
-                alignItems: 'center',
-              }}
-            >
-              <PointsIcon sx={{ fontSize: 'inherit' }} />
-              &nbsp;
-              {` ARB/${Object.keys(points).join('/')} Points`}
-            </Box>
-          ) : points ? (
-            <Box
-              sx={{
-                display: 'flex',
-                fontSize: 'inherit',
-                alignItems: 'center',
-              }}
-            >
-              <PointsIcon sx={{ fontSize: 'inherit' }} />
-              &nbsp;
-              {` ${Object.keys(points).join('/')} Points`}
-            </Box>
-          ) : pointsBoost > 0 ? (
-            <Box
-              sx={{
-                display: 'flex',
-                fontSize: 'inherit',
-                alignItems: 'center',
-              }}
-            >
-              <PointsIcon sx={{ fontSize: 'inherit' }} />
-              &nbsp;
-              {` ${pointsBoost}x ARB Points`}
-              <Box sx={{ marginLeft: theme.spacing(0.5) }}>
-                {pointsAPY !== Infinity &&
-                  `(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}
-              </Box>
-            </Box>
-          ) : undefined,
+        bottomRightValue: points ? (
+          <Box
+            sx={{
+              display: 'flex',
+              fontSize: 'inherit',
+              alignItems: 'center',
+            }}
+          >
+            <PointsIcon sx={{ fontSize: 'inherit' }} />
+            &nbsp;
+            {` ${Object.keys(points).join('/')} Points`}
+          </Box>
+        ) : undefined,
+        // points && pointsBoost > 0 ? (
+        //   <Box
+        //     sx={{
+        //       display: 'flex',
+        //       fontSize: 'inherit',
+        //       alignItems: 'center',
+        //     }}
+        //   >
+        //     <PointsIcon sx={{ fontSize: 'inherit' }} />
+        //     &nbsp;
+        //     {` ARB/${Object.keys(points).join('/')} Points`}
+        //   </Box>
+        // ) : points ? (
+        //   <Box
+        //     sx={{
+        //       display: 'flex',
+        //       fontSize: 'inherit',
+        //       alignItems: 'center',
+        //     }}
+        //   >
+        //     <PointsIcon sx={{ fontSize: 'inherit' }} />
+        //     &nbsp;
+        //     {` ${Object.keys(points).join('/')} Points`}
+        //   </Box>
+        // ) : pointsBoost > 0 ? (
+        //   <Box
+        //     sx={{
+        //       display: 'flex',
+        //       fontSize: 'inherit',
+        //       alignItems: 'center',
+        //     }}
+        //   >
+        //     <PointsIcon sx={{ fontSize: 'inherit' }} />
+        //     &nbsp;
+        //     {` ${pointsBoost}x ARB Points`}
+        //     <Box sx={{ marginLeft: theme.spacing(0.5) }}>
+        //       {pointsAPY !== Infinity &&
+        //         `(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}
+        //     </Box>
+        //   </Box>
+        // ) : undefined,
         symbol: primaryToken.symbol,
         network: primaryToken.network,
         hasPosition: profile ? true : false,
