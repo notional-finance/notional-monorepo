@@ -408,7 +408,7 @@ export const useVaultHoldingsTable = () => {
             {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               callback: () => {
-                navigate(`/vaults/${network}/${v.vaultAddress}`);
+                navigate(`/vaults/${network}/${v.vaultAddress}/Manage`);
               },
             },
             {

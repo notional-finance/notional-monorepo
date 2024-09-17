@@ -19,6 +19,7 @@ export function useVaultActionErrors() {
       riskFactorLimit,
       minBorrowSize,
       overCapacityError,
+      overPoolCapacityError,
       selectedNetwork,
       vaultAddress,
       underMinAccountBorrow,
@@ -33,6 +34,8 @@ export function useVaultActionErrors() {
     inputErrorMsg = tradeErrors.selectMaturityToCompleteTrade;
   } else if (overCapacityError) {
     inputErrorMsg = messages.error.overCapacity;
+  } else if (overPoolCapacityError) {
+    inputErrorMsg = messages.error.overPoolCapacity;
   } else if (calculateError) {
     inputErrorMsg = tradeErrors.insufficientLiquidity;
   }

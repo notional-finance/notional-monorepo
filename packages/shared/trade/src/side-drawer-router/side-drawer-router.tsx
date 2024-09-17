@@ -120,6 +120,7 @@ const DrawerRoute = ({
 
     updateState(requiredState);
   }, [updateState, requiredState, state, path]);
+
   return (
     <DrawerTransition fade={isRootDrawer}>
       {!isRootDrawer && (

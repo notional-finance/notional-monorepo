@@ -61,6 +61,7 @@ export function vaultCapacity(
         let totalCapacityRemaining: TokenBalance | undefined;
         let totalPoolCapacityRemaining: TokenBalance | undefined;
         let overCapacityError = false;
+        let overPoolCapacityError = false;
         let minBorrowSize: string | undefined = undefined;
         let underMinAccountBorrow = false;
         let vaultTVL: TokenBalance | undefined;
@@ -104,10 +105,10 @@ export function vaultCapacity(
               // Over capacity due to borrow
               totalUsedPrimaryBorrowCapacity
                 .add(netDebtBalanceForCapacity)
-                .gt(maxPrimaryBorrowCapacity) ||
-              // Over capacity due to max pool share
-              vaultAdapter?.isOverMaxPoolShare(collateralBalance) ||
-              false;
+                .gt(maxPrimaryBorrowCapacity);
+
+            overPoolCapacityError =
+              vaultAdapter?.isOverMaxPoolShare(collateralBalance) ?? false;
           }
 
           totalCapacityRemaining = maxPrimaryBorrowCapacity.sub(
@@ -138,6 +139,7 @@ export function vaultCapacity(
         return {
           minBorrowSize,
           overCapacityError,
+          overPoolCapacityError,
           maxPoolShare: vaultAdapter?.maxPoolShares
             ? formatNumberAsPercent(
                 vaultAdapter?.maxPoolShares.toNumber() / 100,

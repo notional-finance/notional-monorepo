@@ -83,6 +83,8 @@ import pGHO from '../../assets/icons/currencies/pGHO.svg';
 import cryptotesters from '../../assets/icons/community-icons/cryptotesters.svg';
 import L2DAO from '../../assets/icons/community-icons/L2DAO.svg';
 import Llamas from '../../assets/icons/community-icons/Llama.svg';
+import tBTC from '../../assets/icons/currencies/tBTC.svg';
+import ptBTC from '../../assets/icons/currencies/ptBTC.svg';
 import { VaultIcon } from '../vault-icon/vault-icon';
 import { Network, getNetworkSymbol } from '@notional-finance/util';
 import { Box } from '@mui/material';
@@ -448,6 +450,16 @@ export const TokenImageList: TokenImageMap = {
     name: 'Llamas',
     img: Llamas,
     alt: 'Llamas',
+  },
+  tbtc: {
+    name: 'tbtc',
+    img: tBTC,
+    alt: 'tbtc',
+  },
+  ptbtc: {
+    name: 'ptbtc',
+    img: ptBTC,
+    alt: 'ptbtc',
   },
   unknown: {
     name: 'unknown',
