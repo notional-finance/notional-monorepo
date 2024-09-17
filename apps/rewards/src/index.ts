@@ -8,7 +8,6 @@ import {
   DEX_ID,
   Network,
   TRADE_TYPE,
-  getNowSeconds,
   getProviderFromNetwork,
   getSubgraphEndpoint,
 } from '@notional-finance/util';
@@ -25,6 +24,7 @@ import { Logger, MetricType } from '@notional-finance/util';
 
 type Provider = ethers.providers.Provider;
 export interface Env {
+  LOGGER: Logger; // need to be set in worker
   NETWORKS: Array<Network>;
   NETWORK: Network;
   TX_RELAY_AUTH_TOKEN: string;
@@ -112,14 +112,67 @@ async function getLastReinvestment(
 
 const max = (a: number, b: number) => (a < b ? b : a);
 
-async function didTimeWindowPassed(
+async function setLastTransaction(
   env: Env,
   vaultAddress: string,
-  timeWindow: number
+  txResponse: ethers.providers.TransactionResponse,
+  key: 'reinvestment' | 'claim'
 ) {
-  const reinvestTimestampKey = `${vaultAddress}:reinvestmentTimestamp`;
-  const lastReinvestTimestampFromKV = Number(
-    await env.REWARDS_KV.get(reinvestTimestampKey)
+  await env.LOGGER.submitMetrics({
+    series: [
+      {
+        metric: `monitoring.rewards.last_${key}_timestamp`,
+        points: [
+          {
+            value: 1,
+            timestamp: txResponse.timestamp,
+          },
+        ],
+        tags: [`network:${env.NETWORK}`, `vault:${vaultAddress}`],
+        type: MetricType.Count,
+      },
+    ],
+  });
+
+  return env.REWARDS_KV.put(`${vaultAddress}:${key}TxHash`, txResponse.hash);
+}
+
+async function getLastTransactionTimestamp(
+  env: Env,
+  vaultAddress: string,
+  key: 'reinvestment' | 'claim',
+  provider: Provider
+) {
+  const txHashKey = `${vaultAddress}:${key}TxHash`;
+  const txHash = await env.REWARDS_KV.get(txHashKey);
+  const [transaction, receipt] = await Promise.all([
+    provider.getTransaction(txHash),
+    provider.getTransactionReceipt(txHash),
+  ]);
+  if (!transaction || receipt?.status !== 1) {
+    return 0;
+  }
+  return transaction.timestamp;
+}
+
+async function shouldSkipReinvest(
+  env: Env,
+  vaultAddress: string,
+  provider: Provider
+) {
+  // subtract 5min from time window so reinvestment can happen at the same time in a day
+  const reinvestTimeWindow =
+    Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS -
+    5 * 60;
+
+  const lastReinvestTimestampFromKV = await getLastTransactionTimestamp(
+    env,
+    vaultAddress,
+    'reinvestment',
+    provider
+  );
+  console.log(
+    `Last reinvestment transaction timestamp: ${lastReinvestTimestampFromKV}`
   );
 
   const lastReinvestmentTimestampSubgraph = await getLastReinvestment(
@@ -136,84 +189,25 @@ async function didTimeWindowPassed(
   if (lastReinvestmentTimestamp) {
     const currentTimeInSeconds = Date.now() / 1000;
 
-    if (currentTimeInSeconds < lastReinvestmentTimestamp + timeWindow) {
-      return false;
+    if (currentTimeInSeconds < lastReinvestmentTimestamp + reinvestTimeWindow) {
+      return true;
     }
   }
-
-  // case when vault is new and there is no previous reinvestment event
-  return true;
+  return false;
 }
 
-async function setLastReinvestmentTimestamp(env: Env, vaultAddress: string) {
-  const reinvestTimestampKey = `${vaultAddress}:reinvestmentTimestamp`;
-  const logger = new Logger({
-    service: 'rewards',
-    version: 'v1',
-    env: env.NETWORK,
-    apiKey: env.NX_DD_API_KEY,
-  });
-  await logger.submitMetrics({
-    series: [
-      {
-        metric: 'monitoring.rewards.last_reinvestment_timestamp',
-        points: [
-          {
-            value: 1,
-            timestamp: getNowSeconds(),
-          },
-        ],
-        tags: [`network:${env.NETWORK}`, `vault:${vaultAddress}`],
-        type: MetricType.Count,
-      },
-    ],
-  });
-
-  return env.REWARDS_KV.put(reinvestTimestampKey, String(Date.now() / 1000));
-}
-
-async function shouldSkipReinvest(env: Env, vaultAddress: string) {
-  // subtract 5min from time window so reinvestment can happen at the same time in a day
-  const reinvestTimeWindow =
-    Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS -
-    5 * 60;
-  return !(await didTimeWindowPassed(env, vaultAddress, reinvestTimeWindow));
-}
-
-async function setLastClaimTimestamp(env: Env, vaultAddress: string) {
-  const claimTimestampKey = `${vaultAddress}:claimTimestamp`;
-  const logger = new Logger({
-    service: 'rewards',
-    version: 'v1',
-    env: env.NETWORK,
-    apiKey: env.NX_DD_API_KEY,
-  });
-
-  await logger.submitMetrics({
-    series: [
-      {
-        metric: 'monitoring.rewards.last_claim_timestamp',
-        points: [
-          {
-            value: 1,
-            timestamp: getNowSeconds(),
-          },
-        ],
-        tags: [`network:${env.NETWORK}`, `vault:${vaultAddress}`],
-        type: MetricType.Count,
-      },
-    ],
-  });
-
-  return env.REWARDS_KV.put(claimTimestampKey, String(Date.now() / 1000));
-}
-
-async function shouldSkipClaim(env: Env, vaultAddress: string) {
-  const claimTimestampKey = `${vaultAddress}:claimTimestamp`;
-  const lastClaimTimestamp = Number(
-    await env.REWARDS_KV.get(claimTimestampKey)
+async function shouldSkipClaim(
+  env: Env,
+  vaultAddress: string,
+  provider: Provider
+) {
+  const lastClaimTimestamp = await getLastTransactionTimestamp(
+    env,
+    vaultAddress,
+    'claim',
+    provider
   );
-
+  console.log(`Last claim transaction timestamp: ${lastClaimTimestamp}`);
   // subtract 5min from time window so claim can happen at the same time in a day
   const reinvestTimeWindow =
     Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS -
@@ -232,7 +226,7 @@ const claimVault = async (
     provider
   );
 
-  if (!force && (await shouldSkipClaim(env, vault.address))) {
+  if (!force && (await shouldSkipClaim(env, vault.address, provider))) {
     console.log(`Skipping claim rewards for ${vault.address}, already claimed`);
     return null;
   }
@@ -257,9 +251,9 @@ const claimVault = async (
 
   console.log(`Sending claim tx for ${vault.address}`);
 
-  await sendTxThroughRelayer({ to, data, env });
+  const txResponse = await sendTxThroughRelayer({ to, data, env });
 
-  await setLastClaimTimestamp(env, vault.address);
+  await setLastTransaction(env, vault.address, txResponse, 'claim');
 };
 
 const claimRewards = async (env: Env, provider: Provider) => {
@@ -332,7 +326,7 @@ const reinvestVault = async (
   vault: Vault,
   force = false
 ) => {
-  if (!force && (await shouldSkipReinvest(env, vault.address))) {
+  if (!force && (await shouldSkipReinvest(env, vault.address, provider))) {
     console.log(`Skipping reinvestment for ${vault.address}, already invested`);
     return null;
   }
@@ -430,13 +424,13 @@ const reinvestVault = async (
     `sending reinvestment tx to relayer from vault: ${vault.address}`
   );
 
-  await sendTxThroughRelayer({
+  const tx = await sendTxThroughRelayer({
     to: treasuryManger.address,
     data,
     env,
   });
 
-  await setLastReinvestmentTimestamp(env, vault.address);
+  await setLastTransaction(env, vault.address, tx, 'reinvestment');
 };
 
 const reinvestRewards = async (env: Env, provider: Provider) => {
@@ -456,7 +450,7 @@ const reinvestRewards = async (env: Env, provider: Provider) => {
 
 enum Action {
   claim = 'claim',
-  reinvest = 'reinvest',
+  reinvestment = 'reinvestment',
 }
 
 function getQueryParams(request: Request) {
@@ -496,12 +490,18 @@ export default {
     }
 
     env.NETWORK = network;
+    env.LOGGER = new Logger({
+      service: 'rewards',
+      version: 'v1',
+      env: env.NETWORK,
+      apiKey: env.NX_DD_API_KEY,
+    });
     const provider = getProviderFromNetwork(env.NETWORK, true);
 
     if (action.toLowerCase() == Action.claim) {
       console.log(`Claiming for vault: ${vaultAddress}`);
       await claimVault(env, provider, vault, force);
-    } else if (action.toLowerCase() == Action.reinvest) {
+    } else if (action.toLowerCase() == Action.reinvestment) {
       console.log(`Reinvesting for vault: ${vaultAddress}`);
       await reinvestVault(env, provider, vault, force);
     } else {
@@ -526,6 +526,13 @@ export default {
     const allErrors: Error[] = [];
     for (const network of env.NETWORKS) {
       env.NETWORK = network;
+      env.LOGGER = new Logger({
+        service: 'rewards',
+        version: 'v1',
+        env: env.NETWORK,
+        apiKey: env.NX_DD_API_KEY,
+      });
+
       console.log(`Processing network: ${env.NETWORK}`);
       const provider = getProviderFromNetwork(env.NETWORK, true);
 
