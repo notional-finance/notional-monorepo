@@ -44,6 +44,7 @@ export function useMaxWithdraw(context: BaseTradeContext) {
     balance &&
     state.maxWithdraw &&
     maxWithdraw &&
+    !!profile?.healthFactor() &&
     maxWithdraw.ratioWith(balance).toNumber() < 0.999e9 ? (
       <FormattedMessage
         defaultMessage={'Max withdraw restricted by liquidation risk.'}
