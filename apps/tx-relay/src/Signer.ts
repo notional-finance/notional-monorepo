@@ -135,7 +135,7 @@ function getTxType({ signature }: { signature: Sign }) {
 }
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
-// tx-relayer is run as gcloud function with concurrency set to 1
+// tx-relayer is run as gcloud function with max-instances set to 1
 // this implementation should work when function is not cold started
 const acquireLock = (() => {
   const locks = new Map();
