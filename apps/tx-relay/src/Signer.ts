@@ -1,7 +1,4 @@
-import {
-  TransactionRequest,
-  TransactionResponse,
-} from '@ethersproject/abstract-provider';
+import { TransactionRequest } from '@ethersproject/abstract-provider';
 import { ethers, providers } from 'ethers';
 import { GcpKmsSigner } from 'ethers-gcp-kms-signer';
 import { Address, Sign, rpcUrls } from './config';
@@ -138,16 +135,25 @@ function getTxType({ signature }: { signature: Sign }) {
 }
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
-// will only work properly if node app is not run in cluster
-const throttle = (() => {
-  const delay = 2000;
-  const lastCallPerDomain = new Map();
+// tx-relayer is run as gcloud function with concurrency set to 1
+// this implementation should work when function is not cold started
+const acquireLock = (() => {
+  const locks = new Map();
 
   return async (domain: string) => {
-    while (Date.now() < (lastCallPerDomain.get(domain) || 0) + delay) {
-      await wait(delay - (Date.now() - (lastCallPerDomain.get(domain) || 0)));
+    // wait until lock is available or has expired
+    while (Date.now() < (locks.get(domain) || 0)) {
+      await wait(1000);
     }
-    lastCallPerDomain.set(domain, Date.now());
+    const lockUntil = Date.now() + 10000; // lock up to max of 10 seconds
+    locks.set(domain, lockUntil);
+
+    return () => {
+      // delete lock only if it's the same lock
+      if (locks.get(domain) === lockUntil) {
+        locks.delete(domain);
+      }
+    };
   };
 })();
 
@@ -163,6 +169,31 @@ interface ExecutionContext {
   provider?: providers.Provider;
   rpcUrl?: string;
   log: ReturnType<typeof logToDataDog>;
+}
+
+async function retryTransaction(
+  signer: GcpKmsSigner,
+  transaction: TransactionRequest,
+  maxRetries: number
+) {
+  const BASE_DELAY = 1000; // 1 second
+  // prevent stale nonce issues by acquiring a lock per key
+  const releaseLock = await acquireLock(keysToUse[transaction.to]);
+  try {
+    for (let retry = 0; retry <= maxRetries; retry++) {
+      try {
+        const txResponse = await signer.sendTransaction(transaction);
+        return { txResponse, retry };
+      } catch (err) {
+        if (retry === maxRetries) {
+          throw err;
+        }
+        await wait(BASE_DELAY * Math.pow(2, retry));
+      }
+    }
+  } finally {
+    releaseLock();
+  }
 }
 
 export async function sendTransaction(
@@ -191,9 +222,6 @@ export async function sendTransaction(
 
     throw new Error(errorMessage);
   }
-
-  // in order to properly fetch correct nonce for tx we need to throttle here per key
-  await throttle(keysToUse[to]);
 
   let provider: providers.Provider;
   if (context.rpcUrl) {
@@ -227,44 +255,37 @@ export async function sendTransaction(
     from: await signer.getAddress(),
   };
 
-  let txResponse: TransactionResponse;
-  let retry = 0;
+  const MAX_RETRIES = 2;
   try {
-    // first attempt
-    txResponse = await signer.sendTransaction(transaction);
+    const { txResponse, retry } = await retryTransaction(
+      signer,
+      transaction,
+      MAX_RETRIES
+    );
+
+    await log({
+      message: {
+        ...sharedLogData,
+        hash: txResponse.hash,
+        gasLimit: txResponse.gasLimit?.toString(),
+        gasPrice: txResponse.gasPrice?.toString(),
+        status: 'success',
+        retry,
+      },
+    });
+    return txResponse;
   } catch (err) {
-    try {
-      retry++;
-      // second attempt, in case nonce was stale
-      await wait(1000);
-      txResponse = await signer.sendTransaction(transaction);
-    } catch (err) {
-      await log({
-        message: {
-          ...sharedLogData,
-          retry,
-          err: JSON.stringify(err),
-          status: 'error',
-        },
-        tags: 'event:txn_failed',
-      });
-
-      throw err;
-    }
+    await log({
+      message: {
+        ...sharedLogData,
+        retry: MAX_RETRIES,
+        err: JSON.stringify(err),
+        status: 'error',
+      },
+      tags: 'event:txn_failed',
+    });
+    throw err;
   }
-
-  await log({
-    message: {
-      ...sharedLogData,
-      hash: txResponse.hash,
-      gasLimit: txResponse.gasLimit?.toString(),
-      gasPrice: txResponse.gasPrice?.toString(),
-      status: 'success',
-      retry,
-    },
-  });
-
-  return txResponse;
 }
 
 export async function getAllSignerAddresses() {

@@ -12,6 +12,7 @@ gcloud --project monitoring-agents \
     --entry-point=txRelayService \
     --gen2 \
     --timeout=600 \
+    --max-instances=1 \
     --concurrency=1 \
     --cpu=1 \
     --memory=256 \
