@@ -115,7 +115,7 @@ export class PendlePT extends VaultAdapter {
     _account: string,
     _maturity: number,
     _totalDeposit: TokenBalance,
-    _slippageFactor: number
+    _slippageFactor?: number
   ): Promise<BytesLike> {
     return '0x';
     /**
@@ -136,7 +136,8 @@ export class PendlePT extends VaultAdapter {
     _account: string,
     _maturity: number,
     _vaultSharesToRedeem: TokenBalance,
-    _underlyingToRepayDebt: TokenBalance
+    _underlyingToRepayDebt: TokenBalance,
+    _slippageFactor?: number
   ): Promise<BytesLike> {
     if (this.tokenOutSy === this.getBorrowedToken().id) {
       return '0x';

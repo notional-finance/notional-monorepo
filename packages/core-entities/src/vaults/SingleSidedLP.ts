@@ -388,7 +388,7 @@ export class SingleSidedLP extends VaultAdapter {
     return balance.ratioWith(tvl).toNumber() / RATE_PRECISION;
   }
 
-  getPointMultiples() {
+  override getPointMultiples() {
     const pointsFunc = PointsMultipliers[this.network][this.vaultAddress];
     if (pointsFunc) return pointsFunc(this);
 

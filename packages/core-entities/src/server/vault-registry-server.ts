@@ -129,9 +129,9 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     return {
       values: Object.entries(values).map(
         ([vaultAddress, metadata]) =>
-          [vaultAddress, metadata as VaultMetadata] as [
+          [vaultAddress, metadata as unknown as VaultMetadata] as [
             string,
-            VaultMetadata | null
+            VaultMetadata
           ]
       ),
       network: network,

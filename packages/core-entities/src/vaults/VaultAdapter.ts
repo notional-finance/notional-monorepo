@@ -88,7 +88,7 @@ export abstract class VaultAdapter {
     account: string,
     maturity: number,
     totalDeposit: TokenBalance,
-    slippageFactor: number
+    slippageFactor?: number
   ): Promise<BytesLike>;
 
   abstract getRedeemParameters(
@@ -96,7 +96,7 @@ export abstract class VaultAdapter {
     maturity: number,
     vaultSharesToRedeem: TokenBalance,
     underlyingToRepayDebt: TokenBalance,
-    slippageFactor: number
+    slippageFactor?: number
   ): Promise<BytesLike>;
 
   abstract getVaultAPY(factors?: {
@@ -117,5 +117,9 @@ export abstract class VaultAdapter {
       (acc, v) => (v.totalSupply ? acc.add(v.totalSupply.toUnderlying()) : acc),
       TokenBalance.zero(this.getBorrowedToken())
     );
+  }
+
+  getPointMultiples(): Record<string, number> | undefined {
+    return undefined;
   }
 }

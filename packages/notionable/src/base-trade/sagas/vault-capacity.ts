@@ -1,6 +1,7 @@
 import {
   AccountDefinition,
   Registry,
+  SingleSidedLP,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import {
@@ -65,6 +66,7 @@ export function vaultCapacity(
         let minBorrowSize: string | undefined = undefined;
         let underMinAccountBorrow = false;
         let vaultTVL: TokenBalance | undefined;
+        let maxPoolShare: string | undefined;
 
         if (vaultCapacity) {
           const {
@@ -105,13 +107,29 @@ export function vaultCapacity(
                 .gt(maxPrimaryBorrowCapacity);
 
             overPoolCapacityError =
-              vaultAdapter?.isOverMaxPoolShare(collateralBalance) ?? false;
+              vaultAdapter?.strategy === 'SingleSidedLP'
+                ? (vaultAdapter as SingleSidedLP).isOverMaxPoolShare(
+                    collateralBalance
+                  ) ?? false
+                : false;
           }
 
           totalCapacityRemaining = maxPrimaryBorrowCapacity.sub(
             totalUsedPrimaryBorrowCapacity
           );
-          totalPoolCapacityRemaining = vaultAdapter?.getRemainingPoolCapacity();
+
+          if (vaultAdapter?.strategy === 'SingleSidedLP') {
+            totalPoolCapacityRemaining = (
+              vaultAdapter as SingleSidedLP
+            ).getRemainingPoolCapacity();
+            maxPoolShare = (vaultAdapter as SingleSidedLP).maxPoolShares
+              ? formatNumberAsPercent(
+                  (vaultAdapter as SingleSidedLP).maxPoolShares.toNumber() /
+                    100,
+                  0
+                )
+              : undefined;
+          }
 
           // NOTE: these two values below do not need to be recalculated inside the observable
           minBorrowSize =
@@ -137,12 +155,7 @@ export function vaultCapacity(
           minBorrowSize,
           overCapacityError,
           overPoolCapacityError,
-          maxPoolShare: vaultAdapter?.maxPoolShares
-            ? formatNumberAsPercent(
-                vaultAdapter?.maxPoolShares.toNumber() / 100,
-                0
-              )
-            : undefined,
+          maxPoolShare,
           underMinAccountBorrow,
           totalCapacityRemaining,
           totalPoolCapacityRemaining,
