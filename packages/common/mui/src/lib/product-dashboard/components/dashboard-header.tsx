@@ -14,7 +14,7 @@ export const DashboardHeader = ({
   handleDashboardTab,
 }: DashboardHeaderProps) => {
   const theme = useTheme();
-  const { messageBoxText, networkToggle, handleNetWorkToggle } = headerData;
+  const { messageBoxText, networkToggle, handleNetworkToggle } = headerData;
 
   const gridToggleData = [
     <Box
@@ -83,7 +83,7 @@ export const DashboardHeader = ({
         <Box sx={{ marginRight: theme.spacing(3) }}>
           <NetworkToggle
             selectedNetwork={networkToggle}
-            handleNetWorkToggle={handleNetWorkToggle}
+            handleNetworkToggle={handleNetworkToggle}
           />
         </Box>
         {dashboardTab === 1 && (

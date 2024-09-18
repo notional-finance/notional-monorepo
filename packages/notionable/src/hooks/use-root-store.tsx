@@ -4,14 +4,12 @@ import {
   RootStoreType,
   NetworkClientModelType,
 } from '../stores/root-store';
-import { Network } from '@notional-finance/util';
-import { useParams } from 'react-router-dom';
 import { AppStoreType } from '../stores/app-store';
 import { PortfolioStoreType } from '../stores/portfolio-store';
 
 export const useRootStore = (): RootStoreType => {
   const rootContext = useContext(RootStoreContext);
-  if (!rootContext || !rootContext.portfolioStore) {
+  if (!rootContext) {
     throw new Error('rootStore must be used within a RootStoreContext');
   }
 
@@ -19,15 +17,12 @@ export const useRootStore = (): RootStoreType => {
 };
 
 export const useCurrentNetworkStore = (): NetworkClientModelType => {
-  const { selectedNetwork } = useParams<{ selectedNetwork: Network }>();
-  const network = selectedNetwork || Network.mainnet;
-
   const rootContext = useContext(RootStoreContext);
-  if (!rootContext || !rootContext.portfolioStore) {
+  if (!rootContext) {
     throw new Error('rootStore must be used within a RootStoreContext');
   }
 
-  return rootContext.getNetworkClient(network);
+  return rootContext.currentNetworkClient;
 };
 
 export const useAppStore = (): AppStoreType => {
