@@ -145,14 +145,15 @@ async function getLastTransactionTimestamp(
 ) {
   const txHashKey = `${vaultAddress}:${key}TxHash`;
   const txHash = await env.REWARDS_KV.get(txHashKey);
-  const [transaction, receipt] = await Promise.all([
-    provider.getTransaction(txHash),
-    provider.getTransactionReceipt(txHash),
-  ]);
-  if (!transaction || receipt?.status !== 1) {
+  if (!txHash) {
     return 0;
   }
-  return transaction.timestamp;
+  const receipt = await provider.getTransactionReceipt(txHash);
+  if (receipt?.status !== 1) {
+    return 0;
+  }
+  const block = await provider.getBlock(receipt.blockNumber);
+  return block.timestamp;
 }
 
 async function shouldSkipReinvest(
