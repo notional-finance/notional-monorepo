@@ -58,8 +58,8 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         .map(([v, p]) => {
           return {
             vaultAddress: v,
-            enabled: (p as VaultMetadata).enabled,
-            name: (p as VaultMetadata).name,
+            enabled: (p as { enabled: boolean }).enabled,
+            name: (p as { name: string }).name,
           };
         });
     }
@@ -86,7 +86,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
               enabled,
               name
             );
-          } else if (name.startsWith('PendlePT')) {
+          } else if (name.startsWith('Pendle')) {
             return this.getPendlePTCalls(vaultAddress, network);
           }
 
@@ -101,26 +101,39 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
       true // allowFailure
     );
 
-    const values = Object.keys(results)
-      .filter((k) => !k.includes('.'))
-      .map((k) => {
-        const metadata = results[k] as VaultMetadata;
-        if (results[`${k}.pool.actualSupply`]) {
-          // This will exist for Balancer pools
-          metadata['totalPoolSupply'] = results[`${k}.pool.actualSupply`] as
-            | TokenBalance
-            | undefined;
-        } else {
-          metadata['totalPoolSupply'] = results[`${k}.pool.totalSupply`] as
-            | TokenBalance
-            | undefined;
-        }
+    const values = Object.keys(results).reduce((acc, k) => {
+      let vaultAddress: string;
+      let metadataKey: string | undefined = undefined;
+      if (k.includes('.')) {
+        [vaultAddress, metadataKey] = k.split('.');
+      } else {
+        vaultAddress = k;
+      }
 
-        return [k, metadata] as [string, VaultMetadata];
-      });
+      if (acc[vaultAddress] === undefined) {
+        acc[vaultAddress] = {};
+      }
+
+      if (metadataKey) {
+        acc[vaultAddress][metadataKey] = results[k];
+      } else {
+        acc[vaultAddress] = {
+          ...acc[vaultAddress],
+          ...(results[k] as Record<string, unknown>),
+        };
+      }
+
+      return acc;
+    }, {} as Record<string, Record<string, unknown>>);
 
     return {
-      values,
+      values: Object.entries(values).map(
+        ([vaultAddress, metadata]) =>
+          [vaultAddress, metadata as VaultMetadata] as [
+            string,
+            VaultMetadata | null
+          ]
+      ),
       network: network,
       lastUpdateBlock: block.number,
       lastUpdateTimestamp: block.timestamp,
@@ -177,7 +190,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
           ),
         stage: 1,
         method: 'totalSupply',
-        key: `${vaultAddress}.pool.totalSupply`,
+        key: `${vaultAddress}.totalPoolSupply`,
         transform: (r: BigNumber, prevResults: Record<string, unknown>) =>
           TokenBalance.toJSON(
             r,
@@ -194,7 +207,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
           ),
         stage: 1,
         method: 'getActualSupply',
-        key: `${vaultAddress}.pool.actualSupply`,
+        key: `${vaultAddress}.totalPoolSupply`,
         transform: (r: BigNumber, prevResults: Record<string, unknown>) =>
           TokenBalance.toJSON(
             r,
@@ -210,7 +223,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     network: Network
   ): AggregateCall[] {
     const PendlePTVaultABI = new ethers.utils.Interface([
-      'function MARKET_ADDRESS() view external returns (address)',
+      'function MARKET() view external returns (address)',
       'function TOKEN_IN_SY() view external returns (address)',
       'function TOKEN_OUT_SY() view external returns (address)',
     ]);
@@ -223,7 +236,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
           getProviderFromNetwork(network)
         ),
         stage: 0,
-        method: 'MARKET_ADDRESS',
+        method: 'MARKET',
         key: `${vaultAddress}.marketAddress`,
       },
       {
