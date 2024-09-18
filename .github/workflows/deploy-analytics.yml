@@ -29,10 +29,15 @@ jobs:
           cache: 'yarn'
       - name: Yarn Install
         run: yarn install --frozen-lockfile
+      - name: Check if analytics project is affected
+        id: check-affected
+        run: |
+          echo "is_affected=$(yarn --silent nx print-affected --base=HEAD~1 --head=HEAD | jq '.projects | contains(["analytics"])')" >> $GITHUB_OUTPUT
       - name: Build
         working-directory: gcp/analytics
         run: ./build.sh
       - name: Build Web
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         working-directory: gcp/analytics
         run: yarn run next-on-pages
         env:
@@ -42,6 +47,7 @@ jobs:
           NX_COMMIT_REF: ${{ github.sha }}
       
       - name: Publish Dev
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -51,6 +57,7 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Slack Notification
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
