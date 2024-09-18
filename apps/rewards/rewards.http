@@ -3,7 +3,7 @@
 # Trigger claim or reinvest for specific vault
 # @prompt network [Network] {mainnet|arbitrum}
 # @prompt vaultAddress [Address] copy vault address from ./src/vaults.ts
-# @prompt action [Action] {claim|reinvest}
+# @prompt action [Action] {claim|reinvestment}
 # @prompt force [Boolean] {true|false}
 GET {{baseUrl}}
     ?network={{network}}
