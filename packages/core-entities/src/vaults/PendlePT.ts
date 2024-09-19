@@ -102,7 +102,7 @@ export class PendlePT extends VaultAdapter {
   } {
     // Calculate the amount received for selling the PT
     const { tokensOut, feesPaid } = this.market.calculateTokenTrade(
-      netUnderlying.neg(),
+      netUnderlying,
       this.market.PT_TOKEN_INDEX
     );
 
