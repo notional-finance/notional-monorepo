@@ -42,6 +42,10 @@ export class PendlePT extends VaultAdapter {
     return this.market.ptSpotYieldToMaturity;
   }
 
+  get timeToExpiry(): number {
+    return this.market.timeToExpiry;
+  }
+
   get hashKey() {
     return [this.vaultAddress].join(':');
   }
