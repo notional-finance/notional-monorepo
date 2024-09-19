@@ -172,10 +172,8 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
   get ptSpotYieldToMaturity() {
     return (
-      100 *
-      parseFloat(
-        utils.formatUnits(this.poolParams.marketState.lnImpliedRate, 18)
-      )
+      (100 * Math.log(this.ptExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
+      this.timeToExpiry
     );
   }
 
@@ -187,8 +185,9 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     if (tokenIndexOut === this.TOKEN_IN_INDEX) {
       // Underlying token in, PT out. Search over marketDepthTokenIn to approximate the amount of PT out
       // and do a linear interpolation between the two nearest points.
-      const { postFeeAssetToAccount, fee } =
-        this.calculateTokenOutGivenPTIn(tokensIn);
+      const { postFeeAssetToAccount, fee } = this.calculateTokenOutGivenPTIn(
+        tokensIn.neg()
+      );
 
       return {
         tokensOut: postFeeAssetToAccount,
@@ -200,7 +199,10 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     } else if (tokenIndexOut === this.PT_TOKEN_INDEX) {
       // Assume PT in at the current exchange rate, then do secant search until
       // we find the postFeeAssetToAccount that is close to tokensIn
-      const initialTokensIn = TokenBalance.from(tokensIn.n, this.ptToken);
+      const initialTokensIn = TokenBalance.fromFloat(
+        tokensIn.toFloat(),
+        this.ptToken
+      );
       const approxPTExchangeRate = Math.floor(
         this.ptExchangeRate * RATE_PRECISION
       );
@@ -240,6 +242,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   } {
     throw new Error('Method not implemented.');
   }
+
   public override getTokensOutGivenLPTokens(
     _lpTokens: TokenBalance,
     _singleSidedExitTokenIndex?: number
@@ -247,31 +250,32 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     throw new Error('Method not implemented.');
   }
 
-  protected calculateTokenOutGivenPTIn(ptIn: TokenBalance) {
+  protected calculateTokenOutGivenPTIn(netPtToAccount: TokenBalance) {
     const feeRate = this._getExchangeRateFromImpliedRate(
       this.poolParams.marketState.lnFeeRateRoot,
       this.timeToExpiry
     );
-    const preFeeExchangeRate = this.getPreFeeExchangeRate(ptIn);
+    const preFeeExchangeRate = this.getPreFeeExchangeRate(netPtToAccount);
     const preFeeAssetToAccount = TokenBalance.fromID(
-      ptIn.mulInRatePrecision(Math.floor(preFeeExchangeRate * RATE_PRECISION))
-        .n,
+      netPtToAccount
+        .neg()
+        .mulInRatePrecision(Math.floor(preFeeExchangeRate * RATE_PRECISION)).n,
       this.poolParams.assetTokenId,
       this._network
     );
 
     let fee: TokenBalance;
-    if (ptIn.isPositive()) {
+    if (netPtToAccount.isPositive()) {
       fee = preFeeAssetToAccount.mulInRatePrecision(
         Math.floor((1 - feeRate) * RATE_PRECISION)
       );
     } else {
       fee = preFeeAssetToAccount
+        .neg() // ensures that the fee is positive
         .scale(
           Math.floor((1 - feeRate) * RATE_PRECISION),
           Math.floor(feeRate * RATE_PRECISION)
-        )
-        .neg();
+        );
     }
 
     const postFeeAssetToAccount = preFeeAssetToAccount.sub(fee);
@@ -283,7 +287,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     };
   }
 
-  protected getPreFeeExchangeRate(ptIn: TokenBalance) {
+  protected getPreFeeExchangeRate(netPtToAccount: TokenBalance) {
     const rateScalar = parseFloat(
       utils.formatUnits(
         this.poolParams.marketState.scalarRoot
@@ -310,7 +314,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
     const preFeeExchangeRate = this._getExchangeRate(
       totalAsset,
-      ptIn,
+      netPtToAccount,
       rateScalar,
       rateAnchor
     );
