@@ -6,7 +6,7 @@ import lodash from 'lodash';
 const chance = new Chance();
 
 export const range = (len: number) => {
-  const arr = [];
+  const arr: number[] = [];
   for (let i = 0; i < len; i += 1) {
     arr.push(i);
   }

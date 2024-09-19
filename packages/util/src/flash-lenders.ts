@@ -74,7 +74,7 @@ export function getFlashLender({
 }): string {
   return (
     perVaultFlashLenders[checkSumAddress(vault)] ||
-    perTokenFlashLenders[network][checkSumAddress(token)] ||
+    perTokenFlashLenders[network]?.[checkSumAddress(token)] ||
     defaultFlashLenders[network]
   );
 }
@@ -101,4 +101,6 @@ const zeroExSources = {
     CAMELOT: 'Camelot_V3',
     UNIV3: 'Uniswap_V3',
   },
+  [Network.optimism]: {},
+  [Network.all]: {},
 };

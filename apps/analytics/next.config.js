@@ -7,6 +7,7 @@ if (process.env.NODE_ENV === 'development') {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // transpilePackages: ['@notional-finance/icons', '@notional-finance/util'],
   modularizeImports: {
     '@mui/material': {
       transform: '@mui/material/{{member}}'

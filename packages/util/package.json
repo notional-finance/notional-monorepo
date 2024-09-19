@@ -1,5 +1,6 @@
 {
   "name": "@notional-finance/util",
   "version": "0.1.8",
-  "type": "commonjs"
+  "type": "commonjs",
+  "main": "src/index.ts"
 }
