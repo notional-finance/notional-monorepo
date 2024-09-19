@@ -119,6 +119,18 @@ export const ORACLE_TYPE_TO_ID = {
   sNOTE: 14,
 };
 
+export enum DexIds {
+  UNISWAP_V2 = 1,
+  UNISWAP_V3 = 2,
+  ZERO_EX = 3,
+  BALANCER_V2 = 4,
+  // NOTE: these are unused
+  // CURVE = 5,
+  // NOTIONAL_VAULT = 6,
+  CURVE_V2 = 7,
+  CAMELOT_V3 = 8,
+}
+
 // This kludge is necessary because the subgraph only allows a skip value of
 // less than 5000, so we query the entire account range by the prefix here with
 // a max number of accounts in each id range of 5000.
