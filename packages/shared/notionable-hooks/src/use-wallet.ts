@@ -21,7 +21,7 @@ import { useAllMarkets } from './use-market';
 import { useNotionalContext } from './use-notional';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber } from 'ethers';
-import { useAppStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable';
 
 export function usePrimeCashBalance(
   selectedToken: string | undefined | null,
@@ -53,17 +53,13 @@ export function useWalletConnected() {
 }
 
 export function useWalletAddress() {
-  const {
-    wallet: { userWallet },
-  } = useAppStore();
+  const { userWallet } = useWalletStore();
 
   return userWallet?.selectedAddress;
 }
 
 export function useTruncatedAddress() {
-  const {
-    wallet: { userWallet },
-  } = useAppStore();
+  const { userWallet } = useWalletStore();
 
   return userWallet?.selectedAddress
     ? truncateAddress(userWallet?.selectedAddress)
@@ -81,9 +77,7 @@ export function useWalletConnectedNetwork() {
 }
 
 export function useReadOnlyAddress() {
-  const {
-    wallet: { userWallet },
-  } = useAppStore();
+  const { userWallet } = useWalletStore();
   return userWallet?.isReadOnlyAddress === true;
 }
 

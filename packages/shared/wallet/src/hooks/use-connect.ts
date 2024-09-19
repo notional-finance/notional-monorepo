@@ -1,6 +1,6 @@
 import { trackEvent } from '@notional-finance/helpers';
 import { pointsStore } from '@notional-finance/notionable';
-import { useAppStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable';
 import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber } from 'ethers';
@@ -22,13 +22,13 @@ export const useConnect = () => {
   ] = useConnectWallet();
   const currentLabel = wallet?.label;
   const [{ connectedChain }] = useSetChain(currentLabel);
-  const appStore = useAppStore();
+  const walletStore = useWalletStore();
   const icon = wallet?.icon;
   // The first account and chain are considered "selected" by the UI
-  const selectedAddress = appStore?.wallet?.userWallet?.isReadOnlyAddress
-    ? appStore?.wallet?.userWallet?.selectedAddress
+  const selectedAddress = walletStore?.userWallet?.isReadOnlyAddress
+    ? walletStore?.userWallet?.selectedAddress
     : wallet?.accounts[0].address;
-  const isReadOnlyAddress = appStore?.wallet?.userWallet?.isReadOnlyAddress;
+  const isReadOnlyAddress = walletStore?.userWallet?.isReadOnlyAddress;
   const onboardChainId = connectedChain?.id;
   const selectedChain = onboardChainId
     ? getNetworkFromId(BigNumber.from(onboardChainId).toNumber())
@@ -50,8 +50,8 @@ export const useConnect = () => {
         wallet: currentLabel,
       });
     }
-    appStore.wallet.setUserWallet(undefined);
-  }, [disconnect, currentLabel, appStore.wallet]);
+    walletStore.setUserWallet(undefined);
+  }, [disconnect, currentLabel, walletStore]);
 
   useEffect(() => {
     pointsStore.initialize(selectedAddress || '');
@@ -61,10 +61,10 @@ export const useConnect = () => {
   // addresses to the Notional global state
   useEffect(() => {
     if (!selectedAddress) {
-      appStore.wallet.setUserWallet(undefined);
+      walletStore.setUserWallet(undefined);
     } else if (wallet && selectedAddress && !isReadOnlyAddress && selectedChain) {
       setPrimaryWallet(wallet, selectedAddress);
-        appStore.wallet.setUserWallet({
+        walletStore.setUserWallet({
           selectedChain,
           selectedAddress,
           isReadOnlyAddress: false,
@@ -73,7 +73,7 @@ export const useConnect = () => {
     }
   }, [
     wallet,
-    appStore,
+    walletStore,
     selectedAddress,
     onboardChainId,
     selectedChain,
