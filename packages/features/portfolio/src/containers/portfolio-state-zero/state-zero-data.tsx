@@ -9,34 +9,28 @@ import { NotionalTheme } from '@notional-finance/styles';
 import StateZeroCard from './state-zero-card';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
-import { ProductGroupData } from '@notional-finance/core-entities';
+import { StateZeroItemType } from '@notional-finance/notionable';
 
 interface TokenBoxProps {
   theme: NotionalTheme;
   active: boolean;
 }
 
-export const StateZeroData = ({
+const StateZeroData = ({
   productGroupData,
   defaultSymbol,
   tokenList,
   selectedTabIndex,
 }: {
-  productGroupData: ProductGroupData | [];
+  productGroupData: StateZeroItemType | [];
   defaultSymbol: string;
   tokenList: string[];
   selectedTabIndex: number;
 }) => {
   const theme = useTheme();
   const [activeToken, setActiveToken] = useState<string>(defaultSymbol);
-  const getHighestApy =
-    selectedTabIndex !== PORTFOLIO_STATE_ZERO_OPTIONS.BORROW;
+  const tokenData = getAPYDataForToken(activeToken, productGroupData);
 
-  const tokenData = getAPYDataForToken(
-    activeToken,
-    productGroupData,
-    getHighestApy
-  );
   const { options, title, displaySymbols } = useMoreDropdown(
     tokenList,
     setActiveToken

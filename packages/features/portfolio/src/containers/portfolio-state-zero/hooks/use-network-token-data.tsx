@@ -1,105 +1,62 @@
-import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import { usePortfolioStore } from '@notional-finance/notionable';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 
-type APYData = {
-  totalAPY?: number;
-};
-
-type ProductGroupItem = {
-  token: TokenDefinition;
-  apy: APYData;
-  tvl: TokenBalance;
-  liquidity: TokenBalance;
-  underlying?: TokenDefinition;
-  collateralFactor: string;
-};
-
-export type ProductGroupData = ProductGroupItem[][];
-
 export const getAPYDataForToken = (
-  symbol: string,
-  productGroupData: any[],
-  getHighestApy: boolean
+  activeToken: string,
+  productGroupData: any[]
 ) => {
   return productGroupData
-    .map((group) => {
-      const filteredGroup = group.filter((item) => {
-        return item?.underlying?.symbol === symbol;
-      });
-
-      if (filteredGroup.length === 0) return null;
-
-      return filteredGroup.reduce((prev, current) => {
-        const prevTotalAPY = prev.apy?.totalAPY || 0;
-        const currentTotalAPY = current.apy?.totalAPY || 0;
-        if (getHighestApy) {
-          return currentTotalAPY > prevTotalAPY ? current : prev;
-        } else {
-          return currentTotalAPY < prevTotalAPY ? current : prev;
-        }
-      });
+    .flatMap((group) => {
+      return group.filter((item) => item?.symbol === activeToken);
     })
     .filter((item) => item !== null);
 };
 
-export const getAvailableVaults = (
-  productGroupData: any[],
-  isPointsVault: boolean
-) => {
-  const productData = productGroupData.flat();
+export const getAvailableVaults = (productGroupData) => {
   const availableVaults: Set<string> = new Set();
-
-  const filterCondition = isPointsVault
-    ? (item: any) =>
-        item?.apy?.pointMultiples &&
-        item?.token?.tokenType === 'VaultShare' &&
-        item.apy?.totalAPY > 0
-    : (item: any) =>
-        !item?.apy?.pointMultiples &&
-        item?.token?.tokenType === 'VaultShare' &&
-        item.apy?.totalAPY > 0;
-
-  productData.filter(filterCondition).forEach((item) => {
-    if (item.underlying?.symbol) {
-      availableVaults.add(item.underlying.symbol);
-    }
-  });
-
+  productGroupData
+    .filter((item) => item.apy?.totalAPY > 0)
+    .forEach((item) => {
+      if (item?.symbol) {
+        availableVaults.add(item.symbol);
+      }
+    });
   return Array.from(availableVaults);
 };
 
-export const useNetworkTokenData = (
-  selectedTabIndex: number
-): {
-  tokenList: string[] | [];
-  productGroupData: ProductGroupData | [];
-  defaultSymbol: string;
-} => {
-  const currentNetworkStore = useCurrentNetworkStore();
+export const useNetworkTokenData = (selectedTabIndex: number) => {
+  const portfolioStore = usePortfolioStore();
   if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.EARN) {
-    const productGroupData =
-      currentNetworkStore.getPortfolioStateZeroEarnData();
+    const { data, tokenList, defaultSymbol } = portfolioStore.stateZeroEarnData;
+    if (data.length === 0) {
+      portfolioStore.setStateZeroEarnData();
+    }
     return {
-      tokenList: productGroupData.tokenList || [],
-      productGroupData: productGroupData.productGroupData || [],
-      defaultSymbol: productGroupData.defaultSymbol || '',
+      tokenList: tokenList || [],
+      productGroupData: data || [],
+      defaultSymbol: defaultSymbol || '',
     };
   } else if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE) {
-    const productGroupData =
-      currentNetworkStore.getPortfolioStateZeroLeveragedData();
+    const { data, tokenList, defaultSymbol } =
+      portfolioStore.stateZeroLeveragedData;
+    if (data.length === 0) {
+      portfolioStore.setStateZeroLeveragedData();
+    }
     return {
-      tokenList: productGroupData.tokenList || [],
-      productGroupData: productGroupData.productGroupData || [],
-      defaultSymbol: productGroupData.defaultSymbol || '',
+      tokenList: tokenList || [],
+      productGroupData: data || [],
+      defaultSymbol: defaultSymbol || '',
     };
   } else {
-    const productGroupData =
-      currentNetworkStore.getPortfolioStateZeroBorrowData();
+    const { data, tokenList, defaultSymbol } =
+      portfolioStore.stateZeroBorrowData;
+    if (data.length === 0) {
+      portfolioStore.setStateZeroBorrowData();
+    }
     return {
-      tokenList: productGroupData.tokenList || [],
-      productGroupData: productGroupData.productGroupData || [],
-      defaultSymbol: productGroupData.defaultSymbol || '',
+      tokenList: tokenList || [],
+      productGroupData: data || [],
+      defaultSymbol: defaultSymbol || '',
     };
   }
 };

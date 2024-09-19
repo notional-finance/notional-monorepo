@@ -42,7 +42,7 @@ export interface DashboardHeaderProps {
   headerData: {
     messageBoxText?: ReactNode;
     networkToggle: number;
-    handleNetWorkToggle: (value: number) => void;
+    handleNetworkToggle: (value: number) => void;
     product?: PRODUCTS;
   };
   tokenGroup: number;
@@ -84,7 +84,7 @@ export interface ProductDashboardProps extends DashboardViewProps {
   headerData: {
     messageBoxText: ReactNode;
     networkToggle: number;
-    handleNetWorkToggle: (value: number) => void;
+    handleNetworkToggle: (value: number) => void;
   };
 }
 

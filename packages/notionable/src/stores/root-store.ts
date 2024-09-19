@@ -23,9 +23,15 @@ const RootStore = types
     allNetworksStore: NetworkClientModel,
     portfolioStore: PortfolioStoreModel,
     appStore: AppStoreModel,
+    network: types.string,
   })
-  .views((self) => {
-    const getNetworkClient = (network: Network) => {
+  .actions((self) => ({
+    setNetwork(network: string) {
+      self.network = network;
+    },
+  })).views((self) => ({
+    get currentNetworkClient() {
+      const network = self.network;
       switch (network) {
         case Network.mainnet:
           return self.mainnetStore;
@@ -36,9 +42,8 @@ const RootStore = types
         default:
           throw new Error('Network not supported');
       }
-    };
-    return { getNetworkClient };
-  });
+    }
+  }));
 export const createRootStore = (): RootStoreType => {
   const rootStore = RootStore.create({
     mainnetStore: {
@@ -51,11 +56,27 @@ export const createRootStore = (): RootStoreType => {
       network: Network.all,
     },
     portfolioStore: {
+      stateZeroEarnData: {
+        defaultSymbol: '',
+        data: [],
+        tokenList: [],
+      },
+      stateZeroBorrowData: {
+        defaultSymbol: '',
+        data: [],
+        tokenList: [],
+      },
+      stateZeroLeveragedData: {
+        defaultSymbol: '',
+        data: [],
+        tokenList: [],
+      },
       pointsStore: {
         arbPoints: [],
         totalPoints: 0,
       },
     },
+    network: userSettings?.network ? userSettings?.network : Network.mainnet,
     appStore: {
       baseCurrency: userSettings?.baseCurrency
         ? userSettings?.baseCurrency

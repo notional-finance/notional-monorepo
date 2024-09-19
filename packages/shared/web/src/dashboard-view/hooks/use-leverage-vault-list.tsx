@@ -201,22 +201,23 @@ export const useLeverageVaultList = (
         ? account.balances.find((t) => t.tokenId === vault.primaryToken.id)
         : undefined;
       const profile = vaultHoldings.find(
-        (p) => p.vault.vaultAddress === vault.vaultAddress
+        (p) => p.vault.vaultAddress === vaultData?.vaultAddress
       )?.vault;
       const y = vault.maxVaultAPY;
 
       return {
         currency: {
-          symbol: vault.primaryToken.symbol,
+          symbol: underlying?.symbol || '',
           symbolSize: 'large',
           symbolBottom: '',
-          label: vault.primaryToken.symbol,
+          label: underlying?.symbol || '',
           caption: network
             ? network.charAt(0).toUpperCase() + network.slice(1)
             : '',
         },
-        walletBalance: walletBalance?.toFloat() || 0,
-        pool: vault.poolName,
+        // walletBalance: walletBalance?.toFloat() || 0,
+        walletBalance: 0,
+        pool: vaultData?.poolName,
         protocols:
           vault.boosterProtocol === vault.baseProtocol
             ? vault.baseProtocol
@@ -225,9 +226,9 @@ export const useLeverageVaultList = (
         incentiveApy: 0,
         tvl: vault.vaultTVL ? vault.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         view: profile
-          ? `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/IncreaseVaultPosition`
-          : `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`,
-        symbol: vault.primaryToken.symbol,
+          ? `${PRODUCTS.VAULTS}/${network}/${vaultData?.vaultAddress}/IncreaseVaultPosition`
+          : `${PRODUCTS.VAULTS}/${network}/${vaultData?.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`,
+        symbol: underlying?.symbol || '',
         borrowTerms: {
           data: [
             {
@@ -237,8 +238,8 @@ export const useLeverageVaultList = (
                   : 'Variable',
             },
             {
-              displayValue: y?.leveraged?.debtToken?.maturity
-                ? formatMaturity(y?.leveraged?.debtToken?.maturity)
+              displayValue: debtToken?.maturity
+                ? formatMaturity(debtToken?.maturity)
                 : '',
             },
           ],
@@ -253,22 +254,22 @@ export const useLeverageVaultList = (
         },
         multiValueCellData: {
           currency: {
-            symbol: vault.primaryToken.symbol,
+            symbol: underlying?.symbol || '',
             symbolSize: 'large',
             symbolBottom: '',
-            label: vault.primaryToken.symbol,
+            label: underlying?.symbol || '',
             caption: network
               ? network.charAt(0).toUpperCase() + network.slice(1)
               : '',
             network: network,
           },
           totalApy: {
-            label: y?.totalAPY
-              ? formatNumberAsPercent(y.totalAPY, 2)
+            label: apy?.totalAPY
+              ? formatNumberAsPercent(apy.totalAPY, 2)
               : undefined,
-            labelIsNegative: y?.totalAPY && y?.totalAPY < 0 ? true : false,
-            caption: y?.leveraged?.leverageRatio
-              ? `${formatNumber(y?.leveraged?.leverageRatio, 1)}x Leverage`
+            labelIsNegative: apy?.totalAPY && apy?.totalAPY < 0 ? true : false,
+            caption: apy?.leverageRatio
+              ? `${formatNumber(apy.leverageRatio, 1)}x Leverage`
               : undefined,
           },
           incentiveApy:

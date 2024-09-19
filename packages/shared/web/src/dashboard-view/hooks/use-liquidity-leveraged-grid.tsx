@@ -8,8 +8,10 @@ import { useNavigate } from 'react-router-dom';
 import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
-import { useAppStore } from '@notional-finance/notionable';
-import { useLeveragedNTokens } from './use-network-tokens';
+import {
+  useCurrentNetworkStore,
+  useAppStore,
+} from '@notional-finance/notionable';
 
 export const useLiquidityLeveragedGrid = (
   network: Network | undefined
@@ -17,10 +19,11 @@ export const useLiquidityLeveragedGrid = (
   const theme = useTheme();
   const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
+  const currentNetworkStore = useCurrentNetworkStore();
   const { nTokenPositions } = useLeveragedNTokenPositions(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
-  const yieldData = useLeveragedNTokens();
+  const yieldData = currentNetworkStore.getAllLeveragedNTokenYields();
 
   const allData = yieldData
     .map(({ token, apy, tvl, underlying, debtToken }) => {

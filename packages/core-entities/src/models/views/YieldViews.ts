@@ -4,11 +4,9 @@ import {
   getNowSeconds,
   INTERNAL_TOKEN_PRECISION,
   leveragedYield,
-  PORTFOLIO_STATE_ZERO_OPTIONS,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
-  unique,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { assertDefined, ConfigurationViews } from './ConfigurationViews';
@@ -32,18 +30,6 @@ export interface APYData {
   debtAPY?: number;
 }
 
-export type ProductGroupItem = {
-  token: TokenDefinition;
-  apy: APYData;
-  maxLeverageRatio?: number;
-  tvl: TokenBalance;
-  liquidity: TokenBalance;
-  underlying?: TokenDefinition;
-  collateralFactor: string;
-  debtToken?: TokenDefinition;
-};
-export type ProductGroupData = ProductGroupItem[][];
-
 export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const {
     getTokenBySymbol,
@@ -56,7 +42,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getVaultDebt,
     unwrapVaultToken,
   } = TokenViews(self);
-  const { getVaultAdapter, getVaultConfig, getAllListedVaults } = VaultViews(self);
+  const { getVaultAdapter, getVaultConfig, getAllListedVaults } =
+    VaultViews(self);
   const { getConfig } = ConfigurationViews(self);
   const { getfCashMarket, getNotionalMarket } = ExchangeViews(self);
 
@@ -419,6 +406,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
           defaultLeverageRatio
         ),
         debtToken: debt,
+        vaultShare: share,
       };
     });
   };
@@ -445,98 +433,86 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     }
   };
 
-  const getUniqueUnderlyingSymbols = (productGroupData: ProductGroupData) => {
-    const uniqueUnderlyingSymbols = productGroupData
-      .flat()
-      .map((item) => item.underlying?.symbol)
-      .filter((symbol): symbol is string => symbol !== undefined)
-
-      return unique(uniqueUnderlyingSymbols);
-  };
-
-  const getDefaultHighestAPYSymbol = (productGroupData: ProductGroupData) => {
-    const highestTotalAPYBySymbol: Record<string, number> = {};
-    productGroupData.flat().forEach((item) => {
-      const symbol = item?.underlying?.symbol;
-      if (symbol) {
-        const totalAPY = item.apy?.totalAPY || 0;
-
-        if (!highestTotalAPYBySymbol[symbol]) {
-          highestTotalAPYBySymbol[symbol] = totalAPY;
-        } else {
-          highestTotalAPYBySymbol[symbol] += totalAPY;
-        }
-      }
+  const getAllNTokenYields = () => {
+    const nTokenData = getTokensByType('nToken').map((t) => {
+      return {
+        token: t,
+        apy: getSpotAPY(t.id),
+        tvl: getTVL(t),
+        liquidity: getLiquidity(t),
+        underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
+        collateralFactor: getDebtOrCollateralFactor(t, false),
+        debtToken: undefined,
+      };
     });
-
-      let highestAPYSymbol = '';
-      let highestAPYValue = 0;
-      for (const data in highestTotalAPYBySymbol) {
-        if (highestTotalAPYBySymbol[data] > highestAPYValue) {
-          highestAPYValue = highestTotalAPYBySymbol[data];
-          highestAPYSymbol = data;
-        }
-      }
-
-      return highestAPYSymbol;
+    return nTokenData;
   };
 
-  const getPortfolioStateZeroBorrowData = () => {
-    const group = ['fCash', 'PrimeDebt'];
-    const productGroupData = group.map((group) => {
-      return getTokensByType(group)
-        .filter((data) => data?.isFCashDebt || data?.tokenType === 'PrimeDebt')
-        .map((t) => {
-          return {
-            token: t,
-            apy: getSpotAPY(t.id),
-            tvl: getTVL(t),
-            liquidity: getLiquidity(t),
-            underlying: t.underlying
-              ? getTokenByID(t.underlying)
-              : undefined,
-            collateralFactor: getDebtOrCollateralFactor(t, false),
-          };
-        });
+  const getAllFCashYields = () => {
+    const fCashLendData = getTokensByType('fCash')
+      .filter((data) => !data?.isFCashDebt)
+      .map((t) => {
+        return {
+          token: t,
+          apy: getSpotAPY(t.id),
+          tvl: getTVL(t),
+          liquidity: getLiquidity(t),
+          underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
+          collateralFactor: getDebtOrCollateralFactor(t, false),
+          debtToken: undefined,
+        };
+      });
+    return fCashLendData;
+  };
+
+  const getAllFCashDebt = () => {
+    const fCashDebtData = getTokensByType('fCash')
+      .filter((data) => data?.isFCashDebt)
+      .map((t) => {
+        return {
+          token: t,
+          apy: getSpotAPY(t.id),
+          tvl: getTVL(t),
+          liquidity: getLiquidity(t),
+          underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
+          collateralFactor: getDebtOrCollateralFactor(t, true),
+          debtToken: undefined,
+        };
+      });
+    return fCashDebtData;
+  };
+
+  const getAllPrimeCashYields = () => {
+    const primeCashLendData = getTokensByType('PrimeCash').map((t) => {
+      return {
+        token: t,
+        apy: getSpotAPY(t.id),
+        tvl: getTVL(t),
+        liquidity: getLiquidity(t),
+        underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
+        collateralFactor: getDebtOrCollateralFactor(t, false),
+        debtToken: undefined,
+      };
     });
-    const tokenList = getUniqueUnderlyingSymbols(productGroupData);
-    const defaultSymbol = 'ETH';
-    return {
-      tokenList,
-      productGroupData: productGroupData,
-      defaultSymbol,
-    };
+    return primeCashLendData;
   };
 
-  const getPortfolioStateZeroEarnData = () => {
-    const group = ['fCash', 'PrimeCash', 'nToken'];
-    const productGroupData = group.map((group) => {
-      return getTokensByType(group)
-        .filter((data) => !data?.isFCashDebt)
-        .map((t) => {
-          return {
-            token: t,
-            apy: getSpotAPY(t.id),
-            tvl: getTVL(t),
-            liquidity: getLiquidity(t),
-            underlying: t.underlying
-              ? getTokenByID(t.underlying)
-              : undefined,
-            collateralFactor: getDebtOrCollateralFactor(t, false),
-          };
-        });
+  const getAllPrimeCashDebt = () => {
+    const primeCashDebtData = getTokensByType('PrimeDebt').map((t) => {
+      return {
+        token: t,
+        apy: getSpotAPY(t.id),
+        tvl: getTVL(t),
+        liquidity: getLiquidity(t),
+        underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
+        collateralFactor: getDebtOrCollateralFactor(t, true),
+        debtToken: undefined,
+      };
     });
-    const tokenList = getUniqueUnderlyingSymbols(productGroupData);
-    const highestAPYSymbol = getDefaultHighestAPYSymbol(productGroupData);
-
-    return {
-      tokenList,
-      productGroupData,
-      defaultSymbol: highestAPYSymbol,
-    };
+    return primeCashDebtData;
   };
 
-  const getLeveragedNTokenData = () => {
+  const getAllLeveragedNTokenYields = () => {
     const leveragedNTokenData = getTokensByType('nToken').map((t) => {
       const debtTokens = getDefaultLeveragedNTokenAPYs(t);
       const leveragedNTokenData =
@@ -565,30 +541,34 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getAllListedVaultsData = () => {
-    const listedVaults = getAllListedVaults()
-    const listedVaultAddresses = listedVaults.map((v) => v.vaultAddress)
+    const allListedVaultsData = getAllListedVaults().map((t) => {
+      const data = getDefaultVaultAPYs(t.vaultAddress || '');
+      const vaultData =
+        data.length > 0
+          ? data.reduce((max, current) => {
+              return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0)
+                ? current
+                : max;
+            }, data[0])
+          : undefined;
 
-    const allListedVaultsData = getTokensByType('VaultShare')
-    .filter((t) => t.vaultAddress && listedVaultAddresses.includes(t.vaultAddress))
-    .map((t) => {
-          const data = getDefaultVaultAPYs(t.vaultAddress || '');
-          const vaultData = data.length > 0 ? data.reduce((max, current) => {
-            return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0)
-              ? current
-              : max;
-          }, data[0]) : undefined;
+      const vaultShareData = vaultData?.vaultShare;
 
-        return {
-          token: t,
-          apy: vaultData?.apy as APYData,
-          tvl: getTVL(t),
-          maxLeverageRatio: getLeverageRatios(t).maxLeverageRatio,
-          liquidity: getLiquidity(t),
-          underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
-          collateralFactor: getDebtOrCollateralFactor(t, false),
-          debtToken: vaultData?.debtToken,
-        };
-      });
+      return {
+        token: vaultShareData,
+        apy: vaultData?.apy as APYData,
+        tvl: t.vaultTVL,
+        maxLeverageRatio: vaultShareData
+          ? getLeverageRatios(vaultShareData).maxLeverageRatio
+          : undefined,
+        liquidity: t.vaultTVL,
+        underlying: vaultShareData?.underlying
+          ? getTokenByID(vaultShareData.underlying)
+          : undefined,
+        debtToken: vaultData?.debtToken,
+        vaultData: t,
+      };
+    });
 
     const pointsVaults = allListedVaultsData.filter(
       (item) => item?.apy?.pointMultiples
@@ -599,25 +579,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
 
     return {
       pointsVaults,
-      farmingVaults
-    }
-  };
-
-  const getPortfolioStateZeroLeveragedData = () => {
-    const { pointsVaults, farmingVaults } = getAllListedVaultsData();
-    const leveragedNTokenData = getLeveragedNTokenData();
-    const formattedGroupData = [
-      leveragedNTokenData,
-      pointsVaults,
       farmingVaults,
-    ];
-    const tokenList = getUniqueUnderlyingSymbols(formattedGroupData);
-    const highestAPYSymbol = getDefaultHighestAPYSymbol(formattedGroupData);
-
-    return {
-      tokenList,
-      productGroupData: formattedGroupData,
-      defaultSymbol: highestAPYSymbol,
     };
   };
 
@@ -633,10 +595,12 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getDebtOrCollateralFactor,
     getDefaultLeveragedNTokenAPYs,
     getDefaultVaultAPYs,
-    getLeveragedNTokenData,
+    getAllNTokenYields,
+    getAllLeveragedNTokenYields,
     getAllListedVaultsData,
-    getPortfolioStateZeroEarnData,
-    getPortfolioStateZeroBorrowData,
-    getPortfolioStateZeroLeveragedData
+    getAllFCashYields,
+    getAllFCashDebt,
+    getAllPrimeCashYields,
+    getAllPrimeCashDebt,
   };
 };
