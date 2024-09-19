@@ -3,7 +3,6 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
-  SECONDS_IN_DAY,
   getNowSeconds,
   isIdiosyncratic,
 } from '@notional-finance/util';

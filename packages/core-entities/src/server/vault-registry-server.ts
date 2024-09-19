@@ -87,7 +87,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
               name
             );
           } else if (name.startsWith('Pendle')) {
-            return this.getPendlePTCalls(vaultAddress, network);
+            return this.getPendlePTCalls(vaultAddress, network, enabled);
           }
 
           return [];
@@ -220,7 +220,8 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
 
   protected getPendlePTCalls(
     vaultAddress: string,
-    network: Network
+    network: Network,
+    enabled: boolean
   ): AggregateCall[] {
     const PendlePTVaultABI = new ethers.utils.Interface([
       'function MARKET() view external returns (address)',
@@ -258,6 +259,13 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         stage: 0,
         method: 'TOKEN_OUT_SY',
         key: `${vaultAddress}.tokenOutSy`,
+      },
+      {
+        target: 'NO_OP',
+        stage: 0,
+        method: 'NO_OP',
+        key: `${vaultAddress}.enabled`,
+        transform: () => enabled,
       },
     ];
   }

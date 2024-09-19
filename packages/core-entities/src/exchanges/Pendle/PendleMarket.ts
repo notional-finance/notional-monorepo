@@ -170,10 +170,12 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     return this.poolParams.assetTokenId;
   }
 
-  get ptYieldToMaturity() {
-    return this._getExchangeRateFromImpliedRate(
-      this.poolParams.marketState.lnImpliedRate,
-      this.timeToExpiry
+  get ptSpotYieldToMaturity() {
+    return (
+      100 *
+      parseFloat(
+        utils.formatUnits(this.poolParams.marketState.lnImpliedRate, 18)
+      )
     );
   }
 
