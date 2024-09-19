@@ -10,7 +10,7 @@ import {
   MetaTagManager,
   metaTagData,
 } from '@notional-finance/shared-web';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore, useRootStore } from '@notional-finance/notionable';
 import {
   NotionalContext,
   useGlobalContext,
@@ -25,6 +25,7 @@ import {
   InitPageTrack,
 } from './InitComponents';
 import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 
 interface AppLayoutRouteProps {
   component: React.ComponentType<unknown>;
@@ -40,11 +41,21 @@ const AppLayoutRoute = ({
 }: AppLayoutRouteProps) => {
   const globalState = useGlobalContext();
   const { themeVariant } = useAppStore();
+  const { setRoute } = useRootStore();
   const params = useParams();
   const notionalTheme = useNotionalTheme(themeVariant);
+
   const slicedPath = path
     .match(/\/[^/]+/)?.[0]
     ?.slice(1) as META_TAG_CATEGORIES;
+
+  useEffect(() => {
+    const formattedRoute =
+      slicedPath && params.category
+        ? `${slicedPath}-${params.category}`
+        : slicedPath;
+    setRoute(formattedRoute);
+  }, [slicedPath, params.category, setRoute]);
 
   return (
     <ThemeProvider theme={notionalTheme}>

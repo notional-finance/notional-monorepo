@@ -25,7 +25,7 @@ import {
   // useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
-import { useAppStore } from '@notional-finance/notionable';
+import { useRootStore } from '@notional-finance/notionable';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -37,8 +37,8 @@ const WalletSelector = () => {
   const { isReadOnlyAddress, icon } = useConnect();
   const isAccountPending = useAccountLoading();
   const {
-    wallet: { userWallet },
-  } = useAppStore();
+    walletStore: { userWallet },
+  } = useRootStore();
   const truncatedAddress = useTruncatedAddress();
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();

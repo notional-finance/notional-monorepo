@@ -3,7 +3,7 @@ import {
   formatNumberAsPercent,
   truncateAddress,
 } from '@notional-finance/helpers';
-import { useAppStore } from '@notional-finance/notionable';
+import { useRootStore } from '@notional-finance/notionable';
 import {
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
@@ -94,7 +94,7 @@ export function useLeaderboardData() {
   const [highRollerPartner, setHighRollerPartner] = useState<number>(0);
   const [fatCatPartner, setFatCatPartner] = useState<number>(0);
   const network = useSelectedNetwork();
-  const {wallet: {userWallet}} = useAppStore(); 
+  const { walletStore: { userWallet } } = useRootStore();
 
   const fetchContestData = useCallback(async () => {
     if (network) {

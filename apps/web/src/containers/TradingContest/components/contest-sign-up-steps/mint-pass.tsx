@@ -9,7 +9,7 @@ import {
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { ethers } from 'ethers';
-import { useAppStore } from '@notional-finance/notionable';
+import { useRootStore } from '@notional-finance/notionable';
 import { useMintPass } from '@notional-finance/notionable-hooks';
 import { ContestButtonBar } from '../contest-button-bar';
 import { useChangeNetwork } from '@notional-finance/trade';
@@ -27,8 +27,8 @@ const MintPass = ({
 }: ReturnType<typeof useMintPass>) => {
   const theme = useTheme();
   const {
-    wallet: { userWallet },
-  } = useAppStore();
+    walletStore: { userWallet },
+  } = useRootStore();
   const [error, setError] = useState<string>('');
   const onSwitchNetwork = useChangeNetwork();
 

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNotionalContext } from './use-notional';
 import { useLocation } from 'react-router';
 import { Registry, TokenDefinition } from '@notional-finance/core-entities';
-import { useAppStore } from '@notional-finance/notionable';
+import { useRootStore } from '@notional-finance/notionable';
 import { useConnectWallet } from '@web3-onboard/react';
 
 export enum TransactionStatus {
@@ -25,8 +25,8 @@ function useSubmitTransaction() {
     updateNotional,
   } = useNotionalContext();
   const {
-    wallet: { userWallet },
-  } = useAppStore();
+    walletStore: { userWallet },
+  } = useRootStore();
   const { pathname } = useLocation();
   const [{ wallet }] = useConnectWallet();
 
@@ -92,8 +92,8 @@ export function usePendingPnLCalculation(network: Network | undefined) {
 
 export function useTransactionStatus(network: Network | undefined) {
   const {
-    wallet: { userWallet },
-  } = useAppStore();
+    walletStore: { userWallet },
+  } = useRootStore();
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(
     TransactionStatus.NONE
   );

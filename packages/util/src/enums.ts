@@ -109,6 +109,25 @@ export enum PORTFOLIO_CATEGORIES {
   WELCOME = 'welcome',
 }
 
+export enum ROUTE_MATCH {
+  PORTFOLIO_OVERVIEW = 'portfolio-overview',
+  PORTFOLIO_HOLDINGS = 'portfolio-holdings',
+  PORTFOLIO_VAULTS = 'portfolio-vaults',
+  PORTFOLIO_NOTE_STAKING = 'portfolio-note-staking',
+  PORTFOLIO_TRANSACTION_HISTORY = 'portfolio-transaction-history',
+  PORTFOLIO_WELCOME = 'portfolio-welcome',
+  LEND_FIXED = 'lend-fixed',
+  LEND_VARIABLE = 'lend-variable',
+  LEND_LEVERAGED = 'lend-leveraged',
+  VAULTS = 'vaults',
+  LEVERAGED_YIELD_FARMING = 'leveraged-yield-farming',
+  LEVERAGED_POINTS_FARMING = 'leveraged-points-farming',
+  LIQUIDITY_VARIABLE = 'liquidity-variable',
+  LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
+  BORROW_FIXED = 'borrow-fixed',
+  BORROW_VARIABLE = 'borrow-variable',
+}
+
 export enum CONTEST_SIGN_UP_STEPS {
   LOADING = 'loading',
   CONNECT_WALLET = 'connect-wallet',

@@ -8,6 +8,7 @@ import {
 } from '@notional-finance/util';
 import { createContext } from 'react';
 import { AppStoreModel } from './app-store';
+import { WalletModel } from './wallet-store';
 
 export type RootStoreType = Instance<typeof RootStore>;
 export type NetworkClientModelType = Instance<typeof NetworkClientModel>;
@@ -23,11 +24,16 @@ const RootStore = types
     allNetworksStore: NetworkClientModel,
     portfolioStore: PortfolioStoreModel,
     appStore: AppStoreModel,
+    walletStore: WalletModel,
     network: types.string,
+    route: types.string,
   })
   .actions((self) => ({
     setNetwork(network: string) {
       self.network = network;
+    },
+    setRoute(route: string) {
+      self.route = route;
     },
   })).views((self) => ({
     get currentNetworkClient() {
@@ -55,6 +61,16 @@ export const createRootStore = (): RootStoreType => {
     allNetworksStore: {
       network: Network.all,
     },
+    walletStore: {
+      isSanctionedAddress: false,
+      isAccountPending: false,
+      userWallet: {
+        selectedChain: undefined,
+        selectedAddress: '',
+        isReadOnlyAddress: false,
+        label: '',
+      },
+    },
     portfolioStore: {
       stateZeroEarnData: {
         defaultSymbol: '',
@@ -77,6 +93,7 @@ export const createRootStore = (): RootStoreType => {
       },
     },
     network: userSettings?.network ? userSettings?.network : Network.mainnet,
+    route: '',
     appStore: {
       baseCurrency: userSettings?.baseCurrency
         ? userSettings?.baseCurrency
@@ -91,16 +108,6 @@ export const createRootStore = (): RootStoreType => {
       },
       globalError: {
         error: undefined,
-      },
-      wallet: {
-        isSanctionedAddress: false,
-        isAccountPending: false,
-        userWallet: {
-          selectedChain: undefined,
-          selectedAddress: '',
-          isReadOnlyAddress: false,
-          label: '',
-        },
       },
     },
   });
