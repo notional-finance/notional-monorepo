@@ -12,7 +12,8 @@ gcloud --project monitoring-agents \
     --entry-point=txRelayService \
     --gen2 \
     --timeout=600 \
-    --concurrency=1 \
+    --max-instances=1 \
+    --concurrency=8 \
     --cpu=1 \
     --memory=256 \
     --service-account=monitoring-agents@appspot.gserviceaccount.com \
