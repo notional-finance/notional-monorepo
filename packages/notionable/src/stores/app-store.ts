@@ -1,7 +1,6 @@
 import { flow, Instance, types } from 'mobx-state-tree';
 import { FIAT_NAMES, FiatKeys } from '@notional-finance/core-entities';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { WalletModel } from './wallet-store';
 
 
 
@@ -58,7 +57,6 @@ export const AppStoreModel = types
       Object.values(THEME_VARIANTS)
     ),
     heroStats: HeroStatsModel,
-    wallet: WalletModel,
     globalError: GlobalErrorModel,
     isAppReady: types.optional(types.boolean, false),
   })

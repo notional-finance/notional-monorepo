@@ -7,16 +7,16 @@ import {
   ViewAsAddressCell,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { useAppStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable';
 import { useNavigate } from 'react-router-dom';
 
 export const useAnalyticsTable = () => {
   const navigate = useNavigate();
-  const appStore = useAppStore();
+  const walletStore = useWalletStore();
 
   const addressClick = useCallback(
     (address: string, network) => {
-      appStore.wallet?.setUserWallet({
+      walletStore?.setUserWallet({
         selectedChain: network,
         selectedAddress: address,
         isReadOnlyAddress: true,
@@ -25,7 +25,7 @@ export const useAnalyticsTable = () => {
 
       navigate(`/portfolio/${network}/overview`);
     },
-    [navigate, appStore]
+    [navigate, walletStore]
   );
 
   const columns = useMemo<Array<any>>(

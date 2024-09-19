@@ -2,7 +2,7 @@ import { getRoot, Instance, types } from 'mobx-state-tree';
 import { PointsStoreModel } from './points-store';
 import { RootStoreType } from './root-store';
 import { reaction, when } from 'mobx';
-import { unique } from '@notional-finance/util';
+import { ROUTE_MATCH, unique } from '@notional-finance/util';
 
 export interface APYData {
   totalAPY?: number;
@@ -268,10 +268,10 @@ export const PortfolioStoreModel = types
       reaction(
         () => root.network,
         () => {
+          if(root.route === ROUTE_MATCH.PORTFOLIO_WELCOME) {
           when(
             () => root.currentNetworkClient.isReady(),
             () => {
-              console.log('====== PORTFOLIO STORE =====')
               // @ts-ignore
               self.setStateZeroEarnData();
               // @ts-ignore
@@ -279,7 +279,8 @@ export const PortfolioStoreModel = types
               // @ts-ignore
               self.setStateZeroBorrowData();
             }
-          );
+            );
+          }
         }
       );
     },
