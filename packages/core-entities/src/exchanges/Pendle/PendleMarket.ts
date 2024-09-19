@@ -16,7 +16,7 @@ import {
   SECONDS_IN_YEAR_ACTUAL,
 } from '@notional-finance/util';
 import { AggregateCall } from '@notional-finance/multicall';
-import { BigNumber, Contract } from 'ethers';
+import { BigNumber, Contract, utils } from 'ethers';
 
 interface PendleMarketParams {
   marketState: {
@@ -172,7 +172,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
   get ptYieldToMaturity() {
     return this._getExchangeRateFromImpliedRate(
-      this.poolParams.marketState.lnImpliedRate.toNumber(),
+      this.poolParams.marketState.lnImpliedRate,
       this.timeToExpiry
     );
   }
@@ -223,7 +223,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       );
 
       return {
-        tokensOut: postFeeAssetToAccount,
+        tokensOut: postFeeAssetToAccount.neg(),
         feesPaid: [fee, TokenBalance.zero(this.ptToken)],
       };
     } else {
@@ -247,12 +247,15 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
   protected calculateTokenOutGivenPTIn(ptIn: TokenBalance) {
     const feeRate = this._getExchangeRateFromImpliedRate(
-      this.poolParams.marketState.lnFeeRateRoot.toNumber(),
+      this.poolParams.marketState.lnFeeRateRoot,
       this.timeToExpiry
     );
     const preFeeExchangeRate = this.getPreFeeExchangeRate(ptIn);
-    const preFeeAssetToAccount = ptIn.mulInRatePrecision(
-      Math.floor(preFeeExchangeRate * RATE_PRECISION)
+    const preFeeAssetToAccount = TokenBalance.fromID(
+      ptIn.mulInRatePrecision(Math.floor(preFeeExchangeRate * RATE_PRECISION))
+        .n,
+      this.poolParams.assetTokenId,
+      this._network
     );
 
     let fee: TokenBalance;
@@ -279,10 +282,14 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   protected getPreFeeExchangeRate(ptIn: TokenBalance) {
-    const rateScalar =
-      (this.poolParams.marketState.scalarRoot.toNumber() *
-        SECONDS_IN_YEAR_ACTUAL) /
-      this.timeToExpiry;
+    const rateScalar = parseFloat(
+      utils.formatUnits(
+        this.poolParams.marketState.scalarRoot
+          .mul(SECONDS_IN_YEAR_ACTUAL)
+          .div(this.timeToExpiry),
+        18
+      )
+    );
 
     const totalAsset = TokenBalance.fromID(
       this.poolParams.marketState.totalSy
@@ -295,7 +302,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     const rateAnchor = this.getRateAnchor(
       totalAsset,
       rateScalar,
-      this.poolParams.marketState.lnImpliedRate.toNumber(),
+      this.poolParams.marketState.lnImpliedRate,
       this.timeToExpiry
     );
 
@@ -314,7 +321,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   protected getRateAnchor(
     totalAsset: TokenBalance,
     rateScalar: number,
-    lnImpliedRate: number,
+    lnImpliedRate: BigNumber,
     timeToExpiry: number
   ) {
     const newExchangeRate = this._getExchangeRateFromImpliedRate(
@@ -355,11 +362,12 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   protected _getExchangeRateFromImpliedRate(
-    lnImpliedRate: number,
+    lnImpliedRate: BigNumber,
     timeToExpiry: number
   ) {
     // E = e^rt
-    const rt = (lnImpliedRate * timeToExpiry) / SECONDS_IN_YEAR_ACTUAL;
+    const r = parseFloat(utils.formatUnits(lnImpliedRate, 18));
+    const rt = (r * timeToExpiry) / SECONDS_IN_YEAR_ACTUAL;
     return Math.exp(rt);
   }
 }
