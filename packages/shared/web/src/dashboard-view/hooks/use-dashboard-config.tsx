@@ -4,6 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useRootStore } from '@notional-finance/notionable';
 
 export const config = {
   [PRODUCTS.LEVERAGED_POINTS_FARMING]: {
@@ -159,14 +160,16 @@ export const config = {
 export const useDashboardConfig = (routeKey: PRODUCTS) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { setNetwork } = useRootStore();
   const selectedNetwork = useSelectedNetwork();
   const defaultNetwork = selectedNetwork === Network.mainnet ? 1 : 0;
   const [networkToggle, setNetworkToggle] = useState<number>(defaultNetwork);
 
-  const handleNetWorkToggle = (v: number) => {
+  const handleNetworkToggle = (v: number) => {
     const label = v === 0 ? Network.arbitrum : Network.mainnet;
     if (selectedNetwork) {
       setNetworkToggle(v);
+      setNetwork(label);
       navigate(pathname.replace(selectedNetwork, label));
     }
   };
@@ -176,7 +179,7 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
       <FormattedMessage defaultMessage={'Native Token Yield not shown.'} />
     ),
     networkToggle,
-    handleNetWorkToggle,
+    handleNetworkToggle,
   };
 
   return {

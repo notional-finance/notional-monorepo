@@ -8,7 +8,9 @@ import { useTheme, Box, Button, styled, Popover, SxProps } from '@mui/material';
 import {
   PRODUCTS,
   SupportedNetworks,
+  getFromLocalStorage,
   getNetworkSymbol,
+  setInLocalStorage,
 } from '@notional-finance/util';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Network } from '@notional-finance/util';
@@ -21,6 +23,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
+import { useRootStore } from '@notional-finance/notionable';
 
 export interface NetworkButtonProps {
   active?: boolean;
@@ -160,6 +163,8 @@ function NetworkSelector({
   const theme = useTheme();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { setNetwork } = useRootStore();
+  const userSettings = getFromLocalStorage('userSettings');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
@@ -172,6 +177,8 @@ function NetworkSelector({
   const handleClose = (network?: Network) => {
     setAnchorEl(null);
     if (network && !pathname.includes(network) && selectedNetwork) {
+      setNetwork(network);
+      setInLocalStorage('userSettings', { ...userSettings, network: network });
       navigate(pathname.replace(selectedNetwork, network));
     }
   };

@@ -37,7 +37,7 @@ export const TableHead = ({
         <Box sx={{ width: 'fit-content', height: 'fit-content' }}>
           <NetworkToggle
             selectedNetwork={networkToggleData.toggleKey}
-            handleNetWorkToggle={networkToggleData.setToggleKey}
+            handleNetworkToggle={networkToggleData.setToggleKey}
           />
         </Box>
       </Box>

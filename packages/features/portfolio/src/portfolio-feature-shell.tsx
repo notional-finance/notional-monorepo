@@ -60,8 +60,8 @@ export interface PortfolioParams extends Record<string, string | undefined> {
 export const PortfolioFeatureShell = () => {
   // const theme = useTheme();
   const navigate = useNavigate();
-  const params = useParams<PortfolioParams>();
   const selectedNetwork = useSelectedNetwork();
+  const params = useParams<PortfolioParams>();
   const isAccountLoading = useAccountLoading();
   // const yieldsReady = useYieldsReady(selectedNetwork);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(selectedNetwork);

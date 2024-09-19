@@ -108,7 +108,7 @@ export const DataTableFilterBar = ({
       {networkToggleData && (
         <NetworkToggle
           selectedNetwork={networkToggleData.toggleKey}
-          handleNetWorkToggle={networkToggleData.setToggleKey}
+          handleNetworkToggle={networkToggleData.setToggleKey}
         />
       )}
     </Container>

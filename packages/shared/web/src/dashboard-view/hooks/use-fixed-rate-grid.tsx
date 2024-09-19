@@ -13,8 +13,11 @@ import { FormattedMessage, defineMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon, PointsIcon } from '@notional-finance/icons';
-import { useAppStore } from '@notional-finance/notionable';
-import { useNetworkTokens } from './use-network-tokens';
+
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 
 export const useFixedRateGrid = (
   network: Network | undefined,
@@ -27,10 +30,14 @@ export const useFixedRateGrid = (
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
   const totalArbPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
-  const fCashYieldData = useNetworkTokens(network, 'fCash');
-  const yieldData = isBorrow
-    ? fCashYieldData.filter(({ token }) => token.isFCashDebt)
-    : fCashYieldData.filter(({ token }) => !token.isFCashDebt);
+  const currentNetworkStore = useCurrentNetworkStore();
+
+  let yieldData: any[] = [];
+  if (product === PRODUCTS.LEND_FIXED) {
+    yieldData = currentNetworkStore.getAllFCashYields();
+  } else if (product === PRODUCTS.BORROW_FIXED) {
+    yieldData = currentNetworkStore.getAllFCashDebt();
+  }
 
   const apySubTitle =
     product === PRODUCTS.LEND_FIXED

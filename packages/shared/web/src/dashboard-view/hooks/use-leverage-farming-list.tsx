@@ -5,8 +5,6 @@ import {
 } from '@notional-finance/helpers';
 import { VAULT_TYPES, formatMaturity } from '@notional-finance/util';
 import {
-  useAllMarkets,
-  useAllVaults,
   useAccountDefinition,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
@@ -21,20 +19,26 @@ import {
 } from '@notional-finance/mui';
 import { Box } from '@mui/material';
 import { PointsIcon } from '@notional-finance/icons';
-import { useAppStore } from '@notional-finance/notionable';
+import {
+  useCurrentNetworkStore,
+  useAppStore,
+} from '@notional-finance/notionable';
 
 export const useLeverageFarmingList = (
   network: Network | undefined,
   currentVaultType: VAULT_TYPES
 ) => {
-  const {
-    yields: { leveragedVaults },
-    getMax,
-  } = useAllMarkets(network);
-  const listedVaults = useAllVaults(network);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const { farmingVaults, pointsVaults } =
+    currentNetworkStore.getAllListedVaultsData();
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
   const vaultHoldings = useVaultHoldings(network);
+
+  const yieldData =
+    currentVaultType === VAULT_TYPES.LEVERAGED_POINTS_FARMING
+      ? pointsVaults
+      : farmingVaults;
 
   let listColumns: DataTableColumn[] = [
     {
@@ -152,59 +156,55 @@ export const useLeverageFarmingList = (
     listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
   }
 
-  const listData = listedVaults
-    .map((vault) => {
-      const y = getMax(
-        leveragedVaults.filter(
-          (z) => z.token.vaultAddress === vault.vaultAddress
-        )
-      );
-      const walletBalance = account
-        ? account.balances.find((t) => t.tokenId === vault.primaryToken.id)
-        : undefined;
+  const listData = yieldData
+    .map(({ vaultData, debtToken, underlying, tvl, apy }) => {
+      // const walletBalance = account
+      //   ? account.balances.find((t) => t.tokenId === vault.primaryToken.id)
+      //   : undefined;
+      // const walletBalance = undefined;
+
       const profile = vaultHoldings.find(
-        (p) => p.vault.vaultAddress === vault.vaultAddress
+        (p) => p.vault.vaultAddress === vaultData?.vaultAddress
       )?.vault;
-      const points = y?.pointMultiples;
+      const points = apy?.pointMultiples;
 
       return {
         currency: {
-          symbol: vault.primaryToken.symbol,
+          symbol: underlying?.symbol || '',
           symbolSize: 'large',
           symbolBottom: '',
-          label: vault.primaryToken.symbol,
+          label: underlying?.symbol || '',
           caption: network
             ? network.charAt(0).toUpperCase() + network.slice(1)
             : '',
         },
-        walletBalance: walletBalance?.toFloat() || 0,
-        pool: vault.poolName,
+        // walletBalance: walletBalance?.toFloat() || 0,
+        walletBalance: 0,
+        pool: vaultData?.poolName,
         protocols:
-          vault.boosterProtocol === vault.baseProtocol
-            ? vault.baseProtocol
-            : `${vault.boosterProtocol} / ${vault.baseProtocol}`,
-        totalApy: y?.totalAPY || 0,
+          vaultData?.boosterProtocol === vaultData?.baseProtocol
+            ? vaultData?.baseProtocol
+            : `${vaultData?.boosterProtocol} / ${vaultData?.baseProtocol}`,
+        totalApy: apy?.totalAPY || 0,
         incentiveApy: 0,
         vaultType: points
           ? VAULT_TYPES.LEVERAGED_POINTS_FARMING
           : VAULT_TYPES.LEVERAGED_YIELD_FARMING,
-        tvl: vault.vaultTVL ? vault.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
+        tvl: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         view: profile
-          ? `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/IncreaseVaultPosition`
-          : `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`,
-        symbol: vault.primaryToken.symbol,
+          ? `${PRODUCTS.VAULTS}/${network}/${vaultData?.vaultAddress}/IncreaseVaultPosition`
+          : `${PRODUCTS.VAULTS}/${network}/${vaultData?.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`,
+        symbol: underlying?.symbol || '',
         borrowTerms: {
           data: [
             {
               displayValue:
-                y?.leveraged?.debtToken.tokenType === 'fCash'
-                  ? 'Fixed'
-                  : 'Variable',
+                debtToken?.tokenType === 'fCash' ? 'Fixed' : 'Variable',
               isNegtive: false,
             },
             {
-              displayValue: y?.leveraged?.debtToken?.maturity
-                ? formatMaturity(y?.leveraged?.debtToken?.maturity)
+              displayValue: debtToken?.maturity
+                ? formatMaturity(debtToken?.maturity)
                 : '',
               isNegtive: false,
             },
@@ -212,22 +212,22 @@ export const useLeverageFarmingList = (
         },
         multiValueCellData: {
           currency: {
-            symbol: vault.primaryToken.symbol,
+            symbol: underlying?.symbol || '',
             symbolSize: 'large',
             symbolBottom: '',
-            label: vault.primaryToken.symbol,
+            label: underlying?.symbol || '',
             caption: network
               ? network.charAt(0).toUpperCase() + network.slice(1)
               : '',
             network: network,
           },
           totalApy: {
-            label: y?.totalAPY
-              ? formatNumberAsPercent(y.totalAPY, 2)
+            label: apy?.totalAPY
+              ? formatNumberAsPercent(apy.totalAPY, 2)
               : undefined,
-            labelIsNegative: y?.totalAPY && y?.totalAPY < 0 ? true : false,
-            caption: y?.leveraged?.leverageRatio
-              ? `${formatNumber(y?.leveraged?.leverageRatio, 1)}x Leverage`
+            labelIsNegative: apy?.totalAPY && apy?.totalAPY < 0 ? true : false,
+            caption: apy?.leverageRatio
+              ? `${formatNumber(apy.leverageRatio, 1)}x Leverage`
               : undefined,
           },
           incentiveApy: points
