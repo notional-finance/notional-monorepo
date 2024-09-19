@@ -39,7 +39,7 @@ export class PendlePT extends VaultAdapter {
   }
 
   getVaultAPY(): number {
-    return this.market.ptYieldToMaturity;
+    return this.market.ptSpotYieldToMaturity;
   }
 
   get hashKey() {
@@ -117,6 +117,7 @@ export class PendlePT extends VaultAdapter {
     _totalDeposit: TokenBalance,
     _slippageFactor?: number
   ): Promise<BytesLike> {
+    // TODO: get this data from the api
     return '0x';
     /**
      * struct PendleDepositParams {
