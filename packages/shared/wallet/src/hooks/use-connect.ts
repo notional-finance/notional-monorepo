@@ -1,6 +1,6 @@
 import { trackEvent } from '@notional-finance/helpers';
 import { pointsStore } from '@notional-finance/notionable';
-import { useRootStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable';
 import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber } from 'ethers';
@@ -22,7 +22,7 @@ export const useConnect = () => {
   ] = useConnectWallet();
   const currentLabel = wallet?.label;
   const [{ connectedChain }] = useSetChain(currentLabel);
-  const { walletStore } = useRootStore();
+  const walletStore = useWalletStore();
   const icon = wallet?.icon;
   // The first account and chain are considered "selected" by the UI
   const selectedAddress = walletStore?.userWallet?.isReadOnlyAddress

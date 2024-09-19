@@ -2,16 +2,14 @@ import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { SupportedNetworks } from '@notional-finance/util';
 import { useIntercom } from 'react-use-intercom';
 import { useEffect } from 'react';
-import { useRootStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable';
 
 export const useIntercomUpdate = () => {
   const { update } = useIntercom();
   const {
     globalState: { networkAccounts },
   } = useNotionalContext();
-  const {
-    walletStore: { userWallet },
-  } = useRootStore();
+  const { userWallet } = useWalletStore();
   const isReadOnlyAddress = userWallet?.isReadOnlyAddress;
   const selectedAccount = userWallet?.selectedAddress;
 

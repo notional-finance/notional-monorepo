@@ -8,7 +8,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Network } from '@notional-finance/util';
-import { useRootStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable';
 
 export function ViewAsAccount() {
   const theme = useTheme();
@@ -16,8 +16,7 @@ export function ViewAsAccount() {
   const [error, setError] = useState<boolean>(false);
   const selectedNetwork = useSelectedNetwork();
   const { clearWalletSideDrawer } = useSideDrawerManager();
-
-  const { walletStore } = useRootStore();
+  const walletStore = useWalletStore();
 
   const handleClick = () => {
     if (ethers.utils.isAddress(address)) {

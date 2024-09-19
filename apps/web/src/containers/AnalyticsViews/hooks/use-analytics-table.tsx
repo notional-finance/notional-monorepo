@@ -7,12 +7,12 @@ import {
   ViewAsAddressCell,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { useRootStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable';
 import { useNavigate } from 'react-router-dom';
 
 export const useAnalyticsTable = () => {
   const navigate = useNavigate();
-  const { walletStore } = useRootStore();
+  const walletStore = useWalletStore();
 
   const addressClick = useCallback(
     (address: string, network) => {
