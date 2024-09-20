@@ -450,7 +450,11 @@ export default abstract class BaseLiquidityPool<
   }
 
   public getTokenIndex(token: TokenDefinition) {
-    const index = this.balances.findIndex((t) => t.token.id === token.id);
+    const index = this.balances.findIndex(
+      (t) =>
+        t.token.id === token.id ||
+        (t.token.symbol === 'WETH' && token.symbol === 'ETH')
+    );
     if (index < 0) throw Error('Invalid token for pool');
     return index;
   }

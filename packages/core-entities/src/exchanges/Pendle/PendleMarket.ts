@@ -177,7 +177,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     );
   }
 
-  public convertAssetToSY(assetAmount: TokenBalance) {
+  public convertAssetToSy(assetAmount: TokenBalance) {
     return TokenBalance.fromID(
       assetAmount.n
         .mul(SCALAR_PRECISION)
@@ -210,9 +210,9 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       );
 
       return {
-        tokensOut: postFeeAssetToAccount,
+        tokensOut: this.convertAssetToSy(postFeeAssetToAccount),
         feesPaid: [
-          fee,
+          this.convertAssetToSy(fee),
           TokenBalance.zero(this.poolParams.marketState.totalPt.token),
         ],
       };
@@ -248,8 +248,8 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       );
 
       return {
-        tokensOut: this.convertAssetToSY(postFeeAssetToAccount.neg()),
-        feesPaid: [this.convertAssetToSY(fee), TokenBalance.zero(this.ptToken)],
+        tokensOut: this.convertAssetToSy(postFeeAssetToAccount.neg()),
+        feesPaid: [this.convertAssetToSy(fee), TokenBalance.zero(this.ptToken)],
       };
     } else {
       throw new Error('Invalid token index');
