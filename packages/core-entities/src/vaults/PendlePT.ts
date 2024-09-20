@@ -1,12 +1,14 @@
 import {
   BASIS_POINT,
   DexIds,
+  FLOATING_POINT_DUST,
   getNowSeconds,
   INTERNAL_TOKEN_DECIMALS,
   Network,
   NetworkId,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
+  SCALAR_PRECISION,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { TokenBalance } from '../token-balance';
@@ -41,7 +43,7 @@ const DexParameters: Record<
 };
 
 export class PendlePT extends VaultAdapter {
-  protected apiUrl = 'https://api-v2.pendle.finance/core/v1/sdk/';
+  protected apiUrl = 'https://api-v2.pendle.finance/core/v1/sdk';
   public tokenInSy: string;
   public tokenOutSy: string;
   public marketAddress: string;
@@ -150,59 +152,67 @@ export class PendlePT extends VaultAdapter {
       DexParameters[this.network][this.vaultAddress];
 
     // Apply some slippage limit to the oracle price on the deposit
-    const minPurchaseAmount = this.market
+    let minPurchaseAmount = this.market
       .convertAssetToSY(totalDeposit)
       .mulInRatePrecision(RATE_PRECISION - slippageFactor);
+    let minPtOut: BigNumber;
+    let approxParams: BigNumber[];
 
-    const response = await fetch(
-      `${this.apiUrl}/${NetworkId[this.network]}/markets/${
-        this.marketAddress
-      }/swap?receiver=${this.vaultAddress}&slippage=${
-        slippageFactor / RATE_PRECISION
-      }&enableAggregator=false&tokenIn=${this.tokenInSy}&tokenOut=${
-        this.market.ptToken.address
-      }&amountIn=${minPurchaseAmount.n.toString()}`
-    );
-    const data: {
-      contractCallParams: [
-        string,
-        string,
-        string,
-        {
-          eps: string;
-          guessMax: string;
-          guessMin: string;
-          guessOffchain: string;
-          maxIteration: string;
-        }
+    // Floor these values at zero if they are too small
+    if (minPurchaseAmount.toFloat() <= FLOATING_POINT_DUST) {
+      minPtOut = BigNumber.from(0);
+      minPurchaseAmount = minPurchaseAmount.copy(0);
+
+      approxParams = [
+        BigNumber.from(0),
+        BigNumber.from(SCALAR_PRECISION),
+        BigNumber.from(0),
+        BigNumber.from(256),
+        BigNumber.from(0.0001e18),
       ];
-      data: {
-        amountOut: string;
-        priceImpact: number;
-      };
-    } = await response.json();
-
-    const minPtOut = BigNumber.from(data.contractCallParams[2] as string);
+    } else {
+      const response = await fetch(
+        `${this.apiUrl}/${NetworkId[this.network]}/markets/${
+          this.marketAddress
+        }/swap?receiver=${this.vaultAddress}&slippage=${
+          slippageFactor / RATE_PRECISION
+        }&enableAggregator=false&tokenIn=${this.tokenInSy}&tokenOut=${
+          this.market.ptToken.address
+        }&amountIn=${minPurchaseAmount.n.toString()}`
+      );
+      const data: {
+        contractCallParams: [
+          string,
+          string,
+          string,
+          {
+            eps: string;
+            guessMax: string;
+            guessMin: string;
+            guessOffchain: string;
+            maxIteration: string;
+          }
+        ];
+        data: {
+          amountOut: string;
+          priceImpact: number;
+        };
+      } = await response.json();
+      minPtOut = BigNumber.from(data.contractCallParams[2] as string);
+      approxParams = [
+        BigNumber.from(data.contractCallParams[3].guessMin),
+        BigNumber.from(data.contractCallParams[3].guessMax),
+        BigNumber.from(data.contractCallParams[3].guessOffchain),
+        BigNumber.from(data.contractCallParams[3].maxIteration),
+        BigNumber.from(data.contractCallParams[3].eps),
+      ];
+    }
 
     return defaultAbiCoder.encode(
       [
         'tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, uint256 minPtOut, tuple(uint256 guessMin, uint256 guessMax, uint256 guessOffchain, uint256 maxIteration, uint256 eps)) r',
       ],
-      [
-        [
-          dexId,
-          minPurchaseAmount.n,
-          exchangeData,
-          minPtOut,
-          [
-            BigNumber.from(data.contractCallParams[3].guessMin),
-            BigNumber.from(data.contractCallParams[3].guessMax),
-            BigNumber.from(data.contractCallParams[3].guessOffchain),
-            BigNumber.from(data.contractCallParams[3].maxIteration),
-            BigNumber.from(data.contractCallParams[3].eps),
-          ],
-        ],
-      ]
+      [[dexId, minPurchaseAmount.n, exchangeData, minPtOut, approxParams]]
     );
   }
 
