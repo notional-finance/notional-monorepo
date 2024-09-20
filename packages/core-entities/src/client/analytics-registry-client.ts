@@ -187,7 +187,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   }
 
   getOracleName(
-    oracleType: typeof APY_ORACLES[number],
+    oracleType: (typeof APY_ORACLES)[number],
     incentiveSymbol?: string
   ) {
     switch (oracleType) {
@@ -226,7 +226,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     const oracles = this._getHistoricalOracles(token.network).filter(
       (o) =>
         o.quote === token.id &&
-        APY_ORACLES.includes(o.oracleType as typeof APY_ORACLES[number])
+        APY_ORACLES.includes(o.oracleType as (typeof APY_ORACLES)[number])
     );
 
     if (oracles.length === 1) {
@@ -290,7 +290,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
 
               acc[
                 this.getOracleName(
-                  o.oracleType as typeof APY_ORACLES[number],
+                  o.oracleType as (typeof APY_ORACLES)[number],
                   incentiveSymbol
                 )
               ] = apy;
@@ -425,6 +425,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     return Registry.getTokenRegistry()
       .getAllTokens(network)
       .filter((t) => t.currencyId !== undefined)
+      .filter(
+        (t) => t.vaultAddress !== '0xe20048fa0f165a49b780dfa9a8caba845332f848'
+      )
       .map((t) => {
         const unit = TokenBalance.unit(t);
         const midnight = getMidnightUTC();
