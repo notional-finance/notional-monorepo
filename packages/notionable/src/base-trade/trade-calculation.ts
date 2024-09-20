@@ -610,7 +610,11 @@ function _getTradedInterestRate(
   } else if (
     amount.tokenType === 'VaultShare' &&
     vaultAdapter &&
-    vaultAdapter.strategy === 'PendlePT'
+    vaultAdapter.strategy === 'PendlePT' &&
+    // Only calculate this on increasing the position, otherwise it will be based on
+    // the current spot APY
+    (tradeType === 'IncreaseVaultPosition' ||
+      tradeType === 'CreateVaultPosition')
   ) {
     const impliedExchangeRate = amount.toFloat() / realized.toFloat();
     const timeToMaturity = (vaultAdapter as PendlePT).timeToExpiry;
