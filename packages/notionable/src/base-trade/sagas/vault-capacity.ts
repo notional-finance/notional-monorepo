@@ -89,10 +89,7 @@ export function vaultCapacity(
             : false;
 
           const netDebtBalanceForCapacity =
-            // When rolling the debt position, only add the net value to the capacity
-            tradeType === 'RollVaultPosition' &&
-            priorDebtBalance &&
-            totalAccountDebt
+            priorDebtBalance && totalAccountDebt
               ? toCapacityValue(totalAccountDebt).sub(
                   toCapacityValue(priorDebtBalance)
                 )
