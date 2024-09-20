@@ -33,6 +33,7 @@ const tokens = {
     rETH: '0xae78736Cd615f374D3085123A210448E74Fc6393',
     weETH: '0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee',
     ezETH: '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110',
+    WBTC: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
   },
   [Network.arbitrum]: {
     USDT: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
@@ -105,6 +106,13 @@ const config: ConfigPerNetwork = {
         gauge: '0xB5FdB4f75C26798A62302ee4959E4281667557E0',
         primaryBorrowCurrency: tokens.mainnet.WETH,
         rewardPoolType: RewardPoolType.Aura,
+      },
+      // tBTC/WBTC
+      {
+        address: '0xe20048fa0f165a49b780dfa9a8caba845332f848',
+        gauge: '0x5793691B4ba69665213614d7ac722Db2d3f41927',
+        primaryBorrowCurrency: tokens.mainnet.WBTC,
+        rewardPoolType: RewardPoolType.ConvexMainnet,
       },
     ],
   },
