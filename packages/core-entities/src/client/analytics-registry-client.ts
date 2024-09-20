@@ -40,6 +40,7 @@ import { parseTransaction } from './accounts/transaction-history';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { Transaction } from '../.graphclient';
 import { getSecondaryTokenIncentive } from '../config/whitelisted-tokens';
+import { whitelistedVaults } from '../config/whitelisted-vaults';
 
 const APY_ORACLES = [
   'fCashOracleRate',
@@ -426,7 +427,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       .getAllTokens(network)
       .filter((t) => t.currencyId !== undefined)
       .filter(
-        (t) => t.vaultAddress !== '0xe20048fa0f165a49b780dfa9a8caba845332f848'
+        (t) =>
+          (t.tokenType === 'VaultShare' || t.tokenType === 'VaultDebt') &&
+          whitelistedVaults(network).includes(t.vaultAddress || '')
       )
       .map((t) => {
         const unit = TokenBalance.unit(t);
