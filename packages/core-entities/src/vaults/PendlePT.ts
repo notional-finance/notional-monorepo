@@ -235,7 +235,7 @@ export class PendlePT extends VaultAdapter {
 
     return {
       netUnderlyingForVaultShares: underlyingOut,
-      feesPaid: tradingFeesPaid.add(feesPaid[0]),
+      feesPaid: tradingFeesPaid.add(this.market.convertSyToAsset(feesPaid[0])),
     };
   }
 

@@ -228,19 +228,18 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
         this.ptExchangeRate * RATE_PRECISION
       );
 
-      const { postFeeAssetToAccount, fee } = doSecantSearch(
+      const { ptTokenIn, fee } = doSecantSearch(
         approxPTExchangeRate,
         RATE_PRECISION,
         (exRate: number) => {
+          const ptTokenIn = initialTokensIn.mulInRatePrecision(exRate);
           const { postFeeAssetToAccount, fee } =
-            this.calculateTokenOutGivenPTIn(
-              initialTokensIn.mulInRatePrecision(exRate)
-            );
+            this.calculateTokenOutGivenPTIn(ptTokenIn);
 
           return {
             fx: postFeeAssetToAccount.toFloat() - assetTokensIn.toFloat(),
             value: {
-              postFeeAssetToAccount,
+              ptTokenIn,
               fee,
             },
           };
@@ -248,7 +247,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       );
 
       return {
-        tokensOut: this.convertAssetToSy(postFeeAssetToAccount.neg()),
+        tokensOut: ptTokenIn,
         feesPaid: [this.convertAssetToSy(fee), TokenBalance.zero(this.ptToken)],
       };
     } else {
