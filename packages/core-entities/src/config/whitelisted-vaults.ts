@@ -1,5 +1,7 @@
-import { Network } from '@notional-finance/util';
+import { DexIds, Network } from '@notional-finance/util';
 import { SingleSidedLP, VaultAdapter } from '../vaults';
+import { defaultAbiCoder } from '@ethersproject/abi';
+import { BytesLike } from 'ethers';
 
 export const PointsMultipliers: Record<
   Network,
@@ -122,3 +124,42 @@ export const whitelistedVaults = (network: Network) => {
       return [];
   }
 };
+
+export const VaultDefaultDexParameters: Record<
+  Network,
+  Record<
+    string,
+    { dexId: DexIds; exchangeData: BytesLike; poolAddress?: string }
+  >
+> = {
+  [Network.arbitrum]: {
+    '0x851a28260227f9a8e6bf39a5fa3b5132fa49c7f3': {
+      dexId: DexIds.BALANCER_V2,
+      exchangeData: defaultAbiCoder.encode(
+        ['bytes32'],
+        ['0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd73900000000000000000000055c']
+      ),
+      poolAddress: '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739',
+    },
+  },
+  [Network.mainnet]: {},
+  [Network.optimism]: {},
+  [Network.all]: {},
+};
+
+const PendlePTVaults: Record<Network, string[]> = {
+  [Network.arbitrum]: ['0x851a28260227f9a8e6bf39a5fa3b5132fa49c7f3'],
+  [Network.mainnet]: [],
+  [Network.optimism]: [],
+  [Network.all]: [],
+};
+
+export function getVaultType(
+  vaultAddress: string,
+  network: Network
+): 'SingleSidedLP' | 'PendlePT' {
+  if (PendlePTVaults[network].includes(vaultAddress.toLowerCase())) {
+    return 'PendlePT';
+  }
+  return 'SingleSidedLP';
+}
