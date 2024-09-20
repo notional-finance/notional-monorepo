@@ -10,6 +10,7 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { TokenBalance } from '../token-balance';
@@ -105,6 +106,15 @@ export class PendlePT extends VaultAdapter {
     return TokenBalance.from(vaultShares.n, token);
   }
 
+  unwrapToSyOutToken(token: TokenBalance) {
+    if (token.tokenId === this.tokenInSy) {
+      return token;
+    } else {
+      if (!token.symbol.startsWith('SY')) throw Error('Invalid SY token');
+      return TokenBalance.fromID(token.n, this.tokenOutSy, this.network);
+    }
+  }
+
   calculateTradeToSy(
     underlyingIn: TokenBalance,
     defaultSlippage = 50 * BASIS_POINT
@@ -113,7 +123,7 @@ export class PendlePT extends VaultAdapter {
     tradingFeesPaid: TokenBalance;
   } {
     // Short circuit if borrowed token is the tokenInSy
-    if (underlyingIn.tokenId !== this.tokenInSy) {
+    if (underlyingIn.tokenId === this.tokenInSy) {
       return {
         tokensInSy: underlyingIn,
         tradingFeesPaid: underlyingIn.copy(0),
@@ -127,7 +137,9 @@ export class PendlePT extends VaultAdapter {
         poolAddress
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(
-        (t) => t.token.id === this.tokenInSy
+        (t) =>
+          t.token.id === this.tokenInSy ||
+          (this.tokenInSy === ZERO_ADDRESS && t.token.symbol === 'WETH')
       );
       const { tokensOut, feesPaid } = tokenSyPool.calculateTokenTrade(
         underlyingIn,
@@ -145,7 +157,7 @@ export class PendlePT extends VaultAdapter {
       // price given my the PT market.
       return {
         tokensInSy: this.market
-          .convertAssetToSY(underlyingIn)
+          .convertAssetToSy(underlyingIn)
           .mulInRatePrecision(RATE_PRECISION - defaultSlippage),
         tradingFeesPaid: underlyingIn.copy(0),
       };
@@ -161,7 +173,7 @@ export class PendlePT extends VaultAdapter {
   } {
     // Short circuit if borrowed token is the tokenInSy
     const borrowedToken = this.getBorrowedToken();
-    if (tokenOutSy.tokenId !== borrowedToken.id) {
+    if (tokenOutSy.tokenId === borrowedToken.id) {
       return {
         underlyingOut: tokenOutSy,
         tradingFeesPaid: tokenOutSy.copy(0),
@@ -175,7 +187,9 @@ export class PendlePT extends VaultAdapter {
         poolAddress
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(
-        (t) => t.token.id === borrowedToken.id
+        (t) =>
+          t.token.id === borrowedToken.id ||
+          (borrowedToken.symbol === 'ETH' && t.token.symbol === 'WETH')
       );
       const { tokensOut, feesPaid } = tokenSyPool.calculateTokenTrade(
         tokenOutSy,
@@ -185,7 +199,7 @@ export class PendlePT extends VaultAdapter {
       return {
         underlyingOut: tokensOut,
         tradingFeesPaid:
-          feesPaid.find((t) => t.tokenId === tokenOutSy.tokenId) ||
+          feesPaid.find((t) => t.tokenId === borrowedToken.id) ||
           tokenOutSy.copy(0),
       };
     } else {
@@ -215,8 +229,9 @@ export class PendlePT extends VaultAdapter {
         this.market.TOKEN_IN_INDEX
       );
 
-    const { underlyingOut, tradingFeesPaid } =
-      this.calculateTradeFromSy(tokensOutSy);
+    const { underlyingOut, tradingFeesPaid } = this.calculateTradeFromSy(
+      this.unwrapToSyOutToken(tokensOutSy)
+    );
 
     return {
       netUnderlyingForVaultShares: underlyingOut,
@@ -253,7 +268,7 @@ export class PendlePT extends VaultAdapter {
       // On way out, tokenOutSy is traded to netUnderlying, need to figure out how many PTs to sell
       // in order to generate the netUnderlying amount.
       const initialPtTokens = TokenBalance.fromFloat(
-        netUnderlying.toFloat(),
+        netUnderlying.neg().toFloat(),
         this.market.ptToken
       );
       const approxPTExchangeRate = Math.floor(
@@ -266,16 +281,17 @@ export class PendlePT extends VaultAdapter {
         (exRate: number) => {
           const ptTokensIn = initialPtTokens.mulInRatePrecision(exRate);
 
-          const { tokensOut: tokenOutSy, feesPaid } =
+          const { tokensOut: _tokenOutSy, feesPaid } =
             this.market.calculateTokenTrade(
               ptTokensIn,
               this.market.TOKEN_IN_INDEX
             );
+          const tokenOutSy = this.unwrapToSyOutToken(_tokenOutSy);
           const { underlyingOut, tradingFeesPaid } =
             this.calculateTradeFromSy(tokenOutSy);
 
           return {
-            fx: underlyingOut.toFloat() - netUnderlying.toFloat(),
+            fx: underlyingOut.neg().toFloat() - netUnderlying.toFloat(),
             value: {
               ptTokensIn,
               feesPaid: this.market
@@ -290,7 +306,7 @@ export class PendlePT extends VaultAdapter {
         netVaultSharesForUnderlying: TokenBalance.from(
           ptTokensIn.scaleTo(INTERNAL_TOKEN_DECIMALS),
           vaultShare
-        ),
+        ).neg(),
         feesPaid: feesPaid,
       };
     }
@@ -385,7 +401,7 @@ export class PendlePT extends VaultAdapter {
         DexParameters[this.network][this.vaultAddress];
 
       const minPurchaseAmount = this.market
-        .convertAssetToSY(vaultSharesToRedeem.toUnderlying())
+        .convertAssetToSy(vaultSharesToRedeem.toUnderlying())
         .mulInRatePrecision(RATE_PRECISION - slippageFactor);
 
       return defaultAbiCoder.encode(
