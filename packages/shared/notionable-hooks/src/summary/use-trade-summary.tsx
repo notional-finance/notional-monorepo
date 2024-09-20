@@ -305,7 +305,7 @@ function getDebtFeeDetailItem(
     debtBalance?.unwrapVaultToken()?.tokenType === 'fCash'
   ) {
     feeToolTip = defineMessages({
-      content: { defaultMessage: 'Borrow Fee' },
+      content: { defaultMessage: 'Initial Borrow Fee' },
       toolTipContent: {
         defaultMessage:
           'Fees for fixed rate borrowing are paid up front. Fixed rate borrowing also incurs early exit costs.',
