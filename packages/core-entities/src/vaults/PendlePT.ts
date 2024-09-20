@@ -312,6 +312,10 @@ export class PendlePT extends VaultAdapter {
     }
   }
 
+  override getMaxCollateralSlippage(): number | null {
+    return 50 * BASIS_POINT;
+  }
+
   override async getDepositParameters(
     _account: string,
     _maturity: number,
@@ -323,7 +327,7 @@ export class PendlePT extends VaultAdapter {
 
     // Apply some slippage limit to the oracle price on the deposit
     let minSYPurchaseAmount = this.market
-      .convertAssetToSY(totalDeposit)
+      .convertAssetToSy(totalDeposit)
       .mulInRatePrecision(RATE_PRECISION - slippageFactor);
     let minPtOut: BigNumber;
     let approxParams: BigNumber[];

@@ -122,4 +122,8 @@ export abstract class VaultAdapter {
   getPointMultiples(): Record<string, number> | undefined {
     return undefined;
   }
+
+  getMaxCollateralSlippage(): number | null {
+    return null;
+  }
 }
