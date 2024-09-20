@@ -9,6 +9,12 @@
       "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
+      "dependsOn": [
+        {
+          "projects": "dependencies",
+          "target": "typechain"
+        }
+      ],
       "options": {
         "compiler": "babel",
         "outputPath": "dist/apps/web",
