@@ -174,6 +174,8 @@ interface InitState {
   tradeType?: AllTradeTypes;
   /** A parameter key set by the url params */
   sideDrawerKey?: string;
+  /** Maximum collateral slippage for the vault */
+  maxCollateralSlippage?: number | null;
 }
 
 export interface BaseTradeState
