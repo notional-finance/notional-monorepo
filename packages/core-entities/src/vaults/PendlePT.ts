@@ -1,6 +1,7 @@
 import {
   BASIS_POINT,
   DexIds,
+  doSecantSearch,
   FLOATING_POINT_DUST,
   getNowSeconds,
   INTERNAL_TOKEN_DECIMALS,
@@ -26,7 +27,10 @@ export interface PendlePTVaultParams extends BaseVaultParams {
 
 const DexParameters: Record<
   Network,
-  Record<string, { dexId: DexIds; exchangeData: BytesLike }>
+  Record<
+    string,
+    { dexId: DexIds; exchangeData: BytesLike; poolAddress?: string }
+  >
 > = {
   [Network.arbitrum]: {
     '0x851a28260227f9a8e6bf39a5fa3b5132fa49c7f3': {
@@ -35,6 +39,7 @@ const DexParameters: Record<
         ['bytes32'],
         ['0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd73900000000000000000000055c']
       ),
+      poolAddress: '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739',
     },
   },
   [Network.mainnet]: {},
@@ -55,9 +60,9 @@ export class PendlePT extends VaultAdapter {
 
   constructor(network: Network, vaultAddress: string, p: PendlePTVaultParams) {
     super(p.enabled, p.name, network, vaultAddress);
-    this.tokenInSy = p.tokenInSy;
-    this.tokenOutSy = p.tokenOutSy;
-    this.marketAddress = p.marketAddress;
+    this.tokenInSy = p.tokenInSy.toLowerCase();
+    this.tokenOutSy = p.tokenOutSy.toLowerCase();
+    this.marketAddress = p.marketAddress.toLowerCase();
     this.market = Registry.getExchangeRegistry().getPoolInstance<PendleMarket>(
       network,
       p.marketAddress
@@ -100,6 +105,101 @@ export class PendlePT extends VaultAdapter {
     return TokenBalance.from(vaultShares.n, token);
   }
 
+  calculateTradeToSy(
+    underlyingIn: TokenBalance,
+    defaultSlippage = 50 * BASIS_POINT
+  ): {
+    tokensInSy: TokenBalance;
+    tradingFeesPaid: TokenBalance;
+  } {
+    // Short circuit if borrowed token is the tokenInSy
+    if (underlyingIn.tokenId !== this.tokenInSy) {
+      return {
+        tokensInSy: underlyingIn,
+        tradingFeesPaid: underlyingIn.copy(0),
+      };
+    }
+
+    const { poolAddress } = DexParameters[this.network][this.vaultAddress];
+    if (poolAddress) {
+      const tokenSyPool = Registry.getExchangeRegistry().getPoolInstance(
+        this.network,
+        poolAddress
+      );
+      const tokenOutIndex = tokenSyPool.balances.findIndex(
+        (t) => t.token.id === this.tokenInSy
+      );
+      const { tokensOut, feesPaid } = tokenSyPool.calculateTokenTrade(
+        underlyingIn,
+        tokenOutIndex
+      );
+
+      return {
+        tokensInSy: tokensOut,
+        tradingFeesPaid:
+          feesPaid.find((t) => t.tokenId === underlyingIn.tokenId) ||
+          underlyingIn.copy(0),
+      };
+    } else {
+      // If we don't have the pool address, then don't do the trade and just use the oracle
+      // price given my the PT market.
+      return {
+        tokensInSy: this.market
+          .convertAssetToSY(underlyingIn)
+          .mulInRatePrecision(RATE_PRECISION - defaultSlippage),
+        tradingFeesPaid: underlyingIn.copy(0),
+      };
+    }
+  }
+
+  calculateTradeFromSy(
+    tokenOutSy: TokenBalance,
+    defaultSlippage = 50 * BASIS_POINT
+  ): {
+    underlyingOut: TokenBalance;
+    tradingFeesPaid: TokenBalance;
+  } {
+    // Short circuit if borrowed token is the tokenInSy
+    const borrowedToken = this.getBorrowedToken();
+    if (tokenOutSy.tokenId !== borrowedToken.id) {
+      return {
+        underlyingOut: tokenOutSy,
+        tradingFeesPaid: tokenOutSy.copy(0),
+      };
+    }
+
+    const { poolAddress } = DexParameters[this.network][this.vaultAddress];
+    if (poolAddress) {
+      const tokenSyPool = Registry.getExchangeRegistry().getPoolInstance(
+        this.network,
+        poolAddress
+      );
+      const tokenOutIndex = tokenSyPool.balances.findIndex(
+        (t) => t.token.id === borrowedToken.id
+      );
+      const { tokensOut, feesPaid } = tokenSyPool.calculateTokenTrade(
+        tokenOutSy,
+        tokenOutIndex
+      );
+
+      return {
+        underlyingOut: tokensOut,
+        tradingFeesPaid:
+          feesPaid.find((t) => t.tokenId === tokenOutSy.tokenId) ||
+          tokenOutSy.copy(0),
+      };
+    } else {
+      // If we don't have the pool address, then don't do the trade and just use the oracle
+      // price given my the PT market.
+      return {
+        underlyingOut: this.market
+          .convertSyToAsset(tokenOutSy)
+          .mulInRatePrecision(RATE_PRECISION - defaultSlippage),
+        tradingFeesPaid: tokenOutSy.copy(0),
+      };
+    }
+  }
+
   getNetVaultSharesCost(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
@@ -109,13 +209,18 @@ export class PendlePT extends VaultAdapter {
       .neg();
 
     // Calculate the cost to purchase the PT
-    const { tokensOut, feesPaid } = this.market.calculateTokenTrade(
-      ptTokens.neg(),
-      this.market.TOKEN_IN_INDEX
-    );
+    const { tokensOut: tokensOutSy, feesPaid } =
+      this.market.calculateTokenTrade(
+        ptTokens.neg(),
+        this.market.TOKEN_IN_INDEX
+      );
+
+    const { underlyingOut, tradingFeesPaid } =
+      this.calculateTradeFromSy(tokensOutSy);
+
     return {
-      netUnderlyingForVaultShares: tokensOut,
-      feesPaid: feesPaid[0],
+      netUnderlyingForVaultShares: underlyingOut,
+      feesPaid: tradingFeesPaid.add(feesPaid[0]),
     };
   }
 
@@ -126,20 +231,69 @@ export class PendlePT extends VaultAdapter {
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
   } {
-    // Calculate the amount received for selling the PT
-    // TODO: net underlying has to be scaled to the tokenSyIn
-    const { tokensOut, feesPaid } = this.market.calculateTokenTrade(
-      netUnderlying,
-      this.market.PT_TOKEN_INDEX
-    );
+    if (netUnderlying.isPositive()) {
+      // On way in, netUnderlying is traded to tokenInSy
+      const { tokensInSy, tradingFeesPaid } =
+        this.calculateTradeToSy(netUnderlying);
 
-    return {
-      netVaultSharesForUnderlying: TokenBalance.from(
-        tokensOut.scaleTo(INTERNAL_TOKEN_DECIMALS),
-        vaultShare
-      ),
-      feesPaid: feesPaid[0],
-    };
+      // Calculate the amount received for selling the PT
+      const { tokensOut: ptTokensOut, feesPaid } =
+        this.market.calculateTokenTrade(tokensInSy, this.market.PT_TOKEN_INDEX);
+
+      return {
+        netVaultSharesForUnderlying: TokenBalance.from(
+          ptTokensOut.scaleTo(INTERNAL_TOKEN_DECIMALS),
+          vaultShare
+        ),
+        feesPaid: this.market
+          .convertSyToAsset(feesPaid[0])
+          .add(tradingFeesPaid),
+      };
+    } else {
+      // On way out, tokenOutSy is traded to netUnderlying, need to figure out how many PTs to sell
+      // in order to generate the netUnderlying amount.
+      const initialPtTokens = TokenBalance.fromFloat(
+        netUnderlying.toFloat(),
+        this.market.ptToken
+      );
+      const approxPTExchangeRate = Math.floor(
+        this.market.ptExchangeRate * RATE_PRECISION
+      );
+
+      const { ptTokensIn, feesPaid } = doSecantSearch(
+        approxPTExchangeRate,
+        RATE_PRECISION,
+        (exRate: number) => {
+          const ptTokensIn = initialPtTokens.mulInRatePrecision(exRate);
+
+          const { tokensOut: tokenOutSy, feesPaid } =
+            this.market.calculateTokenTrade(
+              ptTokensIn,
+              this.market.TOKEN_IN_INDEX
+            );
+          const { underlyingOut, tradingFeesPaid } =
+            this.calculateTradeFromSy(tokenOutSy);
+
+          return {
+            fx: underlyingOut.toFloat() - netUnderlying.toFloat(),
+            value: {
+              ptTokensIn,
+              feesPaid: this.market
+                .convertSyToAsset(feesPaid[0])
+                .add(tradingFeesPaid),
+            },
+          };
+        }
+      );
+
+      return {
+        netVaultSharesForUnderlying: TokenBalance.from(
+          ptTokensIn.scaleTo(INTERNAL_TOKEN_DECIMALS),
+          vaultShare
+        ),
+        feesPaid: feesPaid,
+      };
+    }
   }
 
   override async getDepositParameters(
@@ -152,16 +306,16 @@ export class PendlePT extends VaultAdapter {
       DexParameters[this.network][this.vaultAddress];
 
     // Apply some slippage limit to the oracle price on the deposit
-    let minPurchaseAmount = this.market
+    let minSYPurchaseAmount = this.market
       .convertAssetToSY(totalDeposit)
       .mulInRatePrecision(RATE_PRECISION - slippageFactor);
     let minPtOut: BigNumber;
     let approxParams: BigNumber[];
 
     // Floor these values at zero if they are too small
-    if (minPurchaseAmount.toFloat() <= FLOATING_POINT_DUST) {
+    if (minSYPurchaseAmount.toFloat() <= FLOATING_POINT_DUST) {
       minPtOut = BigNumber.from(0);
-      minPurchaseAmount = minPurchaseAmount.copy(0);
+      minSYPurchaseAmount = minSYPurchaseAmount.copy(0);
 
       approxParams = [
         BigNumber.from(0),
@@ -178,7 +332,7 @@ export class PendlePT extends VaultAdapter {
           slippageFactor / RATE_PRECISION
         }&enableAggregator=false&tokenIn=${this.tokenInSy}&tokenOut=${
           this.market.ptToken.address
-        }&amountIn=${minPurchaseAmount.n.toString()}`
+        }&amountIn=${minSYPurchaseAmount.n.toString()}`
       );
       const data: {
         contractCallParams: [
@@ -212,7 +366,7 @@ export class PendlePT extends VaultAdapter {
       [
         'tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, uint256 minPtOut, tuple(uint256 guessMin, uint256 guessMax, uint256 guessOffchain, uint256 maxIteration, uint256 eps)) r',
       ],
-      [[dexId, minPurchaseAmount.n, exchangeData, minPtOut, approxParams]]
+      [[dexId, minSYPurchaseAmount.n, exchangeData, minPtOut, approxParams]]
     );
   }
 

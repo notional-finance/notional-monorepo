@@ -394,39 +394,4 @@ export class SingleSidedLP extends VaultAdapter {
 
     return undefined;
   }
-
-  getPriceExposure() {
-    // TODO: this only works on two token pools
-    return (
-      this.pool
-        // This is trading towards the single sided token [profit]
-        .getPriceExposureTable(
-          1 - this.singleSidedTokenIndex,
-          this.singleSidedTokenIndex
-        )
-        .map(({ tokenOutPrice, lpTokenValueOut }) => ({
-          price: tokenOutPrice,
-          vaultSharePrice: lpTokenValueOut.scale(
-            this.totalLPTokens.scaleTo(INTERNAL_TOKEN_DECIMALS),
-            this.totalVaultShares
-          ),
-        }))
-        .reverse()
-        // This is trading away from the single sided token [loss]
-        .concat(
-          this.pool
-            .getPriceExposureTable(
-              this.singleSidedTokenIndex,
-              1 - this.singleSidedTokenIndex
-            )
-            .map(({ tokenInPrice, lpTokenValueIn }) => ({
-              price: tokenInPrice,
-              vaultSharePrice: lpTokenValueIn.scale(
-                this.totalLPTokens.scaleTo(INTERNAL_TOKEN_DECIMALS),
-                this.totalVaultShares
-              ),
-            }))
-        )
-    );
-  }
 }

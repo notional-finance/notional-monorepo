@@ -217,10 +217,11 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
         ],
       };
     } else if (tokenIndexOut === this.PT_TOKEN_INDEX) {
+      const assetTokensIn = this.convertSyToAsset(tokensIn);
       // Assume PT in at the current exchange rate, then do secant search until
       // we find the postFeeAssetToAccount that is close to tokensIn
       const initialTokensIn = TokenBalance.fromFloat(
-        tokensIn.toFloat(),
+        assetTokensIn.toFloat(),
         this.ptToken
       );
       const approxPTExchangeRate = Math.floor(
@@ -237,7 +238,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
             );
 
           return {
-            fx: postFeeAssetToAccount.toFloat() - tokensIn.toFloat(),
+            fx: postFeeAssetToAccount.toFloat() - assetTokensIn.toFloat(),
             value: {
               postFeeAssetToAccount,
               fee,
@@ -247,8 +248,8 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       );
 
       return {
-        tokensOut: postFeeAssetToAccount.neg(),
-        feesPaid: [fee, TokenBalance.zero(this.ptToken)],
+        tokensOut: this.convertAssetToSY(postFeeAssetToAccount.neg()),
+        feesPaid: [this.convertAssetToSY(fee), TokenBalance.zero(this.ptToken)],
       };
     } else {
       throw new Error('Invalid token index');
