@@ -296,18 +296,23 @@ const getTrades = async (
         oracleSlippagePercentOrLimit = tradeData.limit.toString();
         exchangeData = tradeData.data;
 
-        const { acceptable, percentageLoss } = await checkPercentageLoss(env, {
+        const { percentageLoss } = await checkPercentageLoss(env, {
           sellToken,
           sellAmount: amount,
           buyToken: token,
           buyAmount: tradeData.buyAmount,
         });
 
-        if (!acceptable) {
-          throw new Error(
-            `Trade from ${sellToken} to ${token} exceeds acceptable percentage loss: ${percentageLoss}%`
-          );
-        }
+        env.LOGGER.log({
+          message: `Trade from ${sellToken} to ${token} has loss of: ${percentageLoss}%`,
+          sellToken,
+          buyToken: token,
+          sellAmount: amount.toString(),
+          buyAmount: tradeData.buyAmount.toString(),
+          level: 'info',
+          service: 'rewards',
+          chain: env.NETWORK,
+        });
       }
 
       return [
