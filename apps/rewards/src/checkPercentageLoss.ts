@@ -12,7 +12,8 @@ async function getTokensPricesFromDefiLlama(
   network: string,
   tokenAddress: string[]
 ) {
-  const coins = tokenAddress.map((token) => `${network}:${token}`);
+  const prefix = network === Network.mainnet ? 'ethereum' : network;
+  const coins = tokenAddress.map((token) => `${prefix}:${token}`);
   const url = `https://coins.llama.fi/prices/current/${coins.join(',')}`;
   const response = await fetch(url);
 
