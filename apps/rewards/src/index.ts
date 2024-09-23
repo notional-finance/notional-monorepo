@@ -21,19 +21,10 @@ import {
 } from '@notional-finance/util';
 import { simulatePopulatedTxn } from '@notional-finance/transaction';
 import { Logger, MetricType } from '@notional-finance/util';
+import { Env } from './types';
+import checkPercentageLoss from './checkPercentageLoss';
 
 type Provider = ethers.providers.Provider;
-export interface Env {
-  LOGGER: Logger; // need to be set in worker
-  NETWORKS: Array<Network>;
-  NETWORK: Network;
-  TX_RELAY_AUTH_TOKEN: string;
-  ZERO_EX_API_KEY: string;
-  AUTH_KEY: string;
-  SUBGRAPH_API_KEY: string;
-  REWARDS_KV: KVNamespace;
-  NX_DD_API_KEY: string;
-}
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 2;
 
@@ -304,6 +295,19 @@ const getTrades = async (
 
         oracleSlippagePercentOrLimit = tradeData.limit.toString();
         exchangeData = tradeData.data;
+
+        const { acceptable, percentageLoss } = await checkPercentageLoss(env, {
+          sellToken,
+          sellAmount: amount,
+          buyToken: token,
+          buyAmount: tradeData.buyAmount,
+        });
+
+        if (!acceptable) {
+          throw new Error(
+            `Trade from ${sellToken} to ${token} exceeds acceptable percentage loss: ${percentageLoss}%`
+          );
+        }
       }
 
       return [
