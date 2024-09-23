@@ -31,14 +31,6 @@ export interface Env {
   MAX_LIQUIDATIONS_PER_BATCH: number;
 }
 
-export const overrides = {
-  [Network.arbitrum]: {
-    [ZERO_ADDRESS]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-  },
-  [Network.mainnet]: {
-    [ZERO_ADDRESS]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  },
-};
 
 async function setUp(env: Env, vaultAddrs: string[]) {
   const accounts = (
