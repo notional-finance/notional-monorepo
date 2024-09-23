@@ -3,11 +3,7 @@ import {
   formatNumberAsAbbr,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
-import {
-  useAccountDefinition,
-  useTotalArbPoints,
-  useCurrentSeason,
-} from '@notional-finance/notionable-hooks';
+import { useAccountDefinition } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
@@ -16,7 +12,6 @@ import {
   DataTableColumn,
   MultiValueIconCell,
 } from '@notional-finance/mui';
-import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
 import { PointsIcon } from '@notional-finance/icons';
 import {
   useAppStore,
@@ -27,8 +22,6 @@ export const useLendBorrowList = (
   product: PRODUCTS,
   network: Network | undefined
 ) => {
-  const totalArbPoints = useTotalArbPoints();
-  const currentSeason = useCurrentSeason();
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
   const currentNetworkStore = useCurrentNetworkStore();
@@ -94,18 +87,18 @@ export const useLendBorrowList = (
       accessorKey: 'maturity',
       textAlign: 'right',
     },
-    {
-      header: (
-        <FormattedMessage
-          defaultMessage="Points Boost"
-          description={'Points Boost header'}
-        />
-      ),
-      cell: MultiValueIconCell,
-      showPointsIcon: true,
-      accessorKey: 'pointsBoost',
-      textAlign: 'right',
-    },
+    // {
+    //   header: (
+    //     <FormattedMessage
+    //       defaultMessage="Points Boost"
+    //       description={'Points Boost header'}
+    //     />
+    //   ),
+    //   cell: MultiValueIconCell,
+    //   showPointsIcon: true,
+    //   accessorKey: 'pointsBoost',
+    //   textAlign: 'right',
+    // },
     {
       header: (
         <FormattedMessage defaultMessage="APY" description={'APY header'} />
@@ -179,14 +172,6 @@ export const useLendBorrowList = (
 
   const listData = yieldData
     .map(({ token, apy, tvl, underlying, collateralFactor }) => {
-      const boostNum = getArbBoosts(token, isBorrow);
-      const pointsAPY = getPointsAPY(
-        boostNum,
-        totalArbPoints[currentSeason.db_name],
-        currentSeason.totalArb,
-        currentSeason.startDate,
-        currentSeason.endDate
-      );
       const walletBalance = account
         ? account.balances.find((t) => t.tokenId === underlying?.id)
         : undefined;
@@ -203,13 +188,13 @@ export const useLendBorrowList = (
         },
         walletBalance: walletBalance?.toFloat() || 0,
         maturity: token.maturity,
-        pointsBoost: {
-          label: boostNum > 0 ? `${boostNum}x` : '-',
-          caption:
-            pointsAPY > 0 && pointsAPY !== Infinity
-              ? `${formatNumberAsPercent(pointsAPY, 2)} APY`
-              : '',
-        },
+        // pointsBoost: {
+        //   label: boostNum > 0 ? `${boostNum}x` : '-',
+        //   caption:
+        //     pointsAPY > 0 && pointsAPY !== Infinity
+        //       ? `${formatNumberAsPercent(pointsAPY, 2)} APY`
+        //       : '',
+        // },
         apy: apy.totalAPY || 0,
         liquidity: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         symbol: underlying?.symbol || '',

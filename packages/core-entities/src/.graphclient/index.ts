@@ -9033,6 +9033,7 @@ export type AllAccountsQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
   startId?: InputMaybe<Scalars['ID']>;
   endId?: InputMaybe<Scalars['ID']>;
+  blockNumber?: InputMaybe<Scalars['Int']>;
 }>;
 
 

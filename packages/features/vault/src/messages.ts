@@ -270,6 +270,10 @@ export const messages = {
     },
   }),
   error: defineMessages({
+    overPoolCapacity: {
+      defaultMessage: 'Over maximum pool capacity.',
+      description: 'error message',
+    },
     noEligibleMarkets: {
       defaultMessage: 'No Eligible Markets',
       description: 'section heading',
@@ -284,7 +288,7 @@ export const messages = {
       description: 'error message',
     },
     overCapacity: {
-      defaultMessage: 'Over maximum vault capacity.',
+      defaultMessage: 'Over maximum vault borrow capacity.',
       description: 'error message',
     },
     noEligibleMarketsIdiosyncratic: {

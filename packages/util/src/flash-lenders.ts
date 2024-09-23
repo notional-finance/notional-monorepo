@@ -76,7 +76,7 @@ export function getFlashLender({
 }): string {
   return (
     perVaultFlashLenders[checkSumAddress(vault)] ||
-    perTokenFlashLenders[network][checkSumAddress(token)] ||
+    perTokenFlashLenders[network]?.[checkSumAddress(token)] ||
     defaultFlashLenders[network]
   );
 }

@@ -7,7 +7,7 @@ const rETH = '0xae78736Cd615f374D3085123A210448E74Fc6393';
 const PYUSD = '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8';
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 const USDT = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
-const crvUSD = '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E'
+const crvUSD = '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E';
 const CRV = '0xD533a949740bb3306d119CC777fa900bA034cd52';
 const CVX = '0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B';
 const BAL = '0xba100000625a3754423978a60c9317c58a424e3D';
@@ -28,29 +28,30 @@ export const ETH = '0x0000000000000000000000000000000000000000';
 
 export const wEthMapper: Partial<Record<Network, string>> = {
   mainnet: WETH,
-  arbitrum: ARB_WETH
-}
+  arbitrum: ARB_WETH,
+};
 
 // set minimum values for tokens that are going to be claim/sell (~$15 for arbitrum, ~$150 for mainnet)
 // if token is also pool token it won't be sold
 export const minTokenAmount = {
-  [PYUSD]: "150000000", // 150e6
-  [CRV]: "230000000000000000000", // 230e18
-  [CVX]: "40000000000000000000", // 40e18
-  [BAL]: "30000000000000000000", // 30e18
-  [AURA]: "200000000000000000000", // 200e18
-  [ARB]: "7000000000000000000", // 7e18
-  [ARB_BAL]: "3500000000000000000", // 3.5e18
-  [ARB_AURA]: "21000000000000000000", // 21e18
-  [ARB_CRV]: "30000000000000000000", // 10e18
+  [USDC]: '150000000', // 150e6
+  [PYUSD]: '150000000', // 150e6
+  [CRV]: '230000000000000000000', // 230e18
+  [CVX]: '40000000000000000000', // 40e18
+  [BAL]: '30000000000000000000', // 30e18
+  [AURA]: '200000000000000000000', // 200e18
+  [ARB]: '7000000000000000000', // 7e18
+  [ARB_BAL]: '3500000000000000000', // 3.5e18
+  [ARB_AURA]: '21000000000000000000', // 21e18
+  [ARB_CRV]: '30000000000000000000', // 10e18
 };
 
 export type Vault = {
   address: string;
-  rewardTokens: Array<string>,
-  reinvestToken: string,
-  maxSellAmount?: Record<string, string>
-}
+  rewardTokens: Array<string>;
+  reinvestToken: string;
+  maxSellAmount?: Record<string, string>;
+};
 // tokens in the pool need to be in the same order as they are stored in the vault
 // whatever TOKENS() method on vault returns
 // token weight for Balancer pool token should be set to 0
@@ -91,6 +92,11 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       rewardTokens: [CRV, CVX],
       reinvestToken: crvUSD,
     },
+    {
+      address: '0xF94507F3dECE4CC4c73B6cf228912b85Eadc9CFB',
+      rewardTokens: [USDC],
+      reinvestToken: ETH,
+    },
   ],
   arbitrum: [
     {
@@ -111,7 +117,7 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
     {
       address: '0xae04e4887cBf5f25c05aC1384BcD0b7e885a1F4A',
       rewardTokens: [ARB_CRV, ARB],
-      reinvestToken: ARB_USDT
+      reinvestToken: ARB_USDT,
     },
     {
       address: '0xF95441f348eb2fd3D5D82f9B7B961137a734eEdD',
@@ -133,8 +139,8 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
       rewardTokens: [ARB, ARB_BAL, ARB_AURA],
       reinvestToken: ETH,
       maxSellAmount: {
-        [ARB]: "431900000000000000000", // 431.9e18
-      }
+        [ARB]: '448500000000000000000', // 448.5e18
+      },
     },
     {
       address: '0x37dD23Ab1885982F789A2D6400B583B8aE09223d',

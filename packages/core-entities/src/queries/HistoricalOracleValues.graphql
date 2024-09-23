@@ -1,19 +1,23 @@
 query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
-  oracles(where:{ oracleType_in:[
-    Chainlink
-    nTokenToUnderlyingExchangeRate
-    PrimeCashToUnderlyingExchangeRate
-    PrimeDebtToUnderlyingExchangeRate
-    VaultShareOracleRate # Can use this to calculate a realized vault APY
-    # Below here are APYs
-    fCashOracleRate
-    PrimeCashPremiumInterestRate
-    PrimeDebtPremiumInterestRate
-    nTokenBlendedInterestRate,
-    nTokenFeeRate,
-    nTokenIncentiveRate,
-    nTokenSecondaryIncentiveRate
-  ], matured: false}, first: 1000, skip: $skip) {
+  oracles(where:{
+    oracleType_in:[
+      Chainlink
+      fCashSettlementRate
+      nTokenToUnderlyingExchangeRate
+      PrimeCashToUnderlyingExchangeRate
+      PrimeDebtToUnderlyingExchangeRate
+      VaultShareOracleRate # Can use this to calculate a realized vault APY
+      # Below here are APYs
+      fCashOracleRate
+      PrimeCashPremiumInterestRate
+      PrimeDebtPremiumInterestRate
+      nTokenBlendedInterestRate,
+      nTokenFeeRate,
+      nTokenIncentiveRate,
+      nTokenSecondaryIncentiveRate
+    ],
+    matured: false,
+  }, first: 1000, skip: $skip) {
     id
     base { id tokenType }
     quote { id tokenType maturity underlying { id }}

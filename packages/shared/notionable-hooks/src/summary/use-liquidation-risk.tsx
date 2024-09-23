@@ -192,7 +192,7 @@ export function useVaultDetails(state: VaultTradeState) {
               : _h?.current?.toFixed(2) || '',
           isNegative: false,
           showPositiveAsGreen: true,
-          textColor: updatedHFData?.textColor,
+          textColor: currentHFData?.textColor,
         },
       ],
     },

@@ -1,18 +1,7 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import {
-  useCurrentSeason,
-  useTotalArbPoints,
-} from '@notional-finance/notionable-hooks';
-import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
-import {
-  formatNumberAsPercent,
-  Network,
-  PRODUCTS,
-} from '@notional-finance/util';
-import { FormattedMessage, defineMessage } from 'react-intl';
+import { Network, PRODUCTS } from '@notional-finance/util';
+import { defineMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
-import { Box, useTheme } from '@mui/material';
-import { LeafIcon, PointsIcon } from '@notional-finance/icons';
 
 import {
   useAppStore,
@@ -23,13 +12,10 @@ export const useFixedRateGrid = (
   network: Network | undefined,
   product: PRODUCTS
 ) => {
-  const theme = useTheme();
   const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
   const tokenObj = {};
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
-  const totalArbPoints = useTotalArbPoints();
-  const currentSeason = useCurrentSeason();
   const currentNetworkStore = useCurrentNetworkStore();
 
   let yieldData: any[] = [];
@@ -51,15 +37,6 @@ export const useFixedRateGrid = (
         });
 
   const allData = yieldData.map(({ token, apy, tvl, underlying }) => {
-    const pointsBoost = getArbBoosts(token, isBorrow);
-    const pointsAPY = getPointsAPY(
-      pointsBoost,
-      totalArbPoints[currentSeason.db_name],
-      currentSeason.totalArb,
-      currentSeason.startDate,
-      currentSeason.endDate
-    );
-
     return {
       symbol: underlying?.symbol,
       title: underlying?.symbol,
@@ -68,42 +45,42 @@ export const useFixedRateGrid = (
         0,
         baseCurrency
       )}`,
-      bottomLeftValue:
-        pointsBoost > 0 && network === Network.arbitrum ? (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <PointsIcon
-              sx={{
-                marginRight: theme.spacing(1),
-                height: theme.spacing(1.75),
-                width: theme.spacing(1.75),
-              }}
-            />
-            {`${pointsBoost}x ARB POINTS `}
-            <Box sx={{ marginLeft: theme.spacing(0.5) }}>
-              {pointsAPY !== Infinity &&
-                `(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}
-            </Box>
-          </Box>
-        ) : !isBorrow && network === Network.arbitrum ? (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <LeafIcon
-              fill={theme.palette.typography.main}
-              sx={{
-                marginRight: theme.spacing(1),
-                height: theme.spacing(1.75),
-                width: theme.spacing(1.75),
-              }}
-            />
-            <FormattedMessage defaultMessage={'Organic APY'} />
-          </Box>
-        ) : network === Network.arbitrum ? (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          />
-        ) : undefined,
+      bottomLeftValue: undefined,
+      // pointsBoost > 0 && network === Network.arbitrum ? (
+      //   <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      //     <PointsIcon
+      //       sx={{
+      //         marginRight: theme.spacing(1),
+      //         height: theme.spacing(1.75),
+      //         width: theme.spacing(1.75),
+      //       }}
+      //     />
+      //     {`${pointsBoost}x ARB POINTS `}
+      //     <Box sx={{ marginLeft: theme.spacing(0.5) }}>
+      //       {pointsAPY !== Infinity &&
+      //         `(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}
+      //     </Box>
+      //   </Box>
+      // ) : !isBorrow && network === Network.arbitrum ? (
+      //   <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      //     <LeafIcon
+      //       fill={theme.palette.typography.main}
+      //       sx={{
+      //         marginRight: theme.spacing(1),
+      //         height: theme.spacing(1.75),
+      //         width: theme.spacing(1.75),
+      //       }}
+      //     />
+      //     <FormattedMessage defaultMessage={'Organic APY'} />
+      //   </Box>
+      // ) : network === Network.arbitrum ? (
+      //   <Box
+      //     sx={{
+      //       display: 'flex',
+      //       alignItems: 'center',
+      //     }}
+      //   />
+      // ) : undefined,
       network: token.network,
       hasPosition: false,
       apySubTitle: apySubTitle,

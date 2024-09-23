@@ -238,7 +238,10 @@ export function DeleverageNToken({
           withdrawEntireCashBalance,
           withdrawAmountInternalPrecision,
           false,
-          collateralBalance.tokenType === 'fCash' ? [collateralBalance] : []
+          collateralBalance.tokenType === 'fCash' ? [collateralBalance] : [],
+          // Increase slippage limit for nTokens to account for the fact that we are
+          // also removing liquidity and moving the price at the same time
+          collateralBalance.tokenType === 'fCash' ? 25 * BASIS_POINT : undefined
         ),
       ],
     ]
