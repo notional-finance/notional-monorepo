@@ -16,7 +16,7 @@ import { BigNumber, Contract, ethers } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { DeprecatedVaults } from './vault-overrides';
 import { ClientRegistry } from '../client/client-registry';
-import { CacheSchema } from '..';
+import { CacheSchema, getVaultType } from '..';
 
 // NOTE: this is currently hardcoded because we cannot access the worker
 // process environment directly here.
@@ -79,18 +79,19 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
           enabled: boolean;
           name: string;
         }) => {
-          if (name.startsWith('SingleSidedLP')) {
-            return this.getSingleSidedLPCalls(
-              vaultAddress,
-              network,
-              enabled,
-              name
-            );
-          } else if (name.startsWith('Pendle')) {
-            return this.getPendlePTCalls(vaultAddress, network, enabled);
+          switch (getVaultType(vaultAddress, network)) {
+            case 'SingleSidedLP':
+              return this.getSingleSidedLPCalls(
+                vaultAddress,
+                network,
+                enabled,
+                name
+              );
+            case 'PendlePT':
+              return this.getPendlePTCalls(vaultAddress, network, enabled);
+            default:
+              return [];
           }
-
-          return [];
         }
       );
 
