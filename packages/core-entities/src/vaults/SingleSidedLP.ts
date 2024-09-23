@@ -17,6 +17,7 @@ import { BigNumber } from 'ethers';
 import { TokenDefinition } from '../Definitions';
 import { PointsMultipliers } from '../config/whitelisted-vaults';
 import { TimeSeriesResponse } from '../models/ModelTypes';
+import { Registry } from '../Registry';
 
 export interface SingleSidedLPParams extends BaseVaultParams {
   pool: string;
