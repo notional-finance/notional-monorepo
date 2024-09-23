@@ -19,8 +19,8 @@ import {
   groupArrayToMap,
   sendTxThroughRelayer,
   getFlashLender,
+  WETHAddress,
 } from '@notional-finance/util';
-import { overrides } from '.';
 import { Logger } from '@notional-finance/util';
 import {
   getVaultType,
@@ -104,9 +104,11 @@ export default class VaultV3Liquidator {
       borrowToken,
       currencyId: config.borrowCurrencyId,
       currencyIndex: 0,
-      assetAddress: (overrides[this.settings.network][
-        borrowToken.underlyingToken.tokenAddress
-      ] || borrowToken.underlyingToken.tokenAddress) as string,
+      assetAddress:
+        // Rewrite the asset address to WETH for flash borrowing
+        borrowToken.underlyingToken.tokenAddress === ZERO_ADDRESS
+          ? WETHAddress[this.settings.network]
+          : borrowToken.underlyingToken.tokenAddress,
       assetPrecision: borrowToken.underlyingToken.decimals,
     };
   }
