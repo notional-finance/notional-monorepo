@@ -334,6 +334,32 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         },
       ],
     },
+    {
+      address: '0xB7ECB2AA52AA64a717180E030241bC75Cd946726',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
+      registerTokens: [
+        {
+          id: '0xB7ECB2AA52AA64a717180E030241bC75Cd946726',
+          address: '0xB7ECB2AA52AA64a717180E030241bC75Cd946726',
+          network: Network.mainnet,
+          symbol: '2BTC-f',
+          name: 'Curve.fi Factory Plain Pool: tBTC/WBTC',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
+          address: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
+          network: Network.mainnet,
+          symbol: 'tBTC',
+          name: 'tBTC v2',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
   ],
   [Network.arbitrum]: [
     {

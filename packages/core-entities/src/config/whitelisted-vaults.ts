@@ -86,6 +86,8 @@ export const whitelistedVaults = (network: Network) => {
         '0xb1113cf888a019693b254da3d90f841072d85172',
         // "[ETH]:rsETH_xWETH":
         '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb',
+        // "[WBTC]:xWBTC_tBTC":
+        '0xe20048fa0f165a49b780dfa9a8caba845332f848',
       ];
     case Network.arbitrum:
       return [
