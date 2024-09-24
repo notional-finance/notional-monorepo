@@ -163,9 +163,6 @@ async function shouldSkipReinvest(
     'reinvestment',
     provider
   );
-  console.log(
-    `Last reinvestment transaction timestamp: ${lastReinvestTimestampFromKV}`
-  );
 
   const lastReinvestmentTimestampSubgraph = await getLastReinvestment(
     env,
@@ -199,7 +196,6 @@ async function shouldSkipClaim(
     'claim',
     provider
   );
-  console.log(`Last claim transaction timestamp: ${lastClaimTimestamp}`);
   // subtract 5min from time window so claim can happen at the same time in a day
   const reinvestTimeWindow =
     Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS -
@@ -303,7 +299,7 @@ const getTrades = async (
           buyAmount: tradeData.buyAmount,
         });
 
-        env.LOGGER.log({
+        await env.LOGGER.log({
           message: `Trade from ${sellToken} to ${token} has loss of: ${percentageLoss}%`,
           sellToken,
           buyToken: token,
