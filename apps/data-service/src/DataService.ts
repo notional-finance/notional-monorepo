@@ -23,6 +23,7 @@ import {
   VaultAccount,
   VaultAPY,
   ProtocolName,
+  ReinvestmentTrade,
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
 import {
@@ -59,6 +60,7 @@ export default class DataService {
   public static readonly VAULT_APY_NAME = 'vault_apy';
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
   public static readonly POINTS_TABLE_NAME = 'arb_points';
+  public static readonly REINVESTMENT_TRADES_TABLE_NAME = 'reinvestment_trades';
   public db: Knex;
   public settings: DataServiceSettings;
 
@@ -601,6 +603,31 @@ export default class DataService {
       )
       .into(DataService.VAULT_APY_NAME)
       .onConflict(['network_id', 'timestamp', 'vault_address', 'reward_token'])
+      .merge();
+  }
+
+  public async insertReinvestmentTrades(
+    network: Network,
+    reinvestmentTrades: ReinvestmentTrade[]
+  ) {
+    return this.db
+      .insert(
+        reinvestmentTrades.map((trade) => ({
+          network_id: this.networkToId(network),
+          timestamp: trade.timestamp,
+          vault: trade.vaultAddress,
+          tx_hash: trade.txHash,
+          buy_token: trade.buyToken,
+          sell_token: trade.sellToken,
+          buy_token_amount: trade.buyTokenAmount,
+          sell_token_amount: trade.sellTokenAmount,
+          buy_token_price: trade.buyTokenPrice,
+          sell_token_price: trade.sellTokenPrice,
+          loss_percentage: trade.lossPercentage,
+        }))
+      )
+      .into(DataService.REINVESTMENT_TRADES_TABLE_NAME)
+      .onConflict(['network_id', 'tx_hash', 'sell_token', 'buy_token'])
       .merge();
   }
 

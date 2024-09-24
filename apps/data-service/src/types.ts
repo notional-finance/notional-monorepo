@@ -169,6 +169,19 @@ export interface VaultAPY {
   rewardTokenSymbol: string;
 }
 
+export interface ReinvestmentTrade {
+  timestamp: number;
+  vaultAddress: string;
+  txHash: string;
+  buyToken: string;
+  sellToken: string;
+  buyTokenAmount: string;
+  sellTokenAmount: string;
+  buyTokenPrice: string;
+  sellTokenPrice: string;
+  lossPercentage: string;
+}
+
 type DataServiceAccountContextUpdate = {
   name: 'AccountContextUpdate';
   params: {
