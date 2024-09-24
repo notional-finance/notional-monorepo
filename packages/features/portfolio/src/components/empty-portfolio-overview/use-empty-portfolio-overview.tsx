@@ -32,7 +32,7 @@ export const useEmptyPortfolioOverview = () => {
   const earnYieldData = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
-      link: '/lend-fixed',
+      link: `/lend-fixed/${network}`,
       apy: `${formatNumberAsPercent(fCashLend?.totalAPY || 0)}`,
       symbol: fCashLend?.underlying.symbol,
       icon: (
@@ -60,7 +60,7 @@ export const useEmptyPortfolioOverview = () => {
     // },
     {
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      link: '/liquidity-variable',
+      link: `/liquidity-variable/${network}`,
       apy: `${formatNumberAsPercent(liquidity?.totalAPY || 0)}`,
       symbol: liquidity?.underlying.symbol,
       icon: (
@@ -75,7 +75,7 @@ export const useEmptyPortfolioOverview = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
-      link: '/vaults',
+      link: `/vaults/${network}`,
       apy: `${formatNumberAsPercent(leveragedVaults?.totalAPY || 0)}`,
       symbol: leveragedVaults?.underlying.symbol,
       icon: (
@@ -89,7 +89,7 @@ export const useEmptyPortfolioOverview = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
-      link: '/lend-variable',
+      link: `/lend-variable/${network}`,
       apy: `${formatNumberAsPercent(variableLend?.totalAPY || 0)}`,
       symbol: variableLend?.underlying.symbol,
       icon: (
@@ -103,7 +103,7 @@ export const useEmptyPortfolioOverview = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
-      link: '/liquidity-leveraged',
+      link: `/liquidity-leveraged/${network}`,
       apy: `${formatNumberAsPercent(leveragedLiquidity?.totalAPY || 0)}`,
       symbol: liquidity?.underlying.symbol,
       icon: (
@@ -121,7 +121,7 @@ export const useEmptyPortfolioOverview = () => {
   const borrowData = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Borrow'} />,
-      link: '/borrow-fixed',
+      link: `/borrow-fixed/${network}`,
       apy: `${formatNumberAsPercent(fCashBorrow?.totalAPY || 0)}`,
       symbol: fCashBorrow?.underlying.symbol,
       icon: (
@@ -136,7 +136,7 @@ export const useEmptyPortfolioOverview = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Borrow'} />,
-      link: '/borrow-variable',
+      link: `/borrow-variable/${network}`,
       apy: `${formatNumberAsPercent(variableBorrow?.totalAPY || 0)}`,
       symbol: variableBorrow?.underlying.symbol,
       icon: (
