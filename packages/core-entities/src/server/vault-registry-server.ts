@@ -109,6 +109,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
                 const totalVaultShares = r.totalVaultShares;
 
                 return {
+                  vaultAddress,
                   pool: r.pool,
                   singleSidedTokenIndex: r.singleSidedTokenIndex,
                   maxPoolShares: r.maxPoolShare,

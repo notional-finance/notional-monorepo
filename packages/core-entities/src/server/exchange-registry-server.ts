@@ -65,10 +65,7 @@ export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
         { poolParams: {} } as PoolData
       );
 
-      return [address, Object.assign(pool, { latestPoolData })] as [
-        string,
-        PoolDefinition
-      ];
+      return [address, { ...pool, latestPoolData }] as [string, PoolDefinition];
     });
 
     return {
