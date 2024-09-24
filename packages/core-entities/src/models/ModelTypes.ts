@@ -380,6 +380,8 @@ export const VaultDefinitionModel = types.model('VaultDefinition', {
   totalLPTokens: NotionalTypes.TokenBalance,
   totalVaultShares: NotionalTypes.BigNumber,
   secondaryTradeParams: types.string,
+  maxPoolShares: NotionalTypes.BigNumber,
+  totalPoolSupply: types.maybe(NotionalTypes.TokenBalance),
 });
 
 export const TimeSeriesModel = types.model('TimeSeriesModel', {

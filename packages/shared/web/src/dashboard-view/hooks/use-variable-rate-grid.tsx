@@ -5,19 +5,19 @@ import {
   useAppStore,
   useCurrentNetworkStore,
 } from '@notional-finance/notionable';
+import { ProductAPY } from '@notional-finance/core-entities';
 
 export const useVariableRateGrid = (
   network: Network | undefined,
   product: PRODUCTS
 ) => {
   const currentNetworkStore = useCurrentNetworkStore();
-  const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
 
-  let yieldData: any[] = [];
+  let yieldData: ProductAPY[] = [];
   if (product === PRODUCTS.LEND_VARIABLE) {
-    yieldData = currentNetworkStore.getAllFCashYields();
+    yieldData = currentNetworkStore.getAllPrimeCashYields();
   } else if (product === PRODUCTS.BORROW_VARIABLE) {
-    yieldData = currentNetworkStore.getAllFCashDebt();
+    yieldData = currentNetworkStore.getAllPrimeCashDebt();
   }
 
   const navigate = useNavigate();

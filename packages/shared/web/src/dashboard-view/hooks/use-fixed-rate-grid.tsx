@@ -6,6 +6,7 @@ import {
   useAppStore,
   useCurrentNetworkStore,
 } from '@notional-finance/notionable';
+import { ProductAPY } from '@notional-finance/core-entities';
 
 export const useFixedRateGrid = (
   network: Network | undefined,
@@ -17,7 +18,7 @@ export const useFixedRateGrid = (
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
   const currentNetworkStore = useCurrentNetworkStore();
 
-  let yieldData: any[] = [];
+  let yieldData: ProductAPY[] = [];
   if (product === PRODUCTS.LEND_FIXED) {
     yieldData = currentNetworkStore.getAllFCashYields();
   } else if (product === PRODUCTS.BORROW_FIXED) {

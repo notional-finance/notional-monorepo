@@ -15,9 +15,9 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
   const { baseCurrency } = useAppStore();
   const navigate = useNavigate();
   const currentNetworkStore = useCurrentNetworkStore();
-  const variableYieldData = currentNetworkStore.getAllNTokenYields();
+  const nTokenYield = currentNetworkStore.getAllNTokenYields();
 
-  const allData = variableYieldData
+  const allData = nTokenYield
     .map(({ token, apy, tvl, underlying }) => {
       return {
         symbol: underlying?.symbol || '',

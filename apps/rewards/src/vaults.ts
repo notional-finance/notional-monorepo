@@ -83,6 +83,11 @@ export const vaults: Vaults = {
       rewardTokens: [m.USDC],
       reinvestToken: m.ETH,
     },
+    {
+      address: '0xF94507F3dECE4CC4c73B6cf228912b85Eadc9CFB',
+      rewardTokens: [USDC],
+      reinvestToken: ETH,
+    },
   ],
   arbitrum: [
     {

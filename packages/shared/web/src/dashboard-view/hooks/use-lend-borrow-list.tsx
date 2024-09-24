@@ -17,6 +17,7 @@ import {
   useAppStore,
   useCurrentNetworkStore,
 } from '@notional-finance/notionable';
+import { ProductAPY } from '@notional-finance/core-entities';
 
 export const useLendBorrowList = (
   product: PRODUCTS,
@@ -26,19 +27,19 @@ export const useLendBorrowList = (
   const account = useAccountDefinition(network);
   const currentNetworkStore = useCurrentNetworkStore();
 
-  let yieldData: any[] = [];
+  let yieldData: ProductAPY[] = [];
   switch (product) {
     case PRODUCTS.LEND_FIXED:
       yieldData = currentNetworkStore.getAllFCashYields();
       break;
     case PRODUCTS.LEND_VARIABLE:
-      yieldData = currentNetworkStore.getAllFCashYields();
+      yieldData = currentNetworkStore.getAllPrimeCashYields();
       break;
     case PRODUCTS.BORROW_FIXED:
       yieldData = currentNetworkStore.getAllFCashDebt();
       break;
     case PRODUCTS.BORROW_VARIABLE:
-      yieldData = currentNetworkStore.getAllFCashDebt();
+      yieldData = currentNetworkStore.getAllPrimeCashDebt();
       break;
   }
 

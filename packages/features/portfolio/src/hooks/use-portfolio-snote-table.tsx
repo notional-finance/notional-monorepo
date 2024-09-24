@@ -11,7 +11,6 @@ import {
   useAccountDefinition,
   useStakedNOTEPoolReady,
   useStakedNoteData,
-  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { ExpandedState } from '@tanstack/react-table';
 import { useTheme } from '@mui/material';
@@ -19,6 +18,7 @@ import { Network, lastValue, PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppStore } from '@notional-finance/notionable';
 
 export function usePortfolioSNOTETable() {
   const theme = useTheme();

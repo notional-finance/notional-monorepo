@@ -34,6 +34,7 @@ import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/util';
+import { usePortfolioNOTETable } from './hooks';
 // import { PortfolioNetworkSelector } from '@notional-finance/wallet';
 // import { defineMessage } from 'react-intl';
 // import { messages } from './messages';
@@ -63,11 +64,8 @@ export const PortfolioFeatureShell = () => {
   const selectedNetwork = useSelectedNetwork();
   const params = useParams<PortfolioParams>();
   const isAccountLoading = useAccountLoading();
-  // const yieldsReady = useYieldsReady(selectedNetwork);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(selectedNetwork);
-  // TODO: fix this properly
-  // const { hasNoteOrSNote } = usePortfolioNOTETable();
-  const hasNoteOrSNote = false;
+  const { hasNoteOrSNote } = usePortfolioNOTETable();
 
   useEffect(() => {
     if (

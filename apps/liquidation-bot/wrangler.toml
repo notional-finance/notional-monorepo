@@ -18,7 +18,7 @@ name = "liquidation-bot-arbitrum2"
 
 [env.arbitrum2.vars]
 NX_REGISTRY_URL = 'https://registry.notional.finance'
-ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
+ACCOUNT_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service/accounts'
 ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
 NETWORK = 'arbitrum'
 FLASH_LIQUIDATOR_CONTRACT = '0x326746FD16FdA81599a80280AC94d3EdE71E2CE1'
@@ -44,7 +44,7 @@ name = "liquidation-bot-mainnet2"
 
 [env.mainnet2.vars]
 NX_REGISTRY_URL = 'https://registry.notional.finance'
-ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
+ACCOUNT_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service/accounts'
 ZERO_EX_SWAP_URL = 'https://api.0x.org/swap/v1/quote'
 NETWORK = 'mainnet'
 FLASH_LIQUIDATOR_CONTRACT = '0x7E9819C4fd31Efdd16Abb9e4C2b87F9991195493'
