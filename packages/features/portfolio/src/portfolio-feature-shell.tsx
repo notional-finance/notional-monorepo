@@ -34,6 +34,7 @@ import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/util';
+import { usePortfolioNOTETable } from './hooks';
 // import { PortfolioNetworkSelector } from '@notional-finance/wallet';
 // import { defineMessage } from 'react-intl';
 // import { messages } from './messages';
@@ -63,12 +64,13 @@ export const PortfolioFeatureShell = () => {
   const selectedNetwork = useSelectedNetwork();
   const params = useParams<PortfolioParams>();
   const isAccountLoading = useAccountLoading();
-  // const yieldsReady = useYieldsReady(selectedNetwork);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(selectedNetwork);
+  const { hasNoteOrSNote } = usePortfolioNOTETable();
 
   useEffect(() => {
     if (
       !isAccountLoading &&
+      !hasNoteOrSNote &&
       !isAcctAndBalanceReady &&
       params.sideDrawerKey !== 'cool-down'
     ) {
@@ -79,6 +81,7 @@ export const PortfolioFeatureShell = () => {
     }
   }, [
     isAccountLoading,
+    hasNoteOrSNote,
     isAcctAndBalanceReady,
     navigate,
     selectedNetwork,

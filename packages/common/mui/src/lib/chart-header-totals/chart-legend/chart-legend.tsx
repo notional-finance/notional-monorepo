@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { LabelValue, Caption } from '../../typography/typography';
 import { Box, styled } from '@mui/material';
-import { LEGEND_LINE_TYPES } from '../chart-header';
+import { LEGEND_LINE_TYPES } from '../../chart-header/chart-header';
 
 export interface ChartLegendProps {
   label: ReactNode;

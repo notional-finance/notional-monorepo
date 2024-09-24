@@ -1,14 +1,15 @@
 import { init } from '@web3-onboard/react';
 import { OnboardAPI } from '@web3-onboard/core';
-import safeModule from '@web3-onboard/gnosis';
 import injectedModule from '@web3-onboard/injected-wallets';
 import {
   EIP6963AnnounceProviderEvent,
   EIP6963ProviderDetail,
 } from '@web3-onboard/injected-wallets/dist/types';
 import walletConnectModule from '@web3-onboard/walletconnect';
+import safeModule from '@web3-onboard/gnosis';
 import coinbaseModule from '@web3-onboard/coinbase';
 import MetaMask from './images/meta-mask.svg';
+import Safe from './images/safe.svg';
 import CoinbaseWallet from './images/coinbase-wallet.svg';
 import trezorModule from '@web3-onboard/trezor';
 import WalletConnect from './images/wallet-connect.svg';
@@ -65,6 +66,10 @@ export const useWalletModules = () => {
     {
       label: 'Trezor',
       icon: Trezor,
+    },
+    {
+      label: 'Safe',
+      icon: Safe,
     },
   ];
   const checkProvider = new Map<string, boolean>();

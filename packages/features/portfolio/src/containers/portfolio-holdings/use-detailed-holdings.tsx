@@ -1,20 +1,15 @@
-import { useTheme } from '@mui/material';
 import {
   FiatKeys,
   TokenBalance,
   getNetworkModel,
-  getPointsPerDay,
 } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
-  formatNumberAsAbbr,
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
-import { PointsIcon } from '@notional-finance/icons';
-import { Body, H4 } from '@notional-finance/mui';
 import {
   useFiatToken,
   useNOTE,
@@ -26,16 +21,14 @@ import { PORTFOLIO_ACTIONS, TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
-import { usePortfolioStore } from '@notional-finance/notionable';
 
 export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
-  const theme = useTheme();
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
-  const { arbPoints } = usePortfolioStore();
+  // const { arbPoints } = usePortfolioStore();
   const navigate = useNavigate();
   const fiatToken = useFiatToken();
   const NOTE = useNOTE(network);
@@ -114,9 +107,9 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
           const isDebt = b.isNegative();
           const { icon, formattedTitle, titleWithMaturity, title } =
             formatTokenType(b.token, isDebt);
-          const pointsPerDay = getPointsPerDay(b);
-          const totalPoints =
-            arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
+          // const pointsPerDay = getPointsPerDay(b);
+          // const totalPoints =
+          //   arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
           const marketApy = marketYield?.totalAPY;
           const noteIncentives = marketYield?.noteIncentives?.incentiveAPY;
           const secondaryIncentives =
@@ -148,32 +141,32 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
             },
           ];
 
-          if (totalPoints > 0) {
-            subRowData.push({
-              label: <FormattedMessage defaultMessage={'Points Earned'} />,
-              value: (
-                <H4 sx={{ display: 'flex' }}>
-                  <PointsIcon sx={{ marginRight: theme.spacing(0.5) }} />
-                  {formatNumberAsAbbr(totalPoints, 2, 'USD', {
-                    hideSymbol: true,
-                  })}
-                  <Body
-                    sx={{
-                      marginLeft: theme.spacing(0.5),
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    (
-                    {formatNumberAsAbbr(pointsPerDay, 2, 'USD', {
-                      hideSymbol: true,
-                    })}
-                    )/day
-                  </Body>
-                </H4>
-              ),
-            });
-          }
+          // if (totalPoints > 0) {
+          //   subRowData.push({
+          //     label: <FormattedMessage defaultMessage={'Points Earned'} />,
+          //     value: (
+          //       <H4 sx={{ display: 'flex' }}>
+          //         <PointsIcon sx={{ marginRight: theme.spacing(0.5) }} />
+          //         {formatNumberAsAbbr(totalPoints, 2, 'USD', {
+          //           hideSymbol: true,
+          //         })}
+          //         <Body
+          //           sx={{
+          //             marginLeft: theme.spacing(0.5),
+          //             display: 'flex',
+          //             alignItems: 'center',
+          //           }}
+          //         >
+          //           (
+          //           {formatNumberAsAbbr(pointsPerDay, 2, 'USD', {
+          //             hideSymbol: true,
+          //           })}
+          //           )/day
+          //         </Body>
+          //       </H4>
+          //     ),
+          //   });
+          // }
 
           if (hasNToken) {
             buttonBarData.push({
@@ -213,11 +206,11 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
           }
 
           const totalAtMaturity =
-            b.token.tokenType === 'fCash'
+            b.token.tokenType === 'fCash' && s?.accumulatedCostRealized
               ? TokenBalance.from(
                   b.scaleTo(b.underlying.decimals),
                   b.underlying
-                )
+                ).sub(s.accumulatedCostRealized)
               : undefined;
 
           return {
@@ -391,13 +384,11 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
     };
   }, [
     holdings,
-    arbPoints,
     baseCurrency,
     navigate,
     fiatToken,
     NOTE,
     pendingTokens,
     network,
-    theme,
   ]);
 }

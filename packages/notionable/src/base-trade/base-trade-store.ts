@@ -50,6 +50,8 @@ interface VaultState {
   underMinAccountBorrow?: boolean;
   minBorrowSize?: string;
   overCapacityError?: boolean;
+  overPoolCapacityError?: boolean;
+  totalPoolCapacityRemaining?: TokenBalance;
   totalCapacityRemaining?: TokenBalance;
   vaultTVL?: TokenBalance;
 }
@@ -211,12 +213,14 @@ export const initialVaultTradeState: VaultTradeState = {
   ...initialBaseTradeState,
   underMinAccountBorrow: false,
   overCapacityError: false,
+  overPoolCapacityError: false,
 };
 
 export const initialNOTETradeState: NOTETradeState = {
   ...initialBaseTradeState,
   underMinAccountBorrow: false,
   overCapacityError: false,
+  overPoolCapacityError: false,
 };
 
 export function isVaultTrade(tradeType?: AllTradeTypes) {

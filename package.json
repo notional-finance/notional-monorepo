@@ -34,7 +34,7 @@
     "@types/recharts": "^1.8.24",
     "@web3-onboard/coinbase": "^2.4.1",
     "@web3-onboard/core": "^2.22.2",
-    "@web3-onboard/gnosis": "^2.3.1",
+    "@web3-onboard/gnosis": "^2.3.2",
     "@web3-onboard/injected-wallets": "^2.11.1",
     "@web3-onboard/ledger": "^2.7.1",
     "@web3-onboard/react": "^2.9.2",
@@ -121,15 +121,17 @@
     "@nrwl/cli": "15.3.0",
     "@nrwl/cypress": "15.3.0",
     "@nrwl/devkit": "15.3.0",
+    "@nrwl/esbuild": "15.3.0",
     "@nrwl/eslint-plugin-nx": "15.3.0",
     "@nrwl/jest": "15.3.0",
     "@nrwl/js": "15.3.0",
     "@nrwl/linter": "15.3.0",
     "@nrwl/next": "15.3.0",
     "@nrwl/node": "15.3.0",
-    "@nrwl/nx-cloud": "15.0.2",
+    "@nrwl/nx-cloud": "^19.0.0",
     "@nrwl/nx-plugin": "15.3.0",
     "@nrwl/react": "15.3.0",
+    "@nrwl/rollup": "15.3.0",
     "@nrwl/web": "15.3.0",
     "@nrwl/workspace": "15.3.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
@@ -142,7 +144,7 @@
     "@typechain/ethers-v5": "^10.1.0",
     "@types/http-server": "^0.12.1",
     "@types/jest": "28.1.1",
-    "@types/node": "18.11.9",
+    "@types/node": "20.8.4",
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.0",
     "@types/react-is": "17.0.3",
@@ -213,8 +215,10 @@
   "resolutions": {
     "@types/react": "18.2.0"
   },
-  "workspaces": [
-    "packages/**",
-    "apps/**"
-  ]
+  "workspaces": {
+    "packages": [
+      "packages/**",
+      "apps/**/!(dist)"
+    ]
+  }
 }

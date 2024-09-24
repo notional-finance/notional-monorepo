@@ -4,7 +4,7 @@
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
     "lib": ["esnext", "dom"],
-    "types": ["jest", "node", "@cloudflare/workers-types", "bindings"]
+    "types": ["jest", "node", "@cloudflare/workers-types"]
   },
   "include": ["jest.config.ts", "**/*.test.ts", "**/*.spec.ts", "**/*.d.ts"]
 }

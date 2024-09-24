@@ -1,6 +1,6 @@
 import { Network } from '@notional-finance/util';
 import { Routes } from '../server';
-import { VaultAdapter, VaultMetadata } from '../vaults';
+import { SingleSidedLP, VaultMetadata } from '../vaults';
 import { ClientRegistry } from './client-registry';
 
 export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
@@ -16,6 +16,6 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
   getVaultAdapter(network: Network, vaultAddress: string) {
     const params = this.getLatestFromSubject(network, vaultAddress);
     if (!params) throw Error(`No vault params found: ${vaultAddress}`);
-    return {} as VaultAdapter;
+    return {} as SingleSidedLP;
   }
 }

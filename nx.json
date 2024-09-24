@@ -19,21 +19,8 @@
     "build": {
       "dependsOn": ["^build"]
     },
-    "version": {
-      "executor": "@jscutlery/semver:version",
-      "options": {
-        "preset": "conventional",
-        "push": true,
-        "skipCommitTypes": [
-          "chore",
-          "docs",
-          "perf",
-          "test",
-          "build",
-          "ci",
-          "revert"
-        ]
-      }
+    "deploy-cron": {
+      "inputs": ["{projectRoot}/deploy-cron.sh"]
     }
   },
   "targetDependencies": {
@@ -76,7 +63,7 @@
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "lint"],
+        "cacheableOperations": ["build", "lint", "typechain"],
         "cacheDirectory": ".nx-cache"
       }
     }

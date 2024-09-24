@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
-import { CountUp, ButtonText, H4 } from '@notional-finance/mui';
+import { CountUp, ButtonText, H4, Caption } from '@notional-finance/mui';
 import { NoteWithShadow, TokenIcon } from '@notional-finance/icons';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
@@ -9,6 +9,7 @@ import {
   useSelectedNetwork,
   useTotalIncentives,
   useTransactionStatus,
+  useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { ClaimNOTE } from '@notional-finance/transaction';
 import {
@@ -67,6 +68,8 @@ const useIncentiveCountUp = (
 export const ClaimNoteButton = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
+  const [networkError, setNetworkError] = useState(false);
+  const walletNetwork = useWalletConnectedNetwork();
   const account = useAccountDefinition(network);
   const { isReadOnlyAddress, onSubmit } = useTransactionStatus(network);
   const [hover, setHover] = useState(false);
@@ -78,8 +81,26 @@ export const ClaimNoteButton = () => {
     network
   );
 
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (networkError) {
+      timer = setTimeout(() => {
+        setNetworkError(false);
+      }, 5000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [networkError]);
+
   const handleClick = useCallback(async () => {
     if (isReadOnlyAddress || !account || !network) return;
+
+    if (walletNetwork !== network) {
+      setNetworkError(true);
+    }
 
     const txn = ClaimNOTE({
       address: account.address,
@@ -89,7 +110,7 @@ export const ClaimNoteButton = () => {
       maxWithdraw: false,
     });
     onSubmit('ClaimNOTE', await txn);
-  }, [onSubmit, isReadOnlyAddress, account, network]);
+  }, [onSubmit, isReadOnlyAddress, account, network, walletNetwork]);
 
   return (
     <Box
@@ -99,6 +120,20 @@ export const ClaimNoteButton = () => {
         flexDirection: 'column',
       }}
     >
+      {networkError && (
+        <Caption
+          sx={{
+            marginLeft: theme.spacing(3),
+            color: theme.palette.error.main,
+            position: 'absolute',
+            marginBottom: theme.spacing(6),
+          }}
+        >
+          <FormattedMessage
+            defaultMessage={'Wallet connected to wrong network'}
+          />
+        </Caption>
+      )}
       {(noteCountUp > 0 || secondaryCountUp > 0) && account && (
         <ClaimLabel>
           <FormattedMessage defaultMessage={'Claim'} />

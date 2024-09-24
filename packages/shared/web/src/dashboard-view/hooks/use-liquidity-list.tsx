@@ -18,6 +18,7 @@ import {
   useCurrentNetworkStore,
   useAppStore,
 } from '@notional-finance/notionable';
+import { ProductAPY } from '@notional-finance/core-entities';
 
 export const useLiquidityList = (
   product: PRODUCTS,
@@ -27,7 +28,7 @@ export const useLiquidityList = (
   const account = useAccountDefinition(network);
   const currentNetworkStore = useCurrentNetworkStore();
 
-  let yieldData: any[] = [];
+  let yieldData: ProductAPY[] = [];
   if (product === PRODUCTS.LIQUIDITY_LEVERAGED) {
     yieldData = currentNetworkStore.getAllLeveragedNTokenYields();
   } else if (product === PRODUCTS.LIQUIDITY_VARIABLE) {
