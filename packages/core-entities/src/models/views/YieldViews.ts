@@ -30,6 +30,17 @@ export interface APYData {
   debtAPY?: number;
 }
 
+export interface ProductAPY {
+  token: TokenDefinition;
+  apy: APYData;
+  tvl: TokenBalance;
+  liquidity: TokenBalance;
+  underlying: TokenDefinition | undefined;
+  collateralFactor: string;
+  debtToken: TokenDefinition | undefined;
+  maxLeverageRatio?: number | undefined;
+}
+
 export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const {
     getTokenBySymbol,
@@ -433,8 +444,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     }
   };
 
-  const getAllNTokenYields = () => {
-    const nTokenData = getTokensByType('nToken').map((t) => {
+  const getAllNTokenYields = (): ProductAPY[] => {
+    return getTokensByType('nToken').map((t) => {
       return {
         token: t,
         apy: getSpotAPY(t.id),
@@ -445,11 +456,10 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         debtToken: undefined,
       };
     });
-    return nTokenData;
   };
 
-  const getAllFCashYields = () => {
-    const fCashLendData = getTokensByType('fCash')
+  const getAllFCashYields = (): ProductAPY[] => {
+    return getTokensByType('fCash')
       .filter((data) => !data?.isFCashDebt)
       .map((t) => {
         return {
@@ -462,11 +472,10 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
           debtToken: undefined,
         };
       });
-    return fCashLendData;
   };
 
-  const getAllFCashDebt = () => {
-    const fCashDebtData = getTokensByType('fCash')
+  const getAllFCashDebt = (): ProductAPY[] => {
+    return getTokensByType('fCash')
       .filter((data) => data?.isFCashDebt)
       .map((t) => {
         return {
@@ -479,11 +488,10 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
           debtToken: undefined,
         };
       });
-    return fCashDebtData;
   };
 
-  const getAllPrimeCashYields = () => {
-    const primeCashLendData = getTokensByType('PrimeCash').map((t) => {
+  const getAllPrimeCashYields = (): ProductAPY[] => {
+    return getTokensByType('PrimeCash').map((t) => {
       return {
         token: t,
         apy: getSpotAPY(t.id),
@@ -494,11 +502,10 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         debtToken: undefined,
       };
     });
-    return primeCashLendData;
   };
 
   const getAllPrimeCashDebt = () => {
-    const primeCashDebtData = getTokensByType('PrimeDebt').map((t) => {
+    return getTokensByType('PrimeDebt').map((t) => {
       return {
         token: t,
         apy: getSpotAPY(t.id),
@@ -509,10 +516,9 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         debtToken: undefined,
       };
     });
-    return primeCashDebtData;
   };
 
-  const getAllLeveragedNTokenYields = () => {
+  const getAllLeveragedNTokenYields = (): ProductAPY[] => {
     const leveragedNTokenData = getTokensByType('nToken').map((t) => {
       const debtTokens = getDefaultLeveragedNTokenAPYs(t);
       const leveragedNTokenData =
