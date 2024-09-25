@@ -147,13 +147,14 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     enabled: boolean,
     name: string
   ): AggregateCall[] {
+    const vaultContract = new Contract(
+      vaultAddress,
+      ISingleSidedLPStrategyVaultABI,
+      getProviderFromNetwork(network)
+    );
     return [
       {
-        target: new Contract(
-          vaultAddress,
-          ISingleSidedLPStrategyVaultABI,
-          getProviderFromNetwork(network)
-        ),
+        target: vaultContract,
         stage: 0,
         method: 'getStrategyVaultInfo',
         key: vaultAddress,
@@ -181,6 +182,24 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             name,
           };
         },
+      },
+      {
+        target: vaultContract,
+        stage: 0,
+        method: 'getRewardSettings',
+        key: `${vaultAddress}.rewardState`,
+        transform: (
+          r: Awaited<
+            ReturnType<ISingleSidedLPStrategyVault['getRewardSettings']>
+          >
+        ) =>
+          r[0].map((v) => ({
+            lastAccumulatedTime: v.lastAccumulatedTime,
+            endTime: v.endTime,
+            rewardToken: v.rewardToken,
+            emissionRatePerYear: v.emissionRatePerYear,
+            accumulatedRewardPerVaultSHare: v.accumulatedRewardPerVaultShare,
+          })),
       },
       {
         target: (r: Record<string, unknown>) =>

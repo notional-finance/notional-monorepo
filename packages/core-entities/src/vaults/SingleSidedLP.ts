@@ -24,6 +24,15 @@ export interface SingleSidedLPParams extends BaseVaultParams {
   secondaryTradeParams: string;
   maxPoolShares: BigNumber;
   totalPoolSupply?: TokenBalance;
+  rewardState?: RewardState[];
+}
+
+interface RewardState {
+  lastAccumulatedTime: number;
+  endTime: number;
+  rewardToken: string;
+  emissionRatePerYear: BigNumber; // in internal precision
+  accumulatedRewardPerVaultShare: BigNumber;
 }
 
 export interface TradeParams {
@@ -63,6 +72,7 @@ export class SingleSidedLP extends VaultAdapter {
   public secondaryTradeParams: string;
   public maxPoolShares: BigNumber;
   public totalPoolSupply: TokenBalance | undefined;
+  public rewardState?: RewardState[];
 
   get strategy() {
     return 'SingleSidedLP';
@@ -97,6 +107,7 @@ export class SingleSidedLP extends VaultAdapter {
     this.secondaryTradeParams = p.secondaryTradeParams;
     this.maxPoolShares = p.maxPoolShares;
     this.totalPoolSupply = p.totalPoolSupply;
+    this.rewardState = p.rewardState;
 
     this._initOracles(network, vaultAddress.toLowerCase());
   }
