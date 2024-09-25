@@ -368,7 +368,8 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     riskAdjusted: RiskAdjustment = 'None',
     timestamp: number
   ): ExchangeRate | null {
-    let subjectMap = this._cache0.get(`${network}:${timestamp}`);
+    const cacheKey = `${network}:${timestamp}`;
+    let subjectMap = this._cache0.get(cacheKey);
     if (!subjectMap) {
       subjectMap = Registry.getAnalyticsRegistry()
         .getHistoricalOracles(network, timestamp)
@@ -376,7 +377,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           m.set(o.id, new BehaviorSubject<OracleDefinition | null>(o));
           return m;
         }, new Map<string, BehaviorSubject<OracleDefinition | null>>());
-      this._cache0.set(`${network}:${timestamp}`, subjectMap);
+      this._cache0.set(cacheKey, subjectMap);
     }
 
     if (!subjectMap || subjectMap.size === 0)

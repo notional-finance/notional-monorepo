@@ -45,10 +45,11 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
    */
   private _cache0 = new Map<string, TokenDefinition | undefined>();
   public getTokenBySymbol(network: Network, symbol: string) {
-    let token = this._cache0.get(`${network}:${symbol}`);
+    const cacheKey = `${network}:${symbol}`;
+    let token = this._cache0.get(cacheKey);
     if (!token) {
       token = this.getAllTokens(network).find((t) => t.symbol === symbol);
-      this._cache0.set(`${network}:${symbol}`, token);
+      this._cache0.set(cacheKey, token);
     }
     if (!token) throw Error(`${symbol} not found on ${network}`);
     return token;

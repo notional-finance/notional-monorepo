@@ -425,14 +425,12 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     network: Network,
     timeRange: number
   ): PriceChange[] {
-    console.log('getPriceChanges', `${network}:${base}:${timeRange}`);
-    const cacheKey =
-      network === Network.all
-        ? `mainnet:${base}:${timeRange}`
-        : `${network}:${base}:${timeRange}`;
+    // if we uncomment next line we can further make ~0.5sec load improvement
+    // not sure is it save to do it
+    // network = network === Network.all ? Network.mainnet : network;
+    const cacheKey = `${network}:${base}`;
     const cashedResult = this._cache1.get(cacheKey);
     if (cashedResult) {
-      console.log('getPriceChanges', 'cache hit');
       return cashedResult;
     }
     let allTokens = this._cache0.get(network);
@@ -448,7 +446,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       this._cache0.set(network, allTokens);
     }
 
-    const freshPriceChanges = allTokens.map((t) => {
+    const result = allTokens.map((t) => {
       const unit = TokenBalance.unit(t);
       const midnight = getMidnightUTC();
       const pastDate = midnight - timeRange;
@@ -479,9 +477,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       };
     });
 
-    this._cache1.set(cacheKey, freshPriceChanges);
+    this._cache1.set(cacheKey, result);
 
-    return freshPriceChanges;
+    return result;
   }
 
   async getNetworkTransactions(network: Network, skip: number) {
