@@ -188,6 +188,7 @@ export interface AccountDefinition {
   systemAccountType?: SystemAccount;
   stakeNOTEStatus?: StakeNoteStatus;
   historicalBalances?: HistoricalBalance[];
+  rewardClaims?: Record<string, TokenBalance[]>;
 }
 
 export interface SerializedAccountDefinition {

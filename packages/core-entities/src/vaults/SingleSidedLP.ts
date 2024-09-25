@@ -86,6 +86,10 @@ export class SingleSidedLP extends VaultAdapter {
     )?.toNumber();
   }
 
+  get rewardTokens() {
+    return this.rewardState?.map((r) => r.rewardToken) || [];
+  }
+
   constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
     super(p.enabled, p.name, network, vaultAddress);
 

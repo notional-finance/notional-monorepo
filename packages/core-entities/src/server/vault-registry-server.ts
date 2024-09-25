@@ -81,6 +81,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         }) => {
           switch (getVaultType(vaultAddress, network)) {
             case 'SingleSidedLP':
+            case 'SingleSidedLP_VaultRewarderLib':
               return this.getSingleSidedLPCalls(
                 vaultAddress,
                 network,

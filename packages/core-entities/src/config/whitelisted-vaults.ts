@@ -156,12 +156,31 @@ const PendlePTVaults: Record<Network, string[]> = {
   [Network.all]: [],
 };
 
+const SingleSidedLP_VaultRewarderLib: Record<Network, string[]> = {
+  [Network.arbitrum]: [],
+  [Network.mainnet]: [
+    '0x3533f05b2c54ce1c2321cfe3c6f693a3cbbaea10',
+    '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68',
+  ],
+  [Network.optimism]: [],
+  [Network.all]: [],
+};
+
+type VaultType =
+  | 'SingleSidedLP'
+  | 'PendlePT'
+  | 'SingleSidedLP_VaultRewarderLib';
+
 export function getVaultType(
   vaultAddress: string,
   network: Network
-): 'SingleSidedLP' | 'PendlePT' {
+): VaultType {
   if (PendlePTVaults[network].includes(vaultAddress.toLowerCase())) {
     return 'PendlePT';
+  } else if (
+    SingleSidedLP_VaultRewarderLib[network].includes(vaultAddress.toLowerCase())
+  ) {
+    return 'SingleSidedLP_VaultRewarderLib';
   }
   return 'SingleSidedLP';
 }
