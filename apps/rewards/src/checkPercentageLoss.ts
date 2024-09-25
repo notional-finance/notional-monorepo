@@ -33,6 +33,17 @@ async function getTokensPricesFromDefiLlama(
   return coinsData;
 }
 
+/**
+ *
+ * @param price - decimal number
+ * @returns {BigNumber} USD value, BigNumber with 18 decimals
+ */
+const convertToUsd = (amount: BigNumber, decimals: number, price: number) => {
+  // 1e15 is maximum number we can multiply price with without precision loss
+  const priceBigNumber = BigNumber.from((price * 1e15).toFixed(0)).mul(1e3);
+  return amount.mul(priceBigNumber).div(BigNumber.from(10).pow(decimals));
+};
+
 export default async function checkPercentageLoss(
   env: Env,
   {
@@ -51,14 +62,21 @@ export default async function checkPercentageLoss(
     env.NETWORK,
     [sellToken, buyToken]
   );
-  const sellAmountInUsd =
-    sellTokenData.price *
-    sellAmount.div(BigNumber.from(10).pow(sellTokenData.decimals)).toNumber();
-  const buyAmountInUsd =
-    buyTokenData.price *
-    buyAmount.div(BigNumber.from(10).pow(buyTokenData.decimals)).toNumber();
-  const percentageLoss =
-    ((sellAmountInUsd - buyAmountInUsd) * 100) / sellAmountInUsd;
+  const sellAmountInUsd = convertToUsd(
+    sellAmount,
+    sellTokenData.decimals,
+    sellTokenData.price
+  );
+  const buyAmountInUsd = convertToUsd(
+    buyAmount,
+    buyTokenData.decimals,
+    buyTokenData.price
+  );
+  const percentageLoss = sellAmountInUsd
+    .sub(buyAmountInUsd)
+    .mul(100)
+    .div(sellAmountInUsd)
+    .toNumber();
 
   const acceptableLoss =
     acceptablePercentageLoss[env.NETWORK][sellToken] ||
