@@ -12,6 +12,7 @@ import {
   AccountDefinition,
   FiatKeys,
   getVaultType,
+  PendlePT,
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
@@ -339,6 +340,19 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       .add(cashPnL?.totalILAndFees || zeroDenom);
 
     const marketProfitLoss = profit.sub(totalInterestAccrual);
+    const vaultType = getVaultType(v.vaultAddress, v.network);
+
+    const vaultMetadata = {
+      rewardClaims:
+        account.rewardClaims && account.rewardClaims[v.vaultAddress],
+      vaultType,
+      reinvestmentCadence:
+        v.network === Network.arbitrum ? SECONDS_IN_DAY : 7 * SECONDS_IN_DAY,
+      isExpired:
+        vaultType === 'PendlePT'
+          ? (v.vaultAdapter as PendlePT).timeToExpiry === 0
+          : undefined,
+    };
 
     return {
       vault: v,
@@ -358,9 +372,7 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       totalInterestAccrual,
       assetPnL,
       debtPnL,
-      vaultType: getVaultType(v.vaultAddress, v.network),
-      rewardClaims:
-        account.rewardClaims && account.rewardClaims[v.vaultAddress],
+      vaultMetadata,
     };
   });
 }

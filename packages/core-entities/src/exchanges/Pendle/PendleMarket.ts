@@ -159,7 +159,10 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   get timeToExpiry() {
-    return this.poolParams.marketState.expiry - getNowSeconds();
+    const now = getNowSeconds();
+    return this.poolParams.marketState.expiry > now
+      ? this.poolParams.marketState.expiry - now
+      : 0;
   }
 
   get ptExchangeRate() {

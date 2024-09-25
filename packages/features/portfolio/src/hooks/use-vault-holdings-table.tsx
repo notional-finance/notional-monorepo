@@ -147,24 +147,17 @@ const VaultHoldingsColumns: DataTableColumn[] = [
   },
 ] as const;
 
-function getVaultReinvestmentDate(network: Network, vaultAddress: string) {
+function getVaultReinvestmentDate(network: Network, vaultAddress: string, reinvestmentCadence: number) {
   try {
     const reinvestmentData =
       Registry.getAnalyticsRegistry().getVaultReinvestments(network)[
         vaultAddress
       ];
-    const reinvestmentCadence =
-      network === Network.arbitrum ? SECONDS_IN_DAY : 7 * SECONDS_IN_DAY;
     return getDateString(reinvestmentData[0].timestamp + reinvestmentCadence);
   } catch (e) {
     return '';
   }
 }
-
-// There are three types of subrow info:
-// 1. Time to next reinvestment
-// 2. Points boost
-// 3. Reward tokens
 
 function getSpecificVaultInfo(
   v: ReturnType<typeof useVaultHoldings>[number],
@@ -228,7 +221,7 @@ function getSpecificVaultInfo(
       totalEarnings,
       buttonBarData: [],
     };
-  } else if (v.rewardClaims) {
+  } else if (v.vaultMetadata.rewardClaims) {
     // Reward Claiming Vaults
     return {
       subRowInfo: [
@@ -236,7 +229,7 @@ function getSpecificVaultInfo(
           label: <FormattedMessage defaultMessage={'Claimable Rewards'} />,
           value: (
             <Box sx={{ display: 'flex', gap: theme.spacing(1) }}>
-              {v.rewardClaims.map((claim) => (
+              {v.vaultMetadata.rewardClaims.map((claim) => (
                 <TokenIcon symbol={claim.symbol} size={'small'} />
               ))}
               <InfoTooltip
@@ -254,7 +247,7 @@ function getSpecificVaultInfo(
                       gap: theme.spacing(1),
                     }}
                   >
-                    {v.rewardClaims?.map((claim) => (
+                    {v.vaultMetadata.rewardClaims?.map((claim) => (
                       <H5>{claim.toDisplayStringWithSymbol(3, true, false)}</H5>
                     ))}
                   </Box>
@@ -286,7 +279,7 @@ function getSpecificVaultInfo(
         },
       ],
     };
-  } else if (v.vaultType === 'SingleSidedLP') {
+  } else if (v.vaultMetadata.vaultType === 'SingleSidedLP') {
     return {
       subRowInfo: [
         {
@@ -295,7 +288,8 @@ function getSpecificVaultInfo(
           ),
           value: getVaultReinvestmentDate(
             v.vault.network,
-            v.vault.vaultAddress
+            v.vault.vaultAddress,
+            v.vaultMetadata.reinvestmentCadence
           ),
         },
       ],
