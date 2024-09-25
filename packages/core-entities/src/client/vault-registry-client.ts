@@ -47,6 +47,7 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
         const vaultType = getVaultType(vaultAddress, network);
         switch (vaultType) {
           case 'SingleSidedLP':
+          case 'SingleSidedLP_VaultRewarderLib':
             return new SingleSidedLP(
               network,
               vaultAddress,

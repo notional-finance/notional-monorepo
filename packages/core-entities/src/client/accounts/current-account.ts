@@ -399,11 +399,9 @@ function getVaultCalls(
         args: [account, getNowSeconds()],
         key: `${v.vaultAddress}.rewardClaim`,
         transform: (r: BigNumber[]) => {
-          return {
-            balances: r.map((b, i) =>
-              TokenBalance.fromID(b, rewardTokens[i], network)
-            ),
-          };
+          return r.map((b, i) =>
+            TokenBalance.fromID(b, rewardTokens[i], network)
+          );
         },
       });
     }

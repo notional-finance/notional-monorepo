@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, useTheme } from '@mui/material';
+import { Box, Theme, useTheme } from '@mui/material';
 import {
   DataTableColumn,
   MultiValueCell,
@@ -9,6 +9,8 @@ import {
   Body,
   H4,
   DisplayCell,
+  InfoTooltip,
+  H5,
 } from '@notional-finance/mui';
 import {
   formatCryptoWithFiat,
@@ -41,6 +43,7 @@ import {
   PointsLinks,
   Registry,
 } from '@notional-finance/core-entities';
+import { TokenIcon } from '@notional-finance/icons';
 
 const HealthFactorCell = ({ cell }) => {
   const theme = useTheme();
@@ -165,7 +168,8 @@ function getVaultReinvestmentDate(network: Network, vaultAddress: string) {
 
 function getSpecificVaultInfo(
   v: ReturnType<typeof useVaultHoldings>[number],
-  baseCurrency: FiatKeys
+  baseCurrency: FiatKeys,
+  theme: Theme
 ): {
   subRowInfo: { label: React.ReactNode; value: React.ReactNode }[];
   totalEarnings:
@@ -173,7 +177,8 @@ function getSpecificVaultInfo(
     | {
         data: {
           displayValue: string;
-          isNegative: boolean;
+          isNegative?: boolean;
+          textColor?: string;
           toolTipContent?: MessageDescriptor;
         }[];
       };
@@ -224,13 +229,46 @@ function getSpecificVaultInfo(
       buttonBarData: [],
     };
   } else if (v.rewardClaims) {
+    // Reward Claiming Vaults
     return {
-      subRowInfo: [],
+      subRowInfo: [
+        {
+          label: <FormattedMessage defaultMessage={'Claimable Rewards'} />,
+          value: (
+            <Box sx={{ display: 'flex', gap: theme.spacing(1) }}>
+              {v.rewardClaims.map((claim) => (
+                <TokenIcon symbol={claim.symbol} size={'small'} />
+              ))}
+              <InfoTooltip
+                iconColor={theme.palette.typography.accent}
+                iconSize={theme.spacing(2)}
+                sx={{
+                  marginLeft: theme.spacing(1),
+                  fill: theme.palette.typography.accent,
+                }}
+                ToolTipComp={() => (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: theme.spacing(1),
+                    }}
+                  >
+                    {v.rewardClaims?.map((claim) => (
+                      <H5>{claim.toDisplayStringWithSymbol(3, true, false)}</H5>
+                    ))}
+                  </Box>
+                )}
+              />
+            </Box>
+          ),
+        },
+      ],
       totalEarnings: {
         data: [
           {
             displayValue: 'N/A',
-            isNegative: false,
+            textColor: theme.palette.typography.main,
             toolTipContent: defineMessage({
               defaultMessage:
                 'This vault requires claiming reward tokens directly. We are unable to calculate the dollar value at this time. Claim rewards in the drawer below.',
@@ -321,7 +359,8 @@ export const useVaultHoldingsTable = () => {
     const points = vaultYield?.pointMultiples;
     const { subRowInfo, totalEarnings, buttonBarData } = getSpecificVaultInfo(
       vaultHolding,
-      baseCurrency
+      baseCurrency,
+      theme
     );
 
     const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [

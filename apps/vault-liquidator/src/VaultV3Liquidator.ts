@@ -417,7 +417,10 @@ export default class VaultV3Liquidator {
         maturity,
         totalVaultShares
       );
-    } else if (vaultType === 'SingleSidedLP') {
+    } else if (
+      vaultType === 'SingleSidedLP' ||
+      vaultType === 'SingleSidedLP_VaultRewarderLib'
+    ) {
       redeemData = await this.getSingleSidedLPRedeemData(
         vault,
         maturity,
