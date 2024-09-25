@@ -11,6 +11,7 @@ import { AccruedIncentives } from './incentives';
 import {
   AccountDefinition,
   FiatKeys,
+  getVaultType,
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
@@ -357,6 +358,7 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       totalInterestAccrual,
       assetPnL,
       debtPnL,
+      vaultType: getVaultType(v.vaultAddress, v.network),
       rewardClaims:
         account.rewardClaims && account.rewardClaims[v.vaultAddress],
     };
