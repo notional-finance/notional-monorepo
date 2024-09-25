@@ -43,8 +43,13 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
    * @param symbol the symbol of the token
    * @returns a token definition object or undefined if not found
    */
+  private _cache0 = new Map<string, TokenDefinition | undefined>();
   public getTokenBySymbol(network: Network, symbol: string) {
-    const token = this.getAllTokens(network).find((t) => t.symbol === symbol);
+    let token = this._cache0.get(`${network}:${symbol}`);
+    if (!token) {
+      token = this.getAllTokens(network).find((t) => t.symbol === symbol);
+      this._cache0.set(`${network}:${symbol}`, token);
+    }
     if (!token) throw Error(`${symbol} not found on ${network}`);
     return token;
   }

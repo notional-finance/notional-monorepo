@@ -418,49 +418,70 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
     };
   }
 
+  private _cache0 = new Map<Network, TokenDefinition[]>();
+  private _cache1 = new Map<string, PriceChange[]>();
   getPriceChanges(
     base: FiatKeys,
     network: Network,
     timeRange: number
   ): PriceChange[] {
-    return Registry.getTokenRegistry()
-      .getAllTokens(network)
-      .filter((t) => t.currencyId !== undefined)
-      .filter((t) =>
-        t.tokenType === 'VaultShare' || t.tokenType === 'VaultDebt'
-          ? whitelistedVaults(network).includes(t.vaultAddress)
-          : true
-      )
-      .map((t) => {
-        const unit = TokenBalance.unit(t);
-        const midnight = getMidnightUTC();
-        const pastDate = midnight - timeRange;
-        const currentUnderlying = unit.toUnderlying();
-        const currentFiat = unit.toFiat(base);
-        let pastUnderlying: TokenBalance | undefined;
-        let pastFiat: TokenBalance | undefined;
-        try {
-          pastUnderlying = unit.toUnderlying(pastDate);
-          pastFiat = unit.toFiat(base, pastDate);
-        } catch {
-          pastUnderlying = undefined;
-          pastFiat = undefined;
-        }
+    console.log('getPriceChanges', `${network}:${base}:${timeRange}`);
+    const cacheKey =
+      network === Network.all
+        ? `mainnet:${base}:${timeRange}`
+        : `${network}:${base}:${timeRange}`;
+    const cashedResult = this._cache1.get(cacheKey);
+    if (cashedResult) {
+      console.log('getPriceChanges', 'cache hit');
+      return cashedResult;
+    }
+    let allTokens = this._cache0.get(network);
+    if (!allTokens) {
+      allTokens = Registry.getTokenRegistry()
+        .getAllTokens(network)
+        .filter((t) => t.currencyId !== undefined)
+        .filter((t) =>
+          t.tokenType === 'VaultShare' || t.tokenType === 'VaultDebt'
+            ? whitelistedVaults(network).includes(t.vaultAddress || '')
+            : true
+        );
+      this._cache0.set(network, allTokens);
+    }
 
-        return {
-          asset: t,
-          pastDate: pastDate,
-          currentUnderlying,
-          currentFiat,
-          pastUnderlying,
-          pastFiat,
-          fiatChange: percentChange(currentFiat.toFloat(), pastFiat?.toFloat()),
-          underlyingChange: percentChange(
-            currentUnderlying.toFloat(),
-            pastUnderlying?.toFloat()
-          ),
-        };
-      });
+    const freshPriceChanges = allTokens.map((t) => {
+      const unit = TokenBalance.unit(t);
+      const midnight = getMidnightUTC();
+      const pastDate = midnight - timeRange;
+      const currentUnderlying = unit.toUnderlying();
+      const currentFiat = unit.toFiat(base);
+      let pastUnderlying: TokenBalance | undefined;
+      let pastFiat: TokenBalance | undefined;
+      try {
+        pastUnderlying = unit.toUnderlying(pastDate);
+        pastFiat = unit.toFiat(base, pastDate);
+      } catch {
+        pastUnderlying = undefined;
+        pastFiat = undefined;
+      }
+
+      return {
+        asset: t,
+        pastDate: pastDate,
+        currentUnderlying,
+        currentFiat,
+        pastUnderlying,
+        pastFiat,
+        fiatChange: percentChange(currentFiat.toFloat(), pastFiat?.toFloat()),
+        underlyingChange: percentChange(
+          currentUnderlying.toFloat(),
+          pastUnderlying?.toFloat()
+        ),
+      };
+    });
+
+    this._cache1.set(cacheKey, freshPriceChanges);
+
+    return freshPriceChanges;
   }
 
   async getNetworkTransactions(network: Network, skip: number) {

@@ -58,7 +58,6 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
 
   protected adjLists = new Map<Network, AdjList>();
   private _adjListSubscription: Subscription;
-
   /** Rate equal to one unit in 18 decimal precision with an arbitrary future timestamp */
   private _getUnitRate(
     network: Network,
@@ -359,18 +358,26 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     });
   }
 
+  private _cache0 = new Map<
+    string,
+    Map<string, BehaviorSubject<OracleDefinition | null>>
+  >();
   getHistoricalFromPath(
     network: Network,
     path: string[],
     riskAdjusted: RiskAdjustment = 'None',
     timestamp: number
   ): ExchangeRate | null {
-    const subjectMap = Registry.getAnalyticsRegistry()
-      .getHistoricalOracles(network, timestamp)
-      ?.reduce((m, o) => {
-        m.set(o.id, new BehaviorSubject<OracleDefinition | null>(o));
-        return m;
-      }, new Map<string, BehaviorSubject<OracleDefinition | null>>());
+    let subjectMap = this._cache0.get(`${network}:${timestamp}`);
+    if (!subjectMap) {
+      subjectMap = Registry.getAnalyticsRegistry()
+        .getHistoricalOracles(network, timestamp)
+        ?.reduce((m, o) => {
+          m.set(o.id, new BehaviorSubject<OracleDefinition | null>(o));
+          return m;
+        }, new Map<string, BehaviorSubject<OracleDefinition | null>>());
+      this._cache0.set(`${network}:${timestamp}`, subjectMap);
+    }
 
     if (!subjectMap || subjectMap.size === 0)
       throw Error(
