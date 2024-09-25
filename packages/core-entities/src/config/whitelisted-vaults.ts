@@ -159,8 +159,8 @@ const PendlePTVaults: Record<Network, string[]> = {
 const SingleSidedLP_VaultRewarderLib: Record<Network, string[]> = {
   [Network.arbitrum]: [],
   [Network.mainnet]: [
-    '0x3533f05b2c54ce1c2321cfe3c6f693a3cbbaea10',
-    '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68',
+    '0xe20048fa0f165a49b780dfa9a8caba845332f848',
+    '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb',
   ],
   [Network.optimism]: [],
   [Network.all]: [],

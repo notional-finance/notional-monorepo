@@ -393,7 +393,7 @@ function getVaultCalls(
         target: new Contract(
           v.vaultAddress,
           ISingleSidedLPStrategyVaultABI,
-          provider
+          notional.provider
         ),
         method: 'getAccountRewardClaim',
         args: [account, getNowSeconds()],

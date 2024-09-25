@@ -79,14 +79,16 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
           enabled: boolean;
           name: string;
         }) => {
-          switch (getVaultType(vaultAddress, network)) {
+          const vaultType = getVaultType(vaultAddress, network);
+          switch (vaultType) {
             case 'SingleSidedLP':
             case 'SingleSidedLP_VaultRewarderLib':
               return this.getSingleSidedLPCalls(
                 vaultAddress,
                 network,
                 enabled,
-                name
+                name,
+                vaultType === 'SingleSidedLP_VaultRewarderLib'
               );
             case 'PendlePT':
               return this.getPendlePTCalls(vaultAddress, network, enabled);
@@ -146,14 +148,15 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     vaultAddress: string,
     network: Network,
     enabled: boolean,
-    name: string
+    name: string,
+    hasRewarder: boolean
   ): AggregateCall[] {
     const vaultContract = new Contract(
       vaultAddress,
       ISingleSidedLPStrategyVaultABI,
       getProviderFromNetwork(network)
     );
-    return [
+    const calls: AggregateCall[] = [
       {
         target: vaultContract,
         stage: 0,
@@ -183,24 +186,6 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             name,
           };
         },
-      },
-      {
-        target: vaultContract,
-        stage: 0,
-        method: 'getRewardSettings',
-        key: `${vaultAddress}.rewardState`,
-        transform: (
-          r: Awaited<
-            ReturnType<ISingleSidedLPStrategyVault['getRewardSettings']>
-          >
-        ) =>
-          r[0].map((v) => ({
-            lastAccumulatedTime: v.lastAccumulatedTime,
-            endTime: v.endTime,
-            rewardToken: v.rewardToken,
-            emissionRatePerYear: v.emissionRatePerYear,
-            accumulatedRewardPerVaultSHare: v.accumulatedRewardPerVaultShare,
-          })),
       },
       {
         target: (r: Record<string, unknown>) =>
@@ -237,6 +222,29 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
           ),
       },
     ];
+
+    if (hasRewarder) {
+      calls.push({
+        target: vaultContract,
+        stage: 0,
+        method: 'getRewardSettings',
+        key: `${vaultAddress}.rewardState`,
+        transform: (
+          r: Awaited<
+            ReturnType<ISingleSidedLPStrategyVault['getRewardSettings']>
+          >
+        ) =>
+          r[0].map((v) => ({
+            lastAccumulatedTime: v.lastAccumulatedTime,
+            endTime: v.endTime,
+            rewardToken: v.rewardToken,
+            emissionRatePerYear: v.emissionRatePerYear,
+            accumulatedRewardPerVaultSHare: v.accumulatedRewardPerVaultShare,
+          })),
+      });
+    }
+
+    return calls;
   }
 
   protected getPendlePTCalls(

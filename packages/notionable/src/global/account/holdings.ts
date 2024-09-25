@@ -225,7 +225,7 @@ export function calculateGroupedHoldings(
 
           const assetHoldings = holdings.find(
             ({ balance }) => balance.tokenId === asset.tokenId
-          ) as typeof holdings[number];
+          ) as (typeof holdings)[number];
 
           const borrowApyData =
             debtHoldings?.marketYield?.token.tokenType === 'PrimeDebt'
@@ -357,6 +357,8 @@ export function calculateVaultHoldings(account: AccountDefinition) {
       totalInterestAccrual,
       assetPnL,
       debtPnL,
+      rewardClaims:
+        account.rewardClaims && account.rewardClaims[v.vaultAddress],
     };
   });
 }
