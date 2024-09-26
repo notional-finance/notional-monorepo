@@ -2,7 +2,6 @@ import {
   Network,
   RATE_PRECISION,
   SECONDS_IN_DAY,
-  TABLE_WARNINGS,
   convertToSignedfCashId,
   getNowSeconds,
   leveragedYield,
@@ -54,8 +53,8 @@ function isHighUtilization(
         positionEstablished < getNowSeconds() - 3 * SECONDS_IN_DAY)
     ) {
       return token.tokenType === 'fCash'
-        ? TABLE_WARNINGS.HIGH_UTILIZATION_FCASH
-        : TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN;
+        ? 'fCashHighUtilization'
+        : 'nTokenHighUtilization';
     }
   }
 

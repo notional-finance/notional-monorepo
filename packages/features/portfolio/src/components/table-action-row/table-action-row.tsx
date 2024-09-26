@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { HistoryIcon } from '@notional-finance/icons';
 import {
   H5,
@@ -12,34 +12,78 @@ import {
 } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { defineMessages } from 'react-intl';
-import { TABLE_WARNINGS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
 
-const messages = {
-  [TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN]: defineMessages({
-    title: { defaultMessage: 'Impermanent Loss', description: '' },
-    message: {
-      defaultMessage:
-        'Fixed rate volatility has caused IL. IL will go away when fixed rates go down.',
-      description: '',
-    },
-  }),
-  [TABLE_WARNINGS.HIGH_UTILIZATION_FCASH]: defineMessages({
-    title: { defaultMessage: 'Impermanent Loss', description: '' },
-    message: {
-      defaultMessage:
-        'Fixed rate volatility has caused temporary fCash price declines. Your fixed rate is guaranteed if you hold until maturity.',
-      description: '',
-    },
-  }),
+export type TableActionRowWarning = keyof typeof messages;
+
+const messages: Record<
+  string,
+  {
+    variant: 'error' | 'warning' | 'info' | 'pending';
+    title: MessageDescriptor;
+    message: MessageDescriptor;
+  }
+> = {
+  nTokenHighUtilization: {
+    variant: 'warning',
+    ...defineMessages({
+      title: { defaultMessage: 'Impermanent Loss', description: '' },
+      message: {
+        defaultMessage:
+          'Fixed rate volatility has caused IL. IL will go away when fixed rates go down.',
+        description: '',
+      },
+    }),
+  },
+  fCashHighUtilization: {
+    variant: 'warning',
+    ...defineMessages({
+      title: { defaultMessage: 'Impermanent Loss', description: '' },
+      message: {
+        defaultMessage:
+          'Fixed rate volatility has caused temporary fCash price declines. Your fixed rate is guaranteed if you hold until maturity.',
+        description: '',
+      },
+    }),
+  },
+  pointsWarning: {
+    variant: 'info',
+    ...defineMessages({
+      title: { defaultMessage: 'APY Estimation', description: '' },
+      message: {
+        defaultMessage:
+          'This leveraged vault earns APY from points. Track and claim your points from the partner protocol site.',
+        description: '',
+      },
+    }),
+  },
+  fCashMatured: {
+    variant: 'info',
+    ...defineMessages({
+      title: { defaultMessage: 'Asset Matured', description: '' },
+      message: {
+        defaultMessage:
+          'Your matured asset is currently earning the variable lending rate. You can roll to a new fixed rate or do nothing and continue earning the variable rate.',
+        description: '',
+      },
+    }),
+  },
+  pendleExpired: {
+    variant: 'warning',
+    ...defineMessages({
+      title: { defaultMessage: 'Withdraw Now', description: '' },
+      message: {
+        defaultMessage:
+          'Your PT tokens have expired. Withdraw your profits and close your vault position.',
+        description: '',
+      },
+    }),
+  },
 };
 
 export interface TableActionRowProps {
   row: {
     original: {
-      amount: any;
-      entryPrice: any;
-      currentPrice: any;
       isDebt: boolean;
       actionRow: {
         stakeNoteStatus?: {
@@ -48,18 +92,15 @@ export interface TableActionRowProps {
           redeemWindowBegin: number;
           redeemWindowEnd: number;
         };
-        warning: TABLE_WARNINGS | undefined;
+        warning: keyof typeof messages | undefined;
         txnHistory: string;
         buttonBarData: ButtonOptionsType[];
         subRowData: {
           label: ReactNode;
-          value: any;
+          value: ReactNode;
           showLoadingSpinner?: boolean;
         }[];
-        hasMatured?: boolean;
-        pointsWarning?: boolean;
       };
-      asset;
       isPending?: boolean;
     };
   };
@@ -69,16 +110,8 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const {
-    actionRow: {
-      txnHistory,
-      buttonBarData,
-      subRowData,
-      pointsWarning,
-      hasMatured,
-      warning,
-    },
+    actionRow: { txnHistory, buttonBarData, subRowData, warning },
     isDebt,
-    asset,
     isPending,
   } = row.original;
 
@@ -86,7 +119,6 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
     <Box
       sx={{
         background: theme.palette.background.default,
-        paddingBottom: hasMatured ? theme.spacing(4) : '0px',
       }}
     >
       <Container>
@@ -149,53 +181,12 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
           )}
         </ButtonContainer>
       </Container>
-      {hasMatured && (
-        <Box
-          sx={{ margin: theme.spacing(0, 7), paddingBottom: theme.spacing(5) }}
-        >
-          <ErrorMessage
-            variant="pending"
-            title={<FormattedMessage defaultMessage={'Asset Matured'} />}
-            message={
-              <FormattedMessage
-                defaultMessage={
-                  'Your matured {symbol} is currently earning the variable lending rate. You can roll to a new fixed rate or do nothing and continue earning the variable rate.'
-                }
-                values={{
-                  symbol: asset.symbol,
-                }}
-              />
-            }
-            maxWidth={'100%'}
-            sx={{ marginTop: '0px' }}
-          />
-        </Box>
-      )}
-      {pointsWarning && (
-        <Box
-          sx={{ margin: theme.spacing(0, 7), paddingBottom: theme.spacing(5) }}
-        >
-          <ErrorMessage
-            variant="pending"
-            title={<FormattedMessage defaultMessage={'APY Estimation'} />}
-            message={
-              <FormattedMessage
-                defaultMessage={
-                  'This leveraged vault earns APY from points. Track and claim your points from the partner protocol site.'
-                }
-              />
-            }
-            maxWidth={'100%'}
-            sx={{ marginTop: '0px' }}
-          />
-        </Box>
-      )}
       {warning && (
         <Box
           sx={{ margin: theme.spacing(0, 7), paddingBottom: theme.spacing(5) }}
         >
           <ErrorMessage
-            variant="warning"
+            variant={messages[warning].variant}
             title={<FormattedMessage {...messages[warning].title} />}
             message={<FormattedMessage {...messages[warning].message} />}
             maxWidth={'100%'}

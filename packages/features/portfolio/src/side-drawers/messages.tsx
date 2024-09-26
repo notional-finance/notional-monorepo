@@ -1,10 +1,10 @@
-import { PORTFOLIO_ACTIONS, TABLE_WARNINGS } from '@notional-finance/util';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 
 type PortfolioMessages = Record<string, MessageDescriptor>;
 
 export const messages: Record<
-  PORTFOLIO_ACTIONS | TABLE_WARNINGS,
+  PORTFOLIO_ACTIONS | 'nTokenHighUtilization' | 'fCashHighUtilization',
   PortfolioMessages
 > = {
   [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: defineMessages({
@@ -128,7 +128,7 @@ export const messages: Record<
       description: '',
     },
   }),
-  [TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN]: defineMessages({
+  nTokenHighUtilization: defineMessages({
     title: { defaultMessage: 'Impermanent Loss', description: '' },
     message: {
       defaultMessage:
@@ -136,7 +136,7 @@ export const messages: Record<
       description: '',
     },
   }),
-  [TABLE_WARNINGS.HIGH_UTILIZATION_FCASH]: defineMessages({
+  fCashHighUtilization: defineMessages({
     title: { defaultMessage: 'Impermanent Loss', description: '' },
     message: {
       defaultMessage:

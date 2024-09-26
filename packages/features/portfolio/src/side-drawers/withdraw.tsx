@@ -1,4 +1,4 @@
-import { PORTFOLIO_ACTIONS, TABLE_WARNINGS } from '@notional-finance/util';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import {
   useTradeContext,
@@ -15,13 +15,14 @@ import {
 import { messages } from './messages';
 import { FormattedMessage } from 'react-intl';
 import { useEffect } from 'react';
+import { TableActionRowWarning } from '../components';
 
 export const Withdraw = () => {
   const context = useTradeContext('Withdraw');
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
   const { pathname } = useLocation();
   const search = useQueryParams();
-  const warning = search.get('warning') as TABLE_WARNINGS | undefined;
+  const warning = search.get('warning') as TableActionRowWarning | undefined;
 
   const {
     currencyInputRef,

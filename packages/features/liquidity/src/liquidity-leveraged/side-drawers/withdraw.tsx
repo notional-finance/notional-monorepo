@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { LiquidityContext } from '../../liquidity';
 import { ErrorMessage } from '@notional-finance/mui';
 import { useQueryParams } from '@notional-finance/notionable-hooks';
-import { TABLE_WARNINGS } from '@notional-finance/util';
 import {
   DepositInput,
   TransactionSidebar,
@@ -12,7 +11,7 @@ import { defineMessage, FormattedMessage, defineMessages } from 'react-intl';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 
 const messages = {
-  [TABLE_WARNINGS.HIGH_UTILIZATION_NTOKEN]: defineMessages({
+  nTokenHighUtilization: defineMessages({
     title: { defaultMessage: 'Impermanent Loss', description: '' },
     message: {
       defaultMessage:
@@ -20,7 +19,7 @@ const messages = {
       description: '',
     },
   }),
-  [TABLE_WARNINGS.HIGH_UTILIZATION_FCASH]: defineMessages({
+  fCashHighUtilization: defineMessages({
     title: { defaultMessage: 'Impermanent Loss', description: '' },
     message: {
       defaultMessage:
@@ -33,7 +32,7 @@ const messages = {
 export const Withdraw = () => {
   const context = useContext(LiquidityContext);
   const search = useQueryParams();
-  const warning = search.get('warning') as TABLE_WARNINGS | undefined;
+  const warning = search.get('warning') as keyof typeof messages | undefined;
   const { currencyInputRef, onMaxValue, maxWithdrawUnderlying } =
     useMaxLiquidityWithdraw(context);
 

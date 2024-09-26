@@ -44,6 +44,7 @@ import {
   Registry,
 } from '@notional-finance/core-entities';
 import { TokenIcon } from '@notional-finance/icons';
+import { TableActionRowWarning } from '../components';
 
 const HealthFactorCell = ({ cell }) => {
   const theme = useTheme();
@@ -147,7 +148,11 @@ const VaultHoldingsColumns: DataTableColumn[] = [
   },
 ] as const;
 
-function getVaultReinvestmentDate(network: Network, vaultAddress: string, reinvestmentCadence: number) {
+function getVaultReinvestmentDate(
+  network: Network,
+  vaultAddress: string,
+  reinvestmentCadence: number
+) {
   try {
     const reinvestmentData =
       Registry.getAnalyticsRegistry().getVaultReinvestments(network)[
@@ -176,6 +181,7 @@ function getSpecificVaultInfo(
         }[];
       };
   buttonBarData: { buttonText: React.ReactNode; callback: () => void }[];
+  warning: TableActionRowWarning | undefined;
 } {
   const totalEarnings = formatCryptoWithFiat(baseCurrency, v.profit);
 
@@ -220,6 +226,7 @@ function getSpecificVaultInfo(
       ],
       totalEarnings,
       buttonBarData: [],
+      warning: 'pointsWarning',
     };
   } else if (v.vaultMetadata.rewardClaims) {
     // Reward Claiming Vaults
@@ -278,6 +285,7 @@ function getSpecificVaultInfo(
           },
         },
       ],
+      warning: undefined,
     };
   } else if (v.vaultMetadata.vaultType === 'SingleSidedLP') {
     return {
@@ -295,10 +303,22 @@ function getSpecificVaultInfo(
       ],
       totalEarnings,
       buttonBarData: [],
+      warning: undefined,
+    };
+  } else if (
+    v.vaultMetadata.vaultType === 'PendlePT' &&
+    v.vaultMetadata.isExpired
+  ) {
+    return {
+      subRowInfo: [],
+      totalEarnings,
+      buttonBarData: [],
+      warning: 'pendleExpired',
     };
   }
 
   return {
+    warning: undefined,
     subRowInfo: [],
     totalEarnings,
     buttonBarData: [],
@@ -347,15 +367,10 @@ export const useVaultHoldingsTable = () => {
       amountPaid,
       strategyAPY,
       borrowAPY,
-      vaultYield,
     } = vaultHolding;
     const config = v.vaultConfig;
-    const points = vaultYield?.pointMultiples;
-    const { subRowInfo, totalEarnings, buttonBarData } = getSpecificVaultInfo(
-      vaultHolding,
-      baseCurrency,
-      theme
-    );
+    const { subRowInfo, totalEarnings, buttonBarData, warning } =
+      getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
 
     const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
       {
@@ -414,7 +429,7 @@ export const useVaultHoldingsTable = () => {
       },
       leverageRatio: formatLeverageRatio(v.leverageRatio() || 0),
       actionRow: {
-        pointsWarning: !!points,
+        warning,
         subRowData,
         buttonBarData: [
           ...buttonBarData,
