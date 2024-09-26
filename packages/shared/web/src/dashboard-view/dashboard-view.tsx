@@ -6,7 +6,7 @@ import {
   useAppState,
 } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
 import { PRODUCTS } from '@notional-finance/util';
 import {
@@ -90,35 +90,13 @@ export const DashboardView = ({
   );
 };
 
-export const LeveragedPointsDashboard = () => {
+export const LeveragedVaultDashboard = () => {
   const network = useSelectedNetwork();
-  const gridData = useLeveragedVaultGrid(
-    network,
-    PRODUCTS.LEVERAGED_POINTS_FARMING
-  );
+  const { selectedProduct } = useParams();
+  const gridData = useLeveragedVaultGrid(network, selectedProduct as PRODUCTS);
   const { listColumns, listData } = useLeverageVaultList(
     network,
-    PRODUCTS.LEVERAGED_POINTS_FARMING
-  );
-  return (
-    <DashboardView
-      {...gridData}
-      listColumns={listColumns}
-      listData={listData}
-      threeWideGrid={false}
-    />
-  );
-};
-
-export const LeveragedYieldDashboard = () => {
-  const network = useSelectedNetwork();
-  const gridData = useLeveragedVaultGrid(
-    network,
-    PRODUCTS.LEVERAGED_YIELD_FARMING
-  );
-  const { listColumns, listData } = useLeverageVaultList(
-    network,
-    PRODUCTS.LEVERAGED_YIELD_FARMING
+    selectedProduct as PRODUCTS
   );
   return (
     <DashboardView

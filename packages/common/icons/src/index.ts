@@ -19,6 +19,7 @@ export * from './lib/bar-chart-icon/bar-chart-icon';
 export * from './lib/bar-chart-lateral-icon/bar-chart-lateral-icon';
 export * from './lib/bar-chart-lightning-icon/bar-chart-lightning-icon';
 export * from './lib/portfolio-chart-icon/portfolio-chart-icon';
+export * from './lib/pendle-icon/pendle-icon';
 export * from './lib/launch-icon/launch-icon';
 export * from './lib/lightning-icon/lightning-icon';
 export * from './lib/lightning-outline-icon/lightning-outline-icon';
