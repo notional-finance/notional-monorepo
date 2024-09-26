@@ -55,6 +55,10 @@ export class PendlePT extends VaultAdapter {
     return this.market.timeToExpiry;
   }
 
+  get isExpired(): boolean {
+    return this.timeToExpiry === 0;
+  }
+
   get hashKey() {
     return [this.vaultAddress].join(':');
   }
@@ -107,7 +111,8 @@ export class PendlePT extends VaultAdapter {
       };
     }
 
-    const { poolAddress } = VaultDefaultDexParameters[this.network][this.vaultAddress];
+    const { poolAddress } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (poolAddress) {
       const tokenSyPool = Registry.getExchangeRegistry().getPoolInstance(
         this.network,
@@ -157,7 +162,8 @@ export class PendlePT extends VaultAdapter {
       };
     }
 
-    const { poolAddress } = VaultDefaultDexParameters[this.network][this.vaultAddress];
+    const { poolAddress } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (poolAddress) {
       const tokenSyPool = Registry.getExchangeRegistry().getPoolInstance(
         this.network,

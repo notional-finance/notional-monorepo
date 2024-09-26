@@ -17,6 +17,7 @@ import {
 } from '@notional-finance/util';
 import { AggregateCall } from '@notional-finance/multicall';
 import { BigNumber, Contract, utils } from 'ethers';
+import { Registry } from '../../Registry';
 
 interface PendleMarketParams {
   marketState: {
@@ -200,24 +201,68 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     );
   }
 
+  protected calculateTokenTradeOnExpiry(
+    tokensIn: TokenBalance,
+    tokenIndexOut: number
+  ) {
+    const assetToken = Registry.getTokenRegistry().getTokenByID(
+      this._network,
+      this.poolParams.assetTokenId
+    );
+
+    if (tokenIndexOut === this.TOKEN_IN_INDEX) {
+      // PT token in, Asset out, at expiration this is 1-1
+      const assetTokensOut = TokenBalance.fromFloat(
+        tokensIn.toFloat(),
+        assetToken
+      );
+      const syTokensOut = this.convertAssetToSy(assetTokensOut);
+
+      return {
+        tokensOut: this.convertAssetToSy(assetTokensOut),
+        feesPaid: [
+          TokenBalance.zero(syTokensOut.token),
+          TokenBalance.zero(this.ptToken),
+        ],
+      };
+    } else if (tokenIndexOut === this.PT_TOKEN_INDEX) {
+      // Sy Token In, PT out. At expiration this is 1-1 with the asset token
+      const assetTokensIn = this.convertSyToAsset(tokensIn);
+      const ptTokensOut = TokenBalance.fromFloat(
+        assetTokensIn.toFloat(),
+        this.ptToken
+      );
+
+      return {
+        tokensOut: ptTokensOut,
+        feesPaid: [
+          TokenBalance.zero(tokensIn.token),
+          TokenBalance.zero(this.ptToken),
+        ],
+      };
+    } else {
+      throw new Error('Invalid token index');
+    }
+  }
+
   public override calculateTokenTrade(
     tokensIn: TokenBalance,
     tokenIndexOut: number,
     _balanceOverrides?: TokenBalance[]
   ): { tokensOut: TokenBalance; feesPaid: TokenBalance[] } {
+    if (this.timeToExpiry === 0) {
+      return this.calculateTokenTradeOnExpiry(tokensIn, tokenIndexOut);
+    }
+
     if (tokenIndexOut === this.TOKEN_IN_INDEX) {
-      // Underlying token in, PT out. Search over marketDepthTokenIn to approximate the amount of PT out
-      // and do a linear interpolation between the two nearest points.
+      // PT in, Asset out, convert to SY on the return
       const { postFeeAssetToAccount, fee } = this.calculateTokenOutGivenPTIn(
         tokensIn.neg()
       );
 
       return {
         tokensOut: this.convertAssetToSy(postFeeAssetToAccount),
-        feesPaid: [
-          this.convertAssetToSy(fee),
-          TokenBalance.zero(this.poolParams.marketState.totalPt.token),
-        ],
+        feesPaid: [this.convertAssetToSy(fee), TokenBalance.zero(this.ptToken)],
       };
     } else if (tokenIndexOut === this.PT_TOKEN_INDEX) {
       const assetTokensIn = this.convertSyToAsset(tokensIn);

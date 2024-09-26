@@ -97,15 +97,26 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     }
 
     try {
-      const [_, boosterProtocol, pool] = name.split(':');
-      const poolName = pool.replace('[', '').replace(']', '');
-      return {
-        technicalName: name,
-        boosterProtocol,
-        poolName,
-        baseProtocol: ConfigurationClient.getBaseProtocol(boosterProtocol),
-        name: `${boosterProtocol}: ${poolName}`,
-      };
+      if (name.startsWith('Pendle')) {
+        const [protocol, poolName, _] = name.split(':');
+        return {
+          technicalName: name,
+          boosterProtocol: protocol,
+          poolName: poolName,
+          baseProtocol: protocol,
+          name: poolName,
+        };
+      } else {
+        const [_, boosterProtocol, pool] = name.split(':');
+        const poolName = pool.replace('[', '').replace(']', '');
+        return {
+          technicalName: name,
+          boosterProtocol,
+          poolName,
+          baseProtocol: ConfigurationClient.getBaseProtocol(boosterProtocol),
+          name: `${boosterProtocol}: ${poolName}`,
+        };
+      }
     } catch {
       return {
         technicalName: name,
@@ -117,13 +128,32 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     }
   }
 
+  protected _parseVaultConfig(
+    network: Network,
+    vaultConfig: AllConfigurationQuery['vaultConfigurations'][0]
+  ) {
+    let enabled = vaultConfig.enabled;
+    try {
+      enabled = Registry.getVaultRegistry().isVaultEnabled(
+        network,
+        vaultConfig.vaultAddress
+      );
+    } catch (e) {
+      console.error(e);
+      // Ignore
+    }
+
+    return {
+      ...vaultConfig,
+      ...ConfigurationClient.parseVaultName(vaultConfig.name),
+      enabled,
+    };
+  }
+
   getAllListedVaults(network: Network, includeDisabled = false) {
     return this.getLatestFromSubject(network, network)
-      ?.vaultConfigurations.filter((v) => v.enabled || includeDisabled)
-      .map((v) => ({
-        ...v,
-        ...ConfigurationClient.parseVaultName(v.name),
-      }));
+      ?.vaultConfigurations.map((v) => this._parseVaultConfig(network, v))
+      .filter((v) => v.enabled || includeDisabled);
   }
 
   getVaultConfig(network: Network, vaultAddress: string) {
@@ -132,11 +162,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       network
     )?.vaultConfigurations.find((v) => v.id == vaultAddress);
     if (!vaultConfig) throw Error(`Vault Config ${vaultAddress} not found`);
-
-    return {
-      ...vaultConfig,
-      ...ConfigurationClient.parseVaultName(vaultConfig.name),
-    };
+    return this._parseVaultConfig(network, vaultConfig);
   }
 
   getVaultName(network: Network, vaultAddress: string) {
@@ -665,7 +691,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     if (!nToken.currencyId) throw Error('Invalid nToken');
     const config = this.getConfig(nToken.network, nToken.currencyId);
     if (!config.incentives?.currentSecondaryReward) return undefined;
-    const rewardEndTime = config.incentives.secondaryRewardEndTime as number | undefined;
+    const rewardEndTime = config.incentives.secondaryRewardEndTime as
+      | number
+      | undefined;
     if (rewardEndTime && rewardEndTime < getNowSeconds()) return undefined;
 
     const rewardToken = Registry.getTokenRegistry().getTokenByID(

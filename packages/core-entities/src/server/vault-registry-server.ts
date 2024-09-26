@@ -3,7 +3,11 @@ import {
   fetchGraphPaginate,
   loadGraphClientDeferred,
 } from './server-registry';
-import { Network, getProviderFromNetwork } from '@notional-finance/util';
+import {
+  Network,
+  getNowSeconds,
+  getProviderFromNetwork,
+} from '@notional-finance/util';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
 import {
@@ -258,6 +262,10 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
       'function TOKEN_OUT_SY() view external returns (address)',
     ]);
 
+    const PendleMarketABI = new ethers.utils.Interface([
+      'function expiry() view external returns (uint256)',
+    ]);
+
     return [
       {
         target: new Contract(
@@ -290,11 +298,17 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         key: `${vaultAddress}.tokenOutSy`,
       },
       {
-        target: 'NO_OP',
-        stage: 0,
-        method: 'NO_OP',
+        target: (r: Record<string, unknown>) =>
+          new Contract(
+            r[`${vaultAddress}.marketAddress`] as string,
+            PendleMarketABI,
+            getProviderFromNetwork(network)
+          ),
+        stage: 1,
+        method: 'expiry',
         key: `${vaultAddress}.enabled`,
-        transform: () => enabled,
+        transform: (expiry: BigNumber) =>
+          enabled ? expiry.gt(getNowSeconds()) : false,
       },
     ];
   }
