@@ -8,7 +8,7 @@ import {
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
 import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
-import { PRODUCTS, VAULT_TYPES } from '@notional-finance/util';
+import { PRODUCTS } from '@notional-finance/util';
 import {
   setInLocalStorage,
   getFromLocalStorage,
@@ -20,8 +20,8 @@ import {
   useDashboardConfig,
   useLendBorrowList,
   useLiquidityList,
-  useLeveragedFarmingGrid,
-  useLeverageFarmingList,
+  useLeveragedVaultGrid,
+  useLeverageVaultList,
   useLiquidityVariableGrid,
   useLiquidityLeveragedGrid,
 } from './hooks';
@@ -92,13 +92,13 @@ export const DashboardView = ({
 
 export const LeveragedPointsDashboard = () => {
   const network = useSelectedNetwork();
-  const gridData = useLeveragedFarmingGrid(
+  const gridData = useLeveragedVaultGrid(
     network,
-    VAULT_TYPES.LEVERAGED_POINTS_FARMING
+    PRODUCTS.LEVERAGED_POINTS_FARMING
   );
-  const { listColumns, listData } = useLeverageFarmingList(
+  const { listColumns, listData } = useLeverageVaultList(
     network,
-    VAULT_TYPES.LEVERAGED_POINTS_FARMING
+    PRODUCTS.LEVERAGED_POINTS_FARMING
   );
   return (
     <DashboardView
@@ -112,13 +112,13 @@ export const LeveragedPointsDashboard = () => {
 
 export const LeveragedYieldDashboard = () => {
   const network = useSelectedNetwork();
-  const gridData = useLeveragedFarmingGrid(
+  const gridData = useLeveragedVaultGrid(
     network,
-    VAULT_TYPES.LEVERAGED_YIELD_FARMING
+    PRODUCTS.LEVERAGED_YIELD_FARMING
   );
-  const { listColumns, listData } = useLeverageFarmingList(
+  const { listColumns, listData } = useLeverageVaultList(
     network,
-    VAULT_TYPES.LEVERAGED_YIELD_FARMING
+    PRODUCTS.LEVERAGED_YIELD_FARMING
   );
   return (
     <DashboardView

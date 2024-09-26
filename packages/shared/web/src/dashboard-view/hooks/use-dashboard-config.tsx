@@ -154,6 +154,25 @@ export const config = {
         'https://docs.notional.finance/notional-v3/product-guides/fixed-rate-borrowing',
     },
   },
+  [PRODUCTS.LEVERAGED_PENDLE]: {
+    containerData: {
+      heading: defineMessage({
+        defaultMessage: 'Leveraged Pendle',
+        description: 'page heading',
+      }),
+      subtitle: defineMessage({
+        defaultMessage: `Earn fixed yield with leverage by borrowing from Notional to purchase PTs on Pendle.`,
+        description: 'page heading subtitle',
+      }),
+      linkText: defineMessage({
+        defaultMessage: 'Read leveraged Pendle Vault docs',
+        description: 'docs link',
+      }),
+      docsLink:
+        'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',
+      leveraged: true,
+    },
+  },
 };
 
 export const useDashboardConfig = (routeKey: PRODUCTS) => {
