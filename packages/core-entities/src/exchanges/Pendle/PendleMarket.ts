@@ -174,10 +174,10 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   get ptSpotYieldToMaturity() {
-    return (
-      (100 * Math.log(this.ptExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
-      this.timeToExpiry
-    );
+    return this.timeToExpiry === 0
+      ? 0
+      : (100 * Math.log(this.ptExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
+          this.timeToExpiry;
   }
 
   public convertAssetToSy(assetAmount: TokenBalance) {
