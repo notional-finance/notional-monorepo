@@ -182,6 +182,7 @@ function getSpecificVaultInfo(
       };
   buttonBarData: { buttonText: React.ReactNode; callback: () => void }[];
   warning: TableActionRowWarning | undefined;
+  showRowWarning?: boolean;
 } {
   const totalEarnings = formatCryptoWithFiat(baseCurrency, v.profit);
 
@@ -314,6 +315,7 @@ function getSpecificVaultInfo(
       totalEarnings,
       buttonBarData: [],
       warning: 'pendleExpired',
+      showRowWarning: true,
     };
   }
 
@@ -369,8 +371,13 @@ export const useVaultHoldingsTable = () => {
       borrowAPY,
     } = vaultHolding;
     const config = v.vaultConfig;
-    const { subRowInfo, totalEarnings, buttonBarData, warning } =
-      getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
+    const {
+      subRowInfo,
+      totalEarnings,
+      buttonBarData,
+      warning,
+      showRowWarning,
+    } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
 
     const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
       {
@@ -430,6 +437,7 @@ export const useVaultHoldingsTable = () => {
       leverageRatio: formatLeverageRatio(v.leverageRatio() || 0),
       actionRow: {
         warning,
+        showRowWarning,
         subRowData,
         buttonBarData: [
           ...buttonBarData,

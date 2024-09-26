@@ -171,6 +171,7 @@ export function useGroupedHoldingsTable() {
             : undefined,
         actionRow: {
           warning: hasMatured ? 'fCashMatured' : isHighUtilization,
+          showRowWarning: !!isHighUtilization,
           subRowData: [
             {
               label: <FormattedMessage defaultMessage={'Borrow APY'} />,

@@ -304,6 +304,7 @@ export function useDetailedHoldingsTable() {
                 : undefined,
             actionRow: {
               warning: hasMatured ? 'fCashMatured' : isHighUtilization,
+              showRowWarning: !!isHighUtilization,
               subRowData,
               buttonBarData,
               txnHistory: `/portfolio/${network}/transaction-navigate?${new URLSearchParams(

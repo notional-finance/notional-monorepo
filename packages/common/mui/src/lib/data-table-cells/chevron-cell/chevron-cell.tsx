@@ -4,7 +4,8 @@ import IconButton from '@mui/material/IconButton';
 
 export const ChevronCell = ({ row }): JSX.Element => {
   const theme = useTheme();
-  const warning = row?.original?.actionRow?.warning;
+  const showRowWarning: boolean | undefined =
+    row?.original?.actionRow?.showRowWarning;
 
   return (
     <Box
@@ -39,7 +40,7 @@ export const ChevronCell = ({ row }): JSX.Element => {
               transition: 'transform .5s ease-in-out',
             }}
           />
-          {warning && (
+          {showRowWarning && (
             <AlertIcon
               sx={{
                 position: 'absolute',
