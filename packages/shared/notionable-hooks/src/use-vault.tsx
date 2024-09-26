@@ -68,6 +68,8 @@ export function useVaultProperties(
   }
 
   return {
+    vaultType:
+      vaultAddress && network ? getVaultType(vaultAddress, network) : undefined,
     vaultName,
     minAccountBorrowSize,
     minDepositRequired,

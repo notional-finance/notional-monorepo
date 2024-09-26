@@ -1,24 +1,69 @@
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { VaultActionContext } from '../vault';
-import { useVaultPosition } from '@notional-finance/notionable-hooks';
+import {
+  useVaultPosition,
+  useVaultProperties,
+} from '@notional-finance/notionable-hooks';
 import {
   PRIME_CASH_VAULT_MATURITY,
   leveragedYield,
   formatMaturity,
 } from '@notional-finance/util';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { InfoMessageProps } from '@notional-finance/mui';
 
 export function useManageVault() {
   const {
     state: { vaultAddress, debtOptions, selectedNetwork },
   } = useContext(VaultActionContext);
+  const { vaultName, enabled, vaultType } = useVaultProperties(
+    selectedNetwork,
+    vaultAddress
+  );
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
   if (!vaultPosition) {
     return {
       manageVaultOptions: [],
       rollMaturityOptions: [],
+      vaultName,
+    };
+  } else if (!enabled) {
+    // If the vault is disabled, only show the withdraw option
+    return {
+      manageVaultOptions: [
+        {
+          label: <FormattedMessage defaultMessage={'Withdraw'} />,
+          link: `/vaults/${selectedNetwork}/${vaultAddress}/WithdrawVault`,
+          key: 'WithdrawVault',
+        },
+      ],
+      rollMaturityOptions: [],
+      vaultName,
+      infoMessage: {
+        variant: 'warning',
+        title:
+          vaultType === 'PendlePT' ? (
+            <FormattedMessage defaultMessage={'Withdraw Now'} />
+          ) : (
+            <FormattedMessage defaultMessage={'Vault Disabled'} />
+          ),
+        message:
+          vaultType === 'PendlePT' ? (
+            <FormattedMessage
+              defaultMessage={
+                'Your PT tokens have expired. Withdraw your profits and close your vault position.'
+              }
+            />
+          ) : (
+            <FormattedMessage
+              defaultMessage={
+                'This vault is currently disabled. You are able to withdraw your funds.'
+              }
+            />
+          ),
+      } as InfoMessageProps,
     };
   } else {
     const manageVaultOptions = [
@@ -72,6 +117,7 @@ export function useManageVault() {
     return {
       manageVaultOptions,
       rollMaturityOptions,
+      vaultName,
     };
   }
 }

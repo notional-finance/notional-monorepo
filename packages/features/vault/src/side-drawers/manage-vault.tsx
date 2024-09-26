@@ -7,7 +7,6 @@ import {
   SideDrawerButton,
 } from '@notional-finance/mui';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { useVaultProperties } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
@@ -18,10 +17,10 @@ import { useTheme } from '@mui/material';
 export const ManageVault = () => {
   const theme = useTheme();
   const {
-    state: { vaultAddress, selectedNetwork },
+    state: { selectedNetwork },
   } = useContext(VaultActionContext);
-  const { manageVaultOptions, rollMaturityOptions } = useManageVault();
-  const { vaultName } = useVaultProperties(selectedNetwork, vaultAddress);
+  const { manageVaultOptions, rollMaturityOptions, vaultName, infoMessage } =
+    useManageVault();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -89,6 +88,7 @@ export const ManageVault = () => {
         <VaultDetailsTable key={'vault-risk-table'} hideUpdatedColumn={true} />
       }
       portfolioLink={`/portfolio/${selectedNetwork}/vaults`}
+      infoMessage={infoMessage}
       optionSections={optionSections}
     />
   );
