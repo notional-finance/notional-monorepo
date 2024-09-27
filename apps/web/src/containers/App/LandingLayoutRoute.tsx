@@ -20,12 +20,10 @@ const LandingLayoutRoute = ({
   );
 };
 
-const LandingWrapper = styled(Box)(
-  `
+const LandingWrapper = styled(Box)(`
   width: 100%;
   min-height: 100vh;
   background: ${colors.black};
-`
-);
+`);
 
 export default LandingLayoutRoute;
