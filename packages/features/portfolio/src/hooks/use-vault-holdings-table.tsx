@@ -9,8 +9,6 @@ import {
   Body,
   H4,
   DisplayCell,
-  InfoTooltip,
-  H5,
 } from '@notional-finance/mui';
 import {
   formatCryptoWithFiat,
@@ -238,29 +236,18 @@ function getSpecificVaultInfo(
           value: (
             <Box sx={{ display: 'flex', gap: theme.spacing(1) }}>
               {v.vaultMetadata.rewardClaims.map((claim) => (
-                <TokenIcon symbol={claim.symbol} size={'small'} />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: theme.spacing(1),
+                    alignItems: 'center',
+                    marginRight: theme.spacing(1),
+                  }}
+                >
+                  <TokenIcon symbol={claim.symbol} size={'small'} />
+                  <H4>{claim.toDisplayString(3, true, false)}</H4>
+                </Box>
               ))}
-              <InfoTooltip
-                iconColor={theme.palette.typography.accent}
-                iconSize={theme.spacing(2)}
-                sx={{
-                  marginLeft: theme.spacing(1),
-                  fill: theme.palette.typography.accent,
-                }}
-                ToolTipComp={() => (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: theme.spacing(1),
-                    }}
-                  >
-                    {v.vaultMetadata.rewardClaims?.map((claim) => (
-                      <H5>{claim.toDisplayStringWithSymbol(3, true, false)}</H5>
-                    ))}
-                  </Box>
-                )}
-              />
             </Box>
           ),
         },
