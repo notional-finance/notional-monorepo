@@ -43,7 +43,7 @@ export function onWalletConnect(
     onWalletChange$(global$),
     onSyncAccountInfo$(global$),
     onAccountUpdates$(global$, app$),
-    onSyncArbPoints$(global$)
+    onSyncArbPoints$(global$),
   );
 }
 
@@ -156,9 +156,11 @@ function onAccountUpdates$(
       ).pipe(
         // Ensure that at least one of the accounts is defined
         filter((accts) => !accts.every((a) => a === null)),
-        map((accts) => {
-          const networkAccounts = accts.reduce((n, a) => {
-            if (a !== null) {
+        switchMap(async (accts) => {
+          const accountResults = await Promise.all(
+            accts.map(async (a) => {
+              if (a === null) return null;
+
               const priceChanges =
                 app.priceChanges && app.priceChanges[a.network]
                   ? app.priceChanges[a.network]
@@ -180,7 +182,7 @@ function onAccountUpdates$(
                 ) || [],
                 a.network
               );
-              const vaultHoldings = calculateVaultHoldings(a);
+              const vaultHoldings = await calculateVaultHoldings(a);
 
               let pointsPerDay = 0;
               if (a.network === Network.arbitrum) {
@@ -197,37 +199,48 @@ function onAccountUpdates$(
                 );
               }
 
-              n[a.network] = {
-                isSubgraphDown:
-                  a.balanceStatement === undefined &&
-                  a.accountHistory === undefined,
-                isAccountReady: true,
-                riskProfile,
-                accountDefinition: a,
-                portfolioLiquidationPrices:
-                  riskProfile.getAllLiquidationPrices(),
-                portfolioHoldings,
-                groupedHoldings: calculateGroupedHoldings(a, portfolioHoldings),
-                vaultHoldings,
-                accruedIncentives,
-                totalIncentives,
-                currentFactors: calculateAccountCurrentFactors(
+              return {
+                network: a.network,
+                accountState: {
+                  isSubgraphDown:
+                    a.balanceStatement === undefined &&
+                    a.accountHistory === undefined,
+                  isAccountReady: true,
+                  riskProfile,
+                  accountDefinition: a,
+                  portfolioLiquidationPrices:
+                    riskProfile.getAllLiquidationPrices(),
                   portfolioHoldings,
+                  groupedHoldings: calculateGroupedHoldings(
+                    a,
+                    portfolioHoldings
+                  ),
                   vaultHoldings,
-                  app.baseCurrency
-                ),
-                pointsPerDay,
+                  accruedIncentives,
+                  totalIncentives,
+                  currentFactors: calculateAccountCurrentFactors(
+                    portfolioHoldings,
+                    vaultHoldings,
+                    app.baseCurrency
+                  ),
+                  pointsPerDay,
+                },
               };
-            }
+            })
+          );
 
+          const networkAccounts = accountResults.reduce((n, result) => {
+            if (result !== null) {
+              n[result.network] = result.accountState;
+            }
             return n;
           }, {} as Record<Network, AccountState>);
 
           return { networkAccounts };
-        })
+        }),
+        filterEmpty()
       );
-    }),
-    filterEmpty()
+    })
   );
 }
 
