@@ -34,34 +34,37 @@ export const ClaimVaultRewards = () => {
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const account = useWalletAddress();
   const { mustSwitchNetwork } = useChangeNetwork(selectedNetwork);
+
+  // NOTE: this is a bit of a hack to clear the rewardClaims from the vaultHoldings
+  // so that the backend will refresh the vaultHoldings with the new rewardClaims
+  const clearRewardClaims = () => {
+    if (selectedNetwork && networkAccounts) {
+      const clearedRewardClaims = {
+        ...networkAccounts,
+        [selectedNetwork]: {
+          ...networkAccounts[selectedNetwork],
+          vaultHoldings: networkAccounts[selectedNetwork]?.vaultHoldings?.map(
+            (holding) =>
+              holding.vault.vaultAddress === vaultAddress
+                ? {
+                    ...holding,
+                    vaultMetadata: {
+                      ...holding.vaultMetadata,
+                      rewardClaims: undefined,
+                    },
+                  }
+                : holding
+          ),
+        },
+      };
+
+      updateNotional({ networkAccounts: clearedRewardClaims });
+    }
+  };
+
   const { isReadOnlyAddress, onSubmit } = useTransactionStatus(
     selectedNetwork,
-    () => {
-      if (selectedNetwork && networkAccounts) {
-        // NOTE: this is a bit of a hack to clear the rewardClaims from the vaultHoldings
-        // so that the backend will refresh the vaultHoldings with the new rewardClaims
-        const clearedRewardClaims = {
-          ...networkAccounts,
-          [selectedNetwork]: {
-            ...networkAccounts[selectedNetwork],
-            vaultHoldings: networkAccounts[selectedNetwork]?.vaultHoldings?.map(
-              (holding) =>
-                holding.vault.vaultAddress === vaultAddress
-                  ? {
-                      ...holding,
-                      vaultMetadata: {
-                        ...holding.vaultMetadata,
-                        rewardClaims: undefined,
-                      },
-                    }
-                  : holding
-            ),
-          },
-        };
-
-        updateNotional({ networkAccounts: clearedRewardClaims });
-      }
-    }
+    clearRewardClaims
   );
 
   const handleSubmit = useCallback(async () => {
@@ -92,6 +95,9 @@ export const ClaimVaultRewards = () => {
       })}
       canSubmit={!mustSwitchNetwork && !isReadOnlyAddress}
       handleSubmit={handleSubmit}
+      onCancelCallback={() => {
+        navigate(-1);
+      }}
     >
       <ScrollToTop />
       {mustSwitchNetwork && (
