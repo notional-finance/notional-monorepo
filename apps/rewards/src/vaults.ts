@@ -12,6 +12,7 @@ const CRV = '0xD533a949740bb3306d119CC777fa900bA034cd52';
 const CVX = '0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B';
 const BAL = '0xba100000625a3754423978a60c9317c58a424e3D';
 const AURA = '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF';
+const GHO = '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f';
 // arbitrum
 const ARB_WETH = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1';
 const ARB_BAL = '0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8';
@@ -36,6 +37,7 @@ export const wEthMapper: Partial<Record<Network, string>> = {
 export const minTokenAmount = {
   [USDC]: '150000000', // 150e6
   [PYUSD]: '150000000', // 150e6
+  [GHO]: '150000000000000000000', // 150e18
   [CRV]: '230000000000000000000', // 230e18
   [CVX]: '40000000000000000000', // 40e18
   [BAL]: '30000000000000000000', // 30e18
@@ -74,7 +76,7 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
     },
     {
       address: '0xeEB885Af7C8075Aa3b93e2F95E1c0bD51c758F91',
-      rewardTokens: [BAL, AURA],
+      rewardTokens: [BAL, AURA, GHO],
       reinvestToken: USDC,
     },
     {
