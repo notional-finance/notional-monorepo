@@ -22,7 +22,7 @@ import {
 import { simulatePopulatedTxn } from '@notional-finance/transaction';
 import { Logger, MetricType } from '@notional-finance/util';
 import { Env } from './types';
-import checkPercentageLoss from './checkPercentageLoss';
+import { checkTradeLoss } from '@notional-finance/util';
 
 type Provider = ethers.providers.Provider;
 const HOUR_IN_SECONDS = 60 * 60;
@@ -292,12 +292,15 @@ const getTrades = async (
         oracleSlippagePercentOrLimit = tradeData.limit.toString();
         exchangeData = tradeData.data;
 
-        const { percentageLoss } = await checkPercentageLoss(env, {
-          sellToken,
-          sellAmount: amount,
-          buyToken: token,
-          buyAmount: tradeData.buyAmount,
-        });
+        const { percentageLoss, acceptable } = await checkTradeLoss(
+          env.NETWORK,
+          {
+            sellToken,
+            sellAmount: amount,
+            buyToken: token,
+            buyAmount: tradeData.buyAmount,
+          }
+        );
 
         await env.LOGGER.log({
           message: `Trade from ${sellToken} to ${token} has loss of: ${percentageLoss}%`,
@@ -305,10 +308,17 @@ const getTrades = async (
           buyToken: token,
           sellAmount: amount.toString(),
           buyAmount: tradeData.buyAmount.toString(),
-          level: 'info',
+          percentageLoss,
+          level: acceptable ? 'info' : 'error',
           service: 'rewards',
           chain: env.NETWORK,
         });
+
+        if (!acceptable) {
+          throw new Error(
+            `Trade from ${sellToken} to ${token} has high loss of: ${percentageLoss}%`
+          );
+        }
       }
 
       return [

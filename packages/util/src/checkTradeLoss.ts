@@ -1,8 +1,7 @@
-import { Network } from '@notional-finance/util';
-import { Env } from './types';
+import { Network } from './constants';
 import { BigNumber } from 'ethers';
 
-const DEFAULT_ACCEPTABLE_PERCENTAGE_LOSS = 3;
+const DEFAULT_ACCEPTABLE_PERCENTAGE_LOSS = 5;
 const acceptablePercentageLoss = {
   [Network.mainnet]: {},
   [Network.arbitrum]: {},
@@ -44,8 +43,8 @@ const convertToUsd = (amount: BigNumber, decimals: number, price: number) => {
   return amount.mul(priceBigNumber).div(BigNumber.from(10).pow(decimals));
 };
 
-export default async function checkPercentageLoss(
-  env: Env,
+export async function checkTradeLoss(
+  network: Network,
   {
     sellToken,
     buyToken,
@@ -59,7 +58,7 @@ export default async function checkPercentageLoss(
   }
 ) {
   const [sellTokenData, buyTokenData] = await getTokensPricesFromDefiLlama(
-    env.NETWORK,
+    network,
     [sellToken, buyToken]
   );
   const sellAmountInUsd = convertToUsd(
@@ -79,7 +78,7 @@ export default async function checkPercentageLoss(
     .toNumber();
 
   const acceptableLoss =
-    acceptablePercentageLoss[env.NETWORK][sellToken] ||
+    acceptablePercentageLoss[network][sellToken] ||
     DEFAULT_ACCEPTABLE_PERCENTAGE_LOSS;
 
   if (percentageLoss > acceptableLoss) {
