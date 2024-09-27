@@ -326,6 +326,21 @@ export const useVaultHoldingsTable = () => {
   const navigate = useNavigate();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
+  const claimableRewards = vaults.reduce(
+    (acc, vault) => {
+      if (
+        vault.vaultMetadata.rewardClaims &&
+        vault.vaultMetadata.rewardClaims.length > 0
+      ) {
+        vault.vaultMetadata.rewardClaims.forEach((claim) => {
+          acc.rewardTokens.add(claim.symbol);
+        });
+        acc.vaults.push(vault.vault.vaultConfig.name);
+      }
+      return acc;
+    },
+    { rewardTokens: new Set<string>(), vaults: [] as string[] }
+  );
 
   const toggleData = [
     <Box
@@ -535,5 +550,7 @@ export const useVaultHoldingsTable = () => {
       toggleData,
       showToggle: !isBlocked && vaults.length > 0,
     },
+    claimableRewards:
+      claimableRewards.rewardTokens.size > 0 ? claimableRewards : undefined,
   };
 };

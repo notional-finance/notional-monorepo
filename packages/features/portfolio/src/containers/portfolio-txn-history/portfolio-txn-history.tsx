@@ -6,6 +6,9 @@ import {
   useTxnHistoryDropdowns,
   useTxnHistoryData,
 } from './hooks';
+import { Box } from '@mui/material';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
+import { PortfolioPageHeader } from '../../components';
 
 export const PortfolioTransactionHistory = () => {
   const rightToggleData = useTxnHistoryCategory();
@@ -34,17 +37,22 @@ export const PortfolioTransactionHistory = () => {
     );
 
   return (
-    <DataTable
-      data={txnHistoryData || []}
-      columns={txnHistoryColumns}
-      filterBarData={dropdownsData}
-      rightToggleData={rightToggleData}
-      pendingMessage={
-        <FormattedMessage defaultMessage={'Calculating transaction'} />
-      }
-      pendingTokenData={pendingTokenData}
-      csvDataFormatter={marketDataCSVFormatter}
-    />
+    <Box>
+      <PortfolioPageHeader
+        category={PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}
+      />
+      <DataTable
+        data={txnHistoryData || []}
+        columns={txnHistoryColumns}
+        filterBarData={dropdownsData}
+        rightToggleData={rightToggleData}
+        pendingMessage={
+          <FormattedMessage defaultMessage={'Calculating transaction'} />
+        }
+        pendingTokenData={pendingTokenData}
+        csvDataFormatter={marketDataCSVFormatter}
+      />
+    </Box>
   );
 };
 

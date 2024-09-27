@@ -7,8 +7,9 @@ import {
   useOverviewVaultHoldingsColumns,
 } from './hooks';
 import { useVaultHoldingsTable } from '../../hooks';
-import { EmptyPortfolioOverview } from '../../components';
+import { ClaimNoteButton, EmptyPortfolioOverview, PortfolioPageHeader } from '../../components';
 import { Box, styled, useTheme } from '@mui/material';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 
 export const PortfolioOverview = () => {
   const theme = useTheme();
@@ -24,6 +25,9 @@ export const PortfolioOverview = () => {
 
   return (
     <Box>
+      <PortfolioPageHeader category={PORTFOLIO_CATEGORIES.OVERVIEW}>
+        <ClaimNoteButton />
+      </PortfolioPageHeader>
       <Container>
         {barChartData && barConfig && (
           <MultiDisplayChart
