@@ -293,7 +293,7 @@ const getTrades = async (
         oracleSlippagePercentOrLimit = tradeData.limit.toString();
         exchangeData = tradeData.data;
 
-        const { percentageLoss, acceptable } = await checkTradeLoss(
+        const { lossPercentage, acceptable } = await checkTradeLoss(
           env.NETWORK,
           {
             sellToken,
@@ -304,12 +304,12 @@ const getTrades = async (
         );
 
         await env.LOGGER.log({
-          message: `Trade from ${sellToken} to ${token} has loss of: ${percentageLoss}%`,
+          message: `Trade from ${sellToken} to ${token} has loss of: ${lossPercentage}%`,
           sellToken,
           buyToken: token,
           sellAmount: amount.toString(),
           buyAmount: tradeData.buyAmount.toString(),
-          percentageLoss,
+          lossPercentage,
           level: acceptable ? 'info' : 'error',
           service: 'rewards',
           chain: env.NETWORK,
@@ -317,7 +317,7 @@ const getTrades = async (
 
         if (!acceptable) {
           throw new Error(
-            `Trade from ${sellToken} to ${token} has high loss of: ${percentageLoss}%`
+            `Trade from ${sellToken} to ${token} has high loss of: ${lossPercentage}%`
           );
         }
       }
