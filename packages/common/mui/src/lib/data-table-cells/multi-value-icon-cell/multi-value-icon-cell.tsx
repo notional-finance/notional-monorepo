@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import {
   TokenIcon,
-  DoubleTokenIcon,
+  MultiTokenIcon,
   LightningIcon,
   SentIcon,
   ReceivedIcon,
@@ -79,10 +79,9 @@ export const MultiValueIconCell = (props): JSX.Element => {
       {!original.isTotalRow && !inlineIcons ? (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {values?.symbol && values.symbolBottom && (
-            <DoubleTokenIcon
+            <MultiTokenIcon
               size="medium"
-              symbolTop={values?.symbol}
-              symbolBottom={values?.symbolBottom}
+              symbols={[values?.symbol, values?.symbolBottom]}
             />
           )}
           {values?.symbol && !values.symbolBottom && (

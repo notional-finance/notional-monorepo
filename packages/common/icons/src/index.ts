@@ -92,7 +92,7 @@ export * from './lib/note-icon/note-icon';
 export * from './lib/eth-icon/eth-icon';
 export * from './lib/sgd-icon/sgd-icon';
 export * from './lib/try-icon/try-icon';
-export * from './lib/double-token-icon/double-token-icon';
+export * from './lib/multi-token-icon/multi-token-icon';
 export * from './lib/wallet-icon/wallet-icon';
 export * from './lib/leaf-icon/leaf-icon';
 export * from './lib/list-icon/list-icon';
