@@ -80,7 +80,10 @@ export function usePendingPnLCalculation(network: Network | undefined) {
   return network ? pendingPnL[network] : [];
 }
 
-export function useTransactionStatus(network: Network | undefined) {
+export function useTransactionStatus(
+  network: Network | undefined,
+  onTxnConfirmed?: () => void
+) {
   const walletNetwork = useWalletConnectedNetwork();
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(
     TransactionStatus.NONE
@@ -98,8 +101,9 @@ export function useTransactionStatus(network: Network | undefined) {
     else if (transactionReceipt) {
       setTransactionStatus(TransactionStatus.CONFIRMED);
       if (network) Registry.getAccountRegistry().refreshActiveAccount(network);
+      if (onTxnConfirmed) onTxnConfirmed();
     }
-  }, [transactionReceipt, reverted, network]);
+  }, [transactionReceipt, reverted, network, onTxnConfirmed]);
 
   const onSubmit = useCallback(
     (

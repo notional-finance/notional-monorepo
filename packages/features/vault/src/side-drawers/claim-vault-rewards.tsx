@@ -1,4 +1,5 @@
 import {
+  useNotionalContext,
   useTransactionStatus,
   useVaultPosition,
   useWalletAddress,
@@ -23,13 +24,45 @@ import { Contract } from 'ethers';
 export const ClaimVaultRewards = () => {
   const context = useContext(VaultActionContext);
   const {
+    updateNotional,
+    globalState: { networkAccounts },
+  } = useNotionalContext();
+  const {
     state: { vaultAddress, selectedNetwork },
   } = context;
   const navigate = useNavigate();
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const account = useWalletAddress();
   const { mustSwitchNetwork } = useChangeNetwork(selectedNetwork);
-  const { isReadOnlyAddress, onSubmit } = useTransactionStatus(selectedNetwork);
+  const { isReadOnlyAddress, onSubmit } = useTransactionStatus(
+    selectedNetwork,
+    () => {
+      if (selectedNetwork && networkAccounts) {
+        // NOTE: this is a bit of a hack to clear the rewardClaims from the vaultHoldings
+        // so that the backend will refresh the vaultHoldings with the new rewardClaims
+        const clearedRewardClaims = {
+          ...networkAccounts,
+          [selectedNetwork]: {
+            ...networkAccounts[selectedNetwork],
+            vaultHoldings: networkAccounts[selectedNetwork]?.vaultHoldings?.map(
+              (holding) =>
+                holding.vault.vaultAddress === vaultAddress
+                  ? {
+                      ...holding,
+                      vaultMetadata: {
+                        ...holding.vaultMetadata,
+                        rewardClaims: undefined,
+                      },
+                    }
+                  : holding
+            ),
+          },
+        };
+
+        updateNotional({ networkAccounts: clearedRewardClaims });
+      }
+    }
+  );
 
   const handleSubmit = useCallback(async () => {
     if (!isReadOnlyAddress && vaultAddress && account) {

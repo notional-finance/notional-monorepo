@@ -13,6 +13,13 @@ import {
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { InfoMessageProps } from '@notional-finance/mui';
 
+interface OptionsList {
+  label: React.ReactNode;
+  link: string;
+  key: string;
+  totalAPY?: string;
+}
+
 export function useManageVault() {
   const {
     state: { vaultAddress, debtOptions, selectedNetwork },
@@ -23,50 +30,69 @@ export function useManageVault() {
   );
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
+  let manageVaultOptions: OptionsList[] = [];
+  let rollMaturityOptions: OptionsList[] = [];
+  let extendedVaultOptions: OptionsList[] = [];
+  let extendedVaultTitle: React.ReactNode | undefined;
+  let infoMessage: InfoMessageProps | undefined;
+
   if (!vaultPosition) {
     return {
-      manageVaultOptions: [],
-      rollMaturityOptions: [],
+      manageVaultOptions,
+      rollMaturityOptions,
+      extendedVaultOptions,
+      extendedVaultTitle,
       vaultName,
     };
-  } else if (!enabled) {
-    // If the vault is disabled, only show the withdraw option
-    return {
-      manageVaultOptions: [
-        {
-          label: <FormattedMessage defaultMessage={'Withdraw'} />,
-          link: `/vaults/${selectedNetwork}/${vaultAddress}/WithdrawVault`,
-          key: 'WithdrawVault',
-        },
-      ],
-      rollMaturityOptions: [],
-      vaultName,
-      infoMessage: {
-        variant: 'warning',
-        title:
-          vaultType === 'PendlePT' ? (
-            <FormattedMessage defaultMessage={'Withdraw Now'} />
-          ) : (
-            <FormattedMessage defaultMessage={'Vault Disabled'} />
-          ),
-        message:
-          vaultType === 'PendlePT' ? (
-            <FormattedMessage
-              defaultMessage={
-                'Your PT tokens have expired. Withdraw your profits and close your vault position.'
-              }
-            />
-          ) : (
-            <FormattedMessage
-              defaultMessage={
-                'This vault is currently disabled. You are able to withdraw your funds.'
-              }
-            />
-          ),
-      } as InfoMessageProps,
+  }
+
+  if (
+    vaultPosition.vaultMetadata.rewardClaims &&
+    vaultPosition.vaultMetadata.rewardClaims.length > 0
+  ) {
+    extendedVaultOptions = [
+      {
+        label: <FormattedMessage defaultMessage={'Claim Rewards'} />,
+        link: `/vaults/${selectedNetwork}/${vaultAddress}/ClaimVaultRewards`,
+        key: 'ClaimVaultRewards',
+      },
+    ];
+    extendedVaultTitle = <FormattedMessage defaultMessage={'Vault Rewards'} />;
+  }
+
+  if (!enabled) {
+    manageVaultOptions = [
+      {
+        label: <FormattedMessage defaultMessage={'Withdraw'} />,
+        link: `/vaults/${selectedNetwork}/${vaultAddress}/WithdrawVault`,
+        key: 'WithdrawVault',
+      },
+    ];
+    infoMessage = {
+      variant: 'warning',
+      title:
+        vaultType === 'PendlePT' ? (
+          <FormattedMessage defaultMessage={'Withdraw Now'} />
+        ) : (
+          <FormattedMessage defaultMessage={'Vault Disabled'} />
+        ),
+      message:
+        vaultType === 'PendlePT' ? (
+          <FormattedMessage
+            defaultMessage={
+              'Your PT tokens have expired. Withdraw your profits and close your vault position.'
+            }
+          />
+        ) : (
+          <FormattedMessage
+            defaultMessage={
+              'This vault is currently disabled. You are able to withdraw your funds.'
+            }
+          />
+        ),
     };
   } else {
-    const manageVaultOptions = [
+    manageVaultOptions = [
       {
         label: <FormattedMessage defaultMessage={'Deposit'} />,
         link: `/vaults/${selectedNetwork}/${vaultAddress}/IncreaseVaultPosition`,
@@ -84,7 +110,7 @@ export function useManageVault() {
       },
     ];
 
-    const rollMaturityOptions =
+    rollMaturityOptions =
       debtOptions
         ?.map((o) => {
           const totalAPY = leveragedYield(
@@ -113,11 +139,14 @@ export function useManageVault() {
           };
         })
         .filter((_) => !!_.totalAPY) || [];
-
-    return {
-      manageVaultOptions,
-      rollMaturityOptions,
-      vaultName,
-    };
   }
+
+  return {
+    manageVaultOptions,
+    rollMaturityOptions,
+    vaultName,
+    extendedVaultOptions,
+    extendedVaultTitle,
+    infoMessage,
+  };
 }

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { ReactNode, useContext, useEffect } from 'react';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import {
   ButtonData,
@@ -19,14 +19,23 @@ export const ManageVault = () => {
   const {
     state: { selectedNetwork },
   } = useContext(VaultActionContext);
-  const { manageVaultOptions, rollMaturityOptions, vaultName, infoMessage } =
-    useManageVault();
+  const {
+    manageVaultOptions,
+    rollMaturityOptions,
+    vaultName,
+    infoMessage,
+    extendedVaultOptions,
+    extendedVaultTitle,
+  } = useManageVault();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const optionSections = [
+  const optionSections: {
+    title?: ReactNode;
+    buttons: ReactNode[];
+  }[] = [
     {
       buttons: manageVaultOptions.map(({ label, link }, index) => (
         <SideDrawerButton key={index} to={link}>
@@ -73,6 +82,17 @@ export const ManageVault = () => {
       )),
     },
   ];
+
+  if (extendedVaultTitle) {
+    optionSections.push({
+      title: extendedVaultTitle,
+      buttons: extendedVaultOptions.map(({ label, link }, index) => (
+        <SideDrawerButton key={index} to={link}>
+          <ButtonText>{label}</ButtonText>
+        </SideDrawerButton>
+      )),
+    });
+  }
 
   return (
     <ManageSideDrawer
