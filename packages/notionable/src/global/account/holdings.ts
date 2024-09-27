@@ -292,7 +292,13 @@ export function calculateGroupedHoldings(
 /**
  * Calculates data to display for each vault holding
  */
-export async function calculateVaultHoldings(account: AccountDefinition) {
+export async function calculateVaultHoldings(
+  account: AccountDefinition,
+  prevRewardClaims?: {
+    vaultAddress: string;
+    rewardClaims: TokenBalance[] | undefined;
+  }[]
+) {
   const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(account);
   const balanceStatements = account.balanceStatement || [];
   const allYields = Registry.getYieldRegistry().getNonLeveragedYields(
@@ -347,13 +353,22 @@ export async function calculateVaultHoldings(account: AccountDefinition) {
 
       let rewardClaims =
         account.rewardClaims && account.rewardClaims[v.vaultAddress];
+      // This is is a bit of an expensive call so only run it on initial update, we simulate
+      // the reward claims on chain to ensure that the data is as up to date as possible.
       if (rewardClaims && rewardClaims.length > 0) {
-        rewardClaims = await simulateRewardClaims(
-          account.network,
-          account.address,
-          v.vaultAddress
-        );
+        const prevClaimValue = prevRewardClaims?.find(
+          ({ vaultAddress }) => vaultAddress === v.vaultAddress
+        )?.rewardClaims;
+
+        rewardClaims =
+          prevClaimValue ||
+          (await simulateRewardClaims(
+            account.network,
+            account.address,
+            v.vaultAddress
+          ));
       }
+
       const vaultMetadata = {
         rewardClaims,
         vaultType,

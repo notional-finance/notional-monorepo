@@ -8,6 +8,7 @@ import {
   merge,
   pairwise,
   switchMap,
+  withLatestFrom,
 } from 'rxjs';
 import { AccountState, ApplicationState, GlobalState } from '../global-state';
 import {
@@ -43,7 +44,7 @@ export function onWalletConnect(
     onWalletChange$(global$),
     onSyncAccountInfo$(global$),
     onAccountUpdates$(global$, app$),
-    onSyncArbPoints$(global$),
+    onSyncArbPoints$(global$)
   );
 }
 
@@ -156,7 +157,8 @@ function onAccountUpdates$(
       ).pipe(
         // Ensure that at least one of the accounts is defined
         filter((accts) => !accts.every((a) => a === null)),
-        switchMap(async (accts) => {
+        withLatestFrom(global$),
+        switchMap(async ([accts, global]) => {
           const accountResults = await Promise.all(
             accts.map(async (a) => {
               if (a === null) return null;
@@ -182,7 +184,18 @@ function onAccountUpdates$(
                 ) || [],
                 a.network
               );
-              const vaultHoldings = await calculateVaultHoldings(a);
+
+              const prevRewardClaims = global.networkAccounts?.[
+                a.network
+              ]?.vaultHoldings?.map((v) => ({
+                vaultAddress: v.vault.vaultAddress,
+                rewardClaims: v.vaultMetadata.rewardClaims,
+              }));
+
+              const vaultHoldings = await calculateVaultHoldings(
+                a,
+                prevRewardClaims
+              );
 
               let pointsPerDay = 0;
               if (a.network === Network.arbitrum) {
