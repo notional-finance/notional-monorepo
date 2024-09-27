@@ -34,9 +34,8 @@ import {
   pointsMultiple,
   Network,
   getDateString,
-  SECONDS_IN_DAY,
 } from '@notional-finance/util';
-import { useNavigate } from 'react-router-dom';
+import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
 import {
   FiatKeys,
@@ -167,7 +166,8 @@ function getVaultReinvestmentDate(
 function getSpecificVaultInfo(
   v: ReturnType<typeof useVaultHoldings>[number],
   baseCurrency: FiatKeys,
-  theme: Theme
+  theme: Theme,
+  navigate: NavigateFunction
 ): {
   subRowInfo: { label: React.ReactNode; value: React.ReactNode }[];
   totalEarnings:
@@ -282,7 +282,9 @@ function getSpecificVaultInfo(
         {
           buttonText: <FormattedMessage defaultMessage={'Claim Rewards'} />,
           callback: () => {
-            console.log('claim rewards');
+            navigate(
+              `/vaults/${v.vault.network}/${v.vault.vaultAddress}/ClaimVaultRewards`
+            );
           },
         },
       ],
@@ -377,7 +379,7 @@ export const useVaultHoldingsTable = () => {
       buttonBarData,
       warning,
       showRowWarning,
-    } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
+    } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme, navigate);
 
     const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
       {

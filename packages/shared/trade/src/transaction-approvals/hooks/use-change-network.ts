@@ -1,11 +1,17 @@
+import {
+  useReadOnlyAddress,
+  useWalletConnectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
 import { useSetChain } from '@web3-onboard/react';
 import { useCallback } from 'react';
 
-export function useChangeNetwork() {
+export function useChangeNetwork(selectedNetwork: Network | undefined) {
   const [{ chains, connectedChain }, setChain] = useSetChain();
+  const walletConnectedNetwork = useWalletConnectedNetwork();
+  const isReadyOnlyWallet = useReadOnlyAddress();
 
-  return useCallback(
+  const changeNetwork = useCallback(
     (
       network: Network,
       onSwitched: () => void = () => {
@@ -20,4 +26,10 @@ export function useChangeNetwork() {
     },
     [chains, connectedChain, setChain]
   );
+
+  return {
+    changeNetwork,
+    mustSwitchNetwork:
+      selectedNetwork !== walletConnectedNetwork && !isReadyOnlyWallet,
+  };
 }
