@@ -6,4 +6,4 @@ Used to claim and reinvest rewards on vaults
 
 check http.rest for interactive examples
 
-curl -H "x-auth-key: $AUTH_KEY" "https://rewards-dev.notional-finance.workers.dev?network=<network>&vaultAddress=<address>&action=<claim|reinvest>&force=true"
+curl -H "x-auth-key: $AUTH_KEY" "https://rewards-dev.notional-finance.workers.dev?network=<network>&vaultAddress=<address>&action=<claim|reinvestment>&force=true"
