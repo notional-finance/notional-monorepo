@@ -279,7 +279,8 @@ const getTrades = async (
       let oracleSlippagePercentOrLimit = '0';
       let exchangeData = '0x00';
 
-      if (!amount.eq(0)) {
+      // only construct a trade if there is an amount to sell and sell token is not the same as buy token
+      if (!amount.eq(0) && sellToken.toLowerCase() != token.toLowerCase()) {
         const tradeData = await get0xData({
           sellToken,
           buyToken: token == ETH ? wEthMapper[env.NETWORK] : token,
@@ -380,8 +381,13 @@ const reinvestVault = async (
       );
       continue;
     }
-    const sellAmountsPerToken = poolTokens.map((address: string) => {
-      return address.toLowerCase() === vault.reinvestToken.toLowerCase()
+    // in case sell token is pool token, don't sell it, reinvest it
+    const isSellTokenPoolToken = poolTokens.some(
+      (address) => address.toLowerCase() === sellToken.toLowerCase()
+    );
+    const tokenToBuy = isSellTokenPoolToken ? vault.reinvestToken : sellToken;
+    const sellAmountsPerToken = poolTokens.map((address) => {
+      return address.toLowerCase() === tokenToBuy.toLowerCase()
         ? amountToSell
         : BigNumber.from(0);
     });
