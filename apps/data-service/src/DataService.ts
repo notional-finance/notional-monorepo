@@ -613,7 +613,7 @@ export default class DataService {
     return this.db
       .insert(
         reinvestmentTrades.map((r) => ({
-          network_id: this.networkToId(network),
+          network_id: r.networkId,
           vault_address: r.vaultAddress,
           timestamp: r.timestamp,
           tx_hash: r.txHash,

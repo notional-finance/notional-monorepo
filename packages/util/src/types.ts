@@ -36,7 +36,7 @@ type DataServiceTransferSingle = {
 export type DataServiceReinvestmentTrade = {
   name: 'ReinvestmentTrade';
   params: {
-    network: string;
+    networkId: number;
     vaultAddress: string;
     timestamp: number;
     txHash: string;

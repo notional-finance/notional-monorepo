@@ -6,7 +6,11 @@ import {
 import { accountsFn } from '../src/index';
 import fetch from 'node-fetch';
 
-jest.mock('node-fetch');
+jest.mock('node-fetch', () => {
+  return jest.fn().mockResolvedValue({
+    ok: true,
+  });
+});
 
 test('parse accounts events', async () => {
   const testRuntime = new TestRuntime();

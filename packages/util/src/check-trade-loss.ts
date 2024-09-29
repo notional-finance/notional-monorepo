@@ -76,11 +76,12 @@ export async function checkTradeLoss(
     buyTokenData.decimals,
     buyTokenData.price
   );
-  const lossPercentage = sellAmountInUsd
-    .sub(buyAmountInUsd)
-    .mul(100)
-    .div(sellAmountInUsd)
-    .toNumber();
+  const lossPercentage =
+    sellAmountInUsd
+      .sub(buyAmountInUsd)
+      .mul(10000)
+      .div(sellAmountInUsd)
+      .toNumber() / 100;
 
   const acceptableLoss =
     acceptablePercentageLoss[network][sellToken] ||

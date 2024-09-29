@@ -21,7 +21,7 @@ async function sendEventsToDataService(
   );
   console.log('Sending events');
   if (events.length) {
-    await fetch(`${url}/${endpoint}`, {
+    const res = await fetch(`${url}/${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -32,6 +32,9 @@ async function sendEventsToDataService(
         events,
       }),
     });
+    if (!res.ok) {
+      throw new Error('Failed to send events to data service');
+    }
   }
 }
 

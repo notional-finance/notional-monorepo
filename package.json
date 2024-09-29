@@ -50,7 +50,7 @@
     "dotenv": "^16.0.2",
     "echarts": "^5.5.0",
     "echarts-for-react": "^3.0.2",
-    "ethers": "^5.7.1",
+    "ethers": "^5",
     "fetch-retry": "^5.0.3",
     "graphql": "^16.6.0",
     "itty-router": "^3.0.12",

@@ -6,14 +6,16 @@ import {
   checkTradeLoss,
   DataServiceReinvestmentTrade,
   Network,
+  NetworkId,
 } from '@notional-finance/util';
 import { Context, GatewayNetwork, TransactionEvent } from '@tenderly/actions';
-import { Contract, ethers, utils } from 'ethers';
+import { Contract, ethers, utils, providers } from 'ethers';
 
 export async function parseReinvestmentEvents(
   context: Context,
   txEvent: TransactionEvent
 ) {
+  const network = context.metadata.getNetwork() as unknown as Network;
   const events: DataServiceReinvestmentTrade[] = [];
   const ITreasuryManager = new ethers.utils.Interface(TreasuryManagerABI);
   const reinvestedTopic = ITreasuryManager.getEventTopic(
@@ -41,7 +43,7 @@ export async function parseReinvestmentEvents(
     );
   });
   const gatewayURL = context.gateways.getGateway(
-    txEvent.network as GatewayNetwork
+    network as unknown as GatewayNetwork
   );
   const provider = new ethers.providers.JsonRpcProvider(gatewayURL);
   const timestamp = await provider
@@ -52,8 +54,11 @@ export async function parseReinvestmentEvents(
   const IERC20 = new ethers.utils.Interface([
     'function decimals() view external returns (uint8)',
   ]);
-  const getDecimals = (token: string) => {
-    return new Contract(token, IERC20).decimals();
+  const getDecimals = (token: string, provider: providers.Provider) => {
+    if (token == '0x0000000000000000000000000000000000000000') {
+      return 18;
+    }
+    return new Contract(token, IERC20, provider).decimals();
   };
 
   for (const log of tradeExecutedLogs) {
@@ -63,7 +68,7 @@ export async function parseReinvestmentEvents(
       log.topics
     ) as unknown as TradeExecutedEventObject;
     const { lossPercentage, sellTokenPrice, buyTokenPrice, priceDecimals } =
-      await checkTradeLoss(txEvent.network as Network, {
+      await checkTradeLoss(network, {
         sellToken: tradeExecutedInputs.sellToken,
         sellAmount: tradeExecutedInputs.sellAmount,
         buyToken: tradeExecutedInputs.buyToken,
@@ -73,19 +78,19 @@ export async function parseReinvestmentEvents(
     events.push({
       name: 'ReinvestmentTrade',
       params: {
+        networkId: NetworkId[network],
         vaultAddress: vaultRewardReinvestedInputs.vault,
         txHash: txEvent.hash,
         sellToken: tradeExecutedInputs.sellToken,
         buyToken: tradeExecutedInputs.buyToken,
         sellAmount: utils.formatUnits(
           tradeExecutedInputs.sellAmount,
-          await getDecimals(tradeExecutedInputs.sellToken)
+          await getDecimals(tradeExecutedInputs.sellToken, provider)
         ),
         buyAmount: utils.formatUnits(
           tradeExecutedInputs.buyAmount,
-          await getDecimals(tradeExecutedInputs.buyToken)
+          await getDecimals(tradeExecutedInputs.buyToken, provider)
         ),
-        network: txEvent.network,
         timestamp,
         sellTokenPrice: utils.formatUnits(sellTokenPrice, priceDecimals),
         buyTokenPrice: utils.formatUnits(buyTokenPrice, priceDecimals),
