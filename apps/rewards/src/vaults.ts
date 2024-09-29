@@ -76,7 +76,7 @@ export const vaults: Partial<Record<Network, Array<Vault>>> = {
     },
     {
       address: '0xeEB885Af7C8075Aa3b93e2F95E1c0bD51c758F91',
-      rewardTokens: [BAL, AURA],
+      rewardTokens: [BAL, AURA, GHO],
       reinvestToken: USDC,
     },
     {

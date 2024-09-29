@@ -355,13 +355,6 @@ const reinvestVault = async (
 
   const tradesPerRewardToken = [];
   for (const sellToken of vault.rewardTokens) {
-    if (poolTokens.includes(sellToken)) {
-      console.log(
-        `Skipping sell of ${sellToken} since it is also a pool token.`
-      );
-      continue;
-    }
-
     let amountToSell = await ERC20__factory.connect(
       sellToken,
       provider
@@ -385,7 +378,8 @@ const reinvestVault = async (
     const isSellTokenPoolToken = poolTokens.some(
       (address) => address.toLowerCase() === sellToken.toLowerCase()
     );
-    const tokenToBuy = isSellTokenPoolToken ? vault.reinvestToken : sellToken;
+
+    const tokenToBuy = isSellTokenPoolToken ? sellToken : vault.reinvestToken;
     const sellAmountsPerToken = poolTokens.map((address) => {
       return address.toLowerCase() === tokenToBuy.toLowerCase()
         ? amountToSell
