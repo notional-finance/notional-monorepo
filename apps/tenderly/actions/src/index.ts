@@ -1,5 +1,4 @@
 import { ActionFn, Context, Event, TransactionEvent } from '@tenderly/actions';
-import fetch from 'node-fetch';
 import { parseAccountsEvents } from './parseAccountsEvents';
 import { parseReinvestmentEvents } from './parseReinvestEvents';
 import {
