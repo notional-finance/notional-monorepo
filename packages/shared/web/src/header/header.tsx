@@ -12,9 +12,6 @@ import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
 import MobileNavigation from './mobile-navigation/mobile-navigation';
 import { useLocation } from 'react-router-dom';
-// import blitz from '@notional-finance/mui/src/assets/icons/blitz.svg';
-// import arbLM from '@notional-finance/mui/src/assets/icons/arbLM.svg';
-// import arbDM from '@notional-finance/mui/src/assets/icons/arbDM.svg';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
   useNotionalContext,
@@ -57,11 +54,6 @@ export function Header({ children }: HeaderProps) {
     hideSubGraphError !== true
       ? true
       : false;
-
-  // NOTE: Leaving this here for when we want to have another contest
-  // const handleContestClick = () => {
-  //   navigate('/contest');
-  // };
 
   const handleErrorMessage = () => {
     setHideError(true);
@@ -110,59 +102,7 @@ export function Header({ children }: HeaderProps) {
           >
             <MobileNavigation />
           </Box>
-          <WalletContainer>
-            {/* 
-            NOTE: Leaving this here for when we want to have another contest
-            {showContestNavLink && pathname !== '/' && (
-              <Box
-                sx={{
-                  marginRight: '40px',
-                  marginTop: '15px',
-                  cursor: 'pointer',
-                }}
-                onClick={handleContestClick}
-              >
-                <img
-                  src={blitz}
-                  alt="blitz badge"
-                  style={{ width: '76px', height: '46px' }}
-                />
-                <Box
-                  sx={{
-                    height: '5px',
-                    marginTop: '3px',
-                    background: pathname.includes('contest')
-                      ? colors.neonTurquoise
-                      : 'transparent',
-                    width: '100%',
-                  }}
-                ></Box>
-              </Box>
-            )} */}
-            {/*pathname !== '/' && (
-              <Box
-                sx={{
-                  marginRight: '32px',
-                  display: 'flex',
-                  cursor: 'pointer',
-                }}
-                onClick={() =>
-                  navigate(`/points-dashboard/${Network.arbitrum}`)
-                }
-              >
-                <img
-                  src={
-                    themeVariant === THEME_VARIANTS.DARK ||
-                    pathname.includes('points-dashboard')
-                      ? arbDM
-                      : arbLM
-                  }
-                  alt="points badge"
-                />
-              </Box>
-            )}*/}
-            {children}
-          </WalletContainer>
+          <WalletContainer>{children}</WalletContainer>
         </Toolbar>
         {subGraphError && (
           <ErrorContainer>
