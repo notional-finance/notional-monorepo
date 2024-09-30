@@ -148,17 +148,21 @@ export class SingleSidedLP extends VaultAdapter {
     return undefined;
   }
 
-  public isOverMaxPoolShare(vaultShares?: TokenBalance) {
+  public getPoolShare(vaultShares?: TokenBalance) {
     const additionalLPTokens = vaultShares
       ? this.getVaultSharesToLPTokens(vaultShares)
       : TokenBalance.zero(this.totalLPTokens.token);
 
-    const poolShare = this.totalPoolSupply
+    return this.totalPoolSupply
       ? this.totalLPTokens
           .add(additionalLPTokens)
           .ratioWith(this.totalPoolSupply)
           .toNumber()
       : 0;
+  }
+
+  public isOverMaxPoolShare(vaultShares?: TokenBalance) {
+    const poolShare = this.getPoolShare(vaultShares);
     return (
       poolShare >
       (this.maxPoolShares.toNumber() * RATE_PRECISION) /
