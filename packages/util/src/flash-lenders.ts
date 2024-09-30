@@ -30,6 +30,7 @@ const tokens = {
     RDNT: '0x3082CC23568eA640225c2467653dB90e9250AaA0',
     UNI: '0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0',
     LDO: '0x13Ad51ed4F1B7e9Dc168d8a00cB3f4dDD85EfA60',
+    tBTC: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40',
   },
 };
 
@@ -55,6 +56,7 @@ const perTokenFlashLenders = {
     [tokens.arbitrum['GMX']]: wrappedFlashLenders.arbitrum['UNIV3'],
     [tokens.arbitrum['RDNT']]: wrappedFlashLenders.arbitrum['BALANCER'],
     [tokens.arbitrum['UNI']]: wrappedFlashLenders.arbitrum['UNIV3'],
+    [tokens.arbitrum['tBTC']]: wrappedFlashLenders.arbitrum['UNIV3'],
   },
 };
 
