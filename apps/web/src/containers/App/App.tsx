@@ -41,7 +41,7 @@ import {
   ContestHome,
   ContestRules,
   ContestSignUp,
-  PointsDashboard,
+  // PointsDashboard,
   ContestLeaderBoard,
 } from '../../containers/TradingContest';
 import { Markets } from '../Markets';
@@ -369,7 +369,7 @@ const AllRoutes = () => {
             />
           }
         />
-        <Route
+        {/* <Route
           path="/points-dashboard/:selectedNetwork"
           element={
             <AppLayoutRoute
@@ -378,7 +378,7 @@ const AllRoutes = () => {
               routeType="Contest"
             />
           }
-        />
+        /> */}
         <Route
           path="/contest/:selectedNetwork"
           element={
