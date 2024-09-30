@@ -50,7 +50,9 @@ export const ClaimVaultRewards = () => {
                     ...holding,
                     vaultMetadata: {
                       ...holding.vaultMetadata,
-                      rewardClaims: undefined,
+                      rewardClaims: holding.vaultMetadata?.rewardClaims?.map(
+                        (c) => c.copy(0)
+                      ),
                     },
                   }
                 : holding

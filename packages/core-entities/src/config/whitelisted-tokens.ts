@@ -23,7 +23,7 @@ export const MaxCurrencyId: Record<Network, number | undefined> = {
   [Network.all]: undefined,
   [Network.optimism]: undefined,
   [Network.mainnet]: 11,
-  [Network.arbitrum]: 15,
+  [Network.arbitrum]: undefined,
 };
 
 // This is only used in the claim NOTE button

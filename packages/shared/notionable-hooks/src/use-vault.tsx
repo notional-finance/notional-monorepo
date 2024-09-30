@@ -4,6 +4,7 @@ import {
   TokenBalance,
   whitelistedVaults,
   getVaultType,
+  SingleSidedLP,
 } from '@notional-finance/core-entities';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { GATED_VAULTS } from '@notional-finance/notionable';
@@ -110,11 +111,32 @@ export function useAllVaults(
           leveragedVaults.filter((z) => z.token.vaultAddress === v.vaultAddress)
         );
         const vaultType = getVaultType(v.vaultAddress, network);
+        const totalBorrowCapacityUsed =
+          totalUsedPrimaryBorrowCapacity.toFloat() /
+          maxPrimaryBorrowCapacity.toFloat();
+        let vaultShareOfPool = 0;
+        if (
+          vaultType === 'SingleSidedLP' ||
+          vaultType === 'SingleSidedLP_VaultRewarderLib'
+        ) {
+          vaultShareOfPool = (
+            Registry.getVaultRegistry().getVaultAdapter(
+              network,
+              v.vaultAddress
+            ) as SingleSidedLP
+          ).getPoolShare();
+        }
+
+        const vaultUtilization = Math.min(
+          Math.max(totalBorrowCapacityUsed, vaultShareOfPool),
+          1
+        );
 
         return {
           ...v,
           vaultType,
           vaultTVL,
+          vaultUtilization,
           minAccountBorrowSize,
           totalUsedPrimaryBorrowCapacity,
           maxPrimaryBorrowCapacity,
