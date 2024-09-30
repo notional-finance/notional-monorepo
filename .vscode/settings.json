@@ -28,25 +28,6 @@
   "eslint.validate": ["json"],
   "eslint.format.enable": true,
   "eslint.alwaysShowStatus": true,
-
-  "cSpell.words": [
-    "arrayify",
-    "autotasks",
-    "ddsource",
-    "ddtags",
-    "defillama",
-    "formatjs",
-    "noindex",
-    "notionalv",
-    "nrwl",
-    "Numberish",
-    "PYUSD",
-    "reinvestments",
-    "rpcs",
-    "txes",
-    "vnet",
-    "xirr"
-  ],
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

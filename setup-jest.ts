@@ -121,6 +121,7 @@ const WHALES: Record<Network, string[][]> = {
       '0xAd96E10123Fa34a01cf2314C42D75150849C9295',
     ],
   ],
+  [Network.optimism]: [],
   [Network.all]: [],
 };
 
@@ -137,7 +138,6 @@ expect.extend(tokenBalanceMatchers);
 ) => {
   // NOTE: it is unreliable to spawn processes like this because anvil does not find the correct
   // environment variables to set snapshots
-  const jsonRpcUrl = `${AlchemyUrl[network]}/pq08EwFvymYFPbDReObtP-SFw3bCes8Z`;
   let forkProc: undefined | ChildProcessWithoutNullStreams;
   // forkProc = spawn(
   //   'anvil',
@@ -288,7 +288,7 @@ async function setupWhales(
       });
 
       // start fiat refresh, disable analytics
-      Registry.initialize('http://localhost:9999', fetchMode, true, false);
+      // Registry.initialize('http://localhost:9999', fetchMode, true, false);
       await new Promise<void>((resolve) => {
         server.listen(9999, () => {
           resolve();

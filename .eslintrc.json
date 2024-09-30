@@ -1,8 +1,19 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx", "formatjs", "react-hooks", "react", "mobx"],
+  "plugins": [
+    "@nrwl/nx",
+    "formatjs",
+    "react-hooks",
+    "react",
+    "mobx",
+    "@cspell"
+  ],
   "rules": {
+    "@cspell/spellchecker": [
+      "error",
+      { "checkComments": true, "autoFix": false }
+    ],
     "formatjs/no-offset": "error",
     "formatjs/no-id": "error"
   },

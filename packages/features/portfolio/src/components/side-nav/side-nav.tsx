@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, styled, useTheme, Collapse } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
-import { SideNavOptons } from './side-nav-options';
+import { SideNavOptions } from './side-nav-options';
 import { useAppState } from '@notional-finance/notionable-hooks';
 
 interface CollapsibleProps {
@@ -22,7 +22,7 @@ export const SideNav = () => {
   return (
     <>
       <NonCollapsible>
-        <SideNavOptons />
+        <SideNavOptions />
       </NonCollapsible>
       <Collapsible
         onMouseEnter={() => setOpen(true)}
@@ -32,7 +32,7 @@ export const SideNav = () => {
         sideboxshadow={sideBoxShadow}
       >
         <Collapse orientation="horizontal" in={open} collapsedSize={80}>
-          <SideNavOptons open={open} />
+          <SideNavOptions open={open} />
         </Collapse>
       </Collapsible>
     </>
@@ -52,7 +52,7 @@ const NonCollapsible = styled(Box)(
 
 // NOTE* this unique padding-top is necessary to align with the button bar
 const Collapsible = styled(Box)(
-  ({ theme, open, sideboxshadow }: CollapsibleProps) => `  
+  ({ theme, open, sideboxshadow }: CollapsibleProps) => `
   height: 100vh;
   position: fixed;
   left: 0;
