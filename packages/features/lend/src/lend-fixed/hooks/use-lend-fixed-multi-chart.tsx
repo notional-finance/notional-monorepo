@@ -19,7 +19,7 @@ export const useLendFixedMultiChart = () => {
     'Collateral',
     context
   );
-  const nToken = useNToken(deposit?.network, deposit?.currencyId);
+  const nToken = useNToken(deposit?.currencyId);
   const { data: tvlData } = useChartData(nToken, ChartType.PRICE);
 
   return [

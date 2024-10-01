@@ -458,6 +458,14 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     });
   };
 
+  const getAllNonLeveragedYields = (): ProductAPY[] => {
+    const nTokenYields = getAllNTokenYields();
+    const fCashYields = getAllFCashYields();
+    const primeCashYields = getAllPrimeCashYields();
+
+    return [...nTokenYields, ...fCashYields, ...primeCashYields];
+  };
+
   const getAllFCashYields = (): ProductAPY[] => {
     return getTokensByType('fCash')
       .filter((data) => !data?.isFCashDebt)
@@ -608,5 +616,6 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getAllFCashDebt,
     getAllPrimeCashYields,
     getAllPrimeCashDebt,
+    getAllNonLeveragedYields,
   };
 };

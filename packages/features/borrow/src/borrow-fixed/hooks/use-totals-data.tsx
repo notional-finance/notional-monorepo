@@ -5,29 +5,24 @@ import {
   FiatSymbols,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import {
-  useAllMarkets,
-  useTotalHolders,
-} from '@notional-finance/notionable-hooks';
+import { useTotalHolders } from '@notional-finance/notionable-hooks';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,
   debt: TokenDefinition | undefined,
   baseCurrency: FiatKeys
 ) => {
-  const data = useAllMarkets(deposit?.network);
-  const {
-    yields: { fCashBorrow },
-  } = data;
+  const currentNetworkStore = useCurrentNetworkStore();
+  const fCashBorrow = currentNetworkStore.getAllFCashDebt();
   const totalBorrowers = useTotalHolders(debt);
-
   const liquidity = fCashBorrow.find(({ token }) => token.id === debt?.id);
 
   let totalFixedRateDebt;
   if (deposit) {
     const zeroUnderlying = TokenBalance.fromFloat(0, deposit);
     totalFixedRateDebt = fCashBorrow
-      .filter(({ underlying }) => underlying?.id === deposit.id)
+      .filter((data) => data?.underlying?.id === deposit.id)
       .map(({ token }) => token.totalSupply?.toUnderlying())
       .reduce((sum, balance) => {
         return balance && sum ? sum?.add(balance) : sum;

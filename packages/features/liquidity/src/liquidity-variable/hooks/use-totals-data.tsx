@@ -1,18 +1,15 @@
 import {
   FiatKeys,
   FiatSymbols,
-  Registry,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { InfoTooltip } from '@notional-finance/mui';
 import { SparklesIcon } from '@notional-finance/icons';
-import {
-  useAllMarkets,
-  useMaxSupply,
-} from '@notional-finance/notionable-hooks';
+import { useMaxSupply } from '@notional-finance/notionable-hooks';
 import { SxProps, useTheme } from '@mui/material';
 import { FormattedMessage, defineMessage } from 'react-intl';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,
@@ -20,15 +17,20 @@ export const useTotalsData = (
   nTokenAmount?: TokenBalance
 ) => {
   const theme = useTheme();
-  const { yields } = useAllMarkets(deposit?.network);
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const liquidity = currentNetworkStore.getAllNTokenYields();
+  const allLiquidityYieldData = liquidity.find(
+    (data) => data?.underlying?.id === deposit?.id
+  );
   const liquidityYieldData = nTokenAmount
-    ? Registry.getYieldRegistry().getSimulatedNTokenYield(nTokenAmount)
-    : yields.liquidity.find(({ underlying }) => underlying.id === deposit?.id);
+    ? currentNetworkStore.getSimulatedAPY(nTokenAmount)
+    : allLiquidityYieldData?.apy;
 
-  const totalIncentives =
-    (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) +
-    (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0);
+  const totalIncentives = liquidityYieldData?.incentives?.reduce(
+    (acc, curr) => acc + curr.incentiveAPY,
+    0
+  );
 
   const ToolTip = ({ sx }: { sx: SxProps }) => {
     return (
@@ -48,7 +50,8 @@ export const useTotalsData = (
     totalsData: [
       {
         title: <FormattedMessage defaultMessage={'Market Liquidity'} />,
-        value: liquidityYieldData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
+        value:
+          allLiquidityYieldData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
         prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
         decimals: 0,
       },

@@ -50,7 +50,6 @@ export const WalletModel = types
     setTotalPoints(points: number | undefined) {
       self.totalPoints = points;
     },
-    
   }));
 
 export type WalletStoreType = Instance<typeof WalletModel>;

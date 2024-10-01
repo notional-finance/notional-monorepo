@@ -1,5 +1,12 @@
-import { YieldData, FiatSymbols } from '@notional-finance/core-entities';
-import { TradeState, useAppStore } from '@notional-finance/notionable';
+import {
+  FiatSymbols,
+  FiatKeys,
+  TokenBalance,
+} from '@notional-finance/core-entities';
+import {
+  TradeState,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 import { SparklesIcon } from '@notional-finance/icons';
 import { useMaxSupply } from '@notional-finance/notionable-hooks';
 import { FormattedMessage, defineMessage } from 'react-intl';
@@ -8,25 +15,27 @@ import { SxProps, useTheme } from '@mui/material';
 
 export const useTotalsData = (
   state: TradeState,
-  liquidityYieldData: YieldData | undefined
+  baseCurrency: FiatKeys,
+  nTokenAmount?: TokenBalance
 ) => {
   const theme = useTheme();
   const { deposit } = state;
-  const { baseCurrency } = useAppStore();
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
-  let totalIncentives = 0;
 
-  if (
-    liquidityYieldData &&
-    liquidityYieldData?.noteIncentives &&
-    liquidityYieldData?.secondaryIncentives
-  ) {
-    totalIncentives =
-      liquidityYieldData?.noteIncentives?.incentiveAPY +
-      liquidityYieldData?.secondaryIncentives?.incentiveAPY;
-  } else if (liquidityYieldData && liquidityYieldData?.noteIncentives) {
-    totalIncentives = liquidityYieldData?.noteIncentives?.incentiveAPY;
-  }
+  const currentNetworkStore = useCurrentNetworkStore();
+  const liquidity = currentNetworkStore.getAllLeveragedNTokenYields();
+  const allLiquidityYieldData = liquidity.find(
+    (data) => data?.underlying?.id === deposit?.id
+  );
+
+  const liquidityYieldData = nTokenAmount
+    ? currentNetworkStore.getSimulatedAPY(nTokenAmount)
+    : allLiquidityYieldData?.apy;
+
+  const totalIncentives = liquidityYieldData?.incentives?.reduce(
+    (acc, curr) => acc + curr.incentiveAPY,
+    0
+  );
 
   const ToolTip = ({ sx }: { sx: SxProps }) => {
     return (
@@ -46,13 +55,14 @@ export const useTotalsData = (
     totalsData: [
       {
         title: <FormattedMessage defaultMessage={'Market Liquidity'} />,
-        value: liquidityYieldData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
+        value:
+          allLiquidityYieldData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
         prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
         decimals: 0,
       },
       {
         title: <FormattedMessage defaultMessage={'Total Incentive APY'} />,
-        value: totalIncentives > 0 ? totalIncentives : '-',
+        value: totalIncentives && totalIncentives > 0 ? totalIncentives : '-',
         Icon: SparklesIcon,
         suffix: totalIncentives ? '%' : '',
       },

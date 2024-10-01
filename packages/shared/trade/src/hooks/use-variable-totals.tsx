@@ -35,8 +35,8 @@ export const useVariableTotals = (state: TradeState) => {
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
   const { data: apyData } = useChartData(state.debt, ChartType.APY);
 
-  const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
-  const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
+  const primeCash = usePrimeCash(deposit?.currencyId);
+  const primeDebt = usePrimeDebt(deposit?.currencyId);
 
   const ToolTip = ({ sx }: { title?: string; sx: SxProps }) => {
     return (

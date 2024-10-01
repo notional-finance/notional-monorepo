@@ -18,7 +18,7 @@ export const useBorrowFixedMultiChart = () => {
     true
   );
   const { selectedfCashId, onSelect } = useMaturitySelect('Debt', context);
-  const nToken = useNToken(deposit?.network, deposit?.currencyId);
+  const nToken = useNToken(deposit?.currencyId);
   const { data: priceData } = useChartData(nToken, ChartType.PRICE);
 
   return [

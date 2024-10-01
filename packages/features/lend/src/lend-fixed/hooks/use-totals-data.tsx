@@ -5,23 +5,20 @@ import {
   FiatSymbols,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import {
-  useAllMarkets,
-  useMaxSupply,
-} from '@notional-finance/notionable-hooks';
+import { useMaxSupply } from '@notional-finance/notionable-hooks';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,
   collateral: TokenDefinition | undefined,
   baseCurrency: FiatKeys
 ) => {
-  const {
-    yields: { fCashLend },
-  } = useAllMarkets(deposit?.network);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const fCashLend = currentNetworkStore.getAllFCashYields();
   const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
 
   const filteredFCash = fCashLend
-    .filter(({ underlying }) => underlying?.id === deposit?.id)
+    .filter((data) => data?.underlying?.id === deposit?.id)
     .map(({ token }) => token.totalSupply?.toUnderlying());
   const liquidity = fCashLend.find(({ token }) => token.id === collateral?.id);
 
