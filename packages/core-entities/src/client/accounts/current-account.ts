@@ -381,7 +381,7 @@ function getVaultCalls(
     ];
 
     const vaultType = getVaultType(v.vaultAddress, network);
-    if (vaultType === 'SingleSidedLP_VaultRewarderLib') {
+    if (vaultType === 'SingleSidedLP_DirectClaim') {
       const adapter = Registry.getVaultRegistry().getVaultAdapter(
         network,
         v.vaultAddress

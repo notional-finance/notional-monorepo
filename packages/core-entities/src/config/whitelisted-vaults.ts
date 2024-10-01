@@ -169,20 +169,14 @@ export const VaultDefaultDexParameters: Record<
   [Network.all]: {},
 };
 
-const SingleSidedLP_VaultRewarderLib: Record<Network, string[]> = {
+const SingleSidedLP_DirectClaim: Record<Network, string[]> = {
   [Network.arbitrum]: [],
-  [Network.mainnet]: [
-    '0xe20048fa0f165a49b780dfa9a8caba845332f848',
-    '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb',
-  ],
+  [Network.mainnet]: ['0xe20048fa0f165a49b780dfa9a8caba845332f848'],
   [Network.optimism]: [],
   [Network.all]: [],
 };
 
-type VaultType =
-  | 'SingleSidedLP'
-  | 'PendlePT'
-  | 'SingleSidedLP_VaultRewarderLib';
+type VaultType = 'SingleSidedLP' | 'PendlePT' | 'SingleSidedLP_DirectClaim';
 
 export function getVaultType(
   vaultAddress: string,
@@ -191,9 +185,9 @@ export function getVaultType(
   if (PendlePTVaults[network].includes(vaultAddress.toLowerCase())) {
     return 'PendlePT';
   } else if (
-    SingleSidedLP_VaultRewarderLib[network].includes(vaultAddress.toLowerCase())
+    SingleSidedLP_DirectClaim[network].includes(vaultAddress.toLowerCase())
   ) {
-    return 'SingleSidedLP_VaultRewarderLib';
+    return 'SingleSidedLP_DirectClaim';
   }
   return 'SingleSidedLP';
 }

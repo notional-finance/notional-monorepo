@@ -86,13 +86,13 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
           const vaultType = getVaultType(vaultAddress, network);
           switch (vaultType) {
             case 'SingleSidedLP':
-            case 'SingleSidedLP_VaultRewarderLib':
+            case 'SingleSidedLP_DirectClaim':
               return this.getSingleSidedLPCalls(
                 vaultAddress,
                 network,
                 enabled,
                 name,
-                vaultType === 'SingleSidedLP_VaultRewarderLib'
+                vaultType === 'SingleSidedLP_DirectClaim'
               );
             case 'PendlePT':
               return this.getPendlePTCalls(vaultAddress, network, enabled);

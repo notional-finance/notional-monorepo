@@ -117,7 +117,7 @@ export function useAllVaults(
         let vaultShareOfPool = 0;
         if (
           vaultType === 'SingleSidedLP' ||
-          vaultType === 'SingleSidedLP_VaultRewarderLib'
+          vaultType === 'SingleSidedLP_DirectClaim'
         ) {
           vaultShareOfPool = (
             Registry.getVaultRegistry().getVaultAdapter(

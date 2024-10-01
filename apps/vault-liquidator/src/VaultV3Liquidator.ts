@@ -419,7 +419,7 @@ export default class VaultV3Liquidator {
       );
     } else if (
       vaultType === 'SingleSidedLP' ||
-      vaultType === 'SingleSidedLP_VaultRewarderLib'
+      vaultType === 'SingleSidedLP_DirectClaim'
     ) {
       redeemData = await this.getSingleSidedLPRedeemData(
         vault,
