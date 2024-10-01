@@ -75,6 +75,7 @@ export const DataTableBody = ({
           : false;
 
         const handleClick = () => {
+          if (initialState?.clickDisabled) return;
           if (expandableTable && setExpandedRows) {
             const newState = {
               ...initialState?.expanded,
