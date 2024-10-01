@@ -8,57 +8,22 @@ import {
   SupportedNetworks,
 } from './constants';
 
-class AlchemyBatchProvider extends ethers.providers.AlchemyProvider {
-  // _pendingBatchAggregator?: NodeJS.Timer;
-  // _pendingBatch?: Array<{
-  //     request: { method: string, params: Array<any>, id: number, jsonrpc: "2.0" },
-  //     resolve: (result: any) => void,
-  //     reject: (error: Error) => void
-  // }>;
-  // constructor(network, apiKey) {
-  //   super(network, apiKey)
-  // }
-}
-
-export function getProvider(networkId: number) {
-  if (networkId === 1) {
-    // Mainnet
-    const provider = new AlchemyBatchProvider(
-      networkId,
-      'JU05SBqaAUg1-2xYuUvvJlE2-zcFKSwz'
-    );
-    provider.send = ethers.providers.JsonRpcBatchProvider.prototype.send;
-    return provider;
-  } else if (networkId === 5) {
-    // Goerli
-    const provider = new AlchemyBatchProvider(
-      networkId,
-      'u9PaziJgX-8l4j8_c88b777-Io4scNUe'
-    );
-    provider.send = ethers.providers.JsonRpcBatchProvider.prototype.send;
-    return provider;
-  } else {
-    // Goerli
-    const provider = new AlchemyBatchProvider(
-      networkId,
-      'u9PaziJgX-8l4j8_c88b777-Io4scNUe'
-    );
-    provider.send = ethers.providers.JsonRpcBatchProvider.prototype.send;
-    return provider;
-  }
-}
+// eslint-disable-next-line @cspell/spellchecker
+/* cspell:disable-next-line */
+export const ALCHEMY_KEY = 'pq08EwFvymYFPbDReObtP-SFw3bCes8Z';
 
 export function getProviderURLFromNetwork(network: Network, useNFT = false) {
   return `${
     useNFT ? AlchemyNFTUrl[network] : AlchemyUrl[network]
-  }/pq08EwFvymYFPbDReObtP-SFw3bCes8Z`;
+  }/${ALCHEMY_KEY}`;
 }
 
 export function getProviderFromNetwork(
   network: Network,
   skipFetchSetup = false
-): providers.Provider {
-  if (IS_TEST_ENV) return (global as any).provider;
+) {
+  if (IS_TEST_ENV)
+    return (global as unknown as { provider: providers.Provider }).provider;
 
   if (skipFetchSetup) {
     return new ethers.providers.JsonRpcBatchProvider({
@@ -68,7 +33,7 @@ export function getProviderFromNetwork(
   }
   const provider = new ethers.providers.AlchemyProvider(
     NetworkId[network],
-    'pq08EwFvymYFPbDReObtP-SFw3bCes8Z'
+    ALCHEMY_KEY
   );
   provider.send = ethers.providers.JsonRpcBatchProvider.prototype.send;
   return provider;

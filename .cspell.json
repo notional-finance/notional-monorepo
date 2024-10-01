@@ -1,0 +1,20 @@
+{
+  "language": "en",
+  "useGitignore": true,
+  "ignorePaths": [
+    "/**/package.json",
+    "**/yarn.lock",
+    "**/.eslintrc.json",
+    "packages/shared/helpers/src/lang/**",
+    "packages/shared/assets/src/notional-web.ai",
+    "packages/shared/assets/src/assets/marketing/notional-social-graph copy.ai"
+  ],
+  "dictionaries": ["notional-words"],
+  "dictionaryDefinitions": [
+    {
+      "name": "notional-words",
+      "path": "./notional-words.txt",
+      "addWords": true
+    }
+  ]
+}
