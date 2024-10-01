@@ -59,6 +59,18 @@ export const PointsLinks: Record<Network, Record<string, string>> = {
   [Network.optimism]: {},
 };
 
+const PendlePTVaults: Record<Network, string[]> = {
+  [Network.arbitrum]: [
+    // "[ETH]:rsETH_25SEP2024"
+    '0x851a28260227f9a8e6bf39a5fa3b5132fa49c7f3',
+    // "[ETH]:rsETH_26DEC2024"
+    '0x878c46978ac67e43d9d27e510f98e087e9940b12',
+  ],
+  [Network.mainnet]: [],
+  [Network.optimism]: [],
+  [Network.all]: [],
+};
+
 /** @dev all vault addresses should be lowercased */
 export const whitelistedVaults = (network: Network) => {
   switch (network) {
@@ -88,6 +100,7 @@ export const whitelistedVaults = (network: Network) => {
         '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb',
         // "[WBTC]:xWBTC_tBTC":
         '0xe20048fa0f165a49b780dfa9a8caba845332f848',
+        ...PendlePTVaults[Network.mainnet],
       ];
     case Network.arbitrum:
       return [
@@ -119,8 +132,7 @@ export const whitelistedVaults = (network: Network) => {
         '0x91b79f4081d3522af2760b7698810d501ebc8010',
         // "[wBTC]:xWBTC_tBTC":
         '0x3533f05b2c54ce1c2321cfe3c6f693a3cbbaea10',
-        // "[ETH]:Pendle rsETH":
-        '0x851a28260227f9a8e6bf39a5fa3b5132fa49c7f3',
+        ...PendlePTVaults[Network.arbitrum],
       ];
     case Network.optimism:
       return [];
@@ -143,17 +155,18 @@ export const VaultDefaultDexParameters: Record<
       ),
       poolAddress: '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739',
     },
+    '0x878c46978ac67e43d9d27e510f98e087e9940b12': {
+      dexId: DexIds.BALANCER_V2,
+      exchangeData: defaultAbiCoder.encode(
+        ['bytes32'],
+        ['0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd73900000000000000000000055c']
+      ),
+      poolAddress: '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739',
+    },
   },
   [Network.mainnet]: {},
   [Network.optimism]: {},
   [Network.all]: {},
-};
-
-const PendlePTVaults: Record<Network, string[]> = {
-  [Network.arbitrum]: ['0x851a28260227f9a8e6bf39a5fa3b5132fa49c7f3'],
-  [Network.mainnet]: [],
-  [Network.optimism]: [],
-  [Network.all]: [],
 };
 
 const SingleSidedLP_VaultRewarderLib: Record<Network, string[]> = {
