@@ -123,13 +123,23 @@ export const TransactionSidebar = ({
       if (showApprovals) {
         setShowTxnApprovals(true);
       } else {
-        updateState({ confirm: true });
+        // Clear the populated transaction and transaction error to reset the simulation
+        updateState({
+          confirm: true,
+          populatedTransaction: undefined,
+          transactionError: undefined,
+        });
       }
     }
 
     if (!showApprovals && showTxnApprovals) {
       setShowTxnApprovals(false);
-      updateState({ confirm: true });
+      // Clear the populated transaction and transaction error to reset the simulation
+      updateState({
+        confirm: true,
+        populatedTransaction: undefined,
+        transactionError: undefined,
+      });
     }
   }, [
     showApprovals,
