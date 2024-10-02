@@ -124,6 +124,7 @@ export const ORACLE_TYPE_TO_ID = {
 // This kludge is necessary because the subgraph only allows a skip value of
 // less than 5000, so we query the entire account range by the prefix here with
 // a max number of accounts in each id range of 5000.
+/* eslint-disable address/addr-type */
 export const ACCOUNT_ID_RANGES = [
   '0x0000000000000000000000000000000000000000',
   '0x1000000000000000000000000000000000000000',
@@ -143,6 +144,8 @@ export const ACCOUNT_ID_RANGES = [
   '0xf000000000000000000000000000000000000000',
   '0xffffffffffffffffffffffffffffffffffffffff',
 ];
+/* eslint-enable address/addr-type */
+
 export type MainnetToken =
   (typeof tokens)[Network.mainnet][keyof typeof tokens.mainnet];
 export type MainnetVaults =
@@ -202,9 +205,9 @@ export const vaults = {
     Aura_xrETH_weETH: '0x32D82A1C8618c7Be7Fe85B2F1C44357A871d52D1' as const,
     Convex_xGHO_crvUSD: '0x30fBa4a7ec8591f25B4D37fD79943a4bb6E553e2' as const,
     Balancer_rsETH_xWETH: '0xF94507F3dECE4CC4c73B6cf228912b85Eadc9CFB' as const,
-    Curve_USDe_xUSDC: '0xd6aa58cf21a0edb33375d6c0434b8bb5b589f021' as const,
-    Convex_xGHO_USDe: '0xb1113cf888a019693b254da3d90f841072d85172' as const,
-    Convex_xWBTC_tBTC: '0xe20048fa0f165a49b780dfa9a8caba845332f848' as const,
+    Curve_USDe_xUSDC: '0xD6AA58cf21A0EDB33375D6c0434b8Bb5b589F021' as const,
+    Convex_xGHO_USDe: '0xB1113cf888A019693b254da3d90f841072D85172' as const,
+    Convex_xWBTC_tBTC: '0xe20048FA0F165A49b780DFA9A8caBa845332f848' as const,
   },
   arbitrum: {
     Curve_xFRAX_USDC: '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf' as const,
