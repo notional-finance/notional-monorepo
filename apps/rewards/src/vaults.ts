@@ -1,3 +1,4 @@
+import { whitelistedVaults } from '@notional-finance/core-entities';
 import {
   ArbitrumToken,
   ArbitrumVaults,
@@ -158,4 +159,15 @@ export const vaults: Vaults = {
       reinvestToken: a.WBTC,
     },
   ],
+};
+
+export const getVaultsForReinvestment = (network: Network, all = false) => {
+  if (all) {
+    return vaults[network];
+  }
+
+  const whitelisted = whitelistedVaults(network);
+  return vaults[network].filter((vault) =>
+    whitelisted.some((address) => address === vault.address.toLowerCase())
+  );
 };
