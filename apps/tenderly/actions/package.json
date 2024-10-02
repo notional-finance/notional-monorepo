@@ -9,7 +9,7 @@
     "lint": "prettier --check ."
   },
   "dependencies": {
-    "ethers": "^5"
+    "ethers": "^5.7.1"
   },
   "private": true,
   "devDependencies": {
