@@ -32,6 +32,7 @@ import {
   wait,
   floorToMidnight,
 } from './util';
+import { DataServiceVaultAPY } from '@notional-finance/util';
 
 const log = debug('vault-apy');
 
@@ -81,16 +82,22 @@ export default class APYSimulator {
       return;
     }
     const startingTimestamp = startingDate.getTime() / 1000;
-    
+
     for (let i = 1; i <= numOfDays; i++) {
       const currentTimestamp = startingTimestamp - i * ONE_DAY_IN_SECONDS;
       log(`processing day ${i}, ${currentTimestamp}`);
-      const initialForkBlock = await this.#getBlockAtTimestamp(currentTimestamp);
+      const initialForkBlock = await this.#getBlockAtTimestamp(
+        currentTimestamp
+      );
 
       for (const vault of this.#config.vaults) {
         log(`Processing vault: ${vault.address}`);
         try {
-          const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vault.rewardPoolType, vault.address);
+          const adjustedForkBlock = await this.getForkBlock(
+            initialForkBlock,
+            vault.rewardPoolType,
+            vault.address
+          );
           await this.run(adjustedForkBlock, vault.address, currentTimestamp);
         } catch (error) {
           log(`Error processing vault ${vault.address}: ${error}`);
@@ -104,7 +111,9 @@ export default class APYSimulator {
     startingDate: Date = new Date()
   ) {
     const startingTimestamp = startingDate.getTime() / 1000;
-    const vaultData = this.#config.vaults.find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
+    const vaultData = this.#config.vaults.find(
+      (v) => v.address.toLowerCase() === vaultAddress.toLowerCase()
+    );
 
     if (!vaultData) {
       throw new Error(`Vault address ${vaultAddress} not found in config`);
@@ -113,9 +122,15 @@ export default class APYSimulator {
     for (let i = 0; i <= numOfDays; i++) {
       const currentTimestamp = startingTimestamp - i * ONE_DAY_IN_SECONDS;
       log(`processing day ${i}`);
-      const initialForkBlock = await this.#getBlockAtTimestamp(currentTimestamp);
+      const initialForkBlock = await this.#getBlockAtTimestamp(
+        currentTimestamp
+      );
 
-      const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vaultData.rewardPoolType, vaultAddress);
+      const adjustedForkBlock = await this.getForkBlock(
+        initialForkBlock,
+        vaultData.rewardPoolType,
+        vaultAddress
+      );
       await this.run(adjustedForkBlock, vaultAddress, currentTimestamp);
     }
   }
@@ -124,7 +139,9 @@ export default class APYSimulator {
     vaultAddress: string,
     blocks: number[]
   ) {
-    const vaultData = this.#config.vaults.find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
+    const vaultData = this.#config.vaults.find(
+      (v) => v.address.toLowerCase() === vaultAddress.toLowerCase()
+    );
 
     if (!vaultData) {
       throw new Error(`Vault address ${vaultAddress} not found in config`);
@@ -133,20 +150,33 @@ export default class APYSimulator {
     for (let i = 0; i < blocks.length; i++) {
       const forkBlock = blocks[i];
       log(`processing block ${forkBlock}`);
-      const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
+      const forkBlockTimestamp = (
+        await this.#alchemyProvider.getBlock(forkBlock)
+      ).timestamp;
 
       if (vaultData.rewardPoolType === RewardPoolType.Aura) {
-        const periodFinish = await this.getPeriodFinishForVault(vaultAddress, forkBlock);
+        const periodFinish = await this.getPeriodFinishForVault(
+          vaultAddress,
+          forkBlock
+        );
         const timeDifference = periodFinish - forkBlockTimestamp;
-        log(`Time difference between periodFinish and forkBlock: ${timeDifference} seconds`);
+        log(
+          `Time difference between periodFinish and forkBlock: ${timeDifference} seconds`
+        );
       }
 
       await this.run(forkBlock, vaultAddress, forkBlockTimestamp);
     }
   }
 
-  async run(forkBlock: number, vaultAddress: string, originalTimestamp: number) {
-    const vaultData = this.#config.vaults.find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
+  async run(
+    forkBlock: number,
+    vaultAddress: string,
+    originalTimestamp: number
+  ) {
+    const vaultData = this.#config.vaults.find(
+      (v) => v.address.toLowerCase() === vaultAddress.toLowerCase()
+    );
 
     if (!vaultData) {
       throw new Error(`Vault address ${vaultAddress} not found in config`);
@@ -158,7 +188,7 @@ export default class APYSimulator {
       rpcUrl,
       this.#config.chainId
     );
-    
+
     // we can't call getExchangeRate when we warp into future without extending freshness
     await this.#extendMaxOracleFreshness(provider);
 
@@ -168,15 +198,11 @@ export default class APYSimulator {
       rpcUrl,
       this.#config.chainId
     );
-    
+
     // we need to create new checkpoint since it is deleted after revert
     const checkpoint = await provider.send('evm_snapshot', []);
 
-    const vault = new Contract(
-      vaultData.address,
-      SingleSidedLPVault,
-      provider
-    );
+    const vault = new Contract(vaultData.address, SingleSidedLPVault, provider);
     // attach additional data
     vaultData.pool = vaultData.pool || (await vault.getStrategyVaultInfo())[0];
 
@@ -311,7 +337,7 @@ export default class APYSimulator {
       noVaultShares: !isAccountVault,
     };
 
-    const allResults: any[] = [];
+    const allResults: DataServiceVaultAPY[] = [];
     for (const [token, tokensClaimed] of rewardTokens) {
       const { decimals: tokenDecimals, symbol } = await getTokenDetails(
         token,
@@ -327,7 +353,7 @@ export default class APYSimulator {
           )
         );
 
-      const result = {
+      const result: DataServiceVaultAPY = {
         /////////////////local log, not saved to db/////////////////////////
         apy: `${
           Number(
@@ -351,7 +377,7 @@ export default class APYSimulator {
     }
 
     if (poolFeesInPrimary) {
-      const feeResult = {
+      const feeResult: DataServiceVaultAPY = {
         ...sharedData,
         rewardToken: 'Swap Fees',
         rewardTokenSymbol: 'Swap Fees',
@@ -427,7 +453,11 @@ export default class APYSimulator {
       ]);
       // filter out gauge deposit token
       accounts = logs.transfers
-        .filter((t) => t.from !== '0x4717c25df44e280ec5b31acbd8c194e1ed24efe2')
+        .filter(
+          (t) =>
+            t.from.toLowerCase() !==
+            '0x4717C25df44e280ec5b31aCBd8C194e1eD24efe2'.toLowerCase()
+        )
         .map((l) => l.from);
     } else {
       logs = await this.#alchemyProvider.send('alchemy_getAssetTransfers', [
@@ -578,7 +608,7 @@ export default class APYSimulator {
       .then((r) => r.height);
   }
 
-  async #saveToDb(reports: any[]) {
+  async #saveToDb(reports: DataServiceVaultAPY[]) {
     if (!reports.length) {
       log('nothing to save');
       return;
@@ -600,10 +630,15 @@ export default class APYSimulator {
     }
   }
 
-  async getPeriodFinishForVault(vaultAddress: string, forkBlock: number): Promise<number> {
+  async getPeriodFinishForVault(
+    vaultAddress: string,
+    forkBlock: number
+  ): Promise<number> {
     // Find the vault data in the config
-    const vaultData = this.#config.vaults.find(v => v.address.toLowerCase() === vaultAddress.toLowerCase());
-    
+    const vaultData = this.#config.vaults.find(
+      (v) => v.address.toLowerCase() === vaultAddress.toLowerCase()
+    );
+
     if (!vaultData) {
       throw new Error(`Vault address ${vaultAddress} not found in config`);
     }
@@ -612,17 +647,24 @@ export default class APYSimulator {
       throw new Error(`Gauge address not specified for vault ${vaultAddress}`);
     }
 
-    const gaugeContract = new Contract(vaultData.gauge, GaugeInterface, this.#alchemyProvider);
+    const gaugeContract = new Contract(
+      vaultData.gauge,
+      GaugeInterface,
+      this.#alchemyProvider
+    );
 
     try {
       // Call the periodFinish function at the specified block
       const periodFinish: BigNumber = await gaugeContract.periodFinish({
-        blockTag: forkBlock
+        blockTag: forkBlock,
       });
       log(periodFinish.toString());
       return periodFinish.toNumber();
     } catch (error) {
-      console.error(`Error fetching periodFinish for gauge ${vaultData.gauge} at block ${forkBlock}:`, error);
+      console.error(
+        `Error fetching periodFinish for gauge ${vaultData.gauge} at block ${forkBlock}:`,
+        error
+      );
       throw error;
     }
   }
@@ -652,13 +694,19 @@ export default class APYSimulator {
     }
 
     const initialForkBlock = await this.#alchemyProvider.getBlockNumber();
-    const originalTimestamp = (await this.#alchemyProvider.getBlock(initialForkBlock)).timestamp;
+    const originalTimestamp = (
+      await this.#alchemyProvider.getBlock(initialForkBlock)
+    ).timestamp;
     log(`Processing all vaults at block ${initialForkBlock}`);
 
     for (const vault of this.#config.vaults) {
       log(`Processing vault: ${vault.address}`);
       try {
-        const adjustedForkBlock = await this.getForkBlock(initialForkBlock, vault.rewardPoolType, vault.address);
+        const adjustedForkBlock = await this.getForkBlock(
+          initialForkBlock,
+          vault.rewardPoolType,
+          vault.address
+        );
         await this.run(adjustedForkBlock, vault.address, originalTimestamp);
       } catch (error) {
         log(`Error processing vault ${vault.address}: ${error}`);
@@ -667,39 +715,65 @@ export default class APYSimulator {
   }
 
   // Add this function to your APYSimulator class
-  private async getForkBlock(startingBlock: number, rewardPoolType: RewardPoolType, vaultAddress: string): Promise<number> {
+  private async getForkBlock(
+    startingBlock: number,
+    rewardPoolType: RewardPoolType,
+    vaultAddress: string
+  ): Promise<number> {
     let forkBlock = startingBlock;
-    const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock)).timestamp;
+    const forkBlockTimestamp = (await this.#alchemyProvider.getBlock(forkBlock))
+      .timestamp;
 
-    if (rewardPoolType === RewardPoolType.Aura || rewardPoolType === RewardPoolType.ConvexMainnet) {
-      const periodFinish = await this.getPeriodFinishForVault(vaultAddress, forkBlock);
+    if (
+      rewardPoolType === RewardPoolType.Aura ||
+      rewardPoolType === RewardPoolType.ConvexMainnet
+    ) {
+      const periodFinish = await this.getPeriodFinishForVault(
+        vaultAddress,
+        forkBlock
+      );
       const timeDifference = periodFinish - forkBlockTimestamp;
-      log(`Time difference between periodFinish and forkBlock: ${timeDifference} seconds`);
+      log(
+        `Time difference between periodFinish and forkBlock: ${timeDifference} seconds`
+      );
 
-      if (timeDifference < -ONE_DAY_IN_SECONDS || timeDifference > ONE_DAY_IN_SECONDS) {
+      if (
+        timeDifference < -ONE_DAY_IN_SECONDS ||
+        timeDifference > ONE_DAY_IN_SECONDS
+      ) {
         // Continue as normal
       } else {
         // Find the fork block 1 day behind periodFinish
-        forkBlock = await this.#getBlockAtTimestamp(periodFinish - ONE_DAY_IN_SECONDS);
+        forkBlock = await this.#getBlockAtTimestamp(
+          periodFinish - ONE_DAY_IN_SECONDS
+        );
         log(`Adjusted forkBlock to ${forkBlock} (1 day behind periodFinish)`);
       }
     } else if (rewardPoolType === RewardPoolType.ConvexArbitrum) {
-      const mostRecentThursdayMidnight = this.#getMostRecentThursdayMidnight(forkBlockTimestamp);
-      const nextThursdayMidnight = this.#getNextThursdayMidnightUTC(forkBlockTimestamp);
-      const oneDayBeforeNextThursday = nextThursdayMidnight - ONE_DAY_IN_SECONDS;
-      
-      if (forkBlockTimestamp < mostRecentThursdayMidnight + 2 * 60 * 60) { // 2 hours ahead
-        const adjustedTimestamp = mostRecentThursdayMidnight - ONE_DAY_IN_SECONDS;
+      const mostRecentThursdayMidnight =
+        this.#getMostRecentThursdayMidnight(forkBlockTimestamp);
+      const nextThursdayMidnight =
+        this.#getNextThursdayMidnightUTC(forkBlockTimestamp);
+      const oneDayBeforeNextThursday =
+        nextThursdayMidnight - ONE_DAY_IN_SECONDS;
+
+      if (forkBlockTimestamp < mostRecentThursdayMidnight + 2 * 60 * 60) {
+        // 2 hours ahead
+        const adjustedTimestamp =
+          mostRecentThursdayMidnight - ONE_DAY_IN_SECONDS;
         forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
-        log(`Adjusted forkBlock to ${forkBlock} (1 day before most recent Thursday midnight)`);
+        log(
+          `Adjusted forkBlock to ${forkBlock} (1 day before most recent Thursday midnight)`
+        );
       } else if (forkBlockTimestamp > oneDayBeforeNextThursday) {
         const adjustedTimestamp = oneDayBeforeNextThursday;
         const forkBlock = await this.#getBlockAtTimestamp(adjustedTimestamp);
-        log(`Adjusted forkBlock to ${forkBlock} (1 day before next Thursday midnight)`);
+        log(
+          `Adjusted forkBlock to ${forkBlock} (1 day before next Thursday midnight)`
+        );
       }
-    } 
+    }
 
     return forkBlock;
   }
 }
-

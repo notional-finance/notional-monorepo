@@ -7,6 +7,8 @@ import {
   AlchemyUrl,
   tradingModuleAddresses,
   DATA_SERVICE_URL,
+  DataServiceEndpoints,
+  NetworkId,
 } from '@notional-finance/util';
 
 export type Config = {
@@ -28,10 +30,11 @@ assert(
 
 export const POOL_DECIMALS = 18;
 
+const dataServiceUrl = `${DATA_SERVICE_URL}/${DataServiceEndpoints.VAULT_APY}`;
 const config: ConfigPerNetwork = {
   [Network.mainnet]: {
-    chainId: 1,
-    dataServiceUrl: DATA_SERVICE_URL,
+    chainId: NetworkId[Network.mainnet],
+    dataServiceUrl,
     alchemyUrl: `${AlchemyUrl.mainnet}/${ALCHEMY_KEY}`,
     addresses: {
       treasuryManager: treasuryManagerAddresses.mainnet,
@@ -44,52 +47,45 @@ const config: ConfigPerNetwork = {
         primaryBorrowCurrency: tokens.mainnet.USDC,
         rewardPoolType: RewardPoolType.Aura,
       },
-      // rETH/weETH
       {
         address: vaults.mainnet.Aura_xrETH_weETH,
-        gauge: '0x07a319a023859bbd49cc9c38ee891c3ea9283cc5',
+        gauge: '0x07A319A023859BbD49CC9C38ee891c3EA9283Cc5',
         primaryBorrowCurrency: tokens.mainnet.rETH,
         rewardPoolType: RewardPoolType.Aura,
       },
-      // ezETH/wETH
       {
         address: vaults.mainnet.Aura_ezETH_xWETH,
-        gauge: '0x95ec73baa0ecf8159b4ee897d973e41f51978e50',
+        gauge: '0x95eC73Baa0eCF8159b4EE897D973E41f51978E50',
         primaryBorrowCurrency: tokens.mainnet.WETH,
         rewardPoolType: RewardPoolType.Aura,
       },
-      // USDe/USDC
       {
         address: vaults.mainnet.Curve_USDe_xUSDC,
-        gauge: '0x04e80db3f84873e4132b221831af1045d27f140f',
-        pool: '0x02950460e2b9529d0e00284a5fa2d7bdf3fa4d72',
+        gauge: '0x04E80Db3f84873e4132B221831af1045D27f140F',
+        pool: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
         primaryBorrowCurrency: tokens.mainnet.USDC,
         rewardPoolType: RewardPoolType.Curve,
       },
-      // GHO/crvUSD
       {
         address: vaults.mainnet.Convex_xGHO_crvUSD,
         gauge: '0x5eC758f79b96AE74e7F1Ba9583009aFB3fc8eACB',
         primaryBorrowCurrency: tokens.mainnet.GHO,
         rewardPoolType: RewardPoolType.ConvexMainnet,
       },
-      // GHO/USDe
       {
         address: vaults.mainnet.Convex_xGHO_USDe,
         gauge: '0x8eD00833BE7342608FaFDbF776a696afbFEaAe96',
         primaryBorrowCurrency: tokens.mainnet.GHO,
         rewardPoolType: RewardPoolType.Curve,
       },
-      // rsETH/WETH
       {
         address: vaults.mainnet.Balancer_rsETH_xWETH,
         gauge: '0xB5FdB4f75C26798A62302ee4959E4281667557E0',
         primaryBorrowCurrency: tokens.mainnet.WETH,
         rewardPoolType: RewardPoolType.Aura,
       },
-      // tBTC/WBTC
       {
-        address: '0xe20048fa0f165a49b780dfa9a8caba845332f848',
+        address: vaults.mainnet.Convex_xWBTC_tBTC,
         gauge: '0x5793691B4ba69665213614d7ac722Db2d3f41927',
         primaryBorrowCurrency: tokens.mainnet.WBTC,
         rewardPoolType: RewardPoolType.ConvexMainnet,
@@ -97,8 +93,8 @@ const config: ConfigPerNetwork = {
     ],
   },
   [Network.arbitrum]: {
-    chainId: 42161,
-    dataServiceUrl: DATA_SERVICE_URL,
+    chainId: NetworkId[Network.arbitrum],
+    dataServiceUrl,
     alchemyUrl: `${AlchemyUrl.arbitrum}/${ALCHEMY_KEY}`,
     addresses: {
       treasuryManager: treasuryManagerAddresses.arbitrum,
@@ -131,13 +127,13 @@ const config: ConfigPerNetwork = {
       },
       {
         address: vaults.arbitrum.Aura_ezETH_xwstETH,
-        gauge: '0xc3c454095a988013c4d1a9166c345f7280332e1a',
+        gauge: '0xC3c454095A988013C4D1a9166C345f7280332E1A',
         primaryBorrowCurrency: tokens.arbitrum.wstETH,
         rewardPoolType: RewardPoolType.Aura,
       },
       {
         address: vaults.arbitrum.Aura_xUSDC_DAI_USDT_USDCe,
-        gauge: '0x416c7ad55080ab8e294bead9b8857266e3b3f28e',
+        gauge: '0x416C7Ad55080aB8e294beAd9B8857266E3B3F28E',
         primaryBorrowCurrency: tokens.arbitrum.USDC,
         rewardPoolType: RewardPoolType.Aura,
       },
@@ -149,25 +145,25 @@ const config: ConfigPerNetwork = {
       },
       {
         address: vaults.arbitrum.Aura_rETH_xWETH,
-        gauge: '0x17f061160a167d4303d5a6d32c2ac693ac87375b',
+        gauge: '0x17F061160A167d4303d5a6D32C2AC693AC87375b',
         primaryBorrowCurrency: tokens.arbitrum.WETH,
         rewardPoolType: RewardPoolType.Aura,
       },
       {
         address: vaults.arbitrum.Aura_rsETH_xWETH,
-        gauge: '0x90cedfdb5284a274720f1db339eee9798f4fa29d',
+        gauge: '0x90cedFDb5284a274720f1dB339eEe9798f4fa29d',
         primaryBorrowCurrency: tokens.arbitrum.WETH,
         rewardPoolType: RewardPoolType.Aura,
       },
       {
         address: vaults.arbitrum.Aura_cbETH_xwstETH_rETH,
-        gauge: '0x8ffd26d63724aea6a4208f2704d7ebebaa790f46',
+        gauge: '0x8FFD26d63724AEa6A4208f2704d7EbEBaA790f46',
         primaryBorrowCurrency: tokens.arbitrum.wstETH,
         rewardPoolType: RewardPoolType.Aura,
       },
       {
         address: vaults.arbitrum.Aura_wstETH_xWETH,
-        gauge: '0xa7bdad177d474f946f3cdeb4bcea9d24cf017471',
+        gauge: '0xa7BdaD177D474f946f3cDEB4bcea9d24Cf017471',
         primaryBorrowCurrency: tokens.arbitrum.WETH,
         rewardPoolType: RewardPoolType.Aura,
       },

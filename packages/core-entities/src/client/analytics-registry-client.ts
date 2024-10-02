@@ -428,7 +428,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
       .filter((t) => t.currencyId !== undefined)
       .filter((t) =>
         t.tokenType === 'VaultShare' || t.tokenType === 'VaultDebt'
-          ? whitelistedVaults(network).includes(t.vaultAddress || '')
+          ? whitelistedVaults(network).includes(t.vaultAddress)
           : true
       )
       .map((t) => {

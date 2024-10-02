@@ -6,6 +6,7 @@ import {
   ONE_HOUR_MS,
   ACCOUNT_ID_RANGES,
   DataServiceReinvestmentTrade,
+  DataServiceVaultAPY,
 } from '@notional-finance/util';
 import {
   buildOperations,
@@ -22,7 +23,6 @@ import {
   SubgraphOperation,
   TableName,
   VaultAccount,
-  VaultAPY,
   ProtocolName,
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
@@ -161,7 +161,7 @@ export default class DataService {
         } else {
           throw Error(`Invalid backfill type ${type}`);
         }
-      } catch (e: any) {
+      } catch (e) {
         console.error(`Failed to backfill ${ts}, ${e.toString()}`);
         console.error(e.stack);
       }
@@ -583,7 +583,10 @@ export default class DataService {
       .ignore();
   }
 
-  public async insertVaultAPY(network: Network, vaultAPY: VaultAPY[]) {
+  public async insertVaultAPY(
+    network: Network,
+    vaultAPY: DataServiceVaultAPY[]
+  ) {
     return this.db
       .insert(
         vaultAPY.map((v) => ({
@@ -607,7 +610,6 @@ export default class DataService {
   }
 
   public async insertReinvestmentTrades(
-    network: Network,
     reinvestmentTrades: DataServiceReinvestmentTrade['params'][]
   ) {
     return this.db

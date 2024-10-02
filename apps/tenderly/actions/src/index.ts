@@ -5,10 +5,8 @@ import {
   DataServiceEvent,
   DataServiceReinvestmentTrade,
   DataServiceEndpoints,
+  DATA_SERVICE_URL,
 } from '@notional-finance/util';
-
-const url =
-  'https://us-central1-monitoring-agents.cloudfunctions.net/data-service';
 
 async function sendEventsToDataService(
   context: Context,
@@ -20,7 +18,7 @@ async function sendEventsToDataService(
   );
   console.log('Sending events');
   if (events.length) {
-    const res = await fetch(`${url}/${endpoint}`, {
+    const res = await fetch(`${DATA_SERVICE_URL}/${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

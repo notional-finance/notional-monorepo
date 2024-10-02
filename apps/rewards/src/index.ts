@@ -8,11 +8,14 @@ import {
   DEX_ID,
   Network,
   TRADE_TYPE,
+  TokenAddress,
+  VaultAddress,
+  tokens as tokenAddresses,
   getProviderFromNetwork,
   getSubgraphEndpoint,
 } from '@notional-finance/util';
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
-import { vaults, minTokenAmount, ETH, wEthMapper, Vault } from './vaults';
+import { vaults, minTokenAmount, Vault } from './vaults';
 import {
   get0xData,
   sendTxThroughRelayer,
@@ -37,7 +40,7 @@ const reinvestTimeWindowInHours: Partial<Record<Network, number>> = {
 
 async function isClaimRewardsProfitable(
   env: Env,
-  vault: Vault,
+  vault: Vault<TokenAddress, VaultAddress>,
   tx: PopulatedTransaction
 ) {
   const { rawLogs } = await simulatePopulatedTxn(env.NETWORK, tx);
@@ -206,7 +209,7 @@ async function shouldSkipClaim(
 const claimVault = async (
   env: Env,
   provider: Provider,
-  vault: Vault,
+  vault: Vault<TokenAddress, VaultAddress>,
   force = false
 ) => {
   const treasuryManger = TreasuryManager__factory.connect(
@@ -246,7 +249,9 @@ const claimVault = async (
 
 const claimRewards = async (env: Env, provider: Provider) => {
   const results = await Promise.allSettled(
-    vaults[env.NETWORK].map((vault) => claimVault(env, provider, vault))
+    vaults[env.NETWORK].map((vault: Vault<TokenAddress, VaultAddress>) =>
+      claimVault(env, provider, vault)
+    )
   );
 
   const failedClaims = results.filter(
@@ -283,7 +288,10 @@ const getTrades = async (
       if (!amount.eq(0) && sellToken.toLowerCase() != token.toLowerCase()) {
         const tradeData = await get0xData({
           sellToken,
-          buyToken: token == ETH ? wEthMapper[env.NETWORK] : token,
+          buyToken:
+            token == tokens[env.NETWORK].ETH
+              ? tokenAddresses[env.NETWORK].WETH
+              : token,
           sellAmount: amount,
           slippagePercentage: SLIPPAGE_PERCENT * slippageMultiplier++,
           taker,
@@ -340,7 +348,7 @@ const getTrades = async (
 const reinvestVault = async (
   env: Env,
   provider: Provider,
-  vault: Vault,
+  vault: Vault<TokenAddress, VaultAddress>,
   force = false
 ) => {
   if (!force && (await shouldSkipReinvest(env, vault.address, provider))) {
@@ -473,7 +481,7 @@ function getQueryParams(request: Request) {
   const { searchParams } = new URL(request.url);
 
   return {
-    network: searchParams.get('network') as Network,
+    network: searchParams.get('network') as Exclude<Network, Network.all>,
     vaultAddress: searchParams.get('vaultAddress'),
     action: searchParams.get('action') as Action,
     force: !!searchParams.get('force'),

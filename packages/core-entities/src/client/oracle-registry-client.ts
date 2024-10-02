@@ -133,7 +133,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
         this.registerOracle(n, {
           id: UNIT_RATE,
           base: ZERO_ADDRESS,
-          quote: WETHAddress[n],
+          quote: WETHAddress[n] as string,
           network: n,
           oracleType: 'Chainlink',
           decimals: 18,

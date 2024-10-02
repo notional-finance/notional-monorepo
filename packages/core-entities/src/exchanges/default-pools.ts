@@ -719,7 +719,6 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
   ],
-  [Network.optimism]: [],
   [Network.all]: [],
 };
 

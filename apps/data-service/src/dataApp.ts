@@ -110,12 +110,10 @@ app.post(
 app.post(
   `/${DataServiceEndpoints.REINVESTMENT_TRADES}`,
   catchAsync(async (req, res) => {
-    const network: Network = req.body.network;
     const reinvestmentTradeEvents = req.body
       .events as DataServiceReinvestmentTrade[];
 
     await dataService.insertReinvestmentTrades(
-      network,
       reinvestmentTradeEvents.map((r) => r.params)
     );
 
@@ -246,21 +244,23 @@ app.get(
   })
 );
 
-app.use(async (err: any, req: Request, res: Response, _next: NextFunction) => {
-  console.error(err);
-  await logToDataDog(
-    'data-service',
-    {
-      url: req.url,
-      method: req.method,
-      message: err?.message,
-      stack: err?.stack,
-      err: JSON.stringify(err),
-      status: 'error',
-    },
-    'error:dataApp'
-  );
-  res.status(500).send(JSON.stringify(err));
-});
+app.use(
+  async (err: Error, req: Request, res: Response, _next: NextFunction) => {
+    console.error(err);
+    await logToDataDog(
+      'data-service',
+      {
+        url: req.url,
+        method: req.method,
+        message: err?.message,
+        stack: err?.stack,
+        err: JSON.stringify(err),
+        status: 'error',
+      },
+      'error:dataApp'
+    );
+    res.status(500).send(JSON.stringify(err));
+  }
+);
 
 export default app;

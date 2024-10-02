@@ -7,7 +7,7 @@ import {
   ERC20ABI,
 } from '@notional-finance/contracts';
 import { PoolTestHarness } from './PoolTestHarness';
-import { Curve2TokenPoolV2 } from '@notional-finance/core-entities';
+import { Curve2TokenPoolV2 } from '../../../src/exchanges/index';
 import { TokenBalance } from '../../../src/token-balance';
 
 export class CurveV2Harness extends PoolTestHarness<Curve2TokenPoolV2> {
