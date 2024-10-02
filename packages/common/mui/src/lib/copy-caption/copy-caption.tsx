@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import { Caption } from '../typography/typography';
 import { FormattedMessage } from 'react-intl';
 
-/* eslint-disable-next-line */
+ 
 export interface CopyCaptionProps {
   showAlert: boolean;
   title?: ReactNode;

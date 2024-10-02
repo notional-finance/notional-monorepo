@@ -20,7 +20,7 @@ export const BorrowTerms = ({ context }: BorrowTermsProps) => {
       {borrowOptions.map((option, i) => {
         const isSelected = option.token.id === debt?.id;
         return (
-          <Box>
+          <Box key={i}>
             {i === 1 && (
               <H5 sx={{ paddingBottom: theme.spacing(1) }}>
                 {option.optionTitle}

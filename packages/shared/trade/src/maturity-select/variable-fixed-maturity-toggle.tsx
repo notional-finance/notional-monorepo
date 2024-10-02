@@ -162,8 +162,8 @@ export function VariableFixedMaturityToggle({
       <TabToggle
         tabLabels={[VariableRateLabel, FixedRateLabel]}
         tabPanels={[
-          <Box />,
-          <Box>
+          <Box key="empty" />,
+          <Box key="maturity">
             <Maturities
               maturityData={fixedMaturities}
               selectedfCashId={selectedfCashId}

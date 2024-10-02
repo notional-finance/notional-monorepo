@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
   displayName: 'initialize-markets',
   preset: '../../jest.preset.js',

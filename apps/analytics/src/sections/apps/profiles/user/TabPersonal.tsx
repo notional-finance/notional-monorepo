@@ -300,7 +300,7 @@ export default function TabPersonal() {
                   </Stack>
                   {touched.dob && errors.dob && (
                     <FormHelperText error id="personal-dob-helper">
-                      {errors.dob as String}
+                      {errors.dob as string}
                     </FormHelperText>
                   )}
                 </Grid>

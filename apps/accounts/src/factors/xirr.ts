@@ -1,6 +1,4 @@
 // Taken from: https://github.com/webcarrot/xirr
-
-/* eslint-disable */
 export type CashFlow = {
   readonly amount: number;
   readonly date: Date;
@@ -118,5 +116,3 @@ export const xirr = (
   maxIterations?: number
 ): number =>
   calculate(normalize(flows), guessRate, maxEpsilon, maxScans, maxIterations);
-
-/* eslint-enable */

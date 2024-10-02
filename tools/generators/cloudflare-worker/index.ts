@@ -5,7 +5,7 @@ import {
   generateFiles,
   joinPathFragments,
   updateJson,
-} from '@nrwl/devkit';
+} from '@nx/devkit';
 
 interface NewCloudflareWorker {
   name: string;

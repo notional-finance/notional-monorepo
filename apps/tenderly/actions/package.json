@@ -5,8 +5,7 @@
     "build": "esbuild src/index.ts --bundle  --sourcemap --outdir=../../../dist/apps/tenderly/actions/src --platform=node --target=node20 --external:node-fetch --external:ethers",
     "test": "jest",
     "deploy-tenderly": "tenderly actions deploy",
-    "format": "prettier --write .",
-    "lint": "prettier --check ."
+    "format": "prettier --write ."
   },
   "dependencies": {
     "ethers": "^5.7.1"

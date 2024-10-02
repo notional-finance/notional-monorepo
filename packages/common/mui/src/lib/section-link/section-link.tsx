@@ -4,7 +4,7 @@ import { ReactElement, SyntheticEvent, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { H4, Label } from '../typography/typography';
 
-/* eslint-disable-next-line */
+ 
 export interface SectionLinkProps {
   to?: string;
   external?: boolean;

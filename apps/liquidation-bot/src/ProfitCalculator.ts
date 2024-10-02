@@ -63,7 +63,7 @@ export default class ProfitCalculator {
         expected: string;
       };
       simulationIncomplete: boolean;
-      invalidSourcesPassed: any[];
+      invalidSourcesPassed: unknown[];
     };
     liquidityAvailable: boolean;
     minBuyAmount: string;

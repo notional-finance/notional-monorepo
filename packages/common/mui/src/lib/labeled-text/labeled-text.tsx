@@ -1,7 +1,7 @@
 import { styled, SxProps, Box } from '@mui/material';
 import { Label, LabelValue } from '../typography/typography';
 
-/* eslint-disable-next-line */
+ 
 export interface LabeledTextProps {
   label: string | React.ReactNode;
   value: string | React.ReactNode;

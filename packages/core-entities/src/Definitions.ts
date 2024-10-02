@@ -1,9 +1,9 @@
-import { Network, TokenAddress, VaultAddress } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
+
 import { BehaviorSubject } from 'rxjs';
 import { PoolClasses } from './exchanges';
 import { SerializedTokenBalance, TokenBalance } from './token-balance';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+
 import {
   OracleType,
   SystemAccount,
@@ -12,7 +12,7 @@ import {
   TransferType,
 } from './.graphclient';
 import { RegisterToken } from './exchanges/default-pools';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+
 export type {
   OracleType,
   SystemAccount,

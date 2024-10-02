@@ -10,7 +10,6 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-/* eslint-disable-next-line */
 export interface TradeActionButtonProps {
   canSubmit: boolean;
   onSubmit?: () => void;

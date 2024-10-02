@@ -45,7 +45,7 @@ export default class TreasuryManager {
       }`
       })
     }).then(r => r.json())
-      .then((r: any) => r.data.stakedNoteInvestments[0]?.timestamp || 0);
+      .then((r) => r.data.stakedNoteInvestments[0]?.timestamp || 0);
   }
 
   public async run(runType: RunType) {

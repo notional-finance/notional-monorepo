@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import CountUp from '../count-up/count-up';
 import { NotionalTheme } from '@notional-finance/styles';
 
-/* eslint-disable-next-line */
+ 
 export interface BoxDisplayProps {
   title: ReactNode;
   value?: number;

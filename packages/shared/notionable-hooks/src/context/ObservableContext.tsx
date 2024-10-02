@@ -70,7 +70,7 @@ export function useObservableContext<T extends ContextState>(
               ? load(s).pipe(
                   observeOn(asyncScheduler),
                   tap((s) => {
-                    if (DEBUG) console.log('CALCULATED UPDATE', s);
+                    if (DEBUG) console.info('CALCULATED UPDATE', s);
                   })
                 )
               : of({})
@@ -97,7 +97,7 @@ export function useObservableContext<T extends ContextState>(
               ({ reset: true, pathname, ...params } as unknown as Partial<T>)
           ),
           tap((p) => {
-            if (DEBUG) console.log('URL UPDATE', p);
+            if (DEBUG) console.info('URL UPDATE', p);
           })
         );
       },

@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import { Card as MuiCard, CardProps as MuiCardProps } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 
-/* eslint-disable-next-line */
+ 
 export interface CardProps extends MuiCardProps {
   children: React.ReactNode;
   height?: string;

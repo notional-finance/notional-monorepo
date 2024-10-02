@@ -17,7 +17,7 @@ import {
   bindPopover,
 } from 'material-ui-popup-state/hooks';
 
-/* eslint-disable-next-line */
+ 
 export interface DropdownButtonProps extends ButtonProps {
   popupId?: string;
   icon?: ReactElement;

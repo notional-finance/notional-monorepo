@@ -4,7 +4,7 @@ import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { H4 } from '../typography/typography';
 
-/* eslint-disable-next-line */
+ 
 export interface SideBarSubHeaderProps {
   callback: () => void;
   titleText?: MessageDescriptor;

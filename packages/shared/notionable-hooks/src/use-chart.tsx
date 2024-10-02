@@ -267,7 +267,7 @@ export function useAccountHistoryChart(
             netWorth: assets.sub(debts),
           };
         });
-    } catch (e) {
+    } catch {
       return undefined;
     }
   }, [account, baseCurrency, endTime, startTime, tickSizeInSeconds]);

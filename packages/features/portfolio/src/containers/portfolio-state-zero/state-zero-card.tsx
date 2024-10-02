@@ -153,8 +153,8 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
                 marginTop: theme.spacing(1),
               }}
             >
-              {card?.availableSymbols.map((tokenSymbol) => (
-                <TokenIcon symbol={tokenSymbol} size="medium" />
+              {card?.availableSymbols.map((tokenSymbol, index) => (
+                <TokenIcon key={index} symbol={tokenSymbol} size="medium" />
               ))}
             </Box>
           </Box>

@@ -147,7 +147,7 @@ export function usePortfolioNOTETable() {
         buttonBarData: [
           {
             buttonText: <FormattedMessage defaultMessage={'Unstake'} />,
-            callback: () => console.log('Unstake'),
+            callback: () => console.info('Unstake'),
           },
           {
             buttonText: <FormattedMessage defaultMessage={'Stake More'} />,

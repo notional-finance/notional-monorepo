@@ -192,7 +192,7 @@ export function calculateAccountIRR(account: AccountDefinition) {
       irr = xirr(allFlows);
     } catch (e) {
       console.log(
-        'IRR Failed',
+        `IRR Failed: ${e?.message}`,
         account.address,
         allFlows.map(({ amount, date }) => [amount, date.getTime() / 1000])
       );

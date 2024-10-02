@@ -2,7 +2,7 @@ import { Box, useTheme } from '@mui/material';
 import { ReactElement, useRef, useState, useEffect } from 'react';
 import useWindowDimensions from '../hooks/use-window-dimensions/use-window-dimensions';
 
-/* eslint-disable-next-line */
+ 
 export interface SideBarLayoutProps {
   mainContent: ReactElement;
   sideBar: ReactElement;

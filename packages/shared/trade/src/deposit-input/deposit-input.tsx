@@ -42,10 +42,7 @@ interface DepositInputProps {
  * it will handle proper parsing, balance checks, and max input amounts.
  * Token approvals will be handled by the token-approval-view
  */
-export const DepositInput = React.forwardRef<
-  CurrencyInputHandle,
-  DepositInputProps
->(
+const DepositInput = React.forwardRef<CurrencyInputHandle, DepositInputProps>(
   (
     {
       context,
@@ -207,3 +204,7 @@ export const DepositInput = React.forwardRef<
     );
   }
 );
+
+DepositInput.displayName = 'DepositInput';
+
+export { DepositInput };

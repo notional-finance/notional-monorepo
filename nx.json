@@ -6,12 +6,13 @@
     "appsDir": "apps",
     "libsDir": "packages"
   },
-  "affected": {
-    "defaultBase": "main"
-  },
   "targetDefaults": {
     "lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
+      "executor": "@nx/linter:eslint",
+      "inputs": ["default", "{workspaceRoot}/eslint.config.js"],
+      "options": {
+        "lintFilePatterns": ["{projectRoot}/**/*.{ts,tsx,js,jsx}"]
+      }
     },
     "test": {
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
@@ -32,12 +33,12 @@
     ]
   },
   "pluginsConfig": {
-    "@nrwl/js": {
+    "@nx/js": {
       "analyzeSourceFiles": true
     }
   },
   "generators": {
-    "@nrwl/react": {
+    "@nx/react": {
       "application": {
         "style": "@emotion/styled",
         "linter": "eslint",
@@ -51,7 +52,7 @@
         "linter": "eslint"
       }
     },
-    "@nrwl/next": {
+    "@nx/next": {
       "application": {
         "style": "@emotion/styled",
         "linter": "eslint"

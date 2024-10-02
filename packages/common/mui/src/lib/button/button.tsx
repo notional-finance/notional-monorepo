@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { ExternalLink } from '../external-link/external-link';
 import { NotionalTheme, colors } from '@notional-finance/styles';
 
-/* eslint-disable-next-line */
+ 
 export interface ButtonProps extends MuiButtonProps {
   href?: string;
   to?: string;

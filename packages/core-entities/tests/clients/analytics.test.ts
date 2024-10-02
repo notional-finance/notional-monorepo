@@ -9,9 +9,8 @@ describe('Sync Analytics', () => {
       AccountFetchMode.SINGLE_ACCOUNT_DIRECT
     );
     Registry.startRefresh(Network.arbitrum);
-    Registry.getAnalyticsRegistry().onNetworkRegistered(
-      Network.arbitrum,
-      () => done()
+    Registry.getAnalyticsRegistry().onNetworkRegistered(Network.arbitrum, () =>
+      done()
     );
   }, 8000);
 
@@ -24,7 +23,7 @@ describe('Sync Analytics', () => {
     //   analytics.getHistoricalOracles(Network.arbitrum, 1688342400)
     // );
     // console.log(analytics.getAssetHistory(Network.arbitrum));
-    console.log(await analytics.getView(Network.arbitrum, 'accounts_list'));
+    console.info(await analytics.getView(Network.arbitrum, 'accounts_list'));
   });
 
   it('can fetch vaults views', () => {

@@ -18,6 +18,7 @@ export const DashboardHeader = ({
 
   const gridToggleData = [
     <Box
+      key={0}
       sx={{
         fontSize: '14px',
         display: 'flex',
@@ -32,6 +33,7 @@ export const DashboardHeader = ({
       <FormattedMessage defaultMessage="Grid" />
     </Box>,
     <Box
+      key={1}
       sx={{
         fontSize: '14px',
         display: 'flex',
@@ -49,6 +51,7 @@ export const DashboardHeader = ({
 
   const tokenGroupData = [
     <Box
+      key={0}
       sx={{
         display: 'flex',
         whiteSpace: 'nowrap',
@@ -58,6 +61,7 @@ export const DashboardHeader = ({
       <FormattedMessage defaultMessage="All" />
     </Box>,
     <Box
+      key={1}
       sx={{
         display: 'flex',
         whiteSpace: 'nowrap',
@@ -67,6 +71,7 @@ export const DashboardHeader = ({
       <FormattedMessage defaultMessage="Stablecoins" />
     </Box>,
     <Box
+      key={2}
       sx={{
         display: 'flex',
         whiteSpace: 'nowrap',

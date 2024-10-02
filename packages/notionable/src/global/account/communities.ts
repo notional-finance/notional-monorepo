@@ -81,7 +81,7 @@ export async function checkCommunityMembership(account: string) {
             .pop();
 
           return { network, name, address, displayName, tokenId };
-        } catch (error) {
+        } catch (_error) {
           return undefined;
         }
       })

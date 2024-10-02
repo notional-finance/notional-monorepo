@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
   displayName: 'notionable',
   preset: '../../jest.preset.js',

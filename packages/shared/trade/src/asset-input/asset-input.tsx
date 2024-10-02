@@ -40,10 +40,7 @@ interface AssetInputProps {
  * it will handle proper parsing, balance checks, and max input amounts.
  * Token approvals will be handled by the token-approval-view
  */
-export const AssetInput = React.forwardRef<
-  CurrencyInputHandle,
-  AssetInputProps
->(
+const AssetInput = React.forwardRef<CurrencyInputHandle, AssetInputProps>(
   (
     {
       prefillMax,
@@ -163,3 +160,6 @@ export const AssetInput = React.forwardRef<
     );
   }
 );
+
+AssetInput.displayName = 'AssetInput';
+export { AssetInput };

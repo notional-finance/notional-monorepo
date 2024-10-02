@@ -131,9 +131,10 @@ export const EnabledCurrencies = () => {
           defaultMessage={'Reset or revoke your token approvals below'}
         />
       </Paragraph>
-      {SupportedNetworks.map((network) => {
+      {SupportedNetworks.map((network, index) => {
         return (
           <Box
+            key={index}
             sx={{
               width: '100%',
               display: 'block',
@@ -147,8 +148,8 @@ export const EnabledCurrencies = () => {
                 <FormattedMessage defaultMessage={'No Approvals Set'} />
               </Subtitle>
             ) : (
-              allowances[network].map((a) => (
-                <TokenAllowanceRow amount={a.amount} />
+              allowances[network].map((a, i) => (
+                <TokenAllowanceRow key={i} amount={a.amount} />
               ))
             )}
           </Box>

@@ -108,7 +108,7 @@ ${e}, blockNumber=${blockNumber}`);
           // For single return values, decodeFunctionResult still returns an
           // array which we eliminate here for simplicity
           result = decoded.length === 1 ? decoded[0] : decoded;
-        } catch (e) {
+        } catch {
           if (allowFailure) {
             console.warn(
               `Decode result error, ${r}, ${key}, ${method}, ${target}`
@@ -121,7 +121,6 @@ ${e}, blockNumber=${blockNumber}`);
         }
       }
 
-      // eslint-disable-next-line no-param-reassign
       const values = transform ? transform(result, obj) : result;
       if (Array.isArray(key)) {
         (key as string[]).forEach(

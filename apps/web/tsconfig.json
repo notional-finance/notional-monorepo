@@ -15,6 +15,7 @@
   },
   "files": [],
   "include": [],
+  // @ts-ignore: Suppress composite project reference error
   "references": [
     {
       "path": "./tsconfig.app.json"

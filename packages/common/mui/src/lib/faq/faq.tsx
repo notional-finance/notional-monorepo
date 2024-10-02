@@ -13,7 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 import LinkIcon from '@mui/icons-material/Link';
 import { Body, H4 } from '../typography/typography';
 
-/* eslint-disable-next-line */
+ 
 export interface FaqProps {
   question: ReactNode;
   questionDescription?: ReactNode;

@@ -41,8 +41,9 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
           },
         ]}
       />
-      {state.postTradeIncentives?.map((i) => (
+      {state.postTradeIncentives?.map((i, index) => (
         <Body
+          key={index}
           sx={{
             display: 'inline-flex',
             marginTop: theme.spacing(2),

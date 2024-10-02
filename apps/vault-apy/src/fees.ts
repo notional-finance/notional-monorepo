@@ -82,7 +82,7 @@ const processCurve = async (
   try {
     const {
       data: { liquidityPoolDailySnapshots },
-    }: any = await fetch(defaultGraphEndpoints[ProtocolName.Curve][network], {
+    } = await fetch(defaultGraphEndpoints[ProtocolName.Curve][network], {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
 
@@ -213,16 +213,13 @@ const processBalancer = async (
   try {
     const {
       data: { poolSnapshots },
-    }: any = await fetch(
-      defaultGraphEndpoints[ProtocolName.BalancerV2][network],
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: balancerV2SwapFeeQuery(poolId, blockNumber),
-        }),
-      }
-    ).then((r) => r.json());
+    } = await fetch(defaultGraphEndpoints[ProtocolName.BalancerV2][network], {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: balancerV2SwapFeeQuery(poolId, blockNumber),
+      }),
+    }).then((r) => r.json());
     // price from graph is returned as decimal number, upscale to 1e18 precision
     feesInUSD = toInt18Precision(
       Number(poolSnapshots[0].swapFees) - Number(poolSnapshots[1].swapFees)

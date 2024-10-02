@@ -10,6 +10,7 @@ export const useAllNetworksToggle = () => {
 
   const allMarketsOptions = [
     <Body
+      key="all"
       sx={{
         display: 'flex',
         width: theme.spacing(13.75),
@@ -20,6 +21,7 @@ export const useAllNetworksToggle = () => {
       <FormattedMessage defaultMessage={'All Networks'} />
     </Body>,
     <TokenIcon
+      key="arbnetwork"
       symbol="arbnetwork"
       size="small"
       style={{
@@ -30,6 +32,7 @@ export const useAllNetworksToggle = () => {
       }}
     />,
     <TokenIcon
+      key="ethnetwork"
       symbol="ethnetwork"
       size="small"
       style={{

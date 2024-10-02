@@ -68,6 +68,7 @@ export function usePortfolioHoldings() {
 
   const toggleData = [
     <Box
+      key="default"
       sx={{
         fontSize: '14px',
         display: 'flex',
@@ -78,6 +79,7 @@ export function usePortfolioHoldings() {
       <FormattedMessage defaultMessage="Default" />
     </Box>,
     <Box
+      key="detailed"
       sx={{
         fontSize: '14px',
         display: 'flex',

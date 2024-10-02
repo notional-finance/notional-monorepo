@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
   displayName: 'points',
   preset: '../../jest.preset.js',

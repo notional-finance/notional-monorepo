@@ -52,7 +52,7 @@ export function useGlobalContext() {
         s$.pipe(
           switchMap(([a]) => loadAppManager(a)),
           tap((s) => {
-            if (DEBUG) console.log('[APP] UPDATE:', s);
+            if (DEBUG) console.info('[APP] UPDATE:', s);
           })
         ),
       [app$]
@@ -68,7 +68,7 @@ export function useGlobalContext() {
         s$.pipe(
           switchMap(([s, a]) => loadGlobalManager(s, a)),
           tap((s) => {
-            if (DEBUG) console.log('[GLOBAL] UPDATE:', s);
+            if (DEBUG) console.info('[GLOBAL] UPDATE:', s);
           })
         ),
       [global$, app$]

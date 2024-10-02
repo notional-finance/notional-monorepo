@@ -82,9 +82,9 @@ export const useCardData = (
       bottomLink: `/lend-variable/${selectedNetwork}`,
       bottomText: 'All Lending',
       pillData: [
-        <FormattedMessage defaultMessage={'No Risk of Loss'} />,
-        <FormattedMessage defaultMessage={'No Fee'} />,
-        <FormattedMessage defaultMessage={'Always Redeemable'} />,
+        <FormattedMessage defaultMessage={'No Risk of Loss'} key={0} />,
+        <FormattedMessage defaultMessage={'No Fee'} key={1} />,
+        <FormattedMessage defaultMessage={'Always Redeemable'} key={2} />,
       ],
     },
     {
@@ -100,7 +100,10 @@ export const useCardData = (
       bottomLink: `/lend-fixed/${selectedNetwork}`,
       bottomText: 'All Fixed Rate Lending',
       pillData: [
-        <FormattedMessage defaultMessage={'Early Exit Subject to Liquidity'} />,
+        <FormattedMessage
+          defaultMessage={'Early Exit Subject to Liquidity'}
+          key={0}
+        />,
       ],
     },
     {
@@ -134,9 +137,9 @@ export const useCardData = (
       bottomLink: `/liquidity-variable/${selectedNetwork}`,
       bottomText: 'All Provide Liquidity',
       pillData: [
-        <FormattedMessage defaultMessage={'Incentives'} />,
-        <FormattedMessage defaultMessage={'Possible IL'} />,
-        <FormattedMessage defaultMessage={'Possible Illiquidity'} />,
+        <FormattedMessage defaultMessage={'Incentives'} key={0} />,
+        <FormattedMessage defaultMessage={'Possible IL'} key={1} />,
+        <FormattedMessage defaultMessage={'Possible Illiquidity'} key={2} />,
       ],
     },
   ];
@@ -167,8 +170,8 @@ export const useCardData = (
       bottomLink: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}`,
       bottomText: 'All Leveraged Liquidity',
       pillData: [
-        <FormattedMessage defaultMessage={'Max NOTE Incentives'} />,
-        <FormattedMessage defaultMessage={'Possible Illiquidity'} />,
+        <FormattedMessage defaultMessage={'Max NOTE Incentives'} key={0} />,
+        <FormattedMessage defaultMessage={'Possible Illiquidity'} key={1} />,
       ],
     },
     {
@@ -188,8 +191,8 @@ export const useCardData = (
       bottomLink: `/${PRODUCTS.LEVERAGED_YIELD_FARMING}/${selectedNetwork}`,
       bottomText: 'All Leveraged Yield Farming',
       pillData: [
-        <FormattedMessage defaultMessage={'Low IL'} />,
-        <FormattedMessage defaultMessage={'Pegged Asset Pools'} />,
+        <FormattedMessage defaultMessage={'Low IL'} key={0} />,
+        <FormattedMessage defaultMessage={'Pegged Asset Pools'} key={1} />,
       ],
     },
     {
@@ -209,8 +212,8 @@ export const useCardData = (
       bottomLink: `/${PRODUCTS.LEVERAGED_POINTS_FARMING}/${selectedNetwork}`,
       bottomText: 'All Leveraged Points Farming',
       pillData: [
-        <FormattedMessage defaultMessage={'Low IL'} />,
-        <FormattedMessage defaultMessage={'Pegged Asset Pools'} />,
+        <FormattedMessage defaultMessage={'Low IL'} key={0} />,
+        <FormattedMessage defaultMessage={'Pegged Asset Pools'} key={1} />,
       ],
     },
   ];
@@ -229,8 +232,8 @@ export const useCardData = (
       bottomLink: `/borrow-variable/${selectedNetwork}`,
       bottomText: 'All Borrowing',
       pillData: [
-        <FormattedMessage defaultMessage={'Fully Flexible'} />,
-        <FormattedMessage defaultMessage={'Exit Anytime at No Cost'} />,
+        <FormattedMessage defaultMessage={'Fully Flexible'} key={0} />,
+        <FormattedMessage defaultMessage={'Exit Anytime at No Cost'} key={1} />,
       ],
     },
     {
@@ -254,8 +257,11 @@ export const useCardData = (
       bottomLink: `/borrow-fixed/${selectedNetwork}`,
       bottomText: 'All Fixed Rate Borrowing',
       pillData: [
-        <FormattedMessage defaultMessage={'Exit Anytime'} />,
-        <FormattedMessage defaultMessage={'Entry and Early Exit Fees'} />,
+        <FormattedMessage defaultMessage={'Exit Anytime'} key={0} />,
+        <FormattedMessage
+          defaultMessage={'Entry and Early Exit Fees'}
+          key={1}
+        />,
       ],
     },
   ];

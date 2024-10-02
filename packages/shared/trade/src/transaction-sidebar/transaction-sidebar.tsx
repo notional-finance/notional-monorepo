@@ -228,7 +228,6 @@ export const TransactionSidebar = ({
       {tradeType !== 'StakeNOTECoolDown' && <TradeSummary state={state} />}
     </ActionSidebar>
   );
-  console.log('INNER DRAWER', inner);
 
   return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };

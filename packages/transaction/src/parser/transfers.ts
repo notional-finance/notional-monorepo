@@ -88,7 +88,7 @@ export function parseTransfersFromLogs(
       let args: ethers.utils.Result;
       try {
         ({ name, args } = NotionalV3Interface.parseLog(l));
-      } catch (e) {
+      } catch {
         // If parsing a single event fails then skip it
         return { transfers, markers };
       }

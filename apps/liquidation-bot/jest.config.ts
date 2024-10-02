@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
   displayName: 'liquidation-bot',
   preset: '../../jest.preset.js',

@@ -49,7 +49,6 @@ async function getTransferLogs(logs: ethers.providers.Log[]) {
         to: parsed.args.to,
         amount: parsed.args.amount.toString(),
       });
-      // eslint-disable-next-line no-empty
     } catch {}
   }
   return transfers;

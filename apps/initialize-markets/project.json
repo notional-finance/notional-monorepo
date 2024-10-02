@@ -38,14 +38,10 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["apps/initialize-markets/**/*.ts"]
-      }
+      "executor": "@nx/linter:eslint"
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/apps/initialize-markets"],
       "options": {
         "jestConfig": "apps/initialize-markets/jest.config.ts",

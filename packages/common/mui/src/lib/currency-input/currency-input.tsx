@@ -49,6 +49,8 @@ const NumberFormatter = React.forwardRef<
   );
 });
 
+NumberFormatter.displayName = 'NumberFormatter';
+
 const Container = styled(Box)``;
 
 const InputContainer = styled(Box)(
@@ -78,158 +80,162 @@ export const useCurrencyInputRef = () => {
   return { setCurrencyInput, currencyInputRef };
 };
 
-export const CurrencyInput = React.forwardRef<
-  CurrencyInputHandle,
-  CurrencyInputProps
->((props, ref) => {
-  const {
-    decimals,
-    errorMsg,
-    placeholder,
-    warningMsg,
-    captionMsg,
-    maxValue,
-    onInputChange,
-    onMaxValue,
-    miniButtonLabel,
-    style,
-    showScrollPopper,
-  } = props;
-  const theme = useTheme() as NotionalTheme;
-  const [hasFocus, setHasFocus] = React.useState(false);
-  const [value, setValue] = React.useState('');
-
-  const inputContainerRef = React.useRef(null);
-
-  // This imperative handle allows parent components to override the input
-  // string directly without doing weird useEffect roundabout logic
-  React.useImperativeHandle(ref, () => ({
-    setInputOverride: (input: string, emitChange = true) => {
-      setValue(input);
-      if (emitChange) onInputChange(input);
-    },
-    getInputValue: () => {
-      return value;
-    },
-  }));
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+const CurrencyInput = React.forwardRef<CurrencyInputHandle, CurrencyInputProps>(
+  (props, ref) => {
     const {
-      target: { value },
-    } = event;
-    setValue(value);
-    onInputChange(value);
-  };
+      decimals,
+      errorMsg,
+      placeholder,
+      warningMsg,
+      captionMsg,
+      maxValue,
+      onInputChange,
+      onMaxValue,
+      miniButtonLabel,
+      style,
+      showScrollPopper,
+    } = props;
+    const theme = useTheme() as NotionalTheme;
+    const [hasFocus, setHasFocus] = React.useState(false);
+    const [value, setValue] = React.useState('');
 
-  const getBorderColor = () => {
-    if (errorMsg && !hasFocus) return theme.palette.error.main;
-    if (warningMsg && !hasFocus) return theme.palette.warning.main;
-    if (hasFocus) return theme.palette.info.main;
-    return theme.palette.borders.paper;
-  };
+    const inputContainerRef = React.useRef(null);
 
-  const currentErrorMessage = errorMsg || warningMsg;
+    // This imperative handle allows parent components to override the input
+    // string directly without doing weird useEffect roundabout logic
+    React.useImperativeHandle(ref, () => ({
+      setInputOverride: (input: string, emitChange = true) => {
+        setValue(input);
+        if (emitChange) onInputChange(input);
+      },
+      getInputValue: () => {
+        return value;
+      },
+    }));
 
-  const borderColor = getBorderColor();
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const {
+        target: { value },
+      } = event;
+      setValue(value);
+      onInputChange(value);
+    };
 
-  return (
-    <Container>
-      <InputContainer
-        ref={inputContainerRef}
-        theme={theme}
-        borderColor={borderColor}
-        sx={{
-          background: theme.palette.common.white,
-          width: '100%',
-          borderColor: borderColor,
-          borderTopWidth: style?.landingPage ? '0px' : '1px',
-          borderLeftWidth: style?.landingPage ? '0px' : '1px',
-          borderRightWidth: style?.landingPage ? '0px' : '1px',
-          borderBottomWidth: style?.landingPage ? '2px' : '1px',
-          borderRadius: style?.landingPage ? '0px' : theme.shape.borderRadius(),
-        }}
-      >
-        <Input
-          disableUnderline
-          inputRef={ref}
-          name="input-field"
-          autoComplete="off"
-          value={value}
-          error={!!errorMsg}
-          placeholder={placeholder}
-          onChange={handleInputChange}
-          onFocus={() => {
-            setHasFocus(true);
-          }}
-          onBlur={() => {
-            setHasFocus(false);
-          }}
+    const getBorderColor = () => {
+      if (errorMsg && !hasFocus) return theme.palette.error.main;
+      if (warningMsg && !hasFocus) return theme.palette.warning.main;
+      if (hasFocus) return theme.palette.info.main;
+      return theme.palette.borders.paper;
+    };
+
+    const currentErrorMessage = errorMsg || warningMsg;
+
+    const borderColor = getBorderColor();
+
+    return (
+      <Container>
+        <InputContainer
+          ref={inputContainerRef}
+          theme={theme}
+          borderColor={borderColor}
           sx={{
-            width: {
-              xs: '100%',
-              sm: '100%',
-              md: '265px',
-              lg: '265px',
-              xl: '265px',
-            },
-            marginBottom: theme.spacing(0),
-            fontSize: theme.typography.h4.fontSize,
-            color: style?.landingPage
-              ? theme.palette.common.white
-              : theme.palette.common.black,
-          }}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          inputComponent={NumberFormatter as any}
-          inputProps={{ decimals }}
-        />
-        <MiniButton
-          label={miniButtonLabel || 'MAX'}
-          isVisible={!!maxValue || !!onMaxValue}
-          onClick={() => {
-            if (maxValue) {
-              setValue(maxValue);
-              onInputChange(maxValue);
-            } else if (onMaxValue) {
-              onMaxValue();
-            }
-          }}
-        />
-        <Divider
-          orientation="vertical"
-          flexItem
-          sx={{
-            marginTop: '-0.5rem',
-            marginBottom: '-0.5rem',
-            marginLeft: '0.5rem',
-            borderRightWidth: style?.landingPage ? '0px' : '1px',
+            background: theme.palette.common.white,
+            width: '100%',
             borderColor: borderColor,
+            borderTopWidth: style?.landingPage ? '0px' : '1px',
+            borderLeftWidth: style?.landingPage ? '0px' : '1px',
+            borderRightWidth: style?.landingPage ? '0px' : '1px',
+            borderBottomWidth: style?.landingPage ? '2px' : '1px',
+            borderRadius: style?.landingPage
+              ? '0px'
+              : theme.shape.borderRadius(),
           }}
-        />
-        <CurrencySelect
-          minWidth={theme.spacing(55.875)}
-          options={props.options}
-          defaultValue={props.defaultValue}
-          onSelectChange={props.onSelectChange}
-          popperRef={inputContainerRef}
-          showScrollPopper={showScrollPopper}
-        />
-      </InputContainer>
+        >
+          <Input
+            disableUnderline
+            inputRef={ref}
+            name="input-field"
+            autoComplete="off"
+            value={value}
+            error={!!errorMsg}
+            placeholder={placeholder}
+            onChange={handleInputChange}
+            onFocus={() => {
+              setHasFocus(true);
+            }}
+            onBlur={() => {
+              setHasFocus(false);
+            }}
+            sx={{
+              width: {
+                xs: '100%',
+                sm: '100%',
+                md: '265px',
+                lg: '265px',
+                xl: '265px',
+              },
+              marginBottom: theme.spacing(0),
+              fontSize: theme.typography.h4.fontSize,
+              color: style?.landingPage
+                ? theme.palette.common.white
+                : theme.palette.common.black,
+            }}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            inputComponent={NumberFormatter as any}
+            inputProps={{ decimals }}
+          />
+          <MiniButton
+            label={miniButtonLabel || 'MAX'}
+            isVisible={!!maxValue || !!onMaxValue}
+            onClick={() => {
+              if (maxValue) {
+                setValue(maxValue);
+                onInputChange(maxValue);
+              } else if (onMaxValue) {
+                onMaxValue();
+              }
+            }}
+          />
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{
+              marginTop: '-0.5rem',
+              marginBottom: '-0.5rem',
+              marginLeft: '0.5rem',
+              borderRightWidth: style?.landingPage ? '0px' : '1px',
+              borderColor: borderColor,
+            }}
+          />
+          <CurrencySelect
+            minWidth={theme.spacing(55.875)}
+            options={props.options}
+            defaultValue={props.defaultValue}
+            onSelectChange={props.onSelectChange}
+            popperRef={inputContainerRef}
+            showScrollPopper={showScrollPopper}
+          />
+        </InputContainer>
 
-      <Caption
-        style={{
-          color: borderColor,
-          marginTop: theme.spacing(1),
-          height: theme.spacing(2),
-        }}
-      >
-        {currentErrorMessage && !hasFocus ? currentErrorMessage : ''}
-      </Caption>
+        <Caption
+          style={{
+            color: borderColor,
+            marginTop: theme.spacing(1),
+            height: theme.spacing(2),
+          }}
+        >
+          {currentErrorMessage && !hasFocus ? currentErrorMessage : ''}
+        </Caption>
 
-      {captionMsg && (
-        <Paragraph marginTop={theme.spacing(1)}>{captionMsg}</Paragraph>
-      )}
-    </Container>
-  );
-});
+        {captionMsg && (
+          <Paragraph marginTop={theme.spacing(1)}>{captionMsg}</Paragraph>
+        )}
+      </Container>
+    );
+  }
+);
+
+CurrencyInput.displayName = 'CurrencyInput';
+export { export };
 
 export default CurrencyInput;

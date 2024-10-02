@@ -1,5 +1,5 @@
 import { Box, Grid, useTheme, styled } from '@mui/material';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import iconDisable from '@notional-finance/assets/icons/icon-disable-currency.svg';
 import { useAccountReady, useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { NotionalTheme } from '@notional-finance/styles';

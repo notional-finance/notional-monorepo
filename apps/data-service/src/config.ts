@@ -112,7 +112,7 @@ export function getMulticallParams(config: MulticallConfig) {
     key += `:${getOutputName(outputs, indices)}`;
 
     transform = (r) => {
-      let current = r as any;
+      let current = r;
       for (let i = 0; i < indices.length; i++) {
         current = current[indices[i]];
       }

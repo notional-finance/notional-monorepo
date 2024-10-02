@@ -5,7 +5,7 @@ import { styled } from '@mui/material/styles';
 import { NotionalTheme } from '@notional-finance/styles';
 import { MessageDescriptor } from 'react-intl';
 
-/* eslint-disable-next-line */
+ 
 export interface InputProps extends MuiInputProps {
   handleChange: React.ChangeEventHandler;
   inputValue: string | number;

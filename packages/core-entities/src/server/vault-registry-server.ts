@@ -49,7 +49,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
               { blockNumber }
             );
       vaultConfigurations = data['data'].vaultConfigurations;
-    } catch (e) {
+    } catch {
       const response = await ClientRegistry.fetch<CacheSchema<VaultMetadata>>(
         `${NX_REGISTRY_URL}/${network}/vaults`
       );

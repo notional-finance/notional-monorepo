@@ -1,0 +1,12 @@
+{
+  "name": "tenderly-actions",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/tenderly/actions/src",
+  "projectType": "application",
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint"
+    }
+  },
+  "tags": []
+}

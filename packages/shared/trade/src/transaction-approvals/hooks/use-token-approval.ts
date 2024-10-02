@@ -42,7 +42,7 @@ export const useTokenApproval = (
             await erc20.populateTransaction.approve(spender, allowance)
           );
         }
-      } catch (error) {
+      } catch {
         // todo
       }
     },

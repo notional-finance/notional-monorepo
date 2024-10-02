@@ -82,8 +82,8 @@ export function getExcludedSources(
   network: Network,
   flashLenderAddress: string
 ): string | undefined {
-  const [name, _] = Object.entries(wrappedFlashLenders[network]).find(
-    ([_, address]) => address.toLowerCase() === flashLenderAddress.toLowerCase()
+  const [name] = Object.entries(wrappedFlashLenders[network]).find(
+    ([, address]) => address.toLowerCase() === flashLenderAddress.toLowerCase()
   ) as [string, string];
   return zeroExSources[network] ? zeroExSources[network][name] : undefined;
 }

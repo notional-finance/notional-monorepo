@@ -396,7 +396,6 @@ export default class DataService {
     let highBlock;
     let lowBlock;
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       if (requestsMade > this.settings.maxProviderRequests) {
         throw Error(`Too many requests ${requestsMade}`);
@@ -502,7 +501,6 @@ export default class DataService {
       );
 
       offset += balances.length;
-      // eslint-disable-next-line no-constant-condition
     } while (1);
   }
 
@@ -538,7 +536,6 @@ export default class DataService {
         offset += accounts.length;
 
         await new Promise((r) => setTimeout(r, this.settings.backfillDelayMs));
-        // eslint-disable-next-line no-constant-condition
       } while (1);
     }
   }

@@ -84,6 +84,7 @@ const NumberFormatter = React.forwardRef<NumberFormat<string>>((props, ref) => {
     />
   );
 });
+NumberFormatter.displayName = 'NumberFormatter';
 
 export const useSliderInputRef = () => {
   const sliderInputRef = useRef<SliderInputHandle>(null);
@@ -101,10 +102,7 @@ export const useSliderInputRef = () => {
   return { setSliderInput, sliderInputRef };
 };
 
-export const SliderInput = React.forwardRef<
-  SliderInputHandle,
-  SliderInputProps
->(
+const SliderInput = React.forwardRef<SliderInputHandle, SliderInputProps>(
   (
     {
       min,
@@ -236,8 +234,9 @@ export const SliderInput = React.forwardRef<
         </Container>
         {sliderLeverageInfo && (
           <LeverageInfoContainer>
-            {sliderLeverageInfo.map(({ caption, value, suffix }) => (
+            {sliderLeverageInfo.map(({ caption, value, suffix }, index) => (
               <Box
+                key={index}
                 sx={{
                   display: 'flex',
                   marginBottom: theme.spacing(1),
@@ -268,3 +267,6 @@ export const SliderInput = React.forwardRef<
     );
   }
 );
+
+SliderInput.displayName = 'SliderInput';
+export { SliderInput };

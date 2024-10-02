@@ -19,7 +19,7 @@ interface DeleverageInputProps {
   inputRef: React.RefObject<CurrencyInputHandle>;
 }
 
-export const DeleverageInput = React.forwardRef<
+const DeleverageInput = React.forwardRef<
   CurrencyInputHandle,
   DeleverageInputProps
 >(
@@ -62,3 +62,6 @@ export const DeleverageInput = React.forwardRef<
     );
   }
 );
+
+DeleverageInput.displayName = 'DeleverageInput';
+export { DeleverageInput };

@@ -43,7 +43,7 @@ export const DrawerTransition = ({
     return () => setInState(false);
     // NOTE: ensure this cleanup function only triggers once for the unmount
     // transition animation
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   return (

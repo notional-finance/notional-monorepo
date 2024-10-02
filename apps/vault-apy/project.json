@@ -1,0 +1,11 @@
+{
+  "name": "vault-apy",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/vault-apy/src",
+  "projectType": "application",
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint"
+    }
+  }
+}

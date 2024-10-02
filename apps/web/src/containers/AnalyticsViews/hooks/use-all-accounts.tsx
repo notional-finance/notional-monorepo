@@ -263,7 +263,7 @@ export const useAllAccounts = (selectedNetwork: Network) => {
   const initialData =
     sortedTableData && sortedTableData.length > 0 ? sortedTableData : [];
 
-  const getIds = (options: any[]) => {
+  const getIds = (options) => {
     return options.map(({ id }) => id);
   };
 

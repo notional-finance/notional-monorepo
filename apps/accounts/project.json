@@ -37,15 +37,9 @@
         "cwd": "apps/accounts"
       }
     },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["apps/accounts/**/*.ts"]
-      }
-    },
+    "lint": {},
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/apps/accounts"],
       "options": {
         "jestConfig": "apps/accounts/jest.config.ts",

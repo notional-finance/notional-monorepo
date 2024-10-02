@@ -27,6 +27,7 @@ const makeVariant = (
   variant: TypographyProps['variant'],
   componentOverRide?: string
 ) => {
+  // eslint-disable-next-line react/display-name
   return ({
     children,
     accent,

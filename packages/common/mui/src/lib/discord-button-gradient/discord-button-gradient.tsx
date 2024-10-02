@@ -3,7 +3,7 @@ import { ButtonText } from '../typography/typography';
 import { DiscordIcon } from '@notional-finance/icons';
 import { trackOutboundLink } from '@notional-finance/helpers';
 
-/* eslint-disable-next-line */
+ 
 export interface DiscordButtonGradientProps {
   buttonText: React.ReactNode;
 }

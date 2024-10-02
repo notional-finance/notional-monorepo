@@ -18,11 +18,9 @@ export function logError(
 ) {
   if (IS_LOCAL_ENV) {
     // Don't log to datadog from local
-    /* eslint-disable no-console */
     console.error(`Error at: ${module}#${method}`);
     console.error(error);
     console.error({ context });
-    /* eslint-enable no-console */
   } else {
     if (error instanceof NonLoggedError) return;
     if (logToConsole) console.error(error);

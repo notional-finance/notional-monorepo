@@ -3,7 +3,7 @@ import { Box, ButtonGroup, Button, SxProps, styled } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 
-/* eslint-disable-next-line */
+ 
 export type ButtonOptionsType = {
   buttonText: ReactNode;
   callback: () => void;

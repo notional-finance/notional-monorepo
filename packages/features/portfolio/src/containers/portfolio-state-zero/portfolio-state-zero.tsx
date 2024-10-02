@@ -219,7 +219,7 @@ export const PortfolioStateZero = () => {
         }}
       >
         {cardData.map((card, index) => (
-          <StateZeroCard index={index} card={card} />
+          <StateZeroCard key={index} index={index} card={card} />
         ))}
       </Box>
     </PortfolioMainContent>

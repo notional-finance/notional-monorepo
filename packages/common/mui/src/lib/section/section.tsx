@@ -3,7 +3,7 @@ import { SectionLink, SectionLinkProps } from '../section-link/section-link';
 import { H4 } from '../typography/typography';
 import { useTheme, Box, BoxProps } from '@mui/material';
 
-/* eslint-disable-next-line */
+ 
 export interface SectionProps extends BoxProps {
   heading: ReactElement;
   links: SectionLinkProps[];

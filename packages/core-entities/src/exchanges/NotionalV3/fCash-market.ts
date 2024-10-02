@@ -524,7 +524,7 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
               'Cannot mint due to high fixed rate utilization, try a smaller amount.'
             );
           }
-        } catch (e) {
+        } catch {
           throw Error(
             'Cannot mint due to high fixed rate utilization, try a smaller amount.'
           );

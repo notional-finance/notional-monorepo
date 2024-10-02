@@ -481,7 +481,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           // this vault
           if (v.vaultAddress && v.maturity)
             tokens.getVaultDebt(network, v.vaultAddress, v.maturity);
-        } catch (e) {
+        } catch {
           return [];
         }
 

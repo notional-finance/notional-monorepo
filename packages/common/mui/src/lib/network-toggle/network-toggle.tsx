@@ -14,7 +14,7 @@ export const NetworkToggle = ({
   const theme = useTheme();
 
   const toggleOptions = [
-    <Box sx={{ fontSize: '14px', display: 'flex' }}>
+    <Box sx={{ fontSize: '14px', display: 'flex' }} key={0}>
       <TokenIcon
         symbol="arbnetwork"
         size="small"
@@ -22,7 +22,7 @@ export const NetworkToggle = ({
       />
       Arbitrum
     </Box>,
-    <Box sx={{ fontSize: '14px', display: 'flex' }}>
+    <Box sx={{ fontSize: '14px', display: 'flex' }} key={1}>
       <TokenIcon
         symbol="ethnetwork"
         size="small"

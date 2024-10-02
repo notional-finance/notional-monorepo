@@ -37,7 +37,7 @@ import {
   loadGraphClientDeferred,
 } from '../server/server-registry';
 import { parseTransaction } from './accounts/transaction-history';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+
 import { Transaction } from '../.graphclient';
 import { getSecondaryTokenIncentive } from '../config/whitelisted-tokens';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
@@ -171,7 +171,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
             ? tvlUnderlying.toFiat('USD', timestamp)
             : undefined;
         } catch (e) {
-          console.log(e);
+          console.error(e);
         }
         return {
           timestamp,

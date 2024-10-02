@@ -20,17 +20,17 @@ This is the monorepo for all the Notional finance code. It is split into the fol
 
 ## Generate a React Application
 
-Run `nx g @nrwl/react:app my-app` to generate an application.
+Run `nx g @nx/react:app my-app` to generate an application.
 
 When using Nx, you can create multiple applications and libraries in the same workspace.
 
 ## Generate libraries
 ### Grouped Library
 Uses the following syntax
-Run `nx g @nrwl/react:lib {features|common|shared}/lib-name --standaloneConfig --component false --buildable --import-path @notional-finance/lib-name` to generate a library.
+Run `nx g @nx/react:lib {features|common|shared}/lib-name --standaloneConfig --component false --buildable --import-path @notional-finance/lib-name` to generate a library.
 
 ### NPM Publishable Library
-Run `nx g @nrwl/js:lib lib-name --standaloneConfig --component false --publishable --buildable --import-path @notional-finance/lib-name`
+Run `nx g @nx/js:lib lib-name --standaloneConfig --component false --publishable --buildable --import-path @notional-finance/lib-name`
 
 Libraries are shareable across libraries and applications. They can be imported from `@notional-finance/mylib`.
 
@@ -40,7 +40,7 @@ Run `nx serve web` for a dev server. Navigate to http://localhost:3000/. The app
 
 ## Code scaffolding
 
-Run `nx g @nrwl/react:component my-component --project=my-app` to generate a new component.
+Run `nx g @nx/react:component my-component --project=my-app` to generate a new component.
 
 ## Build
 
@@ -66,7 +66,7 @@ Visit the [Nx Documentation](https://nx.dev) to learn more.
 
 ### Distributed Computation Caching & Distributed Task Execution
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-cloud-card.png"></p>
+<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nx/nx/master/images/nx-cloud-card.png"></p>
 
 Nx Cloud pairs with Nx in order to enable you to build and test code more rapidly, by up to 10 times. Even teams that are new to Nx can connect to Nx Cloud and start saving time instantly.
 

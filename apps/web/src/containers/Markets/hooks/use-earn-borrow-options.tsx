@@ -9,6 +9,7 @@ export const useEarnBorrowOptions = () => {
 
   const earnBorrowOptions = [
     <Body
+      key="earn"
       sx={{
         width: theme.spacing(12.5),
       }}
@@ -16,6 +17,7 @@ export const useEarnBorrowOptions = () => {
       <FormattedMessage defaultMessage="Earn" />
     </Body>,
     <Body
+      key="borrow"
       sx={{
         width: theme.spacing(12.5),
       }}

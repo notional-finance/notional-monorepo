@@ -38,14 +38,10 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["apps/registry/**/*.ts"]
-      }
+      "executor": "@nx/linter:eslint"
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/apps/registry"],
       "options": {
         "jestConfig": "apps/registry/jest.config.ts",

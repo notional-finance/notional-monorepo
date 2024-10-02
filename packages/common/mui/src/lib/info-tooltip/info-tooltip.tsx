@@ -12,7 +12,7 @@ import {
 import { MessageDescriptor } from 'react-intl';
 import React from 'react';
 
-/* eslint-disable-next-line */
+ 
 export interface InfoTooltipProps {
   ToolTipComp?: React.FC;
   toolTipText?: MessageDescriptor;

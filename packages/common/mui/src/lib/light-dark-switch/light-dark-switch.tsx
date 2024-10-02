@@ -10,7 +10,7 @@ import { NotionalTheme, colors } from '@notional-finance/styles';
 import moon from './moon.svg';
 import sun from './sun.svg';
 
-/* eslint-disable-next-line */
+ 
 export interface LightDarkSwitchProps extends MuiSwitchProps {
   themeVariant: 'light' | 'dark';
   onToggle?: any;

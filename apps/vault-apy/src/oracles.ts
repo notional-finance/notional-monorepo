@@ -1,10 +1,10 @@
-import { BigNumber } from "ethers";
-import { Network } from "./types";
-import { e18, e } from "./util";
+import { BigNumber } from 'ethers';
+import { Network } from './types';
+import { e18, e } from './util';
 
 export class Oracle {
-  #network: Network
-  #timestamp: number
+  #network: Network;
+  #timestamp: number;
 
   constructor(network: Network, timestamp: number) {
     this.#network = network;
@@ -12,17 +12,20 @@ export class Oracle {
   }
 
   async defiLlamaGetPrice(token: string) {
-    const network = this.#network === Network.mainnet ? 'ethereum' : this.#network;
+    const network =
+      this.#network === Network.mainnet ? 'ethereum' : this.#network;
     const coin = `${network}:${token}`;
 
     const result = await fetch(
       `https://coins.llama.fi/prices/historical/${this.#timestamp}/${coin}`
-    ).then(r => r.json()).then((r: any) => r.coins[coin]);
+    )
+      .then((r) => r.json())
+      .then((r) => r.coins[coin]);
 
     return {
       price: BigNumber.from((result.price * 1e15).toFixed(0)),
       decimals: 15,
-    }
+    };
   }
 
   async getPrice(baseToken: string, quoteToken: string) {
@@ -30,10 +33,11 @@ export class Oracle {
     const quoteOracle = await this.defiLlamaGetPrice(quoteToken);
 
     return {
-      price: baseOracle.price.mul(e(quoteOracle.decimals)).mul(e18).div(quoteOracle.price.mul(e(baseOracle.decimals))),
+      price: baseOracle.price
+        .mul(e(quoteOracle.decimals))
+        .mul(e18)
+        .div(quoteOracle.price.mul(e(baseOracle.decimals))),
       decimals: 18,
-    }
+    };
   }
 }
-
-

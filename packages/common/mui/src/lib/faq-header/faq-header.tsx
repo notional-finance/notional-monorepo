@@ -4,7 +4,7 @@ import { H2 } from '../typography/typography';
 import { ExternalLink } from '../external-link/external-link';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 
-/* eslint-disable-next-line */
+ 
 export interface FaqHeaderProps {
   title: ReactNode;
   sx?: SxProps;

@@ -23,7 +23,7 @@ export async function sendTxThroughRelayer(arg: {
   });
 
   const url = `https://us-central1-monitoring-agents.cloudfunctions.net/tx-relay/v1/txes/${env.NETWORK}`;
-  console.log(`Sending Payload to ${url}`);
+  console.info(`Sending Payload to ${url}`);
 
   return fetch(url, {
     method: 'POST',

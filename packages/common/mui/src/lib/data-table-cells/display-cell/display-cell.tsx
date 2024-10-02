@@ -17,7 +17,7 @@ export const DisplayCell = (props): JSX.Element => {
   let parsedValue = 0;
   try {
     parsedValue = parseFloat(value);
-  } catch (e) {
+  } catch {
     parsedValue = 0;
   }
 

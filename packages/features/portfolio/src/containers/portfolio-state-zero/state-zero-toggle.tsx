@@ -23,10 +23,11 @@ export const StateZeroToggle = ({
   };
 
   const ToggleData = [
-    <LargeInputTextEmphasized>
+    <LargeInputTextEmphasized key={0}>
       <FormattedMessage defaultMessage={'Earn'} />
     </LargeInputTextEmphasized>,
     <LargeInputTextEmphasized
+      key={1}
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -43,7 +44,7 @@ export const StateZeroToggle = ({
         <FormattedMessage defaultMessage={'Leverage'} />
       </span>
     </LargeInputTextEmphasized>,
-    <LargeInputTextEmphasized>
+    <LargeInputTextEmphasized key={2}>
       <FormattedMessage defaultMessage={'Borrow'} />
     </LargeInputTextEmphasized>,
   ];

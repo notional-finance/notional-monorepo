@@ -94,7 +94,7 @@ export default class NotionalV3Liquidator {
     );
   }
 
-  private toExternal(input: any, externalPrecision: BigNumber) {
+  private toExternal(input: BigNumber, externalPrecision: BigNumber) {
     return input
       .mul(externalPrecision)
       .div(NotionalV3Liquidator.INTERNAL_PRECISION);

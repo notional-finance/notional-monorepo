@@ -3,7 +3,6 @@ import { DoubleTokenIcon, TokenIcon } from '@notional-finance/icons';
 import { ReactNode } from 'react';
 import { H3 } from '../typography/typography';
 
-/* eslint-disable-next-line */
 export interface TradeActionHeaderProps {
   token: string;
   tokenBottom?: string;

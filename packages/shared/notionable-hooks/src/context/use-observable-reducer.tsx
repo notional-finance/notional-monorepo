@@ -61,7 +61,7 @@ export function useObservableReducer<T extends Resettable>(
 
   const state = useObservableState(state$, initialState);
   useSubscription(state$, (s) => {
-    if (DEBUG) console.log(`${logPrefix} STATE`, s);
+    if (DEBUG) console.info(`${logPrefix} STATE`, s);
   });
 
   return { updateState, state$, state, isPending };

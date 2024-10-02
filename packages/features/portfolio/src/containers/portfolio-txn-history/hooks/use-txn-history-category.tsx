@@ -16,6 +16,7 @@ export const useTxnHistoryCategory = () => {
   );
   const txnCategoryOptions = [
     <Body
+      key={0}
       sx={{
         width: theme.spacing(18.75),
       }}
@@ -23,6 +24,7 @@ export const useTxnHistoryCategory = () => {
       <FormattedMessage defaultMessage={'Portfolio Holdings'} />
     </Body>,
     <Body
+      key={1}
       sx={{
         width: theme.spacing(18.75),
       }}

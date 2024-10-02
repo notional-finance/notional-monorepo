@@ -11,6 +11,6 @@ const Template: Story<ToggleSwitchProps> = (args) => <ToggleSwitch {...args} />;
 export const Primary = Template.bind({});
 Primary.args = {
   isChecked: true,
-  onChecked: () => console.log('onChecked'),
-  onUnchecked: () => console.log('onUnchecked'),
+  onChecked: () => console.info('onChecked'),
+  onUnchecked: () => console.info('onUnchecked'),
 };

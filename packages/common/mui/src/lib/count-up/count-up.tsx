@@ -1,6 +1,6 @@
 import ReactCountUp from 'react-countup';
 
-/* eslint-disable-next-line */
+ 
 export interface CountUpProps {
   value?: number;
   suffix?: string;

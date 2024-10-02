@@ -68,9 +68,7 @@ export function formatNumberAsAbbr(
   if (Math.abs(num) < 1_000) {
     suffix = '';
   } else if (Math.abs(num) < 1_000_000) {
-    if (opts.removeKAbbr) {
-      num;
-    } else {
+    if (!opts.removeKAbbr) {
       suffix = 'k';
       num = num / 1_000;
     }

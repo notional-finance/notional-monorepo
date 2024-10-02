@@ -18,7 +18,6 @@ export async function putStorageKey(env: BaseDOEnv, key: string, data: string) {
 export async function refreshRegistry<T>(
   env: BaseDOEnv,
   serviceName: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   RegistryClass: ServerRegistryConstructor<T>,
   timeoutDurationMS = 55_000
 ) {

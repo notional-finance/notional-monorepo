@@ -56,7 +56,7 @@ export const SliderBasic = ({
   };
 
   const avgTwoColors = (c1: number, c2: number, w1: number, w2: number) => {
-    // eslint-disable-next-line no-mixed-operators
+     
     return Math.round(c1 * w1 + c2 * w2);
   };
 

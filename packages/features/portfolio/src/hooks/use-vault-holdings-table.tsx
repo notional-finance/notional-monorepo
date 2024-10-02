@@ -106,6 +106,7 @@ export const useVaultHoldingsTable = () => {
 
   const toggleData = [
     <Box
+      key={0}
       sx={{
         fontSize: '14px',
         display: 'flex',
@@ -116,6 +117,7 @@ export const useVaultHoldingsTable = () => {
       <FormattedMessage defaultMessage="Default" />
     </Box>,
     <Box
+      key={1}
       sx={{
         fontSize: '14px',
         display: 'flex',

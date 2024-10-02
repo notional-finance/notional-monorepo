@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Button, ButtonProps, SvgIcon, useTheme, styled } from '@mui/material';
 import { ReactNode } from 'react';
 
-/* eslint-disable-next-line */
+ 
 export interface MiniButtonProps extends ButtonProps {
   label?: ReactNode;
   icon?: React.ElementType<typeof SvgIcon>;

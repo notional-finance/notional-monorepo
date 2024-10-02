@@ -8,8 +8,8 @@ import {
   SupportedNetworks,
 } from './constants';
 
-// eslint-disable-next-line @cspell/spellchecker
 /* cspell:disable-next-line */
+// eslint-disable-next-line @cspell/spellchecker
 export const ALCHEMY_KEY = 'pq08EwFvymYFPbDReObtP-SFw3bCes8Z';
 
 export function getProviderURLFromNetwork(network: Network, useNFT = false) {

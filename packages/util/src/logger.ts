@@ -113,7 +113,7 @@ export class Logger {
         throw new Error(`Failed to log message: ${res.statusText}`);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 

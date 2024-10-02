@@ -191,7 +191,7 @@ notionable
 notionalv
 notistack
 nreth
-nrwl
+nx
 ntoken
 ntokens
 numberish

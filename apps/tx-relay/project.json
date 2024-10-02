@@ -1,0 +1,11 @@
+{
+  "name": "tx-relay",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/tx-relay/src",
+  "projectType": "application",
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint"
+    }
+  }
+}

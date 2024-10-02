@@ -115,7 +115,7 @@ export default class LiquidationHelper {
       try {
         // Look for idiosyncratic fcash
         this.getMarketIndexForMaturity(a.maturity);
-      } catch (e) {
+      } catch {
         ifcash = true;
       }
 

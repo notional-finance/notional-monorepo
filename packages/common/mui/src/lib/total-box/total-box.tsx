@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import { Body, LabelValue } from '../typography/typography';
 import CountUp from '../count-up/count-up';
 
-/* eslint-disable-next-line */
+ 
 export interface TotalBoxProps {
   title: ReactNode;
   value?: number | React.ReactNode;

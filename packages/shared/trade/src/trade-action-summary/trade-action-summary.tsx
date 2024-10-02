@@ -158,8 +158,8 @@ export function TradeActionSummary({
                 alignItems: 'center',
               }}
             >
-              {Object.keys(points).map((k) => (
-                <Box marginRight={theme.spacing(1)} display="flex">
+              {Object.keys(points).map((k, index) => (
+                <Box key={index} marginRight={theme.spacing(1)} display="flex">
                   <H4>
                     {`${pointsMultiple(points[k], leverageRatio).toFixed(
                       2
