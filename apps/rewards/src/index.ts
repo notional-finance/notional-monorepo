@@ -289,7 +289,7 @@ const getTrades = async (
         const tradeData = await get0xData({
           sellToken,
           buyToken:
-            token == tokens[env.NETWORK].ETH
+            token == tokenAddresses[env.NETWORK].ETH
               ? tokenAddresses[env.NETWORK].WETH
               : token,
           sellAmount: amount,
