@@ -5,6 +5,7 @@ import {
   ORACLE_TYPE_TO_ID,
   ONE_HOUR_MS,
   ACCOUNT_ID_RANGES,
+  DataServiceReinvestmentTrade,
 } from '@notional-finance/util';
 import {
   buildOperations,
@@ -59,6 +60,7 @@ export default class DataService {
   public static readonly VAULT_APY_NAME = 'vault_apy';
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
   public static readonly POINTS_TABLE_NAME = 'arb_points';
+  public static readonly REINVESTMENT_TRADES_TABLE_NAME = 'reinvestment_trades';
   public db: Knex;
   public settings: DataServiceSettings;
 
@@ -601,6 +603,37 @@ export default class DataService {
       )
       .into(DataService.VAULT_APY_NAME)
       .onConflict(['network_id', 'timestamp', 'vault_address', 'reward_token'])
+      .merge();
+  }
+
+  public async insertReinvestmentTrades(
+    network: Network,
+    reinvestmentTrades: DataServiceReinvestmentTrade['params'][]
+  ) {
+    return this.db
+      .insert(
+        reinvestmentTrades.map((r) => ({
+          network_id: r.networkId,
+          vault_address: r.vaultAddress,
+          timestamp: r.timestamp,
+          tx_hash: r.txHash,
+          sell_token: r.sellToken,
+          buy_token: r.buyToken,
+          sell_amount: r.sellAmount,
+          buy_amount: r.buyAmount,
+          sell_token_price: r.sellTokenPrice,
+          buy_token_price: r.buyTokenPrice,
+          loss_percentage: r.lossPercentage,
+        }))
+      )
+      .into(DataService.REINVESTMENT_TRADES_TABLE_NAME)
+      .onConflict([
+        'network_id',
+        'tx_hash',
+        'vault_address',
+        'sell_token',
+        'buy_token',
+      ])
       .merge();
   }
 

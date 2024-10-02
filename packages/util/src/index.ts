@@ -16,4 +16,4 @@ export * from './zero-x-exchange';
 export * from './tx-relayer';
 export * from './flash-lenders';
 export * from './logger';
-export * from './checkTradeLoss';
+export * from './check-trade-loss';

@@ -8,7 +8,7 @@ const acceptablePercentageLoss = {
 };
 
 async function getTokensPricesFromDefiLlama(
-  network: string,
+  network: Network,
   tokenAddress: string[]
 ) {
   const prefix = network === Network.mainnet ? 'ethereum' : network;
@@ -29,18 +29,23 @@ async function getTokensPricesFromDefiLlama(
     throw new Error('Failed to fetch token price from DefiLlama');
   }
 
-  return coinsData;
+  return coinsData.map((cd) => ({
+    // 1e15 is maximum number we can multiply price with without precision loss
+    price: BigNumber.from((cd.price * 1e15).toFixed(0)).mul(1e3),
+    decimals: cd.decimals,
+  }));
 }
 
 /**
  *
- * @param price - decimal number
  * @returns {BigNumber} USD value, BigNumber with 18 decimals
  */
-const convertToUsd = (amount: BigNumber, decimals: number, price: number) => {
-  // 1e15 is maximum number we can multiply price with without precision loss
-  const priceBigNumber = BigNumber.from((price * 1e15).toFixed(0)).mul(1e3);
-  return amount.mul(priceBigNumber).div(BigNumber.from(10).pow(decimals));
+const convertToUsd = (
+  amount: BigNumber,
+  decimals: number,
+  price: BigNumber
+) => {
+  return amount.mul(price).div(BigNumber.from(10).pow(decimals));
 };
 
 export async function checkTradeLoss(
@@ -71,19 +76,22 @@ export async function checkTradeLoss(
     buyTokenData.decimals,
     buyTokenData.price
   );
-  const percentageLoss = sellAmountInUsd
-    .sub(buyAmountInUsd)
-    .mul(100)
-    .div(sellAmountInUsd)
-    .toNumber();
+  const lossPercentage =
+    sellAmountInUsd
+      .sub(buyAmountInUsd)
+      .mul(10000)
+      .div(sellAmountInUsd)
+      .toNumber() / 100;
 
   const acceptableLoss =
     acceptablePercentageLoss[network][sellToken] ||
     DEFAULT_ACCEPTABLE_PERCENTAGE_LOSS;
 
-  if (percentageLoss > acceptableLoss) {
-    return { acceptable: false, percentageLoss };
-  }
-
-  return { acceptable: true, percentageLoss };
+  return {
+    acceptable: lossPercentage <= acceptableLoss,
+    lossPercentage,
+    sellTokenPrice: sellTokenData.price,
+    buyTokenPrice: buyTokenData.price,
+    priceDecimals: 18,
+  };
 }

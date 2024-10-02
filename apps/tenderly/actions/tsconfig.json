@@ -1,14 +1,16 @@
 {
+  "extends": "../../../tsconfig.base.json",
   "compileOnSave": true,
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "noImplicitReturns": true,
+    "noImplicitAny": false,
     "noUnusedLocals": true,
     "esModuleInterop": true,
-    "outDir": "dist",
-    "rootDir": "",
+    "rootDir": "../../../",
+    "outDir": "../../../dist",
     "sourceMap": true,
     "strict": true,
     "types": ["@types/node", "@types/jest"],
