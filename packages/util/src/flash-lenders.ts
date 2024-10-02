@@ -90,7 +90,7 @@ export function getExcludedSources(
   const n = Object.entries(wrappedFlashLenders[network]).find(
     ([_, address]) => address.toLowerCase() === flashLenderAddress.toLowerCase()
   );
-  const name = n ? n[1] : '';
+  const name = n ? n[0] : '';
   return zeroExSources[network] ? zeroExSources[network][name] : undefined;
 }
 
@@ -98,7 +98,7 @@ export function getExcludedSources(
 const zeroExSources: Record<Network, Record<string, string>> = {
   [Network.mainnet]: {
     BALANCER: 'Balancer_V2',
-    UNISWAP: 'Uniswap_V3',
+    UNIV3: 'Uniswap_V3',
   },
   [Network.arbitrum]: {
     BALANCER: 'Balancer_V2',
