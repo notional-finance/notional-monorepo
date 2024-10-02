@@ -1,46 +1,46 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": [
-    "@nrwl/nx",
-    "formatjs",
-    "react-hooks",
-    "react",
-    "mobx",
-    "@cspell"
-  ],
+  "plugins": ["@nrwl/nx", "formatjs", "@cspell"],
   "rules": {
     "@cspell/spellchecker": [
       "error",
       { "checkComments": true, "autoFix": false }
     ],
     "formatjs/no-offset": "error",
-    "formatjs/no-id": "error"
+    "formatjs/no-id": "error",
+    "@nrwl/nx/enforce-module-boundaries": [
+      "warn",
+      {
+        "enforceBuildableLibDependency": true,
+        "allow": [],
+        "depConstraints": [
+          {
+            "sourceTag": "*",
+            "onlyDependOnLibsWithTags": ["*"]
+          }
+        ]
+      }
+    ]
   },
   "overrides": [
     {
-      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "extends": ["plugin:mobx/recommended"],
+      "files": [
+        "apps/web/**/*.ts",
+        "apps/web/**/*.tsx",
+        "apps/web/**/*.js",
+        "apps/web/**/*.jsx"
+      ],
+      "plugins": ["react-hooks", "react", "mobx"],
+      "extends": ["plugin:mobx/recommended", "next/core-web-vitals"],
       "rules": {
-        "@nrwl/nx/enforce-module-boundaries": [
-          "warn",
-          {
-            "enforceBuildableLibDependency": true,
-            "allow": [],
-            "depConstraints": [
-              {
-                "sourceTag": "*",
-                "onlyDependOnLibsWithTags": ["*"]
-              }
-            ]
-          }
-        ],
         "mobx/exhaustive-make-observable": "warn",
         "mobx/unconditional-make-observable": "error",
         "mobx/missing-make-observable": "error",
         // NOTE: this is disabled because it is causing false positives
         "mobx/missing-observer": "off",
-        "mobx/no-anonymous-observer": "warn"
+        "mobx/no-anonymous-observer": "warn",
+        "react-hooks/exhaustive-deps": ["warn"]
       }
     },
     {
@@ -54,7 +54,6 @@
             "argsIgnorePattern": "[_].*"
           }
         ],
-        "react-hooks/exhaustive-deps": ["warn"],
         "array-callback-return": ["error"],
         "@nrwl/nx/enforce-module-boundaries": ["warn"]
       }

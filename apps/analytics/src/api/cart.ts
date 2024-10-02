@@ -53,7 +53,7 @@ export function addToCart(product: ProductCardProps, products: ProductCardProps[
   // to update local state based on key
   let inCartProduct: ProductCardProps[];
   let newProduct: ProductCardProps;
-  let subtotal: number = 0;
+  let subtotal = 0;
   let latestProducts: ProductCardProps[];
 
   newProduct = { ...product, itemId: chance.timestamp() };
@@ -96,8 +96,8 @@ export function addToCart(product: ProductCardProps, products: ProductCardProps[
 export function updateCartProduct(id: string | number, quantity: number, products: ProductCardProps[]) {
   // to update local state based on key
   let newProduct: ProductCardProps;
-  let subtotal: number = 0;
-  let oldSubTotal: number = 0;
+  let subtotal = 0;
+  let oldSubTotal = 0;
   let latestProducts: ProductCardProps[];
 
   newProduct = filter(products, { itemId: id })[0];
@@ -133,7 +133,7 @@ export function updateCartProduct(id: string | number, quantity: number, product
 export function removeCartProduct(id: string | number, products: ProductCardProps[]) {
   // to update local state based on key
   let newProduct: ProductCardProps;
-  let subtotal: number = 0;
+  let subtotal = 0;
   let latestProducts: ProductCardProps[];
 
   newProduct = filter(products, { itemId: id })[0];

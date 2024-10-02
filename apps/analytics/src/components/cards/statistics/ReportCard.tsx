@@ -9,7 +9,7 @@ import { GenericCardProps } from 'types/root';
 
 // ==============================|| REPORT CARD ||============================== //
 
-interface ReportCardProps extends GenericCardProps {}
+type ReportCardProps = GenericCardProps
 
 export default function ReportCard({ primary, secondary, iconPrimary, color }: ReportCardProps) {
   const IconPrimary = iconPrimary!;

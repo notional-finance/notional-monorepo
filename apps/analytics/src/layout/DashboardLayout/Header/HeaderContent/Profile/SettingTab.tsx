@@ -23,7 +23,7 @@ export default function SettingTab() {
   const router = useRouter();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const handleListItemClick = (event: React.MouseEvent<HTMLDivElement>, index: number, route: string = '') => {
+  const handleListItemClick = (event: React.MouseEvent<HTMLDivElement>, index: number, route = '') => {
     setSelectedIndex(index);
 
     if (route && route !== '') {
