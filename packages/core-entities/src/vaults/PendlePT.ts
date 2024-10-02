@@ -230,13 +230,27 @@ export class PendlePT extends VaultAdapter {
     feesPaid: TokenBalance;
   } {
     if (netUnderlying.isPositive()) {
+      console.log(
+        'Net Underlying in',
+        netUnderlying.toDisplayStringWithSymbol(8, false, false)
+      );
       // On way in, netUnderlying is traded to tokenInSy
       const { tokensInSy, tradingFeesPaid } =
         this.calculateTradeToSy(netUnderlying);
+      console.log(
+        'Tokens In Sy, Trading Fees Paid',
+        tokensInSy.toDisplayStringWithSymbol(8, false, false),
+        tradingFeesPaid.toDisplayStringWithSymbol(8, false, false)
+      );
 
       // Calculate the amount received for selling the PT
       const { tokensOut: ptTokensOut, feesPaid } =
         this.market.calculateTokenTrade(tokensInSy, this.market.PT_TOKEN_INDEX);
+      console.log(
+        'PT Tokens Out, Fees Paid',
+        ptTokensOut.toDisplayStringWithSymbol(8, false, false),
+        feesPaid[0].toDisplayStringWithSymbol(8, false, false)
+      );
 
       return {
         netVaultSharesForUnderlying: TokenBalance.from(
