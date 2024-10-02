@@ -24,7 +24,7 @@ export const minTokenAmount = {
   [a.ARB]: Number(7e18).toString(),
   [a.BAL]: Number(3.5e18).toString(),
   [a.AURA]: Number(21e18).toString(),
-  [a.CRV]: Number(10e18).toString(),
+  [a.CRV]: Number(30e18).toString(),
 };
 
 export type Vault<T extends string, V extends string> = {
