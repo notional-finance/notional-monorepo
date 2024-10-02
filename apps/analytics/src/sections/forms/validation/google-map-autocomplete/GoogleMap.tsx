@@ -123,7 +123,7 @@ export default function GoogleMaps({ formik, disabled }: any) {
       onChange={(event: any, newValue: PlaceType | null) => {
         setOptions(newValue ? [newValue, ...options] : options);
         setValue(newValue);
-        let address1: string = '';
+        let address1 = '';
         getGeocode({ address: newValue?.description })
           .then((results: any) => {
             results[0].address_components.filter((locData: any) => {

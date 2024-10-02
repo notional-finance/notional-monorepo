@@ -107,7 +107,7 @@ interface FormProps {
 function EditForm({ list, invoiceMaster }: FormProps) {
   const router = useRouter();
 
-  const notesLimit: number = 500;
+  const notesLimit = 500;
   const handlerEdit = (values: any) => {
     const newList: InvoiceList = {
       id: Number(list.id),

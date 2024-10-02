@@ -24,7 +24,7 @@ export default function FloatingCart() {
 
   const { cart } = useGetCart();
 
-  let totalQuantity: number = 0;
+  let totalQuantity = 0;
   if (cart && cart.products && cart.products.length > 0) {
     totalQuantity = sum(cart.products.map((item: CartProductStateProps) => item.quantity));
   }

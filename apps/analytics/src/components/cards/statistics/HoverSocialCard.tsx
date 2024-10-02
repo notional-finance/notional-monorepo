@@ -10,7 +10,7 @@ import { GenericCardProps } from 'types/root';
 
 // ===========================|| HOVER SOCIAL CARD ||=========================== //
 
-interface HoverSocialCardProps extends GenericCardProps {}
+type HoverSocialCardProps = GenericCardProps
 
 export default function HoverSocialCard({ primary, secondary, iconPrimary, color }: HoverSocialCardProps) {
   const IconPrimary = iconPrimary!;

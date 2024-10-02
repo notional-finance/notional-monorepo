@@ -98,7 +98,7 @@ interface FormProps {
 function CreateForm({ lists, invoiceMaster }: FormProps) {
   const router = useRouter();
 
-  const notesLimit: number = 500;
+  const notesLimit = 500;
 
   const handlerCreate = (values: any) => {
     const newList: InvoiceList = {
