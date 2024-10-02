@@ -276,18 +276,22 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
         this.ptExchangeRate * RATE_PRECISION
       );
 
-      const { ptTokenIn, fee } = doSecantSearch(
+      const { netPtToAccount, fee } = doSecantSearch(
+        Math.floor(approxPTExchangeRate / 2),
         approxPTExchangeRate,
-        RATE_PRECISION,
         (exRate: number) => {
-          const ptTokenIn = initialTokensIn.mulInRatePrecision(exRate);
+          const netPtToAccount = initialTokensIn.mulInRatePrecision(exRate);
           const { postFeeAssetToAccount, fee } =
-            this.calculateTokenOutGivenPTIn(ptTokenIn);
+            this.calculateTokenOutGivenPTIn(netPtToAccount);
 
           return {
-            fx: postFeeAssetToAccount.toFloat() - assetTokensIn.toFloat(),
+            fx: Math.floor(
+              (postFeeAssetToAccount.abs().toFloat() -
+                assetTokensIn.toFloat()) *
+                RATE_PRECISION
+            ),
             value: {
-              ptTokenIn,
+              netPtToAccount,
               fee,
             },
           };
@@ -295,7 +299,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       );
 
       return {
-        tokensOut: ptTokenIn,
+        tokensOut: netPtToAccount,
         feesPaid: [this.convertAssetToSy(fee), TokenBalance.zero(this.ptToken)],
       };
     } else {
@@ -327,7 +331,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     const preFeeAssetToAccount = TokenBalance.fromID(
       netPtToAccount
         .neg()
-        .mulInRatePrecision(Math.floor(preFeeExchangeRate * RATE_PRECISION)).n,
+        .divInRatePrecision(Math.floor(preFeeExchangeRate * RATE_PRECISION)).n,
       this.poolParams.assetTokenId,
       this._network
     );
