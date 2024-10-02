@@ -21,7 +21,8 @@ enum Key {
 }
 
 const keysToUse = {
-  [Address.TREASURY_MANAGER]: Key.reinvestment,
+  [Address.TREASURY_MANAGER_MAINNET]: Key.reinvestment,
+  [Address.TREASURY_MANAGER_ARBITRUM]: Key.reinvestment,
   [Address.REBALANCE_HELPER]: Key.reinvestment,
   [Address.AaveV3Pool_ARBITRUM]: Key.liquidation,
   [Address.AaveV3Pool_MAINNET]: Key.liquidation,
@@ -46,7 +47,7 @@ const keysToUse = {
 const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
   mainnet: {
     [Address.AaveFlashLiquidator_MAINNET]: [Sign.flashLiquidate],
-    [Address.TREASURY_MANAGER]: [
+    [Address.TREASURY_MANAGER_MAINNET]: [
       Sign.claimVaultRewardTokens,
       Sign.reinvestVaultReward,
       Sign.investWETHAndNOTE,
@@ -65,7 +66,7 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
   },
   arbitrum: {
     [Address.AaveFlashLiquidator_ARBITRUM]: [Sign.flashLiquidate],
-    [Address.TREASURY_MANAGER]: [
+    [Address.TREASURY_MANAGER_ARBITRUM]: [
       Sign.claimVaultRewardTokens,
       Sign.reinvestVaultReward,
       Sign.harvestAssetsFromNotional,
@@ -85,7 +86,7 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
   },
   sepolia: {
     [Address.AaveFlashLiquidator_ARBITRUM]: [Sign.flashLiquidate],
-    [Address.TREASURY_MANAGER]: [
+    [Address.TREASURY_MANAGER_ARBITRUM]: [
       Sign.claimVaultRewardTokens,
       Sign.reinvestVaultReward,
     ],

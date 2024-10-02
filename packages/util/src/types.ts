@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { Network } from './constants';
 
 type GenericObservable<T> = Observable<T>;
 export type ExtractObservableReturn<T> = T extends GenericObservable<infer X>
@@ -69,3 +70,27 @@ export enum DataServiceEndpoints {
   READINESS_CHECK = 'readiness_check',
   QUERY = 'query',
 }
+
+export type DataServiceVaultAPY = {
+  // Shared data
+  feeApy: string;
+  vaultName?: string;
+  network: Network;
+  date: string;
+  swapFees: string;
+  blockNumber: number;
+  timestamp: number;
+  vaultAddress: string;
+  poolValuePerShareInPrimary: string;
+  totalLpTokens: string;
+  lpTokenValuePrimaryBorrow: string;
+  lpTokenValuePrimaryBorrowAlt: string | null;
+  noVaultShares: boolean;
+
+  // Reward-specific data
+  apy?: string;
+  rewardToken: string;
+  rewardTokensClaimed?: string;
+  rewardTokenValuePrimaryBorrow: string;
+  rewardTokenSymbol: string;
+};

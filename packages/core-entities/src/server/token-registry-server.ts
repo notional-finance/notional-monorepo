@@ -45,7 +45,7 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
         return r.tokens.reduce((obj, v) => {
           obj[v.id] = {
             id: v.id,
-            address: v.tokenAddress as string,
+            address: v.tokenAddress,
             network,
             name: v.name,
             symbol: v.symbol,

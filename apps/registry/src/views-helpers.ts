@@ -1,4 +1,9 @@
-import { MetricType, Network, getNowSeconds } from '@notional-finance/util';
+import {
+  MetricType,
+  Network,
+  getNowSeconds,
+  DATA_SERVICE_URL,
+} from '@notional-finance/util';
 import { AnalyticsServer } from '@notional-finance/core-entities/src/server/analytics-server';
 import { createLogger, putStorageKey } from './registry-helpers';
 import { APIEnv } from '.';
@@ -6,7 +11,7 @@ import { APIEnv } from '.';
 async function fetchDBView(env: APIEnv, network: Network, name: string) {
   try {
     const result = await fetch(
-      `${env.DATA_SERVICE_URL}/query?network=${network}&view=${name}`,
+      `${DATA_SERVICE_URL}/query?network=${network}&view=${name}`,
       {
         headers: {
           'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
@@ -25,7 +30,7 @@ async function fetchDBView(env: APIEnv, network: Network, name: string) {
 }
 
 async function fetchAllDBViews(env: APIEnv, network: Network) {
-  const resp = await fetch(`${env.DATA_SERVICE_URL}/views?network=${network}`, {
+  const resp = await fetch(`${DATA_SERVICE_URL}/views?network=${network}`, {
     headers: {
       'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
     },
@@ -65,7 +70,7 @@ async function fetchAllGraphViews(
 export async function refreshViews(env: APIEnv) {
   const logger = createLogger(env, 'views');
   const analyticsServer = new AnalyticsServer(
-    env.DATA_SERVICE_URL,
+    DATA_SERVICE_URL,
     env.DATA_SERVICE_AUTH_TOKEN,
     env
   );

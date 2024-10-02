@@ -121,7 +121,6 @@ const WHALES: Record<Network, string[][]> = {
       '0xAd96E10123Fa34a01cf2314C42D75150849C9295',
     ],
   ],
-  [Network.optimism]: [],
   [Network.all]: [],
 };
 
