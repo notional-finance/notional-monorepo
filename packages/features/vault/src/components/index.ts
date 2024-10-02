@@ -9,3 +9,5 @@ export * from './risks-faq';
 export * from './create-vault-liquidation-risk';
 export * from './balancer-vault-img';
 export * from './vault-modal';
+export * from './vault-reinvestment-history';
+export * from './vault-total-row';

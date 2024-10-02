@@ -23,7 +23,7 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
     const vaultType = getVaultType(vaultAddress, network);
     switch (vaultType) {
       case 'SingleSidedLP':
-      case 'SingleSidedLP_VaultRewarderLib':
+      case 'SingleSidedLP_DirectClaim':
         return new SingleSidedLP(
           network,
           vaultAddress,
@@ -47,7 +47,7 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
         const vaultType = getVaultType(vaultAddress, network);
         switch (vaultType) {
           case 'SingleSidedLP':
-          case 'SingleSidedLP_VaultRewarderLib':
+          case 'SingleSidedLP_DirectClaim':
             return new SingleSidedLP(
               network,
               vaultAddress,
