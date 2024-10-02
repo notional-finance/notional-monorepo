@@ -5,11 +5,12 @@ import {
   whitelistedVaults,
   getVaultType,
   SingleSidedLP,
+  TokenDefinition,
 } from '@notional-finance/core-entities';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { GATED_VAULTS } from '@notional-finance/notionable';
 import { useNotionalError } from './use-notional';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import { Network, PRODUCTS, RATE_PRECISION } from '@notional-finance/util';
 import { useWalletCommunities } from './use-wallet';
 import { useAllMarkets } from './use-market';
 
@@ -104,9 +105,11 @@ export function useAllVaults(
           network,
           v.primaryBorrowCurrency.id
         );
-        const vaultTVL = Registry.getVaultRegistry()
-          .getVaultAdapter(network, v.vaultAddress)
-          .getVaultTVL();
+        const adapter = Registry.getVaultRegistry().getVaultAdapter(
+          network,
+          v.vaultAddress
+        );
+        const vaultTVL = adapter.getVaultTVL();
         const maxVaultAPY = getMax(
           leveragedVaults.filter((z) => z.token.vaultAddress === v.vaultAddress)
         );
@@ -119,23 +122,32 @@ export function useAllVaults(
           vaultType === 'SingleSidedLP' ||
           vaultType === 'SingleSidedLP_DirectClaim'
         ) {
-          vaultShareOfPool = (
-            Registry.getVaultRegistry().getVaultAdapter(
-              network,
-              v.vaultAddress
-            ) as SingleSidedLP
-          ).getPoolShare();
+          vaultShareOfPool =
+            (
+              Registry.getVaultRegistry().getVaultAdapter(
+                network,
+                v.vaultAddress
+              ) as SingleSidedLP
+            ).getPoolShare() / RATE_PRECISION;
+        }
+
+        let rewardTokens: TokenDefinition[] = [];
+        if (vaultType === 'SingleSidedLP_DirectClaim') {
+          rewardTokens = (adapter as SingleSidedLP).rewardTokens.map((t) =>
+            Registry.getTokenRegistry().getTokenByID(network, t)
+          );
         }
 
         const vaultUtilization = Math.min(
-          Math.max(totalBorrowCapacityUsed, vaultShareOfPool),
-          1
+          Math.max(totalBorrowCapacityUsed, vaultShareOfPool) * 100,
+          100
         );
 
         return {
           ...v,
           vaultType,
           vaultTVL,
+          rewardTokens,
           vaultUtilization,
           minAccountBorrowSize,
           totalUsedPrimaryBorrowCapacity,
