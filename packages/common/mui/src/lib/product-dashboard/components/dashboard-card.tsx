@@ -9,8 +9,10 @@ import {
 } from '../../typography/typography';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { NotionalTheme } from '@notional-finance/styles';
+import { colors, NotionalTheme } from '@notional-finance/styles';
 import SliderBasic from '../../slider-basic/slider-basic';
+import { useAppState } from '@notional-finance/notionable-hooks';
+import { THEME_VARIANTS } from '@notional-finance/util';
 
 interface GridCardApyProps {
   hideApySubTitle: boolean;
@@ -25,17 +27,21 @@ const ReinvestPill = ({
   label: MessageDescriptor;
 }) => {
   const theme = useTheme();
+  const { themeVariant } = useAppState();
+
   return (
     <Caption
       sx={{
         display: 'flex',
         justifyContent: 'end',
         padding: '3px 4px',
-        color: theme.palette.typography.light,
+        color:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.darkGrey
+            : colors.white,
         borderRadius: theme.shape.borderRadius(),
         width: 'fit-content',
-        background:
-          'linear-gradient(0deg, rgba(51, 146, 255, 0.10) 0%, rgba(51, 146, 255, 0.10) 100%), #FFF',
+        background: theme.palette.pending.light,
         '.stroke-icon': {
           stroke: theme.palette.pending.main,
         },
