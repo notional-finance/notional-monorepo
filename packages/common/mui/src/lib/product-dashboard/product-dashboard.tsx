@@ -63,6 +63,7 @@ export interface DashboardGridProps {
   setShowNegativeYields?: (value: boolean) => void;
   isLoading?: boolean;
   threeWideGrid?: boolean;
+  ComingSoonComponent?: React.FC;
   hideApyTitle?: boolean;
 }
 export interface DashboardViewProps extends DashboardGridProps {
@@ -98,6 +99,7 @@ export const ProductDashboard = ({
   threeWideGrid = true,
   dashboardTab,
   handleDashboardTab,
+  ComingSoonComponent,
 }: ProductDashboardProps) => {
   const theme = useTheme();
   const isLoading = gridData && gridData?.length === 0 ? true : false;
@@ -108,16 +110,20 @@ export const ProductDashboard = ({
 
   return (
     <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
-      <DashboardHeader
-        headerData={headerData}
-        tokenGroup={tokenGroup}
-        handleTokenGroup={handleTokenGroup}
-        reinvestmentType={reinvestmentType}
-        handleReinvestmentType={handleReinvestmentType}
-        dashboardTab={dashboardTab}
-        handleDashboardTab={handleDashboardTab}
-      />
-      {isLoading ? (
+      {!ComingSoonComponent && (
+        <DashboardHeader
+          headerData={headerData}
+          tokenGroup={tokenGroup}
+          handleTokenGroup={handleTokenGroup}
+          reinvestmentType={reinvestmentType}
+          handleReinvestmentType={handleReinvestmentType}
+          dashboardTab={dashboardTab}
+          handleDashboardTab={handleDashboardTab}
+        />
+      )}
+      {ComingSoonComponent ? (
+        <ComingSoonComponent />
+      ) : isLoading ? (
         <ProgressIndicator
           type="notional"
           sx={{ height: theme.spacing(57.5) }}
