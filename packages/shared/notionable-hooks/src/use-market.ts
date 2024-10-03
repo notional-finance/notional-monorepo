@@ -22,17 +22,6 @@ export interface MaturityData {
   maturity: number;
 }
 
-export function useNToken(currencyId: number | undefined) {
-  const currentNetworkStore = useCurrentNetworkStore();
-  try {
-    return currentNetworkStore.isReady()
-      ? currentNetworkStore.getNToken(currencyId)
-      : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
 export function usePrimeCash(currencyId: number | undefined) {
   const currentNetworkStore = useCurrentNetworkStore();
   try {

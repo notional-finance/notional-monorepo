@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { InteractiveAreaChart, AreaChart } from '@notional-finance/mui';
-import { useNToken, useChartData } from '@notional-finance/notionable-hooks';
+import { useChartData } from '@notional-finance/notionable-hooks';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 import {
   useMaturitySelect,
   useInteractiveMaturityChart,
@@ -19,7 +20,8 @@ export const useLendFixedMultiChart = () => {
     'Collateral',
     context
   );
-  const nToken = useNToken(deposit?.currencyId);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nToken = currentNetworkStore.getNToken(deposit?.currencyId);
   const { data: tvlData } = useChartData(nToken, ChartType.PRICE);
 
   return [

@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { InteractiveAreaChart, AreaChart } from '@notional-finance/mui';
-import { useNToken, useChartData } from '@notional-finance/notionable-hooks';
+import { useChartData } from '@notional-finance/notionable-hooks';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 import {
   useMaturitySelect,
   useInteractiveMaturityChart,
@@ -17,8 +18,10 @@ export const useBorrowFixedMultiChart = () => {
     deposit,
     true
   );
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nToken = currentNetworkStore.getNToken(deposit?.currencyId);
+
   const { selectedfCashId, onSelect } = useMaturitySelect('Debt', context);
-  const nToken = useNToken(deposit?.currencyId);
   const { data: priceData } = useChartData(nToken, ChartType.PRICE);
 
   return [

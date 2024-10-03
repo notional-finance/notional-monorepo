@@ -482,6 +482,33 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       });
   };
 
+  const getFCashTotalsData = (
+    deposit: TokenDefinition | undefined,
+    collateral: TokenDefinition | undefined
+  ) => {
+    const fCashTokens = getTokensByType('fCash').filter((t) => !t?.isFCashDebt);
+    const liquidityToken = fCashTokens.find((t) => t.id === collateral?.id);
+    const zeroUnderlying = deposit
+      ? TokenBalance.fromFloat(0, deposit)
+      : undefined;
+
+    return {
+      totalFixedRateDebt: deposit
+        ? fCashTokens
+            .filter(
+              (data) =>
+                data?.underlying &&
+                getTokenByID(data.underlying).id === deposit?.id
+            )
+            .map((t) => t.totalSupply?.toUnderlying())
+            .reduce((sum, balance) => {
+              return balance && sum ? sum?.add(balance) : sum;
+            }, zeroUnderlying)
+        : undefined,
+      liquidity: liquidityToken ? getLiquidity(liquidityToken) : undefined,
+    };
+  };
+
   const getAllFCashDebt = (): ProductAPY[] => {
     return getTokensByType('fCash')
       .filter((data) => data?.isFCashDebt)
@@ -617,5 +644,6 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getAllPrimeCashYields,
     getAllPrimeCashDebt,
     getAllNonLeveragedYields,
+    getFCashTotalsData,
   };
 };
