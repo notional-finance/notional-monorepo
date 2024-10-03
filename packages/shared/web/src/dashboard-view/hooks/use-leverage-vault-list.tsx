@@ -3,7 +3,7 @@ import {
   formatNumberAsPercent,
   formatNumber,
 } from '@notional-finance/helpers';
-import { formatMaturity } from '@notional-finance/util';
+import { formatMaturity, REINVESTMENT_TYPE } from '@notional-finance/util';
 import {
   useAllVaults,
   useAccountDefinition,
@@ -20,8 +20,29 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import { Box } from '@mui/material';
-import { PointsIcon } from '@notional-finance/icons';
+import { MultiTokenIcon, PointsIcon } from '@notional-finance/icons';
 import { FiatKeys } from '@notional-finance/core-entities';
+
+const RewardsCell = (props) => {
+  const {
+    cell: { getValue },
+  } = props;
+  const value = getValue();
+
+  return (
+    <Box>
+      {value.rewardTokens.length > 0 ? (
+        <MultiTokenIcon
+          symbols={value.rewardTokens.map((t) => t.symbol)}
+          size="medium"
+          shiftSize={8}
+        />
+      ) : (
+        value.label
+      )}
+    </Box>
+  );
+};
 
 const ListColumns = (baseCurrency: FiatKeys): DataTableColumn[] => {
   return [
@@ -101,6 +122,17 @@ const ListColumns = (baseCurrency: FiatKeys): DataTableColumn[] => {
     },
     {
       header: (
+        <FormattedMessage
+          defaultMessage="Rewards"
+          description={'Rewards header'}
+        />
+      ),
+      cell: RewardsCell,
+      accessorKey: 'rewards',
+      textAlign: 'right',
+    },
+    {
+      header: (
         <FormattedMessage defaultMessage="TVL" description={'TVL header'} />
       ),
       cell: DisplayCell,
@@ -147,12 +179,24 @@ export const useLeverageVaultList = (
     listColumns = listColumns.filter((x) => x.accessorKey !== 'incentiveApy');
   }
 
+  if (vaultProduct !== PRODUCTS.LEVERAGED_YIELD_FARMING) {
+    listColumns = listColumns.filter((x) => x.accessorKey !== 'rewards');
+  }
+
   if (account === undefined) {
     listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
   }
 
   const listData = listedVaults
     .map((vault) => {
+      const reinvestmentType =
+        vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING &&
+        vault.vaultType.includes(REINVESTMENT_TYPE.DIRECT_CLAIM)
+          ? REINVESTMENT_TYPE.DIRECT_CLAIM
+          : vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING
+          ? REINVESTMENT_TYPE.AUTO_REINVEST
+          : undefined;
+
       const walletBalance = account
         ? account.balances.find((t) => t.tokenId === vault.primaryToken.id)
         : undefined;
@@ -198,6 +242,14 @@ export const useLeverageVaultList = (
                 : '',
             },
           ],
+        },
+        reinvestmentTypeString: reinvestmentType,
+        rewards: {
+          label:
+            reinvestmentType === REINVESTMENT_TYPE.AUTO_REINVEST
+              ? 'Auto-Reinvest'
+              : 'Direct Claim',
+          rewardTokens: vault.rewardTokens,
         },
         multiValueCellData: {
           currency: {

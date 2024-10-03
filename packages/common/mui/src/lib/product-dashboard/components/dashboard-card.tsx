@@ -1,19 +1,95 @@
 import { Box, useTheme, styled } from '@mui/material';
-import { TokenIcon } from '@notional-finance/icons';
+import { MultiTokenIcon, TokenIcon } from '@notional-finance/icons';
 import { DashboardDataProps } from '../product-dashboard';
 import {
   H4,
   CurrencyTitle,
   LargeInputTextEmphasized,
+  Caption,
 } from '../../typography/typography';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { NotionalTheme } from '@notional-finance/styles';
+import SliderBasic from '../../slider-basic/slider-basic';
 
 interface GridCardApyProps {
   hideApySubTitle: boolean;
   theme: NotionalTheme;
 }
+
+const ReinvestPill = ({
+  Icon,
+  label,
+}: {
+  Icon: any;
+  label: MessageDescriptor;
+}) => {
+  const theme = useTheme();
+  return (
+    <Caption
+      sx={{
+        display: 'flex',
+        justifyContent: 'end',
+        padding: '3px 4px',
+        color: theme.palette.typography.light,
+        borderRadius: theme.shape.borderRadius(),
+        width: 'fit-content',
+        background:
+          'linear-gradient(0deg, rgba(51, 146, 255, 0.10) 0%, rgba(51, 146, 255, 0.10) 100%), #FFF',
+        '.stroke-icon': {
+          stroke: theme.palette.pending.main,
+        },
+        textTransform: 'none',
+        fontWeight: 500,
+        marginBottom: theme.spacing(0.5),
+        svg: {
+          height: theme.spacing(2),
+          width: theme.spacing(2),
+          fill: theme.palette.pending.main,
+          marginRight: theme.spacing(1),
+        },
+      }}
+    >
+      <Icon />
+      <FormattedMessage {...label} />
+    </Caption>
+  );
+};
+
+const UtilizationBar = ({ vaultUtilization }: { vaultUtilization: number }) => {
+  const theme = useTheme();
+  return (
+    <Box
+      sx={{
+        width: '50%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'end',
+      }}
+    >
+      <CaptionContainer>
+        <SectionTitle>Utilization</SectionTitle>
+        <SectionTitle>
+          {formatNumberAsPercent(vaultUtilization, 1)}
+        </SectionTitle>
+      </CaptionContainer>
+      <SliderBasic
+        min={0}
+        max={100}
+        step={0.01}
+        value={vaultUtilization}
+        disabled={true}
+        sx={{
+          marginBottom: '0px',
+          justifyContent: 'unset',
+          '& .MuiSlider-root': {
+            padding: theme.spacing(1, 0),
+          },
+        }}
+      />
+    </Box>
+  );
+};
 
 export const DashboardCard = ({
   apy,
@@ -23,6 +99,10 @@ export const DashboardCard = ({
   bottomLeftValue,
   bottomRightValue,
   apySubTitle,
+  reinvestOptions,
+  vaultUtilization,
+  rewardTokens,
+  PointsSubTitle,
   routeCallback,
   incentiveValue,
   incentiveSymbols,
@@ -57,18 +137,30 @@ export const DashboardCard = ({
 
         <GridCardApy
           hideApySubTitle={!apySubTitle ? true : false}
+          sx={{
+            justifyContent: !reinvestOptions && !apySubTitle ? 'center' : '',
+          }}
           theme={theme}
         >
-          <SectionTitle
-            sx={{
-              display: 'flex',
-              justifyContent: 'end',
-              color: theme.palette.typography.light,
-              fontWeight: 600,
-            }}
-          >
-            {apySubTitle && <FormattedMessage {...apySubTitle} />}
-          </SectionTitle>
+          {reinvestOptions && (
+            <ReinvestPill
+              Icon={reinvestOptions.Icon}
+              label={reinvestOptions.label}
+            />
+          )}
+          {apySubTitle && (
+            <SectionTitle
+              sx={{
+                display: 'flex',
+                justifyContent: 'end',
+                color: theme.palette.typography.light,
+                fontWeight: 600,
+              }}
+            >
+              <FormattedMessage {...apySubTitle} />
+            </SectionTitle>
+          )}
+          {PointsSubTitle && <PointsSubTitle />}
           <LargeInputTextEmphasized
             sx={{
               fontWeight: 700,
@@ -78,7 +170,30 @@ export const DashboardCard = ({
                   : theme.palette.typography.main,
             }}
           >
-            {formatNumberAsPercent(apy) + ' APY'}
+            {vaultUtilization !== undefined ? (
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <MultiTokenIcon
+                  symbols={rewardTokens || []}
+                  size="medium"
+                  shiftSize={8}
+                />
+                <Box sx={{ marginLeft: theme.spacing(1) }}>
+                  {formatNumberAsPercent(apy)}
+                </Box>
+                <Box
+                  component="span"
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    marginLeft: theme.spacing(1),
+                  }}
+                >
+                  Max APY
+                </Box>
+              </Box>
+            ) : (
+              formatNumberAsPercent(apy) + ' APY'
+            )}
           </LargeInputTextEmphasized>
         </GridCardApy>
       </Box>
@@ -86,6 +201,9 @@ export const DashboardCard = ({
         id="incentive"
         sx={{ display: hideFooter ? 'none' : 'flex' }}
       >
+        {vaultUtilization !== undefined && (
+          <UtilizationBar vaultUtilization={vaultUtilization} />
+        )}
         {bottomLeftValue && (
           <SectionTitle
             sx={{
@@ -193,6 +311,11 @@ const GridCard = styled(Box)(
         `
 );
 
+const CaptionContainer = styled(Box)(`
+  display: flex;
+  justify-content: space-between;
+`);
+
 const GridCardTitle = styled(H4)(
   ({ theme }) => `
     font-family: Avenir Next;
@@ -218,7 +341,8 @@ const GridCardApy = styled(CurrencyTitle, {
 })(
   ({ hideApySubTitle, theme }: GridCardApyProps) => `
       display: ${hideApySubTitle ? 'flex' : 'block'};
-      align-items: ${hideApySubTitle ? 'center' : ''};
+      align-items: ${hideApySubTitle ? 'end' : ''};
+      flex-direction: ${hideApySubTitle ? 'column' : ''};
       padding-left: ${theme.spacing(1)};
       white-space: nowrap;
       letter-spacing: 1px;

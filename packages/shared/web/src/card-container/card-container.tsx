@@ -51,53 +51,60 @@ export function CardContainer({
               }}
             >
               <CardSubNav />
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                }}
-              >
-                {leveraged ? (
-                  <LightningIcon
+              <InnerContentContainer>
+                <Box>
+                  <Box
                     sx={{
-                      fontSize: '40px',
-                      marginRight: theme.spacing(1),
+                      display: 'flex',
+                      alignItems: 'baseline',
                     }}
-                    fill={isMobile ? colors.neonTurquoise : ''}
-                  />
-                ) : null}
-                <Title gutter="default">
-                  <FormattedMessage {...heading} />
-                </Title>
-              </Box>
+                  >
+                    {leveraged ? (
+                      <LightningIcon
+                        sx={{
+                          fontSize: '40px',
+                          marginRight: theme.spacing(1),
+                        }}
+                        fill={isMobile ? colors.neonTurquoise : ''}
+                      />
+                    ) : null}
+                    <Title gutter="default">
+                      <FormattedMessage {...heading} />
+                    </Title>
+                  </Box>
 
-              <Box
-                sx={{
-                  width: {
-                    xs: 'auto',
-                    sm: 'auto',
-                    md: theme.spacing(70),
-                    lg: theme.spacing(70),
-                  },
-                }}
-              >
-                <HeadingSubtitle
-                  fontWeight="regular"
-                  maxWidth={theme.spacing(96)}
-                  style={{ color: colors.white }}
-                >
-                  <FormattedMessage {...subtitle} />
-                </HeadingSubtitle>
-                <ExternalLink
-                  href={docsLink}
-                  textDecoration
-                  style={{ color: theme.palette.info.accent, fontSize: '1rem' }}
-                >
-                  <FormattedMessage {...linkText} />
-                </ExternalLink>
-              </Box>
+                  <Box
+                    sx={{
+                      width: {
+                        xs: 'auto',
+                        sm: 'auto',
+                        md: theme.spacing(70),
+                        lg: theme.spacing(70),
+                      },
+                    }}
+                  >
+                    <HeadingSubtitle
+                      fontWeight="regular"
+                      maxWidth={theme.spacing(96)}
+                      style={{ color: colors.white }}
+                    >
+                      <FormattedMessage {...subtitle} />
+                    </HeadingSubtitle>
+                    <ExternalLink
+                      href={docsLink}
+                      textDecoration
+                      style={{
+                        color: theme.palette.info.accent,
+                        fontSize: '1rem',
+                      }}
+                    >
+                      <FormattedMessage {...linkText} />
+                    </ExternalLink>
+                  </Box>
+                </Box>
+                <CardTable />
+              </InnerContentContainer>
             </Box>
-            <CardTable />
           </ContentContainer>
         </StyledTopContent>
       </Background>
@@ -143,6 +150,16 @@ const Background = styled(Box)(
 );
 
 const ContentContainer = styled(Box)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('md')} {
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: ${theme.spacing(10)};
+  }
+`
+);
+
+const InnerContentContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
   justify-content: space-between;

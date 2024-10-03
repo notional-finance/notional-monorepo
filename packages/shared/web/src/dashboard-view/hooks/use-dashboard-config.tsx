@@ -196,6 +196,7 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
     ),
     networkToggle,
     handleNetWorkToggle,
+    product: routeKey,
   };
 
   return {

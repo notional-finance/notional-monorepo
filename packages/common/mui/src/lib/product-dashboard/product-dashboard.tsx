@@ -8,7 +8,7 @@ import { MessageDescriptor } from 'react-intl';
 import { DataTable } from '../data-table/data-table';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 import { DataTableColumn, TABLE_VARIANTS } from '../data-table/types';
-import { Network } from '@notional-finance/util';
+import { Network, PRODUCTS, REINVESTMENT_TYPE } from '@notional-finance/util';
 import { ReactNode } from 'react';
 
 export interface DashboardDataProps {
@@ -22,6 +22,17 @@ export interface DashboardDataProps {
   bottomRightValue?: string | ReactNode;
   hasPosition?: boolean;
   apySubTitle?: MessageDescriptor;
+  reinvestOptions?: {
+    Icon: any;
+    label: MessageDescriptor;
+  };
+  reinvestmentTypeString?: REINVESTMENT_TYPE;
+  vaultUtilization?: number;
+  rewardTokens?: string[];
+  currency?: {
+    symbol: string;
+  };
+  PointsSubTitle?: React.FC;
   incentiveValue?: string;
   incentiveSymbols?: (string | undefined)[] | [];
 }
@@ -31,9 +42,12 @@ export interface DashboardHeaderProps {
     messageBoxText?: ReactNode;
     networkToggle: number;
     handleNetWorkToggle: (value: number) => void;
+    product?: PRODUCTS;
   };
   tokenGroup: number;
   handleTokenGroup: (value: number) => void;
+  reinvestmentType: number;
+  handleReinvestmentType: (value: number) => void;
   dashboardTab: number;
   handleDashboardTab: (value: number) => void;
 }
@@ -57,6 +71,8 @@ export interface DashboardViewProps extends DashboardGridProps {
 }
 
 export interface ProductDashboardProps extends DashboardViewProps {
+  reinvestmentType: number;
+  handleReinvestmentType: (value: number) => void;
   tokenGroup: number;
   handleTokenGroup: (value: number) => void;
   dashboardTab: number;
@@ -73,7 +89,9 @@ export const ProductDashboard = ({
   listData,
   listColumns,
   tokenGroup,
+  reinvestmentType,
   handleTokenGroup,
+  handleReinvestmentType,
   headerData,
   showNegativeYields,
   setShowNegativeYields,
@@ -94,6 +112,8 @@ export const ProductDashboard = ({
         headerData={headerData}
         tokenGroup={tokenGroup}
         handleTokenGroup={handleTokenGroup}
+        reinvestmentType={reinvestmentType}
+        handleReinvestmentType={handleReinvestmentType}
         dashboardTab={dashboardTab}
         handleDashboardTab={handleDashboardTab}
       />

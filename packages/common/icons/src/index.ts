@@ -1,5 +1,6 @@
 export * from './lib/analytics-icon/analytics-icon';
 export * from './lib/arbitrum-icon/arbitrum-icon';
+export * from './lib/auto-reinvest-icon/auto-reinvest-icon';
 export * from './lib/stack-icon/stack-icon';
 export * from './lib/stake-icon/stake-icon';
 export * from './lib/token-icon/token-icon';
@@ -10,6 +11,7 @@ export * from './lib/history-icon/history-icon';
 export * from './lib/ical-icon/ical-icon';
 export * from './lib/info-icon/info-icon';
 export * from './lib/docs-icon/docs-icon';
+export * from './lib/direct-icon/direct-icon';
 export * from './lib/download-icon/download-icon';
 export * from './lib/pie-chart-icon/pie-chart-icon';
 export * from './lib/coins-icon/coins-icon';

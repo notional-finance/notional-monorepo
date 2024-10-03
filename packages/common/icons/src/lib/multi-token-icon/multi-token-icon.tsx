@@ -21,12 +21,21 @@ export function MultiTokenIcon({
   };
   const shift = shiftSize ?? tokenShift[size];
 
+  const tokenSizes = {
+    small: '16px',
+    medium: '24px',
+    large: '32px',
+    xl: '48px',
+    xxl: '72px',
+  };
+
   return (
     <Box
       sx={{
         display: 'inline-flex',
         alignItems: 'center',
         marginRight: `${-shift * (symbols.length - 1)}px`,
+        height: tokenSizes[size],
       }}
     >
       {symbols
@@ -38,6 +47,7 @@ export function MultiTokenIcon({
               position: 'relative',
               right: `${shift * index}px`,
               zIndex: symbols.length - index,
+              height: '100%',
             }}
           >
             <TokenIcon size={size} symbol={symbol} />
