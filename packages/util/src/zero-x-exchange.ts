@@ -59,7 +59,15 @@ export async function get0xData(arg: {
     },
   });
 
-  const data = await response.json();
+  const data = (await response.json()) as {
+    buyAmount: string;
+    limit: string;
+    data: {
+      transaction: {
+        data: string;
+      };
+    };
+  };
   if (data['buyAmount'] == undefined) {
     throw Error('Failed call to 0x api');
   }

@@ -7,9 +7,10 @@ import {
   AlchemyUrl,
   tradingModuleAddresses,
   DATA_SERVICE_URL,
-  DataServiceEndpoints,
   NetworkId,
-} from '@notional-finance/util';
+} from '@notional-finance/util/src/constants';
+
+import { DataServiceEndpoints } from '@notional-finance/util/src/types';
 
 export type Config = {
   chainId: number;
