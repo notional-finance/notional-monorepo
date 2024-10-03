@@ -90,6 +90,17 @@ export class SingleSidedLP extends VaultAdapter {
     return this.rewardState?.map((r) => r.rewardToken) || [];
   }
 
+  getLiquidationPriceTokens() {
+    return this.pool.balances
+      .filter(
+        (b) =>
+          // Exclude the LP token and the borrowed token
+          b.tokenId !== this.pool.oneLPToken().tokenId &&
+          b.tokenId !== this.getBorrowedToken().id
+      )
+      .map((b) => b.token);
+  }
+
   constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
     super(p.enabled, p.name, network, vaultAddress);
 

@@ -303,10 +303,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
           RATE_PRECISION;
   }
 
-  assetLiquidationThreshold(
-    // NOTE: this parameter is unused because the returned units is always in vault share denomination
-    _collateral: TokenDefinition = this.vaultShares.token
-  ): TokenBalance | null {
+  assetLiquidationThreshold(asset: TokenDefinition): TokenBalance | null {
     if (this.vaultShares.isZero() || this.vaultDebt.isZero()) return null;
 
     // (minCollateralRatio + 1) * debtOutstanding = vaultSharesValue
@@ -321,7 +318,29 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       );
 
     // This is the relative exchange rate decrease of vault shares to liquidation
-    return oneVaultShareValueAtLiquidation.toToken(this.vaultShares.token);
+    const oneVaultShareValue = TokenBalance.unit(
+      this.vaultShares.token
+    ).toUnderlying();
+    const liquidationPriceRatio =
+      oneVaultShareValueAtLiquidation.ratioWith(oneVaultShareValue);
+    const assetToUnderlyingPrice = TokenBalance.unit(
+      oneVaultShareValue.token
+    ).toToken(asset);
+
+    return assetToUnderlyingPrice.mulInRatePrecision(liquidationPriceRatio);
+  }
+
+  override getAllLiquidationPrices() {
+    return this.vaultAdapter
+      .getLiquidationPriceTokens()
+      .map((a) => {
+        return {
+          asset: a,
+          threshold: this.assetLiquidationThreshold(a),
+          isDebtThreshold: false,
+        };
+      })
+      .filter(({ threshold }) => threshold !== null);
   }
 
   freeCollateral(): TokenBalance {

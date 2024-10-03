@@ -47,6 +47,10 @@ export class PendlePT extends VaultAdapter {
     );
   }
 
+  getLiquidationPriceTokens() {
+    return [this.market.ptToken];
+  }
+
   getVaultAPY(): number {
     return this.market.ptSpotYieldToMaturity;
   }

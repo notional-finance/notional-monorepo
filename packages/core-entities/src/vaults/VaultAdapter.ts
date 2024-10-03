@@ -126,4 +126,6 @@ export abstract class VaultAdapter {
   getMaxCollateralSlippage(): number | null {
     return null;
   }
+
+  abstract getLiquidationPriceTokens(): TokenDefinition[];
 }
