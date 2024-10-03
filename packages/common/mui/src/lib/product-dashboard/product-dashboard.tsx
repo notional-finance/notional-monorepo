@@ -50,6 +50,7 @@ export interface DashboardHeaderProps {
   handleReinvestmentType: (value: number) => void;
   dashboardTab: number;
   handleDashboardTab: (value: number) => void;
+  disabled?: boolean;
 }
 
 export interface DashboardGridProps {
@@ -65,6 +66,7 @@ export interface DashboardGridProps {
   threeWideGrid?: boolean;
   ComingSoonComponent?: React.FC;
   hideApyTitle?: boolean;
+  hasPosition?: boolean;
 }
 export interface DashboardViewProps extends DashboardGridProps {
   listData: Array<any>;
@@ -109,18 +111,21 @@ export const ProductDashboard = ({
       : false;
 
   return (
-    <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
-      {!ComingSoonComponent && (
-        <DashboardHeader
-          headerData={headerData}
-          tokenGroup={tokenGroup}
-          handleTokenGroup={handleTokenGroup}
-          reinvestmentType={reinvestmentType}
-          handleReinvestmentType={handleReinvestmentType}
-          dashboardTab={dashboardTab}
-          handleDashboardTab={handleDashboardTab}
-        />
-      )}
+    <MainContainer
+      sx={{
+        marginTop: isLoading ? theme.spacing(8.625) : '0px',
+      }}
+    >
+      <DashboardHeader
+        disabled={ComingSoonComponent ? true : false}
+        headerData={headerData}
+        tokenGroup={tokenGroup}
+        handleTokenGroup={handleTokenGroup}
+        reinvestmentType={reinvestmentType}
+        handleReinvestmentType={handleReinvestmentType}
+        dashboardTab={dashboardTab}
+        handleDashboardTab={handleDashboardTab}
+      />
       {ComingSoonComponent ? (
         <ComingSoonComponent />
       ) : isLoading ? (

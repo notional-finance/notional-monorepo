@@ -1,4 +1,4 @@
-import { Box, styled, useTheme } from '@mui/material';
+import { alpha, Box, styled, useTheme } from '@mui/material';
 import { SimpleToggle } from '../../simple-toggle/simple-toggle';
 import {
   AutoReinvestIcon,
@@ -20,6 +20,7 @@ export const DashboardHeader = ({
   handleTokenGroup,
   dashboardTab,
   handleDashboardTab,
+  disabled,
 }: DashboardHeaderProps) => {
   const theme = useTheme();
   const { messageBoxText, networkToggle, handleNetWorkToggle } = headerData;
@@ -128,50 +129,57 @@ export const DashboardHeader = ({
   ];
 
   return (
-    <HeaderContainer>
-      <Box sx={{ display: 'flex' }}>
-        <Box sx={{ marginRight: theme.spacing(3) }}>
-          <NetworkToggle
-            selectedNetwork={networkToggle}
-            handleNetWorkToggle={handleNetWorkToggle}
-          />
-        </Box>
-        {headerData.product === PRODUCTS.LEVERAGED_YIELD_FARMING && (
-          <GridListToggleWrapper sx={{ marginRight: theme.spacing(3) }}>
+    <HeaderContainerWrapper>
+      <HeaderContainer>
+        <Box sx={{ display: 'flex' }}>
+          <Box sx={{ marginRight: theme.spacing(3) }}>
+            <NetworkToggle
+              selectedNetwork={networkToggle}
+              handleNetWorkToggle={handleNetWorkToggle}
+            />
+          </Box>
+          {headerData.product === PRODUCTS.LEVERAGED_YIELD_FARMING && (
+            <GridListToggleWrapper sx={{ marginRight: theme.spacing(3) }}>
+              <SimpleToggle
+                tabVariant="standard"
+                tabLabels={vaultToggleData}
+                selectedTabIndex={reinvestmentType}
+                onChange={(_, v) => handleReinvestmentType(v as number)}
+              />
+            </GridListToggleWrapper>
+          )}
+          {dashboardTab === 1 && (
             <SimpleToggle
               tabVariant="standard"
-              tabLabels={vaultToggleData}
-              selectedTabIndex={reinvestmentType}
-              onChange={(_, v) => handleReinvestmentType(v as number)}
+              tabLabels={tokenGroupData}
+              selectedTabIndex={tokenGroup}
+              onChange={(_, v) => handleTokenGroup(v as number)}
+            />
+          )}
+        </Box>
+        <Box sx={{ display: 'flex' }}>
+          {messageBoxText && (
+            <MessageBox sx={{ marginRight: theme.spacing(3) }}>
+              {messageBoxText}
+            </MessageBox>
+          )}
+          <GridListToggleWrapper>
+            <SimpleToggle
+              tabLabels={gridToggleData}
+              selectedTabIndex={dashboardTab}
+              onChange={(_, v) => handleDashboardTab(v as number)}
             />
           </GridListToggleWrapper>
-        )}
-        {dashboardTab === 1 && (
-          <SimpleToggle
-            tabVariant="standard"
-            tabLabels={tokenGroupData}
-            selectedTabIndex={tokenGroup}
-            onChange={(_, v) => handleTokenGroup(v as number)}
-          />
-        )}
-      </Box>
-      <Box sx={{ display: 'flex' }}>
-        {messageBoxText && (
-          <MessageBox sx={{ marginRight: theme.spacing(3) }}>
-            {messageBoxText}
-          </MessageBox>
-        )}
-        <GridListToggleWrapper>
-          <SimpleToggle
-            tabLabels={gridToggleData}
-            selectedTabIndex={dashboardTab}
-            onChange={(_, v) => handleDashboardTab(v as number)}
-          />
-        </GridListToggleWrapper>
-      </Box>
-    </HeaderContainer>
+        </Box>
+      </HeaderContainer>
+      {disabled && <DisabledOverlay />}
+    </HeaderContainerWrapper>
   );
 };
+
+const HeaderContainerWrapper = styled(Box)`
+  position: relative;
+`;
 
 const HeaderContainer = styled(Box)(
   ({ theme }) => `
@@ -185,7 +193,23 @@ const HeaderContainer = styled(Box)(
       flex-direction: column;  
       align-items: start;
     }
+
           `
+);
+
+const DisabledOverlay = styled(Box)(
+  ({ theme }) => `
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: ${alpha(theme.palette.common.white, 0.5)};
+    pointer-events: all;
+    border-top-left-radius: ${theme.shape.borderRadiusLarge};
+    border-top-right-radius: ${theme.shape.borderRadiusLarge};
+    z-index: 3;
+  `
 );
 
 const GridListToggleWrapper = styled(Box)(
