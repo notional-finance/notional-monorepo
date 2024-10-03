@@ -236,6 +236,6 @@ const CurrencyInput = React.forwardRef<CurrencyInputHandle, CurrencyInputProps>(
 );
 
 CurrencyInput.displayName = 'CurrencyInput';
-export { export };
+export { CurrencyInput };
 
 export default CurrencyInput;

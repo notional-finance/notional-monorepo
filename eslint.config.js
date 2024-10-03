@@ -154,7 +154,11 @@ module.exports = [
     },
   },
   {
-    files: ['apps/vault-apy/src/config.ts', 'packages/util/src/constants.ts'],
+    files: [
+      'apps/vault-apy/src/config.ts',
+      'packages/util/src/constants.ts',
+      'packages/core-entities/src/exchanges/default-pools.ts',
+    ],
     plugins: { address },
     rules: {
       'address/addr-type': ['error', 'checksum'],

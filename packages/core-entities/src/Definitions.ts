@@ -12,6 +12,7 @@ import {
   TransferType,
 } from './.graphclient';
 import { RegisterToken } from './exchanges/default-pools';
+import { Network, TokenAddress, VaultAddress } from '@notional-finance/util';
 
 export type {
   OracleType,
