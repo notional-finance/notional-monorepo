@@ -32,7 +32,7 @@ import {
   wait,
   floorToMidnight,
 } from './util';
-import { DataServiceVaultAPY } from '@notional-finance/util';
+import { DataServiceVaultAPY } from '@notional-finance/util/src/types';
 
 const log = debug('vault-apy');
 
