@@ -11,6 +11,7 @@ import {
   TokenType,
   TransferType,
 } from './.graphclient';
+import { RegisterToken } from './exchanges/default-pools';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 export type {
   OracleType,
@@ -24,7 +25,7 @@ interface TokenDefinitionBase {
   /** Defines the ERC1155 or ERC721 id of the token, if it exists */
   id: string;
   /** Address of the token */
-  address: Lowercase<TokenAddress>;
+  address: Lowercase<TokenAddress> | RegisterToken;
   /** Network the address refers to */
   network: Network;
   /** String name of the token */

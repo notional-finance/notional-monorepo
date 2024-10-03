@@ -74,10 +74,10 @@ export const AlchemyNFTUrl: Record<Network, string> = {
   [Network.arbitrum]: 'https://arb-mainnet.g.alchemy.com/nft/v2',
 };
 
-export const NotionalAddress: Record<Network, string> = {
-  [Network.all]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f',
-  [Network.mainnet]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f',
-  [Network.arbitrum]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+export const NotionalAddress = {
+  [Network.all]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f' as const,
+  [Network.mainnet]: '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f' as const,
+  [Network.arbitrum]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369' as const,
 };
 
 export const treasuryManagerAddresses = {
@@ -154,12 +154,15 @@ export type ArbitrumToken =
   (typeof tokens)[Network.arbitrum][keyof typeof tokens.arbitrum];
 export type ArbitrumVaults =
   (typeof vaults)[Network.arbitrum][keyof typeof vaults.arbitrum];
-export type TokenAddress = MainnetToken | ArbitrumToken;
+type NotionalAddressType =
+  (typeof NotionalAddress)[keyof typeof NotionalAddress];
+export type TokenAddress = MainnetToken | ArbitrumToken | NotionalAddressType;
 export type VaultAddress = MainnetVaults | ArbitrumVaults;
 
 // all addresses must be properly checksummed
 export const tokens = {
   mainnet: {
+    NOTE: '0xCFEAead4947f0705A14ec42aC3D44129E1Ef3eD5' as const,
     sNOTE: '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2' as const,
     ETH: '0x0000000000000000000000000000000000000000' as const,
     WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' as const,
