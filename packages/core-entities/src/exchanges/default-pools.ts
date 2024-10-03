@@ -3,7 +3,7 @@ import { PoolDefinition } from '..';
 
 const registerTokensMap = {
   mainnet: {
-    'sNOTE-BPT': '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7' as const,
+    'sNOTE-BPT': '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7' as const,
     PayPool: '0x383E6b4437b59fff47B619CBA855CA29342A8559' as const,
     PYUSD: '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8' as const,
     'crvUSDUSDC-f': '0x4DEcE678ceceb27446b35C672dC7d61F30bAD69E' as const,
@@ -26,10 +26,10 @@ const registerTokensMap = {
     'FRAXBP-f': '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5' as const,
     '2CRV': '0x7f90122BF0700F9E7e1F688fe926940E8839F353' as const,
     USDT: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9' as const,
-    'USDC.e': '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8' as const,
-    crvUSDC: '0x73af1150f265419ef8a5db41908b700c32d49135' as const,
-    crvUSDC2: '0xec090cf6dd891d2d014bea6edada6e05e025d93d' as const,
-    crvUSD: '0x498bf2b1e120fed3ad3d42ea2165e9b73f99c1e5' as const,
+    'USDC.e': '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8' as const,
+    crvUSDC: '0x73aF1150F265419Ef8a5DB41908B700C32D49135' as const,
+    crvUSDC2: '0xec090cf6DD891D2d014beA6edAda6e05E025D93d' as const,
+    crvUSD: '0x498Bf2B1e120FeD3ad3D42EA2165E9b73f99C1e5' as const,
     'B-wstETH-WETH-Stable':
       '0x9791d590788598535278552EEcD4b211bFc790CB' as const,
     'rETH-WETH-BPT': '0xadE4A71BB62bEc25154CFc7e6ff49A513B491E81' as const,
@@ -37,8 +37,8 @@ const registerTokensMap = {
     'cbETH/rETH/wstETH': '0x2d6CeD12420a9AF5a83765a8c48Be2aFcD1A8FEb' as const,
     '4POOL-BPT': '0x423A1323c871aBC9d89EB06855bF5347048Fc4A5' as const,
     'ezETH/wstETH': '0xB61371Ab661B1ACec81C699854D2f911070C059E' as const,
-    ezETH: '0x2416092f143378750bb29b79ed961ab195cceea5' as const,
-    'rsETH/wETH': '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739' as const,
+    ezETH: '0x2416092f143378750bb29b79eD961ab195CcEea5' as const,
+    'rsETH/wETH': '0x90e6CB5249f5e1572afBF8A96D8A1ca6aCFFd739' as const,
     rsETH: '0x4186BFC76E2E237523CBC30FD220FE055156b41F' as const,
     '2BTC-f': '0x755D6688AD74661Add2FB29212ef9153D40fcA46' as const,
     tBTC: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40' as const,
