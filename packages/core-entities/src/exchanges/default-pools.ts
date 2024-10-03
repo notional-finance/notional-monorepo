@@ -24,11 +24,10 @@ const registerTokensMap = {
   },
   arbitrum: {
     'FRAXBP-f': '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5' as const,
-    '2CRV': '0x7f90122BF0700F9E7e1F688fe926940E8839F353' as const,
-    USDT: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9' as const,
+    'Curve.fi USDC/USDT': '0x7f90122BF0700F9E7e1F688fe926940E8839F353' as const,
     'USDC.e': '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8' as const,
-    crvUSDC: '0x73aF1150F265419Ef8a5DB41908B700C32D49135' as const,
-    crvUSDC2: '0xec090cf6DD891D2d014beA6edAda6e05E025D93d' as const,
+    'crvUSD/USDT': '0x73aF1150F265419Ef8a5DB41908B700C32D49135' as const,
+    'crvUSD/USDC': '0xec090cf6DD891D2d014beA6edAda6e05E025D93d' as const,
     crvUSD: '0x498Bf2B1e120FeD3ad3D42EA2165E9b73f99C1e5' as const,
     'B-wstETH-WETH-Stable':
       '0x9791d590788598535278552EEcD4b211bFc790CB' as const,
@@ -456,33 +455,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: registerTokensMap[Network.arbitrum]['2CRV'],
-      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
-      registerTokens: [
-        {
-          id: registerTokensMap[Network.arbitrum]['2CRV'],
-          address: registerTokensMap[Network.arbitrum]['2CRV'],
-          network: Network.arbitrum,
-          symbol: '2CRV',
-          name: 'Curve.fi USDC/USDT',
-          decimals: 18,
-          tokenInterface: 'ERC20',
-          tokenType: 'Underlying',
-        },
-        {
-          id: registerTokensMap[Network.arbitrum].USDT,
-          address: registerTokensMap[Network.arbitrum].USDT,
-          network: Network.arbitrum,
-          symbol: 'USDT',
-          name: 'Tether USD',
-          decimals: 6,
-          tokenInterface: 'ERC20',
-          tokenType: 'Underlying',
-        },
-      ],
-    },
-    {
-      address: registerTokensMap[Network.arbitrum]['2CRV'],
+      address: registerTokensMap[Network.arbitrum]['Curve.fi USDC/USDT'],
       PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         {
@@ -508,12 +481,12 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: registerTokensMap[Network.arbitrum].crvUSDC,
+      address: registerTokensMap[Network.arbitrum]['crvUSD/USDT'],
       PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         {
-          id: registerTokensMap[Network.arbitrum].crvUSDC,
-          address: registerTokensMap[Network.arbitrum].crvUSDC,
+          id: registerTokensMap[Network.arbitrum]['crvUSD/USDT'],
+          address: registerTokensMap[Network.arbitrum]['crvUSD/USDT'],
           network: Network.arbitrum,
           symbol: 'crvUSDC',
           name: 'crvUSD/USDT',
@@ -534,12 +507,12 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: registerTokensMap[Network.arbitrum].crvUSDC2,
+      address: registerTokensMap[Network.arbitrum]['crvUSD/USDC'],
       PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         {
-          id: registerTokensMap[Network.arbitrum].crvUSDC2,
-          address: registerTokensMap[Network.arbitrum].crvUSDC2,
+          id: registerTokensMap[Network.arbitrum]['crvUSD/USDC'],
+          address: registerTokensMap[Network.arbitrum]['crvUSD/USDC'],
           network: Network.arbitrum,
           symbol: 'crvUSDC',
           name: 'crvUSD/USDC',
