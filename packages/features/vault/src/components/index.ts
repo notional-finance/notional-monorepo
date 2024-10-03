@@ -11,3 +11,4 @@ export * from './balancer-vault-img';
 export * from './vault-modal';
 export * from './vault-reinvestment-history';
 export * from './vault-total-row';
+export * from './vault-performance-chart';

@@ -9,7 +9,8 @@ import {
 } from '@notional-finance/mui';
 import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
 import {
-  useDepositValue,
+  calculateDepositValue,
+  useLeveragedPerformance,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
@@ -59,14 +60,18 @@ export function usePerformanceChart(
   // the header
   const leverageRatio = (riskFactorLimit?.limit ||
     priorVaultFactors?.leverageRatio) as number | undefined;
-  const areaChartData = useDepositValue(
+  const data = useLeveragedPerformance(
     collateral,
     debt
       ? debt.tokenType === 'PrimeDebt'
       : priorVaultFactors?.isPrimeBorrow || false,
     currentBorrowRate,
     leverageRatio,
-    leveragedLendFixedRate,
+    leveragedLendFixedRate
+  );
+  const areaChartData = calculateDepositValue(
+    leverageRatio,
+    data,
     isVault ? 30 : 90
   );
 
