@@ -1,6 +1,6 @@
 import { useTheme } from '@mui/material';
 
-/* eslint-disable-next-line */
+ 
 export interface NotionalLogoProps {
   height?: string;
   className?: string;

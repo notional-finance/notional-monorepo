@@ -21,7 +21,7 @@ import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { useWalletConnected } from '@notional-finance/notionable-hooks';
 
-/* eslint-disable-next-line */
+ 
 export interface SettingsSideDrawerProps {
   showConnectWallet?: boolean;
   toggleDrawer?: Dispatch<SetStateAction<boolean>>;

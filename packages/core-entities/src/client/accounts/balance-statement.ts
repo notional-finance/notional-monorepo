@@ -10,7 +10,7 @@ import { Registry } from '../../Registry';
 import { TokenBalance } from '../../token-balance';
 // import { BigNumber } from 'ethers';
 
-// eslint-disable-next-line @nx/enforce-module-boundaries
+ 
 import { BalanceSnapshot, Token } from '../../.graphclient';
 
 export function parseCurrentBalanceStatement(

@@ -1,6 +1,6 @@
 import { SvgIcon, SvgIconProps, useTheme } from '@mui/material';
 
-/* eslint-disable-next-line */
+ 
 export interface BalancerVaultImgProps extends SvgIconProps {
   tokensymbol: string;
 }

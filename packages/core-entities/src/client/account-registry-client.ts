@@ -24,7 +24,7 @@ import {
   loadGraphClientDeferred,
 } from '../server/server-registry';
 import { ClientRegistry } from './client-registry';
-// eslint-disable-next-line @nx/enforce-module-boundaries
+ 
 import {
   AllAccountsQuery,
   BalanceSnapshot,

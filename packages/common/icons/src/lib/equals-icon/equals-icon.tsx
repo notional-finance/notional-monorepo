@@ -1,6 +1,6 @@
 import { SvgIcon, SvgIconProps, useTheme } from '@mui/material';
 
-/* eslint-disable-next-line */
+ 
 export interface EqualsIconProps extends SvgIconProps {
   fill?: string;
 }

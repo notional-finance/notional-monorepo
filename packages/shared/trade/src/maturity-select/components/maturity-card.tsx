@@ -4,7 +4,7 @@ import { LabelValue, BodySecondary, CountUp } from '@notional-finance/mui';
 import { formatMaturity } from '@notional-finance/util';
 import { MaturityData } from '@notional-finance/notionable-hooks';
 
-/* eslint-disable-next-line */
+ 
 export interface MaturityCardProps {
   maturityData: MaturityData;
   onSelect: (marketKey?: string) => void;

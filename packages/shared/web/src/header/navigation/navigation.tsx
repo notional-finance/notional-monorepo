@@ -3,7 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { INavLink } from '../nav-link';
 
-/* eslint-disable-next-line */
+ 
 export interface NavigationProps extends TabsProps {
   navLinks: INavLink[];
 }

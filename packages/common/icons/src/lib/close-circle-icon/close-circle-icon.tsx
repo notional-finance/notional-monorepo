@@ -1,7 +1,7 @@
 import { SvgIcon, SvgIconProps, SxProps } from '@mui/material';
 import React from 'react';
 
-/* eslint-disable-next-line */
+ 
 export interface CloseCircleIconProps extends SvgIconProps {
   sx?: SxProps;
 }

@@ -59,7 +59,7 @@ const useIncentiveCountUp = (
       return undefined;
     }
     // Don't include "c" in the use effect because it is changing due to the interval
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [i, network, _network]);
 
   return c;

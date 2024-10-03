@@ -1,7 +1,7 @@
 import { SvgIcon, SvgIconProps } from '@mui/material';
 import React from 'react';
 
-/* eslint-disable-next-line */
+ 
 export interface CheckmarkRoundIconProps extends SvgIconProps {
   foregroundColor: React.CSSProperties['color'];
   backgroundColor: React.CSSProperties['color'];

@@ -24,7 +24,7 @@ import {
   SECONDS_IN_YEAR,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
-// eslint-disable-next-line @nx/enforce-module-boundaries
+ 
 import { Maybe, TokenType } from '../.graphclient';
 import { BigNumber, Contract } from 'ethers';
 import { OracleRegistryClient } from './oracle-registry-client';

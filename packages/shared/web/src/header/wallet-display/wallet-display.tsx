@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import { ArrowIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 
-/* eslint-disable-next-line */
+ 
 export interface WalletDisplayProps {
   address: string;
   type: string;

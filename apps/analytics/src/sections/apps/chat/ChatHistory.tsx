@@ -39,7 +39,7 @@ export default function ChatHistory({ theme, user }: ChatHistoryProps) {
   useEffect(() => {
     // @ts-ignore
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    // eslint-disable-next-line
+     
   }, [chat]);
 
   if (chatLoading) {

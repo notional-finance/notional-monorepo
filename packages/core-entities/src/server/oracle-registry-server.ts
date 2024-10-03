@@ -23,7 +23,7 @@ import { OracleDefinition, CacheSchema, ClientRegistry } from '..';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 import { fiatOracles } from '../config/fiat-config';
 import { TypedDocumentNode } from '@apollo/client/core';
-// eslint-disable-next-line @nx/enforce-module-boundaries
+ 
 import { AllOraclesQuery } from '../.graphclient';
 import { vaultOverrides } from './vault-overrides';
 import { Block } from '@ethersproject/providers';

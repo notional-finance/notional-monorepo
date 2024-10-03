@@ -1,7 +1,7 @@
-/* eslint-disable-next-line */
+ 
 import { SvgIcon, SvgIconProps } from '@mui/material';
 
-/* eslint-disable-next-line */
+ 
 export interface WalletIconProps extends SvgIconProps {
   fill?: string;
 }

@@ -41,7 +41,7 @@ export async function loadGraphClientDeferred() {
     ExchangeRateValuesDocument,
     MetaDocument,
     AccountHoldingsHistoricalDocument,
-    // eslint-disable-next-line @nx/enforce-module-boundaries
+     
   } = await import('../.graphclient/index');
 
   return {
@@ -162,7 +162,7 @@ export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
       } else {
         (variables as unknown as { skip: number })['skip'] += 1000;
       }
-      // eslint-disable-next-line no-constant-condition
+       
     } while (true);
 
     return { finalResults, blockNumber };

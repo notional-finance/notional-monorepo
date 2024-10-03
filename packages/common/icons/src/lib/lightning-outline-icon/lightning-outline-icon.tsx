@@ -1,6 +1,6 @@
 import { SvgIcon, SvgIconProps } from '@mui/material';
 
-/* eslint-disable-next-line */
+ 
 export interface LightningOutlineIconProps extends SvgIconProps {
   fill?: string;
 }
