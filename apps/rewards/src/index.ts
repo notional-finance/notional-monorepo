@@ -15,7 +15,7 @@ import {
   getSubgraphEndpoint,
 } from '@notional-finance/util';
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
-import { vaults, minTokenAmount, Vault } from './vaults';
+import { getVaultsForReinvestment, minTokenAmount, Vault } from './vaults';
 import {
   get0xData,
   sendTxThroughRelayer,
@@ -248,8 +248,9 @@ const claimVault = async (
 };
 
 const claimRewards = async (env: Env, provider: Provider) => {
+  const vaults = getVaultsForReinvestment(env.NETWORK);
   const results = await Promise.allSettled(
-    vaults[env.NETWORK].map((vault: Vault<TokenAddress, VaultAddress>) =>
+    vaults.map((vault: Vault<TokenAddress, VaultAddress>) =>
       claimVault(env, provider, vault)
     )
   );
@@ -459,7 +460,8 @@ const reinvestVault = async (
 
 const reinvestRewards = async (env: Env, provider: Provider) => {
   const errors: Error[] = [];
-  for (const vault of vaults[env.NETWORK]) {
+  const vaults = getVaultsForReinvestment(env.NETWORK);
+  for (const vault of vaults) {
     try {
       await reinvestVault(env, provider, vault);
     } catch (err) {
@@ -506,11 +508,14 @@ export default {
       return new Response('Missing required query parameters', { status: 400 });
     }
 
-    const vault = vaults[network].find(
+    const vaults = getVaultsForReinvestment(network, force);
+    const vault = vaults.find(
       (v) => v.address.toLowerCase() === vaultAddress.toLowerCase()
     );
     if (!vault) {
-      return new Response('Unknown vault address', { status: 404 });
+      return new Response('Unknown vault address or vault is not whitelisted', {
+        status: 404,
+      });
     }
 
     env.NETWORK = network;
