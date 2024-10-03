@@ -65,7 +65,7 @@ export enum Strategy {
 
 export interface MulticallConfig {
   contractAddress: string;
-  contractABI: string;
+  contractABI: any;
   method: string;
   args?: unknown[];
   outputIndices?: number[];
