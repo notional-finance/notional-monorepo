@@ -23,6 +23,11 @@ export enum PRODUCTS {
   STAKE_NOTE = 'stake',
 }
 
+export enum REINVESTMENT_TYPE {
+  AUTO_REINVEST = 'AutoReinvest',
+  DIRECT_CLAIM = 'DirectClaim',
+}
+
 export enum META_TAG_CATEGORIES {
   PORTFOLIO = 'portfolio',
   LEND_FIXED = 'lend-fixed',

@@ -1,13 +1,21 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { SimpleToggle } from '../../simple-toggle/simple-toggle';
-import { FourSquareIcon, ListIcon } from '@notional-finance/icons';
+import {
+  AutoReinvestIcon,
+  DirectIcon,
+  FourSquareIcon,
+  ListIcon,
+} from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { DashboardHeaderProps } from '../product-dashboard';
 import { MessageBox } from '../../message-box/message-box';
 import { NetworkToggle } from '../../network-toggle/network-toggle';
+import { PRODUCTS } from '@notional-finance/util';
 
 export const DashboardHeader = ({
   headerData,
+  reinvestmentType,
+  handleReinvestmentType,
   tokenGroup,
   handleTokenGroup,
   dashboardTab,
@@ -44,6 +52,48 @@ export const DashboardHeader = ({
     >
       <ListIcon />
       <FormattedMessage defaultMessage="List" />
+    </Box>,
+  ];
+
+  const vaultToggleData = [
+    <Box
+      sx={{
+        display: 'flex',
+        whiteSpace: 'nowrap',
+        fontSize: '14px',
+      }}
+    >
+      <FormattedMessage defaultMessage="All" />
+    </Box>,
+    <Box
+      sx={{
+        fontSize: '14px',
+        display: 'flex',
+        whiteSpace: 'nowrap',
+        svg: {
+          height: theme.spacing(2),
+          width: theme.spacing(2),
+          marginRight: theme.spacing(1),
+        },
+      }}
+    >
+      <AutoReinvestIcon />
+      <FormattedMessage defaultMessage="Auto Reinvest" />
+    </Box>,
+    <Box
+      sx={{
+        fontSize: '14px',
+        display: 'flex',
+        whiteSpace: 'nowrap',
+        svg: {
+          height: theme.spacing(2),
+          width: theme.spacing(2),
+          marginRight: theme.spacing(1),
+        },
+      }}
+    >
+      <DirectIcon className="stroke-icon" />
+      <FormattedMessage defaultMessage="Direct Claim" />
     </Box>,
   ];
 
@@ -86,6 +136,16 @@ export const DashboardHeader = ({
             handleNetWorkToggle={handleNetWorkToggle}
           />
         </Box>
+        {headerData.product === PRODUCTS.LEVERAGED_YIELD_FARMING && (
+          <GridListToggleWrapper sx={{ marginRight: theme.spacing(3) }}>
+            <SimpleToggle
+              tabVariant="standard"
+              tabLabels={vaultToggleData}
+              selectedTabIndex={reinvestmentType}
+              onChange={(_, v) => handleReinvestmentType(v as number)}
+            />
+          </GridListToggleWrapper>
+        )}
         {dashboardTab === 1 && (
           <SimpleToggle
             tabVariant="standard"

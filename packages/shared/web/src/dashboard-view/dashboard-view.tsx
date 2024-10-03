@@ -7,13 +7,18 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation, useParams } from 'react-router-dom';
-import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
+import {
+  ProductDashboard,
+  DashboardViewProps,
+  H2,
+  Body,
+} from '@notional-finance/mui';
 import { PRODUCTS } from '@notional-finance/util';
 import {
   setInLocalStorage,
   getFromLocalStorage,
 } from '@notional-finance/helpers';
-import { ThemeProvider } from '@mui/material';
+import { Box, ThemeProvider, useTheme } from '@mui/material';
 import {
   useFixedRateGrid,
   useVariableRateGrid,
@@ -25,7 +30,8 @@ import {
   useLiquidityVariableGrid,
   useLiquidityLeveragedGrid,
 } from './hooks';
-import { sortListData } from './hooks/utils';
+import { sortGridData, sortListData } from './hooks/utils';
+import { defineMessage } from 'react-intl';
 
 export const DashboardView = ({
   gridData,
@@ -34,6 +40,7 @@ export const DashboardView = ({
   showNegativeYields,
   setShowNegativeYields,
   threeWideGrid,
+  ComingSoonComponent,
 }: DashboardViewProps) => {
   const network = useSelectedNetwork();
   const { themeVariant } = useAppState();
@@ -42,6 +49,9 @@ export const DashboardView = ({
   const userSettings = getFromLocalStorage('userSettings');
   const [tokenGroup, setTokenGroup] = useState<number>(
     userSettings.tokenGroup || 0
+  );
+  const [reinvestmentType, setReinvestmentType] = useState<number>(
+    userSettings.reinvestmentType || 0
   );
   const themeLanding = useNotionalTheme(themeVariant, 'product');
   const [dashboardTab, setDashboardTab] = useState<number>(
@@ -67,26 +77,80 @@ export const DashboardView = ({
     });
   };
 
+  const handleReinvestmentType = (value: number) => {
+    setReinvestmentType(value);
+    setInLocalStorage('userSettings', {
+      ...userSettings,
+      reinvestmentType: value,
+    });
+  };
+
+  const sortedGridData =
+    routeKey === PRODUCTS.LEVERAGED_YIELD_FARMING && gridData
+      ? sortGridData(gridData, reinvestmentType)
+      : gridData;
+
   return (
     <ThemeProvider theme={themeLanding}>
       <FeatureLoader featureLoaded={!!network && themeVariant ? true : false}>
         <CardContainer {...containerData}>
           <ProductDashboard
-            gridData={gridData || []}
+            gridData={sortedGridData || []}
             listColumns={listColumns}
-            listData={sortListData(listData, tokenGroup)}
+            listData={sortListData(
+              listData,
+              tokenGroup,
+              reinvestmentType,
+              routeKey as PRODUCTS
+            )}
+            ComingSoonComponent={ComingSoonComponent}
             setShowNegativeYields={setShowNegativeYields}
             showNegativeYields={showNegativeYields}
             headerData={headerData}
             threeWideGrid={threeWideGrid}
             tokenGroup={tokenGroup}
             handleTokenGroup={handleTokenGroup}
+            reinvestmentType={reinvestmentType}
+            handleReinvestmentType={handleReinvestmentType}
             dashboardTab={dashboardTab}
             handleDashboardTab={handleDashboardTab}
           />
         </CardContainer>
       </FeatureLoader>
     </ThemeProvider>
+  );
+};
+
+const PendleComingSoon = () => {
+  const theme = useTheme();
+  return (
+    <Box
+      sx={{
+        height: theme.spacing(56),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <H2
+        msg={defineMessage({ defaultMessage: 'Coming Soon' })}
+        sx={{
+          fontWeight: 700,
+          marginBottom: theme.spacing(2),
+        }}
+      />
+      <Body
+        sx={{
+          width: '50%',
+          textAlign: 'center',
+        }}
+        msg={defineMessage({
+          defaultMessage:
+            'We’re hard at work developing our Leveraged Pendle Vaults, designed to maximize your yield opportunities. Stay tuned for help unlocking enhanced returns.',
+        })}
+      />
+    </Box>
   );
 };
 
@@ -98,12 +162,18 @@ export const LeveragedVaultDashboard = () => {
     network,
     selectedProduct as PRODUCTS
   );
+
   return (
     <DashboardView
       {...gridData}
       listColumns={listColumns}
       listData={listData}
       threeWideGrid={false}
+      ComingSoonComponent={
+        selectedProduct === PRODUCTS.LEVERAGED_PENDLE
+          ? PendleComingSoon
+          : undefined
+      }
     />
   );
 };
