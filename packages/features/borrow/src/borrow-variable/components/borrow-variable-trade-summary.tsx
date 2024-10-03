@@ -104,7 +104,12 @@ export const BorrowVariableTradeSummary = () => {
                   areaChartData={areaChartData}
                   areaChartStyles={areaChartStyles}
                   chartToolTipData={chartToolTipData}
-                  referenceLineValue={borrowUtilization}
+                  referenceLineValue={[
+                    {
+                      value: borrowUtilization,
+                      color: theme.palette.background.accentPaper,
+                    },
+                  ]}
                 />
               ),
               chartHeaderData: chartHeaderData,

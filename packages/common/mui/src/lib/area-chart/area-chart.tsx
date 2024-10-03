@@ -48,7 +48,7 @@ export interface AreaChartProps {
   xAxisTickFormat?: 'date' | 'percent';
   yAxisTickFormat?: 'percent' | 'number' | 'usd' | 'double';
   yAxisDomain?: AxisDomain;
-  referenceLineValue?: number;
+  referenceLineValue?: { value: number | undefined; color: string }[];
   chartToolTipData?: ChartToolTipDataProps;
   areaChartStyles?: AreaChartStylesProps;
   headerCallBack?: Dispatch<SetStateAction<boolean>>;
@@ -224,14 +224,17 @@ export const AreaChart = ({
               areaChartStyles?.area.lineColor || theme.palette.primary.light
             }
           />
-          {referenceLineValue && (
-            <ReferenceLine
-              x={referenceLineValue}
-              strokeDasharray="5,5"
-              stroke={theme.palette.background.accentPaper}
-              strokeWidth={2}
-            />
-          )}
+          {referenceLineValue &&
+            referenceLineValue.map(({ value, color }) =>
+              value ? (
+                <ReferenceLine
+                  x={value}
+                  strokeDasharray="5,5"
+                  stroke={color}
+                  strokeWidth={2}
+                />
+              ) : null
+            )}
 
           <defs>
             <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">

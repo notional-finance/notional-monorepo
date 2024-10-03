@@ -134,6 +134,24 @@ export const PendlePerformanceChart = () => {
       lineType: LEGEND_LINE_TYPES.SOLID,
     },
   };
+  const legendData = [
+    {
+      label: 'PT Expires',
+      lineColor: theme.palette.charts.dark,
+      lineType: LEGEND_LINE_TYPES.DASHED,
+      value: ptExpires ? getDateString(ptExpires) : undefined,
+    },
+  ];
+
+  if (fixedBorrowMaturity) {
+    // Prepend this so that it does not move the entire legend
+    legendData.unshift({
+      label: 'Fixed Borrow Matures',
+      lineColor: theme.palette.charts.accent,
+      lineType: LEGEND_LINE_TYPES.DASHED,
+      value: getDateString(fixedBorrowMaturity),
+    });
+  }
 
   return (
     <MultiDisplayChart
@@ -152,22 +170,23 @@ export const PendlePerformanceChart = () => {
               areaChartData={areaChartData}
               areaChartStyles={areaChartStyles}
               chartToolTipData={chartToolTipData}
-              referenceLineValue={ptExpires}
+              referenceLineValue={[
+                {
+                  value: fixedBorrowMaturity,
+                  color: theme.palette.charts.accent,
+                },
+                {
+                  value: ptExpires,
+                  color: theme.palette.charts.dark,
+                },
+              ]}
             />
           ),
           chartHeaderData: {
-            legendData: [
-              {
-                label: 'Fixed Borrow Matures',
-                lineColor: theme.palette.charts.main,
-                lineType: LEGEND_LINE_TYPES.DASHED,
-              },
-              {
-                label: 'PT Expires',
-                lineColor: theme.palette.charts.main,
-                lineType: LEGEND_LINE_TYPES.DASHED,
-              },
-            ],
+            textHeader: (
+              <FormattedMessage defaultMessage={'Estimated Performance'} />
+            ),
+            legendData,
           },
         },
       ]}
