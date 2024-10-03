@@ -106,22 +106,16 @@ export function useLeveragedPerformance(
   );
 }
 
-export function useDepositValue(
-  token: TokenDefinition | undefined,
-  isPrimeBorrow: boolean,
-  currentBorrowRate: number | undefined,
+export function calculateDepositValue(
   leverageRatio: number | null | undefined,
-  leveragedLendFixedRate: number | undefined,
+  data: {
+    timestamp: number;
+    strategyReturn: number;
+    borrowRate: number | undefined;
+    leveragedReturn: number | undefined;
+  }[],
   dataPoints = 90
 ) {
-  const data = useLeveragedPerformance(
-    token,
-    isPrimeBorrow,
-    currentBorrowRate,
-    leverageRatio,
-    leveragedLendFixedRate
-  );
-
   return (
     data.length > dataPoints ? data.slice(data.length - dataPoints) : data
   ).reduce((acc, d, i) => {

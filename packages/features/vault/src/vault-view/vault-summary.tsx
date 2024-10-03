@@ -5,17 +5,13 @@ import { FormattedMessage } from 'react-intl';
 import {
   MobileVaultSummary,
   VaultModal,
+  VaultPerformanceChart,
   VaultReinvestmentHistory,
   VaultTotalRow,
 } from '../components';
 import { VaultActionContext } from '../vault';
-import {
-  LiquidationChart,
-  PerformanceChart,
-  TradeActionSummary,
-} from '@notional-finance/trade';
+import { LiquidationChart, TradeActionSummary } from '@notional-finance/trade';
 import { useVaultExistingFactors, useVaultFaq } from '../hooks';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 
 export const VaultSummary = () => {
@@ -77,16 +73,7 @@ export const VaultSummary = () => {
               leverageRatio,
             }}
           >
-            <PerformanceChart
-              state={state}
-              priorVaultFactors={{
-                vaultShare,
-                vaultBorrowRate: priorBorrowRate,
-                leverageRatio,
-                isPrimeBorrow:
-                  vaultShare?.maturity === PRIME_CASH_VAULT_MATURITY,
-              }}
-            />
+            <VaultPerformanceChart />
             <VaultTotalRow />
             <LiquidationChart
               state={state}

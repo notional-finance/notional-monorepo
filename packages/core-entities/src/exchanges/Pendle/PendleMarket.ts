@@ -26,7 +26,7 @@ interface PendleMarketParams {
     scalarRoot: BigNumber;
     lnImpliedRate: BigNumber;
     lnFeeRateRoot: BigNumber;
-    expiry: number;
+    expiry: BigNumber;
   };
   tokens: {
     PT: string;
@@ -161,8 +161,8 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
 
   get timeToExpiry() {
     const now = getNowSeconds();
-    return this.poolParams.marketState.expiry > now
-      ? this.poolParams.marketState.expiry - now
+    return this.poolParams.marketState.expiry.toNumber() > now
+      ? this.poolParams.marketState.expiry.toNumber() - now
       : 0;
   }
 

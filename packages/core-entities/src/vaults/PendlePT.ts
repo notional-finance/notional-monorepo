@@ -51,6 +51,10 @@ export class PendlePT extends VaultAdapter {
     return this.market.ptSpotYieldToMaturity;
   }
 
+  get expiry(): number {
+    return this.market.poolParams.marketState.expiry.toNumber();
+  }
+
   get timeToExpiry(): number {
     return this.market.timeToExpiry;
   }
