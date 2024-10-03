@@ -126,17 +126,17 @@ const PendleComingSoon = () => {
   return (
     <Box
       sx={{
-        height: theme.spacing(56),
+        height: theme.spacing(50),
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
       }}
     >
       <H2
         msg={defineMessage({ defaultMessage: 'Coming Soon' })}
         sx={{
           fontWeight: 700,
+          marginTop: theme.spacing(8),
           marginBottom: theme.spacing(2),
         }}
       />
@@ -147,7 +147,7 @@ const PendleComingSoon = () => {
         }}
         msg={defineMessage({
           defaultMessage:
-            'We’re hard at work developing our Leveraged Pendle Vaults, designed to maximize your yield opportunities. Stay tuned for help unlocking enhanced returns.',
+            'We’re hard at work developing our Leveraged Pendle Vaults, designed to deliver leveraged fixed yield. Stay tuned for updates.',
         })}
       />
     </Box>

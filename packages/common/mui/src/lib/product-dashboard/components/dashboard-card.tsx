@@ -112,6 +112,7 @@ export const DashboardCard = ({
   routeCallback,
   incentiveValue,
   incentiveSymbols,
+  hasPosition,
   network,
 }: DashboardDataProps) => {
   const theme = useTheme();
@@ -194,7 +195,7 @@ export const DashboardCard = ({
                     marginLeft: theme.spacing(1),
                   }}
                 >
-                  Max APY
+                  {hasPosition ? 'APY' : 'Max APY'}
                 </Box>
               </Box>
             ) : (

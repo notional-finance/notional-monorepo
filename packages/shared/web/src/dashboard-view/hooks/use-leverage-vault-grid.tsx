@@ -113,13 +113,6 @@ export const useLeveragedVaultGrid = (
                 </Box>
               )
             : undefined,
-          apySubTitle:
-            profile && !reinvestmentType
-              ? defineMessage({
-                  defaultMessage: `Current APY`,
-                  description: 'subtitle',
-                })
-              : undefined,
         };
       }
     )
