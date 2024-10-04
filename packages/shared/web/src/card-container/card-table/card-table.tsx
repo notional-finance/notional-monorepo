@@ -2,21 +2,14 @@ import React from 'react';
 import { useTheme, styled, Box } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { useCardTable } from './use-card-table';
-import useCardSubNav from '../card-sub-nav/use-card-sub-nav';
 
 export const CardTable = () => {
   const theme = useTheme();
   const cardTableData = useCardTable();
-  // This is used to determine the width of the table
-  const links = useCardSubNav();
 
   return (
     <OuterContainer>
-      <ContentContainer
-        sx={{
-          width: links.length > 3 ? theme.spacing(40) : theme.spacing(48),
-        }}
-      >
+      <ContentContainer sx={{ width: theme.spacing(48) }}>
         {cardTableData?.map(({ key, value }, index) => (
           <React.Fragment key={index}>
             <TableContent
