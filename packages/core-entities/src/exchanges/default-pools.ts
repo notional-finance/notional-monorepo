@@ -459,8 +459,8 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         {
-          id: registerTokensMap[Network.arbitrum]['4POOL-BPT'],
-          address: registerTokensMap[Network.arbitrum]['4POOL-BPT'],
+          id: registerTokensMap[Network.arbitrum]['Curve.fi USDC/USDT'],
+          address: registerTokensMap[Network.arbitrum]['Curve.fi USDC/USDT'],
           network: Network.arbitrum,
           symbol: '2CRV',
           name: 'Curve.fi USDC/USDT',
