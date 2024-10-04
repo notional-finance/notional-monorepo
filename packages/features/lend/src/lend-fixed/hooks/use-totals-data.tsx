@@ -4,7 +4,6 @@ import {
   FiatSymbols,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { useMaxSupply } from '@notional-finance/notionable-hooks';
 import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const useTotalsData = (
@@ -13,8 +12,11 @@ export const useTotalsData = (
   baseCurrency: FiatKeys
 ) => {
   const currentNetworkStore = useCurrentNetworkStore();
-  const fCashLend = currentNetworkStore.getFCashTotalsData(deposit, collateral);
-  const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
+  const fCashLend = currentNetworkStore.getFCashTotalsData(
+    deposit,
+    collateral,
+    false
+  );
 
   return [
     {
@@ -32,8 +34,8 @@ export const useTotalsData = (
     },
     {
       title: <FormattedMessage defaultMessage={'Capacity Remaining'} />,
-      value: maxSupplyData?.capacityRemaining
-        ? maxSupplyData?.capacityRemaining.toFloat()
+      value: fCashLend?.capacityRemaining
+        ? fCashLend?.capacityRemaining.toFloat()
         : '-',
       suffix: deposit?.symbol ? ' ' + deposit?.symbol : '',
       decimals: 0,

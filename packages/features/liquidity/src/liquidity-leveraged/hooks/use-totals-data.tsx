@@ -8,7 +8,6 @@ import {
   useCurrentNetworkStore,
 } from '@notional-finance/notionable';
 import { SparklesIcon } from '@notional-finance/icons';
-import { useMaxSupply } from '@notional-finance/notionable-hooks';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { InfoTooltip } from '@notional-finance/mui';
 import { SxProps, useTheme } from '@mui/material';
@@ -20,21 +19,11 @@ export const useTotalsData = (
 ) => {
   const theme = useTheme();
   const { deposit } = state;
-  const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
-
   const currentNetworkStore = useCurrentNetworkStore();
-  const liquidity = currentNetworkStore.getAllLeveragedNTokenYields();
-  const allLiquidityYieldData = liquidity.find(
-    (data) => data?.underlying?.id === deposit?.id
-  );
-
-  const liquidityYieldData = nTokenAmount
-    ? currentNetworkStore.getSimulatedAPY(nTokenAmount)
-    : allLiquidityYieldData?.apy;
-
-  const totalIncentives = liquidityYieldData?.incentives?.reduce(
-    (acc, curr) => acc + curr.incentiveAPY,
-    0
+  const leveragedNTokenTotalsData = currentNetworkStore.getNTokenTotalsData(
+    deposit,
+    nTokenAmount,
+    true
   );
 
   const ToolTip = ({ sx }: { sx: SxProps }) => {
@@ -56,27 +45,31 @@ export const useTotalsData = (
       {
         title: <FormattedMessage defaultMessage={'Market Liquidity'} />,
         value:
-          allLiquidityYieldData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
+          leveragedNTokenTotalsData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
         prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
         decimals: 0,
       },
       {
         title: <FormattedMessage defaultMessage={'Total Incentive APY'} />,
-        value: totalIncentives && totalIncentives > 0 ? totalIncentives : '-',
+        value:
+          leveragedNTokenTotalsData?.totalIncentives &&
+          leveragedNTokenTotalsData?.totalIncentives > 0
+            ? leveragedNTokenTotalsData?.totalIncentives
+            : '-',
         Icon: SparklesIcon,
-        suffix: totalIncentives ? '%' : '',
+        suffix: leveragedNTokenTotalsData?.totalIncentives ? '%' : '',
       },
       {
         title: <FormattedMessage defaultMessage={'Capacity Remaining'} />,
         Icon: ToolTip,
-        value: maxSupplyData?.capacityRemaining
-          ? maxSupplyData?.capacityRemaining.toFloat()
+        value: leveragedNTokenTotalsData?.capacityRemaining
+          ? leveragedNTokenTotalsData?.capacityRemaining.toFloat()
           : '-',
         suffix: deposit?.symbol ? ' ' + deposit?.symbol : '',
         decimals: 0,
       },
     ],
-    liquidityYieldData,
+    liquidityYieldData: leveragedNTokenTotalsData?.liquidityYieldData,
   };
 };
 

@@ -46,6 +46,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getTokenBySymbol,
     getTokenByID,
     getPrimeCash,
+    getPrimeDebt,
     getUnderlying,
     getDebtTokens,
     getVaultShares,
@@ -280,6 +281,26 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     throw Error('Invalid token');
   };
 
+  const getMaxSupply = (currencyId: number) => {
+    const underlying = getUnderlying(currencyId);
+    const pCash = getTokensByType('PrimeCash').find(
+      (t) => t.currencyId === currencyId
+    );
+    const maxUnderlyingSupply = TokenBalance.from(
+      getConfig(currencyId).maxUnderlyingSupply,
+      underlying
+    ).scaleFromInternal();
+
+    if (!pCash?.totalSupply) throw Error('pCash total supply not found');
+    const currentUnderlyingSupply = pCash.totalSupply.toUnderlying();
+
+    return {
+      maxUnderlyingSupply,
+      currentUnderlyingSupply,
+      capacityRemaining: maxUnderlyingSupply.sub(currentUnderlyingSupply),
+    };
+  };
+
   const getSimulatedAPY = (netAmount: TokenBalance) => {
     const apyData: APYData = { totalAPY: 0 };
 
@@ -484,15 +505,25 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
 
   const getFCashTotalsData = (
     deposit: TokenDefinition | undefined,
-    collateral: TokenDefinition | undefined
+    token: TokenDefinition | undefined,
+    isDebt: boolean
   ) => {
-    const fCashTokens = getTokensByType('fCash').filter((t) => !t?.isFCashDebt);
-    const liquidityToken = fCashTokens.find((t) => t.id === collateral?.id);
+    const fCashTokens = isDebt
+      ? getTokensByType('fCash').filter((t) => t?.isFCashDebt)
+      : getTokensByType('fCash').filter((t) => !t?.isFCashDebt);
+    const liquidityToken = fCashTokens.find(
+      (t) => t.totalSupply?.tokenId === token?.id
+    );
     const zeroUnderlying = deposit
       ? TokenBalance.fromFloat(0, deposit)
       : undefined;
+    const capacityRemaining =
+      deposit && deposit?.currencyId
+        ? getMaxSupply(deposit?.currencyId).capacityRemaining
+        : undefined;
 
     return {
+      capacityRemaining,
       totalFixedRateDebt: deposit
         ? fCashTokens
             .filter(
@@ -506,6 +537,53 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
             }, zeroUnderlying)
         : undefined,
       liquidity: liquidityToken ? getLiquidity(liquidityToken) : undefined,
+    };
+  };
+
+  const getPrimeCashTotalsData = (deposit: TokenDefinition | undefined) => {
+    const primeCash = getPrimeCash(deposit?.currencyId);
+    const primeDebt = getPrimeDebt(deposit?.currencyId);
+    const capacityRemaining = deposit?.currencyId
+      ? getMaxSupply(deposit?.currencyId).capacityRemaining
+      : undefined;
+
+    return {
+      capacityRemaining,
+      primeCashTotalSupply: primeCash?.totalSupply,
+      primeDebtTotalSupply: primeDebt?.totalSupply,
+    };
+  };
+
+  const getNTokenTotalsData = (
+    deposit: TokenDefinition | undefined,
+    nTokenAmount: TokenBalance | undefined,
+    isLeveraged: boolean
+  ) => {
+    const liquidity = isLeveraged
+      ? getAllLeveragedNTokenYields()
+      : getAllNTokenYields();
+    const allLiquidityYieldData = liquidity.find(
+      (data) => data?.underlying?.id === deposit?.id
+    );
+    const liquidityYieldData = nTokenAmount
+      ? getSimulatedAPY(nTokenAmount)
+      : allLiquidityYieldData?.apy;
+
+    const totalIncentives = liquidityYieldData?.incentives?.reduce(
+      (acc, curr) => acc + curr.incentiveAPY,
+      0
+    );
+
+    const capacityRemaining =
+      deposit && deposit?.currencyId
+        ? getMaxSupply(deposit?.currencyId).capacityRemaining
+        : undefined;
+
+    return {
+      capacityRemaining,
+      liquidityYieldData: liquidityYieldData,
+      totalIncentives: totalIncentives ? totalIncentives : undefined,
+      tvl: allLiquidityYieldData?.tvl ? allLiquidityYieldData?.tvl : undefined,
     };
   };
 
@@ -645,5 +723,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getAllPrimeCashDebt,
     getAllNonLeveragedYields,
     getFCashTotalsData,
+    getNTokenTotalsData,
+    getPrimeCashTotalsData,
   };
 };
