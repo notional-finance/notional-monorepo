@@ -8,7 +8,6 @@ import {
   PRODUCTS,
   RATE_PRECISION,
   SupportedNetworks,
-  unique,
 } from '@notional-finance/util';
 import { useEffect, useMemo, useState } from 'react';
 import { useAnalyticsReady } from './use-notional';
@@ -33,41 +32,12 @@ export function usePrimeCash(currencyId: number | undefined) {
   }
 }
 
-export function useToken(tokenId: string | undefined) {
-  const currentNetworkStore = useCurrentNetworkStore();
-  try {
-    return currentNetworkStore.isReady() && tokenId
-      ? currentNetworkStore.getTokenByID(tokenId)
-      : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
 export function usePrimeDebt(currencyId: number | undefined) {
   const currentNetworkStore = useCurrentNetworkStore();
   try {
     return currentNetworkStore.isReady()
       ? currentNetworkStore.getPrimeDebt(currencyId)
       : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-export function useAllUniqueUnderlyingTokens() {
-  const currentNetworkStore = useCurrentNetworkStore();
-  try {
-    return currentNetworkStore.isReady()
-      ? unique(
-          currentNetworkStore
-            .getAllTokens()
-            .filter(
-              (t) => t.tokenType === 'Underlying' && t.currencyId !== undefined
-            )
-            .map((t) => t.symbol)
-        )
-      : [];
   } catch {
     return undefined;
   }
@@ -90,26 +60,7 @@ export function usePrimeTokens() {
   }
 }
 
-export function useMaxSupply(
-  network: Network | undefined,
-  currencyId: number | undefined
-) {
-  if (!network || !currencyId) return undefined;
-  const { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining } =
-    Registry.getConfigurationRegistry().getMaxSupply(network, currencyId);
-  return { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining };
-}
-
-// NOTE: I don't think is needed anymore since we don't have to wait for yields to load before rendering since that's
-// handled by mobx now
-
-// export function useYieldsReady(network: Network | undefined) {
-//   const {
-//     appState: { allYields: _allYields },
-//   } = useAppContext();
-//   return _allYields && network && _allYields[network] ? true : false;
-// }
-
+// TODO: MOVE THIS INTO MOBX AND CACHE IN THE STORE
 export const useProductNetwork = (
   product: PRODUCTS,
   underlyingSymbol: string | undefined
