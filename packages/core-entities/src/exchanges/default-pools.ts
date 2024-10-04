@@ -21,6 +21,10 @@ const registerTokensMap = {
     GHOUSDe: '0x670a72e6D22b0956C0D2573288F82DCc5d6E3a61' as const,
     'rsETH/WETH': '0x58AAdFB1Afac0ad7fca1148f3cdE6aEDF5236B6D' as const,
     rsETH: '0xA1290d69c65A6Fe4DF752f95823fae25cB99e5A7' as const,
+    '2BTC-f': '0xB7ECB2AA52AA64a717180E030241bC75Cd946726' as const,
+    tBTC: '0x18084fbA666a33d37592fA2633fD49a74DD93a88' as const,
+    CVX: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b' as const,
+    CRV: '0xd533a949740bb3306d119cc777fa900ba034cd52' as const,
   },
   arbitrum: {
     'FRAXBP-f': '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5' as const,
@@ -43,6 +47,13 @@ const registerTokensMap = {
     tBTC: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40' as const,
     'rETH/wETH BPT': '0xd0EC47c54cA5e20aaAe4616c25C825c7f48D4069' as const,
     '2BTC-ng': '0x186cF879186986A20aADFb7eAD50e3C20cb26CeC' as const,
+    'Pendle-Market-rsETH-26SEP2024':
+      '0xED99fC8bdB8E9e7B8240f62f69609a125A0Fbf14' as const,
+    'PT-rsETH-26SEP2024': '0x30c98c0139B62290E26aC2a2158AC341Dcaf1333' as const,
+    'Pendle-Market-rsETH-26DEC2024':
+      '0xcB471665BF23B2Ac6196D84D947490fd5571215f' as const,
+    'PT-rsETH-26DEC2024': '0x355ec27c9d4530dE01A103FA27F884a2F3dA65ef' as const,
+    'SY-rsETH': '0xf176fb51f4eb826136a54fdc71c50fcd2202e272' as const,
   },
 };
 
@@ -380,12 +391,12 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: '0xB7ECB2AA52AA64a717180E030241bC75Cd946726',
+      address: registerTokensMap[Network.mainnet]['2BTC-f'],
       PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         {
-          id: '0xB7ECB2AA52AA64a717180E030241bC75Cd946726',
-          address: '0xB7ECB2AA52AA64a717180E030241bC75Cd946726',
+          id: registerTokensMap[Network.mainnet]['2BTC-f'],
+          address: registerTokensMap[Network.mainnet]['2BTC-f'],
           network: Network.mainnet,
           symbol: '2BTC-f',
           name: 'Curve.fi Factory Plain Pool: tBTC/WBTC',
@@ -394,8 +405,8 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           tokenType: 'Underlying',
         },
         {
-          id: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
-          address: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
+          id: registerTokensMap[Network.mainnet].tBTC,
+          address: registerTokensMap[Network.mainnet].tBTC,
           network: Network.mainnet,
           symbol: 'tBTC',
           name: 'tBTC v2',
@@ -405,8 +416,8 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         },
         // Register whitelisted rewards
         {
-          id: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
-          address: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+          id: registerTokensMap[Network.mainnet].CVX,
+          address: registerTokensMap[Network.mainnet].CVX,
           network: Network.mainnet,
           symbol: 'CVX',
           name: 'Convex Token',
@@ -415,8 +426,8 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           tokenType: 'Underlying',
         },
         {
-          id: '0xd533a949740bb3306d119cc777fa900ba034cd52',
-          address: '0xd533a949740bb3306d119cc777fa900ba034cd52',
+          id: registerTokensMap[Network.mainnet].CRV,
+          address: registerTokensMap[Network.mainnet].CRV,
           network: Network.mainnet,
           symbol: 'CRV',
           name: 'Curve DAO Token',
@@ -780,12 +791,18 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: '0xED99fC8bdB8E9e7B8240f62f69609a125A0Fbf14',
+      address:
+        registerTokensMap[Network.arbitrum]['Pendle-Market-rsETH-26SEP2024'],
       PoolClass: 'PendleMarket',
       registerTokens: [
         {
-          id: '0xED99fC8bdB8E9e7B8240f62f69609a125A0Fbf14',
-          address: '0xED99fC8bdB8E9e7B8240f62f69609a125A0Fbf14',
+          id: registerTokensMap[Network.arbitrum][
+            'Pendle-Market-rsETH-26SEP2024'
+          ],
+          address:
+            registerTokensMap[Network.arbitrum][
+              'Pendle-Market-rsETH-26SEP2024'
+            ],
           name: 'Pendle Market: rsETH 26SEP2024',
           network: Network.arbitrum,
           symbol: 'PENDLE-LPT rsETH 26SEP2024',
@@ -794,8 +811,8 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           tokenType: 'Underlying',
         },
         {
-          id: '0x30c98c0139B62290E26aC2a2158AC341Dcaf1333',
-          address: '0x30c98c0139B62290E26aC2a2158AC341Dcaf1333',
+          id: registerTokensMap[Network.arbitrum]['PT-rsETH-26SEP2024'],
+          address: registerTokensMap[Network.arbitrum]['PT-rsETH-26SEP2024'],
           name: 'PT: rsETH 26SEP2024',
           network: Network.arbitrum,
           symbol: 'PT-rsETH-26SEP2024',
@@ -804,8 +821,8 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           tokenType: 'Underlying',
         },
         {
-          id: '0xf176fb51f4eb826136a54fdc71c50fcd2202e272',
-          address: '0xf176fb51f4eb826136a54fdc71c50fcd2202e272',
+          id: registerTokensMap[Network.arbitrum]['SY-rsETH'],
+          address: registerTokensMap[Network.arbitrum]['SY-rsETH'],
           name: 'SY rsETH',
           network: Network.arbitrum,
           symbol: 'SY-rsETH',
@@ -816,12 +833,18 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: '0xcB471665BF23B2Ac6196D84D947490fd5571215f',
+      address:
+        registerTokensMap[Network.arbitrum]['Pendle-Market-rsETH-26DEC2024'],
       PoolClass: 'PendleMarket',
       registerTokens: [
         {
-          id: '0xcB471665BF23B2Ac6196D84D947490fd5571215f',
-          address: '0xcB471665BF23B2Ac6196D84D947490fd5571215f',
+          id: registerTokensMap[Network.arbitrum][
+            'Pendle-Market-rsETH-26DEC2024'
+          ],
+          address:
+            registerTokensMap[Network.arbitrum][
+              'Pendle-Market-rsETH-26DEC2024'
+            ],
           name: 'Pendle Market: rsETH 26DEC2024',
           network: Network.arbitrum,
           symbol: 'PENDLE-LPT rsETH 26DEC2024',
@@ -830,8 +853,8 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           tokenType: 'Underlying',
         },
         {
-          id: '0x355ec27c9d4530dE01A103FA27F884a2F3dA65ef',
-          address: '0x355ec27c9d4530dE01A103FA27F884a2F3dA65ef',
+          id: registerTokensMap[Network.arbitrum]['PT-rsETH-26DEC2024'],
+          address: registerTokensMap[Network.arbitrum]['PT-rsETH-26DEC2024'],
           name: 'PT: rsETH 26DEC2024',
           network: Network.arbitrum,
           symbol: 'PT-rsETH-26DEC2024',
@@ -840,8 +863,8 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           tokenType: 'Underlying',
         },
         {
-          id: '0xf176fb51f4eb826136a54fdc71c50fcd2202e272',
-          address: '0xf176fb51f4eb826136a54fdc71c50fcd2202e272',
+          id: registerTokensMap[Network.arbitrum]['SY-rsETH'],
+          address: registerTokensMap[Network.arbitrum]['SY-rsETH'],
           name: 'SY rsETH',
           network: Network.arbitrum,
           symbol: 'SY-rsETH',
