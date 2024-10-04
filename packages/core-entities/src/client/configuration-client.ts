@@ -35,6 +35,9 @@ import {
   SecondaryRewarderABI,
 } from '@notional-finance/contracts';
 
+const toLower = <T extends string>(address: T) =>
+  address.toLowerCase() as Lowercase<T>;
+
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   protected cachePath() {
     return Routes.Configuration;
@@ -479,7 +482,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     return {
       id,
-      address: NotionalAddress[network].toLowerCase(),
+      address: toLower(NotionalAddress[network]),
       network,
       name,
       symbol,
@@ -488,7 +491,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       tokenType,
       underlying: underlying.id,
       maturity,
-      vaultAddress: vaultAddress.toLowerCase(),
+      vaultAddress: toLower(vaultAddress),
       isFCashDebt: false,
       currencyId: underlying.currencyId,
     };

@@ -16,7 +16,6 @@ const wrappedFlashLenders: Record<Network, Record<string, string>> = {
     UNIV3: '0x319300462C37AD2D4f26B584C2b67De51F51f289',
   },
   [Network.all]: {},
-  [Network.optimism]: {},
 };
 
 const tokens = {
@@ -38,7 +37,6 @@ const defaultFlashLenders = {
   [Network.mainnet]: wrappedFlashLenders.mainnet['AAVE'],
   [Network.arbitrum]: wrappedFlashLenders.arbitrum['AAVE'],
   [Network.all]: wrappedFlashLenders.mainnet['AAVE'],
-  [Network.optimism]: '',
 };
 
 const perVaultFlashLenders: Record<string, string> = {};
@@ -103,6 +101,5 @@ const zeroExSources = {
     CAMELOT: 'Camelot_V3',
     UNIV3: 'Uniswap_V3',
   },
-  [Network.optimism]: {},
   [Network.all]: {},
 };

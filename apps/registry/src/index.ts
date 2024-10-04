@@ -8,7 +8,6 @@ export interface APIEnv extends BaseDOEnv {
   GHOST_ADMIN_KEY: string;
   NX_DD_API_KEY: string;
   NX_REGISTRY_URL: string;
-  DATA_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   VIEWS_NAME: string;
   VIEW_CACHE_R2: R2Bucket;

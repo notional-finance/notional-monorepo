@@ -24,18 +24,6 @@ export const CommunityNFTs: Community[] = [
   //   network: Network.mainnet,
   // },
   {
-    name: COMMUNITY_NAMES.L2DAO,
-    displayName: 'L2DAO',
-    address: '0x66deb6cc4d65dc9cb02875dc5e8751d71fa5d50e',
-    network: Network.optimism,
-  },
-  {
-    name: COMMUNITY_NAMES.CRYPTO_TESTERS,
-    displayName: 'Cryptotesters',
-    address: '0x18a1bc18cefdc952121f319039502fdd5f48b6ff',
-    network: Network.optimism,
-  },
-  {
     name: COMMUNITY_NAMES.LLAMAS,
     displayName: 'Llama',
     address: '0xe127ce638293fa123be79c25782a5652581db234',

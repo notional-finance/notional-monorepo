@@ -12,7 +12,7 @@ import { GenericCardProps } from 'types/root';
 
 // ==============================|| MATRIX CARD ||============================== //
 
-interface EcommerceMetrixProps extends GenericCardProps {}
+type EcommerceMetrixProps = GenericCardProps
 
 export default function EcommerceMetrix({ primary, secondary, content, iconPrimary, color }: EcommerceMetrixProps) {
   const IconPrimary = iconPrimary!;

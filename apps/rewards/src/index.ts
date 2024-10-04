@@ -8,11 +8,14 @@ import {
   DEX_ID,
   Network,
   TRADE_TYPE,
+  TokenAddress,
+  VaultAddress,
+  tokens as tokenAddresses,
   getProviderFromNetwork,
   getSubgraphEndpoint,
 } from '@notional-finance/util';
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
-import { vaults, minTokenAmount, ETH, wEthMapper, Vault } from './vaults';
+import { getVaultsForReinvestment, minTokenAmount, Vault } from './vaults';
 import {
   get0xData,
   sendTxThroughRelayer,
@@ -37,7 +40,7 @@ const reinvestTimeWindowInHours: Partial<Record<Network, number>> = {
 
 async function isClaimRewardsProfitable(
   env: Env,
-  vault: Vault,
+  vault: Vault<TokenAddress, VaultAddress>,
   tx: PopulatedTransaction
 ) {
   const { rawLogs } = await simulatePopulatedTxn(env.NETWORK, tx);
@@ -206,7 +209,7 @@ async function shouldSkipClaim(
 const claimVault = async (
   env: Env,
   provider: Provider,
-  vault: Vault,
+  vault: Vault<TokenAddress, VaultAddress>,
   force = false
 ) => {
   const treasuryManger = TreasuryManager__factory.connect(
@@ -245,8 +248,11 @@ const claimVault = async (
 };
 
 const claimRewards = async (env: Env, provider: Provider) => {
+  const vaults = getVaultsForReinvestment(env.NETWORK);
   const results = await Promise.allSettled(
-    vaults[env.NETWORK].map((vault) => claimVault(env, provider, vault))
+    vaults.map((vault: Vault<TokenAddress, VaultAddress>) =>
+      claimVault(env, provider, vault)
+    )
   );
 
   const failedClaims = results.filter(
@@ -279,10 +285,14 @@ const getTrades = async (
       let oracleSlippagePercentOrLimit = '0';
       let exchangeData = '0x00';
 
-      if (!amount.eq(0)) {
+      // only construct a trade if there is an amount to sell and sell token is not the same as buy token
+      if (!amount.eq(0) && sellToken.toLowerCase() != token.toLowerCase()) {
         const tradeData = await get0xData({
           sellToken,
-          buyToken: token == ETH ? wEthMapper[env.NETWORK] : token,
+          buyToken:
+            token == tokenAddresses[env.NETWORK].ETH
+              ? tokenAddresses[env.NETWORK].WETH
+              : token,
           sellAmount: amount,
           slippagePercentage: SLIPPAGE_PERCENT * slippageMultiplier++,
           taker,
@@ -292,7 +302,7 @@ const getTrades = async (
         oracleSlippagePercentOrLimit = tradeData.limit.toString();
         exchangeData = tradeData.data;
 
-        const { percentageLoss, acceptable } = await checkTradeLoss(
+        const { lossPercentage, acceptable } = await checkTradeLoss(
           env.NETWORK,
           {
             sellToken,
@@ -303,12 +313,12 @@ const getTrades = async (
         );
 
         await env.LOGGER.log({
-          message: `Trade from ${sellToken} to ${token} has loss of: ${percentageLoss}%`,
+          message: `Trade from ${sellToken} to ${token} has loss of: ${lossPercentage}%`,
           sellToken,
           buyToken: token,
           sellAmount: amount.toString(),
           buyAmount: tradeData.buyAmount.toString(),
-          percentageLoss,
+          lossPercentage,
           level: acceptable ? 'info' : 'error',
           service: 'rewards',
           chain: env.NETWORK,
@@ -316,7 +326,7 @@ const getTrades = async (
 
         if (!acceptable) {
           throw new Error(
-            `Trade from ${sellToken} to ${token} has high loss of: ${percentageLoss}%`
+            `Trade from ${sellToken} to ${token} has high loss of: ${lossPercentage}%`
           );
         }
       }
@@ -339,7 +349,7 @@ const getTrades = async (
 const reinvestVault = async (
   env: Env,
   provider: Provider,
-  vault: Vault,
+  vault: Vault<TokenAddress, VaultAddress>,
   force = false
 ) => {
   if (!force && (await shouldSkipReinvest(env, vault.address, provider))) {
@@ -354,13 +364,6 @@ const reinvestVault = async (
 
   const tradesPerRewardToken = [];
   for (const sellToken of vault.rewardTokens) {
-    if (poolTokens.includes(sellToken)) {
-      console.log(
-        `Skipping sell of ${sellToken} since it is also a pool token.`
-      );
-      continue;
-    }
-
     let amountToSell = await ERC20__factory.connect(
       sellToken,
       provider
@@ -380,8 +383,14 @@ const reinvestVault = async (
       );
       continue;
     }
-    const sellAmountsPerToken = poolTokens.map((address: string) => {
-      return address.toLowerCase() === vault.reinvestToken.toLowerCase()
+    // in case sell token is pool token, don't sell it, reinvest it
+    const isSellTokenPoolToken = poolTokens.some(
+      (address) => address.toLowerCase() === sellToken.toLowerCase()
+    );
+
+    const tokenToBuy = isSellTokenPoolToken ? sellToken : vault.reinvestToken;
+    const sellAmountsPerToken = poolTokens.map((address) => {
+      return address.toLowerCase() === tokenToBuy.toLowerCase()
         ? amountToSell
         : BigNumber.from(0);
     });
@@ -451,7 +460,8 @@ const reinvestVault = async (
 
 const reinvestRewards = async (env: Env, provider: Provider) => {
   const errors: Error[] = [];
-  for (const vault of vaults[env.NETWORK]) {
+  const vaults = getVaultsForReinvestment(env.NETWORK);
+  for (const vault of vaults) {
     try {
       await reinvestVault(env, provider, vault);
     } catch (err) {
@@ -473,7 +483,7 @@ function getQueryParams(request: Request) {
   const { searchParams } = new URL(request.url);
 
   return {
-    network: searchParams.get('network') as Network,
+    network: searchParams.get('network') as Exclude<Network, Network.all>,
     vaultAddress: searchParams.get('vaultAddress'),
     action: searchParams.get('action') as Action,
     force: !!searchParams.get('force'),
@@ -498,11 +508,14 @@ export default {
       return new Response('Missing required query parameters', { status: 400 });
     }
 
-    const vault = vaults[network].find(
+    const vaults = getVaultsForReinvestment(network, force);
+    const vault = vaults.find(
       (v) => v.address.toLowerCase() === vaultAddress.toLowerCase()
     );
     if (!vault) {
-      return new Response('Unknown vault address', { status: 404 });
+      return new Response('Unknown vault address or vault is not whitelisted', {
+        status: 404,
+      });
     }
 
     env.NETWORK = network;

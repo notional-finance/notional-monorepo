@@ -5,7 +5,7 @@ actions:
     specs:
       accounts:
         description: Process new Notional accounts
-        function: src/index:accountsFn
+        function: apps/tenderly/actions/src/index:accountsFn
         trigger:
           type: transaction
           transaction:
@@ -42,4 +42,25 @@ actions:
                   contract:
                     address: 0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f
                   name: TransferBatch
+        execution_type: sequential
+
+      reinvestment-trades:
+        description: Process reinvestment trades and log loss to database
+        function: apps/tenderly/actions/src/index:reinvestmentTradesFn
+        trigger:
+          type: transaction
+          transaction:
+            status:
+              - mined
+            filters:
+              - network: 42161
+                eventEmitted:
+                  contract:
+                    address: 0x53144559C0d4a3304e2DD9dAfBD685247429216d
+                  name: VaultRewardReinvested
+              - network: 1
+                eventEmitted:
+                  contract:
+                    address: 0x53144559C0d4a3304e2DD9dAfBD685247429216d
+                  name: VaultRewardReinvested
         execution_type: sequential

@@ -39,4 +39,3 @@ crons = [
 [env.prod.vars]
 NX_ENV = 'prod'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]
-DATA_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service'

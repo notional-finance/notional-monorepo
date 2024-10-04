@@ -5,9 +5,12 @@ import {
   Network,
   decodeERC1155Id,
   padToHex256,
+  DataServiceEvent,
+  DataServiceReinvestmentTrade,
+  DataServiceEndpoints,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
-import { VaultAccount, BackfillType, DataServiceEvent } from './types';
+import { VaultAccount, BackfillType } from './types';
 import { logToDataDog, parseQueryParams } from './util';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -41,7 +44,7 @@ app.get('/', (_, res) => {
 });
 
 app.get(
-  '/blocks',
+  `/${DataServiceEndpoints.BLOCKS}`,
   catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     const timestamps = dataService.getTimestamps(
@@ -58,7 +61,7 @@ app.get(
 );
 
 app.get(
-  '/backfillOracleData',
+  `/${DataServiceEndpoints.BACKFILL_ORACLE_DATA}`,
   catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     await dataService.backfill(
@@ -71,7 +74,7 @@ app.get(
 );
 
 app.get(
-  '/backfillYieldData',
+  `/${DataServiceEndpoints.BACKFILL_YIELD_DATA}`,
   catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     await dataService.backfill(
@@ -84,7 +87,7 @@ app.get(
 );
 
 app.get(
-  '/backfillGenericData',
+  `/${DataServiceEndpoints.BACKFILL_GENERIC_DATA}`,
   catchAsync(async (req, res) => {
     await dataService.backfill(
       parseInt(req.query.startTime as string),
@@ -96,7 +99,7 @@ app.get(
 );
 
 app.post(
-  '/vaultApy',
+  `/${DataServiceEndpoints.VAULT_APY}`,
   catchAsync(async (req, res) => {
     const network: Network = req.body.network;
     await dataService.insertVaultAPY(network, req.body.vaultAPYs);
@@ -105,7 +108,21 @@ app.post(
 );
 
 app.post(
-  '/events',
+  `/${DataServiceEndpoints.REINVESTMENT_TRADES}`,
+  catchAsync(async (req, res) => {
+    const reinvestmentTradeEvents = req.body
+      .events as DataServiceReinvestmentTrade[];
+
+    await dataService.insertReinvestmentTrades(
+      reinvestmentTradeEvents.map((r) => r.params)
+    );
+
+    res.status(200).send('OK');
+  })
+);
+
+app.post(
+  `/${DataServiceEndpoints.EVENTS}`,
   catchAsync(async (req, res) => {
     const network: Network = req.body.network;
     if (!['mainnet', 'arbitrum'].includes(network)) {
@@ -164,7 +181,7 @@ app.post(
 );
 
 app.get(
-  '/accounts',
+  `/${DataServiceEndpoints.ACCOUNTS}`,
   catchAsync(async (req, res) => {
     res.send(
       JSON.stringify(
@@ -175,7 +192,7 @@ app.get(
 );
 
 app.get(
-  '/vaultAccounts',
+  `/${DataServiceEndpoints.VAULT_ACCOUNTS}`,
   catchAsync(async (req, res) => {
     res.send(
       JSON.stringify(
@@ -186,7 +203,7 @@ app.get(
 );
 
 app.get(
-  '/views',
+  `/${DataServiceEndpoints.VIEWS}`,
   catchAsync(async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.send(
@@ -198,7 +215,7 @@ app.get(
 );
 
 app.get(
-  '/readiness_check',
+  `/${DataServiceEndpoints.READINESS_CHECK}`,
   catchAsync(async (_, res) => {
     const isReady = await dataService.readinessCheck();
     if (isReady) {
@@ -210,19 +227,7 @@ app.get(
 );
 
 app.get(
-  '/healthz',
-  catchAsync(async (_, res) => {
-    const isReady = await dataService.readinessCheck();
-    if (isReady) {
-      res.status(200).send('OK');
-    } else {
-      res.status(500).send('NOT OK');
-    }
-  })
-);
-
-app.get(
-  '/query',
+  `/${DataServiceEndpoints.QUERY}`,
   catchAsync(async (req, res) => {
     const params = parseQueryParams(req.query);
     const view = req.query.view;
@@ -239,21 +244,23 @@ app.get(
   })
 );
 
-app.use(async (err: any, req: Request, res: Response, _next: NextFunction) => {
-  console.error(err);
-  await logToDataDog(
-    'data-service',
-    {
-      url: req.url,
-      method: req.method,
-      message: err?.message,
-      stack: err?.stack,
-      err: JSON.stringify(err),
-      status: 'error',
-    },
-    'error:dataApp'
-  );
-  res.status(500).send(JSON.stringify(err));
-});
+app.use(
+  async (err: Error, req: Request, res: Response, _next: NextFunction) => {
+    console.error(err);
+    await logToDataDog(
+      'data-service',
+      {
+        url: req.url,
+        method: req.method,
+        message: err?.message,
+        stack: err?.stack,
+        err: JSON.stringify(err),
+        status: 'error',
+      },
+      'error:dataApp'
+    );
+    res.status(500).send(JSON.stringify(err));
+  }
+);
 
 export default app;

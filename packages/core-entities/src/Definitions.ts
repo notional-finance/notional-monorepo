@@ -1,4 +1,4 @@
-import { Network } from '@notional-finance/util';
+import { Network, TokenAddress, VaultAddress } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { BehaviorSubject } from 'rxjs';
 import { PoolClasses } from './exchanges';
@@ -11,6 +11,7 @@ import {
   TokenType,
   TransferType,
 } from './.graphclient';
+import { RegisterToken } from './exchanges/default-pools';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 export type {
   OracleType,
@@ -20,11 +21,11 @@ export type {
   TransferType,
 } from './.graphclient';
 
-export interface TokenDefinition {
+interface TokenDefinitionBase {
   /** Defines the ERC1155 or ERC721 id of the token, if it exists */
   id: string;
   /** Address of the token */
-  address: string;
+  address: Lowercase<TokenAddress> | RegisterToken;
   /** Network the address refers to */
   network: Network;
   /** String name of the token */
@@ -50,6 +51,18 @@ export interface TokenDefinition {
   /** Currency ID for notional listed tokens */
   currencyId?: number;
 }
+
+type VaultTokenTypes = 'VaultShare' | 'VaultDebt' | 'VaultCash';
+
+interface TokenDefinitionOthers extends TokenDefinitionBase {
+  tokenType: Exclude<TokenType, VaultTokenTypes>;
+}
+interface TokenDefinitionVault extends TokenDefinitionBase {
+  tokenType: VaultTokenTypes;
+  vaultAddress: Lowercase<VaultAddress>;
+}
+
+export type TokenDefinition = TokenDefinitionOthers | TokenDefinitionVault;
 
 export interface OracleDefinition {
   /** Base Token ID:Quote Token ID:OracleType */

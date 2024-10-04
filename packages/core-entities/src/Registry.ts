@@ -291,7 +291,7 @@ export class Registry {
     return Registry._note;
   }
 
-  public static onNetworkReady(network: Network, fn: () => void) {
+  public static async onNetworkReady(network: Network, fn: () => void) {
     if (network === Network.all) {
       Promise.all([
         new Promise<void>((r) =>

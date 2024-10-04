@@ -1,27 +1,12 @@
 {
   // Editor settings
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.detectIndentation": true,
   "typescript.validate.enable": true,
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "never",
     "source.fixAll": "explicit"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
 
   // Eslint Settings
@@ -46,7 +31,8 @@
     "rpcs",
     "txes",
     "vnet",
-    "xirr"
+    "xirr",
+    "Offchain"
   ],
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"

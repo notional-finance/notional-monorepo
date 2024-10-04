@@ -16,11 +16,11 @@ interface DividerProps {
   theme: NotionalTheme;
   open?: boolean;
 }
-interface SideNavOptonsProps {
+interface SideNavOptionsProps {
   open?: boolean;
 }
 
-export const SideNavOptons = ({ open }: SideNavOptonsProps) => {
+export const SideNavOptions = ({ open }: SideNavOptionsProps) => {
   const theme = useTheme();
   const { sideNavOptions } = useSideNav();
   const { category } = useParams<PortfolioParams>();
@@ -130,17 +130,15 @@ const SideNavItem = styled(Link, {
     align-items: center;
     justify-content: flex-start;
     cursor: pointer;
-    color: ${
-      selected ? theme.palette.common.white : theme.palette.typography.light
+    color: ${selected ? theme.palette.common.white : theme.palette.typography.light
     };
     &:hover {
-      ${
-        !selected
-          ? `transition: .5s ease;
+      ${!selected
+      ? `transition: .5s ease;
           background: ${theme.palette.borders.paper};
           `
-          : ''
-      }
+      : ''
+    }
       cursor: pointer;
     }
     `
@@ -160,4 +158,4 @@ const Divider = styled(Box, {
     `
 );
 
-export default SideNavOptons;
+export default SideNavOptions;

@@ -31,7 +31,7 @@ export type DefaultConfigProps = {
   i18n: I18n;
 
   /**
-   * the props used for menu orientation (diffrent theme layout).
+   * the props used for menu orientation (different theme layout).
    * we provide static below options -
    * 'vertical' (default) - MenuOrientation.VERTICAL
    * 'horizontal' - MenuOrientation.HORIZONTAL
@@ -64,7 +64,7 @@ export type DefaultConfigProps = {
 
   /**
    * the props used for theme primary color variants
-   * we provide static below options thoe s are already defaine in src/themes/theme -
+   * we provide static below options those are already defined in src/themes/theme -
    * 'default'
    * 'theme1'
    * 'theme2'

@@ -15,7 +15,7 @@ import SimpleBar from 'components/third-party/SimpleBar';
 type ProductCreateDataType = { sales: string; product: string; price: string; colorClass: string };
 
 // table data
-const createData = (sales: string, product: string, price: string, colorClass: string = '') => ({ sales, product, price, colorClass });
+const createData = (sales: string, product: string, price: string, colorClass = '') => ({ sales, product, price, colorClass });
 
 const rows: ProductCreateDataType[] = [
   createData('2136', 'Head Phone', '$ 926.23'),
