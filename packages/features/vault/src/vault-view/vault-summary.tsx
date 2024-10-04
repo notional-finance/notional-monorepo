@@ -22,11 +22,13 @@ import {
 } from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import {
-  useAllMarkets,
   useAllVaults,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { useAppStore } from '@notional-finance/notionable';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 
 const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
   const selectedNetwork = useSelectedNetwork();
@@ -93,12 +95,13 @@ export const VaultSummary = () => {
   } = state;
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
-  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
 
   const nonLeveragedYield = nonLeveragedYields.find(
     (y) => y.token.id === collateral?.id
   );
-  const points = nonLeveragedYield?.pointMultiples;
+  const points = nonLeveragedYield?.apy.pointMultiples;
 
   const { faqHeaderLinks, faqs } = useVaultFaq(
     selectedNetwork,

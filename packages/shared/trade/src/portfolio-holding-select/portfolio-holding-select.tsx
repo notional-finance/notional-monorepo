@@ -45,8 +45,8 @@ export const PortfolioHoldingSelect = ({
     selectedToken: string;
   }>();
 
-  const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
-  const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
+  const primeDebt = usePrimeDebt(deposit?.currencyId);
+  const primeCash = usePrimeCash(deposit?.currencyId);
 
   // NOTE: need to flip prime cash and prime debt for the select box
   const selectedTokenId =

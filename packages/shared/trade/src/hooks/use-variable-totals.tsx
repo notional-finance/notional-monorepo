@@ -1,4 +1,8 @@
-import { TradeState, useAppStore } from '@notional-finance/notionable';
+import {
+  TradeState,
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 import {
   ChartType,
   FiatSymbols,
@@ -6,12 +10,7 @@ import {
 } from '@notional-finance/core-entities';
 import { InfoTooltip } from '@notional-finance/mui';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import {
-  usePrimeCash,
-  usePrimeDebt,
-  useMaxSupply,
-  useChartData,
-} from '@notional-finance/notionable-hooks';
+import { useChartData } from '@notional-finance/notionable-hooks';
 import { SxProps, useTheme } from '@mui/material';
 
 const getSevenDayAvgApy = (apyData: TimeSeriesDataPoint[]) => {
@@ -32,11 +31,9 @@ export const useVariableTotals = (state: TradeState) => {
   const { deposit } = state;
   const isBorrow = state.tradeType === 'BorrowVariable';
   const { baseCurrency } = useAppStore();
-  const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
   const { data: apyData } = useChartData(state.debt, ChartType.APY);
-
-  const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
-  const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const totalsData = currentNetworkStore.getPrimeCashTotalsData(deposit);
 
   const ToolTip = ({ sx }: { title?: string; sx: SxProps }) => {
     return (
@@ -55,13 +52,15 @@ export const useVariableTotals = (state: TradeState) => {
   return [
     {
       title: <FormattedMessage defaultMessage={'Total Lent'} />,
-      value: primeCash?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
+      value:
+        totalsData?.primeCashTotalSupply?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
       decimals: 0,
     },
     {
       title: <FormattedMessage defaultMessage={'Total Borrowed'} />,
-      value: primeDebt?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
+      value:
+        totalsData?.primeDebtTotalSupply?.toFiat(baseCurrency).toFloat() || '-',
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
       decimals: 0,
     },
@@ -74,8 +73,8 @@ export const useVariableTotals = (state: TradeState) => {
       Icon: ToolTip,
       value: isBorrow
         ? getSevenDayAvgApy(apyData?.data ?? [])
-        : maxSupplyData?.capacityRemaining
-        ? maxSupplyData?.capacityRemaining.toFloat()
+        : totalsData?.capacityRemaining
+        ? totalsData?.capacityRemaining.toFloat()
         : '-',
       suffix: isBorrow ? '%' : deposit?.symbol ? ' ' + deposit?.symbol : '',
       decimals: 2,

@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material';
-import { YieldData } from '@notional-finance/core-entities';
 import { trackEvent } from '@notional-finance/helpers';
 import { CountUp, H4, InfoTooltip, Subtitle } from '@notional-finance/mui';
+import { APYData } from '@notional-finance/notionable';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { useLocation } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { useLocation } from 'react-router-dom';
 export const LiquidityYieldInfo = ({
   liquidityYieldData,
 }: {
-  liquidityYieldData: YieldData;
+  liquidityYieldData: APYData;
 }) => {
   const theme = useTheme();
   const { pathname } = useLocation();
@@ -54,54 +54,19 @@ export const LiquidityYieldInfo = ({
           '-'
         )}
       </Subtitle>
-      {liquidityYieldData?.noteIncentives &&
-        liquidityYieldData?.noteIncentives.incentiveAPY > 0 && (
-          <>
-            <H4>
-              <FormattedMessage
-                defaultMessage={'{symbol} APY:'}
-                values={{ symbol: liquidityYieldData?.noteIncentives?.symbol }}
-              />
-              &nbsp;
-            </H4>
-
-            <Subtitle
-              sx={{
-                color: theme.palette.typography.light,
-                marginRight: theme.spacing(2),
-              }}
-            >
-              {liquidityYieldData?.noteIncentives &&
-              (liquidityYieldData?.noteIncentives?.incentiveAPY || 0) > 0 ? (
-                <CountUp
-                  value={liquidityYieldData?.noteIncentives.incentiveAPY}
-                  suffix="%"
-                  decimals={2}
-                  delay={0.3}
-                />
-              ) : (
-                '-'
-              )}
-            </Subtitle>
-          </>
-        )}
-      {liquidityYieldData?.secondaryIncentives && (
+      {liquidityYieldData?.incentives?.map((incentive) => (
         <>
           <H4>
             <FormattedMessage
               defaultMessage={'{symbol} APY:'}
-              values={{
-                symbol: liquidityYieldData?.secondaryIncentives?.symbol,
-              }}
+              values={{ symbol: incentive.symbol }}
             />
             &nbsp;
           </H4>
           <Subtitle sx={{ color: theme.palette.typography.light }}>
-            {liquidityYieldData?.secondaryIncentives &&
-            (liquidityYieldData?.secondaryIncentives?.incentiveAPY || 0) >=
-              0 ? (
+            {incentive.incentiveAPY !== undefined ? (
               <CountUp
-                value={liquidityYieldData?.secondaryIncentives.incentiveAPY}
+                value={incentive.incentiveAPY}
                 suffix="%"
                 decimals={2}
                 delay={0.3}
@@ -111,7 +76,7 @@ export const LiquidityYieldInfo = ({
             )}
           </Subtitle>
         </>
-      )}
+      ))}
     </Box>
   );
 };
