@@ -2,10 +2,10 @@ import { useTheme, Box, styled } from '@mui/material';
 import { H2, Subtitle, Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import connectImage from './connect-wallet.svg';
-import { ProductRateCards } from './product-rate-cards';
+// import { ProductRateCards } from './product-rate-cards';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
-import { useEmptyPortfolioOverview } from './use-empty-portfolio-overview';
+// import { useEmptyPortfolioOverview } from './use-empty-portfolio-overview';
 
 interface EmptyPortfolioOverviewProps {
   walletConnected: boolean;
@@ -15,7 +15,7 @@ export const EmptyPortfolioOverview = ({
   walletConnected,
 }: EmptyPortfolioOverviewProps) => {
   const theme = useTheme();
-  const { earnYieldData, borrowData } = useEmptyPortfolioOverview();
+  // const { earnYieldData, borrowData } = useEmptyPortfolioOverview();
   const { setWalletSideDrawer } = useSideDrawerManager();
   return (
     <Container>
@@ -46,7 +46,8 @@ export const EmptyPortfolioOverview = ({
           </Button>
         </ConnectContainer>
       )}
-      <ProductContainer>
+      {/* NOTE: We should remove this old earn and borrow state zero stuff since we have the welcome page and this is out of date */}
+      {/* <ProductContainer>
         <ProductRateCards
           productRateData={earnYieldData}
           title={<FormattedMessage defaultMessage={'Earn Yield'} />}
@@ -57,7 +58,7 @@ export const EmptyPortfolioOverview = ({
           productRateData={borrowData}
           title={<FormattedMessage defaultMessage={'Borrow'} />}
         />
-      </ProductContainer>
+      </ProductContainer> */}
     </Container>
   );
 };
@@ -79,19 +80,19 @@ const ConnectContainer = styled(Box)(
 `
 );
 
-const ProductContainer = styled(Box)(
-  ({ theme }) => `
-  margin-top: ${theme.spacing(3)};
-  background: ${theme.palette.background.paper};
-  width: 100%;
-  padding: ${theme.spacing(3)};
-  display: flex;
-  flex-wrap: wrap;
-  border-radius: ${theme.shape.borderRadius()};
-  border: ${theme.shape.borderStandard};
-  gap: 24px;
-`
-);
+// const ProductContainer = styled(Box)(
+//   ({ theme }) => `
+//   margin-top: ${theme.spacing(3)};
+//   background: ${theme.palette.background.paper};
+//   width: 100%;
+//   padding: ${theme.spacing(3)};
+//   display: flex;
+//   flex-wrap: wrap;
+//   border-radius: ${theme.shape.borderRadius()};
+//   border: ${theme.shape.borderStandard};
+//   gap: 24px;
+// `
+// );
 
 const Container = styled(Box)(
   `

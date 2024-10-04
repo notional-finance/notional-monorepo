@@ -13,7 +13,7 @@ import { VaultActionContext } from '../vault';
 import { getVaultType } from '@notional-finance/core-entities';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { useVaultExistingFactors, useVaultFaq } from '../hooks';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const VaultSummary = () => {
   const theme = useTheme();
@@ -25,12 +25,13 @@ export const VaultSummary = () => {
     vaultAddress && selectedNetwork
       ? getVaultType(vaultAddress, selectedNetwork)
       : undefined;
-  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
 
   const nonLeveragedYield = nonLeveragedYields.find(
     (y) => y.token.id === collateral?.id
   );
-  const points = nonLeveragedYield?.pointMultiples;
+  const points = nonLeveragedYield?.apy.pointMultiples;
 
   const { faqHeaderLinks, faqs } = useVaultFaq(
     selectedNetwork,

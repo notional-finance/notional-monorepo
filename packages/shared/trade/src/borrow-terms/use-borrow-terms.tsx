@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import {
   BaseTradeContext,
-  useAllMarkets,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { formatMaturity } from '@notional-finance/util';
@@ -10,6 +9,7 @@ import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
 import { Box } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const useBorrowTerms = (
   context: BaseTradeContext,
@@ -27,21 +27,21 @@ export const useBorrowTerms = (
       collateralOptions,
       riskFactorLimit,
       deposit,
-      selectedNetwork,
     },
   } = context;
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
+
   const spotMaturityData = useSpotMaturityData(
-    deposit ? availableDebtTokens : [],
-    selectedNetwork
+    deposit ? availableDebtTokens : []
   );
 
   const assetAPY =
     collateralOptions?.find((c) => c.token.id === collateral?.id)
       ?.interestRate ||
-    nonLeveragedYields.find((y) => y.token.id === collateral?.id)?.totalAPY;
+    nonLeveragedYields.find((y) => y.token.id === collateral?.id)?.apy.totalAPY;
 
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'

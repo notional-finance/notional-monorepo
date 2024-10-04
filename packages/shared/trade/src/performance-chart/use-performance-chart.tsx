@@ -33,10 +33,7 @@ export function usePerformanceChart(
     tradeType,
     deposit,
   } = state;
-  const spotData = useSpotMaturityData(
-    debt ? [debt] : undefined,
-    debt ? debt.network : undefined
-  );
+  const spotData = useSpotMaturityData(debt ? [debt] : undefined);
   const isVault = isVaultTrade(tradeType);
 
   const currentBorrowRate =

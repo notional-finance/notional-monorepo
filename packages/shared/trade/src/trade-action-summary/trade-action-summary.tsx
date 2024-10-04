@@ -8,11 +8,15 @@ import {
   H4,
   InfoTooltip,
 } from '@notional-finance/mui';
-import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
+import {
+  APYData,
+  BaseTradeState,
+  isLeveragedTrade,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
-  useAllMarkets,
   usePointPrices,
   useTotalAPY,
 } from '@notional-finance/notionable-hooks';
@@ -22,13 +26,13 @@ import {
   NativeYieldPopup,
 } from './components';
 import { formatTokenType } from '@notional-finance/helpers';
-import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
+import { TokenDefinition } from '@notional-finance/core-entities';
 import { pointsMultiple } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
   stakedNOTEApy?: number;
-  liquidityYieldData?: YieldData;
+  liquidityYieldData?: APYData;
   priorVaultFactors?: {
     vaultShare?: TokenDefinition;
     vaultBorrowRate?: number;
@@ -45,20 +49,15 @@ export function TradeActionSummary({
   children,
 }: TradeActionSummaryProps) {
   const theme = useTheme();
-  const {
-    tradeType,
-    deposit,
-    debt,
-    vaultConfig,
-    vaultAddress,
-    selectedNetwork,
-  } = state;
+  const { tradeType, deposit, debt, vaultConfig, vaultAddress } = state;
   const isVault = !!vaultAddress;
   const { totalAPY, apySpread, leverageRatio, assetAPY } = useTotalAPY(
     state,
     priorVaultFactors
   );
-  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
+
   // const totalArbPoints = useTotalArbPoints();
   // const currentSeason = useCurrentSeason();
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
@@ -111,7 +110,7 @@ export function TradeActionSummary({
   const nonLeveragedYield = nonLeveragedYields.find(
     (y) => y.token.id === collateral?.id
   );
-  const points = nonLeveragedYield?.pointMultiples;
+  const points = nonLeveragedYield?.apy.pointMultiples;
 
   const { title } = collateral
     ? formatTokenType(collateral)

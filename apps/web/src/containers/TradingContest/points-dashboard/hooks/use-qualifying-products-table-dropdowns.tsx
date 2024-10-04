@@ -9,14 +9,10 @@ import {
   CoinsIcon,
   CoinsCircleIcon,
 } from '@notional-finance/icons';
-import { Network } from '@notional-finance/util';
-import { TokenIcon } from '@notional-finance/icons';
-import { useAllUniqueUnderlyingTokens } from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
 
 export const useQualifyingProductsTableDropdowns = () => {
   const theme = useTheme();
-  const depositTokens = useAllUniqueUnderlyingTokens([Network.arbitrum]);
   const [currencyOptions, setCurrencyOptions] = useState([]);
   const [productOptions, setProductOptions] = useState([]);
 
@@ -116,18 +112,20 @@ export const useQualifyingProductsTableDropdowns = () => {
     },
   ];
 
-  const underlyingTokens = depositTokens.map((symbol) => ({
-    id: symbol,
-    title: symbol,
-    icon: <TokenIcon size="medium" symbol={symbol.toLocaleLowerCase()} />,
-  }));
+  // const depositTokens = [];
+
+  // const underlyingTokens = depositTokens?.map((symbol) => ({
+  //   id: symbol,
+  //   title: symbol,
+  //   icon: <TokenIcon size="medium" symbol={symbol.toLocaleLowerCase()} />,
+  // }));
 
   const dropdownsData = [
     {
       selectedOptions: currencyOptions,
       setSelectedOptions: setCurrencyOptions,
       placeHolderText: <FormattedMessage defaultMessage={'Currency'} />,
-      data: underlyingTokens,
+      data: [],
     },
     {
       selectedOptions: productOptions,

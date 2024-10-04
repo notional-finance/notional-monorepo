@@ -1,5 +1,8 @@
-import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
-import { useAllMarkets } from '../use-market';
+import {
+  BaseTradeState,
+  isLeveragedTrade,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { leveragedYield } from '@notional-finance/util';
 
@@ -11,15 +14,10 @@ export function useTotalAPY(
     leverageRatio?: number;
   }
 ) {
-  const {
-    tradeType,
-    debt,
-    collateralOptions,
-    debtOptions,
-    riskFactorLimit,
-    selectedNetwork,
-  } = state;
-  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+  const { tradeType, debt, collateralOptions, debtOptions, riskFactorLimit } =
+    state;
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
   const isLeveraged =
     isLeveragedTrade(tradeType) || priorVaultFactors !== undefined;
   const collateral = state.collateral || priorVaultFactors?.vaultShare;
@@ -29,11 +27,11 @@ export function useTotalAPY(
   );
   const assetAPY =
     collateralOptions?.find((c) => c.token.id === collateral?.id)
-      ?.interestRate || nonLeveragedYield?.totalAPY;
+      ?.interestRate || nonLeveragedYield?.apy.totalAPY;
 
   const debtAPY =
     debtOptions?.find((d) => d.token.id === debt?.id)?.interestRate ||
-    nonLeveragedYields.find((y) => y.token.id === debt?.id)?.totalAPY ||
+    nonLeveragedYields.find((y) => y.token.id === debt?.id)?.apy.totalAPY ||
     priorVaultFactors?.vaultBorrowRate;
 
   const leverageRatio =

@@ -11,25 +11,23 @@ import {
   MultiValueCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
-import {
-  useAllMarkets,
-  useFCashMarket,
-} from '@notional-finance/notionable-hooks';
+import { useFCashMarket } from '@notional-finance/notionable-hooks';
 import { FiatKeys } from '@notional-finance/core-entities';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../../liquidity';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const useReturnDriversTable = (baseCurrency: FiatKeys) => {
   const theme = useTheme();
   const {
-    state: { deposit, selectedDepositToken, selectedNetwork },
+    state: { deposit, selectedDepositToken },
   } = useContext(LiquidityContext);
-  const { yields } = useAllMarkets(selectedNetwork);
   const fCashData = useFCashMarket(deposit);
-
-  const liquidityData = yields.liquidity.find(
-    ({ underlying }) => underlying.symbol === selectedDepositToken
+  const currentNetworkStore = useCurrentNetworkStore();
+  const liquidity = currentNetworkStore.getAllNTokenYields();
+  const liquidityData = liquidity.find(
+    (data) => data?.underlying?.symbol === selectedDepositToken
   );
 
   const handleTokenType = (tokenType: string | undefined) => {
@@ -82,12 +80,15 @@ export const useReturnDriversTable = (baseCurrency: FiatKeys) => {
       {
         asset: { symbol: 'trading_fees', label: 'Trading Fees' },
         value: '-',
-        apy: liquidityData?.feeAPY || 0,
+        apy: liquidityData?.apy.feeAPY || 0,
       },
       {
         asset: { symbol: 'note', label: 'NOTE Incentives' },
         value: '-',
-        apy: liquidityData?.noteIncentives?.incentiveAPY || 0,
+        apy:
+          liquidityData?.apy?.incentives?.find(
+            ({ symbol }) => symbol.toLowerCase() === 'note'
+          )?.incentiveAPY || 0,
       },
       {
         asset: { label: 'Total' },
@@ -110,7 +111,7 @@ export const useReturnDriversTable = (baseCurrency: FiatKeys) => {
             },
           ],
         },
-        apy: liquidityData?.totalAPY ? liquidityData?.totalAPY : 0,
+        apy: liquidityData?.apy.totalAPY ? liquidityData?.apy.totalAPY : 0,
       },
     ]) ||
     [];

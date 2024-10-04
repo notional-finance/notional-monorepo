@@ -1,9 +1,6 @@
 import { useContext } from 'react';
 import { LiquidityContext } from '../../liquidity';
-import {
-  useAllMarkets,
-  usePortfolioLiquidationRisk,
-} from '@notional-finance/notionable-hooks';
+import { usePortfolioLiquidationRisk } from '@notional-finance/notionable-hooks';
 import {
   formatLeverageRatio,
   formatNumberAsPercentWithUndefined,
@@ -16,6 +13,7 @@ import {
   leveragedYield,
 } from '@notional-finance/util';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const useLiquidityDetails = () => {
   const { state } = useContext(LiquidityContext);
@@ -30,9 +28,8 @@ export const useLiquidityDetails = () => {
   } = state;
   const { tableData, tooRisky, onlyCurrent } =
     usePortfolioLiquidationRisk(state);
-  const {
-    yields: { liquidity },
-  } = useAllMarkets(selectedNetwork);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const liquidity = currentNetworkStore.getAllNTokenYields();
   const { currentHoldings } = useLeveragedNTokenPositions(
     selectedNetwork,
     selectedDepositToken
@@ -60,7 +57,7 @@ export const useLiquidityDetails = () => {
   }
 
   const currentNToken = liquidity.find(
-    ({ underlying }) => underlying.symbol === selectedDepositToken
+    (data) => data.underlying?.symbol === selectedDepositToken
   );
   const netNTokens =
     collateralBalance?.tokenType === 'nToken'
@@ -70,7 +67,7 @@ export const useLiquidityDetails = () => {
       : undefined;
 
   const currentAPY = leveragedYield(
-    currentNToken?.totalAPY,
+    currentNToken?.apy.totalAPY,
     currentHoldings?.borrowAPY,
     currentHoldings?.leverageRatio
   );
@@ -100,7 +97,7 @@ export const useLiquidityDetails = () => {
           ? collateralBalance.toPrimeDebt().neg()
           : undefined
       )?.totalAPY
-    : currentNToken?.totalAPY;
+    : currentNToken?.apy.totalAPY;
 
   let newFixedRate;
   if (
@@ -114,10 +111,12 @@ export const useLiquidityDetails = () => {
       // fixed rate since the user is increasing their position.
       // [newBalance * prevImpliedRate - netBalance * (newRate - prevRate)] / newBalance
       debtBalance.tokenId === newDebt.tokenId
-        ? Math.abs((newDebt.toFloat() * currentHoldings.borrowAPY -
-            debtBalance.toFloat() *
-              (newBorrowRate - currentHoldings.borrowAPY)) /
-          newDebt.toFloat())
+        ? Math.abs(
+            (newDebt.toFloat() * currentHoldings.borrowAPY -
+              debtBalance.toFloat() *
+                (newBorrowRate - currentHoldings.borrowAPY)) /
+              newDebt.toFloat()
+          )
         : // If the collateral balance is fCash that means the position is being reduced,
           // and we do not need to change the borrow rate.
           currentHoldings.borrowAPY;
