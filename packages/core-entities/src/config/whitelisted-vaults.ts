@@ -60,17 +60,18 @@ export const PointsLinks: Record<Network, Record<string, string>> = {
   },
 };
 
+const toLowercase = <T extends string>(s: T): Lowercase<T> =>
+  s.toLowerCase() as Lowercase<T>;
+
 const PendlePTVaults: Record<Network, string[]> = {
   [Network.arbitrum]: [
-    vaults.arbitrum.Pendle_rsETH_25SEP2024.toLowerCase(),
-    vaults.arbitrum.Pendle_rsETH_26DEC2024.toLowerCase(),
-  ],
+    vaults.arbitrum.Pendle_rsETH_25SEP2024,
+    vaults.arbitrum.Pendle_rsETH_26DEC2024,
+  ].map(toLowercase),
   [Network.mainnet]: [],
   [Network.all]: [],
 };
 
-const toLowercase = <T extends string>(s: T): Lowercase<T> =>
-  s.toLowerCase() as Lowercase<T>;
 /** @dev all vault addresses should be lowercased */
 export const whitelistedVaults = (
   network: Network
@@ -142,7 +143,7 @@ export const VaultDefaultDexParameters: Record<
 
 const SingleSidedLP_DirectClaim: Record<Network, string[]> = {
   [Network.arbitrum]: [],
-  [Network.mainnet]: [vaults.mainnet.Convex_xWBTC_tBTC],
+  [Network.mainnet]: [vaults.mainnet.Convex_xWBTC_tBTC].map(toLowercase),
   [Network.all]: [],
 };
 
