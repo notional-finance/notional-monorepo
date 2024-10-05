@@ -245,9 +245,7 @@ export function useVaultDetails(state: VaultTradeState) {
   ];
 
   const liquidationPrices = formatLiquidationPrices(
-    (liquidationPrice || []).filter(
-      (p) => p.isAssetRisk && p.asset.tokenType === 'VaultShare'
-    ),
+    (liquidationPrice || []).filter((p) => p.isPriceRisk),
     baseCurrency,
     intl
   );

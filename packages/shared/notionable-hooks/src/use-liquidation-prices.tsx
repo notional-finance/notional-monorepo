@@ -104,10 +104,7 @@ function parseUnderlyingLiquidationPrice(
   return {
     // Used on portfolio screen
     exchangeRate: {
-      symbol:
-        asset.tokenType === 'VaultShare' && threshold
-          ? threshold?.toUnderlying()?.symbol
-          : icon,
+      symbol: icon,
       label: (
         <span>
           {titleWithMaturity}
@@ -201,41 +198,39 @@ export function useCurrentLiquidationPrices(network: Network | undefined) {
   const vaultLiquidation = vaults.map(({ vault, liquidationPrices }) => {
     return {
       vaultAddress: vault.vaultAddress,
-      liquidationPrices: liquidationPrices
-        .filter(({ asset }) => asset.tokenType === 'VaultShare')
-        .map(({ asset, threshold }) => ({
-          ...parseUnderlyingLiquidationPrice(
-            asset,
-            threshold,
-            oneDay.find((t) => t.asset.id === asset.id),
-            sevenDay.find((t) => t.asset.id === asset.id),
-            secondary
-          ),
-          collateral: {
-            symbol: threshold?.underlying.symbol || '',
-            label: vault.vaultConfig.name,
-            caption: 'Leveraged Vault',
-          },
-          riskFactor: {
-            data: [
-              {
-                displayValue: (
-                  <span>
-                    Vault Shares
-                    <span style={{ color: secondary }}>
-                      &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
-                    </span>
+      liquidationPrices: liquidationPrices.map(({ asset, threshold }) => ({
+        ...parseUnderlyingLiquidationPrice(
+          asset,
+          threshold,
+          oneDay.find((t) => t.asset.id === asset.id),
+          sevenDay.find((t) => t.asset.id === asset.id),
+          secondary
+        ),
+        collateral: {
+          symbol: threshold?.underlying.symbol || '',
+          label: vault.vaultConfig.name,
+          caption: 'Leveraged Vault',
+        },
+        riskFactor: {
+          data: [
+            {
+              displayValue: (
+                <span>
+                  {asset.symbol}
+                  <span style={{ color: secondary }}>
+                    &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
                   </span>
-                ),
-                isNegative: false,
-              },
-              {
-                displayValue: 'Chainlink Oracle Price',
-                isNegative: false,
-              },
-            ],
-          },
-        })),
+                </span>
+              ),
+              isNegative: false,
+            },
+            {
+              displayValue: 'Chainlink Oracle Price',
+              isNegative: false,
+            },
+          ],
+        },
+      })),
     };
   });
 
