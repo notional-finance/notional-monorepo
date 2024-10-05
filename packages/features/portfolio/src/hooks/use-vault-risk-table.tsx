@@ -24,7 +24,7 @@ export const useVaultRiskTable = () => {
   const vaults = useVaultHoldings(network);
   const { vaultLiquidation } = useCurrentLiquidationPrices(network);
 
-  const tableData = vaults
+  const tableData = vaultLiquidation
     .filter((data) => data.liquidationPrices.length > 0)
     .map((data) => {
       const riskData = vaultLiquidation.find(
@@ -40,6 +40,7 @@ export const useVaultRiskTable = () => {
               : `Maturity: ${formatMaturity(data.vault.maturity)}`,
         },
         healthFactor: data.vault.healthFactor(),
+        // TODO: this will change...
         ...riskData?.liquidationPrices[0],
         exchangeRate: `Vault Shares / ${formatTokenType(data.denom).title}`,
       };
