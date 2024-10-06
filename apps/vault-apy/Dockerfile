@@ -8,11 +8,7 @@ RUN foundryup
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
-
-RUN yarn install
-
-COPY ./lib ./lib
+COPY ./dist ./dist
 
 ENV DEBUG=vault-apy
-CMD [ "yarn", "start"]
+CMD [ "node", "dist/index.js"]

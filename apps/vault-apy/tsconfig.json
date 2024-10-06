@@ -4,7 +4,7 @@
     "lib": ["es2023"],
     "module": "node16",
     "target": "es2022",
-    "outDir": "lib",
+    "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
