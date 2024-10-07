@@ -1,3 +1,5 @@
+import { treasuryManagerAddresses } from '@notional-finance/util';
+
 export const rpcUrls = {
   mainnet: 'https://rpc.mevblocker.io',
   arbitrum:
@@ -8,7 +10,8 @@ export const rpcUrls = {
 
 // addresses need to be lowercased
 export const Address = {
-  TREASURY_MANAGER: '0x53144559c0d4a3304e2dd9dafbd685247429216d'.toLowerCase(),
+  TREASURY_MANAGER_MAINNET: treasuryManagerAddresses.mainnet.toLowerCase(),
+  TREASURY_MANAGER_ARBITRUM: treasuryManagerAddresses.arbitrum.toLowerCase(),
   REBALANCE_HELPER: '0xA271a6f6E4DeFEe638Aa8b3367b5ce92Cfc3a9FF'.toLowerCase(),
   AaveV3Pool_ARBITRUM:
     '0x794a61358d6845594f94dc1db02a252b5b4814ad'.toLowerCase(),

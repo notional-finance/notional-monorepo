@@ -16,7 +16,6 @@ const wrappedFlashLenders: Record<Network, Record<string, string>> = {
     UNIV3: '0x319300462C37AD2D4f26B584C2b67De51F51f289',
   },
   [Network.all]: {},
-  [Network.optimism]: {},
 };
 
 const tokens = {
@@ -38,7 +37,6 @@ const defaultFlashLenders = {
   [Network.mainnet]: wrappedFlashLenders.mainnet['AAVE'],
   [Network.arbitrum]: wrappedFlashLenders.arbitrum['AAVE'],
   [Network.all]: wrappedFlashLenders.mainnet['AAVE'],
-  [Network.optimism]: '',
 };
 
 const perVaultFlashLenders: Record<string, string> = {};
@@ -59,7 +57,6 @@ const perTokenFlashLenders: Record<Network, Record<string, string>> = {
     [tokens.arbitrum['tBTC']]: wrappedFlashLenders.arbitrum['UNIV3'],
   },
   [Network.all]: {},
-  [Network.optimism]: {},
 };
 const checkSumAddress = (address: string) => {
   // Convert to checksum version or throw if invalid checksum
@@ -77,7 +74,7 @@ export function getFlashLender({
 }): string {
   return (
     perVaultFlashLenders[checkSumAddress(vault)] ||
-    perTokenFlashLenders[network][checkSumAddress(token)] ||
+    perTokenFlashLenders[network]?.[checkSumAddress(token)] ||
     defaultFlashLenders[network]
   );
 }
@@ -106,5 +103,4 @@ const zeroExSources: Record<Network, Record<string, string>> = {
     UNIV3: 'Uniswap_V3',
   },
   [Network.all]: {},
-  [Network.optimism]: {},
 };

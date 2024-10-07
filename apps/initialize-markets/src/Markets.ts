@@ -125,6 +125,14 @@ class Markets {
 
     const settleAccounts = new ethers.utils.Interface(SETTLE_ACCOUNTS_ABI);
 
+    type FetchedDataType = {
+      account: {
+        id: string;
+      };
+      token: {
+        vaultAddress: string;
+      };
+    };
     const vaultAccountsArray = await fetch(
       getSubgraphEndpoint(this.network, this.subgraphKey),
       {
@@ -149,7 +157,6 @@ class Markets {
             }
             token {
               vaultAddress
-              maturity
             }
           }
         }`,
@@ -157,9 +164,9 @@ class Markets {
       }
     )
       .then((r) => r.json())
-      .then((r: any) => r.data.balances)
+      .then((r: { data: { balances: FetchedDataType[] } }) => r.data.balances)
       // group accounts per vault
-      .then((r) => groupArrayToMap(r, (v: any) => v.token.vaultAddress))
+      .then((r) => groupArrayToMap(r, (v) => v.token.vaultAddress))
       // convert to map entries
       .then((r) => Array.from(r.entries()))
       // map to array of { vaultAddress, accounts } objects

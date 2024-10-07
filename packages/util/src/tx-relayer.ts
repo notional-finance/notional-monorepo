@@ -1,16 +1,6 @@
 import { Network } from './constants';
 import { ethers } from 'ethers';
 
-export const treasuryManagerAddresses: Partial<Record<Network, string>> = {
-  arbitrum: '0x53144559C0d4a3304e2DD9dAfBD685247429216d',
-  mainnet: '0x53144559C0d4a3304e2DD9dAfBD685247429216d',
-};
-
-export const managerBotAddresses: Partial<Record<Network, string>> = {
-  arbitrum: '0x745915418D8B70f39ce9e61A965cBB0C87f9f7Ed',
-  mainnet: '0x745915418D8B70f39ce9e61A965cBB0C87f9f7Ed',
-};
-
 interface Env {
   NETWORK: Network;
   TX_RELAY_AUTH_TOKEN: string;
@@ -42,14 +32,16 @@ export async function sendTxThroughRelayer(arg: {
       'X-Auth-Token': env.TX_RELAY_AUTH_TOKEN,
     },
     body: payload,
-  }).then(async (r) => {
-    const returnData = await r.json();
+  }).then(async (r: Response) => {
+    const returnData = (await r.json()) as any;
 
     if (299 < r.status) {
       console.error(returnData);
-      throw new Error(returnData.reason || returnData.code || r.statusText);
+      throw new Error(
+        returnData['reason'] || returnData['code'] || r.statusText
+      );
     }
 
-    return returnData;
+    return returnData as ethers.providers.TransactionResponse;
   });
 }

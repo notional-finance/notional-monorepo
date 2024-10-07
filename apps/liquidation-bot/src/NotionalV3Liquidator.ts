@@ -287,7 +287,7 @@ export default class NotionalV3Liquidator {
       chainId: String(NetworkId[this.settings.network]),
     });
 
-    // Set excluded sources in some cases to avoid re-entrancy issues inside the flash loan
+    // Set excluded sources in some cases to avoid reentrancy issues inside the flash loan
     if (excludedSources) {
       queryParams.set('excludedSources', excludedSources);
     }

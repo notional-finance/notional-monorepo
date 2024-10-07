@@ -72,7 +72,7 @@ export interface MulticallConfig {
   firstBlock?: number;
   finalBlock?: number;
   transform?: (
-    callResult: any,
+    callResult: unknown,
     prevResults: Partial<Record<string, unknown>>
   ) => unknown;
 }
@@ -81,7 +81,7 @@ export interface SubgraphConfig {
   protocol: ProtocolName;
   query: string;
   args?: Record<string, unknown>;
-  transform?: (r: any) => unknown;
+  transform?: (r: unknown) => unknown;
 }
 
 export interface GenericDataConfig {
@@ -126,18 +126,13 @@ export interface DataOperations {
   subgraphCalls: Map<Network, SubgraphOperation[]>;
 }
 
-export interface DataWriterConfig {
-  tableName: TableName;
-  dataWriter: IDataWriter;
-}
-
 export interface DataRow {
   dataConfig: GenericDataConfig | TokenDataConfig;
   blockNumber: number;
   networkId: number;
   contractAddress?: string;
   method?: string;
-  value: any;
+  value: unknown;
 }
 
 export interface DataContext {
@@ -147,57 +142,10 @@ export interface DataContext {
 }
 
 export interface IDataWriter<K = DataRow> {
-  write(db: Knex, context: DataContext, rows: K[]): Promise<any>;
+  write(db: Knex, context: DataContext, rows: K[]): Promise<unknown>;
 }
 
 export interface VaultAccount {
   accountId: string;
   vaultId: string;
 }
-
-export interface VaultAPY {
-  blockNumber: number;
-  timestamp: number;
-  vaultAddress: string;
-  totalLpTokens: string;
-  lpTokenValuePrimaryBorrow: string;
-  rewardToken: string;
-  rewardTokensClaimed: string;
-  rewardTokenValuePrimaryBorrow: string;
-  noVaultShares: boolean;
-  swapFees: number;
-  rewardTokenSymbol: string;
-}
-
-type DataServiceAccountContextUpdate = {
-  name: 'AccountContextUpdate';
-  params: {
-    account: string;
-  };
-};
-
-type DataServiceTransferBatch = {
-  name: 'TransferBatch';
-  params: {
-    operator: string;
-    from: string;
-    to: string;
-    ids: string[];
-    values: string[];
-  };
-};
-type DataServiceTransferSingle = {
-  name: 'TransferSingle';
-  params: {
-    operator: string;
-    from: string;
-    to: string;
-    id: string;
-    value: string;
-  };
-};
-
-export type DataServiceEvent =
-  | DataServiceTransferSingle
-  | DataServiceTransferBatch
-  | DataServiceAccountContextUpdate;

@@ -106,15 +106,17 @@ export class Logger {
         method: 'POST',
         body,
         headers: {
-          'Content-Encoding': 'gzip',
           'Content-Type': 'application/json',
           'dd-api-key': this.loggerConfig.apiKey,
         },
       };
 
-      await fetch(Endpoints.logs, opts);
+      const res = await fetch(Endpoints.logs, opts);
+      if (!res.ok) {
+        throw new Error(`Failed to log message: ${res.statusText}`);
+      }
     } catch (e) {
-      console.log(body);
+      console.log(e);
     }
   }
 

@@ -67,7 +67,12 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     const calls = vaultConfigurations
       .filter(
         (v: { vaultAddress: string }) =>
-          !DeprecatedVaults.includes(v.vaultAddress)
+          !DeprecatedVaults.includes(v.vaultAddress) &&
+          // NOTE: this is the address of the new pendle vault, exclude it from the registry server for now
+          v.vaultAddress.toLowerCase() !==
+            '0x851a28260227f9a8e6bf39a5fa3b5132fa49c7f3' &&
+          v.vaultAddress.toLowerCase() !==
+            '0x878c46978ac67e43d9d27e510f98e087e9940b12'
       )
       .flatMap(
         ({

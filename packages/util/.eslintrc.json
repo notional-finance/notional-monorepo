@@ -2,7 +2,7 @@
   "extends": ["../../.eslintrc.json"],
   "plugins": ["address"],
   "rules": {
-    // "address/addr-type": ["error", "checksum"]
+    "address/addr-type": ["error", "checksum"]
   },
   "ignorePatterns": ["!**/*"],
   "overrides": [

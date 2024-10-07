@@ -1,19 +1,8 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import {
-  useAllMarkets,
-  useCurrentSeason,
-  useTotalArbPoints,
-} from '@notional-finance/notionable-hooks';
-import { getArbBoosts, getPointsAPY } from '@notional-finance/core-entities';
-import {
-  formatNumberAsPercent,
-  Network,
-  PRODUCTS,
-} from '@notional-finance/util';
-import { FormattedMessage, defineMessage } from 'react-intl';
+import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { Network, PRODUCTS } from '@notional-finance/util';
+import { defineMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
-import { Box, useTheme } from '@mui/material';
-import { LeafIcon, PointsIcon } from '@notional-finance/icons';
 import { useAppState } from '@notional-finance/notionable-hooks';
 
 export const useFixedRateGrid = (
@@ -23,13 +12,13 @@ export const useFixedRateGrid = (
   const {
     yields: { fCashLend, fCashBorrow },
   } = useAllMarkets(network);
-  const theme = useTheme();
+  // const theme = useTheme();
   const navigate = useNavigate();
   const { baseCurrency } = useAppState();
   const tokenObj = {};
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
-  const totalArbPoints = useTotalArbPoints();
-  const currentSeason = useCurrentSeason();
+  // const totalArbPoints = useTotalArbPoints();
+  // const currentSeason = useCurrentSeason();
   const yieldData = isBorrow ? fCashBorrow : fCashLend;
 
   const apySubTitle =
@@ -44,14 +33,14 @@ export const useFixedRateGrid = (
         });
 
   const allData = yieldData.map((y) => {
-    const pointsBoost = getArbBoosts(y.token, isBorrow);
-    const pointsAPY = getPointsAPY(
-      pointsBoost,
-      totalArbPoints[currentSeason.db_name],
-      currentSeason.totalArb,
-      currentSeason.startDate,
-      currentSeason.endDate
-    );
+    // const pointsBoost = getArbBoosts(y.token, isBorrow);
+    // const pointsAPY = getPointsAPY(
+    //   pointsBoost,
+    //   totalArbPoints[currentSeason.db_name],
+    //   currentSeason.totalArb,
+    //   currentSeason.startDate,
+    //   currentSeason.endDate
+    // );
 
     return {
       ...y,
@@ -62,42 +51,42 @@ export const useFixedRateGrid = (
         0,
         baseCurrency
       )}`,
-      bottomLeftValue:
-        pointsBoost > 0 && network === Network.arbitrum ? (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <PointsIcon
-              sx={{
-                marginRight: theme.spacing(1),
-                height: theme.spacing(1.75),
-                width: theme.spacing(1.75),
-              }}
-            />
-            {`${pointsBoost}x ARB POINTS `}
-            <Box sx={{ marginLeft: theme.spacing(0.5) }}>
-              {pointsAPY !== Infinity &&
-                `(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}
-            </Box>
-          </Box>
-        ) : !isBorrow && network === Network.arbitrum ? (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <LeafIcon
-              fill={theme.palette.typography.main}
-              sx={{
-                marginRight: theme.spacing(1),
-                height: theme.spacing(1.75),
-                width: theme.spacing(1.75),
-              }}
-            />
-            <FormattedMessage defaultMessage={'Organic APY'} />
-          </Box>
-        ) : network === Network.arbitrum ? (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          />
-        ) : undefined,
+      bottomLeftValue: undefined,
+      // pointsBoost > 0 && network === Network.arbitrum ? (
+      //   <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      //     <PointsIcon
+      //       sx={{
+      //         marginRight: theme.spacing(1),
+      //         height: theme.spacing(1.75),
+      //         width: theme.spacing(1.75),
+      //       }}
+      //     />
+      //     {`${pointsBoost}x ARB POINTS `}
+      //     <Box sx={{ marginLeft: theme.spacing(0.5) }}>
+      //       {pointsAPY !== Infinity &&
+      //         `(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}
+      //     </Box>
+      //   </Box>
+      // ) : !isBorrow && network === Network.arbitrum ? (
+      //   <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      //     <LeafIcon
+      //       fill={theme.palette.typography.main}
+      //       sx={{
+      //         marginRight: theme.spacing(1),
+      //         height: theme.spacing(1.75),
+      //         width: theme.spacing(1.75),
+      //       }}
+      //     />
+      //     <FormattedMessage defaultMessage={'Organic APY'} />
+      //   </Box>
+      // ) : network === Network.arbitrum ? (
+      //   <Box
+      //     sx={{
+      //       display: 'flex',
+      //       alignItems: 'center',
+      //     }}
+      //   />
+      // ) : undefined,
       network: y.token.network,
       hasPosition: false,
       apySubTitle: apySubTitle,

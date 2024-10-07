@@ -4,27 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build-functions": "esbuild src/index.ts --bundle --outdir=./dist --platform=node --target=node20 --packages=external",
-    "serve": "yarn build-functions && dotenv -e .env -- functions-framework --target=txRelayService --source=./dist",
-    "serve-rebalance": "yarn build-functions && dotenv -e .env -- functions-framework --target=rebalanceService --source=./dist",
+    "build-functions": "esbuild src/index.ts --bundle --outdir=./dist --platform=node --target=node20",
+    "serve": "yarn build-functions && node --env-file .env -- functions-framework --target=txRelayService --source=./dist",
+    "serve-rebalance": "yarn build-functions && node --env-file .env -- functions-framework --target=rebalanceService --source=./dist",
     "deploy-gcp": "yarn build-functions && ./deploy.sh",
     "lint": "eslint ./"
   },
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@google-cloud/functions-framework": "^3.4.2",
-    "@types/express": "^4.17.17",
-    "@types/node": "^20.12.7",
-    "@types/ws": "^7.4.7",
-    "dotenv-cli": "^7.4.2",
-    "esbuild": "0.23.1",
-    "ts-node": "^10.2.1",
-    "tslib": "^2.3.1",
-    "typescript": "^4.3.5"
-  },
-  "dependencies": {
-    "ethers": "5.4.4",
-    "ethers-gcp-kms-signer": "^1.1.6"
-  }
+  "license": "ISC"
 }

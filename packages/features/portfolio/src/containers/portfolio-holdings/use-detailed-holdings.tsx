@@ -1,17 +1,12 @@
-import { useTheme } from '@mui/material';
-import { TokenBalance, getPointsPerDay } from '@notional-finance/core-entities';
+import { TokenBalance } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
-  formatNumberAsAbbr,
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
-import { PointsIcon } from '@notional-finance/icons';
-import { Body, H4 } from '@notional-finance/mui';
 import {
-  useArbPoints,
   useFiatToken,
   useNOTE,
   useAppState,
@@ -29,13 +24,12 @@ import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 
 export function useDetailedHoldingsTable() {
-  const theme = useTheme();
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
-  const arbPoints = useArbPoints();
+  // const arbPoints = useArbPoints();
   const navigate = useNavigate();
   const { baseCurrency } = useAppState();
   const fiatToken = useFiatToken();
@@ -112,9 +106,9 @@ export function useDetailedHoldingsTable() {
           const isDebt = b.isNegative();
           const { icon, formattedTitle, titleWithMaturity, title } =
             formatTokenType(b.token, isDebt);
-          const pointsPerDay = getPointsPerDay(b);
-          const totalPoints =
-            arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
+          // const pointsPerDay = getPointsPerDay(b);
+          // const totalPoints =
+          //   arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
           const marketApy = marketYield?.totalAPY;
           const noteIncentives = marketYield?.noteIncentives?.incentiveAPY;
           const secondaryIncentives =
@@ -146,32 +140,32 @@ export function useDetailedHoldingsTable() {
             },
           ];
 
-          if (totalPoints > 0) {
-            subRowData.push({
-              label: <FormattedMessage defaultMessage={'Points Earned'} />,
-              value: (
-                <H4 sx={{ display: 'flex' }}>
-                  <PointsIcon sx={{ marginRight: theme.spacing(0.5) }} />
-                  {formatNumberAsAbbr(totalPoints, 2, 'USD', {
-                    hideSymbol: true,
-                  })}
-                  <Body
-                    sx={{
-                      marginLeft: theme.spacing(0.5),
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    (
-                    {formatNumberAsAbbr(pointsPerDay, 2, 'USD', {
-                      hideSymbol: true,
-                    })}
-                    )/day
-                  </Body>
-                </H4>
-              ),
-            });
-          }
+          // if (totalPoints > 0) {
+          //   subRowData.push({
+          //     label: <FormattedMessage defaultMessage={'Points Earned'} />,
+          //     value: (
+          //       <H4 sx={{ display: 'flex' }}>
+          //         <PointsIcon sx={{ marginRight: theme.spacing(0.5) }} />
+          //         {formatNumberAsAbbr(totalPoints, 2, 'USD', {
+          //           hideSymbol: true,
+          //         })}
+          //         <Body
+          //           sx={{
+          //             marginLeft: theme.spacing(0.5),
+          //             display: 'flex',
+          //             alignItems: 'center',
+          //           }}
+          //         >
+          //           (
+          //           {formatNumberAsAbbr(pointsPerDay, 2, 'USD', {
+          //             hideSymbol: true,
+          //           })}
+          //           )/day
+          //         </Body>
+          //       </H4>
+          //     ),
+          //   });
+          // }
 
           if (hasNToken) {
             buttonBarData.push({
@@ -389,13 +383,11 @@ export function useDetailedHoldingsTable() {
     };
   }, [
     holdings,
-    arbPoints,
     baseCurrency,
     navigate,
     fiatToken,
     NOTE,
     pendingTokens,
     network,
-    theme,
   ]);
 }

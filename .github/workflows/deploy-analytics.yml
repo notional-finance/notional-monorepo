@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Deploy Analytics
 on:
   workflow_dispatch:
@@ -29,11 +30,13 @@ jobs:
           cache: 'yarn'
       - name: Yarn Install
         run: yarn install --frozen-lockfile
-      - name: Build
-        working-directory: gcp/analytics
-        run: ./build.sh
+      - name: Check if analytics project is affected
+        id: check-affected
+        run: |
+          echo "is_affected=$(yarn --silent nx print-affected --base=HEAD~1 --head=HEAD | jq '.projects | contains(["analytics"])')" >> $GITHUB_OUTPUT
       - name: Build Web
-        working-directory: gcp/analytics
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
+        working-directory: apps/analytics
         run: yarn run next-on-pages
         env:
           NX_SEGMENT_KEY: ${{ secrets.NX_SEGMENT_KEY }}
@@ -42,15 +45,17 @@ jobs:
           NX_COMMIT_REF: ${{ github.sha }}
       
       - name: Publish Dev
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: analytics-${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
-          directory: gcp/analytics/.vercel/output/static
+          directory: apps/analytics/.vercel/output/static
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Slack Notification
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

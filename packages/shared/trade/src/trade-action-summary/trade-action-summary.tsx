@@ -7,17 +7,14 @@ import {
   TradeActionTitle,
   H4,
   InfoTooltip,
-  Subtitle,
 } from '@notional-finance/mui';
 import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   useAllMarkets,
-  useCurrentSeason,
   usePointPrices,
   useTotalAPY,
-  useTotalArbPoints,
 } from '@notional-finance/notionable-hooks';
 import {
   LeverageInfoRow,
@@ -25,13 +22,8 @@ import {
   NativeYieldPopup,
 } from './components';
 import { formatTokenType } from '@notional-finance/helpers';
-import {
-  TokenDefinition,
-  YieldData,
-  getArbBoosts,
-  getPointsAPY,
-} from '@notional-finance/core-entities';
-import { formatNumberAsPercent, pointsMultiple } from '@notional-finance/util';
+import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
+import { pointsMultiple } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -67,8 +59,8 @@ export function TradeActionSummary({
     priorVaultFactors
   );
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
-  const totalArbPoints = useTotalArbPoints();
-  const currentSeason = useCurrentSeason();
+  // const totalArbPoints = useTotalArbPoints();
+  // const currentSeason = useCurrentSeason();
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
   const headerText =
     messages?.headerText || defineMessage({ defaultMessage: 'unknown ' });
@@ -77,21 +69,21 @@ export function TradeActionSummary({
   const collateral = state.collateral || priorVaultFactors?.vaultShare;
   const pointPrices = usePointPrices();
 
-  const lendBoosts = state?.collateral
-    ? getArbBoosts(state?.collateral, false)
-    : 0;
-  const borrowBoosts = state?.debt ? getArbBoosts(state?.debt, true) : 0;
+  // const lendBoosts = state?.collateral
+  //   ? getArbBoosts(state?.collateral, false)
+  //   : 0;
+  // const borrowBoosts = state?.debt ? getArbBoosts(state?.debt, true) : 0;
 
-  const hasArbPoints =
-    tradeType !== 'LeveragedNToken' && (lendBoosts > 0 || borrowBoosts > 0);
-  const boostData = lendBoosts || borrowBoosts;
-  const pointsAPY = getPointsAPY(
-    boostData,
-    totalArbPoints[currentSeason.db_name],
-    currentSeason.totalArb,
-    currentSeason.startDate,
-    currentSeason.endDate
-  );
+  // const hasArbPoints =
+  //   tradeType !== 'LeveragedNToken' && (lendBoosts > 0 || borrowBoosts > 0);
+  // const boostData = lendBoosts || borrowBoosts;
+  // const pointsAPY = getPointsAPY(
+  //   boostData,
+  //   totalArbPoints[currentSeason.db_name],
+  //   currentSeason.totalArb,
+  //   currentSeason.startDate,
+  //   currentSeason.endDate
+  // );
 
   const apySuffix = isLeveraged ? (
     <FormattedMessage defaultMessage={'Total APY'} />
@@ -150,7 +142,7 @@ export function TradeActionSummary({
           value={totalAPY || stakedNOTEApy}
           title={apySuffix}
           valueSuffix="%"
-          hasPoints={!!points || hasArbPoints}
+          hasPoints={!!points}
           InfoComp={
             totalAPY ? (
               <NativeYieldPopup selectedToken={deposit?.symbol || ''} />
@@ -197,7 +189,7 @@ export function TradeActionSummary({
             </Box>
           )}
         </Box>
-        {hasArbPoints ? (
+        {/* {hasArbPoints ? (
           <Box
             sx={{
               marginTop: theme.spacing(1),
@@ -220,7 +212,7 @@ export function TradeActionSummary({
           </Box>
         ) : (
           ''
-        )}
+        )} */}
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}

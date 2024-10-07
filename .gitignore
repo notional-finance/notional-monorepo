@@ -53,9 +53,6 @@ Thumbs.db
 packages/sdk/cache
 apps/**/dist
 
-gcp/**/dist
-gcp/**/lib
-apps/tx-relay/lib
 cspell.json
 
 # Next.js

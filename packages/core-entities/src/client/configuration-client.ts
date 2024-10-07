@@ -35,6 +35,9 @@ import {
   SecondaryRewarderABI,
 } from '@notional-finance/contracts';
 
+const toLower = <T extends string>(address: T) =>
+  address.toLowerCase() as Lowercase<T>;
+
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   protected cachePath() {
     return Routes.Configuration;
@@ -453,7 +456,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     return {
       id,
-      address: NotionalAddress[network].toLowerCase(),
+      address: toLower(NotionalAddress[network]),
       network,
       name,
       symbol,
@@ -462,7 +465,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       tokenType,
       underlying: underlying.id,
       maturity,
-      vaultAddress: vaultAddress.toLowerCase(),
+      vaultAddress: toLower(vaultAddress),
       isFCashDebt: false,
       currencyId: underlying.currencyId,
     };
@@ -665,7 +668,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     if (!nToken.currencyId) throw Error('Invalid nToken');
     const config = this.getConfig(nToken.network, nToken.currencyId);
     if (!config.incentives?.currentSecondaryReward) return undefined;
-    const rewardEndTime = config.incentives.secondaryRewardEndTime as number | undefined;
+    const rewardEndTime = config.incentives.secondaryRewardEndTime as
+      | number
+      | undefined;
     if (rewardEndTime && rewardEndTime < getNowSeconds()) return undefined;
 
     const rewardToken = Registry.getTokenRegistry().getTokenByID(

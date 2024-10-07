@@ -100,12 +100,14 @@ export const TransactionSidebar = ({
   const { showApprovals } = approvalData;
 
   const handleSubmit = useCallback(() => {
+    // Set the confirmation state up front to prevent the action sidebar
+    // from re-rendering inside intermediate state updates.
+    updateState({ confirm: true });
+
     if (mustSwitchNetwork && !isReadyOnlyWallet) {
       setShowSwitchNetwork(true);
     } else if (showApprovals && !isReadyOnlyWallet) {
       setShowTxnApprovals(true);
-    } else {
-      updateState({ confirm: true });
     }
   }, [updateState, showApprovals, mustSwitchNetwork, isReadyOnlyWallet]);
 
@@ -226,6 +228,7 @@ export const TransactionSidebar = ({
       {tradeType !== 'StakeNOTECoolDown' && <TradeSummary state={state} />}
     </ActionSidebar>
   );
+  console.log('INNER DRAWER', inner);
 
   return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };

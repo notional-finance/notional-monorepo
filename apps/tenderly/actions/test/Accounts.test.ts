@@ -4,9 +4,12 @@ import {
   TestLog,
 } from '@tenderly/actions-test';
 import { accountsFn } from '../src/index';
-import fetch from 'node-fetch';
 
-jest.mock('node-fetch');
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+  })
+) as jest.Mock;
 
 test('parse accounts events', async () => {
   const testRuntime = new TestRuntime();

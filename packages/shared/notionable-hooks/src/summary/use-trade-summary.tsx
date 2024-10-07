@@ -301,11 +301,22 @@ function getDebtFeeDetailItem(
       });
     }
   } else if (
-    isLeveragedTrade(tradeType) &&
+    (tradeType === 'WithdrawVault' || tradeType === 'AdjustVaultLeverage') &&
     debtBalance?.unwrapVaultToken()?.tokenType === 'fCash'
   ) {
     feeToolTip = defineMessages({
       content: { defaultMessage: 'Borrow Fee' },
+      toolTipContent: {
+        defaultMessage:
+          'Fees for fixed rate borrowing are paid up front. Fixed rate borrowing also incurs early exit costs.',
+      },
+    });
+  } else if (
+    isLeveragedTrade(tradeType) &&
+    debtBalance?.unwrapVaultToken()?.tokenType === 'fCash'
+  ) {
+    feeToolTip = defineMessages({
+      content: { defaultMessage: 'Initial Borrow Fee' },
       toolTipContent: {
         defaultMessage:
           'Fees for fixed rate borrowing are paid up front. Fixed rate borrowing also incurs early exit costs.',
