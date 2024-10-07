@@ -5,7 +5,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 export const ArrowChangeCell = ({ cell }): JSX.Element => {
   const theme = useTheme();
   const { getValue, column } = cell;
-  const value = getValue();
+  const value: string | undefined = getValue();
 
   return (
     <Box
@@ -15,13 +15,15 @@ export const ArrowChangeCell = ({ cell }): JSX.Element => {
         alignItems: 'center',
         width: '100%',
         fontSize: column.columnDef?.expandableTable ? '16px' : '',
-        color: value.includes('-') ? colors.red : theme.palette.primary.light,
+        color: value?.includes('-') ? colors.red : theme.palette.primary.light,
       }}
     >
       <ArrowDropDownIcon
         sx={{
-          color: value.includes('-') ? colors.red : theme.palette.primary.light,
-          transform: value.includes('-') ? '' : `rotate(180deg)`,
+          color: value?.includes('-')
+            ? colors.red
+            : theme.palette.primary.light,
+          transform: value?.includes('-') ? '' : `rotate(180deg)`,
           transition: 'transform .5s ease-in-out',
         }}
       />

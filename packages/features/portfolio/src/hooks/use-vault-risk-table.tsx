@@ -1,10 +1,6 @@
 import { useTheme } from '@mui/material';
 import { formatTokenType } from '@notional-finance/helpers';
-import {
-  ArrowChangeCell,
-  DisplayCell,
-  MultiValueIconCell,
-} from '@notional-finance/mui';
+import { DisplayCell, MultiValueIconCell } from '@notional-finance/mui';
 import {
   formatHealthFactorValues,
   useCurrentLiquidationPrices,
@@ -51,7 +47,7 @@ const vaultRiskTableColumns = (theme: NotionalTheme) => [
         description={'column header'}
       />
     ),
-    cell: DisplayCell,
+    cell: MultiValueIconCell,
     expandableTable: true,
     accessorKey: 'exchangeRate',
     textAlign: 'left',
@@ -80,24 +76,24 @@ const vaultRiskTableColumns = (theme: NotionalTheme) => [
     accessorKey: 'currentPrice',
     textAlign: 'right',
   },
-  {
-    header: (
-      <FormattedMessage defaultMessage="24H %" description={'column header'} />
-    ),
-    cell: ArrowChangeCell,
-    expandableTable: true,
-    accessorKey: 'oneDayChange',
-    textAlign: 'right',
-  },
-  {
-    header: (
-      <FormattedMessage defaultMessage="7D %" description={'column header'} />
-    ),
-    cell: ArrowChangeCell,
-    expandableTable: true,
-    accessorKey: 'sevenDayChange',
-    textAlign: 'right',
-  },
+  // {
+  //   header: (
+  //     <FormattedMessage defaultMessage="24H %" description={'column header'} />
+  //   ),
+  //   cell: ArrowChangeCell,
+  //   expandableTable: true,
+  //   accessorKey: 'oneDayChange',
+  //   textAlign: 'right',
+  // },
+  // {
+  //   header: (
+  //     <FormattedMessage defaultMessage="7D %" description={'column header'} />
+  //   ),
+  //   cell: ArrowChangeCell,
+  //   expandableTable: true,
+  //   accessorKey: 'sevenDayChange',
+  //   textAlign: 'right',
+  // },
 ];
 
 export const useVaultRiskTable = () => {
@@ -108,7 +104,7 @@ export const useVaultRiskTable = () => {
 
   const tableData = vaultLiquidation
     .filter((l) => l.liquidationPrices.length > 0)
-    .map((l) => {
+    .flatMap((l) => {
       const vaultHolding = vaults.find(
         (v) => v.vault.vaultAddress === l.vaultAddress
       );
