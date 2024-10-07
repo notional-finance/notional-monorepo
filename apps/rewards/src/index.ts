@@ -381,6 +381,7 @@ const claimAndReinvestVault = async (
 
   const data = treasuryManger.interface.encodeFunctionData(
     'reinvestVaultReward',
+    'claimAndReinvestVaultReward',
     [
       vault.address,
       tradesPerRewardToken,
