@@ -28,6 +28,8 @@ export function useMaxRepay(context: BaseTradeContext) {
   const maxRepay = profile?.debts.find((d) => d.tokenId === collateral?.id);
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
   let maxRepayAmount: TokenBalance | undefined;
+  let errorMsg: MessageDescriptor | undefined = undefined;
+
   if (maxRepay?.tokenType === 'PrimeCash') {
     // Increase the prime cash repay amount by a dust amount to ensure that the txn fully
     // repays the prime debt which is accruing constantly.
@@ -43,21 +45,24 @@ export function useMaxRepay(context: BaseTradeContext) {
       maxRepayAmount = maxRepayAmount.mulInRatePrecision(2 * RATE_PRECISION);
     }
   } else {
-    const tokensOut =
-      fCashMarket && maxRepay
-        ? fCashMarket.calculateTokenTrade(maxRepay, 0)?.tokensOut
-        : undefined;
-    // Buffer this payment a little bit to avoid prime borrows
-    maxRepayAmount = tokensOut
-      ?.toUnderlying()
-      .mulInRatePrecision(RATE_PRECISION + BASIS_POINT);
+    try {
+      const tokensOut =
+        fCashMarket && maxRepay
+          ? fCashMarket.calculateTokenTrade(maxRepay, 0)?.tokensOut
+          : undefined;
+      // Buffer this payment a little bit to avoid prime borrows
+      maxRepayAmount = tokensOut
+        ?.toUnderlying()
+        .mulInRatePrecision(RATE_PRECISION + BASIS_POINT);
+    } catch (e) {
+      // This is due to insufficient liquidity in the fCash market
+    }
   }
 
   const { insufficientBalance, maxBalance } = useWalletBalanceInputCheck(
     maxRepayAmount?.token,
     maxRepayAmount?.abs()
   );
-  let errorMsg: MessageDescriptor | undefined = undefined;
   if (maxWithdraw && insufficientBalance) {
     errorMsg = tradeErrors.insufficientBalance;
   }
