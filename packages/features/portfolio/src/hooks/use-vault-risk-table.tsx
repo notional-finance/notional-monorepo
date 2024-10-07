@@ -11,12 +11,94 @@ import {
   useSelectedNetwork,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
+import { NotionalTheme } from '@notional-finance/styles';
 import {
   PRIME_CASH_VAULT_MATURITY,
   formatMaturity,
 } from '@notional-finance/util';
-import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
+
+const vaultRiskTableColumns = (theme: NotionalTheme) => [
+  {
+    header: (
+      <FormattedMessage defaultMessage="Vault" description={'vault header'} />
+    ),
+    cell: MultiValueIconCell,
+    accessorKey: 'vault',
+    textAlign: 'left',
+    expandableTable: true,
+  },
+  {
+    header: (
+      <FormattedMessage
+        defaultMessage="Health Factor"
+        description={'Health Factor header'}
+      />
+    ),
+    cell: DisplayCell,
+    displayFormatter: (val: number | null | undefined) => {
+      const { value, textColor } = formatHealthFactorValues(val, theme);
+      return <span style={{ color: textColor }}>{value}</span>;
+    },
+    accessorKey: 'healthFactor',
+    textAlign: 'left',
+    expandableTable: true,
+  },
+  {
+    header: (
+      <FormattedMessage
+        defaultMessage="Exchange Rate"
+        description={'column header'}
+      />
+    ),
+    cell: DisplayCell,
+    expandableTable: true,
+    accessorKey: 'exchangeRate',
+    textAlign: 'left',
+  },
+  {
+    header: (
+      <FormattedMessage
+        defaultMessage="Liquidation Price"
+        description={'column header'}
+      />
+    ),
+    cell: DisplayCell,
+    expandableTable: true,
+    accessorKey: 'liquidationPrice',
+    textAlign: 'right',
+  },
+  {
+    header: (
+      <FormattedMessage
+        defaultMessage="Current Price"
+        description={'column header'}
+      />
+    ),
+    cell: DisplayCell,
+    expandableTable: true,
+    accessorKey: 'currentPrice',
+    textAlign: 'right',
+  },
+  {
+    header: (
+      <FormattedMessage defaultMessage="24H %" description={'column header'} />
+    ),
+    cell: ArrowChangeCell,
+    expandableTable: true,
+    accessorKey: 'oneDayChange',
+    textAlign: 'right',
+  },
+  {
+    header: (
+      <FormattedMessage defaultMessage="7D %" description={'column header'} />
+    ),
+    cell: ArrowChangeCell,
+    expandableTable: true,
+    accessorKey: 'sevenDayChange',
+    textAlign: 'right',
+  },
+];
 
 export const useVaultRiskTable = () => {
   const theme = useTheme();
@@ -25,124 +107,35 @@ export const useVaultRiskTable = () => {
   const { vaultLiquidation } = useCurrentLiquidationPrices(network);
 
   const tableData = vaultLiquidation
-    .filter((data) => data.liquidationPrices.length > 0)
-    .map((data) => {
-      const riskData = vaultLiquidation.find(
-        (x) => x.vaultAddress === data.vault.vaultAddress
+    .filter((l) => l.liquidationPrices.length > 0)
+    .map((l) => {
+      const vaultHolding = vaults.find(
+        (v) => v.vault.vaultAddress === l.vaultAddress
       );
-      return {
-        vault: {
-          symbol: formatTokenType(data.denom).icon,
-          label: data.vault.vaultConfig.name,
-          caption:
-            data.vault.maturity === PRIME_CASH_VAULT_MATURITY
-              ? 'Open Term'
-              : `Maturity: ${formatMaturity(data.vault.maturity)}`,
-        },
-        healthFactor: data.vault.healthFactor(),
-        // TODO: this will change...
-        ...riskData?.liquidationPrices[0],
-        exchangeRate: `Vault Shares / ${formatTokenType(data.denom).title}`,
-      };
-    });
 
-  const vaultRiskTableColumns = useMemo(
-    () => [
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Vault"
-            description={'vault header'}
-          />
-        ),
-        cell: MultiValueIconCell,
-        accessorKey: 'vault',
-        textAlign: 'left',
-        expandableTable: true,
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Health Factor"
-            description={'Health Factor header'}
-          />
-        ),
-        cell: DisplayCell,
-        displayFormatter: (val) => {
-          const { value, textColor } = formatHealthFactorValues(val, theme);
-          return <span style={{ color: textColor }}>{value}</span>;
-        },
-        accessorKey: 'healthFactor',
-        textAlign: 'left',
-        expandableTable: true,
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Exchange Rate"
-            description={'column header'}
-          />
-        ),
-        cell: DisplayCell,
-        expandableTable: true,
-        accessorKey: 'exchangeRate',
-        textAlign: 'left',
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Liquidation Price"
-            description={'column header'}
-          />
-        ),
-        cell: DisplayCell,
-        expandableTable: true,
-        accessorKey: 'liquidationPrice',
-        textAlign: 'right',
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Current Price"
-            description={'column header'}
-          />
-        ),
-        cell: DisplayCell,
-        expandableTable: true,
-        accessorKey: 'currentPrice',
-        textAlign: 'right',
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="24H %"
-            description={'column header'}
-          />
-        ),
-        cell: ArrowChangeCell,
-        expandableTable: true,
-        accessorKey: 'oneDayChange',
-        textAlign: 'right',
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="7D %"
-            description={'column header'}
-          />
-        ),
-        cell: ArrowChangeCell,
-        expandableTable: true,
-        accessorKey: 'sevenDayChange',
-        textAlign: 'right',
-      },
-    ],
-    []
-  );
+      return vaultHolding
+        ? l.liquidationPrices.map((p) => {
+            return {
+              vault: {
+                symbol: formatTokenType(vaultHolding.denom).icon,
+                label: vaultHolding.vault.vaultConfig.name,
+                caption:
+                  vaultHolding.vault.maturity === PRIME_CASH_VAULT_MATURITY
+                    ? 'Open Term'
+                    : `Maturity: ${formatMaturity(
+                        vaultHolding.vault.maturity
+                      )}`,
+              },
+              healthFactor: vaultHolding.vault.healthFactor(),
+              ...p,
+            };
+          })
+        : [];
+    });
 
   return {
     riskTableData: tableData,
-    riskTableColumns: vaultRiskTableColumns,
+    riskTableColumns: vaultRiskTableColumns(theme),
     initialRiskState: {
       clickDisabled: true,
     },

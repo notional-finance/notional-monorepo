@@ -210,6 +210,7 @@ export function useCurrentLiquidationPrices(network: Network | undefined) {
           symbol: threshold?.underlying.symbol || '',
           label: vault.vaultConfig.name,
           caption: 'Leveraged Vault',
+          asset,
         },
         riskFactor: {
           data: [
