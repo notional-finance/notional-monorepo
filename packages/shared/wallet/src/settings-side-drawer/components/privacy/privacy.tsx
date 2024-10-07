@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, styled } from '@mui/material';
 import { H4, ToggleSwitch } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
@@ -10,31 +10,36 @@ import { Title } from '../../settings-side-drawer';
 import { FormattedMessage } from 'react-intl';
 
 export const Privacy = () => {
-  const { disableErrorReporting } = getFromLocalStorage('privacySettings');
-  // NOTE* The Plausible API requires plausible_ignore to be at the local storage root level and to be snake case
-  const plausibleIgnore = getFromLocalStorage('plausible_ignore');
+  const [disableErrorReporting, setDisableErrorReporting] =
+    useState<boolean>(false);
 
-  const disableTrackingDefault =
-    typeof plausibleIgnore !== 'boolean' ? false : plausibleIgnore;
+  const [disableTracking, setDisableTracking] = useState<boolean>(false);
 
-  const [disableDataDogReporting, setDisableDataDogReporting] = useState<
-    boolean | undefined
-  >(disableErrorReporting);
+  useEffect(() => {
+    const settings = getFromLocalStorage('privacySettings');
 
-  const [disableTracking, setDisableTracking] = useState<boolean>(
-    disableTrackingDefault
-  );
+    if (settings['disableErrorReporting']) {
+      setDisableErrorReporting(settings['disableErrorReporting']);
+    }
+    if (settings['disableTracking']) {
+      setDisableTracking(settings['disableTracking']);
+    }
+  }, []);
 
   const handleReportingChange = () => {
+    setDisableErrorReporting(!disableErrorReporting);
     setInLocalStorage('privacySettings', {
-      disableErrorReporting: !disableDataDogReporting,
+      disableErrorReporting,
+      disableTracking,
     });
-    setDisableDataDogReporting(!disableDataDogReporting);
   };
 
   const handleTrackingChange = () => {
-    setInLocalStorage('plausible_ignore', !disableTracking);
     setDisableTracking(!disableTracking);
+    setInLocalStorage('privacySettings', {
+      disableErrorReporting,
+      disableTracking,
+    });
   };
 
   return (
@@ -44,10 +49,10 @@ export const Privacy = () => {
       </Title>
       <OptionContainer>
         <H4>
-          <FormattedMessage defaultMessage={'Disable Behaviour Tracking'} />
+          <FormattedMessage defaultMessage={'Disable Behavior Tracking'} />
         </H4>
         <ToggleSwitch
-          isChecked={disableTracking || false}
+          isChecked={disableTracking}
           onToggle={handleTrackingChange}
         />
       </OptionContainer>
@@ -56,7 +61,7 @@ export const Privacy = () => {
           <FormattedMessage defaultMessage={'Disable Error Reporting'} />
         </H4>
         <ToggleSwitch
-          isChecked={disableDataDogReporting || false}
+          isChecked={disableErrorReporting}
           onToggle={handleReportingChange}
         />
       </OptionContainer>
