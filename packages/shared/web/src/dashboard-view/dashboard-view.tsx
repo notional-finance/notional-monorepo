@@ -50,9 +50,7 @@ export const DashboardView = ({
   const [tokenGroup, setTokenGroup] = useState<number>(
     userSettings.tokenGroup || 0
   );
-  const [reinvestmentType, setReinvestmentType] = useState<number>(
-    userSettings.reinvestmentType || 0
-  );
+  const [reinvestmentType, setReinvestmentType] = useState<number>(0);
   const themeLanding = useNotionalTheme(themeVariant, 'product');
   const [dashboardTab, setDashboardTab] = useState<number>(
     userSettings.dashboardTab || 0
@@ -79,10 +77,6 @@ export const DashboardView = ({
 
   const handleReinvestmentType = (value: number) => {
     setReinvestmentType(value);
-    setInLocalStorage('userSettings', {
-      ...userSettings,
-      reinvestmentType: value,
-    });
   };
 
   const sortedGridData =
