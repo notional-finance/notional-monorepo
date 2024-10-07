@@ -25,6 +25,7 @@ import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { VaultActionContext } from '../vault';
 import { useVaultExistingFactors } from '../hooks';
+import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
 
 const usePendlePerformanceChart = (state: VaultTradeState) => {
   const dataPoints = 90;
@@ -105,10 +106,11 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
 export const PendlePerformanceChart = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { deposit } = state;
+  const { deposit, collateral } = state;
 
   const { areaChartData, ptExpires, fixedBorrowMaturity } =
     usePendlePerformanceChart(state);
+  const priceData = useAssetPriceHistory(collateral);
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
@@ -188,6 +190,22 @@ export const PendlePerformanceChart = () => {
             ),
             legendData,
           },
+        },
+        {
+          id: 'price-area-chart',
+          title: `Vault Share Price`,
+          hideTopGridLine: true,
+          Component: (
+            <AreaChart
+              title={`Vault Share Price`}
+              showCartesianGrid
+              xAxisTickFormat="date"
+              yAxisTickFormat="double"
+              yAxisDomain={['dataMin * 0.95', 'dataMax * 1.05']}
+              areaDataKey={'assetPrice'}
+              areaChartData={priceData}
+            />
+          ),
         },
       ]}
     />
