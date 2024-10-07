@@ -6,9 +6,10 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps } from '@notional-finance/mui';
-import { Network, PRODUCTS, REINVESTMENT_TYPE } from '@notional-finance/util';
+import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { defineMessage } from 'react-intl';
+import { VaultType } from '@notional-finance/core-entities';
 import {
   AutoReinvestIcon,
   DirectIcon,
@@ -45,10 +46,10 @@ export const useLeveragedVaultGrid = (
         const points = y?.pointMultiples;
         const reinvestmentType =
           vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING &&
-          vaultType.includes(REINVESTMENT_TYPE.DIRECT_CLAIM)
-            ? REINVESTMENT_TYPE.DIRECT_CLAIM
+          vaultType === 'SingleSidedLP_DirectClaim'
+            ? 'SingleSidedLP_DirectClaim'
             : vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING
-            ? REINVESTMENT_TYPE.AUTO_REINVEST
+            ? 'SingleSidedLP'
             : undefined;
 
         return {
@@ -78,7 +79,7 @@ export const useLeveragedVaultGrid = (
                 : `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`
             ),
           reinvestOptions:
-            reinvestmentType === REINVESTMENT_TYPE.DIRECT_CLAIM
+            reinvestmentType === 'SingleSidedLP_DirectClaim'
               ? {
                   Icon: DirectIcon,
                   label: defineMessage({
@@ -86,7 +87,7 @@ export const useLeveragedVaultGrid = (
                     description: 'Direct Claim',
                   }),
                 }
-              : reinvestmentType === REINVESTMENT_TYPE.AUTO_REINVEST
+              : reinvestmentType === 'SingleSidedLP'
               ? {
                   Icon: AutoReinvestIcon,
                   label: defineMessage({
@@ -95,7 +96,7 @@ export const useLeveragedVaultGrid = (
                   }),
                 }
               : undefined,
-          reinvestmentTypeString: reinvestmentType,
+          reinvestmentTypeString: reinvestmentType as VaultType | undefined,
           vaultUtilization,
           rewardTokens: rewardTokens.map((t) => t.symbol),
           PointsSubTitle: points

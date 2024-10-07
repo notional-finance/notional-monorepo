@@ -3,10 +3,10 @@ import { FormattedMessage } from 'react-intl';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { ExternalLink, Body, H5 } from '@notional-finance/mui';
 import { useVaultStrategyData } from '../hooks';
-import { REINVESTMENT_TYPE } from '@notional-finance/util';
+import { VaultType } from '@notional-finance/core-entities';
 
 interface RiskFaqProps {
-  currentVaultType: REINVESTMENT_TYPE | undefined;
+  currentVaultType: VaultType | undefined;
 }
 
 export const RiskFaq = ({ currentVaultType }: RiskFaqProps) => {
@@ -73,7 +73,7 @@ export const RiskFaq = ({ currentVaultType }: RiskFaqProps) => {
         <FormattedMessage defaultMessage={'Price / liquidation Risk'} />
       </H5>
       <Body sx={{ marginBottom: theme.spacing(2) }}>
-        {currentVaultType !== REINVESTMENT_TYPE.PENDLE_PT ? (
+        {currentVaultType !== 'PendlePT' ? (
           <FormattedMessage
             defaultMessage={
               'If the price of {primaryBorrowCurrency} changes relative to the other tokens in the {poolName} pool, you could make or lose money. If it moves past your liquidation price, you could get liquidated.'

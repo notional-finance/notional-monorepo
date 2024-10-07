@@ -4,11 +4,11 @@ import { Box } from '@mui/material';
 import { Body } from '@notional-finance/mui';
 import { RiskFaq } from '../components';
 import { HowItWorksFaq, HowItWorksFaqPendle } from '../components';
+import { VaultType } from '@notional-finance/core-entities';
 import {
   getEtherscanAddressLink,
   Network,
   NotionalAddress,
-  REINVESTMENT_TYPE,
 } from '@notional-finance/util';
 
 interface FaqProps {
@@ -22,7 +22,7 @@ export const useVaultFaq = (
   selectedNetwork: Network | undefined,
   tokenSymbol: string | undefined,
   points: Record<string, number> | undefined,
-  currentVaultType: REINVESTMENT_TYPE | undefined
+  currentVaultType?: VaultType | undefined
 ) => {
   const faqHeaderLinks = [
     {
@@ -211,7 +211,7 @@ export const useVaultFaq = (
     },
   ];
 
-  if (currentVaultType === REINVESTMENT_TYPE.AUTO_REINVEST) {
+  if (currentVaultType === 'SingleSidedLP') {
     baseFaq.push(
       {
         question: (
@@ -248,7 +248,7 @@ export const useVaultFaq = (
         ),
       }
     );
-  } else if (currentVaultType === REINVESTMENT_TYPE.DIRECT_CLAIM) {
+  } else if (currentVaultType === 'SingleSidedLP_DirectClaim') {
     baseFaq.push(
       {
         question: (
@@ -279,8 +279,7 @@ export const useVaultFaq = (
     );
   }
 
-  const faqs =
-    currentVaultType === REINVESTMENT_TYPE.PENDLE_PT ? pendleFaq : baseFaq;
+  const faqs = currentVaultType === 'PendlePT' ? pendleFaq : baseFaq;
 
   return { faqs, faqHeaderLinks };
 };
