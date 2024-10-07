@@ -8,7 +8,8 @@ import { MessageDescriptor } from 'react-intl';
 import { DataTable } from '../data-table/data-table';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 import { DataTableColumn, TABLE_VARIANTS } from '../data-table/types';
-import { Network, PRODUCTS, REINVESTMENT_TYPE } from '@notional-finance/util';
+import { Network, PRODUCTS } from '@notional-finance/util';
+import { VaultType } from '@notional-finance/core-entities';
 import { ReactNode } from 'react';
 
 export interface DashboardDataProps {
@@ -26,7 +27,7 @@ export interface DashboardDataProps {
     Icon: any;
     label: MessageDescriptor;
   };
-  reinvestmentTypeString?: REINVESTMENT_TYPE;
+  reinvestmentTypeString?: VaultType | undefined;
   vaultUtilization?: number;
   rewardTokens?: string[];
   currency?: {

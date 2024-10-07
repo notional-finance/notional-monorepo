@@ -48,12 +48,9 @@ export const useLiquidityLeveragedGrid = (
         hasPosition: currentPosition ? true : false,
         tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         apySubTitle: currentPosition
-          ? defineMessage({
-              defaultMessage: `Current APY`,
-              description: 'subtitle',
-            })
+          ? undefined
           : defineMessage({
-              defaultMessage: `AS HIGH AS`,
+              defaultMessage: `MAX APY`,
               description: 'subtitle',
             }),
         bottomLeftValue:

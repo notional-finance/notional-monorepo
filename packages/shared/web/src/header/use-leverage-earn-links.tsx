@@ -142,7 +142,13 @@ export const useLeverageEarnLinks = () => {
       title: <FormattedMessage defaultMessage={'Leveraged Pendle'} />,
       to: `/${PRODUCTS.LEVERAGED_PENDLE}/${selectedNetwork}`,
       icon: (
-        <PendleIcon sx={{ fontSize: theme.spacing(3), fill: 'transparent' }} />
+        <PendleIcon
+          stroke={theme.palette.typography.main}
+          sx={{
+            fontSize: theme.spacing(3),
+            fill: 'transparent',
+          }}
+        />
       ),
       pillText: <FormattedMessage defaultMessage={'Fixed Yield'} />,
       external: false,

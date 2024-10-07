@@ -3,7 +3,7 @@ import {
   formatNumberAsPercent,
   formatNumber,
 } from '@notional-finance/helpers';
-import { formatMaturity, REINVESTMENT_TYPE } from '@notional-finance/util';
+import { formatMaturity } from '@notional-finance/util';
 import {
   useAllVaults,
   useAccountDefinition,
@@ -191,10 +191,10 @@ export const useLeverageVaultList = (
     .map((vault) => {
       const reinvestmentType =
         vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING &&
-        vault.vaultType.includes(REINVESTMENT_TYPE.DIRECT_CLAIM)
-          ? REINVESTMENT_TYPE.DIRECT_CLAIM
+        vault.vaultType === 'SingleSidedLP_DirectClaim'
+          ? 'SingleSidedLP_DirectClaim'
           : vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING
-          ? REINVESTMENT_TYPE.AUTO_REINVEST
+          ? 'SingleSidedLP'
           : undefined;
 
       const walletBalance = account
@@ -246,7 +246,7 @@ export const useLeverageVaultList = (
         reinvestmentTypeString: reinvestmentType,
         rewards: {
           label:
-            reinvestmentType === REINVESTMENT_TYPE.AUTO_REINVEST
+            reinvestmentType === 'SingleSidedLP'
               ? 'Auto-Reinvest'
               : 'Direct Claim',
           rewardTokens: vault.rewardTokens,

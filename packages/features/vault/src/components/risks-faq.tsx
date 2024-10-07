@@ -3,8 +3,13 @@ import { FormattedMessage } from 'react-intl';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { ExternalLink, Body, H5 } from '@notional-finance/mui';
 import { useVaultStrategyData } from '../hooks';
+import { VaultType } from '@notional-finance/core-entities';
 
-export const RiskFaq = () => {
+interface RiskFaqProps {
+  currentVaultType: VaultType | undefined;
+}
+
+export const RiskFaq = ({ currentVaultType }: RiskFaqProps) => {
   const theme = useTheme();
   const vaultStrategyData = useVaultStrategyData();
 
@@ -68,15 +73,27 @@ export const RiskFaq = () => {
         <FormattedMessage defaultMessage={'Price / liquidation Risk'} />
       </H5>
       <Body sx={{ marginBottom: theme.spacing(2) }}>
-        <FormattedMessage
-          defaultMessage={
-            'If the price of {primaryBorrowCurrency} changes relative to the other tokens in the {poolName} pool, you could make or lose money. If it moves past your liquidation price, you could get liquidated.'
-          }
-          values={{
-            primaryBorrowCurrency,
-            poolName,
-          }}
-        />
+        {currentVaultType !== 'PendlePT' ? (
+          <FormattedMessage
+            defaultMessage={
+              'If the price of {primaryBorrowCurrency} changes relative to the other tokens in the {poolName} pool, you could make or lose money. If it moves past your liquidation price, you could get liquidated.'
+            }
+            values={{
+              primaryBorrowCurrency,
+              poolName,
+            }}
+          />
+        ) : (
+          <FormattedMessage
+            defaultMessage={
+              'If the price of {primaryBorrowCurrency} changes relative to the PT price, you could make or lose money. If it moves past your liquidation price, you could get liquidated.'
+            }
+            values={{
+              primaryBorrowCurrency,
+              poolName,
+            }}
+          />
+        )}
       </Body>
       <Body>
         <Box

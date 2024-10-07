@@ -147,7 +147,10 @@ const SingleSidedLP_DirectClaim: Record<Network, string[]> = {
   [Network.all]: [],
 };
 
-type VaultType = 'SingleSidedLP' | 'PendlePT' | 'SingleSidedLP_DirectClaim';
+export type VaultType =
+  | 'SingleSidedLP'
+  | 'PendlePT'
+  | 'SingleSidedLP_DirectClaim';
 
 export function getVaultType(
   vaultAddress: string,

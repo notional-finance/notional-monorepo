@@ -13,13 +13,18 @@ import { VaultActionContext } from '../vault';
 import { LiquidationChart, TradeActionSummary } from '@notional-finance/trade';
 import { useVaultExistingFactors, useVaultFaq } from '../hooks';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { getVaultType } from '@notional-finance/core-entities';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { selectedNetwork, collateral, deposit } = state;
+  const { selectedNetwork, collateral, deposit, vaultAddress } = state;
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
+  const vaultType =
+    vaultAddress && selectedNetwork
+      ? getVaultType(vaultAddress, selectedNetwork)
+      : undefined;
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
 
   const nonLeveragedYield = nonLeveragedYields.find(
@@ -30,7 +35,8 @@ export const VaultSummary = () => {
   const { faqHeaderLinks, faqs } = useVaultFaq(
     selectedNetwork,
     deposit?.symbol,
-    points
+    points,
+    vaultType
   );
 
   return (

@@ -6,12 +6,7 @@ import {
 } from '@notional-finance/core-entities';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { DashboardDataProps } from '@notional-finance/mui';
-import {
-  STABLE_COINS,
-  LSDS,
-  PRODUCTS,
-  REINVESTMENT_TYPE,
-} from '@notional-finance/util';
+import { STABLE_COINS, LSDS, PRODUCTS } from '@notional-finance/util';
 
 export const getTotalIncentiveApy = (num1?: number, num2?: number) => {
   if (num1 && num2) {
@@ -61,12 +56,10 @@ const sortReinvestmentType = (data: any[], reinvestmentType: number) => {
   if (reinvestmentType === 0) {
     return data;
   } else if (reinvestmentType === 1) {
-    return data.filter(
-      (x) => x.reinvestmentTypeString === REINVESTMENT_TYPE.AUTO_REINVEST
-    );
+    return data.filter((x) => x.reinvestmentTypeString === 'SingleSidedLP');
   } else if (reinvestmentType === 2) {
     return data.filter(
-      (x) => x.reinvestmentTypeString === REINVESTMENT_TYPE.DIRECT_CLAIM
+      (x) => x.reinvestmentTypeString === 'SingleSidedLP_DirectClaim'
     );
   } else {
     return [];
