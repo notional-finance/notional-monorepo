@@ -1,33 +1,48 @@
 import { AggregateCall, aggregate } from '@notional-finance/multicall';
-import { FlashLiquidatorABI, NotionalV3ABI } from '@notional-finance/contracts';
+import {
+  FlashLiquidatorABI,
+  IAggregator,
+  IAggregatorABI,
+  NotionalV3,
+  NotionalV3ABI,
+} from '@notional-finance/contracts';
 import { ethers, BigNumber, Contract } from 'ethers';
 import {
   RiskyAccount,
   CurrencyOverride,
-  IGasOracle,
   FlashLiquidation,
   IFlashLoanProvider,
   Currency,
   LiquidationType,
+  AccountLiquidation,
+  TradeData,
+  TradeType,
+  DexId,
 } from './types';
-import LiquidationHelper from './LiquidationHelper';
-import ProfitCalculator from './ProfitCalculator';
-import AaveFlashLoanProvider from './lenders/AaveFlashLender';
-import { Logger } from '@notional-finance/util';
-import { Network, sendTxThroughRelayer } from '@notional-finance/util';
+import FlashLoanProvider from './FlashLender';
+import {
+  Network,
+  WETHAddress,
+  getExcludedSources,
+  getFlashLender,
+  getNowSeconds,
+  sendTxThroughRelayer,
+  zeroExUrl,
+  NetworkId,
+  Logger,
+} from '@notional-finance/util';
+import Liquidation from './liquidation';
 
 export type LiquidatorSettings = {
   network: Network;
   flashLiquidatorAddress: string;
   flashLiquidatorOwner: string;
-  flashLenderAddress: string;
   notionalAddress: string;
   dustThreshold: BigNumber;
   flashLoanBuffer: BigNumber;
   txRelayUrl: string;
   txRelayAuthToken: string;
   currencies: Currency[];
-  tokens: Map<string, string>;
   zeroExApiKey: string;
   overrides: CurrencyOverride[];
   exactInSlippageLimit: BigNumber; // Precision = 1000
@@ -36,19 +51,10 @@ export type LiquidatorSettings = {
   profitThreshold: BigNumber;
 };
 
-class ArbitrumGasOracle implements IGasOracle {
-  public async getGasPrice(): Promise<BigNumber> {
-    // 0.1 gwei
-    return ethers.utils.parseUnits('1', 8);
-  }
-}
-
 export default class NotionalV3Liquidator {
   public static readonly INTERNAL_PRECISION = ethers.utils.parseUnits('1', 8);
   public static readonly ETH_PRECISION = ethers.utils.parseEther('1');
 
-  private liquidationHelper: LiquidationHelper;
-  private profitCalculator: ProfitCalculator;
   private liquidatorContract: Contract;
   private notionalContract: Contract;
   private flashLoanProvider: IFlashLoanProvider;
@@ -68,41 +74,34 @@ export default class NotionalV3Liquidator {
       NotionalV3ABI,
       this.provider
     );
-    this.liquidationHelper = new LiquidationHelper(
-      settings.tokens.get('WETH'),
-      settings.currencies
-    );
-    this.flashLoanProvider = new AaveFlashLoanProvider(
-      settings.flashLenderAddress,
+    this.flashLoanProvider = new FlashLoanProvider(
+      settings.network,
       settings.flashLiquidatorAddress,
       this.provider
     );
-    this.profitCalculator = new ProfitCalculator(
-      new ArbitrumGasOracle(),
-      this.flashLoanProvider,
-      {
-        network: settings.network,
-        liquidatorContract: this.liquidatorContract,
-        zeroExApiKey: settings.zeroExApiKey,
-        overrides: settings.overrides,
-        liquidatorOwner: settings.flashLiquidatorOwner,
-        exactInSlippageLimit: settings.exactInSlippageLimit,
-        exactOutSlippageLimit: settings.exactOutSlippageLimit,
-        gasCostBuffer: settings.gasCostBuffer,
-        profitThreshold: settings.profitThreshold,
-      }
-    );
   }
 
-  private toExternal(input: any, externalPrecision: BigNumber) {
+  private getCurrencyById(currencyId: number): Currency {
+    const currency = this.settings.currencies.find((c) => c.id === currencyId);
+    if (!currency) {
+      throw Error('Invalid currency');
+    }
+    return currency;
+  }
+
+  get wethAddress(): string {
+    return WETHAddress[this.settings.network];
+  }
+
+  private toExternal(input: BigNumber, externalPrecision: BigNumber) {
     return input
       .mul(externalPrecision)
       .div(NotionalV3Liquidator.INTERNAL_PRECISION);
   }
 
-  private getAccountDataCalls(addrs: string[]): AggregateCall[] {
-    const calls = [];
-    addrs.forEach((addr) => {
+  private getAccountDataCalls(addresses: string[]): AggregateCall[] {
+    const calls: AggregateCall[] = [];
+    addresses.forEach((addr) => {
       calls.push({
         stage: 0,
         target: this.liquidatorContract,
@@ -123,38 +122,82 @@ export default class NotionalV3Liquidator {
     return calls;
   }
 
-  public async getRiskyAccounts(addrs: string[]): Promise<RiskyAccount[]> {
+  public async getAccountData(address: string) {
     const { results } = await aggregate(
-      this.getAccountDataCalls(addrs),
+      this.getAccountDataCalls([address]),
       this.provider
     );
 
-    const accounts = addrs
-      .map((addr) => {
+    return results;
+  }
+
+  public async getRiskyAccounts(addresses: string[]): Promise<RiskyAccount[]> {
+    const { results } = await aggregate(
+      this.getAccountDataCalls(addresses),
+      this.provider,
+      undefined,
+      true
+    );
+
+    const failedAccounts = addresses.filter(
+      (a) =>
+        results[`${a}:collateral`] === undefined ||
+        results[`${a}:account`] === undefined
+    );
+    for (const a of failedAccounts) {
+      await this.logger.submitEvent({
+        aggregation_key: 'AccountRiskFailure',
+        alert_type: 'error',
+        host: 'cloudflare',
+        network: this.settings.network,
+        title: `Failed Account Free Collateral`,
+        tags: [`account:${a}`, `event:failed_account_health`],
+        text: `Failed to get account free collateral: ${a}`,
+      });
+    }
+
+    const accounts = addresses
+      // Filter out accounts that failed their health check
+      .filter((a) => !failedAccounts.includes(a))
+      .map((id) => {
         return {
-          id: addr,
-          ethFreeCollateral: results[`${addr}:collateral`][0],
+          id,
+          ethFreeCollateral: (results[`${id}:collateral`] as BigNumber[])[0],
         };
       })
-      .filter(
-        (a) =>
-          a.ethFreeCollateral.isNegative() &&
-          this.toExternal(
-            a.ethFreeCollateral.abs(),
-            NotionalV3Liquidator.ETH_PRECISION
-          ).gte(this.settings.dustThreshold)
-      );
+      .filter((a) => {
+        // Always check for negative free collateral
+        const isNegative = a.ethFreeCollateral.isNegative();
+
+        // Only apply dust threshold check if there's more than one address
+        const exceedsDustThreshold =
+          addresses.length > 1
+            ? this.toExternal(
+                a.ethFreeCollateral.abs(),
+                NotionalV3Liquidator.ETH_PRECISION
+              ).gte(this.settings.dustThreshold)
+            : true;
+
+        return isNegative && exceedsDustThreshold;
+      });
 
     return accounts.map((a) => {
       const netUnderlyingAvailable = new Map<number, BigNumber>();
-      const balances = results[`${a.id}:account`][1].filter((b) => b[0] !== 0);
-      const portfolio = results[`${a.id}:account`][2];
+      const accountData = results[`${a.id}:account`] as Awaited<
+        ReturnType<NotionalV3['getAccount']>
+      >;
+      const balances = accountData.accountBalances.filter((b) => b[0] !== 0);
+      const portfolio = accountData.portfolio;
 
       balances.forEach((b, i) => {
         const currencyId = b[0] as number;
         netUnderlyingAvailable.set(
           currencyId,
-          results[`${a.id}:collateral`][1][i]
+          (
+            results[`${a.id}:collateral`] as Awaited<
+              ReturnType<NotionalV3['getFreeCollateral']>
+            >
+          )[1][i]
         );
       });
 
@@ -178,71 +221,380 @@ export default class NotionalV3Liquidator {
     });
   }
 
-  public async getPossibleLiquidations(
-    ra: RiskyAccount
-  ): Promise<FlashLiquidation[]> {
-    const liquidations = this.liquidationHelper.getPossibleLiquidations(ra);
-    const calls = liquidations.flatMap((liq) =>
-      liq.getFlashLoanAmountCall(this.notionalContract, ra.id)
-    );
+  private async getZeroExData(
+    from: string,
+    to: string,
+    amount: BigNumber,
+    excludedSources: string | undefined
+  ): Promise<{
+    blockNumber: string;
+    buyAmount: string;
+    buyToken: string;
+    fees: {
+      integratorFee: null;
+      zeroExFee: {
+        amount: string;
+        token: string;
+        type: string;
+      };
+      gasFee: null;
+    };
+    issues: {
+      allowance: null;
+      balance: {
+        token: string;
+        actual: string;
+        expected: string;
+      };
+      simulationIncomplete: boolean;
+      invalidSourcesPassed: any[];
+    };
+    liquidityAvailable: boolean;
+    minBuyAmount: string;
+    route: {
+      fills: Array<{
+        from: string;
+        to: string;
+        source: string;
+        proportionBps: string;
+      }>;
+      tokens: Array<{
+        address: string;
+        symbol: string;
+      }>;
+    };
+    sellAmount: string;
+    sellToken: string;
+    totalNetworkFee: string;
+    transaction: {
+      to: string;
+      data: string;
+      gas: string;
+      gasPrice: string;
+      value: string;
+    };
+    zid: string;
+  }> {
+    if (!from || !to) {
+      throw Error('Invalid from/to');
+    }
 
-    const { results } = await aggregate(calls, this.provider, undefined, true);
+    const queryParams = new URLSearchParams({
+      sellToken: from,
+      buyToken: to,
+      taker: this.settings.flashLiquidatorAddress,
+      sellAmount: amount.toString(),
+      chainId: String(NetworkId[this.settings.network]),
+    });
 
-    return await this.profitCalculator.sortByProfitability(
-      liquidations
-        .map((liq) => {
-          const flashLoanAmount = results[
-            `${ra.id}:${liq.getLiquidationType()}:${
-              liq.getLocalCurrency().id
-            }:${liq.getCollateralCurrencyId()}:loanAmount`
-          ] as BigNumber;
+    // Set excluded sources in some cases to avoid reentrancy issues inside the flash loan
+    if (excludedSources) {
+      queryParams.set('excludedSources', excludedSources);
+    }
 
-          if (!flashLoanAmount) {
-            return null;
-          }
+    const fetchUrl = zeroExUrl + '?' + queryParams;
+    const resp = await fetch(fetchUrl, {
+      headers: {
+        '0x-api-key': this.settings.zeroExApiKey,
+        '0x-version': 'v2',
+      },
+    });
 
-          let collateralReceivedAmount: BigNumber | undefined = undefined;
-          if (
-            liq.getLiquidationType() === LiquidationType.COLLATERAL_CURRENCY
-          ) {
-            collateralReceivedAmount = results[
-              `${ra.id}:${liq.getLiquidationType()}:${
-                liq.getLocalCurrency().id
-              }:${liq.getCollateralCurrencyId()}:collateralReceivedAmount`
-            ] as BigNumber;
-          }
+    // Wait 1 sec between estimations because of rate limits
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (resp.status !== 200) {
+      throw Error(`Bad 0x response:  ${await resp.text()}`);
+    }
 
-          return {
-            accountId: ra.id,
-            liquidation: liq,
-            flashLoanAmount: flashLoanAmount
-              .mul(this.settings.flashLoanBuffer)
-              .div(1000),
-            // De-rate the collateral received amount just a bit
-            collateralReceivedAmount: collateralReceivedAmount
-              ?.mul(995)
-              .div(1000),
-          };
-        })
-        .filter((liq) => liq && !liq.flashLoanAmount.isZero()),
-      this.settings.flashLiquidatorAddress
+    return await resp.json();
+  }
+
+  private async convertFlashBorrowAmount(
+    originalFlashBorrowAmount: BigNumber,
+    borrowAssetOverride: CurrencyOverride
+  ) {
+    const oracle = new Contract(
+      borrowAssetOverride.oracle,
+      IAggregatorABI,
+      this.provider
+    ) as IAggregator;
+
+    const decimals = await oracle.decimals();
+    const rate = await oracle.latestAnswer();
+    return (
+      originalFlashBorrowAmount
+        .mul(borrowAssetOverride.overridePrecision)
+        .mul(rate)
+        // Apply the buffer again to allow for any slippage during trading
+        .mul(this.settings.flashLoanBuffer)
+        .div(borrowAssetOverride.basePrecision)
+        .div(BigNumber.from(10).pow(decimals))
+        // This is for the flash loan buffer
+        .div(1000)
     );
   }
 
-  public async liquidateAccount(flashLiq: FlashLiquidation) {
-    const encodedTransaction = await this.flashLoanProvider.encodeTransaction(
-      flashLiq
-    );
-    const gasLimit = await this.flashLoanProvider.estimateGas(flashLiq);
+  public async getFlashLiquidation(
+    l: AccountLiquidation
+  ): Promise<FlashLiquidation> {
+    const hasCollateral =
+      l.liquidation.getLiquidationType() ===
+        LiquidationType.COLLATERAL_CURRENCY ||
+      l.liquidation.getLiquidationType() ===
+        LiquidationType.CROSS_CURRENCY_FCASH;
 
+    let flashBorrowAsset = l.liquidation.getLocalUnderlyingAddress();
+    const borrowAssetOverride = this.settings.overrides.find(
+      (c) => c.id === l.liquidation.getLocalCurrency().id
+    );
+
+    if (borrowAssetOverride) {
+      // If overriding the flash borrow asset, need to convert to the override
+      // denomination at the oracle rate here.
+      l.flashLoanAmount = await this.convertFlashBorrowAmount(
+        l.flashLoanAmount,
+        borrowAssetOverride
+      );
+      flashBorrowAsset = borrowAssetOverride.flashBorrowAsset;
+    }
+
+    let preLiquidationTrade: TradeData | null = null;
+    const flashLender = getFlashLender({
+      network: this.settings.network,
+      token: flashBorrowAsset,
+    });
+    const excludedSources = getExcludedSources(
+      this.settings.network,
+      flashLender
+    );
+
+    if (flashBorrowAsset !== l.liquidation.getLocalUnderlyingAddress()) {
+      // Sell flash borrowed asset for local currency
+      const zeroExResp = await this.getZeroExData(
+        flashBorrowAsset,
+        l.liquidation.getLocalUnderlyingAddress(),
+        l.flashLoanAmount,
+        excludedSources
+      );
+      preLiquidationTrade = {
+        trade: {
+          tradeType: TradeType.EXACT_IN_SINGLE,
+          sellToken: flashBorrowAsset,
+          buyToken: l.liquidation.getLocalUnderlyingAddress(),
+          amount: l.flashLoanAmount,
+          limit: BigNumber.from(zeroExResp.buyAmount)
+            .mul(this.settings.exactInSlippageLimit)
+            .div(1000),
+          deadline: BigNumber.from(getNowSeconds() + 1000),
+          exchangeData: zeroExResp.transaction.data,
+        },
+        dexId: DexId.ZERO_EX,
+        useDynamicSlippage: false,
+        dynamicSlippageLimit: BigNumber.from(0),
+      };
+    }
+
+    let collateralTrade: TradeData | null = null;
+    if (
+      hasCollateral &&
+      l.collateralReceivedAmount &&
+      // There are times when flash borrowing ETH and doing a pre-liquidation trade, we will not
+      // have to do a collateral trade.
+      l.liquidation.getCollateralUnderlyingAddress().toLowerCase() !==
+        flashBorrowAsset.toLowerCase()
+    ) {
+      const zeroExResp = await this.getZeroExData(
+        l.liquidation.getCollateralUnderlyingAddress(),
+        flashBorrowAsset,
+        l.collateralReceivedAmount,
+        excludedSources
+      );
+
+      collateralTrade = {
+        trade: {
+          tradeType: TradeType.EXACT_IN_SINGLE,
+          sellToken: l.liquidation.getCollateralUnderlyingAddress(),
+          buyToken: flashBorrowAsset,
+          amount: l.collateralReceivedAmount,
+          limit: BigNumber.from(zeroExResp.buyAmount)
+            .mul(this.settings.exactInSlippageLimit)
+            .div(1000),
+          deadline: BigNumber.from(getNowSeconds() + 1000),
+          exchangeData: zeroExResp.transaction.data,
+        },
+        dexId: DexId.ZERO_EX,
+        useDynamicSlippage: false,
+        dynamicSlippageLimit: BigNumber.from(0),
+      };
+    }
+
+    return {
+      accountLiq: l,
+      flashBorrowAsset: flashBorrowAsset,
+      preLiquidationTrade: preLiquidationTrade,
+      collateralTrade: collateralTrade,
+    };
+  }
+
+  public async getLargestLiquidation(acct: RiskyAccount) {
+    const netUnderlying = Array.from(acct.netUnderlyingAvailable.entries());
+    const netDebt = netUnderlying.filter(([_, n]) => n.isNegative());
+
+    const possibleLiquidations = netUnderlying.flatMap(
+      ([currencyId, netLocal]) => {
+        const liquidations: Liquidation[] = [];
+
+        if (!netLocal.isZero()) {
+          if (
+            acct.data.balances.find(
+              (a) => a.currencyId === currencyId && !a.nTokenBalance.isZero()
+            )
+          ) {
+            // The account has nTokens and therefore nToken liquidation is possible, this
+            // will simply swap nTokens for cash
+            liquidations.push(
+              new Liquidation(
+                LiquidationType.LOCAL_CURRENCY,
+                this.getCurrencyById(currencyId),
+                null,
+                null,
+                this.wethAddress
+              )
+            );
+          }
+
+          const fCashAssets = acct.data.portfolio.filter(
+            (a) => a.currencyId === currencyId && getNowSeconds() < a.maturity
+          );
+          if (fCashAssets.length) {
+            // The account has fCash collateral and therefore fCash liquidation is possible, this
+            // will simply swap fCash for cash. fCash is most likely positive, collateral asset but it
+            // is possible tha fCash is negative. In that case, the account will receive both cash and
+            // negative fcash debt.
+            const [asset, _] = fCashAssets
+              // Sort descending so we get the largest value
+              .sort((a, b) => (b.notional.lt(a.notional) ? 1 : -1));
+
+            // Only liquidate one fCash asset at a time, this is just simpler to reason
+            // about. The largest (most positive) fCash asset will be liquidated first.
+            liquidations.push(
+              new Liquidation(
+                LiquidationType.LOCAL_FCASH,
+                this.getCurrencyById(currencyId),
+                null,
+                [asset.maturity],
+                this.wethAddress
+              )
+            );
+          }
+        }
+
+        // NOTE: in some cases you will have to force a different collateral currency
+        // than the one that is returned by the logic below.
+        if (netLocal.gt(0)) {
+          // Collateral liquidations are possible, check each combination of collateral and debt currency
+          liquidations.push(
+            ...netDebt.map(
+              ([debtId, _]) =>
+                new Liquidation(
+                  LiquidationType.COLLATERAL_CURRENCY,
+                  this.getCurrencyById(debtId),
+                  this.getCurrencyById(currencyId),
+                  null,
+                  this.wethAddress
+                )
+            )
+          );
+        }
+
+        return liquidations;
+      }
+    );
+
+    // Execute simulated liquidation calls against all the possible combinations
+    const calls = possibleLiquidations.flatMap((l) =>
+      l.getFlashLoanAmountCall(this.notionalContract, acct.id)
+    );
+    const { results } = await aggregate(calls, this.provider, undefined, true);
+
+    // Merge the results back with the possible liquidation object
+    const accountLiquidations = possibleLiquidations
+      .map((l) => {
+        const loanAmount = results[
+          `${acct.id}:${l.getLiquidationType()}:${
+            l.getLocalCurrency().id
+          }:${l.getCollateralCurrencyId()}:loanAmount`
+        ] as BigNumber;
+
+        let collateralReceivedAmount: BigNumber | undefined = undefined;
+        if (l.getLiquidationType() === LiquidationType.COLLATERAL_CURRENCY) {
+          collateralReceivedAmount = results[
+            `${acct.id}:${l.getLiquidationType()}:${
+              l.getLocalCurrency().id
+            }:${l.getCollateralCurrencyId()}:collateralReceivedAmount`
+          ] as BigNumber;
+        }
+
+        return {
+          accountId: acct.id,
+          liquidation: l,
+          flashLoanAmount: loanAmount
+            .mul(this.settings.flashLoanBuffer)
+            .div(1000),
+          // De-rate the collateral received amount just a bit
+          collateralReceivedAmount: collateralReceivedAmount
+            ?.mul(995)
+            .div(1000),
+        };
+      })
+      .filter((l) => !l.flashLoanAmount.isZero())
+      // Find the liquidation with the largest flash loan amount. This will serve as a heuristic
+      // for the most profitable liquidation
+      .sort((a, b) => (a.flashLoanAmount.lt(b.flashLoanAmount) ? 1 : -1));
+
+    for (const a of accountLiquidations) {
+      try {
+        // This will get all the flash liquidation parameters
+        return await this.getFlashLiquidation(a);
+      } catch (e) {
+        // If this fails then will proceed to the next one
+        await this.logger.submitEvent({
+          aggregation_key: 'AccountLiquidated',
+          alert_type: 'error',
+          host: 'cloudflare',
+          network: this.settings.network,
+          title: `Failed Account Liquidation`,
+          tags: [`account:${a.accountId}`, `event:failed_account_liquidated`],
+          text: `
+        Account: ${a.accountId}
+        Liquidation Type: ${a.liquidation.getLiquidationType()}
+        Local Currency: ${a.liquidation.getLocalCurrency().id}
+        Collateral Currency: ${a.liquidation.getCollateralCurrencyId()}
+        Flash Loan Amount: ${a.flashLoanAmount.toString()}
+
+        Error: ${(e as Error).toString()}
+        `,
+        });
+      }
+    }
+
+    return undefined;
+  }
+
+  public async liquidateAccount(flashLiq: FlashLiquidation) {
     try {
-      const resp = await sendTxThroughRelayer({
+      const { data, to } = await this.flashLoanProvider.encodeTransaction(
+        flashLiq
+      );
+      const gasLimit = await this.flashLoanProvider.estimateGas(flashLiq);
+
+      const txnResponse = await sendTxThroughRelayer({
         env: {
           NETWORK: this.settings.network,
           TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
         },
-        to: this.settings.flashLenderAddress,
-        data: encodedTransaction,
+        to,
+        data,
         gasLimit: gasLimit.mul(200).div(100).toNumber(),
       });
 
@@ -256,17 +608,15 @@ export default class NotionalV3Liquidator {
           `account:${flashLiq.accountLiq.accountId}`,
           `event:account_liquidated`,
         ],
-        text: `Liquidated account ${flashLiq.accountLiq.accountId}, ${resp.hash}`,
+        text: `Liquidated account ${flashLiq.accountLiq.accountId}, ${txnResponse.hash}`,
       });
     } catch (e) {
-      console.error(e.toString());
-
       await this.logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'error',
         host: 'cloudflare',
         network: this.settings.network,
-        title: `Account liquidated`,
+        title: `Failed Account Liquidation`,
         tags: [
           `account:${flashLiq.accountLiq.accountId}`,
           `event:failed_account_liquidated`,
@@ -278,8 +628,9 @@ Liquidation Type: ${flashLiq.accountLiq.liquidation.getLiquidationType()}
 Local Currency: ${flashLiq.accountLiq.liquidation.getLocalCurrency().id}
 Collateral Currency: ${flashLiq.accountLiq.liquidation.getCollateralCurrencyId()}
 Flash Loan Amount: ${flashLiq.accountLiq.flashLoanAmount.toString()}
-Error: ${e.toString()}
-        `,
+
+Error: ${(e as Error).toString()}
+`,
       });
     }
   }

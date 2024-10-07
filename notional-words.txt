@@ -252,6 +252,7 @@ sdiff
 selectedf
 settledf
 sideboxshadow
+Sighash
 signedf
 simplebar
 smallcell

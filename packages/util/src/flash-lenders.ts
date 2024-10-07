@@ -29,6 +29,7 @@ const tokens = {
     RDNT: '0x3082CC23568eA640225c2467653dB90e9250AaA0',
     UNI: '0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0',
     LDO: '0x13Ad51ed4F1B7e9Dc168d8a00cB3f4dDD85EfA60',
+    tBTC: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40',
   },
 };
 
@@ -40,7 +41,7 @@ const defaultFlashLenders = {
 
 const perVaultFlashLenders: Record<string, string> = {};
 
-const perTokenFlashLenders = {
+const perTokenFlashLenders: Record<Network, Record<string, string>> = {
   [Network.mainnet]: {
     default: wrappedFlashLenders.mainnet['AAVE'],
     // NOTE: this is set to USDT because the Aave flash lender does not use the proper
@@ -53,12 +54,13 @@ const perTokenFlashLenders = {
     [tokens.arbitrum['GMX']]: wrappedFlashLenders.arbitrum['UNIV3'],
     [tokens.arbitrum['RDNT']]: wrappedFlashLenders.arbitrum['BALANCER'],
     [tokens.arbitrum['UNI']]: wrappedFlashLenders.arbitrum['UNIV3'],
+    [tokens.arbitrum['tBTC']]: wrappedFlashLenders.arbitrum['UNIV3'],
   },
+  [Network.all]: {},
 };
-
 const checkSumAddress = (address: string) => {
   // Convert to checksum version or throw if invalid checksum
-  return ethers.utils.getAddress(address);
+  return address ? ethers.utils.getAddress(address) : '';
 };
 
 export function getFlashLender({
@@ -82,17 +84,18 @@ export function getExcludedSources(
   network: Network,
   flashLenderAddress: string
 ): string | undefined {
-  const [name, _] = Object.entries(wrappedFlashLenders[network]).find(
+  const n = Object.entries(wrappedFlashLenders[network]).find(
     ([_, address]) => address.toLowerCase() === flashLenderAddress.toLowerCase()
-  ) as [string, string];
+  );
+  const name = n ? n[0] : '';
   return zeroExSources[network] ? zeroExSources[network][name] : undefined;
 }
 
 // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-sources
-const zeroExSources = {
+const zeroExSources: Record<Network, Record<string, string>> = {
   [Network.mainnet]: {
     BALANCER: 'Balancer_V2',
-    UNISWAP: 'Uniswap_V3',
+    UNIV3: 'Uniswap_V3',
   },
   [Network.arbitrum]: {
     BALANCER: 'Balancer_V2',

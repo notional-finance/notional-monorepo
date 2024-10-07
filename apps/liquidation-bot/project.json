@@ -31,10 +31,10 @@
       "options": {
         "commands": [
           {
-            "command": "wrangler deploy --env mainnet"
+            "command": "wrangler deploy --env mainnet2"
           },
           {
-            "command": "wrangler deploy --env arbitrum"
+            "command": "wrangler deploy --env arbitrum2"
           }
         ],
         "cwd": "apps/liquidation-bot"

@@ -12,36 +12,43 @@ crons = [
     "0 * * * *",
 ]
 
-[env.arbitrum]
-name = "liquidation-bot-arbitrum"
+# Liquidation Bot v1 are the original liquidators and the code exists on the liquidation-bot-v1 tag
+[env.arbitrum2]
+name = "liquidation-bot-arbitrum2"
 
-[env.arbitrum.vars]
+[env.arbitrum2.vars]
 NX_REGISTRY_URL = 'https://registry.notional.finance'
-ACCOUNT_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service/accounts'
+ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
 ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
 NETWORK = 'arbitrum'
-FLASH_LIQUIDATOR_CONTRACT = '0xaCe757160cedD8b735f3dc19870A52F611F04a2e'
+FLASH_LIQUIDATOR_CONTRACT = '0x326746FD16FdA81599a80280AC94d3EdE71E2CE1'
 FLASH_LIQUIDATOR_OWNER = '0x8F5ea3CDe898B208280c0e93F3aDaaf1F5c35a7e'
-FLASH_LENDER_ADDRESS = '0x794a61358D6845594F94dc1DB02A252b5b4814aD'
 FLASH_LOAN_BUFFER = '1005'
 NOTIONAL_PROXY_CONTRACT = '0x1344A36A1B56144C3Bc62E7757377D288fDE0369'
-DUST_THRESHOLD = '100000000000000'
+# 0.001 ETH
+DUST_THRESHOLD = '1000000000000000'
 EXACT_IN_SLIPPAGE_LIMIT = '980'
 EXACT_OUT_SLIPPAGE_LIMIT = '1020'
 GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
 
-[env.mainnet]
-name = "liquidation-bot-mainnet"
+[env.arbitrum2.triggers]
+crons = [
+    "0/2 * * * *",
+    "0 * * * *"
+]
 
-[env.mainnet.vars]
+# This liquidator uses the additional flash lender methods
+[env.mainnet2]
+name = "liquidation-bot-mainnet2"
+
+[env.mainnet2.vars]
 NX_REGISTRY_URL = 'https://registry.notional.finance'
-ACCOUNT_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service/accounts'
+ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
 ZERO_EX_SWAP_URL = 'https://api.0x.org/swap/v1/quote'
 NETWORK = 'mainnet'
-FLASH_LIQUIDATOR_CONTRACT = '0x0A058E89B904A701063fec9D0e770BA087ED3e76'
+FLASH_LIQUIDATOR_CONTRACT = '0x7E9819C4fd31Efdd16Abb9e4C2b87F9991195493'
 FLASH_LIQUIDATOR_OWNER = '0x8B64fA5Fd129df9c755eB82dB1e16D6D0Bdf5Bc3'
-FLASH_LENDER_ADDRESS = '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2'
 FLASH_LOAN_BUFFER = '1005'
 NOTIONAL_PROXY_CONTRACT = '0x6e7058c91F85E0F6db4fc9da2CA41241f5e4263f'
 DUST_THRESHOLD = '100000000000000'
@@ -49,3 +56,9 @@ EXACT_IN_SLIPPAGE_LIMIT = '980'
 EXACT_OUT_SLIPPAGE_LIMIT = '1020'
 GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
+
+[env.mainnet2.triggers]
+crons = [
+    "0/2 * * * *",
+    "0 * * * *"
+]

@@ -11,298 +11,290 @@ import type {
 
 const _abi = [
   {
+    type: "constructor",
     inputs: [
       {
-        internalType: "contract NotionalProxy",
         name: "notional_",
         type: "address",
+        internalType: "contract NotionalProxy",
       },
       {
-        internalType: "address",
-        name: "lendingPool_",
-        type: "address",
-      },
-      {
-        internalType: "address",
         name: "weth_",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "address",
         name: "owner_",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "address",
         name: "tradingModule_",
         type: "address",
+        internalType: "address",
       },
     ],
     stateMutability: "nonpayable",
-    type: "constructor",
   },
   {
-    inputs: [],
-    name: "LENDING_POOL",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
+    type: "receive",
+    stateMutability: "payable",
+  },
+  {
     type: "function",
-  },
-  {
-    inputs: [],
     name: "NOTIONAL",
+    inputs: [],
     outputs: [
       {
+        name: "",
+        type: "address",
         internalType: "contract NotionalProxy",
-        name: "",
-        type: "address",
       },
     ],
     stateMutability: "view",
-    type: "function",
   },
   {
-    inputs: [],
+    type: "function",
     name: "TRADING_MODULE",
-    outputs: [
-      {
-        internalType: "contract ITradingModule",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
-    name: "WETH",
     outputs: [
       {
-        internalType: "contract WETH9",
         name: "",
         type: "address",
+        internalType: "contract ITradingModule",
       },
     ],
     stateMutability: "view",
-    type: "function",
   },
   {
+    type: "function",
+    name: "WETH",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "contract WETH9",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "approveTokens",
     inputs: [
       {
-        internalType: "address[]",
         name: "tokens",
         type: "address[]",
+        internalType: "address[]",
       },
       {
-        internalType: "address",
         name: "spender",
         type: "address",
-      },
-    ],
-    name: "approveTokens",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint16[]",
-        name: "currencies",
-        type: "uint16[]",
-      },
-    ],
-    name: "enableCurrencies",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address[]",
-        name: "assets",
-        type: "address[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "amounts",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "premiums",
-        type: "uint256[]",
-      },
-      {
         internalType: "address",
-        name: "initiator",
-        type: "address",
-      },
-      {
-        internalType: "bytes",
-        name: "params",
-        type: "bytes",
       },
     ],
-    name: "executeOperation",
-    outputs: [
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "callback",
+    inputs: [
       {
-        internalType: "bool",
         name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
+        type: "address",
         internalType: "address",
+      },
+      {
+        name: "paymentReceiver",
+        type: "address",
+        internalType: "address",
+      },
+      {
         name: "asset",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "uint256",
         name: "amount",
         type: "uint256",
+        internalType: "uint256",
       },
       {
-        internalType: "bytes",
+        name: "fee",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
         name: "params",
         type: "bytes",
-      },
-      {
-        internalType: "address",
-        name: "localAddress",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "collateralAddress",
-        type: "address",
+        internalType: "bytes",
       },
     ],
-    name: "flashLoan",
     outputs: [
       {
-        internalType: "uint256",
-        name: "flashLoanResidual",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "localProfit",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "collateralProfit",
-        type: "uint256",
+        name: "",
+        type: "bytes",
+        internalType: "bytes",
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
   },
   {
+    type: "function",
+    name: "enableCurrencies",
     inputs: [
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
+        name: "currencies",
+        type: "uint16[]",
+        internalType: "uint16[]",
       },
     ],
-    name: "getFreeCollateral",
-    outputs: [
-      {
-        internalType: "int256",
-        name: "",
-        type: "int256",
-      },
-      {
-        internalType: "int256[]",
-        name: "",
-        type: "int256[]",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "ifCashCurrencyId",
-    outputs: [
-      {
-        internalType: "uint16",
-        name: "",
-        type: "uint16",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "owner",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "transferOwnership",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
   },
   {
+    type: "function",
+    name: "flashLoan",
     inputs: [
       {
-        internalType: "address",
-        name: "token",
+        name: "flashLenderWrapper",
         type: "address",
+        internalType: "address",
       },
       {
-        internalType: "uint256",
+        name: "asset",
+        type: "address",
+        internalType: "address",
+      },
+      {
         name: "amount",
         type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "params",
+        type: "bytes",
+        internalType: "bytes",
+      },
+      {
+        name: "localAddress",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "collateralAddress",
+        type: "address",
+        internalType: "address",
       },
     ],
-    name: "withdraw",
-    outputs: [],
+    outputs: [
+      {
+        name: "flashLoanResidual",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "localProfit",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "collateralProfit",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
     stateMutability: "nonpayable",
-    type: "function",
   },
   {
+    type: "function",
+    name: "getFreeCollateral",
+    inputs: [
+      {
+        name: "account",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "int256",
+        internalType: "int256",
+      },
+      {
+        name: "",
+        type: "int256[]",
+        internalType: "int256[]",
+      },
+    ],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "ifCashCurrencyId",
     inputs: [],
-    name: "wrapToWETH",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    outputs: [
+      {
+        name: "",
+        type: "uint16",
+        internalType: "uint16",
+      },
+    ],
+    stateMutability: "view",
   },
   {
-    stateMutability: "payable",
-    type: "receive",
+    type: "function",
+    name: "owner",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "transferOwnership",
+    inputs: [
+      {
+        name: "newOwner",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "withdraw",
+    inputs: [
+      {
+        name: "token",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "amount",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "wrapToWETH",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
   },
 ] as const;
 

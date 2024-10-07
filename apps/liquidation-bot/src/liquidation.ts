@@ -1,6 +1,10 @@
+import { AggregateCall } from '@notional-finance/multicall';
 import { LiquidationType, TradeData, Currency } from './types';
-import { utils, constants, Contract } from 'ethers';
+import { utils, constants, Contract, BigNumber } from 'ethers';
 
+/**
+ * Represents a single liquidation opportunity
+ */
 export default class Liquidation {
   public static readonly ETH_CURRENCY_ID = 1;
   public static readonly LOCAL_CURRENCY_PARAMS = 'tuple(address,uint16,uint96)';
@@ -8,9 +12,11 @@ export default class Liquidation {
     'tuple(uint8,address,address,uint256,uint256,uint256,bytes)';
   public static readonly TRADE_DATA_PARAMS = `tuple(${Liquidation.TRADE_PARAMS},uint16,bool,uint32)`;
   public static readonly COLLATERAL_CURRENCY_PARAMS = `tuple(address,uint16,uint16,address,uint128,uint96,${Liquidation.TRADE_DATA_PARAMS})`;
+  public static readonly COLLATERAL_CURRENCY_PARAMS_BYTES = `tuple(address,uint16,uint16,address,uint128,uint96,bytes)`;
   public static readonly LOCAL_FCASH_PARAMS =
     'tuple(address,uint16,uint256[],uint256[])';
   public static readonly CROSS_CURRENCY_FCASH_PARAMS = `tuple(address,uint16,uint16,address,uint256[],uint256[],${Liquidation.TRADE_DATA_PARAMS})`;
+  public static readonly CROSS_CURRENCY_FCASH_PARAMS_BYTES = `tuple(address,uint16,uint16,address,uint256[],uint256[],bytes)`;
 
   private type: LiquidationType;
   private hasTransferFee: boolean;
@@ -143,23 +149,35 @@ export default class Liquidation {
         break;
       case LiquidationType.COLLATERAL_CURRENCY:
         {
-          if (!collateralTrade) {
-            throw Error('Collateral trade expected');
-          }
-          liqCalldata = coder.encode(
-            [Liquidation.COLLATERAL_CURRENCY_PARAMS],
-            [
-              [
-                account,
-                this.localCurrency.id.toString(),
-                this.collateralCurrencyId?.toString(),
-                this.collateralUnderlyingAddress,
-                '0',
-                '0',
-                this.getTradeDataParams(collateralTrade),
-              ],
-            ]
-          );
+          liqCalldata = collateralTrade
+            ? coder.encode(
+                [Liquidation.COLLATERAL_CURRENCY_PARAMS],
+                [
+                  [
+                    account,
+                    this.localCurrency.id.toString(),
+                    this.collateralCurrencyId?.toString(),
+                    this.collateralUnderlyingAddress,
+                    '0',
+                    '0',
+                    this.getTradeDataParams(collateralTrade),
+                  ],
+                ]
+              )
+            : coder.encode(
+                [Liquidation.COLLATERAL_CURRENCY_PARAMS_BYTES],
+                [
+                  [
+                    account,
+                    this.localCurrency.id.toString(),
+                    this.collateralCurrencyId?.toString(),
+                    this.collateralUnderlyingAddress,
+                    '0',
+                    '0',
+                    '0x',
+                  ],
+                ]
+              );
         }
         break;
       case LiquidationType.LOCAL_FCASH:
@@ -179,23 +197,35 @@ export default class Liquidation {
         break;
       case LiquidationType.CROSS_CURRENCY_FCASH:
         {
-          if (!collateralTrade) {
-            throw Error('Collateral trade expected');
-          }
-          liqCalldata = coder.encode(
-            [Liquidation.CROSS_CURRENCY_FCASH_PARAMS],
-            [
-              [
-                account,
-                this.localCurrency.id.toString(),
-                this.collateralCurrencyId?.toString(),
-                this.collateralUnderlyingAddress,
-                this.maturities,
-                this.maturities.map(() => 0),
-                this.getTradeDataParams(collateralTrade),
-              ],
-            ]
-          );
+          liqCalldata = collateralTrade
+            ? coder.encode(
+                [Liquidation.CROSS_CURRENCY_FCASH_PARAMS],
+                [
+                  [
+                    account,
+                    this.localCurrency.id.toString(),
+                    this.collateralCurrencyId?.toString(),
+                    this.collateralUnderlyingAddress,
+                    this.maturities,
+                    this.maturities.map(() => 0),
+                    this.getTradeDataParams(collateralTrade),
+                  ],
+                ]
+              )
+            : coder.encode(
+                [Liquidation.CROSS_CURRENCY_FCASH_PARAMS_BYTES],
+                [
+                  [
+                    account,
+                    this.localCurrency.id.toString(),
+                    this.collateralCurrencyId?.toString(),
+                    this.collateralUnderlyingAddress,
+                    this.maturities,
+                    this.maturities.map(() => 0),
+                    '0x',
+                  ],
+                ]
+              );
         }
         break;
     }
@@ -215,41 +245,10 @@ export default class Liquidation {
     );
   }
 
-  public getFlashLoanAmountCall(notional: Contract, account: string) {
-    // TODO: enable this once we figure out how to deal with nToken residuals
-    /*if (
-      this.type === LiquidationType.LOCAL_CURRENCY ||
-      this.type === LiquidationType.COLLATERAL_CURRENCY
-    ) {
-      // Determine if nToken account has residuals
-      let currencyId = this.localCurrencyId;
-      if (this.type === LiquidationType.COLLATERAL_CURRENCY)
-        currencyId = this.collateralCurrencyId;
-
-      const system = System.getSystem();
-      const currency = system.getCurrencyById(currencyId);
-      const nTokenBalance = (await proxy.getAccountBalance(currencyId, address))
-        .nTokenBalance;
-      console.log(
-        `${currency.nTokenSymbol} balance: ${nTokenBalance.toString()}`
-      );
-      if (nTokenBalance.gt(0) && currency.nTokenSymbol) {
-        const redeemAmount = TypedBigNumber.from(
-          nTokenBalance,
-          BigNumberType.nToken,
-          currency.nTokenSymbol as string
-        );
-
-        try {
-          NTokenValue.getAssetFromRedeemNToken(currencyId, redeemAmount);
-        } catch (e: any) {
-          console.error(e);
-          console.log(`${address} has nToken residuals`);
-          this.residuals = true;
-        }
-      }
-    }*/
-
+  public getFlashLoanAmountCall(
+    notional: Contract,
+    account: string
+  ): AggregateCall[] {
     switch (this.type) {
       case LiquidationType.LOCAL_CURRENCY: {
         const key = `${account}:${this.type}:${this.localCurrency.id}:0`;
@@ -257,7 +256,7 @@ export default class Liquidation {
           {
             stage: 0,
             target: notional,
-            transform: (r) => r[0],
+            transform: (r: BigNumber[]) => r[0],
             method: 'calculateLocalCurrencyLiquidation',
             args: [account, this.localCurrency.id, 0],
             key: `${key}:pCashLoanAmount`,
@@ -266,9 +265,9 @@ export default class Liquidation {
             stage: 1,
             target: notional,
             method: 'convertCashBalanceToExternal',
-            args: (r) => [
+            args: (r: unknown) => [
               this.localCurrency.id,
-              r[`${key}:pCashLoanAmount`] || 0,
+              (r as Record<string, BigNumber>)[`${key}:pCashLoanAmount`] || 0,
               true,
             ],
             key: `${key}:loanAmount`,
@@ -302,7 +301,7 @@ export default class Liquidation {
             stage: 1,
             target: notional,
             method: 'convertCashBalanceToExternal',
-            args: (r) => [
+            args: (r: any) => [
               this.localCurrency.id,
               (
                 r[`${key}:pCashLoanAmount`] as Awaited<
@@ -340,7 +339,7 @@ export default class Liquidation {
           {
             stage: 0,
             target: notional,
-            transform: (r) => r[1],
+            transform: (r: BigNumber[]) => r[1],
             method: 'calculatefCashLocalLiquidation',
             args: [
               account,
@@ -354,9 +353,9 @@ export default class Liquidation {
             stage: 1,
             target: notional,
             method: 'convertCashBalanceToExternal',
-            args: (r) => [
+            args: (r: unknown) => [
               this.localCurrency.id,
-              r[`${key}:pCashLoanAmount`] || 0,
+              (r as Record<string, BigNumber>)[`${key}:pCashLoanAmount`] || 0,
               true,
             ],
             key: `${key}:loanAmount`,
@@ -369,7 +368,7 @@ export default class Liquidation {
           {
             stage: 0,
             target: notional,
-            transform: (r) => r[1],
+            transform: (r: BigNumber[]) => r[1],
             method: 'calculatefCashCrossCurrencyLiquidation',
             args: [
               account,
@@ -384,9 +383,9 @@ export default class Liquidation {
             stage: 1,
             target: notional,
             method: 'convertCashBalanceToExternal',
-            args: (r) => [
+            args: (r: unknown) => [
               this.localCurrency.id,
-              r[`${key}:pCashLoanAmount`] || 0,
+              (r as Record<string, BigNumber>)[`${key}:pCashLoanAmount`] || 0,
               true,
             ],
             key: `${key}:loanAmount`,
@@ -397,19 +396,6 @@ export default class Liquidation {
 
     throw Error('Invalid liquidation type');
   }
-
-  private getResidualCurrencyId(): number {
-    if (!this.hasResiduals) return 0;
-    return this.type == LiquidationType.LOCAL_CURRENCY
-      ? this.localCurrency.id
-      : this.collateralCurrencyId;
-  }
-
-  /*public getLiquidatorAddress(network: string): string {
-    return this.residuals
-      ? Config.getManualLiquidatorAddress(network, this.getResidualCurrencyId())
-      : Config.getFlashLiquidatorAddress(network);
-  }*/
 
   public toString(): string {
     return `type=${this.type} localCurrencyId=${this.localCurrency.id} collateralCurrencyId=${this.collateralCurrencyId} residuals=${this.residuals}`;
