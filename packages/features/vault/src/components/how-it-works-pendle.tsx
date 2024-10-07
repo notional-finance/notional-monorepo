@@ -2,32 +2,19 @@ import { Body, ExternalLink, H5 } from '@notional-finance/mui';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { Box, useTheme, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { CurveVaultImg } from './curve-vault-img';
 import { useVaultStrategyData } from '../hooks';
-import { BalancerVaultImg } from './balancer-vault-img';
-import { REINVESTMENT_TYPE } from '@notional-finance/util';
+import PTVaultImg from './pt-vault-img';
 
 interface HowItWorksFaqProps {
   tokenSymbol: string;
-  currentVaultType: REINVESTMENT_TYPE | undefined;
 }
 
-export const HowItWorksFaq = ({
-  tokenSymbol,
-  currentVaultType,
-}: HowItWorksFaqProps) => {
+export const HowItWorksFaqPendle = ({ tokenSymbol }: HowItWorksFaqProps) => {
   const theme = useTheme();
   const vaultStrategyData = useVaultStrategyData();
-
   if (!vaultStrategyData) return null;
 
-  const {
-    docsLink,
-    baseProtocol,
-    boosterProtocol,
-    primaryBorrowCurrency,
-    poolName,
-  } = vaultStrategyData;
+  const { docsLink, primaryBorrowCurrency } = vaultStrategyData;
 
   return (
     <div>
@@ -55,13 +42,7 @@ export const HowItWorksFaq = ({
               />
             </BodyText>
             <ImageWrapper>
-              {(boosterProtocol === 'Curve' ||
-                boosterProtocol === 'Convex') && (
-                <CurveVaultImg tokensymbol={tokenSymbol} />
-              )}
-              {boosterProtocol === 'Aura' && (
-                <BalancerVaultImg tokensymbol={tokenSymbol} />
-              )}
+              <PTVaultImg />
             </ImageWrapper>
             <H5
               sx={{
@@ -73,27 +54,9 @@ export const HowItWorksFaq = ({
             </H5>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`1. Take {primaryBorrowCurrency} and provide liquidity to the {poolName} pool on {baseProtocol}.`}
-                values={{ primaryBorrowCurrency, poolName, baseProtocol }}
+                defaultMessage={`Take {primaryBorrowCurrency} and buy PTs on Pendle.`}
+                values={{ primaryBorrowCurrency }}
               />
-            </BodyText>
-            <BodyText>
-              <FormattedMessage
-                defaultMessage={`2. Stake the {baseProtocol} LP tokens on {boosterProtocol}.`}
-                values={{ baseProtocol, boosterProtocol }}
-              />
-            </BodyText>
-            <BodyText>
-              {currentVaultType !== REINVESTMENT_TYPE.DIRECT_CLAIM && (
-                <FormattedMessage
-                  defaultMessage={`3. Harvest and reinvest incentives back into the pool on a daily basis.`}
-                />
-              )}
-              {currentVaultType === REINVESTMENT_TYPE.DIRECT_CLAIM && (
-                <FormattedMessage
-                  defaultMessage={`3. Earn incentives continuously and claimable at any time.`}
-                />
-              )}
             </BodyText>
             <H5
               sx={{
@@ -105,7 +68,7 @@ export const HowItWorksFaq = ({
             </H5>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`You earn the strategy APY on your deposit + borrowed funds and you pay the borrow APY on your borrowed funds.`}
+                defaultMessage={`When you enter the strategy and buy the PTs, you get a fixed APY on your deposit + borrowed funds. You pay the borrow rate on your borrowed funds.`}
               />
             </BodyText>
             <H5
@@ -116,7 +79,7 @@ export const HowItWorksFaq = ({
               }}
             >
               <FormattedMessage
-                defaultMessage={`Total APY = strategy APY + (strategy APY - borrow APY) * leverage`}
+                defaultMessage={`Total APY = PT APY + (PT APY - Borrow APY) * Leverage`}
               />
             </H5>
           </Box>
@@ -161,4 +124,4 @@ const ImageWrapper = styled(Box)(
   `
 );
 
-export default HowItWorksFaq;
+export default HowItWorksFaqPendle;

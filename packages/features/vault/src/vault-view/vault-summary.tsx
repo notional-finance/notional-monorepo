@@ -13,14 +13,26 @@ import { VaultActionContext } from '../vault';
 import { LiquidationChart, TradeActionSummary } from '@notional-finance/trade';
 import { useVaultExistingFactors, useVaultFaq } from '../hooks';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { getVaultType } from '@notional-finance/core-entities';
+import { REINVESTMENT_TYPE } from '@notional-finance/util';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { selectedNetwork, collateral, deposit } = state;
+  const { selectedNetwork, collateral, deposit, vaultAddress } = state;
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
+  const vaultType =
+    vaultAddress && selectedNetwork
+      ? getVaultType(vaultAddress, selectedNetwork)
+      : undefined;
   const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+  const currentVaultType =
+    vaultType === REINVESTMENT_TYPE.PENDLE_PT
+      ? REINVESTMENT_TYPE.PENDLE_PT
+      : vaultType?.includes(REINVESTMENT_TYPE.DIRECT_CLAIM)
+      ? REINVESTMENT_TYPE.DIRECT_CLAIM
+      : REINVESTMENT_TYPE.AUTO_REINVEST;
 
   const nonLeveragedYield = nonLeveragedYields.find(
     (y) => y.token.id === collateral?.id
@@ -30,7 +42,8 @@ export const VaultSummary = () => {
   const { faqHeaderLinks, faqs } = useVaultFaq(
     selectedNetwork,
     deposit?.symbol,
-    points
+    points,
+    currentVaultType
   );
 
   return (

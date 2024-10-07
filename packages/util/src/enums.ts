@@ -26,6 +26,7 @@ export enum PRODUCTS {
 export enum REINVESTMENT_TYPE {
   AUTO_REINVEST = 'AutoReinvest',
   DIRECT_CLAIM = 'DirectClaim',
+  PENDLE_PT = 'PendlePT',
 }
 
 export enum META_TAG_CATEGORIES {
