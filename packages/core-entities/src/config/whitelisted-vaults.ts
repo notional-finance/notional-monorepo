@@ -147,10 +147,11 @@ const SingleSidedLP_DirectClaim: Record<Network, string[]> = {
   [Network.all]: [],
 };
 
-export type VaultType =
-  | 'SingleSidedLP'
-  | 'PendlePT'
-  | 'SingleSidedLP_DirectClaim';
+type VaultType =
+  | 'SingleSidedLP_AutoReinvest'
+  | 'SingleSidedLP_DirectClaim'
+  | 'SingleSidedLP_Points'
+  | 'PendlePT';
 
 export function getVaultType(
   vaultAddress: string,
@@ -162,6 +163,11 @@ export function getVaultType(
     SingleSidedLP_DirectClaim[network].includes(vaultAddress.toLowerCase())
   ) {
     return 'SingleSidedLP_DirectClaim';
+  } else if (
+    Object.keys(PointsMultipliers[network]).includes(vaultAddress.toLowerCase())
+  ) {
+    return 'SingleSidedLP_Points';
+  } else {
+    return 'SingleSidedLP_AutoReinvest';
   }
-  return 'SingleSidedLP';
 }

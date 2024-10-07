@@ -22,8 +22,9 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
     if (!params) throw Error(`No vault params found: ${vaultAddress}`);
     const vaultType = getVaultType(vaultAddress, network);
     switch (vaultType) {
-      case 'SingleSidedLP':
+      case 'SingleSidedLP_AutoReinvest':
       case 'SingleSidedLP_DirectClaim':
+      case 'SingleSidedLP_Points':
         return new SingleSidedLP(
           network,
           vaultAddress,
@@ -46,8 +47,9 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
       map((params) => {
         const vaultType = getVaultType(vaultAddress, network);
         switch (vaultType) {
-          case 'SingleSidedLP':
+          case 'SingleSidedLP_AutoReinvest':
           case 'SingleSidedLP_DirectClaim':
+          case 'SingleSidedLP_Points':
             return new SingleSidedLP(
               network,
               vaultAddress,

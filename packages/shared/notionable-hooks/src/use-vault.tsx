@@ -118,10 +118,7 @@ export function useAllVaults(
           totalUsedPrimaryBorrowCapacity.toFloat() /
           maxPrimaryBorrowCapacity.toFloat();
         let vaultShareOfPool = 0;
-        if (
-          vaultType === 'SingleSidedLP' ||
-          vaultType === 'SingleSidedLP_DirectClaim'
-        ) {
+        if (vaultType.startsWith('SingleSidedLP')) {
           vaultShareOfPool =
             (
               Registry.getVaultRegistry().getVaultAdapter(

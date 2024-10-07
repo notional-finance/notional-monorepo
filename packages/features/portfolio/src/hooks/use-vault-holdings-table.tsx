@@ -277,7 +277,7 @@ function getSpecificVaultInfo(
       ],
       warning: undefined,
     };
-  } else if (v.vaultMetadata.vaultType === 'SingleSidedLP') {
+  } else if (v.vaultMetadata.vaultType === 'SingleSidedLP_AutoReinvest') {
     return {
       subRowInfo: [
         {
