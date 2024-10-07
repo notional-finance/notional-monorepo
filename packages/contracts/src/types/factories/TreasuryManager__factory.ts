@@ -614,6 +614,89 @@ const _abi = [
   },
   {
     type: "function",
+    name: "claimAndReinvestVaultReward",
+    inputs: [
+      {
+        name: "vault",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "tradesPerRewardToken",
+        type: "tuple[][]",
+        internalType: "struct IStrategyVault.SingleSidedRewardTradeParams[][]",
+        components: [
+          {
+            name: "sellToken",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "buyToken",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "tradeParams",
+            type: "tuple",
+            internalType: "struct IStrategyVault.TradeParams",
+            components: [
+              {
+                name: "dexId",
+                type: "uint16",
+                internalType: "uint16",
+              },
+              {
+                name: "tradeType",
+                type: "uint8",
+                internalType: "enum TradeType",
+              },
+              {
+                name: "oracleSlippagePercentOrLimit",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "exchangeData",
+                type: "bytes",
+                internalType: "bytes",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "minPoolClaims",
+        type: "uint256[]",
+        internalType: "uint256[]",
+      },
+    ],
+    outputs: [
+      {
+        name: "rewardTokens",
+        type: "address[]",
+        internalType: "address[]",
+      },
+      {
+        name: "amountsSold",
+        type: "uint256[]",
+        internalType: "uint256[]",
+      },
+      {
+        name: "poolClaimAmounts",
+        type: "uint256[]",
+        internalType: "uint256[]",
+      },
+    ],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "sNOTE",
     inputs: [],
     outputs: [

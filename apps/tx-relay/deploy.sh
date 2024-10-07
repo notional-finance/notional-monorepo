@@ -49,7 +49,6 @@ cron_jobs="Rebalance_Arbitrum|/arbitrum|* * * * *"
 # Set the base URI as an environment variable
 # Get the function URI using gcloud
 BASE_URI=$(gcloud functions describe rebalance-service --region=us-central1 --format='value(url)')
-# echo "Base URI: $BASE_URI"
 
 # Create jobs from cron_jobs array
 echo "$cron_jobs" | while IFS='|' read -r description url schedule; do
@@ -62,7 +61,7 @@ echo "$cron_jobs" | while IFS='|' read -r description url schedule; do
     else
       ACTION="create"
     fi
-    echo "${ACTION} job"
+
     gcloud scheduler jobs $ACTION http "$job_name" \
         --location=us-central1 \
         --schedule="$schedule" \
@@ -72,6 +71,6 @@ echo "$cron_jobs" | while IFS='|' read -r description url schedule; do
         --oidc-service-account-email=monitoring-agents@appspot.gserviceaccount.com \
         --oidc-token-audience="${BASE_URI}" \
         --description="$description"
-    
+
     echo "${ACTION}d job: $job_name $url $schedule"
-done
+ done
