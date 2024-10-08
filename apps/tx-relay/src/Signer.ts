@@ -4,6 +4,7 @@ import { GcpKmsSigner } from 'ethers-gcp-kms-signer';
 import { Address, Sign, rpcUrls } from './config';
 import { Network } from './types';
 import { logToDataDog } from './util';
+import { TransactionResponse } from '@ethersproject/providers';
 
 const TEST_CHAIN_ID = 111111;
 
@@ -179,7 +180,7 @@ async function retryTransaction(
 ) {
   const BASE_DELAY = 1000; // 1 second
   // prevent stale nonce issues by acquiring a lock per key
-  const releaseLock = await acquireLock(keysToUse[transaction.to]);
+  const releaseLock = await acquireLock(keysToUse[transaction.to as string]);
   try {
     for (let retry = 0; retry <= maxRetries; retry++) {
       try {
@@ -258,11 +259,11 @@ export async function sendTransaction(
 
   const MAX_RETRIES = 2;
   try {
-    const { txResponse, retry } = await retryTransaction(
+    const { txResponse, retry } = (await retryTransaction(
       signer,
       transaction,
       MAX_RETRIES
-    );
+    )) as { txResponse: TransactionResponse; retry: number };
 
     await log({
       message: {

@@ -1,5 +1,5 @@
 import { RATE_PRECISION } from '@notional-finance/util';
-import { FiatSymbols, FIAT_NAMES } from '@notional-finance/core-entities';
+import { FiatKeys, FiatSymbols } from '@notional-finance/core-entities';
 
 const allCommas = /,{1}/g;
 
@@ -84,8 +84,8 @@ export function formatNumberAsAbbr(
 
   const symbol = opts.hideSymbol
     ? ''
-    : baseCurrency && FiatSymbols[baseCurrency]
-    ? FiatSymbols[baseCurrency]
+    : baseCurrency && FiatSymbols[baseCurrency as FiatKeys]
+    ? FiatSymbols[baseCurrency as FiatKeys]
     : '$';
   if (decimalPlaces === undefined && baseCurrency) {
     // Use 2 decimals for fiat and 4 for non fiat

@@ -50,6 +50,14 @@
         "lintFilePatterns": ["apps/note-reward-manager/**/*.ts"]
       }
     },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/note-reward-manager",
+        "command": "npx tsc -p tsconfig.app.json --noEmit --pretty",
+        "description": "Type check with tsc"
+      }
+    },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/apps/note-reward-manager"],

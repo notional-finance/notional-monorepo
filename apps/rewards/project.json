@@ -44,6 +44,14 @@
         "lintFilePatterns": ["apps/rewards/**/*.ts"]
       }
     },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/rewards",
+        "command": "npx tsc -p tsconfig.app.json --noEmit --pretty",
+        "description": "Type check with tsc"
+      }
+    },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/apps/rewards"],

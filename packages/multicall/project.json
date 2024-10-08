@@ -21,6 +21,14 @@
         "lintFilePatterns": ["packages/multicall/**/*.ts"]
       }
     },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/multicall",
+        "command": "npx tsc -p tsconfig.lib.json --noEmit --pretty",
+        "description": "Type check with tsc"
+      }
+    },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],

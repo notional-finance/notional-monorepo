@@ -235,7 +235,7 @@ const runAllVaults = async (env: Env) => {
         });
       }
     } catch (e) {
-      console.log('Failed liquidation', e.toString());
+      console.log('Failed liquidation', (e as Error).toString());
       await logger.submitEvent({
         aggregation_key: 'AccountLiquidated',
         alert_type: 'error',
@@ -249,7 +249,7 @@ const runAllVaults = async (env: Env) => {
 
         Vault Address: ${vault}
         
-        Error: ${e.toString()}
+        Error: ${(e as Error).toString()}
         `,
       });
     }

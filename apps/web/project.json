@@ -96,6 +96,14 @@
         "lintFilePatterns": ["apps/web/**/*.{ts,tsx,js,jsx}"]
       }
     },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/web",
+        "command": "npx tsc -p tsconfig.app.json --noEmit --pretty",
+        "description": "Type check with tsc"
+      }
+    },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],

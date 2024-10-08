@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
+    "typecheck": "npx tsc -p tsconfig.json --noEmit --pretty",
     "format": "prettier --write ."
   },
   "dependencies": {

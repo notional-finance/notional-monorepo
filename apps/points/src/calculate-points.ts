@@ -140,7 +140,8 @@ async function getVaultInfo(
 }
 
 export async function getVaultTVL(vaultAddress: string, blockNumber?: number) {
-  const { network, usdOracle, decimals } = VaultConfig[vaultAddress];
+  const { network, usdOracle, decimals } =
+    VaultConfig[vaultAddress as keyof typeof VaultConfig];
   const provider = getProviderFromNetwork(network, true);
   const vault = new Contract(
     vaultAddress,
@@ -181,7 +182,8 @@ export async function getVaultData(
   blockNumber: number,
   apiKey: string
 ) {
-  const { targetToken, poolId, network, symbol } = VaultConfig[vaultAddress];
+  const { targetToken, poolId, network, symbol } =
+    VaultConfig[vaultAddress as keyof typeof VaultConfig];
 
   const vaultInfo = await getVaultInfo(vaultAddress, network, blockNumber);
 

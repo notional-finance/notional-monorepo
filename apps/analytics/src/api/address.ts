@@ -7,7 +7,7 @@ import { fetcher } from 'utils/axios';
 // types
 import { Address } from 'types/e-commerce';
 
-export const endpoints = {
+export const endpoints: Record<string, string> = {
   key: 'api/address',
   list: '/list', // server URL
   insert: '/new', // server URL
