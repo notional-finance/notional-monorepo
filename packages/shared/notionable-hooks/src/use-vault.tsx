@@ -120,12 +120,8 @@ export function useAllVaults(
         let vaultShareOfPool = 0;
         if (vaultType.startsWith('SingleSidedLP')) {
           vaultShareOfPool =
-            (
-              Registry.getVaultRegistry().getVaultAdapter(
-                network,
-                v.vaultAddress
-              ) as SingleSidedLP
-            ).getPoolShare() / RATE_PRECISION;
+            (adapter as SingleSidedLP).getPoolShare() /
+            (adapter as SingleSidedLP).getMaxPoolShare();
         }
 
         let rewardTokens: TokenDefinition[] = [];

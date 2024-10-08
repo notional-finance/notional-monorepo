@@ -172,6 +172,13 @@ export class SingleSidedLP extends VaultAdapter {
       : 0;
   }
 
+  public getMaxPoolShare() {
+    return (
+      (this.maxPoolShares.toNumber() * RATE_PRECISION) /
+      this.POOL_CAPACITY_PRECISION
+    );
+  }
+
   public isOverMaxPoolShare(vaultShares?: TokenBalance) {
     const poolShare = this.getPoolShare(vaultShares);
     return (
