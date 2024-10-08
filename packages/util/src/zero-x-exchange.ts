@@ -62,10 +62,8 @@ export async function get0xData(arg: {
   const data = (await response.json()) as {
     buyAmount: string;
     limit: string;
-    data: {
-      transaction: {
-        data: string;
-      };
+    transaction: {
+      data: string;
     };
   };
   if (data['buyAmount'] == undefined) {

@@ -162,8 +162,8 @@ export default class DataService {
           throw Error(`Invalid backfill type ${type}`);
         }
       } catch (e) {
-        console.error(`Failed to backfill ${ts}, ${e.toString()}`);
-        console.error(e.stack);
+        console.error(`Failed to backfill ${ts}, ${(e as Error).toString()}`);
+        console.error((e as Error).stack);
       }
       await new Promise((r) => setTimeout(r, this.settings.backfillDelayMs));
     }

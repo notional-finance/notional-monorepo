@@ -72,7 +72,7 @@ export interface MulticallConfig {
   firstBlock?: number;
   finalBlock?: number;
   transform?: (
-    callResult: unknown,
+    callResult,
     prevResults: Partial<Record<string, unknown>>
   ) => unknown;
 }
@@ -81,7 +81,7 @@ export interface SubgraphConfig {
   protocol: ProtocolName;
   query: string;
   args?: Record<string, unknown>;
-  transform?: (r: unknown) => unknown;
+  transform?: (r) => unknown;
 }
 
 export interface GenericDataConfig {
