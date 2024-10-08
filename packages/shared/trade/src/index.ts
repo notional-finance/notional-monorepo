@@ -27,3 +27,5 @@ export * from './liquidation-chart/liquidation-chart';
 export * from './side-drawer-router/side-drawer-router';
 export * from './position-details-table/position-details-table';
 export * from './hooks';
+export * from './transaction-approvals/switch-network';
+export * from './transaction-approvals/hooks/use-change-network';

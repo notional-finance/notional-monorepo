@@ -1,4 +1,5 @@
 import { SingleSidedLP, SingleSidedLPParams } from './SingleSidedLP';
-export { SingleSidedLP };
-export type VaultMetadata = SingleSidedLPParams;
+import { PendlePT, PendlePTVaultParams } from './PendlePT';
+export { SingleSidedLP, PendlePT };
+export type VaultMetadata = SingleSidedLPParams | PendlePTVaultParams;
 export { VaultAdapter } from './VaultAdapter';

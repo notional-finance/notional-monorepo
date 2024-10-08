@@ -5,7 +5,8 @@ import {
   YieldData,
 } from '@notional-finance/core-entities';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { STABLE_COINS, LSDS } from '@notional-finance/util';
+import { DashboardDataProps } from '@notional-finance/mui';
+import { STABLE_COINS, LSDS, PRODUCTS } from '@notional-finance/util';
 
 export const getTotalIncentiveApy = (num1?: number, num2?: number) => {
   if (num1 && num2) {
@@ -51,17 +52,67 @@ export const getDebtOrCollateralFactor = (
   }
 };
 
-export const sortListData = (data: any[], tokenGroup: number) => {
-  if(data.length > 0 && tokenGroup === 0){
+const sortReinvestmentType = (data: any[], reinvestmentType: number) => {
+  if (reinvestmentType === 0) {
     return data;
-  } else if(data.length > 0 && tokenGroup === 1){
-    return data.filter((x) => STABLE_COINS.includes(x.currency.symbol));
-  } else if(data.length > 0 && tokenGroup === 2){
-    return data.filter((x) => LSDS.includes(x.currency.symbol) || x.currency.symbol === 'ETH');
+  } else if (reinvestmentType === 1) {
+    return data.filter((x) => x.reinvestmentTypeString === 'SingleSidedLP');
+  } else if (reinvestmentType === 2) {
+    return data.filter(
+      (x) => x.reinvestmentTypeString === 'SingleSidedLP_DirectClaim'
+    );
   } else {
-    return []
+    return [];
   }
-}
+};
+
+export const sortGridData = (
+  gridData: {
+    sectionTitle?: string;
+    data: DashboardDataProps[];
+    hasLeveragedPosition?: boolean;
+    hasNegativePosition?: boolean;
+  }[],
+  reinvestmentType: number
+) => {
+  const sortedData = gridData.map((item) => {
+    return {
+      ...item,
+      data: sortReinvestmentType(item.data || [], reinvestmentType),
+    };
+  });
+
+  return sortedData;
+};
+
+export const sortListData = (
+  data: any[],
+  tokenGroup: number,
+  reinvestmentType: number,
+  product: PRODUCTS
+) => {
+  let filteredData = data;
+
+  if (product === PRODUCTS.LEVERAGED_YIELD_FARMING) {
+    filteredData = sortReinvestmentType(data, reinvestmentType);
+  }
+
+  if (filteredData.length > 0 && tokenGroup === 0) {
+    return filteredData;
+  } else if (filteredData.length > 0 && tokenGroup === 1) {
+    return filteredData.filter((x) =>
+      STABLE_COINS.includes(x?.currency?.symbol || '')
+    );
+  } else if (filteredData.length > 0 && tokenGroup === 2) {
+    return filteredData.filter(
+      (x) =>
+        LSDS.includes(x?.currency?.symbol || '') ||
+        x?.currency?.symbol === 'ETH'
+    );
+  } else {
+    return [];
+  }
+};
 
 export const getIncentiveData = (
   incentives: YieldData['noteIncentives'],

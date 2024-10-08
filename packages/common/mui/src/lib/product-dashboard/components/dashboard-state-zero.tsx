@@ -9,7 +9,7 @@ export const DashboardStateZero = () => {
     <Wrapper>
       <WarningIcon sx={{ height: theme.spacing(8), width: theme.spacing(8) }} />
       <HeadingSubtitle sx={{ fontWeight: 600 }}>
-        <FormattedMessage defaultMessage={'No Profitable Opportunities'} />
+        <FormattedMessage defaultMessage={'No Available Opportunities'} />
       </HeadingSubtitle>
     </Wrapper>
   );

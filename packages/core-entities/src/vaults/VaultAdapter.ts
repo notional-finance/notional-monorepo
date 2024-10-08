@@ -57,6 +57,16 @@ export abstract class VaultAdapter {
       });
   }
 
+  getBorrowedToken() {
+    return Registry.getTokenRegistry().getTokenByID(
+      this.network,
+      Registry.getConfigurationRegistry().getVaultConfig(
+        this.network,
+        this.vaultAddress
+      ).primaryBorrowCurrency.id
+    );
+  }
+
   abstract getInitialVaultShareValuation(maturity: number): ExchangeRate;
 
   abstract convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance;
@@ -78,21 +88,16 @@ export abstract class VaultAdapter {
     account: string,
     maturity: number,
     totalDeposit: TokenBalance,
-    slippageFactor: number
-  ): BytesLike;
+    slippageFactor?: number
+  ): Promise<BytesLike>;
 
   abstract getRedeemParameters(
     account: string,
     maturity: number,
     vaultSharesToRedeem: TokenBalance,
     underlyingToRepayDebt: TokenBalance,
-    slippageFactor: number
-  ): BytesLike;
-
-  abstract getPriceExposure(): {
-    price: TokenBalance;
-    vaultSharePrice: TokenBalance;
-  }[];
+    slippageFactor?: number
+  ): Promise<BytesLike>;
 
   abstract getVaultAPY(factors?: {
     account: string;
@@ -100,5 +105,25 @@ export abstract class VaultAdapter {
     maturity: number;
   }): number;
 
-  abstract getVaultTVL(): TokenBalance;
+  getVaultTVL(): TokenBalance {
+    const vaultShares = Registry.getTokenRegistry()
+      .getAllTokens(this.network)
+      .filter(
+        (t) =>
+          t.tokenType === 'VaultShare' && t.vaultAddress === this.vaultAddress
+      );
+
+    return vaultShares.reduce(
+      (acc, v) => (v.totalSupply ? acc.add(v.totalSupply.toUnderlying()) : acc),
+      TokenBalance.zero(this.getBorrowedToken())
+    );
+  }
+
+  getPointMultiples(): Record<string, number> | undefined {
+    return undefined;
+  }
+
+  getMaxCollateralSlippage(): number | null {
+    return null;
+  }
 }

@@ -32,10 +32,12 @@ export type StrategyVaultSettingsStruct = {
   deprecated_emergencySettlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   maxPoolShare: PromiseOrValue<BigNumberish>;
   oraclePriceDeviationLimitPercent: PromiseOrValue<BigNumberish>;
-  deprecated_poolSlippageLimitPercent: PromiseOrValue<BigNumberish>;
+  numRewardTokens: PromiseOrValue<BigNumberish>;
+  forceClaimAfter: PromiseOrValue<BigNumberish>;
 };
 
 export type StrategyVaultSettingsStructOutput = [
+  number,
   number,
   number,
   number,
@@ -44,7 +46,8 @@ export type StrategyVaultSettingsStructOutput = [
   deprecated_emergencySettlementSlippageLimitPercent: number;
   maxPoolShare: number;
   oraclePriceDeviationLimitPercent: number;
-  deprecated_poolSlippageLimitPercent: number;
+  numRewardTokens: number;
+  forceClaimAfter: number;
 };
 
 export type InitParamsStruct = {
@@ -96,6 +99,40 @@ export type SingleSidedRewardTradeParamsStructOutput = [
   tradeParams: TradeParamsStructOutput;
 };
 
+export type VaultRewardStateStruct = {
+  rewardToken: PromiseOrValue<string>;
+  lastAccumulatedTime: PromiseOrValue<BigNumberish>;
+  endTime: PromiseOrValue<BigNumberish>;
+  emissionRatePerYear: PromiseOrValue<BigNumberish>;
+  accumulatedRewardPerVaultShare: PromiseOrValue<BigNumberish>;
+};
+
+export type VaultRewardStateStructOutput = [
+  string,
+  number,
+  number,
+  BigNumber,
+  BigNumber
+] & {
+  rewardToken: string;
+  lastAccumulatedTime: number;
+  endTime: number;
+  emissionRatePerYear: BigNumber;
+  accumulatedRewardPerVaultShare: BigNumber;
+};
+
+export type RewardPoolStorageStruct = {
+  poolType: PromiseOrValue<BigNumberish>;
+  rewardPool: PromiseOrValue<string>;
+  lastClaimTimestamp: PromiseOrValue<BigNumberish>;
+};
+
+export type RewardPoolStorageStructOutput = [number, string, number] & {
+  poolType: number;
+  rewardPool: string;
+  lastClaimTimestamp: number;
+};
+
 export declare namespace ISingleSidedLPStrategyVault {
   export type SingleSidedLPStrategyVaultInfoStruct = {
     pool: PromiseOrValue<string>;
@@ -126,95 +163,51 @@ export declare namespace ISingleSidedLPStrategyVault {
 export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
   functions: {
     "TOKENS()": FunctionFragment;
-    "claimRewardTokens()": FunctionFragment;
-    "convertStrategyToUnderlying(address,uint256,uint256)": FunctionFragment;
-    "convertVaultSharesToPrimeMaturity(address,uint256,uint256)": FunctionFragment;
-    "decimals()": FunctionFragment;
-    "deleverageAccount(address,address,address,uint16,int256)": FunctionFragment;
-    "depositFromNotional(address,uint256,uint256,bytes)": FunctionFragment;
     "emergencyExit(uint256,bytes)": FunctionFragment;
-    "getExchangeRate(uint256)": FunctionFragment;
     "getStrategyVaultInfo()": FunctionFragment;
-    "initialize((string,uint16,(uint32,uint16,uint16,uint16)))": FunctionFragment;
+    "initialize((string,uint16,(uint32,uint16,uint16,uint8,uint32)))": FunctionFragment;
     "isLocked()": FunctionFragment;
-    "name()": FunctionFragment;
-    "redeemFromNotional(address,address,uint256,uint256,uint256,bytes)": FunctionFragment;
     "reinvestReward((address,address,uint256,(uint16,uint8,uint256,bytes))[],uint256)": FunctionFragment;
     "restoreVault(uint256,bytes)": FunctionFragment;
-    "strategy()": FunctionFragment;
+    "setStrategyVaultSettings((uint32,uint16,uint16,uint8,uint32))": FunctionFragment;
     "tradeTokensBeforeRestore((address,address,uint256,(uint16,uint8,uint256,bytes))[])": FunctionFragment;
+    "claimAccountRewards(address)": FunctionFragment;
+    "claimRewardTokens()": FunctionFragment;
+    "deleverageAccount(address,address,address,uint16,int256)": FunctionFragment;
+    "getAccountRewardClaim(address,uint256)": FunctionFragment;
+    "getRewardDebt(address,address)": FunctionFragment;
+    "getRewardSettings()": FunctionFragment;
+    "migrateRewardPool(address,(uint8,address,uint32))": FunctionFragment;
+    "updateAccountRewards(address,uint256,uint256,bool)": FunctionFragment;
+    "updateRewardToken(uint256,address,uint128,uint32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "TOKENS"
-      | "claimRewardTokens"
-      | "convertStrategyToUnderlying"
-      | "convertVaultSharesToPrimeMaturity"
-      | "decimals"
-      | "deleverageAccount"
-      | "depositFromNotional"
       | "emergencyExit"
-      | "getExchangeRate"
       | "getStrategyVaultInfo"
       | "initialize"
       | "isLocked"
-      | "name"
-      | "redeemFromNotional"
       | "reinvestReward"
       | "restoreVault"
-      | "strategy"
+      | "setStrategyVaultSettings"
       | "tradeTokensBeforeRestore"
+      | "claimAccountRewards"
+      | "claimRewardTokens"
+      | "deleverageAccount"
+      | "getAccountRewardClaim"
+      | "getRewardDebt"
+      | "getRewardSettings"
+      | "migrateRewardPool"
+      | "updateAccountRewards"
+      | "updateRewardToken"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "TOKENS", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "claimRewardTokens",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "convertStrategyToUnderlying",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "convertVaultSharesToPrimeMaturity",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "deleverageAccount",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "depositFromNotional",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "emergencyExit",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getExchangeRate",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getStrategyVaultInfo",
@@ -225,18 +218,6 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
     values: [InitParamsStruct]
   ): string;
   encodeFunctionData(functionFragment: "isLocked", values?: undefined): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "redeemFromNotional",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
   encodeFunctionData(
     functionFragment: "reinvestReward",
     values: [SingleSidedRewardTradeParamsStruct[], PromiseOrValue<BigNumberish>]
@@ -245,40 +226,70 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
     functionFragment: "restoreVault",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(functionFragment: "strategy", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "setStrategyVaultSettings",
+    values: [StrategyVaultSettingsStruct]
+  ): string;
   encodeFunctionData(
     functionFragment: "tradeTokensBeforeRestore",
     values: [SingleSidedRewardTradeParamsStruct[]]
   ): string;
+  encodeFunctionData(
+    functionFragment: "claimAccountRewards",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimRewardTokens",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "deleverageAccount",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAccountRewardClaim",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRewardDebt",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRewardSettings",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "migrateRewardPool",
+    values: [PromiseOrValue<string>, RewardPoolStorageStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateAccountRewards",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<boolean>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateRewardToken",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
 
   decodeFunctionResult(functionFragment: "TOKENS", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "claimRewardTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "convertStrategyToUnderlying",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "convertVaultSharesToPrimeMaturity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "deleverageAccount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "depositFromNotional",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "emergencyExit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getExchangeRate",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -287,11 +298,6 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isLocked", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "redeemFromNotional",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "reinvestReward",
     data: BytesLike
@@ -300,25 +306,68 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
     functionFragment: "restoreVault",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "strategy", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setStrategyVaultSettings",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "tradeTokensBeforeRestore",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimAccountRewards",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimRewardTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "deleverageAccount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAccountRewardClaim",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRewardDebt",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRewardSettings",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "migrateRewardPool",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateAccountRewards",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateRewardToken",
     data: BytesLike
   ): Result;
 
   events: {
     "EmergencyExit(uint256,uint256[])": EventFragment;
-    "StrategyVaultSettingsUpdated(tuple)": EventFragment;
     "VaultLocked()": EventFragment;
     "VaultUnlocked()": EventFragment;
+    "StrategyVaultSettingsUpdated(tuple)": EventFragment;
+    "VaultRewardTransfer(address,address,uint256)": EventFragment;
+    "VaultRewardUpdate(address,uint128,uint32)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "EmergencyExit"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultLocked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultUnlocked"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "StrategyVaultSettingsUpdated"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "VaultLocked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "VaultUnlocked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultRewardTransfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultRewardUpdate"): EventFragment;
 }
 
 export interface EmergencyExitEventObject {
@@ -332,6 +381,16 @@ export type EmergencyExitEvent = TypedEvent<
 
 export type EmergencyExitEventFilter = TypedEventFilter<EmergencyExitEvent>;
 
+export interface VaultLockedEventObject {}
+export type VaultLockedEvent = TypedEvent<[], VaultLockedEventObject>;
+
+export type VaultLockedEventFilter = TypedEventFilter<VaultLockedEvent>;
+
+export interface VaultUnlockedEventObject {}
+export type VaultUnlockedEvent = TypedEvent<[], VaultUnlockedEventObject>;
+
+export type VaultUnlockedEventFilter = TypedEventFilter<VaultUnlockedEvent>;
+
 export interface StrategyVaultSettingsUpdatedEventObject {
   settings: StrategyVaultSettingsStructOutput;
 }
@@ -343,15 +402,31 @@ export type StrategyVaultSettingsUpdatedEvent = TypedEvent<
 export type StrategyVaultSettingsUpdatedEventFilter =
   TypedEventFilter<StrategyVaultSettingsUpdatedEvent>;
 
-export interface VaultLockedEventObject {}
-export type VaultLockedEvent = TypedEvent<[], VaultLockedEventObject>;
+export interface VaultRewardTransferEventObject {
+  token: string;
+  account: string;
+  amount: BigNumber;
+}
+export type VaultRewardTransferEvent = TypedEvent<
+  [string, string, BigNumber],
+  VaultRewardTransferEventObject
+>;
 
-export type VaultLockedEventFilter = TypedEventFilter<VaultLockedEvent>;
+export type VaultRewardTransferEventFilter =
+  TypedEventFilter<VaultRewardTransferEvent>;
 
-export interface VaultUnlockedEventObject {}
-export type VaultUnlockedEvent = TypedEvent<[], VaultUnlockedEventObject>;
+export interface VaultRewardUpdateEventObject {
+  rewardToken: string;
+  emissionRatePerYear: BigNumber;
+  endTime: number;
+}
+export type VaultRewardUpdateEvent = TypedEvent<
+  [string, BigNumber, number],
+  VaultRewardUpdateEventObject
+>;
 
-export type VaultUnlockedEventFilter = TypedEventFilter<VaultUnlockedEvent>;
+export type VaultRewardUpdateEventFilter =
+  TypedEventFilter<VaultRewardUpdateEvent>;
 
 export interface ISingleSidedLPStrategyVault extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -384,53 +459,11 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string[], number[]] & { decimals: number[] }>;
 
-    claimRewardTokens(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    convertStrategyToUnderlying(
-      account: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { underlyingValue: BigNumber }>;
-
-    convertVaultSharesToPrimeMaturity(
-      account: PromiseOrValue<string>,
-      vaultShares: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    decimals(overrides?: CallOverrides): Promise<[number]>;
-
-    deleverageAccount(
-      account: PromiseOrValue<string>,
-      vault: PromiseOrValue<string>,
-      liquidator: PromiseOrValue<string>,
-      currencyIndex: PromiseOrValue<BigNumberish>,
-      depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    depositFromNotional(
-      account: PromiseOrValue<string>,
-      depositAmount: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     emergencyExit(
       claimToExit: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    getExchangeRate(
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
 
     getStrategyVaultInfo(
       overrides?: CallOverrides
@@ -445,18 +478,6 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
 
     isLocked(overrides?: CallOverrides): Promise<[boolean]>;
 
-    name(overrides?: CallOverrides): Promise<[string]>;
-
-    redeemFromNotional(
-      account: PromiseOrValue<string>,
-      receiver: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      underlyingToRepayDebt: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     reinvestReward(
       trades: SingleSidedRewardTradeParamsStruct[],
       minPoolClaim: PromiseOrValue<BigNumberish>,
@@ -469,12 +490,79 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    strategy(
-      overrides?: CallOverrides
-    ): Promise<[string] & { strategyId: string }>;
+    setStrategyVaultSettings(
+      settings: StrategyVaultSettingsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     tradeTokensBeforeRestore(
       trades: SingleSidedRewardTradeParamsStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    claimAccountRewards(
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    claimRewardTokens(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    deleverageAccount(
+      account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      liquidator: PromiseOrValue<string>,
+      currencyIndex: PromiseOrValue<BigNumberish>,
+      depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    getAccountRewardClaim(
+      account: PromiseOrValue<string>,
+      blockTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]] & { rewards: BigNumber[] }>;
+
+    getRewardDebt(
+      rewardToken: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { rewardDebt: BigNumber }>;
+
+    getRewardSettings(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        VaultRewardStateStructOutput[],
+        StrategyVaultSettingsStructOutput,
+        RewardPoolStorageStructOutput
+      ] & {
+        v: VaultRewardStateStructOutput[];
+        s: StrategyVaultSettingsStructOutput;
+        r: RewardPoolStorageStructOutput;
+      }
+    >;
+
+    migrateRewardPool(
+      poolToken: PromiseOrValue<string>,
+      newRewardPool: RewardPoolStorageStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    updateAccountRewards(
+      account: PromiseOrValue<string>,
+      vaultShares: PromiseOrValue<BigNumberish>,
+      totalVaultSharesBefore: PromiseOrValue<BigNumberish>,
+      isMint: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    updateRewardToken(
+      index: PromiseOrValue<BigNumberish>,
+      rewardToken: PromiseOrValue<string>,
+      emissionRatePerYear: PromiseOrValue<BigNumberish>,
+      endTime: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -483,53 +571,11 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[string[], number[]] & { decimals: number[] }>;
 
-  claimRewardTokens(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  convertStrategyToUnderlying(
-    account: PromiseOrValue<string>,
-    strategyTokens: PromiseOrValue<BigNumberish>,
-    maturity: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  convertVaultSharesToPrimeMaturity(
-    account: PromiseOrValue<string>,
-    vaultShares: PromiseOrValue<BigNumberish>,
-    maturity: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  decimals(overrides?: CallOverrides): Promise<number>;
-
-  deleverageAccount(
-    account: PromiseOrValue<string>,
-    vault: PromiseOrValue<string>,
-    liquidator: PromiseOrValue<string>,
-    currencyIndex: PromiseOrValue<BigNumberish>,
-    depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  depositFromNotional(
-    account: PromiseOrValue<string>,
-    depositAmount: PromiseOrValue<BigNumberish>,
-    maturity: PromiseOrValue<BigNumberish>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   emergencyExit(
     claimToExit: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  getExchangeRate(
-    maturity: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   getStrategyVaultInfo(
     overrides?: CallOverrides
@@ -541,18 +587,6 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
   ): Promise<ContractTransaction>;
 
   isLocked(overrides?: CallOverrides): Promise<boolean>;
-
-  name(overrides?: CallOverrides): Promise<string>;
-
-  redeemFromNotional(
-    account: PromiseOrValue<string>,
-    receiver: PromiseOrValue<string>,
-    strategyTokens: PromiseOrValue<BigNumberish>,
-    maturity: PromiseOrValue<BigNumberish>,
-    underlyingToRepayDebt: PromiseOrValue<BigNumberish>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   reinvestReward(
     trades: SingleSidedRewardTradeParamsStruct[],
@@ -566,10 +600,79 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  strategy(overrides?: CallOverrides): Promise<string>;
+  setStrategyVaultSettings(
+    settings: StrategyVaultSettingsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   tradeTokensBeforeRestore(
     trades: SingleSidedRewardTradeParamsStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  claimAccountRewards(
+    account: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  claimRewardTokens(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  deleverageAccount(
+    account: PromiseOrValue<string>,
+    vault: PromiseOrValue<string>,
+    liquidator: PromiseOrValue<string>,
+    currencyIndex: PromiseOrValue<BigNumberish>,
+    depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  getAccountRewardClaim(
+    account: PromiseOrValue<string>,
+    blockTime: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber[]>;
+
+  getRewardDebt(
+    rewardToken: PromiseOrValue<string>,
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getRewardSettings(
+    overrides?: CallOverrides
+  ): Promise<
+    [
+      VaultRewardStateStructOutput[],
+      StrategyVaultSettingsStructOutput,
+      RewardPoolStorageStructOutput
+    ] & {
+      v: VaultRewardStateStructOutput[];
+      s: StrategyVaultSettingsStructOutput;
+      r: RewardPoolStorageStructOutput;
+    }
+  >;
+
+  migrateRewardPool(
+    poolToken: PromiseOrValue<string>,
+    newRewardPool: RewardPoolStorageStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  updateAccountRewards(
+    account: PromiseOrValue<string>,
+    vaultShares: PromiseOrValue<BigNumberish>,
+    totalVaultSharesBefore: PromiseOrValue<BigNumberish>,
+    isMint: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  updateRewardToken(
+    index: PromiseOrValue<BigNumberish>,
+    rewardToken: PromiseOrValue<string>,
+    emissionRatePerYear: PromiseOrValue<BigNumberish>,
+    endTime: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -578,56 +681,11 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string[], number[]] & { decimals: number[] }>;
 
-    claimRewardTokens(overrides?: CallOverrides): Promise<void>;
-
-    convertStrategyToUnderlying(
-      account: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    convertVaultSharesToPrimeMaturity(
-      account: PromiseOrValue<string>,
-      vaultShares: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    decimals(overrides?: CallOverrides): Promise<number>;
-
-    deleverageAccount(
-      account: PromiseOrValue<string>,
-      vault: PromiseOrValue<string>,
-      liquidator: PromiseOrValue<string>,
-      currencyIndex: PromiseOrValue<BigNumberish>,
-      depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber] & {
-        vaultSharesFromLiquidation: BigNumber;
-        depositAmountPrimeCash: BigNumber;
-      }
-    >;
-
-    depositFromNotional(
-      account: PromiseOrValue<string>,
-      depositAmount: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     emergencyExit(
       claimToExit: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    getExchangeRate(
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     getStrategyVaultInfo(
       overrides?: CallOverrides
@@ -639,18 +697,6 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
     ): Promise<void>;
 
     isLocked(overrides?: CallOverrides): Promise<boolean>;
-
-    name(overrides?: CallOverrides): Promise<string>;
-
-    redeemFromNotional(
-      account: PromiseOrValue<string>,
-      receiver: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      underlyingToRepayDebt: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     reinvestReward(
       trades: SingleSidedRewardTradeParamsStruct[],
@@ -670,10 +716,82 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    strategy(overrides?: CallOverrides): Promise<string>;
+    setStrategyVaultSettings(
+      settings: StrategyVaultSettingsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     tradeTokensBeforeRestore(
       trades: SingleSidedRewardTradeParamsStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    claimAccountRewards(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    claimRewardTokens(overrides?: CallOverrides): Promise<void>;
+
+    deleverageAccount(
+      account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      liquidator: PromiseOrValue<string>,
+      currencyIndex: PromiseOrValue<BigNumberish>,
+      depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber] & {
+        vaultSharesFromLiquidation: BigNumber;
+        depositAmountPrimeCash: BigNumber;
+      }
+    >;
+
+    getAccountRewardClaim(
+      account: PromiseOrValue<string>,
+      blockTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber[]>;
+
+    getRewardDebt(
+      rewardToken: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRewardSettings(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        VaultRewardStateStructOutput[],
+        StrategyVaultSettingsStructOutput,
+        RewardPoolStorageStructOutput
+      ] & {
+        v: VaultRewardStateStructOutput[];
+        s: StrategyVaultSettingsStructOutput;
+        r: RewardPoolStorageStructOutput;
+      }
+    >;
+
+    migrateRewardPool(
+      poolToken: PromiseOrValue<string>,
+      newRewardPool: RewardPoolStorageStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateAccountRewards(
+      account: PromiseOrValue<string>,
+      vaultShares: PromiseOrValue<BigNumberish>,
+      totalVaultSharesBefore: PromiseOrValue<BigNumberish>,
+      isMint: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateRewardToken(
+      index: PromiseOrValue<BigNumberish>,
+      rewardToken: PromiseOrValue<string>,
+      emissionRatePerYear: PromiseOrValue<BigNumberish>,
+      endTime: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -688,6 +806,12 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
       exitBalances?: null
     ): EmergencyExitEventFilter;
 
+    "VaultLocked()"(): VaultLockedEventFilter;
+    VaultLocked(): VaultLockedEventFilter;
+
+    "VaultUnlocked()"(): VaultUnlockedEventFilter;
+    VaultUnlocked(): VaultUnlockedEventFilter;
+
     "StrategyVaultSettingsUpdated(tuple)"(
       settings?: null
     ): StrategyVaultSettingsUpdatedEventFilter;
@@ -695,62 +819,36 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
       settings?: null
     ): StrategyVaultSettingsUpdatedEventFilter;
 
-    "VaultLocked()"(): VaultLockedEventFilter;
-    VaultLocked(): VaultLockedEventFilter;
+    "VaultRewardTransfer(address,address,uint256)"(
+      token?: null,
+      account?: null,
+      amount?: null
+    ): VaultRewardTransferEventFilter;
+    VaultRewardTransfer(
+      token?: null,
+      account?: null,
+      amount?: null
+    ): VaultRewardTransferEventFilter;
 
-    "VaultUnlocked()"(): VaultUnlockedEventFilter;
-    VaultUnlocked(): VaultUnlockedEventFilter;
+    "VaultRewardUpdate(address,uint128,uint32)"(
+      rewardToken?: null,
+      emissionRatePerYear?: null,
+      endTime?: null
+    ): VaultRewardUpdateEventFilter;
+    VaultRewardUpdate(
+      rewardToken?: null,
+      emissionRatePerYear?: null,
+      endTime?: null
+    ): VaultRewardUpdateEventFilter;
   };
 
   estimateGas: {
     TOKENS(overrides?: CallOverrides): Promise<BigNumber>;
 
-    claimRewardTokens(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    convertStrategyToUnderlying(
-      account: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    convertVaultSharesToPrimeMaturity(
-      account: PromiseOrValue<string>,
-      vaultShares: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
-
-    deleverageAccount(
-      account: PromiseOrValue<string>,
-      vault: PromiseOrValue<string>,
-      liquidator: PromiseOrValue<string>,
-      currencyIndex: PromiseOrValue<BigNumberish>,
-      depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    depositFromNotional(
-      account: PromiseOrValue<string>,
-      depositAmount: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     emergencyExit(
       claimToExit: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getExchangeRate(
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getStrategyVaultInfo(overrides?: CallOverrides): Promise<BigNumber>;
@@ -761,18 +859,6 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
     ): Promise<BigNumber>;
 
     isLocked(overrides?: CallOverrides): Promise<BigNumber>;
-
-    name(overrides?: CallOverrides): Promise<BigNumber>;
-
-    redeemFromNotional(
-      account: PromiseOrValue<string>,
-      receiver: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      underlyingToRepayDebt: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     reinvestReward(
       trades: SingleSidedRewardTradeParamsStruct[],
@@ -786,36 +872,24 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    strategy(overrides?: CallOverrides): Promise<BigNumber>;
+    setStrategyVaultSettings(
+      settings: StrategyVaultSettingsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     tradeTokensBeforeRestore(
       trades: SingleSidedRewardTradeParamsStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-  };
 
-  populateTransaction: {
-    TOKENS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    claimAccountRewards(
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     claimRewardTokens(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    convertStrategyToUnderlying(
-      account: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    convertVaultSharesToPrimeMaturity(
-      account: PromiseOrValue<string>,
-      vaultShares: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
     deleverageAccount(
       account: PromiseOrValue<string>,
@@ -824,25 +898,52 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
       currencyIndex: PromiseOrValue<BigNumberish>,
       depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    ): Promise<BigNumber>;
 
-    depositFromNotional(
+    getAccountRewardClaim(
       account: PromiseOrValue<string>,
-      depositAmount: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      blockTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRewardDebt(
+      rewardToken: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRewardSettings(overrides?: CallOverrides): Promise<BigNumber>;
+
+    migrateRewardPool(
+      poolToken: PromiseOrValue<string>,
+      newRewardPool: RewardPoolStorageStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateAccountRewards(
+      account: PromiseOrValue<string>,
+      vaultShares: PromiseOrValue<BigNumberish>,
+      totalVaultSharesBefore: PromiseOrValue<BigNumberish>,
+      isMint: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateRewardToken(
+      index: PromiseOrValue<BigNumberish>,
+      rewardToken: PromiseOrValue<string>,
+      emissionRatePerYear: PromiseOrValue<BigNumberish>,
+      endTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+  };
+
+  populateTransaction: {
+    TOKENS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     emergencyExit(
       claimToExit: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getExchangeRate(
-      maturity: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getStrategyVaultInfo(
@@ -856,18 +957,6 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
 
     isLocked(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    redeemFromNotional(
-      account: PromiseOrValue<string>,
-      receiver: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
-      maturity: PromiseOrValue<BigNumberish>,
-      underlyingToRepayDebt: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     reinvestReward(
       trades: SingleSidedRewardTradeParamsStruct[],
       minPoolClaim: PromiseOrValue<BigNumberish>,
@@ -880,10 +969,67 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    strategy(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    setStrategyVaultSettings(
+      settings: StrategyVaultSettingsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     tradeTokensBeforeRestore(
       trades: SingleSidedRewardTradeParamsStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimAccountRewards(
+      account: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimRewardTokens(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    deleverageAccount(
+      account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      liquidator: PromiseOrValue<string>,
+      currencyIndex: PromiseOrValue<BigNumberish>,
+      depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getAccountRewardClaim(
+      account: PromiseOrValue<string>,
+      blockTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRewardDebt(
+      rewardToken: PromiseOrValue<string>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRewardSettings(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    migrateRewardPool(
+      poolToken: PromiseOrValue<string>,
+      newRewardPool: RewardPoolStorageStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateAccountRewards(
+      account: PromiseOrValue<string>,
+      vaultShares: PromiseOrValue<BigNumberish>,
+      totalVaultSharesBefore: PromiseOrValue<BigNumberish>,
+      isMint: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateRewardToken(
+      index: PromiseOrValue<BigNumberish>,
+      rewardToken: PromiseOrValue<string>,
+      emissionRatePerYear: PromiseOrValue<BigNumberish>,
+      endTime: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

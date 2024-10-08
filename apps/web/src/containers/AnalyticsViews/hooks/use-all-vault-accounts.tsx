@@ -54,7 +54,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [vaultNameOptions, setVaultNameOptions] = useState([]);
 
-  const fetchAllVaultAccounts = async () => {
+  const fetchAllVaultAccounts = useCallback(async () => {
     const { vaultRisk } = await Registry.getAnalyticsRegistry().getAccountRisk(
       selectedNetwork
     );
@@ -62,7 +62,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
     if (allVaultAccountsData) {
       setAllVaultAccounts(allVaultAccountsData);
     }
-  };
+  }, [selectedNetwork]);
 
   useEffect(() => {
     if (selectedNetwork) {
@@ -70,7 +70,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       setVaultNameOptions([]);
       setHealthFactorOptions([]);
     }
-  }, [selectedNetwork]);
+  }, [selectedNetwork, fetchAllVaultAccounts]);
 
   const addressClick = useCallback(
     (address: string, network) => {

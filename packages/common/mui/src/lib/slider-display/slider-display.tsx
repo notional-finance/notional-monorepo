@@ -9,12 +9,12 @@ interface SliderDisplayProps {
   max: number;
   value: number;
   captionLeft?: {
-    title: MessageDescriptor;
-    value: React.ReactNode | string;
+    title?: MessageDescriptor;
+    value?: React.ReactNode | string;
   };
   captionRight?: {
-    title: MessageDescriptor;
-    value: React.ReactNode | string;
+    title?: MessageDescriptor;
+    value?: React.ReactNode | string;
   };
   marks?: CustomMark[];
   sx?: SxProps;
@@ -64,7 +64,14 @@ export const SliderDisplay = ({
         )}
       </CaptionContainer>
       <SliderContainer>
-        <SliderBasic min={min} max={max} step={0.01} value={value} disabled={true} marks={marks} />
+        <SliderBasic
+          min={min}
+          max={max}
+          step={0.01}
+          value={value}
+          disabled={true}
+          marks={marks}
+        />
       </SliderContainer>
     </TradeSummaryBox>
   );

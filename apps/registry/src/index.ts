@@ -62,6 +62,19 @@ export default {
       return new Response('Network not specified', { status: 400 });
     }
 
+    // Allow fetches directly from the registry for different files, useful for local development
+    if (url.pathname.split('/').length > 2) {
+      const route = url.pathname.slice(1);
+      const obj = await env.VIEW_CACHE_R2.get(route);
+      return new Response(await obj.text(), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        },
+      });
+    }
+
     const lastUpdated = await Promise.all(
       registries.map(async (route) => {
         const obj = await env.VIEW_CACHE_R2.get(`${network}/${route}`);

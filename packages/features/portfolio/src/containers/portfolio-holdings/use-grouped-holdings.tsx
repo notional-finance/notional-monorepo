@@ -170,7 +170,8 @@ export function useGroupedHoldingsTable() {
               }
             : undefined,
         actionRow: {
-          warning: isHighUtilization,
+          warning: hasMatured ? 'fCashMatured' : isHighUtilization,
+          showRowWarning: !!isHighUtilization,
           subRowData: [
             {
               label: <FormattedMessage defaultMessage={'Borrow APY'} />,
@@ -209,7 +210,6 @@ export function useGroupedHoldingsTable() {
               },
             },
           ],
-          hasMatured: hasMatured,
           txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
             {
               txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,

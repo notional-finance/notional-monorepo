@@ -14,6 +14,7 @@ import { fCashMarket } from './NotionalV3/fCash-market';
 import { BaseNotionalMarket } from './NotionalV3/BaseNotionalMarket';
 import { pCashMarket } from './NotionalV3/pCash-market';
 import SNOTEWeightedPool from './BalancerV2/snote-weighted-pool';
+import { PendleMarket } from './Pendle/PendleMarket';
 
 type PoolConstructor = new (
   network: Network,
@@ -36,6 +37,7 @@ const PoolClasses: Record<
   Curve2TokenPoolV1_SelfLPTokenNoAdmin: Curve2TokenPoolV1_SelfLPTokenNoAdmin,
   Curve2TokenPoolV1_HasOracle: Curve2TokenPoolV1_HasOracle,
   Curve2TokenPoolV2: Curve2TokenPoolV2,
+  PendleMarket: PendleMarket,
 };
 
 export {
@@ -52,4 +54,5 @@ export {
   BaseNotionalMarket,
   pCashMarket,
   SNOTEWeightedPool,
+  PendleMarket,
 };

@@ -2,7 +2,7 @@ import { Box, ThemeProvider } from '@mui/material';
 import { DropdownButton } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useAppState } from '@notional-finance/notionable-hooks';
-import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/util';
+import { NAV_DROPDOWN, THEME_VARIANTS, PRODUCTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import { LightningOutlineIcon } from '@notional-finance/icons';
 import LeverageSection from './leverage-section';
@@ -19,9 +19,10 @@ export function LeverageDropdown() {
 
   const theme = useNotionalTheme(flippedTheme);
   const tabOptions = [
-    '/vaults',
-    '/liquidity-leveraged',
-    // '/lend-leveraged',
+    PRODUCTS.LEVERAGED_PENDLE,
+    PRODUCTS.LEVERAGED_POINTS_FARMING,
+    PRODUCTS.LEVERAGED_YIELD_FARMING,
+    PRODUCTS.LIQUIDITY_LEVERAGED,
   ];
   const currentTab = tabOptions.find((data) => {
     return pathname.includes(data) && !pathname.includes('portfolio')
@@ -69,7 +70,7 @@ export function LeverageDropdown() {
             height: '1px',
             width: '100%',
           }}
-        ></Box>
+        />
       </ThemeProvider>
     </DropdownButton>
   );

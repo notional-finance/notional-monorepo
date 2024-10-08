@@ -6,11 +6,18 @@ import {
 } from '../typography/typography';
 import { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
+import ErrorMessage from '../error-message/error-message';
 
+export interface InfoMessageProps {
+  variant: 'warning' | 'error' | 'info' | 'pending';
+  title: React.ReactNode;
+  message: React.ReactNode;
+}
 interface ManageSideDrawerProps {
   heading: React.ReactNode;
   detailsTable: React.ReactNode;
   portfolioLink: string;
+  infoMessage?: InfoMessageProps;
   optionSections: {
     title?: React.ReactNode;
     buttons: React.ReactNode[];
@@ -22,6 +29,7 @@ export const ManageSideDrawer = ({
   detailsTable,
   portfolioLink,
   optionSections,
+  infoMessage,
 }: ManageSideDrawerProps) => {
   const theme = useTheme();
   useEffect(() => {
@@ -47,6 +55,17 @@ export const ManageSideDrawer = ({
           <FormattedMessage defaultMessage={'View in Portfolio'} />
         </LinkText>
       </TableWrapper>
+      {infoMessage && (
+        <Box sx={{ paddingBottom: theme.spacing(5) }}>
+          <ErrorMessage
+            variant={infoMessage.variant}
+            title={infoMessage.title}
+            message={infoMessage.message}
+            maxWidth={'100%'}
+            sx={{ marginTop: '0px' }}
+          />
+        </Box>
+      )}
       {optionSections.map(({ title, buttons }, i) =>
         buttons.length > 0 ? (
           <Box key={`section-${i}`}>

@@ -3,8 +3,7 @@ import { useEffect } from 'react';
 import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { IntercomProvider } from 'react-use-intercom';
 import {
-  LeveragedYieldDashboard,
-  LeveragedPointsDashboard,
+  LeveragedVaultDashboard,
   LendFixedDashboard,
   BorrowFixedDashboard,
   LendVariableDashboard,
@@ -229,21 +228,11 @@ const AllRoutes = () => {
           }
         />
         <Route
-          path="/leveraged-yield-farming/:selectedNetwork"
+          path="/:selectedProduct/:selectedNetwork"
           element={
             <AppLayoutRoute
-              path="/leveraged-yield-farming/:selectedNetwork"
-              component={LeveragedYieldDashboard}
-              routeType="Card"
-            />
-          }
-        />
-        <Route
-          path="/leveraged-points-farming/:selectedNetwork"
-          element={
-            <AppLayoutRoute
-              path="/leveraged-points-farming/:selectedNetwork"
-              component={LeveragedPointsDashboard}
+              path="/:selectedProduct/:selectedNetwork"
+              component={LeveragedVaultDashboard}
               routeType="Card"
             />
           }

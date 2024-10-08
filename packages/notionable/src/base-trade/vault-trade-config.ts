@@ -125,6 +125,7 @@ export const VaultTradeConfiguration = {
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     calculateDebtOptions: true,
+    calculateCollateralOptions: true,
     transactionBuilder: EnterVault,
   } as TransactionConfig,
 
@@ -143,6 +144,7 @@ export const VaultTradeConfiguration = {
       'balances',
       'riskFactorLimit',
       'vaultLastUpdateTime',
+      'maxCollateralSlippage',
     ],
     collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' &&
@@ -154,6 +156,7 @@ export const VaultTradeConfiguration = {
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     calculateDebtOptions: true,
+    calculateCollateralOptions: true,
     transactionBuilder: AdjustLeverage,
   } as TransactionConfig,
 
@@ -188,6 +191,7 @@ export const VaultTradeConfiguration = {
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: RollVault,
     calculateDebtOptions: true,
+    calculateCollateralOptions: true,
   } as TransactionConfig,
 
   /**

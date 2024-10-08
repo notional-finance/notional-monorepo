@@ -3,12 +3,16 @@ import {
   Registry,
   TokenBalance,
   whitelistedVaults,
+  getVaultType,
+  SingleSidedLP,
+  TokenDefinition,
 } from '@notional-finance/core-entities';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { GATED_VAULTS } from '@notional-finance/notionable';
 import { useNotionalError } from './use-notional';
-import { Network } from '@notional-finance/util';
+import { Network, PRODUCTS, RATE_PRECISION } from '@notional-finance/util';
 import { useWalletCommunities } from './use-wallet';
+import { useAllMarkets } from './use-market';
 
 export function useVaultNftCheck() {
   const navigate = useNavigate();
@@ -66,6 +70,8 @@ export function useVaultProperties(
   }
 
   return {
+    vaultType:
+      vaultAddress && network ? getVaultType(vaultAddress, network) : undefined,
     vaultName,
     minAccountBorrowSize,
     minDepositRequired,
@@ -73,53 +79,113 @@ export function useVaultProperties(
   };
 }
 
-export function useAllVaults(network: Network | undefined) {
+export function useAllVaults(
+  network: Network | undefined,
+  vaultProduct?: PRODUCTS
+) {
+  const {
+    yields: { leveragedVaults },
+    getMax,
+  } = useAllMarkets(network);
+
   if (!network) return [];
 
   const config = Registry.getConfigurationRegistry();
-  const listedVaults = config
-    .getAllListedVaults(network)
-    ?.filter((v) => whitelistedVaults(network).includes(v.vaultAddress))
-    .map((v) => {
-      const {
-        minAccountBorrowSize,
-        totalUsedPrimaryBorrowCapacity,
-        maxPrimaryBorrowCapacity,
-      } = config.getVaultCapacity(network, v.vaultAddress);
-      const primaryToken = Registry.getTokenRegistry().getTokenByID(
-        network,
-        v.primaryBorrowCurrency.id
-      );
-      const vaultTVL = Registry.getTokenRegistry()
-        .getAllTokens(network)
-        .filter(
-          (t) =>
-            t.tokenType === 'VaultShare' && t.vaultAddress === v.vaultAddress
-        )
-        .reduce((tvl, t) => {
-          if (t.totalSupply) {
-            return tvl.add(t.totalSupply.toUnderlying());
-          } else {
-            return tvl;
-          }
-        }, TokenBalance.zero(primaryToken));
-
-      return {
-        ...v,
-        vaultTVL,
-        minAccountBorrowSize,
-        totalUsedPrimaryBorrowCapacity,
-        maxPrimaryBorrowCapacity,
-        minDepositRequired: getMinDepositRequiredString(
+  const listedVaults =
+    config
+      .getAllListedVaults(network)
+      ?.filter((v) => whitelistedVaults(network).includes(v.vaultAddress))
+      .map((v) => {
+        const {
           minAccountBorrowSize,
-          v.maxDeleverageCollateralRatioBasisPoints,
-          v.maxRequiredAccountCollateralRatioBasisPoints as number
-        ),
-        primaryToken,
-      };
-    });
+          totalUsedPrimaryBorrowCapacity,
+          maxPrimaryBorrowCapacity,
+        } = config.getVaultCapacity(network, v.vaultAddress);
+        const primaryToken = Registry.getTokenRegistry().getTokenByID(
+          network,
+          v.primaryBorrowCurrency.id
+        );
+        const adapter = Registry.getVaultRegistry().getVaultAdapter(
+          network,
+          v.vaultAddress
+        );
+        const vaultTVL = adapter.getVaultTVL();
+        const maxVaultAPY = getMax(
+          leveragedVaults.filter((z) => z.token.vaultAddress === v.vaultAddress)
+        );
+        const vaultType = getVaultType(v.vaultAddress, network);
+        const totalBorrowCapacityUsed =
+          totalUsedPrimaryBorrowCapacity.toFloat() /
+          maxPrimaryBorrowCapacity.toFloat();
+        let vaultShareOfPool = 0;
+        if (
+          vaultType === 'SingleSidedLP' ||
+          vaultType === 'SingleSidedLP_DirectClaim'
+        ) {
+          vaultShareOfPool =
+            (
+              Registry.getVaultRegistry().getVaultAdapter(
+                network,
+                v.vaultAddress
+              ) as SingleSidedLP
+            ).getPoolShare() / RATE_PRECISION;
+        }
 
-  return listedVaults || [];
+        let rewardTokens: TokenDefinition[] = [];
+        if (vaultType === 'SingleSidedLP_DirectClaim') {
+          rewardTokens = (adapter as SingleSidedLP).rewardTokens.map((t) =>
+            Registry.getTokenRegistry().getTokenByID(network, t)
+          );
+        }
+
+        const vaultUtilization = Math.min(
+          Math.max(totalBorrowCapacityUsed, vaultShareOfPool) * 100,
+          100
+        );
+
+        return {
+          ...v,
+          vaultType,
+          vaultTVL,
+          rewardTokens,
+          vaultUtilization,
+          minAccountBorrowSize,
+          totalUsedPrimaryBorrowCapacity,
+          maxPrimaryBorrowCapacity,
+          minDepositRequired: getMinDepositRequiredString(
+            minAccountBorrowSize,
+            v.maxDeleverageCollateralRatioBasisPoints,
+            v.maxRequiredAccountCollateralRatioBasisPoints as number
+          ),
+          primaryToken,
+          maxVaultAPY,
+        };
+      }) || [];
+
+  if (vaultProduct) {
+    return listedVaults.filter((v) => {
+      switch (vaultProduct) {
+        case PRODUCTS.LEVERAGED_PENDLE:
+          return v.vaultType === 'PendlePT';
+        case PRODUCTS.LEVERAGED_POINTS_FARMING:
+          return (
+            v.vaultType.startsWith('SingleSidedLP') &&
+            v.maxVaultAPY &&
+            v.maxVaultAPY.pointMultiples !== undefined
+          );
+        case PRODUCTS.LEVERAGED_YIELD_FARMING:
+          return (
+            v.vaultType.startsWith('SingleSidedLP') &&
+            v.maxVaultAPY &&
+            v.maxVaultAPY.pointMultiples === undefined
+          );
+        default:
+          return false;
+      }
+    });
+  }
+
+  return listedVaults;
 }
 
 function getMinDepositRequiredString(

@@ -201,6 +201,7 @@ export interface AccountDefinition {
   systemAccountType?: SystemAccount;
   stakeNOTEStatus?: StakeNoteStatus;
   historicalBalances?: HistoricalBalance[];
+  rewardClaims?: Record<string, TokenBalance[]>;
 }
 
 export interface SerializedAccountDefinition {
@@ -371,14 +372,14 @@ export type VaultReinvestment = Record<
   string,
   {
     vault: string;
-    blockNumber: any;
+    blockNumber: number;
     timestamp: number;
-    transactionHash: any;
-    rewardTokenSold: any;
-    rewardAmountSold: any;
-    tokensReinvested: any;
-    tokensPerVaultShare?: any;
-    underlyingAmountRealized?: any;
-    vaultSharePrice?: any;
+    transactionHash: string;
+    rewardTokenSold: TokenDefinition;
+    rewardAmountSold: BigNumber;
+    tokensReinvested: TokenBalance;
+    tokensPerVaultShare?: TokenBalance;
+    underlyingAmountRealized?: TokenBalance;
+    vaultSharePrice?: BigNumber;
   }[]
 >;

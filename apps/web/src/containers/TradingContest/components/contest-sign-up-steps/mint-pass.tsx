@@ -31,7 +31,7 @@ export const MintPass = ({
     globalState: { wallet },
   } = useNotionalContext();
   const [error, setError] = useState<string>('');
-  const onSwitchNetwork = useChangeNetwork();
+  const { changeNetwork: onSwitchNetwork } = useChangeNetwork(undefined);
 
   useEffect(() => {
     if (errorMessage) {

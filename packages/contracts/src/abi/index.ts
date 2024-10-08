@@ -39,3 +39,5 @@ export { default as ISingleSidedLPStrategyVaultABI } from './ISingleSidedLPStrat
 export { default as LeveragedNTokenAdapterABI } from './LeveragedNTokenAdapter.json';
 export { default as SecondaryRewarderABI } from './SecondaryRewarder.json';
 export { default as NotionalContestPassABI } from './NotionalContestPass.json';
+export { default as PendleMarketABI } from './PendleMarket.json';
+export { default as PendleSYABI } from './PendleSY.json';

@@ -19,9 +19,13 @@ import {
   groupArrayToMap,
   sendTxThroughRelayer,
   getFlashLender,
+  WETHAddress,
 } from '@notional-finance/util';
-import { overrides } from '.';
 import { Logger } from '@notional-finance/util';
+import {
+  getVaultType,
+  VaultDefaultDexParameters,
+} from '@notional-finance/core-entities';
 
 export type LiquidatorSettings = {
   network: Network;
@@ -100,9 +104,11 @@ export default class VaultV3Liquidator {
       borrowToken,
       currencyId: config.borrowCurrencyId,
       currencyIndex: 0,
-      assetAddress: (overrides[this.settings.network][
-        borrowToken.underlyingToken.tokenAddress
-      ] || borrowToken.underlyingToken.tokenAddress) as string,
+      assetAddress:
+        // Rewrite the asset address to WETH for flash borrowing
+        borrowToken.underlyingToken.tokenAddress === ZERO_ADDRESS
+          ? WETHAddress[this.settings.network]
+          : borrowToken.underlyingToken.tokenAddress,
       assetPrecision: borrowToken.underlyingToken.decimals,
     };
   }
@@ -257,6 +263,54 @@ export default class VaultV3Liquidator {
     );
   }
 
+  private async getPendlePTRedeemData(
+    vault: string,
+    maturity: number,
+    totalVaultShares: BigNumber
+  ) {
+    // If no default dex parameters are set then we can skip the redeem data
+    if (VaultDefaultDexParameters[this.settings.network][vault] === undefined) {
+      return '0x';
+    }
+
+    const { dexId, exchangeData } =
+      VaultDefaultDexParameters[this.settings.network][vault];
+
+    const vaultContract = new ethers.Contract(
+      vault,
+      ISingleSidedLPStrategyVaultABI,
+      this.provider
+    );
+
+    const { results } = await aggregate(
+      [
+        {
+          stage: 0,
+          target: vaultContract,
+          method: 'convertStrategyToUnderlying',
+          args: [ZERO_ADDRESS, totalVaultShares, maturity],
+          key: 'vaultShareValue',
+        },
+      ],
+      this.provider
+    );
+
+    const minPurchaseAmount = (results['vaultShareValue'] as BigNumber)
+      .mul(this.settings.slippageLimit)
+      .div(1000);
+
+    return ethers.utils.defaultAbiCoder.encode(
+      ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData) r'],
+      [
+        {
+          dexId,
+          minPurchaseAmount,
+          exchangeData,
+        },
+      ]
+    );
+  }
+
   public async batchMaturityLiquidations(vault: string, accts: RiskyAccount[]) {
     const groupedByMaturity = groupArrayToMap(
       accts.filter((_, index) => index < this.settings.maxLiquidationsPerBatch),
@@ -355,11 +409,24 @@ export default class VaultV3Liquidator {
       (s, r) => s.add(r.vaultSharesToLiquidator[currencyIndex]),
       BigNumber.from(0)
     );
-    const redeemData = await this.getSingleSidedLPRedeemData(
-      vault,
-      maturity,
-      totalVaultShares
-    );
+    const vaultType = getVaultType(vault, this.settings.network);
+    let redeemData: string;
+    if (vaultType === 'PendlePT') {
+      redeemData = await this.getPendlePTRedeemData(
+        vault,
+        maturity,
+        totalVaultShares
+      );
+    } else if (
+      vaultType === 'SingleSidedLP' ||
+      vaultType === 'SingleSidedLP_DirectClaim'
+    ) {
+      redeemData = await this.getSingleSidedLPRedeemData(
+        vault,
+        maturity,
+        totalVaultShares
+      );
+    }
 
     return {
       flashLoanAmount: totalFlashLoan

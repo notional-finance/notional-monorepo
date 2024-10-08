@@ -1,14 +1,22 @@
 import {
   getNowSeconds,
+  getProviderFromNetwork,
   getProviderURLFromNetwork,
   Network,
   padToHex256,
   stripHexLeadingZero,
 } from '@notional-finance/util';
-import { ethers, PopulatedTransaction } from 'ethers';
+import { Contract, ethers, PopulatedTransaction } from 'ethers';
 import { parseTransfersFromLogs } from './parser/transfers';
-import { AccountDefinition } from '@notional-finance/core-entities';
+import {
+  AccountDefinition,
+  TokenBalance,
+} from '@notional-finance/core-entities';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import {
+  ISingleSidedLPStrategyVaultABI,
+  ISingleSidedLPStrategyVault,
+} from '@notional-finance/contracts';
 
 // Types taken from: https://github.com/alchemyplatform/alchemy-sdk-js/blob/main/src/types/types.ts#L2051
 
@@ -138,18 +146,18 @@ export async function simulatePopulatedTxn(
 
   const { calls, logs: _logs } = (await provider.send(
     'alchemy_simulateExecution',
-      [
-        {
-          from: populateTxn.from,
-          to: populateTxn.to,
-          value:
-            populateTxn.value && !populateTxn.value.isZero()
-              ? stripHexLeadingZero(populateTxn.value)
-              : '0x0',
-          data: populateTxn.data,
-        },
-      ]
-    )) as SimulateExecutionResponse;
+    [
+      {
+        from: populateTxn.from,
+        to: populateTxn.to,
+        value:
+          populateTxn.value && !populateTxn.value.isZero()
+            ? stripHexLeadingZero(populateTxn.value)
+            : '0x0',
+        data: populateTxn.data,
+      },
+    ]
+  )) as SimulateExecutionResponse;
 
   const logs: ethers.providers.Log[] = _logs.map((s, i) => ({
     address: s.address,
@@ -210,4 +218,42 @@ export async function applySimulationToAccount(
     balancesAfter: AccountRiskProfile.merge(balancesAfter),
     accountTransfers,
   };
+}
+
+export async function simulateRewardClaims(
+  network: Network,
+  account: string,
+  vaultAddress: string
+) {
+  const VaultRewarderInterface = new ethers.utils.Interface([
+    'event VaultRewardTransfer(address rewardToken, address account, uint256 amount)',
+  ]);
+  const contract = new Contract(
+    vaultAddress,
+    ISingleSidedLPStrategyVaultABI,
+    getProviderFromNetwork(network)
+  ) as ISingleSidedLPStrategyVault;
+  const populatedTx = await contract.populateTransaction.claimAccountRewards(
+    account,
+    { from: account }
+  );
+  const { rawLogs } = await simulatePopulatedTxn(network, populatedTx);
+
+  return rawLogs
+    .map((l) => {
+      try {
+        const { name, args } = VaultRewarderInterface.parseLog(l);
+        if (name === 'VaultRewardTransfer') {
+          return TokenBalance.fromID(
+            args['amount'],
+            args['rewardToken'],
+            network
+          );
+        }
+      } catch (e) {
+        // No-op
+      }
+      return null;
+    })
+    .filter((t) => !!t);
 }

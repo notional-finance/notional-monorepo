@@ -5,12 +5,17 @@ import { FormattedMessage } from 'react-intl';
 import { CurveVaultImg } from './curve-vault-img';
 import { useVaultStrategyData } from '../hooks';
 import { BalancerVaultImg } from './balancer-vault-img';
+import { VaultType } from '@notional-finance/core-entities';
 
 interface HowItWorksFaqProps {
   tokenSymbol: string;
+  currentVaultType: VaultType | undefined;
 }
 
-export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
+export const HowItWorksFaq = ({
+  tokenSymbol,
+  currentVaultType,
+}: HowItWorksFaqProps) => {
   const theme = useTheme();
   const vaultStrategyData = useVaultStrategyData();
 
@@ -79,9 +84,16 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
               />
             </BodyText>
             <BodyText>
-              <FormattedMessage
-                defaultMessage={`3. Harvest and reinvest incentives back into the pool on a daily basis.`}
-              />
+              {currentVaultType !== 'SingleSidedLP_DirectClaim' && (
+                <FormattedMessage
+                  defaultMessage={`3. Harvest and reinvest incentives back into the pool on a daily basis.`}
+                />
+              )}
+              {currentVaultType === 'SingleSidedLP' && (
+                <FormattedMessage
+                  defaultMessage={`3. Earn incentives continuously and claimable at any time.`}
+                />
+              )}
             </BodyText>
             <H5
               sx={{

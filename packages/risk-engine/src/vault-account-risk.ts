@@ -213,12 +213,12 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get borrowAPY() {
-    const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
+    const market = Registry.getExchangeRegistry().getNotionalMarket(
       this.network,
       this.vaultDebt.currencyId
     );
     return this.vaultDebt.maturity === PRIME_CASH_VAULT_MATURITY
-      ? fCashMarket.getSpotInterestRate(this.vaultDebt.unwrapVaultToken().token)
+      ? market.getSpotInterestRate(this.vaultDebt.unwrapVaultToken().token)
       : this.lastImpliedFixedRate || 0;
   }
 

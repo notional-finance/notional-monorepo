@@ -15,6 +15,7 @@ export enum PRODUCTS {
   VAULTS = 'vaults',
   LEVERAGED_YIELD_FARMING = 'leveraged-yield-farming',
   LEVERAGED_POINTS_FARMING = 'leveraged-points-farming',
+  LEVERAGED_PENDLE = 'leveraged-pendle',
   LIQUIDITY_VARIABLE = 'liquidity-variable',
   LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
   BORROW_FIXED = 'borrow-fixed',
@@ -60,11 +61,6 @@ export enum MOBILE_SUB_NAV_ACTIONS {
   COMPANY = 'company',
 }
 
-export enum VAULT_TYPES {
-  LEVERAGED_YIELD_FARMING = 'leveraged-yield-farming',
-  LEVERAGED_POINTS_FARMING = 'leveraged-points-farming',
-}
-
 export enum VAULT_SUB_NAV_ACTIONS {
   OVERVIEW = 'overview',
   MARKET_RETURNS = 'market-returns',
@@ -93,11 +89,6 @@ export enum PORTFOLIO_STATE_ZERO_OPTIONS {
   EARN = 0,
   LEVERAGE = 1,
   BORROW = 2,
-}
-
-export enum TABLE_WARNINGS {
-  HIGH_UTILIZATION_NTOKEN = 'HIGH_UTILIZATION_NTOKEN',
-  HIGH_UTILIZATION_FCASH = 'HIGH_UTILIZATION_FCASH',
 }
 
 export enum PORTFOLIO_CATEGORIES {

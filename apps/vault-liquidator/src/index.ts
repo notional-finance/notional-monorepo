@@ -11,6 +11,7 @@ import VaultV3Liquidator from './VaultV3Liquidator';
 import { MetricNames } from './types';
 import { DDSeries, Logger, MetricType } from '@notional-finance/util';
 import { formatUnits } from 'ethers/lib/utils';
+import { whitelistedVaults } from '@notional-finance/core-entities';
 
 export interface Env {
   NX_REGISTRY_URL: string;
@@ -30,15 +31,6 @@ export interface Env {
   SLIPPAGE_LIMIT: string;
   MAX_LIQUIDATIONS_PER_BATCH: number;
 }
-
-export const overrides = {
-  [Network.arbitrum]: {
-    [ZERO_ADDRESS]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-  },
-  [Network.mainnet]: {
-    [ZERO_ADDRESS]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  },
-};
 
 async function setUp(env: Env, vaultAddrs: string[]) {
   const accounts = (
@@ -134,9 +126,7 @@ const runSingleVault = async (vault: string, env: Env) => {
 };
 
 const runAllVaults = async (env: Env) => {
-  const allVaults = await (
-    await fetch(`${env.NX_REGISTRY_URL}/${env.NETWORK}/vaults`)
-  ).json();
+  const activeVaults = whitelistedVaults(env.NETWORK);
 
   const logger = new Logger({
     apiKey: env.DD_API_KEY,
@@ -144,10 +134,6 @@ const runAllVaults = async (env: Env) => {
     env: env.NETWORK,
     service: 'vault-liquidator',
   });
-
-  const activeVaults: string[] = allVaults['values']
-    .filter(([, v]) => v['enabled'] === true)
-    .map(([v]) => v as string);
 
   const { accounts, liquidator } = await setUp(env, activeVaults);
   const riskyAccounts = accounts.filter((r) => r.canLiquidate);

@@ -31,41 +31,6 @@ const _abi = [
   },
   {
     anonymous: false,
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "uint32",
-            name: "deprecated_emergencySettlementSlippageLimitPercent",
-            type: "uint32",
-          },
-          {
-            internalType: "uint16",
-            name: "maxPoolShare",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "oraclePriceDeviationLimitPercent",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "deprecated_poolSlippageLimitPercent",
-            type: "uint16",
-          },
-        ],
-        indexed: false,
-        internalType: "struct StrategyVaultSettings",
-        name: "settings",
-        type: "tuple",
-      },
-    ],
-    name: "StrategyVaultSettingsUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
     inputs: [],
     name: "VaultLocked",
     type: "event",
@@ -95,162 +60,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "claimRewardTokens",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "strategyTokens",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maturity",
-        type: "uint256",
-      },
-    ],
-    name: "convertStrategyToUnderlying",
-    outputs: [
-      {
-        internalType: "int256",
-        name: "underlyingValue",
-        type: "int256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "vaultShares",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maturity",
-        type: "uint256",
-      },
-    ],
-    name: "convertVaultSharesToPrimeMaturity",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "primeVaultShares",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "decimals",
-    outputs: [
-      {
-        internalType: "uint8",
-        name: "",
-        type: "uint8",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "vault",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "liquidator",
-        type: "address",
-      },
-      {
-        internalType: "uint16",
-        name: "currencyIndex",
-        type: "uint16",
-      },
-      {
-        internalType: "int256",
-        name: "depositUnderlyingInternal",
-        type: "int256",
-      },
-    ],
-    name: "deleverageAccount",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "vaultSharesFromLiquidation",
-        type: "uint256",
-      },
-      {
-        internalType: "int256",
-        name: "depositAmountPrimeCash",
-        type: "int256",
-      },
-    ],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "depositAmount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maturity",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-    ],
-    name: "depositFromNotional",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "strategyTokensMinted",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint256",
@@ -266,25 +75,6 @@ const _abi = [
     name: "emergencyExit",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "maturity",
-        type: "uint256",
-      },
-    ],
-    name: "getExchangeRate",
-    outputs: [
-      {
-        internalType: "int256",
-        name: "",
-        type: "int256",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -365,9 +155,14 @@ const _abi = [
                 type: "uint16",
               },
               {
-                internalType: "uint16",
-                name: "deprecated_poolSlippageLimitPercent",
-                type: "uint16",
+                internalType: "uint8",
+                name: "numRewardTokens",
+                type: "uint8",
+              },
+              {
+                internalType: "uint32",
+                name: "forceClaimAfter",
+                type: "uint32",
               },
             ],
             internalType: "struct StrategyVaultSettings",
@@ -396,63 +191,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "name",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "receiver",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "strategyTokens",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maturity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "underlyingToRepayDebt",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-    ],
-    name: "redeemFromNotional",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "transferToReceiver",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -552,16 +290,43 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "strategy",
-    outputs: [
+    inputs: [
       {
-        internalType: "bytes4",
-        name: "strategyId",
-        type: "bytes4",
+        components: [
+          {
+            internalType: "uint32",
+            name: "deprecated_emergencySettlementSlippageLimitPercent",
+            type: "uint32",
+          },
+          {
+            internalType: "uint16",
+            name: "maxPoolShare",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "oraclePriceDeviationLimitPercent",
+            type: "uint16",
+          },
+          {
+            internalType: "uint8",
+            name: "numRewardTokens",
+            type: "uint8",
+          },
+          {
+            internalType: "uint32",
+            name: "forceClaimAfter",
+            type: "uint32",
+          },
+        ],
+        internalType: "struct StrategyVaultSettings",
+        name: "settings",
+        type: "tuple",
       },
     ],
-    stateMutability: "view",
+    name: "setStrategyVaultSettings",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -617,6 +382,398 @@ const _abi = [
       },
     ],
     name: "tradeTokensBeforeRestore",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ERC20Error",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "deprecated_emergencySettlementSlippageLimitPercent",
+            type: "uint32",
+          },
+          {
+            internalType: "uint16",
+            name: "maxPoolShare",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "oraclePriceDeviationLimitPercent",
+            type: "uint16",
+          },
+          {
+            internalType: "uint8",
+            name: "numRewardTokens",
+            type: "uint8",
+          },
+          {
+            internalType: "uint32",
+            name: "forceClaimAfter",
+            type: "uint32",
+          },
+        ],
+        indexed: false,
+        internalType: "struct StrategyVaultSettings",
+        name: "settings",
+        type: "tuple",
+      },
+    ],
+    name: "StrategyVaultSettingsUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "VaultRewardTransfer",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint128",
+        name: "emissionRatePerYear",
+        type: "uint128",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "endTime",
+        type: "uint32",
+      },
+    ],
+    name: "VaultRewardUpdate",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "claimAccountRewards",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "claimRewardTokens",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "vault",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "liquidator",
+        type: "address",
+      },
+      {
+        internalType: "uint16",
+        name: "currencyIndex",
+        type: "uint16",
+      },
+      {
+        internalType: "int256",
+        name: "depositUnderlyingInternal",
+        type: "int256",
+      },
+    ],
+    name: "deleverageAccount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "vaultSharesFromLiquidation",
+        type: "uint256",
+      },
+      {
+        internalType: "int256",
+        name: "depositAmountPrimeCash",
+        type: "int256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "blockTime",
+        type: "uint256",
+      },
+    ],
+    name: "getAccountRewardClaim",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "rewards",
+        type: "uint256[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "getRewardDebt",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "rewardDebt",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getRewardSettings",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "rewardToken",
+            type: "address",
+          },
+          {
+            internalType: "uint32",
+            name: "lastAccumulatedTime",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "endTime",
+            type: "uint32",
+          },
+          {
+            internalType: "uint128",
+            name: "emissionRatePerYear",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "accumulatedRewardPerVaultShare",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct VaultRewardState[]",
+        name: "v",
+        type: "tuple[]",
+      },
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "deprecated_emergencySettlementSlippageLimitPercent",
+            type: "uint32",
+          },
+          {
+            internalType: "uint16",
+            name: "maxPoolShare",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "oraclePriceDeviationLimitPercent",
+            type: "uint16",
+          },
+          {
+            internalType: "uint8",
+            name: "numRewardTokens",
+            type: "uint8",
+          },
+          {
+            internalType: "uint32",
+            name: "forceClaimAfter",
+            type: "uint32",
+          },
+        ],
+        internalType: "struct StrategyVaultSettings",
+        name: "s",
+        type: "tuple",
+      },
+      {
+        components: [
+          {
+            internalType: "enum RewardPoolType",
+            name: "poolType",
+            type: "uint8",
+          },
+          {
+            internalType: "address",
+            name: "rewardPool",
+            type: "address",
+          },
+          {
+            internalType: "uint32",
+            name: "lastClaimTimestamp",
+            type: "uint32",
+          },
+        ],
+        internalType: "struct RewardPoolStorage",
+        name: "r",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC20",
+        name: "poolToken",
+        type: "address",
+      },
+      {
+        components: [
+          {
+            internalType: "enum RewardPoolType",
+            name: "poolType",
+            type: "uint8",
+          },
+          {
+            internalType: "address",
+            name: "rewardPool",
+            type: "address",
+          },
+          {
+            internalType: "uint32",
+            name: "lastClaimTimestamp",
+            type: "uint32",
+          },
+        ],
+        internalType: "struct RewardPoolStorage",
+        name: "newRewardPool",
+        type: "tuple",
+      },
+    ],
+    name: "migrateRewardPool",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "vaultShares",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "totalVaultSharesBefore",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "isMint",
+        type: "bool",
+      },
+    ],
+    name: "updateAccountRewards",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
+      {
+        internalType: "uint128",
+        name: "emissionRatePerYear",
+        type: "uint128",
+      },
+      {
+        internalType: "uint32",
+        name: "endTime",
+        type: "uint32",
+      },
+    ],
+    name: "updateRewardToken",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

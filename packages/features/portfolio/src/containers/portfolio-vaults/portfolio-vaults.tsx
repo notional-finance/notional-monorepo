@@ -1,10 +1,58 @@
-import { DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
-import { EmptyPortfolio, TableActionRow } from '../../components';
+import {
+  Body,
+  DataTable,
+  InfoTooltip,
+  TABLE_VARIANTS,
+} from '@notional-finance/mui';
+import {
+  EmptyPortfolio,
+  PortfolioPageHeader,
+  TableActionRow,
+} from '../../components';
 import { FormattedMessage } from 'react-intl';
 import { useVaultHoldingsTable, useVaultRiskTable } from '../../hooks';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { useState } from 'react';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
+import { MultiTokenIcon } from '@notional-finance/icons';
+
 // import { useVaultEarnings } from './use-vault-earnings';
+
+const ClaimableRewards = ({
+  rewardTokens,
+  vaults,
+}: {
+  rewardTokens: string[];
+  vaults: string[];
+}) => {
+  const theme = useTheme();
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: theme.spacing(1),
+        padding: theme.spacing(1.5),
+        borderRadius: theme.spacing(6),
+        backgroundColor: theme.palette.info.light,
+      }}
+    >
+      <MultiTokenIcon symbols={rewardTokens} size={'medium'} shiftSize={8} />
+      <Body main>Claimable Rewards</Body>
+      <InfoTooltip
+        iconColor={theme.palette.info.dark}
+        iconSize={theme.spacing(2)}
+        ToolTipComp={() => (
+          <Box>
+            {vaults.map((v) => (
+              <Body key={v}>{v}</Body>
+            ))}
+          </Box>
+        )}
+      />
+    </Box>
+  );
+};
 
 export const PortfolioVaults = () => {
   const [currentTab, setCurrentTab] = useState(0);
@@ -14,6 +62,7 @@ export const PortfolioVaults = () => {
     setExpandedRows,
     toggleBarProps,
     initialState,
+    claimableRewards,
   } = useVaultHoldingsTable();
   // const { earningsBreakdownColumns, earningsBreakdownData } = useVaultEarnings(
   //   toggleBarProps.toggleOption === 0
@@ -52,6 +101,14 @@ export const PortfolioVaults = () => {
 
   return (
     <Box>
+      <PortfolioPageHeader category={PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}>
+        {claimableRewards && (
+          <ClaimableRewards
+            rewardTokens={Array.from(claimableRewards.rewardTokens.keys())}
+            vaults={claimableRewards.vaults}
+          />
+        )}
+      </PortfolioPageHeader>
       {vaultHoldingsData && vaultHoldingsData.length === 0 ? (
         <EmptyPortfolio />
       ) : (

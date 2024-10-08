@@ -6,26 +6,32 @@ import {
   useAppState,
 } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useLocation } from 'react-router-dom';
-import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
-import { PRODUCTS, VAULT_TYPES } from '@notional-finance/util';
+import { useLocation, useParams } from 'react-router-dom';
+import {
+  ProductDashboard,
+  DashboardViewProps,
+  H2,
+  Body,
+} from '@notional-finance/mui';
+import { PRODUCTS } from '@notional-finance/util';
 import {
   setInLocalStorage,
   getFromLocalStorage,
 } from '@notional-finance/helpers';
-import { ThemeProvider } from '@mui/material';
+import { Box, ThemeProvider, useTheme } from '@mui/material';
 import {
   useFixedRateGrid,
   useVariableRateGrid,
   useDashboardConfig,
   useLendBorrowList,
   useLiquidityList,
-  useLeveragedFarmingGrid,
-  useLeverageFarmingList,
+  useLeveragedVaultGrid,
+  useLeverageVaultList,
   useLiquidityVariableGrid,
   useLiquidityLeveragedGrid,
 } from './hooks';
-import { sortListData } from './hooks/utils';
+import { sortGridData, sortListData } from './hooks/utils';
+import { defineMessage } from 'react-intl';
 
 export const DashboardView = ({
   gridData,
@@ -34,6 +40,7 @@ export const DashboardView = ({
   showNegativeYields,
   setShowNegativeYields,
   threeWideGrid,
+  ComingSoonComponent,
 }: DashboardViewProps) => {
   const network = useSelectedNetwork();
   const { themeVariant } = useAppState();
@@ -43,6 +50,7 @@ export const DashboardView = ({
   const [tokenGroup, setTokenGroup] = useState<number>(
     userSettings.tokenGroup || 0
   );
+  const [reinvestmentType, setReinvestmentType] = useState<number>(0);
   const themeLanding = useNotionalTheme(themeVariant, 'product');
   const [dashboardTab, setDashboardTab] = useState<number>(
     userSettings.dashboardTab || 0
@@ -67,20 +75,37 @@ export const DashboardView = ({
     });
   };
 
+  const handleReinvestmentType = (value: number) => {
+    setReinvestmentType(value);
+  };
+
+  const sortedGridData =
+    routeKey === PRODUCTS.LEVERAGED_YIELD_FARMING && gridData
+      ? sortGridData(gridData, reinvestmentType)
+      : gridData;
+
   return (
     <ThemeProvider theme={themeLanding}>
       <FeatureLoader featureLoaded={!!network && themeVariant ? true : false}>
         <CardContainer {...containerData}>
           <ProductDashboard
-            gridData={gridData || []}
+            gridData={sortedGridData || []}
             listColumns={listColumns}
-            listData={sortListData(listData, tokenGroup)}
+            listData={sortListData(
+              listData,
+              tokenGroup,
+              reinvestmentType,
+              routeKey as PRODUCTS
+            )}
+            ComingSoonComponent={ComingSoonComponent}
             setShowNegativeYields={setShowNegativeYields}
             showNegativeYields={showNegativeYields}
             headerData={headerData}
             threeWideGrid={threeWideGrid}
             tokenGroup={tokenGroup}
             handleTokenGroup={handleTokenGroup}
+            reinvestmentType={reinvestmentType}
+            handleReinvestmentType={handleReinvestmentType}
             dashboardTab={dashboardTab}
             handleDashboardTab={handleDashboardTab}
           />
@@ -90,42 +115,59 @@ export const DashboardView = ({
   );
 };
 
-export const LeveragedPointsDashboard = () => {
-  const network = useSelectedNetwork();
-  const gridData = useLeveragedFarmingGrid(
-    network,
-    VAULT_TYPES.LEVERAGED_POINTS_FARMING
-  );
-  const { listColumns, listData } = useLeverageFarmingList(
-    network,
-    VAULT_TYPES.LEVERAGED_POINTS_FARMING
-  );
+const PendleComingSoon = () => {
+  const theme = useTheme();
   return (
-    <DashboardView
-      {...gridData}
-      listColumns={listColumns}
-      listData={listData}
-      threeWideGrid={false}
-    />
+    <Box
+      sx={{
+        height: theme.spacing(50),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      <H2
+        msg={defineMessage({ defaultMessage: 'Coming Soon' })}
+        sx={{
+          fontWeight: 700,
+          marginTop: theme.spacing(8),
+          marginBottom: theme.spacing(2),
+        }}
+      />
+      <Body
+        sx={{
+          width: '50%',
+          textAlign: 'center',
+        }}
+        msg={defineMessage({
+          defaultMessage:
+            'We’re hard at work developing our Leveraged Pendle Vaults, designed to deliver leveraged fixed yield. Stay tuned for updates.',
+        })}
+      />
+    </Box>
   );
 };
 
-export const LeveragedYieldDashboard = () => {
+export const LeveragedVaultDashboard = () => {
   const network = useSelectedNetwork();
-  const gridData = useLeveragedFarmingGrid(
+  const { selectedProduct } = useParams();
+  const gridData = useLeveragedVaultGrid(network, selectedProduct as PRODUCTS);
+  const { listColumns, listData } = useLeverageVaultList(
     network,
-    VAULT_TYPES.LEVERAGED_YIELD_FARMING
+    selectedProduct as PRODUCTS
   );
-  const { listColumns, listData } = useLeverageFarmingList(
-    network,
-    VAULT_TYPES.LEVERAGED_YIELD_FARMING
-  );
+
   return (
     <DashboardView
       {...gridData}
       listColumns={listColumns}
       listData={listData}
       threeWideGrid={false}
+      ComingSoonComponent={
+        selectedProduct === PRODUCTS.LEVERAGED_PENDLE
+          ? PendleComingSoon
+          : undefined
+      }
     />
   );
 };

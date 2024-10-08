@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { ReactNode, useContext, useEffect } from 'react';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import {
   ButtonData,
@@ -7,7 +7,6 @@ import {
   SideDrawerButton,
 } from '@notional-finance/mui';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { useVaultProperties } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
@@ -18,16 +17,25 @@ import { useTheme } from '@mui/material';
 export const ManageVault = () => {
   const theme = useTheme();
   const {
-    state: { vaultAddress, selectedNetwork },
+    state: { selectedNetwork },
   } = useContext(VaultActionContext);
-  const { manageVaultOptions, rollMaturityOptions } = useManageVault();
-  const { vaultName } = useVaultProperties(selectedNetwork, vaultAddress);
+  const {
+    manageVaultOptions,
+    rollMaturityOptions,
+    vaultName,
+    infoMessage,
+    extendedVaultOptions,
+    extendedVaultTitle,
+  } = useManageVault();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const optionSections = [
+  const optionSections: {
+    title?: ReactNode;
+    buttons: ReactNode[];
+  }[] = [
     {
       buttons: manageVaultOptions.map(({ label, link }, index) => (
         <SideDrawerButton key={index} to={link}>
@@ -75,6 +83,17 @@ export const ManageVault = () => {
     },
   ];
 
+  if (extendedVaultTitle) {
+    optionSections.push({
+      title: extendedVaultTitle,
+      buttons: extendedVaultOptions.map(({ label, link }, index) => (
+        <SideDrawerButton key={index} to={link}>
+          <ButtonText>{label}</ButtonText>
+        </SideDrawerButton>
+      )),
+    });
+  }
+
   return (
     <ManageSideDrawer
       heading={
@@ -89,6 +108,7 @@ export const ManageVault = () => {
         <VaultDetailsTable key={'vault-risk-table'} hideUpdatedColumn={true} />
       }
       portfolioLink={`/portfolio/${selectedNetwork}/vaults`}
+      infoMessage={infoMessage}
       optionSections={optionSections}
     />
   );

@@ -15,18 +15,43 @@ import { useState } from 'react';
 
 export interface SwitchNetworkProps {
   context: BaseTradeContext;
+  hideDrawer?: boolean;
   onCancel?: () => void;
 }
 
-export const SwitchNetwork = ({ context, onCancel }: SwitchNetworkProps) => {
+export const SwitchNetwork = ({
+  context,
+  onCancel,
+  hideDrawer,
+}: SwitchNetworkProps) => {
   const theme = useTheme();
   const {
     state: { selectedNetwork },
   } = context;
   const [isPending, setPending] = useState(false);
-  const onSwitch = useChangeNetwork();
+  const { changeNetwork } = useChangeNetwork(selectedNetwork);
+  const approvalButton = (
+    <ApprovalButton
+      symbol={getNetworkSymbol(selectedNetwork)}
+      showIconOnly
+      showSymbol={false}
+      callback={() => {
+        if (selectedNetwork) {
+          setPending(true);
+          changeNetwork(selectedNetwork, () => setPending(false));
+        }
+      }}
+      description={messages.switchNetwork.description}
+      title={messages.switchNetwork.title}
+      buttonText={messages.switchNetwork.buttonText}
+      pending={isPending}
+      descriptionValues={{ network: getNetworkTitle(selectedNetwork) }}
+    />
+  );
 
-  return (
+  return hideDrawer ? (
+    approvalButton
+  ) : (
     <Box sx={{ minHeight: '80vh' }}>
       <ScrollToTop />
       <StatusHeading
@@ -47,22 +72,7 @@ export const SwitchNetwork = ({ context, onCancel }: SwitchNetworkProps) => {
         variant="fullWidth"
         sx={{ background: 'white', marginBottom: theme.spacing(6) }}
       />
-      <ApprovalButton
-        symbol={getNetworkSymbol(selectedNetwork)}
-        showIconOnly
-        showSymbol={false}
-        callback={() => {
-          if (selectedNetwork) {
-            setPending(true);
-            onSwitch(selectedNetwork, () => setPending(false));
-          }
-        }}
-        description={messages.switchNetwork.description}
-        title={messages.switchNetwork.title}
-        buttonText={messages.switchNetwork.buttonText}
-        pending={isPending}
-        descriptionValues={{ network: getNetworkTitle(selectedNetwork) }}
-      />
+      {approvalButton}
       <Button
         variant="outlined"
         size="large"

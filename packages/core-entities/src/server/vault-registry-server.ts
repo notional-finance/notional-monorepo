@@ -3,8 +3,12 @@ import {
   fetchGraphPaginate,
   loadGraphClientDeferred,
 } from './server-registry';
-import { Network, getProviderFromNetwork } from '@notional-finance/util';
-import { aggregate } from '@notional-finance/multicall';
+import {
+  Network,
+  getNowSeconds,
+  getProviderFromNetwork,
+} from '@notional-finance/util';
+import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
 import {
   BalancerPoolABI,
@@ -12,11 +16,11 @@ import {
   ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
-import { BigNumber, Contract } from 'ethers';
+import { BigNumber, Contract, ethers } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { DeprecatedVaults } from './vault-overrides';
 import { ClientRegistry } from '../client/client-registry';
-import { CacheSchema } from '..';
+import { CacheSchema, getVaultType } from '..';
 
 // NOTE: this is currently hardcoded because we cannot access the worker
 // process environment directly here.
@@ -58,21 +62,16 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         .map(([v, p]) => {
           return {
             vaultAddress: v,
-            enabled: (p as VaultMetadata).enabled,
-            name: (p as VaultMetadata).name,
+            enabled: (p as { enabled: boolean }).enabled,
+            name: (p as { name: string }).name,
           };
         });
     }
 
     const calls = vaultConfigurations
       .filter(
-        (v: { vaultAddress: string }) =>
-          !DeprecatedVaults.includes(v.vaultAddress) &&
-          // NOTE: this is the address of the new pendle vault, exclude it from the registry server for now
-          v.vaultAddress.toLowerCase() !==
-            '0x851a28260227f9a8e6bf39a5fa3b5132fa49c7f3' &&
-          v.vaultAddress.toLowerCase() !==
-            '0x878c46978ac67e43d9d27e510f98e087e9940b12'
+        (v: { vaultAddress: string; name: string }) =>
+          !DeprecatedVaults.includes(v.vaultAddress)
       )
       .flatMap(
         ({
@@ -84,103 +83,233 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
           enabled: boolean;
           name: string;
         }) => {
-          return [
-            {
-              target: new Contract(
+          const vaultType = getVaultType(vaultAddress, network);
+          switch (vaultType) {
+            case 'SingleSidedLP':
+            case 'SingleSidedLP_DirectClaim':
+              return this.getSingleSidedLPCalls(
                 vaultAddress,
-                ISingleSidedLPStrategyVaultABI,
-                getProviderFromNetwork(network)
-              ),
-              stage: 0,
-              method: 'getStrategyVaultInfo',
-              key: vaultAddress,
-              transform: (
-                r: Awaited<
-                  ReturnType<
-                    ISingleSidedLPStrategyVault['getStrategyVaultInfo']
-                  >
-                >
-              ) => {
-                const totalLPTokens = TokenBalance.toJSON(
-                  r.totalLPTokens,
-                  r.pool,
-                  network
-                );
-
-                const totalVaultShares = r.totalVaultShares;
-
-                return {
-                  pool: r.pool,
-                  singleSidedTokenIndex: r.singleSidedTokenIndex,
-                  maxPoolShares: r.maxPoolShare,
-                  totalLPTokens,
-                  totalVaultShares,
-                  secondaryTradeParams: '0x',
-                  enabled,
-                  name,
-                };
-              },
-            },
-            {
-              target: (r: any) =>
-                new Contract(
-                  r[vaultAddress].pool,
-                  ERC20ABI,
-                  getProviderFromNetwork(network)
-                ),
-              stage: 1,
-              method: 'totalSupply',
-              key: `${vaultAddress}.pool.totalSupply`,
-              transform: (r: BigNumber, prevResults: any) =>
-                TokenBalance.toJSON(r, prevResults[vaultAddress].pool, network),
-            },
-            {
-              target: (r: any) =>
-                new Contract(
-                  r[vaultAddress].pool,
-                  BalancerPoolABI,
-                  getProviderFromNetwork(network)
-                ),
-              stage: 1,
-              method: 'getActualSupply',
-              key: `${vaultAddress}.pool.actualSupply`,
-              transform: (r: BigNumber, prevResults: any) =>
-                TokenBalance.toJSON(r, prevResults[vaultAddress].pool, network),
-            },
-          ];
+                network,
+                enabled,
+                name,
+                vaultType === 'SingleSidedLP_DirectClaim'
+              );
+            case 'PendlePT':
+              return this.getPendlePTCalls(vaultAddress, network, enabled);
+            default:
+              return [];
+          }
         }
       );
 
     const { block, results } = await aggregate(
-      calls || [],
+      calls,
       this.getProvider(network),
       blockNumber,
       true // allowFailure
     );
 
-    const values = Object.keys(results)
-      .filter((k) => !k.includes('.'))
-      .map((k) => {
-        const metadata = results[k] as VaultMetadata;
-        if (results[`${k}.pool.actualSupply`]) {
-          // This will exist for Balancer pools
-          metadata['totalPoolSupply'] = results[`${k}.pool.actualSupply`] as
-            | TokenBalance
-            | undefined;
-        } else {
-          metadata['totalPoolSupply'] = results[`${k}.pool.totalSupply`] as
-            | TokenBalance
-            | undefined;
-        }
+    const values = Object.keys(results).reduce((acc, k) => {
+      let vaultAddress: string;
+      let metadataKey: string | undefined = undefined;
+      if (k.includes('.')) {
+        [vaultAddress, metadataKey] = k.split('.');
+      } else {
+        vaultAddress = k;
+      }
 
-        return [k, metadata] as [string, VaultMetadata];
-      });
+      if (acc[vaultAddress] === undefined) {
+        acc[vaultAddress] = {};
+      }
+
+      if (metadataKey) {
+        acc[vaultAddress][metadataKey] = results[k];
+      } else {
+        acc[vaultAddress] = {
+          ...acc[vaultAddress],
+          ...(results[k] as Record<string, unknown>),
+        };
+      }
+
+      return acc;
+    }, {} as Record<string, Record<string, unknown>>);
 
     return {
-      values,
+      values: Object.entries(values).map(
+        ([vaultAddress, metadata]) =>
+          [vaultAddress, metadata as unknown as VaultMetadata] as [
+            string,
+            VaultMetadata
+          ]
+      ),
       network: network,
       lastUpdateBlock: block.number,
       lastUpdateTimestamp: block.timestamp,
     };
+  }
+
+  protected getSingleSidedLPCalls(
+    vaultAddress: string,
+    network: Network,
+    enabled: boolean,
+    name: string,
+    hasRewarder: boolean
+  ): AggregateCall[] {
+    const vaultContract = new Contract(
+      vaultAddress,
+      ISingleSidedLPStrategyVaultABI,
+      getProviderFromNetwork(network)
+    );
+    const calls: AggregateCall[] = [
+      {
+        target: vaultContract,
+        stage: 0,
+        method: 'getStrategyVaultInfo',
+        key: vaultAddress,
+        transform: (
+          r: Awaited<
+            ReturnType<ISingleSidedLPStrategyVault['getStrategyVaultInfo']>
+          >
+        ) => {
+          const totalLPTokens = TokenBalance.toJSON(
+            r.totalLPTokens,
+            r.pool,
+            network
+          );
+
+          const totalVaultShares = r.totalVaultShares;
+
+          return {
+            pool: r.pool,
+            singleSidedTokenIndex: r.singleSidedTokenIndex,
+            maxPoolShares: r.maxPoolShare,
+            totalLPTokens,
+            totalVaultShares,
+            secondaryTradeParams: '0x',
+            enabled,
+            name,
+          };
+        },
+      },
+      {
+        target: (r: Record<string, unknown>) =>
+          new Contract(
+            (r[vaultAddress] as { pool: string }).pool,
+            ERC20ABI,
+            getProviderFromNetwork(network)
+          ),
+        stage: 1,
+        method: 'totalSupply',
+        key: `${vaultAddress}.totalPoolSupply`,
+        transform: (r: BigNumber, prevResults: Record<string, unknown>) =>
+          TokenBalance.toJSON(
+            r,
+            (prevResults[vaultAddress] as { pool: string }).pool,
+            network
+          ),
+      },
+      {
+        target: (r: Record<string, unknown>) =>
+          new Contract(
+            (r[vaultAddress] as { pool: string }).pool,
+            BalancerPoolABI,
+            getProviderFromNetwork(network)
+          ),
+        stage: 1,
+        method: 'getActualSupply',
+        key: `${vaultAddress}.totalPoolSupply`,
+        transform: (r: BigNumber, prevResults: Record<string, unknown>) =>
+          TokenBalance.toJSON(
+            r,
+            (prevResults[vaultAddress] as { pool: string }).pool,
+            network
+          ),
+      },
+    ];
+
+    if (hasRewarder) {
+      calls.push({
+        target: vaultContract,
+        stage: 0,
+        method: 'getRewardSettings',
+        key: `${vaultAddress}.rewardState`,
+        transform: (
+          r: Awaited<
+            ReturnType<ISingleSidedLPStrategyVault['getRewardSettings']>
+          >
+        ) =>
+          r[0].map((v) => ({
+            lastAccumulatedTime: v.lastAccumulatedTime,
+            endTime: v.endTime,
+            rewardToken: v.rewardToken,
+            emissionRatePerYear: v.emissionRatePerYear,
+            accumulatedRewardPerVaultSHare: v.accumulatedRewardPerVaultShare,
+          })),
+      });
+    }
+
+    return calls;
+  }
+
+  protected getPendlePTCalls(
+    vaultAddress: string,
+    network: Network,
+    enabled: boolean
+  ): AggregateCall[] {
+    const PendlePTVaultABI = new ethers.utils.Interface([
+      'function MARKET() view external returns (address)',
+      'function TOKEN_IN_SY() view external returns (address)',
+      'function TOKEN_OUT_SY() view external returns (address)',
+    ]);
+
+    const PendleMarketABI = new ethers.utils.Interface([
+      'function expiry() view external returns (uint256)',
+    ]);
+
+    return [
+      {
+        target: new Contract(
+          vaultAddress,
+          PendlePTVaultABI,
+          getProviderFromNetwork(network)
+        ),
+        stage: 0,
+        method: 'MARKET',
+        key: `${vaultAddress}.marketAddress`,
+      },
+      {
+        target: new Contract(
+          vaultAddress,
+          PendlePTVaultABI,
+          getProviderFromNetwork(network)
+        ),
+        stage: 0,
+        method: 'TOKEN_IN_SY',
+        key: `${vaultAddress}.tokenInSy`,
+      },
+      {
+        target: new Contract(
+          vaultAddress,
+          PendlePTVaultABI,
+          getProviderFromNetwork(network)
+        ),
+        stage: 0,
+        method: 'TOKEN_OUT_SY',
+        key: `${vaultAddress}.tokenOutSy`,
+      },
+      {
+        target: (r: Record<string, unknown>) =>
+          new Contract(
+            r[`${vaultAddress}.marketAddress`] as string,
+            PendleMarketABI,
+            getProviderFromNetwork(network)
+          ),
+        stage: 1,
+        method: 'expiry',
+        key: `${vaultAddress}.enabled`,
+        transform: (expiry: BigNumber) =>
+          enabled ? expiry.gt(getNowSeconds()) : false,
+      },
+    ];
   }
 }

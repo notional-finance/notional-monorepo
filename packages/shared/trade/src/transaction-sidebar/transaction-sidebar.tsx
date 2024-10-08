@@ -9,8 +9,6 @@ import {
   VaultContext,
   TradeContext,
   useLeverageBlock,
-  useWalletConnectedNetwork,
-  useReadOnlyAddress,
 } from '@notional-finance/notionable-hooks';
 import { TradeState } from '@notional-finance/notionable';
 import { useCallback, useEffect, useState } from 'react';
@@ -27,7 +25,10 @@ import {
   TransactionHeadings,
   CombinedTokenTypes,
 } from './components/transaction-headings';
-import { useTransactionApprovals } from '../transaction-approvals/hooks';
+import {
+  useChangeNetwork,
+  useTransactionApprovals,
+} from '../transaction-approvals/hooks';
 import { TransactionApprovals } from '../transaction-approvals/transaction-approvals';
 import { useLocation } from 'react-router-dom';
 import { TradeSummary } from './components/trade-summary';
@@ -87,15 +88,13 @@ export const TransactionSidebar = ({
   const [showSwitchNetwork, setShowSwitchNetwork] = useState(false);
   const { canSubmit, confirm, tradeType, debt, collateral, selectedNetwork } =
     state;
-  const walletConnectedNetwork = useWalletConnectedNetwork();
-  const isReadyOnlyWallet = useReadOnlyAddress();
+  const { mustSwitchNetwork } = useChangeNetwork(selectedNetwork);
   const isBlocked = useLeverageBlock();
   const approvalData = useTransactionApprovals(
     context,
     requiredApprovalAmount,
     variableBorrowRequired
   );
-  const mustSwitchNetwork = selectedNetwork !== walletConnectedNetwork;
 
   const { showApprovals } = approvalData;
 
@@ -104,12 +103,12 @@ export const TransactionSidebar = ({
     // from re-rendering inside intermediate state updates.
     updateState({ confirm: true });
 
-    if (mustSwitchNetwork && !isReadyOnlyWallet) {
+    if (mustSwitchNetwork) {
       setShowSwitchNetwork(true);
-    } else if (showApprovals && !isReadyOnlyWallet) {
+    } else if (showApprovals) {
       setShowTxnApprovals(true);
     }
-  }, [updateState, showApprovals, mustSwitchNetwork, isReadyOnlyWallet]);
+  }, [updateState, showApprovals, mustSwitchNetwork]);
 
   const onConfirmCancel = useCallback(() => {
     updateState({ confirm: false });
@@ -124,13 +123,23 @@ export const TransactionSidebar = ({
       if (showApprovals) {
         setShowTxnApprovals(true);
       } else {
-        updateState({ confirm: true });
+        // Clear the populated transaction and transaction error to reset the simulation
+        updateState({
+          confirm: true,
+          populatedTransaction: undefined,
+          transactionError: undefined,
+        });
       }
     }
 
     if (!showApprovals && showTxnApprovals) {
       setShowTxnApprovals(false);
-      updateState({ confirm: true });
+      // Clear the populated transaction and transaction error to reset the simulation
+      updateState({
+        confirm: true,
+        populatedTransaction: undefined,
+        transactionError: undefined,
+      });
     }
   }, [
     showApprovals,
@@ -228,7 +237,6 @@ export const TransactionSidebar = ({
       {tradeType !== 'StakeNOTECoolDown' && <TradeSummary state={state} />}
     </ActionSidebar>
   );
-  console.log('INNER DRAWER', inner);
 
   return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };

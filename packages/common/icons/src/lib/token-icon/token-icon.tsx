@@ -85,6 +85,10 @@ import L2DAO from '../../assets/icons/community-icons/L2DAO.svg';
 import Llamas from '../../assets/icons/community-icons/Llama.svg';
 import tBTC from '../../assets/icons/currencies/tBTC.svg';
 import ptBTC from '../../assets/icons/currencies/ptBTC.svg';
+import BAL from '../../assets/icons/currencies/BAL.svg';
+import CRV from '../../assets/icons/currencies/CRV.svg';
+import CVX from '../../assets/icons/currencies/CVX.svg';
+import AURA from '../../assets/icons/currencies/AURA.svg';
 import { VaultIcon } from '../vault-icon/vault-icon';
 import { Network, getNetworkSymbol } from '@notional-finance/util';
 import { Box } from '@mui/material';
@@ -460,6 +464,26 @@ export const TokenImageList: TokenImageMap = {
     name: 'ptbtc',
     img: ptBTC,
     alt: 'ptbtc',
+  },
+  bal: {
+    name: 'bal',
+    img: BAL,
+    alt: 'bal',
+  },
+  crv: {
+    name: 'crv',
+    img: CRV,
+    alt: 'crv',
+  },
+  cvx: {
+    name: 'cvx',
+    img: CVX,
+    alt: 'cvx',
+  },
+  aura: {
+    name: 'aura',
+    img: AURA,
+    alt: 'aura',
   },
   unknown: {
     name: 'unknown',

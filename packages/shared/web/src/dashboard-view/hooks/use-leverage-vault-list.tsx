@@ -3,9 +3,8 @@ import {
   formatNumberAsPercent,
   formatNumber,
 } from '@notional-finance/helpers';
-import { VAULT_TYPES, formatMaturity } from '@notional-finance/util';
+import { formatMaturity } from '@notional-finance/util';
 import {
-  useAllMarkets,
   useAllVaults,
   useAccountDefinition,
   useVaultHoldings,
@@ -21,22 +20,32 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import { Box } from '@mui/material';
-import { PointsIcon } from '@notional-finance/icons';
+import { MultiTokenIcon, PointsIcon } from '@notional-finance/icons';
+import { FiatKeys } from '@notional-finance/core-entities';
 
-export const useLeverageFarmingList = (
-  network: Network | undefined,
-  currentVaultType: VAULT_TYPES
-) => {
+const RewardsCell = (props) => {
   const {
-    yields: { leveragedVaults },
-    getMax,
-  } = useAllMarkets(network);
-  const listedVaults = useAllVaults(network);
-  const { baseCurrency } = useAppState();
-  const account = useAccountDefinition(network);
-  const vaultHoldings = useVaultHoldings(network);
+    cell: { getValue },
+  } = props;
+  const value = getValue();
 
-  let listColumns: DataTableColumn[] = [
+  return (
+    <Box>
+      {value.rewardTokens.length > 0 ? (
+        <MultiTokenIcon
+          symbols={value.rewardTokens.map((t) => t.symbol)}
+          size="medium"
+          shiftSize={8}
+        />
+      ) : (
+        value.label
+      )}
+    </Box>
+  );
+};
+
+const ListColumns = (baseCurrency: FiatKeys): DataTableColumn[] => {
+  return [
     {
       header: (
         <FormattedMessage
@@ -56,7 +65,7 @@ export const useLeverageFarmingList = (
         />
       ),
       cell: DisplayCell,
-      displayFormatter: (val, symbol) => {
+      displayFormatter: (val: string | number, symbol: string) => {
         return `${formatNumber(val, 4)} ${symbol}`;
       },
       showSymbol: true,
@@ -113,6 +122,17 @@ export const useLeverageFarmingList = (
     },
     {
       header: (
+        <FormattedMessage
+          defaultMessage="Rewards"
+          description={'Rewards header'}
+        />
+      ),
+      cell: RewardsCell,
+      accessorKey: 'rewards',
+      textAlign: 'right',
+    },
+    {
+      header: (
         <FormattedMessage defaultMessage="TVL" description={'TVL header'} />
       ),
       cell: DisplayCell,
@@ -143,9 +163,24 @@ export const useLeverageFarmingList = (
       width: '70px',
     },
   ];
+};
 
-  if (currentVaultType === VAULT_TYPES.LEVERAGED_YIELD_FARMING) {
+export const useLeverageVaultList = (
+  network: Network | undefined,
+  vaultProduct: PRODUCTS
+) => {
+  const listedVaults = useAllVaults(network, vaultProduct);
+  const { baseCurrency } = useAppState();
+  const account = useAccountDefinition(network);
+  const vaultHoldings = useVaultHoldings(network);
+  let listColumns = ListColumns(baseCurrency);
+
+  if (vaultProduct === PRODUCTS.LEVERAGED_POINTS_FARMING) {
     listColumns = listColumns.filter((x) => x.accessorKey !== 'incentiveApy');
+  }
+
+  if (vaultProduct !== PRODUCTS.LEVERAGED_YIELD_FARMING) {
+    listColumns = listColumns.filter((x) => x.accessorKey !== 'rewards');
   }
 
   if (account === undefined) {
@@ -154,18 +189,21 @@ export const useLeverageFarmingList = (
 
   const listData = listedVaults
     .map((vault) => {
-      const y = getMax(
-        leveragedVaults.filter(
-          (z) => z.token.vaultAddress === vault.vaultAddress
-        )
-      );
+      const reinvestmentType =
+        vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING &&
+        vault.vaultType === 'SingleSidedLP_DirectClaim'
+          ? 'SingleSidedLP_DirectClaim'
+          : vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING
+          ? 'SingleSidedLP'
+          : undefined;
+
       const walletBalance = account
         ? account.balances.find((t) => t.tokenId === vault.primaryToken.id)
         : undefined;
       const profile = vaultHoldings.find(
         (p) => p.vault.vaultAddress === vault.vaultAddress
       )?.vault;
-      const points = y?.pointMultiples;
+      const y = vault.maxVaultAPY;
 
       return {
         currency: {
@@ -183,11 +221,8 @@ export const useLeverageFarmingList = (
           vault.boosterProtocol === vault.baseProtocol
             ? vault.baseProtocol
             : `${vault.boosterProtocol} / ${vault.baseProtocol}`,
-        totalApy: y?.totalAPY || 0,
+        totalApy: profile?.totalAPY || y?.totalAPY || 0,
         incentiveApy: 0,
-        vaultType: points
-          ? VAULT_TYPES.LEVERAGED_POINTS_FARMING
-          : VAULT_TYPES.LEVERAGED_YIELD_FARMING,
         tvl: vault.vaultTVL ? vault.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         view: profile
           ? `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/IncreaseVaultPosition`
@@ -200,15 +235,21 @@ export const useLeverageFarmingList = (
                 y?.leveraged?.debtToken.tokenType === 'fCash'
                   ? 'Fixed'
                   : 'Variable',
-              isNegtive: false,
             },
             {
               displayValue: y?.leveraged?.debtToken?.maturity
                 ? formatMaturity(y?.leveraged?.debtToken?.maturity)
                 : '',
-              isNegtive: false,
             },
           ],
+        },
+        reinvestmentTypeString: reinvestmentType,
+        rewards: {
+          label:
+            reinvestmentType === 'SingleSidedLP'
+              ? 'Auto-Reinvest'
+              : 'Direct Claim',
+          rewardTokens: vault.rewardTokens,
         },
         multiValueCellData: {
           currency: {
@@ -230,26 +271,26 @@ export const useLeverageFarmingList = (
               ? `${formatNumber(y?.leveraged?.leverageRatio, 1)}x Leverage`
               : undefined,
           },
-          incentiveApy: points
-            ? {
-                label: (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      fontSize: 'inherit',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <PointsIcon sx={{ fontSize: 'inherit' }} />
-                    &nbsp;Points
-                  </Box>
-                ),
-              }
-            : undefined,
+          incentiveApy:
+            vaultProduct === PRODUCTS.LEVERAGED_POINTS_FARMING
+              ? {
+                  label: (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        fontSize: 'inherit',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <PointsIcon sx={{ fontSize: 'inherit' }} />
+                      &nbsp;Points
+                    </Box>
+                  ),
+                }
+              : undefined,
         },
       };
     })
-    .filter(({ vaultType }) => vaultType === currentVaultType)
     .sort((a, b) => b.walletBalance - a.walletBalance);
 
   return { listColumns, listData };

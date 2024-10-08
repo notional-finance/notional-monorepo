@@ -1,7 +1,11 @@
 import { usePortfolioHoldings } from './use-portfolio-holdings';
 import { DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { TableActionRow } from '../../components';
+import {
+  ClaimNoteButton,
+  PortfolioPageHeader,
+  TableActionRow,
+} from '../../components';
 import { Box } from '@mui/material';
 import { PortfolioRisk } from './portfolio-risk';
 import { useState } from 'react';
@@ -11,6 +15,7 @@ import {
   useAccountDefinition,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 
 export const PortfolioHoldings = () => {
   const [currentTab, setCurrentTab] = useState(0);
@@ -69,6 +74,9 @@ export const PortfolioHoldings = () => {
 
   return (
     <Box>
+      <PortfolioPageHeader category={PORTFOLIO_CATEGORIES.HOLDINGS}>
+        <ClaimNoteButton />
+      </PortfolioPageHeader>
       <PortfolioRisk />
       <DataTable
         tabBarProps={{

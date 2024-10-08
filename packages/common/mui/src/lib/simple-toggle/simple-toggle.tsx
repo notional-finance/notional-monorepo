@@ -1,5 +1,13 @@
 import React from 'react';
-import { Tabs, styled, Tab, Box, useTheme, SxProps, TabsProps } from '@mui/material';
+import {
+  Tabs,
+  styled,
+  Tab,
+  Box,
+  useTheme,
+  SxProps,
+  TabsProps,
+} from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 
 export interface SimpleToggleProps extends TabsProps {
@@ -99,9 +107,16 @@ const StyledTab = styled(Tab)(
     fill: ${theme.palette.typography.light};
   }
 
+  .stroke-icon {
+    stroke: ${theme.palette.typography.light};
+  }
+
   &.Mui-selected {
     svg {
       fill: ${theme.palette.typography.main};
+    }
+    .stroke-icon {
+      stroke: ${theme.palette.typography.main};
     }
     color: ${theme.palette.typography.main};
     div {

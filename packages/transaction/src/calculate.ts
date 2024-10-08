@@ -755,6 +755,17 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   }
   const accruedVaultFees = profile.accruedVaultFees;
 
+  // Ensure that the debt passed in matches the collateral, this can occur when calculating
+  // collateral options
+  debt =
+    collateral.vaultAddress && collateral.maturity
+      ? Registry.getTokenRegistry().getVaultDebt(
+          collateral.network,
+          collateral.vaultAddress,
+          collateral.maturity
+        )
+      : debt;
+
   const results = profile.getDebtAndCollateralMaintainRiskFactor(
     debt,
     riskFactorLimit,

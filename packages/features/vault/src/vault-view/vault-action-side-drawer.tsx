@@ -17,6 +17,7 @@ import {
   useVaultProperties,
 } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router';
+import { ClaimVaultRewards } from '../side-drawers/claim-vault-rewards';
 
 export const VaultActionSideDrawer = () => {
   const context = useContext(VaultActionContext);
@@ -151,6 +152,16 @@ export const VaultActionSideDrawer = () => {
           requiredState: {
             tradeType: 'WithdrawVault',
             riskFactorLimit: currentPosition.riskFactorLimit,
+          },
+        },
+        {
+          slug: 'ClaimVaultRewards',
+          Component: ClaimVaultRewards,
+          requiredState: {
+            // NOTE: this is irrelevant, just needs to be defined to get the trade
+            // summary on the left to render
+            tradeType: 'IncreaseVaultPosition',
+            riskFactorLimit: defaultRiskLimit,
           },
         },
       ]}

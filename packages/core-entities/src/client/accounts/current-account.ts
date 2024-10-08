@@ -1,5 +1,6 @@
 import {
   ERC20ABI,
+  ISingleSidedLPStrategyVaultABI,
   NotionalV3,
   NotionalV3ABI,
 } from '@notional-finance/contracts';
@@ -22,10 +23,15 @@ import {
   getMulticall,
 } from '@notional-finance/multicall';
 import { TokenBalance } from '../../token-balance';
-import { AccountDefinition, AccountIncentiveDebt, StakeNoteStatus } from '../../Definitions';
+import {
+  AccountDefinition,
+  AccountIncentiveDebt,
+  StakeNoteStatus,
+} from '../../Definitions';
 import { fetchUsingMulticall } from '../../server/server-registry';
 import { SNOTEWeightedPool } from '../../exchanges';
-
+import { getVaultType } from '../../config/whitelisted-vaults';
+import { SingleSidedLP } from '../../vaults';
 
 export function fetchCurrentAccount(
   network: Network,
@@ -97,6 +103,13 @@ export function fetchCurrentAccount(
                 };
               }),
             stakeNOTEStatus: results['stakeNOTEStatus'] as StakeNoteStatus,
+            rewardClaims: Object.keys(results)
+              .filter((k) => k.includes('.rewardClaim'))
+              .reduce((agg, k) => {
+                return Object.assign(agg, {
+                  [k.split('.')[0]]: results[k],
+                });
+              }, {} as Record<string, TokenBalance[]>),
           },
         };
       },
@@ -315,11 +328,10 @@ function getVaultCalls(
   notional: NotionalV3
 ): AggregateCall[] {
   const config = Registry.getConfigurationRegistry();
-  // TODO: make this more efficient by calling the data service
   return (
     config.getAllListedVaults(network, true) || []
   ).flatMap<AggregateCall>((v) => {
-    return [
+    const vaultCalls: AggregateCall[] = [
       {
         stage: 0,
         target: notional,
@@ -366,84 +378,35 @@ function getVaultCalls(
           };
         },
       },
-      {
-        stage: 0,
-        target: notional,
-        method: 'getVaultAccountSecondaryDebt',
-        args: [account, v.vaultAddress],
-        key: `${v.vaultAddress}.balance2`,
-        transform: (
-          r: Awaited<ReturnType<NotionalV3['getVaultAccountSecondaryDebt']>>
-        ) => {
-          const maturity = r.maturity.toNumber();
-          if (maturity === 0) return { balances: [] };
-          const {
-            secondaryOneCashID,
-            secondaryOneDebtID,
-            secondaryOneTokenId,
-            secondaryTwoCashID,
-            secondaryTwoDebtID,
-            secondaryTwoTokenId,
-          } = config.getVaultIDs(network, v.vaultAddress, maturity);
-
-          const secondaries: TokenBalance[] = [];
-
-          if (
-            secondaryOneDebtID &&
-            secondaryOneTokenId &&
-            !r.accountSecondaryDebt[0].isZero()
-          ) {
-            secondaries.push(
-              parseVaultDebtBalance(
-                secondaryOneDebtID,
-                secondaryOneTokenId,
-                r.accountSecondaryDebt[0],
-                maturity,
-                network
-              )
-            );
-          }
-
-          if (
-            secondaryTwoDebtID &&
-            secondaryTwoTokenId &&
-            !r.accountSecondaryDebt[1].isZero()
-          ) {
-            secondaries.push(
-              parseVaultDebtBalance(
-                secondaryTwoDebtID,
-                secondaryTwoTokenId,
-                r.accountSecondaryDebt[1],
-                maturity,
-                network
-              )
-            );
-          }
-
-          if (secondaryOneCashID && !r.accountSecondaryCashHeld[0].isZero()) {
-            secondaries.push(
-              TokenBalance.fromID(
-                r.accountSecondaryCashHeld[0],
-                secondaryOneCashID,
-                network
-              )
-            );
-          }
-
-          if (secondaryTwoCashID && !r.accountSecondaryCashHeld[1].isZero()) {
-            secondaries.push(
-              TokenBalance.fromID(
-                r.accountSecondaryCashHeld[1],
-                secondaryTwoCashID,
-                network
-              )
-            );
-          }
-
-          return { balances: secondaries };
-        },
-      },
     ];
+
+    const vaultType = getVaultType(v.vaultAddress, network);
+    if (vaultType === 'SingleSidedLP_DirectClaim') {
+      const adapter = Registry.getVaultRegistry().getVaultAdapter(
+        network,
+        v.vaultAddress
+      ) as SingleSidedLP;
+      const rewardTokens = adapter.rewardTokens;
+
+      vaultCalls.push({
+        stage: 0,
+        target: new Contract(
+          v.vaultAddress,
+          ISingleSidedLPStrategyVaultABI,
+          notional.provider
+        ),
+        method: 'getAccountRewardClaim',
+        args: [account, getNowSeconds()],
+        key: `${v.vaultAddress}.rewardClaim`,
+        transform: (r: BigNumber[]) => {
+          return r.map((b, i) =>
+            TokenBalance.fromID(b, rewardTokens[i], network)
+          );
+        },
+      });
+    }
+
+    return vaultCalls;
   });
 }
 
@@ -465,4 +428,94 @@ function parseVaultDebtBalance(
   }
 
   return TokenBalance.fromID(balance, debtID, network);
+}
+
+// NOTE: this is not used anywhere yet but will be activated when we add support for secondary debt
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getVaultSecondaryDebtCalls(
+  notional: Contract,
+  account: string,
+  vaultAddress: string,
+  network: Network
+) {
+  const config = Registry.getConfigurationRegistry();
+  return [
+    {
+      stage: 0,
+      target: notional,
+      method: 'getVaultAccountSecondaryDebt',
+      args: [account, vaultAddress],
+      key: `${vaultAddress}.balance2`,
+      transform: (
+        r: Awaited<ReturnType<NotionalV3['getVaultAccountSecondaryDebt']>>
+      ) => {
+        const maturity = r.maturity.toNumber();
+        if (maturity === 0) return { balances: [] };
+        const {
+          secondaryOneCashID,
+          secondaryOneDebtID,
+          secondaryOneTokenId,
+          secondaryTwoCashID,
+          secondaryTwoDebtID,
+          secondaryTwoTokenId,
+        } = config.getVaultIDs(network, vaultAddress, maturity);
+
+        const secondaries: TokenBalance[] = [];
+
+        if (
+          secondaryOneDebtID &&
+          secondaryOneTokenId &&
+          !r.accountSecondaryDebt[0].isZero()
+        ) {
+          secondaries.push(
+            parseVaultDebtBalance(
+              secondaryOneDebtID,
+              secondaryOneTokenId,
+              r.accountSecondaryDebt[0],
+              maturity,
+              network
+            )
+          );
+        }
+
+        if (
+          secondaryTwoDebtID &&
+          secondaryTwoTokenId &&
+          !r.accountSecondaryDebt[1].isZero()
+        ) {
+          secondaries.push(
+            parseVaultDebtBalance(
+              secondaryTwoDebtID,
+              secondaryTwoTokenId,
+              r.accountSecondaryDebt[1],
+              maturity,
+              network
+            )
+          );
+        }
+
+        if (secondaryOneCashID && !r.accountSecondaryCashHeld[0].isZero()) {
+          secondaries.push(
+            TokenBalance.fromID(
+              r.accountSecondaryCashHeld[0],
+              secondaryOneCashID,
+              network
+            )
+          );
+        }
+
+        if (secondaryTwoCashID && !r.accountSecondaryCashHeld[1].isZero()) {
+          secondaries.push(
+            TokenBalance.fromID(
+              r.accountSecondaryCashHeld[1],
+              secondaryTwoCashID,
+              network
+            )
+          );
+        }
+
+        return { balances: secondaries };
+      },
+    },
+  ];
 }

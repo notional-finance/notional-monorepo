@@ -1,5 +1,5 @@
 import { Box, useTheme } from '@mui/material';
-import { DoubleTokenIcon, TokenIcon } from '@notional-finance/icons';
+import { TokenIcon, MultiTokenIcon } from '@notional-finance/icons';
 import { ReactNode } from 'react';
 import { H3 } from '../typography/typography';
 
@@ -33,11 +33,7 @@ export function TradeActionHeader({
       }}
     >
       {tokenBottom ? (
-        <DoubleTokenIcon
-          symbolTop={token}
-          symbolBottom={tokenBottom}
-          size="medium"
-        />
+        <MultiTokenIcon symbols={[token, tokenBottom]} size="medium" />
       ) : (
         <TokenIcon symbol={token} size="medium" />
       )}

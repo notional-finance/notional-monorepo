@@ -24,6 +24,15 @@ export interface SingleSidedLPParams extends BaseVaultParams {
   secondaryTradeParams: string;
   maxPoolShares: BigNumber;
   totalPoolSupply?: TokenBalance;
+  rewardState?: RewardState[];
+}
+
+interface RewardState {
+  lastAccumulatedTime: number;
+  endTime: number;
+  rewardToken: string;
+  emissionRatePerYear: BigNumber; // in internal precision
+  accumulatedRewardPerVaultShare: BigNumber;
 }
 
 export interface TradeParams {
@@ -63,6 +72,7 @@ export class SingleSidedLP extends VaultAdapter {
   public secondaryTradeParams: string;
   public maxPoolShares: BigNumber;
   public totalPoolSupply: TokenBalance | undefined;
+  public rewardState?: RewardState[];
 
   get strategy() {
     return 'SingleSidedLP';
@@ -74,6 +84,10 @@ export class SingleSidedLP extends VaultAdapter {
         | BigNumber
         | undefined
     )?.toNumber();
+  }
+
+  get rewardTokens() {
+    return this.rewardState?.map((r) => r.rewardToken) || [];
   }
 
   constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
@@ -97,6 +111,7 @@ export class SingleSidedLP extends VaultAdapter {
     this.secondaryTradeParams = p.secondaryTradeParams;
     this.maxPoolShares = p.maxPoolShares;
     this.totalPoolSupply = p.totalPoolSupply;
+    this.rewardState = p.rewardState;
 
     this._initOracles(network, vaultAddress.toLowerCase());
   }
@@ -133,17 +148,21 @@ export class SingleSidedLP extends VaultAdapter {
     return undefined;
   }
 
-  public isOverMaxPoolShare(vaultShares?: TokenBalance) {
+  public getPoolShare(vaultShares?: TokenBalance) {
     const additionalLPTokens = vaultShares
       ? this.getVaultSharesToLPTokens(vaultShares)
       : TokenBalance.zero(this.totalLPTokens.token);
 
-    const poolShare = this.totalPoolSupply
+    return this.totalPoolSupply
       ? this.totalLPTokens
           .add(additionalLPTokens)
           .ratioWith(this.totalPoolSupply)
           .toNumber()
       : 0;
+  }
+
+  public isOverMaxPoolShare(vaultShares?: TokenBalance) {
+    const poolShare = this.getPoolShare(vaultShares);
     return (
       poolShare >
       (this.maxPoolShares.toNumber() * RATE_PRECISION) /
@@ -185,7 +204,7 @@ export class SingleSidedLP extends VaultAdapter {
     return TokenBalance.from(vaultShares.n, token);
   }
 
-  getVaultTVL() {
+  override getVaultTVL() {
     const token = Registry.getTokenRegistry().getVaultShare(
       this.network,
       this.vaultAddress,
@@ -287,7 +306,7 @@ export class SingleSidedLP extends VaultAdapter {
     );
   }
 
-  getDepositParameters(
+  override async getDepositParameters(
     _account: string,
     _maturity: number,
     totalDeposit: TokenBalance,
@@ -314,7 +333,7 @@ export class SingleSidedLP extends VaultAdapter {
     );
   }
 
-  getRedeemParameters(
+  override async getRedeemParameters(
     _account: string,
     _maturity: number,
     vaultSharesToRedeem: TokenBalance,
@@ -354,45 +373,10 @@ export class SingleSidedLP extends VaultAdapter {
     return balance.ratioWith(tvl).toNumber() / RATE_PRECISION;
   }
 
-  getPointMultiples() {
+  override getPointMultiples() {
     const pointsFunc = PointsMultipliers[this.network][this.vaultAddress];
     if (pointsFunc) return pointsFunc(this);
 
     return undefined;
-  }
-
-  getPriceExposure() {
-    // TODO: this only works on two token pools
-    return (
-      this.pool
-        // This is trading towards the single sided token [profit]
-        .getPriceExposureTable(
-          1 - this.singleSidedTokenIndex,
-          this.singleSidedTokenIndex
-        )
-        .map(({ tokenOutPrice, lpTokenValueOut }) => ({
-          price: tokenOutPrice,
-          vaultSharePrice: lpTokenValueOut.scale(
-            this.totalLPTokens.scaleTo(INTERNAL_TOKEN_DECIMALS),
-            this.totalVaultShares
-          ),
-        }))
-        .reverse()
-        // This is trading away from the single sided token [loss]
-        .concat(
-          this.pool
-            .getPriceExposureTable(
-              this.singleSidedTokenIndex,
-              1 - this.singleSidedTokenIndex
-            )
-            .map(({ tokenInPrice, lpTokenValueIn }) => ({
-              price: tokenInPrice,
-              vaultSharePrice: lpTokenValueIn.scale(
-                this.totalLPTokens.scaleTo(INTERNAL_TOKEN_DECIMALS),
-                this.totalVaultShares
-              ),
-            }))
-        )
-    );
   }
 }

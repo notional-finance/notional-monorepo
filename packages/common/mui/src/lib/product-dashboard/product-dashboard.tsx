@@ -8,7 +8,8 @@ import { MessageDescriptor } from 'react-intl';
 import { DataTable } from '../data-table/data-table';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 import { DataTableColumn, TABLE_VARIANTS } from '../data-table/types';
-import { Network, VAULT_TYPES } from '@notional-finance/util';
+import { Network, PRODUCTS } from '@notional-finance/util';
+import { VaultType } from '@notional-finance/core-entities';
 import { ReactNode } from 'react';
 
 export interface DashboardDataProps {
@@ -22,6 +23,17 @@ export interface DashboardDataProps {
   bottomRightValue?: string | ReactNode;
   hasPosition?: boolean;
   apySubTitle?: MessageDescriptor;
+  reinvestOptions?: {
+    Icon: any;
+    label: MessageDescriptor;
+  };
+  reinvestmentTypeString?: VaultType | undefined;
+  vaultUtilization?: number;
+  rewardTokens?: string[];
+  currency?: {
+    symbol: string;
+  };
+  PointsSubTitle?: React.FC;
   incentiveValue?: string;
   incentiveSymbols?: (string | undefined)[] | [];
 }
@@ -31,11 +43,15 @@ export interface DashboardHeaderProps {
     messageBoxText?: ReactNode;
     networkToggle: number;
     handleNetWorkToggle: (value: number) => void;
+    product?: PRODUCTS;
   };
   tokenGroup: number;
   handleTokenGroup: (value: number) => void;
+  reinvestmentType: number;
+  handleReinvestmentType: (value: number) => void;
   dashboardTab: number;
   handleDashboardTab: (value: number) => void;
+  disabled?: boolean;
 }
 
 export interface DashboardGridProps {
@@ -49,7 +65,9 @@ export interface DashboardGridProps {
   setShowNegativeYields?: (value: boolean) => void;
   isLoading?: boolean;
   threeWideGrid?: boolean;
+  ComingSoonComponent?: React.FC;
   hideApyTitle?: boolean;
+  hasPosition?: boolean;
 }
 export interface DashboardViewProps extends DashboardGridProps {
   listData: Array<any>;
@@ -57,6 +75,8 @@ export interface DashboardViewProps extends DashboardGridProps {
 }
 
 export interface ProductDashboardProps extends DashboardViewProps {
+  reinvestmentType: number;
+  handleReinvestmentType: (value: number) => void;
   tokenGroup: number;
   handleTokenGroup: (value: number) => void;
   dashboardTab: number;
@@ -73,13 +93,16 @@ export const ProductDashboard = ({
   listData,
   listColumns,
   tokenGroup,
+  reinvestmentType,
   handleTokenGroup,
+  handleReinvestmentType,
   headerData,
   showNegativeYields,
   setShowNegativeYields,
   threeWideGrid = true,
   dashboardTab,
   handleDashboardTab,
+  ComingSoonComponent,
 }: ProductDashboardProps) => {
   const theme = useTheme();
   const isLoading = gridData && gridData?.length === 0 ? true : false;
@@ -89,15 +112,24 @@ export const ProductDashboard = ({
       : false;
 
   return (
-    <MainContainer sx={{ marginTop: isLoading ? theme.spacing(8.625) : '0px' }}>
+    <MainContainer
+      sx={{
+        marginTop: isLoading ? theme.spacing(8.625) : '0px',
+      }}
+    >
       <DashboardHeader
+        disabled={ComingSoonComponent ? true : false}
         headerData={headerData}
         tokenGroup={tokenGroup}
         handleTokenGroup={handleTokenGroup}
+        reinvestmentType={reinvestmentType}
+        handleReinvestmentType={handleReinvestmentType}
         dashboardTab={dashboardTab}
         handleDashboardTab={handleDashboardTab}
       />
-      {isLoading ? (
+      {ComingSoonComponent ? (
+        <ComingSoonComponent />
+      ) : isLoading ? (
         <ProgressIndicator
           type="notional"
           sx={{ height: theme.spacing(57.5) }}

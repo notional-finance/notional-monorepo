@@ -6,13 +6,18 @@ import {
   TokenBalance,
   fCashMarket,
   Registry,
+  PendlePT,
 } from '@notional-finance/core-entities';
 import { RiskFactorLimit, RiskFactorKeys } from '@notional-finance/risk-engine';
 import {
   CalculationFn,
   CalculationFnParams,
 } from '@notional-finance/transaction';
-import { filterEmpty, RATE_PRECISION } from '@notional-finance/util';
+import {
+  filterEmpty,
+  RATE_PRECISION,
+  SECONDS_IN_YEAR_ACTUAL,
+} from '@notional-finance/util';
 import { Observable, combineLatest, filter, bufferCount, map } from 'rxjs';
 import { isHashable } from '../utils';
 import {
@@ -425,13 +430,16 @@ function computeOptions(
     requiredArgs
       .filter((c) => c !== 'collateral')
       .every((r) => inputs[r] !== undefined) &&
-    inputs['collateralPool'] !== undefined
+    (inputs['collateralPool'] !== undefined ||
+      inputs['vaultAdapter'] !== undefined)
   ) {
     collateralOptions = computeCollateralOptions(
       inputs,
       calculationFn,
       collateralTokens,
-      inputs['collateralPool'] as fCashMarket
+      inputs['collateralPool'] as fCashMarket | undefined,
+      tradeType,
+      inputs['vaultAdapter'] as VaultAdapter | undefined
     );
   }
 
@@ -460,7 +468,9 @@ function computeCollateralOptions(
   inputs: Record<CalculationFnParams, unknown>,
   calculationFn: CalculationFn,
   options: TokenDefinition[],
-  fCashMarket: fCashMarket
+  fCashMarket: fCashMarket | undefined,
+  tradeType: AllTradeTypes | undefined,
+  vaultAdapter: VaultAdapter | undefined
 ): TokenOption[] | undefined {
   return options.map((c) => {
     const i = { ...inputs, collateral: c };
@@ -480,7 +490,9 @@ function computeCollateralOptions(
         ..._getTradedInterestRate(
           netRealizedCollateralBalance,
           collateralBalance,
-          fCashMarket
+          fCashMarket,
+          tradeType,
+          vaultAdapter
         ),
       };
     } catch (e) {
@@ -530,7 +542,8 @@ function computeDebtOptions(
           netRealizedDebtBalance,
           debtBalance,
           fCashMarket,
-          tradeType
+          tradeType,
+          undefined // Vault Adapter is not used for debt
         ),
       };
     } catch (e) {
@@ -547,19 +560,21 @@ function computeDebtOptions(
 function _getTradedInterestRate(
   realized: TokenBalance,
   _amount: TokenBalance,
-  fCashMarket: fCashMarket,
-  tradeType?: AllTradeTypes | NOTETradeType
+  fCashMarket: fCashMarket | undefined,
+  tradeType: AllTradeTypes | NOTETradeType | undefined,
+  vaultAdapter: VaultAdapter | undefined
 ) {
   let interestRate: number | undefined;
   let utilization: number | undefined;
   const amount = _amount.unwrapVaultToken();
-  if (amount.tokenType === 'fCash') {
+  if (amount.tokenType === 'fCash' && fCashMarket) {
     // We net off the fee for fcash so that we show it as an up-front
     // trading fee rather than part of the implied yield
     interestRate = fCashMarket.getImpliedInterestRate(realized, amount);
   } else if (
     (amount.tokenType === 'PrimeDebt' || amount.tokenType === 'PrimeCash') &&
-    (tradeType === 'LeveragedLend' || tradeType === 'LeveragedNToken')
+    (tradeType === 'LeveragedLend' || tradeType === 'LeveragedNToken') &&
+    fCashMarket
   ) {
     // If borrowing for leverage it is prime supply + prime debt and the interest rate
     // is always the prime debt rate
@@ -568,11 +583,11 @@ function _getTradedInterestRate(
       amount.neg()
     );
     interestRate = fCashMarket.getPrimeDebtRate(utilization);
-  } else if (amount.tokenType === 'PrimeCash') {
+  } else if (amount.tokenType === 'PrimeCash' && fCashMarket) {
     // Increases or decreases the prime supply accordingly
     utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);
     interestRate = fCashMarket.getPrimeSupplyRate(utilization);
-  } else if (amount.tokenType === 'PrimeDebt') {
+  } else if (amount.tokenType === 'PrimeDebt' && fCashMarket) {
     // If borrowing and withdrawing then it is just prime debt increase. This
     // includes vault debt
     utilization = fCashMarket.getPrimeCashUtilization(undefined, amount.neg());
@@ -592,6 +607,22 @@ function _getTradedInterestRate(
         Registry.getYieldRegistry().getSimulatedNTokenYield(amount)?.totalAPY,
       utilization: undefined,
     };
+  } else if (
+    amount.tokenType === 'VaultShare' &&
+    vaultAdapter &&
+    vaultAdapter.strategy === 'PendlePT' &&
+    // Only calculate this on increasing the position, otherwise it will be based on
+    // the current spot APY
+    (tradeType === 'IncreaseVaultPosition' ||
+      tradeType === 'CreateVaultPosition')
+  ) {
+    const impliedExchangeRate = amount.toFloat() / realized.toFloat();
+    const timeToMaturity = (vaultAdapter as PendlePT).timeToExpiry;
+    interestRate = Math.trunc(
+      ((Math.log(impliedExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
+        timeToMaturity) *
+        RATE_PRECISION
+    );
   }
 
   return {

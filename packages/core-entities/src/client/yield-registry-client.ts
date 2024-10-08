@@ -3,7 +3,6 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
-  SECONDS_IN_DAY,
   getNowSeconds,
   isIdiosyncratic,
 } from '@notional-finance/util';
@@ -336,12 +335,12 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             .div(maxFactor)
             .toNumber();
           const maxLeverageRatio = maxFactorInverted / RATE_PRECISION - 1;
-          const leverageRatio = maxLeverageRatio * 0.6;
+          // const leverageRatio = maxLeverageRatio * 0.6;
 
           return this._makeLeveraged(
             nToken,
             debt,
-            leverageRatio,
+            maxLeverageRatio,
             maxLeverageRatio
           );
         });
@@ -461,8 +460,10 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         // can properly get the TVL value.
         const adapter = vaults.getVaultAdapter(network, v.vaultAddress);
         const underlying = tokens.getTokenByID(network, v.underlying);
-        const { defaultLeverageRatio, maxLeverageRatio } =
-          config.getVaultLeverageFactors(network, v.vaultAddress);
+        const { maxLeverageRatio } = config.getVaultLeverageFactors(
+          network,
+          v.vaultAddress
+        );
         const totalAPY = adapter.getVaultAPY();
         if (debt.token.tokenType === 'PrimeDebt') {
           const annualizedFeeRate =
@@ -499,7 +500,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           this._makeLeveraged(
             vaultShareYield,
             debt,
-            defaultLeverageRatio,
+            maxLeverageRatio,
             maxLeverageRatio
           ),
         ];

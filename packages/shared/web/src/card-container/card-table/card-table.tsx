@@ -9,7 +9,7 @@ export const CardTable = () => {
 
   return (
     <OuterContainer>
-      <ContentContainer>
+      <ContentContainer sx={{ width: theme.spacing(48) }}>
         {cardTableData?.map(({ key, value }, index) => (
           <React.Fragment key={index}>
             <TableContent
@@ -40,7 +40,7 @@ export const CardTable = () => {
 const OuterContainer = styled(Box)(
   ({ theme }) => `
   border: ${theme.shape.borderHighlight};
-  padding: ${theme.spacing(2, 6)};
+  padding: ${theme.spacing(2, 2)};
   background: ${colors.black};
   color: ${colors.white};
   width: fit-content;
@@ -55,7 +55,6 @@ const OuterContainer = styled(Box)(
 
 const ContentContainer = styled('ul')(
   ({ theme }) => `
-  width: ${theme.spacing(48)};
   display: flex;
   flex-wrap: wrap;
   text-align: center;

@@ -7,10 +7,12 @@ import {
   StakeIcon,
   VaultIcon,
   PointsIcon,
+  PendleIcon,
 } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useDefaultNetwork } from './use-default-network';
+import { PRODUCTS } from '@notional-finance/util';
 
 export const usePendingValues = (value: number | undefined) => {
   const theme = useTheme();
@@ -35,7 +37,7 @@ export const useLeverageEarnLinks = () => {
   const earnLinks: SectionLinkProps[] = [
     {
       title: <FormattedMessage defaultMessage={'Lending'} />,
-      to: `/lend-variable/${selectedNetwork}`,
+      to: `/${PRODUCTS.LEND_VARIABLE}/${selectedNetwork}`,
       icon: (
         <BarChartIcon
           sx={{
@@ -49,7 +51,7 @@ export const useLeverageEarnLinks = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
-      to: `/lend-fixed/${selectedNetwork}`,
+      to: `/${PRODUCTS.LEND_FIXED}/${selectedNetwork}`,
       icon: (
         <BarChartLateralIcon
           sx={{
@@ -64,7 +66,7 @@ export const useLeverageEarnLinks = () => {
 
     {
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      to: `/liquidity-variable/${selectedNetwork}`,
+      to: `/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedNetwork}`,
       icon: (
         <PieChartIcon
           sx={{
@@ -97,7 +99,7 @@ export const useLeverageEarnLinks = () => {
   const leverageLinks: SectionLinkProps[] = [
     {
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
-      to: `/liquidity-leveraged/${selectedNetwork}`,
+      to: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}`,
       icon: (
         <PieChartIcon
           sx={{
@@ -112,7 +114,7 @@ export const useLeverageEarnLinks = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Yield Farming'} />,
-      to: `/leveraged-yield-farming/${selectedNetwork}`,
+      to: `/${PRODUCTS.LEVERAGED_YIELD_FARMING}/${selectedNetwork}`,
       icon: (
         <VaultIcon
           sx={{
@@ -126,7 +128,7 @@ export const useLeverageEarnLinks = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Points Farming'} />,
-      to: `/leveraged-points-farming/${selectedNetwork}`,
+      to: `/${PRODUCTS.LEVERAGED_POINTS_FARMING}/${selectedNetwork}`,
       icon: (
         <PointsIcon
           fill={theme.palette.typography.main}
@@ -134,6 +136,21 @@ export const useLeverageEarnLinks = () => {
         />
       ),
       pillText: <FormattedMessage defaultMessage={'Points Yield'} />,
+      external: false,
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Leveraged Pendle'} />,
+      to: `/${PRODUCTS.LEVERAGED_PENDLE}/${selectedNetwork}`,
+      icon: (
+        <PendleIcon
+          stroke={theme.palette.typography.main}
+          sx={{
+            fontSize: theme.spacing(3),
+            fill: 'transparent',
+          }}
+        />
+      ),
+      pillText: <FormattedMessage defaultMessage={'Fixed Yield'} />,
       external: false,
     },
   ];

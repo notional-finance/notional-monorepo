@@ -52,7 +52,7 @@ const TokenAllowanceRow = ({ amount }: { amount: TokenBalance }) => {
   const isUnlimited = amount.n.gte(UNLIMITED_APPROVAL);
   const canEdit = network === amount.network && walletConnected;
   const { enableToken } = useTokenApproval(amount.symbol, amount.network);
-  const changeNetwork = useChangeNetwork();
+  const { changeNetwork } = useChangeNetwork(amount.network);
 
   return (
     <Box

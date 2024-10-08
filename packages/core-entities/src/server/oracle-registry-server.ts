@@ -1,12 +1,10 @@
 import {
   IAggregatorABI,
   IAggregator,
-  IStrategyVaultABI,
   NotionalV3ABI,
   NotionalV3,
   BalancerPoolABI,
   BalancerPool,
-  ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import {
@@ -18,19 +16,22 @@ import {
   NotionalAddress,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
-import { BigNumber, Contract } from 'ethers';
+import { BigNumber, Contract, ethers } from 'ethers';
 import { OracleDefinition, CacheSchema, ClientRegistry } from '..';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 import { fiatOracles } from '../config/fiat-config';
 import { TypedDocumentNode } from '@apollo/client/core';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllOraclesQuery } from '../.graphclient';
-import { vaultOverrides } from './vault-overrides';
 import { Block } from '@ethersproject/providers';
 
 // NOTE: this is currently hardcoded because we cannot access the worker
 // process environment directly here.
 const NX_REGISTRY_URL = 'https://registry.notional.finance';
+
+const VaultABI = new ethers.utils.Interface([
+  'function getExchangeRate(uint256 maturity) view external returns (int256)',
+]);
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   public override hasAllNetwork(): boolean {
@@ -47,7 +48,8 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
 
     const results = await this._queryAllOracles(network, blockNumber);
     // Updates the latest rates using the blockchain
-    return this._updateLatestRates(results, blockNumber);
+    const r = this._updateLatestRates(results, blockNumber);
+    return r;
   }
 
   private async _queryAllOracles(network: Network, blockNumber?: number) {
@@ -198,44 +200,9 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
           };
         } else if (oracle.oracleType === 'VaultShareOracleRate') {
           const { maturity } = decodeERC1155Id(oracle.quote);
-          const override = vaultOverrides[oracle.oracleAddress];
-          if (override) {
-            const entry = override.find((o) => {
-              if (o.fromBlock && blockNumber && blockNumber < o.fromBlock) {
-                return false;
-              }
-              if (o.toBlock && blockNumber && blockNumber > o.toBlock) {
-                return false;
-              }
-              return true;
-            });
-
-            if (entry) {
-              return {
-                key: id,
-                target: new Contract(
-                  oracle.oracleAddress,
-                  IStrategyVaultABI,
-                  provider
-                ),
-                method: 'convertStrategyToUnderlying',
-                args: [
-                  oracle.oracleAddress,
-                  INTERNAL_TOKEN_PRECISION,
-                  maturity,
-                ],
-                transform: (r: BigNumber) => ({ rate: r }),
-              };
-            }
-          }
-
           return {
             key: id,
-            target: new Contract(
-              oracle.oracleAddress,
-              ISingleSidedLPStrategyVaultABI,
-              provider
-            ),
+            target: new Contract(oracle.oracleAddress, VaultABI, provider),
             method: 'getExchangeRate',
             args: [maturity],
             transform: (r: BigNumber) => ({ rate: r }),

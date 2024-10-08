@@ -3,6 +3,9 @@ import { Routes } from '../server';
 import { SingleSidedLP, VaultMetadata } from '../vaults';
 import { ClientRegistry } from './client-registry';
 import { map } from 'rxjs';
+import { SingleSidedLPParams } from '../vaults/SingleSidedLP';
+import { PendlePT, PendlePTVaultParams } from '../vaults/PendlePT';
+import { getVaultType } from '../config/whitelisted-vaults';
 
 export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
   protected override cachePath() {
@@ -17,13 +20,49 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
   getVaultAdapter(network: Network, vaultAddress: string) {
     const params = this.getLatestFromSubject(network, vaultAddress);
     if (!params) throw Error(`No vault params found: ${vaultAddress}`);
-    return new SingleSidedLP(network, vaultAddress, params);
+    const vaultType = getVaultType(vaultAddress, network);
+    switch (vaultType) {
+      case 'SingleSidedLP':
+      case 'SingleSidedLP_DirectClaim':
+        return new SingleSidedLP(
+          network,
+          vaultAddress,
+          params as SingleSidedLPParams
+        );
+      case 'PendlePT':
+        return new PendlePT(
+          network,
+          vaultAddress,
+          params as PendlePTVaultParams
+        );
+      default:
+        throw Error(`Unknown vault type: ${vaultType}`);
+    }
   }
 
   subscribeVaultAdapter(network: Network, vaultAddress: string) {
     return this.subscribeSubject(network, vaultAddress.toLowerCase())?.pipe(
       filterEmpty(),
-      map((p) => new SingleSidedLP(network, vaultAddress, p))
+      map((params) => {
+        const vaultType = getVaultType(vaultAddress, network);
+        switch (vaultType) {
+          case 'SingleSidedLP':
+          case 'SingleSidedLP_DirectClaim':
+            return new SingleSidedLP(
+              network,
+              vaultAddress,
+              params as SingleSidedLPParams
+            );
+          case 'PendlePT':
+            return new PendlePT(
+              network,
+              vaultAddress,
+              params as PendlePTVaultParams
+            );
+          default:
+            throw Error(`Unknown vault type: ${vaultType}`);
+        }
+      })
     );
   }
 }
