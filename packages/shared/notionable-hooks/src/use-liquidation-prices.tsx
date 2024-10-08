@@ -95,29 +95,34 @@ function parseUnderlyingLiquidationPrice(
   threshold: TokenBalance | null,
   oneDay: PriceChange | undefined,
   sevenDay: PriceChange | undefined,
-  secondary: string
+  secondary: string,
+  debt?: TokenDefinition
 ) {
   const { icon, titleWithMaturity } = formatTokenType(asset);
-  const liquidationPrice = threshold
-    ?.toUnderlying()
-    .toDisplayStringWithSymbol(2);
+  const liquidationPrice = debt
+    ? threshold?.toToken(debt).toDisplayStringWithSymbol(2)
+    : threshold?.toUnderlying().toDisplayStringWithSymbol(2);
+  const currentPrice =
+    debt && threshold
+      ? TokenBalance.unit(threshold.token)
+          .toToken(debt)
+          .toDisplayStringWithSymbol(2)
+      : oneDay?.currentUnderlying.toDisplayStringWithSymbol(2) || '';
+
   return {
     // Used on portfolio screen
     exchangeRate: {
-      symbol:
-        asset.tokenType === 'VaultShare' && threshold
-          ? threshold?.toUnderlying()?.symbol
-          : icon,
+      symbol: icon,
       label: (
         <span>
           {titleWithMaturity}
           <span style={{ color: secondary }}>
-            &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
+            &nbsp;/&nbsp;{debt?.symbol || threshold?.underlying.symbol || ''}
           </span>
         </span>
       ),
     },
-    currentPrice: oneDay?.currentUnderlying.toDisplayStringWithSymbol(2) || '',
+    currentPrice,
     oneDayChange: oneDay?.underlyingChange
       ? formatNumberAsPercent(oneDay.underlyingChange)
       : '',
@@ -201,15 +206,15 @@ export function useCurrentLiquidationPrices(network: Network | undefined) {
   const vaultLiquidation = vaults.map(({ vault, liquidationPrices }) => {
     return {
       vaultAddress: vault.vaultAddress,
-      liquidationPrices: liquidationPrices
-        .filter(({ asset }) => asset.tokenType === 'VaultShare')
-        .map(({ asset, threshold }) => ({
+      liquidationPrices: liquidationPrices.map(
+        ({ asset, threshold, debt }) => ({
           ...parseUnderlyingLiquidationPrice(
             asset,
             threshold,
             oneDay.find((t) => t.asset.id === asset.id),
             sevenDay.find((t) => t.asset.id === asset.id),
-            secondary
+            secondary,
+            debt
           ),
           collateral: {
             symbol: threshold?.underlying.symbol || '',
@@ -221,7 +226,7 @@ export function useCurrentLiquidationPrices(network: Network | undefined) {
               {
                 displayValue: (
                   <span>
-                    Vault Shares
+                    {asset.symbol}
                     <span style={{ color: secondary }}>
                       &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
                     </span>
@@ -235,7 +240,8 @@ export function useCurrentLiquidationPrices(network: Network | undefined) {
               },
             ],
           },
-        })),
+        })
+      ),
     };
   });
 

@@ -84,12 +84,12 @@ export const HowItWorksFaq = ({
               />
             </BodyText>
             <BodyText>
-              {currentVaultType !== 'SingleSidedLP_DirectClaim' && (
+              {currentVaultType === 'SingleSidedLP_AutoReinvest' && (
                 <FormattedMessage
                   defaultMessage={`3. Harvest and reinvest incentives back into the pool on a daily basis.`}
                 />
               )}
-              {currentVaultType === 'SingleSidedLP' && (
+              {currentVaultType === 'SingleSidedLP_DirectClaim' && (
                 <FormattedMessage
                   defaultMessage={`3. Earn incentives continuously and claimable at any time.`}
                 />

@@ -54,8 +54,14 @@ const ClaimableRewards = ({
   );
 };
 
+enum PortfolioVaultsTabs {
+  POSITIONS = 0,
+  LIQUIDATION_RISK = 1,
+  EARNINGS_BREAKDOWN = 2,
+}
+
 export const PortfolioVaults = () => {
-  const [currentTab, setCurrentTab] = useState(0);
+  const [currentTab, setCurrentTab] = useState(PortfolioVaultsTabs.POSITIONS);
   const {
     vaultHoldingsColumns,
     vaultHoldingsData,
@@ -83,16 +89,16 @@ export const PortfolioVaults = () => {
   ];
 
   const holdingsData = {
-    0: {
+    [PortfolioVaultsTabs.POSITIONS]: {
       columns: vaultHoldingsColumns,
       data: vaultHoldingsData,
       initialState,
     },
-    // 1: {
+    // [PortfolioVaultsTabs.EARNINGS_BREAKDOWN]: {
     //   columns: earningsBreakdownColumns,
     //   data: earningsBreakdownData,
     // },
-    1: {
+    [PortfolioVaultsTabs.LIQUIDATION_RISK]: {
       columns: riskTableColumns,
       data: riskTableData,
       initialState: initialRiskState,
@@ -118,10 +124,14 @@ export const PortfolioVaults = () => {
             setCurrentTab,
             currentTab,
           }}
-          tabsThatIncludeToggle={[1]}
+          tabsThatIncludeToggle={[PortfolioVaultsTabs.EARNINGS_BREAKDOWN]}
           data={holdingsData[currentTab].data}
           columns={holdingsData[currentTab].columns}
-          CustomRowComponent={currentTab === 0 ? TableActionRow : undefined}
+          CustomRowComponent={
+            currentTab === PortfolioVaultsTabs.POSITIONS
+              ? TableActionRow
+              : undefined
+          }
           toggleBarProps={toggleBarProps}
           expandableTable={true}
           tableTitle={
@@ -132,7 +142,11 @@ export const PortfolioVaults = () => {
           }
           initialState={holdingsData[currentTab].initialState}
           setExpandedRows={setExpandedRows}
-          tableVariant={currentTab !== 2 ? TABLE_VARIANTS.TOTAL_ROW : undefined}
+          tableVariant={
+            currentTab !== PortfolioVaultsTabs.LIQUIDATION_RISK
+              ? TABLE_VARIANTS.TOTAL_ROW
+              : undefined
+          }
         />
       )}
     </Box>
