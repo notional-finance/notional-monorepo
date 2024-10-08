@@ -13,11 +13,11 @@ const version = `${process.env['NX_COMMIT_REF']?.substring(0, 8) || 'local'}`;
 // NOTE: this is the proxy service used to collect datadog RUM data
 const PROXY_HOST = 'https://api.notional.finance';
 const service = 'web-frontend';
-const { disableErrorReporting } = getFromLocalStorage('privacySettings');
+const privacySettings = getFromLocalStorage('privacySettings');
 
 datadogRum.init({
   beforeSend: () => {
-    if (disableErrorReporting) {
+    if (privacySettings['disableErrorReporting']) {
       return false;
     }
   },
@@ -28,7 +28,10 @@ datadogRum.init({
   env: window.location.hostname,
   version,
   sampleRate: 100,
-  trackInteractions: false,
+  defaultPrivacyLevel: 'mask',
+  sessionSampleRate: 100,
+  sessionReplaySampleRate: privacySettings['disableTracking'] ? 0 : 10,
+  trackUserInteractions: true,
   proxy: `${PROXY_HOST}/dd-forward`,
 });
 
