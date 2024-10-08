@@ -25,7 +25,7 @@ export default {
     } else if (blockNumber === 'tvl') {
       const params = new URLSearchParams(url.search);
       const blockNum = params.has('blockNumber')
-        ? parseInt(params.get('blockNumber'))
+        ? parseInt(params.get('blockNumber') as string)
         : undefined;
 
       return new Response(
