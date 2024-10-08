@@ -348,27 +348,24 @@ export default class DataService {
   public async syncGenericData(ts: number) {
     const operations = buildOperations(defaultConfigDefs);
     const dbData = new Map<TableName, DataRow[]>();
-    await Promise.all(
-      Array.from(operations.aggregateCalls.keys()).map((network) =>
-        this.syncFromMulticall(
-          dbData,
-          network,
-          ts,
-          operations.aggregateCalls.get(network) || []
-        )
-      )
-    );
 
-    await Promise.all(
-      Array.from(operations.subgraphCalls.keys()).map((network) =>
-        this.syncFromSubgraph(
-          dbData,
-          network,
-          ts,
-          operations.subgraphCalls.get(network) || []
-        )
-      )
-    );
+    for (const network of operations.aggregateCalls.keys()) {
+      await this.syncFromMulticall(
+        dbData,
+        network,
+        ts,
+        operations.aggregateCalls.get(network) || []
+      );
+    }
+
+    for (const network of operations.subgraphCalls.keys()) {
+      await this.syncFromSubgraph(
+        dbData,
+        network,
+        ts,
+        operations.subgraphCalls.get(network) || []
+      );
+    }
 
     return Promise.all(
       Array.from(dbData.keys()).map((k) => {
