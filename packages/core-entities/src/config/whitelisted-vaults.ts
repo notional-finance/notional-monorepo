@@ -147,7 +147,7 @@ const SingleSidedLP_DirectClaim: Record<Network, string[]> = {
   [Network.all]: [],
 };
 
-type VaultType =
+export type VaultType =
   | 'SingleSidedLP_AutoReinvest'
   | 'SingleSidedLP_DirectClaim'
   | 'SingleSidedLP_Points'

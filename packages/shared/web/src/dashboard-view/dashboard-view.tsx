@@ -7,18 +7,13 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation, useParams } from 'react-router-dom';
-import {
-  ProductDashboard,
-  DashboardViewProps,
-  H2,
-  Body,
-} from '@notional-finance/mui';
+import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
 import { PRODUCTS } from '@notional-finance/util';
 import {
   setInLocalStorage,
   getFromLocalStorage,
 } from '@notional-finance/helpers';
-import { Box, ThemeProvider, useTheme } from '@mui/material';
+import { ThemeProvider } from '@mui/material';
 import {
   useFixedRateGrid,
   useVariableRateGrid,
@@ -31,7 +26,6 @@ import {
   useLiquidityLeveragedGrid,
 } from './hooks';
 import { sortGridData, sortListData } from './hooks/utils';
-import { defineMessage } from 'react-intl';
 
 export const DashboardView = ({
   gridData,
@@ -115,39 +109,6 @@ export const DashboardView = ({
   );
 };
 
-const PendleComingSoon = () => {
-  const theme = useTheme();
-  return (
-    <Box
-      sx={{
-        height: theme.spacing(50),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <H2
-        msg={defineMessage({ defaultMessage: 'Coming Soon' })}
-        sx={{
-          fontWeight: 700,
-          marginTop: theme.spacing(8),
-          marginBottom: theme.spacing(2),
-        }}
-      />
-      <Body
-        sx={{
-          width: '50%',
-          textAlign: 'center',
-        }}
-        msg={defineMessage({
-          defaultMessage:
-            'We’re hard at work developing our Leveraged Pendle Vaults, designed to deliver leveraged fixed yield. Stay tuned for updates.',
-        })}
-      />
-    </Box>
-  );
-};
-
 export const LeveragedVaultDashboard = () => {
   const network = useSelectedNetwork();
   const { selectedProduct } = useParams();
@@ -163,11 +124,6 @@ export const LeveragedVaultDashboard = () => {
       listColumns={listColumns}
       listData={listData}
       threeWideGrid={false}
-      ComingSoonComponent={
-        selectedProduct === PRODUCTS.LEVERAGED_PENDLE
-          ? PendleComingSoon
-          : undefined
-      }
     />
   );
 };
