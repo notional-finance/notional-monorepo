@@ -68,6 +68,10 @@ export const TransactionConfirmation = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  console.log({ isReadOnlyAddress });
+  console.log({ transactionError });
+  console.log({ populatedTransaction });
+
   return (
     <Box sx={{ minHeight: theme.spacing(162) }}>
       <ScrollToTop />

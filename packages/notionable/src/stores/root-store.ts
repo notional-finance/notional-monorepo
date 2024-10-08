@@ -9,6 +9,7 @@ import {
 import { createContext } from 'react';
 import { AppStoreModel } from './app-store';
 import { WalletModel } from './wallet-store';
+import { TransactionModel } from './transaction-store';
 
 export type RootStoreType = Instance<typeof RootStore>;
 export type NetworkClientModelType = Instance<typeof NetworkClientModel>;
@@ -25,6 +26,7 @@ const RootStore = types
     portfolioStore: PortfolioStoreModel,
     appStore: AppStoreModel,
     walletStore: WalletModel,
+    transactionStore: TransactionModel,
     network: types.string,
     route: types.string,
   })
@@ -35,7 +37,8 @@ const RootStore = types
     setRoute(route: string) {
       self.route = route;
     },
-  })).views((self) => ({
+  }))
+  .views((self) => ({
     get currentNetworkClient() {
       const network = self.network;
       switch (network) {
@@ -48,7 +51,7 @@ const RootStore = types
         default:
           throw new Error('Network not supported');
       }
-    }
+    },
   }));
 export const createRootStore = (): RootStoreType => {
   const rootStore = RootStore.create({
@@ -70,6 +73,11 @@ export const createRootStore = (): RootStoreType => {
         isReadOnlyAddress: false,
         label: '',
       },
+    },
+    transactionStore: {
+      sentTransactions: [],
+      completedTransactions: {},
+      pendingPnL: {},
     },
     portfolioStore: {
       stateZeroEarnData: {

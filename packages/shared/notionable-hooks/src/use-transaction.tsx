@@ -2,11 +2,14 @@ import { trackEvent } from '@notional-finance/helpers';
 import { logError, TRACKING_EVENTS, Network } from '@notional-finance/util';
 import { ethers, PopulatedTransaction } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
-import { useNotionalContext } from './use-notional';
 import { useLocation } from 'react-router';
 import { Registry, TokenDefinition } from '@notional-finance/core-entities';
-import { useWalletStore } from '@notional-finance/notionable';
+import {
+  useTransactionStore,
+  useWalletStore,
+} from '@notional-finance/notionable';
 import { useConnectWallet } from '@web3-onboard/react';
+import { TransactionReceipt } from '@ethersproject/providers';
 
 export enum TransactionStatus {
   NONE = 'none',
@@ -20,13 +23,10 @@ export enum TransactionStatus {
 }
 
 function useSubmitTransaction() {
-  const {
-    globalState: { sentTransactions },
-    updateNotional,
-  } = useNotionalContext();
   const { userWallet } = useWalletStore();
   const { pathname } = useLocation();
   const [{ wallet }] = useConnectWallet();
+  const transactionStore = useTransactionStore();
 
   const submitTransaction = useCallback(
     async (
@@ -51,16 +51,11 @@ function useSubmitTransaction() {
         userWallet,
       });
 
-      updateNotional({
-        sentTransactions: [
-          ...sentTransactions,
-          { network: userWallet?.selectedChain, response: tx, tokens, hash },
-        ],
-      });
+      transactionStore.setSentTransaction(tx, tokens, hash);
 
       return hash;
     },
-    [updateNotional, sentTransactions, pathname, userWallet, wallet]
+    [pathname, userWallet, wallet, transactionStore]
   );
 
   return {
@@ -70,22 +65,27 @@ function useSubmitTransaction() {
 }
 
 function usePendingTransaction(hash?: string) {
-  const {
-    globalState: { completedTransactions },
-  } = useNotionalContext();
+  const transactionStore = useTransactionStore();
 
   // Returns the completed transaction receipt
-  const transactionReceipt = hash ? completedTransactions[hash] : undefined;
+  const transactionReceipt = hash
+    ? (
+        transactionStore.completedTransactions as unknown as Record<
+          string,
+          TransactionReceipt
+        >
+      )[hash] ?? null
+    : undefined;
 
   return { transactionReceipt, reverted: transactionReceipt?.status === 0 };
 }
 
 export function usePendingPnLCalculation(network: Network | undefined) {
-  const {
-    globalState: { pendingPnL },
-  } = useNotionalContext();
+  const transactionStore = useTransactionStore();
 
-  return network ? pendingPnL[network] : [];
+  return network
+    ? (transactionStore.pendingPnL as Record<string, any>)[network] ?? []
+    : [];
 }
 
 export function useTransactionStatus(network: Network | undefined) {

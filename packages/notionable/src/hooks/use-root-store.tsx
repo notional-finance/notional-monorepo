@@ -7,6 +7,7 @@ import {
 import { AppStoreType } from '../stores/app-store';
 import { PortfolioStoreType } from '../stores/portfolio-store';
 import { WalletStoreType } from '../stores/wallet-store';
+import { TransactionStoreType } from '../stores/transaction-store';
 
 export const useRootStore = (): RootStoreType => {
   const rootContext = useContext(RootStoreContext);
@@ -35,6 +36,15 @@ export const useWalletStore = (): WalletStoreType => {
   }
 
   return rootContext.walletStore;
+};
+
+export const useTransactionStore = (): TransactionStoreType => {
+  const rootContext = useContext(RootStoreContext);
+  if (!rootContext) {
+    throw new Error('walletStore must be used within a RootStoreContext');
+  }
+
+  return rootContext.transactionStore;
 };
 
 export const useAppStore = (): AppStoreType => {
