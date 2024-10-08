@@ -2,7 +2,9 @@ import { Network } from './constants';
 import { BigNumber } from 'ethers';
 
 const DEFAULT_ACCEPTABLE_PERCENTAGE_LOSS = 5;
-const acceptablePercentageLoss = {
+const acceptablePercentageLoss: Partial<
+  Record<Network, Record<string, number>>
+> = {
   [Network.mainnet]: {},
   [Network.arbitrum]: {},
 };
@@ -84,7 +86,7 @@ export async function checkTradeLoss(
       .toNumber() / 100;
 
   const acceptableLoss =
-    acceptablePercentageLoss[network][sellToken] ||
+    acceptablePercentageLoss[network]?.[sellToken] ||
     DEFAULT_ACCEPTABLE_PERCENTAGE_LOSS;
 
   return {

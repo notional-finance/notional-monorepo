@@ -74,8 +74,8 @@ export default async function (req: Request, res: Response) {
       {
         url: req.url,
         method: req.method,
-        message: err?.message,
-        stack: err?.stack,
+        message: (err as Error)?.message,
+        stack: (err as Error)?.stack,
         err: JSON.stringify(err),
         status: 'error',
       },
