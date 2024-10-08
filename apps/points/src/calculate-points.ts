@@ -265,7 +265,7 @@ export async function getVaultData(
       ) {
         // For Kelp RS ETH its the value of all holdings in rsETH terms.
         const ethBalance = poolData.balances.balances[
-          network === Network.mainnet ? 2 : 0
+          network === Network.mainnet ? 2 : 1
         ]
           .mul(lpTokens)
           .div(totalLPSupply);
