@@ -14,7 +14,18 @@ import { BigNumber, Contract, ethers, providers } from 'ethers';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllVaultAccountsQuery } from 'packages/core-entities/src/.graphclient';
 
-const VaultConfig = {
+const VaultConfig: Record<
+  string,
+  {
+    poolId: string;
+    targetToken: string;
+    network: Network;
+    symbol: string;
+    decimals: number;
+    usdOracle: string;
+    rsETHToUSD?: string;
+  }
+> = {
   '0x32d82a1c8618c7be7fe85b2f1c44357a871d52d1': {
     poolId:
       '0x05ff47afada98a98982113758878f9a8b9fdda0a000000000000000000000645',
@@ -225,12 +236,14 @@ export async function getVaultData(
 
   let rsETHPrice: BigNumber | undefined;
   if (
-    vaultAddress.toLowerCase() === '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb'
+    vaultAddress.toLowerCase() ===
+      '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb' ||
+    vaultAddress.toLowerCase() === '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68'
   ) {
     const rsETHOracle = new Contract(
       '0x03c68933f7a3F76875C0bc670a58e69294cDFD01',
       IAggregatorABI,
-      getProviderFromNetwork(network, true)
+      getProviderFromNetwork(Network.mainnet, true)
     ) as IAggregator;
     rsETHPrice = await rsETHOracle.latestAnswer();
   }
@@ -244,13 +257,16 @@ export async function getVaultData(
       const tokenBalance = totalTokenBalance.mul(lpTokens).div(totalLPSupply);
 
       if (
-        vaultAddress.toLowerCase() ===
+        (vaultAddress.toLowerCase() ===
           '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb' ||
-        vaultAddress.toLowerCase() ===
-          '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739'
+          vaultAddress.toLowerCase() ===
+            '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68') &&
+        rsETHPrice
       ) {
         // For Kelp RS ETH its the value of all holdings in rsETH terms.
-        const ethBalance = poolData.balances.balances[2]
+        const ethBalance = poolData.balances.balances[
+          network === Network.mainnet ? 2 : 0
+        ]
           .mul(lpTokens)
           .div(totalLPSupply);
 
