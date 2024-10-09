@@ -39,8 +39,8 @@ export async function handleNewsletter(_request: IRequest, env: APIEnv) {
       alert_type: 'error',
       title: 'Newsletter Submit Failure',
       tags: ['newsletter', 'api-worker'],
-      text: JSON.stringify({ error: err.toString() }),
+      text: JSON.stringify({ error: (err as Error).message }),
     });
-    return new Response(err.toString(), { status: 500 });
+    return new Response((err as Error).message, { status: 500 });
   }
 }

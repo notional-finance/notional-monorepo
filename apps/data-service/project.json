@@ -50,6 +50,14 @@
       "options": {
         "lintFilePatterns": ["apps/data-service/**/*.{ts,tsx,js,jsx}"]
       }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/data-service",
+        "command": "npx tsc -p tsconfig.json --noEmit --pretty",
+        "description": "Type check with tsc"
+      }
     }
   },
   "tags": []

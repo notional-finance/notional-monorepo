@@ -94,10 +94,10 @@ class Markets {
           }),
         }
       )
-        .then((r) => r.json())
-        .then((r: { data: { accounts: [{ id: string }] } }) =>
-          r.data.accounts.map((a) => a.id)
-        );
+        .then(
+          (r) => r.json() as Promise<{ data: { accounts: [{ id: string }] } }>
+        )
+        .then((r) => r.data.accounts.map((a) => a.id));
       accounts.push(...tempAccounts);
       skip += tempAccounts.length;
     } while (tempAccounts.length === GRAPH_MAX_LIMIT);
@@ -163,8 +163,10 @@ class Markets {
         }),
       }
     )
-      .then((r) => r.json())
-      .then((r: { data: { balances: FetchedDataType[] } }) => r.data.balances)
+      .then(
+        (r) => r.json() as Promise<{ data: { balances: FetchedDataType[] } }>
+      )
+      .then((r) => r.data.balances)
       // group accounts per vault
       .then((r) => groupArrayToMap(r, (v) => v.token.vaultAddress))
       // convert to map entries

@@ -3,6 +3,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.detectIndentation": true,
   "typescript.validate.enable": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "never",
@@ -12,32 +13,5 @@
   // Eslint Settings
   "eslint.validate": ["json"],
   "eslint.format.enable": true,
-  "eslint.alwaysShowStatus": true,
-
-  "cSpell.words": [
-    "arrayify",
-    "autotasks",
-    "ddsource",
-    "ddtags",
-    "defillama",
-    "formatjs",
-    "noindex",
-    "notionalv",
-    "nrwl",
-    "Numberish",
-    "PENDLE",
-    "PYUSD",
-    "reinvestments",
-    "rpcs",
-    "txes",
-    "vnet",
-    "xirr",
-    "Offchain"
-  ],
-  "[markdown]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[yaml]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  "eslint.alwaysShowStatus": true
 }

@@ -26,6 +26,7 @@ import { simulatePopulatedTxn } from '@notional-finance/transaction';
 import { Logger, MetricType } from '@notional-finance/util';
 import { Env } from './types';
 import { checkTradeLoss } from '@notional-finance/util';
+import { SingleSidedRewardTradeParamsStruct } from '@notional-finance/contracts/types/ISingleSidedLPStrategyVault';
 
 type Provider = ethers.providers.Provider;
 const HOUR_IN_SECONDS = 60 * 60;
@@ -101,7 +102,7 @@ async function getLastReinvestment(
     }),
   })
     .then((r) => r.json())
-    .then((r: ReinvestmentData) => r.data.reinvestments[0]);
+    .then((r) => (r as ReinvestmentData).data.reinvestments[0]);
 }
 
 const max = (a: number, b: number) => (a < b ? b : a);
@@ -119,7 +120,7 @@ async function setLastTransaction(
         points: [
           {
             value: 1,
-            timestamp: txResponse.timestamp,
+            timestamp: txResponse.timestamp || 0,
           },
         ],
         tags: [`network:${env.NETWORK}`, `vault:${vaultAddress}`],
@@ -331,17 +332,17 @@ const getTrades = async (
         }
       }
 
-      return [
+      return {
         sellToken,
-        token,
-        amount.toString(),
-        [
-          DEX_ID.ZERO_EX,
-          TRADE_TYPE.EXACT_IN_SINGLE,
-          oracleSlippagePercentOrLimit,
-          exchangeData,
-        ],
-      ];
+        buyToken: token,
+        amount: amount.toString(),
+        tradeParams: {
+          dexId: DEX_ID.ZERO_EX,
+          tradeType: TRADE_TYPE.EXACT_IN_SINGLE,
+          oracleSlippagePercentOrLimit: oracleSlippagePercentOrLimit,
+          exchangeData: exchangeData,
+        },
+      };
     })
   );
 };
@@ -362,7 +363,7 @@ const reinvestVault = async (
     provider
   ).TOKENS();
 
-  const tradesPerRewardToken = [];
+  const tradesPerRewardToken: SingleSidedRewardTradeParamsStruct[][] = [];
   for (const sellToken of vault.rewardTokens) {
     let amountToSell = await ERC20__factory.connect(
       sellToken,
@@ -467,7 +468,7 @@ const reinvestRewards = async (env: Env, provider: Provider) => {
     } catch (err) {
       console.error(`Reinvestment for vault: ${vault.address} failed`);
       console.error(err);
-      errors.push(err);
+      errors.push(err as Error);
     }
   }
 
@@ -498,8 +499,6 @@ export default {
   ): Promise<Response> {
     const authKey = request.headers.get('x-auth-key');
     if (authKey !== env.AUTH_KEY) {
-      console.log('Headers: ', new Map(request.headers));
-      console.log('Cf: ', request['cf']);
       return new Response(null, { status: 401 });
     }
     const { network, vaultAddress, action, force } = getQueryParams(request);

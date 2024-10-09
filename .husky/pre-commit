@@ -3,3 +3,4 @@
 
 # Run command using --base=[SHA1] (affected by the committed, uncommitted and untracked changes)
 yarn nx affected --target=lint --base=HEAD
+yarn nx affected --target=typecheck --base=HEAD
