@@ -55,8 +55,8 @@ export const useIntercomUpdate = () => {
     if (userSettings.debankTimestamp) {
       const lastUpdateDate = new Date(userSettings.debankTimestamp);
       const currentDate = getNowSeconds();
-      const oneWeekInMilliseconds = ONE_WEEK * 1000;
-      return currentDate - lastUpdateDate.getTime() > oneWeekInMilliseconds;
+      const lastUpdateSeconds = Math.floor(lastUpdateDate.getTime() / 1000);
+      return currentDate - lastUpdateSeconds > ONE_WEEK;
     }
     return false;
   })();
