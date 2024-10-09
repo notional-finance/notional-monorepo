@@ -301,7 +301,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     };
   };
 
-  const getSimulatedAPY = (netAmount: TokenBalance) => {
+  const getSimulatedAPY = (netAmount: TokenBalance, netPrimeDebt?: TokenBalance) => {
     const apyData: APYData = { totalAPY: 0 };
 
     if (netAmount.unwrapVaultToken().tokenType === 'fCash') {
@@ -346,7 +346,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.tokenType === 'nToken') {
       const market = getfCashMarket(netAmount.currencyId);
-      apyData.organicAPY = market.getNTokenBlendedYield(netAmount);
+      apyData.organicAPY = market.getNTokenBlendedYield(netAmount, netPrimeDebt);
       // TODO: maybe add it to the oracle views and add this to the organicAPY
       apyData.feeAPY = 0;
 

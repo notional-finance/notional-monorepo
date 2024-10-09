@@ -1,4 +1,4 @@
-import { Network, ONE_MINUTE_MS, ONE_SECOND_MS } from '@notional-finance/util';
+import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
 import { ConfigurationClient } from './client/configuration-client';
 import defaultPools from './exchanges/default-pools';
 import { ExchangeRegistryClient } from './client/exchange-registry-client';
@@ -8,7 +8,6 @@ import {
   AccountFetchMode,
   AccountRegistryClient,
 } from './client/account-registry-client';
-import { YieldRegistryClient } from './client/yield-registry-client';
 import { AnalyticsRegistryClient } from './client/analytics-registry-client';
 import { NOTERegistryClient } from './client/note-registry-client';
 
@@ -22,7 +21,6 @@ export class Registry {
   protected static _exchanges?: ExchangeRegistryClient;
   protected static _oracles?: OracleRegistryClient;
   protected static _configurations?: ConfigurationClient;
-  protected static _yields?: YieldRegistryClient;
   protected static _accounts?: AccountRegistryClient;
   protected static _analytics?: AnalyticsRegistryClient;
   protected static _note?: NOTERegistryClient;
@@ -69,7 +67,6 @@ export class Registry {
     Registry._configurations = new ConfigurationClient(_cacheHostname);
     Registry._exchanges = new ExchangeRegistryClient(_cacheHostname);
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
-    Registry._yields = new YieldRegistryClient(_cacheHostname);
     Registry._analytics = new AnalyticsRegistryClient(_cacheHostname, env);
     Registry._note = new NOTERegistryClient(_cacheHostname);
     Registry._accounts.setSubgraphAPIKey = env.NX_SUBGRAPH_API_KEY;
@@ -147,24 +144,11 @@ export class Registry {
 
     // Only start the yield registry refresh after all the other refreshes begin
     if (this._self?.useAnalytics) {
-      // Trigger the initial load via HTTP to bootstrap the data if running
-      // on a client
-      // if (this._self?.isClient) {
-      //   Registry.getYieldRegistry().triggerHTTPRefresh(network);
-      // }
-
       Registry.onNetworkReady(network, () => {
         Registry.getAnalyticsRegistry().startRefreshInterval(
           network,
           Registry.DEFAULT_ANALYTICS_REFRESH
         );
-
-        Registry.getAnalyticsRegistry().onNetworkRegistered(network, () => {
-          Registry.getYieldRegistry().startRefreshInterval(
-            network,
-            Registry.DEFAULT_YIELD_REFRESH
-          );
-        });
       });
     }
   }
@@ -175,7 +159,6 @@ export class Registry {
     Registry.getOracleRegistry().stopRefresh(network);
     Registry.getConfigurationRegistry().stopRefresh(network);
     Registry.getAccountRegistry().stopRefresh(network);
-    Registry.getYieldRegistry().stopRefresh(network);
     Registry.getAnalyticsRegistry().stopRefresh(network);
   }
 
@@ -224,10 +207,6 @@ export class Registry {
       network,
       blockNumber
     );
-    await Registry.getYieldRegistry().triggerRefreshPromise(
-      network,
-      blockNumber
-    );
   }
 
   public static getTokenRegistry() {
@@ -257,11 +236,6 @@ export class Registry {
     if (Registry._accounts == undefined)
       throw Error('Account Registry undefined');
     return Registry._accounts;
-  }
-
-  public static getYieldRegistry() {
-    if (Registry._yields == undefined) throw Error('Yield Registry undefined');
-    return Registry._yields;
   }
 
   public static getAnalyticsRegistry() {

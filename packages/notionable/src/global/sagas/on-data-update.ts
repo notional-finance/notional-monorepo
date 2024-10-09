@@ -22,39 +22,9 @@ import {
 } from 'rxjs';
 import { ApplicationState, CalculatedPriceChanges } from '../global-state';
 import { globalWhenAppReady$ } from './on-app-load';
-import { getIndexedYields } from '../data/yields';
 
 export function onDataUpdate(app$: Observable<ApplicationState>) {
-  return merge(
-    onYieldsUpdate$(app$),
-    onPriceChangeUpdate$(app$),
-    onAnalyticsReady$(app$)
-  );
-}
-
-function onYieldsUpdate$(app$: Observable<ApplicationState>) {
-  return globalWhenAppReady$(app$).pipe(
-    take(1),
-    switchMap(() => Registry.getYieldRegistry().subscribeNetworks()),
-    switchMap((networks) => {
-      return timer(0, 60_000).pipe(
-        map(() => {
-          return {
-            allYields: networks.reduce((acc, n) => {
-              // Skips yield registries that are not registered
-              if (Registry.getYieldRegistry().isNetworkRegistered(n)) {
-                acc[n] = getIndexedYields(
-                  n,
-                  Registry.getYieldRegistry().getAllYields(n)
-                );
-              }
-              return acc;
-            }, {} as Record<Network, ReturnType<typeof getIndexedYields>>),
-          };
-        })
-      );
-    })
-  );
+  return merge(onPriceChangeUpdate$(app$), onAnalyticsReady$(app$));
 }
 
 function onPriceChangeUpdate$(app$: Observable<ApplicationState>) {

@@ -12,7 +12,7 @@ import {
   getChangeType,
   leveragedYield,
 } from '@notional-finance/util';
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const useLiquidityDetails = () => {
@@ -89,7 +89,7 @@ export const useLiquidityDetails = () => {
     );
   const newBorrowRate = newBorrowOption?.interestRate;
   const newNTokenAPY = netNTokens
-    ? Registry.getYieldRegistry().getSimulatedNTokenYield(
+    ? currentNetworkStore.getSimulatedAPY(
         netNTokens,
         debtBalance?.token.tokenType === 'PrimeDebt'
           ? debtBalance.toPrimeDebt()
