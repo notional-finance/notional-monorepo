@@ -6,6 +6,7 @@ import {
   IAggregatorABI,
   ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
+  IStrategyVault,
 } from '@notional-finance/contracts';
 import { fetchGraphPaginate } from '@notional-finance/core-entities';
 import { aggregate } from '@notional-finance/multicall';
@@ -147,7 +148,7 @@ export async function getVaultTVL(vaultAddress: string, blockNumber?: number) {
     vaultAddress,
     ISingleSidedLPStrategyVaultABI,
     provider
-  ) as ISingleSidedLPStrategyVault;
+  ) as ISingleSidedLPStrategyVault & IStrategyVault;
   const totalVaultShares = (
     await vault.getStrategyVaultInfo({
       blockTag: blockNumber || 'latest',

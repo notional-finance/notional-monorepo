@@ -427,6 +427,8 @@ export default class VaultV3Liquidator {
         maturity,
         totalVaultShares
       );
+    } else {
+      throw new Error('Unknown vault type');
     }
 
     return {
