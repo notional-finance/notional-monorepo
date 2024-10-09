@@ -25,10 +25,40 @@ import {
   useWalletStore,
 } from '@notional-finance/notionable';
 
+export function usePrimeCashBalanceTest(
+  selectedToken: string | undefined | null
+) {
+  const currentNetworkStore = useCurrentNetworkStore();
+  const walletStore = useWalletStore();
+
+  try {
+    if (currentNetworkStore.isReady()) {
+      const token = selectedToken
+        ? currentNetworkStore.getTokenBySymbol(selectedToken)
+        : undefined;
+
+      console.log('walletStore.userWallet: ', walletStore.userWallet);
+      console.log('walletStore.networkAccounts: ', walletStore.networkAccounts);
+
+      console.log({ token });
+
+      const primeCash = token?.currencyId
+        ? currentNetworkStore.getPrimeCash(token.currencyId)
+        : undefined;
+      console.log({ primeCash });
+    }
+  } catch {
+    return undefined;
+  }
+  return [];
+  // return useMaxAssetBalance(primeCash);
+}
+
 export function usePrimeCashBalance(
   selectedToken: string | undefined | null,
   selectedNetwork: Network | undefined
 ) {
+  usePrimeCashBalanceTest(selectedToken);
   const tokens = Registry.getTokenRegistry();
   const token =
     selectedToken && selectedNetwork
@@ -275,6 +305,7 @@ export function useWalletBalances(
 
 export function useMaxAssetBalance(token: TokenDefinition | undefined) {
   const profile = usePortfolioRiskProfile(token?.network);
+  console.log({ profile });
   return token?.tokenType === 'PrimeDebt'
     ? profile?.balances
         .find(
