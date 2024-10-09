@@ -41,12 +41,12 @@ gcloud --project monitoring-agents \
 DD_API_KEY=projects/663932775145/secrets/DD_API_KEY/versions/latest
 
 # Cron jobs to deploy, format is "Description|URL|Schedule"
-cron_jobs="Rebalance_Sepolia|/sepolia|* * * * *"
+cron_jobs="Rebalance_Arbitrum|/arbitrum|* * * * *"
 
 # Set the base URI as an environment variable
 # Get the function URI using gcloud
 BASE_URI=$(gcloud functions describe rebalance-service --region=us-central1 --format='value(url)')
-echo "Base URI: $BASE_URI"
+# echo "Base URI: $BASE_URI"
 
 # Create jobs from cron_jobs array
 echo "$cron_jobs" | while IFS='|' read -r description url schedule; do
