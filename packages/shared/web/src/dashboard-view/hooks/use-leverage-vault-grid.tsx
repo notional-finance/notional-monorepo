@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   useAllVaults,
   useVaultHoldings,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps } from '@notional-finance/mui';
@@ -16,13 +15,14 @@ import {
   PointsIcon,
 } from '@notional-finance/icons';
 import { Box } from '@mui/material';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const useLeveragedVaultGrid = (
   network: Network | undefined,
   vaultProduct: PRODUCTS
 ): DashboardGridProps => {
   const navigate = useNavigate();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const listedVaults = useAllVaults(network, vaultProduct);
   const vaultHoldings = useVaultHoldings(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);

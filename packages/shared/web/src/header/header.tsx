@@ -22,7 +22,6 @@ import ScrollIndicator from './scroll-indicator/scroll-indicator';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { AlertIcon } from '@notional-finance/icons';
-import { useAppStore } from '@notional-finance/notionable';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {}
