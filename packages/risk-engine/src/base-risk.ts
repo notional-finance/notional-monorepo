@@ -1,5 +1,5 @@
 import {
-  Registry,
+  getNetworkModel,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -28,10 +28,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       if (t.tokenType === 'PrimeDebt') {
         // Rewrite all prime debt to prime cash, this only applies to AccountRiskProfile, not
         // VaultAccountRiskProfile
-        const pCash = Registry.getTokenRegistry().getPrimeCash(
-          t.network,
-          t.currencyId
-        );
+        const pCash = getNetworkModel(t.network).getPrimeCash(t.currencyId);
         t = t.toToken(pCash);
       }
 
@@ -51,6 +48,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
   public balances: TokenBalance[];
   public settledBalances: TokenBalance[];
 
+  protected get model() {
+    return getNetworkModel(this.network);
+  }
+
   protected _settle(
     b: TokenBalance,
     blockTime = getNowSeconds()
@@ -62,8 +63,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     if (b.tokenType === 'fCash') {
       return b.toPrimeCash();
     } else if (b.tokenType === 'VaultDebt') {
-      const primeVaultDebt = Registry.getTokenRegistry().getVaultDebt(
-        b.network,
+      const primeVaultDebt = this.model.getVaultDebt(
         b.vaultAddress,
         PRIME_CASH_VAULT_MATURITY
       );
@@ -72,18 +72,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
         primeVaultDebt
       );
     } else if (b.tokenType === 'VaultCash') {
-      const primeVaultCash = Registry.getTokenRegistry().getVaultCash(
-        b.network,
+      const primeVaultCash = this.model.getVaultCash(
         b.vaultAddress,
         PRIME_CASH_VAULT_MATURITY
       );
       // No conversion required for vault cash. It is always prime cash.
       return TokenBalance.from(b.unwrapVaultToken().n, primeVaultCash);
     } else if (b.tokenType === 'VaultShare') {
-      const adapter = Registry.getVaultRegistry().getVaultAdapter(
-        b.network,
-        b.vaultAddress
-      );
+      const adapter = this.model.getVaultAdapter(b.vaultAddress);
       return adapter.convertToPrimeVaultShares(b);
     }
 
@@ -122,10 +118,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   /** All symbols represented in the account */
   get allSymbols() {
-    const tokens = Registry.getTokenRegistry();
     return unique(
       this.allCurrencyIds.map((id) => {
-        return tokens.getUnderlying(this.network, id).symbol;
+        return this.model.getUnderlying(id).symbol;
       })
     ) as string[];
   }
@@ -136,17 +131,16 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   /** Returns a token definition of the given symbol or currency id */
   denom(d: SymbolOrID) {
-    const tokens = Registry.getTokenRegistry();
     if (typeof d === 'string') {
       try {
         // If the symbol does not work, try to look up by ID
-        return tokens.getTokenBySymbol(this.network, d);
+        return this.model.getTokenBySymbol(d);
       } catch {
-        return tokens.getTokenByID(this.network, d);
+        return this.model.getTokenByID(d);
       }
     } else {
       // If the input is a currency id, then use the underlying
-      return tokens.getUnderlying(this.network, d);
+      return this.model.getUnderlying(d);
     }
   }
 

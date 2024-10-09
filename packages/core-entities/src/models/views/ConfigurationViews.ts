@@ -9,6 +9,8 @@ import {
   Network,
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
+  RATE_PRECISION,
+  SCALAR_PRECISION,
   TokenAddress,
   VaultAddress,
 } from '@notional-finance/util';
@@ -17,13 +19,15 @@ import {
   TokenDefinition,
   TokenType,
 } from '../../Definitions';
-import { Contract } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import {
   ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
   SecondaryRewarder,
   SecondaryRewarderABI,
 } from '@notional-finance/contracts';
+import { ExchangeViews } from './ExchangeViews';
+import { OracleRegistryClient } from '../../client';
 
 export function assertDefined<T>(v: T | null | undefined): T {
   if (v === undefined || v === null) throw Error(`Undefined Value`);
@@ -31,6 +35,8 @@ export function assertDefined<T>(v: T | null | undefined): T {
 }
 
 export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
+  const { getfCashMarket } = ExchangeViews(self);
+
   const getConfig = (currencyId: number) => {
     const config = self.configuration?.currencyConfigurations.find(
       (c) => c.id === `${currencyId}`
@@ -52,9 +58,53 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
       : undefined;
   };
 
+  const getCurrencyHaircutAndBuffer = (token: TokenDefinition) => {
+    if (!token.currencyId) throw Error('Invalid token currency');
+    const config = getConfig(token.currencyId);
+    return {
+      haircut: assertDefined(config.collateralHaircut),
+      buffer: assertDefined(config.debtBuffer),
+    };
+  };
+
+  const getMinLendRiskAdjustedDiscountFactor = (fCash: TokenDefinition) => {
+    if (!fCash.currencyId || !fCash.maturity) throw Error('Invalid fCash');
+    const config = getConfig(fCash.currencyId);
+    const fCashMarket = getfCashMarket(fCash.currencyId);
+    const marketIndex = fCashMarket.getMarketIndex(fCash.maturity);
+
+    // Convert this to an exchange rate
+    const maxMarketInterestRate =
+      fCashMarket.poolParams.interestRateCurve[marketIndex - 1].maxRate -
+      assertDefined(config.fCashHaircutBasisPoints);
+    const maxInterestRate = Math.max(
+      maxMarketInterestRate,
+      assertDefined(config.fCashMinOracleRate)
+    );
+
+    const discountRate = OracleRegistryClient.interestToExchangeRate(
+      BigNumber.from(maxInterestRate).mul(-1),
+      fCash.maturity
+    )
+      .mul(RATE_PRECISION)
+      .div(SCALAR_PRECISION);
+
+    const lowestDiscountFactor = Math.min(
+      discountRate.toNumber(),
+      assertDefined(config.fCashMaxDiscountFactor)
+    );
+
+    return {
+      lowestDiscountFactor,
+      maxDiscountFactor: assertDefined(config.fCashMaxDiscountFactor),
+    };
+  };
+
   return {
     getConfig,
     getSecondaryRewarder,
+    getCurrencyHaircutAndBuffer,
+    getMinLendRiskAdjustedDiscountFactor,
   };
 };
 
