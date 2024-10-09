@@ -77,7 +77,7 @@ export class PendlePT extends VaultAdapter {
   }
 
   getInitialVaultShareValuation(): ExchangeRate {
-    const oneAssetUnit = TokenBalance.fromID(
+    const oneAssetUnit = new TokenBalance(
       this.market.ptExchangeRate,
       this.market.assetTokenId,
       this.network
@@ -105,7 +105,7 @@ export class PendlePT extends VaultAdapter {
       return token;
     } else {
       if (!token.symbol.startsWith('SY')) throw Error('Invalid SY token');
-      return TokenBalance.fromID(token.n, this.tokenOutSy, this.network);
+      return new TokenBalance(token.n, this.tokenOutSy, this.network);
     }
   }
 

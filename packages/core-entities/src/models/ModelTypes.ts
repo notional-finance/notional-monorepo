@@ -366,7 +366,7 @@ export const OracleGraphModel = types.model('OracleGraph', {
   ),
 });
 
-export const VaultDefinitionModel = types.model('VaultDefinition', {
+const BaseVaultDefinitionModel = types.model('BaseVaultDefinition', {
   vaultAddress: types.identifier,
   enabled: types.boolean,
   name: types.string,
@@ -374,7 +374,9 @@ export const VaultDefinitionModel = types.model('VaultDefinition', {
   boosterProtocol: types.maybe(types.string),
   poolName: types.maybe(types.string),
   baseProtocol: types.maybe(types.string),
-  // NOTE: these are just single sided lp vaults
+});
+
+const SingleSidedLPVaultModel = BaseVaultDefinitionModel.props({
   pool: types.string,
   singleSidedTokenIndex: types.number,
   totalLPTokens: NotionalTypes.TokenBalance,
@@ -382,7 +384,29 @@ export const VaultDefinitionModel = types.model('VaultDefinition', {
   secondaryTradeParams: types.string,
   maxPoolShares: NotionalTypes.BigNumber,
   totalPoolSupply: types.maybe(NotionalTypes.TokenBalance),
+  rewardState: types.maybe(
+    types.array(
+      types.model({
+        lastAccumulatedTime: types.number,
+        endTime: types.number,
+        rewardToken: types.reference(TokenDefinitionModel),
+        emissionRatePerYear: NotionalTypes.BigNumber,
+        accumulatedRewardPerVaultShare: NotionalTypes.BigNumber,
+      })
+    )
+  ),
 });
+
+const PendlePTVaultModel = BaseVaultDefinitionModel.props({
+  marketAddress: types.string,
+  tokenInSy: types.string,
+  tokenOutSy: types.string,
+});
+
+export const VaultDefinitionModel = types.union(
+  SingleSidedLPVaultModel,
+  PendlePTVaultModel
+);
 
 export const TimeSeriesModel = types.model('TimeSeriesModel', {
   id: types.identifier,

@@ -8,7 +8,6 @@ import {
   AccountFetchMode,
   AccountRegistryClient,
 } from './client/account-registry-client';
-import { VaultRegistryClient } from './client/vault-registry-client';
 import { YieldRegistryClient } from './client/yield-registry-client';
 import { AnalyticsRegistryClient } from './client/analytics-registry-client';
 import { NOTERegistryClient } from './client/note-registry-client';
@@ -23,7 +22,6 @@ export class Registry {
   protected static _exchanges?: ExchangeRegistryClient;
   protected static _oracles?: OracleRegistryClient;
   protected static _configurations?: ConfigurationClient;
-  protected static _vaults?: VaultRegistryClient;
   protected static _yields?: YieldRegistryClient;
   protected static _accounts?: AccountRegistryClient;
   protected static _analytics?: AnalyticsRegistryClient;
@@ -70,7 +68,6 @@ export class Registry {
     Registry._oracles = new OracleRegistryClient(_cacheHostname);
     Registry._configurations = new ConfigurationClient(_cacheHostname);
     Registry._exchanges = new ExchangeRegistryClient(_cacheHostname);
-    Registry._vaults = new VaultRegistryClient(_cacheHostname);
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
     Registry._yields = new YieldRegistryClient(_cacheHostname);
     Registry._analytics = new AnalyticsRegistryClient(_cacheHostname, env);
@@ -137,11 +134,6 @@ export class Registry {
         Registry.DEFAULT_EXCHANGE_REFRESH
       );
 
-      Registry.getVaultRegistry().startRefreshInterval(
-        network,
-        Registry.DEFAULT_VAULT_REFRESH
-      );
-
       Registry.getConfigurationRegistry().startRefreshInterval(
         network,
         Registry.DEFAULT_CONFIGURATION_REFRESH
@@ -183,7 +175,6 @@ export class Registry {
     Registry.getOracleRegistry().stopRefresh(network);
     Registry.getConfigurationRegistry().stopRefresh(network);
     Registry.getAccountRegistry().stopRefresh(network);
-    Registry.getVaultRegistry().stopRefresh(network);
     Registry.getYieldRegistry().stopRefresh(network);
     Registry.getAnalyticsRegistry().stopRefresh(network);
   }
@@ -194,8 +185,7 @@ export class Registry {
       Registry.getExchangeRegistry().isRefreshRunning(network) &&
       Registry.getOracleRegistry().isRefreshRunning(network) &&
       Registry.getConfigurationRegistry().isRefreshRunning(network) &&
-      Registry.getAccountRegistry().isRefreshRunning(network) &&
-      Registry.getVaultRegistry().isRefreshRunning(network)
+      Registry.getAccountRegistry().isRefreshRunning(network)
     );
   }
 
@@ -219,7 +209,6 @@ export class Registry {
         network,
         blockNumber
       ),
-      Registry.getVaultRegistry().triggerRefreshPromise(network, blockNumber),
       Registry.getConfigurationRegistry().triggerRefreshPromise(
         network,
         blockNumber
@@ -244,11 +233,6 @@ export class Registry {
   public static getTokenRegistry() {
     if (Registry._tokens == undefined) throw Error('Token Registry undefined');
     return Registry._tokens;
-  }
-
-  public static getVaultRegistry() {
-    if (Registry._vaults == undefined) throw Error('Vault Registry undefined');
-    return Registry._vaults;
   }
 
   public static getExchangeRegistry() {
@@ -316,9 +300,6 @@ export class Registry {
         ),
         new Promise<void>((r) =>
           Registry.getExchangeRegistry().onNetworkRegistered(network, r)
-        ),
-        new Promise<void>((r) =>
-          Registry.getVaultRegistry().onNetworkRegistered(network, r)
         ),
         new Promise<void>((r) => {
           const accounts = Registry.getAccountRegistry();

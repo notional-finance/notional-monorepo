@@ -16,6 +16,7 @@ import { TokenViews } from './TokenViews';
 import { TimeSeriesViews } from './TimeSeriesViews';
 import { TokenDefinition } from '../../Definitions';
 import { PendlePTVaultParams } from '../../vaults/PendlePT';
+import { SingleSidedLPParams } from '../../vaults/SingleSidedLP';
 
 function getMinDepositRequiredString(
   minAccountBorrowSize: TokenBalance,
@@ -59,8 +60,8 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
         return new SingleSidedLP(
           self.network,
           vaultAddress,
-          params,
-          getPoolInstance_(self, params.pool),
+          params as SingleSidedLPParams,
+          getPoolInstance_(self, (params as SingleSidedLPParams).pool),
           primaryToken,
           getTimeSeries(v.vaultAddress, ChartType.APY)?.data
         );
