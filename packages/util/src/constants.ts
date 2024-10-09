@@ -36,7 +36,7 @@ export const MAX_APPROVAL = ethers.constants.MaxUint256;
 export const ALT_ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const SETTLEMENT_RESERVE = '0x00000000000000000000000000000000000005e7';
 export const FEE_RESERVE = '0x0000000000000000000000000000000000000FEE';
-export const FIAT_ADDRESS = '0x000000000000000000000000000000000000F147';
+export const FIAT_ADDRESS = '0x000000000000000000000000000000000000f147';
 export const MAX_UINT88 = BigNumber.from(2).pow(88).sub(1);
 export const IS_LOCAL_ENV =
   process.env['NODE_ENV'] === 'development' ||
@@ -255,4 +255,10 @@ export const WETHAddress: Record<Network, Lowercase<TokenAddress>> = {
   [Network.all]: toLower(tokens.mainnet.WETH),
   [Network.mainnet]: toLower(tokens.mainnet.WETH),
   [Network.arbitrum]: toLower(tokens.arbitrum.WETH),
+};
+
+export const LeveragedNTokenAdapterAddress: Record<Network, string> = {
+  [Network.all]: '0x25ee011B6Af5537eCD520f40CA759899a064CfCF',
+  [Network.mainnet]: '0x25ee011B6Af5537eCD520f40CA759899a064CfCF',
+  [Network.arbitrum]: '0xc8de46b3035cc723549892016D2449eA9f7fA0A5',
 };

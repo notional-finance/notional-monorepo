@@ -35,7 +35,9 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getTokenByAddress = (address: string) => {
-    return getAllTokens().find((t) => t.address === address);
+    const t = getAllTokens().find((t) => t.address === address);
+    if (!t) throw Error(`Token ${address} not found`);
+    return t;
   };
 
   const getTokenByCurrencyId = (currencyId?: number, tokenType?: string) => {

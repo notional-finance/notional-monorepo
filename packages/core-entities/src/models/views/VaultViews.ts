@@ -1,5 +1,8 @@
 import {
+  getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
+  RATE_PRECISION,
+  SECONDS_IN_YEAR,
   VaultAddress,
 } from '@notional-finance/util';
 import { PendlePT, SingleSidedLP } from '../../vaults';
@@ -171,11 +174,41 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     );
   };
 
+  const getVaultBorrowWithFees = (
+    vaultAddress: string,
+    maturity: number,
+    cashBorrowed: TokenBalance,
+    blockTime = getNowSeconds()
+  ) => {
+    if (cashBorrowed.tokenType !== 'PrimeCash')
+      throw Error('Cash must be prime cash');
+
+    if (maturity === PRIME_CASH_VAULT_MATURITY) {
+      return {
+        cashBorrowed,
+        vaultFee: cashBorrowed.copy(0),
+        feeRate: RATE_PRECISION,
+      };
+    }
+
+    const annualizedFeeRate = getVaultConfig(vaultAddress).feeRateBasisPoints;
+    const feeRate = Math.floor(
+      annualizedFeeRate * ((maturity - blockTime) / SECONDS_IN_YEAR)
+    );
+    const vaultFee = cashBorrowed.scale(feeRate, RATE_PRECISION);
+    return {
+      cashBorrowed: cashBorrowed.sub(vaultFee),
+      vaultFee,
+      feeRate,
+    };
+  };
+
   return {
     getAllListedVaults,
     isVaultEnabled,
     getVaultAdapter,
     getVaultName,
     getVaultConfig,
+    getVaultBorrowWithFees,
   };
 };
