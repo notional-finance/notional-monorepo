@@ -5,62 +5,17 @@ import {
   H4,
   CurrencyTitle,
   LargeInputTextEmphasized,
-  Caption,
 } from '../../typography/typography';
-import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { colors, NotionalTheme } from '@notional-finance/styles';
+import { NotionalTheme } from '@notional-finance/styles';
 import SliderBasic from '../../slider-basic/slider-basic';
-import { useAppState } from '@notional-finance/notionable-hooks';
-import { THEME_VARIANTS } from '@notional-finance/util';
+import ReinvestPill from '../../reinvest-pill/reinvest-pill';
 
 interface GridCardApyProps {
   hideApySubTitle: boolean;
   theme: NotionalTheme;
 }
-
-const ReinvestPill = ({
-  Icon,
-  label,
-}: {
-  Icon: any;
-  label: MessageDescriptor;
-}) => {
-  const theme = useTheme();
-  const { themeVariant } = useAppState();
-
-  return (
-    <Caption
-      sx={{
-        display: 'flex',
-        justifyContent: 'end',
-        padding: '3px 4px',
-        color:
-          themeVariant === THEME_VARIANTS.LIGHT
-            ? colors.darkGrey
-            : colors.white,
-        borderRadius: theme.shape.borderRadius(),
-        width: 'fit-content',
-        background: theme.palette.pending.light,
-        '.stroke-icon': {
-          stroke: theme.palette.pending.main,
-        },
-        textTransform: 'none',
-        fontWeight: 500,
-        marginBottom: theme.spacing(0.5),
-        svg: {
-          height: theme.spacing(2),
-          width: theme.spacing(2),
-          fill: theme.palette.pending.main,
-          marginRight: theme.spacing(1),
-        },
-      }}
-    >
-      <Icon />
-      <FormattedMessage {...label} />
-    </Caption>
-  );
-};
 
 const UtilizationBar = ({ vaultUtilization }: { vaultUtilization: number }) => {
   const theme = useTheme();

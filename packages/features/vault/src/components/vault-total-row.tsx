@@ -95,6 +95,42 @@ const TotalRowSingleSidedLP = () => {
   return <TotalRow totalsData={totalsData} />;
 };
 
+const TotalRowSingleSidedLPDirectClaim = () => {
+  const { state } = useContext(VaultActionContext);
+  const { baseCurrency } = useAppState();
+  const { totalCapacityRemaining, totalPoolCapacityRemaining, vaultTVL } =
+    state;
+  const tvl = vaultTVL?.toFiat(baseCurrency);
+  const totalsData = [
+    {
+      title: 'TVL',
+      value: tvl?.toFloat(),
+      prefix: tvl?.fiatSymbol,
+      decimals: 2,
+    },
+    {
+      title: 'Remaining Borrow Capacity',
+      Icon: ToolTip,
+      value: totalCapacityRemaining?.isNegative()
+        ? 0
+        : totalCapacityRemaining?.toFloat(),
+      suffix: ` ${totalCapacityRemaining?.symbol || ''}`,
+      decimals: 0,
+    },
+    {
+      title: 'Remaining Pool Capacity',
+      Icon: ToolTip,
+      value: totalPoolCapacityRemaining?.isNegative()
+        ? 0
+        : totalPoolCapacityRemaining?.toFloat(),
+      suffix: ` ${totalPoolCapacityRemaining?.symbol || ''}`,
+      decimals: 0,
+    },
+  ];
+  console.log(totalsData);
+  return <div></div>;
+};
+
 const TotalRowPendlePT = () => {
   const { state } = useContext(VaultActionContext);
   const { baseCurrency } = useAppState();
@@ -140,6 +176,8 @@ export const VaultTotalRow = () => {
     return <TotalRowSingleSidedLP />;
   } else if (vaultType === 'PendlePT') {
     return <TotalRowPendlePT />;
+  } else if (vaultType === 'SingleSidedLP_DirectClaim') {
+    return <TotalRowSingleSidedLPDirectClaim />;
   } else {
     return null;
   }
