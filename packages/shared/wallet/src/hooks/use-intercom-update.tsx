@@ -1,6 +1,7 @@
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import {
   getFromLocalStorage,
+  getNowSeconds,
   ONE_WEEK,
   setInLocalStorage,
   SupportedNetworks,
@@ -53,11 +54,9 @@ export const useIntercomUpdate = () => {
   const weeklyCheck = (() => {
     if (userSettings.debankTimestamp) {
       const lastUpdateDate = new Date(userSettings.debankTimestamp);
-      const currentDate = new Date();
+      const currentDate = getNowSeconds();
       const oneWeekInMilliseconds = ONE_WEEK * 1000;
-      return (
-        currentDate.getTime() - lastUpdateDate.getTime() > oneWeekInMilliseconds
-      );
+      return currentDate - lastUpdateDate.getTime() > oneWeekInMilliseconds;
     }
     return false;
   })();
@@ -70,7 +69,7 @@ export const useIntercomUpdate = () => {
       setIsFetching(true);
       try {
         const netWorth = await fetchDeBankNetWorth(address);
-        const currentTimestamp = new Date().toISOString();
+        const currentTimestamp = getNowSeconds();
         setCurrentNetWorth(Math.trunc(netWorth));
         setInLocalStorage('userSettings', {
           ...userSettings,
