@@ -1,4 +1,4 @@
-import { treasuryManagerAddresses } from '@notional-finance/util';
+import { Network, treasuryManagerAddresses } from '@notional-finance/util';
 
 export const rpcUrls = {
   mainnet: 'https://rpc.mevblocker.io',
@@ -8,19 +8,23 @@ export const rpcUrls = {
     'https://virtual.arbitrum.rpc.tenderly.co/7b175ea0-8ed8-4279-8a3e-7e71d5a2c1ec',
 };
 
+export const rebalanceHelperAddresses = {
+  [Network.arbitrum]: '0x366d5b255D97C5fee2283561Bd89fCe5566b178F',
+};
+
 // addresses need to be lowercased
 export const Address = {
   TREASURY_MANAGER_MAINNET: treasuryManagerAddresses.mainnet.toLowerCase(),
   TREASURY_MANAGER_ARBITRUM: treasuryManagerAddresses.arbitrum.toLowerCase(),
   REBALANCE_HELPER: '0xA271a6f6E4DeFEe638Aa8b3367b5ce92Cfc3a9FF'.toLowerCase(),
   AaveV3Pool_ARBITRUM:
-    '0x794a61358d6845594f94dc1db02a252b5b4814ad'.toLowerCase(),
+    '0x794a61358D6845594F94dc1DB02A252b5b4814aD'.toLowerCase(),
   AaveV3Pool_MAINNET:
-    '0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'.toLowerCase(),
+    '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2'.toLowerCase(),
   AaveFlashLiquidator_MAINNET:
-    '0xb33e0b9e5ff443fdfe48d8a49f45828918bdab8c'.toLowerCase(),
+    '0xb33E0B9E5FF443fdFE48D8A49F45828918BDab8C'.toLowerCase(),
   AaveFlashLiquidator_ARBITRUM:
-    '0x78e41d1389f3db7c196f13088d1f99a319ffcfbe'.toLowerCase(),
+    '0x78e41D1389f3Db7C196F13088D1f99A319ffcFBE'.toLowerCase(),
   Multicall3: '0xcA11bde05977b3631167028862bE2a173976CA11'.toLowerCase(),
   initializeAllMarkets_ARBITRUM:
     '0x9b6C04D1481473B2e52CaEB85822072C35460f27'.toLowerCase(),
