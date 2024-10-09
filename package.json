@@ -8,6 +8,7 @@
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.8.4",
+    "@cspell/eslint-plugin": "^8.14.4",
     "@datadog/browser-rum": "^4.47.0",
     "@datadog/datadog-api-client": "^1.6.0",
     "@emotion/react": "11.10.5",
@@ -111,7 +112,6 @@
     "@cloudflare/workers-types": "^4.20240419.0",
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.0",
-    "@cspell/eslint-plugin": "^8.14.4",
     "@emotion/babel-plugin": "11.10.5",
     "@google-cloud/functions-framework": "^3.4.2",
     "@graphprotocol/client-cli": "^2.2.22",
