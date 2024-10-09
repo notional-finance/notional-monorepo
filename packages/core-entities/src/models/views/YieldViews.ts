@@ -412,14 +412,14 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const getDefaultLeveragedNTokenAPYs = (token: TokenDefinition) => {
     if (!token.currencyId) throw Error('Invalid token currency');
     if (token.tokenType !== 'nToken') throw Error('Invalid token type');
-    const { defaultLeverageRatio } = getLeverageRatios(token);
+    const { maxLeverageRatio } = getLeverageRatios(token);
     const debtTokens = getDebtTokens(token.currencyId);
 
     return debtTokens.map((d) => ({
       apy: getLeveragedAPY(
         TokenBalance.zero(token),
         TokenBalance.zero(d),
-        defaultLeverageRatio
+        maxLeverageRatio
       ),
       debtToken: d,
     }));
@@ -429,13 +429,13 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     return getVaultShares(vaultAddress).map((share) => {
       if (!share.maturity) throw Error('Invalid share maturity');
       const debt = getVaultDebt(vaultAddress, share.maturity);
-      const { defaultLeverageRatio } = getLeverageRatios(share);
+      const { maxLeverageRatio } = getLeverageRatios(share);
 
       return {
         apy: getLeveragedAPY(
           TokenBalance.zero(share),
           TokenBalance.zero(debt),
-          defaultLeverageRatio
+          maxLeverageRatio
         ),
         debtToken: debt,
         vaultShare: share,

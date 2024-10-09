@@ -9,6 +9,8 @@ import {
   Network,
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
+  TokenAddress,
+  VaultAddress,
 } from '@notional-finance/util';
 import {
   OracleDefinition,
@@ -65,7 +67,9 @@ export const registerVaultData = async (
       .map((i) => getMaturityForMarketIndex(i + 1))
       .concat(PRIME_CASH_VAULT_MATURITY);
 
-    const primaryBorrow = self.tokens.get(vault.primaryBorrowCurrency.id);
+    const primaryBorrow = self.tokens.get(vault.primaryBorrowCurrency.id) as
+      | TokenDefinition
+      | undefined;
     const primaryBorrowCurrencyId = primaryBorrow?.currencyId;
     if (!primaryBorrowCurrencyId)
       throw Error('Unknown primary borrow currency');
@@ -104,7 +108,7 @@ export const registerVaultData = async (
         if (vault.secondaryBorrowCurrencies.length > 0) {
           const secondaryUnderlying = self.tokens.get(
             vault.secondaryBorrowCurrencies[0].id
-          );
+          ) as TokenDefinition | undefined;
           const secondaryCurrencyId = secondaryUnderlying?.currencyId;
           if (secondaryCurrencyId) {
             registerVaultDebtAndCashIds(
@@ -120,7 +124,7 @@ export const registerVaultData = async (
         if (vault.secondaryBorrowCurrencies.length > 1) {
           const secondaryUnderlying = self.tokens.get(
             vault.secondaryBorrowCurrencies[1].id
-          );
+          ) as TokenDefinition | undefined;
           const secondaryCurrencyId = secondaryUnderlying?.currencyId;
           if (secondaryCurrencyId) {
             registerVaultDebtAndCashIds(
@@ -267,7 +271,7 @@ const getTokenDefinitionForVaultId = (
 
   return {
     id,
-    address: NotionalAddress[network].toLowerCase(),
+    address: NotionalAddress[network].toLowerCase() as Lowercase<TokenAddress>,
     network,
     name,
     symbol,
@@ -276,7 +280,7 @@ const getTokenDefinitionForVaultId = (
     tokenType,
     underlying: underlying.id,
     maturity,
-    vaultAddress: vaultAddress.toLowerCase(),
+    vaultAddress: vaultAddress.toLowerCase() as Lowercase<VaultAddress>,
     isFCashDebt: false,
     currencyId: underlying.currencyId,
   };

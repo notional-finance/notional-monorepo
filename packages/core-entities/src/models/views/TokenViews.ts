@@ -10,6 +10,7 @@ import {
 } from '@notional-finance/util';
 import { BigNumberish } from 'ethers';
 import { TokenBalance } from '../../token-balance';
+import { TokenDefinition } from '../../Definitions';
 
 export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   const getAllTokens = () => {
@@ -18,7 +19,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
         ISimpleType<string>,
         Instance<typeof TokenDefinitionModel>
       >
-    );
+    ) as TokenDefinition[];
   };
 
   const getTokenBySymbol = (symbol: string) => {
@@ -30,7 +31,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   const getTokenByID = (id: string) => {
     const t = self.tokens.get(id.toLowerCase());
     if (!t) throw Error(`Token ${id} not found`);
-    return t;
+    return t as TokenDefinition;
   };
 
   const getTokenByAddress = (address: string) => {
@@ -94,9 +95,11 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     return t;
   };
 
-  const unwrapVaultToken = (token: Instance<typeof TokenDefinitionModel>) => {
+  const unwrapVaultToken = (
+    token: Instance<typeof TokenDefinitionModel> | TokenDefinition
+  ): TokenDefinition => {
     if (!token.currencyId) {
-      return token;
+      return token as TokenDefinition;
     } else if (
       token.tokenType === 'VaultDebt' &&
       token.maturity &&
@@ -111,7 +114,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
       );
       if (!t)
         throw Error(`Token ${token.currencyId} ${token.maturity} not found`);
-      return t;
+      return t as TokenDefinition;
     } else if (
       token.tokenType === 'VaultDebt' &&
       token.maturity === PRIME_CASH_VAULT_MATURITY
@@ -120,7 +123,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     } else if (token.tokenType === 'VaultCash') {
       return getPrimeCash(token.currencyId);
     } else {
-      return token;
+      return token as TokenDefinition;
     }
   };
 
@@ -133,7 +136,9 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   const getTokensByType = (tokenType: string, excludeMatured = true) => {
     const t = getAllTokens().filter((t) => t.tokenType === tokenType);
     if (excludeMatured) {
-      return t.filter((t) => t.maturity === undefined ? true : getNowSeconds() < t.maturity);
+      return t.filter((t) =>
+        t.maturity === undefined ? true : getNowSeconds() < t.maturity
+      );
     }
 
     return t;
@@ -144,7 +149,8 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
       (t) =>
         t.currencyId === currencyId &&
         (t.tokenType === 'PrimeDebt' ||
-          (t.tokenType === 'fCash' && t.isFCashDebt &&
+          (t.tokenType === 'fCash' &&
+            t.isFCashDebt &&
             t.maturity &&
             getNowSeconds() < t.maturity))
     );

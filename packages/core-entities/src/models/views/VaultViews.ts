@@ -1,13 +1,20 @@
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import {
+  PRIME_CASH_VAULT_MATURITY,
+  VaultAddress,
+} from '@notional-finance/util';
 import { SingleSidedLP } from '../../vaults';
 import { TokenBalance } from '../../token-balance';
-import { whitelistedVaults } from '../../config/whitelisted-vaults';
+import {
+  getVaultType,
+  whitelistedVaults,
+} from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
 import { ChartType } from '../ModelTypes';
 import { getSnapshot, Instance } from 'mobx-state-tree';
 import { NetworkModel } from '../NetworkModel';
 import { TokenViews } from './TokenViews';
 import { TimeSeriesViews } from './TimeSeriesViews';
+import { TokenDefinition } from '../../Definitions';
 
 function getMinDepositRequiredString(
   minAccountBorrowSize: TokenBalance,
@@ -66,7 +73,9 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     if (!v) throw Error(`Configuration not found for ${vaultAddress}`);
     const primeDebt = getVaultDebt(v.vaultAddress, PRIME_CASH_VAULT_MATURITY);
     const primaryToken = getTokenByID(v.primaryBorrowCurrency.id);
-    const vaultTVL = getVaultAdapter(v.vaultAddress)?.getVaultTVL();
+    const adapter = getVaultAdapter(v.vaultAddress);
+    const vaultTVL = adapter?.getVaultTVL();
+
     const minAccountBorrowSize = TokenBalance.from(
       v.minAccountBorrowSize,
       primaryToken
@@ -91,10 +100,32 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
       v.maxRequiredAccountCollateralRatioBasisPoints as number
     );
     const vaultNameInfo = self.vaults.get(vaultAddress);
+    const vaultType = getVaultType(vaultAddress, self.network);
+
+    const totalBorrowCapacityUsed =
+      totalUsedPrimaryBorrowCapacity.toFloat() /
+      maxPrimaryBorrowCapacity.toFloat();
+    let vaultShareOfPool = 0;
+    if (vaultType.startsWith('SingleSidedLP')) {
+      vaultShareOfPool =
+        (adapter as SingleSidedLP).getPoolShare() /
+        (adapter as SingleSidedLP).getMaxPoolShare();
+    }
+    const vaultUtilization = Math.min(
+      Math.max(totalBorrowCapacityUsed, vaultShareOfPool) * 100,
+      100
+    );
+
+    let rewardTokens: TokenDefinition[] = [];
+    if (vaultType === 'SingleSidedLP_DirectClaim') {
+      rewardTokens = (adapter as SingleSidedLP).rewardTokens.map(getTokenByID);
+    }
 
     return {
       ...getSnapshot(v),
       ...(vaultNameInfo ? getSnapshot(vaultNameInfo) : {}),
+      vaultUtilization,
+      rewardTokens,
       primaryToken,
       vaultTVL,
       minDepositRequired,
@@ -113,7 +144,9 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
         .filter(
           (v) =>
             (onlyWhitelisted
-              ? whitelistedVaults(self.network).includes(v.vaultAddress)
+              ? whitelistedVaults(self.network).includes(
+                  v.vaultAddress.toLowerCase() as Lowercase<VaultAddress>
+                )
               : true) &&
             (v.enabled || includeDisabled)
         )
