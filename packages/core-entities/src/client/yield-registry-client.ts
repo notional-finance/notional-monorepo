@@ -11,7 +11,6 @@ import { TokenType, YieldData } from '../Definitions';
 import { Registry } from '../Registry';
 import { Routes } from '../server';
 import { TokenBalance } from '../token-balance';
-import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { ClientRegistry } from './client-registry';
 
 export class YieldRegistryClient extends ClientRegistry<YieldData> {
@@ -427,84 +426,84 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     });
   }
 
-  getLeveragedVaultYield(network: Network) {
-    const config = Registry.getConfigurationRegistry();
-    const vaults = Registry.getVaultRegistry();
-    const fCashYields = this.getfCashYield(network);
-    const debtYields = this.getPrimeDebtYield(network).concat(fCashYields);
-    const tokens = Registry.getTokenRegistry();
+  getLeveragedVaultYield(_network: Network) {
+    return [];
+    // const config = Registry.getConfigurationRegistry();
+    // const fCashYields = this.getfCashYield(network);
+    // const debtYields = this.getPrimeDebtYield(network).concat(fCashYields);
+    // const tokens = Registry.getTokenRegistry();
 
-    return tokens
-      .getAllTokens(network)
-      .filter(
-        (v) =>
-          v.tokenType === 'VaultShare' &&
-          (v.maturity ? v.maturity > getNowSeconds() : true) &&
-          !!v.vaultAddress &&
-          vaults.isVaultEnabled(v.network, v.vaultAddress) &&
-          whitelistedVaults(network).includes(v.vaultAddress)
-      )
-      .flatMap((v) => {
-        let debt = debtYields.find(
-          (d) =>
-            d.token.currencyId === v.currencyId &&
-            (v.maturity === PRIME_CASH_VAULT_MATURITY
-              ? d.token.tokenType === 'PrimeDebt'
-              : d.token.tokenType === 'fCash' &&
-                d.token.maturity === v.maturity)
-        );
-        if (!debt) throw Error('Matching debt not found');
-        if (!v.vaultAddress) throw Error('Vault address not defined');
-        if (!v.underlying) throw Error('underlying is not defined');
-        // Ensures that the oracle registry side effect happens here so that we
-        // can properly get the TVL value.
-        const adapter = vaults.getVaultAdapter(network, v.vaultAddress);
-        const underlying = tokens.getTokenByID(network, v.underlying);
-        const { maxLeverageRatio } = config.getVaultLeverageFactors(
-          network,
-          v.vaultAddress
-        );
-        const totalAPY = adapter.getVaultAPY();
-        if (debt.token.tokenType === 'PrimeDebt') {
-          const annualizedFeeRate =
-            Registry.getConfigurationRegistry().getVaultConfig(
-              network,
-              v.vaultAddress
-            ).feeRateBasisPoints;
-          // Add the vault fee to the debt rate here, need to do a copy here to prevent
-          // the object from being mutated
-          debt = { ...debt };
-          debt.totalAPY += (annualizedFeeRate * 100) / RATE_PRECISION;
-        }
+    // return tokens
+    //   .getAllTokens(network)
+    //   .filter(
+    //     (v) =>
+    //       v.tokenType === 'VaultShare' &&
+    //       (v.maturity ? v.maturity > getNowSeconds() : true) &&
+    //       !!v.vaultAddress &&
+    //       vaults.isVaultEnabled(v.network, v.vaultAddress) &&
+    //       whitelistedVaults(network).includes(v.vaultAddress)
+    //   )
+    //   .flatMap((v) => {
+    //     let debt = debtYields.find(
+    //       (d) =>
+    //         d.token.currencyId === v.currencyId &&
+    //         (v.maturity === PRIME_CASH_VAULT_MATURITY
+    //           ? d.token.tokenType === 'PrimeDebt'
+    //           : d.token.tokenType === 'fCash' &&
+    //             d.token.maturity === v.maturity)
+    //     );
+    //     if (!debt) throw Error('Matching debt not found');
+    //     if (!v.vaultAddress) throw Error('Vault address not defined');
+    //     if (!v.underlying) throw Error('underlying is not defined');
+    //     // Ensures that the oracle registry side effect happens here so that we
+    //     // can properly get the TVL value.
+    //     const adapter = vaults.getVaultAdapter(network, v.vaultAddress);
+    //     const underlying = tokens.getTokenByID(network, v.underlying);
+    //     const { maxLeverageRatio } = config.getVaultLeverageFactors(
+    //       network,
+    //       v.vaultAddress
+    //     );
+    //     const totalAPY = adapter.getVaultAPY();
+    //     if (debt.token.tokenType === 'PrimeDebt') {
+    //       const annualizedFeeRate =
+    //         Registry.getConfigurationRegistry().getVaultConfig(
+    //           network,
+    //           v.vaultAddress
+    //         ).feeRateBasisPoints;
+    //       // Add the vault fee to the debt rate here, need to do a copy here to prevent
+    //       // the object from being mutated
+    //       debt = { ...debt };
+    //       debt.totalAPY += (annualizedFeeRate * 100) / RATE_PRECISION;
+    //     }
 
-        try {
-          // If the vault debt is not found then skip generating the yield for
-          // this vault
-          if (v.vaultAddress && v.maturity)
-            tokens.getVaultDebt(network, v.vaultAddress, v.maturity);
-        } catch (e) {
-          return [];
-        }
+    //     try {
+    //       // If the vault debt is not found then skip generating the yield for
+    //       // this vault
+    //       if (v.vaultAddress && v.maturity)
+    //         tokens.getVaultDebt(network, v.vaultAddress, v.maturity);
+    //     } catch (e) {
+    //       return [];
+    //     }
 
-        const vaultShareYield: YieldData = {
-          token: v,
-          underlying,
-          totalAPY,
-          tvl: v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
-          vaultName: config.getVaultName(network, v.vaultAddress),
-          pointMultiples: adapter.getPointMultiples(),
-        };
+    //     const vaultShareYield: YieldData = {
+    //       token: v,
+    //       underlying,
+    //       totalAPY,
+    //       tvl: v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+    //       vaultName: config.getVaultName(network, v.vaultAddress),
+    //       pointMultiples: adapter.getPointMultiples(),
+    //     };
 
-        return [
-          vaultShareYield,
-          this._makeLeveraged(
-            vaultShareYield,
-            debt,
-            maxLeverageRatio,
-            maxLeverageRatio
-          ),
-        ];
-      });
+    //     return [
+    //       vaultShareYield,
+    //       this._makeLeveraged(
+    //         vaultShareYield,
+    //         debt,
+    //         maxLeverageRatio,
+    //         maxLeverageRatio
+    //       ),
+    //     ];
+    //   });
   }
 
   getAllYields(network: Network) {

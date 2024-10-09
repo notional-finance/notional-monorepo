@@ -2,6 +2,7 @@ import { BytesLike } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { Network } from '@notional-finance/util';
 import { ExchangeRate, TokenDefinition } from '../Definitions';
+import { getNetworkModel } from '../Models';
 
 export interface BaseVaultParams {
   vaultAddress: string;
@@ -17,19 +18,10 @@ export abstract class VaultAdapter {
     public enabled: boolean,
     public name: string,
     public network: Network,
-    public vaultAddress: string
+    public vaultAddress: string,
+    public borrowedToken: TokenDefinition
   ) {
     // NO-OP
-  }
-
-  getBorrowedToken() {
-    return Registry.getTokenRegistry().getTokenByID(
-      this.network,
-      Registry.getConfigurationRegistry().getVaultConfig(
-        this.network,
-        this.vaultAddress
-      ).primaryBorrowCurrency.id
-    );
   }
 
   abstract getInitialVaultShareValuation(maturity: number): ExchangeRate;
@@ -71,16 +63,13 @@ export abstract class VaultAdapter {
   }): number;
 
   getVaultTVL(): TokenBalance {
-    const vaultShares = Registry.getTokenRegistry()
-      .getAllTokens(this.network)
-      .filter(
-        (t) =>
-          t.tokenType === 'VaultShare' && t.vaultAddress === this.vaultAddress
-      );
+    const vaultShares = getNetworkModel(this.network)
+      .getTokensByType('VaultShare')
+      .filter((t) => t.vaultAddress === this.vaultAddress);
 
     return vaultShares.reduce(
       (acc, v) => (v.totalSupply ? acc.add(v.totalSupply.toUnderlying()) : acc),
-      TokenBalance.zero(this.getBorrowedToken())
+      TokenBalance.zero(this.borrowedToken)
     );
   }
 

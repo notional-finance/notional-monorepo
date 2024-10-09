@@ -132,15 +132,12 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   }
 
   protected _parseVaultConfig(
-    network: Network,
+    _network: Network,
     vaultConfig: AllConfigurationQuery['vaultConfigurations'][0]
   ) {
-    let enabled = vaultConfig.enabled;
+    const enabled = vaultConfig.enabled;
     try {
-      enabled = Registry.getVaultRegistry().isVaultEnabled(
-        network,
-        vaultConfig.vaultAddress
-      );
+      // enabled =
     } catch (e) {
       console.error(e);
       // Ignore

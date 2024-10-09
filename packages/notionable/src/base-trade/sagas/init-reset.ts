@@ -72,15 +72,11 @@ export function initVaultState(state$: Observable<VaultTradeState>) {
           selectedNetwork,
           vaultAddress
         );
-        const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
-          selectedNetwork,
-          vaultAddress
-        );
 
         return {
           isReady: true,
           vaultConfig,
-          maxCollateralSlippage: vaultAdapter.getMaxCollateralSlippage(),
+          // maxCollateralSlippage: vaultAdapter.getMaxCollateralSlippage(),
         };
       } catch {
         return undefined;

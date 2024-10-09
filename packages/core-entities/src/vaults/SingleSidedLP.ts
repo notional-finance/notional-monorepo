@@ -4,7 +4,6 @@ import {
   Network,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
-  INTERNAL_TOKEN_DECIMALS,
   encodeERC1155Id,
   AssetType,
   SECONDS_IN_DAY,
@@ -17,7 +16,7 @@ import { BigNumber } from 'ethers';
 import { TokenDefinition } from '../Definitions';
 import { PointsMultipliers } from '../config/whitelisted-vaults';
 import { TimeSeriesResponse } from '../models/ModelTypes';
-import { Registry } from '../Registry';
+import { getNetworkModel } from '../Models';
 
 export interface SingleSidedLPParams extends BaseVaultParams {
   pool: string;
@@ -93,13 +92,23 @@ export class SingleSidedLP extends VaultAdapter {
     return this.rewardState?.map((r) => r.rewardToken) || [];
   }
 
+  protected get primeVaultShareId() {
+    return encodeERC1155Id(
+      this.borrowedToken.currencyId as number,
+      PRIME_CASH_VAULT_MATURITY,
+      AssetType.VAULT_SHARE_ASSET_TYPE,
+      false,
+      this.vaultAddress
+    );
+  }
+
   getLiquidationPriceTokens() {
     return this.pool.balances
       .filter(
         (b) =>
           // Exclude the LP token and the borrowed token
           b.tokenId !== this.pool.oneLPToken().tokenId &&
-          b.tokenId !== this.getBorrowedToken().id
+          b.tokenId !== this.borrowedToken.id
       )
       .map((b) => b.token);
   }
@@ -109,10 +118,10 @@ export class SingleSidedLP extends VaultAdapter {
     vaultAddress: string,
     p: SingleSidedLPParams,
     _pool: BaseLiquidityPool<unknown>,
-    public currencyId: number,
+    borrowedToken: TokenDefinition,
     public apyHistory?: TimeSeriesResponse
   ) {
-    super(p.enabled, p.name, network, vaultAddress);
+    super(p.enabled, p.name, network, vaultAddress, borrowedToken);
 
     this.pool = _pool;
 
@@ -146,10 +155,8 @@ export class SingleSidedLP extends VaultAdapter {
 
   public getRemainingPoolCapacity() {
     if (this.totalPoolSupply) {
-      const vaultShare = Registry.getTokenRegistry().getVaultShare(
-        this.network,
-        this.vaultAddress,
-        PRIME_CASH_VAULT_MATURITY
+      const vaultShare = getNetworkModel(this.network).getTokenByID(
+        this.primeVaultShareId
       );
       const maxLPTokens = this.totalPoolSupply.scale(
         this.maxPoolShares,
@@ -222,27 +229,17 @@ export class SingleSidedLP extends VaultAdapter {
 
   convertToPrimeVaultShares(vaultShares: TokenBalance) {
     // Prime vault shares convert 1-1
-    const primeVaultShareId = encodeERC1155Id(
-      this.currencyId,
-      PRIME_CASH_VAULT_MATURITY,
-      AssetType.VAULT_SHARE_ASSET_TYPE,
-      false,
-      this.vaultAddress
+    return new TokenBalance(
+      vaultShares.n,
+      this.primeVaultShareId,
+      this.network
     );
-    return new TokenBalance(vaultShares.n, primeVaultShareId, this.network);
   }
 
   override getVaultTVL() {
-    const primeVaultShareId = encodeERC1155Id(
-      this.currencyId,
-      PRIME_CASH_VAULT_MATURITY,
-      AssetType.VAULT_SHARE_ASSET_TYPE,
-      false,
-      this.vaultAddress
-    );
     return new TokenBalance(
       this.totalVaultShares,
-      primeVaultShareId,
+      this.primeVaultShareId,
       this.network
     ).toUnderlying();
   }

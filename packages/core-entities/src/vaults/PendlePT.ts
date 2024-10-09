@@ -36,8 +36,13 @@ export class PendlePT extends VaultAdapter {
     return 'PendlePT';
   }
 
-  constructor(network: Network, vaultAddress: string, p: PendlePTVaultParams) {
-    super(p.enabled, p.name, network, vaultAddress);
+  constructor(
+    network: Network,
+    vaultAddress: string,
+    p: PendlePTVaultParams,
+    borrowedToken: TokenDefinition
+  ) {
+    super(p.enabled, p.name, network, vaultAddress, borrowedToken);
     this.tokenInSy = p.tokenInSy.toLowerCase();
     this.tokenOutSy = p.tokenOutSy.toLowerCase();
     this.marketAddress = p.marketAddress.toLowerCase();
@@ -79,7 +84,7 @@ export class PendlePT extends VaultAdapter {
     );
 
     return {
-      rate: oneAssetUnit.toToken(this.getBorrowedToken()).n,
+      rate: oneAssetUnit.toToken(this.borrowedToken).n,
       timestamp: getNowSeconds(),
       blockNumber: 0,
     };
@@ -162,8 +167,7 @@ export class PendlePT extends VaultAdapter {
     tradingFeesPaid: TokenBalance;
   } {
     // Short circuit if borrowed token is the tokenInSy
-    const borrowedToken = this.getBorrowedToken();
-    if (tokenOutSy.tokenId === borrowedToken.id) {
+    if (tokenOutSy.tokenId === this.borrowedToken.id) {
       return {
         underlyingOut: tokenOutSy,
         tradingFeesPaid: tokenOutSy.copy(0),
@@ -179,8 +183,8 @@ export class PendlePT extends VaultAdapter {
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(
         (t) =>
-          t.token.id === borrowedToken.id ||
-          (borrowedToken.symbol === 'ETH' && t.token.symbol === 'WETH')
+          t.token.id === this.borrowedToken.id ||
+          (this.borrowedToken.symbol === 'ETH' && t.token.symbol === 'WETH')
       );
       const { tokensOut, feesPaid } = tokenSyPool.calculateTokenTrade(
         tokenOutSy,
@@ -190,7 +194,7 @@ export class PendlePT extends VaultAdapter {
       return {
         underlyingOut: tokensOut,
         tradingFeesPaid:
-          feesPaid.find((t) => t.tokenId === borrowedToken.id) ||
+          feesPaid.find((t) => t.tokenId === this.borrowedToken.id) ||
           tokenOutSy.copy(0),
       };
     } else {
@@ -402,7 +406,7 @@ export class PendlePT extends VaultAdapter {
     _underlyingToRepayDebt: TokenBalance,
     slippageFactor = 50 * BASIS_POINT
   ): Promise<BytesLike> {
-    if (this.tokenOutSy === this.getBorrowedToken().id) {
+    if (this.tokenOutSy === this.borrowedToken.id) {
       return '0x';
     } else {
       // In the other case, we need to determine the default exit trade.

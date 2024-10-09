@@ -32,6 +32,17 @@ export function usePrimeCash(currencyId: number | undefined) {
   }
 }
 
+export function useVaultAdapter(vaultAddress: string | undefined) {
+  const currentNetworkStore = useCurrentNetworkStore();
+  try {
+    return currentNetworkStore.isReady() && vaultAddress
+      ? currentNetworkStore.getVaultAdapter(vaultAddress)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function usePrimeDebt(currencyId: number | undefined) {
   const currentNetworkStore = useCurrentNetworkStore();
   try {

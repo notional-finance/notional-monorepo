@@ -2,7 +2,7 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   VaultAddress,
 } from '@notional-finance/util';
-import { SingleSidedLP } from '../../vaults';
+import { PendlePT, SingleSidedLP } from '../../vaults';
 import { TokenBalance } from '../../token-balance';
 import {
   getVaultType,
@@ -15,6 +15,7 @@ import { NetworkModel } from '../NetworkModel';
 import { TokenViews } from './TokenViews';
 import { TimeSeriesViews } from './TimeSeriesViews';
 import { TokenDefinition } from '../../Definitions';
+import { PendlePTVaultParams } from '../../vaults/PendlePT';
 
 function getMinDepositRequiredString(
   minAccountBorrowSize: TokenBalance,
@@ -49,15 +50,30 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     const primaryToken = getTokenByID(v.primaryBorrowCurrency.id);
     if (!primaryToken.currencyId)
       throw Error(`Token not found for ${vaultAddress}`);
+    const vaultType = getVaultType(vaultAddress, self.network);
 
-    return new SingleSidedLP(
-      self.network,
-      vaultAddress,
-      params,
-      getPoolInstance_(self, params.pool),
-      primaryToken.currencyId,
-      getTimeSeries(v.vaultAddress, ChartType.APY)?.data
-    );
+    switch (vaultType) {
+      case 'SingleSidedLP_AutoReinvest':
+      case 'SingleSidedLP_DirectClaim':
+      case 'SingleSidedLP_Points':
+        return new SingleSidedLP(
+          self.network,
+          vaultAddress,
+          params,
+          getPoolInstance_(self, params.pool),
+          primaryToken,
+          getTimeSeries(v.vaultAddress, ChartType.APY)?.data
+        );
+      case 'PendlePT':
+        return new PendlePT(
+          self.network,
+          vaultAddress,
+          params as PendlePTVaultParams,
+          primaryToken
+        );
+      default:
+        throw Error(`Unknown vault type: ${vaultType}`);
+    }
   };
 
   const getVaultName = (vaultAddress: string) => {

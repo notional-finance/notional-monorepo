@@ -330,7 +330,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   override getAllLiquidationPrices() {
-    const borrowedToken = this.vaultAdapter.getBorrowedToken();
+    const borrowedToken = this.vaultAdapter.borrowedToken;
 
     return this.vaultAdapter
       .getLiquidationPriceTokens()
