@@ -1,3 +1,6 @@
+#!/bin/sh
+set -e
+
 echo "Deploying tx-relay service"
 
 cp package.json ./dist
@@ -59,7 +62,7 @@ echo "$cron_jobs" | while IFS='|' read -r description url schedule; do
     else
       ACTION="create"
     fi
-
+    echo "${ACTION} job"
     gcloud scheduler jobs $ACTION http "$job_name" \
         --location=us-central1 \
         --schedule="$schedule" \
