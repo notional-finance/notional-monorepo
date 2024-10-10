@@ -4,3 +4,5 @@
 # Run command using --base=[SHA1] (affected by the committed, uncommitted and untracked changes)
 yarn nx affected --target=lint --base=HEAD
 yarn nx affected --target=typecheck --base=HEAD
+echo "Checking formating of changed files"
+yarn nx format:check --base=HEAD || (echo "Please run 'yarn nx format:write --base=HEAD' to auto-fix the issues" && exit 1)
