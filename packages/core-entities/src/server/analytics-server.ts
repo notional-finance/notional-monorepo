@@ -29,12 +29,12 @@ import {
 } from '../models/ModelTypes';
 import { Env } from '.';
 import { formatUnits } from 'ethers/lib/utils';
-import { OracleRegistryClient } from '../client';
 import { OracleType, TimeSeriesDataPoint } from '../models/ModelTypes';
 import { getSecondaryTokenIncentive } from '../config/whitelisted-tokens';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { HistoricalOracleValuesQuery } from '../.graphclient';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
+import { interestToExchangeRate } from '../models/views/OracleViews';
 
 export type GraphDocument = keyof Omit<
   Awaited<ReturnType<typeof loadGraphClientDeferred>>,
@@ -236,7 +236,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
             const price =
               priceOracle.oracleType === 'fCashOracleRate' &&
               priceOracle.quote.maturity
-                ? OracleRegistryClient.interestToExchangeRate(
+                ? interestToExchangeRate(
                     BigNumber.from(r.rate),
                     priceOracle.quote.maturity,
                     r.timestamp

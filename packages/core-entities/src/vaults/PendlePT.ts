@@ -13,7 +13,7 @@ import {
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { TokenBalance } from '../token-balance';
-import { Registry } from '../Registry';
+import { getNetworkModel } from '../Models';
 import { BigNumber, BytesLike } from 'ethers';
 import { PendleMarket } from '../exchanges';
 import { ExchangeRate, TokenDefinition } from '../Definitions';
@@ -46,8 +46,7 @@ export class PendlePT extends VaultAdapter {
     this.tokenInSy = p.tokenInSy.toLowerCase();
     this.tokenOutSy = p.tokenOutSy.toLowerCase();
     this.marketAddress = p.marketAddress.toLowerCase();
-    this.market = Registry.getExchangeRegistry().getPoolInstance<PendleMarket>(
-      network,
+    this.market = getNetworkModel(this.network).getPoolInstance<PendleMarket>(
       p.marketAddress
     );
   }
@@ -92,8 +91,7 @@ export class PendlePT extends VaultAdapter {
 
   convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance {
     // Prime vault shares convert 1-1
-    const token = Registry.getTokenRegistry().getVaultShare(
-      vaultShares.network,
+    const token = getNetworkModel(vaultShares.network).getVaultShare(
       vaultShares.vaultAddress,
       PRIME_CASH_VAULT_MATURITY
     );
@@ -127,8 +125,7 @@ export class PendlePT extends VaultAdapter {
     const { poolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (poolAddress) {
-      const tokenSyPool = Registry.getExchangeRegistry().getPoolInstance(
-        this.network,
+      const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
         poolAddress
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(
@@ -177,8 +174,7 @@ export class PendlePT extends VaultAdapter {
     const { poolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (poolAddress) {
-      const tokenSyPool = Registry.getExchangeRegistry().getPoolInstance(
-        this.network,
+      const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
         poolAddress
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(

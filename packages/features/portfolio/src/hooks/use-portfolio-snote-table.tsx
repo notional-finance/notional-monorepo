@@ -9,13 +9,13 @@ import {
 import { TotalEarningsTooltip } from '../components';
 import {
   useAccountDefinition,
-  useStakedNOTEPoolReady,
+  useSNOTEPool,
   useStakedNoteData,
 } from '@notional-finance/notionable-hooks';
 import { ExpandedState } from '@tanstack/react-table';
 import { useTheme } from '@mui/material';
 import { Network, lastValue, PORTFOLIO_ACTIONS } from '@notional-finance/util';
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '@notional-finance/notionable';
@@ -27,16 +27,15 @@ export function usePortfolioSNOTETable() {
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const account = useAccountDefinition(Network.mainnet);
   const snoteBalance = account?.balances.find((t) => t.symbol === 'sNOTE');
-  const isPoolReady = useStakedNOTEPoolReady();
   const stakedNoteData = useStakedNoteData();
   const { baseCurrency } = useAppStore();
   let result: any[] = [];
   const noStakedNoteData = snoteBalance === undefined || snoteBalance.isZero();
+  const sNOTEPool = useSNOTEPool();
 
   const stakeNoteStatus = account?.stakeNOTEStatus;
 
-  if (isPoolReady && snoteBalance && stakedNoteData) {
-    const sNOTEPool = Registry.getExchangeRegistry().getSNOTEPool();
+  if (snoteBalance && stakedNoteData) {
     const currentSNOTEYield = formatNumberAsPercentWithUndefined(
       lastValue(stakedNoteData)?.apy,
       '-',

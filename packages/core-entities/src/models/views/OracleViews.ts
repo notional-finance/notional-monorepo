@@ -9,10 +9,14 @@ import {
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { fCashMarket } from '../../exchanges/index';
-import { PRICE_ORACLES } from '../../client/oracle-registry-client';
+import { PRICE_ORACLES } from '../../Definitions';
 import { Instance } from 'mobx-state-tree';
 import { OracleDefinitionModel } from '../ModelTypes';
-import { ExchangeRate, RiskAdjustment } from '../../Definitions';
+import {
+  ExchangeRate,
+  RiskAdjustment,
+  TokenDefinition,
+} from '../../Definitions';
 import { BigNumber } from 'ethers';
 import { assertDefined, ConfigurationViews } from './ConfigurationViews';
 import { getPoolInstance_ } from './ExchangeViews';
@@ -73,7 +77,7 @@ function invertRate(rate: BigNumber) {
     : SCALAR_PRECISION.mul(SCALAR_PRECISION).div(rate);
 }
 
-function interestToExchangeRate(
+export function interestToExchangeRate(
   interestRate: BigNumber,
   maturity: number,
   currentTime = getNowSeconds()
@@ -376,7 +380,16 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
     );
   };
 
-  return { getExchangeRateBetweenTokens };
+  const getNTokenOracleRate = (nToken: TokenDefinition) => {
+    const oracle = self.oracles.get(
+      `${nToken.underlying}:${nToken.id}:nTokenToUnderlyingExchangeRate`
+    );
+    if (!oracle || !oracle.latestRate.rate)
+      throw Error('NToken Oracle Rate not found');
+    return oracle.latestRate.rate;
+  };
+
+  return { getExchangeRateBetweenTokens, getNTokenOracleRate };
 };
 
 export const buildOracleGraph = (

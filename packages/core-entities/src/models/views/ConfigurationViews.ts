@@ -27,7 +27,7 @@ import {
   SecondaryRewarderABI,
 } from '@notional-finance/contracts';
 import { ExchangeViews } from './ExchangeViews';
-import { OracleRegistryClient } from '../../client';
+import { interestToExchangeRate } from './OracleViews';
 
 export function assertDefined<T>(v: T | null | undefined): T {
   if (v === undefined || v === null) throw Error(`Undefined Value`);
@@ -82,7 +82,7 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
       assertDefined(config.fCashMinOracleRate)
     );
 
-    const discountRate = OracleRegistryClient.interestToExchangeRate(
+    const discountRate = interestToExchangeRate(
       BigNumber.from(maxInterestRate).mul(-1),
       fCash.maturity
     )

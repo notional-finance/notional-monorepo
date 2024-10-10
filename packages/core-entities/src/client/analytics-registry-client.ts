@@ -6,8 +6,6 @@ import {
   floorToMidnight,
   getMidnightUTC,
   percentChange,
-  SupportedNetworks,
-  getNowSeconds,
 } from '@notional-finance/util';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
@@ -28,7 +26,7 @@ import {
   ASSET_PRICE_ORACLES,
   ActiveAccounts,
 } from '../server/analytics-server';
-import { PRICE_ORACLES } from './oracle-registry-client';
+import { PRICE_ORACLES } from '../Definitions';
 import { TokenBalance } from '../token-balance';
 import { FiatKeys } from '../config/fiat-config';
 import {
@@ -341,81 +339,6 @@ export class AnalyticsRegistryClient extends ClientRegistry<unknown> {
   getVaultReinvestments(network: Network) {
     return (super.getLatestFromSubject(network, 'vaultReinvestment', 0) ||
       {}) as VaultReinvestment;
-  }
-
-  getKPIs() {
-    const totalValueLocked = SupportedNetworks.reduce((t, n) => {
-      return (
-        t +
-        Registry.getTokenRegistry()
-          .getAllTokens(n)
-          .filter(
-            (t) =>
-              t.tokenType === 'PrimeDebt' ||
-              t.tokenType === 'PrimeCash' ||
-              t.tokenType === 'VaultShare'
-          )
-          .reduce(
-            (acc, token) =>
-              acc +
-              (token.tokenType === 'PrimeDebt'
-                ? token.totalSupply?.toFiat('USD').neg().toFloat() || 0
-                : token.totalSupply?.toFiat('USD').toFloat() || 0),
-            0
-          )
-      );
-    }, 0);
-
-    const totalOpenDebt = SupportedNetworks.reduce((t, n) => {
-      return (
-        t +
-        Registry.getTokenRegistry()
-          .getAllTokens(n)
-          .filter(
-            (t) =>
-              t.tokenType === 'PrimeDebt' ||
-              // Non-Matured fCash
-              (t.tokenType === 'fCash' &&
-                t.isFCashDebt === false &&
-                t.maturity &&
-                getNowSeconds() < t.maturity)
-          )
-          .reduce((acc, token) => {
-            let value = token.totalSupply?.toFiat('USD').toFloat() || 0;
-            if (token.tokenType === 'fCash' && token.currencyId) {
-              const m = Registry.getExchangeRegistry().getfCashMarket(
-                token.network,
-                token.currencyId
-              );
-
-              // Take the net of the total debt outstanding and the debt held by the nToken
-              value =
-                value +
-                (m.poolParams.nTokenFCash
-                  .find((t) => t.tokenId === token.id)
-                  ?.toFiat('USD')
-                  .toFloat() || 0);
-            }
-
-            return acc + value;
-          }, 0)
-      );
-    }, 0);
-
-    const totalAccounts = SupportedNetworks.reduce(
-      (t, n) =>
-        t +
-        (this.isNetworkRegistered(n)
-          ? this.getActiveAccounts(n)['totalActive'] || 0
-          : 0),
-      0
-    );
-
-    return {
-      totalDeposits: totalValueLocked + totalOpenDebt,
-      totalOpenDebt,
-      totalAccounts,
-    };
   }
 
   getPriceChanges(

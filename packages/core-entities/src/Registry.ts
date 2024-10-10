@@ -1,8 +1,6 @@
 import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
 import { ConfigurationClient } from './client/configuration-client';
 import defaultPools from './exchanges/default-pools';
-import { ExchangeRegistryClient } from './client/exchange-registry-client';
-import { OracleRegistryClient } from './client/oracle-registry-client';
 import { TokenRegistryClient } from './client/token-registry-client';
 import {
   AccountFetchMode,
@@ -18,8 +16,6 @@ type Env = {
 export class Registry {
   protected static _self?: Registry;
   protected static _tokens?: TokenRegistryClient;
-  protected static _exchanges?: ExchangeRegistryClient;
-  protected static _oracles?: OracleRegistryClient;
   protected static _configurations?: ConfigurationClient;
   protected static _accounts?: AccountRegistryClient;
   protected static _analytics?: AnalyticsRegistryClient;
@@ -63,9 +59,7 @@ export class Registry {
     public isClient: boolean
   ) {
     Registry._tokens = new TokenRegistryClient(_cacheHostname);
-    Registry._oracles = new OracleRegistryClient(_cacheHostname);
     Registry._configurations = new ConfigurationClient(_cacheHostname);
-    Registry._exchanges = new ExchangeRegistryClient(_cacheHostname);
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
     Registry._analytics = new AnalyticsRegistryClient(_cacheHostname, env);
     Registry._note = new NOTERegistryClient(_cacheHostname);
@@ -76,10 +70,6 @@ export class Registry {
       Registry._tokens.startRefreshInterval(
         Network.all,
         Registry.DEFAULT_TOKEN_REFRESH
-      );
-      Registry._oracles.startRefreshInterval(
-        Network.all,
-        Registry.DEFAULT_ORACLE_REFRESH
       );
       if (useAnalytics) {
         Registry._analytics.startRefreshInterval(
@@ -112,10 +102,6 @@ export class Registry {
       network,
       Registry.DEFAULT_TOKEN_REFRESH
     );
-    Registry.getOracleRegistry().startRefreshInterval(
-      network,
-      Registry.DEFAULT_ORACLE_REFRESH
-    );
 
     // Prior to starting the exchange registry, register all the required tokens. When
     // reviving data from the cache host it will attempt to find these token definitions.
@@ -125,11 +111,6 @@ export class Registry {
     const tokenRegistry = Registry.getTokenRegistry();
     tokenRegistry.onNetworkRegistered(network, () => {
       Registry.registerDefaultPoolTokens(network);
-
-      Registry.getExchangeRegistry().startRefreshInterval(
-        network,
-        Registry.DEFAULT_EXCHANGE_REFRESH
-      );
 
       Registry.getConfigurationRegistry().startRefreshInterval(
         network,
@@ -155,8 +136,6 @@ export class Registry {
 
   public static stopRefresh(network: Network) {
     Registry.getTokenRegistry().stopRefresh(network);
-    Registry.getExchangeRegistry().stopRefresh(network);
-    Registry.getOracleRegistry().stopRefresh(network);
     Registry.getConfigurationRegistry().stopRefresh(network);
     Registry.getAccountRegistry().stopRefresh(network);
     Registry.getAnalyticsRegistry().stopRefresh(network);
@@ -165,8 +144,6 @@ export class Registry {
   public static isRefreshRunning(network: Network) {
     return (
       Registry.getTokenRegistry().isRefreshRunning(network) &&
-      Registry.getExchangeRegistry().isRefreshRunning(network) &&
-      Registry.getOracleRegistry().isRefreshRunning(network) &&
       Registry.getConfigurationRegistry().isRefreshRunning(network) &&
       Registry.getAccountRegistry().isRefreshRunning(network)
     );
@@ -178,20 +155,11 @@ export class Registry {
         Network.all,
         blockNumber
       ),
-      Registry.getOracleRegistry().triggerRefreshPromise(
-        Network.all,
-        blockNumber
-      ),
       Registry.getTokenRegistry().triggerRefreshPromise(network, blockNumber),
-      Registry.getOracleRegistry().triggerRefreshPromise(network, blockNumber),
     ]);
     Registry.registerDefaultPoolTokens(network);
 
     await Promise.all([
-      Registry.getExchangeRegistry().triggerRefreshPromise(
-        network,
-        blockNumber
-      ),
       Registry.getConfigurationRegistry().triggerRefreshPromise(
         network,
         blockNumber
@@ -212,18 +180,6 @@ export class Registry {
   public static getTokenRegistry() {
     if (Registry._tokens == undefined) throw Error('Token Registry undefined');
     return Registry._tokens;
-  }
-
-  public static getExchangeRegistry() {
-    if (Registry._exchanges == undefined)
-      throw Error('Exchange Registry undefined');
-    return Registry._exchanges;
-  }
-
-  public static getOracleRegistry() {
-    if (Registry._oracles == undefined)
-      throw Error('Oracle Registry undefined');
-    return Registry._oracles;
   }
 
   public static getConfigurationRegistry() {
@@ -255,9 +211,6 @@ export class Registry {
         new Promise<void>((r) =>
           Registry.getTokenRegistry().onNetworkRegistered(network, r)
         ),
-        new Promise<void>((r) =>
-          Registry.getOracleRegistry().onNetworkRegistered(network, r)
-        ),
       ]).then(fn);
     } else {
       // NOTE: yield registry and analytics registry is not included in here or
@@ -268,12 +221,6 @@ export class Registry {
         ),
         new Promise<void>((r) =>
           Registry.getTokenRegistry().onNetworkRegistered(network, r)
-        ),
-        new Promise<void>((r) =>
-          Registry.getOracleRegistry().onNetworkRegistered(network, r)
-        ),
-        new Promise<void>((r) =>
-          Registry.getExchangeRegistry().onNetworkRegistered(network, r)
         ),
         new Promise<void>((r) => {
           const accounts = Registry.getAccountRegistry();

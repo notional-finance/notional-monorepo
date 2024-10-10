@@ -20,12 +20,12 @@ import {
 } from '@notional-finance/contracts';
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
-import { Registry } from '../../Registry';
 import {
   BaseNotionalMarket,
   InterestRateParameters,
 } from './BaseNotionalMarket';
 import { TokenDefinition } from '../../Definitions';
+import { getNetworkModel } from '../../Models';
 
 interface fCashMarketParams {
   perMarketCash: TokenBalance[];
@@ -271,14 +271,9 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
       if (i > 0 && !v.isZero()) throw Error('Tokens in must be prime cash');
     });
     tokensIn[0].isMatch(this.balances[0]);
+    const model = getNetworkModel(this._network);
 
-    const nTokenOracleRate = Registry.getOracleRegistry().getLatestFromSubject(
-      this._network,
-      `${this.totalSupply.underlying.id}:${this.totalSupply.tokenId}:nTokenToUnderlyingExchangeRate`
-    )?.latestRate.rate;
-    if (nTokenOracleRate === undefined)
-      throw Error('nToken Oracle Rate not found');
-
+    const nTokenOracleRate = model.getNTokenOracleRate(this.totalSupply.token);
     const lpTokenSpotValue = this.getNTokenSpotValue();
     const lpTokenOracleValue = TokenBalance.zero(this.totalSupply.underlying)
       .copy(this.totalSupply.mulInRatePrecision(nTokenOracleRate).n)
@@ -286,11 +281,9 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
       .toPrimeCash();
 
     try {
-      const { maxMintDeviationBasisPoints } =
-        Registry.getConfigurationRegistry().getConfig(
-          this._network,
-          this.totalSupply.currencyId
-        );
+      const { maxMintDeviationBasisPoints } = model.getConfig(
+        this.totalSupply.currencyId
+      );
       const deviationLimit = lpTokenOracleValue
         .sub(lpTokenSpotValue)
         .abs()
@@ -472,10 +465,7 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
 
   public getPostMintSpotValue(amountIn: TokenBalance) {
     const { leverageThresholds, depositShares, fCashReserveFeeSharePercent } =
-      Registry.getConfigurationRegistry().getConfig(
-        this._network,
-        this.totalSupply.currencyId
-      );
+      getNetworkModel(this._network).getConfig(this.totalSupply.currencyId);
     if (
       !leverageThresholds ||
       !depositShares ||
@@ -807,8 +797,7 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
 
   protected getIRParams(marketIndex: number) {
     if (marketIndex === 0) {
-      const primeCashCurve = Registry.getConfigurationRegistry().getConfig(
-        this._network,
+      const primeCashCurve = getNetworkModel(this._network).getConfig(
         this.poolParams.currencyId
       ).primeCashCurve;
       if (!primeCashCurve) throw Error('Prime Cash Curve not defined');

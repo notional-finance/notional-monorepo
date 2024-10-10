@@ -27,7 +27,6 @@ import { Registry } from '../Registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { Maybe, TokenType } from '../.graphclient';
 import { BigNumber, Contract } from 'ethers';
-import { OracleRegistryClient } from './oracle-registry-client';
 import {
   LeveragedNTokenAdapter,
   LeveragedNTokenAdapterABI,
@@ -636,41 +635,6 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     return {
       nTokenHaircut,
-    };
-  }
-
-  getMinLendRiskAdjustedDiscountFactor(fCash: TokenDefinition) {
-    if (!fCash.currencyId || !fCash.maturity) throw Error('Invalid fCash');
-    const config = this.getConfig(fCash.network, fCash.currencyId);
-    const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
-      fCash.network,
-      fCash.currencyId
-    );
-    const marketIndex = fCashMarket.getMarketIndex(fCash.maturity);
-
-    // Convert this to an exchange rate
-    const maxMarketInterestRate =
-      fCashMarket.poolParams.interestRateCurve[marketIndex - 1].maxRate -
-      this._assertDefined(config.fCashHaircutBasisPoints);
-    const maxInterestRate = Math.max(
-      maxMarketInterestRate,
-      this._assertDefined(config.fCashMinOracleRate)
-    );
-    const discountRate = OracleRegistryClient.interestToExchangeRate(
-      BigNumber.from(maxInterestRate).mul(-1),
-      fCash.maturity
-    )
-      .mul(RATE_PRECISION)
-      .div(SCALAR_PRECISION);
-
-    const lowestDiscountFactor = Math.min(
-      discountRate.toNumber(),
-      this._assertDefined(config.fCashMaxDiscountFactor)
-    );
-
-    return {
-      lowestDiscountFactor,
-      maxDiscountFactor: this._assertDefined(config.fCashMaxDiscountFactor),
     };
   }
 

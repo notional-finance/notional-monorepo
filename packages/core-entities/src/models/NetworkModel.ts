@@ -1,4 +1,4 @@
-import { getNowSeconds } from '@notional-finance/util';
+import { getNowSeconds, getProviderFromNetwork } from '@notional-finance/util';
 import { types, flow, getSnapshot, applySnapshot } from 'mobx-state-tree';
 import {
   ConfigurationModel,
@@ -52,7 +52,8 @@ export const NetworkModel = types.model('Network', {
     {}
   ),
   lastUpdated: types.optional(types.number, 0),
-})
+  lastUpdatedBlock: types.optional(types.number, 0),
+});
 
 // NOTE: this is an initial implementation of the client model which has some views
 // defined that the other models depend on.
@@ -84,13 +85,15 @@ export const NetworkServerModel = NetworkModelWithViews.named(
   const refresh = flow(function* (isFullRefresh: boolean) {
     if (isFullRefresh) {
       // Run token and configuration fetches concurrently
-      const [tokens, configuration] = yield Promise.all([
+      const [tokens, configuration, blockNumber] = yield Promise.all([
         tokenRegistry.fetchForModel(self.network),
         configurationRegistry.fetchForModel(self.network),
+        getProviderFromNetwork(self.network).getBlockNumber(),
       ]);
 
       self.tokens.replace(tokens);
       self.configuration = configuration.get(self.network);
+      self.lastUpdatedBlock = blockNumber;
     }
 
     const [exchanges, oracles, vaults] = yield Promise.all([
