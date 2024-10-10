@@ -36,7 +36,8 @@
         ],
         "styles": [],
         "scripts": [],
-        "webpackConfig": "apps/web/webpack.config.ts"
+        "webpackConfig": "apps/web/webpack.config.ts",
+        "memoryLimit": 4096
       },
       "configurations": {
         "development": {
