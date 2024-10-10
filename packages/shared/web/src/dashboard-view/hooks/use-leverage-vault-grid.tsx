@@ -67,7 +67,7 @@ export const useLeveragedVaultGrid = (
                   description: 'Direct Claim',
                 }),
               }
-            : vaultConfig.vaultType.startsWith('SingleSidedLP')
+            : vaultConfig.vaultType === 'SingleSidedLP_AutoReinvest'
             ? {
                 Icon: AutoReinvestIcon,
                 label: defineMessage({

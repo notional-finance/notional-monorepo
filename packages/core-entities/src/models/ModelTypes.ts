@@ -389,7 +389,7 @@ const SingleSidedLPVaultModel = BaseVaultDefinitionModel.props({
       types.model({
         lastAccumulatedTime: types.number,
         endTime: types.number,
-        rewardToken: types.reference(TokenDefinitionModel),
+        rewardToken: types.string,
         emissionRatePerYear: NotionalTypes.BigNumber,
         accumulatedRewardPerVaultShare: NotionalTypes.BigNumber,
       })

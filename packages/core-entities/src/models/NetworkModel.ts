@@ -30,7 +30,8 @@ import { buildOracleGraph, OracleViews } from './views/OracleViews';
 import { YieldViews } from './views/YieldViews';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
 
-const REGISTRY_URL = 'https://registry.notional.finance';
+const REGISTRY_URL =
+  process.env['NX_REGISTRY_URL'] || 'https://registry.notional.finance';
 
 export const NetworkModel = types.model('Network', {
   network: NotionalTypes.Network,

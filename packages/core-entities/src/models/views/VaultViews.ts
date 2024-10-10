@@ -165,16 +165,15 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
   ) => {
     return (
       self.configuration?.vaultConfigurations
-        .filter(
-          (v) =>
-            (onlyWhitelisted
-              ? whitelistedVaults(self.network).includes(
-                  v.vaultAddress.toLowerCase() as Lowercase<VaultAddress>
-                )
-              : true) &&
-            (v.enabled || includeDisabled)
+        .filter((v) =>
+          onlyWhitelisted
+            ? whitelistedVaults(self.network).includes(
+                v.vaultAddress.toLowerCase() as Lowercase<VaultAddress>
+              )
+            : true
         )
-        .map((v) => getVaultConfig(v.vaultAddress)) || []
+        .map((v) => getVaultConfig(v.vaultAddress))
+        .filter((v) => v.enabled || includeDisabled) || []
     );
   };
 

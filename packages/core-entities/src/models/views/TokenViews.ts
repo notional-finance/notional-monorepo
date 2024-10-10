@@ -11,15 +11,23 @@ import {
 import { BigNumberish } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 import { TokenDefinition } from '../../Definitions';
+import { MaxCurrencyId } from '../../config/whitelisted-tokens';
 
 export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   const getAllTokens = () => {
-    return values(
+    const maxCurrencyId = MaxCurrencyId[self.network];
+    const allTokens = values(
       self.tokens as unknown as ObservableMap<
         ISimpleType<string>,
         Instance<typeof TokenDefinitionModel>
       >
     ) as TokenDefinition[];
+
+    return maxCurrencyId
+      ? allTokens.filter(
+          (t) => t.currencyId === undefined || t.currencyId <= maxCurrencyId
+        )
+      : allTokens;
   };
 
   const getTokenBySymbol = (symbol: string) => {

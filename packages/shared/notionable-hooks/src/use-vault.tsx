@@ -53,7 +53,10 @@ export function useAllVaults(vaultProduct?: PRODUCTS) {
         case PRODUCTS.LEVERAGED_POINTS_FARMING:
           return v.vaultConfig.vaultType === 'SingleSidedLP_Points';
         case PRODUCTS.LEVERAGED_YIELD_FARMING:
-          return v.vaultConfig.vaultType.startsWith('SingleSidedLP');
+          return (
+            v.vaultConfig.vaultType !== 'SingleSidedLP_Points' &&
+            v.vaultConfig.vaultType.startsWith('SingleSidedLP')
+          );
         default:
           return false;
       }

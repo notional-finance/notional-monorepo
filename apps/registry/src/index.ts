@@ -38,6 +38,19 @@ export default {
       return new Response('Executed', { status: 200 });
     }
 
+    // Allow fetches directly from the registry for different files, useful for local development
+    if (url.pathname.split('/').length > 2) {
+      const route = url.pathname.slice(1);
+      const obj = (await env.VIEW_CACHE_R2.get(route)) as R2ObjectBody;
+      return new Response(await obj.text(), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        },
+      });
+    }
+
     const network = url.pathname.split('/')[1];
     if (!network) {
       return new Response('Network not specified', { status: 400 });
