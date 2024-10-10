@@ -193,6 +193,8 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             totalVaultShares,
             secondaryTradeParams: '0x',
             enabled,
+            vaultAddress,
+            rewardState: undefined,
             ...ConfigurationClient.parseVaultName(name),
           };
         },
@@ -249,7 +251,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             endTime: v.endTime,
             rewardToken: v.rewardToken,
             emissionRatePerYear: v.emissionRatePerYear,
-            accumulatedRewardPerVaultSHare: v.accumulatedRewardPerVaultShare,
+            accumulatedRewardPerVaultShare: v.accumulatedRewardPerVaultShare,
           })),
       });
     }
@@ -279,7 +281,10 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         stage: 0,
         method: 'NO_OP',
         key: vaultAddress,
-        transform: () => ConfigurationClient.parseVaultName(name),
+        transform: () => ({
+          ...ConfigurationClient.parseVaultName(name),
+          vaultAddress,
+        }),
       },
       {
         target: new Contract(

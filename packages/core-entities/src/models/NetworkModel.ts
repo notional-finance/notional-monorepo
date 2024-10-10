@@ -88,7 +88,7 @@ export const NetworkServerModel = NetworkModelWithViews.named(
       const [tokens, configuration, blockNumber] = yield Promise.all([
         tokenRegistry.fetchForModel(self.network),
         configurationRegistry.fetchForModel(self.network),
-        getProviderFromNetwork(self.network).getBlockNumber(),
+        getProviderFromNetwork(self.network, true).getBlockNumber(),
       ]);
 
       self.tokens.replace(tokens);

@@ -24,9 +24,7 @@ async function execute(
   networkModel.initialize(async (data: string) => {
     await putStorageKey(env, `${network}/snapshot`, data);
   }, env);
-
   await networkModel.refresh(isFullRefresh);
-
   await refreshViews(env);
 }
 
@@ -46,6 +44,7 @@ export default {
     }
 
     const obj = await env.VIEW_CACHE_R2.get(`${network}/snapshot`);
+    if (!obj) return new Response('Not found', { status: 404 });
     const { lastUpdated } = (await obj.json()) as { lastUpdated: number };
 
     return new Response(JSON.stringify({ lastUpdated }), {

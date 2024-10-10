@@ -13,7 +13,6 @@ import { TokenBalance } from '../../token-balance';
 import { ClientRegistry } from '../../client/client-registry';
 import { Instance } from 'mobx-state-tree';
 import { TokenViews } from './TokenViews';
-import { ConfigurationViews } from './ConfigurationViews';
 
 export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
   self: Instance<typeof NetworkModel>,
@@ -42,7 +41,6 @@ export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
 
 export const ExchangeViews = (self: Instance<typeof NetworkModel>) => {
   const { getNToken, getPrimeCash } = TokenViews(self);
-  const { getConfig } = ConfigurationViews(self);
 
   const getPoolInstance = <T extends BaseLiquidityPool<unknown>>(
     address: string
@@ -71,7 +69,9 @@ export const ExchangeViews = (self: Instance<typeof NetworkModel>) => {
     }
 
     const pCash = getPrimeCash(currencyId);
-    const config = getConfig(currencyId);
+    const config = self.configuration?.currencyConfigurations.find(
+      (c) => c.id === `${currencyId}`
+    );
 
     if (!pCash || !config?.primeCashCurve)
       throw Error('Prime Cash Curve not found');
