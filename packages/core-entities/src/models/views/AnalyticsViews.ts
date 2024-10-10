@@ -6,8 +6,8 @@ const REGISTRY_HOSTNAME =
   (process.env['NX_REGISTRY_HOSTNAME'] as string) ||
   'https://registry.notional.finance';
 
-export const TimeSeriesActions = (self: Instance<typeof NetworkModel>) => ({
-  fetchChartData: flow(function* (tokenId: string, chartType: ChartType) {
+export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => ({
+  fetchTimeSeriesData: flow(function* (tokenId: string, chartType: ChartType) {
     const id = `${tokenId}:${chartType}`;
     if (self.timeSeries.has(id)) return self.timeSeries.get(id);
     self.timeSeriesState.set(id, { id, isLoading: true });
@@ -30,7 +30,7 @@ export const TimeSeriesActions = (self: Instance<typeof NetworkModel>) => ({
   }),
 });
 
-export const TimeSeriesViews = (self: Instance<typeof NetworkModel>) => ({
+export const AnalyticsViews = (self: Instance<typeof NetworkModel>) => ({
   getTimeSeries: (tokenId: string, chartType: ChartType) => {
     const id = `${tokenId}:${chartType}`;
 
@@ -41,3 +41,13 @@ export const TimeSeriesViews = (self: Instance<typeof NetworkModel>) => ({
     };
   },
 });
+
+// TODO: add other data set actions here...
+// - point prices
+// - historical trading
+// - reinvestment views
+// - note data
+// - kpi data
+// - risk data
+// - all transaction data
+// - price changes

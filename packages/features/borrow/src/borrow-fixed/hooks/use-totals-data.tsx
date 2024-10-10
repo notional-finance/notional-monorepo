@@ -4,7 +4,6 @@ import {
   FiatSymbols,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { useTotalHolders } from '@notional-finance/notionable-hooks';
 import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const useTotalsData = (
@@ -12,7 +11,6 @@ export const useTotalsData = (
   debt: TokenDefinition | undefined,
   baseCurrency: FiatKeys
 ) => {
-  const totalBorrowers = useTotalHolders(debt);
   const currentNetworkStore = useCurrentNetworkStore();
   const fCashDebt = currentNetworkStore.getFCashTotalsData(deposit, debt, true);
 
@@ -31,8 +29,8 @@ export const useTotalsData = (
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
-      title: <FormattedMessage defaultMessage={'Fixed Rate Borrowers'} />,
-      value: totalBorrowers ? `${totalBorrowers}` : '-',
+      title: '',
+      value: '',
     },
   ];
 };

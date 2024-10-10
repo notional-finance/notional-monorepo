@@ -20,7 +20,7 @@ import { VaultRegistryServer } from '../server/vault-registry-server';
 import { TokenViews } from './views/TokenViews';
 import { VaultViews } from './views/VaultViews';
 import { ExchangeViews } from './views/ExchangeViews';
-import { TimeSeriesActions, TimeSeriesViews } from './views/TimeSeriesViews';
+import { AnalyticsActions, AnalyticsViews } from './views/AnalyticsViews';
 import {
   ConfigurationViews,
   registerVaultData,
@@ -59,12 +59,12 @@ export const NetworkModel = types.model('Network', {
 // defined that the other models depend on.
 const NetworkModelWithViews = NetworkModel.named('NetworkModelIntermediate')
   .actions((self) => ({
-    ...TimeSeriesActions(self),
+    ...AnalyticsActions(self),
   }))
   .views((self) => ({
     ...TokenViews(self),
     ...ConfigurationViews(self),
-    ...TimeSeriesViews(self),
+    ...AnalyticsViews(self),
     ...ExchangeViews(self),
     ...OracleViews(self),
     ...YieldViews(self),
@@ -160,7 +160,7 @@ export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
 
     // NOTE: just trigger this in the background so the APYs can load.
     whitelistedVaults(self.network).forEach((vaultAddress) => {
-      self.fetchChartData(vaultAddress, ChartType.APY);
+      self.fetchTimeSeriesData(vaultAddress, ChartType.APY);
     });
   });
 

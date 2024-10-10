@@ -1,7 +1,6 @@
 import {
   ChartType,
   getNetworkModel,
-  Registry,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -14,8 +13,10 @@ import {
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
 import { useEffect, useMemo } from 'react';
-import { useAnalyticsReady, useAppContext } from './use-notional';
-import { useAppStore } from '@notional-finance/notionable';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 import { useObserver } from 'mobx-react-lite';
 
 export const useChartData = (
@@ -42,7 +43,7 @@ export const useChartData = (
     if (d.data === undefined && tokenId && network) {
       const asyncFetch = async () => {
         const model = getNetworkModel(network);
-        await model.fetchChartData(tokenId, chartType);
+        await model.fetchTimeSeriesData(tokenId, chartType);
       };
       asyncFetch();
     }
@@ -83,24 +84,19 @@ export function useLeveragedPerformance(
   leverageRatio: number | null | undefined,
   leveragedLendFixedRate: number | undefined
 ) {
-  const isReady = useAnalyticsReady(token?.network);
-  if (!token || !isReady) return [];
-  const analytics = Registry.getAnalyticsRegistry();
-  const primeDebt = Registry.getTokenRegistry().getPrimeDebt(
-    token.network,
-    token.currencyId
-  );
-  const tokenData = analytics.getHistoricalAPY(token);
-  const primeBorrow = isPrimeBorrow
-    ? analytics.getHistoricalAPY(primeDebt)
-    : undefined;
+  const currentNetworkStore = useCurrentNetworkStore();
+  const primeDebt = currentNetworkStore.getPrimeDebt(token?.currencyId);
+  const { data: tokenAPY } = useChartData(token, ChartType.APY);
+  const { data: primeBorrowAPY } = useChartData(primeDebt, ChartType.APY);
 
+  if (!token) return [];
   return fillChartDaily(
-    tokenData.map((d) => {
-      const totalAPY = leveragedLendFixedRate || d.totalAPY || 0;
+    tokenAPY?.data?.map((d) => {
+      const totalAPY = leveragedLendFixedRate || d['totalAPY'] || 0;
       const borrowRate = isPrimeBorrow
-        ? primeBorrow?.find(({ timestamp }) => d.timestamp === timestamp)
-            ?.totalAPY || undefined
+        ? primeBorrowAPY?.data?.find(
+            ({ timestamp }) => d.timestamp === timestamp
+          )?.['totalAPY'] || undefined
         : currentBorrowRate;
 
       return {
@@ -109,7 +105,7 @@ export function useLeveragedPerformance(
         borrowRate,
         leveragedReturn: leveragedYield(totalAPY, borrowRate, leverageRatio),
       };
-    }),
+    }) || [],
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     { strategyReturn: 0, leveragedReturn: undefined, borrowRate: undefined }
@@ -154,15 +150,13 @@ export function calculateDepositValue(
 }
 
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {
-  const isReady = useAnalyticsReady(token?.network);
-  if (!token || !isReady) return [];
-  const data = Registry.getAnalyticsRegistry().getPriceHistory(token);
+  const { data: tokenPrice } = useChartData(token, ChartType.PRICE);
 
   const chart = fillChartDaily(
-    data.map((d) => ({
+    tokenPrice?.data?.map((d) => ({
       timestamp: d.timestamp,
-      assetPrice: d.priceInUnderlying?.toFloat() || 0,
-    })),
+      assetPrice: d['priceInUnderlying'] || 0,
+    })) || [],
     { assetPrice: 0 }
   );
 
@@ -173,18 +167,6 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
   }
 
   return chart;
-}
-
-export function useTotalHolders(token: TokenDefinition | undefined) {
-  const isReady = useAnalyticsReady(token?.network);
-  const {
-    appState: { activeAccounts },
-  } = useAppContext();
-
-  return isReady && token && activeAccounts && activeAccounts[token.network]
-    ? activeAccounts[token.network][`${token.tokenType}:${token.currencyId}`] ||
-        0
-    : undefined;
 }
 
 export function useAccountHistoryChart(
@@ -200,11 +182,6 @@ export function useAccountHistoryChart(
     if (!account) return undefined;
     // These are sorted ascending by default
     const allHistoricalSnapshots = account?.historicalBalances || [];
-
-    const base = Registry.getTokenRegistry().getTokenBySymbol(
-      Network.all,
-      baseCurrency
-    );
 
     // Bucket the start and end time ranges
     const numBuckets = Math.ceil((endTime - startTime) / tickSizeInSeconds);
@@ -245,7 +222,7 @@ export function useAccountHistoryChart(
                   .toUnderlying()
                   .toFiat(baseCurrency, floorToMidnight(end))
               );
-            }, TokenBalance.zero(base));
+            }, new TokenBalance(0, baseCurrency, Network.all));
 
           const debts = snapshotsAtTime
             ?.filter(
@@ -262,7 +239,7 @@ export function useAccountHistoryChart(
                   .toUnderlying()
                   .toFiat(baseCurrency, floorToMidnight(end))
               );
-            }, TokenBalance.zero(base));
+            }, new TokenBalance(0, baseCurrency, Network.all));
 
           return {
             timestamp: start,

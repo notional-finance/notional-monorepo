@@ -16,7 +16,7 @@ import { ChartType } from '../ModelTypes';
 import { getSnapshot, Instance } from 'mobx-state-tree';
 import { NetworkModel } from '../NetworkModel';
 import { TokenViews } from './TokenViews';
-import { TimeSeriesViews } from './TimeSeriesViews';
+import { AnalyticsViews } from './AnalyticsViews';
 import { TokenDefinition } from '../../Definitions';
 import { PendlePTVaultParams } from '../../vaults/PendlePT';
 import { SingleSidedLPParams } from '../../vaults/SingleSidedLP';
@@ -38,7 +38,7 @@ function getMinDepositRequiredString(
 
 export const VaultViews = (self: Instance<typeof NetworkModel>) => {
   const { getTokenByID, getVaultDebt } = TokenViews(self);
-  const { getTimeSeries } = TimeSeriesViews(self);
+  const { getTimeSeries } = AnalyticsViews(self);
 
   const isVaultEnabled = (vaultAddress: string) => {
     return self.vaults.get(vaultAddress)?.enabled || false;
