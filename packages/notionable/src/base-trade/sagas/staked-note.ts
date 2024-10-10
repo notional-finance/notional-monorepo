@@ -1,6 +1,5 @@
 import {
   AccountDefinition,
-  NOTERegistryClient,
   Registry,
   SNOTEWeightedPool,
 } from '@notional-finance/core-entities';
@@ -11,7 +10,6 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  switchMap,
 } from 'rxjs';
 import { BaseTradeState, NOTETradeType } from '../base-trade-store';
 import { comparePortfolio } from './account-risk';
@@ -19,9 +17,10 @@ import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 export function stakedNOTEPool(network$: Observable<Network>) {
   return network$.pipe(
-    switchMap((n) => Registry.getOracleRegistry().subscribeNetworkKeys(n)),
-    filter((s) => s?.key === NOTERegistryClient.sNOTEOracle),
-    map(() => Registry.getExchangeRegistry().getSNOTEPool())
+    map(() => undefined)
+    // switchMap((n) => Registry.getOracleRegistry().subscribeNetworkKeys(n)),
+    // filter((s) => s?.key === NOTERegistryClient.sNOTEOracle),
+    // map(() => Registry.getExchangeRegistry().getSNOTEPool())
   );
 }
 

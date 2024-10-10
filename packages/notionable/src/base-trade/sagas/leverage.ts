@@ -1,19 +1,15 @@
-import { Registry } from '@notional-finance/core-entities';
 import { selectedNetwork } from '../../global';
-import { Network, filterEmpty } from '@notional-finance/util';
+import { filterEmpty } from '@notional-finance/util';
 import {
   Observable,
   filter,
   distinctUntilChanged,
   withLatestFrom,
   map,
-  switchMap,
-  from,
 } from 'rxjs';
 import {
   TradeState,
   VaultTradeState,
-  isDeleverageWithSwappedTokens,
   isLeveragedTrade,
 } from '../base-trade-store';
 
@@ -32,6 +28,8 @@ export function defaultLeverageRatio(
       );
     }),
     withLatestFrom(selectedNetwork$),
+    map(() => undefined),
+    /*
     // Ensures that the yield registry is ready before proceeding
     switchMap(([s, network]) => {
       return from(
@@ -77,6 +75,7 @@ export function defaultLeverageRatio(
         )?.leveraged?.leverageRatio,
       };
     }),
+    */
     filterEmpty()
   );
 }
@@ -90,13 +89,14 @@ export function defaultVaultLeverageRatio(state$: Observable<VaultTradeState>) {
         p.tradeType === c.tradeType
       );
     }),
-    map(({ selectedNetwork, vaultAddress }) => {
-      return vaultAddress && selectedNetwork
-        ? Registry.getConfigurationRegistry().getVaultLeverageFactors(
-            selectedNetwork,
-            vaultAddress
-          )
-        : undefined;
+    map(() => {
+      return undefined;
+      // return vaultAddress && selectedNetwork
+      //   ? Registry.getConfigurationRegistry().getVaultLeverageFactors(
+      //       selectedNetwork,
+      //       vaultAddress
+      //     )
+      //   : undefined;
     }),
     filterEmpty()
   );

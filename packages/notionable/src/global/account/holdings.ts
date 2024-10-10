@@ -15,6 +15,7 @@ import {
   getNetworkModel,
   Registry,
   TokenBalance,
+  YieldData,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { CalculatedPriceChanges } from '../global-state';
@@ -84,9 +85,10 @@ export function calculateHoldings(
     )
     .sort((a, b) => a.currencyId - b.currencyId);
 
-  const nonLeveragedYields = Registry.getYieldRegistry().getNonLeveragedYields(
-    account.network
-  );
+  // const nonLeveragedYields = Registry.getYieldRegistry().getNonLeveragedYields(
+  //   account.network
+  // );
+  const nonLeveragedYields: YieldData[] = [];
 
   const holdings = balances.map((balance) => {
     const statement = account.balanceStatement?.find(
@@ -302,9 +304,7 @@ export async function calculateVaultHoldings(
 ) {
   const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(account);
   const balanceStatements = account.balanceStatement || [];
-  const allYields = Registry.getYieldRegistry().getNonLeveragedYields(
-    account.network
-  );
+  const allYields: YieldData[] = [];
 
   return await Promise.all(
     vaultProfiles.map(async (v) => {

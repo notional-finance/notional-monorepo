@@ -603,10 +603,14 @@ function _getTradedInterestRate(
     }
   } else if (amount.tokenType === 'nToken') {
     return {
-      interestRate:
-        Registry.getYieldRegistry().getSimulatedNTokenYield(amount)?.totalAPY,
+      interestRate: 0,
       utilization: undefined,
     };
+    // return {
+    //   interestRate:
+    //     Registry.getYieldRegistry().getSimulatedNTokenYield(amount)?.totalAPY,
+    //   utilization: undefined,
+    // };
   } else if (
     amount.tokenType === 'VaultShare' &&
     vaultAdapter &&
