@@ -6,3 +6,8 @@
 /packages/contracts/src/types
 /packages/transaction/src/parser/bundle.ts
 /apps/**/dist
+/apps/analytics/.next
+/apps/analytics/.vercel
+packages/**/.graphclient
+.nx-cache
+.nx
