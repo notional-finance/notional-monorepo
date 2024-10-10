@@ -47,7 +47,7 @@ export const useAllVaultAccounts = (
   baseCurrency: FiatKeys
 ) => {
   const theme = useTheme();
-  const listedVaults = useAllVaults(selectedNetwork);
+  const listedVaults = useAllVaults();
   const [allVaultAccounts, setAllVaultAccounts] = useState<
     VaultAccountData[] | undefined
   >(undefined);
@@ -240,7 +240,7 @@ export const useAllVaultAccounts = (
       selectedOptions: vaultNameOptions,
       setSelectedOptions: setVaultNameOptions,
       placeHolderText: <FormattedMessage defaultMessage={'Vault Name'} />,
-      data: listedVaults.map(({ name }) => {
+      data: listedVaults.map(({ vaultConfig: { name } }) => {
         return {
           id: name,
           title: name,

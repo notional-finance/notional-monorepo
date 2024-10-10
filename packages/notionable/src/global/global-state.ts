@@ -21,7 +21,6 @@ import {
 import { AccruedIncentives, TotalIncentives } from './account/incentives';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { Community } from './account/communities';
-import { getIndexedYields } from './data/yields';
 
 const userSettings = getFromLocalStorage('userSettings');
 
@@ -154,8 +153,7 @@ export interface ArbPointsType {
   season_one: number;
   season_two: number;
   season_three: number;
-  };
-
+}
 
 /** This is associated with the overall application state */
 export interface ApplicationState extends Record<string, unknown> {
@@ -163,8 +161,6 @@ export interface ApplicationState extends Record<string, unknown> {
   networkState?: Record<Network, NetworkLoadingState>;
   /** URL of the cache hostname */
   cacheHostname: string;
-  /** All yields calculated from the yield registry */
-  allYields?: Record<Network, ReturnType<typeof getIndexedYields>>;
   /** All price changes calculated from the yield registry */
   priceChanges?: Record<Network, CalculatedPriceChanges>;
   /** All active accounts from the analytics registry */

@@ -169,7 +169,7 @@ export const useLeverageVaultList = (
   network: Network | undefined,
   vaultProduct: PRODUCTS
 ) => {
-  const listedVaults = useAllVaults(network, vaultProduct);
+  const listedVaults = useAllVaults(vaultProduct);
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
   const vaultHoldings = useVaultHoldings(network);
@@ -188,54 +188,45 @@ export const useLeverageVaultList = (
   }
 
   const listData = listedVaults
-    .map((vault) => {
-      const reinvestmentType =
-        vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING &&
-        vault.vaultType === 'SingleSidedLP_DirectClaim'
-          ? 'SingleSidedLP_DirectClaim'
-          : vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING
-          ? 'SingleSidedLP'
-          : undefined;
-
+    .map(({ vaultConfig, apy, tvl, debtToken }) => {
       const walletBalance = account
-        ? account.balances.find((t) => t.tokenId === vault.primaryToken.id)
+        ? account.balances.find(
+            (t) => t.tokenId === vaultConfig.primaryToken.id
+          )
         : undefined;
+
       const profile = vaultHoldings.find(
-        (p) => p.vault.vaultAddress === vaultData?.vaultAddress
+        (p) => p.vault.vaultAddress === vaultConfig.vaultAddress
       )?.vault;
-      const y = vault.maxVaultAPY;
 
       return {
         currency: {
-          symbol: underlying?.symbol || '',
+          symbol: vaultConfig.primaryToken.symbol || '',
           symbolSize: 'large',
           symbolBottom: '',
-          label: underlying?.symbol || '',
+          label: vaultConfig.primaryToken.symbol || '',
           caption: network
             ? network.charAt(0).toUpperCase() + network.slice(1)
             : '',
         },
-        // walletBalance: walletBalance?.toFloat() || 0,
-        walletBalance: 0,
-        pool: vaultData?.poolName,
+        walletBalance: walletBalance?.toFloat() || 0,
+        pool: vaultConfig.poolName,
         protocols:
-          vault.boosterProtocol === vault.baseProtocol
-            ? vault.baseProtocol
-            : `${vault.boosterProtocol} / ${vault.baseProtocol}`,
-        totalApy: profile?.totalAPY || y?.totalAPY || 0,
+          vaultConfig.boosterProtocol === vaultConfig.baseProtocol
+            ? vaultConfig.baseProtocol
+            : `${vaultConfig.boosterProtocol} / ${vaultConfig.baseProtocol}`,
+        totalApy: profile?.totalAPY || apy?.totalAPY || 0,
         incentiveApy: 0,
-        tvl: vault.vaultTVL ? vault.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
+        tvl: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         view: profile
-          ? `${PRODUCTS.VAULTS}/${network}/${vaultData?.vaultAddress}/IncreaseVaultPosition`
-          : `${PRODUCTS.VAULTS}/${network}/${vaultData?.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`,
-        symbol: underlying?.symbol || '',
+          ? `${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/IncreaseVaultPosition`
+          : `${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`,
+        symbol: vaultConfig.primaryToken.symbol || '',
         borrowTerms: {
           data: [
             {
               displayValue:
-                y?.leveraged?.debtToken.tokenType === 'fCash'
-                  ? 'Fixed'
-                  : 'Variable',
+                debtToken?.tokenType === 'fCash' ? 'Fixed' : 'Variable',
             },
             {
               displayValue: debtToken?.maturity
@@ -244,20 +235,20 @@ export const useLeverageVaultList = (
             },
           ],
         },
-        reinvestmentTypeString: reinvestmentType,
+        reinvestmentTypeString: vaultConfig.vaultType,
         rewards: {
           label:
-            reinvestmentType === 'SingleSidedLP'
-              ? 'Auto-Reinvest'
-              : 'Direct Claim',
-          rewardTokens: vault.rewardTokens,
+            vaultConfig.vaultType === 'SingleSidedLP_DirectClaim'
+              ? 'Direct Claim'
+              : 'Auto-Reinvest',
+          rewardTokens: vaultConfig.rewardTokens,
         },
         multiValueCellData: {
           currency: {
-            symbol: underlying?.symbol || '',
+            symbol: vaultConfig.primaryToken.symbol || '',
             symbolSize: 'large',
             symbolBottom: '',
-            label: underlying?.symbol || '',
+            label: vaultConfig.primaryToken.symbol || '',
             caption: network
               ? network.charAt(0).toUpperCase() + network.slice(1)
               : '',

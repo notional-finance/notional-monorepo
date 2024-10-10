@@ -22,7 +22,7 @@ import {
   useLiquidityVariableGrid,
   useLiquidityLeveragedGrid,
 } from './hooks';
-import { sortListData } from './hooks/utils';
+import { sortGridData, sortListData } from './hooks/utils';
 import { observer } from 'mobx-react-lite';
 import { useAppStore } from '@notional-finance/notionable';
 
@@ -162,7 +162,7 @@ export const LiquidityVariableDashboard = () => {
 
 export const LendVariableDashboard = observer(() => {
   const network = useSelectedNetwork();
-  const gridData = useVariableRateGrid(network, PRODUCTS.LEND_VARIABLE);
+  const gridData = useVariableRateGrid(PRODUCTS.LEND_VARIABLE);
   const { listColumns, listData } = useLendBorrowList(
     PRODUCTS.LEND_VARIABLE,
     network
@@ -178,7 +178,7 @@ export const LendVariableDashboard = observer(() => {
 
 export const BorrowVariableDashboard = () => {
   const network = useSelectedNetwork();
-  const gridData = useVariableRateGrid(network, PRODUCTS.BORROW_VARIABLE);
+  const gridData = useVariableRateGrid(PRODUCTS.BORROW_VARIABLE);
   const { listColumns, listData } = useLendBorrowList(
     PRODUCTS.BORROW_VARIABLE,
     network

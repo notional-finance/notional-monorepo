@@ -120,6 +120,9 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
       v.maxRequiredAccountCollateralRatioBasisPoints as number
     );
     const vaultNameInfo = self.vaults.get(vaultAddress);
+    if (!vaultNameInfo)
+      throw Error(`No vault name info found: ${vaultAddress}`);
+
     const vaultType = getVaultType(vaultAddress, self.network);
 
     const totalBorrowCapacityUsed =
@@ -143,7 +146,8 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
 
     return {
       ...getSnapshot(v),
-      ...(vaultNameInfo ? getSnapshot(vaultNameInfo) : {}),
+      ...getSnapshot(vaultNameInfo),
+      vaultType: getVaultType(vaultAddress, self.network),
       vaultUtilization,
       rewardTokens,
       primaryToken,

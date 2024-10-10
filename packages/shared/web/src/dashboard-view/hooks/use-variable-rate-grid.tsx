@@ -1,5 +1,5 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import { PRODUCTS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
 import {
   useAppStore,
@@ -7,11 +7,9 @@ import {
 } from '@notional-finance/notionable';
 import { ProductAPY } from '@notional-finance/core-entities';
 
-export const useVariableRateGrid = (
-  network: Network | undefined,
-  product: PRODUCTS
-) => {
+export const useVariableRateGrid = (product: PRODUCTS) => {
   const currentNetworkStore = useCurrentNetworkStore();
+  const network = currentNetworkStore.network;
 
   let yieldData: ProductAPY[] = [];
   if (product === PRODUCTS.LEND_VARIABLE) {

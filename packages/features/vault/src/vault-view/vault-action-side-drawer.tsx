@@ -50,7 +50,7 @@ export const VaultActionSideDrawer = () => {
         }
       : undefined;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
-  const { enabled } = useVaultProperties(selectedNetwork, vaultAddress);
+  const enabled = useVaultProperties(vaultAddress)?.enabled;
 
   useEffect(() => {
     const borrowOptionId = queryData.get('borrowOption');

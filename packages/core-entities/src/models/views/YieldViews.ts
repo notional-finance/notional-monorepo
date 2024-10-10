@@ -301,7 +301,10 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     };
   };
 
-  const getSimulatedAPY = (netAmount: TokenBalance, netPrimeDebt?: TokenBalance) => {
+  const getSimulatedAPY = (
+    netAmount: TokenBalance,
+    netPrimeDebt?: TokenBalance
+  ) => {
     const apyData: APYData = { totalAPY: 0 };
 
     if (netAmount.unwrapVaultToken().tokenType === 'fCash') {
@@ -346,7 +349,10 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.tokenType === 'nToken') {
       const market = getfCashMarket(netAmount.currencyId);
-      apyData.organicAPY = market.getNTokenBlendedYield(netAmount, netPrimeDebt);
+      apyData.organicAPY = market.getNTokenBlendedYield(
+        netAmount,
+        netPrimeDebt
+      );
       // TODO: maybe add it to the oracle views and add this to the organicAPY
       apyData.feeAPY = 0;
 
@@ -659,47 +665,35 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     return leveragedNTokenData;
   };
 
-  const getAllListedVaultsData = () => {
-    const allListedVaultsData = getAllListedVaults().map((t) => {
-      const data = getDefaultVaultAPYs(t.vaultAddress || '');
-      const vaultData =
-        data.length > 0
-          ? data.reduce((max, current) => {
+  const getAllListedVaultsWithYield = () => {
+    return getAllListedVaults().map((v) => {
+      const defaultAPYs = getDefaultVaultAPYs(v.vaultAddress || '');
+      const maxVaultAPY =
+        defaultAPYs.length > 0
+          ? defaultAPYs.reduce((max, current) => {
               return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0)
                 ? current
                 : max;
-            }, data[0])
+            }, defaultAPYs[0])
           : undefined;
 
-      const vaultShareData = vaultData?.vaultShare;
+      const vaultShare = maxVaultAPY?.vaultShare;
 
       return {
-        token: vaultShareData,
-        apy: vaultData?.apy as APYData,
-        tvl: t.vaultTVL,
-        maxLeverageRatio: vaultShareData
-          ? getLeverageRatios(vaultShareData).maxLeverageRatio
+        token: vaultShare,
+        apy: maxVaultAPY?.apy,
+        tvl: v.vaultTVL,
+        maxLeverageRatio: vaultShare
+          ? getLeverageRatios(vaultShare).maxLeverageRatio
           : undefined,
-        liquidity: t.vaultTVL,
-        underlying: vaultShareData?.underlying
-          ? getTokenByID(vaultShareData.underlying)
+        liquidity: v.vaultTVL,
+        underlying: vaultShare?.underlying
+          ? getTokenByID(vaultShare.underlying)
           : undefined,
-        debtToken: vaultData?.debtToken,
-        vaultData: t,
+        debtToken: maxVaultAPY?.debtToken,
+        vaultConfig: v,
       };
     });
-
-    const pointsVaults = allListedVaultsData.filter(
-      (item) => item?.apy?.pointMultiples
-    );
-    const farmingVaults = allListedVaultsData.filter(
-      (item) => !item?.apy?.pointMultiples
-    );
-
-    return {
-      pointsVaults,
-      farmingVaults,
-    };
   };
 
   return {
@@ -716,7 +710,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getDefaultVaultAPYs,
     getAllNTokenYields,
     getAllLeveragedNTokenYields,
-    getAllListedVaultsData,
+    getAllListedVaultsWithYield,
     getAllFCashYields,
     getAllFCashDebt,
     getAllPrimeCashYields,

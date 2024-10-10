@@ -1,13 +1,10 @@
 import { useEffect } from 'react';
-import {
-  getNetworkModel,
-  getVaultType,
-  TokenBalance,
-} from '@notional-finance/core-entities';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { GATED_VAULTS } from '@notional-finance/notionable';
-import { useNotionalError } from './use-notional';
-import { Network } from '@notional-finance/util';
+import {
+  GATED_VAULTS,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
+import { PRODUCTS } from '@notional-finance/util';
 import { useWalletCommunities } from './use-wallet';
 
 export function useVaultNftCheck() {
@@ -30,41 +27,38 @@ export function useVaultNftCheck() {
   }, [communityMembership, navigate, vaultAddress]);
 }
 
-export function useVaultProperties(
-  network: Network | undefined,
-  vaultAddress?: string
-) {
-  let minAccountBorrowSize: TokenBalance | undefined = undefined;
-  let minDepositRequired: string | undefined = undefined;
-  let vaultName: string | undefined = undefined;
-  let enabled = true;
-
-  const { reportError } = useNotionalError();
-
-  const model = getNetworkModel(network);
-  if (vaultAddress && network && model) {
-    try {
-      const vaultConfig = model.getVaultConfig(vaultAddress);
-      minAccountBorrowSize = vaultConfig.minAccountBorrowSize;
-      minDepositRequired = vaultConfig.minDepositRequired;
-      vaultName = vaultConfig.name;
-      enabled = vaultConfig.enabled;
-    } catch (e) {
-      // Throws an error on an unknown vault address
-      reportError({ ...(e as Error), code: 404, msg: 'Unknown Vault' });
-    }
-  }
-
-  return {
-    vaultType:
-      vaultAddress && network ? getVaultType(vaultAddress, network) : undefined,
-    vaultName,
-    minAccountBorrowSize,
-    minDepositRequired,
-    enabled,
-  };
+export function useVaultPoints(vaultAddress?: string) {
+  const currentNetworkStore = useCurrentNetworkStore();
+  return vaultAddress
+    ? currentNetworkStore.getVaultAdapter(vaultAddress).getPointMultiples()
+    : undefined;
 }
 
-export function useAllVaults(network: Network | undefined) {
-  return getNetworkModel(network).getAllListedVaults();
+export function useVaultProperties(vaultAddress?: string) {
+  const currentNetworkStore = useCurrentNetworkStore();
+  return vaultAddress
+    ? currentNetworkStore.getVaultConfig(vaultAddress)
+    : undefined;
+}
+
+export function useAllVaults(vaultProduct?: PRODUCTS) {
+  const currentNetworkStore = useCurrentNetworkStore();
+  const vaults = currentNetworkStore.getAllListedVaultsWithYield();
+
+  if (vaultProduct) {
+    return vaults.filter((v) => {
+      switch (vaultProduct) {
+        case PRODUCTS.LEVERAGED_PENDLE:
+          return v.vaultConfig.vaultType === 'PendlePT';
+        case PRODUCTS.LEVERAGED_POINTS_FARMING:
+          return v.vaultConfig.vaultType === 'SingleSidedLP_Points';
+        case PRODUCTS.LEVERAGED_YIELD_FARMING:
+          return v.vaultConfig.vaultType.startsWith('SingleSidedLP');
+        default:
+          return false;
+      }
+    });
+  } else {
+    return vaults;
+  }
 }

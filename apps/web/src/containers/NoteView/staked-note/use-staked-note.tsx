@@ -1,12 +1,7 @@
-import {
-  FiatKeys,
-  NOTERegistryClient,
-  Registry,
-  TokenBalance,
-} from '@notional-finance/core-entities';
+import { FiatKeys, NOTERegistryClient } from '@notional-finance/core-entities';
 import {
   StakedNoteData,
-  useStakedNOTEPoolReady,
+  useSNOTEPool,
   useTotalNOTEBalances,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -22,7 +17,6 @@ export function useStakedNote(
   dateRange = 30 * SECONDS_IN_DAY,
   baseCurrency: FiatKeys
 ) {
-  const isPoolReady = useStakedNOTEPoolReady();
   const [sNOTEData, setSNOTEData] = useState<
     Awaited<ReturnType<NOTERegistryClient['getSNOTEData']>>
   >([]);
@@ -37,9 +31,6 @@ export function useStakedNote(
     }
   }, [stakedNoteData, minDate]);
 
-  let currentSNOTEPrice: TokenBalance | undefined;
-  let totalSNOTEValue: TokenBalance | undefined;
-  let annualizedRewardRate: TokenBalance | undefined;
   const historicalSNOTEPrice: [Date, number][] = sNOTEData.map(
     ({ day, price }) => [day, price]
   );
@@ -48,18 +39,16 @@ export function useStakedNote(
     apy,
   ]);
   const currentSNOTEYield = lastValue(sNOTEData)?.apy;
+  const sNOTEPool = useSNOTEPool();
 
-  if (isPoolReady) {
-    const sNOTEPool = Registry.getExchangeRegistry().getSNOTEPool();
-    currentSNOTEPrice = sNOTEPool?.getCurrentSNOTEPrice();
-    totalSNOTEValue = sNOTEPool?.totalSNOTE.toFiat(baseCurrency);
-    annualizedRewardRate =
-      currentSNOTEYield !== undefined
-        ? totalSNOTEValue?.mulInRatePrecision(
-            Math.floor((currentSNOTEYield * RATE_PRECISION) / 100)
-          )
-        : undefined;
-  }
+  const currentSNOTEPrice = sNOTEPool?.getCurrentSNOTEPrice();
+  const totalSNOTEValue = sNOTEPool?.totalSNOTE.toFiat(baseCurrency);
+  const annualizedRewardRate =
+    currentSNOTEYield !== undefined
+      ? totalSNOTEValue?.mulInRatePrecision(
+          Math.floor((currentSNOTEYield * RATE_PRECISION) / 100)
+        )
+      : undefined;
 
   return {
     currentSNOTEPrice,

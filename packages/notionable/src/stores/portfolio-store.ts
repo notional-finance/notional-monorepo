@@ -43,9 +43,9 @@ const getUniqueUnderlyingSymbols = (productGroupData: any[][]) => {
   const uniqueUnderlyingSymbols = productGroupData
     .flat()
     .map((item) => item?.symbol)
-    .filter((symbol): symbol is string => symbol !== undefined)
+    .filter((symbol): symbol is string => symbol !== undefined);
 
-    return unique(uniqueUnderlyingSymbols);
+  return unique(uniqueUnderlyingSymbols);
 };
 
 const getGreatestUniqueUnderlyingSymbols = (productGroupData: any[][]) => {
@@ -102,7 +102,6 @@ export type ItemType = Instance<typeof ItemModel>;
 export type StateZeroItemType = Instance<typeof StateZeroItemModel>;
 export type StateZeroDataType = Instance<typeof StateZeroGroupModel>;
 
-
 export const PortfolioStoreModel = types
   .model('PortfolioStoreModel', {
     pointsStore: PointsStoreModel,
@@ -114,35 +113,28 @@ export const PortfolioStoreModel = types
     setStateZeroEarnData() {
       const root = getRoot<RootStoreType>(self);
       const clientNetwork = root.currentNetworkClient;
-      if(!clientNetwork.isReady()) {
+      if (!clientNetwork.isReady()) {
         return;
       }
       const getStateZeroEarnData = () => {
-        const fCashLendData = clientNetwork.getAllFCashYields()
-          .map((t) => {
-            return {
-              apy: t.apy,
-              symbol: t.underlying
-                ? t.underlying.symbol
-                : '',
-            };
-          });
+        const fCashLendData = clientNetwork.getAllFCashYields().map((t) => {
+          return {
+            apy: t.apy,
+            symbol: t.underlying ? t.underlying.symbol : '',
+          };
+        });
         const nTokenData = clientNetwork.getAllNTokenYields().map((t) => {
-            return {
-              apy: t.apy,
-              symbol: t.underlying
-                ? t.underlying.symbol
-                : '',
-            };
-          })
+          return {
+            apy: t.apy,
+            symbol: t.underlying ? t.underlying.symbol : '',
+          };
+        });
         const primeCashLendData = clientNetwork.getAllFCashYields().map((t) => {
-            return {
-              apy: t.apy,
-              symbol: t.underlying
-                ? t.underlying.symbol
-                : '',
-            };
-          })
+          return {
+            apy: t.apy,
+            symbol: t.underlying ? t.underlying.symbol : '',
+          };
+        });
 
         const earnData = [
           primeCashLendData,
@@ -165,40 +157,48 @@ export const PortfolioStoreModel = types
     setStateZeroLeveragedData() {
       const root = getRoot<RootStoreType>(self);
       const clientNetwork = root.currentNetworkClient;
-      if(!clientNetwork.isReady()) {
+      if (!clientNetwork.isReady()) {
         return;
       }
       const getAllLeveragedNTokenYields = () => {
-        const leveragedNTokenData = clientNetwork.getAllLeveragedNTokenYields().map((t) => {    
-          return {
-            vaultAddress: '',
-            apy: t?.apy,
-            maxLeverageRatio: t.maxLeverageRatio,
-            symbol: t.underlying ? t.underlying.symbol : '',
-            debtTokenId: t?.debtToken?.id,
-          };
-        });
+        const leveragedNTokenData = clientNetwork
+          .getAllLeveragedNTokenYields()
+          .map((t) => {
+            return {
+              vaultAddress: '',
+              apy: t?.apy,
+              maxLeverageRatio: t.maxLeverageRatio,
+              symbol: t.underlying ? t.underlying.symbol : '',
+              debtTokenId: t?.debtToken?.id,
+            };
+          });
         return leveragedNTokenData;
       };
 
       const getVaultsData = () => {
-        const { pointsVaults, farmingVaults } = clientNetwork.getAllListedVaultsData();
-        const formattedVaultData = (vaultData: any[]) => {
-          return vaultData.map((t) => {
+        const vaultsData = clientNetwork
+          .getAllListedVaultsWithYield()
+          .map((v) => {
             return {
-              vaultAddress: t.vaultAddress,
-              apy: t.apy as APYData,
-              maxLeverageRatio: t.maxLeverageRatio,
-              symbol: t.underlying ? t.underlying.symbol : '',
-              debtTokenId: t.debtToken.id,
+              vaultAddress: v.vaultConfig.vaultAddress,
+              apy: v.apy,
+              maxLeverageRatio: v.maxLeverageRatio,
+              symbol: v.underlying ? v.underlying.symbol : '',
+              debtTokenId: v.debtToken?.id,
+              vaultType: v.vaultConfig.vaultType,
             };
           });
-        }
 
         return {
-          pointsVaults: formattedVaultData(pointsVaults),
-          farmingVaults: formattedVaultData(farmingVaults),
-        }
+          pointsVaults: vaultsData.filter(
+            (v) => v.vaultType === 'SingleSidedLP_Points'
+          ),
+          farmingVaults: vaultsData.filter(
+            (v) =>
+              v.vaultType === 'SingleSidedLP_AutoReinvest' ||
+              v.vaultType === 'SingleSidedLP_DirectClaim'
+          ),
+        };
       };
 
       const getStateZeroLeveragedData = () => {
@@ -209,8 +209,9 @@ export const PortfolioStoreModel = types
           pointsVaults,
           farmingVaults,
         ];
-        const tokenList = getGreatestUniqueUnderlyingSymbols(leveragedGroupData);
-    
+        const tokenList =
+          getGreatestUniqueUnderlyingSymbols(leveragedGroupData);
+
         const result = {
           tokenList,
           data: leveragedGroupData,
@@ -225,27 +226,22 @@ export const PortfolioStoreModel = types
     setStateZeroBorrowData() {
       const root = getRoot<RootStoreType>(self);
       const clientNetwork = root.currentNetworkClient;
-      if(!clientNetwork.isReady()) {
+      if (!clientNetwork.isReady()) {
         return;
       }
       const getStateBorrowData = () => {
         const fCashBorrowData = clientNetwork.getAllFCashDebt().map((t) => {
-            return {
-              apy: t.apy,
-              symbol: t.underlying
-                ? t.underlying.symbol
-                : '',
-            };
-          });
-        const primeCashDebtData = 
-          clientNetwork.getAllFCashDebt().map((t) => {
-            return {
-              apy: t.apy,
-              symbol: t.underlying
-                ? t.underlying.symbol
-                : '',
-            };
-          })
+          return {
+            apy: t.apy,
+            symbol: t.underlying ? t.underlying.symbol : '',
+          };
+        });
+        const primeCashDebtData = clientNetwork.getAllFCashDebt().map((t) => {
+          return {
+            apy: t.apy,
+            symbol: t.underlying ? t.underlying.symbol : '',
+          };
+        });
         const borrowData = [
           primeCashDebtData,
           getMaturityAPYPerSymbol(fCashBorrowData),
@@ -268,22 +264,22 @@ export const PortfolioStoreModel = types
       reaction(
         () => root.network,
         () => {
-          if(root.route === ROUTE_MATCH.PORTFOLIO_WELCOME) {
-          when(
-            () => root.currentNetworkClient.isReady(),
-            () => {
-              // @ts-ignore
-              self.setStateZeroEarnData();
-              // @ts-ignore
-              self.setStateZeroLeveragedData();
-              // @ts-ignore
-              self.setStateZeroBorrowData();
-            }
+          if (root.route === ROUTE_MATCH.PORTFOLIO_WELCOME) {
+            when(
+              () => root.currentNetworkClient.isReady(),
+              () => {
+                // @ts-ignore
+                self.setStateZeroEarnData();
+                // @ts-ignore
+                self.setStateZeroLeveragedData();
+                // @ts-ignore
+                self.setStateZeroBorrowData();
+              }
             );
           }
         }
       );
     },
-  }))
+  }));
 
 export type PortfolioStoreType = Instance<typeof PortfolioStoreModel>;

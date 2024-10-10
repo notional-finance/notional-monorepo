@@ -23,101 +23,80 @@ export const useLeveragedVaultGrid = (
 ): DashboardGridProps => {
   const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
-  const listedVaults = useAllVaults(network, vaultProduct);
+  const listedVaults = useAllVaults(vaultProduct);
   const vaultHoldings = useVaultHoldings(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
 
   const allVaultData = listedVaults
-    .map(
-      ({
-        vaultAddress,
-        name,
-        primaryToken,
-        vaultTVL,
-        maxVaultAPY: y,
-        vaultType,
-        vaultUtilization,
-        rewardTokens,
-      }) => {
-        const profile = vaultHoldings.find(
-          (p) => p.vault.vaultAddress === vaultAddress
-        )?.vault;
-        const apy = profile?.totalAPY || y?.totalAPY || 0;
-        const points = y?.pointMultiples;
-        const reinvestmentType =
-          vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING &&
-          vaultType === 'SingleSidedLP_DirectClaim'
-            ? 'SingleSidedLP_DirectClaim'
-            : vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING
-            ? 'SingleSidedLP'
-            : undefined;
+    .map(({ vaultConfig, apy, tvl, debtToken }) => {
+      const profile = vaultHoldings.find(
+        (p) => p.vault.vaultAddress === vaultConfig.vaultAddress
+      )?.vault;
+      const totalAPY = profile?.totalAPY || apy?.totalAPY || 0;
+      const points = apy?.pointMultiples;
 
-        return {
-          title: primaryToken.symbol,
-          subTitle: name,
-          bottomRightValue: profile
-            ? `NET WORTH: ${
-                profile?.netWorth().toDisplayStringWithSymbol() || '-'
-              }`
-            : `TVL: ${
-                vaultTVL
-                  ? formatNumberAsAbbr(
-                      vaultTVL.toFiat(baseCurrency).toFloat(),
-                      0
-                    )
-                  : 0
-              }`,
-          bottomLeftValue: undefined,
-          symbol: primaryToken.symbol,
-          network: primaryToken.network,
-          hasPosition: profile ? true : false,
-          apy,
-          routeCallback: () =>
-            navigate(
-              profile
-                ? `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/IncreaseVaultPosition`
-                : `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`
-            ),
-          reinvestOptions:
-            reinvestmentType === 'SingleSidedLP_DirectClaim'
-              ? {
-                  Icon: DirectIcon,
-                  label: defineMessage({
-                    defaultMessage: 'Direct Claim',
-                    description: 'Direct Claim',
-                  }),
-                }
-              : reinvestmentType === 'SingleSidedLP'
-              ? {
-                  Icon: AutoReinvestIcon,
-                  label: defineMessage({
-                    defaultMessage: 'Auto-Reinvest',
-                    description: 'Auto Reinvest',
-                  }),
-                }
-              : undefined,
-          reinvestmentTypeString: reinvestmentType as VaultType | undefined,
-          vaultUtilization,
-          rewardTokens: rewardTokens.map((t) => t.symbol),
-          PointsSubTitle: points
-            ? () => (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    fontSize: 'inherit',
-                    alignItems: 'center',
-                  }}
-                >
-                  <PointsIcon sx={{ fontSize: 'inherit' }} />
-                  &nbsp;
-                  {` ${Object.keys(points).join('/')} Points`}
-                </Box>
-              )
+      return {
+        title: vaultConfig.primaryToken.symbol,
+        subTitle: vaultConfig.name,
+        bottomRightValue: profile
+          ? `NET WORTH: ${
+              profile?.netWorth().toDisplayStringWithSymbol() || '-'
+            }`
+          : `TVL: ${
+              tvl
+                ? formatNumberAsAbbr(tvl.toFiat(baseCurrency).toFloat(), 0)
+                : 0
+            }`,
+        bottomLeftValue: undefined,
+        symbol: vaultConfig.primaryToken.symbol,
+        network: vaultConfig.primaryToken.network,
+        hasPosition: profile ? true : false,
+        apy: totalAPY,
+        routeCallback: () =>
+          navigate(
+            profile
+              ? `/${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/IncreaseVaultPosition`
+              : `/${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`
+          ),
+        reinvestOptions:
+          vaultConfig.vaultType === 'SingleSidedLP_DirectClaim'
+            ? {
+                Icon: DirectIcon,
+                label: defineMessage({
+                  defaultMessage: 'Direct Claim',
+                  description: 'Direct Claim',
+                }),
+              }
+            : vaultConfig.vaultType.startsWith('SingleSidedLP')
+            ? {
+                Icon: AutoReinvestIcon,
+                label: defineMessage({
+                  defaultMessage: 'Auto-Reinvest',
+                  description: 'Auto Reinvest',
+                }),
+              }
             : undefined,
-        };
-      }
-    )
-    .sort((a, b) => b.apy - a.apy);
+        reinvestmentTypeString: vaultConfig.vaultType as VaultType | undefined,
+        vaultUtilization: vaultConfig.vaultUtilization,
+        rewardTokens: vaultConfig.rewardTokens.map((t) => t.symbol),
+        PointsSubTitle: points
+          ? () => (
+              <Box
+                sx={{
+                  display: 'flex',
+                  fontSize: 'inherit',
+                  alignItems: 'center',
+                }}
+              >
+                <PointsIcon sx={{ fontSize: 'inherit' }} />
+                &nbsp;
+                {` ${Object.keys(points).join('/')} Points`}
+              </Box>
+            )
+          : undefined,
+      };
+    })
+    .sort((a, b) => (b.apy || 0) - (a.apy || 0));
 
   const defaultVaultData = allVaultData.filter(
     ({ hasPosition }) => !hasPosition

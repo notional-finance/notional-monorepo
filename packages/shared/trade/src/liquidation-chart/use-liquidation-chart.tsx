@@ -1,9 +1,5 @@
 import { useTheme } from '@mui/material';
-import {
-  Registry,
-  TokenBalance,
-  TokenDefinition,
-} from '@notional-finance/core-entities';
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import {
   ChartToolTipDataProps,
@@ -12,7 +8,11 @@ import {
   LEGEND_LINE_TYPES,
   AreaChartStylesProps,
 } from '@notional-finance/mui';
-import { TradeState, VaultTradeState } from '@notional-finance/notionable';
+import {
+  TradeState,
+  useCurrentNetworkStore,
+  VaultTradeState,
+} from '@notional-finance/notionable';
 import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
 import { RATE_PRECISION, getDateString } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -24,6 +24,7 @@ export function useLiquidationChart(
   vaultLiquidationPrice?: TokenBalance | null
 ) {
   const theme = useTheme();
+  const currentNetworkStore = useCurrentNetworkStore();
   const {
     collateral,
     postAccountRisk,
@@ -63,9 +64,7 @@ export function useLiquidationChart(
     // This range technically only applies to lending fCash but works as a boundary on the
     // fCash price anyway
     const { lowestDiscountFactor } =
-      Registry.getConfigurationRegistry().getMinLendRiskAdjustedDiscountFactor(
-        token
-      );
+      currentNetworkStore.getMinLendRiskAdjustedDiscountFactor(token);
     yAxisDomain = [lowestDiscountFactor / RATE_PRECISION, 1];
   }
 
