@@ -155,7 +155,7 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
   const chart = fillChartDaily(
     tokenPrice?.data?.map((d) => ({
       timestamp: d.timestamp,
-      assetPrice: d['priceInUnderlying'] || 0,
+      assetPrice: d['priceToUnderlying'] || 0,
     })) || [],
     { assetPrice: 0 }
   );

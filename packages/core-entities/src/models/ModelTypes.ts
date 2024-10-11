@@ -493,7 +493,7 @@ export const AnalyticsModel = types.model('Analytics', {
     types.array(
       types.model({
         points: types.string,
-        price: types.string,
+        price: types.number,
       })
     )
   ),
