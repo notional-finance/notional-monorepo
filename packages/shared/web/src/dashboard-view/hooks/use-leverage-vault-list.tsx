@@ -189,14 +189,6 @@ export const useLeverageVaultList = (
 
   const listData = listedVaults
     .map((vault) => {
-      const reinvestmentType =
-        vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING &&
-        vault.vaultType === 'SingleSidedLP_DirectClaim'
-          ? 'SingleSidedLP_DirectClaim'
-          : vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING
-          ? 'SingleSidedLP'
-          : undefined;
-
       const walletBalance = account
         ? account.balances.find((t) => t.tokenId === vault.primaryToken.id)
         : undefined;
@@ -243,10 +235,13 @@ export const useLeverageVaultList = (
             },
           ],
         },
-        reinvestmentTypeString: reinvestmentType,
+        vaultType:
+          vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING && vault.vaultType
+            ? vault.vaultType
+            : undefined,
         rewards: {
           label:
-            reinvestmentType === 'SingleSidedLP'
+            vault.vaultType === 'SingleSidedLP_AutoReinvest'
               ? 'Auto-Reinvest'
               : 'Direct Claim',
           rewardTokens: vault.rewardTokens,

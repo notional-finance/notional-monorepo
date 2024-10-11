@@ -7,23 +7,26 @@ import {
   TradeActionTitle,
   H4,
   InfoTooltip,
+  ReinvestPill,
 } from '@notional-finance/mui';
 import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import {
-  useAllMarkets,
-  usePointPrices,
-  useTotalAPY,
-} from '@notional-finance/notionable-hooks';
+import { useAllMarkets, useTotalAPY } from '@notional-finance/notionable-hooks';
 import {
   LeverageInfoRow,
   LiquidityYieldInfo,
   NativeYieldPopup,
 } from './components';
 import { formatTokenType } from '@notional-finance/helpers';
-import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
-import { pointsMultiple } from '@notional-finance/util';
+import {
+  Registry,
+  SingleSidedLP,
+  TokenDefinition,
+  YieldData,
+  getVaultType,
+} from '@notional-finance/core-entities';
+import { MultiTokenIcon } from '@notional-finance/icons';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -58,32 +61,33 @@ export function TradeActionSummary({
     state,
     priorVaultFactors
   );
-  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
-  // const totalArbPoints = useTotalArbPoints();
-  // const currentSeason = useCurrentSeason();
+  const vaultType =
+    vaultAddress && selectedNetwork
+      ? getVaultType(vaultAddress, selectedNetwork)
+      : undefined;
+
+  const allMarkets = useAllMarkets(selectedNetwork);
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
   const headerText =
     messages?.headerText || defineMessage({ defaultMessage: 'unknown ' });
   const isLeveraged =
     isLeveragedTrade(tradeType) || priorVaultFactors !== undefined;
   const collateral = state.collateral || priorVaultFactors?.vaultShare;
-  const pointPrices = usePointPrices();
 
-  // const lendBoosts = state?.collateral
-  //   ? getArbBoosts(state?.collateral, false)
-  //   : 0;
-  // const borrowBoosts = state?.debt ? getArbBoosts(state?.debt, true) : 0;
+  const adapter =
+    selectedNetwork && vaultAddress
+      ? Registry.getVaultRegistry().getVaultAdapter(
+          selectedNetwork,
+          vaultAddress
+        )
+      : undefined;
 
-  // const hasArbPoints =
-  //   tradeType !== 'LeveragedNToken' && (lendBoosts > 0 || borrowBoosts > 0);
-  // const boostData = lendBoosts || borrowBoosts;
-  // const pointsAPY = getPointsAPY(
-  //   boostData,
-  //   totalArbPoints[currentSeason.db_name],
-  //   currentSeason.totalArb,
-  //   currentSeason.startDate,
-  //   currentSeason.endDate
-  // );
+  let rewardTokens: TokenDefinition[] = [];
+  if (vaultType === 'SingleSidedLP_DirectClaim' && selectedNetwork) {
+    rewardTokens = (adapter as SingleSidedLP).rewardTokens.map((t) =>
+      Registry.getTokenRegistry().getTokenByID(selectedNetwork, t)
+    );
+  }
 
   const apySuffix = isLeveraged ? (
     <FormattedMessage defaultMessage={'Total APY'} />
@@ -108,7 +112,7 @@ export function TradeActionSummary({
       ? formatTokenType(debt).icon
       : undefined;
 
-  const nonLeveragedYield = nonLeveragedYields.find(
+  const nonLeveragedYield = allMarkets.nonLeveragedYields.find(
     (y) => y.token.id === collateral?.id
   );
   const points = nonLeveragedYield?.pointMultiples;
@@ -138,43 +142,64 @@ export function TradeActionSummary({
             )
           }
         />
-        <TradeActionTitle
-          value={totalAPY || stakedNOTEApy}
-          title={apySuffix}
-          valueSuffix="%"
-          hasPoints={!!points}
-          InfoComp={
-            totalAPY ? (
-              <NativeYieldPopup selectedToken={deposit?.symbol || ''} />
-            ) : undefined
-          }
-        />
-        <Box sx={{ display: 'flex' }}>
-          {points && (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <TradeActionTitle
+            value={totalAPY || stakedNOTEApy}
+            title={apySuffix}
+            valueSuffix="%"
+            hasPoints={!!points}
+            InfoComp={
+              totalAPY ? (
+                <NativeYieldPopup selectedToken={deposit?.symbol || ''} />
+              ) : undefined
+            }
+          />
+          {state.vaultAddress && vaultType === 'SingleSidedLP_AutoReinvest' && (
+            <ReinvestPill
+              vaultType={vaultType}
+              sx={{
+                marginBottom: '0px',
+                height: 'fit-content',
+                marginTop: theme.spacing(1),
+                marginLeft: theme.spacing(2),
+              }}
+            />
+          )}
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          {vaultType !== 'SingleSidedLP_AutoReinvest' && (
             <Box
               sx={{
-                marginTop: theme.spacing(1),
                 display: 'flex',
                 alignItems: 'center',
+                marginTop: theme.spacing(1),
               }}
             >
-              {Object.keys(points).map((k) => (
-                <Box marginRight={theme.spacing(1)} display="flex">
-                  <H4>
-                    {`${pointsMultiple(points[k], leverageRatio).toFixed(
-                      2
-                    )}x ${k} Points:`}
-                    &nbsp;
-                  </H4>
-                  {pointPrices && (
-                    <H4 light>{`$${
-                      pointPrices
-                        .find((p) => p.points.includes(k))
-                        ?.price.toPrecision(3) || '-'
-                    }/point`}</H4>
-                  )}
-                </Box>
-              ))}
+              {/* TODO: UPDATE THESE WITH THE REAL VALUES WHEN WE HAVE THEM */}
+              <H4 sx={{ marginRight: theme.spacing(2) }}>Organic APY: 10%</H4>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <H4 sx={{ marginRight: theme.spacing(0.5) }}>Reward APY:</H4>
+                {vaultType === 'SingleSidedLP_DirectClaim' && rewardTokens && (
+                  <MultiTokenIcon
+                    symbols={rewardTokens.map((t) => t.symbol)}
+                    size="medium"
+                    shiftSize={8}
+                  />
+                )}
+                <H4 sx={{ marginLeft: theme.spacing(0.5) }}>63.00%</H4>
+              </Box>
               <InfoTooltip
                 iconSize={theme.spacing(2)}
                 iconColor={theme.palette.info.dark}
@@ -188,31 +213,20 @@ export function TradeActionSummary({
               />
             </Box>
           )}
-        </Box>
-        {/* {hasArbPoints ? (
-          <Box
-            sx={{
-              marginTop: theme.spacing(1),
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <Box marginRight={theme.spacing(1)} display="flex">
-              <H4>{`${lendBoosts || borrowBoosts}x ARB Points: `}</H4>
-              <Subtitle
+          {state.vaultAddress &&
+            vaultType !== 'SingleSidedLP_AutoReinvest' &&
+            vaultType && (
+              <ReinvestPill
+                vaultType={vaultType}
                 sx={{
-                  color: theme.palette.typography.light,
-                  marginLeft: theme.spacing(0.5),
+                  marginBottom: '0px',
+                  height: 'fit-content',
+                  marginTop: theme.spacing(1),
+                  marginLeft: theme.spacing(2),
                 }}
-              >
-                {pointsAPY !== Infinity &&
-                  `+${formatNumberAsPercent(pointsAPY, 2)} APY`}
-              </Subtitle>
-            </Box>
-          </Box>
-        ) : (
-          ''
-        )} */}
+              />
+            )}
+        </Box>
         {liquidityYieldData && (
           <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}

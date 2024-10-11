@@ -4,6 +4,7 @@ import { LeverageSlider } from '@notional-finance/trade';
 import {
   VaultContext,
   useAllMarkets,
+  usePointPrices,
 } from '@notional-finance/notionable-hooks';
 import { pointsMultiple } from '@notional-finance/util';
 
@@ -39,6 +40,8 @@ export const VaultLeverageSlider = ({
   const points = vaultShares.find(
     (y) => y.token.id === collateral?.id
   )?.pointMultiples;
+  const pointPrices = usePointPrices();
+
   const additionalSliderInfo = points
     ? Object.keys(points).map((k) => ({
         caption: (
@@ -46,6 +49,25 @@ export const VaultLeverageSlider = ({
         ),
         value: pointsMultiple(points[k], leverageRatio),
         suffix: 'x',
+        toolTipTitle: (
+          <FormattedMessage
+            defaultMessage={'{k} Points: ${value}/point'}
+            values={{
+              k,
+              value:
+                pointPrices && pointPrices.length
+                  ? pointPrices.find((p) => p.points.includes(k))?.price
+                  : 0,
+            }}
+          />
+        ),
+        toolTipText: (
+          <FormattedMessage
+            defaultMessage={
+              'Point values used are estimates. True values are not known. True values may be very different and will significantly impact total APY.'
+            }
+          />
+        ),
       }))
     : [];
 

@@ -60,7 +60,7 @@ export const DashboardCard = ({
   bottomLeftValue,
   bottomRightValue,
   apySubTitle,
-  reinvestOptions,
+  vaultType,
   vaultUtilization,
   rewardTokens,
   PointsSubTitle,
@@ -100,16 +100,11 @@ export const DashboardCard = ({
         <GridCardApy
           hideApySubTitle={!apySubTitle ? true : false}
           sx={{
-            justifyContent: !reinvestOptions && !apySubTitle ? 'center' : '',
+            justifyContent: !vaultType && !apySubTitle ? 'center' : '',
           }}
           theme={theme}
         >
-          {reinvestOptions && (
-            <ReinvestPill
-              Icon={reinvestOptions.Icon}
-              label={reinvestOptions.label}
-            />
-          )}
+          {vaultType && <ReinvestPill vaultType={vaultType} />}
           {apySubTitle && (
             <SectionTitle
               sx={{

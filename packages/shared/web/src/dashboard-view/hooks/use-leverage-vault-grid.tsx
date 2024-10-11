@@ -8,13 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps } from '@notional-finance/mui';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { defineMessage } from 'react-intl';
-import { VaultType } from '@notional-finance/core-entities';
-import {
-  AutoReinvestIcon,
-  DirectIcon,
-  PointsIcon,
-} from '@notional-finance/icons';
+import { PointsIcon } from '@notional-finance/icons';
 import { Box } from '@mui/material';
 
 export const useLeveragedVaultGrid = (
@@ -44,13 +38,6 @@ export const useLeveragedVaultGrid = (
         )?.vault;
         const apy = profile?.totalAPY || y?.totalAPY || 0;
         const points = y?.pointMultiples;
-        const reinvestmentType =
-          vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING &&
-          vaultType === 'SingleSidedLP_DirectClaim'
-            ? 'SingleSidedLP_DirectClaim'
-            : vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING
-            ? 'SingleSidedLP'
-            : undefined;
 
         return {
           title: primaryToken.symbol,
@@ -78,25 +65,10 @@ export const useLeveragedVaultGrid = (
                 ? `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/IncreaseVaultPosition`
                 : `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`
             ),
-          reinvestOptions:
-            reinvestmentType === 'SingleSidedLP_DirectClaim'
-              ? {
-                  Icon: DirectIcon,
-                  label: defineMessage({
-                    defaultMessage: 'Direct Claim',
-                    description: 'Direct Claim',
-                  }),
-                }
-              : reinvestmentType === 'SingleSidedLP'
-              ? {
-                  Icon: AutoReinvestIcon,
-                  label: defineMessage({
-                    defaultMessage: 'Auto-Reinvest',
-                    description: 'Auto Reinvest',
-                  }),
-                }
+          vaultType:
+            vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING
+              ? vaultType
               : undefined,
-          reinvestmentTypeString: reinvestmentType as VaultType | undefined,
           vaultUtilization,
           rewardTokens: rewardTokens.map((t) => t.symbol),
           PointsSubTitle: points

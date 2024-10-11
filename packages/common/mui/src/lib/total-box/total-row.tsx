@@ -1,18 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import { TotalBox, TotalBoxProps } from './total-box';
-import { MessageDescriptor } from 'react-intl';
 
-export interface ReinvestPillProps {
-  Icon: any;
-  label: MessageDescriptor;
-}
-
-export const TotalRow = ({
-  totalsData,
-}: {
-  totalsData: TotalBoxProps[];
-  reinvestOptions: ReinvestPillProps;
-}) => {
+export const TotalRow = ({ totalsData }: { totalsData: TotalBoxProps[] }) => {
   const theme = useTheme();
 
   return (
