@@ -57,6 +57,7 @@ export enum Sign {
   flashLiquidate = '0x7bbeeafd',
   claimVaultRewardTokens = '0x36e8053c',
   reinvestVaultReward = '0xe800d559',
+  claimAndReinvestVaultReward = '0xd30fec35',
   investWETHAndNOTE = '0x162c2a8e',
   executeTrade = '0x8df6c3ce',
   aggregate3 = '0x82ad56cb',

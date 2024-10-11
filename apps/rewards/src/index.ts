@@ -28,7 +28,7 @@ import { Env } from './types';
 import { checkTradeLoss } from '@notional-finance/util';
 import { SingleSidedRewardTradeParamsStruct } from '@notional-finance/contracts/types/ISingleSidedLPStrategyVault';
 
-type Provider = ethers.providers.Provider;
+type Provider = ethers.providers.JsonRpcProvider;
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 2;
 
@@ -187,9 +187,6 @@ const simulateClaimVault = async (
   const { rawLogs } = await simulatePopulatedTxn(env.NETWORK, tx);
 
   const tokensClaimedMap = new Map<TokenAddress, BigNumber>();
-  vault.rewardTokens.forEach((token) => {
-    tokensClaimedMap.set(token, BigNumber.from(0));
-  });
 
   for (const log of rawLogs) {
     try {
@@ -204,7 +201,8 @@ const simulateClaimVault = async (
         args.to == vault.address &&
         args.amount.gt(minTokenAmount[rewardToken])
       ) {
-        const prevAmount = tokensClaimedMap.get(rewardToken);
+        const prevAmount =
+          tokensClaimedMap.get(rewardToken) || BigNumber.from(0);
         tokensClaimedMap.set(rewardToken, prevAmount.add(args.amount));
       }
     } catch {
@@ -310,7 +308,9 @@ const claimAndReinvestVault = async (
       // get the amount of reward token sitting on the vault
       .balanceOf(vault.address)
       // add the amount of reward token that will be claimed
-      .then((amountOnVault) => amountOnVault.add(tokenClaimMap.get(sellToken)));
+      .then((amountOnVault) =>
+        amountOnVault.add(tokenClaimMap.get(sellToken) || BigNumber.from(0))
+      );
 
     if (
       vault.maxSellAmount?.[sellToken] &&
@@ -380,7 +380,6 @@ const claimAndReinvestVault = async (
   );
 
   const data = treasuryManger.interface.encodeFunctionData(
-    'reinvestVaultReward',
     'claimAndReinvestVaultReward',
     [
       vault.address,
@@ -467,7 +466,7 @@ export default {
       env: env.NETWORK,
       apiKey: env.NX_DD_API_KEY,
     });
-    const provider = getProviderFromNetwork(env.NETWORK, true);
+    const provider = getProviderFromNetwork(env.NETWORK, true) as Provider;
 
     await claimAndReinvestVault(env, provider, vault, force);
 
@@ -487,7 +486,7 @@ export default {
       });
 
       console.log(`Processing network: ${env.NETWORK}`);
-      const provider = getProviderFromNetwork(env.NETWORK, true);
+      const provider = getProviderFromNetwork(env.NETWORK, true) as Provider;
 
       const errors = await claimAndReinvestRewards(env, provider);
       allErrors.push(...errors);

@@ -51,6 +51,7 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.TREASURY_MANAGER_MAINNET]: [
       Sign.claimVaultRewardTokens,
       Sign.reinvestVaultReward,
+      Sign.claimAndReinvestVaultReward,
       Sign.investWETHAndNOTE,
       Sign.executeTrade,
     ],
@@ -70,6 +71,7 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.TREASURY_MANAGER_ARBITRUM]: [
       Sign.claimVaultRewardTokens,
       Sign.reinvestVaultReward,
+      Sign.claimAndReinvestVaultReward,
       Sign.harvestAssetsFromNotional,
       Sign.executeTrade,
     ],
@@ -90,6 +92,7 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.TREASURY_MANAGER_ARBITRUM]: [
       Sign.claimVaultRewardTokens,
       Sign.reinvestVaultReward,
+      Sign.claimAndReinvestVaultReward,
     ],
     [Address.AaveV3Pool_ARBITRUM]: [Sign.flashLoan],
     [Address.Multicall3]: [Sign.aggregate3],
