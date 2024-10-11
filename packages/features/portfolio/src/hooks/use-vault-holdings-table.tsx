@@ -36,8 +36,8 @@ import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
 import {
   FiatKeys,
+  getNetworkModel,
   PointsLinks,
-  Registry,
 } from '@notional-finance/core-entities';
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../components';
@@ -152,10 +152,10 @@ function getVaultReinvestmentDate(
 ) {
   try {
     const reinvestmentData =
-      Registry.getAnalyticsRegistry().getVaultReinvestments(network)[
-        vaultAddress
-      ];
-    return getDateString(reinvestmentData[0].timestamp + reinvestmentCadence);
+      getNetworkModel(network).getVaultReinvestment(vaultAddress);
+    return reinvestmentData
+      ? getDateString(reinvestmentData[0].timestamp + reinvestmentCadence)
+      : '';
   } catch (e) {
     return '';
   }

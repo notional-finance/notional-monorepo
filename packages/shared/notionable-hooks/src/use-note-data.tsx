@@ -1,6 +1,7 @@
 import { getNetworkModel } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
-import { useEffect } from 'react';
+import { useObserver } from 'mobx-react-lite';
+import { useFetchAnalyticsData } from './use-market';
 
 export type NoteSupplyData = {
   day: Date;
@@ -21,13 +22,7 @@ export function useNoteSupplyData() {
     const model = getNetworkModel(Network.mainnet);
     return model.getNoteSupply();
   });
-  const isNoteSupplyLoaded = !!noteSupplyData;
-
-  useEffect(() => {
-    if (!isNoteSupplyLoaded)
-      getNetworkModel(Network.mainnet).fetchAnalyticsData('noteSupply');
-  }, [isNoteSupplyLoaded]);
-
+  useFetchAnalyticsData('noteSupply', !!noteSupplyData, Network.mainnet);
   return noteSupplyData || [];
 }
 
@@ -36,12 +31,6 @@ export function useStakedNoteData() {
     const model = getNetworkModel(Network.mainnet);
     return model.getSNOTEData();
   });
-  const isSNOTEDataLoaded = !!snoteData;
-
-  useEffect(() => {
-    if (!isSNOTEDataLoaded)
-      getNetworkModel(Network.mainnet).fetchAnalyticsData('sNOTEData');
-  }, [isSNOTEDataLoaded]);
-
+  useFetchAnalyticsData('sNOTEData', !!snoteData, Network.mainnet);
   return snoteData || [];
 }

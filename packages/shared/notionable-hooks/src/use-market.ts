@@ -1,4 +1,5 @@
 import {
+  getNetworkModel,
   Registry,
   TokenBalance,
   TokenDefinition,
@@ -9,10 +10,10 @@ import {
   RATE_PRECISION,
   SupportedNetworks,
 } from '@notional-finance/util';
-import { useEffect, useMemo, useState } from 'react';
-import { useAnalyticsReady } from './use-notional';
+import { useEffect, useMemo } from 'react';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
 import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import { useObserver } from 'mobx-react-lite';
 
 export interface MaturityData {
   token: TokenDefinition;
@@ -207,17 +208,22 @@ export function useTradedValue(amount: TokenBalance | undefined) {
   }
 }
 
-export function usePointPrices() {
-  const analyticsReady = useAnalyticsReady(Network.all);
-  const [pointPrices, setPointPrices] = useState<
-    { points: string; price: number }[] | undefined
-  >();
-
+export function useFetchAnalyticsData(
+  id: string,
+  isLoaded: boolean,
+  network: Network | undefined
+) {
   useEffect(() => {
-    if (analyticsReady && pointPrices === undefined) {
-      Registry.getAnalyticsRegistry().getPointPrices().then(setPointPrices);
-    }
-  }, [analyticsReady, pointPrices]);
+    if (!isLoaded && network)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getNetworkModel(network).fetchAnalyticsData(id as any);
+  }, [id, isLoaded, network]);
+}
 
+export function usePointPrices() {
+  const pointPrices = useObserver(() => {
+    return getNetworkModel(Network.all).getPointPrices();
+  });
+  useFetchAnalyticsData('pointPrices', !!pointPrices, Network.all);
   return pointPrices;
 }

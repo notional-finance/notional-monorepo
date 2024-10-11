@@ -99,7 +99,10 @@ export const AnalyticsViews = (self: Instance<typeof NetworkModel>) => ({
   getSNOTEReinvestment: () => self.analytics.sNOTEReinvestment?.result.rows,
   getPointPrices: () => self.analytics.pointPrices,
   getHistoricalTrading: () => self.analytics.historicalTrading,
-  getVaultReinvestment: () => self.analytics.vaultReinvestment,
+  getVaultReinvestment: (vaultAddress: string) =>
+    self.analytics.vaultReinvestment
+      ? self.analytics.vaultReinvestment.get(vaultAddress)
+      : undefined,
   getVaultAccountRisk: () => self.analytics.vaultAccountRisk,
   getAccountPortfolioRisk: () => self.analytics.accountPortfolioRisk,
   getPriceChanges: () => self.analytics.priceChanges,

@@ -6,7 +6,6 @@ import {
   AccountFetchMode,
   AccountRegistryClient,
 } from './client/account-registry-client';
-import { AnalyticsRegistryClient } from './client/analytics-registry-client';
 
 type Env = {
   NX_SUBGRAPH_API_KEY: string;
@@ -17,7 +16,6 @@ export class Registry {
   protected static _tokens?: TokenRegistryClient;
   protected static _configurations?: ConfigurationClient;
   protected static _accounts?: AccountRegistryClient;
-  protected static _analytics?: AnalyticsRegistryClient;
 
   public static DEFAULT_TOKEN_REFRESH = 20 * ONE_MINUTE_MS;
   public static DEFAULT_CONFIGURATION_REFRESH = 20 * ONE_MINUTE_MS;
@@ -59,7 +57,6 @@ export class Registry {
     Registry._tokens = new TokenRegistryClient(_cacheHostname);
     Registry._configurations = new ConfigurationClient(_cacheHostname);
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
-    Registry._analytics = new AnalyticsRegistryClient(_cacheHostname, env);
     Registry._accounts.setSubgraphAPIKey = env.NX_SUBGRAPH_API_KEY;
 
     // Kicks off Fiat token refreshes
@@ -68,12 +65,6 @@ export class Registry {
         Network.all,
         Registry.DEFAULT_TOKEN_REFRESH
       );
-      if (useAnalytics) {
-        Registry._analytics.startRefreshInterval(
-          Network.all,
-          Registry.DEFAULT_ANALYTICS_REFRESH
-        );
-      }
     }
   }
 
@@ -113,23 +104,12 @@ export class Registry {
       network,
       Registry.DEFAULT_ACCOUNT_REFRESH
     );
-
-    // Only start the yield registry refresh after all the other refreshes begin
-    if (this._self?.useAnalytics) {
-      Registry.onNetworkReady(network, () => {
-        Registry.getAnalyticsRegistry().startRefreshInterval(
-          network,
-          Registry.DEFAULT_ANALYTICS_REFRESH
-        );
-      });
-    }
   }
 
   public static stopRefresh(network: Network) {
     Registry.getTokenRegistry().stopRefresh(network);
     Registry.getConfigurationRegistry().stopRefresh(network);
     Registry.getAccountRegistry().stopRefresh(network);
-    Registry.getAnalyticsRegistry().stopRefresh(network);
   }
 
   public static isRefreshRunning(network: Network) {
@@ -162,10 +142,6 @@ export class Registry {
       network,
       blockNumber
     );
-    await Registry.getAnalyticsRegistry().triggerRefreshPromise(
-      network,
-      blockNumber
-    );
   }
 
   public static getTokenRegistry() {
@@ -183,12 +159,6 @@ export class Registry {
     if (Registry._accounts == undefined)
       throw Error('Account Registry undefined');
     return Registry._accounts;
-  }
-
-  public static getAnalyticsRegistry() {
-    if (Registry._analytics == undefined)
-      throw Error('Analytics Registry undefined');
-    return Registry._analytics;
   }
 
   public static async onNetworkReady(network: Network, fn: () => void) {

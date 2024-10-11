@@ -1,4 +1,4 @@
-import { FiatKeys, NOTERegistryClient } from '@notional-finance/core-entities';
+import { FiatKeys } from '@notional-finance/core-entities';
 import {
   StakedNoteData,
   useSNOTEPool,
@@ -10,27 +10,16 @@ import {
   getMidnightUTC,
   lastValue,
 } from '@notional-finance/util';
-import { useEffect, useState } from 'react';
 
 export function useStakedNote(
   stakedNoteData: StakedNoteData | undefined,
   dateRange = 30 * SECONDS_IN_DAY,
   baseCurrency: FiatKeys
 ) {
-  const [sNOTEData, setSNOTEData] = useState<
-    Awaited<ReturnType<NOTERegistryClient['getSNOTEData']>>
-  >([]);
   const minDate = getMidnightUTC() - dateRange;
   const walletNOTEBalances = useTotalNOTEBalances();
-
-  useEffect(() => {
-    if (stakedNoteData) {
-      setSNOTEData(
-        stakedNoteData.filter(({ day }) => minDate < day.getTime() / 1000)
-      );
-    }
-  }, [stakedNoteData, minDate]);
-
+  const sNOTEData =
+    stakedNoteData?.filter(({ day }) => minDate < day.getTime() / 1000) || [];
   const historicalSNOTEPrice: [Date, number][] = sNOTEData.map(
     ({ day, price }) => [day, price]
   );

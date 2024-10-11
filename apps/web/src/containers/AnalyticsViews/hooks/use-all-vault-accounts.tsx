@@ -1,10 +1,5 @@
 import { useTheme } from '@mui/material';
-import {
-  FiatKeys,
-  Registry,
-  TokenBalance,
-  TokenDefinition,
-} from '@notional-finance/core-entities';
+import { FiatKeys, getNetworkModel } from '@notional-finance/core-entities';
 import {
   formatNumberAsAbbr,
   formatNumberToDigits,
@@ -14,6 +9,7 @@ import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
   formatHealthFactorValues,
   useAllVaults,
+  useFetchAnalyticsData,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
@@ -21,26 +17,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { findSortingNum } from './use-all-accounts';
-
-interface VaultAccountData {
-  account: string;
-  vaultAddress: string;
-  vaultName: string;
-  riskFactors: {
-    netWorth: TokenBalance;
-    debts: TokenBalance;
-    assets: TokenBalance;
-    collateralRatio: number | null;
-    healthFactor: number | null;
-    liquidationPrice: {
-      asset: TokenDefinition;
-      threshold: TokenBalance | null;
-      isDebtThreshold: boolean;
-    }[];
-    aboveMaxLeverageRatio: boolean;
-    leverageRatio: number | null;
-  };
-}
+import { useObserver } from 'mobx-react-lite';
 
 export const useAllVaultAccounts = (
   selectedNetwork: Network,
@@ -48,31 +25,28 @@ export const useAllVaultAccounts = (
 ) => {
   const theme = useTheme();
   const listedVaults = useAllVaults();
-  const [allVaultAccounts, setAllVaultAccounts] = useState<
-    VaultAccountData[] | undefined
-  >(undefined);
   const { updateNotional } = useNotionalContext();
   const navigate = useNavigate();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [vaultNameOptions, setVaultNameOptions] = useState([]);
 
-  const fetchAllVaultAccounts = useCallback(async () => {
-    const { vaultRisk } = await Registry.getAnalyticsRegistry().getAccountRisk(
-      selectedNetwork
-    );
-    const allVaultAccountsData = await vaultRisk;
-    if (allVaultAccountsData) {
-      setAllVaultAccounts(allVaultAccountsData);
-    }
-  }, [selectedNetwork]);
+  const allVaultAccountsData = useObserver(() => {
+    const model = getNetworkModel(selectedNetwork);
+    return model.getVaultAccountRisk();
+  });
+
+  useFetchAnalyticsData(
+    'vaultAccountRisk',
+    !!allVaultAccountsData,
+    selectedNetwork
+  );
 
   useEffect(() => {
     if (selectedNetwork) {
-      fetchAllVaultAccounts();
       setVaultNameOptions([]);
       setHealthFactorOptions([]);
     }
-  }, [selectedNetwork, fetchAllVaultAccounts]);
+  }, [selectedNetwork]);
 
   const addressClick = useCallback(
     (address: string, network) => {
@@ -190,7 +164,7 @@ export const useAllVaultAccounts = (
     },
   ];
 
-  const tableData = allVaultAccounts
+  const tableData = allVaultAccountsData
     ?.map((data) => {
       return {
         address: {

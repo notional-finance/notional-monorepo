@@ -167,9 +167,8 @@ export function TradeActionSummary({
                   </H4>
                   {pointPrices && (
                     <H4 light>{`$${
-                      pointPrices
-                        .find((p) => p.points.includes(k))
-                        ?.price.toPrecision(3) || '-'
+                      pointPrices.find((p) => p.points.includes(k))?.price ||
+                      '-'
                     }/point`}</H4>
                   )}
                 </Box>
