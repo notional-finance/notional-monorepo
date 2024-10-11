@@ -1,6 +1,5 @@
 import {
   AccountDefinition,
-  Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import {
@@ -33,13 +32,16 @@ export function calculateAccruedIncentives(account: AccountDefinition): {
         ({ currencyId }) => currencyId === b.currencyId
       );
       if (noteDebt) {
-        const {
-          lastAccumulatedTime,
-          accumulatedNOTEPerNToken,
-          incentiveEmissionRate,
-        } = Registry.getConfigurationRegistry().getAnnualizedNOTEIncentives(
-          b.token
-        );
+        // TODO: Fix this  when live
+        const lastAccumulatedTime = 0;
+        const accumulatedNOTEPerNToken = TokenBalance.zero(b.token);
+        const incentiveEmissionRate = TokenBalance.zero(b.token);
+        // const {
+        //   lastAccumulatedTime,
+        //   accumulatedNOTEPerNToken,
+        //   incentiveEmissionRate,
+        // } = getAnnualizedNOTEIncentives(b.token);
+
         incentives.push(
           calculateIncentive(
             b,
@@ -66,10 +68,14 @@ export function calculateAccruedIncentives(account: AccountDefinition): {
       const secondaryDebt = account.secondaryIncentiveDebt?.find(
         ({ currencyId }) => currencyId === b.currencyId
       );
-      const secondary =
-        Registry.getConfigurationRegistry().getAnnualizedSecondaryIncentives(
-          b.token
-        );
+      // TODO: fix this when live
+      const secondary = {
+        lastAccumulatedTime: 0,
+        accumulatedRewardPerNToken: TokenBalance.zero(b.token),
+        incentiveEmissionRate: TokenBalance.zero(b.token),
+        rewardEndTime: 0,
+      };
+
       if (secondaryDebt && secondary) {
         incentives.push(
           calculateIncentive(

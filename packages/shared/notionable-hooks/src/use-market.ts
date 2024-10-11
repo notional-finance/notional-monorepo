@@ -161,7 +161,7 @@ export const useSpotMaturityData = (
   return useMemo(() => {
     return (
       tokens?.map((t) => {
-        const _t = Registry.getTokenRegistry().unwrapVaultToken(t);
+        const _t = currentNetworkStore.unwrapVaultToken(t);
         let spotRate =
           nonLeveragedYields.find((y) => y.token.id === _t.id)?.apy.totalAPY ||
           0;
@@ -172,10 +172,8 @@ export const useSpotMaturityData = (
         ) {
           // Add the vault fee to the debt rate here
           spotRate +=
-            (Registry.getConfigurationRegistry().getVaultConfig(
-              t.network,
-              t.vaultAddress
-            ).feeRateBasisPoints *
+            (currentNetworkStore.getVaultConfig(t.vaultAddress)
+              .feeRateBasisPoints *
               100) /
             RATE_PRECISION;
         }
@@ -188,7 +186,7 @@ export const useSpotMaturityData = (
         };
       }) || []
     );
-  }, [tokens, nonLeveragedYields]);
+  }, [tokens, currentNetworkStore, nonLeveragedYields]);
 };
 
 export function useTradedValue(amount: TokenBalance | undefined) {

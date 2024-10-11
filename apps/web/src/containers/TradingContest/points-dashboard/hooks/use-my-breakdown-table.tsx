@@ -233,14 +233,13 @@ export const useMyBreakdownTable = (arbPoints: ArbPointsType[]) => {
         let vaultAsset: any = undefined;
 
         if (tokenData.tokenType === 'VaultShare' && tokenData?.vaultAddress) {
-          const config = Registry.getConfigurationRegistry();
-          const vaultConfig = config.getVaultConfig(
-            Network.arbitrum,
-            tokenData?.vaultAddress
-          );
+          // const vaultConfig = config.getVaultConfig(
+          //   Network.arbitrum,
+          //   tokenData?.vaultAddress
+          // );
           vaultAsset = {
             symbol: tokenData.totalSupply?.underlying?.symbol,
-            label: vaultConfig?.name,
+            label: '',
             caption:
               tokenData?.maturity === PRIME_CASH_VAULT_MATURITY
                 ? 'Open Term'

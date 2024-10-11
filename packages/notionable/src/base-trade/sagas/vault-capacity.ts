@@ -36,14 +36,6 @@ export function vaultCapacity(
         { debtBalance, vaultAddress, priorVaultBalances, tradeType },
         network,
       ]) => {
-        const vaultCapacity =
-          network && vaultAddress
-            ? Registry.getConfigurationRegistry().getVaultCapacity(
-                network,
-                vaultAddress
-              )
-            : undefined;
-
         let totalCapacityRemaining: TokenBalance | undefined;
         let totalPoolCapacityRemaining: TokenBalance | undefined;
         let overCapacityError = false;
@@ -52,6 +44,16 @@ export function vaultCapacity(
         let underMinAccountBorrow = false;
         let vaultTVL: TokenBalance | undefined;
         let maxPoolShare: string | undefined;
+        // TODO: Fix this when live
+        const vaultCapacity = debtBalance?.token
+          ? {
+              minAccountBorrowSize: TokenBalance.zero(debtBalance.token),
+              totalUsedPrimaryBorrowCapacity: TokenBalance.zero(
+                debtBalance.token
+              ),
+              maxPrimaryBorrowCapacity: TokenBalance.zero(debtBalance.token),
+            }
+          : undefined;
 
         if (vaultCapacity) {
           const {

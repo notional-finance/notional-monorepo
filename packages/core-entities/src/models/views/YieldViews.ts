@@ -705,6 +705,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getLeverageRatios,
     getSimulatedAPY,
     getLeveragedAPY,
+    getMaxSupply,
     getDebtOrCollateralFactor,
     getDefaultLeveragedNTokenAPYs,
     getDefaultVaultAPYs,

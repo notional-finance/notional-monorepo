@@ -1,5 +1,4 @@
 import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
-import { ConfigurationClient } from './client/configuration-client';
 import defaultPools from './exchanges/default-pools';
 import { TokenRegistryClient } from './client/token-registry-client';
 import {
@@ -14,7 +13,6 @@ type Env = {
 export class Registry {
   protected static _self?: Registry;
   protected static _tokens?: TokenRegistryClient;
-  protected static _configurations?: ConfigurationClient;
   protected static _accounts?: AccountRegistryClient;
 
   public static DEFAULT_TOKEN_REFRESH = 20 * ONE_MINUTE_MS;
@@ -55,7 +53,6 @@ export class Registry {
     public isClient: boolean
   ) {
     Registry._tokens = new TokenRegistryClient(_cacheHostname);
-    Registry._configurations = new ConfigurationClient(_cacheHostname);
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
     Registry._accounts.setSubgraphAPIKey = env.NX_SUBGRAPH_API_KEY;
 
@@ -93,11 +90,6 @@ export class Registry {
     const tokenRegistry = Registry.getTokenRegistry();
     tokenRegistry.onNetworkRegistered(network, () => {
       Registry.registerDefaultPoolTokens(network);
-
-      Registry.getConfigurationRegistry().startRefreshInterval(
-        network,
-        Registry.DEFAULT_CONFIGURATION_REFRESH
-      );
     });
 
     Registry.getAccountRegistry().startRefreshInterval(
@@ -108,14 +100,12 @@ export class Registry {
 
   public static stopRefresh(network: Network) {
     Registry.getTokenRegistry().stopRefresh(network);
-    Registry.getConfigurationRegistry().stopRefresh(network);
     Registry.getAccountRegistry().stopRefresh(network);
   }
 
   public static isRefreshRunning(network: Network) {
     return (
       Registry.getTokenRegistry().isRefreshRunning(network) &&
-      Registry.getConfigurationRegistry().isRefreshRunning(network) &&
       Registry.getAccountRegistry().isRefreshRunning(network)
     );
   }
@@ -130,13 +120,6 @@ export class Registry {
     ]);
     Registry.registerDefaultPoolTokens(network);
 
-    await Promise.all([
-      Registry.getConfigurationRegistry().triggerRefreshPromise(
-        network,
-        blockNumber
-      ),
-    ]);
-
     // These cannot be grouped and have to proceed one at a time
     await Registry.getAccountRegistry().triggerRefreshPromise(
       network,
@@ -147,12 +130,6 @@ export class Registry {
   public static getTokenRegistry() {
     if (Registry._tokens == undefined) throw Error('Token Registry undefined');
     return Registry._tokens;
-  }
-
-  public static getConfigurationRegistry() {
-    if (Registry._configurations == undefined)
-      throw Error('Configuration Registry undefined');
-    return Registry._configurations;
   }
 
   public static getAccountRegistry() {
@@ -172,9 +149,6 @@ export class Registry {
       // NOTE: yield registry and analytics registry is not included in here or
       // it will create a circular dependency.
       Promise.all([
-        new Promise<void>((r) =>
-          Registry.getConfigurationRegistry().onNetworkRegistered(network, r)
-        ),
         new Promise<void>((r) =>
           Registry.getTokenRegistry().onNetworkRegistered(network, r)
         ),

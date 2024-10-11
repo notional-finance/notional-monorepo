@@ -593,13 +593,8 @@ function _getTradedInterestRate(
     utilization = fCashMarket.getPrimeCashUtilization(undefined, amount.neg());
     interestRate = fCashMarket.getPrimeDebtRate(utilization);
     if (_amount.tokenType === 'VaultDebt') {
-      const annualizedFeeRate =
-        Registry.getConfigurationRegistry().getVaultConfig(
-          _amount.network,
-          _amount.vaultAddress
-        ).feeRateBasisPoints;
-      // Add the vault fee to the interest rate here..
-      interestRate += annualizedFeeRate;
+      // // Add the vault fee to the interest rate here..
+      // interestRate += annualizedFeeRate;
     }
   } else if (amount.tokenType === 'nToken') {
     return {

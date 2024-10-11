@@ -289,12 +289,10 @@ export function useExceedsSupplyCap(
   deposit: TokenBalance | undefined,
   excludeSupplyCap: boolean
 ) {
-  if (deposit && !excludeSupplyCap) {
+  const currentNetworkStore = useCurrentNetworkStore();
+  if (deposit?.currencyId && !excludeSupplyCap) {
     const { maxUnderlyingSupply, currentUnderlyingSupply } =
-      Registry.getConfigurationRegistry().getMaxSupply(
-        deposit?.network,
-        deposit?.currencyId
-      );
+      currentNetworkStore.getMaxSupply(deposit.currencyId);
 
     return {
       currentUnderlyingSupply,
