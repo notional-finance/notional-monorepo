@@ -1,11 +1,9 @@
 import {
   AccountDefinition,
-  getNetworkModel,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import {
-  Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
@@ -15,7 +13,11 @@ import {
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
-import { DeprecatedVaults } from '@notional-finance/core-entities';
+import {
+  DeprecatedVaults,
+  NetworkClientModel,
+} from '@notional-finance/core-entities';
+import { Instance } from 'mobx-state-tree';
 
 export class VaultAccountRiskProfile extends BaseRiskProfile {
   static collateralToLeverageRatio(collateralRatio: number) {
@@ -24,18 +26,6 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   static leverageToCollateralRatio(leverageRatio: number) {
     return 1 / leverageRatio;
-  }
-
-  static empty(network: Network, vaultAddress: string, maturity: number) {
-    const vaultShare = getNetworkModel(network).getVaultShare(
-      vaultAddress,
-      maturity
-    );
-    return new VaultAccountRiskProfile(
-      vaultAddress,
-      [TokenBalance.from(0, vaultShare)],
-      0
-    );
   }
 
   static fromAccount(vaultAddress: string, account: AccountDefinition) {
@@ -78,9 +68,12 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     );
   }
 
-  static getAllRiskProfiles(account: AccountDefinition) {
+  static getAllRiskProfiles(
+    model: Instance<typeof NetworkClientModel>,
+    account: AccountDefinition
+  ) {
     return (
-      getNetworkModel(account.network)
+      model
         // Include disabled vaults here in case the account still has a position
         .getAllListedVaults(true)
         ?.map(({ vaultAddress }) => {

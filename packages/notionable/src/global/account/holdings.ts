@@ -12,24 +12,24 @@ import {
   FiatKeys,
   getVaultType,
   PendlePT,
-  getNetworkModel,
-  Registry,
   TokenBalance,
-  YieldData,
+  NetworkClientModel,
+  BalanceStatement,
+  AccountHistory,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { CalculatedPriceChanges } from '../global-state';
-import { simulateRewardClaims } from '@notional-finance/transaction';
+import { Instance } from 'mobx-state-tree';
 
 export type PortfolioHolding = ReturnType<typeof calculateHoldings>[number];
 export type GroupedHolding = ReturnType<
   typeof calculateGroupedHoldings
 >[number];
-export type VaultHolding = Awaited<
-  ReturnType<typeof calculateVaultHoldings>
->[number];
+export type VaultHolding = ReturnType<typeof calculateVaultHoldings>[number];
 export type CurrentFactors = ReturnType<typeof calculateAccountCurrentFactors>;
 
+// TODO: move this to somewhere else
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function isHighUtilization(
   balance: TokenBalance,
   priceChanges: CalculatedPriceChanges | undefined,
@@ -71,11 +71,12 @@ function isHighUtilization(
  * excludes Vault, Underlying and NOTE balances
  */
 export function calculateHoldings(
-  account: AccountDefinition,
-  accruedIncentives: AccruedIncentives[],
-  priceChanges: CalculatedPriceChanges | undefined
+  model: Instance<typeof NetworkClientModel>,
+  _balances: TokenBalance[],
+  balanceStatements: BalanceStatement[],
+  accruedIncentives: AccruedIncentives[]
 ) {
-  const balances = account.balances
+  const balances = _balances
     .filter(
       (b) =>
         !b.isZero() &&
@@ -85,13 +86,8 @@ export function calculateHoldings(
     )
     .sort((a, b) => a.currencyId - b.currencyId);
 
-  // const nonLeveragedYields = Registry.getYieldRegistry().getNonLeveragedYields(
-  //   account.network
-  // );
-  const nonLeveragedYields: YieldData[] = [];
-
   const holdings = balances.map((balance) => {
-    const statement = account.balanceStatement?.find(
+    const statement = balanceStatements?.find(
       (s) =>
         s.token.id ===
         // Balance statements use signed fCash ids
@@ -112,9 +108,7 @@ export function calculateHoldings(
         : balance.toPrimeCash().tokenId
       : balance.token.id;
 
-    const marketYield = nonLeveragedYields.find(
-      ({ token }) => token.id === maturedTokenId
-    );
+    const marketYield = model.getSpotAPY(maturedTokenId);
 
     // Returns accrued incentives and adjusted claimed incentives as an array
     const _incentiveEarnings: TokenBalance[] =
@@ -144,18 +138,24 @@ export function calculateHoldings(
     );
     const totalIncentiveEarnings = perIncentiveEarnings.reduce(
       (s, i) => s.add(i.toFiat('USD')),
-      getNetworkModel(account.network).getTokenBalanceFromSymbol(0, 'USD')
+      new TokenBalance(0, 'USD', Network.all)
     );
 
     const totalEarningsWithIncentives = statement?.totalProfitAndLoss
       .toFiat('USD')
       .add(totalIncentiveEarnings);
 
-    const positionEstablished = account?.historicalBalances
-      ?.reverse()
-      .find(
-        (h) => h.balance.tokenId === balance.tokenId && !balance.isZero()
-      )?.timestamp;
+    // const positionEstablished = account?.historicalBalances
+    //   ?.reverse()
+    //   .find(
+    //     (h) => h.balance.tokenId === balance.tokenId && !balance.isZero()
+    //   )?.timestamp;
+    let hasNToken: boolean;
+    try {
+      hasNToken = !!model.getNToken(balance.currencyId);
+    } catch (e) {
+      hasNToken = false;
+    }
 
     return {
       balance,
@@ -168,19 +168,15 @@ export function calculateHoldings(
       totalEarningsWithIncentives,
       marketProfitLoss: totalEarningsWithIncentives?.sub(
         statement?.totalInterestAccrual.toFiat('USD') ||
-          getNetworkModel(account.network).getTokenBalanceFromSymbol(0, 'USD')
+          new TokenBalance(0, 'USD', Network.all)
       ),
       hasMatured: balance.hasMatured,
-      isHighUtilization: isHighUtilization(
-        balance,
-        priceChanges,
-        positionEstablished
-      ),
-      hasNToken: !!nonLeveragedYields.find(
-        (y) =>
-          y.token.tokenType === 'nToken' &&
-          y.token.currencyId === balance.currencyId
-      ),
+      // isHighUtilization: isHighUtilization(
+      //   balance,
+      //   priceChanges,
+      //   positionEstablished
+      // ),
+      hasNToken,
     };
   });
 
@@ -191,11 +187,11 @@ export function calculateHoldings(
  * Calculates grouped tokens which are paired asset / debt portfolio holdings in the same currency
  */
 export function calculateGroupedHoldings(
-  account: AccountDefinition,
+  _balances: TokenBalance[],
   holdings: PortfolioHolding[]
 ) {
   const balances =
-    account?.balances.filter(
+    _balances.filter(
       (b) =>
         !b.isZero() &&
         !b.isVaultToken &&
@@ -235,7 +231,8 @@ export function calculateGroupedHoldings(
           ) as (typeof holdings)[number];
 
           const borrowApyData =
-            debtHoldings?.marketYield?.token.tokenType === 'PrimeDebt'
+            debtHoldings?.balance.token.tokenType === 'PrimeDebt' ||
+            debtHoldings?.balance.hasMatured
               ? debtHoldings.marketYield.totalAPY
               : // Need to check for undefined here if the debtHoldings is undefined
                 debtHoldings?.statement?.impliedFixedRate;
@@ -295,114 +292,114 @@ export function calculateGroupedHoldings(
 /**
  * Calculates data to display for each vault holding
  */
-export async function calculateVaultHoldings(
-  account: AccountDefinition,
-  prevRewardClaims?: {
-    vaultAddress: string;
-    rewardClaims: TokenBalance[] | undefined;
-  }[]
+export function calculateVaultHoldings(
+  model: Instance<typeof NetworkClientModel>,
+  balances: TokenBalance[],
+  balanceStatements: BalanceStatement[],
+  accountHistory: AccountHistory[],
+  vaultLastUpdateTime: Record<string, number>,
+  rewardClaims: Record<string, TokenBalance[]>
+  // prevRewardClaims?: {
+  //   vaultAddress: string;
+  //   rewardClaims: TokenBalance[] | undefined;
+  // }[]
 ) {
-  const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(account);
-  const balanceStatements = account.balanceStatement || [];
-  const allYields: YieldData[] = [];
+  const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(model, {
+    balances,
+    accountHistory,
+    vaultLastUpdateTime,
+  } as AccountDefinition);
 
-  return await Promise.all(
-    vaultProfiles.map(async (v) => {
-      const debtPnL = balanceStatements.find(
-        (b) => b.token.id === v.vaultDebt.tokenId
-      );
-      const assetPnL = balanceStatements?.find(
-        (b) => b.token.id === v.vaultShares.tokenId
-      );
-      const cashPnL = balanceStatements?.find(
-        (b) => b.token.id === v.vaultCash.tokenId
-      );
+  return vaultProfiles.map((v) => {
+    const debtPnL = balanceStatements.find(
+      (b) => b.token.id === v.vaultDebt.tokenId
+    );
+    const assetPnL = balanceStatements?.find(
+      (b) => b.token.id === v.vaultShares.tokenId
+    );
+    const cashPnL = balanceStatements?.find(
+      (b) => b.token.id === v.vaultCash.tokenId
+    );
 
-      const denom = v.denom(v.defaultSymbol);
-      const zeroDenom = TokenBalance.zero(denom);
-      const profit = (assetPnL?.totalProfitAndLoss || zeroDenom)
-        .add(debtPnL?.totalProfitAndLoss || zeroDenom)
-        .add(cashPnL?.totalProfitAndLoss || zeroDenom);
-      const vaultYield = allYields.find(
-        (y) => v.vaultShares.tokenId === y.token.id
-      );
-      const strategyAPY = vaultYield?.totalAPY || 0;
-      const borrowAPY =
-        debtPnL?.impliedFixedRate !== undefined
-          ? debtPnL.impliedFixedRate
-          : allYields.find(
-              (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
-            )?.totalAPY || 0;
+    const denom = v.denom(v.defaultSymbol);
+    const zeroDenom = TokenBalance.zero(denom);
+    const profit = (assetPnL?.totalProfitAndLoss || zeroDenom)
+      .add(debtPnL?.totalProfitAndLoss || zeroDenom)
+      .add(cashPnL?.totalProfitAndLoss || zeroDenom);
+    const vaultYield = model.getSpotAPY(v.vaultShares.tokenId);
+    const strategyAPY = vaultYield?.totalAPY || 0;
+    const borrowAPY =
+      debtPnL?.impliedFixedRate !== undefined
+        ? debtPnL.impliedFixedRate
+        : model.getSpotAPY(v.vaultDebt.unwrapVaultToken().tokenId).totalAPY ||
+          0;
 
-      const amountPaid = (assetPnL?.accumulatedCostRealized || zeroDenom)
-        .add(debtPnL?.accumulatedCostRealized || zeroDenom)
-        .add(cashPnL?.accumulatedCostRealized || zeroDenom);
+    const amountPaid = (assetPnL?.accumulatedCostRealized || zeroDenom)
+      .add(debtPnL?.accumulatedCostRealized || zeroDenom)
+      .add(cashPnL?.accumulatedCostRealized || zeroDenom);
 
-      const leverageRatio = v.leverageRatio() || 0;
-      const totalAPY = leveragedYield(strategyAPY, borrowAPY, leverageRatio);
+    const leverageRatio = v.leverageRatio() || 0;
+    const totalAPY = leveragedYield(strategyAPY, borrowAPY, leverageRatio);
 
-      const totalInterestAccrual = (assetPnL?.totalInterestAccrual || zeroDenom)
-        .add(debtPnL?.totalInterestAccrual || zeroDenom)
-        .add(cashPnL?.totalInterestAccrual || zeroDenom);
+    const totalInterestAccrual = (assetPnL?.totalInterestAccrual || zeroDenom)
+      .add(debtPnL?.totalInterestAccrual || zeroDenom)
+      .add(cashPnL?.totalInterestAccrual || zeroDenom);
 
-      const totalILAndFees = (assetPnL?.totalILAndFees || zeroDenom)
-        .add(debtPnL?.totalILAndFees || zeroDenom)
-        .add(cashPnL?.totalILAndFees || zeroDenom);
+    const totalILAndFees = (assetPnL?.totalILAndFees || zeroDenom)
+      .add(debtPnL?.totalILAndFees || zeroDenom)
+      .add(cashPnL?.totalILAndFees || zeroDenom);
 
-      const marketProfitLoss = profit.sub(totalInterestAccrual);
-      const vaultType = getVaultType(v.vaultAddress, v.network);
+    const marketProfitLoss = profit.sub(totalInterestAccrual);
+    const vaultType = getVaultType(v.vaultAddress, v.network);
 
-      let rewardClaims =
-        account.rewardClaims && account.rewardClaims[v.vaultAddress];
-      // This is is a bit of an expensive call so only run it on initial update, we simulate
-      // the reward claims on chain to ensure that the data is as up to date as possible.
-      if (rewardClaims && rewardClaims.length > 0) {
-        const prevClaimValue = prevRewardClaims?.find(
-          ({ vaultAddress }) => vaultAddress === v.vaultAddress
-        )?.rewardClaims;
+    // This is is a bit of an expensive call so only run it on initial update, we simulate
+    // the reward claims on chain to ensure that the data is as up to date as possible.
+    // if (rewardClaims && rewardClaims.length > 0) {
+    //   const prevClaimValue = prevRewardClaims?.find(
+    //     ({ vaultAddress }) => vaultAddress === v.vaultAddress
+    //   )?.rewardClaims;
 
-        rewardClaims =
-          prevClaimValue ||
-          (await simulateRewardClaims(
-            account.network,
-            account.address,
-            v.vaultAddress
-          ));
-      }
+    //   rewardClaims =
+    //     prevClaimValue ||
+    //     (await simulateRewardClaims(
+    //       account.network,
+    //       account.address,
+    //       v.vaultAddress
+    //     ));
+    // }
 
-      const vaultMetadata = {
-        rewardClaims,
-        vaultType,
-        reinvestmentCadence:
-          v.network === Network.arbitrum ? SECONDS_IN_DAY : 7 * SECONDS_IN_DAY,
-        isExpired:
-          vaultType === 'PendlePT'
-            ? (v.vaultAdapter as PendlePT).timeToExpiry === 0
-            : undefined,
-      };
+    const vaultMetadata = {
+      rewardClaims: rewardClaims[v.vaultAddress],
+      vaultType,
+      reinvestmentCadence:
+        v.network === Network.arbitrum ? SECONDS_IN_DAY : 7 * SECONDS_IN_DAY,
+      isExpired:
+        vaultType === 'PendlePT'
+          ? (v.vaultAdapter as PendlePT).timeToExpiry === 0
+          : undefined,
+    };
 
-      return {
-        vault: v,
-        liquidationPrices: v.getAllLiquidationPrices(),
-        netWorth: v.netWorth(),
-        healthFactor: v.healthFactor(),
-        totalAPY,
-        borrowAPY,
-        amountPaid,
-        strategyAPY,
-        profit,
-        denom,
-        leverageRatio,
-        vaultYield,
-        marketProfitLoss,
-        totalILAndFees,
-        totalInterestAccrual,
-        assetPnL,
-        debtPnL,
-        vaultMetadata,
-      };
-    })
-  );
+    return {
+      vault: v,
+      liquidationPrices: v.getAllLiquidationPrices(),
+      netWorth: v.netWorth(),
+      healthFactor: v.healthFactor(),
+      totalAPY,
+      borrowAPY,
+      amountPaid,
+      strategyAPY,
+      profit,
+      denom,
+      leverageRatio,
+      vaultYield,
+      marketProfitLoss,
+      totalILAndFees,
+      totalInterestAccrual,
+      assetPnL,
+      debtPnL,
+      vaultMetadata,
+    };
+  });
 }
 
 export function calculateAccountCurrentFactors(
@@ -410,11 +407,6 @@ export function calculateAccountCurrentFactors(
   vaults: VaultHolding[],
   baseCurrency: FiatKeys
 ) {
-  const fiatToken = Registry.getTokenRegistry().getTokenBySymbol(
-    Network.all,
-    baseCurrency
-  );
-
   const { weightedYield, netWorth, debts, assets } = vaults.reduce(
     ({ weightedYield, netWorth, debts, assets }, { totalAPY, vault }) => {
       const { debts: d, assets: a, netWorth: _w } = vault.getAllRiskFactors();
@@ -442,9 +434,9 @@ export function calculateAccountCurrentFactors(
       },
       {
         weightedYield: 0,
-        netWorth: TokenBalance.zero(fiatToken),
-        debts: TokenBalance.zero(fiatToken),
-        assets: TokenBalance.zero(fiatToken),
+        netWorth: new TokenBalance(0, baseCurrency, Network.all),
+        debts: new TokenBalance(0, baseCurrency, Network.all),
+        assets: new TokenBalance(0, baseCurrency, Network.all),
       }
     )
   );

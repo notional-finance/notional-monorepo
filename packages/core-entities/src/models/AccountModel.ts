@@ -66,6 +66,10 @@ export const AccountModel = types
     balances: types.optional(types.array(NotionalTypes.TokenBalance), []),
     allowPrimeBorrow: types.maybe(types.boolean),
     vaultLastUpdateTime: types.optional(types.map(types.number), {}),
+    rewardClaims: types.optional(
+      types.map(types.array(NotionalTypes.TokenBalance)),
+      {}
+    ),
     accountIncentiveDebt: types.optional(
       types.array(AccountIncentiveDebtModel),
       []
@@ -146,6 +150,9 @@ export const AccountModel = types
         }
         if (accountDefinition.stakeNOTEStatus) {
           self.stakeNOTEStatus = accountDefinition.stakeNOTEStatus;
+        }
+        if (accountDefinition.rewardClaims) {
+          self.rewardClaims.replace(accountDefinition.rewardClaims);
         }
         self.lastUpdateTimestamp = result.lastUpdateTimestamp;
       }

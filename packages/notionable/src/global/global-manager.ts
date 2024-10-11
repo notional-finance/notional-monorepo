@@ -1,14 +1,12 @@
 import { Observable, merge } from 'rxjs';
 import { ApplicationState, GlobalState } from './global-state';
 import { onAppLoad } from './sagas/on-app-load';
-import { onWalletConnect } from './sagas/on-wallet-connect';
 import { onTransact } from './sagas/on-transact';
 
 export const loadGlobalManager = (
-  global$: Observable<GlobalState>,
-  app$: Observable<ApplicationState>
+  global$: Observable<GlobalState>
 ): Observable<Partial<GlobalState>> => {
-  return merge(onTransact(global$), onWalletConnect(global$, app$));
+  return merge(onTransact(global$));
 };
 
 export const loadAppManager = (

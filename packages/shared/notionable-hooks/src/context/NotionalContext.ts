@@ -66,12 +66,12 @@ export function useGlobalContext() {
     useObservable(
       (s$) =>
         s$.pipe(
-          switchMap(([s, a]) => loadGlobalManager(s, a)),
+          switchMap(([s]) => loadGlobalManager(s)),
           tap((s) => {
             if (DEBUG) console.log('[GLOBAL] UPDATE:', s);
           })
         ),
-      [global$, app$]
+      [global$]
     ),
     updateGlobalState
   );

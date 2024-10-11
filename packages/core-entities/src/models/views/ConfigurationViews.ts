@@ -5,9 +5,11 @@ import {
   decodeERC1155Id,
   encodeERC1155Id,
   getMaturityForMarketIndex,
+  getNowSeconds,
   getProviderFromNetwork,
   INTERNAL_TOKEN_PRECISION,
   Network,
+  NOTEAddress,
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
@@ -119,12 +121,86 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
     );
   };
 
+  const getAnnualizedSecondaryIncentives = (nToken: TokenDefinition) => {
+    if (!nToken.currencyId) throw Error('Invalid nToken');
+    const config = getConfig(nToken.currencyId);
+    if (!config.incentives?.currentSecondaryReward) return undefined;
+    const rewardEndTime = config.incentives.secondaryRewardEndTime;
+    if (rewardEndTime && Number(rewardEndTime) < getNowSeconds())
+      return undefined;
+
+    const rewardToken = self.tokens.get(
+      config.incentives.currentSecondaryReward.id
+    ) as TokenDefinition;
+
+    const incentiveEmissionRate = TokenBalance.fromFloat(
+      BigNumber.from(
+        (config.incentives.secondaryEmissionRate as string | undefined) || 0
+      ).toNumber() / INTERNAL_TOKEN_PRECISION,
+      rewardToken
+    );
+    const accumulatedRewardPerNToken = config.incentives
+      ?.accumulatedSecondaryRewardPerNToken
+      ? TokenBalance.from(
+          // This value is stored in 18 decimals but we want to scale it to reward token precision
+          BigNumber.from(config.incentives.accumulatedSecondaryRewardPerNToken)
+            .mul(TokenBalance.unit(rewardToken).precision)
+            .div(SCALAR_PRECISION),
+          rewardToken
+        )
+      : undefined;
+
+    return {
+      rewardToken,
+      incentiveEmissionRate,
+      accumulatedRewardPerNToken,
+      lastAccumulatedTime: Number(
+        config.incentives?.lastSecondaryAccumulatedTime
+      ),
+      rewardEndTime: Number(config.incentives.secondaryRewardEndTime),
+    };
+  };
+
+  const getAnnualizedNOTEIncentives = (nToken: TokenDefinition) => {
+    if (!nToken.currencyId) throw Error('Invalid nToken');
+    const config = getConfig(nToken.currencyId);
+    const NOTE = self.tokens.get(
+      NOTEAddress[nToken.network]
+    ) as TokenDefinition;
+
+    const incentiveEmissionRate = TokenBalance.from(
+      BigNumber.from(
+        (config.incentives?.incentiveEmissionRate as string | undefined) || 0
+      ).mul(INTERNAL_TOKEN_PRECISION),
+      NOTE
+    );
+
+    const accumulatedNOTEPerNToken = config.incentives?.accumulatedNOTEPerNToken
+      ? // NOTE: this value is stored in 18 decimals natively, but downscale it here
+        // for calculations
+        TokenBalance.from(
+          config.incentives.accumulatedNOTEPerNToken,
+          NOTE
+        ).scale(INTERNAL_TOKEN_PRECISION, SCALAR_PRECISION)
+      : undefined;
+
+    return {
+      incentiveEmissionRate,
+      lastAccumulatedTime: config.incentives?.lastAccumulatedTime as
+        | number
+        | undefined,
+      accumulatedNOTEPerNToken,
+    };
+  };
+
   return {
     getConfig,
     getSecondaryRewarder,
     getCurrencyHaircutAndBuffer,
     getMinLendRiskAdjustedDiscountFactor,
     getTotalAnnualEmission,
+    getAnnualizedSecondaryIncentives,
+    getAnnualizedNOTEIncentives,
   };
 };
 

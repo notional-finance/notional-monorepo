@@ -262,3 +262,9 @@ export const LeveragedNTokenAdapterAddress: Record<Network, string> = {
   [Network.mainnet]: '0x25ee011B6Af5537eCD520f40CA759899a064CfCF',
   [Network.arbitrum]: '0xc8de46b3035cc723549892016D2449eA9f7fA0A5',
 };
+
+export const NOTEAddress: Record<Network, string> = {
+  [Network.all]: 'NOTE',
+  [Network.mainnet]: '0xCFEAead4947f0705A14ec42aC3D44129E1Ef3eD5',
+  [Network.arbitrum]: '0x019bE259BC299F3F653688c7655C87F998Bc7bC1',
+};

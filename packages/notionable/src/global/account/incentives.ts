@@ -1,5 +1,6 @@
 import {
-  AccountDefinition,
+  AccountIncentiveDebt,
+  NetworkClientModel,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import {
@@ -7,6 +8,7 @@ import {
   SECONDS_IN_YEAR,
   getNowSeconds,
 } from '@notional-finance/util';
+import { Instance } from 'mobx-state-tree';
 
 export interface AccruedIncentives {
   currencyId: number;
@@ -18,29 +20,30 @@ export type TotalIncentives = Record<
   { current: TokenBalance; in100Sec: TokenBalance }
 >;
 
-export function calculateAccruedIncentives(account: AccountDefinition): {
+export function calculateAccruedIncentives(
+  model: Instance<typeof NetworkClientModel>,
+  balances: TokenBalance[],
+  accountIncentiveDebt: AccountIncentiveDebt[],
+  secondaryIncentiveDebt: AccountIncentiveDebt[]
+): {
   accruedIncentives: AccruedIncentives[];
   totalIncentives: TotalIncentives;
 } {
-  const accruedIncentives = account.balances
+  const accruedIncentives = balances
     .filter((t) => t.tokenType === 'nToken')
     .map((b) => {
       const incentives: TokenBalance[] = [];
       const incentivesIn100Seconds: TokenBalance[] = [];
 
-      const noteDebt = account.accountIncentiveDebt?.find(
+      const noteDebt = accountIncentiveDebt?.find(
         ({ currencyId }) => currencyId === b.currencyId
       );
       if (noteDebt) {
-        // TODO: Fix this  when live
-        const lastAccumulatedTime = 0;
-        const accumulatedNOTEPerNToken = TokenBalance.zero(b.token);
-        const incentiveEmissionRate = TokenBalance.zero(b.token);
-        // const {
-        //   lastAccumulatedTime,
-        //   accumulatedNOTEPerNToken,
-        //   incentiveEmissionRate,
-        // } = getAnnualizedNOTEIncentives(b.token);
+        const {
+          lastAccumulatedTime,
+          accumulatedNOTEPerNToken,
+          incentiveEmissionRate,
+        } = model.getAnnualizedNOTEIncentives(b.token);
 
         incentives.push(
           calculateIncentive(
@@ -65,17 +68,10 @@ export function calculateAccruedIncentives(account: AccountDefinition): {
         );
       }
 
-      const secondaryDebt = account.secondaryIncentiveDebt?.find(
+      const secondaryDebt = secondaryIncentiveDebt?.find(
         ({ currencyId }) => currencyId === b.currencyId
       );
-      // TODO: fix this when live
-      const secondary = {
-        lastAccumulatedTime: 0,
-        accumulatedRewardPerNToken: TokenBalance.zero(b.token),
-        incentiveEmissionRate: TokenBalance.zero(b.token),
-        rewardEndTime: 0,
-      };
-
+      const secondary = model.getAnnualizedSecondaryIncentives(b.token);
       if (secondaryDebt && secondary) {
         incentives.push(
           calculateIncentive(

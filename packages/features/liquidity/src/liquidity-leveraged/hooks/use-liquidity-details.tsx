@@ -123,7 +123,7 @@ export const useLiquidityDetails = () => {
   }
 
   const newAPY = leveragedYield(newNTokenAPY, newBorrowRate, newLeverageRatio);
-  const maturity = currentHoldings?.debt.marketYield?.token.maturity;
+  const maturity = currentHoldings?.debt.balance.token.maturity;
   const table = [
     {
       label: 'Total APY',
@@ -195,7 +195,10 @@ export const useLiquidityDetails = () => {
     });
   }
 
-  if (currentHoldings?.debt.marketYield?.token.tokenType === 'fCash') {
+  if (
+    currentHoldings?.debt.balance.tokenType === 'fCash' &&
+    !currentHoldings?.debt.balance.hasMatured
+  ) {
     table.push({
       label: 'Borrow Rate',
       current: {

@@ -35,7 +35,18 @@ const RootStore = types
     setRoute(route: string) {
       self.route = route;
     },
-  })).views((self) => ({
+  }))
+  .views((self) => ({
+    getNetworkClient(network: Network) {
+      switch (network) {
+        case Network.mainnet:
+          return self.mainnetStore;
+        case Network.arbitrum:
+          return self.arbitrumStore;
+        case Network.all:
+          return self.allNetworksStore;
+      }
+    },
     get currentNetworkClient() {
       const network = self.network;
       switch (network) {
@@ -48,8 +59,9 @@ const RootStore = types
         default:
           throw new Error('Network not supported');
       }
-    }
+    },
   }));
+
 export const createRootStore = (): RootStoreType => {
   const rootStore = RootStore.create({
     mainnetStore: {
