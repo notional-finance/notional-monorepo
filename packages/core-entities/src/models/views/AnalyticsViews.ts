@@ -90,9 +90,13 @@ export const AnalyticsViews = (self: Instance<typeof NetworkModel>) => ({
       error: self.timeSeriesState.get(id)?.error,
     };
   },
-  getNoteSupply: () => self.analytics.noteSupply,
-  getSNOTEData: () => self.analytics.sNOTEData,
-  getSNOTEReinvestment: () => self.analytics.sNOTEReinvestment,
+  getNoteSupply: () =>
+    self.analytics.noteSupply?.result.rows.map((r) => ({
+      ...r,
+      date: new Date(r.day),
+    })),
+  getSNOTEData: () => self.analytics.sNOTEData?.result.rows,
+  getSNOTEReinvestment: () => self.analytics.sNOTEReinvestment?.result.rows,
   getPointPrices: () => self.analytics.pointPrices,
   getHistoricalTrading: () => self.analytics.historicalTrading,
   getVaultReinvestment: () => self.analytics.vaultReinvestment,

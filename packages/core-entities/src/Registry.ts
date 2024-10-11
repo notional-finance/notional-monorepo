@@ -7,7 +7,6 @@ import {
   AccountRegistryClient,
 } from './client/account-registry-client';
 import { AnalyticsRegistryClient } from './client/analytics-registry-client';
-import { NOTERegistryClient } from './client/note-registry-client';
 
 type Env = {
   NX_SUBGRAPH_API_KEY: string;
@@ -19,7 +18,6 @@ export class Registry {
   protected static _configurations?: ConfigurationClient;
   protected static _accounts?: AccountRegistryClient;
   protected static _analytics?: AnalyticsRegistryClient;
-  protected static _note?: NOTERegistryClient;
 
   public static DEFAULT_TOKEN_REFRESH = 20 * ONE_MINUTE_MS;
   public static DEFAULT_CONFIGURATION_REFRESH = 20 * ONE_MINUTE_MS;
@@ -62,7 +60,6 @@ export class Registry {
     Registry._configurations = new ConfigurationClient(_cacheHostname);
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
     Registry._analytics = new AnalyticsRegistryClient(_cacheHostname, env);
-    Registry._note = new NOTERegistryClient(_cacheHostname);
     Registry._accounts.setSubgraphAPIKey = env.NX_SUBGRAPH_API_KEY;
 
     // Kicks off Fiat token refreshes
@@ -74,12 +71,6 @@ export class Registry {
       if (useAnalytics) {
         Registry._analytics.startRefreshInterval(
           Network.all,
-          Registry.DEFAULT_ANALYTICS_REFRESH
-        );
-      }
-      if (isClient) {
-        Registry._note.startRefreshInterval(
-          Network.mainnet,
           Registry.DEFAULT_ANALYTICS_REFRESH
         );
       }
@@ -198,11 +189,6 @@ export class Registry {
     if (Registry._analytics == undefined)
       throw Error('Analytics Registry undefined');
     return Registry._analytics;
-  }
-
-  public static getNOTERegistry() {
-    if (Registry._note == undefined) throw Error('NOTE Registry undefined');
-    return Registry._note;
   }
 
   public static async onNetworkReady(network: Network, fn: () => void) {

@@ -90,13 +90,8 @@ export function defaultVaultLeverageRatio(state$: Observable<VaultTradeState>) {
       );
     }),
     map(() => {
+      // getVaultLeverageFactors
       return undefined;
-      // return vaultAddress && selectedNetwork
-      //   ? Registry.getConfigurationRegistry().getVaultLeverageFactors(
-      //       selectedNetwork,
-      //       vaultAddress
-      //     )
-      //   : undefined;
     }),
     filterEmpty()
   );

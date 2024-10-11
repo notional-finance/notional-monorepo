@@ -1,4 +1,4 @@
-import { AccountDefinition, Registry } from '@notional-finance/core-entities';
+import { AccountDefinition } from '@notional-finance/core-entities';
 import { filterEmpty } from '@notional-finance/util';
 import { Observable, pairwise, map, filter, distinctUntilChanged } from 'rxjs';
 import { BaseTradeState, VaultTradeState } from '../base-trade-store';
@@ -68,14 +68,9 @@ export function initVaultState(state$: Observable<VaultTradeState>) {
     map(({ vaultAddress, selectedNetwork, isReady }) => {
       if (!vaultAddress || !selectedNetwork || isReady) return undefined;
       try {
-        const vaultConfig = Registry.getConfigurationRegistry().getVaultConfig(
-          selectedNetwork,
-          vaultAddress
-        );
-
         return {
           isReady: true,
-          vaultConfig,
+          // vaultConfig,
           // maxCollateralSlippage: vaultAdapter.getMaxCollateralSlippage(),
         };
       } catch {

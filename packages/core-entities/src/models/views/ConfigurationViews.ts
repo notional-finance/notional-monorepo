@@ -6,6 +6,7 @@ import {
   encodeERC1155Id,
   getMaturityForMarketIndex,
   getProviderFromNetwork,
+  INTERNAL_TOKEN_PRECISION,
   Network,
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
@@ -28,6 +29,7 @@ import {
 } from '@notional-finance/contracts';
 import { ExchangeViews } from './ExchangeViews';
 import { interestToExchangeRate } from './OracleViews';
+import { TokenBalance } from '../../token-balance';
 
 export function assertDefined<T>(v: T | null | undefined): T {
   if (v === undefined || v === null) throw Error(`Undefined Value`);
@@ -100,11 +102,29 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
     };
   };
 
+  const getTotalAnnualEmission = () => {
+    const totalEmissions =
+      self.configuration?.currencyConfigurations?.reduce(
+        (s, c) =>
+          c.incentives?.incentiveEmissionRate
+            ? s.add(c.incentives.incentiveEmissionRate)
+            : s,
+        BigNumber.from(0)
+      ) || BigNumber.from(0);
+
+    return new TokenBalance(
+      totalEmissions.mul(INTERNAL_TOKEN_PRECISION),
+      'NOTE',
+      Network.all
+    );
+  };
+
   return {
     getConfig,
     getSecondaryRewarder,
     getCurrencyHaircutAndBuffer,
     getMinLendRiskAdjustedDiscountFactor,
+    getTotalAnnualEmission,
   };
 };
 

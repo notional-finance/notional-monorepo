@@ -420,6 +420,25 @@ export const TimeSeriesModel = types.model('TimeSeriesModel', {
   ),
 });
 
+const DateType = types.custom<string, Date>({
+  name: 'Date',
+  fromSnapshot(value: string) {
+    return new Date(value);
+  },
+  toSnapshot(value: Date) {
+    return value.toISOString();
+  },
+  isTargetType(value: unknown): value is Date {
+    return value instanceof Date;
+  },
+  getValidationMessage(snapshot: string) {
+    if (isNaN(Date.parse(snapshot))) {
+      return 'Invalid date format';
+    }
+    return '';
+  },
+});
+
 export const AnalyticsModel = types.model('Analytics', {
   noteSupply: types.maybe(
     types.model({
@@ -432,7 +451,7 @@ export const AnalyticsModel = types.model('Analytics', {
               types.literal('Non-Circulating')
             ),
             balance: types.number,
-            day: types.string,
+            day: DateType, // Changed from types.string to DateType
           })
         ),
       }),
@@ -443,7 +462,7 @@ export const AnalyticsModel = types.model('Analytics', {
       result: types.model({
         rows: types.array(
           types.model({
-            day: types.string,
+            day: DateType, // Changed from types.string to DateType
             total_pool_value: types.number,
             snote_supply: types.number,
             price: types.number,

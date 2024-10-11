@@ -1,5 +1,6 @@
-import { Registry } from '@notional-finance/core-entities';
-import { useEffect, useState } from 'react';
+import { getNetworkModel } from '@notional-finance/core-entities';
+import { Network } from '@notional-finance/util';
+import { useEffect } from 'react';
 
 export type NoteSupplyData = {
   day: Date;
@@ -16,37 +17,31 @@ export type StakedNoteData = {
 }[];
 
 export function useNoteSupplyData() {
-  const [supplyData, setSupplyData] = useState<NoteSupplyData | undefined>(
-    undefined
-  );
+  const noteSupplyData = useObserver(() => {
+    const model = getNetworkModel(Network.mainnet);
+    return model.getNoteSupply();
+  });
+  const isNoteSupplyLoaded = !!noteSupplyData;
 
   useEffect(() => {
-    Registry.getNOTERegistry()
-      .getNOTESupplyData()
-      .then((data) => setSupplyData(data))
-      .catch((error) => {
-        console.error('Error fetching note supply data:', error);
-        setSupplyData(undefined);
-      });
-  }, []);
+    if (!isNoteSupplyLoaded)
+      getNetworkModel(Network.mainnet).fetchAnalyticsData('noteSupply');
+  }, [isNoteSupplyLoaded]);
 
-  return supplyData;
+  return noteSupplyData || [];
 }
 
 export function useStakedNoteData() {
-  const [stakedNoteData, setStakedNoteData] = useState<
-    StakedNoteData | undefined
-  >(undefined);
+  const snoteData = useObserver(() => {
+    const model = getNetworkModel(Network.mainnet);
+    return model.getSNOTEData();
+  });
+  const isSNOTEDataLoaded = !!snoteData;
 
   useEffect(() => {
-    Registry.getNOTERegistry()
-      .getSNOTEData()
-      .then((data) => setStakedNoteData(data))
-      .catch((error) => {
-        console.error('Error fetching staked note data:', error);
-        setStakedNoteData(undefined);
-      });
-  }, []);
+    if (!isSNOTEDataLoaded)
+      getNetworkModel(Network.mainnet).fetchAnalyticsData('sNOTEData');
+  }, [isSNOTEDataLoaded]);
 
-  return stakedNoteData;
+  return snoteData || [];
 }
