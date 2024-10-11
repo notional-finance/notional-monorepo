@@ -1,7 +1,7 @@
-import { Registry } from '@notional-finance/core-entities';
 import { filterEmpty } from '@notional-finance/util';
 import { Observable, map, of, switchMap } from 'rxjs';
 import { BaseTradeState } from '../base-trade/base-trade-store';
+import { AccountDefinition } from '@notional-finance/core-entities';
 
 export function selectedNetwork(state$: Observable<BaseTradeState>) {
   return state$.pipe(
@@ -11,11 +11,5 @@ export function selectedNetwork(state$: Observable<BaseTradeState>) {
 }
 
 export function selectedAccount(network$: ReturnType<typeof selectedNetwork>) {
-  return network$.pipe(
-    switchMap((network) =>
-      network
-        ? Registry.getAccountRegistry().subscribeActiveAccount(network)
-        : of(null)
-    )
-  );
+  return network$.pipe(switchMap(() => of(null as AccountDefinition | null)));
 }

@@ -4,7 +4,7 @@ import { ethers, PopulatedTransaction } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
 import { useNotionalContext } from './use-notional';
 import { useLocation } from 'react-router';
-import { Registry, TokenDefinition } from '@notional-finance/core-entities';
+import { TokenDefinition } from '@notional-finance/core-entities';
 import { useWalletStore } from '@notional-finance/notionable';
 import { useConnectWallet } from '@web3-onboard/react';
 
@@ -110,7 +110,7 @@ export function useTransactionStatus(
     if (reverted) setTransactionHash(TransactionStatus.REVERT);
     else if (transactionReceipt) {
       setTransactionStatus(TransactionStatus.CONFIRMED);
-      if (network) Registry.getAccountRegistry().refreshActiveAccount(network);
+      // if (network) refreshActiveAccount(network);
       if (onTxnConfirmed) onTxnConfirmed();
     }
   }, [transactionReceipt, reverted, network, onTxnConfirmed]);
