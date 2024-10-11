@@ -10,6 +10,7 @@ import {
   VaultDefinitionModel,
   TimeSeriesModel,
   ChartType,
+  AnalyticsModel,
 } from './ModelTypes';
 import { Env } from '../server';
 import { TokenRegistryServer } from '../server/token-registry-server';
@@ -42,6 +43,7 @@ export const NetworkModel = types.model('Network', {
   oracleGraph: types.optional(OracleGraphModel, {}),
   vaults: types.optional(types.map(VaultDefinitionModel), {}),
   timeSeries: types.optional(types.map(TimeSeriesModel), {}),
+  analytics: types.optional(AnalyticsModel, {}),
   timeSeriesState: types.optional(
     types.map(
       types.model({

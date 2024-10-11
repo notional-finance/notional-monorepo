@@ -420,6 +420,166 @@ export const TimeSeriesModel = types.model('TimeSeriesModel', {
   ),
 });
 
+export const AnalyticsModel = types.model('Analytics', {
+  noteSupply: types.maybe(
+    types.model({
+      result: types.model({
+        rows: types.array(
+          types.model({
+            address: types.union(
+              types.literal('Burned'),
+              types.literal('Circulating Supply'),
+              types.literal('Non-Circulating')
+            ),
+            balance: types.number,
+            day: types.string,
+          })
+        ),
+      }),
+    })
+  ),
+  sNOTEData: types.maybe(
+    types.model({
+      result: types.model({
+        rows: types.array(
+          types.model({
+            day: types.string,
+            total_pool_value: types.number,
+            snote_supply: types.number,
+            price: types.number,
+            apy: types.number,
+          })
+        ),
+      }),
+    })
+  ),
+  sNOTEReinvestment: types.maybe(
+    types.model({
+      result: types.model({
+        rows: types.array(
+          types.model({
+            day: types.string,
+            evt_block_time: types.string,
+            bpts_per_snote: types.number,
+            eth_reinvestment: types.number,
+            note_reinvestment: types.number,
+            transaction_hash: types.string,
+            apy: types.number,
+          })
+        ),
+      }),
+    })
+  ),
+  pointPrices: types.maybe(
+    types.array(
+      types.model({
+        points: types.string,
+        price: types.string,
+      })
+    )
+  ),
+  historicalTrading: types.maybe(
+    types.map(
+      types.array(
+        types.model({
+          bundleName: types.string,
+          currencyId: types.number,
+          fCashId: types.string,
+          fCashValue: types.string,
+          pCash: types.string,
+          pCashInUnderlying: types.string,
+          timestamp: types.number,
+          blockNumber: types.number,
+          transactionHash: types.string,
+          underlyingTokenBalance: NotionalTypes.TokenBalance,
+          interestRate: types.string,
+          fCashMaturity: types.number,
+        })
+      )
+    )
+  ),
+  vaultReinvestment: types.maybe(
+    types.map(
+      types.array(
+        types.model({
+          vault: types.string,
+          blockNumber: types.number,
+          timestamp: types.number,
+          transactionHash: types.string,
+          rewardTokenSold: TokenDefinitionModel,
+          rewardAmountSold: NotionalTypes.BigNumber,
+          tokensReinvested: NotionalTypes.TokenBalance,
+          tokensPerVaultShare: NotionalTypes.TokenBalance,
+          underlyingAmountRealized: NotionalTypes.TokenBalance,
+          vaultSharePrice: NotionalTypes.BigNumber,
+        })
+      )
+    )
+  ),
+  vaultAccountRisk: types.maybe(
+    types.array(
+      types.model({
+        account: types.string,
+        vaultAddress: types.string,
+        vaultName: types.string,
+        riskFactors: types.model({
+          netWorth: NotionalTypes.TokenBalance,
+          debts: NotionalTypes.TokenBalance,
+          assets: NotionalTypes.TokenBalance,
+          collateralRatio: types.union(types.number, types.null),
+          healthFactor: types.union(types.number, types.null),
+          liquidationPrice: types.array(
+            types.model({
+              asset: TokenDefinitionModel,
+              threshold: types.union(NotionalTypes.TokenBalance, types.null),
+              isDebtThreshold: types.boolean,
+            })
+          ),
+          aboveMaxLeverageRatio: types.boolean,
+          leverageRatio: types.union(types.number, types.null),
+        }),
+      })
+    )
+  ),
+  accountPortfolioRisk: types.maybe(
+    types.array(
+      types.model({
+        address: types.string,
+        hasCrossCurrencyRisk: types.boolean,
+        riskFactors: types.model({
+          netWorth: NotionalTypes.TokenBalance,
+          freeCollateral: NotionalTypes.TokenBalance,
+          loanToValue: types.number,
+          collateralRatio: types.union(types.number, types.null),
+          leverageRatio: types.union(types.number, types.null),
+          healthFactor: types.union(types.number, types.null),
+          liquidationPrice: types.array(
+            types.model({
+              asset: TokenDefinitionModel,
+              threshold: types.union(NotionalTypes.TokenBalance, types.null),
+              isDebtThreshold: types.boolean,
+            })
+          ),
+        }),
+      })
+    )
+  ),
+  priceChanges: types.maybe(
+    types.array(
+      types.model({
+        asset: TokenDefinitionModel,
+        pastDate: types.number,
+        currentUnderlying: NotionalTypes.TokenBalance,
+        currentFiat: NotionalTypes.TokenBalance,
+        pastUnderlying: NotionalTypes.TokenBalance,
+        pastFiat: NotionalTypes.TokenBalance,
+        fiatChange: types.number,
+        underlyingChange: types.number,
+      })
+    )
+  ),
+});
+
 export interface TimeSeriesLegend {
   series: string;
   format: 'number' | 'percent';
