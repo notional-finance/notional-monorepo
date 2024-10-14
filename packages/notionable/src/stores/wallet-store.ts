@@ -1,10 +1,11 @@
 import spindl from '@spindl-xyz/attribution';
-import { types, Instance, flow } from 'mobx-state-tree';
+import { types, Instance, flow, getRoot } from 'mobx-state-tree';
 import { AccountModel, NotionalTypes } from '@notional-finance/core-entities';
 import { SupportedNetworks } from '@notional-finance/util';
 import { checkSanctionedAddress } from '../global/account/communities';
 import { identify } from '@notional-finance/helpers';
 import { Provider } from '@ethersproject/providers';
+import { AccountViews, RootStoreInterface } from './AccountViews';
 
 const UserWalletModel = types.model('UserWalletModel', {
   selectedChain: types.maybe(NotionalTypes.Network),
@@ -13,12 +14,19 @@ const UserWalletModel = types.model('UserWalletModel', {
   label: types.maybe(types.string),
 });
 
+const AccountModelWithViews = AccountModel.views((self) => {
+  const root = getRoot<RootStoreInterface>(self);
+  return {
+    ...AccountViews(root, self),
+  };
+});
+
 export const WalletModel = types
   .model('WalletModel', {
     userWallet: types.maybe(UserWalletModel),
     isSanctionedAddress: types.boolean,
     isAccountPending: types.boolean,
-    networkAccounts: types.optional(types.map(AccountModel), {}),
+    networkAccounts: types.optional(types.map(AccountModelWithViews), {}),
     totalPoints: types.maybe(types.number),
   })
   .actions((self) => {
@@ -73,7 +81,7 @@ export const WalletModel = types
         // Trigger account data fetch on wallet address change
         self.networkAccounts.clear();
         SupportedNetworks.forEach((network) => {
-          const m = AccountModel.create({
+          const m = AccountModelWithViews.create({
             address: userWallet.selectedAddress,
             network,
           });

@@ -1,5 +1,5 @@
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
-import { RootStoreType } from './root-store';
+import { AppStoreModelType, NetworkClientModelType } from './root-store';
 import {
   AccountHistory,
   AccountModel,
@@ -13,9 +13,15 @@ import {
   calculateHoldings,
   calculateVaultHoldings,
 } from '../global/account/holdings';
+import { Network } from '@notional-finance/util';
+
+export interface RootStoreInterface {
+  getNetworkClient: (network: Network) => NetworkClientModelType;
+  appStore: AppStoreModelType;
+}
 
 export const AccountViews = (
-  root: RootStoreType,
+  root: RootStoreInterface,
   self: Instance<typeof AccountModel>
 ) => {
   const getAccountRiskProfile = () => {
@@ -80,6 +86,39 @@ export const AccountViews = (
     );
   };
 
+  const getTotalCurrencyHoldings = () => {
+    const profile = getAccountRiskProfile();
+
+    const holdings = profile.allCurrencyIds.map((currencyId) => {
+      const underlying = root
+        .getNetworkClient(self.network)
+        .getUnderlying(currencyId);
+      const totalAssets = profile.totalCurrencyAssets(
+        currencyId,
+        underlying.symbol
+      );
+      const totalDebts = profile.totalCurrencyDebts(
+        currencyId,
+        underlying.symbol
+      );
+
+      return {
+        currency: underlying.symbol,
+        netWorth: totalAssets.add(totalDebts),
+        assets: totalAssets,
+        debts: totalDebts,
+      };
+    });
+
+    const totals = {
+      netWorth: profile.netWorth(),
+      assets: profile.totalAssets(),
+      debts: profile.totalDebt(),
+    };
+
+    return { holdings, totals };
+  };
+
   return {
     getPortfolioLiquidationPrices,
     getAccountRiskProfile,
@@ -87,5 +126,6 @@ export const AccountViews = (
     getPortfolioHoldings,
     getVaultHoldings,
     getCurrentFactors,
+    getTotalCurrencyHoldings,
   };
 };

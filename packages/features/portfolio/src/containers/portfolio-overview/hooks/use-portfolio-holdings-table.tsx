@@ -1,140 +1,102 @@
-import { useMemo } from 'react';
-import {
-  IconCell,
-  MultiValueCell,
-  DataTableColumn,
-} from '@notional-finance/mui';
+import { IconCell, MultiValueCell } from '@notional-finance/mui';
 import { formatCryptoWithFiat } from '@notional-finance/helpers';
-import {
-  useAccountReady,
-  usePortfolioRiskProfile,
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
-import { FiatKeys, Registry } from '@notional-finance/core-entities';
+import { FiatKeys } from '@notional-finance/core-entities';
+import { useWalletStore } from '@notional-finance/notionable';
+
+const TotalHoldingsColumns = [
+  {
+    header: (
+      <FormattedMessage
+        defaultMessage="Currency"
+        description={'Currency header'}
+      />
+    ),
+    cell: IconCell,
+    accessorKey: 'currency',
+    textAlign: 'left',
+  },
+  {
+    header: (
+      <FormattedMessage
+        defaultMessage="Net Worth"
+        description={'Net Worth header'}
+      />
+    ),
+    cell: MultiValueCell,
+    accessorKey: 'netWorth',
+    textAlign: 'right',
+  },
+  {
+    header: (
+      <FormattedMessage defaultMessage="Assets" description={'assets header'} />
+    ),
+    cell: MultiValueCell,
+    accessorKey: 'assets',
+    textAlign: 'right',
+  },
+  {
+    header: (
+      <FormattedMessage defaultMessage="Debts" description={'Debts header'} />
+    ),
+    cell: MultiValueCell,
+    accessorKey: 'debts',
+    textAlign: 'right',
+  },
+] as const;
 
 export const useTotalHoldingsTable = (baseCurrency: FiatKeys) => {
   const network = useSelectedNetwork();
-  const portfolio = usePortfolioRiskProfile(network);
-  const isAccountReady = useAccountReady(network);
+  const walletStore = useWalletStore();
+  const { holdings, totals } =
+    walletStore.networkAccounts[network].getTotalCurrencyHoldings();
 
-  const totalHoldingsColumns = useMemo<DataTableColumn[]>(
-    () => [
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Currency"
-            description={'Currency header'}
-          />
-        ),
-        cell: IconCell,
-        accessorKey: 'currency',
-        textAlign: 'left',
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Net Worth"
-            description={'Net Worth header'}
-          />
-        ),
-        cell: MultiValueCell,
-        accessorKey: 'netWorth',
-        textAlign: 'right',
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Assets"
-            description={'assets header'}
-          />
-        ),
-        cell: MultiValueCell,
-        accessorKey: 'assets',
-        textAlign: 'right',
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Debts"
-            description={'Debts header'}
-          />
-        ),
-        cell: MultiValueCell,
-        accessorKey: 'debts',
-        textAlign: 'right',
-      },
-    ],
-    []
+  const totalHoldingsData = holdings.map(
+    ({ currency, netWorth, assets, debts }) => {
+      return {
+        currency,
+        netWorth: formatCryptoWithFiat(baseCurrency, netWorth),
+        assets: formatCryptoWithFiat(baseCurrency, assets),
+        debts: formatCryptoWithFiat(baseCurrency, debts),
+      };
+    }
   );
 
-  const tokens = Registry.getTokenRegistry();
-  const isReady = network && isAccountReady;
-  const totalHoldingsData = isReady
-    ? portfolio?.allCurrencyIds.map((currencyId) => {
-        const underlying = tokens.getUnderlying(network, currencyId);
-        const totalAssets = portfolio.totalCurrencyAssets(
-          currencyId,
-          underlying.symbol
-        );
-        const totalDebts = portfolio.totalCurrencyDebts(
-          currencyId,
-          underlying.symbol
-        );
+  totalHoldingsData.push({
+    currency: 'Total',
+    netWorth: {
+      data: [
+        {
+          displayValue: totals.netWorth
+            .toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false),
+          isNegative: totals.netWorth.isNegative(),
+        },
+      ],
+    },
+    assets: {
+      data: [
+        {
+          displayValue: totals.assets
+            .toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false),
+          isNegative: totals.assets.isNegative(),
+        },
+      ],
+    },
+    debts: {
+      data: [
+        {
+          displayValue: totals.debts
+            .toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false),
+          isNegative: false,
+        },
+      ],
+    },
+    isDebt: true,
+  });
 
-        return {
-          currency: underlying.symbol,
-          netWorth: formatCryptoWithFiat(
-            baseCurrency,
-            totalAssets.add(totalDebts)
-          ),
-          assets: formatCryptoWithFiat(baseCurrency, totalAssets),
-          debts: formatCryptoWithFiat(baseCurrency, totalDebts),
-          isDebt: totalDebts ? true : false,
-        };
-      }) || []
-    : [];
-
-  if (isReady && portfolio && portfolio.balances.length > 0) {
-    const netWorth = portfolio.netWorth();
-    const totalAssets = portfolio.totalAssets();
-    const totalDebt = portfolio.totalDebt();
-
-    totalHoldingsData.push({
-      currency: 'Total',
-      netWorth: {
-        data: [
-          {
-            displayValue: netWorth
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false),
-            isNegative: netWorth.isNegative(),
-          },
-        ],
-      },
-      assets: {
-        data: [
-          {
-            displayValue: totalAssets
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false),
-            isNegative: totalAssets.isNegative(),
-          },
-        ],
-      },
-      debts: {
-        data: [
-          {
-            displayValue: totalDebt
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false),
-            isNegative: false,
-          },
-        ],
-      },
-      isDebt: totalDebt ? true : false,
-    });
-  }
-
-  return { totalHoldingsColumns, totalHoldingsData };
+  return { totalHoldingsColumns: TotalHoldingsColumns, totalHoldingsData };
 };
