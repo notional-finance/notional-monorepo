@@ -1,4 +1,7 @@
-import { Registry, TokenDefinition } from '@notional-finance/core-entities';
+import {
+  getNetworkModel,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import {
   PRIME_CASH_VAULT_MATURITY,
   formatMaturity,
@@ -34,10 +37,7 @@ export function formatTokenType(
   const underlying =
     token.tokenType === 'NOTE' || token.tokenType === 'Underlying'
       ? token
-      : Registry.getTokenRegistry().getUnderlying(
-          token.network,
-          token.currencyId
-        );
+      : getNetworkModel(token.network).getUnderlying(token.currencyId);
   switch (token.tokenType) {
     case 'Underlying':
     case 'nToken':
@@ -51,10 +51,8 @@ export function formatTokenType(
       return {
         title: token.name,
         // Prime Debt shares the same icon as Prime Cash
-        icon: Registry.getTokenRegistry().getPrimeCash(
-          token.network,
-          token.currencyId
-        ).symbol,
+        icon: getNetworkModel(token.network).getPrimeCash(token.currencyId)
+          .symbol,
         titleWithMaturity: token.name,
         formattedTitle: `Variable ${underlying.symbol} Borrow`,
       };
@@ -95,7 +93,7 @@ export function formatTokenType(
     case 'VaultDebt':
     case 'VaultCash':
       return formatTokenType(
-        Registry.getTokenRegistry().unwrapVaultToken(token)
+        getNetworkModel(token.network).unwrapVaultToken(token)
       );
     default:
       return {
