@@ -1,5 +1,4 @@
 import { trackEvent } from '@notional-finance/helpers';
-import { pointsStore } from '@notional-finance/notionable';
 import { useWalletStore } from '@notional-finance/notionable';
 import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
@@ -9,7 +8,7 @@ import { useCallback, useEffect } from 'react';
 export const useWalletActive = () => {
   const [{ wallet }] = useConnectWallet();
   return wallet?.accounts[0].address ? true : false;
-}
+};
 
 export const useConnect = () => {
   const [
@@ -53,23 +52,24 @@ export const useConnect = () => {
     walletStore.setUserWallet(undefined);
   }, [disconnect, currentLabel, walletStore]);
 
-  useEffect(() => {
-    pointsStore.initialize(selectedAddress || '');
-  }, [selectedAddress]);
-
   // Listens for wallet changes and sets the primary wallet as well as sends the
   // addresses to the Notional global state
   useEffect(() => {
     if (!selectedAddress) {
       walletStore.setUserWallet(undefined);
-    } else if (wallet && selectedAddress && !isReadOnlyAddress && selectedChain) {
+    } else if (
+      wallet &&
+      selectedAddress &&
+      !isReadOnlyAddress &&
+      selectedChain
+    ) {
       setPrimaryWallet(wallet, selectedAddress);
-        walletStore.setUserWallet({
-          selectedChain,
-          selectedAddress,
-          isReadOnlyAddress: false,
-          label: wallet.label,
-        });
+      walletStore.setUserWallet({
+        selectedChain,
+        selectedAddress,
+        isReadOnlyAddress: false,
+        label: wallet.label,
+      });
     }
   }, [
     wallet,

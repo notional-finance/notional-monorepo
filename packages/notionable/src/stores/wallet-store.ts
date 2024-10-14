@@ -1,6 +1,10 @@
-import { types, Instance } from 'mobx-state-tree';
+import spindl from '@spindl-xyz/attribution';
+import { types, Instance, flow } from 'mobx-state-tree';
 import { AccountModel, NotionalTypes } from '@notional-finance/core-entities';
 import { SupportedNetworks } from '@notional-finance/util';
+import { checkSanctionedAddress } from '../global/account/communities';
+import { identify } from '@notional-finance/helpers';
+import { Provider } from '@ethersproject/providers';
 
 const UserWalletModel = types.model('UserWalletModel', {
   selectedChain: types.maybe(NotionalTypes.Network),
@@ -12,14 +16,55 @@ const UserWalletModel = types.model('UserWalletModel', {
 export const WalletModel = types
   .model('WalletModel', {
     userWallet: types.maybe(UserWalletModel),
-    communityMembership: types.optional(types.array(types.string), []),
     isSanctionedAddress: types.boolean,
     isAccountPending: types.boolean,
     networkAccounts: types.optional(types.map(AccountModel), {}),
     totalPoints: types.maybe(types.number),
   })
-  .actions((self) => ({
-    setUserWallet(userWallet: Instance<typeof UserWalletModel> | undefined) {
+  .actions((self) => {
+    const executeUserTracking = async (
+      userWallet: Instance<typeof UserWalletModel>
+    ) => {
+      // Set up account refresh on all supported networks
+      // const tokenBalances = Object.fromEntries(
+      //   await Promise.all(
+      //     SupportedNetworks.map(async (n) => {
+      //       await accounts.setAccount(n, selectedAddress);
+      //       return [
+      //         n,
+      //         accounts
+      //           .getAccount(n, selectedAddress)
+      //           ?.balances.filter((t) => t.tokenType === 'Underlying')
+      //           .map((t) => t.toDisplayStringWithSymbol(6)) || [],
+      //       ];
+      //     })
+      //   )
+      // );
+
+      if (!userWallet.isReadOnlyAddress) {
+        identify(
+          userWallet.selectedAddress,
+          userWallet.selectedChain,
+          userWallet.label || 'unknown',
+          JSON.stringify({})
+        );
+      }
+
+      // check sanctioned address
+      const isSanctionedAddress = await checkSanctionedAddress(
+        userWallet.selectedAddress
+      );
+      self.isSanctionedAddress = isSanctionedAddress;
+
+      if (!isSanctionedAddress) {
+        spindl.attribute(userWallet.selectedAddress);
+      }
+    };
+
+    const setUserWallet = flow(function* (
+      userWallet: Instance<typeof UserWalletModel> | undefined,
+      provider?: Provider
+    ) {
       if (
         userWallet?.selectedAddress &&
         self.userWallet?.selectedAddress !== userWallet?.selectedAddress
@@ -31,25 +76,18 @@ export const WalletModel = types
             address: userWallet.selectedAddress,
             network,
           });
-          // TODO: allow provider override here...
+          if (provider) m.setProvider(provider);
           self.networkAccounts.set(network, m);
         });
+        yield executeUserTracking(userWallet);
       }
 
       self.userWallet = userWallet;
-    },
-    setCommunityMembership(membership: string[]) {
-      self.communityMembership.replace(membership);
-    },
-    setIsSanctionedAddress(isSanctioned: boolean) {
-      self.isSanctionedAddress = isSanctioned;
-    },
-    setIsAccountPending(isPending: boolean) {
-      self.isAccountPending = isPending;
-    },
-    setTotalPoints(points: number | undefined) {
-      self.totalPoints = points;
-    },
-  }));
+    });
+
+    return {
+      setUserWallet,
+    };
+  });
 
 export type WalletStoreType = Instance<typeof WalletModel>;
