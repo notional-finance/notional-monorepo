@@ -13,4 +13,4 @@ crons = ["0/2 * * * *"]
 name = "liquidation-bot-trigger-all"
 
 [env.all.vars]
-NETWORKS = ['arbitrum']
+NETWORKS = ['mainnet', 'arbitrum']
