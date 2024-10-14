@@ -301,7 +301,7 @@ export default class Liquidation {
             stage: 1,
             target: notional,
             method: 'convertCashBalanceToExternal',
-            args: (r: any) => [
+            args: (r) => [
               this.localCurrency.id,
               (
                 r[`${key}:pCashLoanAmount`] as Awaited<

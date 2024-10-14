@@ -1,0 +1,16 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = false
+logpush = true
+node_compat = true
+minify = true
+
+[triggers]
+crons = ["0/2 * * * *"]
+
+[env.all]
+name = "liquidation-bot-trigger-all"
+
+[env.all.vars]
+NETWORKS = ['arbitrum']

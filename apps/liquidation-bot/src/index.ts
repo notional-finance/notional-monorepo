@@ -35,14 +35,7 @@ export interface Env {
   GAS_COST_BUFFER: string;
   PROFIT_THRESHOLD: string;
   ENVIRONMENT: string;
-}
-
-function shuffleArray(array: string[]) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
+  AUTH_KEY: string;
 }
 
 async function setUp(env: Env) {
@@ -110,7 +103,7 @@ async function setUp(env: Env) {
 async function processAllAccounts(
   env: Env,
   liquidator: NotionalV3Liquidator,
-  isHourly: boolean
+  skip: number
 ) {
   // Currently the worker cannot process more than 2000 accounts per batch
   const accounts = (await (
@@ -124,14 +117,8 @@ async function processAllAccounts(
     .map((a) => a.account_id)
     .filter((a) => a !== ZERO_ADDRESS);
 
-  // Currently the worker cannot process more than 2500 accounts per batch
-  if (!isHourly && env.NETWORK === Network.arbitrum) {
-    // Unable to scan all accounts in a single segment
-    addresses = shuffleArray(addresses).slice(0, 2500);
-    console.log(
-      `First: ${addresses[0]}, Last: ${addresses[addresses.length - 1]}`
-    );
-  }
+  // process maximum 1000 accounts
+  addresses = addresses.slice(skip, skip + 1000);
 
   const batchedAccounts = batchArray(addresses, 250);
   let riskyAccounts: RiskyAccount[] = [];
@@ -170,7 +157,7 @@ const displayRiskyAccounts = async (env: Env) => {
   const { riskyAccounts, addresses } = await processAllAccounts(
     env,
     liquidator,
-    false
+    0
   );
 
   return {
@@ -184,44 +171,42 @@ const displayRiskyAccounts = async (env: Env) => {
   };
 };
 
-const run = async (env: Env, isHourly: boolean) => {
+const run = async (env: Env, skip: number) => {
   const { logger, liquidator } = await setUp(env);
   const { riskyAccounts, addresses } = await processAllAccounts(
     env,
     liquidator,
-    isHourly
+    skip
   );
 
   const ddSeries: DDSeries = {
-    series: [],
+    series: [
+      {
+        metric: MetricNames.NUM_RISKY_ACCOUNTS,
+        points: [
+          {
+            value: riskyAccounts.length,
+            timestamp: getNowSeconds(),
+          },
+        ],
+        type: MetricType.Gauge,
+        tags: [`network:${env.NETWORK}`, 'version:v3.2'],
+      },
+      {
+        metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
+        points: [
+          {
+            value: addresses.length,
+            timestamp: getNowSeconds(),
+          },
+        ],
+        type: MetricType.Gauge,
+        tags: [`network:${env.NETWORK}`, 'version:v3.2'],
+      },
+    ],
   };
-
-  ddSeries.series.push(
-    {
-      metric: MetricNames.NUM_RISKY_ACCOUNTS,
-      points: [
-        {
-          value: riskyAccounts.length,
-          timestamp: getNowSeconds(),
-        },
-      ],
-      type: MetricType.Gauge,
-      tags: [`network:${env.NETWORK}`, 'version:v3.2'],
-    },
-    {
-      metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
-      points: [
-        {
-          value: addresses.length,
-          timestamp: getNowSeconds(),
-        },
-      ],
-      type: MetricType.Gauge,
-      tags: [`network:${env.NETWORK}`, 'version:v3.2'],
-    }
-  );
-
   await logger.submitMetrics(ddSeries);
+
   for (const account of riskyAccounts) {
     await logger.submitEvent({
       aggregation_key: 'RiskyAccount',
@@ -270,6 +255,17 @@ export default {
           ),
           { status: 200 }
         );
+      } else if (url.pathname.startsWith('/trigger')) {
+        const authKey = request.headers.get('x-auth-key');
+        if (authKey !== env.AUTH_KEY) {
+          return new Response(null, { status: 401 });
+        }
+
+        const { searchParams } = new URL(request.url);
+        const skip = Number(searchParams.get('skip')) || 0;
+        await run(env, skip);
+
+        return new Response('OK', { status: 200 });
       } else {
         return new Response('Not Found', { status: 404 });
       }
@@ -277,19 +273,6 @@ export default {
       console.error(e);
       console.trace();
       return new Response(JSON.stringify(e), { status: 500 });
-    }
-  },
-  async scheduled(
-    s: ScheduledController,
-    env: Env,
-    _: ExecutionContext
-  ): Promise<void> {
-    try {
-      const isHourly = s.cron === '0 * * * *';
-      await run(env, isHourly);
-    } catch (e) {
-      console.error(e);
-      console.trace();
     }
   },
 };
