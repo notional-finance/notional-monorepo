@@ -5,8 +5,8 @@ import {
   TokenDefinition,
   TokenBalance,
   fCashMarket,
-  Registry,
   PendlePT,
+  getNetworkModel,
 } from '@notional-finance/core-entities';
 import { RiskFactorLimit, RiskFactorKeys } from '@notional-finance/risk-engine';
 import {
@@ -519,8 +519,7 @@ function computeDebtOptions(
       if (isVaultTrade(tradeType)) {
         // Switch to the matching vault share token for vault trades
         if (!d.vaultAddress || !d.maturity) throw Error('Invalid debt token');
-        i['collateral'] = Registry.getTokenRegistry().getVaultShare(
-          d.network,
+        i['collateral'] = getNetworkModel(d.network).getVaultShare(
           d.vaultAddress,
           d.maturity
         );

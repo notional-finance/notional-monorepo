@@ -54,11 +54,12 @@ export const WalletModel = types
       const isSanctionedAddress = await checkSanctionedAddress(
         userWallet.selectedAddress
       );
-      self.isSanctionedAddress = isSanctionedAddress;
 
       if (!isSanctionedAddress) {
         spindl.attribute(userWallet.selectedAddress);
       }
+
+      return isSanctionedAddress;
     };
 
     const setUserWallet = flow(function* (
@@ -79,7 +80,7 @@ export const WalletModel = types
           if (provider) m.setProvider(provider);
           self.networkAccounts.set(network, m);
         });
-        yield executeUserTracking(userWallet);
+        self.isSanctionedAddress = yield executeUserTracking(userWallet);
       }
 
       self.userWallet = userWallet;

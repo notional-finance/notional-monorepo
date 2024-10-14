@@ -27,8 +27,8 @@ export function getSecondaryTokenIncentive(network: Network, base: string) {
  */
 export const MaxCurrencyId: Record<Network, number | undefined> = {
   [Network.all]: undefined,
-  [Network.mainnet]: 11,
-  [Network.arbitrum]: 15,
+  [Network.mainnet]: undefined,
+  [Network.arbitrum]: undefined,
 };
 
 // This is only used in the claim NOTE button

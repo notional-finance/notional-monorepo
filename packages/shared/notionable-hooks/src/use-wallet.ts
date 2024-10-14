@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react';
 import {
   Allowance,
   getNetworkModel,
-  Registry,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -29,14 +28,14 @@ export function usePrimeCashBalance(
   selectedToken: string | undefined | null,
   selectedNetwork: Network | undefined
 ) {
-  const tokens = Registry.getTokenRegistry();
+  const model = getNetworkModel(selectedNetwork);
   const token =
     selectedToken && selectedNetwork
-      ? tokens.getTokenBySymbol(selectedNetwork, selectedToken)
+      ? model.getTokenBySymbol(selectedToken)
       : undefined;
   const primeCash =
     selectedNetwork && token?.currencyId
-      ? tokens.getPrimeCash(selectedNetwork, token.currencyId)
+      ? model.getPrimeCash(token.currencyId)
       : undefined;
 
   return useMaxAssetBalance(primeCash);
