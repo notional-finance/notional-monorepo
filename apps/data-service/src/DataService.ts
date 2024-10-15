@@ -197,7 +197,7 @@ export default class DataService {
           },
         ])
         .into(DataService.TS_BN_MAPPINGS_TABLE_NAME)
-        .onConflict(['block_number', 'network_id', 'timestamp'])
+        .onConflict(['timestamp', 'network_id'])
         .ignore();
     } else {
       blockNumber = parseInt(record[0].block_number);
