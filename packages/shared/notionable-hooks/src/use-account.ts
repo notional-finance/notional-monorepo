@@ -4,14 +4,12 @@ import { Network, SEASONS, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
 import { useState } from 'react';
 import { getNowSeconds } from '@notional-finance/util';
+import { useWalletStore } from '@notional-finance/notionable';
 
 /** Contains selectors for account holdings information */
 function useNetworkAccounts(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-
-  return network && networkAccounts && networkAccounts[network];
+  const walletStore = useWalletStore();
+  return network ? walletStore.networkAccounts.get(network) : undefined;
 }
 
 /** Total NOTE balances across all networks */
@@ -43,7 +41,9 @@ export function useAccountDefinition(network: Network | undefined) {
 }
 
 export function useTotalIncentives(network: Network | undefined) {
-  return useNetworkAccounts(network)?.totalIncentives || {};
+  return (
+    useNetworkAccounts(network)?.getAccountIncentives()?.totalIncentives || {}
+  );
 }
 
 export function useAccountReady(network: Network | undefined) {
@@ -72,7 +72,7 @@ export function useTransactionHistory(network: Network | undefined) {
 }
 
 export function useVaultHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.vaultHoldings || [];
+  return useNetworkAccounts(network)?.getVaultHoldings() || [];
 }
 
 export function useVaultPosition(
@@ -85,19 +85,23 @@ export function useVaultPosition(
 }
 
 export function usePortfolioHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.portfolioHoldings || [];
+  return (
+    useNetworkAccounts(network)?.getPortfolioHoldings().detailedHoldings || []
+  );
 }
 
 export function useGroupedHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.groupedHoldings || [];
+  return (
+    useNetworkAccounts(network)?.getPortfolioHoldings().groupedHoldings || []
+  );
 }
 
 export function usePortfolioRiskProfile(network: Network | undefined) {
-  return useNetworkAccounts(network)?.riskProfile;
+  return useNetworkAccounts(network)?.getAccountRiskProfile();
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {
-  return useNetworkAccounts(network)?.portfolioLiquidationPrices || [];
+  return useNetworkAccounts(network)?.getPortfolioLiquidationPrices() || [];
 }
 
 export function useAccountCurrentFactors(network: Network | undefined) {
@@ -109,7 +113,7 @@ export function useAccountCurrentFactors(network: Network | undefined) {
     assets: TokenBalance.zero(fiatToken),
   };
 
-  return useNetworkAccounts(network)?.currentFactors || emptyFactors;
+  return useNetworkAccounts(network)?.getCurrentFactors() || emptyFactors;
 }
 
 export function useAccountNetWorth() {
@@ -183,7 +187,3 @@ export const PointsSeasonsData = {
     totalPoints: '',
   },
 };
-
-export function useAccountTotalPointsPerDay() {
-  return useNetworkAccounts(Network.arbitrum)?.pointsPerDay || 0;
-}

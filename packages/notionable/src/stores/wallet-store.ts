@@ -5,7 +5,8 @@ import { SupportedNetworks } from '@notional-finance/util';
 import { checkSanctionedAddress } from '../global/account/communities';
 import { identify } from '@notional-finance/helpers';
 import { Provider } from '@ethersproject/providers';
-import { AccountViews, RootStoreInterface } from './AccountViews';
+import { AccountViews } from './AccountViews';
+import { RootStoreInterface } from './root-store';
 
 const UserWalletModel = types.model('UserWalletModel', {
   selectedChain: types.maybe(NotionalTypes.Network),
