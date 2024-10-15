@@ -1,7 +1,7 @@
 import { TransactionRequest } from '@ethersproject/abstract-provider';
 import { ethers, providers } from 'ethers';
 import { GcpKmsSigner } from 'ethers-gcp-kms-signer';
-import { Address, Sign, rpcUrls } from './config';
+import { Address, Sign, rebalanceHelperAddresses, rpcUrls } from './config';
 import { Network } from './types';
 import { logToDataDog } from './util';
 import { TransactionResponse } from '@ethersproject/providers';
@@ -84,6 +84,7 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.BalancerWrappedFlashLender_ARBITRUM]: [Sign.flash],
     [Address.UniV3WrappedFlashLender_ARBITRUM]: [Sign.flash],
     [Address.CamelotWrappedFlashLender_ARBITRUM]: [Sign.flash],
+    [rebalanceHelperAddresses[Network.arbitrum]]: [Sign.checkAndRebalance],
   },
   sepolia: {
     [Address.AaveFlashLiquidator_ARBITRUM]: [Sign.flashLiquidate],
