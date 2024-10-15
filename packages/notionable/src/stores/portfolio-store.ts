@@ -1,8 +1,13 @@
 import { getRoot, Instance, types } from 'mobx-state-tree';
 import { PointsStoreModel } from './points-store';
-import { RootStoreType } from './root-store';
+import { RootStoreInterface, RootStoreType } from './root-store';
 import { reaction, when } from 'mobx';
-import { ROUTE_MATCH, unique } from '@notional-finance/util';
+import {
+  PRODUCTS,
+  ROUTE_MATCH,
+  SupportedNetworks,
+  unique,
+} from '@notional-finance/util';
 
 export interface APYData {
   totalAPY?: number;
@@ -108,6 +113,47 @@ export const PortfolioStoreModel = types
     stateZeroEarnData: StateZeroGroupModel,
     stateZeroBorrowData: StateZeroGroupModel,
     stateZeroLeveragedData: StateZeroGroupModel,
+  })
+  .views((self) => {
+    const getNetworksForProduct = (
+      product: PRODUCTS,
+      underlyingSymbol: string | undefined
+    ) => {
+      const root = getRoot<RootStoreInterface>(self);
+
+      return SupportedNetworks.filter((n) => {
+        const model = root.getNetworkClient(n);
+        if (!underlyingSymbol) return false;
+        const currencyId = model.getTokenBySymbol(underlyingSymbol)?.currencyId;
+        if (!currencyId) return false;
+
+        try {
+          // NOTE: these getters throw errors if the token is not found so we catch
+          // and return false
+          if (
+            product === PRODUCTS.LEND_FIXED ||
+            product === PRODUCTS.LEND_LEVERAGED ||
+            product === PRODUCTS.BORROW_FIXED ||
+            product === PRODUCTS.LIQUIDITY_LEVERAGED ||
+            product === PRODUCTS.LIQUIDITY_VARIABLE
+          ) {
+            return !!model.getNToken(currencyId);
+          } else if (product === PRODUCTS.BORROW_VARIABLE) {
+            return !!model.getPrimeDebt(currencyId);
+          } else if (product === PRODUCTS.LEND_VARIABLE) {
+            return !!model.getPrimeCash(currencyId);
+          } else {
+            return false;
+          }
+        } catch {
+          return false;
+        }
+      });
+    };
+
+    return {
+      getNetworksForProduct,
+    };
   })
   .actions((self) => ({
     setStateZeroEarnData() {

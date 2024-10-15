@@ -14,6 +14,10 @@ export type RootStoreType = Instance<typeof RootStore>;
 export type NetworkClientModelType = Instance<typeof NetworkClientModel>;
 export type AppStoreModelType = Instance<typeof AppStoreModel>;
 export type PortfolioStoreModelType = Instance<typeof PortfolioStoreModel>;
+export interface RootStoreInterface {
+  getNetworkClient: (network: Network) => NetworkClientModelType;
+  appStore: AppStoreModelType;
+}
 
 const userSettings = getFromLocalStorage('userSettings');
 

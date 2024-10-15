@@ -1,5 +1,5 @@
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
-import { AppStoreModelType, NetworkClientModelType } from './root-store';
+import { RootStoreInterface } from './root-store';
 import {
   AccountHistory,
   AccountModel,
@@ -13,12 +13,6 @@ import {
   calculateHoldings,
   calculateVaultHoldings,
 } from '../global/account/holdings';
-import { Network } from '@notional-finance/util';
-
-export interface RootStoreInterface {
-  getNetworkClient: (network: Network) => NetworkClientModelType;
-  appStore: AppStoreModelType;
-}
 
 export const AccountViews = (
   root: RootStoreInterface,

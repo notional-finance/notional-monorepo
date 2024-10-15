@@ -1,18 +1,15 @@
 import {
   getNetworkModel,
-  Registry,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import {
-  Network,
-  PRODUCTS,
-  RATE_PRECISION,
-  SupportedNetworks,
-} from '@notional-finance/util';
+import { Network, PRODUCTS, RATE_PRECISION } from '@notional-finance/util';
 import { useEffect, useMemo } from 'react';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import {
+  useCurrentNetworkStore,
+  usePortfolioStore,
+} from '@notional-finance/notionable';
 import { useObserver } from 'mobx-react-lite';
 
 export interface MaturityData {
@@ -72,50 +69,12 @@ export function usePrimeTokens() {
   }
 }
 
-// TODO: MOVE THIS INTO MOBX AND CACHE IN THE STORE
 export const useProductNetwork = (
   product: PRODUCTS,
   underlyingSymbol: string | undefined
 ) => {
-  const tokens = Registry.getTokenRegistry();
-  return SupportedNetworks.filter((n) => {
-    if (
-      product === PRODUCTS.LEND_FIXED ||
-      product === PRODUCTS.LEND_LEVERAGED ||
-      product === PRODUCTS.BORROW_FIXED ||
-      product === PRODUCTS.LIQUIDITY_LEVERAGED ||
-      product === PRODUCTS.LIQUIDITY_VARIABLE
-    ) {
-      return !!tokens
-        .getAllTokens(n)
-        .find(
-          (t) =>
-            t.tokenType === 'nToken' &&
-            t.underlying &&
-            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
-        );
-    } else if (product === PRODUCTS.BORROW_VARIABLE) {
-      return !!tokens
-        .getAllTokens(n)
-        .find(
-          (t) =>
-            t.tokenType === 'PrimeDebt' &&
-            t.underlying &&
-            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
-        );
-    } else if (product === PRODUCTS.LEND_VARIABLE) {
-      return !!tokens
-        .getAllTokens(n)
-        .find(
-          (t) =>
-            t.tokenType === 'PrimeCash' &&
-            t.underlying &&
-            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
-        );
-    } else {
-      return false;
-    }
-  });
+  const portfolioStore = usePortfolioStore();
+  return portfolioStore.getNetworksForProduct(product, underlyingSymbol);
 };
 
 /** This is used to generate the utilization charts */
