@@ -204,7 +204,7 @@ export async function sendTransaction(
 ) {
   const { data, gasLimit, nonce, network } = params;
   const { log } = context;
-  const to = params.to.toLowerCase();
+  const to = ethers.utils.getAddress(params.to);
   const signature = data.slice(0, 10) as Sign;
 
   let sharedLogData = {
