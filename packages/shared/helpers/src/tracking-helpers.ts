@@ -1,3 +1,4 @@
+import { datadogRum } from '@datadog/browser-rum';
 import {
   Network,
   RouteType,
@@ -26,6 +27,7 @@ type Route = Location<RouteState>;
 
 export function trackEvent(category: string, props?: Record<string, unknown>) {
   analytics.track(category, props);
+  datadogRum.addAction(category, props);
 }
 
 export function trackOutboundLink(href: string) {

@@ -225,6 +225,10 @@ async function updateWalletTracking(
 
   datadogRum.setUser({
     id: selectedAddress,
+    newUser:
+      userSettings.connectedWallets && userSettings.connectedWallets.length > 0
+        ? false
+        : true,
     walletAddress: selectedAddress,
     TotalWalletBalance: balanceData.walletBalance,
     TotalNotionalBalance: balanceData.notionalBalance,
