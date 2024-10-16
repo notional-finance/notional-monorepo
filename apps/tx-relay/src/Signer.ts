@@ -24,7 +24,7 @@ enum Key {
 const keysToUse = {
   [Address.TREASURY_MANAGER_MAINNET]: Key.reinvestment,
   [Address.TREASURY_MANAGER_ARBITRUM]: Key.reinvestment,
-  [Address.REBALANCE_HELPER]: Key.reinvestment,
+  [rebalanceHelperAddresses[Network.arbitrum]]: Key.reinvestment,
   [Address.AaveV3Pool_ARBITRUM]: Key.liquidation,
   [Address.AaveV3Pool_MAINNET]: Key.liquidation,
   [Address.AaveFlashLiquidator_ARBITRUM]: Key.liquidation,
@@ -103,7 +103,6 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.BalancerWrappedFlashLender_ARBITRUM]: [Sign.flash],
     [Address.UniV3WrappedFlashLender_ARBITRUM]: [Sign.flash],
     [Address.CamelotWrappedFlashLender_ARBITRUM]: [Sign.flash],
-    [Address.REBALANCE_HELPER]: [Sign.checkAndRebalance],
   },
 };
 
