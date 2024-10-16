@@ -193,9 +193,6 @@ export const PendlePerformanceChart = () => {
             />
           ),
           chartHeaderData: {
-            textHeader: (
-              <FormattedMessage defaultMessage={'Estimated Performance'} />
-            ),
             legendData,
           },
         },
