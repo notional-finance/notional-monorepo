@@ -9,14 +9,14 @@ export const rpcUrls = {
 };
 
 export const rebalanceHelperAddresses = {
-  [Network.arbitrum]: '0x366d5b255D97C5fee2283561Bd89fCe5566b178F',
+  [Network.arbitrum]:
+    '0x366d5b255D97C5fee2283561Bd89fCe5566b178F'.toLowerCase(),
 };
 
 // addresses need to be lowercased
 export const Address = {
   TREASURY_MANAGER_MAINNET: treasuryManagerAddresses.mainnet.toLowerCase(),
   TREASURY_MANAGER_ARBITRUM: treasuryManagerAddresses.arbitrum.toLowerCase(),
-  REBALANCE_HELPER: '0xA271a6f6E4DeFEe638Aa8b3367b5ce92Cfc3a9FF'.toLowerCase(),
   AaveV3Pool_ARBITRUM:
     '0x794a61358D6845594F94dc1DB02A252b5b4814aD'.toLowerCase(),
   AaveV3Pool_MAINNET:
