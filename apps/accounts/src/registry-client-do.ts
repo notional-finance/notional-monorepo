@@ -678,6 +678,59 @@ export class RegistryClientDO extends DurableObject {
         type: MetricType.Gauge,
       });
 
+      // Used to check that the balanceOf and storedBalanceOf are in agreement
+      series.push(
+        {
+          metric: 'reconciliation.underlying.stored_balance_of',
+          points: [
+            {
+              value: e.underlyingSnapshots?.shift()?.storedBalanceOf || 0,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+          type: MetricType.Gauge,
+        },
+        {
+          metric: 'reconciliation.underlying.balance_of',
+          points: [
+            {
+              value: e.underlyingSnapshots?.shift()?.balanceOf || 0,
+              timestamp: getNowSeconds(),
+            },
+          ],
+          tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+          type: MetricType.Gauge,
+        }
+      );
+
+      if (e.externalSnapshots?.length) {
+        series.push(
+          {
+            metric: 'reconciliation.external_lending.stored_balance_of',
+            points: [
+              {
+                value: e.externalSnapshots?.shift()?.storedBalanceOf || 0,
+                timestamp: getNowSeconds(),
+              },
+            ],
+            tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+            type: MetricType.Gauge,
+          },
+          {
+            metric: 'reconciliation.external_lending.balance_of',
+            points: [
+              {
+                value: e.externalSnapshots?.shift()?.balanceOf || 0,
+                timestamp: getNowSeconds(),
+              },
+            ],
+            tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+            type: MetricType.Gauge,
+          }
+        );
+      }
+
       if (expectedUnderlying.gt(underlyingHeld)) {
         await this.logger.submitEvent({
           host: this.serviceName,
