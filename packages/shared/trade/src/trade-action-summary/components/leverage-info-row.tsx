@@ -124,13 +124,12 @@ const Row = styled(Box)(
   margin-top: ${theme.spacing(3)};
   display: flex;
   align-items: center;
+  justify-content: space-between;
 `
 );
 
 const LabelBox = styled(Label)(
   ({ theme }) => `
-    margin-right: ${theme.spacing(1)};
-    margin-left: ${theme.spacing(1)};
     padding: ${theme.spacing(1, 1.5)};
     background: ${theme.palette.info.light};
     border-radius: ${theme.shape.borderRadius()};

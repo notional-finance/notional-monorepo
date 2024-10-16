@@ -246,6 +246,29 @@ export class SingleSidedLP extends VaultAdapter {
       : 0;
   }
 
+  override getRewardAPY() {
+    const analytics = Registry.getAnalyticsRegistry();
+    const incentiveAPYs = (analytics
+      .getVault(this.network, this.vaultAddress)
+      ?.filter(
+        ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+      )
+      .map((r) =>
+        Object.keys(r.returnDrivers)
+          .filter(
+            (r) =>
+              r.toLowerCase().includes('incentive') ||
+              r.toLowerCase().includes('points')
+          )
+          .reduce((t, i) => t + (r.returnDrivers[i] || 0), 0)
+      )
+      .filter((apy) => apy !== null) || []) as number[];
+
+    return incentiveAPYs.length > 0
+      ? incentiveAPYs.reduce((t, a) => t + a, 0) / incentiveAPYs.length
+      : 0;
+  }
+
   getInitialVaultShareValuation(_maturity: number) {
     return {
       rate: this.pool.getLPTokenSpotValue(this.singleSidedTokenIndex).n,

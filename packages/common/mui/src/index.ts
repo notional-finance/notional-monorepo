@@ -46,6 +46,7 @@ export * from './lib/multi-display-chart/multi-display-chart';
 export * from './lib/multi-select-dropdown/multi-select-dropdown';
 export * from './lib/page-loading/page-loading';
 export * from './lib/progress-indicator/progress-indicator';
+export * from './lib/reinvest-pill/reinvest-pill';
 export * from './lib/product-dashboard/product-dashboard';
 export * from './lib/section/section';
 export * from './lib/scroll-to-top/scroll-to-top';
