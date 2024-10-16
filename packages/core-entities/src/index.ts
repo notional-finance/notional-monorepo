@@ -23,8 +23,12 @@ export * from './Boosts';
 
 export * from './Models';
 export { NetworkServerModel, NetworkClientModel } from './models/NetworkModel';
-export { AccountModel } from './models/AccountModel';
-export { ChartType, NotionalTypes } from './models/ModelTypes';
+export { AccountModel, BalanceStatementModel } from './models/AccountModel';
+export {
+  ChartType,
+  NotionalTypes,
+  TokenDefinitionModel,
+} from './models/ModelTypes';
 export type {
   TimeSeriesDataPoint,
   TimeSeriesResponse,

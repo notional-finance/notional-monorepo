@@ -13,7 +13,7 @@ const AccountIncentiveDebtModel = types.model('AccountIncentiveDebt', {
   currencyId: types.number,
 });
 
-const BalanceStatementModel = types.model('BalanceStatement', {
+export const BalanceStatementModel = types.model('BalanceStatement', {
   token: TokenDefinitionModel,
   blockNumber: types.number,
   underlying: TokenDefinitionModel,

@@ -158,7 +158,7 @@ export class TokenBalance {
   }
 
   get hasMatured() {
-    return this.token.maturity && this.token.maturity < getNowSeconds();
+    return !!this.token.maturity && this.token.maturity < getNowSeconds();
   }
 
   get symbol() {

@@ -41,9 +41,7 @@ export function useAccountDefinition(network: Network | undefined) {
 }
 
 export function useTotalIncentives(network: Network | undefined) {
-  return (
-    useNetworkAccounts(network)?.getAccountIncentives()?.totalIncentives || {}
-  );
+  return useNetworkAccounts(network)?.totalIncentives || {};
 }
 
 export function useAccountReady(network: Network | undefined) {
@@ -72,7 +70,7 @@ export function useTransactionHistory(network: Network | undefined) {
 }
 
 export function useVaultHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.getVaultHoldings() || [];
+  return useNetworkAccounts(network)?.vaultHoldings || [];
 }
 
 export function useVaultPosition(
@@ -85,15 +83,11 @@ export function useVaultPosition(
 }
 
 export function usePortfolioHoldings(network: Network | undefined) {
-  return (
-    useNetworkAccounts(network)?.getPortfolioHoldings().detailedHoldings || []
-  );
+  return useNetworkAccounts(network)?.detailedHoldings || [];
 }
 
 export function useGroupedHoldings(network: Network | undefined) {
-  return (
-    useNetworkAccounts(network)?.getPortfolioHoldings().groupedHoldings || []
-  );
+  return useNetworkAccounts(network)?.groupedHoldings || [];
 }
 
 export function usePortfolioRiskProfile(network: Network | undefined) {
@@ -101,7 +95,7 @@ export function usePortfolioRiskProfile(network: Network | undefined) {
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {
-  return useNetworkAccounts(network)?.getPortfolioLiquidationPrices() || [];
+  return useNetworkAccounts(network)?.portfolioLiquidationPrices || [];
 }
 
 export function useAccountCurrentFactors(network: Network | undefined) {
@@ -113,7 +107,7 @@ export function useAccountCurrentFactors(network: Network | undefined) {
     assets: TokenBalance.zero(fiatToken),
   };
 
-  return useNetworkAccounts(network)?.getCurrentFactors() || emptyFactors;
+  return useNetworkAccounts(network)?.currentFactors || emptyFactors;
 }
 
 export function useAccountNetWorth() {
