@@ -1,7 +1,6 @@
 import spindl from '@spindl-xyz/attribution';
 import { useEffect } from 'react';
 import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
-import { IntercomProvider } from 'react-use-intercom';
 import {
   LeveragedVaultDashboard,
   LendFixedDashboard,
@@ -47,7 +46,6 @@ import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
-const intercomID = process.env['NX_INTERCOM_APP_ID'] as string;
 const spindlAPI = process.env['NX_SPINDL_API_KEY'] as string | undefined;
 
 const RedirectToDefaultNetwork = () => {
@@ -455,11 +453,9 @@ export const App = () => {
           content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
         />
       </Helmet>
-      <IntercomProvider appId={intercomID}>
-        <Web3OnboardProvider web3Onboard={OnboardContext}>
-          <AllRoutes />
-        </Web3OnboardProvider>
-      </IntercomProvider>
+      <Web3OnboardProvider web3Onboard={OnboardContext}>
+        <AllRoutes />
+      </Web3OnboardProvider>
     </HelmetProvider>
   );
 };

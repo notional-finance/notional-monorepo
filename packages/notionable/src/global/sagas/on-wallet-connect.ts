@@ -13,8 +13,13 @@ import {
 import { AccountState, ApplicationState, GlobalState } from '../global-state';
 import {
   Network,
+  ONE_WEEK,
   SupportedNetworks,
+  TRACKING_EVENTS,
   filterEmpty,
+  getFromLocalStorage,
+  getNowSeconds,
+  setInLocalStorage,
 } from '@notional-finance/util';
 import {
   Registry,
@@ -33,8 +38,10 @@ import {
   checkSanctionedAddress,
 } from '../account/communities';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import { update } from '@intercom/messenger-js-sdk';
 import { isAppReady } from '../../utils';
-import { identify } from '@notional-finance/helpers';
+import { identify, trackEvent } from '@notional-finance/helpers';
+import { datadogRum } from '@datadog/browser-rum';
 
 export function onWalletConnect(
   global$: Observable<GlobalState>,
@@ -79,6 +86,164 @@ function onWalletChange$(global$: Observable<GlobalState>) {
   );
 }
 
+async function fetchDeBankNetWorth(walletAddress) {
+  const DeBankAPIKey = process.env['NX_DEBANK_API_KEY'] as string | undefined;
+  const url = `https://pro-openapi.debank.com/v1/user/total_balance?id=${walletAddress}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        AccessKey: DeBankAPIKey || '',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    const data = await response.json();
+
+    return data.total_usd_value;
+  } catch (error) {
+    console.error('Failed to fetch DeBank net worth:', error);
+  }
+}
+
+async function getDebBankData(selectedAddress, isReadOnlyAddress) {
+  const userSettings = getFromLocalStorage('userSettings');
+  const newDeBankWallet = !userSettings.debankAddress;
+  const updateDeBankWallet =
+    userSettings.debankAddress &&
+    !isReadOnlyAddress &&
+    userSettings.debankAddress !== selectedAddress;
+  const weeklyCheck = (() => {
+    if (userSettings.debankTimestamp) {
+      const currentDate = getNowSeconds();
+      return currentDate - userSettings.debankTimestamp > ONE_WEEK;
+    }
+    return false;
+  })();
+
+  let isFetching = false;
+  let currentNetWorth = 0;
+
+  async function updateDeBankNetWorth(address: string) {
+    if (isFetching) return;
+    isFetching = true;
+    try {
+      const netWorth = await fetchDeBankNetWorth(address);
+      const currentTimestamp = getNowSeconds();
+      currentNetWorth = Math.trunc(netWorth);
+
+      const userSettings = getFromLocalStorage('userSettings');
+      setInLocalStorage('userSettings', {
+        ...userSettings,
+        debankAddress: address,
+        debankNetWorth: currentNetWorth,
+        debankTimestamp: currentTimestamp,
+      });
+    } finally {
+      isFetching = false;
+    }
+  }
+
+  if (newDeBankWallet || updateDeBankWallet || weeklyCheck) {
+    await updateDeBankNetWorth(selectedAddress);
+  }
+
+  return !userSettings.debankNetWorth
+    ? currentNetWorth
+    : userSettings.debankNetWorth;
+}
+
+async function updateWalletTracking(
+  selectedAddress: string,
+  isReadOnlyAddress: boolean | undefined
+) {
+  const balanceData = {
+    walletBalance: 0,
+    notionalBalance: 0,
+  };
+  const userSettings = getFromLocalStorage('userSettings');
+  let debankNetWorth = 0;
+  await getDebBankData(selectedAddress, isReadOnlyAddress).then((netWorth) => {
+    debankNetWorth = netWorth;
+  });
+  const accounts = Registry.getAccountRegistry();
+
+  SupportedNetworks.forEach((network) => {
+    const account = accounts.getAccount(network, selectedAddress)
+      ? accounts.getAccount(network, selectedAddress)
+      : undefined;
+
+    const walletBalance = account?.balances
+      .filter((b) => b.tokenType === 'Underlying' && b.symbol !== 'sNOTE')
+      .reduce((acc, b) => acc + b.toFiat('USD').toFloat(), 0);
+
+    const notionalBalance = account?.balances
+      .filter((b) => b.tokenType !== 'Underlying' && b.symbol !== 'sNOTE')
+      .reduce((acc, b) => acc + b.toFiat('USD').toFloat(), 0);
+
+    if (walletBalance) {
+      balanceData.walletBalance = balanceData.walletBalance + walletBalance;
+    }
+
+    if (notionalBalance) {
+      balanceData.notionalBalance =
+        balanceData.notionalBalance + notionalBalance;
+    }
+  });
+
+  const totalBalance = balanceData.notionalBalance + balanceData.walletBalance;
+
+  if (
+    !userSettings.connectedWallets ||
+    (userSettings.connectedWallets &&
+      !userSettings.connectedWallets.includes(selectedAddress))
+  ) {
+    const createdAt = Math.floor(Date.now() / 1000);
+    update({
+      created_at: createdAt,
+    });
+    setInLocalStorage('userSettings', {
+      ...userSettings,
+      connectedWallets: userSettings.connectedWallets
+        ? [...userSettings.connectedWallets, selectedAddress]
+        : [selectedAddress],
+    });
+  }
+
+  trackEvent(TRACKING_EVENTS.WALLET_CONNECTED, {
+    id: selectedAddress,
+    walletAddress: selectedAddress,
+    TotalWalletBalance: balanceData.walletBalance,
+    TotalNotionalBalance: balanceData.notionalBalance,
+    TotalBalance: totalBalance,
+    DeBankNetWorth: debankNetWorth,
+  });
+
+  datadogRum.setUser({
+    id: selectedAddress,
+    walletAddress: selectedAddress,
+    TotalWalletBalance: balanceData.walletBalance,
+    TotalNotionalBalance: balanceData.notionalBalance,
+    TotalBalance: totalBalance,
+    DeBankNetWorth: debankNetWorth,
+  });
+
+  update({
+    userId: selectedAddress,
+    name: selectedAddress,
+    customAttributes: {
+      TotalWalletBalance: balanceData.walletBalance,
+      TotalNotionalBalance: balanceData.notionalBalance,
+      TotalBalance: totalBalance,
+      DeBankNetWorth: debankNetWorth,
+    },
+  });
+}
+
 /** This observable emits async when the wallet info changes */
 function onSyncAccountInfo$(global$: Observable<GlobalState>) {
   return globalWhenWalletChanges$(global$).pipe(
@@ -86,6 +251,7 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
       const selectedAddress = g.wallet?.selectedAddress;
       if (selectedAddress === undefined) return undefined;
       const accounts = Registry.getAccountRegistry();
+
       if (
         g.wallet?.provider &&
         g.wallet.selectedChain &&
@@ -118,6 +284,8 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
           JSON.stringify(tokenBalances)
         );
       }
+
+      updateWalletTracking(selectedAddress, g.wallet?.isReadOnlyAddress);
 
       // check community membership
       const communityMembership = await checkCommunityMembership(
