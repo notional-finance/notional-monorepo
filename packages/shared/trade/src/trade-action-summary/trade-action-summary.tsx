@@ -18,7 +18,10 @@ import {
   LiquidityYieldInfo,
   NativeYieldPopup,
 } from './components';
-import { formatTokenType } from '@notional-finance/helpers';
+import {
+  formatNumberAsPercent,
+  formatTokenType,
+} from '@notional-finance/helpers';
 import {
   Registry,
   SingleSidedLP,
@@ -57,10 +60,14 @@ export function TradeActionSummary({
     selectedNetwork,
   } = state;
   const isVault = !!vaultAddress;
-  const { totalAPY, apySpread, leverageRatio, assetAPY } = useTotalAPY(
-    state,
-    priorVaultFactors
-  );
+  const {
+    totalAPY,
+    apySpread,
+    leverageRatio,
+    assetAPY,
+    organicAPY,
+    incentiveAPY,
+  } = useTotalAPY(state, priorVaultFactors);
   const vaultType =
     vaultAddress && selectedNetwork
       ? getVaultType(vaultAddress, selectedNetwork)
@@ -179,7 +186,8 @@ export function TradeActionSummary({
             justifyContent: 'space-between',
           }}
         >
-          {vaultType !== 'SingleSidedLP_AutoReinvest' && (
+          {(vaultType === 'SingleSidedLP_DirectClaim' ||
+            vaultType === 'SingleSidedLP_Points') && (
             <Box
               sx={{
                 display: 'flex',
@@ -187,10 +195,14 @@ export function TradeActionSummary({
                 marginTop: theme.spacing(1),
               }}
             >
-              {/* TODO: UPDATE THESE WITH THE REAL VALUES WHEN WE HAVE THEM */}
-              <H4 sx={{ marginRight: theme.spacing(2) }}>Organic APY: 10%</H4>
+              <H4 sx={{ marginRight: theme.spacing(2) }}>
+                Organic APY:{' '}
+                {organicAPY !== undefined
+                  ? formatNumberAsPercent(organicAPY)
+                  : '-'}
+              </H4>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <H4 sx={{ marginRight: theme.spacing(0.5) }}>Reward APY:</H4>
+                <H4 sx={{ marginRight: theme.spacing(0.5) }}>Reward APY: </H4>
                 {vaultType === 'SingleSidedLP_DirectClaim' && rewardTokens && (
                   <MultiTokenIcon
                     symbols={rewardTokens.map((t) => t.symbol)}
@@ -198,7 +210,11 @@ export function TradeActionSummary({
                     shiftSize={8}
                   />
                 )}
-                <H4 sx={{ marginLeft: theme.spacing(0.5) }}>63.00%</H4>
+                <H4 sx={{ marginLeft: theme.spacing(0.5) }}>
+                  {incentiveAPY !== undefined
+                    ? formatNumberAsPercent(incentiveAPY)
+                    : '-'}
+                </H4>
               </Box>
               <InfoTooltip
                 iconSize={theme.spacing(2)}
@@ -214,8 +230,8 @@ export function TradeActionSummary({
             </Box>
           )}
           {state.vaultAddress &&
-            vaultType !== 'SingleSidedLP_AutoReinvest' &&
-            vaultType && (
+            (vaultType === 'SingleSidedLP_DirectClaim' ||
+              vaultType === 'SingleSidedLP_Points') && (
               <ReinvestPill
                 vaultType={vaultType}
                 sx={{
