@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import { Stake, CoolDown, Redeem } from './sidebars';
-import { StakeNOTESummary } from './stake-note-summary';
+import StakeNOTESummary from './stake-note-summary';
 
 export const NOTEContext = createNOTEContext();
 

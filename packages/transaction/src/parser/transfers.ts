@@ -1,5 +1,5 @@
 import { NotionalV3ABI } from '@notional-finance/contracts';
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { getNetworkModel, TokenBalance } from '@notional-finance/core-entities';
 import {
   FEE_RESERVE,
   Network,
@@ -52,10 +52,7 @@ function decodeSystemAccount(address: string, network: Network): SystemAccount {
   }
 
   try {
-    const token = Registry.getTokenRegistry().getTokenByAddress(
-      network,
-      address
-    );
+    const token = getNetworkModel(network).getTokenByAddress(address);
     if (
       token.tokenType === 'PrimeCash' ||
       token.tokenType === 'PrimeDebt' ||
@@ -82,6 +79,8 @@ export function parseTransfersFromLogs(
   timestamp: number,
   logs: ethers.providers.Log[]
 ) {
+  const model = getNetworkModel(network);
+
   return logs.reduce(
     ({ transfers, markers }, l) => {
       let name: string;
@@ -98,10 +97,7 @@ export function parseTransfersFromLogs(
         const to = args['to'] as string;
         try {
           // NOTE: if this throws an error the transfer will remain unparsed
-          const token = Registry.getTokenRegistry().getTokenByAddress(
-            network,
-            l.address
-          );
+          const token = model.getTokenByAddress(l.address);
 
           transfers.push({
             logIndex: l.logIndex,
@@ -122,10 +118,7 @@ export function parseTransfersFromLogs(
       } else if (name === 'TransferSingle') {
         const from = args['from'] as string;
         const to = args['to'] as string;
-        const token = Registry.getTokenRegistry().getTokenByID(
-          network,
-          padToHex256(args['id'] as BigNumber)
-        );
+        const token = model.getTokenByID(padToHex256(args['id'] as BigNumber));
         const value = TokenBalance.from(args[4] as BigNumber, token);
 
         transfers.push({
@@ -148,10 +141,7 @@ export function parseTransfersFromLogs(
         const values = args[4] as BigNumber[];
 
         ids.forEach((id, i) => {
-          const token = Registry.getTokenRegistry().getTokenByID(
-            network,
-            padToHex256(id)
-          );
+          const token = model.getTokenByID(padToHex256(id));
 
           const value = TokenBalance.from(values[i], token);
           transfers.push({

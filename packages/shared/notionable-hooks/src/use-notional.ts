@@ -1,22 +1,23 @@
-import {
-  pluckFirst,
-  useObservable,
-  useObservableState,
-} from 'observable-hooks';
+import { pluckFirst, useObservable } from 'observable-hooks';
 import { NotionalError } from '@notional-finance/notionable';
 import { useCallback, useContext } from 'react';
 import { NotionalContext } from './context/NotionalContext';
-import { switchMap, take, concat, map, filter } from 'rxjs';
-import { NOTERegistryClient, Registry } from '@notional-finance/core-entities';
-import { Network, getDefaultNetworkFromHostname } from '@notional-finance/util';
+import { switchMap, take, concat } from 'rxjs';
+import { Network } from '@notional-finance/util';
 import { isAppReady } from '@notional-finance/notionable';
-import { useWalletConnectedNetwork } from './use-wallet';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
+import { getNetworkModel } from '@notional-finance/core-entities';
 
 export function useAppReady() {
   const {
     appState: { networkState },
   } = useAppContext();
-  return isAppReady(networkState);
+  const appStore = useAppStore();
+
+  return isAppReady(networkState) && appStore.isAppReady;
 }
 
 export function useAnalyticsReady(network: Network | undefined) {
@@ -28,12 +29,8 @@ export function useAnalyticsReady(network: Network | undefined) {
 }
 
 export function useLastUpdateBlockNumber() {
-  const network =
-    useWalletConnectedNetwork() ||
-    getDefaultNetworkFromHostname(window.location.hostname);
-  return network
-    ? Registry.getOracleRegistry().getLastUpdateBlock(network)
-    : undefined;
+  const currentNetworkStore = useCurrentNetworkStore();
+  return currentNetworkStore.lastUpdatedBlock;
 }
 
 export function useAppContext() {
@@ -68,42 +65,22 @@ export function useNotionalContext() {
 
 export function useNOTE(network: Network | undefined) {
   return network
-    ? Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE')
+    ? getNetworkModel(network).getTokenBySymbol('NOTE')
     : undefined;
 }
 
-export function useStakedNOTEPoolReady() {
-  return (
-    useObservableState(
-      Registry.getOracleRegistry()
-        .subscribeNetworkKeys(Network.mainnet)
-        .pipe(
-          filter((s) => s?.key === NOTERegistryClient.sNOTEOracle),
-          map(() => true)
-        )
-    ) ||
-    Registry.getOracleRegistry().isKeyRegistered(
-      Network.mainnet,
-      NOTERegistryClient.sNOTEOracle
-    )
-  );
-}
-
 export function useNotionalError() {
-  const {
-    globalState: { error },
-    updateNotional,
-  } = useNotionalContext();
+  const appStore = useAppStore();
 
   const reportError = useCallback(
     (error: NotionalError) => {
-      updateNotional({ error });
+      appStore.globalError.setGlobalError(error);
     },
-    [updateNotional]
+    [appStore.globalError]
   );
 
   return {
-    error,
+    error: appStore.globalError.error,
     reportError,
   };
 }

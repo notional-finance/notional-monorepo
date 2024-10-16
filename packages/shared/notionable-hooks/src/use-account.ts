@@ -1,17 +1,15 @@
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
 import { Network, SEASONS, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { getNowSeconds } from '@notional-finance/util';
+import { useWalletStore } from '@notional-finance/notionable';
 
 /** Contains selectors for account holdings information */
 function useNetworkAccounts(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-
-  return network && networkAccounts && networkAccounts[network];
+  const walletStore = useWalletStore();
+  return network ? walletStore.networkAccounts.get(network) : undefined;
 }
 
 /** Total NOTE balances across all networks */
@@ -79,13 +77,11 @@ export function useVaultPosition(
   network: Network | undefined,
   vaultAddress: string | undefined
 ) {
-  return useVaultHoldings(network).find(
-    ({ vault }) => vault.vaultAddress === vaultAddress
-  );
+  return useVaultHoldings(network).find((v) => v.vaultAddress === vaultAddress);
 }
 
 export function usePortfolioHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.portfolioHoldings || [];
+  return useNetworkAccounts(network)?.detailedHoldings || [];
 }
 
 export function useGroupedHoldings(network: Network | undefined) {
@@ -93,7 +89,7 @@ export function useGroupedHoldings(network: Network | undefined) {
 }
 
 export function usePortfolioRiskProfile(network: Network | undefined) {
-  return useNetworkAccounts(network)?.riskProfile;
+  return useNetworkAccounts(network)?.getAccountRiskProfile();
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {
@@ -130,24 +126,16 @@ export function useAccountNetWorth() {
   }, {} as Record<Network, TokenBalance>);
 }
 
-export function useArbPoints() {
-  const {
-    globalState: { arbPoints },
-  } = useNotionalContext();
-
-  return arbPoints;
-}
-
 export function useTotalArbPoints() {
-  const [totalPoints, setTotalPoints] = useState<{
+  const [totalPoints, _] = useState<{
     [SEASONS.SEASON_ONE]: number;
     [SEASONS.SEASON_TWO]: number;
     [SEASONS.SEASON_THREE]: number;
-  }>({ [SEASONS.SEASON_ONE]: 0, [SEASONS.SEASON_TWO]: 0, [SEASONS.SEASON_THREE]: 0 });
-  useEffect(() => {
-    Registry.getAnalyticsRegistry().getTotalPoints().then(setTotalPoints);
-  }, []);
-
+  }>({
+    [SEASONS.SEASON_ONE]: 0,
+    [SEASONS.SEASON_TWO]: 0,
+    [SEASONS.SEASON_THREE]: 0,
+  });
   return totalPoints;
 }
 
@@ -155,7 +143,10 @@ export function useCurrentSeason() {
   const now = getNowSeconds();
   if (now < PointsSeasonsData[SEASONS.SEASON_ONE].endDate.getTime() / 1000) {
     return PointsSeasonsData[SEASONS.SEASON_ONE];
-  } else if (now < PointsSeasonsData[SEASONS.SEASON_TWO].endDate.getTime() / 1000) {
+  } else if (
+    now <
+    PointsSeasonsData[SEASONS.SEASON_TWO].endDate.getTime() / 1000
+  ) {
     return PointsSeasonsData[SEASONS.SEASON_TWO];
   } else {
     return PointsSeasonsData[SEASONS.SEASON_THREE];
@@ -188,8 +179,3 @@ export const PointsSeasonsData = {
     totalPoints: '',
   },
 };
-
-
-export function useAccountTotalPointsPerDay() {
-  return useNetworkAccounts(Network.arbitrum)?.pointsPerDay || 0;
-}

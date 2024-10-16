@@ -1,9 +1,5 @@
 import { useTheme } from '@mui/material';
-import {
-  Registry,
-  TokenBalance,
-  TokenDefinition,
-} from '@notional-finance/core-entities';
+import { FiatKeys, getNetworkModel } from '@notional-finance/core-entities';
 import {
   formatNumberAsAbbr,
   formatNumberToDigits,
@@ -13,7 +9,7 @@ import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
   formatHealthFactorValues,
   useAllVaults,
-  useAppState,
+  useFetchAnalyticsData,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
@@ -21,56 +17,36 @@ import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { findSortingNum } from './use-all-accounts';
+import { useObserver } from 'mobx-react-lite';
 
-interface VaultAccountData {
-  account: string;
-  vaultAddress: string;
-  vaultName: string;
-  riskFactors: {
-    netWorth: TokenBalance;
-    debts: TokenBalance;
-    assets: TokenBalance;
-    collateralRatio: number | null;
-    healthFactor: number | null;
-    liquidationPrice: {
-      asset: TokenDefinition;
-      threshold: TokenBalance | null;
-      isDebtThreshold: boolean;
-    }[];
-    aboveMaxLeverageRatio: boolean;
-    leverageRatio: number | null;
-  };
-}
-
-export const useAllVaultAccounts = (selectedNetwork: Network) => {
+export const useAllVaultAccounts = (
+  selectedNetwork: Network,
+  baseCurrency: FiatKeys
+) => {
   const theme = useTheme();
-  const listedVaults = useAllVaults(selectedNetwork);
-  const [allVaultAccounts, setAllVaultAccounts] = useState<
-    VaultAccountData[] | undefined
-  >(undefined);
+  const listedVaults = useAllVaults();
   const { updateNotional } = useNotionalContext();
-  const { baseCurrency } = useAppState();
   const navigate = useNavigate();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [vaultNameOptions, setVaultNameOptions] = useState([]);
 
-  const fetchAllVaultAccounts = useCallback(async () => {
-    const { vaultRisk } = await Registry.getAnalyticsRegistry().getAccountRisk(
-      selectedNetwork
-    );
-    const allVaultAccountsData = await vaultRisk;
-    if (allVaultAccountsData) {
-      setAllVaultAccounts(allVaultAccountsData);
-    }
-  }, [selectedNetwork]);
+  const allVaultAccountsData = useObserver(() => {
+    const model = getNetworkModel(selectedNetwork);
+    return model.getVaultAccountRisk();
+  });
+
+  useFetchAnalyticsData(
+    'vaultAccountRisk',
+    !!allVaultAccountsData,
+    selectedNetwork
+  );
 
   useEffect(() => {
     if (selectedNetwork) {
-      fetchAllVaultAccounts();
       setVaultNameOptions([]);
       setHealthFactorOptions([]);
     }
-  }, [selectedNetwork, fetchAllVaultAccounts]);
+  }, [selectedNetwork]);
 
   const addressClick = useCallback(
     (address: string, network) => {
@@ -188,7 +164,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
     },
   ];
 
-  const tableData = allVaultAccounts
+  const tableData = allVaultAccountsData
     ?.map((data) => {
       return {
         address: {
@@ -238,7 +214,7 @@ export const useAllVaultAccounts = (selectedNetwork: Network) => {
       selectedOptions: vaultNameOptions,
       setSelectedOptions: setVaultNameOptions,
       placeHolderText: <FormattedMessage defaultMessage={'Vault Name'} />,
-      data: listedVaults.map(({ name }) => {
+      data: listedVaults.map(({ vaultConfig: { name } }) => {
         return {
           id: name,
           title: name,

@@ -23,7 +23,6 @@ import {
   useLeverageBlock,
   useSelectedNetwork,
   useVaultHoldings,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
@@ -37,11 +36,12 @@ import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
 import {
   FiatKeys,
+  getNetworkModel,
   PointsLinks,
-  Registry,
 } from '@notional-finance/core-entities';
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../components';
+import { useAppStore } from '@notional-finance/notionable';
 
 const HealthFactorCell = ({ cell }) => {
   const theme = useTheme();
@@ -152,10 +152,10 @@ function getVaultReinvestmentDate(
 ) {
   try {
     const reinvestmentData =
-      Registry.getAnalyticsRegistry().getVaultReinvestments(network)[
-        vaultAddress
-      ];
-    return getDateString(reinvestmentData[0].timestamp + reinvestmentCadence);
+      getNetworkModel(network).getVaultReinvestment(vaultAddress);
+    return reinvestmentData
+      ? getDateString(reinvestmentData[0].timestamp + reinvestmentCadence)
+      : '';
   } catch (e) {
     return '';
   }
@@ -322,7 +322,7 @@ export const useVaultHoldingsTable = () => {
   const [toggleOption, setToggleOption] = useState<number>(0);
   const isBlocked = useLeverageBlock();
   const theme = useTheme();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const navigate = useNavigate();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);

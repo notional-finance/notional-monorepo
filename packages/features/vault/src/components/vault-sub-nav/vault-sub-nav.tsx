@@ -3,7 +3,7 @@ import { styled, Box, useTheme } from '@mui/material';
 import { Link } from 'react-scroll';
 import { Label, ExternalLink } from '@notional-finance/mui';
 import { THEME_VARIANTS, VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { useVaultSubNav } from './use-vault-sub-nav';
@@ -14,7 +14,7 @@ interface NavItemProps {
 
 export const VaultSubNav = () => {
   const theme = useTheme();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
   const subNavData = useVaultSubNav();
   const [activeLink, setActiveLink] = useState<
     VAULT_SUB_NAV_ACTIONS | undefined
@@ -178,7 +178,7 @@ const NavItem = styled(Box, {
        height: ${theme.spacing(2.5)};
        position: fixed;
        margin-top: ${theme.spacing(8.375)};
-       clip-path: polygon(100% 100%, 0 100%, 50% 50%);
+       clipPath: polygon(100% 100%, 0 100%, 50% 50%);
        transform: rotate(180deg);
        background: ${theme.palette.background.accentDefault};
      }

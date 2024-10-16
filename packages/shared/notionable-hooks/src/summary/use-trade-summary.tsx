@@ -1,6 +1,6 @@
 import { Theme, useTheme } from '@mui/material';
 import {
-  Registry,
+  getNetworkModel,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -305,7 +305,7 @@ function getDebtFeeDetailItem(
     debtBalance?.unwrapVaultToken()?.tokenType === 'fCash'
   ) {
     feeToolTip = defineMessages({
-      content: { defaultMessage: 'Borrow Fee' },
+      content: { defaultMessage: 'Initial Borrow Fee' },
       toolTipContent: {
         defaultMessage:
           'Fees for fixed rate borrowing are paid up front. Fixed rate borrowing also incurs early exit costs.',
@@ -635,8 +635,7 @@ function getLeverageSummary(
       if (debt) {
         // Get the traded value of repaying a fixed rate debt
         if (debt.unwrapVaultToken().tokenType === 'fCash') {
-          const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
-            debt.network,
+          const fCashMarket = getNetworkModel(debt.network).getfCashMarket(
             debt.currencyId
           );
           const { netRealized } = exchangeToLocalPrime(

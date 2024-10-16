@@ -383,3 +383,17 @@ export type VaultReinvestment = Record<
     vaultSharePrice?: BigNumber;
   }[]
 >;
+// Can change this to fCashOracleRate to use oracle rates
+const FCASH_RATE_SOURCE = 'fCashSpotRate';
+
+export const PRICE_ORACLES = [
+  'sNOTE',
+  'Chainlink',
+  FCASH_RATE_SOURCE,
+  'fCashSettlementRate',
+  'PrimeCashToUnderlyingExchangeRate',
+  'PrimeDebtToUnderlyingExchangeRate',
+  'VaultShareOracleRate',
+  'nTokenToUnderlyingExchangeRate',
+  'sNOTEToETHExchangeRate',
+];

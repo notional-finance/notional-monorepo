@@ -188,7 +188,6 @@ export default class APYSimulator {
       rpcUrl,
       this.#config.chainId
     );
-
     // we can't call getExchangeRate when we warp into future without extending freshness
     await this.#extendMaxOracleFreshness(provider);
 
@@ -777,3 +776,4 @@ export default class APYSimulator {
     return forkBlock;
   }
 }
+

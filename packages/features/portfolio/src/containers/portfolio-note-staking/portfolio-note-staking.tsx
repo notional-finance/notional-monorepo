@@ -14,8 +14,9 @@ import { Box, useTheme, styled } from '@mui/material';
 import { formatNumberAsPercent, lastValue } from '@notional-finance/util';
 import { useStakedNoteData } from '@notional-finance/notionable-hooks';
 import { useConnect } from '@notional-finance/wallet';
+import { observer } from 'mobx-react-lite';
 
-export const PortfolioNoteStaking = () => {
+const PortfolioNoteStaking = () => {
   const theme = useTheme();
   const { columns, data, initialState, setExpandedRows, noStakedNoteData } =
     usePortfolioSNOTETable();
@@ -113,4 +114,4 @@ const Heading = styled(LargeInputTextEmphasized)(
   };`
 );
 
-export default PortfolioNoteStaking;
+export default observer(PortfolioNoteStaking);

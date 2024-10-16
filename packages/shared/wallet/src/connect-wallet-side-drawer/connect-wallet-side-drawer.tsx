@@ -2,21 +2,22 @@ import { useCallback } from 'react';
 import { Box, styled } from '@mui/material';
 import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
+import {
+  useSideDrawerManager,
+  useWalletConnectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { ViewAsAccount } from '../view-as-account/view-as-account';
 import { useWalletModules } from '../onboard-context';
 import { useConnect } from '../hooks/use-connect';
 import { useLocation } from 'react-router-dom';
-import {
-  useAccountReady,
-  useWalletConnectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { useAccountReady } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
-export const ConnectWalletSideDrawer = () => {
+const ConnectWalletSideDrawer = () => {
   const { connectWallet, currentLabel } = useConnect();
   const { pathname } = useLocation();
-  const network = useWalletConnectedNetwork();
-  const connected = useAccountReady(network);
+  const selectedChain = useWalletConnectedNetwork();
+  const connected = useAccountReady(selectedChain);
   const { clearWalletSideDrawer } = useSideDrawerManager();
   const modules = useWalletModules();
 
@@ -83,4 +84,4 @@ const Container = styled(Box)(
   `
 );
 
-export default ConnectWalletSideDrawer;
+export default observer(ConnectWalletSideDrawer);

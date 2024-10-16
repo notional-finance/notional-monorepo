@@ -1,5 +1,7 @@
-import { Registry } from '@notional-finance/core-entities';
-import { useEffect, useState } from 'react';
+import { getNetworkModel } from '@notional-finance/core-entities';
+import { Network } from '@notional-finance/util';
+import { useObserver } from 'mobx-react-lite';
+import { useFetchAnalyticsData } from './use-market';
 
 export type NoteSupplyData = {
   day: Date;
@@ -16,37 +18,19 @@ export type StakedNoteData = {
 }[];
 
 export function useNoteSupplyData() {
-  const [supplyData, setSupplyData] = useState<NoteSupplyData | undefined>(
-    undefined
-  );
-
-  useEffect(() => {
-    Registry.getNOTERegistry()
-      .getNOTESupplyData()
-      .then((data) => setSupplyData(data))
-      .catch((error) => {
-        console.error('Error fetching note supply data:', error);
-        setSupplyData(undefined);
-      });
-  }, []);
-
-  return supplyData;
+  const noteSupplyData = useObserver(() => {
+    const model = getNetworkModel(Network.mainnet);
+    return model.getNoteSupply();
+  });
+  useFetchAnalyticsData('noteSupply', !!noteSupplyData, Network.mainnet);
+  return noteSupplyData || [];
 }
 
 export function useStakedNoteData() {
-  const [stakedNoteData, setStakedNoteData] = useState<
-    StakedNoteData | undefined
-  >(undefined);
-
-  useEffect(() => {
-    Registry.getNOTERegistry()
-      .getSNOTEData()
-      .then((data) => setStakedNoteData(data))
-      .catch((error) => {
-        console.error('Error fetching staked note data:', error);
-        setStakedNoteData(undefined);
-      });
-  }, []);
-
-  return stakedNoteData;
+  const snoteData = useObserver(() => {
+    const model = getNetworkModel(Network.mainnet);
+    return model.getSNOTEData();
+  });
+  useFetchAnalyticsData('sNOTEData', !!snoteData, Network.mainnet);
+  return snoteData || [];
 }

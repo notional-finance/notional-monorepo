@@ -1,6 +1,5 @@
 import {
   ERC20ABI,
-  ISingleSidedLPStrategyVaultABI,
   NotionalV3,
   NotionalV3ABI,
 } from '@notional-finance/contracts';
@@ -16,7 +15,6 @@ import {
   sNOTE,
 } from '@notional-finance/util';
 import { BigNumber, Contract, providers } from 'ethers';
-import { Registry } from '../../Registry';
 import {
   AggregateCall,
   NO_OP,
@@ -27,11 +25,11 @@ import {
   AccountDefinition,
   AccountIncentiveDebt,
   StakeNoteStatus,
+  TokenDefinition,
 } from '../../Definitions';
 import { fetchUsingMulticall } from '../../server/server-registry';
 import { SNOTEWeightedPool } from '../../exchanges';
-import { getVaultType } from '../../config/whitelisted-vaults';
-import { SingleSidedLP } from '../../vaults';
+import { getNetworkModel } from '../../Models';
 
 export function fetchCurrentAccount(
   network: Network,
@@ -123,8 +121,8 @@ function getNotionalAccount(
   account: string,
   notional: NotionalV3
 ): AggregateCall[] {
-  const tokens = Registry.getTokenRegistry();
-  const NOTE = Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE');
+  const model = getNetworkModel(network);
+  const NOTE = model.getTokenBySymbol('NOTE');
 
   return [
     {
@@ -139,32 +137,34 @@ function getNotionalAccount(
           const balances: TokenBalance[] = [];
 
           if (b.cashBalance.gt(0)) {
-            const pCash = tokens.getPrimeCash(network, b.currencyId);
+            const pCash = model.getPrimeCash(b.currencyId);
             balances.push(TokenBalance.from(b.cashBalance, pCash));
           } else if (b.cashBalance.lt(0)) {
-            const pCash = tokens.getPrimeCash(network, b.currencyId);
-            const pDebt = tokens.getPrimeDebt(network, b.currencyId);
+            const pCash = model.getPrimeCash(b.currencyId);
+            const pDebt = model.getPrimeDebt(b.currencyId);
             balances.push(
               TokenBalance.from(b.cashBalance, pCash).toToken(pDebt)
             );
           }
 
           if (b.nTokenBalance.gt(0)) {
-            const nToken = tokens.getNToken(network, b.currencyId);
+            const nToken = model.getNToken(b.currencyId);
             balances.push(TokenBalance.from(b.nTokenBalance, nToken));
           }
 
-          accountIncentiveDebt.push({
-            value: TokenBalance.from(b.accountIncentiveDebt, NOTE),
-            currencyId: b.currencyId,
-          });
+          if (b.currencyId > 0) {
+            accountIncentiveDebt.push({
+              value: TokenBalance.from(b.accountIncentiveDebt, NOTE),
+              currencyId: b.currencyId,
+            });
+          }
 
           return balances;
         });
 
         const portfolioBalances = r.portfolio.map((a) => {
           const fCashId = encodefCashId(a.currencyId, a.maturity.toNumber());
-          return TokenBalance.fromID(a.notional, fCashId, network);
+          return new TokenBalance(a.notional, fCashId, network);
         });
 
         return {
@@ -182,9 +182,9 @@ function getWalletCalls(
   account: string,
   notional: NotionalV3
 ): AggregateCall[] {
-  const tokens = Registry.getTokenRegistry();
-  const walletTokensToTrack = tokens
-    .getAllTokens(network)
+  const model = getNetworkModel(network);
+  const walletTokensToTrack = model
+    .getAllTokens()
     .filter(
       (t) =>
         (t.currencyId !== undefined && t.tokenType === 'Underlying') ||
@@ -252,20 +252,19 @@ function getSecondaryIncentiveCalls(
   network: Network,
   account: string
 ): AggregateCall[] {
-  const tokens = Registry.getTokenRegistry();
-  const config = Registry.getConfigurationRegistry();
+  const model = getNetworkModel(network);
 
-  return tokens
-    .getAllTokens(network)
+  return model
+    .getAllTokens()
     .filter(
       (t) =>
         t.currencyId !== undefined &&
         t.tokenType === 'nToken' &&
-        config.getSecondaryRewarder(t)
+        model.getSecondaryRewarder(t)
     )
     .flatMap((t) => {
-      const rewarder = config.getSecondaryRewarder(t);
-      const secondary = config.getAnnualizedSecondaryIncentives(t);
+      const rewarder = model.getSecondaryRewarder(t);
+      const secondary = model.getAnnualizedSecondaryIncentives(t);
       if (!rewarder || !secondary) return [];
       const { rewardToken } = secondary;
       const rewardPrecision = BigNumber.from(10).pow(rewardToken.decimals);
@@ -327,11 +326,10 @@ function getVaultCalls(
   account: string,
   notional: NotionalV3
 ): AggregateCall[] {
-  const config = Registry.getConfigurationRegistry();
-  return (
-    config.getAllListedVaults(network, true) || []
-  ).flatMap<AggregateCall>((v) => {
-    const vaultCalls: AggregateCall[] = [
+  const model = getNetworkModel(network);
+
+  return (model.getAllListedVaults(true) || []).flatMap<AggregateCall>((v) => {
+    return [
       {
         stage: 0,
         target: notional,
@@ -343,30 +341,24 @@ function getVaultCalls(
         ) => {
           const maturity = vaultAccount.maturity.toNumber();
           if (maturity === 0) return { balances: [] };
-          const { vaultShareID, primaryDebtID, primaryCashID, primaryTokenId } =
-            config.getVaultIDs(network, v.vaultAddress, maturity);
+          const vaultShare = model.getVaultShare(v.vaultAddress, maturity);
+          const vaultDebt = model.getVaultDebt(v.vaultAddress, maturity);
+          const vaultCash = model.getVaultCash(v.vaultAddress, maturity);
+          const vaultUnderlying = model.getUnderlying(vaultShare.currencyId);
+
           const balances = [
-            TokenBalance.fromID(
-              vaultAccount.vaultShares,
-              vaultShareID,
-              network
-            ),
+            TokenBalance.from(vaultAccount.vaultShares, vaultShare),
             parseVaultDebtBalance(
-              primaryDebtID,
-              primaryTokenId,
+              vaultDebt,
+              vaultUnderlying,
               vaultAccount.accountDebtUnderlying,
-              maturity,
-              network
+              maturity
             ),
           ];
 
           if (!vaultAccount.tempCashBalance.isZero()) {
             balances.push(
-              TokenBalance.fromID(
-                vaultAccount.tempCashBalance,
-                primaryCashID,
-                network
-              )
+              TokenBalance.from(vaultAccount.tempCashBalance, vaultCash)
             );
           }
 
@@ -379,66 +371,36 @@ function getVaultCalls(
         },
       },
     ];
-
-    const vaultType = getVaultType(v.vaultAddress, network);
-    if (vaultType === 'SingleSidedLP_DirectClaim') {
-      const adapter = Registry.getVaultRegistry().getVaultAdapter(
-        network,
-        v.vaultAddress
-      ) as SingleSidedLP;
-      const rewardTokens = adapter.rewardTokens;
-
-      vaultCalls.push({
-        stage: 0,
-        target: new Contract(
-          v.vaultAddress,
-          ISingleSidedLPStrategyVaultABI,
-          notional.provider
-        ),
-        method: 'getAccountRewardClaim',
-        args: [account, getNowSeconds()],
-        key: `${v.vaultAddress}.rewardClaim`,
-        transform: (r: BigNumber[]) => {
-          return r.map((b, i) =>
-            TokenBalance.fromID(b, rewardTokens[i], network)
-          );
-        },
-      });
-    }
-
-    return vaultCalls;
   });
 }
 
 function parseVaultDebtBalance(
-  debtID: string,
-  underlyingID: string,
+  vaultDebt: TokenDefinition,
+  vaultUnderlying: TokenDefinition,
   balance: BigNumber,
-  maturity: number,
-  network: Network
+  maturity: number
 ) {
   if (maturity === PRIME_CASH_VAULT_MATURITY) {
     // In in the prime vault maturity, convert from underlying back to prime debt denomination
-    const tokens = Registry.getTokenRegistry();
-    const vaultDebtToken = tokens.getTokenByID(network, debtID);
-    const pDebt = TokenBalance.fromID(balance, underlyingID, network)
+    const pDebt = TokenBalance.from(balance, vaultUnderlying)
       .scaleFromInternal()
-      .toToken(tokens.unwrapVaultToken(vaultDebtToken));
-    return TokenBalance.fromID(pDebt.n, debtID, network);
+      .toPrimeDebt();
+    return TokenBalance.from(pDebt.n, vaultDebt);
   }
 
-  return TokenBalance.fromID(balance, debtID, network);
+  return TokenBalance.from(balance, vaultDebt);
 }
 
 // NOTE: this is not used anywhere yet but will be activated when we add support for secondary debt
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+/*
 function getVaultSecondaryDebtCalls(
   notional: Contract,
   account: string,
   vaultAddress: string,
-  network: Network
+  network: Network,
+  model: Instance<typeof NetworkModel>
 ) {
-  const config = Registry.getConfigurationRegistry();
   return [
     {
       stage: 0,
@@ -458,7 +420,7 @@ function getVaultSecondaryDebtCalls(
           secondaryTwoCashID,
           secondaryTwoDebtID,
           secondaryTwoTokenId,
-        } = config.getVaultIDs(network, vaultAddress, maturity);
+        } = model.getSecondaryVaultIDs(network, vaultAddress, maturity);
 
         const secondaries: TokenBalance[] = [];
 
@@ -472,8 +434,7 @@ function getVaultSecondaryDebtCalls(
               secondaryOneDebtID,
               secondaryOneTokenId,
               r.accountSecondaryDebt[0],
-              maturity,
-              network
+              maturity
             )
           );
         }
@@ -488,15 +449,14 @@ function getVaultSecondaryDebtCalls(
               secondaryTwoDebtID,
               secondaryTwoTokenId,
               r.accountSecondaryDebt[1],
-              maturity,
-              network
+              maturity
             )
           );
         }
 
         if (secondaryOneCashID && !r.accountSecondaryCashHeld[0].isZero()) {
           secondaries.push(
-            TokenBalance.fromID(
+            new TokenBalance(
               r.accountSecondaryCashHeld[0],
               secondaryOneCashID,
               network
@@ -506,7 +466,7 @@ function getVaultSecondaryDebtCalls(
 
         if (secondaryTwoCashID && !r.accountSecondaryCashHeld[1].isZero()) {
           secondaries.push(
-            TokenBalance.fromID(
+            new TokenBalance(
               r.accountSecondaryCashHeld[1],
               secondaryTwoCashID,
               network
@@ -519,3 +479,4 @@ function getVaultSecondaryDebtCalls(
     },
   ];
 }
+*/

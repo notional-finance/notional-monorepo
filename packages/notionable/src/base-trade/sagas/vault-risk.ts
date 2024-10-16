@@ -1,6 +1,5 @@
 import {
   AccountDefinition,
-  Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
@@ -146,10 +145,10 @@ function vaultRiskSummary(
 ) {
   const priorAccountRisk = prior?.getAllRiskFactors();
   const postAccountRisk = post?.getAllRiskFactors();
-  const network = prior?.network || post?.network;
-  const yields = network
-    ? Registry.getYieldRegistry().getAllYields(network)
-    : [];
+  // const network = prior?.network || post?.network;
+  // const yields = network
+  //   ? Registry.getYieldRegistry().getAllYields(network)
+  //   : [];
 
   const priorBorrowRate = prior?.borrowAPY;
   const priorAPY = prior?.totalAPY;
@@ -157,11 +156,12 @@ function vaultRiskSummary(
     post?.maturity === PRIME_CASH_VAULT_MATURITY
       ? newBorrowRate
       : averageFixedRate(prior, post, newBorrowRate);
-  const vaultSharesAPY = yields.find(
-    (y) =>
-      y.token.tokenType === 'VaultShare' &&
-      y.token.vaultAddress === (prior?.vaultAddress || post?.vaultAddress)
-  )?.totalAPY;
+  const vaultSharesAPY = 0;
+  // const vaultSharesAPY = yields.find(
+  //   (y) =>
+  //     y.token.tokenType === 'VaultShare' &&
+  //     y.token.vaultAddress === (prior?.vaultAddress || post?.vaultAddress)
+  // )?.totalAPY;
   const postAPY = leveragedYield(
     vaultSharesAPY,
     postBorrowRate,

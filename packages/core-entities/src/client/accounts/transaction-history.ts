@@ -4,12 +4,12 @@ import {
   ZERO_ADDRESS,
   groupArrayByKey,
 } from '@notional-finance/util';
-import { Registry } from '../../Registry';
-import { TokenBalance } from '../../token-balance';
+import { getNetworkModel } from '../../Models';
+import { parseGraphBalanceToTokenBalance } from './balance-statement';
+import { AccountHistory, TokenDefinition } from '../../Definitions';
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ProfitLossLineItem, Transaction } from '../../.graphclient';
-import { AccountHistory, TokenDefinition } from '../../Definitions';
 
 export function parseTransaction(
   t: Transaction,
@@ -132,22 +132,26 @@ function getLabelName(bundleName: string, token: TokenDefinition) {
 export function parseLineItem(p: ProfitLossLineItem, network: Network) {
   const tokenId = p.token.id;
   const underlyingId = p.underlyingToken.id;
-  const token = Registry.getTokenRegistry().getTokenByID(network, tokenId);
+  const model = getNetworkModel(network);
+  const token = model.getTokenByID(tokenId);
+  const underlying = model.getTokenByID(underlyingId);
+
   const vaultName =
     !!token.vaultAddress && token.vaultAddress !== ZERO_ADDRESS
-      ? Registry.getConfigurationRegistry().getVaultName(
-          token.network,
-          token.vaultAddress
-        )
+      ? model.getVaultName(token.vaultAddress)
       : undefined;
 
-  let tokenAmount = TokenBalance.fromID(p.tokenAmount, tokenId, network);
-  let underlyingAmountRealized = TokenBalance.fromID(
+  let tokenAmount = parseGraphBalanceToTokenBalance(
+    p.tokenAmount,
+    tokenId,
+    network
+  );
+  let underlyingAmountRealized = parseGraphBalanceToTokenBalance(
     p.underlyingAmountRealized,
     underlyingId,
     network
   );
-  let underlyingAmountSpot = TokenBalance.fromID(
+  let underlyingAmountSpot = parseGraphBalanceToTokenBalance(
     p.underlyingAmountSpot,
     underlyingId,
     network
@@ -162,10 +166,6 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
     underlyingAmountSpot = underlyingAmountSpot.neg();
   }
 
-  const underlying = Registry.getTokenRegistry().getTokenByID(
-    network,
-    underlyingId
-  );
   const bundleName = p.bundle?.bundleName;
   let groupKey = `${underlying.id}:${bundleName}`;
   if (bundleName === 'nToken Residual Transfer') {
@@ -198,8 +198,16 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
     tokenAmount,
     underlyingAmountRealized,
     underlyingAmountSpot,
-    realizedPrice: TokenBalance.fromID(p.realizedPrice, underlyingId, network),
-    spotPrice: TokenBalance.fromID(p.spotPrice, underlyingId, network),
+    realizedPrice: parseGraphBalanceToTokenBalance(
+      p.realizedPrice,
+      underlyingId,
+      network
+    ),
+    spotPrice: parseGraphBalanceToTokenBalance(
+      p.spotPrice,
+      underlyingId,
+      network
+    ),
     impliedFixedRate: p.impliedFixedRate
       ? (p.impliedFixedRate * 100) / RATE_PRECISION
       : undefined,

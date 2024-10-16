@@ -6,11 +6,11 @@ import {
   usePortfolioRiskProfile,
   usePrimeDebt,
   usePrimeCash,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
+import { useAppStore } from '@notional-finance/notionable';
 
 interface PortfolioHoldingSelectProps {
   context: BaseTradeContext;
@@ -32,7 +32,7 @@ export const PortfolioHoldingSelect = ({
   filterBalances,
   isWithdraw,
 }: PortfolioHoldingSelectProps) => {
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const theme = useTheme();
   const {
     state: { collateral, debt, selectedNetwork, deposit },
@@ -45,8 +45,8 @@ export const PortfolioHoldingSelect = ({
     selectedToken: string;
   }>();
 
-  const primeDebt = usePrimeDebt(deposit?.network, deposit?.currencyId);
-  const primeCash = usePrimeCash(deposit?.network, deposit?.currencyId);
+  const primeDebt = usePrimeDebt(deposit?.currencyId);
+  const primeCash = usePrimeCash(deposit?.currencyId);
 
   // NOTE: need to flip prime cash and prime debt for the select box
   const selectedTokenId =

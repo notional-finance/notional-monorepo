@@ -28,10 +28,8 @@ export const VaultSideDrawer = ({
     tradeType: _tradeType,
     selectedNetwork,
   } = state;
-  const { minDepositRequired } = useVaultProperties(
-    selectedNetwork,
-    vaultAddress
-  );
+  const props = useVaultProperties(vaultAddress);
+  const { minDepositRequired } = props ?? {};
   const tradeType = _tradeType as VaultTradeType;
 
   if (!tradeType) return null;

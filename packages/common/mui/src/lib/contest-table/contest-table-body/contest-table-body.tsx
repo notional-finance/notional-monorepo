@@ -55,9 +55,10 @@ export const ContestTableBody = ({
               isCurrentUser={isCurrentUser}
               tableVariant={tableVariant}
             >
-              {cells.map((cell: Record<string, any>) => {
+              {cells.map((cell: Record<string, any>, i: number) => {
                 return (
                   <TableCell
+                    key={i}
                     sx={{
                       padding: cell.column.columnDef.padding || '8px 16px',
                       textAlign: cell.column.columnDef.textAlign || 'center',

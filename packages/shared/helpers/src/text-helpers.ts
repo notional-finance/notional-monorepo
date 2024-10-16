@@ -1,7 +1,6 @@
 import {
-  Registry,
+  getNetworkModel,
   TokenDefinition,
-  YieldData,
 } from '@notional-finance/core-entities';
 import {
   PRIME_CASH_VAULT_MATURITY,
@@ -38,10 +37,7 @@ export function formatTokenType(
   const underlying =
     token.tokenType === 'NOTE' || token.tokenType === 'Underlying'
       ? token
-      : Registry.getTokenRegistry().getUnderlying(
-          token.network,
-          token.currencyId
-        );
+      : getNetworkModel(token.network).getUnderlying(token.currencyId);
   switch (token.tokenType) {
     case 'Underlying':
     case 'nToken':
@@ -55,10 +51,8 @@ export function formatTokenType(
       return {
         title: token.name,
         // Prime Debt shares the same icon as Prime Cash
-        icon: Registry.getTokenRegistry().getPrimeCash(
-          token.network,
-          token.currencyId
-        ).symbol,
+        icon: getNetworkModel(token.network).getPrimeCash(token.currencyId)
+          .symbol,
         titleWithMaturity: token.name,
         formattedTitle: `Variable ${underlying.symbol} Borrow`,
       };
@@ -99,7 +93,7 @@ export function formatTokenType(
     case 'VaultDebt':
     case 'VaultCash':
       return formatTokenType(
-        Registry.getTokenRegistry().unwrapVaultToken(token)
+        getNetworkModel(token.network).unwrapVaultToken(token)
       );
     default:
       return {
@@ -109,36 +103,4 @@ export function formatTokenType(
         titleWithMaturity: token.symbol,
       };
   }
-}
-
-/** For use with all markets page */
-export function formatYieldCaption(y: YieldData) {
-  if (y.token.tokenType === 'fCash') {
-    if (y.leveraged?.debtToken.tokenType === 'PrimeDebt') {
-      return 'Variable Borrow';
-    } else if (y.leveraged?.debtToken.tokenType === 'fCash') {
-      return `Fixed Borrow: ${formatMaturity(
-        y.leveraged.debtToken.maturity || 0
-      )}`;
-    } else if (y.leveraged === undefined) {
-      return formatMaturity(y.token.maturity || 0);
-    }
-  } else if (y.token.tokenType === 'nToken') {
-    if (y.leveraged?.debtToken.tokenType === 'PrimeDebt') {
-      return 'Variable Borrow';
-    } else if (y.leveraged?.debtToken.tokenType === 'fCash') {
-      return `Fixed Borrow: ${formatMaturity(
-        y.leveraged.debtToken.maturity || 0
-      )}`;
-    } else if (y.leveraged === undefined) {
-      return undefined;
-    }
-  } else if (y.token.tokenType === 'VaultShare' && y.token.vaultAddress) {
-    return Registry.getConfigurationRegistry().getVaultName(
-      y.token.network,
-      y.token.vaultAddress
-    );
-  }
-
-  return undefined;
 }

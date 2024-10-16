@@ -1,4 +1,7 @@
-import { Registry, SNOTEWeightedPool } from '@notional-finance/core-entities';
+import {
+  getNetworkModel,
+  SNOTEWeightedPool,
+} from '@notional-finance/core-entities';
 import { PopulateTransactionInputs, populateTxnAndGas } from './common';
 import {
   BASIS_POINT,
@@ -16,7 +19,7 @@ export function StakeNOTE({
   const sNOTE = SNOTEWeightedPool.sNOTE_Contract.connect(
     getProviderFromNetwork(Network.mainnet)
   );
-  const pool = Registry.getExchangeRegistry().getSNOTEPool();
+  const pool = getNetworkModel(Network.mainnet).getSNOTEPool();
   if (
     !pool ||
     !secondaryDepositBalance ||

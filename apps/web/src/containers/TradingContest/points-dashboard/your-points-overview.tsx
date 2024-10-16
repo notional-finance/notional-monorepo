@@ -7,9 +7,12 @@ import {
   ContestTable,
 } from '@notional-finance/mui';
 import { useYourPointsOverviewTables } from './hooks';
+import { usePointsDashboardStore } from './init-points-dashboard';
 export const YourPointsOverview = () => {
   const theme = useTheme();
-  const { yourPointsColumns, yourPointsData } = useYourPointsOverviewTables();
+  const { arbPoints } = usePointsDashboardStore();
+  const { yourPointsColumns, yourPointsData } =
+    useYourPointsOverviewTables(arbPoints);
 
   return (
     <ContentContainer>

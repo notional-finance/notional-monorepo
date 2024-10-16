@@ -27,7 +27,7 @@ export const AdjustLeverage = () => {
     selectedNetwork,
     selectedDepositToken
   );
-  const primeCash = usePrimeCash(debt?.network, debt?.currencyId);
+  const primeCash = usePrimeCash(debt?.currencyId);
   const [isDeleverage, setIsDeleverage] = useState(false);
 
   // NOTE: when the leverage slider goes below the account's default position

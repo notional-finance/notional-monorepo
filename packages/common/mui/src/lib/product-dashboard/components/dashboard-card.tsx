@@ -11,8 +11,8 @@ import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { colors, NotionalTheme } from '@notional-finance/styles';
 import SliderBasic from '../../slider-basic/slider-basic';
-import { useAppState } from '@notional-finance/notionable-hooks';
 import { THEME_VARIANTS } from '@notional-finance/util';
+import { useAppStore } from '@notional-finance/notionable';
 
 interface GridCardApyProps {
   hideApySubTitle: boolean;
@@ -27,7 +27,7 @@ const ReinvestPill = ({
   label: MessageDescriptor;
 }) => {
   const theme = useTheme();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
 
   return (
     <Caption

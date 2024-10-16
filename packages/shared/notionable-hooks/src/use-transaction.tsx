@@ -1,11 +1,12 @@
 import { trackEvent } from '@notional-finance/helpers';
 import { logError, TRACKING_EVENTS, Network } from '@notional-finance/util';
-import { PopulatedTransaction } from 'ethers';
+import { ethers, PopulatedTransaction } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
 import { useNotionalContext } from './use-notional';
 import { useLocation } from 'react-router';
-import { Registry, TokenDefinition } from '@notional-finance/core-entities';
-import { useWalletConnectedNetwork } from './use-wallet';
+import { TokenDefinition } from '@notional-finance/core-entities';
+import { useWalletStore } from '@notional-finance/notionable';
+import { useConnectWallet } from '@web3-onboard/react';
 
 export enum TransactionStatus {
   NONE = 'none',
@@ -20,12 +21,12 @@ export enum TransactionStatus {
 
 function useSubmitTransaction() {
   const {
-    globalState: { wallet, sentTransactions },
+    globalState: { sentTransactions },
     updateNotional,
   } = useNotionalContext();
-  const selectedNetwork = useWalletConnectedNetwork();
-  const signer = wallet?.signer;
+  const { userWallet } = useWalletStore();
   const { pathname } = useLocation();
+  const [{ wallet }] = useConnectWallet();
 
   const submitTransaction = useCallback(
     async (
@@ -33,30 +34,37 @@ function useSubmitTransaction() {
       populatedTransaction: PopulatedTransaction,
       tokens?: TokenDefinition[]
     ) => {
-      if (!signer || !selectedNetwork) throw Error('Signer undefined');
+      if (!wallet || !userWallet?.selectedChain)
+        throw Error('provider undefined');
+
+      const provider = new ethers.providers.Web3Provider(wallet?.provider);
+      const signer = provider?.getSigner();
+
+      if (!signer) throw Error('Signer undefined');
+
       const tx = await signer.sendTransaction(populatedTransaction);
       const { hash } = tx;
       trackEvent(TRACKING_EVENTS.SUBMIT_TXN, {
         url: pathname,
         txnHash: hash,
         transactionLabel,
-        selectedNetwork,
+        userWallet,
       });
 
       updateNotional({
         sentTransactions: [
           ...sentTransactions,
-          { network: selectedNetwork, response: tx, tokens, hash },
+          { network: userWallet?.selectedChain, response: tx, tokens, hash },
         ],
       });
 
       return hash;
     },
-    [updateNotional, signer, sentTransactions, pathname, selectedNetwork]
+    [updateNotional, sentTransactions, pathname, userWallet, wallet]
   );
 
   return {
-    isReadOnlyAddress: wallet?.isReadOnlyAddress,
+    isReadOnlyAddress: userWallet?.isReadOnlyAddress,
     submitTransaction,
   };
 }
@@ -84,7 +92,7 @@ export function useTransactionStatus(
   network: Network | undefined,
   onTxnConfirmed?: () => void
 ) {
-  const walletNetwork = useWalletConnectedNetwork();
+  const { userWallet } = useWalletStore();
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(
     TransactionStatus.NONE
   );
@@ -94,13 +102,15 @@ export function useTransactionStatus(
   const { isReadOnlyAddress, submitTransaction } = useSubmitTransaction();
   const { pathname } = useLocation();
   const isWalletConnectedToNetwork =
-    !!network && !!walletNetwork && network === walletNetwork;
+    !!network &&
+    !!userWallet?.selectedAddress &&
+    network === userWallet?.selectedChain;
 
   useEffect(() => {
     if (reverted) setTransactionHash(TransactionStatus.REVERT);
     else if (transactionReceipt) {
       setTransactionStatus(TransactionStatus.CONFIRMED);
-      if (network) Registry.getAccountRegistry().refreshActiveAccount(network);
+      // if (network) refreshActiveAccount(network);
       if (onTxnConfirmed) onTxnConfirmed();
     }
   }, [transactionReceipt, reverted, network, onTxnConfirmed]);

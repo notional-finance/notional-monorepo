@@ -1,6 +1,7 @@
 import { Player } from '@lottiefiles/react-lottie-player';
 import { styled, Box } from '@mui/material';
-import { HeroContent, HeroStats } from './components';
+import { HeroContent } from './components';
+import HeroStats from './components/hero-stats';
 import MobileLottie from './images/mobile-lottie.json';
 import DesktopLottie from './images/desktop-lottie.json';
 import { useState } from 'react';

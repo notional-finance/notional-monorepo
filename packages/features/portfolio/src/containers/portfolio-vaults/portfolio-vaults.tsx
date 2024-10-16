@@ -15,7 +15,7 @@ import { Box, useTheme } from '@mui/material';
 import { useState } from 'react';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { MultiTokenIcon } from '@notional-finance/icons';
-
+import { observer } from 'mobx-react-lite';
 // import { useVaultEarnings } from './use-vault-earnings';
 
 const ClaimableRewards = ({
@@ -153,4 +153,4 @@ export const PortfolioVaults = () => {
   );
 };
 
-export default PortfolioVaults;
+export default observer(PortfolioVaults);

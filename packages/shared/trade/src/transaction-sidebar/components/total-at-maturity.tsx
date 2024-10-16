@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import { Body, Caption, CountUp, LabelValue } from '@notional-finance/mui';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import { FormattedMessage } from 'react-intl';
 
 interface TotalAtMaturityProps {
@@ -19,7 +19,7 @@ export const TotalAtMaturity = ({
   collateral,
 }: TotalAtMaturityProps) => {
   const theme = useTheme();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const tokenValue = totalAtMaturity ? totalAtMaturity?.toFloat() : 0;
   const fiatValue = totalAtMaturity
     ? totalAtMaturity.toFiat(baseCurrency).toFloat()

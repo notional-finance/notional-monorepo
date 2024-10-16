@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { StyledButton } from '@notional-finance/mui';
 import { QualifyingProducts } from './qualifying-products';
-import { MyBreakdown } from './my-breakdown';
+import MyBreakdown from './my-breakdown';
 import { HowItWorks } from './how-it-works';
 
 export const PointsDashboardManager = () => {

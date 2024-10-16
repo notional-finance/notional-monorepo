@@ -23,7 +23,6 @@ export * from './use-geoip-block';
 export * from './use-contest';
 export * from './use-network';
 export * from './use-note-data';
-export * from './use-app-state';
 export * from './summary/use-liquidation-risk';
 export * from './summary/use-order-details';
 export * from './summary/use-portfolio-comparison';

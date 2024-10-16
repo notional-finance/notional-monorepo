@@ -5,14 +5,14 @@ import {
   Language,
   LanguageButton,
   EnabledCurrencies,
-  EnabledCurrenciesButton,
-  BaseCurrency,
   BaseCurrencyButton,
-  DarkModeToggle,
   useDarkModeToggle,
   useVariableBorrowToggle,
-  VariableBorrowToggle,
 } from './components';
+import DarkModeToggle from './components/dark-mode-toggle/dark-mode-toggle';
+import EnabledCurrenciesButton from './components/enabled-currencies/enabled-currencies';
+import VariableBorrowToggle from './components/variable-borrow-toggle/variable-borrow-toggle';
+import BaseCurrency from './components/base-currency/base-currency';
 import { FormattedMessage } from 'react-intl';
 import { ReactNode } from 'react';
 import { useTruncatedAddress } from '@notional-finance/notionable-hooks';

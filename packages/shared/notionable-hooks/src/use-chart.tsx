@@ -1,5 +1,6 @@
 import {
-  Registry,
+  ChartType,
+  getNetworkModel,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -11,9 +12,45 @@ import {
   floorToMidnight,
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
-import { useMemo } from 'react';
-import { useAnalyticsReady, useAppContext } from './use-notional';
-import { useAppState } from './use-app-state';
+import { useEffect, useMemo } from 'react';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
+import { useObserver } from 'mobx-react-lite';
+
+export const useChartData = (
+  token: TokenDefinition | undefined,
+  chartType: ChartType
+) => {
+  const tokenId =
+    token?.tokenType === 'VaultShare' ? token.vaultAddress : token?.id;
+  const network = token?.network;
+
+  const d = useObserver(() => {
+    if (!tokenId)
+      return {
+        data: undefined,
+        isLoading: true,
+        error: undefined,
+      };
+
+    const model = getNetworkModel(network);
+    return model.getTimeSeries(tokenId, chartType);
+  });
+
+  useEffect(() => {
+    if (d.data === undefined && tokenId && network) {
+      const asyncFetch = async () => {
+        const model = getNetworkModel(network);
+        await model.fetchTimeSeriesData(tokenId, chartType);
+      };
+      asyncFetch();
+    }
+  }, [d.data, tokenId, network, chartType]);
+
+  return d;
+};
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -40,32 +77,6 @@ function fillChartDaily<T extends { timestamp: number }>(
   });
 }
 
-export function useTokenHistory(token?: TokenDefinition) {
-  const isReady = useAnalyticsReady(token?.network);
-  const { apyData, tvlData } = useMemo(() => {
-    const apyData =
-      token && isReady
-        ? Registry.getAnalyticsRegistry().getHistoricalAPY(token)
-        : undefined;
-    const tvlData =
-      token && isReady
-        ? Registry.getAnalyticsRegistry().getPriceHistory(token)
-        : undefined;
-    return { apyData, tvlData };
-  }, [token, isReady]);
-
-  return {
-    apyData: fillChartDaily(apyData || [], { totalAPY: 0 }),
-    tvlData: fillChartDaily(
-      tvlData?.map(({ timestamp, tvlUSD }) => ({
-        timestamp,
-        area: tvlUSD?.toFloat() || 0,
-      })) || [],
-      { area: 0 }
-    ),
-  };
-}
-
 export function useLeveragedPerformance(
   token: TokenDefinition | undefined,
   isPrimeBorrow: boolean,
@@ -73,24 +84,19 @@ export function useLeveragedPerformance(
   leverageRatio: number | null | undefined,
   leveragedLendFixedRate: number | undefined
 ) {
-  const isReady = useAnalyticsReady(token?.network);
-  if (!token || !isReady) return [];
-  const analytics = Registry.getAnalyticsRegistry();
-  const primeDebt = Registry.getTokenRegistry().getPrimeDebt(
-    token.network,
-    token.currencyId
-  );
-  const tokenData = analytics.getHistoricalAPY(token);
-  const primeBorrow = isPrimeBorrow
-    ? analytics.getHistoricalAPY(primeDebt)
-    : undefined;
+  const currentNetworkStore = useCurrentNetworkStore();
+  const primeDebt = currentNetworkStore.getPrimeDebt(token?.currencyId);
+  const { data: tokenAPY } = useChartData(token, ChartType.APY);
+  const { data: primeBorrowAPY } = useChartData(primeDebt, ChartType.APY);
 
+  if (!token) return [];
   return fillChartDaily(
-    tokenData.map((d) => {
-      const totalAPY = leveragedLendFixedRate || d.totalAPY || 0;
+    tokenAPY?.data?.map((d) => {
+      const totalAPY = leveragedLendFixedRate || d['totalAPY'] || 0;
       const borrowRate = isPrimeBorrow
-        ? primeBorrow?.find(({ timestamp }) => d.timestamp === timestamp)
-            ?.totalAPY || undefined
+        ? primeBorrowAPY?.data?.find(
+            ({ timestamp }) => d.timestamp === timestamp
+          )?.['totalAPY'] || undefined
         : currentBorrowRate;
 
       return {
@@ -99,7 +105,7 @@ export function useLeveragedPerformance(
         borrowRate,
         leveragedReturn: leveragedYield(totalAPY, borrowRate, leverageRatio),
       };
-    }),
+    }) || [],
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     { strategyReturn: 0, leveragedReturn: undefined, borrowRate: undefined }
@@ -144,15 +150,13 @@ export function calculateDepositValue(
 }
 
 export function useAssetPriceHistory(token: TokenDefinition | undefined) {
-  const isReady = useAnalyticsReady(token?.network);
-  if (!token || !isReady) return [];
-  const data = Registry.getAnalyticsRegistry().getPriceHistory(token);
+  const { data: tokenPrice } = useChartData(token, ChartType.PRICE);
 
   const chart = fillChartDaily(
-    data.map((d) => ({
+    tokenPrice?.data?.map((d) => ({
       timestamp: d.timestamp,
-      assetPrice: d.priceInUnderlying?.toFloat() || 0,
-    })),
+      assetPrice: d['priceToUnderlying'] || 0,
+    })) || [],
     { assetPrice: 0 }
   );
 
@@ -165,18 +169,6 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
   return chart;
 }
 
-export function useTotalHolders(token: TokenDefinition | undefined) {
-  const isReady = useAnalyticsReady(token?.network);
-  const {
-    appState: { activeAccounts },
-  } = useAppContext();
-
-  return isReady && token && activeAccounts && activeAccounts[token.network]
-    ? activeAccounts[token.network][`${token.tokenType}:${token.currencyId}`] ||
-        0
-    : undefined;
-}
-
 export function useAccountHistoryChart(
   network: Network | undefined,
   startTime: number,
@@ -184,17 +176,12 @@ export function useAccountHistoryChart(
   tickSizeInSeconds: number
 ) {
   const account = useAccountDefinition(network);
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
 
   return useMemo(() => {
     if (!account) return undefined;
     // These are sorted ascending by default
     const allHistoricalSnapshots = account?.historicalBalances || [];
-
-    const base = Registry.getTokenRegistry().getTokenBySymbol(
-      Network.all,
-      baseCurrency
-    );
 
     // Bucket the start and end time ranges
     const numBuckets = Math.ceil((endTime - startTime) / tickSizeInSeconds);
@@ -235,7 +222,7 @@ export function useAccountHistoryChart(
                   .toUnderlying()
                   .toFiat(baseCurrency, floorToMidnight(end))
               );
-            }, TokenBalance.zero(base));
+            }, new TokenBalance(0, baseCurrency, Network.all));
 
           const debts = snapshotsAtTime
             ?.filter(
@@ -252,7 +239,7 @@ export function useAccountHistoryChart(
                   .toUnderlying()
                   .toFiat(baseCurrency, floorToMidnight(end))
               );
-            }, TokenBalance.zero(base));
+            }, new TokenBalance(0, baseCurrency, Network.all));
 
           return {
             timestamp: start,

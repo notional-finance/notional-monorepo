@@ -1,8 +1,8 @@
 import { useTheme } from '@mui/material';
-import { NOTERegistryClient, Registry } from '@notional-finance/core-entities';
+import { getNetworkModel } from '@notional-finance/core-entities';
 import { DateTimeCell, TxnHashCell } from '@notional-finance/mui';
 import { Network, getEtherscanTransactionLink } from '@notional-finance/util';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 export const useReinvestmentData = () => {
   const theme = useTheme();
@@ -36,31 +36,22 @@ export const useReinvestmentData = () => {
     },
   ];
 
-  const [result, setResult] = useState<
-    Awaited<ReturnType<NOTERegistryClient['getSNOTEReinvestmentData']>>
-  >([]);
+  const model = getNetworkModel(Network.mainnet);
+  const snoteData = model.getSNOTEReinvestment()?.map((r) => ({
+    ...r,
+    txnHash: {
+      href: getEtherscanTransactionLink(r.transaction_hash, Network.mainnet),
+      hash: r.transaction_hash,
+    },
+  }));
+  const isSNOTEDataLoaded = !!snoteData;
+
   useEffect(() => {
-    Registry.getNOTERegistry()
-      .getSNOTEReinvestmentData()
-      .then((s) =>
-        setResult(
-          s.map((r) =>
-            Object.assign(r, {
-              txnHash: {
-                href: getEtherscanTransactionLink(
-                  r.transaction_hash,
-                  Network.mainnet
-                ),
-                hash: r.transaction_hash,
-              },
-            })
-          )
-        )
-      );
-  }, []);
+    if (!isSNOTEDataLoaded) model.fetchAnalyticsData('sNOTEReinvestment');
+  }, [isSNOTEDataLoaded, model]);
 
   return {
-    reinvestmentTableData: result || [],
+    reinvestmentTableData: snoteData || [],
     reinvestmentTableColumns: tableColumns,
   };
 };

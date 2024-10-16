@@ -1,13 +1,9 @@
-import {
-  NOTERegistryClient,
-  Registry,
-  TokenBalance,
-} from '@notional-finance/core-entities';
-import { useNOTE } from '@notional-finance/notionable-hooks';
+import { getNetworkModel, TokenBalance } from '@notional-finance/core-entities';
+import { NoteSupplyData, useNOTE } from '@notional-finance/notionable-hooks';
 import {
   Network,
-  SECONDS_IN_DAY,
   SECONDS_IN_YEAR_ACTUAL,
+  SupportedNetworks,
   annualizedPercentChange,
   firstValue,
   getMidnightUTC,
@@ -15,10 +11,11 @@ import {
 } from '@notional-finance/util';
 import { useEffect, useState } from 'react';
 
-export function useNoteSupply(noteSupplyData, dateRange) {
-  const [supplyData, setSupplyData] = useState<
-    Awaited<ReturnType<NOTERegistryClient['getNOTESupplyData']>>
-  >([]);
+export function useNoteSupply(
+  noteSupplyData: NoteSupplyData | undefined,
+  dateRange: number
+) {
+  const [supplyData, setSupplyData] = useState<NoteSupplyData>([]);
   const minDate = getMidnightUTC() - dateRange;
   const NOTE = useNOTE(Network.mainnet);
 
@@ -30,8 +27,10 @@ export function useNoteSupply(noteSupplyData, dateRange) {
     }
   }, [noteSupplyData, minDate]);
 
-  const annualEmissionRate =
-    Registry.getNOTERegistry().getTotalAnnualEmission();
+  const annualEmissionRate = SupportedNetworks.reduce((total, n) => {
+    return total.add(getNetworkModel(n).getTotalAnnualEmission());
+  }, new TokenBalance(0, 'NOTE', Network.all));
+
   const noteHistoricalSupply: [Date, number][] = supplyData
     .filter(({ address }) => address === 'Circulating Supply')
     .map(({ day, balance }) => [day, balance]);

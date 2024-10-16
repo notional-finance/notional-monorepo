@@ -10,8 +10,8 @@ import { useTheme } from '@mui/material';
 import {
   useSelectedNetwork,
   usePortfolioHoldings,
-  useFiat,
   useGroupedHoldings,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import {
   formatCryptoWithFiat,
@@ -58,7 +58,7 @@ export function useEarningsBreakdown(isGrouped: boolean) {
   const theme = useTheme();
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const network = useSelectedNetwork();
-  const baseCurrency = useFiat();
+  const { baseCurrency } = useAppStore();
   const holdings = usePortfolioHoldings(network);
   const groupedHoldings = useGroupedHoldings(network) || [];
 
@@ -369,7 +369,7 @@ export function useEarningsBreakdown(isGrouped: boolean) {
     actionRow: undefined,
     tokenId: ' ',
     isTotalRow: true,
-  } as unknown as typeof detailedEarnings[number]);
+  } as unknown as (typeof detailedEarnings)[number]);
 
   useEffect(() => {
     const formattedExpandedRows = Columns.reduce(

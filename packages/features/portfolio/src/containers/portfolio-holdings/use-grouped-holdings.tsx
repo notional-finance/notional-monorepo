@@ -1,4 +1,4 @@
-import { TokenBalance } from '@notional-finance/core-entities';
+import { FiatKeys, TokenBalance } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
@@ -11,7 +11,6 @@ import {
   useGroupedHoldings,
   usePendingPnLCalculation,
   useSelectedNetwork,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
@@ -39,8 +38,7 @@ export function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   }
 }
 
-export function useGroupedHoldingsTable() {
-  const { baseCurrency } = useAppState();
+export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
   const network = useSelectedNetwork();
   const groupedTokens = useGroupedHoldings(network) || [];
   const pendingTokens = usePendingPnLCalculation(network).flatMap(

@@ -8,7 +8,6 @@ import {
   throttleTime,
 } from 'rxjs';
 import { GlobalState } from '../global-state';
-import { Registry } from '@notional-finance/core-entities';
 import {
   SupportedNetworks,
   getEtherscanTransactionLink,
@@ -59,7 +58,7 @@ function onSentTransaction$(global$: Observable<GlobalState>) {
           }
 
           // Trigger an account refresh on a new transaction completion
-          Registry.getAccountRegistry().triggerRefresh(network);
+          // triggerRefresh(network);
 
           return {
             sentTransactions: newSentTransactions,
@@ -109,13 +108,13 @@ function onPendingTransaction$(global$: Observable<GlobalState>) {
     switchMap(async ({ pendingPnL }) => {
       for (const n of SupportedNetworks) {
         if (pendingPnL[n].length === 0) continue;
-        const account =
-          await Registry.getAccountRegistry().refreshBalanceHistory(n);
-        const latestProcessedTxnBlock = Math.max(
-          ...(account?.accountHistory?.map(
-            ({ blockNumber }) => blockNumber
-          ) || [0])
-        );
+        // const account = refreshBalanceHistory(n);
+        // const latestProcessedTxnBlock = Math.max(
+        //   ...(account?.accountHistory?.map(
+        //     ({ blockNumber }) => blockNumber
+        //   ) || [0])
+        // );
+        const latestProcessedTxnBlock = 0;
 
         // Filter out any pending txn later than the last processed block
         pendingPnL[n] = pendingPnL[n].filter(

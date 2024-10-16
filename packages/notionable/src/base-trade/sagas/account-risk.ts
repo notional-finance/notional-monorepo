@@ -18,7 +18,6 @@ import {
 } from 'rxjs';
 import { TradeState, BaseTradeState } from '../base-trade-store';
 import { formatTokenType } from '@notional-finance/helpers';
-import { calculateAccruedIncentives } from '../../global/account/incentives';
 
 export type AccountRiskSummary = ReturnType<typeof accountRiskSummary>;
 
@@ -79,20 +78,20 @@ export function postAccountRisk(
 
         // FIXME: recalculates accrued incentives at this level because the global state is not
         // updating reliably into this observable
-        const accruedIncentives = account
-          ? calculateAccruedIncentives(account).accruedIncentives
-          : undefined;
-        const postTradeIncentives =
-          accruedIncentives
-            ?.filter(
-              ({ currencyId }) =>
-                (collateralBalance?.tokenType === 'nToken' &&
-                  collateralBalance.currencyId === currencyId) ||
-                (debtBalance?.tokenType === 'nToken' &&
-                  debtBalance.currencyId === currencyId)
-            )
-            .flatMap(({ incentives }) => incentives)
-            .filter((i) => i.isPositive()) || [];
+        // const accruedIncentives = account
+        //   ? calculateAccruedIncentives(account).accruedIncentives
+        //   : undefined;
+        // const postTradeIncentives =
+        //   accruedIncentives
+        //     ?.filter(
+        //       ({ currencyId }) =>
+        //         (collateralBalance?.tokenType === 'nToken' &&
+        //           collateralBalance.currencyId === currencyId) ||
+        //         (debtBalance?.tokenType === 'nToken' &&
+        //           debtBalance.currencyId === currencyId)
+        //     )
+        //     .flatMap(({ incentives }) => incentives)
+        //     .filter((i) => i.isPositive()) || [];
 
         return {
           ...s,
@@ -102,7 +101,7 @@ export function postAccountRisk(
               s.postAccountRisk?.freeCollateral.isZero()) &&
             inputErrors === false,
           postTradeBalances: s.postTradeBalances,
-          postTradeIncentives,
+          // postTradeIncentives,
         };
       }
     ),

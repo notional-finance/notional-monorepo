@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useNotionalError } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
 interface RouteContainerProps {
   children: React.ReactNode | React.ReactNode[];
@@ -22,4 +23,4 @@ const RouteContainer = ({ children }: RouteContainerProps) => {
   return <Box height="100%">{children}</Box>;
 };
 
-export default RouteContainer;
+export default observer(RouteContainer);

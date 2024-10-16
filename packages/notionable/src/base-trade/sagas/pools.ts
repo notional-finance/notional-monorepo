@@ -1,8 +1,4 @@
-import {
-  VaultAdapter,
-  Registry,
-  TokenDefinition,
-} from '@notional-finance/core-entities';
+import { VaultAdapter, TokenDefinition } from '@notional-finance/core-entities';
 import { filterEmpty, unique } from '@notional-finance/util';
 import {
   Observable,
@@ -26,17 +22,9 @@ export function selectedVaultAdapter(
     filterEmpty(),
     distinctUntilChanged(),
     withLatestFrom(selectedNetwork$),
-    switchMap(([vaultAddress, network]) => {
-      try {
-        return (
-          Registry.getVaultRegistry().subscribeVaultAdapter(
-            network,
-            vaultAddress
-          ) || of(undefined)
-        );
-      } catch {
-        return of(undefined);
-      }
+    switchMap(() => {
+      // Currently undefined
+      return of(undefined);
     }),
     startWith(undefined)
   );
@@ -66,13 +54,14 @@ export function selectedPool(
     distinctUntilChanged(),
     filterEmpty(),
     withLatestFrom(selectedNetwork$),
-    switchMap(([currencyId, network]) => {
-      const pool = Registry.getExchangeRegistry().subscribeNotionalMarket(
-        network,
-        currencyId
-      );
-      if (!pool) return of(undefined);
-      return pool;
+    switchMap(() => {
+      return of(undefined);
+      // const pool = Registry.getExchangeRegistry().subscribeNotionalMarket(
+      //   network,
+      //   currencyId
+      // );
+      // if (!pool) return of(undefined);
+      // return pool;
     }),
     startWith(undefined)
   );

@@ -18,11 +18,12 @@ import { Title } from '../../settings-side-drawer';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { EditIcon, TokenIcon } from '@notional-finance/icons';
 import { useChangeNetwork, useTokenApproval } from '@notional-finance/trade';
+import { observer } from 'mobx-react-lite';
 
-export const EnabledCurrenciesButton = () => {
+const EnabledCurrenciesButton = () => {
   const theme = useTheme();
-  const network = useWalletConnectedNetwork();
-  const walletConnected = useAccountReady(network);
+  const selectedChain = useWalletConnectedNetwork();
+  const walletConnected = useAccountReady(selectedChain);
   const allowances = useWalletAllowances();
   const numEnabled = Object.values(allowances).reduce(
     (n, a) => n + a.length,
@@ -44,6 +45,8 @@ export const EnabledCurrenciesButton = () => {
     </Box>
   );
 };
+
+export default observer(EnabledCurrenciesButton);
 
 const TokenAllowanceRow = ({ amount }: { amount: TokenBalance }) => {
   const theme = useTheme();
@@ -157,5 +160,3 @@ export const EnabledCurrencies = () => {
     </Box>
   );
 };
-
-export default EnabledCurrencies;

@@ -24,11 +24,9 @@ export function useManageVault() {
   const {
     state: { vaultAddress, debtOptions, selectedNetwork },
   } = useContext(VaultActionContext);
-  const { vaultName, enabled, vaultType } = useVaultProperties(
-    selectedNetwork,
-    vaultAddress
-  );
+  const vaultData = useVaultProperties(vaultAddress);
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
+  const vaultType = vaultData?.vaultType;
 
   let manageVaultOptions: OptionsList[] = [];
   let rollMaturityOptions: OptionsList[] = [];
@@ -42,7 +40,7 @@ export function useManageVault() {
       rollMaturityOptions,
       extendedVaultOptions,
       extendedVaultTitle,
-      vaultName,
+      vaultName: vaultData?.name,
     };
   }
 
@@ -60,7 +58,7 @@ export function useManageVault() {
     extendedVaultTitle = <FormattedMessage defaultMessage={'Vault Rewards'} />;
   }
 
-  if (!enabled) {
+  if (!vaultData?.enabled) {
     manageVaultOptions = [
       {
         label: <FormattedMessage defaultMessage={'Withdraw'} />,
@@ -144,7 +142,7 @@ export function useManageVault() {
   return {
     manageVaultOptions,
     rollMaturityOptions,
-    vaultName,
+    vaultName: vaultData?.name,
     extendedVaultOptions,
     extendedVaultTitle,
     infoMessage,

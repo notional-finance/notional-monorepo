@@ -19,7 +19,7 @@ import {
   MOBILE_SUB_NAV_ACTIONS,
   SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/util';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { useWalletStore } from '@notional-finance/notionable';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
@@ -32,9 +32,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const {
-    globalState: { isAccountPending, wallet },
-  } = useNotionalContext();
+  const walletStore = useWalletStore();
   const { setWalletSideDrawer } = useSideDrawerManager();
 
   const { mobileNavLinks } = useNavLinks(true, theme);
@@ -82,7 +80,8 @@ export function MobileNavigation({ ...rest }: TabsProps) {
   return window.innerWidth <= theme.breakpoints.values.sm ? (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'end' }}>
-        {!wallet?.selectedAddress && isAccountPending && pathname !== '/' && (
+        {/* {!wallet.userWallet?.selectedAddress && isAccountPending && pathname !== '/' && ( */}
+        {!walletStore.userWallet?.selectedAddress && pathname !== '/' && (
           <Button
             onClick={() =>
               setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)

@@ -6,11 +6,11 @@ import { BorrowSection } from './borrow-section';
 import { useLocation } from 'react-router-dom';
 import { CoinsIcon } from '@notional-finance/icons';
 import { messages } from '../messages';
-import { useAppState } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 
 export function BorrowDropDown() {
   const { pathname } = useLocation();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
 
   const flippedTheme =
     themeVariant === THEME_VARIANTS.DARK || pathname === '/'

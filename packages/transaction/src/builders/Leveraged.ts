@@ -1,4 +1,4 @@
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance } from '@notional-finance/core-entities';
 import {
   PopulateTransactionInputs,
   populateNotionalTxnAndGas,
@@ -8,7 +8,17 @@ import {
   populateTxnAndGas,
   hasExistingCashBalance,
 } from './common';
-import { BASIS_POINT, RATE_PRECISION } from '@notional-finance/util';
+import {
+  BASIS_POINT,
+  getProviderFromNetwork,
+  LeveragedNTokenAdapterAddress,
+  RATE_PRECISION,
+} from '@notional-finance/util';
+import {
+  LeveragedNTokenAdapter,
+  LeveragedNTokenAdapterABI,
+} from '@notional-finance/contracts';
+import { Contract } from 'ethers';
 
 export function EnablePrimeBorrow({
   address,
@@ -125,8 +135,12 @@ export function LeveragedNToken({
   if (!depositBalance || !debtBalance || !collateralBalance)
     throw Error('All balances must be defined');
 
-  const adapter =
-    Registry.getConfigurationRegistry().getLeveragedNTokenAdapter(network);
+  const adapter = new Contract(
+    LeveragedNTokenAdapterAddress[network],
+    LeveragedNTokenAdapterABI,
+    getProviderFromNetwork(network)
+  ) as LeveragedNTokenAdapter;
+
   const { cashBalance } = hasExistingCashBalance(
     collateralBalance,
     accountBalances

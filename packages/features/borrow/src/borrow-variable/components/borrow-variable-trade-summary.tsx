@@ -15,7 +15,8 @@ import {
 } from '@notional-finance/mui';
 import { BorrowVariableContext } from '../../borrow-variable/borrow-variable';
 import { TradeActionSummary, useVariableTotals } from '@notional-finance/trade';
-import { useTokenHistory } from '@notional-finance/notionable-hooks';
+import { useChartData } from '@notional-finance/notionable-hooks';
+import { ChartType } from '@notional-finance/core-entities';
 
 export const BorrowVariableTradeSummary = () => {
   const theme = useTheme();
@@ -32,7 +33,8 @@ export const BorrowVariableTradeSummary = () => {
   } = useInterestRateUtilizationChart(deposit, 'borrow');
   const { faqs, faqHeaderLinks } = useBorrowVariableFaq();
   const totalsData = useVariableTotals(state);
-  const { apyData, tvlData } = useTokenHistory(debt);
+  const { data: priceData } = useChartData(debt, ChartType.PRICE);
+  const { data: apyData } = useChartData(debt, ChartType.APY);
 
   return (
     <TradeActionSummary state={state}>
@@ -48,7 +50,7 @@ export const BorrowVariableTradeSummary = () => {
                 showCartesianGrid
                 areaDataKey="totalAPY"
                 xAxisTickFormat="date"
-                areaChartData={apyData}
+                areaChartData={apyData?.data || []}
                 areaLineType="linear"
               />
             ),
@@ -62,7 +64,8 @@ export const BorrowVariableTradeSummary = () => {
                 title={'Total Lent'}
                 showCartesianGrid
                 xAxisTickFormat="date"
-                areaChartData={tvlData}
+                areaDataKey="tvlUSD"
+                areaChartData={priceData?.data || []}
                 areaLineType="linear"
                 yAxisTickFormat="usd"
               />

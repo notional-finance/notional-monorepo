@@ -1,8 +1,4 @@
-import {
-  Registry,
-  TokenBalance,
-  TokenDefinition,
-} from '@notional-finance/core-entities';
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import {
   FLOATING_POINT_DUST,
   INTERNAL_PRECISION_DUST,
@@ -84,7 +80,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
   totalCurrencyAssetsRiskAdjusted(currencyId: number) {
     return this._totalRiskAdjusted(
       this.collateral.filter((t) => t.token.currencyId === currencyId),
-      Registry.getTokenRegistry().getPrimeCash(this.network, currencyId)
+      this.model.getPrimeCash(currencyId)
     );
   }
 
@@ -92,7 +88,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
   totalCurrencyDebtsRiskAdjusted(currencyId: number) {
     return this._totalRiskAdjusted(
       this.debts.filter((t) => t.token.currencyId === currencyId),
-      Registry.getTokenRegistry().getPrimeCash(this.network, currencyId)
+      this.model.getPrimeCash(currencyId)
     );
   }
 
@@ -125,8 +121,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
       let totalAssetsDenom: TokenBalance;
       let totalDebtsDenom: TokenBalance;
 
-      const { haircut, buffer } =
-        Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(denom);
+      const { haircut, buffer } = this.model.getCurrencyHaircutAndBuffer(denom);
 
       if (netLocal.currencyId === denom.currencyId) {
         // Handle special case when netLocal is in the denom currency
@@ -258,8 +253,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
     )
       return null;
 
-    const { haircut, buffer } =
-      Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(asset);
+    const { haircut, buffer } = this.model.getCurrencyHaircutAndBuffer(asset);
 
     let currencyFC: TokenBalance;
     let threshold: TokenBalance;
@@ -283,10 +277,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
       // total asset's contribution to the free collateral (i.e. the net collateral
       // available of the asset's underlying.
       if (!asset.underlying) throw Error('No underlying found');
-      const underlying = Registry.getTokenRegistry().getTokenByID(
-        asset.network,
-        asset.underlying
-      );
+      const underlying = this.model.getTokenByID(asset.underlying);
       unitOfAsset = TokenBalance.unit(underlying);
       currencyFC = this.freeCollateral().toToken(underlying);
       const balance = this.balances.find((t) => t.tokenId === asset.id);
@@ -311,9 +302,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
     if (asset.tokenType === 'fCash') {
       if (riskAdjustedValue.isPositive()) {
         const { lowestDiscountFactor } =
-          Registry.getConfigurationRegistry().getMinLendRiskAdjustedDiscountFactor(
-            asset
-          );
+          this.model.getMinLendRiskAdjustedDiscountFactor(asset);
 
         // This is the minimum price for positive fCash
         if (threshold.lt(unitOfAsset.mulInRatePrecision(lowestDiscountFactor)))
@@ -346,9 +335,8 @@ export class AccountRiskProfile extends BaseRiskProfile {
     const fcInDebtDenomination = this.freeCollateral().toToken(
       usedBorrowCapacity.token
     );
-    const debtBuffer = Registry.getConfigurationRegistry().getDebtBuffer(
-      this.network,
-      currencyId
+    const { buffer: debtBuffer } = this.model.getCurrencyHaircutAndBuffer(
+      this.model.getUnderlying(currencyId)
     );
 
     let additionalBorrowCapacity: TokenBalance;
@@ -393,10 +381,9 @@ export class AccountRiskProfile extends BaseRiskProfile {
 
     // If the token's value is haircut to zero then we still have to take into
     // account net local
-    const { haircut } =
-      Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(
-        balance.underlying
-      );
+    const { haircut } = this.model.getCurrencyHaircutAndBuffer(
+      balance.underlying
+    );
 
     if (haircut === 0) {
       const totalDebts = this.totalCurrencyDebtsRiskAdjusted(

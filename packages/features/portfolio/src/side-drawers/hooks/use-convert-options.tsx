@@ -8,14 +8,18 @@ import { useParams } from 'react-router';
 export function useConvertOptions(state: BaseTradeState) {
   const { tradeType, collateralOptions, debtOptions, selectedNetwork } = state;
   const portfolio = usePortfolioRiskProfile(selectedNetwork);
-  const { primeDebt, primeCash } = usePrimeTokens(selectedNetwork);
+  const primeTokens = usePrimeTokens();
   const { selectedToken: selectedParamToken } = useParams<{
     selectedToken: string;
   }>();
 
-  const isPrimeDebt = primeDebt.find((t) => t.id === selectedParamToken);
+  const isPrimeDebt = primeTokens?.primeDebt.find(
+    (t) => t.id === selectedParamToken
+  );
   const selectedToken = isPrimeDebt
-    ? primeCash.find((t) => t.currencyId === isPrimeDebt.currencyId)?.id
+    ? primeTokens?.primeCash.find(
+        (t) => t.currencyId === isPrimeDebt.currencyId
+      )?.id
     : selectedParamToken;
 
   let initialConvertFromBalance = portfolio?.balances.find(

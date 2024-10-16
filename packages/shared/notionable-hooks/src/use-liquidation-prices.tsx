@@ -19,7 +19,6 @@ import {
   percentChange,
 } from '@notional-finance/util';
 import { useAppContext, useNOTE } from './use-notional';
-import { useAppState } from './use-app-state';
 
 function usePriceChanges(network: Network | undefined) {
   const {
@@ -170,10 +169,12 @@ export function useNotePrice() {
   return { notePrice, notePriceChange };
 }
 
-export function useCurrentLiquidationPrices(network: Network | undefined) {
+export function useCurrentLiquidationPrices(
+  network: Network | undefined,
+  baseCurrency: FiatKeys
+) {
   const portfolio = usePortfolioLiquidationPrices(network);
   const vaults = useVaultHoldings(network);
-  const { baseCurrency } = useAppState();
   const { oneDay, sevenDay } = usePriceChanges(network);
   const theme = useTheme();
   const secondary = (theme as NotionalTheme).palette.typography.light;

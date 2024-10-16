@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   useAccountHistoryChart,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { FiatSymbols } from '@notional-finance/core-entities';
+import { FiatKeys, FiatSymbols } from '@notional-finance/core-entities';
 import {
   useAccountCurrentFactors,
-  useAppState,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import {
   BarConfigProps,
@@ -25,8 +25,7 @@ import {
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
-export const useTotalsChart = () => {
-  const { baseCurrency } = useAppState();
+export const useTotalsChart = (baseCurrency: FiatKeys) => {
   const windowDimensions = useWindowDimensions();
   const network = useSelectedNetwork();
   const { currentAPY, netWorth, debts, assets } =
@@ -46,7 +45,7 @@ export const useTotalsChart = () => {
     getNowSeconds(),
     SECONDS_IN_DAY * 3
   );
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
 
   const barChartData = historyData?.map(
     ({ assets, debts, netWorth, timestamp }) => {
@@ -59,22 +58,25 @@ export const useTotalsChart = () => {
     }
   );
 
-  const barConfig: BarConfigProps[] = [
-    {
-      dataKey: 'totalNetWorth',
-      title: <FormattedMessage defaultMessage="Total Net Worth" />,
-      toolTipTitle: <FormattedMessage defaultMessage="Net Worth" />,
-      fill:
-        themeVariant === THEME_VARIANTS.LIGHT
-          ? colors.turquoise
-          : colors.neonTurquoise,
-      radius: [8, 8, 0, 0],
-      currencySymbol: FiatSymbols[baseCurrency]
-        ? FiatSymbols[baseCurrency]
-        : '$',
-      value: netWorth.toDisplayStringWithSymbol(2, true, false),
-    },
-  ];
+  const barConfig: BarConfigProps[] = useMemo(
+    () => [
+      {
+        dataKey: 'totalNetWorth',
+        title: <FormattedMessage defaultMessage="Total Net Worth" />,
+        toolTipTitle: <FormattedMessage defaultMessage="Net Worth" />,
+        fill:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.turquoise
+            : colors.neonTurquoise,
+        radius: [8, 8, 0, 0],
+        currencySymbol: FiatSymbols[baseCurrency]
+          ? FiatSymbols[baseCurrency]
+          : '$',
+        value: netWorth.toDisplayStringWithSymbol(2, true, false),
+      },
+    ],
+    [themeVariant, baseCurrency, netWorth]
+  );
 
   if (debts.isNegative()) {
     barConfig.push(

@@ -259,4 +259,13 @@ export abstract class ServerRegistry<T> {
     if (!this.hasAllNetwork() && network === Network.all) return [];
     return (await this._refresh(network, blockNumber)).values;
   }
+
+  public async fetchForModel(network: Network) {
+    if (!this.hasAllNetwork() && network === Network.all)
+      return new Map<string, T>();
+    const result = await this._refresh(network);
+    return new Map<string, T>(
+      result.values.filter(([_, v]) => v !== null) as [string, T][]
+    );
+  }
 }

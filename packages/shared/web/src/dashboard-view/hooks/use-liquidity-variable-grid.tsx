@@ -1,6 +1,9 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAllMarkets, useAppState } from '@notional-finance/notionable-hooks';
-import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
+import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
@@ -8,36 +11,31 @@ import { LeafIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 
 export const useLiquidityVariableGrid = (network: Network | undefined) => {
-  const {
-    yields: { liquidity },
-  } = useAllMarkets(network);
   const theme = useTheme();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const navigate = useNavigate();
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nTokenYield = currentNetworkStore.getAllNTokenYields();
 
-  const allData = liquidity
-    .map((y) => {
+  const allData = nTokenYield
+    .map(({ token, apy, tvl, underlying }) => {
       return {
-        ...y,
-        symbol: y.underlying.symbol,
-        title: y.underlying.symbol,
+        symbol: underlying?.symbol || '',
+        title: underlying?.symbol || '',
         subTitle: `Liquidity: ${
-          y.tvl
+          tvl
             ? formatNumberAsAbbr(
-                y.tvl.toFiat(baseCurrency).toFloat(),
+                tvl.toFiat(baseCurrency).toFloat(),
                 0,
                 baseCurrency
               )
             : 0
         }`,
-        network: y.token.network,
+        network: token.network,
         hasPosition: false,
-        tvlNum: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
+        tvlNum: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         bottomLeftValue:
-          getTotalIncentiveApy(
-            y?.noteIncentives?.incentiveAPY,
-            y?.secondaryIncentives?.incentiveAPY
-          ) === undefined ? (
+          apy?.incentives?.length === 0 ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <LeafIcon
                 fill={theme.palette.typography.main}
@@ -52,23 +50,19 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
           ) : (
             ''
           ),
-        incentiveValue: getTotalIncentiveApy(
-          y?.noteIncentives?.incentiveAPY,
-          y?.secondaryIncentives?.incentiveAPY
-        ),
-        incentiveSymbols: getTotalIncentiveSymbol(
-          y?.secondaryIncentives?.incentiveAPY &&
-            y?.secondaryIncentives?.incentiveAPY > 0
-            ? y?.secondaryIncentives?.symbol
+
+        incentiveValue:
+          apy.incentives && apy?.incentives?.length > 0
+            ? sumAndFormatIncentives(apy.incentives)
+            : '',
+        incentiveSymbols:
+          apy.incentives && apy?.incentives?.length > 0
+            ? getIncentiveSymbols(apy?.incentives)
             : undefined,
-          y?.noteIncentives?.incentiveAPY && y?.noteIncentives?.incentiveAPY > 0
-            ? y?.noteIncentives?.symbol
-            : undefined
-        ),
-        apy: y.totalAPY,
+        apy: apy.totalAPY || 0,
         routeCallback: () =>
           navigate(
-            `/${PRODUCTS.LIQUIDITY_VARIABLE}/${network}/${y.underlying.symbol}`
+            `/${PRODUCTS.LIQUIDITY_VARIABLE}/${network}/${underlying?.symbol}`
           ),
       };
     })

@@ -19,8 +19,10 @@ import {
   useFixedLiquidityPoolsTable,
 } from '@notional-finance/trade';
 import { useBorrowFixedMultiChart } from '../hooks';
+import { useAppStore } from '@notional-finance/notionable';
+import { observer } from 'mobx-react-lite';
 
-export const BorrowFixedTradeSummary = () => {
+const BorrowFixedTradeSummary = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const context = useContext(BorrowFixedContext);
@@ -29,7 +31,8 @@ export const BorrowFixedTradeSummary = () => {
   const { tableColumns, tableData } = useFixedLiquidityPoolsTable(deposit);
   const multiChartData = useBorrowFixedMultiChart();
   const { faqs, faqHeaderLinks } = useBorrowFixedFaq(selectedNetwork);
-  const totalsData = useTotalsData(deposit, debt);
+  const { baseCurrency } = useAppStore();
+  const totalsData = useTotalsData(deposit, debt, baseCurrency);
 
   return (
     <TradeActionSummary state={state}>
@@ -108,4 +111,4 @@ export const BorrowFixedTradeSummary = () => {
   );
 };
 
-export default BorrowFixedTradeSummary;
+export default observer(BorrowFixedTradeSummary);

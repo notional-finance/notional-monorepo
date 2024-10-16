@@ -1,3 +1,4 @@
+import { FiatKeys } from '@notional-finance/core-entities';
 import {
   DataTableColumn,
   MultiValueCell,
@@ -10,10 +11,12 @@ import {
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-export const useRiskOverviewTable = () => {
+export const useRiskOverviewTable = (baseCurrency: FiatKeys) => {
   const network = useSelectedNetwork();
-  const { exchangeRateRisk, vaultLiquidation } =
-    useCurrentLiquidationPrices(network);
+  const { exchangeRateRisk, vaultLiquidation } = useCurrentLiquidationPrices(
+    network,
+    baseCurrency
+  );
 
   const riskOverviewColumns = useMemo<DataTableColumn[]>(
     () => [

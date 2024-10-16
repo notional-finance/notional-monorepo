@@ -4,5 +4,5 @@ import { useParams } from 'react-router';
 export function useSelectedNetwork() {
   const { selectedNetwork } = useParams<{ selectedNetwork: Network }>();
 
-  return selectedNetwork;
+  return selectedNetwork || Network.mainnet;
 }

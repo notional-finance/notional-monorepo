@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { CardContainer } from '../card-container/card-container';
-import { FeatureLoader } from '../feature-loader/feature-loader';
-import {
-  useSelectedNetwork,
-  useAppState,
-} from '@notional-finance/notionable-hooks';
+import FeatureLoader from '../feature-loader/feature-loader';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation, useParams } from 'react-router-dom';
 import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
@@ -26,6 +23,8 @@ import {
   useLiquidityLeveragedGrid,
 } from './hooks';
 import { sortGridData, sortListData } from './hooks/utils';
+import { observer } from 'mobx-react-lite';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const DashboardView = ({
   gridData,
@@ -37,7 +36,7 @@ export const DashboardView = ({
   ComingSoonComponent,
 }: DashboardViewProps) => {
   const network = useSelectedNetwork();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
   const { pathname } = useLocation();
   const [_, routeKey] = pathname.split('/');
   const userSettings = getFromLocalStorage('userSettings');
@@ -161,9 +160,9 @@ export const LiquidityVariableDashboard = () => {
   );
 };
 
-export const LendVariableDashboard = () => {
+export const LendVariableDashboard = observer(() => {
   const network = useSelectedNetwork();
-  const gridData = useVariableRateGrid(network, PRODUCTS.LEND_VARIABLE);
+  const gridData = useVariableRateGrid(PRODUCTS.LEND_VARIABLE);
   const { listColumns, listData } = useLendBorrowList(
     PRODUCTS.LEND_VARIABLE,
     network
@@ -175,11 +174,11 @@ export const LendVariableDashboard = () => {
       listData={listData}
     />
   );
-};
+});
 
 export const BorrowVariableDashboard = () => {
   const network = useSelectedNetwork();
-  const gridData = useVariableRateGrid(network, PRODUCTS.BORROW_VARIABLE);
+  const gridData = useVariableRateGrid(PRODUCTS.BORROW_VARIABLE);
   const { listColumns, listData } = useLendBorrowList(
     PRODUCTS.BORROW_VARIABLE,
     network

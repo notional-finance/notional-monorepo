@@ -244,11 +244,7 @@ export async function simulateRewardClaims(
       try {
         const { name, args } = VaultRewarderInterface.parseLog(l);
         if (name === 'VaultRewardTransfer') {
-          return TokenBalance.fromID(
-            args['amount'],
-            args['rewardToken'],
-            network
-          );
+          return new TokenBalance(args['amount'], args['rewardToken'], network);
         }
       } catch (e) {
         // No-op

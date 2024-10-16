@@ -5,8 +5,10 @@ import { H5, LargeInputTextEmphasized, CountUp } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TokenIcon } from '@notional-finance/icons';
 import { messages } from './messages';
-import { BaseTradeState } from '@notional-finance/notionable';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import {
+  BaseTradeState,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 
 interface MobileTradeActionSummaryProps {
   tradeAction: PRODUCTS;
@@ -25,18 +27,19 @@ export function MobileTradeActionSummary({
     window.scrollTo(0, 0);
   }, []);
 
-  const { debt, collateralOptions, collateral, debtOptions, selectedNetwork } =
-    state;
-  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+  const { debt, collateralOptions, collateral, debtOptions } = state;
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
+
   const nonLeveragedYield = nonLeveragedYields.find(
     (y) => y.token.id === collateral?.id
   );
   const assetAPY =
     collateralOptions?.find((c) => c.token.id === collateral?.id)
-      ?.interestRate || nonLeveragedYield?.totalAPY;
+      ?.interestRate || nonLeveragedYield?.apy.totalAPY;
   const debtAPY =
     debtOptions?.find((d) => d.token.id === debt?.id)?.interestRate ||
-    nonLeveragedYields.find((y) => y.token.id === debt?.id)?.totalAPY;
+    nonLeveragedYields.find((y) => y.token.id === debt?.id)?.apy.totalAPY;
   const totalAPY = assetAPY !== undefined ? assetAPY : debtAPY;
 
   return (

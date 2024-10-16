@@ -3,14 +3,9 @@ import {
   formatNumberAsAbbr,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
-import {
-  useAllMarkets,
-  useAccountDefinition,
-  useAppState,
-} from '@notional-finance/notionable-hooks';
+import { useAccountDefinition } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS, getDateString } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { getDebtOrCollateralFactor } from './utils';
 import {
   DisplayCell,
   LinkCell,
@@ -18,27 +13,38 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import { PointsIcon } from '@notional-finance/icons';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
+import { ProductAPY } from '@notional-finance/core-entities';
 
 export const useLendBorrowList = (
   product: PRODUCTS,
   network: Network | undefined
 ) => {
-  const {
-    yields: { fCashLend, fCashBorrow, variableBorrow, variableLend },
-  } = useAllMarkets(network);
-  // const totalArbPoints = useTotalArbPoints();
-  // const currentSeason = useCurrentSeason();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
+  const currentNetworkStore = useCurrentNetworkStore();
+
+  let yieldData: ProductAPY[] = [];
+  switch (product) {
+    case PRODUCTS.LEND_FIXED:
+      yieldData = currentNetworkStore.getAllFCashYields();
+      break;
+    case PRODUCTS.LEND_VARIABLE:
+      yieldData = currentNetworkStore.getAllPrimeCashYields();
+      break;
+    case PRODUCTS.BORROW_FIXED:
+      yieldData = currentNetworkStore.getAllFCashDebt();
+      break;
+    case PRODUCTS.BORROW_VARIABLE:
+      yieldData = currentNetworkStore.getAllPrimeCashDebt();
+      break;
+  }
+
   const isBorrow =
     product === PRODUCTS.BORROW_FIXED || product === PRODUCTS.BORROW_VARIABLE;
-
-  const yieldData = {
-    [PRODUCTS.LEND_FIXED]: fCashLend,
-    [PRODUCTS.LEND_VARIABLE]: variableLend,
-    [PRODUCTS.BORROW_FIXED]: fCashBorrow,
-    [PRODUCTS.BORROW_VARIABLE]: variableBorrow,
-  };
 
   let listColumns: DataTableColumn[] = [
     {
@@ -165,48 +171,29 @@ export const useLendBorrowList = (
     listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
   }
 
-  const listData = yieldData[product]
-    .map((y) => {
-      // const boostNum = getArbBoosts(y.token, isBorrow);
-      // const pointsAPY = getPointsAPY(
-      //   boostNum,
-      //   totalArbPoints[currentSeason.db_name],
-      //   currentSeason.totalArb,
-      //   currentSeason.startDate,
-      //   currentSeason.endDate
-      // );
+  const listData = yieldData
+    .map(({ token, apy, tvl, underlying, collateralFactor }) => {
       const walletBalance = account
-        ? account.balances.find((t) => t.tokenId === y.underlying.id)
+        ? account.balances.find((t) => t.tokenId === underlying?.id)
         : undefined;
       return {
         currency: {
-          symbol: y.underlying.symbol,
+          symbol: underlying?.symbol || '',
           symbolSize: 'large',
           symbolBottom: '',
-          label: y.underlying.symbol,
+          label: underlying?.symbol || '',
           network: network,
           caption: network
             ? network.charAt(0).toUpperCase() + network.slice(1)
             : '',
         },
         walletBalance: walletBalance?.toFloat() || 0,
-        maturity: y.token.maturity,
-        // pointsBoost: {
-        //   label: boostNum > 0 ? `${boostNum}x` : '-',
-        //   caption:
-        //     pointsAPY > 0 && pointsAPY !== Infinity
-        //       ? `${formatNumberAsPercent(pointsAPY, 2)} APY`
-        //       : '',
-        // },
-        apy: y.totalAPY,
-        liquidity: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,
-        symbol: y.underlying.symbol,
-        collateralFactor: getDebtOrCollateralFactor(
-          y.token,
-          y.underlying,
-          isBorrow
-        ),
-        view: `${product}/${network}/${y.underlying.symbol}`,
+        maturity: token.maturity,
+        apy: apy.totalAPY,
+        liquidity: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
+        symbol: underlying?.symbol || '',
+        collateralFactor: collateralFactor ? collateralFactor : '',
+        view: `${product}/${network}/${underlying?.symbol}`,
         iconCellData: {
           icon: PointsIcon,
         },

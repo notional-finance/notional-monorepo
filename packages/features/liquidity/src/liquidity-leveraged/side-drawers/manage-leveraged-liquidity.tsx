@@ -12,25 +12,24 @@ import {
 } from '@notional-finance/mui';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { formatMaturity } from '@notional-finance/util';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 import { useLeveragedNTokenPositions } from '@notional-finance/trade';
+import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const ManageLeveragedLiquidity = () => {
   const theme = useTheme();
   const {
     state: { debtOptions, selectedDepositToken, selectedNetwork },
   } = useContext(LiquidityContext);
-  const {
-    yields: { liquidity },
-  } = useAllMarkets(selectedNetwork);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const liquidity = currentNetworkStore.getAllNTokenYields();
   const { currentPosition } = useLeveragedNTokenPositions(
     selectedNetwork,
     selectedDepositToken
   );
   const nTokenAPY = liquidity.find(
     (y) => y.token.id === currentPosition?.asset?.balance.tokenId
-  )?.totalAPY;
+  )?.apy.totalAPY;
 
   const rollMaturityOptions = (debtOptions || [])
     .filter(

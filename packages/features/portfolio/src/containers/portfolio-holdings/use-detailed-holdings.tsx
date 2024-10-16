@@ -1,4 +1,8 @@
-import { TokenBalance } from '@notional-finance/core-entities';
+import {
+  FiatKeys,
+  TokenBalance,
+  getNetworkModel,
+} from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
   formatNumberAsPercent,
@@ -9,29 +13,22 @@ import {
 import {
   useFiatToken,
   useNOTE,
-  useAppState,
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import {
-  Network,
-  PORTFOLIO_ACTIONS,
-  TXN_HISTORY_TYPE,
-} from '@notional-finance/util';
+import { PORTFOLIO_ACTIONS, TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 
-export function useDetailedHoldingsTable() {
+export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
-  // const arbPoints = useArbPoints();
   const navigate = useNavigate();
-  const { baseCurrency } = useAppState();
   const fiatToken = useFiatToken();
   const NOTE = useNOTE(network);
 
@@ -43,7 +40,10 @@ export function useDetailedHoldingsTable() {
           .add(
             perIncentiveEarnings.reduce(
               (s, i) => s.add(i.toFiat(baseCurrency)),
-              TokenBalance.fromSymbol(0, baseCurrency, Network.all)
+              getNetworkModel(network).getTokenBalanceFromSymbol(
+                0,
+                baseCurrency
+              )
             )
           );
 

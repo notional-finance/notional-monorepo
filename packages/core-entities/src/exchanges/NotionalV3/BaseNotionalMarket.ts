@@ -4,9 +4,9 @@ import {
   SECONDS_IN_YEAR,
 } from '@notional-finance/util';
 import { TokenDefinition } from '../../Definitions';
-import { Registry } from '../../Registry';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
+import { getNetworkModel } from '../../Models';
 
 export interface InterestRateParameters {
   kinkUtilization1: number;
@@ -29,12 +29,10 @@ export abstract class BaseNotionalMarket<
     netPrimeSupply?: TokenBalance,
     netPrimeDebt?: TokenBalance
   ) {
-    const pCash = Registry.getTokenRegistry().getPrimeCash(
-      this._network,
+    const pCash = getNetworkModel(this._network).getPrimeCash(
       this.poolParams.currencyId
     );
-    const pDebt = Registry.getTokenRegistry().getPrimeDebt(
-      this._network,
+    const pDebt = getNetworkModel(this._network).getPrimeDebt(
       this.poolParams.currencyId
     );
     const supply = pCash.totalSupply?.add(

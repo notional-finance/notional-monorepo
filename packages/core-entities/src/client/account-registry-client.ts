@@ -12,10 +12,8 @@ import {
   AccountDefinition,
   BalanceStatement,
   CacheSchema,
-  TokenBalance,
   AccountHistory,
   HistoricalBalance,
-  Registry,
 } from '..';
 import { Routes } from '../server';
 import {
@@ -31,7 +29,10 @@ import {
   Token,
   Transaction,
 } from '../.graphclient';
-import { parseCurrentBalanceStatement } from './accounts/balance-statement';
+import {
+  parseCurrentBalanceStatement,
+  parseGraphBalanceToTokenBalance,
+} from './accounts/balance-statement';
 import { parseTransaction } from './accounts/transaction-history';
 import { fetchCurrentAccount } from './accounts/current-account';
 import { ExecutionResult } from 'graphql';
@@ -186,9 +187,21 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     try {
       const [txnHistory, balanceStatements, historicalBalances] =
         await Promise.all([
-          this.fetchTransactionHistory(network, address),
-          this.fetchBalanceStatements(network, address),
-          this.fetchHistoricalBalances(network, address),
+          AccountRegistryClient.fetchTransactionHistory(
+            network,
+            address,
+            this.subgraphApiKey
+          ),
+          AccountRegistryClient.fetchBalanceStatements(
+            network,
+            address,
+            this.subgraphApiKey
+          ),
+          AccountRegistryClient.fetchHistoricalBalances(
+            network,
+            address,
+            this.subgraphApiKey
+          ),
         ]);
 
       // Set the balance statement and txn history
@@ -234,7 +247,11 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     return account;
   }
 
-  public async fetchTransactionHistory(network: Network, account: string) {
+  public static async fetchTransactionHistory(
+    network: Network,
+    account: string,
+    subgraphApiKey: string
+  ) {
     const { AccountTransactionHistoryDocument } =
       await loadGraphClientDeferred();
     return await fetchGraph(
@@ -249,16 +266,17 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             .flatMap((_) => _),
         };
       },
-      this.subgraphApiKey,
+      subgraphApiKey,
       {
         accountId: account.toLowerCase(),
       }
     );
   }
 
-  public async fetchHistoricalBalances(
+  public static async fetchHistoricalBalances(
     network: Network,
     account: string,
+    subgraphApiKey: string,
     minTimestamp = getNowSeconds() - 30 * SECONDS_IN_DAY
   ) {
     const { AccountHoldingsHistoricalDocument } =
@@ -273,27 +291,25 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         const current =
           r.account?.balances
             ?.filter(({ current }) => current.timestamp < minTimestamp)
-            .map(({ current, token }) => {
-              const t = Registry.getTokenRegistry().getTokenByID(
-                network,
-                token.id
-              );
-              return {
-                timestamp: current.timestamp,
-                balance: TokenBalance.from(current.currentBalance, t),
-              };
-            }) || [];
+            .map(({ current, token }) => ({
+              timestamp: current.timestamp,
+              balance: parseGraphBalanceToTokenBalance(
+                current.currentBalance,
+                token.id,
+                network
+              ),
+            })) || [];
 
         const snapshots =
           r.account?.balances?.flatMap(({ snapshots, token }) => {
-            const t = Registry.getTokenRegistry().getTokenByID(
-              network,
-              token.id
-            );
             return (
               snapshots?.map(({ timestamp, currentBalance }) => ({
                 timestamp,
-                balance: TokenBalance.from(currentBalance, t),
+                balance: parseGraphBalanceToTokenBalance(
+                  currentBalance,
+                  token.id,
+                  network
+                ),
               })) || []
             );
           }) || [];
@@ -302,7 +318,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           [account]: snapshots.concat(current),
         };
       },
-      this.subgraphApiKey,
+      subgraphApiKey,
       {
         accountId: account.toLowerCase(),
         minTimestamp,
@@ -310,7 +326,11 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     );
   }
 
-  public async fetchBalanceStatements(network: Network, account: string) {
+  public static async fetchBalanceStatements(
+    network: Network,
+    account: string,
+    subgraphApiKey: string
+  ) {
     const { AccountBalanceStatementDocument } = await loadGraphClientDeferred();
     return await fetchGraph(
       network,
@@ -332,7 +352,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               }) || [],
         };
       },
-      this.subgraphApiKey,
+      subgraphApiKey,
       {
         accountId: account.toLowerCase(),
       }
@@ -366,7 +386,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             systemAccountType: a.systemAccountType,
             balances:
               a.balances?.map((b) =>
-                TokenBalance.fromID(
+                parseGraphBalanceToTokenBalance(
                   b.current.currentBalance,
                   b.token.id,
                   network

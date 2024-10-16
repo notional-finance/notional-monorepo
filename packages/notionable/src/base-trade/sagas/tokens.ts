@@ -146,9 +146,9 @@ export function availableTokens(
 ) {
   return combineLatest([state$, selectedNetwork$, account$]).pipe(
     filter(([{ isReady, tradeType }]) => isReady && !!tradeType),
-    distinctUntilChanged(([p, , pa], [c, , ca]) => {
+    distinctUntilChanged(([p], [c]) => {
       return (
-        pa?.address === ca?.address &&
+        // pa?.address === ca?.address &&
         p.deposit?.id === c.deposit?.id &&
         p.collateral?.id === c.collateral?.id &&
         p.debt?.id === c.debt?.id &&

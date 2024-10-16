@@ -4,13 +4,14 @@ import { StackIcon } from '@notional-finance/icons';
 import { useTheme, Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { AllTransactions } from './all-transactions';
-import { AllAccounts } from './all-accounts';
-import { AllVaultAccounts } from './all-vault-accounts';
+import AllAccounts from './all-accounts';
+import AllVaultAccounts from './all-vault-accounts';
 import { ANALYTICS_VIEWS, Network } from '@notional-finance/util';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useNetworkToggle } from './hooks';
 
-export interface AnalyticsViewsParams extends Record<string, string | undefined> {
+export interface AnalyticsViewsParams
+  extends Record<string, string | undefined> {
   category?: ANALYTICS_VIEWS;
 }
 

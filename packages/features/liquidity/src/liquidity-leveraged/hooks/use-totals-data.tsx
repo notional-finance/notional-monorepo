@@ -1,32 +1,30 @@
-import { YieldData, FiatSymbols } from '@notional-finance/core-entities';
-import { TradeState } from '@notional-finance/notionable';
+import {
+  FiatSymbols,
+  FiatKeys,
+  TokenBalance,
+} from '@notional-finance/core-entities';
+import {
+  TradeState,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 import { SparklesIcon } from '@notional-finance/icons';
-import { useMaxSupply, useAppState } from '@notional-finance/notionable-hooks';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { InfoTooltip } from '@notional-finance/mui';
 import { SxProps, useTheme } from '@mui/material';
 
 export const useTotalsData = (
   state: TradeState,
-  liquidityYieldData: YieldData | undefined
+  baseCurrency: FiatKeys,
+  nTokenAmount?: TokenBalance
 ) => {
   const theme = useTheme();
   const { deposit } = state;
-  const { baseCurrency } = useAppState();
-  const maxSupplyData = useMaxSupply(deposit?.network, deposit?.currencyId);
-  let totalIncentives = 0;
-
-  if (
-    liquidityYieldData &&
-    liquidityYieldData?.noteIncentives &&
-    liquidityYieldData?.secondaryIncentives
-  ) {
-    totalIncentives =
-      liquidityYieldData?.noteIncentives?.incentiveAPY +
-      liquidityYieldData?.secondaryIncentives?.incentiveAPY;
-  } else if (liquidityYieldData && liquidityYieldData?.noteIncentives) {
-    totalIncentives = liquidityYieldData?.noteIncentives?.incentiveAPY;
-  }
+  const currentNetworkStore = useCurrentNetworkStore();
+  const leveragedNTokenTotalsData = currentNetworkStore.getNTokenTotalsData(
+    deposit,
+    nTokenAmount,
+    true
+  );
 
   const ToolTip = ({ sx }: { sx: SxProps }) => {
     return (
@@ -46,27 +44,32 @@ export const useTotalsData = (
     totalsData: [
       {
         title: <FormattedMessage defaultMessage={'Market Liquidity'} />,
-        value: liquidityYieldData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
+        value:
+          leveragedNTokenTotalsData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
         prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
         decimals: 0,
       },
       {
         title: <FormattedMessage defaultMessage={'Total Incentive APY'} />,
-        value: totalIncentives > 0 ? totalIncentives : '-',
+        value:
+          leveragedNTokenTotalsData?.totalIncentives &&
+          leveragedNTokenTotalsData?.totalIncentives > 0
+            ? leveragedNTokenTotalsData?.totalIncentives
+            : '-',
         Icon: SparklesIcon,
-        suffix: totalIncentives ? '%' : '',
+        suffix: leveragedNTokenTotalsData?.totalIncentives ? '%' : '',
       },
       {
         title: <FormattedMessage defaultMessage={'Capacity Remaining'} />,
         Icon: ToolTip,
-        value: maxSupplyData?.capacityRemaining
-          ? maxSupplyData?.capacityRemaining.toFloat()
+        value: leveragedNTokenTotalsData?.capacityRemaining
+          ? leveragedNTokenTotalsData?.capacityRemaining.toFloat()
           : '-',
         suffix: deposit?.symbol ? ' ' + deposit?.symbol : '',
         decimals: 0,
       },
     ],
-    liquidityYieldData,
+    liquidityYieldData: leveragedNTokenTotalsData?.liquidityYieldData,
   };
 };
 
