@@ -71,6 +71,7 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
       isDebtThreshold: types.boolean,
     })
   ),
+  vaultAddress: types.string,
   netWorth: NotionalTypes.TokenBalance,
   healthFactor: types.maybeNull(types.number),
   totalAPY: types.maybe(types.number),

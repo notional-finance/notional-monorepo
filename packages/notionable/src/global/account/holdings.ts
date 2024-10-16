@@ -381,6 +381,7 @@ export function calculateVaultHoldings(
 
     return {
       vault: v,
+      vaultAddress: v.vaultAddress,
       liquidationPrices: v.getAllLiquidationPrices(),
       netWorth: v.netWorth(),
       healthFactor: v.healthFactor(),

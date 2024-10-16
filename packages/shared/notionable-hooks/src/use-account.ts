@@ -77,9 +77,7 @@ export function useVaultPosition(
   network: Network | undefined,
   vaultAddress: string | undefined
 ) {
-  return useVaultHoldings(network).find(
-    ({ vault }) => vault.vaultAddress === vaultAddress
-  );
+  return useVaultHoldings(network).find((v) => v.vaultAddress === vaultAddress);
 }
 
 export function usePortfolioHoldings(network: Network | undefined) {

@@ -29,19 +29,17 @@ export const useLeveragedVaultGrid = (
 
   const allVaultData = listedVaults
     .map(({ vaultConfig, apy, tvl, debtToken }) => {
-      const profile = vaultHoldings.find(
-        (p) => p.vault.vaultAddress === vaultConfig.vaultAddress
-      )?.vault;
-      const totalAPY = profile?.totalAPY || apy?.totalAPY || 0;
+      const holding = vaultHoldings.find(
+        (p) => p.vaultAddress === vaultConfig.vaultAddress
+      );
+      const totalAPY = holding?.totalAPY || apy?.totalAPY || 0;
       const points = apy?.pointMultiples;
 
       return {
         title: vaultConfig.primaryToken.symbol,
         subTitle: vaultConfig.name,
-        bottomRightValue: profile
-          ? `NET WORTH: ${
-              profile?.netWorth().toDisplayStringWithSymbol() || '-'
-            }`
+        bottomRightValue: holding
+          ? `NET WORTH: ${holding?.netWorth.toDisplayStringWithSymbol() || '-'}`
           : `TVL: ${
               tvl
                 ? formatNumberAsAbbr(tvl.toFiat(baseCurrency).toFloat(), 0)
@@ -50,11 +48,11 @@ export const useLeveragedVaultGrid = (
         bottomLeftValue: undefined,
         symbol: vaultConfig.primaryToken.symbol,
         network: vaultConfig.primaryToken.network,
-        hasPosition: profile ? true : false,
+        hasPosition: holding ? true : false,
         apy: totalAPY,
         routeCallback: () =>
           navigate(
-            profile
+            holding
               ? `/${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/IncreaseVaultPosition`
               : `/${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`
           ),
