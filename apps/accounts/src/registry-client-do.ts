@@ -630,7 +630,15 @@ export class RegistryClientDO extends DurableObject {
         e.underlyingSnapshots?.shift()?.storedBalanceOf || 0,
         e.underlying.id,
         network
+      ).add(
+        TokenBalance.fromID(
+          // Takes the most recent external lending snapshot
+          e.externalSnapshots?.shift()?.storedBalanceOfUnderlying || 0,
+          e.underlying.id,
+          network
+        )
       );
+
       const pCash = Registry.getTokenRegistry().getPrimeCash(
         network,
         underlyingHeld.currencyId
