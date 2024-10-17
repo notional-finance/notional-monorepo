@@ -7,7 +7,7 @@ import { getNowSeconds } from '@notional-finance/util';
 import { useWalletStore } from '@notional-finance/notionable';
 
 /** Contains selectors for account holdings information */
-function useNetworkAccounts(network: Network | undefined) {
+export function useNetworkAccounts(network: Network | undefined) {
   const walletStore = useWalletStore();
   return network ? walletStore.networkAccounts.get(network) : undefined;
 }
@@ -152,30 +152,3 @@ export function useCurrentSeason() {
     return PointsSeasonsData[SEASONS.SEASON_THREE];
   }
 }
-
-export const PointsSeasonsData = {
-  [SEASONS.SEASON_ONE]: {
-    name: 'Season One',
-    db_name: SEASONS.SEASON_ONE,
-    startDate: new Date(2024, 5, 24),
-    endDate: new Date(2024, 6, 22),
-    totalArb: 55_000,
-    totalPoints: '',
-  },
-  [SEASONS.SEASON_TWO]: {
-    name: 'Season Two',
-    db_name: SEASONS.SEASON_TWO,
-    startDate: new Date(2024, 6, 23),
-    endDate: new Date(2024, 7, 19),
-    totalArb: 60_000,
-    totalPoints: '',
-  },
-  [SEASONS.SEASON_THREE]: {
-    name: 'Season Three',
-    db_name: SEASONS.SEASON_THREE,
-    startDate: new Date(2024, 7, 20),
-    endDate: new Date(2024, 8, 16),
-    totalArb: 60_000,
-    totalPoints: '',
-  },
-};
