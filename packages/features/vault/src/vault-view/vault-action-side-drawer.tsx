@@ -42,19 +42,6 @@ export const VaultActionSideDrawer = () => {
     updateState,
   } = context;
 
-  console.log({
-    vaultAddress,
-    deposit,
-    defaultLeverageRatio,
-    riskFactorLimit,
-    debt,
-    collateral,
-    selectedNetwork,
-    availableCollateralTokens,
-    availableDebtTokens,
-    tradeType,
-  });
-
   const loaded = vaultAddress && vaultAddressParam === vaultAddress;
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
     defaultLeverageRatio && !riskFactorLimit
