@@ -238,6 +238,10 @@ export default {
     env: Env,
     _: ExecutionContext
   ): Promise<Response> {
+    const authKey = request.headers.get('x-auth-key');
+    if (authKey !== env.AUTH_KEY) {
+      return new Response(null, { status: 401 });
+    }
     try {
       const url = new URL(request.url);
       const splitPath = url.pathname.split('/');
@@ -256,11 +260,6 @@ export default {
           { status: 200 }
         );
       } else if (url.pathname.startsWith('/trigger')) {
-        const authKey = request.headers.get('x-auth-key');
-        if (authKey !== env.AUTH_KEY) {
-          return new Response(null, { status: 401 });
-        }
-
         const { searchParams } = new URL(request.url);
         const skip = Number(searchParams.get('skip')) || 0;
         await run(env, skip);
