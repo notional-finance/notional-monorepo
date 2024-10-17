@@ -166,7 +166,9 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   get ptExchangeRate() {
-    return this.getPreFeeExchangeRate(TokenBalance.zero(this.ptToken));
+    return this.timeToExpiry === 0
+      ? 1
+      : this.getPreFeeExchangeRate(TokenBalance.zero(this.ptToken));
   }
 
   get assetTokenId() {

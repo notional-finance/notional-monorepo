@@ -37,12 +37,15 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
     vaultAddress,
     selectedNetwork,
   } = state;
+  const {
+    priorBorrowRate,
+    leverageRatio: priorLeverageRatio,
+    debt: priorDebt,
+  } = useVaultExistingFactors();
   const spotData = useSpotMaturityData(
     debt ? [debt] : undefined,
     debt ? debt.network : undefined
   );
-  const { priorBorrowRate, leverageRatio: priorLeverageRatio } =
-    useVaultExistingFactors();
   const nowMidnight = floorToMidnight(getNowSeconds());
   const adapter =
     selectedNetwork && vaultAddress
@@ -59,11 +62,18 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
   const fixedBorrowMaturity =
     debt && debt.maturity !== PRIME_CASH_VAULT_MATURITY
       ? debt.maturity
+      : priorDebt?.maturity && priorDebt?.maturity !== PRIME_CASH_VAULT_MATURITY
+      ? priorDebt.maturity
       : undefined;
 
-  const primeBorrowRate = debtOptions?.find(
-    (t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY
-  )?.interestRate;
+  const primeBorrowRate =
+    debtOptions &&
+    debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
+      ? debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
+          ?.interestRate
+      : priorDebt?.maturity === PRIME_CASH_VAULT_MATURITY
+      ? priorBorrowRate
+      : undefined;
 
   const ptAPY =
     collateralOptions?.find((t) => t.token.maturity === debt?.maturity)
@@ -185,9 +195,6 @@ export const PendlePerformanceChart = () => {
             />
           ),
           chartHeaderData: {
-            textHeader: (
-              <FormattedMessage defaultMessage={'Estimated Performance'} />
-            ),
             legendData,
           },
         },

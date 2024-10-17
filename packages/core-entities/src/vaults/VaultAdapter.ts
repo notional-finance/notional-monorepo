@@ -71,11 +71,19 @@ export abstract class VaultAdapter {
 
   abstract convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance;
 
+  /**
+   * Returns the underlying received when redeeming a negative amount of vault shares
+   * @returns netUnderlyingForVaultShares and feesPaid
+   */
   abstract getNetVaultSharesCost(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   };
 
+  /**
+   * Returns the vault shares or redeemed for a given amount of underlying
+   * @returns netVaultSharesForUnderlying and feesPaid
+   */
   abstract getNetVaultSharesMinted(
     netUnderlying: TokenBalance,
     vaultShare: TokenDefinition
