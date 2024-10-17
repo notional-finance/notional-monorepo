@@ -209,14 +209,21 @@ export class PendlePT extends VaultAdapter {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
-    const ptTokens = TokenBalance.from(netVaultShares.n, this.market.ptToken)
-      .scaleFromInternal()
-      .neg();
+    // This is only called on maxWithdraw from a vault
+    if (netVaultShares.isPositive())
+      throw Error(
+        'getNetVaultSharesCost should not be called with a positive netVaultShares'
+      );
 
-    // Calculate the cost to purchase the PT
+    const ptTokens = TokenBalance.from(
+      netVaultShares.n,
+      this.market.ptToken
+    ).scaleFromInternal();
+
+    // Calculate the cost to sell the PT, receive tokenOutSy in return
     const { tokensOut: tokensOutSy, feesPaid } =
       this.market.calculateTokenTrade(
-        ptTokens.neg(),
+        ptTokens.abs(),
         this.market.TOKEN_IN_INDEX
       );
 

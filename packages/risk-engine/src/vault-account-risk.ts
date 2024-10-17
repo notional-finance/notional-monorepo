@@ -431,22 +431,17 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         .neg();
     }
 
-    // Vault shares burned to repay debt
-    const { netVaultSharesForUnderlying } =
-      this.vaultAdapter.getNetVaultSharesMinted(
-        costToRepay, // this is a negative number
-        this.vaultShares.token
-      );
+    // Returns the total underlying received when redeeming all of the vault shares
     const { netUnderlyingForVaultShares, feesPaid } =
       this.vaultAdapter.getNetVaultSharesCost(this.vaultShares.neg());
 
-    // Return this in vault shares terms
-    const maxWithdraw = this.vaultShares.gt(netVaultSharesForUnderlying)
-      ? this.vaultShares.sub(netVaultSharesForUnderlying)
+    // Returns the net amount remaining after repaying all the debt
+    const maxWithdrawUnderlying = netUnderlyingForVaultShares.gt(costToRepay)
+      ? netUnderlyingForVaultShares.sub(costToRepay)
       : this.vaultShares.copy(0);
 
     return {
-      maxWithdrawUnderlying: maxWithdraw.toUnderlying(),
+      maxWithdrawUnderlying: maxWithdrawUnderlying,
       netRealizedCollateralBalance: netUnderlyingForVaultShares.add(feesPaid),
       collateralFee: feesPaid,
       debtFee,

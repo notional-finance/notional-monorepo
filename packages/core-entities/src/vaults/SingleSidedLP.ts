@@ -4,7 +4,6 @@ import {
   Network,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
-  INTERNAL_TOKEN_DECIMALS,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
