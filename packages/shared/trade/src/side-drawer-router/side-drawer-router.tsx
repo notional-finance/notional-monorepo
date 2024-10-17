@@ -1,9 +1,5 @@
 import { useTheme } from '@mui/material';
-import {
-  Drawer,
-  SideBarSubHeader,
-  DrawerTransition,
-} from '@notional-finance/mui';
+import { Drawer, SideBarSubHeader } from '@notional-finance/mui';
 import {
   AllTradeTypes,
   BaseTradeState,
@@ -67,7 +63,6 @@ export const SideDrawerRouter = ({
     navigate,
     action,
   ]);
-
   const route = routes.find((r) => r.slug === action);
 
   return (
@@ -77,7 +72,11 @@ export const SideDrawerRouter = ({
           key={route.slug}
           path={routeMatch.replace(':path', route.slug)}
           context={context}
-          {...route}
+          Component={route.Component}
+          isRootDrawer={route.isRootDrawer}
+          onBack={route.onBack}
+          slug={route.slug}
+          requiredState={route.requiredState}
         />
       )}
     </Drawer>
@@ -122,9 +121,8 @@ const DrawerRoute = ({
   }, [updateState, requiredState, state, path]);
 
   return (
-    <DrawerTransition fade={isRootDrawer}>
+    <div>
       {!isRootDrawer && (
-        // Root drawer does not have a back button
         <SideBarSubHeader
           paddingTop={theme.spacing(5)}
           callback={onBack || (() => navigate(-1))}
@@ -132,6 +130,6 @@ const DrawerRoute = ({
         />
       )}
       <Component />
-    </DrawerTransition>
+    </div>
   );
 };

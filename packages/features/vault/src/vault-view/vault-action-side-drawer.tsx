@@ -41,6 +41,7 @@ export const VaultActionSideDrawer = () => {
     },
     updateState,
   } = context;
+
   const loaded = vaultAddress && vaultAddressParam === vaultAddress;
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
     defaultLeverageRatio && !riskFactorLimit
