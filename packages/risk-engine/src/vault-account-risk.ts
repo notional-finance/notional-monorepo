@@ -447,7 +447,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       debtFee,
       netRealizedDebtBalance: costToRepay.add(
         debtFee?.toUnderlying() || costToRepay.copy(0)
-      ),
+      ).neg(),
     };
   }
 }

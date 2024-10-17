@@ -66,12 +66,14 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
       ? priorDebt.maturity
       : undefined;
 
-  const primeBorrowRate = debtOptions
-    ? debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
-        ?.interestRate
-    : priorDebt?.maturity === PRIME_CASH_VAULT_MATURITY
-    ? priorBorrowRate
-    : undefined;
+  const primeBorrowRate =
+    debtOptions &&
+    debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
+      ? debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
+          ?.interestRate
+      : priorDebt?.maturity === PRIME_CASH_VAULT_MATURITY
+      ? priorBorrowRate
+      : undefined;
 
   const ptAPY =
     collateralOptions?.find((t) => t.token.maturity === debt?.maturity)
