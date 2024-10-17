@@ -288,8 +288,8 @@ export class PendlePT extends VaultAdapter {
       );
 
       const { ptTokensIn, feesPaid } = doSecantSearch(
+        Math.floor(approxPTExchangeRate / 2),
         approxPTExchangeRate,
-        RATE_PRECISION,
         (exRate: number) => {
           const ptTokensIn = initialPtTokens.mulInRatePrecision(exRate);
 
@@ -303,7 +303,7 @@ export class PendlePT extends VaultAdapter {
             this.calculateTradeFromSy(tokenOutSy);
 
           return {
-            fx: underlyingOut.neg().toFloat() - netUnderlying.toFloat(),
+            fx: underlyingOut.toFloat() - netUnderlying.neg().toFloat(),
             value: {
               ptTokensIn,
               feesPaid: this.market
