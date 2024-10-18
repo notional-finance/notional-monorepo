@@ -29,7 +29,7 @@ export const useLeveragedVaultGrid = (
 
   const allVaultData = listedVaults
     .map(({ vaultConfig, apy, tvl, debtToken }) => {
-      const holding = vaultHoldings.find(
+      const holding = vaultHoldings?.find(
         (p) => p.vaultAddress === vaultConfig.vaultAddress
       );
       const totalAPY = holding?.totalAPY || apy?.totalAPY || 0;

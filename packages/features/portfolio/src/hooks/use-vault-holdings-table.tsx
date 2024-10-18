@@ -13,7 +13,6 @@ import {
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
-  formatNumberAsAbbr,
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
@@ -22,6 +21,7 @@ import {
   formatHealthFactorValues,
   useLeverageBlock,
   useSelectedNetwork,
+  useTotalVaultHoldings,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -38,6 +38,7 @@ import {
   FiatKeys,
   getNetworkModel,
   PointsLinks,
+  TokenDefinition,
 } from '@notional-finance/core-entities';
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../components';
@@ -162,7 +163,7 @@ function getVaultReinvestmentDate(
 }
 
 function getSpecificVaultInfo(
-  v: ReturnType<typeof useVaultHoldings>[number],
+  v: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
   baseCurrency: FiatKeys,
   theme: Theme,
   navigate: NavigateFunction
@@ -186,7 +187,7 @@ function getSpecificVaultInfo(
 
   // Point Farming Vaults
   if (v.vaultYield?.pointMultiples) {
-    const pointsLink = PointsLinks[v.vault.network][v.vault.vaultAddress];
+    const pointsLink = PointsLinks[v.network][v.vaultAddress];
     const points = v.vaultYield?.pointMultiples;
 
     if (typeof totalEarnings === 'object' && totalEarnings.data) {
@@ -213,10 +214,9 @@ function getSpecificVaultInfo(
               {Object.keys(points)
                 .map(
                   (k) =>
-                    `${pointsMultiple(
-                      points[k],
-                      v.vault.leverageRatio() || 0
-                    ).toFixed(2)}x ${k}`
+                    `${pointsMultiple(points[k], v.leverageRatio || 0).toFixed(
+                      2
+                    )}x ${k}`
                 )
                 .join(', ')}
             </LinkText>
@@ -270,7 +270,7 @@ function getSpecificVaultInfo(
           buttonText: <FormattedMessage defaultMessage={'Claim Rewards'} />,
           callback: () => {
             navigate(
-              `/vaults/${v.vault.network}/${v.vault.vaultAddress}/ClaimVaultRewards`
+              `/vaults/${v.network}/${v.vaultAddress}/ClaimVaultRewards`
             );
           },
         },
@@ -285,8 +285,8 @@ function getSpecificVaultInfo(
             <FormattedMessage defaultMessage={'Time to Next Reinvestment'} />
           ),
           value: getVaultReinvestmentDate(
-            v.vault.network,
-            v.vault.vaultAddress,
+            v.network,
+            v.vaultAddress,
             v.vaultMetadata.reinvestmentCadence
           ),
         },
@@ -326,7 +326,9 @@ export const useVaultHoldingsTable = () => {
   const navigate = useNavigate();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
-  const claimableRewards = vaults.reduce(
+  const totalVaultHoldings = useTotalVaultHoldings(network);
+
+  const claimableRewards = (vaults || []).reduce(
     (acc, vault) => {
       if (
         vault.vaultMetadata.rewardClaims &&
@@ -335,7 +337,7 @@ export const useVaultHoldingsTable = () => {
         vault.vaultMetadata.rewardClaims.forEach((claim) => {
           acc.rewardTokens.add(claim.symbol);
         });
-        acc.vaults.push(vault.vault.vaultConfig.name);
+        acc.vaults.push(vault.name);
       }
       return acc;
     },
@@ -365,16 +367,23 @@ export const useVaultHoldingsTable = () => {
     </Box>,
   ];
 
-  const vaultHoldingsData = vaults.map((vaultHolding) => {
+  const vaultHoldingsData = (vaults || []).map((vaultHolding) => {
     const {
-      vault: v,
-      denom,
+      vaultAddress,
+      name,
+      maturity,
+      underlying,
       totalAPY,
       amountPaid,
       strategyAPY,
       borrowAPY,
+      leverageRatio,
+      maxLeverageRatio,
+      totalAssets,
+      totalDebt,
+      healthFactor,
+      netWorth,
     } = vaultHolding;
-    const config = v.vaultConfig;
     const {
       subRowInfo,
       totalEarnings,
@@ -402,9 +411,9 @@ export const useVaultHoldingsTable = () => {
               justifyContent: 'space-between',
             }}
           >
-            {formatLeverageRatio(v.leverageRatio() || 0)}
+            {formatLeverageRatio(leverageRatio || 0)}
             <Body sx={{ marginLeft: theme.spacing(1) }}>
-              Max {formatLeverageRatio(v.maxLeverageRatio, 1)}
+              Max {formatLeverageRatio(maxLeverageRatio, 1)}
             </Body>
           </H4>
         ),
@@ -414,20 +423,20 @@ export const useVaultHoldingsTable = () => {
 
     return {
       vault: {
-        symbol: formatTokenType(denom).icon,
-        label: config.name,
+        symbol: formatTokenType(underlying as TokenDefinition).icon,
+        label: name,
         caption:
-          v.maturity === PRIME_CASH_VAULT_MATURITY
+          maturity === PRIME_CASH_VAULT_MATURITY
             ? 'Open Term'
-            : `Maturity: ${formatMaturity(v.maturity)}`,
+            : `Maturity: ${formatMaturity(maturity)}`,
       },
       // Assets and debts are shown on the overview page
-      assets: formatCryptoWithFiat(baseCurrency, v.totalAssets()),
-      debts: formatCryptoWithFiat(baseCurrency, v.totalDebt(), {
+      assets: formatCryptoWithFiat(baseCurrency, totalAssets),
+      debts: formatCryptoWithFiat(baseCurrency, totalDebt, {
         isDebt: true,
       }),
-      healthFactor: formatHealthFactorValues(v.healthFactor(), theme),
-      presentValue: formatCryptoWithFiat(baseCurrency, v.netWorth()),
+      healthFactor: formatHealthFactorValues(healthFactor, theme),
+      presentValue: formatCryptoWithFiat(baseCurrency, netWorth),
       totalEarnings,
       marketAPY: totalAPY ? formatNumberAsPercent(totalAPY) : undefined,
       amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
@@ -438,7 +447,7 @@ export const useVaultHoldingsTable = () => {
       borrowAPY: {
         displayValue: formatNumberAsPercent(borrowAPY, 2),
       },
-      leverageRatio: formatLeverageRatio(v.leverageRatio() || 0),
+      leverageRatio: formatLeverageRatio(leverageRatio || 0),
       actionRow: {
         warning,
         showRowWarning,
@@ -450,14 +459,14 @@ export const useVaultHoldingsTable = () => {
               <FormattedMessage defaultMessage={'Manage / Withdraw'} />
             ),
             callback: () => {
-              navigate(`/vaults/${network}/${v.vaultAddress}/Manage`);
+              navigate(`/vaults/${network}/${vaultAddress}/Manage`);
             },
           },
         ],
         txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
           {
             txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
-            assetOrVaultId: config.vaultAddress,
+            assetOrVaultId: vaultAddress,
           }
         )}`,
       },
@@ -480,30 +489,7 @@ export const useVaultHoldingsTable = () => {
     }
   }, [expandedRows, setExpandedRows]);
 
-  const totalRowData = vaults.reduce(
-    (accumulator, vault) => {
-      return {
-        amountPaid:
-          accumulator.amountPaid +
-          vault.amountPaid.toFiat(baseCurrency).toFloat(),
-        presentValue:
-          accumulator.presentValue +
-          vault.netWorth.toFiat(baseCurrency).toFloat(),
-        totalEarnings:
-          accumulator.totalEarnings +
-          vault.profit.toFiat(baseCurrency).toFloat(),
-        assets:
-          accumulator.assets +
-          vault.vault.totalAssets().toFiat(baseCurrency).toFloat(),
-        debts:
-          accumulator.debts +
-          vault.vault.totalDebt().toFiat(baseCurrency).toFloat(),
-      };
-    },
-    { amountPaid: 0, presentValue: 0, totalEarnings: 0, assets: 0, debts: 0 }
-  );
-
-  if (vaultHoldingsData.length > 0) {
+  if (totalVaultHoldings) {
     vaultHoldingsData.push({
       vault: {
         symbol: '',
@@ -512,27 +498,27 @@ export const useVaultHoldingsTable = () => {
       },
       healthFactor: { value: '', textColor: '' },
       marketAPY: '',
-      amountPaid: formatNumberAsAbbr(totalRowData.amountPaid, 2, baseCurrency, {
-        removeKAbbr: true,
-      }),
-      presentValue: formatNumberAsAbbr(
-        totalRowData.presentValue,
+      amountPaid: totalVaultHoldings.amountPaid.toDisplayStringWithSymbol(
         2,
-        baseCurrency,
-        { removeKAbbr: true }
+        true,
+        false
       ),
-      totalEarnings: formatNumberAsAbbr(
-        totalRowData.totalEarnings,
+      presentValue: totalVaultHoldings.presentValue.toDisplayStringWithSymbol(
         2,
-        baseCurrency,
-        { removeKAbbr: true }
+        true,
+        false
       ),
-      assets: formatNumberAsAbbr(totalRowData.assets, 2, baseCurrency, {
-        removeKAbbr: true,
-      }),
-      debts: formatNumberAsAbbr(totalRowData.debts, 2, baseCurrency, {
-        removeKAbbr: true,
-      }),
+      totalEarnings: totalVaultHoldings.totalEarnings.toDisplayStringWithSymbol(
+        2,
+        true,
+        false
+      ),
+      assets: totalVaultHoldings.assets.toDisplayStringWithSymbol(
+        2,
+        true,
+        false
+      ),
+      debts: totalVaultHoldings.debts.toDisplayStringWithSymbol(2, true, false),
       toolTipData: undefined,
       actionRow: undefined,
       isTotalRow: true,
@@ -548,7 +534,7 @@ export const useVaultHoldingsTable = () => {
       toggleOption,
       setToggleOption,
       toggleData,
-      showToggle: !isBlocked && vaults.length > 0,
+      showToggle: !isBlocked && vaults && vaults.length > 0,
     },
     claimableRewards:
       claimableRewards.rewardTokens.size > 0 ? claimableRewards : undefined,

@@ -45,7 +45,7 @@ export const ClaimVaultRewards = () => {
           ...networkAccounts[selectedNetwork],
           vaultHoldings: networkAccounts[selectedNetwork]?.vaultHoldings?.map(
             (holding) =>
-              holding.vault.vaultAddress === vaultAddress
+              holding.vaultAddress === vaultAddress
                 ? {
                     ...holding,
                     vaultMetadata: {

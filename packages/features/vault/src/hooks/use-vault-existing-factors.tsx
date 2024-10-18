@@ -7,7 +7,7 @@ export function useVaultExistingFactors() {
   const { vaultAddress, selectedNetwork, postAccountRisk } = state;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
-  const vaultShare = vaultPosition?.vault.vaultShares.token;
+  const vaultShare = vaultPosition?.vaultShares.token;
 
   const leverageRatio =
     postAccountRisk?.leverageRatio || vaultPosition?.leverageRatio || undefined;

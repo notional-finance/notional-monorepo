@@ -77,8 +77,8 @@ export const VaultActionSideDrawer = () => {
   ]);
 
   const currentPosition = {
-    collateral: vaultPosition?.vault?.vaultShares?.token,
-    debt: vaultPosition?.vault?.vaultDebt.token,
+    collateral: vaultPosition?.vaultShares?.token,
+    debt: vaultPosition?.vaultDebt?.token,
     riskFactorLimit: vaultPosition?.leverageRatio
       ? ({
           riskFactor: 'leverageRatio',

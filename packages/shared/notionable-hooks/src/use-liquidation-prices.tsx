@@ -179,11 +179,11 @@ export function useCurrentLiquidationPrices(
   const theme = useTheme();
   const secondary = (theme as NotionalTheme).palette.typography.light;
 
-  const exchangeRateRisk = portfolio
+  const exchangeRateRisk = (portfolio || [])
     .filter((p) => p.asset.tokenType === 'Underlying')
     .map(({ asset, threshold }) => {
       return parseFiatLiquidationPrice(
-        asset,
+        asset as TokenDefinition,
         baseCurrency,
         threshold,
         oneDay.find((t) => t.asset.id === asset.id),
@@ -192,11 +192,11 @@ export function useCurrentLiquidationPrices(
       );
     });
 
-  const assetPriceRisk = portfolio
+  const assetPriceRisk = (portfolio || [])
     .filter((p) => p.asset.tokenType !== 'Underlying')
     .map(({ asset, threshold }) => {
       return parseUnderlyingLiquidationPrice(
-        asset,
+        asset as TokenDefinition,
         threshold,
         oneDay.find((t) => t.asset.id === asset.id),
         sevenDay.find((t) => t.asset.id === asset.id),
@@ -204,47 +204,49 @@ export function useCurrentLiquidationPrices(
       );
     });
 
-  const vaultLiquidation = vaults.map(({ vault, liquidationPrices }) => {
-    return {
-      vaultAddress: vault.vaultAddress,
-      liquidationPrices: liquidationPrices.map(
-        ({ asset, threshold, debt }) => ({
-          ...parseUnderlyingLiquidationPrice(
-            asset,
-            threshold,
-            oneDay.find((t) => t.asset.id === asset.id),
-            sevenDay.find((t) => t.asset.id === asset.id),
-            secondary,
-            debt
-          ),
-          collateral: {
-            symbol: threshold?.underlying.symbol || '',
-            label: vault.vaultConfig.name,
-            caption: 'Leveraged Vault',
-          },
-          riskFactor: {
-            data: [
-              {
-                displayValue: (
-                  <span>
-                    {asset.symbol}
-                    <span style={{ color: secondary }}>
-                      &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
+  const vaultLiquidation = (vaults || []).map(
+    ({ vaultAddress, liquidationPrices, name }) => {
+      return {
+        vaultAddress,
+        liquidationPrices: liquidationPrices.map(
+          ({ asset, threshold, debt }) => ({
+            ...parseUnderlyingLiquidationPrice(
+              asset as TokenDefinition,
+              threshold,
+              oneDay.find((t) => t.asset.id === asset.id),
+              sevenDay.find((t) => t.asset.id === asset.id),
+              secondary,
+              debt as TokenDefinition
+            ),
+            collateral: {
+              symbol: threshold?.underlying.symbol || '',
+              label: name,
+              caption: 'Leveraged Vault',
+            },
+            riskFactor: {
+              data: [
+                {
+                  displayValue: (
+                    <span>
+                      {asset.symbol}
+                      <span style={{ color: secondary }}>
+                        &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
+                      </span>
                     </span>
-                  </span>
-                ),
-                isNegative: false,
-              },
-              {
-                displayValue: 'Chainlink Oracle Price',
-                isNegative: false,
-              },
-            ],
-          },
-        })
-      ),
-    };
-  });
+                  ),
+                  isNegative: false,
+                },
+                {
+                  displayValue: 'Chainlink Oracle Price',
+                  isNegative: false,
+                },
+              ],
+            },
+          })
+        ),
+      };
+    }
+  );
 
   return { exchangeRateRisk, assetPriceRisk, vaultLiquidation };
 }

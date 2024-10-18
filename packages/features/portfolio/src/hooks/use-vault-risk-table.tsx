@@ -1,4 +1,5 @@
 import { useTheme } from '@mui/material';
+import { TokenDefinition } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import { DisplayCell, MultiValueIconCell } from '@notional-finance/mui';
 import { useAppStore } from '@notional-finance/notionable';
@@ -110,24 +111,24 @@ export const useVaultRiskTable = () => {
   const tableData = vaultLiquidation
     .filter((l) => l.liquidationPrices.length > 0)
     .flatMap((l) => {
-      const vaultHolding = vaults.find(
-        (v) => v.vault.vaultAddress === l.vaultAddress
+      const vaultHolding = vaults?.find(
+        (v) => v.vaultAddress === l.vaultAddress
       );
 
       return vaultHolding
         ? l.liquidationPrices.map((p) => {
             return {
               vault: {
-                symbol: formatTokenType(vaultHolding.denom).icon,
-                label: vaultHolding.vault.vaultConfig.name,
+                symbol: formatTokenType(
+                  vaultHolding.underlying as TokenDefinition
+                ).icon,
+                label: vaultHolding.name,
                 caption:
-                  vaultHolding.vault.maturity === PRIME_CASH_VAULT_MATURITY
+                  vaultHolding.maturity === PRIME_CASH_VAULT_MATURITY
                     ? 'Open Term'
-                    : `Maturity: ${formatMaturity(
-                        vaultHolding.vault.maturity
-                      )}`,
+                    : `Maturity: ${formatMaturity(vaultHolding.maturity)}`,
               },
-              healthFactor: vaultHolding.vault.healthFactor(),
+              healthFactor: vaultHolding.healthFactor,
               ...p,
             };
           })

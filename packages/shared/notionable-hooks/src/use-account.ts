@@ -70,22 +70,28 @@ export function useTransactionHistory(network: Network | undefined) {
 }
 
 export function useVaultHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.vaultHoldings || [];
+  return useNetworkAccounts(network)?.vaultHoldings;
+}
+
+export function useTotalVaultHoldings(network: Network | undefined) {
+  return useNetworkAccounts(network)?.totalVaultHoldings;
 }
 
 export function useVaultPosition(
   network: Network | undefined,
   vaultAddress: string | undefined
 ) {
-  return useVaultHoldings(network).find((v) => v.vaultAddress === vaultAddress);
+  return useVaultHoldings(network)?.find(
+    (v) => v.vaultAddress === vaultAddress
+  );
 }
 
 export function usePortfolioHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.detailedHoldings || [];
+  return useNetworkAccounts(network)?.detailedHoldings;
 }
 
 export function useGroupedHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.groupedHoldings || [];
+  return useNetworkAccounts(network)?.groupedHoldings;
 }
 
 export function usePortfolioRiskProfile(network: Network | undefined) {

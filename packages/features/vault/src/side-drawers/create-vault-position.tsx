@@ -46,7 +46,7 @@ export const CreateVaultPosition = () => {
         {vaultPosition ? (
           <ManageTerms
             borrowType={
-              vaultPosition.vault.vaultDebt.maturity ===
+              vaultPosition.vaultDebt.maturity ===
               PRIME_CASH_VAULT_MATURITY
                 ? 'Variable'
                 : 'Fixed'

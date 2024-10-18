@@ -195,9 +195,9 @@ export const useLeverageVaultList = (
           )
         : undefined;
 
-      const profile = vaultHoldings.find(
-        (p) => p.vault.vaultAddress === vaultConfig.vaultAddress
-      )?.vault;
+      const holding = vaultHoldings?.find(
+        (p) => p.vaultAddress === vaultConfig.vaultAddress
+      );
 
       return {
         currency: {
@@ -215,10 +215,10 @@ export const useLeverageVaultList = (
           vaultConfig.boosterProtocol === vaultConfig.baseProtocol
             ? vaultConfig.baseProtocol
             : `${vaultConfig.boosterProtocol} / ${vaultConfig.baseProtocol}`,
-        totalApy: profile?.totalAPY || apy?.totalAPY || 0,
+        totalApy: holding?.totalAPY || apy?.totalAPY || 0,
         incentiveApy: 0,
         tvl: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
-        view: profile
+        view: holding
           ? `${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/IncreaseVaultPosition`
           : `${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`,
         symbol: vaultConfig.primaryToken.symbol || '',

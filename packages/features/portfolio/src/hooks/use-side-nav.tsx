@@ -20,8 +20,8 @@ export const useSideNav = () => {
   const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
   const network = useSelectedNetwork();
-  const numHoldings = usePortfolioHoldings(network).length;
-  const numVaults = useVaultHoldings(network).length;
+  const numHoldings = usePortfolioHoldings(network)?.length || 0;
+  const numVaults = useVaultHoldings(network)?.length || 0;
 
   const sideNavOptions = useMemo(() => {
     return [

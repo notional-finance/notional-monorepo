@@ -6,6 +6,7 @@ import {
   BalanceStatement,
   BalanceStatementModel,
   NotionalTypes,
+  TokenBalance,
   TokenDefinitionModel,
 } from '@notional-finance/core-entities';
 import { getRoot, Instance, types, cast } from 'mobx-state-tree';
@@ -64,22 +65,31 @@ const GroupedHoldingModel = types.model('GroupedHoldingModel', {
 });
 
 const VaultHoldingModel = types.model('VaultHoldingModel', {
+  network: NotionalTypes.Network,
+  name: types.string,
+  maturity: types.number,
+  underlying: TokenDefinitionModel,
+  vaultShares: NotionalTypes.TokenBalance,
+  vaultDebt: NotionalTypes.TokenBalance,
   liquidationPrices: types.array(
     types.model({
       asset: TokenDefinitionModel,
+      debt: TokenDefinitionModel,
       threshold: types.maybeNull(NotionalTypes.TokenBalance),
       isDebtThreshold: types.boolean,
     })
   ),
   vaultAddress: types.string,
   netWorth: NotionalTypes.TokenBalance,
+  totalAssets: NotionalTypes.TokenBalance,
+  totalDebt: NotionalTypes.TokenBalance,
+  maxLeverageRatio: types.number,
   healthFactor: types.maybeNull(types.number),
   totalAPY: types.maybe(types.number),
   borrowAPY: types.number,
   amountPaid: NotionalTypes.TokenBalance,
   strategyAPY: types.number,
   profit: NotionalTypes.TokenBalance,
-  denom: TokenDefinitionModel,
   leverageRatio: types.number,
   vaultYield: types.maybeNull(APYDataModel),
   marketProfitLoss: NotionalTypes.TokenBalance,
@@ -128,6 +138,18 @@ const PortfolioModel = types.model('PortfolioModel', {
   detailedHoldings: types.optional(types.array(DetailedHoldingModel), []),
   groupedHoldings: types.optional(types.array(GroupedHoldingModel), []),
   vaultHoldings: types.optional(types.array(VaultHoldingModel), []),
+  totalVaultHoldings: types.optional(
+    types.maybe(
+      types.model({
+        amountPaid: NotionalTypes.TokenBalance,
+        presentValue: NotionalTypes.TokenBalance,
+        totalEarnings: NotionalTypes.TokenBalance,
+        assets: NotionalTypes.TokenBalance,
+        debts: NotionalTypes.TokenBalance,
+      })
+    ),
+    undefined
+  ),
   currentFactors: types.optional(
     types.model({
       currentAPY: types.maybe(types.number),
@@ -215,7 +237,7 @@ export const AccountPortfolioActions = (
   };
 
   const getVaultHoldings = () => {
-    return calculateVaultHoldings(
+    const vaultHoldings = calculateVaultHoldings(
       root.getNetworkClient(self.network),
       self.balances,
       self.balanceStatement as BalanceStatement[],
@@ -223,11 +245,44 @@ export const AccountPortfolioActions = (
       Object.fromEntries(self.vaultLastUpdateTime.entries()),
       Object.fromEntries(self.rewardClaims.entries())
     );
+
+    const baseCurrency = root.appStore.baseCurrency;
+    const totalVaultHoldings = vaultHoldings.reduce(
+      (accumulator, vault) => {
+        return {
+          amountPaid: accumulator.amountPaid.add(
+            vault.amountPaid.toFiat(baseCurrency)
+          ),
+          presentValue: accumulator.presentValue.add(
+            vault.netWorth.toFiat(baseCurrency)
+          ),
+          totalEarnings: accumulator.totalEarnings.add(
+            vault.profit.toFiat(baseCurrency)
+          ),
+          assets: accumulator.assets.add(
+            vault.totalAssets.toFiat(baseCurrency)
+          ),
+          debts: accumulator.debts.add(vault.totalDebt.toFiat(baseCurrency)),
+        };
+      },
+      {
+        amountPaid: new TokenBalance(0, baseCurrency, self.network),
+        presentValue: new TokenBalance(0, baseCurrency, self.network),
+        totalEarnings: new TokenBalance(0, baseCurrency, self.network),
+        assets: new TokenBalance(0, baseCurrency, self.network),
+        debts: new TokenBalance(0, baseCurrency, self.network),
+      }
+    );
+
+    return {
+      vaultHoldings,
+      totalVaultHoldings,
+    };
   };
 
   const getCurrentFactors = () => {
     const { detailedHoldings } = getPortfolioHoldings();
-    const vaultHoldings = getVaultHoldings();
+    const { vaultHoldings } = getVaultHoldings();
 
     return calculateAccountCurrentFactors(
       detailedHoldings,
@@ -270,9 +325,10 @@ export const AccountPortfolioActions = (
   };
 
   const refreshAccountHoldings = () => {
+    // todo: calculate totals
     const { detailedHoldings, groupedHoldings } = getPortfolioHoldings();
     const { totalIncentives, accruedIncentives } = getAccountIncentives();
-    const vaultHoldings = getVaultHoldings();
+    const { vaultHoldings, totalVaultHoldings } = getVaultHoldings();
     const currentFactors = getCurrentFactors();
     const totalCurrencyHoldings = getTotalCurrencyHoldings();
     const portfolioLiquidationPrices = getPortfolioLiquidationPrices();
@@ -303,13 +359,14 @@ export const AccountPortfolioActions = (
         debt: DetailedHoldingModel.create(h.debt),
       }))
     );
+    self.totalVaultHoldings = totalVaultHoldings;
     self.vaultHoldings.replace(
       vaultHoldings.map((h) => ({
         ...h,
         liquidationPrices: cast(h.liquidationPrices),
         assetPnL: BalanceStatementModel.create(h.assetPnL),
         debtPnL: BalanceStatementModel.create(h.debtPnL),
-        denom: TokenDefinitionModel.create(h.denom),
+        underlying: TokenDefinitionModel.create(h.underlying),
         vaultYield: APYDataModel.create(h.vaultYield),
         vaultMetadata: {
           ...h.vaultMetadata,

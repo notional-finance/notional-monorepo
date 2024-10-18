@@ -331,14 +331,14 @@ export function calculateVaultHoldings(
     const borrowAPY =
       debtPnL?.impliedFixedRate !== undefined
         ? debtPnL.impliedFixedRate
-        : model.getSpotAPY(v.vaultDebt.unwrapVaultToken().tokenId).totalAPY ||
-          0;
+        : model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
 
     const amountPaid = (assetPnL?.accumulatedCostRealized || zeroDenom)
       .add(debtPnL?.accumulatedCostRealized || zeroDenom)
       .add(cashPnL?.accumulatedCostRealized || zeroDenom);
 
     const leverageRatio = v.leverageRatio() || 0;
+    const { maxLeverageRatio } = model.getLeverageRatios(v.vaultShares.token);
     const totalAPY = leveragedYield(strategyAPY, borrowAPY, leverageRatio);
 
     const totalInterestAccrual = (assetPnL?.totalInterestAccrual || zeroDenom)
@@ -380,17 +380,24 @@ export function calculateVaultHoldings(
     };
 
     return {
-      vault: v,
+      name: v.vaultConfig.name,
+      network: v.network,
+      maturity: v.maturity,
       vaultAddress: v.vaultAddress,
+      vaultShares: v.vaultShares,
+      vaultDebt: v.vaultDebt,
       liquidationPrices: v.getAllLiquidationPrices(),
       netWorth: v.netWorth(),
       healthFactor: v.healthFactor(),
+      totalAssets: v.totalAssets(),
+      totalDebt: v.totalDebt(),
+      maxLeverageRatio,
       totalAPY,
       borrowAPY,
       amountPaid,
       strategyAPY,
       profit,
-      denom,
+      underlying: denom,
       leverageRatio,
       vaultYield,
       marketProfitLoss,
@@ -409,8 +416,10 @@ export function calculateAccountCurrentFactors(
   baseCurrency: FiatKeys
 ) {
   const { weightedYield, netWorth, debts, assets } = vaults.reduce(
-    ({ weightedYield, netWorth, debts, assets }, { totalAPY, vault }) => {
-      const { debts: d, assets: a, netWorth: _w } = vault.getAllRiskFactors();
+    (
+      { weightedYield, netWorth, debts, assets },
+      { totalAPY, totalAssets: a, totalDebt: d, netWorth: _w }
+    ) => {
       const w = _w.toFiat(baseCurrency).toFloat();
       return {
         weightedYield: weightedYield + (totalAPY || 0) * w,
