@@ -9033,7 +9033,6 @@ export type AllAccountsQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
   startId?: InputMaybe<Scalars['ID']>;
   endId?: InputMaybe<Scalars['ID']>;
-  blockNumber?: InputMaybe<Scalars['Int']>;
 }>;
 
 
@@ -9170,7 +9169,7 @@ export type ExternalLendingHistoryQueryVariables = Exact<{ [key: string]: never;
 
 export type ExternalLendingHistoryQuery = { externalLendings: Array<(
     Pick<ExternalLending, 'id'>
-    & { underlying: Pick<Token, 'id'>, underlyingSnapshots?: Maybe<Array<Pick<UnderlyingSnapshot, 'timestamp' | 'balanceOf' | 'storedBalanceOf'>>> }
+    & { underlying: Pick<Token, 'id'>, underlyingSnapshots?: Maybe<Array<Pick<UnderlyingSnapshot, 'timestamp' | 'balanceOf' | 'storedBalanceOf'>>>, externalSnapshots?: Maybe<Array<Pick<ExternalLendingSnapshot, 'timestamp' | 'balanceOf' | 'storedBalanceOf' | 'storedBalanceOfUnderlying' | 'balanceOfUnderlying'>>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type HistoricalOracleValuesQueryVariables = Exact<{
@@ -9860,6 +9859,13 @@ export const ExternalLendingHistoryDocument = gql`
       timestamp
       balanceOf
       storedBalanceOf
+    }
+    externalSnapshots(orderBy: timestamp, orderDirection: desc, first: 10) {
+      timestamp
+      balanceOf
+      storedBalanceOf
+      storedBalanceOfUnderlying
+      balanceOfUnderlying
     }
   }
   _meta {

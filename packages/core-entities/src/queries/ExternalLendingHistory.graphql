@@ -1,17 +1,33 @@
 query ExternalLendingHistory {
   externalLendings {
     id
-    underlying { id }
-    underlyingSnapshots (orderBy: timestamp, orderDirection:desc, first: 10) {
+    underlying {
+      id
+    }
+    underlyingSnapshots(orderBy: timestamp, orderDirection: desc, first: 10) {
       timestamp
+      # Balance of underlying using ERC20.balanceOf()
       balanceOf
+      # Balance of underlying stored in notional
       storedBalanceOf
+    }
+    externalSnapshots(orderBy: timestamp, orderDirection: desc, first: 10) {
+      timestamp
+      # Balance of asset using ERC20.balanceOf()
+      balanceOf
+      # Balance of asset stored in notional
+      storedBalanceOf
+      # Balance of the asset in underlying terms as reported by the holdings oracle
+      storedBalanceOfUnderlying
+      # Balance of the asset inferred using the exchange rate between storedBalanceOf
+      # and storedBalanceOfUnderlying multiplied by the ERC20.balanceOf()
+      balanceOfUnderlying
     }
   }
 
   _meta {
     block {
-        number
+      number
     }
   }
 }
