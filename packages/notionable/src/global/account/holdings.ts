@@ -171,6 +171,8 @@ export function calculateHoldings(
           new TokenBalance(0, 'USD', Network.all)
       ),
       hasMatured: balance.hasMatured,
+      isHighUtilization: false,
+      // TODO: add this back in
       // isHighUtilization: isHighUtilization(
       //   balance,
       //   priceChanges,

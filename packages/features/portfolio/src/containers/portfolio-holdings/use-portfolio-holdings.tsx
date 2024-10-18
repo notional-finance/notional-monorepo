@@ -59,7 +59,8 @@ export function usePortfolioHoldings(baseCurrency: FiatKeys) {
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
-  const { detailedHoldings } = useDetailedHoldingsTable(baseCurrency);
+  const { detailedHoldings, totalHoldingsRow } =
+    useDetailedHoldingsTable(baseCurrency);
   const { groupedRows, groupedTokens } = useGroupedHoldingsTable(baseCurrency);
 
   const filteredHoldings = detailedHoldings.filter(
@@ -177,7 +178,10 @@ export function usePortfolioHoldings(baseCurrency: FiatKeys) {
       toggleData,
       showToggle: !isBlocked && groupedRows.length > 0,
     },
-    portfolioHoldingsData: insertDebtDivider(portfolioHoldingsData),
+    portfolioHoldingsData: [
+      ...insertDebtDivider(portfolioHoldingsData),
+      totalHoldingsRow,
+    ],
     pendingTokenData,
     setExpandedRows,
     initialState,

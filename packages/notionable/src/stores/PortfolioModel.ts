@@ -17,6 +17,7 @@ import {
   calculateHoldings,
   calculateVaultHoldings,
 } from '../global/account/holdings';
+import { Network } from '@notional-finance/util';
 
 const APYDataModel = types.model('APYDataModel', {
   totalAPY: types.maybe(types.number),
@@ -48,6 +49,7 @@ const DetailedHoldingModel = types.model('DetailedHolding', {
   marketProfitLoss: types.maybe(NotionalTypes.TokenBalance),
   hasMatured: types.boolean,
   hasNToken: types.boolean,
+  isHighUtilization: types.boolean,
 });
 
 const GroupedHoldingModel = types.model('GroupedHoldingModel', {
@@ -137,6 +139,19 @@ const PortfolioModel = types.model('PortfolioModel', {
   ),
   detailedHoldings: types.optional(types.array(DetailedHoldingModel), []),
   groupedHoldings: types.optional(types.array(GroupedHoldingModel), []),
+  totalPortfolioHoldings: types.optional(
+    types.maybe(
+      types.model({
+        amountPaid: NotionalTypes.TokenBalance,
+        presentValue: NotionalTypes.TokenBalance,
+        earnings: NotionalTypes.TokenBalance,
+        nonNoteEarnings: NotionalTypes.TokenBalance,
+        perIncentiveEarnings: types.array(NotionalTypes.TokenBalance),
+        noteEarnings: NotionalTypes.TokenBalance,
+      })
+    ),
+    undefined
+  ),
   vaultHoldings: types.optional(types.array(VaultHoldingModel), []),
   totalVaultHoldings: types.optional(
     types.maybe(
@@ -233,7 +248,64 @@ export const AccountPortfolioActions = (
       detailedHoldings
     );
 
-    return { detailedHoldings, groupedHoldings };
+    const baseCurrency = root.appStore.baseCurrency;
+    const zeroFiat = new TokenBalance(0, baseCurrency, Network.all);
+    const NOTE = root.getNetworkClient(self.network).getTokenBySymbol('NOTE');
+
+    const totalPortfolioHoldings = detailedHoldings.reduce(
+      (t, { balance, statement, perIncentiveEarnings }) => {
+        const totalEarningsWithNOTE = statement?.totalProfitAndLoss
+          .toFiat(baseCurrency)
+          .add(
+            perIncentiveEarnings.reduce(
+              (s, i) => s.add(i.toFiat(baseCurrency)),
+              zeroFiat
+            )
+          );
+
+        if (statement) {
+          t.amountPaid = t.amountPaid.add(
+            statement.accumulatedCostRealized.toFiat(baseCurrency)
+          );
+          t.presentValue = t.presentValue.add(balance.toFiat(baseCurrency));
+          t.earnings = totalEarningsWithNOTE
+            ? t.earnings.add(totalEarningsWithNOTE.toFiat(baseCurrency))
+            : t.earnings.add(statement.totalProfitAndLoss.toFiat(baseCurrency));
+          t.nonNoteEarnings = t.nonNoteEarnings.add(
+            statement.totalProfitAndLoss.toFiat(baseCurrency)
+          );
+          const totalNOTEEarnings = perIncentiveEarnings.find(
+            (t) => t.symbol === 'NOTE'
+          );
+          t.noteEarnings = totalNOTEEarnings
+            ? t?.noteEarnings?.add(totalNOTEEarnings)
+            : t.noteEarnings;
+
+          perIncentiveEarnings.forEach((data) => {
+            const currentTokenBalance = t.perIncentiveEarnings.findIndex(
+              (t) => t.symbol === data.symbol
+            );
+            if (currentTokenBalance > -1) {
+              t.perIncentiveEarnings[currentTokenBalance] =
+                t.perIncentiveEarnings[currentTokenBalance].add(data);
+            } else {
+              t.perIncentiveEarnings.push(data);
+            }
+          });
+        }
+        return t;
+      },
+      {
+        amountPaid: zeroFiat,
+        presentValue: zeroFiat,
+        earnings: zeroFiat,
+        nonNoteEarnings: zeroFiat,
+        perIncentiveEarnings: [] as TokenBalance[],
+        noteEarnings: TokenBalance.from(0, NOTE),
+      }
+    );
+
+    return { detailedHoldings, groupedHoldings, totalPortfolioHoldings };
   };
 
   const getVaultHoldings = () => {
@@ -325,8 +397,8 @@ export const AccountPortfolioActions = (
   };
 
   const refreshAccountHoldings = () => {
-    // todo: calculate totals
-    const { detailedHoldings, groupedHoldings } = getPortfolioHoldings();
+    const { detailedHoldings, groupedHoldings, totalPortfolioHoldings } =
+      getPortfolioHoldings();
     const { totalIncentives, accruedIncentives } = getAccountIncentives();
     const { vaultHoldings, totalVaultHoldings } = getVaultHoldings();
     const currentFactors = getCurrentFactors();
@@ -351,6 +423,10 @@ export const AccountPortfolioActions = (
         perIncentiveEarnings: cast(h.perIncentiveEarnings),
       }))
     );
+    self.totalPortfolioHoldings = {
+      ...totalPortfolioHoldings,
+      perIncentiveEarnings: cast(totalPortfolioHoldings.perIncentiveEarnings),
+    };
 
     self.groupedHoldings.replace(
       groupedHoldings.map((h) => ({

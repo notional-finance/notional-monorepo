@@ -86,6 +86,10 @@ export function useVaultPosition(
   );
 }
 
+export function useTotalPortfolioHoldings(network: Network | undefined) {
+  return useNetworkAccounts(network)?.totalPortfolioHoldings;
+}
+
 export function usePortfolioHoldings(network: Network | undefined) {
   return useNetworkAccounts(network)?.detailedHoldings;
 }
