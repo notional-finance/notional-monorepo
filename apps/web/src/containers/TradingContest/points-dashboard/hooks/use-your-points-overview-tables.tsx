@@ -7,23 +7,13 @@ import {
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
-  Network,
   SECONDS_IN_DAY,
   floorToMidnight,
   formatNumber,
   getDateString,
   getNowSeconds,
 } from '@notional-finance/util';
-import {
-  usePortfolioHoldings,
-  useTotalArbPoints,
-  useVaultHoldings,
-} from '@notional-finance/notionable-hooks';
-import {
-  getArbBoosts,
-  getPointsPerDay,
-  Registry,
-} from '@notional-finance/core-entities';
+import { useTotalArbPoints } from '@notional-finance/notionable-hooks';
 import { ArbPointsType } from '@notional-finance/notionable';
 
 export const useYourPointsOverviewTables = (arbPoints: ArbPointsType[]) => {
@@ -31,53 +21,9 @@ export const useYourPointsOverviewTables = (arbPoints: ArbPointsType[]) => {
   const { season_one, season_two, season_three } = PointsSeasonsData;
   const totalPoints = useTotalArbPoints();
   const currentSeason = useCurrentSeason();
-  const portfolioHoldings = usePortfolioHoldings(Network.arbitrum);
-  const vaultHoldings = useVaultHoldings(Network.arbitrum);
-  const vaultPointsData = vaultHoldings
-    .filter(({ vault: v }) => {
-      let totalVaultPoints = 0;
-      arbPoints?.map(({ token, points }) => {
-        const tokenData = Registry?.getTokenRegistry()?.getTokenByID(
-          Network.arbitrum,
-          token
-        );
-        if (
-          tokenData.tokenType === 'VaultShare' &&
-          tokenData.totalSupply?.vaultAddress === v.vaultAddress
-        ) {
-          if (points > 0) {
-            totalVaultPoints = points;
-          }
-        }
-        return totalVaultPoints;
-      });
-      return totalVaultPoints > 0;
-    })
-    .map(({ vault: v }) => {
-      const boostNum = getArbBoosts(v.vaultShares.token, false);
-      const pointsPerDay = v.netWorth().toFiat('USD').toFloat() * boostNum;
-      return { pointsPerDay };
-    });
 
-  const portfolioPointsData = portfolioHoldings
-    .filter(({ balance: b }) => {
-      const totalPointsNum =
-        arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
-      return totalPointsNum > 0;
-    })
-    .map(({ balance: b }) => {
-      const pointsPerDay = getPointsPerDay(b);
-      return { pointsPerDay };
-    });
-
-  const sumPointsPerDay = portfolioPointsData.reduce(
-    (sum, data) => sum + data.pointsPerDay,
-    0
-  );
-  const sumVaultPointsPerDay = vaultPointsData.reduce(
-    (sum, data) => sum + data.pointsPerDay,
-    0
-  );
+  const sumPointsPerDay = 0;
+  const sumVaultPointsPerDay = 0;
 
   const yourPointsDay = sumPointsPerDay + sumVaultPointsPerDay;
   // This refers the the current season points total
