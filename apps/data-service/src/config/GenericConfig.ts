@@ -190,6 +190,36 @@ export const configDefs: ConfigDefinition[] = [
   {
     sourceType: SourceType.Multicall,
     sourceConfig: {
+      contractAddress: '0x387dBc0fB00b26fb085aa658527D5BE98302c84C',
+      contractABI: ['function getRate() view external returns (uint256)'],
+      method: 'getRate',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'ezETH To ETH Exchange Rate',
+      decimals: 18,
+    },
+    network: Network.mainnet,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x349A73444b1a310BAe67ef67973022020d70020d',
+      contractABI: ['function rsETHPrice() view external returns (uint256)'],
+      method: 'rsETHPrice',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'rsETH To ETH Exchange Rate',
+      decimals: 18,
+    },
+    network: Network.mainnet,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
       contractAddress: '0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f8',
       contractABI: BalancerStablePoolABI,
       method: 'getLatest',
