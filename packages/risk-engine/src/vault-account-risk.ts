@@ -323,9 +323,15 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     ).toUnderlying();
     const liquidationPriceRatio =
       oneVaultShareValueAtLiquidation.ratioWith(oneVaultShareValue);
-    const assetToUnderlyingPrice = TokenBalance.unit(
+    const assetToUnderlyingPrice = TokenBalance.unit(asset).toToken(
       oneVaultShareValue.token
-    ).toToken(asset);
+    );
+    const assetLiquidationThreshold = TokenBalance.fromFloat(
+      assetToUnderlyingPrice
+        .mulInRatePrecision(liquidationPriceRatio)
+        .toFloat(),
+      asset
+    );
 
     console.log(
       'vault address',
@@ -347,10 +353,12 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       '\nasset to underlying price * liquidation price ratio',
       assetToUnderlyingPrice
         .mulInRatePrecision(liquidationPriceRatio)
-        .toDisplayStringWithSymbol(8, false, false)
+        .toDisplayStringWithSymbol(8, false, false),
+      '\nasset liquidation threshold',
+      assetLiquidationThreshold.toDisplayStringWithSymbol(8, false, false)
     );
 
-    return assetToUnderlyingPrice.mulInRatePrecision(liquidationPriceRatio);
+    return assetLiquidationThreshold;
   }
 
   override getAllLiquidationPrices() {
