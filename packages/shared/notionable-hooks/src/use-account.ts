@@ -1,4 +1,4 @@
-import { TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { useNotionalContext } from './use-notional';
 import { Network, SEASONS, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
@@ -100,6 +100,23 @@ export function useGroupedHoldings(network: Network | undefined) {
 
 export function usePortfolioRiskProfile(network: Network | undefined) {
   return useNetworkAccounts(network)?.portfolioRiskProfile;
+}
+
+export function usePortfolioMaxWithdraw(token: TokenDefinition | undefined) {
+  const networkAccounts = useNetworkAccounts(token?.network);
+  return networkAccounts && token
+    ? networkAccounts.maxPortfolioWithdraw(token)
+    : undefined;
+}
+
+export function useVaultMaxWithdraw(
+  network: Network | undefined,
+  vaultAddress: string | undefined
+) {
+  const networkAccounts = useNetworkAccounts(network);
+  return networkAccounts && vaultAddress
+    ? networkAccounts.maxVaultWithdraw(vaultAddress)
+    : undefined;
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {

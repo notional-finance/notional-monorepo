@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import {
@@ -12,7 +12,10 @@ import {
 import { VaultActionContext } from '../vault';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { messages } from '../messages';
-import { useVaultPosition } from '@notional-finance/notionable-hooks';
+import {
+  useVaultMaxWithdraw,
+  useVaultPosition,
+} from '@notional-finance/notionable-hooks';
 import { useInputAmount } from '@notional-finance/trade/common';
 import { useVaultActionErrors } from '../hooks';
 
@@ -35,7 +38,8 @@ export const WithdrawVault = () => {
   const { underMinAccountBorrowError } = useVaultActionErrors();
   const primaryBorrowSymbol = deposit?.symbol;
   const isFullRepayment = postAccountRisk?.leverageRatio === null;
-  const profile = useVaultPosition(selectedNetwork, vaultAddress)?.vault;
+  const profile = useVaultPosition(selectedNetwork, vaultAddress);
+  const maxWithdrawValues = useVaultMaxWithdraw(selectedNetwork, vaultAddress);
 
   const { inputAmount } = useInputAmount(
     selectedNetwork,
@@ -49,10 +53,6 @@ export const WithdrawVault = () => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateState, inputAmount?.hashKey]);
-
-  const maxWithdrawValues = useMemo(() => {
-    return profile?.maxWithdraw();
-  }, [profile]);
 
   const onMaxValue = useCallback(() => {
     if (profile && maxWithdrawValues) {

@@ -1,6 +1,7 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
   BaseTradeContext,
+  usePortfolioMaxWithdraw,
   usePortfolioRiskProfile,
   usePrimeCash,
   useTradedValue,
@@ -19,9 +20,7 @@ export function useMaxWithdraw(context: BaseTradeContext) {
   const balance = profile?.balances.find(
     (t) => t.tokenId === withdrawToken?.id
   );
-  const maxWithdraw = withdrawToken
-    ? profile?.maxWithdraw(withdrawToken)
-    : undefined;
+  const maxWithdraw = usePortfolioMaxWithdraw(withdrawToken);
   const maxWithdrawUnderlying = useTradedValue(maxWithdraw?.neg());
 
   const onMaxValue = useCallback(() => {

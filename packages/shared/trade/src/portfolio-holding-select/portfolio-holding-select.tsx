@@ -56,10 +56,11 @@ export const PortfolioHoldingSelect = ({
       ? primeCash?.id
       : selectedToken?.id;
 
+  // TODO: this needs to go into the portfolio model
   const options = useMemo(() => {
     return profile?.balances.filter(filterBalances)?.map((b) => {
       if (isWithdraw) {
-        const maxWithdraw = profile.maxWithdraw(b.token);
+        const maxWithdraw = profile?.maxWithdraw(b.token);
         return {
           token: b.token,
           largeFigure: maxWithdraw?.toUnderlying().toFloat() || 0,
