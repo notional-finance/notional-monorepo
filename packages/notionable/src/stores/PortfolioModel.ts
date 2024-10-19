@@ -1,4 +1,7 @@
-import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import {
+  AccountRiskProfile,
+  VaultAccountRiskProfile,
+} from '@notional-finance/risk-engine';
 import { RootStoreInterface } from './root-store';
 import {
   AccountHistory,
@@ -7,6 +10,7 @@ import {
   BalanceStatementModel,
   NotionalTypes,
   TokenBalance,
+  TokenDefinition,
   TokenDefinitionModel,
 } from '@notional-finance/core-entities';
 import { getRoot, Instance, types, cast } from 'mobx-state-tree';
@@ -118,6 +122,18 @@ const PortfolioModel = types.model('PortfolioModel', {
     ),
     []
   ),
+  portfolioRiskProfile: types.optional(
+    types.maybe(
+      types.model({
+        loanToValue: types.maybeNull(types.number),
+        healthFactor: types.maybeNull(types.number),
+        totalAssets: NotionalTypes.TokenBalance,
+        totalDebt: NotionalTypes.TokenBalance,
+        balances: types.array(NotionalTypes.TokenBalance),
+      })
+    ),
+    undefined
+  ),
   totalIncentives: types.optional(
     types.map(
       types.model({
@@ -204,7 +220,28 @@ const PortfolioModel = types.model('PortfolioModel', {
   ),
 });
 
-const _AccountPortfolioModel = types.compose(AccountModel, PortfolioModel);
+const _AccountPortfolioModel = types
+  .compose(AccountModel, PortfolioModel)
+  .views((self) => ({
+    maxPortfolioWithdraw(token: TokenDefinition) {
+      return new AccountRiskProfile(
+        self.balances.filter(
+          (b) =>
+            !b.isVaultToken &&
+            b.tokenType !== 'Underlying' &&
+            b.tokenType !== 'NOTE'
+        ),
+        self.network
+      ).maxWithdraw(token);
+    },
+    maxVaultWithdraw(vaultAddress: string) {
+      return new VaultAccountRiskProfile(
+        vaultAddress,
+        self.balances,
+        self.vaultLastUpdateTime?.get(vaultAddress) || 0
+      ).maxWithdraw();
+    },
+  }));
 
 export const AccountPortfolioActions = (
   self: Instance<typeof _AccountPortfolioModel>
@@ -221,6 +258,17 @@ export const AccountPortfolioActions = (
       ),
       self.network
     );
+  };
+
+  const getPortfolioRiskProfile = () => {
+    const profile = getAccountRiskProfile();
+    return {
+      loanToValue: profile.loanToValue(),
+      healthFactor: profile.healthFactor(),
+      totalAssets: profile.totalAssets(),
+      totalDebt: profile.totalDebt(),
+      balances: profile.balances,
+    };
   };
 
   const getPortfolioLiquidationPrices = () => {
@@ -404,6 +452,12 @@ export const AccountPortfolioActions = (
     const currentFactors = getCurrentFactors();
     const totalCurrencyHoldings = getTotalCurrencyHoldings();
     const portfolioLiquidationPrices = getPortfolioLiquidationPrices();
+    const portfolioRiskProfile = getPortfolioRiskProfile();
+
+    self.portfolioRiskProfile = {
+      ...portfolioRiskProfile,
+      balances: cast(portfolioRiskProfile.balances),
+    };
 
     self.totalIncentives.replace(totalIncentives);
     self.accruedIncentives.replace(

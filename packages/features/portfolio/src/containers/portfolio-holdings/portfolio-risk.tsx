@@ -18,10 +18,10 @@ import {
   useCurrentLiquidationPrices,
   usePortfolioRiskProfile,
   useSelectedNetwork,
-  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import { useReduceRiskDropdown } from '../../hooks';
+import { useAppStore } from '@notional-finance/notionable';
 
 const LabelAndValue = ({
   label,
@@ -47,8 +47,6 @@ const PortfolioRisk = () => {
   const profile = usePortfolioRiskProfile(network);
   const account = useAccountDefinition(network);
   const { baseCurrency } = useAppStore();
-  const loanToValue = profile?.loanToValue();
-  const healthFactor = profile ? profile.healthFactor() : null;
   const { exchangeRateRisk, assetPriceRisk } = useCurrentLiquidationPrices(
     network,
     baseCurrency
@@ -101,7 +99,7 @@ const PortfolioRisk = () => {
                 width: { sm: '100%', md: theme.spacing(54) },
               }}
             >
-              <SliderRisk healthFactor={healthFactor} />
+              <SliderRisk healthFactor={profile?.healthFactor || null} />
             </Box>
             <Box
               sx={{
@@ -114,26 +112,19 @@ const PortfolioRisk = () => {
               <LabelAndValue
                 label={defineMessage({ defaultMessage: 'Total Collateral' })}
                 value={
-                  profile
-                    ?.totalAssets()
-                    .toFiat(baseCurrency)
-                    .toDisplayStringWithSymbol(2, true) || '-'
+                  profile?.totalAssets.toFiat(baseCurrency).toDisplayStringWithSymbol(2, true) || '-'
                 }
               />
               <LabelAndValue
                 label={defineMessage({ defaultMessage: 'Total Debt' })}
                 value={
-                  profile
-                    ?.totalDebt()
-                    .abs()
-                    .toFiat(baseCurrency)
-                    .toDisplayStringWithSymbol(2, true) || '-'
+                  profile?.totalDebt.abs().toFiat(baseCurrency).toDisplayStringWithSymbol(2, true) || '-'
                 }
               />
               <LabelAndValue
                 label={defineMessage({ defaultMessage: 'Loan to Value' })}
                 value={
-                  loanToValue ? formatNumberAsPercent(loanToValue, 2) : '-'
+                  profile?.loanToValue ? formatNumberAsPercent(profile.loanToValue, 2) : '-'
                 }
               />
             </Box>

@@ -99,7 +99,7 @@ export function useGroupedHoldings(network: Network | undefined) {
 }
 
 export function usePortfolioRiskProfile(network: Network | undefined) {
-  return useNetworkAccounts(network)?.getAccountRiskProfile();
+  return useNetworkAccounts(network)?.portfolioRiskProfile;
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {
