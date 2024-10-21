@@ -22,12 +22,31 @@ export const analytics = AnalyticsBrowser.load(
   }
 );
 
+export const safeDatadogRum = {
+  addAction: (eventName: string, context?: Record<string, any>) => {
+    if (
+      !window.location.hostname.includes('localhost') &&
+      !window.location.hostname.includes('dev')
+    ) {
+      datadogRum.addAction(eventName, context);
+    }
+  },
+  setUser: (user: Record<string, any>) => {
+    if (
+      !window.location.hostname.includes('localhost') &&
+      !window.location.hostname.includes('dev')
+    ) {
+      datadogRum.setUser(user);
+    }
+  },
+};
+
 export type RouteState = { routeType: RouteType } | undefined;
 type Route = Location<RouteState>;
 
 export function trackEvent(category: string, props?: Record<string, unknown>) {
   analytics.track(category, props);
-  datadogRum.addAction(category, props);
+  safeDatadogRum.addAction(category, props);
 }
 
 export function trackOutboundLink(href: string) {

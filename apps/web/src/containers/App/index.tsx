@@ -15,18 +15,22 @@ const PROXY_HOST = 'https://api.notional.finance';
 const service = 'web-frontend';
 const privacySettings = getFromLocalStorage('privacySettings');
 
-datadogRum.init({
-  applicationId,
-  clientToken,
-  site: DD_SITE,
-  service,
-  env: window.location.hostname,
-  version,
-  defaultPrivacyLevel: 'mask',
-  sessionSampleRate: 100,
-  sessionReplaySampleRate: privacySettings['disableTracking'] ? 0 : 10,
-  trackUserInteractions: true,
-  proxy: `${PROXY_HOST}/dd-forward`,
+if (
+  !window.location.hostname.includes('localhost') &&
+  !window.location.hostname.includes('dev')
+) {
+  datadogRum.init({
+    applicationId,
+    clientToken,
+    site: DD_SITE,
+    service,
+    env: window.location.hostname,
+    version,
+    defaultPrivacyLevel: 'mask',
+    sessionSampleRate: 100,
+    sessionReplaySampleRate: privacySettings['disableTracking'] ? 0 : 10,
+    trackUserInteractions: true,
+    proxy: `${PROXY_HOST}/dd-forward`,
 
   beforeSend: (event) => {
     if (privacySettings['disableErrorReporting'] && event.type === 'error') {

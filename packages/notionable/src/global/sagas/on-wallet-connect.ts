@@ -40,8 +40,11 @@ import {
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { update } from '@intercom/messenger-js-sdk';
 import { isAppReady } from '../../utils';
-import { identify, trackEvent } from '@notional-finance/helpers';
-import { datadogRum } from '@datadog/browser-rum';
+import {
+  identify,
+  safeDatadogRum,
+  trackEvent,
+} from '@notional-finance/helpers';
 
 export function onWalletConnect(
   global$: Observable<GlobalState>,
@@ -223,7 +226,7 @@ async function updateWalletTracking(
     DeBankNetWorth: debankNetWorth,
   });
 
-  datadogRum.setUser({
+  safeDatadogRum.setUser({
     id: selectedAddress,
     newUser:
       userSettings.connectedWallets && userSettings.connectedWallets.length > 0
