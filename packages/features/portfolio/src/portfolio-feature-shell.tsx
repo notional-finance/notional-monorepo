@@ -29,6 +29,7 @@ import {
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
+import { observer } from 'mobx-react-lite';
 
 export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
@@ -284,4 +285,4 @@ const CustomHeaderContainer = styled(Box)(
 `
 );
 
-export default PortfolioFeatureShell;
+export default observer(PortfolioFeatureShell);

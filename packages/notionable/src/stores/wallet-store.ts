@@ -71,6 +71,7 @@ export const WalletModel = types
         userWallet?.selectedAddress &&
         self.userWallet?.selectedAddress !== userWallet?.selectedAddress
       ) {
+        self.isAccountPending = true;
         // Trigger account data fetch on wallet address change
         self.networkAccounts.clear();
         SupportedNetworks.forEach((network) => {
@@ -82,6 +83,7 @@ export const WalletModel = types
           self.networkAccounts.set(network, m);
         });
         self.isSanctionedAddress = yield executeUserTracking(userWallet);
+        self.isAccountPending = false;
       }
 
       self.userWallet = userWallet;

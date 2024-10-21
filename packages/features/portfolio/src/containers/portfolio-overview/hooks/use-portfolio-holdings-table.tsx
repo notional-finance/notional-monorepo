@@ -4,10 +4,9 @@ import {
   MultiValueCell,
 } from '@notional-finance/mui';
 import { formatCryptoWithFiat } from '@notional-finance/helpers';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useCurrentNetworkAccount } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { FiatKeys } from '@notional-finance/core-entities';
-import { useWalletStore } from '@notional-finance/notionable';
 
 const TotalHoldingsColumns: DataTableColumn[] = [
   {
@@ -51,56 +50,57 @@ const TotalHoldingsColumns: DataTableColumn[] = [
 ] as const;
 
 export const useTotalHoldingsTable = (baseCurrency: FiatKeys) => {
-  const network = useSelectedNetwork();
-  const walletStore = useWalletStore();
-  const { holdings, totals } =
-    walletStore.networkAccounts[network].getTotalCurrencyHoldings();
+  const currentAccount = useCurrentNetworkAccount();
+  const totalCurrencyHoldings = currentAccount?.totalCurrencyHoldings;
 
-  const totalHoldingsData = holdings.map(
-    ({ currency, netWorth, assets, debts }) => {
-      return {
-        currency,
-        netWorth: formatCryptoWithFiat(baseCurrency, netWorth),
-        assets: formatCryptoWithFiat(baseCurrency, assets),
-        debts: formatCryptoWithFiat(baseCurrency, debts),
-      };
-    }
-  );
+  const totalHoldingsData = totalCurrencyHoldings
+    ? totalCurrencyHoldings.holdings.map(
+        ({ currency, netWorth, assets, debts }) => {
+          return {
+            currency,
+            netWorth: formatCryptoWithFiat(baseCurrency, netWorth),
+            assets: formatCryptoWithFiat(baseCurrency, assets),
+            debts: formatCryptoWithFiat(baseCurrency, debts),
+          };
+        }
+      )
+    : [];
 
-  totalHoldingsData.push({
-    currency: 'Total',
-    netWorth: {
-      data: [
-        {
-          displayValue: totals.netWorth
-            .toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false),
-          isNegative: totals.netWorth.isNegative(),
-        },
-      ],
-    },
-    assets: {
-      data: [
-        {
-          displayValue: totals.assets
-            .toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false),
-          isNegative: totals.assets.isNegative(),
-        },
-      ],
-    },
-    debts: {
-      data: [
-        {
-          displayValue: totals.debts
-            .toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false),
-          isNegative: false,
-        },
-      ],
-    },
-    isDebt: true,
-  });
+  if (totalCurrencyHoldings?.totals) {
+    totalHoldingsData.push({
+      currency: 'Total',
+      netWorth: {
+        data: [
+          {
+            displayValue: totalCurrencyHoldings.totals.netWorth
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(2, true, false),
+            isNegative: totalCurrencyHoldings.totals.netWorth.isNegative(),
+          },
+        ],
+      },
+      assets: {
+        data: [
+          {
+            displayValue: totalCurrencyHoldings.totals.assets
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(2, true, false),
+            isNegative: totalCurrencyHoldings.totals.assets.isNegative(),
+          },
+        ],
+      },
+      debts: {
+        data: [
+          {
+            displayValue: totalCurrencyHoldings.totals.debts
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(2, true, false),
+            isNegative: false,
+          },
+        ],
+      },
+    });
+  }
 
   return { totalHoldingsColumns: TotalHoldingsColumns, totalHoldingsData };
 };

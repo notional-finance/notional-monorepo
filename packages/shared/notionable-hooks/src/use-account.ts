@@ -1,11 +1,11 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
-import { useNotionalContext } from './use-notional';
 import { Network, SEASONS, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
 import { useState } from 'react';
 import { getNowSeconds } from '@notional-finance/util';
 import { useWalletStore } from '@notional-finance/notionable';
 import { useSelectedNetwork } from './use-network';
+import { useObserver } from 'mobx-react-lite';
 
 /** Contains selectors for account holdings information */
 function useNetworkAccounts(network: Network | undefined) {
@@ -20,14 +20,13 @@ export function useCurrentNetworkAccount() {
 
 /** Total NOTE balances across all networks */
 export function useTotalNOTEBalances() {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-  if (networkAccounts) {
+  const walletStore = useWalletStore();
+
+  if (walletStore.networkAccounts) {
     return SupportedNetworks.reduce((t, n) => {
-      const note = networkAccounts[n]?.accountDefinition?.balances.find(
-        (t) => t.symbol === 'NOTE'
-      );
+      const note = walletStore.networkAccounts
+        .get(n)
+        ?.balances.find((t) => t.symbol === 'NOTE');
       return t + (note?.toFloat() || 0);
     }, 0);
   }
@@ -36,14 +35,14 @@ export function useTotalNOTEBalances() {
 }
 
 export function useAccountDefinition(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
+  const walletStore = useWalletStore();
+  const account = useObserver(() =>
+    network && walletStore.networkAccounts
+      ? walletStore.networkAccounts.get(network)
+      : undefined
+  );
 
-  const account =
-    network && networkAccounts ? networkAccounts[network] : undefined;
-
-  return account?.accountDefinition;
+  return account;
 }
 
 export function useTotalIncentives(network: Network | undefined) {
@@ -64,10 +63,8 @@ export function useAccountAndBalanceReady(network: Network | undefined) {
 }
 
 export function useAccountLoading() {
-  const {
-    globalState: { isAccountPending },
-  } = useNotionalContext();
-  return isAccountPending;
+  const walletStore = useWalletStore();
+  return walletStore.isAccountPending;
 }
 
 export function useTransactionHistory(network: Network | undefined) {
@@ -143,14 +140,12 @@ export function useAccountCurrentFactors(network: Network | undefined) {
 
 export function useAccountNetWorth() {
   const fiatToken = useFiatToken();
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
+  const walletStore = useWalletStore();
 
   return SupportedNetworks.reduce((acc, n) => {
-    if (networkAccounts && networkAccounts[n]) {
+    if (walletStore.networkAccounts && walletStore.networkAccounts.get(n)) {
       acc[n] =
-        networkAccounts[n].currentFactors?.netWorth ||
+        walletStore.networkAccounts.get(n)?.currentFactors?.netWorth ||
         TokenBalance.zero(fiatToken);
     } else {
       acc[n] = TokenBalance.zero(fiatToken);
