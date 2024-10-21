@@ -51,17 +51,17 @@ export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
       asset: {
         balance: asset,
         marketYield: assetYield,
-        statement: assetStatement,
         perIncentiveEarnings,
         isHighUtilization,
       },
-      debt: { balance: debt, statement: debtStatement },
+      debt: { balance: debt },
       hasMatured,
       leverageRatio,
       presentValue,
       borrowAPY,
       totalEarnings,
       totalLeveragedApy,
+      amountPaid,
     }) => {
       const underlying = asset.underlying;
       const { icon } = formatTokenType(asset.token);
@@ -77,13 +77,6 @@ export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
       const secondaryIncentives =
         secondaryAPY !== undefined && secondarySymbol
           ? leveragedYield(secondaryAPY, 0, leverageRatio)
-          : undefined;
-
-      const amountPaid =
-        assetStatement && debtStatement
-          ? assetStatement?.accumulatedCostRealized.add(
-              debtStatement?.accumulatedCostRealized
-            )
           : undefined;
 
       return {
@@ -212,7 +205,7 @@ export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
             {
               txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
               assetOrVaultId: asset.token.id,
-              debtId: debtStatement?.token.id || '',
+              debtId: debt.token.id || '',
             }
           )}`,
         },

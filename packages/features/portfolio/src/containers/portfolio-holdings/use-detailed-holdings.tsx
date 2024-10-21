@@ -29,7 +29,6 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
     .map(
       ({
         balance: b,
-        statement: s,
         marketYield,
         maturedTokenId,
         manageTokenId,
@@ -38,6 +37,11 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
         isHighUtilization,
         totalEarningsWithIncentives,
         hasNToken,
+        amountPaid,
+        earnings,
+        entryPrice,
+        totalAtMaturity,
+        impliedFixedRate,
       }) => {
         const isDebt = b.isNegative();
         const { icon, formattedTitle, titleWithMaturity, title } =
@@ -65,7 +69,7 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
           },
           {
             label: <FormattedMessage defaultMessage={'Entry Price'} />,
-            value: s ? s.adjustedCostBasis.toDisplayStringWithSymbol() : '-',
+            value: entryPrice ? entryPrice.toDisplayStringWithSymbol() : '-',
           },
           {
             label: <FormattedMessage defaultMessage={'Current Price'} />,
@@ -112,14 +116,6 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
           });
         }
 
-        const totalAtMaturity =
-          b.token.tokenType === 'fCash' && s?.accumulatedCostRealized
-            ? TokenBalance.from(
-                b.scaleTo(b.underlying.decimals),
-                b.underlying
-              ).sub(s.accumulatedCostRealized)
-            : undefined;
-
         return {
           sortOrder: getHoldingsSortOrder(b.token),
           tokenId: b.tokenId,
@@ -151,17 +147,17 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
                     : noteIncentives
                     ? `${formatNumberAsPercent(noteIncentives)} NOTE`
                     : b.token.tokenType === 'fCash' &&
-                      s?.impliedFixedRate !== undefined
+                      impliedFixedRate !== undefined
                     ? `${formatNumberAsPercent(
-                        s.impliedFixedRate
+                        impliedFixedRate
                       )} APY at Maturity`
                     : '',
                 isNegative: false,
               },
             ],
           },
-          amountPaid: s
-            ? formatCryptoWithFiat(baseCurrency, s.accumulatedCostRealized)
+          amountPaid: amountPaid
+            ? formatCryptoWithFiat(baseCurrency, amountPaid)
             : '-',
           presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
           isDebt: isDebt,
@@ -195,10 +191,9 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
               ? {
                   perAssetEarnings: [
                     {
-                      underlying:
-                        s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
-                      baseCurrency: s?.totalProfitAndLoss
-                        .toFiat(baseCurrency)
+                      underlying: earnings?.toDisplayStringWithSymbol(),
+                      baseCurrency: earnings
+                        ?.toFiat(baseCurrency)
                         .toDisplayStringWithSymbol(2),
                     },
                     ...perIncentiveEarnings.map((i) => ({

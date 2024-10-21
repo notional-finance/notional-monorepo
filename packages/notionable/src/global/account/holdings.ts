@@ -87,12 +87,17 @@ export function calculateHoldings(
     .sort((a, b) => a.currencyId - b.currencyId);
 
   const holdings = balances.map((balance) => {
-    const statement = balanceStatements?.find(
-      (s) =>
-        s.token.id ===
-        // Balance statements use signed fCash ids
-        convertToSignedfCashId(balance.tokenId, balance.isNegative())
-    );
+    let statement: BalanceStatement | undefined;
+    try {
+      statement = balanceStatements?.find(
+        (s) =>
+          s.token.id ===
+          // Balance statements use signed fCash ids
+          convertToSignedfCashId(balance.tokenId, balance.isNegative())
+      );
+    } catch {
+      // No-op, allow the statement to be undefined
+    }
 
     // Convert the matured fcash token to pcash or pdebt token id
     const maturedTokenId = balance.hasMatured
@@ -156,6 +161,13 @@ export function calculateHoldings(
     } catch (e) {
       hasNToken = false;
     }
+    const totalAtMaturity =
+      balance.token.tokenType === 'fCash' && statement?.accumulatedCostRealized
+        ? TokenBalance.from(
+            balance.scaleTo(balance.underlying.decimals),
+            balance.underlying
+          ).sub(statement?.accumulatedCostRealized)
+        : undefined;
 
     return {
       balance,
@@ -166,6 +178,11 @@ export function calculateHoldings(
       perIncentiveEarnings,
       totalIncentiveEarnings,
       totalEarningsWithIncentives,
+      entryPrice: statement?.adjustedCostBasis,
+      totalAtMaturity,
+      impliedFixedRate: statement?.impliedFixedRate,
+      amountPaid: statement?.accumulatedCostRealized,
+      earnings: statement?.totalProfitAndLoss,
       marketProfitLoss: totalEarningsWithIncentives?.sub(
         statement?.totalInterestAccrual.toFiat('USD') ||
           new TokenBalance(0, 'USD', Network.all)
@@ -252,10 +269,18 @@ export function calculateGroupedHoldings(
             assetHoldings.statement?.totalILAndFees || zeroUnderlying
           ).add(debtHoldings?.statement?.totalILAndFees || zeroUnderlying);
           const marketProfitLoss = totalEarnings.sub(totalInterestAccrual);
+          const amountPaid =
+            assetHoldings.statement?.accumulatedCostRealized &&
+            debtHoldings?.statement?.accumulatedCostRealized
+              ? assetHoldings.statement?.accumulatedCostRealized.add(
+                  debtHoldings.statement?.accumulatedCostRealized
+                )
+              : undefined;
 
           l.push({
             asset: assetHoldings,
             debt: debtHoldings as PortfolioHolding,
+            amountPaid,
             presentValue,
             leverageRatio,
             hasMatured: asset?.hasMatured || debt?.hasMatured ? true : false,
@@ -278,6 +303,7 @@ export function calculateGroupedHoldings(
     [] as {
       asset: PortfolioHolding;
       debt: PortfolioHolding;
+      amountPaid: TokenBalance | undefined;
       presentValue: TokenBalance;
       totalInterestAccrual: TokenBalance;
       marketProfitLoss: TokenBalance;
@@ -313,15 +339,22 @@ export function calculateVaultHoldings(
   } as AccountDefinition);
 
   return vaultProfiles.map((v) => {
-    const debtPnL = balanceStatements.find(
-      (b) => b.token.id === v.vaultDebt.tokenId
-    );
-    const assetPnL = balanceStatements?.find(
-      (b) => b.token.id === v.vaultShares.tokenId
-    );
-    const cashPnL = balanceStatements?.find(
-      (b) => b.token.id === v.vaultCash.tokenId
-    );
+    let debtPnL: BalanceStatement | undefined;
+    let assetPnL: BalanceStatement | undefined;
+    let cashPnL: BalanceStatement | undefined;
+    try {
+      debtPnL = balanceStatements.find(
+        (b) => b.token.id === v.vaultDebt.tokenId
+      );
+      assetPnL = balanceStatements?.find(
+        (b) => b.token.id === v.vaultShares.tokenId
+      );
+      cashPnL = balanceStatements?.find(
+        (b) => b.token.id === v.vaultCash.tokenId
+      );
+    } catch {
+      // No-op, allow the statement to be undefined
+    }
 
     const denom = v.denom(v.defaultSymbol);
     const zeroDenom = TokenBalance.zero(denom);
@@ -399,7 +432,7 @@ export function calculateVaultHoldings(
       amountPaid,
       strategyAPY,
       profit,
-      underlying: denom,
+      underlying: denom.id,
       leverageRatio,
       vaultYield,
       marketProfitLoss,

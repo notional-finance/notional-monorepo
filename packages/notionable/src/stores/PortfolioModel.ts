@@ -7,7 +7,6 @@ import {
   AccountHistory,
   AccountModel,
   BalanceStatement,
-  BalanceStatementModel,
   FiatKeys,
   NotionalTypes,
   TokenBalance,
@@ -44,7 +43,6 @@ const APYDataModel = types.model('APYDataModel', {
 
 const DetailedHoldingModel = types.model('DetailedHolding', {
   balance: NotionalTypes.TokenBalance,
-  statement: types.maybe(BalanceStatementModel),
   marketYield: types.maybe(APYDataModel),
   manageTokenId: types.string,
   maturedTokenId: types.string,
@@ -55,11 +53,17 @@ const DetailedHoldingModel = types.model('DetailedHolding', {
   hasMatured: types.boolean,
   hasNToken: types.boolean,
   isHighUtilization: types.boolean,
+  amountPaid: types.maybe(NotionalTypes.TokenBalance),
+  entryPrice: types.maybe(NotionalTypes.TokenBalance),
+  earnings: types.maybe(NotionalTypes.TokenBalance),
+  totalAtMaturity: types.maybe(NotionalTypes.TokenBalance),
+  impliedFixedRate: types.maybe(types.number),
 });
 
 const GroupedHoldingModel = types.model('GroupedHoldingModel', {
   asset: DetailedHoldingModel,
   debt: DetailedHoldingModel,
+  amountPaid: types.maybe(NotionalTypes.TokenBalance),
   presentValue: NotionalTypes.TokenBalance,
   totalInterestAccrual: NotionalTypes.TokenBalance,
   marketProfitLoss: NotionalTypes.TokenBalance,
@@ -75,13 +79,13 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   network: NotionalTypes.Network,
   name: types.string,
   maturity: types.number,
-  underlying: TokenDefinitionModel,
+  underlying: types.reference(TokenDefinitionModel),
   vaultShares: NotionalTypes.TokenBalance,
   vaultDebt: NotionalTypes.TokenBalance,
   liquidationPrices: types.array(
     types.model({
-      asset: TokenDefinitionModel,
-      debt: TokenDefinitionModel,
+      asset: types.reference(TokenDefinitionModel),
+      debt: types.reference(TokenDefinitionModel),
       threshold: types.maybeNull(NotionalTypes.TokenBalance),
       isDebtThreshold: types.boolean,
     })
@@ -102,8 +106,6 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   marketProfitLoss: NotionalTypes.TokenBalance,
   totalILAndFees: NotionalTypes.TokenBalance,
   totalInterestAccrual: NotionalTypes.TokenBalance,
-  assetPnL: types.maybeNull(BalanceStatementModel),
-  debtPnL: types.maybeNull(BalanceStatementModel),
   vaultMetadata: types.model({
     rewardClaims: types.maybeNull(types.array(NotionalTypes.TokenBalance)),
     vaultType: types.string,
@@ -116,7 +118,7 @@ const PortfolioModel = types.model('PortfolioModel', {
   portfolioLiquidationPrices: types.optional(
     types.array(
       types.model({
-        asset: TokenDefinitionModel,
+        asset: types.reference(TokenDefinitionModel),
         threshold: types.maybeNull(NotionalTypes.TokenBalance),
         isDebtThreshold: types.boolean,
       })
@@ -523,7 +525,6 @@ export const AccountPortfolioActions = (
     self.detailedHoldings.replace(
       detailedHoldings.map((h) => ({
         ...h,
-        statement: BalanceStatementModel.create(h.statement),
         marketYield: APYDataModel.create(h.marketYield),
         perIncentiveEarnings: cast(h.perIncentiveEarnings),
       }))
@@ -544,10 +545,8 @@ export const AccountPortfolioActions = (
     self.vaultHoldings.replace(
       vaultHoldings.map((h) => ({
         ...h,
-        liquidationPrices: cast(h.liquidationPrices),
-        assetPnL: BalanceStatementModel.create(h.assetPnL),
-        debtPnL: BalanceStatementModel.create(h.debtPnL),
-        underlying: TokenDefinitionModel.create(h.underlying),
+        liquidationPrices: cast([] as any),
+        underlying: h.underlying,
         vaultYield: APYDataModel.create(h.vaultYield),
         vaultMetadata: {
           ...h.vaultMetadata,
