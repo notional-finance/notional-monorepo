@@ -32,7 +32,7 @@ export const useLeveragedVaultGrid = (
 
   console.log(
     '===================== networkAccounts =====================',
-    networkAccounts?.vaultHoldings
+    networkAccounts
   );
 
   // const allVaultData = listedVaults

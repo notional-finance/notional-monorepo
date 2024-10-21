@@ -9,6 +9,10 @@ import { useWalletStore } from '@notional-finance/notionable';
 /** Contains selectors for account holdings information */
 export function useNetworkAccounts(network: Network | undefined) {
   const walletStore = useWalletStore();
+  console.log(
+    '===================== useNetworkAccounts =====================',
+    walletStore
+  );
   return network ? walletStore.networkAccounts.get(network) : undefined;
 }
 

@@ -78,6 +78,7 @@ export const WalletModel = types
             address: userWallet.selectedAddress,
             network,
           });
+
           if (provider) m.setProvider(provider);
           self.networkAccounts.set(network, m);
         });
@@ -85,6 +86,13 @@ export const WalletModel = types
       }
 
       self.userWallet = userWallet;
+      yield Promise.resolve(
+        self.networkAccounts.forEach((m) => m.refreshAccountHoldings())
+      );
+      console.log(
+        '===================== self.networkAccounts =====================',
+        self.networkAccounts
+      );
     });
 
     return {

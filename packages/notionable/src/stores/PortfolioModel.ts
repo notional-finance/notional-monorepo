@@ -200,6 +200,11 @@ export const AccountPortfolioActions = (
   };
 
   const getPortfolioHoldings = () => {
+    console.log(
+      '===================== root.getNetworkClient(self.network), =====================',
+      root.getNetworkClient(self.network)
+    );
+
     const detailedHoldings = calculateHoldings(
       root.getNetworkClient(self.network),
       self.balances,
@@ -276,6 +281,10 @@ export const AccountPortfolioActions = (
     const currentFactors = getCurrentFactors();
     const totalCurrencyHoldings = getTotalCurrencyHoldings();
     const portfolioLiquidationPrices = getPortfolioLiquidationPrices();
+
+    console.log(
+      '===================== refreshAccountHoldings ====================='
+    );
 
     self.totalIncentives.replace(totalIncentives);
     self.accruedIncentives.replace(
