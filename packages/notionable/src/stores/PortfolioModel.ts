@@ -8,6 +8,7 @@ import {
   AccountModel,
   BalanceStatement,
   BalanceStatementModel,
+  FiatKeys,
   NotionalTypes,
   TokenBalance,
   TokenDefinition,
@@ -222,8 +223,8 @@ const PortfolioModel = types.model('PortfolioModel', {
 
 const _AccountPortfolioModel = types
   .compose(AccountModel, PortfolioModel)
-  .views((self) => ({
-    maxPortfolioWithdraw(token: TokenDefinition) {
+  .views((self) => {
+    const getAccountRiskProfile = () => {
       return new AccountRiskProfile(
         self.balances.filter(
           (b) =>
@@ -232,16 +233,66 @@ const _AccountPortfolioModel = types
             b.tokenType !== 'NOTE'
         ),
         self.network
-      ).maxWithdraw(token);
-    },
-    maxVaultWithdraw(vaultAddress: string) {
+      );
+    };
+
+    const maxPortfolioWithdraw = (token: TokenDefinition) => {
+      return getAccountRiskProfile().maxWithdraw(token);
+    };
+
+    const maxVaultWithdraw = (vaultAddress: string) => {
       return new VaultAccountRiskProfile(
         vaultAddress,
         self.balances,
         self.vaultLastUpdateTime?.get(vaultAddress) || 0
       ).maxWithdraw();
-    },
-  }));
+    };
+
+    const getRepayAmounts = (baseCurrency: FiatKeys) => {
+      const balances = self.balances.filter(
+        (b) =>
+          b.isNegative() &&
+          (b.tokenType === 'PrimeCash' || b.tokenType === 'fCash')
+      );
+
+      return balances.map((b) => ({
+        token: b.tokenType === 'PrimeCash' ? b.toPrimeDebt().token : b.token,
+        largeFigure: b.toUnderlying().toFloat() || 0,
+        largeFigureDecimals: 4,
+        largeFigureSuffix: ' ' + b.underlying.symbol,
+        caption: b
+          .toUnderlying()
+          .toFiat(baseCurrency)
+          .toDisplayStringWithSymbol(),
+      }));
+    };
+
+    const getWithdrawAmounts = () => {
+      const balances = self.balances.filter(
+        (b) =>
+          b.isPositive() &&
+          (b.tokenType === 'PrimeCash' ||
+            b.tokenType === 'fCash' ||
+            b.tokenType === 'nToken')
+      );
+      return balances.map((b) => {
+        const maxWithdraw = maxPortfolioWithdraw(b.token);
+        return {
+          token: b.token,
+          largeFigure: maxWithdraw?.toUnderlying().toFloat() || 0,
+          largeFigureDecimals: 4,
+          largeFigureSuffix: ' ' + b.underlying.symbol,
+        };
+      });
+    };
+
+    return {
+      maxPortfolioWithdraw,
+      maxVaultWithdraw,
+      getRepayAmounts,
+      getWithdrawAmounts,
+    };
+  });
 
 export const AccountPortfolioActions = (
   self: Instance<typeof _AccountPortfolioModel>

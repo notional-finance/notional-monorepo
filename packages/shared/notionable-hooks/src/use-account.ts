@@ -5,11 +5,17 @@ import { useFiatToken } from './use-user-settings';
 import { useState } from 'react';
 import { getNowSeconds } from '@notional-finance/util';
 import { useWalletStore } from '@notional-finance/notionable';
+import { useSelectedNetwork } from './use-network';
 
 /** Contains selectors for account holdings information */
 function useNetworkAccounts(network: Network | undefined) {
   const walletStore = useWalletStore();
   return network ? walletStore.networkAccounts.get(network) : undefined;
+}
+
+export function useCurrentNetworkAccount() {
+  const network = useSelectedNetwork();
+  return useNetworkAccounts(network);
 }
 
 /** Total NOTE balances across all networks */

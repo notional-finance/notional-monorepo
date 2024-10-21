@@ -48,12 +48,6 @@ export const Withdraw = () => {
         isWithdraw
         context={context}
         inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW]['inputLabelTwo']}
-        filterBalances={(b) =>
-          b.isPositive() &&
-          (b.tokenType === 'PrimeCash' ||
-            b.tokenType === 'fCash' ||
-            b.tokenType === 'nToken')
-        }
       />
       <DepositInput
         isWithdraw

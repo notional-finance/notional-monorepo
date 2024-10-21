@@ -1,13 +1,12 @@
 import { AssetSelectDropdown } from '@notional-finance/mui';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import {
   BaseTradeContext,
-  usePortfolioRiskProfile,
   usePrimeDebt,
   usePrimeCash,
+  useCurrentNetworkAccount,
 } from '@notional-finance/notionable-hooks';
-import { TokenBalance } from '@notional-finance/core-entities';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { useAppStore } from '@notional-finance/notionable';
@@ -16,11 +15,6 @@ interface PortfolioHoldingSelectProps {
   context: BaseTradeContext;
   inputLabel: MessageDescriptor;
   isWithdraw?: boolean;
-  filterBalances: (
-    b: TokenBalance,
-    index: number,
-    arr: TokenBalance[]
-  ) => boolean;
   errorMsg?: MessageDescriptor;
   tightMarginTop?: boolean;
 }
@@ -29,21 +23,23 @@ export const PortfolioHoldingSelect = ({
   context,
   inputLabel,
   tightMarginTop,
-  filterBalances,
   isWithdraw,
 }: PortfolioHoldingSelectProps) => {
   const { baseCurrency } = useAppStore();
   const theme = useTheme();
   const {
-    state: { collateral, debt, selectedNetwork, deposit },
+    state: { collateral, debt, deposit },
   } = context;
-  const profile = usePortfolioRiskProfile(selectedNetwork);
   const selectedToken = isWithdraw ? debt : collateral;
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { selectedToken: _paramToken } = useParams<{
     selectedToken: string;
   }>();
+  const account = useCurrentNetworkAccount();
+  const options = isWithdraw
+    ? account?.getWithdrawAmounts()
+    : account?.getRepayAmounts(baseCurrency);
 
   const primeDebt = usePrimeDebt(deposit?.currencyId);
   const primeCash = usePrimeCash(deposit?.currencyId);
@@ -55,31 +51,6 @@ export const PortfolioHoldingSelect = ({
       : isWithdraw && selectedToken?.tokenType === 'PrimeDebt'
       ? primeCash?.id
       : selectedToken?.id;
-
-  // TODO: this needs to go into the portfolio model
-  const options = useMemo(() => {
-    return profile?.balances.filter(filterBalances)?.map((b) => {
-      if (isWithdraw) {
-        const maxWithdraw = profile?.maxWithdraw(b.token);
-        return {
-          token: b.token,
-          largeFigure: maxWithdraw?.toUnderlying().toFloat() || 0,
-          largeFigureDecimals: 4,
-          largeFigureSuffix: ' ' + b.underlying.symbol,
-        };
-      } else {
-        // isRepay
-        const underlying = b.toUnderlying();
-        return {
-          token: b.tokenType === 'PrimeCash' ? b.toPrimeDebt().token : b.token,
-          largeFigure: underlying.toFloat() || 0,
-          largeFigureDecimals: 4,
-          largeFigureSuffix: ' ' + b.underlying.symbol,
-          caption: underlying.toFiat(baseCurrency).toDisplayStringWithSymbol(),
-        };
-      }
-    });
-  }, [filterBalances, profile, isWithdraw, baseCurrency]);
 
   const onSelect = useCallback(
     (id: string | null) => {
