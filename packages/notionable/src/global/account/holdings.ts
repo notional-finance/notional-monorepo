@@ -432,14 +432,12 @@ export function calculateVaultHoldings(
       amountPaid,
       strategyAPY,
       profit,
-      underlying: denom.id,
+      underlying: denom,
       leverageRatio,
       vaultYield,
       marketProfitLoss,
       totalILAndFees,
       totalInterestAccrual,
-      assetPnL,
-      debtPnL,
       vaultMetadata,
     };
   });

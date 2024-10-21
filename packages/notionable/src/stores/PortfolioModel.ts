@@ -79,7 +79,7 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   network: NotionalTypes.Network,
   name: types.string,
   maturity: types.number,
-  underlying: types.reference(TokenDefinitionModel),
+  vaultAddress: types.string,
   vaultShares: NotionalTypes.TokenBalance,
   vaultDebt: NotionalTypes.TokenBalance,
   liquidationPrices: types.array(
@@ -90,12 +90,12 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
       isDebtThreshold: types.boolean,
     })
   ),
-  vaultAddress: types.string,
+  healthFactor: types.maybeNull(types.number),
   netWorth: NotionalTypes.TokenBalance,
   totalAssets: NotionalTypes.TokenBalance,
   totalDebt: NotionalTypes.TokenBalance,
+  underlying: types.reference(TokenDefinitionModel),
   maxLeverageRatio: types.number,
-  healthFactor: types.maybeNull(types.number),
   totalAPY: types.maybe(types.number),
   borrowAPY: types.number,
   amountPaid: NotionalTypes.TokenBalance,
@@ -498,6 +498,7 @@ export const AccountPortfolioActions = (
   };
 
   const refreshAccountHoldings = () => {
+    const startTime = performance.now();
     const { detailedHoldings, groupedHoldings, totalPortfolioHoldings } =
       getPortfolioHoldings();
     const { totalIncentives, accruedIncentives } = getAccountIncentives();
@@ -545,8 +546,14 @@ export const AccountPortfolioActions = (
     self.vaultHoldings.replace(
       vaultHoldings.map((h) => ({
         ...h,
-        liquidationPrices: cast([] as any),
-        underlying: h.underlying,
+        liquidationPrices: cast(
+          h.liquidationPrices.map((p) => ({
+            ...p,
+            asset: p.asset.id,
+            debt: p.debt.id,
+          }))
+        ),
+        underlying: h.underlying as Instance<typeof TokenDefinitionModel>,
         vaultYield: APYDataModel.create(h.vaultYield),
         vaultMetadata: {
           ...h.vaultMetadata,
@@ -559,10 +566,17 @@ export const AccountPortfolioActions = (
     self.totalCurrencyHoldings.totals = totalCurrencyHoldings.totals;
     self.portfolioLiquidationPrices.replace(
       portfolioLiquidationPrices.map((item) => ({
-        asset: TokenDefinitionModel.create(item.asset),
+        asset: item.asset as Instance<typeof TokenDefinitionModel>,
         threshold: item.threshold,
         isDebtThreshold: item.isDebtThreshold,
       }))
+    );
+
+    const endTime = performance.now();
+    console.log(
+      `refreshAccountHoldings ${self.address} on ${
+        self.network
+      } execution time: ${endTime - startTime} ms`
     );
   };
 

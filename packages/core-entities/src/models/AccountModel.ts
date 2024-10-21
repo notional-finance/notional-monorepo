@@ -157,6 +157,8 @@ export const AccountModel = types
         self.lastUpdateTimestamp = result.lastUpdateTimestamp;
       }
 
+      yield fetchBalanceStatements();
+
       const endTime = performance.now();
       console.log(
         `refreshAccount ${self.address} on ${self.network} execution time: ${
@@ -164,7 +166,6 @@ export const AccountModel = types
         } ms`
       );
 
-      yield fetchBalanceStatements();
     });
 
     const fetchAccountHistory = flow(function* () {
