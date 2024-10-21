@@ -14,9 +14,9 @@ const AccountIncentiveDebtModel = types.model('AccountIncentiveDebt', {
 });
 
 export const BalanceStatementModel = types.model('BalanceStatement', {
-  token: TokenDefinitionModel,
+  token: types.reference(TokenDefinitionModel),
   blockNumber: types.number,
-  underlying: TokenDefinitionModel,
+  underlying: types.reference(TokenDefinitionModel),
   currentBalance: NotionalTypes.TokenBalance,
   adjustedCostBasis: NotionalTypes.TokenBalance,
   totalILAndFees: NotionalTypes.TokenBalance,
@@ -163,6 +163,8 @@ export const AccountModel = types
           endTime - startTime
         } ms`
       );
+
+      yield fetchBalanceStatements();
     });
 
     const fetchAccountHistory = flow(function* () {
@@ -192,9 +194,10 @@ export const AccountModel = types
         >;
 
       self.balanceStatement.replace(
-        balanceStatements.finalResults[self.address] as Instance<
-          typeof BalanceStatementModel
-        >[]
+        balanceStatements.finalResults[self.address].map((v) => ({
+          ...v,
+          blockNumber: Number(v.blockNumber),
+        })) as Instance<typeof BalanceStatementModel>[]
       );
     });
 
@@ -214,7 +217,6 @@ export const AccountModel = types
     });
 
     return {
-      afterCreate: refreshAccount,
       refreshAccount,
       fetchAccountHistory,
       fetchBalanceStatements,

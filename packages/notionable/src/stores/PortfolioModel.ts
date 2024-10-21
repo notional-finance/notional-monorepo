@@ -14,7 +14,7 @@ import {
   TokenDefinition,
   TokenDefinitionModel,
 } from '@notional-finance/core-entities';
-import { getRoot, Instance, types, cast } from 'mobx-state-tree';
+import { getRoot, Instance, types, cast, flow } from 'mobx-state-tree';
 import { calculateAccruedIncentives } from '../global/account/incentives';
 import {
   calculateAccountCurrentFactors,
@@ -297,7 +297,7 @@ const _AccountPortfolioModel = types
 export const AccountPortfolioActions = (
   self: Instance<typeof _AccountPortfolioModel>
 ) => {
-  const root = getRoot<RootStoreInterface>(self);
+  const root = () => getRoot<RootStoreInterface>(self);
 
   const getAccountRiskProfile = () => {
     return new AccountRiskProfile(
@@ -328,7 +328,7 @@ export const AccountPortfolioActions = (
 
   const getAccountIncentives = () => {
     return calculateAccruedIncentives(
-      root.getNetworkClient(self.network),
+      root().getNetworkClient(self.network),
       self.balances,
       self.accountIncentiveDebt,
       self.secondaryIncentiveDebt
@@ -337,7 +337,7 @@ export const AccountPortfolioActions = (
 
   const getPortfolioHoldings = () => {
     const detailedHoldings = calculateHoldings(
-      root.getNetworkClient(self.network),
+      root().getNetworkClient(self.network),
       self.balances,
       self.balanceStatement as BalanceStatement[],
       getAccountIncentives().accruedIncentives
@@ -347,9 +347,9 @@ export const AccountPortfolioActions = (
       detailedHoldings
     );
 
-    const baseCurrency = root.appStore.baseCurrency;
+    const baseCurrency = root().appStore.baseCurrency;
     const zeroFiat = new TokenBalance(0, baseCurrency, Network.all);
-    const NOTE = root.getNetworkClient(self.network).getTokenBySymbol('NOTE');
+    const NOTE = root().getNetworkClient(self.network).getTokenBySymbol('NOTE');
 
     const totalPortfolioHoldings = detailedHoldings.reduce(
       (t, { balance, statement, perIncentiveEarnings }) => {
@@ -409,7 +409,7 @@ export const AccountPortfolioActions = (
 
   const getVaultHoldings = () => {
     const vaultHoldings = calculateVaultHoldings(
-      root.getNetworkClient(self.network),
+      root().getNetworkClient(self.network),
       self.balances,
       self.balanceStatement as BalanceStatement[],
       self.accountHistory as AccountHistory[],
@@ -417,7 +417,7 @@ export const AccountPortfolioActions = (
       Object.fromEntries(self.rewardClaims.entries())
     );
 
-    const baseCurrency = root.appStore.baseCurrency;
+    const baseCurrency = root().appStore.baseCurrency;
     const totalVaultHoldings = vaultHoldings.reduce(
       (accumulator, vault) => {
         return {
@@ -437,11 +437,11 @@ export const AccountPortfolioActions = (
         };
       },
       {
-        amountPaid: new TokenBalance(0, baseCurrency, self.network),
-        presentValue: new TokenBalance(0, baseCurrency, self.network),
-        totalEarnings: new TokenBalance(0, baseCurrency, self.network),
-        assets: new TokenBalance(0, baseCurrency, self.network),
-        debts: new TokenBalance(0, baseCurrency, self.network),
+        amountPaid: new TokenBalance(0, baseCurrency, Network.all),
+        presentValue: new TokenBalance(0, baseCurrency, Network.all),
+        totalEarnings: new TokenBalance(0, baseCurrency, Network.all),
+        assets: new TokenBalance(0, baseCurrency, Network.all),
+        debts: new TokenBalance(0, baseCurrency, Network.all),
       }
     );
 
@@ -458,7 +458,7 @@ export const AccountPortfolioActions = (
     return calculateAccountCurrentFactors(
       detailedHoldings,
       vaultHoldings,
-      root.appStore.baseCurrency
+      root().appStore.baseCurrency
     );
   };
 
@@ -466,7 +466,7 @@ export const AccountPortfolioActions = (
     const profile = getAccountRiskProfile();
 
     const holdings = profile.allCurrencyIds.map((currencyId) => {
-      const underlying = root
+      const underlying = root()
         .getNetworkClient(self.network)
         .getUnderlying(currencyId);
       const totalAssets = profile.totalCurrencyAssets(
@@ -567,8 +567,13 @@ export const AccountPortfolioActions = (
     );
   };
 
+  const afterAttach = flow(function* () {
+    yield Promise.resolve(self.refreshAccount());
+    yield Promise.resolve(refreshAccountHoldings());
+  });
+
   return {
-    refreshAccountHoldings,
+    afterAttach,
   };
 };
 

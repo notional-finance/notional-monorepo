@@ -1,4 +1,8 @@
-import { NetworkClientModel } from '@notional-finance/core-entities';
+import {
+  getNetworkModel,
+  NetworkClientModel,
+  NotionalTypes,
+} from '@notional-finance/core-entities';
 import { types, Instance } from 'mobx-state-tree';
 import { PortfolioStoreModel } from './portfolio-store';
 import {
@@ -23,17 +27,14 @@ const userSettings = getFromLocalStorage('userSettings');
 
 const RootStore = types
   .model('RootStore', {
-    mainnetStore: NetworkClientModel,
-    arbitrumStore: NetworkClientModel,
-    allNetworksStore: NetworkClientModel,
     portfolioStore: PortfolioStoreModel,
     appStore: AppStoreModel,
     walletStore: WalletModel,
-    network: types.string,
+    network: NotionalTypes.Network,
     route: types.string,
   })
   .actions((self) => ({
-    setNetwork(network: string) {
+    setNetwork(network: Network) {
       self.network = network;
     },
     setRoute(route: string) {
@@ -42,41 +43,15 @@ const RootStore = types
   }))
   .views((self) => ({
     getNetworkClient(network: Network) {
-      switch (network) {
-        case Network.mainnet:
-          return self.mainnetStore;
-        case Network.arbitrum:
-          return self.arbitrumStore;
-        case Network.all:
-          return self.allNetworksStore;
-      }
+      return getNetworkModel(network);
     },
     get currentNetworkClient() {
-      const network = self.network;
-      switch (network) {
-        case Network.mainnet:
-          return self.mainnetStore;
-        case Network.arbitrum:
-          return self.arbitrumStore;
-        case Network.all:
-          return self.allNetworksStore;
-        default:
-          throw new Error('Network not supported');
-      }
+      return getNetworkModel(self.network);
     },
   }));
 
 export const createRootStore = (): RootStoreType => {
   const rootStore = RootStore.create({
-    mainnetStore: {
-      network: Network.mainnet,
-    },
-    arbitrumStore: {
-      network: Network.arbitrum,
-    },
-    allNetworksStore: {
-      network: Network.all,
-    },
     walletStore: {
       isSanctionedAddress: false,
       isAccountPending: false,
