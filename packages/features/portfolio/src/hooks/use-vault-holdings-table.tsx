@@ -33,7 +33,6 @@ import {
   Network,
   getDateString,
 } from '@notional-finance/util';
-import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { ExpandedState } from '@tanstack/react-table';
 import {
   FiatKeys,
@@ -164,8 +163,7 @@ function getVaultReinvestmentDate(
 function getSpecificVaultInfo(
   v: ReturnType<typeof useVaultHoldings>[number],
   baseCurrency: FiatKeys,
-  theme: Theme,
-  navigate: NavigateFunction
+  theme: Theme
 ): {
   subRowInfo: { label: React.ReactNode; value: React.ReactNode }[];
   totalEarnings:
@@ -178,7 +176,7 @@ function getSpecificVaultInfo(
           toolTipContent?: MessageDescriptor;
         }[];
       };
-  buttonBarData: { buttonText: React.ReactNode; callback: () => void }[];
+  buttonBarData: { buttonText: React.ReactNode; link: string }[];
   warning: TableActionRowWarning | undefined;
   showRowWarning?: boolean;
 } {
@@ -268,11 +266,7 @@ function getSpecificVaultInfo(
       buttonBarData: [
         {
           buttonText: <FormattedMessage defaultMessage={'Claim Rewards'} />,
-          callback: () => {
-            navigate(
-              `/vaults/${v.vault.network}/${v.vault.vaultAddress}/ClaimVaultRewards`
-            );
-          },
+          link: `/vaults/${v.vault.network}/${v.vault.vaultAddress}/ClaimVaultRewards`,
         },
       ],
       warning: undefined,
@@ -323,7 +317,6 @@ export const useVaultHoldingsTable = () => {
   const isBlocked = useLeverageBlock();
   const theme = useTheme();
   const { baseCurrency } = useAppState();
-  const navigate = useNavigate();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
   const claimableRewards = vaults.reduce(
@@ -381,7 +374,7 @@ export const useVaultHoldingsTable = () => {
       buttonBarData,
       warning,
       showRowWarning,
-    } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme, navigate);
+    } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
 
     const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
       {
@@ -449,9 +442,7 @@ export const useVaultHoldingsTable = () => {
             buttonText: (
               <FormattedMessage defaultMessage={'Manage / Withdraw'} />
             ),
-            callback: () => {
-              navigate(`/vaults/${network}/${v.vaultAddress}/Manage`);
-            },
+            link: `/vaults/${network}/${v.vaultAddress}/Manage`,
           },
         ],
         txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(

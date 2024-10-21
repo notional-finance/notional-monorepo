@@ -2,11 +2,13 @@ import { ReactNode } from 'react';
 import { Box, ButtonGroup, Button, SxProps, styled } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
+import { Link } from 'react-router-dom';
 
 /* eslint-disable-next-line */
 export type ButtonOptionsType = {
   buttonText: ReactNode;
-  callback: () => void;
+  callback?: () => void;
+  link?: string;
   disabled?: boolean;
   active?: boolean;
 };
@@ -46,41 +48,47 @@ export const ButtonBar = ({
           sx={{ ...sx }}
         >
           {buttonOptions.map(
-            ({ buttonText, callback, disabled, active }, index) => (
-              <Button
-                key={`button-${index}`}
-                onClick={callback}
-                disabled={disabled}
-                sx={{
-                  padding: theme.spacing(1, 4),
-                  borderColor:
-                    buttonVariant === 'contained'
-                      ? `${theme.palette.common.white} !important`
-                      : baseButtonColor,
-                  textTransform: 'capitalize',
-                  color:
-                    active && customButtonColor
-                      ? customButtonColor
-                      : active && !customButtonColor
-                      ? theme.palette.typography.contrastText
-                      : buttonVariant === 'contained'
-                      ? theme.palette.typography.contrastText
-                      : baseButtonColor,
-                  background:
-                    buttonVariant === 'contained' || active
-                      ? baseButtonColor
-                      : 'transparent',
-                  borderRadius: theme.shape.borderRadius(),
-                  '&:hover': {
-                    background:
-                      active && buttonVariant === 'outlined'
-                        ? baseButtonColor
-                        : '',
-                  },
-                }}
+            ({ buttonText, callback, disabled, active, link = '' }, index) => (
+              <Link
+                to={link}
+                key={`link-${index}`}
+                data-dd-action-name={`${link}`}
               >
-                {buttonText}
-              </Button>
+                <Button
+                  key={`button-${index}`}
+                  onClick={callback}
+                  disabled={disabled}
+                  sx={{
+                    padding: theme.spacing(1, 4),
+                    borderColor:
+                      buttonVariant === 'contained'
+                        ? `${theme.palette.common.white} !important`
+                        : baseButtonColor,
+                    textTransform: 'capitalize',
+                    color:
+                      active && customButtonColor
+                        ? customButtonColor
+                        : active && !customButtonColor
+                        ? theme.palette.typography.contrastText
+                        : buttonVariant === 'contained'
+                        ? theme.palette.typography.contrastText
+                        : baseButtonColor,
+                    background:
+                      buttonVariant === 'contained' || active
+                        ? baseButtonColor
+                        : 'transparent',
+                    borderRadius: theme.shape.borderRadius(),
+                    '&:hover': {
+                      background:
+                        active && buttonVariant === 'outlined'
+                          ? baseButtonColor
+                          : '',
+                    },
+                  }}
+                >
+                  {buttonText}
+                </Button>
+              </Link>
             )
           )}
         </ButtonBarGroup>

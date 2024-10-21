@@ -117,7 +117,7 @@ export function useDetailedHoldingsTable() {
 
           const buttonBarData: {
             buttonText: React.ReactNode;
-            callback: () => void;
+            link: string;
           }[] = [];
 
           const subRowData: {
@@ -170,37 +170,25 @@ export function useDetailedHoldingsTable() {
           if (hasNToken) {
             buttonBarData.push({
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
-              callback: () => {
-                navigate(
-                  b.isPositive()
-                    ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
-                    : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`
-                );
-              },
+              link: b.isPositive()
+                ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
+                : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`,
             });
           }
 
           if (b.isPositive()) {
             buttonBarData.push({
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
-              callback: () => {
-                navigate(
-                  `/portfolio/${network}/holdings/${
-                    PORTFOLIO_ACTIONS.WITHDRAW
-                  }/${maturedTokenId}${
-                    isHighUtilization ? `?warning=${isHighUtilization}` : ''
-                  }`
-                );
-              },
+              link: `/portfolio/${network}/holdings/${
+                PORTFOLIO_ACTIONS.WITHDRAW
+              }/${maturedTokenId}${
+                isHighUtilization ? `?warning=${isHighUtilization}` : ''
+              }`,
             });
           } else {
             buttonBarData.push({
               buttonText: <FormattedMessage defaultMessage={'Repay'} />,
-              callback: () => {
-                navigate(
-                  `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
-                );
-              },
+              link: `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`,
             });
           }
 
