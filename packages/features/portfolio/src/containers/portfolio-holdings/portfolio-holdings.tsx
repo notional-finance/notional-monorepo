@@ -13,11 +13,11 @@ import { useState } from 'react';
 import { useLiquidationRisk } from './use-liquidation-risk';
 import {
   useAccountDefinition,
-  useAppStore,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
+import { useAppStore } from '@notional-finance/notionable';
 
 const PortfolioHoldings = () => {
   const [currentTab, setCurrentTab] = useState(0);

@@ -1,11 +1,15 @@
-import { IconCell, MultiValueCell } from '@notional-finance/mui';
+import {
+  DataTableColumn,
+  IconCell,
+  MultiValueCell,
+} from '@notional-finance/mui';
 import { formatCryptoWithFiat } from '@notional-finance/helpers';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { FiatKeys } from '@notional-finance/core-entities';
 import { useWalletStore } from '@notional-finance/notionable';
 
-const TotalHoldingsColumns = [
+const TotalHoldingsColumns: DataTableColumn[] = [
   {
     header: (
       <FormattedMessage

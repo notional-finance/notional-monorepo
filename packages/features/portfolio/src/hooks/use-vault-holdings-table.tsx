@@ -534,7 +534,7 @@ export const useVaultHoldingsTable = () => {
       toggleOption,
       setToggleOption,
       toggleData,
-      showToggle: !isBlocked && vaults && vaults.length > 0,
+      showToggle: !isBlocked && !!vaults && vaults.length > 0,
     },
     claimableRewards:
       claimableRewards.rewardTokens.size > 0 ? claimableRewards : undefined,

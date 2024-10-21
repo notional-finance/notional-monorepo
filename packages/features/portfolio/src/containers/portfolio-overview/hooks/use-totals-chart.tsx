@@ -2,12 +2,11 @@ import { useMemo, useState } from 'react';
 import {
   useAccountHistoryChart,
   useSelectedNetwork,
+  useAccountCurrentFactors,
 } from '@notional-finance/notionable-hooks';
 import { FiatKeys, FiatSymbols } from '@notional-finance/core-entities';
-import {
-  useAccountCurrentFactors,
-  useAppStore,
-} from '@notional-finance/notionable-hooks';
+import {} from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import {
   BarConfigProps,
   ChartHeaderTotalsDataProps,
@@ -72,13 +71,13 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: netWorth.toDisplayStringWithSymbol(2, true, false),
+        value: netWorth?.toDisplayStringWithSymbol(2, true, false) ?? '0',
       },
     ],
     [themeVariant, baseCurrency, netWorth]
   );
 
-  if (debts.isNegative()) {
+  if (debts?.isNegative()) {
     barConfig.push(
       {
         dataKey: 'totalAssets',
@@ -92,7 +91,7 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: assets.toDisplayStringWithSymbol(2, true, false),
+        value: assets?.toDisplayStringWithSymbol(2, true, false) ?? '0',
       },
       {
         dataKey: 'totalDebts',
@@ -106,7 +105,7 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: debts.abs().toDisplayStringWithSymbol(2, true, false),
+        value: debts?.abs().toDisplayStringWithSymbol(2, true, false) ?? '0',
       }
     );
   }
