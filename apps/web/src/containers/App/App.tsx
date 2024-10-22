@@ -78,7 +78,7 @@ const AllRoutes = observer(() => {
   useEffect(() => {
     const models = initializeTokenBalanceRegistry();
     const disposer = reaction(
-      () => models.map((m) => m.isReady()),
+      () => models.every((m) => m.isReady()),
       (isReady) => {
         if (isReady) {
           appStore.setIsAppReady(true);

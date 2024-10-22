@@ -432,7 +432,7 @@ export function calculateVaultHoldings(
       amountPaid,
       strategyAPY,
       profit,
-      underlying: denom,
+      underlying: denom.symbol,
       leverageRatio,
       vaultYield,
       marketProfitLoss,

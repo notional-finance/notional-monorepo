@@ -11,7 +11,6 @@ import {
   NotionalTypes,
   TokenBalance,
   TokenDefinition,
-  TokenDefinitionModel,
 } from '@notional-finance/core-entities';
 import { getRoot, Instance, types, cast, flow } from 'mobx-state-tree';
 import { calculateAccruedIncentives } from '../global/account/incentives';
@@ -22,6 +21,7 @@ import {
   calculateVaultHoldings,
 } from '../global/account/holdings';
 import { Network } from '@notional-finance/util';
+import { reaction } from 'mobx';
 
 const APYDataModel = types.model('APYDataModel', {
   totalAPY: types.maybe(types.number),
@@ -84,8 +84,8 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   vaultDebt: NotionalTypes.TokenBalance,
   liquidationPrices: types.array(
     types.model({
-      asset: types.reference(TokenDefinitionModel),
-      debt: types.reference(TokenDefinitionModel),
+      asset: types.string,
+      debt: types.string,
       threshold: types.maybeNull(NotionalTypes.TokenBalance),
       isDebtThreshold: types.boolean,
     })
@@ -94,7 +94,7 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   netWorth: NotionalTypes.TokenBalance,
   totalAssets: NotionalTypes.TokenBalance,
   totalDebt: NotionalTypes.TokenBalance,
-  underlying: types.reference(TokenDefinitionModel),
+  underlying: types.string,
   maxLeverageRatio: types.number,
   totalAPY: types.maybe(types.number),
   borrowAPY: types.number,
@@ -118,7 +118,7 @@ const PortfolioModel = types.model('PortfolioModel', {
   portfolioLiquidationPrices: types.optional(
     types.array(
       types.model({
-        asset: types.reference(TokenDefinitionModel),
+        asset: types.string,
         threshold: types.maybeNull(NotionalTypes.TokenBalance),
         isDebtThreshold: types.boolean,
       })
@@ -553,7 +553,6 @@ export const AccountPortfolioActions = (
             debt: p.debt.id,
           }))
         ),
-        underlying: h.underlying as Instance<typeof TokenDefinitionModel>,
         vaultYield: APYDataModel.create(h.vaultYield),
         vaultMetadata: {
           ...h.vaultMetadata,
@@ -566,7 +565,7 @@ export const AccountPortfolioActions = (
     self.totalCurrencyHoldings.totals = totalCurrencyHoldings.totals;
     self.portfolioLiquidationPrices.replace(
       portfolioLiquidationPrices.map((item) => ({
-        asset: item.asset as Instance<typeof TokenDefinitionModel>,
+        asset: item.asset.id,
         threshold: item.threshold,
         isDebtThreshold: item.isDebtThreshold,
       }))
@@ -581,7 +580,19 @@ export const AccountPortfolioActions = (
   };
 
   const afterAttach = flow(function* () {
-    yield Promise.resolve(self.refreshAccount());
+    yield new Promise((resolve) => {
+      const disposer = reaction(
+        () => root().appStore.isAppReady,
+        (isReady) => {
+          if (isReady) {
+            disposer();
+            resolve(self.refreshAccount());
+          }
+        },
+        { fireImmediately: true }
+      );
+    });
+
     yield Promise.resolve(refreshAccountHoldings());
   });
 

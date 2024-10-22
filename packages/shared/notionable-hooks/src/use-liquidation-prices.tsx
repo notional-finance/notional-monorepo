@@ -4,6 +4,7 @@ import {
   FiatKeys,
   TokenBalance,
   PriceChange,
+  getNetworkModel,
 } from '@notional-finance/core-entities';
 import { usePortfolioLiquidationPrices, useVaultHoldings } from './use-account';
 import {
@@ -180,10 +181,14 @@ export function useCurrentLiquidationPrices(
   const secondary = (theme as NotionalTheme).palette.typography.light;
 
   const exchangeRateRisk = (portfolio || [])
+    .map((p) => ({
+      ...p,
+      asset: getNetworkModel(network).getTokenByID(p.asset),
+    }))
     .filter((p) => p.asset.tokenType === 'Underlying')
     .map(({ asset, threshold }) => {
       return parseFiatLiquidationPrice(
-        asset as TokenDefinition,
+        asset,
         baseCurrency,
         threshold,
         oneDay.find((t) => t.asset.id === asset.id),
@@ -193,6 +198,10 @@ export function useCurrentLiquidationPrices(
     });
 
   const assetPriceRisk = (portfolio || [])
+    .map((p) => ({
+      ...p,
+      asset: getNetworkModel(network).getTokenByID(p.asset),
+    }))
     .filter((p) => p.asset.tokenType !== 'Underlying')
     .map(({ asset, threshold }) => {
       return parseUnderlyingLiquidationPrice(
@@ -211,12 +220,12 @@ export function useCurrentLiquidationPrices(
         liquidationPrices: liquidationPrices.map(
           ({ asset, threshold, debt }) => ({
             ...parseUnderlyingLiquidationPrice(
-              asset as TokenDefinition,
+              getNetworkModel(network).getTokenByID(asset),
               threshold,
-              oneDay.find((t) => t.asset.id === asset.id),
-              sevenDay.find((t) => t.asset.id === asset.id),
+              oneDay.find((t) => t.asset.id === asset),
+              sevenDay.find((t) => t.asset.id === asset),
               secondary,
-              debt as TokenDefinition
+              debt ? getNetworkModel(network).getTokenByID(debt) : undefined
             ),
             collateral: {
               symbol: threshold?.underlying.symbol || '',
@@ -228,7 +237,7 @@ export function useCurrentLiquidationPrices(
                 {
                   displayValue: (
                     <span>
-                      {asset.symbol}
+                      {getNetworkModel(network).getTokenByID(asset).symbol}
                       <span style={{ color: secondary }}>
                         &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
                       </span>

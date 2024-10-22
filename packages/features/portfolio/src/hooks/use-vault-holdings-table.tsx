@@ -14,7 +14,6 @@ import {
   formatCryptoWithFiat,
   formatLeverageRatio,
   formatNumberAsPercent,
-  formatTokenType,
 } from '@notional-finance/helpers';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import {
@@ -38,7 +37,6 @@ import {
   FiatKeys,
   getNetworkModel,
   PointsLinks,
-  TokenDefinition,
 } from '@notional-finance/core-entities';
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../components';
@@ -367,111 +365,112 @@ export const useVaultHoldingsTable = () => {
     </Box>,
   ];
 
-  const vaultHoldingsData = (vaults || []).map((vaultHolding) => {
-    const {
-      vaultAddress,
-      name,
-      maturity,
-      underlying,
-      totalAPY,
-      amountPaid,
-      strategyAPY,
-      borrowAPY,
-      leverageRatio,
-      maxLeverageRatio,
-      totalAssets,
-      totalDebt,
-      healthFactor,
-      netWorth,
-    } = vaultHolding;
-    const {
-      subRowInfo,
-      totalEarnings,
-      buttonBarData,
-      warning,
-      showRowWarning,
-    } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme, navigate);
-
-    const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
-      {
-        label: <FormattedMessage defaultMessage={'Borrow APY'} />,
-        value: formatNumberAsPercent(borrowAPY, 2),
-      },
-      {
-        label: <FormattedMessage defaultMessage={'Strategy APY'} />,
-        value: formatNumberAsPercent(strategyAPY, 2),
-      },
-      {
-        label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
-        value: (
-          <H4
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            {formatLeverageRatio(leverageRatio || 0)}
-            <Body sx={{ marginLeft: theme.spacing(1) }}>
-              Max {formatLeverageRatio(maxLeverageRatio, 1)}
-            </Body>
-          </H4>
-        ),
-      },
-      ...subRowInfo,
-    ];
-
-    return {
-      vault: {
-        symbol: formatTokenType(underlying as TokenDefinition).icon,
-        label: name,
-        caption:
-          maturity === PRIME_CASH_VAULT_MATURITY
-            ? 'Open Term'
-            : `Maturity: ${formatMaturity(maturity)}`,
-      },
-      // Assets and debts are shown on the overview page
-      assets: formatCryptoWithFiat(baseCurrency, totalAssets),
-      debts: formatCryptoWithFiat(baseCurrency, totalDebt, {
-        isDebt: true,
-      }),
-      healthFactor: formatHealthFactorValues(healthFactor, theme),
-      presentValue: formatCryptoWithFiat(baseCurrency, netWorth),
-      totalEarnings,
-      marketAPY: totalAPY ? formatNumberAsPercent(totalAPY) : undefined,
-      amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
-      strategyAPY: {
-        displayValue: formatNumberAsPercent(strategyAPY, 2),
-        isNegative: strategyAPY && strategyAPY < 0,
-      },
-      borrowAPY: {
-        displayValue: formatNumberAsPercent(borrowAPY, 2),
-      },
-      leverageRatio: formatLeverageRatio(leverageRatio || 0),
-      actionRow: {
+  const vaultHoldingsData =
+    vaults?.map((vaultHolding) => {
+      const {
+        vaultAddress,
+        name,
+        maturity,
+        underlying,
+        totalAPY,
+        amountPaid,
+        strategyAPY,
+        borrowAPY,
+        leverageRatio,
+        maxLeverageRatio,
+        totalAssets,
+        totalDebt,
+        healthFactor,
+        netWorth,
+      } = vaultHolding;
+      const {
+        subRowInfo,
+        totalEarnings,
+        buttonBarData,
         warning,
         showRowWarning,
-        subRowData,
-        buttonBarData: [
-          ...buttonBarData,
-          {
-            buttonText: (
-              <FormattedMessage defaultMessage={'Manage / Withdraw'} />
-            ),
-            callback: () => {
-              navigate(`/vaults/${network}/${vaultAddress}/Manage`);
+      } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme, navigate);
+
+      const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
+        {
+          label: <FormattedMessage defaultMessage={'Borrow APY'} />,
+          value: formatNumberAsPercent(borrowAPY, 2),
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Strategy APY'} />,
+          value: formatNumberAsPercent(strategyAPY, 2),
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
+          value: (
+            <H4
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              {formatLeverageRatio(leverageRatio || 0)}
+              <Body sx={{ marginLeft: theme.spacing(1) }}>
+                Max {formatLeverageRatio(maxLeverageRatio, 1)}
+              </Body>
+            </H4>
+          ),
+        },
+        ...subRowInfo,
+      ];
+
+      return {
+        vault: {
+          symbol: underlying,
+          label: name,
+          caption:
+            maturity === PRIME_CASH_VAULT_MATURITY
+              ? 'Open Term'
+              : `Maturity: ${formatMaturity(maturity)}`,
+        },
+        // Assets and debts are shown on the overview page
+        assets: formatCryptoWithFiat(baseCurrency, totalAssets),
+        debts: formatCryptoWithFiat(baseCurrency, totalDebt, {
+          isDebt: true,
+        }),
+        healthFactor: formatHealthFactorValues(healthFactor, theme),
+        presentValue: formatCryptoWithFiat(baseCurrency, netWorth),
+        totalEarnings,
+        marketAPY: totalAPY ? formatNumberAsPercent(totalAPY) : undefined,
+        amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
+        strategyAPY: {
+          displayValue: formatNumberAsPercent(strategyAPY, 2),
+          isNegative: strategyAPY && strategyAPY < 0,
+        },
+        borrowAPY: {
+          displayValue: formatNumberAsPercent(borrowAPY, 2),
+        },
+        leverageRatio: formatLeverageRatio(leverageRatio || 0),
+        actionRow: {
+          warning,
+          showRowWarning,
+          subRowData,
+          buttonBarData: [
+            ...buttonBarData,
+            {
+              buttonText: (
+                <FormattedMessage defaultMessage={'Manage / Withdraw'} />
+              ),
+              callback: () => {
+                navigate(`/vaults/${network}/${vaultAddress}/Manage`);
+              },
             },
-          },
-        ],
-        txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
-          {
-            txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
-            assetOrVaultId: vaultAddress,
-          }
-        )}`,
-      },
-    };
-  });
+          ],
+          txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
+            {
+              txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
+              assetOrVaultId: vaultAddress,
+            }
+          )}`,
+        },
+      };
+    }) || [];
 
   useEffect(() => {
     const formattedExpandedRows = VaultHoldingsColumns.reduce(

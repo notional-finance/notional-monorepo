@@ -1,6 +1,4 @@
 import { useTheme } from '@mui/material';
-import { TokenDefinition } from '@notional-finance/core-entities';
-import { formatTokenType } from '@notional-finance/helpers';
 import { DisplayCell, MultiValueIconCell } from '@notional-finance/mui';
 import { useAppStore } from '@notional-finance/notionable';
 import {
@@ -119,9 +117,7 @@ export const useVaultRiskTable = () => {
         ? l.liquidationPrices.map((p) => {
             return {
               vault: {
-                symbol: formatTokenType(
-                  vaultHolding.underlying as TokenDefinition
-                ).icon,
+                symbol: vaultHolding.underlying,
                 label: vaultHolding.name,
                 caption:
                   vaultHolding.maturity === PRIME_CASH_VAULT_MATURITY
