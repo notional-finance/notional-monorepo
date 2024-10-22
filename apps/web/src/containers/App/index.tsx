@@ -32,13 +32,14 @@ if (
     trackUserInteractions: true,
     proxy: `${PROXY_HOST}/dd-forward`,
 
-  beforeSend: (event) => {
-    if (privacySettings['disableErrorReporting'] && event.type === 'error') {
-      return false;
-    }
-    return true;
-  },
-});
+    beforeSend: (event) => {
+      if (privacySettings['disableErrorReporting'] && event.type === 'error') {
+        return false;
+      }
+      return true;
+    },
+  });
+}
 
 export const AppShell = () => {
   return (
