@@ -2716,7 +2716,7 @@
   dependencies:
     "@datadog/browser-core" "5.28.1"
 
-"@datadog/browser-rum@^5.28.1":
+"@datadog/browser-rum@5.28.1":
   version "5.28.1"
   resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.28.1.tgz#86773d00b6e0ccd79bd32918451454d04979bb16"
   integrity sha512-Q6vtTd3bcVLriWNxdSjx7MTNYTO2Jv43KO4x5DUdd2nGPPuvWawsccYK3UzD+V6XGtq5nFeAx9IAFHr7vdBQxQ==
@@ -2724,19 +2724,21 @@
     "@datadog/browser-core" "5.28.1"
     "@datadog/browser-rum-core" "5.28.1"
 
-"@datadog/datadog-api-client@^1.29.0":
-  version "1.29.0"
-  resolved "https://registry.yarnpkg.com/@datadog/datadog-api-client/-/datadog-api-client-1.29.0.tgz#6cdd99ff9798847d295b9c753867f83c0dff9196"
-  integrity sha512-UqqPyEtj8KGeiAl1bd1I5pkQrKl0niPRahKnciKIjJP7jQQ9to9uSR0HrUSotRdXVM8lnO80NPrvRxJ7jDeVQA==
+"@datadog/datadog-api-client@1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@datadog/datadog-api-client/-/datadog-api-client-1.6.0.tgz#c09caa7e34ddaa346ba56c04c0e43bb288c501bd"
+  integrity sha512-+iYaZt/yb7Unv4zIsh2WSdQU15cwsBTKrtpU4Z1wG90G2LFabqhWzARx/4qQ2Wms07hjUkA2rLTffd0+vGgyGA==
   dependencies:
     "@types/buffer-from" "^1.1.0"
     "@types/node" "*"
     "@types/pako" "^1.0.3"
+    btoa "^1.2.1"
     buffer-from "^1.1.2"
     cross-fetch "^3.1.5"
-    es6-promise "^4.2.8"
-    form-data "^4.0.0"
-    loglevel "^1.8.1"
+    durations "^3.4.2"
+    es6-promise "^4.2.4"
+    form-data "^3.0.0"
+    loglevel "^1.7.1"
     pako "^2.0.4"
     url-parse "^1.4.3"
 
@@ -13530,6 +13532,11 @@ bser@2.1.1:
   dependencies:
     node-int64 "^0.4.0"
 
+btoa@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/btoa/-/btoa-1.2.1.tgz#01a9909f8b2c93f6bf680ba26131eb30f7fa3d73"
+  integrity sha512-SB4/MIGlsiVkMcHmT+pSmIPoNDoHg+7cMzmt3Uxt628MTz2487DKSqK/fuhFBrkuqrYv5UCEnACpF4dTFNKc/g==
+
 buffer-crc32@~0.2.3:
   version "0.2.13"
   resolved "https://registry.yarnpkg.com/buffer-crc32/-/buffer-crc32-0.2.13.tgz#0d333e3f00eac50aa1454abd30ef8c2a5d9a7242"
@@ -16018,6 +16025,11 @@ duplexify@^4.0.0, duplexify@^4.1.2:
     readable-stream "^3.1.1"
     stream-shift "^1.0.2"
 
+durations@^3.4.2:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/durations/-/durations-3.4.2.tgz#1de230454373cccfecab927de0bebae2295301db"
+  integrity sha512-V/lf7y33dGaypZZetVI1eu7BmvkbC4dItq12OElLRpKuaU5JxQstV2zHwLv8P7cNbQ+KL1WD80zMCTx5dNC4dg==
+
 earcut@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/earcut/-/earcut-3.0.0.tgz#a8d5bf891224eaea8287201b5e787c6c0318af89"
@@ -16457,7 +16469,7 @@ es6-iterator@^2.0.3:
     es5-ext "^0.10.35"
     es6-symbol "^3.1.1"
 
-es6-promise@4.2.8, es6-promise@^4.0.3, es6-promise@^4.2.8:
+es6-promise@4.2.8, es6-promise@^4.0.3, es6-promise@^4.2.4:
   version "4.2.8"
   resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-4.2.8.tgz#4eb21594c972bc40553d276e510539143db53e0a"
   integrity sha512-HJDGx5daxeIvxdBxvG2cb9g4tEvwIk3i8+nhX0yGrYmZUzbkdg8QbDevheDB8gd0//uPj4c1EQua8Q+MViT0/w==
@@ -18319,6 +18331,15 @@ fork-ts-checker-webpack-plugin@7.2.13:
     schema-utils "^3.1.1"
     semver "^7.3.5"
     tapable "^2.2.1"
+
+form-data@^3.0.0:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/form-data/-/form-data-3.0.2.tgz#83ad9ced7c03feaad97e293d6f6091011e1659c8"
+  integrity sha512-sJe+TQb2vIaIyO783qN6BlMYWMw3WBOHA1Ay2qxsnjuafEOQFJ2JakedOQirT6D5XPRxDvS7AHYyem9fTpb4LQ==
+  dependencies:
+    asynckit "^0.4.0"
+    combined-stream "^1.0.8"
+    mime-types "^2.1.12"
 
 form-data@^4.0.0:
   version "4.0.0"
@@ -22438,7 +22459,12 @@ log-update@^4.0.0:
     slice-ansi "^4.0.0"
     wrap-ansi "^6.2.0"
 
-loglevel@^1.8.1, loglevel@^1.9.1:
+loglevel@^1.7.1:
+  version "1.9.2"
+  resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.9.2.tgz#c2e028d6c757720107df4e64508530db6621ba08"
+  integrity sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==
+
+loglevel@^1.9.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.9.1.tgz#d63976ac9bcd03c7c873116d41c2a85bafff1be7"
   integrity sha512-hP3I3kCrDIMuRwAwHltphhDM1r8i55H33GgqjXbrisuJhF4kRhW1dNuxsRklp4bXl8DSdLaNLuiL4A/LWRfxvg==
