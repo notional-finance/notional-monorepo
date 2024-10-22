@@ -1,5 +1,5 @@
 import { Network, VaultAddress, vaults, DexIds } from '@notional-finance/util';
-import { SingleSidedLP, VaultAdapter } from '../vaults';
+import { VaultAdapter } from '../vaults';
 import { defaultAbiCoder } from '@ethersproject/abi';
 import { BytesLike } from 'ethers';
 
@@ -8,13 +8,11 @@ export const PointsMultipliers: Record<
   Record<string, (v: VaultAdapter) => Record<string, number>>
 > = {
   [Network.mainnet]: {
-    [vaults.mainnet.Aura_xrETH_weETH.toLowerCase()]: (v) => ({
+    [vaults.mainnet.Aura_xrETH_weETH.toLowerCase()]: () => ({
       EtherFi: 2,
-      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(1),
     }),
-    [vaults.mainnet.Aura_ezETH_xWETH.toLowerCase()]: (v) => ({
+    [vaults.mainnet.Aura_ezETH_xWETH.toLowerCase()]: () => ({
       Renzo: 6,
-      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
     [vaults.mainnet.Curve_USDe_xUSDC.toLowerCase()]: (_v) => ({
       Ethena: 20,
@@ -22,20 +20,17 @@ export const PointsMultipliers: Record<
     [vaults.mainnet.Convex_xGHO_USDe.toLowerCase()]: (_v) => ({
       Ethena: 20,
     }),
-    [vaults.mainnet.Balancer_rsETH_xWETH.toLowerCase()]: (v) => ({
+    [vaults.mainnet.Balancer_rsETH_xWETH.toLowerCase()]: () => ({
       Kelp: 2,
-      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
   },
   [Network.all]: {},
   [Network.arbitrum]: {
-    [vaults.arbitrum.Aura_ezETH_xwstETH.toLowerCase()]: (v) => ({
+    [vaults.arbitrum.Aura_ezETH_xwstETH.toLowerCase()]: () => ({
       Renzo: 6,
-      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
-    [vaults.arbitrum.Aura_rsETH_xWETH.toLowerCase()]: (v) => ({
+    [vaults.arbitrum.Aura_rsETH_xWETH.toLowerCase()]: () => ({
       Kelp: 2,
-      EigenLayer: (v as SingleSidedLP).getTokenPoolShare(0),
     }),
   },
 };

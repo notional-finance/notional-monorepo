@@ -3,11 +3,11 @@ import {
   AssetType,
   Network,
   PRIME_CASH_VAULT_MATURITY,
-  SECONDS_IN_DAY,
   SECONDS_IN_HOUR,
   SETTLEMENT_RESERVE,
   convertToSignedfCashId,
   decodeERC1155Id,
+  firstValue,
   getNowSeconds,
   getProviderFromNetwork,
   getProviderURLFromNetwork,
@@ -678,39 +678,60 @@ export class RegistryClientDO extends DurableObject {
         type: MetricType.Gauge,
       });
 
-      // Used to check that the balanceOf and storedBalanceOf are in agreement
-      series.push(
-        {
-          metric: 'reconciliation.underlying.stored_balance_of',
-          points: [
-            {
-              value: e.underlyingSnapshots?.shift()?.storedBalanceOf || 0,
-              timestamp: getNowSeconds(),
-            },
-          ],
-          tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
-          type: MetricType.Gauge,
-        },
-        {
-          metric: 'reconciliation.underlying.balance_of',
-          points: [
-            {
-              value: e.underlyingSnapshots?.shift()?.balanceOf || 0,
-              timestamp: getNowSeconds(),
-            },
-          ],
-          tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
-          type: MetricType.Gauge,
-        }
-      );
+      if (e.underlyingSnapshots) {
+        const u = firstValue(e.underlyingSnapshots);
+        const storedBalanceOf = u?.storedBalanceOf
+          ? TokenBalance.from(u.storedBalanceOf, expectedUnderlying.token)
+          : undefined;
+        const balanceOf = u?.balanceOf
+          ? TokenBalance.from(u.balanceOf, expectedUnderlying.token)
+          : undefined;
+
+        // Used to check that the balanceOf and storedBalanceOf are in agreement
+        series.push(
+          {
+            metric: 'reconciliation.underlying.stored_balance_of',
+            points: [
+              {
+                value: storedBalanceOf?.toFloat() || 0,
+                timestamp: getNowSeconds(),
+              },
+            ],
+            tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+            type: MetricType.Gauge,
+          },
+          {
+            metric: 'reconciliation.underlying.balance_of',
+            points: [
+              {
+                value: balanceOf?.toFloat() || 0,
+                timestamp: getNowSeconds(),
+              },
+            ],
+            tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+            type: MetricType.Gauge,
+          }
+        );
+      }
 
       if (e.externalSnapshots?.length) {
+        const u = firstValue(e.externalSnapshots);
+        const storedBalanceOf = u?.storedBalanceOfUnderlying
+          ? TokenBalance.from(
+              u.storedBalanceOfUnderlying,
+              expectedUnderlying.token
+            )
+          : undefined;
+        const balanceOf = u?.balanceOf
+          ? TokenBalance.from(u.balanceOf, expectedUnderlying.token)
+          : undefined;
+
         series.push(
           {
             metric: 'reconciliation.external_lending.stored_balance_of',
             points: [
               {
-                value: e.externalSnapshots?.shift()?.storedBalanceOf || 0,
+                value: storedBalanceOf?.toFloat() || 0,
                 timestamp: getNowSeconds(),
               },
             ],
@@ -721,7 +742,7 @@ export class RegistryClientDO extends DurableObject {
             metric: 'reconciliation.external_lending.balance_of',
             points: [
               {
-                value: e.externalSnapshots?.shift()?.balanceOf || 0,
+                value: balanceOf?.toFloat() || 0,
                 timestamp: getNowSeconds(),
               },
             ],
