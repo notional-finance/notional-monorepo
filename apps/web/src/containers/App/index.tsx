@@ -16,9 +16,6 @@ const service = 'web-frontend';
 const privacySettings = getFromLocalStorage('privacySettings');
 
 datadogRum.init({
-  beforeSend: () => {
-    return !!privacySettings['disableErrorReporting'];
-  },
   applicationId,
   clientToken,
   site: DD_SITE,
@@ -30,6 +27,13 @@ datadogRum.init({
   sessionReplaySampleRate: privacySettings['disableTracking'] ? 0 : 10,
   trackUserInteractions: true,
   proxy: `${PROXY_HOST}/dd-forward`,
+
+  beforeSend: (event) => {
+    if (privacySettings['disableErrorReporting'] && event.type === 'error') {
+      return false;
+    }
+    return true;
+  },
 });
 
 export const AppShell = () => {
