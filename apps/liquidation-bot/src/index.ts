@@ -27,8 +27,6 @@ export interface Env {
   DUST_THRESHOLD: string;
   ALCHEMY_KEY: string;
   DD_API_KEY: string;
-  DD_APP_KEY: string;
-  TX_RELAY_URL: string;
   TX_RELAY_AUTH_TOKEN: string;
   EXACT_IN_SLIPPAGE_LIMIT: string;
   EXACT_OUT_SLIPPAGE_LIMIT: string;
@@ -61,7 +59,6 @@ async function setUp(env: Env) {
       flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
       notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
       dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
-      txRelayUrl: env.TX_RELAY_URL,
       txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
       currencies: allTokens['values']
         .filter(
