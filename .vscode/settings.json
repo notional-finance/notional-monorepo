@@ -13,5 +13,8 @@
   // Eslint Settings
   "eslint.validate": ["json"],
   "eslint.format.enable": true,
-  "eslint.alwaysShowStatus": true
+  "eslint.alwaysShowStatus": true,
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  }
 }

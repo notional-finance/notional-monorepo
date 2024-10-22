@@ -1,4 +1,6 @@
 import {
+  DATA_SERVICE_URL,
+  DataServiceEndpoints,
   Network,
   ZERO_ADDRESS,
   batchArray,
@@ -16,7 +18,6 @@ import { DDSeries, Logger, MetricType } from '@notional-finance/util';
 
 export interface Env {
   NX_REGISTRY_URL: string;
-  ACCOUNT_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   ZERO_EX_API_KEY: string;
   NETWORK: Network;
@@ -34,6 +35,7 @@ export interface Env {
   PROFIT_THRESHOLD: string;
   ENVIRONMENT: string;
   AUTH_KEY: string;
+  ACCOUNTS_KV: KVNamespace;
 }
 
 async function setUp(env: Env) {
@@ -97,25 +99,37 @@ async function setUp(env: Env) {
   return { liquidator, logger };
 }
 
+async function getAccounts(env: Env) {
+  const accounts = await env.ACCOUNTS_KV.get(env.NETWORK);
+  if (accounts) {
+    return JSON.parse(accounts) as string[];
+  }
+  return fetch(
+    `${DATA_SERVICE_URL}/${DataServiceEndpoints.ACCOUNTS}?network=${env.NETWORK}`,
+    {
+      headers: {
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+      },
+    }
+  )
+    .then((r) => r.json() as Promise<{ account_id: string }[]>)
+    .then((r) => r.map((a) => a.account_id))
+    .then((r) => r.filter((a) => a !== ZERO_ADDRESS));
+}
+
 async function processAllAccounts(
   env: Env,
   liquidator: NotionalV3Liquidator,
   skip: number
 ) {
-  // Currently the worker cannot process more than 2000 accounts per batch
-  const accounts = (await (
-    await fetch(`${env.ACCOUNT_SERVICE_URL}?network=${env.NETWORK}`, {
-      headers: {
-        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
-      },
-    })
-  ).json()) as { account_id: string }[];
-  let addresses: string[] = accounts
-    .map((a) => a.account_id)
-    .filter((a) => a !== ZERO_ADDRESS);
-
+  const accounts = await getAccounts(env);
   // process maximum 1000 accounts
-  addresses = addresses.slice(skip, skip + 1000);
+  const addresses = accounts.slice(skip, skip + 1000);
+  console.log(
+    `Processing ${addresses.length} accounts, from: ${
+      addresses[0]
+    } to ${addresses.at(-1)}`
+  );
 
   const batchedAccounts = batchArray(addresses, 250);
   let riskyAccounts: RiskyAccount[] = [];
