@@ -16,6 +16,8 @@ export function logError(
   context: Record<string, unknown> = {},
   logToConsole = false
 ) {
+  const appUrl = process.env['NX_APP_URL'] as string;
+
   if (IS_LOCAL_ENV) {
     // Don't log to datadog from local
     /* eslint-disable no-console */
@@ -27,17 +29,19 @@ export function logError(
     if (error instanceof NonLoggedError) return;
     if (logToConsole) console.error(error);
 
-    datadogRum.addError(
-      {
-        source: `${module}#${method}`,
-        type: method,
-        message: error.message,
-      },
-      {
-        module,
-        method,
-        ...context,
-      }
-    );
+    if (!appUrl.includes('localhost') && !appUrl.includes('dev')) {
+      datadogRum.addError(
+        {
+          source: `${module}#${method}`,
+          type: method,
+          message: error.message,
+        },
+        {
+          module,
+          method,
+          ...context,
+        }
+      );
+    }
   }
 }
