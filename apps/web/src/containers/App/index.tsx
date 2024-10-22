@@ -17,7 +17,9 @@ const privacySettings = getFromLocalStorage('privacySettings');
 
 datadogRum.init({
   beforeSend: () => {
-    return !!privacySettings['disableErrorReporting'];
+    if (privacySettings['disableErrorReporting']) {
+      return false;
+    }
   },
   applicationId,
   clientToken,
@@ -25,6 +27,7 @@ datadogRum.init({
   service,
   env: window.location.hostname,
   version,
+  sampleRate: 100,
   defaultPrivacyLevel: 'mask',
   sessionSampleRate: 100,
   sessionReplaySampleRate: privacySettings['disableTracking'] ? 0 : 10,

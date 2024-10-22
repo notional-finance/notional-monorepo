@@ -9,8 +9,8 @@
   "dependencies": {
     "@apollo/client": "^3.8.4",
     "@cspell/eslint-plugin": "^8.14.4",
-    "@datadog/browser-rum": "^5.28.1",
-    "@datadog/datadog-api-client": "^1.29.0",
+    "@datadog/browser-rum": "4.47.0",
+    "@datadog/datadog-api-client": "1.6.0",
     "@emotion/react": "11.10.5",
     "@emotion/server": "11.10.0",
     "@emotion/styled": "11.10.5",
