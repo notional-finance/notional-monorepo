@@ -40,7 +40,6 @@ export type LiquidatorSettings = {
   notionalAddress: string;
   dustThreshold: BigNumber;
   flashLoanBuffer: BigNumber;
-  txRelayUrl: string;
   txRelayAuthToken: string;
   currencies: Currency[];
   zeroExApiKey: string;
