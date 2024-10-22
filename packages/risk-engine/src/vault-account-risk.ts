@@ -326,12 +326,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     const assetToUnderlyingPrice = TokenBalance.unit(asset).toToken(
       oneVaultShareValue.token
     );
-    const assetLiquidationThreshold = TokenBalance.fromFloat(
-      assetToUnderlyingPrice
-        .mulInRatePrecision(liquidationPriceRatio)
-        .toFloat(),
-      asset
-    );
+    const assetLiquidationThreshold = assetToUnderlyingPrice
+      .mulInRatePrecision(liquidationPriceRatio)
+      .toToken(asset);
 
     console.log(
       'vault address',
