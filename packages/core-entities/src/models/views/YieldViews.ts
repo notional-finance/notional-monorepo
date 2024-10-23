@@ -223,16 +223,14 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       const feeRate = self.oracles.get(
         `${token.underlying}:${token.id}:nTokenFeeRate`
       );
-      if (feeRate) {
-        apyData.feeAPY =
-          (feeRate.latestRate?.rate?.toNumber() || 0 * 100) / RATE_PRECISION;
-
-        apyData.organicAPY += apyData.feeAPY;
-      }
+      apyData.feeAPY = feeRate
+        ? (100 * (feeRate.latestRate?.rate?.toNumber() || 0)) / RATE_PRECISION
+        : 0;
       const tvl = getTVL(token);
       apyData.incentives = getIncentiveAPY(token, tvl);
       apyData.totalAPY =
         apyData.organicAPY +
+        apyData.feeAPY +
         apyData.incentives.reduce((acc, curr) => acc + curr.incentiveAPY, 0);
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const adapter = getVaultAdapter(token.vaultAddress);
