@@ -3,11 +3,11 @@ import {
   AssetType,
   Network,
   PRIME_CASH_VAULT_MATURITY,
-  SECONDS_IN_DAY,
   SECONDS_IN_HOUR,
   SETTLEMENT_RESERVE,
   convertToSignedfCashId,
   decodeERC1155Id,
+  firstValue,
   getNowSeconds,
   getProviderFromNetwork,
   getProviderURLFromNetwork,
@@ -15,6 +15,7 @@ import {
   unique,
 } from '@notional-finance/util';
 import {
+  AccountDefinition,
   AccountFetchMode,
   Registry,
   TokenBalance,
@@ -56,7 +57,9 @@ export class RegistryClientDO extends DurableObject {
   }
 
   async getDataKey(key: string) {
-    return this.env.VIEW_CACHE_R2.get(key).then((d) => d.json());
+    return this.env.VIEW_CACHE_R2.get(key).then((d) =>
+      (d as R2ObjectBody).json()
+    );
   }
 
   async putStorageKey(key: string, data: string) {
@@ -167,6 +170,7 @@ export class RegistryClientDO extends DurableObject {
       .map((a) =>
         Registry.getAccountRegistry().getLatestFromSubject(network, a)
       )
+      .filter((acct) => !!acct)
       .filter((acct) => acct.systemAccountType === 'None');
 
     let accountsMissingInList = 0;
@@ -305,7 +309,7 @@ export class RegistryClientDO extends DurableObject {
       const url = `${providerURL}/getNFTsForCollection?contractAddress=0xbBEF91111E9Db19E688B495972418D8ebC11F008&withMetadata=false&limit=100&startToken=${nextToken}`;
       let nfts: { id: { tokenId: string } }[];
       try {
-        const response = await fetch(url);
+        const response = (await fetch(url)) as Response;
 
         const data = await response.json<{
           nextToken: string | null;
@@ -344,7 +348,7 @@ export class RegistryClientDO extends DurableObject {
           const account = accounts.getLatestFromSubject(network, p.address);
           return {
             ...p,
-            ...calculateAccountIRR(account),
+            ...calculateAccountIRR(account as AccountDefinition),
           };
         } catch {
           return undefined;
@@ -374,7 +378,9 @@ export class RegistryClientDO extends DurableObject {
     const accounts = Registry.getAccountRegistry();
     const maturedBalances = new Map<string, TokenBalance>();
     const totalBalances = accounts.getAllSubjectKeys(network).reduce((m, a) => {
-      accounts.getLatestFromSubject(network, a).balances.forEach((_b) => {
+      (
+        accounts.getLatestFromSubject(network, a) as AccountDefinition
+      ).balances.forEach((_b) => {
         if (_b.isZero()) return m;
 
         if (_b.tokenType === 'VaultDebt') {
@@ -419,9 +425,11 @@ export class RegistryClientDO extends DurableObject {
       return m;
     }, new Map<string, TokenBalance>());
 
-    const settlementReserveBalances = accounts.getLatestFromSubject(
-      network,
-      SETTLEMENT_RESERVE
+    const settlementReserveBalances = (
+      accounts.getLatestFromSubject(
+        network,
+        SETTLEMENT_RESERVE
+      ) as AccountDefinition
     ).balances;
     const pCashpDebt = tokens.filter(
       (t) => t.tokenType === 'PrimeCash' || t.tokenType === 'PrimeDebt'
@@ -541,7 +549,7 @@ export class RegistryClientDO extends DurableObject {
     }
 
     const config = Registry.getConfigurationRegistry();
-    const allVaults = config.getAllListedVaults(network);
+    const allVaults = config.getAllListedVaults(network) || [];
     for (const v of allVaults) {
       const { totalUsedPrimaryBorrowCapacity } = config.getVaultCapacity(
         network,
@@ -557,7 +565,7 @@ export class RegistryClientDO extends DurableObject {
           );
         })
         .reduce((t, k) => {
-          const b = totalBalances.get(k);
+          const b = totalBalances.get(k) as TokenBalance;
           if (b.maturity === PRIME_CASH_VAULT_MATURITY) {
             return t.add(b.toUnderlying() || t.copy(0));
           } else {
@@ -622,7 +630,15 @@ export class RegistryClientDO extends DurableObject {
         e.underlyingSnapshots?.shift()?.storedBalanceOf || 0,
         e.underlying.id,
         network
+      ).add(
+        TokenBalance.fromID(
+          // Takes the most recent external lending snapshot
+          e.externalSnapshots?.shift()?.storedBalanceOfUnderlying || 0,
+          e.underlying.id,
+          network
+        )
       );
+
       const pCash = Registry.getTokenRegistry().getPrimeCash(
         network,
         underlyingHeld.currencyId
@@ -661,6 +677,80 @@ export class RegistryClientDO extends DurableObject {
         tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
         type: MetricType.Gauge,
       });
+
+      if (e.underlyingSnapshots) {
+        const u = firstValue(e.underlyingSnapshots);
+        const storedBalanceOf = u?.storedBalanceOf
+          ? TokenBalance.from(u.storedBalanceOf, expectedUnderlying.token)
+          : undefined;
+        const balanceOf = u?.balanceOf
+          ? TokenBalance.from(u.balanceOf, expectedUnderlying.token)
+          : undefined;
+
+        // Used to check that the balanceOf and storedBalanceOf are in agreement
+        series.push(
+          {
+            metric: 'reconciliation.underlying.stored_balance_of',
+            points: [
+              {
+                value: storedBalanceOf?.toFloat() || 0,
+                timestamp: getNowSeconds(),
+              },
+            ],
+            tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+            type: MetricType.Gauge,
+          },
+          {
+            metric: 'reconciliation.underlying.balance_of',
+            points: [
+              {
+                value: balanceOf?.toFloat() || 0,
+                timestamp: getNowSeconds(),
+              },
+            ],
+            tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+            type: MetricType.Gauge,
+          }
+        );
+      }
+
+      if (e.externalSnapshots?.length) {
+        const u = firstValue(e.externalSnapshots);
+        const storedBalanceOf = u?.storedBalanceOfUnderlying
+          ? TokenBalance.from(
+              u.storedBalanceOfUnderlying,
+              expectedUnderlying.token
+            )
+          : undefined;
+        const balanceOf = u?.balanceOf
+          ? TokenBalance.from(u.balanceOf, expectedUnderlying.token)
+          : undefined;
+
+        series.push(
+          {
+            metric: 'reconciliation.external_lending.stored_balance_of',
+            points: [
+              {
+                value: storedBalanceOf?.toFloat() || 0,
+                timestamp: getNowSeconds(),
+              },
+            ],
+            tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+            type: MetricType.Gauge,
+          },
+          {
+            metric: 'reconciliation.external_lending.balance_of',
+            points: [
+              {
+                value: balanceOf?.toFloat() || 0,
+                timestamp: getNowSeconds(),
+              },
+            ],
+            tags: [`network:${network}`, `token:${underlyingHeld.symbol}`],
+            type: MetricType.Gauge,
+          }
+        );
+      }
 
       if (expectedUnderlying.gt(underlyingHeld)) {
         await this.logger.submitEvent({
@@ -733,7 +823,7 @@ export class RegistryClientDO extends DurableObject {
           metric: 'monitoring.subgraph.update_time',
           points: [
             {
-              value: getNowSeconds() - meta._meta.block.timestamp || 0,
+              value: getNowSeconds() - (meta._meta?.block.timestamp || 0),
               timestamp: getNowSeconds(),
             },
           ],
@@ -744,12 +834,13 @@ export class RegistryClientDO extends DurableObject {
     });
 
     if (
-      !meta._meta.block.timestamp ||
+      !meta._meta?.block.timestamp ||
       meta._meta.block.timestamp < getNowSeconds() - 2 * SECONDS_IN_HOUR
     ) {
       const networkTag = `network:${network}`;
       const hours =
-        (getNowSeconds() - meta._meta.block.timestamp || 0) / SECONDS_IN_HOUR;
+        (getNowSeconds() - (meta._meta?.block.timestamp || 0)) /
+        SECONDS_IN_HOUR;
 
       await this.logger.submitEvent({
         host: this.serviceName,
@@ -778,10 +869,10 @@ export class RegistryClientDO extends DurableObject {
     ];
 
     const networkTag = `network:${network}`;
-    const viewLengthSeries = [];
+    const viewLengthSeries: any[] = [];
 
     for (const m of monitoringViews) {
-      const data = await analytics.getView(network, m);
+      const data = (await analytics.getView(network, m)) as any[];
       viewLengthSeries.push({
         metric: 'registry.monitoring.length',
         points: [
@@ -844,6 +935,11 @@ export class RegistryClientDO extends DurableObject {
     const portfolioRisk = await this.env.VIEW_CACHE_R2.head(
       `${network}/accounts/portfolioRisk`
     );
+    if (!vaultRisk || !portfolioRisk) {
+      throw new Error(
+        `checkRiskServiceUpdates failed to get vaultRisk or portfolioRisk`
+      );
+    }
     const lastUpdated = Math.min(
       vaultRisk.uploaded.getTime() / 1000,
       portfolioRisk.uploaded.getTime() / 1000

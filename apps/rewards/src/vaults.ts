@@ -5,6 +5,7 @@ import {
   MainnetToken,
   MainnetVaults,
   Network,
+  TokenAddress,
   tokens,
   vaults as vaultAddresses,
 } from '@notional-finance/util';
@@ -14,7 +15,7 @@ const a = tokens.arbitrum;
 
 // set minimum values for tokens that are going to be claim/sell (~$15 for arbitrum, ~$150 for mainnet)
 // if token is also pool token it won't be sold
-export const minTokenAmount = {
+export const minTokenAmount: Partial<Record<TokenAddress, string>> = {
   [m.USDC]: Number(150e6).toString(),
   [m.PYUSD]: Number(150e6).toString(),
   [m.GHO]: Number(150e18).toString(),

@@ -1,0 +1,46 @@
+{
+  "name": "liquidation-bot-trigger",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/liquidation-bot-trigger/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler dev --test-scheduled --env {args.env} --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/liquidation-bot-trigger"
+      }
+    },
+    "publish-wrangler": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler deploy --env all"
+          }
+        ],
+        "cwd": "apps/liquidation-bot-trigger"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/liquidation-bot-trigger/**/*.ts"]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/liquidation-bot-trigger",
+        "command": "npx tsc -p tsconfig.json --noEmit --pretty",
+        "description": "Type check with tsc"
+      }
+    }
+  },
+  "tags": []
+}

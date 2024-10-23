@@ -18,7 +18,7 @@ export class NOTERegistryClient extends ClientRegistry<Record<string, never>> {
   protected cachePath() {
     return 'note';
   }
-  public static sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
+  public static sNOTE_Pool = '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7';
 
   public static sNOTEOracle = `${ZERO_ADDRESS}:${sNOTE}:sNOTEToETHExchangeRate`;
   REDEEM_WINDOW_SECONDS = 3 * SECONDS_IN_DAY;

@@ -3,8 +3,9 @@ import {
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { usePageTrack } from '@notional-finance/helpers';
-import { useIntercom } from 'react-use-intercom';
+import { Intercom, shutdown } from '@intercom/messenger-js-sdk';
 import { RouteType } from '@notional-finance/util';
+import { useEffect } from 'react';
 
 export const InitSanctionsBlock = () => {
   useSanctionsBlock();
@@ -12,8 +13,16 @@ export const InitSanctionsBlock = () => {
 };
 
 export const InitIntercom = () => {
-  const { boot } = useIntercom();
-  boot();
+  const intercomID = process.env['NX_INTERCOM_APP_ID'] as string;
+  useEffect(() => {
+    Intercom({
+      app_id: intercomID,
+    });
+
+    return () => {
+      shutdown();
+    };
+  }, []);
   return <div></div>;
 };
 

@@ -92,7 +92,8 @@ app.get(
     await dataService.backfill(
       parseInt(req.query.startTime as string),
       parseInt(req.query.endTime as string),
-      BackfillType.GenericData
+      BackfillType.GenericData,
+      req.query.onlyContractAddress as string | undefined
     );
     res.send('OK');
   })

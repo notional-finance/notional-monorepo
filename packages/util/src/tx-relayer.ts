@@ -33,7 +33,10 @@ export async function sendTxThroughRelayer(arg: {
     },
     body: payload,
   }).then(async (r: Response) => {
-    const returnData = (await r.json()) as any;
+    const returnData = (await r.json()) as {
+      reason?: string;
+      code?: string;
+    } & ethers.providers.TransactionResponse;
 
     if (299 < r.status) {
       console.error(returnData);

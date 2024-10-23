@@ -1,9 +1,10 @@
 import { TransactionRequest } from '@ethersproject/abstract-provider';
 import { ethers, providers } from 'ethers';
 import { GcpKmsSigner } from 'ethers-gcp-kms-signer';
-import { Address, Sign, rpcUrls } from './config';
+import { Address, Sign, rebalanceHelperAddresses, rpcUrls } from './config';
 import { Network } from './types';
 import { logToDataDog } from './util';
+import { TransactionResponse } from '@ethersproject/providers';
 
 const TEST_CHAIN_ID = 111111;
 
@@ -23,7 +24,7 @@ enum Key {
 const keysToUse = {
   [Address.TREASURY_MANAGER_MAINNET]: Key.reinvestment,
   [Address.TREASURY_MANAGER_ARBITRUM]: Key.reinvestment,
-  [Address.REBALANCE_HELPER]: Key.reinvestment,
+  [rebalanceHelperAddresses[Network.arbitrum]]: Key.reinvestment,
   [Address.AaveV3Pool_ARBITRUM]: Key.liquidation,
   [Address.AaveV3Pool_MAINNET]: Key.liquidation,
   [Address.AaveFlashLiquidator_ARBITRUM]: Key.liquidation,
@@ -50,6 +51,7 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.TREASURY_MANAGER_MAINNET]: [
       Sign.claimVaultRewardTokens,
       Sign.reinvestVaultReward,
+      Sign.claimAndReinvestVaultReward,
       Sign.investWETHAndNOTE,
       Sign.executeTrade,
     ],
@@ -69,6 +71,7 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.TREASURY_MANAGER_ARBITRUM]: [
       Sign.claimVaultRewardTokens,
       Sign.reinvestVaultReward,
+      Sign.claimAndReinvestVaultReward,
       Sign.harvestAssetsFromNotional,
       Sign.executeTrade,
     ],
@@ -83,12 +86,14 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.BalancerWrappedFlashLender_ARBITRUM]: [Sign.flash],
     [Address.UniV3WrappedFlashLender_ARBITRUM]: [Sign.flash],
     [Address.CamelotWrappedFlashLender_ARBITRUM]: [Sign.flash],
+    [rebalanceHelperAddresses[Network.arbitrum]]: [Sign.checkAndRebalance],
   },
   sepolia: {
     [Address.AaveFlashLiquidator_ARBITRUM]: [Sign.flashLiquidate],
     [Address.TREASURY_MANAGER_ARBITRUM]: [
       Sign.claimVaultRewardTokens,
       Sign.reinvestVaultReward,
+      Sign.claimAndReinvestVaultReward,
     ],
     [Address.AaveV3Pool_ARBITRUM]: [Sign.flashLoan],
     [Address.Multicall3]: [Sign.aggregate3],
@@ -101,7 +106,6 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.BalancerWrappedFlashLender_ARBITRUM]: [Sign.flash],
     [Address.UniV3WrappedFlashLender_ARBITRUM]: [Sign.flash],
     [Address.CamelotWrappedFlashLender_ARBITRUM]: [Sign.flash],
-    [Address.REBALANCE_HELPER]: [Sign.checkAndRebalance],
   },
 };
 
@@ -179,7 +183,7 @@ async function retryTransaction(
 ) {
   const BASE_DELAY = 1000; // 1 second
   // prevent stale nonce issues by acquiring a lock per key
-  const releaseLock = await acquireLock(keysToUse[transaction.to]);
+  const releaseLock = await acquireLock(keysToUse[transaction.to as string]);
   try {
     for (let retry = 0; retry <= maxRetries; retry++) {
       try {
@@ -203,7 +207,7 @@ export async function sendTransaction(
 ) {
   const { data, gasLimit, nonce, network } = params;
   const { log } = context;
-  const to = params.to.toLowerCase();
+  const to = ethers.utils.getAddress(params.to);
   const signature = data.slice(0, 10) as Sign;
 
   let sharedLogData = {
@@ -258,11 +262,11 @@ export async function sendTransaction(
 
   const MAX_RETRIES = 2;
   try {
-    const { txResponse, retry } = await retryTransaction(
+    const { txResponse, retry } = (await retryTransaction(
       signer,
       transaction,
       MAX_RETRIES
-    );
+    )) as { txResponse: TransactionResponse; retry: number };
 
     await log({
       message: {

@@ -144,7 +144,8 @@ export default class DataService {
   public async backfill(
     startTime: number,
     endTime: number,
-    type: BackfillType
+    type: BackfillType,
+    onlyContractAddress?: string
   ) {
     const timestamps = this.getTimestamps(startTime, endTime);
     console.log(
@@ -155,7 +156,7 @@ export default class DataService {
       console.log(`backfilling ${ts}`);
       try {
         if (type === BackfillType.GenericData) {
-          await this.syncGenericData(ts);
+          await this.syncGenericData(ts, onlyContractAddress);
         } else if (type === BackfillType.OracleData) {
           await this.syncOracleData(ts);
         } else {
@@ -196,7 +197,9 @@ export default class DataService {
             network_id: networkId,
           },
         ])
-        .into(DataService.TS_BN_MAPPINGS_TABLE_NAME);
+        .into(DataService.TS_BN_MAPPINGS_TABLE_NAME)
+        .onConflict(['timestamp', 'network_id'])
+        .ignore();
     } else {
       blockNumber = parseInt(record[0].block_number);
     }
@@ -287,7 +290,7 @@ export default class DataService {
         value: response.results[key],
         networkId: this.networkToId(network),
         blockNumber: blockNumber,
-        contractAddress: sourceConfig.contractAddress,
+        contractAddress: sourceConfig.contractAddress.toLowerCase(),
         method: sourceConfig.method,
       });
     });
@@ -345,8 +348,18 @@ export default class DataService {
     });
   }
 
-  public async syncGenericData(ts: number) {
-    const operations = buildOperations(defaultConfigDefs);
+  public async syncGenericData(ts: number, onlyContractAddress?: string) {
+    let configDefs = defaultConfigDefs;
+    // if onlyContractAddress is provided, filter the configDefs
+    if (onlyContractAddress) {
+      configDefs = defaultConfigDefs.filter(
+        (cfg) =>
+          onlyContractAddress.toLowerCase() ===
+          (cfg.sourceConfig as MulticallConfig).contractAddress?.toLowerCase()
+      );
+    }
+
+    const operations = buildOperations(configDefs);
     const dbData = new Map<TableName, DataRow[]>();
 
     for (const network of operations.aggregateCalls.keys()) {

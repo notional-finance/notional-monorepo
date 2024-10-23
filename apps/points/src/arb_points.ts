@@ -10,7 +10,7 @@ export async function getAccountPoints(acct: string) {
   }[] = await fetch(
     'https://registry.notional.finance/arbitrum/views/points'
   ).then((r) => r.json());
-  let currentSeason: string;
+  let currentSeason: keyof (typeof accounts)[0];
   const now = getNowSeconds();
   if (now < new Date(2024, 6, 22).getTime() / 1000) {
     currentSeason = 'season_one';

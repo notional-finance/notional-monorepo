@@ -75,7 +75,7 @@ export const useEmptyPortfolioOverview = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
-      link: `/vaults/${network}`,
+      link: `/leveraged-yield-farming/${network}`,
       apy: `${formatNumberAsPercent(leveragedVaults?.totalAPY || 0)}`,
       symbol: leveragedVaults?.underlying.symbol,
       icon: (

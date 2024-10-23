@@ -26,8 +26,9 @@ import { simulatePopulatedTxn } from '@notional-finance/transaction';
 import { Logger, MetricType } from '@notional-finance/util';
 import { Env } from './types';
 import { checkTradeLoss } from '@notional-finance/util';
+import { SingleSidedRewardTradeParamsStruct } from '@notional-finance/contracts/types/ISingleSidedLPStrategyVault';
 
-type Provider = ethers.providers.Provider;
+type Provider = ethers.providers.JsonRpcProvider;
 const HOUR_IN_SECONDS = 60 * 60;
 const SLIPPAGE_PERCENT = 2;
 
@@ -37,36 +38,6 @@ const reinvestTimeWindowInHours: Partial<Record<Network, number>> = {
   mainnet: 7 * 24,
   arbitrum: 24,
 };
-
-async function isClaimRewardsProfitable(
-  env: Env,
-  vault: Vault<TokenAddress, VaultAddress>,
-  tx: PopulatedTransaction
-) {
-  const { rawLogs } = await simulatePopulatedTxn(env.NETWORK, tx);
-  let isProfitable = false;
-  for (const log of rawLogs) {
-    try {
-      const { name, args } = NotionalV3Interface.parseLog(log);
-      const rewardToken = vault.rewardTokens.find(
-        // log.address is not checksummed
-        (t) => t.toLowerCase() === log.address.toLowerCase()
-      );
-      if (
-        rewardToken &&
-        name === 'Transfer' &&
-        args.to == vault.address &&
-        args.amount.gt(minTokenAmount[rewardToken])
-      ) {
-        isProfitable = true;
-        break;
-      }
-    } catch {
-      console.debug(`Skipping unknown event`);
-    }
-  }
-  return isProfitable;
-}
 
 interface ReinvestmentData {
   data: {
@@ -101,7 +72,7 @@ async function getLastReinvestment(
     }),
   })
     .then((r) => r.json())
-    .then((r: ReinvestmentData) => r.data.reinvestments[0]);
+    .then((r) => (r as ReinvestmentData).data.reinvestments[0]);
 }
 
 const max = (a: number, b: number) => (a < b ? b : a);
@@ -109,17 +80,16 @@ const max = (a: number, b: number) => (a < b ? b : a);
 async function setLastTransaction(
   env: Env,
   vaultAddress: string,
-  txResponse: ethers.providers.TransactionResponse,
-  key: 'reinvestment' | 'claim'
+  txResponse: ethers.providers.TransactionResponse
 ) {
   await env.LOGGER.submitMetrics({
     series: [
       {
-        metric: `monitoring.rewards.last_${key}_timestamp`,
+        metric: `monitoring.rewards.last_reinvestment_timestamp`,
         points: [
           {
             value: 1,
-            timestamp: txResponse.timestamp,
+            timestamp: txResponse.timestamp || 0,
           },
         ],
         tags: [`network:${env.NETWORK}`, `vault:${vaultAddress}`],
@@ -128,7 +98,10 @@ async function setLastTransaction(
     ],
   });
 
-  return env.REWARDS_KV.put(`${vaultAddress}:${key}TxHash`, txResponse.hash);
+  return env.REWARDS_KV.put(
+    `${vaultAddress}:reinvestmentTxHash`,
+    txResponse.hash
+  );
 }
 
 async function getLastTransactionTimestamp(
@@ -188,39 +161,15 @@ async function shouldSkipReinvest(
   return false;
 }
 
-async function shouldSkipClaim(
-  env: Env,
-  vaultAddress: string,
-  provider: Provider
-) {
-  const lastClaimTimestamp = await getLastTransactionTimestamp(
-    env,
-    vaultAddress,
-    'claim',
-    provider
-  );
-  // subtract 5min from time window so claim can happen at the same time in a day
-  const reinvestTimeWindow =
-    Number(reinvestTimeWindowInHours[env.NETWORK] || 24) * HOUR_IN_SECONDS -
-    5 * 60;
-  return Date.now() / 1000 < Number(lastClaimTimestamp) + reinvestTimeWindow;
-}
-
-const claimVault = async (
+const simulateClaimVault = async (
   env: Env,
   provider: Provider,
-  vault: Vault<TokenAddress, VaultAddress>,
-  force = false
+  vault: Vault<TokenAddress, VaultAddress>
 ) => {
   const treasuryManger = TreasuryManager__factory.connect(
     treasuryManagerAddresses[env.NETWORK],
     provider
   );
-
-  if (!force && (await shouldSkipClaim(env, vault.address, provider))) {
-    console.log(`Skipping claim rewards for ${vault.address}, already claimed`);
-    return null;
-  }
 
   const from = managerBotAddresses[env.NETWORK];
   const to = treasuryManagerAddresses[env.NETWORK];
@@ -235,31 +184,32 @@ const claimVault = async (
   );
 
   const tx: PopulatedTransaction = { from, to, data };
-  if (!force && !(await isClaimRewardsProfitable(env, vault, tx))) {
-    console.log(`Skipping claim rewards for ${vault.address}, not profitable`);
-    return null;
+  const { rawLogs } = await simulatePopulatedTxn(env.NETWORK, tx);
+
+  const tokensClaimedMap = new Map<TokenAddress, BigNumber>();
+
+  for (const log of rawLogs) {
+    try {
+      const { name, args } = NotionalV3Interface.parseLog(log);
+      const rewardToken = vault.rewardTokens.find(
+        // log.address is not checksummed
+        (t) => t.toLowerCase() === log.address.toLowerCase()
+      );
+      if (
+        rewardToken &&
+        name === 'Transfer' &&
+        args.to == vault.address &&
+        args.amount.gt(minTokenAmount[rewardToken])
+      ) {
+        const prevAmount =
+          tokensClaimedMap.get(rewardToken) || BigNumber.from(0);
+        tokensClaimedMap.set(rewardToken, prevAmount.add(args.amount));
+      }
+    } catch {
+      console.debug(`Skipping unknown event`);
+    }
   }
-
-  console.log(`Sending claim tx for ${vault.address}`);
-
-  const txResponse = await sendTxThroughRelayer({ to, data, env });
-
-  await setLastTransaction(env, vault.address, txResponse, 'claim');
-};
-
-const claimRewards = async (env: Env, provider: Provider) => {
-  const vaults = getVaultsForReinvestment(env.NETWORK);
-  const results = await Promise.allSettled(
-    vaults.map((vault: Vault<TokenAddress, VaultAddress>) =>
-      claimVault(env, provider, vault)
-    )
-  );
-
-  const failedClaims = results.filter(
-    (r) => r.status == 'rejected'
-  ) as PromiseRejectedResult[];
-
-  return failedClaims.map((p) => new Error(p.reason));
+  return tokensClaimedMap;
 };
 
 type FunRetProm<T> = () => Promise<T>;
@@ -312,18 +262,6 @@ const getTrades = async (
           }
         );
 
-        await env.LOGGER.log({
-          message: `Trade from ${sellToken} to ${token} has loss of: ${lossPercentage}%`,
-          sellToken,
-          buyToken: token,
-          sellAmount: amount.toString(),
-          buyAmount: tradeData.buyAmount.toString(),
-          lossPercentage,
-          level: acceptable ? 'info' : 'error',
-          service: 'rewards',
-          chain: env.NETWORK,
-        });
-
         if (!acceptable) {
           throw new Error(
             `Trade from ${sellToken} to ${token} has high loss of: ${lossPercentage}%`
@@ -331,22 +269,22 @@ const getTrades = async (
         }
       }
 
-      return [
+      return {
         sellToken,
-        token,
-        amount.toString(),
-        [
-          DEX_ID.ZERO_EX,
-          TRADE_TYPE.EXACT_IN_SINGLE,
-          oracleSlippagePercentOrLimit,
-          exchangeData,
-        ],
-      ];
+        buyToken: token,
+        amount: amount.toString(),
+        tradeParams: {
+          dexId: DEX_ID.ZERO_EX,
+          tradeType: TRADE_TYPE.EXACT_IN_SINGLE,
+          oracleSlippagePercentOrLimit: oracleSlippagePercentOrLimit,
+          exchangeData: exchangeData,
+        },
+      };
     })
   );
 };
 
-const reinvestVault = async (
+const claimAndReinvestVault = async (
   env: Env,
   provider: Provider,
   vault: Vault<TokenAddress, VaultAddress>,
@@ -357,17 +295,22 @@ const reinvestVault = async (
     return null;
   }
 
+  const tokenClaimMap = await simulateClaimVault(env, provider, vault);
+
   const [poolTokens] = await ISingleSidedLPStrategyVault__factory.connect(
     vault.address,
     provider
   ).TOKENS();
 
-  const tradesPerRewardToken = [];
+  const tradesPerRewardToken: SingleSidedRewardTradeParamsStruct[][] = [];
   for (const sellToken of vault.rewardTokens) {
-    let amountToSell = await ERC20__factory.connect(
-      sellToken,
-      provider
-    ).balanceOf(vault.address);
+    let amountToSell = await ERC20__factory.connect(sellToken, provider)
+      // get the amount of reward token sitting on the vault
+      .balanceOf(vault.address)
+      // add the amount of reward token that will be claimed
+      .then((amountOnVault) =>
+        amountOnVault.add(tokenClaimMap.get(sellToken) || BigNumber.from(0))
+      );
 
     if (
       vault.maxSellAmount?.[sellToken] &&
@@ -416,7 +359,7 @@ const reinvestVault = async (
 
   const from = managerBotAddresses[env.NETWORK];
   const { poolClaimAmounts } =
-    await treasuryManger.callStatic.reinvestVaultReward(
+    await treasuryManger.callStatic.claimAndReinvestVaultReward(
       vault.address,
       tradesPerRewardToken,
       tradesPerRewardToken.map(() => BigNumber.from(0)),
@@ -426,7 +369,7 @@ const reinvestVault = async (
       }
     );
 
-  await treasuryManger.callStatic.reinvestVaultReward(
+  await treasuryManger.callStatic.claimAndReinvestVaultReward(
     vault.address,
     tradesPerRewardToken,
     poolClaimAmounts.map((amount) => amount.mul(99).div(100)), // minPoolClaims, 1% discounted poolClaimAmounts
@@ -437,7 +380,7 @@ const reinvestVault = async (
   );
 
   const data = treasuryManger.interface.encodeFunctionData(
-    'reinvestVaultReward',
+    'claimAndReinvestVaultReward',
     [
       vault.address,
       tradesPerRewardToken,
@@ -455,19 +398,19 @@ const reinvestVault = async (
     env,
   });
 
-  await setLastTransaction(env, vault.address, tx, 'reinvestment');
+  await setLastTransaction(env, vault.address, tx);
 };
 
-const reinvestRewards = async (env: Env, provider: Provider) => {
+const claimAndReinvestRewards = async (env: Env, provider: Provider) => {
   const errors: Error[] = [];
   const vaults = getVaultsForReinvestment(env.NETWORK);
   for (const vault of vaults) {
     try {
-      await reinvestVault(env, provider, vault);
+      await claimAndReinvestVault(env, provider, vault);
     } catch (err) {
       console.error(`Reinvestment for vault: ${vault.address} failed`);
       console.error(err);
-      errors.push(err);
+      errors.push(err as Error);
     }
   }
 
@@ -498,13 +441,11 @@ export default {
   ): Promise<Response> {
     const authKey = request.headers.get('x-auth-key');
     if (authKey !== env.AUTH_KEY) {
-      console.log('Headers: ', new Map(request.headers));
-      console.log('Cf: ', request['cf']);
       return new Response(null, { status: 401 });
     }
-    const { network, vaultAddress, action, force } = getQueryParams(request);
+    const { network, vaultAddress, force } = getQueryParams(request);
 
-    if (!network || !vaultAddress || !action) {
+    if (!network || !vaultAddress) {
       return new Response('Missing required query parameters', { status: 400 });
     }
 
@@ -525,33 +466,15 @@ export default {
       env: env.NETWORK,
       apiKey: env.NX_DD_API_KEY,
     });
-    const provider = getProviderFromNetwork(env.NETWORK, true);
+    const provider = getProviderFromNetwork(env.NETWORK, true) as Provider;
 
-    if (action.toLowerCase() == Action.claim) {
-      console.log(`Claiming for vault: ${vaultAddress}`);
-      await claimVault(env, provider, vault, force);
-    } else if (action.toLowerCase() == Action.reinvestment) {
-      console.log(`Reinvesting for vault: ${vaultAddress}`);
-      await reinvestVault(env, provider, vault, force);
-    } else {
-      return new Response('Unknown action', { status: 400 });
-    }
+    await claimAndReinvestVault(env, provider, vault, force);
 
     return new Response('OK');
   },
   // this method can be only call by cloudflare internal system so it does not
   // require any authentication
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
-    // cron job will run twice, once on full hour and second time 10 minutes later
-    // first time it will claim rewards and second time reinvest it
-    const currentMinuteInHour = new Date().getMinutes();
-    let funToRun: typeof claimRewards | typeof reinvestRewards;
-    if (currentMinuteInHour < 10) {
-      funToRun = claimRewards;
-    } else {
-      funToRun = reinvestRewards;
-    }
-
     const allErrors: Error[] = [];
     for (const network of env.NETWORKS) {
       env.NETWORK = network;
@@ -563,9 +486,9 @@ export default {
       });
 
       console.log(`Processing network: ${env.NETWORK}`);
-      const provider = getProviderFromNetwork(env.NETWORK, true);
+      const provider = getProviderFromNetwork(env.NETWORK, true) as Provider;
 
-      const errors = await funToRun(env, provider);
+      const errors = await claimAndReinvestRewards(env, provider);
       allErrors.push(...errors);
     }
     // if any of the claims/reinvestment failed, throw error here so worker execution can be properly
