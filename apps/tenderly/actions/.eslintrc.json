@@ -1,4 +1,12 @@
 {
   "extends": ["../../../.eslintrc.json"],
-  "ignorePatterns": ["!**/*"]
+  "ignorePatterns": ["!**/*"],
+  "overrides": [
+    {
+      "files": ["package-lock.json"],
+      "rules": {
+        "@cspell/spellchecker": ["off"]
+      }
+    }
+  ]
 }

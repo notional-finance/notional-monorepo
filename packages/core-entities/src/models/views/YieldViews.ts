@@ -20,6 +20,7 @@ export interface APYData {
   totalAPY?: number;
   organicAPY?: number;
   feeAPY?: number;
+  incentiveAPY?: number;
   incentives?: {
     symbol: string;
     incentiveAPY: number;
@@ -235,8 +236,9 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         apyData.incentives.reduce((acc, curr) => acc + curr.incentiveAPY, 0);
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const adapter = getVaultAdapter(token.vaultAddress);
-      apyData.organicAPY = adapter.getVaultAPY();
-      apyData.totalAPY = apyData.organicAPY;
+      apyData.incentiveAPY = adapter.getRewardAPY();
+      apyData.totalAPY = adapter.getVaultAPY();
+      apyData.organicAPY = apyData.totalAPY - apyData.incentiveAPY;
       apyData.pointMultiples = adapter.getPointMultiples();
     }
 

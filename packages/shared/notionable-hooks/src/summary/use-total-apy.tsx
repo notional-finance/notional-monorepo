@@ -50,12 +50,12 @@ export function useTotalAPY(
   if (isLeveraged) {
     totalAPY = leveragedYield(assetAPY, debtAPY, leverageRatio);
     organicAPY = leveragedYield(
-      nonLeveragedYield?.organicAPY,
+      nonLeveragedYield?.apy.organicAPY,
       debtAPY,
       leverageRatio
     );
     incentiveAPY = leveragedYield(
-      nonLeveragedYield?.incentiveAPY,
+      nonLeveragedYield?.apy.incentiveAPY,
       0,
       leverageRatio
     );
